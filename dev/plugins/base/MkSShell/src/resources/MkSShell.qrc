@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/icons" >
+        <file>konsole.png</file>
+    </qresource>
+</RCC>

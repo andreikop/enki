@@ -1,0 +1,31 @@
+Fresh is set of usefull widgets and objects, which extends Qt library.
+
+This is instruction for build and install it.
+If you found some error in the instruction, or installed library on other OS, 
+send please report or update to the authors.
+
+	Build and install the library.
+
+1. Enter fresh directory.
+2. Run 'qmake'
+3. Run 'make'
+4. Run 'make install'. Command requires root privileges.
+
+	Build and install Python bindings
+1. Build the library
+2. Enter 'build' directory:
+	cd <path of fresh directory>
+3. Configure:
+		python ../Python/configure.py
+   NOTE: Script tries to detect PyQt4 installation directory automatically, but, 
+   detected path was incorrect for me (hlamer) on Ubuntu 10.04.
+   So, I was need to set it manually. For me, command was:
+		python ../Python/configure.py -d /usr/lib/pymodules/python2.6/PyQt4/
+4. Build:
+		make
+5. Install
+		make install
+	Command requires root privileges.
+6. Try to import installed module
+		python -c 'import PyQt4.fresh'
+	No any traces mean module installed and imported correctly

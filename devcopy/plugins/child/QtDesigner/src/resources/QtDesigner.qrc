@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/icons" >
+        <file>action.png</file>
+        <file>delete.png</file>
+        <file>designer.png</file>
+        <file>inspector.png</file>
+        <file>property.png</file>
+        <file>preview.png</file>
+        <file>redo.png</file>
+        <file>resource.png</file>
+        <file>selectall.png</file>
+        <file>signal.png</file>
+        <file>undo.png</file>
+        <file>widget.png</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,181 @@
+<ui version="4.0" >
+ <class>UIRegExpEditor</class>
+ <widget class="QMainWindow" name="UIRegExpEditor" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>300</width>
+    <height>441</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Regular Expression Editor</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="../../../../../monkey/src/resources/resources.qrc" >
+    <normaloff>:/edit/icons/edit/search.png</normaloff>:/edit/icons/edit/search.png</iconset>
+  </property>
+  <widget class="QWidget" name="wCentralWidget" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>300</width>
+     <height>417</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_2" >
+    <item row="0" column="0" colspan="2" >
+     <widget class="QLabel" name="lRegExp" >
+      <property name="text" >
+       <string>Regular Expression :</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0" >
+     <widget class="QLineEdit" name="leRegExp" >
+      <property name="toolTip" >
+       <string>Type here your regular expression then press return, you don't need to escape the characters</string>
+      </property>
+      <property name="text" >
+       <string>(\w+\.\w+)+</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1" >
+     <widget class="QToolButton" name="tbFind" >
+      <property name="toolTip" >
+       <string>Process regular expression</string>
+      </property>
+      <property name="icon" >
+       <iconset resource="../../../../../monkey/src/resources/resources.qrc" >
+        <normaloff>:/edit/icons/edit/search.png</normaloff>:/edit/icons/edit/search.png</iconset>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0" colspan="2" >
+     <widget class="QGroupBox" name="gbOptions" >
+      <property name="title" >
+       <string>Options</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout" >
+       <item row="0" column="0" >
+        <widget class="QLabel" name="lSyntax" >
+         <property name="text" >
+          <string>Syntax :</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" >
+        <widget class="QComboBox" name="cbSyntax" />
+       </item>
+       <item row="1" column="0" colspan="2" >
+        <widget class="QCheckBox" name="cbCaseSensitive" >
+         <property name="text" >
+          <string>Case Sensitive</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2" >
+        <widget class="QCheckBox" name="cbGreedy" >
+         <property name="text" >
+          <string>Greedy</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="3" column="0" colspan="2" >
+     <widget class="QSplitter" name="splitter" >
+      <property name="orientation" >
+       <enum>Qt::Vertical</enum>
+      </property>
+      <widget class="QWidget" name="layoutWidget" >
+       <layout class="QVBoxLayout" name="verticalLayout" >
+        <item>
+         <widget class="QLabel" name="lTestBuffer" >
+          <property name="text" >
+           <string>Test Buffer :</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPlainTextEdit" name="pteTestBuffer" >
+          <property name="toolTip" >
+           <string>Type here the test buffer the regular expression need check</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="layoutWidget" >
+       <layout class="QVBoxLayout" name="verticalLayout_2" >
+        <item>
+         <widget class="QLabel" name="lResults" >
+          <property name="text" >
+           <string>Results :</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTreeWidget" name="twResults" >
+          <property name="toolTip" >
+           <string>Results</string>
+          </property>
+          <property name="editTriggers" >
+           <set>QAbstractItemView::NoEditTriggers</set>
+          </property>
+          <property name="allColumnsShowFocus" >
+           <bool>true</bool>
+          </property>
+          <property name="headerHidden" >
+           <bool>true</bool>
+          </property>
+          <column>
+           <property name="text" >
+            <string>1</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QStatusBar" name="sbBar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>417</y>
+     <width>300</width>
+     <height>24</height>
+    </rect>
+   </property>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../../../../../monkey/src/resources/resources.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>leRegExp</sender>
+   <signal>returnPressed()</signal>
+   <receiver>tbFind</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>199</x>
+     <y>42</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>280</x>
+     <y>45</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

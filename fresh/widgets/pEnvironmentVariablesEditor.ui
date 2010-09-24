@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>pEnvironmentVariablesEditor</class>
+ <widget class="QWidget" name="pEnvironmentVariablesEditor">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>640</width>
+    <height>200</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>pEnvironment Variables Editor</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QToolBar" name="tbActions">
+     <addaction name="aAdd"/>
+     <addaction name="aEdit"/>
+     <addaction name="aRemove"/>
+     <addaction name="aClear"/>
+     <addaction name="aResetDefault"/>
+     <addaction name="aResetSystem"/>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTreeView" name="tvVariables"/>
+   </item>
+  </layout>
+  <action name="aAdd">
+   <property name="icon">
+    <iconset resource="../../monkey/src/resources/resources.qrc">
+     <normaloff>:/listeditor/icons/listeditor/add.png</normaloff>:/listeditor/icons/listeditor/add.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add</string>
+   </property>
+   <property name="toolTip">
+    <string>Add a new variable</string>
+   </property>
+  </action>
+  <action name="aEdit">
+   <property name="icon">
+    <iconset resource="../../monkey/src/resources/resources.qrc">
+     <normaloff>:/listeditor/icons/listeditor/edit.png</normaloff>:/listeditor/icons/listeditor/edit.png</iconset>
+   </property>
+   <property name="text">
+    <string>Edit</string>
+   </property>
+   <property name="toolTip">
+    <string>Edit the selected variable</string>
+   </property>
+  </action>
+  <action name="aRemove">
+   <property name="icon">
+    <iconset resource="../../monkey/src/resources/resources.qrc">
+     <normaloff>:/listeditor/icons/listeditor/remove.png</normaloff>:/listeditor/icons/listeditor/remove.png</iconset>
+   </property>
+   <property name="text">
+    <string>Remove</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove the selected variable</string>
+   </property>
+  </action>
+  <action name="aClear">
+   <property name="icon">
+    <iconset resource="../../monkey/src/resources/resources.qrc">
+     <normaloff>:/listeditor/icons/listeditor/clear.png</normaloff>:/listeditor/icons/listeditor/clear.png</iconset>
+   </property>
+   <property name="text">
+    <string>Clear</string>
+   </property>
+   <property name="toolTip">
+    <string>Clear all variables</string>
+   </property>
+  </action>
+  <action name="aResetSystem">
+   <property name="icon">
+    <iconset resource="../../monkey/src/resources/resources.qrc">
+     <normaloff>:/file/icons/file/restore.png</normaloff>:/file/icons/file/restore.png</iconset>
+   </property>
+   <property name="text">
+    <string>Reset to default</string>
+   </property>
+   <property name="toolTip">
+    <string>Reset to system variables</string>
+   </property>
+  </action>
+  <action name="aResetDefault">
+   <property name="icon">
+    <iconset resource="../../monkey/src/resources/resources.qrc">
+     <normaloff>:/file/icons/file/reload.png</normaloff>:/file/icons/file/reload.png</iconset>
+   </property>
+   <property name="text">
+    <string>Reset to default</string>
+   </property>
+   <property name="toolTip">
+    <string>Reset to default variables</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="../../monkey/src/resources/resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

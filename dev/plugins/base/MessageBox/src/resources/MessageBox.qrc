@@ -1,0 +1,12 @@
+<RCC>
+	<qresource>
+		<file>icons/clock.png</file>
+		<file>icons/console.png</file>
+		<file>icons/error.png</file>
+		<file>icons/tabbuild.png</file>
+		<file>icons/taboutput.png</file>
+		<file>icons/tablog.png</file>
+		<file>icons/warning.png</file>
+		<file>icons/goto.png</file>
+	</qresource>
+</RCC>

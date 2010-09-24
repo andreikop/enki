@@ -1,0 +1,772 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>UISettingsQMake</class>
+ <widget class="QWidget" name="UISettingsQMake">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>640</width>
+    <height>480</height>
+   </rect>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <property name="margin">
+    <number>6</number>
+   </property>
+   <property name="spacing">
+    <number>4</number>
+   </property>
+   <item row="1" column="0" rowspan="3">
+    <widget class="QListWidget" name="lwPages">
+     <property name="minimumSize">
+      <size>
+       <width>140</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>140</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
+     <property name="uniformItemSizes">
+      <bool>true</bool>
+     </property>
+     <item>
+      <property name="text">
+       <string>Qt Versions</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Qt Modules</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Qt Configuration</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="1" column="1" rowspan="3">
+    <widget class="QStackedWidget" name="swPages">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="wQtVersions">
+      <layout class="QGridLayout" name="gridLayout">
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <item row="0" column="0" colspan="2">
+        <layout class="QHBoxLayout" name="_2">
+         <item>
+          <widget class="QToolButton" name="tbAddQtVersion">
+           <property name="toolTip">
+            <string>Add a new Qt version</string>
+           </property>
+           <property name="text">
+            <string>Add</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/listeditor/icons/listeditor/add.png</normaloff>:/listeditor/icons/listeditor/add.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="tbRemoveQtVersion">
+           <property name="toolTip">
+            <string>Remove the current Qt version</string>
+           </property>
+           <property name="text">
+            <string>Remove</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/listeditor/icons/listeditor/remove.png</normaloff>:/listeditor/icons/listeditor/remove.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="tbClearQtVersions">
+           <property name="toolTip">
+            <string>Delete all Qt versions</string>
+           </property>
+           <property name="text">
+            <string>Clear</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/project/icons/project/clear.png</normaloff>:/project/icons/project/clear.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="tbUpQtVersion">
+           <property name="toolTip">
+            <string>Move up the current Qt version</string>
+           </property>
+           <property name="text">
+            <string>Up</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/listeditor/icons/listeditor/up.png</normaloff>:/listeditor/icons/listeditor/up.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="tbDownQtVersion">
+           <property name="toolTip">
+            <string>Move down the current Qt version</string>
+           </property>
+           <property name="text">
+            <string>Down</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/listeditor/icons/listeditor/down.png</normaloff>:/listeditor/icons/listeditor/down.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="tbDefaultQtVersion">
+           <property name="toolTip">
+            <string>Set the current Qt version the default one</string>
+           </property>
+           <property name="text">
+            <string>Default</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/project/icons/project/recents.png</normaloff>:/project/icons/project/recents.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Expanding</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>16</width>
+             <height>16</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="0">
+        <widget class="QListWidget" name="lwQtVersions">
+         <property name="maximumSize">
+          <size>
+           <width>180</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QWidget" name="wQtVersion" native="true">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QLabel" name="lQtVersionVersion">
+            <property name="text">
+             <string>Version :</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="leQtVersionVersion">
+            <property name="toolTip">
+             <string>Put here the Qt version</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lQtVersionPath">
+            <property name="text">
+             <string>Path :</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QLineEdit" name="leQtVersionPath">
+              <property name="toolTip">
+               <string>Put here the Qt version path</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="tbQtVersionPath">
+              <property name="cursor">
+               <cursorShape>PointingHandCursor</cursorShape>
+              </property>
+              <property name="toolTip">
+               <string>Click here to browse a Qt path</string>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>:/listeditor/icons/listeditor/folder.png</normaloff>:/listeditor/icons/listeditor/folder.png</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="lQtVersionQMakeSpec">
+            <property name="text">
+             <string>QMake Spec :</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QComboBox" name="cbQtVersionQMakeSpec">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Choose the QMake spec to use</string>
+              </property>
+              <property name="editable">
+               <bool>true</bool>
+              </property>
+              <property name="duplicatesEnabled">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="tbQtVersionQMakeSpec">
+              <property name="cursor">
+               <cursorShape>PointingHandCursor</cursorShape>
+              </property>
+              <property name="toolTip">
+               <string>Click here to browse for a non default QMake spec</string>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>:/listeditor/icons/listeditor/folder.png</normaloff>:/listeditor/icons/listeditor/folder.png</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="lQtVersionQMakeParameters">
+            <property name="text">
+             <string>QMake Parameters :</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="leQtVersionQMakeParameters">
+            <property name="toolTip">
+             <string>Set here the qmake parameters to use</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="cbQtVersionHasSuffix">
+            <property name="toolTip">
+             <string>Check that if you are on a system that provide suffixed qt tools (qmake-qt4, uic-qt4...)</string>
+            </property>
+            <property name="text">
+             <string>Binaries have &quot;-qt4&quot; suffixe.</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>16</width>
+              <height>16</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="wQtModules">
+      <layout class="QGridLayout">
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <item row="0" column="0" colspan="2">
+        <layout class="QHBoxLayout">
+         <item>
+          <widget class="QToolButton" name="tbAddQtModule">
+           <property name="toolTip">
+            <string>Add a new Qt module</string>
+           </property>
+           <property name="text">
+            <string>Add</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/listeditor/icons/listeditor/add.png</normaloff>:/listeditor/icons/listeditor/add.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="tbRemoveQtModule">
+           <property name="toolTip">
+            <string>Remove the current Qt module</string>
+           </property>
+           <property name="text">
+            <string>Remove</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/listeditor/icons/listeditor/remove.png</normaloff>:/listeditor/icons/listeditor/remove.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="tbClearQtModules">
+           <property name="toolTip">
+            <string>Delete all Qt modules</string>
+           </property>
+           <property name="text">
+            <string>Clear</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/project/icons/project/clear.png</normaloff>:/project/icons/project/clear.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="tbUpQtModule">
+           <property name="toolTip">
+            <string>Mode up the current Qt module</string>
+           </property>
+           <property name="text">
+            <string>Up</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/listeditor/icons/listeditor/up.png</normaloff>:/listeditor/icons/listeditor/up.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="tbDownQtModule">
+           <property name="toolTip">
+            <string>Mode down the current Qt module</string>
+           </property>
+           <property name="text">
+            <string>Down</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/listeditor/icons/listeditor/down.png</normaloff>:/listeditor/icons/listeditor/down.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="0">
+        <widget class="QListWidget" name="lwQtModules">
+         <property name="maximumSize">
+          <size>
+           <width>180</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QWidget" name="wQtModule" native="true">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QLabel" name="lCaptionQtModule">
+            <property name="text">
+             <string>&amp;Caption :</string>
+            </property>
+            <property name="buddy">
+             <cstring>leCaptionQtModule</cstring>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="leCaptionQtModule">
+            <property name="toolTip">
+             <string>Put here the module visible text</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lValueQtModule">
+            <property name="text">
+             <string>&amp;Value :</string>
+            </property>
+            <property name="buddy">
+             <cstring>leValueQtModule</cstring>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="leValueQtModule">
+            <property name="toolTip">
+             <string>Put here the module value</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lHelp_2">
+            <property name="text">
+             <string>&amp;Description :</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPlainTextEdit" name="pteHelpQtModule">
+            <property name="tabStopWidth">
+             <number>40</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="wQtConfigurations">
+      <layout class="QGridLayout">
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <item row="0" column="0" colspan="2">
+        <layout class="QHBoxLayout">
+         <item>
+          <widget class="QToolButton" name="tbAddQtConfiguration">
+           <property name="toolTip">
+            <string>Add a new Qt configuration</string>
+           </property>
+           <property name="text">
+            <string>Add</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/listeditor/icons/listeditor/add.png</normaloff>:/listeditor/icons/listeditor/add.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="tbRemoveQtConfiguration">
+           <property name="toolTip">
+            <string>Remove the current Qt configuration</string>
+           </property>
+           <property name="text">
+            <string>Remove</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/listeditor/icons/listeditor/remove.png</normaloff>:/listeditor/icons/listeditor/remove.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="tbClearQtConfiguration">
+           <property name="toolTip">
+            <string>Delete all Qt configurations</string>
+           </property>
+           <property name="text">
+            <string>Clear</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/project/icons/project/clear.png</normaloff>:/project/icons/project/clear.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="tbUpQtConfiguration">
+           <property name="toolTip">
+            <string>Mode up the current Qt configuration</string>
+           </property>
+           <property name="text">
+            <string>Up</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/listeditor/icons/listeditor/up.png</normaloff>:/listeditor/icons/listeditor/up.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="tbDownQtConfiguration">
+           <property name="toolTip">
+            <string>Mode down the current Qt configuration</string>
+           </property>
+           <property name="text">
+            <string>Down</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/listeditor/icons/listeditor/down.png</normaloff>:/listeditor/icons/listeditor/down.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="0">
+        <widget class="QListWidget" name="lwQtConfigurations">
+         <property name="maximumSize">
+          <size>
+           <width>180</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QWidget" name="wQtConfiguration" native="true">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QLabel" name="lCaptionQtConfiguration">
+            <property name="text">
+             <string>&amp;Caption :</string>
+            </property>
+            <property name="buddy">
+             <cstring>leCaptionQtConfiguration</cstring>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="leCaptionQtConfiguration">
+            <property name="toolTip">
+             <string>Put here the configuration visible text</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lValueQtConfiguration">
+            <property name="text">
+             <string>&amp;Value :</string>
+            </property>
+            <property name="buddy">
+             <cstring>leValueQtConfiguration</cstring>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="leValueQtConfiguration">
+            <property name="toolTip">
+             <string>Put here the configuration value</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lHelp_3">
+            <property name="text">
+             <string>&amp;Description :</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPlainTextEdit" name="pteHelpQtConfiguration">
+            <property name="tabStopWidth">
+             <number>40</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="dbbButtons">
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Help|QDialogButtonBox::Save</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="lTitle">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>21</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>21</height>
+      </size>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="Window">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="Window">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="Window">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>true</bool>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="indent">
+      <number>9</number>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../../../../../monkey/src/resources/resources.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>lwPages</sender>
+   <signal>currentRowChanged(int)</signal>
+   <receiver>swPages</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>88</x>
+     <y>83</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>364</x>
+     <y>37</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lwPages</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>lTitle</receiver>
+   <slot>setText(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>93</x>
+     <y>68</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>142</x>
+     <y>18</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

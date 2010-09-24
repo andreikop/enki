@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/icons" >
+        <file>Ctags2Api.png</file>
+    </qresource>
+</RCC>

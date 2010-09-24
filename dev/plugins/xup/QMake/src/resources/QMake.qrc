@@ -1,0 +1,23 @@
+<RCC>
+	<qresource prefix="/qmakeitems" >
+		<file alias="def_file.png">icons/items/def_file.png</file>
+		<file alias="defines.png">icons/items/defines.png</file>
+		<file alias="dependpath.png">icons/items/dependpath.png</file>
+		<file alias="file.png">icons/items/file.png</file>
+		<file alias="folder.png">icons/items/folder.png</file>
+		<file alias="forms3.png">icons/items/forms3.png</file>
+		<file alias="forms.png">icons/items/forms.png</file>
+		<file alias="headers.png">icons/items/headers.png</file>
+		<file alias="images.png">icons/items/images.png</file>
+		<file alias="includepath.png">icons/items/includepath.png</file>
+		<file alias="libs.png">icons/items/libs.png</file>
+		<file alias="rc_file.png">icons/items/rc_file.png</file>
+		<file alias="res_file.png">icons/items/res_file.png</file>
+		<file alias="resources.png">icons/items/resources.png</file>
+		<file alias="sources.png">icons/items/sources.png</file>
+		<file alias="obj_sources.png">icons/items/obj_sources.png</file>
+		<file alias="translations.png">icons/items/translations.png</file>
+		<file alias="vpath.png">icons/items/vpath.png</file>
+		<file alias="project.png">icons/items/project.png</file>
+	</qresource>
+</RCC>
