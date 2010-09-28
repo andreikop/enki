@@ -58,6 +58,7 @@ def init():
     splash.setFont( ft )
     splash.show()
     
+    """TODO
     # restore application style
     _showMessage( splash, splash.tr( 'Initializing Style...' ) )
     qApp.setStyle(settings().value('MainWindow/Style', 'system').toString())
@@ -66,7 +67,6 @@ def init():
     if  settings().value( "FirstTimeRunning", True ) :
         settings().setDefaultSettings()
     
-    """TODO
     # initialize locales
     _showMessage( splash, splash.tr( "Initializing locales..." ) )
     translationsManager().setFakeCLocaleEnabled( True )
@@ -111,7 +111,7 @@ def init():
     # init main window
     _showMessage( splash, splash.tr( "Initializing Main Window..." ) )
     mainWindow().initGui()
-
+    
     """TODO
     # init abbreviations manager
     _showMessage( splash, splash.tr( "Initializing abbreviations manager..." ) )
@@ -130,6 +130,7 @@ def init():
     pluginsManager().loadsPlugins()
     """
     
+    """TODO
     # restore window state
     _showMessage( splash, splash.tr( "Restoring Workspace..." ) )
     mainWindow().setSettings( settings() )
@@ -138,7 +139,7 @@ def init():
     _showMessage( splash, splash.tr( "Restoring Session..." ) )
     if  mks.monkeystudio.restoreSessionOnStartup() :
         workspace().fileSessionRestore_triggered()
-    
+    """
     # show main window
     mainWindow().menu_Docks_aboutToShow()
     mainWindow().show()
@@ -146,10 +147,9 @@ def init():
 
     # ready
     _showMessage( splash, splash.tr( "%1 v%2 (%3) Ready" ).arg( mks.config.PACKAGE_NAME, mks.config.PACKAGE_VERSION, mks.config.PACKAGE_VERSION_STR ) )
-
+    
     # finish splashscreen
     splash.finish( mainWindow() )
-    
     """TODO
     # show settings dialog the first time user start program
     if  settings().value( "FirstTimeRunning", True ).toBool() :

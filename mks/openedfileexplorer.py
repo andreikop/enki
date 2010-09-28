@@ -1,3 +1,5 @@
+from PyQt4 import uic
+
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
@@ -5,6 +7,8 @@ import PyQt4.fresh
 
 import mks.monkeycore
 import mks.iconmanager
+import mks.openedfilemodel
+
 
 class pOpenedFileAction(QWidgetAction):
     
@@ -34,7 +38,7 @@ class pOpenedFileAction(QWidgetAction):
         combo.setMaxVisibleItems( 25 )
         combo.setSizeAdjustPolicy( QComboBox.AdjustToContents )
         combo.setAttribute( Qt.WA_MacSmallSize )
-        combo.setModel( mModel )
+        combo.setModel( self.mModel )
 
         combo.activated.connect(self.comboBox_activated)
         combo.destroyed.connect(self.object_destroyed)
@@ -44,7 +48,7 @@ class pOpenedFileAction(QWidgetAction):
         return combo
 
     def comboBox_activated( row ):
-        index = mModel.index( row, 0 )
+        index = self.mModel.index( row, 0 )
         currentIndexChanged.emit( index )
     
     def object_destroyed( object ):
@@ -58,24 +62,25 @@ class pOpenedFileExplorer(PyQt4.fresh.pDockWidget):
         PyQt4.fresh.pDockWidget.__init__(self, workspace)
         
         self.mWorkspace = workspace
-        self.mModel = pOpenedFileModel( workspace )
-        self.aComboBox = pOpenedFileAction( self, mModel )
-        self.setupUi( self )
+        self.mModel = mks.openedfilemodel.pOpenedFileModel( workspace )
+        self.aComboBox = pOpenedFileAction( self, self.mModel )
+        uic.loadUi('mks/pOpenedFileExplorer.ui', self )
         self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
-        self.tvFiles.setModel( mModel )
+        self.tvFiles.setModel( self.mModel )
         self.tvFiles.setAttribute( Qt.WA_MacShowFocusRect, False )
         self.tvFiles.setAttribute( Qt.WA_MacSmallSize )
-
+        
+        """TODO
         # sort menu
         self.mSortMenu = QMenu( self )
-        group = QActionGroup( mSortMenu )
+        group = QActionGroup( self.mSortMenu )
 
         group.addAction( self.tr( "Opening order" ) )
         group.addAction( self.tr( "File name" ) )
         group.addAction( self.tr( "URL" ) )
         group.addAction( self.tr( "Suffixes" ) )
         group.addAction( self.tr( "Custom" ) )
-        mSortMenu.addActions( group.actions() )
+        self.mSortMenu.addActions( group.actions() )
 
         for  i in range(pOpenedFileModel.OpeningOrder, pOpenedFileModel.Custom +1):
             action = group.actions()[i]
@@ -86,7 +91,7 @@ class pOpenedFileExplorer(PyQt4.fresh.pDockWidget):
                 action.setChecked( True )
 
         aSortMenu = QAction( tr( "Sorting" ), self )
-        aSortMenu.setMenu( mSortMenu )
+        aSortMenu.setMenu( self.mSortMenu )
         aSortMenu.setIcon( mks.iconmanager.icon( "sort.png" ) )
         aSortMenu.setToolTip( aSortMenu.text() )
         '''
@@ -99,22 +104,23 @@ class pOpenedFileExplorer(PyQt4.fresh.pDockWidget):
         group.triggered.connect(self.sortTriggered)
         workspace.documentChanged.connect(self.documentChanged)
         workspace.currentDocumentChanged.connect(self.currentDocumentChanged)
-        mModel.sortModeChanged.connect(self.sortModeChanged)
-        mModel.documentsSorted.connect(self.documentsSorted)
+        self.mModel.sortModeChanged.connect(self.sortModeChanged)
+        self.mModel.documentsSorted.connect(self.documentsSorted)
         tvFiles.selectionModel().selectionChanged.connect(self.selectionModel_selectionChanged)
         aComboBox.currentIndexChanged.connect(self.syncViewsIndex)
+        """
 
     def model(self):
-        return mModel
+        return self.mModel
 
     def comboBoxAction(self):
         return aComboBox
 
     def sortMode(self):
-        return mModel.sortMode()
+        return self.mModel.sortMode()
 
     def setSortMode(self, mode ):
-        mModel.setSortMode( mode )
+        self.mModel.setSortMode( mode )
 
     def syncViewsIndex(self, index, syncOnly ):
         # sync action combobox
@@ -135,7 +141,7 @@ class pOpenedFileExplorer(PyQt4.fresh.pDockWidget):
         focusWidget = window().focusWidget()
 
         # set current document
-        document = mModel.document( index )
+        document = self.mModel.document( index )
         mWorkspace.setCurrentDocument( document )
 
         # restore focus widget
@@ -150,11 +156,11 @@ class pOpenedFileExplorer(PyQt4.fresh.pDockWidget):
         pass
 
     def currentDocumentChanged(self, document ):
-        index = mModel.index( document )
+        index = self.mModel.index( document )
         syncViewsIndex( index, True )
 
     def sortModeChanged(self, mode ):
-        for action in mSortMenu.actions():
+        for action in self.mSortMenu.actions():
             if  action.data().toInt() == mode :
                 if  not action.isChecked() :
                     action.setChecked( True )
@@ -175,5 +181,5 @@ class pOpenedFileExplorer(PyQt4.fresh.pDockWidget):
         menu.addAction( mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ) )
         menu.addAction( mks.monkeycore.menuBar().action( "mFile/aReload" ) )
         menu.addSeparator()
-        menu.addAction( mSortMenu.menuAction() )
+        menu.addAction( self.mSortMenu.menuAction() )
         menu.exec_( tvFiles.mapToGlobal( pos ) )

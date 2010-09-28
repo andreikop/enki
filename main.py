@@ -68,8 +68,7 @@ def main():
     """
     
     # execute application
-    result = app.exec_();
-    
+    result = app.exec_()
     """TODO
     // some cleanup
     MonkeyCore::pluginsManager()->clearPlugins();

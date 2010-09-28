@@ -4,6 +4,7 @@ from PyQt4.QtCore import QTextCodec
 from PyQt4.QtGui import QFont
 
 import mks.monkeycore
+import mks.workspace
 
 #QHash<QString,QsciLexer*> mGlobalsLexers
 #QHash<QString,QsciAPIs*> mGlobalsAPIs
@@ -986,7 +987,7 @@ def setDocumentMode( mode ):
     \details Return the mod used by the workspace
 '''
 def documentMode():
-    return mks.monkeycore.settings().value( settingsPath() +"/DocMode", pWorkspace.NoTabs ).toInt()
+    return mks.monkeycore.settings().value( settingsPath() +"/DocMode", mks.workspace.pWorkspace.NoTabs ).toInt()
 
 
 '''!
