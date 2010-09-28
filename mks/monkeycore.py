@@ -1,11 +1,8 @@
 import sys
 from datetime import datetime
 
-from PyQt4.QtCore import Qt
-from PyQt4.QtCore import QObject
-from PyQt4.QtGui import qApp
-from PyQt4.QtGui import QSplashScreen
-from PyQt4.QtGui import QFont
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
 
 import main
 import mks.iconmanager
@@ -110,7 +107,9 @@ def init():
     
     # init main window
     _showMessage( splash, splash.tr( "Initializing Main Window..." ) )
+    """TODO
     mainWindow().initGui()
+    """
     
     """TODO
     # init abbreviations manager
@@ -141,9 +140,9 @@ def init():
         workspace().fileSessionRestore_triggered()
     """
     # show main window
-    mainWindow().menu_Docks_aboutToShow()
+    #mainWindow().menu_Docks_aboutToShow()
     mainWindow().show()
-    mainWindow().finalyzeGuiInit()
+    #mainWindow().finalyzeGuiInit()
 
     # ready
     _showMessage( splash, splash.tr( "%1 v%2 (%3) Ready" ).arg( mks.config.PACKAGE_NAME, mks.config.PACKAGE_VERSION, mks.config.PACKAGE_VERSION_STR ) )
