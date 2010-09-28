@@ -37,6 +37,11 @@ pMainWindow::pMainWindow( QWidget* parent, Qt::WindowFlags windowFlags )
 	dockToolBar( Qt::LeftToolBarArea );
 	dockToolBar( Qt::RightToolBarArea );
 }
+#include <QDebug>
+pMainWindow::~pMainWindow( )
+{
+	qDebug() << "python main window deleted";
+}
 
 void pMainWindow::hideEvent( QHideEvent* event )
 {

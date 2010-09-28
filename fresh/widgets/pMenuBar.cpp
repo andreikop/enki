@@ -30,6 +30,12 @@ pMenuBar::pMenuBar( QWidget* parent )
 	mActionsManager = new pActionsManager( "Menu Bar", this );
 }
 
+pMenuBar::~pMenuBar()
+{
+	qDebug() << "menubar cpp object deleted";
+}
+
+
 /*!
 	\details Return a full path of path
 	\param path The path to make full

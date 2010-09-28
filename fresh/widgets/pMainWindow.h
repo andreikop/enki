@@ -57,6 +57,7 @@ class Q_MONKEY_EXPORT pMainWindow : public QMainWindow
 
 public:
 	pMainWindow( QWidget* parent = 0, Qt::WindowFlags windowFlags = 0 );
+	~pMainWindow();
 
 	pMenuBar* menuBar();
 	pDockToolBarManager* dockToolBarManager();

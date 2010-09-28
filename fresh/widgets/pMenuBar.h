@@ -47,6 +47,7 @@ class Q_MONKEY_EXPORT pMenuBar : public QMenuBar
 
 public:
 	pMenuBar( QWidget* parent = 0 );
+	~pMenuBar();
 
 	QString absoluteScope( const QString& path );
 	QString relativeScope( const QString& path );

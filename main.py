@@ -2,6 +2,10 @@
 
 import sys
 
+import gc
+gc.disable()
+
+
 from PyQt4 import QtGui, QtCore
 
 import mks.config

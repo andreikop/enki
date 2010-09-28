@@ -33,7 +33,7 @@ def is_source(filename):
     return False
 
 def process_line(line):
-    
+        
     """ remove semicolons
         
         codecode(param, param);
@@ -260,11 +260,11 @@ def process_line(line):
         -connect( combo, SIGNAL( activated( int ) ), self, SLOT( comboBox_activated( int ) ) )
         +combo.activated.connect(self.comboBox_activated)
     """
-    line = re.sub('connect\s*\(\s*([\w\d\.]+)\s*,\s*' + \
-                    'SIGNAL\s*\(\s*([\w\d]+)[^\)]+\)\s*\)\s*,'+ \
-                    '\s*([\w\d\.]+)\s*,\s*' + \
-                    'SLOT\s*\(\s*([\w\d]+)[^\)]+\)\s*\)\s*\)',
-                  '\\1.\\2.connect(\\3.\\4)', line)
+    line = re.sub('connect\s*\(\s*([^,]+)\s*,\s*' + \
+                'SIGNAL\s*\(\s*([\w\d]+)[^\)]+\)\s*\)\s*,'+ \
+                '\s*([^,]+)\s*,\s*' + \
+                'S[A-Z]+\s*\(\s*([\w\d]+)[^\)]+\)\s*\)\s*\)',
+              '\\1.\\2.connect(\\3.\\4)', line)
     
     return line
 
