@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
 **
 **         Created using Monkey Studio v1.8.1.0
 ** Authors   : Filipe AZEVEDO aka Nox P@sNox <pasnox@gmail.com>
@@ -6,8 +6,8 @@
 ** FileName  : pCommand.h
 ** Date      : 2008-01-14T00:36:49
 ** License   : GPL
-** Comment   : This header has been automatically generated, you are the original author, co-author, free to replace/append with your informations.
-** Home Page : http:#www.monkeystudio.org
+** Comment   : This header has been automatically generated, if you are the original author, or co-author, fill free to replace/append with your informations.
+** Home Page : http://www.monkeystudio.org
 **
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
@@ -22,16 +22,16 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with self program; if not, to the Free Software
-    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 **
-***************************************************************************'''
-'''!
+****************************************************************************/
+/*!
     \file pCommand.h
     \date 2008-01-14T00:36:50
     \author Filipe AZEVEDO aka Nox PasNox <pasnox@gmail.com>
     \brief Header for pCommand
-'''
+*/
 #ifndef PCOMMAND_H
 #define PCOMMAND_H
 
@@ -40,168 +40,131 @@
 #include <QStringList>
 #include <QVariant>
 
-class XUPProjectItem
+class XUPProjectItem;
 
 struct Q_MONKEY_EXPORT pCommandTargetExecution
+{
     pCommandTargetExecution()
-        isActive = False
-        targetType = -1
-        platformType = -1
+    {
+        isActive = false;
+        targetType = -1;
+        platformType = -1;
+    }
+    
+    bool operator==( const pCommandTargetExecution& other ) const
+    {
+        return isActive == other.isActive &&
+            targetType == other.targetType && platformType == other.platformType;
+    }
+    
+    bool isActive;
+    int targetType;
+    int platformType;
+};
 
-
-    bool operator==(  pCommandTargetExecution& other )
-        return isActive == other.isActive and
-               targetType == other.targetType and platformType == other.platformType
-
-
-    bool isActive
-    int targetType
-    int platformType
-
-
-'''!
+/*!
     Container for storing console command
-
-    pCommand can store command line for executing command, dirrectory,
-    options of execution of command, define parsers, could be used
-    for executing, also can remember project, which command is
+    
+    pCommand can store command line for executing command, working dirrectory,
+    options of execution of command, can define parsers, which could be used 
+    for executing, and also can remember project, for which command is 
     executing
-'''
+*/
 class Q_MONKEY_EXPORT pCommand
+{
 public:
-    pCommand()
-        mSkipOnError = False
-        mTryAllParsers = False
-        mProject = 0
+    pCommand() 
+    {
+        mSkipOnError = false;
+        mTryAllParsers = false;
+        mProject = 0;
+    }
+    
+    pCommand( const QString& t, const QString& c, const QString& a, bool b = false, const QStringList& p = QStringList(), const QString& d = QString::null, bool bb = false )
+    {
+        mText = t;
+        mCommand = c;
+        mArguments = a;
+        mSkipOnError = b;
+        mParsers = p;
+        mWorkingDirectory = d;
+        mTryAllParsers = bb;
+        mProject = 0;
+    }
+    ~pCommand() {}
+    
+    bool isValid() const
+    { return !text().isEmpty() && ( !command().isEmpty() || mTargetExecution.isActive ); }
+    
+    bool operator==( const pCommand& t ) const
+    { return mText == t.mText && mCommand == t.mCommand && mArguments == t.mArguments &&
+            mWorkingDirectory == t.mWorkingDirectory && mParsers == t.mParsers && mSkipOnError == t.mSkipOnError &&
+            mTryAllParsers == t.mTryAllParsers && mUserData == t.mUserData && mProject == t.mProject &&
+            mTargetExecution == t.mTargetExecution; }
 
+    QString text() const { return mText; }
+    QString command() const { return mCommand; }
+    QString arguments() const { return mArguments; }
+    QString workingDirectory() const { return mWorkingDirectory; }
+    QStringList parsers() const { return mParsers; }
+    bool skipOnError() const { return mSkipOnError; }
+    bool tryAllParsers() const { return mTryAllParsers; }
+    QVariant userData() const { return mUserData; }
+    XUPProjectItem* project() const { return mProject; }
+    pCommandTargetExecution& targetExecution() { return mTargetExecution; }
 
-    pCommand(  QString& t, c, a, b = False, p = QStringList(), d = QString.null, bb = False )
-        mText = t
-        mCommand = c
-        mArguments = a
-        mSkipOnError = b
-        mParsers = p
-        mWorkingDirectory = d
-        mTryAllParsers = bb
-        mProject = 0
-
-    ~pCommand()
-    bool isValid()
-        return not text().isEmpty() and ( not command().isEmpty() or mTargetExecution.isActive )
-
-
-    bool operator==(  pCommand& t )
-        return mText == t.mText and mCommand == t.mCommand and mArguments == t.mArguments and
-               mWorkingDirectory == t.mWorkingDirectory and mParsers == t.mParsers and mSkipOnError == t.mSkipOnError and
-               mTryAllParsers == t.mTryAllParsers and mUserData == t.mUserData and mProject == t.mProject and
-               mTargetExecution == t.mTargetExecution
-
-
-    QString text()
-        return mText
-
-    QString command()
-        return mCommand
-
-    QString arguments()
-        return mArguments
-
-    QString workingDirectory()
-        return mWorkingDirectory
-
-    QStringList parsers()
-        return mParsers
-
-    bool skipOnError()
-        return mSkipOnError
-
-    bool tryAllParsers()
-        return mTryAllParsers
-
-    QVariant userData()
-        return mUserData
-
-    XUPProjectItem* project()
-        return mProject
-
-    pCommandTargetExecution& targetExecution()
-        return mTargetExecution
-
-
-    void setText(  QString& s )
-        mText = s
-
-    void setCommand(  QString& s )
-        mCommand = s
-
-    void setArguments(  QString& s )
-        mArguments = s
-
-    void setWorkingDirectory(  QString& s )
-        mWorkingDirectory = s
-
-    void addParser(  QString& p )
-        if ( not mParsers.contains( p ) ) mParsers << p
-
-    void setParsers(  QStringList& p )
-        mParsers = p
-
-    void addParsers(  QStringList& p )
-        for s in p: addParser( s )
-
-    void setSkipOnError( bool b )
-        mSkipOnError = b
-
-    void setTryAllParsers( bool b )
-        mTryAllParsers = b
-
-    void setUserData(  QVariant& data )
-        mUserData = data
-
-    void setProject( XUPProjectItem* project )
-        mProject = project
-
-
-    QString toString()
-        QString s
-        s += QString( "mText: %1\n" ).arg( mText )
-        s += QString( "mCommand: %1\n" ).arg( mCommand )
-        s += QString( "mArguments: %1\n" ).arg( mArguments )
-        s += QString( "mWorkingDirectory: %1\n" ).arg( mWorkingDirectory )
-        s += QString( "mSkipOnError: %1\n" ).arg( mSkipOnError )
-        s += QString( "mParsers: %1\n" ).arg( mParsers.join( " " ) )
-        s += QString( "mTryAllParsers: %1\n" ).arg( mTryAllParsers )
-        s += QString( "mUserData: %1\n" ).arg( mUserData.toString() )
-        s += QString( "mProject: %1" ).arg( (quintptr)mProject )
-        return s
-
-
-    void debug()
-        qWarning( "%s", toString().toLocal8Bit().constData() )
-
+    void setText( const QString& s ) { mText = s; }
+    void setCommand( const QString& s ) { mCommand = s; }
+    void setArguments( const QString& s ) { mArguments = s; }
+    void setWorkingDirectory( const QString& s ) { mWorkingDirectory = s; }
+    void addParser( const QString& p ) { if ( !mParsers.contains( p ) ) mParsers << p; }
+    void setParsers( const QStringList& p ) { mParsers = p; }
+    void addParsers( const QStringList& p ) { foreach ( QString s, p ) addParser( s ); }
+    void setSkipOnError( bool b ) { mSkipOnError = b; }
+    void setTryAllParsers( bool b ) { mTryAllParsers = b; }
+    void setUserData( const QVariant& data ) { mUserData = data; }
+    void setProject( XUPProjectItem* project ) { mProject = project; }
+    
+    QString toString() const
+    {
+        QString s;
+        s += QString( "mText: %1\n" ).arg( mText );
+        s += QString( "mCommand: %1\n" ).arg( mCommand );
+        s += QString( "mArguments: %1\n" ).arg( mArguments );
+        s += QString( "mWorkingDirectory: %1\n" ).arg( mWorkingDirectory );
+        s += QString( "mSkipOnError: %1\n" ).arg( mSkipOnError );
+        s += QString( "mParsers: %1\n" ).arg( mParsers.join( " " ) );
+        s += QString( "mTryAllParsers: %1\n" ).arg( mTryAllParsers );
+        s += QString( "mUserData: %1\n" ).arg( mUserData.toString() );
+        s += QString( "mProject: %1" ).arg( (quintptr)mProject );
+        return s;
+    }
+    
+    void debug() const
+    { qWarning( "%s", toString().toLocal8Bit().constData() ); }
 
 protected:
-    QString mText;                                 '''*< Comment about command '''
-    QString mCommand;                            '''*< Console command '''
-    QString mArguments;                            '''*< Arguments '''
-    QString mWorkingDirectory;                    '''*< Working dirrectory of process '''
-    bool mSkipOnError;                            '''*< Skip command, error ocurred '''
-    QStringList mParsers;                        '''*< List of parsers, should be used for command. Position in the list is not ignored '''
-    bool mTryAllParsers;                        '''*< Try to use all availible parsers after parsers from list '''
-    XUPProjectItem* mProject;                    '''*< Project, which command is executing '''
-    QVariant mUserData;                            '''*< User custom placeholder to stock customdata, it's internally used to store commands map '''
-    pCommandTargetExecution mTargetExecution;    '''*< Determine if the command is the result of proejct target execution '''
+    QString mText;                                 /**< Comment about command */
+    QString mCommand;                            /**< Console command */
+    QString mArguments;                            /**< Arguments */
+    QString mWorkingDirectory;                    /**< Working dirrectory of process */
+    bool mSkipOnError;                            /**< Skip command, if error ocurred */
+    QStringList mParsers;                        /**< List of parsers, which should be used for command. Position in the list is not ignored */
+    bool mTryAllParsers;                        /**< Try to use all availible parsers after parsers from list */
+    XUPProjectItem* mProject;                    /**< Project, for which command is executing */
+    QVariant mUserData;                            /**< User custom placeholder to stock customdata, currently it's internally used to store commands map */
+    pCommandTargetExecution mTargetExecution;    /**< Determine if the command is the result of proejct target execution */
+};
 
-
-'''!
+/*!
     List of pCommand objects
-'''
-typedef QList<pCommand> pCommandList
-typedef QMap<QString, pCommandMap
+*/
+typedef QList<pCommand> pCommandList;
+typedef QMap<QString, pCommand> pCommandMap;
 
-Q_DECLARE_METATYPE( pCommand )
-Q_DECLARE_METATYPE( pCommandList )
-Q_DECLARE_METATYPE( pCommandMap )
-Q_DECLARE_METATYPE( pCommandMap* )
+Q_DECLARE_METATYPE( pCommand );
+Q_DECLARE_METATYPE( pCommandList );
+Q_DECLARE_METATYPE( pCommandMap );
+Q_DECLARE_METATYPE( pCommandMap* );
 
-#endif # PCOMMAND_H
+#endif // PCOMMAND_H

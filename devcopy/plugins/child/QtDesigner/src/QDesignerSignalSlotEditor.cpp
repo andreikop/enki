@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,9 +12,9 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with self program; if not, to the Free Software
-    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
-***************************************************************************'''
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+****************************************************************************/
 #include "QDesignerSignalSlotEditor.h"
 
 #include <objects/pIconManager.h>
@@ -22,21 +22,22 @@
 #include <QDesignerFormEditorInterface>
 #include <QDesignerComponents>
 
-QDesignerSignalSlotEditor.QDesignerSignalSlotEditor( QDesignerFormEditorInterface* core )
-        : pDockWidget( 0 )
-    # need core
-    Q_ASSERT( core )
+QDesignerSignalSlotEditor::QDesignerSignalSlotEditor( QDesignerFormEditorInterface* core )
+    : pDockWidget( 0 )
+{
+    // need core
+    Q_ASSERT( core );
 
-    # dock title
-    setWindowTitle( tr( "Signal/Slot Editor" ) )
-    setWindowIcon( pIconManager.icon( "signal.png", ":/icons" ) )
+    // dock title
+    setWindowTitle( tr( "Signal/Slot Editor" ) );
+    setWindowIcon( pIconManager::icon( "signal.png", ":/icons" ) );
 
-    # object name
-    setObjectName( "x-designer/signalsloteditor" )
+    // object name
+    setObjectName( "x-designer/signalsloteditor" );
 
-    # create interface
-    mInterface = QDesignerComponents.createSignalSlotEditor( core, self )
+    // create interface
+    mInterface = QDesignerComponents::createSignalSlotEditor( core, this );
 
-    # set dock widget
-    setWidget( mInterface )
-
+    // set dock widget
+    setWidget( mInterface );
+}

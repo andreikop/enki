@@ -4,17 +4,18 @@
 #include <xupmanager/core/XUPProjectItem.h>
 
 class PyQtProjectItem : public XUPProjectItem
+{
     Q_OBJECT
 
 public:
-    enum ProjectType { PyQtProject = 3
+    enum ProjectType { PyQtProject = 3 };
 
-    virtual int projectType()
-    virtual void registerProjectType()
-    virtual XUPProjectItem* newProject()
+    virtual int projectType() const;
+    virtual void registerProjectType() const;
+    virtual XUPProjectItem* newProject() const;
+    
+    virtual InterpreterPlugin* interpreter( const QString& plugin = QString() ) const;
+    virtual void installCommands();
+};
 
-    virtual InterpreterPlugin* interpreter(  plugin = QString() )
-    virtual void installCommands()
-
-
-#endif # PYQTPROJECTITEM_H
+#endif // PYQTPROJECTITEM_H

@@ -5,135 +5,164 @@
 #include "xupmanager/core/XUPProjectItem.h"
 #include "pMonkeyStudio.h"
 
-XUPAddFiles.XUPAddFiles( QWidget* parent )
-        : QWidget( parent )
-    setupUi( self )
+XUPAddFiles::XUPAddFiles( QWidget* parent )
+    : QWidget( parent )
+{
+    setupUi( this );
+    
+    mModel = 0;
+    mProxy = new XUPProjectModelProxy( this );
+    tcbScopes->setModel( mProxy );
+}
 
-    mModel = 0
-    mProxy = XUPProjectModelProxy( self )
-    tcbScopes.setModel( mProxy )
+XUPAddFiles::~XUPAddFiles()
+{
+}
 
+void XUPAddFiles::on_tcbScopes_currentChanged( const QModelIndex& index )
+{
+    Q_UNUSED( index );
+    XUPItem* scope = currentScope();
+    
+    QString curText = cbImport->currentText();
+    cbImport->clear();
+    
+    if ( scope )
+    {
+        QDir dir( scope->project()->path() );
+        
+        foreach ( const QFileInfo& fi, pMonkeyStudio::getFolders( dir, QStringList() ) )
+        {
+            cbImport->addItem( fi.filePath(), dir.relativeFilePath( fi.filePath() ) );
+        }
+        
+        int id = cbImport->findData( curText );
+        
+        if ( id == -1 )
+        {
+            cbImport->setEditText( curText );
+        }
+        else
+        {
+            cbImport->setCurrentIndex( id );
+        }
+    }
+    
+    emit currentScopeChanged( scope );
+}
 
-XUPAddFiles.~XUPAddFiles()
+void XUPAddFiles::setModel( XUPProjectModel* model )
+{
+    if ( mModel != model )
+    {
+        if ( mModel )
+        {
+            // disconnect
+        }
+        
+        mModel = model;
+        mProxy->setSourceModel( mModel );
+        
+        if ( mModel )
+        {
+            // connect
+        }
+    }
+}
 
+XUPProjectModel* XUPAddFiles::model() const
+{
+    return mModel;
+}
 
-def on_tcbScopes_currentChanged(self, index ):
-    Q_UNUSED( index )
-    scope = currentScope()
+void XUPAddFiles::setAddToProjectChoice( bool choice )
+{
+    if ( choice )
+    {
+        gbScopes->setCheckable( true );
+    }
+    else
+    {
+        gbScopes->setCheckable( false );
+    }
+}
 
-    curText = cbImport.currentText()
-    cbImport.clear()
+bool XUPAddFiles::addToProjectChoice() const
+{
+    return gbScopes->isCheckable();
+}
 
-    if  scope :
-        QDir dir( scope.project().path() )
+void XUPAddFiles::setAddToProject( bool add )
+{
+    setAddToProjectChoice( true );
+    gbScopes->setChecked( add );
+}
 
-        foreach (  QFileInfo& fi, pMonkeyStudio.getFolders( dir, QStringList() ) )
-            cbImport.addItem( fi.filePath(), dir.relativeFilePath( fi.filePath() ) )
+bool XUPAddFiles::addToProject() const
+{
+    if ( gbScopes->isCheckable() )
+    {
+        return gbScopes->isChecked();
+    }
+    
+    return true;
+}
 
+void XUPAddFiles::setCurrentScope( XUPItem* item )
+{
+    QModelIndex index = item->index();
+    index = mProxy->mapFromSource( index );
+    tcbScopes->setCurrentIndex( index );
+}
 
-        id = cbImport.findData( curText )
+XUPItem* XUPAddFiles::currentScope() const
+{
+    QModelIndex index = tcbScopes->currentIndex();
+    index = mProxy->mapToSource( index );
+    return mModel->itemFromIndex( index );
+}
 
-        if  id == -1 :
-            cbImport.setEditText( curText )
+void XUPAddFiles::setImportExternalFiles( bool import )
+{
+    gbImport->setChecked( import );
+}
 
-        else:
-            cbImport.setCurrentIndex( id )
+bool XUPAddFiles::importExternalFiles() const
+{
+    return gbImport->isChecked();
+}
 
+void XUPAddFiles::setImportExternalFilesPath( const QString& path )
+{
+    int id = cbImport->findData( path );
+    
+    if ( id == -1 )
+    {
+        cbImport->addItem( path, path );
+        id = cbImport->findData( path );
+    }
+    
+    cbImport->setCurrentIndex( id );
+}
 
+QString XUPAddFiles::importExternalFilesPath() const
+{
+    const int id = cbImport->currentIndex();
+    
+    if ( id == -1 )
+    {
+        return cbImport->currentText();
+    }
+    
+    return cbImport->itemData( id ).toString();
+}
 
-    currentScopeChanged.emit( scope )
+void XUPAddFiles::setScopeChoiceEnabled( bool enabled )
+{
+    gbScopes->setEnabled( enabled );
+}
 
-
-def setModel(self, model ):
-    if  mModel != model :
-        if  mModel :
-            # disconnect
-
-
-        mModel = model
-        mProxy.setSourceModel( mModel )
-
-        if  mModel :
-            # connect
-
-
-
-
-def model(self):
-    return mModel
-
-
-def setAddToProjectChoice(self, choice ):
-    if  choice :
-        gbScopes.setCheckable( True )
-
-    else:
-        gbScopes.setCheckable( False )
-
-
-
-def addToProjectChoice(self):
-    return gbScopes.isCheckable()
-
-
-def setAddToProject(self, add ):
-    setAddToProjectChoice( True )
-    gbScopes.setChecked( add )
-
-
-def addToProject(self):
-    if  gbScopes.isCheckable() :
-        return gbScopes.isChecked()
-
-
-    return True
-
-
-def setCurrentScope(self, item ):
-    index = item.index()
-    index = mProxy.mapFromSource( index )
-    tcbScopes.setCurrentIndex( index )
-
-
-def currentScope(self):
-    index = tcbScopes.currentIndex()
-    index = mProxy.mapToSource( index )
-    return mModel.itemFromIndex( index )
-
-
-def setImportExternalFiles(self, import ):
-    gbImport.setChecked( import )
-
-
-def importExternalFiles(self):
-    return gbImport.isChecked()
-
-
-def setImportExternalFilesPath(self, path ):
-    id = cbImport.findData( path )
-
-    if  id == -1 :
-        cbImport.addItem( path, path )
-        id = cbImport.findData( path )
-
-
-    cbImport.setCurrentIndex( id )
-
-
-def importExternalFilesPath(self):
-     id = cbImport.currentIndex()
-
-    if  id == -1 :
-        return cbImport.currentText()
-
-
-    return cbImport.itemData( id ).toString()
-
-
-def setScopeChoiceEnabled(self, enabled ):
-    gbScopes.setEnabled( enabled )
-
-
-def setImportExternalFilesPathEnabled(self, enabled ):
-    gbImport.setEnabled( enabled )
-
+void XUPAddFiles::setImportExternalFilesPathEnabled( bool enabled )
+{
+    gbImport->setEnabled( enabled );
+}

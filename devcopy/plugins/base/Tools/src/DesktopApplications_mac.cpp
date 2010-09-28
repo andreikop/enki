@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,74 +12,78 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with self program; if not, to the Free Software
-    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
-***************************************************************************'''
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+****************************************************************************/
 #include "DesktopApplications.h"
 
 #include <QDir>
 
- QFileInfoList getMacApplicationsFolders( QDir dir )
-    QFileInfoList applications
+const QFileInfoList getMacApplicationsFolders( QDir dir )
+{
+    QFileInfoList applications;
+    
+    foreach ( const QFileInfo& file, dir.entryInfoList( QDir::Dirs | QDir::NoDotAndDotDot ) ) {
+        if ( file.isBundle() ) {
+            applications << file;
+        }
+        else if ( file.isDir() ) {
+            dir.cd( file.filePath() );
+            applications << getMacApplicationsFolders( dir );
+            dir.cdUp();
+        }
+    }
+    
+    return applications;
+}
 
-    foreach (  QFileInfo& file, dir.entryInfoList( QDir.Dirs | QDir.NoDotAndDotDot ) )
-        if  file.isBundle() :
-            applications << file
+QStringList DesktopApplications::startMenuPaths() const
+{
+    return QStringList( "/Applications" );
+}
 
-        elif  file.isDir() :
-            dir.cd( file.filePath() )
-            applications << getMacApplicationsFolders( dir )
-            dir.cdUp()
+bool DesktopApplications::categoriesAvailable() const
+{
+    return false;
+}
 
-
-
-    return applications
-
-
-def startMenuPaths(self):
-    return QStringList( "/Applications" )
-
-
-def categoriesAvailable(self):
-    return False
-
-
-def scan(self):
-    for menuPath in startMenuPaths():
-        foreach (  QFileInfo& file, getMacApplicationsFolders( QDir( menuPath ) ) )
-            # get folder object
-            df = &mStartMenu
-            # get relative path
-             applicationPath = file.absolutePath().remove( menuPath ).remove( 0, 1 )
-            # get last folder object
-            QString path
-
-            foreach (  QString& part, applicationPath.split( "/", QString.SkipEmptyParts ) )
-                path += part +"/"
-
-                if  df.folders.contains( part ) :
-                    df = &df.folders[ part ]
-
-                else:
-                    df.folders[ part ] = DesktopFolder( df )
-                    df = &df.folders[ part ]
-                    df.path = menuPath +"/" +path
-
-                    if  df.path.endsWith( "/" ) :
-                        df.path.chop( 1 )
-
-
-
-
-            # add application
-            if  not df.applications.contains( file.absoluteFilePath() ) :
-                da = DesktopApplication( df )
-                da.name = file.completeBaseName()
-                da.icon = QString()
-                da.genericName = QString()
-                da.comment = QString()
-                df.applications[ file.absoluteFilePath() ] = da
-
-
-
-
+void DesktopApplications::scan()
+{
+    foreach ( const QString& menuPath, startMenuPaths() ) {
+        foreach ( const QFileInfo& file, getMacApplicationsFolders( QDir( menuPath ) ) ) {
+            // get folder object
+            DesktopFolder* df = &mStartMenu;
+            // get relative path
+            const QString applicationPath = file.absolutePath().remove( menuPath ).remove( 0, 1 );
+            // get last folder object
+            QString path;
+            
+            foreach ( const QString& part, applicationPath.split( "/", QString::SkipEmptyParts ) ) {
+                path += part +"/";
+                
+                if ( df->folders.contains( part ) ) {
+                    df = &df->folders[ part ];
+                }
+                else {
+                    df->folders[ part ] = DesktopFolder( df );
+                    df = &df->folders[ part ];
+                    df->path = menuPath +"/" +path;
+                    
+                    if ( df->path.endsWith( "/" ) ) {
+                        df->path.chop( 1 );
+                    }
+                }
+            }
+            
+            // add application
+            if ( !df->applications.contains( file.absoluteFilePath() ) ) {
+                DesktopApplication da = DesktopApplication( df );
+                da.name = file.completeBaseName();
+                da.icon = QString();
+                da.genericName = QString();
+                da.comment = QString();
+                df->applications[ file.absoluteFilePath() ] = da;
+            }
+        }
+    }
+}

@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,26 +12,25 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with self program; if not, to the Free Software
-    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
-***************************************************************************'''
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+****************************************************************************/
 #ifndef QDESIGNEROBJECTINSPECTOR_H
 #define QDESIGNEROBJECTINSPECTOR_H
 
 #include <widgets/pDockWidget.h>
 
-class QDesignerFormEditorInterface
-class QDesignerObjectInspectorInterface
+class QDesignerFormEditorInterface;
+class QDesignerObjectInspectorInterface;
 
 class QDesignerObjectInspector : public pDockWidget
+{
 public:
-    QDesignerObjectInspector( QDesignerFormEditorInterface* core )
-    inline QDesignerObjectInspectorInterface* interface()
-        return mInterface
-
-
+    QDesignerObjectInspector( QDesignerFormEditorInterface* core );
+    inline QDesignerObjectInspectorInterface* interface() const { return mInterface; }
+    
 private:
-    QDesignerObjectInspectorInterface* mInterface
+    QDesignerObjectInspectorInterface* mInterface;
+};
 
-
-#endif # QDESIGNEROBJECTINSPECTOR_H
+#endif // QDESIGNEROBJECTINSPECTOR_H

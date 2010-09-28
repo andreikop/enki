@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,38 +12,39 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with self program; if not, to the Free Software
-    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
-***************************************************************************'''
-'''!
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+****************************************************************************/
+/*!
     \file pDockClassBrowser.h
     \date 2009-04-11 23:22
     \author Filipe AZEVEDO
     \brief UI of FileBrowser plugin
-'''
+*/
 
 #ifndef PDOCKCLASSBROWSER
 #define PDOCKCLASSBROWSER
 
 #include <widgets/pDockWidget.h>
 
-class ClassBrowser
-class qCtagsSenseBrowser
+class ClassBrowser;
+class qCtagsSenseBrowser;
 
 class pDockClassBrowser : public pDockWidget
+{
     Q_OBJECT
 
 public:
-    pDockClassBrowser( ClassBrowser* plugin, QWidget* = 0 )
-    ~pDockClassBrowser()
-
-    qCtagsSenseBrowser* browser()
+    pDockClassBrowser( ClassBrowser* plugin, QWidget* = 0 );
+    ~pDockClassBrowser();
+    
+    qCtagsSenseBrowser* browser() const;
 
 protected:
-    ClassBrowser* mPlugin
-    qCtagsSenseBrowser* mBrowser
+    ClassBrowser* mPlugin;
+    qCtagsSenseBrowser* mBrowser;
 
 protected slots:
+};
 
-
-#endif # PDOCKCLASSBROWSER
+#endif // PDOCKCLASSBROWSER

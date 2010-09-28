@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,9 +12,9 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with self program; if not, to the Free Software
-    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
-***************************************************************************'''
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+****************************************************************************/
 #ifndef UIINTERPRETERSETTINGS_H
 #define UIINTERPRETERSETTINGS_H
 
@@ -25,29 +25,30 @@
 
 #include <QWidget>
 
-class InterpreterPlugin
+class InterpreterPlugin;
 
-class Q_MONKEY_EXPORT UIInterpreterSettings : public QWidget, Ui.UIInterpreterSettings
+class Q_MONKEY_EXPORT UIInterpreterSettings : public QWidget, public Ui::UIInterpreterSettings
+{
     Q_OBJECT
-
+    
 protected:
-    pCommand mDefault
-    pCommand mReset
-    pCommand mCommand
-    InterpreterPlugin* mPlugin
+    pCommand mDefault;
+    pCommand mReset;
+    pCommand mCommand;
+    InterpreterPlugin* mPlugin;
 
 public:
-    UIInterpreterSettings( InterpreterPlugin*, QWidget* = 0 )
+    UIInterpreterSettings( InterpreterPlugin*, QWidget* = 0 );
 
-    void updateCommand()
-    void restoreDefault()
-    void reset()
-    void save()
+    void updateCommand();
+    void restoreDefault();
+    void reset();
+    void save();
 
 protected slots:
-    void on_tbBuildCommandCommand_clicked()
-    void on_tbBuildCommandWorkingDirectory_clicked()
-    void on_dbbButtons_clicked( QAbstractButton* )
+    void on_tbBuildCommandCommand_clicked();
+    void on_tbBuildCommandWorkingDirectory_clicked();
+    void on_dbbButtons_clicked( QAbstractButton* );
+};
 
-
-#endif # UIINTERPRETERSETTINGS_H
+#endif // UIINTERPRETERSETTINGS_H

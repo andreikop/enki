@@ -4,12 +4,13 @@
 #include <QDesignerFormWindowInterface>
 
 namespace LegacyDesigner
-def defaultPluginPaths(self):
-def previewWindowFlags(self, widget ):
-def fakeContainer(self, w ):
-def createPreview(self, fw, style, errorMessage ):
-def createPreviewPixmap(self, fw, style, errorMessage ):
-def showPreview(self, fw, style, errorMessage ):
+{
+    QStringList defaultPluginPaths();
+    Qt::WindowFlags previewWindowFlags( const QWidget* widget );
+    QWidget* fakeContainer( QWidget* w );
+    QWidget* createPreview( const QDesignerFormWindowInterface* fw, const QString& style, QString* errorMessage );
+    QPixmap createPreviewPixmap( const QDesignerFormWindowInterface* fw, const QString& style, QString* errorMessage );
+    QWidget* showPreview( const QDesignerFormWindowInterface* fw, const QString& style, QString* errorMessage );
+};
 
-
-#endif # LEGACYDESIGNER_H
+#endif // LEGACYDESIGNER_H

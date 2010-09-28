@@ -4,8 +4,9 @@
 #include <QDomDocument>
 
 namespace QMake2XUP
-def convertFromPro(self, fileName, codec ):
-def convertToPro(self, project ):
+{
+    QString convertFromPro( const QString& fileName, const QString& codec );
+    QString convertToPro( const QDomDocument& project );
+};
 
-
-#endif # QMAKE2XUP_H
+#endif // QMAKE2XUP_H

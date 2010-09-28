@@ -1,25 +1,26 @@
-# TODO make it standalone application
+// TODO make it standalone application
 
 #ifndef REGEXPEDITOR_H
 #define REGEXPEDITOR_H
 
 #include <pluginsmanager/BasePlugin.h>
 
-class UIRegExpEditor
+class UIRegExpEditor;
 
 class RegExpEditor : public BasePlugin
+{
     Q_OBJECT
     Q_INTERFACES( BasePlugin )
+    
+protected:    
+    void fillPluginInfos();
+    virtual bool install();
+    virtual bool uninstall();
 
-protected:
-    void fillPluginInfos()
-    virtual bool install()
-    virtual bool uninstall()
-
-    QPointer<UIRegExpEditor> mEditor
+    QPointer<UIRegExpEditor> mEditor;
 
 protected slots:
-    void action_triggered()
+    void action_triggered();
+};
 
-
-#endif # REGEXPEDITOR_H
+#endif // REGEXPEDITOR_H

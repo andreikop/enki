@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
 **
 **         Created using Monkey Studio v1.8.1.0
 ** Authors    : Filipe AZEVEDO aka Nox P@sNox <pasnox@gmail.com>
@@ -6,8 +6,8 @@
 ** FileName  : pChild.h
 ** Date      : 2008-01-14T00:37:20
 ** License   : GPL
-** Comment   : This header has been automatically generated, you are the original author, co-author, free to replace/append with your informations.
-** Home Page : http:#www.monkeystudio.org
+** Comment   : This header has been automatically generated, if you are the original author, or co-author, fill free to replace/append with your informations.
+** Home Page : http://www.monkeystudio.org
 **
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
@@ -22,10 +22,10 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with self program; if not, to the Free Software
-    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 **
-***************************************************************************'''
+****************************************************************************/
 #ifndef PCHILD_H
 #define PCHILD_H
 
@@ -33,103 +33,104 @@
 
 #include "pAbstractChild.h"
 
-class pEditor
+class pEditor;
 
 class Q_MONKEY_EXPORT pChild : public pAbstractChild
+{
     Q_OBJECT
 
 public:
-    pChild()
-    virtual ~pChild()
+    pChild();
+    virtual ~pChild();
 
-    # return child language
-    virtual QString language()
+    // return child language
+    virtual QString language() const;
+    
+    virtual QString fileBuffer() const;
 
-    virtual QString fileBuffer()
+    // return child context
+    virtual QString context() const;
+    
+    // the context initialization
+    virtual void initializeContext( QToolBar* tb );
+    
+    // return cursor position if available
+    virtual QPoint cursorPosition() const;
 
-    # return child context
-    virtual QString context()
+    // the current visible editor
+    virtual pEditor* editor() const;
 
-    # the context initialization
-    virtual void initializeContext( QToolBar* tb )
+    // return the current file modified flag
+    virtual bool isModified() const;
 
-    # return cursor position if available
-    virtual QPoint cursorPosition()
+    // return the current file undo flag
+    virtual bool isUndoAvailable() const;
 
-    # the current visible editor
-    virtual pEditor* editor()
+    // undo
+    virtual void undo();
 
-    # return the current file modified flag
-    virtual bool isModified()
+    // return the current file redo flag
+    virtual bool isRedoAvailable() const;
 
-    # return the current file undo flag
-    virtual bool isUndoAvailable()
+    // redo
+    virtual void redo();
 
-    # undo
-    virtual void undo()
+    // cut
+    virtual void cut();
 
-    # return the current file redo flag
-    virtual bool isRedoAvailable()
+    // copy
+    virtual void copy();
 
-    # redo
-    virtual void redo()
+    // paste
+    virtual void paste();
 
-    # cut
-    virtual void cut()
+    // go to in the current child
+    virtual void goTo();
 
-    # copy
-    virtual void copy()
+    // go to position and select by selection length from position
+    virtual void goTo( const QPoint& position, int selectionLength = -1 );
 
-    # paste
-    virtual void paste()
+    // return the current file copy available
+    virtual bool isCopyAvailable() const;
 
-    # go to in the current child
-    virtual void goTo()
+    // return the current file paste available
+    virtual bool isPasteAvailable() const;
 
-    # go to position and select by selection length from position
-    virtual void goTo(  QPoint& position, selectionLength = -1 )
+    // return is goto is available
+    virtual bool isGoToAvailable() const;
 
-    # return the current file copy available
-    virtual bool isCopyAvailable()
+    // return if print is available
+    virtual bool isPrintAvailable() const;
 
-    # return the current file paste available
-    virtual bool isPasteAvailable()
+    // ask to save file
+    virtual void saveFile();
+    
+    // ask to backup the current file
+    void backupFileAs( const QString& fileName );
 
-    # return is goto is available
-    virtual bool isGoToAvailable()
+    // ask to load file
+    virtual bool openFile( const QString& fileName, const QString& codec );
 
-    # return if print is available
-    virtual bool isPrintAvailable()
+    // ask to close file
+    virtual void closeFile();
+    
+    // ask to reload the document
+    virtual void reload();
 
-    # ask to save file
-    virtual void saveFile()
+    // ask to print this file
+    virtual void printFile();
 
-    # ask to backup the current file
-    void backupFileAs(  QString& fileName )
-
-    # ask to load file
-    virtual bool openFile(  QString& fileName, codec )
-
-    # ask to close file
-    virtual void closeFile()
-
-    # ask to reload the document
-    virtual void reload()
-
-    # ask to print self file
-    virtual void printFile()
-
-    # ask to quick print self file
-    virtual void quickPrintFile()
+    // ask to quick print this file
+    virtual void quickPrintFile();
 
 protected:
-    pEditor* mEditor
+    pEditor* mEditor;
 
 protected slots:
-    void cursorPositionChanged()
+    void cursorPositionChanged();
 
 public slots:
-    void invokeSearch()
+    void invokeSearch();
+};
 
-
-#endif # PCHILD_H
+#endif // PCHILD_H

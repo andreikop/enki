@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
 **
 ** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
@@ -9,23 +9,23 @@
 ** $QT_BEGIN_LICENSE:LGPL$
 ** No Commercial Usage
 ** This file contains pre-release code and may not be distributed.
-** You may use self file in accordance with the terms and conditions
+** You may use this file in accordance with the terms and conditions
 ** contained in the Technology Preview License Agreement accompanying
-** self package.
+** this package.
 **
 ** GNU Lesser General Public License Usage
-** Alternatively, file may be used under the terms of the GNU Lesser
+** Alternatively, this file may be used under the terms of the GNU Lesser
 ** General Public License version 2.1 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of self file.  Please review the following information to
+** packaging of this file.  Please review the following information to
 ** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http:#www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, a special exception, gives you certain additional
+** In addition, as a special exception, Nokia gives you certain additional
 ** rights.  These rights are described in the Nokia Qt LGPL Exception
-** version 1.1, in the file LGPL_EXCEPTION.txt in self package.
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
-** If you have questions regarding the use of self file, contact
+** If you have questions regarding the use of this file, please contact
 ** Nokia at qt-info@nokia.com.
 **
 **
@@ -37,7 +37,7 @@
 **
 ** $QT_END_LICENSE$
 **
-***************************************************************************'''
+****************************************************************************/
 
 #include <QtCore/QMap>
 #include <QtCore/QUrl>
@@ -46,39 +46,41 @@
 
 QT_BEGIN_NAMESPACE
 
-TopicChooser.TopicChooser(QWidget *parent, &keyword,
-                            QMap<QString, &links)
-        : QDialog(parent)
-    ui.setupUi(self)
-    ui.label.setText(tr("Choose a topic for <b>%1</b>:").arg(keyword))
+TopicChooser::TopicChooser(QWidget *parent, const QString &keyword,
+                         const QMap<QString, QUrl> &links)
+    : QDialog(parent)
+{
+    ui.setupUi(this);
+    ui.label->setText(tr("Choose a topic for <b>%1</b>:").arg(keyword));
 
-    m_links = links
-    QMap<QString, it = m_links.constBegin()
+    m_links = links;
+    QMap<QString, QUrl>::const_iterator it = m_links.constBegin();
     for (; it != m_links.constEnd(); ++it)
-        ui.listWidget.addItem(it.key())
-
-    if ui.listWidget.count() != 0:
-        ui.listWidget.setCurrentRow(0)
-    ui.listWidget.setFocus()
+        ui.listWidget->addItem(it.key());
+    
+    if (ui.listWidget->count() != 0)
+        ui.listWidget->setCurrentRow(0);
+    ui.listWidget->setFocus();
 
     connect(ui.buttonDisplay, SIGNAL(clicked()),
-            self, SLOT(accept()))
+        this, SLOT(accept()));
     connect(ui.buttonCancel, SIGNAL(clicked()),
-            self, SLOT(reject()))
+        this, SLOT(reject()));
     connect(ui.listWidget, SIGNAL(itemActivated(QListWidgetItem*)),
-            self, SLOT(accept()))
+        this, SLOT(accept()));
+}
 
+QUrl TopicChooser::link() const
+{
+    QListWidgetItem *item = ui.listWidget->currentItem();
+    if (!item)
+        return QUrl();
 
-def link(self):
-    QListWidgetItem *item = ui.listWidget.currentItem()
-    if not item:
-        return QUrl()
+    QString title = item->text();
+    if (title.isEmpty() || !m_links.contains(title))
+        return QUrl();
 
-    title = item.text()
-    if title.isEmpty() or not m_links.contains(title):
-        return QUrl()
-
-    return m_links.value(title)
-
+    return m_links.value(title);
+}
 
 QT_END_NAMESPACE

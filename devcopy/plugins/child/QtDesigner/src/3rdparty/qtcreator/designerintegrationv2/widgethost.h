@@ -1,4 +1,4 @@
-'''*************************************************************************
+/**************************************************************************
 **
 ** This file is part of Qt Creator
 **
@@ -8,24 +8,24 @@
 **
 ** Commercial Usage
 **
-** Licensees holding valid Qt Commercial licenses may use self file in
+** Licensees holding valid Qt Commercial licenses may use this file in
 ** accordance with the Qt Commercial License Agreement provided with the
-** Software or, alternatively, accordance with the terms contained in
+** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and Nokia.
 **
 ** GNU Lesser General Public License Usage
 **
-** Alternatively, file may be used under the terms of the GNU Lesser
+** Alternatively, this file may be used under the terms of the GNU Lesser
 ** General Public License version 2.1 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of self file.  Please review the following information to
+** packaging of this file.  Please review the following information to
 ** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http:#www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you are unsure which license is appropriate for your use, please
 ** contact the sales department at qt-sales@nokia.com.
 **
-*************************************************************************'''
+**************************************************************************/
 
 #ifndef WIDGETHOST_H
 #define WIDGETHOST_H
@@ -36,45 +36,44 @@
 
 QT_FORWARD_DECLARE_CLASS(QDesignerFormWindowInterface)
 
-namespace SharedTools
+namespace SharedTools {
 
-namespace Internal
-class FormResizer
+namespace Internal {
+    class FormResizer;
+}
 
-
-''' A scroll area that embeds a Designer form window '''
+/* A scroll area that embeds a Designer form window */
 
 class WidgetHost : public QScrollArea
+{
     Q_OBJECT
 public:
-    WidgetHost(QWidget *parent = 0, *formWindow = 0)
-    virtual ~WidgetHost()
-    # Show handles if active and main container is selected.
-    void updateFormWindowSelectionHandles(bool active)
+    WidgetHost(QWidget *parent = 0, QDesignerFormWindowInterface *formWindow = 0);
+    virtual ~WidgetHost();
+    // Show handles if active and main container is selected.
+    void updateFormWindowSelectionHandles(bool active);
 
-    inline QDesignerFormWindowInterface *formWindow()
-        return m_formWindow
+    inline QDesignerFormWindowInterface *formWindow() const { return m_formWindow; }
 
-
-    QWidget *integrationContainer()
+    QWidget *integrationContainer() const;
 
 protected:
-    void setFormWindow(QDesignerFormWindowInterface *fw)
+    void setFormWindow(QDesignerFormWindowInterface *fw);
 
 signals:
-    void formWindowSizeChanged(int, int)
+    void formWindowSizeChanged(int, int);
 
 private slots:
-    void fwSizeWasChanged( QRect &, &)
+    void fwSizeWasChanged(const QRect &, const QRect &);
 
 private:
-    QSize formWindowSize()
+    QSize formWindowSize() const;
 
-    QDesignerFormWindowInterface *m_formWindow
-    Internal.FormResizer *m_formResizer
-    QSize m_oldFakeWidgetSize
+    QDesignerFormWindowInterface *m_formWindow;
+    Internal::FormResizer *m_formResizer;
+    QSize m_oldFakeWidgetSize;
+};
 
+} // namespace SharedTools
 
-} # namespace SharedTools
-
-#endif # WIDGETHOST_H
+#endif // WIDGETHOST_H

@@ -3,25 +3,26 @@
 
 #include <widgets/pEnvironmentVariablesManager.h>
 
-class MkSShellInterpreter
+class MkSShellInterpreter;
 
 class EnvironmentVariablesManager : public pEnvironmentVariablesManager
+{
 public:
-    EnvironmentVariablesManager()
-
-    # interpreter commands
-    void setCommand(  QString& name, value )
-    void unsetCommand(  QString& name )
-    void clearCommand()
-    void enableCommand(  QString& name, enabled )
+    EnvironmentVariablesManager();
+    
+    // interpreter commands
+    void setCommand( const QString& name, const QString& value );
+    void unsetCommand( const QString& name );
+    void clearCommand();
+    void enableCommand( const QString& name, bool enabled );
 
 protected:
-    # pEnvironmentVariablesManager reimplementations
-    virtual bool writeVariables(  pEnvironmentVariablesModel.Variables& variables )
-    virtual bool readVariables( pEnvironmentVariablesModel.Variables& variables )
+    // pEnvironmentVariablesManager reimplementations
+    virtual bool writeVariables( const pEnvironmentVariablesModel::Variables& variables ) const;
+    virtual bool readVariables( pEnvironmentVariablesModel::Variables& variables ) const;
+    
+    void initializeInterpreterCommands();
+    static QString commandInterpreter( const QString& command, const QStringList& arguments, int* result, MkSShellInterpreter* interpreter, void* data );
+};
 
-    void initializeInterpreterCommands()
-    static QString commandInterpreter(  QString& command, arguments, result, interpreter, data )
-
-
-#endif # ENVIRONMENTVARIABLESMANAGER_H
+#endif // ENVIRONMENTVARIABLESMANAGER_H

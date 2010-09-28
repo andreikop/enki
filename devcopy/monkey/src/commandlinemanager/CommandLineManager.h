@@ -5,22 +5,23 @@
 #include <QStringList>
 
 class CommandLineManager
+{
 public:
-    CommandLineManager()
-    ~CommandLineManager()
-
-    void parse()
-    void process()
-     QMap<QString, arguments()
-
-    void showVersion()
-    void showHelp()
-    void openProjects(  QStringList& fileNames )
-    void openFiles(  QStringList& fileNames )
+    CommandLineManager();
+    ~CommandLineManager();
+    
+    void parse();
+    void process();
+    const QMap<QString, QStringList>& arguments() const;
+    
+    void showVersion();
+    void showHelp();
+    void openProjects( const QStringList& fileNames );
+    void openFiles( const QStringList& fileNames );
 
 protected:
-    QMap<QString, mArguments
-    bool mVersionShown
+    QMap<QString, QStringList> mArguments;
+    bool mVersionShown;
+};
 
-
-#endif # COMMANDLINEMANAGER_H
+#endif // COMMANDLINEMANAGER_H

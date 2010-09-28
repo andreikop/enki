@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
 **
 **         Created using Monkey Studio v1.8.1.0
 ** Authors   : Andrei Kopats aka hlamer <hlamer@tut.by>
@@ -6,7 +6,7 @@
 ** FileName  : CommandParser.h
 ** Date      : 2008-01-14T00:36:50
 ** License   : GPL
-** Home Page : http:#www.monkeystudio.org
+** Home Page : http://www.monkeystudio.org
 **
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
@@ -21,70 +21,71 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with self program; if not, to the Free Software
-    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 **
-***************************************************************************'''
-'''!
+****************************************************************************/
+/*!
     \file CommandParser.h
     \date 2008-01-14T00:36:50
     \author Andrei Kopats
     \brief Header for CommandParser class
-'''
+*/
 
 #ifndef COMMANDPARSER_H
 #define COMMANDPARSER_H
 
 #include "AbstractCommandParser.h"
 
-'''!
+/*!
     Class implements parsing based on patterns.
     It is used by the majority of parsers used in MkS (all parsers on 28-10-2009)
-    See \ref CommandParser.Pattern
-'''
+    See \ref CommandParser::Pattern
+*/
 class Q_MONKEY_EXPORT CommandParser : public AbstractCommandParser
+{
     Q_OBJECT
-
+    
 public:
-    #not  Install 'parser' command of MkS scripting interface
-    static void installParserCommand()
+    //! Install 'parser' command of MkS scripting interface
+    static void installParserCommand();
 
-    '''!
+    /*!
         Structure contains regular expression for searching some phrase
-        in a console output of programm, also information, it should be
+        in a console output of programm, and also information, how it should be 
         used.
-
-        FileName, col, row, Text, fields should contain text, which
+        
+        FileName, col, row, Text, FullText fields should contain text, which
         includes %d patterns (where d is any number)
         %d patterns will be replaced with submatching of regular expression, when
         parsing result are generated.
-    '''
+    */
     struct Pattern
-        QRegExp regExp
-        QString FileName
-        QString col
-        QString row
-        pConsoleManagerStep.Type Type
-        QString Text
-        QString FullText
-
-
+    {
+        QRegExp regExp;
+        QString FileName;
+        QString col;
+        QString row;
+        pConsoleManagerStep::Type Type;
+        QString Text;
+        QString FullText;
+    };
+    
 protected:
-
-    QString mName
-    QList <Pattern> mPatterns
-
-    QString replaceWithMatch( QRegExp&, QString)
-    static QString parserCommandImplementation(  QString& command, arguments, status, MkSShellInterpreter* interpreter, data )
-
+    
+    QString mName;
+    QList <Pattern> mPatterns;
+    
+    QString replaceWithMatch(const QRegExp&, QString);
+    static QString parserCommandImplementation( const QString& command, const QStringList& arguments, int* status, class MkSShellInterpreter* interpreter, void* data );
+    
 public:
-    CommandParser(QObject* parent, name)
-    QString name()
-        return mName
+    CommandParser(QObject* parent, const QString& name);
+    QString name() const
+        {    return mName;    };
+    void addPattern(const Pattern& pattern);
+    void removePattern(const QString& regExp);
+    int processParsing(QString* text);
+};
 
-    void addPattern( Pattern& pattern)
-    void removePattern( QString& regExp)
-    int processParsing(QString* text)
-
-
-#endif # COMMANDPARSER_H
+#endif // COMMANDPARSER_H

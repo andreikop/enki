@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,15 +12,15 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with self program; if not, to the Free Software
-    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
-***************************************************************************'''
-'''!
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+****************************************************************************/
+/*!
     \file VariablesManager.h
     \date 2008-01-14T00:37:18
     \author Andrei KOPATS
     \brief Header for VariablesManager class
-'''
+*/
 
 #ifndef VARIABLESMANAGER_H
 #define VARIABLESMANAGER_H
@@ -31,34 +31,35 @@
 #include <QApplication>
 #include <QHash>
 
-'''!
+/*!
     \brief Implementation of Variables Manager
-    Variables Manager allowing you to replace names of some variables
+    Variables Manager allowing you to replace names of some variables 
     in the string with according values.
-'''
-class Q_MONKEY_EXPORT VariablesManager : public QObject, QSingleton<VariablesManager>
+*/
+class Q_MONKEY_EXPORT VariablesManager : public QObject, public QSingleton<VariablesManager>
+{
     Q_OBJECT
-    friend class QSingleton<VariablesManager>
-
+    friend class QSingleton<VariablesManager>;
+    
 private:
-    VariablesManager( QObject* = QApplication.instance() )
+    VariablesManager( QObject* = QApplication::instance() );
 
 public:
-    typedef QHash<QString, Dictionary
-    #Returns variable.
-    #value = QString.null used, variable is not set
-    QString getVariable( QString name, locals )
+    typedef QHash<QString, QString> Dictionary;
+    //Returns variable. 
+    //Default value = QString::null used, if variable is not set
+    QString getVariable( QString name, Dictionary locals ); 
 
-    #Is variable set
-    bool isSet( QString name, locals )
+    //Is variable set
+    bool isSet( QString name, Dictionary& locals ); 
 
-    #Will replace all variables in the string with values
-    #If locals are presented, will be searched there too
-    QString replaceAllVariables( QString str, locals = Dictionary() )
+    //Will replace all variables in the string with values
+    //If locals are presented, variables will be searched there too
+    QString replaceAllVariables( QString str, Dictionary locals = Dictionary() );
 
 private:
-    #Hash for storing global constand variables. (Kernel version for example)
-    Dictionary globals
+    //Hash for storing global constand variables. (Kernel version for example)
+    Dictionary globals;
+};
 
-
-#endif #VARIABLESMANAGER_H
+#endif //VARIABLESMANAGER_H

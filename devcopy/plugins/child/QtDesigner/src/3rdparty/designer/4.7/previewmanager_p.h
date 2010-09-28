@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
 **
 ** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
@@ -9,23 +9,23 @@
 ** $QT_BEGIN_LICENSE:LGPL$
 ** No Commercial Usage
 ** This file contains pre-release code and may not be distributed.
-** You may use self file in accordance with the terms and conditions
+** You may use this file in accordance with the terms and conditions
 ** contained in the Technology Preview License Agreement accompanying
-** self package.
+** this package.
 **
 ** GNU Lesser General Public License Usage
-** Alternatively, file may be used under the terms of the GNU Lesser
+** Alternatively, this file may be used under the terms of the GNU Lesser
 ** General Public License version 2.1 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of self file.  Please review the following information to
+** packaging of this file.  Please review the following information to
 ** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http:#www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, a special exception, gives you certain additional
+** In addition, as a special exception, Nokia gives you certain additional
 ** rights.  These rights are described in the Nokia Qt LGPL Exception
-** version 1.1, in the file LGPL_EXCEPTION.txt in self package.
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
-** If you have questions regarding the use of self file, contact
+** If you have questions regarding the use of this file, please contact
 ** Nokia at qt-info@nokia.com.
 **
 **
@@ -37,18 +37,18 @@
 **
 ** $QT_END_LICENSE$
 **
-***************************************************************************'''
+****************************************************************************/
 
-#
-#  W A R N I N G
-#  -------------
-#
-# This file is not part of the Qt API.  It exists for the convenience
-# of Qt Designer.  This header
-# file may change from version to version without notice, even be removed.
-#
-# We mean it.
-#
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of Qt Designer.  This header
+// file may change from version to version without notice, or even be removed.
+//
+// We mean it.
+//
 
 #ifndef PREVIEWMANAGER_H
 #define PREVIEWMANAGER_H
@@ -61,124 +61,124 @@
 
 QT_BEGIN_NAMESPACE
 
-class QDesignerFormWindowInterface
-class QWidget
-class QPixmap
-class QAction
-class QActionGroup
-class QMenu
-class QWidget
-class QDesignerSettingsInterface
+class QDesignerFormWindowInterface;
+class QWidget;
+class QPixmap;
+class QAction;
+class QActionGroup;
+class QMenu;
+class QWidget;
+class QDesignerSettingsInterface;
 
-namespace qdesigner_internal
+namespace qdesigner_internal {
 
-# ----------- PreviewConfiguration
+// ----------- PreviewConfiguration
 
-class PreviewConfigurationData
+class PreviewConfigurationData;
 
-class QDESIGNER_SHARED_EXPORT PreviewConfiguration
+class QDESIGNER_SHARED_EXPORT PreviewConfiguration {
 public:
-    PreviewConfiguration()
-    explicit PreviewConfiguration( QString &style,
-                                   QString &applicationStyleSheet = QString(),
-                                   QString &deviceSkin = QString())
+    PreviewConfiguration();
+    explicit PreviewConfiguration(const QString &style,
+                                  const QString &applicationStyleSheet = QString(),
+                                  const QString &deviceSkin = QString());
 
-    PreviewConfiguration( PreviewConfiguration&)
-    PreviewConfiguration& operator=( PreviewConfiguration&)
-    ~PreviewConfiguration()
+    PreviewConfiguration(const PreviewConfiguration&);
+    PreviewConfiguration& operator=(const PreviewConfiguration&);
+    ~PreviewConfiguration();
 
-    QString style()
-    void setStyle( QString &)
+    QString style() const;
+    void setStyle(const QString &);
 
-    # Style sheet to prepend (to simulate the effect od QApplication.setSyleSheet()).
-    QString applicationStyleSheet()
-    void setApplicationStyleSheet( QString &)
+    // Style sheet to prepend (to simulate the effect od QApplication::setSyleSheet()).
+    QString applicationStyleSheet() const;
+    void setApplicationStyleSheet(const QString &);
 
-    QString deviceSkin()
-    void setDeviceSkin( QString &)
+    QString deviceSkin() const;
+    void setDeviceSkin(const QString &);
 
-    void clear()
-    void toSettings( QString &prefix, *settings)
-    void fromSettings( QString &prefix, *settings)
+    void clear();
+    void toSettings(const QString &prefix, QDesignerSettingsInterface *settings) const;
+    void fromSettings(const QString &prefix, const QDesignerSettingsInterface *settings);
 
 private:
-    QSharedDataPointer<PreviewConfigurationData> m_d
+    QSharedDataPointer<PreviewConfigurationData> m_d;
+};
 
+QDESIGNER_SHARED_EXPORT bool operator<(const PreviewConfiguration &pc1, const PreviewConfiguration &pc2);
+QDESIGNER_SHARED_EXPORT bool operator==(const PreviewConfiguration &pc1, const PreviewConfiguration &pc2);
+QDESIGNER_SHARED_EXPORT bool operator!=(const PreviewConfiguration &pc1, const PreviewConfiguration &pc2);
 
-QDESIGNER_SHARED_EXPORT bool operator<( PreviewConfiguration &pc1, &pc2)
-QDESIGNER_SHARED_EXPORT bool operator==( PreviewConfiguration &pc1, &pc2)
-QDESIGNER_SHARED_EXPORT bool operator!=( PreviewConfiguration &pc1, &pc2)
+// ----------- Preview window manager.
+// Maintains a list of preview widgets with their associated form windows and configuration.
 
-# ----------- Preview window manager.
-# Maintains a list of preview widgets with their associated form windows and configuration.
-
-class PreviewManagerPrivate
+class PreviewManagerPrivate;
 
 class QDESIGNER_SHARED_EXPORT PreviewManager : public QObject
+{
     Q_OBJECT
 public:
 
-    enum PreviewMode
-        # Modal preview. Do not use on Macs as dialogs would have no close button
+    enum PreviewMode {
+        // Modal preview. Do not use on Macs as dialogs would have no close button
         ApplicationModalPreview,
-        # Non modal previewing of one form in different configurations (closes if form window changes)
+        // Non modal previewing of one form in different configurations (closes if form window changes)
         SingleFormNonModalPreview,
-        # Non modal previewing of several forms in different configurations
-        MultipleFormNonModalPreview
+        // Non modal previewing of several forms in different configurations
+        MultipleFormNonModalPreview };
 
+    explicit PreviewManager(PreviewMode mode, QObject *parent);
+    virtual ~PreviewManager();
 
-    explicit PreviewManager(PreviewMode mode, *parent)
-    virtual ~PreviewManager()
+    // Show preview. Raise existing preview window if there is one with a matching
+    // configuration, else create a new preview.
+    QWidget *showPreview(const QDesignerFormWindowInterface *, const PreviewConfiguration &pc, int deviceProfileIndex /*=-1*/, QString *errorMessage);
+    // Convenience that creates a preview using a configuration taken from the settings.
+    QWidget *showPreview(const QDesignerFormWindowInterface *, const QString &style, int deviceProfileIndex /*=-1*/, QString *errorMessage);
+    QWidget *showPreview(const QDesignerFormWindowInterface *, const QString &style, QString *errorMessage);
 
-    # Show preview. Raise existing preview window if there is one with a matching
-    # configuration, create a preview.
-    QWidget *showPreview( QDesignerFormWindowInterface *, &pc, deviceProfileIndex '''=-1''', *errorMessage)
-    # Convenience that creates a preview using a configuration taken from the settings.
-    QWidget *showPreview( QDesignerFormWindowInterface *, &style, deviceProfileIndex '''=-1''', *errorMessage)
-    QWidget *showPreview( QDesignerFormWindowInterface *, &style, *errorMessage)
+    int previewCount() const;
 
-    int previewCount()
+    // Create a pixmap for printing.
+    QPixmap createPreviewPixmap(const QDesignerFormWindowInterface *fw, const PreviewConfiguration &pc, int deviceProfileIndex /*=-1*/, QString *errorMessage);
+    // Convenience that creates a pixmap using a configuration taken from the settings.
+    QPixmap createPreviewPixmap(const QDesignerFormWindowInterface *fw, const QString &style, int deviceProfileIndex /*=-1*/, QString *errorMessage);
+    QPixmap createPreviewPixmap(const QDesignerFormWindowInterface *fw, const QString &style, QString *errorMessage);
 
-    # Create a pixmap for printing.
-    QPixmap createPreviewPixmap( QDesignerFormWindowInterface *fw, &pc, deviceProfileIndex '''=-1''', *errorMessage)
-    # Convenience that creates a pixmap using a configuration taken from the settings.
-    QPixmap createPreviewPixmap( QDesignerFormWindowInterface *fw, &style, deviceProfileIndex '''=-1''', *errorMessage)
-    QPixmap createPreviewPixmap( QDesignerFormWindowInterface *fw, &style, *errorMessage)
-
-    virtual bool eventFilter(QObject *watched, *event)
+    virtual bool eventFilter(QObject *watched, QEvent *event);
 
 public slots:
-    void closeAllPreviews()
+    void closeAllPreviews();
 
 signals:
-    void firstPreviewOpened()
-    void lastPreviewClosed()
+    void firstPreviewOpened();
+    void lastPreviewClosed();
 
 private slots:
-    void slotZoomChanged(int)
+    void slotZoomChanged(int);
 
 private:
 
-    virtual Qt.WindowFlags previewWindowFlags( QWidget *widget)
-    virtual QWidget *createDeviceSkinContainer( QDesignerFormWindowInterface *)
+    virtual Qt::WindowFlags previewWindowFlags(const QWidget *widget) const;
+    virtual QWidget *createDeviceSkinContainer(const QDesignerFormWindowInterface *) const;
 
-    QWidget *raise( QDesignerFormWindowInterface *, &pc)
-    QWidget *createPreview( QDesignerFormWindowInterface *,
-                            PreviewConfiguration &pc,
-                           int deviceProfileIndex ''' = -1 ''',
+    QWidget *raise(const QDesignerFormWindowInterface *, const PreviewConfiguration &pc);
+    QWidget *createPreview(const QDesignerFormWindowInterface *,
+                           const PreviewConfiguration &pc,
+                           int deviceProfileIndex /* = -1 */,
                            QString *errorMessage,
-                           '''Disabled by default, <0 '''
-                           initialZoom = -1)
+                           /*Disabled by default, <0 */
+                           int initialZoom = -1);
 
-    void updatePreviewClosed(QWidget *w)
+    void updatePreviewClosed(QWidget *w);
 
-    PreviewManagerPrivate *d
+    PreviewManagerPrivate *d;
 
-    PreviewManager( PreviewManager &other)
-    PreviewManager &operator =( PreviewManager &other)
-
-
+    PreviewManager(const PreviewManager &other);
+    PreviewManager &operator =(const PreviewManager &other);
+};
+}
 
 QT_END_NAMESPACE
 
-#endif # PREVIEWMANAGER_H
+#endif // PREVIEWMANAGER_H

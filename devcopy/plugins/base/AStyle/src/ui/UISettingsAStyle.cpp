@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
 **
 **         Created using Monkey Studio v1.8.1.0
 ** Authors    : Filipe AZEVEDO aka Nox P@sNox <pasnox@gmail.com>
@@ -6,8 +6,8 @@
 ** FileName  : UISettingsAStyle.cpp
 ** Date      : 2008-01-14T00:39:48
 ** License   : GPL
-** Comment   : This header has been automatically generated, you are the original author, co-author, free to replace/append with your informations.
-** Home Page : http:#www.monkeystudio.org
+** Comment   : This header has been automatically generated, if you are the original author, or co-author, fill free to replace/append with your informations.
+** Home Page : http://www.monkeystudio.org
 **
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
@@ -22,165 +22,170 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with self program; if not, to the Free Software
-    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 **
-***************************************************************************'''
+****************************************************************************/
 #include "UISettingsAStyle.h"
 
 #include <coremanager/MonkeyCore.h>
 #include <settingsmanager/Settings.h>
 
-UISettingsAStyle.UISettingsAStyle( QWidget* p )
-        : QWidget( p )
-    setupUi( self )
-    setAttribute( Qt.WA_DeleteOnClose )
-    # connect radio button
-    QList<QRadioButton*> l = gbStyles.findChildren<QRadioButton*>()
-    for rb in l:
-    connect( rb, SIGNAL( clicked() ), SLOT( onStyleChange() ) )
-    # load settings
-    loadSettings()
+UISettingsAStyle::UISettingsAStyle( QWidget* p )
+    : QWidget( p )
+{
+    setupUi( this );
+    setAttribute( Qt::WA_DeleteOnClose );
+    // connect radio button
+    QList<QRadioButton*> l = gbStyles->findChildren<QRadioButton*>();
+    foreach ( QRadioButton* rb, l )
+        connect( rb, SIGNAL( clicked() ), SLOT( onStyleChange() ) );
+    // load settings
+    loadSettings();
+}
 
-
-def setStyle(self, s ):
-    QString sample
+void UISettingsAStyle::setStyle( AStylePredefinedStyle s )
+{
+    QString sample;
     switch ( s )
+    {
     case aspsAnsi:
-        sample = "namespace foospace\n{\n    int Foo()\n    {\n        if (isBar)\n        {\n            bar();\n            return 1;\n        }\n        else\n            return 0;\n    }\n}"
-        rbANSI.setChecked( True )
-        break
+        sample = "namespace foospace\n{\n    int Foo()\n    {\n        if (isBar)\n        {\n            bar();\n            return 1;\n        }\n        else\n            return 0;\n    }\n}";
+        rbANSI->setChecked( true );
+        break;
     case aspsKr:
-        sample = "namespace foospace {\n    int Foo() {\n        if (isBar) {\n            bar();\n            return 1;\n         } else\n            return 0;\n    }\n}"
-        rbKR.setChecked( True )
-        break
+        sample = "namespace foospace {\n    int Foo() {\n        if (isBar) {\n            bar();\n            return 1;\n         } else\n            return 0;\n    }\n}";
+        rbKR->setChecked( true );
+        break;
     case aspsLinux:
-        sample = "namespace foospace\n{\n        int Foo()\n        {\n                if (isBar) {\n                        bar();\n                        return 1;\n                 }\n                 else\n                        return 0;\n        }\n}"
-        rbLinux.setChecked( True )
-        break
+        sample = "namespace foospace\n{\n        int Foo()\n        {\n                if (isBar) {\n                        bar();\n                        return 1;\n                 }\n                 else\n                        return 0;\n        }\n}";
+        rbLinux->setChecked( true );
+        break;
     case aspsGnu:
-        sample = "namespace foospace\n  {\n  int Foo()\n  {\n    if (isBar)\n      {\n        bar();\n        return 1;\n      }\n    else\n      return 0;\n  }\n}"
-        rbGNU.setChecked( True )
-        break
+        sample = "namespace foospace\n  {\n  int Foo()\n  {\n    if (isBar)\n      {\n        bar();\n        return 1;\n      }\n    else\n      return 0;\n  }\n}";
+        rbGNU->setChecked( true );
+        break;
     case aspsJava:
-        sample = "namespace foospace {\n    int Foo() {\n        if (isBar) {\n            bar();\n            return 1;\n         }\n         else\n            return 0;\n    }\n}"
-        rbJava.setChecked( True )
-        break
+        sample = "namespace foospace {\n    int Foo() {\n        if (isBar) {\n            bar();\n            return 1;\n         }\n         else\n            return 0;\n    }\n}";
+        rbJava->setChecked( true );
+        break;
     default:
-        rbCustom.setChecked( True )
-        break
+        rbCustom->setChecked( true );
+        break;
+    }
+    
+    bool en = s != aspsCustom;
+    teSample->setText( sample );
+    teSample->setEnabled( en );
+    // disable/enable checkboxes based on style
+    spnIndentation->setEnabled( !en );
+    chkUseTab->setEnabled( !en );
+    chkForceUseTabs->setEnabled( !en );
+    chkConvertTabs->setEnabled( !en );
+    chkFillEmptyLines->setEnabled( !en );
+    chkIndentClasses->setEnabled( !en );
+    chkIndentSwitches->setEnabled( !en );
+    chkIndentCase->setEnabled( !en );
+    chkIndentBrackets->setEnabled( !en );
+    chkIndentBlocks->setEnabled( !en );
+    chkIndentNamespaces->setEnabled( !en );
+    chkIndentLabels->setEnabled( !en );
+    chkIndentPreprocessor->setEnabled( !en );
+    cmbBreakType->setEnabled( !en );
+    chkBreakBlocks->setEnabled( !en );
+    chkBreakElseIfs->setEnabled( !en );
+    chkPadOperators->setEnabled( !en );
+    chkPadParens->setEnabled( !en );
+    chkKeepComplex->setEnabled( !en );
+    chkKeepBlocks->setEnabled( !en );
+}
 
+void UISettingsAStyle::onStyleChange()
+{
+    QRadioButton* rb = qobject_cast<QRadioButton*>( sender() );
+    if ( rb == rbANSI )
+        setStyle( aspsAnsi );
+    else if ( rb == rbKR )
+        setStyle( aspsKr );
+    else if ( rb == rbLinux )
+        setStyle( aspsLinux );
+    else if ( rb == rbGNU )
+        setStyle( aspsGnu );
+    else if ( rb == rbJava )
+        setStyle( aspsJava );
+    else if ( rb == rbCustom )
+        setStyle( aspsCustom );
+}
 
-    en = s != aspsCustom
-    teSample.setText( sample )
-    teSample.setEnabled( en )
-    # disable/enable checkboxes based on style
-    spnIndentation.setEnabled( not en )
-    chkUseTab.setEnabled( not en )
-    chkForceUseTabs.setEnabled( not en )
-    chkConvertTabs.setEnabled( not en )
-    chkFillEmptyLines.setEnabled( not en )
-    chkIndentClasses.setEnabled( not en )
-    chkIndentSwitches.setEnabled( not en )
-    chkIndentCase.setEnabled( not en )
-    chkIndentBrackets.setEnabled( not en )
-    chkIndentBlocks.setEnabled( not en )
-    chkIndentNamespaces.setEnabled( not en )
-    chkIndentLabels.setEnabled( not en )
-    chkIndentPreprocessor.setEnabled( not en )
-    cmbBreakType.setEnabled( not en )
-    chkBreakBlocks.setEnabled( not en )
-    chkBreakElseIfs.setEnabled( not en )
-    chkPadOperators.setEnabled( not en )
-    chkPadParens.setEnabled( not en )
-    chkKeepComplex.setEnabled( not en )
-    chkKeepBlocks.setEnabled( not en )
+void UISettingsAStyle::loadSettings()
+{
+    Settings* s = MonkeyCore::settings();
+    s->beginGroup( QString( "Plugins/%1" ).arg( PLUGIN_NAME ) );
+    int style = s->value( "style", 0 ).toInt();
+    spnIndentation->setValue( s->value( "indentation", 4 ).toInt() );
+    chkUseTab->setChecked( s->value( "use_tabs", false ).toBool() );
+    chkForceUseTabs->setChecked( s->value( "force_tabs", false ).toBool() );
+    chkConvertTabs->setChecked( s->value( "convert_tabs", false ).toBool() );
+    chkFillEmptyLines->setChecked( s->value( "fill_empty_lines", false ).toBool() );
+    chkIndentClasses->setChecked( s->value( "indent_classes", false ).toBool() );
+    chkIndentSwitches->setChecked( s->value( "indent_switches", false ).toBool() );
+    chkIndentCase->setChecked( s->value( "indent_case", false ).toBool() );
+    chkIndentBrackets->setChecked( s->value( "indent_brackets", false ).toBool() );
+    chkIndentBlocks->setChecked( s->value( "indent_blocks", false ).toBool() );
+    chkIndentNamespaces->setChecked( s->value( "indent_namespaces", false ).toBool() );
+    chkIndentLabels->setChecked( s->value( "indent_labels", false ).toBool() );
+    chkIndentPreprocessor->setChecked( s->value( "indent_preprocessor", false ).toBool() );
+    cmbBreakType->setCurrentIndex( s->value( "break_type", 0 ).toInt() );
+    chkBreakBlocks->setChecked( s->value( "break_blocks", false ).toBool() );
+    chkBreakElseIfs->setChecked( s->value( "break_elseifs", false ).toBool() );
+    chkPadOperators->setChecked( s->value( "pad_operators", false ).toBool() );
+    chkPadParens->setChecked( s->value( "pad_parentheses", false ).toBool() );
+    chkKeepComplex->setChecked( s->value( "keep_complex", false ).toBool() );
+    chkKeepBlocks->setChecked( s->value( "keep_blocks", false ).toBool() );
+    s->endGroup();
+    setStyle( ( AStylePredefinedStyle )style );
+}
 
+void UISettingsAStyle::saveSettings()
+{
+    int style = 0;
+    if ( rbANSI->isChecked() )
+        style = 0;
+    else if ( rbKR->isChecked() )
+        style = 1;
+    else if ( rbLinux->isChecked() )
+        style = 2;
+    else if ( rbGNU->isChecked() )
+        style = 3;
+    else if ( rbJava->isChecked() )
+        style = 4;
+    else if ( rbCustom->isChecked() )
+        style = 5;
+    Settings* s = MonkeyCore::settings();
+    s->beginGroup( QString( "Plugins/%1" ).arg( PLUGIN_NAME ) );
+    s->setValue( "style", style );
+    s->setValue( "indentation", spnIndentation->value() );
+    s->setValue( "use_tabs", chkUseTab->isChecked() );
+    s->setValue( "force_tabs", chkForceUseTabs->isChecked() );
+    s->setValue( "convert_tabs", chkConvertTabs->isChecked() );
+    s->setValue( "fill_empty_lines", chkFillEmptyLines->isChecked() );
+    s->setValue( "indent_classes", chkIndentClasses->isChecked() );
+    s->setValue( "indent_switches", chkIndentSwitches->isChecked() );
+    s->setValue( "indent_case", chkIndentCase->isChecked() );
+    s->setValue( "indent_brackets", chkIndentBrackets->isChecked() );
+    s->setValue( "indent_blocks", chkIndentBlocks->isChecked() );
+    s->setValue( "indent_namespaces", chkIndentNamespaces->isChecked() );
+    s->setValue( "indent_labels", chkIndentLabels->isChecked() );
+    s->setValue( "indent_preprocessor", chkIndentPreprocessor->isChecked() );
+    s->setValue( "break_type",  cmbBreakType->currentIndex () );
+    s->setValue( "break_blocks", chkBreakBlocks->isChecked() );
+    s->setValue( "break_elseifs", chkBreakElseIfs->isChecked() );
+    s->setValue( "pad_operators", chkPadOperators->isChecked() );
+    s->setValue( "pad_parentheses", chkPadParens->isChecked() );
+    s->setValue( "keep_complex", chkKeepComplex->isChecked() );
+    s->setValue( "keep_blocks", chkKeepBlocks->isChecked() );
+    s->endGroup();
+}
 
-def onStyleChange(self):
-    rb = qobject_cast<QRadioButton*>( sender() )
-    if  rb == rbANSI :
-        setStyle( aspsAnsi )
-    elif  rb == rbKR :
-        setStyle( aspsKr )
-    elif  rb == rbLinux :
-        setStyle( aspsLinux )
-    elif  rb == rbGNU :
-        setStyle( aspsGnu )
-    elif  rb == rbJava :
-        setStyle( aspsJava )
-    elif  rb == rbCustom :
-        setStyle( aspsCustom )
-
-
-def loadSettings(self):
-    s = MonkeyCore.settings()
-    s.beginGroup( QString( "Plugins/%1" ).arg( PLUGIN_NAME ) )
-    style = s.value( "style", 0 ).toInt()
-    spnIndentation.setValue( s.value( "indentation", 4 ).toInt() )
-    chkUseTab.setChecked( s.value( "use_tabs", False ).toBool() )
-    chkForceUseTabs.setChecked( s.value( "force_tabs", False ).toBool() )
-    chkConvertTabs.setChecked( s.value( "convert_tabs", False ).toBool() )
-    chkFillEmptyLines.setChecked( s.value( "fill_empty_lines", False ).toBool() )
-    chkIndentClasses.setChecked( s.value( "indent_classes", False ).toBool() )
-    chkIndentSwitches.setChecked( s.value( "indent_switches", False ).toBool() )
-    chkIndentCase.setChecked( s.value( "indent_case", False ).toBool() )
-    chkIndentBrackets.setChecked( s.value( "indent_brackets", False ).toBool() )
-    chkIndentBlocks.setChecked( s.value( "indent_blocks", False ).toBool() )
-    chkIndentNamespaces.setChecked( s.value( "indent_namespaces", False ).toBool() )
-    chkIndentLabels.setChecked( s.value( "indent_labels", False ).toBool() )
-    chkIndentPreprocessor.setChecked( s.value( "indent_preprocessor", False ).toBool() )
-    cmbBreakType.setCurrentIndex( s.value( "break_type", 0 ).toInt() )
-    chkBreakBlocks.setChecked( s.value( "break_blocks", False ).toBool() )
-    chkBreakElseIfs.setChecked( s.value( "break_elseifs", False ).toBool() )
-    chkPadOperators.setChecked( s.value( "pad_operators", False ).toBool() )
-    chkPadParens.setChecked( s.value( "pad_parentheses", False ).toBool() )
-    chkKeepComplex.setChecked( s.value( "keep_complex", False ).toBool() )
-    chkKeepBlocks.setChecked( s.value( "keep_blocks", False ).toBool() )
-    s.endGroup()
-    setStyle( ( AStylePredefinedStyle )style )
-
-
-def saveSettings(self):
-    style = 0
-    if  rbANSI.isChecked() :
-        style = 0
-    elif  rbKR.isChecked() :
-        style = 1
-    elif  rbLinux.isChecked() :
-        style = 2
-    elif  rbGNU.isChecked() :
-        style = 3
-    elif  rbJava.isChecked() :
-        style = 4
-    elif  rbCustom.isChecked() :
-        style = 5
-    s = MonkeyCore.settings()
-    s.beginGroup( QString( "Plugins/%1" ).arg( PLUGIN_NAME ) )
-    s.setValue( "style", style )
-    s.setValue( "indentation", spnIndentation.value() )
-    s.setValue( "use_tabs", chkUseTab.isChecked() )
-    s.setValue( "force_tabs", chkForceUseTabs.isChecked() )
-    s.setValue( "convert_tabs", chkConvertTabs.isChecked() )
-    s.setValue( "fill_empty_lines", chkFillEmptyLines.isChecked() )
-    s.setValue( "indent_classes", chkIndentClasses.isChecked() )
-    s.setValue( "indent_switches", chkIndentSwitches.isChecked() )
-    s.setValue( "indent_case", chkIndentCase.isChecked() )
-    s.setValue( "indent_brackets", chkIndentBrackets.isChecked() )
-    s.setValue( "indent_blocks", chkIndentBlocks.isChecked() )
-    s.setValue( "indent_namespaces", chkIndentNamespaces.isChecked() )
-    s.setValue( "indent_labels", chkIndentLabels.isChecked() )
-    s.setValue( "indent_preprocessor", chkIndentPreprocessor.isChecked() )
-    s.setValue( "break_type",  cmbBreakType.currentIndex () )
-    s.setValue( "break_blocks", chkBreakBlocks.isChecked() )
-    s.setValue( "break_elseifs", chkBreakElseIfs.isChecked() )
-    s.setValue( "pad_operators", chkPadOperators.isChecked() )
-    s.setValue( "pad_parentheses", chkPadParens.isChecked() )
-    s.setValue( "keep_complex", chkKeepComplex.isChecked() )
-    s.setValue( "keep_blocks", chkKeepBlocks.isChecked() )
-    s.endGroup()
-
-
-def on_pbApply_clicked(self):
-    saveSettings()
-
+void UISettingsAStyle::on_pbApply_clicked()
+{ saveSettings(); }

@@ -10,168 +10,191 @@
 
 #include <QComboBox>
 
-MkSFileDialog.MkSFileDialog( QWidget* parent, caption, directory, filter, textCodecEnabled, openReadOnlyEnabled )
-        : pFileDialog( parent, caption, directory, filter, textCodecEnabled, openReadOnlyEnabled )
-    mAddFiles = XUPAddFiles( self )
-    glDialog.addWidget( mAddFiles, 6, 0, 1, -1 )
+MkSFileDialog::MkSFileDialog( QWidget* parent, const QString& caption, const QString& directory, const QString& filter, bool textCodecEnabled, bool openReadOnlyEnabled )
+    : pFileDialog( parent, caption, directory, filter, textCodecEnabled, openReadOnlyEnabled )
+{
+    mAddFiles = new XUPAddFiles( this );
+    glDialog->addWidget( mAddFiles, 6, 0, 1, -1 );
+    
+    connect( mAddFiles, SIGNAL( currentScopeChanged( XUPItem* ) ), this, SLOT( currentScopeChanged( XUPItem* ) ) );
+}
 
-    mAddFiles.currentScopeChanged.connect(self.currentScopeChanged)
+void MkSFileDialog::currentScopeChanged( XUPItem* scope )
+{
+    if ( scope )
+    {
+        QString projectPath = QDir( scope->project()->path() ).canonicalPath();
+        
+        if ( !directory().canonicalPath().startsWith( projectPath ) )
+        {
+            setDirectory( projectPath );
+        }
+    }
+}
 
+pFileDialogResult MkSFileDialog::getOpenFileName( QWidget* parent, const QString& caption, const QString& dir, const QString& filter, bool enabledTextCodec, bool enabledOpenReadOnly, QString* selectedFilter, Options options )
+{
+    pFileDialogResult result;
+    MkSFileDialog fd( parent );
+    setOpenFileNameDialog( &fd, caption, dir, filter, enabledTextCodec, enabledOpenReadOnly, selectedFilter, options );
+    fd.setTextCodec( pMonkeyStudio::defaultCodec() );
+    fd.mAddFiles->setVisible( false );
+    
+    if ( fd.exec() == QDialog::Accepted )
+    {
+        if ( selectedFilter )
+        {
+            *selectedFilter = fd.selectedFilter();
+        }
+        
+        result[ "filename" ] = fd.selectedFiles().value( 0 );
+        result[ "codec" ] = fd.textCodec();
+        result[ "openreadonly" ] = fd.openReadOnly();
+    }
+    
+    return result;
+}
 
-def currentScopeChanged(self, scope ):
-    if  scope :
-        projectPath = QDir( scope.project().path() ).canonicalPath()
+pFileDialogResult MkSFileDialog::getOpenFileNames( QWidget* parent, const QString& caption, const QString& dir, const QString& filter, bool enabledTextCodec, bool enabledOpenReadOnly, QString* selectedFilter, Options options )
+{
+    pFileDialogResult result;
+    MkSFileDialog fd( parent );
+    setOpenFileNamesDialog( &fd, caption, dir, filter, enabledTextCodec, enabledOpenReadOnly, selectedFilter, options );
+    fd.setTextCodec( pMonkeyStudio::defaultCodec() );
+    fd.mAddFiles->setVisible( false );
+    
+    if ( fd.exec() == QDialog::Accepted )
+    {
+        if ( selectedFilter )
+        {
+            *selectedFilter = fd.selectedFilter();
+        }
+        
+        result[ "filenames" ] = fd.selectedFiles();
+        result[ "codec" ] = fd.textCodec();
+        result[ "openreadonly" ] = fd.openReadOnly();
+    }
+    
+    return result;
+}
 
-        if  not directory().canonicalPath().startsWith( projectPath ) :
-            setDirectory( projectPath )
+pFileDialogResult MkSFileDialog::getSaveFileName( QWidget* parent, const QString& caption, const QString& dir, const QString& filter, bool enabledTextCodec, QString* selectedFilter, Options options )
+{
+    pFileDialogResult result;
+    MkSFileDialog fd( parent );
+    setSaveFileNameDialog( &fd, caption, dir, filter, enabledTextCodec, selectedFilter, options );
+    fd.setTextCodec( pMonkeyStudio::defaultCodec() );
+    fd.mAddFiles->setVisible( false );
+    
+    if ( fd.exec() == QDialog::Accepted )
+    {
+        if ( selectedFilter )
+        {
+            *selectedFilter = fd.selectedFilter();
+        }
+        
+        result[ "filename" ] = fd.selectedFiles().value( 0 );
+        result[ "codec" ] = fd.textCodec();
+        result[ "openreadonly" ] = fd.openReadOnly();
+    }
+    
+    return result;
+}
 
+pFileDialogResult MkSFileDialog::getOpenProjects( QWidget* parent )
+{
+    pFileDialogResult result;
+    QString caption = tr( "Choose project(s) to open" );
+    QString filter = XUPProjectItem::projectInfos()->projectsFilter();
+    bool enabledTextCodec = true;
+    bool enabledOpenReadOnly = false;
+    
+    MkSFileDialog fd( parent );
+    setOpenFileNamesDialog( &fd, caption, QDir::currentPath() , filter, enabledTextCodec, enabledOpenReadOnly, 0, 0 );
+    fd.setTextCodec( pMonkeyStudio::defaultCodec() );
+    fd.mAddFiles->setVisible( false );
+    
+    if ( fd.exec() == QDialog::Accepted )
+    {
+        result[ "filenames" ] = fd.selectedFiles();
+        result[ "codec" ] = fd.textCodec();
+        result[ "openreadonly" ] = fd.openReadOnly();
+    }
+    
+    return result;
+}
 
+pFileDialogResult MkSFileDialog::getProjectAddFiles( QWidget* parent, bool allowChooseScope )
+{
+    pFileDialogResult result;
+    XUPProjectModel* model = MonkeyCore::projectsManager()->currentProjectModel();
+    
+    if ( model )
+    {
+        XUPProjectItem* curProject = MonkeyCore::projectsManager()->currentProject();
+        QStringList operators = curProject->projectInfos()->operators( curProject->projectType() );
+        QString caption = tr( "Choose file(s) to add to your project" );
+        QString filter = XUPProjectItem::projectInfos()->variableSuffixesFilter( curProject->projectType() );
+        bool enabledTextCodec = false;
+        bool enabledOpenReadOnly = false;
+        
+        MkSFileDialog fd( parent );
+        setOpenFileNamesDialog( &fd, caption, QDir::currentPath(), filter, enabledTextCodec, enabledOpenReadOnly, 0, 0 );
+        fd.setTextCodec( pMonkeyStudio::defaultCodec() );
+        fd.mAddFiles->setModel( model );
+        fd.mAddFiles->setCurrentScope( curProject );
+        fd.mAddFiles->setScopeChoiceEnabled( allowChooseScope );
+        
+        if ( fd.exec() == QDialog::Accepted )
+        {
+            result[ "filenames" ] = fd.selectedFiles();
+            result[ "scope" ] = QVariant::fromValue<XUPItem*>( fd.mAddFiles->currentScope() );
+            result[ "import" ] = fd.mAddFiles->importExternalFiles();
+            result[ "importpath" ] = fd.mAddFiles->importExternalFilesPath();
+            result[ "directory" ] = fd.directory().absolutePath();
+        }
+    }
+    
+    return result;
+}
 
-
-def getOpenFileName(self, parent, caption, dir, filter, enabledTextCodec, enabledOpenReadOnly, selectedFilter, options ):
-    pFileDialogResult result
-    MkSFileDialog fd( parent )
-    setOpenFileNameDialog( &fd, caption, dir, filter, enabledTextCodec, enabledOpenReadOnly, selectedFilter, options )
-    fd.setTextCodec( pMonkeyStudio.defaultCodec() )
-    fd.mAddFiles.setVisible( False )
-
-    if  fd.exec() == QDialog.Accepted :
-        if  selectedFilter :
-            *selectedFilter = fd.selectedFilter()
-
-
-        result[ "filename" ] = fd.selectedFiles().value( 0 )
-        result[ "codec" ] = fd.textCodec()
-        result[ "openreadonly" ] = fd.openReadOnly()
-
-
-    return result
-
-
-def getOpenFileNames(self, parent, caption, dir, filter, enabledTextCodec, enabledOpenReadOnly, selectedFilter, options ):
-    pFileDialogResult result
-    MkSFileDialog fd( parent )
-    setOpenFileNamesDialog( &fd, caption, dir, filter, enabledTextCodec, enabledOpenReadOnly, selectedFilter, options )
-    fd.setTextCodec( pMonkeyStudio.defaultCodec() )
-    fd.mAddFiles.setVisible( False )
-
-    if  fd.exec() == QDialog.Accepted :
-        if  selectedFilter :
-            *selectedFilter = fd.selectedFilter()
-
-
-        result[ "filenames" ] = fd.selectedFiles()
-        result[ "codec" ] = fd.textCodec()
-        result[ "openreadonly" ] = fd.openReadOnly()
-
-
-    return result
-
-
-def getSaveFileName(self, parent, caption, dir, filter, enabledTextCodec, selectedFilter, options ):
-    pFileDialogResult result
-    MkSFileDialog fd( parent )
-    setSaveFileNameDialog( &fd, caption, dir, filter, enabledTextCodec, selectedFilter, options )
-    fd.setTextCodec( pMonkeyStudio.defaultCodec() )
-    fd.mAddFiles.setVisible( False )
-
-    if  fd.exec() == QDialog.Accepted :
-        if  selectedFilter :
-            *selectedFilter = fd.selectedFilter()
-
-
-        result[ "filename" ] = fd.selectedFiles().value( 0 )
-        result[ "codec" ] = fd.textCodec()
-        result[ "openreadonly" ] = fd.openReadOnly()
-
-
-    return result
-
-
-def getOpenProjects(self, parent ):
-    pFileDialogResult result
-    caption = tr( "Choose project(s) to open" )
-    filter = XUPProjectItem.projectInfos().projectsFilter()
-    enabledTextCodec = True
-    enabledOpenReadOnly = False
-
-    MkSFileDialog fd( parent )
-    setOpenFileNamesDialog( &fd, caption, QDir.currentPath() , filter, enabledTextCodec, enabledOpenReadOnly, 0, 0 )
-    fd.setTextCodec( pMonkeyStudio.defaultCodec() )
-    fd.mAddFiles.setVisible( False )
-
-    if  fd.exec() == QDialog.Accepted :
-        result[ "filenames" ] = fd.selectedFiles()
-        result[ "codec" ] = fd.textCodec()
-        result[ "openreadonly" ] = fd.openReadOnly()
-
-
-    return result
-
-
-def getProjectAddFiles(self, parent, allowChooseScope ):
-    pFileDialogResult result
-    model = MonkeyCore.projectsManager().currentProjectModel()
-
-    if  model :
-        curProject = MonkeyCore.projectsManager().currentProject()
-        operators = curProject.projectInfos().operators( curProject.projectType() )
-        caption = tr( "Choose file(s) to add to your project" )
-        filter = XUPProjectItem.projectInfos().variableSuffixesFilter( curProject.projectType() )
-        enabledTextCodec = False
-        enabledOpenReadOnly = False
-
-        MkSFileDialog fd( parent )
-        setOpenFileNamesDialog( &fd, caption, QDir.currentPath(), filter, enabledTextCodec, enabledOpenReadOnly, 0, 0 )
-        fd.setTextCodec( pMonkeyStudio.defaultCodec() )
-        fd.mAddFiles.setModel( model )
-        fd.mAddFiles.setCurrentScope( curProject )
-        fd.mAddFiles.setScopeChoiceEnabled( allowChooseScope )
-
-        if  fd.exec() == QDialog.Accepted :
-            result[ "filenames" ] = fd.selectedFiles()
-            result[ "scope" ] = QVariant.fromValue<XUPItem*>( fd.mAddFiles.currentScope() )
-            result[ "import" ] = fd.mAddFiles.importExternalFiles()
-            result[ "importpath" ] = fd.mAddFiles.importExternalFilesPath()
-            result[ "directory" ] = fd.directory().absolutePath()
-
-
-
-    return result
-
-
-def getNewEditorFile(self, parent ):
-    pFileDialogResult result
-    model = MonkeyCore.projectsManager().currentProjectModel()
-    curProject = MonkeyCore.projectsManager().currentProject()
-    operators = curProject ? curProject.projectInfos().operators( curProject.projectType() ) : QStringList()
-    caption = tr( "New File Name..." )
-    filter = curProject ? XUPProjectItem.projectInfos().variableSuffixesFilter( curProject.projectType() ) : pMonkeyStudio.availableFilesFilters()
-    enabledTextCodec = True
-
-    MkSFileDialog fd( parent )
-    setSaveFileNameDialog( &fd, caption, QDir.currentPath(), filter, enabledTextCodec, 0, 0 )
-    fd.setTextCodec( pMonkeyStudio.defaultCodec() )
-
-    if  curProject :
-        fd.mAddFiles.setModel( model )
-        fd.mAddFiles.setAddToProjectChoice( True )
-        fd.mAddFiles.setAddToProject( False )
-        fd.mAddFiles.setCurrentScope( curProject )
-
-    else:
-        fd.mAddFiles.setVisible( False )
-
-
-    if  fd.exec() == QDialog.Accepted :
-        result[ "filename" ] = fd.selectedFiles().value( 0 )
-        result[ "codec" ] = fd.textCodec()
-
-        if  model :
-            result[ "addtoproject" ] = fd.mAddFiles.addToProject()
-            result[ "scope" ] = QVariant.fromValue<XUPItem*>( fd.mAddFiles.currentScope() )
-
-
-
-    return result
-
+pFileDialogResult MkSFileDialog::getNewEditorFile( QWidget* parent )
+{
+    pFileDialogResult result;
+    XUPProjectModel* model = MonkeyCore::projectsManager()->currentProjectModel();
+    XUPProjectItem* curProject = MonkeyCore::projectsManager()->currentProject();
+    QStringList operators = curProject ? curProject->projectInfos()->operators( curProject->projectType() ) : QStringList();
+    QString caption = tr( "New File Name..." );
+    QString filter = curProject ? XUPProjectItem::projectInfos()->variableSuffixesFilter( curProject->projectType() ) : pMonkeyStudio::availableFilesFilters();
+    bool enabledTextCodec = true;
+    
+    MkSFileDialog fd( parent );
+    setSaveFileNameDialog( &fd, caption, QDir::currentPath(), filter, enabledTextCodec, 0, 0 );
+    fd.setTextCodec( pMonkeyStudio::defaultCodec() );
+    
+    if ( curProject )
+    {
+        fd.mAddFiles->setModel( model );
+        fd.mAddFiles->setAddToProjectChoice( true );
+        fd.mAddFiles->setAddToProject( false );
+        fd.mAddFiles->setCurrentScope( curProject );
+    }
+    else
+    {
+        fd.mAddFiles->setVisible( false );
+    }
+    
+    if ( fd.exec() == QDialog::Accepted )
+    {
+        result[ "filename" ] = fd.selectedFiles().value( 0 );
+        result[ "codec" ] = fd.textCodec();
+        
+        if ( model )
+        {
+            result[ "addtoproject" ] = fd.mAddFiles->addToProject();
+            result[ "scope" ] = QVariant::fromValue<XUPItem*>( fd.mAddFiles->currentScope() );
+        }
+    }
+    
+    return result;
+}

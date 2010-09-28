@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
 **
 **         Created using Monkey Studio v1.8.1.0
 ** Authors    : Filipe AZEVEDO aka Nox P@sNox <pasnox@gmail.com>
@@ -6,8 +6,8 @@
 ** FileName  : pAbbreviationsManager.h
 ** Date      : 2008-01-14T00:36:49
 ** License   : GPL
-** Comment   : This header has been automatically generated, you are the original author, co-author, free to replace/append with your informations.
-** Home Page : http:#www.monkeystudio.org
+** Comment   : This header has been automatically generated, if you are the original author, or co-author, fill free to replace/append with your informations.
+** Home Page : http://www.monkeystudio.org
 **
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
@@ -22,10 +22,10 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with self program; if not, to the Free Software
-    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 **
-***************************************************************************'''
+****************************************************************************/
 #ifndef PABBREVIATIONSMANAGER_H
 #define PABBREVIATIONSMANAGER_H
 
@@ -35,64 +35,72 @@
 #include <QString>
 #include <QList>
 
-class pEditor
-class MkSShellInterpreter
+class pEditor;
+class MkSShellInterpreter;
 
 struct Q_MONKEY_EXPORT pAbbreviation
-    pAbbreviation()    pAbbreviation(  QString& m, d, l, s )
-            : Macro( m ), Description( d ), Language( l ), Snippet( s )
-    QString Macro
-    QString Description
-    QString Language
-    QString Snippet
+{
+    pAbbreviation() {}
+    pAbbreviation( const QString& m, const QString& d, const QString& l, const QString& s )
+        : Macro( m ), Description( d ), Language( l ), Snippet( s ) {}
 
-    pAbbreviation& operator=(  pAbbreviation& other )
-        if  *self != other :
-            Macro = other.Macro
-            Description = other.Description
-            Language = other.Language
-            Snippet = other.Snippet
+    QString Macro;
+    QString Description;
+    QString Language;
+    QString Snippet;
+    
+    pAbbreviation& operator=( const pAbbreviation& other )
+    {
+        if ( *this != other )
+        {
+            Macro = other.Macro;
+            Description = other.Description;
+            Language = other.Language;
+            Snippet = other.Snippet;
+        }
+        
+        return *this;
+    }
 
+    bool operator==( const pAbbreviation& other ) const
+    {
+        return Macro == other.Macro && Description == other.Description &&
+            Language == other.Language && Snippet == other.Snippet;
+    }
+    
+    bool operator!=( const pAbbreviation& other ) const
+    {
+        return !operator==( other );
+    }
+};
 
-        return *self
-
-
-    bool operator==(  pAbbreviation& other )
-        return Macro == other.Macro and Description == other.Description and
-               Language == other.Language and Snippet == other.Snippet
-
-
-    bool operator!=(  pAbbreviation& other )
-        return not operator==( other )
-
-
-
-typedef QList<pAbbreviation> pAbbreviationList
+typedef QList<pAbbreviation> pAbbreviationList;
 
 class Q_MONKEY_EXPORT pAbbreviationsManager : public QObject
+{
     Q_OBJECT
-    friend class MonkeyCore
-
+    friend class MonkeyCore;
+    
 public:
-    pAbbreviationsManager( parent = 0 )
-
-    void clear()
-    void add(  pAbbreviation& abbreviation )
-    void add(  pAbbreviationList& abbreviations )
-    void set(  pAbbreviationList& abbreviations )
-    void remove(  pAbbreviation& abbreviation )
-    void remove(  pAbbreviationList& abbreviations )
-    void remove(  QString& macro, language )
-     pAbbreviationList& abbreviations()
-    pAbbreviation abbreviation(  QString& macro, language )
-    void expandMacro( pEditor* editor )
-    void generateScript()
+    pAbbreviationsManager( QObject* parent = 0 );
+    
+    void clear();
+    void add( const pAbbreviation& abbreviation );
+    void add( const pAbbreviationList& abbreviations );
+    void set( const pAbbreviationList& abbreviations );
+    void remove( const pAbbreviation& abbreviation );
+    void remove( const pAbbreviationList& abbreviations );
+    void remove( const QString& macro, const QString& language );
+    const pAbbreviationList& abbreviations() const;
+    pAbbreviation abbreviation( const QString& macro, const QString& language ) const;
+    void expandMacro( pEditor* editor );
+    void generateScript();
 
 protected:
-    pAbbreviationList mAbbreviations
+    pAbbreviationList mAbbreviations;
+    
+    void initialize();
+    static QString commandInterpreter( const QString& command, const QStringList& arguments, int* result, MkSShellInterpreter* interpreter, void* data );
+};
 
-    void initialize()
-    static QString commandInterpreter(  QString& command, arguments, result, interpreter, data )
-
-
-#endif # PABBREVIATIONSMANAGER_H
+#endif // PABBREVIATIONSMANAGER_H

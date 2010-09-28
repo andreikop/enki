@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,9 +12,9 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with self program; if not, to the Free Software
-    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
-***************************************************************************'''
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+****************************************************************************/
 #ifndef QTDESIGNER_H
 #define QTDESIGNER_H
 
@@ -22,21 +22,22 @@
 
 #include <QPointer>
 
-class QtDesignerManager
+class QtDesignerManager;
 
 class QtDesigner : public ChildPlugin
+{
     Q_OBJECT
     Q_INTERFACES( BasePlugin ChildPlugin )
-
-protected:
-    void fillPluginInfos()
-    virtual bool install()
-    virtual bool uninstall()
+    
+protected:    
+    void fillPluginInfos();
+    virtual bool install();
+    virtual bool uninstall();
 public:
-    virtual pAbstractChild* createDocument(  QString& fileName )
+    virtual pAbstractChild* createDocument( const QString& fileName );
 
 protected:
-    QPointer<QtDesignerManager> mDesignerManager
+    QPointer<QtDesignerManager> mDesignerManager;
+};
 
-
-#endif # QTDESIGNER_H
+#endif // QTDESIGNER_H

@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
 **
 ** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
@@ -9,23 +9,23 @@
 ** $QT_BEGIN_LICENSE:LGPL$
 ** No Commercial Usage
 ** This file contains pre-release code and may not be distributed.
-** You may use self file in accordance with the terms and conditions
+** You may use this file in accordance with the terms and conditions
 ** contained in the Technology Preview License Agreement accompanying
-** self package.
+** this package.
 **
 ** GNU Lesser General Public License Usage
-** Alternatively, file may be used under the terms of the GNU Lesser
+** Alternatively, this file may be used under the terms of the GNU Lesser
 ** General Public License version 2.1 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of self file.  Please review the following information to
+** packaging of this file.  Please review the following information to
 ** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http:#www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, a special exception, gives you certain additional
+** In addition, as a special exception, Nokia gives you certain additional
 ** rights.  These rights are described in the Nokia Qt LGPL Exception
-** version 1.1, in the file LGPL_EXCEPTION.txt in self package.
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
-** If you have questions regarding the use of self file, contact
+** If you have questions regarding the use of this file, please contact
 ** Nokia at qt-info@nokia.com.
 **
 **
@@ -37,7 +37,7 @@
 **
 ** $QT_END_LICENSE$
 **
-***************************************************************************'''
+****************************************************************************/
 
 #ifndef BOOKMARKMANAGER_H
 #define BOOKMARKMANAGER_H
@@ -58,152 +58,158 @@
 
 QT_BEGIN_NAMESPACE
 
-class QEvent
-class QLineEdit
-class QTreeView
-class QToolButton
-class QStandardItem
-class QHelpEngineCore
-class QAbstractItemModel
-class QSortFilterProxyModel
+class QEvent;
+class QLineEdit;
+class QTreeView;
+class QToolButton;
+class QStandardItem;
+class QHelpEngineCore;
+class QAbstractItemModel;
+class QSortFilterProxyModel;
 
-class BookmarkManager
+class BookmarkManager;
 
 class BookmarkDialog : public QDialog
+{
     Q_OBJECT
 
 public:
-    BookmarkDialog(BookmarkManager *manager, &title,
-                    QString &url, *parent = 0)
-    ~BookmarkDialog()
+    BookmarkDialog(BookmarkManager *manager, const QString &title,
+        const QString &url, QWidget *parent = 0);
+    ~BookmarkDialog();
 
 private slots:
-    void addAccepted()
-    void addNewFolder()
-    void toolButtonClicked()
-    void itemChanged(QStandardItem *item)
-    void textChanged( QString& string)
-    void selectBookmarkFolder( QString &folderName)
-    void customContextMenuRequested( QPoint &point)
-    void currentChanged( QModelIndex& current)
+    void addAccepted();
+    void addNewFolder();
+    void toolButtonClicked();
+    void itemChanged(QStandardItem *item);
+    void textChanged(const QString& string);
+    void selectBookmarkFolder(const QString &folderName);
+    void customContextMenuRequested(const QPoint &point);
+    void currentChanged(const QModelIndex& current);
 
 private:
-    bool eventFilter(QObject *object, *e)
+    bool eventFilter(QObject *object, QEvent *e);
 
 private:
-    QString m_url
-    QString m_title
+    QString m_url;
+    QString m_title;
 
-    QString oldText
-    QStandardItem *renameItem
+    QString oldText;
+    QStandardItem *renameItem;
 
-    Ui.BookmarkDialog ui
-    BookmarkManager *bookmarkManager
-    QSortFilterProxyModel *proxyModel
+    Ui::BookmarkDialog ui;
+    BookmarkManager *bookmarkManager;
+    QSortFilterProxyModel *proxyModel;
+};
 
-
-class TreeView : public QTreeView
+class TreeView : public QTreeView {
     Q_OBJECT
 public:
-    TreeView(parent = 0) : QTreeView(parent)    void subclassKeyPressEvent(QKeyEvent* event)
-        QTreeView.keyPressEvent(event)
-
-
+    TreeView(QWidget* parent = 0) : QTreeView(parent) {}
+    void subclassKeyPressEvent(QKeyEvent* event)
+    {
+        QTreeView::keyPressEvent(event);
+    }
+};
 
 class BookmarkWidget : public QWidget
+{
     Q_OBJECT
 
 public:
-    BookmarkWidget(BookmarkManager *manager, *parent = 0,
-                   showButtons = True)
-    ~BookmarkWidget()
+    BookmarkWidget(BookmarkManager *manager, QWidget *parent = 0,
+        bool showButtons = true);
+    ~BookmarkWidget();
 
 signals:
-    void addBookmark()
-    void requestShowLink( QUrl &url)
-    void requestShowLinkInNewTab( QUrl &url)
-    void escapePressed()
+    void addBookmark();
+    void requestShowLink(const QUrl &url);
+    void requestShowLinkInNewTab(const QUrl &url);
+    void escapePressed();
 
 private slots:
-    void removeClicked()
-    void filterChanged()
-    void expand( QModelIndex& index)
-    void activated( QModelIndex &index)
-    void customContextMenuRequested( QPoint &point)
+    void removeClicked();
+    void filterChanged();
+    void expand(const QModelIndex& index);
+    void activated(const QModelIndex &index);
+    void customContextMenuRequested(const QPoint &point);
 
 private:
-    void setup(bool showButtons)
-    void expandItems()
-    void focusInEvent(QFocusEvent *e)
-    bool eventFilter(QObject *object, *event)
+    void setup(bool showButtons);
+    void expandItems();
+    void focusInEvent(QFocusEvent *e);
+    bool eventFilter(QObject *object, QEvent *event);
 
 private:
-    QRegExp regExp
-    TreeView *treeView
-    QLineEdit *searchField
-    QToolButton *addButton
-    QToolButton *removeButton
-    BookmarkManager *bookmarkManager
-    QSortFilterProxyModel* filterBookmarkModel
-
+    QRegExp regExp;
+    TreeView *treeView;
+    QLineEdit *searchField;
+    QToolButton *addButton;
+    QToolButton *removeButton;
+    BookmarkManager *bookmarkManager;
+    QSortFilterProxyModel* filterBookmarkModel;
+};
 
 class BookmarkModel : public QStandardItemModel
+{
     Q_OBJECT
 
 public:
-    BookmarkModel(int rows, columns, *parent = 0)
-    ~BookmarkModel()
+    BookmarkModel(int rows, int columns, QObject *parent = 0);
+    ~BookmarkModel();
 
-    Qt.DropActions supportedDropActions()
-    Qt.ItemFlags flags( QModelIndex &index)
-
+    Qt::DropActions supportedDropActions() const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+};
 
 class BookmarkManager : public QObject
+{
     Q_OBJECT
 
 public:
-    BookmarkManager(QHelpEngineCore* helpEngine)
-    ~BookmarkManager()
+    BookmarkManager(QHelpEngineCore* helpEngine);
+    ~BookmarkManager();
 
-    BookmarkModel* treeBookmarkModel()
-    BookmarkModel* listBookmarkModel()
+    BookmarkModel* treeBookmarkModel();
+    BookmarkModel* listBookmarkModel();
 
-    void saveBookmarks()
-    QStringList bookmarkFolders()
-    QModelIndex addNewFolder( QModelIndex& index)
-    void removeBookmarkItem(QTreeView *treeView, index)
-    void showBookmarkDialog(QWidget* parent, &name,
-                             QString &url)
-    void addNewBookmark( QModelIndex& index, &name,
-                         QString &url)
-    void setupBookmarkModels()
+    void saveBookmarks();
+    QStringList bookmarkFolders() const;
+    QModelIndex addNewFolder(const QModelIndex& index);
+    void removeBookmarkItem(QTreeView *treeView, const QModelIndex& index);
+    void showBookmarkDialog(QWidget* parent, const QString &name,
+        const QString &url);
+    void addNewBookmark(const QModelIndex& index, const QString &name,
+        const QString &url);
+    void setupBookmarkModels();
 
-    void fillBookmarkMenu(QMenu *menu)
-    QUrl urlForAction(QAction* action)
+    void fillBookmarkMenu(QMenu *menu);
+    QUrl urlForAction(QAction* action) const;
 
 signals:
-    void bookmarksChanged()
+    void bookmarksChanged();
 
 private slots:
-    void itemChanged(QStandardItem *item)
+    void itemChanged(QStandardItem *item);
 
 private:
-    QString uniqueFolderName()
-    void removeBookmarkFolderItems(QStandardItem *item)
-    void readBookmarksRecursive( QStandardItem *item, &stream,
-                                 qint32 depth)
-    void fillBookmarkMenu(QMenu *menu, *root)
+    QString uniqueFolderName() const;
+    void removeBookmarkFolderItems(QStandardItem *item);
+    void readBookmarksRecursive(const QStandardItem *item, QDataStream &stream,
+        const qint32 depth) const;
+    void fillBookmarkMenu(QMenu *menu, QStandardItem *root);
 
 private:
-    QString oldText
-    QIcon folderIcon
+    QString oldText;
+    QIcon folderIcon;
 
-    BookmarkModel *treeModel
-    BookmarkModel *listModel
-    QStandardItem *renameItem
-    QHelpEngineCore *helpEngine
-    QMap<QAction*, map
-
+    BookmarkModel *treeModel;
+    BookmarkModel *listModel;
+    QStandardItem *renameItem;
+    QHelpEngineCore *helpEngine;
+    QMap<QAction*, QModelIndex> map;
+};
 
 QT_END_NAMESPACE
 

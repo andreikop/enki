@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,9 +12,9 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with self program; if not, to the Free Software
-    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
-***************************************************************************'''
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+****************************************************************************/
 #include "PyQt.h"
 #include "PyQtProjectItem.h"
 #include "../XUP/src/gui/UIXUPEditor.h"
@@ -24,38 +24,43 @@
 
 #include <QDir>
 
-def fillPluginInfos(self):
-    mPluginInfos.Caption = tr( "PyQt Project" )
-    mPluginInfos.Description = tr( "PyQt Project support for XUPManager" )
-    mPluginInfos.Author = "Azevedo Filipe aka Nox P@sNox <pasnox@gmail.com>, Aurelien aka aurelien <aurelien.french@gmail.com>"
-    mPluginInfos.Type = BasePlugin.iXUP
-    mPluginInfos.Name = PLUGIN_NAME
-    mPluginInfos.Version = "0.1.0"
-    mPluginInfos.FirstStartEnabled = True
-    mPluginInfos.HaveSettingsWidget = False
+void PyQt::fillPluginInfos()
+{
+    mPluginInfos.Caption = tr( "PyQt Project" );
+    mPluginInfos.Description = tr( "PyQt Project support for XUPManager" );
+    mPluginInfos.Author = "Azevedo Filipe aka Nox P@sNox <pasnox@gmail.com>, Michon Aurelien aka aurelien <aurelien.french@gmail.com>";
+    mPluginInfos.Type = BasePlugin::iXUP;
+    mPluginInfos.Name = PLUGIN_NAME;
+    mPluginInfos.Version = "0.1.0";
+    mPluginInfos.FirstStartEnabled = true;
+    mPluginInfos.HaveSettingsWidget = false;
+}
 
+bool PyQt::install()
+{
+    // register pythonqt item
+    mItem = new PyQtProjectItem;
+    mItem->registerProjectType();
+    return true;
+}
 
-def install(self):
-    # register pythonqt item
-    mItem = PyQtProjectItem
-    mItem.registerProjectType()
-    return True
+bool PyQt::uninstall()
+{
+    // unregister item, unregistering auto delete the item
+    mItem->unRegisterProjectType();
+    delete mItem;
+    // return default value
+    return true;
+}
 
+bool PyQt::editProject( XUPProjectItem* project )
+{
+    if ( !project )
+    {
+        return false;
+    }
 
-def uninstall(self):
-    # unregister item, auto delete the item
-    mItem.unRegisterProjectType()
-    delete mItem
-    # return default value
-    return True
-
-
-def editProject(self, project ):
-    if  not project :
-        return False
-
-
-    return UIXUPEditor( project, MonkeyCore.mainWindow() ).exec() == QDialog.Accepted
-
+    return UIXUPEditor( project, MonkeyCore::mainWindow() ).exec() == QDialog::Accepted;
+}
 
 Q_EXPORT_PLUGIN2( ProjectPyQt, PyQt )

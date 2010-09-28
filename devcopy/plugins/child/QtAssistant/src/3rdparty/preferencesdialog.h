@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
 **
 ** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
@@ -9,23 +9,23 @@
 ** $QT_BEGIN_LICENSE:LGPL$
 ** No Commercial Usage
 ** This file contains pre-release code and may not be distributed.
-** You may use self file in accordance with the terms and conditions
+** You may use this file in accordance with the terms and conditions
 ** contained in the Technology Preview License Agreement accompanying
-** self package.
+** this package.
 **
 ** GNU Lesser General Public License Usage
-** Alternatively, file may be used under the terms of the GNU Lesser
+** Alternatively, this file may be used under the terms of the GNU Lesser
 ** General Public License version 2.1 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of self file.  Please review the following information to
+** packaging of this file.  Please review the following information to
 ** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http:#www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, a special exception, gives you certain additional
+** In addition, as a special exception, Nokia gives you certain additional
 ** rights.  These rights are described in the Nokia Qt LGPL Exception
-** version 1.1, in the file LGPL_EXCEPTION.txt in self package.
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
-** If you have questions regarding the use of self file, contact
+** If you have questions regarding the use of this file, please contact
 ** Nokia at qt-info@nokia.com.
 **
 **
@@ -37,7 +37,7 @@
 **
 ** $QT_END_LICENSE$
 **
-***************************************************************************'''
+****************************************************************************/
 
 #ifndef PREFERENCESDIALOG_H
 #define PREFERENCESDIALOG_H
@@ -47,67 +47,68 @@
 
 QT_BEGIN_NAMESPACE
 
-class FontPanel
-class QHelpEngineCore
+class FontPanel;
+class QHelpEngineCore;
 
-enum
+enum {
     ShowHomePage = 0,
     ShowBlankPage = 1,
     ShowLastPages = 2
-
+};
 
 class PreferencesDialog : public QDialog
+{
     Q_OBJECT
 
 public:
-    PreferencesDialog(QHelpEngineCore *helpEngine, *parent = 0)
-    ~PreferencesDialog()
+    PreferencesDialog(QHelpEngineCore *helpEngine, QWidget *parent = 0);
+    ~PreferencesDialog();
 
-    void showDialog()
+    void showDialog();
 
 private slots:
-    void updateAttributes(QListWidgetItem *item)
-    void updateFilterMap()
-    void addFilter()
-    void removeFilter()
-    void addDocumentationLocal()
-    void removeDocumentation()
-    void applyChanges()
-    void appFontSettingToggled(bool on)
-    void appFontSettingChanged(int index)
-    void browserFontSettingToggled(bool on)
-    void browserFontSettingChanged(int index)
-
-    void setBlankPage()
-    void setCurrentPage()
-    void setDefaultPage()
+    void updateAttributes(QListWidgetItem *item);
+    void updateFilterMap();
+    void addFilter();
+    void removeFilter();
+    void addDocumentationLocal();
+    void removeDocumentation();
+    void applyChanges();
+    void appFontSettingToggled(bool on);
+    void appFontSettingChanged(int index);
+    void browserFontSettingToggled(bool on);
+    void browserFontSettingChanged(int index);
+    
+    void setBlankPage();
+    void setCurrentPage();
+    void setDefaultPage();
 
 signals:
-    void updateBrowserFont()
-    void updateApplicationFont()
+    void updateBrowserFont();
+    void updateApplicationFont();
 
 private:
-    void updateFilterPage()
-    void updateFontSettingsPage()
-    void updateOptionsPage()
+    void updateFilterPage();
+    void updateFontSettingsPage();
+    void updateOptionsPage();
 
-    Ui.PreferencesDialogClass m_ui
-    QHelpEngineCore *m_helpEngine
-    bool m_hideFiltersTab
-    bool m_hideDocsTab
-    QMap<QString, m_filterMapBackup
-    QMap<QString, m_filterMap
-    QStringList m_removedFilters
-    QStringList m_docsBackup
-    QStringList m_regDocs
-    QStringList m_unregDocs
-    QList<int> m_TabsToClose
-    FontPanel *m_appFontPanel
-    FontPanel *m_browserFontPanel
-    bool m_appFontChanged
-    bool m_browserFontChanged
-
+    Ui::PreferencesDialogClass m_ui;
+    QHelpEngineCore *m_helpEngine;
+    bool m_hideFiltersTab;
+    bool m_hideDocsTab;
+    QMap<QString, QStringList> m_filterMapBackup;
+    QMap<QString, QStringList> m_filterMap;
+    QStringList m_removedFilters;
+    QStringList m_docsBackup;
+    QStringList m_regDocs;
+    QStringList m_unregDocs;
+    QList<int> m_TabsToClose;
+    FontPanel *m_appFontPanel;
+    FontPanel *m_browserFontPanel;
+    bool m_appFontChanged;
+    bool m_browserFontChanged;
+};
 
 QT_END_NAMESPACE
 
-#endif # SETTINGSDIALOG_H
+#endif // SETTINGSDIALOG_H

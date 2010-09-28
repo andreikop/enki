@@ -5,24 +5,25 @@
 
 #include "ui_UIPluginsSettingsElement.h"
 
-class BasePlugin
+class BasePlugin;
 
-class Q_MONKEY_EXPORT UIPluginsSettingsElement : public QWidget, Ui.UIPluginsSettingsElement
+class Q_MONKEY_EXPORT UIPluginsSettingsElement : public QWidget, public Ui::UIPluginsSettingsElement
+{
     Q_OBJECT
-
+    
 public:
-    UIPluginsSettingsElement( BasePlugin* plugin, parent = 0 )
-
-    BasePlugin* plugin()
+    UIPluginsSettingsElement( BasePlugin* plugin, QWidget* parent = 0 );
+    
+    BasePlugin* plugin() const;
 
 protected:
-    BasePlugin* mPlugin
+    BasePlugin* mPlugin;
 
 protected slots:
-    void on_cbEnabled_toggled( bool checked )
-    void on_pbSettings_clicked()
-    void on_pbAbout_clicked()
-    void on_cbNeverEnable_toggled( bool checked )
+    void on_cbEnabled_toggled( bool checked );
+    void on_pbSettings_clicked();
+    void on_pbAbout_clicked();
+    void on_cbNeverEnable_toggled( bool checked );
+};
 
-
-#endif # UIPLUGINSSETTINGSELEMENT_H
+#endif // UIPLUGINSSETTINGSELEMENT_H

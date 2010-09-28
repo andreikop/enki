@@ -39,7 +39,7 @@
 #include <QApplication>
 
 pChild.pChild()
-        : pAbstractChild()
+    : pAbstractChild()
     # create textedit
     mEditor = pEditor
     mEditor.setAttribute( Qt.WA_MacSmallSize )
@@ -106,7 +106,7 @@ def isUndoAvailable(self):
     return mEditor.isUndoAvailable()
 
 
-void pChild.invokeSearch ()
+void pChild.invokeSearch () 
     '''MonkeyCore.searchWidget().showSearchFile ();'''
 
 
@@ -141,7 +141,7 @@ def goTo(self):
 def goTo(self, pos, selectionLength ):
      column = pos.x()
      line = pos.y()
-
+    
     mEditor.setCursorPosition( line, column )
     mEditor.setSelection( line, column, line, column +selectionLength )
     mEditor.ensureLineVisible( line )
@@ -177,7 +177,7 @@ def openFile(self, fileName, codec ):
     '''if  not filePath().isEmpty() :
         return False
     }'''
-
+    
     # set filename of the owned document
     setFilePath( fileName )
 
@@ -185,12 +185,12 @@ def openFile(self, fileName, codec ):
      locked = blockSignals( True )
      opened = mEditor.openFile( fileName, codec )
     blockSignals( locked )
-
+    
     if  not opened :
         setFilePath( QString.null )
         return False
 
-
+    
     mCodec = QTextCodec.codecForName( codec.toUtf8() )
 
     fileOpened.emit()
@@ -206,7 +206,7 @@ def closeFile(self):
 
 def reload(self):
     openFile( mEditor.property( "fileName" ).toString(), mEditor.property( "codec" ).toString() )
-
+    
     fileReloaded.emit()
 
 

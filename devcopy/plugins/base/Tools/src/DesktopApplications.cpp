@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,37 +12,41 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with self program; if not, to the Free Software
-    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
-***************************************************************************'''
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+****************************************************************************/
 #include "DesktopApplications.h"
 
-DesktopApplications.DesktopApplications( QObject* parent )
-        : QObject( parent ), mStartMenu( 0 )
+DesktopApplications::DesktopApplications( QObject* parent )
+    : QObject( parent ), mStartMenu( 0 )
+{
+}
 
+DesktopFolder* DesktopApplications::startMenu() const
+{
+    return &mStartMenu;
+}
 
-def startMenu(self):
-    return &mStartMenu
+int DesktopApplications::applicationCount( DesktopFolder* _folder ) const
+{
+    Q_ASSERT( _folder );
+    
+    // recursive count
+    int count = 0;
+    
+    // Applications
+    count = _folder->applications.count();
+    
+    // Folders
+    foreach ( const QString& key, _folder->folders.keys() ) {
+        count += applicationCount( &_folder->folders[ key ] );
+    }
+    
+    // return result
+    return count;
+}
 
-
-def applicationCount(self, _folder ):
-    Q_ASSERT( _folder )
-
-    # recursive count
-    count = 0
-
-    # Applications
-    count = _folder.applications.count()
-
-    # Folders
-    for key in _folder.folders.keys():
-        count += applicationCount( &_folder.folders[ key ] )
-
-
-    # return result
-    return count
-
-
-def applicationCount(self):
-    return applicationCount( &mStartMenu )
-
+int DesktopApplications::applicationCount() const
+{
+    return applicationCount( &mStartMenu );
+}

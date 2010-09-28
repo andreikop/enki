@@ -2,38 +2,44 @@
 
 #include "UIIrcStatus.h"
 
-IrcStatus.IrcStatus(QWidget *parent) : QWidget(parent)
-    setupUi(self)
+IrcStatus::IrcStatus(QWidget *parent) : QWidget(parent)
+{
+    setupUi(this);
 
-    pbJoin.clicked.connect(self.onJoin)
-    pbConnect.clicked.connect(self.onConnect)
+    connect(pbJoin, SIGNAL(clicked()), this, SLOT(onJoin()));
+    connect(pbConnect, SIGNAL(clicked()), this, SLOT(onConnect()));
 
-    pbJoin.setEnabled(False)
-    bConnected = False
+    pbJoin->setEnabled(false);
+    bConnected = false;
 
-
-
-
-def onConnect(self):
-    if not bConnected:
-        bConnected = True
-        ircConnect.emit(leNickServerPort.text(), bConnected)
-        pbConnect.setText("Disconnect")
-        pbJoin.setEnabled(True)
-
-    else:
-        bConnected = False
-        ircConnect.emit(leNickServerPort.text(), bConnected)
-        pbConnect.setText("Connect")
-        pbJoin.setEnabled(False)
+}
 
 
+void IrcStatus::onConnect()
+{
+    if(!bConnected)
+    {
+        bConnected = true;
+        emit ircConnect(leNickServerPort->text(), bConnected);
+        pbConnect->setText("Disconnect");
+        pbJoin->setEnabled(true);
+    }
+    else
+    {
+        bConnected = false;
+        emit ircConnect(leNickServerPort->text(), bConnected);
+        pbConnect->setText("Connect");
+        pbJoin->setEnabled(false);
+    }
 
+}
 
-def onJoin(self):
-    ircJoinChannel.emit(leChannelName.text())
+void IrcStatus::onJoin()
+{
+    emit ircJoinChannel(leChannelName->text());
+}
 
-
-def appendLog(self, s):
-    teStatus.append(s)
-
+void IrcStatus::appendLog(QString s)
+{
+    teStatus->append(s);
+}

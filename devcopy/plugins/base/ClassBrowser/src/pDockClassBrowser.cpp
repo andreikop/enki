@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,9 +12,9 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with self program; if not, to the Free Software
-    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
-***************************************************************************'''
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+****************************************************************************/
 #include "pDockClassBrowser.h"
 #include "ClassBrowser.h"
 
@@ -23,36 +23,39 @@
 #include <coremanager/MonkeyCore.h>
 #include <widgets/pActionsManager.h>
 
-pDockClassBrowser.pDockClassBrowser( ClassBrowser* plugin, w )
-        : pDockWidget( w )
-    Q_ASSERT( plugin )
-    mPlugin = plugin
+pDockClassBrowser::pDockClassBrowser( ClassBrowser* plugin, QWidget* w )
+    : pDockWidget( w )
+{
+    Q_ASSERT( plugin );
+    mPlugin = plugin;
+    
+    // restrict areas
+    setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
+    
+    // create browser and set it as central widget
+    mBrowser = new qCtagsSenseBrowser( this );
+    setWidget( mBrowser );
+    
+    // set actions manager
+    setActionsManager( MonkeyCore::actionsManager() );
+    pActionsManager::setPathPartTranslation( "Plugins", tr( "Plugins" ) );
+    pActionsManager::setActionsManager( mBrowser->viewBrowserAction(), actionsManager() );
+    pActionsManager::setActionPath( mBrowser->viewBrowserAction(), QString( "Plugins/%1" ).arg( mPlugin->infos().Caption ) );
+    pActionsManager::setActionsManager( mBrowser->viewSearchResultsAction(), actionsManager() );
+    pActionsManager::setActionPath( mBrowser->viewSearchResultsAction(), QString( "Plugins/%1" ).arg( mPlugin->infos().Caption ) );
+    
+    // set dock actions
+    titleBar()->addAction( mBrowser->viewBrowserAction(), 0 );
+    titleBar()->addAction( mBrowser->viewSearchResultsAction(), 1 );
+    titleBar()->addSeparator( 2 );
+}
 
-    # restrict areas
-    setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
+pDockClassBrowser::~pDockClassBrowser()
+{
+    delete mBrowser;
+}
 
-    # create browser and set it as central widget
-    mBrowser = qCtagsSenseBrowser( self )
-    setWidget( mBrowser )
-
-    # set actions manager
-    setActionsManager( MonkeyCore.actionsManager() )
-    pActionsManager.setPathPartTranslation( "Plugins", tr( "Plugins" ) )
-    pActionsManager.setActionsManager( mBrowser.viewBrowserAction(), actionsManager() )
-    pActionsManager.setActionPath( mBrowser.viewBrowserAction(), QString( "Plugins/%1" ).arg( mPlugin.infos().Caption ) )
-    pActionsManager.setActionsManager( mBrowser.viewSearchResultsAction(), actionsManager() )
-    pActionsManager.setActionPath( mBrowser.viewSearchResultsAction(), QString( "Plugins/%1" ).arg( mPlugin.infos().Caption ) )
-
-    # set dock actions
-    titleBar().addAction( mBrowser.viewBrowserAction(), 0 )
-    titleBar().addAction( mBrowser.viewSearchResultsAction(), 1 )
-    titleBar().addSeparator( 2 )
-
-
-pDockClassBrowser.~pDockClassBrowser()
-    delete mBrowser
-
-
-def browser(self):
-    return mBrowser
-
+qCtagsSenseBrowser* pDockClassBrowser::browser() const
+{
+    return mBrowser;
+}

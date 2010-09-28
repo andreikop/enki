@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,46 +12,51 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with self program; if not, to the Free Software
-    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
-***************************************************************************'''
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+****************************************************************************/
 #include "QtDesigner.h"
 #include "QtDesignerManager.h"
 #include "QtDesignerChild.h"
 
-def fillPluginInfos(self):
-    mPluginInfos.Caption = tr( "Qt Designer" )
-    mPluginInfos.Description = tr( "This plugin embeds Qt Designer" )
-    mPluginInfos.Author = "Azevedo Filipe aka Nox P@sNox <pasnox@gmail.com>, Bruant aka fullmetalcoder <fullmetalcoder@hotmail.fr>"
-    mPluginInfos.Type = BasePlugin.iChild
-    mPluginInfos.Name = PLUGIN_NAME
-    mPluginInfos.Version = "1.0.0"
-    mPluginInfos.FirstStartEnabled = True
-    mPluginInfos.Pixmap = pIconManager.pixmap( "designer.png", ":/icons" )
+void QtDesigner::fillPluginInfos()
+{
+    mPluginInfos.Caption = tr( "Qt Designer" );
+    mPluginInfos.Description = tr( "This plugin embeds Qt Designer" );
+    mPluginInfos.Author = "Azevedo Filipe aka Nox P@sNox <pasnox@gmail.com>, Luc Bruant aka fullmetalcoder <fullmetalcoder@hotmail.fr>";
+    mPluginInfos.Type = BasePlugin::iChild;
+    mPluginInfos.Name = PLUGIN_NAME;
+    mPluginInfos.Version = "1.0.0";
+    mPluginInfos.FirstStartEnabled = true;
+    mPluginInfos.Pixmap = pIconManager::pixmap( "designer.png", ":/icons" );
+}
 
+bool QtDesigner::install()
+{
+    // set usable suffixes
+    mSuffixes[ tr( "Qt Forms" ) ] = QStringList( "*.ui" );
+    // create designer
+    mDesignerManager = new QtDesignerManager( this );
+    return true;
+}
 
-def install(self):
-    # set usable suffixes
-    mSuffixes[ tr( "Qt Forms" ) ] = QStringList( "*.ui" )
-    # create designer
-    mDesignerManager = QtDesignerManager( self )
-    return True
+bool QtDesigner::uninstall()
+{
+    // clear suffixes
+    mSuffixes.clear();
+    // clear designer instance
+    delete mDesignerManager;
+    return true;
+}
 
-
-def uninstall(self):
-    # clear suffixes
-    mSuffixes.clear()
-    # clear designer instance
-    delete mDesignerManager
-    return True
-
-
-def createDocument(self, fileName ):
-    if  canOpen( fileName ) :
-        return QtDesignerChild( mDesignerManager )
-
-
-    return 0
-
+pAbstractChild* QtDesigner::createDocument( const QString& fileName )
+{
+    if ( canOpen( fileName ) )
+    {
+        return new QtDesignerChild( mDesignerManager );
+    }
+    
+    return 0;
+}
 
 Q_EXPORT_PLUGIN2( BaseQtDesigner, QtDesigner )

@@ -3,15 +3,16 @@
 
 #include "qdesigner_integration_p.h"
 
-class QDesignerFormEditorInterface
+class QDesignerFormEditorInterface;
 
-class MkSDesignerIntegration : public qdesigner_internal.QDesignerIntegration
+class MkSDesignerIntegration : public qdesigner_internal::QDesignerIntegration
+{
     Q_OBJECT
-
+    
 public:
-    MkSDesignerIntegration( QDesignerFormEditorInterface* core, parent = 0 )
+    MkSDesignerIntegration( QDesignerFormEditorInterface* core, QObject* parent = 0 );
+    
+    virtual QWidget* containerWindow( QWidget* widget ) const;
+};
 
-    virtual QWidget* containerWindow( QWidget* widget )
-
-
-#endif # MKSDESIGNERINTEGRATION_H
+#endif // MKSDESIGNERINTEGRATION_H

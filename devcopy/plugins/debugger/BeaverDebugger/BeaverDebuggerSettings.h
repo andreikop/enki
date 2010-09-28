@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
 **
 **         Created using Monkey Studio
 ** Authors   : Andrei KOPATS aka hlamer <hlamer@tut.by>
@@ -7,7 +7,7 @@
 ** Date      : 2009-09-23T19:02:00
 ** License   : GPL
 ** Comment   : Settings widget of BeaverDebugger plugin
-** Home Page : http:#www.monkeystudio.org
+** Home Page : http://www.monkeystudio.org
 **
     Copyright (C) 2005 - 2008  Andrei KOPATS & The Monkey Studio Team
 
@@ -22,40 +22,41 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with self program; if not, to the Free Software
-    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 **
-***************************************************************************'''
-'''!
+****************************************************************************/
+/*!
     \file BeaverDebuggerSettings.cpp
     \date 2009-09-23T19:02:00
     \author Andrei KOPATS
     \brief Settings widget of BeaverDebugger plugin
-'''
+*/
 #ifndef BEAVERDEBUGGERSETTINGS_H
 #define BEAVERDEBUGGERSETTINGS_H
 
 #include <QDialog>
 
-class BeaverDebugger
+class BeaverDebugger;
 
-class QLineEdit
-'''!
+class QLineEdit;
+/*!
     Settigs widget of BeaverDebugger plugin
-'''
+*/
 class BeaverDebuggerSettings : public QDialog
+{
     Q_OBJECT
-
+    
 public:
-    BeaverDebuggerSettings( BeaverDebugger* plugin)
+    BeaverDebuggerSettings( BeaverDebugger* plugin);
 
 protected:
-    BeaverDebugger* mPlugin
-    QLineEdit* mPath
+    BeaverDebugger* mPlugin;
+    QLineEdit* mPath;
 
 protected slots:
-    void applySettings()
-    void openPathDialog()
+    void applySettings();
+    void openPathDialog();
+};
 
-
-#endif # BEAVERDEBUGGERSETTINGS_H
+#endif // BEAVERDEBUGGERSETTINGS_H

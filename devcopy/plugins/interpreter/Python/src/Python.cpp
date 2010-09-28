@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,67 +12,77 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with self program; if not, to the Free Software
-    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
-***************************************************************************'''
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+****************************************************************************/
 #include "Python.h"
 
 #include <QTabWidget>
 
-Python.Python ()
-    # install parsers
-    for s in availableParsers():
-        MonkeyCore.consoleManager().addParser( getParser( s ) )
+Python::Python ()
+{
+    // install parsers
+    foreach ( QString s, availableParsers() )
+    {
+        MonkeyCore::consoleManager()->addParser( getParser( s ) );
+    }
+}
 
+void Python::fillPluginInfos()
+{
+    mPluginInfos.Caption = tr( "Python" );
+    mPluginInfos.Description = tr( "This plugin provide Python interpreter and python parser." );
+    mPluginInfos.Author = "Azevedo Filipe aka Nox P@sNox <pasnox@gmail.com>, Michon Aurelien aka aurelien <aurelien.french@gmail.com>";
+    mPluginInfos.Type = BasePlugin::iInterpreter;
+    mPluginInfos.Name = PLUGIN_NAME;
+    mPluginInfos.Version = "0.1.0";
+    mPluginInfos.FirstStartEnabled = true;
+    mPluginInfos.HaveSettingsWidget = true;
+    mPluginInfos.Pixmap = pIconManager::pixmap( "python.png", ":/icons" );
+}
 
+Python::~Python()
+{ // TODO move to uninstall
+    // uninstall parsers
+    foreach ( QString s, availableParsers() )
+    {
+        MonkeyCore::consoleManager()->removeParser( s );
+    }
+}
 
-def fillPluginInfos(self):
-    mPluginInfos.Caption = tr( "Python" )
-    mPluginInfos.Description = tr( "This plugin provide Python interpreter and python parser." )
-    mPluginInfos.Author = "Azevedo Filipe aka Nox P@sNox <pasnox@gmail.com>, Aurelien aka aurelien <aurelien.french@gmail.com>"
-    mPluginInfos.Type = BasePlugin.iInterpreter
-    mPluginInfos.Name = PLUGIN_NAME
-    mPluginInfos.Version = "0.1.0"
-    mPluginInfos.FirstStartEnabled = True
-    mPluginInfos.HaveSettingsWidget = True
-    mPluginInfos.Pixmap = pIconManager.pixmap( "python.png", ":/icons" )
+bool Python::install()
+{
+    return true;
+}
 
+bool Python::uninstall()
+{
+    return true;
+}
 
-Python.~Python()
-{ # TODO move to uninstall
-    # uninstall parsers
-    for s in availableParsers():
-        MonkeyCore.consoleManager().removeParser( s )
+QWidget* Python::settingsWidget()
+{
+    QTabWidget* tw = new QTabWidget;
+    tw->setAttribute( Qt::WA_DeleteOnClose );
+    tw->addTab( interpreterSettingsWidget(), tr( "Interpret Command" ) );
+    tw->addTab( cliToolSettingsWidget(), tr( "User Commands" ) );
+    return tw;
+}
 
+pCommandList Python::defaultCommands() const
+{
+    return pCommandList();
+}
 
+QStringList Python::availableParsers() const
+{
+    return QStringList();
+}
 
-def install(self):
-    return True
-
-
-def uninstall(self):
-    return True
-
-
-def settingsWidget(self):
-    tw = QTabWidget
-    tw.setAttribute( Qt.WA_DeleteOnClose )
-    tw.addTab( interpreterSettingsWidget(), tr( "Interpret Command" ) )
-    tw.addTab( cliToolSettingsWidget(), tr( "User Commands" ) )
-    return tw
-
-
-def defaultCommands(self):
-    return pCommandList()
-
-
-def availableParsers(self):
-    return QStringList()
-
-
-def defaultInterpretCommand(self):
-     mPython = "python"
-    return pCommand( "Interpret", mPython, QString.null, False, availableParsers(), "$cpp$" )
-
+pCommand Python::defaultInterpretCommand() const
+{
+    const QString mPython = "python";
+    return pCommand( "Interpret", mPython, QString::null, false, availableParsers(), "$cpp$" );
+}
 
 Q_EXPORT_PLUGIN2( InterpreterPython, Python )

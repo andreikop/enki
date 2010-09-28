@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
 **
 ** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
@@ -9,23 +9,23 @@
 ** $QT_BEGIN_LICENSE:LGPL$
 ** No Commercial Usage
 ** This file contains pre-release code and may not be distributed.
-** You may use self file in accordance with the terms and conditions
+** You may use this file in accordance with the terms and conditions
 ** contained in the Technology Preview License Agreement accompanying
-** self package.
+** this package.
 **
 ** GNU Lesser General Public License Usage
-** Alternatively, file may be used under the terms of the GNU Lesser
+** Alternatively, this file may be used under the terms of the GNU Lesser
 ** General Public License version 2.1 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of self file.  Please review the following information to
+** packaging of this file.  Please review the following information to
 ** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http:#www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, a special exception, gives you certain additional
+** In addition, as a special exception, Nokia gives you certain additional
 ** rights.  These rights are described in the Nokia Qt LGPL Exception
-** version 1.1, in the file LGPL_EXCEPTION.txt in self package.
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
-** If you have questions regarding the use of self file, contact
+** If you have questions regarding the use of this file, please contact
 ** Nokia at qt-info@nokia.com.
 **
 **
@@ -37,14 +37,14 @@
 **
 ** $QT_END_LICENSE$
 **
-***************************************************************************'''
+****************************************************************************/
 
 #include "preferencesdialog.h"
 #include "filternamedialog.h"
 #include "installdialog.h"
 #include "fontpanel.h"
-##include "centralwidget.h"
-##include "aboutdialog.h"
+//#include "centralwidget.h"
+//#include "aboutdialog.h"
 
 #include <QtAlgorithms>
 
@@ -60,450 +60,465 @@
 
 QT_BEGIN_NAMESPACE
 
-PreferencesDialog.PreferencesDialog(QHelpEngineCore *helpEngine, *parent)
-        : QDialog(parent)
-        , m_helpEngine(helpEngine)
-        , m_appFontChanged(False)
-        , m_browserFontChanged(False)
-    m_ui.setupUi(self)
+PreferencesDialog::PreferencesDialog(QHelpEngineCore *helpEngine, QWidget *parent)
+    : QDialog(parent)
+    , m_helpEngine(helpEngine)
+    , m_appFontChanged(false)
+    , m_browserFontChanged(false)
+{
+    m_ui.setupUi(this);
 
-    connect(m_ui.buttonBox.button(QDialogButtonBox.Ok), SIGNAL(clicked()),
-            self, SLOT(applyChanges()))
-    connect(m_ui.buttonBox.button(QDialogButtonBox.Cancel), SIGNAL(clicked()),
-            self, SLOT(reject()))
+    connect(m_ui.buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()),
+        this, SLOT(applyChanges()));
+    connect(m_ui.buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()),
+        this, SLOT(reject()));
 
-    QLatin1String key("EnableFilterFunctionality")
-    m_hideFiltersTab = not m_helpEngine.customValue(key, True).toBool()
+    QLatin1String key("EnableFilterFunctionality");
+    m_hideFiltersTab = !m_helpEngine->customValue(key, true).toBool();
 
-    key = QLatin1String("EnableDocumentationManager")
-    m_hideDocsTab = not m_helpEngine.customValue(key, True).toBool()
+    key = QLatin1String("EnableDocumentationManager");
+    m_hideDocsTab = !m_helpEngine->customValue(key, true).toBool();
 
-    if not m_hideFiltersTab:
-        m_ui.attributeWidget.header().hide()
-        m_ui.attributeWidget.setRootIsDecorated(False)
+    if (!m_hideFiltersTab) {
+        m_ui.attributeWidget->header()->hide();
+        m_ui.attributeWidget->setRootIsDecorated(false);
 
         connect(m_ui.attributeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
-                self, SLOT(updateFilterMap()))
+            this, SLOT(updateFilterMap()));
 
         connect(m_ui.filterWidget,
-                SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), self,
-                SLOT(updateAttributes(QListWidgetItem*)))
+            SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this,
+            SLOT(updateAttributes(QListWidgetItem*)));
 
-        connect(m_ui.filterAddButton, SIGNAL(clicked()), self,
-                SLOT(addFilter()))
-        connect(m_ui.filterRemoveButton, SIGNAL(clicked()), self,
-                SLOT(removeFilter()))
+        connect(m_ui.filterAddButton, SIGNAL(clicked()), this,
+            SLOT(addFilter()));
+        connect(m_ui.filterRemoveButton, SIGNAL(clicked()), this,
+            SLOT(removeFilter()));
 
-        updateFilterPage()
+        updateFilterPage();
+    } else {
+        m_ui.tabWidget->removeTab(m_ui.tabWidget->indexOf(m_ui.filtersTab));
+    }
 
-    else:
-        m_ui.tabWidget.removeTab(m_ui.tabWidget.indexOf(m_ui.filtersTab))
+    if (!m_hideDocsTab) {
+        connect(m_ui.docAddButton, SIGNAL(clicked()), this,
+            SLOT(addDocumentationLocal()));
+        connect(m_ui.docRemoveButton, SIGNAL(clicked()), this,
+            SLOT(removeDocumentation()));
 
+        m_docsBackup = m_helpEngine->registeredDocumentations();
+        m_ui.registeredDocsListWidget->addItems(m_docsBackup);
+    } else {
+        m_ui.tabWidget->removeTab(m_ui.tabWidget->indexOf(m_ui.docsTab));
+    }
 
-    if not m_hideDocsTab:
-        connect(m_ui.docAddButton, SIGNAL(clicked()), self,
-                SLOT(addDocumentationLocal()))
-        connect(m_ui.docRemoveButton, SIGNAL(clicked()), self,
-                SLOT(removeDocumentation()))
+    updateFontSettingsPage();
+    updateOptionsPage();
+}
 
-        m_docsBackup = m_helpEngine.registeredDocumentations()
-        m_ui.registeredDocsListWidget.addItems(m_docsBackup)
+PreferencesDialog::~PreferencesDialog()
+{
+    QLatin1String key("");
+    if (m_appFontChanged) {
+        key = QLatin1String("appFont");
+        m_helpEngine->setCustomValue(key, m_appFontPanel->selectedFont());
 
-    else:
-        m_ui.tabWidget.removeTab(m_ui.tabWidget.indexOf(m_ui.docsTab))
+        key = QLatin1String("useAppFont");
+        m_helpEngine->setCustomValue(key, m_appFontPanel->isChecked());
 
+        key = QLatin1String("appWritingSystem");
+        m_helpEngine->setCustomValue(key, m_appFontPanel->writingSystem());
+    }
 
-    updateFontSettingsPage()
-    updateOptionsPage()
+    if (m_browserFontChanged) {
+        key = QLatin1String("browserFont");
+        m_helpEngine->setCustomValue(key, m_browserFontPanel->selectedFont());
 
+        key = QLatin1String("useBrowserFont");
+        m_helpEngine->setCustomValue(key, m_browserFontPanel->isChecked());
 
-PreferencesDialog.~PreferencesDialog()
-    QLatin1String key("")
-    if m_appFontChanged:
-        key = QLatin1String("appFont")
-        m_helpEngine.setCustomValue(key, m_appFontPanel.selectedFont())
+        key = QLatin1String("browserWritingSystem");
+        m_helpEngine->setCustomValue(key, m_browserFontPanel->writingSystem());
+    }
 
-        key = QLatin1String("useAppFont")
-        m_helpEngine.setCustomValue(key, m_appFontPanel.isChecked())
+    if (m_appFontChanged || m_browserFontChanged) {
+        emit updateApplicationFont();
+        emit updateBrowserFont();
+    }
 
-        key = QLatin1String("appWritingSystem")
-        m_helpEngine.setCustomValue(key, m_appFontPanel.writingSystem())
+    QString homePage = m_ui.homePageLineEdit->text();
+    if (homePage.isEmpty())
+        homePage = QLatin1String("help");
+    m_helpEngine->setCustomValue(QLatin1String("homepage"), homePage);
 
+    int option = m_ui.helpStartComboBox->currentIndex();
+    m_helpEngine->setCustomValue(QLatin1String("StartOption"), option);
+}
 
-    if m_browserFontChanged:
-        key = QLatin1String("browserFont")
-        m_helpEngine.setCustomValue(key, m_browserFontPanel.selectedFont())
+void PreferencesDialog::showDialog()
+{
+    if (exec() != Accepted)
+        m_appFontChanged = m_browserFontChanged = false;
+}
 
-        key = QLatin1String("useBrowserFont")
-        m_helpEngine.setCustomValue(key, m_browserFontPanel.isChecked())
+void PreferencesDialog::updateFilterPage()
+{
+    if (!m_helpEngine)
+        return;
 
-        key = QLatin1String("browserWritingSystem")
-        m_helpEngine.setCustomValue(key, m_browserFontPanel.writingSystem())
+    m_ui.filterWidget->clear();
+    m_ui.attributeWidget->clear();
 
+    QHelpEngineCore help(m_helpEngine->collectionFile(), 0);
+    help.setupData();
+    m_filterMapBackup.clear();
+    const QStringList filters = help.customFilters();
+    foreach (const QString &filter, filters) {
+        QStringList atts = help.filterAttributes(filter);
+        m_filterMapBackup.insert(filter, atts);
+        if (!m_filterMap.contains(filter))
+            m_filterMap.insert(filter, atts);
+    }
 
-    if m_appFontChanged or m_browserFontChanged:
-        updateApplicationFont.emit()
-        updateBrowserFont.emit()
+    m_ui.filterWidget->addItems(m_filterMap.keys());
 
+    foreach (const QString &a, help.filterAttributes())
+        new QTreeWidgetItem(m_ui.attributeWidget, QStringList() << a);
 
-    homePage = m_ui.homePageLineEdit.text()
-    if homePage.isEmpty():
-        homePage = QLatin1String("help")
-    m_helpEngine.setCustomValue(QLatin1String("homepage"), homePage)
+    if (m_filterMap.keys().count())
+        m_ui.filterWidget->setCurrentRow(0);
+}
 
-    option = m_ui.helpStartComboBox.currentIndex()
-    m_helpEngine.setCustomValue(QLatin1String("StartOption"), option)
+void PreferencesDialog::updateAttributes(QListWidgetItem *item)
+{
+    QStringList checkedList;
+    if (item)
+        checkedList = m_filterMap.value(item->text());
+    QTreeWidgetItem *itm;
+    for (int i = 0; i < m_ui.attributeWidget->topLevelItemCount(); ++i) {
+        itm = m_ui.attributeWidget->topLevelItem(i);
+        if (checkedList.contains(itm->text(0)))
+            itm->setCheckState(0, Qt::Checked);
+        else
+            itm->setCheckState(0, Qt::Unchecked);
+    }
+}
 
+void PreferencesDialog::updateFilterMap()
+{
+    if (!m_ui.filterWidget->currentItem())
+        return;
+    QString filter = m_ui.filterWidget->currentItem()->text();
+    if (!m_filterMap.contains(filter))
+        return;
 
-def showDialog(self):
-    if exec() != Accepted:
-        m_appFontChanged = m_browserFontChanged = False
+    QStringList newAtts;
+    QTreeWidgetItem *itm = 0;
+    for (int i = 0; i < m_ui.attributeWidget->topLevelItemCount(); ++i) {
+        itm = m_ui.attributeWidget->topLevelItem(i);
+        if (itm->checkState(0) == Qt::Checked)
+            newAtts.append(itm->text(0));
+    }
+    m_filterMap[filter] = newAtts;
+}
 
+void PreferencesDialog::addFilter()
+{
+    FilterNameDialog dia(this);
+    if (dia.exec() == QDialog::Rejected)
+        return;
 
-def updateFilterPage(self):
-    if not m_helpEngine:
-        return
-
-    m_ui.filterWidget.clear()
-    m_ui.attributeWidget.clear()
-
-    QHelpEngineCore help(m_helpEngine.collectionFile(), 0)
-    help.setupData()
-    m_filterMapBackup.clear()
-     filters = help.customFilters()
-    foreach ( QString &filter, filters)
-        atts = help.filterAttributes(filter)
-        m_filterMapBackup.insert(filter, atts)
-        if not m_filterMap.contains(filter):
-            m_filterMap.insert(filter, atts)
-
-
-    m_ui.filterWidget.addItems(m_filterMap.keys())
-
-    foreach ( QString &a, help.filterAttributes())
-    QTreeWidgetItem(m_ui.attributeWidget, QStringList() << a)
-
-    if m_filterMap.keys().count():
-        m_ui.filterWidget.setCurrentRow(0)
-
-
-def updateAttributes(self, *item):
-    QStringList checkedList
-    if item:
-        checkedList = m_filterMap.value(item.text())
-    QTreeWidgetItem *itm
-    for (i = 0; i < m_ui.attributeWidget.topLevelItemCount(); ++i)
-        itm = m_ui.attributeWidget.topLevelItem(i)
-        if checkedList.contains(itm.text(0)):
-            itm.setCheckState(0, Qt.Checked)
-        else:
-            itm.setCheckState(0, Qt.Unchecked)
-
-
-
-def updateFilterMap(self):
-    if not m_ui.filterWidget.currentItem():
-        return
-    filter = m_ui.filterWidget.currentItem().text()
-    if not m_filterMap.contains(filter):
-        return
-
-    QStringList newAtts
-    QTreeWidgetItem *itm = 0
-    for (i = 0; i < m_ui.attributeWidget.topLevelItemCount(); ++i)
-        itm = m_ui.attributeWidget.topLevelItem(i)
-        if itm.checkState(0) == Qt.Checked:
-            newAtts.append(itm.text(0))
-
-    m_filterMap[filter] = newAtts
-
-
-def addFilter(self):
-    FilterNameDialog dia(self)
-    if dia.exec() == QDialog.Rejected:
-        return
-
-    filterName = dia.filterName()
-    if not m_filterMap.contains(filterName):
-        m_filterMap.insert(filterName, QStringList())
-        m_ui.filterWidget.addItem(filterName)
-
+    QString filterName = dia.filterName();
+    if (!m_filterMap.contains(filterName)) {
+        m_filterMap.insert(filterName, QStringList());
+        m_ui.filterWidget->addItem(filterName);
+    }
 
     QList<QListWidgetItem*> lst = m_ui.filterWidget
-                                  .findItems(filterName, Qt.MatchCaseSensitive)
-    m_ui.filterWidget.setCurrentItem(lst.first())
+        ->findItems(filterName, Qt::MatchCaseSensitive);
+    m_ui.filterWidget->setCurrentItem(lst.first());
+}
 
-
-def removeFilter(self):
+void PreferencesDialog::removeFilter()
+{
     QListWidgetItem *item =
-        m_ui.filterWidget .takeItem(m_ui.filterWidget.currentRow())
-    if not item:
-        return
+        m_ui.filterWidget ->takeItem(m_ui.filterWidget->currentRow());
+    if (!item)
+        return;
 
-    m_filterMap.remove(item.text())
-    m_removedFilters.append(item.text())
-    delete item
-    if m_ui.filterWidget.count():
-        m_ui.filterWidget.setCurrentRow(0)
+    m_filterMap.remove(item->text());
+    m_removedFilters.append(item->text());
+    delete item;
+    if (m_ui.filterWidget->count())
+        m_ui.filterWidget->setCurrentRow(0);
+}
 
+void PreferencesDialog::addDocumentationLocal()
+{
+    const QStringList fileNames = QFileDialog::getOpenFileNames(this,
+        tr("Add Documentation"), QString(), tr("Qt Compressed Help Files (*.qch)"));
+    if (fileNames.isEmpty())
+        return;
 
-def addDocumentationLocal(self):
-     fileNames = QFileDialog.getOpenFileNames(self,
-                                  tr("Add Documentation"), QString(), tr("Qt Compressed Help Files (*.qch)"))
-    if fileNames.isEmpty():
-        return
+    QStringList invalidFiles;
+    QStringList alreadyRegistered;
+    foreach (const QString &fileName, fileNames) {
+        const QString nameSpace = QHelpEngineCore::namespaceName(fileName);
+        if (nameSpace.isEmpty()) {
+            invalidFiles.append(fileName);
+            continue;
+        }
 
-    QStringList invalidFiles
-    QStringList alreadyRegistered
-    foreach ( QString &fileName, fileNames)
-         nameSpace = QHelpEngineCore.namespaceName(fileName)
-        if nameSpace.isEmpty():
-            invalidFiles.append(fileName)
-            continue
+        if (m_ui.registeredDocsListWidget->findItems(nameSpace,
+            Qt::MatchFixedString).count()) {
+                alreadyRegistered.append(nameSpace);
+                continue;
+        }
 
+        m_helpEngine->registerDocumentation(fileName);
+        m_ui.registeredDocsListWidget->addItem(nameSpace);
+        m_regDocs.append(nameSpace);
+        m_unregDocs.removeAll(nameSpace);
+    }
 
-        if (m_ui.registeredDocsListWidget.findItems(nameSpace,
-                Qt.MatchFixedString).count())
-            alreadyRegistered.append(nameSpace)
-            continue
+    if (!invalidFiles.isEmpty() || !alreadyRegistered.isEmpty()) {
+        QString message;
+        if (!alreadyRegistered.isEmpty()) {
+            foreach (const QString &ns, alreadyRegistered) {
+                message += tr("The namespace %1 is already registered!")
+                    .arg(QString("<b>%1</b>").arg(ns)) + QLatin1String("<br>");
+            }
+            if (!invalidFiles.isEmpty())
+                message.append(QLatin1String("<br>"));
+        }
 
+        if (!invalidFiles.isEmpty()) {
+            message += tr("The specified file is not a valid Qt Help File!");
+            message.append(QLatin1String("<ul>"));
+            foreach (const QString &file, invalidFiles)
+                message += QLatin1String("<li>") + file + QLatin1String("</li>");
+            message.append(QLatin1String("</ul>"));
+        }
+        QMessageBox::warning(this, tr("Add Documentation"), message);
+    }
 
-        m_helpEngine.registerDocumentation(fileName)
-        m_ui.registeredDocsListWidget.addItem(nameSpace)
-        m_regDocs.append(nameSpace)
-        m_unregDocs.removeAll(nameSpace)
+    updateFilterPage();
+}
 
+void PreferencesDialog::removeDocumentation()
+{
+    bool foundBefore = false;
+    //CentralWidget* widget = CentralWidget::instance();
+    //QMap<int, QString> openedDocList = widget->currentSourceFileList();
+    QStringList values;//(openedDocList.values());
 
-    if not invalidFiles.isEmpty() or not alreadyRegistered.isEmpty():
-        QString message
-        if not alreadyRegistered.isEmpty():
-            foreach ( QString &ns, alreadyRegistered)
-                message += tr("The namespace %1 is already registerednot ")
-                           .arg(QString("<b>%1</b>").arg(ns)) + QLatin1String("<br>")
+    QList<QListWidgetItem*> l = m_ui.registeredDocsListWidget->selectedItems();
+    foreach (QListWidgetItem* item, l) {
+        const QString& ns = item->text();
+        if (!foundBefore && values.contains(ns)) {
+            if (0 == QMessageBox::information(this, tr("Remove Documentation"),
+                tr("Some documents currently opened in Assistant reference the "
+                   "documentation you are attempting to remove. Removing the "
+                   "documentation will close those documents."), tr("Cancel"),
+                tr("OK"))) return;
+            foundBefore = true;
+        }
 
-            if not invalidFiles.isEmpty():
-                message.append(QLatin1String("<br>"))
+        m_unregDocs.append(ns);
+        //m_TabsToClose += openedDocList.keys(ns);
+        delete m_ui.registeredDocsListWidget->takeItem(
+            m_ui.registeredDocsListWidget->row(item));
+    }
 
+    if (m_ui.registeredDocsListWidget->count()) {
+        m_ui.registeredDocsListWidget->setCurrentRow(0,
+            QItemSelectionModel::ClearAndSelect);
+    }
+}
 
-        if not invalidFiles.isEmpty():
-            message += tr("The specified file is not a valid Qt Help Filenot ")
-            message.append(QLatin1String("<ul>"))
-            foreach ( QString &file, invalidFiles)
-            message += QLatin1String("<li>") + file + QLatin1String("</li>")
-            message.append(QLatin1String("</ul>"))
+void PreferencesDialog::applyChanges()
+{
+    bool filtersWereChanged = false;
+    if (!m_hideFiltersTab) {
+        if (m_filterMap.count() != m_filterMapBackup.count()) {
+            filtersWereChanged = true;
+        } else {
+            QMapIterator<QString, QStringList> it(m_filterMapBackup);
+            while (it.hasNext() && !filtersWereChanged) {
+                it.next();
+                if (!m_filterMap.contains(it.key())) {
+                    filtersWereChanged = true;
+                } else {
+                    QStringList a = it.value();
+                    QStringList b = m_filterMap.value(it.key());
+                    if (a.count() != b.count()) {
+                        filtersWereChanged = true;
+                    } else {
+                        QStringList::const_iterator i(a.constBegin());
+                        while (i != a.constEnd()) {
+                            if (!b.contains(*i)) {
+                                filtersWereChanged = true;
+                                break;
+                            }
+                            ++i;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-        QMessageBox.warning(self, tr("Add Documentation"), message)
+    if (filtersWereChanged) {
+        foreach (const QString &filter, m_removedFilters)
+            m_helpEngine->removeCustomFilter(filter);
+        QMapIterator<QString, QStringList> it(m_filterMap);
+        while (it.hasNext()) {
+            it.next();
+            m_helpEngine->addCustomFilter(it.key(), it.value());
+        }
+    }
 
+    qSort(m_TabsToClose);
+    /*
+    CentralWidget* widget = CentralWidget::instance();
+    for (int i = m_TabsToClose.count(); --i >= 0;)
+        widget->closeTabAt(m_TabsToClose.at(i));
+    if (widget->availableHelpViewer()== 0)
+        widget->setSource(QUrl(QLatin1String("about:blank")));
+    */
+    if (m_unregDocs.count()) {
+        foreach (const QString &doc, m_unregDocs)
+            m_helpEngine->unregisterDocumentation(doc);
+    }
 
-    updateFilterPage()
+    if (filtersWereChanged || m_regDocs.count() || m_unregDocs.count())
+        m_helpEngine->setupData();
 
+    accept();
+}
 
-def removeDocumentation(self):
-    foundBefore = False
-    #widget = CentralWidget.instance()
-    #QMap<int, openedDocList = widget.currentSourceFileList()
-    QStringList values;#(openedDocList.values())
+void PreferencesDialog::updateFontSettingsPage()
+{
+    m_browserFontPanel = new FontPanel(this);
+    m_browserFontPanel->setCheckable(true);
+    m_ui.stackedWidget_2->insertWidget(0, m_browserFontPanel);
 
-    QList<QListWidgetItem*> l = m_ui.registeredDocsListWidget.selectedItems()
-    for item in l:
-         ns = item.text()
-        if not foundBefore and values.contains(ns):
-            if (0 == QMessageBox.information(self, tr("Remove Documentation"),
-                                              tr("Some documents currently opened in Assistant reference the "
-                                                 "documentation you are attempting to remove. Removing the "
-                                                 "documentation will close those documents."), tr("Cancel"),
-                                              tr("OK"))) return
-            foundBefore = True
+    m_appFontPanel = new FontPanel(this);
+    m_appFontPanel->setCheckable(true);
+    m_ui.stackedWidget_2->insertWidget(1, m_appFontPanel);
 
+    m_ui.stackedWidget_2->setCurrentIndex(0);
 
-        m_unregDocs.append(ns)
-        #m_TabsToClose += openedDocList.keys(ns)
-        delete m_ui.registeredDocsListWidget.takeItem(
-            m_ui.registeredDocsListWidget.row(item))
+    const QString customSettings(tr("Use custom settings"));
+    m_appFontPanel->setTitle(customSettings);
 
+    QLatin1String key = QLatin1String("appFont");
+    QFont font = qVariantValue<QFont>(m_helpEngine->customValue(key));
+    m_appFontPanel->setSelectedFont(font);
 
-    if m_ui.registeredDocsListWidget.count():
-        m_ui.registeredDocsListWidget.setCurrentRow(0,
-                QItemSelectionModel.ClearAndSelect)
+    key = QLatin1String("appWritingSystem");
+    QFontDatabase::WritingSystem system = static_cast<QFontDatabase::WritingSystem>
+        (m_helpEngine->customValue(key).toInt());
+    m_appFontPanel->setWritingSystem(system);
 
+    key = QLatin1String("useAppFont");
+    m_appFontPanel->setChecked(m_helpEngine->customValue(key).toBool());
 
+    m_browserFontPanel->setTitle(customSettings);
 
-def applyChanges(self):
-    filtersWereChanged = False
-    if not m_hideFiltersTab:
-        if m_filterMap.count() != m_filterMapBackup.count():
-            filtersWereChanged = True
+    key = QLatin1String("browserFont");
+    font = qVariantValue<QFont>(m_helpEngine->customValue(key));
+    m_browserFontPanel->setSelectedFont(font);
 
-        else:
-            QMapIterator<QString, it(m_filterMapBackup)
-            while (it.hasNext() and not filtersWereChanged)
-                it.next()
-                if not m_filterMap.contains(it.key()):
-                    filtersWereChanged = True
+    key = QLatin1String("browserWritingSystem");
+    system = static_cast<QFontDatabase::WritingSystem>
+        (m_helpEngine->customValue(key).toInt());
+    m_browserFontPanel->setWritingSystem(system);
 
-                else:
-                    a = it.value()
-                    b = m_filterMap.value(it.key())
-                    if a.count() != b.count():
-                        filtersWereChanged = True
+    key = QLatin1String("useBrowserFont");
+    m_browserFontPanel->setChecked(m_helpEngine->customValue(key).toBool());
 
-                    else:
-                        QStringList.const_iterator i(a.constBegin())
-                        while (i != a.constEnd())
-                            if not b.contains(*i):
-                                filtersWereChanged = True
-                                break
+    connect(m_appFontPanel, SIGNAL(toggled(bool)), this,
+        SLOT(appFontSettingToggled(bool)));
+    connect(m_browserFontPanel, SIGNAL(toggled(bool)), this,
+        SLOT(browserFontSettingToggled(bool)));
 
-                            ++i
+    QList<QComboBox*> allCombos = qFindChildren<QComboBox*>(m_appFontPanel);
+    foreach (QComboBox* box, allCombos) {
+        connect(box, SIGNAL(currentIndexChanged(int)), this,
+            SLOT(appFontSettingChanged(int)));
+    }
 
+    allCombos = qFindChildren<QComboBox*>(m_browserFontPanel);
+    foreach (QComboBox* box, allCombos) {
+        connect(box, SIGNAL(currentIndexChanged(int)), this,
+            SLOT(browserFontSettingChanged(int)));
+    }
+}
 
-
-
-
-
-
-    if filtersWereChanged:
-        foreach ( QString &filter, m_removedFilters)
-        m_helpEngine.removeCustomFilter(filter)
-        QMapIterator<QString, it(m_filterMap)
-        while (it.hasNext())
-            it.next()
-            m_helpEngine.addCustomFilter(it.key(), it.value())
-
-
-
-    qSort(m_TabsToClose)
-    '''
-    widget = CentralWidget.instance()
-    for (i = m_TabsToClose.count(); --i >= 0;)
-        widget.closeTabAt(m_TabsToClose.at(i))
-    if widget.availableHelpViewer()== 0:
-        widget.setSource(QUrl(QLatin1String("about:blank")))
-    '''
-    if m_unregDocs.count():
-        foreach ( QString &doc, m_unregDocs)
-        m_helpEngine.unregisterDocumentation(doc)
-
-
-    if filtersWereChanged or m_regDocs.count() or m_unregDocs.count():
-        m_helpEngine.setupData()
-
-    accept()
-
-
-def updateFontSettingsPage(self):
-    m_browserFontPanel = FontPanel(self)
-    m_browserFontPanel.setCheckable(True)
-    m_ui.stackedWidget_2.insertWidget(0, m_browserFontPanel)
-
-    m_appFontPanel = FontPanel(self)
-    m_appFontPanel.setCheckable(True)
-    m_ui.stackedWidget_2.insertWidget(1, m_appFontPanel)
-
-    m_ui.stackedWidget_2.setCurrentIndex(0)
-
-     QString customSettings(tr("Use custom settings"))
-    m_appFontPanel.setTitle(customSettings)
-
-    key = QLatin1String("appFont")
-    font = qVariantValue<QFont>(m_helpEngine.customValue(key))
-    m_appFontPanel.setSelectedFont(font)
-
-    key = QLatin1String("appWritingSystem")
-    system = static_cast<QFontDatabase.WritingSystem>
-                                          (m_helpEngine.customValue(key).toInt())
-    m_appFontPanel.setWritingSystem(system)
-
-    key = QLatin1String("useAppFont")
-    m_appFontPanel.setChecked(m_helpEngine.customValue(key).toBool())
-
-    m_browserFontPanel.setTitle(customSettings)
-
-    key = QLatin1String("browserFont")
-    font = qVariantValue<QFont>(m_helpEngine.customValue(key))
-    m_browserFontPanel.setSelectedFont(font)
-
-    key = QLatin1String("browserWritingSystem")
-    system = static_cast<QFontDatabase.WritingSystem>
-             (m_helpEngine.customValue(key).toInt())
-    m_browserFontPanel.setWritingSystem(system)
-
-    key = QLatin1String("useBrowserFont")
-    m_browserFontPanel.setChecked(m_helpEngine.customValue(key).toBool())
-
-    connect(m_appFontPanel, SIGNAL(toggled(bool)), self,
-            SLOT(appFontSettingToggled(bool)))
-    connect(m_browserFontPanel, SIGNAL(toggled(bool)), self,
-            SLOT(browserFontSettingToggled(bool)))
-
-    QList<QComboBox*> allCombos = qFindChildren<QComboBox*>(m_appFontPanel)
-    for box in allCombos:
-        connect(box, SIGNAL(currentIndexChanged(int)), self,
-                SLOT(appFontSettingChanged(int)))
-
-
-    allCombos = qFindChildren<QComboBox*>(m_browserFontPanel)
-    for box in allCombos:
-        connect(box, SIGNAL(currentIndexChanged(int)), self,
-                SLOT(browserFontSettingChanged(int)))
-
-
-
-def appFontSettingToggled(self, on):
+void PreferencesDialog::appFontSettingToggled(bool on)
+{
     Q_UNUSED(on)
-    m_appFontChanged = True
+    m_appFontChanged = true;
+}
 
-
-def appFontSettingChanged(self, index):
+void PreferencesDialog::appFontSettingChanged(int index)
+{
     Q_UNUSED(index)
-    m_appFontChanged = True
+    m_appFontChanged = true;
+}
 
-
-def browserFontSettingToggled(self, on):
+void PreferencesDialog::browserFontSettingToggled(bool on)
+{
     Q_UNUSED(on)
-    m_browserFontChanged = True
+    m_browserFontChanged = true;
+}
 
-
-def browserFontSettingChanged(self, index):
+void PreferencesDialog::browserFontSettingChanged(int index)
+{
     Q_UNUSED(index)
-    m_browserFontChanged = True
+    m_browserFontChanged = true;
+}
 
+void PreferencesDialog::updateOptionsPage()
+{
+    QString homepage = m_helpEngine->customValue(QLatin1String("homepage"),
+        QLatin1String("")).toString();
 
-def updateOptionsPage(self):
-    homepage = m_helpEngine.customValue(QLatin1String("homepage"),
-                       QLatin1String("")).toString()
+    if (homepage.isEmpty()) {
+        homepage = m_helpEngine->customValue(QLatin1String("defaultHomepage"),
+            QLatin1String("help")).toString();
+    }
+    m_ui.homePageLineEdit->setText(homepage);
 
-    if homepage.isEmpty():
-        homepage = m_helpEngine.customValue(QLatin1String("defaultHomepage"),
-                                             QLatin1String("help")).toString()
+    int option = m_helpEngine->customValue(QLatin1String("StartOption"),
+        ShowLastPages).toInt();
+    m_ui.helpStartComboBox->setCurrentIndex(option);
 
-    m_ui.homePageLineEdit.setText(homepage)
+    connect(m_ui.blankPageButton, SIGNAL(clicked()), this, SLOT(setBlankPage()));
+    connect(m_ui.currentPageButton, SIGNAL(clicked()), this, SLOT(setCurrentPage()));
+    connect(m_ui.defaultPageButton, SIGNAL(clicked()), this, SLOT(setDefaultPage()));
+}
 
-    option = m_helpEngine.customValue(QLatin1String("StartOption"),
-                                           ShowLastPages).toInt()
-    m_ui.helpStartComboBox.setCurrentIndex(option)
+void PreferencesDialog::setBlankPage()
+{
+    m_ui.homePageLineEdit->setText(QLatin1String("about:blank"));
+}
 
-    connect(m_ui.blankPageButton, SIGNAL(clicked()), self, SLOT(setBlankPage()))
-    connect(m_ui.currentPageButton, SIGNAL(clicked()), self, SLOT(setCurrentPage()))
-    connect(m_ui.defaultPageButton, SIGNAL(clicked()), self, SLOT(setDefaultPage()))
+void PreferencesDialog::setCurrentPage()
+{
+    QString homepage;// = CentralWidget::instance()->currentSource().toString();
+    if (homepage.isEmpty())
+        homepage = QLatin1String("help");
 
+    m_ui.homePageLineEdit->setText(homepage);
+}
 
-def setBlankPage(self):
-    m_ui.homePageLineEdit.setText(QLatin1String("about:blank"))
-
-
-def setCurrentPage(self):
-    QString homepage;# = CentralWidget.instance().currentSource().toString()
-    if homepage.isEmpty():
-        homepage = QLatin1String("help")
-
-    m_ui.homePageLineEdit.setText(homepage)
-
-
-def setDefaultPage(self):
-    homepage = m_helpEngine.customValue(QLatin1String("defaultHomepage"),
-                       QLatin1String("help")).toString()
-    m_ui.homePageLineEdit.setText(homepage)
-
+void PreferencesDialog::setDefaultPage()
+{
+    QString homepage = m_helpEngine->customValue(QLatin1String("defaultHomepage"),
+        QLatin1String("help")).toString();
+    m_ui.homePageLineEdit->setText(homepage);
+}
 
 QT_END_NAMESPACE

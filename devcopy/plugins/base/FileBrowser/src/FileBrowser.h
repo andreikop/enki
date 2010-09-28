@@ -1,4 +1,4 @@
-'''***************************************************************************
+/****************************************************************************
 **
 **         Created using Monkey Studio v1.8.1.0
 ** Authors    : Filipe AZEVEDO aka Nox P@sNox <pasnox@gmail.com>
@@ -6,8 +6,8 @@
 ** FileName  : FileBrowser.h
 ** Date      : 2008-01-14T00:39:54
 ** License   : GPL
-** Comment   : This header has been automatically generated, you are the original author, co-author, free to replace/append with your informations.
-** Home Page : http:#www.monkeystudio.org
+** Comment   : This header has been automatically generated, if you are the original author, or co-author, fill free to replace/append with your informations.
+** Home Page : http://www.monkeystudio.org
 **
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
@@ -22,16 +22,16 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with self program; if not, to the Free Software
-    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 **
-***************************************************************************'''
-'''!
+****************************************************************************/
+/*!
     \file FileBrowser.h
     \date 2008-01-14T00:40:08
-    \author Filipe AZEVEDO, KOPATS
+    \author Filipe AZEVEDO, Andrei KOPATS
     \brief Header file for FileBrowser plugin
-'''
+*/
 #ifndef FILEBROWSER_H
 #define FILEBROWSER_H
 
@@ -39,42 +39,43 @@
 
 #include <QPointer>
 
-class pDockFileBrowser
+class pDockFileBrowser;
 
-'''!
+/*!
     Main class of FileBrowser plugin
-
+    
     Plugin allows to see file system contents and open files
-'''
+*/
 class FileBrowser : public BasePlugin
+{
     Q_OBJECT
     Q_INTERFACES( BasePlugin )
 
-protected:
-    void fillPluginInfos()
-    virtual bool install()
-    virtual bool uninstall()
+protected:    
+    void fillPluginInfos();
+    virtual bool install();
+    virtual bool uninstall();
 public:
-    virtual QWidget* settingsWidget()
-
-    QStringList filters()
-    void setFilters(  QStringList& filters, updateDock = False )
-
-    QStringList bookmarks()
-    void setBookmarks(  QStringList& bookmarks, updateDock = False )
-
-    QString path()
-    void setPath(  QString& path, updateDock = False )
-
-    QString filePath()
-    void setFilePath(  QString& filePath, updateDock = False )
+    virtual QWidget* settingsWidget();
+    
+    QStringList filters() const;
+    void setFilters( const QStringList& filters, bool updateDock = false );
+    
+    QStringList bookmarks() const;
+    void setBookmarks( const QStringList& bookmarks, bool updateDock = false );
+    
+    QString path() const;
+    void setPath( const QString& path, bool updateDock = false );
+    
+    QString filePath() const;
+    void setFilePath( const QString& filePath, bool updateDock = false );
 
 protected:
-    QPointer<pDockFileBrowser> mDock
+    QPointer<pDockFileBrowser> mDock;
 
 protected slots:
-    void saveSettings()
-    void restoreSettings()
-
+    void saveSettings();
+    void restoreSettings();
+};
 
 #endif
