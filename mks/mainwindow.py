@@ -31,34 +31,35 @@ class MainWindow(pMainWindow):
     
     def initGui(self):
         # init menubar
-        #self.initMenuBar()
+        self.initMenuBar()
         """TODO
         # init recents manager
-        mks.monkeycore.recentsManager()
+        mks.mks.monkeycore.recentsManager()
         # init toolbar
         self.initToolBar()
         # init workspace
-        self.setCentralWidget( mks.mks.monkeycore.workspace() )
+        self.setCentralWidget( mks.mks.mks.monkeycore.workspace() )
         # init message toolbar
-        messageTb =  mks.mks.monkeycore.messageManager()
+        messageTb =  mks.mks.mks.monkeycore.messageManager()
         messageTb.setObjectName( "pQueuedMessageToolBar" )
         messageTb.setVisible( False )
         messageTb.setDefaultPixmap( mks.iconmanager.pixmap( "messages_infos.png", ":/messages" ) )
         pMonkeyStudio.setMacSmallSize( messageTb, true, true )
         self.centralWidget().layout().setMenuBar( messageTb )
         # init projects manager
-        dockToolBar( Qt.LeftToolBarArea ).addDock( mks.monkeycore.projectsManager(), mks.monkeycore.projectsManager().windowTitle(), QIcon( ":/project/icons/project/project.png" ) )
+        dockToolBar( Qt.LeftToolBarArea ).addDock( mks.mks.monkeycore.projectsManager(), mks.mks.monkeycore.projectsManager().windowTitle(), QIcon( ":/project/icons/project/project.png" ) )
         # init opened files dock
-        pOpenedFileExplorer* openedFileExplorer = mks.monkeycore.workspace().dockWidget()
+        pOpenedFileExplorer* openedFileExplorer = mks.mks.monkeycore.workspace().dockWidget()
         dockToolBar( Qt.LeftToolBarArea ).addDock( openedFileExplorer, openedFileExplorer.windowTitle(), openedFileExplorer.windowIcon() )
         # init multitoolbar
-        mks.monkeycore.workspace().initMultiToolBar( mks.monkeycore.multiToolBar().toolBar( pWorkspace.defaultContext() ) )
-        mks.monkeycore.workspace().initMultiToolBar( mks.monkeycore.multiToolBar().toolBar( "Coding" ) )
+        mks.mks.monkeycore.workspace().initMultiToolBar( mks.mks.monkeycore.multiToolBar().toolBar( pWorkspace.defaultContext() ) )
+        mks.mks.monkeycore.workspace().initMultiToolBar( mks.mks.monkeycore.multiToolBar().toolBar( "Coding" ) )
         # init status bar
-        setStatusBar( mks.monkeycore.statusBar() )
+        setStatusBar( mks.mks.monkeycore.statusBar() )
         # init connection
-        initConnections()
         """
+        self.initConnections()
+        mks.monkeycore.workspace().openFile('/home/a/tmp/1')
 
     def initMenuBar(self):
         # create menubar menus and actions
@@ -67,11 +68,13 @@ class MainWindow(pMainWindow):
         mb.setDefaultShortcutContext( Qt.ApplicationShortcut )
         
         mb.menu( "mFile", self.tr( "File" ) )
-        
         mb.beginGroup( "mFile" )
+        """TODO
         mb.action( "aNew", self.tr( "&New..." ), QIcon( ":/file/icons/file/new.png" ), self.tr( "Ctrl+N" ), self.tr( "Create a new file" ) )
         mb.action( "aNewTextEditor", self.tr( "&New Text File..." ), QIcon( ":/file/icons/file/new.png" ), '', self.tr( "Quickly create a new text based file" ) )
+        """
         mb.action( "aOpen", self.tr( "&Open..." ), QIcon( ":/file/icons/file/open.png" ), self.tr( "Ctrl+O" ), self.tr( "Open a file" ) )
+        """TODO
         mb.menu( "mRecents", self.tr( "&Recents" ), QIcon( ":/file/icons/file/recents.png" ) )
         mb.action( "mRecents/aClear", self.tr( "&Clear" ), QIcon( ":/file/icons/file/clear.png" ), '', self.tr( "Clear the recents files list" ) )
         mb.action( "mRecents/aSeparator1" )
@@ -94,8 +97,10 @@ class MainWindow(pMainWindow):
         mb.action( "aPrint", self.tr( "&Print..." ), QIcon( ":/file/icons/file/print.png" ), self.tr( "Ctrl+P" ), self.tr( "Print the current file" ) ).setEnabled( False )
         mb.action( "aSeparator5" )
         mb.action( "aQuit", self.tr( "&Quit" ), QIcon( ":/file/icons/file/quit.png" ), self.tr( "Ctrl+Q" ), self.tr( "Quit the application" ) )
+        """
         mb.endGroup()
         
+        """TODO
         mb.menu( "mEdit", self.tr( "Edit" ) )
         
         mb.beginGroup( "mEdit" )
@@ -131,19 +136,19 @@ class MainWindow(pMainWindow):
         
         mb.menu( "mProject", self.tr( "Project" ) )
         mb.beginGroup( "mProject" )
-        """TODO
-        mb.addAction( '', mks.monkeycore.projectsManager().action( XUPProjectManager.atNew ) )
-        mb.addAction( '', mks.monkeycore.projectsManager().action( XUPProjectManager.atOpen ) )
+        
+        mb.addAction( '', mks.mks.monkeycore.projectsManager().action( XUPProjectManager.atNew ) )
+        mb.addAction( '', mks.mks.monkeycore.projectsManager().action( XUPProjectManager.atOpen ) )
         mb.action( "aSeparator1" )
-        mb.addAction( '', mks.monkeycore.projectsManager().action( XUPProjectManager.atClose ) )
-        mb.addAction( '', mks.monkeycore.projectsManager().action( XUPProjectManager.atCloseAll ) )
+        mb.addAction( '', mks.mks.monkeycore.projectsManager().action( XUPProjectManager.atClose ) )
+        mb.addAction( '', mks.mks.monkeycore.projectsManager().action( XUPProjectManager.atCloseAll ) )
         mb.action( "aSeparator2" )
-        mb.addAction( '', mks.monkeycore.projectsManager().action( XUPProjectManager.atEdit ) )
+        mb.addAction( '', mks.mks.monkeycore.projectsManager().action( XUPProjectManager.atEdit ) )
         mb.action( "aSeparator3" )
-        mb.addAction( '', mks.monkeycore.projectsManager().action( XUPProjectManager.atAddFiles ) )
-        mb.addAction( '', mks.monkeycore.projectsManager().action( XUPProjectManager.atRemoveFiles ) )
+        mb.addAction( '', mks.mks.monkeycore.projectsManager().action( XUPProjectManager.atAddFiles ) )
+        mb.addAction( '', mks.mks.monkeycore.projectsManager().action( XUPProjectManager.atRemoveFiles ) )
         mb.action( "aSeparator4" )
-        """
+        
         mb.menu( "mRecents", self.tr( "&Recents" ), QIcon( ":/project/icons/project/recents.png" ) )
         mb.action( "mRecents/aClear", self.tr( "&Clear" ), QIcon( ":/project/icons/project/clear.png" ), '', self.tr( "Clear the recents projects list" ) )
         mb.action( "mRecents/aSeparator1" )
@@ -180,10 +185,13 @@ class MainWindow(pMainWindow):
         mb.action( "aRestore", self.tr( "&Restore" ), QIcon( "" ), '', self.tr( "Restore normal size" ) )
         mb.endGroup()
         mb.menu( "mDocks", self.tr( "Docks" ) )
+        """
         mb.menu( "mHelp", self.tr( "Help" ) )
-        
+
         mb.beginGroup( "mHelp" )
+        """TODO
         mb.action( "aAbout", self.tr( "&About..." ), QIcon( ":/application/icons/application/monkey2.png" ), '', self.tr( "About application..." ) )
+        """
         mb.action( "aAboutQt", self.tr( "About &Qt..." ), QIcon( ":/help/icons/help/qt.png" ), '', self.tr( "About Qt..." ) )
         mb.action( "aSeparator1" )
         mb.endGroup()
@@ -191,11 +199,11 @@ class MainWindow(pMainWindow):
         """TODO
         # create action for styles
         agStyles = pStylesActionGroup( self.tr( "Use %1 style" ), mb.menu( "mView/mStyle" ) )
-        agStyles.setCurrentStyle( mks.monkeycore.settings().value( "MainWindow/Style" ).toString() )
+        agStyles.setCurrentStyle( mks.mks.monkeycore.settings().value( "MainWindow/Style" ).toString() )
         mb.menu( "mView/mStyle" ).addActions( agStyles.actions() )
         
         # create plugins actions
-        mks.mks.monkeycore.pluginsManager().menuHandler().setMenu( mb.menu( "mPlugins" ) )
+        mks.mks.mks.monkeycore.pluginsManager().menuHandler().setMenu( mb.menu( "mPlugins" ) )
         """
     
     def dragEnterEvent( self, event ):
@@ -222,16 +230,16 @@ class MainWindow(pMainWindow):
         
         # save session if needed
         if  mks.monkeystudio.saveSessionOnClose() :
-            mks.monkeycore.workspace().fileSessionSave_triggered()
+            mks.mks.monkeycore.workspace().fileSessionSave_triggered()
         
         # request close all documents
-        if  not mks.monkeycore.workspace().closeAllDocuments() :
+        if  not mks.mks.monkeycore.workspace().closeAllDocuments() :
             event.ignore()
             return
         
         
         # force to close all projects
-        mks.monkeycore.projectsManager().action( XUPProjectManager.atCloseAll ).trigger()
+        mks.mks.monkeycore.projectsManager().action( XUPProjectManager.atCloseAll ).trigger()
         """
         pMainWindow.closeEvent( self, event )
     
@@ -252,95 +260,96 @@ class MainWindow(pMainWindow):
 
     def initToolBar(self):
         # recents
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( menuBar().menu( "mFile/mRecents" ).menuAction() )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( menuBar().menu( "mFile/mSession" ).menuAction() )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( menuBar().menu( "mProject/mRecents" ).menuAction() )
+        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().menu( "mFile/mRecents" ).menuAction() )
+        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().menu( "mFile/mSession" ).menuAction() )
+        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().menu( "mProject/mRecents" ).menuAction() )
         self.dockToolBar( Qt.TopToolBarArea ).addAction()
         # settings
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( menuBar().action( "mEdit/aSettings" ) )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( menuBar().action( "mEdit/aShortcutsEditor" ) )
+        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mEdit/aSettings" ) )
+        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mEdit/aShortcutsEditor" ) )
         # file action
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( menuBar().action( "mFile/aNew" ) )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( menuBar().action( "mFile/aNewTextEditor" ) )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( menuBar().action( "mFile/aOpen" ) )
-        self.dockToolBar( Qt.TopToolBarArea ).addActions( menuBar().menu( "mFile/mSave" ).actions() )
-        self.dockToolBar( Qt.TopToolBarArea ).addActions( menuBar().menu( "mFile/mClose" ).actions() )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( menuBar().action( "mFile/aQuickPrint" ) )
+        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mFile/aNew" ) )
+        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mFile/aNewTextEditor" ) )
+        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mFile/aOpen" ) )
+        self.dockToolBar( Qt.TopToolBarArea ).addActions( self.menuBar().menu( "mFile/mSave" ).actions() )
+        self.dockToolBar( Qt.TopToolBarArea ).addActions( self.menuBar().menu( "mFile/mClose" ).actions() )
+        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mFile/aQuickPrint" ) )
         self.dockToolBar( Qt.TopToolBarArea ).addAction()
         # edit action
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( menuBar().action( "mEdit/aUndo" ) )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( menuBar().action( "mEdit/aRedo" ) )
+        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mEdit/aUndo" ) )
+        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mEdit/aRedo" ) )
         self.dockToolBar( Qt.TopToolBarArea ).addAction()
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( menuBar().action( "mEdit/aCut" ) )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( menuBar().action( "mEdit/aCopy" ) )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( menuBar().action( "mEdit/aPaste" ) )
+        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mEdit/aCut" ) )
+        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mEdit/aCopy" ) )
+        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mEdit/aPaste" ) )
         self.dockToolBar( Qt.TopToolBarArea ).addAction()
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( menuBar().action( "mEdit/aGoTo" ) )
+        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mEdit/aGoTo" ) )
         self.dockToolBar( Qt.TopToolBarArea ).addAction()
         # help action
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( menuBar().action( "mHelp/aAbout" ) )
+        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mHelp/aAbout" ) )
         self.dockToolBar( Qt.TopToolBarArea ).addAction()
         # console action
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( MonkeyCore.consoleManager().stopAction() )
+        self.dockToolBar( Qt.TopToolBarArea ).addAction( mks.monkeycore.consoleManager().stopAction() )
 
 
     def initConnections(self):
         """TODO
-        # file connection
-        self.connect( self.menuBar().action( "mFile/aNew" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( fileNew_triggered() ) )
-        self.connect( self.menuBar().action( "mFile/aNewTextEditor" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( createNewTextEditor() ) )
-        self.connect( self.menuBar().action( "mFile/aOpen" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( fileOpen_triggered() ) )
-        self.connect( MonkeyCore.recentsManager(), SIGNAL( openFileRequested(  QString&,  QString& ) ), MonkeyCore.fileManager(), SLOT( openFile(  QString&,  QString& ) ) )
-        self.connect( self.menuBar().action( "mFile/mSession/aSave" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( fileSessionSave_triggered() ) )
-        self.connect( self.menuBar().action( "mFile/mSession/aRestore" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( fileSessionRestore_triggered() ) )
-        self.connect( self.menuBar().action( "mFile/mSave/aCurrent" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( fileSaveCurrent_triggered() ) )
-        self.connect( self.menuBar().action( "mFile/mSave/aAll" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( fileSaveAll_triggered() ) )
-        self.connect( self.menuBar().action( "mFile/mClose/aCurrent" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( fileCloseCurrent_triggered() ) )
-        self.connect( self.menuBar().action( "mFile/mClose/aAll" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( fileCloseAll_triggered() ) )
-        self.connect( self.menuBar().action( "mFile/aReload" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( fileReload_triggered() ) )
-        self.connect( self.menuBar().action( "mFile/aSaveAsBackup" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( fileSaveAsBackup_triggered() ) )
-        self.connect( self.menuBar().action( "mFile/aQuickPrint" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( fileQuickPrint_triggered() ) )
-        self.connect( self.menuBar().action( "mFile/aPrint" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( filePrint_triggered() ) )
-        self.connect( self.menuBar().action( "mFile/aQuit" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( fileExit_triggered() ) )
+        self.menuBar().action( "mFile/aNew" ).triggered.connect(mks.monkeycore.workspace().fileNew_triggered)
+        self.menuBar().action( "mFile/aNewTextEditor" ).triggered.connect(mks.monkeycore.workspace().createNewTextEditor)
+        """
+        self.menuBar().action( "mFile/aOpen" ).triggered.connect(mks.monkeycore.workspace().fileOpen_triggered)
+        """TODO
+        mks.monkeycore.recentsManager().openFileRequested.connect(mks.monkeycore.fileManager().openFile)
+        self.menuBar().action( "mFile/mSession/aSave" ).triggered.connect(mks.monkeycore.workspace().fileSessionSave_triggered)
+        self.menuBar().action( "mFile/mSession/aRestore" ).triggered.connect(mks.monkeycore.workspace().fileSessionRestore_triggered)
+        self.menuBar().action( "mFile/mSave/aCurrent" ).triggered.connect(mks.monkeycore.workspace().fileSaveCurrent_triggered)
+        self.menuBar().action( "mFile/mSave/aAll" ).triggered.connect(mks.monkeycore.workspace().fileSaveAll_triggered)
+        self.menuBar().action( "mFile/mClose/aCurrent" ).triggered.connect(mks.monkeycore.workspace().fileCloseCurrent_triggered)
+        self.menuBar().action( "mFile/mClose/aAll" ).triggered.connect(mks.monkeycore.workspace().fileCloseAll_triggered)
+        self.menuBar().action( "mFile/aReload" ).triggered.connect(mks.monkeycore.workspace().fileReload_triggered)
+        self.menuBar().action( "mFile/aSaveAsBackup" ).triggered.connect(mks.monkeycore.workspace().fileSaveAsBackup_triggered)
+        self.menuBar().action( "mFile/aQuickPrint" ).triggered.connect(mks.monkeycore.workspace().fileQuickPrint_triggered)
+        self.menuBar().action( "mFile/aPrint" ).triggered.connect(mks.monkeycore.workspace().filePrint_triggered)
+        self.menuBar().action( "mFile/aQuit" ).triggered.connect(mks.monkeycore.workspace().fileExit_triggered)
         # edit connection
-        self.connect( self.menuBar().action( "mEdit/aSettings" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( editSettings_triggered() ) )
-        self.connect( self.menuBar().action( "mEdit/aShortcutsEditor" ), SIGNAL( triggered() ), MonkeyCore.actionsManager(), SLOT( editActionsShortcuts() ) )
-        self.connect( self.menuBar().action( "mEdit/aTranslations" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( editTranslations_triggered() ) )
-        self.connect( self.menuBar().action( "mEdit/aUndo" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( editUndo_triggered() ) )
-        self.connect( self.menuBar().action( "mEdit/aRedo" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( editRedo_triggered() ) )
-        self.connect( self.menuBar().action( "mEdit/aCut" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( editCut_triggered() ) )
-        self.connect( self.menuBar().action( "mEdit/aCopy" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( editCopy_triggered() ) )
-        self.connect( self.menuBar().action( "mEdit/aPaste" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( editPaste_triggered() ) )
-        self.connect( self.menuBar().action( "mEdit/mSearchReplace/aSearchFile" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( editSearch_triggered() ) )
-        #self.connect( self.menuBar().action( "mEdit/aSearchPrevious" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( editSearchPrevious_triggered() ) )
-        #self.connect( self.menuBar().action( "mEdit/aSearchNext" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( editSearchNext_triggered() ) )
-        self.connect( self.menuBar().action( "mEdit/aGoTo" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( editGoTo_triggered() ) )
-        self.connect( self.menuBar().action( "mEdit/aExpandAbbreviation" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( editExpandAbbreviation_triggered() ) )
-        self.connect( self.menuBar().action( "mEdit/aPrepareAPIs" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( editPrepareAPIs_triggered() ) )
+        self.menuBar().action( "mEdit/aSettings" ).triggered.connect(mks.monkeycore.workspace().editSettings_triggered)
+        self.menuBar().action( "mEdit/aShortcutsEditor" ).triggered.connect(mks.monkeycore.actionsManager().editActionsShortcuts)
+        self.menuBar().action( "mEdit/aTranslations" ).triggered.connect(mks.monkeycore.workspace().editTranslations_triggered)
+        self.menuBar().action( "mEdit/aUndo" ).triggered.connect(mks.monkeycore.workspace().editUndo_triggered)
+        self.menuBar().action( "mEdit/aRedo" ).triggered.connect(mks.monkeycore.workspace().editRedo_triggered)
+        self.menuBar().action( "mEdit/aCut" ).triggered.connect(mks.monkeycore.workspace().editCut_triggered)
+        self.menuBar().action( "mEdit/aCopy" ).triggered.connect(mks.monkeycore.workspace().editCopy_triggered)
+        self.menuBar().action( "mEdit/aPaste" ).triggered.connect(mks.monkeycore.workspace().editPaste_triggered)
+        self.menuBar().action( "mEdit/mSearchReplace/aSearchFile" ).triggered.connect(mks.monkeycore.workspace().editSearch_triggered)
+        #menuBar().action( "mEdit/aSearchPrevious" ).triggered.connect(mks.monkeycore.workspace().editSearchPrevious_triggered)
+        #menuBar().action( "mEdit/aSearchNext" ).triggered.connect(mks.monkeycore.workspace().editSearchNext_triggered)
+        self.menuBar().action( "mEdit/aGoTo" ).triggered.connect(mks.monkeycore.workspace().editGoTo_triggered)
+        self.menuBar().action( "mEdit/aExpandAbbreviation" ).triggered.connect(mks.monkeycore.workspace().editExpandAbbreviation_triggered)
+        self.menuBar().action( "mEdit/aPrepareAPIs" ).triggered.connect(mks.monkeycore.workspace().editPrepareAPIs_triggered)
         # view connection
-        self.connect( agStyles, SIGNAL( styleSelected(  QString& ) ), this, SLOT( changeStyle(  QString& ) ) )
-        self.connect( self.menuBar().action( "mView/aNext" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( activateNextDocument() ) )
-        self.connect( self.menuBar().action( "mView/aPrevious" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( activatePreviousDocument() ) )
-        self.connect( self.menuBar().action( "mView/aFocusToEditor" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( focusEditor() ) )
+        agStyles.styleSelected.connect(self.changeStyle)
+        self.menuBar().action( "mView/aNext" ).triggered.connect(mks.monkeycore.workspace().activateNextDocument)
+        self.menuBar().action( "mView/aPrevious" ).triggered.connect(mks.monkeycore.workspace().activatePreviousDocument)
+        self.menuBar().action( "mView/aFocusToEditor" ).triggered.connect(mks.monkeycore.workspace().focusEditor)
         # docks
-        self.connect( self.menuBar().menu( "mDocks" ), SIGNAL( aboutToShow() ), this, SLOT( menu_Docks_aboutToShow() ) )
+        self.menuBar().menu( "mDocks" ).aboutToShow.connect(self.menu_Docks_aboutToShow)
         # project connection
-        self.connect( MonkeyCore.recentsManager(), SIGNAL( openProjectRequested(  QString&,  QString& ) ), MonkeyCore.projectsManager(), SLOT( openProject(  QString&,  QString& ) ) )
-        self.connect( MonkeyCore.projectsManager(), SIGNAL( fileDoubleClicked(  QString&,  QString& ) ), MonkeyCore.workspace(), SLOT( openFile(  QString&,  QString& ) ) )
+        mks.monkeycore.recentsManager().openProjectRequested.connect(mks.monkeycore.projectsManager().openProject)
+        mks.monkeycore.projectsManager().fileDoubleClicked.connect(mks.monkeycore.workspace().openFile)
         # builder debugger interpreter menu
-        self.connect( self.menuBar().menu( "mBuilder" ), SIGNAL( aboutToShow() ), this, SLOT( menu_CustomAction_aboutToShow() ) )
-        self.connect( self.menuBar().menu( "mDebugger" ), SIGNAL( aboutToShow() ), this, SLOT( menu_CustomAction_aboutToShow() ) )
-        self.connect( self.menuBar().menu( "mInterpreter" ), SIGNAL( aboutToShow() ), this, SLOT( menu_CustomAction_aboutToShow() ) )
+        self.menuBar().menu( "mBuilder" ).aboutToShow.connect(self.menu_CustomAction_aboutToShow)
+        self.menuBar().menu( "mDebugger" ).aboutToShow.connect(self.menu_CustomAction_aboutToShow)
+        self.menuBar().menu( "mInterpreter" ).aboutToShow.connect(self.menu_CustomAction_aboutToShow)
         # plugins menu
         # window menu
-        self.connect( self.menuBar().action( "mWindow/aTile" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( tile() ) )
-        self.connect( self.menuBar().action( "mWindow/aCascase" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( cascade() ) )
-        self.connect( self.menuBar().action( "mWindow/aMinimize" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( minimize() ) )
-        self.connect( self.menuBar().action( "mWindow/aRestore" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( restore() ) )
+        self.menuBar().action( "mWindow/aTile" ).triggered.connect(mks.monkeycore.workspace().tile)
+        self.menuBar().action( "mWindow/aCascase" ).triggered.connect(mks.monkeycore.workspace().cascade)
+        self.menuBar().action( "mWindow/aMinimize" ).triggered.connect(mks.monkeycore.workspace().minimize)
+        self.menuBar().action( "mWindow/aRestore" ).triggered.connect(mks.monkeycore.workspace().restore)
         # help menu
-        self.connect( self.menuBar().action( "mHelp/aAbout" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( helpAboutApplication_triggered() ) )
-        self.connect( self.menuBar().action( "mHelp/aAboutQt" ), SIGNAL( triggered() ), MonkeyCore.workspace(), SLOT( helpAboutQt_triggered() ) )
+        self.menuBar().action( "mHelp/aAbout" ).triggered.connect(mks.monkeycore.workspace().helpAboutApplication_triggered)
         """
+        self.menuBar().action( "mHelp/aAboutQt" ).triggered.connect(mks.monkeycore.workspace().helpAboutQt_triggered)
     
     def finalyzeGuiInit(self):
         self.setWindowTitle( "%s v%s (%s)" % (mks.config.PACKAGE_NAME, mks.config.PACKAGE_VERSION, mks.config.PACKAGE_VERSION_STR ) )

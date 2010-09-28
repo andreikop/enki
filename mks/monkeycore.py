@@ -45,7 +45,7 @@ def init():
     else:
         pixmap = "splashscreen.png"
     
-
+    """
     splash = QSplashScreen (mks.iconmanager.pixmap(pixmap))
     
     ft = QFont( splash.font() )
@@ -54,6 +54,7 @@ def init():
     ft.setBold( True )
     splash.setFont( ft )
     splash.show()
+    """
     
     """TODO
     # restore application style
@@ -106,10 +107,8 @@ def init():
     """
     
     # init main window
-    _showMessage( splash, splash.tr( "Initializing Main Window..." ) )
-    """TODO
+    #_showMessage( splash, splash.tr( "Initializing Main Window..." ) )
     mainWindow().initGui()
-    """
     
     """TODO
     # init abbreviations manager
@@ -145,10 +144,10 @@ def init():
     #mainWindow().finalyzeGuiInit()
 
     # ready
-    _showMessage( splash, splash.tr( "%1 v%2 (%3) Ready" ).arg( mks.config.PACKAGE_NAME, mks.config.PACKAGE_VERSION, mks.config.PACKAGE_VERSION_STR ) )
+    #_showMessage( splash, splash.tr( "%1 v%2 (%3) Ready" ).arg( mks.config.PACKAGE_NAME, mks.config.PACKAGE_VERSION, mks.config.PACKAGE_VERSION_STR ) )
     
     # finish splashscreen
-    splash.finish( mainWindow() )
+    #splash.finish( mainWindow() )
     """TODO
     # show settings dialog the first time user start program
     if  settings().value( "FirstTimeRunning", True ).toBool() :
@@ -205,7 +204,8 @@ def fileManager():
 def workspace():
     global _workspace
     if _workspace is None:
-        _workspace = mks.workspace.pWorkspace( mainWindow() )
+        _workspace = mks.workspace.pWorkspace(mainWindow())
+        mainWindow().setCentralWidget(_workspace)
     return _workspace
 
 def consoleManager():
