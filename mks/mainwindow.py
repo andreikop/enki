@@ -226,9 +226,10 @@ class MainWindow(pMainWindow):
             event.ignore()
             return
         
+        """TODO
         # force to close all projects
         mks.monkeycore.projectsManager().action( XUPProjectManager.atCloseAll ).trigger()
-
+        """
         pMainWindow.closeEvent( self, event )
     
     def createPopupMenu(self):
