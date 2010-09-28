@@ -18,7 +18,7 @@ class MainWindow(pMainWindow):
     
     def __init__(self):
         pMainWindow.__init__(self)
-        
+        """TODO
         self.setUnifiedTitleAndToolBarOnMac( True )
         self.setIconSize( QSize( 16, 16 ) )
         self.setAcceptDrops( True )
@@ -27,10 +27,11 @@ class MainWindow(pMainWindow):
         self.setCorner( Qt.TopRightCorner, Qt.RightDockWidgetArea )
         self.setCorner( Qt.BottomLeftCorner, Qt.LeftDockWidgetArea )
         self.setCorner( Qt.BottomRightCorner, Qt.RightDockWidgetArea )
+        """
     
     def initGui(self):
         # init menubar
-        self.initMenuBar()
+        #self.initMenuBar()
         """TODO
         # init recents manager
         mks.monkeycore.recentsManager()
@@ -212,8 +213,10 @@ class MainWindow(pMainWindow):
         
         # default event
         pMainWindow.dropEvent( self, event )
-
+    
+    
     def closeEvent( self, event ):
+        """TODO
         # inform that we close mainwindow
         self.aboutToClose.emit()
         
@@ -226,11 +229,12 @@ class MainWindow(pMainWindow):
             event.ignore()
             return
         
-        """TODO
+        
         # force to close all projects
         mks.monkeycore.projectsManager().action( XUPProjectManager.atCloseAll ).trigger()
         """
         pMainWindow.closeEvent( self, event )
+    
     
     def createPopupMenu(self):
         # create default menu
