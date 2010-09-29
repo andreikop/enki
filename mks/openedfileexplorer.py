@@ -305,18 +305,17 @@ class _pOpenedFileModel(QAbstractItemModel):
 
 
     def documentClosed(self, document ):
-        index = self.mDocuments.indexOf( document )
+        index = self.mDocuments.index( document )
 
-        if  index == -1 :
-            return
-
-
-        self.beginRemoveRows( QModelIndex(), index, index )
-        self.mDocuments.removeOne( document )
-        self.mDocumentsIcons.remove( document )
-        self.mDocumentsToolTips.pop( document )
-        self.endRemoveRows()
-        self.sortDocuments()
+        if  index != -1 :
+            self.beginRemoveRows( QModelIndex(), index, index )
+            self.mDocuments.remove( document )
+            if document in self.mDocumentsIcons:
+                self.mDocumentsIcons.pop( document )
+            if document in self.mDocumentsToolTips:
+                self.mDocumentsToolTips.pop( document )
+            self.endRemoveRows()
+            self.sortDocuments()
 
 
 
@@ -469,8 +468,9 @@ class pOpenedFileExplorer(PyQt4.fresh.pDockWidget):
         pass
 
     def currentDocumentChanged(self, document ):
-        index = self.mModel.index( document )
-        syncViewsIndex( index, True )
+        if document:
+            index = self.mModel.documentIndex( document )
+            self.syncViewsIndex( index, True )
 
     def sortModeChanged(self, mode ):
         for action in self.mSortMenu.actions():
@@ -485,8 +485,10 @@ class pOpenedFileExplorer(PyQt4.fresh.pDockWidget):
         self.tvFiles.scrollTo( self.tvFiles.selectionModel().selectedIndexes().value( 0 ) )
 
     def selectionModel_selectionChanged(self, selected, deselected ):
+        """TODO
         index = selected.indexes()[0]
         self.syncViewsIndex( index, False )
+        """
 
     def on_tvFiles_customContextMenuRequested(self, pos ):
         menu = QMenu()

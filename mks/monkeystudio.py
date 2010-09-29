@@ -1,7 +1,7 @@
 import sys
 
-from PyQt4.QtCore import QTextCodec
-from PyQt4.QtGui import QFont
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
 
 import mks.monkeycore
 import mks.workspace
