@@ -34,32 +34,36 @@ class MainWindow(pMainWindow):
         self.initMenuBar()
         """TODO
         # init recents manager
-        mks.mks.monkeycore.recentsManager()
+        mks.monkeycore.recentsManager()
         # init toolbar
         self.initToolBar()
+        """
         # init workspace
-        self.setCentralWidget( mks.mks.mks.monkeycore.workspace() )
+        self.setCentralWidget( mks.monkeycore.workspace() )
+        """TODO
         # init message toolbar
-        messageTb =  mks.mks.mks.monkeycore.messageManager()
+        messageTb =  mks.monkeycore.messageManager()
         messageTb.setObjectName( "pQueuedMessageToolBar" )
         messageTb.setVisible( False )
         messageTb.setDefaultPixmap( mks.iconmanager.pixmap( "messages_infos.png", ":/messages" ) )
         pMonkeyStudio.setMacSmallSize( messageTb, true, true )
         self.centralWidget().layout().setMenuBar( messageTb )
         # init projects manager
-        dockToolBar( Qt.LeftToolBarArea ).addDock( mks.mks.monkeycore.projectsManager(), mks.mks.monkeycore.projectsManager().windowTitle(), QIcon( ":/project/icons/project/project.png" ) )
+        dockToolBar( Qt.LeftToolBarArea ).addDock( mks.monkeycore.projectsManager(), mks.monkeycore.projectsManager().windowTitle(), QIcon( ":/project/icons/project/project.png" ) )
+        """
         # init opened files dock
-        pOpenedFileExplorer* openedFileExplorer = mks.mks.monkeycore.workspace().dockWidget()
-        dockToolBar( Qt.LeftToolBarArea ).addDock( openedFileExplorer, openedFileExplorer.windowTitle(), openedFileExplorer.windowIcon() )
+        openedFileExplorer = mks.monkeycore.workspace().dockWidget()
+        self.dockToolBar( Qt.LeftToolBarArea ).addDock( openedFileExplorer, openedFileExplorer.windowTitle(), openedFileExplorer.windowIcon() )
+        """ TODO
         # init multitoolbar
-        mks.mks.monkeycore.workspace().initMultiToolBar( mks.mks.monkeycore.multiToolBar().toolBar( pWorkspace.defaultContext() ) )
-        mks.mks.monkeycore.workspace().initMultiToolBar( mks.mks.monkeycore.multiToolBar().toolBar( "Coding" ) )
+        mks.monkeycore.workspace().initMultiToolBar( mks.monkeycore.multiToolBar().toolBar( pWorkspace.defaultContext() ) )
+        mks.monkeycore.workspace().initMultiToolBar( mks.monkeycore.multiToolBar().toolBar( "Coding" ) )
         # init status bar
-        setStatusBar( mks.mks.monkeycore.statusBar() )
+        setStatusBar( mks.monkeycore.statusBar() )
         # init connection
         """
         self.initConnections()
-        mks.monkeycore.workspace().openFile('/home/a/tmp/1')
+        mks.monkeycore.workspace().openFile('/home/a/tmp/1') # FIXME
 
     def initMenuBar(self):
         # create menubar menus and actions
@@ -83,9 +87,11 @@ class MainWindow(pMainWindow):
         mb.action( "mSession/aSave", self.tr( "Save" ), QIcon( ":/file/icons/file/save.png" ), '', self.tr( "Save the current session files list" ) )
         mb.action( "mSession/aRestore", self.tr( "Restore" ), QIcon( ":/file/icons/file/restore.png" ), '', self.tr( "Restore the current session files list" ) )
         mb.action( "aSeparator2" )
+        """
         mb.menu( "mSave", self.tr( "&Save" ), QIcon( ":/file/icons/file/save.png" ) )
         mb.action( "mSave/aCurrent", self.tr( "&Save" ), QIcon( ":/file/icons/file/save.png" ), self.tr( "Ctrl+S" ), self.tr( "Save the current file" ) ).setEnabled( False )
         mb.action( "mSave/aAll", self.tr( "Save &All" ), QIcon( ":/file/icons/file/saveall.png" ), '', self.tr( "Save all files" ) ).setEnabled( False )
+        """TODO
         mb.menu( "mClose", self.tr( "&Close" ), QIcon( ":/file/icons/file/close.png" ) )
         mb.action( "mClose/aCurrent", self.tr( "&Close" ), QIcon( ":/file/icons/file/close.png" ), self.tr( "Ctrl+W" ), self.tr( "Close the current file" ) ).setEnabled( False )
         mb.action( "mClose/aAll", self.tr( "Close &All" ), QIcon( ":/file/icons/file/closeall.png" ), '', self.tr( "Close all files" ) ).setEnabled( False )
@@ -100,14 +106,15 @@ class MainWindow(pMainWindow):
         """
         mb.endGroup()
         
-        """TODO
-        mb.menu( "mEdit", self.tr( "Edit" ) )
         
+        mb.menu( "mEdit", self.tr( "Edit" ) )
         mb.beginGroup( "mEdit" )
+        """TODO
         mb.action( "aSettings", self.tr( "Settings..." ), QIcon( ":/edit/icons/edit/settings.png" ), "", self.tr( "Edit the application settings" ) )
         mb.action( "aShortcutsEditor", self.tr( "Shortcuts Editor..." ), QIcon( ":/edit/icons/edit/shortcuts.png" ), self.tr( "Ctrl+Shift+E" ), self.tr( "Edit the application shortcuts" ) )
         mb.action( "aTranslations", self.tr( "Translations..." ), QIcon( ":/edit/icons/edit/translations.png" ), self.tr( "Ctrl+T" ), self.tr( "Change the application translations files" ) )
         mb.action( "aSeparator1" )
+        """
         mb.action( "aUndo", self.tr( "&Undo" ), QIcon( ":/edit/icons/edit/undo.png" ), self.tr( "Ctrl+Z" ), self.tr( "Undo" ) ).setEnabled( False )
         mb.action( "aRedo", self.tr( "&Redo" ), QIcon( ":/edit/icons/edit/redo.png" ), self.tr( "Ctrl+Y" ), self.tr( "Redo" ) ).setEnabled( False )
         mb.action( "aSeparator2" )
@@ -115,6 +122,7 @@ class MainWindow(pMainWindow):
         mb.action( "aCut", self.tr( "Cu&t" ), QIcon( ":/edit/icons/edit/cut.png" ), self.tr( "Ctrl+X" ), self.tr( "Cut" ) ).setEnabled( False )
         mb.action( "aPaste", self.tr( "&Paste" ), QIcon( ":/edit/icons/edit/paste.png" ), self.tr( "Ctrl+V" ), self.tr( "Paste" ) ).setEnabled( False )
         mb.action( "aSeparator3" )
+        """TODO
         mb.menu( "mSearchReplace", self.tr( "&Search && Replace" ) )
         mb.action( "mSearchReplace/aSearchFile", self.tr( "&Search..." ), QIcon( ":/edit/icons/edit/search.png" ), self.tr( "Ctrl+F" ), self.tr( "Search in the current file..." ) )
         mb.action( "aGoTo", self.tr( "&Go To..." ), QIcon( ":/edit/icons/edit/goto.png" ), self.tr( "Ctrl+G" ), self.tr( "Go To..." ) ).setEnabled( False )
@@ -123,8 +131,9 @@ class MainWindow(pMainWindow):
         mb.action( "aSeparator5" )
         mb.action( "aExpandAbbreviation", self.tr( "Expand Abbreviation" ), QIcon( ":/edit/icons/edit/abbreviation.png" ), self.tr( "Ctrl+E" ), self.tr( "Expand Abbreviation" ) ).setEnabled( False )
         mb.action( "aPrepareAPIs", self.tr( "Prepare APIs" ), QIcon( ":/edit/icons/edit/prepareapis.png" ), self.tr( "Ctrl+Alt+P" ), self.tr( "Prepare the APIs files for auto completion / calltips" ) )
+        """
         mb.endGroup()
-        
+        """TODO
         mb.menu( "mView", self.tr( "View" ) )
         
         mb.beginGroup( "mView" )
@@ -137,16 +146,16 @@ class MainWindow(pMainWindow):
         mb.menu( "mProject", self.tr( "Project" ) )
         mb.beginGroup( "mProject" )
         
-        mb.addAction( '', mks.mks.monkeycore.projectsManager().action( XUPProjectManager.atNew ) )
-        mb.addAction( '', mks.mks.monkeycore.projectsManager().action( XUPProjectManager.atOpen ) )
+        mb.addAction( '', mks.monkeycore.projectsManager().action( XUPProjectManager.atNew ) )
+        mb.addAction( '', mks.monkeycore.projectsManager().action( XUPProjectManager.atOpen ) )
         mb.action( "aSeparator1" )
-        mb.addAction( '', mks.mks.monkeycore.projectsManager().action( XUPProjectManager.atClose ) )
-        mb.addAction( '', mks.mks.monkeycore.projectsManager().action( XUPProjectManager.atCloseAll ) )
+        mb.addAction( '', mks.monkeycore.projectsManager().action( XUPProjectManager.atClose ) )
+        mb.addAction( '', mks.monkeycore.projectsManager().action( XUPProjectManager.atCloseAll ) )
         mb.action( "aSeparator2" )
-        mb.addAction( '', mks.mks.monkeycore.projectsManager().action( XUPProjectManager.atEdit ) )
+        mb.addAction( '', mks.monkeycore.projectsManager().action( XUPProjectManager.atEdit ) )
         mb.action( "aSeparator3" )
-        mb.addAction( '', mks.mks.monkeycore.projectsManager().action( XUPProjectManager.atAddFiles ) )
-        mb.addAction( '', mks.mks.monkeycore.projectsManager().action( XUPProjectManager.atRemoveFiles ) )
+        mb.addAction( '', mks.monkeycore.projectsManager().action( XUPProjectManager.atAddFiles ) )
+        mb.addAction( '', mks.monkeycore.projectsManager().action( XUPProjectManager.atRemoveFiles ) )
         mb.action( "aSeparator4" )
         
         mb.menu( "mRecents", self.tr( "&Recents" ), QIcon( ":/project/icons/project/recents.png" ) )
@@ -199,11 +208,11 @@ class MainWindow(pMainWindow):
         """TODO
         # create action for styles
         agStyles = pStylesActionGroup( self.tr( "Use %1 style" ), mb.menu( "mView/mStyle" ) )
-        agStyles.setCurrentStyle( mks.mks.monkeycore.settings().value( "MainWindow/Style" ).toString() )
+        agStyles.setCurrentStyle( mks.monkeycore.settings().value( "MainWindow/Style" ).toString() )
         mb.menu( "mView/mStyle" ).addActions( agStyles.actions() )
         
         # create plugins actions
-        mks.mks.mks.monkeycore.pluginsManager().menuHandler().setMenu( mb.menu( "mPlugins" ) )
+        mks.monkeycore.pluginsManager().menuHandler().setMenu( mb.menu( "mPlugins" ) )
         """
     
     def dragEnterEvent( self, event ):
@@ -230,16 +239,16 @@ class MainWindow(pMainWindow):
         
         # save session if needed
         if  mks.monkeystudio.saveSessionOnClose() :
-            mks.mks.monkeycore.workspace().fileSessionSave_triggered()
+            mks.monkeycore.workspace().fileSessionSave_triggered()
         
         # request close all documents
-        if  not mks.mks.monkeycore.workspace().closeAllDocuments() :
+        if  not mks.monkeycore.workspace().closeAllDocuments() :
             event.ignore()
             return
         
         
         # force to close all projects
-        mks.mks.monkeycore.projectsManager().action( XUPProjectManager.atCloseAll ).trigger()
+        mks.monkeycore.projectsManager().action( XUPProjectManager.atCloseAll ).trigger()
         """
         pMainWindow.closeEvent( self, event )
     

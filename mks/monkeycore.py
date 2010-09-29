@@ -205,7 +205,6 @@ def workspace():
     global _workspace
     if _workspace is None:
         _workspace = mks.workspace.pWorkspace(mainWindow())
-        mainWindow().setCentralWidget(_workspace)
     return _workspace
 
 def consoleManager():

@@ -53,11 +53,11 @@ class pAbstractChild(QMdiSubWindow):
         else:
             self.setWindowFilePath( filePath )
             self.setWindowTitle( self.fileName().append( "[*]" ) )
-    '''TODO
+    
     def filePath(self):
         """return the document file path"""
         return self.windowFilePath()
-    '''
+    
     def fileName(self):
         """return the filename of the document"""
         wfp = self.windowFilePath()
@@ -95,12 +95,13 @@ class pAbstractChild(QMdiSubWindow):
         """the current visible editor
         """
         pass
-
+    '''
     def isModified(self):
         """return the current file modified flag
         """
         pass
     
+    '''TODO
     def isUndoAvailable(self):
         """return the current file undo flag
         """
@@ -201,8 +202,7 @@ class pAbstractChild(QMdiSubWindow):
         
     '''
     fileOpened = pyqtSignal()
-    '''TODO
-    fileClosed() = pyqtSignal()
+    fileClosed = pyqtSignal()
     # when.emit a file is reloaded
     fileReloaded = pyqtSignal()
     # when.emit the content changed
@@ -233,4 +233,3 @@ class pAbstractChild(QMdiSubWindow):
     #requestGoTo = pyqtSignal()
     # when.emit a child require to update workspace
     #updateWorkspaceRequested()
-    '''
