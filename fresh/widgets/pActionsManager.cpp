@@ -104,7 +104,6 @@ QAction* pActionsManager::newAction( const QString& path, const QKeySequence& dS
 	Q_ASSERT( !name.isEmpty() );
 	
 	QAction* action = pActionsManager::action( path, name );
-	
 	if ( action )
 	{
 		if ( defaultShortcut( action ) != dShortcut )
@@ -122,6 +121,7 @@ QAction* pActionsManager::newAction( const QString& path, const QKeySequence& dS
 	setActionPath( action, path );
 	setDefaultShortcut( action, dShortcut );
 	
+	action->setShortcut( dShortcut ); // set default, if no settings
 	updateShortcut( action );
 	
 	return action;

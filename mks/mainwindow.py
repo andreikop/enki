@@ -74,10 +74,10 @@ class MainWindow(pMainWindow):
         mb.menu( "mFile", self.tr( "File" ) )
         mb.beginGroup( "mFile" )
         """TODO
-        mb.action( "aNew", self.tr( "&New..." ), QIcon( ":/file/icons/file/new.png" ), self.tr( "Ctrl+N" ), self.tr( "Create a new file" ) )
+        mb.action( "aNew", self.tr( "&New..." ), QIcon( ":/file/icons/file/new.png" ), "Ctrl+N", self.tr( "Create a new file" ) )
         mb.action( "aNewTextEditor", self.tr( "&New Text File..." ), QIcon( ":/file/icons/file/new.png" ), '', self.tr( "Quickly create a new text based file" ) )
         """
-        mb.action( "aOpen", self.tr( "&Open..." ), QIcon( ":/file/icons/file/open.png" ), self.tr( "Ctrl+O" ), self.tr( "Open a file" ) )
+        mb.action( "aOpen", self.tr( "&Open..." ), QIcon( ":/file/icons/file/open.png" ), "Ctrl+O" , self.tr( "Open a file" ) )
         """TODO
         mb.menu( "mRecents", self.tr( "&Recents" ), QIcon( ":/file/icons/file/recents.png" ) )
         mb.action( "mRecents/aClear", self.tr( "&Clear" ), QIcon( ":/file/icons/file/clear.png" ), '', self.tr( "Clear the recents files list" ) )
@@ -89,21 +89,23 @@ class MainWindow(pMainWindow):
         mb.action( "aSeparator2" )
         """
         mb.menu( "mSave", self.tr( "&Save" ), QIcon( ":/file/icons/file/save.png" ) )
-        mb.action( "mSave/aCurrent", self.tr( "&Save" ), QIcon( ":/file/icons/file/save.png" ), self.tr( "Ctrl+S" ), self.tr( "Save the current file" ) ).setEnabled( False )
+        
+        mb.action( "mSave/aCurrent", self.tr( "&Save" ), QIcon( ":/file/icons/file/save.png" ), "Ctrl+S" , self.tr( "Save the current file" ) ).setEnabled( False )
         mb.action( "mSave/aAll", self.tr( "Save &All" ), QIcon( ":/file/icons/file/saveall.png" ), '', self.tr( "Save all files" ) ).setEnabled( False )
-        """TODO
         mb.menu( "mClose", self.tr( "&Close" ), QIcon( ":/file/icons/file/close.png" ) )
-        mb.action( "mClose/aCurrent", self.tr( "&Close" ), QIcon( ":/file/icons/file/close.png" ), self.tr( "Ctrl+W" ), self.tr( "Close the current file" ) ).setEnabled( False )
+
+        mb.action( "mClose/aCurrent", self.tr( "&Close" ), QIcon( ":/file/icons/file/close.png" ), "Ctrl+W", self.tr( "Close the current file" ) ).setEnabled( False )
+        """TODO
         mb.action( "mClose/aAll", self.tr( "Close &All" ), QIcon( ":/file/icons/file/closeall.png" ), '', self.tr( "Close all files" ) ).setEnabled( False )
         mb.action( "aSeparator3" )
         mb.action( "aReload", self.tr( "Reload" ), QIcon( ":/file/icons/file/reload.png" ), '', self.tr( "Reload the current file asking user confirmation if needed" ) ).setEnabled( False )
         mb.action( "aSaveAsBackup", self.tr( "Save As &Backup" ), QIcon( ":/file/icons/file/backup.png" ), '', self.tr( "Save a backup of the current file" ) ).setEnabled( False )
         mb.action( "aSeparator4" )
         mb.action( "aQuickPrint", self.tr( "Quic&k Print" ), QIcon( ":/file/icons/file/quickprint.png" ), '', self.tr( "Quick print the current file" ) ).setEnabled( False )
-        mb.action( "aPrint", self.tr( "&Print..." ), QIcon( ":/file/icons/file/print.png" ), self.tr( "Ctrl+P" ), self.tr( "Print the current file" ) ).setEnabled( False )
+        mb.action( "aPrint", self.tr( "&Print..." ), QIcon( ":/file/icons/file/print.png" ), "Ctrl+P", self.tr( "Print the current file" ) ).setEnabled( False )
         mb.action( "aSeparator5" )
-        mb.action( "aQuit", self.tr( "&Quit" ), QIcon( ":/file/icons/file/quit.png" ), self.tr( "Ctrl+Q" ), self.tr( "Quit the application" ) )
         """
+        mb.action( "aQuit", self.tr( "&Quit" ), QIcon( ":/file/icons/file/quit.png" ), "Ctrl+Q", self.tr( "Quit the application" ) )
         mb.endGroup()
         
         
@@ -111,38 +113,39 @@ class MainWindow(pMainWindow):
         mb.beginGroup( "mEdit" )
         """TODO
         mb.action( "aSettings", self.tr( "Settings..." ), QIcon( ":/edit/icons/edit/settings.png" ), "", self.tr( "Edit the application settings" ) )
-        mb.action( "aShortcutsEditor", self.tr( "Shortcuts Editor..." ), QIcon( ":/edit/icons/edit/shortcuts.png" ), self.tr( "Ctrl+Shift+E" ), self.tr( "Edit the application shortcuts" ) )
-        mb.action( "aTranslations", self.tr( "Translations..." ), QIcon( ":/edit/icons/edit/translations.png" ), self.tr( "Ctrl+T" ), self.tr( "Change the application translations files" ) )
+        mb.action( "aShortcutsEditor", self.tr( "Shortcuts Editor..." ), QIcon( ":/edit/icons/edit/shortcuts.png" ), "Ctrl+Shift+E", self.tr( "Edit the application shortcuts" ) )
+        mb.action( "aTranslations", self.tr( "Translations..." ), QIcon( ":/edit/icons/edit/translations.png" ), "Ctrl+T", self.tr( "Change the application translations files" ) )
         mb.action( "aSeparator1" )
         """
-        mb.action( "aUndo", self.tr( "&Undo" ), QIcon( ":/edit/icons/edit/undo.png" ), self.tr( "Ctrl+Z" ), self.tr( "Undo" ) ).setEnabled( False )
-        mb.action( "aRedo", self.tr( "&Redo" ), QIcon( ":/edit/icons/edit/redo.png" ), self.tr( "Ctrl+Y" ), self.tr( "Redo" ) ).setEnabled( False )
+        mb.action( "aUndo", self.tr( "&Undo" ), QIcon( ":/edit/icons/edit/undo.png" ), "Ctrl+Z", self.tr( "Undo" ) ).setEnabled( False )
+        mb.action( "aRedo", self.tr( "&Redo" ), QIcon( ":/edit/icons/edit/redo.png" ), "Ctrl+Y", self.tr( "Redo" ) ).setEnabled( False )
         mb.action( "aSeparator2" )
-        mb.action( "aCopy", self.tr( "&Copy" ), QIcon( ":/edit/icons/edit/copy.png" ), self.tr( "Ctrl+C" ), self.tr( "Copy" ) ).setEnabled( False )
-        mb.action( "aCut", self.tr( "Cu&t" ), QIcon( ":/edit/icons/edit/cut.png" ), self.tr( "Ctrl+X" ), self.tr( "Cut" ) ).setEnabled( False )
-        mb.action( "aPaste", self.tr( "&Paste" ), QIcon( ":/edit/icons/edit/paste.png" ), self.tr( "Ctrl+V" ), self.tr( "Paste" ) ).setEnabled( False )
+        mb.action( "aCopy", self.tr( "&Copy" ), QIcon( ":/edit/icons/edit/copy.png" ), "Ctrl+C", self.tr( "Copy" ) ).setEnabled( False )
+        mb.action( "aCut", self.tr( "Cu&t" ), QIcon( ":/edit/icons/edit/cut.png" ), "Ctrl+X", self.tr( "Cut" ) ).setEnabled( False )
+        mb.action( "aPaste", self.tr( "&Paste" ), QIcon( ":/edit/icons/edit/paste.png" ), "Ctrl+V", self.tr( "Paste" ) ).setEnabled( False )
         mb.action( "aSeparator3" )
         """TODO
         mb.menu( "mSearchReplace", self.tr( "&Search && Replace" ) )
-        mb.action( "mSearchReplace/aSearchFile", self.tr( "&Search..." ), QIcon( ":/edit/icons/edit/search.png" ), self.tr( "Ctrl+F" ), self.tr( "Search in the current file..." ) )
-        mb.action( "aGoTo", self.tr( "&Go To..." ), QIcon( ":/edit/icons/edit/goto.png" ), self.tr( "Ctrl+G" ), self.tr( "Go To..." ) ).setEnabled( False )
+        mb.action( "mSearchReplace/aSearchFile", self.tr( "&Search..." ), QIcon( ":/edit/icons/edit/search.png" ), "Ctrl+F", self.tr( "Search in the current file..." ) )
+        mb.action( "aGoTo", self.tr( "&Go To..." ), QIcon( ":/edit/icons/edit/goto.png" ), "Ctrl+G", self.tr( "Go To..." ) ).setEnabled( False )
         mb.menu( "mAllCommands", self.tr( "&All Commands" ), QIcon( ":/edit/icons/edit/commands.png" ) )
         mb.menu( "mBookmarks", self.tr( "&Bookmarks" ), QIcon( ":/editor/bookmark.png" ) )
         mb.action( "aSeparator5" )
-        mb.action( "aExpandAbbreviation", self.tr( "Expand Abbreviation" ), QIcon( ":/edit/icons/edit/abbreviation.png" ), self.tr( "Ctrl+E" ), self.tr( "Expand Abbreviation" ) ).setEnabled( False )
-        mb.action( "aPrepareAPIs", self.tr( "Prepare APIs" ), QIcon( ":/edit/icons/edit/prepareapis.png" ), self.tr( "Ctrl+Alt+P" ), self.tr( "Prepare the APIs files for auto completion / calltips" ) )
+        mb.action( "aExpandAbbreviation", self.tr( "Expand Abbreviation" ), QIcon( ":/edit/icons/edit/abbreviation.png" ), "Ctrl+E", self.tr( "Expand Abbreviation" ) ).setEnabled( False )
+        mb.action( "aPrepareAPIs", self.tr( "Prepare APIs" ), QIcon( ":/edit/icons/edit/prepareapis.png" ), "Ctrl+Alt+P", self.tr( "Prepare the APIs files for auto completion / calltips" ) )
         """
         mb.endGroup()
-        """TODO
+        
         mb.menu( "mView", self.tr( "View" ) )
-        
         mb.beginGroup( "mView" )
+        """TODO
         mb.menu( "mStyle", self.tr( "&Style" ), QIcon( ":/view/icons/view/style.png" ) )
-        mb.action( "aNext", self.tr( "&Next Tab" ), QIcon( ":/view/icons/view/next.png" ), self.tr( "Ctrl+Tab" ), self.tr( "Active the next tab" ) ).setEnabled( False )
-        mb.action( "aPrevious", self.tr( "&Previous Tab" ), QIcon( ":/view/icons/view/previous.png" ), self.tr( "Ctrl+Shift+Tab" ), self.tr( "Active the previous tab" ) ).setEnabled( False )
-        mb.action( "aFocusToEditor", self.tr( "Focus Editor" ), QIcon( ":/edit/icons/edit/text.png" ), self.tr( "Ctrl+Return" ), self.tr( "Set the focus to the current document editor" ) )
+        """
+        mb.action( "aNext", self.tr( "&Next Tab" ), QIcon( ":/view/icons/view/next.png" ), "Ctrl+Tab", self.tr( "Active the next tab" ) ).setEnabled( False )
+        mb.action( "aPrevious", self.tr( "&Previous Tab" ), QIcon( ":/view/icons/view/previous.png" ), "Ctrl+Shift+Tab", self.tr( "Active the previous tab" ) ).setEnabled( False )
+        mb.action( "aFocusToEditor", self.tr( "Focus Editor" ), QIcon( ":/edit/icons/edit/text.png" ), "Ctrl+Return", self.tr( "Set the focus to the current document editor" ) )
         mb.endGroup()
-        
+        """TODO
         mb.menu( "mProject", self.tr( "Project" ) )
         mb.beginGroup( "mProject" )
         
@@ -311,24 +314,32 @@ class MainWindow(pMainWindow):
         mks.monkeycore.recentsManager().openFileRequested.connect(mks.monkeycore.fileManager().openFile)
         self.menuBar().action( "mFile/mSession/aSave" ).triggered.connect(mks.monkeycore.workspace().fileSessionSave_triggered)
         self.menuBar().action( "mFile/mSession/aRestore" ).triggered.connect(mks.monkeycore.workspace().fileSessionRestore_triggered)
+        """
         self.menuBar().action( "mFile/mSave/aCurrent" ).triggered.connect(mks.monkeycore.workspace().fileSaveCurrent_triggered)
+        """TODO
         self.menuBar().action( "mFile/mSave/aAll" ).triggered.connect(mks.monkeycore.workspace().fileSaveAll_triggered)
+        """
         self.menuBar().action( "mFile/mClose/aCurrent" ).triggered.connect(mks.monkeycore.workspace().fileCloseCurrent_triggered)
+        """TODO
         self.menuBar().action( "mFile/mClose/aAll" ).triggered.connect(mks.monkeycore.workspace().fileCloseAll_triggered)
         self.menuBar().action( "mFile/aReload" ).triggered.connect(mks.monkeycore.workspace().fileReload_triggered)
         self.menuBar().action( "mFile/aSaveAsBackup" ).triggered.connect(mks.monkeycore.workspace().fileSaveAsBackup_triggered)
         self.menuBar().action( "mFile/aQuickPrint" ).triggered.connect(mks.monkeycore.workspace().fileQuickPrint_triggered)
         self.menuBar().action( "mFile/aPrint" ).triggered.connect(mks.monkeycore.workspace().filePrint_triggered)
-        self.menuBar().action( "mFile/aQuit" ).triggered.connect(mks.monkeycore.workspace().fileExit_triggered)
+        """
+        self.menuBar().action( "mFile/aQuit" ).triggered.connect(qApp.quit)
+        """TODO
         # edit connection
         self.menuBar().action( "mEdit/aSettings" ).triggered.connect(mks.monkeycore.workspace().editSettings_triggered)
         self.menuBar().action( "mEdit/aShortcutsEditor" ).triggered.connect(mks.monkeycore.actionsManager().editActionsShortcuts)
         self.menuBar().action( "mEdit/aTranslations" ).triggered.connect(mks.monkeycore.workspace().editTranslations_triggered)
+        """
         self.menuBar().action( "mEdit/aUndo" ).triggered.connect(mks.monkeycore.workspace().editUndo_triggered)
         self.menuBar().action( "mEdit/aRedo" ).triggered.connect(mks.monkeycore.workspace().editRedo_triggered)
         self.menuBar().action( "mEdit/aCut" ).triggered.connect(mks.monkeycore.workspace().editCut_triggered)
         self.menuBar().action( "mEdit/aCopy" ).triggered.connect(mks.monkeycore.workspace().editCopy_triggered)
         self.menuBar().action( "mEdit/aPaste" ).triggered.connect(mks.monkeycore.workspace().editPaste_triggered)
+        """TODO
         self.menuBar().action( "mEdit/mSearchReplace/aSearchFile" ).triggered.connect(mks.monkeycore.workspace().editSearch_triggered)
         #menuBar().action( "mEdit/aSearchPrevious" ).triggered.connect(mks.monkeycore.workspace().editSearchPrevious_triggered)
         #menuBar().action( "mEdit/aSearchNext" ).triggered.connect(mks.monkeycore.workspace().editSearchNext_triggered)
@@ -337,9 +348,11 @@ class MainWindow(pMainWindow):
         self.menuBar().action( "mEdit/aPrepareAPIs" ).triggered.connect(mks.monkeycore.workspace().editPrepareAPIs_triggered)
         # view connection
         agStyles.styleSelected.connect(self.changeStyle)
+        """
         self.menuBar().action( "mView/aNext" ).triggered.connect(mks.monkeycore.workspace().activateNextDocument)
         self.menuBar().action( "mView/aPrevious" ).triggered.connect(mks.monkeycore.workspace().activatePreviousDocument)
         self.menuBar().action( "mView/aFocusToEditor" ).triggered.connect(mks.monkeycore.workspace().focusEditor)
+        """
         # docks
         self.menuBar().menu( "mDocks" ).aboutToShow.connect(self.menu_Docks_aboutToShow)
         # project connection

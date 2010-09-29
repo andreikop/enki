@@ -1,7 +1,7 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
-import PyQt4.Qsci
+from PyQt4.Qsci import *
 
 import mks.monkeystudio
 import mks.abstractchild
@@ -11,7 +11,7 @@ mPasteAvailableInit = False
 mPasteAvailable = False
 """
 
-class _pEditor(PyQt4.Qsci.QsciScintilla):
+class _pEditor(QsciScintilla):
     
     cursorPositionChanged = pyqtSignal( QPoint )
     undoAvailable = pyqtSignal( bool )
@@ -19,7 +19,7 @@ class _pEditor(PyQt4.Qsci.QsciScintilla):
     pasteAvailable = pyqtSignal( bool )
     
     def __init__(self, parentWidget):
-        PyQt4.Qsci.QsciScintilla.__init__( self, parentWidget )
+        QsciScintilla.__init__( self, parentWidget )
         
         """TODO
         self.mPixSize = QSize( 16, 16 )
@@ -31,42 +31,41 @@ class _pEditor(PyQt4.Qsci.QsciScintilla):
         
         # connection
         self.linesChanged.connect(self.linesChanged)
+        """
         self.copyAvailable.connect(self.setCopyAvailable)
+        """TODO
         self.cursorPositionChanged.connect(self.cursorPositionChanged)
         self.textChanged.connect(self.textChanged)
+        """
         QApplication.clipboard().dataChanged.connect(self.clipboardDataChanged)
-
-        # init pasteAvailable
-        if  not mPasteAvailableInit :
-            mPasteAvailableInit = True
-            mPasteAvailable = not QApplication.clipboard().text().isEmpty()
-
         
+        self.mPasteAvailable = bool(QApplication.clipboard().text())
+        
+        """ TODO
         # init qscishortcutsmanager if needed
-        SendScintilla( QsciScintillaBase.SCI_CLEARALLCMDKEYS )
-        SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_TAB, SCI_TAB)
-        SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_ESCAPE, SCI_CANCEL)
-        SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_RETURN, SCI_NEWLINE)
-        SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_DOWN, SCI_LINEDOWN)
-        SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_UP, SCI_LINEUP)
-        SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_RIGHT, SCI_CHARRIGHT)
-        SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_LEFT, SCI_CHARLEFT)
-        SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_BACK, SCI_DELETEBACK)
-        SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_PRIOR, SCI_PAGEUP)
-        SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_NEXT, SCI_PAGEDOWN)
-        SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_HOME, SCI_VCHOME)
-        SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_END, SCI_LINEEND)
+        self.SendScintilla( QsciScintillaBase.SCI_CLEARALLCMDKEYS )
+        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_TAB, SCI_TAB)
+        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_ESCAPE, SCI_CANCEL)
+        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_RETURN, SCI_NEWLINE)
+        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_DOWN, SCI_LINEDOWN)
+        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_UP, SCI_LINEUP)
+        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_RIGHT, SCI_CHARRIGHT)
+        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_LEFT, SCI_CHARLEFT)
+        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_BACK, SCI_DELETEBACK)
+        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_PRIOR, SCI_PAGEUP)
+        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_NEXT, SCI_PAGEDOWN)
+        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_HOME, SCI_VCHOME)
+        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_END, SCI_LINEEND)
 
         # By default control characters don't do anything (rather than insert the
         # control character into the text). (c) Phil
-        for (k = 'A'; k <= 'Z'; ++k)
-        SendScintilla(QsciScintillaBase.SCI_ASSIGNCMDKEY,
-                k + (QsciScintillaBase.SCMOD_CTRL << 16),
-                QsciScintillaBase.SCI_NULL)
+        for k in range(ord('A'), ord('Z') + 1):
+            self.SendScintilla(QsciScintillaBase.SCI_ASSIGNCMDKEY,
+                    k + (QsciScintillaBase.SCMOD_CTRL << 16),
+                        QsciScintillaBase.SCI_NULL)
 
         # Create shortcuts manager, not created
         qSciShortcutsManager.instance()
-    
     
     def findFirst(self, expr, re, cs, wo, wrap, forward, line, index, show ):
     #if USE_QSCINTILLA_SEARCH_ENGINE == 1
@@ -332,11 +331,11 @@ class _pEditor(PyQt4.Qsci.QsciScintilla):
     def copyAvailable(self):
         return mCopyAvailable
 
-
+    """
     def canPaste(self):
-        return mPasteAvailable
+        return self.mPasteAvailable
 
-
+    """TODO
     def cursorPosition(self):
         return mCursorPosition
 
@@ -367,11 +366,11 @@ class _pEditor(PyQt4.Qsci.QsciScintilla):
             line = QsciScintilla.markerFindNext( 0, 1 << markerId )
         return line
 
-
+    """
     def setCopyAvailable(self, b ):
-        mCopyAvailable = b
-
-
+        self.mCopyAvailable = b
+    
+    """
     def cursorPositionChanged(self, l, p ):
         mCursorPosition = QPoint( p, l )
         cursorPositionChanged.emit( mCursorPosition )
@@ -381,12 +380,11 @@ class _pEditor(PyQt4.Qsci.QsciScintilla):
         undoAvailable.emit( isUndoAvailable() )
         redoAvailable.emit( isRedoAvailable() )
 
-
-    def clipboardDataChanged(self):
-        mPasteAvailable = not QApplication.clipboard().text().isEmpty()
-        pasteAvailable.emit( canPaste() )
-
     """
+    def clipboardDataChanged(self):
+        self.mPasteAvailable = bool(QApplication.clipboard().text())
+        self.pasteAvailable.emit( self.canPaste() )
+
     
     def openFile(self, fileName, codec ):
         
@@ -400,11 +398,10 @@ class _pEditor(PyQt4.Qsci.QsciScintilla):
             QApplication.restoreOverrideCursor()
             return False
         
-        """TODO
         # remember filename
-        self.setProperty( "fileName", fileName ) # TODO find better way
-        self.setProperty( "codec", codec ) # TODO find better way
-        
+        self.fileName = fileName
+        self.codec = codec
+        """TODO
         # set lexer and apis
         self.setLexer( mks.monkeystudio.lexerForFileName( fileName ) )
 
@@ -446,52 +443,53 @@ class _pEditor(PyQt4.Qsci.QsciScintilla):
         
         return True
 
-    """TODO
+
     def saveFile(self, s ):
-        if  not isModified() :
+        if  not self.isModified() :
             return True
 
         # get filename
         fn = s
-        if  s.isEmpty() :
-            fn = property( "fileName" ).toString()
+        if not s:
+            fn = self.fileName
         # get path
         fp = QFileInfo( fn ).path()
 
         # filename
-        QFile f( fn )
+        f = QFile ( fn )
         # filename dir
-        QDir d
+        d = QDir()
         # create bak folder
         if  not d.exists( fp ) :
             if  not d.mkpath( fp ) :
                 return False
-
+        
         # set correct path
         d.setPath( fp )
         # try open file to write in
         if  not f.open( QFile.WriteOnly ) :
+            """TODO
             MonkeyCore.messageManager().appendMessage( tr( "Cannot write file %1:\n%2." ).arg( fn ).arg( f.errorString() ) )
+            """
             return False
-
 
         # writing file
         QApplication.setOverrideCursor( Qt.WaitCursor )
         
         f.resize( 0 )
-        c = QTextCodec.codecForName( property( "codec" ).toString().toUtf8() )
-        ok = f.write( c.fromUnicode( text() ) ) != -1
-
-        if  ok :
-            setModified( False )
-            setProperty( "fileName", fn )
-
         
+        c = QTextCodec.codecForName( 'utf8' )
+        res = f.write( c.fromUnicode( self.text() ) )
+        
+        if  res != -1 :
+            self.setModified( False )
+            self.fileName = fn
+
         QApplication.restoreOverrideCursor()
 
-        return ok
-
-
+        return res != -1
+    
+    """TODO
     def saveBackup(self, s ):
         # if not filename, cancel
         if  s.isEmpty() :
@@ -533,15 +531,16 @@ class _pEditor(PyQt4.Qsci.QsciScintilla):
 
         return ok
 
-
+    """
+    
     def closeFile(self):
-        clear()
-        setModified( False )
+        self.clear()
+        self.setModified( False )
 
         # clear filename
-        setProperty( "fileName", QVariant() )
-
-
+        self.fileName = None
+    
+    """
     def print(self, b ):
         # get printer
         QsciPrinter p
@@ -763,7 +762,7 @@ class pChild(mks.abstractchild.pAbstractChild):
         return True
     
     def saveFile(self):
-        self.mEditor.saveFile( filePath() )
+        self.mEditor.saveFile( self.filePath() )
 
     def backupFileAs(self, s ):
         self.mEditor.saveBackup( s )
@@ -791,13 +790,13 @@ class pChild(mks.abstractchild.pAbstractChild):
         self.fileOpened.emit()
         return True
     
-    """
     def closeFile(self):
         self.mEditor.closeFile()
-        self.setFilePath( QString.null )
+        self.setFilePath( '' )
 
         self.fileClosed.emit()
-
+    
+    """
     def reload(self):
         self.openFile( self.mEditor.property( "fileName" ).toString(), self.mEditor.property( "codec" ).toString() )
         self.fileReloaded.emit()
