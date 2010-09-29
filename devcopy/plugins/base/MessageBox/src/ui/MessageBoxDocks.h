@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
 **
 **         Created using Monkey Studio v1.8.1.0
 ** Authors   : Filipe AZEVEDO aka Nox P@sNox <pasnox@gmail.com>, 
@@ -8,8 +8,8 @@
 ** FileName  : MessageBoxDocs.h
 ** Date      : 2008-01-14T00:40:08
 ** License   : GPL
-** Comment   : This header has been automatically generated, if you are the original author, or co-author, fill free to replace/append with your informations.
-** Home Page : http://www.monkeystudio.org
+** Comment   : This header has been automatically generated, you are the original author, co-author, free to replace/append with your informations.
+** Home Page : http:#www.monkeystudio.org
 **
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
@@ -24,19 +24,19 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
 **
-****************************************************************************/
-/*!
+***************************************************************************'''
+'''!
     \file MessageBoxDocks.h
     \date 2008-01-14T00:40:08
-    \author Filipe AZEVEDO, Andrei KOPATS
+    \author Filipe AZEVEDO, KOPATS
     \brief Header of MessageBoxDocks class
     
     File also contains classes of tabs of Message Box
     MessageBox
-*/
+'''
 
 #ifndef MESSAGEBOXDOCKS_H
 #define MESSAGEBOXDOCKS_H
@@ -51,110 +51,103 @@
 #include <coremanager/MonkeyCore.h>
 #include <widgets/pMenuBar.h>
 
-class pConsoleManagerStepModel;
+class pConsoleManagerStepModel
 
-/*!
+'''!
     Implementation of Build Steps tab of Message box
-*/
-class UIBuildStep : public pDockWidget, public Ui::UIBuildStep
-{
+'''
+class UIBuildStep : public pDockWidget, Ui.UIBuildStep
 public:
-    UIBuildStep( QWidget* parent = 0 )
+    UIBuildStep( parent = 0 )
         : pDockWidget( parent )
-    {
-        setObjectName( metaObject()->className() );
+        setObjectName( metaObject().className() )
         
-        setupUi( this );
-        lvBuildSteps->setAttribute( Qt::WA_MacShowFocusRect, false );
-        lvBuildSteps->setAttribute( Qt::WA_MacSmallSize );
+        setupUi( self )
+        lvBuildSteps.setAttribute( Qt.WA_MacShowFocusRect, False )
+        lvBuildSteps.setAttribute( Qt.WA_MacSmallSize )
         
-        titleBar()->addAction( MonkeyCore::menuBar()->action( "mView/aShowNextWarning" ), 0 );
-        titleBar()->addAction( MonkeyCore::menuBar()->action( "mView/aShowNextError" ), 1 );
-        titleBar()->addSeparator( 2 );
-    }
-};
+        titleBar().addAction( MonkeyCore.menuBar().action( "mView/aShowNextWarning" ), 0 )
+        titleBar().addAction( MonkeyCore.menuBar().action( "mView/aShowNextError" ), 1 )
+        titleBar().addSeparator( 2 )
 
-/*!
+
+
+'''!
     Implementation of Output tab of Message box
-*/
-class UIOutput : public pDockWidget, public Ui::UIOutput
-{
+'''
+class UIOutput : public pDockWidget, Ui.UIOutput
 public:
-    UIOutput( QWidget* parent = 0 )
+    UIOutput( parent = 0 )
         : pDockWidget( parent )
-    {
-        setObjectName( metaObject()->className() );
-        setupUi( this );
-        lRawCommand->setAttribute( Qt::WA_MacShowFocusRect, false );
-        lRawCommand->setAttribute( Qt::WA_MacSmallSize );
-        cbRawCommand->setAttribute( Qt::WA_MacShowFocusRect, false );
-        cbRawCommand->setAttribute( Qt::WA_MacSmallSize );
-        tbOutput->setAttribute( Qt::WA_MacShowFocusRect, false );
-        tbOutput->setAttribute( Qt::WA_MacSmallSize );
-    }
-};
+        setObjectName( metaObject().className() )
+        setupUi( self )
+        lRawCommand.setAttribute( Qt.WA_MacShowFocusRect, False )
+        lRawCommand.setAttribute( Qt.WA_MacSmallSize )
+        cbRawCommand.setAttribute( Qt.WA_MacShowFocusRect, False )
+        cbRawCommand.setAttribute( Qt.WA_MacSmallSize )
+        tbOutput.setAttribute( Qt.WA_MacShowFocusRect, False )
+        tbOutput.setAttribute( Qt.WA_MacSmallSize )
 
-/*!
+
+
+'''!
     Implementation of Commands tab of Message box
-*/
-class UICommand : public pDockWidget, public Ui::UICommand
-{
+'''
+class UICommand : public pDockWidget, Ui.UICommand
 public:
-    UICommand( QWidget* parent = 0 )
+    UICommand( parent = 0 )
         : pDockWidget( parent )
-    {
-        setObjectName( metaObject()->className() );
-        setupUi( this );
-        teLog->setAttribute( Qt::WA_MacShowFocusRect, false );
-        teLog->setAttribute( Qt::WA_MacSmallSize );
-    }
-};
+        setObjectName( metaObject().className() )
+        setupUi( self )
+        teLog.setAttribute( Qt.WA_MacShowFocusRect, False )
+        teLog.setAttribute( Qt.WA_MacSmallSize )
 
-/*!
+
+
+'''!
     Implementation of GUI of MessageBox plugin
     
-    Manages tabs, implements functionality of plugin. Appends and removes 
-    information from docks, according with signals from sources of information)
+    Manages tabs, functionality of plugin. Appends and removes 
+    information from docks, with signals from sources of information)
     Allows to show some tab of message box
-*/
+'''
 class MessageBoxDocks : public QObject
-{
     Q_OBJECT
-    friend class MessageBox;
+    friend class MessageBox
     
 public:
-    MessageBoxDocks( QObject* parent = 0 );
-    ~MessageBoxDocks();
+    MessageBoxDocks( parent = 0 )
+    ~MessageBoxDocks()
     
-    QString colourText( const QString&, const QColor& = Qt::black );
+    QString colourText(  QString&,  QColor& = Qt.black )
 
 protected:
-    UIBuildStep* mBuildStep;
-    UIOutput* mOutput;
-    UICommand* mCommand;
-    pConsoleManagerStepModel* mStepModel;
+    UIBuildStep* mBuildStep
+    UIOutput* mOutput
+    UICommand* mCommand
+    pConsoleManagerStepModel* mStepModel
 
 public slots:
-    void appendOutput( const QString& );
-    void appendLog( const QString& );
-    void appendInBox( const QString&, const QColor& = Qt::red );
-    void appendStep( const pConsoleManagerStep& step );
-    void appendSteps( const pConsoleManagerStepList& steps );
-    void showBuild();
-    void showOutput();
-    void showLog();
-    void showNextWarning();
-    void showNextError();
+    void appendOutput(  QString& )
+    void appendLog(  QString& )
+    void appendInBox(  QString&,  QColor& = Qt.red )
+    void appendStep(  pConsoleManagerStep& step )
+    void appendSteps(  pConsoleManagerStepList& steps )
+    void showBuild()
+    void showOutput()
+    void showLog()
+    void showNextWarning()
+    void showNextError()
 
 protected slots:
-    void lvBuildSteps_activated( const QModelIndex& index );
-    void cbRawCommand_returnPressed();
-    void commandError( const pCommand& command, QProcess::ProcessError error );
-    void commandFinished( const pCommand& command, int exitCode, QProcess::ExitStatus exitStatus );
-    void commandReadyRead( const pCommand& command, const QByteArray& data );
-    void commandStarted( const pCommand& command );
-    void commandStateChanged( const pCommand& command, QProcess::ProcessState state );
-    void commandSkipped( const pCommand& command );
-};
+    void lvBuildSteps_activated(  QModelIndex& index )
+    void cbRawCommand_returnPressed()
+    void commandError(  pCommand& command, error )
+    void commandFinished(  pCommand& command, exitCode, exitStatus )
+    void commandReadyRead(  pCommand& command, data )
+    void commandStarted(  pCommand& command )
+    void commandStateChanged(  pCommand& command, state )
+    void commandSkipped(  pCommand& command )
 
-#endif // MESSAGEBOXDOCKS_H
+
+#endif # MESSAGEBOXDOCKS_H

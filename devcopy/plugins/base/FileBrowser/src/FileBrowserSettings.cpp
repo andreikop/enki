@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
 **
 **         Created using Monkey Studio v1.8.1.0
 ** Authors    : Filipe AZEVEDO aka Nox P@sNox <pasnox@gmail.com>
@@ -6,8 +6,8 @@
 ** FileName  : FileBrowserSettings.cpp
 ** Date      : 2008-01-14T00:39:55
 ** License   : GPL
-** Comment   : This header has been automatically generated, if you are the original author, or co-author, fill free to replace/append with your informations.
-** Home Page : http://www.monkeystudio.org
+** Comment   : This header has been automatically generated, you are the original author, co-author, free to replace/append with your informations.
+** Home Page : http:#www.monkeystudio.org
 **
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
@@ -22,16 +22,16 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
 **
-****************************************************************************/
-/*!
+***************************************************************************'''
+'''!
     \file FileBrowserSettings.cpp
     \date 2008-01-14T00:40:08
-    \author Filipe AZEVEDO, Andrei KOPATS
+    \author Filipe AZEVEDO, KOPATS
     \brief Settings widget of FileBrowser plugin
-*/
+'''
 #include "FileBrowserSettings.h"
 #include "FileBrowser.h"
 
@@ -41,36 +41,35 @@
 #include <QDialogButtonBox>
 #include <QPushButton>
 
-/*!
+'''!
     Creates settings widget
     \param plugin Pointer to FileBrowser plugin
     \param parent Parent widget of settings widget
-*/
-FileBrowserSettings::FileBrowserSettings( FileBrowser* plugin, QWidget* parent )
+'''
+FileBrowserSettings.FileBrowserSettings( FileBrowser* plugin, parent )
     : QWidget( parent )
-{
-    // retain plugin
-    mPlugin = plugin;
+    # retain plugin
+    mPlugin = plugin
     
-    // list editor
-    mEditor = new pStringListEditor( this, tr( "Except Suffixes" ) );
-    mEditor->setValues( plugin->filters() );
+    # list editor
+    mEditor = pStringListEditor( self, tr( "Except Suffixes" ) )
+    mEditor.setValues( plugin.filters() )
     
-    // apply button
-    QDialogButtonBox* dbbApply = new QDialogButtonBox( this );
-    dbbApply->addButton( QDialogButtonBox::Apply );
+    # apply button
+    dbbApply = QDialogButtonBox( self )
+    dbbApply.addButton( QDialogButtonBox.Apply )
     
-    // global layout
-    QVBoxLayout* vbox = new QVBoxLayout( this );
-    vbox->addWidget( mEditor );
-    vbox->addWidget( dbbApply );
+    # global layout
+    vbox = QVBoxLayout( self )
+    vbox.addWidget( mEditor )
+    vbox.addWidget( dbbApply )
     
-    // connections
-    connect( dbbApply->button( QDialogButtonBox::Apply ), SIGNAL( clicked() ), this, SLOT( applySettings() ) );
-}
+    # connections
+    dbbApply.button( QDialogButtonBox.Apply ).clicked.connect(self.applySettings)
 
-/*!
+
+'''!
     Handler of clicking Apply button. Applying settings
-*/
-void FileBrowserSettings::applySettings()
-{ mPlugin->setFilters( mEditor->values(), true ); }
+'''
+def applySettings(self):
+{ mPlugin.setFilters( mEditor.values(), True );

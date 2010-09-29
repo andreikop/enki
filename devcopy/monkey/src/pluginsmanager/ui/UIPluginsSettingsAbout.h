@@ -5,14 +5,13 @@
 
 #include "ui_UIPluginsSettingsAbout.h"
 
-class BasePlugin;
+class BasePlugin
 
-class Q_MONKEY_EXPORT UIPluginsSettingsAbout : public QDialog, public Ui::UIPluginsSettingsAbout
-{
+class Q_MONKEY_EXPORT UIPluginsSettingsAbout : public QDialog, Ui.UIPluginsSettingsAbout
     Q_OBJECT
     
 public:
-    UIPluginsSettingsAbout( BasePlugin* plugin, QWidget* parent = 0 );
-};
+    UIPluginsSettingsAbout( BasePlugin* plugin, parent = 0 )
 
-#endif // UIPLUGINSSETTINGSABOUT_H
+
+#endif # UIPLUGINSSETTINGSABOUT_H

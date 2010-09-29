@@ -2,72 +2,60 @@
 #include "XUPProjectModel.h"
 #include "XUPItem.h"
 
-XUPProjectModelProxy::XUPProjectModelProxy( QObject* parent, bool showDisabled )
+XUPProjectModelProxy.XUPProjectModelProxy( QObject* parent, showDisabled )
     : QSortFilterProxyModel( parent )
-{
-    mShowDisabled = showDisabled;
-    mSourceModel = 0;
-}
+    mShowDisabled = showDisabled
+    mSourceModel = 0
 
-void XUPProjectModelProxy::setSourceModel( QAbstractItemModel* sourceModel )
-{
-    mSourceModel = qobject_cast<XUPProjectModel*>( sourceModel );
-    QSortFilterProxyModel::setSourceModel( mSourceModel );
-}
 
-Qt::ItemFlags XUPProjectModelProxy::flags( const QModelIndex& index ) const
-{
-    if ( !mSourceModel || !index.isValid() )
-    {
-        return 0;
-    }
-    
-    QModelIndex idx = mapToSource( index );
-    XUPItem* item = mSourceModel->itemFromIndex( idx );
-    
-    bool enabled = false;
-    
-    if ( item->type() == XUPItem::Project || item->type() == XUPItem::Scope )
-    {
-        enabled = true;
-    }
-    else if ( item->type() == XUPItem::Function && item->attribute( "name" ).toLower() != "include" )
-    {
-        enabled = true;
-    }
-    
-    return enabled ? Qt::ItemIsEnabled | Qt::ItemIsSelectable : Qt::ItemFlags();
-}
+def setSourceModel(self, sourceModel ):
+    mSourceModel = qobject_cast<XUPProjectModel*>( sourceModel )
+    QSortFilterProxyModel.setSourceModel( mSourceModel )
 
-bool XUPProjectModelProxy::filterAcceptsRow( int sourceRow, const QModelIndex& sourceParent ) const
-{
-    const QModelIndex sourceIndex = mSourceModel->index( sourceRow, 0, sourceParent );
-    XUPItem* item = mSourceModel->itemFromIndex( sourceIndex );
-    
-    bool isEnabled = false;
-    
-    if ( item->type() == XUPItem::Project || item->type() == XUPItem::Scope )
-    {
-        isEnabled = true;
-    }
-    else if ( item->type() == XUPItem::Function && item->attribute( "name" ).toLower() != "include" )
-    {
-        isEnabled = true;
-    }
-    
-    return isEnabled ? true : mShowDisabled;
-}
 
-bool XUPProjectModelProxy::isShowDisabled() const
-{
-    return mShowDisabled;
-}
+def flags(self, index ):
+    if  not mSourceModel or not index.isValid() :
+        return 0
 
-void XUPProjectModelProxy::setShowDisabled( bool showDisabled )
-{
-    if ( mShowDisabled != showDisabled )
-    {
-        mShowDisabled = showDisabled;
-        reset();
-    }
-}
+    
+    idx = mapToSource( index )
+    item = mSourceModel.itemFromIndex( idx )
+    
+    enabled = False
+    
+    if  item.type() == XUPItem.Project or item.type() == XUPItem.Scope :
+        enabled = True
+
+    elif  item.type() == XUPItem.Function and item.attribute( "name" ).toLower() != "include" :
+        enabled = True
+
+    
+    return enabled ? Qt.ItemIsEnabled | Qt.ItemIsSelectable : Qt.ItemFlags()
+
+
+def filterAcceptsRow(self, sourceRow, sourceParent ):
+     sourceIndex = mSourceModel.index( sourceRow, 0, sourceParent )
+    item = mSourceModel.itemFromIndex( sourceIndex )
+    
+    isEnabled = False
+    
+    if  item.type() == XUPItem.Project or item.type() == XUPItem.Scope :
+        isEnabled = True
+
+    elif  item.type() == XUPItem.Function and item.attribute( "name" ).toLower() != "include" :
+        isEnabled = True
+
+    
+    return isEnabled ? True : mShowDisabled
+
+
+def isShowDisabled(self):
+    return mShowDisabled
+
+
+def setShowDisabled(self, showDisabled ):
+    if  mShowDisabled != showDisabled :
+        mShowDisabled = showDisabled
+        reset()
+
+

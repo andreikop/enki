@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
 **
 **         Created using Monkey Studio v1.8.1.0
 ** Authors    : Filipe AZEVEDO aka Nox P@sNox <pasnox@gmail.com>
@@ -6,8 +6,8 @@
 ** FileName  : UIAbout.h
 ** Date      : 2008-01-14T00:36:54
 ** License   : GPL
-** Comment   : This header has been automatically generated, if you are the original author, or co-author, fill free to replace/append with your informations.
-** Home Page : http://www.monkeystudio.org
+** Comment   : This header has been automatically generated, you are the original author, co-author, free to replace/append with your informations.
+** Home Page : http:#www.monkeystudio.org
 **
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
@@ -22,10 +22,10 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
 **
-****************************************************************************/
+***************************************************************************'''
 #ifndef UIABOUT_H
 #define UIABOUT_H
 
@@ -34,27 +34,25 @@
 #include <QDialog>
 #include <QUrl>
 
-namespace Ui {
-    class UIAbout;
-};
+namespace Ui    class UIAbout
 
-struct pData;
+
+struct pData
 
 class Q_MONKEY_EXPORT UIAbout : public QDialog
-{
     Q_OBJECT
     
 public:
-    UIAbout( QWidget* parent = 0 );
-    ~UIAbout();
+    UIAbout( parent = 0 )
+    ~UIAbout()
 
 protected:
-    Ui::UIAbout* ui;
+    Ui.UIAbout* ui
     
-    QString makeTable( const QString& contents ) const;
-    QString generateTeamatesTable( const QList<pData>& data, const QString& mask ) const;
-    QString generateLinksTable( const QList<pData>& data, const QString& mask ) const;
-    QString generateDonationsTable( const QList<pData>& data, const QString& mask ) const;
-};
+    QString makeTable(  QString& contents )
+    QString generateTeamatesTable(  QList<pData>& data, mask )
+    QString generateLinksTable(  QList<pData>& data, mask )
+    QString generateDonationsTable(  QList<pData>& data, mask )
 
-#endif // UIABOUT_H
+
+#endif # UIABOUT_H

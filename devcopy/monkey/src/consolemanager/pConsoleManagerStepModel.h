@@ -8,36 +8,35 @@
 #include "pConsoleManagerStep.h"
 
 class Q_MONKEY_EXPORT pConsoleManagerStepModel : public QAbstractItemModel
-{
     Q_OBJECT
     
 public:
-    pConsoleManagerStepModel( QObject* parent = 0 );
-    virtual ~pConsoleManagerStepModel();
+    pConsoleManagerStepModel( parent = 0 )
+    virtual ~pConsoleManagerStepModel()
     
-    virtual int columnCount( const QModelIndex& parent = QModelIndex() ) const;
-    virtual QVariant data( const QModelIndex& index, int role = Qt::DisplayRole ) const;
-    virtual QModelIndex index( int row, int column, const QModelIndex& parent = QModelIndex() ) const;
-    virtual QModelIndex parent( const QModelIndex& index ) const;
-    virtual int rowCount( const QModelIndex& parent = QModelIndex() ) const;
+    virtual int columnCount(  parent = QModelIndex() )
+    virtual QVariant data(  QModelIndex& index, role = Qt.DisplayRole )
+    virtual QModelIndex index( int row, column, parent = QModelIndex() )
+    virtual QModelIndex parent(  QModelIndex& index )
+    virtual int rowCount(  parent = QModelIndex() )
     
-    virtual bool hasChildren( const QModelIndex& parent = QModelIndex() ) const;
+    virtual bool hasChildren(  parent = QModelIndex() )
     
-    QModelIndex index( const pConsoleManagerStep& step ) const;
-    pConsoleManagerStep step( const QModelIndex& index ) const;
+    QModelIndex index(  pConsoleManagerStep& step )
+    pConsoleManagerStep step(  QModelIndex& index )
     
-    QModelIndex nextWarning( const QModelIndex& fromIndex ) const;
-    QModelIndex nextError( const QModelIndex& fromIndex ) const;
+    QModelIndex nextWarning(  QModelIndex& fromIndex )
+    QModelIndex nextError(  QModelIndex& fromIndex )
 
 public slots:
-    void clear();
-    void appendStep( const pConsoleManagerStep& step );
-    void appendSteps( const pConsoleManagerStepList& steps );
+    void clear()
+    void appendStep(  pConsoleManagerStep& step )
+    void appendSteps(  pConsoleManagerStepList& steps )
 
 protected:
-    mutable pConsoleManagerStepList mSteps;
-    uint mWarnings;
-    uint mErrors;
-};
+    mutable pConsoleManagerStepList mSteps
+    uint mWarnings
+    uint mErrors
 
-#endif // PCONSOLEMANAGERSTEPMODEL_H
+
+#endif # PCONSOLEMANAGERSTEPMODEL_H

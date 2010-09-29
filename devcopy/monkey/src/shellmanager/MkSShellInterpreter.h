@@ -8,48 +8,46 @@
 #include <QObject>
 #include <QHash>
 
-/*
+'''
 Pointer to function
-QString commandImplementation( const QString& command, const QStringList& arguments, int* result, MkSShellInterpreter* interpreter, void* data )
-*/
-typedef QString (*CommandImplementationPtr)(const QString&, const QStringList&, int*, class MkSShellInterpreter*, void* );
+def commandImplementation(self, command, arguments, result, interpreter, data ):
+'''
+typedef QString (*CommandImplementationPtr)( QString&,  QStringList&, int*, MkSShellInterpreter*, void* )
 
-class Q_MONKEY_EXPORT MkSShellInterpreter : public QObject, public pConsoleCommand
-{
+class Q_MONKEY_EXPORT MkSShellInterpreter : public QObject, pConsoleCommand
     Q_OBJECT
     
 public:
     enum Error
-    {
         NoError = 0,
         InvalidCommand = -1,
         NoResultVariable = -2,
         UnknowError = -3
-    };
+
     
-    static MkSShellInterpreter* instance( QObject* parent = 0 );
+    static MkSShellInterpreter* instance( parent = 0 )
     
-    bool loadScript( const QString& fileName );
-    void loadHomeScripts();
-    QString usage( const QString& command ) const;
-    QString interpret( const QString& command, int* result ) const;
+    bool loadScript(  QString& fileName )
+    void loadHomeScripts()
+    QString usage(  QString& command )
+    QString interpret(  QString& command, result )
     
-    void addCommandImplementation( const QString& command, CommandImplementationPtr function, const QString& help = QString::null, void* data = 0 );
-    void removeCommandImplementation( const QString& command );
-    void setCommandHelp( const QString& command, const QString& help );
+    void addCommandImplementation(  QString& command, function, help = QString.null, data = 0 )
+    void removeCommandImplementation(  QString& command )
+    void setCommandHelp(  QString& command, help )
     
 protected:
-    static QPointer<MkSShellInterpreter> mInstance;
-    QHash<QString, CommandImplementationPtr> mCommandImplementations;
-    QHash<QString, void*> mCommandImplementationsData;
-    QHash<QString, QString> mCommandHelps;
+    static QPointer<MkSShellInterpreter> mInstance
+    QHash<QString, mCommandImplementations
+    QHash<QString, mCommandImplementationsData
+    QHash<QString, mCommandHelps
     
-    MkSShellInterpreter( QObject* parent = 0 );
-    static QString interpretHelp( const QString&, const QStringList& arguments, int* result, MkSShellInterpreter* interpreter, void* data );
-    static QString interpretEcho( const QString&, const QStringList& arguments, int* result, MkSShellInterpreter* interpreter, void* data );
+    MkSShellInterpreter( parent = 0 )
+    static QString interpretHelp(  QString&, arguments, result, interpreter, data )
+    static QString interpretEcho(  QString&, arguments, result, interpreter, data )
     
 signals:
-    void commandExecuted( const QString& command, const QString& output, int result );
-};
+    void commandExecuted(  QString& command, output, result )
 
-#endif // MKSSHELLINTERPRETER_H
+
+#endif # MKSSHELLINTERPRETER_H

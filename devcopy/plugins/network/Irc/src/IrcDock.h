@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,16 +12,16 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-****************************************************************************/
-/*!
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+***************************************************************************'''
+'''!
     \file IrcDock.h
     \date 14/08/08
     \author Xiantia
     \version 1.0.0
     \brief Main Irc container 
-*/
+'''
 
 #ifndef IRCDOCKS_H
 #define IRCDOCKS_H
@@ -39,51 +39,50 @@
 #include "IrcChannel.h"
 #include "./ui/UIIrcStatus.h"
 
-/*!
+'''!
     \brief Main Irc container 
     \details This class manage all channel, read / write data to server.
-*/
-class IrcDock : public pDockWidget, public QSingleton<IrcDock>
-{
+'''
+class IrcDock : public pDockWidget, QSingleton<IrcDock>
     Q_OBJECT
-    friend class Irc;
-    friend class QSingleton<IrcDock>;
+    friend class Irc
+    friend class QSingleton<IrcDock>
 
     
 public:
-    IrcDock( QWidget * w = 0 );
-    ~IrcDock();
+    IrcDock( QWidget w = 0 )
+    ~IrcDock()
 
 
 public slots:
 
-    void onHostFound();
-    void onConnected();
-    void onDisconnected();
-    void onReadyRead();
-    void onSend(QString );
-    void onTcpError(QAbstractSocket::SocketError);
-    void ping(QString);
+    void onHostFound()
+    void onConnected()
+    void onDisconnected()
+    void onReadyRead()
+    void onSend(QString )
+    void onTcpError(QAbstractSocket.SocketError)
+    void ping(QString)
 
-    void onIrcJoinChannel(QString);
-    void onIrcCloseChannel(QString);
-    void onIrcConnect(QString, bool);
+    void onIrcJoinChannel(QString)
+    void onIrcCloseChannel(QString)
+    void onIrcConnect(QString, bool)
 
-    void upDateUsersCount();
+    void upDateUsersCount()
     
 private:
 
-    QTabWidget * mTabWidget;
-    QTcpSocket * mTcpSocket;
-    QTextEdit * mTextEdit;
+    QTabWidget * mTabWidget
+    QTcpSocket * mTcpSocket
+    QTextEdit * mTextEdit
 
-    QList<IrcChannel *> mChannelList;
-    QString mUserName;
+    QList<IrcChannel *> mChannelList
+    QString mUserName
 
-    IrcStatus  * mUiIrcMain;
-    QString buffer;
-    QHash<QString, QString> userPrefix;
-    void setUserPrivilegePrefix(QString);
-};
+    IrcStatus  * mUiIrcMain
+    QString buffer
+    QHash<QString, userPrefix
+    void setUserPrivilegePrefix(QString)
+
 
 #endif 

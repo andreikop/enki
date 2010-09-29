@@ -6,7 +6,7 @@
 ** FileName  : pChild.cpp
 ** Date      : 2008-01-14T00:37:20
 ** License   : GPL
-** Comment   : This header has been automatically generated, you are the original author, co-author, free to replace/append with your informations.
+** Comment   : This header has been automatically generated, are the original author, co-author, to replace/append with your informations.
 ** Home Page : http:#www.monkeystudio.org
 **
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
@@ -22,8 +22,8 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with self program; if not, to the Free Software
-    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+    along with self program; if not, the Free Software
+    Foundation, Inc., St, Floor, Boston, 02110-1301  USA
 **
 ***************************************************************************'''
 #include "pChild.h"
@@ -52,13 +52,13 @@ pChild.pChild()
 
     # connections
     mEditor.cursorPositionChanged.connect(self.cursorPositionChanged)
-    connect( mEditor, SIGNAL( undoAvailable( bool ) ), self, SIGNAL( undoAvailableChanged( bool ) ) )
-    connect( mEditor, SIGNAL( redoAvailable( bool ) ), self, SIGNAL( redoAvailableChanged( bool ) ) )
-    connect( mEditor, SIGNAL( copyAvailable( bool ) ), self, SIGNAL( copyAvailableChanged( bool ) ) )
-    connect( mEditor, SIGNAL( pasteAvailable( bool ) ), self, SIGNAL( pasteAvailableChanged( bool ) ) )
+    mEditor.undoAvailable.connect(self.undoAvailableChanged)
+    mEditor.redoAvailable.connect(self.redoAvailableChanged)
+    mEditor.copyAvailable.connect(self.copyAvailableChanged)
+    mEditor.pasteAvailable.connect(self.pasteAvailableChanged)
     mEditor.modificationChanged.connect(self.setWindowModified)
-    connect( mEditor, SIGNAL( modificationChanged( bool ) ), self, SIGNAL( modifiedChanged( bool ) ) )
-    connect( mEditor, SIGNAL( textChanged() ), self, SIGNAL( contentChanged() ) )
+    mEditor.modificationChanged.connect(self.modifiedChanged)
+    mEditor.textChanged.connect(self.contentChanged)
 
 
 pChild.~pChild()

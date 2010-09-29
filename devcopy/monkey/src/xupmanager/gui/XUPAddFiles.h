@@ -3,48 +3,47 @@
 
 #include "ui_XUPAddFiles.h"
 
-class XUPProjectModelProxy;
-class XUPProjectModel;
-class XUPItem;
+class XUPProjectModelProxy
+class XUPProjectModel
+class XUPItem
 
-class XUPAddFiles : public QWidget, public Ui::XUPAddFiles
-{
+class XUPAddFiles : public QWidget, Ui.XUPAddFiles
     Q_OBJECT
 
 public:
-    XUPAddFiles( QWidget* parent = 0 );
-    virtual ~XUPAddFiles();
+    XUPAddFiles( parent = 0 )
+    virtual ~XUPAddFiles()
     
-    void setModel( XUPProjectModel* model );
-    XUPProjectModel* model() const;
+    void setModel( XUPProjectModel* model )
+    XUPProjectModel* model()
     
-    void setAddToProjectChoice( bool choice );
-    bool addToProjectChoice() const;
+    void setAddToProjectChoice( bool choice )
+    bool addToProjectChoice()
     
-    void setAddToProject( bool add );
-    bool addToProject() const;
+    void setAddToProject( bool add )
+    bool addToProject()
     
-    void setCurrentScope( XUPItem* item );
-    XUPItem* currentScope() const;
+    void setCurrentScope( XUPItem* item )
+    XUPItem* currentScope()
     
-    void setImportExternalFiles( bool import );
-    bool importExternalFiles() const;
+    void setImportExternalFiles( bool import )
+    bool importExternalFiles()
     
-    void setImportExternalFilesPath( const QString& path );
-    QString importExternalFilesPath() const;
+    void setImportExternalFilesPath(  QString& path )
+    QString importExternalFilesPath()
     
-    void setScopeChoiceEnabled( bool enabled );
-    void setImportExternalFilesPathEnabled( bool enabled );
+    void setScopeChoiceEnabled( bool enabled )
+    void setImportExternalFilesPathEnabled( bool enabled )
 
 protected:
-    XUPProjectModelProxy* mProxy;
-    XUPProjectModel* mModel;
+    XUPProjectModelProxy* mProxy
+    XUPProjectModel* mModel
 
 protected slots:
-    void on_tcbScopes_currentChanged( const QModelIndex& index );
+    void on_tcbScopes_currentChanged(  QModelIndex& index )
 
 signals:
-    void currentScopeChanged( XUPItem* scope );
-};
+    void currentScopeChanged( XUPItem* scope )
 
-#endif // XUPADDFILES_H
+
+#endif # XUPADDFILES_H

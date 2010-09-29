@@ -6,266 +6,224 @@
 #include <QTime>
 #include <QDebug>
 
-int ReplaceThread::mMaxTime = 125;
+int ReplaceThread.mMaxTime = 125
 
-ReplaceThread::ReplaceThread( QObject* parent )
+ReplaceThread.ReplaceThread( QObject* parent )
     : QThread( parent )
-{
-    mReset = false;
-    mExit = false;
-}
+    mReset = False
+    mExit = False
 
-ReplaceThread::~ReplaceThread()
-{
-    stop();
-    wait();
-}
 
-void ReplaceThread::replace( const SearchAndReplace::Properties& properties, const QHash<QString, SearchResultsModel::ResultList>& results )
-{
-    {
-        QMutexLocker locker( &mMutex );
-        mProperties = properties;
-        mResults = results;
-        mReset = isRunning() ? true : false;
-        mExit = false;
-    }
+ReplaceThread.~ReplaceThread()
+    stop()
+    wait()
 
-    if ( !isRunning() )
-    {
-        start();
-    }
-}
 
-void ReplaceThread::stop()
-{
-    {
-        QMutexLocker locker( &mMutex );
-        mReset = false;
-        mExit = true;
-    }
-}
+def replace(self, properties,  QHash<QString, results ):
+        QMutexLocker locker( &mMutex )
+        mProperties = properties
+        mResults = results
+        mReset = isRunning() ? True : False
+        mExit = False
 
-void ReplaceThread::saveContent( const QString& fileName, const QString& content, const QString& codec )
-{
-    QFile file( fileName );
 
-    if ( !file.open( QIODevice::WriteOnly ) )
-    {
-        emit error( tr( "Error while saving replaced content: %1" ).arg( file.errorString() ) );
-        return;
-    }
+    if  not isRunning() :
+        start()
 
-    file.resize( 0 );
 
-    QTextCodec* textCodec = QTextCodec::codecForName( codec.toLocal8Bit() );
 
-    Q_ASSERT( textCodec );
+def stop(self):
+        QMutexLocker locker( &mMutex )
+        mReset = False
+        mExit = True
 
-    if ( file.write( textCodec->fromUnicode( content ) ) == -1 )
-    {
-        emit error( tr( "Error while saving replaced content: %1" ).arg( file.errorString() ) );
-        return;
-    }
 
-    file.close();
-}
 
-QString ReplaceThread::fileContent( const QString& fileName ) const
-{
-    QTextCodec* codec = 0;
+def saveContent(self, fileName, content, codec ):
+    QFile file( fileName )
 
-    {
-        QMutexLocker locker( const_cast<QMutex*>( &mMutex ) );
+    if  not file.open( QIODevice.WriteOnly ) :
+        error.emit( tr( "Error while saving replaced content: %1" ).arg( file.errorString() ) )
+        return
 
-        codec = QTextCodec::codecForName( mProperties.codec.toLocal8Bit() );
 
-        if ( mProperties.openedFiles.contains( fileName ) )
-        {
-            return mProperties.openedFiles[ fileName ];
-        }
-    }
+    file.resize( 0 )
 
-    Q_ASSERT( codec );
+    textCodec = QTextCodec.codecForName( codec.toLocal8Bit() )
 
-    QFile file( fileName );
+    Q_ASSERT( textCodec )
 
-    if ( !file.open( QIODevice::ReadOnly ) )
-    {
-        return QString::null;
-    }
+    if  file.write( textCodec.fromUnicode( content ) ) == -1 :
+        error.emit( tr( "Error while saving replaced content: %1" ).arg( file.errorString() ) )
+        return
 
-    if ( SearchWidget::isBinary( file ) )
-    {
-        return QString::null;
-    }
 
-    return codec->toUnicode( file.readAll() );
-}
+    file.close()
 
-void ReplaceThread::replace( const QString& fileName, QString content )
-{
-    QString replaceText;
-    QString codec;
-    SearchResultsModel::ResultList results;
-    bool isOpenedFile = false;
-    bool isRE = false;
-    SearchResultsModel::ResultList handledResults;
 
-    {
-        QMutexLocker locker( &mMutex );
-        replaceText = mProperties.replaceText;
-        codec = mProperties.codec;
-        results = mResults[ fileName ];
-        isOpenedFile = mProperties.openedFiles.contains( fileName );
-        isRE = mProperties.options & SearchAndReplace::OptionRegularExpression;
-    }
-/*
-    QTime tracker;
-    tracker.start();
-*/
-    static QRegExp rx( "\\$(\\d+)" );
-    rx.setMinimal( true );
+def fileContent(self, fileName ):
+    codec = 0
 
-    // count from end to begin because we are replacing by offset in content
-    for ( int i = results.count() -1; i > -1; i-- )
-    {
-        SearchResultsModel::Result* result = results.at( i );
-        const int searchLength = result->length;
-        const QStringList captures = result->capturedTexts;
+        QMutexLocker locker( const_cast<QMutex*>( &mMutex ) )
+
+        codec = QTextCodec.codecForName( mProperties.codec.toLocal8Bit() )
+
+        if  mProperties.openedFiles.contains( fileName ) :
+            return mProperties.openedFiles[ fileName ]
+
+
+
+    Q_ASSERT( codec )
+
+    QFile file( fileName )
+
+    if  not file.open( QIODevice.ReadOnly ) :
+        return QString.null
+
+
+    if  SearchWidget.isBinary( file ) :
+        return QString.null
+
+
+    return codec.toUnicode( file.readAll() )
+
+
+def replace(self, fileName, content ):
+    QString replaceText
+    QString codec
+    SearchResultsModel.ResultList results
+    isOpenedFile = False
+    isRE = False
+    SearchResultsModel.ResultList handledResults
+
+        QMutexLocker locker( &mMutex )
+        replaceText = mProperties.replaceText
+        codec = mProperties.codec
+        results = mResults[ fileName ]
+        isOpenedFile = mProperties.openedFiles.contains( fileName )
+        isRE = mProperties.options & SearchAndReplace.OptionRegularExpression
+
+'''
+    QTime tracker
+    tracker.start()
+'''
+    static QRegExp rx( "\\$(\\d+)" )
+    rx.setMinimal( True )
+
+    # count from end to begin because we are replacing by offset in content
+    for ( i = results.count() -1; i > -1; i-- )
+        result = results.at( i )
+         searchLength = result.length
+         captures = result.capturedTexts
     
-        // compute replace text
-        if ( isRE && captures.count() > 1 ) {
-            int pos = 0;
+        # compute replace text
+        if  isRE and captures.count() > 1 :            pos = 0
             
-            while ( ( pos = rx.indexIn( replaceText, pos ) ) != -1 ) {
-                const int id = rx.cap( 1 ).toInt();
+            while ( ( pos = rx.indexIn( replaceText, pos ) ) != -1 )                 id = rx.cap( 1 ).toInt()
                 
-                if ( id < 0 || id >= captures.count() ) {
-                    pos += rx.matchedLength();
-                    continue;
-                }
+                if  id < 0 or id >= captures.count() :                    pos += rx.matchedLength()
+                    continue
+
                 
-                // update replace text with partial occurrences
-                replaceText.replace( pos, rx.matchedLength(), captures.at( id ) );
+                # update replace text with partial occurrences
+                replaceText.replace( pos, rx.matchedLength(), captures.at( id ) )
                 
-                // next
-                pos += captures.at( id ).length();
-            }
-        }
+                # next
+                pos += captures.at( id ).length()
+
+
         
-        // replace text
-        content.replace( result->offset, searchLength, replaceText );
+        # replace text
+        content.replace( result.offset, searchLength, replaceText )
 
-        handledResults << result;
-/*
-        if ( tracker.elapsed() >= mMaxTime )
-        {
-            if ( !handledResults.isEmpty() )
-            {
-                if ( !isOpenedFile )
-                {
-                    saveContent( fileName, content, codec );
-                }
+        handledResults << result
+'''
+        if  tracker.elapsed() >= mMaxTime :
+            if  not handledResults.isEmpty() :
+                if  not isOpenedFile :
+                    saveContent( fileName, content, codec )
 
-                emit resultsHandled( fileName, handledResults );
-            }
 
-            if ( isOpenedFile )
-            {
-                emit openedFileHandled( fileName, content, codec );
-            }
+                resultsHandled.emit( fileName, handledResults )
 
-            handledResults.clear();
-            tracker.restart();
-        }
-*/
-        {
-            QMutexLocker locker( &mMutex );
 
-            if ( mExit )
-            {
-                return;
-            }
-            else if ( mReset )
-            {
-                break;
-            }
-        }
-    }
+            if  isOpenedFile :
+                openedFileHandled.emit( fileName, content, codec )
 
-    if ( !handledResults.isEmpty() )
-    {
-        if ( !isOpenedFile )
-        {
-            saveContent( fileName, content, codec );
-        }
 
-        emit resultsHandled( fileName, handledResults );
-    }
+            handledResults.clear()
+            tracker.restart()
 
-    if ( isOpenedFile )
-    {
-        emit openedFileHandled( fileName, content, codec );
-    }
-}
+'''
+            QMutexLocker locker( &mMutex )
 
-void ReplaceThread::run()
-{
-    QTime tracker;
+            if  mExit :
+                return
+
+            elif  mReset :
+                break
+
+
+
+
+    if  not handledResults.isEmpty() :
+        if  not isOpenedFile :
+            saveContent( fileName, content, codec )
+
+
+        resultsHandled.emit( fileName, handledResults )
+
+
+    if  isOpenedFile :
+        openedFileHandled.emit( fileName, content, codec )
+
+
+
+def run(self):
+    QTime tracker
 
     forever
-    {
-        {
-            QMutexLocker locker( &mMutex );
-            mReset = false;
-            mExit = false;
-        }
+            QMutexLocker locker( &mMutex )
+            mReset = False
+            mExit = False
 
-        tracker.restart();
 
-        QStringList keys;
+        tracker.restart()
 
-        {
-            QMutexLocker locker( &mMutex );
-            keys = mResults.keys();
-        }
+        QStringList keys
 
-        foreach ( const QString& fileName, keys )
-        {
-            QString content = fileContent( fileName );
+            QMutexLocker locker( &mMutex )
+            keys = mResults.keys()
 
-            replace( fileName, content );
 
-            {
-                QMutexLocker locker( &mMutex );
+        for fileName in keys:
+            content = fileContent( fileName )
 
-                if ( mExit )
-                {
-                    return;
-                }
-                else if ( mReset )
-                {
-                    break;
-                }
-            }
-        }
+            replace( fileName, content )
 
-        {
-            QMutexLocker locker( &mMutex );
+                QMutexLocker locker( &mMutex )
 
-            if ( mExit )
-            {
-                return;
-            }
-            else if ( mReset )
-            {
-                continue;
-            }
-        }
+                if  mExit :
+                    return
 
-        break;
-    }
+                elif  mReset :
+                    break
 
-    qWarning() << "Replace finished in " << tracker.elapsed() /1000.0;
-}
+
+
+
+            QMutexLocker locker( &mMutex )
+
+            if  mExit :
+                return
+
+            elif  mReset :
+                continue
+
+
+
+        break
+
+
+    qWarning() << "Replace finished in " << tracker.elapsed() /1000.0
+

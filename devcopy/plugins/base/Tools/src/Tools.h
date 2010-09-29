@@ -5,20 +5,19 @@
 
 #include <QPointer>
 
-class ToolsManager;
+class ToolsManager
 
 class Tools : public BasePlugin
-{
     Q_OBJECT
     Q_INTERFACES( BasePlugin )
 
 protected:
-    QPointer<ToolsManager> mToolsManager;
+    QPointer<ToolsManager> mToolsManager
     
-    virtual void fillPluginInfos();
+    virtual void fillPluginInfos()
 
-    virtual bool install();
-    virtual bool uninstall();
-};
+    virtual bool install()
+    virtual bool uninstall()
 
-#endif // TOOLS_H
+
+#endif # TOOLS_H

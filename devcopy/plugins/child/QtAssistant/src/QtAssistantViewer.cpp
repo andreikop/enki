@@ -9,249 +9,220 @@
 #include <QWheelEvent>
 
 class HelpNetworkReply : public QNetworkReply
-{
 public:
-    HelpNetworkReply( const QNetworkRequest& request, const QByteArray& fileData );
+    HelpNetworkReply(  QNetworkRequest& request, fileData )
 
-    virtual void abort();
+    virtual void abort()
 
-    virtual qint64 bytesAvailable() const
-    { return data.length() +QNetworkReply::bytesAvailable(); }
+    virtual qint64 bytesAvailable()
+    { return data.length() +QNetworkReply.bytesAvailable();
 
 protected:
-    virtual qint64 readData( char* data, qint64 maxlen );
+    virtual qint64 readData( char* data, maxlen )
 
 private:
-    QByteArray data;
-    qint64 origLen;
-};
+    QByteArray data
+    qint64 origLen
 
-HelpNetworkReply::HelpNetworkReply( const QNetworkRequest& request, const QByteArray& fileData )
+
+HelpNetworkReply.HelpNetworkReply(  QNetworkRequest& request, fileData )
     : data( fileData ), origLen( fileData.length() )
-{
-    setRequest( request );
-    setOpenMode( QIODevice::ReadOnly );
+    setRequest( request )
+    setOpenMode( QIODevice.ReadOnly )
 
-    setHeader( QNetworkRequest::ContentTypeHeader, "text/html" );
-    setHeader( QNetworkRequest::ContentLengthHeader, QByteArray::number( fileData.length() ) );
-    QTimer::singleShot( 0, this, SIGNAL( metaDataChanged() ) );
-    QTimer::singleShot( 0, this, SIGNAL( readyRead() ) );
-}
+    setHeader( QNetworkRequest.ContentTypeHeader, "text/html" )
+    setHeader( QNetworkRequest.ContentLengthHeader, QByteArray.number( fileData.length() ) )
+    QTimer.singleShot( 0, self, SIGNAL( metaDataChanged() ) )
+    QTimer.singleShot( 0, self, SIGNAL( readyRead() ) )
 
-void HelpNetworkReply::abort()
-{
-    // nothing to do
-}
 
-qint64 HelpNetworkReply::readData( char* buffer, qint64 maxlen )
-{
-    qint64 len = qMin( qint64( data.length() ), maxlen );
-    if ( len )
-    {
-        qMemCopy( buffer, data.constData(), len );
-        data.remove( 0, len );
-    }
-    if ( !data.length() )
-        QTimer::singleShot( 0, this, SIGNAL( finished() ) );
-    return len;
-}
+def abort(self):
+    # nothing to do
+
+
+def readData(self, buffer, maxlen ):
+    len = qMin( qint64( data.length() ), maxlen )
+    if  len :
+        qMemCopy( buffer, data.constData(), len )
+        data.remove( 0, len )
+
+    if  not data.length() :
+        QTimer.singleShot( 0, self, SIGNAL( finished() ) )
+    return len
+
 
 class HelpNetworkAccessManager : public QNetworkAccessManager
-{
 public:
-    HelpNetworkAccessManager( QHelpEngine* engine, QObject* parent );
+    HelpNetworkAccessManager( QHelpEngine* engine, parent )
 
 protected:
-    virtual QNetworkReply* createRequest( Operation op, const QNetworkRequest& request, QIODevice* outgoingData = 0 );
+    virtual QNetworkReply* createRequest( Operation op, request, outgoingData = 0 )
 
 private:
-    QHelpEngine* mHelpEngine;
-};
+    QHelpEngine* mHelpEngine
 
-HelpNetworkAccessManager::HelpNetworkAccessManager( QHelpEngine* engine, QObject* parent )
+
+HelpNetworkAccessManager.HelpNetworkAccessManager( QHelpEngine* engine, parent )
     : QNetworkAccessManager( parent ), mHelpEngine( engine )
-{
-}
 
-QNetworkReply *HelpNetworkAccessManager::createRequest( Operation op, const QNetworkRequest& request, QIODevice* outgoingData )
-{
-    const QString scheme = request.url().scheme();
-    if ( scheme == QLatin1String( "qthelp" ) || scheme == QLatin1String( "about" ) )
-        return new HelpNetworkReply( request, mHelpEngine->fileData( request.url() ) );
-    return QNetworkAccessManager::createRequest( op, request, outgoingData );
-}
+
+QNetworkReply *HelpNetworkAccessManager.createRequest( Operation op, request, outgoingData )
+     scheme = request.url().scheme()
+    if  scheme == QLatin1String( "qthelp" ) or scheme == QLatin1String( "about" ) :
+        return HelpNetworkReply( request, mHelpEngine.fileData( request.url() ) )
+    return QNetworkAccessManager.createRequest( op, request, outgoingData )
+
 
 class HelpPage : public QWebPage
-{
 public:
-    HelpPage( QtAssistantChild* child, QObject* parent );
+    HelpPage( QtAssistantChild* child, parent )
 
 protected:
-    virtual QWebPage* createWindow( QWebPage::WebWindowType );
+    virtual QWebPage* createWindow( QWebPage.WebWindowType )
 
-    virtual bool acceptNavigationRequest( QWebFrame* frame, const QNetworkRequest& request, NavigationType type );
+    virtual bool acceptNavigationRequest( QWebFrame* frame, request, type )
 
 private:
-    QtAssistantChild* mChild;
-};
+    QtAssistantChild* mChild
 
-HelpPage::HelpPage( QtAssistantChild* child, QObject* parent )
+
+HelpPage.HelpPage( QtAssistantChild* child, parent )
     : QWebPage( parent ), mChild( child )
-{
-}
 
-QWebPage* HelpPage::createWindow( QWebPage::WebWindowType )
-{
-    return mChild->newEmptyViewer()->page();
-}
 
-static bool isLocalUrl( const QUrl& url )
-{
-    const QString scheme = url.scheme();
-    if ( scheme.isEmpty()
-        || scheme == QLatin1String( "file" )
-        || scheme == QLatin1String( "qrc" )
-        || scheme == QLatin1String( "data" )
-        || scheme == QLatin1String( "qthelp" )
-        || scheme == QLatin1String( "about" ) )
-        return true;
-    return false;
-}
+def createWindow(self,  QWebPage.WebWindowType ):
+    return mChild.newEmptyViewer().page()
 
-bool HelpPage::acceptNavigationRequest( QWebFrame*, const QNetworkRequest& request, QWebPage::NavigationType )
-{
-    const QUrl url = request.url();
+
+static bool isLocalUrl(  QUrl& url )
+     scheme = url.scheme()
+    if  scheme.isEmpty(:
+        or scheme == QLatin1String( "file" )
+        or scheme == QLatin1String( "qrc" )
+        or scheme == QLatin1String( "data" )
+        or scheme == QLatin1String( "qthelp" )
+        or scheme == QLatin1String( "about" ) )
+        return True
+    return False
+
+
+def acceptNavigationRequest(self,  QWebFrame*, request, QWebPage.NavigationType ):
+     url = request.url()
     
-    if ( isLocalUrl( url ) )
-    {
-        return true;
-    }
-    else
-    {
-        //QDesktopServices::openUrl( url );
-        return true;
-    }
-}
+    if  isLocalUrl( url ) :
+        return True
 
-// QtAssistantViewer
+    else:
+        #QDesktopServices.openUrl( url )
+        return True
 
-QtAssistantViewer::QtAssistantViewer( QHelpEngine* engine, QtAssistantChild* child, const QUrl& homeUrl )
+
+
+# QtAssistantViewer
+
+QtAssistantViewer.QtAssistantViewer( QHelpEngine* engine, child, homeUrl )
     : QWebView( child )
-{
-    Q_ASSERT( engine );
-    Q_ASSERT( child );
+    Q_ASSERT( engine )
+    Q_ASSERT( child )
     
-    mEngine = engine;
-    mChild = child;
-    mHomeUrl = homeUrl;
+    mEngine = engine
+    mChild = child
+    mHomeUrl = homeUrl
     
-    setPage( new HelpPage( mChild, this ) );
+    setPage( HelpPage( mChild, self ) )
 
-    page()->setNetworkAccessManager( new HelpNetworkAccessManager( engine, this ) );
+    page().setNetworkAccessManager( HelpNetworkAccessManager( engine, self ) )
 
-    pageAction( QWebPage::OpenLinkInNewWindow )->setText( tr( "Open Link in New Tab" ) );
-    pageAction( QWebPage::DownloadLinkToDisk )->setVisible( false );
-    pageAction( QWebPage::DownloadImageToDisk )->setVisible( false );
-    pageAction( QWebPage::OpenImageInNewWindow )->setVisible( false );
+    pageAction( QWebPage.OpenLinkInNewWindow ).setText( tr( "Open Link in New Tab" ) )
+    pageAction( QWebPage.DownloadLinkToDisk ).setVisible( False )
+    pageAction( QWebPage.DownloadImageToDisk ).setVisible( False )
+    pageAction( QWebPage.OpenImageInNewWindow ).setVisible( False )
 
-    connect( pageAction( QWebPage::Copy ), SIGNAL( changed() ), this, SLOT( actionChanged() ) );
-    connect( pageAction( QWebPage::Cut ), SIGNAL( changed() ), this, SLOT( actionChanged() ) );
-    connect( pageAction( QWebPage::Paste ), SIGNAL( changed() ), this, SLOT( actionChanged() ) );
-    connect( pageAction( QWebPage::Undo ), SIGNAL( changed() ), this, SLOT( actionChanged() ) );
-    connect( pageAction( QWebPage::Redo ), SIGNAL( changed() ), this, SLOT( actionChanged() ) );
-    connect( pageAction( QWebPage::Back ), SIGNAL( changed() ), this, SLOT( actionChanged() ) );
-    connect( pageAction( QWebPage::Forward ), SIGNAL( changed() ), this, SLOT( actionChanged() ) );
-    connect( page(), SIGNAL( linkHovered( const QString&, const QString&, const QString& ) ), this, SIGNAL( highlighted( const QString& ) ) );
-    connect( this, SIGNAL( loadFinished( bool ) ), this, SLOT( loadFinished( bool ) ) );
-}
+    pageAction( QWebPage.Copy ).changed.connect(self.actionChanged)
+    pageAction( QWebPage.Cut ).changed.connect(self.actionChanged)
+    pageAction( QWebPage.Paste ).changed.connect(self.actionChanged)
+    pageAction( QWebPage.Undo ).changed.connect(self.actionChanged)
+    pageAction( QWebPage.Redo ).changed.connect(self.actionChanged)
+    pageAction( QWebPage.Back ).changed.connect(self.actionChanged)
+    pageAction( QWebPage.Forward ).changed.connect(self.actionChanged)
+    page().linkHovered.connect(self.highlighted)
+    self.loadFinished.connect(self.loadFinished)
 
-void QtAssistantViewer::setSource( const QUrl& url )
-{
-    mHomeUrl = mHomeUrl.isValid() ? mHomeUrl : url;
-    load( url );
-}
 
-void QtAssistantViewer::resetZoom()
-{
-    setTextSizeMultiplier( 1.0 );
-}
+def setSource(self, url ):
+    mHomeUrl = mHomeUrl.isValid() ? mHomeUrl : url
+    load( url )
 
-void QtAssistantViewer::zoomIn( int range )
-{
-    Q_UNUSED( range );
-    setTextSizeMultiplier( textSizeMultiplier() +.5 );
-}
 
-void QtAssistantViewer::zoomOut( int range )
-{
-    Q_UNUSED( range );
-    setTextSizeMultiplier( textSizeMultiplier() -.5 );
-}
+def resetZoom(self):
+    setTextSizeMultiplier( 1.0 )
 
-void QtAssistantViewer::home()
-{
-    if ( history()->canGoBack() )
-    {
-        history()->goToItem( history()->backItems( history()->count() ).first() );
-    }
-}
 
-void QtAssistantViewer::wheelEvent( QWheelEvent* e )
-{
-    if ( e->modifiers() & Qt::ControlModifier )
-    {
-        const int delta = e->delta();
-        if ( delta > 0 )
-            zoomOut();
-        else if ( delta < 0 )
-            zoomIn();
-        e->accept();
-        return;
-    }
-    QWebView::wheelEvent( e );
-}
+def zoomIn(self, range ):
+    Q_UNUSED( range )
+    setTextSizeMultiplier( textSizeMultiplier() +.5 )
 
-void QtAssistantViewer::mouseReleaseEvent( QMouseEvent* e )
-{
-    if ( e->button() == Qt::XButton1 )
-    {
-        triggerPageAction( QWebPage::Back );
-        return;
-    }
 
-    if ( e->button() == Qt::XButton2 )
-    {
-        triggerPageAction( QWebPage::Forward );
-        return;
-    }
+def zoomOut(self, range ):
+    Q_UNUSED( range )
+    setTextSizeMultiplier( textSizeMultiplier() -.5 )
 
-    QWebView::mouseReleaseEvent( e );
-}
 
-void QtAssistantViewer::actionChanged()
-{
-    QAction* a = qobject_cast<QAction*>( sender() );
+def home(self):
+    if  history().canGoBack() :
+        history().goToItem( history().backItems( history().count() ).first() )
+
+
+
+def wheelEvent(self, e ):
+    if  e.modifiers() & Qt.ControlModifier :
+         delta = e.delta()
+        if  delta > 0 :
+            zoomOut()
+        elif  delta < 0 :
+            zoomIn()
+        e.accept()
+        return
+
+    QWebView.wheelEvent( e )
+
+
+def mouseReleaseEvent(self, e ):
+    if  e.button() == Qt.XButton1 :
+        triggerPageAction( QWebPage.Back )
+        return
+
+
+    if  e.button() == Qt.XButton2 :
+        triggerPageAction( QWebPage.Forward )
+        return
+
+
+    QWebView.mouseReleaseEvent( e )
+
+
+def actionChanged(self):
+    a = qobject_cast<QAction*>( sender() )
     
-    if ( a == pageAction( QWebPage::Copy ) )
-        emit copyAvailable( a->isEnabled() );
-    else if ( a == pageAction( QWebPage::Cut ) )
-        emit cutAvailable( a->isEnabled() );
-    else if ( a == pageAction( QWebPage::Paste ) )
-        emit pasteAvailable( a->isEnabled() );
-    else if ( a == pageAction( QWebPage::Undo ) )
-        emit undoAvailable( a->isEnabled() );
-    else if ( a == pageAction( QWebPage::Redo ) )
-        emit redoAvailable( a->isEnabled() );
-    else if ( a == pageAction( QWebPage::Back ) )
-        emit backwardAvailable( a->isEnabled() );
-    else if ( a == pageAction( QWebPage::Forward ) )
-        emit forwardAvailable( a->isEnabled() );
+    if  a == pageAction( QWebPage.Copy ) :
+        copyAvailable.emit( a.isEnabled() )
+    elif  a == pageAction( QWebPage.Cut ) :
+        cutAvailable.emit( a.isEnabled() )
+    elif  a == pageAction( QWebPage.Paste ) :
+        pasteAvailable.emit( a.isEnabled() )
+    elif  a == pageAction( QWebPage.Undo ) :
+        undoAvailable.emit( a.isEnabled() )
+    elif  a == pageAction( QWebPage.Redo ) :
+        redoAvailable.emit( a.isEnabled() )
+    elif  a == pageAction( QWebPage.Back ) :
+        backwardAvailable.emit( a.isEnabled() )
+    elif  a == pageAction( QWebPage.Forward ) :
+        forwardAvailable.emit( a.isEnabled() )
     
-    emit actionsChanged();
-}
+    actionsChanged.emit()
 
-void QtAssistantViewer::loadFinished( bool ok )
-{
-    Q_UNUSED( ok );
-    emit sourceChanged( url() );
-}
+
+def loadFinished(self, ok ):
+    Q_UNUSED( ok )
+    sourceChanged.emit( url() )
+

@@ -9,38 +9,37 @@
 #include "SearchResultsModel.h"
 
 class SearchThread : public QThread
-{
     Q_OBJECT
     
 public:
-    SearchThread( QObject* parent = 0 );
-    virtual ~SearchThread();
+    SearchThread( parent = 0 )
+    virtual ~SearchThread()
     
-    void search( const SearchAndReplace::Properties& properties );
-    void stop();
+    void search(  SearchAndReplace.Properties& properties )
+    void stop()
     
-    SearchAndReplace::Properties* properties() const;
+    SearchAndReplace.Properties* properties()
 
 protected:
-    static int mMaxTime;
-    SearchAndReplace::Properties mProperties;
-    QMutex mMutex;
-    bool mReset;
-    bool mExit;
+    static int mMaxTime
+    SearchAndReplace.Properties mProperties
+    QMutex mMutex
+    bool mReset
+    bool mExit
     
-    QStringList getFiles( QDir fromDir, const QStringList& filters, bool recursive ) const;
-    QStringList getFilesToScan() const;
-    QString fileContent( const QString& fileName ) const;
-    void search( const QString& fileName, const QString& content ) const;
-    virtual void run();
+    QStringList getFiles( QDir fromDir, filters, recursive )
+    QStringList getFilesToScan()
+    QString fileContent(  QString& fileName )
+    void search(  QString& fileName, content )
+    virtual void run()
 
 public slots:
-    void clear();
+    void clear()
 
 signals:
-    void reset();
-    void resultsAvailable( const QString& fileName, const SearchResultsModel::ResultList& results );
-    void progressChanged( int value, int total );
-};
+    void reset()
+    void resultsAvailable(  QString& fileName, results )
+    void progressChanged( int value, total )
 
-#endif // SEARCHTHREAD_H
+
+#endif # SEARCHTHREAD_H

@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,12 +12,12 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-****************************************************************************/
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+***************************************************************************'''
 #include "PHPQt.h"
 #include "PHPQtProjectItem.h"
-//#include "UISettingsPHPQt.h"
+##include "UISettingsPHPQt.h"
 #include "../XUP/src/gui/UIXUPEditor.h"
 
 #include <coremanager/MonkeyCore.h>
@@ -25,43 +25,38 @@
 
 #include <QDir>
 
-void PHPQt::fillPluginInfos()
-{
-    mPluginInfos.Caption = tr( "PHP-Qt Project" );
-    mPluginInfos.Description = tr( "PHP-Qt Project support for XUPManager" );
-    mPluginInfos.Author = "Azevedo Filipe aka Nox P@sNox <pasnox@gmail.com>";
-    mPluginInfos.Type = BasePlugin::iXUP;
-    mPluginInfos.Name = PLUGIN_NAME;
-    mPluginInfos.Version = "0.1.0";
-    mPluginInfos.FirstStartEnabled = true;
-    mPluginInfos.HaveSettingsWidget = false;
-}
+def fillPluginInfos(self):
+    mPluginInfos.Caption = tr( "PHP-Qt Project" )
+    mPluginInfos.Description = tr( "PHP-Qt Project support for XUPManager" )
+    mPluginInfos.Author = "Azevedo Filipe aka Nox P@sNox <pasnox@gmail.com>"
+    mPluginInfos.Type = BasePlugin.iXUP
+    mPluginInfos.Name = PLUGIN_NAME
+    mPluginInfos.Version = "0.1.0"
+    mPluginInfos.FirstStartEnabled = True
+    mPluginInfos.HaveSettingsWidget = False
 
 
-bool PHPQt::install()
-{
-    // register phpqt item
-    mItem = new PHPQtProjectItem;
-    mItem->registerProjectType();
-    return true;
-}
 
-bool PHPQt::uninstall()
-{
-    // unregister qmake item, unregistering auto delete the item
-    mItem->unRegisterProjectType();
-    delete mItem;
-    return true;
-}
+def install(self):
+    # register phpqt item
+    mItem = PHPQtProjectItem
+    mItem.registerProjectType()
+    return True
 
-bool PHPQt::editProject( XUPProjectItem* project )
-{
-        if ( !project )
-        {
-        return false;
-    }
 
-    return UIXUPEditor( project, MonkeyCore::mainWindow() ).exec() == QDialog::Accepted;
-}
+def uninstall(self):
+    # unregister qmake item, auto delete the item
+    mItem.unRegisterProjectType()
+    delete mItem
+    return True
+
+
+def editProject(self, project ):
+        if  not project :
+        return False
+
+
+    return UIXUPEditor( project, MonkeyCore.mainWindow() ).exec() == QDialog.Accepted
+
 
 Q_EXPORT_PLUGIN2( ProjectPHPQt, PHPQt )

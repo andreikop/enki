@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,9 +12,9 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-****************************************************************************/
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+***************************************************************************'''
 #include "QDesignerActionEditor.h"
 
 #include <objects/pIconManager.h>
@@ -23,25 +23,24 @@
 #include <QDesignerComponents>
 #include <QDesignerActionEditorInterface>
 
-QDesignerActionEditor::QDesignerActionEditor( QDesignerFormEditorInterface* core )
+QDesignerActionEditor.QDesignerActionEditor( QDesignerFormEditorInterface* core )
     : pDockWidget( 0 )
-{
-    // need core
-    Q_ASSERT( core );
+    # need core
+    Q_ASSERT( core )
 
-    // dock title
-    setWindowTitle( tr( "Action Editor" ) );
-    setWindowIcon( pIconManager::icon( "action.png", ":/icons" ) );
+    # dock title
+    setWindowTitle( tr( "Action Editor" ) )
+    setWindowIcon( pIconManager.icon( "action.png", ":/icons" ) )
 
-    // object name
-    setObjectName( "x-designer/actioneditor" );
+    # object name
+    setObjectName( "x-designer/actioneditor" )
 
-    // create interface
-    mInterface = QDesignerComponents::createActionEditor( core, this );
+    # create interface
+    mInterface = QDesignerComponents.createActionEditor( core, self )
 
-    // set dock widget
-    setWidget( mInterface );
+    # set dock widget
+    setWidget( mInterface )
 
-    // assign action editor to core
-    core->setActionEditor( mInterface );
-}
+    # assign action editor to core
+    core.setActionEditor( mInterface )
+

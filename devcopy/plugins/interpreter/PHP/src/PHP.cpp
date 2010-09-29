@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,77 +12,67 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-****************************************************************************/
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+***************************************************************************'''
 #include "PHP.h"
 
 #include <QTabWidget>
 
-PHP::PHP ()
-{
-    // install parsers
-    foreach ( QString s, availableParsers() )
-    {
-        MonkeyCore::consoleManager()->addParser( getParser( s ) );
-    }
-}
+PHP.PHP ()
+    # install parsers
+    for s in availableParsers():
+        MonkeyCore.consoleManager().addParser( getParser( s ) )
 
-void PHP::fillPluginInfos()
-{
-    mPluginInfos.Caption = tr( "PHP" );
-    mPluginInfos.Description = tr( "This plugin provide PHP interpreter and php parser." );
-    mPluginInfos.Author = "Azevedo Filipe aka Nox P@sNox <pasnox@gmail.com>";
-    mPluginInfos.Type = BasePlugin::iInterpreter;
-    mPluginInfos.Name = PLUGIN_NAME;
-    mPluginInfos.Version = "0.1.0";
-    mPluginInfos.FirstStartEnabled = true;
-    mPluginInfos.HaveSettingsWidget = true;
-    mPluginInfos.Pixmap = pIconManager::pixmap( "php.png", ":/icons" );
-}
 
-PHP::~PHP()
-{//TODO move to uninstall
-    // uninstall parsers
-    foreach ( QString s, availableParsers() )
-    {
-        MonkeyCore::consoleManager()->removeParser( s );
-    }
-}
 
-bool PHP::install()
-{
-    return true;
-}
+def fillPluginInfos(self):
+    mPluginInfos.Caption = tr( "PHP" )
+    mPluginInfos.Description = tr( "This plugin provide PHP interpreter and php parser." )
+    mPluginInfos.Author = "Azevedo Filipe aka Nox P@sNox <pasnox@gmail.com>"
+    mPluginInfos.Type = BasePlugin.iInterpreter
+    mPluginInfos.Name = PLUGIN_NAME
+    mPluginInfos.Version = "0.1.0"
+    mPluginInfos.FirstStartEnabled = True
+    mPluginInfos.HaveSettingsWidget = True
+    mPluginInfos.Pixmap = pIconManager.pixmap( "php.png", ":/icons" )
 
-bool PHP::uninstall()
-{
-    return true;
-}
 
-QWidget* PHP::settingsWidget()
-{
-    QTabWidget* tw = new QTabWidget;
-    tw->setAttribute( Qt::WA_DeleteOnClose );
-    tw->addTab( interpreterSettingsWidget(), tr( "Interpret Command" ) );
-    tw->addTab( cliToolSettingsWidget(), tr( "User Commands" ) );
-    return tw;
-}
+PHP.~PHP()
+{#TODO move to uninstall
+    # uninstall parsers
+    for s in availableParsers():
+        MonkeyCore.consoleManager().removeParser( s )
 
-pCommandList PHP::defaultCommands() const
-{
-    return pCommandList();
-}
 
-QStringList PHP::availableParsers() const
-{
-    return QStringList();
-}
 
-pCommand PHP::defaultInterpretCommand() const
-{
-    const QString mPHP = "php";
-    return pCommand( "Interpret", mPHP, QString::null, false, availableParsers(), "$cpp$" );
-}
+def install(self):
+    return True
+
+
+def uninstall(self):
+    return True
+
+
+def settingsWidget(self):
+    tw = QTabWidget
+    tw.setAttribute( Qt.WA_DeleteOnClose )
+    tw.addTab( interpreterSettingsWidget(), tr( "Interpret Command" ) )
+    tw.addTab( cliToolSettingsWidget(), tr( "User Commands" ) )
+    return tw
+
+
+def defaultCommands(self):
+    return pCommandList()
+
+
+def availableParsers(self):
+    return QStringList()
+
+
+def defaultInterpretCommand(self):
+     mPHP = "php"
+    return pCommand( "Interpret", mPHP, QString.null, False, availableParsers(), "$cpp$" )
+
 
 Q_EXPORT_PLUGIN2( InterpreterPHP, PHP )

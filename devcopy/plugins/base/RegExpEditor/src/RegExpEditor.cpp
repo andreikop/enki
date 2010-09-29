@@ -1,4 +1,4 @@
-//TODO make it standalone application
+#TODO make it standalone application
 
 #include "RegExpEditor.h"
 #include "UIRegExpEditor.h"
@@ -7,41 +7,37 @@
 #include <maininterface/UIMain.h>
 #include <widgets/pMenuBar.h>
 
-void RegExpEditor::fillPluginInfos()
-{
-    mPluginInfos.Caption = tr( "Regular Expression Editor" );
-    mPluginInfos.Description = tr( "This plugin allow you to test regular expression for a given buffer." );
-    mPluginInfos.Author = "Azevedo Filipe aka Nox P@sNox <pasnox@gmail.com>";
-    mPluginInfos.Type = BasePlugin::iBase;
-    mPluginInfos.Name = PLUGIN_NAME;
-    mPluginInfos.Version = "1.0.0";
-    mPluginInfos.FirstStartEnabled = false;
-    mPluginInfos.Pixmap = pIconManager::pixmap( "regexp.png", ":/icons" );
-}
+def fillPluginInfos(self):
+    mPluginInfos.Caption = tr( "Regular Expression Editor" )
+    mPluginInfos.Description = tr( "This plugin allow you to test regular expression for a given buffer." )
+    mPluginInfos.Author = "Azevedo Filipe aka Nox P@sNox <pasnox@gmail.com>"
+    mPluginInfos.Type = BasePlugin.iBase
+    mPluginInfos.Name = PLUGIN_NAME
+    mPluginInfos.Version = "1.0.0"
+    mPluginInfos.FirstStartEnabled = False
+    mPluginInfos.Pixmap = pIconManager.pixmap( "regexp.png", ":/icons" )
 
-bool RegExpEditor::install()
-{
-    // create action
-    QAction* a = MonkeyCore::menuBar()->action( "mTools/aRegExpEditor", infos().Caption, infos().Pixmap, QString::null, infos().Description );
-    // connections
-    connect( a, SIGNAL( triggered() ), this, SLOT( action_triggered() ) );
-    return true;
-}
 
-bool RegExpEditor::uninstall()
-{
-    // delete widget
-    delete mEditor;
-    // delete action
-    delete MonkeyCore::menuBar()->action( "mTools/aRegExpEditor" );
-    return true;
-}
+def install(self):
+    # create action
+    a = MonkeyCore.menuBar().action( "mTools/aRegExpEditor", infos().Caption, infos().Pixmap, QString.null, infos().Description )
+    # connections
+    a.triggered.connect(self.action_triggered)
+    return True
 
-void RegExpEditor::action_triggered()
-{
-    if ( !mEditor )
-        mEditor = new UIRegExpEditor( MonkeyCore::mainWindow() );
-    mEditor->setVisible( !mEditor->isVisible() );
-}
+
+def uninstall(self):
+    # delete widget
+    delete mEditor
+    # delete action
+    delete MonkeyCore.menuBar().action( "mTools/aRegExpEditor" )
+    return True
+
+
+def action_triggered(self):
+    if  not mEditor :
+        mEditor = UIRegExpEditor( MonkeyCore.mainWindow() )
+    mEditor.setVisible( not mEditor.isVisible() )
+
 
 Q_EXPORT_PLUGIN2( BaseRegExpEditor, RegExpEditor )

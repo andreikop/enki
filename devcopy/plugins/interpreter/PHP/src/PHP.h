@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,33 +12,32 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-****************************************************************************/
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+***************************************************************************'''
 #ifndef PHP_H
 #define PHP_H
 
 #include <pluginsmanager/InterpreterPlugin.h>
 
 class PHP : public InterpreterPlugin
-{
     Q_OBJECT
     Q_INTERFACES( BasePlugin InterpreterPlugin CLIToolPlugin )
 
 protected:    
-    void fillPluginInfos();
-    virtual bool install();
-    virtual bool uninstall();
+    void fillPluginInfos()
+    virtual bool install()
+    virtual bool uninstall()
 public:
-    PHP();
-    ~PHP();
-    // BasePlugin
-    virtual QWidget* settingsWidget();
-    // CLIToolPlugin
-    virtual pCommandList defaultCommands() const;
-    virtual QStringList availableParsers() const;
-    // InterpreterPlugin
-    virtual pCommand defaultInterpretCommand() const;
-};
+    PHP()
+    ~PHP()
+    # BasePlugin
+    virtual QWidget* settingsWidget()
+    # CLIToolPlugin
+    virtual pCommandList defaultCommands()
+    virtual QStringList availableParsers()
+    # InterpreterPlugin
+    virtual pCommand defaultInterpretCommand()
 
-#endif // PHP_H
+
+#endif # PHP_H

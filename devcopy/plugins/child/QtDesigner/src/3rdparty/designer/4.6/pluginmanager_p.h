@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
 **
 ** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
 ** Contact: Nokia Corporation (qt-info@nokia.com)
@@ -8,24 +8,24 @@
 ** $QT_BEGIN_LICENSE:LGPL$
 ** No Commercial Usage
 ** This file contains pre-release code and may not be distributed.
-** You may use this file in accordance with the terms and conditions
+** You may use self file in accordance with the terms and conditions
 ** contained in the Technology Preview License Agreement accompanying
-** this package.
+** self package.
 **
 ** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
+** Alternatively, file may be used under the terms of the GNU Lesser
 ** General Public License version 2.1 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
+** packaging of self file.  Please review the following information to
 ** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** will be met: http:#www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Nokia gives you certain
+** In addition, a special exception, gives you certain
 ** additional rights.  These rights are described in the Nokia Qt LGPL
-** Exception version 1.1, included in the file LGPL_EXCEPTION.txt in this
+** Exception version 1.1, in the file LGPL_EXCEPTION.txt in self
 ** package.
 **
-** If you have questions regarding the use of this file, please contact
+** If you have questions regarding the use of self file, contact
 ** Nokia at qt-info@nokia.com.
 **
 **
@@ -37,18 +37,18 @@
 **
 ** $QT_END_LICENSE$
 **
-****************************************************************************/
+***************************************************************************'''
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists for the convenience
-// of Qt Designer.  This header
-// file may change from version to version without notice, or even be removed.
-//
-// We mean it.
-//
+#
+#  W A R N I N G
+#  -------------
+#
+# This file is not part of the Qt API.  It exists for the convenience
+# of Qt Designer.  This header
+# file may change from version to version without notice, even be removed.
+#
+# We mean it.
+#
 
 #ifndef PLUGINMANAGER_H
 #define PLUGINMANAGER_H
@@ -63,97 +63,95 @@
 
 QT_BEGIN_NAMESPACE
 
-class QDesignerFormEditorInterface;
-class QDesignerCustomWidgetInterface;
-class QDesignerPluginManagerPrivate;
+class QDesignerFormEditorInterface
+class QDesignerCustomWidgetInterface
+class QDesignerPluginManagerPrivate
 
-class QDesignerCustomWidgetSharedData;
+class QDesignerCustomWidgetSharedData
 
-/* Information contained in the Dom XML of a custom widget. */
-class QDESIGNER_SHARED_EXPORT QDesignerCustomWidgetData {
-public:
-    // StringPropertyType: validation mode and translatable flag.
-    typedef QPair<qdesigner_internal::TextPropertyValidationMode, bool> StringPropertyType;
+''' Information contained in the Dom XML of a custom widget. '''
+class QDESIGNER_SHARED_EXPORT QDesignerCustomWidgetDatapublic:
+    # StringPropertyType: validation mode and translatable flag.
+    typedef QPair<qdesigner_internal.TextPropertyValidationMode, StringPropertyType
 
-    explicit QDesignerCustomWidgetData(const QString &pluginPath = QString());
+    explicit QDesignerCustomWidgetData( QString &pluginPath = QString())
 
-    enum ParseResult { ParseOk, ParseWarning, ParseError };
-    ParseResult parseXml(const QString &xml, const QString &name, QString *errorMessage);
+    enum ParseResult { ParseOk, ParseWarning, ParseError
+    ParseResult parseXml( QString &xml, &name, *errorMessage)
 
-    QDesignerCustomWidgetData(const QDesignerCustomWidgetData&);
-    QDesignerCustomWidgetData& operator=(const QDesignerCustomWidgetData&);
-    ~QDesignerCustomWidgetData();
+    QDesignerCustomWidgetData( QDesignerCustomWidgetData&)
+    QDesignerCustomWidgetData& operator=( QDesignerCustomWidgetData&)
+    ~QDesignerCustomWidgetData()
 
-    bool isNull() const;
+    bool isNull()
 
-    QString pluginPath() const;
+    QString pluginPath()
 
-    // Data as parsed from the widget's domXML().
-    QString xmlClassName() const;
-    // Optional. The language the plugin is supposed to be used with.
-    QString xmlLanguage() const;
-    // Optional. method used to add pages to a container with a container extension
-    QString xmlAddPageMethod() const;
-    // Optional. Base class
-    QString xmlExtends() const;
-    // Optional. The name to be used in the widget box.
-    QString xmlDisplayName() const;
-    // Type of a string property
-    bool xmlStringPropertyType(const QString &name, StringPropertyType *type) const;
+    # Data as parsed from the widget's domXML().
+    QString xmlClassName()
+    # Optional. The language the plugin is supposed to be used with.
+    QString xmlLanguage()
+    # Optional. method used to add pages to a container with a container extension
+    QString xmlAddPageMethod()
+    # Optional. Base class
+    QString xmlExtends()
+    # Optional. The name to be used in the widget box.
+    QString xmlDisplayName()
+    # Type of a string property
+    bool xmlStringPropertyType( QString &name, *type)
 
 private:
-    QSharedDataPointer<QDesignerCustomWidgetSharedData> m_d;
-};
+    QSharedDataPointer<QDesignerCustomWidgetSharedData> m_d
+
 
 class QDESIGNER_SHARED_EXPORT QDesignerPluginManager: public QObject
-{
     Q_OBJECT
 public:
-    typedef QList<QDesignerCustomWidgetInterface*> CustomWidgetList;
+    typedef QList<QDesignerCustomWidgetInterface*> CustomWidgetList
 
-    explicit QDesignerPluginManager(QDesignerFormEditorInterface *core);
-    virtual ~QDesignerPluginManager();
+    explicit QDesignerPluginManager(QDesignerFormEditorInterface *core)
+    virtual ~QDesignerPluginManager()
 
-    QDesignerFormEditorInterface *core() const;
+    QDesignerFormEditorInterface *core()
 
-    QObject *instance(const QString &plugin) const;
+    QObject *instance( QString &plugin)
 
-    QStringList registeredPlugins() const;
+    QStringList registeredPlugins()
 
-    QStringList findPlugins(const QString &path);
+    QStringList findPlugins( QString &path)
 
-    QStringList pluginPaths() const;
-    void setPluginPaths(const QStringList &plugin_paths);
+    QStringList pluginPaths()
+    void setPluginPaths( QStringList &plugin_paths)
 
-    QStringList disabledPlugins() const;
-    void setDisabledPlugins(const QStringList &disabled_plugins);
+    QStringList disabledPlugins()
+    void setDisabledPlugins( QStringList &disabled_plugins)
 
-    QStringList failedPlugins() const;
-    QString failureReason(const QString &pluginName) const;
+    QStringList failedPlugins()
+    QString failureReason( QString &pluginName)
 
-    QObjectList instances() const;
+    QObjectList instances()
 
-    CustomWidgetList registeredCustomWidgets() const;
-    QDesignerCustomWidgetData customWidgetData(QDesignerCustomWidgetInterface *w) const;
-    QDesignerCustomWidgetData customWidgetData(const QString &className) const;
+    CustomWidgetList registeredCustomWidgets()
+    QDesignerCustomWidgetData customWidgetData(QDesignerCustomWidgetInterface *w)
+    QDesignerCustomWidgetData customWidgetData( QString &className)
 
-    bool registerNewPlugins();
+    bool registerNewPlugins()
 
 public slots:
-    bool syncSettings();
-    void ensureInitialized();
+    bool syncSettings()
+    void ensureInitialized()
 
 private:
-    void updateRegisteredPlugins();
-    void registerPath(const QString &path);
-    void registerPlugin(const QString &plugin);
+    void updateRegisteredPlugins()
+    void registerPath( QString &path)
+    void registerPlugin( QString &plugin)
 
 private:
-    static QStringList defaultPluginPaths();
+    static QStringList defaultPluginPaths()
 
-    QDesignerPluginManagerPrivate *m_d;
-};
+    QDesignerPluginManagerPrivate *m_d
+
 
 QT_END_NAMESPACE
 
-#endif // PLUGINMANAGER_H
+#endif # PLUGINMANAGER_H

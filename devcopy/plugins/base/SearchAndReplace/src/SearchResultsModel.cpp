@@ -1,429 +1,364 @@
 #include "SearchResultsModel.h"
 #include "SearchThread.h"
 
-SearchResultsModel::SearchResultsModel( SearchThread* searchThread, QObject* parent )
+SearchResultsModel.SearchResultsModel( SearchThread* searchThread, parent )
     : QAbstractItemModel( parent )
-{
-    Q_ASSERT( searchThread );
-    mRowCount = 0;
-    mSearchThread = searchThread;
+    Q_ASSERT( searchThread )
+    mRowCount = 0
+    mSearchThread = searchThread
 
-    // connections
-    connect( mSearchThread, SIGNAL( reset() ), this, SLOT( thread_reset() ) );
-    connect( mSearchThread, SIGNAL( resultsAvailable( const QString&, const SearchResultsModel::ResultList& ) ), this, SLOT( thread_resultsAvailable( const QString&, const SearchResultsModel::ResultList& ) ) );
-}
+    # connections
+    mSearchThread.reset.connect(self.thread_reset)
+    mSearchThread.resultsAvailable.connect(self.thread_resultsAvailable)
 
-int SearchResultsModel::columnCount( const QModelIndex& parent ) const
-{
-    Q_UNUSED( parent );
-    return 1;
-}
 
-QVariant SearchResultsModel::data( const QModelIndex& index, int role ) const
-{
-    if ( !index.isValid() )
-    {
-        return QVariant();
-    }
+def columnCount(self, parent ):
+    Q_UNUSED( parent )
+    return 1
 
-    SearchResultsModel::Result* result = this->result( index );
 
-    Q_ASSERT( result );
+def data(self, index, role ):
+    if  not index.isValid() :
+        return QVariant()
+
+
+    result = self.result( index )
+
+    Q_ASSERT( result )
 
     switch ( role )
-    {
-        case Qt::DisplayRole:
-        {
-            QString text;
+        case Qt.DisplayRole:
+            QString text
 
-            // index is a root parent
-            if ( mParentsList.value( index.row() ) == result )
-            {
-                const int count = rowCount( index );
-                text = mSearchDir.relativeFilePath( result->fileName );
-                text.append( QString( " (%1)" ).arg( count ) );
-            }
-            // index is a root parent child
-            else
-            {
-                text = tr( "Line: %1, Column: %2: %3" ).arg( result->position.y() +1 ).arg( result->position.x() ).arg( result->capture );
-            }
+            # index is a root parent
+            if  mParentsList.value( index.row() ) == result :
+                 count = rowCount( index )
+                text = mSearchDir.relativeFilePath( result.fileName )
+                text.append( QString( " (%1)" ).arg( count ) )
 
-            return text;
-        }
-        case Qt::ToolTipRole:
-        {
-            return data( index, Qt::DisplayRole );
-        }
-        case Qt::CheckStateRole:
-        {
-            if ( flags( index ) & Qt::ItemIsUserCheckable )
-            {
-                return result->checkState;
-            }
+            # index is a root parent child
+            else:
+                text = tr( "Line: %1, Column: %2: %3" ).arg( result.position.y() +1 ).arg( result.position.x() ).arg( result.capture )
 
-            break;
-        }
-    }
 
-    return QVariant();
-}
+            return text
 
-QModelIndex SearchResultsModel::index( int row, int column, const QModelIndex& parent ) const
-{
-    if ( row >= rowCount( parent ) || column >= columnCount( parent ) )
-    {
-        return QModelIndex();
-    }
+        case Qt.ToolTipRole:
+            return data( index, Qt.DisplayRole )
 
-    SearchResultsModel::Result* result = this->result( parent );
+        case Qt.CheckStateRole:
+            if  flags( index ) & Qt.ItemIsUserCheckable :
+                return result.checkState
 
-    // parent is a root parent
-    if ( result && mParentsList.value( parent.row() ) == result )
-    {
-        result = mResults.at( parent.row() ).at( row );
-        return createIndex( row, column, result );
-    }
 
-    Q_ASSERT( !parent.isValid() );
+            break
 
-    // parent is invalid
-    return createIndex( row, column, mParentsList[ row ] );
-}
 
-QModelIndex SearchResultsModel::parent( const QModelIndex& index ) const
-{
-    if ( !index.isValid() )
-    {
-        return QModelIndex();
-    }
 
-    SearchResultsModel::Result* result = this->result( index );
+    return QVariant()
 
-    // index is a root parent
-    if ( result && mParentsList.value( index.row() ) == result )
-    {
-        return QModelIndex();
-    }
 
-    Q_ASSERT( index.isValid() );
+def index(self, row, column, parent ):
+    if  row >= rowCount( parent ) or column >= columnCount( parent ) :
+        return QModelIndex()
 
-    result = mParents[ result->fileName ];
-    const int row = mParentsList.indexOf( result );
 
-    // index is a root parent child
-    return createIndex( row, index.column(), result );
-}
+    result = self.result( parent )
 
-int SearchResultsModel::rowCount( const QModelIndex& parent ) const
-{
-    // root parents
-    if ( !parent.isValid() )
-    {
-        return mRowCount;
-    }
+    # parent is a root parent
+    if  result and mParentsList.value( parent.row() ) == result :
+        result = mResults.at( parent.row() ).at( row )
+        return createIndex( row, column, result )
 
-    return parent.parent().isValid() ? 0 : mResults.at( parent.row() ).count();
-}
 
-Qt::ItemFlags SearchResultsModel::flags( const QModelIndex& index ) const
-{
-    Qt::ItemFlags flags = QAbstractItemModel::flags( index );
-    SearchAndReplace::Properties* properties = mSearchThread->properties();
+    Q_ASSERT( not parent.isValid() )
 
-    if ( properties->mode & SearchAndReplace::ModeFlagReplace )
-    {
-        flags |= Qt::ItemIsUserCheckable;
-    }
+    # parent is invalid
+    return createIndex( row, column, mParentsList[ row ] )
 
-    SearchResultsModel::Result* result = this->result( index );
 
-    if ( result )
-    {
-        if ( !result->enabled )
-        {
-            flags &= ~Qt::ItemIsEnabled;
-            flags &= ~Qt::ItemIsSelectable;
-        }
-    }
+def parent(self, index ):
+    if  not index.isValid() :
+        return QModelIndex()
 
-    return flags;
-}
 
-bool SearchResultsModel::hasChildren( const QModelIndex& parent ) const
-{
-    // root parents
-    if ( !parent.isValid() )
-    {
-        return mRowCount != 0;
-    }
+    result = self.result( index )
 
-    return parent.parent().isValid() ? false : !mResults.at( parent.row() ).isEmpty();
-}
+    # index is a root parent
+    if  result and mParentsList.value( index.row() ) == result :
+        return QModelIndex()
 
-bool SearchResultsModel::setData( const QModelIndex& index, const QVariant& value, int role )
-{
-    SearchResultsModel::Result* result = this->result( index );
-    bool ok = false;
+
+    Q_ASSERT( index.isValid() )
+
+    result = mParents[ result.fileName ]
+     row = mParentsList.indexOf( result )
+
+    # index is a root parent child
+    return createIndex( row, index.column(), result )
+
+
+def rowCount(self, parent ):
+    # root parents
+    if  not parent.isValid() :
+        return mRowCount
+
+
+    return parent.parent().isValid() ? 0 : mResults.at( parent.row() ).count()
+
+
+def flags(self, index ):
+    flags = QAbstractItemModel.flags( index )
+    properties = mSearchThread.properties()
+
+    if  properties.mode & SearchAndReplace.ModeFlagReplace :
+        flags |= Qt.ItemIsUserCheckable
+
+
+    result = self.result( index )
+
+    if  result :
+        if  not result.enabled :
+            flags &= ~Qt.ItemIsEnabled
+            flags &= ~Qt.ItemIsSelectable
+
+
+
+    return flags
+
+
+def hasChildren(self, parent ):
+    # root parents
+    if  not parent.isValid() :
+        return mRowCount != 0
+
+
+    return parent.parent().isValid() ? False : not mResults.at( parent.row() ).isEmpty()
+
+
+def setData(self, index, value, role ):
+    result = self.result( index )
+    ok = False
 
     switch ( role )
-    {
-        case Qt::CheckStateRole:
-        {
-            ok = true;
-            break;
-        }
-        case SearchResultsModel::EnabledRole:
-        {
-            result->enabled = value.toBool();
-            ok = true;
-            break;
-        }
-    }
+        case Qt.CheckStateRole:
+            ok = True
+            break
 
-    if ( role != Qt::CheckStateRole )
-    {
-        if ( ok )
-        {
-            emit dataChanged( index, index );
-        }
+        case SearchResultsModel.EnabledRole:
+            result.enabled = value.toBool()
+            ok = True
+            break
 
-        return ok;
-    }
 
-    const Qt::CheckState state = Qt::CheckState( value.toInt() );
-    const QModelIndex pIndex = index.parent();
-    const bool isParent = !pIndex.isValid();
-    SearchResultsModel::Result* pResult = this->result( pIndex );
 
-    Q_ASSERT( result );
+    if  role != Qt.CheckStateRole :
+        if  ok :
+            dataChanged.emit( index, index )
 
-    if ( isParent )
-    {
-        const int pRow = mParentsList.indexOf( result );
-        int checkedCount = 0;
 
-        // update all children to same state as parent
-        foreach ( SearchResultsModel::Result* r, mResults.at( pRow ) )
-        {
-            if ( r->enabled )
-            {
-                r->checkState = state;
-                checkedCount++;
-            }
-        }
+        return ok
 
-        const QModelIndex left = index.child( 0, 0 );
-        const QModelIndex right = index.child( rowCount( index ) -1, columnCount( index ) -1 );
-        // update root parent children
-        emit dataChanged( left, right );
 
-        if ( state == Qt::Unchecked )
-        {
-            checkedCount = 0;
-        }
+     state = Qt.CheckState( value.toInt() )
+     pIndex = index.parent()
+     isParent = not pIndex.isValid()
+    pResult = self.result( pIndex )
 
-        if ( ( checkedCount == 0 && state == Qt::Checked ) || result->checkState == state )
-        {
-            ok = false;
-        }
+    Q_ASSERT( result )
 
-        if ( ok )
-        {
-            result->checkState = state;
-        }
-    }
-    else
-    {
-        const int pRow = mParentsList.indexOf( pResult );
-        int count = 0;
-        int checkedCount = 0;
+    if  isParent :
+         pRow = mParentsList.indexOf( result )
+        checkedCount = 0
 
-        foreach ( SearchResultsModel::Result* r, mResults.at( pRow ) )
-        {
-            count++;
+        # update all children to same state as parent
+        foreach ( SearchResultsModel.Result* r, mResults.at( pRow ) )
+            if  r.enabled :
+                r.checkState = state
+                checkedCount++
 
-            if ( r->checkState == Qt::Checked )
-            {
-                checkedCount++;
-            }
-        }
 
-        if ( state == Qt::Checked )
-        {
-            checkedCount++;
-        }
-        else
-        {
-            checkedCount--;
-        }
 
-        result->checkState = state;
+         left = index.child( 0, 0 )
+         right = index.child( rowCount( index ) -1, columnCount( index ) -1 )
+        # update root parent children
+        dataChanged.emit( left, right )
 
-        // update parent
-        if ( checkedCount == 0 )
-        {
-            pResult->checkState = Qt::Unchecked;
-        }
-        else if ( checkedCount == count )
-        {
-            pResult->checkState = Qt::Checked;
-        }
-        else
-        {
-            pResult->checkState = Qt::PartiallyChecked;
-        }
+        if  state == Qt.Unchecked :
+            checkedCount = 0
 
-        // update root parent index
-        emit dataChanged( pIndex, pIndex );
-    }
 
-    // update clicked index
-    emit dataChanged( index, index );
+        if  ( checkedCount == 0 and state == Qt.Checked ) or result.checkState == state :
+            ok = False
 
-    return ok;
-}
 
-QModelIndex SearchResultsModel::index( SearchResultsModel::Result* result ) const
-{
-    const QModelIndex index;
-    int row = mParentsList.indexOf( result );
+        if  ok :
+            result.checkState = state
 
-    if ( row != -1 )
-    {
-        return createIndex( row, 0, result );
-    }
-    else if ( result )
-    {
-        SearchResultsModel::Result* pResult = mParents.value( result->fileName );
 
-        if ( pResult )
-        {
-            row = mParentsList.indexOf( pResult );
+    else:
+         pRow = mParentsList.indexOf( pResult )
+        count = 0
+        checkedCount = 0
 
-            if ( row != -1 )
-            {
-                row = mResults.at( row ).indexOf( result );
-                return createIndex( row, 0, result );
-            }
-        }
-    }
+        foreach ( SearchResultsModel.Result* r, mResults.at( pRow ) )
+            count++
 
-    return index;
-}
+            if  r.checkState == Qt.Checked :
+                checkedCount++
 
-SearchResultsModel::Result* SearchResultsModel::result( const QModelIndex& index ) const
-{
-    return index.isValid() ? static_cast<SearchResultsModel::Result*>( index.internalPointer() ) : 0;
-}
 
-const QList<SearchResultsModel::ResultList>& SearchResultsModel::results() const
-{
-    return mResults;
-}
 
-void SearchResultsModel::clear()
-{
-    if ( mRowCount == 0 )
-    {
-        return;
-    }
+        if  state == Qt.Checked :
+            checkedCount++
+
+        else:
+            checkedCount--
+
+
+        result.checkState = state
+
+        # update parent
+        if  checkedCount == 0 :
+            pResult.checkState = Qt.Unchecked
+
+        elif  checkedCount == count :
+            pResult.checkState = Qt.Checked
+
+        else:
+            pResult.checkState = Qt.PartiallyChecked
+
+
+        # update root parent index
+        dataChanged.emit( pIndex, pIndex )
+
+
+    # update clicked index
+    dataChanged.emit( index, index )
+
+    return ok
+
+
+def index(self, result ):
+     QModelIndex index
+    row = mParentsList.indexOf( result )
+
+    if  row != -1 :
+        return createIndex( row, 0, result )
+
+    elif  result :
+        pResult = mParents.value( result.fileName )
+
+        if  pResult :
+            row = mParentsList.indexOf( pResult )
+
+            if  row != -1 :
+                row = mResults.at( row ).indexOf( result )
+                return createIndex( row, 0, result )
+
+
+
+
+    return index
+
+
+def result(self, index ):
+    return index.isValid() ? static_cast<SearchResultsModel.Result*>( index.internalPointer() ) : 0
+
+
+ QList<SearchResultsModel.ResultList>& SearchResultsModel.results()
+    return mResults
+
+
+def clear(self):
+    if  mRowCount == 0 :
+        return
+
     
-    beginRemoveRows( QModelIndex(), 0, mRowCount -1 );
+    beginRemoveRows( QModelIndex(), 0, mRowCount -1 )
     
-    foreach ( const SearchResultsModel::ResultList& results, mResults )
-    {
-        qDeleteAll( results );
-    }
+    foreach (  SearchResultsModel.ResultList& results, mResults )
+        qDeleteAll( results )
+
     
-    mResults.clear();
-    qDeleteAll( mParents );
-    mParents.clear();
-    mParentsList.clear();
-    mRowCount = 0;
+    mResults.clear()
+    qDeleteAll( mParents )
+    mParents.clear()
+    mParentsList.clear()
+    mRowCount = 0
     
-    endRemoveRows();
-}
+    endRemoveRows()
 
-void SearchResultsModel::thread_reset()
-{
-    clear();
-}
 
-void SearchResultsModel::thread_resultsAvailable( const QString& fileName, const SearchResultsModel::ResultList& results )
-{
-    if ( mRowCount == 0 )
-    {
-        emit firstResultsAvailable();
-    }
+def thread_reset(self):
+    clear()
+
+
+def thread_resultsAvailable(self, fileName, results ):
+    if  mRowCount == 0 :
+        firstResultsAvailable.emit()
+
     
-    SearchResultsModel::Result* result = mParents[ fileName ];
-    SearchAndReplace::Properties* properties = mSearchThread->properties();
+    result = mParents[ fileName ]
+    properties = mSearchThread.properties()
     
-    if ( mRowCount == 0 )
-    {
-        mSearchDir.setPath( properties->searchPath );
-    }
+    if  mRowCount == 0 :
+        mSearchDir.setPath( properties.searchPath )
 
-    if ( !result )
-    {
-        result = new SearchResultsModel::Result( fileName );
-        result->checkable = properties->mode & SearchAndReplace::ModeFlagReplace;
-        result->checkState = result->checkable ? Qt::Checked : Qt::Unchecked;
 
-        beginInsertRows( QModelIndex(), mRowCount, mRowCount );
-        mParents[ fileName ] = result;
-        mParentsList << result;
-        mRowCount++;
-        mResults << results;
-        endInsertRows();
-    }
-    else
-    {
-        const int pRow = mParentsList.indexOf( result );
-        const int count = mResults.at( pRow ).count();
-        const QModelIndex index = createIndex( pRow, 0, result );
+    if  not result :
+        result = SearchResultsModel.Result( fileName )
+        result.checkable = properties.mode & SearchAndReplace.ModeFlagReplace
+        result.checkState = result.checkable ? Qt.Checked : Qt.Unchecked
 
-        beginInsertRows( index, count, count +results.count() -1 );
-        mResults[ pRow ] << results;
-        endInsertRows();
+        beginInsertRows( QModelIndex(), mRowCount, mRowCount )
+        mParents[ fileName ] = result
+        mParentsList << result
+        mRowCount++
+        mResults << results
+        endInsertRows()
 
-        emit dataChanged( index, index );
-    }
-}
+    else:
+         pRow = mParentsList.indexOf( result )
+         count = mResults.at( pRow ).count()
+         index = createIndex( pRow, 0, result )
 
-void SearchResultsModel::thread_resultsHandled( const QString& fileName, const SearchResultsModel::ResultList& results )
-{
-    SearchResultsModel::Result* pResult = mParents.value( fileName );
+        beginInsertRows( index, count, count +results.count() -1 )
+        mResults[ pRow ] << results
+        endInsertRows()
 
-    Q_ASSERT( pResult );
+        dataChanged.emit( index, index )
 
-    const int pRow = mParentsList.indexOf( pResult );
-    SearchResultsModel::ResultList& children = mResults[ pRow ];
-    const QModelIndex pIndex = createIndex( pRow, 0, pResult );
 
-    // remove root parent children
-    foreach ( SearchResultsModel::Result* result, results )
-    {
-        const int index = children.indexOf( result );
-        beginRemoveRows( pIndex, index, index );
-        delete children.takeAt( index );
-        endRemoveRows();
-    }
 
-    // remove root parent
-    if ( children.isEmpty() )
-    {
-        beginRemoveRows( QModelIndex(), pRow, pRow );
-        mResults.removeAt( pRow );
-        mParentsList.removeAt( pRow );
-        delete mParents.take( fileName );
-        mRowCount--;
-        endRemoveRows();
-    }
-    else
-    {
-        pResult->checkState = Qt::Unchecked;
-        emit dataChanged( pIndex, pIndex );
-    }
-}
+def thread_resultsHandled(self, fileName, results ):
+    pResult = mParents.value( fileName )
+
+    Q_ASSERT( pResult )
+
+     pRow = mParentsList.indexOf( pResult )
+    children = mResults[ pRow ]
+     pIndex = createIndex( pRow, 0, pResult )
+
+    # remove root parent children
+    foreach ( SearchResultsModel.Result* result, results )
+         index = children.indexOf( result )
+        beginRemoveRows( pIndex, index, index )
+        delete children.takeAt( index )
+        endRemoveRows()
+
+
+    # remove root parent
+    if  children.isEmpty() :
+        beginRemoveRows( QModelIndex(), pRow, pRow )
+        mResults.removeAt( pRow )
+        mParentsList.removeAt( pRow )
+        delete mParents.take( fileName )
+        mRowCount--
+        endRemoveRows()
+
+    else:
+        pResult.checkState = Qt.Unchecked
+        dataChanged.emit( pIndex, pIndex )
+
+

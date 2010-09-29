@@ -5,39 +5,38 @@
 
 #include <QMap>
 
-class XUPProjectItem;
-class XUPItem;
+class XUPProjectItem
+class XUPItem
 
-class UIXUPEditor : public QDialog, public Ui::UIXUPEditor
-{
+class UIXUPEditor : public QDialog, Ui.UIXUPEditor
     Q_OBJECT
     
 public:
-    UIXUPEditor( XUPProjectItem* project, QWidget* parent = 0 );
-    virtual ~UIXUPEditor();
+    UIXUPEditor( XUPProjectItem* project, parent = 0 )
+    virtual ~UIXUPEditor()
     
-    void setVariableEditorVisible( bool visible );
-    bool isVariableEditorVisible() const;
+    void setVariableEditorVisible( bool visible )
+    bool isVariableEditorVisible()
 
 protected:
-    XUPProjectItem* mProject;
-    QMap<QString, QTreeWidgetItem*> mProjectFilesItems;
+    XUPProjectItem* mProject
+    QMap<QString, mProjectFilesItems
     
-    void updateMainFileComboBox( const QString& selectFile );
-    void updateProjectFiles();
+    void updateMainFileComboBox(  QString& selectFile )
+    void updateProjectFiles()
     
-    void init( XUPProjectItem* project );
+    void init( XUPProjectItem* project )
 
 protected slots:
-    // dynamic folder
-    void on_tbDynamicFolder_clicked();
+    # dynamic folder
+    void on_tbDynamicFolder_clicked()
     
-    // files
-    void on_tbAddFile_clicked();
-    void on_tbEditFile_clicked();
-    void on_tbRemoveFile_clicked();
+    # files
+    void on_tbAddFile_clicked()
+    void on_tbEditFile_clicked()
+    void on_tbRemoveFile_clicked()
     
-    void accept();
-};
+    void accept()
 
-#endif // UISIMPLEQMAKEEDITOR_H
+
+#endif # UISIMPLEQMAKEEDITOR_H

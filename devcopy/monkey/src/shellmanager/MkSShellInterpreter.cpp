@@ -8,182 +8,155 @@
 #include <QDir>
 #include <QDebug>
 
-const QString MkSShell_DirName = "mks_scripts";
-QPointer<MkSShellInterpreter> MkSShellInterpreter::mInstance = 0;
+ MkSShell_DirName = "mks_scripts"
+QPointer<MkSShellInterpreter> MkSShellInterpreter.mInstance = 0
 
-QString MkSShellInterpreter::interpretHelp( const QString& command, const QStringList& arguments, int* result, MkSShellInterpreter* interpreter, void* data )
-{
-    Q_UNUSED( command );
-    Q_UNUSED( data );
+def interpretHelp(self, command, arguments, result, interpreter, data ):
+    Q_UNUSED( command )
+    Q_UNUSED( data )
     
-    if ( arguments.isEmpty() ) // all available commands
-    {
-        QStringList answer = QStringList( tr( "Available commands:" ) );
-        answer << interpreter->mCommandImplementations.keys();
+    if ( arguments.isEmpty() ) # all available commands
+        answer = QStringList( tr( "Available commands:" ) )
+        answer << interpreter.mCommandImplementations.keys()
         
-        if ( result )
-        {
-            *result = MkSShellInterpreter::NoError;
-        }
-        
-        return answer.join( "\n" );
-    }
-    else if ( arguments.count() == 1 ) // help for command
-    {
-        const QString cmd = arguments.first();
-        const QString& usage = interpreter->usage( cmd );
-        
-        if ( result )
-        {
-            *result = interpreter->mCommandHelps.contains( cmd ) ? MkSShellInterpreter::NoError : MkSShellInterpreter::InvalidCommand;
-        }
-        
-        return usage;
-    }
-    
-    // error
-    if ( result )
-    {
-        *result = MkSShellInterpreter::InvalidCommand;
-    }
-    
-    return tr( "'help' command accepts only one parameter. %1 given" ).arg( arguments.count() );
-}
+        if  result :
+            *result = MkSShellInterpreter.NoError
 
-QString MkSShellInterpreter::interpretEcho( const QString& command, const QStringList& arguments, int* result, MkSShellInterpreter* interpreter, void* data )
-{
-    Q_UNUSED( command );
-    Q_UNUSED( interpreter );
-    Q_UNUSED( data );
-    
-    if ( result )
-    {
-        *result = MkSShellInterpreter::NoError;
-    }
-    
-    QStringList answer;
-    
-    foreach ( const QString& arg, arguments )
-    {
-        answer << QString( "Argument: <%1>" ).arg( arg );
-    }
-    
-    return answer.join( "\n" );
-}
+        
+        return answer.join( "\n" )
 
-MkSShellInterpreter* MkSShellInterpreter::instance( QObject* parent )
-{
-    if ( !mInstance )
-    {
-        mInstance = new MkSShellInterpreter( parent );
-    }
-    
-    return mInstance;
-}
+    elif ( arguments.count() == 1 ) # help for command
+         cmd = arguments.first()
+         usage = interpreter.usage( cmd )
+        
+        if  result :
+            *result = interpreter.mCommandHelps.contains( cmd ) ? MkSShellInterpreter.NoError : MkSShellInterpreter.InvalidCommand
 
-MkSShellInterpreter::MkSShellInterpreter( QObject* parent )
+        
+        return usage
+
+    
+    # error
+    if  result :
+        *result = MkSShellInterpreter.InvalidCommand
+
+    
+    return tr( "'help' command accepts only one parameter. %1 given" ).arg( arguments.count() )
+
+
+def interpretEcho(self, command, arguments, result, interpreter, data ):
+    Q_UNUSED( command )
+    Q_UNUSED( interpreter )
+    Q_UNUSED( data )
+    
+    if  result :
+        *result = MkSShellInterpreter.NoError
+
+    
+    QStringList answer
+    
+    for arg in arguments:
+        answer << QString( "Argument: <%1>" ).arg( arg )
+
+    
+    return answer.join( "\n" )
+
+
+def instance(self, parent ):
+    if  not mInstance :
+        mInstance = MkSShellInterpreter( parent )
+
+    
+    return mInstance
+
+
+MkSShellInterpreter.MkSShellInterpreter( QObject* parent )
     : QObject( parent ), pConsoleCommand()
-{
-    addCommandImplementation( "help", interpretHelp, tr( "Type 'help' and name of command" ), this );
-    addCommandImplementation( "echo", interpretEcho, tr( "Print back arguments" ), this );
-}
+    addCommandImplementation( "help", interpretHelp, tr( "Type 'help' and name of command" ), self )
+    addCommandImplementation( "echo", interpretEcho, tr( "Print back arguments" ), self )
 
-bool MkSShellInterpreter::loadScript( const QString& fileName )
-{
-    QFile file( fileName );
+
+def loadScript(self, fileName ):
+    QFile file( fileName )
     
-    // open file in text mode
-    if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
-    {
-        return false;
-    }
+    # open file in text mode
+    if  not file.open( QIODevice.ReadOnly | QIODevice.Text ) :
+        return False
+
     
-    QString buffer = QString::fromUtf8( file.readAll() );
+    buffer = QString.fromUtf8( file.readAll() )
     
-    // execute each command line
-    foreach ( const QString& command, buffer.split( "\n" ) )
-    {
-        // ignore comments
-        if ( command.trimmed().startsWith( "#" ) )
-        {
-            continue;
-        }
+    # execute each command line
+    foreach (  QString& command, buffer.split( "\n" ) )
+        # ignore comments
+        if  command.trimmed().startsWith( "#" ) :
+            continue
+
         
-        interpret( command, 0 );
-    }
-    
-    file.close();
-    return true;
-}
+        interpret( command, 0 )
 
-void MkSShellInterpreter::loadHomeScripts()
-{
-    const QString path = MonkeyCore::settings()->homePath( Settings::SP_SCRIPTS );
-    QFileInfoList files = QDir( path ).entryInfoList( QStringList( "*.mks" ) );
     
-    foreach ( const QFileInfo& file, files )
-    {
-        if ( !loadScript( file.absoluteFilePath() ) )
-        {
-            MonkeyCore::messageManager()->appendMessage( tr( "An error occur while loading script: '%1'" ).arg( file.fileName() ) );
-        }
-    }
-}
+    file.close()
+    return True
 
-QString MkSShellInterpreter::usage( const QString& command ) const
-{
-    if ( mCommandHelps.contains( command ) )
-    {
-        return mCommandHelps[ command ];
-    }
-    
-    return tr( "%1: No help available." ).arg( command );
-}
 
-QString MkSShellInterpreter::interpret( const QString& command, int* result ) const
-{
-    QStringList parts = parseCommand( command );
+def loadHomeScripts(self):
+     path = MonkeyCore.settings().homePath( Settings.SP_SCRIPTS )
+    files = QDir( path ).entryInfoList( QStringList( "*.mks" ) )
     
-    if ( parts.isEmpty() || !mCommandImplementations.contains( parts.first() ) )
-    {
-        if ( result )
-        {
-            *result = MkSShellInterpreter::InvalidCommand;
-        }
+    for file in files:
+        if  not loadScript( file.absoluteFilePath() ) :
+            MonkeyCore.messageManager().appendMessage( tr( "An error occur while loading script: '%1'" ).arg( file.fileName() ) )
+
+
+
+
+def usage(self, command ):
+    if  mCommandHelps.contains( command ) :
+        return mCommandHelps[ command ]
+
+    
+    return tr( "%1: No help available." ).arg( command )
+
+
+def interpret(self, command, result ):
+    parts = parseCommand( command )
+    
+    if  parts.isEmpty() or not mCommandImplementations.contains( parts.first() ) :
+        if  result :
+            *result = MkSShellInterpreter.InvalidCommand
+
         
-        return tr( "Invalid command: %1" ).arg( command );
-    }
-    
-    MkSShellInterpreter* instance = const_cast<MkSShellInterpreter*>( this );
-    const QString cmd = parts.takeFirst();
-    void* data = mCommandImplementationsData.value( cmd );
-    const QString commandOutput = mCommandImplementations[ cmd ]( cmd, parts, result, instance, data );
-    
-    emit instance->commandExecuted( command, commandOutput, result ? *result : MkSShellInterpreter::NoResultVariable );
-    
-    return commandOutput;
-}
+        return tr( "Invalid command: %1" ).arg( command )
 
-void MkSShellInterpreter::addCommandImplementation( const QString& command, CommandImplementationPtr function, const QString& help, void* data )
-{
-    Q_ASSERT( !mCommands.contains( command ) );
     
-    mCommands << command;
-    mCommandImplementations[ command ] = function;
-    mCommandImplementationsData[ command ] = data;
+    instance = const_cast<MkSShellInterpreter*>( self )
+     cmd = parts.takeFirst()
+    data = mCommandImplementationsData.value( cmd )
+     commandOutput = mCommandImplementations[ cmd ]( cmd, parts, result, instance, data )
     
-    setCommandHelp( command, help );
-}
+    instance.emit.commandExecuted( command, commandOutput, result ? *result : MkSShellInterpreter.NoResultVariable )
+    
+    return commandOutput
 
-void MkSShellInterpreter::removeCommandImplementation( const QString& command )
-{
-    mCommands.removeOne( command );
-    mCommandImplementations.remove( command );
-    mCommandImplementationsData.remove( command );
-    mCommandHelps.remove( command );
-}
 
-void MkSShellInterpreter::setCommandHelp( const QString& command, const QString& help )
-{
-    mCommandHelps[ command ] = help;
-}
+def addCommandImplementation(self, command, function, help, data ):
+    Q_ASSERT( not mCommands.contains( command ) )
+    
+    mCommands << command
+    mCommandImplementations[ command ] = function
+    mCommandImplementationsData[ command ] = data
+    
+    setCommandHelp( command, help )
+
+
+def removeCommandImplementation(self, command ):
+    mCommands.removeOne( command )
+    mCommandImplementations.remove( command )
+    mCommandImplementationsData.remove( command )
+    mCommandHelps.remove( command )
+
+
+def setCommandHelp(self, command, help ):
+    mCommandHelps[ command ] = help
+

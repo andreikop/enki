@@ -8,33 +8,32 @@
 #include "SearchResultsModel.h"
 
 class ReplaceThread : public QThread
-{
     Q_OBJECT
     
 public:
-    ReplaceThread( QObject* parent = 0 );
-    virtual ~ReplaceThread();
+    ReplaceThread( parent = 0 )
+    virtual ~ReplaceThread()
     
-    void replace( const SearchAndReplace::Properties& properties, const QHash<QString, SearchResultsModel::ResultList>& results );
-    void stop();
+    void replace(  SearchAndReplace.Properties& properties,  QHash<QString, results )
+    void stop()
 
 protected:
-    static int mMaxTime;
-    SearchAndReplace::Properties mProperties;
-    QHash<QString, SearchResultsModel::ResultList> mResults;
-    QMutex mMutex;
-    bool mReset;
-    bool mExit;
+    static int mMaxTime
+    SearchAndReplace.Properties mProperties
+    QHash<QString, mResults
+    QMutex mMutex
+    bool mReset
+    bool mExit
     
-    void saveContent( const QString& fileName, const QString& content, const QString& codec );
-    QString fileContent( const QString& fileName ) const;
-    void replace( const QString& fileName, QString content );
-    void run();
+    void saveContent(  QString& fileName, content, codec )
+    QString fileContent(  QString& fileName )
+    void replace(  QString& fileName, content )
+    void run()
 
 signals:
-    void resultsHandled( const QString& fileName, const SearchResultsModel::ResultList& results );
-    void openedFileHandled( const QString& fileName, const QString& content, const QString& codec );
-    void error( const QString& error );
-};
+    void resultsHandled(  QString& fileName, results )
+    void openedFileHandled(  QString& fileName, content, codec )
+    void error(  QString& error )
 
-#endif // REPLACETHREAD_H
+
+#endif # REPLACETHREAD_H

@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,9 +12,9 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-****************************************************************************/
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+***************************************************************************'''
 #include "QtDesignerManager.h"
 #include "MkSDesignerIntegration.h"
 #include "QDesignerWidgetBox.h"
@@ -49,240 +49,216 @@
 #include "pluginmanager_p.h"
 #if QT_VERSION >= 0x040500
 #include <previewmanager_p.h>
-#else
+#else:
 #include "LegacyDesigner.h"
 #endif
 
-QtDesignerManager::QtDesignerManager( QObject* parent )
+QtDesignerManager.QtDesignerManager( QObject* parent )
     : QObject( parent )
-{
-    // init designer core
-    QDesignerComponents::initializeResources();
-    mCore = QDesignerComponents::createFormEditor( MonkeyCore::workspace() );
+    # init designer core
+    QDesignerComponents.initializeResources()
+    mCore = QDesignerComponents.createFormEditor( MonkeyCore.workspace() )
     
-    // initialize plugins
-    QDesignerComponents::initializePlugins( mCore );
+    # initialize plugins
+    QDesignerComponents.initializePlugins( mCore )
     
-    // init task menus
-    (void) QDesignerComponents::createTaskMenu( mCore, MonkeyCore::workspace() );
+    # init task menus
+    (void) QDesignerComponents.createTaskMenu( mCore, MonkeyCore.workspace() )
     
-    // init actions
-    QDesignerFormWindowManagerInterface* fwm = mCore->formWindowManager();
+    # init actions
+    fwm = mCore.formWindowManager()
     
-    // create edit widget mode action
-    aEditWidgets = new QAction( tr( "Edit Widgets" ), this );
-    aEditWidgets->setIcon( QIcon( mCore->resourceLocation().append( "/widgettool.png" ) ) );
-    aEditWidgets->setCheckable( true );
-    aEditWidgets->setChecked( true );
+    # create edit widget mode action
+    aEditWidgets = QAction( tr( "Edit Widgets" ), self )
+    aEditWidgets.setIcon( QIcon( mCore.resourceLocation().append( "/widgettool.png" ) ) )
+    aEditWidgets.setCheckable( True )
+    aEditWidgets.setChecked( True )
     
-    // preview action
-    pStylesToolButton* stb = new pStylesToolButton( tr( "Preview in %1..." ) );
-    stb->setCheckableActions( false );
-    stb->defaultAction()->setShortcut( tr( "Ctrl+R" ) );
-    stb->setIcon( QIcon( ":/icons/preview.png" ) );
-    aPreview = new QWidgetAction( this );
-    aPreview->setDefaultWidget( stb );
+    # preview action
+    stb = pStylesToolButton( tr( "Preview in %1..." ) )
+    stb.setCheckableActions( False )
+    stb.defaultAction().setShortcut( tr( "Ctrl+R" ) )
+    stb.setIcon( QIcon( ":/icons/preview.png" ) )
+    aPreview = QWidgetAction( self )
+    aPreview.setDefaultWidget( stb )
     
-    // action group for modes
-    aModes = new QActionGroup( MonkeyCore::workspace() );
-    aModes->setExclusive( true );
-    aModes->addAction( aEditWidgets );
+    # action group for modes
+    aModes = QActionGroup( MonkeyCore.workspace() )
+    aModes.setExclusive( True )
+    aModes.addAction( aEditWidgets )
     
-    // simplify gridlayout
-    fwm->actionSimplifyLayout()->setIcon( fwm->actionGridLayout()->icon() );
+    # simplify gridlayout
+    fwm.actionSimplifyLayout().setIcon( fwm.actionGridLayout().icon() )
     
-    // edit actions
-    fwm->actionUndo()->setIcon( QIcon( ":/icons/undo.png" ) );
-    fwm->actionUndo()->setShortcut( MonkeyCore::menuBar()->action( "mEdit/aUndo" )->shortcut() );
-    fwm->actionRedo()->setIcon( QIcon( ":/icons/redo.png" ) );
-    fwm->actionRedo()->setShortcut( MonkeyCore::menuBar()->action( "mEdit/aRedo" )->shortcut() );
-    fwm->actionDelete()->setIcon( QIcon( ":/icons/delete.png" ) );
-    fwm->actionSelectAll()->setIcon( QIcon( ":/icons/selectall.png" ) );
-    fwm->actionDelete()->setShortcut( tr( "Del" ) );
+    # edit actions
+    fwm.actionUndo().setIcon( QIcon( ":/icons/undo.png" ) )
+    fwm.actionUndo().setShortcut( MonkeyCore.menuBar().action( "mEdit/aUndo" ).shortcut() )
+    fwm.actionRedo().setIcon( QIcon( ":/icons/redo.png" ) )
+    fwm.actionRedo().setShortcut( MonkeyCore.menuBar().action( "mEdit/aRedo" ).shortcut() )
+    fwm.actionDelete().setIcon( QIcon( ":/icons/delete.png" ) )
+    fwm.actionSelectAll().setIcon( QIcon( ":/icons/selectall.png" ) )
+    fwm.actionDelete().setShortcut( tr( "Del" ) )
     
-    // initialize designer plugins
-    foreach ( QObject* o, QPluginLoader::staticInstances() << mCore->pluginManager()->instances() )
-    {
-        if (  QDesignerFormEditorPluginInterface* fep = qobject_cast<QDesignerFormEditorPluginInterface*>( o ) )
-        {
-            // initialize plugin if needed
-            if ( !fep->isInitialized() )
-                fep->initialize( mCore );
+    # initialize designer plugins
+    for o in QPluginLoader.staticInstances(: << mCore.pluginManager().instances() )
+        if   fep = qobject_cast<QDesignerFormEditorPluginInterface*>( o ) :
+            # initialize plugin if needed
+            if  not fep.isInitialized() :
+                fep.initialize( mCore )
             
-            // set action chackable
-            fep->action()->setCheckable( true );
+            # set action chackable
+            fep.action().setCheckable( True )
             
-            // add action mode to group
-            aModes->addAction( fep->action() );
-        }
-    }
+            # add action mode to group
+            aModes.addAction( fep.action() )
+
+
     
-    // create designer docks
-    pWidgetBox = new QDesignerWidgetBox( mCore );
-    pWidgetBox->setVisible( false );
-    MonkeyCore::mainWindow()->dockToolBar( Qt::LeftToolBarArea )->addDock( pWidgetBox, pWidgetBox->windowTitle(), pWidgetBox->windowIcon() );
+    # create designer docks
+    pWidgetBox = QDesignerWidgetBox( mCore )
+    pWidgetBox.setVisible( False )
+    MonkeyCore.mainWindow().dockToolBar( Qt.LeftToolBarArea ).addDock( pWidgetBox, pWidgetBox.windowTitle(), pWidgetBox.windowIcon() )
     
-    pObjectInspector = new QDesignerObjectInspector( mCore );
-    pObjectInspector->setVisible( false );
-    MonkeyCore::mainWindow()->dockToolBar( Qt::RightToolBarArea )->addDock( pObjectInspector, pObjectInspector->windowTitle(), pObjectInspector->windowIcon() );
+    pObjectInspector = QDesignerObjectInspector( mCore )
+    pObjectInspector.setVisible( False )
+    MonkeyCore.mainWindow().dockToolBar( Qt.RightToolBarArea ).addDock( pObjectInspector, pObjectInspector.windowTitle(), pObjectInspector.windowIcon() )
     
-    pPropertyEditor = new QDesignerPropertyEditor( mCore );
-    pPropertyEditor->setVisible( false );
-    MonkeyCore::mainWindow()->dockToolBar( Qt::RightToolBarArea )->addDock( pPropertyEditor, pPropertyEditor->windowTitle(), pPropertyEditor->windowIcon() );
+    pPropertyEditor = QDesignerPropertyEditor( mCore )
+    pPropertyEditor.setVisible( False )
+    MonkeyCore.mainWindow().dockToolBar( Qt.RightToolBarArea ).addDock( pPropertyEditor, pPropertyEditor.windowTitle(), pPropertyEditor.windowIcon() )
     
-    pActionEditor = new QDesignerActionEditor( mCore );
-    pActionEditor->setVisible( false );
-    MonkeyCore::mainWindow()->dockToolBar( Qt::BottomToolBarArea )->addDock( pActionEditor, pActionEditor->windowTitle(), pActionEditor->windowIcon() );
+    pActionEditor = QDesignerActionEditor( mCore )
+    pActionEditor.setVisible( False )
+    MonkeyCore.mainWindow().dockToolBar( Qt.BottomToolBarArea ).addDock( pActionEditor, pActionEditor.windowTitle(), pActionEditor.windowIcon() )
     
-    pSignalSlotEditor = new QDesignerSignalSlotEditor( mCore );
-    pSignalSlotEditor->setVisible( false );
-    MonkeyCore::mainWindow()->dockToolBar( Qt::BottomToolBarArea )->addDock( pSignalSlotEditor, pSignalSlotEditor->windowTitle(), pSignalSlotEditor->windowIcon() );
+    pSignalSlotEditor = QDesignerSignalSlotEditor( mCore )
+    pSignalSlotEditor.setVisible( False )
+    MonkeyCore.mainWindow().dockToolBar( Qt.BottomToolBarArea ).addDock( pSignalSlotEditor, pSignalSlotEditor.windowTitle(), pSignalSlotEditor.windowIcon() )
     
-    pResourcesEditor = new QDesignerResourcesEditor( mCore );
-    pResourcesEditor->setVisible( false );
-    MonkeyCore::mainWindow()->dockToolBar( Qt::BottomToolBarArea )->addDock( pResourcesEditor, pResourcesEditor->windowTitle(), pResourcesEditor->windowIcon() );
+    pResourcesEditor = QDesignerResourcesEditor( mCore )
+    pResourcesEditor.setVisible( False )
+    MonkeyCore.mainWindow().dockToolBar( Qt.BottomToolBarArea ).addDock( pResourcesEditor, pResourcesEditor.windowTitle(), pResourcesEditor.windowIcon() )
     
-    // perform integration
-    mIntegration = new MkSDesignerIntegration( mCore, MonkeyCore::mainWindow() );
-    mCore->setTopLevel( MonkeyCore::mainWindow() );
+    # perform integration
+    mIntegration = MkSDesignerIntegration( mCore, MonkeyCore.mainWindow() )
+    mCore.setTopLevel( MonkeyCore.mainWindow() )
     
 #if QT_VERSION >= 0x040500
-    // create previewver
-    mPreviewer = new qdesigner_internal::PreviewManager( qdesigner_internal::PreviewManager::SingleFormNonModalPreview, this );
+    # create previewver
+    mPreviewer = qdesigner_internal.PreviewManager( qdesigner_internal.PreviewManager.SingleFormNonModalPreview, self )
 #endif
 
-    setToolBarsIconSize( QSize( 16, 16 ) );
-    updateMacAttributes();
+    setToolBarsIconSize( QSize( 16, 16 ) )
+    updateMacAttributes()
     
-    // connections
-    connect( aEditWidgets, SIGNAL( triggered() ), this, SLOT( editWidgets() ) );
-    connect( stb, SIGNAL( styleSelected( const QString& ) ), this, SLOT( previewCurrentForm( const QString& ) ) );
-}
+    # connections
+    aEditWidgets.triggered.connect(self.editWidgets)
+    stb.styleSelected.connect(self.previewCurrentForm)
 
-QtDesignerManager::~QtDesignerManager()
-{
-    delete pWidgetBox;
-    delete pActionEditor;
-    delete pPropertyEditor;
-    delete pObjectInspector;
-    delete pSignalSlotEditor;
-    delete pResourcesEditor;
-}
 
-QDesignerFormEditorInterface* QtDesignerManager::core()
-{
-    return mCore;
-}
+QtDesignerManager.~QtDesignerManager()
+    delete pWidgetBox
+    delete pActionEditor
+    delete pPropertyEditor
+    delete pObjectInspector
+    delete pSignalSlotEditor
+    delete pResourcesEditor
 
-QDesignerFormWindowInterface* QtDesignerManager::createNewForm( QWidget* parent )
-{
-    QDesignerFormWindowInterface* form = mCore->formWindowManager()->createFormWindow( parent );
-    form->setFeatures( QDesignerFormWindowInterface::DefaultFeature );
-    return form;
-}
 
-void QtDesignerManager::addFormWindow( QDesignerFormWindowInterface* form )
-{
-    mCore->formWindowManager()->addFormWindow( form );
-}
+def core(self):
+    return mCore
 
-void QtDesignerManager::setActiveFormWindow( QDesignerFormWindowInterface* form )
-{
-    // update active form
-    if ( form && mCore->formWindowManager()->activeFormWindow() != form )
-    {
-        mCore->formWindowManager()->setActiveFormWindow( form );
-    }
+
+def createNewForm(self, parent ):
+    form = mCore.formWindowManager().createFormWindow( parent )
+    form.setFeatures( QDesignerFormWindowInterface.DefaultFeature )
+    return form
+
+
+def addFormWindow(self, form ):
+    mCore.formWindowManager().addFormWindow( form )
+
+
+def setActiveFormWindow(self, form ):
+    # update active form
+    if  form and mCore.formWindowManager().activeFormWindow() != form :
+        mCore.formWindowManager().setActiveFormWindow( form )
+
     
-    // update preview actino state
-    aPreview->setEnabled( form );
-}
+    # update preview actino state
+    aPreview.setEnabled( form )
 
-QWidget* QtDesignerManager::previewWidget( QDesignerFormWindowInterface* form, const QString& style )
-{
-    QWidget* widget = 0;
-    QString error;
+
+def previewWidget(self, form, style ):
+    widget = 0
+    QString error
     
-    if ( form )
-    {
+    if  form :
 #if QT_VERSION >= 0x040500
-        widget = mPreviewer->showPreview( form, style, &error );
-#else
-        widget = LegacyDesigner::showPreview( form, style, &error );
+        widget = mPreviewer.showPreview( form, style, &error )
+#else:
+        widget = LegacyDesigner.showPreview( form, style, &error )
 #endif
         
-        if ( !widget )
-        {
-            MonkeyCore::messageManager()->appendMessage( tr( "Can't preview form '%1': %2" ).arg( form->fileName() ).arg( error ) );
-        }
-    }
-    
-    return widget;
-}
+        if  not widget :
+            MonkeyCore.messageManager().appendMessage( tr( "Can't preview form '%1': %2" ).arg( form.fileName() ).arg( error ) )
 
-QPixmap QtDesignerManager::previewPixmap( QDesignerFormWindowInterface* form, const QString& style )
-{
-    QPixmap pixmap;
-    QString error;
+
     
-    if ( form )
-    {
+    return widget
+
+
+def previewPixmap(self, form, style ):
+    QPixmap pixmap
+    QString error
+    
+    if  form :
 #if QT_VERSION >= 0x040500
-        pixmap = mPreviewer->createPreviewPixmap( form, style, &error );
-#else
-        pixmap = LegacyDesigner::createPreviewPixmap( form, style, &error );
+        pixmap = mPreviewer.createPreviewPixmap( form, style, &error )
+#else:
+        pixmap = LegacyDesigner.createPreviewPixmap( form, style, &error )
 #endif
         
-        if ( pixmap.isNull() )
-        {
-            MonkeyCore::messageManager()->appendMessage( tr( "Can't preview form pixmap '%1': %2" ).arg( form->fileName() ).arg( error ) );
-        }
-    }
-    
-    return pixmap;
-}
+        if  pixmap.isNull() :
+            MonkeyCore.messageManager().appendMessage( tr( "Can't preview form pixmap '%1': %2" ).arg( form.fileName() ).arg( error ) )
 
-void QtDesignerManager::setToolBarsIconSize( const QSize& size )
-{
-    QList<QWidget*> widgets;
-    widgets << pWidgetBox << pActionEditor << pPropertyEditor << pObjectInspector << pSignalSlotEditor << pResourcesEditor;
-    
-    foreach ( QWidget* widget, widgets )
-    {
-        foreach ( QToolBar* tb, widget->findChildren<QToolBar*>() )
-        {
-            tb->setIconSize( size );
-        }
-    }
-}
 
-void QtDesignerManager::updateMacAttributes()
-{
-    QList<QWidget*> widgets;
-    widgets << pWidgetBox << pActionEditor << pPropertyEditor << pObjectInspector << pSignalSlotEditor << pResourcesEditor;
     
-    foreach ( QWidget* widget, widgets )
-    {
-        foreach ( QWidget* child, widget->findChildren<QWidget*>() )
-        {
-            child->setAttribute( Qt::WA_MacShowFocusRect, false );
-            child->setAttribute( Qt::WA_MacSmallSize );
-        }
-    }
-}
+    return pixmap
 
-void QtDesignerManager::editWidgets()
-{
-    // set edit mode for all forms
-    QDesignerFormWindowManagerInterface* fwm = mCore->formWindowManager();
+
+def setToolBarsIconSize(self, size ):
+    QList<QWidget*> widgets
+    widgets << pWidgetBox << pActionEditor << pPropertyEditor << pObjectInspector << pSignalSlotEditor << pResourcesEditor
     
-    for ( int i = 0; i < fwm->formWindowCount(); i++ )
-    {
-        fwm->formWindow( i )->editWidgets();
-    }
-}
+    for widget in widgets:
+        foreach ( QToolBar* tb, widget.findChildren<QToolBar*>() )
+            tb.setIconSize( size )
 
-void QtDesignerManager::previewCurrentForm( const QString& style )
-{
-    previewWidget( mCore->formWindowManager()->activeFormWindow(), style );
-}
+
+
+
+def updateMacAttributes(self):
+    QList<QWidget*> widgets
+    widgets << pWidgetBox << pActionEditor << pPropertyEditor << pObjectInspector << pSignalSlotEditor << pResourcesEditor
+    
+    for widget in widgets:
+        foreach ( QWidget* child, widget.findChildren<QWidget*>() )
+            child.setAttribute( Qt.WA_MacShowFocusRect, False )
+            child.setAttribute( Qt.WA_MacSmallSize )
+
+
+
+
+def editWidgets(self):
+    # set edit mode for all forms
+    fwm = mCore.formWindowManager()
+    
+    for ( i = 0; i < fwm.formWindowCount(); i++ )
+        fwm.formWindow( i ).editWidgets()
+
+
+
+def previewCurrentForm(self, style ):
+    previewWidget( mCore.formWindowManager().activeFormWindow(), style )
+

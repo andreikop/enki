@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
 **
 ** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
 ** Contact: Nokia Corporation (qt-info@nokia.com)
@@ -8,24 +8,24 @@
 ** $QT_BEGIN_LICENSE:LGPL$
 ** No Commercial Usage
 ** This file contains pre-release code and may not be distributed.
-** You may use this file in accordance with the terms and conditions
+** You may use self file in accordance with the terms and conditions
 ** contained in the Technology Preview License Agreement accompanying
-** this package.
+** self package.
 **
 ** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
+** Alternatively, file may be used under the terms of the GNU Lesser
 ** General Public License version 2.1 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
+** packaging of self file.  Please review the following information to
 ** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** will be met: http:#www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Nokia gives you certain
+** In addition, a special exception, gives you certain
 ** additional rights.  These rights are described in the Nokia Qt LGPL
-** Exception version 1.1, included in the file LGPL_EXCEPTION.txt in this
+** Exception version 1.1, in the file LGPL_EXCEPTION.txt in self
 ** package.
 **
-** If you have questions regarding the use of this file, please contact
+** If you have questions regarding the use of self file, contact
 ** Nokia at qt-info@nokia.com.
 **
 **
@@ -37,18 +37,18 @@
 **
 ** $QT_END_LICENSE$
 **
-****************************************************************************/
+***************************************************************************'''
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists for the convenience
-// of Qt Designer.  This header
-// file may change from version to version without notice, or even be removed.
-//
-// We mean it.
-//
+#
+#  W A R N I N G
+#  -------------
+#
+# This file is not part of the Qt API.  It exists for the convenience
+# of Qt Designer.  This header
+# file may change from version to version without notice, even be removed.
+#
+# We mean it.
+#
 
 #ifndef SHAREDENUMS_H
 #define SHAREDENUMS_H
@@ -57,43 +57,39 @@
 
 QT_BEGIN_NAMESPACE
 
-namespace qdesigner_internal {
-
-    // Validation mode of text property line edits
-    enum TextPropertyValidationMode {
-        // Allow for multiline editing using literal "\n".
+namespace qdesigner_internal
+    # Validation mode of text property line edits
+    enum TextPropertyValidationMode        # Allow for multiline editing using literal "\n".
         ValidationMultiLine,
-        // Allow for HTML rich text including multiline editing using literal "\n".
+        # Allow for HTML rich text including multiline editing using literal "\n".
         ValidationRichText,
-        // Validate a stylesheet
+        # Validate a stylesheet
         ValidationStyleSheet,
-        // Single line mode, suppresses newlines
+        # Single line mode, newlines
         ValidationSingleLine,
-        // Allow only for identifier characters
+        # Allow only for identifier characters
         ValidationObjectName,
-        // Allow only for identifier characters and colons
+        # Allow only for identifier characters and colons
         ValidationObjectNameScope,
-        // URL
+        # URL
         ValidationURL
-        };
 
-    // Container types
-    enum ContainerType {
-        // A container with pages, at least one of which one must always be present (for example, QTabWidget)
+
+    # Container types
+    enum ContainerType        # A container with pages, least one of which one must always be present (for example, QTabWidget)
         PageContainer,
-        // Mdi type container. All pages may be deleted, no concept of page order
+        # Mdi type container. All pages may be deleted, concept of page order
         MdiContainer,
-        // Wizard container
+        # Wizard container
         WizardContainer
-        };
 
-    enum AuxiliaryItemDataRoles {
-        // item->flags while being edited
+
+    enum AuxiliaryItemDataRoles        # item.flags while being edited
         ItemFlagsShadowRole = 0x13370551
-    };
 
-}
+
+
 
 QT_END_NAMESPACE
 
-#endif // SHAREDENUMS_H
+#endif # SHAREDENUMS_H

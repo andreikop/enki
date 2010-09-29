@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
 **
 **         Created using Monkey Studio v1.8.1.0
 ** Authors    : Filipe AZEVEDO aka Nox P@sNox <pasnox@gmail.com>
@@ -6,8 +6,8 @@
 ** FileName  : UIPluginsSettings.cpp
 ** Date      : 2008-01-14T00:37:00
 ** License   : GPL
-** Comment   : This header has been automatically generated, if you are the original author, or co-author, fill free to replace/append with your informations.
-** Home Page : http://www.monkeystudio.org
+** Comment   : This header has been automatically generated, you are the original author, co-author, free to replace/append with your informations.
+** Home Page : http:#www.monkeystudio.org
 **
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
@@ -22,62 +22,56 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
 **
-****************************************************************************/
+***************************************************************************'''
 #include "UIPluginsSettings.h"
 #include "UIPluginsSettingsElement.h"
 #include "coremanager/MonkeyCore.h"
 #include "pluginsmanager/PluginsManager.h"
 
-UIPluginsSettings::UIPluginsSettings( QWidget* p )
-    : QDialog( p, Qt::Dialog )
-{
-    // setup dialog
-    setupUi( this );
-    setWindowModality( Qt::ApplicationModal );
-    setAttribute( Qt::WA_DeleteOnClose );
+UIPluginsSettings.UIPluginsSettings( QWidget* p )
+    : QDialog( p, Qt.Dialog )
+    # setup dialog
+    setupUi( self )
+    setWindowModality( Qt.ApplicationModal )
+    setAttribute( Qt.WA_DeleteOnClose )
     
-    // fill list with plugins type
-    for ( int i = BasePlugin::iAll; i < BasePlugin::iLast; i++ )
-    {
-        const QString s = BasePlugin::typeToString( (BasePlugin::Type)i );
-        if ( !s.isEmpty() && cbPluginType->findData( i ) == -1 )
-            cbPluginType->addItem( s, i );
-    }
-    
-    // update plugins list
-    updateList();
-}
+    # fill list with plugins type
+    for ( i = BasePlugin.iAll; i < BasePlugin.iLast; i++ )
+         s = BasePlugin.typeToString( (BasePlugin.Type)i )
+        if  not s.isEmpty() and cbPluginType.findData( i ) == -1 :
+            cbPluginType.addItem( s, i )
 
-void UIPluginsSettings::updateList()
-{
-    // clear list
-    lwPlugins->clear();
     
-    // create items and editor foreach plugin
-    foreach ( BasePlugin* bp, MonkeyCore::pluginsManager()->plugins() )
-    {
-        UIPluginsSettingsElement* pse = new UIPluginsSettingsElement( bp, this );
-        QListWidgetItem* item = new QListWidgetItem( lwPlugins );
-        item->setSizeHint( pse->sizeHint() );
-        lwPlugins->setItemWidget( item, pse );
-    }
-}
+    # update plugins list
+    updateList()
 
-void UIPluginsSettings::on_cbPluginType_currentIndexChanged( int id )
-{
-    // clear selection
-    lwPlugins->clearSelection();
-    lwPlugins->setCurrentItem( 0 );
-    // get current type
-    BasePlugin::Type mType = (BasePlugin::Type)cbPluginType->itemData( id ).toInt();
-    // show/hide item according to type
-    for ( int i = 0; i < lwPlugins->count(); i++ )
-    {
-        QListWidgetItem* item = lwPlugins->item( i );
-        UIPluginsSettingsElement* pse = qobject_cast<UIPluginsSettingsElement*>( lwPlugins->itemWidget( item ) );
-        item->setHidden( mType != BasePlugin::iAll && !pse->plugin()->infos().Type.testFlag( mType ) );
-    }
-}
+
+def updateList(self):
+    # clear list
+    lwPlugins.clear()
+    
+    # create items and editor foreach plugin
+    for bp in MonkeyCore.pluginsManager().plugins():
+        pse = UIPluginsSettingsElement( bp, self )
+        item = QListWidgetItem( lwPlugins )
+        item.setSizeHint( pse.sizeHint() )
+        lwPlugins.setItemWidget( item, pse )
+
+
+
+def on_cbPluginType_currentIndexChanged(self, id ):
+    # clear selection
+    lwPlugins.clearSelection()
+    lwPlugins.setCurrentItem( 0 )
+    # get current type
+    mType = (BasePlugin.Type)cbPluginType.itemData( id ).toInt()
+    # show/hide item according to type
+    for ( i = 0; i < lwPlugins.count(); i++ )
+        item = lwPlugins.item( i )
+        pse = qobject_cast<UIPluginsSettingsElement*>( lwPlugins.itemWidget( item ) )
+        item.setHidden( mType != BasePlugin.iAll and not pse.plugin().infos().Type.testFlag( mType ) )
+
+

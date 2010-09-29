@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
 **
 ** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
 ** Contact: Qt Software Information (qt-info@nokia.com)
@@ -7,37 +7,37 @@
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial Usage
-** Licensees holding valid Qt Commercial licenses may use this file in
+** Licensees holding valid Qt Commercial licenses may use self file in
 ** accordance with the Qt Commercial License Agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
+** Software or, alternatively, accordance with the terms contained in
 ** a written agreement between you and Nokia.
 **
 ** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
+** Alternatively, file may be used under the terms of the GNU Lesser
 ** General Public License version 2.1 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
+** packaging of self file.  Please review the following information to
 ** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** will be met: http:#www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Nokia gives you certain
+** In addition, a special exception, gives you certain
 ** additional rights. These rights are described in the Nokia Qt LGPL
-** Exception version 1.0, included in the file LGPL_EXCEPTION.txt in this
+** Exception version 1.0, in the file LGPL_EXCEPTION.txt in self
 ** package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
+** Alternatively, file may be used under the terms of the GNU
 ** General Public License version 3.0 as published by the Free Software
 ** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
+** packaging of self file.  Please review the following information to
 ** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
+** met: http:#www.gnu.org/copyleft/gpl.html.
 **
 ** If you are unsure which license is appropriate for your use, please
 ** contact the sales department at qt-sales@nokia.com.
 ** $QT_END_LICENSE$
 **
-****************************************************************************/
+***************************************************************************'''
 
 #ifndef FORMBUILDER_H
 #define FORMBUILDER_H
@@ -52,64 +52,62 @@ QT_BEGIN_HEADER
 
 QT_BEGIN_NAMESPACE
 #if 0
-// pragma for syncqt, don't remove.
+# pragma for syncqt, don't remove.
 
 #pragma qt_class(QFormBuilder)
 #endif
 
-class QDesignerCustomWidgetInterface;
+class QDesignerCustomWidgetInterface
 
 #ifdef QFORMINTERNAL_NAMESPACE
 namespace QFormInternal
-{
 #endif
 
 class QDESIGNER_UILIB_EXPORT QFormBuilder: public QAbstractFormBuilder
-{
 public:
-    QFormBuilder();
-    virtual ~QFormBuilder();
+    QFormBuilder()
+    virtual ~QFormBuilder()
 
-    QStringList pluginPaths() const;
+    QStringList pluginPaths()
 
-    void clearPluginPaths();
-    void addPluginPath(const QString &pluginPath);
-    void setPluginPath(const QStringList &pluginPaths);
+    void clearPluginPaths()
+    void addPluginPath( QString &pluginPath)
+    void setPluginPath( QStringList &pluginPaths)
 
-    QList<QDesignerCustomWidgetInterface*> customWidgets() const;
+    QList<QDesignerCustomWidgetInterface*> customWidgets()
 
 protected:
-    virtual QWidget *create(DomUI *ui, QWidget *parentWidget);
-    virtual QWidget *create(DomWidget *ui_widget, QWidget *parentWidget);
-    virtual QLayout *create(DomLayout *ui_layout, QLayout *layout, QWidget *parentWidget);
-    virtual QLayoutItem *create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWidget *parentWidget);
-    virtual QAction *create(DomAction *ui_action, QObject *parent);
-    virtual QActionGroup *create(DomActionGroup *ui_action_group, QObject *parent);
+    virtual QWidget *create(DomUI *ui, *parentWidget)
+    virtual QWidget *create(DomWidget *ui_widget, *parentWidget)
+    virtual QLayout *create(DomLayout *ui_layout, *layout, *parentWidget)
+    virtual QLayoutItem *create(DomLayoutItem *ui_layoutItem, *layout, *parentWidget)
+    virtual QAction *create(DomAction *ui_action, *parent)
+    virtual QActionGroup *create(DomActionGroup *ui_action_group, *parent)
 
-    virtual QWidget *createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name);
-    virtual QLayout *createLayout(const QString &layoutName, QObject *parent, const QString &name);
+    virtual QWidget *createWidget( QString &widgetName, *parentWidget, &name)
+    virtual QLayout *createLayout( QString &layoutName, *parent, &name)
 
-    virtual void createConnections(DomConnections *connections, QWidget *widget);
+    virtual void createConnections(DomConnections *connections, *widget)
 
-    virtual bool addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout);
-    virtual bool addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget);
+    virtual bool addItem(DomLayoutItem *ui_item, *item, *layout)
+    virtual bool addItem(DomWidget *ui_widget, *widget, *parentWidget)
 
-    virtual void updateCustomWidgets();
-    virtual void applyProperties(QObject *o, const QList<DomProperty*> &properties);
+    virtual void updateCustomWidgets()
+    virtual void applyProperties(QObject *o, &properties)
 
-    static QWidget *widgetByName(QWidget *topLevel, const QString &name);
+    static QWidget *widgetByName(QWidget *topLevel, &name)
 
 private:
-    QStringList m_pluginPaths;
-    QMap<QString, QDesignerCustomWidgetInterface*> m_customWidgets;
-};
+    QStringList m_pluginPaths
+    QMap<QString, m_customWidgets
+
 
 #ifdef QFORMINTERNAL_NAMESPACE
-}
+
 #endif
 
 QT_END_NAMESPACE
 
 QT_END_HEADER
 
-#endif // FORMBUILDER_H
+#endif # FORMBUILDER_H

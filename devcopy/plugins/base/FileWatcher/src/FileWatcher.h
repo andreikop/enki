@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,15 +12,15 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-****************************************************************************/
-/*!
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+***************************************************************************'''
+'''!
     \file FileWatcher.h
     \date 2009-10-06
     \author Filipe AZEVEDO
     \brief Header file for FileWatcher plugin
-*/
+'''
 #ifndef FILEBROWSER_H
 #define FILEBROWSER_H
 
@@ -28,48 +28,46 @@
 
 #include <QPointer>
 
-class pAbstractChild;
-class QFileSystemWatcher;
+class pAbstractChild
+class QFileSystemWatcher
 
-/*!
+'''!
     Main class of FileWatcher plugin
     
-    Plugin track opened files for external modification, deletion and propose some actions.
-*/
+    Plugin track opened files for external modification, and propose some actions.
+'''
 class FileWatcher : public BasePlugin
-{
     Q_OBJECT
     Q_INTERFACES( BasePlugin )
     
 public:
     enum WatchState
-    {
         None,
         Modified,
         Deleted
-    };
+
     
-    virtual QWidget* settingsWidget();
+    virtual QWidget* settingsWidget()
 
 protected:
-    QPointer<QFileSystemWatcher> mFileWatcher;
-    QMap<QString, FileWatcher::WatchState> mExternallyModified;
+    QPointer<QFileSystemWatcher> mFileWatcher
+    QMap<QString, mExternallyModified
     
-    virtual void fillPluginInfos();
-    virtual bool install();
-    virtual bool uninstall();
+    virtual void fillPluginInfos()
+    virtual bool install()
+    virtual bool uninstall()
     
-    void updateDocumentState( pAbstractChild* document );
+    void updateDocumentState( pAbstractChild* document )
 
 protected slots:
-    void fileChanged( const QString& path );
-    void documentOpened( pAbstractChild* document );
-    void documentChanged( pAbstractChild* document );
-    void documentModifiedChanged( pAbstractChild* document, bool modified );
-    void documentAboutToClose( pAbstractChild* document );
-    void documentClosed( pAbstractChild* document );
-    void documentReloaded( pAbstractChild* document );
-    void currentDocumentChanged( pAbstractChild* document );
-};
+    void fileChanged(  QString& path )
+    void documentOpened( pAbstractChild* document )
+    void documentChanged( pAbstractChild* document )
+    void documentModifiedChanged( pAbstractChild* document, modified )
+    void documentAboutToClose( pAbstractChild* document )
+    void documentClosed( pAbstractChild* document )
+    void documentReloaded( pAbstractChild* document )
+    void currentDocumentChanged( pAbstractChild* document )
+
 
 #endif

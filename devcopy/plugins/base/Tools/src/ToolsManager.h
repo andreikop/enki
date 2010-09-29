@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,91 +12,86 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-****************************************************************************/
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+***************************************************************************'''
 #ifndef TOOLSMANAGER_H
 #define TOOLSMANAGER_H
 
 #include <QApplication>
 #include <QVariant>
 
-class MkSShellInterpreter;
-class QAction;
-class QFileIconProvider;
+class MkSShellInterpreter
+class QAction
+class QFileIconProvider
 
 class ToolsManager : public QObject
-{
     Q_OBJECT
-    friend class UIToolsEdit;
-    friend class UIDesktopTools;
+    friend class UIToolsEdit
+    friend class UIDesktopTools
 
 public:
     enum Type
-    {
         UserEntry = 0,
         DesktopEntry
-    };
+
     
     struct Tool
-    {
-        Tool( const QString& _caption, const QString& _fileIcon, const QString& _filePath, const QString& _workingPath,
-            bool _desktopEntry = false, bool _useConsoleManager = false )
-        {
-            caption = _caption;
-            fileIcon = _fileIcon;
-            filePath = _filePath;
-            workingPath = _workingPath;
-            desktopEntry = _desktopEntry;
-            useConsoleManager = _useConsoleManager;
-        }
+        Tool(  QString& _caption, _fileIcon, _filePath, _workingPath,
+            _desktopEntry = False, _useConsoleManager = False )
+            caption = _caption
+            fileIcon = _fileIcon
+            filePath = _filePath
+            workingPath = _workingPath
+            desktopEntry = _desktopEntry
+            useConsoleManager = _useConsoleManager
+
         
         Tool()
-        {
-            desktopEntry = false;
-            useConsoleManager = false;
-        }
+            desktopEntry = False
+            useConsoleManager = False
 
-        QString caption;
-        QString fileIcon;
-        QString filePath;
-        QString workingPath;
-        bool desktopEntry;
-        bool useConsoleManager;
-    };
+
+        QString caption
+        QString fileIcon
+        QString filePath
+        QString workingPath
+        bool desktopEntry
+        bool useConsoleManager
+
     
-    typedef QList<Tool> Tools;
+    typedef QList<Tool> Tools
     
-    ToolsManager( QObject* = 0 );
-    ~ToolsManager();
+    ToolsManager( QObject* = 0 )
+    ~ToolsManager()
     
-    QString scriptFilePath() const;
-    ToolsManager::Tools tools( ToolsManager::Type type ) const;
+    QString scriptFilePath()
+    ToolsManager.Tools tools( ToolsManager.Type type )
     
-    // interpreter commands
-    void setCommand( const QString& caption, const QString& fileIcon, const QString& filePath, const QString& workingPath, bool desktopEntry, bool useConsoleManager );
-    void unsetCommand( const QString& caption );
-    void clearCommand();
-    void updateMenuCommand();
+    # interpreter commands
+    void setCommand(  QString& caption, fileIcon, filePath, workingPath, desktopEntry, useConsoleManager )
+    void unsetCommand(  QString& caption )
+    void clearCommand()
+    void updateMenuCommand()
     
-    static QIcon icon( const QString& filePath, const QString& optionnalFilePath = QString::null );
+    static QIcon icon(  QString& filePath, optionnalFilePath = QString.null )
 
 public slots:
-    void updateMenuActions();
-    void editTools_triggered();
-    void toolsMenu_triggered( QAction* );
+    void updateMenuActions()
+    void editTools_triggered()
+    void toolsMenu_triggered( QAction* )
     
 protected:
-    static QFileIconProvider* mIconProvider;
-    ToolsManager::Tools mTools;
+    static QFileIconProvider* mIconProvider
+    ToolsManager.Tools mTools
     
-    bool writeTools( const ToolsManager::Tools& tools ) const;
+    bool writeTools(  ToolsManager.Tools& tools )
     
-    // interpreter handling
-    void initializeInterpreterCommands( bool initialize );
-    static QString commandInterpreter( const QString& command, const QStringList& arguments, int* result, MkSShellInterpreter* interpreter, void* data );
-};
+    # interpreter handling
+    void initializeInterpreterCommands( bool initialize )
+    static QString commandInterpreter(  QString& command, arguments, result, interpreter, data )
 
-Q_DECLARE_METATYPE( ToolsManager::Tool )
 
-#endif // TOOLSMANAGER_H
+Q_DECLARE_METATYPE( ToolsManager.Tool )
+
+#endif # TOOLSMANAGER_H

@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,15 +12,15 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-****************************************************************************/
-/*!
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+***************************************************************************'''
+'''!
     \file main.h
     \date 2009-06-21T11:37:22
     \author Filipe AZEVEDO aka Nox P\@sNox <pasnox@gmail.com>
     \brief General application defines
-*/
+'''
 #ifndef MAIN_H
 #define MAIN_H
 
@@ -29,11 +29,11 @@
 #define PACKAGE_VERSION_STR _PACKAGE_VERSION_STR
 #define PACKAGE_DOMAIN _PACKAGE_DOMAIN
 #define PACKAGE_COPYRIGHTS _PACKAGE_COPYRIGHTS
-#define PACKAGE_DOWNLOAD_FEED "http://code.google.com/feeds/p/monkeystudio/downloads/basic"
-#define PACKAGE_DONATION_LINK "http://sourceforge.net/project/project_donations.php?group_id=163493"
+#define PACKAGE_DOWNLOAD_FEED "http:#code.google.com/feeds/p/monkeystudio/downloads/basic"
+#define PACKAGE_DONATION_LINK "http:#sourceforge.net/project/project_donations.php?group_id=163493"
 
 #define PACKAGE_PREFIX _PACKAGE_PREFIX
 #define PACKAGE_PLUGINS _PACKAGE_PLUGINS
 #define PACKAGE_DATAS _PACKAGE_DATAS
 
-#endif // MAIN_H
+#endif # MAIN_H

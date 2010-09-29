@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
 **
 **         Created using Monkey Studio v1.8.1.0
 ** Authors    : Filipe AZEVEDO aka Nox P@sNox <pasnox@gmail.com>
@@ -6,8 +6,8 @@
 ** FileName  : pDockFileBrowser.h
 ** Date      : 2008-01-14T00:39:57
 ** License   : GPL
-** Comment   : This header has been automatically generated, if you are the original author, or co-author, fill free to replace/append with your informations.
-** Home Page : http://www.monkeystudio.org
+** Comment   : This header has been automatically generated, you are the original author, co-author, free to replace/append with your informations.
+** Home Page : http:#www.monkeystudio.org
 **
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
@@ -22,16 +22,16 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
 **
-****************************************************************************/
-/*!
+***************************************************************************'''
+'''!
     \file pDockFileBrowser.h
     \date 2008-01-14T00:40:08
-    \author Filipe AZEVEDO, Andrei KOPATS
+    \author Filipe AZEVEDO, KOPATS
     \brief UI of FileBrowser plugin
-*/
+'''
 
 #ifndef PDOCKFILEBROWSER_H
 #define PDOCKFILEBROWSER_H
@@ -43,87 +43,83 @@
 #include <QDir>
 #include <QMenu>
 
-class pTreeComboBox;
-class QLineEdit;
-class QListView;
-class QFileSystemModel;
-class QTreeView;
+class pTreeComboBox
+class QLineEdit
+class QListView
+class QFileSystemModel
+class QTreeView
 
-/*!
+'''!
     UI interface of FileBrowser plugin. 
     
-    Dock with file system tree, Combo Box, allowing navigation in a file system
-    tree, buttons for moving root of tree to currently selected dirrectory and
+    Dock with file system tree, Box, navigation in a file system
+    tree, for moving root of tree to currently selected dirrectory and
     up (relatively for current dirrectory)
-*/
+'''
 class pDockFileBrowser : public pDockWidget
-{
     Q_OBJECT
     
     class FileBrowserFilteredModel : public QSortFilterProxyModel
-    {
     public:
-        FileBrowserFilteredModel( QObject* parent = 0 )
-            : QSortFilterProxyModel( parent ) {}
+        FileBrowserFilteredModel( parent = 0 )
+            : QSortFilterProxyModel( parent ) {
         
-        QStringList filters() const
-        { return mFilters; }
+        QStringList filters()
+        { return mFilters;
         
-        void setFilters( const QStringList& filters )
-        {
-            mFilters = filters;
-            invalidateFilter();
-        }
+        void setFilters(  QStringList& filters )
+            mFilters = filters
+            invalidateFilter()
+
         
-        int columnCount( const QModelIndex& /*parent*/ = QModelIndex() ) const
-        { return 1; }
+        int columnCount(  QModelIndex& '''parent''' = QModelIndex() )
+        { return 1;
         
-        virtual bool hasChildren( const QModelIndex& parent = QModelIndex() ) const
-        { return sourceModel()->hasChildren( mapToSource( parent ) ); }
+        virtual bool hasChildren(  parent = QModelIndex() )
+        { return sourceModel().hasChildren( mapToSource( parent ) );
     
     protected:
-        QStringList mFilters;
+        QStringList mFilters
         
-        bool filterAcceptsRow( int source_row, const QModelIndex& source_parent ) const
-        {
-            if ( source_parent == QModelIndex() )
-                return true;
-            return !QDir::match( mFilters, source_parent.child( source_row, 0 ).data().toString() );
-        }
-    };
+        bool filterAcceptsRow( int source_row, source_parent )
+            if  source_parent == QModelIndex() :
+                return True
+            return not QDir.match( mFilters, source_parent.child( source_row, 0 ).data().toString() )
+
+
 
 public:
-    pDockFileBrowser( QWidget* = 0 );
+    pDockFileBrowser( QWidget* = 0 )
     
-    QString currentPath() const;
-    QString currentFilePath() const;
-    QStringList filters() const;
-    QStringList bookmarks() const;
+    QString currentPath()
+    QString currentFilePath()
+    QStringList filters()
+    QStringList bookmarks()
 
 protected:
-    QLineEdit* mLineEdit;
-    QTreeView* mTree;
-    QFileSystemModel* mDirsModel;
-    FileBrowserFilteredModel* mFilteredModel;
-    QStringList mBookmarks;
-    QMenu* mBookmarksMenu;
+    QLineEdit* mLineEdit
+    QTreeView* mTree
+    QFileSystemModel* mDirsModel
+    FileBrowserFilteredModel* mFilteredModel
+    QStringList mBookmarks
+    QMenu* mBookmarksMenu
 
 public slots:
-    void setCurrentPath( const QString& path );
-    void setCurrentFilePath( const QString& filePath );
-    void setFilters( const QStringList& filters );
-    void setBookmarks( const QStringList& bookmarks );
-    void updateBookmarks();
+    void setCurrentPath(  QString& path )
+    void setCurrentFilePath(  QString& filePath )
+    void setFilters(  QStringList& filters )
+    void setBookmarks(  QStringList& bookmarks )
+    void updateBookmarks()
 
 protected slots:
-    void aUp_triggered();
-    void aGoTo_triggered();
-    void aRoot_triggered();
-    void aAdd_triggered();
-    void aRemove_triggered();
-    void bookmark_triggered( QAction* action );
-    void tv_activated( const QModelIndex& index );
-    void tv_doubleClicked( const QModelIndex& index );
-};
+    void aUp_triggered()
+    void aGoTo_triggered()
+    void aRoot_triggered()
+    void aAdd_triggered()
+    void aRemove_triggered()
+    void bookmark_triggered( QAction* action )
+    void tv_activated(  QModelIndex& index )
+    void tv_doubleClicked(  QModelIndex& index )
 
-#endif // PDOCKFILEBROWSER_H
+
+#endif # PDOCKFILEBROWSER_H

@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,27 +12,26 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-****************************************************************************/
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+***************************************************************************'''
 #ifndef QDESIGNERACTIONEDITOR_H
 #define QDESIGNERACTIONEDITOR_H
 
 #include <widgets/pDockWidget.h>
 
-class QDesignerFormEditorInterface;
-class QDesignerActionEditorInterface;
+class QDesignerFormEditorInterface
+class QDesignerActionEditorInterface
 
 class QDesignerActionEditor : public pDockWidget
-{
     Q_OBJECT
 
 public:
-    QDesignerActionEditor( QDesignerFormEditorInterface* core );
-    inline QDesignerActionEditorInterface* interface() const { return mInterface; }
+    QDesignerActionEditor( QDesignerFormEditorInterface* core )
+    inline QDesignerActionEditorInterface* interface()  { return mInterface;
     
 private:
-    QDesignerActionEditorInterface* mInterface;
-};
+    QDesignerActionEditorInterface* mInterface
 
-#endif // QDESIGNERACTIONEDITOR_H
+
+#endif # QDESIGNERACTIONEDITOR_H

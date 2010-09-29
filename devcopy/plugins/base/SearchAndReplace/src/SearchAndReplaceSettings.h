@@ -4,25 +4,24 @@
 #include "ui_SearchAndReplaceSettings.h"
 #include "SearchAndReplace.h"
 
-class SearchAndReplaceSettings : public QWidget, public Ui::SearchAndReplaceSettings
-{
+class SearchAndReplaceSettings : public QWidget, Ui.SearchAndReplaceSettings
     Q_OBJECT
 
 public:
-    SearchAndReplaceSettings( SearchAndReplace* plugin, QWidget* parent = 0 );
-    virtual ~SearchAndReplaceSettings();
+    SearchAndReplaceSettings( SearchAndReplace* plugin, parent = 0 )
+    virtual ~SearchAndReplaceSettings()
 
 protected:
-    SearchAndReplace* mPlugin;
+    SearchAndReplace* mPlugin
     
-    void loadSettings( const SearchAndReplace::Settings& settings );
+    void loadSettings(  SearchAndReplace.Settings& settings )
     
 protected slots:
-    virtual void restoreDefault();
-    virtual void reject();
-    virtual void accept();
+    virtual void restoreDefault()
+    virtual void reject()
+    virtual void accept()
     
-    void on_dbbButtons_clicked( QAbstractButton* button );
-};
+    void on_dbbButtons_clicked( QAbstractButton* button )
 
-#endif // SEARCHANDREPLACESETTINGS_H
+
+#endif # SEARCHANDREPLACESETTINGS_H

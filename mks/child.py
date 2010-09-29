@@ -1,12 +1,16 @@
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+
 import mks.abstractchild
 import mks.editor
 
 class pChild(mks.abstractchild.pAbstractChild):
+    
     """TODO rename
     """
     def __init__(self):
         mks.abstractchild.pAbstractChild.__init__(self, )
-        self.mEditor = mks.editor.pEditor
+        self.mEditor = mks.editor.pEditor(self)
         self.mEditor.setAttribute( Qt.WA_MacSmallSize )
         self.mEditor.setFrameStyle( QFrame.NoFrame | QFrame.Plain )
 
@@ -127,10 +131,10 @@ class pChild(mks.abstractchild.pAbstractChild):
         if  not opened :
             self.setFilePath( '' )
             return False
-
+        """ TODO
         self.mCodec = QTextCodec.codecForName( codec.toUtf8() )
-
-        fileOpened.emit()
+        """
+        self.fileOpened.emit()
         return True
     
     """

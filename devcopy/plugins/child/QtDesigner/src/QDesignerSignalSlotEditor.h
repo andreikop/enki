@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,24 +12,23 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-****************************************************************************/
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+***************************************************************************'''
 #ifndef QDESIGNERSIGNALSLOTEDITOR_H
 #define QDESIGNERSIGNALSLOTEDITOR_H
 
 #include <widgets/pDockWidget.h>
 
-class QDesignerFormEditorInterface;
+class QDesignerFormEditorInterface
 
 class QDesignerSignalSlotEditor : public pDockWidget
-{
 public:
-    QDesignerSignalSlotEditor( QDesignerFormEditorInterface* core );
-    inline QWidget* interface() const { return mInterface; }
+    QDesignerSignalSlotEditor( QDesignerFormEditorInterface* core )
+    inline QWidget* interface()  { return mInterface;
     
 private:
-    QWidget* mInterface;
-};
+    QWidget* mInterface
 
-#endif // QDESIGNERSIGNALSLOTEDITOR_H
+
+#endif # QDESIGNERSIGNALSLOTEDITOR_H

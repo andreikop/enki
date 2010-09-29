@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
 **
 **         Created using Monkey Studio v1.8.1.0
 ** Authors    : Filipe AZEVEDO aka Nox P@sNox <pasnox@gmail.com>
@@ -6,8 +6,8 @@
 ** FileName  : UIUpdateChecker.h
 ** Date      : 2008-01-14T00:39:52
 ** License   : GPL
-** Comment   : This header has been automatically generated, if you are the original author, or co-author, fill free to replace/append with your informations.
-** Home Page : http://www.monkeystudio.org
+** Comment   : This header has been automatically generated, you are the original author, co-author, free to replace/append with your informations.
+** Home Page : http:#www.monkeystudio.org
 **
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
@@ -22,10 +22,10 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
 **
-****************************************************************************/
+***************************************************************************'''
 #ifndef UIUPDATECHECKER_H
 #define UIUPDATECHECKER_H
 
@@ -36,66 +36,63 @@
 #include <QDomDocument>
 #include <QDateTime>
 
-class QNetworkAccessManager;
-class QNetworkReply;
-class UpdateChecker;
+class QNetworkAccessManager
+class QNetworkReply
+class UpdateChecker
 
 class UpdateItem
-{
 public:
     enum Type
-    {
         Updated,
         Id,
         Link,
         Title,
         Author,
         Content
-    };
+
     
-    UpdateItem( const QDomElement& element = QDomElement() );
+    UpdateItem(  element = QDomElement() )
     
-    bool operator<( const UpdateItem& other ) const;
-    bool operator>( const UpdateItem& other ) const;
-    bool operator<( const pVersion& other ) const;
-    bool operator>( const pVersion& other ) const;
+    bool operator<(  UpdateItem& other )
+    bool operator>(  UpdateItem& other )
+    bool operator<(  pVersion& other )
+    bool operator>(  pVersion& other )
     
-    QDateTime updated() const;
-    QString id() const;
-    QUrl link() const;
-    QString title() const;
-    QString author() const;
-    QString content() const;
-    QString toolTip() const;
-    bool isFeatured() const;
-    QString displayText() const;
-    QString versionString() const;
-    pVersion version() const;
-    bool isValid() const;
+    QDateTime updated()
+    QString id()
+    QUrl link()
+    QString title()
+    QString author()
+    QString content()
+    QString toolTip()
+    bool isFeatured()
+    QString displayText()
+    QString versionString()
+    pVersion version()
+    bool isValid()
 
 protected:
-    QMap<UpdateItem::Type, QString> mDatas;
-};
+    QMap<UpdateItem.Type, mDatas
 
-class UIUpdateChecker : public QDialog, public Ui::UIUpdateChecker
-{
+
+class UIUpdateChecker : public QDialog, Ui.UIUpdateChecker
     Q_OBJECT
 
 public:
-    UIUpdateChecker( UpdateChecker* plugin, QWidget* = 0 );
-    ~UIUpdateChecker();
+    UIUpdateChecker( UpdateChecker* plugin, QWidget* = 0 )
+    ~UIUpdateChecker()
 
 protected:
-    UpdateChecker* mPlugin;
-    static const QString mDownloadsUrl;
-    QNetworkAccessManager* mAccessManager;
+    UpdateChecker* mPlugin
+    static  QString mDownloadsUrl
+    QNetworkAccessManager* mAccessManager
 
 protected slots:
-    void accessManager_finished( QNetworkReply* reply );
-    void on_lwVersions_itemSelectionChanged();
-    virtual void accept();
-};
+    void accessManager_finished( QNetworkReply* reply )
+    void on_lwVersions_itemSelectionChanged()
+    virtual void accept()
+
 
 Q_DECLARE_METATYPE( UpdateItem )
 
-#endif // UIUPDATECHECKER_H
+#endif # UIUPDATECHECKER_H

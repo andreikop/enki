@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,9 +12,9 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-****************************************************************************/
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+***************************************************************************'''
 #include "UIToolsEdit.h"
 #include "ToolsManager.h"
 
@@ -26,358 +26,309 @@
 #include <QUrl>
 #include <QWhatsThis>
 
-UIToolsEdit::UIToolsEdit( ToolsManager* manager, QWidget* parent )
+UIToolsEdit.UIToolsEdit( ToolsManager* manager, parent )
     : QDialog( parent )
-{
-    Q_ASSERT( manager );
-    mToolsManager = manager;
+    Q_ASSERT( manager )
+    mToolsManager = manager
     
-    // init dialog
-    setupUi( this );
-    setAttribute( Qt::WA_DeleteOnClose );
+    # init dialog
+    setupUi( self )
+    setAttribute( Qt.WA_DeleteOnClose )
     
-    // event filters
-    leCaption->installEventFilter( this );
-    tbFileIcon->installEventFilter( this );
-    leFilePath->installEventFilter( this );
-    leWorkingPath->installEventFilter( this );
+    # event filters
+    leCaption.installEventFilter( self )
+    tbFileIcon.installEventFilter( self )
+    leFilePath.installEventFilter( self )
+    leWorkingPath.installEventFilter( self )
     
-    // create items
-    foreach ( const ToolsManager::Tool& tool, mToolsManager->tools( ToolsManager::UserEntry ) ) {
-        // create item
-        QListWidgetItem* item = new QListWidgetItem( ToolsManager::icon( tool.fileIcon ), tool.caption, lwTools );
-        item->setData( Qt::UserRole, QVariant::fromValue( tool ) );
-    }
-    
-    // modified state
-    setWindowModified( false );
-    
-    // connection
-    connect( dbbButtons, SIGNAL( helpRequested() ), this, SLOT( helpRequested() ) );
-}
+    # create items
+    foreach (  ToolsManager.Tool& tool, mToolsManager.tools( ToolsManager.UserEntry ) )        # create item
+        item = QListWidgetItem( ToolsManager.icon( tool.fileIcon ), tool.caption, lwTools )
+        item.setData( Qt.UserRole, QVariant.fromValue( tool ) )
 
-void UIToolsEdit::closeEvent( QCloseEvent* event )
-{
-    // ask user confirmation if we have pending modification
-    if ( isWindowModified()
-        && QMessageBox::question( QApplication::activeWindow(), QString::null, tr( "You're about to discard all changes. Are you sure ?" ), QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::No ) {
-            event->ignore();
-            return;
-    }
     
-    QDialog::closeEvent( event );
-}
+    # modified state
+    setWindowModified( False )
+    
+    # connection
+    dbbButtons.helpRequested.connect(self.helpRequested)
 
-bool UIToolsEdit::eventFilter( QObject* object, QEvent* event )
-{
-    // accept drag enter event
-    if ( event->type() == QEvent::DragEnter ) {
-        event->accept();
-    }
+
+def closeEvent(self, event ):
+    # ask user confirmation if we have pending modification
+    if  isWindowModified(:
+        and QMessageBox.question( QApplication.activeWindow(), QString.null, tr( "You're about to discard all changes. Are you sure ?" ), QMessageBox.Yes | QMessageBox.No, QMessageBox.No ) == QMessageBox.No )            event.ignore()
+            return
+
     
-    // got the event as drop event
-    QDropEvent* de = static_cast<QDropEvent*>( event );
+    QDialog.closeEvent( event )
+
+
+def eventFilter(self, object, event ):
+    # accept drag enter event
+    if  event.type() == QEvent.DragEnter :        event.accept()
+
     
-    // if not a drop event or has urls, return
-    if ( event->type() != QEvent::Drop || !de->mimeData()->hasUrls() ) {
-        return QDialog::eventFilter( object, event );
-    }
+    # got the event as drop event
+    de = static_cast<QDropEvent*>( event )
     
-    // if there is no current item selected, ask to create one
-    QListWidgetItem* item = lwTools->selectedItems().value( 0 );
+    # if not a drop event or has urls, return
+    if  event.type() != QEvent.Drop or not de.mimeData().hasUrls() :        return QDialog.eventFilter( object, event )
+
     
-    if ( !item ) {
-        const QMessageBox::StandardButton button = QMessageBox::question( this, QString::null, tr( "There is no current tool, do you want to add a new one ?" ), QMessageBox::Yes | QMessageBox::No, QMessageBox::No );
+    # if there is no current item selected, to create one
+    item = lwTools.selectedItems().value( 0 )
+    
+    if  not item :         button = QMessageBox.question( self, QString.null, tr( "There is no current tool, you want to add a one ?" ), QMessageBox.Yes | QMessageBox.No, QMessageBox.No )
         
-        // filter the even to avoid default drop event
-        if ( button == QMessageBox::No ) {
-            return true;
-        }
+        # filter the even to avoid default drop event
+        if  button == QMessageBox.No :            return True
+
         
-        item = new QListWidgetItem( tr( "new Tool" ), lwTools );
-    }
-    
-    // get link info
-    QFileInfo fi( de->mimeData()->urls().at( 0 ).toLocalFile() );
-    
-    // drag for tbFileIcon
-    ToolsManager::Tool tool = item->data( Qt::UserRole ).value<ToolsManager::Tool>();
-    
-    if ( tool.caption.isEmpty() ) {
-        tool.caption = item->text();
-    }
-    
-    if ( object == tbFileIcon ) {
-        if ( fi.isFile() ) {
-            tool.fileIcon = fi.absoluteFilePath();
-        }
-    }
-    // others
-    else {
-        if ( fi.isFile() ) {
-            tool.caption = fi.baseName();
-            tool.filePath = fi.absoluteFilePath();
-            tool.workingPath = fi.absolutePath();
-        }
-        else if ( fi.isDir() ) {
-            tool.workingPath = fi.absoluteFilePath();
-        }
-    }
-    
-    // update item data
-    item->setData( Qt::UserRole, QVariant::fromValue( tool ) );
-    updateGui( item, true );
-    
-    // modified state
-    setWindowModified( true );
-    
-    // we finish
-    return QDialog::eventFilter( object, event );
-}
+        item = QListWidgetItem( tr( "new Tool" ), lwTools )
 
-void UIToolsEdit::updateGui( QListWidgetItem* item, bool makeCurrent )
-{
-    const ToolsManager::Tool tool = item->data( Qt::UserRole ).value<ToolsManager::Tool>();
     
-    item->setText( tool.caption );
-    item->setIcon( ToolsManager::icon( tool.fileIcon ) );
-    leCaption->setText( tool.caption );
-    tbFileIcon->setIcon( item->icon() );
-    leFilePath->setText( tool.filePath );
-    leWorkingPath->setText( tool.workingPath );
-    cbUseConsoleManager->setChecked( tool.useConsoleManager );
+    # get link info
+    QFileInfo fi( de.mimeData().urls().at( 0 ).toLocalFile() )
     
-    if ( makeCurrent ) {
-        lwTools->clearSelection();
-        lwTools->setCurrentItem( item );
-        item->setSelected( true );
-    }
-}
+    # drag for tbFileIcon
+    tool = item.data( Qt.UserRole ).value<ToolsManager.Tool>()
+    
+    if  tool.caption.isEmpty() :        tool.caption = item.text()
 
-void UIToolsEdit::on_lwTools_itemSelectionChanged()
-{
-    if ( QListWidgetItem* item = lwTools->selectedItems().value( 0 ) ) {
-        updateGui( item );
-    }
-}
+    
+    if  object == tbFileIcon :        if  fi.isFile() :            tool.fileIcon = fi.absoluteFilePath()
 
-void UIToolsEdit::on_aNew_triggered()
-{
-    QListWidgetItem* item = new QListWidgetItem( tr( "new Tool" ), lwTools );
-    ToolsManager::Tool tool = item->data( Qt::UserRole ).value<ToolsManager::Tool>();
-    tool.caption = item->text();
-    item->setData( Qt::UserRole, QVariant::fromValue( tool ) );
-    updateGui( item, true );
-    
-    // modified state
-    setWindowModified( true );
-}
 
-void UIToolsEdit::on_aDelete_triggered()
-{
-    delete lwTools->selectedItems().value( 0 );
-    
-    if ( lwTools->count() ) {
-        updateGui( lwTools->item( 0 ), true );
-    }
-    
-    // modified state
-    setWindowModified( true );
-}
+    # others
+    else:
+        if  fi.isFile() :            tool.caption = fi.baseName()
+            tool.filePath = fi.absoluteFilePath()
+            tool.workingPath = fi.absolutePath()
 
-void UIToolsEdit::on_aUp_triggered()
-{
-    QListWidgetItem* item = lwTools->selectedItems().value( 0 );
-    
-    if ( !item || lwTools->row( item ) == 0 ) {
-        return;
-    }
-    
-    const int row = lwTools->row( item );
-    item = lwTools->takeItem( row );
-    lwTools->insertItem( row -1, item );
-    lwTools->setCurrentRow( row -1 );
-    
-    // modified state
-    setWindowModified( true );
-}
+        elif  fi.isDir() :            tool.workingPath = fi.absoluteFilePath()
 
-void UIToolsEdit::on_aDown_triggered()
-{
-    QListWidgetItem* item = lwTools->selectedItems().value( 0 );
-    
-    if ( !item || lwTools->row( item ) == lwTools->count() -1 ) {
-        return;
-    }
-    
-    const int row = lwTools->row( item );
-    item = lwTools->takeItem( row );
-    lwTools->insertItem( row +1, item );
-    lwTools->setCurrentRow( row +1 );
-    
-    // modified state
-    setWindowModified( true );
-}
 
-void UIToolsEdit::helpRequested()
-{
-    QString help = tr( "<b>Tools Editor</b> give you the possibility to use variables<br><br>"
+    
+    # update item data
+    item.setData( Qt.UserRole, QVariant.fromValue( tool ) )
+    updateGui( item, True )
+    
+    # modified state
+    setWindowModified( True )
+    
+    # we finish
+    return QDialog.eventFilter( object, event )
+
+
+def updateGui(self, item, makeCurrent ):
+     tool = item.data( Qt.UserRole ).value<ToolsManager.Tool>()
+    
+    item.setText( tool.caption )
+    item.setIcon( ToolsManager.icon( tool.fileIcon ) )
+    leCaption.setText( tool.caption )
+    tbFileIcon.setIcon( item.icon() )
+    leFilePath.setText( tool.filePath )
+    leWorkingPath.setText( tool.workingPath )
+    cbUseConsoleManager.setChecked( tool.useConsoleManager )
+    
+    if  makeCurrent :        lwTools.clearSelection()
+        lwTools.setCurrentItem( item )
+        item.setSelected( True )
+
+
+
+def on_lwTools_itemSelectionChanged(self):
+    if  item = lwTools.selectedItems().value( 0 ) :        updateGui( item )
+
+
+
+def on_aNew_triggered(self):
+    item = QListWidgetItem( tr( "new Tool" ), lwTools )
+    tool = item.data( Qt.UserRole ).value<ToolsManager.Tool>()
+    tool.caption = item.text()
+    item.setData( Qt.UserRole, QVariant.fromValue( tool ) )
+    updateGui( item, True )
+    
+    # modified state
+    setWindowModified( True )
+
+
+def on_aDelete_triggered(self):
+    delete lwTools.selectedItems().value( 0 )
+    
+    if  lwTools.count() :        updateGui( lwTools.item( 0 ), True )
+
+    
+    # modified state
+    setWindowModified( True )
+
+
+def on_aUp_triggered(self):
+    item = lwTools.selectedItems().value( 0 )
+    
+    if  not item or lwTools.row( item ) == 0 :        return
+
+    
+     row = lwTools.row( item )
+    item = lwTools.takeItem( row )
+    lwTools.insertItem( row -1, item )
+    lwTools.setCurrentRow( row -1 )
+    
+    # modified state
+    setWindowModified( True )
+
+
+def on_aDown_triggered(self):
+    item = lwTools.selectedItems().value( 0 )
+    
+    if  not item or lwTools.row( item ) == lwTools.count() -1 :        return
+
+    
+     row = lwTools.row( item )
+    item = lwTools.takeItem( row )
+    lwTools.insertItem( row +1, item )
+    lwTools.setCurrentRow( row +1 )
+    
+    # modified state
+    setWindowModified( True )
+
+
+def helpRequested(self):
+    help = tr( "<b>Tools Editor</b> give you the possibility to use variables<br><br>"
         "<b>$cpp$</b> : Current project path<br>"
         "<b>$cp$</b> : Current project filepath<br>"
         "<b>$cfp$</b> : Current tab path<br>"
         "<b>$cf$</b> : Current tab filepath<br>"
         "<b>$cip$</b> : Current item path<br>"
-        "<b>$ci$</b> : Current item filepath" );
+        "<b>$ci$</b> : Current item filepath" )
     
-    QWhatsThis::showText( mapToGlobal( rect().center() ), help );
-}
+    QWhatsThis.showText( mapToGlobal( rect().center() ), help )
 
-void UIToolsEdit::on_leCaption_editingFinished()
-{
-    if ( QListWidgetItem* item = lwTools->selectedItems().value( 0 ) ) {
-        ToolsManager::Tool tool = item->data( Qt::UserRole ).value<ToolsManager::Tool>();
-        tool.caption = leCaption->text();
-        item->setData( Qt::UserRole, QVariant::fromValue( tool ) );
-        updateGui( item );
-        
-        // modified state
-        setWindowModified( true );
-    }
-}
 
-void UIToolsEdit::on_tbFileIcon_clicked()
-{
-    if ( QListWidgetItem* item = lwTools->selectedItems().value( 0 ) ) {
-        ToolsManager::Tool tool = item->data( Qt::UserRole ).value<ToolsManager::Tool>();
-        const QString fn = pMonkeyStudio::getImageFileName( tr( "Choose an icon for this tool" ), tool.fileIcon, this );
+def on_leCaption_editingFinished(self):
+    if  item = lwTools.selectedItems().value( 0 ) :        tool = item.data( Qt.UserRole ).value<ToolsManager.Tool>()
+        tool.caption = leCaption.text()
+        item.setData( Qt.UserRole, QVariant.fromValue( tool ) )
+        updateGui( item )
         
-        if ( fn.isEmpty() ) {
-            return;
-        }
-        
-        tool.fileIcon = fn;
-        item->setData( Qt::UserRole, QVariant::fromValue( tool ) );
-        updateGui( item );
-        
-        // modified state
-        setWindowModified( true );
-    }
-}
+        # modified state
+        setWindowModified( True )
 
-void UIToolsEdit::on_leFilePath_editingFinished()
-{
-    if ( QListWidgetItem* item = lwTools->selectedItems().value( 0 ) ) {
-        ToolsManager::Tool tool = item->data( Qt::UserRole ).value<ToolsManager::Tool>();
-        tool.filePath = leFilePath->text();
-        item->setData( Qt::UserRole, QVariant::fromValue( tool ) );
-        updateGui( item );
-        
-        // modified state
-        setWindowModified( true );
-    }
-}
 
-void UIToolsEdit::on_tbFilePath_clicked()
-{
-    if ( QListWidgetItem* item = lwTools->selectedItems().value( 0 ) ) {
-        ToolsManager::Tool tool = item->data( Qt::UserRole ).value<ToolsManager::Tool>();
-        const QString fn = pMonkeyStudio::getOpenFileName( tr( "Choose the file to execute for this tool" ), tool.filePath, QString::null, this );
-        
-        if ( fn.isEmpty() ) {
-            return;
-        }
-        
-        tool.filePath = fn;
-        item->setData( Qt::UserRole, QVariant::fromValue( tool ) );
-        updateGui( item );
-        leFilePath->setFocus();
-        
-        // modified state
-        setWindowModified( true );
-    }
-}
 
-void UIToolsEdit::on_tbUpdateWorkingPath_clicked()
-{
-    if ( QListWidgetItem* item = lwTools->selectedItems().value( 0 ) ) {
-        const QFileInfo fi( leFilePath->text() );
+def on_tbFileIcon_clicked(self):
+    if  item = lwTools.selectedItems().value( 0 ) :        tool = item.data( Qt.UserRole ).value<ToolsManager.Tool>()
+         fn = pMonkeyStudio.getImageFileName( tr( "Choose an icon for self tool" ), tool.fileIcon, self )
         
-        if ( fi.exists() && fi.absolutePath() != leWorkingPath->text() ) {
-            ToolsManager::Tool tool = item->data( Qt::UserRole ).value<ToolsManager::Tool>();
-            tool.workingPath = fi.absolutePath();
-            item->setData( Qt::UserRole, QVariant::fromValue( tool ) );
-            updateGui( item );
-            leWorkingPath->setFocus();
+        if  fn.isEmpty() :            return
+
+        
+        tool.fileIcon = fn
+        item.setData( Qt.UserRole, QVariant.fromValue( tool ) )
+        updateGui( item )
+        
+        # modified state
+        setWindowModified( True )
+
+
+
+def on_leFilePath_editingFinished(self):
+    if  item = lwTools.selectedItems().value( 0 ) :        tool = item.data( Qt.UserRole ).value<ToolsManager.Tool>()
+        tool.filePath = leFilePath.text()
+        item.setData( Qt.UserRole, QVariant.fromValue( tool ) )
+        updateGui( item )
+        
+        # modified state
+        setWindowModified( True )
+
+
+
+def on_tbFilePath_clicked(self):
+    if  item = lwTools.selectedItems().value( 0 ) :        tool = item.data( Qt.UserRole ).value<ToolsManager.Tool>()
+         fn = pMonkeyStudio.getOpenFileName( tr( "Choose the file to execute for self tool" ), tool.filePath, QString.null, self )
+        
+        if  fn.isEmpty() :            return
+
+        
+        tool.filePath = fn
+        item.setData( Qt.UserRole, QVariant.fromValue( tool ) )
+        updateGui( item )
+        leFilePath.setFocus()
+        
+        # modified state
+        setWindowModified( True )
+
+
+
+def on_tbUpdateWorkingPath_clicked(self):
+    if  item = lwTools.selectedItems().value( 0 ) :         QFileInfo fi( leFilePath.text() )
+        
+        if  fi.exists() and fi.absolutePath() != leWorkingPath.text() :            tool = item.data( Qt.UserRole ).value<ToolsManager.Tool>()
+            tool.workingPath = fi.absolutePath()
+            item.setData( Qt.UserRole, QVariant.fromValue( tool ) )
+            updateGui( item )
+            leWorkingPath.setFocus()
             
-            // modified state
-            setWindowModified( true );
-        }
-    }
-}
+            # modified state
+            setWindowModified( True )
 
-void UIToolsEdit::on_leWorkingPath_editingFinished()
-{
-    if ( QListWidgetItem* item = lwTools->selectedItems().value( 0 ) ) {
-        ToolsManager::Tool tool = item->data( Qt::UserRole ).value<ToolsManager::Tool>();
-        tool.workingPath = leWorkingPath->text();
-        item->setData( Qt::UserRole, QVariant::fromValue( tool ) );
-        updateGui( item );
-        
-        // modified state
-        setWindowModified( true );
-    }
-}
 
-void UIToolsEdit::on_tbWorkingPath_clicked()
-{
-    if ( QListWidgetItem* item = lwTools->selectedItems().value( 0 ) ) {
-        ToolsManager::Tool tool = item->data( Qt::UserRole ).value<ToolsManager::Tool>();
-        const QString path = pMonkeyStudio::getExistingDirectory( tr( "Choose the working path for this tool" ), tool.workingPath, this );
-        
-        if ( path.isEmpty() ) {
-            return;
-        }
-        
-        tool.workingPath = path;
-        item->setData( Qt::UserRole, QVariant::fromValue( tool ) );
-        updateGui( item );
-        leWorkingPath->setFocus();
-        
-        // modified state
-        setWindowModified( true );
-    }
-}
 
-void UIToolsEdit::on_cbUseConsoleManager_clicked( bool clicked )
-{
-    if ( QListWidgetItem* item = lwTools->selectedItems().value( 0 ) ) {
-        ToolsManager::Tool tool = item->data( Qt::UserRole ).value<ToolsManager::Tool>();
-        tool.useConsoleManager = clicked;
-        item->setData( Qt::UserRole, QVariant::fromValue( tool ) );
-        updateGui( item );
-        
-        // modified state
-        setWindowModified( true );
-    }
-}
 
-void UIToolsEdit::accept()
-{
-    if ( isWindowModified() )
-    {
-        ToolsManager::Tools tools = mToolsManager->tools( ToolsManager::DesktopEntry );
+def on_leWorkingPath_editingFinished(self):
+    if  item = lwTools.selectedItems().value( 0 ) :        tool = item.data( Qt.UserRole ).value<ToolsManager.Tool>()
+        tool.workingPath = leWorkingPath.text()
+        item.setData( Qt.UserRole, QVariant.fromValue( tool ) )
+        updateGui( item )
         
-        for ( int i = 0; i < lwTools->count(); i++ ) {
-            QListWidgetItem* item = lwTools->item( i );
-            const ToolsManager::Tool tool = item->data( Qt::UserRole ).value<ToolsManager::Tool>();
-            tools << tool;
-        }
+        # modified state
+        setWindowModified( True )
+
+
+
+def on_tbWorkingPath_clicked(self):
+    if  item = lwTools.selectedItems().value( 0 ) :        tool = item.data( Qt.UserRole ).value<ToolsManager.Tool>()
+         path = pMonkeyStudio.getExistingDirectory( tr( "Choose the working path for self tool" ), tool.workingPath, self )
         
-        mToolsManager->mTools = tools;
-        mToolsManager->updateMenuActions();
-        mToolsManager->writeTools( tools );
-    }
+        if  path.isEmpty() :            return
+
+        
+        tool.workingPath = path
+        item.setData( Qt.UserRole, QVariant.fromValue( tool ) )
+        updateGui( item )
+        leWorkingPath.setFocus()
+        
+        # modified state
+        setWindowModified( True )
+
+
+
+def on_cbUseConsoleManager_clicked(self, clicked ):
+    if  item = lwTools.selectedItems().value( 0 ) :        tool = item.data( Qt.UserRole ).value<ToolsManager.Tool>()
+        tool.useConsoleManager = clicked
+        item.setData( Qt.UserRole, QVariant.fromValue( tool ) )
+        updateGui( item )
+        
+        # modified state
+        setWindowModified( True )
+
+
+
+def accept(self):
+    if  isWindowModified() :
+        tools = mToolsManager.tools( ToolsManager.DesktopEntry )
+        
+        for ( i = 0; i < lwTools.count(); i++ )            item = lwTools.item( i )
+             tool = item.data( Qt.UserRole ).value<ToolsManager.Tool>()
+            tools << tool
+
+        
+        mToolsManager.mTools = tools
+        mToolsManager.updateMenuActions()
+        mToolsManager.writeTools( tools )
+
     
-    // close dialog
-    QDialog::accept();
-}
+    # close dialog
+    QDialog.accept()
+

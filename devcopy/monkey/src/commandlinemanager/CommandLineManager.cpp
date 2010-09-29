@@ -8,119 +8,94 @@
 #include <QCoreApplication>
 #include <QDebug>
 
-CommandLineManager::CommandLineManager()
-{
-    mVersionShown = false;
-}
+CommandLineManager.CommandLineManager()
+    mVersionShown = False
 
-CommandLineManager::~CommandLineManager()
-{
-}
 
-void CommandLineManager::parse()
-{
-    QStringList args = QCoreApplication::arguments();
-    args.removeFirst();
+CommandLineManager.~CommandLineManager()
+
+
+def parse(self):
+    args = QCoreApplication.arguments()
+    args.removeFirst()
     
-    for ( int i = 0; i < args.count(); i++ ) {
-        const QString arg = args.at( i ).toLower();
-        bool needNextArgument = false;
+    for ( i = 0; i < args.count(); i++ )         arg = args.at( i ).toLower()
+        needNextArgument = False
         
-        if ( arg == "-projects" || arg == "-files" ) {
-            needNextArgument = true;
-        }
-        else {
-            mArguments[ arg ].clear();
-        }
+        if  arg == "-projects" or arg == "-files" :            needNextArgument = True
+
+        else:
+            mArguments[ arg ].clear()
+
         
-        if ( needNextArgument ) {
-            if ( i == args.count() -1 ) {
-                break;
-            }
+        if  needNextArgument :            if  i == args.count() -1 :                break
+
             
-            QString param;
+            QString param
             
-            while ( !( param = args.at( i +1 ).toLower() ).startsWith( "-" ) ) {
-                mArguments[ arg ] << param;
-                i++;
+            while ( not ( param = args.at( i +1 ).toLower() ).startsWith( "-" ) )                mArguments[ arg ] << param
+                i++
                 
-                if ( i == args.count() -1 ) {
-                    break;
-                }
-            }
-        }
-    }
-}
+                if  i == args.count() -1 :                    break
 
-void CommandLineManager::process()
-{
-    foreach ( const QString& arg, mArguments.keys() ) {
-        if ( arg == "-h" || arg == "--help" ) {
-            showHelp();
-        }
-        else if ( arg == "-v" || arg == "--version" ) {
-            showVersion();
-        }
-        else if ( arg == "-projects" ) {
-            openProjects( mArguments[ arg ] );
-        }
-        else if ( arg == "-files" ) {
-            openFiles( mArguments[ arg ] );
-        }
-        else {
-            qWarning( "Unknow argument: %s (%s)", arg.toLocal8Bit().constData(), mArguments[ arg ].join( " " ).toLocal8Bit().constData() );
-        }
-    }
-}
 
-const QMap<QString, QStringList>& CommandLineManager::arguments() const
-{
-    return mArguments;
-}
 
-void CommandLineManager::showVersion()
-{
-    if ( !mVersionShown ) {
-        mVersionShown = true;
-        qWarning( "%s version %s (%s)", PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_VERSION_STR );
-        qWarning( "%s & The Monkey Studio Team", PACKAGE_COPYRIGHTS );
-        qWarning( "http://%s", PACKAGE_DOMAIN );
-    }
-}
 
-void CommandLineManager::showHelp()
-{
-    showVersion();
-    qWarning();
-    qWarning( "Command line arguments:" );
-    qWarning( "\t-h, --help      Show command line help" );
-    qWarning( "\t-v, --version   Show program version" );
-    qWarning( "\t-projects      Open the projects given as parameters (-projects project1 ...)" );
-    qWarning( "\t-files         Open the files given as parameters (-files file1 ...)" );
-}
 
-void CommandLineManager::openProjects( const QStringList& fileNames )
-{
-    QDir dir( QCoreApplication::applicationDirPath() );
+
+def process(self):
+    for arg in mArguments.keys():        if  arg == "-h" or arg == "--help" :            showHelp()
+
+        elif  arg == "-v" or arg == "--version" :            showVersion()
+
+        elif  arg == "-projects" :            openProjects( mArguments[ arg ] )
+
+        elif  arg == "-files" :            openFiles( mArguments[ arg ] )
+
+        else:
+            qWarning( "Unknow argument: %s (%s)", arg.toLocal8Bit().constData(), mArguments[ arg ].join( " " ).toLocal8Bit().constData() )
+
+
+
+
+ QMap<QString, CommandLineManager.arguments()
+    return mArguments
+
+
+def showVersion(self):
+    if  not mVersionShown :        mVersionShown = True
+        qWarning( "%s version %s (%s)", PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_VERSION_STR )
+        qWarning( "%s & The Monkey Studio Team", PACKAGE_COPYRIGHTS )
+        qWarning( "http:#%s", PACKAGE_DOMAIN )
+
+
+
+def showHelp(self):
+    showVersion()
+    qWarning()
+    qWarning( "Command line arguments:" )
+    qWarning( "\t-h, --help      Show command line help" )
+    qWarning( "\t-v, --version   Show program version" )
+    qWarning( "\t-projects      Open the projects given as parameters (-projects project1 ...)" )
+    qWarning( "\t-files         Open the files given as parameters (-files file1 ...)" )
+
+
+def openProjects(self, fileNames ):
+    QDir dir( QCoreApplication.applicationDirPath() )
     
-    foreach ( QString fileName, fileNames ) {
-        if ( QFileInfo( fileName ).isRelative() ) {
-            fileName = QDir::cleanPath( dir.absoluteFilePath( fileName ) );
-        }
-        
-        MonkeyCore::fileManager()->openProject( fileName, pMonkeyStudio::defaultCodec() );
-    }
-}
+    for fileName in fileNames:        if  QFileInfo( fileName ).isRelative() :            fileName = QDir.cleanPath( dir.absoluteFilePath( fileName ) )
 
-void CommandLineManager::openFiles( const QStringList& fileNames )
-{
-    QDir dir( QCoreApplication::applicationDirPath() );
-    
-    foreach ( QString fileName, fileNames ) {
-        if ( QFileInfo( fileName ).isRelative() ) {
-            fileName = QDir::cleanPath( dir.absoluteFilePath( fileName ) );
-        }
         
-        MonkeyCore::fileManager()->openFile( fileName, pMonkeyStudio::defaultCodec() );
-    }
-}
+        MonkeyCore.fileManager().openProject( fileName, pMonkeyStudio.defaultCodec() )
+
+
+
+def openFiles(self, fileNames ):
+    QDir dir( QCoreApplication.applicationDirPath() )
+    
+    for fileName in fileNames:        if  QFileInfo( fileName ).isRelative() :            fileName = QDir.cleanPath( dir.absoluteFilePath( fileName ) )
+
+        
+        MonkeyCore.fileManager().openFile( fileName, pMonkeyStudio.defaultCodec() )
+
+

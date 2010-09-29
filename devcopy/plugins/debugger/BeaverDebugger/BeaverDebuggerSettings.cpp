@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
 **
 **         Created using Monkey Studio
 ** Authors   : Andrei KOPATS aka hlamer <hlamer@tut.by>
@@ -7,7 +7,7 @@
 ** Date      : 2009-09-23T19:02:00
 ** License   : GPL
 ** Comment   : Settings widget of BeaverDebugger plugin
-** Home Page : http://www.monkeystudio.org
+** Home Page : http:#www.monkeystudio.org
 **
     Copyright (C) 2005 - 2008  Andrei KOPATS & The Monkey Studio Team
 
@@ -22,16 +22,16 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
 **
-****************************************************************************/
-/*!
+***************************************************************************'''
+'''!
     \file BeaverDebuggerSettings.cpp
     \date 2009-09-23T19:02:00
     \author Andrei KOPATS
     \brief Settings widget of BeaverDebugger plugin
-*/
+'''
 #include "BeaverDebuggerSettings.h"
 #include "BeaverDebugger.h"
 
@@ -45,67 +45,63 @@
 #include <QLineEdit>
 #include <QToolButton>
 
-/*!
+'''!
     Creates settings widget
     \param plugin Pointer to BeaverDebugger plugin
     \param parent Parent widget of settings widget
-*/
-BeaverDebuggerSettings::BeaverDebuggerSettings(BeaverDebugger* plugin):
+'''
+BeaverDebuggerSettings.BeaverDebuggerSettings(BeaverDebugger* plugin):
     QDialog(),
     mPlugin(plugin)
-{
-    QLabel* label = new QLabel(tr("Beaver executable\n"
-                                  "It may be only executable file name, or name with path\n"
+    label = QLabel(tr("Beaver executable\n"
+                                  "It may be only executable file name, name with path\n"
 #ifdef Q_OS_WIN
                                   "Example: C:\\Programm Files\\Beaver Debugger\\beaverdbg.exe"
-#else
+#else:
                                   "Example: /usr/local/bin/beaverdbg"
 #endif
-                                  ));
+                                  ))
     
-    mPath = new QLineEdit(mPlugin->beaverPath(), NULL);
-    mPath->setCompleter(new QCompleter(new QDirModel(mPath)));
-    QToolButton* open = new QToolButton(this);
-    open->setIcon(QIcon(":/icons/open.png")); // FIXME use system icon?
+    mPath = QLineEdit(mPlugin.beaverPath(), NULL)
+    mPath.setCompleter(new QCompleter(new QDirModel(mPath)))
+    open = QToolButton(self)
+    open.setIcon(QIcon(":/icons/open.png")); # FIXME use system icon?
     
-    QHBoxLayout* hbox = new QHBoxLayout();
-    hbox->addWidget(mPath);
-    hbox->addWidget(open);
+    hbox = QHBoxLayout()
+    hbox.addWidget(mPath)
+    hbox.addWidget(open)
     
-    // apply button
-    QDialogButtonBox* dbbApply = new QDialogButtonBox( this );
-    dbbApply->addButton( QDialogButtonBox::Apply );
+    # apply button
+    dbbApply = QDialogButtonBox( self )
+    dbbApply.addButton( QDialogButtonBox.Apply )
     
-    // global layout
-    QVBoxLayout* vbox = new QVBoxLayout( this );
-    vbox->addWidget( label );
-    vbox->addLayout( hbox );
-    vbox->addWidget( dbbApply );
+    # global layout
+    vbox = QVBoxLayout( self )
+    vbox.addWidget( label )
+    vbox.addLayout( hbox )
+    vbox.addWidget( dbbApply )
     
-    // connections
-    connect( dbbApply->button( QDialogButtonBox::Apply ), SIGNAL( clicked() ), this, SLOT( applySettings() ) );
-    connect( open, SIGNAL( clicked() ), this, SLOT( openPathDialog() ) );
-}
+    # connections
+    dbbApply.button( QDialogButtonBox.Apply ).clicked.connect(self.applySettings)
+    open.clicked.connect(self.openPathDialog)
 
-/*!
+
+'''!
     Handler of clicking Apply button. Applying settings
-*/
-void BeaverDebuggerSettings::applySettings()
-{
-    mPlugin->setBeaverPath(mPath->text());
-}
+'''
+def applySettings(self):
+    mPlugin.setBeaverPath(mPath.text())
 
-/*!
+
+'''!
     Handler of clicking button with folder. Opens dialog for choose Beaver Path
-*/
-void BeaverDebuggerSettings::openPathDialog()
-{
-    QString newPath = 
-        QFileDialog::getOpenFileName (    this,
+'''
+def openPathDialog(self):
+    newPath = 
+        QFileDialog.getOpenFileName (    self,
                                         tr("Beaver Debugger executable"),
-                                        QFileInfo(mPath->text()).absolutePath()); // default dir path
-    if (!newPath.isNull())
-    {
-        mPath->setText(newPath);
-    }
-}
+                                        QFileInfo(mPath.text()).absolutePath()); # default dir path
+    if not newPath.isNull():
+        mPath.setText(newPath)
+
+

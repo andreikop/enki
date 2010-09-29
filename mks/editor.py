@@ -1,12 +1,18 @@
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+
+import PyQt4.Qsci
+
+import mks.monkeystudio
 
 """TODO
 mPasteAvailableInit = False
 mPasteAvailable = False
 """
 
-class pEditor(QsciScintilla)
-    def __init__(self, widget):
-        QsciScintilla.__init__( self, p )
+class pEditor(PyQt4.Qsci.QsciScintilla):
+    def __init__(self, parentWidget):
+        PyQt4.Qsci.QsciScintilla.__init__( self, parentWidget )
         
         """TODO
         self.mPixSize = QSize( 16, 16 )
@@ -373,64 +379,67 @@ class pEditor(QsciScintilla)
         mPasteAvailable = not QApplication.clipboard().text().isEmpty()
         pasteAvailable.emit( canPaste() )
 
-
+    """
+    
     def openFile(self, fileName, codec ):
-        '''if  isModified() :
-            return False;'''
-
+        
         QApplication.setOverrideCursor( Qt.WaitCursor )
         
         # open file
-        QFile f( fileName )
+        f = QFile ( fileName )
         if  not f.open( QFile.ReadOnly ) :
-            MonkeyCore.messageManager().appendMessage( tr( "Cannot read file %1:\n%2." ).arg( fileName ).arg( f.errorString() ) )
+            assert(0) # todo test the code
+            MonkeyCore.messageManager().appendMessage( self.tr( "Cannot read file %1:\n%2." ).arg( fileName ).arg( f.errorString() ) )
             QApplication.restoreOverrideCursor()
             return False
-
-
+        
+        """TODO
         # remember filename
-        setProperty( "fileName", fileName )
-        setProperty( "codec", codec )
-
+        self.setProperty( "fileName", fileName ) # TODO find better way
+        self.setProperty( "codec", codec ) # TODO find better way
+        
         # set lexer and apis
-        setLexer( pMonkeyStudio.lexerForFileName( fileName ) )
+        self.setLexer( mks.monkeystudio.lexerForFileName( fileName ) )
 
         # set properties
-        pMonkeyStudio.setEditorProperties( self )
-
+        mks.monkeystudio.setEditorProperties( self )
+        """
         # load file
-        c = QTextCodec.codecForName( codec.toUtf8() )
+        """
+        c = QTextCodec.codecForName( codec )
         datas = c.toUnicode( f.readAll() )
-        setText( datas )
-        setModified( False )
-
+        self.setText( datas )
+        """
+        self.setText( QString(f.readAll()) )
+        """TODO
+        self.setModified( False )
+        
         # convert tabs if needed
-        if  pMonkeyStudio.convertTabsUponOpen() :
+        if  mks.monkeystudio.convertTabsUponOpen() :
             convertTabs()
         
         #autodetect indent, need
-        if  pMonkeyStudio.autoDetectIndent() :
+        if  mks.monkeystudio.autoDetectIndent() :
             autoDetectIndent ()
-
         
         #autodetect eol, need
-        if  pMonkeyStudio.autoDetectEol() :
+        if  mks.monkeystudio.autoDetectEol() :
             autoDetectEol()
 
         
         # make backup if needed
-        if  pMonkeyStudio.createBackupUponOpen() :
+        if  mks.monkeystudio.createBackupUponOpen() :
             makeBackup()
-
-        # convert eol
-        if  pMonkeyStudio.autoEolConversion() :
-            convertEols( eolMode() )
         
+        # convert eol
+        if  mks.monkeystudio.autoEolConversion() :
+            convertEols( eolMode() )
+        """
         QApplication.restoreOverrideCursor()
         
         return True
 
-
+    """TODO
     def saveFile(self, s ):
         if  not isModified() :
             return True
@@ -640,4 +649,4 @@ class pEditor(QsciScintilla)
                 return
 
         QFile.copy( f.absoluteFilePath(), s )
-
+    """

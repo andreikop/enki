@@ -3,26 +3,25 @@
 
 #include <QSortFilterProxyModel>
 
-class XUPProjectModel;
+class XUPProjectModel
 
 class XUPProjectModelProxy : public QSortFilterProxyModel
-{
 public:
-    XUPProjectModelProxy( QObject* parent = 0, bool showDisabled = true );
+    XUPProjectModelProxy( parent = 0, showDisabled = True )
     
-    virtual void setSourceModel( QAbstractItemModel* sourceModel );
-    virtual Qt::ItemFlags flags( const QModelIndex& index ) const;
+    virtual void setSourceModel( QAbstractItemModel* sourceModel )
+    virtual Qt.ItemFlags flags(  QModelIndex& index )
     
-    bool isShowDisabled() const;
+    bool isShowDisabled()
 
 public slots:
-    void setShowDisabled( bool showDisabled );
+    void setShowDisabled( bool showDisabled )
 
 protected:
-    XUPProjectModel* mSourceModel;
-    bool mShowDisabled;
+    XUPProjectModel* mSourceModel
+    bool mShowDisabled
     
-    virtual bool filterAcceptsRow( int sourceRow, const QModelIndex& sourceParent ) const;
-};
+    virtual bool filterAcceptsRow( int sourceRow, sourceParent )
 
-#endif // XUPPROJECTMODELPROXY_H
+
+#endif # XUPPROJECTMODELPROXY_H

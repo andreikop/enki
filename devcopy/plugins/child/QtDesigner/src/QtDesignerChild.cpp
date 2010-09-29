@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,9 +12,9 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-****************************************************************************/
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+***************************************************************************'''
 #include "QtDesignerChild.h"
 #include "QtDesignerManager.h"
 
@@ -38,344 +38,302 @@
 #include <QStyleFactory>
 #include <QPrinter>
 
-QtDesignerChild::QtDesignerChild( QtDesignerManager* manager )
+QtDesignerChild.QtDesignerChild( QtDesignerManager* manager )
     : pAbstractChild()
-{
-    Q_ASSERT( manager );
-    mDesignerManager = manager;
+    Q_ASSERT( manager )
+    mDesignerManager = manager
 
-    // set up ui
-    setWindowIcon( pIconManager::icon( "designer.png", ":/icons" ) );
+    # set up ui
+    setWindowIcon( pIconManager.icon( "designer.png", ":/icons" ) )
 
-    // create form host widget
-    QDesignerFormWindowInterface* form = mDesignerManager->createNewForm( this );
-    mDesignerManager->addFormWindow( form );
+    # create form host widget
+    form = mDesignerManager.createNewForm( self )
+    mDesignerManager.addFormWindow( form )
 
-    mHostWidget = new SharedTools::WidgetHost( this, form );
-    mHostWidget->setFrameStyle( QFrame::NoFrame | QFrame::Plain );
-    mHostWidget->setFocusProxy( form );
+    mHostWidget = SharedTools.WidgetHost( self, form )
+    mHostWidget.setFrameStyle( QFrame.NoFrame | QFrame.Plain )
+    mHostWidget.setFocusProxy( form )
 
-    setWidget( mHostWidget );
+    setWidget( mHostWidget )
 
-    connect( mHostWidget->formWindow(), SIGNAL( changed() ), this, SLOT( formChanged() ) );
-    connect( mHostWidget->formWindow(), SIGNAL( selectionChanged() ), this, SLOT( formSelectionChanged() ) );
-    connect( mHostWidget->formWindow(), SIGNAL( geometryChanged() ), this, SLOT( formGeometryChanged() ) );
-    connect( mHostWidget->formWindow(), SIGNAL( mainContainerChanged( QWidget* ) ), this, SLOT( formMainContainerChanged( QWidget* ) ) );
-}
+    mHostWidget.formWindow().changed.connect(self.formChanged)
+    mHostWidget.formWindow().selectionChanged.connect(self.formSelectionChanged)
+    mHostWidget.formWindow().geometryChanged.connect(self.formGeometryChanged)
+    mHostWidget.formWindow().mainContainerChanged.connect(self.formMainContainerChanged)
 
-void QtDesignerChild::showEvent( QShowEvent* event )
-{
-    pAbstractChild::showEvent( event );
 
-    mDesignerManager->setActiveFormWindow( mHostWidget->formWindow() );
-}
+def showEvent(self, event ):
+    pAbstractChild.showEvent( event )
 
-void QtDesignerChild::formChanged()
-{
-    setWindowModified( mHostWidget->formWindow()->isDirty() );
-    emit modifiedChanged( mHostWidget->formWindow()->isDirty() );
-    emit contentChanged();
-}
+    mDesignerManager.setActiveFormWindow( mHostWidget.formWindow() )
 
-void QtDesignerChild::formSelectionChanged()
-{
-    mHostWidget->updateFormWindowSelectionHandles( true );
-}
 
-void QtDesignerChild::formGeometryChanged()
-{
-    // set modified state
-    bool loading = property( "loadingFile" ).toBool();
-    bool modified = !loading;
+def formChanged(self):
+    setWindowModified( mHostWidget.formWindow().isDirty() )
+    modifiedChanged.emit( mHostWidget.formWindow().isDirty() )
+    contentChanged.emit()
 
-    // update property
-    QDesignerPropertySheetExtension* sheet = qt_extension<QDesignerPropertySheetExtension*>( mDesignerManager->core()->extensionManager(), mHostWidget->formWindow() );
-    QRect geo = sheet->property( sheet->indexOf( "geometry" ) ).toRect();
-    geo.moveTopLeft( QPoint( 0, 0 ) );
 
-    // update property
-    mDesignerManager->core()->propertyEditor()->setPropertyValue( "geometry", geo, modified );
+def formSelectionChanged(self):
+    mHostWidget.updateFormWindowSelectionHandles( True )
 
-    // update state
-    mHostWidget->formWindow()->setDirty( modified );
-    setWindowModified( modified );
-    setProperty( "loadingFile", false );
 
-    // emit modified state
-    emit modifiedChanged( modified );
-    emit contentChanged();
-}
+def formGeometryChanged(self):
+    # set modified state
+    loading = property( "loadingFile" ).toBool()
+    modified = not loading
 
-void QtDesignerChild::formMainContainerChanged( QWidget* widget )
-{
-    Q_UNUSED( widget );
-    setProperty( "loadingFile", true );
-}
+    # update property
+    sheet = qt_extension<QDesignerPropertySheetExtension*>( mDesignerManager.core().extensionManager(), mHostWidget.formWindow() )
+    geo = sheet.property( sheet.indexOf( "geometry" ) ).toRect()
+    geo.moveTopLeft( QPoint( 0, 0 ) )
 
-bool QtDesignerChild::openFile( const QString& fileName, const QString& codec )
-{
-    Q_UNUSED( codec );
+    # update property
+    mDesignerManager.core().propertyEditor().setPropertyValue( "geometry", geo, modified )
 
-    if ( QFile::exists( fileName ) )
-    {
-        // set content
-        QFile file( fileName );
+    # update state
+    mHostWidget.formWindow().setDirty( modified )
+    setWindowModified( modified )
+    setProperty( "loadingFile", False )
 
-        if ( !file.open( QIODevice::ReadOnly ) )
-        {
-            return false;
-        }
+    # modified.emit state
+    modifiedChanged.emit( modified )
+    contentChanged.emit()
 
-        setFilePath( fileName );
-        mHostWidget->formWindow()->setFileName( fileName );
-        mHostWidget->formWindow()->setContents( &file );
 
-        if ( mHostWidget->formWindow()->mainContainer() )
-        {
-            // set clean
-            mHostWidget->formWindow()->setDirty( false );
+def formMainContainerChanged(self, widget ):
+    Q_UNUSED( widget )
+    setProperty( "loadingFile", True )
 
-            setWindowModified( false );
 
-            emit fileOpened();
-            return true;
-        }
-        else
-        {
-            setFilePath( QString::null );
-            mHostWidget->formWindow()->setFileName( QString::null );
-        }
-    }
+def openFile(self, fileName, codec ):
+    Q_UNUSED( codec )
 
-    return false;
-}
+    if  QFile.exists( fileName ) :
+        # set content
+        QFile file( fileName )
 
-void QtDesignerChild::closeFile()
-{
-    setFilePath( QString::null );
-    emit fileClosed();
-}
+        if  not file.open( QIODevice.ReadOnly ) :
+            return False
 
-void QtDesignerChild::reload()
-{
-    openFile( mHostWidget->formWindow()->fileName(), QString::null );
+
+        setFilePath( fileName )
+        mHostWidget.formWindow().setFileName( fileName )
+        mHostWidget.formWindow().setContents( &file )
+
+        if  mHostWidget.formWindow().mainContainer() :
+            # set clean
+            mHostWidget.formWindow().setDirty( False )
+
+            setWindowModified( False )
+
+            fileOpened.emit()
+            return True
+
+        else:
+            setFilePath( QString.null )
+            mHostWidget.formWindow().setFileName( QString.null )
+
+
+
+    return False
+
+
+def closeFile(self):
+    setFilePath( QString.null )
+    fileClosed.emit()
+
+
+def reload(self):
+    openFile( mHostWidget.formWindow().fileName(), QString.null )
     
-    emit fileReloaded();
-}
-
-QString QtDesignerChild::fileBuffer() const
-{
-    if ( mHostWidget->formWindow()->mainContainer() )
-    {
-        return mHostWidget->formWindow()->contents();
-    }
-
-    return QString::null;
-}
-
-QString QtDesignerChild::context() const
-{
-    return PLUGIN_NAME;
-}
-
-void QtDesignerChild::initializeContext( QToolBar* tb )
-{
-    QDesignerFormWindowManagerInterface* fwm = mDesignerManager->core()->formWindowManager();
-
-    // add actions to toolbar
-    tb->addAction( fwm->actionUndo() );
-    tb->addAction( fwm->actionRedo() );
-    tb->addAction( fwm->actionCut() );
-    tb->addAction( fwm->actionCopy() );
-    tb->addAction( fwm->actionPaste() );
-    tb->addAction( fwm->actionLower() );
-    tb->addAction( fwm->actionRaise() );
-    tb->addAction( fwm->actionDelete() );
-    tb->addAction( fwm->actionSelectAll() );
-    tb->addSeparator();
-
-    // tools
-    tb->addActions( mDesignerManager->modesActions() );
-    tb->addSeparator();
-
-    // form
-    tb->addAction( fwm->actionHorizontalLayout() );
-    tb->addAction( fwm->actionVerticalLayout() );
-    tb->addAction( fwm->actionSplitHorizontal() );
-    tb->addAction( fwm->actionSplitVertical() );
-    tb->addAction( fwm->actionGridLayout() );
-    tb->addAction( fwm->actionFormLayout() );
-    tb->addAction( fwm->actionSimplifyLayout() );
-    tb->addAction( fwm->actionBreakLayout() );
-    tb->addAction( fwm->actionAdjustSize() );
-
-    // preview
-    tb->addSeparator();
-    tb->addAction( mDesignerManager->previewFormAction() );
-}
-
-QPoint QtDesignerChild::cursorPosition() const
-{
-    return QPoint( -1, -1 );
-}
-
-bool QtDesignerChild::isModified() const
-{
-    return mHostWidget->formWindow()->isDirty();
-}
-
-bool QtDesignerChild::isUndoAvailable() const
-{
-    return false;
-}
-
-bool QtDesignerChild::isRedoAvailable() const
-{
-    return false;
-}
-
-bool QtDesignerChild::isPasteAvailable() const
-{
-    return false;
-}
-
-bool QtDesignerChild::isCopyAvailable() const
-{
-    return false;
-}
+    fileReloaded.emit()
 
 
-void QtDesignerChild::saveFile()
-{
-    // cancel if not modified
-    if ( !mHostWidget->formWindow()->isDirty() )
-    {
-        return;
-    }
+def fileBuffer(self):
+    if  mHostWidget.formWindow().mainContainer() :
+        return mHostWidget.formWindow().contents()
 
-    // write file
-    QFile file( mHostWidget->formWindow()->fileName() );
 
-    if ( file.open( QIODevice::WriteOnly ) )
-    {
-        file.resize( 0 );
-        file.write( mHostWidget->formWindow()->contents().toUtf8() );
-        file.close();
+    return QString.null
 
-        mHostWidget->formWindow()->setDirty( false );
-        setWindowModified( false );
 
-        emit modifiedChanged( false );
-    }
-    else
-    {
-        MonkeyCore::messageManager()->appendMessage( tr( "An error occurs when saving :\n%1" ).arg( mHostWidget->formWindow()->fileName() ) );
-    }
+def context(self):
+    return PLUGIN_NAME
 
-    return;
-}
 
-void QtDesignerChild::printFormHelper( QDesignerFormWindowInterface* form, bool quick )
-{
-    bool ok;
-    const QStringList styles = QStyleFactory::keys();
-    const int id = styles.indexOf( pStylesActionGroup::systemStyle() );
-    QString style = QInputDialog::getItem( this, tr( "Choose a style..." ), tr( "Choose a style to render the form:" ), styles, id, false, &ok );
+def initializeContext(self, tb ):
+    fwm = mDesignerManager.core().formWindowManager()
 
-    if ( !ok )
-    {
-        return;
-    }
+    # add actions to toolbar
+    tb.addAction( fwm.actionUndo() )
+    tb.addAction( fwm.actionRedo() )
+    tb.addAction( fwm.actionCut() )
+    tb.addAction( fwm.actionCopy() )
+    tb.addAction( fwm.actionPaste() )
+    tb.addAction( fwm.actionLower() )
+    tb.addAction( fwm.actionRaise() )
+    tb.addAction( fwm.actionDelete() )
+    tb.addAction( fwm.actionSelectAll() )
+    tb.addSeparator()
 
-    // get printer
-    QPrinter printer;
+    # tools
+    tb.addActions( mDesignerManager.modesActions() )
+    tb.addSeparator()
 
-    // if quick print
-    if ( quick )
-    {
-        // check if default printer is set
-        if ( printer.printerName().isEmpty() )
-        {
-            MonkeyCore::messageManager()->appendMessage( tr( "There is no default printer, please set one before trying quick print" ) );
-            return;
-        }
+    # form
+    tb.addAction( fwm.actionHorizontalLayout() )
+    tb.addAction( fwm.actionVerticalLayout() )
+    tb.addAction( fwm.actionSplitHorizontal() )
+    tb.addAction( fwm.actionSplitVertical() )
+    tb.addAction( fwm.actionGridLayout() )
+    tb.addAction( fwm.actionFormLayout() )
+    tb.addAction( fwm.actionSimplifyLayout() )
+    tb.addAction( fwm.actionBreakLayout() )
+    tb.addAction( fwm.actionAdjustSize() )
 
-        // print and return
-        QPainter painter( &printer );
-        painter.drawPixmap( 0, 0, mDesignerManager->previewPixmap( form, style ) );
-    }
-    else
-    {
-        // printer dialog
-        QPrintDialog printDialog( &printer );
+    # preview
+    tb.addSeparator()
+    tb.addAction( mDesignerManager.previewFormAction() )
 
-        // if ok
-        if ( printDialog.exec() )
-        {
-            // print and return
-            QPainter painter( &printer );
-            painter.drawPixmap( 0, 0, mDesignerManager->previewPixmap( form, style ) );
-        }
-    }
-}
 
-void QtDesignerChild::printFile()
-{
-    printFormHelper( mHostWidget->formWindow(), false );
-}
+def cursorPosition(self):
+    return QPoint( -1, -1 )
 
-void QtDesignerChild::quickPrintFile()
-{
-    printFormHelper( mHostWidget->formWindow(), true );
-}
 
-void QtDesignerChild::undo() {}
+def isModified(self):
+    return mHostWidget.formWindow().isDirty()
 
-void QtDesignerChild::redo() {}
 
-void QtDesignerChild::cut() {}
+def isUndoAvailable(self):
+    return False
 
-void QtDesignerChild::copy() {}
 
-void QtDesignerChild::paste() {}
+def isRedoAvailable(self):
+    return False
 
-void QtDesignerChild::searchReplace() {}
 
-void QtDesignerChild::goTo() {}
+def isPasteAvailable(self):
+    return False
 
-void QtDesignerChild::goTo( const QPoint& pos, int selectionLength )
-{
-    Q_UNUSED( pos );
-    Q_UNUSED( selectionLength );
-}
 
-void QtDesignerChild::backupFileAs( const QString& fileName )
-{
-    QFile file( fileName );
+def isCopyAvailable(self):
+    return False
 
-    if ( file.open( QIODevice::WriteOnly ) )
-    {
-        file.resize( 0 );
-        file.write( mHostWidget->formWindow()->contents().toUtf8() );
-        file.close();
-    }
-    else
-    {
-        MonkeyCore::messageManager()->appendMessage( tr( "An error occurs when backuping: %1" ).arg( fileName ) );
-    }
-}
 
-bool QtDesignerChild::isSearchReplaceAvailable() const
-{
-    return false;
-}
 
-bool QtDesignerChild::isGoToAvailable() const
-{
-    return false;
-}
+def saveFile(self):
+    # cancel if not modified
+    if  not mHostWidget.formWindow().isDirty() :
+        return
 
-bool QtDesignerChild::isPrintAvailable() const
-{
-    return true;
-}
+
+    # write file
+    QFile file( mHostWidget.formWindow().fileName() )
+
+    if  file.open( QIODevice.WriteOnly ) :
+        file.resize( 0 )
+        file.write( mHostWidget.formWindow().contents().toUtf8() )
+        file.close()
+
+        mHostWidget.formWindow().setDirty( False )
+        setWindowModified( False )
+
+        modifiedChanged.emit( False )
+
+    else:
+        MonkeyCore.messageManager().appendMessage( tr( "An error occurs when saving :\n%1" ).arg( mHostWidget.formWindow().fileName() ) )
+
+
+    return
+
+
+def printFormHelper(self, form, quick ):
+    bool ok
+     styles = QStyleFactory.keys()
+     id = styles.indexOf( pStylesActionGroup.systemStyle() )
+    style = QInputDialog.getItem( self, tr( "Choose a style..." ), tr( "Choose a style to render the form:" ), styles, id, False, &ok )
+
+    if  not ok :
+        return
+
+
+    # get printer
+    QPrinter printer
+
+    # if quick print
+    if  quick :
+        # check if default printer is set
+        if  printer.printerName().isEmpty() :
+            MonkeyCore.messageManager().appendMessage( tr( "There is no default printer, set one before trying quick print" ) )
+            return
+
+
+        # print and return
+        QPainter painter( &printer )
+        painter.drawPixmap( 0, 0, mDesignerManager.previewPixmap( form, style ) )
+
+    else:
+        # printer dialog
+        QPrintDialog printDialog( &printer )
+
+        # if ok
+        if  printDialog.exec() :
+            # print and return
+            QPainter painter( &printer )
+            painter.drawPixmap( 0, 0, mDesignerManager.previewPixmap( form, style ) )
+
+
+
+
+def printFile(self):
+    printFormHelper( mHostWidget.formWindow(), False )
+
+
+def quickPrintFile(self):
+    printFormHelper( mHostWidget.formWindow(), True )
+
+
+void QtDesignerChild.undo() {
+
+void QtDesignerChild.redo() {
+
+void QtDesignerChild.cut() {
+
+void QtDesignerChild.copy() {
+
+void QtDesignerChild.paste() {
+
+void QtDesignerChild.searchReplace() {
+
+void QtDesignerChild.goTo() {
+
+def goTo(self, pos, selectionLength ):
+    Q_UNUSED( pos )
+    Q_UNUSED( selectionLength )
+
+
+def backupFileAs(self, fileName ):
+    QFile file( fileName )
+
+    if  file.open( QIODevice.WriteOnly ) :
+        file.resize( 0 )
+        file.write( mHostWidget.formWindow().contents().toUtf8() )
+        file.close()
+
+    else:
+        MonkeyCore.messageManager().appendMessage( tr( "An error occurs when backuping: %1" ).arg( fileName ) )
+
+
+
+def isSearchReplaceAvailable(self):
+    return False
+
+
+def isGoToAvailable(self):
+    return False
+
+
+def isPrintAvailable(self):
+    return True
+

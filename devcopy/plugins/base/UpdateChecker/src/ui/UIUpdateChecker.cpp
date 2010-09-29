@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
 **
 **         Created using Monkey Studio v1.8.1.0
 ** Authors   : Filipe AZEVEDO aka Nox P@sNox <pasnox@gmail.com>
@@ -6,8 +6,8 @@
 ** FileName  : UIUpdateChecker.cpp
 ** Date      : 2008-01-14T00:39:51
 ** License   : GPL
-** Comment   : This header has been automatically generated, if you are the original author, or co-author, fill free to replace/append with your informations.
-** Home Page : http://www.monkeystudio.org
+** Comment   : This header has been automatically generated, you are the original author, co-author, free to replace/append with your informations.
+** Home Page : http:#www.monkeystudio.org
 **
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
@@ -22,10 +22,10 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
 **
-****************************************************************************/
+***************************************************************************'''
 #include "UIUpdateChecker.h"
 #include "UpdateChecker.h"
 
@@ -38,250 +38,210 @@
 #include <QDesktopServices>
 #include <QDebug>
 
-const QString UIUpdateChecker::mDownloadsUrl = PACKAGE_DOWNLOAD_FEED;
+ QString UIUpdateChecker.mDownloadsUrl = PACKAGE_DOWNLOAD_FEED
 
-// UpdateItem
+# UpdateItem
 
-UpdateItem::UpdateItem( const QDomElement& element )
-{
-    QDomNodeList nodes = element.childNodes();
+UpdateItem.UpdateItem(  QDomElement& element )
+    nodes = element.childNodes()
     
-    for ( int i = 0; i < nodes.count(); i++ )
-    {
-        const QDomElement el = nodes.at( i ).toElement();
-        const QString name = el.tagName();
+    for ( i = 0; i < nodes.count(); i++ )
+         el = nodes.at( i ).toElement()
+         name = el.tagName()
         
-        if ( name == "updated" )
-        {
-            mDatas[ UpdateItem::Updated ] = el.firstChild().toText().data();
-        }
-        else if ( name == "id" )
-        {
-            mDatas[ UpdateItem::Id ] = el.firstChild().toText().data();
-        }
-        else if ( name == "link" )
-        {
-            mDatas[ UpdateItem::Link ] = el.attribute( "href" );
-        }
-        else if ( name == "title" )
-        {
-            mDatas[ UpdateItem::Title ] = el.firstChild().toText().data().trimmed();
-        }
-        else if ( name == "author" )
-        {
-            mDatas[ UpdateItem::Author ] = el.firstChild().firstChild().toText().data();
-        }
-        else if ( name == "content" )
-        {
-            mDatas[ UpdateItem::Content ] = el.firstChild().toText().data().trimmed();
-        }
-    }
-}
+        if  name == "updated" :
+            mDatas[ UpdateItem.Updated ] = el.firstChild().toText().data()
 
-bool UpdateItem::operator<( const UpdateItem& other ) const
-{
-    return pVersion( version() ) < pVersion( other.version() );
-}
+        elif  name == "id" :
+            mDatas[ UpdateItem.Id ] = el.firstChild().toText().data()
 
-bool UpdateItem::operator>( const UpdateItem& other ) const
-{
-    return pVersion( version() ) > pVersion( other.version() );
-}
+        elif  name == "link" :
+            mDatas[ UpdateItem.Link ] = el.attribute( "href" )
 
-bool UpdateItem::operator<( const pVersion& other ) const
-{
-    return pVersion( version() ) < other;
-}
+        elif  name == "title" :
+            mDatas[ UpdateItem.Title ] = el.firstChild().toText().data().trimmed()
 
-bool UpdateItem::operator>( const pVersion& other ) const
-{
-    return pVersion( version() ) > other;
-}
+        elif  name == "author" :
+            mDatas[ UpdateItem.Author ] = el.firstChild().firstChild().toText().data()
 
-QDateTime UpdateItem::updated() const
-{
-    return QDateTime::fromString( mDatas.value( UpdateItem::Updated ), Qt::ISODate );
-}
+        elif  name == "content" :
+            mDatas[ UpdateItem.Content ] = el.firstChild().toText().data().trimmed()
 
-QString UpdateItem::id() const
-{
-    return mDatas.value( UpdateItem::Id );
-}
 
-QUrl UpdateItem::link() const
-{
-    return QUrl( mDatas.value( UpdateItem::Link ) );
-}
 
-QString UpdateItem::title() const
-{
-    return mDatas.value( UpdateItem::Title );
-}
 
-QString UpdateItem::author() const
-{
-    return mDatas.value( UpdateItem::Author );
-}
+bool UpdateItem.operator<(  UpdateItem& other )
+    return pVersion( version() ) < pVersion( other.version() )
 
-QString UpdateItem::content() const
-{
-    return mDatas.value( UpdateItem::Content );
-}
 
-QString UpdateItem::toolTip() const
-{
+bool UpdateItem.operator>(  UpdateItem& other )
+    return pVersion( version() ) > pVersion( other.version() )
+
+
+bool UpdateItem.operator<(  pVersion& other )
+    return pVersion( version() ) < other
+
+
+bool UpdateItem.operator>(  pVersion& other )
+    return pVersion( version() ) > other
+
+
+def updated(self):
+    return QDateTime.fromString( mDatas.value( UpdateItem.Updated ), Qt.ISODate )
+
+
+def id(self):
+    return mDatas.value( UpdateItem.Id )
+
+
+def link(self):
+    return QUrl( mDatas.value( UpdateItem.Link ) )
+
+
+def title(self):
+    return mDatas.value( UpdateItem.Title )
+
+
+def author(self):
+    return mDatas.value( UpdateItem.Author )
+
+
+def content(self):
+    return mDatas.value( UpdateItem.Content )
+
+
+def toolTip(self):
     return content().replace(
         QRegExp( "<a.*</a>" ), QString( "Update on %1 by %2" )
-            .arg( updated().toString( Qt::DefaultLocaleLongDate ) )
+            .arg( updated().toString( Qt.DefaultLocaleLongDate ) )
             .arg( author() )
-    );
-}
+    )
 
-bool UpdateItem::isFeatured() const
-{
-    return content().contains( "Featured", Qt::CaseInsensitive );
-}
 
-QString UpdateItem::displayText() const
-{
-    return content().split( "\n" ).value( 1 ).trimmed().append( " ( " ).append( title() ).append( " ) " );
-}
+def isFeatured(self):
+    return content().contains( "Featured", Qt.CaseInsensitive )
 
-QString UpdateItem::versionString() const
-{
-    const QString text = title();
-    QRegExp rx( ".*mks_([\\d\\.\\d\\.\\d\\.\\d]{1,}[\\w]*)-svn.*" );
+
+def displayText(self):
+    return content().split( "\n" ).value( 1 ).trimmed().append( " ( " ).append( title() ).append( " ) " )
+
+
+def versionString(self):
+     text = title()
+    QRegExp rx( ".*mks_([\\d\\.\\d\\.\\d\\.\\d]{1,}[\\w]*)-svn.*" )
     
-    if ( rx.exactMatch( text ) )
-    {
-        return rx.cap( 1 );
-    }
+    if  rx.exactMatch( text ) :
+        return rx.cap( 1 )
+
     
-    return QString::null;
-}
+    return QString.null
 
-pVersion UpdateItem::version() const
-{
-    return pVersion( versionString() );
-}
 
-bool UpdateItem::isValid() const
-{
-    return !mDatas.isEmpty();
-}
+def version(self):
+    return pVersion( versionString() )
 
-// UIUpdateChecker
 
-UIUpdateChecker::UIUpdateChecker( UpdateChecker* plugin, QWidget* w )
+def isValid(self):
+    return not mDatas.isEmpty()
+
+
+# UIUpdateChecker
+
+UIUpdateChecker.UIUpdateChecker( UpdateChecker* plugin, w )
     : QDialog( w )
-{
-    Q_ASSERT( plugin );
+    Q_ASSERT( plugin )
     
-    mPlugin = plugin;
+    mPlugin = plugin
     
-    setupUi( this );
-    setAttribute( Qt::WA_DeleteOnClose );
-    setAttribute( Qt::WA_MacSmallSize );
-    lVersion->setText( tr( "You are using version <b>%1</b> (%2)." ).arg( PACKAGE_VERSION ).arg( PACKAGE_VERSION_STR ) );
-    dbbButtons->button( QDialogButtonBox::Yes )->setText( tr( "Download" ) );
-    dbbButtons->button( QDialogButtonBox::Yes )->setEnabled( false );
+    setupUi( self )
+    setAttribute( Qt.WA_DeleteOnClose )
+    setAttribute( Qt.WA_MacSmallSize )
+    lVersion.setText( tr( "You are using version <b>%1</b> (%2)." ).arg( PACKAGE_VERSION ).arg( PACKAGE_VERSION_STR ) )
+    dbbButtons.button( QDialogButtonBox.Yes ).setText( tr( "Download" ) )
+    dbbButtons.button( QDialogButtonBox.Yes ).setEnabled( False )
     
     foreach ( QWidget* widget, findChildren<QWidget*>() )
-    {
-        widget->setAttribute( Qt::WA_MacSmallSize );
-    }
-    
-    mAccessManager = new QNetworkAccessManager( this );
-    
-    connect( mAccessManager, SIGNAL( finished( QNetworkReply* ) ), this, SLOT( accessManager_finished( QNetworkReply* ) ) );
-    
-    mAccessManager->get( QNetworkRequest( QUrl( mDownloadsUrl ) ) );
-}
+        widget.setAttribute( Qt.WA_MacSmallSize )
 
-UIUpdateChecker::~UIUpdateChecker()
-{
-}
-
-void UIUpdateChecker::accessManager_finished( QNetworkReply* reply )
-{
-    const pVersion currentVersion( PACKAGE_VERSION );
-    const QDateTime lastUpdated = mPlugin->settingsValue( "LastUpdated" ).toDateTime();
-    const QDateTime lastCheck = mPlugin->settingsValue( "LastCheck" ).toDateTime();
     
-    if ( reply->error() != QNetworkReply::NoError )
-    {
-        lwVersions->addItem( new QListWidgetItem( tr( "An error occur\n%1" ).arg( reply->errorString() ) ) );
-    }
-    else
-    {
-        QDomDocument document;
+    mAccessManager = QNetworkAccessManager( self )
+    
+    mAccessManager.finished.connect(self.accessManager_finished)
+    
+    mAccessManager.get( QNetworkRequest( QUrl( mDownloadsUrl ) ) )
+
+
+UIUpdateChecker.~UIUpdateChecker()
+
+
+def accessManager_finished(self, reply ):
+     pVersion currentVersion( PACKAGE_VERSION )
+     lastUpdated = mPlugin.settingsValue( "LastUpdated" ).toDateTime()
+     lastCheck = mPlugin.settingsValue( "LastCheck" ).toDateTime()
+    
+    if  reply.error() != QNetworkReply.NoError :
+        lwVersions.addItem( QListWidgetItem( tr( "An error occur\n%1" ).arg( reply.errorString() ) ) )
+
+    else:
+        QDomDocument document
         
-        if ( document.setContent( reply->readAll() ) )
-        {
-            const QString updatedText = document.elementsByTagName( "updated" ).at( 0 ).firstChild().toText().data();
-            const QDateTime updated = QDateTime::fromString( updatedText, Qt::ISODate );
-            const QDomNodeList entries = document.elementsByTagName( "entry" );
+        if  document.setContent( reply.readAll() ) :
+             updatedText = document.elementsByTagName( "updated" ).at( 0 ).firstChild().toText().data()
+             updated = QDateTime.fromString( updatedText, Qt.ISODate )
+             entries = document.elementsByTagName( "entry" )
             
-            for ( int i = 0; i < entries.count(); i++ )
-            {
-                const QDomElement element = entries.at( i ).toElement();
+            for ( i = 0; i < entries.count(); i++ )
+                 element = entries.at( i ).toElement()
                 
-                const UpdateItem updateItem( element );
+                 UpdateItem updateItem( element )
                 
-                if ( updateItem.isFeatured() && updateItem > currentVersion )
-                {
-                    QListWidgetItem* item = new QListWidgetItem( updateItem.displayText() );
+                if  updateItem.isFeatured() and updateItem > currentVersion :
+                    item = QListWidgetItem( updateItem.displayText() )
                     
-                    item->setToolTip( updateItem.toolTip() );
-                    item->setData( Qt::UserRole, QVariant::fromValue( updateItem ) );
-                    lwVersions->addItem( item );
-                }
-            }
+                    item.setToolTip( updateItem.toolTip() )
+                    item.setData( Qt.UserRole, QVariant.fromValue( updateItem ) )
+                    lwVersions.addItem( item )
+
+
             
-            mPlugin->setSettingsValue( "LastUpdated", updated );
+            mPlugin.setSettingsValue( "LastUpdated", updated )
             
-            if ( lwVersions->count() > 0 )
+            if  lwVersions.count() > 0 :
             {                
-                if ( !isVisible() && lastUpdated < updated )
-                {
-                    open();
-                }
-            }
-            else
-            {
-                QListWidgetItem* item = new QListWidgetItem( tr( "You are running the last available version." ) );
-                
-                item->setFlags( Qt::NoItemFlags );
-                lwVersions->addItem( item );
-                
-                if ( !isVisible() )
-                {
-                    close();
-                }
-            }
-        }
-        else
-        {
-            lwVersions->addItem( new QListWidgetItem( tr( "An error occur while parsing xml, retry later." ) ) );
-        }
-    }
-    
-    mPlugin->setSettingsValue( "LastCheck", QDateTime::currentDateTime() );
-}
+                if  not isVisible() and lastUpdated < updated :
+                    open()
 
-void UIUpdateChecker::on_lwVersions_itemSelectionChanged()
-{
-    QListWidgetItem* item = lwVersions->selectedItems().value( 0 );
-    const UpdateItem updateItem = item ? item->data( Qt::UserRole ).value<UpdateItem>() : UpdateItem();
-    
-    dbbButtons->button( QDialogButtonBox::Yes )->setEnabled( updateItem.isValid() );
-}
 
-void UIUpdateChecker::accept()
-{
-    QListWidgetItem* item = lwVersions->selectedItems().value( 0 );
-    const UpdateItem updateItem = item->data( Qt::UserRole ).value<UpdateItem>();
+            else:
+                item = QListWidgetItem( tr( "You are running the last available version." ) )
+                
+                item.setFlags( Qt.NoItemFlags )
+                lwVersions.addItem( item )
+                
+                if  not isVisible() :
+                    close()
+
+
+
+        else:
+            lwVersions.addItem( QListWidgetItem( tr( "An error occur while parsing xml, later." ) ) )
+
+
     
-    QDesktopServices::openUrl( updateItem.link() );
-    QDialog::accept();
-}
+    mPlugin.setSettingsValue( "LastCheck", QDateTime.currentDateTime() )
+
+
+def on_lwVersions_itemSelectionChanged(self):
+    item = lwVersions.selectedItems().value( 0 )
+     updateItem = item ? item.data( Qt.UserRole ).value<UpdateItem>() : UpdateItem()
+    
+    dbbButtons.button( QDialogButtonBox.Yes ).setEnabled( updateItem.isValid() )
+
+
+def accept(self):
+    item = lwVersions.selectedItems().value( 0 )
+     updateItem = item.data( Qt.UserRole ).value<UpdateItem>()
+    
+    QDesktopServices.openUrl( updateItem.link() )
+    QDialog.accept()
+

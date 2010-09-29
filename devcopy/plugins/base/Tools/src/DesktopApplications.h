@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,9 +12,9 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-****************************************************************************/
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+***************************************************************************'''
 #ifndef DESKTOPAPPLICATIONS_H
 #define DESKTOPAPPLICATIONS_H
 
@@ -23,68 +23,62 @@
 #include <QMap>
 #include <QMetaType>
 
-class DesktopFolder;
+class DesktopFolder
 
 struct DesktopApplication
-{
-    DesktopApplication( DesktopFolder* _parent = 0 )
-    {
-        parent = _parent;
-    }
+    DesktopApplication( _parent = 0 )
+        parent = _parent
+
     
-    bool operator==( const DesktopApplication& other ) const
-    {
+    bool operator==(  DesktopApplication& other )
         return parent == other.parent
-            && name == other.name
-            && icon == other.icon
-            && genericName == other.genericName
-            && comment == other.comment
-            && categories == other.categories;
-    }
+            and name == other.name
+            and icon == other.icon
+            and genericName == other.genericName
+            and comment == other.comment
+            and categories == other.categories
+
     
-    DesktopFolder* parent;
-    QString name;
-    QString icon;
-    QString genericName;
-    QString comment;
-    QStringList categories;
-};
+    DesktopFolder* parent
+    QString name
+    QString icon
+    QString genericName
+    QString comment
+    QStringList categories
+
 
 class DesktopFolder
-{
 public:
-    DesktopFolder( DesktopFolder* _parent = 0 )
-    {
-        parent = _parent;
-    }
+    DesktopFolder( _parent = 0 )
+        parent = _parent
+
     
-    DesktopFolder* parent;
-    QString path;
-    QString icon;
-    QMap<QString, DesktopApplication> applications;
-    QMap<QString, DesktopFolder> folders;
-};
+    DesktopFolder* parent
+    QString path
+    QString icon
+    QMap<QString, applications
+    QMap<QString, folders
+
 
 class DesktopApplications : public QObject
-{
     Q_OBJECT
 
 public:
-    DesktopApplications( QObject* parent = 0 );
+    DesktopApplications( parent = 0 )
 
-    DesktopFolder* startMenu() const;
-    int applicationCount() const;
-    QStringList startMenuPaths() const;
-    bool categoriesAvailable() const;
-    void scan();
+    DesktopFolder* startMenu()
+    int applicationCount()
+    QStringList startMenuPaths()
+    bool categoriesAvailable()
+    void scan()
 
 protected:
-    mutable DesktopFolder mStartMenu;
+    mutable DesktopFolder mStartMenu
 
-    int applicationCount( DesktopFolder* folder ) const;
-};
+    int applicationCount( DesktopFolder* folder )
 
-Q_DECLARE_METATYPE( DesktopApplication* );
-Q_DECLARE_METATYPE( DesktopFolder* );
 
-#endif // DESKTOPAPPLICATIONS_H
+Q_DECLARE_METATYPE( DesktopApplication* )
+Q_DECLARE_METATYPE( DesktopFolder* )
+
+#endif # DESKTOPAPPLICATIONS_H

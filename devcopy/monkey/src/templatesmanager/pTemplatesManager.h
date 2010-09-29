@@ -1,4 +1,4 @@
-/****************************************************************************
+'''***************************************************************************
     Copyright (C) 2005 - 2008  Filipe AZEVEDO & The Monkey Studio Team
 
     This program is free software; you can redistribute it and/or modify
@@ -12,15 +12,15 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-****************************************************************************/
-/*!
+    along with self program; if not, to the Free Software
+    Foundation, Inc., Franklin St, Floor, Boston, 02110-1301  USA
+***************************************************************************'''
+'''!
     \file pTemplatesManager.h
     \date 2008-01-14T00:37:13
-    \author Andrei KOPATS, Filepe AZEVEDO
+    \author Andrei KOPATS, AZEVEDO
     \brief Header for pTemplatesManager class
-*/
+'''
 #ifndef PTEMPLATESMANAGER_H
 #define PTEMPLATESMANAGER_H
 
@@ -31,68 +31,66 @@
 #include <QApplication>
 #include <QStringList>
 
-class XUPItem;
+class XUPItem
 
-typedef QHash <QString, QStringList> VarList;
+typedef QHash <QString, VarList
 
-/*
+'''
     NOTE Filenames can contain variables. Example: Project$name$.pro
     This files will be renamed
-*/
+'''
 
-/*!
+'''!
     \brief Inmemory representation of template.
-*/
+'''
 struct Q_MONKEY_EXPORT pTemplate
-{
-    QString Name;                            /*<! Name of template, which are displaying for user */
-    QString Language;                        /*<! Programming language */
-    QString Type;                            /*<! Type of template (Project, File..) */
-    QString Description;                    /*<! Desctiption of template. Shown on tooltip */
-    QString Icon;                            /*<! Path to template icon */
-    QString Script;                            /*<! Script for configure template. Currently support not implemented*/
-    QString DirPath;                         /*<! Dirrectory, containing template */
-    QStringList Files;                        /*<! List of files of template */
-    QStringList FilesToOpen;                /*<! List of files, which should be open after template creation */
-    QStringList ProjectsToOpen;                /*<! List of project, which should be open after template creation */
-    QStringList FilesToAdd;                    /*<! List of files, which coult be added to some project, after creation */
-    VarList Variables;
+    QString Name;                            '''<not  Name of template, are displaying for user '''
+    QString Language;                        '''<not  Programming language '''
+    QString Type;                            '''<not  Type of template (Project, File..) '''
+    QString Description;                    '''<not  Desctiption of template. Shown on tooltip '''
+    QString Icon;                            '''<not  Path to template icon '''
+    QString Script;                            '''<not  Script for configure template. Currently support not implemented'''
+    QString DirPath;                         '''<not  Dirrectory, template '''
+    QStringList Files;                        '''<not  List of files of template '''
+    QStringList FilesToOpen;                '''<not  List of files, should be open after template creation '''
+    QStringList ProjectsToOpen;                '''<not  List of project, should be open after template creation '''
+    QStringList FilesToAdd;                    '''<not  List of files, coult be added to some project, creation '''
+    VarList Variables
     
-    /*!
+    '''!
         Compare two templates
-    */
-    bool operator==( const pTemplate& t )
-    { return Name == t.Name && Language == t.Language && Type == t.Type &&
-            Description == t.Description && Icon == t.Icon && Script == t.Script &&
-            DirPath == t.DirPath && Files == t.Files && FilesToOpen == t.FilesToOpen &&
-            ProjectsToOpen == t.ProjectsToOpen && FilesToAdd == t.FilesToAdd && Variables == t.Variables; }
+    '''
+    bool operator==(  pTemplate& t )
+    { return Name == t.Name and Language == t.Language and Type == t.Type and
+            Description == t.Description and Icon == t.Icon and Script == t.Script and
+            DirPath == t.DirPath and Files == t.Files and FilesToOpen == t.FilesToOpen and
+            ProjectsToOpen == t.ProjectsToOpen and FilesToAdd == t.FilesToAdd and Variables == t.Variables;
 
-};
 
-/*!
-    List of templates   BUG this comment not including to documentation
-*/
-typedef QList<pTemplate> TemplateList;
 
-/*!
+'''!
+    List of templates   BUG self comment not including to documentation
+'''
+typedef QList<pTemplate> TemplateList
+
+'''!
     \brief Implementation of Templates Manager module
     
-    Allows to cteate files from template, configure template before creation of files, open files and projects, add new files to projects
-*/
-class Q_MONKEY_EXPORT pTemplatesManager : public QObject, public QSingleton<pTemplatesManager>
-{
+    Allows to cteate files from template, template before creation of files, files and projects, files to projects
+'''
+class Q_MONKEY_EXPORT pTemplatesManager : public QObject, QSingleton<pTemplatesManager>
     Q_OBJECT
-    friend class QSingleton<pTemplatesManager>;
+    friend class QSingleton<pTemplatesManager>
     
 private:
-    pTemplatesManager( QObject* = QApplication::instance() );
+    pTemplatesManager( QObject* = QApplication.instance() )
 
 public:
-    pTemplate getTemplate( const QString& );
-    TemplateList getTemplates();
+    pTemplate getTemplate(  QString& )
+    TemplateList getTemplates()
 
-    bool realiseTemplate( XUPItem* scope, const pTemplate& tmplate, const QString& codec, const VariablesManager::Dictionary& variables = VariablesManager::Dictionary() );
+    bool realiseTemplate( XUPItem* scope, tmplate, codec, variables = VariablesManager.Dictionary() )
     
-};
 
-#endif // PTEMPLATESMANAGER_H
+
+#endif # PTEMPLATESMANAGER_H
