@@ -199,8 +199,9 @@ class pAbstractChild(QMdiSubWindow):
     def quickPrintFile(self):
         pass
         
-
+    '''
     fileOpened = pyqtSignal()
+    '''TODO
     fileClosed() = pyqtSignal()
     # when.emit a file is reloaded
     fileReloaded = pyqtSignal()

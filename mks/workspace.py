@@ -313,7 +313,6 @@ class pWorkspace(QFrame):
     """
 
     def handleDocument( self, document ):
-        pass
         """TODO
         # init document connections
         connect( document, SIGNAL( fileOpened() ), this, SLOT( document_fileOpened() ) )
@@ -393,7 +392,7 @@ class pWorkspace(QFrame):
             document = mks.child.pChild()
         
         # make connection if worksapce don t contains self document
-        if  document in self.mdiArea.subWindowList():
+        if not document in self.mdiArea.subWindowList():
             self.handleDocument( document )
         
         # open file
