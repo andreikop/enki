@@ -94,7 +94,7 @@ class MainWindow(pMainWindow):
         mb.action( "mSave/aAll", self.tr( "Save &All" ), QIcon( ":/file/icons/file/saveall.png" ), '', self.tr( "Save all files" ) ).setEnabled( False )
         mb.menu( "mClose", self.tr( "&Close" ), QIcon( ":/file/icons/file/close.png" ) )
 
-        mb.action( "mClose/aCurrent", self.tr( "&Close" ), QIcon( ":/file/icons/file/close.png" ), "Ctrl+W", self.tr( "Close the current file" ) ).setEnabled( False )
+        mb.action( "mClose/aCurrent", self.tr( "&Close" ), QIcon( ":/file/icons/file/close.png" ), "", self.tr( "Close the current file" ) ).setEnabled( False )
         """TODO
         mb.action( "mClose/aAll", self.tr( "Close &All" ), QIcon( ":/file/icons/file/closeall.png" ), '', self.tr( "Close all files" ) ).setEnabled( False )
         mb.action( "aSeparator3" )
