@@ -9,6 +9,10 @@ class pAbstractChild(QMdiSubWindow):
     
     def __init__( self, parent = None):
         QMdiSubWindow.__init__( self, parent )
+        
+        # default for window icon is application icon. This line avoids using it in the opened files list
+        self.setWindowIcon(QIcon())
+        
         """TODO
         mCodec:
         setAttribute( Qt.WA_DeleteOnClose )
@@ -233,3 +237,4 @@ class pAbstractChild(QMdiSubWindow):
     #requestGoTo = pyqtSignal()
     # when.emit a child require to update workspace
     #updateWorkspaceRequested()
+    

@@ -5,7 +5,6 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 import main
-import mks.iconmanager
 import mks.settings
 import mks.mainwindow
 import mks.workspace
@@ -46,7 +45,7 @@ def init():
         pixmap = "splashscreen.png"
     
     """
-    splash = QSplashScreen (mks.iconmanager.pixmap(pixmap))
+    splash = QSplashScreen (mks.monkeystudio.getIcon('/application/pixmap.png'))
     
     ft = QFont( splash.font() )
     if sys.platform.startswith('win'): # Windows platform
@@ -141,7 +140,6 @@ def init():
     # show main window
     #mainWindow().menu_Docks_aboutToShow()
     mainWindow().show()
-    #mainWindow().finalyzeGuiInit()
 
     # ready
     #_showMessage( splash, splash.tr( "%1 v%2 (%3) Ready" ).arg( mks.config.PACKAGE_NAME, mks.config.PACKAGE_VERSION, mks.config.PACKAGE_VERSION_STR ) )

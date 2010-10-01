@@ -1,4 +1,5 @@
 import sys
+import os.path
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -1807,3 +1808,12 @@ def setWrappedLineIndentWidth( i ):
 
 def wrappedLineIndentWidth():
     return mks.monkeycore.settings().value( settingsPath() +"/WrappedLineIndentWidth", 0 ).toInt()
+
+def getIcon(name):
+    """Loads QIcon from the icons path and returns it. Example:
+      mks.monkeystudio.getIcon('application/monkey2.png')
+    returns main application icon.
+    Probably caching would be added later.
+    """
+    # TODO suppor something like /usr/share/monkeystudio, and something on Windows
+    return QIcon(os.path.dirname(mks.__file__) + '/../icons/' + name)

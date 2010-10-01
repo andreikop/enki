@@ -2,6 +2,8 @@
 
 import sys
 
+import mks
+
 def showHelp():
     showVersion()
     print "Command line arguments:"

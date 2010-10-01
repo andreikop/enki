@@ -6,7 +6,6 @@ from PyQt4.QtGui import *
 import PyQt4.fresh
 
 import mks.monkeycore
-import mks.iconmanager
 
 """TODO rewrite with lambda functions. Would be much better
 struct OpeningOrderSorter
@@ -58,12 +57,9 @@ class _pOpenedFileModel(QAbstractItemModel):
         self.mSortMode = pOpenedFileModel.OpeningOrder
         """
         self.mDocuments = []
-        self.mDocumentsIcons = {}
         self.mDocumentsToolTips = {}
         self.mSortDocumentsTimer = QTimer( self )
         self.mSortDocumentsTimeout = 150
-        self.mTransparentIcon = mks.iconmanager.icon( "transparent.png" )
-        self.mModifiedIcon = mks.iconmanager.icon( "save.png" )
         self.mSortDocumentsTimer = QTimer()
         self.mSortDocumentsTimer.timeout.connect(self.sortDocuments_timeout)
         workspace.documentOpened.connect(self.documentOpened)
@@ -111,15 +107,12 @@ class _pOpenedFileModel(QAbstractItemModel):
 
 
         if role == Qt.DecorationRole:
-            icon = document.windowIcon()
-
-            if document in self.mDocumentsIcons:
-                icon = self.mDocumentsIcons[ document ]
-            elif  document.isModified() :
-                icon = self.mModifiedIcon
-            
-            if  icon.isNull() :
-                icon =  self.mTransparentIcon
+            if document.isModified() :
+                icon = mks.monkeystudio.getIcon("file/save.png" )
+            else:
+                icon = document.windowIcon()
+                if  icon.isNull() :
+                    icon =  mks.monkeystudio.getIcon("file/transparent.png" )
             return icon
         elif role == Qt.DisplayRole:
             return document.fileName()
@@ -198,11 +191,6 @@ class _pOpenedFileModel(QAbstractItemModel):
             mSortMode = mode
             self.sortModeChanged.emit( mSortMode )
             self.sortDocuments()
-
-    def setDocumentIcon(self, document, icon ):
-        self.mDocumentsIcons[ document ] = icon
-        index = self.documentIndex( document )
-        self.dataChanged.emit( index, index )
 
     def setDocumentToolTip(self, document, toolTip ):
         self.mDocumentsToolTips[ document ] = toolTip
@@ -310,8 +298,6 @@ class _pOpenedFileModel(QAbstractItemModel):
         if  index != -1 :
             self.beginRemoveRows( QModelIndex(), index, index )
             self.mDocuments.remove( document )
-            if document in self.mDocumentsIcons:
-                self.mDocumentsIcons.pop( document )
             if document in self.mDocumentsToolTips:
                 self.mDocumentsToolTips.pop( document )
             self.endRemoveRows()
@@ -401,7 +387,7 @@ class pOpenedFileExplorer(PyQt4.fresh.pDockWidget):
 
         aSortMenu = QAction( tr( "Sorting" ), self )
         aSortMenu.setMenu( self.mSortMenu )
-        aSortMenu.setIcon( mks.iconmanager.icon( "sort.png" ) )
+        aSortMenu.setIcon( mks.monkeystudio.iconsPath() + "file/sort.png" ) )
         aSortMenu.setToolTip( aSortMenu.text() )
         '''
         tb = qobject_cast<QToolButton*>( titleBar().addAction( aSortMenu, 0 ) )
