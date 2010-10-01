@@ -8,6 +8,7 @@ from PyQt4.QtGui import QDockWidget
 
 from PyQt4.fresh import pMainWindow
 
+import mks.monkeystudio
 import mks.monkeycore
 
 
@@ -28,6 +29,9 @@ class MainWindow(pMainWindow):
         self.setCorner( Qt.BottomLeftCorner, Qt.LeftDockWidgetArea )
         self.setCorner( Qt.BottomRightCorner, Qt.RightDockWidgetArea )
         """
+        
+        self.setWindowTitle( "%s v%s (%s)" % (mks.config.PACKAGE_NAME, mks.config.PACKAGE_VERSION, mks.config.PACKAGE_VERSION_STR ) )
+        self.setWindowIcon( mks.monkeystudio.getIcon('/application/monkey2.png') )
     
     def initGui(self):
         # init menubar
@@ -45,7 +49,7 @@ class MainWindow(pMainWindow):
         messageTb =  mks.monkeycore.messageManager()
         messageTb.setObjectName( "pQueuedMessageToolBar" )
         messageTb.setVisible( False )
-        messageTb.setDefaultPixmap( mks.iconmanager.pixmap( "messages_infos.png", ":/messages" ) )
+        messageTb.setDefaultPixmap( mks.monkeystudio.getIcon("messages/messages_infos.png") )
         pMonkeyStudio.setMacSmallSize( messageTb, true, true )
         self.centralWidget().layout().setMenuBar( messageTb )
         # init projects manager
@@ -372,10 +376,6 @@ class MainWindow(pMainWindow):
         self.menuBar().action( "mHelp/aAbout" ).triggered.connect(mks.monkeycore.workspace().helpAboutApplication_triggered)
         """
         self.menuBar().action( "mHelp/aAboutQt" ).triggered.connect(mks.monkeycore.workspace().helpAboutQt_triggered)
-    
-    def finalyzeGuiInit(self):
-        self.setWindowTitle( "%s v%s (%s)" % (mks.config.PACKAGE_NAME, mks.config.PACKAGE_VERSION, mks.config.PACKAGE_VERSION_STR ) )
-        self.setWindowIcon( self.menuBar().action( "mHelp/aAbout" ).icon() )
     
     def menu_Docks_aboutToShow(self):
         # get menu
