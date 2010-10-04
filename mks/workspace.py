@@ -1,18 +1,38 @@
+"""
+Workspace class implements spacked widget with opened textual documents, 
+Qt Designers, Qt Assistants and other widgets, creates and manages opened 
+file list, opens and closes files...
+Instance accessible as mks.monkeycore.workspace()
+First time created by mainWindow()
+"""
+
+import os.path
+import sys
+
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 import mks.monkeycore
 import mks.monkeystudio
-import mks.openedfileexplorer
+#import mks.openedfileexplorer
 import mks.child
-import mks.abstractchild
+#import mks.abstractchild
 
+"""
 CONTENT_CHANGED_TIME_OUT = 3000
 DEFAULT_CONTEXT = "Default"
+"""
 
-
-class pWorkspace(QFrame):
+class Workspace(QFrame):
+    """
+    Workspace class implements spacked widget with opened textual documents, 
+    Qt Designers, Qt Assistants and other widgets, creates and manages opened 
+    file list, opens and closes files...
+    Instance accessible as mks.monkeycore.workspace().
+    First time created by monkeycore.
+    """
     
+    """TODO
     NoTabs = "NoTabs"
     TopTabs = "TopTabs"
     BottomTabs = "BottomTabs"
@@ -35,10 +55,15 @@ class pWorkspace(QFrame):
     currentDocumentChanged = pyqtSignal(mks.abstractchild.pAbstractChild)
     
     buffersChanged = pyqtSignal(dict) # {file path : file contents}
+    """
     
     def __init__(self, parent):
         QFrame.__init__(self, parent)
         
+        self._oldCurrentDocument = None
+
+        mks.monkeycore.menuBar().action( "mFile/aOpen" ).triggered.connect(self._fileOpen_triggered)
+        mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).triggered.connect(self.closeCurrentDocument)
         """TODO
         self.mViewMode = self.NoTabs
         
@@ -81,54 +106,47 @@ class pWorkspace(QFrame):
             elif mode == self.RightTabs:
                 action.setText(self.tr( "Tabs at &Right" ) )
                 action.setToolTip( action.text() )
-        """
         self.mOpenedFileExplorer = mks.openedfileexplorer.pOpenedFileExplorer( self )
-        
+        """
         # layout
         self.mLayout = QVBoxLayout( self )
         self.mLayout.setMargin( 0 )
         self.mLayout.setSpacing( 0 )
-
+        """TODO
         # multitoolbar
         hline = QFrame( self )
         hline.setFrameStyle( QFrame.HLine | QFrame.Sunken )
-        
+        """
         # document area
         self.mdiArea = QMdiArea( self )
         self.mdiArea.setActivationOrder( QMdiArea.CreationOrder )
         self.mdiArea.setDocumentMode( True )
-
-        # add widgets to layout
-        """TODO
-        self.mLayout.addWidget( mks.monkeycore.multiToolBar() )
+        self.mdiArea.subWindowActivated.connect(self._onCurrentDocumentChanged)
+        
         """
+        # add widgets to layout
+        self.mLayout.addWidget( mks.monkeycore.multiToolBar() )
         
         self.mLayout.addWidget( hline )
+        """
         self.mLayout.addWidget( self.mdiArea )
-        
         """TODO
         # creaet file watcher
         self.mFileWatcher = QFileSystemWatcher( self )
-        """
         self.mContentChangedTimer = QTimer( self )
         
-        """TODO
         # load settings
         self.loadSettings()
 
         # connections
         mViewModesGroup.triggered.connect(self.viewModes_triggered)
-        """
         self.mdiArea.subWindowActivated.connect(self.mdiArea_subWindowActivated)
-        """TODO
         parent.urlsDropped.connect(self.internal_urlsDropped)
         MonkeyCore.projectsManager().currentProjectChanged.connect(self.internal_currentProjectChanged)
-        """
         self.mContentChangedTimer.timeout.connect(self.contentChangedTimer_timeout)
-        """TODO
         MonkeyCore.multiToolBar().notifyChanges.connect(self.multitoolbar_notifyChanges)
-        """
-
+    """
+    
     def eventFilter( self, object, event ):
         # get document
         if  object.isWidgetType() :
@@ -140,8 +158,20 @@ class pWorkspace(QFrame):
         
         return QFrame.eventFilter( self, object, event )
     
-    def updateGuiState( self, document ):
-        """TODO
+    def _onCurrentDocumentChanged( self, document ):
+        """Connect/disconnect document signals and update enabled/disabled 
+        state of the actions
+        """
+        
+        if self._oldCurrentDocument is not None:
+            pass
+        
+        if document is not None:
+            mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(True)
+        else:  # no document
+            mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(False)
+        
+        '''
         # fix fucking flickering due to window activation change on application gain / lost focus.
         if  not document and self.currentDocument() :
             return
@@ -167,9 +197,7 @@ class pWorkspace(QFrame):
             copy = document.isCopyAvailable()
             paste = document.isPasteAvailable()
             go = document.isGoToAvailable()
-        """
         moreThanOneDocument = len(self.mdiArea.subWindowList()) > 1
-        """TODO
         # context toolbar
         mtb = mks.monkeycore.multiToolBar()
         
@@ -195,9 +223,9 @@ class pWorkspace(QFrame):
         # update file menu
         mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled( modified )
         mks.monkeycore.menuBar().action( "mFile/mSave/aAll" ).setEnabled( document )
-        """
+        '''
         mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled( document is not None)
-        """TODO
+        '''
         mks.monkeycore.menuBar().action( "mFile/mClose/aAll" ).setEnabled( document )
         mks.monkeycore.menuBar().action( "mFile/aReload" ).setEnabled( document )
         mks.monkeycore.menuBar().action( "mFile/aSaveAsBackup" ).setEnabled( document )
@@ -214,12 +242,11 @@ class pWorkspace(QFrame):
         mks.monkeycore.menuBar().action( "mEdit/aExpandAbbreviation" ).setEnabled( document )
         mks.monkeycore.menuBar().setMenuEnabled( mks.monkeycore.menuBar().menu( "mEdit/mAllCommands" ), editor )
         mks.monkeycore.menuBar().setMenuEnabled( mks.monkeycore.menuBar().menu( "mEdit/mBookmarks" ), editor )
-        """
+        
         # update view menu
         mks.monkeycore.menuBar().action( "mView/aNext" ).setEnabled( moreThanOneDocument )
         mks.monkeycore.menuBar().action( "mView/aPrevious" ).setEnabled( moreThanOneDocument )
         
-        """TODO
         # update status bar
         mks.monkeycore.statusBar().setModified( modified )
         if editor:
@@ -233,12 +260,12 @@ class pWorkspace(QFrame):
         # internal update
         if  document :
             QDir.setCurrent( document.path() )
-    
+        '''
+        self._oldCurrentDocument = document
+    '''TODO
     def defaultContext(self):
         return DEFAULT_CONTEXT
-    """
     
-    """
     def loadSettings(self):
         # restore tabs settings
         tabBar().setTabsHaveCloseButton( tabsHaveCloseButton() )
@@ -255,22 +282,19 @@ class pWorkspace(QFrame):
             self.initMultiToolBar( tb )
         
         self.multitoolbar_notifyChanges()
-    """
     
-    """TODO
     def initMultiToolBar( self, tb ):
         if  mks.monkeystudio.showQuickFileAccess() :
             tb.insertAction( tb.actions().value( 0 ), mks.monkeycore.workspace().dockWidget().comboBoxAction() )
         else:
             tb.removeAction( mks.monkeycore.workspace().dockWidget().comboBoxAction() )
-    """
+    
     def dockWidget(self):
         return self.mOpenedFileExplorer
-    """TODO
+    
     def fileWatcher(self):
         return self.mFileWatcher
     
-    """
     
     def document( index ):
         window = self.mdiArea.subWindowList().value( index )
@@ -281,11 +305,13 @@ class pWorkspace(QFrame):
 
     def documents(self):
         return self.mdiArea.subWindowList()
+    '''
     
     def setCurrentDocument( self, document ):
-        if  self.currentDocument() != document :
-            self.mdiArea.setActiveSubWindow( document )
+        #fixme replace with setCurrentFile?
+        self.mdiArea.setActiveSubWindow( document )
     
+    """TODO
     def currentDocument(self):
         return self.mdiArea.currentSubWindow()
 
@@ -300,34 +326,35 @@ class pWorkspace(QFrame):
 
         if  document :
             document.goTo( pos, selectionLength )
-
+    """
+    
     def closeDocument( self, document, showDialog = True):
+        """Close opened file, open document from workspace and delete widget"""
+        
         """TODO
         if  showDialog and UISaveFiles.saveDocument( self.window(), document, False ) == UISaveFiles.bCancelClose :
             return
         """
         
+        """ TODO
         # stop watching files
         file = document.filePath()
-        
-        """TODO
         if  QFileInfo( file ).isFile() and self.mFileWatcher.files().contains( file ) :
             self.mFileWatcher.removePath( file )
         """
-        # close document
-        self.documentAboutToClose.emit(document)
-        document.closeFile()
         
-        if  document.testAttribute( Qt.WA_DeleteOnClose ) :
-            document.deleteLater()
-        else:
-            self.unhandleDocument( document ) #FIXME make sure not always unhandleDocument
-
+        
+        # close document
+        self._unhandleDocument( document ) #FIXME make sure not always unhandleDocument
+        document.deleteLater()
+    
+    """TODO
     def documentMode(self):
         return self.mViewMode
-    
+    """
 
-    def handleDocument( self, document ):
+    def _handleDocument( self, document ):
+        """TODO
         # init document connections
         document.fileOpened.connect(self.document_fileOpened)
         document.contentChanged.connect(self.document_contentChanged)
@@ -342,21 +369,21 @@ class pWorkspace(QFrame):
         document.copyAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aCut" ).setEnabled)
         document.copyAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aCopy" ).setEnabled)
         document.pasteAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aPaste" ).setEnabled)
-        """TODO
+        
         # update status bar
         document.cursorPositionChanged.connect(mks.monkeycore.statusBar().setCursorPosition)
         document.modifiedChanged.connect(mks.monkeycore.statusBar().setModified)
-        """
+        """        
         # add to workspace
         document.installEventFilter( self )
         
         self.mdiArea.blockSignals( True )
         self.mdiArea.addSubWindow( document )
         self.mdiArea.blockSignals( False )
-
-    def unhandleDocument( self, document ):
+    
+    def _unhandleDocument( self, document ):
+        
         """TODO
-        maximized = document.isMaximized()
         # init document connections
         disconnect( document, SIGNAL( fileOpened() ), this, SLOT( document_fileOpened() ) )
         disconnect( document, SIGNAL( contentChanged() ), this, SLOT( document_contentChanged() ) )
@@ -366,37 +393,34 @@ class pWorkspace(QFrame):
         # update file menu
         disconnect( document, SIGNAL( modifiedChanged( bool ) ), mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ), SLOT( setEnabled( bool ) ) )
         # update edit menu
-        """
+        
         document.undoAvailableChanged.disconnect(mks.monkeycore.menuBar().action( "mEdit/aUndo" ).setEnabled)
         document.redoAvailableChanged.disconnect(mks.monkeycore.menuBar().action( "mEdit/aRedo" ).setEnabled)
         document.copyAvailableChanged.disconnect(mks.monkeycore.menuBar().action( "mEdit/aCut" ).setEnabled)
         document.copyAvailableChanged.disconnect(mks.monkeycore.menuBar().action( "mEdit/aCopy" ).setEnabled)
         document.pasteAvailableChanged.disconnect(mks.monkeycore.menuBar().action( "mEdit/aPaste" ).setEnabled)
         # update status bar
-        """TODO
+        
         disconnect( document, SIGNAL( cursorPositionChanged(  QPoint& ) ), mks.monkeycore.statusBar(), SLOT( setCursorPosition(  QPoint& ) ) )
         disconnect( document, SIGNAL( modifiedChanged( bool ) ), mks.monkeycore.statusBar(), SLOT( setModified( bool ) ) )
         """
         # remove from workspace
         document.removeEventFilter( self )
         self.mdiArea.removeSubWindow( document )
-        document.hide()
-        """TODO
+        
         # maximize current window if needed
-        if maximized :
-            if self.currentDocument() :
-               self.currentDocument().showMaximized()
+        if document.isMaximized() :
+            if self.mdiArea.currentSubWindow() :
+               self.mdiArea.currentSubWindow().showMaximized()
+    
+    def openFile(self, fileName):
+        """Open named file. Shows error messages to the user, if failed to open
+        Returns document, if opened, None otherwise
         """
-    def openFile(self, fileName, codec = ''):
-        # if it not exists
-        if  not QFile.exists( fileName ) or not QFileInfo( fileName ).isFile() :
-            return 0
         
         # check if file is already opened
-        for window in self.mdiArea.subWindowList():
-            document = window
-
-            if  mks.monkeystudio.isSameFile( document.filePath(), fileName ) :
+        for document in self.mdiArea.subWindowList():
+            if os.path.isfile(fileName) and os.path.samefile( document.filePath(), fileName ) :
                 self.setCurrentDocument( document )
                 return document
         
@@ -404,31 +428,31 @@ class pWorkspace(QFrame):
         # get a document interface that can handle the file
         document = mks.monkeycore.pluginsManager().documentForFileName( fileName )
         """
-        document = None
+        documentType = None
         
         # open it with pChild instance if no document
-        if  not document :
-            document = mks.child.pChild()
-        
-        # make connection if worksapce don t contains self document
-        if not document in self.mdiArea.subWindowList():
-            self.handleDocument( document )
+        if not documentType :
+            documentType = mks.child.pChild
         
         # open file
-        if  not document.openFile( fileName, codec ) :
-            mks.monkeycore.messageManager().appendMessage(self.tr( "An error occur while opening self file: '%1'" ).arg( QFileInfo( fileName ).fileName() ) )
-            self.closeDocument( document )
-            return 0
-
+        try:
+            QApplication.setOverrideCursor( Qt.WaitCursor )
+            document = documentType(self, fileName)
+        except IOError, ex:
+            #TODO mks.monkeycore.messageManager().appendMessage(self.tr( "An error occur while opening self file: '%1'" % str(ex))
+            print >> sys.stderr, ex
+            return None
+        finally:
+            QApplication.restoreOverrideCursor()
+        
+        self._handleDocument( document )
+        
         document.showMaximized()
-        self.mdiArea.setActiveSubWindow( document )
-
-        # update gui state
-        self.updateGuiState( document )
-
-        # return child instance
+        self.setCurrentDocument( document )
+        
         return document
-    """
+    
+    """TODO
     def closeFile(self, filePath ):
         for window in a.subWindowList():
             if  mks.monkeystudio.isSameFile( window.filePath(), h ) :
@@ -437,9 +461,11 @@ class pWorkspace(QFrame):
     """
     
     def closeCurrentDocument(self):
-        document = self.currentDocument()
-
+        #fixme replace with setCurrentFile?
+        document = self.mdiArea.currentSubWindow()
+        assert(document is not None)
         self.closeDocument( document )
+    
     """TODO
     def closeAllDocuments(self):
         # try save documents
@@ -455,9 +481,9 @@ class pWorkspace(QFrame):
         else:
             return False; #not close IDE
         return True
-    """
+    
     def activateNextDocument(self):
-        """TODO
+        
         if self.mViewMode == self.NoTabs :
             document = self.currentDocument()
             curIndex = self.mOpenedFileExplorer.model().documentIndex( document )
@@ -473,11 +499,11 @@ class pWorkspace(QFrame):
             self.setCurrentDocument( document )
         else:
             self.mdiArea.activateNextSubWindow()
-        """
+        
         self.mdiArea.activateNextSubWindow()
 
     def activatePreviousDocument(self):
-        """TODO
+        
         if self.mViewMode == self.NoTabs :
             document = self.currentDocument()
             curIndex = self.mOpenedFileExplorer.model().documentIndex( document ) # FIXME hide this stuff inside the model!!!
@@ -492,7 +518,7 @@ class pWorkspace(QFrame):
             self.setCurrentDocument( document )
         else:
             self.mdiArea.activatePreviousSubWindow()
-        """
+        
         self.mdiArea.activatePreviousSubWindow()
     
     def focusEditor(self):
@@ -500,7 +526,7 @@ class pWorkspace(QFrame):
 
         if  document :
             document.setFocus()
-    """
+    
     def tile(self):
         self.mdiArea.tileSubWindows()
 
@@ -583,13 +609,10 @@ class pWorkspace(QFrame):
         # open file
         return self.openFile( fileName, result[ "codec" ].toString() )
 
-    """
     def document_fileOpened(self):
         document = self.sender() # signal sender
-        """TODO
         if  QFileInfo( document.filePath() ).isFile() and not self.mFileWatcher.files().contains( document.filePath() ) :
             self.mFileWatcher.addPath( document.filePath() )
-        """
         self.documentOpened.emit( document )
     
 
@@ -610,11 +633,8 @@ class pWorkspace(QFrame):
 
     def document_fileClosed(self):
         document = self.sender()
-        """
         mtb = mks.monkeycore.multiToolBar()
-
         mtb.removeContext( document.context(), e )
-        """
         self.documentClosed.emit( document )
 
 
@@ -633,8 +653,6 @@ class pWorkspace(QFrame):
 
         self.buffersChanged.emit( entries )
     
-    """TODO
-
     def multitoolbar_notifyChanges(self):
         mtb = mks.monkeycore.multiToolBar()
         tb = mtb.currentToolBar()
@@ -644,7 +662,7 @@ class pWorkspace(QFrame):
 
     def viewModes_triggered(self, action ):
         self.setDocumentMode( action.data().toInt() )
-    """
+    
     def mdiArea_subWindowActivated(self, document ):
 
         # update gui state
@@ -652,7 +670,6 @@ class pWorkspace(QFrame):
 
         # emit file changed
         self.currentDocumentChanged.emit( document )
-    """
 
     def internal_urlsDropped(self, urls ):
         # create menu
@@ -804,38 +821,25 @@ class pWorkspace(QFrame):
         wizard.exec_()
     """
     
-    def fileOpen_triggered(self):
-        #mFilters = mks.monkeystudio.availableFilesFilters() # get available filters
-        mFilters = ''
-        
-        # show filedialog to user
+    def _fileOpen_triggered(self):
+        """Main menu handler"""
         """TODO
+        mFilters = mks.monkeystudio.availableFilesFilters() # get available filters
+
+        # show filedialog to user
         result = MkSFileDialog.getOpenFileNames( window(), tr( "Choose the file(s) to open" ), QDir.currentPath(), mFilters, True, False )
         
         # open open file dialog
         fileNames = result[ "filenames" ].toStringList()
         """
-        fileNames = QFileDialog.getOpenFileNames( self.window(), self.tr( "Choose the file(s) to open" ), QDir.currentPath(), mFilters)
-        
-        # return 0 if user cancel
-        if  fileNames.isEmpty() :
-            return
-        
-        """
-        # for each entry, file
+        fileNames = QFileDialog.getOpenFileNames( self.window(), self.tr( "Choose the file(s) to open" ))
+                
         for file in fileNames:
-            if  self.openFile( file, result[ "codec" ].toString() ) :
-                # append file to recents
-                mks.monkeycore.recentsManager().addRecentFile( file )
-
-            else:
-                # remove it from recents files
-                mks.monkeycore.recentsManager().removeRecentFile( file )
-        """
-        for file in fileNames:
-            self.openFile( file )
+            if self.openFile(file) is not None:
+                pass
+                #TODO mks.monkeycore.recentsManager().addRecentFile( file )
     
-    """TODO
+    '''TODO
     def fileSessionSave_triggered(self):
         files = []
         projects = []
@@ -863,20 +867,15 @@ class pWorkspace(QFrame):
         for project in mks.monkeycore.settings().value( "Session/Projects", [] ).toStringList():
             if not mks.monkeycore.projectsManager().openProject( project, mks.monkeystudio.defaultCodec() ): # remove it from recents projects
                 mks.monkeycore.recentsManager().removeRecentProject( project )
-    """
+    
     def fileSaveCurrent_triggered(self):
         document = self.currentDocument()
         
-        """TODO
         fn = document.filePath()
         self.mFileWatcher.removePath( fn )
-        """
         document.saveFile()
-        """TODO
         self.mFileWatcher.addPath( fn )
-        """
     
-    """TODO
     def fileSaveAll_triggered(self):
         # fixme duplicating code with save current
         for window in a.subWindowList():
@@ -885,12 +884,7 @@ class pWorkspace(QFrame):
             self.mFileWatcher.removePath( fn )
             document.saveFile()
             self.mFileWatcher.addPath( fn )
-
-    """
-    def fileCloseCurrent_triggered(self):
-       self.closeCurrentDocument() # fixme KILL this 
-
-    """TODO
+    
     def fileCloseAll_triggered(self):
         self.closeAllDocuments()  # fixme KILL this 
 
@@ -904,11 +898,11 @@ class pWorkspace(QFrame):
                 n = QMessageBox.question( self, self.tr( "Confirmation needed..." ), self.tr( "The file has been modified, anyway ?" ), QMessageBox.Yes | QMessageBox.No, QMessageBox.No )
 
             if button == QMessageBox.Yes :
-                ''' fileName = document.filePath()
+                """ fileName = document.filePath()
                  codec = document.textCodec()
 
                 self.closeDocument( document )
-                self.openFile( fileName, c );'''
+                self.openFile( fileName, c );"""
                 document.reload()
 
     def fileSaveAsBackup_triggered(self):
@@ -948,7 +942,6 @@ class pWorkspace(QFrame):
             mks.monkeycore.translationsManager().setCurrentLocale( locale )
             mks.monkeycore.translationsManager().reloadTranslations()
 
-    """
     def editUndo_triggered(self):
         document = self.currentDocument()
 
@@ -981,7 +974,6 @@ class pWorkspace(QFrame):
         if  document :
             document.paste()
 
-    """TODO
     def editSearch_triggered(self):
         document = self.currentDocument()
 
@@ -1011,9 +1003,4 @@ class pWorkspace(QFrame):
     def helpAboutApplication_triggered(self):
         dlg = UIAbout( self )
         dlg.open()
-    """
-
-    def helpAboutQt_triggered(self):
-        # FIXME move to main window
-        qApp.aboutQt()
-    
+    '''

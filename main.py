@@ -1,24 +1,29 @@
 #!/usr/bin/env python
-
+"""
+Monkey Studio free crossplatform IDE.
+Main file processes command line arguments and starts the system.
+"""
 import sys
 
-import mks
+import mks.config
 
 def showHelp():
     showVersion()
     print "Command line arguments:"
     print "\t-h, --help      Show command line help"
     print "\t-v, --version   Show program version"
+    """TODO
     print "\t-projects      Open the projects given as parameters (-projects project1 ...)"
     print "\t-files         Open the files given as parameters (-files file1 ...)"
+    """
 
 def showVersion():
-    print "%s version %s (%s)" % (mks.config.PACKAGE_NAME, mks.config.PACKAGE_VERSION, mks.config.PACKAGE_VERSION_STR)
+    print "%s version %s" % (mks.config.PACKAGE_NAME, mks.config.PACKAGE_VERSION)
     print "%s & The Monkey Studio Team" % mks.config.PACKAGE_COPYRIGHTS
     print "http://%s" % mks.config.PACKAGE_DOMAIN
 
 def main():
-    #QT_REQUIRE_VERSION( argc, argv, "4.5.0" );
+    #TODO QT_REQUIRE_VERSION( argc, argv, "4.5.0" );
     
     if '-v' in sys.argv or '--version' in sys.argv:
         showVersion()
@@ -62,7 +67,7 @@ def main():
     //pSettings::setIniInformations();
     """
     
-    """TODO
+    """TODO replace with python module
     // parse command line arguments
     //CommandLineManager clm;
     //clm.parse();

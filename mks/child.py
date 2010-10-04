@@ -1,3 +1,8 @@
+"""Text editor widget. Uses QScintilla internally"""
+
+import os.path
+import shutil
+
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
@@ -6,42 +11,13 @@ from PyQt4.Qsci import *
 import mks.monkeystudio
 import mks.abstractchild
 
-"""TODO
-mPasteAvailableInit = False
-mPasteAvailable = False
-"""
-
+"""TODO move this code to the pChild class
 class _pEditor(QsciScintilla):
     
-    cursorPositionChanged = pyqtSignal( QPoint )
-    undoAvailable = pyqtSignal( bool )
-    redoAvailable = pyqtSignal( bool )
-    pasteAvailable = pyqtSignal( bool )
-    
-    def __init__(self, parentWidget):
-        QsciScintilla.__init__( self, parentWidget )
-        
-        """TODO
         self.mPixSize = QSize( 16, 16 )
         # register image for bookmarks
         self.markerDefine( QPixmap( ":/editor/bookmark.png" ).scaled( self.mPixSize ), mdBookmark )
         
-        # deal with utf8
-        setUtf8( True )
-        
-        # connection
-        self.linesChanged.connect(self.linesChanged)
-        """
-        self.copyAvailable.connect(self.setCopyAvailable)
-        """TODO
-        self.cursorPositionChanged.connect(self.cursorPositionChanged)
-        self.textChanged.connect(self.textChanged)
-        """
-        QApplication.clipboard().dataChanged.connect(self.clipboardDataChanged)
-        
-        self.mPasteAvailable = bool(QApplication.clipboard().text())
-        
-        """ TODO
         # init qscishortcutsmanager if needed
         self.SendScintilla( QsciScintillaBase.SCI_CLEARALLCMDKEYS )
         self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_TAB, SCI_TAB)
@@ -327,19 +303,6 @@ class _pEditor(QsciScintilla):
         if  lineNumbersMarginAutoWidth() :
             setLineNumbersMarginWidth( QString.number( lines() ).length() )
 
-
-    def copyAvailable(self):
-        return mCopyAvailable
-
-    """
-    def canPaste(self):
-        return self.mPasteAvailable
-
-    """TODO
-    def cursorPosition(self):
-        return mCursorPosition
-
-
     def currentLineText(self):
         int line
         int index
@@ -366,235 +329,6 @@ class _pEditor(QsciScintilla):
             line = QsciScintilla.markerFindNext( 0, 1 << markerId )
         return line
 
-    """
-    def setCopyAvailable(self, b ):
-        self.mCopyAvailable = b
-    
-    """
-    def cursorPositionChanged(self, l, p ):
-        mCursorPosition = QPoint( p, l )
-        cursorPositionChanged.emit( mCursorPosition )
-
-
-    def textChanged(self):
-        undoAvailable.emit( isUndoAvailable() )
-        redoAvailable.emit( isRedoAvailable() )
-
-    """
-    def clipboardDataChanged(self):
-        self.mPasteAvailable = bool(QApplication.clipboard().text())
-        self.pasteAvailable.emit( self.canPaste() )
-
-    
-    def openFile(self, fileName, codec ):
-        
-        QApplication.setOverrideCursor( Qt.WaitCursor )
-        
-        # open file
-        f = QFile ( fileName )
-        if  not f.open( QFile.ReadOnly ) :
-            assert(0) # todo test the code
-            MonkeyCore.messageManager().appendMessage( self.tr( "Cannot read file %1:\n%2." ).arg( fileName ).arg( f.errorString() ) )
-            QApplication.restoreOverrideCursor()
-            return False
-        
-        # remember filename
-        self.fileName = fileName
-        self.codec = codec
-        """TODO
-        # set lexer and apis
-        self.setLexer( mks.monkeystudio.lexerForFileName( fileName ) )
-
-        # set properties
-        mks.monkeystudio.setEditorProperties( self )
-        """
-        # load file
-        """
-        c = QTextCodec.codecForName( codec )
-        datas = c.toUnicode( f.readAll() )
-        self.setText( datas )
-        """
-        self.setText( QString(f.readAll()) )
-        self.setModified( False )
-        """TODO
-        
-        # convert tabs if needed
-        if  mks.monkeystudio.convertTabsUponOpen() :
-            convertTabs()
-        
-        #autodetect indent, need
-        if  mks.monkeystudio.autoDetectIndent() :
-            autoDetectIndent ()
-        
-        #autodetect eol, need
-        if  mks.monkeystudio.autoDetectEol() :
-            autoDetectEol()
-
-        
-        # make backup if needed
-        if  mks.monkeystudio.createBackupUponOpen() :
-            makeBackup()
-        
-        # convert eol
-        if  mks.monkeystudio.autoEolConversion() :
-            convertEols( eolMode() )
-        """
-        QApplication.restoreOverrideCursor()
-        
-        return True
-
-
-    def saveFile(self, s ):
-        if  not self.isModified() :
-            return True
-
-        # get filename
-        fn = s
-        if not s:
-            fn = self.fileName
-        # get path
-        fp = QFileInfo( fn ).path()
-
-        # filename
-        f = QFile ( fn )
-        # filename dir
-        d = QDir()
-        # create bak folder
-        if  not d.exists( fp ) :
-            if  not d.mkpath( fp ) :
-                return False
-        
-        # set correct path
-        d.setPath( fp )
-        # try open file to write in
-        if  not f.open( QFile.WriteOnly ) :
-            """TODO
-            MonkeyCore.messageManager().appendMessage( tr( "Cannot write file %1:\n%2." ).arg( fn ).arg( f.errorString() ) )
-            """
-            return False
-
-        # writing file
-        QApplication.setOverrideCursor( Qt.WaitCursor )
-        
-        f.resize( 0 )
-        
-        c = QTextCodec.codecForName( 'utf8' )
-        res = f.write( c.fromUnicode( self.text() ) )
-        
-        if  res != -1 :
-            self.setModified( False )
-            self.fileName = fn
-
-        QApplication.restoreOverrideCursor()
-
-        return res != -1
-    
-    """TODO
-    def saveBackup(self, s ):
-        # if not filename, cancel
-        if  s.isEmpty() :
-            return False
-
-        
-        # get path
-        fp = QFileInfo( s ).path()
-
-        # file
-        QFile f( s )
-        
-        # filename dir
-        QDir d
-        # create bak folder
-        if  not d.exists( fp ) :
-            if  not d.mkpath( fp ) :
-                return False
-
-
-        
-        QApplication.setOverrideCursor( Qt.WaitCursor )
-        
-        # set correct path
-        d.setPath( fp )
-        
-        # try open file to write in
-        if  not f.open( QFile.WriteOnly ) :
-            MonkeyCore.messageManager().appendMessage( tr( "Cannot write file %1:\n%2." ).arg( s ).arg( f.errorString() ) )
-            QApplication.restoreOverrideCursor()
-            return False
-
-        
-        f.resize( 0 )
-        c = QTextCodec.codecForName( property( "codec" ).toString().toUtf8() )
-        ok = f.write( c.fromUnicode( text() ) ) != -1
-        
-        QApplication.restoreOverrideCursor()
-
-        return ok
-
-    """
-    
-    def closeFile(self):
-        self.clear()
-        self.setModified( False )
-
-        # clear filename
-        self.fileName = None
-    
-    """
-    def print(self, b ):
-        # get printer
-        QsciPrinter p
-
-        # set wrapmode
-        p.setWrapMode( WrapWord )
-
-        # if quick print
-        if  b :
-            # check if default printer is set
-            if  p.printerName().isEmpty() :
-                MonkeyCore.messageManager().appendMessage( tr( "There is no default printer, set one before trying quick print" ) )
-                return
-
-            
-            # print and return
-            p.printRange( self )
-            return
-
-
-        # printer dialog
-        QPrintDialog d( &p )
-
-        # if ok
-        if  d.exec() :
-            # print
-            f = -1, t = -1, i
-            if  d.printRange() == QPrintDialog.Selection :
-                getSelection( &f, &i, &t, &i )
-            p.printRange( self, f, t )
-
-
-
-    def quickPrint(self):
-        print( True )
-
-
-    def selectNone(self):
-        selectAll( False )
-
-
-    def invokeGoToLine(self):
-        bool ok
-        int line, column, gotoLine
-        
-        getCursorPosition( &line, &column )
-        gotoLine = QInputDialog.getInteger( self, tr( "Go To Line..." ), tr( "Enter the line you want to go:" ), line +1, 1, lines(), 1, &ok )
-        
-        if  ok :
-            setCursorPosition( gotoLine -1, 0 )
-            setFocus()
-
-
-
     def convertTabs(self):
         # get original text
         originalText = text()
@@ -617,7 +351,10 @@ class _pEditor(QsciScintilla):
                 lastLineWasTroncate = True
 
             elif  lastLineWasTroncate and lineIndent != 0 :
-                lastLineWasTroncate = indentation( i +1 ) == lineIndent
+                lastLineW
+                
+                
+                asTroncate = indentation( i +1 ) == lineIndent
                 lineIndent    += indentWidth
 
             # remove indentation
@@ -634,58 +371,77 @@ class _pEditor(QsciScintilla):
             # set unmodified
             setModified( False )
 
-
-
-    def makeBackup(self):
-        # get filename
-         dn = ".bak"
-        QFileInfo f( property( "fileName" ).toString() )
-         s = f.path().append( "/" ).append( dn ).append( "/" ).append( f.fileName() ).append( "." ).append( QDateTime.currentDateTime().toString( "yyyyMMdd_hhmmss" ) )
-
-        # cancel if filename doesn't exists
-        if  not f.exists() :
-            return
-
-        # filename dir
-        QDir d( f.path() )
-
-        # create bak folder
-        if  not d.exists( ".bak" ) :
-            if  not d.mkdir( ".bak" ) :
-                return
-
-        QFile.copy( f.absoluteFilePath(), s )
     """
-
-
 
 class pChild(mks.abstractchild.pAbstractChild):
-    
-    """TODO rename
+    """Text editor widget. Uses QScintilla internally
+    TODO rename this class
     """
-    def __init__(self):
-        mks.abstractchild.pAbstractChild.__init__(self, )
-        self.mEditor = _pEditor(self)
+    def __init__(self, parentObject, filePath):
+        mks.abstractchild.pAbstractChild.__init__(self, parentObject, filePath)
+        
+        # Configure editor
+        self.mEditor = QsciScintilla(self)
+        self.mEditor.setUtf8( True ) # deal with utf8
+        
         self.mEditor.setAttribute( Qt.WA_MacSmallSize )
         self.mEditor.setFrameStyle( QFrame.NoFrame | QFrame.Plain )
 
         self.setWidget( self.mEditor )
         self.setFocusProxy( self.mEditor )
-        
+        """TODO
         # connections
         self.mEditor.cursorPositionChanged.connect(self.cursorPositionChanged)
-        self.mEditor.undoAvailable.connect(self.undoAvailableChanged)
-        self.mEditor.redoAvailable.connect(self.redoAvailableChanged)
         self.mEditor.copyAvailable.connect(self.copyAvailableChanged)
-        self.mEditor.pasteAvailable.connect(self.pasteAvailableChanged)
         self.mEditor.modificationChanged.connect(self.setWindowModified)
         self.mEditor.modificationChanged.connect(self.modifiedChanged)
         self.mEditor.textChanged.connect(self.contentChanged)
+        self.mEditor.textChanged.connect(self._onTextChanged)
+        
+        QApplication.clipboard().dataChanged.connect(self._onClipboardDataChanged)
+        """
+        
+        # open file
+        locked = self.blockSignals( True )
+        with open(filePath, 'r') as f:
+            """TODO
+            # set lexer and apis
+            self.setLexer( mks.monkeystudio.lexerForFileName( fileName ) )
 
-
-    def cursorPositionChanged(self):
-        self.cursorPositionChanged.emit( cursorPosition() )
-
+            # set properties
+            mks.monkeystudio.setEditorProperties( self )
+            """
+            self.mEditor.setText( f.read() )
+            self.mEditor.setModified( False )
+            
+            """TODO
+            # convert tabs if needed
+            if  mks.monkeystudio.convertTabsUponOpen() :
+                convertTabs()
+            #autodetect indent, need
+            if  mks.monkeystudio.autoDetectIndent() :
+                autoDetectIndent ()
+            #autodetect eol, need
+            if  mks.monkeystudio.autoDetectEol() :
+                autoDetectEol()
+            # make backup if needed
+            if  mks.monkeystudio.createBackupUponOpen() :
+                shutil.copyfileobj(self.filePath(), self.filePath() + '.bak')
+            # convert eol
+            if  mks.monkeystudio.autoEolConversion() :
+                convertEols( eolMode() )
+            """
+        
+        self._setFilePath(filePath)
+        #TODO self.fileOpened.emit()
+    """TODO
+    def _onTextChanged(self):
+        self.undoAvailableChanged.emit( self.mEditor.isUndoAvailable() )
+        self.redoAvailableChanged.emit( self.mEditor.isRedoAvailable() )
+    
+    def _onClipboardDataChanged(self):
+        self.pasteAvailableChanged.emit( self.canPaste() )
+    
     def language(self):
         # return the editor language
         if  self.mEditor.lexer() :
@@ -693,19 +449,14 @@ class pChild(mks.abstractchild.pAbstractChild):
 
         # return nothing
         return ''
-
+    
     def fileBuffer(self):
         return self.mEditor.text()
-
-    def context(self):
-        return "Coding"
-
-    def initializeContext(self, tb ):
-        pass
-
+    
     def cursorPosition(self):
-        return self.mEditor.cursorPosition() +QPoint( 0, 1 )
-
+        row, col = self.mEditor.getCursorPosition()
+        return QPoint(row + 1, col)
+    
     def editor(self):
         return self.mEditor
     
@@ -717,6 +468,7 @@ class pChild(mks.abstractchild.pAbstractChild):
 
     def invokeSearch ():
         '''MonkeyCore.searchWidget().showSearchFile ();'''
+        #TODO resolve
         pass
 
     def undo(self):
@@ -738,9 +490,16 @@ class pChild(mks.abstractchild.pAbstractChild):
         self.mEditor.paste()
 
     def goTo(self):
-        self.mEditor.invokeGoToLine()
-
+        assert(0) # TODO resolve name conflict
+        line, col = self.getCursorPosition()
+        gotoLine, ok = QInputDialog.getInteger( self, self.tr( "Go To Line..." ), self.tr( "Enter the line you want to go:" ), line +1, 1, self.lines(), 1)
+        
+        if  ok :
+            self.setCursorPosition( gotoLine -1, 0 )
+            self.setFocus()
+    
     def goTo(self, pos, selectionLength ):
+        assert(0) # TODO resolve name conflict
         column = pos.x()
         line = pos.y()
         
@@ -750,10 +509,11 @@ class pChild(mks.abstractchild.pAbstractChild):
         self.mEditor.setFocus()
 
     def isCopyAvailable(self):
-        return self.mEditor.copyAvailable()
+        lineFrom, indexFrom, lineTo, indexTo = mEditor.getSelection()
+        return lineFrom != lineTo or indexFrom != indexTo
 
     def isPasteAvailable(self):
-        return self.mEditor.canPaste()
+        return bool(QApplication.clipboard().text())
 
     def isGoToAvailable(self):
         return True
@@ -761,50 +521,78 @@ class pChild(mks.abstractchild.pAbstractChild):
     def isPrintAvailable(self):
         return True
     
+    def _saveFile(self, fileName):
+        if  not self.isModified() :
+            return True
+        
+        dirPath = os.path.directory(fileName)
+        if  not os.path.exists(dirPath):
+            try:
+                os.mkdir(dirPath)
+            except OSError:
+                mks.monkeystudio.messageManager().appendMessage( \
+                        self.tr( "Cannot create directory '%s'. Error '%s'" % (dirPath, error))) # todo fix
+                return False
+        
+        try:
+            f = open(fileName, 'w')
+        except IOError:
+            mks.monkeystudio.messageManager().appendMessage( \
+                    self.tr( "Cannot write to file '%s'. Error '%s'" % (dirPath, error))) # todo fix
+            return False
+        
+        try:
+            f.write(self.mEditor.text())
+        finally:
+            f.close()
+    
     def saveFile(self):
         self.mEditor.saveFile( self.filePath() )
 
-    def backupFileAs(self, s ):
-        self.mEditor.saveBackup( s )
-    
-    def openFile(self, fileName, codec ):
-        # if already open file, cancel
-        '''if  not filePath().isEmpty() :
-            return False
-        }'''
-        
-        # set filename of the owned document
-        self.setFilePath( fileName )
-
-        # open file
-        locked = self.blockSignals( True )
-        opened = self.mEditor.openFile( fileName, codec )
-        self.blockSignals( locked )
-        
-        if  not opened :
-            self.setFilePath( '' )
-            return False
-        """ TODO
-        self.mCodec = QTextCodec.codecForName( codec.toUtf8() )
-        """
-        self.fileOpened.emit()
-        return True
+    def backupFileAs(self, filePath ):
+        shutil.copyfileobj(self.filePath(), fileName)
     
     def closeFile(self):
-        self.mEditor.closeFile()
+        self.mEditor.clear()
+        self.mEditor.setModified( False )
         self.setFilePath( '' )
-
         self.fileClosed.emit()
     
-    """
     def reload(self):
-        self.openFile( self.mEditor.property( "fileName" ).toString(), self.mEditor.property( "codec" ).toString() )
+        self.openFile(self.filePath())
         self.fileReloaded.emit()
+    
+    def print_(self, quickPrint):
+        # get printer
+        p = QsciPrinter()
+        
+        # set wrapmode
+        p.setWrapMode( PyQt4.Qsci.WrapWord )
 
+        if  quickPrint:
+            # check if default printer is set
+            if  p.printerName().isEmpty() :
+                mks.monkeycore.messageManager().appendMessage( \
+                    tr( "There is no default printer, set one before trying quick print" ) )
+                return
+            
+            # print and return
+            p.printRange( self.mEditor )
+            return
+        
+        d = QPrintDialog (p) # printer dialog
+
+        if d.exec_(): # if ok
+            # print
+            f = -1
+            t = -1
+            if  d.printRange() == QPrintDialog.Selection:
+                f, unused, t, unused1 = getSelection()
+            p.printRange( self.mEditor, f, t )
+    
     def printFile(self):
-        self.mEditor.print_()
+        self.print_(False)
 
     def quickPrintFile(self):
-        # print file
-        self.mEditor.quickPrint()
-    """
+        self.print_(True)
+"""

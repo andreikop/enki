@@ -1,3 +1,10 @@
+"""
+Core module initializes global system instances (singletones) and
+servers pointers to this instances
+Examples of instances is main window, workspace, console manager, ...
+"""
+
+"""TODO
 import sys
 from datetime import datetime
 
@@ -6,17 +13,20 @@ from PyQt4.QtGui import *
 
 import main
 import mks.settings
+"""
 import mks.mainwindow
 import mks.workspace
 
 _mainWindow = None
+_workspace = None
+
+"""TODO
 _settings = None
 _pluginsManager = None
-_mainWindow = None
 _recentsManager = None
 _projectsManager = None
 _fileManager = None
-_workspace = None
+
 _consoleManager = None
 _messageManager = None
 _statusBar = None
@@ -36,15 +46,15 @@ def _showMessage(splash, message):
     # FIXME no update without hide/show
     splash.hide()
     splash.show()
-
+"""
 def init():
+    """TODO
     # create splashscreen
     if _isXmas():
         pixmap = "splashscreen_christmas.png"
     else:
         pixmap = "splashscreen.png"
     
-    """
     splash = QSplashScreen (mks.monkeystudio.getIcon('/application/pixmap.png'))
     
     ft = QFont( splash.font() )
@@ -106,8 +116,15 @@ def init():
     """
     
     # init main window
-    #_showMessage( splash, splash.tr( "Initializing Main Window..." ) )
-    mainWindow().initGui()
+    #TODO _showMessage( splash, splash.tr( "Initializing Main Window..." ) )
+    mainWindow()  # create the instance
+
+    # create and init workspace
+    mainWindow().setCentralWidget( mks.monkeycore.workspace() )
+    
+    workspace().openFile('/home/a/tmp/1') # FIXME
+    workspace().openFile('/home/a/tmp/t.txt') # FIXME
+    workspace().openFile('/home/a/tmp/1') # FIXME
     
     """TODO
     # init abbreviations manager
@@ -138,15 +155,16 @@ def init():
         workspace().fileSessionRestore_triggered()
     """
     # show main window
-    #mainWindow().menu_Docks_aboutToShow()
+    #TODO mainWindow().menu_Docks_aboutToShow()
     mainWindow().show()
 
+    """TODO
     # ready
-    #_showMessage( splash, splash.tr( "%1 v%2 (%3) Ready" ).arg( mks.config.PACKAGE_NAME, mks.config.PACKAGE_VERSION, mks.config.PACKAGE_VERSION_STR ) )
+    _showMessage( splash, splash.tr( "%1 v%2 (%3) Ready" ).arg( mks.config.PACKAGE_NAME, mks.config.PACKAGE_VERSION, mks.config.PACKAGE_VERSION_STR ) )
     
     # finish splashscreen
-    #splash.finish( mainWindow() )
-    """TODO
+    splash.finish( mainWindow() )
+
     # show settings dialog the first time user start program
     if  settings().value( "FirstTimeRunning", True ).toBool() :
         # execute settings dialog
@@ -155,8 +173,28 @@ def init():
     
     # prepare apis
     mks.monkeystudio.prepareAPIs()
-    """
+"""
 
+def mainWindow():
+    """Main window instance (mks.mainwindow.MainWindow)"""
+    global _mainWindow
+    if _mainWindow is None:
+        _mainWindow = mks.mainwindow.MainWindow()
+    return _mainWindow
+
+def menuBar():
+    """Main window menubar instance (fresh framework pMenubar)"""
+    return mainWindow().menuBar()
+
+def workspace():
+    """Workspace instance (mks.workspace.Workspace)"""
+    global _workspace
+    if _workspace is None:
+        _workspace = mks.workspace.Workspace(mainWindow())
+    return _workspace
+
+
+"""TODO
 def settings():
     global _settings
     if _settings is None:
@@ -168,15 +206,6 @@ def pluginsManager():
     if _pluginsManager:
         _pluginsManager = PluginsManager( mainWindow() )
     return _pluginsManager
-
-def mainWindow():
-    global _mainWindow
-    if _mainWindow is None:
-        _mainWindow = mks.mainwindow.MainWindow()
-    return _mainWindow
-
-def menuBar():
-    return mainWindow().menuBar()
 
 def actionsManager():
     return menuBar().actionsManager()
@@ -199,11 +228,6 @@ def fileManager():
         _fileManager = pFileManager( mainWindow() )
     return _fileManager
 
-def workspace():
-    global _workspace
-    if _workspace is None:
-        _workspace = mks.workspace.pWorkspace(mainWindow())
-    return _workspace
 
 def consoleManager():
     global _consoleManager
@@ -246,3 +270,4 @@ def translationsManager():
     if _translationManager is None:
         _translationManager = TranslationManager( mainWindow() )
     return _translationManager
+"""
