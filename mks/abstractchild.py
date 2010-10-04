@@ -108,7 +108,7 @@ class pAbstractChild(QMdiSubWindow):
         """return the current file modified flag
         """
         pass
-    
+    '''
     def isUndoAvailable(self):
         """return the current file undo flag
         """
@@ -128,7 +128,7 @@ class pAbstractChild(QMdiSubWindow):
         """return the current file paste available
         """
         pass
-
+    '''TODO
     def isGoToAvailable(self):
         """return is goto is available
         """
@@ -161,7 +161,7 @@ class pAbstractChild(QMdiSubWindow):
     
     def codec(self)
     { return mCodec ? mCodec : QTextCodec.codecForName( pMonkeyStudio.defaultCodec().toLocal8Bit().constData() );
-    
+    '''
     def undo(self):
         pass
     
@@ -176,7 +176,7 @@ class pAbstractChild(QMdiSubWindow):
     
     def paste(self):
         pass
-    
+    '''TODO
     def goTo(self):
         pass
     
@@ -218,6 +218,7 @@ class pAbstractChild(QMdiSubWindow):
     # when.emit a file is modified
     modifiedChanged = pyqtSignal(bool)
     # when.emit undo has changed
+    '''
     undoAvailableChanged = pyqtSignal(bool)
     # when.emit undo has changed
     redoAvailableChanged = pyqtSignal(bool)
@@ -225,6 +226,7 @@ class pAbstractChild(QMdiSubWindow):
     pasteAvailableChanged = pyqtSignal(bool)
     # when.emit a file copy available change
     copyAvailableChanged = pyqtSignal(bool)
+    '''TODO
     # when.emit search/replace is available
     #searchReplaceAvailableChanged = pyqtSignal(bool)
     # when.emit goto is available

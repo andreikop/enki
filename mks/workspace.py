@@ -162,15 +162,53 @@ class Workspace(QFrame):
         """Connect/disconnect document signals and update enabled/disabled 
         state of the actions
         """
-        
         if self._oldCurrentDocument is not None:
-            pass
+            mks.monkeycore.menuBar().action( "mEdit/aUndo" ).triggered.disconnect(
+                            self._oldCurrentDocument.undo)
+            mks.monkeycore.menuBar().action( "mEdit/aRedo" ).triggered.disconnect(
+                            self._oldCurrentDocument.redo)
+            mks.monkeycore.menuBar().action( "mEdit/aCut" ).triggered.disconnect(
+                            self._oldCurrentDocument.cut)
+            mks.monkeycore.menuBar().action( "mEdit/aCopy" ).triggered.disconnect(
+                            self._oldCurrentDocument.copy)
+            mks.monkeycore.menuBar().action( "mEdit/aPaste" ).triggered.disconnect(
+                            self._oldCurrentDocument.paste)
         
         if document is not None:
             mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(True)
+            # Undo
+            mks.monkeycore.menuBar().action( "mEdit/aUndo" ).triggered.connect(
+                            document.undo)
+            document.undoAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aUndo" ).setEnabled)
+            mks.monkeycore.menuBar().action( "mEdit/aUndo" ).setEnabled(document.isUndoAvailable())
+            # Redo
+            mks.monkeycore.menuBar().action( "mEdit/aRedo" ).triggered.connect(
+                            document.redo)
+            mks.monkeycore.menuBar().action( "mEdit/aRedo" ).setEnabled(document.isRedoAvailable())
+            document.redoAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aRedo" ).setEnabled)            
+            # Cut
+            mks.monkeycore.menuBar().action( "mEdit/aCut" ).triggered.connect(
+                            document.cut)
+            mks.monkeycore.menuBar().action( "mEdit/aCut" ).setEnabled(document.isCopyAvailable())
+            document.copyAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aCut" ).setEnabled)
+            # Copy
+            mks.monkeycore.menuBar().action( "mEdit/aCopy" ).triggered.connect(
+                            document.copy)
+            mks.monkeycore.menuBar().action( "mEdit/aCopy" ).setEnabled(document.isCopyAvailable())
+            document.copyAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aCopy" ).setEnabled)
+            # Copy
+            mks.monkeycore.menuBar().action( "mEdit/aPaste" ).triggered.connect(
+                            document.paste)
+            mks.monkeycore.menuBar().action( "mEdit/aPaste" ).setEnabled(document.isPasteAvailable())
+            document.pasteAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aPaste" ).setEnabled)
         else:  # no document
             mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(False)
-        
+            mks.monkeycore.menuBar().action( "mEdit/aUndo" ).setEnabled(False)
+            mks.monkeycore.menuBar().action( "mEdit/aRedo" ).setEnabled(False)
+            mks.monkeycore.menuBar().action( "mEdit/aCut" ).setEnabled(False)
+            mks.monkeycore.menuBar().action( "mEdit/aCopy" ).setEnabled(False)
+            mks.monkeycore.menuBar().action( "mEdit/aPaste" ).setEnabled(False)
+
         '''
         # fix fucking flickering due to window activation change on application gain / lost focus.
         if  not document and self.currentDocument() :
@@ -448,7 +486,7 @@ class Workspace(QFrame):
         self._handleDocument( document )
         
         document.showMaximized()
-        self.setCurrentDocument( document )
+        #FIXME remove. Genrates too lot if signals. self.setCurrentDocument( document )
         
         return document
     

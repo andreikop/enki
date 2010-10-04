@@ -392,17 +392,18 @@ class pChild(mks.abstractchild.pAbstractChild):
         """TODO
         # connections
         self.mEditor.cursorPositionChanged.connect(self.cursorPositionChanged)
+        """
         self.mEditor.copyAvailable.connect(self.copyAvailableChanged)
+        """TODO
         self.mEditor.modificationChanged.connect(self.setWindowModified)
         self.mEditor.modificationChanged.connect(self.modifiedChanged)
         self.mEditor.textChanged.connect(self.contentChanged)
-        self.mEditor.textChanged.connect(self._onTextChanged)
-        
-        QApplication.clipboard().dataChanged.connect(self._onClipboardDataChanged)
         """
+        self.mEditor.textChanged.connect(self._onTextChanged)
+        QApplication.clipboard().dataChanged.connect(self._onClipboardDataChanged)
         
         # open file
-        locked = self.blockSignals( True )
+        #locked = self.blockSignals( True )
         with open(filePath, 'r') as f:
             """TODO
             # set lexer and apis
@@ -434,14 +435,15 @@ class pChild(mks.abstractchild.pAbstractChild):
         
         self._setFilePath(filePath)
         #TODO self.fileOpened.emit()
-    """TODO
+
     def _onTextChanged(self):
         self.undoAvailableChanged.emit( self.mEditor.isUndoAvailable() )
         self.redoAvailableChanged.emit( self.mEditor.isRedoAvailable() )
     
     def _onClipboardDataChanged(self):
-        self.pasteAvailableChanged.emit( self.canPaste() )
+        self.pasteAvailableChanged.emit( self.isPasteAvailable() )
     
+    """TODO
     def language(self):
         # return the editor language
         if  self.mEditor.lexer() :
@@ -462,14 +464,13 @@ class pChild(mks.abstractchild.pAbstractChild):
     
     def isModified(self):
         return self.mEditor.isModified()
-    
-    def isUndoAvailable(self):
-        return self.mEditor.isUndoAvailable()
-
     def invokeSearch ():
         '''MonkeyCore.searchWidget().showSearchFile ();'''
         #TODO resolve
         pass
+    """
+    def isUndoAvailable(self):
+        return self.mEditor.isUndoAvailable()
 
     def undo(self):
         self.mEditor.undo()
@@ -486,9 +487,17 @@ class pChild(mks.abstractchild.pAbstractChild):
     def copy(self):
         self.mEditor.copy()
 
+    def isCopyAvailable(self):
+        lineFrom, indexFrom, lineTo, indexTo = self.mEditor.getSelection()
+        return lineFrom != lineTo or indexFrom != indexTo
+    
     def paste(self):
         self.mEditor.paste()
-
+    
+    def isPasteAvailable(self):
+        return bool(QApplication.clipboard().text())
+    
+    """TODO
     def goTo(self):
         assert(0) # TODO resolve name conflict
         line, col = self.getCursorPosition()
@@ -507,14 +516,8 @@ class pChild(mks.abstractchild.pAbstractChild):
         self.mEditor.setSelection( line, column, line, column +selectionLength )
         self.mEditor.ensureLineVisible( line )
         self.mEditor.setFocus()
-
-    def isCopyAvailable(self):
-        lineFrom, indexFrom, lineTo, indexTo = mEditor.getSelection()
-        return lineFrom != lineTo or indexFrom != indexTo
-
-    def isPasteAvailable(self):
-        return bool(QApplication.clipboard().text())
-
+    """
+    """TODO
     def isGoToAvailable(self):
         return True
 

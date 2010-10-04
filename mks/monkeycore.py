@@ -123,8 +123,9 @@ def init():
     mainWindow().setCentralWidget( mks.monkeycore.workspace() )
     
     workspace().openFile('/home/a/tmp/1') # FIXME
-    workspace().openFile('/home/a/tmp/t.txt') # FIXME
-    workspace().openFile('/home/a/tmp/1') # FIXME
+    #workspace().openFile('/home/a/tmp/t.txt') # FIXME
+    #workspace().openFile('/home/a/tmp/bug') # FIXME
+    #workspace().openFile('/home/a/tmp/2') # FIXME
     
     """TODO
     # init abbreviations manager
