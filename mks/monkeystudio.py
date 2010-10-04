@@ -10,29 +10,12 @@ import mks.workspace
 #QHash<QString,QsciLexer*> mGlobalsLexers
 #QHash<QString,QsciAPIs*> mGlobalsAPIs
 
-'''!
-    \details Return True if files point to same file, usefull when files are symbolic link, or windows link
-    \param left The left file
-    \param right The right file
-'''
+""" fixme remove
+Use os.path.samefile
 def isSameFile(  left,  right ):
-    # get file info
-    fif = QFileInfo ( left )
-    fio = QFileInfo ( right )
 
-    # check files exists
-    if  fif.exists() != fio.exists() :
-        return False
-
-    # check simlink
-    if  fif.isSymLink() :
-        fif.setFile( fif.symLinkTarget() )
-    if  fio.isSymLink() :
-        fio.setFile( fio.symLinkTarget() )
-
-    # check canonical file path
-    return fif.canonicalFilePath() == fio.canonicalFilePath()
-
+    
+"""
 
 '''!
     \details Return a list of all know text codecs
@@ -988,7 +971,7 @@ def setDocumentMode( mode ):
     \details Return the mod used by the workspace
 '''
 def documentMode():
-    return mks.monkeycore.settings().value( settingsPath() +"/DocMode", mks.workspace.pWorkspace.NoTabs ).toInt()
+    return mks.monkeycore.settings().value( settingsPath() +"/DocMode", mks.workspace.Workspace.NoTabs ).toInt()
 
 
 '''!

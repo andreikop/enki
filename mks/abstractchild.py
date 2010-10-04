@@ -1,14 +1,25 @@
+"""Basic class for documents on workspace, such as opened source file, Qt Designer and Qt Assistant
+"""
+import os.path
+
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
+
 class pAbstractChild(QMdiSubWindow):
+    """Basic class for documents on workspace, such as opened source file, Qt Designer and Qt Assistant
+    """
+    
     """TODO
     enum DocumentMode { mNone:, mNa, mInsert, mOverwrite, mReadOnly } mDocument
     enum LayoutMode { lNone:, lNormal, lVertical, lHorizontal } mLayout
     """
     
-    def __init__( self, parent = None):
-        QMdiSubWindow.__init__( self, parent )
+    def __init__( self, parentObject, filePath):
+        """Create editor and open file.
+        IO Exceptions not catched, so, must be catched on upper level
+        """
+        QMdiSubWindow.__init__( self, parentObject )
         
         # default for window icon is application icon. This line avoids using it in the opened files list
         self.setWindowIcon(QIcon())
@@ -27,7 +38,8 @@ class pAbstractChild(QMdiSubWindow):
             if  action.shortcut() == closeSequence :
                 action.setShortcut( QKeySequence() )
         """
-
+        # File opening should be implemented in the child classes
+    
     '''TODO
     def sizeHint(self):
         """eturn defaultsize for child
@@ -48,7 +60,8 @@ class pAbstractChild(QMdiSubWindow):
         """
         return QString.null;
     '''
-    def setFilePath( self, filePath ):
+    
+    def _setFilePath( self, filePath ):
         """set the file path of the document
         """
         if not filePath:
@@ -56,12 +69,13 @@ class pAbstractChild(QMdiSubWindow):
             self.setWindowTitle( '' )
         else:
             self.setWindowFilePath( filePath )
-            self.setWindowTitle( self.fileName().append( "[*]" ) )
+            self.setWindowTitle( os.path.basename(unicode(filePath)) + "[*]" )
     
     def filePath(self):
         """return the document file path"""
         return self.windowFilePath()
     
+    '''TODO
     def fileName(self):
         """return the filename of the document"""
         wfp = self.windowFilePath()
@@ -69,7 +83,6 @@ class pAbstractChild(QMdiSubWindow):
             return None
         else:
             return QFileInfo( wfp ).fileName()
-    '''TODO
     def path(self):
         """return the absolute path of the document"""
         wfp = self.windowFilePath()
@@ -79,16 +92,8 @@ class pAbstractChild(QMdiSubWindow):
             return QFileInfo( wfp ).absolutePath()
 
     def QString fileBuffer(self):
-        """return the current buffer of filename"""
+        """return the current buffer (text) of filename"""
         return None
-    
-    def context(self):
-        """return the child context"""
-        pass
-        
-    def initializeContext(self, toolBar ):
-        """the context initialization"""
-        pass
     
     def cursorPosition(self):
         """return cursor position if available
@@ -99,13 +104,11 @@ class pAbstractChild(QMdiSubWindow):
         """the current visible editor
         """
         pass
-    '''
     def isModified(self):
         """return the current file modified flag
         """
         pass
     
-    '''TODO
     def isUndoAvailable(self):
         """return the current file undo flag
         """
@@ -189,9 +192,6 @@ class pAbstractChild(QMdiSubWindow):
     def backupFileAs(self fileName ):
         pass
     
-    def openFile(self fileName, codec ):
-        pass
-    
     def closeFile(self):
         pass
     
@@ -203,8 +203,6 @@ class pAbstractChild(QMdiSubWindow):
     
     def quickPrintFile(self):
         pass
-        
-    '''
     fileOpened = pyqtSignal()
     fileClosed = pyqtSignal()
     # when.emit a file is reloaded
@@ -216,7 +214,7 @@ class pAbstractChild(QMdiSubWindow):
     # when.emit the child document mode has changed
     documentModeChanged = pyqtSignal()
     # when.emit cursor position changed
-    cursorPositionChanged = pyqtSignal(QPoint)
+    cursorPositionChanged = pyqtSignal(int, int) # (line, column)
     # when.emit a file is modified
     modifiedChanged = pyqtSignal(bool)
     # when.emit undo has changed
@@ -237,4 +235,4 @@ class pAbstractChild(QMdiSubWindow):
     #requestGoTo = pyqtSignal()
     # when.emit a child require to update workspace
     #updateWorkspaceRequested()
-    
+    '''
