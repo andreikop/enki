@@ -396,7 +396,9 @@ class pChild(mks.abstractchild.pAbstractChild):
         self.mEditor.copyAvailable.connect(self.copyAvailableChanged)
         """TODO
         self.mEditor.modificationChanged.connect(self.setWindowModified)
+        """
         self.mEditor.modificationChanged.connect(self.modifiedChanged)
+        """TODO
         self.mEditor.textChanged.connect(self.contentChanged)
         """
         self.mEditor.textChanged.connect(self._onTextChanged)
@@ -461,9 +463,12 @@ class pChild(mks.abstractchild.pAbstractChild):
     
     def editor(self):
         return self.mEditor
+    """
     
     def isModified(self):
         return self.mEditor.isModified()
+    
+    """
     def invokeSearch ():
         '''MonkeyCore.searchWidget().showSearchFile ();'''
         #TODO resolve

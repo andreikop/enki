@@ -31,7 +31,6 @@ class MainWindow(pMainWindow):
 
     def __init__(self):
         pMainWindow.__init__(self)
-        """TODO
         self.setUnifiedTitleAndToolBarOnMac( True )
         self.setIconSize( QSize( 16, 16 ) )
         self.setAcceptDrops( True )
@@ -40,7 +39,6 @@ class MainWindow(pMainWindow):
         self.setCorner( Qt.TopRightCorner, Qt.RightDockWidgetArea )
         self.setCorner( Qt.BottomLeftCorner, Qt.LeftDockWidgetArea )
         self.setCorner( Qt.BottomRightCorner, Qt.RightDockWidgetArea )
-        """
         
         self.setWindowTitle( "%s v%s" % (mks.config.PACKAGE_NAME, mks.config.PACKAGE_VERSION ) )
         self.setWindowIcon( mks.monkeystudio.getIcon('/application/monkey2.png') )
@@ -207,9 +205,6 @@ class MainWindow(pMainWindow):
         self.centralWidget().layout().setMenuBar( messageTb )
         # init projects manager
         dockToolBar( Qt.LeftToolBarArea ).addDock( mks.monkeycore.projectsManager(), mks.monkeycore.projectsManager().windowTitle(), QIcon( ":/project/icons/project/project.png" ) )
-        # init opened files dock
-        openedFileExplorer = mks.monkeycore.workspace().dockWidget()
-        self.dockToolBar( Qt.LeftToolBarArea ).addDock( openedFileExplorer, openedFileExplorer.windowTitle(), openedFileExplorer.windowIcon() )
         # init multitoolbar
         mks.monkeycore.workspace().initMultiToolBar( mks.monkeycore.multiToolBar().toolBar( Workspace.defaultContext() ) )
         mks.monkeycore.workspace().initMultiToolBar( mks.monkeycore.multiToolBar().toolBar( "Coding" ) )

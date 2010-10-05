@@ -14,7 +14,6 @@ from PyQt4.QtCore import *
 
 import mks.monkeycore
 import mks.monkeystudio
-#import mks.openedfileexplorer
 import mks.child
 #import mks.abstractchild
 
@@ -38,17 +37,22 @@ class Workspace(QFrame):
     BottomTabs = "BottomTabs"
     LeftTabs = "LeftTabs"
     RightTabs = "RightTabs"
-    
+    """
     # a file has been opened
     documentOpened = pyqtSignal(mks.abstractchild.pAbstractChild)
+    """
     # a file have changed
     documentChanged = pyqtSignal(mks.abstractchild.pAbstractChild)
     # a file modified state changed
     documentModifiedChanged = pyqtSignal(mks.abstractchild.pAbstractChild, bool)
     # document about to close
     documentAboutToClose = pyqtSignal(mks.abstractchild.pAbstractChild)
-    # a file has been closed
+    """
+    """A file has been closed. When signal emitted, document pointer is valid,
+    document not yet removed from workspace
+    """
     documentClosed = pyqtSignal(mks.abstractchild.pAbstractChild)
+    """TODO
     # a file has been reloaded
     documentReloaded = pyqtSignal(mks.abstractchild.pAbstractChild)
     # current file changed
@@ -106,8 +110,8 @@ class Workspace(QFrame):
             elif mode == self.RightTabs:
                 action.setText(self.tr( "Tabs at &Right" ) )
                 action.setToolTip( action.text() )
-        self.mOpenedFileExplorer = mks.openedfileexplorer.pOpenedFileExplorer( self )
         """
+        
         # layout
         self.mLayout = QVBoxLayout( self )
         self.mLayout.setMargin( 0 )
@@ -175,7 +179,7 @@ class Workspace(QFrame):
                             self._oldCurrentDocument.paste)
         
         if document is not None:
-            mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(True)
+            mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(document.isModified())
             # Undo
             mks.monkeycore.menuBar().action( "mEdit/aUndo" ).triggered.connect(
                             document.undo)
@@ -327,9 +331,6 @@ class Workspace(QFrame):
         else:
             tb.removeAction( mks.monkeycore.workspace().dockWidget().comboBoxAction() )
     
-    def dockWidget(self):
-        return self.mOpenedFileExplorer
-    
     def fileWatcher(self):
         return self.mFileWatcher
     
@@ -381,7 +382,7 @@ class Workspace(QFrame):
             self.mFileWatcher.removePath( file )
         """
         
-        
+        self.documentClosed.emit( document )
         # close document
         self._unhandleDocument( document ) #FIXME make sure not always unhandleDocument
         document.deleteLater()
@@ -486,7 +487,10 @@ class Workspace(QFrame):
         self._handleDocument( document )
         
         document.showMaximized()
-        #FIXME remove. Genrates too lot if signals. self.setCurrentDocument( document )
+        #FIXME remove. Genrates too lot if signals. 
+        #self.setCurrentDocument( document )
+        
+        self.documentOpened.emit( document )
         
         return document
     
@@ -503,6 +507,11 @@ class Workspace(QFrame):
         document = self.mdiArea.currentSubWindow()
         assert(document is not None)
         self.closeDocument( document )
+    
+    def openedDocuments(self):
+        """Get list of opened documents (mks.abstractchild instances)
+        """
+        return self.mdiArea.subWindowList()
     
     """TODO
     def closeAllDocuments(self):
