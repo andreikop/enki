@@ -7,8 +7,9 @@ Examples of instances is main window, workspace, console manager, ...
 """TODO
 import sys
 from datetime import datetime
-
+"""
 from PyQt4.QtCore import *
+"""TODO
 from PyQt4.QtGui import *
 
 import main
@@ -16,6 +17,7 @@ import mks.settings
 """
 import mks.mainwindow
 import mks.workspace
+import mks.openedfileexplorer
 
 _mainWindow = None
 _workspace = None
@@ -122,8 +124,16 @@ def init():
     # create and init workspace
     mainWindow().setCentralWidget( mks.monkeycore.workspace() )
     
-    workspace().openFile('/home/a/tmp/1') # FIXME
-    #workspace().openFile('/home/a/tmp/t.txt') # FIXME
+    # create opened files explorer
+    global mOpenedFileExplorer
+    mOpenedFileExplorer = mks.openedfileexplorer.OpenedFileExplorer(mks.monkeycore.workspace())
+    lefttb = mks.monkeycore.mainWindow().dockToolBar( Qt.LeftToolBarArea )
+    lefttb.addDock( mOpenedFileExplorer,
+                    mOpenedFileExplorer.windowTitle(),
+                    mOpenedFileExplorer.windowIcon())
+    
+    workspace().openFile('/home/a/tmp/1.txt') # FIXME
+    workspace().openFile('/home/a/tmp/t.txt') # FIXME
     #workspace().openFile('/home/a/tmp/bug') # FIXME
     #workspace().openFile('/home/a/tmp/2') # FIXME
     
@@ -175,6 +185,10 @@ def init():
     # prepare apis
     mks.monkeystudio.prepareAPIs()
 """
+
+def term():
+    global mOpenedFileExplorer
+    mOpenedFileExplorer = None # wipe ling, python object would be removed
 
 def mainWindow():
     """Main window instance (mks.mainwindow.MainWindow)"""

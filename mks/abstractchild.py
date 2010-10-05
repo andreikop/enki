@@ -104,11 +104,12 @@ class pAbstractChild(QMdiSubWindow):
         """the current visible editor
         """
         pass
+    '''
     def isModified(self):
         """return the current file modified flag
         """
         pass
-    '''
+    
     def isUndoAvailable(self):
         """return the current file undo flag
         """
@@ -215,10 +216,10 @@ class pAbstractChild(QMdiSubWindow):
     documentModeChanged = pyqtSignal()
     # when.emit cursor position changed
     cursorPositionChanged = pyqtSignal(int, int) # (line, column)
+    '''
     # when.emit a file is modified
     modifiedChanged = pyqtSignal(bool)
     # when.emit undo has changed
-    '''
     undoAvailableChanged = pyqtSignal(bool)
     # when.emit undo has changed
     redoAvailableChanged = pyqtSignal(bool)

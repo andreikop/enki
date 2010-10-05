@@ -97,6 +97,8 @@ def main():
     delete MonkeyCore::settings();
     // exit code
     """
+    mks.monkeycore.term()
+    
     return result
 
 if __name__ == '__main__':
