@@ -61,6 +61,12 @@ class _OpenedFileModel(QAbstractItemModel):
     
     def __init__(self, parentObject):
         QAbstractItemModel.__init__(self, parentObject)
+        
+        """ Model recieves signal after document has been inserted, but need to 
+        call beginInsertRows() and endInsertRows()
+        This flag used for provide valid info between function calls
+        """
+        self._insertingRow = False
         """TODO
         self.mSortMode = pOpenedFileModel.OpeningOrder
 
@@ -84,7 +90,10 @@ class _OpenedFileModel(QAbstractItemModel):
         if parent.isValid():
             return 0
         else:
-            return len(self._documents())
+            if self._insertingRow:  # not yet inserted
+                return len(self._documents()) - 1
+            else:
+                return len(self._documents())
     
     def hasChildren(self, parent ):
         if parent.isValid():
@@ -289,11 +298,13 @@ class _OpenedFileModel(QAbstractItemModel):
         """
     
     def documentOpened(self, document ):
-        index = self._documents().index(document)
-        assert(index != -1)
+        #index = self._documents().index(document)
+        #assert(index != -1)
         document.modifiedChanged.connect(self._documentModifiedChanged)
-        self.beginInsertRows( QModelIndex(), index, index)
+        self._insertingRow = True
+        self.beginInsertRows( QModelIndex(), len(self._documents()) - 1, len(self._documents()) - 1)
         self.endInsertRows()
+        self._insertingRow = False
     
     def _documentModifiedChanged(self, modified ):
         document = self.sender() # signal sender document
@@ -404,13 +415,14 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
 
         group.triggered.connect(self.sortTriggered)
         mks.monkeycore.workspace().documentChanged.connect(self.documentChanged)
-
+        """
         mks.monkeycore.workspace().currentDocumentChanged.connect(self.currentDocumentChanged)
-        
+        """TODO
         self.mModel.sortModeChanged.connect(self.sortModeChanged)
         self.mModel.documentsSorted.connect(self.documentsSorted)
-
+        """
         self.tvFiles.selectionModel().selectionChanged.connect(self.selectionModel_selectionChanged)
+        """TODO
         self.aComboBox.currentIndexChanged.connect(self.syncViewsIndex)
 
     def model(self):
@@ -424,19 +436,21 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
 
     def setSortMode(self, mode ):
         self.mModel.setSortMode( mode )
-
-    def syncViewsIndex(self, index, syncOnly ):
+"""
+    def syncViewsIndex(self, index, syncOnly=True):
+        """TODO
         # sync action combobox
         self.aComboBox.syncViewIndex( index )
 
         # sync listview
+        """
         vLocked = self.tvFiles.blockSignals( True )
         self.tvFiles.setCurrentIndex( index )
         self.tvFiles.blockSignals( vLocked )
 
         # scroll the view
         self.tvFiles.scrollTo( index )
-
+    
         if  syncOnly :
             return
 
@@ -444,41 +458,45 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         focusWidget = self.window().focusWidget()
 
         # set current document
-        document = self.mModel.document( index )
+        document = mks.monkeycore.workspace().openedDocuments()[index.row()]
         mks.monkeycore.workspace().setCurrentDocument( document )
-
+        
         # restore focus widget
         if  focusWidget :
             focusWidget.setFocus()
-    
+    """TODO
     def sortTriggered(self, action ):
         mode = action.data().toInt()
         setSortMode( mode )
 
     def documentChanged(self, document ):
         pass
-
+"""
     def currentDocumentChanged(self, document ):
-        if document:
+        if document is not None:
             index = self.mModel._documentIndex( document )
             self.syncViewsIndex( index, True )
-
-    def sortModeChanged(self, mode ):
-        for action in self.mSortMenu.actions():
-            if  action.data().toInt() == mode :
-                if  not action.isChecked() :
-                    action.setChecked( True )
+        pass
     
-                return
+    """TODO
+        def sortModeChanged(self, mode ):
+            for action in self.mSortMenu.actions():
+                if  action.data().toInt() == mode :
+                    if  not action.isChecked() :
+                        action.setChecked( True )
+        
+                    return
+        
+        def documentsSorted(self):
+            # scroll the view
+            self.tvFiles.scrollTo( self.tvFiles.selectionModel().selectedIndexes().value( 0 ) )
+    """
     
-    def documentsSorted(self):
-        # scroll the view
-        self.tvFiles.scrollTo( self.tvFiles.selectionModel().selectedIndexes().value( 0 ) )
-
     def selectionModel_selectionChanged(self, selected, deselected ):
         index = selected.indexes()[0]
         self.syncViewsIndex( index, False )
 
+"""TODO
     def on_tvFiles_customContextMenuRequested(self, pos ):
         menu = QMenu()
         menu.addAction( mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ) )

@@ -110,14 +110,19 @@ class MainWindow(pMainWindow):
         mb.action( "aPrepareAPIs", self.tr( "Prepare APIs" ), QIcon( ":/edit/icons/edit/prepareapis.png" ), "Ctrl+Alt+P", self.tr( "Prepare the APIs files for auto completion / calltips" ) )
         """
         mb.endGroup()
-        """TODO
+        
         mb.menu( "mView", self.tr( "View" ) )
         mb.beginGroup( "mView" )
+        """TODO
         mb.menu( "mStyle", self.tr( "&Style" ), QIcon( ":/view/icons/view/style.png" ) )
-        mb.action( "aNext", self.tr( "&Next Tab" ), QIcon( ":/view/icons/view/next.png" ), "Ctrl+Tab", self.tr( "Active the next tab" ) ).setEnabled( False )
-        mb.action( "aPrevious", self.tr( "&Previous Tab" ), QIcon( ":/view/icons/view/previous.png" ), "Ctrl+Shift+Tab", self.tr( "Active the previous tab" ) ).setEnabled( False )
+        """
+        mb.action( "aNext", self.tr( "&Next file" ), QIcon( ":/view/icons/view/next.png" ), "Ctrl+Tab", self.tr( "Active the next tab" ) ).setEnabled( False )
+        mb.action( "aPrevious", self.tr( "&Previous file" ), QIcon( ":/view/icons/view/previous.png" ), "Ctrl+Shift+Tab", self.tr( "Active the previous tab" ) ).setEnabled( False )
+        """
         mb.action( "aFocusToEditor", self.tr( "Focus Editor" ), QIcon( ":/edit/icons/edit/text.png" ), "Ctrl+Return", self.tr( "Set the focus to the current document editor" ) ).setEnabled( False )
+        """
         mb.endGroup()
+        """TODO
         mb.menu( "mProject", self.tr( "Project" ) )
         mb.beginGroup( "mProject" )
         
@@ -236,8 +241,6 @@ class MainWindow(pMainWindow):
         self.menuBar().action( "mEdit/aPrepareAPIs" ).triggered.connect(mks.monkeycore.workspace().editPrepareAPIs_triggered)
         # view connection
         agStyles.styleSelected.connect(self.changeStyle)
-        self.menuBar().action( "mView/aNext" ).triggered.connect(mks.monkeycore.workspace().activateNextDocument)
-        self.menuBar().action( "mView/aPrevious" ).triggered.connect(mks.monkeycore.workspace().activatePreviousDocument)
         self.menuBar().action( "mView/aFocusToEditor" ).triggered.connect(mks.monkeycore.workspace().focusEditor)
         # docks
         self.menuBar().menu( "mDocks" ).aboutToShow.connect(self.menu_Docks_aboutToShow)
