@@ -55,9 +55,10 @@ class Workspace(QFrame):
     """TODO
     # a file has been reloaded
     documentReloaded = pyqtSignal(mks.abstractchild.pAbstractChild)
+    """
     # current file changed
     currentDocumentChanged = pyqtSignal(mks.abstractchild.pAbstractChild)
-    
+    """TODO
     buffersChanged = pyqtSignal(dict) # {file path : file contents}
     """
     
@@ -65,9 +66,7 @@ class Workspace(QFrame):
         QFrame.__init__(self, parent)
         
         self._oldCurrentDocument = None
-
-        mks.monkeycore.menuBar().action( "mFile/aOpen" ).triggered.connect(self._fileOpen_triggered)
-        mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).triggered.connect(self.closeCurrentDocument)
+        
         """TODO
         self.mViewMode = self.NoTabs
         
@@ -150,6 +149,11 @@ class Workspace(QFrame):
         self.mContentChangedTimer.timeout.connect(self.contentChangedTimer_timeout)
         MonkeyCore.multiToolBar().notifyChanges.connect(self.multitoolbar_notifyChanges)
     """
+        mks.monkeycore.menuBar().action( "mFile/aOpen" ).triggered.connect(self._fileOpen_triggered)
+        mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).triggered.connect(self.closeCurrentDocument)
+        
+        mks.monkeycore.menuBar().action( "mView/aNext" ).triggered.connect(self.mdiArea.activateNextSubWindow)
+        mks.monkeycore.menuBar().action( "mView/aPrevious" ).triggered.connect(self.mdiArea.activatePreviousSubWindow)
     
     def eventFilter( self, object, event ):
         # get document
@@ -239,7 +243,6 @@ class Workspace(QFrame):
             copy = document.isCopyAvailable()
             paste = document.isPasteAvailable()
             go = document.isGoToAvailable()
-        moreThanOneDocument = len(self.mdiArea.subWindowList()) > 1
         # context toolbar
         mtb = mks.monkeycore.multiToolBar()
         
@@ -284,11 +287,14 @@ class Workspace(QFrame):
         mks.monkeycore.menuBar().action( "mEdit/aExpandAbbreviation" ).setEnabled( document )
         mks.monkeycore.menuBar().setMenuEnabled( mks.monkeycore.menuBar().menu( "mEdit/mAllCommands" ), editor )
         mks.monkeycore.menuBar().setMenuEnabled( mks.monkeycore.menuBar().menu( "mEdit/mBookmarks" ), editor )
+        '''
         
         # update view menu
+        moreThanOneDocument = len(self.mdiArea.subWindowList()) > 1
         mks.monkeycore.menuBar().action( "mView/aNext" ).setEnabled( moreThanOneDocument )
         mks.monkeycore.menuBar().action( "mView/aPrevious" ).setEnabled( moreThanOneDocument )
         
+        '''TODO
         # update status bar
         mks.monkeycore.statusBar().setModified( modified )
         if editor:
@@ -304,6 +310,9 @@ class Workspace(QFrame):
             QDir.setCurrent( document.path() )
         '''
         self._oldCurrentDocument = document
+        
+        self.currentDocumentChanged.emit( document )
+    
     '''TODO
     def defaultContext(self):
         return DEFAULT_CONTEXT
@@ -714,9 +723,6 @@ class Workspace(QFrame):
 
         # update gui state
         self.updateGuiState( document )
-
-        # emit file changed
-        self.currentDocumentChanged.emit( document )
 
     def internal_urlsDropped(self, urls ):
         # create menu
