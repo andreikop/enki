@@ -78,6 +78,7 @@ class _OpenedFileModel(QAbstractItemModel):
         self.mSortDocumentsTimer.timeout.connect(self.sortDocuments_timeout)
         """
         mks.monkeycore.workspace().documentOpened.connect(self.documentOpened)
+        mks.monkeycore.workspace().documentModifiedChanged.connect(self._documentModifiedChanged)
         mks.monkeycore.workspace().documentClosed.connect(self.documentClosed)
     
     def _documents(self):
@@ -300,17 +301,15 @@ class _OpenedFileModel(QAbstractItemModel):
     def documentOpened(self, document ):
         #index = self._documents().index(document)
         #assert(index != -1)
-        document.modifiedChanged.connect(self._documentModifiedChanged)
         self._insertingRow = True
         self.beginInsertRows( QModelIndex(), len(self._documents()) - 1, len(self._documents()) - 1)
         self.endInsertRows()
         self._insertingRow = False
     
-    def _documentModifiedChanged(self, modified ):
-        document = self.sender() # signal sender document
+    def _documentModifiedChanged(self, document, modified):
         index = self._documentIndex( document )
         self.dataChanged.emit( index, index )
-
+    
     def documentClosed(self, document ):
         index = self._documents().index( document )
         
