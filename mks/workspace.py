@@ -43,8 +43,10 @@ class Workspace(QFrame):
     """
     # a file have changed
     documentChanged = pyqtSignal(mks.abstractchild.pAbstractChild)
+    """
     # a file modified state changed
     documentModifiedChanged = pyqtSignal(mks.abstractchild.pAbstractChild, bool)
+    """TODO
     # document about to close
     documentAboutToClose = pyqtSignal(mks.abstractchild.pAbstractChild)
     """
@@ -181,6 +183,7 @@ class Workspace(QFrame):
                             self._oldCurrentDocument.copy)
             mks.monkeycore.menuBar().action( "mEdit/aPaste" ).triggered.disconnect(
                             self._oldCurrentDocument.paste)
+            self._oldCurrentDocument.modifiedChanged.disconnect(self.document_modifiedChanged)
         
         if document is not None:
             mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(document.isModified())
@@ -209,6 +212,7 @@ class Workspace(QFrame):
                             document.paste)
             mks.monkeycore.menuBar().action( "mEdit/aPaste" ).setEnabled(document.isPasteAvailable())
             document.pasteAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aPaste" ).setEnabled)
+            document.modifiedChanged.connect(self.document_modifiedChanged)
         else:  # no document
             mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(False)
             mks.monkeycore.menuBar().action( "mEdit/aUndo" ).setEnabled(False)
@@ -359,10 +363,10 @@ class Workspace(QFrame):
         #fixme replace with setCurrentFile?
         self.mdiArea.setActiveSubWindow( document )
     
-    """TODO
     def currentDocument(self):
         return self.mdiArea.currentSubWindow()
-
+    
+    """TODO
     def goToLine(  self, fileName,  pos,  codec, selectionLength ):
         for window in self.mdiArea.subWindowList():
             if  mks.monkeystudio.isSameFile( window.filePath(), fileName ) :
@@ -681,11 +685,12 @@ class Workspace(QFrame):
         
         self.documentChanged.emit( document )
 
-
+    """
     def document_modifiedChanged(self, modified ):
         document = self.sender()
         self.documentModifiedChanged.emit( document, modified )
-
+    
+    """TODO
 
     def document_fileClosed(self):
         document = self.sender()
