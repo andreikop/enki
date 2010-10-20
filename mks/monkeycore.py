@@ -133,10 +133,10 @@ def init():
                     mOpenedFileExplorer.windowIcon())
     
     workspace().openFile('/home/a/tmp/1.txt') # FIXME
+    workspace().openFile('/home/a/tmp/2') # FIXME
     workspace().openFile('/home/a/tmp/t.txt') # FIXME
-    #workspace().openFile('/home/a/tmp/bug') # FIXME
-    #workspace().openFile('/home/a/tmp/2') # FIXME
-    
+    workspace().openFile('/home/a/tmp/bug') # FIXME
+
     """TODO
     # init abbreviations manager
     _showMessage( splash, splash.tr( "Initializing abbreviations manager..." ) )

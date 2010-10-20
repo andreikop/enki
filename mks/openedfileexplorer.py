@@ -2,6 +2,7 @@
 It implements switching current file, files sorting
 """
 import os.path
+import copy
 
 from PyQt4 import uic
 
@@ -12,7 +13,8 @@ import PyQt4.fresh
 
 import mks.monkeycore
 
-"""TODO rewrite with lambda functions. Would be much better
+'''TODO rewrite with lambda functions. Would be much better
+
 struct OpeningOrderSorter
     OpeningOrderSorter(  QList<pAbstractChild*>& documents )
         originalDocuments = documents
@@ -51,7 +53,7 @@ struct SuffixesSorter
 
 
         return leftSuffix < rightSuffix
-"""
+'''
 
 class _OpenedFileModel(QAbstractItemModel):
     """Model, herited from QAbstractItemModel, used for show list of opened files
@@ -59,78 +61,78 @@ class _OpenedFileModel(QAbstractItemModel):
     It switches current file, does file sorting
     """
     
+    OpeningOrder = "OpeningOrder"
+    FileName = "FileName"
+    URL = "URL"
+    Suffixes = "Suffixes"
+    Custom = "Custom"
+    
     def __init__(self, parentObject):
-        QAbstractItemModel.__init__(self, parentObject)
-        
-        """ Model recieves signal after document has been inserted, but need to 
-        call beginInsertRows() and endInsertRows()
-        This flag used for provide valid info between function calls
-        """
-        self._insertingRow = False
-        """TODO
-        self.mSortMode = pOpenedFileModel.OpeningOrder
-
-        self._documents() = []
-        self._documents()ToolTips = {}
+        QAbstractItemModel.__init__(self, parentObject )
+        self.mSortMode = _OpenedFileModel.OpeningOrder
         self.mSortDocumentsTimer = QTimer( self )
         self.mSortDocumentsTimeout = 150
-        self.mSortDocumentsTimer = QTimer()
+        self.mTransparentIcon = mks.monkeystudio.getIcon( "transparent.png" )
+        self.mModifiedIcon = mks.monkeystudio.getIcon( "save.png" )
+        
         self.mSortDocumentsTimer.timeout.connect(self.sortDocuments_timeout)
-        """
         mks.monkeycore.workspace().documentOpened.connect(self.documentOpened)
-        mks.monkeycore.workspace().documentModifiedChanged.connect(self._documentModifiedChanged)
+        mks.monkeycore.workspace().documentModifiedChanged.connect(self.documentModifiedChanged)
         mks.monkeycore.workspace().documentClosed.connect(self.documentClosed)
-    
-    def _documents(self):
-        return mks.monkeycore.workspace().openedDocuments()
+        self.mDocuments = []
     
     def columnCount(self, parent ):
         return 1
-    
+
     def rowCount(self, parent ):
         if parent.isValid():
             return 0
         else:
-            if self._insertingRow:  # not yet inserted
-                return len(self._documents()) - 1
-            else:
-                return len(self._documents())
+            len(self.mDocuments)
     
     def hasChildren(self, parent ):
         if parent.isValid():
-            return 0
+           return False
         else:
-            return  len(self._documents()) != 0
-    
+            return (len(self.mDocuments) > 0)
+
     def headerData(self, section, orientation, role ):
-        if  section == 0 and orientation == Qt.Horizontal :
-            if role == Qt.DecorationRole:
-                pass
-            elif role == Qt.DisplayRole:
+        if  section == 0 and \
+            orientation == Qt.Horizontal and \
+            role == Qt.DecorationRole:
                 return self.tr( "Opened Files" )
-            else:
-                pass
-        
-        return QVariant()
-    
+        else:
+            return QVariant()
+
     def data(self, index, role ):
         if  not index.isValid() :
             return QVariant()
-
+        
         document = self.document( index )
+        assert(document)
         
         if role == Qt.DecorationRole:
-            if document.isModified() :
-                icon = mks.monkeystudio.getIcon("file/save.png" )
-            else:
-                icon = document.windowIcon()
-                if  icon.isNull() :
-                    icon =  mks.monkeystudio.getIcon("file/transparent.png" )
+            icon = document.windowIcon()
+            """ TODO
+            if  not self.mDocumentsIcons.value( document ).isNull() :
+                icon = self.mDocumentsIcons[ document ]
+            elif  document.isModified() :
+                icon = self.mModifiedIcon
+            """
+            
+            if  icon.isNull() :
+                icon = self.mTransparentIcon
             return icon
         elif role == Qt.DisplayRole:
-            return os.path.basename(unicode(document.filePath()))
+                return document.fileName()
         elif role == Qt.ToolTipRole:
-                return document.filePath()
+            """TODO
+            customToolTip = self.mDocumentsToolTips.value( document )
+            toolTip = document.filePath()
+            return customToolTip.isEmpty() ? toolTip : customToolTip
+            break
+            """
+            return document.filePath()
         else:
             return QVariant()
     
@@ -139,20 +141,18 @@ class _OpenedFileModel(QAbstractItemModel):
             return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDragEnabled
         else:
             return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDropEnabled
-
+    
     def index(self, row, column, parent ):
-        if  parent.isValid() or \
-            column != 0 or \
-            row < 0 or \
-            row >= len(self._documents()) :
+        if  parent.isValid() or column > 0 or column < 0 or row < 0 or row >= self.mDocuments.count() :
             return QModelIndex()
-        return self.createIndex( row, column )
+
+        return createIndex( row, column, self.mDocuments[row] )
     
     def parent(self, index ):
         return QModelIndex()
     
     def mimeTypes(self):
-        return QStringList( "application/x-modelindexrow" )
+        return ["application/x-modelindexrow"]
 
     def mimeData(self, indexes ):
         if  indexes.count() != 1 :
@@ -166,155 +166,169 @@ class _OpenedFileModel(QAbstractItemModel):
         return Qt.MoveAction
 
     def dropMimeData(self, data, action, row, column, parent ):
-        assert(0) # fixme fix and debug this code
-        if  parent.isValid() or ( row == -1 and column == -1 ) or \
-            action != Qt.MoveAction or not data or \
-            not data.hasFormat( mimeTypes().first() ) :
-                return False
-
-        fromRow = data.data( mimeTypes().first() ).toInt()
-
-        if  row >= len(self._documents()):
-            row = row -1
-        elif  fromRow < row :
-            row = row - 1
-
-        newDocuments = self._documents()
-
-        newDocuments.move( fromRow, row )
-        rebuildMapping( self._documents(), newDocuments )
-
-        if  mSortMode != pOpenedFileModel.Custom :
-            setSortMode( pOpenedFileModel.Custom )
+        if  parent.isValid() or ( row == -1 and column == -1 ) or action != Qt.MoveAction or not data or not data.hasFormat( mimeTypes().first() ) :
+            return False
         
+        fromRow = data.data( mimeTypes().first() ).toInt()
+        
+        if  row >= len(self.mDocuments):
+            row-= 1
+
+        elif  fromRow < row :
+            row-= 1
+
+        newDocuments = copy.copy(self.mDocuments)
+        
+        newDocuments.move( fromRow, row )
+        self.rebuildMapping( self.mDocuments, newDocuments )
+        
+        if  self.mSortMode != _OpenedFileModel.Custom :
+            setSortMode( _OpenedFileModel.Custom )
+
         return True
     
     def document(self, index ):
         if  not index.isValid() :
             return 0
-        
-        return self._documents()[index.row()]
-    
 
-    def _documentIndex(self, document ):
-        row = self._documents().index( document )
-        assert(row != -1)
-        return self.createIndex( row, 0 )
+        return index.internalPointer()
     
-    """TODO    
+    def index(self, document ):
+        row = self.mDocuments.index( document )
+        
+        if  row != -1 :
+            return createIndex( row, 0, document )
+
+        return QModelIndex()
+
     def sortMode(self):
-        return mSortMode
+        return self.mSortMode
 
     def setSortMode(self, mode ):
-        if  mSortMode != mode :
-            mSortMode = mode
-            self.sortModeChanged.emit( mSortMode )
+        if  self.mSortMode != mode :
+            self.mSortMode = mode
+            self.sortModeChanged.emit( self.mSortMode )
             self.sortDocuments()
 
+    def setDocumentIcon(self, document, icon ):
+        self.mDocumentsIcons[ document ] = icon
+        index = self.index( document )
+        dataChanged.emit( index, index )
+
     def setDocumentToolTip(self, document, toolTip ):
-        self._documents()ToolTips[ document ] = toolTip
-        index = self._documentIndex( document )
-        self.dataChanged.emit( index, index )
+        self.mDocumentsToolTips[ document ] = toolTip
+        index = self.index( document )
+        dataChanged.emit( index, index )
+
 
     def sortDocuments(self):
         self.mSortDocumentsTimer.start( self.mSortDocumentsTimeout )
 
     def insertDocument(self, document, index ):
-        assert( not document in self._documents() )
+        assert( not self.mDocuments.contains( document ) )
         self.beginInsertRows( QModelIndex(), index, index )
-        self._documents().insert( index, document )
+        self.mDocuments.insert( index, document )
         self.endInsertRows()
         self.sortDocuments()
-    
+
     def rebuildMapping(self, oldList, newList ):
         self.layoutAboutToBeChanged.emit()
-        pOldIndexes = persistentIndexList()
-        pIndexes = QModelIndexList ()
-        
+        pOldIndexes = self.persistentIndexList()
+        pIndexes = []
         documentsMapping = {}
         mapping = {}
-
+        
         # build old mapping
-        for i in range(pOldIndexes.count()): 
-            index = pOldIndexes.at( i )
+        for index in pOldIndexes:
             row = index.row()
             documentsMapping[ row ] = oldList.at( row )
             mapping[ row ] = row
-        
-        self._documents() = newList
 
+        self.mDocuments = newList
+        
         # build mapping
-        for i in range(pOldIndexes.count()):
-            pIndex = pOldIndexes.at( i )
+        for pIindex in pOldIndexes:
             row = pIndex.row()
             document = documentsMapping[ row ]
-            index = self._documents().indexOf( document )
+            index = self.mDocuments.indexOf( document )
             mapping[ row ] = index
-
-        for i in range(pOldIndexes.count()):
-            pIndex = pOldIndexes.at( i )
+        
+        for pIindex in pOldIndexes:
             row = pIndex.row()
             index = mapping[ row ]
-
-            if  pOldIndexes.at( i ).isValid() :
-                pIndexes.append(createIndex( index, pIndex.column(), self._documents().at( index ) ))
+            
+            if  pOldIndexes[i].isValid():
+                pIndexes.append(createIndex( index, pIndex.column(), self.mDocuments.at( index ) ))
             else:
                 pIndexes.append(QModelIndex())
         
-        changePersistentIndexList( pOldIndexes, pIndexes )
+        self.changePersistentIndexList( pOldIndexes, pIndexes )
         self.layoutChanged.emit()
 
+
     def sortDocuments_timeout(self):
+        """TODO
         self.mSortDocumentsTimer.stop()
+        
+        newDocuments = copy.copy(self.mDocuments)
+        
+        switch ( self.mSortMode )
+            case _OpenedFileModel.OpeningOrder:
+                OpeningOrderSorter functor( mWorkspace.documents() )
+                qSort( newDocuments.begin(), newDocuments.end(), functor )
+                break
 
-        QList<pAbstractChild*> newDocuments = self._documents()
+            case _OpenedFileModel.FileName:
+                FileNameSorter functor
+                qSort( newDocuments.begin(), newDocuments.end(), functor )
+                break
 
-        switch ( mSortMode )
-        case pOpenedFileModel.OpeningOrder:
-            OpeningOrderSorter functor( mWorkspace.documents() )
-            qSort( newDocuments.begin(), newDocuments.end(), functor )
-            break
+            case _OpenedFileModel.URL:
+                URLSorter functor
+                qSort( newDocuments.begin(), newDocuments.end(), functor )
+                break
 
-        case pOpenedFileModel.FileName:
-            FileNameSorter functor
-            qSort( newDocuments.begin(), newDocuments.end(), functor )
-            break
+            case _OpenedFileModel.Suffixes:
+                SuffixesSorter functor
+                qSort( newDocuments.begin(), newDocuments.end(), functor )
+                break
 
-        case pOpenedFileModel.URL:
-            URLSorter functor
-            qSort( newDocuments.begin(), newDocuments.end(), functor )
-            break
+            case _OpenedFileModel.Custom:
+                break
 
-        case pOpenedFileModel.Suffixes:
-            SuffixesSorter functor
-            qSort( newDocuments.begin(), newDocuments.end(), functor )
-            break
-
-        case pOpenedFileModel.Custom:
-            break
-
-
-        rebuildMapping( self._documents(), newDocuments )
-        self.documentsSorted.emit()
+        
+        self.rebuildMapping( self.mDocuments, newDocuments )
+        documentsSorted.emit()
         """
+        pass
     
     def documentOpened(self, document ):
-        #index = self._documents().index(document)
-        #assert(index != -1)
-        self._insertingRow = True
-        self.beginInsertRows( QModelIndex(), len(self._documents()) - 1, len(self._documents()) - 1)
-        self.endInsertRows()
-        self._insertingRow = False
+        if document in self.mDocuments:
+           self.sortDocuments()
+        else:
+            if document is None or document in self.mDocuments:
+                return
+            
+            index = len(self.mDocuments)
+            self.insertDocument( document, index )
     
-    def _documentModifiedChanged(self, document, modified):
-        index = self._documentIndex( document )
+    def documentModifiedChanged(self, document, modified ):
+        index = self.index( document )
         self.dataChanged.emit( index, index )
-    
+
+
     def documentClosed(self, document ):
-        index = self._documents().index( document )
+        index = self.mDocuments.index( document )
         
+        if  index == -1 :
+            return
+
         self.beginRemoveRows( QModelIndex(), index, index )
+        self.mDocuments.removeOne( document )
+        self.mDocumentsIcons.remove( document )
+        self.mDocumentsToolTips.remove( document )
         self.endRemoveRows()
+        self.sortDocuments()
 
 """
 class pOpenedFileAction(QWidgetAction):
@@ -393,12 +407,12 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         group.addAction( self.tr( "Custom" ) )
         self.mSortMenu.addActions( group.actions() )
 
-        for  i in range(pOpenedFileModel.OpeningOrder, pOpenedFileModel.Custom +1):
+        for  i in range(_OpenedFileModel.OpeningOrder, _OpenedFileModel.Custom +1):
             action = group.actions()[i]
             action.setData( i )
             action.setCheckable( True )
 
-            if  i == pOpenedFileModel.OpeningOrder :
+            if  i == _OpenedFileModel.OpeningOrder :
                 action.setChecked( True )
 
         aSortMenu = QAction( tr( "Sorting" ), self )
@@ -473,7 +487,7 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
 """
     def currentDocumentChanged(self, document ):
         if document is not None:
-            index = self.mModel._documentIndex( document )
+            index = self.mModel.index( document )
             self.syncViewsIndex( index, True )
         pass
     
