@@ -15,6 +15,9 @@ class pAbstractChild(QMdiSubWindow):
     enum LayoutMode { lNone:, lNormal, lVertical, lHorizontal } mLayout
     """
     
+    def xxx(self):
+        return 'xxx'
+    
     def __init__( self, parentObject, filePath):
         """Create editor and open file.
         IO Exceptions not catched, so, must be catched on upper level
@@ -73,7 +76,7 @@ class pAbstractChild(QMdiSubWindow):
     
     def filePath(self):
         """return the document file path"""
-        return self.windowFilePath()
+        return unicode(self.windowFilePath())
     
     '''TODO
     def fileName(self):
