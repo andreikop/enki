@@ -88,7 +88,7 @@ class _OpenedFileModel(QAbstractItemModel):
         if parent.isValid():
             return 0
         else:
-            len(self.mDocuments)
+            return len(self.mDocuments)
     
     def hasChildren(self, parent ):
         if parent.isValid():
@@ -124,7 +124,7 @@ class _OpenedFileModel(QAbstractItemModel):
                 icon = self.mTransparentIcon
             return icon
         elif role == Qt.DisplayRole:
-                return document.fileName()
+                return document.filePath()
         elif role == Qt.ToolTipRole:
             """TODO
             customToolTip = self.mDocumentsToolTips.value( document )
@@ -143,10 +143,10 @@ class _OpenedFileModel(QAbstractItemModel):
             return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDropEnabled
     
     def index(self, row, column, parent ):
-        if  parent.isValid() or column > 0 or column < 0 or row < 0 or row >= self.mDocuments.count() :
+        if  parent.isValid() or column > 0 or column < 0 or row < 0 or row >= len(self.mDocuments) :
             return QModelIndex()
 
-        return createIndex( row, column, self.mDocuments[row] )
+        return self.createIndex( row, column, self.mDocuments[row] )
     
     def parent(self, index ):
         return QModelIndex()
@@ -155,21 +155,25 @@ class _OpenedFileModel(QAbstractItemModel):
         return ["application/x-modelindexrow"]
 
     def mimeData(self, indexes ):
-        if  indexes.count() != 1 :
+        if len(indexes) != 1:
             return 0
         
         data = QMimeData()
-        data.setData( mimeTypes().first(), QByteArray.number( indexes.first().row() ) )
+        data.setData( self.mimeTypes()[0], QByteArray.number( indexes[0].row() ) )
         return data
 
     def supportedDropActions(self):
         return Qt.MoveAction
 
     def dropMimeData(self, data, action, row, column, parent ):
-        if  parent.isValid() or ( row == -1 and column == -1 ) or action != Qt.MoveAction or not data or not data.hasFormat( mimeTypes().first() ) :
-            return False
+        if  parent.isValid() or \
+            ( row == -1 and column == -1 ) or \
+            action != Qt.MoveAction or \
+            not data or \
+            not data.hasFormat( self.mimeTypes()[0] ) :
+                return False
         
-        fromRow = data.data( mimeTypes().first() ).toInt()
+        fromRow = data.data( self.mimeTypes()[0] ).toInt()[0]
         
         if  row >= len(self.mDocuments):
             row-= 1
@@ -179,11 +183,17 @@ class _OpenedFileModel(QAbstractItemModel):
 
         newDocuments = copy.copy(self.mDocuments)
         
-        newDocuments.move( fromRow, row )
+        item = newDocuments.pop(fromRow)
+        
+        if row > fromRow:
+            row -= 1
+        
+        newDocuments.insert(row, item)
+        
         self.rebuildMapping( self.mDocuments, newDocuments )
         
         if  self.mSortMode != _OpenedFileModel.Custom :
-            setSortMode( _OpenedFileModel.Custom )
+            self.setSortMode( _OpenedFileModel.Custom )
 
         return True
     
@@ -193,14 +203,14 @@ class _OpenedFileModel(QAbstractItemModel):
 
         return index.internalPointer()
     
-    def index(self, document ):
+    def documentIndex(self, document ):
         row = self.mDocuments.index( document )
         
         if  row != -1 :
-            return createIndex( row, 0, document )
+            return self.createIndex( row, 0, document )
 
         return QModelIndex()
-
+    
     def sortMode(self):
         return self.mSortMode
 
@@ -225,7 +235,7 @@ class _OpenedFileModel(QAbstractItemModel):
         self.mSortDocumentsTimer.start( self.mSortDocumentsTimeout )
 
     def insertDocument(self, document, index ):
-        assert( not self.mDocuments.contains( document ) )
+        assert( not document in self.mDocuments )
         self.beginInsertRows( QModelIndex(), index, index )
         self.mDocuments.insert( index, document )
         self.endInsertRows()
@@ -241,24 +251,24 @@ class _OpenedFileModel(QAbstractItemModel):
         # build old mapping
         for index in pOldIndexes:
             row = index.row()
-            documentsMapping[ row ] = oldList.at( row )
+            documentsMapping[ row ] = oldList[row]
             mapping[ row ] = row
 
         self.mDocuments = newList
         
         # build mapping
-        for pIindex in pOldIndexes:
+        for pIndex in pOldIndexes:
             row = pIndex.row()
             document = documentsMapping[ row ]
-            index = self.mDocuments.indexOf( document )
+            index = self.mDocuments.index( document )
             mapping[ row ] = index
         
         for pIindex in pOldIndexes:
             row = pIndex.row()
             index = mapping[ row ]
             
-            if  pOldIndexes[i].isValid():
-                pIndexes.append(createIndex( index, pIndex.column(), self.mDocuments.at( index ) ))
+            if  pIndex.isValid():
+                pIndexes.append(self.createIndex( index, pIndex.column(), self.mDocuments[index] ))
             else:
                 pIndexes.append(QModelIndex())
         
@@ -313,7 +323,7 @@ class _OpenedFileModel(QAbstractItemModel):
             self.insertDocument( document, index )
     
     def documentModifiedChanged(self, document, modified ):
-        index = self.index( document )
+        index = self.documentIndex( document )
         self.dataChanged.emit( index, index )
 
 
@@ -487,7 +497,7 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
 """
     def currentDocumentChanged(self, document ):
         if document is not None:
-            index = self.mModel.index( document )
+            index = self.mModel.documentIndex( document )
             self.syncViewsIndex( index, True )
         pass
     
