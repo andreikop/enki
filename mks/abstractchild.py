@@ -78,7 +78,6 @@ class pAbstractChild(QMdiSubWindow):
         """return the document file path"""
         return unicode(self.windowFilePath())
     
-    '''TODO
     def fileName(self):
         """return the filename of the document"""
         wfp = self.windowFilePath()
@@ -86,6 +85,8 @@ class pAbstractChild(QMdiSubWindow):
             return None
         else:
             return QFileInfo( wfp ).fileName()
+    
+    '''TODO
     def path(self):
         """return the absolute path of the document"""
         wfp = self.windowFilePath()

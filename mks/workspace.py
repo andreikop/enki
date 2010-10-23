@@ -529,7 +529,7 @@ class Workspace(QFrame):
     """TODO
     def closeAllDocuments(self):
         # try save documents
-        button = UISaveFiles.saveDocuments( window(), s(), e )
+        button = UISaveFiles.saveDocuments( window(), self.openedDocuments(), False )
 
         # close all object, them
         if  button != UISaveFiles.bCancelClose :
