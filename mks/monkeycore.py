@@ -188,7 +188,7 @@ def init():
 
 def term():
     global mOpenedFileExplorer
-    mOpenedFileExplorer = None # wipe ling, python object would be removed
+    mOpenedFileExplorer = None # wipe link, python object would be removed
 
 def mainWindow():
     """Main window instance (mks.mainwindow.MainWindow)"""
