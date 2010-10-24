@@ -6,7 +6,6 @@ Instance accessible as mks.monkeycore.workspace()
 First time created by mainWindow()
 """
 import os.path
-import os.path
 import copy
 import sys
 
@@ -277,10 +276,12 @@ class _OpenedFileModel(QAbstractItemModel):
         
         if  index == -1 :
             return
-
+        
+        vLocked = QObject.parent(self).tvFiles.selectionModel().blockSignals( True )
         self.beginRemoveRows( QModelIndex(), index, index )
         self.mDocuments.remove( document )
         self.endRemoveRows()
+        QObject.parent(self).tvFiles.selectionModel().blockSignals( vLocked )
 
 
 class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
@@ -517,6 +518,9 @@ class Workspace(QFrame):
     """
         mks.monkeycore.menuBar().action( "mFile/aOpen" ).triggered.connect(self._fileOpen_triggered)
         mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).triggered.connect(self.closeCurrentDocument)
+    
+        mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).triggered.connect(self._fileSaveCurrent_triggered)
+        mks.monkeycore.menuBar().action( "mFile/mSave/aAll" ).triggered.connect(self._fileSaveAll_triggered)
         
         mks.monkeycore.menuBar().action( "mView/aNext" ).triggered.connect(self.mdiArea.activateNextSubWindow)
         mks.monkeycore.menuBar().action( "mView/aPrevious" ).triggered.connect(self.mdiArea.activatePreviousSubWindow)
@@ -577,6 +581,9 @@ class Workspace(QFrame):
             mks.monkeycore.menuBar().action( "mEdit/aPaste" ).setEnabled(document.isPasteAvailable())
             document.pasteAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aPaste" ).setEnabled)
             document.modifiedChanged.connect(self.document_modifiedChanged)
+            
+            mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled( document.isModified() )
+            
         else:  # no document
             mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(False)
             mks.monkeycore.menuBar().action( "mEdit/aUndo" ).setEnabled(False)
@@ -632,11 +639,10 @@ class Workspace(QFrame):
             mtb.setCurrentContext( DEFAULT_CONTEXT )
         
         self.multitoolbar_notifyChanges()
+        '''
         
         # update file menu
-        mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled( modified )
-        mks.monkeycore.menuBar().action( "mFile/mSave/aAll" ).setEnabled( document )
-        '''
+        mks.monkeycore.menuBar().action( "mFile/mSave/aAll" ).setEnabled( document is not None)
         mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled( document is not None)
         '''
         mks.monkeycore.menuBar().action( "mFile/mClose/aAll" ).setEnabled( document )
@@ -758,7 +764,6 @@ class Workspace(QFrame):
         if  QFileInfo( file ).isFile() and self.mFileWatcher.files().contains( file ) :
             self.mFileWatcher.removePath( file )
         """
-        
         self.documentClosed.emit( document )
         # close document
         self._unhandleDocument( document ) #FIXME make sure not always unhandleDocument
@@ -777,8 +782,10 @@ class Workspace(QFrame):
         document.modifiedChanged.connect(self.document_modifiedChanged)
         document.fileClosed.connect(self.document_fileClosed)
         document.fileReloaded.connect(self.document_fileReloaded)
+        """
         # update file menu
         document.modifiedChanged.connect(mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled)
+        """
         # update edit menu
         document.undoAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aUndo" ).setEnabled)
         document.redoAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aRedo" ).setEnabled)
@@ -807,9 +814,10 @@ class Workspace(QFrame):
         disconnect( document, SIGNAL( fileClosed() ), this, SLOT( document_fileClosed() ) )
         disconnect( document, SIGNAL( fileReloaded() ), this, SLOT( document_fileReloaded() ) )
         # update file menu
-        disconnect( document, SIGNAL( modifiedChanged( bool ) ), mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ), SLOT( setEnabled( bool ) ) )
+        """
+        document.modifiedChanged.disconnect(mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled)
         # update edit menu
-        
+        """TODO
         document.undoAvailableChanged.disconnect(mks.monkeycore.menuBar().action( "mEdit/aUndo" ).setEnabled)
         document.redoAvailableChanged.disconnect(mks.monkeycore.menuBar().action( "mEdit/aRedo" ).setEnabled)
         document.copyAvailableChanged.disconnect(mks.monkeycore.menuBar().action( "mEdit/aCut" ).setEnabled)
@@ -1290,23 +1298,29 @@ class Workspace(QFrame):
             if not mks.monkeycore.projectsManager().openProject( project, mks.monkeystudio.defaultCodec() ): # remove it from recents projects
                 mks.monkeycore.recentsManager().removeRecentProject( project )
     
-    def fileSaveCurrent_triggered(self):
-        document = self.currentDocument()
-        
-        fn = document.filePath()
-        self.mFileWatcher.removePath( fn )
-        document.saveFile()
+    '''
+    
+    def _fileSaveCurrent_triggered(self):
+        """TODO
+        self.mFileWatcher.removePath( self.currentDocument().filePath() )
+        """
+        self.currentDocument().saveFile()
+        """TODO
         self.mFileWatcher.addPath( fn )
+        """
     
-    def fileSaveAll_triggered(self):
+    def _fileSaveAll_triggered(self):
         # fixme duplicating code with save current
-        for window in a.subWindowList():
-            document = window
-            fn = document.filePath()
-            self.mFileWatcher.removePath( fn )
+        for document in self.openedDocuments():
+            """TODO
+            self.mFileWatcher.removePath( document.filePath() )
+            """
             document.saveFile()
+            """TODO
             self.mFileWatcher.addPath( fn )
+            """
     
+    '''TODO
     def fileCloseAll_triggered(self):
         self.closeAllDocuments()  # fixme KILL this 
 

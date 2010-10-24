@@ -65,11 +65,11 @@ class MainWindow(pMainWindow):
         mb.action( "mSession/aSave", self.tr( "Save" ), mks.monkeystudio.getIcon("file/save.png" ), '', self.tr( "Save the current session files list" ) )
         mb.action( "mSession/aRestore", self.tr( "Restore" ), mks.monkeystudio.getIcon("file/restore.png" ), '', self.tr( "Restore the current session files list" ) )
         mb.action( "aSeparator2" )
+        """
         mb.menu( "mSave", self.tr( "&Save" ), mks.monkeystudio.getIcon("file/save.png" ) )
-        
         mb.action( "mSave/aCurrent", self.tr( "&Save" ), mks.monkeystudio.getIcon("file/save.png" ), "Ctrl+S" , self.tr( "Save the current file" ) ).setEnabled( False )
         mb.action( "mSave/aAll", self.tr( "Save &All" ), mks.monkeystudio.getIcon("file/saveall.png" ), '', self.tr( "Save all files" ) ).setEnabled( False )
-        """
+
         mb.menu( "mClose", self.tr( "&Close" ), mks.monkeystudio.getIcon("file/close.png" ) )
         mb.action( "mClose/aCurrent", self.tr( "&Close" ), mks.monkeystudio.getIcon("file/close.png" ), "", self.tr( "Close the current file" ) ).setEnabled( False )
         """TODO
@@ -222,8 +222,6 @@ class MainWindow(pMainWindow):
         mks.monkeycore.recentsManager().openFileRequested.connect(mks.monkeycore.fileManager().openFile)
         self.menuBar().action( "mFile/mSession/aSave" ).triggered.connect(mks.monkeycore.workspace().fileSessionSave_triggered)
         self.menuBar().action( "mFile/mSession/aRestore" ).triggered.connect(mks.monkeycore.workspace().fileSessionRestore_triggered)
-        self.menuBar().action( "mFile/mSave/aCurrent" ).triggered.connect(mks.monkeycore.workspace().fileSaveCurrent_triggered)
-        self.menuBar().action( "mFile/mSave/aAll" ).triggered.connect(mks.monkeycore.workspace().fileSaveAll_triggered)
         self.menuBar().action( "mFile/mClose/aAll" ).triggered.connect(mks.monkeycore.workspace().fileCloseAll_triggered)
         self.menuBar().action( "mFile/aReload" ).triggered.connect(mks.monkeycore.workspace().fileReload_triggered)
         self.menuBar().action( "mFile/aSaveAsBackup" ).triggered.connect(mks.monkeycore.workspace().fileSaveAsBackup_triggered)
