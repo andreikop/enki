@@ -362,32 +362,6 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         self.tvFiles.setAttribute( Qt.WA_MacShowFocusRect, False )
         self.tvFiles.setAttribute( Qt.WA_MacSmallSize )
         
-        # sort menu
-        self.mSortMenu = QMenu( self )
-        group = QActionGroup( self.mSortMenu )
-
-        group.addAction( self.tr( "Opening order" ) )
-        group.addAction( self.tr( "File name" ) )
-        group.addAction( self.tr( "URL" ) )
-        group.addAction( self.tr( "Suffixes" ) )
-        group.addAction( self.tr( "Custom" ) )
-        group.triggered.connect(self.sortTriggered)
-        self.mSortMenu.addActions( group.actions() )
-        
-        for i, sortMode in enumerate(["OpeningOrder", "FileName", "URL", "Suffixes", "Custom"]):
-            action = group.actions()[i]
-            action.setData( sortMode )
-            action.setCheckable( True )
-            """TODO
-            if  i == _OpenedFileModel.OpeningOrder :
-                action.setChecked( True )
-            """
-        
-        aSortMenu = QAction( self.tr( "Sorting" ), self )
-        aSortMenu.setMenu( self.mSortMenu )
-        aSortMenu.setIcon( mks.monkeystudio.getIcon( "file/sort.png" ))
-        aSortMenu.setToolTip( aSortMenu.text() )
-        
         """TODO
         '''
         tb = qobject_cast<QToolButton*>( titleBar().addAction( aSortMenu, 0 ) )
@@ -458,5 +432,30 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         menu.addAction( mks.monkeycore.menuBar().action( "mFile/aReload" ) )
         menu.addSeparator()
         """
-        menu.addAction( self.mSortMenu.menuAction() )
+        
+        # sort menu
+        sortMenu = QMenu( self )
+        group = QActionGroup( sortMenu )
+
+        group.addAction( self.tr( "Opening order" ) )
+        group.addAction( self.tr( "File name" ) )
+        group.addAction( self.tr( "URL" ) )
+        group.addAction( self.tr( "Suffixes" ) )
+        group.addAction( self.tr( "Custom" ) )
+        group.triggered.connect(self.sortTriggered)
+        sortMenu.addActions( group.actions() )
+        
+        for i, sortMode in enumerate(["OpeningOrder", "FileName", "URL", "Suffixes", "Custom"]):
+            action = group.actions()[i]
+            action.setData( sortMode )
+            action.setCheckable( True )
+            if sortMode == self.mModel.mSortMode:
+                action.setChecked( True )
+        
+        aSortMenu = QAction( self.tr( "Sorting" ), self )
+        aSortMenu.setMenu( sortMenu )
+        aSortMenu.setIcon( mks.monkeystudio.getIcon( "file/sort.png" ))
+        aSortMenu.setToolTip( aSortMenu.text() )
+        
+        menu.addAction( sortMenu.menuAction() )
         menu.exec_( self.tvFiles.mapToGlobal( pos ) )
