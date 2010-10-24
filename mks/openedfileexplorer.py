@@ -30,8 +30,6 @@ class _OpenedFileModel(QAbstractItemModel):
         self.mSortMode = _OpenedFileModel.OpeningOrder
         self.mSortDocumentsTimer = QTimer( self )
         self.mSortDocumentsTimeout = 150
-        self.mTransparentIcon = mks.monkeystudio.getIcon( "transparent.png" )
-        self.mModifiedIcon = mks.monkeystudio.getIcon( "save.png" )
         
         self.mSortDocumentsTimer.timeout.connect(self.sortDocuments_timeout)
         mks.monkeycore.workspace().documentOpened.connect(self.documentOpened)
@@ -72,27 +70,17 @@ class _OpenedFileModel(QAbstractItemModel):
         assert(document)
         
         if role == Qt.DecorationRole:
-            icon = document.windowIcon()
-            """ TODO
-            if  not self.mDocumentsIcons.value( document ).isNull() :
-                icon = self.mDocumentsIcons[ document ]
-            elif  document.isModified() :
-                icon = self.mModifiedIcon
-            """
-            
-            if  icon.isNull() :
-                icon = self.mTransparentIcon
-            return icon
+            if document.windowIcon().isNull():
+                if document.isModified():
+                    return mks.monkeystudio.getIcon( "file/save.png" )
+                else:
+                    return mks.monkeystudio.getIcon( "file/transparent.png" )
+            else:
+                return document.windowIcon()
         elif role == Qt.DisplayRole:
-                return document.filePath()
+                return document.fileName()
         elif role == Qt.ToolTipRole:
-            """TODO
-            customToolTip = self.mDocumentsToolTips.value( document )
-            toolTip = document.filePath()
-            return customToolTip.isEmpty() ? toolTip : customToolTip
-            break
-            """
-            return document.filePath()
+            return document.toolTip()
         else:
             return QVariant()
     
@@ -181,17 +169,6 @@ class _OpenedFileModel(QAbstractItemModel):
             self.mSortMode = mode
             self.sortDocuments()
 
-    def setDocumentIcon(self, document, icon ):
-        self.mDocumentsIcons[ document ] = icon
-        index = self.index( document )
-        dataChanged.emit( index, index )
-
-    def setDocumentToolTip(self, document, toolTip ):
-        self.mDocumentsToolTips[ document ] = toolTip
-        index = self.index( document )
-        dataChanged.emit( index, index )
-
-
     def sortDocuments(self):
         self.mSortDocumentsTimer.start( self.mSortDocumentsTimeout )
 
@@ -238,7 +215,6 @@ class _OpenedFileModel(QAbstractItemModel):
 
 
     def sortDocuments_timeout(self):
-
         self.mSortDocumentsTimer.stop()
         
         newDocuments = copy.copy(self.mDocuments)
@@ -290,12 +266,7 @@ class _OpenedFileModel(QAbstractItemModel):
 
         self.beginRemoveRows( QModelIndex(), index, index )
         self.mDocuments.remove( document )
-        """TODO
-        self.mDocumentsIcons.remove( document )
-        self.mDocumentsToolTips.remove( document )
-        """
         self.endRemoveRows()
-        self.sortDocuments()
 
 """TODO
 class pOpenedFileAction(QWidgetAction):
@@ -377,26 +348,13 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         """TODO
         self.aComboBox.currentIndexChanged.connect(self.syncViewsIndex)
 
-    def model(self):
-        return self.mModel
-
     def comboBoxAction(self):
         return self.aComboBox
-
-    def sortMode(self):
-        return self.mModel.sortMode()
-
-    def setSortMode(self, mode ):
-        self.mModel.setSortMode( mode )
 """
     def sortTriggered(self, action ):
         mode = action.data().toString()
         self.mModel.setSortMode( mode )
     
-    """TODO
-    def documentChanged(self, document ):
-        pass
-"""
     def currentDocumentChanged(self, document ):
         if document is not None:
             index = self.mModel.documentIndex( document )
@@ -426,12 +384,11 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
     
     def on_tvFiles_customContextMenuRequested(self, pos ):
         menu = QMenu()
-        """TODO
+        
         menu.addAction( mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ) )
         menu.addAction( mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ) )
         menu.addAction( mks.monkeycore.menuBar().action( "mFile/aReload" ) )
         menu.addSeparator()
-        """
         
         # sort menu
         sortMenu = QMenu( self )
@@ -449,7 +406,7 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
             action = group.actions()[i]
             action.setData( sortMode )
             action.setCheckable( True )
-            if sortMode == self.mModel.mSortMode:
+            if sortMode == self.mModel.sortMode:
                 action.setChecked( True )
         
         aSortMenu = QAction( self.tr( "Sorting" ), self )
