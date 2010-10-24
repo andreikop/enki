@@ -17,7 +17,6 @@ import mks.settings
 """
 import mks.mainwindow
 import mks.workspace
-import mks.openedfileexplorer
 
 _mainWindow = None
 _workspace = None
@@ -123,15 +122,7 @@ def init():
 
     # create and init workspace
     mainWindow().setCentralWidget( mks.monkeycore.workspace() )
-    
-    # create opened files explorer
-    global mOpenedFileExplorer
-    mOpenedFileExplorer = mks.openedfileexplorer.OpenedFileExplorer(mks.monkeycore.workspace())
-    lefttb = mks.monkeycore.mainWindow().dockToolBar( Qt.LeftToolBarArea )
-    lefttb.addDock( mOpenedFileExplorer,
-                    mOpenedFileExplorer.windowTitle(),
-                    mOpenedFileExplorer.windowIcon())
-    
+        
     workspace().openFile('/home/a/tmp/1.txt') # FIXME
     workspace().openFile('/home/a/tmp/2') # FIXME
     workspace().openFile('/home/a/tmp/t.txt') # FIXME
@@ -187,8 +178,7 @@ def init():
 """
 
 def term():
-    global mOpenedFileExplorer
-    mOpenedFileExplorer = None # wipe link, python object would be removed
+    pass
 
 def mainWindow():
     """Main window instance (mks.mainwindow.MainWindow)"""
