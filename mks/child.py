@@ -528,12 +528,13 @@ class pChild(mks.abstractchild.pAbstractChild):
 
     def isPrintAvailable(self):
         return True
+    """
     
-    def _saveFile(self, fileName):
+    def saveFile(self):
         if  not self.isModified() :
             return True
         
-        dirPath = os.path.directory(fileName)
+        dirPath = os.path.dirname(self.filePath())
         if  not os.path.exists(dirPath):
             try:
                 os.mkdir(dirPath)
@@ -543,7 +544,7 @@ class pChild(mks.abstractchild.pAbstractChild):
                 return False
         
         try:
-            f = open(fileName, 'w')
+            f = open(self.filePath(), 'w')
         except IOError:
             mks.monkeystudio.messageManager().appendMessage( \
                     self.tr( "Cannot write to file '%s'. Error '%s'" % (dirPath, error))) # todo fix
@@ -553,10 +554,10 @@ class pChild(mks.abstractchild.pAbstractChild):
             f.write(self.mEditor.text())
         finally:
             f.close()
+        
+        self.mEditor.setModified(False)
     
-    def saveFile(self):
-        self.mEditor.saveFile( self.filePath() )
-
+    """TODO
     def backupFileAs(self, filePath ):
         shutil.copyfileobj(self.filePath(), fileName)
     
