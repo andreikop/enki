@@ -48,7 +48,6 @@ class _OpenedFileModel(QAbstractItemModel):
         parentObject.parent().documentOpened.connect(self.documentOpened)
         parentObject.parent().documentModifiedChanged.connect(self.documentModifiedChanged)
         parentObject.parent().documentClosed.connect(self.documentClosed)
-        self.mDocuments = []
         
         self.mSortMode = self.Suffixes # FIXME
     
@@ -59,13 +58,13 @@ class _OpenedFileModel(QAbstractItemModel):
         if parent.isValid():
             return 0
         else:
-            return len(self.mDocuments)
+            return len(mks.monkeycore.workspace()._sortedDocuments)
     
     def hasChildren(self, parent ):
         if parent.isValid():
            return False
         else:
-            return (len(self.mDocuments) > 0)
+            return (len(mks.monkeycore.workspace()._sortedDocuments) > 0)
 
     def headerData(self, section, orientation, role ):
         if  section == 0 and \
@@ -104,10 +103,10 @@ class _OpenedFileModel(QAbstractItemModel):
             return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDropEnabled
     
     def index(self, row, column, parent ):
-        if  parent.isValid() or column > 0 or column < 0 or row < 0 or row >= len(self.mDocuments) :
+        if  parent.isValid() or column > 0 or column < 0 or row < 0 or row >= len(mks.monkeycore.workspace()._sortedDocuments) :
             return QModelIndex()
 
-        return self.createIndex( row, column, self.mDocuments[row] )
+        return self.createIndex( row, column, mks.monkeycore.workspace()._sortedDocuments[row] )
     
     def parent(self, index ):
         return QModelIndex()
@@ -136,13 +135,13 @@ class _OpenedFileModel(QAbstractItemModel):
         
         fromRow = data.data( self.mimeTypes()[0] ).toInt()[0]
         
-        if  row >= len(self.mDocuments):
+        if  row >= len(mks.monkeycore.workspace()._sortedDocuments):
             row-= 1
 
         elif  fromRow < row :
             row-= 1
 
-        newDocuments = copy.copy(self.mDocuments)
+        newDocuments = copy.copy(mks.monkeycore.workspace()._sortedDocuments)
         
         item = newDocuments.pop(fromRow)
         
@@ -151,7 +150,7 @@ class _OpenedFileModel(QAbstractItemModel):
         
         newDocuments.insert(row, item)
         
-        self.rebuildMapping( self.mDocuments, newDocuments )
+        self.rebuildMapping( mks.monkeycore.workspace()._sortedDocuments, newDocuments )
         
         if  self.mSortMode != _OpenedFileModel.Custom :
             self.setSortMode( _OpenedFileModel.Custom )
@@ -167,7 +166,7 @@ class _OpenedFileModel(QAbstractItemModel):
         return index.internalPointer()
     
     def documentIndex(self, document ):
-        row = self.mDocuments.index( document )
+        row = mks.monkeycore.workspace()._sortedDocuments.index( document )
         
         if  row != -1 :
             return self.createIndex( row, 0, document )
@@ -186,9 +185,9 @@ class _OpenedFileModel(QAbstractItemModel):
         self.mSortDocumentsTimer.start( self.mSortDocumentsTimeout )
 
     def insertDocument(self, document, index ):
-        assert( not document in self.mDocuments )
+        assert( not document in mks.monkeycore.workspace()._sortedDocuments )
         self.beginInsertRows( QModelIndex(), index, index )
-        self.mDocuments.insert( index, document )
+        mks.monkeycore.workspace()._sortedDocuments.insert( index, document )
         self.endInsertRows()
         self.sortDocuments()
 
@@ -205,13 +204,13 @@ class _OpenedFileModel(QAbstractItemModel):
             documentsMapping[ row ] = oldList[row]
             mapping[ row ] = row
 
-        self.mDocuments = newList
+        mks.monkeycore.workspace()._sortedDocuments = newList
         
         # build mapping
         for pIndex in pOldIndexes:
             row = pIndex.row()
             document = documentsMapping[ row ]
-            index = self.mDocuments.index( document )
+            index = mks.monkeycore.workspace()._sortedDocuments.index( document )
             mapping[ row ] = index
         
         for pIindex in pOldIndexes:
@@ -219,7 +218,7 @@ class _OpenedFileModel(QAbstractItemModel):
             index = mapping[ row ]
             
             if  pIndex.isValid():
-                pIndexes.append(self.createIndex( index, pIndex.column(), self.mDocuments[index] ))
+                pIndexes.append(self.createIndex( index, pIndex.column(), mks.monkeycore.workspace()._sortedDocuments[index] ))
             else:
                 pIndexes.append(QModelIndex())
         
@@ -230,10 +229,10 @@ class _OpenedFileModel(QAbstractItemModel):
     def sortDocuments_timeout(self):
         self.mSortDocumentsTimer.stop()
         
-        newDocuments = copy.copy(self.mDocuments)
+        newDocuments = copy.copy(mks.monkeycore.workspace()._sortedDocuments)
         
         if self.mSortMode == self.OpeningOrder:
-            newDocuments.sort(lambda a, b: cmp(self.mDocuments.index(a), self.mDocuments.index(b)))
+            newDocuments.sort(lambda a, b: cmp(mks.monkeycore.workspace()._sortedDocuments.index(a), mks.monkeycore.workspace()._sortedDocuments.index(b)))
         elif self.mSortMode == self.FileName:
             newDocuments.sort(lambda a, b: cmp(a.fileName(), b.fileName()))
         elif self.mSortMode == self.URL:
@@ -253,18 +252,18 @@ class _OpenedFileModel(QAbstractItemModel):
             pass
         else:
             assert(0)
-        self.rebuildMapping( self.mDocuments, newDocuments )
+        self.rebuildMapping( mks.monkeycore.workspace()._sortedDocuments, newDocuments )
                     # scroll the view
         QObject.parent(self).tvFiles.scrollTo( QObject.parent(self).tvFiles.selectionModel().selectedIndexes()[0] )
 
     def documentOpened(self, document ):
-        if document in self.mDocuments:
+        if document in mks.monkeycore.workspace()._sortedDocuments:
            self.sortDocuments()
         else:
-            if document is None or document in self.mDocuments:
+            if document is None or document in mks.monkeycore.workspace()._sortedDocuments:
                 return
             
-            index = len(self.mDocuments)
+            index = len(mks.monkeycore.workspace()._sortedDocuments)
             self.insertDocument( document, index )
 
     def documentModifiedChanged(self, document, modified ):
@@ -272,16 +271,17 @@ class _OpenedFileModel(QAbstractItemModel):
         self.dataChanged.emit( index, index )
 
     def documentClosed(self, document ):
-        index = self.mDocuments.index( document )
+        index = mks.monkeycore.workspace()._sortedDocuments.index( document )
         
         if  index == -1 :
             return
         
-        vLocked = QObject.parent(self).tvFiles.selectionModel().blockSignals( True )
+        # scroll the view
+        QObject.parent(self)._startModifyModel()
         self.beginRemoveRows( QModelIndex(), index, index )
-        self.mDocuments.remove( document )
+        mks.monkeycore.workspace()._sortedDocuments.remove( document )
         self.endRemoveRows()
-        QObject.parent(self).tvFiles.selectionModel().blockSignals( vLocked )
+        QObject.parent(self)._finishModifyModel()
 
 
 class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
@@ -310,8 +310,19 @@ class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         mks.monkeycore.workspace().documentChanged.connect(self.documentChanged)
         """
         workspace.currentDocumentChanged.connect(self.currentDocumentChanged)
-        self.tvFiles.selectionModel().selectionChanged.connect(self.selectionModel_selectionChanged)
         
+        self.tvFiles.selectionModel().selectionChanged.connect(self.selectionModel_selectionChanged)  # disconnected by _startModifyModel()
+    
+    def _startModifyModel(self):
+        """Blocks signals from model while it modified by code
+        """
+        self.tvFiles.selectionModel().selectionChanged.disconnect(self.selectionModel_selectionChanged)
+    
+    def _finishModifyModel(self):
+        """Unblocks signals from model
+        """
+        self.tvFiles.selectionModel().selectionChanged.connect(self.selectionModel_selectionChanged)
+    
     def sortTriggered(self, action ):
         mode = action.data().toString()
         self.mModel.setSortMode( mode )
@@ -320,12 +331,11 @@ class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         if document is not None:
             index = self.mModel.documentIndex( document )
             
-            vLocked = self.tvFiles.selectionModel().blockSignals( True )
+            self._startModifyModel()
             self.tvFiles.setCurrentIndex( index )
-            self.tvFiles.selectionModel().blockSignals( vLocked )
             # scroll the view
             self.tvFiles.scrollTo( index )
-        pass
+            self._finishModifyModel()
     
     def selectionModel_selectionChanged(self, selected, deselected ):
         if not selected.indexes():  # empty list, last file closed
@@ -336,7 +346,7 @@ class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         focusWidget = self.window().focusWidget()
 
         # set current document
-        document = self.mModel.mDocuments[index.row()]
+        document = mks.monkeycore.workspace()._sortedDocuments[index.row()]
         mks.monkeycore.workspace().setCurrentDocument( document )
         
         # restore focus widget
@@ -367,7 +377,7 @@ class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
             action = group.actions()[i]
             action.setData( sortMode )
             action.setCheckable( True )
-            if sortMode == self.mModel.sortMode:
+            if sortMode == self.mModel.sortMode():
                 action.setChecked( True )
         
         aSortMenu = QAction( self.tr( "Sorting" ), self )
@@ -424,6 +434,11 @@ class Workspace(QFrame):
     
     def __init__(self, parent):
         QFrame.__init__(self, parent)
+        
+        """ list of opened documents as it is displayed in the Opened Files Explorer. 
+        List accessed and modified by _OpenedFileModel class
+        """
+        self._sortedDocuments = []
         
         self._oldCurrentDocument = None
         
@@ -522,8 +537,8 @@ class Workspace(QFrame):
         mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).triggered.connect(self._fileSaveCurrent_triggered)
         mks.monkeycore.menuBar().action( "mFile/mSave/aAll" ).triggered.connect(self._fileSaveAll_triggered)
         
-        mks.monkeycore.menuBar().action( "mView/aNext" ).triggered.connect(self.mdiArea.activateNextSubWindow)
-        mks.monkeycore.menuBar().action( "mView/aPrevious" ).triggered.connect(self.mdiArea.activatePreviousSubWindow)
+        mks.monkeycore.menuBar().action( "mView/aNext" ).triggered.connect(self.activateNextDocument)
+        mks.monkeycore.menuBar().action( "mView/aPrevious" ).triggered.connect(self.activatePreviousDocument)
     
     def eventFilter( self, object, event ):
         # get document
@@ -843,7 +858,7 @@ class Workspace(QFrame):
         """
         
         # check if file is already opened
-        for document in self.mdiArea.subWindowList():
+        for document in self._sortedDocuments:
             if os.path.isfile(fileName) and os.path.samefile( document.filePath(), fileName ) :
                 self.setCurrentDocument( document )
                 return document
@@ -869,13 +884,13 @@ class Workspace(QFrame):
         finally:
             QApplication.restoreOverrideCursor()
         
+        self.documentOpened.emit( document )
+        
         self._handleDocument( document )
         
         document.showMaximized()
         #FIXME remove. Genrates too lot if signals. 
         #self.setCurrentDocument( document )
-        
-        self.documentOpened.emit( document )
         
         return document
     
@@ -896,7 +911,7 @@ class Workspace(QFrame):
     def openedDocuments(self):
         """Get list of opened documents (mks.abstractchild instances)
         """
-        return self.mdiArea.subWindowList()
+        return self._sortedDocuments
     
     """TODO
     def closeAllDocuments(self):
@@ -913,46 +928,19 @@ class Workspace(QFrame):
         else:
             return False; #not close IDE
         return True
+    """
     
     def activateNextDocument(self):
-        
-        if self.mViewMode == self.NoTabs :
-            document = self.currentDocument()
-            curIndex = self.mOpenedFileExplorer.model().documentIndex( document )
-            index = self.mOpenedFileExplorer.model().documentIndex( document )
-            
-            x = curIndex.sibling( curIndex.row() +1, curIndex.column() )
-
-            if  not index.isValid() :
-                x = curIndex.sibling( 0, curIndex.column() )
-
-            t = self.mOpenedFileExplorer.model().document( index )
-            
-            self.setCurrentDocument( document )
-        else:
-            self.mdiArea.activateNextSubWindow()
-        
-        self.mdiArea.activateNextSubWindow()
-
-    def activatePreviousDocument(self):
-        
-        if self.mViewMode == self.NoTabs :
-            document = self.currentDocument()
-            curIndex = self.mOpenedFileExplorer.model().documentIndex( document ) # FIXME hide this stuff inside the model!!!
-            index = self.mOpenedFileExplorer.model().documentIndex( document )
-
-            x = curIndex.sibling( curIndex.row() -1, curIndex.column() )
-
-            if  not index.isValid() :
-                x = curIndex.sibling( self.mOpenedFileExplorer.model().rowCount() -1, curIndex.column() )
-
-            t = self.mOpenedFileExplorer.model().document( index )
-            self.setCurrentDocument( document )
-        else:
-            self.mdiArea.activatePreviousSubWindow()
-        
-        self.mdiArea.activatePreviousSubWindow()
+        curIndex = self._sortedDocuments.index(self.currentDocument())
+        nextIndex = (curIndex + 1) % len(self._sortedDocuments)
+        self.setCurrentDocument( self._sortedDocuments[nextIndex] )
     
+    def activatePreviousDocument(self):
+        curIndex = self._sortedDocuments.index(self.currentDocument())
+        prevIndex = (curIndex - 1 + len(self._sortedDocuments)) % len(self._sortedDocuments)
+        self.setCurrentDocument( self._sortedDocuments[prevIndex] )
+    
+    """TODO
     def focusEditor(self):
         document = self.currentDocument()
 
