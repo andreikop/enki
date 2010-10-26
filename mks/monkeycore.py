@@ -123,8 +123,8 @@ def init():
     # create and init workspace
     mainWindow().setCentralWidget( mks.monkeycore.workspace() )
         
-    workspace().openFile('/home/a/tmp/1.txt') # FIXME
-    workspace().openFile('/home/a/tmp/2') # FIXME
+    workspace().openFile('/home/a/tmp/samples/1.txt') # FIXME
+    workspace().openFile('/home/a/tmp/samples/2') # FIXME
     #workspace().openFile('/home/a/tmp/t.txt') # FIXME
     #workspace().openFile('/home/a/tmp/bug') # FIXME
 
