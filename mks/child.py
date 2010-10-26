@@ -406,36 +406,41 @@ class pChild(mks.abstractchild.pAbstractChild):
         
         # open file
         #locked = self.blockSignals( True )
-        with open(filePath, 'r') as f:
-            """TODO
-            # set lexer and apis
-            self.setLexer( mks.monkeystudio.lexerForFileName( fileName ) )
+        try:
+            with open(filePath, 'r') as f:
+                self._setFilePath(filePath)
+                
+                """TODO
+                # set lexer and apis
+                self.setLexer( mks.monkeystudio.lexerForFileName( fileName ) )
 
-            # set properties
-            mks.monkeystudio.setEditorProperties( self )
-            """
-            self.mEditor.setText( f.read() )
-            self.mEditor.setModified( False )
-            
-            """TODO
-            # convert tabs if needed
-            if  mks.monkeystudio.convertTabsUponOpen() :
-                convertTabs()
-            #autodetect indent, need
-            if  mks.monkeystudio.autoDetectIndent() :
-                autoDetectIndent ()
-            #autodetect eol, need
-            if  mks.monkeystudio.autoDetectEol() :
-                autoDetectEol()
-            # make backup if needed
-            if  mks.monkeystudio.createBackupUponOpen() :
-                shutil.copyfileobj(self.filePath(), self.filePath() + '.bak')
-            # convert eol
-            if  mks.monkeystudio.autoEolConversion() :
-                convertEols( eolMode() )
-            """
+                # set properties
+                mks.monkeystudio.setEditorProperties( self )
+                """
+                self.mEditor.setText( f.read() )
+                self.mEditor.setModified( False )
+                
+                """TODO
+                # convert tabs if needed
+                if  mks.monkeystudio.convertTabsUponOpen() :
+                    convertTabs()
+                #autodetect indent, need
+                if  mks.monkeystudio.autoDetectIndent() :
+                    autoDetectIndent ()
+                #autodetect eol, need
+                if  mks.monkeystudio.autoDetectEol() :
+                    autoDetectEol()
+                # make backup if needed
+                if  mks.monkeystudio.createBackupUponOpen() :
+                    shutil.copyfileobj(self.filePath(), self.filePath() + '.bak')
+                # convert eol
+                if  mks.monkeystudio.autoEolConversion() :
+                    convertEols( eolMode() )
+                """
+        except IOError, ex:  # exception in constructor
+            self.deleteLater()  # make sure C++ object deleted
+            raise ex
         
-        self._setFilePath(filePath)
         #TODO self.fileOpened.emit()
 
     def _onTextChanged(self):
