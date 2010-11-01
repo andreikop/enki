@@ -1,3 +1,114 @@
+"""Module provides interface for store core and plugins settings and hardcodes default 
+settings for MkS core.
+If you added new option to the MkS core, do not forget to add default value for it here.
+if you use settings from your plugin, you must call mks.settings.registerOption before
+read and write it.
+"""
+
+import os
+import sys
+
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+
+from PyQt4.Qsci import *
+
+defaults = {
+"Editor/SelectionBackgroundColor" : QColor( "#bdff9b" ),
+"Editor/SelectionForegroundColor" : QColor( "#000000" ),
+"Editor/DefaultDocumentColours" : False,
+"Editor/DefaultDocumentPen" : QColor( Qt.black ),
+"Editor/DefaultDocumentPaper" : QColor( Qt.white ),
+"Editor/AutoCompletionCaseSensitivity" : True,
+"Editor/AutoCompletionReplaceWord" : True,
+"Editor/AutoCompletionShowSingle" : False,
+"Editor/AutoCompletionSource" : QsciScintilla.AcsAll,
+"Editor/AutoCompletionThreshold" : 3,
+"Editor/CallTipsBackgroundColor": QColor( "#ffff9b" ),
+"Editor/CallTipsForegroundColor": QColor( "#000000" ),
+"Editor/CallTipsHighlightColor": QColor( "#ff0000" ),
+"Editor/CallTipsStyle" : QsciScintilla.CallTipsContext,
+"Editor/CallTipsVisible" : -1,
+"Editor/AutoIndent" : True,
+"Editor/BackspaceUnindents" : True,
+"Editor/IndentationGuides" : True,
+"Editor/IndentationsUseTabs" : True,
+"Editor/AutoDetectIndent" : False,
+"Editor/IndentationWidth" : 4,
+"Editor/TabIndents" : True,
+"Editor/TabWidth" : 4,
+"Editor/IndentationGuidesBackgroundColor": QColor( "#0000ff" ),
+"Editor/IndentationGuidesForegroundColor": QColor( "#0000ff" ),
+"Editor/BraceMatching" : QsciScintilla.SloppyBraceMatch,
+"Editor/MatchedBraceBackgroundColor": QColor( "#ffff7f" ),
+"Editor/MatchedBraceForegroundColor": QColor( "#ff0000" ),
+"Editor/UnmatchedBraceBackgroundColor": QColor( "#ff0000" ),
+"Editor/UnmatchedBraceForegroundColor": QColor( "#ffffff" ),
+"Editor/EdgeMode" : QsciScintilla.EdgeNone,
+"Editor/EdgeColor": QColor( "#ff0000" ),
+"Editor/EdgeColumn" : 80,
+"Editor/CaretLineVisible" : True,
+"Editor/CaretLineBackgroundColor": QColor( "#aaaaff" ),
+"Editor/CaretForegroundColor": QColor( "#000000" ),
+"Editor/CaretWidth" : 1,
+"Editor/EolMode" : os.linesep,
+"Editor/EolVisibility" : False,
+"Editor/AutoDetectEol" : False,
+"Editor/WhitespaceVisibility" : QsciScintilla.WsInvisible,
+"Editor/WrapMode" : QsciScintilla.WrapNone,
+"Editor/WrapVisualFlagsEnabled" : False,
+"Editor/StartWrapVisualFlag" : QsciScintilla.WrapFlagNone,
+"Editor/EndWrapVisualFlag" : QsciScintilla.WrapFlagNone,
+"Editor/WrappedLineIndentWidth" : 0,
+"Editor/Assotiations/Bash" : "*.sh",
+"Editor/Assotiations/Batch" : "*.bat, *.cmd",
+"Editor/Assotiations/C#" : "*.cs",
+"Editor/Assotiations/C++" : "*.h, *.hh, *.hpp, *.hxx, *.h++, *.c, *.cc, *.cpp, *.cxx, *.c++",
+"Editor/Assotiations/CMake" : "*.cmake, CMake.txt",
+"Editor/Assotiations/CSS" : "*.css",
+"Editor/Assotiations/D" : "*.d",
+"Editor/Assotiations/Diff" : "*.diff, *.patch",
+"Editor/Assotiations/HTML" : "*.asp, *.xml, *.xsd, *.xsl, *.xslt, *.docbook, *.dtd, *.htm*, *.php*, *.phtm*, *.rdf, *.svg, *.shtm*",
+"Editor/Assotiations/IDL" : "*.idl",
+"Editor/Assotiations/Java" : "*.java",
+"Editor/Assotiations/JavaScript" : "*.js",
+"Editor/Assotiations/Lua" : "*.lua",
+"Editor/Assotiations/Makefile" : "*.mak, *makefile, Makefile*, *.mk",
+"Editor/Assotiations/POV" : "*.pov",
+"Editor/Assotiations/Perl" : "*.ph, *.pl, *.pm",
+"Editor/Assotiations/Properties" : "*.cfg, *.cnf, *.inf, *.ini, *.properties, *.rc, *.reg",
+"Editor/Assotiations/Python" : "*.ptl, *.py, *.py, *.pyw, *.pyx",
+"Editor/Assotiations/Ruby" : "*.rb, *.rbw",
+"Editor/Assotiations/SQL" : "*.sql",
+"Editor/Assotiations/TCL" : "*.tcl",
+"Editor/Assotiations/TeX" : "*.aux, *.idx, *.sty, *.toc",
+"Editor/Assotiations/VHDL" : "*.vhdl",
+}
+
+"""
+"Editor/LineNumbersMarginEnabled" : True,
+"Editor/LineNumbersMarginWidth" : 4,
+"Editor/LineNumbersMarginAutoWidth" : True,
+"Editor/Folding" : QsciScintilla.BoxedTreeFoldStyle,
+"Editor/FoldMarginBackgroundColor": QColor( "#c0c0c0" ),
+"Editor/FoldMarginForegroundColor": QColor( "#ffffff" ),
+"Editor/MarginsEnabled" : False,
+"Editor/MarginsBackgroundColor": QColor( "#c0c0c0" ),
+"Editor/MarginsForegroundColor": QColor( "#ffffff" ),
+"Editor/MarginsFont" : QFont(),
+"""
+
+if sys.platform.startswith('win'):  # Windows platform
+    defaults["Editor/DefaultDocumentFont"] = QFont( "Courier", 10 )
+elif sys.platform.startswith('darwin'):  # MAC platform
+    defaults["Editor/DefaultDocumentFont"] = QFont( "Menlo", 11 )
+else:  # probably, Linux
+    defaults["Editor/DefaultDocumentFont"] = QFont( "Monospace", 9 )
+
+def value(optionName):  # TODO it is temporary realisation
+    return defaults[optionName]
+
+"""
 import sys
 
 from PyQt4.QtCore import QObject
@@ -153,7 +264,6 @@ class Settings (pSettings):
     def setDefaultCppSyntaxHighlight(self):
         font = mks.monkeystudio.defaultDocumentFont()
         parts = [font.family(), str(font.pointSize())]
-        """TODO
         # configure default styles
         LexerStyleList styles
         styles << LexerStyle( 0, 0, False, "%1, 0, 0, 0", 16777215 )
@@ -197,12 +307,9 @@ class Settings (pSettings):
         setValue( "autoindentstyle", 1 )
 
         endGroup()
-        """
 
 
     def setDefaultLexerProperties(self, defaultFont, write ):
-        pass
-        """TODO
         foreach (  QString& language, pMonkeyStudio.availableLanguages() )
             QsciLexer* lexer = pMonkeyStudio.lexerForLanguage( language )
 
@@ -218,4 +325,4 @@ class Settings (pSettings):
 
             if  write :
                 lexer.writeSettings( *this, pMonkeyStudio.scintillaSettingsPath().toLocal8Bit().constData() )
-        """
+    """

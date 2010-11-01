@@ -10,6 +10,7 @@ from PyQt4.Qsci import *
 
 import mks.monkeystudio
 import mks.abstractchild
+import mks.settings
 
 """TODO move this code to the pChild class
 class _pEditor(QsciScintilla):
@@ -284,24 +285,10 @@ class _pEditor(QsciScintilla):
     def setLineNumbersMarginEnabled(self, b ):
         setMarginLineNumbers( 0, b )
 
-
-    def setLineNumbersMarginWidth(self, i ):
-        j = i
-        if  i != 0 :
-            j++
-
-        setProperty( "LineNumbersMarginWidth", i )
-        setMarginWidth( 0, QString().fill( '0', j ) )
-
-
     def setLineNumbersMarginAutoWidth(self, b ):
         setProperty( "LineNumbersMarginAutoWidth", b )
         linesChanged.emit()
 
-
-    def linesChanged(self):
-        if  lineNumbersMarginAutoWidth() :
-            setLineNumbersMarginWidth( QString.number( lines() ).length() )
 
     def currentLineText(self):
         int line
@@ -373,6 +360,40 @@ class _pEditor(QsciScintilla):
 
     """
 
+_lexerForLanguage = {
+"Bash" : QsciLexerBash,
+"Batch" : QsciLexerBatch,
+"C#" : QsciLexerCSharp,
+"C++" : QsciLexerCPP,
+"CMake" : QsciLexerCMake,
+"CSS" : QsciLexerCSS,
+"D" : QsciLexerD,
+"Diff" : QsciLexerDiff,
+"HTML" : QsciLexerHTML,
+"IDL" : QsciLexerIDL,
+"Java" : QsciLexerJava,
+"Javascript" : QsciLexerJavaScript,
+"Lua" : QsciLexerLua,
+"Makefile" : QsciLexerMakefile,
+"POV" : QsciLexerPOV,
+"Perl" : QsciLexerPerl,
+"Properties" : QsciLexerProperties,
+"Python" : QsciLexerPython,
+"Ruby" : QsciLexerRuby,
+"SQL" : QsciLexerSQL,
+"TeX" : QsciLexerTeX,
+"VHDL" : QsciLexerVHDL,
+"TCL" : QsciLexerTCL,
+"Fortran" : QsciLexerFortran,
+"Fortran77" : QsciLexerFortran77,
+"Pascal" : QsciLexerPascal,
+"PostScript" : QsciLexerPostScript,
+"XML" : QsciLexerXML,
+"YAML" : QsciLexerYAML,
+"Verilog" : QsciLexerVerilog,
+"Spice" : QsciLexerSpice,
+}
+
 class pChild(mks.abstractchild.pAbstractChild):
     """Text editor widget. Uses QScintilla internally
     TODO rename this class
@@ -402,22 +423,88 @@ class pChild(mks.abstractchild.pAbstractChild):
         self.mEditor.textChanged.connect(self.contentChanged)
         """
         self.mEditor.textChanged.connect(self._onTextChanged)
+        self.mEditor.linesChanged.connect(self._onLinesChanged)
+        
         QApplication.clipboard().dataChanged.connect(self._onClipboardDataChanged)
         
+        # Load settings
+        self.mEditor.setSelectionBackgroundColor( mks.settings.value("Editor/SelectionBackgroundColor"))
+        self.mEditor.setSelectionForegroundColor( mks.settings.value("Editor/SelectionForegroundColor"))
+        if  mks.settings.value("Editor/DefaultDocumentColours") :
+            # set scintilla default colors
+            self.mEditor.setColor( mks.settings.value("Editor/DefaultDocumentPen" ))
+            self.mEditor.setPaper( mks.settings.value("Editor/DefaultDocumentPaper" ))
+
+        self.mEditor.setFont( mks.settings.value("Editor/DefaultDocumentFont" ))
+        # Auto Completion
+        self.mEditor.setAutoCompletionCaseSensitivity( mks.settings.value("Editor/AutoCompletionCaseSensitivity"))
+        self.mEditor.setAutoCompletionReplaceWord( mks.settings.value("Editor/AutoCompletionReplaceWord" ))
+        self.mEditor.setAutoCompletionShowSingle( mks.settings.value("Editor/AutoCompletionShowSingle" ))
+        self.mEditor.setAutoCompletionSource( mks.settings.value("Editor/AutoCompletionSource") )
+        self.mEditor.setAutoCompletionThreshold( mks.settings.value("Editor/AutoCompletionThreshold") )
+        # CallTips
+        self.mEditor.setCallTipsBackgroundColor( mks.settings.value("Editor/CallTipsBackgroundColor") )
+        self.mEditor.setCallTipsForegroundColor( mks.settings.value("Editor/CallTipsForegroundColor") )
+        self.mEditor.setCallTipsHighlightColor( mks.settings.value("Editor/CallTipsHighlightColor") )
+        self.mEditor.setCallTipsStyle( mks.settings.value("Editor/CallTipsStyle") )
+        self.mEditor.setCallTipsVisible( mks.settings.value("Editor/CallTipsVisible") )
+        # Indentation
+        self.mEditor.setAutoIndent( mks.settings.value("Editor/AutoIndent") )
+        self.mEditor.setBackspaceUnindents( mks.settings.value("Editor/BackspaceUnindents") )
+        self.mEditor.setIndentationGuides( mks.settings.value("Editor/IndentationGuides") )
+        self.mEditor.setIndentationsUseTabs( mks.settings.value("Editor/IndentationsUseTabs") )
+        self.mEditor.setIndentationWidth( mks.settings.value("Editor/IndentationWidth") )
+        self.mEditor.setTabIndents( mks.settings.value("Editor/TabIndents") )
+        self.mEditor.setTabWidth( mks.settings.value("Editor/TabWidth") )
+        self.mEditor.setIndentationGuidesBackgroundColor( mks.settings.value("Editor/IndentationGuidesBackgroundColor") )
+        self.mEditor.setIndentationGuidesForegroundColor( mks.settings.value("Editor/IndentationGuidesForegroundColor") )
+        # Brace Matching
+        self.mEditor.setBraceMatching( mks.settings.value("Editor/BraceMatching") )
+        self.mEditor.setMatchedBraceBackgroundColor( mks.settings.value("Editor/MatchedBraceBackgroundColor") )
+        self.mEditor.setMatchedBraceForegroundColor( mks.settings.value("Editor/MatchedBraceForegroundColor") )
+        self.mEditor.setUnmatchedBraceBackgroundColor( mks.settings.value("Editor/UnmatchedBraceBackgroundColor") )
+        self.mEditor.setUnmatchedBraceForegroundColor( mks.settings.value("Editor/UnmatchedBraceForegroundColor") )
+        # Edge Mode
+        self.mEditor.setEdgeMode( mks.settings.value("Editor/EdgeMode") )
+        self.mEditor.setEdgeColor( mks.settings.value("Editor/EdgeColor") )
+        self.mEditor.setEdgeColumn( mks.settings.value("Editor/EdgeColumn") )
+        # Caret
+        self.mEditor.setCaretLineVisible( mks.settings.value("Editor/CaretLineVisible") )
+        self.mEditor.setCaretLineBackgroundColor( mks.settings.value("Editor/CaretLineBackgroundColor") )
+        self.mEditor.setCaretForegroundColor( mks.settings.value("Editor/CaretForegroundColor") )
+        self.mEditor.setCaretWidth( mks.settings.value("Editor/CaretWidth") )
+        """
+        # Margins
+        if  mks.settings.value("Editor/MarginsEnabled") :
+            self.mEditor.setMarginsBackgroundColor( mks.settings.value("Editor/MarginsBackgroundColor") )
+            self.mEditor.setMarginsForegroundColor( mks.settings.value("Editor/MarginsForegroundColor") )
+            self.mEditor.setMarginsFont( mks.settings.value("Editor/MarginsFont") )
+
+        self.mEditor.setMarginLineNumbers( mks.settings.value("Editor/LineNumbersMarginEnabled") )
+        self.mEditor.setLineNumbersMarginWidth( mks.settings.value("Editor/LineNumbersMarginWidth") )
+        self.mEditor.setLineNumbersMarginAutoWidth( mks.settings.value("Editor/LineNumbersMarginAutoWidth") )
+        self.mEditor.setFolding( mks.settings.value("Editor/Folding") )
+        self.mEditor.setFoldMarginColors( mks.settings.value("Editor/FoldMarginForegroundColor"), mks.settings.value("Editor/FoldMarginBackgroundColor") )
+        """
+        
+        # Special Characters
+        eolConvertor = {'\n': QsciScintilla.EolUnix, '\r\n' : QsciScintilla.EolWindows}
+        self.mEditor.setEolMode( eolConvertor[mks.settings.value("Editor/EolMode")] )
+        self.mEditor.setEolVisibility( mks.settings.value("Editor/EolVisibility") )
+        self.mEditor.setWhitespaceVisibility( mks.settings.value("Editor/WhitespaceVisibility") )
+        self.mEditor.setWrapMode( mks.settings.value("Editor/WrapMode") )
+        self.mEditor.setWrapVisualFlags( mks.settings.value("Editor/EndWrapVisualFlag"), mks.settings.value("Editor/StartWrapVisualFlag"), mks.settings.value("Editor/WrappedLineIndentWidth") )
+        
+        self.mEditor.setLexer( self._lexerForFileName( filePath ) )
+
         # open file
         #locked = self.blockSignals( True )
         try:
             with open(filePath, 'r') as f:
                 self._setFilePath(filePath)
                 
-                """TODO
-                # set lexer and apis
-                self.setLexer( mks.monkeystudio.lexerForFileName( fileName ) )
-
-                # set properties
-                mks.monkeystudio.setEditorProperties( self )
-                """
                 self.mEditor.setText( f.read() )
+                self._onLinesChanged()
                 self.mEditor.setModified( False )
                 
                 """TODO
@@ -446,9 +533,23 @@ class pChild(mks.abstractchild.pAbstractChild):
     def _onTextChanged(self):
         self.undoAvailableChanged.emit( self.mEditor.isUndoAvailable() )
         self.redoAvailableChanged.emit( self.mEditor.isRedoAvailable() )
+
+    def _onLinesChanged(self):
+        l = len(str(self.mEditor.lines()))
+        if l != 0:
+            l += 1
+        self.mEditor.setMarginWidth( 0, '0' * l )
     
     def _onClipboardDataChanged(self):
         self.pasteAvailableChanged.emit( self.isPasteAvailable() )
+    
+    def _lexerForFileName(self, fileName ):
+        for language in _lexerForLanguage.keys():
+            if  QDir.match( mks.settings.value("Editor/Assotiations/" + language), fileName ) :
+                lexerClass =  _lexerForLanguage[language]
+                return lexerClass()
+        else:
+            return None
     
     """TODO
     def language(self):
