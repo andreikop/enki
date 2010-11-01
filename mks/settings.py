@@ -83,6 +83,11 @@ defaults = {
 "Editor/Assotiations/TCL" : "*.tcl",
 "Editor/Assotiations/TeX" : "*.aux, *.idx, *.sty, *.toc",
 "Editor/Assotiations/VHDL" : "*.vhdl",
+"Editor/ConvertTabsUponOpen" : True,
+"Editor/CreateBackupUponOpen" : False,
+"Editor/AutoEolConversion" : True,
+"Editor/AutoDetectIndent" : True,
+"Editor/AutoDetectEol" : True,
 }
 
 """
