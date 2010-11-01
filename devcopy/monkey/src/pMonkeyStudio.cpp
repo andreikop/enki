@@ -1270,8 +1270,7 @@ def defaultDocumentFont(self):
     return MonkeyCore.settings().value( settingsPath() +"/DefaultDocumentFont", font ).value<QFont>()
 
 
-'''!
-    \details Set auto completion is case sensitive or not
+f    \details Set auto completion is case sensitive or not
     \param sensitive If True auto completion is case sensitive, not
 '''
 def setAutoCompletionCaseSensitivity(self, sensitive ):
