@@ -394,7 +394,7 @@ _lexerForLanguage = {
 "Spice" : QsciLexerSpice,
 }
 
-class pChild(mks.abstractchild.pAbstractChild):
+class Editor(mks.abstractchild.pAbstractChild):
     """Text editor widget. Uses QScintilla internally
     TODO rename this class
     """
@@ -402,100 +402,100 @@ class pChild(mks.abstractchild.pAbstractChild):
         mks.abstractchild.pAbstractChild.__init__(self, parentObject, filePath)
         
         # Configure editor
-        self.mEditor = QsciScintilla(self)
-        self.mEditor.setUtf8( True ) # deal with utf8
+        self.qscintilla = QsciScintilla(self)
+        self.qscintilla.setUtf8( True ) # deal with utf8
         
-        self.mEditor.setAttribute( Qt.WA_MacSmallSize )
-        self.mEditor.setFrameStyle( QFrame.NoFrame | QFrame.Plain )
+        self.qscintilla.setAttribute( Qt.WA_MacSmallSize )
+        self.qscintilla.setFrameStyle( QFrame.NoFrame | QFrame.Plain )
 
-        self.setWidget( self.mEditor )
-        self.setFocusProxy( self.mEditor )
+        self.setWidget( self.qscintilla )
+        self.setFocusProxy( self.qscintilla )
         """TODO
         # connections
-        self.mEditor.cursorPositionChanged.connect(self.cursorPositionChanged)
+        self.qscintilla.cursorPositionChanged.connect(self.cursorPositionChanged)
         """
-        self.mEditor.copyAvailable.connect(self.copyAvailableChanged)
+        self.qscintilla.copyAvailable.connect(self.copyAvailableChanged)
         """TODO
-        self.mEditor.modificationChanged.connect(self.setWindowModified)
+        self.qscintilla.modificationChanged.connect(self.setWindowModified)
         """
-        self.mEditor.modificationChanged.connect(self.modifiedChanged)
+        self.qscintilla.modificationChanged.connect(self.modifiedChanged)
         """TODO
-        self.mEditor.textChanged.connect(self.contentChanged)
+        self.qscintilla.textChanged.connect(self.contentChanged)
         """
-        self.mEditor.textChanged.connect(self._onTextChanged)
-        self.mEditor.linesChanged.connect(self._onLinesChanged)
+        self.qscintilla.textChanged.connect(self._onTextChanged)
+        self.qscintilla.linesChanged.connect(self._onLinesChanged)
         
         QApplication.clipboard().dataChanged.connect(self._onClipboardDataChanged)
         
         # Load settings
-        self.mEditor.setSelectionBackgroundColor( mks.settings.value("Editor/SelectionBackgroundColor"))
-        self.mEditor.setSelectionForegroundColor( mks.settings.value("Editor/SelectionForegroundColor"))
+        self.qscintilla.setSelectionBackgroundColor( mks.settings.value("Editor/SelectionBackgroundColor"))
+        self.qscintilla.setSelectionForegroundColor( mks.settings.value("Editor/SelectionForegroundColor"))
         if  mks.settings.value("Editor/DefaultDocumentColours") :
             # set scintilla default colors
-            self.mEditor.setColor( mks.settings.value("Editor/DefaultDocumentPen" ))
-            self.mEditor.setPaper( mks.settings.value("Editor/DefaultDocumentPaper" ))
+            self.qscintilla.setColor( mks.settings.value("Editor/DefaultDocumentPen" ))
+            self.qscintilla.setPaper( mks.settings.value("Editor/DefaultDocumentPaper" ))
 
-        self.mEditor.setFont( mks.settings.value("Editor/DefaultDocumentFont" ))
+        self.qscintilla.setFont( mks.settings.value("Editor/DefaultDocumentFont" ))
         # Auto Completion
-        self.mEditor.setAutoCompletionCaseSensitivity( mks.settings.value("Editor/AutoCompletionCaseSensitivity"))
-        self.mEditor.setAutoCompletionReplaceWord( mks.settings.value("Editor/AutoCompletionReplaceWord" ))
-        self.mEditor.setAutoCompletionShowSingle( mks.settings.value("Editor/AutoCompletionShowSingle" ))
-        self.mEditor.setAutoCompletionSource( mks.settings.value("Editor/AutoCompletionSource") )
-        self.mEditor.setAutoCompletionThreshold( mks.settings.value("Editor/AutoCompletionThreshold") )
+        self.qscintilla.setAutoCompletionCaseSensitivity( mks.settings.value("Editor/AutoCompletionCaseSensitivity"))
+        self.qscintilla.setAutoCompletionReplaceWord( mks.settings.value("Editor/AutoCompletionReplaceWord" ))
+        self.qscintilla.setAutoCompletionShowSingle( mks.settings.value("Editor/AutoCompletionShowSingle" ))
+        self.qscintilla.setAutoCompletionSource( mks.settings.value("Editor/AutoCompletionSource") )
+        self.qscintilla.setAutoCompletionThreshold( mks.settings.value("Editor/AutoCompletionThreshold") )
         # CallTips
-        self.mEditor.setCallTipsBackgroundColor( mks.settings.value("Editor/CallTipsBackgroundColor") )
-        self.mEditor.setCallTipsForegroundColor( mks.settings.value("Editor/CallTipsForegroundColor") )
-        self.mEditor.setCallTipsHighlightColor( mks.settings.value("Editor/CallTipsHighlightColor") )
-        self.mEditor.setCallTipsStyle( mks.settings.value("Editor/CallTipsStyle") )
-        self.mEditor.setCallTipsVisible( mks.settings.value("Editor/CallTipsVisible") )
+        self.qscintilla.setCallTipsBackgroundColor( mks.settings.value("Editor/CallTipsBackgroundColor") )
+        self.qscintilla.setCallTipsForegroundColor( mks.settings.value("Editor/CallTipsForegroundColor") )
+        self.qscintilla.setCallTipsHighlightColor( mks.settings.value("Editor/CallTipsHighlightColor") )
+        self.qscintilla.setCallTipsStyle( mks.settings.value("Editor/CallTipsStyle") )
+        self.qscintilla.setCallTipsVisible( mks.settings.value("Editor/CallTipsVisible") )
         # Indentation
-        self.mEditor.setAutoIndent( mks.settings.value("Editor/AutoIndent") )
-        self.mEditor.setBackspaceUnindents( mks.settings.value("Editor/BackspaceUnindents") )
-        self.mEditor.setIndentationGuides( mks.settings.value("Editor/IndentationGuides") )
-        self.mEditor.setIndentationsUseTabs( mks.settings.value("Editor/IndentationsUseTabs") )
-        self.mEditor.setIndentationWidth( mks.settings.value("Editor/IndentationWidth") )
-        self.mEditor.setTabIndents( mks.settings.value("Editor/TabIndents") )
-        self.mEditor.setTabWidth( mks.settings.value("Editor/TabWidth") )
-        self.mEditor.setIndentationGuidesBackgroundColor( mks.settings.value("Editor/IndentationGuidesBackgroundColor") )
-        self.mEditor.setIndentationGuidesForegroundColor( mks.settings.value("Editor/IndentationGuidesForegroundColor") )
+        self.qscintilla.setAutoIndent( mks.settings.value("Editor/AutoIndent") )
+        self.qscintilla.setBackspaceUnindents( mks.settings.value("Editor/BackspaceUnindents") )
+        self.qscintilla.setIndentationGuides( mks.settings.value("Editor/IndentationGuides") )
+        self.qscintilla.setIndentationsUseTabs( mks.settings.value("Editor/IndentationsUseTabs") )
+        self.qscintilla.setIndentationWidth( mks.settings.value("Editor/IndentationWidth") )
+        self.qscintilla.setTabIndents( mks.settings.value("Editor/TabIndents") )
+        self.qscintilla.setTabWidth( mks.settings.value("Editor/TabWidth") )
+        self.qscintilla.setIndentationGuidesBackgroundColor( mks.settings.value("Editor/IndentationGuidesBackgroundColor") )
+        self.qscintilla.setIndentationGuidesForegroundColor( mks.settings.value("Editor/IndentationGuidesForegroundColor") )
         # Brace Matching
-        self.mEditor.setBraceMatching( mks.settings.value("Editor/BraceMatching") )
-        self.mEditor.setMatchedBraceBackgroundColor( mks.settings.value("Editor/MatchedBraceBackgroundColor") )
-        self.mEditor.setMatchedBraceForegroundColor( mks.settings.value("Editor/MatchedBraceForegroundColor") )
-        self.mEditor.setUnmatchedBraceBackgroundColor( mks.settings.value("Editor/UnmatchedBraceBackgroundColor") )
-        self.mEditor.setUnmatchedBraceForegroundColor( mks.settings.value("Editor/UnmatchedBraceForegroundColor") )
+        self.qscintilla.setBraceMatching( mks.settings.value("Editor/BraceMatching") )
+        self.qscintilla.setMatchedBraceBackgroundColor( mks.settings.value("Editor/MatchedBraceBackgroundColor") )
+        self.qscintilla.setMatchedBraceForegroundColor( mks.settings.value("Editor/MatchedBraceForegroundColor") )
+        self.qscintilla.setUnmatchedBraceBackgroundColor( mks.settings.value("Editor/UnmatchedBraceBackgroundColor") )
+        self.qscintilla.setUnmatchedBraceForegroundColor( mks.settings.value("Editor/UnmatchedBraceForegroundColor") )
         # Edge Mode
-        self.mEditor.setEdgeMode( mks.settings.value("Editor/EdgeMode") )
-        self.mEditor.setEdgeColor( mks.settings.value("Editor/EdgeColor") )
-        self.mEditor.setEdgeColumn( mks.settings.value("Editor/EdgeColumn") )
+        self.qscintilla.setEdgeMode( mks.settings.value("Editor/EdgeMode") )
+        self.qscintilla.setEdgeColor( mks.settings.value("Editor/EdgeColor") )
+        self.qscintilla.setEdgeColumn( mks.settings.value("Editor/EdgeColumn") )
         # Caret
-        self.mEditor.setCaretLineVisible( mks.settings.value("Editor/CaretLineVisible") )
-        self.mEditor.setCaretLineBackgroundColor( mks.settings.value("Editor/CaretLineBackgroundColor") )
-        self.mEditor.setCaretForegroundColor( mks.settings.value("Editor/CaretForegroundColor") )
-        self.mEditor.setCaretWidth( mks.settings.value("Editor/CaretWidth") )
+        self.qscintilla.setCaretLineVisible( mks.settings.value("Editor/CaretLineVisible") )
+        self.qscintilla.setCaretLineBackgroundColor( mks.settings.value("Editor/CaretLineBackgroundColor") )
+        self.qscintilla.setCaretForegroundColor( mks.settings.value("Editor/CaretForegroundColor") )
+        self.qscintilla.setCaretWidth( mks.settings.value("Editor/CaretWidth") )
         """
         # Margins
         if  mks.settings.value("Editor/MarginsEnabled") :
-            self.mEditor.setMarginsBackgroundColor( mks.settings.value("Editor/MarginsBackgroundColor") )
-            self.mEditor.setMarginsForegroundColor( mks.settings.value("Editor/MarginsForegroundColor") )
-            self.mEditor.setMarginsFont( mks.settings.value("Editor/MarginsFont") )
+            self.qscintilla.setMarginsBackgroundColor( mks.settings.value("Editor/MarginsBackgroundColor") )
+            self.qscintilla.setMarginsForegroundColor( mks.settings.value("Editor/MarginsForegroundColor") )
+            self.qscintilla.setMarginsFont( mks.settings.value("Editor/MarginsFont") )
 
-        self.mEditor.setMarginLineNumbers( mks.settings.value("Editor/LineNumbersMarginEnabled") )
-        self.mEditor.setLineNumbersMarginWidth( mks.settings.value("Editor/LineNumbersMarginWidth") )
-        self.mEditor.setLineNumbersMarginAutoWidth( mks.settings.value("Editor/LineNumbersMarginAutoWidth") )
-        self.mEditor.setFolding( mks.settings.value("Editor/Folding") )
-        self.mEditor.setFoldMarginColors( mks.settings.value("Editor/FoldMarginForegroundColor"), mks.settings.value("Editor/FoldMarginBackgroundColor") )
+        self.qscintilla.setMarginLineNumbers( mks.settings.value("Editor/LineNumbersMarginEnabled") )
+        self.qscintilla.setLineNumbersMarginWidth( mks.settings.value("Editor/LineNumbersMarginWidth") )
+        self.qscintilla.setLineNumbersMarginAutoWidth( mks.settings.value("Editor/LineNumbersMarginAutoWidth") )
+        self.qscintilla.setFolding( mks.settings.value("Editor/Folding") )
+        self.qscintilla.setFoldMarginColors( mks.settings.value("Editor/FoldMarginForegroundColor"), mks.settings.value("Editor/FoldMarginBackgroundColor") )
         """
         
         # Special Characters
         eolConvertor = {'\n': QsciScintilla.EolUnix, '\r\n' : QsciScintilla.EolWindows}
-        self.mEditor.setEolMode( eolConvertor[mks.settings.value("Editor/EolMode")] )
-        self.mEditor.setEolVisibility( mks.settings.value("Editor/EolVisibility") )
-        self.mEditor.setWhitespaceVisibility( mks.settings.value("Editor/WhitespaceVisibility") )
-        self.mEditor.setWrapMode( mks.settings.value("Editor/WrapMode") )
-        self.mEditor.setWrapVisualFlags( mks.settings.value("Editor/EndWrapVisualFlag"), mks.settings.value("Editor/StartWrapVisualFlag"), mks.settings.value("Editor/WrappedLineIndentWidth") )
+        self.qscintilla.setEolMode( eolConvertor[mks.settings.value("Editor/EolMode")] )
+        self.qscintilla.setEolVisibility( mks.settings.value("Editor/EolVisibility") )
+        self.qscintilla.setWhitespaceVisibility( mks.settings.value("Editor/WhitespaceVisibility") )
+        self.qscintilla.setWrapMode( mks.settings.value("Editor/WrapMode") )
+        self.qscintilla.setWrapVisualFlags( mks.settings.value("Editor/EndWrapVisualFlag"), mks.settings.value("Editor/StartWrapVisualFlag"), mks.settings.value("Editor/WrappedLineIndentWidth") )
         
-        self.mEditor.setLexer( self._lexerForFileName( filePath ) )
+        self.qscintilla.setLexer( self._lexerForFileName( filePath ) )
 
         # open file
         #locked = self.blockSignals( True )
@@ -503,9 +503,9 @@ class pChild(mks.abstractchild.pAbstractChild):
             with open(filePath, 'r') as f:
                 self._setFilePath(filePath)
                 
-                self.mEditor.setText( f.read() )
+                self.qscintilla.setText( f.read() )
                 self._onLinesChanged()
-                self.mEditor.setModified( False )
+                self.qscintilla.setModified( False )
                 
                 """TODO
                 # convert tabs if needed
@@ -531,14 +531,14 @@ class pChild(mks.abstractchild.pAbstractChild):
         #TODO self.fileOpened.emit()
 
     def _onTextChanged(self):
-        self.undoAvailableChanged.emit( self.mEditor.isUndoAvailable() )
-        self.redoAvailableChanged.emit( self.mEditor.isRedoAvailable() )
+        self.undoAvailableChanged.emit( self.qscintilla.isUndoAvailable() )
+        self.redoAvailableChanged.emit( self.qscintilla.isRedoAvailable() )
 
     def _onLinesChanged(self):
-        l = len(str(self.mEditor.lines()))
+        l = len(str(self.qscintilla.lines()))
         if l != 0:
             l += 1
-        self.mEditor.setMarginWidth( 0, '0' * l )
+        self.qscintilla.setMarginWidth( 0, '0' * l )
     
     def _onClipboardDataChanged(self):
         self.pasteAvailableChanged.emit( self.isPasteAvailable() )
@@ -554,25 +554,25 @@ class pChild(mks.abstractchild.pAbstractChild):
     """TODO
     def language(self):
         # return the editor language
-        if  self.mEditor.lexer() :
-            return self.mEditor.lexer().language()
+        if  self.qscintilla.lexer() :
+            return self.qscintilla.lexer().language()
 
         # return nothing
         return ''
     
     def fileBuffer(self):
-        return self.mEditor.text()
+        return self.qscintilla.text()
     
     def cursorPosition(self):
-        row, col = self.mEditor.getCursorPosition()
+        row, col = self.qscintilla.getCursorPosition()
         return QPoint(row + 1, col)
     
     def editor(self):
-        return self.mEditor
+        return self.qscintilla
     """
     
     def isModified(self):
-        return self.mEditor.isModified()
+        return self.qscintilla.isModified()
     
     """
     def invokeSearch ():
@@ -581,29 +581,29 @@ class pChild(mks.abstractchild.pAbstractChild):
         pass
     """
     def isUndoAvailable(self):
-        return self.mEditor.isUndoAvailable()
+        return self.qscintilla.isUndoAvailable()
 
     def undo(self):
-        self.mEditor.undo()
+        self.qscintilla.undo()
 
     def isRedoAvailable(self):
-        return self.mEditor.isRedoAvailable()
+        return self.qscintilla.isRedoAvailable()
 
     def redo(self):
-        self.mEditor.redo()
+        self.qscintilla.redo()
 
     def cut(self):
-        self.mEditor.cut()
+        self.qscintilla.cut()
 
     def copy(self):
-        self.mEditor.copy()
+        self.qscintilla.copy()
 
     def isCopyAvailable(self):
-        lineFrom, indexFrom, lineTo, indexTo = self.mEditor.getSelection()
+        lineFrom, indexFrom, lineTo, indexTo = self.qscintilla.getSelection()
         return lineFrom != lineTo or indexFrom != indexTo
     
     def paste(self):
-        self.mEditor.paste()
+        self.qscintilla.paste()
     
     def isPasteAvailable(self):
         return bool(QApplication.clipboard().text())
@@ -623,10 +623,10 @@ class pChild(mks.abstractchild.pAbstractChild):
         column = pos.x()
         line = pos.y()
         
-        self.mEditor.setCursorPosition( line, column )
-        self.mEditor.setSelection( line, column, line, column +selectionLength )
-        self.mEditor.ensureLineVisible( line )
-        self.mEditor.setFocus()
+        self.qscintilla.setCursorPosition( line, column )
+        self.qscintilla.setSelection( line, column, line, column +selectionLength )
+        self.qscintilla.ensureLineVisible( line )
+        self.qscintilla.setFocus()
     """
     """TODO
     def isGoToAvailable(self):
@@ -657,19 +657,19 @@ class pChild(mks.abstractchild.pAbstractChild):
             return False
         
         try:
-            f.write(self.mEditor.text())
+            f.write(self.qscintilla.text())
         finally:
             f.close()
         
-        self.mEditor.setModified(False)
+        self.qscintilla.setModified(False)
     
     """TODO
     def backupFileAs(self, filePath ):
         shutil.copyfileobj(self.filePath(), fileName)
     
     def closeFile(self):
-        self.mEditor.clear()
-        self.mEditor.setModified( False )
+        self.qscintilla.clear()
+        self.qscintilla.setModified( False )
         self.setFilePath( '' )
         self.fileClosed.emit()
     
@@ -692,7 +692,7 @@ class pChild(mks.abstractchild.pAbstractChild):
                 return
             
             # print and return
-            p.printRange( self.mEditor )
+            p.printRange( self.qscintilla )
             return
         
         d = QPrintDialog (p) # printer dialog
@@ -703,7 +703,7 @@ class pChild(mks.abstractchild.pAbstractChild):
             t = -1
             if  d.printRange() == QPrintDialog.Selection:
                 f, unused, t, unused1 = getSelection()
-            p.printRange( self.mEditor, f, t )
+            p.printRange( self.qscintilla, f, t )
     
     def printFile(self):
         self.print_(False)
