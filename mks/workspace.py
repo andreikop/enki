@@ -18,7 +18,7 @@ import PyQt4.fresh
 
 import mks.monkeycore
 import mks.monkeystudio
-import mks.child
+import mks.editor
 #import mks.abstractchild
 
 """
@@ -871,7 +871,7 @@ class Workspace(QFrame):
         
         # open it with pChild instance if no document
         if not documentType :
-            documentType = mks.child.pChild
+            documentType = mks.editor.Editor
         
         # open file
         try:
