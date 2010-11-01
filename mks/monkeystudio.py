@@ -966,52 +966,6 @@ def setAutoSyntaxCheck( activate ):
 def autoSyntaxCheck():
     return mks.monkeycore.settings().value( settingsPath() +"/AutoSyntaxCheck", False ).toBool()
 
-
-'''!
-    \details Set is tabs are converted upon open
-    \param convert If True tabs will be converted, else not
-'''
-def setConvertTabsUponOpen( convert ):
-    mks.monkeycore.settings().setValue( settingsPath() +"/ConvertTabsUponOpen", convert )
-
-
-'''!
-    \details Return True if tabs are converted upon open, else False
-'''
-def convertTabsUponOpen():
-    return mks.monkeycore.settings().value( settingsPath() +"/ConvertTabsUponOpen", False ).toBool()
-
-
-'''!
-    \details Set if file are backup upon open
-    \param backup If True, file is backup upon open
-'''
-def setCreateBackupUponOpen( backup ):
-    mks.monkeycore.settings().setValue( settingsPath() +"/CreateBackupUponOpen", backup )
-
-
-'''!
-    \details Return True if file is backup upon open, else False
-'''
-def createBackupUponOpen():
-    return mks.monkeycore.settings().value( settingsPath() +"/CreateBackupUponOpen", False ).toBool()
-
-
-'''!
-    \details Set if eol are convert upon open
-    \param convert If True, eol are convert, else not
-'''
-def setAutoEolConversion( convert ):
-    mks.monkeycore.settings().setValue( settingsPath() +"/AutoEolConversion", convert )
-
-
-'''!
-    \details Return True if eol are convert, else False
-'''
-def autoEolConversion():
-    return mks.monkeycore.settings().value( settingsPath() +"/AutoEolConversion", True ).toBool()
-
-
 '''!
     \details Set the default used codec for opening/saving files
     \param codec The codec to use

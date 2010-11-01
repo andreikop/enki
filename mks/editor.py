@@ -316,48 +316,6 @@ class _pEditor(QsciScintilla):
             line = QsciScintilla.markerFindNext( 0, 1 << markerId )
         return line
 
-    def convertTabs(self):
-        # get original text
-        originalText = text()
-        # all modifications must believe as only one action
-        beginUndoAction()
-        # get indent width
-         indentWidth = indentationWidth() != 0 ? indentationWidth() : tabWidth()
-        # iterate each line
-        for ( i = 0; i < lines(); i++ )
-            # remember if last line was troncate
-            static lastLineWasTroncate = False
-            # get current line indent width
-            lineIndent = indentation( i )
-            # check if need troncate
-            t = lineIndent /indentWidth
-            r = lineIndent %indentWidth
-            if  r != 0 and r != indentWidth :
-                r += indentWidth -r
-                lineIndent = ( t *indentWidth) +r
-                lastLineWasTroncate = True
-
-            elif  lastLineWasTroncate and lineIndent != 0 :
-                lastLineW
-                
-                
-                asTroncate = indentation( i +1 ) == lineIndent
-                lineIndent    += indentWidth
-
-            # remove indentation
-            setIndentation( i, 0 )
-            # restore it with possible troncate indentation
-            setIndentation( i, lineIndent )
-
-        # end global undo action
-        endUndoAction()
-        # compare original and newer text
-        if  originalText == text() :
-            # clear undo buffer
-            SendScintilla( SCI_EMPTYUNDOBUFFER )
-            # set unmodified
-            setModified( False )
-
     """
 
 _lexerForLanguage = {
@@ -507,10 +465,11 @@ class Editor(mks.abstractchild.pAbstractChild):
                 self._onLinesChanged()
                 self.qscintilla.setModified( False )
                 
-                """TODO
                 # convert tabs if needed
-                if  mks.monkeystudio.convertTabsUponOpen() :
-                    convertTabs()
+                if  mks.settings.value("Editor/ConvertTabsUponOpen"):
+                    self._convertTabs()
+                
+                """TODO
                 #autodetect indent, need
                 if  mks.monkeystudio.autoDetectIndent() :
                     autoDetectIndent ()
@@ -662,7 +621,49 @@ class Editor(mks.abstractchild.pAbstractChild):
             f.close()
         
         self.qscintilla.setModified(False)
-    
+
+    def _convertTabs(self):
+        # get original text
+        originalText = self.qscintilla.text()
+        # all modifications must believe as only one action
+        self.qscintilla.beginUndoAction()
+        # get indent width
+        indentWidth = self.qscintilla.indentationWidth()
+        
+        if indentWidth == 0:
+            indentWidth = self.qscintilla.tabWidth()
+        
+        # iterate each line
+        lastLineWasTroncate = False  # remember if last line was troncate
+        for i in range(self.qscintilla.lines()):
+            # get current line indent width
+            lineIndent = self.qscintilla.indentation( i )
+            # check if need troncate
+            t = lineIndent /indentWidth
+            r = lineIndent % indentWidth
+            if  r != 0 and r != indentWidth :
+                r += indentWidth -r
+                lineIndent = (t * indentWidth) +r
+                lastLineWasTroncate = True
+            elif  lastLineWasTroncate and lineIndent != 0:
+                lastLineWasTroncate = indentation( i + 1 ) == lineIndent
+                lineIndent += indentWidth
+
+            # remove indentation
+            self.qscintilla.setIndentation( i, 0 )
+            # restore it with possible troncate indentation
+            self.qscintilla.setIndentation( i, lineIndent )
+        
+        # end global undo action
+        self.qscintilla.endUndoAction()
+        # compare original and newer text
+        if  originalText == self.qscintilla.text() :
+            # clear undo buffer
+            self.qscintilla.SendScintilla( QsciScintilla.SCI_EMPTYUNDOBUFFER )
+            # set unmodified
+            self.qscintilla.setModified( False )
+
+
     """TODO
     def backupFileAs(self, filePath ):
         shutil.copyfileobj(self.filePath(), fileName)
