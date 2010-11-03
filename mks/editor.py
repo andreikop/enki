@@ -244,36 +244,6 @@ class _pEditor(QsciScintilla):
         return marginLineNumbers( 0 )
 
 
-    void pEditor.autoDetectIndent ()
-        currText = "\n" + text(); # \n for more simple RegExp
-        tabRe = QRegExp ("\n\\t")
-        int matchIntex
-        matchIntex = tabRe.indexIn (currText)
-        if (matchIntex != -1) # Use tabs
-            setIndentationsUseTabs (True)
-            return
-
-        
-        spaceRe = QRegExp ("\n( +)")
-        matchIntex = spaceRe.indexIn (currText)
-        if (matchIntex != -1) # Use spaces
-            setIndentationsUseTabs (False)
-            return
-
-
-
-    void pEditor.autoDetectEol ()
-        currText = text()
-        if text().indexOf("\r\n") != -1:
-            setEolMode (QsciScintilla.EolWindows)
-            return
-
-        if text().indexOf("\n") != -1:
-            setEolMode (QsciScintilla.EolUnix)
-            return
-
-
-
     def lineNumbersMarginWidth(self):
         return property( "LineNumbersMarginWidth" ).toInt()
 
@@ -462,30 +432,34 @@ class Editor(mks.abstractchild.pAbstractChild):
                 self._setFilePath(filePath)
                 
                 self.qscintilla.setText( f.read() )
-                self._onLinesChanged()
-                self.qscintilla.setModified( False )
                 
-                # convert tabs if needed
-                if  mks.settings.value("Editor/ConvertTabsUponOpen"):
-                    self._convertTabs()
-                
-                """TODO
-                #autodetect indent, need
-                if  mks.monkeystudio.autoDetectIndent() :
-                    autoDetectIndent ()
-                #autodetect eol, need
-                if  mks.monkeystudio.autoDetectEol() :
-                    autoDetectEol()
                 # make backup if needed
-                if  mks.monkeystudio.createBackupUponOpen() :
-                    shutil.copyfileobj(self.filePath(), self.filePath() + '.bak')
-                # convert eol
-                if  mks.monkeystudio.autoEolConversion() :
-                    convertEols( eolMode() )
-                """
+                if  mks.settings.value("Editor/CreateBackupUponOpen"):
+                    shutil.copy(self.filePath(), self.filePath() + '.bak')
+                
         except IOError, ex:  # exception in constructor
             self.deleteLater()  # make sure C++ object deleted
             raise ex
+        
+        self._onLinesChanged()
+        self.qscintilla.setModified( False )
+        
+        #autodetect indent, need
+        if  mks.settings.value("Editor/AutoDetectIndent"):
+            self._autoDetectIndent()
+        
+        # convert tabs if needed
+        if  mks.settings.value("Editor/ConvertTabsUponOpen"):
+            self._convertTabs()
+        
+        #autodetect eol, need
+        if  mks.settings.value("Editor/AutoDetectEol"):
+            self._autoDetectEol()
+        
+        # convert eol
+        if  mks.settings.value("Editor/AutoEolConversion"):
+            self.qscintilla.convertEols( self.qscintilla.eolMode() )
+
         
         #TODO self.fileOpened.emit()
 
@@ -663,10 +637,25 @@ class Editor(mks.abstractchild.pAbstractChild):
             # set unmodified
             self.qscintilla.setModified( False )
 
+    def _autoDetectIndent(self):
+        if '\t' in self.qscintilla.text():
+            self.qscintilla.setIndentationsUseTabs (True)
+        
+        """TODO improve algorythm sometimes for skip comments"""
+        spacesCount = 0
+        for line in self.qscintilla.text().split('\n'):
+            if str(line).startswith(' '):
+                self.qscintilla.setIndentationsUseTabs (False)
 
+    def _autoDetectEol(self):
+        if '\r\n' in self.qscintilla.text():
+            self.qscintilla.setEolMode (QsciScintilla.EolWindows)
+        elif '\n' in self.qscintilla.text():
+            self.qscintilla.setEolMode (QsciScintilla.EolUnix)
+    
     """TODO
     def backupFileAs(self, filePath ):
-        shutil.copyfileobj(self.filePath(), fileName)
+        shutil.copy(self.filePath(), fileName)
     
     def closeFile(self):
         self.qscintilla.clear()
