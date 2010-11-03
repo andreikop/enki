@@ -131,12 +131,12 @@ class pAbstractChild(QMdiSubWindow):
         """return the current file paste available
         """
         pass
-    '''TODO
+    
     def isGoToAvailable(self):
         """return is goto is available
         """
         pass
-
+    '''TODO
     def isPrintAvailable(self):
         """return if print is available
         """
@@ -179,10 +179,10 @@ class pAbstractChild(QMdiSubWindow):
     
     def paste(self):
         pass
-    '''TODO
+    
     def goTo(self):
         pass
-    
+    '''TODO
     def goTo(self, position, selectionLength = -1 ):
         pass
     

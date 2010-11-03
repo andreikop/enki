@@ -541,16 +541,20 @@ class Editor(mks.abstractchild.pAbstractChild):
     def isPasteAvailable(self):
         return bool(QApplication.clipboard().text())
     
-    """TODO
+    def isGoToAvailable(self):
+        return True
+    
     def goTo(self):
-        assert(0) # TODO resolve name conflict
-        line, col = self.getCursorPosition()
-        gotoLine, ok = QInputDialog.getInteger( self, self.tr( "Go To Line..." ), self.tr( "Enter the line you want to go:" ), line +1, 1, self.lines(), 1)
+        line, col = self.qscintilla.getCursorPosition()
+        gotoLine, ok = QInputDialog.getInteger( self, self.tr( "Go To Line..." ),
+                                                self.tr( "Enter the line you want to go:" ), 
+                                                line +1, 1, self.qscintilla.lines(), 1)
         
         if  ok :
-            self.setCursorPosition( gotoLine -1, 0 )
+            self.qscintilla.setCursorPosition( gotoLine -1, 0 )
             self.setFocus()
     
+    """TODO
     def goTo(self, pos, selectionLength ):
         assert(0) # TODO resolve name conflict
         column = pos.x()
@@ -562,8 +566,6 @@ class Editor(mks.abstractchild.pAbstractChild):
         self.qscintilla.setFocus()
     """
     """TODO
-    def isGoToAvailable(self):
-        return True
 
     def isPrintAvailable(self):
         return True

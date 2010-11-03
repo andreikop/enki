@@ -566,6 +566,8 @@ class Workspace(QFrame):
                             self._oldCurrentDocument.copy)
             mks.monkeycore.menuBar().action( "mEdit/aPaste" ).triggered.disconnect(
                             self._oldCurrentDocument.paste)
+            if self._oldCurrentDocument.isGoToAvailable():
+                mks.monkeycore.menuBar().action( "mEdit/aGoTo" ).triggered.disconnect(self._oldCurrentDocument.goTo)
             self._oldCurrentDocument.modifiedChanged.disconnect(self.document_modifiedChanged)
         
         if document is not None:
@@ -597,6 +599,12 @@ class Workspace(QFrame):
             document.pasteAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aPaste" ).setEnabled)
             document.modifiedChanged.connect(self.document_modifiedChanged)
             
+            if document.isGoToAvailable():
+                mks.monkeycore.menuBar().action( "mEdit/aGoTo" ).triggered.connect(document.goTo)
+                mks.monkeycore.menuBar().action( "mEdit/aGoTo" ).setEnabled( True )
+            else:
+                mks.monkeycore.menuBar().action( "mEdit/aGoTo" ).setEnabled( False )
+            
             mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled( document.isModified() )
             
         else:  # no document
@@ -606,6 +614,7 @@ class Workspace(QFrame):
             mks.monkeycore.menuBar().action( "mEdit/aCut" ).setEnabled(False)
             mks.monkeycore.menuBar().action( "mEdit/aCopy" ).setEnabled(False)
             mks.monkeycore.menuBar().action( "mEdit/aPaste" ).setEnabled(False)
+            mks.monkeycore.menuBar().action( "mEdit/aGoTo" ).setEnabled(False)
 
         '''
         # fix fucking flickering due to window activation change on application gain / lost focus.
@@ -623,7 +632,6 @@ class Workspace(QFrame):
         redo = False
         copy = False
         paste = False
-        go = False
         
         if document:
             modified = document.isModified()
@@ -632,7 +640,6 @@ class Workspace(QFrame):
             redo = document.isRedoAvailable()
             copy = document.isCopyAvailable()
             paste = document.isPasteAvailable()
-            go = document.isGoToAvailable()
         # context toolbar
         mtb = mks.monkeycore.multiToolBar()
         
@@ -672,7 +679,6 @@ class Workspace(QFrame):
         mks.monkeycore.menuBar().action( "mEdit/aCut" ).setEnabled( copy )
         mks.monkeycore.menuBar().action( "mEdit/aCopy" ).setEnabled( copy )
         mks.monkeycore.menuBar().action( "mEdit/aPaste" ).setEnabled( paste )
-        mks.monkeycore.menuBar().action( "mEdit/aGoTo" ).setEnabled( go )
         mks.monkeycore.menuBar().action( "mEdit/aExpandAbbreviation" ).setEnabled( document )
         mks.monkeycore.menuBar().setMenuEnabled( mks.monkeycore.menuBar().menu( "mEdit/mAllCommands" ), editor )
         mks.monkeycore.menuBar().setMenuEnabled( mks.monkeycore.menuBar().menu( "mEdit/mBookmarks" ), editor )
@@ -1403,14 +1409,6 @@ class Workspace(QFrame):
 
         if  document and not document.editor() :
             document.invokeSearch()
-
-
-    def editGoTo_triggered(self):
-        document = self.currentDocument()
-
-        if  document :
-            document.goTo()
-
 
     def editExpandAbbreviation_triggered(self):
         document = self.currentDocument()

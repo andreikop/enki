@@ -102,7 +102,9 @@ class MainWindow(pMainWindow):
         mb.action( "aSeparator3" )
         mb.menu( "mSearchReplace", self.tr( "&Search && Replace" ) )
         mb.action( "mSearchReplace/aSearchFile", self.tr( "&Search..." ), QIcon( ":/edit/icons/edit/search.png" ), "Ctrl+F", self.tr( "Search in the current file..." ) )
+        """
         mb.action( "aGoTo", self.tr( "&Go To..." ), QIcon( ":/edit/icons/edit/goto.png" ), "Ctrl+G", self.tr( "Go To..." ) ).setEnabled( False )
+        """TODO
         mb.menu( "mAllCommands", self.tr( "&All Commands" ), QIcon( ":/edit/icons/edit/commands.png" ) )
         mb.menu( "mBookmarks", self.tr( "&Bookmarks" ), QIcon( ":/editor/bookmark.png" ) )
         mb.action( "aSeparator5" )
@@ -234,7 +236,6 @@ class MainWindow(pMainWindow):
         self.menuBar().action( "mEdit/mSearchReplace/aSearchFile" ).triggered.connect(mks.monkeycore.workspace().editSearch_triggered)
         #menuBar().action( "mEdit/aSearchPrevious" ).triggered.connect(mks.monkeycore.workspace().editSearchPrevious_triggered)
         #menuBar().action( "mEdit/aSearchNext" ).triggered.connect(mks.monkeycore.workspace().editSearchNext_triggered)
-        self.menuBar().action( "mEdit/aGoTo" ).triggered.connect(mks.monkeycore.workspace().editGoTo_triggered)
         self.menuBar().action( "mEdit/aExpandAbbreviation" ).triggered.connect(mks.monkeycore.workspace().editExpandAbbreviation_triggered)
         self.menuBar().action( "mEdit/aPrepareAPIs" ).triggered.connect(mks.monkeycore.workspace().editPrepareAPIs_triggered)
         # view connection
