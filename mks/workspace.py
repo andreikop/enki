@@ -560,12 +560,6 @@ class Workspace(QFrame):
                             self._oldCurrentDocument.undo)
             mks.monkeycore.menuBar().action( "mEdit/aRedo" ).triggered.disconnect(
                             self._oldCurrentDocument.redo)
-            mks.monkeycore.menuBar().action( "mEdit/aCut" ).triggered.disconnect(
-                            self._oldCurrentDocument.cut)
-            mks.monkeycore.menuBar().action( "mEdit/aCopy" ).triggered.disconnect(
-                            self._oldCurrentDocument.copy)
-            mks.monkeycore.menuBar().action( "mEdit/aPaste" ).triggered.disconnect(
-                            self._oldCurrentDocument.paste)
             if self._oldCurrentDocument.isGoToAvailable():
                 mks.monkeycore.menuBar().action( "mEdit/aGoTo" ).triggered.disconnect(self._oldCurrentDocument.goTo)
             self._oldCurrentDocument.modifiedChanged.disconnect(self.document_modifiedChanged)
@@ -582,21 +576,6 @@ class Workspace(QFrame):
                             document.redo)
             mks.monkeycore.menuBar().action( "mEdit/aRedo" ).setEnabled(document.isRedoAvailable())
             document.redoAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aRedo" ).setEnabled)            
-            # Cut
-            mks.monkeycore.menuBar().action( "mEdit/aCut" ).triggered.connect(
-                            document.cut)
-            mks.monkeycore.menuBar().action( "mEdit/aCut" ).setEnabled(document.isCopyAvailable())
-            document.copyAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aCut" ).setEnabled)
-            # Copy
-            mks.monkeycore.menuBar().action( "mEdit/aCopy" ).triggered.connect(
-                            document.copy)
-            mks.monkeycore.menuBar().action( "mEdit/aCopy" ).setEnabled(document.isCopyAvailable())
-            document.copyAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aCopy" ).setEnabled)
-            # Copy
-            mks.monkeycore.menuBar().action( "mEdit/aPaste" ).triggered.connect(
-                            document.paste)
-            mks.monkeycore.menuBar().action( "mEdit/aPaste" ).setEnabled(document.isPasteAvailable())
-            document.pasteAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aPaste" ).setEnabled)
             document.modifiedChanged.connect(self.document_modifiedChanged)
             
             if document.isGoToAvailable():
@@ -611,9 +590,6 @@ class Workspace(QFrame):
             mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(False)
             mks.monkeycore.menuBar().action( "mEdit/aUndo" ).setEnabled(False)
             mks.monkeycore.menuBar().action( "mEdit/aRedo" ).setEnabled(False)
-            mks.monkeycore.menuBar().action( "mEdit/aCut" ).setEnabled(False)
-            mks.monkeycore.menuBar().action( "mEdit/aCopy" ).setEnabled(False)
-            mks.monkeycore.menuBar().action( "mEdit/aPaste" ).setEnabled(False)
             mks.monkeycore.menuBar().action( "mEdit/aGoTo" ).setEnabled(False)
 
         '''
@@ -630,16 +606,12 @@ class Workspace(QFrame):
         print_ = False
         undo = False
         redo = False
-        copy = False
-        paste = False
         
         if document:
             modified = document.isModified()
             print_ = document.isPrintAvailable()
             undo = document.isUndoAvailable()
             redo = document.isRedoAvailable()
-            copy = document.isCopyAvailable()
-            paste = document.isPasteAvailable()
         # context toolbar
         mtb = mks.monkeycore.multiToolBar()
         
@@ -676,12 +648,8 @@ class Workspace(QFrame):
         # update edit menu
         mks.monkeycore.menuBar().action( "mEdit/aUndo" ).setEnabled( undo )
         mks.monkeycore.menuBar().action( "mEdit/aRedo" ).setEnabled( redo )
-        mks.monkeycore.menuBar().action( "mEdit/aCut" ).setEnabled( copy )
-        mks.monkeycore.menuBar().action( "mEdit/aCopy" ).setEnabled( copy )
-        mks.monkeycore.menuBar().action( "mEdit/aPaste" ).setEnabled( paste )
         mks.monkeycore.menuBar().action( "mEdit/aExpandAbbreviation" ).setEnabled( document )
         mks.monkeycore.menuBar().setMenuEnabled( mks.monkeycore.menuBar().menu( "mEdit/mAllCommands" ), editor )
-        mks.monkeycore.menuBar().setMenuEnabled( mks.monkeycore.menuBar().menu( "mEdit/mBookmarks" ), editor )
         '''
         
         # update view menu
@@ -810,9 +778,6 @@ class Workspace(QFrame):
         # update edit menu
         document.undoAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aUndo" ).setEnabled)
         document.redoAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aRedo" ).setEnabled)
-        document.copyAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aCut" ).setEnabled)
-        document.copyAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aCopy" ).setEnabled)
-        document.pasteAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aPaste" ).setEnabled)
         
         # update status bar
         document.cursorPositionChanged.connect(mks.monkeycore.statusBar().setCursorPosition)
@@ -841,9 +806,6 @@ class Workspace(QFrame):
         """TODO
         document.undoAvailableChanged.disconnect(mks.monkeycore.menuBar().action( "mEdit/aUndo" ).setEnabled)
         document.redoAvailableChanged.disconnect(mks.monkeycore.menuBar().action( "mEdit/aRedo" ).setEnabled)
-        document.copyAvailableChanged.disconnect(mks.monkeycore.menuBar().action( "mEdit/aCut" ).setEnabled)
-        document.copyAvailableChanged.disconnect(mks.monkeycore.menuBar().action( "mEdit/aCopy" ).setEnabled)
-        document.pasteAvailableChanged.disconnect(mks.monkeycore.menuBar().action( "mEdit/aPaste" ).setEnabled)
         # update status bar
         
         disconnect( document, SIGNAL( cursorPositionChanged(  QPoint& ) ), mks.monkeycore.statusBar(), SLOT( setCursorPosition(  QPoint& ) ) )
@@ -1383,26 +1345,6 @@ class Workspace(QFrame):
 
         if  document :
             document.redo()
-
-    def editCut_triggered(self):
-        document = self.currentDocument()
-
-        if  document :
-            document.cut()
-
-
-    def editCopy_triggered(self):
-        document = self.currentDocument()
-
-        if  document :
-            document.copy()
-
-
-    def editPaste_triggered(self):
-        document = self.currentDocument()
-
-        if  document :
-            document.paste()
 
     def editSearch_triggered(self):
         document = self.currentDocument()

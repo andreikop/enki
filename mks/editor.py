@@ -269,9 +269,6 @@ class Editor(mks.abstractchild.pAbstractChild):
         """TODO
         # connections
         self.qscintilla.cursorPositionChanged.connect(self.cursorPositionChanged)
-        """
-        self.qscintilla.copyAvailable.connect(self.copyAvailableChanged)
-        """TODO
         self.qscintilla.modificationChanged.connect(self.setWindowModified)
         """
         self.qscintilla.modificationChanged.connect(self.modifiedChanged)
@@ -280,8 +277,6 @@ class Editor(mks.abstractchild.pAbstractChild):
         """
         self.qscintilla.textChanged.connect(self._onTextChanged)
         self.qscintilla.linesChanged.connect(self._onLinesChanged)
-        
-        QApplication.clipboard().dataChanged.connect(self._onClipboardDataChanged)
         
         # Load settings
         self.qscintilla.setSelectionBackgroundColor( mks.settings.value("Editor/SelectionBackgroundColor"))
@@ -388,9 +383,6 @@ class Editor(mks.abstractchild.pAbstractChild):
             l += 1
         self.qscintilla.setMarginWidth( 0, '0' * l )
     
-    def _onClipboardDataChanged(self):
-        self.pasteAvailableChanged.emit( self.isPasteAvailable() )
-    
     def _lexerForFileName(self, fileName ):
         for language in _lexerForLanguage.keys():
             if  QDir.match( mks.settings.value("Editor/Assotiations/" + language), fileName ) :
@@ -440,22 +432,6 @@ class Editor(mks.abstractchild.pAbstractChild):
     def redo(self):
         self.qscintilla.redo()
 
-    def cut(self):
-        self.qscintilla.cut()
-
-    def copy(self):
-        self.qscintilla.copy()
-
-    def isCopyAvailable(self):
-        lineFrom, indexFrom, lineTo, indexTo = self.qscintilla.getSelection()
-        return lineFrom != lineTo or indexFrom != indexTo
-    
-    def paste(self):
-        self.qscintilla.paste()
-    
-    def isPasteAvailable(self):
-        return bool(QApplication.clipboard().text())
-    
     def isGoToAvailable(self):
         return True
     
