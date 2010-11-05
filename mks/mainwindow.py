@@ -84,37 +84,24 @@ class MainWindow(pMainWindow):
         """
         mb.action( "aQuit", self.tr( "&Quit" ), mks.monkeystudio.getIcon("file/quit.png" ), "Ctrl+Q", self.tr( "Quit the application" ) )
         mb.endGroup()
+        """TODO
         mb.menu( "mEdit", self.tr( "Edit" ) )
         mb.beginGroup( "mEdit" )
-        """TODO
+
         mb.action( "aSettings", self.tr( "Settings..." ), QIcon( ":/edit/icons/edit/settings.png" ), "", self.tr( "Edit the application settings" ) )
         mb.action( "aShortcutsEditor", self.tr( "Shortcuts Editor..." ), QIcon( ":/edit/icons/edit/shortcuts.png" ), "Ctrl+Shift+E", self.tr( "Edit the application shortcuts" ) )
         mb.action( "aTranslations", self.tr( "Translations..." ), QIcon( ":/edit/icons/edit/translations.png" ), "Ctrl+T", self.tr( "Change the application translations files" ) )
         mb.action( "aSeparator1" )
-        """
-        mb.action( "aUndo", self.tr( "&Undo" ), QIcon( ":/edit/icons/edit/undo.png" ), "Ctrl+Z", self.tr( "Undo" ) ).setEnabled( False )
-        mb.action( "aRedo", self.tr( "&Redo" ), QIcon( ":/edit/icons/edit/redo.png" ), "Ctrl+Y", self.tr( "Redo" ) ).setEnabled( False )        
-        
-        """TODO
         mb.action( "aSeparator3" )
         mb.menu( "mSearchReplace", self.tr( "&Search && Replace" ) )
         mb.action( "mSearchReplace/aSearchFile", self.tr( "&Search..." ), QIcon( ":/edit/icons/edit/search.png" ), "Ctrl+F", self.tr( "Search in the current file..." ) )
-        """
-        mb.action( "aGoTo", self.tr( "&Go To..." ), QIcon( ":/edit/icons/edit/goto.png" ), "Ctrl+G", self.tr( "Go To..." ) ).setEnabled( False )
-        """TODO
         mb.menu( "mAllCommands", self.tr( "&All Commands" ), QIcon( ":/edit/icons/edit/commands.png" ) )
-        
-        mb.menu( "mBookmarks", self.tr( "&Bookmarks" ), QIcon( ":/editor/bookmark.png" ) )
-        mb.action( "mBookmarks/aAdd", self.tr("Toggle"), QIcon( ":/editor/bookmark_add.png" ), "Ctrl+B").setEnabled( False )
-        mb.action( "mBookmarks/aNext", self.tr("Next"), QIcon(), "Alt+Up").setEnabled( False )
-        mb.action( "mBookmarks/aPrevious", self.tr("Previous"), QIcon(), "Alt+Down").setEnabled( False )
-        mb.action( "mBookmarks/aDeleteAll", self.tr("Delete all"), QIcon(), "").setEnabled( False )
         
         mb.action( "aSeparator5" )
         mb.action( "aExpandAbbreviation", self.tr( "Expand Abbreviation" ), QIcon( ":/edit/icons/edit/abbreviation.png" ), "Ctrl+E", self.tr( "Expand Abbreviation" ) ).setEnabled( False )
         mb.action( "aPrepareAPIs", self.tr( "Prepare APIs" ), QIcon( ":/edit/icons/edit/prepareapis.png" ), "Ctrl+Alt+P", self.tr( "Prepare the APIs files for auto completion / calltips" ) )
-        """
         mb.endGroup()
+        """
         
         mb.menu( "mView", self.tr( "View" ) )
         mb.beginGroup( "mView" )
@@ -331,12 +318,6 @@ class MainWindow(pMainWindow):
         self.dockToolBar( Qt.TopToolBarArea ).addActions( self.menuBar().menu( "mFile/mSave" ).actions() )
         self.dockToolBar( Qt.TopToolBarArea ).addActions( self.menuBar().menu( "mFile/mClose" ).actions() )
         self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mFile/aQuickPrint" ) )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction()
-        # edit action
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mEdit/aUndo" ) )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mEdit/aRedo" ) )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction()
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mEdit/aGoTo" ) )
         self.dockToolBar( Qt.TopToolBarArea ).addAction()
         # help action
         self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mHelp/aAbout" ) )

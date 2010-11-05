@@ -556,41 +556,14 @@ class Workspace(QFrame):
         state of the actions
         """
         if self._oldCurrentDocument is not None:
-            mks.monkeycore.menuBar().action( "mEdit/aUndo" ).triggered.disconnect(
-                            self._oldCurrentDocument.undo)
-            mks.monkeycore.menuBar().action( "mEdit/aRedo" ).triggered.disconnect(
-                            self._oldCurrentDocument.redo)
-            if self._oldCurrentDocument.isGoToAvailable():
-                mks.monkeycore.menuBar().action( "mEdit/aGoTo" ).triggered.disconnect(self._oldCurrentDocument.goTo)
-            self._oldCurrentDocument.modifiedChanged.disconnect(self.document_modifiedChanged)
+            pass
         
         if document is not None:
             mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(document.isModified())
-            # Undo
-            mks.monkeycore.menuBar().action( "mEdit/aUndo" ).triggered.connect(
-                            document.undo)
-            document.undoAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aUndo" ).setEnabled)
-            mks.monkeycore.menuBar().action( "mEdit/aUndo" ).setEnabled(document.isUndoAvailable())
-            # Redo
-            mks.monkeycore.menuBar().action( "mEdit/aRedo" ).triggered.connect(
-                            document.redo)
-            mks.monkeycore.menuBar().action( "mEdit/aRedo" ).setEnabled(document.isRedoAvailable())
-            document.redoAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aRedo" ).setEnabled)            
-            document.modifiedChanged.connect(self.document_modifiedChanged)
-            
-            if document.isGoToAvailable():
-                mks.monkeycore.menuBar().action( "mEdit/aGoTo" ).triggered.connect(document.goTo)
-                mks.monkeycore.menuBar().action( "mEdit/aGoTo" ).setEnabled( True )
-            else:
-                mks.monkeycore.menuBar().action( "mEdit/aGoTo" ).setEnabled( False )
-            
             mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled( document.isModified() )
             
         else:  # no document
             mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(False)
-            mks.monkeycore.menuBar().action( "mEdit/aUndo" ).setEnabled(False)
-            mks.monkeycore.menuBar().action( "mEdit/aRedo" ).setEnabled(False)
-            mks.monkeycore.menuBar().action( "mEdit/aGoTo" ).setEnabled(False)
 
         '''
         # fix fucking flickering due to window activation change on application gain / lost focus.
@@ -604,14 +577,10 @@ class Workspace(QFrame):
         
         modified = False
         print_ = False
-        undo = False
-        redo = False
         
         if document:
             modified = document.isModified()
             print_ = document.isPrintAvailable()
-            undo = document.isUndoAvailable()
-            redo = document.isRedoAvailable()
         # context toolbar
         mtb = mks.monkeycore.multiToolBar()
         
@@ -646,8 +615,6 @@ class Workspace(QFrame):
         mks.monkeycore.menuBar().action( "mFile/aPrint" ).setEnabled( print_ )
         
         # update edit menu
-        mks.monkeycore.menuBar().action( "mEdit/aUndo" ).setEnabled( undo )
-        mks.monkeycore.menuBar().action( "mEdit/aRedo" ).setEnabled( redo )
         mks.monkeycore.menuBar().action( "mEdit/aExpandAbbreviation" ).setEnabled( document )
         mks.monkeycore.menuBar().setMenuEnabled( mks.monkeycore.menuBar().menu( "mEdit/mAllCommands" ), editor )
         '''
@@ -776,8 +743,6 @@ class Workspace(QFrame):
         document.modifiedChanged.connect(mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled)
         """
         # update edit menu
-        document.undoAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aUndo" ).setEnabled)
-        document.redoAvailableChanged.connect(mks.monkeycore.menuBar().action( "mEdit/aRedo" ).setEnabled)
         
         # update status bar
         document.cursorPositionChanged.connect(mks.monkeycore.statusBar().setCursorPosition)
@@ -804,8 +769,6 @@ class Workspace(QFrame):
         document.modifiedChanged.disconnect(mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled)
         # update edit menu
         """TODO
-        document.undoAvailableChanged.disconnect(mks.monkeycore.menuBar().action( "mEdit/aUndo" ).setEnabled)
-        document.redoAvailableChanged.disconnect(mks.monkeycore.menuBar().action( "mEdit/aRedo" ).setEnabled)
         # update status bar
         
         disconnect( document, SIGNAL( cursorPositionChanged(  QPoint& ) ), mks.monkeycore.statusBar(), SLOT( setCursorPosition(  QPoint& ) ) )
@@ -1333,18 +1296,6 @@ class Workspace(QFrame):
             mks.monkeycore.settings().setValue( "Translations/Accepted", True )
             mks.monkeycore.translationsManager().setCurrentLocale( locale )
             mks.monkeycore.translationsManager().reloadTranslations()
-
-    def editUndo_triggered(self):
-        document = self.currentDocument()
-
-        if  document :
-            document.undo()
-
-    def editRedo_triggered(self):
-        document = self.currentDocument()
-
-        if  document :
-            document.redo()
 
     def editSearch_triggered(self):
         document = self.currentDocument()
