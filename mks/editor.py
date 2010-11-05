@@ -12,6 +12,7 @@ import mks.monkeystudio
 import mks.abstractchild
 import mks.settings
 
+
 """TODO move this code to the pChild class
 class _pEditor(QsciScintilla):
     
@@ -19,28 +20,6 @@ class _pEditor(QsciScintilla):
         # register image for bookmarks
         self.markerDefine( QPixmap( ":/editor/bookmark.png" ).scaled( self.mPixSize ), mdBookmark )
         
-        # init qscishortcutsmanager if needed
-        self.SendScintilla( QsciScintillaBase.SCI_CLEARALLCMDKEYS )
-        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_TAB, SCI_TAB)
-        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_ESCAPE, SCI_CANCEL)
-        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_RETURN, SCI_NEWLINE)
-        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_DOWN, SCI_LINEDOWN)
-        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_UP, SCI_LINEUP)
-        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_RIGHT, SCI_CHARRIGHT)
-        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_LEFT, SCI_CHARLEFT)
-        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_BACK, SCI_DELETEBACK)
-        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_PRIOR, SCI_PAGEUP)
-        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_NEXT, SCI_PAGEDOWN)
-        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_HOME, SCI_VCHOME)
-        self.SendScintilla( QsciScintillaBase.SCI_ASSIGNCMDKEY, SCK_END, SCI_LINEEND)
-
-        # By default control characters don't do anything (rather than insert the
-        # control character into the text). (c) Phil
-        for k in range(ord('A'), ord('Z') + 1):
-            self.SendScintilla(QsciScintillaBase.SCI_ASSIGNCMDKEY,
-                    k + (QsciScintillaBase.SCMOD_CTRL << 16),
-                        QsciScintillaBase.SCI_NULL)
-
         # Create shortcuts manager, not created
         qSciShortcutsManager.instance()
     
@@ -137,27 +116,6 @@ class _pEditor(QsciScintilla):
 
     #endif
 
-
-    def keyPressEvent(self, e ):
-        if  not e.isAutoRepeat() and e.modifiers() & Qt.ControlModifier and e.key() == Qt.Key_Space :
-            switch ( autoCompletionSource() )
-                case QsciScintilla.AcsAll:
-                    autoCompleteFromAll()
-                    break
-                case QsciScintilla.AcsAPIs:
-                    autoCompleteFromAPIs()
-                    break
-                case QsciScintilla.AcsDocument:
-                    autoCompleteFromDocument()
-                    break
-                default:
-                    break
-
-            return
-
-        QsciScintilla.keyPressEvent( e )
-
-
     def search(self):
         SendScintilla( SCI_SETSEARCHFLAGS, mSearchState.flags )
 
@@ -239,27 +197,6 @@ class _pEditor(QsciScintilla):
         
         return pos
 
-
-    def lineNumbersMarginEnabled(self):
-        return marginLineNumbers( 0 )
-
-
-    def lineNumbersMarginWidth(self):
-        return property( "LineNumbersMarginWidth" ).toInt()
-
-
-    def lineNumbersMarginAutoWidth(self):
-        return property( "LineNumbersMarginAutoWidth" ).toBool()
-
-
-    def setLineNumbersMarginEnabled(self, b ):
-        setMarginLineNumbers( 0, b )
-
-    def setLineNumbersMarginAutoWidth(self, b ):
-        setProperty( "LineNumbersMarginAutoWidth", b )
-        linesChanged.emit()
-
-
     def currentLineText(self):
         int line
         int index
@@ -267,25 +204,6 @@ class _pEditor(QsciScintilla):
         getCursorPosition( &line, &index )
         
         return text( line )
-
-
-    def markerAtLine(self, line, markerId ):
-        return QsciScintilla.markersAtLine( line ) & ( 1 << markerId )
-
-
-    def markerFindPrevious(self, line, markerId ):
-        line = QsciScintilla.markerFindPrevious( line, 1 << markerId )
-        if  line == -1 :
-            line = QsciScintilla.markerFindPrevious( lines() -1, 1 << markerId )
-        return line
-
-
-    def markerFindNext(self, line, markerId ):
-        line = QsciScintilla.markerFindNext( line, 1 << markerId )
-        if  line == -1 :
-            line = QsciScintilla.markerFindNext( 0, 1 << markerId )
-        return line
-
     """
 
 _lexerForLanguage = {
@@ -324,13 +242,23 @@ _lexerForLanguage = {
 
 class Editor(mks.abstractchild.pAbstractChild):
     """Text editor widget. Uses QScintilla internally
-    TODO rename this class
     """
+    
+    _MARKER_BOOKMARK = -1  # QScintilla marker type
+    
     def __init__(self, parentObject, filePath):
         mks.abstractchild.pAbstractChild.__init__(self, parentObject, filePath)
         
         # Configure editor
         self.qscintilla = QsciScintilla(self)
+        
+        pixmap = mks.monkeystudio.getIcon( "editor/bookmark.png" ).pixmap(16, 16)
+        self._MARKER_BOOKMARK = self.qscintilla.markerDefine(pixmap, -1)
+        
+        self.qscintilla.installEventFilter( self )
+        
+        #self.qscintilla.markerDefine( QPixmap( ":/editor/bookmark.png" ).scaled( self.mPixSize ), mdBookmark )
+        
         self.qscintilla.setUtf8( True ) # deal with utf8
         
         self.qscintilla.setAttribute( Qt.WA_MacSmallSize )
@@ -401,19 +329,6 @@ class Editor(mks.abstractchild.pAbstractChild):
         self.qscintilla.setCaretLineBackgroundColor( mks.settings.value("Editor/CaretLineBackgroundColor") )
         self.qscintilla.setCaretForegroundColor( mks.settings.value("Editor/CaretForegroundColor") )
         self.qscintilla.setCaretWidth( mks.settings.value("Editor/CaretWidth") )
-        """
-        # Margins
-        if  mks.settings.value("Editor/MarginsEnabled") :
-            self.qscintilla.setMarginsBackgroundColor( mks.settings.value("Editor/MarginsBackgroundColor") )
-            self.qscintilla.setMarginsForegroundColor( mks.settings.value("Editor/MarginsForegroundColor") )
-            self.qscintilla.setMarginsFont( mks.settings.value("Editor/MarginsFont") )
-
-        self.qscintilla.setMarginLineNumbers( mks.settings.value("Editor/LineNumbersMarginEnabled") )
-        self.qscintilla.setLineNumbersMarginWidth( mks.settings.value("Editor/LineNumbersMarginWidth") )
-        self.qscintilla.setLineNumbersMarginAutoWidth( mks.settings.value("Editor/LineNumbersMarginAutoWidth") )
-        self.qscintilla.setFolding( mks.settings.value("Editor/Folding") )
-        self.qscintilla.setFoldMarginColors( mks.settings.value("Editor/FoldMarginForegroundColor"), mks.settings.value("Editor/FoldMarginBackgroundColor") )
-        """
         
         # Special Characters
         eolConvertor = {'\n': QsciScintilla.EolUnix, '\r\n' : QsciScintilla.EolWindows}
@@ -654,6 +569,46 @@ class Editor(mks.abstractchild.pAbstractChild):
             self.qscintilla.setEolMode (QsciScintilla.EolWindows)
         elif '\n' in self.qscintilla.text():
             self.qscintilla.setEolMode (QsciScintilla.EolUnix)
+    
+    def eventFilter( self, object, event ):
+        """It is not an editor API function
+        Catches key press events from QScintilla for support bookmarks and autocompletion"""
+        
+        if event.type() == QEvent.KeyPress:
+            if not event.isAutoRepeat():
+                row, col = self.qscintilla.getCursorPosition()
+                if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_Space: # autocompletion shortcut
+                    """ TODO
+                    switch ( autoCompletionSource() )
+                        case QsciScintilla.AcsAll:
+                            autoCompleteFromAll()
+                            break
+                        case QsciScintilla.AcsAPIs:
+                            autoCompleteFromAPIs()
+                            break
+                        case QsciScintilla.AcsDocument:
+                            autoCompleteFromDocument()
+                            break
+                        default:
+                            break
+                    """
+                    return True
+                elif event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_B: # toogle bookmark
+                    if self.qscintilla.markersAtLine( row ) & 1 << self._MARKER_BOOKMARK:
+                        self.qscintilla.markerDelete( row, self._MARKER_BOOKMARK )
+                    else:
+                        self.qscintilla.markerAdd( row, self._MARKER_BOOKMARK )
+                    return True
+                elif event.modifiers() & Qt.AltModifier and event.key() == Qt.Key_Down:  # next bookmark
+                    self.qscintilla.setCursorPosition( 
+                                self.qscintilla.markerFindNext( row + 1, 1 << self._MARKER_BOOKMARK ), 0 )
+                    return True
+                elif event.modifiers() & Qt.AltModifier and event.key() == Qt.Key_Up:  # next bookmark
+                    self.qscintilla.setCursorPosition(
+                                self.qscintilla.markerFindPrevious( row - 1, 1 << self._MARKER_BOOKMARK ), 0 )
+                    return True
+                # TODO shortcut for delete all bookmarks?
+        return False
     
     """TODO
     def backupFileAs(self, filePath ):
