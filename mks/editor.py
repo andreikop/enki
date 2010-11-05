@@ -275,7 +275,6 @@ class Editor(mks.abstractchild.pAbstractChild):
         """TODO
         self.qscintilla.textChanged.connect(self.contentChanged)
         """
-        self.qscintilla.textChanged.connect(self._onTextChanged)
         self.qscintilla.linesChanged.connect(self._onLinesChanged)
         
         # Load settings
@@ -373,10 +372,6 @@ class Editor(mks.abstractchild.pAbstractChild):
         
         #TODO self.fileOpened.emit()
 
-    def _onTextChanged(self):
-        self.undoAvailableChanged.emit( self.qscintilla.isUndoAvailable() )
-        self.redoAvailableChanged.emit( self.qscintilla.isRedoAvailable() )
-
     def _onLinesChanged(self):
         l = len(str(self.qscintilla.lines()))
         if l != 0:
@@ -420,21 +415,7 @@ class Editor(mks.abstractchild.pAbstractChild):
         #TODO resolve
         pass
     """
-    def isUndoAvailable(self):
-        return self.qscintilla.isUndoAvailable()
 
-    def undo(self):
-        self.qscintilla.undo()
-
-    def isRedoAvailable(self):
-        return self.qscintilla.isRedoAvailable()
-
-    def redo(self):
-        self.qscintilla.redo()
-
-    def isGoToAvailable(self):
-        return True
-    
     def goTo(self):
         line, col = self.qscintilla.getCursorPosition()
         gotoLine, ok = QInputDialog.getInteger( self, self.tr( "Go To Line..." ),
@@ -582,6 +563,9 @@ class Editor(mks.abstractchild.pAbstractChild):
                 elif event.modifiers() & Qt.AltModifier and event.key() == Qt.Key_Up:  # next bookmark
                     self.qscintilla.setCursorPosition(
                                 self.qscintilla.markerFindPrevious( row - 1, 1 << self._MARKER_BOOKMARK ), 0 )
+                    return True
+                elif event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_G:  # goto
+                    self.goTo()
                     return True
                 # TODO shortcut for delete all bookmarks?
         return False

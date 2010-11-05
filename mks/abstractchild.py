@@ -112,20 +112,6 @@ class pAbstractChild(QMdiSubWindow):
         """
         pass
     
-    def isUndoAvailable(self):
-        """return the current file undo flag
-        """
-        pass
-    
-    def isRedoAvailable(self):
-        """return the current file redo flag
-        """
-        pass
-    
-    def isGoToAvailable(self):
-        """return is goto is available
-        """
-        pass
     '''TODO
     def isPrintAvailable(self):
         """return if print is available
@@ -154,16 +140,7 @@ class pAbstractChild(QMdiSubWindow):
     
     def codec(self)
     { return mCodec ? mCodec : QTextCodec.codecForName( pMonkeyStudio.defaultCodec().toLocal8Bit().constData() );
-    '''
-    def undo(self):
-        pass
     
-    def redo(self):
-        pass
-    
-    def goTo(self):
-        pass
-    '''TODO
     def goTo(self, position, selectionLength = -1 ):
         pass
     
@@ -202,19 +179,11 @@ class pAbstractChild(QMdiSubWindow):
     '''
     # when.emit a file is modified
     modifiedChanged = pyqtSignal(bool)
-    # when.emit undo has changed
-    undoAvailableChanged = pyqtSignal(bool)
-    # when.emit undo has changed
-    redoAvailableChanged = pyqtSignal(bool)
     '''TODO
     # when.emit search/replace is available
     #searchReplaceAvailableChanged = pyqtSignal(bool)
-    # when.emit goto is available
-    #goToAvailableChanged = pyqtSignal(bool)
     # when.emit requesting search in editor
     #requestSearchReplace = pyqtSignal()
-    # when.emit request go to line
-    #requestGoTo = pyqtSignal()
     # when.emit a child require to update workspace
     #updateWorkspaceRequested()
     '''
