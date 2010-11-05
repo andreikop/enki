@@ -121,16 +121,6 @@ class pAbstractChild(QMdiSubWindow):
         """return the current file redo flag
         """
         pass
-
-    def isCopyAvailable(self):
-        """return the current file copy available
-        """
-        pass
-        
-    def isPasteAvailable(self):
-        """return the current file paste available
-        """
-        pass
     
     def isGoToAvailable(self):
         """return is goto is available
@@ -169,15 +159,6 @@ class pAbstractChild(QMdiSubWindow):
         pass
     
     def redo(self):
-        pass
-        
-    def cut(self):
-        pass
-    
-    def copy(self):
-        pass
-    
-    def paste(self):
         pass
     
     def goTo(self):
@@ -225,10 +206,6 @@ class pAbstractChild(QMdiSubWindow):
     undoAvailableChanged = pyqtSignal(bool)
     # when.emit undo has changed
     redoAvailableChanged = pyqtSignal(bool)
-    # when.emit a file paste available change
-    pasteAvailableChanged = pyqtSignal(bool)
-    # when.emit a file copy available change
-    copyAvailableChanged = pyqtSignal(bool)
     '''TODO
     # when.emit search/replace is available
     #searchReplaceAvailableChanged = pyqtSignal(bool)

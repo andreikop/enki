@@ -93,11 +93,8 @@ class MainWindow(pMainWindow):
         mb.action( "aSeparator1" )
         """
         mb.action( "aUndo", self.tr( "&Undo" ), QIcon( ":/edit/icons/edit/undo.png" ), "Ctrl+Z", self.tr( "Undo" ) ).setEnabled( False )
-        mb.action( "aRedo", self.tr( "&Redo" ), QIcon( ":/edit/icons/edit/redo.png" ), "Ctrl+Y", self.tr( "Redo" ) ).setEnabled( False )
-        mb.action( "aSeparator2" )
-        mb.action( "aCopy", self.tr( "&Copy" ), QIcon( ":/edit/icons/edit/copy.png" ), "Ctrl+C", self.tr( "Copy" ) ).setEnabled( False )
-        mb.action( "aCut", self.tr( "Cu&t" ), QIcon( ":/edit/icons/edit/cut.png" ), "Ctrl+X", self.tr( "Cut" ) ).setEnabled( False )
-        mb.action( "aPaste", self.tr( "&Paste" ), QIcon( ":/edit/icons/edit/paste.png" ), "Ctrl+V", self.tr( "Paste" ) ).setEnabled( False )
+        mb.action( "aRedo", self.tr( "&Redo" ), QIcon( ":/edit/icons/edit/redo.png" ), "Ctrl+Y", self.tr( "Redo" ) ).setEnabled( False )        
+        
         """TODO
         mb.action( "aSeparator3" )
         mb.menu( "mSearchReplace", self.tr( "&Search && Replace" ) )
@@ -106,7 +103,13 @@ class MainWindow(pMainWindow):
         mb.action( "aGoTo", self.tr( "&Go To..." ), QIcon( ":/edit/icons/edit/goto.png" ), "Ctrl+G", self.tr( "Go To..." ) ).setEnabled( False )
         """TODO
         mb.menu( "mAllCommands", self.tr( "&All Commands" ), QIcon( ":/edit/icons/edit/commands.png" ) )
+        
         mb.menu( "mBookmarks", self.tr( "&Bookmarks" ), QIcon( ":/editor/bookmark.png" ) )
+        mb.action( "mBookmarks/aAdd", self.tr("Toggle"), QIcon( ":/editor/bookmark_add.png" ), "Ctrl+B").setEnabled( False )
+        mb.action( "mBookmarks/aNext", self.tr("Next"), QIcon(), "Alt+Up").setEnabled( False )
+        mb.action( "mBookmarks/aPrevious", self.tr("Previous"), QIcon(), "Alt+Down").setEnabled( False )
+        mb.action( "mBookmarks/aDeleteAll", self.tr("Delete all"), QIcon(), "").setEnabled( False )
+        
         mb.action( "aSeparator5" )
         mb.action( "aExpandAbbreviation", self.tr( "Expand Abbreviation" ), QIcon( ":/edit/icons/edit/abbreviation.png" ), "Ctrl+E", self.tr( "Expand Abbreviation" ) ).setEnabled( False )
         mb.action( "aPrepareAPIs", self.tr( "Prepare APIs" ), QIcon( ":/edit/icons/edit/prepareapis.png" ), "Ctrl+Alt+P", self.tr( "Prepare the APIs files for auto completion / calltips" ) )
@@ -332,10 +335,6 @@ class MainWindow(pMainWindow):
         # edit action
         self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mEdit/aUndo" ) )
         self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mEdit/aRedo" ) )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction()
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mEdit/aCut" ) )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mEdit/aCopy" ) )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mEdit/aPaste" ) )
         self.dockToolBar( Qt.TopToolBarArea ).addAction()
         self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mEdit/aGoTo" ) )
         self.dockToolBar( Qt.TopToolBarArea ).addAction()
