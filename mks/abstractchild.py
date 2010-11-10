@@ -1,4 +1,4 @@
-"""Basic class for documents on workspace, such as opened source file, Qt Designer and Qt Assistant
+"""Base class for documents on workspace, such as opened source file, Qt Designer and Qt Assistant
 """
 import os.path
 
@@ -7,7 +7,7 @@ from PyQt4.QtCore import *
 
 
 class pAbstractChild(QMdiSubWindow):
-    """Basic class for documents on workspace, such as opened source file, Qt Designer and Qt Assistant
+    """Base class for documents on workspace, such as opened source file, Qt Designer and Qt Assistant
     """
     
     """TODO
@@ -77,7 +77,7 @@ class pAbstractChild(QMdiSubWindow):
         return unicode(self.windowFilePath())
     
     def fileName(self):
-        """return the filename of the document"""
+        """return the document file name"""
         wfp = self.windowFilePath()
         if wfp.isEmpty():
             return None
@@ -108,7 +108,7 @@ class pAbstractChild(QMdiSubWindow):
         pass
     '''
     def isModified(self):
-        """return the current file modified flag
+        """Returns true, if file is modified
         """
         pass
     
@@ -148,6 +148,8 @@ class pAbstractChild(QMdiSubWindow):
         pass
     '''
     def saveFile(self):
+        """Save changes, made in the file
+        """
         pass
     '''TODO
     def backupFileAs(self fileName ):
@@ -177,8 +179,13 @@ class pAbstractChild(QMdiSubWindow):
     # when.emit cursor position changed
     cursorPositionChanged = pyqtSignal(int, int) # (line, column)
     '''
-    # when.emit a file is modified
+    
+    """Signal emited, when modified state changed (file edited, or saved)
+    Bool parameter contains new value
+    """
     modifiedChanged = pyqtSignal(bool)
+
+    
     '''TODO
     # when.emit search/replace is available
     #searchReplaceAvailableChanged = pyqtSignal(bool)
