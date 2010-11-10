@@ -786,6 +786,7 @@ class Workspace(QFrame):
     def openFile(self, fileName):
         """Open named file. Shows error messages to the user, if failed to open
         Returns document, if opened, None otherwise
+        Opens modal dialog, if error occured
         """
         
         # check if file is already opened
@@ -809,8 +810,10 @@ class Workspace(QFrame):
             QApplication.setOverrideCursor( Qt.WaitCursor )
             document = documentType(self, fileName)
         except IOError, ex:
-            #TODO mks.monkeycore.messageManager().appendMessage(self.tr( "An error occur while opening self file: '%1'" % str(ex))
-            print >> sys.stderr, ex
+            #TODO replace with messageManager ?
+            QMessageBox.critical(None,
+                                 self.tr("Failed to open file"),
+                                 unicode(str(ex), 'utf8'))
             return None
         finally:
             QApplication.restoreOverrideCursor()
