@@ -1,9 +1,19 @@
 """
-Workspace class implements spacked widget with opened textual documents, 
-Qt Designers, Qt Assistants and other widgets, creates and manages opened 
-file list, opens and closes files...
-Instance accessible as mks.monkeycore.workspace()
-First time created by mainWindow()
+
+In MkS terminology, Workspace is main working area, where documents are placed.
+Document is widget on workspace. Here is examples of documents:
+
+* Textual editor
+* QtDesigner
+* QtAssistant
+
+Document classes are herited from :class:`mks.abstractchild.pAbstractChild`.
+
+TODO FIX up the terminology? Use child instead of document?
+
+See :class:`mks.workspace.Workspace` for module API
+
+Module also contains widget, which shows list of opened documents and AbstractItemModel for manage this list.
 """
 import os.path
 import copy
@@ -46,7 +56,7 @@ class _OpenedFileModel(QAbstractItemModel):
         
         self.mSortDocumentsTimer.timeout.connect(self.sortDocuments_timeout)
         parentObject.parent().documentOpened.connect(self.documentOpened)
-        parentObject.parent().documentModifiedChanged.connect(self.documentModifiedChanged)
+        parentObject.parent()._documentModifiedChanged.connect(self.documentModifiedChanged)
         parentObject.parent().documentClosed.connect(self.documentClosed)
         
         self.mSortMode = self.Suffixes # FIXME
@@ -392,11 +402,16 @@ class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
 
 class Workspace(QFrame):
     """
-    Workspace class implements spacked widget with opened textual documents, 
-    Qt Designers, Qt Assistants and other widgets, creates and manages opened 
-    file list, opens and closes files...
-    Instance accessible as mks.monkeycore.workspace().
-    First time created by monkeycore.
+    Class manages set of opened children, allows to open new file
+    
+    Instance accessible as: ::
+    
+        mks.monkeycore.workspace()
+    
+    First time created by ::class:mks.mainwindow.MainWindow
+    
+    NOTE: class contains some methods, which are not public now, but, could be useful for plugins.
+    If you found such method - don't use it silently, send bug report for make it public and document
     """
     
     """TODO
@@ -406,14 +421,30 @@ class Workspace(QFrame):
     LeftTabs = "LeftTabs"
     RightTabs = "RightTabs"
     """
-    # a file has been opened
+    
     documentOpened = pyqtSignal(mks.abstractchild.pAbstractChild)
+    """
+    documentOpened(:class:`mks.abstractchild.pAbstractChild`)
+    
+    **Signal** emitted, when child has been created, i.e. textual file opened, 
+    or some other child added to workspace
+    
+    TODO rename class?
+    """
+    
     """
     # a file have changed
     documentChanged = pyqtSignal(mks.abstractchild.pAbstractChild)
     """
     # a file modified state changed
-    documentModifiedChanged = pyqtSignal(mks.abstractchild.pAbstractChild, bool)
+    
+    _documentModifiedChanged = pyqtSignal(mks.abstractchild.pAbstractChild, bool)
+    """
+    documentModifiedChanged(:class:`mks.abstractchild.pAbstractChild`, modified)
+    
+    **Signal** emitted, when modified state (having not saved changes) of document changed
+    """
+    
     """TODO
     # document about to close
     documentAboutToClose = pyqtSignal(mks.abstractchild.pAbstractChild)
@@ -421,13 +452,27 @@ class Workspace(QFrame):
     """A file has been closed. When signal emitted, document pointer is valid,
     document not yet removed from workspace
     """
+    
     documentClosed = pyqtSignal(mks.abstractchild.pAbstractChild)
+    """
+    documentClosed(:class:`mks.abstractchild.pAbstractChild`)
+    
+    **Signal** emitted, when child was closed
+    """
+    
     """TODO
     # a file has been reloaded
     documentReloaded = pyqtSignal(mks.abstractchild.pAbstractChild)
     """
-    # current file changed
+    
     currentDocumentChanged = pyqtSignal(mks.abstractchild.pAbstractChild)
+    """
+    currentDocumentChanged(:class:`mks.abstractchild.pAbstractChild`)
+    
+    **Signal** emitted, when current child changed, i.e. user selected another document, 
+    new document opened, current closed
+    """
+    
     """TODO
     buffersChanged = pyqtSignal(dict) # {file path : file contents}
     """
@@ -532,16 +577,19 @@ class Workspace(QFrame):
         MonkeyCore.multiToolBar().notifyChanges.connect(self.multitoolbar_notifyChanges)
     """
         mks.monkeycore.menuBar().action( "mFile/aOpen" ).triggered.connect(self._fileOpen_triggered)
-        mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).triggered.connect(self.closeCurrentDocument)
+        mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).triggered.connect(self._closeCurrentDocument)
     
         mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).triggered.connect(self._fileSaveCurrent_triggered)
         mks.monkeycore.menuBar().action( "mFile/mSave/aAll" ).triggered.connect(self._fileSaveAll_triggered)
         
-        mks.monkeycore.menuBar().action( "mView/aNext" ).triggered.connect(self.activateNextDocument)
-        mks.monkeycore.menuBar().action( "mView/aPrevious" ).triggered.connect(self.activatePreviousDocument)
+        mks.monkeycore.menuBar().action( "mView/aNext" ).triggered.connect(self._activateNextDocument)
+        mks.monkeycore.menuBar().action( "mView/aPrevious" ).triggered.connect(self._activatePreviousDocument)
     
     def eventFilter( self, object, event ):
-        # get document
+        """NOT AN API function
+        
+        Handler for QObject events of children
+        """
         if  object.isWidgetType() :
             document = object
             if  document and event.type() == QEvent.Close :
@@ -686,10 +734,13 @@ class Workspace(QFrame):
     '''
     
     def setCurrentDocument( self, document ):
-        #fixme replace with setCurrentFile?
+        """Select active (focused and visible) document form list of opened documents
+        """
         self.mdiArea.setActiveSubWindow( document )
     
     def currentDocument(self):
+        """Returns currently active (focused) child.
+        """
         return self.mdiArea.currentSubWindow()
     
     """TODO
@@ -707,7 +758,7 @@ class Workspace(QFrame):
     """
     
     def closeDocument( self, document, showDialog = True):
-        """Close opened file, open document from workspace and delete widget"""
+        """Close opened file, remove document from workspace and delete the widget"""
         
         """TODO
         if  showDialog and UISaveFiles.saveDocument( self.window(), document, False ) == UISaveFiles.bCancelClose :
@@ -783,10 +834,12 @@ class Workspace(QFrame):
             if self.mdiArea.currentSubWindow() :
                self.mdiArea.currentSubWindow().showMaximized()
     
-    def openFile(self, fileName):
-        """Open named file. Shows error messages to the user, if failed to open
+    def openFile(self, filePath):
+        """Open named file using suitable plugin, or textual editor, if other suitable editor not found.
+        
         Returns document, if opened, None otherwise
-        Opens modal dialog, if error occured
+        
+        Opens modal dialog, if failed to open the file
         """
         
         # check if file is already opened
@@ -836,14 +889,14 @@ class Workspace(QFrame):
                 return
     """
     
-    def closeCurrentDocument(self):
+    def _closeCurrentDocument(self):
         #fixme replace with setCurrentFile?
         document = self.mdiArea.currentSubWindow()
         assert(document is not None)
         self.closeDocument( document )
     
     def openedDocuments(self):
-        """Get list of opened documents (mks.abstractchild instances)
+        """Get list of opened documents (:class:mks.abstractchild.pAbstractChild instances)
         """
         return self._sortedDocuments
     
@@ -864,12 +917,12 @@ class Workspace(QFrame):
         return True
     """
     
-    def activateNextDocument(self):
+    def _activateNextDocument(self):
         curIndex = self._sortedDocuments.index(self.currentDocument())
         nextIndex = (curIndex + 1) % len(self._sortedDocuments)
         self.setCurrentDocument( self._sortedDocuments[nextIndex] )
     
-    def activatePreviousDocument(self):
+    def _activatePreviousDocument(self):
         curIndex = self._sortedDocuments.index(self.currentDocument())
         prevIndex = (curIndex - 1 + len(self._sortedDocuments)) % len(self._sortedDocuments)
         self.setCurrentDocument( self._sortedDocuments[prevIndex] )
@@ -979,12 +1032,11 @@ class Workspace(QFrame):
         
         self.documentChanged.emit( document )
 
-    """
+    
     def document_modifiedChanged(self, modified ):
         document = self.sender()
-        self.documentModifiedChanged.emit( document, modified )
+        self._documentModifiedChanged.emit( document, modified )
     
-    """TODO
 
     def document_fileClosed(self):
         document = self.sender()
