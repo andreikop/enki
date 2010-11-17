@@ -15,9 +15,6 @@ from PyQt4.QtGui import *
 import main
 import mks.settings
 """
-import mks.mainwindow
-import mks.workspace
-import mks.editor
 
 _mainWindow = None
 _workspace = None
@@ -122,9 +119,10 @@ def init():
     mainWindow()  # create the instance
 
     # create and init workspace
-    mainWindow().setCentralWidget( mks.monkeycore.workspace() )
+    mainWindow().setCentralWidget( workspace() )
     
-    mks.monkeycore.workspace().setTextEditorClass(mks.editor.Editor)  # TODO would be done, when plugin loaded
+    import mks.editor  # TODO would be done, when plugin loaded, remove this 2 lines from here
+    mks.monkeycore.workspace().setTextEditorClass(mks.editor.Editor) 
     
     workspace().openFile('/home/a/tmp/samples/1.txt') # FIXME
     workspace().openFile('/home/a/tmp/src-samples/2') # FIXME
@@ -188,6 +186,7 @@ def mainWindow():
     """Main window instance (mks.mainwindow.MainWindow)"""
     global _mainWindow
     if _mainWindow is None:
+        import mks.mainwindow  # not global import, for avoid crossimports conflicts. TODO find better solution?
         _mainWindow = mks.mainwindow.MainWindow()
     return _mainWindow
 
@@ -199,6 +198,7 @@ def workspace():
     """Workspace instance (mks.workspace.Workspace)"""
     global _workspace
     if _workspace is None:
+        import mks.workspace  # not global import, for avoid crossimports conflicts. TODO find better solution?
         _workspace = mks.workspace.Workspace(mainWindow())
     return _workspace
 

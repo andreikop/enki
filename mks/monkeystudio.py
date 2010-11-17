@@ -5,7 +5,6 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 import mks.monkeycore
-import mks.workspace
 
 #QHash<QString,QsciLexer*> mGlobalsLexers
 #QHash<QString,QsciAPIs*> mGlobalsAPIs
@@ -889,8 +888,7 @@ def setDocumentMode( mode ):
     \details Return the mod used by the workspace
 '''
 def documentMode():
-    return mks.monkeycore.settings().value( settingsPath() +"/DocMode", mks.workspace.Workspace.NoTabs ).toInt()
-
+    return mks.monkeycore.settings().value( settingsPath() +"/DocMode", mks.monkeycore.workspace().NoTabs ).toInt()
 
 '''!
     \details Set if session must be save on close
