@@ -27,7 +27,6 @@ MkS core modules:
 .. toctree::
 
    workspace.rst
-   abstractchild.rst
 
 Indices and tables
 ==================
