@@ -252,8 +252,8 @@ def availableLanguagesSuffixes():
 def availableFilesSuffixes():
     # get language suffixes
     QMap<QString, QStringList> l = availableLanguagesSuffixes()
-    # add child plugins suffixes
-    QMap<QString, QStringList> ps = mks.monkeycore.pluginsManager().childSuffixes()
+    # add document plugins suffixes
+    QMap<QString, QStringList> ps = mks.monkeycore.pluginsManager().documentSuffixes()
     foreach ( QString k, ps.keys() )
     foreach ( QString s, ps[k] )
     if  not l[k].contains( s ) :
@@ -728,7 +728,7 @@ def resetLexer( QsciLexer* lexer ):
 '''
 def applyProperties():
     # apply editor properties
-    foreach ( pAbstractChild* c, mks.monkeycore.workspace().documents() )
+    foreach ( AbstractDocument* c, mks.monkeycore.workspace().documents() )
     foreach ( pEditor* e, c.findChildren<pEditor*>() )
     setEditorProperties( e )
     # apply lexers properties
@@ -931,7 +931,7 @@ def setShowQuickFileAccess( show ):
 
 
 '''!
-    \details Return True if a quick file access combobox is visible in the child context toolbar
+    \details Return True if a quick file access combobox is visible in the document context toolbar
 '''
 def showQuickFileAccess():
     return mks.monkeycore.settings().value( settingsPath() +"/ShowQuickFileAccess", False ).toBool()

@@ -9,7 +9,7 @@ from PyQt4.QtGui import *
 from PyQt4.Qsci import *
 
 import mks.monkeystudio
-import mks.abstractchild
+import mks.workspace
 import mks.settings
 
 
@@ -240,14 +240,14 @@ _lexerForLanguage = {
 "Spice" : QsciLexerSpice,
 }
 
-class Editor(mks.abstractchild.pAbstractChild):
+class Editor(mks.workspace.AbstractDocument):
     """Text editor widget. Uses QScintilla internally
     """
     
     _MARKER_BOOKMARK = -1  # QScintilla marker type
     
     def __init__(self, parentObject, filePath):
-        mks.abstractchild.pAbstractChild.__init__(self, parentObject, filePath)
+        mks.workspace.AbstractDocument.__init__(self, parentObject, filePath)
         
         # Configure editor
         self.qscintilla = QsciScintilla(self)
