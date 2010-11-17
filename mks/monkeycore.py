@@ -17,6 +17,7 @@ import mks.settings
 """
 import mks.mainwindow
 import mks.workspace
+import mks.editor
 
 _mainWindow = None
 _workspace = None
@@ -122,6 +123,8 @@ def init():
 
     # create and init workspace
     mainWindow().setCentralWidget( mks.monkeycore.workspace() )
+    
+    mks.monkeycore.workspace().setTextEditorClass(mks.editor.Editor)  # TODO would be done, when plugin loaded
     
     workspace().openFile('/home/a/tmp/samples/1.txt') # FIXME
     workspace().openFile('/home/a/tmp/src-samples/2') # FIXME
