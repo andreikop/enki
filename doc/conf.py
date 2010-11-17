@@ -217,5 +217,3 @@ man_pages = [
 
 autodoc_default_flags = [ 'members', 'undoc-members', 'show-inheritance']
 autodoc_member_order = 'bysource'
-
-print sys.path
