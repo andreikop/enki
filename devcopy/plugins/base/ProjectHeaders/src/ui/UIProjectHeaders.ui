@@ -1,0 +1,308 @@
+<ui version="4.0" >
+ <class>UIProjectHeaders</class>
+ <widget class="QDialog" name="UIProjectHeaders" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>668</width>
+    <height>376</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Project Licensing Updater</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="../resources/ProjectHeaders.qrc" >
+    <normaloff>:/icons/licensing.png</normaloff>:/icons/licensing.png</iconset>
+  </property>
+  <layout class="QVBoxLayout" >
+   <property name="spacing" >
+    <number>3</number>
+   </property>
+   <property name="margin" >
+    <number>5</number>
+   </property>
+   <item>
+    <widget class="QTabWidget" name="twLicensing" >
+     <property name="currentIndex" >
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="wProjectInformations" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>646</width>
+        <height>293</height>
+       </rect>
+      </property>
+      <attribute name="title" >
+       <string>Project Informations</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>5</number>
+       </property>
+       <property name="spacing" >
+        <number>3</number>
+       </property>
+       <item row="0" column="0" >
+        <widget class="QLabel" name="lDirectory" >
+         <property name="text" >
+          <string>Directory :</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" >
+        <widget class="QLineEdit" name="leDirectory" >
+         <property name="text" >
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2" >
+        <widget class="QToolButton" name="tbDirectory" >
+         <property name="icon" >
+          <iconset resource="../resources/ProjectHeaders.qrc" >
+           <normaloff>:/icons/folder.png</normaloff>:/icons/folder.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" >
+        <widget class="QLabel" name="lAuthors" >
+         <property name="text" >
+          <string>Authors :</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1" colspan="2" >
+        <widget class="QLineEdit" name="leAuthors" >
+         <property name="text" >
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" >
+        <widget class="QLabel" name="lProjectName" >
+         <property name="text" >
+          <string>Project Name :</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1" colspan="2" >
+        <widget class="QLineEdit" name="leProjectName" >
+         <property name="text" >
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" >
+        <widget class="QLabel" name="lHomePage" >
+         <property name="text" >
+          <string>Home Page :</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1" colspan="2" >
+        <widget class="QLineEdit" name="leHomePage" >
+         <property name="text" >
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" >
+        <widget class="QLabel" name="lLicense" >
+         <property name="text" >
+          <string>License :</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1" colspan="2" >
+        <widget class="QComboBox" name="cbLicenses" >
+         <property name="editable" >
+          <bool>true</bool>
+         </property>
+         <item>
+          <property name="text" >
+           <string>GPL</string>
+          </property>
+         </item>
+         <item>
+          <property name="text" >
+           <string>LGPL</string>
+          </property>
+         </item>
+         <item>
+          <property name="text" >
+           <string>BSD</string>
+          </property>
+         </item>
+         <item>
+          <property name="text" >
+           <string>QPL</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="5" column="0" colspan="3" >
+        <widget class="QLabel" name="lComment" >
+         <property name="text" >
+          <string>Comment :</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0" colspan="3" >
+        <widget class="QTextEdit" name="teComment" />
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="wLicensesConfiguration" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>646</width>
+        <height>293</height>
+       </rect>
+      </property>
+      <attribute name="title" >
+       <string>Licenses Configuration</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>5</number>
+       </property>
+       <property name="spacing" >
+        <number>3</number>
+       </property>
+       <item row="0" column="0" >
+        <widget class="QLabel" name="lLanguage" >
+         <property name="text" >
+          <string>Language :</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" >
+        <widget class="QComboBox" name="cbLanguages" >
+         <property name="toolTip" >
+          <string>Select language to be configured.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" >
+        <widget class="QLabel" name="lRegExp" >
+         <property name="text" >
+          <string>Reg. Expression :</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1" >
+        <widget class="QLineEdit" name="leRegExp" />
+       </item>
+       <item row="2" column="0" colspan="2" >
+        <widget class="QLabel" name="lLicensing" >
+         <property name="text" >
+          <string>Licensing :</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2" >
+        <widget class="QTextEdit" name="teLicensing" >
+         <property name="font" >
+          <font>
+           <family>Monospace</family>
+          </font>
+         </property>
+         <property name="lineWrapMode" >
+          <enum>QTextEdit::NoWrap</enum>
+         </property>
+         <property name="tabStopWidth" >
+          <number>40</number>
+         </property>
+         <property name="acceptRichText" >
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="wEncoding" >
+      <attribute name="title" >
+       <string>File Encoding</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout" >
+       <item row="0" column="0" >
+        <widget class="QLabel" name="lSourceEncoding" >
+         <property name="text" >
+          <string>Source File Encoding:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" >
+        <widget class="QLabel" name="lTargetEncoding" >
+         <property name="text" >
+          <string>Target File Encoding :</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" >
+        <widget class="QListWidget" name="lwSourceEncoding" />
+       </item>
+       <item row="1" column="1" >
+        <widget class="QListWidget" name="lwTargetEncoding" />
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="dbbButtons" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Apply|QDialogButtonBox::Close</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../resources/ProjectHeaders.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>dbbButtons</sender>
+   <signal>accepted()</signal>
+   <receiver>UIProjectHeaders</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>299</x>
+     <y>370</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dbbButtons</sender>
+   <signal>rejected()</signal>
+   <receiver>UIProjectHeaders</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>367</x>
+     <y>370</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

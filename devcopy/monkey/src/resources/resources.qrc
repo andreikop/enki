@@ -1,0 +1,201 @@
+<RCC>
+    <qresource prefix="/items" >
+        <file alias="comment.png" >icons/items/comment.png</file>
+        <file alias="dynamicfolder.png" >icons/items/dynamicfolder.png</file>
+        <file alias="emptyline.png" >icons/items/emptyline.png</file>
+        <file alias="file.png" >icons/items/file.png</file>
+        <file alias="folder.png" >icons/items/folder.png</file>
+        <file alias="function.png" >icons/items/function.png</file>
+        <file alias="files.png" >icons/items/files.png</file>
+        <file alias="project.png" >icons/items/project.png</file>
+        <file alias="scope.png" >icons/items/scope.png</file>
+        <file alias="path.png" >icons/items/path.png</file>
+        <file alias="value.png" >icons/items/value.png</file>
+        <file alias="variable.png" >icons/items/variable.png</file>
+    </qresource>
+    <qresource prefix="/messages" >
+        <file alias="messages_infos.png" >icons/messages/infos.png</file>
+    </qresource>
+    <qresource prefix="/openedfileexplorer" >
+        <file alias="view-list-tree.png" >icons/openedfileexplorer/view-list-tree.png</file>
+    </qresource>
+    <qresource prefix="/xupeditor" >
+        <file>icons/xupeditor/about.png</file>
+        <file>icons/xupeditor/builder.png</file>
+        <file>icons/xupeditor/compiler.png</file>
+        <file>icons/xupeditor/debugger.png</file>
+        <file>icons/xupeditor/files.png</file>
+        <file>icons/xupeditor/interpreter.png</file>
+        <file>icons/xupeditor/modules.png</file>
+        <file>icons/xupeditor/project.png</file>
+        <file>icons/xupeditor/settings.png</file>
+        <file>icons/xupeditor/values.png</file>
+    </qresource>
+    <qresource prefix="/application" >
+        <file>icons/application/addtab.png</file>
+        <file>icons/application/background.png</file>
+        <file>icons/application/closetab.png</file>
+        <file>icons/application/monkey2.gif</file>
+        <file>icons/application/monkey2.icns</file>
+        <file>icons/application/monkey2.ico</file>
+        <file>icons/application/monkey2.png</file>
+        <file>icons/application/splashscreen.png</file>
+        <file>icons/application/splashscreen_christmas.png</file>
+    </qresource>
+    <qresource prefix="/build" >
+        <file>icons/build/build.png</file>
+        <file>icons/build/clean.png</file>
+        <file>icons/build/execute.png</file>
+        <file>icons/build/misc.png</file>
+        <file>icons/build/rebuild.png</file>
+    </qresource>
+    <qresource prefix="/console" >
+        <file>icons/console/stop.png</file>
+    </qresource>
+    <qresource prefix="/edit" >
+        <file>icons/edit/abbreviation.png</file>
+        <file>icons/edit/close.png</file>
+        <file>icons/edit/copy.png</file>
+        <file>icons/edit/cut.png</file>
+        <file>icons/edit/goto.png</file>
+        <file>icons/edit/next.png</file>
+        <file>icons/edit/paste.png</file>
+        <file>icons/edit/previous.png</file>
+        <file>icons/edit/redo.png</file>
+        <file>icons/edit/replace.png</file>
+        <file>icons/edit/search.png</file>
+        <file>icons/edit/settings.png</file>
+        <file>icons/edit/shortcuts.png</file>
+        <file>icons/edit/text.png</file>
+        <file>icons/edit/translations.png</file>
+        <file>icons/edit/undo.png</file>
+    </qresource>
+    <qresource prefix="/editor" >
+        <file alias="class.png" >icons/editor/class.png</file>
+        <file alias="enum.png" >icons/editor/enum.png</file>
+        <file alias="function.png" >icons/editor/function.png</file>
+        <file alias="member.png" >icons/editor/member.png</file>
+        <file alias="namespace.png" >icons/editor/namespace.png</file>
+        <file alias="struct.png" >icons/editor/struct.png</file>
+        <file alias="typedef.png" >icons/editor/typedef.png</file>
+        <file alias="bookmark_add.png" >icons/editor/bookmark_add.png</file>
+        <file alias="bookmark_remove.png" >icons/editor/bookmark_remove.png</file>
+        <file alias="bookmark.png" >icons/editor/bookmark.png</file>
+        <file alias="break_conditionnal_disable.png" >icons/editor/breakconditiondisable.png</file>
+        <file alias="break_conditionnal_enable.png" >icons/editor/breakconditionenable.png</file>
+        <file alias="break_disable.png" >icons/editor/breakdisable.png</file>
+        <file alias="break_enable.png" >icons/editor/breakenable.png</file>
+        <file alias="play.png" >icons/editor/play.png</file>
+    </qresource>
+    <qresource prefix="/file" >
+        <file>icons/file/backup.png</file>
+        <file>icons/file/clear.png</file>
+        <file>icons/file/close.png</file>
+        <file>icons/file/closeall.png</file>
+        <file>icons/file/new.png</file>
+        <file>icons/file/open.png</file>
+        <file>icons/file/print.png</file>
+        <file>icons/file/quickprint.png</file>
+        <file>icons/file/quit.png</file>
+        <file>icons/file/recents.png</file>
+        <file>icons/file/reload.png</file>
+        <file>icons/file/restore.png</file>
+        <file>icons/file/save.png</file>
+        <file>icons/file/saveall.png</file>
+        <file>icons/file/saveas.png</file>
+        <file>icons/file/session.png</file>
+        <file>icons/file/transparent.png</file>
+        <file>icons/file/sort.png</file>
+    </qresource>
+    <qresource prefix="/help" >
+        <file>icons/help/assistant.png</file>
+        <file>icons/help/keyword.png</file>
+        <file>icons/help/qt.png</file>
+    </qresource>
+    <qresource prefix="/licenses" >
+        <file>texts/license.gpl</file>
+    </qresource>
+    <qresource prefix="/licenses" lang="ru" >
+        <file alias="texts/license.gpl" >texts/license_ru.gpl</file>
+    </qresource>
+    <qresource prefix="/project" >
+        <file>icons/project/add.png</file>
+        <file>icons/project/clear.png</file>
+        <file>icons/project/close.png</file>
+        <file>icons/project/closeall.png</file>
+        <file>icons/project/new.png</file>
+        <file>icons/project/open.png</file>
+        <file>icons/project/project.png</file>
+        <file>icons/project/recents.png</file>
+        <file>icons/project/remove.png</file>
+        <file>icons/project/save.png</file>
+        <file>icons/project/saveall.png</file>
+        <file>icons/project/settings.png</file>
+    </qresource>
+    <qresource prefix="/listeditor" >
+        <file>icons/listeditor/add.png</file>
+        <file>icons/listeditor/clear.png</file>
+        <file>icons/listeditor/down.png</file>
+        <file>icons/listeditor/edit.png</file>
+        <file>icons/listeditor/file.png</file>
+        <file>icons/listeditor/folder.png</file>
+        <file>icons/listeditor/remove.png</file>
+        <file>icons/listeditor/up.png</file>
+        <file>icons/listeditor/go-up.png</file>
+    </qresource>
+    <qresource prefix="/stylesheets" >
+        <file>stylesheets/default.css</file>
+    </qresource>
+    <qresource prefix="/temp" >
+        <file>icons/temp/kcmsystem.png</file>
+        <file>icons/temp/kpf.png</file>
+        <file>icons/temp/kwin.png</file>
+        <file>icons/temp/package_applications.png</file>
+        <file>icons/temp/package_development.png</file>
+        <file>icons/temp/package_system.png</file>
+    </qresource>
+    <qresource prefix="/templates" >
+        <file>icons/templates/console.png</file>
+        <file>icons/templates/dll.png</file>
+        <file>icons/templates/empty.png</file>
+        <file>icons/templates/misc.png</file>
+        <file>icons/templates/namespace.png</file>
+        <file>icons/templates/qdialog.png</file>
+        <file>icons/templates/qmainwindow.png</file>
+        <file>icons/templates/qobject.png</file>
+        <file>icons/templates/qt_console.png</file>
+        <file>icons/templates/qt_dll.png</file>
+        <file>icons/templates/qt_plugin.png</file>
+        <file>icons/templates/qt_form.png</file>
+        <file>icons/templates/qt_gui.png</file>
+        <file>icons/templates/static_lib.png</file>
+        <file>icons/templates/qt_static_lib.png</file>
+        <file>icons/templates/qwidget.png</file>
+        <file>icons/templates/mks.png</file>
+    </qresource>
+    <qresource prefix="/tools" >
+        <file>icons/tools/add.png</file>
+        <file>icons/tools/desktop.png</file>
+        <file>icons/tools/down.png</file>
+        <file>icons/tools/edit.png</file>
+        <file>icons/tools/file.png</file>
+        <file>icons/tools/folder.png</file>
+        <file>icons/tools/help.png</file>
+        <file>icons/tools/icon.png</file>
+        <file>icons/tools/remove.png</file>
+        <file>icons/tools/up.png</file>
+        <file>icons/tools/update.png</file>
+        <file>icons/tools/user.png</file>
+    </qresource>
+    <qresource prefix="/translation" >
+        <file>icons/translation/folder.png</file>
+        <file>icons/translation/translation.png</file>
+        <file>icons/translation/update.png</file>
+    </qresource>
+    <qresource prefix="/view" >
+        <file>icons/view/filtered.png</file>
+        <file>icons/view/next.png</file>
+        <file>icons/view/previous.png</file>
+        <file>icons/view/style.png</file>
+    </qresource>
+</RCC>

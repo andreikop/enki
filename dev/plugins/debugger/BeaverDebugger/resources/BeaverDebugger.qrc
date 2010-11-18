@@ -1,0 +1,6 @@
+<RCC>
+	<qresource>
+		<file>icons/beaverdbg.png</file>
+		<file>icons/open.png</file>
+	</qresource>
+</RCC>

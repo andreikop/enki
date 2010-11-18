@@ -1,0 +1,6 @@
+<RCC>
+	<qresource prefix="/pyqtitems" >
+		<file alias="forms.png">icons/items/forms.png</file>
+		<file alias="python.png">icons/items/python.png</file>
+	</qresource>
+</RCC>

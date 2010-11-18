@@ -1,0 +1,24 @@
+<RCC>
+    <qresource prefix="/assistant-icons" >
+        <file>QtAssistant.png</file>
+        <file>contents.png</file>
+        <file>index.png</file>
+        <file>bookmarks.png</file>
+        <file>search.png</file>
+        <file>filter.png</file>
+        <file>previoustab.png</file>
+        <file>nexttab.png</file>
+        <file>resetzoom.png</file>
+        <file>addtab.png</file>
+        <file>closetab.png</file>
+        <file>home.png</file>
+        <file>next.png</file>
+        <file>previous.png</file>
+        <file>wrap.png</file>
+        <file>zoomin.png</file>
+        <file>zoomout.png</file>
+    </qresource>
+    <qresource prefix="/documentation" >
+        <file>assistant.qch</file>
+    </qresource>
+</RCC>
