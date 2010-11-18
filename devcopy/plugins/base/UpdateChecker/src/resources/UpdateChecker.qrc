@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/icons" >
-        <file>UpdateChecker.png</file>
-    </qresource>
-</RCC>
