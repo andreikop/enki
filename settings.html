@@ -1,0 +1,152 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>settings — Set and get settings from config files &mdash; mksv3 v3.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="mksv3 v3.0.0 documentation" href="index.html" />
+    <link rel="next" title="mainwindow — Main window of the UI. Fills main menu." href="mainwindow.html" />
+    <link rel="prev" title="workspace — Open documents and manage it" href="workspace.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mainwindow.html" title="mainwindow — Main window of the UI. Fills main menu."
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="workspace.html" title="workspace — Open documents and manage it"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">mksv3 v3.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-mks.settings"></span><div class="section" id="settings-set-and-get-settings-from-config-files">
+<h1>settings &#8212; Set and get settings from config files<a class="headerlink" href="#settings-set-and-get-settings-from-config-files" title="Permalink to this headline">¶</a></h1>
+<p>Module provides interface for store core and plugins settings and hardcodes default 
+settings for MkS core.</p>
+<p>If you added new option to the MkS core, do not forget to add default value for it here.
+If you use settings from your plugin, you must call mks.settings.registerOption before
+read and write it.</p>
+<p>MODULE STUB. Functions for register new option and change opiton value will be added later</p>
+<dl class="function">
+<dt id="mks.settings.bin">
+<tt class="descclassname">mks.settings.</tt><tt class="descname">bin</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.settings.bin" title="Permalink to this definition">¶</a></dt>
+<dd><p>bin(QTextStream) -&gt; QTextStream</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mks.settings.hex">
+<tt class="descclassname">mks.settings.</tt><tt class="descname">hex</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.settings.hex" title="Permalink to this definition">¶</a></dt>
+<dd><p>hex(QTextStream) -&gt; QTextStream</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mks.settings.oct">
+<tt class="descclassname">mks.settings.</tt><tt class="descname">oct</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.settings.oct" title="Permalink to this definition">¶</a></dt>
+<dd><p>oct(QTextStream) -&gt; QTextStream</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mks.settings.value">
+<tt class="descclassname">mks.settings.</tt><tt class="descname">value</tt><big>(</big><em>optionName</em><big>)</big><a class="headerlink" href="#mks.settings.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get option value.</p>
+<p>Raises exception, if option is unknown</p>
+<p>See module source code for list of predefined values</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">qscintilla</span><span class="o">.</span><span class="n">setEdgeColor</span><span class="p">(</span> <span class="n">mks</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s">&quot;Editor/EdgeColor&quot;</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>Functions for register new option and change opiton value will be added later</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="workspace.html"
+                        title="previous chapter">workspace &#8212; Open documents and manage it</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="mainwindow.html"
+                        title="next chapter">mainwindow &#8212; Main window of the UI. Fills main menu.</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/settings.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mainwindow.html" title="mainwindow — Main window of the UI. Fills main menu."
+             >next</a> |</li>
+        <li class="right" >
+          <a href="workspace.html" title="workspace — Open documents and manage it"
+             >previous</a> |</li>
+        <li><a href="index.html">mksv3 v3.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Andrei Kopats, Filipe Azevedo.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+    </div>
+  </body>
+</html>
