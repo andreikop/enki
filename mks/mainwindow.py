@@ -1,8 +1,9 @@
 """
-Main window of the IDE.
-Class creates window elements, such as main menu and other elements
-Instance accessible as mks.monkeycore.mainwindow().
-First time created by monkeycore.
+mainwindow --- Main window of the UI. Fills main menu.
+======================================================
+
+
+Module contains :class:`mks.mainwindow.MainWindow` implementation
 """
 
 from PyQt4.QtCore import Qt
@@ -20,10 +21,20 @@ import mks.monkeycore
 
 class MainWindow(pMainWindow):
     """
-    Main window of the IDE
-    Class creates window elements, such as main menu and other elements
-    Instance accessible as mks.monkeycore.mainwindow(),
-    First time created by monkeycore.
+    Main UI window
+    
+    Class creates window elements, fills main menu with items.
+    
+    If you need to connect to some existing menu item *triggered()* signal - check action name 
+    in the class constructor, than use: ::
+        
+        mks.monkeycore.menuBar().action( "mFile/aOpen" ).triggered.connect(self.myCoolMethod)
+    
+    MainWindow instance accessible as ::
+    
+        mks.monkeycore.mainwindow()
+    
+    Created by monkeycore
     """
     
     aboutToClose = pyqtSignal()

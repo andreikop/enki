@@ -13,8 +13,6 @@ import mks.monkeycore
 Use os.path.samefile
 def isSameFile(  left,  right ):
 
-    
-"""
 
 '''!
     \details Return a list of all know text codecs
@@ -79,8 +77,6 @@ def getFiles( fromDir,  filter, recursive ):
     else:
         return getFiles( fromDir, QStringList( filter ), recursive )
 
-
-"""TODO
 def getOpenDialog( QFileDialog.FileMode fileMode,  QString& caption,  QString& fileName,  QString& filter, QWidget* parent, QFileDialog.AcceptMode acceptMode = QFileDialog.AcceptOpen ):
     # create dialg
     QFileDialog* dlg = new QFileDialog( parent, caption, fileName, filter )
@@ -220,7 +216,6 @@ def getSaveFileName(  QString& caption,  QString& fileName,  QString& filter, QW
 '''
 def getExistingDirectory(  QString& caption,  QString& fileName, QWidget* parent ):
     return QFileDialog.getExistingDirectory( parent, caption.isEmpty() ? QObject.tr( "Select a folder" ) : caption, fileName )
-"""
 
 '''!
     \details Return a tokenized string, ie: the token $HOME$ is replaced by the home path of the user
@@ -244,7 +239,6 @@ def unTokenizeHome( string ):
 def availableLanguagesSuffixes():
     return mks.monkeycore.fileManager().associations()
 
-"""TODO
 '''!
     \details Return all available files suffixes
 '''
@@ -303,7 +297,6 @@ def availableFilesFilters():
     # return filters list
     return f
 
-"""
 
 '''!
     \details Return the base settings path used by all option in this namespace
@@ -318,7 +311,6 @@ def settingsPath():
 def scintillaSettingsPath():
     return "/Scintilla"
 
-"""TODO
 '''!
     \details Reload all available api files
 '''
@@ -366,121 +358,6 @@ def apisForLexer( QsciLexer* lexer ):
 
     # return apis
     return mGlobalsAPIs.value( lexer.language() )
-
-
-'''!
-    \details Return the language of a file name
-    \param fileName The fil name to get language from
-'''
-def languageForFileName(  QString& fileName ):
-    QsciLexer* lexer = lexerForFileName( fileName )
-    return lexer ? QString( lexer.language() ) : QString()
-
-
-'''!
-    \details Return a QsciLexer for the given file name
-    \param fileName The filenae to get lexer from
-'''
-def lexerForFileName(  QString& fileName ):
-    # get suffixes
-    QMap<QString, QStringList> l = availableFilesSuffixes()
-    # check suffixe
-    foreach ( QString k, l.keys() )
-    if  QDir.match( l.value( k ), fileName ) :
-        return lexerForLanguage( k )
-    return 0
-
-
-'''!
-    \details Return a QsciLexer for the given language
-    \param language The language to get lexer from
-'''
-def lexerForLanguage(  QString& language ):
-    if  mGlobalsLexers.keys().contains( language ) :
-        return mGlobalsLexers.value( language )
-    # get language
-     QString ln = language.toLower()
-    # lexer
-    QsciLexer* l = 0
-    # init lexer
-    if  ln == "bash" :
-        l = new QsciLexerBash( QApplication.instance() )
-    elif  ln == "batch" :
-        l = new QsciLexerBatch( QApplication.instance() )
-    elif  ln == "c#" :
-        l = new QsciLexerCSharp( QApplication.instance() )
-    elif  ln == "c++" :
-        l = new QsciLexerCPP( QApplication.instance() )
-    elif  ln == "cmake" :
-        l = new QsciLexerCMake( QApplication.instance() )
-    elif  ln == "css" :
-        l = new QsciLexerCSS( QApplication.instance() )
-    elif  ln == "d" :
-        l = new QsciLexerD( QApplication.instance() )
-    elif  ln == "diff" :
-        l = new QsciLexerDiff( QApplication.instance() )
-    elif  ln == "html" :
-        l = new QsciLexerHTML( QApplication.instance() )
-    elif  ln == "idl" :
-        l = new QsciLexerIDL( QApplication.instance() )
-    elif  ln == "java" :
-        l = new QsciLexerJava( QApplication.instance() )
-    elif  ln == "javascript" :
-        l = new QsciLexerJavaScript( QApplication.instance() )
-    elif  ln == "lua" :
-        l = new QsciLexerLua( QApplication.instance() )
-    elif  ln == "makefile" :
-        l = new QsciLexerMakefile( QApplication.instance() )
-    elif  ln == "pov" :
-        l = new QsciLexerPOV( QApplication.instance() )
-    elif  ln == "perl" :
-        l = new QsciLexerPerl( QApplication.instance() )
-    elif  ln == "properties" :
-        l = new QsciLexerProperties( QApplication.instance() )
-    elif  ln == "python" :
-        l = new QsciLexerPython( QApplication.instance() )
-    elif  ln == "ruby" :
-        l = new QsciLexerRuby( QApplication.instance() )
-    elif  ln == "sql" :
-        l = new QsciLexerSQL( QApplication.instance() )
-    elif  ln == "tex" :
-        l = new QsciLexerTeX( QApplication.instance() )
-    elif  ln == "vhdl" :
-        l = new QsciLexerVHDL( QApplication.instance() )
-#if QSCINTILLA_VERSION >= 0x020300
-    elif  ln == "tcl" :
-        l = new QsciLexerTCL( QApplication.instance() )
-    elif  ln == "fortran" :
-        l = new QsciLexerFortran( QApplication.instance() )
-    elif  ln == "fortran77" :
-        l = new QsciLexerFortran77( QApplication.instance() )
-    elif  ln == "pascal" :
-        l = new QsciLexerPascal( QApplication.instance() )
-    elif  ln == "postscript" :
-        l = new QsciLexerPostScript( QApplication.instance() )
-    elif  ln == "xml" :
-        l = new QsciLexerXML( QApplication.instance() )
-    elif  ln == "yaml" :
-        l = new QsciLexerYAML( QApplication.instance() )
-#endif
-#if QSCINTILLA_VERSION > 0x020400
-    elif  ln == "verilog" :
-        l = new QsciLexerVerilog( QApplication.instance() )
-    elif  ln == "spice" :
-        l = new QsciLexerSpice( QApplication.instance() )
-#endif
-    # init lexer settings
-    if  l :
-        # add lexer to global lexers hash
-        mGlobalsLexers[l.language()] = l
-        # read settings
-        pSettings* ss = mks.monkeycore.settings()
-        l.readSettings( *ss, scintillaSettingsPath().toLocal8Bit().constData() )
-        # set apis
-        l.setAPIs( apisForLexer( l ) )
-
-    # return lexer
-    return l
 
 '''!
     \details Return True if can set \c property for \c lexer to \c value else return False
@@ -785,199 +662,6 @@ def setMacSmallSize( QWidget* widget, bool small, bool recursive ):
         w.setAttribute( Qt.WA_MacSmallSize, small )
 
 """
-
-'''!
-    \details Save files on custom actions triggered ( builder, debugger, interpreter )
-    \param save True to save, else False
-'''
-def setSaveFilesOnCustomAction( save ):
-    mks.monkeycore.settings().setValue( settingsPath() +"/SaveFilesOnCustomAction", save )
-
-
-'''!
-    \details Return True if files are saved on custom actions triggered, else False
-'''
-def saveFilesOnCustomAction():
-    return mks.monkeycore.settings().value( settingsPath() +"/SaveFilesOnCustomAction", False ).toBool()
-
-
-'''!
-    \details Set if tabs have close button
-    \param have True to have button, else False
-'''
-def setTabsHaveCloseButton( have ):
-    mks.monkeycore.settings().setValue( settingsPath() +"/TabsHaveCloseButton", have )
-
-
-'''!
-    \details Return if tabs have  close button
-'''
-def tabsHaveCloseButton():
-    return mks.monkeycore.settings().value( settingsPath() +"/TabsHaveCloseButton", False ).toBool()
-
-
-'''!
-    \details Set tabs have shortcut
-    \param have True for shortcut, else False
-'''
-def setTabsHaveShortcut( have ):
-    mks.monkeycore.settings().setValue( settingsPath() +"/TabsHaveShortcut", have )
-
-
-'''!
-    \details Return True if tabs have shortcut, else False
-'''
-def tabsHaveShortcut():
-    return mks.monkeycore.settings().value( settingsPath() +"/TabsHaveShortcut", False ).toBool()
-
-
-'''!
-    \details Set tabs text are elided
-    \param elided True for elided text, else False
-'''
-def setTabsElided( have ):
-    mks.monkeycore.settings().setValue( settingsPath() +"/TabsElided", have )
-
-
-'''!
-    \details Return True if tabs text is elided, else False
-'''
-def tabsElided():
-    return mks.monkeycore.settings().value( settingsPath() +"/TabsElided", False ).toBool()
-
-
-'''!
-    \details Set tabs text color
-    \param color The tabs text color
-'''
-def setTabsTextColor(  color ):
-    mks.monkeycore.settings().setValue( settingsPath() +"/TabsTextColor", color )
-
-
-'''!
-    \details Return the tabs text color
-'''
-def tabsTextColor():
-    return mks.monkeycore.settings().value( settingsPath() +"/TabsTextColor", QColor( Qt.black ) ).value<QColor>()
-
-
-'''!
-    \details Set the current tab text color
-    \param color The current tab text color
-'''
-def setCurrentTabTextColor(  color ):
-    mks.monkeycore.settings().setValue( settingsPath() +"/CurrentTabTextColor", color )
-
-
-'''!
-    \details Return the current tab text color
-'''
-def currentTabTextColor():
-    return mks.monkeycore.settings().value( settingsPath() +"/CurrentTabTextColor", QColor( Qt.blue ) ).value<QColor>()
-
-
-'''!
-    \details Set the workspace doc mode
-    \param mode The mode to apply
-'''
-def setDocumentMode( mode ):
-    mks.monkeycore.settings().setValue( settingsPath() +"/DocMode", mode )
-
-
-'''!
-    \details Return the mod used by the workspace
-'''
-def documentMode():
-    return mks.monkeycore.settings().value( settingsPath() +"/DocMode", mks.monkeycore.workspace().NoTabs ).toInt()
-
-'''!
-    \details Set if session must be save on close
-    \param save If True, session is saved, else not
-'''
-def setSaveSessionOnClose( save ):
-    mks.monkeycore.settings().setValue( settingsPath() +"/SaveSessionOnClose", save )
-
-
-'''!
-    \details Return True if session is saved at close, else False
-'''
-def saveSessionOnClose():
-    return mks.monkeycore.settings().value( settingsPath() +"/SaveSessionOnClose", True ).toBool()
-
-
-'''!
-    \details Set if session is restored on startup
-    \param restore If True, session will be restored on startup, else not
-'''
-def setRestoreSessionOnStartup( restore ):
-    mks.monkeycore.settings().setValue( settingsPath() +"/RestoreSessionOnStartup", restore )
-
-
-'''!
-    \details Return True if session will be restored on startup, else False
-'''
-def restoreSessionOnStartup():
-    return mks.monkeycore.settings().value( settingsPath() +"/RestoreSessionOnStartup", True ).toBool()
-
-
-'''!
-    \details Set if quick file access combobox is visible in context toolbar
-    \param show If True, combobox is visible, else it's not visible
-'''
-def setShowQuickFileAccess( show ):
-    mks.monkeycore.settings().setValue( settingsPath() +"/ShowQuickFileAccess", show )
-
-
-'''!
-    \details Return True if a quick file access combobox is visible in the document context toolbar
-'''
-def showQuickFileAccess():
-    return mks.monkeycore.settings().value( settingsPath() +"/ShowQuickFileAccess", False ).toBool()
-
-
-'''!
-    \details Set the sorting mode used by the Opened Files List dock
-    \param mode Specify the used mode
-'''
-def setOpenedFileSortingMode( mode ):
-    mks.monkeycore.settings().setValue( settingsPath() +"/OpenedFileSortingMode", mode )
-
-
-'''!
-    \details Return the sorting mode used by the Opened Files List dock
-'''
-def openedFileSortingMode():
-    return mks.monkeycore.settings().value( settingsPath() +"/OpenedFileSortingMode", pOpenedFileModel.OpeningOrder ).toInt()
-
-
-'''!
-    \details Set if auto syntax check is performed
-    \param activate If True, automatic syntax check will be performed, else not
-'''
-def setAutoSyntaxCheck( activate ):
-    mks.monkeycore.settings().setValue( settingsPath() +"/AutoSyntaxCheck", activate )
-
-
-'''!
-    \details Return True if auto syntax check is performed, else False
-'''
-def autoSyntaxCheck():
-    return mks.monkeycore.settings().value( settingsPath() +"/AutoSyntaxCheck", False ).toBool()
-
-'''!
-    \details Set the default used codec for opening/saving files
-    \param codec The codec to use
-'''
-def setDefaultCodec( codec ):
-    mks.monkeycore.settings().setValue( settingsPath() +"/DefaultCodec", codec )
-
-
-'''!
-    \details Return the default used codec for opening/saving files. Default UTF-8
-'''
-def defaultCodec():
-    return mks.monkeycore.settings().value( settingsPath() +"/DefaultCodec", "UTF-8" ).toString()
-
 
 def getIcon(name):
     """Loads QIcon from the icons path and returns it. Example:
