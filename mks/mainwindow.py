@@ -37,8 +37,10 @@ class MainWindow(pMainWindow):
     Created by monkeycore
     """
     
+    """TODO
     aboutToClose = pyqtSignal()
     urlsDropped = pyqtSignal()
+    """
 
     def __init__(self):
         pMainWindow.__init__(self)
