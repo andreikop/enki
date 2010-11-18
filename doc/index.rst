@@ -26,7 +26,11 @@ MkS core modules:
 
 .. toctree::
 
+   monkeycore.rst
    workspace.rst
+   settings.rst
+   mainwindow.rst
+
 
 Indices and tables
 ==================

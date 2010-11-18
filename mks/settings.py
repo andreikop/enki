@@ -1,8 +1,15 @@
-"""Module provides interface for store core and plugins settings and hardcodes default 
+"""
+settings --- Set and get settings from config files
+===================================================
+
+Module provides interface for store core and plugins settings and hardcodes default 
 settings for MkS core.
+
 If you added new option to the MkS core, do not forget to add default value for it here.
-if you use settings from your plugin, you must call mks.settings.registerOption before
+If you use settings from your plugin, you must call mks.settings.registerOption before
 read and write it.
+
+MODULE STUB. Functions for register new option and change opiton value will be added later
 """
 
 import os
@@ -13,7 +20,7 @@ from PyQt4.QtGui import *
 
 from PyQt4.Qsci import *
 
-defaults = {
+_defaults = {
 "Editor/SelectionBackgroundColor" : QColor( "#bdff9b" ),
 "Editor/SelectionForegroundColor" : QColor( "#000000" ),
 "Editor/DefaultDocumentColours" : False,
@@ -101,17 +108,37 @@ defaults = {
 "Editor/MarginsBackgroundColor": QColor( "#c0c0c0" ),
 "Editor/MarginsForegroundColor": QColor( "#ffffff" ),
 "Editor/MarginsFont" : QFont(),
+"DefaultCodec" : "UTF-8",
+"AutoSyntaxCheck" : "False",
+"OpenedFileSortingMode": OpeningOrder ,
+RestoreSessionOnStartup": True 
+SaveSessionOnClose": True
+SaveFilesOnCustomAction", False 
+
+
 """
 
 if sys.platform.startswith('win'):  # Windows platform
-    defaults["Editor/DefaultDocumentFont"] = QFont( "Courier", 10 )
+    _defaults["Editor/DefaultDocumentFont"] = QFont( "Courier", 10 )
 elif sys.platform.startswith('darwin'):  # MAC platform
-    defaults["Editor/DefaultDocumentFont"] = QFont( "Menlo", 11 )
+    _defaults["Editor/DefaultDocumentFont"] = QFont( "Menlo", 11 )
 else:  # probably, Linux
-    defaults["Editor/DefaultDocumentFont"] = QFont( "Monospace", 9 )
+    _defaults["Editor/DefaultDocumentFont"] = QFont( "Monospace", 9 )
 
-def value(optionName):  # TODO it is temporary realisation
-    return defaults[optionName]
+def value(optionName):
+    """Get option value.
+    
+    Raises exception, if option is unknown
+    
+    See module source code for list of predefined values
+    
+    Example: ::
+    
+        self.qscintilla.setEdgeColor( mks.settings.value("Editor/EdgeColor") )
+    
+    Functions for register new option and change opiton value will be added later
+    """
+    return _defaults[optionName]
 
 """
 import sys

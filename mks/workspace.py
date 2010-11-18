@@ -1,13 +1,18 @@
 """
+workspace --- Open documents and manage it
+==========================================
 
-In MkS terminology, Workspace is main working area, where documents are placed.
-Document is widget on workspace. Here is examples of documents:
+Terminology:
+
+Workspace - main working area, where documents are placed.
+
+Document - widget on workspace. Here is examples of documents:
 
 * Textual editor
 * QtDesigner
 * QtAssistant
 
-Document classes are herited from :class:AbstractDocument.
+Document classes are herited from :class:`AbstractDocument`
 
 :class:`mks.workspace.Workspace` - module API
 

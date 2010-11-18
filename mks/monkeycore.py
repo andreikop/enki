@@ -1,7 +1,11 @@
 """
-Core module initializes global system instances (singletones) and
-servers pointers to this instances
-Examples of instances is main window, workspace, console manager, ...
+monkeycore --- Get instances of core classes, initialize and terminate the system
+=================================================================================
+
+
+Module initializes system at startup, terminates it, when mksv3 closed,
+and used for get core instances, such as main window, workspace, etc.
+
 """
 
 """TODO
@@ -47,6 +51,11 @@ def _showMessage(splash, message):
     splash.show()
 """
 def init():
+    """Initialize the system, create main window, load plugins.
+    
+    Called by main()
+    """
+    
     """TODO
     # create splashscreen
     if _isXmas():
@@ -180,10 +189,17 @@ def init():
 """
 
 def term():
+    """Terminate plugins and core modules
+    
+    Called by main()
+    """
     pass
 
 def mainWindow():
-    """Main window instance (mks.mainwindow.MainWindow)"""
+    """Get :class:`mks.mainwindow.MainWindow` instance 
+    
+    Instance created, if not exists yet
+    """
     global _mainWindow
     if _mainWindow is None:
         import mks.mainwindow  # not global import, for avoid crossimports conflicts. TODO find better solution?
@@ -191,11 +207,17 @@ def mainWindow():
     return _mainWindow
 
 def menuBar():
-    """Main window menubar instance (fresh framework pMenubar)"""
+    """Get main window menu bar.
+    
+    Instance created, if not exists yet
+    """
     return mainWindow().menuBar()
 
 def workspace():
-    """Workspace instance (mks.workspace.Workspace)"""
+    """Get :class:`mks.workspace.Workspace` instance
+    
+    Instance created, if not exists yet
+    """
     global _workspace
     if _workspace is None:
         import mks.workspace  # not global import, for avoid crossimports conflicts. TODO find better solution?
