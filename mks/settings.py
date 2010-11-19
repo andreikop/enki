@@ -15,8 +15,8 @@ MODULE STUB. Functions for register new option and change opiton value will be a
 import os
 import sys
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt4.QtCore import Qt
+from PyQt4.QtGui import QColor, QFont
 
 from PyQt4.Qsci import *
 

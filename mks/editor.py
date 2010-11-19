@@ -3,8 +3,8 @@
 import os.path
 import shutil
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt4.QtCore import Qt, QDir, QEvent
+from PyQt4.QtGui import QFrame, QInputDialog
 
 from PyQt4.Qsci import *
 
