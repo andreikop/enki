@@ -26,8 +26,11 @@ import sys
 
 from PyQt4 import uic
 
-from PyQt4.QtGui import QTreeView, QMdiSubWindow, QMdiArea, QFileDialog, QFrame, QVBoxLayout, QApplication, QIcon
-from PyQt4.QtCore import Qt, QObject, QAbstractItemModel, QTimer, QMimeData, QEvent, QFileInfo, QModelIndex, QVariant, pyqtSignal
+from PyQt4.QtGui import QTreeView, QMdiSubWindow, QMdiArea, QFileDialog, \
+                        QFrame, QVBoxLayout, QApplication, QIcon, QMenu, \
+                        QMessageBox
+from PyQt4.QtCore import Qt, QObject, QAbstractItemModel, QTimer, QMimeData, \
+                         QEvent, QFileInfo, QModelIndex, QVariant, pyqtSignal
 
 import PyQt4.fresh
 
@@ -990,7 +993,9 @@ class Workspace(QFrame):
         # init document connections
         document.fileOpened.connect(self.document_fileOpened)
         document.contentChanged.connect(self.document_contentChanged)
-        document.modifiedChanged.connect(self.document_modifiedChanged)
+        """
+        document.modifiedChanged.connect(self._onDocumentModifiedChanged)
+        """TODO
         document.fileClosed.connect(self.document_fileClosed)
         document.fileReloaded.connect(self.document_fileReloaded)
         """
@@ -1241,13 +1246,13 @@ class Workspace(QFrame):
         path = document.filePath()
         
         self.documentChanged.emit( document )
-
+    """
     
-    def document_modifiedChanged(self, modified ):
+    def _onDocumentModifiedChanged(self, modified ):
         document = self.sender()
         self._documentModifiedChanged.emit( document, modified )
     
-
+    """TODO
     def document_fileClosed(self):
         document = self.sender()
         mtb = mks.monkeycore.multiToolBar()
