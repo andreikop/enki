@@ -12,7 +12,7 @@ and used for get core instances, such as main window, workspace, etc.
 import sys
 from datetime import datetime
 """
-from PyQt4.QtCore import *
+#from PyQt4.QtCore import 
 """TODO
 from PyQt4.QtGui import *
 

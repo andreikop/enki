@@ -26,8 +26,8 @@ import sys
 
 from PyQt4 import uic
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from PyQt4.QtGui import QTreeView, QMdiSubWindow, QMdiArea, QFileDialog, QFrame, QVBoxLayout, QApplication, QIcon
+from PyQt4.QtCore import Qt, QObject, QAbstractItemModel, QTimer, QMimeData, QEvent, QFileInfo, QModelIndex, QVariant, pyqtSignal
 
 import PyQt4.fresh
 
