@@ -23,6 +23,8 @@ import mks.settings
 _mainWindow = None
 _workspace = None
 
+_searchreplace = None
+
 """TODO
 _settings = None
 _pluginsManager = None
@@ -133,12 +135,18 @@ def init():
     import mks.editor  # TODO would be done, when plugin loaded, remove this 2 lines from here
     mks.monkeycore.workspace().setTextEditorClass(mks.editor.Editor) 
     
-    workspace().openFile('/home/a/tmp/samples/1.txt') # FIXME
-    workspace().openFile('/home/a/tmp/samples/2') # FIXME
-    workspace().openFile('/home/a/tmp/samples/main.cpp') # FIXME
+    workspace().openFile('/home/a/tmp/src-samples/1.txt') # FIXME
+    workspace().openFile('/home/a/tmp/src-samples/2') # FIXME
+    workspace().openFile('/home/a/tmp/src-samples/main.cpp') # FIXME
     #workspace().openFile('/home/a/tmp/t.txt') # FIXME
     #workspace().openFile('/home/a/tmp/bug') # FIXME
 
+    # TODO to plugins manger
+    import mks.searchandreplace
+    global _searchreplace
+    
+    _searchreplace = mks.searchandreplace.SearchAndReplace()
+    
     """TODO
     # init abbreviations manager
     _showMessage( splash, splash.tr( "Initializing abbreviations manager..." ) )
@@ -193,6 +201,7 @@ def term():
     
     Called by main()
     """
+    _searchreplace = None
     pass
 
 def mainWindow():
