@@ -1,9 +1,0 @@
-<RCC>
-	<qresource>
-		<file alias="filewatcher.png">icons/filewatcher.png</file>
-		<file alias="modified.png">icons/modified.png</file>
-		<file alias="deleted.png">icons/deleted.png</file>
-		<file alias="modified-externally-modified.png">icons/modified-externally-modified.png</file>
-		<file alias="modified-externally-deleted.png">icons/modified-externally-deleted.png</file>
-	</qresource>
-</RCC>
