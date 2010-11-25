@@ -97,24 +97,26 @@ class MainWindow(pMainWindow):
         """
         mb.action( "aQuit", self.tr( "&Quit" ), mks.monkeystudio.getIcon("file/quit.png" ), "Ctrl+Q", self.tr( "Quit the application" ) )
         mb.endGroup()
-        """TODO
+        
         mb.menu( "mEdit", self.tr( "Edit" ) )
         mb.beginGroup( "mEdit" )
-
+        """TODO
         mb.action( "aSettings", self.tr( "Settings..." ), QIcon( ":/edit/icons/edit/settings.png" ), "", self.tr( "Edit the application settings" ) )
         mb.action( "aShortcutsEditor", self.tr( "Shortcuts Editor..." ), QIcon( ":/edit/icons/edit/shortcuts.png" ), "Ctrl+Shift+E", self.tr( "Edit the application shortcuts" ) )
         mb.action( "aTranslations", self.tr( "Translations..." ), QIcon( ":/edit/icons/edit/translations.png" ), "Ctrl+T", self.tr( "Change the application translations files" ) )
         mb.action( "aSeparator1" )
         mb.action( "aSeparator3" )
+        """
         mb.menu( "mSearchReplace", self.tr( "&Search && Replace" ) )
         mb.action( "mSearchReplace/aSearchFile", self.tr( "&Search..." ), QIcon( ":/edit/icons/edit/search.png" ), "Ctrl+F", self.tr( "Search in the current file..." ) )
+        """TODO
         mb.menu( "mAllCommands", self.tr( "&All Commands" ), QIcon( ":/edit/icons/edit/commands.png" ) )
         
         mb.action( "aSeparator5" )
         mb.action( "aExpandAbbreviation", self.tr( "Expand Abbreviation" ), QIcon( ":/edit/icons/edit/abbreviation.png" ), "Ctrl+E", self.tr( "Expand Abbreviation" ) ).setEnabled( False )
         mb.action( "aPrepareAPIs", self.tr( "Prepare APIs" ), QIcon( ":/edit/icons/edit/prepareapis.png" ), "Ctrl+Alt+P", self.tr( "Prepare the APIs files for auto completion / calltips" ) )
-        mb.endGroup()
         """
+        mb.endGroup()
         
         mb.menu( "mView", self.tr( "View" ) )
         mb.beginGroup( "mView" )
