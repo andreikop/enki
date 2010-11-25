@@ -1144,13 +1144,17 @@ class Workspace(QFrame):
         prevIndex = (curIndex - 1 + len(self._sortedDocuments)) % len(self._sortedDocuments)
         self.setCurrentDocument( self._sortedDocuments[prevIndex] )
     
-    """TODO
-    def focusEditor(self):
+    
+    def focusCurrentDocument(self):
+        """Set focus (cursor) to current document.
+        Used if user finished work with some dialog, and, probably, want's to edit text
+        """
         document = self.currentDocument()
 
         if  document :
             document.setFocus()
     
+    """TODO
     def tile(self):
         self.mdiArea.tileSubWindows()
 

@@ -16,7 +16,7 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
     ModeFlagSearch = 0x1
     ModeFlagReplace = 0x2
     ModeFlagFile = 0x4
-    ModeFlagDirectory = 0x4
+    ModeFlagDirectory = 0x8
     ModeFlagProjectFiles = 0x10
     ModeFlagOpenedFiles = 0x11
 
@@ -42,15 +42,20 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
         QObject.__init__(self)
         self.widget = SearchWidget( self )
         
-        self.actions = ( ("aReplaceFile", "&Replace...", "edit/replace.png", "Ctrl+R", "Replace in the current file...", self.modeSwitchTriggered, self.ModeReplace),
+        # List if search actions. First acition created by MainWindow, so, do not fill text
+        self.actions = (("aSearchFile", "", "", "", "", self.modeSwitchTriggered, self.ModeSearch),
+                        ("aReplaceFile", "&Replace...", "edit/replace.png", "Ctrl+R", "Replace in the current file...", self.modeSwitchTriggered, self.ModeReplace),
                         ("aSearchPrevious", "Search &Previous", "edit/previous.png", "Shift+F3", "Search previous occurrence", self.widget.on_pbPrevious_clicked, None),
-                        ("aSearchNext", "Search &Next", "edit/next.png", "F3", "Search next occurrence", self.widget.on_pbNext_clicked, None),
-                        ("aSearchDirectory", "Search in &Directory...", "search-replace-directory.png", "Ctrl+Shift+F", "Search in directory...", self.modeSwitchTriggered, self.ModeSearch),
+                        ("aSearchNext", "Search &Next", "edit/next.png", "F3", "Search next occurrence", self.widget.on_pbNext_clicked, None))
+        """TODO
+                                ("aSearchDirectory", "Search in &Directory...", "search-replace-directory.png", "Ctrl+Shift+F", "Search in directory...", self.modeSwitchTriggered, self.ModeSearchDirectory),
                         ("aReplaceDirectory", "Replace in Director&y...", "search-replace-directory.png", "Ctrl+Shift+R", "Replace in directory...", self.modeSwitchTriggered, self.ModeReplaceDirectory),
                         ("aSearchProjectFiles", "Search in Project &Files...", "search-replace-project-files.png", "Ctrl+Meta+F", "Search in the current project files..", self.modeSwitchTriggered, self.ModeSearchProjectFiles),
                         ("aReplaceProjectFiles", "Replace in Projec&t Files...", "search-replace-project-files.png", "Ctrl+Meta+R", "Replace in the current project files...", self.modeSwitchTriggered, self.ModeReplaceProjectFiles),
                         ("aSearchOpenedFiles", "Search in &Opened Files...", "search-replace-opened-files.png", "Ctrl+Alt+Meta+F", "Search in opened files...", self.modeSwitchTriggered, self.ModeSearchOpenedFiles),
                         ("aReplaceOpenedFiles", "Replace in Open&ed Files...", "search-replace-opened-files.png", "Ctrl+Alt+Meta+R", "Replace in opened files...", self.modeSwitchTriggered, self.ModeReplaceOpenedFiles))
+        """
+
         
         mks.monkeycore.workspace().layout().addWidget( self.widget )
         self.widget.setVisible( False )
@@ -70,7 +75,7 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
         for action in self.actions:
             actObject = mb.action(action[0], self.tr(action[1]), mks.monkeystudio.getIcon(action[2]), self.tr(action[3]), self.tr(action[4]))
             actObject.triggered.connect(action[5])
-            actObject.modeToSwitch = action[6]
+            actObject.setData(action[6])
         mb.endGroup()
 
     def __del__(self):
@@ -84,18 +89,18 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
         mb.endGroup()
     
     def modeSwitchTriggered(self):
-        newMode = self.sender().modeToSwitch
+        newMode = self.sender().data().toInt()[0]
         # TODO if  ( document and document.editor() ) or not document :
-        if mode & ModeFlagFile:
+        if newMode & SearchAndReplace.ModeFlagFile:
             # TODO check if editor is a QScintilla
-            self.widget.setMode(mode)
-        elif mode & ModeFlagDirectory:
-            self.widget.setMode(mode)
-        elif mode & ModeFlagProjectFiles:  # TODO
+            self.widget.setMode(newMode)
+        elif newMode & SearchAndReplace.ModeFlagDirectory:
+            self.widget.setMode(newMode)
+        elif newMode & SearchAndReplace.ModeFlagProjectFiles:  # TODO
             pass
-        elif mode & ModeFlagOpenedFiles:
+        elif newMode & SearchAndReplace.ModeFlagOpenedFiles:
             if mks.workspace.openedDocuments():  # TODO check if have file based document
-                self.widget.setMode(mode)
+                self.widget.setMode(newMode)
 
 
 class Properties:  # TODO rework it
@@ -115,6 +120,14 @@ class SearchWidget(QFrame):
     """Widget, appeared, when Ctrl+F pressed.
     Has different forms for different search modes
     """
+    
+    Search = 'search'
+    Replace = 'replace'
+    
+    Normal = 'normal'
+    Good = 'good'
+    Bad = 'bad'
+    
     def __init__(self, plugin):
         QFrame.__init__(self, mks.monkeycore.workspace())
         self.plugin = plugin
@@ -149,7 +162,7 @@ class SearchWidget(QFrame):
         
         # mode actions
         self.tbMode = QToolButton( self.cbSearch.lineEdit() )
-        self.tbMode.setIcon( mks.monkeystudio.getIcon( "misc.png" ) )
+        self.tbMode.setIcon( mks.monkeystudio.getIcon( "build/misc.png" ) )
         self.tbMode.setPopupMode( QToolButton.InstantPopup )
         self.tbMode.setMenu( mks.monkeycore.menuBar().menu( "mEdit/mSearchReplace" ) )
         self.tbMode.setCursor( Qt.ArrowCursor )
@@ -157,7 +170,7 @@ class SearchWidget(QFrame):
         
         # cd up action
         self.tbCdUp = QToolButton( self.cbPath.lineEdit() )
-        self.tbCdUp.setIcon( mks.monkeystudio.getIcon( "go-up.png" ) )
+        self.tbCdUp.setIcon( mks.monkeystudio.getIcon( "listeditor/go-up.png" ) )
         self.tbCdUp.setCursor( Qt.ArrowCursor )
         self.tbCdUp.installEventFilter( self )
 
@@ -295,7 +308,7 @@ class SearchWidget(QFrame):
         document = mks.monkeycore.workspace().currentDocument()
         editor = document.qscintilla  # FIXME
         # TODO editor = document ? document.editor() : 0
-        path = os.path.abspath(os.path.curdir)
+        searchPath = os.path.abspath(os.path.curdir)
         if editor:
             searchText = editor.selectedText()
         else:
@@ -306,15 +319,8 @@ class SearchWidget(QFrame):
         self.setVisible( mode != SearchAndReplace.ModeNo )
 
         if  self.isVisible() :
-            if  self.mProperties.settings.replaceSearchText :
-                isRE = self.mProperties.options & SearchAndReplace.OptionRegularExpression
-                isEmpty = searchText.isEmpty()
-                validateVisibility = not self.mProperties.settings.onlyWhenNotVisible or ( self.mProperties.settings.onlyWhenNotVisible and not wasVisible )
-                validateRegExp = not self.mProperties.settings.onlyWhenNotRegExp or ( self.mProperties.settings.onlyWhenNotRegExp and not isRE )
-                validateEmpty = not self.mProperties.settings.onlyWhenNotEmpty or ( self.mProperties.settings.onlyWhenNotEmpty and not isEmpty )
-                
-                if  validateVisibility and validateRegExp and validateEmpty :
-                    self.cbSearch.setEditText( searchText )
+            if searchText:
+                self.cbSearch.setEditText( searchText )
 
             if  mode & SearchAndReplace.ModeFlagSearch :
                 self.cbSearch.setFocus()
@@ -330,10 +336,10 @@ class SearchWidget(QFrame):
         # Set widgets visibility flag according to state
         widgets = (self.wSearch, self.pbPrevious, self.pbNext, self.pbSearch, self.wReplace, self.wPath, \
                    self.pbReplace, self.pbReplaceAll, self.pbReplaceChecked, self.wOptions, self.wMask, self.wCodec,)
-        #                                                       wSear  pbPrev pbNext pbSear wRepl  wPath  pbRep  pbRAL  pbRCHK wOpti wMask wCodec
+        #                                                       wSear  pbPrev pbNext pbSear wRepl  wPath  pbRep  pbRAll pbRCHK wOpti wMask wCodec
         visible = {SearchAndReplace.ModeNo     :             (    0,     0,     0,     0,     0,     0,     0,     0,     0,    0,    0,    0,),
-                   SearchAndReplace.ModeSearch :             (    0,     1,     1,     1,     0,     0,     0,     0,     0,    0,    0,    0,),
-                   SearchAndReplace.ModeReplace:             (    1,     1,     1,     0,     1,     0,     1,     1,     1,    0,    0,    0,),
+                   SearchAndReplace.ModeSearch :             (    1,     1,     1,     0,     0,     0,     0,     1,     1,    1,    0,    0,),
+                   SearchAndReplace.ModeReplace:             (    1,     1,     1,     0,     1,     0,     1,     1,     0,    1,    0,    0,),
                    SearchAndReplace.ModeSearchDirectory:     (    1,     0,     0,     1,     0,     1,     0,     0,     0,    1,    1,    1,),
                    SearchAndReplace.ModeReplaceDirectory:    (    1,     0,     0,     1,     1,     1,     0,     0,     1,    1,    1,    1,),
                    SearchAndReplace.ModeSearchProjectFiles:  (    1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,    1,),
@@ -354,7 +360,7 @@ class SearchWidget(QFrame):
             if toolButton == self.tbMode:
                 lineEdit = self.cbSearch.lineEdit()
             else:
-                self.cbPath.lineEdit()
+                lineEdit = self.cbPath.lineEdit()
             lineEdit.setContentsMargins( lineEdit.height(), 0, 0, 0 )
             
             height = lineEdit.height()
@@ -374,8 +380,8 @@ class SearchWidget(QFrame):
     def keyPressEvent(self, event ):
         if  event.modifiers() == Qt.NoModifier :
             if event.key() == Qt.Key_Escape:
-                mks.monkeycore.workspace().focusEditor()
-                self.hide
+                mks.monkeycore.workspace().focusCurrentDocument()
+                self.hide()
             elif event.key() in (Qt.Key_Enter, Qt.Key_Return):
                 if self.mMode == SearchAndReplace.ModeNo:
                     pass
@@ -392,7 +398,7 @@ class SearchWidget(QFrame):
                                     SearchAndReplace.ModeReplaceOpenedFiles):
                     self.pbReplaceChecked.click()
 
-        QWidget.keyPressEvent( event )
+        QFrame.keyPressEvent( self, event )
 
     def updateLabels(self):
         width = 0
@@ -533,7 +539,7 @@ class SearchWidget(QFrame):
                  SearchWidget.Bad: Qt.red}
         
         pal = widget[field].palette()
-        pal.setColor( widget.backgroundRole(), color[state] )
+        pal.setColor( widget[field].backgroundRole(), color[state] )
         widget[field].setPalette( pal )
     
     def searchFile(self, forward, incremental ):
@@ -620,7 +626,7 @@ class SearchWidget(QFrame):
                 count += 1
                 self.pbNext.click(); # move selection to next item
 
-        self.showMessage( self.tr( "%1 occurrence(s) replaced." % count ))
+        self.showMessage( self.tr( "%d occurrence(s) replaced." % count ))
 
         return True
 
