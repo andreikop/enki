@@ -394,10 +394,11 @@ class Editor(mks.workspace.AbstractDocument):
 
         # return nothing
         return ''
-    
+    """
     def fileBuffer(self):
         return self.qscintilla.text()
     
+    """TODO
     def cursorPosition(self):
         row, col = self.qscintilla.getCursorPosition()
         return QPoint(row + 1, col)
