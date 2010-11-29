@@ -502,11 +502,12 @@ class AbstractDocument(QMdiSubWindow):
             return None
         else:
             return QFileInfo( wfp ).absolutePath()
-
-    def QString fileBuffer(self):
-        """return the current buffer (text) of filename"""
-        return None
+    '''
     
+    def fileBuffer(self):
+        """return the current buffer (text) of opened file"""
+        return None
+    '''
     def cursorPosition(self):
         """return cursor position if available
         """
