@@ -551,10 +551,12 @@ class AbstractDocument(QMdiSubWindow):
     
     def codec(self)
     { return mCodec ? mCodec : QTextCodec.codecForName( pMonkeyStudio.defaultCodec().toLocal8Bit().constData() );
+    '''
     
     def goTo(self, position, selectionLength = -1 ):
         pass
     
+    '''
     def invokeSearch(self):
         pass
     '''
@@ -893,10 +895,11 @@ class Workspace(QFrame):
             mks.monkeycore.statusBar().setEOLMode( editor.eolMode())
             mks.monkeycore.statusBar().setIndentMode( editor.indentationsUseTabs())
             mks.monkeycore.statusBar().setCursorPosition( document.cursorPosition())
+                '''
         # internal update
-        if  document :
-            QDir.setCurrent( document.path() )
-        '''
+        if  document and document.filePath():
+            os.chdir( os.path.dirname(document.filePath()) )
+
         self._oldCurrentDocument = document
         
         self.currentDocumentChanged.emit( document )
@@ -953,19 +956,17 @@ class Workspace(QFrame):
         """
         return self.mdiArea.currentSubWindow()
     
-    """TODO
-    def goToLine(  self, fileName,  pos,  codec, selectionLength ):
-        for window in self.mdiArea.subWindowList():
-            if  mks.monkeystudio.isSameFile( window.filePath(), fileName ) :
-                self.setCurrentDocument( window )
+    def goToLine(self, filePath,  pos,  codec, selectionLength):
+        for document in self.openedDocuments():
+            if os.path.samefile(document.filePath(), filePath) :
+                self.setCurrentDocument(document)
                 document.goTo( pos, selectionLength )
                 return
 
-        document = self.openFile( fileName, codec )
+        document = self.openFile(filePath)  # document = self.openFile( filePath, codec )
 
         if  document :
             document.goTo( pos, selectionLength )
-    """
     
     def closeDocument( self, document, showDialog = True):
         """Close opened file, remove document from workspace and delete the widget"""

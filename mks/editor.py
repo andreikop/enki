@@ -417,7 +417,7 @@ class Editor(mks.workspace.AbstractDocument):
         pass
     """
 
-    def goTo(self):
+    def invokeGoTo(self):
         line, col = self.qscintilla.getCursorPosition()
         gotoLine, ok = QInputDialog.getInteger( self, self.tr( "Go To Line..." ),
                                                 self.tr( "Enter the line you want to go:" ), 
@@ -427,9 +427,7 @@ class Editor(mks.workspace.AbstractDocument):
             self.qscintilla.setCursorPosition( gotoLine -1, 0 )
             self.setFocus()
     
-    """TODO
     def goTo(self, pos, selectionLength ):
-        assert(0) # TODO resolve name conflict
         column = pos.x()
         line = pos.y()
         
@@ -437,7 +435,7 @@ class Editor(mks.workspace.AbstractDocument):
         self.qscintilla.setSelection( line, column, line, column +selectionLength )
         self.qscintilla.ensureLineVisible( line )
         self.qscintilla.setFocus()
-    """
+    
     """TODO
 
     def isPrintAvailable(self):
@@ -495,7 +493,7 @@ class Editor(mks.workspace.AbstractDocument):
                 lineIndent = (t * indentWidth) +r
                 lastLineWasTroncate = True
             elif  lastLineWasTroncate and lineIndent != 0:
-                lastLineWasTroncate = indentation( i + 1 ) == lineIndent
+                lastLineWasTroncate = self.qscintilla.indentation( i + 1 ) == lineIndent
                 lineIndent += indentWidth
 
             # remove indentation
@@ -566,7 +564,7 @@ class Editor(mks.workspace.AbstractDocument):
                                 self.qscintilla.markerFindPrevious( row - 1, 1 << self._MARKER_BOOKMARK ), 0 )
                     return True
                 elif event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_G:  # goto
-                    self.goTo()
+                    self.invokeGoTo()
                     return True
                 # TODO shortcut for delete all bookmarks?
         return False

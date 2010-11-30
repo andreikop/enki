@@ -7,11 +7,11 @@ import threading
 from PyQt4 import uic
 from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QDir, QEvent, QFile, QIODevice, QModelIndex, \
                         QMutex, QMutexLocker, \
-                        QObject, QRect, QSize, QString, QStringList, Qt, QTime, \
-                        QTextCodec, QThread
+                        QObject, QPoint, QRect, QRegExp, QSize, QString, QStringList, Qt, QTime, \
+                        QTextCodec, QThread, QVariant
 from PyQt4.QtGui import QAction, QCompleter, QColor, QDirModel, QFileDialog,  \
-                        QFrame, QFileDialog, QKeyEvent, QLineEdit, QPainter,  \
-                        QProgressBar, QToolButton
+                        QFrame, QFileDialog, QHBoxLayout, QIcon, QKeyEvent, QLineEdit, QPainter,  \
+                        QProgressBar, QToolButton, QTreeView, QWidget
 from PyQt4.fresh import *
 
 import mks.monkeycore
@@ -19,7 +19,7 @@ import mks.monkeycore
 def isBinary(file ):
     position = file.pos()
     file.seek( 0 )
-    binary = file.read( 1024 ).contains( '\0' )
+    binary = '\0' in file.read( 4096 )
     file.seek( position )
     return binary
 
@@ -58,12 +58,11 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
         # List if search actions. First acition created by MainWindow, so, do not fill text
         self.actions = (("aSearchFile", "", "", "", "", self.modeSwitchTriggered, self.ModeSearch),
                         ("aSearchDirectory", "Search in &Directory...", "search-replace-directory.png", "Ctrl+Shift+F", "Search in directory...", self.modeSwitchTriggered, self.ModeSearchDirectory),
+                        ("aReplaceDirectory", "Replace in Director&y...", "search-replace-directory.png", "Ctrl+Shift+R", "Replace in directory...", self.modeSwitchTriggered, self.ModeReplaceDirectory),
                         ("aReplaceFile", "&Replace...", "edit/replace.png", "Ctrl+R", "Replace in the current file...", self.modeSwitchTriggered, self.ModeReplace),
                         ("aSearchPrevious", "Search &Previous", "edit/previous.png", "Shift+F3", "Search previous occurrence", self.widget.on_pbPrevious_clicked, None),
                         ("aSearchNext", "Search &Next", "edit/next.png", "F3", "Search next occurrence", self.widget.on_pbNext_clicked, None))
         """TODO
-
-                        ("aReplaceDirectory", "Replace in Director&y...", "search-replace-directory.png", "Ctrl+Shift+R", "Replace in directory...", self.modeSwitchTriggered, self.ModeReplaceDirectory),
                         ("aSearchProjectFiles", "Search in Project &Files...", "search-replace-project-files.png", "Ctrl+Meta+F", "Search in the current project files..", self.modeSwitchTriggered, self.ModeSearchProjectFiles),
                         ("aReplaceProjectFiles", "Replace in Projec&t Files...", "search-replace-project-files.png", "Ctrl+Meta+R", "Replace in the current project files...", self.modeSwitchTriggered, self.ModeReplaceProjectFiles),
                         ("aSearchOpenedFiles", "Search in &Opened Files...", "search-replace-opened-files.png", "Ctrl+Alt+Meta+F", "Search in opened files...", self.modeSwitchTriggered, self.ModeSearchOpenedFiles),
@@ -74,14 +73,11 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
         mks.monkeycore.workspace().layout().addWidget( self.widget )
         self.widget.setVisible( False )
         
-        """TODO
         self.dock = SearchResultsDock( self.widget.searchThread() )
-        mks.mks.monkeycore.mainWindow().dockToolBar( Qt.BottomToolBarArea ).addDock( self.dock, self.dock.windowTitle(), self.dock.windowIcon() )
+        mks.monkeycore.mainWindow().dockToolBar( Qt.BottomToolBarArea ).addDock( self.dock, self.dock.windowTitle(), self.dock.windowIcon() )
         self.dock.setVisible( False )
 
-
         self.widget.setResultsDock( self.dock )
-        """
         
         mb = mks.monkeycore.menuBar()
         
@@ -304,7 +300,7 @@ class SearchWidget(QFrame):
                 self.mProperties.codec = codec
                 self.cbCodec.setCurrentIndex( self.cbCodec.findText( codec ) )
 
-        assert( not self.mProperties.codec.isEmpty() )
+        assert( self.mProperties.codec )
         
         document = mks.monkeycore.workspace().currentDocument()
         editor = document.qscintilla  # FIXME
@@ -440,21 +436,21 @@ class SearchWidget(QFrame):
         maskText = self.cbMask.currentText()
         
         # search
-        if not searchText.isEmpty() :
+        if searchText:
             index = self.cbSearch.findText( searchText )
             
             if  index == -1 :
                 self.cbSearch.addItem( searchText )
         
         # replace
-        if  not replaceText.isEmpty() :
+        if replaceText:
             index = self.cbReplace.findText( replaceText )
             
             if  index == -1 :
                 self.cbReplace.addItem( replaceText )
 
         # mask
-        if  not maskText.isEmpty() :
+        if maskText:
             index = self.cbMask.findText( maskText )
             
             if  index == -1 :
@@ -481,11 +477,11 @@ class SearchWidget(QFrame):
         """TODO
         # update masks
         for part in self.cbMask.currentText().split( " ", QString.SkipEmptyParts ):
-            index = keys.indexOf( QRegExp( QRegExp.escape( part ), Qt.CaseInsensitive ) )
+            index = keys.index( QRegExp( QRegExp.escape( part ), Qt.CaseInsensitive ) )
 
             if  index != -1 :
-                foreach (  QString& suffixe, suffixes[ keys.at( index ) ] )
-                    if  not self.mProperties.mask.contains( suffixe ) :
+                foreach (  QString& suffixe, suffixes[ keys[index] ] )
+                    if  not suffixe in self.mProperties.mask:
                         self.mProperties.mask << suffixe
             else:
                 self.mProperties.mask << part
@@ -518,7 +514,7 @@ class SearchWidget(QFrame):
             self.mProperties.sourcesFiles = self.mProperties.project.topLevelProjectSourceFiles()
 
     def showMessage (self, status ):
-        if  status.isEmpty() :
+        if not status:
             mks.monkeycore.mainWindow().statusBar().clearMessage()
         else:
             mks.monkeycore.mainWindow().statusBar().showMessage( status, 30000 )
@@ -691,7 +687,7 @@ class SearchWidget(QFrame):
         self.updateComboBoxes()
         self.initializeProperties( False )
         
-        if  self.mProperties.searchText.isEmpty() :
+        if not self.mProperties.searchText:
             mks.monkeycore.messageManager().appendMessage( self.tr( "You can't search for NULL text." ) )
             return
 
@@ -715,6 +711,7 @@ class SearchWidget(QFrame):
         self.replaceFile( True )
 
     def on_pbReplaceChecked_clicked(self):
+        items = {}
         model = self.mDock.model()
 
         self.updateComboBoxes()
@@ -727,9 +724,11 @@ class SearchWidget(QFrame):
         for results in model.results():
             for result in results:
                 if  result.enabled and result.checkState == Qt.Checked :
+                    if not result.fileName in items:
+                        items[result.fileName] = []
                     items[ result.fileName ].append(result)
                 else:
-                    index = model.index( result )
+                    index = model._index( result )
                     self.mDock.model().setData( index, False, SearchResultsModel.EnabledRole )
 
         self.mReplaceThread.replace( self.mProperties, items )
@@ -740,7 +739,7 @@ class SearchWidget(QFrame):
     def on_pbBrowse_clicked(self):
         path = QFileDialog.getExistingDirectory( self, self.tr( "Search path" ), self.cbPath.currentText() )
 
-        if  not path.isEmpty() :
+        if path:
             self.cbPath.setEditText( path )
 
 
@@ -758,7 +757,7 @@ class SearchThread(QThread):
         self.lock = threading.Lock()
         
         # FIXME what to do with it?
-        # qRegisterMetaType(SearchResultsModel.ResultList, "SearchResultsModel.ResultList" )
+        # qRegisterMetaType(ResultList, "ResultList" )
 
     def __del__(self):
         self.stop()
@@ -836,14 +835,12 @@ class SearchThread(QThread):
                     with self.lock:
                         if  self.mReset or self.mExit :
                             return files
-
         return files
 
     def fileContent(self, fileName ):
         codec = 0
 
         with self.lock:
-
             codec = QTextCodec.codecForName( self.mProperties.codec.toLocal8Bit() )
 
             if fileName in self.mProperties.openedFiles:
@@ -907,7 +904,7 @@ class SearchThread(QThread):
             if eolStart != 0:
                 column -= 1
             
-            result = SearchResultsModel.Result( fileName, capture )
+            result = Result( fileName, capture )
             result.position = QPoint( column, eolCount )
             result.offset = pos
             result.length = rx.matchedLength()
@@ -921,20 +918,21 @@ class SearchThread(QThread):
                 result.capturedTexts =  rx.capturedTexts()
             else:
                 result.capturedTexts = []
-
+            
             results.append(result)
 
             lastPos = pos
             pos += rx.matchedLength()
 
-            if  tracker.elapsed() >= mMaxTime :
+            if  tracker.elapsed() >= self.mMaxTime :
                 self.resultsAvailable.emit( fileName, results )
-                results.clear()
+                results = []
                 tracker.restart()
 
             with self.lock:
                 if  self.mReset or self.mExit :
                     return
+            pos = rx.indexIn( content, pos )
 
         if  results:
             self.resultsAvailable.emit( fileName, results )
@@ -989,16 +987,44 @@ class SearchThread(QThread):
         self.stop()
         self.reset.emit()
 
+class Result:
+    def __init__ (  self, \
+                    _fileName = '', \
+                    _capture = '', \
+                    _position = QPoint(), \
+                    _offset = -1, \
+                    _length = 0, \
+                    _checkable = False, \
+                    _checkState = Qt.Unchecked, \
+                    _enabled = True, \
+                    _capturedTexts = []):
+            self.fileName = _fileName;
+            self.capture = _capture;
+            self.position = _position;
+            self.offset = _offset;
+            self.length = _length;
+            self.checkable = _checkable;
+            self.checkState = _checkState;
+            self.enabled = _enabled;
+            self.capturedTexts = _capturedTexts;
 
-class SearchResultsModel:
+class SearchResultsModel(QAbstractItemModel):
 
     firstResultsAvailable = pyqtSignal()
+    
+    EnabledRole = Qt.UserRole
     
     def __init__(self, searchThread, parent ):
         QAbstractItemModel.__init__(self, parent )
         self.mRowCount = 0
         self.mSearchThread = searchThread
-
+        
+        self.mResults = []
+        self.mParents = {}
+        self.mParentsList = []
+        self.mRowCount = 0
+        self.mSearchDir = QDir()
+        
         # connections
         self.mSearchThread.reset.connect(self.thread_reset)
         self.mSearchThread.resultsAvailable.connect(self.thread_resultsAvailable)
@@ -1015,51 +1041,52 @@ class SearchResultsModel:
 
         if role == Qt.DisplayRole:
             # index is a root parent
-            if  self.mParentsList.value( index.row() ) == result :
+            if result in self.mParentsList:
                 count = self.rowCount( index )
-                text = mSearchDir.relativeFilePath( result.fileName )
+                text = self.mSearchDir.relativeFilePath( result.fileName )
                 text.append(" (%d)"  % count)
             else:  # index is a root parent child
-                text = self.tr( "Line: %d, Column: %d: %d" % ( result.position.y() +1, result.position.x(), result.capture ))
+                text = self.tr( "Line: %d, Column: %d: %s" % ( result.position.y() +1, result.position.x(), result.capture ))
             return text
         elif role == Qt.ToolTipRole:
-                return data( index, Qt.DisplayRole )
+            return result.capture
         elif role == Qt.CheckStateRole:
-            if  flags( index ) & Qt.ItemIsUserCheckable :
+            if  self.flags( index ) & Qt.ItemIsUserCheckable :
                 return result.checkState
 
         return QVariant()
 
     def index(self, row, column, parent ):
-        if  row >= self.rowCount( parent ) or column >= columnCount( parent ) :
+        if  row >= self.rowCount( parent ) or column >= self.columnCount( parent ) :
             return QModelIndex()
 
         result = self.result( parent )
 
         # parent is a root parent
-        if  result and self.mParentsList.value( parent.row() ) == result :
-            result = self.mResults.at( parent.row() ).at( row )
+        if  result and self.mParentsList[parent.row()] == result :
+            result = self.mResults[parent.row()][row]
             return self.createIndex( row, column, result )
 
-        ( not parent.isValid() )
+        assert (not parent.isValid())
 
         # parent is invalid
         return self.createIndex( row, column, self.mParentsList[ row ] )
 
     def parent(self, index ):
-        if  not index.isValid() :
+        if not index.isValid() :
             return QModelIndex()
 
         result = self.result( index )
+        assert(result)
 
         # index is a root parent
-        if  result and self.mParentsList.value( index.row() ) == result :
+        if result in self.mParentsList:
             return QModelIndex()
 
         assert( index.isValid() )
 
         result = self.mParents[ result.fileName ]
-        row = self.mParentsList.indexOf( result )
+        row = self.mParentsList.index( result )
 
         # index is a root parent child
         return self.createIndex( row, index.column(), result )
@@ -1072,10 +1099,13 @@ class SearchResultsModel:
         if parent.parent().isValid():
             return 0
         else:
-            return self.mResults[parent.row()].count()
+            if parent.row() < len (self.mResults):
+                return len(self.mResults[parent.row()])
+            else:
+                return 0
 
     def flags(self, index ):
-        flags = QAbstractItemModel.flags( index )
+        flags = QAbstractItemModel.flags( self, index )
         properties = self.mSearchThread.properties()
 
         if  properties.mode & SearchAndReplace.ModeFlagReplace :
@@ -1098,7 +1128,10 @@ class SearchResultsModel:
         if parent.parent().isValid():
            return False
         else:
-            return self.mResults[parent.row()]
+            if parent.row() < len(self.mResults):
+                return bool(self.mResults[parent.row()])
+            else:
+                return False
 
     def setData(self, index, value, role ):
         result = self.result( index )
@@ -1106,7 +1139,7 @@ class SearchResultsModel:
         if role == Qt.CheckStateRole:
             ok = True
         elif role == SearchResultsModel.EnabledRole:
-            result.enabled = value.toBool()
+            result.enabled = value
             ok = True
         else:
             ok = False
@@ -1117,7 +1150,7 @@ class SearchResultsModel:
 
             return ok
 
-        state = Qt.CheckState( value.toInt() )
+        state = Qt.CheckState( value.toInt()[0] )
         pIndex = index.parent()
         isParent = not pIndex.isValid()
         pResult = self.result( pIndex )
@@ -1125,17 +1158,17 @@ class SearchResultsModel:
         assert( result )
 
         if  isParent :
-            pRow = self.mParentsList.indexOf( result )
+            pRow = self.mParentsList.index( result )
             checkedCount = 0
 
             # update all children to same state as parent
-            for r in self.mResults.at( pRow ):
+            for r in self.mResults[pRow]:
                 if  r.enabled :
                     r.checkState = state
                     checkedCount += 1
 
             left = index.child( 0, 0 )
-            right = index.child( self.rowCount( index ) -1, columnCount( index ) -1 )
+            right = index.child( self.rowCount( index ) -1, self.columnCount( index ) -1 )
             # update root parent children
             self.dataChanged.emit( left, right )
 
@@ -1181,19 +1214,18 @@ class SearchResultsModel:
 
         return ok
 
-    def index(self, result ):
-        row = self.mParentsList.indexOf( result )
-
-        if  row != -1 :
+    def _index(self, result ):
+        if result in self.mParentsList:
+            row = self.mParentsList.index(  )
             return self.createIndex( row, 0, result )
         elif  result :
-            pResult = self.mParents.value( result.fileName )
+            pResult = self.mParents[result.fileName]
 
             if  pResult :
-                row = self.mParentsList.indexOf( pResult )
+                row = self.mParentsList.index( pResult )
 
                 if  row != -1 :
-                    row = self.mResults.at( row ).indexOf( result )
+                    row = self.mResults[row].index( result )
                     return self.createIndex( row, 0, result )
 
         return QModelIndex
@@ -1202,7 +1234,7 @@ class SearchResultsModel:
         if index.isValid():
             return index.internalPointer()
         else:
-            return 0
+            return None
     
     def results(self):
         return self.mResults
@@ -1214,7 +1246,7 @@ class SearchResultsModel:
         self.beginRemoveRows( QModelIndex(), 0, self.mRowCount -1 )
         
         self.mResults = []  # clear
-        self.mParents = []
+        self.mParents = {}
         self.mParentsList = []
         self.mRowCount = 0
         
@@ -1227,14 +1259,13 @@ class SearchResultsModel:
         if  self.mRowCount == 0 :
             self.firstResultsAvailable.emit()
         
-        result = self.mParents[ fileName ]
         properties = self.mSearchThread.properties()
         
         if  self.mRowCount == 0 :
-            mSearchDir.setPath( properties.searchPath )
+            self.mSearchDir.setPath( properties.searchPath )
 
-        if  not result :
-            result = SearchResultsModel.Result( fileName )
+        if not fileName in self.mParents:
+            result = Result( fileName )
             result.checkable = properties.mode & SearchAndReplace.ModeFlagReplace
             if result.checkable:
                 result.checkState = Qt.Checked
@@ -1247,8 +1278,9 @@ class SearchResultsModel:
             self.mResults.append(results)
             self.endInsertRows()
         else:
-            pRow = self.mParentsList.indexOf( result )
-            count = self.mResults.at( pRow ).count()
+            result = self.mParents[ fileName ]
+            pRow = self.mParentsList.index( result )
+            count = len(self.mResults[pRow])
             index = self.createIndex( pRow, 0, result )
 
             self.beginInsertRows( index, count, count +results.count() -1 )
@@ -1258,25 +1290,25 @@ class SearchResultsModel:
             self.dataChanged.emit( index, index )
 
     def thread_resultsHandled(self, fileName, results ):
-        pResult = self.mParents.value( fileName )
+        pResult = self.mParents[fileName]
         assert( pResult )
 
-        pRow = self.mParentsList.indexOf( pResult )
+        pRow = self.mParentsList.index( pResult )
         children = self.mResults[ pRow ]
         pIndex = self.createIndex( pRow, 0, pResult )
 
         # remove root parent children
         for result in results:
-            index = children.indexOf( result )
+            index = children.index( result )
             self.beginRemoveRows( pIndex, index, index )
             children.pop( index )
             self.endRemoveRows()
 
         # remove root parent
-        if  children.isEmpty() :
+        if not children:
             self.beginRemoveRows( QModelIndex(), pRow, pRow )
             self.mResults.pop( pRow )
-            self.mParentsList.removeAt( pRow )
+            self.mParentsList.pop( pRow )
             self.mRowCount -= 1
             self.endRemoveRows()
         else:
@@ -1285,21 +1317,21 @@ class SearchResultsModel:
 
 class SearchResultsDock(pDockWidget):
     
-    def __init__(self, searchThread, parent ):
-        pDockWidget.__init__( parent )
+    def __init__(self, searchThread, parent=None):
+        pDockWidget.__init__( self, parent )
         assert(searchThread)
 
         self.mSearchThread = searchThread
 
         self.setObjectName( self.metaObject().className() )
         self.setWindowTitle( self.tr( "Search Results" ) )
-        self.setWindowIcon( ":/mksicons/SearchAndReplace.png" )
+        self.setWindowIcon( QIcon(":/mksicons/SearchAndReplace.png") )
         
         # actions
         # clear action
         aClear = QAction( self.tr( "Clear results list" ), self )
-        aClear.setIcon( ":/mksicons/clear-list.png")
-        aClear.setToolTip( self.aClear.text() )
+        aClear.setIcon( QIcon(":/mksicons/clear-list.png"))
+        aClear.setToolTip( aClear.text() )
         self.titleBar().addAction( aClear, 0 )
         
         # add separator
@@ -1310,11 +1342,11 @@ class SearchResultsDock(pDockWidget):
         self.mView = QTreeView( self )
         self.mView.setHeaderHidden( True )
         self.mView.setUniformRowHeights( True )
-        self.mView.setModel( mModel )
+        self.mView.setModel( self.mModel )
         self.mLayout = QHBoxLayout( widget )
         self.mLayout.setMargin( 5 )
         self.mLayout.setSpacing( 5 )
-        self.mLayout.addWidget( mView )
+        self.mLayout.addWidget( self.mView )
 
         self.setWidget( widget )
         
@@ -1325,7 +1357,7 @@ class SearchResultsDock(pDockWidget):
         """
 
         # connections
-        aClear.triggered.connect(mModel.clear)
+        aClear.triggered.connect(self.mModel.clear)
         self.mModel.firstResultsAvailable.connect(self.show)
         self.mView.activated.connect(self.view_activated)
 
@@ -1334,7 +1366,7 @@ class SearchResultsDock(pDockWidget):
 
     def view_activated(self, index ):
         result = index.internalPointer()
-        MonkeyCore.workspace().goToLine( result.fileName,
+        mks.monkeycore.workspace().goToLine( result.fileName,
                                          result.position,
                                          self.mSearchThread.properties().codec,
                                          result.length )  # FIXME check this code result.offset == -1 ? 0 : result.length
@@ -1350,6 +1382,8 @@ class ReplaceThread(QThread):
         QThread.__init__(self, parent)
         self.mReset = False
         self.mExit = False
+        self.mProperties = Properties()
+        self.mResults = {}
         self.lock = threading.Lock()
 
     def __del__():  # check if it is not done by QThread
@@ -1395,7 +1429,7 @@ class ReplaceThread(QThread):
 
         with self.lock:
             codec = QTextCodec.codecForName( self.mProperties.codec.toLocal8Bit() )
-            if  self.mProperties.openedFiles.contains( fileName ) :
+            if fileName in self.mProperties.openedFiles:
                 return self.mProperties.openedFiles[ fileName ]
 
         assert( codec )
@@ -1410,14 +1444,14 @@ class ReplaceThread(QThread):
 
         return codec.toUnicode( file.readAll() )
 
-    def replace(self, fileName, content ):
+    def replace_(self, fileName, content ):
         handledResults = []
         
         with self.lock:
             replaceText = self.mProperties.replaceText
             codec = self.mProperties.codec
             results = self.mResults[ fileName ]
-            isOpenedFile = self.mProperties.openedFiles.contains( fileName )
+            isOpenedFile = fileName in self.mProperties.openedFiles
             isRE = self.mProperties.options & SearchAndReplace.OptionRegularExpression
 
         '''
@@ -1457,8 +1491,8 @@ class ReplaceThread(QThread):
 
             handledResults.append(result)
             '''
-                    if  tracker.elapsed() >= mMaxTime :
-                        if  not handledResults.isEmpty() :
+                    if  tracker.elapsed() >= self.mMaxTime :
+                        if handledResults:
                             if  not isOpenedFile :
                                 saveContent( fileName, content, codec )
 
@@ -1491,7 +1525,7 @@ class ReplaceThread(QThread):
 
 
     def run(self):
-        tracker = QTime 
+        tracker = QTime()
 
         while True:
             with self.lock:
@@ -1508,7 +1542,7 @@ class ReplaceThread(QThread):
             for fileName in keys:
                 content = self.fileContent( fileName )
 
-                self.replace( fileName, content )
+                self.replace_( fileName, content )
 
                 with self.lock:
                     if  self.mExit :
