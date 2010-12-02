@@ -721,14 +721,14 @@ class SearchWidget(QFrame):
             mks.monkeycore.messageManager().appendMessage( self.tr( "You can't replace in project files because there is no opened projet." ) )
             return
 
-        for results in model.results():
-            for result in results:
-                if  result.enabled and result.checkState == Qt.Checked :
+        for fileRes in model.fileResults:
+            for row, result in enumerate(fileRes.results):
+                if result.enabled and result.checkState == Qt.Checked :
                     if not result.fileName in items:
                         items[result.fileName] = []
                     items[ result.fileName ].append(result)
                 else:
-                    index = model._index( result )
+                    index = model.createIndex(row, 0, result)
                     self.mDock.model().setData( index, False, SearchResultsModel.EnabledRole )
 
         self.mReplaceThread.replace( self.mProperties, items )
@@ -1033,8 +1033,7 @@ class SearchResultsModel(QAbstractItemModel):
         self.mRowCount = 0
         self.mSearchThread = searchThread
         
-        #self._fileResults = odict.odict()  # {file name : ([results], checkstate)}
-        self._fileResults = []  # list of FileResults
+        self.fileResults = []  # list of FileResults
         self.mSearchDir = QDir()
         
         # connections
@@ -1077,7 +1076,7 @@ class SearchResultsModel(QAbstractItemModel):
             result = parent.internalPointer().results[row]
             return self.createIndex( row, column, result )
         else:  # need index for fileRes
-            return self.createIndex( row, column, self._fileResults[row])
+            return self.createIndex( row, column, self.fileResults[row])
 
     def parent(self, index):
         if not index.isValid() :
@@ -1087,7 +1086,7 @@ class SearchResultsModel(QAbstractItemModel):
             return QModelIndex()
         
         result = index.internalPointer()
-        for row, fileRes in enumerate(self._fileResults):
+        for row, fileRes in enumerate(self.fileResults):
             if fileRes.fileName == result.fileName:
                 return self.createIndex(row, 0, fileRes)
         else:
@@ -1095,7 +1094,7 @@ class SearchResultsModel(QAbstractItemModel):
 
     def rowCount(self, parent):
         if not parent.isValid():  # root elements
-            return len(self._fileResults)
+            return len(self.fileResults)
         elif isinstance(parent.internalPointer(), Result):  # result
             return 0
         elif isinstance(parent.internalPointer(), self.FileResults):  # file
@@ -1110,20 +1109,17 @@ class SearchResultsModel(QAbstractItemModel):
         if properties.mode & SearchAndReplace.ModeFlagReplace :
             flags |= Qt.ItemIsUserCheckable
         
-        """
-        result = self.result( index )
-
-        if  result :
-            if not result.enabled :
+        if isinstance(index.internalPointer(), Result):
+            if not index.internalPointer().enabled :
                 flags &= ~Qt.ItemIsEnabled
                 flags &= ~Qt.ItemIsSelectable
-        """
+        
         return flags
 
     def hasChildren(self, item):
         # root parents
         if  not item.isValid() :
-            return len(self._fileResults) != 0
+            return len(self.fileResults) != 0
         elif isinstance(item.internalPointer(), Result):
            return False
         elif isinstance(item.internalPointer(), self.FileResults):
@@ -1153,10 +1149,11 @@ class SearchResultsModel(QAbstractItemModel):
                 self.dataChanged.emit(firstChildIndex, lastChildIndex)
         else:
             assert(0)
+        return True
     
     def clear(self):
-        self.beginRemoveRows(QModelIndex(), 0, len(self._fileResults) - 1)
-        self._fileResults = []
+        self.beginRemoveRows(QModelIndex(), 0, len(self.fileResults) - 1)
+        self.fileResults = []
         self.endRemoveRows()
 
     def thread_reset(self):
@@ -1164,30 +1161,39 @@ class SearchResultsModel(QAbstractItemModel):
 
     def thread_resultsAvailable(self, fileName, results ):
         properties = self.mSearchThread.properties()
-        if not self._fileResults:  # appending first
+        if not self.fileResults:  # appending first
             self.firstResultsAvailable.emit()
             self.mSearchDir.setPath( properties.searchPath )
         
-        if not self._fileResults or self._fileResults[-1].fileName != fileName:  # appending new file
-            self.beginInsertRows( QModelIndex(), len(self._fileResults), len(self._fileResults))
+        if not self.fileResults or self.fileResults[-1].fileName != fileName:  # appending new file
+            self.beginInsertRows( QModelIndex(), len(self.fileResults), len(self.fileResults))
             fileRes = self.FileResults(fileName)
-            self._fileResults.append(fileRes)
+            self.fileResults.append(fileRes)
             self.endInsertRows()
         else:
-            fileRes = self._fileResults[-1]
+            fileRes = self.fileResults[-1]
         
-        fileResIndex = self.createIndex(len(self._fileResults) - 1, 0, fileRes)
+        fileResIndex = self.createIndex(len(self.fileResults) - 1, 0, fileRes)
         self.beginInsertRows(fileResIndex, len(fileRes.results), len(fileRes.results) + len(results) -1)
         fileRes.results.extend(results)
         self.endInsertRows()
         self.dataChanged.emit(fileResIndex, fileResIndex)
 
-    def thread_resultsHandled(self, fileName):
-        for index, fileRes in self._fileResults:  # try to find FileResults
+    def thread_resultsHandled(self, fileName, results):
+        for index, fileRes in enumerate(self.fileResults):  # try to find FileResults
             if fileRes.fileName == fileName:  # found
-                self.beginRemoveRows(QModelIndex(), index, index)
-                self._fileResults.pop(index)
-                self.endRemoveRows()
+                fileResIndex = self.createIndex(index, 0, fileRes)
+                for res in results:  # TODO make optimisation - if removing all results - do not remove one by one
+                    resIndex = fileRes.results.index(res)
+                    self.beginRemoveRows(fileResIndex, resIndex, resIndex)
+                    fileRes.results.pop(resIndex)
+                    self.endRemoveRows()
+                if not fileRes.results:  # no results left
+                    self.beginRemoveRows(QModelIndex(), index, index)
+                    self.fileResults.pop(index)
+                    self.endRemoveRows()
+                else:
+                    fileRes.updateCheckState()
             break
         else:  # not found
             assert(0)
@@ -1262,26 +1268,22 @@ class ReplaceThread(QThread):
         self.mExit = False
         self.mProperties = Properties()
         self.mResults = {}
-        self.lock = threading.Lock()
 
     def __del__(self):  # check if it is not done by QThread
         self.stop()
         self.wait()
 
     def replace(self, properties, results):
-        with self.lock:
-            self.mProperties = properties
-            self.mResults = results
-            self.mReset = self.isRunning()
-            self.mExit = False
-
-        if  not self.isRunning() :
-            self.start()
+        self.stop()
+        self.wait()        
+        
+        self.mProperties = properties
+        self.mResults = results
+        self.mExit = False
+        self.start()
 
     def stop(self):
-        with self.lock:
-            self.mReset = False
-            self.mExit = True
+        self.mExit = True
 
     def saveContent(self, fileName, content, codec ):  # use Python functionality?
         file = QFile( fileName )
@@ -1305,10 +1307,9 @@ class ReplaceThread(QThread):
     def fileContent(self, fileName ):
         codec = 0
 
-        with self.lock:
-            codec = QTextCodec.codecForName( self.mProperties.codec.toLocal8Bit() )
-            if fileName in self.mProperties.openedFiles:
-                return self.mProperties.openedFiles[ fileName ]
+        codec = QTextCodec.codecForName( self.mProperties.codec.toLocal8Bit() )
+        if fileName in self.mProperties.openedFiles:
+            return self.mProperties.openedFiles[ fileName ]
 
         assert( codec )
 
@@ -1325,12 +1326,11 @@ class ReplaceThread(QThread):
     def replace_(self, fileName, content ):
         handledResults = []
         
-        with self.lock:
-            replaceText = self.mProperties.replaceText
-            codec = self.mProperties.codec
-            results = self.mResults[ fileName ]
-            isOpenedFile = fileName in self.mProperties.openedFiles
-            isRE = self.mProperties.options & SearchAndReplace.OptionRegularExpression
+        replaceText = self.mProperties.replaceText
+        codec = self.mProperties.codec
+        results = self.mResults[ fileName ]
+        isOpenedFile = fileName in self.mProperties.openedFiles
+        isRE = self.mProperties.options & SearchAndReplace.OptionRegularExpression
 
         '''
             QTime tracker
@@ -1386,11 +1386,8 @@ class ReplaceThread(QThread):
                         tracker.restart()
 
             '''
-            with self.lock:
-                if  self.mExit :
-                    return
-                elif  self.mReset :
-                    break
+            if  self.mExit :
+                return
 
         if handledResults:
             if not isOpenedFile :
@@ -1404,35 +1401,16 @@ class ReplaceThread(QThread):
 
     def run(self):
         tracker = QTime()
+        tracker.restart()
 
-        while True:
-            with self.lock:
-                self.mReset = False
-                self.mExit = False
+        keys = self.mResults.keys()
 
-            tracker.restart()
-
-            keys = []
-
-            with self.lock:
-                keys = self.mResults.keys()
-
-            for fileName in keys:
-                content = self.fileContent( fileName )
-
-                self.replace_( fileName, content )
-
-                with self.lock:
-                    if  self.mExit :
-                        return
-                    elif  self.mReset :
-                        break
-
-            with self.lock:
-                if  self.mExit :
-                    return
-                elif  self.mReset :
-                    continue
-            break
+        for fileName in keys:
+            content = self.fileContent( fileName )
+            
+            self.replace_( fileName, content )
+            
+            if  self.mExit :
+                break
 
         print "Replace finished in ", tracker.elapsed() /1000.0
