@@ -262,7 +262,7 @@ class SearchWidget(QFrame):
         self.setMode( SearchAndReplace.ModeSearch )
 
     def mode(self):  # FIXME remove
-        returnself.mMode
+        return self.mMode
 
     def searchThread(self):  # FIXME remove
         return self.mSearchThread
@@ -295,7 +295,7 @@ class SearchWidget(QFrame):
         
         if self.mMode & SearchAndReplace.ModeFlagProjectFiles :
             if  self.mProperties.project :
-                codec = self.mProperties.project.temporaryValue( "codec", pMonkeyStudio.defaultCodec() ).toString()
+                codec = self.mProperties.project.temporaryValue( "codec", mks.monkeystudio.defaultCodec() ).toString()
                 
                 self.mProperties.codec = codec
                 self.cbCodec.setCurrentIndex( self.cbCodec.findText( codec ) )
@@ -1014,15 +1014,27 @@ class SearchResultsModel(QAbstractItemModel):
     
     EnabledRole = Qt.UserRole
     
+    class FileResults:
+        def __init__(self, fileName):
+            self.fileName = fileName
+            self.results = []
+            self.checkState = Qt.Checked
+        
+        def updateCheckState(self):
+            if all([res.checkState == Qt.Checked for res in self.results]):  # if all checked
+                self.checkState = Qt.Checked
+            elif any([res.checkState == Qt.Checked for res in self.results]):  # if any checked
+                self.checkState = Qt.PartiallyChecked
+            else:
+                self.checkState = Qt.Unchecked
+    
     def __init__(self, searchThread, parent ):
         QAbstractItemModel.__init__(self, parent )
         self.mRowCount = 0
         self.mSearchThread = searchThread
         
-        self.mResults = []
-        self.mParents = {}
-        self.mParentsList = []
-        self.mRowCount = 0
+        #self._fileResults = odict.odict()  # {file name : ([results], checkstate)}
+        self._fileResults = []  # list of FileResults
         self.mSearchDir = QDir()
         
         # connections
@@ -1031,289 +1043,154 @@ class SearchResultsModel(QAbstractItemModel):
 
     def columnCount(self, parent ):
         return 1
-
+    
     def data(self, index, role ):
-        if  not index.isValid() :
+        if not index.isValid() :
             return QVariant()
-
-        result = self.result( index )
-        assert(result)
-
-        if role == Qt.DisplayRole:
-            # index is a root parent
-            if result in self.mParentsList:
-                count = self.rowCount( index )
-                text = self.mSearchDir.relativeFilePath( result.fileName )
-                text.append(" (%d)"  % count)
-            else:  # index is a root parent child
-                text = self.tr( "Line: %d, Column: %d: %s" % ( result.position.y() +1, result.position.x(), result.capture ))
-            return text
-        elif role == Qt.ToolTipRole:
-            return result.capture
-        elif role == Qt.CheckStateRole:
-            if  self.flags( index ) & Qt.ItemIsUserCheckable :
-                return result.checkState
-
+        
+        if isinstance(index.internalPointer(), Result):  # it is a result
+            result = index.internalPointer()
+            if role == Qt.DisplayRole:
+                # index is a root parent
+                return self.tr( "Line: %d, Column: %d: %s" % ( result.position.y() +1, result.position.x(), result.capture ))
+            elif role == Qt.ToolTipRole:
+                return result.capture
+            elif role == Qt.CheckStateRole:
+                if  self.flags( index ) & Qt.ItemIsUserCheckable:
+                    return result.checkState
+        elif isinstance(index.internalPointer(), self.FileResults):  # it is a file
+            fileRes = index.internalPointer()
+            if role == Qt.DisplayRole:
+                return '%s (%d)' % (self.mSearchDir.relativeFilePath( fileRes.fileName), len(fileRes.results))
+            elif role == Qt.CheckStateRole:
+                if  self.flags( index ) & Qt.ItemIsUserCheckable:
+                    return fileRes.checkState
+        else:
+            assert(0)
         return QVariant()
 
     def index(self, row, column, parent ):
-        if  row >= self.rowCount( parent ) or column >= self.columnCount( parent ) :
+        if  row >= self.rowCount( parent ) or column > self.columnCount(parent):
             return QModelIndex()
-
-        result = self.result( parent )
-
-        # parent is a root parent
-        if  result and self.mParentsList[parent.row()] == result :
-            result = self.mResults[parent.row()][row]
+        
+        if parent.isValid():  # index for result
+            result = parent.internalPointer().results[row]
             return self.createIndex( row, column, result )
+        else:  # need index for fileRes
+            return self.createIndex( row, column, self._fileResults[row])
 
-        assert (not parent.isValid())
-
-        # parent is invalid
-        return self.createIndex( row, column, self.mParentsList[ row ] )
-
-    def parent(self, index ):
+    def parent(self, index):
         if not index.isValid() :
             return QModelIndex()
-
-        result = self.result( index )
-        assert(result)
-
-        # index is a root parent
-        if result in self.mParentsList:
-            return QModelIndex()
-
-        assert( index.isValid() )
-
-        result = self.mParents[ result.fileName ]
-        row = self.mParentsList.index( result )
-
-        # index is a root parent child
-        return self.createIndex( row, index.column(), result )
-
-    def rowCount(self, parent ):
-        # root parents
-        if  not parent.isValid() :
-            return self.mRowCount
         
-        if parent.parent().isValid():
-            return 0
+        if not isinstance(index.internalPointer(), Result):  # it is an top level item
+            return QModelIndex()
+        
+        result = index.internalPointer()
+        for row, fileRes in enumerate(self._fileResults):
+            if fileRes.fileName == result.fileName:
+                return self.createIndex(row, 0, fileRes)
         else:
-            if parent.row() < len (self.mResults):
-                return len(self.mResults[parent.row()])
-            else:
-                return 0
+            assert(0)
 
+    def rowCount(self, parent):
+        if not parent.isValid():  # root elements
+            return len(self._fileResults)
+        elif isinstance(parent.internalPointer(), Result):  # result
+            return 0
+        elif isinstance(parent.internalPointer(), self.FileResults):  # file
+            return len(parent.internalPointer().results)
+        else:
+            assert(0)
+    
     def flags(self, index ):
         flags = QAbstractItemModel.flags( self, index )
         properties = self.mSearchThread.properties()
 
-        if  properties.mode & SearchAndReplace.ModeFlagReplace :
+        if properties.mode & SearchAndReplace.ModeFlagReplace :
             flags |= Qt.ItemIsUserCheckable
-
+        
+        """
         result = self.result( index )
 
         if  result :
-            if  not result.enabled :
+            if not result.enabled :
                 flags &= ~Qt.ItemIsEnabled
                 flags &= ~Qt.ItemIsSelectable
-
+        """
         return flags
 
-    def hasChildren(self, parent ):
+    def hasChildren(self, item):
         # root parents
-        if  not parent.isValid() :
-            return self.mRowCount != 0
-        
-        if parent.parent().isValid():
+        if  not item.isValid() :
+            return len(self._fileResults) != 0
+        elif isinstance(item.internalPointer(), Result):
            return False
+        elif isinstance(item.internalPointer(), self.FileResults):
+            return len(item.internalPointer().results) != 0
         else:
-            if parent.row() < len(self.mResults):
-                return bool(self.mResults[parent.row()])
-            else:
-                return False
-
+            assert(0)
+    
     def setData(self, index, value, role ):
-        result = self.result( index )
-
-        if role == Qt.CheckStateRole:
-            ok = True
-        elif role == SearchResultsModel.EnabledRole:
-            result.enabled = value
-            ok = True
+        if isinstance(index.internalPointer(), Result):  # it is a Result
+            if role == Qt.CheckStateRole:
+                # update own state
+                index.internalPointer().checkState = value.toInt()[0]
+                self.dataChanged.emit( index, index )  # own checked state changed
+                # update parent state
+                fileRes = index.parent().internalPointer()
+                assert(isinstance(fileRes, self.FileResults))
+                fileRes.updateCheckState()
+                self.dataChanged.emit(index.parent(), index.parent())  # parent checked state might be changed
+        elif isinstance(index.internalPointer(), self.FileResults):  # it is a FileResults
+            if role == Qt.CheckStateRole:
+                fileRes = index.internalPointer()
+                fileRes.checkState = value.toInt()[0]
+                for res in fileRes.results:
+                    res.checkState = value.toInt()[0]
+                firstChildIndex = self.index(0, 0, index)
+                lastChildIndex = self.index(len(fileRes.results) - 1, 0, index)
+                self.dataChanged.emit(firstChildIndex, lastChildIndex)
         else:
-            ok = False
-
-        if  role != Qt.CheckStateRole :
-            if  ok :
-                self.dataChanged.emit( index, index )
-
-            return ok
-
-        state = Qt.CheckState( value.toInt()[0] )
-        pIndex = index.parent()
-        isParent = not pIndex.isValid()
-        pResult = self.result( pIndex )
-
-        assert( result )
-
-        if  isParent :
-            pRow = self.mParentsList.index( result )
-            checkedCount = 0
-
-            # update all children to same state as parent
-            for r in self.mResults[pRow]:
-                if  r.enabled :
-                    r.checkState = state
-                    checkedCount += 1
-
-            left = index.child( 0, 0 )
-            right = index.child( self.rowCount( index ) -1, self.columnCount( index ) -1 )
-            # update root parent children
-            self.dataChanged.emit( left, right )
-
-            if  state == Qt.Unchecked :
-                checkedCount = 0
-
-            if  ( checkedCount == 0 and state == Qt.Checked ) or result.checkState == state :
-                ok = False
-
-            if  ok :
-                result.checkState = state
-        else:
-            pRow = self.mParentsList.index( pResult )
-            count = 0
-            checkedCount = 0
-
-            for r in self.mResults[pRow]:
-                count += 1
-
-                if  r.checkState == Qt.Checked :
-                    checkedCount += 1
-            
-            if  state == Qt.Checked :
-                checkedCount += 1
-            else:
-                checkedCount -= 1
-
-            result.checkState = state
-
-            # update parent
-            if  checkedCount == 0 :
-                pResult.checkState = Qt.Unchecked
-            elif  checkedCount == count :
-                pResult.checkState = Qt.Checked
-            else:
-                pResult.checkState = Qt.PartiallyChecked
-
-            # update root parent index
-            self.dataChanged.emit( pIndex, pIndex )
-
-        # update clicked index
-        self.dataChanged.emit( index, index )
-
-        return ok
-
-    def _index(self, result ):
-        if result in self.mParentsList:
-            row = self.mParentsList.index(  )
-            return self.createIndex( row, 0, result )
-        elif  result :
-            pResult = self.mParents[result.fileName]
-
-            if  pResult :
-                row = self.mParentsList.index( pResult )
-
-                if  row != -1 :
-                    row = self.mResults[row].index( result )
-                    return self.createIndex( row, 0, result )
-
-        return QModelIndex
+            assert(0)
     
-    def result(self, index ):
-        if index.isValid():
-            return index.internalPointer()
-        else:
-            return None
-    
-    def results(self):
-        return self.mResults
-
     def clear(self):
-        if  self.mRowCount == 0 :
-            return
-
-        self.beginRemoveRows( QModelIndex(), 0, self.mRowCount -1 )
-        
-        self.mResults = []  # clear
-        self.mParents = {}
-        self.mParentsList = []
-        self.mRowCount = 0
-        
+        self.beginRemoveRows(QModelIndex(), 0, len(self._fileResults) - 1)
+        self._fileResults = []
         self.endRemoveRows()
 
     def thread_reset(self):
         self.clear()
 
     def thread_resultsAvailable(self, fileName, results ):
-        if  self.mRowCount == 0 :
-            self.firstResultsAvailable.emit()
-        
         properties = self.mSearchThread.properties()
-        
-        if  self.mRowCount == 0 :
+        if not self._fileResults:  # appending first
+            self.firstResultsAvailable.emit()
             self.mSearchDir.setPath( properties.searchPath )
-
-        if not fileName in self.mParents:
-            result = Result( fileName )
-            result.checkable = properties.mode & SearchAndReplace.ModeFlagReplace
-            if result.checkable:
-                result.checkState = Qt.Checked
-            else:
-                result.checkState = Qt.Unchecked
-            self.beginInsertRows( QModelIndex(), self.mRowCount, self.mRowCount )
-            self.mParents[ fileName ] = result
-            self.mParentsList.append(result)
-            self.mRowCount += 1
-            self.mResults.append(results)
+        
+        if not self._fileResults or self._fileResults[-1].fileName != fileName:  # appending new file
+            self.beginInsertRows( QModelIndex(), len(self._fileResults), len(self._fileResults))
+            fileRes = self.FileResults(fileName)
+            self._fileResults.append(fileRes)
             self.endInsertRows()
         else:
-            result = self.mParents[ fileName ]
-            pRow = self.mParentsList.index( result )
-            count = len(self.mResults[pRow])
-            index = self.createIndex( pRow, 0, result )
+            fileRes = self._fileResults[-1]
+        
+        fileResIndex = self.createIndex(len(self._fileResults) - 1, 0, fileRes)
+        self.beginInsertRows(fileResIndex, len(fileRes.results), len(fileRes.results) + len(results) -1)
+        fileRes.results.extend(results)
+        self.endInsertRows()
+        self.dataChanged.emit(fileResIndex, fileResIndex)
 
-            self.beginInsertRows( index, count, count +results.count() -1 )
-            self.mResults[ pRow ].append(results)
-            self.endInsertRows()
-
-            self.dataChanged.emit( index, index )
-
-    def thread_resultsHandled(self, fileName, results ):
-        pResult = self.mParents[fileName]
-        assert( pResult )
-
-        pRow = self.mParentsList.index( pResult )
-        children = self.mResults[ pRow ]
-        pIndex = self.createIndex( pRow, 0, pResult )
-
-        # remove root parent children
-        for result in results:
-            index = children.index( result )
-            self.beginRemoveRows( pIndex, index, index )
-            children.pop( index )
-            self.endRemoveRows()
-
-        # remove root parent
-        if not children:
-            self.beginRemoveRows( QModelIndex(), pRow, pRow )
-            self.mResults.pop( pRow )
-            self.mParentsList.pop( pRow )
-            self.mRowCount -= 1
-            self.endRemoveRows()
-        else:
-            pResult.checkState = Qt.Unchecked
-            self.dataChanged.emit( pIndex, pIndex )
+    def thread_resultsHandled(self, fileName):
+        for index, fileRes in self._fileResults:  # try to find FileResults
+            if fileRes.fileName == fileName:  # found
+                self.beginRemoveRows(QModelIndex(), index, index)
+                self._fileResults.pop(index)
+                self.endRemoveRows()
+            break
+        else:  # not found
+            assert(0)
 
 class SearchResultsDock(pDockWidget):
     
@@ -1366,10 +1243,11 @@ class SearchResultsDock(pDockWidget):
 
     def view_activated(self, index ):
         result = index.internalPointer()
-        mks.monkeycore.workspace().goToLine( result.fileName,
-                                         result.position,
-                                         self.mSearchThread.properties().codec,
-                                         result.length )  # FIXME check this code result.offset == -1 ? 0 : result.length
+        if isinstance(result, Result):
+            mks.monkeycore.workspace().goToLine( result.fileName,
+                                             result.position,
+                                             self.mSearchThread.properties().codec,
+                                             result.length )  # FIXME check this code result.offset == -1 ? 0 : result.length
 
 class ReplaceThread(QThread):
     mMaxTime = 125
@@ -1386,7 +1264,7 @@ class ReplaceThread(QThread):
         self.mResults = {}
         self.lock = threading.Lock()
 
-    def __del__():  # check if it is not done by QThread
+    def __del__(self):  # check if it is not done by QThread
         self.stop()
         self.wait()
 
@@ -1437,10 +1315,10 @@ class ReplaceThread(QThread):
         file = QFile (fileName)
 
         if  not file.open( QIODevice.ReadOnly ) :
-            return QString.null
+            return ''
 
         if  isBinary( file ) :
-            return QString.null
+            return ''
 
         return codec.toUnicode( file.readAll() )
 
