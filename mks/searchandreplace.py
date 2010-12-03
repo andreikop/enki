@@ -18,10 +18,10 @@ from PyQt4.fresh import *
 import mks.monkeycore
 
 def isBinary(file ):
-    position = file.pos()
-    file.seek( 0 )
+    """Expects, that file position is 0, when exits, file position is 0
+    """
     binary = '\0' in file.read( 4096 )
-    file.seek( position )
+    file.seek(0)
     return binary
 
 
@@ -832,16 +832,16 @@ class SearchThread(QThread):
             return self.mProperties.openedFiles[ fileName ]
 
         assert( codec )
+        try:
+            with open(fileName) as f:
 
-        file = QFile ( fileName )
+                if  isBinary(f):
+                    return ''
 
-        if  not file.open( QIODevice.ReadOnly ) :
+                return unicode(f.readall()) # FIXME codec
+        except IOError, ex:
+            print ex
             return ''
-
-        if  isBinary( file ) :
-            return ''
-
-        return codec.toUnicode( file.readAll() )
 
     def _search(self, fileName, content ):
         eol = "\n"
@@ -865,7 +865,6 @@ class SearchThread(QThread):
         eolCount = 0
         results = []
         
-        content = unicode(content)  # convert from Qt to Python type
         for match in re.finditer(unicode(pattern), content, flags):
             eolStart = content.rfind( eol, match.start())
             eolEnd = content.find( eol, match.start())
@@ -898,7 +897,8 @@ class SearchThread(QThread):
                 return
 
         if  results:
-            self.resultsAvailable.emit( fileName, results )
+            pass  # FIXME
+            #self.resultsAvailable.emit( fileName, results )
 
     def run(self):
         def do(self):  # FIXME remove, it is for profiler
