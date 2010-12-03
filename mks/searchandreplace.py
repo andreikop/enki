@@ -3,6 +3,7 @@
 
 import os.path
 import threading
+import re
 
 from PyQt4 import uic
 from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QDir, QEvent, QFile, QIODevice, QModelIndex, \
@@ -844,110 +845,100 @@ class SearchThread(QThread):
 
     def _search(self, fileName, content ):
         eol = "\n"
-        checkable = False
-        isRE = False
-        rx = QRegExp()
         
-        isRE = self.mProperties.options & SearchAndReplace.OptionRegularExpression
-        isWw = self.mProperties.options & SearchAndReplace.OptionWholeWord
-        isCS = self.mProperties.options & SearchAndReplace.OptionCaseSensitive
-        if isCS:
-            sensitivity = Qt.CaseSensitive
-        else:
-            sensitivity = Qt.CaseInsensitive
-        checkable = self.mProperties.mode & SearchAndReplace.ModeFlagReplace
-        if isRE:
-            pattern = self.mProperties.searchText
-        else:
-            pattern = QRegExp.escape( self.mProperties.searchText )
-
-        if  isWw :
+        pattern = unicode(self.mProperties.searchText)
+        flags = 0
+        
+        if not self.mProperties.options & SearchAndReplace.OptionRegularExpression:  # not reg exp
+            pattern = re.escape( pattern )
+        
+        if self.mProperties.options & SearchAndReplace.OptionWholeWord:  # whole word
             pattern.prepend( "\\b" ).append( "\\b" )
-
-        rx.setMinimal( True )
-        rx.setPattern( pattern )
-        rx.setCaseSensitivity( sensitivity )
+        
+        if not self.mProperties.options & SearchAndReplace.OptionCaseSensitive:  # not case sensetive
+            flags = re.IGNORECASE
+        
+        checkable = self.mProperties.mode & SearchAndReplace.ModeFlagReplace
 
         pos = 0
         lastPos = 0
         eolCount = 0
         results = []
-        tracker = QTime()
-
-        tracker.start()
         
-        pos = rx.indexIn( content, pos )
-        while pos != -1:
-            eolStart = content.lastIndexOf( eol, pos )
-            eolEnd = content.indexOf( eol, pos )
-            capture = content.mid( eolStart + 1, eolEnd -1 -eolStart ).simplified()
-            eolCount += content.mid( lastPos, pos -lastPos ).count( eol )
-            column = pos - eolStart
+        content = unicode(content)  # convert from Qt to Python type
+        for match in re.finditer(unicode(pattern), content, flags):
+            eolStart = content.rfind( eol, match.start())
+            eolEnd = content.find( eol, match.start())
+            capture = content[eolStart + 1:eolEnd - 1].strip()
+            eolCount += content[lastPos:match.start()].count( eol )
+            column = match.start() - eolStart
             if eolStart != 0:
                 column -= 1
             
             result = Result( fileName, capture )
             result.position = QPoint( column, eolCount )
-            result.offset = pos
-            result.length = rx.matchedLength()
+            result.offset = match.start()
+            result.length = match.end() - match.start()
             result.checkable = checkable
             if checkable:
                 result.checkState =  Qt.Checked
             else:
                 result.checkState =  Qt.Unchecked
             
-            if isRE:
-                result.capturedTexts =  rx.capturedTexts()
+            if self.mProperties.options & SearchAndReplace.OptionRegularExpression:  # if regular expression
+                result.capturedTexts =  rx.groups()
             else:
                 result.capturedTexts = []
             
             results.append(result)
 
-            lastPos = pos
-            pos += rx.matchedLength()
-
-            if  tracker.elapsed() >= self.mMaxTime :
-                self.resultsAvailable.emit( fileName, results )
-                results = []
-                tracker.restart()
+            lastPos = match.start()
 
             if self.mExit :
                 return
-            pos = rx.indexIn( content, pos )
 
         if  results:
             self.resultsAvailable.emit( fileName, results )
 
     def run(self):
-        tracker = QTime()
+        def do(self):  # FIXME remove, it is for profiler
+            tracker = QTime()
 
-        self.reset.emit()
-        self.progressChanged.emit( -1, 0 )
-        tracker.restart()
+            self.reset.emit()
+            self.progressChanged.emit( -1, 0 )
+            tracker.restart()
 
-        files = self.getFilesToScan()
-        files.sort()
-
-        if  self.mExit :
-            return
-        
-        total = len(files)
-        value = 0
-        
-        self.progressChanged.emit( 0, total )
-
-        for fileName in files:
-            content = self.fileContent( fileName )
-            self._search( fileName, content )
-            value += 1
-            
-            self.progressChanged.emit( value, total )
+            files = self.getFilesToScan()
+            files.sort()
 
             if  self.mExit :
                 return
+            
+            total = len(files)
+            value = 0
+            
+            self.progressChanged.emit( 0, total )
 
-        print "Search finished in ", tracker.elapsed() /1000.0
+            for fileName in files:
+                content = self.fileContent( fileName )
+                self._search( fileName, content )
+                value += 1
+                
+                self.progressChanged.emit( value, total )
 
+                if  self.mExit :
+                    return
+            print "Search finished in ", tracker.elapsed() /1000.0
+        """
+        import cProfile
+        cProfile.runctx('do(self)', globals(), locals(), 'profdata.txt')
+        import pstats
+        s = pstats.Stats("profdata.txt")
+        s.strip_dirs().sort_stats("cumulative").print_stats()
+        s.strip_dirs().sort_stats("cumulative").print_callers()
+        """
+        do(self)
+        
     def clear(self):
         self.stop()
         self.reset.emit()

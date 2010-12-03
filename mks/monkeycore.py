@@ -135,9 +135,10 @@ def init():
     import mks.editor  # TODO would be done, when plugin loaded, remove this 2 lines from here
     mks.monkeycore.workspace().setTextEditorClass(mks.editor.Editor) 
     
-    workspace().openFile('/home/a/tmp/src-samples/1.txt') # FIXME
-    workspace().openFile('/home/a/tmp/src-samples/2') # FIXME
-    workspace().openFile('/home/a/tmp/src-samples/main.cpp') # FIXME
+    workspace().openFile('/home/a/code/emma3slp/devel/kernel/modules.order') # FIXME
+    #workspace().openFile('/home/a/tmp/src-samples/1.txt') # FIXME
+    #workspace().openFile('/home/a/tmp/src-samples/2') # FIXME
+    #workspace().openFile('/home/a/tmp/src-samples/main.cpp') # FIXME
     #workspace().openFile('/home/a/tmp/t.txt') # FIXME
     #workspace().openFile('/home/a/tmp/bug') # FIXME
 
