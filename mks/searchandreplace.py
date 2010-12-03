@@ -752,34 +752,28 @@ class SearchThread(QThread):
 
     def __init__(self, parentObject):
         QThread.__init__(self, parentObject)
-        self.mReset = False
         self.mExit = False
-        self.lock = threading.Lock()
         
         # FIXME what to do with it?
         # qRegisterMetaType(ResultList, "ResultList" )
 
     def __del__(self):
         self.stop()
-        self.wait()
 
     def search(self, properties ):
-        with self.lock:
-            self.mProperties = properties
-            self.mReset = self.isRunning()
-            self.mExit = False
-
-        if  not self.isRunning() :
-            self.start()
+        self.mProperties = properties
+        self.stop()
+        self.mExit = False
+        self.start()
 
     def stop(self):
-        with self.lock:
-            self.mReset = False
-            self.mExit = True
+        """Stops thread synchronously
+        """
+        self.mExit = True
+        self.wait()
 
     def properties(self):
-        with self.lock:
-            return self.mProperties
+        return self.mProperties
 
     def getFiles(self, fromDir, filters, recursive ):
         files = []
@@ -793,58 +787,48 @@ class SearchThread(QThread):
                 files.extend(self.getFiles( fromDir, filters, recursive ))
                 fromDir.cdUp()
 
-                with self.lock:
-                    if  self.mReset or self.mExit :
-                        return files
+                if self.mExit :
+                    return files
         return files
     
     def getFilesToScan(self):
         files = set()
-        mode = SearchAndReplace.ModeNo
-
-        with self.lock:
-            mode = self.mProperties.mode
+        mode = self.mProperties.mode
 
         if mode in (SearchAndReplace.ModeNo, SearchAndReplace.ModeSearch, SearchAndReplace.ModeReplace):
             print "Invalid mode used."  # TODO use some logging system?
             assert(0)
         elif mode in (SearchAndReplace.ModeSearchDirectory, SearchAndReplace.ModeReplaceDirectory):
-            with self.lock:
-                path = self.mProperties.searchPath
-                mask = self.mProperties.mask
+            path = self.mProperties.searchPath
+            mask = self.mProperties.mask
             files = list(set(self.getFiles( QDir (path), mask, True )))  # list(set()) for clear duplicates
         elif mode in (SearchAndReplace.ModeSearchProjectFiles, SearchAndReplace.ModeReplaceProjectFiles):
-            with self.lock:
-                sources = self.mProperties.sourcesFiles
-                mask = self.mProperties.mask
+            sources = self.mProperties.sourcesFiles
+            mask = self.mProperties.mask
 
             for fileName in sources:
                 if  QDir.match( mask, fileName ) :
                     files.append(fileName)
-                with self.lock:
-                    if  self.mReset or self.mExit :
+                    if self.mExit :
                         return files
         elif mode in (SearchAndReplace.ModeSearchOpenedFiles, SearchAndReplace.ModeReplaceOpenedFiles):
-            with self.lock:
-                sources = self.mProperties.openedFiles.keys()
-                mask = self.mProperties.mask
+            sources = self.mProperties.openedFiles.keys()
+            mask = self.mProperties.mask
 
             for fileName in sources:
                 if  QDir.match( mask, fileName ) :
                     files.append(fileName)
-                    with self.lock:
-                        if  self.mReset or self.mExit :
-                            return files
+                    if self.mExit :
+                        return files
         return files
 
     def fileContent(self, fileName ):
         codec = 0
 
-        with self.lock:
-            codec = QTextCodec.codecForName( self.mProperties.codec.toLocal8Bit() )
+        codec = QTextCodec.codecForName( self.mProperties.codec.toLocal8Bit() )
 
-            if fileName in self.mProperties.openedFiles:
-                return self.mProperties.openedFiles[ fileName ]
+        if fileName in self.mProperties.openedFiles:
+            return self.mProperties.openedFiles[ fileName ]
 
         assert( codec )
 
@@ -864,27 +848,25 @@ class SearchThread(QThread):
         isRE = False
         rx = QRegExp()
         
-        with self.lock:
+        isRE = self.mProperties.options & SearchAndReplace.OptionRegularExpression
+        isWw = self.mProperties.options & SearchAndReplace.OptionWholeWord
+        isCS = self.mProperties.options & SearchAndReplace.OptionCaseSensitive
+        if isCS:
+            sensitivity = Qt.CaseSensitive
+        else:
+            sensitivity = Qt.CaseInsensitive
+        checkable = self.mProperties.mode & SearchAndReplace.ModeFlagReplace
+        if isRE:
+            pattern = self.mProperties.searchText
+        else:
+            pattern = QRegExp.escape( self.mProperties.searchText )
 
-            isRE = self.mProperties.options & SearchAndReplace.OptionRegularExpression
-            isWw = self.mProperties.options & SearchAndReplace.OptionWholeWord
-            isCS = self.mProperties.options & SearchAndReplace.OptionCaseSensitive
-            if isCS:
-                sensitivity = Qt.CaseSensitive
-            else:
-                sensitivity = Qt.CaseInsensitive
-            checkable = self.mProperties.mode & SearchAndReplace.ModeFlagReplace
-            if isRE:
-                pattern = self.mProperties.searchText
-            else:
-                pattern = QRegExp.escape( self.mProperties.searchText )
+        if  isWw :
+            pattern.prepend( "\\b" ).append( "\\b" )
 
-            if  isWw :
-                pattern.prepend( "\\b" ).append( "\\b" )
-
-            rx.setMinimal( True )
-            rx.setPattern( pattern )
-            rx.setCaseSensitivity( sensitivity )
+        rx.setMinimal( True )
+        rx.setPattern( pattern )
+        rx.setCaseSensitivity( sensitivity )
 
         pos = 0
         lastPos = 0
@@ -929,9 +911,8 @@ class SearchThread(QThread):
                 results = []
                 tracker.restart()
 
-            with self.lock:
-                if  self.mReset or self.mExit :
-                    return
+            if self.mExit :
+                return
             pos = rx.indexIn( content, pos )
 
         if  results:
@@ -940,46 +921,30 @@ class SearchThread(QThread):
     def run(self):
         tracker = QTime()
 
-        while True:  # FIXME replace with better loop
-            with self.lock:
-                self.mReset = False
-                self.mExit = False
+        self.reset.emit()
+        self.progressChanged.emit( -1, 0 )
+        tracker.restart()
 
-            self.reset.emit()
-            self.progressChanged.emit( -1, 0 )
-            tracker.restart()
+        files = self.getFilesToScan()
+        files.sort()
 
-            files = self.getFilesToScan()
-            files.sort()
+        if  self.mExit :
+            return
+        
+        total = len(files)
+        value = 0
+        
+        self.progressChanged.emit( 0, total )
 
-            with self.lock:
-                if  self.mExit :
-                    return
-                elif  self.mReset :
-                    continue
+        for fileName in files:
+            content = self.fileContent( fileName )
+            self._search( fileName, content )
+            value += 1
             
-            total = len(files)
-            value = 0
-            
-            self.progressChanged.emit( 0, total )
+            self.progressChanged.emit( value, total )
 
-            for fileName in files:
-                content = self.fileContent( fileName )
-                self._search( fileName, content )
-                value += 1
-                
-                self.progressChanged.emit( value, total )
-
-                with self.lock:
-                    if  self.mExit :
-                        return
-                    elif  self.mReset :
-                        break
-
-            with self.lock:
-                if  self.mReset :
-                    continue
-            break
+            if  self.mExit :
+                return
 
         print "Search finished in ", tracker.elapsed() /1000.0
 
@@ -1015,9 +980,9 @@ class SearchResultsModel(QAbstractItemModel):
     EnabledRole = Qt.UserRole
     
     class FileResults:
-        def __init__(self, fileName):
+        def __init__(self, fileName, results):
             self.fileName = fileName
-            self.results = []
+            self.results = results
             self.checkState = Qt.Checked
         
         def updateCheckState(self):
@@ -1167,18 +1132,16 @@ class SearchResultsModel(QAbstractItemModel):
         
         if not self.fileResults or self.fileResults[-1].fileName != fileName:  # appending new file
             self.beginInsertRows( QModelIndex(), len(self.fileResults), len(self.fileResults))
-            fileRes = self.FileResults(fileName)
+            fileRes = self.FileResults(fileName, results)
             self.fileResults.append(fileRes)
             self.endInsertRows()
         else:
             fileRes = self.fileResults[-1]
-        
-        fileResIndex = self.createIndex(len(self.fileResults) - 1, 0, fileRes)
-        self.beginInsertRows(fileResIndex, len(fileRes.results), len(fileRes.results) + len(results) -1)
-        fileRes.results.extend(results)
-        self.endInsertRows()
-        self.dataChanged.emit(fileResIndex, fileResIndex)
-
+            fileResIndex = self.createIndex(len(self.fileResults) - 1, 0, fileRes)
+            self.beginInsertRows(fileResIndex, len(fileRes.results), len(fileRes.results) + len(results) -1)
+            fileRes.results.extend(results)
+            self.endInsertRows()
+    
     def thread_resultsHandled(self, fileName, results):
         for index, fileRes in enumerate(self.fileResults):  # try to find FileResults
             if fileRes.fileName == fileName:  # found
@@ -1264,18 +1227,12 @@ class ReplaceThread(QThread):
     
     def __init__(self, parent):
         QThread.__init__(self, parent)
-        self.mReset = False
-        self.mExit = False
-        self.mProperties = Properties()
-        self.mResults = {}
 
-    def __del__(self):  # check if it is not done by QThread
+    def __del__(self):
         self.stop()
-        self.wait()
 
     def replace(self, properties, results):
         self.stop()
-        self.wait()        
         
         self.mProperties = properties
         self.mResults = results
@@ -1284,6 +1241,7 @@ class ReplaceThread(QThread):
 
     def stop(self):
         self.mExit = True
+        self.wait()
 
     def saveContent(self, fileName, content, codec ):  # use Python functionality?
         file = QFile( fileName )
