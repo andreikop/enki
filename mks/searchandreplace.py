@@ -5,6 +5,8 @@ import os.path
 import threading
 import re
 import time
+import pkgutil
+import encodings
 
 from PyQt4 import uic
 from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QDir, QEvent, QIODevice, QModelIndex, \
@@ -241,8 +243,12 @@ class SearchWidget(QFrame):
         """
         
         # codecs
-        slist = [unicode(c) for c in sorted(QTextCodec.availableCodecs())]
-        self.cbCodec.addItems(slist)
+        false_positives = set(["aliases"])
+        foundCodecs = set(name for imp, name, ispkg in pkgutil.iter_modules(encodings.__path__) if not ispkg)
+        foundCodecs.difference_update(false_positives)
+        foundCodecs = sorted(list(foundCodecs))
+
+        self.cbCodec.addItems(foundCodecs)
         
         """TODO
         self.cbCodec.setCurrentIndex( self.cbCodec.findText( pMonkeyStudio.defaultCodec() ) )
