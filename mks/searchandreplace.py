@@ -4,6 +4,7 @@
 import os.path
 import threading
 import re
+import time
 
 from PyQt4 import uic
 from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QDir, QEvent, QFile, QIODevice, QModelIndex, \
@@ -745,10 +746,10 @@ class SearchWidget(QFrame):
 
 
 class SearchThread(QThread):
-    mMaxTime = 125
+    RESULTS_EMIT_TIMEOUT = 1.0
 
     reset = pyqtSignal()
-    resultsAvailable = pyqtSignal(QString, list)  # QString filename, list of results
+    resultsAvailable = pyqtSignal(list)  # list of SearchResultsModel.FileResults
     progressChanged = pyqtSignal(int, int)  # int value, int total
 
     def __init__(self, parentObject):
@@ -765,6 +766,8 @@ class SearchThread(QThread):
         self.mProperties = properties
         self.stop()
         self.mExit = False
+        self.notEmittedFileResults = []
+        self.lastResultsEmitTime = time.clock()
         self.start()
 
     def stop(self):
@@ -888,13 +891,22 @@ class SearchThread(QThread):
 
             lastPos = start
 
-            if self.mExit :
+            if self.mExit:
+                if self.notEmittedFileResults:
+                    self.resultsAvailable.emit(self.notEmittedFileResults)
+                    self.notEmittedFileResults = []
                 return
 
         if  results:
-            #pass  # FIXME
-            self.resultsAvailable.emit( fileName, results )
-
+            self.notEmittedFileResults.append(SearchResultsModel.FileResults(fileName, results))
+        
+        if self.notEmittedFileResults and \
+           (time.clock() - self.lastResultsEmitTime) > self.RESULTS_EMIT_TIMEOUT:
+                self.progressChanged.emit( self.searchProgressValue, self.searchProgressTotal )
+                self.resultsAvailable.emit(self.notEmittedFileResults)
+                self.notEmittedFileResults = []
+                self.lastResultsEmitTime = time.clock()
+        
     def run(self):
         def do(self):  # FIXME remove, it is for profiler
             tracker = QTime()
@@ -909,17 +921,16 @@ class SearchThread(QThread):
             if  self.mExit :
                 return
             
-            total = len(files)
-            value = 0
+            self.searchProgressTotal = len(files)
+            self.searchProgressValue = 0
             
-            self.progressChanged.emit( 0, total )
+            self.progressChanged.emit( 0, self.searchProgressTotal)
 
             for fileName in files:
                 content = self.fileContent( fileName )
                 self._search( fileName, content )
-                value += 1
                 
-                self.progressChanged.emit( value, total )
+                self.searchProgressValue += 1
 
                 if  self.mExit :
                     return
@@ -1110,23 +1121,16 @@ class SearchResultsModel(QAbstractItemModel):
     def thread_reset(self):
         self.clear()
 
-    def thread_resultsAvailable(self, fileName, results ):
+    def thread_resultsAvailable(self, fileResultsList ):
         properties = self.mSearchThread.properties()
         if not self.fileResults:  # appending first
             self.firstResultsAvailable.emit()
             self.mSearchDir.setPath( properties.searchPath )
-        
-        if not self.fileResults or self.fileResults[-1].fileName != fileName:  # appending new file
-            self.beginInsertRows( QModelIndex(), len(self.fileResults), len(self.fileResults))
-            fileRes = self.FileResults(fileName, results)
-            self.fileResults.append(fileRes)
-            self.endInsertRows()
-        else:
-            fileRes = self.fileResults[-1]
-            fileResIndex = self.createIndex(len(self.fileResults) - 1, 0, fileRes)
-            self.beginInsertRows(fileResIndex, len(fileRes.results), len(fileRes.results) + len(results) -1)
-            fileRes.results.extend(results)
-            self.endInsertRows()
+        self.beginInsertRows( QModelIndex(), \
+                              len(self.fileResults), \
+                              len(self.fileResults) + len(fileResultsList) - 1)
+        self.fileResults.extend(fileResultsList)
+        self.endInsertRows()
     
     def thread_resultsHandled(self, fileName, results):
         for index, fileRes in enumerate(self.fileResults):  # try to find FileResults
