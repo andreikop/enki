@@ -866,7 +866,7 @@ class SearchThread(QThread):
         
         for match in re.finditer(unicode(pattern), content, flags):
             start = match.start()
-            eolStart = content.rfind( eol, start)
+            eolStart = content.rfind( eol, 0, start)
             eolEnd = content.find( eol, start)
             capture = content[eolStart + 1:eolEnd - 1].strip()
             eolCount += content[lastPos:start].count( eol )
@@ -878,10 +878,10 @@ class SearchThread(QThread):
                 capturedTexts =  rx.groups()
             else:
                 capturedTexts = []
-            
-            result = Result( fileName = fileName, \
+            result = SearchResultsModel.Result( fileName = fileName, \
                              capture = capture, \
-                             position = (column, eolCount,), \
+                             line = eolCount, \
+                             column = column, \
                              offset = start, \
                              length = match.end() - start, \
                              checkable = checkable,
@@ -892,20 +892,10 @@ class SearchThread(QThread):
             lastPos = start
 
             if self.mExit:
-                if self.notEmittedFileResults:
-                    self.resultsAvailable.emit(self.notEmittedFileResults)
-                    self.notEmittedFileResults = []
-                return
+                break
 
         if  results:
             self.notEmittedFileResults.append(SearchResultsModel.FileResults(fileName, results))
-        
-        if self.notEmittedFileResults and \
-           (time.clock() - self.lastResultsEmitTime) > self.RESULTS_EMIT_TIMEOUT:
-                self.progressChanged.emit( self.searchProgressValue, self.searchProgressTotal )
-                self.resultsAvailable.emit(self.notEmittedFileResults)
-                self.notEmittedFileResults = []
-                self.lastResultsEmitTime = time.clock()
         
     def run(self):
         def do(self):  # FIXME remove, it is for profiler
@@ -932,8 +922,20 @@ class SearchThread(QThread):
                 
                 self.searchProgressValue += 1
 
+                if self.notEmittedFileResults and \
+                   (time.clock() - self.lastResultsEmitTime) > self.RESULTS_EMIT_TIMEOUT:
+                        self.progressChanged.emit( self.searchProgressValue, self.searchProgressTotal )
+                        self.resultsAvailable.emit(self.notEmittedFileResults)
+                        self.notEmittedFileResults = []
+                        self.lastResultsEmitTime = time.clock()
+
                 if  self.mExit :
-                    return
+                    break
+            
+            if self.notEmittedFileResults:
+                self.progressChanged.emit( self.searchProgressValue, self.searchProgressTotal )
+                self.resultsAvailable.emit(self.notEmittedFileResults)
+            
             print "Search finished in ", tracker.elapsed() /1000.0
         """
         import cProfile
@@ -948,27 +950,7 @@ class SearchThread(QThread):
         
     def clear(self):
         self.stop()
-        self.reset.emit()
-
-class Result:
-    def __init__ (  self, \
-                    fileName, \
-                    capture, \
-                    position, \
-                    offset, \
-                    length, \
-                    checkable, \
-                    capturedTexts):
-            self.fileName = fileName;
-            self.capture = capture;
-            self.position = position;
-            self.offset = offset;
-            self.length = length;
-            self.checkable = checkable;
-            self.checkState =  Qt.Checked
-            self.enabled = True;
-            self.capturedTexts = capturedTexts;
-            
+        self.reset.emit()            
 
 class SearchResultsModel(QAbstractItemModel):
 
@@ -976,6 +958,36 @@ class SearchResultsModel(QAbstractItemModel):
     
     EnabledRole = Qt.UserRole
     
+    class Result:
+        def __init__ (  self, \
+                        fileName, \
+                        capture, \
+                        line, \
+                        column, \
+                        offset, \
+                        length, \
+                        checkable, \
+                        capturedTexts):
+                self.fileName = fileName;
+                self.capture = capture;
+                self.line = line;
+                self.column = column;
+                self.offset = offset;
+                self.length = length;
+                self.checkable = checkable;
+                self.checkState =  Qt.Checked
+                self.enabled = True;
+                self.capturedTexts = capturedTexts;
+        
+        def text(self, notUsed):
+            return "Line: %d, Column: %d: %s" % ( self.line + 1, self.column, self.capture )
+        
+        def tooltip(self):
+            return self.capture
+        
+        def hasChildren(self):
+            return False
+
     class FileResults:
         def __init__(self, fileName, results):
             self.fileName = fileName
@@ -989,6 +1001,15 @@ class SearchResultsModel(QAbstractItemModel):
                 self.checkState = Qt.PartiallyChecked
             else:
                 self.checkState = Qt.Unchecked
+        
+        def text(self, baseDir):
+            return '%s (%d)' % (baseDir.relativeFilePath(self.fileName), len(self.results))
+        
+        def tooltip(self):
+            return self.fileName
+        
+        def hasChildren(self):
+            return 0 != len(self.results)
     
     def __init__(self, searchThread, parent ):
         QAbstractItemModel.__init__(self, parent )
@@ -1001,34 +1022,6 @@ class SearchResultsModel(QAbstractItemModel):
         # connections
         self.mSearchThread.reset.connect(self.thread_reset)
         self.mSearchThread.resultsAvailable.connect(self.thread_resultsAvailable)
-
-    def columnCount(self, parent ):
-        return 1
-    
-    def data(self, index, role ):
-        if not index.isValid() :
-            return QVariant()
-        
-        if isinstance(index.internalPointer(), Result):  # it is a result
-            result = index.internalPointer()
-            if role == Qt.DisplayRole:
-                # index is a root parent
-                return self.tr( "Line: %d, Column: %d: %s" % ( result.position[1] +1, result.position[0], result.capture ))
-            elif role == Qt.ToolTipRole:
-                return result.capture
-            elif role == Qt.CheckStateRole:
-                if  self.flags( index ) & Qt.ItemIsUserCheckable:
-                    return result.checkState
-        elif isinstance(index.internalPointer(), self.FileResults):  # it is a file
-            fileRes = index.internalPointer()
-            if role == Qt.DisplayRole:
-                return '%s (%d)' % (self.mSearchDir.relativeFilePath( fileRes.fileName), len(fileRes.results))
-            elif role == Qt.CheckStateRole:
-                if  self.flags( index ) & Qt.ItemIsUserCheckable:
-                    return fileRes.checkState
-        else:
-            assert(0)
-        return QVariant()
 
     def index(self, row, column, parent ):
         if  row >= self.rowCount( parent ) or column > self.columnCount(parent):
@@ -1044,7 +1037,7 @@ class SearchResultsModel(QAbstractItemModel):
         if not index.isValid() :
             return QModelIndex()
         
-        if not isinstance(index.internalPointer(), Result):  # it is an top level item
+        if not isinstance(index.internalPointer(), SearchResultsModel.Result):  # it is an top level item
             return QModelIndex()
         
         result = index.internalPointer()
@@ -1054,10 +1047,20 @@ class SearchResultsModel(QAbstractItemModel):
         else:
             assert(0)
 
+    def hasChildren(self, item):
+        # root parents
+        if item.isValid():
+            return item.internalPointer().hasChildren()
+        else:
+            return len(self.fileResults) != 0
+
+    def columnCount(self, parent ):
+        return 1
+    
     def rowCount(self, parent):
         if not parent.isValid():  # root elements
             return len(self.fileResults)
-        elif isinstance(parent.internalPointer(), Result):  # result
+        elif isinstance(parent.internalPointer(), SearchResultsModel.Result):  # result
             return 0
         elif isinstance(parent.internalPointer(), self.FileResults):  # file
             return len(parent.internalPointer().results)
@@ -1071,26 +1074,30 @@ class SearchResultsModel(QAbstractItemModel):
         if properties.mode & SearchAndReplace.ModeFlagReplace :
             flags |= Qt.ItemIsUserCheckable
         
-        if isinstance(index.internalPointer(), Result):
+        if isinstance(index.internalPointer(), SearchResultsModel.Result):
             if not index.internalPointer().enabled :
                 flags &= ~Qt.ItemIsEnabled
                 flags &= ~Qt.ItemIsSelectable
         
         return flags
-
-    def hasChildren(self, item):
-        # root parents
-        if  not item.isValid() :
-            return len(self.fileResults) != 0
-        elif isinstance(item.internalPointer(), Result):
-           return False
-        elif isinstance(item.internalPointer(), self.FileResults):
-            return len(item.internalPointer().results) != 0
-        else:
-            assert(0)
+    
+    def data(self, index, role ):
+        if not index.isValid() :
+            return QVariant()
+        
+        # Common code for file and result
+        if role == Qt.DisplayRole:
+            return self.tr( index.internalPointer().text(self.mSearchDir))
+        elif role == Qt.ToolTipRole:
+            return index.internalPointer().tooltip()
+        elif role == Qt.CheckStateRole:
+            if  self.flags( index ) & Qt.ItemIsUserCheckable:
+                return index.internalPointer().checkState
+        
+        return QVariant()
     
     def setData(self, index, value, role ):
-        if isinstance(index.internalPointer(), Result):  # it is a Result
+        if isinstance(index.internalPointer(), SearchResultsModel.Result):  # it is a Result
             if role == Qt.CheckStateRole:
                 # update own state
                 index.internalPointer().checkState = value.toInt()[0]
@@ -1202,11 +1209,11 @@ class SearchResultsDock(pDockWidget):
 
     def view_activated(self, index ):
         result = index.internalPointer()
-        if isinstance(result, Result):
+        if isinstance(result, SearchResultsModel.Result):
             mks.monkeycore.workspace().goToLine( result.fileName,
-                                             result.position,
-                                             self.mSearchThread.properties().codec,
-                                             result.length )  # FIXME check this code result.offset == -1 ? 0 : result.length
+                                                 (result.line, result.column,),
+                                                 self.mSearchThread.properties().codec,
+                                                 result.length )  # FIXME check this code result.offset == -1 ? 0 : result.length
 
 class ReplaceThread(QThread):
     mMaxTime = 125
