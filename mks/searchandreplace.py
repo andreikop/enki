@@ -7,9 +7,9 @@ import re
 import time
 
 from PyQt4 import uic
-from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QDir, QEvent, QFile, QIODevice, QModelIndex, \
+from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QDir, QEvent, QIODevice, QModelIndex, \
                         QMutex, QMutexLocker, \
-                        QObject, QRect, QRegExp, QSize, QString, QStringList, Qt, QTime, \
+                        QObject, QRect, QRegExp, QSize, QString, QStringList, Qt, \
                         QTextCodec, QThread, QVariant
 from PyQt4.QtGui import QAction, QCompleter, QColor, QDirModel, QFileDialog,  \
                         QFrame, QFileDialog, QHBoxLayout, QIcon, QKeyEvent, QLineEdit, QPainter,  \
@@ -468,7 +468,7 @@ class SearchWidget(QFrame):
         self.mProperties.searchPath = self.cbPath.currentText()
         self.mProperties.mode = self.mMode
         self.mProperties.mask = []
-        self.mProperties.codec = self.cbCodec.currentText()
+        self.mProperties.codec = unicode(self.cbCodec.currentText())
         self.mProperties.options = SearchAndReplace.ModeNo
         self.mProperties.openedFiles = {}
         """TODO
@@ -508,7 +508,7 @@ class SearchWidget(QFrame):
 
         # update opened files
         for document in mks.monkeycore.workspace().openedDocuments():
-            self.mProperties.openedFiles[document.filePath()] = document.fileBuffer()
+            self.mProperties.openedFiles[document.filePath()] = unicode(document.fileBuffer())
 
         # update sources files
         self.mProperties.sourcesFiles = []
@@ -643,10 +643,8 @@ class SearchWidget(QFrame):
         self.updateWidgets()
 
     def replaceThread_openedFileHandled(self, fileName, content, codec ):
-        document = mks.monkeycore.fileManager().openFile( fileName, codec )
-        editor = document.editor()
-
-        assert( editor )
+        document = mks.monkeycore.workspace().openFile(fileName, codec)
+        editor = document.qscintilla  # FIXME
 
         editor.beginUndoAction()
         editor.selectAll()
@@ -684,7 +682,7 @@ class SearchWidget(QFrame):
         self.initializeProperties( True )
         self.searchFile( True, False )
 
-    def on_pbSearch_clicked(self):
+    def on_pbSearch_pressed(self):
         self.setState( SearchWidget.Search, SearchWidget.Normal )
         self.updateComboBoxes()
         self.initializeProperties( False )
@@ -707,12 +705,12 @@ class SearchWidget(QFrame):
         self.initializeProperties( True )
         self.replaceFile( False )
 
-    def on_pbReplaceAll_clicked(self):
+    def on_pbReplaceAll_pressed(self):
         self.updateComboBoxes()
         self.initializeProperties( True )
         self.replaceFile( True )
 
-    def on_pbReplaceChecked_clicked(self):
+    def on_pbReplaceChecked_pressed(self):
         items = {}
         model = self.mDock.model()
 
@@ -755,10 +753,7 @@ class SearchThread(QThread):
     def __init__(self, parentObject):
         QThread.__init__(self, parentObject)
         self.mExit = False
-        
-        # FIXME what to do with it?
-        # qRegisterMetaType(ResultList, "ResultList" )
-
+    
     def __del__(self):
         self.stop()
 
@@ -766,8 +761,6 @@ class SearchThread(QThread):
         self.mProperties = properties
         self.stop()
         self.mExit = False
-        self.notEmittedFileResults = []
-        self.lastResultsEmitTime = time.clock()
         self.start()
 
     def stop(self):
@@ -776,10 +769,11 @@ class SearchThread(QThread):
         self.mExit = True
         self.wait()
 
-    def properties(self):
-        return self.mProperties
+    def clear(self):
+        self.stop()
+        self.reset.emit()            
 
-    def getFiles(self, path, filters):
+    def _getFiles(self, path, filters):
         retFiles = []
         for root, dirs, files in os.walk(os.path.abspath(unicode(path))):
             if root.startswith('.'):
@@ -794,7 +788,7 @@ class SearchThread(QThread):
 
         return retFiles
     
-    def getFilesToScan(self):
+    def _getFilesToScan(self):
         files = set()
 
         """
@@ -821,15 +815,12 @@ class SearchThread(QThread):
         if self.mProperties.mode in (SearchAndReplace.ModeSearchDirectory, SearchAndReplace.ModeReplaceDirectory):
             path = self.mProperties.searchPath
             mask = self.mProperties.mask
-            return self.getFiles(path, mask)
+            return self._getFiles(path, mask)
         else:
             print "Invalid mode used."  # TODO use some logging system?
             assert(0)
 
-    def fileContent(self, fileName ):
-
-        #codec = QTextCodec.codecForName( self.mProperties.codec.toLocal8Bit() )
-
+    def _fileContent(self, fileName, codec=''):
         if fileName in self.mProperties.openedFiles:
             return self.mProperties.openedFiles[ fileName ]
 
@@ -837,116 +828,93 @@ class SearchThread(QThread):
             with open(fileName) as f:
                 if  isBinary(f):
                     return ''
-                return unicode(f.read(), errors = 'ignore') # FIXME codec
+                return unicode(f.read(), codec, errors = 'ignore')
         except IOError, ex:
             print ex
             return ''
 
     def run(self):
-        def do(self):  # FIXME remove, it is for profiler
-            tracker = QTime()
+        startTime = time.clock()
+        self.reset.emit()
+        self.progressChanged.emit( -1, 0 )
 
-            self.reset.emit()
-            self.progressChanged.emit( -1, 0 )
-            tracker.restart()
+        files = self._getFilesToScan()
+        files.sort()
 
-            files = self.getFilesToScan()
-            files.sort()
+        if  self.mExit :
+            return
+        
+        self.progressChanged.emit( 0, len(files))
+        
+        # Prepare data for search process
+        eol = "\n"
+        pattern = unicode(self.mProperties.searchText)
+        flags = 0
+        
+        if not self.mProperties.options & SearchAndReplace.OptionRegularExpression:  # not reg exp
+            pattern = re.escape( pattern )
+        
+        if self.mProperties.options & SearchAndReplace.OptionWholeWord:  # whole word
+            pattern.prepend( "\\b" ).append( "\\b" )
+        
+        if not self.mProperties.options & SearchAndReplace.OptionCaseSensitive:  # not case sensetive
+            flags = re.IGNORECASE
+        
+        lastResultsEmitTime = time.clock()
+        notEmittedFileResults = []
+        # Search for all files
+        for fileIndex, fileName in enumerate(files):
+            content = self._fileContent( fileName )
+
+            lastPos = 0
+            eolCount = 0
+            results = []
+            
+            # Process result for all occurrences
+            for match in re.finditer(pattern, content, flags):
+                start = match.start()
+                
+                eolStart = content.rfind( eol, 0, start)
+                eolEnd = content.find( eol, start)
+                eolCount += content[lastPos:start].count( eol )
+                lastPos = start
+                
+                capture = content[eolStart + 1:eolEnd - 1].strip()
+                column = start - eolStart
+                if eolStart != 0:
+                    column -= 1
+                
+                result = SearchResultsModel.Result( fileName = fileName, \
+                                 capture = capture, \
+                                 line = eolCount, \
+                                 column = column, \
+                                 offset = start, \
+                                 length = match.end() - start)
+                
+                results.append(result)
+
+                if self.mExit:
+                    break
+
+            if  results:
+                notEmittedFileResults.append(SearchResultsModel.FileResults(fileName, results))
+
+            if notEmittedFileResults and \
+               (time.clock() - lastResultsEmitTime) > self.RESULTS_EMIT_TIMEOUT:
+                    self.progressChanged.emit( fileIndex, len(files))
+                    self.resultsAvailable.emit(notEmittedFileResults)
+                    notEmittedFileResults = []
+                    lastResultsEmitTime = time.clock()
 
             if  self.mExit :
-                return
-            
-            self.progressChanged.emit( 0, len(files))
-            
-            # Prepare data for search process
-            eol = "\n"
-            pattern = unicode(self.mProperties.searchText)
-            flags = 0
-            
-            if not self.mProperties.options & SearchAndReplace.OptionRegularExpression:  # not reg exp
-                pattern = re.escape( pattern )
-            
-            if self.mProperties.options & SearchAndReplace.OptionWholeWord:  # whole word
-                pattern.prepend( "\\b" ).append( "\\b" )
-            
-            if not self.mProperties.options & SearchAndReplace.OptionCaseSensitive:  # not case sensetive
-                flags = re.IGNORECASE
-            
-            checkable = self.mProperties.mode & SearchAndReplace.ModeFlagReplace
-            
-            # Search for all files
-            for fileIndex, fileName in enumerate(files):
-                content = self.fileContent( fileName )
-
-                lastPos = 0
-                eolCount = 0
-                results = []
-                
-                # Process result for all occurrences
-                for match in re.finditer(pattern, content, flags):
-                    start = match.start()
-                    
-                    eolStart = content.rfind( eol, 0, start)
-                    eolEnd = content.find( eol, start)
-                    eolCount += content[lastPos:start].count( eol )
-                    lastPos = start
-                    
-                    capture = content[eolStart + 1:eolEnd - 1].strip()
-                    column = start - eolStart
-                    if eolStart != 0:
-                        column -= 1
-                    
-                    if self.mProperties.options & SearchAndReplace.OptionRegularExpression:  # if regular expression
-                        capturedTexts =  rx.groups()
-                    else:
-                        capturedTexts = []
-                    result = SearchResultsModel.Result( fileName = fileName, \
-                                     capture = capture, \
-                                     line = eolCount, \
-                                     column = column, \
-                                     offset = start, \
-                                     length = match.end() - start, \
-                                     checkable = checkable,
-                                     capturedTexts = capturedTexts)
-                    
-                    results.append(result)
-
-                    if self.mExit:
-                        break
-
-                if  results:
-                    self.notEmittedFileResults.append(SearchResultsModel.FileResults(fileName, results))
-
-                if self.notEmittedFileResults and \
-                   (time.clock() - self.lastResultsEmitTime) > self.RESULTS_EMIT_TIMEOUT:
-                        self.progressChanged.emit( fileIndex, len(files))
-                        self.resultsAvailable.emit(self.notEmittedFileResults)
-                        self.notEmittedFileResults = []
-                        self.lastResultsEmitTime = time.clock()
-
-                if  self.mExit :
-                    self.progressChanged.emit( fileIndex, len(files))
-                    break
-            
-            if self.notEmittedFileResults:
-                self.resultsAvailable.emit(self.notEmittedFileResults)
-            
-            print "Search finished in ", tracker.elapsed() /1000.0
-        """
-        import cProfile
-        cProfile.runctx('do(self)', globals(), locals(), 'profdata.txt')
-        import pstats
-        s = pstats.Stats("profdata.txt")
-        s.strip_dirs().sort_stats("cumulative").print_stats()
-        s.strip_dirs().sort_stats("cumulative").print_callers()
-        """
-        do(self)
+                self.progressChanged.emit( fileIndex, len(files))
+                break
         
+        if notEmittedFileResults:
+            self.resultsAvailable.emit(notEmittedFileResults)
         
-    def clear(self):
-        self.stop()
-        self.reset.emit()            
-
+        print "Search finished in ", time.clock() - startTime        
+    
 class SearchResultsModel(QAbstractItemModel):
 
     firstResultsAvailable = pyqtSignal()
@@ -959,20 +927,16 @@ class SearchResultsModel(QAbstractItemModel):
                         capture, \
                         line, \
                         column, \
-                        offset, \
-                        length, \
-                        checkable, \
-                        capturedTexts):
+                        offset,
+                        length):
                 self.fileName = fileName;
                 self.capture = capture;
                 self.line = line;
                 self.column = column;
                 self.offset = offset;
                 self.length = length;
-                self.checkable = checkable;
                 self.checkState =  Qt.Checked
                 self.enabled = True;
-                self.capturedTexts = capturedTexts;
         
         def text(self, notUsed):
             return "Line: %d, Column: %d: %s" % ( self.line + 1, self.column, self.capture )
@@ -988,6 +952,9 @@ class SearchResultsModel(QAbstractItemModel):
             self.fileName = fileName
             self.results = results
             self.checkState = Qt.Checked
+        
+        def __str__(self):
+            return '%s (%d)' % (self.fileName, len(self.results))
         
         def updateCheckState(self):
             if all([res.checkState == Qt.Checked for res in self.results]):  # if all checked
@@ -1064,7 +1031,7 @@ class SearchResultsModel(QAbstractItemModel):
     
     def flags(self, index ):
         flags = QAbstractItemModel.flags( self, index )
-        properties = self.mSearchThread.properties()
+        properties = self.mSearchThread.mProperties
 
         if properties.mode & SearchAndReplace.ModeFlagReplace :
             flags |= Qt.ItemIsUserCheckable
@@ -1124,7 +1091,7 @@ class SearchResultsModel(QAbstractItemModel):
         self.clear()
 
     def thread_resultsAvailable(self, fileResultsList ):
-        properties = self.mSearchThread.properties()
+        properties = self.mSearchThread.mProperties
         if not self.fileResults:  # appending first
             self.firstResultsAvailable.emit()
             self.mSearchDir.setPath( properties.searchPath )
@@ -1149,7 +1116,7 @@ class SearchResultsModel(QAbstractItemModel):
                     self.endRemoveRows()
                 else:
                     fileRes.updateCheckState()
-            break
+                return
         else:  # not found
             assert(0)
 
@@ -1207,15 +1174,13 @@ class SearchResultsDock(pDockWidget):
         if isinstance(result, SearchResultsModel.Result):
             mks.monkeycore.workspace().goToLine( result.fileName,
                                                  (result.line, result.column,),
-                                                 self.mSearchThread.properties().codec,
-                                                 result.length )  # FIXME check this code result.offset == -1 ? 0 : result.length
+                                                 self.mSearchThread.mProperties.codec,
+                                                 result.length)  # FIXME check this code result.offset == -1 ? 0 : result.length
 
 class ReplaceThread(QThread):
-    mMaxTime = 125
-    
-    resultsHandled = pyqtSignal(QString, list)
-    openedFileHandled = pyqtSignal(QString, QString, QString)
-    error = pyqtSignal(QString)
+    resultsHandled = pyqtSignal(unicode, list)
+    openedFileHandled = pyqtSignal(unicode, unicode, unicode)
+    error = pyqtSignal(unicode)
     
     def __init__(self, parent):
         QThread.__init__(self, parent)
@@ -1225,7 +1190,6 @@ class ReplaceThread(QThread):
 
     def replace(self, properties, results):
         self.stop()
-        
         self.mProperties = properties
         self.mResults = results
         self.mExit = False
@@ -1235,132 +1199,77 @@ class ReplaceThread(QThread):
         self.mExit = True
         self.wait()
 
-    def saveContent(self, fileName, content, codec ):  # use Python functionality?
-        file = QFile( fileName )
+    def _saveContent(self, fileName, content, encoding):  # use Python functionality?
+        if encoding:
+            try:
+                content = unicode(content, encoding)
+            except UnicodeEncodeError, ex:
+                self.error.emit( self.tr( "Failed to encode file to %s: %s" % (codec, str(ex)) ) )
+                return
+        try:
+            with open(fileName, 'w') as f:
+                f.write(content)
+        except IOError, ex:
+            self.error.emit( self.tr( "Error while saving replaced content: %s" % str(ex) ) )
 
-        if not file.open( QIODevice.WriteOnly ) :
-            self.error.emit( self.tr( "Error while saving replaced content: %s" % file.errorString() ) )
-            return
-
-        file.resize( 0 )
-
-        textCodec = QTextCodec.codecForName( codec.toLocal8Bit() )
-
-        assert( textCodec )
-
-        if  file.write( textCodec.fromUnicode( content ) ) == -1 :
-            self.error.emit( self.tr( "Error while saving replaced content: %s") % file.errorString() )
-            return
-
-        file.close()
-
-    def fileContent(self, fileName ):
-        codec = 0
-
-        codec = QTextCodec.codecForName( self.mProperties.codec.toLocal8Bit() )
+    def _fileContent(self, fileName, encoding=None):
         if fileName in self.mProperties.openedFiles:
             return self.mProperties.openedFiles[ fileName ]
 
-        assert( codec )
-
-        file = QFile (fileName)
-
-        if  not file.open( QIODevice.ReadOnly ) :
+        try:
+            with open(fileName) as f:
+                content = f.read()
+        except IOError, ex:
+            self.error.emit( self.tr( "Error opening file: %s" % str(ex) ) )
             return ''
-
-        if  isBinary( file ) :
-            return ''
-
-        return codec.toUnicode( file.readAll() )
-
-    def replace_(self, fileName, content ):
-        handledResults = []
         
-        replaceText = self.mProperties.replaceText
-        codec = self.mProperties.codec
-        results = self.mResults[ fileName ]
-        isOpenedFile = fileName in self.mProperties.openedFiles
-        isRE = self.mProperties.options & SearchAndReplace.OptionRegularExpression
-
-        '''
-            QTime tracker
-            tracker.start()
-        '''
-        
-        rx = QRegExp ( "\\$(\\d+)" )
-        rx.setMinimal( True )
-
-        for result in results[::-1]:  # count from end to begin because we are replacing by offset in content
-            searchLength = result.length
-            captures = result.capturedTexts
-        
-            # compute replace text
-            if isRE and captures.count() > 1 :
-                pos = 0
-                
-                pos = rx.indexIn( replaceText, pos )
-                while  pos != -1:
-                    id = rx.cap( 1 ).toInt()
-                    
-                    if  id < 0 or id >= captures.count() :
-                        pos += rx.matchedLength()
-                        continue
-                    
-                    # update replace text with partial occurrences
-                    replaceText.replace( pos, rx.matchedLength(), captures[id] )
-                    
-                    # next
-                    pos += captures[id].length()
-                    
-                    pos = rx.indexIn( replaceText, pos )
-
-            # replace text
-            content.replace( result.offset, searchLength, replaceText )
-
-            handledResults.append(result)
-            '''
-                    if  tracker.elapsed() >= self.mMaxTime :
-                        if handledResults:
-                            if  not isOpenedFile :
-                                saveContent( fileName, content, codec )
-
-
-                            resultsHandled.emit( fileName, handledResults )
-
-
-                        if  isOpenedFile :
-                            openedFileHandled.emit( fileName, content, codec )
-
-
-                        handledResults.clear()
-                        tracker.restart()
-
-            '''
-            if  self.mExit :
-                return
-
-        if handledResults:
-            if not isOpenedFile :
-                self.saveContent( fileName, content, codec )
-
-            self.resultsHandled.emit( fileName, handledResults )
-
-        if  isOpenedFile :
-            self.openedFileHandled.emit( fileName, content, codec )
-
+        if encoding:
+            try:
+                content = unicode(content, encoding)
+            except UnicodeDecodeError, ex:
+                self.error.emit(self.tr( "File %s not read: unicode error '%s'. File may be corrupted" % \
+                                (fileName, str(ex) ) ))
+                return ''
 
     def run(self):
-        tracker = QTime()
-        tracker.restart()
-
-        keys = self.mResults.keys()
-
-        for fileName in keys:
-            content = self.fileContent( fileName )
+        startTime = time.clock()
+        pattern = unicode(self.mProperties.searchText)
+        flags = 0
+        
+        if not self.mProperties.options & SearchAndReplace.OptionRegularExpression:  # not reg exp
+            pattern = re.escape( pattern )
+        
+        if self.mProperties.options & SearchAndReplace.OptionWholeWord:  # whole word
+            pattern.prepend( "\\b" ).append( "\\b" )
+        
+        if not self.mProperties.options & SearchAndReplace.OptionCaseSensitive:  # not case sensetive
+            flags = re.IGNORECASE
+        
+        for fileName in self.mResults.keys():
+            handledResults = []
+            content = self._fileContent( fileName, self.mProperties.codec )
             
-            self.replace_( fileName, content )
+            for result in self.mResults[ fileName ][::-1]:  # count from end to begin because we are replacing by offset in content
+                
+                if self.mProperties.options & SearchAndReplace.OptionRegularExpression:  # replace \number with groups
+                    replaceText = re.sub(self.mProperties.searchText, \
+                                         self.mProperties.replaceText, \
+                                         result.capture)
+                else:
+                    replaceText = self.mProperties.replaceText
+                
+                # replace text
+                content = content[:result.offset] + replaceText + content[result.offset + result.length:]
+                handledResults.append(result)
             
+            if fileName in self.mProperties.openedFiles:
+                self.openedFileHandled.emit( fileName, content, self.mProperties.codec )
+            else:
+                self._saveContent( fileName, content, self.mProperties.codec )
+            
+            self.resultsHandled.emit( fileName, handledResults)
+
             if  self.mExit :
                 break
 
-        print "Replace finished in ", tracker.elapsed() /1000.0
+        print "Replace finished in ", time.clock() - startTime
