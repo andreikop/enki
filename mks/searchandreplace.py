@@ -779,33 +779,25 @@ class SearchThread(QThread):
     def properties(self):
         return self.mProperties
 
-    def getFiles(self, fromDir, filters, recursive ):
-        files = []
-        
-        # TODO replace with python functionality
-        for file in fromDir.entryInfoList( QDir.AllEntries | QDir.AllDirs | QDir.NoDotAndDotDot, QDir.DirsFirst | QDir.Name ):
-            if  file.isFile() and ( (not filters) or QDir.match( filters, file.fileName() ) ) :
-                files.append(file.absoluteFilePath())
-            elif  file.isDir() and recursive:
-                fromDir.cd( file.filePath() )
-                files.extend(self.getFiles( fromDir, filters, recursive ))
-                fromDir.cdUp()
+    def getFiles(self, path, filters):
+        retFiles = []
+        for root, dirs, files in os.walk(os.path.abspath(unicode(path))):
+            if root.startswith('.'):
+                continue
+            for fileName in files:
+                if fileName.startswith('.'):
+                    continue
+                if not filters or QDir.match(filters, fileName):
+                    retFiles.append(root + os.path.sep + fileName)
+            if self.mExit :
+                break
 
-                if self.mExit :
-                    return files
-        return files
+        return retFiles
     
     def getFilesToScan(self):
         files = set()
-        mode = self.mProperties.mode
 
-        if mode in (SearchAndReplace.ModeNo, SearchAndReplace.ModeSearch, SearchAndReplace.ModeReplace):
-            print "Invalid mode used."  # TODO use some logging system?
-            assert(0)
-        elif mode in (SearchAndReplace.ModeSearchDirectory, SearchAndReplace.ModeReplaceDirectory):
-            path = self.mProperties.searchPath
-            mask = self.mProperties.mask
-            files = list(set(self.getFiles( QDir (path), mask, True )))  # list(set()) for clear duplicates
+        """
         elif mode in (SearchAndReplace.ModeSearchProjectFiles, SearchAndReplace.ModeReplaceProjectFiles):
             sources = self.mProperties.sourcesFiles
             mask = self.mProperties.mask
@@ -824,7 +816,15 @@ class SearchThread(QThread):
                     files.append(fileName)
                     if self.mExit :
                         return files
-        return files
+        """
+
+        if self.mProperties.mode in (SearchAndReplace.ModeSearchDirectory, SearchAndReplace.ModeReplaceDirectory):
+            path = self.mProperties.searchPath
+            mask = self.mProperties.mask
+            return self.getFiles(path, mask)
+        else:
+            print "Invalid mode used."  # TODO use some logging system?
+            assert(0)
 
     def fileContent(self, fileName ):
 
