@@ -8,8 +8,7 @@ import time
 
 from PyQt4 import uic
 from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QDir, QEvent, QIODevice, QModelIndex, \
-                        QMutex, QMutexLocker, \
-                        QObject, QRect, QRegExp, QSize, QString, QStringList, Qt, \
+                        QObject, QRect, QRegExp, QSize, Qt, \
                         QTextCodec, QThread, QVariant
 from PyQt4.QtGui import QAction, QCompleter, QColor, QDirModel, QFileDialog,  \
                         QFrame, QFileDialog, QHBoxLayout, QIcon, QKeyEvent, QLineEdit, QPainter,  \
@@ -242,9 +241,7 @@ class SearchWidget(QFrame):
         """
         
         # codecs
-        slist = QStringList()
-        for c in sorted(QTextCodec.availableCodecs()):
-            slist.append(QString(c))
+        slist = [unicode(c) for c in sorted(QTextCodec.availableCodecs())]
         self.cbCodec.addItems(slist)
         
         """TODO
