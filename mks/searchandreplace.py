@@ -8,7 +8,7 @@ import re
 from PyQt4 import uic
 from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QDir, QEvent, QFile, QIODevice, QModelIndex, \
                         QMutex, QMutexLocker, \
-                        QObject, QPoint, QRect, QRegExp, QSize, QString, QStringList, Qt, QTime, \
+                        QObject, QRect, QRegExp, QSize, QString, QStringList, Qt, QTime, \
                         QTextCodec, QThread, QVariant
 from PyQt4.QtGui import QAction, QCompleter, QColor, QDirModel, QFileDialog,  \
                         QFrame, QFileDialog, QHBoxLayout, QIcon, QKeyEvent, QLineEdit, QPainter,  \
@@ -824,21 +824,17 @@ class SearchThread(QThread):
         return files
 
     def fileContent(self, fileName ):
-        codec = 0
 
-        codec = QTextCodec.codecForName( self.mProperties.codec.toLocal8Bit() )
+        #codec = QTextCodec.codecForName( self.mProperties.codec.toLocal8Bit() )
 
         if fileName in self.mProperties.openedFiles:
             return self.mProperties.openedFiles[ fileName ]
 
-        assert( codec )
         try:
             with open(fileName) as f:
-
                 if  isBinary(f):
                     return ''
-
-                return unicode(f.readall()) # FIXME codec
+                return unicode(f.read(), errors = 'ignore') # FIXME codec
         except IOError, ex:
             print ex
             return ''
@@ -866,39 +862,38 @@ class SearchThread(QThread):
         results = []
         
         for match in re.finditer(unicode(pattern), content, flags):
-            eolStart = content.rfind( eol, match.start())
-            eolEnd = content.find( eol, match.start())
+            start = match.start()
+            eolStart = content.rfind( eol, start)
+            eolEnd = content.find( eol, start)
             capture = content[eolStart + 1:eolEnd - 1].strip()
-            eolCount += content[lastPos:match.start()].count( eol )
-            column = match.start() - eolStart
+            eolCount += content[lastPos:start].count( eol )
+            column = start - eolStart
             if eolStart != 0:
                 column -= 1
             
-            result = Result( fileName, capture )
-            result.position = QPoint( column, eolCount )
-            result.offset = match.start()
-            result.length = match.end() - match.start()
-            result.checkable = checkable
-            if checkable:
-                result.checkState =  Qt.Checked
-            else:
-                result.checkState =  Qt.Unchecked
-            
             if self.mProperties.options & SearchAndReplace.OptionRegularExpression:  # if regular expression
-                result.capturedTexts =  rx.groups()
+                capturedTexts =  rx.groups()
             else:
-                result.capturedTexts = []
+                capturedTexts = []
+            
+            result = Result( fileName = fileName, \
+                             capture = capture, \
+                             position = (column, eolCount,), \
+                             offset = start, \
+                             length = match.end() - start, \
+                             checkable = checkable,
+                             capturedTexts = capturedTexts)
             
             results.append(result)
 
-            lastPos = match.start()
+            lastPos = start
 
             if self.mExit :
                 return
 
         if  results:
-            pass  # FIXME
-            #self.resultsAvailable.emit( fileName, results )
+            #pass  # FIXME
+            self.resultsAvailable.emit( fileName, results )
 
     def run(self):
         def do(self):  # FIXME remove, it is for profiler
@@ -939,30 +934,30 @@ class SearchThread(QThread):
         """
         do(self)
         
+        
     def clear(self):
         self.stop()
         self.reset.emit()
 
 class Result:
     def __init__ (  self, \
-                    _fileName = '', \
-                    _capture = '', \
-                    _position = QPoint(), \
-                    _offset = -1, \
-                    _length = 0, \
-                    _checkable = False, \
-                    _checkState = Qt.Unchecked, \
-                    _enabled = True, \
-                    _capturedTexts = []):
-            self.fileName = _fileName;
-            self.capture = _capture;
-            self.position = _position;
-            self.offset = _offset;
-            self.length = _length;
-            self.checkable = _checkable;
-            self.checkState = _checkState;
-            self.enabled = _enabled;
-            self.capturedTexts = _capturedTexts;
+                    fileName, \
+                    capture, \
+                    position, \
+                    offset, \
+                    length, \
+                    checkable, \
+                    capturedTexts):
+            self.fileName = fileName;
+            self.capture = capture;
+            self.position = position;
+            self.offset = offset;
+            self.length = length;
+            self.checkable = checkable;
+            self.checkState =  Qt.Checked
+            self.enabled = True;
+            self.capturedTexts = capturedTexts;
+            
 
 class SearchResultsModel(QAbstractItemModel):
 
@@ -1007,7 +1002,7 @@ class SearchResultsModel(QAbstractItemModel):
             result = index.internalPointer()
             if role == Qt.DisplayRole:
                 # index is a root parent
-                return self.tr( "Line: %d, Column: %d: %s" % ( result.position.y() +1, result.position.x(), result.capture ))
+                return self.tr( "Line: %d, Column: %d: %s" % ( result.position[1] +1, result.position[0], result.capture ))
             elif role == Qt.ToolTipRole:
                 return result.capture
             elif role == Qt.CheckStateRole:
