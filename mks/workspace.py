@@ -1047,7 +1047,7 @@ class Workspace(QFrame):
             if self.mdiArea.currentSubWindow() :
                self.mdiArea.currentSubWindow().showMaximized()
     
-    def openFile(self, filePath):
+    def openFile(self, filePath, codec=''):
         """Open named file using suitable plugin, or textual editor, if other suitable editor not found.
         
         Returns document, if opened, None otherwise
