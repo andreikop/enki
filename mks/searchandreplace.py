@@ -842,61 +842,6 @@ class SearchThread(QThread):
             print ex
             return ''
 
-    def _search(self, fileName, content ):
-        eol = "\n"
-        
-        pattern = unicode(self.mProperties.searchText)
-        flags = 0
-        
-        if not self.mProperties.options & SearchAndReplace.OptionRegularExpression:  # not reg exp
-            pattern = re.escape( pattern )
-        
-        if self.mProperties.options & SearchAndReplace.OptionWholeWord:  # whole word
-            pattern.prepend( "\\b" ).append( "\\b" )
-        
-        if not self.mProperties.options & SearchAndReplace.OptionCaseSensitive:  # not case sensetive
-            flags = re.IGNORECASE
-        
-        checkable = self.mProperties.mode & SearchAndReplace.ModeFlagReplace
-
-        pos = 0
-        lastPos = 0
-        eolCount = 0
-        results = []
-        
-        for match in re.finditer(unicode(pattern), content, flags):
-            start = match.start()
-            eolStart = content.rfind( eol, 0, start)
-            eolEnd = content.find( eol, start)
-            capture = content[eolStart + 1:eolEnd - 1].strip()
-            eolCount += content[lastPos:start].count( eol )
-            column = start - eolStart
-            if eolStart != 0:
-                column -= 1
-            
-            if self.mProperties.options & SearchAndReplace.OptionRegularExpression:  # if regular expression
-                capturedTexts =  rx.groups()
-            else:
-                capturedTexts = []
-            result = SearchResultsModel.Result( fileName = fileName, \
-                             capture = capture, \
-                             line = eolCount, \
-                             column = column, \
-                             offset = start, \
-                             length = match.end() - start, \
-                             checkable = checkable,
-                             capturedTexts = capturedTexts)
-            
-            results.append(result)
-
-            lastPos = start
-
-            if self.mExit:
-                break
-
-        if  results:
-            self.notEmittedFileResults.append(SearchResultsModel.FileResults(fileName, results))
-        
     def run(self):
         def do(self):  # FIXME remove, it is for profiler
             tracker = QTime()
@@ -911,29 +856,79 @@ class SearchThread(QThread):
             if  self.mExit :
                 return
             
-            self.searchProgressTotal = len(files)
-            self.searchProgressValue = 0
+            self.progressChanged.emit( 0, len(files))
             
-            self.progressChanged.emit( 0, self.searchProgressTotal)
-
-            for fileName in files:
+            # Prepare data for search process
+            eol = "\n"
+            pattern = unicode(self.mProperties.searchText)
+            flags = 0
+            
+            if not self.mProperties.options & SearchAndReplace.OptionRegularExpression:  # not reg exp
+                pattern = re.escape( pattern )
+            
+            if self.mProperties.options & SearchAndReplace.OptionWholeWord:  # whole word
+                pattern.prepend( "\\b" ).append( "\\b" )
+            
+            if not self.mProperties.options & SearchAndReplace.OptionCaseSensitive:  # not case sensetive
+                flags = re.IGNORECASE
+            
+            checkable = self.mProperties.mode & SearchAndReplace.ModeFlagReplace
+            
+            # Search for all files
+            for fileIndex, fileName in enumerate(files):
                 content = self.fileContent( fileName )
-                self._search( fileName, content )
+
+                lastPos = 0
+                eolCount = 0
+                results = []
                 
-                self.searchProgressValue += 1
+                # Process result for all occurrences
+                for match in re.finditer(pattern, content, flags):
+                    start = match.start()
+                    
+                    eolStart = content.rfind( eol, 0, start)
+                    eolEnd = content.find( eol, start)
+                    eolCount += content[lastPos:start].count( eol )
+                    lastPos = start
+                    
+                    capture = content[eolStart + 1:eolEnd - 1].strip()
+                    column = start - eolStart
+                    if eolStart != 0:
+                        column -= 1
+                    
+                    if self.mProperties.options & SearchAndReplace.OptionRegularExpression:  # if regular expression
+                        capturedTexts =  rx.groups()
+                    else:
+                        capturedTexts = []
+                    result = SearchResultsModel.Result( fileName = fileName, \
+                                     capture = capture, \
+                                     line = eolCount, \
+                                     column = column, \
+                                     offset = start, \
+                                     length = match.end() - start, \
+                                     checkable = checkable,
+                                     capturedTexts = capturedTexts)
+                    
+                    results.append(result)
+
+                    if self.mExit:
+                        break
+
+                if  results:
+                    self.notEmittedFileResults.append(SearchResultsModel.FileResults(fileName, results))
 
                 if self.notEmittedFileResults and \
                    (time.clock() - self.lastResultsEmitTime) > self.RESULTS_EMIT_TIMEOUT:
-                        self.progressChanged.emit( self.searchProgressValue, self.searchProgressTotal )
+                        self.progressChanged.emit( fileIndex, len(files))
                         self.resultsAvailable.emit(self.notEmittedFileResults)
                         self.notEmittedFileResults = []
                         self.lastResultsEmitTime = time.clock()
 
                 if  self.mExit :
+                    self.progressChanged.emit( fileIndex, len(files))
                     break
             
             if self.notEmittedFileResults:
-                self.progressChanged.emit( self.searchProgressValue, self.searchProgressTotal )
                 self.resultsAvailable.emit(self.notEmittedFileResults)
             
             print "Search finished in ", tracker.elapsed() /1000.0
