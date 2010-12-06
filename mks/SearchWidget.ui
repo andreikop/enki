@@ -383,7 +383,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QWidget" name="wCodec" native="true">
+       <widget class="QWidget" name="wEncoding" native="true">
         <layout class="QHBoxLayout" name="horizontalLayout_8">
          <property name="spacing">
           <number>5</number>
@@ -392,7 +392,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QLabel" name="lCodec">
+          <widget class="QLabel" name="lEncoding">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -403,12 +403,12 @@
             <string>Co&amp;dec</string>
            </property>
            <property name="buddy">
-            <cstring>cbCodec</cstring>
+            <cstring>cbEncoding</cstring>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="cbCodec"/>
+          <widget class="QComboBox" name="cbEncoding"/>
          </item>
         </layout>
        </widget>

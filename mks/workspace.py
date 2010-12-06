@@ -549,7 +549,7 @@ class AbstractDocument(QMdiSubWindow):
     def textCodec(self)
     { return mCodec ? mCodec.name() : pMonkeyStudio.defaultCodec();
     
-    def codec(self)
+    def encoding(self)
     { return mCodec ? mCodec : QTextCodec.codecForName( pMonkeyStudio.defaultCodec().toLocal8Bit().constData() );
     '''
     
@@ -956,13 +956,13 @@ class Workspace(QFrame):
         """
         return self.mdiArea.currentSubWindow()
     
-    def goToLine(self, filePath, line, column, codec, selectionLength):
+    def goToLine(self, filePath, line, column, encoding, selectionLength):
         for document in self.openedDocuments():
             if os.path.samefile(document.filePath(), filePath) :
                 self.setCurrentDocument(document)
                 break
         else:
-            document = self.openFile(filePath)  # document = self.openFile( filePath, codec )
+            document = self.openFile(filePath)  # document = self.openFile( filePath, encoding )
 
         if  document :
             document.goTo(line, column, selectionLength )
@@ -1046,7 +1046,7 @@ class Workspace(QFrame):
             if self.mdiArea.currentSubWindow() :
                self.mdiArea.currentSubWindow().showMaximized()
     
-    def openFile(self, filePath, codec=''):
+    def openFile(self, filePath, encoding=''):
         """Open named file using suitable plugin, or textual editor, if other suitable editor not found.
         
         Returns document, if opened, None otherwise
@@ -1236,7 +1236,7 @@ class Workspace(QFrame):
             mks.monkeycore.projectsManager().addFilesToScope( result[ "scope" ].value(XUPItem), [fileName] )
         
         # open file
-        return self.openFile( fileName, result[ "codec" ].toString() )
+        return self.openFile( fileName, result[ "encoding" ].toString() )
 
     def document_fileOpened(self):
         document = self.sender() # signal sender
@@ -1531,7 +1531,7 @@ class Workspace(QFrame):
 
             if button == QMessageBox.Yes :
                 """ fileName = document.filePath()
-                 codec = document.textCodec()
+                 encoding = document.textCodec()
 
                 self.closeDocument( document )
                 self.openFile( fileName, c );"""

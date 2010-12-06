@@ -108,7 +108,7 @@ _defaults = {
 "Editor/MarginsBackgroundColor": QColor( "#c0c0c0" ),
 "Editor/MarginsForegroundColor": QColor( "#ffffff" ),
 "Editor/MarginsFont" : QFont(),
-"DefaultCodec" : "UTF-8",
+"DefaultEncoding" : "UTF-8",
 "AutoSyntaxCheck" : "False",
 "OpenedFileSortingMode": OpeningOrder ,
 RestoreSessionOnStartup": True 
