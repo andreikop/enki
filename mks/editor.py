@@ -4,7 +4,7 @@ import os.path
 import shutil
 
 from PyQt4.QtCore import Qt, QDir, QEvent
-from PyQt4.QtGui import QFrame, QInputDialog
+from PyQt4.QtGui import QFrame, QInputDialog, QIcon
 
 from PyQt4.Qsci import *
 
@@ -252,7 +252,7 @@ class Editor(mks.workspace.AbstractDocument):
         # Configure editor
         self.qscintilla = QsciScintilla(self)
         
-        pixmap = mks.monkeystudio.getIcon( "editor/bookmark.png" ).pixmap(16, 16)
+        pixmap = QIcon(":/mksicons/bookmark.png").pixmap(16, 16)
         self._MARKER_BOOKMARK = self.qscintilla.markerDefine(pixmap, -1)
         
         self.qscintilla.installEventFilter( self )

@@ -62,9 +62,9 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
         self.actions = (("aSearchFile", "", "", "", "", self.modeSwitchTriggered, self.ModeSearch),
                         ("aSearchDirectory", "Search in &Directory...", "search-replace-directory.png", "Ctrl+Shift+F", "Search in directory...", self.modeSwitchTriggered, self.ModeSearchDirectory),
                         ("aReplaceDirectory", "Replace in Director&y...", "search-replace-directory.png", "Ctrl+Shift+R", "Replace in directory...", self.modeSwitchTriggered, self.ModeReplaceDirectory),
-                        ("aReplaceFile", "&Replace...", "edit/replace.png", "Ctrl+R", "Replace in the current file...", self.modeSwitchTriggered, self.ModeReplace),
-                        ("aSearchPrevious", "Search &Previous", "edit/previous.png", "Shift+F3", "Search previous occurrence", self.widget.on_pbPrevious_clicked, None),
-                        ("aSearchNext", "Search &Next", "edit/next.png", "F3", "Search next occurrence", self.widget.on_pbNext_clicked, None))
+                        ("aReplaceFile", "&Replace...", "replace.png", "Ctrl+R", "Replace in the current file...", self.modeSwitchTriggered, self.ModeReplace),
+                        ("aSearchPrevious", "Search &Previous", "previous.png", "Shift+F3", "Search previous occurrence", self.widget.on_pbPrevious_clicked, None),
+                        ("aSearchNext", "Search &Next", "next.png", "F3", "Search next occurrence", self.widget.on_pbNext_clicked, None))
         """TODO
                         ("aSearchProjectFiles", "Search in Project &Files...", "search-replace-project-files.png", "Ctrl+Meta+F", "Search in the current project files..", self.modeSwitchTriggered, self.ModeSearchProjectFiles),
                         ("aReplaceProjectFiles", "Replace in Projec&t Files...", "search-replace-project-files.png", "Ctrl+Meta+R", "Replace in the current project files...", self.modeSwitchTriggered, self.ModeReplaceProjectFiles),
@@ -86,7 +86,7 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
         
         mb.beginGroup( "mEdit/mSearchReplace" )
         for action in self.actions:
-            actObject = mb.action(action[0], self.tr(action[1]), mks.monkeystudio.getIcon(action[2]), self.tr(action[3]), self.tr(action[4]))
+            actObject = mb.action(action[0], self.tr(action[1]), QIcon(':/mksicons/' + action[2]), self.tr(action[3]), self.tr(action[4]))
             actObject.triggered.connect(action[5])
             actObject.setData(action[6])
         mb.endGroup()
@@ -173,7 +173,7 @@ class SearchWidget(QFrame):
         
         # mode actions
         self.tbMode = QToolButton( self.cbSearch.lineEdit() )
-        self.tbMode.setIcon( mks.monkeystudio.getIcon( "build/misc.png" ) )
+        self.tbMode.setIcon( QIcon( ":/mksicons/misc.png" ) )
         self.tbMode.setPopupMode( QToolButton.InstantPopup )
         self.tbMode.setMenu( mks.monkeycore.menuBar().menu( "mEdit/mSearchReplace" ) )
         self.tbMode.setCursor( Qt.ArrowCursor )
@@ -181,7 +181,7 @@ class SearchWidget(QFrame):
         
         # cd up action
         self.tbCdUp = QToolButton( self.cbPath.lineEdit() )
-        self.tbCdUp.setIcon( mks.monkeystudio.getIcon( "listeditor/go-up.png" ) )
+        self.tbCdUp.setIcon( QIcon( ":/mksicons/go-up.png" ) )
         self.tbCdUp.setCursor( Qt.ArrowCursor )
         self.tbCdUp.installEventFilter( self )
 

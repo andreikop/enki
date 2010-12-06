@@ -54,7 +54,7 @@ class MainWindow(pMainWindow):
         self.setCorner( Qt.BottomRightCorner, Qt.RightDockWidgetArea )
         
         self.setWindowTitle( "%s v%s" % (mks.config.PACKAGE_NAME, mks.config.PACKAGE_VERSION ) )
-        self.setWindowIcon( mks.monkeystudio.getIcon('/application/monkey2.png') )
+        self.setWindowIcon( QIcon(':/mksicons/monkey2.png') )
 
         # init menubar
         # create menubar menus and actions
@@ -65,68 +65,68 @@ class MainWindow(pMainWindow):
         mb.menu( "mFile", self.tr( "File" ) )
         mb.beginGroup( "mFile" )
         """TODO
-        mb.action( "aNew", self.tr( "&New..." ), mks.monkeystudio.getIcon("file/new.png" ),"Ctrl+N", self.tr( "Create a new file" ) )
-        mb.action( "aNewTextEditor", self.tr( "&New Text File..." ), mks.monkeystudio.getIcon("file/new.png" ), '', self.tr( "Quickly create a new text based file" ) )
+        mb.action( "aNew", self.tr( "&New..." ), QIcon(":/mksicons/new.png" ),"Ctrl+N", self.tr( "Create a new file" ) )
+        mb.action( "aNewTextEditor", self.tr( "&New Text File..." ), QIcon(":/mksicons/new.png" ), '', self.tr( "Quickly create a new text based file" ) )
         """
-        mb.action( "aOpen", self.tr( "&Open..." ), mks.monkeystudio.getIcon("file/open.png" ), "Ctrl+O" , self.tr( "Open a file" ) )
+        mb.action( "aOpen", self.tr( "&Open..." ), QIcon(":/mksicons/open.png" ), "Ctrl+O" , self.tr( "Open a file" ) )
         """TODO
-        mb.menu( "mRecents", self.tr( "&Recents" ), mks.monkeystudio.getIcon("file/recents.png" ) )
-        mb.action( "mRecents/aClear", self.tr( "&Clear" ), mks.monkeystudio.getIcon("file/clear.png" ), '', self.tr( "Clear the recents files list" ) )
+        mb.menu( "mRecents", self.tr( "&Recents" ), QIcon(":/mksicons/recents.png" ) )
+        mb.action( "mRecents/aClear", self.tr( "&Clear" ), QIcon(":/mksicons/clear.png" ), '', self.tr( "Clear the recents files list" ) )
         mb.action( "mRecents/aSeparator1" )
         mb.action( "aSeparator1" )
-        mb.menu( "mSession", self.tr( "Session" ), mks.monkeystudio.getIcon("file/session.png" ) )
-        mb.action( "mSession/aSave", self.tr( "Save" ), mks.monkeystudio.getIcon("file/save.png" ), '', self.tr( "Save the current session files list" ) )
-        mb.action( "mSession/aRestore", self.tr( "Restore" ), mks.monkeystudio.getIcon("file/restore.png" ), '', self.tr( "Restore the current session files list" ) )
+        mb.menu( "mSession", self.tr( "Session" ), QIcon(":/mksicons/session.png" ) )
+        mb.action( "mSession/aSave", self.tr( "Save" ), QIcon(":/mksicons/save.png" ), '', self.tr( "Save the current session files list" ) )
+        mb.action( "mSession/aRestore", self.tr( "Restore" ), QIcon(":/mksicons/restore.png" ), '', self.tr( "Restore the current session files list" ) )
         mb.action( "aSeparator2" )
         """
-        mb.menu( "mSave", self.tr( "&Save" ), mks.monkeystudio.getIcon("file/save.png" ) )
-        mb.action( "mSave/aCurrent", self.tr( "&Save" ), mks.monkeystudio.getIcon("file/save.png" ), "Ctrl+S" , self.tr( "Save the current file" ) ).setEnabled( False )
-        mb.action( "mSave/aAll", self.tr( "Save &All" ), mks.monkeystudio.getIcon("file/saveall.png" ), '', self.tr( "Save all files" ) ).setEnabled( False )
+        mb.menu( "mSave", self.tr( "&Save" ), QIcon(":/mksicons/save.png" ) )
+        mb.action( "mSave/aCurrent", self.tr( "&Save" ), QIcon(":/mksicons/save.png" ), "Ctrl+S" , self.tr( "Save the current file" ) ).setEnabled( False )
+        mb.action( "mSave/aAll", self.tr( "Save &All" ), QIcon(":/mksicons/saveall.png" ), '', self.tr( "Save all files" ) ).setEnabled( False )
 
-        mb.menu( "mClose", self.tr( "&Close" ), mks.monkeystudio.getIcon("file/close.png" ) )
-        mb.action( "mClose/aCurrent", self.tr( "&Close" ), mks.monkeystudio.getIcon("file/close.png" ), "", self.tr( "Close the current file" ) ).setEnabled( False )
+        mb.menu( "mClose", self.tr( "&Close" ), QIcon(":/mksicons/close.png" ) )
+        mb.action( "mClose/aCurrent", self.tr( "&Close" ), QIcon(":/mksicons/close.png" ), "", self.tr( "Close the current file" ) ).setEnabled( False )
         """TODO
-        mb.action( "mClose/aAll", self.tr( "Close &All" ), mks.monkeystudio.getIcon("file/closeall.png" ), '', self.tr( "Close all files" ) ).setEnabled( False )
+        mb.action( "mClose/aAll", self.tr( "Close &All" ), QIcon(":/mksicons/closeall.png" ), '', self.tr( "Close all files" ) ).setEnabled( False )
         mb.action( "aSeparator3" )
-        mb.action( "aReload", self.tr( "Reload" ), mks.monkeystudio.getIcon("file/reload.png" ), '', self.tr( "Reload the current file asking user confirmation if needed" ) ).setEnabled( False )
-        mb.action( "aSaveAsBackup", self.tr( "Save As &Backup" ), mks.monkeystudio.getIcon("file/backup.png" ), '', self.tr( "Save a backup of the current file" ) ).setEnabled( False )
+        mb.action( "aReload", self.tr( "Reload" ), QIcon(":/mksicons/reload.png" ), '', self.tr( "Reload the current file asking user confirmation if needed" ) ).setEnabled( False )
+        mb.action( "aSaveAsBackup", self.tr( "Save As &Backup" ), QIcon(":/mksicons/backup.png" ), '', self.tr( "Save a backup of the current file" ) ).setEnabled( False )
         mb.action( "aSeparator4" )
-        mb.action( "aQuickPrint", self.tr( "Quic&k Print" ), mks.monkeystudio.getIcon("file/quickprint.png" ), '', self.tr( "Quick print the current file" ) ).setEnabled( False )
-        mb.action( "aPrint", self.tr( "&Print..." ), mks.monkeystudio.getIcon("file/print.png" ), "Ctrl+P", self.tr( "Print the current file" ) ).setEnabled( False )
+        mb.action( "aQuickPrint", self.tr( "Quic&k Print" ), QIcon(":/mksicons/quickprint.png" ), '', self.tr( "Quick print the current file" ) ).setEnabled( False )
+        mb.action( "aPrint", self.tr( "&Print..." ), QIcon(":/mksicons/print.png" ), "Ctrl+P", self.tr( "Print the current file" ) ).setEnabled( False )
         mb.action( "aSeparator5" )
         """
-        mb.action( "aQuit", self.tr( "&Quit" ), mks.monkeystudio.getIcon("file/quit.png" ), "Ctrl+Q", self.tr( "Quit the application" ) )
+        mb.action( "aQuit", self.tr( "&Quit" ), QIcon(":/mksicons/quit.png" ), "Ctrl+Q", self.tr( "Quit the application" ) )
         mb.endGroup()
         
         mb.menu( "mEdit", self.tr( "Edit" ) )
         mb.beginGroup( "mEdit" )
         """TODO
-        mb.action( "aSettings", self.tr( "Settings..." ), QIcon( ":/edit/icons/edit/settings.png" ), "", self.tr( "Edit the application settings" ) )
-        mb.action( "aShortcutsEditor", self.tr( "Shortcuts Editor..." ), QIcon( ":/edit/icons/edit/shortcuts.png" ), "Ctrl+Shift+E", self.tr( "Edit the application shortcuts" ) )
-        mb.action( "aTranslations", self.tr( "Translations..." ), QIcon( ":/edit/icons/edit/translations.png" ), "Ctrl+T", self.tr( "Change the application translations files" ) )
+        mb.action( "aSettings", self.tr( "Settings..." ), QIcon( ":/mksicons/settings.png" ), "", self.tr( "Edit the application settings" ) )
+        mb.action( "aShortcutsEditor", self.tr( "Shortcuts Editor..." ), QIcon( ":/mksicons/shortcuts.png" ), "Ctrl+Shift+E", self.tr( "Edit the application shortcuts" ) )
+        mb.action( "aTranslations", self.tr( "Translations..." ), QIcon( ":/mksicons/translations.png" ), "Ctrl+T", self.tr( "Change the application translations files" ) )
         mb.action( "aSeparator1" )
         mb.action( "aSeparator3" )
         """
         mb.menu( "mSearchReplace", self.tr( "&Search && Replace" ) )
-        mb.action( "mSearchReplace/aSearchFile", self.tr( "&Search..." ), QIcon( ":/edit/icons/edit/search.png" ), "Ctrl+F", self.tr( "Search in the current file..." ) )
+        mb.action( "mSearchReplace/aSearchFile", self.tr( "&Search..." ), QIcon( ":/mksicons/searchs.png" ), "Ctrl+F", self.tr( "Search in the current file..." ) )
         """TODO
-        mb.menu( "mAllCommands", self.tr( "&All Commands" ), QIcon( ":/edit/icons/edit/commands.png" ) )
+        mb.menu( "mAllCommands", self.tr( "&All Commands" ), QIcon( ":/mksicons/commands.png" ) )
         
         mb.action( "aSeparator5" )
-        mb.action( "aExpandAbbreviation", self.tr( "Expand Abbreviation" ), QIcon( ":/edit/icons/edit/abbreviation.png" ), "Ctrl+E", self.tr( "Expand Abbreviation" ) ).setEnabled( False )
-        mb.action( "aPrepareAPIs", self.tr( "Prepare APIs" ), QIcon( ":/edit/icons/edit/prepareapis.png" ), "Ctrl+Alt+P", self.tr( "Prepare the APIs files for auto completion / calltips" ) )
+        mb.action( "aExpandAbbreviation", self.tr( "Expand Abbreviation" ), QIcon( ":/mksicons/abbreviation.png" ), "Ctrl+E", self.tr( "Expand Abbreviation" ) ).setEnabled( False )
+        mb.action( "aPrepareAPIs", self.tr( "Prepare APIs" ), QIcon( ":/mksicons/prepareapis.png" ), "Ctrl+Alt+P", self.tr( "Prepare the APIs files for auto completion / calltips" ) )
         """
         mb.endGroup()
         
         mb.menu( "mView", self.tr( "View" ) )
         mb.beginGroup( "mView" )
         """TODO
-        mb.menu( "mStyle", self.tr( "&Style" ), QIcon( ":/view/icons/view/style.png" ) )
+        mb.menu( "mStyle", self.tr( "&Style" ), QIcon( ":/mksicons/style.png" ) )
         """
-        mb.action( "aNext", self.tr( "&Next file" ), QIcon( ":/view/icons/view/next.png" ), "Ctrl+Tab", self.tr( "Active the next tab" ) ).setEnabled( False )
-        mb.action( "aPrevious", self.tr( "&Previous file" ), QIcon( ":/view/icons/view/previous.png" ), "Ctrl+Shift+Tab", self.tr( "Active the previous tab" ) ).setEnabled( False )
+        mb.action( "aNext", self.tr( "&Next file" ), QIcon( ":/mksicons/next.png" ), "Ctrl+Tab", self.tr( "Active the next tab" ) ).setEnabled( False )
+        mb.action( "aPrevious", self.tr( "&Previous file" ), QIcon( ":/mksicons/previous.png" ), "Ctrl+Shift+Tab", self.tr( "Active the previous tab" ) ).setEnabled( False )
         """
-        mb.action( "aFocusToEditor", self.tr( "Focus Editor" ), QIcon( ":/edit/icons/edit/text.png" ), "Ctrl+Return", self.tr( "Set the focus to the current document editor" ) ).setEnabled( False )
+        mb.action( "aFocusToEditor", self.tr( "Focus Editor" ), QIcon( ":/mksicons/text.png" ), "Ctrl+Return", self.tr( "Set the focus to the current document editor" ) ).setEnabled( False )
         """
         mb.endGroup()
         """TODO
@@ -145,8 +145,8 @@ class MainWindow(pMainWindow):
         mb.addAction( '', mks.monkeycore.projectsManager().action( XUPProjectManager.atRemoveFiles ) )
         mb.action( "aSeparator4" )
         
-        mb.menu( "mRecents", self.tr( "&Recents" ), QIcon( ":/project/icons/project/recents.png" ) )
-        mb.action( "mRecents/aClear", self.tr( "&Clear" ), QIcon( ":/project/icons/project/clear.png" ), '', self.tr( "Clear the recents projects list" ) )
+        mb.menu( "mRecents", self.tr( "&Recents" ), QIcon( ":/mksicons/recents.png" ) )
+        mb.action( "mRecents/aClear", self.tr( "&Clear" ), QIcon( ":/mksicons/clear.png" ), '', self.tr( "Clear the recents projects list" ) )
         mb.action( "mRecents/aSeparator1" )
         mb.endGroup()
         
@@ -154,11 +154,11 @@ class MainWindow(pMainWindow):
         mb.menu( "mBuilder" ).menuAction().setVisible( False )
         
         mb.beginGroup( "mBuilder" )
-        mb.menu( "mBuild", self.tr( "&Build" ), QIcon( ":/build/icons/build/build.png" ) )
-        mb.menu( "mRebuild", self.tr( "&Rebuild" ), QIcon( ":/build/icons/build/rebuild.png" ) )
-        mb.menu( "mClean", self.tr( "&Clean" ), QIcon( ":/build/icons/build/clean.png" ) )
-        mb.menu( "mExecute", self.tr( "&Execute" ), QIcon( ":/build/icons/build/execute.png" ) )
-        mb.menu( "mUserCommands", self.tr( "&User Commands" ), QIcon( ":/build/icons/build/misc.png" ) )
+        mb.menu( "mBuild", self.tr( "&Build" ), QIcon( ":/mksicons/build.png" ) )
+        mb.menu( "mRebuild", self.tr( "&Rebuild" ), QIcon( ":/mksicons/rebuild.png" ) )
+        mb.menu( "mClean", self.tr( "&Clean" ), QIcon( ":/mksicons/clean.png" ) )
+        mb.menu( "mExecute", self.tr( "&Execute" ), QIcon( ":/mksicons/execute.png" ) )
+        mb.menu( "mUserCommands", self.tr( "&User Commands" ), QIcon( ":/mksicons/misc.png" ) )
         mb.action( "aSeparator1" )
         mb.endGroup()
         
@@ -185,9 +185,9 @@ class MainWindow(pMainWindow):
         mb.menu( "mHelp", self.tr( "Help" ) )
         mb.beginGroup( "mHelp" )
         """TODO
-        mb.action( "aAbout", self.tr( "&About..." ), QIcon( ":/application/icons/application/monkey2.png" ), '', self.tr( "About application..." ) )
+        mb.action( "aAbout", self.tr( "&About..." ), QIcon( ":/mksicons/monkey2.png" ), '', self.tr( "About application..." ) )
         """
-        mb.action( "aAboutQt", self.tr( "About &Qt..." ), QIcon( ":/help/icons/help/qt.png" ), '', self.tr( "About Qt..." ) )
+        mb.action( "aAboutQt", self.tr( "About &Qt..." ), QIcon( ":/mksicons/qt.png" ), '', self.tr( "About Qt..." ) )
         mb.endGroup()
         """TODO
         # create action for styles
@@ -212,11 +212,11 @@ class MainWindow(pMainWindow):
         messageTb =  mks.monkeycore.messageManager()
         messageTb.setObjectName( "pQueuedMessageToolBar" )
         messageTb.setVisible( False )
-        messageTb.setDefaultPixmap( mks.monkeystudio.getIcon("messages/messages_infos.png") )
+        messageTb.setDefaultPixmap( QIcon(":/mksicons/messages_infos.png") )
         pMonkeyStudio.setMacSmallSize( messageTb, true, true )
         self.centralWidget().layout().setMenuBar( messageTb )
         # init projects manager
-        dockToolBar( Qt.LeftToolBarArea ).addDock( mks.monkeycore.projectsManager(), mks.monkeycore.projectsManager().windowTitle(), QIcon( ":/project/icons/project/project.png" ) )
+        dockToolBar( Qt.LeftToolBarArea ).addDock( mks.monkeycore.projectsManager(), mks.monkeycore.projectsManager().windowTitle(), QIcon( ":/mksicons/project.png" ) )
         # init multitoolbar
         mks.monkeycore.workspace().initMultiToolBar( mks.monkeycore.multiToolBar().toolBar( Workspace.defaultContext() ) )
         mks.monkeycore.workspace().initMultiToolBar( mks.monkeycore.multiToolBar().toolBar( "Coding" ) )

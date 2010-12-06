@@ -19,6 +19,7 @@ from PyQt4.QtGui import *
 import main
 import mks.settings
 """
+import mksiconsresource
 
 _mainWindow = None
 _workspace = None
@@ -65,7 +66,7 @@ def init():
     else:
         pixmap = "splashscreen.png"
     
-    splash = QSplashScreen (mks.monkeystudio.getIcon('/application/pixmap.png'))
+    splash = QSplashScreen (QIcon(':/mksicons/pixmap.png'))
     
     ft = QFont( splash.font() )
     if sys.platform.startswith('win'): # Windows platform
@@ -203,7 +204,7 @@ def term():
     Called by main()
     """
     _searchreplace = None
-    pass
+    mksiconsresource.qCleanupResources()
 
 def mainWindow():
     """Get :class:`mks.mainwindow.MainWindow` instance 
