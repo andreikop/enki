@@ -63,8 +63,8 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
                         ("aSearchDirectory", "Search in &Directory...", "search-replace-directory.png", "Ctrl+Shift+F", "Search in directory...", self.modeSwitchTriggered, self.ModeSearchDirectory),
                         ("aReplaceDirectory", "Replace in Director&y...", "search-replace-directory.png", "Ctrl+Shift+R", "Replace in directory...", self.modeSwitchTriggered, self.ModeReplaceDirectory),
                         ("aReplaceFile", "&Replace...", "replace.png", "Ctrl+R", "Replace in the current file...", self.modeSwitchTriggered, self.ModeReplace),
-                        ("aSearchPrevious", "Search &Previous", "previous.png", "Shift+F3", "Search previous occurrence", self.widget.on_pbPrevious_clicked, None),
-                        ("aSearchNext", "Search &Next", "next.png", "F3", "Search next occurrence", self.widget.on_pbNext_clicked, None))
+                        ("aSearchPrevious", "Search &Previous", "previous.png", "Shift+F3", "Search previous occurrence", self.widget.on_pbPrevious_pressed, None),
+                        ("aSearchNext", "Search &Next", "next.png", "F3", "Search next occurrence", self.widget.on_pbNext_pressed, None))
         """TODO
                         ("aSearchProjectFiles", "Search in Project &Files...", "search-replace-project-files.png", "Ctrl+Meta+F", "Search in the current project files..", self.modeSwitchTriggered, self.ModeSearchProjectFiles),
                         ("aReplaceProjectFiles", "Replace in Projec&t Files...", "search-replace-project-files.png", "Ctrl+Meta+R", "Replace in the current project files...", self.modeSwitchTriggered, self.ModeReplaceProjectFiles),
@@ -280,7 +280,7 @@ class SearchWidget(QFrame):
 
         # connections
         self.cbSearch.lineEdit().textEdited.connect(self.search_textChanged)
-        self.tbCdUp.clicked.connect(self.cdUp_clicked)
+        self.tbCdUp.clicked.connect(self.cdUp_pressed)
         self.mSearchThread.started.connect(self.searchThread_stateChanged)
         self.mSearchThread.finished.connect(self.searchThread_stateChanged)
         self.mSearchThread.progressChanged.connect(self.searchThread_progressChanged)
@@ -687,19 +687,19 @@ class SearchWidget(QFrame):
         elif self.mMode == SearchAndReplace.ModeReplace:
             self.mSearchThread.clear()
 
-    def cdUp_clicked(self):
+    def cdUp_pressed(self):
         
         if not os.path.exists(self.cbPath.currentText()):
             return
 
         self.cbPath.setEditText( os.path.abspath(self.cbPath.currentText() + os.path.pardir))
 
-    def on_pbPrevious_clicked(self):
+    def on_pbPrevious_pressed(self):
         self.updateComboBoxes()
         self.initializeSearchContext( True )
         self.searchFile( False, False )
 
-    def on_pbNext_clicked(self):
+    def on_pbNext_pressed(self):
         self.updateComboBoxes()
         self.initializeSearchContext( True )
         self.searchFile( True, False )
@@ -719,10 +719,10 @@ class SearchWidget(QFrame):
 
         self.mSearchThread.search( self.mSearchContext )
 
-    def on_pbSearchStop_clicked(self):
+    def on_pbSearchStop_pressed(self):
         self.mSearchThread.stop()
 
-    def on_pbReplace_clicked(self):
+    def on_pbReplace_pressed(self):
         self.updateComboBoxes()
         self.initializeSearchContext( True )
         self.replaceFile( False )
@@ -755,10 +755,10 @@ class SearchWidget(QFrame):
 
         self.mReplaceThread.replace( self.mSearchContext, items )
 
-    def on_pbReplaceCheckedStop_clicked(self):
+    def on_pbReplaceCheckedStop_pressed(self):
         self.mReplaceThread.stop()
 
-    def on_pbBrowse_clicked(self):
+    def on_pbBrowse_pressed(self):
         path = QFileDialog.getExistingDirectory( self, self.tr( "Search path" ), self.cbPath.currentText() )
 
         if path:
@@ -892,7 +892,7 @@ class SearchThread(QThread):
                 eolCount += content[lastPos:start].count( eol )
                 lastPos = start
                 
-                capture = content[eolStart + 1:eolEnd - 1].strip()
+                capture = content[eolStart + 1:eolEnd].strip()
                 column = start - eolStart
                 if eolStart != 0:
                     column -= 1
@@ -1216,7 +1216,7 @@ class ReplaceThread(QThread):
     def _saveContent(self, fileName, content, encoding):  # use Python functionality?
         if encoding:
             try:
-                content = unicode(content, encoding)
+                content = content.encode(encoding)
             except UnicodeEncodeError, ex:
                 self.error.emit( self.tr( "Failed to encode file to %s: %s" % (encoding, str(ex)) ) )
                 return
@@ -1229,25 +1229,26 @@ class ReplaceThread(QThread):
     def _fileContent(self, fileName, encoding=None):
         if fileName in self.mSearchContext.openedFiles:
             return self.mSearchContext.openedFiles[ fileName ]
-
-        try:
-            with open(fileName) as f:
-                content = f.read()
-        except IOError, ex:
-            self.error.emit( self.tr( "Error opening file: %s" % str(ex) ) )
-            return ''
-        
-        if encoding:
+        else:
             try:
-                content = unicode(content, encoding)
-            except UnicodeDecodeError, ex:
-                self.error.emit(self.tr( "File %s not read: unicode error '%s'. File may be corrupted" % \
-                                (fileName, str(ex) ) ))
+                with open(fileName) as f:
+                    content = f.read()
+            except IOError, ex:
+                self.error.emit( self.tr( "Error opening file: %s" % str(ex) ) )
                 return ''
+            
+            if encoding:
+                try:
+                    return unicode(content, encoding)
+                except UnicodeDecodeError, ex:
+                    self.error.emit(self.tr( "File %s not read: unicode error '%s'. File may be corrupted" % \
+                                    (fileName, str(ex) ) ))
+                    return ''
+            else:
+                return content
 
     def run(self):
         startTime = time.clock()
-        
         regExp = self.mSearchContext.regExp()
         
         for fileName in self.mResults.keys():
@@ -1255,10 +1256,10 @@ class ReplaceThread(QThread):
             content = self._fileContent( fileName, self.mSearchContext.encoding )
             
             for result in self.mResults[ fileName ][::-1]:  # count from end to begin because we are replacing by offset in content
-                
                 if self.mSearchContext.options & SearchAndReplace.OptionRegularExpression:  # replace \number with groups
                     replaceText = regExp.sub(self.mSearchContext.replaceText, \
-                                             result.capture)
+                                             content[result.offset:result.offset + result.length], \
+                                             count=1)
                 else:
                     replaceText = self.mSearchContext.replaceText
                 
