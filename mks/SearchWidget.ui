@@ -77,7 +77,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>:/edit/icons/edit/previous.png</normaloff>:/edit/icons/edit/previous.png</iconset>
+             <normaloff>:/mksicons/previous.png</normaloff>:/mksicons/previous.png</iconset>
            </property>
           </widget>
          </item>
@@ -88,7 +88,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>:/edit/icons/edit/next.png</normaloff>:/edit/icons/edit/next.png</iconset>
+             <normaloff>:/mksicons/next.png</normaloff>:/mksicons/next.png</iconset>
            </property>
           </widget>
          </item>
@@ -99,7 +99,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>:/edit/icons/edit/search.png</normaloff>:/edit/icons/edit/search.png</iconset>
+             <normaloff>:/mksicons/search.png</normaloff>:/mksicons/search.png</iconset>
            </property>
           </widget>
          </item>
@@ -110,7 +110,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>:/console/icons/console/stop.png</normaloff>:/console/icons/console/stop.png</iconset>
+             <normaloff>:/mksicons/stop.png</normaloff>:/mksicons/stop.png</iconset>
            </property>
           </widget>
          </item>
@@ -174,7 +174,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>:/edit/icons/edit/replace.png</normaloff>:/edit/icons/edit/replace.png</iconset>
+             <normaloff>:/mksicons/replace.png</normaloff>:/mksicons/replace.png</iconset>
            </property>
           </widget>
          </item>
@@ -185,7 +185,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>:/edit/icons/edit/replace.png</normaloff>:/edit/icons/edit/replace.png</iconset>
+             <normaloff>:/mksicons/replace.png</normaloff>:/mksicons/replace.png</iconset>
            </property>
           </widget>
          </item>
@@ -196,7 +196,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>:/edit/icons/edit/replace.png</normaloff>:/edit/icons/edit/replace.png</iconset>
+             <normaloff>:/mksicons/replace.png</normaloff>:/mksicons/replace.png</iconset>
            </property>
           </widget>
          </item>
@@ -207,7 +207,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>:/console/icons/console/stop.png</normaloff>:/console/icons/console/stop.png</iconset>
+             <normaloff>:/mksicons/stop.png</normaloff>:/mksicons/stop.png</iconset>
            </property>
           </widget>
          </item>
@@ -271,7 +271,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>:/listeditor/icons/listeditor/folder.png</normaloff>:/listeditor/icons/listeditor/folder.png</iconset>
+             <normaloff>:/mksicons/folder.png</normaloff>:/mksicons/folder.png</iconset>
            </property>
           </widget>
          </item>

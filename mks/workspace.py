@@ -100,9 +100,9 @@ class _OpenedFileModel(QAbstractItemModel):
         if role == Qt.DecorationRole:
             if document.windowIcon().isNull():
                 if document.isModified():
-                    return mks.monkeystudio.getIcon( "file/save.png" )
+                    return QIcon( ":/mksicons/save.png" )
                 else:
-                    return mks.monkeystudio.getIcon( "file/transparent.png" )
+                    return QIcon( ":/mksicons/transparent.png" )
             else:
                 return document.windowIcon()
         elif role == Qt.DisplayRole:
@@ -400,7 +400,7 @@ class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         
         aSortMenu = QAction( self.tr( "Sorting" ), self )
         aSortMenu.setMenu( sortMenu )
-        aSortMenu.setIcon( mks.monkeystudio.getIcon( "file/sort.png" ))
+        aSortMenu.setIcon( QIcon( ":/mksicons/sort.png" ))
         aSortMenu.setToolTip( aSortMenu.text() )
         
         menu.addAction( sortMenu.menuAction() )

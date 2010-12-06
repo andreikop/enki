@@ -662,12 +662,3 @@ def setMacSmallSize( QWidget* widget, bool small, bool recursive ):
         w.setAttribute( Qt.WA_MacSmallSize, small )
 
 """
-
-def getIcon(name):
-    """Loads QIcon from the icons path and returns it. Example:
-      mks.monkeystudio.getIcon('application/monkey2.png')
-    returns main application icon.
-    Probably caching would be added later.
-    """
-    # TODO suppor something like /usr/share/monkeystudio, and something on Windows
-    return QIcon(os.path.dirname(mks.__file__) + '/../icons/' + name)
