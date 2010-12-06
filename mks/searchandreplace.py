@@ -145,7 +145,7 @@ class SearchContext:
             pattern = re.escape( pattern )
         
         if self.options & SearchAndReplace.OptionWholeWord:  # whole word
-            pattern.prepend( "\\b" ).append( "\\b" )
+            pattern = "\\b" + pattern + "\\b"
         
         if not self.options & SearchAndReplace.OptionCaseSensitive:  # not case sensetive
             flags = re.IGNORECASE
