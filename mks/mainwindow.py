@@ -125,9 +125,7 @@ class MainWindow(pMainWindow):
         """
         mb.action( "aNext", self.tr( "&Next file" ), QIcon( ":/mksicons/next.png" ), "Ctrl+Tab", self.tr( "Active the next tab" ) ).setEnabled( False )
         mb.action( "aPrevious", self.tr( "&Previous file" ), QIcon( ":/mksicons/previous.png" ), "Ctrl+Shift+Tab", self.tr( "Active the previous tab" ) ).setEnabled( False )
-        """
-        mb.action( "aFocusToEditor", self.tr( "Focus Editor" ), QIcon( ":/mksicons/text.png" ), "Ctrl+Return", self.tr( "Set the focus to the current document editor" ) ).setEnabled( False )
-        """
+        mb.action( "aFocusCurrentDocument", self.tr( "Focus current document" ), QIcon( ":/mksicons/text.png" ), "Ctrl+Return", self.tr( "Focus current document" ) ).setEnabled( False )
         mb.endGroup()
         """TODO
         mb.menu( "mProject", self.tr( "Project" ) )
@@ -245,7 +243,6 @@ class MainWindow(pMainWindow):
         self.menuBar().action( "mEdit/aPrepareAPIs" ).triggered.connect(mks.monkeycore.workspace().editPrepareAPIs_triggered)
         # view connection
         agStyles.styleSelected.connect(self.changeStyle)
-        self.menuBar().action( "mView/aFocusToEditor" ).triggered.connect(mks.monkeycore.workspace().focusEditor)
         # docks
         self.menuBar().menu( "mDocks" ).aboutToShow.connect(self.menu_Docks_aboutToShow)
         # project connection

@@ -788,6 +788,8 @@ class Workspace(QFrame):
         
         mks.monkeycore.menuBar().action( "mView/aNext" ).triggered.connect(self._activateNextDocument)
         mks.monkeycore.menuBar().action( "mView/aPrevious" ).triggered.connect(self._activatePreviousDocument)
+        
+        mks.monkeycore.menuBar().action( "mView/aFocusCurrentDocument" ).triggered.connect(self.focusCurrentDocument)
     
     def setTextEditorClass(self, newEditor):
         """Set text editor, which is used for open textual documents.
@@ -867,6 +869,7 @@ class Workspace(QFrame):
         # update file menu
         mks.monkeycore.menuBar().action( "mFile/mSave/aAll" ).setEnabled( document is not None)
         mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled( document is not None)
+        mks.monkeycore.menuBar().action( "mView/aFocusCurrentDocument" ).setEnabled( document is not None)
         '''
         mks.monkeycore.menuBar().action( "mFile/mClose/aAll" ).setEnabled( document )
         mks.monkeycore.menuBar().action( "mFile/aReload" ).setEnabled( document )
