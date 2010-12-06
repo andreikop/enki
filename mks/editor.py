@@ -427,10 +427,7 @@ class Editor(mks.workspace.AbstractDocument):
             self.qscintilla.setCursorPosition( gotoLine -1, 0 )
             self.setFocus()
     
-    def goTo(self, pos, selectionLength ):
-        column = pos.x()
-        line = pos.y()
-        
+    def goTo(self, line, column, selectionLength ):
         self.qscintilla.setCursorPosition( line, column )
         self.qscintilla.setSelection( line, column, line, column +selectionLength )
         self.qscintilla.ensureLineVisible( line )
