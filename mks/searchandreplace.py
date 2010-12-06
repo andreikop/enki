@@ -11,7 +11,7 @@ import encodings
 from PyQt4 import uic
 from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QDir, QEvent, QIODevice, QModelIndex, \
                         QObject, QRect, QRegExp, QSize, Qt, \
-                        QTextCodec, QThread, QVariant
+                        QThread, QVariant
 from PyQt4.QtGui import QAction, QCompleter, QColor, QDirModel, QFileDialog,  \
                         QFrame, QFileDialog, QHBoxLayout, QIcon, QKeyEvent, QLineEdit, QPainter,  \
                         QProgressBar, QToolButton, QTreeView, QWidget
@@ -118,7 +118,7 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
 
 class SearchContext:
     mask = []
-    codec = ''
+    encoding = ''
     options = 0
     openedFiles = {}
     project = None
@@ -128,12 +128,12 @@ class SearchContext:
                  replaceText, \
                  searchPath, \
                  mode, \
-                 codec):
+                 encoding):
         self.searchText = searchText
         self.replaceText = replaceText
         self.searchPath = searchPath
         self.mode = mode
-        self.codec = codec
+        self.encoding = encoding
     
     def regExp(self):
         """Compile regular expression object according to search text and options
@@ -272,10 +272,10 @@ class SearchWidget(QFrame):
         foundCodecs.difference_update(false_positives)
         foundCodecs = sorted(list(foundCodecs))
 
-        self.cbCodec.addItems(foundCodecs)
+        self.cbEncoding.addItems(foundCodecs)
         
         """TODO
-        self.cbCodec.setCurrentIndex( self.cbCodec.findText( pMonkeyStudio.defaultCodec() ) )
+        self.cbEncoding.setCurrentIndex( self.cbEncoding.findText( pMonkeyStudio.defaultCodec() ) )
         """
 
         # connections
@@ -324,12 +324,12 @@ class SearchWidget(QFrame):
         
         if self.mMode & SearchAndReplace.ModeFlagProjectFiles :
             if  self.mSearchContext.project :
-                codec = self.mSearchContext.project.temporaryValue( "codec", mks.monkeystudio.defaultCodec() ).toString()
+                encoding = self.mSearchContext.project.temporaryValue( "encoding", mks.monkeystudio.defaultCodec() ).toString()
                 
-                self.mSearchContext.codec = codec
-                self.cbCodec.setCurrentIndex( self.cbCodec.findText( codec ) )
+                self.mSearchContext.encoding = encoding
+                self.cbEncoding.setCurrentIndex( self.cbEncoding.findText( encoding ) )
 
-        assert( self.mSearchContext.codec )
+        assert( self.mSearchContext.encoding )
         
         document = mks.monkeycore.workspace().currentDocument()
         editor = document.qscintilla  # FIXME
@@ -361,8 +361,8 @@ class SearchWidget(QFrame):
         # hlamer: I'm sory for long lines, but, even workse without it
         # Set widgets visibility flag according to state
         widgets = (self.wSearch, self.pbPrevious, self.pbNext, self.pbSearch, self.wReplace, self.wPath, \
-                   self.pbReplace, self.pbReplaceAll, self.pbReplaceChecked, self.wOptions, self.wMask, self.wCodec,)
-        #                                                       wSear  pbPrev pbNext pbSear wRepl  wPath  pbRep  pbRAll pbRCHK wOpti wMask wCodec
+                   self.pbReplace, self.pbReplaceAll, self.pbReplaceChecked, self.wOptions, self.wMask, self.wEncoding,)
+        #                                                       wSear  pbPrev pbNext pbSear wRepl  wPath  pbRep  pbRAll pbRCHK wOpti wMask wEncoding
         visible = {SearchAndReplace.ModeNo     :             (    0,     0,     0,     0,     0,     0,     0,     0,     0,    0,    0,    0,),
                    SearchAndReplace.ModeSearch :             (    1,     1,     1,     0,     0,     0,     0,     1,     1,    1,    0,    0,),
                    SearchAndReplace.ModeReplace:             (    1,     1,     1,     0,     1,     0,     1,     1,     0,    1,    0,    0,),
@@ -494,7 +494,7 @@ class SearchWidget(QFrame):
                                             replaceText = unicode(self.cbReplace.currentText()), \
                                             searchPath = unicode(self.cbPath.currentText()), \
                                             mode = self.mMode,
-                                            codec = unicode(self.cbCodec.currentText()))
+                                            encoding = unicode(self.cbEncoding.currentText()))
         """TODO
         self.mSearchContext.project = mks.monkeycore.fileManager().currentProject()
         """
@@ -664,8 +664,8 @@ class SearchWidget(QFrame):
         self.pbReplaceCheckedStop.setVisible( self.mReplaceThread.isRunning() )
         self.updateWidgets()
 
-    def replaceThread_openedFileHandled(self, fileName, content, codec ):
-        document = mks.monkeycore.workspace().openFile(fileName, codec)
+    def replaceThread_openedFileHandled(self, fileName, content, encoding ):
+        document = mks.monkeycore.workspace().openFile(fileName, encoding)
         editor = document.qscintilla  # FIXME
 
         editor.beginUndoAction()
@@ -842,7 +842,7 @@ class SearchThread(QThread):
             print "Invalid mode used."  # TODO use some logging system?
             assert(0)
 
-    def _fileContent(self, fileName, codec='utf_8'):
+    def _fileContent(self, fileName, encoding='utf_8'):
         if fileName in self.mSearchContext.openedFiles:
             return self.mSearchContext.openedFiles[ fileName ]
 
@@ -850,7 +850,7 @@ class SearchThread(QThread):
             with open(fileName) as f:
                 if  isBinary(f):
                     return ''
-                return unicode(f.read(), codec, errors = 'ignore')
+                return unicode(f.read(), encoding, errors = 'ignore')
         except IOError, ex:
             print ex
             return ''
@@ -1188,7 +1188,7 @@ class SearchResultsDock(pDockWidget):
             mks.monkeycore.workspace().goToLine( result.fileName,
                                                  result.line,
                                                  result.column,
-                                                 self.mSearchThread.mSearchContext.codec,
+                                                 self.mSearchThread.mSearchContext.encoding,
                                                  result.length)  # FIXME check this code result.offset == -1 ? 0 : result.length
 
 class ReplaceThread(QThread):
@@ -1218,7 +1218,7 @@ class ReplaceThread(QThread):
             try:
                 content = unicode(content, encoding)
             except UnicodeEncodeError, ex:
-                self.error.emit( self.tr( "Failed to encode file to %s: %s" % (codec, str(ex)) ) )
+                self.error.emit( self.tr( "Failed to encode file to %s: %s" % (encoding, str(ex)) ) )
                 return
         try:
             with open(fileName, 'w') as f:
@@ -1252,7 +1252,7 @@ class ReplaceThread(QThread):
         
         for fileName in self.mResults.keys():
             handledResults = []
-            content = self._fileContent( fileName, self.mSearchContext.codec )
+            content = self._fileContent( fileName, self.mSearchContext.encoding )
             
             for result in self.mResults[ fileName ][::-1]:  # count from end to begin because we are replacing by offset in content
                 
@@ -1267,9 +1267,9 @@ class ReplaceThread(QThread):
                 handledResults.append(result)
             
             if fileName in self.mSearchContext.openedFiles:
-                self.openedFileHandled.emit( fileName, content, self.mSearchContext.codec )
+                self.openedFileHandled.emit( fileName, content, self.mSearchContext.encoding )
             else:
-                self._saveContent( fileName, content, self.mSearchContext.codec )
+                self._saveContent( fileName, content, self.mSearchContext.encoding )
             
             self.resultsHandled.emit( fileName, handledResults)
 
