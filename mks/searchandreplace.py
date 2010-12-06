@@ -1186,7 +1186,8 @@ class SearchResultsDock(pDockWidget):
         result = index.internalPointer()
         if isinstance(result, SearchResultsModel.Result):
             mks.monkeycore.workspace().goToLine( result.fileName,
-                                                 (result.line, result.column,),
+                                                 result.line,
+                                                 result.column,
                                                  self.mSearchThread.mSearchContext.codec,
                                                  result.length)  # FIXME check this code result.offset == -1 ? 0 : result.length
 

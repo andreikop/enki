@@ -553,7 +553,7 @@ class AbstractDocument(QMdiSubWindow):
     { return mCodec ? mCodec : QTextCodec.codecForName( pMonkeyStudio.defaultCodec().toLocal8Bit().constData() );
     '''
     
-    def goTo(self, position, selectionLength = -1 ):
+    def goTo(self, line, column, selectionLength = -1 ):
         pass
     
     '''
@@ -956,17 +956,16 @@ class Workspace(QFrame):
         """
         return self.mdiArea.currentSubWindow()
     
-    def goToLine(self, filePath,  pos,  codec, selectionLength):
+    def goToLine(self, filePath, line, column, codec, selectionLength):
         for document in self.openedDocuments():
             if os.path.samefile(document.filePath(), filePath) :
                 self.setCurrentDocument(document)
-                document.goTo( pos, selectionLength )
-                return
-
-        document = self.openFile(filePath)  # document = self.openFile( filePath, codec )
+                break
+        else:
+            document = self.openFile(filePath)  # document = self.openFile( filePath, codec )
 
         if  document :
-            document.goTo( pos, selectionLength )
+            document.goTo(line, column, selectionLength )
     
     def closeDocument( self, document, showDialog = True):
         """Close opened file, remove document from workspace and delete the widget"""
