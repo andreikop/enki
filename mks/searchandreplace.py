@@ -116,18 +116,42 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
                 self.widget.setMode(newMode)
 
 
-class Properties:  # TODO rework it
-    searchText = ''
-    replaceText = ''
-    searchPath = ''
-    mode = 0
+class SearchContext:
     mask = []
     codec = ''
     options = 0
     openedFiles = {}
     project = None
     sourcesFiles = ''
-
+    def __init__(self,
+                 searchText, \
+                 replaceText, \
+                 searchPath, \
+                 mode, \
+                 codec):
+        self.searchText = searchText
+        self.replaceText = replaceText
+        self.searchPath = searchPath
+        self.mode = mode
+        self.codec = codec
+    
+    def regExp(self):
+        """Compile regular expression object according to search text and options
+        """
+        pattern = self.searchText
+        flags = 0
+        
+        if not self.options & SearchAndReplace.OptionRegularExpression:  # not reg exp
+            pattern = re.escape( pattern )
+        
+        if self.options & SearchAndReplace.OptionWholeWord:  # whole word
+            pattern.prepend( "\\b" ).append( "\\b" )
+        
+        if not self.options & SearchAndReplace.OptionCaseSensitive:  # not case sensetive
+            flags = re.IGNORECASE
+        
+        return re.compile(pattern, flags)
+        
 
 class SearchWidget(QFrame):
     """Widget, appeared, when Ctrl+F pressed.
@@ -141,12 +165,12 @@ class SearchWidget(QFrame):
     Good = 'good'
     Bad = 'bad'
     
+    mSearchContext = None  # initialized later
+    
     def __init__(self, plugin):
         QFrame.__init__(self, mks.monkeycore.workspace())
         self.plugin = plugin
         uic.loadUi('mks/SearchWidget.ui', self)
-        
-        self.mProperties = Properties()
         
         self.cbSearch.completer().setCaseSensitivity( Qt.CaseSensitive )
         self.cbReplace.completer().setCaseSensitivity( Qt.CaseSensitive )
@@ -296,16 +320,16 @@ class SearchWidget(QFrame):
         
         self.mMode = mode
         
-        self.initializeProperties( currentDocumentOnly )
+        self.initializeSearchContext( currentDocumentOnly )
         
         if self.mMode & SearchAndReplace.ModeFlagProjectFiles :
-            if  self.mProperties.project :
-                codec = self.mProperties.project.temporaryValue( "codec", mks.monkeystudio.defaultCodec() ).toString()
+            if  self.mSearchContext.project :
+                codec = self.mSearchContext.project.temporaryValue( "codec", mks.monkeystudio.defaultCodec() ).toString()
                 
-                self.mProperties.codec = codec
+                self.mSearchContext.codec = codec
                 self.cbCodec.setCurrentIndex( self.cbCodec.findText( codec ) )
 
-        assert( self.mProperties.codec )
+        assert( self.mSearchContext.codec )
         
         document = mks.monkeycore.workspace().currentDocument()
         editor = document.qscintilla  # FIXME
@@ -461,23 +485,19 @@ class SearchWidget(QFrame):
             if  index == -1 :
                 self.cbMask.addItem( maskText )
     
-    def initializeProperties(self, currentDocumentOnly ):
+    def initializeSearchContext(self, currentDocumentOnly ):
         """TODO
         suffixes = pMonkeyStudio.availableLanguagesSuffixes()
         keys = suffixes.keys()
         """
-        self.mProperties.searchText = self.cbSearch.currentText()
-        self.mProperties.replaceText = self.cbReplace.currentText()
-        self.mProperties.searchPath = self.cbPath.currentText()
-        self.mProperties.mode = self.mMode
-        self.mProperties.mask = []
-        self.mProperties.codec = unicode(self.cbCodec.currentText())
-        self.mProperties.options = SearchAndReplace.ModeNo
-        self.mProperties.openedFiles = {}
+        self.mSearchContext = SearchContext(searchText = unicode(self.cbSearch.currentText()), \
+                                            replaceText = unicode(self.cbReplace.currentText()), \
+                                            searchPath = unicode(self.cbPath.currentText()), \
+                                            mode = self.mMode,
+                                            codec = unicode(self.cbCodec.currentText()))
         """TODO
-        self.mProperties.project = mks.monkeycore.fileManager().currentProject()
+        self.mSearchContext.project = mks.monkeycore.fileManager().currentProject()
         """
-        self.mProperties.sourcesFiles = {}
         
         """TODO
         # update masks
@@ -486,24 +506,23 @@ class SearchWidget(QFrame):
 
             if  index != -1 :
                 foreach (  QString& suffixe, suffixes[ keys[index] ] )
-                    if  not suffixe in self.mProperties.mask:
-                        self.mProperties.mask << suffixe
+                    if  not suffixe in self.mSearchContext.mask:
+                        self.mSearchContext.mask << suffixe
             else:
-                self.mProperties.mask << part
-        """
-
+                self.mSearchContext.mask << part
         # set default mask if needed
-        if  self.mProperties.mask:
-            self.mProperties.mask.append("*")
+        if  self.mSearchContext.mask:
+            self.mSearchContext.mask.append("*")
+        """
 
         # update options
         for option in self.mModeActions.keys():
             if  self.mModeActions[option].isChecked() :
-                self.mProperties.options |= option
+                self.mSearchContext.options |= option
         
         """TODO
         # update project
-        self.mProperties.project = self.mProperties.project.topLevelProject()
+        self.mSearchContext.project = self.mSearchContext.project.topLevelProject()
         """
         
         if  currentDocumentOnly :
@@ -511,12 +530,12 @@ class SearchWidget(QFrame):
 
         # update opened files
         for document in mks.monkeycore.workspace().openedDocuments():
-            self.mProperties.openedFiles[document.filePath()] = unicode(document.fileBuffer())
+            self.mSearchContext.openedFiles[document.filePath()] = unicode(document.fileBuffer())
 
         # update sources files
-        self.mProperties.sourcesFiles = []
-        if self.mProperties.project:
-            self.mProperties.sourcesFiles = self.mProperties.project.topLevelProjectSourceFiles()
+        self.mSearchContext.sourcesFiles = []
+        if self.mSearchContext.project:
+            self.mSearchContext.sourcesFiles = self.mSearchContext.project.topLevelProjectSourceFiles()
 
     def showMessage (self, status ):
         if not status:
@@ -554,10 +573,10 @@ class SearchWidget(QFrame):
             return False
 
         # get cursor position
-        isRE = self.mProperties.options & SearchAndReplace.OptionRegularExpression
-        isCS = self.mProperties.options & SearchAndReplace.OptionCaseSensitive
-        isWW = self.mProperties.options & SearchAndReplace.OptionWholeWord
-        isWrap = self.mProperties.options & SearchAndReplace.OptionWrap
+        isRE = self.mSearchContext.options & SearchAndReplace.OptionRegularExpression
+        isCS = self.mSearchContext.options & SearchAndReplace.OptionCaseSensitive
+        isWW = self.mSearchContext.options & SearchAndReplace.OptionWholeWord
+        isWrap = self.mSearchContext.options & SearchAndReplace.OptionWrap
         
         if  forward :
             if  incremental :
@@ -571,7 +590,7 @@ class SearchWidget(QFrame):
                 y, x, temp, temp = editor.getSelection()
         
         # search
-        found = editor.findFirst( self.mProperties.searchText, isRE, isCS, isWW, isWrap, forward, y, x, True )
+        found = editor.findFirst( self.mSearchContext.searchText, isRE, isCS, isWW, isWrap, forward, y, x, True )
 
         # change background acording to found or not
         if found:
@@ -595,19 +614,19 @@ class SearchWidget(QFrame):
         count = 0
         
         if  all :
-            isWrap = self.mProperties.options & SearchAndReplace.OptionWrap
+            isWrap = self.mSearchContext.options & SearchAndReplace.OptionWrap
             x, y = editor.getCursorPosition(y, x)
 
             if  isWrap :
                 # don't need to give wrap parameter for search as we start at begin of document
                 editor.setCursorPosition( 0, 0 )
-                self.mProperties.options &= ~SearchAndReplace.OptionWrap
+                self.mSearchContext.options &= ~SearchAndReplace.OptionWrap
 
             editor.beginUndoAction()
             
             count = 0
             while ( self.searchFile( True, False ) ): # search next
-                editor.replace( self.mProperties.replaceText )
+                editor.replace( self.mSearchContext.replaceText )
                 count += 1
 
             editor.endUndoAction()
@@ -615,7 +634,7 @@ class SearchWidget(QFrame):
             
             # restore wrap property if needed
             if  isWrap :
-                self.mProperties.options |= SearchAndReplace.OptionWrap
+                self.mSearchContext.options |= SearchAndReplace.OptionWrap
 
         else:
             y, x, temp, temp = editor.getSelection()
@@ -623,7 +642,7 @@ class SearchWidget(QFrame):
 
             if  self.searchFile( True, False ) :
                 editor.beginUndoAction()
-                editor.replace( self.mProperties.replaceText )
+                editor.replace( self.mSearchContext.replaceText )
                 editor.endUndoAction()
                 count += 1
                 self.pbNext.click(); # move selection to next item
@@ -660,7 +679,7 @@ class SearchWidget(QFrame):
         mks.monkeycore.messageManager().appendMessage( error )
 
     def search_textChanged(self):
-        self.initializeProperties( True )
+        self.initializeSearchContext( True )
         
         # clear search results if needed.
         if self.mMode == SearchAndReplace.ModeSearch:
@@ -677,40 +696,40 @@ class SearchWidget(QFrame):
 
     def on_pbPrevious_clicked(self):
         self.updateComboBoxes()
-        self.initializeProperties( True )
+        self.initializeSearchContext( True )
         self.searchFile( False, False )
 
     def on_pbNext_clicked(self):
         self.updateComboBoxes()
-        self.initializeProperties( True )
+        self.initializeSearchContext( True )
         self.searchFile( True, False )
 
     def on_pbSearch_pressed(self):
         self.setState( SearchWidget.Search, SearchWidget.Normal )
         self.updateComboBoxes()
-        self.initializeProperties( False )
+        self.initializeSearchContext( False )
         
-        if not self.mProperties.searchText:
+        if not self.mSearchContext.searchText:
             mks.monkeycore.messageManager().appendMessage( self.tr( "You can't search for NULL text." ) )
             return
 
-        if  self.mProperties.mode & SearchAndReplace.ModeFlagProjectFiles and not self.mProperties.project :
+        if  self.mSearchContext.mode & SearchAndReplace.ModeFlagProjectFiles and not self.mSearchContext.project :
             mks.monkeycore.messageManager().appendMessage( self.tr( "You can't search in project files because there is no opened projet." ) )
             return
 
-        self.mSearchThread.search( self.mProperties )
+        self.mSearchThread.search( self.mSearchContext )
 
     def on_pbSearchStop_clicked(self):
         self.mSearchThread.stop()
 
     def on_pbReplace_clicked(self):
         self.updateComboBoxes()
-        self.initializeProperties( True )
+        self.initializeSearchContext( True )
         self.replaceFile( False )
 
     def on_pbReplaceAll_pressed(self):
         self.updateComboBoxes()
-        self.initializeProperties( True )
+        self.initializeSearchContext( True )
         self.replaceFile( True )
 
     def on_pbReplaceChecked_pressed(self):
@@ -718,9 +737,9 @@ class SearchWidget(QFrame):
         model = self.mDock.model()
 
         self.updateComboBoxes()
-        self.initializeProperties( False )
+        self.initializeSearchContext( False )
         
-        if  self.mProperties.mode & SearchAndReplace.ModeFlagProjectFiles and not self.mProperties.project :
+        if  self.mSearchContext.mode & SearchAndReplace.ModeFlagProjectFiles and not self.mSearchContext.project :
             mks.monkeycore.messageManager().appendMessage( self.tr( "You can't replace in project files because there is no opened projet." ) )
             return
 
@@ -734,7 +753,7 @@ class SearchWidget(QFrame):
                     index = model.createIndex(row, 0, result)
                     self.mDock.model().setData( index, False, SearchResultsModel.EnabledRole )
 
-        self.mReplaceThread.replace( self.mProperties, items )
+        self.mReplaceThread.replace( self.mSearchContext, items )
 
     def on_pbReplaceCheckedStop_clicked(self):
         self.mReplaceThread.stop()
@@ -761,7 +780,7 @@ class SearchThread(QThread):
         self.stop()
 
     def search(self, properties ):
-        self.mProperties = properties
+        self.mSearchContext = properties
         self.stop()
         self.mExit = False
         self.start()
@@ -796,8 +815,8 @@ class SearchThread(QThread):
 
         """
         elif mode in (SearchAndReplace.ModeSearchProjectFiles, SearchAndReplace.ModeReplaceProjectFiles):
-            sources = self.mProperties.sourcesFiles
-            mask = self.mProperties.mask
+            sources = self.mSearchContext.sourcesFiles
+            mask = self.mSearchContext.mask
 
             for fileName in sources:
                 if  QDir.match( mask, fileName ) :
@@ -805,8 +824,8 @@ class SearchThread(QThread):
                     if self.mExit :
                         return files
         elif mode in (SearchAndReplace.ModeSearchOpenedFiles, SearchAndReplace.ModeReplaceOpenedFiles):
-            sources = self.mProperties.openedFiles.keys()
-            mask = self.mProperties.mask
+            sources = self.mSearchContext.openedFiles.keys()
+            mask = self.mSearchContext.mask
 
             for fileName in sources:
                 if  QDir.match( mask, fileName ) :
@@ -815,17 +834,17 @@ class SearchThread(QThread):
                         return files
         """
 
-        if self.mProperties.mode in (SearchAndReplace.ModeSearchDirectory, SearchAndReplace.ModeReplaceDirectory):
-            path = self.mProperties.searchPath
-            mask = self.mProperties.mask
+        if self.mSearchContext.mode in (SearchAndReplace.ModeSearchDirectory, SearchAndReplace.ModeReplaceDirectory):
+            path = self.mSearchContext.searchPath
+            mask = self.mSearchContext.mask
             return self._getFiles(path, mask)
         else:
             print "Invalid mode used."  # TODO use some logging system?
             assert(0)
 
-    def _fileContent(self, fileName, codec=''):
-        if fileName in self.mProperties.openedFiles:
-            return self.mProperties.openedFiles[ fileName ]
+    def _fileContent(self, fileName, codec='utf_8'):
+        if fileName in self.mSearchContext.openedFiles:
+            return self.mSearchContext.openedFiles[ fileName ]
 
         try:
             with open(fileName) as f:
@@ -851,17 +870,8 @@ class SearchThread(QThread):
         
         # Prepare data for search process
         eol = "\n"
-        pattern = unicode(self.mProperties.searchText)
-        flags = 0
         
-        if not self.mProperties.options & SearchAndReplace.OptionRegularExpression:  # not reg exp
-            pattern = re.escape( pattern )
-        
-        if self.mProperties.options & SearchAndReplace.OptionWholeWord:  # whole word
-            pattern.prepend( "\\b" ).append( "\\b" )
-        
-        if not self.mProperties.options & SearchAndReplace.OptionCaseSensitive:  # not case sensetive
-            flags = re.IGNORECASE
+        regExp = self.mSearchContext.regExp()
         
         lastResultsEmitTime = time.clock()
         notEmittedFileResults = []
@@ -874,7 +884,7 @@ class SearchThread(QThread):
             results = []
             
             # Process result for all occurrences
-            for match in re.finditer(pattern, content, flags):
+            for match in regExp.finditer(content):
                 start = match.start()
                 
                 eolStart = content.rfind( eol, 0, start)
@@ -1034,7 +1044,7 @@ class SearchResultsModel(QAbstractItemModel):
     
     def flags(self, index ):
         flags = QAbstractItemModel.flags( self, index )
-        properties = self.mSearchThread.mProperties
+        properties = self.mSearchThread.mSearchContext
 
         if properties.mode & SearchAndReplace.ModeFlagReplace :
             flags |= Qt.ItemIsUserCheckable
@@ -1094,7 +1104,7 @@ class SearchResultsModel(QAbstractItemModel):
         self.clear()
 
     def thread_resultsAvailable(self, fileResultsList ):
-        properties = self.mSearchThread.mProperties
+        properties = self.mSearchThread.mSearchContext
         if not self.fileResults:  # appending first
             self.firstResultsAvailable.emit()
             self.mSearchDir.setPath( properties.searchPath )
@@ -1177,7 +1187,7 @@ class SearchResultsDock(pDockWidget):
         if isinstance(result, SearchResultsModel.Result):
             mks.monkeycore.workspace().goToLine( result.fileName,
                                                  (result.line, result.column,),
-                                                 self.mSearchThread.mProperties.codec,
+                                                 self.mSearchThread.mSearchContext.codec,
                                                  result.length)  # FIXME check this code result.offset == -1 ? 0 : result.length
 
 class ReplaceThread(QThread):
@@ -1193,7 +1203,7 @@ class ReplaceThread(QThread):
 
     def replace(self, properties, results):
         self.stop()
-        self.mProperties = properties
+        self.mSearchContext = properties
         self.mResults = results
         self.mExit = False
         self.start()
@@ -1216,8 +1226,8 @@ class ReplaceThread(QThread):
             self.error.emit( self.tr( "Error while saving replaced content: %s" % str(ex) ) )
 
     def _fileContent(self, fileName, encoding=None):
-        if fileName in self.mProperties.openedFiles:
-            return self.mProperties.openedFiles[ fileName ]
+        if fileName in self.mSearchContext.openedFiles:
+            return self.mSearchContext.openedFiles[ fileName ]
 
         try:
             with open(fileName) as f:
@@ -1236,39 +1246,29 @@ class ReplaceThread(QThread):
 
     def run(self):
         startTime = time.clock()
-        pattern = unicode(self.mProperties.searchText)
-        flags = 0
         
-        if not self.mProperties.options & SearchAndReplace.OptionRegularExpression:  # not reg exp
-            pattern = re.escape( pattern )
-        
-        if self.mProperties.options & SearchAndReplace.OptionWholeWord:  # whole word
-            pattern.prepend( "\\b" ).append( "\\b" )
-        
-        if not self.mProperties.options & SearchAndReplace.OptionCaseSensitive:  # not case sensetive
-            flags = re.IGNORECASE
+        regExp = self.mSearchContext.regExp()
         
         for fileName in self.mResults.keys():
             handledResults = []
-            content = self._fileContent( fileName, self.mProperties.codec )
+            content = self._fileContent( fileName, self.mSearchContext.codec )
             
             for result in self.mResults[ fileName ][::-1]:  # count from end to begin because we are replacing by offset in content
                 
-                if self.mProperties.options & SearchAndReplace.OptionRegularExpression:  # replace \number with groups
-                    replaceText = re.sub(self.mProperties.searchText, \
-                                         self.mProperties.replaceText, \
-                                         result.capture)
+                if self.mSearchContext.options & SearchAndReplace.OptionRegularExpression:  # replace \number with groups
+                    replaceText = regExp.sub(self.mSearchContext.replaceText, \
+                                             result.capture)
                 else:
-                    replaceText = self.mProperties.replaceText
+                    replaceText = self.mSearchContext.replaceText
                 
                 # replace text
                 content = content[:result.offset] + replaceText + content[result.offset + result.length:]
                 handledResults.append(result)
             
-            if fileName in self.mProperties.openedFiles:
-                self.openedFileHandled.emit( fileName, content, self.mProperties.codec )
+            if fileName in self.mSearchContext.openedFiles:
+                self.openedFileHandled.emit( fileName, content, self.mSearchContext.codec )
             else:
-                self._saveContent( fileName, content, self.mProperties.codec )
+                self._saveContent( fileName, content, self.mSearchContext.codec )
             
             self.resultsHandled.emit( fileName, handledResults)
 
