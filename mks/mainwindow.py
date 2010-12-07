@@ -123,8 +123,8 @@ class MainWindow(pMainWindow):
         """TODO
         mb.menu( "mStyle", self.tr( "&Style" ), QIcon( ":/mksicons/style.png" ) )
         """
-        mb.action( "aNext", self.tr( "&Next file" ), QIcon( ":/mksicons/next.png" ), "Ctrl+Tab", self.tr( "Active the next tab" ) ).setEnabled( False )
-        mb.action( "aPrevious", self.tr( "&Previous file" ), QIcon( ":/mksicons/previous.png" ), "Ctrl+Shift+Tab", self.tr( "Active the previous tab" ) ).setEnabled( False )
+        mb.action( "aNext", self.tr( "&Next file" ), QIcon( ":/mksicons/next.png" ), "Alt+Right", self.tr( "Active the next tab" ) ).setEnabled( False )
+        mb.action( "aPrevious", self.tr( "&Previous file" ), QIcon( ":/mksicons/previous.png" ), "Alt+Left", self.tr( "Active the previous tab" ) ).setEnabled( False )
         mb.action( "aFocusCurrentDocument", self.tr( "Focus current document" ), QIcon( ":/mksicons/text.png" ), "Ctrl+Return", self.tr( "Focus current document" ) ).setEnabled( False )
         mb.endGroup()
         """TODO
