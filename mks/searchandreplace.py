@@ -764,169 +764,6 @@ class SearchWidget(QFrame):
         if path:
             self.cbPath.setEditText( path )
 
-
-class SearchThread(QThread):
-    RESULTS_EMIT_TIMEOUT = 1.0
-
-    reset = pyqtSignal()
-    resultsAvailable = pyqtSignal(list)  # list of SearchResultsModel.FileResults
-    progressChanged = pyqtSignal(int, int)  # int value, int total
-
-    def __init__(self, parentObject):
-        QThread.__init__(self, parentObject)
-        self.mExit = False
-    
-    def __del__(self):
-        self.stop()
-
-    def search(self, properties ):
-        self.mSearchContext = properties
-        self.stop()
-        self.mExit = False
-        self.start()
-
-    def stop(self):
-        """Stops thread synchronously
-        """
-        self.mExit = True
-        self.wait()
-
-    def clear(self):
-        self.stop()
-        self.reset.emit()            
-
-    def _getFiles(self, path, filters):
-        retFiles = []
-        for root, dirs, files in os.walk(os.path.abspath(unicode(path))):
-            if root.startswith('.'):
-                continue
-            for fileName in files:
-                if fileName.startswith('.'):
-                    continue
-                if not filters or QDir.match(filters, fileName):
-                    retFiles.append(root + os.path.sep + fileName)
-            if self.mExit :
-                break
-
-        return retFiles
-    
-    def _getFilesToScan(self):
-        files = set()
-
-        """
-        elif mode in (SearchAndReplace.ModeSearchProjectFiles, SearchAndReplace.ModeReplaceProjectFiles):
-            sources = self.mSearchContext.sourcesFiles
-            mask = self.mSearchContext.mask
-
-            for fileName in sources:
-                if  QDir.match( mask, fileName ) :
-                    files.append(fileName)
-                    if self.mExit :
-                        return files
-        elif mode in (SearchAndReplace.ModeSearchOpenedFiles, SearchAndReplace.ModeReplaceOpenedFiles):
-            sources = self.mSearchContext.openedFiles.keys()
-            mask = self.mSearchContext.mask
-
-            for fileName in sources:
-                if  QDir.match( mask, fileName ) :
-                    files.append(fileName)
-                    if self.mExit :
-                        return files
-        """
-
-        if self.mSearchContext.mode in (SearchAndReplace.ModeSearchDirectory, SearchAndReplace.ModeReplaceDirectory):
-            path = self.mSearchContext.searchPath
-            mask = self.mSearchContext.mask
-            return self._getFiles(path, mask)
-        else:
-            print "Invalid mode used."  # TODO use some logging system?
-            assert(0)
-
-    def _fileContent(self, fileName, encoding='utf_8'):
-        if fileName in self.mSearchContext.openedFiles:
-            return self.mSearchContext.openedFiles[ fileName ]
-
-        try:
-            with open(fileName) as f:
-                if  isBinary(f):
-                    return ''
-                return unicode(f.read(), encoding, errors = 'ignore')
-        except IOError, ex:
-            print ex
-            return ''
-
-    def run(self):
-        startTime = time.clock()
-        self.reset.emit()
-        self.progressChanged.emit( -1, 0 )
-
-        files = self._getFilesToScan()
-        files.sort()
-
-        if  self.mExit :
-            return
-        
-        self.progressChanged.emit( 0, len(files))
-        
-        # Prepare data for search process
-        eol = "\n"
-        
-        regExp = self.mSearchContext.regExp()
-        
-        lastResultsEmitTime = time.clock()
-        notEmittedFileResults = []
-        # Search for all files
-        for fileIndex, fileName in enumerate(files):
-            content = self._fileContent( fileName )
-
-            lastPos = 0
-            eolCount = 0
-            results = []
-            
-            # Process result for all occurrences
-            for match in regExp.finditer(content):
-                start = match.start()
-                
-                eolStart = content.rfind( eol, 0, start)
-                eolEnd = content.find( eol, start)
-                eolCount += content[lastPos:start].count( eol )
-                lastPos = start
-                
-                capture = content[eolStart + 1:eolEnd].strip()
-                column = start - eolStart
-                if eolStart != 0:
-                    column -= 1
-                
-                result = SearchResultsModel.Result( fileName = fileName, \
-                                 capture = capture, \
-                                 line = eolCount, \
-                                 column = column, \
-                                 offset = start, \
-                                 length = match.end() - start)
-                
-                results.append(result)
-
-                if self.mExit:
-                    break
-
-            if  results:
-                notEmittedFileResults.append(SearchResultsModel.FileResults(fileName, results))
-
-            if notEmittedFileResults and \
-               (time.clock() - lastResultsEmitTime) > self.RESULTS_EMIT_TIMEOUT:
-                    self.progressChanged.emit( fileIndex, len(files))
-                    self.resultsAvailable.emit(notEmittedFileResults)
-                    notEmittedFileResults = []
-                    lastResultsEmitTime = time.clock()
-
-            if  self.mExit :
-                self.progressChanged.emit( fileIndex, len(files))
-                break
-        
-        if notEmittedFileResults:
-            self.resultsAvailable.emit(notEmittedFileResults)
-        
-        print "Search finished in ", time.clock() - startTime        
     
 class SearchResultsModel(QAbstractItemModel):
 
@@ -1191,27 +1028,186 @@ class SearchResultsDock(pDockWidget):
                                                  self.mSearchThread.mSearchContext.encoding,
                                                  result.length)  # FIXME check this code result.offset == -1 ? 0 : result.length
 
-class ReplaceThread(QThread):
+class StopableThread(QThread):
+    mExit = False
+    
+    def __init__(self, parentObject):
+        QThread.__init__(self, parentObject)
+    
+    def __del__(self):
+        self.stop()
+
+    def stop(self):
+        """Stops thread synchronously
+        """
+        self.mExit = True
+        self.wait()
+    
+    def start(self):
+        self.stop()
+        self.mExit = False
+        QThread.start(self)
+
+class SearchThread(StopableThread):
+    RESULTS_EMIT_TIMEOUT = 1.0
+
+    reset = pyqtSignal()
+    resultsAvailable = pyqtSignal(list)  # list of SearchResultsModel.FileResults
+    progressChanged = pyqtSignal(int, int)  # int value, int total
+
+    def search(self, properties ):
+        self.stop()
+        self.mSearchContext = properties
+        self.start()
+
+    def clear(self):
+        self.stop()
+        self.reset.emit()            
+
+    def _getFiles(self, path, filters):
+        retFiles = []
+        for root, dirs, files in os.walk(os.path.abspath(unicode(path))):
+            if root.startswith('.'):
+                continue
+            for fileName in files:
+                if fileName.startswith('.'):
+                    continue
+                if not filters or QDir.match(filters, fileName):
+                    retFiles.append(root + os.path.sep + fileName)
+            if self.mExit :
+                break
+
+        return retFiles
+    
+    def _getFilesToScan(self):
+        files = set()
+
+        """
+        elif mode in (SearchAndReplace.ModeSearchProjectFiles, SearchAndReplace.ModeReplaceProjectFiles):
+            sources = self.mSearchContext.sourcesFiles
+            mask = self.mSearchContext.mask
+
+            for fileName in sources:
+                if  QDir.match( mask, fileName ) :
+                    files.append(fileName)
+                    if self.mExit :
+                        return files
+        elif mode in (SearchAndReplace.ModeSearchOpenedFiles, SearchAndReplace.ModeReplaceOpenedFiles):
+            sources = self.mSearchContext.openedFiles.keys()
+            mask = self.mSearchContext.mask
+
+            for fileName in sources:
+                if  QDir.match( mask, fileName ) :
+                    files.append(fileName)
+                    if self.mExit :
+                        return files
+        """
+
+        if self.mSearchContext.mode in (SearchAndReplace.ModeSearchDirectory, SearchAndReplace.ModeReplaceDirectory):
+            path = self.mSearchContext.searchPath
+            mask = self.mSearchContext.mask
+            return self._getFiles(path, mask)
+        else:
+            print "Invalid mode used."  # TODO use some logging system?
+            assert(0)
+
+    def _fileContent(self, fileName, encoding='utf_8'):
+        if fileName in self.mSearchContext.openedFiles:
+            return self.mSearchContext.openedFiles[ fileName ]
+
+        try:
+            with open(fileName) as f:
+                if  isBinary(f):
+                    return ''
+                return unicode(f.read(), encoding, errors = 'ignore')
+        except IOError, ex:
+            print ex
+            return ''
+
+    def run(self):
+        startTime = time.clock()
+        self.reset.emit()
+        self.progressChanged.emit( -1, 0 )
+
+        files = self._getFilesToScan()
+        files.sort()
+
+        if  self.mExit :
+            return
+        
+        self.progressChanged.emit( 0, len(files))
+        
+        # Prepare data for search process
+        eol = "\n"
+        
+        regExp = self.mSearchContext.regExp()
+        
+        lastResultsEmitTime = time.clock()
+        notEmittedFileResults = []
+        # Search for all files
+        for fileIndex, fileName in enumerate(files):
+            content = self._fileContent( fileName )
+
+            lastPos = 0
+            eolCount = 0
+            results = []
+            
+            # Process result for all occurrences
+            for match in regExp.finditer(content):
+                start = match.start()
+                
+                eolStart = content.rfind( eol, 0, start)
+                eolEnd = content.find( eol, start)
+                eolCount += content[lastPos:start].count( eol )
+                lastPos = start
+                
+                capture = content[eolStart + 1:eolEnd].strip()
+                column = start - eolStart
+                if eolStart != 0:
+                    column -= 1
+                
+                result = SearchResultsModel.Result( fileName = fileName, \
+                                 capture = capture, \
+                                 line = eolCount, \
+                                 column = column, \
+                                 offset = start, \
+                                 length = match.end() - start)
+                
+                results.append(result)
+
+                if self.mExit:
+                    break
+
+            if  results:
+                notEmittedFileResults.append(SearchResultsModel.FileResults(fileName, results))
+
+            if notEmittedFileResults and \
+               (time.clock() - lastResultsEmitTime) > self.RESULTS_EMIT_TIMEOUT:
+                    self.progressChanged.emit( fileIndex, len(files))
+                    self.resultsAvailable.emit(notEmittedFileResults)
+                    notEmittedFileResults = []
+                    lastResultsEmitTime = time.clock()
+
+            if  self.mExit :
+                self.progressChanged.emit( fileIndex, len(files))
+                break
+        
+        if notEmittedFileResults:
+            self.resultsAvailable.emit(notEmittedFileResults)
+        
+        print "Search finished in ", time.clock() - startTime        
+
+
+class ReplaceThread(StopableThread):
     resultsHandled = pyqtSignal(unicode, list)
     openedFileHandled = pyqtSignal(unicode, unicode, unicode)
     error = pyqtSignal(unicode)
     
-    def __init__(self, parent):
-        QThread.__init__(self, parent)
-
-    def __del__(self):
-        self.stop()
-
     def replace(self, properties, results):
         self.stop()
         self.mSearchContext = properties
         self.mResults = results
-        self.mExit = False
         self.start()
-
-    def stop(self):
-        self.mExit = True
-        self.wait()
 
     def _saveContent(self, fileName, content, encoding):  # use Python functionality?
         if encoding:
