@@ -775,12 +775,14 @@ class SearchResultsModel(QAbstractItemModel):
         def __init__ (  self, \
                         fileName, \
                         capture, \
+                        groups,
                         line, \
                         column, \
                         offset,
                         length):
                 self.fileName = fileName;
                 self.capture = capture;
+                self.groups = groups;
                 self.line = line;
                 self.column = column;
                 self.offset = offset;
@@ -1168,6 +1170,7 @@ class SearchThread(StopableThread):
                 
                 result = SearchResultsModel.Result( fileName = fileName, \
                                  capture = capture, \
+                                 groups = match.groups(), \
                                  line = eolCount, \
                                  column = column, \
                                  offset = start, \
@@ -1247,17 +1250,26 @@ class ReplaceThread(StopableThread):
         startTime = time.clock()
         regExp = self.mSearchContext.regExp()
         
+        subMatchRex = re.compile( r"\\(\d+)" )
+        
         for fileName in self.mResults.keys():
             handledResults = []
             content = self._fileContent( fileName, self.mSearchContext.encoding )
             
             for result in self.mResults[ fileName ][::-1]:  # count from end to begin because we are replacing by offset in content
+                replaceText = self.mSearchContext.replaceText
                 if self.mSearchContext.options & SearchAndReplace.OptionRegularExpression:  # replace \number with groups
-                    replaceText = regExp.sub(self.mSearchContext.replaceText, \
-                                             content[result.offset:result.offset + result.length], \
-                                             count=1)
-                else:
                     replaceText = self.mSearchContext.replaceText
+                    pos = 0
+                    match = subMatchRex.search(replaceText)
+                    while match:
+                        index = int(match.group(1))
+                        if index in range(1, len(result.groups) + 1):
+                            replaceText = replaceText[:pos + match.start()] + \
+                                          result.groups[index - 1] + \
+                                          replaceText[pos + match.start() + len(match.group(0)):]
+                        pos += (match.start() + len(result.groups[index - 1]))
+                        match = subMatchRex.search(replaceText[pos:])
                 
                 # replace text
                 content = content[:result.offset] + replaceText + content[result.offset + result.length:]
