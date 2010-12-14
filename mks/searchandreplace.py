@@ -1069,7 +1069,7 @@ class SearchThread(StopableThread):
     def _getFiles(self, path, filters):
         retFiles = []
         for root, dirs, files in os.walk(os.path.abspath(unicode(path))):
-            if root.startswith('.'):
+            if root.startswith('.') or (os.path.sep + '.') in root:
                 continue
             for fileName in files:
                 if fileName.startswith('.'):
