@@ -170,7 +170,7 @@ class SearchWidget(QFrame):
     def __init__(self, plugin):
         QFrame.__init__(self, mks.monkeycore.workspace())
         self.plugin = plugin
-        uic.loadUi('mks/SearchWidget.ui', self)
+        uic.loadUi('/usr/local/share/mksv3/SearchWidget.ui', self)
         
         self.cbSearch.completer().setCaseSensitivity( Qt.CaseSensitive )
         self.cbReplace.completer().setCaseSensitivity( Qt.CaseSensitive )
