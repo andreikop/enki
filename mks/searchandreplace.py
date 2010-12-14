@@ -653,6 +653,7 @@ class SearchWidget(QFrame):
 
     def searchThread_stateChanged(self):
         self.pbSearchStop.setVisible( self.mSearchThread.isRunning() )
+        self.pbSearch.setVisible( not self.mSearchThread.isRunning() )
         self.updateWidgets()
         self.mProgress.setVisible( self.mSearchThread.isRunning() )
 
@@ -662,6 +663,7 @@ class SearchWidget(QFrame):
 
     def replaceThread_stateChanged(self):
         self.pbReplaceCheckedStop.setVisible( self.mReplaceThread.isRunning() )
+        self.pbReplaceChecked.setVisible( self.mReplaceThread.isRunning() )
         self.updateWidgets()
 
     def replaceThread_openedFileHandled(self, fileName, content, encoding ):
