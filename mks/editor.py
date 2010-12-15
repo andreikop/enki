@@ -2,8 +2,9 @@
 
 import os.path
 import shutil
+import fnmatch
 
-from PyQt4.QtCore import Qt, QDir, QEvent
+from PyQt4.QtCore import Qt, QEvent
 from PyQt4.QtGui import QFrame, QInputDialog, QIcon
 
 from PyQt4.Qsci import *
@@ -218,7 +219,7 @@ _lexerForLanguage = {
 "HTML" : QsciLexerHTML,
 "IDL" : QsciLexerIDL,
 "Java" : QsciLexerJava,
-"Javascript" : QsciLexerJavaScript,
+"JavaScript" : QsciLexerJavaScript,
 "Lua" : QsciLexerLua,
 "Makefile" : QsciLexerMakefile,
 "POV" : QsciLexerPOV,
@@ -380,10 +381,10 @@ class Editor(mks.workspace.AbstractDocument):
     
     def _lexerForFileName(self, fileName ):
         for language in _lexerForLanguage.keys():
-            #print mks.settings.value("Editor/Assotiations/" + language), fileName, QDir.match( mks.settings.value("Editor/Assotiations/" + language), fileName ) 
-            if  QDir.match( mks.settings.value("Editor/Assotiations/" + language), fileName ) :
-                lexerClass =  _lexerForLanguage[language]
-                return lexerClass()
+            for pattern in mks.settings.value("Editor/Assotiations/" + language):
+                if  fnmatch.fnmatch(fileName , pattern)  :
+                    lexerClass =  _lexerForLanguage[language]
+                    return lexerClass()
         else:
             return None
     
