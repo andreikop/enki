@@ -76,19 +76,19 @@ class _pEditor(QsciScintilla):
 
         static QRegExp rxd( "\\$(\\d+)" )
         rxd.setMinimal( True )
-         isRE = mSearchState.flags & SCFIND_REGEXP
-        rx = mSearchState.rx
-         captures = rx.capturedTexts()
-        text = replaceStr
-         start = SendScintilla( SCI_GETSELECTIONSTART )
+   ?         isRE = mSearchState.flags & SCFIND_REGEXP
+            rx = mSearchState.rx
+            captures = rx.capturedTexts()
+            text = replaceStr
+            start = SendScintilla( SCI_GETSELECTIONSTART )
 
-        SendScintilla( SCI_TARGETFROMSELECTION )
-        
-        # remove selection
-        removeSelectedText()
-        
-        # compute replace text
-        if  isRE and captures.count() > 1 :        pos = 0
+            SendScintilla( SCI_TARGETFROMSELECTION )
+            
+            # remove selection
+            removeSelectedText()
+            
+            # compute replace text
+            if  isRE and captures.count() > 1 :        pos = 0
             
             while ( ( pos = rxd.indexIn( text, pos ) ) != -1 )             id = rxd.cap( 1 ).toInt()
                 
@@ -105,8 +105,8 @@ class _pEditor(QsciScintilla):
 
         
         # insert replace text
-         len = text.toUtf8().length(); # scintilla position are count from qbytearray data: ie: non ascii leter are 2 or more bits.
-        insert( text )
+            len = text.toUtf8().length(); # scintilla position are count from qbytearray data: ie: non ascii leter are 2 or more bits.
+            insert( text )
 
         # Reset the selection.
         SendScintilla( SCI_SETSELECTIONSTART, start )
@@ -170,17 +170,17 @@ class _pEditor(QsciScintilla):
         SendScintilla( SCI_SETTARGETSTART, mSearchState.startpos )
         SendScintilla( SCI_SETTARGETEND, mSearchState.endpos )
         
-         isCS = mSearchState.flags & SCFIND_MATCHCASE
-         isWW = mSearchState.flags & SCFIND_WHOLEWORD
-         isRE = mSearchState.flags & SCFIND_REGEXP
-         from = qMin( mSearchState.startpos, mSearchState.endpos )
-         to = qMax( mSearchState.startpos, mSearchState.endpos )
-         data = self.text().toUtf8().mid( from, to -from ); # scintilla position are from qbytearray size, non ascii letter are 2 or more bits.
-         text = QString.fromUtf8( data )
-        pattern = isRE ? mSearchState.expr : QRegExp.escape( mSearchState.expr )
-        rx = mSearchState.rx
-        
-        if  isWW :        pattern.prepend( "\\b" ).append( "\\b" )
+            isCS = mSearchState.flags & SCFIND_MATCHCASE
+            isWW = mSearchState.flags & SCFIND_WHOLEWORD
+            isRE = mSearchState.flags & SCFIND_REGEXP
+            from = qMin( mSearchState.startpos, mSearchState.endpos )
+            to = qMax( mSearchState.startpos, mSearchState.endpos )
+            data = self.text().toUtf8().mid( from, to -from ); # scintilla position are from qbytearray size, non ascii letter are 2 or more bits.
+            text = QString.fromUtf8( data )
+            pattern = isRE ? mSearchState.expr : QRegExp.escape( mSearchState.expr )
+            rx = mSearchState.rx
+            
+            if  isWW :        pattern.prepend( "\\b" ).append( "\\b" )
 
         
         rx.setMinimal( True )
@@ -190,9 +190,9 @@ class _pEditor(QsciScintilla):
         pos = mSearchState.forward ? rx.indexIn( text, from -from ) : rx.lastIndexIn( text, to -from )
         
         if  pos != -1 :         start = from +text.left( pos ).toUtf8().length()
-             end = start +text.mid( pos, rx.matchedLength() ).toUtf8().length()
-            SendScintilla( SCI_SETTARGETSTART, start )
-            SendScintilla( SCI_SETTARGETEND, end )
+                end = start +text.mid( pos, rx.matchedLength() ).toUtf8().length()
+                SendScintilla( SCI_SETTARGETSTART, start )
+                SendScintilla( SCI_SETTARGETEND, end )
 
         
         return pos
@@ -380,6 +380,7 @@ class Editor(mks.workspace.AbstractDocument):
     
     def _lexerForFileName(self, fileName ):
         for language in _lexerForLanguage.keys():
+            #print mks.settings.value("Editor/Assotiations/" + language), fileName, QDir.match( mks.settings.value("Editor/Assotiations/" + language), fileName ) 
             if  QDir.match( mks.settings.value("Editor/Assotiations/" + language), fileName ) :
                 lexerClass =  _lexerForLanguage[language]
                 return lexerClass()

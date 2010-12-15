@@ -19,6 +19,8 @@ from PyQt4.QtGui import *
 import main
 import mks.settings
 """
+import os.path
+
 import mksiconsresource
 
 _mainWindow = None
@@ -53,6 +55,14 @@ def _showMessage(splash, message):
     splash.hide()
     splash.show()
 """
+
+def uiFilesPath():
+    """Returns path, where .ui files installed.
+    TODO find good place for this function
+    """
+    return os.path.dirname(__file__)
+
+
 def init():
     """Initialize the system, create main window, load plugins.
     
