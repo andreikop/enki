@@ -7,6 +7,7 @@ import re
 import time
 import pkgutil
 import encodings
+import fnmatch
 
 from PyQt4 import uic
 from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QDir, QEvent, QIODevice, QModelIndex, \
@@ -486,35 +487,21 @@ class SearchWidget(QFrame):
                 self.cbMask.addItem( maskText )
     
     def initializeSearchContext(self, currentDocumentOnly ):
-        """TODO
-        suffixes = pMonkeyStudio.availableLanguagesSuffixes()
-        keys = suffixes.keys()
-        """
         self.mSearchContext = SearchContext(searchText = unicode(self.cbSearch.currentText()), \
                                             replaceText = unicode(self.cbReplace.currentText()), \
                                             searchPath = unicode(self.cbPath.currentText()), \
                                             mode = self.mMode,
                                             encoding = unicode(self.cbEncoding.currentText()))
+        
         """TODO
         self.mSearchContext.project = mks.monkeycore.fileManager().currentProject()
         """
         
-        """TODO
         # update masks
-        for part in self.cbMask.currentText().split( " ", QString.SkipEmptyParts ):
-            index = keys.index( QRegExp( QRegExp.escape( part ), Qt.CaseInsensitive ) )
-
-            if  index != -1 :
-                foreach (  QString& suffixe, suffixes[ keys[index] ] )
-                    if  not suffixe in self.mSearchContext.mask:
-                        self.mSearchContext.mask << suffixe
-            else:
-                self.mSearchContext.mask << part
-        # set default mask if needed
-        if  self.mSearchContext.mask:
-            self.mSearchContext.mask.append("*")
-        """
-
+        """ TODO restore code, which deals with list of masks? """
+        self.mSearchContext.mask = [unicode(s).strip() for s in self.cbMask.currentText().split(' ')]
+        self.mSearchContext.mask = filter(None, self.mSearchContext.mask)  # remove empty
+        
         # update options
         for option in self.mModeActions.keys():
             if  self.mModeActions[option].isChecked() :
@@ -1068,7 +1055,7 @@ class SearchThread(StopableThread):
         self.stop()
         self.reset.emit()            
 
-    def _getFiles(self, path, filters):
+    def _getFiles(self, path, maskRegExp):
         retFiles = []
         for root, dirs, files in os.walk(os.path.abspath(unicode(path))):
             if root.startswith('.') or (os.path.sep + '.') in root:
@@ -1076,7 +1063,7 @@ class SearchThread(StopableThread):
             for fileName in files:
                 if fileName.startswith('.'):
                     continue
-                if not filters or QDir.match(filters, fileName):
+                if not maskRegExp or maskRegExp.match(fileName):
                     retFiles.append(root + os.path.sep + fileName)
             if self.mExit :
                 break
@@ -1110,7 +1097,13 @@ class SearchThread(StopableThread):
         if self.mSearchContext.mode in (SearchAndReplace.ModeSearchDirectory, SearchAndReplace.ModeReplaceDirectory):
             path = self.mSearchContext.searchPath
             mask = self.mSearchContext.mask
-            return self._getFiles(path, mask)
+            if mask:
+                regExPatterns = map(fnmatch.translate, mask)
+                maskRegExpPattern = '(' + ')|('.join(regExPatterns) + ')'
+                maskRegExp = re.compile(maskRegExpPattern)
+            else:
+                maskRegExp = None
+            return self._getFiles(path, maskRegExp)
         else:
             print "Invalid mode used."  # TODO use some logging system?
             assert(0)
