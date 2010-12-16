@@ -333,11 +333,9 @@ class SearchWidget(QFrame):
         assert( self.mSearchContext.encoding )
         
         document = mks.monkeycore.workspace().currentDocument()
-        editor = document.qscintilla  # FIXME
-        # TODO editor = document ? document.editor() : 0
         searchPath = os.path.abspath(os.path.curdir)
-        if editor:
-            searchText = editor.selectedText()
+        if mks.monkeycore.workspace().currentDocument():
+            searchText = mks.monkeycore.workspace().currentDocument().qscintilla.selectedText()
         else:
             searchText = ''
         
