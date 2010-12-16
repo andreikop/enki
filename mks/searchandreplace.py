@@ -600,7 +600,7 @@ class SearchWidget(QFrame):
         
         if  all :
             isWrap = self.mSearchContext.options & SearchAndReplace.OptionWrap
-            x, y = editor.getCursorPosition(y, x)
+            x, y = editor.getCursorPosition()
 
             if  isWrap :
                 # don't need to give wrap parameter for search as we start at begin of document
@@ -615,7 +615,7 @@ class SearchWidget(QFrame):
                 count += 1
 
             editor.endUndoAction()
-            editor.setCursorPosition( y, x ) # restore cursor position
+            editor.setCursorPosition(x, y) # restore cursor position
             
             # restore wrap property if needed
             if  isWrap :
