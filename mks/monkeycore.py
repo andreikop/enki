@@ -27,6 +27,7 @@ _mainWindow = None
 _workspace = None
 
 _searchreplace = None
+_fileBrowser = None
 
 """TODO
 _settings = None
@@ -149,8 +150,11 @@ def init():
     # TODO to plugins manger
     import mks.searchandreplace
     global _searchreplace
-    
     _searchreplace = mks.searchandreplace.SearchAndReplace()
+    
+    import mks.filebrowser
+    global _fileBrowser
+    _fileBrowser = mks.filebrowser.FileBrowser()
     
     """TODO
     # init abbreviations manager
@@ -207,6 +211,7 @@ def term():
     Called by main()
     """
     _searchreplace = None
+    _fileBrowser = None
     mksiconsresource.qCleanupResources()
 
 def mainWindow():

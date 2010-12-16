@@ -1462,7 +1462,7 @@ class Workspace(QFrame):
         # open open file dialog
         fileNames = result[ "filenames" ].toStringList()
         """
-        fileNames = QFileDialog.getOpenFileNames( self.window(), self.tr( "Choose the file(s) to open" ))
+        fileNames = map(unicode, QFileDialog.getOpenFileNames( self.window(), self.tr( "Choose the file(s) to open" )))
                 
         for file in fileNames:
             if self.openFile(file) is not None:
