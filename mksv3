@@ -4,6 +4,7 @@ Monkey Studio free crossplatform IDE.
 Main file processes command line arguments and starts the system.
 """
 import sys
+import os.path
 
 import mks.config
 
@@ -48,7 +49,18 @@ def main():
         print >> sys.stderr, 'See http://github.com/hlamer/Fresh-framework/archives/master for installation instructions'
         return -1
     
-    # Special hack for ability to get help and version info even on system without PyQt and Fresh.
+    failed = False
+    for arg in sys.argv[1:]:
+        if not os.path.isfile(arg):
+            print >> sys.stderr, "Can't open %s. Not a file" % arg
+            failed = True
+        elif not os.access(arg, os.R_OK):
+            print >> sys.stderr, "Permission denied to read %s" % arg
+            failed = True
+    if failed:
+        return -2
+    
+    # Imports only here. Hack for ability to get help and version info even on system without PyQt and Fresh.
     from PyQt4 import QtGui, QtCore
     import mks.config
     import mks.monkeycore
@@ -84,6 +96,10 @@ def main():
     
     # init monkey studio core
     mks.monkeycore.init();
+    
+    for arg in sys.argv[1:]:
+        mks.monkeycore.workspace().openFile(arg)
+    
     """TODO
     // handle command line arguments
     clm.process();
