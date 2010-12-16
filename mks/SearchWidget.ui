@@ -417,6 +417,9 @@ p, li { white-space: pre-wrap; }
          </property>
          <item>
           <widget class="QLabel" name="lEncoding">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -432,7 +435,11 @@ p, li { white-space: pre-wrap; }
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="cbEncoding"/>
+          <widget class="QComboBox" name="cbEncoding">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
