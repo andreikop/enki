@@ -35,7 +35,7 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
     ModeFlagFile = 0x4
     ModeFlagDirectory = 0x8
     ModeFlagProjectFiles = 0x10
-    ModeFlagOpenedFiles = 0x11
+    ModeFlagOpenedFiles = 0x20
 
     ModeNo = 0
     ModeSearch = ModeFlagSearch | ModeFlagFile
@@ -65,12 +65,12 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
                         ("aReplaceDirectory", "Replace in Director&y...", "search-replace-directory.png", "Ctrl+Shift+R", "Replace in directory...", self.modeSwitchTriggered, self.ModeReplaceDirectory),
                         ("aReplaceFile", "&Replace...", "replace.png", "Ctrl+R", "Replace in the current file...", self.modeSwitchTriggered, self.ModeReplace),
                         ("aSearchPrevious", "Search &Previous", "previous.png", "Shift+F3", "Search previous occurrence", self.widget.on_pbPrevious_pressed, None),
-                        ("aSearchNext", "Search &Next", "next.png", "F3", "Search next occurrence", self.widget.on_pbNext_pressed, None))
+                        ("aSearchNext", "Search &Next", "next.png", "F3", "Search next occurrence", self.widget.on_pbNext_pressed, None),
+                        ("aSearchOpenedFiles", "Search in &Opened Files...", "search-replace-opened-files.png", "Ctrl+Alt+Meta+F", "Search in opened files...", self.modeSwitchTriggered, self.ModeSearchOpenedFiles),
+                        ("aReplaceOpenedFiles", "Replace in Open&ed Files...", "search-replace-opened-files.png", "Ctrl+Alt+Meta+R", "Replace in opened files...", self.modeSwitchTriggered, self.ModeReplaceOpenedFiles))
         """TODO
                         ("aSearchProjectFiles", "Search in Project &Files...", "search-replace-project-files.png", "Ctrl+Meta+F", "Search in the current project files..", self.modeSwitchTriggered, self.ModeSearchProjectFiles),
                         ("aReplaceProjectFiles", "Replace in Projec&t Files...", "search-replace-project-files.png", "Ctrl+Meta+R", "Replace in the current project files...", self.modeSwitchTriggered, self.ModeReplaceProjectFiles),
-                        ("aSearchOpenedFiles", "Search in &Opened Files...", "search-replace-opened-files.png", "Ctrl+Alt+Meta+F", "Search in opened files...", self.modeSwitchTriggered, self.ModeSearchOpenedFiles),
-                        ("aReplaceOpenedFiles", "Replace in Open&ed Files...", "search-replace-opened-files.png", "Ctrl+Alt+Meta+R", "Replace in opened files...", self.modeSwitchTriggered, self.ModeReplaceOpenedFiles))
         """
 
         
@@ -113,7 +113,7 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
         elif newMode & SearchAndReplace.ModeFlagProjectFiles:  # TODO
             pass
         elif newMode & SearchAndReplace.ModeFlagOpenedFiles:
-            if mks.workspace.openedDocuments():  # TODO check if have file based document
+            if mks.monkeycore.workspace().openedDocuments():  # TODO check if have file based document
                 self.widget.setMode(newMode)
 
 
@@ -370,7 +370,7 @@ class SearchWidget(QFrame):
                    SearchAndReplace.ModeSearchProjectFiles:  (    1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,    1,),
                    SearchAndReplace.ModeSearchProjectFiles:  (    1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,    1,),
                    SearchAndReplace.ModeReplaceProjectFiles: (    1,     0,     0,     1,     1,     0,     0,     0,     1,    1,    1,    1,),
-                   SearchAndReplace.ModeSearchOpenedFiles:   (    1,     0,     0,     1,     1,     0,     0,     0,     0,    1,    1,    0,),
+                   SearchAndReplace.ModeSearchOpenedFiles:   (    1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,    0,),
                    SearchAndReplace.ModeReplaceOpenedFiles:  (    1,     0,     0,     1,     1,     0,     0,     0,     1,    1,    1,    0,)}
         
         for i, widget in enumerate(widgets):
@@ -1081,27 +1081,22 @@ class SearchThread(StopableThread):
                     files.append(fileName)
                     if self.mExit :
                         return files
-        elif mode in (SearchAndReplace.ModeSearchOpenedFiles, SearchAndReplace.ModeReplaceOpenedFiles):
-            sources = self.mSearchContext.openedFiles.keys()
-            mask = self.mSearchContext.mask
-
-            for fileName in sources:
-                if  QDir.match( mask, fileName ) :
-                    files.append(fileName)
-                    if self.mExit :
-                        return files
         """
+        if self.mSearchContext.mask:
+            regExPatterns = map(fnmatch.translate, self.mSearchContext.mask)
+            maskRegExpPattern = '(' + ')|('.join(regExPatterns) + ')'
+            maskRegExp = re.compile(maskRegExpPattern)
+        else:
+            maskRegExp = None
 
         if self.mSearchContext.mode in (SearchAndReplace.ModeSearchDirectory, SearchAndReplace.ModeReplaceDirectory):
             path = self.mSearchContext.searchPath
-            mask = self.mSearchContext.mask
-            if mask:
-                regExPatterns = map(fnmatch.translate, mask)
-                maskRegExpPattern = '(' + ')|('.join(regExPatterns) + ')'
-                maskRegExp = re.compile(maskRegExpPattern)
-            else:
-                maskRegExp = None
             return self._getFiles(path, maskRegExp)
+        elif self.mSearchContext.mode in (SearchAndReplace.ModeSearchOpenedFiles, SearchAndReplace.ModeReplaceOpenedFiles):
+            files = self.mSearchContext.openedFiles.keys()
+            if maskRegExp:
+                files = filter(maskRegExp.match, map(os.path.basename, files))
+            return files
         else:
             print "Invalid mode used."  # TODO use some logging system?
             assert(0)
