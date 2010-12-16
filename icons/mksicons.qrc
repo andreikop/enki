@@ -2,6 +2,7 @@
 	<qresource prefix="/mksicons" >
 		<file>abbreviation.png</file>
 		<file>about.png</file>
+		<file>add.png</file>
 		<file>addtab.png</file>
 		<file>assistant.png</file>
 		<file>background.png</file>
@@ -115,6 +116,7 @@
 		<file>transparent.png</file>
 		<file>typedef.png</file>
 		<file>undo.png</file>
+		<file>up_arrow.png</file>
 		<file>update.png</file>
 		<file>up.png</file>
 		<file>user.png</file>

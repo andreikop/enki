@@ -13,6 +13,7 @@ MODULE STUB. Functions for register new option and change opiton value will be a
 """
 
 import os
+import os.path
 import sys
 
 from PyQt4.QtCore import Qt
@@ -103,6 +104,11 @@ _defaults = {
 "Editor/AutoEolConversion" : True,
 "Editor/AutoDetectIndent" : True,
 "Editor/AutoDetectEol" : True,
+
+"FileBrowser/NegativeFilter" : ("*~", "*.o", "*.pyc", "*.bak" ),
+"FileBrowser/Path" : os.path.expanduser('~'),
+"FileBrowser/FilePath" : '',
+"FileBrowser/Bookmarks" : [os.path.expanduser('~')],
 }
 
 """
