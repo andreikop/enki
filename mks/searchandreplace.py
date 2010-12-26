@@ -346,16 +346,13 @@ class SearchWidget(QFrame):
 
         self.setVisible( mode != SearchAndReplace.ModeNo )
 
-        if  self.isVisible() :
+        if  self.isVisible() and not wasVisible:
             if searchText:
                 self.cbSearch.setEditText( searchText )
+                self.cbReplace.setEditText( searchText )
 
-            if  mode & SearchAndReplace.ModeFlagSearch :
-                self.cbSearch.setFocus()
-                self.cbSearch.lineEdit().selectAll()
-            else:
-                self.cbReplace.setFocus()
-                self.cbReplace.lineEdit().selectAll()
+            self.cbSearch.setFocus()
+            self.cbSearch.lineEdit().selectAll()
             
             if  mode & SearchAndReplace.ModeFlagDirectory :
                 self.cbPath.setEditText( searchPath )
