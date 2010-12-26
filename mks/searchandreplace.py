@@ -235,6 +235,9 @@ class SearchWidget(QFrame):
         # init default options
         self.cbWrap.setChecked( True )
         
+        QWidget.setTabOrder(self.cbSearch, self.cbReplace)
+        QWidget.setTabOrder(self.cbReplace, self.cbPath)
+        
         """TODO
         # mac
         pMonkeyStudio.showMacFocusRect( self, False, True )
