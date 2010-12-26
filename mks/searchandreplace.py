@@ -2,7 +2,6 @@
 """
 
 import os.path
-import threading
 import re
 import time
 import pkgutil
@@ -10,26 +9,29 @@ import encodings
 import fnmatch
 
 from PyQt4 import uic
-from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QDir, QEvent, QIODevice, QModelIndex, \
-                        QObject, QRect, QRegExp, QSize, Qt, \
-                        QThread, QVariant
+from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QDir, QEvent, \
+                         QModelIndex, \
+                         QObject, QRect, QSize, Qt, \
+                         QThread, QVariant
 from PyQt4.QtGui import QAction, QCompleter, QColor, QDirModel, QFileDialog,  \
-                        QFrame, QFileDialog, QHBoxLayout, QIcon, QKeyEvent, QLineEdit, QPainter,  \
+                        QFrame, QFileDialog, QHBoxLayout, QIcon, \
+                        QPainter,  \
                         QProgressBar, QToolButton, QTreeView, QWidget
-from PyQt4.fresh import *
+from PyQt4.fresh import pDockWidget
 
 import mks.monkeycore
 
-def isBinary(file ):
+def isBinary(fileObject):
     """Expects, that file position is 0, when exits, file position is 0
     """
-    binary = '\0' in file.read( 4096 )
-    file.seek(0)
+    binary = '\0' in fileObject.read( 4096 )
+    fileObject.seek(0)
     return binary
 
 
 class SearchAndReplace(QObject):  # TODO (Plugin) ?
-    
+    """Main class of the plugin. Installs and uninstalls plugin to the system
+    """
     ModeFlagSearch = 0x1
     ModeFlagReplace = 0x2
     ModeFlagFile = 0x4
@@ -59,50 +61,88 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
         QObject.__init__(self)
         self.widget = SearchWidget( self )
         
-        # List if search actions. First acition created by MainWindow, so, do not fill text
-        self.actions = (("aSearchFile", "", "", "", "", self.modeSwitchTriggered, self.ModeSearch),
-                        ("aSearchDirectory", "Search in &Directory...", "search-replace-directory.png", "Ctrl+Shift+F", "Search in directory...", self.modeSwitchTriggered, self.ModeSearchDirectory),
-                        ("aReplaceDirectory", "Replace in Director&y...", "search-replace-directory.png", "Ctrl+Shift+R", "Replace in directory...", self.modeSwitchTriggered, self.ModeReplaceDirectory),
-                        ("aReplaceFile", "&Replace...", "replace.png", "Ctrl+R", "Replace in the current file...", self.modeSwitchTriggered, self.ModeReplace),
-                        ("aSearchPrevious", "Search &Previous", "previous.png", "Shift+F3", "Search previous occurrence", self.widget.on_pbPrevious_pressed, None),
-                        ("aSearchNext", "Search &Next", "next.png", "F3", "Search next occurrence", self.widget.on_pbNext_pressed, None),
-                        ("aSearchOpenedFiles", "Search in &Opened Files...", "search-replace-opened-files.png", "Ctrl+Alt+Meta+F", "Search in opened files...", self.modeSwitchTriggered, self.ModeSearchOpenedFiles),
-                        ("aReplaceOpenedFiles", "Replace in Open&ed Files...", "search-replace-opened-files.png", "Ctrl+Alt+Meta+R", "Replace in opened files...", self.modeSwitchTriggered, self.ModeReplaceOpenedFiles))
-        """TODO
-                        ("aSearchProjectFiles", "Search in Project &Files...", "search-replace-project-files.png", "Ctrl+Meta+F", "Search in the current project files..", self.modeSwitchTriggered, self.ModeSearchProjectFiles),
-                        ("aReplaceProjectFiles", "Replace in Projec&t Files...", "search-replace-project-files.png", "Ctrl+Meta+R", "Replace in the current project files...", self.modeSwitchTriggered, self.ModeReplaceProjectFiles),
-        """
+        # List if search actions.
+        # First acition created by MainWindow, so, do not fill text
+        self.actions = (("aSearchFile", "", 
+                         "", "",
+                         "", 
+                         self.modeSwitchTriggered, self.ModeSearch),
+                        ("aSearchDirectory", "Search in &Directory...", 
+                         "search-replace-directory.png", "Ctrl+Shift+F", 
+                         "Search in directory...",
+                         self.modeSwitchTriggered, self.ModeSearchDirectory),
+                        ("aReplaceDirectory", "Replace in Director&y...",
+                         "search-replace-directory.png", "Ctrl+Shift+R",
+                         "Replace in directory...",
+                         self.modeSwitchTriggered, self.ModeReplaceDirectory),
+                        ("aReplaceFile", "&Replace...",
+                         "replace.png", "Ctrl+R",
+                         "Replace in the current file...",
+                         self.modeSwitchTriggered, self.ModeReplace),
+                        ("aSearchPrevious", "Search &Previous",
+                         "previous.png", "Shift+F3",
+                         "Search previous occurrence",
+                         self.widget.on_pbPrevious_pressed, None),
+                        ("aSearchNext", "Search &Next",
+                         "next.png", "F3",
+                         "Search next occurrence",
+                         self.widget.on_pbNext_pressed, None),
+                        ("aSearchOpenedFiles", "Search in &Opened Files...",
+                         "search-replace-opened-files.png",
+                         "Ctrl+Alt+Meta+F", "Search in opened files...",
+                         self.modeSwitchTriggered, self.ModeSearchOpenedFiles),
+                        ("aReplaceOpenedFiles", "Replace in Open&ed Files...",
+                         "search-replace-opened-files.png", "Ctrl+Alt+Meta+R",
+                         "Replace in opened files...",
+                         self.modeSwitchTriggered, self.ModeReplaceOpenedFiles))
+        ''' TODO
+                        ("aSearchProjectFiles", "Search in Project &Files...",
+                        "search-replace-project-files.png", "Ctrl+Meta+F",
+                        "Search in the current project files..",
+                        self.modeSwitchTriggered, self.ModeSearchProjectFiles),
+                        ("aReplaceProjectFiles", "Replace in Projec&t Files...",
+                        "search-replace-project-files.png", "Ctrl+Meta+R",
+                        "Replace in the current project files...",
+                        self.modeSwitchTriggered, self.ModeReplaceProjectFiles),
+        '''
 
         
         mks.monkeycore.workspace().layout().addWidget( self.widget )
         self.widget.setVisible( False )
         
-        self.dock = SearchResultsDock( self.widget.searchThread() )
-        mks.monkeycore.mainWindow().dockToolBar( Qt.BottomToolBarArea ).addDock( self.dock, self.dock.windowTitle(), self.dock.windowIcon() )
+        self.dock = SearchResultsDock( self.widget.mSearchThread )
+        mks.monkeycore.mainWindow().dockToolBar( Qt.BottomToolBarArea ).\
+            addDock(self.dock, self.dock.windowTitle(), self.dock.windowIcon())
         self.dock.setVisible( False )
 
         self.widget.setResultsDock( self.dock )
         
-        mb = mks.monkeycore.menuBar()
+        mbar = mks.monkeycore.menuBar()
         
-        mb.beginGroup( "mEdit/mSearchReplace" )
+        mbar.beginGroup( "mEdit/mSearchReplace" )
         for action in self.actions:
-            actObject = mb.action(action[0], self.tr(action[1]), QIcon(':/mksicons/' + action[2]), self.tr(action[3]), self.tr(action[4]))
+            actObject = mbar.action(action[0],
+                                  self.tr(action[1]),
+                                  QIcon(':/mksicons/' + action[2]),
+                                  self.tr(action[3]),
+                                  self.tr(action[4]))
             actObject.triggered.connect(action[5])
             actObject.setData(action[6])
-        mb.endGroup()
+        mbar.endGroup()
 
     def __del__(self):
         """Plugin termination
         """
-        mb = mks.monkeycore.menuBar()
+        mbar = mks.monkeycore.menuBar()
         
-        mb.beginGroup( "mEdit/mSearchReplace" )
+        mbar.beginGroup( "mEdit/mSearchReplace" )
         for action in self.actions:
-            mb.action( action[0]).deleteLater()
-        mb.endGroup()
+            mbar.action( action[0]).deleteLater()
+        mbar.endGroup()
     
     def modeSwitchTriggered(self):
+        """Changing mode, i.e. from "Search file" to "Replace file"
+        """
         newMode = self.sender().data().toInt()[0]
         # TODO if  ( document and document.editor() ) or not document :
         if newMode & SearchAndReplace.ModeFlagFile:
@@ -113,17 +153,24 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
         elif newMode & SearchAndReplace.ModeFlagProjectFiles:  # TODO
             pass
         elif newMode & SearchAndReplace.ModeFlagOpenedFiles:
-            if mks.monkeycore.workspace().openedDocuments():  # TODO check if have file based document
+            # TODO check if have file based document
+            if mks.monkeycore.workspace().openedDocuments():
                 self.widget.setMode(newMode)
 
 
 class SearchContext:
+    """Structure holds parameters of search or replace operation in progress
+    """
     mask = []
+    """TODO
     encoding = ''
+    """
     options = 0
     openedFiles = {}
+    """TODO
     project = None
     sourcesFiles = ''
+    """
     def __init__(self,
                  searchText, \
                  replaceText, \
@@ -137,18 +184,21 @@ class SearchContext:
         self.encoding = encoding
     
     def regExp(self):
-        """Compile regular expression object according to search text and options
+        """Compile regular expression object according to search text and
+        options
         """
         pattern = self.searchText
         flags = 0
         
-        if not self.options & SearchAndReplace.OptionRegularExpression:  # not reg exp
+        # if not reg exp
+        if not self.options & SearchAndReplace.OptionRegularExpression:
             pattern = re.escape( pattern )
         
         if self.options & SearchAndReplace.OptionWholeWord:  # whole word
             pattern = "\\b" + pattern + "\\b"
         
-        if not self.options & SearchAndReplace.OptionCaseSensitive:  # not case sensetive
+        # if not case sensetive
+        if not self.options & SearchAndReplace.OptionCaseSensitive:
             flags = re.IGNORECASE
         
         return re.compile(pattern, flags)
@@ -166,19 +216,23 @@ class SearchWidget(QFrame):
     Good = 'good'
     Bad = 'bad'
     
-    mSearchContext = None  # initialized later
-    
     def __init__(self, plugin):
         QFrame.__init__(self, mks.monkeycore.workspace())
+        self.mMode = None
+        self.mSearchContext = None
         self.plugin = plugin
-        uic.loadUi(os.path.join(mks.monkeycore.uiFilesPath(), 'SearchWidget.ui'), self)
+        uic.loadUi(os.path.join(mks.monkeycore.uiFilesPath(),
+                   'SearchWidget.ui'),
+                   self)
         
         self.cbSearch.completer().setCaseSensitivity( Qt.CaseSensitive )
         self.cbReplace.completer().setCaseSensitivity( Qt.CaseSensitive )
         self.fsModel = QDirModel(self.cbPath.lineEdit())
         self.fsModel.setFilter( QDir.AllDirs | QDir.NoDotAndDotDot )
-        self.cbPath.lineEdit().setCompleter(QCompleter( self.fsModel, self.cbPath.lineEdit() ))
-        #warning QDirModel is deprecated but QCompleter does not yet handle QFileSystemModel - please update when possible.
+        self.cbPath.lineEdit().setCompleter(QCompleter(self.fsModel,
+                                                       self.cbPath.lineEdit() ))
+        """TODO QDirModel is deprecated but QCompleter does not yet handle
+        QFileSystemModel - please update when possible."""
         self.cbMask.completer().setCaseSensitivity( Qt.CaseSensitive )
         self.pbSearchStop.setVisible( False )
         self.pbReplaceCheckedStop.setVisible( False )
@@ -187,20 +241,22 @@ class SearchWidget(QFrame):
         self.mProgress.setAlignment( Qt.AlignCenter )
         self.mProgress.setToolTip( self.tr( "Search in progress..." ) )
         self.mProgress.setMaximumSize( QSize( 80, 16 ) )
-        mks.monkeycore.mainWindow().statusBar().insertPermanentWidget( 0, self.mProgress )
+        mks.monkeycore.mainWindow().statusBar().\
+                insertPermanentWidget( 0, self.mProgress )
         self.mProgress.setVisible( False )
         
         # threads
         self.mSearchThread = SearchThread( self )
         self.mReplaceThread = ReplaceThread( self )
 
-        self.mDock = 0
+        self.mDock = None
         
         # mode actions
         self.tbMode = QToolButton( self.cbSearch.lineEdit() )
         self.tbMode.setIcon( QIcon( ":/mksicons/misc.png" ) )
         self.tbMode.setPopupMode( QToolButton.InstantPopup )
-        self.tbMode.setMenu( mks.monkeycore.menuBar().menu( "mEdit/mSearchReplace" ) )
+        self.tbMode.setMenu( mks.monkeycore.menuBar().\
+                menu( "mEdit/mSearchReplace" ) )
         self.tbMode.setCursor( Qt.ArrowCursor )
         self.tbMode.installEventFilter( self )
         
@@ -255,7 +311,7 @@ class SearchWidget(QFrame):
     #endif
         """
         
-        """TODO
+        '''TODO
         # mask tooltip
         languages = pMonkeyStudio.availableLanguages()
         
@@ -263,23 +319,27 @@ class SearchWidget(QFrame):
             languages[ i ].prepend( "\n" )
 
         
-        maskToolTip = self.tr( "Space separated list of wildcards, *.h *.cpp file???.txt\n"
-            "You can use language name too so the search will only apply to the language suffixes.\n"
+        maskToolTip = self.tr( "Space separated list of wildcards, *.h *.cpp 
+        file???.txt\n"
+            "You can use language name too so the search will only apply to 
+            the language suffixes.\n"
             "Available languages: %1" ).arg( languages.join( ", " ) )
         
         self.cbMask.setToolTip( maskToolTip )
-        """
+        '''
         
         # codecs
         false_positives = set(["aliases"])
-        foundCodecs = set(name for imp, name, ispkg in pkgutil.iter_modules(encodings.__path__) if not ispkg)
+        foundCodecs = set(name for imp, name, ispkg in \
+                        pkgutil.iter_modules(encodings.__path__) if not ispkg)
         foundCodecs.difference_update(false_positives)
         foundCodecs = sorted(list(foundCodecs))
 
         self.cbEncoding.addItems(foundCodecs)
         
         """TODO
-        self.cbEncoding.setCurrentIndex( self.cbEncoding.findText( pMonkeyStudio.defaultCodec() ) )
+        self.cbEncoding.setCurrentIndex( 
+            self.cbEncoding.findText( pMonkeyStudio.defaultCodec() ) )
         """
 
         # connections
@@ -287,29 +347,28 @@ class SearchWidget(QFrame):
         self.tbCdUp.clicked.connect(self.cdUp_pressed)
         self.mSearchThread.started.connect(self.searchThread_stateChanged)
         self.mSearchThread.finished.connect(self.searchThread_stateChanged)
-        self.mSearchThread.progressChanged.connect(self.searchThread_progressChanged)
+        self.mSearchThread.progressChanged.connect(\
+                                        self.searchThread_progressChanged)
         self.mReplaceThread.started.connect(self.replaceThread_stateChanged)
         self.mReplaceThread.finished.connect(self.replaceThread_stateChanged)
-        self.mReplaceThread.openedFileHandled.connect(self.replaceThread_openedFileHandled)
+        self.mReplaceThread.openedFileHandled.connect(\
+                                        self.replaceThread_openedFileHandled)
         self.mReplaceThread.error.connect(self.replaceThread_error)
         self.setMode( SearchAndReplace.ModeSearch )
 
-    def mode(self):  # FIXME remove
-        return self.mMode
-
-    def searchThread(self):  # FIXME remove
-        return self.mSearchThread
-
     def setResultsDock(self, dock ):
-        if  self.mDock == dock :
-            return
-
+        """Set to widget pointer to the search results dock
+        """
         self.mDock = dock
 
         # connections
-        self.mReplaceThread.resultsHandled.connect(self.mDock.model().thread_resultsHandled)
+        self.mReplaceThread.resultsHandled.connect(\
+                                    self.mDock.mModel.thread_resultsHandled)
 
     def setMode(self, mode ):
+        """Change search mode.
+        i.e. from "Search file" to "Replace directory"
+        """
         self.mSearchThread.stop()
         self.mReplaceThread.stop()
         
@@ -325,20 +384,22 @@ class SearchWidget(QFrame):
         self.mMode = mode
         
         self.initializeSearchContext( currentDocumentOnly )
-        
+        """TODO
         if self.mMode & SearchAndReplace.ModeFlagProjectFiles :
             if  self.mSearchContext.project :
-                encoding = self.mSearchContext.project.temporaryValue( "encoding", mks.monkeystudio.defaultCodec() ).toString()
+                encoding = self.mSearchContext.project.temporaryValue(
+                "encoding", mks.monkeystudio.defaultCodec() ).toString()
                 
                 self.mSearchContext.encoding = encoding
-                self.cbEncoding.setCurrentIndex( self.cbEncoding.findText( encoding ) )
-
+                self.cbEncoding.setCurrentIndex( self.cbEncoding.findText(
+                encoding ) )
+        """
         assert( self.mSearchContext.encoding )
         
-        document = mks.monkeycore.workspace().currentDocument()
         searchPath = os.path.abspath(os.path.curdir)
         if mks.monkeycore.workspace().currentDocument():
-            searchText = mks.monkeycore.workspace().currentDocument().qscintilla.selectedText()
+            searchText = mks.monkeycore.workspace().currentDocument().\
+                                                    qscintilla.selectedText()
         else:
             searchText = ''
         
@@ -379,9 +440,12 @@ class SearchWidget(QFrame):
         self.updateLabels()
         self.updateWidgets()
 
-    def eventFilter(self, object, event ):
+    def eventFilter(self, object_, event ):
+        """ Event filter for mode switch tool button
+        Draws icons in the search and path lineEdits
+        """
         if  event.type() == QEvent.Paint :
-            toolButton = object
+            toolButton = object_
             if toolButton == self.tbMode:
                 lineEdit = self.cbSearch.lineEdit()
             else:
@@ -399,10 +463,10 @@ class SearchWidget(QFrame):
             
             return True
 
-        return QFrame.eventFilter( self, object, event )
-
+        return QFrame.eventFilter( self, object_, event )
 
     def keyPressEvent(self, event ):
+        """Handles ESC and ENTER pressings on widget for hide widget or start action"""
         if  event.modifiers() == Qt.NoModifier :
             if event.key() == Qt.Key_Escape:
                 mks.monkeycore.workspace().focusCurrentDocument()
@@ -411,7 +475,7 @@ class SearchWidget(QFrame):
                 if self.mMode == SearchAndReplace.ModeNo:
                     pass
                 elif self.mMode == SearchAndReplace.ModeSearch:
-                        self.pbNext.click()
+                    self.pbNext.click()
                 elif self.mMode in (SearchAndReplace.ModeSearchDirectory, \
                                     SearchAndReplace.ModeSearchProjectFiles, \
                                     SearchAndReplace.ModeSearchOpenedFiles):
@@ -426,6 +490,8 @@ class SearchWidget(QFrame):
         QFrame.keyPressEvent( self, event )
 
     def updateLabels(self):
+        """Update 'Search' 'Replace' 'Path' labels geometry
+        """
         width = 0
 
         if  self.lSearch.isVisible() :
@@ -443,6 +509,8 @@ class SearchWidget(QFrame):
 
 
     def updateWidgets(self):
+        """Update geometry of widgets with buttons
+        """
         width = 0
 
         if  self.wSearchRight.isVisible() :
@@ -459,6 +527,8 @@ class SearchWidget(QFrame):
         self.wPathRight.setMinimumWidth( width )
 
     def updateComboBoxes(self):
+        """Update comboboxes with last used texts
+        """
         searchText = self.cbSearch.currentText()
         replaceText = self.cbReplace.currentText()
         maskText = self.cbMask.currentText()
@@ -485,20 +555,25 @@ class SearchWidget(QFrame):
                 self.cbMask.addItem( maskText )
     
     def initializeSearchContext(self, currentDocumentOnly ):
-        self.mSearchContext = SearchContext(searchText = unicode(self.cbSearch.currentText()), \
-                                            replaceText = unicode(self.cbReplace.currentText()), \
-                                            searchPath = unicode(self.cbPath.currentText()), \
-                                            mode = self.mMode,
-                                            encoding = unicode(self.cbEncoding.currentText()))
-        
+        """Fill search context with actual data
+        """
+        self.mSearchContext = SearchContext(\
+            searchText = unicode(self.cbSearch.currentText()), \
+            replaceText = unicode(self.cbReplace.currentText()), \
+            searchPath = unicode(self.cbPath.currentText()), \
+            mode = self.mMode,
+            encoding = unicode(self.cbEncoding.currentText()))
+
         """TODO
-        self.mSearchContext.project = mks.monkeycore.fileManager().currentProject()
+        self.mSearchContext.project = 
+            mks.monkeycore.fileManager().currentProject()
         """
         
         # update masks
-        """ TODO restore code, which deals with list of masks? """
-        self.mSearchContext.mask = [unicode(s).strip() for s in self.cbMask.currentText().split(' ')]
-        self.mSearchContext.mask = filter(None, self.mSearchContext.mask)  # remove empty
+        self.mSearchContext.mask = \
+            [unicode(s).strip() for s in self.cbMask.currentText().split(' ')]
+        # remove empty
+        self.mSearchContext.mask = filter(None, self.mSearchContext.mask)
         
         # update options
         for option in self.mModeActions.keys():
@@ -507,7 +582,8 @@ class SearchWidget(QFrame):
         
         """TODO
         # update project
-        self.mSearchContext.project = self.mSearchContext.project.topLevelProject()
+        self.mSearchContext.project = \
+        self.mSearchContext.project.topLevelProject()
         """
         
         if  currentDocumentOnly :
@@ -515,20 +591,26 @@ class SearchWidget(QFrame):
 
         # update opened files
         for document in mks.monkeycore.workspace().openedDocuments():
-            self.mSearchContext.openedFiles[document.filePath()] = unicode(document.fileBuffer())
-
+            self.mSearchContext.openedFiles[document.filePath()] = \
+                                        unicode(document.fileBuffer())
+        """TODO
         # update sources files
         self.mSearchContext.sourcesFiles = []
         if self.mSearchContext.project:
-            self.mSearchContext.sourcesFiles = self.mSearchContext.project.topLevelProjectSourceFiles()
+            self.mSearchContext.sourcesFiles = \
+                        self.mSearchContext.project.topLevelProjectSourceFiles()
+        """
 
-    def showMessage (self, status ):
+    def showMessage (self, status):
+        """Show message on the status bar"""
         if not status:
             mks.monkeycore.mainWindow().statusBar().clearMessage()
         else:
             mks.monkeycore.mainWindow().statusBar().showMessage( status, 30000 )
 
     def setState(self, field, state ):
+        """Change line edit color according to search result
+        """
         widget = 0
         color = QColor( Qt.white )
         
@@ -537,8 +619,8 @@ class SearchWidget(QFrame):
         elif field == SearchWidget.Replace:
             widget = self.cbReplace.lineEdit()
         
-        widget= {SearchWidget.Search: self.cbSearch.lineEdit(),
-                 SearchWidget.Replace: self.cbReplace.lineEdit()}
+        widget = {SearchWidget.Search: self.cbSearch.lineEdit(),
+                  SearchWidget.Replace: self.cbReplace.lineEdit()}
         
         color = {SearchWidget.Normal: Qt.white, \
                  SearchWidget.Good: Qt.green, \
@@ -549,6 +631,8 @@ class SearchWidget(QFrame):
         widget[field].setPalette( pal )
     
     def searchFile(self, forward, incremental ):
+        """Do search in file operation. Will select next found item
+        """
         document = mks.monkeycore.workspace().currentDocument()
         if document:
             editor = document.qscintilla  # FIXME current editor specific, 
@@ -565,17 +649,17 @@ class SearchWidget(QFrame):
         
         if  forward :
             if  incremental :
-                x, y, temp, temp = editor.getSelection()
+                col, line, temp, temp = editor.getSelection()
             else:
-                temp, temp, y, x = editor.getSelection()
+                temp, temp, line, col = editor.getSelection()
         else:
             if  incremental:
-                temp, temp, y, x = editor.getSelection()
+                temp, temp, line, col = editor.getSelection()
             else:
-                y, x, temp, temp = editor.getSelection()
+                line, col, temp, temp = editor.getSelection()
         
         # search
-        found = editor.findFirst( self.mSearchContext.searchText, isRE, isCS, isWW, isWrap, forward, y, x, True )
+        found = editor.findFirst( self.mSearchContext.searchText, isRE, isCS, isWW, isWrap, forward, line, col, True )
 
         # change background acording to found or not
         if found:
@@ -586,10 +670,12 @@ class SearchWidget(QFrame):
         # return found state
         return found
 
-    def replaceFile(self, all ):
+    def replaceFile(self, replaceAll ):
+        """Do one or all replacements in the file
+        """
         document = mks.monkeycore.workspace().currentDocument()
         if document:
-            editor = document.qscintilla  # FIXME current version specific
+            editor = document.qscintilla  # FIXME current editor specific
         
         if  not editor :
             self.setState( SearchWidget.Search, SearchWidget.Bad )
@@ -598,9 +684,9 @@ class SearchWidget(QFrame):
 
         count = 0
         
-        if  all :
+        if  replaceAll:
             isWrap = self.mSearchContext.options & SearchAndReplace.OptionWrap
-            x, y = editor.getCursorPosition()
+            col, line = editor.getCursorPosition()
 
             if  isWrap :
                 # don't need to give wrap parameter for search as we start at begin of document
@@ -615,45 +701,53 @@ class SearchWidget(QFrame):
                 count += 1
 
             editor.endUndoAction()
-            editor.setCursorPosition(x, y) # restore cursor position
+            editor.setCursorPosition(col, line) # restore cursor position
             
             # restore wrap property if needed
             if  isWrap :
                 self.mSearchContext.options |= SearchAndReplace.OptionWrap
-
         else:
-            y, x, temp, temp = editor.getSelection()
-            editor.setCursorPosition( y, x )
+            line, col, temp, temp = editor.getSelection()
+            editor.setCursorPosition( line, col )
 
             if  self.searchFile( True, False ) :
                 editor.beginUndoAction()
                 editor.replace( self.mSearchContext.replaceText )
                 editor.endUndoAction()
                 count += 1
-                self.pbNext.click(); # move selection to next item
+                self.pbNext.click() # move selection to next item
 
         self.showMessage( self.tr( "%d occurrence(s) replaced." % count ))
 
         return True
 
     def searchThread_stateChanged(self):
+        """Search thread started or stopped
+        """
         self.pbSearchStop.setVisible( self.mSearchThread.isRunning() )
         self.pbSearch.setVisible( not self.mSearchThread.isRunning() )
         self.updateWidgets()
         self.mProgress.setVisible( self.mSearchThread.isRunning() )
 
     def searchThread_progressChanged(self, value, total ):
+        """Signal from the thread, progress changed
+        """
         self.mProgress.setValue( value )
         self.mProgress.setMaximum( total )
 
     def replaceThread_stateChanged(self):
+        """Replace thread started or stopped
+        """
         self.pbReplaceCheckedStop.setVisible( self.mReplaceThread.isRunning() )
         self.pbReplaceChecked.setVisible( not self.mReplaceThread.isRunning() )
         self.updateWidgets()
 
     def replaceThread_openedFileHandled(self, fileName, content, encoding ):
+        """Replace thread processed currently opened file,
+        need update text in the editor
+        """
         document = mks.monkeycore.workspace().openFile(fileName, encoding)
-        editor = document.qscintilla  # FIXME
+        editor = document.qscintilla  # FIXME current editor specific
 
         editor.beginUndoAction()
         editor.selectAll()
@@ -663,9 +757,13 @@ class SearchWidget(QFrame):
 
 
     def replaceThread_error(self, error ):
+        """Error message from the replace thread
+        """
         mks.monkeycore.messageManager().appendMessage( error )
 
     def search_textChanged(self):
+        """User edited search text, do incremental search
+        """
         self.initializeSearchContext( True )
         
         # clear search results if needed.
@@ -675,23 +773,30 @@ class SearchWidget(QFrame):
             self.mSearchThread.clear()
 
     def cdUp_pressed(self):
-        
+        """User pressed "Up" button, need to remove one level from search path
+        """
         if not os.path.exists(self.cbPath.currentText()):
             return
 
         self.cbPath.setEditText( os.path.abspath(self.cbPath.currentText() + os.path.pardir))
 
     def on_pbPrevious_pressed(self):
+        """Handler of click on "Previous" button
+        """
         self.updateComboBoxes()
         self.initializeSearchContext( True )
         self.searchFile( False, False )
 
     def on_pbNext_pressed(self):
+        """Handler of click on "Next" button
+        """
         self.updateComboBoxes()
         self.initializeSearchContext( True )
         self.searchFile( True, False )
 
     def on_pbSearch_pressed(self):
+        """Handler of click on "Search" button (for search in directory)
+        """
         self.setState( SearchWidget.Search, SearchWidget.Normal )
         self.updateComboBoxes()
         self.initializeSearchContext( False )
@@ -699,36 +804,49 @@ class SearchWidget(QFrame):
         if not self.mSearchContext.searchText:
             mks.monkeycore.messageManager().appendMessage( self.tr( "You can't search for NULL text." ) )
             return
-
-        if  self.mSearchContext.mode & SearchAndReplace.ModeFlagProjectFiles and not self.mSearchContext.project :
-            mks.monkeycore.messageManager().appendMessage( self.tr( "You can't search in project files because there is no opened projet." ) )
+        
+        """TODO
+        if  self.mSearchContext.mMode & SearchAndReplace.ModeFlagProjectFiles and not self.mSearchContext.project :
+            mks.monkeycore.messageManager().appendMessage( \
+                                self.tr( "You can't search in project files because there is no opened projet." ) )
             return
+        """
 
         self.mSearchThread.search( self.mSearchContext )
 
     def on_pbSearchStop_pressed(self):
+        """Handler of click on "Stop" button. Stop search thread
+        """
         self.mSearchThread.stop()
 
     def on_pbReplace_pressed(self):
+        """Handler of click on "Replace" (in file) button
+        """
         self.updateComboBoxes()
         self.initializeSearchContext( True )
         self.replaceFile( False )
 
     def on_pbReplaceAll_pressed(self):
+        """Handler of click on "Replace all" (in file) button
+        """
         self.updateComboBoxes()
         self.initializeSearchContext( True )
         self.replaceFile( True )
 
     def on_pbReplaceChecked_pressed(self):
+        """Handler of click on "Replace checked" (in directory) button
+        """
         items = {}
-        model = self.mDock.model()
+        model = self.mDock.mModel
 
         self.updateComboBoxes()
         self.initializeSearchContext( False )
-        
+        """TODO
         if  self.mSearchContext.mode & SearchAndReplace.ModeFlagProjectFiles and not self.mSearchContext.project :
-            mks.monkeycore.messageManager().appendMessage( self.tr( "You can't replace in project files because there is no opened projet." ) )
+            mks.monkeycore.messageManager().appendMessage(
+                                    self.tr( "You can't replace in project files because there is no opened projet." ) )
             return
+        """
 
         for fileRes in model.fileResults:
             for row, result in enumerate(fileRes.results):
@@ -738,14 +856,18 @@ class SearchWidget(QFrame):
                     items[ result.fileName ].append(result)
                 else:
                     index = model.createIndex(row, 0, result)
-                    self.mDock.model().setData( index, False, SearchResultsModel.EnabledRole )
+                    self.mDock.mModel.setData( index, False, SearchResultsModel.EnabledRole )
 
         self.mReplaceThread.replace( self.mSearchContext, items )
 
     def on_pbReplaceCheckedStop_pressed(self):
+        """Handler of click on "Stop" button when replacing in directory
+        """
         self.mReplaceThread.stop()
 
     def on_pbBrowse_pressed(self):
+        """Handler of click on "Browse" button. Explores FS for search directory path
+        """
         path = QFileDialog.getExistingDirectory( self, self.tr( "Search path" ), self.cbPath.currentText() )
 
         if path:
@@ -753,12 +875,15 @@ class SearchWidget(QFrame):
 
     
 class SearchResultsModel(QAbstractItemModel):
-
+    """AbstractItemModel used for display search results in 'Search in directory' and 'Replace in directory' mode
+    """
     firstResultsAvailable = pyqtSignal()
     
     EnabledRole = Qt.UserRole
     
     class Result:
+        """One found by search thread item. Consists coordinates and capture. Used by SearchResultsModel
+        """
         def __init__ (  self, \
                         fileName, \
                         capture, \
@@ -767,35 +892,47 @@ class SearchResultsModel(QAbstractItemModel):
                         column, \
                         offset,
                         length):
-                self.fileName = fileName;
-                self.capture = capture;
-                self.groups = groups;
-                self.line = line;
-                self.column = column;
-                self.offset = offset;
-                self.length = length;
-                self.checkState =  Qt.Checked
-                self.enabled = True;
+            self.fileName = fileName
+            self.capture = capture
+            self.groups = groups
+            self.line = line
+            self.column = column
+            self.offset = offset
+            self.length = length
+            self.checkState =  Qt.Checked
+            self.enabled = True
         
         def text(self, notUsed):
+            """Displayable text of search result. Shown as line in the search results dock
+            notUsed argument added for have same signature, as FileResults.text
+            """
             return "Line: %d, Column: %d: %s" % ( self.line + 1, self.column, self.capture )
         
         def tooltip(self):
+            """Tooltip of the search result"""
             return self.capture
         
         def hasChildren(self):
+            """Check if QAbstractItem has children"""
             return False
 
     class FileResults:
+        """Object stores all items, found in the file
+        """
         def __init__(self, fileName, results):
             self.fileName = fileName
             self.results = results
             self.checkState = Qt.Checked
         
         def __str__(self):
+            """Convertor to string. Used for debugging
+            """
             return '%s (%d)' % (self.fileName, len(self.results))
         
         def updateCheckState(self):
+            """Update own checked state after checked state of child result changed or
+            child result removed
+            """
             if all([res.checkState == Qt.Checked for res in self.results]):  # if all checked
                 self.checkState = Qt.Checked
             elif any([res.checkState == Qt.Checked for res in self.results]):  # if any checked
@@ -804,15 +941,24 @@ class SearchResultsModel(QAbstractItemModel):
                 self.checkState = Qt.Unchecked
         
         def text(self, baseDir):
+            """Displayable text of the file results. Shown as line in the search results dock
+            baseDir is base directory of current search operation
+            """
             return '%s (%d)' % (baseDir.relativeFilePath(self.fileName), len(self.results))
         
         def tooltip(self):
+            """Tooltip of the item in the results dock
+            """
             return self.fileName
         
         def hasChildren(self):
+            """Check if item has children
+            """
             return 0 != len(self.results)
     
     def __init__(self, searchThread, parent ):
+        """Constructor of SearchResultsModel class
+        """
         QAbstractItemModel.__init__(self, parent )
         self.mRowCount = 0
         self.mSearchThread = searchThread
@@ -821,10 +967,12 @@ class SearchResultsModel(QAbstractItemModel):
         self.mSearchDir = QDir()
         
         # connections
-        self.mSearchThread.reset.connect(self.thread_reset)
+        self.mSearchThread.reset.connect(self.clear)
         self.mSearchThread.resultsAvailable.connect(self.thread_resultsAvailable)
 
     def index(self, row, column, parent ):
+        """See QAbstractItemModel docs
+        """
         if  row >= self.rowCount( parent ) or column > self.columnCount(parent):
             return QModelIndex()
         
@@ -835,6 +983,8 @@ class SearchResultsModel(QAbstractItemModel):
             return self.createIndex( row, column, self.fileResults[row])
 
     def parent(self, index):
+        """See QAbstractItemModel docs
+        """
         if not index.isValid() :
             return QModelIndex()
         
@@ -849,6 +999,8 @@ class SearchResultsModel(QAbstractItemModel):
             assert(0)
 
     def hasChildren(self, item):
+        """See QAbstractItemModel docs
+        """
         # root parents
         if item.isValid():
             return item.internalPointer().hasChildren()
@@ -856,9 +1008,13 @@ class SearchResultsModel(QAbstractItemModel):
             return len(self.fileResults) != 0
 
     def columnCount(self, parent ):
+        """See QAbstractItemModel docs
+        """
         return 1
     
     def rowCount(self, parent):
+        """See QAbstractItemModel docs
+        """
         if not parent.isValid():  # root elements
             return len(self.fileResults)
         elif isinstance(parent.internalPointer(), SearchResultsModel.Result):  # result
@@ -869,6 +1025,8 @@ class SearchResultsModel(QAbstractItemModel):
             assert(0)
     
     def flags(self, index ):
+        """See QAbstractItemModel docs
+        """
         flags = QAbstractItemModel.flags( self, index )
         properties = self.mSearchThread.mSearchContext
 
@@ -883,6 +1041,8 @@ class SearchResultsModel(QAbstractItemModel):
         return flags
     
     def data(self, index, role ):
+        """See QAbstractItemModel docs
+        """
         if not index.isValid() :
             return QVariant()
         
@@ -898,6 +1058,11 @@ class SearchResultsModel(QAbstractItemModel):
         return QVariant()
     
     def setData(self, index, value, role ):
+        """See QAbstractItemModel docs
+        This method changes checked state of the item.
+        If file unchecked - we need uncheck all items,
+        if item unchecked...
+        """
         if isinstance(index.internalPointer(), SearchResultsModel.Result):  # it is a Result
             if role == Qt.CheckStateRole:
                 # update own state
@@ -922,14 +1087,16 @@ class SearchResultsModel(QAbstractItemModel):
         return True
     
     def clear(self):
+        """Clear all results
+        """
         self.beginRemoveRows(QModelIndex(), 0, len(self.fileResults) - 1)
         self.fileResults = []
         self.endRemoveRows()
 
-    def thread_reset(self):
-        self.clear()
-
     def thread_resultsAvailable(self, fileResultsList ):
+        """Handler of signal from the search thread.
+        New result is available, need to add it to the model
+        """
         properties = self.mSearchThread.mSearchContext
         if not self.fileResults:  # appending first
             self.firstResultsAvailable.emit()
@@ -941,26 +1108,34 @@ class SearchResultsModel(QAbstractItemModel):
         self.endInsertRows()
     
     def thread_resultsHandled(self, fileName, results):
+        """Replace thread processed result, need to remove it from the model
+        """
         for index, fileRes in enumerate(self.fileResults):  # try to find FileResults
             if fileRes.fileName == fileName:  # found
                 fileResIndex = self.createIndex(index, 0, fileRes)
-                for res in results:  # TODO make optimisation - if removing all results - do not remove one by one
-                    resIndex = fileRes.results.index(res)
-                    self.beginRemoveRows(fileResIndex, resIndex, resIndex)
-                    fileRes.results.pop(resIndex)
-                    self.endRemoveRows()
-                if not fileRes.results:  # no results left
+                if len(results) == len(fileRes.results):  # removing all
                     self.beginRemoveRows(QModelIndex(), index, index)
                     self.fileResults.pop(index)
-                    self.endRemoveRows()
+                    self.endRemoveRows()                    
                 else:
-                    fileRes.updateCheckState()
+                    for res in results:
+                        resIndex = fileRes.results.index(res)
+                        self.beginRemoveRows(fileResIndex, resIndex, resIndex)
+                        fileRes.results.pop(resIndex)
+                        self.endRemoveRows()
+                    if not fileRes.results:  # no results left
+                        self.beginRemoveRows(QModelIndex(), index, index)
+                        self.fileResults.pop(index)
+                        self.endRemoveRows()
+                    else:
+                        fileRes.updateCheckState()
                 return
         else:  # not found
             assert(0)
 
 class SearchResultsDock(pDockWidget):
-    
+    """Dock with search results
+    """
     def __init__(self, searchThread, parent=None):
         pDockWidget.__init__( self, parent )
         assert(searchThread)
@@ -1005,19 +1180,20 @@ class SearchResultsDock(pDockWidget):
         self.mModel.firstResultsAvailable.connect(self.show)
         self.mView.activated.connect(self.view_activated)
 
-    def model(self):
-        return self.mModel
-
     def view_activated(self, index ):
+        """Item doubleclicked in the model, opening file
+        """
         result = index.internalPointer()
         if isinstance(result, SearchResultsModel.Result):
             mks.monkeycore.workspace().goToLine( result.fileName,
                                                  result.line,
                                                  result.column,
                                                  self.mSearchThread.mSearchContext.encoding,
-                                                 result.length)  # FIXME check this code result.offset == -1 ? 0 : result.length
+                                                 result.length)
 
 class StopableThread(QThread):
+    """Stoppable thread class. Used as base for search and replace thread.
+    """
     mExit = False
     
     def __init__(self, parentObject):
@@ -1027,33 +1203,45 @@ class StopableThread(QThread):
         self.stop()
 
     def stop(self):
-        """Stops thread synchronously
+        """Stop thread synchronously
         """
         self.mExit = True
         self.wait()
     
     def start(self):
+        """Ensure thread is stopped, and start it
+        """
         self.stop()
         self.mExit = False
         QThread.start(self)
 
 class SearchThread(StopableThread):
+    """Thread builds list of files for search and than searches in this files.append
+    """
     RESULTS_EMIT_TIMEOUT = 1.0
 
     reset = pyqtSignal()
     resultsAvailable = pyqtSignal(list)  # list of SearchResultsModel.FileResults
     progressChanged = pyqtSignal(int, int)  # int value, int total
 
-    def search(self, properties ):
+    def search(self, context ):
+        """Start search process.
+        context stores search text, directory and other parameters
+        """
         self.stop()
-        self.mSearchContext = properties
+        self.mSearchContext = context
         self.start()
 
     def clear(self):
+        """Stop thread and clear search results
+        """
         self.stop()
         self.reset.emit()            
 
     def _getFiles(self, path, maskRegExp):
+        """Get recursive list of files from directory.
+        maskRegExp is regExp object for check if file matches mask
+        """
         retFiles = []
         for root, dirs, files in os.walk(os.path.abspath(unicode(path))):
             if root.startswith('.') or (os.path.sep + '.') in root:
@@ -1069,6 +1257,8 @@ class SearchThread(StopableThread):
         return retFiles
     
     def _getFilesToScan(self):
+        """Get list of files for search.
+        """
         files = set()
 
         """
@@ -1092,35 +1282,39 @@ class SearchThread(StopableThread):
         if self.mSearchContext.mode in (SearchAndReplace.ModeSearchDirectory, SearchAndReplace.ModeReplaceDirectory):
             path = self.mSearchContext.searchPath
             return self._getFiles(path, maskRegExp)
-        elif self.mSearchContext.mode in (SearchAndReplace.ModeSearchOpenedFiles, SearchAndReplace.ModeReplaceOpenedFiles):
+        elif self.mSearchContext.mode in \
+                                (SearchAndReplace.ModeSearchOpenedFiles, SearchAndReplace.ModeReplaceOpenedFiles):
             files = self.mSearchContext.openedFiles.keys()
             if maskRegExp:
                 files = filter(maskRegExp.match, map(os.path.basename, files))
             return files
         else:
-            print "Invalid mode used."  # TODO use some logging system?
             assert(0)
 
     def _fileContent(self, fileName, encoding='utf_8'):
+        """Read text from file
+        """
         if fileName in self.mSearchContext.openedFiles:
             return self.mSearchContext.openedFiles[ fileName ]
 
         try:
-            with open(fileName) as f:
-                if  isBinary(f):
+            with open(fileName) as openedFile:
+                if  isBinary(openedFile):
                     return ''
-                return unicode(f.read(), encoding, errors = 'ignore')
+                return unicode(openedFile.read(), encoding, errors = 'ignore')
         except IOError, ex:
             print ex
             return ''
 
     def run(self):
+        """Start point of the code, running in thread.
+        Build list of files for search, than do search
+        """
         startTime = time.clock()
         self.reset.emit()
         self.progressChanged.emit( -1, 0 )
 
-        files = self._getFilesToScan()
-        files.sort()
+        files = sorted(self._getFilesToScan())
 
         if  self.mExit :
             return
@@ -1174,10 +1368,10 @@ class SearchThread(StopableThread):
 
             if notEmittedFileResults and \
                (time.clock() - lastResultsEmitTime) > self.RESULTS_EMIT_TIMEOUT:
-                    self.progressChanged.emit( fileIndex, len(files))
-                    self.resultsAvailable.emit(notEmittedFileResults)
-                    notEmittedFileResults = []
-                    lastResultsEmitTime = time.clock()
+                self.progressChanged.emit( fileIndex, len(files))
+                self.resultsAvailable.emit(notEmittedFileResults)
+                notEmittedFileResults = []
+                lastResultsEmitTime = time.clock()
 
             if  self.mExit :
                 self.progressChanged.emit( fileIndex, len(files))
@@ -1190,17 +1384,23 @@ class SearchThread(StopableThread):
 
 
 class ReplaceThread(StopableThread):
+    """Thread does replacements in the directory according to checked items
+    """
     resultsHandled = pyqtSignal(unicode, list)
     openedFileHandled = pyqtSignal(unicode, unicode, unicode)
     error = pyqtSignal(unicode)
     
-    def replace(self, properties, results):
+    def replace(self, context, results):
+        """Run replace process
+        """
         self.stop()
-        self.mSearchContext = properties
+        self.mSearchContext = context
         self.mResults = results
         self.start()
 
-    def _saveContent(self, fileName, content, encoding):  # use Python functionality?
+    def _saveContent(self, fileName, content, encoding):
+        """Write text to the file
+        """
         if encoding:
             try:
                 content = content.encode(encoding)
@@ -1208,18 +1408,20 @@ class ReplaceThread(StopableThread):
                 self.error.emit( self.tr( "Failed to encode file to %s: %s" % (encoding, str(ex)) ) )
                 return
         try:
-            with open(fileName, 'w') as f:
-                f.write(content)
+            with open(fileName, 'w') as openFile:
+                openFile.write(content)
         except IOError, ex:
             self.error.emit( self.tr( "Error while saving replaced content: %s" % str(ex) ) )
 
     def _fileContent(self, fileName, encoding=None):
+        """Read file
+        """
         if fileName in self.mSearchContext.openedFiles:
             return self.mSearchContext.openedFiles[ fileName ]
         else:
             try:
-                with open(fileName) as f:
-                    content = f.read()
+                with open(fileName) as openFile:
+                    content = openFile.read()
             except IOError, ex:
                 self.error.emit( self.tr( "Error opening file: %s" % str(ex) ) )
                 return ''
@@ -1235,8 +1437,10 @@ class ReplaceThread(StopableThread):
                 return content
 
     def run(self):
+        """Start point of the code, running i thread
+        Does thread job
+        """
         startTime = time.clock()
-        regExp = self.mSearchContext.regExp()
         
         subMatchRex = re.compile( r"\\(\d+)" )
         
@@ -1244,9 +1448,11 @@ class ReplaceThread(StopableThread):
             handledResults = []
             content = self._fileContent( fileName, self.mSearchContext.encoding )
             
-            for result in self.mResults[ fileName ][::-1]:  # count from end to begin because we are replacing by offset in content
+            # count from end to begin because we are replacing by offset in content
+            for result in self.mResults[ fileName ][::-1]:
                 replaceText = self.mSearchContext.replaceText
-                if self.mSearchContext.options & SearchAndReplace.OptionRegularExpression:  # replace \number with groups
+                # replace \number with groups
+                if self.mSearchContext.options & SearchAndReplace.OptionRegularExpression:
                     replaceText = self.mSearchContext.replaceText
                     pos = 0
                     match = subMatchRex.search(replaceText)
