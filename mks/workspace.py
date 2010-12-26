@@ -962,7 +962,8 @@ class Workspace(QFrame):
     
     def goToLine(self, filePath, line, column, encoding, selectionLength):
         for document in self.openedDocuments():
-            if os.path.samefile(document.filePath(), filePath) :
+            if os.path.realpath(document.filePath()) == \
+               os.path.realpath(filePath):
                 self.setCurrentDocument(document)
                 break
         else:
