@@ -106,7 +106,7 @@ _defaults = {
 "Editor/AutoDetectEol" : True,
 
 "FileBrowser/NegativeFilter" : ("*~", "*.o", "*.pyc", "*.bak" ),
-"FileBrowser/Path" : os.path.expanduser('~'),
+"FileBrowser/Path" : os.path.curdir,
 "FileBrowser/FilePath" : '',
 "FileBrowser/Bookmarks" : [os.path.expanduser('~')],
 }
