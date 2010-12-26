@@ -175,9 +175,9 @@ class SearchWidget(QFrame):
         
         self.cbSearch.completer().setCaseSensitivity( Qt.CaseSensitive )
         self.cbReplace.completer().setCaseSensitivity( Qt.CaseSensitive )
-        self.fsModel = QDirModel( self )
+        self.fsModel = QDirModel(self.cbPath.lineEdit())
         self.fsModel.setFilter( QDir.AllDirs | QDir.NoDotAndDotDot )
-        self.cbPath.lineEdit().setCompleter( QCompleter( self.fsModel ) )
+        self.cbPath.lineEdit().setCompleter(QCompleter( self.fsModel, self.cbPath.lineEdit() ))
         #warning QDirModel is deprecated but QCompleter does not yet handle QFileSystemModel - please update when possible.
         self.cbMask.completer().setCaseSensitivity( Qt.CaseSensitive )
         self.pbSearchStop.setVisible( False )
