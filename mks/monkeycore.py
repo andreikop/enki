@@ -186,7 +186,7 @@ def init():
     """
     # show main window
     #TODO mainWindow().menu_Docks_aboutToShow()
-    mainWindow().show()
+    # moved to main, after opening files    mainWindow().show()
 
     """TODO
     # ready

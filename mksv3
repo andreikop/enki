@@ -100,6 +100,7 @@ def main():
     for arg in sys.argv[1:]:
         mks.monkeycore.workspace().openFile(arg)
     
+    mks.monkeycore.mainWindow().show()
     """TODO
     // handle command line arguments
     clm.process();
