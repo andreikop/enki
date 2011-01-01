@@ -21,7 +21,12 @@ import mks.settings
 """
 import os.path
 
+from PyQt4.QtGui import qApp
+
+from PyQt4.fresh import pSettings
+
 import mksiconsresource
+import freshresource
 
 _mainWindow = None
 _workspace = None
@@ -69,6 +74,11 @@ def init():
     
     Called by main()
     """
+    
+    # FIXME find good parameters and good place for this code
+    pSettings.setDefaultProperties(pSettings.Properties(qApp.applicationName(), \
+                                                        "1.0.0",
+                                                        pSettings.Portable))
     
     """TODO
     # create splashscreen
@@ -212,6 +222,7 @@ def term():
     """
     _searchreplace = None
     _fileBrowser = None
+    freshresource.qCleanupResources()
     mksiconsresource.qCleanupResources()
 
 def mainWindow():

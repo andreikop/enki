@@ -695,9 +695,9 @@ class Workspace(QFrame):
         # create opened files explorer
         self.mOpenedFileExplorer = _OpenedFileExplorer(self)
         lefttb = mks.monkeycore.mainWindow().dockToolBar( Qt.LeftToolBarArea )
-        lefttb.addDock( self.mOpenedFileExplorer,
-                        self.mOpenedFileExplorer.windowTitle(),
-                        self.mOpenedFileExplorer.windowIcon())
+        lefttb.addDockWidget( self.mOpenedFileExplorer,
+                              self.mOpenedFileExplorer.windowTitle(),
+                              self.mOpenedFileExplorer.windowIcon())
         
         """TODO
         self.mViewMode = self.NoTabs
