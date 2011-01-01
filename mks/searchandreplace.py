@@ -63,9 +63,9 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
         
         # List if search actions.
         # First acition created by MainWindow, so, do not fill text
-        self.actions = (("aSearchFile", "", 
-                         "", "",
-                         "", 
+        self.actions = (("aSearchFile", "&Search...", 
+                         "search.png", "Ctrl+F",
+                         "Search in the current file...", 
                          self.modeSwitchTriggered, self.ModeSearch),
                         ("aSearchDirectory", "Search in &Directory...", 
                          "search-replace-directory.png", "Ctrl+Shift+F", 
@@ -112,23 +112,21 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
         
         self.dock = SearchResultsDock( self.widget.mSearchThread )
         mks.monkeycore.mainWindow().dockToolBar( Qt.BottomToolBarArea ).\
-            addDock(self.dock, self.dock.windowTitle(), self.dock.windowIcon())
+            addDockWidget(self.dock, self.dock.windowTitle(), self.dock.windowIcon())
         self.dock.setVisible( False )
 
         self.widget.setResultsDock( self.dock )
         
         mbar = mks.monkeycore.menuBar()
         
-        mbar.beginGroup( "mEdit/mSearchReplace" )
         for action in self.actions:
-            actObject = mbar.action(action[0],
-                                  self.tr(action[1]),
-                                  QIcon(':/mksicons/' + action[2]),
-                                  self.tr(action[3]),
-                                  self.tr(action[4]))
+            actObject = mbar.addAction( 'mEdit/mSearchReplace/' + action[0],
+                                        self.tr(action[1]),
+                                        QIcon(':/mksicons/' + action[2]))
+            actObject.setShortcut(self.tr(action[3]))
+            actObject.setToolTip(self.tr(action[4]))
             actObject.triggered.connect(action[5])
             actObject.setData(action[6])
-        mbar.endGroup()
 
     def __del__(self):
         """Plugin termination
@@ -1138,13 +1136,14 @@ class SearchResultsDock(pDockWidget):
     """
     def __init__(self, searchThread, parent=None):
         pDockWidget.__init__( self, parent )
+        self.setObjectName("SearchResultsDock")
         assert(searchThread)
 
         self.mSearchThread = searchThread
 
         self.setObjectName( self.metaObject().className() )
         self.setWindowTitle( self.tr( "Search Results" ) )
-        self.setWindowIcon( QIcon(":/mksicons/SearchAndReplace.png") )
+        self.setWindowIcon( QIcon(":/mksicons/search.png") )
         
         # actions
         # clear action

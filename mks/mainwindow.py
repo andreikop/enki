@@ -14,7 +14,7 @@ from PyQt4.QtGui import qApp
 from PyQt4.QtGui import QIcon
 from PyQt4.QtGui import QDockWidget
 
-from PyQt4.fresh import pMainWindow
+from PyQt4.fresh import pMainWindow, pActionsNodeModel
 
 import mks.monkeystudio
 import mks.monkeycore
@@ -59,16 +59,16 @@ class MainWindow(pMainWindow):
         # init menubar
         # create menubar menus and actions
         mb = self.menuBar()
-        
-        mb.setDefaultShortcutContext( Qt.ApplicationShortcut )
+        self.mActionsModel = pActionsNodeModel( self )
+        self.menuBar().setModel( self.mActionsModel )
 
-        mb.menu( "mFile", self.tr( "File" ) )
-        mb.beginGroup( "mFile" )
+        
+        # FIXME commented for new fresh
+        #mb.setDefaultShortcutContext( Qt.ApplicationShortcut )
         """TODO
         mb.action( "aNew", self.tr( "&New..." ), QIcon(":/mksicons/new.png" ),"Ctrl+N", self.tr( "Create a new file" ) )
         mb.action( "aNewTextEditor", self.tr( "&New Text File..." ), QIcon(":/mksicons/new.png" ), '', self.tr( "Quickly create a new text based file" ) )
         """
-        mb.action( "aOpen", self.tr( "&Open..." ), QIcon(":/mksicons/open.png" ), "Ctrl+O" , self.tr( "Open a file" ) )
         """TODO
         mb.menu( "mRecents", self.tr( "&Recents" ), QIcon(":/mksicons/recents.png" ) )
         mb.action( "mRecents/aClear", self.tr( "&Clear" ), QIcon(":/mksicons/clear.png" ), '', self.tr( "Clear the recents files list" ) )
@@ -79,12 +79,6 @@ class MainWindow(pMainWindow):
         mb.action( "mSession/aRestore", self.tr( "Restore" ), QIcon(":/mksicons/restore.png" ), '', self.tr( "Restore the current session files list" ) )
         mb.action( "aSeparator2" )
         """
-        mb.menu( "mSave", self.tr( "&Save" ), QIcon(":/mksicons/save.png" ) )
-        mb.action( "mSave/aCurrent", self.tr( "&Save" ), QIcon(":/mksicons/save.png" ), "Ctrl+S" , self.tr( "Save the current file" ) ).setEnabled( False )
-        mb.action( "mSave/aAll", self.tr( "Save &All" ), QIcon(":/mksicons/saveall.png" ), '', self.tr( "Save all files" ) ).setEnabled( False )
-
-        mb.menu( "mClose", self.tr( "&Close" ), QIcon(":/mksicons/close.png" ) )
-        mb.action( "mClose/aCurrent", self.tr( "&Close" ), QIcon(":/mksicons/close.png" ), "", self.tr( "Close the current file" ) ).setEnabled( False )
         """TODO
         mb.action( "mClose/aAll", self.tr( "Close &All" ), QIcon(":/mksicons/closeall.png" ), '', self.tr( "Close all files" ) ).setEnabled( False )
         mb.action( "aSeparator3" )
@@ -95,11 +89,6 @@ class MainWindow(pMainWindow):
         mb.action( "aPrint", self.tr( "&Print..." ), QIcon(":/mksicons/print.png" ), "Ctrl+P", self.tr( "Print the current file" ) ).setEnabled( False )
         mb.action( "aSeparator5" )
         """
-        mb.action( "aQuit", self.tr( "&Quit" ), QIcon(":/mksicons/quit.png" ), "Ctrl+Q", self.tr( "Quit the application" ) )
-        mb.endGroup()
-        
-        mb.menu( "mEdit", self.tr( "Edit" ) )
-        mb.beginGroup( "mEdit" )
         """TODO
         mb.action( "aSettings", self.tr( "Settings..." ), QIcon( ":/mksicons/settings.png" ), "", self.tr( "Edit the application settings" ) )
         mb.action( "aShortcutsEditor", self.tr( "Shortcuts Editor..." ), QIcon( ":/mksicons/shortcuts.png" ), "Ctrl+Shift+E", self.tr( "Edit the application shortcuts" ) )
@@ -107,8 +96,6 @@ class MainWindow(pMainWindow):
         mb.action( "aSeparator1" )
         mb.action( "aSeparator3" )
         """
-        mb.menu( "mSearchReplace", self.tr( "&Search && Replace" ) )
-        mb.action( "mSearchReplace/aSearchFile", self.tr( "&Search..." ), QIcon( ":/mksicons/searchs.png" ), "Ctrl+F", self.tr( "Search in the current file..." ) )
         """TODO
         mb.menu( "mAllCommands", self.tr( "&All Commands" ), QIcon( ":/mksicons/commands.png" ) )
         
@@ -116,17 +103,9 @@ class MainWindow(pMainWindow):
         mb.action( "aExpandAbbreviation", self.tr( "Expand Abbreviation" ), QIcon( ":/mksicons/abbreviation.png" ), "Ctrl+E", self.tr( "Expand Abbreviation" ) ).setEnabled( False )
         mb.action( "aPrepareAPIs", self.tr( "Prepare APIs" ), QIcon( ":/mksicons/prepareapis.png" ), "Ctrl+Alt+P", self.tr( "Prepare the APIs files for auto completion / calltips" ) )
         """
-        mb.endGroup()
-        
-        mb.menu( "mView", self.tr( "View" ) )
-        mb.beginGroup( "mView" )
         """TODO
         mb.menu( "mStyle", self.tr( "&Style" ), QIcon( ":/mksicons/style.png" ) )
         """
-        mb.action( "aNext", self.tr( "&Next file" ), QIcon( ":/mksicons/next.png" ), "Alt+Right", self.tr( "Active the next tab" ) ).setEnabled( False )
-        mb.action( "aPrevious", self.tr( "&Previous file" ), QIcon( ":/mksicons/previous.png" ), "Alt+Left", self.tr( "Active the previous tab" ) ).setEnabled( False )
-        mb.action( "aFocusCurrentDocument", self.tr( "Focus current document" ), QIcon( ":/mksicons/text.png" ), "Ctrl+Return", self.tr( "Focus current document" ) ).setEnabled( False )
-        mb.endGroup()
         """TODO
         mb.menu( "mProject", self.tr( "Project" ) )
         mb.beginGroup( "mProject" )
@@ -180,13 +159,9 @@ class MainWindow(pMainWindow):
         mb.endGroup()
         mb.menu( "mDocks", self.tr( "Docks" ) )
         """
-        mb.menu( "mHelp", self.tr( "Help" ) )
-        mb.beginGroup( "mHelp" )
         """TODO
         mb.action( "aAbout", self.tr( "&About..." ), QIcon( ":/mksicons/monkey2.png" ), '', self.tr( "About application..." ) )
         """
-        mb.action( "aAboutQt", self.tr( "About &Qt..." ), QIcon( ":/mksicons/qt.png" ), '', self.tr( "About Qt..." ) )
-        mb.endGroup()
         """TODO
         # create action for styles
         agStyles = pStylesActionGroup( self.tr( "Use %1 style" ), mb.menu( "mView/mStyle" ) )
@@ -201,6 +176,43 @@ class MainWindow(pMainWindow):
         # init toolbar
         self.initToolBar()
         """
+        def menu(path, name, icon):
+            menuObject = self.menuBar().addMenu(path)
+            menuObject.setText(name)
+            if icon:
+                menuObject.setIcon(QIcon(':/mksicons/' + icon))
+            
+        def action(path, name, icon, shortcut, tooltip, enabled):
+            if icon:  # has icon
+                actObject = self.menuBar().addAction(path, name, QIcon(':/mksicons/' + icon))
+            else:
+                actObject = self.menuBar().addAction(path, name)
+            if shortcut:
+                actObject.setShortcut(shortcut)
+            actObject.setToolTip(tooltip)
+            actObject.setEnabled(enabled)
+        
+        
+        # Menu or action path                   Name                                Icon            Shortcut        Hint                                        Action enabled
+        menu  ("mFile",                               self.tr("File"                   ), ""            )
+        action("mFile/aOpen",                         self.tr( "&Open..."              ), "open.png",     "Ctrl+O" ,      self.tr( "Open a file"            ), True )
+        menu  ("mFile/mSave",                         self.tr("&Save"                  ), "save.png"    ),
+        action("mFile/mSave/aCurrent",                self.tr( "&Save"                 ), "save.png" ,    "Ctrl+S" ,      self.tr( "Save the current file"  ), False)
+        action("mFile/mSave/aAll",                    self.tr( "Save &All"             ), "saveall.png",  'Shift+Ctrl+S', self.tr( "Save all files"         ), False)
+        menu  ("mFile/mClose",                        self.tr( "&Close"                ), "close.png"   ),
+        action("mFile/mClose/aCurrent",               self.tr( "&Close"                ), "close.png",    "",             self.tr( "Close the current file" ), False)
+        action("mFile/aQuit",                         self.tr( "&Quit"                 ), "quit.png",     "Ctrl+Q",       self.tr( "Quit the application"   ), True )
+        
+        menu  ("mEdit",                               self.tr( "Edit"                  ), ""            )
+        menu  ("mEdit/mSearchReplace",                self.tr( "&Search && Replace"    ), ""            )
+        
+        menu  ("mView",                               self.tr( "View"                  ), ""            )
+        action("mView/aNext",                         self.tr( "&Next file" ),            "next.png",     "Alt+Right",    self.tr( "Active the next tab"    ), False)
+        action("mView/aPrevious",                     self.tr( "&Previous file" ),        "previous.png", "Alt+Left",     self.tr( "Active the previous tab"), False)
+        action("mView/aFocusCurrentDocument",         self.tr( "Focus to editor" ),       "text.png",     "Ctrl+Return",  self.tr( "Focus current document" ), False)
+        
+        menu  ("mHelp",                               self.tr( "Help"                  ), ""            )
+        action("mHelp/aAboutQt",                      self.tr( "About &Qt..." ),          "qt.png",       "",             self.tr( "About Qt..."            ), True )
         
         self.menuBar().action( "mFile/aQuit" ).triggered.connect(self.close)
         self.menuBar().action( "mHelp/aAboutQt" ).triggered.connect(qApp.aboutQt)
@@ -261,7 +273,8 @@ class MainWindow(pMainWindow):
         # help menu
         self.menuBar().action( "mHelp/aAbout" ).triggered.connect(mks.monkeycore.workspace().helpAboutApplication_triggered)
         """
-
+    def __del__(self):
+        self.menuBar().setModel( None )
 
 """TODO
     def dragEnterEvent( self, event ):

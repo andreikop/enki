@@ -40,7 +40,9 @@ class FileBrowser(QObject):  # TODO (Plugin) ?
         # create dock
         self.dock = pDockFileBrowser(mks.monkeycore.mainWindow())
         # add dock to dock toolbar entry
-        mks.monkeycore.mainWindow().dockToolBar( Qt.LeftToolBarArea ).addDock( self.dock, self.tr( "File Browser" ), QIcon( ':/mksicons/browser.png') )
+        mks.monkeycore.mainWindow().dockToolBar( Qt.LeftToolBarArea ).addDockWidget( self.dock,
+                                                                                     self.dock.windowTitle(),
+                                                                                     QIcon(':/mksicons/open.png'))
         """ FIXME
         # create menu action for the dock
         pActionsManager.setDefaultShortcut( self.dock.toggleViewAction(), QKeySequence( "F7" ) )
@@ -121,6 +123,8 @@ class pDockFileBrowser(pDockWidget):
     
     def __init__(self, parent):
         pDockWidget.__init__(self, parent)
+        self.setObjectName("FileBrowserDock")
+        self.setWindowTitle(self.tr( "File Browser" ))
         # restrict areas
         self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
         

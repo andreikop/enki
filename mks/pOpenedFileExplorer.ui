@@ -12,7 +12,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>:/openedfileexplorer/view-list-tree.png</normaloff>:/openedfileexplorer/view-list-tree.png</iconset>
+    <normaloff>:/mksicons/filtered.png</normaloff>:/mksicons/filtered.png</iconset>
   </property>
   <property name="windowTitle">
    <string>Opened Files List</string>
