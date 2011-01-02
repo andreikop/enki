@@ -61,40 +61,50 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
         QObject.__init__(self)
         self.widget = SearchWidget( self )
         
+        mbar = mks.monkeycore.menuBar()
+        def createAction(path, text, icon, shortcut, tooltip, slot, data):
+            actObject = mbar.addAction( 'mEdit/mSearchReplace/' + path,
+                                        self.tr(text),
+                                        QIcon(':/mksicons/' + icon))
+            actObject.setShortcut(self.tr(shortcut))
+            actObject.setToolTip(self.tr(tooltip))
+            actObject.triggered.connect(slot)
+            actObject.setData(data)
+
         # List if search actions.
         # First acition created by MainWindow, so, do not fill text
-        self.actions = (("aSearchFile", "&Search...", 
-                         "search.png", "Ctrl+F",
-                         "Search in the current file...", 
-                         self.modeSwitchTriggered, self.ModeSearch),
-                        ("aSearchDirectory", "Search in &Directory...", 
-                         "search-replace-directory.png", "Ctrl+Shift+F", 
-                         "Search in directory...",
-                         self.modeSwitchTriggered, self.ModeSearchDirectory),
-                        ("aReplaceDirectory", "Replace in Director&y...",
-                         "search-replace-directory.png", "Ctrl+Shift+R",
-                         "Replace in directory...",
-                         self.modeSwitchTriggered, self.ModeReplaceDirectory),
-                        ("aReplaceFile", "&Replace...",
-                         "replace.png", "Ctrl+R",
-                         "Replace in the current file...",
-                         self.modeSwitchTriggered, self.ModeReplace),
-                        ("aSearchPrevious", "Search &Previous",
-                         "previous.png", "Shift+F3",
-                         "Search previous occurrence",
-                         self.widget.on_pbPrevious_pressed, None),
-                        ("aSearchNext", "Search &Next",
-                         "next.png", "F3",
-                         "Search next occurrence",
-                         self.widget.on_pbNext_pressed, None),
-                        ("aSearchOpenedFiles", "Search in &Opened Files...",
-                         "search-replace-opened-files.png",
-                         "Ctrl+Alt+Meta+F", "Search in opened files...",
-                         self.modeSwitchTriggered, self.ModeSearchOpenedFiles),
-                        ("aReplaceOpenedFiles", "Replace in Open&ed Files...",
-                         "search-replace-opened-files.png", "Ctrl+Alt+Meta+R",
-                         "Replace in opened files...",
-                         self.modeSwitchTriggered, self.ModeReplaceOpenedFiles))
+        createAction("aSearchFile", "&Search...", 
+                      "search.png", "Ctrl+F",
+                      "Search in the current file...", 
+                      self.modeSwitchTriggered, self.ModeSearch)
+        createAction("aSearchDirectory", "Search in &Directory...", 
+                      "search-replace-directory.png", "Ctrl+Shift+F", 
+                      "Search in directory...",
+                      self.modeSwitchTriggered, self.ModeSearchDirectory)
+        createAction("aReplaceDirectory", "Replace in Director&y...",
+                      "search-replace-directory.png", "Ctrl+Shift+R",
+                      "Replace in directory...",
+                      self.modeSwitchTriggered, self.ModeReplaceDirectory)
+        createAction("aReplaceFile", "&Replace...",
+                      "replace.png", "Ctrl+R",
+                      "Replace in the current file...",
+                      self.modeSwitchTriggered, self.ModeReplace)
+        createAction("aSearchPrevious", "Search &Previous",
+                      "previous.png", "Shift+F3",
+                      "Search previous occurrence",
+                      self.widget.on_pbPrevious_pressed, None)
+        createAction("aSearchNext", "Search &Next",
+                      "next.png", "F3",
+                      "Search next occurrence",
+                      self.widget.on_pbNext_pressed, None)
+        createAction("aSearchOpenedFiles", "Search in &Opened Files...",
+                      "search-replace-opened-files.png",
+                      "Ctrl+Alt+Meta+F", "Search in opened files...",
+                      self.modeSwitchTriggered, self.ModeSearchOpenedFiles)
+        createAction("aReplaceOpenedFiles", "Replace in Open&ed Files...",
+                      "search-replace-opened-files.png", "Ctrl+Alt+Meta+R",
+                      "Replace in opened files...",
+                      self.modeSwitchTriggered, self.ModeReplaceOpenedFiles)
         ''' TODO
                         ("aSearchProjectFiles", "Search in Project &Files...",
                         "search-replace-project-files.png", "Ctrl+Meta+F",
@@ -104,9 +114,7 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
                         "search-replace-project-files.png", "Ctrl+Meta+R",
                         "Replace in the current project files...",
                         self.modeSwitchTriggered, self.ModeReplaceProjectFiles),
-        '''
-
-        
+        '''        
         mks.monkeycore.workspace().layout().addWidget( self.widget )
         self.widget.setVisible( False )
         
@@ -116,18 +124,7 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
         self.dock.setVisible( False )
 
         self.widget.setResultsDock( self.dock )
-        
-        mbar = mks.monkeycore.menuBar()
-        
-        for action in self.actions:
-            actObject = mbar.addAction( 'mEdit/mSearchReplace/' + action[0],
-                                        self.tr(action[1]),
-                                        QIcon(':/mksicons/' + action[2]))
-            actObject.setShortcut(self.tr(action[3]))
-            actObject.setToolTip(self.tr(action[4]))
-            actObject.triggered.connect(action[5])
-            actObject.setData(action[6])
-
+    
     def __del__(self):
         """Plugin termination
         """

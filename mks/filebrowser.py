@@ -126,22 +126,20 @@ class pDockFileBrowser(pDockWidget):
         
         # actions. Table (Text, icon name, slot, button index on tool bar)
         # will be created after all widgets created
-        actions = (("Go Up",                                                       "up_arrow",  self.aUp_triggered,           0),
-                        ("Select a root folder",                             "goto",         self.aGoTo_triggered,        1),
-                        ("Add selected folder to bookmarks",         "add",          self.aAdd_triggered,          2),
-                        ("Remove selected folder from bookmarks", "remove",    self.aRemove_triggered,    3))
         
-        
-        for action in actions:
-            actionObject = QAction(self.tr(action[0]), self)
-            actionObject.setIcon(QIcon(":/mksicons/%s.png" % action[1]))
+        def createAction(text, icon, slot, index):
+            actionObject = QAction(self.tr(text), self)
+            actionObject.setIcon(QIcon(":/mksicons/%s.png" % icon))
             actionObject.setToolTip( actionObject.text() )
-            actionObject.triggered.connect(action[2])
-            self.titleBar().addAction(actionObject, action[3] )
+            actionObject.triggered.connect(slot)
+            self.titleBar().addAction(actionObject, index )
             # fixme self.mTree.addAction(actionObject)
-        
-        # add separator between actions
+
+        createAction("Go Up",                                 "up_arrow",  self.aUp_triggered,        0)
+        createAction("Select a root folder",                  "goto",      self.aGoTo_triggered,      1)
         self.titleBar().addSeparator( 2 )
+        createAction("Add selected folder to bookmarks",      "add",       self.aAdd_triggered,       3)
+        createAction("Remove selected folder from bookmarks", "remove",    self.aRemove_triggered,    4)
         
         # bookmarks menu
         self.mBookmarksMenu = QMenu( self )
