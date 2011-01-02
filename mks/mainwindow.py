@@ -157,7 +157,7 @@ class MainWindow(pMainWindow):
         mb.action( "aMinimize", self.tr( "&Minimize" ), QIcon( "" ), '', self.tr( "Minimize" ) )
         mb.action( "aRestore", self.tr( "&Restore" ), QIcon( "" ), '', self.tr( "Restore normal size" ) )
         mb.endGroup()
-        mb.menu( "mDocks", self.tr( "Docks" ) )
+        
         """
         """TODO
         mb.action( "aAbout", self.tr( "&About..." ), QIcon( ":/mksicons/monkey2.png" ), '', self.tr( "About application..." ) )
@@ -176,11 +176,16 @@ class MainWindow(pMainWindow):
         # init toolbar
         self.initToolBar()
         """
+        
+        self._createdMenuPathes = []
+        self._createdActions = []
+        
         def menu(path, name, icon):
             menuObject = self.menuBar().addMenu(path)
             menuObject.setText(name)
             if icon:
                 menuObject.setIcon(QIcon(':/mksicons/' + icon))
+            self._createdMenuPathes.append(path)
             
         def action(path, name, icon, shortcut, tooltip, enabled):
             if icon:  # has icon
@@ -191,6 +196,7 @@ class MainWindow(pMainWindow):
                 actObject.setShortcut(shortcut)
             actObject.setToolTip(tooltip)
             actObject.setEnabled(enabled)
+            self._createdActions.append(actObject)
         
         
         # Menu or action path                   Name                                Icon            Shortcut        Hint                                        Action enabled
@@ -211,11 +217,15 @@ class MainWindow(pMainWindow):
         action("mView/aPrevious",                     self.tr( "&Previous file" ),        "previous.png", "Alt+Left",     self.tr( "Active the previous tab"), False)
         action("mView/aFocusCurrentDocument",         self.tr( "Focus to editor" ),       "text.png",     "Ctrl+Return",  self.tr( "Focus current document" ), False)
         
+        menu  ("mDocks",                               self.tr( "Docks"                  ), ""            )
+        
         menu  ("mHelp",                               self.tr( "Help"                  ), ""            )
         action("mHelp/aAboutQt",                      self.tr( "About &Qt..." ),          "qt.png",       "",             self.tr( "About Qt..."            ), True )
         
         self.menuBar().action( "mFile/aQuit" ).triggered.connect(self.close)
         self.menuBar().action( "mHelp/aAboutQt" ).triggered.connect(qApp.aboutQt)
+        # docks
+        self.menuBar().menu( "mDocks" ).aboutToShow.connect(self._menu_Docks_aboutToShow)
         
         """TODO
         # init message toolbar
@@ -255,8 +265,7 @@ class MainWindow(pMainWindow):
         self.menuBar().action( "mEdit/aPrepareAPIs" ).triggered.connect(mks.monkeycore.workspace().editPrepareAPIs_triggered)
         # view connection
         agStyles.styleSelected.connect(self.changeStyle)
-        # docks
-        self.menuBar().menu( "mDocks" ).aboutToShow.connect(self.menu_Docks_aboutToShow)
+
         # project connection
         mks.monkeycore.recentsManager().openProjectRequested.connect(mks.monkeycore.projectsManager().openProject)
         mks.monkeycore.projectsManager().fileDoubleClicked.connect(mks.monkeycore.workspace().openFile)
@@ -274,8 +283,31 @@ class MainWindow(pMainWindow):
         self.menuBar().action( "mHelp/aAbout" ).triggered.connect(mks.monkeycore.workspace().helpAboutApplication_triggered)
         """
     def __del__(self):
+        for act in self._createdActions:
+            self.menuBar().removeAction(act)
+        for menuPath in self._createdMenuPathes:
+            self.menuBar().removeMenu(menuPath)
+        
         self.menuBar().setModel( None )
-
+    
+    def actionsModel(self):
+        """Get actions model.
+        Model used for set default shortcuts for the actions
+        """
+        return self.mActionsModel
+    
+    def _menu_Docks_aboutToShow(self):
+        # get menu
+        menu = self.menuBar().menu( "mDocks" )
+        
+        # add actions
+        for dw in self.findChildren(QDockWidget):
+            action = dw.toggleViewAction()
+            
+            action.setIcon( dw.windowIcon() )
+            menu.addAction( action )
+            self.menuBar().addAction( "mDocks", action )
+    
 """TODO
     def dragEnterEvent( self, event ):
         # if correct mime and same tabbar
@@ -349,21 +381,8 @@ class MainWindow(pMainWindow):
         self.dockToolBar( Qt.TopToolBarArea ).addAction()
         # console action
         self.dockToolBar( Qt.TopToolBarArea ).addAction( mks.monkeycore.consoleManager().stopAction() )
-    
-    def menu_Docks_aboutToShow(self):
-        # get menu
-        menu = self.menuBar().menu( "mDocks" )
-        menu.clear()
-        
-        # add actions
-        for dw in self.findChildren(QDockWidget):
-            action = dw.toggleViewAction()
-            
-            action.setIcon( dw.windowIcon() )
-            menu.addAction( action )
-            self.menuBar().addAction( "mDocks", action )
 
-    def updateMenuVisibility( self, menu ):
+def updateMenuVisibility( self, menu ):
         menuAction = menu.menuAction()
         
         menuVisible = False

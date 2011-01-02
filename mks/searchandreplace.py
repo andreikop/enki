@@ -1178,6 +1178,8 @@ class SearchResultsDock(pDockWidget):
         aClear.triggered.connect(self.mModel.clear)
         self.mModel.firstResultsAvailable.connect(self.show)
         self.mView.activated.connect(self.view_activated)
+        
+        self.toggleViewAction().setShortcut("F10")
 
     def view_activated(self, index ):
         """Item doubleclicked in the model, opening file
