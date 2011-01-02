@@ -43,10 +43,6 @@ class FileBrowser(QObject):  # TODO (Plugin) ?
         mks.monkeycore.mainWindow().dockToolBar( Qt.LeftToolBarArea ).addDockWidget( self.dock,
                                                                                      self.dock.windowTitle(),
                                                                                      QIcon(':/mksicons/open.png'))
-        """ FIXME
-        # create menu action for the dock
-        pActionsManager.setDefaultShortcut( self.dock.toggleViewAction(), QKeySequence( "F7" ) )
-        """
     
     def __del__(self):
         """Uninstall the plugin
@@ -224,6 +220,12 @@ class pDockFileBrowser(pDockWidget):
         self.setCurrentFilePath( mks.settings.value("FileBrowser/FilePath") )
         self.mBookmarks = mks.settings.value("FileBrowser/Bookmarks")
         self.updateBookMarksMenu()
+        
+        """ FIXME
+        # create menu action for the dock
+        pActionsManager.setDefaultShortcut( self.dock.toggleViewAction(), QKeySequence( "F7" ) )
+        """
+        self.toggleViewAction().setShortcut("F7")
 
     def __del__(self):    
         pass

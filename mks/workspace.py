@@ -328,6 +328,8 @@ class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         workspace.currentDocumentChanged.connect(self.currentDocumentChanged)
         
         self.tvFiles.selectionModel().selectionChanged.connect(self.selectionModel_selectionChanged)  # disconnected by _startModifyModel()
+        
+        self.toggleViewAction().setShortcut("F2")
     
     def _startModifyModel(self):
         """Blocks signals from model while it modified by code
