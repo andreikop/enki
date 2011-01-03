@@ -177,6 +177,10 @@ class MainWindow(pMainWindow):
         self.initToolBar()
         """
         
+        # Default exclusive settings for the tool bars
+        self.dockToolBar( Qt.LeftToolBarArea ).setExclusive(False)
+        self.dockToolBar( Qt.RightToolBarArea ).setExclusive(False)
+        
         self._createdMenuPathes = []
         self._createdActions = []
         
