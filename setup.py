@@ -5,6 +5,6 @@ from distutils.core import setup
 setup(name='mksv3',
             version='1.0',
             packages=['mks'],
-            package_data={'mks' : ['mks/*.ui']},
+            package_data={'mks' : ['*.ui']},
             scripts=['./mksv3']
             )
