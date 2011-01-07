@@ -398,21 +398,18 @@ class SearchWidget(QFrame):
         else:
             searchText = ''
         
-        wasVisible = self.isVisible()
-
         self.setVisible( mode != SearchAndReplace.ModeNo )
 
-        if  self.isVisible() and not wasVisible:
-            if searchText:
-                self.cbSearch.setEditText( searchText )
-                self.cbReplace.setEditText( searchText )
-
-            self.cbSearch.setFocus()
-            self.cbSearch.lineEdit().selectAll()
+        if searchText:
+            self.cbSearch.setEditText( searchText )
+            self.cbReplace.setEditText( searchText )
             
-            if  mode & SearchAndReplace.ModeFlagDirectory :
-                self.cbPath.setEditText( searchPath )
-        
+        if  mode & SearchAndReplace.ModeFlagDirectory :
+            self.cbPath.setEditText( searchPath )
+
+        self.cbSearch.setFocus()
+        self.cbSearch.lineEdit().selectAll()
+
         # hlamer: I'm sory for long lines, but, even workse without it
         # Set widgets visibility flag according to state
         widgets = (self.wSearch, self.pbPrevious, self.pbNext, self.pbSearch, self.wReplace, self.wPath, \
