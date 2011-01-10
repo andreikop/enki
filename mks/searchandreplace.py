@@ -1161,6 +1161,7 @@ class SearchResultsDock(pDockWidget):
         self.mLayout.addWidget( self.mView )
 
         self.setWidget( widget )
+        self.setFocusProxy(self.mView)
         
         """TODO
         # mac
