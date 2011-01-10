@@ -344,7 +344,7 @@ class Editor(mks.workspace.AbstractDocument):
             with open(filePath, 'r') as f:
                 self._setFilePath(filePath)
                 
-                self.qscintilla.setText( f.read() )
+                self.qscintilla.setText( unicode(f.read(), 'utf8') )  # FIXME replace 'utf8' with encoding
                 
                 # make backup if needed
                 if  mks.settings.value("Editor/CreateBackupUponOpen"):
@@ -465,7 +465,7 @@ class Editor(mks.workspace.AbstractDocument):
             return False
         
         try:
-            f.write(self.qscintilla.text())
+            f.write(unicode(self.qscintilla.text()).encode('utf8'))  # FIXME codec hardcoded
         finally:
             f.close()
         
@@ -519,7 +519,7 @@ class Editor(mks.workspace.AbstractDocument):
         """TODO improve algorythm sometimes for skip comments"""
         spacesCount = 0
         for line in self.qscintilla.text().split('\n'):
-            if str(line).startswith(' '):
+            if unicode(line).startswith(' '):
                 self.qscintilla.setIndentationsUseTabs (False)
 
     def _autoDetectEol(self):
