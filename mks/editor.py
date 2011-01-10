@@ -333,7 +333,10 @@ class Editor(mks.workspace.AbstractDocument):
         self.qscintilla.setWrapMode( mks.settings.value("Editor/WrapMode") )
         self.qscintilla.setWrapVisualFlags( mks.settings.value("Editor/EndWrapVisualFlag"), mks.settings.value("Editor/StartWrapVisualFlag"), mks.settings.value("Editor/WrappedLineIndentWidth") )
         
-        self.qscintilla.setLexer( self._lexerForFileName( filePath ) )
+        lexer = self._lexerForFileName( filePath )
+        if lexer:
+            lexer.setDefaultFont(mks.settings.value("Editor/DefaultDocumentFont" ))
+            self.qscintilla.setLexer(lexer)
 
         # open file
         #locked = self.blockSignals( True )
