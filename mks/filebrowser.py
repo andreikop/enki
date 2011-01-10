@@ -8,13 +8,12 @@ import os
 import os.path
 
 from PyQt4.QtCore import QDir, QModelIndex, QObject, Qt
-from PyQt4.QtGui import QAction, QDialogButtonBox, QFileDialog, QFrame, QFileSystemModel, QIcon, QKeySequence, QLineEdit, QMenu, \
+from PyQt4.QtGui import QAction, QDialogButtonBox, QFileDialog, QFrame, QFileSystemModel, \
+                                          QIcon, QKeySequence, QLineEdit, QMenu, \
                                          QShortcut, QSortFilterProxyModel, QToolButton, QTreeView, QVBoxLayout, QWidget
 
 from PyQt4.fresh import pDockWidget
-""" FIXME
 from PyQt4.fresh import pStringListEditor
-"""
 
 import mks.monkeycore
 import mks.settings
@@ -32,13 +31,15 @@ import mks.settings
         self.pluginInfos.Pixmap = QPixmap( ":/icons/browser.png" )
 """
 
-class FileBrowser(QObject):  # TODO (Plugin) ?
+class FileBrowser(QObject):
+    """File system tree. Allows to open files quickly
+    """
     def __init__(self):
         """Create and install the plugin
         """
         QObject.__init__(self)
         # create dock
-        self.dock = pDockFileBrowser(mks.monkeycore.mainWindow())
+        self.dock = DockFileBrowser(mks.monkeycore.mainWindow())
         # add dock to dock toolbar entry
         mks.monkeycore.mainWindow().dockToolBar( Qt.LeftToolBarArea ).addDockWidget( self.dock,
                                                                                      self.dock.windowTitle(),
@@ -84,14 +85,18 @@ class FileBrowserSettings(QWidget):
         """FIXME
         mks.settings.setValue( "NegativeFilter", pyStrList)
         """
-        self.plugin.dock.setFilters(pyStrList);
+        self.plugin.dock.setFilters(pyStrList)
 
 class FileBrowserFilteredModel(QSortFilterProxyModel):
+    """Model filters out files using negative filter.
+    i.e. does not show .o .pyc and other temporary files
+    """
     def __init__(self, parent):
         QSortFilterProxyModel.__init__(self, parent)
     
     def setFilters(self, filters):
-        # FIXME duplicating code, copypaste from search plugin
+        """Set list of negative filters. (Wildards of files, which are not visible)
+        """
         regExPatterns = map(fnmatch.translate, filters)
         compositeRegExpPattern = '(' + ')|('.join(regExPatterns) + ')'
         self.filterRegExp = re.compile(compositeRegExpPattern)
@@ -99,17 +104,23 @@ class FileBrowserFilteredModel(QSortFilterProxyModel):
         self.invalidateFilter()
 
     def columnCount(self, parent = QModelIndex()):
+        """Column count for the model
+        """
         return 1
     
     def hasChildren(self, parent = QModelIndex()):
+        """Check if node has children. QAbstractItemModel standard method
+        """
         return self.sourceModel().hasChildren( self.mapToSource( parent ) )
         
     def filterAcceptsRow(self, source_row, source_parent):
+        """ Main method. Check if file matches filter
+        """
         if  source_parent == QModelIndex():
             return True
         return not self.filterRegExp.match(source_parent.child( source_row, 0 ).data().toString() )
 
-class pDockFileBrowser(pDockWidget):
+class DockFileBrowser(pDockWidget):
     """UI interface of FileBrowser plugin. 
         
     Dock with file system tree, Box, navigation in a file system
@@ -128,12 +139,13 @@ class pDockFileBrowser(pDockWidget):
         # will be created after all widgets created
         
         def createAction(text, icon, slot, index):
+            """Create action object and add it to title bar
+            """
             actionObject = QAction(self.tr(text), self)
             actionObject.setIcon(QIcon(":/mksicons/%s.png" % icon))
             actionObject.setToolTip( actionObject.text() )
             actionObject.triggered.connect(slot)
             self.titleBar().addAction(actionObject, index )
-            # fixme self.mTree.addAction(actionObject)
 
         createAction("Go Up",                                 "up_arrow",  self.aUp_triggered,        0)
         createAction("Select a root folder",                  "goto",      self.aGoTo_triggered,      1)
@@ -146,8 +158,8 @@ class pDockFileBrowser(pDockWidget):
         aBookmarks = QAction( self.tr( "Bookmarks..." ), self )
         aBookmarks.setIcon( QIcon(":/mksicons/bookmark.png" ) )
         aBookmarks.setToolTip( aBookmarks.text() )
-        tb = self.titleBar().addAction( aBookmarks, 5 )
-        tb.setPopupMode( QToolButton.InstantPopup )
+        toolButton = self.titleBar().addAction( aBookmarks, 5 )
+        toolButton.setPopupMode( QToolButton.InstantPopup )
         aBookmarks.setMenu( self.mBookmarksMenu )
         
         # add separator
@@ -158,21 +170,21 @@ class pDockFileBrowser(pDockWidget):
         self.setWidget( wdg )
         
         # vertical layout
-        vl = QVBoxLayout( wdg )
-        vl.setMargin( 5 )
-        vl.setSpacing( 3 )
+        vertLayout = QVBoxLayout( wdg )
+        vertLayout.setMargin( 5 )
+        vertLayout.setSpacing( 3 )
         
         # lineedit
         self.mLineEdit = QLineEdit()
         self.mLineEdit.setAttribute( Qt.WA_MacShowFocusRect, False )
         self.mLineEdit.setAttribute( Qt.WA_MacSmallSize )
         self.mLineEdit.setReadOnly( True )
-        vl.addWidget( self.mLineEdit )
+        vertLayout.addWidget( self.mLineEdit )
         
         # hline
         hline = QFrame( self )
         hline.setFrameStyle( QFrame.HLine | QFrame.Sunken )
-        vl.addWidget( hline )
+        vertLayout.addWidget( hline )
         
         # dir model
         self.mDirsModel = QFileSystemModel( self )
@@ -191,7 +203,7 @@ class pDockFileBrowser(pDockWidget):
         self.mTree.setContextMenuPolicy( Qt.ActionsContextMenu )
         self.mTree.setHeaderHidden( True )
         self.mTree.setUniformRowHeights( True )
-        vl.addWidget( self.mTree )
+        vertLayout.addWidget( self.mTree )
         
         # assign model to views
         self.mTree.setModel( self.mFilteredModel)
@@ -212,7 +224,6 @@ class pDockFileBrowser(pDockWidget):
         aUpShortcut.activated.connect(self.aUp_triggered)
         self.mBookmarksMenu.triggered.connect(self.bookmark_triggered)
         self.mTree.activated.connect(self.tv_activated)
-        self.mTree.doubleClicked.connect(self.tv_doubleClicked)
         
         self.setCurrentPath( mks.settings.value("FileBrowser/Path") )
         self.setCurrentFilePath( mks.settings.value("FileBrowser/FilePath") )
@@ -224,14 +235,6 @@ class pDockFileBrowser(pDockWidget):
         pActionsManager.setDefaultShortcut( self.dock.toggleViewAction(), QKeySequence( "F7" ) )
         """
         self.toggleViewAction().setShortcut("F7")
-
-    def __del__(self):    
-        pass
-        """FIXME
-        mks.settings.setValue("FileBrowser/Path", self.currentPath())
-        mks.settings.setValue("FileBrowser/FilePath", self.currentFilePath())
-        mks.settings.setValue("FileBrowser/Bookmarks", self.mBookmarks)
-        """
 
     def aUp_triggered(self):
         """Handler of click on Up button.
@@ -253,12 +256,16 @@ class pDockFileBrowser(pDockWidget):
         self.setCurrentPath( path )
 
     def aGoTo_triggered(self):
+        """GoTo (Select root folder) clicked
+        """
         action = self.sender()
         path = QFileDialog.getExistingDirectory( self, action.toolTip(), self.currentPath() )
         if path:
             self.setCurrentPath( path )
     
     def aAdd_triggered(self):
+        """Add bookmark action triggered
+        """
         path = self.currentPath()
         if not os.path.isdir(path):
             path = os.path.dirname(path)
@@ -268,6 +275,8 @@ class pDockFileBrowser(pDockWidget):
             self.updateBookMarksMenu()
 
     def aRemove_triggered(self):
+        """Remove bookmark triggered
+        """
         path = self.currentPath()
         if not os.path.isdir(path):
             path = os.path.dirname(path)
@@ -277,22 +286,18 @@ class pDockFileBrowser(pDockWidget):
             self.updateBookMarksMenu()
 
     def bookmark_triggered(self, action ):
+        """Bookmark triggered, go to marked folder
+        """
         self.setCurrentPath( action.data().toString() )
 
     def tv_activated(self, idx ):
+        """File or dirrectory doubleClicked
+        """
         index = self.mFilteredModel.mapToSource( idx )
         
         if  self.mDirsModel.isDir( index ) :
             self.setCurrentPath( unicode(self.mDirsModel.filePath( index )) )
         else:
-            mks.monkeycore.workspace().openFile( unicode(self.mDirsModel.filePath( index )))
-
-    def tv_doubleClicked(self, idx ):
-        """Handler of click on item in the tree
-        """
-        index = self.mFilteredModel.mapToSource( idx )
-        
-        if  not self.mDirsModel.isDir( index ) :
             mks.monkeycore.workspace().openFile( unicode(self.mDirsModel.filePath( index )))
 
     def currentPath(self):
@@ -302,11 +307,11 @@ class pDockFileBrowser(pDockWidget):
         index = self.mFilteredModel.mapToSource( index )
         return unicode(self.mDirsModel.filePath( index ))
 
-    def setCurrentPath(self, s ):
+    def setCurrentPath(self, path):
         """Set current path (root of the tree)
         """
         # get index
-        index = self.mDirsModel.index( s )
+        index = self.mDirsModel.index(path)
         # set current path
         self.mFilteredModel.invalidate()
         self.mTree.setRootIndex( self.mFilteredModel.mapFromSource( index ) )
@@ -321,20 +326,22 @@ class pDockFileBrowser(pDockWidget):
         index = self.mFilteredModel.mapToSource( index )
         return unicode(self.mDirsModel.filePath( index ))
 
-    def setCurrentFilePath(self, s ):
+    def setCurrentFilePath(self, filePath):
         """Set current file path (selected item)
         """
         # get index
-        index = self.mDirsModel.index( s )
+        index = self.mDirsModel.index(filePath)
         index = self.mFilteredModel.mapFromSource( index )
         self.mTree.setCurrentIndex( index )
 
     def setFilters(self, filters ):
-        """Set filter wildcards for filtering out unneeded files
+        """Set filter wildcards for filter out unneeded files
         """
-        self.mFilteredModel.setFilters( filters ) # fixme remove this and prev?
+        self.mFilteredModel.setFilters( filters )
 
     def updateBookMarksMenu(self):
+        """Create new Bookmarks menu
+        """
         self.mBookmarksMenu.clear()
         
         for path in self.mBookmarks:
