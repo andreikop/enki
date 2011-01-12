@@ -641,7 +641,7 @@ class SearchWidget(QFrame):
         
         if  forward :
             if  incremental :
-                col, line, temp, temp = editor.getSelection()
+                line, col, temp, temp = editor.getSelection()
             else:
                 temp, temp, line, col = editor.getSelection()
         else:
