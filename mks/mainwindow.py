@@ -210,7 +210,7 @@ class MainWindow(pMainWindow):
         action("mFile/mSave/aCurrent",                self.tr( "&Save"                 ), "save.png" ,    "Ctrl+S" ,      self.tr( "Save the current file"  ), False)
         action("mFile/mSave/aAll",                    self.tr( "Save &All"             ), "saveall.png",  'Shift+Ctrl+S', self.tr( "Save all files"         ), False)
         menu  ("mFile/mClose",                        self.tr( "&Close"                ), "close.png"   ),
-        action("mFile/mClose/aCurrent",               self.tr( "&Close"                ), "close.png",    "",             self.tr( "Close the current file" ), False)
+        action("mFile/mClose/aCurrent",               self.tr( "&Close"                ), "close.png",    "Ctrl+W",       self.tr( "Close the current file" ), False)
         action("mFile/aQuit",                         self.tr( "&Quit"                 ), "quit.png",     "Ctrl+Q",       self.tr( "Quit the application"   ), True )
         
         menu  ("mEdit",                               self.tr( "Edit"                  ), ""            )
