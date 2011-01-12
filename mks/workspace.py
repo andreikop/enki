@@ -27,7 +27,8 @@ import sys
 from PyQt4 import uic
 
 from PyQt4.QtGui import QTreeView, QMdiSubWindow, QMdiArea, QFileDialog, \
-                        QFrame, QVBoxLayout, QApplication, QIcon, QMenu, \
+                        QFrame, QKeySequence, QVBoxLayout, QApplication, \
+                        QIcon, QMenu, \
                         QMessageBox, QAction, QActionGroup
 from PyQt4.QtCore import Qt, QObject, QAbstractItemModel, QTimer, QMimeData, \
                          QEvent, QFileInfo, QModelIndex, QVariant, pyqtSignal
@@ -441,15 +442,15 @@ class AbstractDocument(QMdiSubWindow):
         setAttribute( Qt.WA_DeleteOnClose )
         mDocument = mNone
         mLayout = lNone
+        """
         
         # clear Close shortcut that conflict with menu one on some platform
-        menu = systemMenu()
-         QKeySequence closeSequence( QKeySequence.Close )
+        closeSequence = QKeySequence (QKeySequence.Close)
         
-        for action in menu.actions():
+        for action in self.systemMenu().actions():
             if  action.shortcut() == closeSequence :
                 action.setShortcut( QKeySequence() )
-        """
+
         # File opening should be implemented in the document classes
     
     '''TODO
@@ -793,7 +794,7 @@ class Workspace(QFrame):
         mks.monkeycore.menuBar().action( "mView/aPrevious" ).triggered.connect(self._activatePreviousDocument)
         
         mks.monkeycore.menuBar().action( "mView/aFocusCurrentDocument" ).triggered.connect(self.focusCurrentDocument)
-    
+        
     def setTextEditorClass(self, newEditor):
         """Set text editor, which is used for open textual documents.
         New editor would be used for newly opened textual documents.
@@ -809,7 +810,7 @@ class Workspace(QFrame):
         """
         if  object.isWidgetType() :
             document = object
-            if  document and event.type() == QEvent.Close :
+            if  event.type() == QEvent.Close:
                 event.ignore()
                 self.closeDocument( document )
                 return True
