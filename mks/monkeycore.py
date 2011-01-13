@@ -220,8 +220,10 @@ def term():
     
     Called by main()
     """
-    _searchreplace = None
-    _fileBrowser = None
+    global _searchreplace
+    del _searchreplace
+    global _fileBrowser
+    del _fileBrowser
     freshresource.qCleanupResources()
     mksiconsresource.qCleanupResources()
 

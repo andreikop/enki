@@ -59,7 +59,7 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
         """Plugin initialisation
         """
         QObject.__init__(self)
-        self.widget = SearchWidget( self )
+        self.widget = None
         
         mbar = mks.monkeycore.menuBar()
         def createAction(path, text, icon, shortcut, tooltip, slot, data):
@@ -68,7 +68,8 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
                                         QIcon(':/mksicons/' + icon))
             actObject.setShortcut(self.tr(shortcut))
             actObject.setToolTip(self.tr(tooltip))
-            actObject.triggered.connect(slot)
+            if slot:
+                actObject.triggered.connect(slot)
             actObject.setData(data)
 
         # List if search actions.
@@ -76,35 +77,35 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
         createAction("aSearchFile", "&Search...", 
                       "search.png", "Ctrl+F",
                       "Search in the current file...", 
-                      self.modeSwitchTriggered, self.ModeSearch)
+                      self._modeSwitchTriggered, self.ModeSearch)
         createAction("aSearchDirectory", "Search in &Directory...", 
                       "search-replace-directory.png", "Ctrl+Shift+F", 
                       "Search in directory...",
-                      self.modeSwitchTriggered, self.ModeSearchDirectory)
+                      self._modeSwitchTriggered, self.ModeSearchDirectory)
         createAction("aReplaceDirectory", "Replace in Director&y...",
                       "search-replace-directory.png", "Ctrl+Shift+R",
                       "Replace in directory...",
-                      self.modeSwitchTriggered, self.ModeReplaceDirectory)
+                      self._modeSwitchTriggered, self.ModeReplaceDirectory)
         createAction("aReplaceFile", "&Replace...",
                       "replace.png", "Ctrl+R",
                       "Replace in the current file...",
-                      self.modeSwitchTriggered, self.ModeReplace)
+                      self._modeSwitchTriggered, self.ModeReplace)
         createAction("aSearchPrevious", "Search &Previous",
                       "previous.png", "Shift+F3",
                       "Search previous occurrence",
-                      self.widget.on_pbPrevious_pressed, None)
+                      None, None)  # will be connected to search widget, when it is created
         createAction("aSearchNext", "Search &Next",
                       "next.png", "F3",
                       "Search next occurrence",
-                      self.widget.on_pbNext_pressed, None)
+                      None, None)  # will be connected to search widget, when it is created
         createAction("aSearchOpenedFiles", "Search in &Opened Files...",
                       "search-replace-opened-files.png",
                       "Ctrl+Alt+Meta+F", "Search in opened files...",
-                      self.modeSwitchTriggered, self.ModeSearchOpenedFiles)
+                      self._modeSwitchTriggered, self.ModeSearchOpenedFiles)
         createAction("aReplaceOpenedFiles", "Replace in Open&ed Files...",
                       "search-replace-opened-files.png", "Ctrl+Alt+Meta+R",
                       "Replace in opened files...",
-                      self.modeSwitchTriggered, self.ModeReplaceOpenedFiles)
+                      self._modeSwitchTriggered, self.ModeReplaceOpenedFiles)
         ''' TODO
                         ("aSearchProjectFiles", "Search in Project &Files...",
                         "search-replace-project-files.png", "Ctrl+Meta+F",
@@ -115,29 +116,19 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
                         "Replace in the current project files...",
                         self.modeSwitchTriggered, self.ModeReplaceProjectFiles),
         '''        
-        mks.monkeycore.workspace().layout().addWidget( self.widget )
-        self.widget.setVisible( False )
-        
-        self.dock = SearchResultsDock( self.widget.mSearchThread )
-        mks.monkeycore.mainWindow().dockToolBar( Qt.BottomToolBarArea ).\
-            addDockWidget(self.dock, self.dock.windowTitle(), self.dock.windowIcon())
-        self.dock.setVisible( False )
-
-        self.widget.setResultsDock( self.dock )
     
     def __del__(self):
         """Plugin termination
         """
-        mbar = mks.monkeycore.menuBar()
-        
-        mbar.beginGroup( "mEdit/mSearchReplace" )
-        for action in self.actions:
-            mbar.action( action[0]).deleteLater()
-        mbar.endGroup()
+        mks.monkeycore.menuBar().menu("mEdit/mSearchReplace").deleteLater()
     
-    def modeSwitchTriggered(self):
+    def _modeSwitchTriggered(self):
         """Changing mode, i.e. from "Search file" to "Replace file"
         """
+        
+        if not self.widget:
+            self._createWidgets()
+        
         newMode = self.sender().data().toInt()[0]
         # TODO if  ( document and document.editor() ) or not document :
         if newMode & SearchAndReplace.ModeFlagFile:
@@ -151,7 +142,19 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
             # TODO check if have file based document
             if mks.monkeycore.workspace().openedDocuments():
                 self.widget.setMode(newMode)
+    
+    def _createWidgets(self):
+        self.widget = SearchWidget( self )
+        mks.monkeycore.workspace().layout().addWidget( self.widget )
+        self.widget.setVisible( False )
+        
+        # FIXME create dock, only when have some search results!!!
+        self.dock = SearchResultsDock( self.widget.mSearchThread )
+        mks.monkeycore.mainWindow().dockToolBar( Qt.BottomToolBarArea ).\
+            addDockWidget(self.dock, self.dock.windowTitle(), self.dock.windowIcon())
+        self.dock.setVisible( False )
 
+        self.widget.setResultsDock( self.dock )
 
 class SearchContext:
     """Structure holds parameters of search or replace operation in progress
@@ -350,6 +353,9 @@ class SearchWidget(QFrame):
                                         self.replaceThread_openedFileHandled)
         self.mReplaceThread.error.connect(self.replaceThread_error)
         self.setMode( SearchAndReplace.ModeSearch )
+        
+        mks.monkeycore.menuBar().action("mEdit/mSearchReplace/aSearchNext").triggered.connect(self.on_pbNext_pressed)
+        mks.monkeycore.menuBar().action("mEdit/mSearchReplace/aSearchPrevious").triggered.connect(self.on_pbPrevious_pressed)
 
     def setResultsDock(self, dock ):
         """Set to widget pointer to the search results dock
