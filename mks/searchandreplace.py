@@ -470,14 +470,16 @@ class SearchWidget(QFrame):
                     self.pbNext.click()
                 elif self.mMode in (SearchAndReplace.ModeSearchDirectory, \
                                     SearchAndReplace.ModeSearchProjectFiles, \
-                                    SearchAndReplace.ModeSearchOpenedFiles):
-                    self.pbSearch.click()
-                elif self.mMode == SearchAndReplace.ModeReplace:
-                    self.pbReplace.click()
-                elif self.mMode in (SearchAndReplace.ModeReplaceDirectory, \
+                                    SearchAndReplace.ModeSearchOpenedFiles, \
+                                    SearchAndReplace.ModeReplaceDirectory, \
                                     SearchAndReplace.ModeReplaceProjectFiles, \
                                     SearchAndReplace.ModeReplaceOpenedFiles):
-                    self.pbReplaceChecked.click()
+                    if not self.mSearchThread.isRunning():
+                        self.pbSearch.click()
+                    else:
+                        self.pbSearchStop.click()
+                elif self.mMode == SearchAndReplace.ModeReplace:
+                    self.pbReplace.click()
 
         QFrame.keyPressEvent( self, event )
 
