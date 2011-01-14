@@ -5,7 +5,7 @@ import shutil
 import fnmatch
 
 from PyQt4.QtCore import Qt, QEvent
-from PyQt4.QtGui import QFrame, QInputDialog, QIcon
+from PyQt4.QtGui import QFrame, QInputDialog, QIcon, QMessageBox
 
 from PyQt4.Qsci import *
 
@@ -459,9 +459,10 @@ class Editor(mks.workspace.AbstractDocument):
         
         try:
             f = open(self.filePath(), 'w')
-        except IOError:
-            mks.monkeystudio.messageManager().appendMessage( \
-                    self.tr( "Cannot write to file '%s'. Error '%s'" % (dirPath, error))) # todo fix
+        except IOError, ex:
+            QMessageBox.critical(None,
+                                 self.tr("Can not write to file"),
+                                 unicode(str(ex), 'utf8'))
             return False
         
         try:
