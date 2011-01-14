@@ -40,6 +40,7 @@ class FileBrowser(QObject):
         QObject.__init__(self)
         # create dock
         self.dock = DockFileBrowser(mks.monkeycore.mainWindow())
+        self.dock.hide()
         # add dock to dock toolbar entry
         mks.monkeycore.mainWindow().dockToolBar( Qt.LeftToolBarArea ).addDockWidget( self.dock,
                                                                                      self.dock.windowTitle(),
@@ -135,9 +136,21 @@ class DockFileBrowser(pDockWidget):
         # restrict areas
         self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
         
-        # actions. Table (Text, icon name, slot, button index on tool bar)
-        # will be created after all widgets created
-        
+        """ FIXME
+        # create menu action for the dock
+        pActionsManager.setDefaultShortcut( self.dock.toggleViewAction(), QKeySequence( "F7" ) )
+        """
+        self.toggleViewAction().setShortcut("F7")
+        self.visibilityChanged.connect(self._onVisibilityChanged)
+    
+    def _onVisibilityChanged(self, visible):
+        if visible:
+            self._initialize()
+            self.visibilityChanged.disconnect(self._onVisibilityChanged)
+    
+    def _initialize(self):
+        """Delayed initialization of the widget for quicker start of application
+        """
         def createAction(text, icon, slot, index):
             """Create action object and add it to title bar
             """
@@ -229,12 +242,6 @@ class DockFileBrowser(pDockWidget):
         self.setCurrentFilePath( mks.settings.value("FileBrowser/FilePath") )
         self.mBookmarks = mks.settings.value("FileBrowser/Bookmarks")
         self.updateBookMarksMenu()
-        
-        """ FIXME
-        # create menu action for the dock
-        pActionsManager.setDefaultShortcut( self.dock.toggleViewAction(), QKeySequence( "F7" ) )
-        """
-        self.toggleViewAction().setShortcut("F7")
 
     def aUp_triggered(self):
         """Handler of click on Up button.
