@@ -905,7 +905,10 @@ class Workspace(QFrame):
                 '''
         # internal update
         if  document and document.filePath():
-            os.chdir( os.path.dirname(document.filePath()) )
+            try:
+                os.chdir( os.path.dirname(document.filePath()) )
+            except OSError, ex:  # directory might be deleted
+                print >> sys.stderr, 'Failed to change directory:', str(ex)
 
         self._oldCurrentDocument = document
         
