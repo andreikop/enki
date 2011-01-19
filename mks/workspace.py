@@ -992,6 +992,12 @@ class Workspace(QFrame):
         if  QFileInfo( file ).isFile() and self.mFileWatcher.files().contains( file ) :
             self.mFileWatcher.removePath( file )
         """
+        if len(self._sortedDocuments) > 1:  # not the last document
+            if document == self._sortedDocuments[-1]:  # the last document
+                self._activatePreviousDocument()
+            else:  # not the last
+                self._activateNextDocument()
+        
         self.documentClosed.emit( document )
         # close document
         self._unhandleDocument( document ) #FIXME make sure not always unhandleDocument
