@@ -344,7 +344,16 @@ class Editor(mks.workspace.AbstractDocument):
             with open(filePath, 'r') as f:
                 self._setFilePath(filePath)
                 
-                self.qscintilla.setText( unicode(f.read(), 'utf8') )  # FIXME replace 'utf8' with encoding
+                try:
+                    self.qscintilla.setText( unicode(f.read(), 'utf8') )  # FIXME replace 'utf8' with encoding
+                except UnicodeDecodeError, ex:
+                    QMessageBox.critical(None,
+                                         self.tr("Can not decode file"),
+                                         filePath + '\n' +
+                                         unicode(str(ex), 'utf8') + 
+                                        '\nProbably invalid encoding was set. ' +
+                                        'You may corrupt your file, if saved it')
+                    self.qscintilla.setText( unicode(f.read(), 'utf8', 'ignore') )  # FIXME replace 'utf8' with encoding
                 
                 # make backup if needed
                 if  mks.settings.value("Editor/CreateBackupUponOpen"):
