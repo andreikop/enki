@@ -62,7 +62,7 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
         self.widget = None
         
         mbar = mks.monkeycore.menuBar()
-        def createAction(path, text, icon, shortcut, tooltip, slot, data):
+        def createAction(path, text, icon, shortcut, tooltip, slot, data, enabled=True):
             actObject = mbar.addAction( 'mEdit/mSearchReplace/' + path,
                                         self.tr(text),
                                         QIcon(':/mksicons/' + icon))
@@ -71,6 +71,7 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
             if slot:
                 actObject.triggered.connect(slot)
             actObject.setData(data)
+            actObject.setEnabled(enabled)
 
         # List if search actions.
         # First acition created by MainWindow, so, do not fill text
@@ -93,11 +94,13 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
         createAction("aSearchPrevious", "Search &Previous",
                       "previous.png", "Shift+F3",
                       "Search previous occurrence",
-                      None, None)  # will be connected to search widget, when it is created
+                      None, None,
+                      False)  # will be connected to search widget, when it is created
         createAction("aSearchNext", "Search &Next",
                       "next.png", "F3",
                       "Search next occurrence",
-                      None, None)  # will be connected to search widget, when it is created
+                      None, None,
+                      False)  # will be connected to search widget, when it is created
         createAction("aSearchOpenedFiles", "Search in &Opened Files...",
                       "search-replace-opened-files.png",
                       "Ctrl+Alt+Meta+F", "Search in opened files...",
@@ -341,7 +344,8 @@ class SearchWidget(QFrame):
         """
 
         # connections
-        self.cbSearch.lineEdit().textEdited.connect(self.search_textChanged)
+        self.cbSearch.lineEdit().textChanged.connect(self.search_textChanged)
+        self.cbSearch.lineEdit().textEdited.connect(self.search_textEdited)
         self.tbCdUp.clicked.connect(self.cdUp_pressed)
         self.mSearchThread.started.connect(self.searchThread_stateChanged)
         self.mSearchThread.finished.connect(self.searchThread_stateChanged)
@@ -356,6 +360,13 @@ class SearchWidget(QFrame):
         
         mks.monkeycore.menuBar().action("mEdit/mSearchReplace/aSearchNext").triggered.connect(self.on_pbNext_pressed)
         mks.monkeycore.menuBar().action("mEdit/mSearchReplace/aSearchPrevious").triggered.connect(self.on_pbPrevious_pressed)
+        
+        self.pbSearch.setEnabled(False)
+        self.pbNext.setEnabled(False)
+        self.pbPrevious.setEnabled(False)
+        mks.monkeycore.menuBar().action("mEdit/mSearchReplace/aSearchNext").setEnabled(False)
+        mks.monkeycore.menuBar().action("mEdit/mSearchReplace/aSearchPrevious").setEnabled(False)
+
 
     def setResultsDock(self, dock ):
         """Set to widget pointer to the search results dock
@@ -761,11 +772,23 @@ class SearchWidget(QFrame):
         """
         mks.monkeycore.messageManager().appendMessage( error )
 
+    def search_textEdited(self):
+        """User edited search text, do incremental search
+        """
+        haveText = bool(self.cbSearch.currentText())
+        
+        self.pbSearch.setEnabled(haveText)
+        self.pbNext.setEnabled(haveText)
+        self.pbPrevious.setEnabled(haveText)
+        mks.monkeycore.menuBar().action("mEdit/mSearchReplace/aSearchNext").setEnabled(haveText)
+        mks.monkeycore.menuBar().action("mEdit/mSearchReplace/aSearchPrevious").setEnabled(haveText)
+
+    
     def search_textChanged(self):
         """User edited search text, do incremental search
         """
         self.initializeSearchContext( True )
-        
+            
         # clear search results if needed.
         if self.mMode == SearchAndReplace.ModeSearch:
             self.searchFile( True, True )
@@ -801,9 +824,7 @@ class SearchWidget(QFrame):
         self.updateComboBoxes()
         self.initializeSearchContext( False )
         
-        if not self.mSearchContext.searchText:
-            mks.monkeycore.messageManager().appendMessage( self.tr( "You can't search for NULL text." ) )
-            return
+        assert self.mSearchContext.searchText
         
         """TODO
         if  self.mSearchContext.mMode & SearchAndReplace.ModeFlagProjectFiles and not self.mSearchContext.project :
