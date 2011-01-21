@@ -1430,13 +1430,17 @@ class ReplaceThread(StopableThread):
             try:
                 content = content.encode(encoding)
             except UnicodeEncodeError, ex:
-                self.error.emit( self.tr( "Failed to encode file to %s: %s" % (encoding, str(ex)) ) )
+                pattern = unicode(self.tr("Failed to encode file to %s: %s"), 'utf_8')
+                text = unicode(str(ex), 'utf_8')
+                self.error.emit(pattern % (encoding, text))
                 return
         try:
             with open(fileName, 'w') as openFile:
                 openFile.write(content)
         except IOError, ex:
-            self.error.emit( self.tr( "Error while saving replaced content: %s" % str(ex) ) )
+            pattern = unicode(self.tr("Error while saving replaced content: %s"), 'utf_8')
+            text = unicode(str(ex), 'utf_8')
+            self.error.emit(pattern % text)
 
     def _fileContent(self, fileName, encoding=None):
         """Read file
