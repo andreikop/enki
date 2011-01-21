@@ -42,7 +42,7 @@ _projectsManager = None
 _fileManager = None
 
 _consoleManager = None
-_messageManager = None
+
 _statusBar = None
 _interpreter = None
 _abbreviationsManager = None
@@ -297,13 +297,13 @@ def consoleManager():
     if _consoleManager is None:
         _consoleManager = pConsoleManager( mainWindow() )
     return _consoleManager
-
+"""
 def messageManager():
-    global _messageManager
-    if _messageManager is None:
-        _messageManager = pQueuedMessageToolBar( mainWindow() )
-    return _messageManager
+    """pQueuedMessageToolBar used for show popup messages
+    """
+    return mainWindow().queuedMessageToolBar()
 
+"""
 def statusBar():
     global _statusBar
     if _statusBar is None:
