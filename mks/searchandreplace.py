@@ -222,7 +222,7 @@ class SearchWidget(QFrame):
         self.mMode = None
         self.mSearchContext = None
         self.plugin = plugin
-        uic.loadUi(os.path.join(mks.monkeycore.uiFilesPath(),
+        uic.loadUi(os.path.join(mks.monkeycore.dataFilesPath(),
                    'SearchWidget.ui'),
                    self)
         

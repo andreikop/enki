@@ -148,7 +148,7 @@ def value(optionName):
     
     Example: ::
     
-        self.qscintilla.setEdgeColor( mks.settings.value("Editor/EdgeColor") )
+        self.qscintilla.setEdgeColor( mks.monkeycore.config()["Editor"]["EdgeColor"] )
     
     Functions for register new option and change opiton value will be added later
     """
@@ -372,3 +372,25 @@ class Settings (pSettings):
             if  write :
                 lexer.writeSettings( *this, pMonkeyStudio.scintillaSettingsPath().toLocal8Bit().constData() )
     """
+from configobj import ConfigObj
+config = ConfigObj()
+config.filename = 'config.cfg'
+
+for option in _defaults.keys():
+    parts = option.split('/')
+    if len(parts) == 2:
+        if parts[0] not in config:
+            config[parts[0]] = {}
+        if isinstance(_defaults[option], QColor):
+            config[parts[0]][parts[1]] = _defaults[option].name()
+        elif isinstance(_defaults[option], QFont):
+            config[parts[0]][parts[1]] = _defaults[option].toString()
+        else:
+            config[parts[0]][parts[1]] = _defaults[option]
+    elif len(parts) == 3:
+        if parts[0] not in config:
+            config[parts[0]] = {}
+        if parts[1] not in config[parts[0]]:
+            config[parts[0]][parts[1]] = {}
+        config[parts[0]][parts[1]][parts[2]] = _defaults[option]
+config.write()

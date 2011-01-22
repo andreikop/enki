@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(name='mksv3',
             version='1.0',
-            packages=['mks'],
-            package_data={'mks' : ['*.ui']},
+            packages=['mks', 'mks/_3rdparty'],
+            package_data={'mks' : ['*.ui', '*.cfg']},
             scripts=['./mksv3']
             )

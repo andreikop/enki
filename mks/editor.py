@@ -5,14 +5,12 @@ import shutil
 import fnmatch
 
 from PyQt4.QtCore import Qt, QEvent
-from PyQt4.QtGui import QFrame, QInputDialog, QIcon, QMessageBox
+from PyQt4.QtGui import QColor, QFont, QFrame, QInputDialog, QIcon, QMessageBox
 
 from PyQt4.Qsci import *
 
 import mks.monkeystudio
 import mks.workspace
-import mks.settings
-
 
 """TODO move this code to the pChild class
 class _pEditor(QsciScintilla):
@@ -279,63 +277,68 @@ class Editor(mks.workspace.AbstractDocument):
         self.qscintilla.linesChanged.connect(self._onLinesChanged)
         
         # Load settings
-        self.qscintilla.setSelectionBackgroundColor( mks.settings.value("Editor/SelectionBackgroundColor"))
-        self.qscintilla.setSelectionForegroundColor( mks.settings.value("Editor/SelectionForegroundColor"))
-        if  mks.settings.value("Editor/DefaultDocumentColours") :
+        myConfig = mks.monkeycore.config()["Editor"]
+        self.qscintilla.setSelectionBackgroundColor( QColor(myConfig["SelectionBackgroundColor"]))
+        self.qscintilla.setSelectionForegroundColor( QColor(myConfig["SelectionForegroundColor"]))
+        if myConfig["DefaultDocumentColours"]:
             # set scintilla default colors
-            self.qscintilla.setColor( mks.settings.value("Editor/DefaultDocumentPen" ))
-            self.qscintilla.setPaper( mks.settings.value("Editor/DefaultDocumentPaper" ))
+            self.qscintilla.setColor( QColor(myConfig["DefaultDocumentPen"]))
+            self.qscintilla.setPaper( QColor(myConfig["DefaultDocumentPaper"]))
 
-        self.qscintilla.setFont( mks.settings.value("Editor/DefaultDocumentFont" ))
+        self.qscintilla.setFont( QFont(myConfig["DefaultDocumentFont"]))
         # Auto Completion
-        self.qscintilla.setAutoCompletionCaseSensitivity( mks.settings.value("Editor/AutoCompletionCaseSensitivity"))
-        self.qscintilla.setAutoCompletionReplaceWord( mks.settings.value("Editor/AutoCompletionReplaceWord" ))
-        self.qscintilla.setAutoCompletionShowSingle( mks.settings.value("Editor/AutoCompletionShowSingle" ))
-        self.qscintilla.setAutoCompletionSource( mks.settings.value("Editor/AutoCompletionSource") )
-        self.qscintilla.setAutoCompletionThreshold( mks.settings.value("Editor/AutoCompletionThreshold") )
+        self.qscintilla.setAutoCompletionCaseSensitivity( myConfig["AutoCompletion"]["CaseSensitivity"])
+        self.qscintilla.setAutoCompletionReplaceWord( myConfig["AutoCompletion"]["ReplaceWord"])
+        self.qscintilla.setAutoCompletionShowSingle( myConfig["AutoCompletion"]["ShowSingle"])
+        self.qscintilla.setAutoCompletionSource( myConfig["AutoCompletion"]["Source"] )
+        self.qscintilla.setAutoCompletionThreshold( myConfig["AutoCompletion"]["Threshold"] )
         # CallTips
-        self.qscintilla.setCallTipsBackgroundColor( mks.settings.value("Editor/CallTipsBackgroundColor") )
-        self.qscintilla.setCallTipsForegroundColor( mks.settings.value("Editor/CallTipsForegroundColor") )
-        self.qscintilla.setCallTipsHighlightColor( mks.settings.value("Editor/CallTipsHighlightColor") )
-        self.qscintilla.setCallTipsStyle( mks.settings.value("Editor/CallTipsStyle") )
-        self.qscintilla.setCallTipsVisible( mks.settings.value("Editor/CallTipsVisible") )
+        self.qscintilla.setCallTipsVisible( myConfig["CallTips"]["Visible"] )
+        self.qscintilla.setCallTipsBackgroundColor( QColor(myConfig["CallTips"]["BackgroundColor"] ))
+        self.qscintilla.setCallTipsForegroundColor( QColor(myConfig["CallTips"]["ForegroundColor"] ))
+        self.qscintilla.setCallTipsHighlightColor( QColor(myConfig["CallTips"]["HighlightColor"] ))
+        self.qscintilla.setCallTipsStyle( myConfig["CallTips"]["Style"] )
         # Indentation
-        self.qscintilla.setAutoIndent( mks.settings.value("Editor/AutoIndent") )
-        self.qscintilla.setBackspaceUnindents( mks.settings.value("Editor/BackspaceUnindents") )
-        self.qscintilla.setIndentationGuides( mks.settings.value("Editor/IndentationGuides") )
-        self.qscintilla.setIndentationsUseTabs( mks.settings.value("Editor/IndentationsUseTabs") )
-        self.qscintilla.setIndentationWidth( mks.settings.value("Editor/IndentationWidth") )
-        self.qscintilla.setTabIndents( mks.settings.value("Editor/TabIndents") )
-        self.qscintilla.setTabWidth( mks.settings.value("Editor/TabWidth") )
-        self.qscintilla.setIndentationGuidesBackgroundColor( mks.settings.value("Editor/IndentationGuidesBackgroundColor") )
-        self.qscintilla.setIndentationGuidesForegroundColor( mks.settings.value("Editor/IndentationGuidesForegroundColor") )
+        self.qscintilla.setAutoIndent( myConfig["Indentation"]["AutoIndent"] )
+        self.qscintilla.setBackspaceUnindents( myConfig["Indentation"]["BackspaceUnindents"] )
+        self.qscintilla.setIndentationGuides( myConfig["Indentation"]["Guides"] )
+        self.qscintilla.setIndentationGuidesBackgroundColor( QColor(myConfig["Indentation"]["GuidesBackgroundColor"] ))
+        self.qscintilla.setIndentationGuidesForegroundColor( QColor(myConfig["Indentation"]["GuidesForegroundColor"] ))
+        self.qscintilla.setIndentationsUseTabs( myConfig["Indentation"]["UseTabs"] )
+        self.qscintilla.setIndentationWidth( myConfig["Indentation"]["Width"] )
+        self.qscintilla.setTabIndents( myConfig["Indentation"]["TabIndents"] )
+        self.qscintilla.setTabWidth( myConfig["Indentation"]["TabWidth"] )
         # Brace Matching
-        self.qscintilla.setBraceMatching( mks.settings.value("Editor/BraceMatching") )
-        self.qscintilla.setMatchedBraceBackgroundColor( mks.settings.value("Editor/MatchedBraceBackgroundColor") )
-        self.qscintilla.setMatchedBraceForegroundColor( mks.settings.value("Editor/MatchedBraceForegroundColor") )
-        self.qscintilla.setUnmatchedBraceBackgroundColor( mks.settings.value("Editor/UnmatchedBraceBackgroundColor") )
-        self.qscintilla.setUnmatchedBraceForegroundColor( mks.settings.value("Editor/UnmatchedBraceForegroundColor") )
+        self.qscintilla.setBraceMatching( myConfig["BraceMatching"]["Mode"] )
+        self.qscintilla.setMatchedBraceBackgroundColor( QColor(myConfig["BraceMatching"]["MatchedBackgroundColor"] ))
+        self.qscintilla.setMatchedBraceForegroundColor( QColor(myConfig["BraceMatching"]["MatchedForegroundColor"] ))
+        self.qscintilla.setUnmatchedBraceBackgroundColor( QColor(myConfig["BraceMatching"]["UnmatchedBackgroundColor"] ))
+        self.qscintilla.setUnmatchedBraceForegroundColor( QColor(myConfig["BraceMatching"]["UnmatchedForegroundColor"] ))
         # Edge Mode
-        self.qscintilla.setEdgeMode( mks.settings.value("Editor/EdgeMode") )
-        self.qscintilla.setEdgeColor( mks.settings.value("Editor/EdgeColor") )
-        self.qscintilla.setEdgeColumn( mks.settings.value("Editor/EdgeColumn") )
+        self.qscintilla.setEdgeMode( myConfig["Edge"]["Mode"] )
+        self.qscintilla.setEdgeColor( QColor(myConfig["Edge"]["Color"] ))
+        self.qscintilla.setEdgeColumn( myConfig["Edge"]["Column"] )
         # Caret
-        self.qscintilla.setCaretLineVisible( mks.settings.value("Editor/CaretLineVisible") )
-        self.qscintilla.setCaretLineBackgroundColor( mks.settings.value("Editor/CaretLineBackgroundColor") )
-        self.qscintilla.setCaretForegroundColor( mks.settings.value("Editor/CaretForegroundColor") )
-        self.qscintilla.setCaretWidth( mks.settings.value("Editor/CaretWidth") )
+        self.qscintilla.setCaretLineVisible( myConfig["Caret"]["LineVisible"] )
+        self.qscintilla.setCaretLineBackgroundColor( QColor(myConfig["Caret"]["LineBackgroundColor"] ))
+        self.qscintilla.setCaretForegroundColor( QColor(myConfig["Caret"]["ForegroundColor"] ))
+        self.qscintilla.setCaretWidth( myConfig["Caret"]["Width"] )
         
         # Special Characters
-        eolConvertor = {'\n': QsciScintilla.EolUnix, '\r\n' : QsciScintilla.EolWindows}
-        self.qscintilla.setEolMode( eolConvertor[mks.settings.value("Editor/EolMode")] )
-        self.qscintilla.setEolVisibility( mks.settings.value("Editor/EolVisibility") )
-        self.qscintilla.setWhitespaceVisibility( mks.settings.value("Editor/WhitespaceVisibility") )
-        self.qscintilla.setWrapMode( mks.settings.value("Editor/WrapMode") )
-        self.qscintilla.setWrapVisualFlags( mks.settings.value("Editor/EndWrapVisualFlag"), mks.settings.value("Editor/StartWrapVisualFlag"), mks.settings.value("Editor/WrappedLineIndentWidth") )
+        eolConvertor = {r'\n': QsciScintilla.EolUnix, r'\r\n' : QsciScintilla.EolWindows}
+        self.qscintilla.setEolMode( eolConvertor[myConfig["EOL"]["Mode"]] )
+        self.qscintilla.setEolVisibility( myConfig["EOL"]["Visibility"] )
+        
+        self.qscintilla.setWhitespaceVisibility( myConfig["WhitespaceVisibility"] )
+        
+        self.qscintilla.setWrapMode( myConfig["Wrap"]["Mode"] )
+        self.qscintilla.setWrapVisualFlags( myConfig["Wrap"]["EndVisualFlag"],
+                                            myConfig["Wrap"]["StartVisualFlag"],
+                                            myConfig["Wrap"]["LineIndentWidth"] )
         
         lexer = self._lexerForFileName( filePath )
         if lexer:
-            lexer.setDefaultFont(mks.settings.value("Editor/DefaultDocumentFont" ))
+            lexer.setDefaultFont(QFont(myConfig["DefaultDocumentFont"]))
             self.qscintilla.setLexer(lexer)
 
         # open file
@@ -356,7 +359,7 @@ class Editor(mks.workspace.AbstractDocument):
                     self.qscintilla.setText( unicode(f.read(), 'utf8', 'ignore') )  # FIXME replace 'utf8' with encoding
                 
                 # make backup if needed
-                if  mks.settings.value("Editor/CreateBackupUponOpen"):
+                if  myConfig["CreateBackupUponOpen"]:
                     shutil.copy(self.filePath(), self.filePath() + '.bak')
                 
         except IOError, ex:  # exception in constructor
@@ -367,19 +370,19 @@ class Editor(mks.workspace.AbstractDocument):
         self.qscintilla.setModified( False )
         
         #autodetect indent, need
-        if  mks.settings.value("Editor/AutoDetectIndent"):
+        if  myConfig["Indentation"]["AutoDetect"]:
             self._autoDetectIndent()
         
         # convert tabs if needed
-        if  mks.settings.value("Editor/ConvertTabsUponOpen"):
+        if  myConfig["Indentation"]["ConvertUponOpen"]:
             self._convertTabs()
         
         #autodetect eol, need
-        if  mks.settings.value("Editor/AutoDetectEol"):
+        if  myConfig["EOL"]["AutoDetect"]:
             self._autoDetectEol()
         
         # convert eol
-        if  mks.settings.value("Editor/AutoEolConversion"):
+        if  myConfig["EOL"]["AutoConvert"]:
             self.qscintilla.convertEols( self.qscintilla.eolMode() )
 
         
@@ -393,7 +396,7 @@ class Editor(mks.workspace.AbstractDocument):
     
     def _lexerForFileName(self, fileName ):
         for language in _lexerForLanguage.keys():
-            for pattern in mks.settings.value("Editor/Assotiations/" + language):
+            for pattern in mks.monkeycore.config()["Editor"]["Assotiations"][language]:
                 if  fnmatch.fnmatch(fileName , pattern)  :
                     lexerClass =  _lexerForLanguage[language]
                     return lexerClass()
