@@ -17,13 +17,16 @@ from datetime import datetime
 from PyQt4.QtGui import *
 
 import main
-import mks.settings
 """
 import os.path
 
 from PyQt4.QtGui import qApp
 
 from PyQt4.fresh import pSettings
+
+from _3rdparty.configobj import ConfigObj, flatten_errors
+from _3rdparty.validate import Validator
+
 
 import mksiconsresource
 import freshresource
@@ -33,9 +36,9 @@ _workspace = None
 
 _searchreplace = None
 _fileBrowser = None
-
+_config = None
 """TODO
-_settings = None
+
 _pluginsManager = None
 _recentsManager = None
 _projectsManager = None
@@ -62,8 +65,9 @@ def _showMessage(splash, message):
     splash.show()
 """
 
-def uiFilesPath():
-    """Returns path, where .ui files installed.
+def dataFilesPath():
+    """Returns path, where data files installed.
+    Currently data files are .ui and configuration
     TODO find good place for this function
     """
     return os.path.dirname(__file__)
@@ -256,14 +260,35 @@ def workspace():
         _workspace = mks.workspace.Workspace(mainWindow())
     return _workspace
 
+def config():
+    """ConfigObj istance used for read and write settings
+    ConfigObj is cool config file reader and writer. Home page and documentation:
+        http://www.voidspace.org.uk/python/configobj.html
+    """
+    global _config
+    if _config is None:
+        defaultConfPath = os.path.join(dataFilesPath(), 'mksv3.default.cfg')
+        specPath = os.path.join(dataFilesPath(), 'mksv3.spec.cfg')
+        _config = ConfigObj(defaultConfPath, configspec=specPath)
+        validator = Validator()
+        errors = _config.validate(validator, preserve_errors=True)
+        if errors:
+            message_string = ''
+            for entry in flatten_errors(_config, errors):
+                # each entry is a tuple
+                section_list, key, error = entry
+                if key is not None:
+                   section_list.append(key)
+                else:
+                    section_list.append('[missing section]')
+                section_string = ', '.join(section_list)
+                if error == False:
+                    error = 'Missing value or section.'
+                message_string += section_string + ' = ' + error
+            print message_string
+    return _config
 
 """TODO
-def settings():
-    global _settings
-    if _settings is None:
-        _settings = mks.settings.Settings()
-    return _settings
-
 def pluginsManager():
     global _pluginsManager
     if _pluginsManager:

@@ -16,7 +16,6 @@ from PyQt4.fresh import pDockWidget
 from PyQt4.fresh import pStringListEditor
 
 import mks.monkeycore
-import mks.settings
 
 """
     def fillPluginInfos(self):
@@ -65,7 +64,7 @@ class FileBrowserSettings(QWidget):
         
         # list editor
         self.editor = pStringListEditor( self, self.tr( "Except Suffixes" ) )
-        self.editor.setValues( mks.settings.value("FileBrowser/NegativeFilter") )
+        self.editor.setValues( mks.monkeycore.config()["FileBrowser"]["NegativeFilter"] )
         
         # apply button
         dbbApply = QDialogButtonBox( self )
@@ -84,7 +83,7 @@ class FileBrowserSettings(QWidget):
         """
         pyStrList = map(str, self.editor.values())
         """FIXME
-        mks.settings.setValue( "NegativeFilter", pyStrList)
+        mks.monkeycore.config()["FileBrowser"]["NegativeFilter"] = pyStrList
         """
         self.plugin.dock.setFilters(pyStrList)
 
@@ -207,7 +206,7 @@ class DockFileBrowser(pDockWidget):
         # create proxy model
         self.mFilteredModel = FileBrowserFilteredModel( self )
         self.mFilteredModel.setSourceModel( self.mDirsModel )
-        self.setFilters(mks.settings.value("FileBrowser/NegativeFilter"))
+        self.setFilters(mks.monkeycore.config()["FileBrowser"]["NegativeFilter"])
         
         # files view
         self.mTree = QTreeView()
@@ -238,9 +237,9 @@ class DockFileBrowser(pDockWidget):
         self.mBookmarksMenu.triggered.connect(self.bookmark_triggered)
         self.mTree.activated.connect(self.tv_activated)
         
-        self.setCurrentPath( mks.settings.value("FileBrowser/Path") )
-        self.setCurrentFilePath( mks.settings.value("FileBrowser/FilePath") )
-        self.mBookmarks = mks.settings.value("FileBrowser/Bookmarks")
+        self.setCurrentPath( mks.monkeycore.config()["FileBrowser"]["Path"] )
+        self.setCurrentFilePath( mks.monkeycore.config()["FileBrowser"]["FilePath"] )
+        self.mBookmarks = mks.monkeycore.config()["FileBrowser"]["Bookmarks"]
         self.updateBookMarksMenu()
 
     def aUp_triggered(self):
