@@ -19,12 +19,13 @@ from PyQt4.QtGui import *
 import main
 """
 import os.path
+import shutil
 
 from PyQt4.QtGui import qApp
 
 from PyQt4.fresh import pSettings
 
-from _3rdparty.configobj import ConfigObj, flatten_errors
+from _3rdparty.configobj import ConfigObj, flatten_errors, ParseError
 from _3rdparty.validate import Validator
 
 
@@ -37,6 +38,21 @@ _workspace = None
 _searchreplace = None
 _fileBrowser = None
 _config = None
+
+
+def dataFilesPath():
+    """Returns path, where data files installed.
+    Currently data files are .ui and configuration
+    TODO find good place for this function
+    """
+    return os.path.dirname(__file__)
+
+
+_DEFAULT_CONFIG_PATH = os.path.join(dataFilesPath(), 'mksv3.default.cfg')
+_DEFAULT_CONFIG_SPEC_PATH = os.path.join(dataFilesPath(), 'mksv3.spec.cfg')
+_CONFIG_PATH = os.path.expanduser('~/.mksv3.cfg')
+
+
 """TODO
 
 _pluginsManager = None
@@ -64,14 +80,6 @@ def _showMessage(splash, message):
     splash.hide()
     splash.show()
 """
-
-def dataFilesPath():
-    """Returns path, where data files installed.
-    Currently data files are .ui and configuration
-    TODO find good place for this function
-    """
-    return os.path.dirname(__file__)
-
 
 def init():
     """Initialize the system, create main window, load plugins.
@@ -228,6 +236,13 @@ def term():
     del _searchreplace
     global _fileBrowser
     del _fileBrowser
+    
+    # Save configuration
+    global _config
+    if _config.filename != _DEFAULT_CONFIG_PATH:
+        _config.write()
+    del _config
+    
     freshresource.qCleanupResources()
     mksiconsresource.qCleanupResources()
 
@@ -266,26 +281,67 @@ def config():
         http://www.voidspace.org.uk/python/configobj.html
     """
     global _config
-    if _config is None:
-        defaultConfPath = os.path.join(dataFilesPath(), 'mksv3.default.cfg')
-        specPath = os.path.join(dataFilesPath(), 'mksv3.spec.cfg')
-        _config = ConfigObj(defaultConfPath, configspec=specPath)
-        validator = Validator()
-        errors = _config.validate(validator, preserve_errors=True)
-        if errors:
+    if _config is None:        
+        # Create config file in the users home
+        failed = False
+        if not os.path.exists(_CONFIG_PATH):
+            try:
+                shutil.copyfile(_DEFAULT_CONFIG_PATH, _CONFIG_PATH)
+            except IOError, ex:
+                messageManager().appendMessage('Failed to create configuration file. Error' + 
+                                                unicode(str(ex), 'utf_8') + 
+                                                '\nUsing default configuration')
+                failed = True
+        
+        # Open config file
+        if not failed:
+            try:
+                _config = ConfigObj(_CONFIG_PATH, configspec=_DEFAULT_CONFIG_SPEC_PATH)
+            except ParseError, ex:
+                messageManager().appendMessage('Failed to parse configuration file ' + 
+                                                _CONFIG_PATH + 
+                                                '\n Error:' + 
+                                                unicode(str(ex), 'utf_8') + 
+                                                '\n Fix the file or delete it.' + 
+                                                '\nUsing default configuration')
+                failed = True
+        
+        # Validate config file
+        def _validateConfig(config):
             message_string = ''
-            for entry in flatten_errors(_config, errors):
-                # each entry is a tuple
-                section_list, key, error = entry
-                if key is not None:
-                   section_list.append(key)
-                else:
-                    section_list.append('[missing section]')
-                section_string = ', '.join(section_list)
-                if error == False:
-                    error = 'Missing value or section.'
-                message_string += section_string + ' = ' + error
-            print message_string
+            validator = Validator()
+            errors = _config.validate(validator, preserve_errors=True)
+            if errors:
+                for entry in flatten_errors(config, errors):
+                    # each entry is a tuple
+                    section_list, key, error = entry
+                    if key is not None:
+                       section_list.append(key)
+                    else:
+                        section_list.append('[missing section]')
+                    section_string = ', '.join(section_list)
+                    if error == False:
+                        error = 'Missing value or section.'
+                    message_string += (section_string + ' = ' + str(error))
+            return message_string
+
+        if not failed:
+            message_string = _validateConfig(_config)
+            if message_string:
+                messageManager().appendMessage('Invalid configuration file ' + 
+                                                _CONFIG_PATH + 
+                                                '\n Error:' + 
+                                                message_string + 
+                                                '\n Fix the file or delete it.' + 
+                                                '\nUsing default configuration')
+                failed = True
+        
+        # Open default, if failed to use config in the users home
+        if failed:
+            _config = ConfigObj(_DEFAULT_CONFIG_PATH, configspec=_DEFAULT_CONFIG_SPEC_PATH)
+            message_string = _validateConfig(_config)
+            assert not message_string  # default config MUST be valid
+    
     return _config
 
 """TODO
