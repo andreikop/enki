@@ -285,7 +285,7 @@ class Editor(mks.workspace.AbstractDocument):
             self.qscintilla.setColor( QColor(myConfig["DefaultDocumentPen"]))
             self.qscintilla.setPaper( QColor(myConfig["DefaultDocumentPaper"]))
 
-        self.qscintilla.setFont( QFont(myConfig["DefaultDocumentFont"]))
+        self.qscintilla.setFont( QFont(myConfig["DefaultFont"], myConfig["DefaultFontSize"]))
         # Auto Completion
         self.qscintilla.setAutoCompletionCaseSensitivity( myConfig["AutoCompletion"]["CaseSensitivity"])
         self.qscintilla.setAutoCompletionReplaceWord( myConfig["AutoCompletion"]["ReplaceWord"])
@@ -338,7 +338,7 @@ class Editor(mks.workspace.AbstractDocument):
         
         lexer = self._lexerForFileName( filePath )
         if lexer:
-            lexer.setDefaultFont(QFont(myConfig["DefaultDocumentFont"]))
+            lexer.setDefaultFont(QFont(myConfig["DefaultFont"], myConfig["DefaultFontSize"]))
             self.qscintilla.setLexer(lexer)
 
         # open file
