@@ -285,7 +285,8 @@ class Editor(mks.workspace.AbstractDocument):
             self.qscintilla.setColor( QColor(myConfig["DefaultDocumentPen"]))
             self.qscintilla.setPaper( QColor(myConfig["DefaultDocumentPaper"]))
 
-        self.qscintilla.setFont( QFont(myConfig["DefaultFont"], myConfig["DefaultFontSize"]))
+        defaultFont = QFont(myConfig["DefaultFont"], myConfig["DefaultFontSize"])
+        self.qscintilla.setFont(defaultFont)
         # Auto Completion
         self.qscintilla.setAutoCompletionCaseSensitivity( myConfig["AutoCompletion"]["CaseSensitivity"])
         self.qscintilla.setAutoCompletionReplaceWord( myConfig["AutoCompletion"]["ReplaceWord"])
@@ -338,7 +339,14 @@ class Editor(mks.workspace.AbstractDocument):
         
         lexer = self._lexerForFileName( filePath )
         if lexer:
-            lexer.setDefaultFont(QFont(myConfig["DefaultFont"], myConfig["DefaultFontSize"]))
+            lexer.setDefaultFont(defaultFont)
+            for i in range(128):
+                if lexer.description(i):
+                    #lexer->setColor( lexer->defaultColor( i ), i );  # TODO full configuration of lexer styles
+                    #lexer->setEolFill( lexer->defaultEolFill( i ), i );
+                    lexer.setFont( defaultFont, i );
+                    #lexer->setPaper( lexer->defaultPaper( i ), i );
+
             self.qscintilla.setLexer(lexer)
 
         # open file
