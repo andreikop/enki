@@ -90,7 +90,7 @@ def init():
     # FIXME find good parameters and good place for this code
     pSettings.setDefaultProperties(pSettings.Properties(qApp.applicationName(), \
                                                         "1.0.0",
-                                                        pSettings.Portable))
+                                                        pSettings.Normal))
     
     """TODO
     # create splashscreen
