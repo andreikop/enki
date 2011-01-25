@@ -30,7 +30,7 @@ from PyQt4.QtGui import QTreeView, QMdiSubWindow, QMdiArea, QFileDialog, \
                         QFrame, QKeySequence, QVBoxLayout, QApplication, \
                         QIcon, QMenu, \
                         QMessageBox, QAction, QActionGroup
-from PyQt4.QtCore import Qt, QObject, QAbstractItemModel, QTimer, QMimeData, \
+from PyQt4.QtCore import QByteArray, Qt, QObject, QAbstractItemModel, QTimer, QMimeData, \
                          QEvent, QFileInfo, QModelIndex, QVariant, pyqtSignal
 
 import PyQt4.fresh
