@@ -30,7 +30,7 @@ from PyQt4.QtGui import QTreeView, QMdiSubWindow, QMdiArea, QFileDialog, \
                         QFrame, QKeySequence, QVBoxLayout, QApplication, \
                         QIcon, QMenu, \
                         QMessageBox, QAction, QActionGroup
-from PyQt4.QtCore import QByteArray, Qt, QObject, QAbstractItemModel, QTimer, QMimeData, \
+from PyQt4.QtCore import QByteArray, Qt, QObject, QAbstractItemModel, QMimeData, \
                          QEvent, QFileInfo, QModelIndex, QVariant, pyqtSignal
 
 import PyQt4.fresh
@@ -58,10 +58,6 @@ class _OpenedFileModel(QAbstractItemModel):
     def __init__(self, parentObject):
         QAbstractItemModel.__init__(self, parentObject )
         self.mSortMode = _OpenedFileModel.OpeningOrder
-        self.mSortDocumentsTimer = QTimer( self )
-        self.mSortDocumentsTimeout = 150
-        
-        self.mSortDocumentsTimer.timeout.connect(self.sortDocuments_timeout)
         parentObject.parent().documentOpened.connect(self.documentOpened)
         parentObject.parent()._documentModifiedChanged.connect(self.documentModifiedChanged)
         parentObject.parent().documentClosed.connect(self.documentClosed)
@@ -199,7 +195,34 @@ class _OpenedFileModel(QAbstractItemModel):
             self.sortDocuments()
 
     def sortDocuments(self):
-        self.mSortDocumentsTimer.start( self.mSortDocumentsTimeout )
+        newDocuments = copy.copy(mks.monkeycore.workspace()._sortedDocuments)
+        
+        if self.mSortMode == self.OpeningOrder:
+            newDocuments.sort(lambda a, b: cmp(mks.monkeycore.workspace()._sortedDocuments.index(a), mks.monkeycore.workspace()._sortedDocuments.index(b)))
+        elif self.mSortMode == self.FileName:
+            newDocuments.sort(lambda a, b: cmp(a.fileName(), b.fileName()))
+        elif self.mSortMode == self.URL:
+            newDocuments.sort(lambda a, b: cmp(a.filePath(), b.filePath()))
+        elif self.mSortMode == self.Suffixes:
+            def sorter(a, b):
+                aInfos = QFileInfo ( a.filePath() )
+                aBaseName = aInfos.baseName().toLower()
+                aSuffix = aInfos.completeSuffix().toLower()
+                bInfos = QFileInfo ( b.filePath() )
+                bBaseName = bInfos.baseName().toLower()
+                bSuffix = bInfos.completeSuffix().toLower()
+                return cmp(aSuffix, bSuffix)
+
+            newDocuments.sort(sorter)
+        elif self.mSortMode == self.Custom:
+            pass
+        else:
+            assert(0)
+        self.rebuildMapping( mks.monkeycore.workspace()._sortedDocuments, newDocuments )
+        # scroll the view
+        selected = QObject.parent(self).tvFiles.selectionModel().selectedIndexes()
+        if selected:
+            QObject.parent(self).tvFiles.scrollTo( selected[0] )
 
     def insertDocument(self, document, index ):
         assert( not document in mks.monkeycore.workspace()._sortedDocuments )
@@ -241,37 +264,6 @@ class _OpenedFileModel(QAbstractItemModel):
         
         self.changePersistentIndexList( pOldIndexes, pIndexes )
         self.layoutChanged.emit()
-
-
-    def sortDocuments_timeout(self):
-        self.mSortDocumentsTimer.stop()
-        
-        newDocuments = copy.copy(mks.monkeycore.workspace()._sortedDocuments)
-        
-        if self.mSortMode == self.OpeningOrder:
-            newDocuments.sort(lambda a, b: cmp(mks.monkeycore.workspace()._sortedDocuments.index(a), mks.monkeycore.workspace()._sortedDocuments.index(b)))
-        elif self.mSortMode == self.FileName:
-            newDocuments.sort(lambda a, b: cmp(a.fileName(), b.fileName()))
-        elif self.mSortMode == self.URL:
-            newDocuments.sort(lambda a, b: cmp(a.filePath(), b.filePath()))
-        elif self.mSortMode == self.Suffixes:
-            def sorter(a, b):
-                aInfos = QFileInfo ( a.filePath() )
-                aBaseName = aInfos.baseName().toLower()
-                aSuffix = aInfos.completeSuffix().toLower()
-                bInfos = QFileInfo ( b.filePath() )
-                bBaseName = bInfos.baseName().toLower()
-                bSuffix = bInfos.completeSuffix().toLower()
-                return cmp(aSuffix, bSuffix)
-
-            newDocuments.sort(sorter)
-        elif self.mSortMode == self.Custom:
-            pass
-        else:
-            assert(0)
-        self.rebuildMapping( mks.monkeycore.workspace()._sortedDocuments, newDocuments )
-                    # scroll the view
-        QObject.parent(self).tvFiles.scrollTo( QObject.parent(self).tvFiles.selectionModel().selectedIndexes()[0] )
 
     def documentOpened(self, document ):
         if document in mks.monkeycore.workspace()._sortedDocuments:
