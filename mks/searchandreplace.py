@@ -356,7 +356,6 @@ class SearchWidget(QFrame):
         self.mReplaceThread.openedFileHandled.connect(\
                                         self.replaceThread_openedFileHandled)
         self.mReplaceThread.error.connect(self.replaceThread_error)
-        self.setMode( SearchAndReplace.ModeSearch )
         
         mks.monkeycore.menuBar().action("mEdit/mSearchReplace/aSearchNext").triggered.connect(self.on_pbNext_pressed)
         mks.monkeycore.menuBar().action("mEdit/mSearchReplace/aSearchPrevious").triggered.connect(self.on_pbPrevious_pressed)
@@ -772,8 +771,8 @@ class SearchWidget(QFrame):
         """
         mks.monkeycore.messageManager().appendMessage( error )
 
-    def search_textEdited(self):
-        """User edited search text, do incremental search
+    def search_textChanged(self):
+        """Text changed, enable actions, if have text, disable, if haven't
         """
         haveText = bool(self.cbSearch.currentText())
         
@@ -782,9 +781,8 @@ class SearchWidget(QFrame):
         self.pbPrevious.setEnabled(haveText)
         mks.monkeycore.menuBar().action("mEdit/mSearchReplace/aSearchNext").setEnabled(haveText)
         mks.monkeycore.menuBar().action("mEdit/mSearchReplace/aSearchPrevious").setEnabled(haveText)
-
     
-    def search_textChanged(self):
+    def search_textEdited(self):
         """User edited search text, do incremental search
         """
         self.initializeSearchContext( True )
