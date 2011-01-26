@@ -57,12 +57,10 @@ class _OpenedFileModel(QAbstractItemModel):
     
     def __init__(self, parentObject):
         QAbstractItemModel.__init__(self, parentObject )
-        self.mSortMode = _OpenedFileModel.OpeningOrder
+        self.mSortMode = mks.monkeycore.config()["Workspace"]["FileSortMode"]
         parentObject.parent().documentOpened.connect(self.documentOpened)
         parentObject.parent()._documentModifiedChanged.connect(self.documentModifiedChanged)
         parentObject.parent().documentClosed.connect(self.documentClosed)
-        
-        self.mSortMode = self.Suffixes # FIXME
     
     def columnCount(self, parent ):
         return 1
@@ -190,6 +188,7 @@ class _OpenedFileModel(QAbstractItemModel):
         return self.mSortMode
 
     def setSortMode(self, mode ):
+        mks.monkeycore.config()["Workspace"]["FileSortMode"] = mode
         if  self.mSortMode != mode :
             self.mSortMode = mode
             self.sortDocuments()
