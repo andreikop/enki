@@ -293,6 +293,7 @@ class MainWindow(pMainWindow):
             self.menuBar().removeMenu(menuPath)
         
         self.menuBar().setModel( None )
+        self.settings().sync()  # write window and docs geometry
     
     def actionsModel(self):
         """Get actions model.

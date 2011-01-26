@@ -68,7 +68,7 @@ def main():
     app = QtGui.QApplication ( sys.argv );
     
     app.setApplicationName( mks.config.PACKAGE_NAME );
-    app.setOrganizationName( mks.config.PACKAGE_NAME );
+    app.setOrganizationName( mks.config.PACKAGE_ORGANISATION );
     app.setOrganizationDomain( mks.config.PACKAGE_DOMAIN );
     
     QtCore.QObject.connect(app, QtCore.SIGNAL('lastWindowClosed()'),
