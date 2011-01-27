@@ -475,7 +475,6 @@ class AbstractDocument(QMdiSubWindow):
             realpath = os.path.realpath(filePath)
             self.setWindowFilePath( realpath )
             self.setWindowTitle( os.path.basename(unicode(filePath)) + "[*]" )
-        self.setToolTip(filePath)
     
     def filePath(self):
         """return the document file path"""
