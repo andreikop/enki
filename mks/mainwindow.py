@@ -198,7 +198,7 @@ class MainWindow(pMainWindow):
                 actObject = self.menuBar().addAction(path, name)
             if shortcut:
                 actObject.setShortcut(shortcut)
-            actObject.setToolTip(tooltip)
+            actObject.setStatusTip(tooltip)
             actObject.setEnabled(enabled)
             self._createdActions.append(actObject)
         
