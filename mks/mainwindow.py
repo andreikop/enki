@@ -14,7 +14,7 @@ from PyQt4.QtGui import qApp
 from PyQt4.QtGui import QIcon
 from PyQt4.QtGui import QDockWidget
 
-from PyQt4.fresh import pMainWindow, pActionsNodeModel
+from PyQt4.fresh import pDockWidget, pMainWindow, pActionsNodeModel
 
 import mks.monkeystudio
 import mks.monkeycore
@@ -306,10 +306,8 @@ class MainWindow(pMainWindow):
         menu = self.menuBar().menu( "mDocks" )
         
         # add actions
-        for dw in self.findChildren(QDockWidget):
-            action = dw.toggleViewAction()
-            
-            action.setIcon( dw.windowIcon() )
+        for dw in self.findChildren(pDockWidget):
+            action = dw.showAction()
             menu.addAction( action )
             self.menuBar().addAction( "mDocks", action )
     

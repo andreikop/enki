@@ -1201,7 +1201,9 @@ class SearchResultsDock(pDockWidget):
         self.mModel.firstResultsAvailable.connect(self.show)
         self.mView.activated.connect(self.view_activated)
         
-        self.toggleViewAction().setShortcut("F10")
+        self.showAction().setShortcut("F10")
+        mks.monkeycore.mainWindow().addAction(self.showAction())
+
 
     def view_activated(self, index ):
         """Item doubleclicked in the model, opening file
