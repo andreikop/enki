@@ -188,9 +188,10 @@ class _OpenedFileModel(QAbstractItemModel):
         return self.mSortMode
 
     def setSortMode(self, mode ):
-        mks.monkeycore.config()["Workspace"]["FileSortMode"] = mode
         if  self.mSortMode != mode :
             self.mSortMode = mode
+            if mode != self.Custom:
+                mks.monkeycore.config()["Workspace"]["FileSortMode"] = mode
             self.sortDocuments()
 
     def sortDocuments(self):
@@ -381,11 +382,10 @@ class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         group.addAction( self.tr( "File name" ) )
         group.addAction( self.tr( "URL" ) )
         group.addAction( self.tr( "Suffixes" ) )
-        group.addAction( self.tr( "Custom" ) )
         group.triggered.connect(self.sortTriggered)
         sortMenu.addActions( group.actions() )
         
-        for i, sortMode in enumerate(["OpeningOrder", "FileName", "URL", "Suffixes", "Custom"]):
+        for i, sortMode in enumerate(["OpeningOrder", "FileName", "URL", "Suffixes"]):
             action = group.actions()[i]
             action.setData( sortMode )
             action.setCheckable( True )
