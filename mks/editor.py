@@ -357,26 +357,31 @@ class Editor(mks.workspace.AbstractDocument):
             with open(filePath, 'r') as f:
                 self._setFilePath(filePath)
                 
-                data = f.read()
-                try:
-                    text = unicode(data, 'utf8')  # FIXME replace 'utf8' with encoding
-                except UnicodeDecodeError, ex:
-                    QMessageBox.critical(None,
-                                         self.tr("Can not decode file"),
-                                         filePath + '\n' +
-                                         unicode(str(ex), 'utf8') + 
-                                        '\nProbably invalid encoding was set. ' +
-                                        'You may corrupt your file, if saved it')
-                    text = unicode(data, 'utf8', 'ignore')  # FIXME replace 'utf8' with encoding
-                self.qscintilla.setText(text)
-                # make backup if needed
-                if  myConfig["CreateBackupUponOpen"]:
-                    shutil.copy(self.filePath(), self.filePath() + '.bak')
-                
+                data = f.read()                
         except IOError, ex:  # exception in constructor
             self.deleteLater()  # make sure C++ object deleted
             raise ex
+
+        try:
+            text = unicode(data, 'utf8')  # FIXME replace 'utf8' with encoding
+        except UnicodeDecodeError, ex:
+            QMessageBox.critical(None,
+                                 self.tr("Can not decode file"),
+                                 filePath + '\n' +
+                                 unicode(str(ex), 'utf8') + 
+                                 '\nProbably invalid encoding was set. ' +
+                                 'You may corrupt your file, if saved it')
+            text = unicode(data, 'utf8', 'ignore')  # FIXME replace 'utf8' with encoding        
+        self.qscintilla.setText(text)
         
+        # make backup if needed
+        if  myConfig["CreateBackupUponOpen"]:
+            try:
+                shutil.copy(self.filePath(), self.filePath() + '.bak')
+            except (IOError, OSError), ex:
+                self.deleteLater()
+                raise ex
+
         self._onLinesChanged()
         self.qscintilla.setModified( False )
         
