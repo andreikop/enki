@@ -9,8 +9,8 @@ import os.path
 
 from PyQt4.QtCore import QDir, QModelIndex, QObject, Qt
 from PyQt4.QtGui import QAction, QDialogButtonBox, QFileDialog, QFrame, QFileSystemModel, \
-                                          QIcon, QKeySequence, QLineEdit, QMenu, \
-                                         QShortcut, QSortFilterProxyModel, QToolButton, QTreeView, QVBoxLayout, QWidget
+                        QIcon, QKeySequence, QLineEdit, QMenu, \
+                        QShortcut, QSortFilterProxyModel, QToolButton, QTreeView, QVBoxLayout, QWidget
 
 from PyQt4.fresh import pDockWidget
 from PyQt4.fresh import pStringListEditor
@@ -139,7 +139,8 @@ class DockFileBrowser(pDockWidget):
         # create menu action for the dock
         pActionsManager.setDefaultShortcut( self.dock.toggleViewAction(), QKeySequence( "F7" ) )
         """
-        self.toggleViewAction().setShortcut("F7")
+        self.showAction().setShortcut("F7")
+        mks.monkeycore.mainWindow().addAction(self.showAction())
         self.visibilityChanged.connect(self._onVisibilityChanged)
     
     def _onVisibilityChanged(self, visible):

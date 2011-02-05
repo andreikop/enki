@@ -1,7 +1,5 @@
 FIXME
 	Shift+Tab for unindent
-    Показать-убрать SR док. Меняется текущий файл.
-    Status bar не показывает подсказок
 
 FIXME when found
 	Шрифт иногда не Monospace
@@ -10,7 +8,6 @@ FIXME when found
 
 TODO
     Сделать, на заголовке окна показывался только один файл
-	Добавить action, который только показывает, но не hide
 	неудобное перемещение фокуса в FileBrowser по Backspace
 	Нужен номер строки и столбца
 	Не хватает функции Reload

@@ -307,6 +307,7 @@ class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         self.tvFiles.setModel( self.mModel )
         self.tvFiles.setAttribute( Qt.WA_MacShowFocusRect, False )
         self.tvFiles.setAttribute( Qt.WA_MacSmallSize )
+        self.setFocusProxy(self.tvFiles)
         
         """TODO
         '''
@@ -322,7 +323,8 @@ class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         
         self.tvFiles.selectionModel().selectionChanged.connect(self.selectionModel_selectionChanged)  # disconnected by _startModifyModel()
         
-        self.toggleViewAction().setShortcut("F2")
+        self.showAction().setShortcut("F2")
+        mks.monkeycore.mainWindow().addAction(self.showAction())
     
     def _startModifyModel(self):
         """Blocks signals from model while it modified by code
