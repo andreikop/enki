@@ -811,6 +811,9 @@ class Workspace(QFrame):
         """Connect/disconnect document signals and update enabled/disabled 
         state of the actions
         """
+        if document is not None:
+            self.setFocusProxy(document)
+        
         if self._oldCurrentDocument is not None:
             pass
         
@@ -924,7 +927,7 @@ class Workspace(QFrame):
             self.initMultiToolBar( tb )
         
         self.multitoolbar_notifyChanges()
-    
+        
     def initMultiToolBar( self, tb ):
         if  mks.monkeystudio.showQuickFileAccess() :
             tb.insertAction( tb.actions().value( 0 ), mks.monkeycore.workspace().dockWidget().comboBoxAction() )
