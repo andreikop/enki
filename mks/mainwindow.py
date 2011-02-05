@@ -53,7 +53,7 @@ class MainWindow(pMainWindow):
         self.setCorner( Qt.BottomLeftCorner, Qt.LeftDockWidgetArea )
         self.setCorner( Qt.BottomRightCorner, Qt.RightDockWidgetArea )
         
-        self.setWindowTitle( "%s v%s" % (mks.config.PACKAGE_NAME, mks.config.PACKAGE_VERSION ) )
+        self.setWindowTitle( "%s" % mks.config.PACKAGE_NAME)
         self.setWindowIcon( QIcon(':/mksicons/monkey2.png') )
 
         # init menubar
