@@ -35,6 +35,15 @@ def main():
         return 0
     
     try:
+        import PyQt4
+    except ImportError:
+        print >> sys.stderr, 'Failed to import PyQt4 bindings'
+        print >> sys.stderr, 'Try to install python-qt4 package, or download sources from ' + \
+                             'http://www.riverbankcomputing.co.uk/pyqt/download'
+        return -1
+    
+    # TODO gui dialog
+    try:
         import PyQt4.Qsci
     except ImportError:
         print >> sys.stderr, 'Failed to import QScintilla 2 python bindings.'
