@@ -103,7 +103,7 @@ class _OpenedFileModel(QAbstractItemModel):
         elif role == Qt.DisplayRole:
                 return document.fileName()
         elif role == Qt.ToolTipRole:
-            return document.toolTip()
+            return document.filePath()
         else:
             return QVariant()
     
