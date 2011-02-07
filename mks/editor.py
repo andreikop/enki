@@ -5,7 +5,7 @@ import shutil
 import fnmatch
 
 from PyQt4.QtCore import Qt, QEvent
-from PyQt4.QtGui import QColor, QFont, QFrame, QInputDialog, QIcon, QMessageBox
+from PyQt4.QtGui import QColor, QFont, QFrame, QInputDialog, QIcon, QKeyEvent, QMessageBox
 
 from PyQt4.Qsci import *
 
@@ -239,6 +239,19 @@ _lexerForLanguage = {
 "Spice" : QsciLexerSpice,
 }
 
+class _QsciScintilla(QsciScintilla):
+    """Class created only for filter Shift+Tab events.
+    When Shift+Tab pressed - Qt moves focus, but it is not desired behaviour
+    """    
+    def keyPressEvent(self, event):
+            if event.key() == Qt.Key_Backtab:
+                event.accept()
+                newev = QKeyEvent(event.type(), Qt.Key_Tab, Qt.ShiftModifier)
+                super(_QsciScintilla, self).keyPressEvent(newev)
+            else:
+                super(_QsciScintilla, self).keyPressEvent(event)
+
+
 class Editor(mks.workspace.AbstractDocument):
     """Text editor widget. Uses QScintilla internally
     """
@@ -249,7 +262,7 @@ class Editor(mks.workspace.AbstractDocument):
         mks.workspace.AbstractDocument.__init__(self, parentObject, filePath)
         
         # Configure editor
-        self.qscintilla = QsciScintilla(self)
+        self.qscintilla = _QsciScintilla(self)
         
         pixmap = QIcon(":/mksicons/bookmark.png").pixmap(16, 16)
         self._MARKER_BOOKMARK = self.qscintilla.markerDefine(pixmap, -1)
