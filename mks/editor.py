@@ -363,8 +363,39 @@ class Editor(mks.workspace.AbstractDocument):
                     #lexer->setPaper( lexer->defaultPaper( i ), i );
 
             self.qscintilla.setLexer(lexer)
+        
+        self._openFile(filePath)
+        
+        # make backup if needed
+        if  myConfig["CreateBackupUponOpen"]:
+            try:
+                shutil.copy(self.filePath(), self.filePath() + '.bak')
+            except (IOError, OSError), ex:
+                self.deleteLater()
+                raise ex
 
-        # open file
+        self._onLinesChanged()
+        
+        #autodetect indent, need
+        if  myConfig["Indentation"]["AutoDetect"]:
+            self._autoDetectIndent()
+        
+        # convert tabs if needed
+        if  myConfig["Indentation"]["ConvertUponOpen"]:
+            self._convertTabs()
+        
+        #autodetect eol, need
+        if  myConfig["EOL"]["AutoDetect"]:
+            self._autoDetectEol()
+        
+        # convert eol
+        if  myConfig["EOL"]["AutoConvert"]:
+            self.qscintilla.convertEols( self.qscintilla.eolMode() )
+
+        
+        #TODO self.fileOpened.emit()
+
+    def _openFile(self, filePath):
         #locked = self.blockSignals( True )
         try:
             with open(filePath, 'r') as f:
@@ -386,36 +417,7 @@ class Editor(mks.workspace.AbstractDocument):
                                  'You may corrupt your file, if saved it')
             text = unicode(data, 'utf8', 'ignore')  # FIXME replace 'utf8' with encoding        
         self.qscintilla.setText(text)
-        
-        # make backup if needed
-        if  myConfig["CreateBackupUponOpen"]:
-            try:
-                shutil.copy(self.filePath(), self.filePath() + '.bak')
-            except (IOError, OSError), ex:
-                self.deleteLater()
-                raise ex
-
-        self._onLinesChanged()
         self.qscintilla.setModified( False )
-        
-        #autodetect indent, need
-        if  myConfig["Indentation"]["AutoDetect"]:
-            self._autoDetectIndent()
-        
-        # convert tabs if needed
-        if  myConfig["Indentation"]["ConvertUponOpen"]:
-            self._convertTabs()
-        
-        #autodetect eol, need
-        if  myConfig["EOL"]["AutoDetect"]:
-            self._autoDetectEol()
-        
-        # convert eol
-        if  myConfig["EOL"]["AutoConvert"]:
-            self.qscintilla.convertEols( self.qscintilla.eolMode() )
-
-        
-        #TODO self.fileOpened.emit()
 
     def _onLinesChanged(self):
         l = len(str(self.qscintilla.lines()))
@@ -622,11 +624,11 @@ class Editor(mks.workspace.AbstractDocument):
         self.qscintilla.setModified( False )
         self.setFilePath( '' )
         self.fileClosed.emit()
-    
+    """
     def reload(self):
-        self.openFile(self.filePath())
-        self.fileReloaded.emit()
-    
+        self._openFile(self.filePath())
+        #self.fileReloaded.emit()
+    """
     def print_(self, quickPrint):
         # get printer
         p = QsciPrinter()

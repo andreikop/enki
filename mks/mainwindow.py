@@ -81,8 +81,6 @@ class MainWindow(pMainWindow):
         """
         """TODO
         mb.action( "mClose/aAll", self.tr( "Close &All" ), QIcon(":/mksicons/closeall.png" ), '', self.tr( "Close all files" ) ).setEnabled( False )
-        mb.action( "aSeparator3" )
-        mb.action( "aReload", self.tr( "Reload" ), QIcon(":/mksicons/reload.png" ), '', self.tr( "Reload the current file asking user confirmation if needed" ) ).setEnabled( False )
         mb.action( "aSaveAsBackup", self.tr( "Save As &Backup" ), QIcon(":/mksicons/backup.png" ), '', self.tr( "Save a backup of the current file" ) ).setEnabled( False )
         mb.action( "aSeparator4" )
         mb.action( "aQuickPrint", self.tr( "Quic&k Print" ), QIcon(":/mksicons/quickprint.png" ), '', self.tr( "Quick print the current file" ) ).setEnabled( False )
@@ -202,6 +200,8 @@ class MainWindow(pMainWindow):
             actObject.setEnabled(enabled)
             self._createdActions.append(actObject)
         
+        def seperator(menu):
+            self.menuBar().menu(menu).addSeparator()
         
         # Menu or action path                   Name                                Icon            Shortcut        Hint                                        Action enabled
         menu  ("mFile",                               self.tr("File"                   ), ""            )
@@ -209,8 +209,10 @@ class MainWindow(pMainWindow):
         menu  ("mFile/mSave",                         self.tr("&Save"                  ), "save.png"    ),
         action("mFile/mSave/aCurrent",                self.tr( "&Save"                 ), "save.png" ,    "Ctrl+S" ,      self.tr( "Save the current file"  ), False)
         action("mFile/mSave/aAll",                    self.tr( "Save &All"             ), "saveall.png",  'Shift+Ctrl+S', self.tr( "Save all files"         ), False)
+        action( "mFile/aReload",                      self.tr( "Reload"                ), "reload.png"  , 'Shift+Ctrl+F5',     self.tr( "Reload the current file"), False)
         menu  ("mFile/mClose",                        self.tr( "&Close"                ), "close.png"   ),
         action("mFile/mClose/aCurrent",               self.tr( "&Close"                ), "close.png",    "Ctrl+W",       self.tr( "Close the current file" ), False)
+        seperator("mFile")
         action("mFile/aQuit",                         self.tr( "&Quit"                 ), "quit.png",     "Ctrl+Q",       self.tr( "Quit the application"   ), True )
         
         menu  ("mEdit",                               self.tr( "Edit"                  ), ""            )
@@ -254,7 +256,6 @@ class MainWindow(pMainWindow):
         self.menuBar().action( "mFile/mSession/aSave" ).triggered.connect(mks.monkeycore.workspace().fileSessionSave_triggered)
         self.menuBar().action( "mFile/mSession/aRestore" ).triggered.connect(mks.monkeycore.workspace().fileSessionRestore_triggered)
         self.menuBar().action( "mFile/mClose/aAll" ).triggered.connect(mks.monkeycore.workspace().fileCloseAll_triggered)
-        self.menuBar().action( "mFile/aReload" ).triggered.connect(mks.monkeycore.workspace().fileReload_triggered)
         self.menuBar().action( "mFile/aSaveAsBackup" ).triggered.connect(mks.monkeycore.workspace().fileSaveAsBackup_triggered)
         self.menuBar().action( "mFile/aQuickPrint" ).triggered.connect(mks.monkeycore.workspace().fileQuickPrint_triggered)
         self.menuBar().action( "mFile/aPrint" ).triggered.connect(mks.monkeycore.workspace().filePrint_triggered)
