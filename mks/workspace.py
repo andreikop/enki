@@ -371,9 +371,7 @@ class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         
         menu.addAction( mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ) )
         menu.addAction( mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ) )
-        """TODO
         menu.addAction( mks.monkeycore.menuBar().action( "mFile/aReload" ) )
-        """
         menu.addSeparator()
         
         # sort menu
@@ -566,10 +564,10 @@ class AbstractDocument(QMdiSubWindow):
     
     def closeFile(self):
         pass
-    
+    '''
     def reload(self):
         pass
-    
+    '''
     def printFile(self):
         pass
     
@@ -777,6 +775,7 @@ class Workspace(QFrame):
         MonkeyCore.multiToolBar().notifyChanges.connect(self.multitoolbar_notifyChanges)
     """
         mks.monkeycore.menuBar().action( "mFile/aOpen" ).triggered.connect(self._fileOpen_triggered)
+        mks.monkeycore.menuBar().action( "mFile/aReload" ).triggered.connect(self._fileReload_triggered)
         mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).triggered.connect(self._closeCurrentDocument)
     
         mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).triggered.connect(self._fileSaveCurrent_triggered)
@@ -871,7 +870,9 @@ class Workspace(QFrame):
         mks.monkeycore.menuBar().action( "mView/aFocusCurrentDocument" ).setEnabled( document is not None)
         '''
         mks.monkeycore.menuBar().action( "mFile/mClose/aAll" ).setEnabled( document )
-        mks.monkeycore.menuBar().action( "mFile/aReload" ).setEnabled( document )
+        '''
+        mks.monkeycore.menuBar().action( "mFile/aReload" ).setEnabled( document is not None )
+        '''
         mks.monkeycore.menuBar().action( "mFile/aSaveAsBackup" ).setEnabled( document )
         mks.monkeycore.menuBar().action( "mFile/aQuickPrint" ).setEnabled( print_ )
         mks.monkeycore.menuBar().action( "mFile/aPrint" ).setEnabled( print_ )
@@ -1531,15 +1532,17 @@ class Workspace(QFrame):
     '''TODO
     def fileCloseAll_triggered(self):
         self.closeAllDocuments()  # fixme KILL this 
-
-    def fileReload_triggered(self):
+    '''
+    def _fileReload_triggered(self):
         document = self.currentDocument()
 
-        if  document :
+        if  document is not None:
             button = QMessageBox.Yes
 
-            if  document.isModified() :
-                n = QMessageBox.question( self, self.tr( "Confirmation needed..." ), self.tr( "The file has been modified, anyway ?" ), QMessageBox.Yes | QMessageBox.No, QMessageBox.No )
+            if  document.isModified():
+                button = QMessageBox.question(self, self.tr( "Reload file..." ), 
+                                         self.tr( "The file has been modified, do you want to reload it?" ),
+                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
             if button == QMessageBox.Yes :
                 """ fileName = document.filePath()
@@ -1548,7 +1551,7 @@ class Workspace(QFrame):
                 self.closeDocument( document )
                 self.openFile( fileName, c );"""
                 document.reload()
-
+    '''
     def fileSaveAsBackup_triggered(self):
         document = self.currentDocument()
 
