@@ -278,17 +278,54 @@ class Editor(mks.workspace.AbstractDocument):
 
         self.setWidget( self.qscintilla )
         self.setFocusProxy( self.qscintilla )
-        """TODO
         # connections
         self.qscintilla.cursorPositionChanged.connect(self.cursorPositionChanged)
         self.qscintilla.modificationChanged.connect(self.setWindowModified)
-        """
         self.qscintilla.modificationChanged.connect(self.modifiedChanged)
         """TODO
         self.qscintilla.textChanged.connect(self.contentChanged)
         """
         self.qscintilla.linesChanged.connect(self._onLinesChanged)
         
+        myConfig = mks.monkeycore.config()["Editor"]
+        
+        self._applySettings(myConfig)
+        self._applyLexer(myConfig, filePath)
+        
+        self._openFile(filePath)
+        
+        # make backup if needed
+        if  myConfig["CreateBackupUponOpen"]:
+            try:
+                shutil.copy(self.filePath(), self.filePath() + '.bak')
+            except (IOError, OSError), ex:
+                self.deleteLater()
+                raise ex
+        
+        #autodetect indent, need
+        if  myConfig["Indentation"]["AutoDetect"]:
+            self._autoDetectIndent()
+        
+        # convert tabs if needed
+        if  myConfig["Indentation"]["ConvertUponOpen"]:
+            self._convertTabs()
+        
+        #autodetect eol, need
+        if  myConfig["EOL"]["AutoDetect"]:
+            self._autoDetectEol()
+        
+        # convert eol
+        if  myConfig["EOL"]["AutoConvert"]:
+            oldtext = self.qscintilla.text()
+            self.qscintilla.convertEols( self.qscintilla.eolMode() )
+            text = self.qscintilla.text()
+            if text != oldtext:
+                mks.monkeycore.messageManager().appendMessage('EOLs converted. You can UNDO the changes', 5000)
+        #TODO self.fileOpened.emit()
+        self.modifiedChanged.emit(self.isModified())
+        self.cursorPositionChanged.emit(*self.cursorPosition())
+
+    def _applySettings(self, myConfig):
         # Load settings
         myConfig = mks.monkeycore.config()["Editor"]
         self.qscintilla.setSelectionBackgroundColor( QColor(myConfig["SelectionBackgroundColor"]))
@@ -298,8 +335,7 @@ class Editor(mks.workspace.AbstractDocument):
             self.qscintilla.setColor( QColor(myConfig["DefaultDocumentPen"]))
             self.qscintilla.setPaper( QColor(myConfig["DefaultDocumentPaper"]))
 
-        defaultFont = QFont(myConfig["DefaultFont"], myConfig["DefaultFontSize"])
-        self.qscintilla.setFont(defaultFont)
+        self.qscintilla.setFont(QFont(myConfig["DefaultFont"], myConfig["DefaultFontSize"]))
         # Auto Completion
         self.qscintilla.setAutoCompletionCaseSensitivity( myConfig["AutoCompletion"]["CaseSensitivity"])
         self.qscintilla.setAutoCompletionReplaceWord( myConfig["AutoCompletion"]["ReplaceWord"])
@@ -349,7 +385,9 @@ class Editor(mks.workspace.AbstractDocument):
         self.qscintilla.setWrapVisualFlags( myConfig["Wrap"]["EndVisualFlag"],
                                             myConfig["Wrap"]["StartVisualFlag"],
                                             myConfig["Wrap"]["LineIndentWidth"] )
-        
+    
+    def _applyLexer(self, myConfig, filePath):
+        defaultFont = QFont(myConfig["DefaultFont"], myConfig["DefaultFontSize"])
         lexer = self._lexerForFileName( filePath )
         if lexer:
             lexer.setDefaultFont(defaultFont)
@@ -363,39 +401,6 @@ class Editor(mks.workspace.AbstractDocument):
                     #lexer->setPaper( lexer->defaultPaper( i ), i );
 
             self.qscintilla.setLexer(lexer)
-        
-        self._openFile(filePath)
-        
-        # make backup if needed
-        if  myConfig["CreateBackupUponOpen"]:
-            try:
-                shutil.copy(self.filePath(), self.filePath() + '.bak')
-            except (IOError, OSError), ex:
-                self.deleteLater()
-                raise ex
-
-        self._onLinesChanged()
-        
-        #autodetect indent, need
-        if  myConfig["Indentation"]["AutoDetect"]:
-            self._autoDetectIndent()
-        
-        # convert tabs if needed
-        if  myConfig["Indentation"]["ConvertUponOpen"]:
-            self._convertTabs()
-        
-        #autodetect eol, need
-        if  myConfig["EOL"]["AutoDetect"]:
-            self._autoDetectEol()
-        
-        # convert eol
-        if  myConfig["EOL"]["AutoConvert"]:
-            oldtext = self.qscintilla.text()
-            self.qscintilla.convertEols( self.qscintilla.eolMode() )
-            text = self.qscintilla.text()
-            if text != oldtext:
-                mks.monkeycore.messageManager().appendMessage('EOLs converted. You can UNDO the changes', 5000)
-        #TODO self.fileOpened.emit()
 
     def _openFile(self, filePath):
         #locked = self.blockSignals( True )
@@ -419,6 +424,7 @@ class Editor(mks.workspace.AbstractDocument):
                                  'You may corrupt your file, if saved it')
             text = unicode(data, 'utf8', 'ignore')  # FIXME replace 'utf8' with encoding        
         self.qscintilla.setText(text)
+        self._onLinesChanged()
         self.qscintilla.setModified( False )
 
     def _onLinesChanged(self):
@@ -448,11 +454,11 @@ class Editor(mks.workspace.AbstractDocument):
     def fileBuffer(self):
         return self.qscintilla.text()
     
-    """TODO
     def cursorPosition(self):
         row, col = self.qscintilla.getCursorPosition()
-        return QPoint(row + 1, col)
+        return row + 1, col
     
+    """TODO
     def editor(self):
         return self.qscintilla
     """

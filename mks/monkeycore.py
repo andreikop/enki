@@ -33,6 +33,7 @@ import mksiconsresource
 import freshresource
 
 _mainWindow = None
+_statusBar = None
 _workspace = None
 
 _searchreplace = None
@@ -62,7 +63,6 @@ _fileManager = None
 
 _consoleManager = None
 
-_statusBar = None
 _interpreter = None
 _abbreviationsManager = None
 _multiToolBar = None
@@ -384,13 +384,16 @@ def messageManager():
     """
     return mainWindow().queuedMessageToolBar()
 
-"""
+
 def statusBar():
     global _statusBar
+    from mks.statusbar import StatusBar
     if _statusBar is None:
         _statusBar = StatusBar( mainWindow() )
+        mainWindow().setStatusBar(_statusBar)
     return _statusBar
 
+"""
 def interpreter():
     global _interpreter
     if _interpreter is None:
