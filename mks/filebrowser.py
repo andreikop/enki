@@ -243,24 +243,28 @@ class DockFileBrowser(pDockWidget):
         self.mBookmarks = mks.monkeycore.config()["FileBrowser"]["Bookmarks"]
         self.updateBookMarksMenu()
 
+    def _filteredModelIndexToPath(self, index):
+        """Map index to file path
+        """
+        srcIndex = self.mFilteredModel.mapToSource( index )
+        return unicode(self.mDirsModel.filePath( srcIndex ))
+    
     def aUp_triggered(self):
         """Handler of click on Up button.
         """
-        # cd up only if not the root index
-        index = self.mTree.rootIndex()
+        current = self.mTree.currentIndex()
+        if not current.isValid():
+            current = self.mTree.rootIndex().child(0, 0)
+            self.mTree.setCurrentIndex(current)
         
-        if  not index.isValid() :
-            return
+        # move tree root up, if necessary
+        if current.parent() == self.mTree.rootIndex():  # need to move root up
+            if self.mTree.rootIndex().parent().isValid():  # not reached root of the FS tree
+                self.setCurrentPath( self._filteredModelIndexToPath(self.mTree.rootIndex().parent()))
         
-        index = index.parent()
-        index = self.mFilteredModel.mapToSource( index )
-        path = unicode(self.mDirsModel.filePath( index ))
-        
-        if not sys.platform.startswith('win'):
-            if  not path:
-                return
-        
-        self.setCurrentPath( path )
+        parentOfCurrent = self.mTree.currentIndex().parent()
+        if parentOfCurrent != self.mTree.rootIndex():  # if not reached top
+            self.mTree.setCurrentIndex(parentOfCurrent)  # move selection up
 
     def aGoTo_triggered(self):
         """GoTo (Select root folder) clicked

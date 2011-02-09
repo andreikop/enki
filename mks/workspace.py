@@ -821,7 +821,6 @@ class Workspace(QFrame):
         if document is not None:
             mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(document.isModified())
             mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled( document.isModified() )
-            
         else:  # no document
             mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(False)
 
@@ -1086,7 +1085,7 @@ class Workspace(QFrame):
         if not documentType:
             QMessageBox.critical(None,
                                  self.tr("Failed to open file"),
-                                 self.tr("Don't have any editor for open %s. Does any text editor plugin enabled?" % filePath))
+                                 self.tr("Don't have any editor for open %s. Is any text editor plugin enabled?" % filePath))
             return None
         
         # open file
