@@ -583,9 +583,9 @@ class AbstractDocument(QMdiSubWindow):
     layoutModeChanged = pyqtSignal()
     # when.emit the document document mode has changed
     documentModeChanged = pyqtSignal()
-    # when.emit cursor position changed
-    cursorPositionChanged = pyqtSignal(int, int) # (line, column)
     '''
+    # emit when cursor position changed
+    cursorPositionChanged = pyqtSignal(int, int) # (line, column)
     
     '''TODO
     # when.emit search/replace is available
@@ -886,18 +886,6 @@ class Workspace(QFrame):
         mks.monkeycore.menuBar().action( "mView/aNext" ).setEnabled( moreThanOneDocument )
         mks.monkeycore.menuBar().action( "mView/aPrevious" ).setEnabled( moreThanOneDocument )
         
-        '''TODO
-        # update status bar
-        mks.monkeycore.statusBar().setModified( modified )
-        if editor:
-            mks.monkeycore.statusBar().setEOLMode( editor.eolMode() )
-            mks.monkeycore.statusBar().setIndentMode( editor.indentationsUseTabs())
-            mks.monkeycore.statusBar().setCursorPosition( document.cursorPosition())
-        
-            mks.monkeycore.statusBar().setEOLMode( editor.eolMode())
-            mks.monkeycore.statusBar().setIndentMode( editor.indentationsUseTabs())
-            mks.monkeycore.statusBar().setCursorPosition( document.cursorPosition())
-                '''
         # internal update
         if  document and document.filePath():
             try:
@@ -1016,13 +1004,10 @@ class Workspace(QFrame):
         """
         # update file menu
         document.modifiedChanged.connect(mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled)
-        """
-        # update edit menu
         
         # update status bar
         document.cursorPositionChanged.connect(mks.monkeycore.statusBar().setCursorPosition)
         document.modifiedChanged.connect(mks.monkeycore.statusBar().setModified)
-        """        
         # add to workspace
         document.installEventFilter( self )
         
@@ -1043,12 +1028,12 @@ class Workspace(QFrame):
         """
         document.modifiedChanged.disconnect(mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled)
         # update edit menu
-        """TODO
+
+        # TODO add new signal currentChaged(old, current), move this code to status bar
         # update status bar
-        
-        disconnect( document, SIGNAL( cursorPositionChanged(  QPoint& ) ), mks.monkeycore.statusBar(), SLOT( setCursorPosition(  QPoint& ) ) )
-        disconnect( document, SIGNAL( modifiedChanged( bool ) ), mks.monkeycore.statusBar(), SLOT( setModified( bool ) ) )
-        """
+        document.cursorPositionChanged.disconnect(mks.monkeycore.statusBar().setCursorPosition)
+        document.modifiedChanged.disconnect(mks.monkeycore.statusBar().setModified)
+
         # remove from workspace
         document.removeEventFilter( self )
         self.mdiArea.removeSubWindow( document )
