@@ -491,12 +491,13 @@ class AbstractDocument(QMdiSubWindow):
     def fileBuffer(self):
         """return the current buffer (text) of opened file"""
         return None
-    '''
+    
     def cursorPosition(self):
-        """return cursor position if available
+        """return cursor position as 2 values: line and column, if available
         """
         pass
     
+    '''
     def editor(self):
         """the current visible editor
         """
