@@ -60,7 +60,6 @@ class _OpenedFileModel(QAbstractItemModel):
         self.mSortMode = mks.monkeycore.config()["Workspace"]["FileSortMode"]
         workspace = parentObject.parent()
         workspace.documentOpened.connect(self.documentOpened)
-        workspace._documentModifiedChanged.connect(self.documentModifiedChanged)  # FIXME remove signal from the workspace, use editors signal
         workspace.documentClosed.connect(self.documentClosed)
     
     def columnCount(self, parent ):
@@ -267,6 +266,7 @@ class _OpenedFileModel(QAbstractItemModel):
         self.layoutChanged.emit()
 
     def documentOpened(self, document ):
+        # FIXME verify this code
         if document in mks.monkeycore.workspace()._sortedDocuments:
            self.sortDocuments()
         else:
@@ -275,8 +275,12 @@ class _OpenedFileModel(QAbstractItemModel):
             
             index = len(mks.monkeycore.workspace()._sortedDocuments)
             self.insertDocument( document, index )
+        
+        document.modifiedChanged.connect(self.documentModifiedChanged)
 
-    def documentModifiedChanged(self, document, modified ):
+
+    def documentModifiedChanged(self, modified ):
+        document = self.sender()
         index = self.documentIndex( document )
         self.dataChanged.emit( index, index )
 
@@ -635,13 +639,6 @@ class Workspace(QFrame):
     """
     # a file modified state changed
     
-    _documentModifiedChanged = pyqtSignal(AbstractDocument, bool)
-    """
-    documentModifiedChanged(:class:AbstractDocument, modified)
-    
-    **Signal** emitted, when modified state (having not saved changes) of document changed
-    """
-    
     """TODO
     # document about to close
     documentAboutToClose = pyqtSignal(AbstractDocument)
@@ -996,9 +993,6 @@ class Workspace(QFrame):
         # init document connections
         document.fileOpened.connect(self.document_fileOpened)
         document.contentChanged.connect(self.document_contentChanged)
-        """
-        document.modifiedChanged.connect(self._onDocumentModifiedChanged)
-        """TODO
         document.fileClosed.connect(self.document_fileClosed)
         document.fileReloaded.connect(self.document_fileReloaded)
         """
@@ -1244,13 +1238,7 @@ class Workspace(QFrame):
         path = document.filePath()
         
         self.documentChanged.emit( document )
-    """
     
-    def _onDocumentModifiedChanged(self, modified ):
-        document = self.sender()
-        self._documentModifiedChanged.emit( document, modified )
-    
-    """TODO
     def document_fileClosed(self):
         document = self.sender()
         mtb = mks.monkeycore.multiToolBar()
