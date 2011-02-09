@@ -472,7 +472,7 @@ class AbstractDocument(QMdiSubWindow):
             self.setWindowFilePath( '' )
             self.setWindowTitle( '' )
         else:
-            realpath = os.path.realpath(filePath)
+            realpath = os.path.realpath(unicode(filePath))
             self.setWindowFilePath( realpath )
             self.setWindowTitle( os.path.basename(unicode(filePath)) + "[*]" )
     
