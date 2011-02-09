@@ -390,9 +390,11 @@ class Editor(mks.workspace.AbstractDocument):
         
         # convert eol
         if  myConfig["EOL"]["AutoConvert"]:
+            oldtext = self.qscintilla.text()
             self.qscintilla.convertEols( self.qscintilla.eolMode() )
-
-        
+            text = self.qscintilla.text()
+            if text != oldtext:
+                mks.monkeycore.messageManager().appendMessage('EOLs converted. You can UNDO the changes', 5000)
         #TODO self.fileOpened.emit()
 
     def _openFile(self, filePath):
@@ -550,11 +552,13 @@ class Editor(mks.workspace.AbstractDocument):
         # end global undo action
         self.qscintilla.endUndoAction()
         # compare original and newer text
-        if  originalText == self.qscintilla.text() :
+        if  originalText == self.qscintilla.text():
             # clear undo buffer
             self.qscintilla.SendScintilla( QsciScintilla.SCI_EMPTYUNDOBUFFER )
             # set unmodified
             self.qscintilla.setModified( False )
+        else:
+            mks.monkeycore.messageManager().appendMessage('Indentation converted. You can Undo the changes', 5000)
 
     def _autoDetectIndent(self):
         if '\t' in self.qscintilla.text():
