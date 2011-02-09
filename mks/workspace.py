@@ -58,9 +58,10 @@ class _OpenedFileModel(QAbstractItemModel):
     def __init__(self, parentObject):
         QAbstractItemModel.__init__(self, parentObject )
         self.mSortMode = mks.monkeycore.config()["Workspace"]["FileSortMode"]
-        parentObject.parent().documentOpened.connect(self.documentOpened)
-        parentObject.parent()._documentModifiedChanged.connect(self.documentModifiedChanged)
-        parentObject.parent().documentClosed.connect(self.documentClosed)
+        workspace = parentObject.parent()
+        workspace.documentOpened.connect(self.documentOpened)
+        workspace._documentModifiedChanged.connect(self.documentModifiedChanged)  # FIXME remove signal from the workspace, use editors signal
+        workspace.documentClosed.connect(self.documentClosed)
     
     def columnCount(self, parent ):
         return 1
@@ -340,9 +341,9 @@ class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         mode = action.data().toString()
         self.mModel.setSortMode( mode )
     
-    def currentDocumentChanged(self, document ):
-        if document is not None:
-            index = self.mModel.documentIndex( document )
+    def currentDocumentChanged(self, oldDocument, currentDocument ):
+        if currentDocument is not None:
+            index = self.mModel.documentIndex( currentDocument )
             
             self._startModifyModel()
             self.tvFiles.setCurrentIndex( index )
@@ -661,9 +662,9 @@ class Workspace(QFrame):
     documentReloaded = pyqtSignal(AbstractDocument)
     """
     
-    currentDocumentChanged = pyqtSignal(AbstractDocument)
+    currentDocumentChanged = pyqtSignal(AbstractDocument, AbstractDocument)
     """
-    currentDocumentChanged(:class:AbstractDocument)
+    currentDocumentChanged(:class:AbstractDocument old, :class:AbstractDocument current)
     
     **Signal** emitted, when current document changed, i.e. user selected another document, 
     new document opened, current closed
@@ -892,10 +893,9 @@ class Workspace(QFrame):
                 os.chdir( os.path.dirname(document.filePath()) )
             except OSError, ex:  # directory might be deleted
                 print >> sys.stderr, 'Failed to change directory:', str(ex)
-
-        self._oldCurrentDocument = document
         
-        self.currentDocumentChanged.emit( document )
+        self.currentDocumentChanged.emit(self._oldCurrentDocument, document)
+        self._oldCurrentDocument = document
     
     '''TODO
     def defaultContext(self):
@@ -1005,9 +1005,6 @@ class Workspace(QFrame):
         # update file menu
         document.modifiedChanged.connect(mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled)
         
-        # update status bar
-        document.cursorPositionChanged.connect(mks.monkeycore.statusBar().setCursorPosition)
-        document.modifiedChanged.connect(mks.monkeycore.statusBar().setModified)
         # add to workspace
         document.installEventFilter( self )
         
@@ -1028,11 +1025,6 @@ class Workspace(QFrame):
         """
         document.modifiedChanged.disconnect(mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled)
         # update edit menu
-
-        # TODO add new signal currentChaged(old, current), move this code to status bar
-        # update status bar
-        document.cursorPositionChanged.disconnect(mks.monkeycore.statusBar().setCursorPosition)
-        document.modifiedChanged.disconnect(mks.monkeycore.statusBar().setModified)
 
         # remove from workspace
         document.removeEventFilter( self )

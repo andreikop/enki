@@ -46,13 +46,21 @@ class StatusBar(QStatusBar):
         
         mks.monkeycore.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
 
-    def _onCurrentDocumentChanged(self, document):
-        # update status bar
-        if document is not None:
-            self.setModified( document.isModified() )
-            #self.setEOLMode( document.eolMode() )
-            #self.setIndentMode( document.indentationsUseTabs())
-            self.setCursorPosition( *document.cursorPosition())
+    def _onCurrentDocumentChanged(self, oldDocument, currentDocument):
+        # Update connections
+        if oldDocument is not None:
+            oldDocument.cursorPositionChanged.disconnect(self.setCursorPosition)
+            oldDocument.modifiedChanged.disconnect(self.setModified)
+        if currentDocument is not None:
+            currentDocument.cursorPositionChanged.connect(self.setCursorPosition)
+            currentDocument.modifiedChanged.connect(self.setModified)
+        
+        # Update info
+        if currentDocument is not None:
+            self.setModified( currentDocument.isModified() )
+            #self.setEOLMode( currentDocument.eolMode() )
+            #self.setIndentMode( currentDocument.indentationsUseTabs())
+            self.setCursorPosition( *currentDocument.cursorPosition())
         else:
             self.setModified(False)
             #self.setEOLMode(None)

@@ -28,12 +28,12 @@ from PyQt4.fresh import pSettings
 from _3rdparty.configobj import ConfigObj, flatten_errors, ParseError
 from _3rdparty.validate import Validator
 
+from mks.statusbar import StatusBar
 
 import mksiconsresource
 import freshresource
 
 _mainWindow = None
-_statusBar = None
 _workspace = None
 
 _searchreplace = None
@@ -161,7 +161,10 @@ def init():
     
     # init main window
     #TODO _showMessage( splash, splash.tr( "Initializing Main Window..." ) )
+    
     mainWindow()  # create the instance
+    
+    mainWindow().setStatusBar(StatusBar( mainWindow() ))
 
     # create and init workspace
     mainWindow().setCentralWidget( workspace() )
@@ -383,15 +386,6 @@ def messageManager():
     """pQueuedMessageToolBar used for show popup messages
     """
     return mainWindow().queuedMessageToolBar()
-
-
-def statusBar():
-    global _statusBar
-    from mks.statusbar import StatusBar
-    if _statusBar is None:
-        _statusBar = StatusBar( mainWindow() )
-        mainWindow().setStatusBar(_statusBar)
-    return _statusBar
 
 """
 def interpreter():

@@ -246,8 +246,6 @@ class MainWindow(pMainWindow):
         # init multitoolbar
         mks.monkeycore.workspace().initMultiToolBar( mks.monkeycore.multiToolBar().toolBar( Workspace.defaultContext() ) )
         mks.monkeycore.workspace().initMultiToolBar( mks.monkeycore.multiToolBar().toolBar( "Coding" ) )
-        # init status bar
-        setStatusBar( mks.monkeycore.statusBar() )
         # init connection
         self.initConnections()
         self.menuBar().action( "mFile/aNew" ).triggered.connect(mks.monkeycore.workspace().fileNew_triggered)
