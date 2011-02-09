@@ -224,13 +224,6 @@ class _OpenedFileModel(QAbstractItemModel):
         if selected:
             QObject.parent(self).tvFiles.scrollTo( selected[0] )
 
-    def insertDocument(self, document, index ):
-        assert( not document in mks.monkeycore.workspace()._sortedDocuments )
-        self.beginInsertRows( QModelIndex(), index, index )
-        mks.monkeycore.workspace()._sortedDocuments.insert( index, document )
-        self.endInsertRows()
-        self.sortDocuments()
-
     def rebuildMapping(self, oldList, newList ):
         self.layoutAboutToBeChanged.emit()
         pOldIndexes = self.persistentIndexList()
@@ -266,18 +259,10 @@ class _OpenedFileModel(QAbstractItemModel):
         self.layoutChanged.emit()
 
     def documentOpened(self, document ):
-        # FIXME verify this code
-        if document in mks.monkeycore.workspace()._sortedDocuments:
-           self.sortDocuments()
-        else:
-            if document is None or document in mks.monkeycore.workspace()._sortedDocuments:
-                return
-            
-            index = len(mks.monkeycore.workspace()._sortedDocuments)
-            self.insertDocument( document, index )
-        
+        assert( not document in mks.monkeycore.workspace()._sortedDocuments )
+        mks.monkeycore.workspace()._sortedDocuments.append( document )
+        self.sortDocuments()
         document.modifiedChanged.connect(self.documentModifiedChanged)
-
 
     def documentModifiedChanged(self, modified ):
         document = self.sender()
