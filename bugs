@@ -1,14 +1,4 @@
 FIXME
-
-    Traceback (most recent call last):
-      File "/usr/local/lib/python2.6/dist-packages/mks/filebrowser.py", line 308, in tv_activated
-        mks.monkeycore.workspace().openFile( unicode(self.mDirsModel.filePath( index )))
-      File "/usr/local/lib/python2.6/dist-packages/mks/workspace.py", line 1071, in openFile
-        if os.path.isfile(filePath) and os.path.samefile( document.filePath(), filePath ) :
-      File "/usr/lib/python2.6/posixpath.py", line 152, in samefile
-        s1 = os.stat(f1)
-    OSError: [Errno 2] файл ці тэчка ня йснуе: '/home/a/code/softathome/devel/mw/tests/bug-157-avt-invalid-speed/Makefile'
-
     Неприятно мигает текущий файл в заголовке окна
 
 FIXME when found
@@ -18,7 +8,6 @@ FIXME when found
 	Не переключается текущая директория
 
 TODO
-	неудобное перемещение фокуса в FileBrowser по Backspace
 	Нужен номер строки и столбца
 	Если сконвертили что-то при открытии файла, сообщать что
 	SR:

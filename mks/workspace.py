@@ -1068,9 +1068,11 @@ class Workspace(QFrame):
         
         # check if file is already opened
         for document in self._sortedDocuments:
-            if os.path.isfile(filePath) and os.path.samefile( document.filePath(), filePath ) :
-                self.setCurrentDocument( document )
-                return document
+            if os.path.isfile(filePath) and \
+               os.path.isfile(document.filePath()) and \
+               os.path.samefile( document.filePath(), filePath ) :
+                    self.setCurrentDocument( document )
+                    return document
         
         """TODO
         # get a document interface that can handle the file
