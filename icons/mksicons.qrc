@@ -56,6 +56,7 @@
 		<file>interpreter.png</file>
 		<file>kpf.png</file>
 		<file>kwin.png</file>
+		<file>macEol.png</file>
 		<file>member.png</file>
 		<file>misc-blue.png</file>
 		<file>misc.png</file>
@@ -116,6 +117,7 @@
 		<file>transparent.png</file>
 		<file>typedef.png</file>
 		<file>undo.png</file>
+		<file>unixEol.png</file>
 		<file>up_arrow.png</file>
 		<file>update.png</file>
 		<file>up.png</file>
@@ -124,5 +126,6 @@
 		<file>values.png</file>
 		<file>variable.png</file>
 		<file>view-list-tree.png</file>
+		<file>winEol.png</file>
 	</qresource>
 </RCC>
