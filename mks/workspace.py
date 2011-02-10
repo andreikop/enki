@@ -434,6 +434,20 @@ class AbstractDocument(QMdiSubWindow):
 
         # File opening should be implemented in the document classes
     
+    def eolMode(self):
+        """Return document's EOL mode. Possible values are:
+            r"\n"  - UNIX EOL
+            r"\r\n" - Windows EOL
+            None - not defined for the editor type
+        """
+        return None
+    
+    def setEolMode(self, mode):
+        """Set editor EOL mode.
+        See eolMode() for a alowed mode values
+        """
+        pass
+    
     '''TODO
     def sizeHint(self):
         """eturn defaultsize for document

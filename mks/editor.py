@@ -258,6 +258,14 @@ class Editor(mks.workspace.AbstractDocument):
     
     _MARKER_BOOKMARK = -1  # QScintilla marker type
     
+    _EOL_CONVERTOR_TO_QSCI = {r'\n'     : QsciScintilla.EolUnix,
+                              r'\r\n'   : QsciScintilla.EolWindows,
+                              r'\r'     : QsciScintilla.EolMac}
+    
+    _EOL_CONVERTOR_FROM_QSCI = {QsciScintilla.EolWindows    : r"\r\n",
+                                QsciScintilla.EolUnix       : r"\n",
+                                QsciScintilla.EolMac        : r"\r"}
+    
     def __init__(self, parentObject, filePath):
         mks.workspace.AbstractDocument.__init__(self, parentObject, filePath)
         
@@ -316,10 +324,10 @@ class Editor(mks.workspace.AbstractDocument):
         
         # convert eol
         if  myConfig["EOL"]["AutoConvert"]:
-            oldtext = self.qscintilla.text()
+            oldText = self.qscintilla.text()
             self.qscintilla.convertEols( self.qscintilla.eolMode() )
             text = self.qscintilla.text()
-            if text != oldtext:
+            if text != oldText:
                 mks.monkeycore.messageManager().appendMessage('EOLs converted. You can UNDO the changes', 5000)
         #TODO self.fileOpened.emit()
         self.modifiedChanged.emit(self.isModified())
@@ -375,8 +383,7 @@ class Editor(mks.workspace.AbstractDocument):
         self.qscintilla.setCaretWidth( myConfig["Caret"]["Width"] )
         
         # Special Characters
-        eolConvertor = {r'\n': QsciScintilla.EolUnix, r'\r\n' : QsciScintilla.EolWindows}
-        self.qscintilla.setEolMode( eolConvertor[myConfig["EOL"]["Mode"]] )
+        self.qscintilla.setEolMode( self._EOL_CONVERTOR_TO_QSCI[myConfig["EOL"]["Mode"]] )
         self.qscintilla.setEolVisibility( myConfig["EOL"]["Visibility"] )
         
         self.qscintilla.setWhitespaceVisibility( myConfig["WhitespaceVisibility"] )
@@ -442,6 +449,14 @@ class Editor(mks.workspace.AbstractDocument):
         else:
             return None
     
+    def eolMode(self):
+        mode = self.qscintilla.eolMode()
+        return self._EOL_CONVERTOR_FROM_QSCI[mode]
+
+    def setEolMode(self, mode):
+        self.qscintilla.setEolMode(self._EOL_CONVERTOR_TO_QSCI[mode])
+        self.qscintilla.convertEols(self._EOL_CONVERTOR_TO_QSCI[mode])
+
     """TODO
     def language(self):
         # return the editor language
@@ -581,6 +596,8 @@ class Editor(mks.workspace.AbstractDocument):
             self.qscintilla.setEolMode (QsciScintilla.EolWindows)
         elif '\n' in self.qscintilla.text():
             self.qscintilla.setEolMode (QsciScintilla.EolUnix)
+        elif '\r' in self.qscintilla.text():
+            self.qscintilla.setEolMode (QsciScintilla.EolMac)
     
     def eventFilter( self, object, event ):
         """It is not an editor API function
