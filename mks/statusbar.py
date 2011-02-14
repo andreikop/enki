@@ -26,6 +26,7 @@ class _EolIndicatorAndSwitcher(QToolButton):
         self.setEnabled(False)
         self.setToolTip(self.tr("Line endings. Click for convert"))
         self.setIconSize(QSize(16, 16))  # FIXME hlamer: it doesn't work for my Ubuntu, why???
+        self.setIcon(QIcon(':/mksicons/unixEol.png'))
         self.setPopupMode(QToolButton.InstantPopup)
         
         menu = QMenu(self)  # menu filled on popup. Performance optimisation for quicker start up
@@ -84,7 +85,6 @@ class _IndentationDialog(QDialog):
         self._document = document
         
         uic.loadUi(os.path.join(mks.monkeycore.dataFilesPath(), 'IndentationDialog.ui'), self)        
-        
         self._widthSlider.setValue(document.indentWidth())
         self._updateWidthLabel()
         self._widthSlider.valueChanged.connect(self._onWidthChanged)
@@ -118,6 +118,7 @@ class _IndentIndicatorAndSwitcher(QToolButton):
     
     def __init__(self, parent):
         QToolButton.__init__(self, parent)
+        self.setText(self.tr("Tabs"))
         self.setEnabled(False)
         
         self.setToolTip(self.tr("Indentation mode. Click to change"))
