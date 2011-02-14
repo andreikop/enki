@@ -13,7 +13,7 @@ import mks.monkeycore
 """AK: Idea of _EolIndicatorAndSwitcher, and icons for it was taken from juffed
 """
 
-class _EolIndicatorAndSwitcher(QLabel):
+class _EolIndicatorAndSwitcher(QToolButton):
     """This widget is visible on Status Bar as EOL type icon.
     It draws menu with EOL choise and switches EOL
     """
@@ -22,9 +22,17 @@ class _EolIndicatorAndSwitcher(QLabel):
                       r'\n'     : "unixEol.png"}
     
     def __init__(self, parent):
-        QLabel.__init__(self, parent)
+        QToolButton.__init__(self, parent)
         self.setEnabled(False)
         self.setToolTip(self.tr("Line endings. Click for convert"))
+        self.setIconSize(QSize(16, 16))  # FIXME hlamer: it doesn't work for my Ubuntu, why???
+        self.setPopupMode(QToolButton.InstantPopup)
+        
+        menu = QMenu(self)  # menu filled on popup. Performance optimisation for quicker start up
+        self.setMenu(menu)
+        menu.aboutToShow.connect(self._onMenuAboutToShow)
+        menu.triggered.connect(self._onEolActionTriggered)
+        
         mks.monkeycore.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
     
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument):
@@ -33,31 +41,30 @@ class _EolIndicatorAndSwitcher(QLabel):
         else:
             self._setEolMode(None)
     
-    def mouseReleaseEvent(self, event):
-        editor = mks.monkeycore.workspace().currentDocument()
-        if editor is not None:
-            currentMode = editor.eolMode()
-            self._eolMenu(currentMode).exec_(event.globalPos())
+    def _onMenuAboutToShow(self):
+        document = mks.monkeycore.workspace().currentDocument()
+        if document is not None:
+            currentMode = document.eolMode()
+            self._updateEolMenu(currentMode)
 
-    def _eolMenu(self, currentMode):
+    def _updateEolMenu(self, currentMode):
         """Generate EOL menu
         """
-        def addAction(menu, text, eolMode):
-            action = menu.addAction(QIcon(':/mksicons/' + self._ICON_FOR_MODE[eolMode]), text)
-            action.triggered.connect(self._onEolActionTriggered)
+        self.menu().clear()
+        
+        def addAction(text, eolMode):
+            action = self.menu().addAction(QIcon(':/mksicons/' + self._ICON_FOR_MODE[eolMode]), text)
             action.setData(eolMode)
             if eolMode == currentMode:
                 action.setCheckable(True)
                 action.setChecked(True)
             return action
-        eolMenu = QMenu()
-        addAction(eolMenu, self.tr("CR+LF: Windows"), r'\r\n')
-        addAction(eolMenu, self.tr("CR: Mac OS (but not Mac OS X)"), r'\r')
-        addAction(eolMenu, self.tr("LF: Unix"), r'\n')
-        return eolMenu
 
-    def _onEolActionTriggered(self):
-        action = self.sender()
+        addAction(self.tr("CR+LF: Windows"), r'\r\n')
+        addAction(self.tr("CR: Mac OS (but not Mac OS X)"), r'\r')
+        addAction(self.tr("LF: Unix"), r'\n')
+
+    def _onEolActionTriggered(self, action):
         newEol = str(action.data().toString())
         editor = mks.monkeycore.workspace().currentDocument()
         editor.setEolMode(newEol)
@@ -65,8 +72,7 @@ class _EolIndicatorAndSwitcher(QLabel):
 
     def _setEolMode(self, mode):
         if mode is not None:
-            icon = QIcon(':/mksicons/' + self._ICON_FOR_MODE[mode])
-            self.setPixmap(icon.pixmap(16, 16))
+            self.setIcon(QIcon(':/mksicons/' + self._ICON_FOR_MODE[mode]))
             self.setEnabled(True)
         else:
             self.setEnabled(False)
@@ -163,13 +169,13 @@ class StatusBar(QStatusBar):
         
         self._cursorPos = createLabel(self.tr("Cursor position"))
         self._modified = createLabel(self.tr("Modification state of file"))
-        
+
+        bar = QToolBar(self)        
         # EOL indicator and switcher
-        self._eolSwitcher = _EolIndicatorAndSwitcher(self)
-        self.addPermanentWidget(self._eolSwitcher)
-        
-        bar = QToolBar(self)
+        bar.addWidget(_EolIndicatorAndSwitcher(self))
+        # Indentation indicator and switcher
         bar.addWidget(_IndentIndicatorAndSwitcher(bar))
+        
         self.addPermanentWidget(bar)
         
         createLabel(self.tr("Line")).setText("Line:")
