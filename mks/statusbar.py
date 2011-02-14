@@ -38,9 +38,11 @@ class _EolIndicatorAndSwitcher(QToolButton):
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument):
         if currentDocument is not None:
             self._setEolMode( currentDocument.eolMode() )
+            self.setEnabled(True)
         else:
             self._setEolMode(None)
-    
+            self.setEnabled(False)
+
     def _onMenuAboutToShow(self):
         document = mks.monkeycore.workspace().currentDocument()
         if document is not None:
@@ -73,9 +75,6 @@ class _EolIndicatorAndSwitcher(QToolButton):
     def _setEolMode(self, mode):
         if mode is not None:
             self.setIcon(QIcon(':/mksicons/' + self._ICON_FOR_MODE[mode]))
-            self.setEnabled(True)
-        else:
-            self.setEnabled(False)
 
 class _IndentationDialog(QDialog):
     """Indentation dialog appears, if indentation label on the status bar clicked
@@ -150,80 +149,69 @@ class _IndentIndicatorAndSwitcher(QToolButton):
     def _clearIndentMode(self):
         self.setEnabled(False)
 
-class StatusBar(QStatusBar):
-    """Class implementes statusbar. Bar shows current line, column, save state, EOL and indent mode
+class _PositionIndicator(QToolButton):
+    """Indicator, which shows text "Line: yy Column: xx"
     """
-
     def __init__(self, parent):
-        QStatusBar.__init__(self, parent)
-        # create labels
-        
-        def createLabel(tip):
-            label = QLabel(self)
-            label.setToolTip(tip)
-            label.setMargin( 2 )
-            label.setFrameStyle( QFrame.NoFrame )
-            label.setAttribute( Qt.WA_MacSmallSize )
-            self.addPermanentWidget( label )
-            return label
-        
-        self._cursorPos = createLabel(self.tr("Cursor position"))
-        
-        bar = QToolBar(self)        
-        # Modified button
-        bar.addAction(mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ))
-        # EOL indicator and switcher
-        bar.addWidget(_EolIndicatorAndSwitcher(self))
-        # Indentation indicator and switcher
-        bar.addWidget(_IndentIndicatorAndSwitcher(bar))
-        
-        self.addPermanentWidget(bar)
-        
-        createLabel(self.tr("Line")).setText("Line:")
-        self._line = createLabel(self.tr("Line"))
-        createLabel(self.tr("Column")).setText("Column:")
-        self._col = createLabel(self.tr("Column"))
-        
-        # Avoid flickering, when line length of a number changes
-        self._line.setMinimumWidth(30)
-        self._line.setMargin(0)
-        self._col.setMinimumWidth(30)
-        self._line.setMargin(0)
-        
-        # force remove statusbar label frame
-        self.setStyleSheet( "QStatusBar.item { border: 0px; }" )
-        
-        # connections
-        self.messageChanged.connect(self.setMessage)
-        
+        QToolButton.__init__(self, parent)
+        self.setToolTip(self.tr("Cursor position"))
+        self.setEnabled(False)
+        self._setCursorPosition(-1, -1)
+        self.setMinimumWidth(90)  # Avoid flickering when text width changed
+                                  # FIXME doesn't work
         mks.monkeycore.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
 
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument):
         # Update connections
         if oldDocument is not None:
             oldDocument.cursorPositionChanged.disconnect(self._setCursorPosition)
+            self.clicked.disconnect(oldDocument.invokeGoTo)
         if currentDocument is not None:
             currentDocument.cursorPositionChanged.connect(self._setCursorPosition)
+            self.clicked.connect(currentDocument.invokeGoTo)
         
         # Update info
         if currentDocument is not None:
-            #self.setIndentMode( currentDocument.indentUseTabs())
             self._setCursorPosition( *currentDocument.cursorPosition())
+            self.setEnabled(True)
         else:
-            #self.setIndentMode( document.indentsUseTabs())
             self._setCursorPosition(-1, -1)
+            self.setEnabled(False)
 
+    def _setCursorPosition(self, line, col):
+        template = unicode(self.tr("Line: %s Column: %s"))
+        if line != -1 and col != -1:
+            line = str(line)
+            col = str(col)
+        else:
+            line = '-'
+            col = '-'
+        self.setText(template % (line, col))
+
+class StatusBar(QStatusBar):
+    """Class implementes statusbar. Bar shows current line, column, save state, EOL and indent mode
+    """
+
+    def __init__(self, parent):
+        QStatusBar.__init__(self, parent)
+        
+        bar = QToolBar(self)        
+        # Modified button
+        # Position indicator
+        bar.addWidget(_PositionIndicator(self))
+        bar.addAction(mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ))
+        # EOL indicator and switcher
+        bar.addWidget(_EolIndicatorAndSwitcher(self))
+        # Indentation indicator and switcher        
+        bar.addWidget(_IndentIndicatorAndSwitcher(bar))
+        self.addPermanentWidget(bar)
+        
+        # force remove statusbar label frame
+        self.setStyleSheet( "QStatusBar.item { border: 0px; }" )
+        
+        # connections
+        self.messageChanged.connect(self.setMessage)
+    
     def setMessage(self, message ):
         self.showMessage( message )
         self.setToolTip( message )
-
-    def setIndentMode(self, mode ):
-        self._indent.setText(mode)
-
-    def _setCursorPosition(self, line, col):
-        if line != -1 and col != -1:
-            self._line.setText(str(line))
-            self._col.setText(str(col))
-        else:
-            self._line.setText('-')
-            self._col.setText('-')
