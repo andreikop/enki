@@ -457,6 +457,18 @@ class Editor(mks.workspace.AbstractDocument):
         self.qscintilla.setEolMode(self._EOL_CONVERTOR_TO_QSCI[mode])
         self.qscintilla.convertEols(self._EOL_CONVERTOR_TO_QSCI[mode])
 
+    def indentWidth(self):
+        return self.qscintilla.indentationWidth()
+    
+    def setIndentWidth(self, width):
+        return self.qscintilla.setIndentationWidth(width)
+    
+    def indentUseTabs(self):
+        return self.qscintilla.indentationsUseTabs()
+    
+    def setIndentUseTabs(self, use):
+        return self.qscintilla.setIndentationsUseTabs(use)
+
     """TODO
     def language(self):
         # return the editor language
