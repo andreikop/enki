@@ -168,9 +168,10 @@ class StatusBar(QStatusBar):
             return label
         
         self._cursorPos = createLabel(self.tr("Cursor position"))
-        self._modified = createLabel(self.tr("Modification state of file"))
-
+        
         bar = QToolBar(self)        
+        # Modified button
+        bar.addAction(mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ))
         # EOL indicator and switcher
         bar.addWidget(_EolIndicatorAndSwitcher(self))
         # Indentation indicator and switcher
@@ -201,18 +202,14 @@ class StatusBar(QStatusBar):
         # Update connections
         if oldDocument is not None:
             oldDocument.cursorPositionChanged.disconnect(self._setCursorPosition)
-            oldDocument.modifiedChanged.disconnect(self._setModified)
         if currentDocument is not None:
             currentDocument.cursorPositionChanged.connect(self._setCursorPosition)
-            currentDocument.modifiedChanged.connect(self._setModified)
         
         # Update info
         if currentDocument is not None:
-            self._setModified( currentDocument.isModified() )
             #self.setIndentMode( currentDocument.indentUseTabs())
             self._setCursorPosition( *currentDocument.cursorPosition())
         else:
-            self._setModified(False)
             #self.setIndentMode( document.indentsUseTabs())
             self._setCursorPosition(-1, -1)
 
@@ -220,14 +217,6 @@ class StatusBar(QStatusBar):
         self.showMessage( message )
         self.setToolTip( message )
 
-    def _setModified(self, modified):
-        icon = QIcon( ":/mksicons/save.png" )
-        if modified:
-            pixmap = icon.pixmap(16, 16, QIcon.Normal)
-        else:
-            pixmap = icon.pixmap(16, 16, QIcon.Disabled)
-        self._modified.setPixmap(pixmap)
-    
     def setIndentMode(self, mode ):
         self._indent.setText(mode)
 
