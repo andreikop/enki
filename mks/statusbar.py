@@ -1,8 +1,12 @@
 """Status bar shows shows current line, column, save state, EOL and indent mode
 """
 
+import os.path
+
+from PyQt4 import uic
+
 from PyQt4.QtCore import QSize, Qt
-from PyQt4.QtGui import QFrame, QIcon, QLabel, QMenu, QPixmap, QStatusBar
+from PyQt4.QtGui import QDialog, QFrame, QIcon, QLabel, QMenu, QPixmap, QStatusBar, QToolBar, QToolButton
 
 import mks.monkeycore
 
@@ -67,6 +71,79 @@ class _EolIndicatorAndSwitcher(QLabel):
         else:
             self.setEnabled(False)
 
+class _IndentationDialog(QDialog):
+    """Indentation dialog appears, if indentation label on the status bar clicked
+    """
+    def __init__(self, parent, document):
+        QDialog.__init__(self, parent)
+        self._document = document
+        
+        uic.loadUi(os.path.join(mks.monkeycore.dataFilesPath(), 'IndentationDialog.ui'), self)        
+        
+        self._widthSlider.setValue(document.indentWidth())
+        self._updateWidthLabel()
+        self._widthSlider.valueChanged.connect(self._onWidthChanged)
+        
+        if document.indentUseTabs():
+            self._tabsRadio.setChecked(True)
+        else:
+            self._spacesRadio.setChecked(True)
+        self._tabsRadio.toggled.connect(self._onTabsToggled)        
+        
+        self._convertButton.clicked.connect(self._onConvertClicked)
+    
+    def _updateWidthLabel(self):
+        template = unicode(self.tr("Width: %d"))
+        self._widthLabel.setText(template % self._document.indentWidth())
+        
+    def _onWidthChanged(self, value):
+        self._document.setIndentWidth(value)
+        self._updateWidthLabel()
+    
+    def _onConvertClicked(self):
+        pass
+    
+    def _onTabsToggled(self, toggled):
+        self._document.setIndentUseTabs(toggled)
+
+class _IndentIndicatorAndSwitcher(QToolButton):
+    """This widget is visible on Status Bar as indent type label
+    It draws menu with indent choise and switches indent
+    """
+    
+    def __init__(self, parent):
+        QToolButton.__init__(self, parent)
+        self.setEnabled(False)
+        
+        self.setToolTip(self.tr("Indentation mode. Click to change"))
+        
+        self.clicked.connect(self._onClicked)
+        mks.monkeycore.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
+        
+    
+    def _onCurrentDocumentChanged(self, oldDocument, currentDocument):
+        if currentDocument is not None:
+            self._setIndentMode( currentDocument.indentWidth(), currentDocument.indentUseTabs() )
+        else:
+            self._clearIndentMode()
+    
+    def _onClicked(self):
+        document = mks.monkeycore.workspace().currentDocument()
+        if document is not None:
+            dialog = _IndentationDialog(self, document)
+            dialog.exec_()
+            self._setIndentMode(document.indentWidth(), document.indentUseTabs())
+    
+    def _setIndentMode(self, width, useTabs):
+        if useTabs:
+            self.setText(self.tr("Tabs"))
+        else:
+            self.setText(self.tr("%s spaces" % width))
+        self.setEnabled(True)
+    
+    def _clearIndentMode(self):
+        self.setEnabled(False)
+
 class StatusBar(QStatusBar):
     """Class implementes statusbar. Bar shows current line, column, save state, EOL and indent mode
     """
@@ -91,7 +168,10 @@ class StatusBar(QStatusBar):
         self._eolSwitcher = _EolIndicatorAndSwitcher(self)
         self.addPermanentWidget(self._eolSwitcher)
         
-        self._indentation = createLabel(self.tr("Indentation mode"))
+        bar = QToolBar(self)
+        bar.addWidget(_IndentIndicatorAndSwitcher(bar))
+        self.addPermanentWidget(bar)
+        
         createLabel(self.tr("Line")).setText("Line:")
         self._line = createLabel(self.tr("Line"))
         createLabel(self.tr("Column")).setText("Column:")
@@ -123,11 +203,11 @@ class StatusBar(QStatusBar):
         # Update info
         if currentDocument is not None:
             self._setModified( currentDocument.isModified() )
-            #self.setIndentMode( currentDocument.indentationsUseTabs())
+            #self.setIndentMode( currentDocument.indentUseTabs())
             self._setCursorPosition( *currentDocument.cursorPosition())
         else:
             self._setModified(False)
-            #self.setIndentMode( document.indentationsUseTabs())
+            #self.setIndentMode( document.indentsUseTabs())
             self._setCursorPosition(-1, -1)
 
     def setMessage(self, message ):
@@ -143,7 +223,7 @@ class StatusBar(QStatusBar):
         self._modified.setPixmap(pixmap)
     
     def setIndentMode(self, mode ):
-        self._indentation.setText(mode)
+        self._indent.setText(mode)
 
     def _setCursorPosition(self, line, col):
         if line != -1 and col != -1:

@@ -448,6 +448,28 @@ class AbstractDocument(QMdiSubWindow):
         """
         pass
     
+    def indentWidth(self):
+        """Get width of tabulation symbol and count of spaces to insert, when Tab pressed
+        """
+        pass
+    
+    def setIndentWidth(self, width):
+        """Set width of tabulation symbol and count of spaces to insert, when Tab pressed
+        """
+        pass
+    
+    def indentUseTabs(self):
+        """Get indentation uses tabs flag.
+        If true - \t inserted by Tab button, if false - spaces
+        """
+        pass
+    
+    def setIndentUseTabs(self, use):
+        """Set indentation uses tabs flag.
+        If true - \t inserted by Tab button, if false - spaces
+        """
+        pass
+    
     '''TODO
     def sizeHint(self):
         """eturn defaultsize for document
