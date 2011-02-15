@@ -1,4 +1,5 @@
-"""Status bar shows shows current line, column, save state, EOL and indent mode
+"""Tool bar shows shows current line, column, save state, EOL and indent mode, save button
+It allows to change this parameters and save file
 """
 
 import os.path
@@ -6,7 +7,7 @@ import os.path
 from PyQt4 import uic
 
 from PyQt4.QtCore import QSize, Qt
-from PyQt4.QtGui import QDialog, QFrame, QIcon, QLabel, QMenu, QPixmap, QStatusBar, QToolBar, QToolButton
+from PyQt4.QtGui import QDialog, QFrame, QIcon, QLabel, QMenu, QPixmap, QToolBar, QToolButton
 
 import mks.monkeycore
 
@@ -189,30 +190,18 @@ class _PositionIndicator(QToolButton):
             col = '-'
         self.setText(template % (line, col))
 
-class StatusBar(QStatusBar):
-    """Class implementes statusbar. Bar shows current line, column, save state, EOL and indent mode
+class EditorToolBar(QToolBar):
+    """Class implementes tool bar, which shows current indentation, EOL mode and cursor position
     """
 
     def __init__(self, parent):
-        QStatusBar.__init__(self, parent)
+        QToolBar.__init__(self, parent)
         
-        bar = QToolBar(self)        
-        # Modified button
         # Position indicator
-        bar.addWidget(_PositionIndicator(self))
-        bar.addAction(mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ))
+        self.addWidget(_PositionIndicator(self))
+        # Modified button
+        self.addAction(mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ))
         # EOL indicator and switcher
-        bar.addWidget(_EolIndicatorAndSwitcher(self))
+        self.addWidget(_EolIndicatorAndSwitcher(self))
         # Indentation indicator and switcher        
-        bar.addWidget(_IndentIndicatorAndSwitcher(bar))
-        self.addPermanentWidget(bar)
-        
-        # force remove statusbar label frame
-        self.setStyleSheet( "QStatusBar.item { border: 0px; }" )
-        
-        # connections
-        self.messageChanged.connect(self.setMessage)
-    
-    def setMessage(self, message ):
-        self.showMessage( message )
-        self.setToolTip( message )
+        self.addWidget(_IndentIndicatorAndSwitcher(self))

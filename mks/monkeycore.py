@@ -28,7 +28,7 @@ from PyQt4.fresh import pSettings
 from _3rdparty.configobj import ConfigObj, flatten_errors, ParseError
 from _3rdparty.validate import Validator
 
-from mks.statusbar import StatusBar
+from mks.editortoolbar import EditorToolBar
 
 import mksiconsresource
 import freshresource
@@ -164,7 +164,7 @@ def init():
     
     mainWindow()  # create the instance
     
-    mainWindow().setStatusBar(StatusBar( mainWindow() ))
+    mainWindow().statusBar().addPermanentWidget(EditorToolBar( mainWindow()))
 
     # create and init workspace
     mainWindow().setCentralWidget( workspace() )
