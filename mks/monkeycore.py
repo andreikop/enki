@@ -21,14 +21,13 @@ import main
 import os.path
 import shutil
 
+from PyQt4.QtCore import Qt
 from PyQt4.QtGui import qApp
 
 from PyQt4.fresh import pSettings
 
 from _3rdparty.configobj import ConfigObj, flatten_errors, ParseError
 from _3rdparty.validate import Validator
-
-from mks.editortoolbar import EditorToolBar
 
 import mksiconsresource
 import freshresource
@@ -164,13 +163,11 @@ def init():
     
     mainWindow()  # create the instance
     
-    mainWindow().statusBar().addPermanentWidget(EditorToolBar( mainWindow()))
-
-    # create and init workspace
-    mainWindow().setCentralWidget( workspace() )
-    
     import mks.editor  # TODO would be done, when plugin loaded, remove this 2 lines from here
     mks.monkeycore.workspace().setTextEditorClass(mks.editor.Editor) 
+    
+    from mks.editortoolbar import EditorToolBar  # TODO make a plugin
+    mainWindow().statusBar().addPermanentWidget(EditorToolBar(mainWindow().statusBar()))
     
     # TODO to plugins manger
     import mks.searchandreplace
@@ -272,11 +269,7 @@ def workspace():
     
     Instance created, if not exists yet
     """
-    global _workspace
-    if _workspace is None:
-        import mks.workspace  # not global import, for avoid crossimports conflicts. TODO find better solution?
-        _workspace = mks.workspace.Workspace(mainWindow())
-    return _workspace
+    return mainWindow().workspace
 
 def config():
     """ConfigObj istance used for read and write settings

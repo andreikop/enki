@@ -196,6 +196,7 @@ class EditorToolBar(QToolBar):
 
     def __init__(self, parent):
         QToolBar.__init__(self, parent)
+        self.setIconSize(QSize(16, 16))
         
         # Position indicator
         self.addWidget(_PositionIndicator(self))

@@ -10,14 +10,13 @@ from PyQt4.QtCore import Qt
 from PyQt4.QtCore import pyqtSignal
 from PyQt4.QtCore import QString
 from PyQt4.QtCore import QSize
-from PyQt4.QtGui import qApp
-from PyQt4.QtGui import QIcon
-from PyQt4.QtGui import QDockWidget
+from PyQt4.QtGui import qApp, QHBoxLayout, QIcon, QDockWidget, QSizePolicy, QToolBar, QWidget
 
 from PyQt4.fresh import pDockWidget, pMainWindow, pActionsNodeModel
 
 import mks.monkeystudio
 import mks.monkeycore
+import mks.workspace
 
 class MainWindow(pMainWindow):
     """
@@ -61,7 +60,6 @@ class MainWindow(pMainWindow):
         mb = self.menuBar()
         self.mActionsModel = pActionsNodeModel( self )
         self.menuBar().setModel( self.mActionsModel )
-
         
         # FIXME commented for new fresh
         #mb.setDefaultShortcutContext( Qt.ApplicationShortcut )
@@ -285,6 +283,20 @@ class MainWindow(pMainWindow):
         # help menu
         self.menuBar().action( "mHelp/aAbout" ).triggered.connect(mks.monkeycore.workspace().helpAboutApplication_triggered)
         """
+        
+        #self.menuWidget().setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        #self.statusBar().addPermanentWidget(self.menuWidget())
+        
+        modernDocksToolBar = self.dockToolBarManager().modernDockToolBarWidget()
+        self.removeToolBar(modernDocksToolBar)
+        modernDocksToolBar.setOrientation(Qt.Horizontal)
+        modernDocksToolBar.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.statusBar().addPermanentWidget(modernDocksToolBar)
+
+        # create and init workspace
+        self.workspace = mks.workspace.Workspace(self)
+        self.setCentralWidget(self.workspace)
+    
     def __del__(self):
         for act in self._createdActions:
             self.menuBar().removeAction(act)
@@ -293,6 +305,10 @@ class MainWindow(pMainWindow):
         
         self.menuBar().setModel( None )
         self.settings().sync()  # write window and docs geometry
+    
+    def topWidget(self):
+        """Top widet contains Docks show/hide buttons and editor tool bar"""
+        return self._topWidget
     
     def actionsModel(self):
         """Get actions model.

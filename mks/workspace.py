@@ -36,7 +36,6 @@ from PyQt4.QtCore import QByteArray, Qt, QObject, QAbstractItemModel, QMimeData,
 import PyQt4.fresh
 
 import mks.monkeystudio
-import mks.mainwindow
 
 """
 CONTENT_CHANGED_TIME_OUT = 3000
@@ -314,7 +313,7 @@ class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         self.tvFiles.selectionModel().selectionChanged.connect(self.selectionModel_selectionChanged)  # disconnected by _startModifyModel()
         
         self.showAction().setShortcut("F2")
-        mks.monkeycore.mainWindow().addAction(self.showAction())
+        workspace.parentWidget().addAction(self.showAction())
     
     def _startModifyModel(self):
         """Blocks signals from model while it modified by code
@@ -693,8 +692,8 @@ class Workspace(QFrame):
     buffersChanged = pyqtSignal(dict) # {file path : file contents}
     """
     
-    def __init__(self, parent):
-        QFrame.__init__(self, parent)
+    def __init__(self, mainWindow):
+        QFrame.__init__(self, mainWindow)
         
         """ list of opened documents as it is displayed in the Opened Files Explorer. 
         List accessed and modified by _OpenedFileModel class
@@ -707,7 +706,7 @@ class Workspace(QFrame):
         
         # create opened files explorer
         self.mOpenedFileExplorer = _OpenedFileExplorer(self)
-        lefttb = mks.monkeycore.mainWindow().dockToolBar( Qt.LeftToolBarArea )
+        lefttb = mainWindow.dockToolBar( Qt.LeftToolBarArea )
         lefttb.addDockWidget( self.mOpenedFileExplorer,
                               self.mOpenedFileExplorer.windowTitle(),
                               self.mOpenedFileExplorer.windowIcon())
@@ -794,17 +793,17 @@ class Workspace(QFrame):
         self.mContentChangedTimer.timeout.connect(self.contentChangedTimer_timeout)
         MonkeyCore.multiToolBar().notifyChanges.connect(self.multitoolbar_notifyChanges)
     """
-        mks.monkeycore.menuBar().action( "mFile/aOpen" ).triggered.connect(self._fileOpen_triggered)
-        mks.monkeycore.menuBar().action( "mFile/aReload" ).triggered.connect(self._fileReload_triggered)
-        mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).triggered.connect(self._closeCurrentDocument)
+        mainWindow.menuBar().action( "mFile/aOpen" ).triggered.connect(self._fileOpen_triggered)
+        mainWindow.menuBar().action( "mFile/aReload" ).triggered.connect(self._fileReload_triggered)
+        mainWindow.menuBar().action( "mFile/mClose/aCurrent" ).triggered.connect(self._closeCurrentDocument)
     
-        mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).triggered.connect(self._fileSaveCurrent_triggered)
-        mks.monkeycore.menuBar().action( "mFile/mSave/aAll" ).triggered.connect(self._fileSaveAll_triggered)
+        mainWindow.menuBar().action( "mFile/mSave/aCurrent" ).triggered.connect(self._fileSaveCurrent_triggered)
+        mainWindow.menuBar().action( "mFile/mSave/aAll" ).triggered.connect(self._fileSaveAll_triggered)
         
-        mks.monkeycore.menuBar().action( "mView/aNext" ).triggered.connect(self._activateNextDocument)
-        mks.monkeycore.menuBar().action( "mView/aPrevious" ).triggered.connect(self._activatePreviousDocument)
+        mainWindow.menuBar().action( "mView/aNext" ).triggered.connect(self._activateNextDocument)
+        mainWindow.menuBar().action( "mView/aPrevious" ).triggered.connect(self._activatePreviousDocument)
         
-        mks.monkeycore.menuBar().action( "mView/aFocusCurrentDocument" ).triggered.connect(self.focusCurrentDocument)
+        mainWindow.menuBar().action( "mView/aFocusCurrentDocument" ).triggered.connect(self.focusCurrentDocument)
         
     def setTextEditorClass(self, newEditor):
         """Set text editor, which is used for open textual documents.
