@@ -284,9 +284,7 @@ class MainWindow(pMainWindow):
         self.menuBar().action( "mHelp/aAbout" ).triggered.connect(mks.monkeycore.workspace().helpAboutApplication_triggered)
         """
         
-        #self.menuWidget().setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        #self.statusBar().addPermanentWidget(self.menuWidget())
-        
+        # Move docks tool bar to statusbar
         modernDocksToolBar = self.dockToolBarManager().modernDockToolBarWidget()
         self.removeToolBar(modernDocksToolBar)
         modernDocksToolBar.setOrientation(Qt.Horizontal)
@@ -296,6 +294,7 @@ class MainWindow(pMainWindow):
         # create and init workspace
         self.workspace = mks.workspace.Workspace(self)
         self.setCentralWidget(self.workspace)
+        self.setFocusProxy(self.workspace)
     
     def __del__(self):
         for act in self._createdActions:
