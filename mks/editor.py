@@ -395,7 +395,7 @@ class Editor(mks.workspace.AbstractDocument):
     
     def _applyLexer(self, myConfig, filePath):
         defaultFont = QFont(myConfig["DefaultFont"], myConfig["DefaultFontSize"])
-        lexer = self._lexerForFileName( filePath )
+        lexer = self._lexerForFileName( os.path.basename(unicode(filePath)))
         if lexer:
             lexer.setDefaultFont(defaultFont)
             for i in range(128):
