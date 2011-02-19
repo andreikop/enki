@@ -831,6 +831,12 @@ class Workspace(QFrame):
         """Connect/disconnect document signals and update enabled/disabled 
         state of the actions
         """
+        
+        if document is None and self.mdiArea.subWindowList():  # just lost focus, no real change
+            return
+        if document == self._oldCurrentDocument:  # just recieved focus, no real change
+            return
+        
         if document is not None:
             self.setFocusProxy(document)
         

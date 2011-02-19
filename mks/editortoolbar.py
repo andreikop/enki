@@ -159,7 +159,7 @@ class _PositionIndicator(QToolButton):
         self.setToolTip(self.tr("Cursor position"))
         self.setEnabled(False)
         self._setCursorPosition(-1, -1)
-        self.setMinimumWidth(90)  # Avoid flickering when text width changed
+        self.setMinimumWidth(180)  # Avoid flickering when text width changed
                                   # FIXME doesn't work
         mks.monkeycore.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
 
@@ -198,11 +198,11 @@ class EditorToolBar(QToolBar):
         QToolBar.__init__(self, parent)
         self.setIconSize(QSize(16, 16))
         
-        # Position indicator
-        self.addWidget(_PositionIndicator(self))
         # Modified button
         self.addAction(mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ))
         # EOL indicator and switcher
         self.addWidget(_EolIndicatorAndSwitcher(self))
         # Indentation indicator and switcher        
         self.addWidget(_IndentIndicatorAndSwitcher(self))
+        # Position indicator
+        self.addWidget(_PositionIndicator(self))
