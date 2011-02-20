@@ -285,10 +285,11 @@ class MainWindow(pMainWindow):
         """
         
         # Move docks tool bar to statusbar
-        modernDocksToolBar = self.dockToolBarManager().modernDockToolBarWidget()
+        modernDocksToolBar = self.dockToolBarManager().modernDockToolBar()
         self.removeToolBar(modernDocksToolBar)
         modernDocksToolBar.setOrientation(Qt.Horizontal)
         modernDocksToolBar.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        modernDocksToolBar.setIconSize(QSize(16, 16))  # FIXME hlamer: it doesn't work for my Ubuntu, why???
         self.statusBar().addPermanentWidget(modernDocksToolBar)
 
         # create and init workspace
