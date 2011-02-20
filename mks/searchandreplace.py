@@ -223,7 +223,7 @@ class SearchWidget(QFrame):
         self.mSearchContext = None
         self.plugin = plugin
         uic.loadUi(os.path.join(mks.monkeycore.dataFilesPath(),
-                   'SearchWidget.ui'),
+                   'ui/SearchWidget.ui'),
                    self)
         
         self.cbSearch.completer().setCaseSensitivity( Qt.CaseSensitive )

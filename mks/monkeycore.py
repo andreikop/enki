@@ -48,8 +48,8 @@ def dataFilesPath():
     return os.path.dirname(__file__)
 
 
-_DEFAULT_CONFIG_PATH = os.path.join(dataFilesPath(), 'mksv3.default.cfg')
-_DEFAULT_CONFIG_SPEC_PATH = os.path.join(dataFilesPath(), 'mksv3.spec.cfg')
+_DEFAULT_CONFIG_PATH = os.path.join(dataFilesPath(), 'config/mksv3.default.cfg')
+_DEFAULT_CONFIG_SPEC_PATH = os.path.join(dataFilesPath(), 'config/mksv3.spec.cfg')
 _CONFIG_PATH = os.path.expanduser('~/.mksv3.cfg')
 
 

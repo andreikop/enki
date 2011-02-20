@@ -85,7 +85,7 @@ class _IndentationDialog(QDialog):
         QDialog.__init__(self, parent)
         self._document = document
         
-        uic.loadUi(os.path.join(mks.monkeycore.dataFilesPath(), 'IndentationDialog.ui'), self)        
+        uic.loadUi(os.path.join(mks.monkeycore.dataFilesPath(), 'ui/IndentationDialog.ui'), self)        
         self._widthSlider.setValue(document.indentWidth())
         self._updateWidthLabel()
         self._widthSlider.valueChanged.connect(self._onWidthChanged)
