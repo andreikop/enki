@@ -26,7 +26,7 @@ class _EolIndicatorAndSwitcher(QToolButton):
         QToolButton.__init__(self, parent)
         self.setEnabled(False)
         self.setToolTip(self.tr("Line endings. Click for convert"))
-        self.setIconSize(QSize(16, 16))  # FIXME hlamer: it doesn't work for my Ubuntu, why???
+        self.setIconSize(QSize(16, 16))
         self.setIcon(QIcon(':/mksicons/unixEol.png'))
         self.setPopupMode(QToolButton.InstantPopup)
         
