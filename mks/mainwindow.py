@@ -47,6 +47,7 @@ class MainWindow(pMainWindow):
         self.setIconSize( QSize( 16, 16 ) )
         self.setAcceptDrops( True )
         
+        # Set corner settings for dock widgets
         self.setCorner( Qt.TopLeftCorner, Qt.LeftDockWidgetArea )
         self.setCorner( Qt.TopRightCorner, Qt.RightDockWidgetArea )
         self.setCorner( Qt.BottomLeftCorner, Qt.LeftDockWidgetArea )
@@ -55,6 +56,54 @@ class MainWindow(pMainWindow):
         self.setWindowTitle( "%s" % mks.config.PACKAGE_NAME)
         self.setWindowIcon( QIcon(':/mksicons/monkey2.png') )
 
+        self._initMenuBar()
+        
+        """
+        # init recents manager
+        mks.monkeycore.recentsManager()
+        """
+        
+        """
+        # init projects manager
+        dockToolBar( Qt.LeftToolBarArea ).addDock( mks.monkeycore.projectsManager(), mks.monkeycore.projectsManager().windowTitle(), QIcon( ":/mksicons/project.png" ) )
+        # init multitoolbar
+        mks.monkeycore.workspace().initMultiToolBar( mks.monkeycore.multiToolBar().toolBar( Workspace.defaultContext() ) )
+        mks.monkeycore.workspace().initMultiToolBar( mks.monkeycore.multiToolBar().toolBar( "Coding" ) )
+        # init connection
+        self.initConnections()
+        """
+        
+        # Default exclusive settings for the tool bars
+        self.dockToolBar( Qt.LeftToolBarArea ).setExclusive(False)
+        self.dockToolBar( Qt.RightToolBarArea ).setExclusive(False)
+        
+        # Move docks tool bar to statusbar
+        modernDocksToolBar = self.dockToolBarManager().modernDockToolBar()
+        self.removeToolBar(modernDocksToolBar)
+        modernDocksToolBar.setOrientation(Qt.Horizontal)
+        modernDocksToolBar.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        modernDocksToolBar.setIconSize(QSize(16, 16))  # FIXME hlamer: it doesn't work for my Ubuntu, why???
+        self.statusBar().addPermanentWidget(modernDocksToolBar)
+
+        # create and init workspace
+        self.workspace = mks.workspace.Workspace(self)
+        self.setCentralWidget(self.workspace)
+        self.setFocusProxy(self.workspace)
+    
+    def __del__(self):
+        for act in self._createdActions:
+            self.menuBar().removeAction(act)
+        for menuPath in self._createdMenuPathes:
+            self.menuBar().removeMenu(menuPath)
+        
+        self.menuBar().setModel( None )
+        self.settings().sync()  # write window and docs geometry
+
+    def _initMenuBar(self):
+        """Fill menu bar with items. The majority of items are not connected to the slots,
+        Connections made by module, which implements menu item functionality, but, all items are in one place,
+        because it's easier to create clear menu layout
+        """
         # init menubar
         # create menubar menus and actions
         mb = self.menuBar()
@@ -167,20 +216,13 @@ class MainWindow(pMainWindow):
         # create plugins actions
         mks.monkeycore.pluginsManager().menuHandler().setMenu( mb.menu( "mPlugins" ) )
         
-        # init recents manager
-        mks.monkeycore.recentsManager()
-        # init toolbar
-        self.initToolBar()
         """
-        
-        # Default exclusive settings for the tool bars
-        self.dockToolBar( Qt.LeftToolBarArea ).setExclusive(False)
-        self.dockToolBar( Qt.RightToolBarArea ).setExclusive(False)
         
         self._createdMenuPathes = []
         self._createdActions = []
         
         def menu(path, name, icon):
+            """Subfunction for create a menu in the main menu"""
             menuObject = self.menuBar().addMenu(path)
             menuObject.setText(name)
             if icon:
@@ -188,6 +230,7 @@ class MainWindow(pMainWindow):
             self._createdMenuPathes.append(path)
             
         def action(path, name, icon, shortcut, tooltip, enabled):
+            """Subfunction for create an action in the main menu"""
             if icon:  # has icon
                 actObject = self.menuBar().addAction(path, name, QIcon(':/mksicons/' + icon))
             else:
@@ -199,6 +242,7 @@ class MainWindow(pMainWindow):
             self._createdActions.append(actObject)
         
         def seperator(menu):
+            """Subfunction for insert separator to the menu"""
             self.menuBar().menu(menu).addSeparator()
         
         # Menu or action path                   Name                                Icon            Shortcut        Hint                                        Action enabled
@@ -232,20 +276,6 @@ class MainWindow(pMainWindow):
         self.menuBar().menu( "mDocks" ).aboutToShow.connect(self._menu_Docks_aboutToShow)
         
         """TODO
-        # init message toolbar
-        messageTb =  mks.monkeycore.messageManager()
-        messageTb.setObjectName( "pQueuedMessageToolBar" )
-        messageTb.setVisible( False )
-        messageTb.setDefaultPixmap( QIcon(":/mksicons/messages_infos.png") )
-        pMonkeyStudio.setMacSmallSize( messageTb, true, true )
-        self.centralWidget().layout().setMenuBar( messageTb )
-        # init projects manager
-        dockToolBar( Qt.LeftToolBarArea ).addDock( mks.monkeycore.projectsManager(), mks.monkeycore.projectsManager().windowTitle(), QIcon( ":/mksicons/project.png" ) )
-        # init multitoolbar
-        mks.monkeycore.workspace().initMultiToolBar( mks.monkeycore.multiToolBar().toolBar( Workspace.defaultContext() ) )
-        mks.monkeycore.workspace().initMultiToolBar( mks.monkeycore.multiToolBar().toolBar( "Coding" ) )
-        # init connection
-        self.initConnections()
         self.menuBar().action( "mFile/aNew" ).triggered.connect(mks.monkeycore.workspace().fileNew_triggered)
         self.menuBar().action( "mFile/aNewTextEditor" ).triggered.connect(mks.monkeycore.workspace().createNewTextEditor)
         mks.monkeycore.recentsManager().openFileRequested.connect(mks.monkeycore.fileManager().openFile)
@@ -283,38 +313,6 @@ class MainWindow(pMainWindow):
         # help menu
         self.menuBar().action( "mHelp/aAbout" ).triggered.connect(mks.monkeycore.workspace().helpAboutApplication_triggered)
         """
-        
-        # Move docks tool bar to statusbar
-        modernDocksToolBar = self.dockToolBarManager().modernDockToolBar()
-        self.removeToolBar(modernDocksToolBar)
-        modernDocksToolBar.setOrientation(Qt.Horizontal)
-        modernDocksToolBar.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        modernDocksToolBar.setIconSize(QSize(16, 16))  # FIXME hlamer: it doesn't work for my Ubuntu, why???
-        self.statusBar().addPermanentWidget(modernDocksToolBar)
-
-        # create and init workspace
-        self.workspace = mks.workspace.Workspace(self)
-        self.setCentralWidget(self.workspace)
-        self.setFocusProxy(self.workspace)
-    
-    def __del__(self):
-        for act in self._createdActions:
-            self.menuBar().removeAction(act)
-        for menuPath in self._createdMenuPathes:
-            self.menuBar().removeMenu(menuPath)
-        
-        self.menuBar().setModel( None )
-        self.settings().sync()  # write window and docs geometry
-    
-    def topWidget(self):
-        """Top widet contains Docks show/hide buttons and editor tool bar"""
-        return self._topWidget
-    
-    def actionsModel(self):
-        """Get actions model.
-        Model used for set default shortcuts for the actions
-        """
-        return self.mActionsModel
     
     def _menu_Docks_aboutToShow(self):
         # get menu
@@ -376,29 +374,6 @@ class MainWindow(pMainWindow):
             menu.addAction( tb.toggleExclusiveAction() )
         
         return menu
-
-    def initToolBar(self):
-        # recents
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().menu( "mFile/mRecents" ).menuAction() )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().menu( "mFile/mSession" ).menuAction() )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().menu( "mProject/mRecents" ).menuAction() )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction()
-        # settings
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mEdit/aSettings" ) )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mEdit/aShortcutsEditor" ) )
-        # file action
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mFile/aNew" ) )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mFile/aNewTextEditor" ) )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mFile/aOpen" ) )
-        self.dockToolBar( Qt.TopToolBarArea ).addActions( self.menuBar().menu( "mFile/mSave" ).actions() )
-        self.dockToolBar( Qt.TopToolBarArea ).addActions( self.menuBar().menu( "mFile/mClose" ).actions() )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mFile/aQuickPrint" ) )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction()
-        # help action
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( self.menuBar().action( "mHelp/aAbout" ) )
-        self.dockToolBar( Qt.TopToolBarArea ).addAction()
-        # console action
-        self.dockToolBar( Qt.TopToolBarArea ).addAction( mks.monkeycore.consoleManager().stopAction() )
 
 def updateMenuVisibility( self, menu ):
         menuAction = menu.menuAction()
