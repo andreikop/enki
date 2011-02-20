@@ -291,7 +291,7 @@ class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         PyQt4.fresh.pDockWidget.__init__(self, workspace)
         
         self.mModel = _OpenedFileModel(self)
-        uic.loadUi(os.path.join(mks.monkeycore.dataFilesPath(), 'pOpenedFileExplorer.ui'), self )
+        uic.loadUi(os.path.join(mks.monkeycore.dataFilesPath(), 'ui/pOpenedFileExplorer.ui'), self )
         self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
         self.tvFiles.setModel( self.mModel )
         self.tvFiles.setAttribute( Qt.WA_MacShowFocusRect, False )
