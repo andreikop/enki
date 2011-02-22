@@ -285,6 +285,7 @@ class Editor(mks.workspace.AbstractDocument):
         self.qscintilla.setFrameStyle( QFrame.NoFrame | QFrame.Plain )
 
         layout = QVBoxLayout(self)
+        layout.setMargin(0)
         layout.addWidget(self.qscintilla)
         
         self.setFocusProxy( self.qscintilla )
