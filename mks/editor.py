@@ -5,7 +5,7 @@ import shutil
 import fnmatch
 
 from PyQt4.QtCore import Qt, QEvent
-from PyQt4.QtGui import QColor, QFont, QFrame, QInputDialog, QIcon, QKeyEvent, QMessageBox
+from PyQt4.QtGui import QColor, QFont, QFrame, QInputDialog, QIcon, QKeyEvent, QVBoxLayout, QMessageBox
 
 from PyQt4.Qsci import *
 
@@ -284,7 +284,9 @@ class Editor(mks.workspace.AbstractDocument):
         self.qscintilla.setAttribute( Qt.WA_MacSmallSize )
         self.qscintilla.setFrameStyle( QFrame.NoFrame | QFrame.Plain )
 
-        self.setWidget( self.qscintilla )
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.qscintilla)
+        
         self.setFocusProxy( self.qscintilla )
         # connections
         self.qscintilla.cursorPositionChanged.connect(self.cursorPositionChanged)

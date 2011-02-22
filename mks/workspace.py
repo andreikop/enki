@@ -26,7 +26,7 @@ import sys
 
 from PyQt4 import uic
 
-from PyQt4.QtGui import QTreeView, QMdiSubWindow, QMdiArea, QFileDialog, \
+from PyQt4.QtGui import QTreeView, QWidget, QStackedWidget, QFileDialog, \
                         QFrame, QKeySequence, QVBoxLayout, QApplication, \
                         QIcon, QMenu, \
                         QMessageBox, QAction, QActionGroup
@@ -390,7 +390,7 @@ class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         menu.exec_( self.tvFiles.mapToGlobal( pos ) )
 
 
-class AbstractDocument(QMdiSubWindow):
+class AbstractDocument(QWidget):
     """Base class for documents on workspace, such as opened source file, Qt Designer and Qt Assistant, ...
     Inherit this class, if you want to create new document type
     """
@@ -412,7 +412,7 @@ class AbstractDocument(QMdiSubWindow):
         """Create editor and open file.
         IO Exceptions not catched, so, must be catched on upper level
         """
-        QMdiSubWindow.__init__( self, parentObject )
+        QWidget.__init__( self, parentObject )
         
         # default for window icon is application icon. This line avoids using it in the opened files list
         self.setWindowIcon(QIcon())
@@ -423,14 +423,6 @@ class AbstractDocument(QMdiSubWindow):
         mDocument = mNone
         mLayout = lNone
         """
-        
-        # clear Close shortcut that conflict with menu one on some platform
-        closeSequence = QKeySequence (QKeySequence.Close)
-        
-        for action in self.systemMenu().actions():
-            if  action.shortcut() == closeSequence :
-                action.setShortcut( QKeySequence() )
-
         # File opening should be implemented in the document classes
     
     def eolMode(self):
@@ -622,7 +614,7 @@ class AbstractDocument(QMdiSubWindow):
     #updateWorkspaceRequested()
     '''
 
-class Workspace(QFrame):
+class Workspace(QStackedWidget):
     """
     Class manages set of opened documents, allows to open new file
     
@@ -693,7 +685,7 @@ class Workspace(QFrame):
     """
     
     def __init__(self, mainWindow):
-        QFrame.__init__(self, mainWindow)
+        QStackedWidget.__init__(self, mainWindow)
         
         """ list of opened documents as it is displayed in the Opened Files Explorer. 
         List accessed and modified by _OpenedFileModel class
@@ -755,28 +747,13 @@ class Workspace(QFrame):
                 action.setToolTip( action.text() )
         """
         
-        # layout
-        self.mLayout = QVBoxLayout( self )
-        self.mLayout.setMargin( 0 )
-        self.mLayout.setSpacing( 0 )
-        """TODO
-        # multitoolbar
-        hline = QFrame( self )
-        hline.setFrameStyle( QFrame.HLine | QFrame.Sunken )
-        """
         # document area
-        self.mdiArea = QMdiArea( self )
-        self.mdiArea.setActivationOrder( QMdiArea.CreationOrder )
-        self.mdiArea.setDocumentMode( True )
-        self.mdiArea.subWindowActivated.connect(self._onCurrentDocumentChanged)
+        self.layout().setContentsMargins(0, 0, 0, 0)  # FIXME doesn't work
+        self.layout().setSpacing(0)
+        self.layout().setMargin(0)
         
-        """
-        # add widgets to layout
-        self.mLayout.addWidget( mks.monkeycore.multiToolBar() )
+        self.currentChanged.connect(self._onStackedLayoutIndexChanged)
         
-        self.mLayout.addWidget( hline )
-        """
-        self.mLayout.addWidget( self.mdiArea )
         """TODO
         # creaet file watcher
         self.mFileWatcher = QFileSystemWatcher( self )
@@ -787,11 +764,9 @@ class Workspace(QFrame):
 
         # connections
         mViewModesGroup.triggered.connect(self.viewModes_triggered)
-        self.mdiArea.subWindowActivated.connect(self.mdiArea_subWindowActivated)
         parent.urlsDropped.connect(self.internal_urlsDropped)
         MonkeyCore.projectsManager().currentProjectChanged.connect(self.internal_currentProjectChanged)
         self.mContentChangedTimer.timeout.connect(self.contentChangedTimer_timeout)
-        MonkeyCore.multiToolBar().notifyChanges.connect(self.multitoolbar_notifyChanges)
     """
         mainWindow.menuBar().action( "mFile/aOpen" ).triggered.connect(self._fileOpen_triggered)
         mainWindow.menuBar().action( "mFile/aReload" ).triggered.connect(self._fileReload_triggered)
@@ -827,12 +802,19 @@ class Workspace(QFrame):
         
         return QFrame.eventFilter( self, object, event )
     
+    def _onStackedLayoutIndexChanged(self, index):
+        """Handler of change of current document in the stacked layout.
+        Only calls _onCurrentDocumentChanged(document)
+        """
+        document = self.widget(index)
+        self._onCurrentDocumentChanged(document)
+    
     def _onCurrentDocumentChanged( self, document ):
         """Connect/disconnect document signals and update enabled/disabled 
         state of the actions
         """
         
-        if document is None and self.mdiArea.subWindowList():  # just lost focus, no real change
+        if document is None and self.count():  # just lost focus, no real change
             return
         if document == self._oldCurrentDocument:  # just recieved focus, no real change
             return
@@ -865,27 +847,6 @@ class Workspace(QFrame):
         if document:
             modified = document.isModified()
             print_ = document.isPrintAvailable()
-        # context toolbar
-        mtb = mks.monkeycore.multiToolBar()
-        
-        if  document :
-            if  not mtb.contexts().contains( document.context() ) :
-                tb = mtb.toolBar( document.context() )
-
-                self.initMultiToolBar( tb )
-                document.initializeContext( tb )
-
-
-            mtb.setCurrentContext( document.context() )
-        else:
-            if  not mtb.contexts().contains( DEFAULT_CONTEXT ) :
-                tb = mtb.toolBar( DEFAULT_CONTEXT )
-
-                self.initMultiToolBar( tb )
-            
-            mtb.setCurrentContext( DEFAULT_CONTEXT )
-        
-        self.multitoolbar_notifyChanges()
         '''
         
         # update file menu
@@ -907,7 +868,7 @@ class Workspace(QFrame):
         '''
         
         # update view menu
-        moreThanOneDocument = len(self.mdiArea.subWindowList()) > 1
+        moreThanOneDocument = self.count() > 1
         mks.monkeycore.menuBar().action( "mView/aNext" ).setEnabled( moreThanOneDocument )
         mks.monkeycore.menuBar().action( "mView/aPrevious" ).setEnabled( moreThanOneDocument )
         
@@ -934,44 +895,20 @@ class Workspace(QFrame):
         tabBar().setCurrentTabColor( currentTabTextColor() )
         self.mOpenedFileExplorer.setSortMode( mks.monkeystudio.openedFileSortingMode() )
         self.setDocumentMode( mks.monkeystudio.documentMode() )
-        mtb = mks.monkeycore.multiToolBar()
-
-        for context in mtb.contexts():
-            tb = mtb.toolBar( context )
-            self.initMultiToolBar( tb )
-        
-        self.multitoolbar_notifyChanges()
-        
-    def initMultiToolBar( self, tb ):
-        if  mks.monkeystudio.showQuickFileAccess() :
-            tb.insertAction( tb.actions().value( 0 ), mks.monkeycore.workspace().dockWidget().comboBoxAction() )
-        else:
-            tb.removeAction( mks.monkeycore.workspace().dockWidget().comboBoxAction() )
-    
+            
     def fileWatcher(self):
-        return self.mFileWatcher
-    
-    
-    def document( index ):
-        window = self.mdiArea.subWindowList().value( index )
-        return window
-
-    def indexOfDocument( self, document ):
-        return self.mdiArea.subWindowList().indexOf( document )
-
-    def documents(self):
-        return self.mdiArea.subWindowList()
+        return self.mFileWatcher    
     '''
     
     def setCurrentDocument( self, document ):
         """Select active (focused and visible) document form list of opened documents
         """
-        self.mdiArea.setActiveSubWindow( document )
+        self.setCurrentWidget( document )
     
     def currentDocument(self):
         """Returns currently active (focused) document.
         """
-        return self.mdiArea.currentSubWindow()
+        return self.currentWidget()
     
     def goToLine(self, filePath, line, column, encoding, selectionLength):
         for document in self.openedDocuments():
@@ -1029,9 +966,8 @@ class Workspace(QFrame):
         # add to workspace
         document.installEventFilter( self )
         
-        self.mdiArea.blockSignals( True )
-        self.mdiArea.addSubWindow( document )
-        self.mdiArea.blockSignals( False )
+        self.addWidget( document )
+        self.setCurrentWidget( document )
     
     def _unhandleDocument( self, document ):
         
@@ -1049,13 +985,8 @@ class Workspace(QFrame):
 
         # remove from workspace
         document.removeEventFilter( self )
-        self.mdiArea.removeSubWindow( document )
+        self.removeWidget(document)
         
-        # maximize current window if needed
-        if document.isMaximized() :
-            if self.mdiArea.currentSubWindow() :
-               self.mdiArea.currentSubWindow().showMaximized()
-    
     def openFile(self, filePath, encoding=''):
         """Open named file using suitable plugin, or textual editor, if other suitable editor not found.
         
@@ -1105,10 +1036,6 @@ class Workspace(QFrame):
         
         self._handleDocument( document )
         
-        document.showMaximized()
-        #FIXME remove. Genrates too lot if signals. 
-        #self.setCurrentDocument( document )
-        
         return document
     
     """TODO
@@ -1120,8 +1047,7 @@ class Workspace(QFrame):
     """
     
     def _closeCurrentDocument(self):
-        #fixme replace with setCurrentFile?
-        document = self.mdiArea.currentSubWindow()
+        document = self.currentWidget()
         assert(document is not None)
         self.closeDocument( document )
     
@@ -1156,7 +1082,6 @@ class Workspace(QFrame):
         curIndex = self._sortedDocuments.index(self.currentDocument())
         prevIndex = (curIndex - 1 + len(self._sortedDocuments)) % len(self._sortedDocuments)
         self.setCurrentDocument( self._sortedDocuments[prevIndex] )
-    
     
     def focusCurrentDocument(self):
         """Set focus (cursor) to current document.
@@ -1268,8 +1193,6 @@ class Workspace(QFrame):
     
     def document_fileClosed(self):
         document = self.sender()
-        mtb = mks.monkeycore.multiToolBar()
-        mtb.removeContext( document.context(), e )
         self.documentClosed.emit( document )
 
 
@@ -1288,21 +1211,9 @@ class Workspace(QFrame):
 
         self.buffersChanged.emit( entries )
     
-    def multitoolbar_notifyChanges(self):
-        mtb = mks.monkeycore.multiToolBar()
-        tb = mtb.currentToolBar()
-        show = tb and not tb.actions().isEmpty()
-
-        mtb.setVisible( show )
-
     def viewModes_triggered(self, action ):
         self.setDocumentMode( action.data().toInt() )
     
-    def mdiArea_subWindowActivated(self, document ):
-
-        # update gui state
-        self.updateGuiState( document )
-
     def internal_urlsDropped(self, urls ):
         # create menu
         menu = QMenu()

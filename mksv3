@@ -108,6 +108,8 @@ def main():
     
     for arg in sys.argv[1:]:
         mks.monkeycore.workspace().openFile(arg)
+    if mks.monkeycore.workspace().currentDocument():
+        mks.monkeycore.workspace().currentDocument().setFocus()
     
     mks.monkeycore.mainWindow().show()
     """TODO
