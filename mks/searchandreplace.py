@@ -148,7 +148,7 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
     
     def _createWidgets(self):
         self.widget = SearchWidget( self )
-        mks.monkeycore.workspace().layout().addWidget( self.widget )
+        mks.monkeycore.mainWindow().centralLayout().addWidget( self.widget )
         self.widget.setVisible( False )
         
         # FIXME create dock, only when have some search results!!!
