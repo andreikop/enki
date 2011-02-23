@@ -416,8 +416,7 @@ class Editor(mks.workspace.AbstractDocument):
         #locked = self.blockSignals( True )
         try:
             with open(filePath, 'r') as f:
-                self._setFilePath(filePath)
-                
+                self._filePath = os.path.abspath(filePath)  # TODO remember fd?
                 data = f.read()                
         except IOError, ex:  # exception in constructor
             self.deleteLater()  # make sure C++ object deleted

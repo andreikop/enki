@@ -414,8 +414,11 @@ class AbstractDocument(QWidget):
         """
         QWidget.__init__( self, parentObject )
         
+        self._filePath = None # To be filled by child classes
+        
         # default for window icon is application icon. This line avoids using it in the opened files list
         self.setWindowIcon(QIcon())
+        self.setWindowTitle("[*]")  # avoid warning
         
         """TODO
         mCodec:
@@ -481,29 +484,14 @@ class AbstractDocument(QWidget):
         """
         return QString.null;
     '''
-    
-    def _setFilePath( self, filePath ):
-        """set the file path of the document
-        """
-        if not filePath:
-            self.setWindowFilePath( '' )
-            self.setWindowTitle( '' )
-        else:
-            realpath = os.path.realpath(unicode(filePath))
-            self.setWindowFilePath( realpath )
-            self.setWindowTitle( os.path.basename(unicode(filePath)) + "[*]" )
-    
+        
     def filePath(self):
         """return the document file path"""
-        return unicode(self.windowFilePath())
+        return self._filePath
     
     def fileName(self):
         """return the document file name"""
-        wfp = self.windowFilePath()
-        if wfp.isEmpty():
-            return None
-        else:
-            return QFileInfo( wfp ).fileName()
+        return os.path.basename(self._filePath)
     
     '''TODO
     def path(self):
