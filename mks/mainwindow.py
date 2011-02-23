@@ -10,7 +10,7 @@ from PyQt4.QtCore import Qt
 from PyQt4.QtCore import pyqtSignal
 from PyQt4.QtCore import QString
 from PyQt4.QtCore import QSize
-from PyQt4.QtGui import qApp, QHBoxLayout, QIcon, QDockWidget, QSizePolicy, QToolBar, QWidget
+from PyQt4.QtGui import qApp, QVBoxLayout, QIcon, QDockWidget, QSizePolicy, QToolBar, QWidget
 
 from PyQt4.fresh import pDockWidget, pMainWindow, pActionsNodeModel
 
@@ -85,9 +85,14 @@ class MainWindow(pMainWindow):
         modernDocksToolBar.setIconSize(QSize(16, 16))  # FIXME hlamer: it doesn't work for my Ubuntu, why???
         self.statusBar().addPermanentWidget(modernDocksToolBar)
 
-        # create and init workspace
+        # create central layout
+        widget = QWidget(self)
+        self._centralLayout = QVBoxLayout(widget)
+        self._centralLayout.setMargin(0)
+        self.setCentralWidget(widget)
+        # create workspace
         self.workspace = mks.workspace.Workspace(self)
-        self.setCentralWidget(self.workspace)
+        self._centralLayout.addWidget(self.workspace)
         self.setFocusProxy(self.workspace)
     
     def __del__(self):
@@ -324,6 +329,11 @@ class MainWindow(pMainWindow):
             menu.addAction( action )
             self.menuBar().addAction( "mDocks", action )
     
+    def centralLayout(self):
+        """Layout of the central widget. Contains Workspace and search widget
+        """
+        return self._centralLayout
+
 """TODO
     def dragEnterEvent( self, event ):
         # if correct mime and same tabbar
