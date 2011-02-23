@@ -53,7 +53,7 @@ class MainWindow(pMainWindow):
         self.setCorner( Qt.BottomLeftCorner, Qt.LeftDockWidgetArea )
         self.setCorner( Qt.BottomRightCorner, Qt.RightDockWidgetArea )
         
-        self.setWindowTitle( "%s" % mks.config.PACKAGE_NAME)
+        self.setWindowTitle(self._defaultTitle())  # overwriten by _onWorkspaceCurrentDocumentChanged
         self.setWindowIcon( QIcon(':/mksicons/monkey2.png') )
 
         self._initMenuBar()
@@ -94,6 +94,7 @@ class MainWindow(pMainWindow):
         self.workspace = mks.workspace.Workspace(self)
         self._centralLayout.addWidget(self.workspace)
         self.setFocusProxy(self.workspace)
+        self.workspace.currentDocumentChanged.connect(self._onWorkspaceCurrentDocumentChanged)
     
     def __del__(self):
         for act in self._createdActions:
@@ -319,6 +320,10 @@ class MainWindow(pMainWindow):
         self.menuBar().action( "mHelp/aAbout" ).triggered.connect(mks.monkeycore.workspace().helpAboutApplication_triggered)
         """
     
+    def _defaultTitle(self):
+        # TODO add modified marker to the window title
+        return "%s v.%s" % (mks.config.PACKAGE_NAME, mks.config.PACKAGE_VERSION)
+    
     def _menu_Docks_aboutToShow(self):
         # get menu
         menu = self.menuBar().menu( "mDocks" )
@@ -334,6 +339,16 @@ class MainWindow(pMainWindow):
         """
         return self._centralLayout
 
+    def _onWorkspaceCurrentDocumentChanged(self, old, new):
+        """Handler of change of current document
+        Updates window title
+        """
+        if new is not None:
+            name = new.fileName() + '[*]'
+        else:
+            name = self._defaultTitle()
+        self.setWindowTitle(name)
+    
 """TODO
     def dragEnterEvent( self, event ):
         # if correct mime and same tabbar
