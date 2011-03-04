@@ -1,5 +1,32 @@
 FIXME
-    Неприятно мигает текущий файл в заголовке окна
+
+RuntimeError: underlying C/C++ object has been deleted
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.6/dist-packages/mks/workspace.py", line 352, in selectionModel_selectionChanged
+    mks.monkeycore.workspace().setCurrentDocument( document )
+  File "/usr/local/lib/python2.6/dist-packages/mks/workspace.py", line 894, in setCurrentDocument
+    self.setCurrentWidget( document )
+RuntimeError: underlying C/C++ object has been deleted
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.6/dist-packages/mks/workspace.py", line 95, in data
+    if document.windowIcon().isNull():
+RuntimeError: underlying C/C++ object has been deleted
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.6/dist-packages/mks/workspace.py", line 95, in data
+    if document.windowIcon().isNull():
+RuntimeError: underlying C/C++ object has been deleted
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.6/dist-packages/mks/workspace.py", line 95, in data
+    if document.windowIcon().isNull():
+RuntimeError: underlying C/C++ object has been deleted
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.6/dist-packages/mks/workspace.py", line 95, in data
+    if document.windowIcon().isNull():
+RuntimeError: underlying C/C++ object has been deleted
+ - удалил файл, потом пытаюсь перезагрузить
+
+    Нету маркера несохраненного файла
+    Нету выделения после нажатия на Enter
 
 FIXME when found
     Перемещается фокус!
@@ -8,6 +35,7 @@ FIXME when found
 	Не переключается текущая директория
 
 TODO
+    Не перезаписывать файлы, если изменился файл на диске
     Не показывать всегда скролбар
     Подсвечивать активный док
 	Закрываясь, спрашивать, сохранить ли файл

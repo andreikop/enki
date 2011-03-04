@@ -9,7 +9,7 @@ import os.path
 
 from PyQt4.QtCore import QDir, QModelIndex, QObject, Qt
 from PyQt4.QtGui import QAction, QDialogButtonBox, QFileDialog, QFrame, QFileSystemModel, \
-                        QIcon, QKeySequence, QLineEdit, QMenu, \
+                        QIcon, QItemSelectionModel, QKeySequence, QLineEdit, QMenu, \
                         QShortcut, QSortFilterProxyModel, QToolButton, QTreeView, QVBoxLayout, QWidget
 
 from PyQt4.fresh import pDockWidget
@@ -258,7 +258,8 @@ class DockFileBrowser(pDockWidget):
             self.mTree.setCurrentIndex(current)
         
         # move tree root up, if necessary
-        if current.parent() == self.mTree.rootIndex():  # need to move root up
+        if current.parent() == self.mTree.rootIndex() or \
+           current == self.mTree.rootIndex():  # need to move root up
             if self.mTree.rootIndex().parent().isValid():  # not reached root of the FS tree
                 self.setCurrentPath( self._filteredModelIndexToPath(self.mTree.rootIndex().parent()))
         
@@ -323,9 +324,16 @@ class DockFileBrowser(pDockWidget):
         """
         # get index
         index = self.mDirsModel.index(path)
+        
         # set current path
         self.mFilteredModel.invalidate()
         self.mTree.setRootIndex( self.mFilteredModel.mapFromSource( index ) )
+        rootIndex = self.mTree.rootIndex()
+        
+        if self.mFilteredModel.hasChildren(rootIndex):  # There may be no rows, if directory is empty, or not loaded yet
+            firstChild = self.mFilteredModel.index(0, 0, rootIndex)
+            self.mTree.selectionModel().select(firstChild, QItemSelectionModel.SelectCurrent)
+
         # set lineedit path
         self.mLineEdit.setText( unicode(self.mDirsModel.filePath( index )) )
         self.mLineEdit.setToolTip( self.mLineEdit.text() )
