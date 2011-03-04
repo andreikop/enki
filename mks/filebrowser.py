@@ -323,8 +323,13 @@ class DockFileBrowser(pDockWidget):
     def _setFocusToTree(self, allowTimer = False):
         """Moves focus and selection to the first item, if nothing focused
         """
-        print 'attempt'
         rootIndex = self.mTree.rootIndex()
+        
+        selected =  self.mTree.selectionModel().selectedIndexes()
+        for index in selected:
+            if index.parent() == rootIndex:   # Already having selected item
+                return
+        
         firstChild = self.mFilteredModel.index(0, 0, rootIndex)
         if firstChild.isValid():  # There may be no rows, if directory is empty, or not loaded yet
             self.mTree.selectionModel().select(firstChild, QItemSelectionModel.SelectCurrent)
