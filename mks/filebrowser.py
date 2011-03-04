@@ -7,7 +7,7 @@ import re
 import os
 import os.path
 
-from PyQt4.QtCore import QDir, QModelIndex, QObject, Qt
+from PyQt4.QtCore import QDir, QModelIndex, QObject, QTimer, Qt
 from PyQt4.QtGui import QAction, QDialogButtonBox, QFileDialog, QFrame, QFileSystemModel, \
                         QIcon, QItemSelectionModel, QKeySequence, QLineEdit, QMenu, \
                         QShortcut, QSortFilterProxyModel, QToolButton, QTreeView, QVBoxLayout, QWidget
@@ -203,6 +203,7 @@ class DockFileBrowser(pDockWidget):
         self.mDirsModel = QFileSystemModel( self )
         self.mDirsModel.setNameFilterDisables( False )
         self.mDirsModel.setFilter( QDir.AllDirs | QDir.AllEntries | QDir.CaseSensitive | QDir.NoDotAndDotDot )
+        # self.mDirsModel.directoryLoaded.connect(self._setFocusToTree)  TODO don't have this signal in my Qt version
         
         # create proxy model
         self.mFilteredModel = FileBrowserFilteredModel( self )
@@ -319,6 +320,22 @@ class DockFileBrowser(pDockWidget):
         index = self.mFilteredModel.mapToSource( index )
         return unicode(self.mDirsModel.filePath( index ))
 
+    def _setFocusToTree(self, allowTimer = False):
+        """Moves focus and selection to the first item, if nothing focused
+        """
+        print 'attempt'
+        rootIndex = self.mTree.rootIndex()
+        firstChild = self.mFilteredModel.index(0, 0, rootIndex)
+        if firstChild.isValid():  # There may be no rows, if directory is empty, or not loaded yet
+            self.mTree.selectionModel().select(firstChild, QItemSelectionModel.SelectCurrent)
+        else:
+            """TODO QFileSystemModel version supports directoryLoaded() signal only the from version 4.7.0.
+            When this signal is supported by Ubuntu version of PyQt4, remove this timer and replace it with signal
+            from the QFileSystemModel
+            """
+            if allowTimer:
+                QTimer.singleShot(100, self._setFocusToTree)
+
     def setCurrentPath(self, path):
         """Set current path (root of the tree)
         """
@@ -328,12 +345,9 @@ class DockFileBrowser(pDockWidget):
         # set current path
         self.mFilteredModel.invalidate()
         self.mTree.setRootIndex( self.mFilteredModel.mapFromSource( index ) )
-        rootIndex = self.mTree.rootIndex()
         
-        if self.mFilteredModel.hasChildren(rootIndex):  # There may be no rows, if directory is empty, or not loaded yet
-            firstChild = self.mFilteredModel.index(0, 0, rootIndex)
-            self.mTree.selectionModel().select(firstChild, QItemSelectionModel.SelectCurrent)
-
+        self._setFocusToTree(True)
+        
         # set lineedit path
         self.mLineEdit.setText( unicode(self.mDirsModel.filePath( index )) )
         self.mLineEdit.setToolTip( self.mLineEdit.text() )
