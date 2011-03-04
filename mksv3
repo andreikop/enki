@@ -53,8 +53,9 @@ def main():
     
     try:
         import PyQt4.fresh
-    except ImportError:
+    except ImportError, ex:
         print >> sys.stderr, 'Failed to import Fresh framework. Probably it is not installed.'
+        print >> sys.stderr, ex
         print >> sys.stderr, 'See http://github.com/hlamer/Fresh-framework/archives/master for installation instructions'
         return -1
     

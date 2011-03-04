@@ -30,7 +30,6 @@ from _3rdparty.configobj import ConfigObj, flatten_errors, ParseError
 from _3rdparty.validate import Validator
 
 import mksiconsresource
-import freshresource
 
 _mainWindow = None
 _workspace = None
@@ -243,7 +242,6 @@ def term():
         _config.write()
     del _config
     
-    freshresource.qCleanupResources()
     mksiconsresource.qCleanupResources()
 
 def mainWindow():
