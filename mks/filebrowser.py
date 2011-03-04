@@ -320,8 +320,10 @@ class DockFileBrowser(pDockWidget):
         index = self.mFilteredModel.mapToSource( index )
         return unicode(self.mDirsModel.filePath( index ))
 
-    def _setFocusToTree(self, allowTimer = False):
+    def _setFocusToTree(self, attempts = 5):
         """Moves focus and selection to the first item, if nothing focused
+        If attempts > 0 and model not yet loaded data, function will call semself 
+        automatically later after 10ms for do next attempt to set focus to the first child
         """
         rootIndex = self.mTree.rootIndex()
         
@@ -338,8 +340,9 @@ class DockFileBrowser(pDockWidget):
             When this signal is supported by Ubuntu version of PyQt4, remove this timer and replace it with signal
             from the QFileSystemModel
             """
-            if allowTimer:
-                QTimer.singleShot(100, self._setFocusToTree)
+            if attempts > 0:
+                timerFunc = lambda: self._setFocusToTree(attempts - 1)
+                QTimer.singleShot(10, timerFunc)
 
     def setCurrentPath(self, path):
         """Set current path (root of the tree)
@@ -351,7 +354,7 @@ class DockFileBrowser(pDockWidget):
         self.mFilteredModel.invalidate()
         self.mTree.setRootIndex( self.mFilteredModel.mapFromSource( index ) )
         
-        self._setFocusToTree(True)
+        self._setFocusToTree(15)
         
         # set lineedit path
         self.mLineEdit.setText( unicode(self.mDirsModel.filePath( index )) )
