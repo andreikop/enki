@@ -266,6 +266,10 @@ class Editor(mks.workspace.AbstractDocument):
                                 QsciScintilla.EolUnix       : r"\n",
                                 QsciScintilla.EolMac        : r"\r"}
     
+    _WRAP_MODE_TO_QSCI = {"None"          : QsciScintilla.WrapNone,
+                          "WrapWord"      : QsciScintilla.WrapWord,
+                          "WrapCharacter" : QsciScintilla.WrapCharacter}
+    
     def __init__(self, parentObject, filePath):
         mks.workspace.AbstractDocument.__init__(self, parentObject, filePath)
         
@@ -391,7 +395,7 @@ class Editor(mks.workspace.AbstractDocument):
         
         self.qscintilla.setWhitespaceVisibility( myConfig["WhitespaceVisibility"] )
         
-        self.qscintilla.setWrapMode( myConfig["Wrap"]["Mode"] )
+        self.qscintilla.setWrapMode( self._WRAP_MODE_TO_QSCI[myConfig["Wrap"]["Mode"]] )
         self.qscintilla.setWrapVisualFlags( myConfig["Wrap"]["EndVisualFlag"],
                                             myConfig["Wrap"]["StartVisualFlag"],
                                             myConfig["Wrap"]["LineIndentWidth"] )
