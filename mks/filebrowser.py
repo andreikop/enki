@@ -342,7 +342,7 @@ class DockFileBrowser(pDockWidget):
             """
             if attempts > 0:
                 timerFunc = lambda: self._setFocusToTree(attempts - 1)
-                QTimer.singleShot(10, timerFunc)
+                QTimer.singleShot(30, timerFunc)
 
     def setCurrentPath(self, path):
         """Set current path (root of the tree)
