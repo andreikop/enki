@@ -756,6 +756,8 @@ class Workspace(QStackedWidget):
         MonkeyCore.projectsManager().currentProjectChanged.connect(self.internal_currentProjectChanged)
         self.mContentChangedTimer.timeout.connect(self.contentChangedTimer_timeout)
     """
+        self.currentDocumentChanged.connect(self._updateMainWindowTitle)
+        
         mainWindow.menuBar().action( "mFile/aOpen" ).triggered.connect(self._fileOpen_triggered)
         mainWindow.menuBar().action( "mFile/aReload" ).triggered.connect(self._fileReload_triggered)
         mainWindow.menuBar().action( "mFile/mClose/aCurrent" ).triggered.connect(self._closeCurrentDocument)
@@ -767,7 +769,20 @@ class Workspace(QStackedWidget):
         mainWindow.menuBar().action( "mView/aPrevious" ).triggered.connect(self._activatePreviousDocument)
         
         mainWindow.menuBar().action( "mView/aFocusCurrentDocument" ).triggered.connect(self.focusCurrentDocument)
-        
+    
+    
+    def _updateMainWindowTitle(self):
+        """Update window title after document or it's modified state has been changed
+        """
+        document = self.currentDocument()
+        if document:
+            name = document.fileName()
+            if document.isModified():
+                name+= '*'
+        else:
+            name = mks.monkeycore.mainWindow().defaultTitle()
+        mks.monkeycore.mainWindow().setWindowTitle(name)
+
     def setTextEditorClass(self, newEditor):
         """Set text editor, which is used for open textual documents.
         New editor would be used for newly opened textual documents.
@@ -950,6 +965,7 @@ class Workspace(QStackedWidget):
         """
         # update file menu
         document.modifiedChanged.connect(mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled)
+        document.modifiedChanged.connect(self._updateMainWindowTitle)
         
         # add to workspace
         document.installEventFilter( self )
