@@ -1429,20 +1429,25 @@ class Workspace(QStackedWidget):
         document = self.currentDocument()
 
         if  document is not None:
-            button = QMessageBox.Yes
-
             if  document.isModified():
-                button = QMessageBox.question(self, self.tr( "Reload file..." ), 
-                                         self.tr( "The file has been modified, do you want to reload it?" ),
-                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                ret = QMessageBox.question(self, self.tr( "Reload file..." ), 
+                                           self.tr( "The file has been modified, do you want to reload it?" ),
+                                           QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                if ret != QMessageBox.Yes:
+                    return
 
-            if button == QMessageBox.Yes :
-                """ fileName = document.filePath()
-                 encoding = document.textCodec()
-
-                self.closeDocument( document )
-                self.openFile( fileName, c );"""
+            # open file
+            try:
+                QApplication.setOverrideCursor( Qt.WaitCursor )
                 document.reload()
+            except IOError, ex:
+                #TODO replace with messageManager ?
+                QMessageBox.critical(None,
+                                     self.tr("File not reloaded"),
+                                     unicode(str(ex), 'utf8'))
+                return None
+            finally:
+                QApplication.restoreOverrideCursor()
     '''
     def fileSaveAsBackup_triggered(self):
         document = self.currentDocument()

@@ -412,16 +412,14 @@ class Editor(mks.workspace.AbstractDocument):
 
             self.qscintilla.setLexer(lexer)
 
-    def _openFile(self, filePath):
-        #locked = self.blockSignals( True )
-        try:
-            with open(filePath, 'r') as f:
-                self._filePath = os.path.abspath(filePath)  # TODO remember fd?
-                data = f.read()                
-        except IOError, ex:  # exception in constructor
-            self.deleteLater()  # make sure C++ object deleted
-            raise ex
-
+    def _readFile(self, filePath):
+        """Read the file contents.
+        Shows QMessageBox for UnicodeDecodeError, but raises IOError
+        """
+        with open(filePath, 'r') as f:  # Exception is ok, raise it up
+            self._filePath = os.path.abspath(filePath)  # TODO remember fd?
+            data = f.read()                
+        
         try:
             text = unicode(data, 'utf8')  # FIXME replace 'utf8' with encoding
         except UnicodeDecodeError, ex:
@@ -431,10 +429,28 @@ class Editor(mks.workspace.AbstractDocument):
                                  unicode(str(ex), 'utf8') + 
                                  '\nProbably invalid encoding was set. ' +
                                  'You may corrupt your file, if saved it')
-            text = unicode(data, 'utf8', 'ignore')  # FIXME replace 'utf8' with encoding        
+            text = unicode(data, 'utf8', 'ignore')  # FIXME replace 'utf8' with encoding            
+        return text
+    
+    def _replaceQscintillasText(self, text):
+        """Set text in the QScintilla, clear modified flag, update line numbers bar
+        """
         self.qscintilla.setText(text)
         self._onLinesChanged()
         self.qscintilla.setModified( False )
+    
+    def _openFile(self, filePath):
+        try:
+            text = self._readFile(filePath)  # exception raised up
+        except IOError, ex:  # exception in constructor
+            self.deleteLater()  # make sure C++ object deleted
+            raise ex
+        self._replaceQscintillasText(text)
+
+    def reload(self):
+        text = self._readFile(self.filePath())  # exception raised up
+        self._openFile(self.filePath())
+        #self.fileReloaded.emit()
 
     def _onLinesChanged(self):
         l = len(str(self.qscintilla.lines()))
@@ -666,9 +682,6 @@ class Editor(mks.workspace.AbstractDocument):
         self.setFilePath( '' )
         self.fileClosed.emit()
     """
-    def reload(self):
-        self._openFile(self.filePath())
-        #self.fileReloaded.emit()
     """
     def print_(self, quickPrint):
         # get printer
