@@ -386,6 +386,9 @@ class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
 class AbstractDocument(QWidget):
     """Base class for documents on workspace, such as opened source file, Qt Designer and Qt Assistant, ...
     Inherit this class, if you want to create new document type
+    
+    This class may requre redesign, if we need to add support for non-textual or non-unicode editor.
+    DO redesign instead of do dirty hacks
     """
     
     modifiedChanged = pyqtSignal(bool)
@@ -428,6 +431,26 @@ class AbstractDocument(QWidget):
         """
         # File opening should be implemented in the document classes
     
+    def _readFile(self, filePath):
+        """Read the file contents.
+        Shows QMessageBox for UnicodeDecodeError, but raises IOError, if failed to read file
+        """
+        with open(filePath, 'r') as f:  # Exception is ok, raise it up
+            self._filePath = os.path.abspath(filePath)  # TODO remember fd?
+            data = f.read()                
+        
+        try:
+            text = unicode(data, 'utf8')  # FIXME replace 'utf8' with encoding
+        except UnicodeDecodeError, ex:
+            QMessageBox.critical(None,
+                                 self.tr("Can not decode file"),
+                                 filePath + '\n' +
+                                 unicode(str(ex), 'utf8') + 
+                                 '\nProbably invalid encoding was set. ' +
+                                 'You may corrupt your file, if saved it')
+            text = unicode(data, 'utf8', 'ignore')  # FIXME replace 'utf8' with encoding            
+        return text
+
     def _isExternallyDeleted(self):
         """Check if document's file has been deleted externally.
         This method DOES NOT do any file system access, but only returns cached info
@@ -527,10 +550,6 @@ class AbstractDocument(QWidget):
             return QFileInfo( wfp ).absolutePath()
     '''
     
-    def fileBuffer(self):
-        """return the current buffer (text) of opened file"""
-        return None
-    
     def cursorPosition(self):
         """return cursor position as 2 values: line and column, if available
         """
@@ -585,13 +604,46 @@ class AbstractDocument(QWidget):
         pass
     '''
     def saveFile(self):
-        """Save changes, made in the file
+        """Save the file to file system
+        """
+        if  not self.isModified() :
+            return True
         
-        If child class reimplemented this method, it MUST call method of the parent class
-        for update internal bookkeeping"""
-        # TODO implement file access in base class
+        dirPath = os.path.dirname(self.filePath())
+        if  not os.path.exists(dirPath):
+            try:
+                os.mkdir(dirPath)
+            except OSError:
+                mks.monkeystudio.messageManager().appendMessage( \
+                        self.tr( "Cannot create directory '%s'. Error '%s'" % (dirPath, error))) # todo fix
+                return False
+        
+        try:
+            f = open(self.filePath(), 'w')
+        except IOError, ex:
+            QMessageBox.critical(None,
+                                 self.tr("Can not write to file"),
+                                 unicode(str(ex), 'utf8'))
+            return False
+        
+        try:
+            f.write(unicode(self.text()).encode('utf8'))  # FIXME codec hardcoded
+        finally:
+            f.close()
+        
         self._externallyDeleted = False
         self._externallyModified = False
+    
+    def text(self):
+        """Contents of the editor.
+        """
+        pass
+    
+    def setText(self, text):
+        """Set contents in the editor.
+        Usually this method is called only internally by openFile()
+        """
+        pass
     
     '''TODO
     def backupFileAs(self fileName ):
@@ -605,6 +657,10 @@ class AbstractDocument(QWidget):
         
         If child class reimplemented this method, it MUST call method of the parent class
         for update internal bookkeeping"""
+
+        text = self._readFile(self.filePath())
+        self.setText(text)
+        #self.fileReloaded.emit()
         self._externallyModified = False
     
     '''
@@ -1276,7 +1332,7 @@ class Workspace(QStackedWidget):
         
         for document in self.documents():
             if  document.isModified() :
-                entries[ document.filePath() ] = document.fileBuffer()
+                entries[ document.filePath() ] = document.text()
 
         self.buffersChanged.emit( entries )
     
