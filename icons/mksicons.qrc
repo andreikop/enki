@@ -32,6 +32,7 @@
 		<file>copy.png</file>
 		<file>cut.png</file>
 		<file>debugger.png</file>
+		<file>deleted.png</file>
 		<file>desktop.png</file>
 		<file>dll.png</file>
 		<file>down.png</file>
@@ -61,6 +62,9 @@
 		<file>misc-blue.png</file>
 		<file>misc.png</file>
 		<file>mks.png</file>
+		<file>modified-externally-deleted.png</file>
+		<file>modified-externally-modified.png</file>
+		<file>modified-externally.png</file>
 		<file>modules.png</file>
 		<file>monkey2.png</file>
 		<file>namespace.png</file>

@@ -455,6 +455,7 @@ class Editor(mks.workspace.AbstractDocument):
         text = self._readFile(self.filePath())  # exception raised up
         self._openFile(self.filePath())
         #self.fileReloaded.emit()
+        super(Editor, self).reload()
 
     def _onLinesChanged(self):
         l = len(str(self.qscintilla.lines()))
@@ -571,6 +572,7 @@ class Editor(mks.workspace.AbstractDocument):
             f.close()
         
         self.qscintilla.setModified(False)
+        super(Editor, self).saveFile()
 
     def _convertTabs(self):
         # get original text
