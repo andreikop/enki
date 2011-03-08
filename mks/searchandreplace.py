@@ -602,7 +602,7 @@ class SearchWidget(QFrame):
         # update opened files
         for document in mks.monkeycore.workspace().openedDocuments():
             self.mSearchContext.openedFiles[document.filePath()] = \
-                                        unicode(document.fileBuffer())
+                                        unicode(document.text())
         """TODO
         # update sources files
         self.mSearchContext.sourcesFiles = []

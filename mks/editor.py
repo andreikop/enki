@@ -307,7 +307,12 @@ class Editor(mks.workspace.AbstractDocument):
         self._applySettings(myConfig)
         self._applyLexer(myConfig, filePath)
         
-        self._openFile(filePath)
+        try:
+            text = self._readFile(filePath)
+        except IOError, ex:  # exception in constructor
+            self.deleteLater()  # make sure C++ object deleted
+            raise ex
+        self.setText(text)
         
         # make backup if needed
         if  myConfig["CreateBackupUponOpen"]:
@@ -415,48 +420,19 @@ class Editor(mks.workspace.AbstractDocument):
                     #lexer->setPaper( lexer->defaultPaper( i ), i );
 
             self.qscintilla.setLexer(lexer)
-
-    def _readFile(self, filePath):
-        """Read the file contents.
-        Shows QMessageBox for UnicodeDecodeError, but raises IOError
-        """
-        with open(filePath, 'r') as f:  # Exception is ok, raise it up
-            self._filePath = os.path.abspath(filePath)  # TODO remember fd?
-            data = f.read()                
-        
-        try:
-            text = unicode(data, 'utf8')  # FIXME replace 'utf8' with encoding
-        except UnicodeDecodeError, ex:
-            QMessageBox.critical(None,
-                                 self.tr("Can not decode file"),
-                                 filePath + '\n' +
-                                 unicode(str(ex), 'utf8') + 
-                                 '\nProbably invalid encoding was set. ' +
-                                 'You may corrupt your file, if saved it')
-            text = unicode(data, 'utf8', 'ignore')  # FIXME replace 'utf8' with encoding            
-        return text
     
-    def _replaceQscintillasText(self, text):
+    def text(self):
+        """Contents of the editor
+        """
+        return self.qscintilla.text()
+    
+    def setText(self, text):
         """Set text in the QScintilla, clear modified flag, update line numbers bar
         """
         self.qscintilla.setText(text)
         self._onLinesChanged()
         self.qscintilla.setModified( False )
     
-    def _openFile(self, filePath):
-        try:
-            text = self._readFile(filePath)  # exception raised up
-        except IOError, ex:  # exception in constructor
-            self.deleteLater()  # make sure C++ object deleted
-            raise ex
-        self._replaceQscintillasText(text)
-
-    def reload(self):
-        text = self._readFile(self.filePath())  # exception raised up
-        self._openFile(self.filePath())
-        #self.fileReloaded.emit()
-        super(Editor, self).reload()
-
     def _onLinesChanged(self):
         l = len(str(self.qscintilla.lines()))
         if l != 0:
@@ -501,8 +477,6 @@ class Editor(mks.workspace.AbstractDocument):
         # return nothing
         return ''
     """
-    def fileBuffer(self):
-        return self.qscintilla.text()
     
     def cursorPosition(self):
         row, col = self.qscintilla.getCursorPosition()
@@ -546,34 +520,11 @@ class Editor(mks.workspace.AbstractDocument):
     """
     
     def saveFile(self):
-        if  not self.isModified() :
-            return True
-        
-        dirPath = os.path.dirname(self.filePath())
-        if  not os.path.exists(dirPath):
-            try:
-                os.mkdir(dirPath)
-            except OSError:
-                mks.monkeystudio.messageManager().appendMessage( \
-                        self.tr( "Cannot create directory '%s'. Error '%s'" % (dirPath, error))) # todo fix
-                return False
-        
-        try:
-            f = open(self.filePath(), 'w')
-        except IOError, ex:
-            QMessageBox.critical(None,
-                                 self.tr("Can not write to file"),
-                                 unicode(str(ex), 'utf8'))
-            return False
-        
-        try:
-            f.write(unicode(self.qscintilla.text()).encode('utf8'))  # FIXME codec hardcoded
-        finally:
-            f.close()
-        
-        self.qscintilla.setModified(False)
+        """Reimplemented method of the parent, notifies QScintilla, that file is not modified
+        """
         super(Editor, self).saveFile()
-
+        self.qscintilla.setModified(False)
+    
     def _convertTabs(self):
         # get original text
         originalText = self.qscintilla.text()
