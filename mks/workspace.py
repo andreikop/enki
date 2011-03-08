@@ -30,7 +30,9 @@ from PyQt4.QtGui import QTreeView, QWidget, QStackedWidget, QFileDialog, \
                         QFrame, QKeySequence, QVBoxLayout, QApplication, \
                         QIcon, QMenu, \
                         QMessageBox, QAction, QActionGroup
-from PyQt4.QtCore import QByteArray, Qt, QObject, QAbstractItemModel, QMimeData, \
+from PyQt4.QtCore import QByteArray, \
+                         QFileSystemWatcher,\
+                         Qt, QObject, QAbstractItemModel, QMimeData, \
                          QEvent, QFileInfo, QModelIndex, QVariant, pyqtSignal
 
 import PyQt4.fresh
@@ -91,20 +93,10 @@ class _OpenedFileModel(QAbstractItemModel):
         document = self.document( index )
         assert(document)
         
-        if role == Qt.DecorationRole:
-            if document.windowIcon().isNull():
-                if document.isModified():
-                    return QIcon( ":/mksicons/save.png" )
-                else:
-                    return QIcon( ":/mksicons/transparent.png" )
-            else:
-                return document.windowIcon()
-        elif role == Qt.DisplayRole:
-                return document.fileName()
-        elif role == Qt.ToolTipRole:
-            return document.filePath()
-        else:
-            return QVariant()
+        if   role == Qt.DecorationRole: return document.modelIcon()
+        elif role == Qt.DisplayRole:    return document.fileName()
+        elif role == Qt.ToolTipRole:    return document.modelToolTip()
+        else:                           return QVariant()
     
     def flags(self, index ):
         if  index.isValid() :
@@ -261,13 +253,14 @@ class _OpenedFileModel(QAbstractItemModel):
         assert( not document in mks.monkeycore.workspace()._sortedDocuments )
         mks.monkeycore.workspace()._sortedDocuments.append( document )
         self.sortDocuments()
-        document.modifiedChanged.connect(self.documentModifiedChanged)
+        document.modifiedChanged.connect(self._onDocumentDataChanged)
+        document._documentDataChanged.connect(self._onDocumentDataChanged)
 
-    def documentModifiedChanged(self, modified ):
+    def _onDocumentDataChanged(self):
         document = self.sender()
         index = self.documentIndex( document )
         self.dataChanged.emit( index, index )
-
+    
     def documentClosed(self, document ):
         index = mks.monkeycore.workspace()._sortedDocuments.index( document )
         
@@ -403,6 +396,11 @@ class AbstractDocument(QWidget):
     Bool parameter contains new value
     """
     
+    #Signal emitted, when document icon or toolTip has changed 
+    #(i.e. document has been modified externally)
+    _documentDataChanged = pyqtSignal()
+    
+    
     """TODO
     enum DocumentMode { mNone:, mNa, mInsert, mOverwrite, mReadOnly } mDocument
     enum LayoutMode { lNone:, lNormal, lVertical, lHorizontal } mLayout
@@ -415,6 +413,8 @@ class AbstractDocument(QWidget):
         QWidget.__init__( self, parentObject )
         
         self._filePath = None # To be filled by child classes
+        self._externallyDeleted = False
+        self._externallyModified = False
         
         # default for window icon is application icon. This line avoids using it in the opened files list
         self.setWindowIcon(QIcon())
@@ -427,6 +427,30 @@ class AbstractDocument(QWidget):
         mLayout = lNone
         """
         # File opening should be implemented in the document classes
+    
+    def _isExternallyDeleted(self):
+        """Check if document's file has been deleted externally.
+        This method DOES NOT do any file system access, but only returns cached info
+        """
+        return self._externallyDeleted
+        
+    def _setExternallyDeleted(self, flag):
+        """Set externallyDeleted flag, update model
+        """
+        self._externallyDeleted = flag
+        self._documentDataChanged.emit()
+    
+    def _isExternallyModified(self):
+        """Check if document's file has been modified externally.
+        This method DOES NOT do any file system access, but only returns cached info
+        """
+        return self._externallyModified
+    
+    def _setExternallyModified(self, flag):
+        """Set externallyModified flag, update model
+        """
+        self._externallyModified = flag
+        self._documentDataChanged.emit()
     
     def eolMode(self):
         """Return document's EOL mode. Possible values are:
@@ -519,10 +543,10 @@ class AbstractDocument(QWidget):
         pass
     '''
     def isModified(self):
-        """Returns true, if file is modified
+        """Returns True, if file is modified
         """
         pass
-    
+        
     '''TODO
     def isPrintAvailable(self):
         """return if print is available
@@ -562,8 +586,13 @@ class AbstractDocument(QWidget):
     '''
     def saveFile(self):
         """Save changes, made in the file
-        """
-        pass
+        
+        If child class reimplemented this method, it MUST call method of the parent class
+        for update internal bookkeeping"""
+        # TODO implement file access in base class
+        self._externallyDeleted = False
+        self._externallyModified = False
+    
     '''TODO
     def backupFileAs(self fileName ):
         pass
@@ -572,13 +601,44 @@ class AbstractDocument(QWidget):
         pass
     '''
     def reload(self):
-        pass
+        """Reload the file from the disk
+        
+        If child class reimplemented this method, it MUST call method of the parent class
+        for update internal bookkeeping"""
+        self._externallyModified = False
+    
     '''
     def printFile(self):
         pass
     
     def quickPrintFile(self):
         pass
+    '''
+    
+    def modelToolTip(self):
+        """Tool tip for the opened files model
+        """
+        toolTip = self.filePath()
+        
+        if self.isModified():
+            toolTip += "<br/><font color='blue'>%s</font>" % self.tr("Locally Modified")
+        if  self._isExternallyModified():
+            toolTip += "<br/><font color='red'>%s</font>" % self.tr("Externally Modified")
+        if  self._isExternallyDeleted():
+            toolTip += "<br/><font color='red'>%s</font>" % self.tr( "Externally Deleted" )
+        return toolTip
+    
+    def modelIcon(self):
+        """Icon for the opened files model
+        """
+        if   self._isExternallyDeleted()  and self._isExternallyModified():  icon = "modified-externally-deleted.png"
+        elif self._isExternallyDeleted():                                    icon = "deleted.png"
+        elif self._isExternallyModified() and self.isModified():             icon = "modified-externally-modified.png"
+        elif self._isExternallyModified():                                   icon = "modified-externally.png"
+        elif self.isModified():                                              icon = "save.png"
+        else:                                                                icon = "transparent.png"
+        return QIcon(":/mksicons/" + icon)
+    '''
     fileOpened = pyqtSignal()
     fileClosed = pyqtSignal()
     # when.emit a file is reloaded
@@ -691,6 +751,10 @@ class Workspace(QStackedWidget):
                               self.mOpenedFileExplorer.windowTitle(),
                               self.mOpenedFileExplorer.windowIcon())
         
+        # create file watcher
+        self._fileWatcher = QFileSystemWatcher(self)
+        self._fileWatcher.fileChanged.connect(self._onWatcherFileChanged)
+        
         """TODO
         self.mViewMode = self.NoTabs
         
@@ -743,8 +807,6 @@ class Workspace(QStackedWidget):
         self.currentChanged.connect(self._onStackedLayoutIndexChanged)
         
         """TODO
-        # creaet file watcher
-        self.mFileWatcher = QFileSystemWatcher( self )
         self.mContentChangedTimer = QTimer( self )
         
         # load settings
@@ -770,6 +832,25 @@ class Workspace(QStackedWidget):
         
         mainWindow.menuBar().action( "mView/aFocusCurrentDocument" ).triggered.connect(self.focusCurrentDocument)
     
+    def documentForPath(self, filePath):
+        """Find document by it's file path.
+        Raises ValueError, if document hasn't been found
+        """
+        for document in self.openedDocuments():
+            if document.filePath() == filePath:
+                return document
+        else:
+            raise ValueError("Document not found for" + filePath)
+    
+    def _onWatcherFileChanged(self, filePath):
+        """QFileSystemWatcher sent signal, that file has been changed or deleted
+        """
+        document = self.documentForPath(filePath)
+        
+        if os.path.exists(filePath):
+            document._setExternallyModified(True)
+        else:
+            document._setExternallyDeleted(True)
     
     def _updateMainWindowTitle(self):
         """Update window title after document or it's modified state has been changed
@@ -897,10 +978,7 @@ class Workspace(QStackedWidget):
         tabBar().setTabsColor( tabsTextColor() )
         tabBar().setCurrentTabColor( currentTabTextColor() )
         self.mOpenedFileExplorer.setSortMode( mks.monkeystudio.openedFileSortingMode() )
-        self.setDocumentMode( mks.monkeystudio.documentMode() )
-            
-    def fileWatcher(self):
-        return self.mFileWatcher    
+        self.setDocumentMode( mks.monkeystudio.documentMode() )            
     '''
     
     def setCurrentDocument( self, document ):
@@ -933,12 +1011,8 @@ class Workspace(QStackedWidget):
             return
         """
         
-        """ TODO
-        # stop watching files
-        file = document.filePath()
-        if  QFileInfo( file ).isFile() and self.mFileWatcher.files().contains( file ) :
-            self.mFileWatcher.removePath( file )
-        """
+        self._fileWatcher.removePath(document.filePath())
+        
         if len(self._sortedDocuments) > 1:  # not the last document
             if document == self._sortedDocuments[-1]:  # the last document
                 self._activatePreviousDocument()
@@ -1037,6 +1111,8 @@ class Workspace(QStackedWidget):
             QApplication.restoreOverrideCursor()
         
         self.documentOpened.emit( document )
+        
+        self._fileWatcher.addPath(document.filePath())
         
         self._handleDocument( document )
         
@@ -1179,20 +1255,9 @@ class Workspace(QStackedWidget):
         # open file
         return self.openFile( fileName, result[ "encoding" ].toString() )
 
-    def document_fileOpened(self):
-        document = self.sender() # signal sender
-        if  QFileInfo( document.filePath() ).isFile() and not self.mFileWatcher.files().contains( document.filePath() ) :
-            self.mFileWatcher.addPath( document.filePath() )
-        self.documentOpened.emit( document )
-    
-
     def document_contentChanged(self):
         self.mContentChangedTimer.start( CONTENT_CHANGED_TIME_OUT )
         document = self.sender() # signal sender
-
-        # externally deleted files make the filewatcher to no longer watch them
-        path = document.filePath()
-        
         self.documentChanged.emit( document )
     
     def document_fileClosed(self):
@@ -1417,30 +1482,18 @@ class Workspace(QStackedWidget):
     
     '''
     
-    def _fileSaveCurrent_triggered(self):
-        """TODO
-        self.mFileWatcher.removePath( self.currentDocument().filePath() )
-        """
+    def _saveDocument(self, document):
+        self._fileWatcher.removePath(document.filePath())
         self.currentDocument().saveFile()
-        """TODO
-        self.mFileWatcher.addPath( fn )
-        """
+        self._fileWatcher.addPath(document.filePath())
+    
+    def _fileSaveCurrent_triggered(self):
+        return self._saveDocument(self.currentDocument())
     
     def _fileSaveAll_triggered(self):
-        # fixme duplicating code with save current
         for document in self.openedDocuments():
-            """TODO
-            self.mFileWatcher.removePath( document.filePath() )
-            """
-            document.saveFile()
-            """TODO
-            self.mFileWatcher.addPath( fn )
-            """
+            self._saveDocument(document)
     
-    '''TODO
-    def fileCloseAll_triggered(self):
-        self.closeAllDocuments()  # fixme KILL this 
-    '''
     def _fileReload_triggered(self):
         document = self.currentDocument()
 
@@ -1464,6 +1517,7 @@ class Workspace(QStackedWidget):
                 return None
             finally:
                 QApplication.restoreOverrideCursor()
+    
     '''
     def fileSaveAsBackup_triggered(self):
         document = self.currentDocument()
