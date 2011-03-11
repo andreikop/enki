@@ -161,6 +161,8 @@ def init():
     #TODO _showMessage( splash, splash.tr( "Initializing Main Window..." ) )
     
     mainWindow()  # create the instance
+    config()   # create the instance
+    workspace()  # create the instance
     
     import mks.editor  # TODO would be done, when plugin loaded, remove this 2 lines from here
     mks.monkeycore.workspace().setTextEditorClass(mks.editor.Editor) 
@@ -236,12 +238,6 @@ def term():
     global _fileBrowser
     del _fileBrowser
     
-    # Save configuration
-    global _config
-    if _config.filename != _DEFAULT_CONFIG_PATH:
-        _config.write()
-    del _config
-    
     mksiconsresource.qCleanupResources()
 
 def mainWindow():
@@ -267,7 +263,12 @@ def workspace():
     
     Instance created, if not exists yet
     """
-    return mainWindow().workspace
+    global _workspace
+    if _workspace is None:
+        import mks.workspace
+        _workspace = mks.workspace.Workspace(mainWindow())
+        mainWindow().setWorkspace(_workspace)
+    return _workspace
 
 def config():
     """ConfigObj istance used for read and write settings
@@ -275,7 +276,7 @@ def config():
         http://www.voidspace.org.uk/python/configobj.html
     """
     global _config
-    if _config is None:        
+    if _config is None:
         # Create config file in the users home
         failed = False
         if not os.path.exists(_CONFIG_PATH):
@@ -337,6 +338,17 @@ def config():
             assert not message_string  # default config MUST be valid
     
     return _config
+
+def _reloadConfig():
+    """TMP functions, probably I should invent something better"""
+    global _config
+    _config.reload()
+
+def _flushConfig():
+    """TMP functions, probably I should invent something better"""
+    global _config
+    if _config.filename != _DEFAULT_CONFIG_PATH:
+        _config.write()
 
 """TODO
 def pluginsManager():

@@ -182,7 +182,9 @@ class _OpenedFileModel(QAbstractItemModel):
         if  self.mSortMode != mode :
             self.mSortMode = mode
             if mode != self.Custom:
+                mks.monkeycore._reloadConfig()
                 mks.monkeycore.config()["Workspace"]["FileSortMode"] = mode
+                mks.monkeycore._flushConfig()
             self.sortDocuments()
 
     def sortDocuments(self):
@@ -282,7 +284,6 @@ class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
     """
     def __init__(self, workspace):
         PyQt4.fresh.pDockWidget.__init__(self, workspace)
-        
         self.mModel = _OpenedFileModel(self)
         uic.loadUi(os.path.join(mks.monkeycore.dataFilesPath(), 'ui/pOpenedFileExplorer.ui'), self )
         self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
@@ -790,12 +791,10 @@ class Workspace(QStackedWidget):
     
     def __init__(self, mainWindow):
         QStackedWidget.__init__(self, mainWindow)
-        
         """ list of opened documents as it is displayed in the Opened Files Explorer. 
         List accessed and modified by _OpenedFileModel class
         """
         self._sortedDocuments = []
-        
         self._oldCurrentDocument = None
         
         self._textEditorClass = None
@@ -810,7 +809,6 @@ class Workspace(QStackedWidget):
         # create file watcher
         self._fileWatcher = QFileSystemWatcher(self)
         self._fileWatcher.fileChanged.connect(self._onWatcherFileChanged)
-        
         """TODO
         self.mViewMode = self.NoTabs
         
@@ -854,7 +852,6 @@ class Workspace(QStackedWidget):
                 action.setText(self.tr( "Tabs at &Right" ) )
                 action.setToolTip( action.text() )
         """
-        
         # document area
         self.layout().setContentsMargins(0, 0, 0, 0)  # FIXME doesn't work
         self.layout().setSpacing(0)
@@ -875,7 +872,6 @@ class Workspace(QStackedWidget):
         self.mContentChangedTimer.timeout.connect(self.contentChangedTimer_timeout)
     """
         self.currentDocumentChanged.connect(self._updateMainWindowTitle)
-        
         mainWindow.menuBar().action( "mFile/aOpen" ).triggered.connect(self._fileOpen_triggered)
         mainWindow.menuBar().action( "mFile/aReload" ).triggered.connect(self._fileReload_triggered)
         mainWindow.menuBar().action( "mFile/mClose/aCurrent" ).triggered.connect(self._closeCurrentDocument)
@@ -887,6 +883,11 @@ class Workspace(QStackedWidget):
         mainWindow.menuBar().action( "mView/aPrevious" ).triggered.connect(self._activatePreviousDocument)
         
         mainWindow.menuBar().action( "mView/aFocusCurrentDocument" ).triggered.connect(self.focusCurrentDocument)
+        editConfigFile = lambda : self.openFile(mks.monkeycore.config().filename)
+        mainWindow.menuBar().action( "mEdit/aConfigFile" ).triggered.connect(editConfigFile)
+    
+    def _mainWindow(self):
+        return self.parentWidget()
     
     def documentForPath(self, filePath):
         """Find document by it's file path.
@@ -917,8 +918,8 @@ class Workspace(QStackedWidget):
             if document.isModified():
                 name+= '*'
         else:
-            name = mks.monkeycore.mainWindow().defaultTitle()
-        mks.monkeycore.mainWindow().setWindowTitle(name)
+            name = self._mainWindow().defaultTitle()
+        self._mainWindow().setWindowTitle(name)
 
     def setTextEditorClass(self, newEditor):
         """Set text editor, which is used for open textual documents.
@@ -1388,7 +1389,7 @@ class Workspace(QStackedWidget):
             currentProject.installCommands()
         
         # update menu visibility
-        mks.monkeycore.mainWindow().menu_CustomAction_aboutToShow()
+        self._mainWindow().menu_CustomAction_aboutToShow()
 
 
     def internal_projectInstallCommandRequested(self, cmd, mnu ):
@@ -1403,7 +1404,7 @@ class Workspace(QStackedWidget):
         action.triggered().connect(s.internal_projectCustomActionTriggered())
         
         # update menu visibility
-        mks.monkeycore.mainWindow().menu_CustomAction_aboutToShow()
+        self._mainWindow().menu_CustomAction_aboutToShow()
 
 
     def internal_projectUninstallCommandRequested(self, cmd, mnu ):
@@ -1416,7 +1417,7 @@ class Workspace(QStackedWidget):
                 delete action
 
         # update menu visibility
-        mks.monkeycore.mainWindow().menu_CustomAction_aboutToShow()
+        self._mainWindow().menu_CustomAction_aboutToShow()
 
     def internal_projectCustomActionTriggered(self):
         action = self.sender()
