@@ -57,7 +57,7 @@ class MainWindow(pMainWindow):
         self.setWindowIcon( QIcon(':/mksicons/monkey2.png') )
 
         self._initMenuBar()
-        
+
         """
         # init recents manager
         mks.monkeycore.recentsManager()
@@ -84,16 +84,11 @@ class MainWindow(pMainWindow):
         modernDocksToolBar.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         modernDocksToolBar.setIconSize(QSize(16, 16))  # FIXME hlamer: it doesn't work for my Ubuntu, why???
         self.statusBar().addPermanentWidget(modernDocksToolBar)
-
         # create central layout
         widget = QWidget(self)
         self._centralLayout = QVBoxLayout(widget)
         self._centralLayout.setMargin(0)
         self.setCentralWidget(widget)
-        # create workspace
-        self.workspace = mks.workspace.Workspace(self)
-        self._centralLayout.addWidget(self.workspace)
-        self.setFocusProxy(self.workspace)
     
     def __del__(self):
         for act in self._createdActions:
@@ -264,6 +259,7 @@ class MainWindow(pMainWindow):
         
         menu  ("mEdit",                               self.tr( "Edit"                  ), ""            )
         menu  ("mEdit/mSearchReplace",                self.tr( "&Search && Replace"    ), ""            )
+        action("mEdit/aConfigFile",                   self.tr( "Edit config file" ),   "",             "Ctrl+Alt+S", self.tr( "Edit config file"    ), True)
         
         menu  ("mView",                               self.tr( "View"                  ), ""            )
         action("mView/aNext",                         self.tr( "&Next file" ),            "next.png",     "Alt+Right",    self.tr( "Active the next tab"    ), False)
@@ -318,6 +314,13 @@ class MainWindow(pMainWindow):
         # help menu
         self.menuBar().action( "mHelp/aAbout" ).triggered.connect(mks.monkeycore.workspace().helpAboutApplication_triggered)
         """
+    
+    def setWorkspace(self, workspace):
+        """Set central widget of the main window.
+        Normally called only by core when initializing system
+        """
+        self._centralLayout.addWidget(workspace)
+        self.setFocusProxy(workspace)
     
     def defaultTitle(self):
         # TODO add modified marker to the window title
