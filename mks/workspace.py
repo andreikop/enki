@@ -1173,6 +1173,10 @@ class Workspace(QStackedWidget):
         
         self._handleDocument( document )
         
+        if not os.access(filePath, os.W_OK):
+            mks.monkeycore.messageManager().appendMessage( \
+                        self.tr( "File '%s' is not writable" % filePath), 4000) # todo fix
+        
         return document
     
     """TODO
