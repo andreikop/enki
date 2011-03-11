@@ -1540,7 +1540,7 @@ class Workspace(QStackedWidget):
     
     def _saveDocument(self, document):
         self._fileWatcher.removePath(document.filePath())
-        self.currentDocument().saveFile()
+        document.saveFile()
         self._fileWatcher.addPath(document.filePath())
     
     def _fileSaveCurrent_triggered(self):
@@ -1596,9 +1596,6 @@ class Workspace(QStackedWidget):
         if  document :
             document.printFile()
     
-    def fileExit_triggered(self):
-        window().close()
-
     # edit menu
     def editSettings_triggered(self):
         UISettings.instance( self ).exec_()
@@ -1612,11 +1609,6 @@ class Workspace(QStackedWidget):
             mks.monkeycore.translationsManager().setCurrentLocale( locale )
             mks.monkeycore.translationsManager().reloadTranslations()
 
-    def editSearch_triggered(self):
-        document = self.currentDocument()
-
-        if  document and not document.editor() :
-            document.invokeSearch()
 
     def editExpandAbbreviation_triggered(self):
         document = self.currentDocument()
