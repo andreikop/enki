@@ -33,6 +33,7 @@ from PyQt4.QtGui import QTreeView, QWidget, QStackedWidget, QFileDialog, \
 from PyQt4.QtCore import QByteArray, \
                          QFileSystemWatcher,\
                          Qt, QObject, QAbstractItemModel, QMimeData, \
+                         QTimer, \
                          QEvent, QFileInfo, QModelIndex, QVariant, pyqtSignal
 
 import PyQt4.fresh
@@ -452,13 +453,13 @@ class AbstractDocument(QWidget):
             text = unicode(data, 'utf8', 'ignore')  # FIXME replace 'utf8' with encoding            
         return text
 
-    def _isExternallyDeleted(self):
+    def _isExternallyRemoved(self):
         """Check if document's file has been deleted externally.
         This method DOES NOT do any file system access, but only returns cached info
         """
         return self._externallyDeleted
         
-    def _setExternallyDeleted(self, flag):
+    def _setExternallyRemoved(self, flag):
         """Set externallyDeleted flag, update model
         """
         self._externallyDeleted = flag
@@ -607,8 +608,10 @@ class AbstractDocument(QWidget):
     def saveFile(self):
         """Save the file to file system
         """
-        if  not self.isModified() :
-            return True
+        if  not self.isModified() and \
+            not self._isExternallyModified() and \
+            not self._isExternallyRemoved():
+                return True
         
         dirPath = os.path.dirname(self.filePath())
         if  not os.path.exists(dirPath):
@@ -681,15 +684,15 @@ class AbstractDocument(QWidget):
             toolTip += "<br/><font color='blue'>%s</font>" % self.tr("Locally Modified")
         if  self._isExternallyModified():
             toolTip += "<br/><font color='red'>%s</font>" % self.tr("Externally Modified")
-        if  self._isExternallyDeleted():
+        if  self._isExternallyRemoved():
             toolTip += "<br/><font color='red'>%s</font>" % self.tr( "Externally Deleted" )
         return toolTip
     
     def modelIcon(self):
         """Icon for the opened files model
         """
-        if   self._isExternallyDeleted()  and self._isExternallyModified():  icon = "modified-externally-deleted.png"
-        elif self._isExternallyDeleted():                                    icon = "deleted.png"
+        if   self._isExternallyRemoved()  and self._isExternallyModified():  icon = "modified-externally-deleted.png"
+        elif self._isExternallyRemoved():                                    icon = "deleted.png"
         elif self._isExternallyModified() and self.isModified():             icon = "modified-externally-modified.png"
         elif self._isExternallyModified():                                   icon = "modified-externally.png"
         elif self.isModified():                                              icon = "save.png"
@@ -796,7 +799,7 @@ class Workspace(QStackedWidget):
         """
         self._sortedDocuments = []
         self._oldCurrentDocument = None
-        
+        self._externallyRemovedDialogInProgress = False
         self._textEditorClass = None
         
         # create opened files explorer
@@ -809,49 +812,7 @@ class Workspace(QStackedWidget):
         # create file watcher
         self._fileWatcher = QFileSystemWatcher(self)
         self._fileWatcher.fileChanged.connect(self._onWatcherFileChanged)
-        """TODO
-        self.mViewMode = self.NoTabs
         
-        mb = mks.monkeycore.menuBar()
-
-        # action group for view modes
-        self.mViewModesGroup = QActionGroup( self )
-        self.mViewModesGroup.addAction( mb.action( "mWindow/aNoTabs" ) )
-        self.mViewModesGroup.addAction( mb.action( "mWindow/aTopTabs" ) )
-        self.mViewModesGroup.addAction( mb.action( "mWindow/aBottomTabs" ) )
-        self.mViewModesGroup.addAction( mb.action( "mWindow/aLeftTabs" ) )
-        self.mViewModesGroup.addAction( mb.action( "mWindow/aRightTabs" ) )
-        mb.action( "mWindow/aSeparator1" )
-
-        mb.menu( "mWindow" ).insertActions( mb.action( "mWindow/aCascase" ), self.mViewModesGroup.actions() )
-        mb.menu( "mWindow" ).insertAction( mb.action( "mWindow/aCascase" ), mb.action( "mWindow/aSeparator1" ) )
-
-        actions = self.mViewModesGroup.actions()
-
-        for i, mode in enumerate([self.NoTabs, self.TopTabs, self.BottomTabs, self.LeftTabs, self.RightTabs]):
-            action = actions[i]
-            action.setCheckable( True )
-            action.setData( mode )
-
-            if  self.mViewMode == mode :
-                action.setChecked( True )
-
-            if mode == self.NoTabs:
-                action.setText(self.tr( "No Tabs" ) )
-                action.setToolTip(self.tr( "No tabs, use 'Oopened Files List' to have a list of opened documents" ) )
-            elif mode == self.TopTabs:
-                action.setText(self.tr( "Tabs at &Top" ) )
-                action.setToolTip( action.text() )
-            elif mode == self.BottomTabs:
-                action.setText(self.tr( "Tabs at &Bottom" ) )
-                action.setToolTip( action.text() )
-            elif mode == self.LeftTabs:
-                action.setText(self.tr( "Tabs at &Left" ) )
-                action.setToolTip( action.text() )
-            elif mode == self.RightTabs:
-                action.setText(self.tr( "Tabs at &Right" ) )
-                action.setToolTip( action.text() )
-        """
         # document area
         self.layout().setContentsMargins(0, 0, 0, 0)  # FIXME doesn't work
         self.layout().setSpacing(0)
@@ -907,7 +868,42 @@ class Workspace(QStackedWidget):
         if os.path.exists(filePath):
             document._setExternallyModified(True)
         else:
-            document._setExternallyDeleted(True)
+            document._setExternallyRemoved(True)
+            if not self._externallyRemovedDialogInProgress:
+                self._externallyRemovedDialogInProgress = True
+                self._execExternalyRemovedDialog()
+    
+    def _execExternalyRemovedDialog(self):
+        def externallyRemoved():
+            return filter(lambda d: d._isExternallyRemoved() and not d in ignored, self.openedDocuments())
+        ignored = []
+        while (externallyRemoved()):
+            document = externallyRemoved()[0]
+            text = unicode(self.tr("File '%s' has been removed externally. Do you want to save your copy?\n")) % document.fileName()
+            if len(externallyRemoved()) > 1:
+                text += self.tr("Also removed:")
+                for alsoDoc in externallyRemoved():
+                    if alsoDoc != document:
+                        text += '\n\t' + alsoDoc.fileName()
+            dialog = QMessageBox(QMessageBox.Critical, self.tr("File removed"), text, QMessageBox.NoButton, self)
+            for button, text in ((QMessageBox.Save,     self.tr("Save")),
+                                (QMessageBox.SaveAll,   self.tr("Save all")),
+                                (QMessageBox.No,        self.tr("Ignore")),
+                                (QMessageBox.NoAll,     self.tr("Ignore all"))):            
+                dialog.addButton(button).setText(text)
+            button = dialog.exec_()
+            if button == QMessageBox.Save:
+                self._saveDocument(document)
+            elif button == QMessageBox.SaveAll:
+                for document in externallyRemoved():
+                    if not document in ignored:
+                        self._saveDocument(document)
+                break
+            elif button == QMessageBox.No:
+                ignored.append(document)
+            elif button == QMessageBox.NoAll:
+                break
+        self._externallyRemovedProcessed = False
     
     def _updateMainWindowTitle(self):
         """Update window title after document or it's modified state has been changed
@@ -971,6 +967,9 @@ class Workspace(QStackedWidget):
             mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled( document.isModified() )
         else:  # no document
             mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(False)
+        
+        if document._isExternallyRemoved():
+            self._execExternalyRemovedDialog()
 
         '''
         # fix fucking flickering due to window activation change on application gain / lost focus.
