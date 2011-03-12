@@ -355,7 +355,7 @@ class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         
         menu.addAction( mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ) )
         menu.addAction( mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ) )
-        menu.addAction( mks.monkeycore.menuBar().action( "mFile/aReload" ) )
+        menu.addAction( mks.monkeycore.menuBar().action( "mFile/mReload/aCurrent" ) )
         menu.addSeparator()
         
         # sort menu
@@ -418,12 +418,8 @@ class AbstractDocument(QWidget):
         QWidget.__init__( self, parentObject )
         
         self._filePath = None # To be filled by child classes
-        self._externallyDeleted = False
+        self._externallyRemoved = False
         self._externallyModified = False
-        
-        # default for window icon is application icon. This line avoids using it in the opened files list
-        self.setWindowIcon(QIcon())
-        self.setWindowTitle("[*]")  # avoid warning
         
         """TODO
         mCodec:
@@ -457,12 +453,12 @@ class AbstractDocument(QWidget):
         """Check if document's file has been deleted externally.
         This method DOES NOT do any file system access, but only returns cached info
         """
-        return self._externallyDeleted
+        return self._externallyRemoved
         
     def _setExternallyRemoved(self, flag):
         """Set externallyDeleted flag, update model
         """
-        self._externallyDeleted = flag
+        self._externallyRemoved = flag
         self._documentDataChanged.emit()
     
     def _isExternallyModified(self):
@@ -635,7 +631,7 @@ class AbstractDocument(QWidget):
         finally:
             f.close()
         
-        self._externallyDeleted = False
+        self._externallyRemoved = False
         self._externallyModified = False
     
     def text(self):
@@ -799,7 +795,6 @@ class Workspace(QStackedWidget):
         """
         self._sortedDocuments = []
         self._oldCurrentDocument = None
-        self._externallyRemovedDialogInProgress = False
         self._textEditorClass = None
         
         # create opened files explorer
@@ -834,7 +829,8 @@ class Workspace(QStackedWidget):
     """
         self.currentDocumentChanged.connect(self._updateMainWindowTitle)
         mainWindow.menuBar().action( "mFile/aOpen" ).triggered.connect(self._fileOpen_triggered)
-        mainWindow.menuBar().action( "mFile/aReload" ).triggered.connect(self._fileReload_triggered)
+        mainWindow.menuBar().action( "mFile/mReload/aCurrent" ).triggered.connect(self._onFileReloadTriggered)
+        mainWindow.menuBar().action( "mFile/mReload/aAll" ).triggered.connect(self._onFileReloadAllTriggered)
         mainWindow.menuBar().action( "mFile/mClose/aCurrent" ).triggered.connect(self._closeCurrentDocument)
     
         mainWindow.menuBar().action( "mFile/mSave/aCurrent" ).triggered.connect(self._fileSaveCurrent_triggered)
@@ -848,7 +844,7 @@ class Workspace(QStackedWidget):
         mainWindow.menuBar().action( "mEdit/aConfigFile" ).triggered.connect(editConfigFile)
     
     def _mainWindow(self):
-        return self.parentWidget()
+        return self.parentWidget().parentWidget()
     
     def documentForPath(self, filePath):
         """Find document by it's file path.
@@ -869,42 +865,7 @@ class Workspace(QStackedWidget):
             document._setExternallyModified(True)
         else:
             document._setExternallyRemoved(True)
-            if not self._externallyRemovedDialogInProgress:
-                self._externallyRemovedDialogInProgress = True
-                self._execExternalyRemovedDialog()
-    
-    def _execExternalyRemovedDialog(self):
-        def externallyRemoved():
-            return filter(lambda d: d._isExternallyRemoved() and not d in ignored, self.openedDocuments())
-        ignored = []
-        while (externallyRemoved()):
-            document = externallyRemoved()[0]
-            text = unicode(self.tr("File '%s' has been removed externally. Do you want to save your copy?\n")) % document.fileName()
-            if len(externallyRemoved()) > 1:
-                text += self.tr("Also removed:")
-                for alsoDoc in externallyRemoved():
-                    if alsoDoc != document:
-                        text += '\n\t' + alsoDoc.fileName()
-            dialog = QMessageBox(QMessageBox.Critical, self.tr("File removed"), text, QMessageBox.NoButton, self)
-            for button, text in ((QMessageBox.Save,     self.tr("Save")),
-                                (QMessageBox.SaveAll,   self.tr("Save all")),
-                                (QMessageBox.No,        self.tr("Ignore")),
-                                (QMessageBox.NoAll,     self.tr("Ignore all"))):            
-                dialog.addButton(button).setText(text)
-            button = dialog.exec_()
-            if button == QMessageBox.Save:
-                self._saveDocument(document)
-            elif button == QMessageBox.SaveAll:
-                for document in externallyRemoved():
-                    if not document in ignored:
-                        self._saveDocument(document)
-                break
-            elif button == QMessageBox.No:
-                ignored.append(document)
-            elif button == QMessageBox.NoAll:
-                break
-        self._externallyRemovedProcessed = False
-    
+        
     def _updateMainWindowTitle(self):
         """Update window title after document or it's modified state has been changed
         """
@@ -968,9 +929,6 @@ class Workspace(QStackedWidget):
         else:  # no document
             mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(False)
         
-        if document._isExternallyRemoved():
-            self._execExternalyRemovedDialog()
-
         '''
         # fix fucking flickering due to window activation change on application gain / lost focus.
         if  not document and self.currentDocument() :
@@ -996,7 +954,7 @@ class Workspace(QStackedWidget):
         '''
         mks.monkeycore.menuBar().action( "mFile/mClose/aAll" ).setEnabled( document )
         '''
-        mks.monkeycore.menuBar().action( "mFile/aReload" ).setEnabled( document is not None )
+        mks.monkeycore.menuBar().action( "mFile/mReload/aCurrent" ).setEnabled( document is not None )
         '''
         mks.monkeycore.menuBar().action( "mFile/aSaveAsBackup" ).setEnabled( document )
         mks.monkeycore.menuBar().action( "mFile/aQuickPrint" ).setEnabled( print_ )
@@ -1554,29 +1512,39 @@ class Workspace(QStackedWidget):
         for document in self.openedDocuments():
             self._saveDocument(document)
     
-    def _fileReload_triggered(self):
+    def _reloadDocument(self, document):
+        if  document.isModified():
+            template = unicode(self.tr( "The file <b>%s</b> has been modified by you.\n"
+                                        "Do you want to reload and discard changes?" ))
+            text = template % document.fileName()
+            ret = QMessageBox.question(self, self.tr( "Reload file..." ), text,
+                                       QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if ret != QMessageBox.Yes:
+                return
+
+        # open file
+        try:
+            QApplication.setOverrideCursor( Qt.WaitCursor )
+            document.reload()
+        except IOError, ex:
+            #TODO replace with messageManager ?
+            QMessageBox.critical(None,
+                                 self.tr("File not reloaded"),
+                                 unicode(str(ex), 'utf8'))
+            return None
+        finally:
+            QApplication.restoreOverrideCursor()
+        
+    def _onFileReloadTriggered(self):
         document = self.currentDocument()
-
         if  document is not None:
-            if  document.isModified():
-                ret = QMessageBox.question(self, self.tr( "Reload file..." ), 
-                                           self.tr( "The file has been modified, do you want to reload it?" ),
-                                           QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-                if ret != QMessageBox.Yes:
-                    return
-
-            # open file
-            try:
-                QApplication.setOverrideCursor( Qt.WaitCursor )
-                document.reload()
-            except IOError, ex:
-                #TODO replace with messageManager ?
-                QMessageBox.critical(None,
-                                     self.tr("File not reloaded"),
-                                     unicode(str(ex), 'utf8'))
-                return None
-            finally:
-                QApplication.restoreOverrideCursor()
+            self._reloadDocument(document)
+    
+    def _onFileReloadAllTriggered(self):
+        for document in self.openedDocuments():
+            if not document._isExternallyRemoved():
+                self._reloadDocument(document)
+            
     
     '''
     def fileSaveAsBackup_triggered(self):

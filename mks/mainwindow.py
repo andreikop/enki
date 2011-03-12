@@ -251,7 +251,9 @@ class MainWindow(pMainWindow):
         menu  ("mFile/mSave",                         self.tr("&Save"                  ), "save.png"    ),
         action("mFile/mSave/aCurrent",                self.tr( "&Save"                 ), "save.png" ,    "Ctrl+S" ,      self.tr( "Save the current file"  ), False)
         action("mFile/mSave/aAll",                    self.tr( "Save &All"             ), "saveall.png",  'Shift+Ctrl+S', self.tr( "Save all files"         ), False)
-        action( "mFile/aReload",                      self.tr( "Reload"                ), "reload.png"  , 'Shift+Ctrl+F5',     self.tr( "Reload the current file"), False)
+        menu  ("mFile/mReload",                       self.tr("&Reload"                ), "reload.png"    ),
+        action( "mFile/mReload/aCurrent",             self.tr( "Reload"                ), "reload.png"  , 'Alt+F5',      self.tr( "Reload the current file"), False)
+        action( "mFile/mReload/aAll",                   self.tr( "Reload All"            ), "reload.png"  , 'Alt+Shift+F5', self.tr( "Reload all files"), True)
         menu  ("mFile/mClose",                        self.tr( "&Close"                ), "close.png"   ),
         action("mFile/mClose/aCurrent",               self.tr( "&Close"                ), "close.png",    "Ctrl+W",       self.tr( "Close the current file" ), False)
         seperator("mFile")
