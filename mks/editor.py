@@ -295,7 +295,6 @@ class Editor(mks.workspace.AbstractDocument):
         self.setFocusProxy( self.qscintilla )
         # connections
         self.qscintilla.cursorPositionChanged.connect(self.cursorPositionChanged)
-        self.qscintilla.modificationChanged.connect(self.setWindowModified)
         self.qscintilla.modificationChanged.connect(self.modifiedChanged)
         """TODO
         self.qscintilla.textChanged.connect(self.contentChanged)

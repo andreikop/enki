@@ -266,7 +266,7 @@ def workspace():
     global _workspace
     if _workspace is None:
         import mks.workspace
-        _workspace = mks.workspace.Workspace(mainWindow())
+        _workspace = mks.workspace.Workspace(_mainWindow)
         mainWindow().setWorkspace(_workspace)
     return _workspace
 
