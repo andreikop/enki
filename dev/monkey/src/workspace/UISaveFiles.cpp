@@ -137,4 +137,4 @@ UISaveFiles::Buttons UISaveFiles::saveDocuments( QWidget* w, QList<pAbstractChil
 }
 
 UISaveFiles::Buttons UISaveFiles::saveDocument( QWidget* w, pAbstractChild* c, bool b )
-{ return saveDocuments( w, QList<pAbstractChild*>() << c, b ); }
+{	return saveDocuments( w, QList<pAbstractChild*>() << c, b ); }

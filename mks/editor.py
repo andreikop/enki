@@ -270,6 +270,28 @@ class Editor(mks.workspace.AbstractDocument):
                           "WrapWord"      : QsciScintilla.WrapWord,
                           "WrapCharacter" : QsciScintilla.WrapCharacter}
     
+    _EDGE_MODE_TO_QSCI = {"None"        : QsciScintilla.EdgeNone,
+                          "Line"        : QsciScintilla.EdgeLine,
+                          "Background"  : QsciScintilla.EdgeBackground} 
+    
+    _WHITE_MODE_TO_QSCI = {"Invisible"           : QsciScintilla.WsInvisible,
+                           "Visible"             : QsciScintilla.WsVisible,
+                           "VisibleAfterIndent"  : QsciScintilla.WsVisibleAfterIndent}
+    
+    _AUTOCOMPLETION_MODE_TO_QSCI = {"None"      : QsciScintilla.AcsNone,
+                                    "All"       : QsciScintilla.AcsAll,
+                                    "Document"  : QsciScintilla.AcsDocument,
+                                    "APIs"      : QsciScintilla.AcsAPIs}
+    
+    _BRACE_MATCHING_TO_QSCI = {"None"      : QsciScintilla.NoBraceMatch,
+                               "Strict"    : QsciScintilla.StrictBraceMatch,
+                               "Sloppy"    : QsciScintilla.SloppyBraceMatch}
+    
+    _CALL_TIPS_STYLE_TO_QSCI = {"None"                     : QsciScintilla.CallTipsNone,
+                                  "NoContext"                : QsciScintilla.CallTipsNoContext,
+                                  "NoAutoCompletionContext"  : QsciScintilla.CallTipsNoAutoCompletionContext,
+                                  "Context"                  : QsciScintilla.CallTipsContext}
+    
     def __init__(self, parentObject, filePath):
         mks.workspace.AbstractDocument.__init__(self, parentObject, filePath)
         
@@ -359,14 +381,14 @@ class Editor(mks.workspace.AbstractDocument):
         self.qscintilla.setAutoCompletionCaseSensitivity( myConfig["AutoCompletion"]["CaseSensitivity"])
         self.qscintilla.setAutoCompletionReplaceWord( myConfig["AutoCompletion"]["ReplaceWord"])
         self.qscintilla.setAutoCompletionShowSingle( myConfig["AutoCompletion"]["ShowSingle"])
-        self.qscintilla.setAutoCompletionSource( myConfig["AutoCompletion"]["Source"] )
+        self.qscintilla.setAutoCompletionSource(self._AUTOCOMPLETION_MODE_TO_QSCI[myConfig["AutoCompletion"]["Source"]])
         self.qscintilla.setAutoCompletionThreshold( myConfig["AutoCompletion"]["Threshold"] )
         # CallTips
         self.qscintilla.setCallTipsVisible( myConfig["CallTips"]["Visible"] )
         self.qscintilla.setCallTipsBackgroundColor( QColor(myConfig["CallTips"]["BackgroundColor"] ))
         self.qscintilla.setCallTipsForegroundColor( QColor(myConfig["CallTips"]["ForegroundColor"] ))
         self.qscintilla.setCallTipsHighlightColor( QColor(myConfig["CallTips"]["HighlightColor"] ))
-        self.qscintilla.setCallTipsStyle( myConfig["CallTips"]["Style"] )
+        self.qscintilla.setCallTipsStyle(self._CALL_TIPS_STYLE_TO_QSCI[myConfig["CallTips"]["Style"]])
         # Indentation
         self.qscintilla.setAutoIndent( myConfig["Indentation"]["AutoIndent"] )
         self.qscintilla.setBackspaceUnindents( myConfig["Indentation"]["BackspaceUnindents"] )
@@ -378,13 +400,13 @@ class Editor(mks.workspace.AbstractDocument):
         self.qscintilla.setTabIndents( myConfig["Indentation"]["TabIndents"] )
         self.qscintilla.setTabWidth( myConfig["Indentation"]["TabWidth"] )
         # Brace Matching
-        self.qscintilla.setBraceMatching( myConfig["BraceMatching"]["Mode"] )
+        self.qscintilla.setBraceMatching(self._BRACE_MATCHING_TO_QSCI[myConfig["BraceMatching"]["Mode"]])
         self.qscintilla.setMatchedBraceBackgroundColor( QColor(myConfig["BraceMatching"]["MatchedBackgroundColor"] ))
         self.qscintilla.setMatchedBraceForegroundColor( QColor(myConfig["BraceMatching"]["MatchedForegroundColor"] ))
         self.qscintilla.setUnmatchedBraceBackgroundColor( QColor(myConfig["BraceMatching"]["UnmatchedBackgroundColor"] ))
         self.qscintilla.setUnmatchedBraceForegroundColor( QColor(myConfig["BraceMatching"]["UnmatchedForegroundColor"] ))
         # Edge Mode
-        self.qscintilla.setEdgeMode( myConfig["Edge"]["Mode"] )
+        self.qscintilla.setEdgeMode(self._EDGE_MODE_TO_QSCI[myConfig["Edge"]["Mode"]])
         self.qscintilla.setEdgeColor( QColor(myConfig["Edge"]["Color"] ))
         self.qscintilla.setEdgeColumn( myConfig["Edge"]["Column"] )
         # Caret
@@ -397,7 +419,7 @@ class Editor(mks.workspace.AbstractDocument):
         self.qscintilla.setEolMode( self._EOL_CONVERTOR_TO_QSCI[myConfig["EOL"]["Mode"]] )
         self.qscintilla.setEolVisibility( myConfig["EOL"]["Visibility"] )
         
-        self.qscintilla.setWhitespaceVisibility( myConfig["WhitespaceVisibility"] )
+        self.qscintilla.setWhitespaceVisibility(self._WHITE_MODE_TO_QSCI[myConfig["WhitespaceVisibility"]])
         
         self.qscintilla.setWrapMode( self._WRAP_MODE_TO_QSCI[myConfig["Wrap"]["Mode"]] )
         self.qscintilla.setWrapVisualFlags( myConfig["Wrap"]["EndVisualFlag"],
