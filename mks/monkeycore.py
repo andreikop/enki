@@ -335,7 +335,9 @@ def config():
         if failed:
             _config = ConfigObj(_DEFAULT_CONFIG_PATH, configspec=_DEFAULT_CONFIG_SPEC_PATH)
             message_string = _validateConfig(_config)
-            assert not message_string  # default config MUST be valid
+            if message_string:
+                print message_string
+                assert not message_string  # default config MUST be valid
     
     return _config
 
