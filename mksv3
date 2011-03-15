@@ -8,24 +8,28 @@ import os.path
 
 import mks.config
 
+helpString = \
+"""
+Usage:
+\t%s [options] [FILE1 [FILE2 ...]]
+
+Command line arguments:
+\t-h, --help      Show command line help
+\t-v, --version   Show program version
+"""
+
+
 def showHelp():
     showVersion()
-    print "Command line arguments:"
-    print "\t-h, --help      Show command line help"
-    print "\t-v, --version   Show program version"
-    """TODO
-    print "\t-projects      Open the projects given as parameters (-projects project1 ...)"
-    print "\t-files         Open the files given as parameters (-files file1 ...)"
-    """
+    print helpString % sys.argv[0]
+    
 
 def showVersion():
     print "%s version %s" % (mks.config.PACKAGE_NAME, mks.config.PACKAGE_VERSION)
-    print "%s & The Monkey Studio Team" % mks.config.PACKAGE_COPYRIGHTS
+    print mks.config.PACKAGE_COPYRIGHTS
     print "http://%s" % mks.config.PACKAGE_DOMAIN
 
 def main():
-    #TODO QT_REQUIRE_VERSION( argc, argv, "4.5.0" );
-    
     if '-v' in sys.argv or '--version' in sys.argv:
         showVersion()
         return 0
@@ -41,48 +45,40 @@ def main():
         print >> sys.stderr, 'Try to install python-qt4 package, or download sources from ' + \
                              'http://www.riverbankcomputing.co.uk/pyqt/download'
         return -1
+
+    import PyQt4.QtGui
+    app = PyQt4.QtGui.QApplication ( sys.argv );
     
-    # TODO gui dialog
     try:
         import PyQt4.Qsci
     except ImportError:
-        print >> sys.stderr, 'Failed to import QScintilla 2 python bindings.'
-        print >> sys.stderr, 'Try to install python-qscintilla2 package, or download sources from ' + \
-                             'http://www.riverbankcomputing.co.uk/software/qscintilla/download'
+        from PyQt4.QtGui import QMessageBox
+        QMessageBox.critical(None, "QScintilla not found",
+                                "Failed to import QScintilla 2 python bindings.\n"
+                                "Try to install python-qscintilla2 package, or download sources from "
+                                "See http://github.com/hlamer/Fresh-framework/archives/master for installation instructions")
         return -1
     
     try:
         import PyQt4.fresh
     except ImportError, ex:
-        print >> sys.stderr, 'Failed to import Fresh framework. Probably it is not installed.'
-        print >> sys.stderr, ex
-        print >> sys.stderr, 'See http://github.com/hlamer/Fresh-framework/archives/master for installation instructions'
+        from PyQt4.QtGui import QMessageBox
+        QMessageBox.critical(None, "Fresh not found",
+                                "Failed to import Fresh framework. Probably it is not installed.\n" +
+                                str(ex) + '\n' +
+                                "Check for installation instructions"
+                                "http://www.riverbankcomputing.co.uk/software/qscintilla/download")
         return -1
     
-    failed = False
-    for arg in sys.argv[1:]:
-        if not os.path.isfile(arg):
-            print >> sys.stderr, "Can't open %s. Not a file" % arg
-            failed = True
-        elif not os.access(arg, os.R_OK):
-            print >> sys.stderr, "Permission denied to read %s" % arg
-            failed = True
-    if failed:
-        return -2
-    
     # Imports only here. Hack for ability to get help and version info even on system without PyQt and Fresh.
-    from PyQt4 import QtGui, QtCore
     import mks.config
     import mks.monkeycore
-    
-    app = QtGui.QApplication ( sys.argv );
     
     app.setApplicationName( mks.config.PACKAGE_NAME );
     app.setOrganizationName( mks.config.PACKAGE_ORGANISATION );
     app.setOrganizationDomain( mks.config.PACKAGE_DOMAIN );
     
-    QtCore.QObject.connect(app, QtCore.SIGNAL('lastWindowClosed()'),
-                            app, QtCore.SLOT('quit()'))
+    app.lastWindowClosed.connect(app.quit)
     
     """
     // init pSettings
