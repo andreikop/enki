@@ -107,8 +107,12 @@ def main():
     # init monkey studio core
     mks.monkeycore.init();
     
-    for arg in sys.argv[1:]:
-        mks.monkeycore.workspace().openFile(arg)
+    # Get list of absolute pathes of files to open. List may contain not existing files
+    filePathes = [os.path.abspath(arg) for arg in sys.argv[1:]]
+    
+    for file in filePathes:
+        mks.monkeycore.workspace().openFile(file)
+    
     if mks.monkeycore.workspace().currentDocument():
         mks.monkeycore.workspace().currentDocument().setFocus()
     
