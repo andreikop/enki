@@ -19,7 +19,7 @@ from PyQt4.QtGui import QAction, QCompleter, QColor, QDirModel, QFileDialog,  \
                         QProgressBar, QToolButton, QTreeView, QWidget
 from PyQt4.fresh import pDockWidget
 
-import mks.monkeycore
+from mks.monkeycore import core, DATA_FILES_PATH
 
 def isBinary(fileObject):
     """Expects, that file position is 0, when exits, file position is 0
@@ -60,8 +60,7 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
         """
         QObject.__init__(self)
         self.widget = None
-        
-        mbar = mks.monkeycore.menuBar()
+        mbar = core.menuBar()
         def createAction(path, text, icon, shortcut, tooltip, slot, data, enabled=True):
             actObject = mbar.addAction( 'mEdit/mSearchReplace/' + path,
                                         self.tr(text),
@@ -123,7 +122,7 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
     def __del__(self):
         """Plugin termination
         """
-        mks.monkeycore.menuBar().menu("mEdit/mSearchReplace").deleteLater()
+        core.menuBar().menu("mEdit/mSearchReplace").deleteLater()
     
     def _modeSwitchTriggered(self):
         """Changing mode, i.e. from "Search file" to "Replace file"
@@ -143,17 +142,17 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
             pass
         elif newMode & SearchAndReplace.ModeFlagOpenedFiles:
             # TODO check if have file based document
-            if mks.monkeycore.workspace().openedDocuments():
+            if core.workspace().openedDocuments():
                 self.widget.setMode(newMode)
     
     def _createWidgets(self):
         self.widget = SearchWidget( self )
-        mks.monkeycore.mainWindow().centralLayout().addWidget( self.widget )
+        core.mainWindow().centralLayout().addWidget( self.widget )
         self.widget.setVisible( False )
         
         # FIXME create dock, only when have some search results!!!
         self.dock = SearchResultsDock( self.widget.mSearchThread )
-        mks.monkeycore.mainWindow().dockToolBar( Qt.BottomToolBarArea ).\
+        core.mainWindow().dockToolBar( Qt.BottomToolBarArea ).\
             addDockWidget(self.dock, self.dock.windowTitle(), self.dock.windowIcon())
         self.dock.setVisible( False )
 
@@ -218,11 +217,11 @@ class SearchWidget(QFrame):
     Bad = 'bad'
     
     def __init__(self, plugin):
-        QFrame.__init__(self, mks.monkeycore.workspace())
+        QFrame.__init__(self, core.workspace())
         self.mMode = None
         self.mSearchContext = None
         self.plugin = plugin
-        uic.loadUi(os.path.join(mks.monkeycore.dataFilesPath(),
+        uic.loadUi(os.path.join(DATA_FILES_PATH,
                    'ui/SearchWidget.ui'),
                    self)
         
@@ -242,7 +241,7 @@ class SearchWidget(QFrame):
         self.mProgress.setAlignment( Qt.AlignCenter )
         self.mProgress.setToolTip( self.tr( "Search in progress..." ) )
         self.mProgress.setMaximumSize( QSize( 80, 16 ) )
-        mks.monkeycore.mainWindow().statusBar().\
+        core.mainWindow().statusBar().\
                 insertPermanentWidget( 0, self.mProgress )
         self.mProgress.setVisible( False )
         
@@ -256,7 +255,7 @@ class SearchWidget(QFrame):
         self.tbMode = QToolButton( self.cbSearch.lineEdit() )
         self.tbMode.setIcon( QIcon( ":/mksicons/misc.png" ) )
         self.tbMode.setPopupMode( QToolButton.InstantPopup )
-        self.tbMode.setMenu( mks.monkeycore.menuBar().\
+        self.tbMode.setMenu( core.menuBar().\
                 menu( "mEdit/mSearchReplace" ) )
         self.tbMode.setCursor( Qt.ArrowCursor )
         self.tbMode.installEventFilter( self )
@@ -357,14 +356,14 @@ class SearchWidget(QFrame):
                                         self.replaceThread_openedFileHandled)
         self.mReplaceThread.error.connect(self.replaceThread_error)
         
-        mks.monkeycore.menuBar().action("mEdit/mSearchReplace/aSearchNext").triggered.connect(self.on_pbNext_pressed)
-        mks.monkeycore.menuBar().action("mEdit/mSearchReplace/aSearchPrevious").triggered.connect(self.on_pbPrevious_pressed)
+        core.menuBar().action("mEdit/mSearchReplace/aSearchNext").triggered.connect(self.on_pbNext_pressed)
+        core.menuBar().action("mEdit/mSearchReplace/aSearchPrevious").triggered.connect(self.on_pbPrevious_pressed)
         
         self.pbSearch.setEnabled(False)
         self.pbNext.setEnabled(False)
         self.pbPrevious.setEnabled(False)
-        mks.monkeycore.menuBar().action("mEdit/mSearchReplace/aSearchNext").setEnabled(False)
-        mks.monkeycore.menuBar().action("mEdit/mSearchReplace/aSearchPrevious").setEnabled(False)
+        core.menuBar().action("mEdit/mSearchReplace/aSearchNext").setEnabled(False)
+        core.menuBar().action("mEdit/mSearchReplace/aSearchPrevious").setEnabled(False)
 
 
     def setResultsDock(self, dock ):
@@ -408,8 +407,8 @@ class SearchWidget(QFrame):
         assert( self.mSearchContext.encoding )
         
         searchPath = os.path.abspath(os.path.curdir)
-        if mks.monkeycore.workspace().currentDocument():
-            searchText = mks.monkeycore.workspace().currentDocument().\
+        if core.workspace().currentDocument():
+            searchText = core.workspace().currentDocument().\
                                                     qscintilla.selectedText()
         else:
             searchText = ''
@@ -477,7 +476,7 @@ class SearchWidget(QFrame):
         """Handles ESC and ENTER pressings on widget for hide widget or start action"""
         if  event.modifiers() == Qt.NoModifier :
             if event.key() == Qt.Key_Escape:
-                mks.monkeycore.workspace().focusCurrentDocument()
+                core.workspace().focusCurrentDocument()
                 self.hide()
             elif event.key() in (Qt.Key_Enter, Qt.Key_Return):
                 if self.mMode == SearchAndReplace.ModeNo:
@@ -576,7 +575,7 @@ class SearchWidget(QFrame):
 
         """TODO
         self.mSearchContext.project = 
-            mks.monkeycore.fileManager().currentProject()
+            core.fileManager().currentProject()
         """
         
         # update masks
@@ -600,7 +599,7 @@ class SearchWidget(QFrame):
             return
 
         # update opened files
-        for document in mks.monkeycore.workspace().openedDocuments():
+        for document in core.workspace().openedDocuments():
             self.mSearchContext.openedFiles[document.filePath()] = \
                                         unicode(document.text())
         """TODO
@@ -614,9 +613,9 @@ class SearchWidget(QFrame):
     def showMessage (self, status):
         """Show message on the status bar"""
         if not status:
-            mks.monkeycore.mainWindow().statusBar().clearMessage()
+            core.mainWindow().statusBar().clearMessage()
         else:
-            mks.monkeycore.mainWindow().statusBar().showMessage( status, 30000 )
+            core.mainWindow().statusBar().showMessage( status, 30000 )
 
     def setState(self, field, state ):
         """Change line edit color according to search result
@@ -643,7 +642,7 @@ class SearchWidget(QFrame):
     def searchFile(self, forward, incremental ):
         """Do search in file operation. Will select next found item
         """
-        document = mks.monkeycore.workspace().currentDocument()
+        document = core.workspace().currentDocument()
         if document:
             editor = document.qscintilla  # FIXME current editor specific, 
         else:
@@ -683,7 +682,7 @@ class SearchWidget(QFrame):
     def replaceFile(self, replaceAll ):
         """Do one or all replacements in the file
         """
-        document = mks.monkeycore.workspace().currentDocument()
+        document = core.workspace().currentDocument()
         if document:
             editor = document.qscintilla  # FIXME current editor specific
         
@@ -756,7 +755,7 @@ class SearchWidget(QFrame):
         """Replace thread processed currently opened file,
         need update text in the editor
         """
-        document = mks.monkeycore.workspace().openFile(fileName, encoding)
+        document = core.workspace().openFile(fileName, encoding)
         editor = document.qscintilla  # FIXME current editor specific
 
         editor.beginUndoAction()
@@ -769,7 +768,7 @@ class SearchWidget(QFrame):
     def replaceThread_error(self, error ):
         """Error message from the replace thread
         """
-        mks.monkeycore.messageManager().appendMessage( error )
+        core.messageManager().appendMessage( error )
 
     def search_textChanged(self):
         """Text changed, enable actions, if have text, disable, if haven't
@@ -779,8 +778,8 @@ class SearchWidget(QFrame):
         self.pbSearch.setEnabled(haveText)
         self.pbNext.setEnabled(haveText)
         self.pbPrevious.setEnabled(haveText)
-        mks.monkeycore.menuBar().action("mEdit/mSearchReplace/aSearchNext").setEnabled(haveText)
-        mks.monkeycore.menuBar().action("mEdit/mSearchReplace/aSearchPrevious").setEnabled(haveText)
+        core.menuBar().action("mEdit/mSearchReplace/aSearchNext").setEnabled(haveText)
+        core.menuBar().action("mEdit/mSearchReplace/aSearchPrevious").setEnabled(haveText)
     
     def search_textEdited(self):
         """User edited search text, do incremental search
@@ -826,7 +825,7 @@ class SearchWidget(QFrame):
         
         """TODO
         if  self.mSearchContext.mMode & SearchAndReplace.ModeFlagProjectFiles and not self.mSearchContext.project :
-            mks.monkeycore.messageManager().appendMessage( \
+            core.messageManager().appendMessage( \
                                 self.tr( "You can't search in project files because there is no opened projet." ) )
             return
         """
@@ -862,7 +861,7 @@ class SearchWidget(QFrame):
         self.initializeSearchContext( False )
         """TODO
         if  self.mSearchContext.mode & SearchAndReplace.ModeFlagProjectFiles and not self.mSearchContext.project :
-            mks.monkeycore.messageManager().appendMessage(
+            core.messageManager().appendMessage(
                                     self.tr( "You can't replace in project files because there is no opened projet." ) )
             return
         """
@@ -1202,7 +1201,7 @@ class SearchResultsDock(pDockWidget):
         self.mView.activated.connect(self.view_activated)
         
         self.showAction().setShortcut("F10")
-        mks.monkeycore.mainWindow().addAction(self.showAction())
+        core.mainWindow().addAction(self.showAction())
 
 
     def view_activated(self, index ):
@@ -1210,7 +1209,7 @@ class SearchResultsDock(pDockWidget):
         """
         result = index.internalPointer()
         if isinstance(result, SearchResultsModel.Result):
-            mks.monkeycore.workspace().goToLine( result.fileName,
+            core.workspace().goToLine( result.fileName,
                                                  result.line,
                                                  result.column,
                                                  self.mSearchThread.mSearchContext.encoding,

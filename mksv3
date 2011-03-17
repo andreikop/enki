@@ -72,61 +72,36 @@ def main():
     
     # Imports only here. Hack for ability to get help and version info even on system without PyQt and Fresh.
     import mks.config
-    import mks.monkeycore
+    from mks.monkeycore import core
     
     app.setApplicationName( mks.config.PACKAGE_NAME );
     app.setOrganizationName( mks.config.PACKAGE_ORGANISATION );
     app.setOrganizationDomain( mks.config.PACKAGE_DOMAIN );
     
     app.lastWindowClosed.connect(app.quit)
-    
-    """
-    // init pSettings
-    //pSettings::setIniInformations();
-    """
-    
-    """TODO replace with python module
-    // parse command line arguments
-    //CommandLineManager clm;
-    //clm.parse();
-    """
-    
-    """TODO
-    /*Properties p;
-    p.writeToFile( "properties.xml" );*/
-    """
         
     """TODO
     support projects and files opening
     """
     
     # init monkey studio core
-    mks.monkeycore.init();
+    core.init();
     
     # Get list of absolute pathes of files to open. List may contain not existing files
     filePathes = [os.path.abspath(arg) for arg in sys.argv[1:]]
     
     for file in filePathes:
-        mks.monkeycore.workspace().openFile(file)
+        core.workspace().openFile(file)
     
-    if mks.monkeycore.workspace().currentDocument():
-        mks.monkeycore.workspace().currentDocument().setFocus()
+    if core.workspace().currentDocument():
+        core.workspace().currentDocument().setFocus()
     
-    mks.monkeycore.mainWindow().show()
-    """TODO
-    // handle command line arguments
-    clm.process();
-    """
+    core.mainWindow().show()
     
     # execute application
     result = app.exec_()
-    """TODO
-    // some cleanup
-    MonkeyCore::pluginsManager()->clearPlugins();
-    delete MonkeyCore::settings();
-    // exit code
-    """
-    mks.monkeycore.term()
+    
+    del core
     
     return result
 

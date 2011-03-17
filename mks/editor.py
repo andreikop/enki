@@ -9,8 +9,8 @@ from PyQt4.QtGui import QColor, QFont, QFrame, QInputDialog, QIcon, QKeyEvent, Q
 
 from PyQt4.Qsci import *
 
-import mks.monkeystudio
 import mks.workspace
+from mks.monkeycore import core
 
 """TODO move this code to the pChild class
 class _pEditor(QsciScintilla):
@@ -323,7 +323,7 @@ class Editor(mks.workspace.AbstractDocument):
         """
         self.qscintilla.linesChanged.connect(self._onLinesChanged)
         
-        myConfig = mks.monkeycore.config()["Editor"]
+        myConfig = core.config()["Editor"]
         
         self._applySettings(myConfig)
         self._applyLexer(myConfig, filePath)
@@ -361,14 +361,14 @@ class Editor(mks.workspace.AbstractDocument):
             self.qscintilla.convertEols( self.qscintilla.eolMode() )
             text = self.qscintilla.text()
             if text != oldText:
-                mks.monkeycore.messageManager().appendMessage('EOLs converted. You can UNDO the changes', 5000)
+                core.messageManager().appendMessage('EOLs converted. You can UNDO the changes', 5000)
         #TODO self.fileOpened.emit()
         self.modifiedChanged.emit(self.isModified())
         self.cursorPositionChanged.emit(*self.cursorPosition())
 
     def _applySettings(self, myConfig):
         # Load settings
-        myConfig = mks.monkeycore.config()["Editor"]
+        myConfig = core.config()["Editor"]
         self.qscintilla.setSelectionBackgroundColor( QColor(myConfig["SelectionBackgroundColor"]))
         self.qscintilla.setSelectionForegroundColor( QColor(myConfig["SelectionForegroundColor"]))
         if myConfig["DefaultDocumentColours"]:
@@ -462,7 +462,7 @@ class Editor(mks.workspace.AbstractDocument):
     
     def _lexerForFileName(self, fileName ):
         for language in _lexerForLanguage.keys():
-            for pattern in mks.monkeycore.config()["Editor"]["Assotiations"][language]:
+            for pattern in core.config()["Editor"]["Assotiations"][language]:
                 if  fnmatch.fnmatch(fileName , pattern)  :
                     lexerClass =  _lexerForLanguage[language]
                     return lexerClass()
@@ -587,7 +587,7 @@ class Editor(mks.workspace.AbstractDocument):
             # set unmodified
             self.qscintilla.setModified( False )
         else:
-            mks.monkeycore.messageManager().appendMessage('Indentation converted. You can Undo the changes', 5000)
+            core.messageManager().appendMessage('Indentation converted. You can Undo the changes', 5000)
 
     def _autoDetectIndent(self):
         if '\t' in self.qscintilla.text():
@@ -671,7 +671,7 @@ class Editor(mks.workspace.AbstractDocument):
         if  quickPrint:
             # check if default printer is set
             if  p.printerName().isEmpty() :
-                mks.monkeycore.messageManager().appendMessage( \
+                core.messageManager().appendMessage( \
                     tr( "There is no default printer, set one before trying quick print" ) )
                 return
             

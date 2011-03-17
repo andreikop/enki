@@ -9,7 +9,7 @@ from PyQt4 import uic
 from PyQt4.QtCore import QSize, Qt
 from PyQt4.QtGui import QDialog, QFrame, QIcon, QLabel, QMenu, QPixmap, QToolBar, QToolButton
 
-import mks.monkeycore
+from mks.monkeycore import core, DATA_FILES_PATH
 
 """AK: Idea of _EolIndicatorAndSwitcher, and icons for it was taken from juffed
 """
@@ -35,7 +35,7 @@ class _EolIndicatorAndSwitcher(QToolButton):
         menu.aboutToShow.connect(self._onMenuAboutToShow)
         menu.triggered.connect(self._onEolActionTriggered)
         
-        mks.monkeycore.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
+        core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
     
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument):
         if currentDocument is not None:
@@ -46,7 +46,7 @@ class _EolIndicatorAndSwitcher(QToolButton):
             self.setEnabled(False)
 
     def _onMenuAboutToShow(self):
-        document = mks.monkeycore.workspace().currentDocument()
+        document = core.workspace().currentDocument()
         if document is not None:
             currentMode = document.eolMode()
             self._updateEolMenu(currentMode)
@@ -70,7 +70,7 @@ class _EolIndicatorAndSwitcher(QToolButton):
 
     def _onEolActionTriggered(self, action):
         newEol = str(action.data().toString())
-        editor = mks.monkeycore.workspace().currentDocument()
+        editor = core.workspace().currentDocument()
         editor.setEolMode(newEol)
         self._setEolMode(editor.eolMode())
 
@@ -85,7 +85,7 @@ class _IndentationDialog(QDialog):
         QDialog.__init__(self, parent)
         self._document = document
         
-        uic.loadUi(os.path.join(mks.monkeycore.dataFilesPath(), 'ui/IndentationDialog.ui'), self)        
+        uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/IndentationDialog.ui'), self)        
         self._widthSlider.setValue(document.indentWidth())
         self._updateWidthLabel()
         self._widthSlider.valueChanged.connect(self._onWidthChanged)
@@ -125,7 +125,7 @@ class _IndentIndicatorAndSwitcher(QToolButton):
         self.setToolTip(self.tr("Indentation mode. Click to change"))
         
         self.clicked.connect(self._onClicked)
-        mks.monkeycore.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
+        core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
         
     
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument):
@@ -135,7 +135,7 @@ class _IndentIndicatorAndSwitcher(QToolButton):
             self._clearIndentMode()
     
     def _onClicked(self):
-        document = mks.monkeycore.workspace().currentDocument()
+        document = core.workspace().currentDocument()
         if document is not None:
             dialog = _IndentationDialog(self, document)
             dialog.exec_()
@@ -161,7 +161,7 @@ class _PositionIndicator(QToolButton):
         self._setCursorPosition(-1, -1)
         self.setMinimumWidth(180)  # Avoid flickering when text width changed
                                   # FIXME doesn't work
-        mks.monkeycore.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
+        core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
 
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument):
         # Update connections
@@ -199,7 +199,7 @@ class EditorToolBar(QToolBar):
         self.setIconSize(QSize(16, 16))
         
         # Modified button
-        self.addAction(mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ))
+        self.addAction(core.menuBar().action( "mFile/mSave/aCurrent" ))
         # EOL indicator and switcher
         self.addWidget(_EolIndicatorAndSwitcher(self))
         # Indentation indicator and switcher        

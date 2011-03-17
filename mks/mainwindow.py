@@ -14,8 +14,7 @@ from PyQt4.QtGui import qApp, QVBoxLayout, QIcon, QDockWidget, QSizePolicy, QToo
 
 from PyQt4.fresh import pDockWidget, pMainWindow, pActionsNodeModel
 
-import mks.monkeystudio
-import mks.monkeycore
+from mks.monkeycore import core, DATA_FILES_PATH
 import mks.workspace
 
 class MainWindow(pMainWindow):
@@ -27,11 +26,11 @@ class MainWindow(pMainWindow):
     If you need to connect to some existing menu item *triggered()* signal - check action name 
     in the class constructor, than use: ::
         
-        mks.monkeycore.menuBar().action( "mFile/aOpen" ).triggered.connect(self.myCoolMethod)
+        core.menuBar().action( "mFile/aOpen" ).triggered.connect(self.myCoolMethod)
     
     MainWindow instance accessible as ::
     
-        mks.monkeycore.mainwindow()
+        core.mainwindow()
     
     Created by monkeycore
     """
@@ -60,15 +59,15 @@ class MainWindow(pMainWindow):
 
         """
         # init recents manager
-        mks.monkeycore.recentsManager()
+        core.recentsManager()
         """
         
         """
         # init projects manager
-        dockToolBar( Qt.LeftToolBarArea ).addDock( mks.monkeycore.projectsManager(), mks.monkeycore.projectsManager().windowTitle(), QIcon( ":/mksicons/project.png" ) )
+        dockToolBar( Qt.LeftToolBarArea ).addDock( core.projectsManager(), core.projectsManager().windowTitle(), QIcon( ":/mksicons/project.png" ) )
         # init multitoolbar
-        mks.monkeycore.workspace().initMultiToolBar( mks.monkeycore.multiToolBar().toolBar( Workspace.defaultContext() ) )
-        mks.monkeycore.workspace().initMultiToolBar( mks.monkeycore.multiToolBar().toolBar( "Coding" ) )
+        core.workspace().initMultiToolBar( core.multiToolBar().toolBar( Workspace.defaultContext() ) )
+        core.workspace().initMultiToolBar( core.multiToolBar().toolBar( "Coding" ) )
         # init connection
         self.initConnections()
         """
@@ -155,16 +154,16 @@ class MainWindow(pMainWindow):
         mb.menu( "mProject", self.tr( "Project" ) )
         mb.beginGroup( "mProject" )
         
-        mb.addAction( '', mks.monkeycore.projectsManager().action( XUPProjectManager.atNew ) )
-        mb.addAction( '', mks.monkeycore.projectsManager().action( XUPProjectManager.atOpen ) )
+        mb.addAction( '', core.projectsManager().action( XUPProjectManager.atNew ) )
+        mb.addAction( '', core.projectsManager().action( XUPProjectManager.atOpen ) )
         mb.action( "aSeparator1" )
-        mb.addAction( '', mks.monkeycore.projectsManager().action( XUPProjectManager.atClose ) )
-        mb.addAction( '', mks.monkeycore.projectsManager().action( XUPProjectManager.atCloseAll ) )
+        mb.addAction( '', core.projectsManager().action( XUPProjectManager.atClose ) )
+        mb.addAction( '', core.projectsManager().action( XUPProjectManager.atCloseAll ) )
         mb.action( "aSeparator2" )
-        mb.addAction( '', mks.monkeycore.projectsManager().action( XUPProjectManager.atEdit ) )
+        mb.addAction( '', core.projectsManager().action( XUPProjectManager.atEdit ) )
         mb.action( "aSeparator3" )
-        mb.addAction( '', mks.monkeycore.projectsManager().action( XUPProjectManager.atAddFiles ) )
-        mb.addAction( '', mks.monkeycore.projectsManager().action( XUPProjectManager.atRemoveFiles ) )
+        mb.addAction( '', core.projectsManager().action( XUPProjectManager.atAddFiles ) )
+        mb.addAction( '', core.projectsManager().action( XUPProjectManager.atRemoveFiles ) )
         mb.action( "aSeparator4" )
         
         mb.menu( "mRecents", self.tr( "&Recents" ), QIcon( ":/mksicons/recents.png" ) )
@@ -210,11 +209,11 @@ class MainWindow(pMainWindow):
         """TODO
         # create action for styles
         agStyles = pStylesActionGroup( self.tr( "Use %1 style" ), mb.menu( "mView/mStyle" ) )
-        agStyles.setCurrentStyle( mks.monkeycore.settings().value( "MainWindow/Style" ).toString() )
+        agStyles.setCurrentStyle( core.settings().value( "MainWindow/Style" ).toString() )
         mb.menu( "mView/mStyle" ).addActions( agStyles.actions() )
         
         # create plugins actions
-        mks.monkeycore.pluginsManager().menuHandler().setMenu( mb.menu( "mPlugins" ) )
+        core.pluginsManager().menuHandler().setMenu( mb.menu( "mPlugins" ) )
         
         """
         
@@ -279,42 +278,42 @@ class MainWindow(pMainWindow):
         self.menuBar().menu( "mDocks" ).aboutToShow.connect(self._menu_Docks_aboutToShow)
         
         """TODO
-        self.menuBar().action( "mFile/aNew" ).triggered.connect(mks.monkeycore.workspace().fileNew_triggered)
-        self.menuBar().action( "mFile/aNewTextEditor" ).triggered.connect(mks.monkeycore.workspace().createNewTextEditor)
-        mks.monkeycore.recentsManager().openFileRequested.connect(mks.monkeycore.fileManager().openFile)
-        self.menuBar().action( "mFile/mSession/aSave" ).triggered.connect(mks.monkeycore.workspace().fileSessionSave_triggered)
-        self.menuBar().action( "mFile/mSession/aRestore" ).triggered.connect(mks.monkeycore.workspace().fileSessionRestore_triggered)
-        self.menuBar().action( "mFile/mClose/aAll" ).triggered.connect(mks.monkeycore.workspace().fileCloseAll_triggered)
-        self.menuBar().action( "mFile/aSaveAsBackup" ).triggered.connect(mks.monkeycore.workspace().fileSaveAsBackup_triggered)
-        self.menuBar().action( "mFile/aQuickPrint" ).triggered.connect(mks.monkeycore.workspace().fileQuickPrint_triggered)
-        self.menuBar().action( "mFile/aPrint" ).triggered.connect(mks.monkeycore.workspace().filePrint_triggered)
+        self.menuBar().action( "mFile/aNew" ).triggered.connect(core.workspace().fileNew_triggered)
+        self.menuBar().action( "mFile/aNewTextEditor" ).triggered.connect(core.workspace().createNewTextEditor)
+        core.recentsManager().openFileRequested.connect(core.fileManager().openFile)
+        self.menuBar().action( "mFile/mSession/aSave" ).triggered.connect(core.workspace().fileSessionSave_triggered)
+        self.menuBar().action( "mFile/mSession/aRestore" ).triggered.connect(core.workspace().fileSessionRestore_triggered)
+        self.menuBar().action( "mFile/mClose/aAll" ).triggered.connect(core.workspace().fileCloseAll_triggered)
+        self.menuBar().action( "mFile/aSaveAsBackup" ).triggered.connect(core.workspace().fileSaveAsBackup_triggered)
+        self.menuBar().action( "mFile/aQuickPrint" ).triggered.connect(core.workspace().fileQuickPrint_triggered)
+        self.menuBar().action( "mFile/aPrint" ).triggered.connect(core.workspace().filePrint_triggered)
         # edit connection
-        self.menuBar().action( "mEdit/aSettings" ).triggered.connect(mks.monkeycore.workspace().editSettings_triggered)
-        self.menuBar().action( "mEdit/aShortcutsEditor" ).triggered.connect(mks.monkeycore.actionsManager().editActionsShortcuts)
-        self.menuBar().action( "mEdit/aTranslations" ).triggered.connect(mks.monkeycore.workspace().editTranslations_triggered)
-        self.menuBar().action( "mEdit/mSearchReplace/aSearchFile" ).triggered.connect(mks.monkeycore.workspace().editSearch_triggered)
-        #menuBar().action( "mEdit/aSearchPrevious" ).triggered.connect(mks.monkeycore.workspace().editSearchPrevious_triggered)
-        #menuBar().action( "mEdit/aSearchNext" ).triggered.connect(mks.monkeycore.workspace().editSearchNext_triggered)
-        self.menuBar().action( "mEdit/aExpandAbbreviation" ).triggered.connect(mks.monkeycore.workspace().editExpandAbbreviation_triggered)
-        self.menuBar().action( "mEdit/aPrepareAPIs" ).triggered.connect(mks.monkeycore.workspace().editPrepareAPIs_triggered)
+        self.menuBar().action( "mEdit/aSettings" ).triggered.connect(core.workspace().editSettings_triggered)
+        self.menuBar().action( "mEdit/aShortcutsEditor" ).triggered.connect(core.actionsManager().editActionsShortcuts)
+        self.menuBar().action( "mEdit/aTranslations" ).triggered.connect(core.workspace().editTranslations_triggered)
+        self.menuBar().action( "mEdit/mSearchReplace/aSearchFile" ).triggered.connect(core.workspace().editSearch_triggered)
+        #menuBar().action( "mEdit/aSearchPrevious" ).triggered.connect(core.workspace().editSearchPrevious_triggered)
+        #menuBar().action( "mEdit/aSearchNext" ).triggered.connect(core.workspace().editSearchNext_triggered)
+        self.menuBar().action( "mEdit/aExpandAbbreviation" ).triggered.connect(core.workspace().editExpandAbbreviation_triggered)
+        self.menuBar().action( "mEdit/aPrepareAPIs" ).triggered.connect(core.workspace().editPrepareAPIs_triggered)
         # view connection
         agStyles.styleSelected.connect(self.changeStyle)
 
         # project connection
-        mks.monkeycore.recentsManager().openProjectRequested.connect(mks.monkeycore.projectsManager().openProject)
-        mks.monkeycore.projectsManager().fileDoubleClicked.connect(mks.monkeycore.workspace().openFile)
+        core.recentsManager().openProjectRequested.connect(core.projectsManager().openProject)
+        core.projectsManager().fileDoubleClicked.connect(core.workspace().openFile)
         # builder debugger interpreter menu
         self.menuBar().menu( "mBuilder" ).aboutToShow.connect(self.menu_CustomAction_aboutToShow)
         self.menuBar().menu( "mDebugger" ).aboutToShow.connect(self.menu_CustomAction_aboutToShow)
         self.menuBar().menu( "mInterpreter" ).aboutToShow.connect(self.menu_CustomAction_aboutToShow)
         # plugins menu
         # window menu
-        self.menuBar().action( "mWindow/aTile" ).triggered.connect(mks.monkeycore.workspace().tile)
-        self.menuBar().action( "mWindow/aCascase" ).triggered.connect(mks.monkeycore.workspace().cascade)
-        self.menuBar().action( "mWindow/aMinimize" ).triggered.connect(mks.monkeycore.workspace().minimize)
-        self.menuBar().action( "mWindow/aRestore" ).triggered.connect(mks.monkeycore.workspace().restore)
+        self.menuBar().action( "mWindow/aTile" ).triggered.connect(core.workspace().tile)
+        self.menuBar().action( "mWindow/aCascase" ).triggered.connect(core.workspace().cascade)
+        self.menuBar().action( "mWindow/aMinimize" ).triggered.connect(core.workspace().minimize)
+        self.menuBar().action( "mWindow/aRestore" ).triggered.connect(core.workspace().restore)
         # help menu
-        self.menuBar().action( "mHelp/aAbout" ).triggered.connect(mks.monkeycore.workspace().helpAboutApplication_triggered)
+        self.menuBar().action( "mHelp/aAbout" ).triggered.connect(core.workspace().helpAboutApplication_triggered)
         """
     
     def setWorkspace(self, workspace):
@@ -367,16 +366,16 @@ class MainWindow(pMainWindow):
         
         # save session if needed
         if  mks.monkeystudio.saveSessionOnClose() :
-            mks.monkeycore.workspace().fileSessionSave_triggered()
+            core.workspace().fileSessionSave_triggered()
         
         # request close all documents
-        if  not mks.monkeycore.workspace().closeAllDocuments() :
+        if  not core.workspace().closeAllDocuments() :
             event.ignore()
             return
         
         
         # force to close all projects
-        mks.monkeycore.projectsManager().action( XUPProjectManager.atCloseAll ).trigger()
+        core.projectsManager().action( XUPProjectManager.atCloseAll ).trigger()
         pMainWindow.closeEvent( self, event )
     
     
