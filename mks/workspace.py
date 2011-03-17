@@ -662,6 +662,7 @@ class AbstractDocument(QWidget):
         self.setText(text)
         #self.fileReloaded.emit()
         self._externallyModified = False
+        self._externallyRemoved = False
     
     '''
     def printFile(self):
