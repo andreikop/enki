@@ -15,7 +15,7 @@ from PyQt4.QtGui import QAction, QDialogButtonBox, QFileDialog, QFrame, QFileSys
 from PyQt4.fresh import pDockWidget
 from PyQt4.fresh import pStringListEditor
 
-import mks.monkeycore
+from mks.monkeycore import core, DATA_FILES_PATH
 
 """
     def fillPluginInfos(self):
@@ -38,10 +38,10 @@ class FileBrowser(QObject):
         """
         QObject.__init__(self)
         # create dock
-        self.dock = DockFileBrowser(mks.monkeycore.mainWindow())
+        self.dock = DockFileBrowser(core.mainWindow())
         self.dock.hide()
         # add dock to dock toolbar entry
-        mks.monkeycore.mainWindow().dockToolBar( Qt.LeftToolBarArea ).addDockWidget( self.dock,
+        core.mainWindow().dockToolBar( Qt.LeftToolBarArea ).addDockWidget( self.dock,
                                                                                      self.dock.windowTitle(),
                                                                                      QIcon(':/mksicons/open.png'))
     
@@ -64,7 +64,7 @@ class FileBrowserSettings(QWidget):
         
         # list editor
         self.editor = pStringListEditor( self, self.tr( "Except Suffixes" ) )
-        self.editor.setValues( mks.monkeycore.config()["FileBrowser"]["NegativeFilter"] )
+        self.editor.setValues( core.config()["FileBrowser"]["NegativeFilter"] )
         
         # apply button
         dbbApply = QDialogButtonBox( self )
@@ -83,7 +83,7 @@ class FileBrowserSettings(QWidget):
         """
         pyStrList = map(str, self.editor.values())
         """FIXME
-        mks.monkeycore.config()["FileBrowser"]["NegativeFilter"] = pyStrList
+        core.config()["FileBrowser"]["NegativeFilter"] = pyStrList
         """
         self.plugin.dock.setFilters(pyStrList)
 
@@ -140,7 +140,7 @@ class DockFileBrowser(pDockWidget):
         pActionsManager.setDefaultShortcut( self.dock.toggleViewAction(), QKeySequence( "F7" ) )
         """
         self.showAction().setShortcut("F7")
-        mks.monkeycore.mainWindow().addAction(self.showAction())
+        core.mainWindow().addAction(self.showAction())
         self.visibilityChanged.connect(self._onVisibilityChanged)
     
     def _onVisibilityChanged(self, visible):
@@ -208,7 +208,7 @@ class DockFileBrowser(pDockWidget):
         # create proxy model
         self.mFilteredModel = FileBrowserFilteredModel( self )
         self.mFilteredModel.setSourceModel( self.mDirsModel )
-        self.setFilters(mks.monkeycore.config()["FileBrowser"]["NegativeFilter"])
+        self.setFilters(core.config()["FileBrowser"]["NegativeFilter"])
         
         # files view
         self.mTree = QTreeView()
@@ -239,9 +239,9 @@ class DockFileBrowser(pDockWidget):
         self.mBookmarksMenu.triggered.connect(self.bookmark_triggered)
         self.mTree.activated.connect(self.tv_activated)
         
-        self.setCurrentPath( mks.monkeycore.config()["FileBrowser"]["Path"] )
-        self.setCurrentFilePath( mks.monkeycore.config()["FileBrowser"]["FilePath"] )
-        self.mBookmarks = mks.monkeycore.config()["FileBrowser"]["Bookmarks"]
+        self.setCurrentPath( core.config()["FileBrowser"]["Path"] )
+        self.setCurrentFilePath( core.config()["FileBrowser"]["FilePath"] )
+        self.mBookmarks = core.config()["FileBrowser"]["Bookmarks"]
         self.updateBookMarksMenu()
 
     def _filteredModelIndexToPath(self, index):
@@ -311,7 +311,7 @@ class DockFileBrowser(pDockWidget):
         if  self.mDirsModel.isDir( index ) :
             self.setCurrentPath( unicode(self.mDirsModel.filePath( index )) )
         else:
-            mks.monkeycore.workspace().openFile( unicode(self.mDirsModel.filePath( index )))
+            core.workspace().openFile( unicode(self.mDirsModel.filePath( index )))
 
     def currentPath(self):
         """Get current path (root of the tree)

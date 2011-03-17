@@ -38,7 +38,7 @@ from PyQt4.QtCore import QByteArray, \
 
 import PyQt4.fresh
 
-import mks.monkeystudio
+from mks.monkeycore import core, DATA_FILES_PATH
 
 """
 CONTENT_CHANGED_TIME_OUT = 3000
@@ -59,7 +59,7 @@ class _OpenedFileModel(QAbstractItemModel):
     
     def __init__(self, parentObject):
         QAbstractItemModel.__init__(self, parentObject )
-        self.mSortMode = mks.monkeycore.config()["Workspace"]["FileSortMode"]
+        self.mSortMode = core.config()["Workspace"]["FileSortMode"]
         workspace = parentObject.parent()
         workspace.documentOpened.connect(self.documentOpened)
         workspace.documentClosed.connect(self.documentClosed)
@@ -71,13 +71,13 @@ class _OpenedFileModel(QAbstractItemModel):
         if parent.isValid():
             return 0
         else:
-            return len(mks.monkeycore.workspace()._sortedDocuments)
+            return len(core.workspace()._sortedDocuments)
     
     def hasChildren(self, parent ):
         if parent.isValid():
            return False
         else:
-            return (len(mks.monkeycore.workspace()._sortedDocuments) > 0)
+            return (len(core.workspace()._sortedDocuments) > 0)
 
     def headerData(self, section, orientation, role ):
         if  section == 0 and \
@@ -106,10 +106,10 @@ class _OpenedFileModel(QAbstractItemModel):
             return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDropEnabled
     
     def index(self, row, column, parent ):
-        if  parent.isValid() or column > 0 or column < 0 or row < 0 or row >= len(mks.monkeycore.workspace()._sortedDocuments) :
+        if  parent.isValid() or column > 0 or column < 0 or row < 0 or row >= len(core.workspace()._sortedDocuments) :
             return QModelIndex()
 
-        return self.createIndex( row, column, mks.monkeycore.workspace()._sortedDocuments[row] )
+        return self.createIndex( row, column, core.workspace()._sortedDocuments[row] )
     
     def parent(self, index ):
         return QModelIndex()
@@ -138,13 +138,13 @@ class _OpenedFileModel(QAbstractItemModel):
         
         fromRow = data.data( self.mimeTypes()[0] ).toInt()[0]
         
-        if  row >= len(mks.monkeycore.workspace()._sortedDocuments):
+        if  row >= len(core.workspace()._sortedDocuments):
             row-= 1
 
         elif  fromRow < row :
             row-= 1
 
-        newDocuments = copy.copy(mks.monkeycore.workspace()._sortedDocuments)
+        newDocuments = copy.copy(core.workspace()._sortedDocuments)
         
         item = newDocuments.pop(fromRow)
         
@@ -153,7 +153,7 @@ class _OpenedFileModel(QAbstractItemModel):
         
         newDocuments.insert(row, item)
         
-        self.rebuildMapping( mks.monkeycore.workspace()._sortedDocuments, newDocuments )
+        self.rebuildMapping( core.workspace()._sortedDocuments, newDocuments )
         
         if  self.mSortMode != _OpenedFileModel.Custom :
             self.setSortMode( _OpenedFileModel.Custom )
@@ -169,7 +169,7 @@ class _OpenedFileModel(QAbstractItemModel):
         return index.internalPointer()
     
     def documentIndex(self, document ):
-        row = mks.monkeycore.workspace()._sortedDocuments.index( document )
+        row = core.workspace()._sortedDocuments.index( document )
         
         if  row != -1 :
             return self.createIndex( row, 0, document )
@@ -183,16 +183,16 @@ class _OpenedFileModel(QAbstractItemModel):
         if  self.mSortMode != mode :
             self.mSortMode = mode
             if mode != self.Custom:
-                mks.monkeycore._reloadConfig()
-                mks.monkeycore.config()["Workspace"]["FileSortMode"] = mode
-                mks.monkeycore._flushConfig()
+                core._reloadConfig()
+                core.config()["Workspace"]["FileSortMode"] = mode
+                core._flushConfig()
             self.sortDocuments()
 
     def sortDocuments(self):
-        newDocuments = copy.copy(mks.monkeycore.workspace()._sortedDocuments)
+        newDocuments = copy.copy(core.workspace()._sortedDocuments)
         
         if self.mSortMode == self.OpeningOrder:
-            newDocuments.sort(lambda a, b: cmp(mks.monkeycore.workspace()._sortedDocuments.index(a), mks.monkeycore.workspace()._sortedDocuments.index(b)))
+            newDocuments.sort(lambda a, b: cmp(core.workspace()._sortedDocuments.index(a), core.workspace()._sortedDocuments.index(b)))
         elif self.mSortMode == self.FileName:
             newDocuments.sort(lambda a, b: cmp(a.fileName(), b.fileName()))
         elif self.mSortMode == self.URL:
@@ -212,7 +212,7 @@ class _OpenedFileModel(QAbstractItemModel):
             pass
         else:
             assert(0)
-        self.rebuildMapping( mks.monkeycore.workspace()._sortedDocuments, newDocuments )
+        self.rebuildMapping( core.workspace()._sortedDocuments, newDocuments )
         # scroll the view
         selected = QObject.parent(self).tvFiles.selectionModel().selectedIndexes()
         if selected:
@@ -231,13 +231,13 @@ class _OpenedFileModel(QAbstractItemModel):
             documentsMapping[ row ] = oldList[row]
             mapping[ row ] = row
 
-        mks.monkeycore.workspace()._sortedDocuments = newList
+        core.workspace()._sortedDocuments = newList
         
         # build mapping
         for pIndex in pOldIndexes:
             row = pIndex.row()
             document = documentsMapping[ row ]
-            index = mks.monkeycore.workspace()._sortedDocuments.index( document )
+            index = core.workspace()._sortedDocuments.index( document )
             mapping[ row ] = index
         
         for pIindex in pOldIndexes:
@@ -245,7 +245,7 @@ class _OpenedFileModel(QAbstractItemModel):
             index = mapping[ row ]
             
             if  pIndex.isValid():
-                pIndexes.append(self.createIndex( index, pIndex.column(), mks.monkeycore.workspace()._sortedDocuments[index] ))
+                pIndexes.append(self.createIndex( index, pIndex.column(), core.workspace()._sortedDocuments[index] ))
             else:
                 pIndexes.append(QModelIndex())
         
@@ -253,8 +253,8 @@ class _OpenedFileModel(QAbstractItemModel):
         self.layoutChanged.emit()
 
     def documentOpened(self, document ):
-        assert( not document in mks.monkeycore.workspace()._sortedDocuments )
-        mks.monkeycore.workspace()._sortedDocuments.append( document )
+        assert( not document in core.workspace()._sortedDocuments )
+        core.workspace()._sortedDocuments.append( document )
         self.sortDocuments()
         document.modifiedChanged.connect(self._onDocumentDataChanged)
         document._documentDataChanged.connect(self._onDocumentDataChanged)
@@ -265,7 +265,7 @@ class _OpenedFileModel(QAbstractItemModel):
         self.dataChanged.emit( index, index )
     
     def documentClosed(self, document ):
-        index = mks.monkeycore.workspace()._sortedDocuments.index( document )
+        index = core.workspace()._sortedDocuments.index( document )
         
         if  index == -1 :
             return
@@ -273,7 +273,7 @@ class _OpenedFileModel(QAbstractItemModel):
         # scroll the view
         QObject.parent(self)._startModifyModel()
         self.beginRemoveRows( QModelIndex(), index, index )
-        mks.monkeycore.workspace()._sortedDocuments.remove( document )
+        core.workspace()._sortedDocuments.remove( document )
         self.endRemoveRows()
         QObject.parent(self)._finishModifyModel()
 
@@ -286,7 +286,7 @@ class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
     def __init__(self, workspace):
         PyQt4.fresh.pDockWidget.__init__(self, workspace)
         self.mModel = _OpenedFileModel(self)
-        uic.loadUi(os.path.join(mks.monkeycore.dataFilesPath(), 'ui/pOpenedFileExplorer.ui'), self )
+        uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/pOpenedFileExplorer.ui'), self )
         self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
         self.tvFiles.setModel( self.mModel )
         self.tvFiles.setAttribute( Qt.WA_MacShowFocusRect, False )
@@ -301,7 +301,7 @@ class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         '''
         self.tvFiles.viewport().setAcceptDrops( True )
 
-        mks.monkeycore.workspace().documentChanged.connect(self.documentChanged)
+        core.workspace().documentChanged.connect(self.documentChanged)
         """
         workspace.currentDocumentChanged.connect(self.currentDocumentChanged)
         
@@ -343,8 +343,8 @@ class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         focusWidget = self.window().focusWidget()
 
         # set current document
-        document = mks.monkeycore.workspace()._sortedDocuments[index.row()]
-        mks.monkeycore.workspace().setCurrentDocument( document )
+        document = core.workspace()._sortedDocuments[index.row()]
+        core.workspace().setCurrentDocument( document )
         
         # restore focus widget
         if  focusWidget :
@@ -353,9 +353,9 @@ class _OpenedFileExplorer(PyQt4.fresh.pDockWidget):
     def on_tvFiles_customContextMenuRequested(self, pos ):
         menu = QMenu()
         
-        menu.addAction( mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ) )
-        menu.addAction( mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ) )
-        menu.addAction( mks.monkeycore.menuBar().action( "mFile/mReload/aCurrent" ) )
+        menu.addAction( core.menuBar().action( "mFile/mClose/aCurrent" ) )
+        menu.addAction( core.menuBar().action( "mFile/mSave/aCurrent" ) )
+        menu.addAction( core.menuBar().action( "mFile/mReload/aCurrent" ) )
         menu.addSeparator()
         
         # sort menu
@@ -614,7 +614,7 @@ class AbstractDocument(QWidget):
             try:
                 os.mkdir(dirPath)
             except OSError:
-                mks.monkeystudio.messageManager().appendMessage( \
+                core.messageManager().appendMessage( \
                         self.tr( "Cannot create directory '%s'. Error '%s'" % (dirPath, error))) # todo fix
                 return False
         
@@ -725,7 +725,7 @@ class Workspace(QStackedWidget):
     
     Instance accessible as: ::
     
-        mks.monkeycore.workspace()
+        core.workspace()
     
     First time created by ::class:mks.mainwindow.MainWindow
     
@@ -841,7 +841,7 @@ class Workspace(QStackedWidget):
         mainWindow.menuBar().action( "mView/aPrevious" ).triggered.connect(self._activatePreviousDocument)
         
         mainWindow.menuBar().action( "mView/aFocusCurrentDocument" ).triggered.connect(self.focusCurrentDocument)
-        editConfigFile = lambda : self.openFile(mks.monkeycore.config().filename)
+        editConfigFile = lambda : self.openFile(core.config().filename)
         mainWindow.menuBar().action( "mEdit/aConfigFile" ).triggered.connect(editConfigFile)
     
     def _mainWindow(self):
@@ -925,10 +925,10 @@ class Workspace(QStackedWidget):
             pass
         
         if document is not None:
-            mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(document.isModified())
-            mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled( document.isModified() )
+            core.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(document.isModified())
+            core.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled( document.isModified() )
         else:  # no document
-            mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(False)
+            core.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(False)
         
         '''
         # fix fucking flickering due to window activation change on application gain / lost focus.
@@ -949,27 +949,27 @@ class Workspace(QStackedWidget):
         '''
         
         # update file menu
-        mks.monkeycore.menuBar().action( "mFile/mSave/aAll" ).setEnabled( document is not None)
-        mks.monkeycore.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled( document is not None)
-        mks.monkeycore.menuBar().action( "mView/aFocusCurrentDocument" ).setEnabled( document is not None)
+        core.menuBar().action( "mFile/mSave/aAll" ).setEnabled( document is not None)
+        core.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled( document is not None)
+        core.menuBar().action( "mView/aFocusCurrentDocument" ).setEnabled( document is not None)
         '''
-        mks.monkeycore.menuBar().action( "mFile/mClose/aAll" ).setEnabled( document )
+        core.menuBar().action( "mFile/mClose/aAll" ).setEnabled( document )
         '''
-        mks.monkeycore.menuBar().action( "mFile/mReload/aCurrent" ).setEnabled( document is not None )
+        core.menuBar().action( "mFile/mReload/aCurrent" ).setEnabled( document is not None )
         '''
-        mks.monkeycore.menuBar().action( "mFile/aSaveAsBackup" ).setEnabled( document )
-        mks.monkeycore.menuBar().action( "mFile/aQuickPrint" ).setEnabled( print_ )
-        mks.monkeycore.menuBar().action( "mFile/aPrint" ).setEnabled( print_ )
+        core.menuBar().action( "mFile/aSaveAsBackup" ).setEnabled( document )
+        core.menuBar().action( "mFile/aQuickPrint" ).setEnabled( print_ )
+        core.menuBar().action( "mFile/aPrint" ).setEnabled( print_ )
         
         # update edit menu
-        mks.monkeycore.menuBar().action( "mEdit/aExpandAbbreviation" ).setEnabled( document )
-        mks.monkeycore.menuBar().setMenuEnabled( mks.monkeycore.menuBar().menu( "mEdit/mAllCommands" ), editor )
+        core.menuBar().action( "mEdit/aExpandAbbreviation" ).setEnabled( document )
+        core.menuBar().setMenuEnabled( core.menuBar().menu( "mEdit/mAllCommands" ), editor )
         '''
         
         # update view menu
         moreThanOneDocument = self.count() > 1
-        mks.monkeycore.menuBar().action( "mView/aNext" ).setEnabled( moreThanOneDocument )
-        mks.monkeycore.menuBar().action( "mView/aPrevious" ).setEnabled( moreThanOneDocument )
+        core.menuBar().action( "mView/aNext" ).setEnabled( moreThanOneDocument )
+        core.menuBar().action( "mView/aPrevious" ).setEnabled( moreThanOneDocument )
         
         # internal update
         if  document and document.filePath():
@@ -1053,7 +1053,7 @@ class Workspace(QStackedWidget):
         document.fileReloaded.connect(self.document_fileReloaded)
         """
         # update file menu
-        document.modifiedChanged.connect(mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled)
+        document.modifiedChanged.connect(core.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled)
         document.modifiedChanged.connect(self._updateMainWindowTitle)
         
         # add to workspace
@@ -1073,7 +1073,7 @@ class Workspace(QStackedWidget):
         disconnect( document, SIGNAL( fileReloaded() ), this, SLOT( document_fileReloaded() ) )
         # update file menu
         """
-        document.modifiedChanged.disconnect(mks.monkeycore.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled)
+        document.modifiedChanged.disconnect(core.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled)
         # update edit menu
 
         # remove from workspace
@@ -1098,7 +1098,7 @@ class Workspace(QStackedWidget):
         
         """TODO
         # get a document interface that can handle the file
-        document = mks.monkeycore.pluginsManager().documentForFileName( filePath )
+        document = core.pluginsManager().documentForFileName( filePath )
         """
         documentType = None
         
@@ -1132,18 +1132,10 @@ class Workspace(QStackedWidget):
         self._handleDocument( document )
         
         if not os.access(filePath, os.W_OK):
-            mks.monkeycore.messageManager().appendMessage( \
+            core.messageManager().appendMessage( \
                         self.tr( "File '%s' is not writable" % filePath), 4000) # todo fix
         
         return document
-    
-    """TODO
-    def closeFile(self, filePath ):
-        for window in a.subWindowList():
-            if  mks.monkeystudio.isSameFile( window.filePath(), h ) :
-                self.closeDocument( window )
-                return
-    """
     
     def _closeCurrentDocument(self):
         document = self.currentWidget()
@@ -1260,7 +1252,7 @@ class Workspace(QStackedWidget):
         file = QFile ( fileName )
 
         if  not file.open( QIODevice.WriteOnly ) :
-            mks.monkeycore.messageManager().appendMessage(self.tr( "Can't create file '%1'" ).arg( QFileInfo( fileName ).fileName() ) )
+            core.messageManager().appendMessage(self.tr( "Can't create file '%1'" ).arg( QFileInfo( fileName ).fileName() ) )
             return 0
 
         # reset file
@@ -1269,7 +1261,7 @@ class Workspace(QStackedWidget):
 
         if  result.value( "addtoproject", e ).toBool() :
             # add files to scope
-            mks.monkeycore.projectsManager().addFilesToScope( result[ "scope" ].value(XUPItem), [fileName] )
+            core.projectsManager().addFilesToScope( result[ "scope" ].value(XUPItem), [fileName] )
         
         # open file
         return self.openFile( fileName, result[ "encoding" ].toString() )
@@ -1321,7 +1313,7 @@ class Workspace(QStackedWidget):
         elif action == aop :
             for url in s:
                 if  not url.toLocalFile().trimmed().isEmpty() :
-                    mks.monkeycore.projectsManager().openProject( url.toLocalFile(), c() )
+                    core.projectsManager().openProject( url.toLocalFile(), c() )
 
 
     def internal_currentProjectChanged(self, currentProject, previousProject ):
@@ -1332,7 +1324,7 @@ class Workspace(QStackedWidget):
             disconnect( previousProject, L( uninstallCommandRequested(  pCommand&, & ) ), s, T( internal_projectUninstallCommandRequested(  pCommand&, & ) ) )
     
         # get pluginsmanager
-        pm = mks.monkeycore.pluginsManager()
+        pm = core.pluginsManager()
         
         # set debugger and interpreter
         bp = currentProject ? currentProject.builder() : 0
@@ -1356,7 +1348,7 @@ class Workspace(QStackedWidget):
 
     def internal_projectInstallCommandRequested(self, cmd, mnu ):
         # create action
-        action = mks.monkeycore.menuBar().action( QString( "%1/%2" ).arg( mnu ).arg( cmd.text() ) , d.text() )
+        action = core.menuBar().action( QString( "%1/%2" ).arg( mnu ).arg( cmd.text() ) , d.text() )
         action.setStatusTip( cmd.text() )
 
         # set action custom data contain the command to execute
@@ -1370,7 +1362,7 @@ class Workspace(QStackedWidget):
 
 
     def internal_projectUninstallCommandRequested(self, cmd, mnu ):
-        menu = mks.monkeycore.menuBar().menu( mnu )
+        menu = core.menuBar().menu( mnu )
         
         for action in u.actions():
             if  action.menu() :
@@ -1385,7 +1377,7 @@ class Workspace(QStackedWidget):
         action = self.sender()
 
         if  action :
-            cm = mks.monkeycore.consoleManager()
+            cm = core.consoleManager()
             cmd = action.data().value<pCommand>()
             cmdsHash = cmd.userData().value<pCommandMap*>()
             cmds = cmdsHash ? cmdsHash.values() : pCommandList()
@@ -1468,7 +1460,7 @@ class Workspace(QStackedWidget):
         for file in fileNames:
             if self.openFile(file) is not None:
                 pass
-                #TODO mks.monkeycore.recentsManager().addRecentFile( file )
+                #TODO core.recentsManager().addRecentFile( file )
     
     '''TODO
     def fileSessionSave_triggered(self):
@@ -1480,24 +1472,24 @@ class Workspace(QStackedWidget):
             document = window
             files.append(document.filePath())
 
-        mks.monkeycore.settings().setValue( "Session/Files", files )
+        core.settings().setValue( "Session/Files", files )
         
         # projects
-        for project in mks.monkeycore.projectsManager().topLevelProjects():
+        for project in core.projectsManager().topLevelProjects():
             projects.append(project.fileName())
 
-        mks.monkeycore.settings().setValue( "Session/Projects", projectss )
+        core.settings().setValue( "Session/Projects", projectss )
 
     def fileSessionRestore_triggered(self):
         # restore files
-        for file in mks.monkeycore.settings().value("Session/Files", [] ).toStringList():
+        for file in core.settings().value("Session/Files", [] ).toStringList():
             if not self.openFile( file, mks.monkeystudio.defaultCodec() ): # remove it from recents files
-                mks.monkeycore.recentsManager().removeRecentFile( file )
+                core.recentsManager().removeRecentFile( file )
         
         # restore projects
-        for project in mks.monkeycore.settings().value( "Session/Projects", [] ).toStringList():
-            if not mks.monkeycore.projectsManager().openProject( project, mks.monkeystudio.defaultCodec() ): # remove it from recents projects
-                mks.monkeycore.recentsManager().removeRecentProject( project )
+        for project in core.settings().value( "Session/Projects", [] ).toStringList():
+            if not core.projectsManager().openProject( project, mks.monkeystudio.defaultCodec() ): # remove it from recents projects
+                core.recentsManager().removeRecentProject( project )
     
     '''
     
@@ -1574,20 +1566,20 @@ class Workspace(QStackedWidget):
         UISettings.instance( self ).exec_()
 
     def editTranslations_triggered(self):
-        locale = TranslationDialog.getLocale( mks.monkeycore.translationsManager(), self )
+        locale = TranslationDialog.getLocale( core.translationsManager(), self )
 
         if  not locale.isEmpty() :
-            mks.monkeycore.settings().setValue( "Translations/Locale", locale )
-            mks.monkeycore.settings().setValue( "Translations/Accepted", True )
-            mks.monkeycore.translationsManager().setCurrentLocale( locale )
-            mks.monkeycore.translationsManager().reloadTranslations()
+            core.settings().setValue( "Translations/Locale", locale )
+            core.settings().setValue( "Translations/Accepted", True )
+            core.translationsManager().setCurrentLocale( locale )
+            core.translationsManager().reloadTranslations()
 
 
     def editExpandAbbreviation_triggered(self):
         document = self.currentDocument()
 
         if  document :
-            mks.monkeycore.abbreviationsManager().expandMacro( document.editor() )
+            core.abbreviationsManager().expandMacro( document.editor() )
 
 
 
