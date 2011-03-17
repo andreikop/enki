@@ -61,6 +61,7 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
         QObject.__init__(self)
         self.widget = None
         mbar = core.menuBar()
+        
         def createAction(path, text, icon, shortcut, tooltip, slot, data, enabled=True):
             actObject = mbar.addAction( 'mEdit/mSearchReplace/' + path,
                                         self.tr(text),
@@ -121,7 +122,7 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
     
     def __del__(self):
         """Plugin termination
-        """
+        """        
         core.menuBar().menu("mEdit/mSearchReplace").deleteLater()
     
     def _modeSwitchTriggered(self):

@@ -100,8 +100,7 @@ def main():
     
     # execute application
     result = app.exec_()
-    
-    del core
+    core.term()
     
     return result
 
