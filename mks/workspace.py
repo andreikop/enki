@@ -1183,58 +1183,7 @@ class Workspace(QStackedWidget):
         if  document :
             document.setFocus()
     
-    """TODO
-    def tile(self):
-        self.mdiArea.tileSubWindows()
-
-    def cascade(self):
-        self.mdiArea.cascadeSubWindows()
-
-    def minimize(self):
-        self.setDocumentMode( self.NoTabs )
-
-        for window in a.subWindowList():
-            window.showMinimized()
-
-    def restore(self):
-        self.setDocumentMode( self.NoTabs )
-
-        for window in a.subWindowList():
-            window.showNormal()
-
-    def setDocumentMode(self, mode ):
-        if self.mViewMode == mode :
-            return
-
-        document = self.mdiArea.currentSubWindow()
-        e = mode
-        
-        if self.mViewMode == self.NoTabs:
-            self.mdiArea.setViewMode( QMdiArea.SubWindowView )
-        elif self.mViewMode == self.TopTabs:
-            self.mdiArea.setTabPosition( QTabWidget.North )
-            self.mdiArea.setViewMode( QMdiArea.TabbedView )
-        elif self.mViewMode == self.BottomTabs:
-            self.mdiArea.setTabPosition( QTabWidget.South )
-            self.mdiArea.setViewMode( QMdiArea.TabbedView )
-        elif self.mViewMode == self.LeftTabs:
-            self.mdiArea.setTabPosition( QTabWidget.West )
-            self.mdiArea.setViewMode( QMdiArea.TabbedView )
-        elif self.mViewMode == self.RightTabs:
-            self.mdiArea.setTabPosition( QTabWidget.East )
-            self.mdiArea.setViewMode( QMdiArea.TabbedView )
-        
-        self.mOpenedFileExplorer.setVisible( e == self.NoTabs )
-
-        if  document and not document.isMaximized() :
-            document.showMaximized()
-        
-        for action in self.mViewModesGroup.actions():
-            if  action.data().toInt() == self.mViewMode :
-                if  not action.isChecked() :
-                    action.setChecked( True )
-                return
-
+    """
     def createNewTextEditor(self):
         result = MkSFileDialog.getNewEditorFile( window() )
 
