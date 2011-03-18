@@ -183,9 +183,9 @@ class _OpenedFileModel(QAbstractItemModel):
         if  self.mSortMode != mode :
             self.mSortMode = mode
             if mode != self.Custom:
-                core._reloadConfig()
+                core.config().reload()
                 core.config()["Workspace"]["FileSortMode"] = mode
-                core._flushConfig()
+                core.config().flush()
             self.sortDocuments()
 
     def sortDocuments(self):
