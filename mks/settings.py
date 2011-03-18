@@ -26,77 +26,85 @@ _DEFAULT_CONFIG_PATH = os.path.join(DATA_FILES_PATH, 'config/mksv3.default.cfg')
 _DEFAULT_CONFIG_SPEC_PATH = os.path.join(DATA_FILES_PATH, 'config/mksv3.spec.cfg')
 _CONFIG_PATH = os.path.expanduser('~/.mksv3.cfg')
 
-class Config:
-    """Settings storage
+def _defaultConfig():
+    config = ConfigObj(_DEFAULT_CONFIG_PATH, configspec=_DEFAULT_CONFIG_SPEC_PATH)
+    message_string = config._validate()
+    if message_string:
+        print message_string
+        assert not message_string  # default config MUST be valid
+
+def createConfig():
+    """Open config file and return Config instance
+    
+    Function creates config file in user's home directory, if necessary,
+    validates and opens it.
     """
-    def __init__(self):
+    try:
         # Create config file in the users home
-        failed = False
         if not os.path.exists(_CONFIG_PATH):
             try:
                 shutil.copyfile(_DEFAULT_CONFIG_PATH, _CONFIG_PATH)
             except IOError, ex:
-                core.messageManager().appendMessage('Failed to create configuration file. Error' + 
-                                                unicode(str(ex), 'utf_8') + 
-                                                '\nUsing default configuration')
-                failed = True
-        
+                raise UserWarning('Failed to create configuration file. Error:\n' + 
+                                  unicode(str(ex), 'utf_8'))
         # Open config file
-        if not failed:
-            try:
-                self._config = ConfigObj(_CONFIG_PATH, configspec=_DEFAULT_CONFIG_SPEC_PATH)
-            except ParseError, ex:
-                core.messageManager().appendMessage('Failed to parse configuration file ' + 
-                                                _CONFIG_PATH + 
-                                                '\n Error:' + 
-                                                unicode(str(ex), 'utf_8') + 
-                                                '\n Fix the file or delete it.' + 
-                                                '\nUsing default configuration')
-                failed = True
-            
-            if not failed:
-                message_string = self._validateConfig(self._config)
-                if message_string:
-                    core.messageManager().appendMessage('Invalid configuration file ' + 
-                                                    _CONFIG_PATH + 
-                                                    '\n Error:' + 
-                                                    message_string + 
-                                                    '\n Fix the file or delete it.' + 
-                                                    '\nUsing default configuration')
-                    failed = True
-            
-            # Open default, if failed to use config in the users home
-            if failed:
-                self._config = ConfigObj(_DEFAULT_CONFIG_PATH, configspec=_DEFAULT_CONFIG_SPEC_PATH)
-                message_string = self._validateConfig(self._config)
-                if message_string:
-                    print message_string
-                    assert not message_string  # default config MUST be valid
+        try:
+            config = Config(_CONFIG_PATH, configspec=_DEFAULT_CONFIG_SPEC_PATH)
+        except ParseError, ex:
+            raise UserWarning('Failed to parse configuration file %s\n'
+                              'Error:\n'
+                              '%s\n'
+                              'Fix the file or delete it.' % (_CONFIG_PATH, unicode(str(ex), 'utf_8')))
+        config._validate()
+    except UserWarning, ex:
+        messageString = unicode(str(ex)) + '\n' + 'Using default configuration'
+        core.messageManager().appendMessage(messageString)
+        
+        config = Config(_DEFAULT_CONFIG_PATH, configspec=_DEFAULT_CONFIG_SPEC_PATH)
+        config._validate()
+    return config
 
+class Config(ConfigObj):
+    """Settings storage
+    
+    Use this object as a dictionary for read and write options.
+    Example:
+        font = core.config()["Editor"]["DefaultFont"]  # read option
+        core.config()["Editor"]["DefaultFont"] = font  # write option
+    You SHOULD flush config, when writing changed settings finished.
+    """
     # Validate config file
-    def _validateConfig(self, config):
-        message_string = ''
+    def _validate(self):
         validator = Validator()
-        errors = self._config.validate(validator, preserve_errors=True)
+        errors = self.validate(validator, preserve_errors=True)
         if errors:
-            for entry in flatten_errors(config, errors):
+            messageString = ''
+            for entry in flatten_errors(self, errors):
                 # each entry is a tuple
-                section_list, key, error = entry
+                sectionList, key, error = entry
                 if key is not None:
-                   section_list.append(key)
+                   sectionList.append(key)
                 else:
-                    section_list.append('[missing section]')
-                section_string = ', '.join(section_list)
+                    sectionList.append('[missing section]')
+                sectionString = ', '.join(section_list)
                 if error == False:
                     error = 'Missing value or section.'
-                message_string += (section_string + ' = ' + str(error))
-        return message_string
+                messageString += (sectionString + ' = ' + str(error))
+            raise UserWarning('Invalid configuration file '
+                              '%s\n'
+                              'Error:\n'
+                              '%s\n'
+                              'Fix the file or delete it.' % (self.filename, messageString))
     
-    def _reloadConfig():
-        """TMP functions, probably I should invent something better"""
-        self._config.reload()
+    def reload(self):
+        """Reload config from the disk
+        TODO replace with file watcher
+        """
+        super(Config, self).reload()
 
-    def _flushConfig():
-        """TMP functions, probably I should invent something better"""
-        if self._config.filename != _DEFAULT_CONFIG_PATH:
-            self._config.write()
+    def flush(self):
+        """Flush config to the disk
+        Does nothing, if default config opened (failed to create config in users home directory)
+        """
+        if self.filename != _DEFAULT_CONFIG_PATH:
+            self.write()

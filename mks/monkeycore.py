@@ -47,7 +47,7 @@ class Core:
         #TODO _showMessage( splash, splash.tr( "Initializing Main Window..." ) )
         
         self._mainWindow = mks.mainwindow.MainWindow()
-        self._config = mks.settings.Config()
+        self._config = mks.settings.createConfig()
         self._workspace = mks.workspace.Workspace(self._mainWindow)
         self._mainWindow.setWorkspace(self._workspace)
     
@@ -94,19 +94,8 @@ class Core:
         ConfigObj is cool config file reader and writer. Home page and documentation:
             http://www.voidspace.org.uk/python/configobj.html
         """
-        return self._config._config
-    
-    def _reloadConfig(self):
-        """TMP functions, probably I should invent something better
-        """
-        self._config._config.reload()
-
-    def _flushConfig(self):
-        """TMP functions, probably I should invent something better
-        """
-        if self._config._config.filename != mks.settings._DEFAULT_CONFIG_PATH:
-            self._config._config.write()
-    
+        return self._config
+        
     def messageManager(self):
         """pQueuedMessageToolBar used for show popup messages
         """
