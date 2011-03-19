@@ -1,5 +1,5 @@
 """
-Config file contains some volatile info, such as version, release date and authors
+File contains some volatile info, such as version, release date and authors
 """
 
 PACKAGE_NAME = "mksv3"
