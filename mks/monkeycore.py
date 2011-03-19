@@ -47,7 +47,7 @@ class Core:
         #TODO _showMessage( splash, splash.tr( "Initializing Main Window..." ) )
         
         self._mainWindow = mks.mainwindow.MainWindow()
-        self._config = mks.settings.createConfig()
+        self._config = mks.config.createConfig()
         self._workspace = mks.workspace.Workspace(self._mainWindow)
         self._mainWindow.setWorkspace(self._workspace)
     
@@ -107,7 +107,7 @@ import mks.editortoolbar
 import mks.searchandreplace
 import mks.filebrowser
 import mks.mainwindow
-import mks.settings
+import mks.config
 
 """TODO
 def _isXmas():
