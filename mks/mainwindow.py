@@ -325,7 +325,7 @@ class MainWindow(pMainWindow):
     
     def defaultTitle(self):
         # TODO add modified marker to the window title
-        return "%s v.%s" % (mks.config.PACKAGE_NAME, mks.config.PACKAGE_VERSION)
+        return "%s v.%s" % (mks.defines.PACKAGE_NAME, mks.defines.PACKAGE_VERSION)
     
     def _menu_Docks_aboutToShow(self):
         # get menu
