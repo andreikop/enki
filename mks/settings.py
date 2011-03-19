@@ -15,6 +15,7 @@ First time created by ::class:mks.monkeycore.Core
 """
 
 import shutil
+import sys
 import os.path
 
 from _3rdparty.configobj import ConfigObj, flatten_errors, ParseError
@@ -25,13 +26,6 @@ from mks.monkeycore import core, DATA_FILES_PATH
 _DEFAULT_CONFIG_PATH = os.path.join(DATA_FILES_PATH, 'config/mksv3.default.cfg')
 _DEFAULT_CONFIG_SPEC_PATH = os.path.join(DATA_FILES_PATH, 'config/mksv3.spec.cfg')
 _CONFIG_PATH = os.path.expanduser('~/.mksv3.cfg')
-
-def _defaultConfig():
-    config = ConfigObj(_DEFAULT_CONFIG_PATH, configspec=_DEFAULT_CONFIG_SPEC_PATH)
-    message_string = config._validate()
-    if message_string:
-        print message_string
-        assert not message_string  # default config MUST be valid
 
 def createConfig():
     """Open config file and return Config instance
@@ -48,20 +42,13 @@ def createConfig():
                 raise UserWarning('Failed to create configuration file. Error:\n' + 
                                   unicode(str(ex), 'utf_8'))
         # Open config file
-        try:
-            config = Config(_CONFIG_PATH, configspec=_DEFAULT_CONFIG_SPEC_PATH)
-        except ParseError, ex:
-            raise UserWarning('Failed to parse configuration file %s\n'
-                              'Error:\n'
-                              '%s\n'
-                              'Fix the file or delete it.' % (_CONFIG_PATH, unicode(str(ex), 'utf_8')))
-        config._validate()
+        config = Config(_CONFIG_PATH, configspec=_DEFAULT_CONFIG_SPEC_PATH)
     except UserWarning, ex:
         messageString = unicode(str(ex)) + '\n' + 'Using default configuration'
+        print >> sys.stderr, messageString
         core.messageManager().appendMessage(messageString)
         
         config = Config(_DEFAULT_CONFIG_PATH, configspec=_DEFAULT_CONFIG_SPEC_PATH)
-        config._validate()
     return config
 
 class Config(ConfigObj):
@@ -73,11 +60,21 @@ class Config(ConfigObj):
         core.config()["Editor"]["DefaultFont"] = font  # write option
     You SHOULD flush config, when writing changed settings finished.
     """
-    # Validate config file
+    
+    def __init__(self, *args, **kwargs):
+        try:
+            super(type(self), self).__init__(*args, **kwargs)
+        except ParseError, ex:
+            raise UserWarning('Failed to parse configuration file %s\n'
+                              'Error:\n'
+                              '%s\n'
+                              'Fix the file or delete it.' % (_CONFIG_PATH, unicode(str(ex), 'utf_8')))
+        self._validate()
+    
     def _validate(self):
         validator = Validator()
-        errors = self.validate(validator, preserve_errors=True)
-        if errors:
+        result = self.validate(validator, preserve_errors=True)
+        if result is not True:
             messageString = ''
             for entry in flatten_errors(self, errors):
                 # each entry is a tuple
@@ -86,10 +83,10 @@ class Config(ConfigObj):
                    sectionList.append(key)
                 else:
                     sectionList.append('[missing section]')
-                sectionString = ', '.join(section_list)
+                sectionString = ', '.join(sectionList)
                 if error == False:
                     error = 'Missing value or section.'
-                messageString += (sectionString + ' = ' + str(error))
+                messageString += (sectionString + ' = ' + str(error) + '\n')
             raise UserWarning('Invalid configuration file '
                               '%s\n'
                               'Error:\n'
