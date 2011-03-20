@@ -1,10 +1,10 @@
 FIXME
+    Разнести Workspace на модули
 
 FIXME when found
     dev/monkey/src/workspace/UISaveFiles.cpp - почему он not writable?
 
 TODO
-    Закрываясь, спрашивать, сохранить ли файл
     Восстанавливать сессию?
     Переприменять растройки при сохранении?
     Подсвечивать активный док
