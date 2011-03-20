@@ -26,15 +26,22 @@ import sys
 
 from PyQt4 import uic
 
-from PyQt4.QtGui import QTreeView, QWidget, QStackedWidget, QFileDialog, \
-                        QFrame, QKeySequence, QVBoxLayout, QApplication, \
-                        QIcon, QMenu, \
-                        QMessageBox, QAction, QActionGroup
-from PyQt4.QtCore import QByteArray, \
-                         QFileSystemWatcher,\
-                         Qt, QObject, QAbstractItemModel, QMimeData, \
+from PyQt4.QtGui import QAction, QActionGroup, QApplication, \
+                        QDialog, QDialogButtonBox, \
+                        QFileDialog, QFrame, \
+                        QIcon, QKeySequence,  \
+                        QListWidgetItem, \
+                        QMenu, QMessageBox, \
+                        QStackedWidget, QTreeView, \
+                        QVBoxLayout, QWidget
+from PyQt4.QtCore import pyqtSignal, \
+                         QAbstractItemModel, QByteArray, \
+                         QEvent, QFileInfo, QFileSystemWatcher,\
+                         QMimeData, QModelIndex, \
+                         QObject, \
+                         Qt, \
                          QTimer, \
-                         QEvent, QFileInfo, QModelIndex, QVariant, pyqtSignal
+                         QVariant
 
 import PyQt4.fresh
 
@@ -719,6 +726,40 @@ class AbstractDocument(QWidget):
     #updateWorkspaceRequested()
     '''
 
+class _UISaveFiles(QDialog):
+    """Save files dialog.
+    Shows checkable list of not saved files.
+    """
+	def __init__(self, workspace, documents):
+		super(type(self), self).__init__(workspace)
+		self.cancelled = False
+		uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/SaveFiles.ui'), self)
+		self.buttonBox.clicked.connect(self._onButtonClicked)
+		
+		self._itemToDocument = {}
+		for document in documents:
+			item = QListWidgetItem( document.fileName(), self.listWidget )
+			item.setToolTip( document.filePath() )
+			item.setCheckState( Qt.Checked )
+			self._itemToDocument[item] = document				
+	
+	def _onButtonClicked(self, button):
+        """Button click handler.
+        Saves files, if necessary, accepts or rejects dialog
+        """
+		stButtton = self.buttonBox.standardButton(button)
+		if stButtton == QDialogButtonBox.Save:
+			for i in range(self.listWidget.count()):
+				if  self.listWidget.item( i ).checkState() != Qt.Unchecked:
+					self._itemToDocument[self.listWidget.item(i)].saveFile()
+			self.accept()
+		elif stButtton == QDialogButtonBox.Cancel:
+			self.reject()
+		elif stButtton == QDialogButtonBox.Discard:
+			self.accept()
+		else:
+			assert 0
+
 class Workspace(QStackedWidget):
     """
     Class manages set of opened documents, allows to open new file
@@ -1021,10 +1062,9 @@ class Workspace(QStackedWidget):
     def closeDocument( self, document, showDialog = True):
         """Close opened file, remove document from workspace and delete the widget"""
         
-        """TODO
-        if  showDialog and UISaveFiles.saveDocument( self.window(), document, False ) == UISaveFiles.bCancelClose :
-            return
-        """
+        if showDialog and document.isModified():
+            if _UISaveFiles(self, [document]).exec_() == QDialog.Rejected:
+                return
         
         self._fileWatcher.removePath(document.filePath())
         
@@ -1147,22 +1187,17 @@ class Workspace(QStackedWidget):
         """
         return self._sortedDocuments
     
-    """TODO
     def closeAllDocuments(self):
-        # try save documents
-        button = UISaveFiles.saveDocuments( window(), self.openedDocuments(), False )
-
-        # close all object, them
-        if  button != UISaveFiles.bCancelClose :
-            # stop watching files
-            for window in a.subWindowList():
-                document = window
-                self.closeDocument( document, e )
+        """Close all documents
+        If there are not saved documents, dialog will be shown.
+        Returns True, if all files had been closed, and False, if save dialog rejected
+        """
+        if (_UISaveFiles( self, self.openedDocuments()).exec_() != QDialog.Rejected):
+            for document in self.openedDocuments():
+                self.closeDocument(document, False)
             return True
         else:
             return False; #not close IDE
-        return True
-    """
     
     def _activateNextDocument(self):
         curIndex = self._sortedDocuments.index(self.currentDocument())

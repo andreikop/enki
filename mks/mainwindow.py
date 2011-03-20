@@ -36,7 +36,6 @@ class MainWindow(pMainWindow):
     """
     
     """TODO
-    aboutToClose = pyqtSignal()
     urlsDropped = pyqtSignal()
     """
 
@@ -342,6 +341,28 @@ class MainWindow(pMainWindow):
         """
         return self._centralLayout
     
+    def closeEvent( self, event ):
+        """NOT A PUBLIC API
+        Close event handler.
+        Shows save files dialog. Cancels close, if dialog was rejecteds
+        
+        """
+        
+        """TODO
+        # save session if needed
+        if  mks.monkeystudio.saveSessionOnClose() :
+            core.workspace().fileSessionSave_triggered()
+        """
+        # request close all documents
+        if not core.workspace().closeAllDocuments():
+            event.ignore()
+            return
+        """ TODO
+        # force to close all projects
+        core.projectsManager().action( XUPProjectManager.atCloseAll ).trigger()
+        """
+        return super(type(self), self).closeEvent(event)
+
 """TODO
     def dragEnterEvent( self, event ):
         # if correct mime and same tabbar
@@ -358,26 +379,6 @@ class MainWindow(pMainWindow):
         
         # default event
         pMainWindow.dropEvent( self, event )
-    
-    
-    def closeEvent( self, event ):
-        # inform that we close mainwindow
-        self.aboutToClose.emit()
-        
-        # save session if needed
-        if  mks.monkeystudio.saveSessionOnClose() :
-            core.workspace().fileSessionSave_triggered()
-        
-        # request close all documents
-        if  not core.workspace().closeAllDocuments() :
-            event.ignore()
-            return
-        
-        
-        # force to close all projects
-        core.projectsManager().action( XUPProjectManager.atCloseAll ).trigger()
-        pMainWindow.closeEvent( self, event )
-    
     
     def createPopupMenu(self):
         # create default menu
