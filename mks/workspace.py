@@ -840,12 +840,14 @@ class Workspace(QStackedWidget):
         If there are not saved documents, dialog will be shown.
         Returns True, if all files had been closed, and False, if save dialog rejected
         """
-        if (_UISaveFiles( self, self.openedDocuments()).exec_() != QDialog.Rejected):
-            for document in self.openedDocuments():
-                self.closeDocument(document, False)
-            return True
-        else:
-            return False; #not close IDE
+        if any([d.isModified() for d in self.openedDocuments()]):
+            if (_UISaveFiles( self, self.openedDocuments()).exec_() != QDialog.Rejected):
+                for document in self.openedDocuments():
+                    self.closeDocument(document, False)
+            else:
+                return False; #not close IDE
+        return True
+        
     
     def _activateNextDocument(self):
         curIndex = self._sortedDocuments.index(self.currentDocument())
