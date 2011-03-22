@@ -43,7 +43,7 @@ from PyQt4.QtCore import pyqtSignal, \
 import PyQt4.fresh
 
 from mks.monkeycore import core, DATA_FILES_PATH
-import mks._openedfilesmodel
+import mks.openedfilesmodel
 
 """
 CONTENT_CHANGED_TIME_OUT = 3000
@@ -399,7 +399,13 @@ class _UISaveFiles(QDialog):
             item = QListWidgetItem( document.fileName(), self.listWidget )
             item.setToolTip( document.filePath() )
             item.setCheckState( Qt.Checked )
-            self._itemToDocument[item] = document                
+            self._itemToDocument[item] = document
+    
+    def showEvent(self, event):
+        """Show event handler, moves focus to the Cancel button
+        """
+        self.setFocus()
+        self.buttonBox.button(QDialogButtonBox.Cancel).setFocus()
     
     def _onButtonClicked(self, button):
         """Button click handler.
@@ -491,14 +497,14 @@ class Workspace(QStackedWidget):
     def __init__(self, mainWindow):
         QStackedWidget.__init__(self, mainWindow)
         """ list of opened documents as it is displayed in the Opened Files Explorer. 
-        List accessed and modified by mks._openedfilesmodel.OpenedFileModel class
+        List accessed and modified by mks.openedfilesmodel.OpenedFileModel class
         """
         self._sortedDocuments = []
         self._oldCurrentDocument = None
         self._textEditorClass = None
         
         # create opened files explorer
-        self._openedFileExplorer = mks._openedfilesmodel.OpenedFileExplorer(self)
+        self._openedFileExplorer = mks.openedfilesmodel.OpenedFileExplorer(self)
         lefttb = mainWindow.dockToolBar( Qt.LeftToolBarArea )
         lefttb.addDockWidget( self._openedFileExplorer,
                               self._openedFileExplorer.windowTitle(),
@@ -711,7 +717,7 @@ class Workspace(QStackedWidget):
         """Close opened file, remove document from workspace and delete the widget"""
         
         if showDialog and document.isModified():
-            if _UISaveFiles(self, [document]).exec_() == QDialog.Rejected:
+            if _UISaveFiles(self._mainWindow, [document]).exec_() == QDialog.Rejected:
                 return
         
         self._fileWatcher.removePath(document.filePath())
