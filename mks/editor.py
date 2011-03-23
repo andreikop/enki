@@ -9,7 +9,7 @@ from PyQt4.QtGui import QColor, QFont, QFrame, QInputDialog, QIcon, QKeyEvent, Q
 
 from PyQt4.Qsci import *
 
-import mks.workspace
+import mks.abstractdocument
 from mks.monkeycore import core
 
 """TODO move this code to the pChild class
@@ -252,7 +252,7 @@ class _QsciScintilla(QsciScintilla):
                 super(_QsciScintilla, self).keyPressEvent(event)
 
 
-class Editor(mks.workspace.AbstractDocument):
+class Editor(mks.abstractdocument.AbstractDocument):
     """Text editor widget. Uses QScintilla internally
     """
     
@@ -293,7 +293,7 @@ class Editor(mks.workspace.AbstractDocument):
                                   "Context"                  : QsciScintilla.CallTipsContext}
     
     def __init__(self, parentObject, filePath):
-        mks.workspace.AbstractDocument.__init__(self, parentObject, filePath)
+        super(type(self), self).__init__(parentObject, filePath)
         
         # Configure editor
         self.qscintilla = _QsciScintilla(self)

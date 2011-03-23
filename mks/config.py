@@ -1,5 +1,5 @@
 """
-settings --- Load, store and save settings
+config --- Load, store and save settings
 ==========================================
 
 MkS uses ConfigObj for store settings
