@@ -17,6 +17,7 @@ from PyQt4.QtCore import QAbstractItemModel, \
                          Qt, \
                          QVariant
 from PyQt4.QtGui import QAction, QActionGroup, \
+                        QIcon, \
                         QMenu
 
 from PyQt4 import uic
