@@ -98,6 +98,7 @@ class Config(ConfigObj):
         TODO replace with file watcher
         """
         super(Config, self).reload()
+        self._validate()
 
     def flush(self):
         """Flush config to the disk
