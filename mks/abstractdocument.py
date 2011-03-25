@@ -3,6 +3,8 @@ abstractdocument --- Base class for workspace documents
 =======================================================
 
 This class is inherited by textual editor, and must be inherited by other workspace widgets.
+
+:class:`mks.workspace.AbstractDocument`  - base class of workspace documents
 """
 
 import os.path
