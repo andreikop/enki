@@ -16,8 +16,6 @@ Document classes are herited from :class:`AbstractDocument`
 
 :class:`mks.workspace.Workspace` - module API
 
-:class:`mks.workspace.AbstractDocument`  - base class of workspace documents
-
 Module also contains widget, which shows list of opened documents and AbstractItemModel for manage this list.
 """
 
@@ -28,27 +26,18 @@ from PyQt4 import uic
 
 from PyQt4.QtGui import QApplication, \
                         QDialog, QDialogButtonBox, \
-                        QFileDialog, QFrame, \
-                        QIcon, QKeySequence,  \
+                        QFileDialog, \
                         QListWidgetItem, \
                         QMessageBox, \
-                        QStackedWidget, QTreeView, \
-                        QVBoxLayout, QWidget
+                        QStackedWidget
 from PyQt4.QtCore import pyqtSignal, \
-                         QByteArray, \
                          QEvent, QFileSystemWatcher,\
-                         Qt, \
-                         QTimer
-
-import PyQt4.fresh
+                         Qt
 
 from mks.monkeycore import core, DATA_FILES_PATH
 import mks.openedfilesmodel
 import mks.abstractdocument
-"""
-CONTENT_CHANGED_TIME_OUT = 3000
-DEFAULT_CONTEXT = "Default"
-"""
+
 
 class _UISaveFiles(QDialog):
     """Save files dialog.
@@ -104,37 +93,13 @@ class Workspace(QStackedWidget):
     NOTE: class contains some methods, which are not public now, but, could be useful for plugins.
     If you found such method - don't use it silently, send bug report for make it public and document
     """
-    
-    """TODO
-    NoTabs = "NoTabs"
-    TopTabs = "TopTabs"
-    BottomTabs = "BottomTabs"
-    LeftTabs = "LeftTabs"
-    RightTabs = "RightTabs"
-    """
-    
+        
     documentOpened = pyqtSignal(mks.abstractdocument.AbstractDocument)
     """
     documentOpened(:class:AbstractDocument)
     
     **Signal** emitted, when document has been created, i.e. textual file opened, 
     or some other document added to workspace
-    
-    TODO rename class?
-    """
-    
-    """
-    # a file have changed
-    documentChanged = pyqtSignal(AbstractDocument)
-    """
-    # a file modified state changed
-    
-    """TODO
-    # document about to close
-    documentAboutToClose = pyqtSignal(AbstractDocument)
-    """
-    """A file has been closed. When signal emitted, document pointer is valid,
-    document not yet removed from workspace
     """
     
     documentClosed = pyqtSignal(mks.abstractdocument.AbstractDocument)
@@ -143,12 +108,7 @@ class Workspace(QStackedWidget):
     
     **Signal** emitted, when document was closed
     """
-    
-    """TODO
-    # a file has been reloaded
-    documentReloaded = pyqtSignal(AbstractDocument)
-    """
-    
+        
     currentDocumentChanged = pyqtSignal(mks.abstractdocument.AbstractDocument,
                                         mks.abstractdocument.AbstractDocument)
     """
@@ -157,16 +117,12 @@ class Workspace(QStackedWidget):
     **Signal** emitted, when current document changed, i.e. user selected another document, 
     new document opened, current closed
     """
-    
-    """TODO
-    buffersChanged = pyqtSignal(dict) # {file path : file contents}
-    """
-    
+        
     def __init__(self, mainWindow):
-        QStackedWidget.__init__(self, mainWindow)
         """ list of opened documents as it is displayed in the Opened Files Explorer. 
         List accessed and modified by mks.openedfilesmodel.OpenedFileModel class
         """
+        QStackedWidget.__init__(self, mainWindow)
         self._sortedDocuments = []
         self._oldCurrentDocument = None
         self._textEditorClass = None
@@ -182,33 +138,16 @@ class Workspace(QStackedWidget):
         self._fileWatcher = QFileSystemWatcher(self)
         self._fileWatcher.fileChanged.connect(self._onWatcherFileChanged)
         
-        # document area
-        self.layout().setContentsMargins(0, 0, 0, 0)  # FIXME doesn't work
-        self.layout().setSpacing(0)
-        self.layout().setMargin(0)
-        
         self.currentChanged.connect(self._onStackedLayoutIndexChanged)
         
-        """TODO
-        self.mContentChangedTimer = QTimer( self )
-        
-        # load settings
-        self.loadSettings()
-
-        # connections
-        mViewModesGroup.triggered.connect(self.viewModes_triggered)
-        parent.urlsDropped.connect(self.internal_urlsDropped)
-        MonkeyCore.projectsManager().currentProjectChanged.connect(self.internal_currentProjectChanged)
-        self.mContentChangedTimer.timeout.connect(self.contentChangedTimer_timeout)
-    """
         self.currentDocumentChanged.connect(self._updateMainWindowTitle)
         mainWindow.menuBar().action( "mFile/aOpen" ).triggered.connect(self._fileOpen_triggered)
         mainWindow.menuBar().action( "mFile/mReload/aCurrent" ).triggered.connect(self._onFileReloadTriggered)
         mainWindow.menuBar().action( "mFile/mReload/aAll" ).triggered.connect(self._onFileReloadAllTriggered)
-        mainWindow.menuBar().action( "mFile/mClose/aCurrent" ).triggered.connect(self._closeCurrentDocument)
+        mainWindow.menuBar().action( "mFile/mClose/aCurrent" ).triggered.connect(self._onCloseCurrentDocument)
     
-        mainWindow.menuBar().action( "mFile/mSave/aCurrent" ).triggered.connect(self._fileSaveCurrent_triggered)
-        mainWindow.menuBar().action( "mFile/mSave/aAll" ).triggered.connect(self._fileSaveAll_triggered)
+        mainWindow.menuBar().action( "mFile/mSave/aCurrent" ).triggered.connect(self._onFileSaveCurrent_triggered)
+        mainWindow.menuBar().action( "mFile/mSave/aAll" ).triggered.connect(self._onFileSaveAll_triggered)
         
         mainWindow.menuBar().action( "mView/aNext" ).triggered.connect(self._activateNextDocument)
         mainWindow.menuBar().action( "mView/aPrevious" ).triggered.connect(self._activatePreviousDocument)
@@ -218,6 +157,8 @@ class Workspace(QStackedWidget):
         mainWindow.menuBar().action( "mEdit/aConfigFile" ).triggered.connect(editConfigFile)
     
     def _mainWindow(self):
+        """Get mainWindow instance
+        """
         return self.parentWidget().parentWidget()
     
     def documentForPath(self, filePath):
@@ -233,6 +174,7 @@ class Workspace(QStackedWidget):
     def _onWatcherFileChanged(self, filePath):
         """QFileSystemWatcher sent signal, that file has been changed or deleted
         """
+        # TODO move file watcher management to abstractdocument
         document = self.documentForPath(filePath)
         
         if os.path.exists(filePath):
@@ -247,7 +189,7 @@ class Workspace(QStackedWidget):
         if document:
             name = document.fileName()
             if document.isModified():
-                name+= '*'
+                name += '*'
         else:
             name = self._mainWindow().defaultTitle()
         self._mainWindow().setWindowTitle(name)
@@ -272,7 +214,7 @@ class Workspace(QStackedWidget):
                 self.closeDocument( document )
                 return True
         
-        return QFrame.eventFilter( self, object, event )
+        return super(type(self), self).eventFilter(object, event )
     
     def _onStackedLayoutIndexChanged(self, index):
         """Handler of change of current document in the stacked layout.
@@ -302,41 +244,22 @@ class Workspace(QStackedWidget):
             core.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled( document.isModified() )
         else:  # no document
             core.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(False)
-        
-        '''
-        # fix fucking flickering due to window activation change on application gain / lost focus.
-        if  not document and self.currentDocument() :
-            return
-
-        # get document
-        editor = None
-        if document:
-            editor = document.editor()
-        
-        modified = False
-        print_ = False
-        
-        if document:
-            modified = document.isModified()
-            print_ = document.isPrintAvailable()
-        '''
-        
+                
         # update file menu
         core.menuBar().action( "mFile/mSave/aAll" ).setEnabled( document is not None)
         core.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled( document is not None)
         core.menuBar().action( "mView/aFocusCurrentDocument" ).setEnabled( document is not None)
-        '''
+        ''' TODO close all
         core.menuBar().action( "mFile/mClose/aAll" ).setEnabled( document )
         '''
         core.menuBar().action( "mFile/mReload/aCurrent" ).setEnabled( document is not None )
-        '''
+        ''' TODO save as backup, quick print, print
         core.menuBar().action( "mFile/aSaveAsBackup" ).setEnabled( document )
         core.menuBar().action( "mFile/aQuickPrint" ).setEnabled( print_ )
         core.menuBar().action( "mFile/aPrint" ).setEnabled( print_ )
         
         # update edit menu
         core.menuBar().action( "mEdit/aExpandAbbreviation" ).setEnabled( document )
-        core.menuBar().setMenuEnabled( core.menuBar().menu( "mEdit/mAllCommands" ), editor )
         '''
         
         # update view menu
@@ -353,12 +276,7 @@ class Workspace(QStackedWidget):
         
         self.currentDocumentChanged.emit(self._oldCurrentDocument, document)
         self._oldCurrentDocument = document
-    
-    '''TODO
-    def defaultContext(self):
-        return DEFAULT_CONTEXT    
-    '''
-    
+        
     def setCurrentDocument( self, document ):
         """Select active (focused and visible) document form list of opened documents
         """
@@ -369,14 +287,19 @@ class Workspace(QStackedWidget):
         """
         return self.currentWidget()
     
-    def goToLine(self, filePath, line, column, encoding, selectionLength):
+    def goToLine(self, filePath, line, column, selectionLength):
+        """Open file, activate it, and go to specified line.
+        
+        selectionLength specifies, how much characters should be selected
+        """
+        # TODO use openFile instead?
         for document in self.openedDocuments():
             if os.path.realpath(document.filePath()) == \
                os.path.realpath(filePath):
                 self.setCurrentDocument(document)
                 break
         else:
-            document = self.openFile(filePath)  # document = self.openFile( filePath, encoding )
+            document = self.openFile(filePath)
 
         if  document :
             document.goTo(line, column, selectionLength )
@@ -398,21 +321,11 @@ class Workspace(QStackedWidget):
         
         self.documentClosed.emit( document )
         # close document
-        self._unhandleDocument( document ) #FIXME make sure not always unhandleDocument
+        self._unhandleDocument( document )
         document.deleteLater()
-    
-    """TODO
-    def documentMode(self):
-        return self.mViewMode
-    """
 
     def _handleDocument( self, document ):
-        """TODO
-        # init document connections
-        document.fileOpened.connect(self.document_fileOpened)
-        document.contentChanged.connect(self.document_contentChanged)
-        document.fileClosed.connect(self.document_fileClosed)
-        document.fileReloaded.connect(self.document_fileReloaded)
+        """Add document to the workspace. Connect signals
         """
         # update file menu
         document.modifiedChanged.connect(core.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled)
@@ -425,15 +338,7 @@ class Workspace(QStackedWidget):
         self.setCurrentWidget( document )
     
     def _unhandleDocument( self, document ):
-        
-        """TODO
-        # init document connections
-        disconnect( document, SIGNAL( fileOpened() ), this, SLOT( document_fileOpened() ) )
-        disconnect( document, SIGNAL( contentChanged() ), this, SLOT( document_contentChanged() ) )
-        disconnect( document, SIGNAL( modifiedChanged( bool ) ), this, SLOT( document_modifiedChanged( bool ) ) )
-        disconnect( document, SIGNAL( fileClosed() ), this, SLOT( document_fileClosed() ) )
-        disconnect( document, SIGNAL( fileReloaded() ), this, SLOT( document_fileReloaded() ) )
-        # update file menu
+        """Remove document from the workspace. Disconnect signals
         """
         document.modifiedChanged.disconnect(core.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled)
         # update edit menu
@@ -442,7 +347,7 @@ class Workspace(QStackedWidget):
         document.removeEventFilter( self )
         self.removeWidget(document)
         
-    def openFile(self, filePath, encoding=''):
+    def openFile(self, filePath):
         """Open named file using suitable plugin, or textual editor, if other suitable editor not found.
         
         Returns document, if opened, None otherwise
@@ -455,14 +360,10 @@ class Workspace(QStackedWidget):
             if os.path.isfile(filePath) and \
                os.path.isfile(document.filePath()) and \
                os.path.samefile( document.filePath(), filePath ) :
-                    self.setCurrentDocument( document )
-                    return document
+                self.setCurrentDocument( document )
+                return document
         
-        """TODO
-        # get a document interface that can handle the file
-        document = core.pluginsManager().documentForFileName( filePath )
-        """
-        documentType = None
+        documentType = None  # TODO detect document type, choose editor
         
         # open it with textual editor
         if not documentType :
@@ -471,7 +372,8 @@ class Workspace(QStackedWidget):
         if not documentType:
             QMessageBox.critical(None,
                                  self.tr("Failed to open file"),
-                                 self.tr("Don't have any editor for open %s. Is any text editor plugin enabled?" % filePath))
+                                 self.tr("Don't have any editor for open %s. Is any text editor plugin enabled?" % 
+                                         filePath))
             return None
         
         # open file
@@ -479,7 +381,6 @@ class Workspace(QStackedWidget):
             QApplication.setOverrideCursor( Qt.WaitCursor )
             document = documentType(self, filePath)
         except IOError, ex:
-            #TODO replace with messageManager ?
             QMessageBox.critical(None,
                                  self.tr("Failed to open file"),
                                  unicode(str(ex), 'utf8'))
@@ -499,7 +400,9 @@ class Workspace(QStackedWidget):
         
         return document
     
-    def _closeCurrentDocument(self):
+    def _onCloseCurrentDocument(self):
+        """Handler of File->Close->Current triggered
+        """
         document = self.currentWidget()
         assert(document is not None)
         self.closeDocument( document )
@@ -519,16 +422,19 @@ class Workspace(QStackedWidget):
                 for document in self.openedDocuments():
                     self.closeDocument(document, False)
             else:
-                return False; #not close IDE
+                return False #do not close IDE
         return True
         
-    
     def _activateNextDocument(self):
+        """Handler of View->Next triggered
+        """
         curIndex = self._sortedDocuments.index(self.currentDocument())
         nextIndex = (curIndex + 1) % len(self._sortedDocuments)
         self.setCurrentDocument( self._sortedDocuments[nextIndex] )
     
     def _activatePreviousDocument(self):
+        """Handler of View->Previous triggered
+        """
         curIndex = self._sortedDocuments.index(self.currentDocument())
         prevIndex = (curIndex - 1 + len(self._sortedDocuments)) % len(self._sortedDocuments)
         self.setCurrentDocument( self._sortedDocuments[prevIndex] )
@@ -541,8 +447,129 @@ class Workspace(QStackedWidget):
 
         if  document :
             document.setFocus()
+       
+    def _fileOpen_triggered(self):
+        """Handler of File->Open
+        """
+        fileNames = map(unicode, QFileDialog.getOpenFileNames( self.window(), self.tr( "Choose the file(s) to open" )))
+                
+        for path in fileNames:
+            self.openFile(path)
+        
+    def _saveDocument(self, document):
+        """Handler of File->Save->Current
+        """
+        self._fileWatcher.removePath(document.filePath())
+        document.saveFile()
+        self._fileWatcher.addPath(document.filePath())
     
-    """
+    def _onFileSaveCurrent_triggered(self):
+        """Handler of File->Save->Current
+        """
+        return self._saveDocument(self.currentDocument())
+    
+    def _onFileSaveAll_triggered(self):
+        """Handler of File->Save->All
+        """
+        for document in self.openedDocuments():
+            self._saveDocument(document)
+    
+    def _reloadDocument(self, document):
+        """Reload the document contents
+        """
+        if  document.isModified():
+            template = unicode(self.tr( "The file <b>%s</b> has been modified by you.\n"
+                                        "Do you want to reload and discard changes?" ))
+            text = template % document.fileName()
+            ret = QMessageBox.question(self, self.tr( "Reload file..." ), text,
+                                       QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if ret != QMessageBox.Yes:
+                return
+
+        # open file
+        try:
+            QApplication.setOverrideCursor( Qt.WaitCursor )
+            document.reload()
+        except IOError, ex:
+            #TODO replace with messageManager ?
+            QMessageBox.critical(None,
+                                 self.tr("File not reloaded"),
+                                 unicode(str(ex), 'utf8'))
+            return None
+        finally:
+            QApplication.restoreOverrideCursor()
+        
+    def _onFileReloadTriggered(self):
+        """Handler of File->Reload->Current
+        """
+        document = self.currentDocument()
+        if  document is not None:
+            self._reloadDocument(document)
+    
+    def _onFileReloadAllTriggered(self):
+        """Handler of File->Reload->All
+        """
+        for document in self.openedDocuments():
+            if not document._isExternallyRemoved():
+                self._reloadDocument(document)
+            
+'''TODO old code. Restore it partially, delete partially
+
+    # document about to close
+    documentAboutToClose = pyqtSignal(AbstractDocument)
+
+    """A file has been closed. When signal emitted, document pointer is valid,
+    document not yet removed from workspace
+
+    # a file has been reloaded
+    documentReloaded = pyqtSignal(AbstractDocument)
+
+    # a file have changed
+    documentChanged = pyqtSignal(AbstractDocument)
+    
+    buffersChanged = pyqtSignal(dict) # {file path : file contents}
+
+    def __init__
+        self.mContentChangedTimer = QTimer( self )
+        
+        # load settings
+        self.loadSettings()
+
+        # connections
+        mViewModesGroup.triggered.connect(self.viewModes_triggered)
+        parent.urlsDropped.connect(self.internal_urlsDropped)
+        MonkeyCore.projectsManager().currentProjectChanged.connect(self.internal_currentProjectChanged)
+        self.mContentChangedTimer.timeout.connect(self.contentChangedTimer_timeout)
+        
+    def fileSessionSave_triggered(self):
+        files = []
+        projects = []
+
+        # files
+        for window in self.mdiArea.subWindowList():
+            document = window
+            files.append(document.filePath())
+
+        core.settings().setValue( "Session/Files", files )
+        
+        # projects
+        for project in core.projectsManager().topLevelProjects():
+            projects.append(project.fileName())
+
+        core.settings().setValue( "Session/Projects", projectss )
+
+    def fileSessionRestore_triggered(self):
+        # restore files
+        for file in core.settings().value("Session/Files", [] ).toStringList():
+            if not self.openFile( file, mks.monkeystudio.defaultCodec() ): # remove it from recents files
+                core.recentsManager().removeRecentFile( file )
+        
+        # restore projects
+        for project in core.settings().value( "Session/Projects", [] ).toStringList():
+            if not core.projectsManager().openProject( project, mks.monkeystudio.defaultCodec() ): # remove it from recents projects
+                core.recentsManager().removeRecentProject( project )
+    
+    
     def createNewTextEditor(self):
         result = MkSFileDialog.getNewEditorFile( window() )
 
@@ -750,104 +777,7 @@ class Workspace(QStackedWidget):
         wizard = UITemplatesWizard ( self )
         wizard.setType( "Files" )
         wizard.exec_()
-    """
-    
-    def _fileOpen_triggered(self):
-        """Main menu handler"""
-        """TODO
-        mFilters = mks.monkeystudio.availableFilesFilters() # get available filters
 
-        # show filedialog to user
-        result = MkSFileDialog.getOpenFileNames( window(), tr( "Choose the file(s) to open" ), QDir.currentPath(), mFilters, True, False )
-        
-        # open open file dialog
-        fileNames = result[ "filenames" ].toStringList()
-        """
-        fileNames = map(unicode, QFileDialog.getOpenFileNames( self.window(), self.tr( "Choose the file(s) to open" )))
-                
-        for file in fileNames:
-            if self.openFile(file) is not None:
-                pass
-                #TODO core.recentsManager().addRecentFile( file )
-    
-    '''TODO
-    def fileSessionSave_triggered(self):
-        files = []
-        projects = []
-
-        # files
-        for window in self.mdiArea.subWindowList():
-            document = window
-            files.append(document.filePath())
-
-        core.settings().setValue( "Session/Files", files )
-        
-        # projects
-        for project in core.projectsManager().topLevelProjects():
-            projects.append(project.fileName())
-
-        core.settings().setValue( "Session/Projects", projectss )
-
-    def fileSessionRestore_triggered(self):
-        # restore files
-        for file in core.settings().value("Session/Files", [] ).toStringList():
-            if not self.openFile( file, mks.monkeystudio.defaultCodec() ): # remove it from recents files
-                core.recentsManager().removeRecentFile( file )
-        
-        # restore projects
-        for project in core.settings().value( "Session/Projects", [] ).toStringList():
-            if not core.projectsManager().openProject( project, mks.monkeystudio.defaultCodec() ): # remove it from recents projects
-                core.recentsManager().removeRecentProject( project )
-    
-    '''
-    
-    def _saveDocument(self, document):
-        self._fileWatcher.removePath(document.filePath())
-        document.saveFile()
-        self._fileWatcher.addPath(document.filePath())
-    
-    def _fileSaveCurrent_triggered(self):
-        return self._saveDocument(self.currentDocument())
-    
-    def _fileSaveAll_triggered(self):
-        for document in self.openedDocuments():
-            self._saveDocument(document)
-    
-    def _reloadDocument(self, document):
-        if  document.isModified():
-            template = unicode(self.tr( "The file <b>%s</b> has been modified by you.\n"
-                                        "Do you want to reload and discard changes?" ))
-            text = template % document.fileName()
-            ret = QMessageBox.question(self, self.tr( "Reload file..." ), text,
-                                       QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-            if ret != QMessageBox.Yes:
-                return
-
-        # open file
-        try:
-            QApplication.setOverrideCursor( Qt.WaitCursor )
-            document.reload()
-        except IOError, ex:
-            #TODO replace with messageManager ?
-            QMessageBox.critical(None,
-                                 self.tr("File not reloaded"),
-                                 unicode(str(ex), 'utf8'))
-            return None
-        finally:
-            QApplication.restoreOverrideCursor()
-        
-    def _onFileReloadTriggered(self):
-        document = self.currentDocument()
-        if  document is not None:
-            self._reloadDocument(document)
-    
-    def _onFileReloadAllTriggered(self):
-        for document in self.openedDocuments():
-            if not document._isExternallyRemoved():
-                self._reloadDocument(document)
-            
-    
-    '''
     def fileSaveAsBackup_triggered(self):
         document = self.currentDocument()
 

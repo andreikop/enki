@@ -1,11 +1,9 @@
 FIXME
     Ставить фокус на UISaveFiles диалог
-    Разнести Workspace на модули
     Выпилить QFileInfo
-    Убрать underscore из имени модуля.
+    Вынести qfilewatcher в abstractdocument
 
 FIXME when found
-    dev/monkey/src/workspace/UISaveFiles.cpp - почему он not writable?
 
 TODO
     Восстанавливать сессию?
