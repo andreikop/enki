@@ -10,7 +10,6 @@ import os.path
 import copy
 
 from PyQt4.QtCore import QAbstractItemModel, \
-                         QFileInfo, \
                          QMimeData, \
                          QModelIndex, \
                          QObject, \
@@ -182,14 +181,9 @@ class _OpenedFileModel(QAbstractItemModel):
             newDocuments.sort(lambda a, b: cmp(a.filePath(), b.filePath()))
         elif self.mSortMode == self.Suffixes:
             def sorter(a, b):
-                aInfos = QFileInfo ( a.filePath() )  # FIXME get rid of QFileInfo
-                aBaseName = aInfos.baseName().toLower()
-                aSuffix = aInfos.completeSuffix().toLower()
-                bInfos = QFileInfo ( b.filePath() )
-                bBaseName = bInfos.baseName().toLower()
-                bSuffix = bInfos.completeSuffix().toLower()
+                aSuffix = os.path.splitext(a.filePath())[1]
+                bSuffix = os.path.splitext(b.filePath())[1]
                 return cmp(aSuffix, bSuffix)
-
             newDocuments.sort(sorter)
         elif self.mSortMode == self.Custom:
             pass

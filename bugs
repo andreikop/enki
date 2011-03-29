@@ -1,6 +1,5 @@
 FIXME
     Ставить фокус на UISaveFiles диалог
-    Выпилить QFileInfo
     Вынести qfilewatcher в abstractdocument
 
 FIXME when found
