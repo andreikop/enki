@@ -9,7 +9,8 @@ This class is inherited by textual editor, and must be inherited by other worksp
 
 import os.path
 
-from PyQt4.QtCore import pyqtSignal
+from PyQt4.QtCore import pyqtSignal, \
+                         QFileSystemWatcher
 from PyQt4.QtGui import QIcon, \
 						QMessageBox, \
 						QWidget
@@ -46,9 +47,22 @@ class AbstractDocument(QWidget):
         
         self._filePath = None # To be filled by child classes
         self._externallyRemoved = False
-        self._externallyModified = False    
+        self._externallyModified = False
+        
+        # create file watcher
+        self._fileWatcher = QFileSystemWatcher([filePath], self)
+        self._fileWatcher.fileChanged.connect(self._onWatcherFileChanged)
         # File opening should be implemented in the document classes
     
+    def _onWatcherFileChanged(self, filePath):
+        """QFileSystemWatcher sent signal, that file has been changed or deleted
+        """
+        if os.path.exists(self.filePath()):
+            self._externallyModified = flag
+        else:
+            self._externallyRemoved = flag
+        self._documentDataChanged.emit()
+
     def _readFile(self, filePath):
         """Read the file contents.
         Shows QMessageBox for UnicodeDecodeError, but raises IOError, if failed to read file
@@ -69,29 +83,17 @@ class AbstractDocument(QWidget):
             text = unicode(data, 'utf8', 'ignore')  # FIXME replace 'utf8' with encoding            
         return text
 
-    def _isExternallyRemoved(self):
+    def isExternallyRemoved(self):
         """Check if document's file has been deleted externally.
         This method DOES NOT do any file system access, but only returns cached info
         """
         return self._externallyRemoved
-        
-    def _setExternallyRemoved(self, flag):
-        """Set externallyDeleted flag, update model
-        """
-        self._externallyRemoved = flag
-        self._documentDataChanged.emit()
     
-    def _isExternallyModified(self):
+    def isExternallyModified(self):
         """Check if document's file has been modified externally.
         This method DOES NOT do any file system access, but only returns cached info
         """
         return self._externallyModified
-    
-    def _setExternallyModified(self, flag):
-        """Set externallyModified flag, update model
-        """
-        self._externallyModified = flag
-        self._documentDataChanged.emit()
     
     def eolMode(self):
         """Return document's EOL mode. Possible values are:
@@ -155,8 +157,8 @@ class AbstractDocument(QWidget):
         """Save the file to file system
         """
         if  not self.isModified() and \
-            not self._isExternallyModified() and \
-            not self._isExternallyRemoved():
+            not self._externallyModified() and \
+            not self._externallyRemoved():
                 return True
         
         dirPath = os.path.dirname(self.filePath())
@@ -174,11 +176,13 @@ class AbstractDocument(QWidget):
             QMessageBox.critical(None,
                                  self.tr("Can not write to file"),
                                  unicode(str(ex), 'utf8'))
-            return False
+            return
         
+        self._fileWatcher.removePath(self.filePath())
         try:
             f.write(unicode(self.text()).encode('utf8'))  # FIXME codec hardcoded
         finally:
+            self._fileWatcher.addPath(self.filePath())
             f.close()
         
         self._externallyRemoved = False
@@ -214,21 +218,21 @@ class AbstractDocument(QWidget):
         
         if self.isModified():
             toolTip += "<br/><font color='blue'>%s</font>" % self.tr("Locally Modified")
-        if  self._isExternallyModified():
+        if  self._externallyModified():
             toolTip += "<br/><font color='red'>%s</font>" % self.tr("Externally Modified")
-        if  self._isExternallyRemoved():
+        if  self._externallyRemoved():
             toolTip += "<br/><font color='red'>%s</font>" % self.tr( "Externally Deleted" )
         return toolTip
     
     def modelIcon(self):
         """Icon for the opened files model
         """
-        if   self._isExternallyRemoved()  and self._isExternallyModified():  icon = "modified-externally-deleted.png"
-        elif self._isExternallyRemoved():                                    icon = "deleted.png"
-        elif self._isExternallyModified() and self.isModified():             icon = "modified-externally-modified.png"
-        elif self._isExternallyModified():                                   icon = "modified-externally.png"
-        elif self.isModified():                                              icon = "save.png"
-        else:                                                                icon = "transparent.png"
+        if   self._externallyRemoved()  and self._externallyModified():  icon = "modified-externally-deleted.png"
+        elif self._externallyRemoved():                                  icon = "deleted.png"
+        elif self._externallyModified() and self.isModified():           icon = "modified-externally-modified.png"
+        elif self._externallyModified():                                 icon = "modified-externally.png"
+        elif self.isModified():                                          icon = "save.png"
+        else:                                                            icon = "transparent.png"
         return QIcon(":/mksicons/" + icon)
     
     

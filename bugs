@@ -1,8 +1,7 @@
 FIXME
-    Ставить фокус на UISaveFiles диалог
-    Вынести qfilewatcher в abstractdocument
 
 FIXME when found
+    Ставить фокус на UISaveFiles диалог
 
 TODO
     Восстанавливать сессию?
