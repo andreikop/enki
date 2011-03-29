@@ -35,11 +35,8 @@ class AbstractDocument(QWidget):
     #(i.e. document has been modified externally)
     _documentDataChanged = pyqtSignal()
     
-    
-    """TODO
-    enum DocumentMode { mNone:, mNa, mInsert, mOverwrite, mReadOnly } mDocument
-    enum LayoutMode { lNone:, lNormal, lVertical, lHorizontal } mLayout
-    """
+    # emit when cursor position changed
+    cursorPositionChanged = pyqtSignal(int, int) # (line, column)
     
     def __init__( self, parentObject, filePath):
         """Create editor and open file.
@@ -49,14 +46,7 @@ class AbstractDocument(QWidget):
         
         self._filePath = None # To be filled by child classes
         self._externallyRemoved = False
-        self._externallyModified = False
-        
-        """TODO
-        mCodec:
-        setAttribute( Qt.WA_DeleteOnClose )
-        mDocument = mNone
-        mLayout = lNone
-        """
+        self._externallyModified = False    
         # File opening should be implemented in the document classes
     
     def _readFile(self, filePath):
@@ -139,27 +129,6 @@ class AbstractDocument(QWidget):
         """
         pass
     
-    '''TODO
-    def sizeHint(self):
-        """eturn defaultsize for document
-        """
-        return QSize( 640, 480 )
-
-    def documentMode(self):
-        """return document document mode
-        """
-        return self.mDocument
-
-    def layoutMode(self):
-        """return the document layout mode"""
-        return self.mLayout
-    
-    def language(self):
-        """return document language
-        """
-        return QString.null;
-    '''
-        
     def filePath(self):
         """return the document file path"""
         return self._filePath
@@ -167,70 +136,21 @@ class AbstractDocument(QWidget):
     def fileName(self):
         """return the document file name"""
         return os.path.basename(self._filePath)
-    
-    '''TODO
-    def path(self):
-        """return the absolute path of the document"""
-        wfp = self.windowFilePath()
-        if wfp.isEmpty():
-            return None
-        else:
-            return QFileInfo( wfp ).absolutePath()
-    '''
-    
+        
     def cursorPosition(self):
         """return cursor position as 2 values: line and column, if available
         """
         pass
     
-    '''
-    def editor(self):
-        """the current visible editor
-        """
-        pass
-    '''
     def isModified(self):
         """Returns True, if file is modified
         """
         pass
         
-    '''TODO
-    def isPrintAvailable(self):
-        """return if print is available
-        """
-        pass
-
-    def setDocumentMode(self, documentMode ):
-        """set the document document mode"""
-        if  self.mDocument == documentMode :
-            return
-        self.mDocument = documentMode
-        self.documentModeChanged.emit( self.mDocument )
-
-    def setLayoutMode(self layoutMode )
-        """set the document layout mode
-        """
-        
-        if  self.mLayout == layoutMode :
-            return
-        self.mLayout = layoutMode
-        self.layoutModeChanged.emit( self.mLayout )
-
-    
-    def textCodec(self)
-    { return mCodec ? mCodec.name() : pMonkeyStudio.defaultCodec();
-    
-    def encoding(self)
-    { return mCodec ? mCodec : QTextCodec.codecForName( pMonkeyStudio.defaultCodec().toLocal8Bit().constData() );
-    '''
     
     def goTo(self, line, column, selectionLength = -1 ):
         pass
     
-    '''
-    def invokeSearch(self):
-        pass
-    '''
     def saveFile(self):
         """Save the file to file system
         """
@@ -275,13 +195,6 @@ class AbstractDocument(QWidget):
         """
         pass
     
-    '''TODO
-    def backupFileAs(self fileName ):
-        pass
-    
-    def closeFile(self):
-        pass
-    '''
     def reload(self):
         """Reload the file from the disk
         
@@ -293,15 +206,7 @@ class AbstractDocument(QWidget):
         #self.fileReloaded.emit()
         self._externallyModified = False
         self._externallyRemoved = False
-    
-    '''
-    def printFile(self):
-        pass
-    
-    def quickPrintFile(self):
-        pass
-    '''
-    
+        
     def modelToolTip(self):
         """Tool tip for the opened files model
         """
@@ -325,7 +230,9 @@ class AbstractDocument(QWidget):
         elif self.isModified():                                              icon = "save.png"
         else:                                                                icon = "transparent.png"
         return QIcon(":/mksicons/" + icon)
-    '''
+    
+    
+''' TODO restore or delete old code
     fileOpened = pyqtSignal()
     fileClosed = pyqtSignal()
     # when.emit a file is reloaded
@@ -336,15 +243,87 @@ class AbstractDocument(QWidget):
     layoutModeChanged = pyqtSignal()
     # when.emit the document document mode has changed
     documentModeChanged = pyqtSignal()
-    '''
-    # emit when cursor position changed
-    cursorPositionChanged = pyqtSignal(int, int) # (line, column)
-    
-    '''TODO
+
     # when.emit search/replace is available
     #searchReplaceAvailableChanged = pyqtSignal(bool)
     # when.emit requesting search in editor
     #requestSearchReplace = pyqtSignal()
     # when.emit a document require to update workspace
     #updateWorkspaceRequested()
-    '''
+    
+    enum DocumentMode { mNone:, mNa, mInsert, mOverwrite, mReadOnly } mDocument
+    enum LayoutMode { lNone:, lNormal, lVertical, lHorizontal } mLayout
+    
+    mDocument = mNone
+    mLayout = lNone
+
+    def sizeHint(self):
+        """eturn defaultsize for document
+        """
+        return QSize( 640, 480 )
+
+    def documentMode(self):
+        """return document document mode
+        """
+        return self.mDocument
+
+    def layoutMode(self):
+        """return the document layout mode"""
+        return self.mLayout
+    
+    def language(self):
+        """return document language
+        """
+        return QString.null;
+
+    def path(self):
+        """return the absolute path of the document"""
+        wfp = self.windowFilePath()
+        if wfp.isEmpty():
+            return None
+        else:
+            return QFileInfo( wfp ).absolutePath()
+
+    def isPrintAvailable(self):
+        """return if print is available
+        """
+        pass
+
+    def setDocumentMode(self, documentMode ):
+        """set the document document mode"""
+        if  self.mDocument == documentMode :
+            return
+        self.mDocument = documentMode
+        self.documentModeChanged.emit( self.mDocument )
+
+    def setLayoutMode(self layoutMode )
+        """set the document layout mode
+        """
+        
+        if  self.mLayout == layoutMode :
+            return
+        self.mLayout = layoutMode
+        self.layoutModeChanged.emit( self.mLayout )
+
+    
+    def textCodec(self)
+    { return mCodec ? mCodec.name() : pMonkeyStudio.defaultCodec();
+    
+    def encoding(self)
+    { return mCodec ? mCodec : QTextCodec.codecForName( pMonkeyStudio.defaultCodec().toLocal8Bit().constData() );
+
+    def backupFileAs(self fileName ):
+        pass
+    
+    def closeFile(self):
+        pass
+
+    def invokeSearch(self):
+        pass
+
+    def printFile(self):
+        pass
+    
+    def quickPrintFile(self):
+        pass
+'''
