@@ -31,7 +31,7 @@ from PyQt4.QtGui import QApplication, \
                         QMessageBox, \
                         QStackedWidget
 from PyQt4.QtCore import pyqtSignal, \
-                         QEvent, QFileSystemWatcher,\
+                         QEvent, \
                          Qt
 
 from mks.monkeycore import core, DATA_FILES_PATH
@@ -134,10 +134,6 @@ class Workspace(QStackedWidget):
                               self._openedFileExplorer.windowTitle(),
                               self._openedFileExplorer.windowIcon())
         
-        # create file watcher
-        self._fileWatcher = QFileSystemWatcher(self)
-        self._fileWatcher.fileChanged.connect(self._onWatcherFileChanged)
-        
         self.currentChanged.connect(self._onStackedLayoutIndexChanged)
         
         self.currentDocumentChanged.connect(self._updateMainWindowTitle)
@@ -170,18 +166,7 @@ class Workspace(QStackedWidget):
                 return document
         else:
             raise ValueError("Document not found for" + filePath)
-    
-    def _onWatcherFileChanged(self, filePath):
-        """QFileSystemWatcher sent signal, that file has been changed or deleted
-        """
-        # TODO move file watcher management to abstractdocument
-        document = self.documentForPath(filePath)
-        
-        if os.path.exists(filePath):
-            document._setExternallyModified(True)
-        else:
-            document._setExternallyRemoved(True)
-        
+
     def _updateMainWindowTitle(self):
         """Update window title after document or it's modified state has been changed
         """
@@ -311,8 +296,6 @@ class Workspace(QStackedWidget):
             if _UISaveFiles(self._mainWindow, [document]).exec_() == QDialog.Rejected:
                 return
         
-        self._fileWatcher.removePath(document.filePath())
-        
         if len(self._sortedDocuments) > 1:  # not the last document
             if document == self._sortedDocuments[-1]:  # the last document
                 self._activatePreviousDocument()
@@ -390,8 +373,6 @@ class Workspace(QStackedWidget):
         
         self.documentOpened.emit( document )
         
-        self._fileWatcher.addPath(document.filePath())
-        
         self._handleDocument( document )
         
         if not os.access(filePath, os.W_OK):
@@ -459,9 +440,7 @@ class Workspace(QStackedWidget):
     def _saveDocument(self, document):
         """Handler of File->Save->Current
         """
-        self._fileWatcher.removePath(document.filePath())
         document.saveFile()
-        self._fileWatcher.addPath(document.filePath())
     
     def _onFileSaveCurrent_triggered(self):
         """Handler of File->Save->Current
@@ -510,7 +489,7 @@ class Workspace(QStackedWidget):
         """Handler of File->Reload->All
         """
         for document in self.openedDocuments():
-            if not document._isExternallyRemoved():
+            if not document.isExternallyRemoved():
                 self._reloadDocument(document)
             
 '''TODO old code. Restore it partially, delete partially
