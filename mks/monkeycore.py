@@ -8,24 +8,13 @@ and used for get core instances, such as main window, workspace, etc.
 
 """
 
-"""TODO
-import sys
-from datetime import datetime
-"""
-#from PyQt4.QtCore import 
-"""TODO
-from PyQt4.QtGui import *
-
-import main
-"""
 import os.path
 
-from PyQt4.QtCore import Qt
 from PyQt4.QtGui import qApp
 
 from PyQt4.fresh import pSettings
 
-import mksiconsresource
+import mks.mksiconsresource
 
 DATA_FILES_PATH = os.path.dirname(__file__)
 
@@ -37,22 +26,16 @@ class Core:
         """Initialize core.
         Called only by main()
         """
-        # FIXME find good parameters and good place for this code
         pSettings.setDefaultProperties(pSettings.Properties(qApp.applicationName(), \
                                                             "1.0.0",
                                                             pSettings.Normal))
-        
-        
-        # init main window
-        #TODO _showMessage( splash, splash.tr( "Initializing Main Window..." ) )
         
         self._mainWindow = mks.mainwindow.MainWindow()
         self._config = mks.config.createConfig()
         self._workspace = mks.workspace.Workspace(self._mainWindow)
         self._mainWindow.setWorkspace(self._workspace)
-    
         self._workspace.setTextEditorClass(mks.editor.Editor) 
-        # Create editor tool bar
+        
         self._mainWindow.statusBar().addPermanentWidget(mks.editortoolbar.EditorToolBar(self._mainWindow.statusBar()))
         
         # Create searchreplacce and filebrowser plugins
@@ -66,7 +49,7 @@ class Core:
         """
         del self._searchreplace
         del self._fileBrowser
-        mksiconsresource.qCleanupResources()
+        mks.mksiconsresource.qCleanupResources()
 
     def mainWindow(self):
         """Get :class:`mks.mainwindow.MainWindow` instance 
@@ -102,14 +85,14 @@ class Core:
         return self._mainWindow.queuedMessageToolBar()
 
 core = Core()
-import mks.editor  # imports after core created, hack for fix cross-imports problem
+import mks.editor  # imports after core has been created, hack for fix cross-imports problem
 import mks.editortoolbar
 import mks.searchandreplace
 import mks.filebrowser
 import mks.mainwindow
 import mks.config
 
-"""TODO
+"""TODO restore or delete old code
 def _isXmas():
     return datetime.now().month in (11, 12, 1,)
 
@@ -118,11 +101,10 @@ def _showMessage(splash, message):
         splash.showMessage(message, Qt.AlignRight | Qt.AlignBottom, Qt.red)
     else:
         splash.showMessage(message, Qt.AlignRight | Qt.AlignBottom, Qt.white)
-    # FIXME no update without hide/show
+    # no update without hide/show
     splash.hide()
     splash.show()
-"""
-"""TODO
+
 # create splashscreen
 if _isXmas():
     pixmap = "splashscreen_christmas.png"
@@ -137,9 +119,7 @@ if sys.platform.startswith('win'): # Windows platform
 ft.setBold( True )
 splash.setFont( ft )
 splash.show()
-"""
 
-"""TODO
 # restore application style
 _showMessage( splash, splash.tr( 'Initializing Style...' ) )
 qApp.setStyle(settings().value('MainWindow/Style', 'system').toString())
@@ -172,9 +152,7 @@ if  not settings().value( "Translations/Accepted" ).toBool() :
 
 translationManager.setCurrentLocale( settings().value( "Translations/Locale" ).toString() )
 translationManager.reloadTranslations()
-"""
 
-"""TODO
 # init shortcuts editor
 _showMessage( splash, splash.tr( "Initializing Actions Manager..." ) )
 actionsManager().setSettings( settings() )
@@ -187,8 +165,7 @@ interpreter()
 # start console manager
 _showMessage( splash, splash.tr( "Initializing Console..." ) )
 consoleManager()
-"""
-"""TODO
+
 # init abbreviations manager
 _showMessage( splash, splash.tr( "Initializing abbreviations manager..." ) )
 abbreviationsManager()
@@ -204,25 +181,16 @@ interpreter().loadHomeScripts()
 # init pluginsmanager
 _showMessage( splash, splash.tr( "Initializing Plugins..." ) )
 pluginsManager().loadsPlugins()
-"""
-
-"""TODO
-# restore window state
-_showMessage( splash, splash.tr( "Restoring Workspace..." ) )
-mainWindow().setSettings( settings() )
 
 # restore session
 _showMessage( splash, splash.tr( "Restoring Session..." ) )
 if  mks.monkeystudio.restoreSessionOnStartup() :
     workspace().fileSessionRestore_triggered()
-"""
-# show main window
-#TODO mainWindow().menu_Docks_aboutToShow()
-# moved to main, after opening files    mainWindow().show()
 
-"""TODO
+
 # ready
-_showMessage( splash, splash.tr( "%1 v%2 (%3) Ready" ).arg( mks.config.PACKAGE_NAME, mks.config.PACKAGE_VERSION, mks.config.PACKAGE_VERSION_STR ) )
+_showMessage( splash, splash.tr( "%1 v%2 (%3) Ready" ).arg( 
+mks.config.PACKAGE_NAME, mks.config.PACKAGE_VERSION, mks.config.PACKAGE_VERSION_STR ) )
 
 # finish splashscreen
 splash.finish( mainWindow() )
@@ -235,10 +203,7 @@ if  settings().value( "FirstTimeRunning", True ).toBool() :
 
 # prepare apis
 mks.monkeystudio.prepareAPIs()
-"""
 
-
-"""TODO
 def pluginsManager():
     global _pluginsManager
     if _pluginsManager:
@@ -272,9 +237,7 @@ def consoleManager():
     if _consoleManager is None:
         _consoleManager = pConsoleManager( mainWindow() )
     return _consoleManager
-"""
 
-"""
 def interpreter():
     global _interpreter
     if _interpreter is None:
@@ -299,4 +262,3 @@ def translationsManager():
         _translationManager = TranslationManager( mainWindow() )
     return _translationManager
 """
-
