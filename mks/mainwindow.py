@@ -85,8 +85,9 @@ class MainWindow(pMainWindow):
         because it's easier to create clear menu layout
         """
         # create menubar menus and actions
-        self.menuBar().setModel(pActionsNodeModel(self))
-        
+        self._actionsModel = pActionsNodeModel(self)
+        self.menuBar().setModel(self._actionsModel)
+
         """TODO restore or delete old actions
         mb.action( "aNew", self.tr( "&New..." ), QIcon(":/mksicons/new.png" ),"Ctrl+N", self.tr( "Create a new file" ) )
         mb.action( "aNewTextEditor", self.tr( "&New Text File..." ), QIcon(":/mksicons/new.png" ), '', self.tr( "Quickly create a new text based file" ) )
@@ -235,7 +236,7 @@ class MainWindow(pMainWindow):
         self.menuBar().action( "mHelp/aAboutQt" ).triggered.connect(qApp.aboutQt)
         # docks
         self.menuBar().menu( "mDocks" ).aboutToShow.connect(self._menu_Docks_aboutToShow)
-        
+
         """TODO restore or delete old connections
         self.menuBar().action( "mFile/aNew" ).triggered.connect(core.workspace().fileNew_triggered)
         self.menuBar().action( "mFile/aNewTextEditor" ).triggered.connect(core.workspace().createNewTextEditor)

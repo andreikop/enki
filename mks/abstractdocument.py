@@ -49,11 +49,11 @@ class AbstractDocument(QWidget):
         self._filePath = None # To be filled by child classes
         self._externallyRemoved = False
         self._externallyModified = False
+         # File opening should be implemented in the document classes
         
         # create file watcher
         self._fileWatcher = QFileSystemWatcher([filePath], self)
         self._fileWatcher.fileChanged.connect(self._onWatcherFileChanged)
-        # File opening should be implemented in the document classes
     
     def _onWatcherFileChanged(self):
         """QFileSystemWatcher sent signal, that file has been changed or deleted
@@ -198,8 +198,8 @@ class AbstractDocument(QWidget):
         try:
             openedFile.write(unicode(self.text()).encode('utf8'))
         finally:
-            self._fileWatcher.addPath(self.filePath())
             openedFile.close()
+            self._fileWatcher.addPath(self.filePath())
         
         self._externallyRemoved = False
         self._externallyModified = False
