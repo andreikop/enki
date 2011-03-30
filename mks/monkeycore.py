@@ -29,7 +29,6 @@ class Core:
         pSettings.setDefaultProperties(pSettings.Properties(qApp.applicationName(), \
                                                             "1.0.0",
                                                             pSettings.Normal))
-        
         self._mainWindow = mks.mainwindow.MainWindow()
         self._config = mks.config.createConfig()
         self._workspace = mks.workspace.Workspace(self._mainWindow)
