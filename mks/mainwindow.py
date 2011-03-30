@@ -6,15 +6,12 @@ mainwindow --- Main window of the UI. Fills main menu.
 Module contains :class:`mks.mainwindow.MainWindow` implementation
 """
 
-from PyQt4.QtCore import Qt
-from PyQt4.QtCore import pyqtSignal
-from PyQt4.QtCore import QString
-from PyQt4.QtCore import QSize
-from PyQt4.QtGui import qApp, QVBoxLayout, QIcon, QDockWidget, QSizePolicy, QToolBar, QWidget
+from PyQt4.QtCore import QSize, Qt
+from PyQt4.QtGui import qApp, QVBoxLayout, QIcon, QSizePolicy, QWidget
 
 from PyQt4.fresh import pDockWidget, pMainWindow, pActionsNodeModel
 
-from mks.monkeycore import core, DATA_FILES_PATH
+from mks.monkeycore import core
 import mks.workspace
 
 class MainWindow(pMainWindow):
@@ -35,7 +32,7 @@ class MainWindow(pMainWindow):
     Created by monkeycore
     """
     
-    """TODO
+    """TODO  urlsDropped = pyqtSignal()
     urlsDropped = pyqtSignal()
     """
 
@@ -55,21 +52,6 @@ class MainWindow(pMainWindow):
         self.setWindowIcon( QIcon(':/mksicons/monkey2.png') )
 
         self._initMenuBar()
-
-        """
-        # init recents manager
-        core.recentsManager()
-        """
-        
-        """
-        # init projects manager
-        dockToolBar( Qt.LeftToolBarArea ).addDock( core.projectsManager(), core.projectsManager().windowTitle(), QIcon( ":/mksicons/project.png" ) )
-        # init multitoolbar
-        core.workspace().initMultiToolBar( core.multiToolBar().toolBar( Workspace.defaultContext() ) )
-        core.workspace().initMultiToolBar( core.multiToolBar().toolBar( "Coding" ) )
-        # init connection
-        self.initConnections()
-        """
         
         # Default exclusive settings for the tool bars
         self.dockToolBar( Qt.LeftToolBarArea ).setExclusive(False)
@@ -80,7 +62,7 @@ class MainWindow(pMainWindow):
         self.removeToolBar(modernDocksToolBar)
         modernDocksToolBar.setOrientation(Qt.Horizontal)
         modernDocksToolBar.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        modernDocksToolBar.setIconSize(QSize(16, 16))  # FIXME hlamer: it doesn't work for my Ubuntu, why???
+        modernDocksToolBar.setIconSize(QSize(16, 16))
         self.statusBar().addPermanentWidget(modernDocksToolBar)
         # create central layout
         widget = QWidget(self)
@@ -102,19 +84,12 @@ class MainWindow(pMainWindow):
         Connections made by module, which implements menu item functionality, but, all items are in one place,
         because it's easier to create clear menu layout
         """
-        # init menubar
         # create menubar menus and actions
-        mb = self.menuBar()
-        self.mActionsModel = pActionsNodeModel( self )
-        self.menuBar().setModel( self.mActionsModel )
+        self.menuBar().setModel(pActionsNodeModel(self))
         
-        # FIXME commented for new fresh
-        #mb.setDefaultShortcutContext( Qt.ApplicationShortcut )
-        """TODO
+        """TODO restore or delete old actions
         mb.action( "aNew", self.tr( "&New..." ), QIcon(":/mksicons/new.png" ),"Ctrl+N", self.tr( "Create a new file" ) )
         mb.action( "aNewTextEditor", self.tr( "&New Text File..." ), QIcon(":/mksicons/new.png" ), '', self.tr( "Quickly create a new text based file" ) )
-        """
-        """TODO
         mb.menu( "mRecents", self.tr( "&Recents" ), QIcon(":/mksicons/recents.png" ) )
         mb.action( "mRecents/aClear", self.tr( "&Clear" ), QIcon(":/mksicons/clear.png" ), '', self.tr( "Clear the recents files list" ) )
         mb.action( "mRecents/aSeparator1" )
@@ -123,33 +98,23 @@ class MainWindow(pMainWindow):
         mb.action( "mSession/aSave", self.tr( "Save" ), QIcon(":/mksicons/save.png" ), '', self.tr( "Save the current session files list" ) )
         mb.action( "mSession/aRestore", self.tr( "Restore" ), QIcon(":/mksicons/restore.png" ), '', self.tr( "Restore the current session files list" ) )
         mb.action( "aSeparator2" )
-        """
-        """TODO
         mb.action( "mClose/aAll", self.tr( "Close &All" ), QIcon(":/mksicons/closeall.png" ), '', self.tr( "Close all files" ) ).setEnabled( False )
         mb.action( "aSaveAsBackup", self.tr( "Save As &Backup" ), QIcon(":/mksicons/backup.png" ), '', self.tr( "Save a backup of the current file" ) ).setEnabled( False )
         mb.action( "aSeparator4" )
         mb.action( "aQuickPrint", self.tr( "Quic&k Print" ), QIcon(":/mksicons/quickprint.png" ), '', self.tr( "Quick print the current file" ) ).setEnabled( False )
         mb.action( "aPrint", self.tr( "&Print..." ), QIcon(":/mksicons/print.png" ), "Ctrl+P", self.tr( "Print the current file" ) ).setEnabled( False )
         mb.action( "aSeparator5" )
-        """
-        """TODO
         mb.action( "aSettings", self.tr( "Settings..." ), QIcon( ":/mksicons/settings.png" ), "", self.tr( "Edit the application settings" ) )
         mb.action( "aShortcutsEditor", self.tr( "Shortcuts Editor..." ), QIcon( ":/mksicons/shortcuts.png" ), "Ctrl+Shift+E", self.tr( "Edit the application shortcuts" ) )
         mb.action( "aTranslations", self.tr( "Translations..." ), QIcon( ":/mksicons/translations.png" ), "Ctrl+T", self.tr( "Change the application translations files" ) )
         mb.action( "aSeparator1" )
         mb.action( "aSeparator3" )
-        """
-        """TODO
         mb.menu( "mAllCommands", self.tr( "&All Commands" ), QIcon( ":/mksicons/commands.png" ) )
         
         mb.action( "aSeparator5" )
         mb.action( "aExpandAbbreviation", self.tr( "Expand Abbreviation" ), QIcon( ":/mksicons/abbreviation.png" ), "Ctrl+E", self.tr( "Expand Abbreviation" ) ).setEnabled( False )
         mb.action( "aPrepareAPIs", self.tr( "Prepare APIs" ), QIcon( ":/mksicons/prepareapis.png" ), "Ctrl+Alt+P", self.tr( "Prepare the APIs files for auto completion / calltips" ) )
-        """
-        """TODO
         mb.menu( "mStyle", self.tr( "&Style" ), QIcon( ":/mksicons/style.png" ) )
-        """
-        """TODO
         mb.menu( "mProject", self.tr( "Project" ) )
         mb.beginGroup( "mProject" )
         
@@ -201,19 +166,14 @@ class MainWindow(pMainWindow):
         mb.action( "aRestore", self.tr( "&Restore" ), QIcon( "" ), '', self.tr( "Restore normal size" ) )
         mb.endGroup()
         
-        """
-        """TODO
         mb.action( "aAbout", self.tr( "&About..." ), QIcon( ":/mksicons/monkey2.png" ), '', self.tr( "About application..." ) )
-        """
-        """TODO
         # create action for styles
         agStyles = pStylesActionGroup( self.tr( "Use %1 style" ), mb.menu( "mView/mStyle" ) )
         agStyles.setCurrentStyle( core.settings().value( "MainWindow/Style" ).toString() )
         mb.menu( "mView/mStyle" ).addActions( agStyles.actions() )
         
         # create plugins actions
-        core.pluginsManager().menuHandler().setMenu( mb.menu( "mPlugins" ) )
-        
+        core.pluginsManager().menuHandler().setMenu( mb.menu( "mPlugins" ) )        
         """
         
         self._createdMenuPathes = []
@@ -276,7 +236,7 @@ class MainWindow(pMainWindow):
         # docks
         self.menuBar().menu( "mDocks" ).aboutToShow.connect(self._menu_Docks_aboutToShow)
         
-        """TODO
+        """TODO restore or delete old connections
         self.menuBar().action( "mFile/aNew" ).triggered.connect(core.workspace().fileNew_triggered)
         self.menuBar().action( "mFile/aNewTextEditor" ).triggered.connect(core.workspace().createNewTextEditor)
         core.recentsManager().openFileRequested.connect(core.fileManager().openFile)
@@ -323,16 +283,19 @@ class MainWindow(pMainWindow):
         self.setFocusProxy(workspace)
     
     def defaultTitle(self):
-        # TODO add modified marker to the window title
+        """Default title. Contains MkS name and version
+        """
         return "%s v.%s" % (mks.defines.PACKAGE_NAME, mks.defines.PACKAGE_VERSION)
     
     def _menu_Docks_aboutToShow(self):
+        """Fill docs menu with currently existing docs
+        """
         # get menu
         menu = self.menuBar().menu( "mDocks" )
         
         # add actions
-        for dw in self.findChildren(pDockWidget):
-            action = dw.showAction()
+        for dock in self.findChildren(pDockWidget):
+            action = dock.showAction()
             menu.addAction( action )
             self.menuBar().addAction( "mDocks", action )
     
@@ -348,7 +311,7 @@ class MainWindow(pMainWindow):
         
         """
         
-        """TODO
+        """TODO save session on close
         # save session if needed
         if  mks.monkeystudio.saveSessionOnClose() :
             core.workspace().fileSessionSave_triggered()
@@ -357,13 +320,9 @@ class MainWindow(pMainWindow):
         if not core.workspace().closeAllDocuments():
             event.ignore()
             return
-        """ TODO
-        # force to close all projects
-        core.projectsManager().action( XUPProjectManager.atCloseAll ).trigger()
-        """
         return super(MainWindow, self).closeEvent(event)
 
-"""TODO
+"""TODO restore or delete old code
     def dragEnterEvent( self, event ):
         # if correct mime and same tabbar
         if  event.mimeData().hasUrls() :
