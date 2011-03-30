@@ -1,7 +1,7 @@
 #!/bin/sh
 
 QRC_FILE=mksicons.qrc
-RESOURCE_FILE=../mks/mksiconsresource.py
+RESOURCE_FILE=../mks/resources/icons.py
 
 echo '<RCC>' > $QRC_FILE
 echo '	<qresource prefix="/mksicons" >' >> $QRC_FILE

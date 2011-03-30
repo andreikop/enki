@@ -14,7 +14,7 @@ from PyQt4.QtGui import qApp
 
 from PyQt4.fresh import pSettings
 
-import mks.mksiconsresource
+import mks.resources.icons
 
 DATA_FILES_PATH = os.path.dirname(__file__)
 
@@ -48,7 +48,7 @@ class Core:
         """
         del self._searchreplace
         del self._fileBrowser
-        mks.mksiconsresource.qCleanupResources()
+        mks.resources.icons.qCleanupResources()
 
     def mainWindow(self):
         """Get :class:`mks.mainwindow.MainWindow` instance 
