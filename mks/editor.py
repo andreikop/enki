@@ -102,7 +102,7 @@ class Editor(mks.abstractdocument.AbstractDocument):
                                 "Context"                  : QsciScintilla.CallTipsContext}
     
     def __init__(self, parentObject, filePath):
-        super(type(self), self).__init__(parentObject, filePath)
+        super(Editor, self).__init__(parentObject, filePath)
         
         # Configure editor
         self.qscintilla = _QsciScintilla(self)

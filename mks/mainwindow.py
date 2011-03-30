@@ -361,7 +361,7 @@ class MainWindow(pMainWindow):
         # force to close all projects
         core.projectsManager().action( XUPProjectManager.atCloseAll ).trigger()
         """
-        return super(type(self), self).closeEvent(event)
+        return super(MainWindow, self).closeEvent(event)
 
 """TODO
     def dragEnterEvent( self, event ):

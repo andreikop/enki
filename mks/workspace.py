@@ -44,7 +44,7 @@ class _UISaveFiles(QDialog):
     Shows checkable list of not saved files.
     """
     def __init__(self, workspace, documents):
-        super(type(self), self).__init__(workspace)
+        super(_UISaveFiles, self).__init__(workspace)
         self.cancelled = False
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/SaveFiles.ui'), self)
         self.buttonBox.clicked.connect(self._onButtonClicked)
@@ -61,7 +61,7 @@ class _UISaveFiles(QDialog):
         """
         self.setFocus()
         self.buttonBox.button(QDialogButtonBox.Cancel).setFocus()
-        super(type(self), self).showEvent(event)
+        super(_UISaveFiles, self).showEvent(event)
     
     def _onButtonClicked(self, button):
         """Button click handler.
@@ -199,7 +199,7 @@ class Workspace(QStackedWidget):
                 self.closeDocument( document )
                 return True
         
-        return super(type(self), self).eventFilter(object, event )
+        return super(Workspace, self).eventFilter(object, event )
     
     def _onStackedLayoutIndexChanged(self, index):
         """Handler of change of current document in the stacked layout.

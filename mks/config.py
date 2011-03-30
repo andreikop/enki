@@ -18,8 +18,8 @@ import shutil
 import sys
 import os.path
 
-from _3rdparty.configobj import ConfigObj, flatten_errors, ParseError
-from _3rdparty.validate import Validator
+from mks._3rdparty.configobj import ConfigObj, flatten_errors, ParseError
+from mks._3rdparty.validate import Validator
 
 from mks.monkeycore import core, DATA_FILES_PATH
 
@@ -63,7 +63,7 @@ class Config(ConfigObj):
     
     def __init__(self, *args, **kwargs):
         try:
-            super(type(self), self).__init__(*args, **kwargs)
+            super(Config, self).__init__(*args, **kwargs)
         except ParseError, ex:
             raise UserWarning('Failed to parse configuration file %s\n'
                               'Error:\n'
@@ -72,15 +72,17 @@ class Config(ConfigObj):
         self._validate()
     
     def _validate(self):
+        """Validate opened config, raise UserWarning if it is invalid
+        """
         validator = Validator()
         result = self.validate(validator, preserve_errors=True)
         if result is not True:
             messageString = ''
-            for entry in flatten_errors(self, errors):
+            for entry in flatten_errors(self, result):
                 # each entry is a tuple
                 sectionList, key, error = entry
                 if key is not None:
-                   sectionList.append(key)
+                    sectionList.append(key)
                 else:
                     sectionList.append('[missing section]')
                 sectionString = ', '.join(sectionList)
