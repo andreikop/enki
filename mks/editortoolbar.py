@@ -6,8 +6,8 @@ import os.path
 
 from PyQt4 import uic
 
-from PyQt4.QtCore import QSize, Qt
-from PyQt4.QtGui import QDialog, QFrame, QIcon, QLabel, QMenu, QPixmap, QToolBar, QToolButton
+from PyQt4.QtCore import QSize
+from PyQt4.QtGui import QDialog, QIcon, QMenu, QToolBar, QToolButton
 
 from mks.monkeycore import core, DATA_FILES_PATH
 
@@ -38,6 +38,8 @@ class _EolIndicatorAndSwitcher(QToolButton):
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
     
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument):
+        """Current document on workspace has been changed
+        """
         if currentDocument is not None:
             self._setEolMode( currentDocument.eolMode() )
             self.setEnabled(True)
@@ -46,6 +48,8 @@ class _EolIndicatorAndSwitcher(QToolButton):
             self.setEnabled(False)
 
     def _onMenuAboutToShow(self):
+        """EOL menu has been requested
+        """
         document = core.workspace().currentDocument()
         if document is not None:
             currentMode = document.eolMode()
@@ -57,6 +61,7 @@ class _EolIndicatorAndSwitcher(QToolButton):
         self.menu().clear()
         
         def addAction(text, eolMode):
+            """Add an action to the EOL menu"""
             action = self.menu().addAction(QIcon(':/mksicons/' + self._ICON_FOR_MODE[eolMode]), text)
             action.setData(eolMode)
             if eolMode == currentMode:
@@ -69,12 +74,16 @@ class _EolIndicatorAndSwitcher(QToolButton):
         addAction(self.tr("LF: Unix"), r'\n')
 
     def _onEolActionTriggered(self, action):
+        """EOL mode selected
+        """
         newEol = str(action.data().toString())
         editor = core.workspace().currentDocument()
         editor.setEolMode(newEol)
         self._setEolMode(editor.eolMode())
 
     def _setEolMode(self, mode):
+        """Change EOL mode on GUI
+        """
         if mode is not None:
             self.setIcon(QIcon(':/mksicons/' + self._ICON_FOR_MODE[mode]))
 
@@ -99,17 +108,26 @@ class _IndentationDialog(QDialog):
         self._convertButton.clicked.connect(self._onConvertClicked)
     
     def _updateWidthLabel(self):
+        """Update indentation with on GUI
+        """
         template = unicode(self.tr("Width: %d"))
         self._widthLabel.setText(template % self._document.indentWidth())
         
     def _onWidthChanged(self, value):
+        """Handler of change of indentation width
+        """
         self._document.setIndentWidth(value)
         self._updateWidthLabel()
     
     def _onConvertClicked(self):
+        """Handler of Convert button.
+        Not implemented yet
+        """
         pass
     
     def _onTabsToggled(self, toggled):
+        """Handler of change of 'Indentation uses tabs' flag
+        """
         self._document.setIndentUseTabs(toggled)
 
 class _IndentIndicatorAndSwitcher(QToolButton):
@@ -129,12 +147,16 @@ class _IndentIndicatorAndSwitcher(QToolButton):
         
     
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument):
+        """Current document on workspace has been changed
+        """
         if currentDocument is not None:
             self._setIndentMode( currentDocument.indentWidth(), currentDocument.indentUseTabs() )
         else:
             self._clearIndentMode()
     
     def _onClicked(self):
+        """Indentation button clicked. Show dialog
+        """
         document = core.workspace().currentDocument()
         if document is not None:
             dialog = _IndentationDialog(self, document)
@@ -142,6 +164,8 @@ class _IndentIndicatorAndSwitcher(QToolButton):
             self._setIndentMode(document.indentWidth(), document.indentUseTabs())
     
     def _setIndentMode(self, width, useTabs):
+        """Update indentation mode on GUI
+        """
         if useTabs:
             self.setText(self.tr("Tabs"))
         else:
@@ -149,6 +173,8 @@ class _IndentIndicatorAndSwitcher(QToolButton):
         self.setEnabled(True)
     
     def _clearIndentMode(self):
+        """Last document has been closed, update indentation mode
+        """
         self.setEnabled(False)
 
 class _PositionIndicator(QToolButton):
@@ -160,10 +186,11 @@ class _PositionIndicator(QToolButton):
         self.setEnabled(False)
         self._setCursorPosition(-1, -1)
         self.setMinimumWidth(180)  # Avoid flickering when text width changed
-                                  # FIXME doesn't work
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
 
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument):
+        """Current document has been changed
+        """
         # Update connections
         if oldDocument is not None:
             oldDocument.cursorPositionChanged.disconnect(self._setCursorPosition)
@@ -181,6 +208,8 @@ class _PositionIndicator(QToolButton):
             self.setEnabled(False)
 
     def _setCursorPosition(self, line, col):
+        """Update cursor position on GUI.
+        """
         template = unicode(self.tr("Line: %s Column: %s"))
         if line != -1 and col != -1:
             line = str(line)
