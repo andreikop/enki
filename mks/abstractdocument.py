@@ -54,25 +54,25 @@ class AbstractDocument(QWidget):
         self._fileWatcher.fileChanged.connect(self._onWatcherFileChanged)
         # File opening should be implemented in the document classes
     
-    def _onWatcherFileChanged(self, filePath):
+    def _onWatcherFileChanged(self):
         """QFileSystemWatcher sent signal, that file has been changed or deleted
         """
         if os.path.exists(self.filePath()):
-            self._externallyModified = flag
+            self._externallyModified = True
         else:
-            self._externallyRemoved = flag
+            self._externallyRemoved = True
         self._documentDataChanged.emit()
 
     def _readFile(self, filePath):
         """Read the file contents.
         Shows QMessageBox for UnicodeDecodeError, but raises IOError, if failed to read file
         """
-        with open(filePath, 'r') as f:  # Exception is ok, raise it up
-            self._filePath = os.path.abspath(filePath)  # TODO remember fd?
-            data = f.read()                
+        with open(filePath, 'r') as openedFile:  # Exception is ok, raise it up
+            self._filePath = os.path.abspath(filePath)
+            data = openedFile.read()                
         
         try:
-            text = unicode(data, 'utf8')  # FIXME replace 'utf8' with encoding
+            text = unicode(data, 'utf8')
         except UnicodeDecodeError, ex:
             QMessageBox.critical(None,
                                  self.tr("Can not decode file"),
@@ -80,7 +80,7 @@ class AbstractDocument(QWidget):
                                  unicode(str(ex), 'utf8') + 
                                  '\nProbably invalid encoding was set. ' +
                                  'You may corrupt your file, if saved it')
-            text = unicode(data, 'utf8', 'ignore')  # FIXME replace 'utf8' with encoding            
+            text = unicode(data, 'utf8', 'ignore')
         return text
 
     def isExternallyRemoved(self):
@@ -151,27 +151,32 @@ class AbstractDocument(QWidget):
         
     
     def goTo(self, line, column, selectionLength = -1 ):
+        """Go to specified line and column.
+        If selectionLength is not -1, select selectionLength characters
+        """
         pass
     
     def saveFile(self):
         """Save the file to file system
         """
         if  not self.isModified() and \
-            not self._externallyModified() and \
-            not self._externallyRemoved():
-                return True
+            not self._externallyModified and \
+            not self._externallyRemoved:
+            return
         
         dirPath = os.path.dirname(self.filePath())
         if  not os.path.exists(dirPath):
             try:
                 os.mkdir(dirPath)
-            except OSError:
-                core.messageManager().appendMessage( \
-                        self.tr( "Cannot create directory '%s'. Error '%s'" % (dirPath, error))) # todo fix
-                return False
+            except OSError, ex:
+                error = unicode(str(ex), 'utf8')
+                QMessageBox.critical(None,
+                                     self.tr("Can not save file"),
+                                     self.tr( "Cannot create directory '%s'. Error '%s'" % (dirPath, error)))
+                return
         
         try:
-            f = open(self.filePath(), 'w')
+            openedFile = open(self.filePath(), 'w')
         except IOError, ex:
             QMessageBox.critical(None,
                                  self.tr("Can not write to file"),
@@ -180,10 +185,10 @@ class AbstractDocument(QWidget):
         
         self._fileWatcher.removePath(self.filePath())
         try:
-            f.write(unicode(self.text()).encode('utf8'))  # FIXME codec hardcoded
+            openedFile.write(unicode(self.text()).encode('utf8'))
         finally:
             self._fileWatcher.addPath(self.filePath())
-            f.close()
+            openedFile.close()
         
         self._externallyRemoved = False
         self._externallyModified = False
@@ -218,21 +223,27 @@ class AbstractDocument(QWidget):
         
         if self.isModified():
             toolTip += "<br/><font color='blue'>%s</font>" % self.tr("Locally Modified")
-        if  self._externallyModified():
+        if  self._externallyModified:
             toolTip += "<br/><font color='red'>%s</font>" % self.tr("Externally Modified")
-        if  self._externallyRemoved():
+        if  self._externallyRemoved:
             toolTip += "<br/><font color='red'>%s</font>" % self.tr( "Externally Deleted" )
         return toolTip
     
     def modelIcon(self):
         """Icon for the opened files model
         """
-        if   self._externallyRemoved()  and self._externallyModified():  icon = "modified-externally-deleted.png"
-        elif self._externallyRemoved():                                  icon = "deleted.png"
-        elif self._externallyModified() and self.isModified():           icon = "modified-externally-modified.png"
-        elif self._externallyModified():                                 icon = "modified-externally.png"
-        elif self.isModified():                                          icon = "save.png"
-        else:                                                            icon = "transparent.png"
+        if   self._externallyRemoved  and self._externallyModified:
+            icon = "modified-externally-deleted.png"
+        elif self._externallyRemoved:
+            icon = "deleted.png"
+        elif self._externallyModified and self.isModified():
+            icon = "modified-externally-modified.png"
+        elif self._externallyModified:
+            icon = "modified-externally.png"
+        elif self.isModified():
+            icon = "save.png"
+        else:
+            icon = "transparent.png"
         return QIcon(":/mksicons/" + icon)
     
     
