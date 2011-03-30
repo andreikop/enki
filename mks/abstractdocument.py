@@ -154,11 +154,11 @@ class AbstractDocument(QWidget):
         """Show GUI dialog, go to line, if user accepted it
         """
         line, col = self.qscintilla.getCursorPosition()
-        gotoLine, ok = QInputDialog.getInteger( self, self.tr( "Go To Line..." ),
-                                                self.tr( "Enter the line you want to go:" ), 
-                                                line +1, 1, self.qscintilla.lines(), 1)
+        gotoLine, accepted = QInputDialog.getInteger(self, self.tr( "Go To Line..." ),
+                                                      self.tr( "Enter the line you want to go:" ), 
+                                                      line +1, 1, self.qscintilla.lines(), 1)
         
-        if  ok :
+        if accepted:
             self.goTo(gotoLine - 1, 0)
     
     def goTo(self, line, column, selectionLength = -1 ):
