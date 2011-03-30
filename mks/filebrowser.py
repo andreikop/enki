@@ -15,7 +15,7 @@ from PyQt4.QtGui import QAction, QDialogButtonBox, QFileDialog, QFrame, QFileSys
 from PyQt4.fresh import pDockWidget
 from PyQt4.fresh import pStringListEditor
 
-from mks.monkeycore import core, DATA_FILES_PATH
+from mks.monkeycore import core
 
 """
     def fillPluginInfos(self):
@@ -144,6 +144,9 @@ class DockFileBrowser(pDockWidget):
         self.visibilityChanged.connect(self._onVisibilityChanged)
     
     def _onVisibilityChanged(self, visible):
+        """Postnoted widget initialization.
+        Create element, when widget appears first timer
+        """
         if visible:
             self._initialize()
             self.visibilityChanged.disconnect(self._onVisibilityChanged)
@@ -167,13 +170,13 @@ class DockFileBrowser(pDockWidget):
         createAction("Remove selected folder from bookmarks", "remove",    self.aRemove_triggered,    4)
         
         # bookmarks menu
-        self.mBookmarksMenu = QMenu( self )
+        self._bookmarksMenu = QMenu( self )
         aBookmarks = QAction( self.tr( "Bookmarks..." ), self )
         aBookmarks.setIcon( QIcon(":/mksicons/bookmark.png" ) )
         aBookmarks.setToolTip( aBookmarks.text() )
         toolButton = self.titleBar().addAction( aBookmarks, 5 )
         toolButton.setPopupMode( QToolButton.InstantPopup )
-        aBookmarks.setMenu( self.mBookmarksMenu )
+        aBookmarks.setMenu( self._bookmarksMenu )
         
         # add separator
         self.titleBar().addSeparator( 6 )
@@ -188,11 +191,11 @@ class DockFileBrowser(pDockWidget):
         vertLayout.setSpacing( 3 )
         
         # lineedit
-        self.mLineEdit = QLineEdit()
-        self.mLineEdit.setAttribute( Qt.WA_MacShowFocusRect, False )
-        self.mLineEdit.setAttribute( Qt.WA_MacSmallSize )
-        self.mLineEdit.setReadOnly( True )
-        vertLayout.addWidget( self.mLineEdit )
+        self._lineEdit = QLineEdit()
+        self._lineEdit.setAttribute( Qt.WA_MacShowFocusRect, False )
+        self._lineEdit.setAttribute( Qt.WA_MacSmallSize )
+        self._lineEdit.setReadOnly( True )
+        vertLayout.addWidget( self._lineEdit )
         
         # hline
         hline = QFrame( self )
@@ -200,73 +203,73 @@ class DockFileBrowser(pDockWidget):
         vertLayout.addWidget( hline )
         
         # dir model
-        self.mDirsModel = QFileSystemModel( self )
-        self.mDirsModel.setNameFilterDisables( False )
-        self.mDirsModel.setFilter( QDir.AllDirs | QDir.AllEntries | QDir.CaseSensitive | QDir.NoDotAndDotDot )
-        # self.mDirsModel.directoryLoaded.connect(self._setFocusToTree)  TODO don't have this signal in my Qt version
+        self._dirsModel = QFileSystemModel( self )
+        self._dirsModel.setNameFilterDisables( False )
+        self._dirsModel.setFilter( QDir.AllDirs | QDir.AllEntries | QDir.CaseSensitive | QDir.NoDotAndDotDot )
+        # self._dirsModel.directoryLoaded.connect(self._setFocusToTree)  TODO don't have this signal in my Qt version
         
         # create proxy model
-        self.mFilteredModel = FileBrowserFilteredModel( self )
-        self.mFilteredModel.setSourceModel( self.mDirsModel )
+        self._filteredModel = FileBrowserFilteredModel( self )
+        self._filteredModel.setSourceModel( self._dirsModel )
         self.setFilters(core.config()["FileBrowser"]["NegativeFilter"])
         
         # files view
-        self.mTree = QTreeView()
-        self.mTree.setAttribute( Qt.WA_MacShowFocusRect, False )
-        self.mTree.setAttribute( Qt.WA_MacSmallSize )
-        self.mTree.setContextMenuPolicy( Qt.ActionsContextMenu )
-        self.mTree.setHeaderHidden( True )
-        self.mTree.setUniformRowHeights( True )
-        vertLayout.addWidget( self.mTree )
+        self._tree = QTreeView()
+        self._tree.setAttribute( Qt.WA_MacShowFocusRect, False )
+        self._tree.setAttribute( Qt.WA_MacSmallSize )
+        self._tree.setContextMenuPolicy( Qt.ActionsContextMenu )
+        self._tree.setHeaderHidden( True )
+        self._tree.setUniformRowHeights( True )
+        vertLayout.addWidget( self._tree )
         
         # assign model to views
-        self.mTree.setModel( self.mFilteredModel)
+        self._tree.setModel( self._filteredModel)
         
         if not sys.platform.startswith('win'):
-            self.mDirsModel.setRootPath( "/" )
+            self._dirsModel.setRootPath( "/" )
         else:
-            self.mDirsModel.setRootPath('')
+            self._dirsModel.setRootPath('')
         
         # redirirect focus proxy
-        self.setFocusProxy( self.mTree )
+        self.setFocusProxy( self._tree )
         
-        # shortcut accessible only when self.mTree has focus
-        aUpShortcut = QShortcut( QKeySequence( "BackSpace" ), self.mTree )
+        # shortcut accessible only when self._tree has focus
+        aUpShortcut = QShortcut( QKeySequence( "BackSpace" ), self._tree )
         aUpShortcut.setContext( Qt.WidgetShortcut )
         
         # connections
         aUpShortcut.activated.connect(self.aUp_triggered)
-        self.mBookmarksMenu.triggered.connect(self.bookmark_triggered)
-        self.mTree.activated.connect(self.tv_activated)
+        self._bookmarksMenu.triggered.connect(self.bookmark_triggered)
+        self._tree.activated.connect(self.tv_activated)
         
         self.setCurrentPath( core.config()["FileBrowser"]["Path"] )
         self.setCurrentFilePath( core.config()["FileBrowser"]["FilePath"] )
-        self.mBookmarks = core.config()["FileBrowser"]["Bookmarks"]
+        self._bookmarks = core.config()["FileBrowser"]["Bookmarks"]
         self.updateBookMarksMenu()
-
+        
     def _filteredModelIndexToPath(self, index):
         """Map index to file path
         """
-        srcIndex = self.mFilteredModel.mapToSource( index )
-        return unicode(self.mDirsModel.filePath( srcIndex ))
+        srcIndex = self._filteredModel.mapToSource( index )
+        return unicode(self._dirsModel.filePath( srcIndex ))
     
     def aUp_triggered(self):
         """Handler of click on Up button.
         """
-        current = self.mTree.currentIndex()
+        current = self._tree.currentIndex()
         if not current.isValid():
-            current = self.mTree.rootIndex().child(0, 0)
-            self.mTree.setCurrentIndex(current)
+            current = self._tree.rootIndex().child(0, 0)
+            self._tree.setCurrentIndex(current)
         
         # move tree root up, if necessary
-        if current.parent() == self.mTree.rootIndex() or \
-           current == self.mTree.rootIndex():  # need to move root up
-            if self.mTree.rootIndex().parent().isValid():  # not reached root of the FS tree
-                self.setCurrentPath( self._filteredModelIndexToPath(self.mTree.rootIndex().parent()))
+        if current.parent() == self._tree.rootIndex() or \
+           current == self._tree.rootIndex():  # need to move root up
+            if self._tree.rootIndex().parent().isValid():  # not reached root of the FS tree
+                self.setCurrentPath( self._filteredModelIndexToPath(self._tree.rootIndex().parent()))
         
-        parentOfCurrent = self.mTree.currentIndex().parent()
-        if parentOfCurrent != self.mTree.rootIndex():  # if not reached top
-            self.mTree.setCurrentIndex(parentOfCurrent)  # move selection up
+        parentOfCurrent = self._tree.currentIndex().parent()
+        if parentOfCurrent != self._tree.rootIndex():  # if not reached top
+            self._tree.setCurrentIndex(parentOfCurrent)  # move selection up
 
     def aGoTo_triggered(self):
         """GoTo (Select root folder) clicked
@@ -283,8 +286,8 @@ class DockFileBrowser(pDockWidget):
         if not os.path.isdir(path):
             path = os.path.dirname(path)
         
-        if  path and not path in self.mBookmarks:
-            self.mBookmarks.append(path)
+        if  path and not path in self._bookmarks:
+            self._bookmarks.append(path)
             self.updateBookMarksMenu()
 
     def aRemove_triggered(self):
@@ -294,8 +297,8 @@ class DockFileBrowser(pDockWidget):
         if not os.path.isdir(path):
             path = os.path.dirname(path)
         
-        if  path in self.mBookmarks:
-            self.mBookmarks.remove( path )
+        if  path in self._bookmarks:
+            self._bookmarks.remove( path )
             self.updateBookMarksMenu()
 
     def bookmark_triggered(self, action ):
@@ -306,35 +309,35 @@ class DockFileBrowser(pDockWidget):
     def tv_activated(self, idx ):
         """File or dirrectory doubleClicked
         """
-        index = self.mFilteredModel.mapToSource( idx )
+        index = self._filteredModel.mapToSource( idx )
         
-        if  self.mDirsModel.isDir( index ) :
-            self.setCurrentPath( unicode(self.mDirsModel.filePath( index )) )
+        if  self._dirsModel.isDir( index ) :
+            self.setCurrentPath( unicode(self._dirsModel.filePath( index )) )
         else:
-            core.workspace().openFile( unicode(self.mDirsModel.filePath( index )))
+            core.workspace().openFile( unicode(self._dirsModel.filePath( index )))
 
     def currentPath(self):
         """Get current path (root of the tree)
         """
-        index = self.mTree.rootIndex()
-        index = self.mFilteredModel.mapToSource( index )
-        return unicode(self.mDirsModel.filePath( index ))
+        index = self._tree.rootIndex()
+        index = self._filteredModel.mapToSource( index )
+        return unicode(self._dirsModel.filePath( index ))
 
     def _setFocusToTree(self, attempts = 5):
         """Moves focus and selection to the first item, if nothing focused
         If attempts > 0 and model not yet loaded data, function will call semself 
         automatically later after 10ms for do next attempt to set focus to the first child
         """
-        rootIndex = self.mTree.rootIndex()
+        rootIndex = self._tree.rootIndex()
         
-        selected =  self.mTree.selectionModel().selectedIndexes()
+        selected =  self._tree.selectionModel().selectedIndexes()
         for index in selected:
             if index.parent() == rootIndex:   # Already having selected item
                 return
         
-        firstChild = self.mFilteredModel.index(0, 0, rootIndex)
+        firstChild = self._filteredModel.index(0, 0, rootIndex)
         if firstChild.isValid():  # There may be no rows, if directory is empty, or not loaded yet
-            self.mTree.selectionModel().select(firstChild, QItemSelectionModel.SelectCurrent)
+            self._tree.selectionModel().select(firstChild, QItemSelectionModel.SelectCurrent)
         else:
             """TODO QFileSystemModel version supports directoryLoaded() signal only the from version 4.7.0.
             When this signal is supported by Ubuntu version of PyQt4, remove this timer and replace it with signal
@@ -348,45 +351,45 @@ class DockFileBrowser(pDockWidget):
         """Set current path (root of the tree)
         """
         # get index
-        index = self.mDirsModel.index(path)
+        index = self._dirsModel.index(path)
         
         # set current path
-        self.mFilteredModel.invalidate()
-        self.mTree.setRootIndex( self.mFilteredModel.mapFromSource( index ) )
+        self._filteredModel.invalidate()
+        self._tree.setRootIndex( self._filteredModel.mapFromSource( index ) )
         
         self._setFocusToTree(15)
         
         # set lineedit path
-        self.mLineEdit.setText( unicode(self.mDirsModel.filePath( index )) )
-        self.mLineEdit.setToolTip( self.mLineEdit.text() )
+        self._lineEdit.setText( unicode(self._dirsModel.filePath( index )) )
+        self._lineEdit.setToolTip( self._lineEdit.text() )
 
     def currentFilePath(self):
         """Get current file path (selected item)
         """
-        index = self.mTree.selectionModel().selectedIndexes().value( 0 )
-        index = self.mFilteredModel.mapToSource( index )
-        return unicode(self.mDirsModel.filePath( index ))
+        index = self._tree.selectionModel().selectedIndexes().value( 0 )
+        index = self._filteredModel.mapToSource( index )
+        return unicode(self._dirsModel.filePath( index ))
 
     def setCurrentFilePath(self, filePath):
         """Set current file path (selected item)
         """
         # get index
-        index = self.mDirsModel.index(filePath)
-        index = self.mFilteredModel.mapFromSource( index )
-        self.mTree.setCurrentIndex( index )
+        index = self._dirsModel.index(filePath)
+        index = self._filteredModel.mapFromSource( index )
+        self._tree.setCurrentIndex( index )
 
     def setFilters(self, filters ):
         """Set filter wildcards for filter out unneeded files
         """
-        self.mFilteredModel.setFilters( filters )
+        self._filteredModel.setFilters( filters )
 
     def updateBookMarksMenu(self):
         """Create new Bookmarks menu
         """
-        self.mBookmarksMenu.clear()
+        self._bookmarksMenu.clear()
         
-        for path in self.mBookmarks:
-            action = self.mBookmarksMenu.addAction(path)
+        for path in self._bookmarks:
+            action = self._bookmarksMenu.addAction(path)
             action.setToolTip( path )
             action.setStatusTip( path )
             action.setData( path )
