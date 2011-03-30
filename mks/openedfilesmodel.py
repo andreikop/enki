@@ -10,6 +10,7 @@ import os.path
 import copy
 
 from PyQt4.QtCore import QAbstractItemModel, \
+                         QByteArray, \
                          QMimeData, \
                          QModelIndex, \
                          QObject, \
@@ -57,7 +58,7 @@ class _OpenedFileModel(QAbstractItemModel):
     
     def hasChildren(self, parent ):
         if parent.isValid():
-           return False
+            return False
         else:
             return (len(core.workspace()._sortedDocuments) > 0)
 
@@ -65,7 +66,7 @@ class _OpenedFileModel(QAbstractItemModel):
         if  section == 0 and \
             orientation == Qt.Horizontal and \
             role == Qt.DecorationRole:
-                return self.tr( "Opened Files" )
+            return self.tr( "Opened Files" )
         else:
             return QVariant()
 
@@ -76,10 +77,14 @@ class _OpenedFileModel(QAbstractItemModel):
         document = self.document( index )
         assert(document)
         
-        if   role == Qt.DecorationRole: return document.modelIcon()
-        elif role == Qt.DisplayRole:    return document.fileName()
-        elif role == Qt.ToolTipRole:    return document.modelToolTip()
-        else:                           return QVariant()
+        if   role == Qt.DecorationRole:
+            return document.modelIcon()
+        elif role == Qt.DisplayRole:
+            return document.fileName()
+        elif role == Qt.ToolTipRole:
+            return document.modelToolTip()
+        else:
+            return QVariant()
     
     def flags(self, index ):
         if  index.isValid() :
@@ -116,15 +121,14 @@ class _OpenedFileModel(QAbstractItemModel):
             action != Qt.MoveAction or \
             not data or \
             not data.hasFormat( self.mimeTypes()[0] ) :
-                return False
+            return False
         
         fromRow = data.data( self.mimeTypes()[0] ).toInt()[0]
         
         if  row >= len(core.workspace()._sortedDocuments):
-            row-= 1
-
+            row -= 1
         elif  fromRow < row :
-            row-= 1
+            row -= 1
 
         newDocuments = copy.copy(core.workspace()._sortedDocuments)
         
@@ -145,8 +149,8 @@ class _OpenedFileModel(QAbstractItemModel):
         return True
     
     def document(self, index ):
-        if  not index.isValid() :
-            return 0
+        if not index.isValid() :
+            return None
 
         return index.internalPointer()
     
@@ -174,7 +178,8 @@ class _OpenedFileModel(QAbstractItemModel):
         newDocuments = copy.copy(core.workspace()._sortedDocuments)
         
         if self.mSortMode == self.OpeningOrder:
-            newDocuments.sort(lambda a, b: cmp(core.workspace()._sortedDocuments.index(a), core.workspace()._sortedDocuments.index(b)))
+            newDocuments.sort(lambda a, b: cmp(core.workspace()._sortedDocuments.index(a), \
+                                               core.workspace()._sortedDocuments.index(b)))
         elif self.mSortMode == self.FileName:
             newDocuments.sort(lambda a, b: cmp(a.fileName(), b.fileName()))
         elif self.mSortMode == self.URL:
@@ -217,7 +222,7 @@ class _OpenedFileModel(QAbstractItemModel):
             index = core.workspace()._sortedDocuments.index( document )
             mapping[ row ] = index
         
-        for pIindex in pOldIndexes:
+        for pIndex in pOldIndexes:
             row = pIndex.row()
             index = mapping[ row ]
             
@@ -270,19 +275,10 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         self.tvFiles.setAttribute( Qt.WA_MacSmallSize )
         self.setFocusProxy(self.tvFiles)
         
-        """TODO
-        '''
-        tb = qobject_cast<QToolButton*>( titleBar().addAction( aSortMenu, 0 ) )
-        tb.setPopupMode( QToolButton.InstantPopup )
-        titleBar().addSeparator( 1 )
-        '''
-        self.tvFiles.viewport().setAcceptDrops( True )
-
-        core.workspace().documentChanged.connect(self.documentChanged)
-        """
         workspace.currentDocumentChanged.connect(self.currentDocumentChanged)
         
-        self.tvFiles.selectionModel().selectionChanged.connect(self.selectionModel_selectionChanged)  # disconnected by _startModifyModel()
+        # disconnected by _startModifyModel()
+        self.tvFiles.selectionModel().selectionChanged.connect(self.selectionModel_selectionChanged)
         
         self.showAction().setShortcut("F2")
         workspace.parentWidget().addAction(self.showAction())
@@ -328,6 +324,8 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
             focusWidget.setFocus()
     
     def on_tvFiles_customContextMenuRequested(self, pos ):
+        """Connected automatically by uic
+        """
         menu = QMenu()
         
         menu.addAction( core.menuBar().action( "mFile/mClose/aCurrent" ) )
