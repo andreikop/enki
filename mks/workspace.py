@@ -436,22 +436,17 @@ class Workspace(QStackedWidget):
                 
         for path in fileNames:
             self.openFile(path)
-        
-    def _saveDocument(self, document):
-        """Handler of File->Save->Current
-        """
-        document.saveFile()
     
     def _onFileSaveCurrent_triggered(self):
         """Handler of File->Save->Current
         """
-        return self._saveDocument(self.currentDocument())
+        return self.currentDocument().saveFile()
     
     def _onFileSaveAll_triggered(self):
         """Handler of File->Save->All
         """
         for document in self.openedDocuments():
-            self._saveDocument(document)
+            document.saveFile()
     
     def _reloadDocument(self, document):
         """Reload the document contents
