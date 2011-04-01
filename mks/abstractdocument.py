@@ -186,6 +186,7 @@ class AbstractDocument(QWidget):
                                      self.tr( "Cannot create directory '%s'. Error '%s'" % (dirPath, error)))
                 return
         
+        self._fileWatcher.removePath(self.filePath())
         try:
             openedFile = open(self.filePath(), 'w')
         except IOError, ex:
@@ -194,7 +195,6 @@ class AbstractDocument(QWidget):
                                  unicode(str(ex), 'utf8'))
             return
         
-        self._fileWatcher.removePath(self.filePath())
         try:
             openedFile.write(unicode(self.text()).encode('utf8'))
         finally:
@@ -203,6 +203,7 @@ class AbstractDocument(QWidget):
         
         self._externallyRemoved = False
         self._externallyModified = False
+        
     
     def text(self):
         """Contents of the editor.
