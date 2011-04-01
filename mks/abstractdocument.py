@@ -81,7 +81,7 @@ class AbstractDocument(QWidget):
                                  unicode(str(ex), 'utf8') + 
                                  '\nProbably invalid encoding was set. ' +
                                  'You may corrupt your file, if saved it')
-            text = unicode(data, 'utf8', 'ignore')
+            text = unicode(data, 'utf8', 'replace')
         return text
 
     def isExternallyRemoved(self):
