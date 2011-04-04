@@ -6,10 +6,10 @@ mainwindow --- Main window of the UI. Fills main menu.
 Module contains :class:`mks.mainwindow.MainWindow` implementation
 """
 
-from PyQt4.QtCore import QSize, Qt
-from PyQt4.QtGui import qApp, QVBoxLayout, QIcon, QSizePolicy, QWidget
+from PyQt4.QtCore import QModelIndex, QSize, Qt
+from PyQt4.QtGui import qApp, QIcon, QSizePolicy, QVBoxLayout, QWidget
 
-from PyQt4.fresh import pDockWidget, pMainWindow, pActionsNodeModel
+from PyQt4.fresh import pActionsNodeShortcutEditor, pDockWidget, pMainWindow, pActionsNodeModel
 
 from mks.monkeycore import core
 import mks.workspace
@@ -58,7 +58,7 @@ class MainWindow(pMainWindow):
         self.dockToolBar( Qt.RightToolBarArea ).setExclusive(False)
         
         # Move docks tool bar to statusbar
-        modernDocksToolBar = self.dockToolBarManager().modernDockToolBar()
+        modernDocksToolBar = self.dockToolBarManager().modernToolBar()
         self.removeToolBar(modernDocksToolBar)
         modernDocksToolBar.setOrientation(Qt.Horizontal)
         modernDocksToolBar.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -106,7 +106,6 @@ class MainWindow(pMainWindow):
         mb.action( "aPrint", self.tr( "&Print..." ), QIcon(":/mksicons/print.png" ), "Ctrl+P", self.tr( "Print the current file" ) ).setEnabled( False )
         mb.action( "aSeparator5" )
         mb.action( "aSettings", self.tr( "Settings..." ), QIcon( ":/mksicons/settings.png" ), "", self.tr( "Edit the application settings" ) )
-        mb.action( "aShortcutsEditor", self.tr( "Shortcuts Editor..." ), QIcon( ":/mksicons/shortcuts.png" ), "Ctrl+Shift+E", self.tr( "Edit the application shortcuts" ) )
         mb.action( "aTranslations", self.tr( "Translations..." ), QIcon( ":/mksicons/translations.png" ), "Ctrl+T", self.tr( "Change the application translations files" ) )
         mb.action( "aSeparator1" )
         mb.action( "aSeparator3" )
@@ -220,6 +219,7 @@ class MainWindow(pMainWindow):
         
         menu  ("mEdit",                               self.tr( "Edit"                  ), ""            )
         menu  ("mEdit/mSearchReplace",                self.tr( "&Search && Replace"    ), ""            )
+        action("mEdit/aShortcuts",                    self.tr( "Shortcuts..."),        "shortcuts.png","",           self.tr( "Edit application shortcuts..."   ), True)        
         action("mEdit/aConfigFile",                   self.tr( "Edit config file" ),   "",             "Ctrl+Alt+S", self.tr( "Edit config file"    ), True)
         
         menu  ("mView",                               self.tr( "View"                  ), ""            )
@@ -233,6 +233,7 @@ class MainWindow(pMainWindow):
         action("mHelp/aAboutQt",                      self.tr( "About &Qt..." ),          "qt.png",       "",             self.tr( "About Qt..."            ), True )
         
         self.menuBar().action( "mFile/aQuit" ).triggered.connect(self.close)
+        self.menuBar().action( "mEdit/aShortcuts" ).triggered.connect(self._onEditShortcuts)
         self.menuBar().action( "mHelp/aAboutQt" ).triggered.connect(qApp.aboutQt)
         # docks
         self.menuBar().menu( "mDocks" ).aboutToShow.connect(self._menu_Docks_aboutToShow)
@@ -249,7 +250,6 @@ class MainWindow(pMainWindow):
         self.menuBar().action( "mFile/aPrint" ).triggered.connect(core.workspace().filePrint_triggered)
         # edit connection
         self.menuBar().action( "mEdit/aSettings" ).triggered.connect(core.workspace().editSettings_triggered)
-        self.menuBar().action( "mEdit/aShortcutsEditor" ).triggered.connect(core.actionsManager().editActionsShortcuts)
         self.menuBar().action( "mEdit/aTranslations" ).triggered.connect(core.workspace().editTranslations_triggered)
         self.menuBar().action( "mEdit/mSearchReplace/aSearchFile" ).triggered.connect(core.workspace().editSearch_triggered)
         #menuBar().action( "mEdit/aSearchPrevious" ).triggered.connect(core.workspace().editSearchPrevious_triggered)
@@ -275,6 +275,22 @@ class MainWindow(pMainWindow):
         # help menu
         self.menuBar().action( "mHelp/aAbout" ).triggered.connect(core.workspace().helpAboutApplication_triggered)
         """
+    
+    def _saveShortcuts(self):
+        """Save application shortcuts
+        """
+        def printActions(model, index):
+            if model.hasChildren(index):
+                for row in range(model.rowCount(index)):
+                    printActions(model, model.index(row, 0, index))
+            else:
+                node = model.indexToNode(index)
+                if node.action():
+                    print node.action().text()
+        
+        model = self.menuBar().model()
+        printActions(model, QModelIndex())
+    
     
     def setWorkspace(self, workspace):
         """Set central widget of the main window.
@@ -322,6 +338,9 @@ class MainWindow(pMainWindow):
             event.ignore()
             return
         return super(MainWindow, self).closeEvent(event)
+    
+    def _onEditShortcuts(self):
+        pActionsNodeShortcutEditor ( self.menuBar().model(), self ).exec_()
 
 """TODO restore or delete old code
     def dragEnterEvent( self, event ):
