@@ -9,7 +9,7 @@ Module contains :class:`mks.mainwindow.MainWindow` implementation
 from PyQt4.QtCore import QModelIndex, QSize, Qt
 from PyQt4.QtGui import qApp, QIcon, QSizePolicy, QVBoxLayout, QWidget
 
-from PyQt4.fresh import pActionsNodeShortcutEditor, pDockWidget, pMainWindow, pActionsNodeModel
+from PyQt4.fresh import pDockWidget, pMainWindow, pActionsNodeModel
 
 from mks.monkeycore import core
 import mks.workspace
@@ -219,7 +219,6 @@ class MainWindow(pMainWindow):
         
         menu  ("mEdit",                               self.tr( "Edit"                  ), ""            )
         menu  ("mEdit/mSearchReplace",                self.tr( "&Search && Replace"    ), ""            )
-        action("mEdit/aShortcuts",                    self.tr( "Shortcuts..."),        "shortcuts.png","",           self.tr( "Edit application shortcuts..."   ), True)        
         action("mEdit/aConfigFile",                   self.tr( "Edit config file" ),   "",             "Ctrl+Alt+S", self.tr( "Edit config file"    ), True)
         
         menu  ("mView",                               self.tr( "View"                  ), ""            )
@@ -233,7 +232,6 @@ class MainWindow(pMainWindow):
         action("mHelp/aAboutQt",                      self.tr( "About &Qt..." ),          "qt.png",       "",             self.tr( "About Qt..."            ), True )
         
         self.menuBar().action( "mFile/aQuit" ).triggered.connect(self.close)
-        self.menuBar().action( "mEdit/aShortcuts" ).triggered.connect(self._onEditShortcuts)
         self.menuBar().action( "mHelp/aAboutQt" ).triggered.connect(qApp.aboutQt)
         # docks
         self.menuBar().menu( "mDocks" ).aboutToShow.connect(self._menu_Docks_aboutToShow)
@@ -339,9 +337,6 @@ class MainWindow(pMainWindow):
             return
         return super(MainWindow, self).closeEvent(event)
     
-    def _onEditShortcuts(self):
-        pActionsNodeShortcutEditor ( self.menuBar().model(), self ).exec_()
-
 """TODO restore or delete old code
     def dragEnterEvent( self, event ):
         # if correct mime and same tabbar
