@@ -24,6 +24,15 @@ class ActionManager:
     """Action manager class creates actions and manages its shortcuts
     """
     def __init__(self):
+        try:
+            self._config = ConfigObj(_CONFIG_PATH)
+        except ParseError, ex:
+            core.messageManager().appendMessage('Failed to parse configuration file %s\n'
+                                                'Error:\n'
+                                                '%s\n'
+                                                'Fix the file or delete it.' % (_CONFIG_PATH, unicode(str(ex), 'utf_8')))
+            self._config = None
+
         mbar = core.menuBar()
         self._model = mbar.model()
         self._model.rowsInserted.connect(self._onActionInserted)
@@ -36,20 +45,19 @@ class ActionManager:
             if actionNode.action():
                 self._applyShortcut(actionNode)
 
-        try:
-            self._config = ConfigObj(_CONFIG_PATH)
-        except ParseError, ex:
-            core.messageManager().appendMessage('Failed to parse configuration file %s\n'
-                                                'Error:\n'
-                                                '%s\n'
-                                                'Fix the file or delete it.' % (_CONFIG_PATH, unicode(str(ex), 'utf_8')))
-            self._config = None
-            
+
     def __term__(self):
         pass
 
     def _applyShortcut(self, actionNode):
-        print 'apply shortcut for', actionNode.path()
+        if self._config is not None:
+            path = map(str, actionNode.path().split('/'))
+            menuDict = self._config
+            for menu in path[:-1]:
+                if menu not in menuDict:
+                    return
+                menuDict = menuDict[menu]
+            actionNode.setShortcut(menuDict[path[-1]])
 
     def _onActionInserted(self, parentIndex, start, end):
         for row in range(start, end + 1):
@@ -70,7 +78,6 @@ class ActionManager:
                         menuDict[menu] = {}
                     menuDict = menuDict[menu]
                 menuDict[path[-1]] = str(actionNode.shortcut().toString())
-        print self._config
         self._config.write()
 
 
