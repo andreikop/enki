@@ -20,7 +20,7 @@ def _recursiveIndexesList(model, parentIndex = QModelIndex()):
             yield index
 
 
-class ActionManager:
+class AppShortcuts:
     """Action manager class creates actions and manages its shortcuts
     """
     def __init__(self):

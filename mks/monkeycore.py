@@ -38,7 +38,7 @@ class Core:
         self._mainWindow.statusBar().addPermanentWidget(mks.editortoolbar.EditorToolBar(self._mainWindow.statusBar()))
         
         # Create plugins
-        self._actionmanager = mks.actionmanager.ActionManager()
+        self._appShortcuts = mks.appshortcuts.AppShortcuts()
         self._searchreplace = mks.searchandreplace.SearchAndReplace()
         self._fileBrowser = mks.filebrowser.FileBrowser()
 
@@ -49,7 +49,7 @@ class Core:
         """
         del self._searchreplace
         del self._fileBrowser
-        del mks.actionmanager
+        del self._appShortcuts
         mks.resources.icons.qCleanupResources()
 
     def mainWindow(self):
@@ -93,7 +93,7 @@ import mks.config
 # Plugins
 import mks.searchandreplace
 import mks.filebrowser
-import mks.actionmanager
+import mks.appshortcuts
 
 
 """TODO restore or delete old code
