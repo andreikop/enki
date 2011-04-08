@@ -54,15 +54,12 @@ class Core:
 
     def mainWindow(self):
         """Get :class:`mks.mainwindow.MainWindow` instance 
-        
-        Instance created, if not exists yet
         """
         return self._mainWindow
 
     def menuBar(self):
         """Get main window menu bar.
-        
-        Instance created, if not exists yet
+        `Class documentation`<http://api.monkeystudio.org/fresh/classp_actions_node_menu_bar.html/>
         """
         return self._mainWindow.menuBar()
 

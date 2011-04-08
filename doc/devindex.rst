@@ -26,3 +26,9 @@ Plugin API documentation
    workspace.rst
    settings.rst
    mainwindow.rst
+
+Plugins documentation
+---------------------
+.. toctree::
+
+   appshortcuts.rst
