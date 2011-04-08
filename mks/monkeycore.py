@@ -1,7 +1,6 @@
 """
-monkeycore --- Get instances of core classes, initialize and terminate the system
-=================================================================================
-
+monkeycore --- Instances of core classes, initialize and terminate the system
+=============================================================================
 
 Module initializes system at startup, terminates it, when mksv3 closed,
 and used for get core instances, such as main window, workspace, etc.
@@ -20,7 +19,8 @@ DATA_FILES_PATH = os.path.dirname(__file__)
 
 class Core:
     """Core object initializes system at startup and terminates at close.
-    It create instances of other core modules and holds references to it
+    
+    It creates instances of other core modules and holds references to it
     """
     def init(self):
         """Initialize core.
@@ -53,32 +53,27 @@ class Core:
         mks.resources.icons.qCleanupResources()
 
     def mainWindow(self):
-        """Get :class:`mks.mainwindow.MainWindow` instance 
+        """Get :class:`mks.mainwindow.MainWindow` instance
         """
         return self._mainWindow
 
     def menuBar(self):
-        """Get main window menu bar.
-        `Class documentation`<http://api.monkeystudio.org/fresh/classp_actions_node_menu_bar.html/>
+        """Get main window `menu bar <http://api.monkeystudio.org/fresh/classp_actions_node_menu_bar.html>`_ instance
         """
         return self._mainWindow.menuBar()
 
     def workspace(self):
         """Get :class:`mks.workspace.Workspace` instance
-        
-        Instance created, if not exists yet
         """
         return self._workspace
 
     def config(self):
-        """ConfigObj istance used for read and write settings
-        ConfigObj is cool config file reader and writer. Home page and documentation:
-            http://www.voidspace.org.uk/python/configobj.html
+        """Get :class:`mks.config.Config` instance
         """
         return self._config
         
     def messageManager(self):
-        """pQueuedMessageToolBar used for show popup messages
+        """Get `queued message bar <http://api.monkeystudio.org/fresh/classp_queued_message_tool_bar.html>`_ instance
         """
         return self._mainWindow.queuedMessageToolBar()
 
