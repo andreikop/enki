@@ -22,13 +22,14 @@ Plugin API documentation
 
 .. toctree::
 
-   monkeycore.rst
-   workspace.rst
-   settings.rst
-   mainwindow.rst
+   core/core.rst
+   core/mainwindow.rst
+   core/workspace.rst
+   core/abstractdocument.rst
+   core/config.rst
 
 Plugins documentation
 ---------------------
 .. toctree::
 
-   appshortcuts.rst
+   plugins/appshortcuts.rst

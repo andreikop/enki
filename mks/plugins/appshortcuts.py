@@ -24,7 +24,7 @@ from PyQt4.fresh import pActionsNodeShortcutEditor
 
 from mks._3rdparty.configobj import ConfigObj, ParseError
 
-from mks.monkeycore import core
+from mks.core.core import core
 
 _CONFIG_PATH = os.path.expanduser('~/.mksv3.shortcuts.cfg')
 

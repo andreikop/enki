@@ -1,17 +1,18 @@
 """
 config --- Load, store and save settings
-==========================================
+========================================
 
 MkS uses ConfigObj for store settings
 
 ConfigObj is cool config file reader and writer. Home page and documentation:
 http://www.voidspace.org.uk/python/configobj.html
 
-Instance accessible as: ::
+instance is accessible as: ::
 
-    core.workspace()
+    from mks.core.core import core
+    core.config()
 
-First time created by ::class:mks.monkeycore.Core
+First time created by ::class:mks.core.core.Core
 """
 
 import shutil
@@ -21,7 +22,7 @@ import os.path
 from mks._3rdparty.configobj import ConfigObj, flatten_errors, ParseError
 from mks._3rdparty.validate import Validator
 
-from mks.monkeycore import core, DATA_FILES_PATH
+from mks.core.core import core, DATA_FILES_PATH
 
 _DEFAULT_CONFIG_PATH = os.path.join(DATA_FILES_PATH, 'config/mksv3.default.cfg')
 _DEFAULT_CONFIG_SPEC_PATH = os.path.join(DATA_FILES_PATH, 'config/mksv3.spec.cfg')
@@ -55,9 +56,10 @@ class Config(ConfigObj):
     """Settings storage
     
     Use this object as a dictionary for read and write options.
-    Example:
+    Example: ::
         font = core.config()["Editor"]["DefaultFont"]  # read option
         core.config()["Editor"]["DefaultFont"] = font  # write option
+    
     You SHOULD flush config, when writing changed settings finished.
     """
     
@@ -97,6 +99,7 @@ class Config(ConfigObj):
     
     def reload(self):
         """Reload config from the disk
+        
         TODO replace with file watcher
         """
         super(Config, self).reload()

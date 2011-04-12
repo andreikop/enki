@@ -9,7 +9,7 @@ from PyQt4 import uic
 from PyQt4.QtCore import QSize
 from PyQt4.QtGui import QDialog, QIcon, QMenu, QToolBar, QToolButton
 
-from mks.monkeycore import core, DATA_FILES_PATH
+from mks.core.core import core, DATA_FILES_PATH
 
 """AK: Idea of _EolIndicatorAndSwitcher, and icons for it was taken from juffed
 """

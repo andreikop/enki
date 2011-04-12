@@ -3,7 +3,7 @@ mainwindow --- Main window of the UI. Fills main menu.
 ======================================================
 
 
-Module contains :class:`mks.mainwindow.MainWindow` implementation
+Module contains :class:`mks.core.mainwindow.MainWindow` implementation
 """
 
 from PyQt4.QtCore import QModelIndex, QSize, Qt
@@ -11,8 +11,8 @@ from PyQt4.QtGui import qApp, QIcon, QSizePolicy, QVBoxLayout, QWidget
 
 from PyQt4.fresh import pDockWidget, pMainWindow, pActionsNodeModel
 
-from mks.monkeycore import core
-import mks.workspace
+from mks.core.core import core
+import mks.core.workspace
 
 class MainWindow(pMainWindow):
     """
@@ -20,13 +20,15 @@ class MainWindow(pMainWindow):
     
     Class creates window elements, fills main menu with items.
     
-    If you need to connect to some existing menu item *triggered()* signal - check action name 
-    in the class constructor, than use: ::
+    If you need to access to some existing menu items - check action path 
+    in the class constructor, than use next code: ::
         
+        core.menuBar().action( "mFile/aOpen" ).setEnabled(True)
         core.menuBar().action( "mFile/aOpen" ).triggered.connect(self.myCoolMethod)
     
-    MainWindow instance accessible as ::
+    MainWindow instance is accessible as: ::
     
+        from mks.core.core import core
         core.mainwindow()
     
     Created by monkeycore
@@ -300,7 +302,7 @@ class MainWindow(pMainWindow):
     def defaultTitle(self):
         """Default title. Contains MkS name and version
         """
-        return "%s v.%s" % (mks.defines.PACKAGE_NAME, mks.defines.PACKAGE_VERSION)
+        return "%s v.%s" % (mks.core.defines.PACKAGE_NAME, mks.core.defines.PACKAGE_VERSION)
     
     def _menu_Docks_aboutToShow(self):
         """Fill docs menu with currently existing docs
