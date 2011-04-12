@@ -15,7 +15,7 @@ from PyQt4.QtGui import QAction, QDialogButtonBox, QFileDialog, QFrame, QFileSys
 from PyQt4.fresh import pDockWidget
 from PyQt4.fresh import pStringListEditor
 
-from mks.monkeycore import core
+from mks.core.core import core
 
 """
     def fillPluginInfos(self):

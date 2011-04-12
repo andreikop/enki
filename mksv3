@@ -6,7 +6,7 @@ Main file processes command line arguments and starts the system.
 import sys
 import os.path
 
-import mks.defines
+import mks.core.defines
 
 helpString = \
 """
@@ -25,9 +25,9 @@ def showHelp():
     
 
 def showVersion():
-    print "%s version %s" % (mks.defines.PACKAGE_NAME, mks.defines.PACKAGE_VERSION)
-    print mks.defines.PACKAGE_COPYRIGHTS
-    print "http://%s" % mks.defines.PACKAGE_DOMAIN
+    print "%s version %s" % (mks.core.defines.PACKAGE_NAME, mks.core.defines.PACKAGE_VERSION)
+    print mks.core.defines.PACKAGE_COPYRIGHTS
+    print "http://%s" % mks.core.defines.PACKAGE_DOMAIN
 
 def main():
     if '-v' in sys.argv or '--version' in sys.argv:
@@ -71,12 +71,11 @@ def main():
         return -1
     
     # Imports only here. Hack for ability to get help and version info even on system without PyQt and Fresh.
-    import mks.defines
-    from mks.monkeycore import core
+    from mks.core.core import core
     
-    app.setApplicationName( mks.defines.PACKAGE_NAME );
-    app.setOrganizationName( mks.defines.PACKAGE_ORGANISATION );
-    app.setOrganizationDomain( mks.defines.PACKAGE_DOMAIN );
+    app.setApplicationName( mks.core.defines.PACKAGE_NAME );
+    app.setOrganizationName( mks.core.defines.PACKAGE_ORGANISATION );
+    app.setOrganizationDomain( mks.core.defines.PACKAGE_DOMAIN );
     
     app.lastWindowClosed.connect(app.quit)
         

@@ -19,7 +19,7 @@ from PyQt4.QtGui import QAction, QCompleter, QColor, QDirModel, QFileDialog,  \
                         QProgressBar, QToolButton, QTreeView, QWidget
 from PyQt4.fresh import pDockWidget
 
-from mks.monkeycore import core, DATA_FILES_PATH
+from mks.core.core import core, DATA_FILES_PATH
 
 def isBinary(fileObject):
     """Expects, that file position is 0, when exits, file position is 0

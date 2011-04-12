@@ -9,8 +9,8 @@ from PyQt4.QtGui import QColor, QFont, QFrame, QIcon, QKeyEvent, QVBoxLayout
 
 from PyQt4.Qsci import *
 
-import mks.abstractdocument
-from mks.monkeycore import core
+import mks.core.abstractdocument
+from mks.core.core import core
 
 
 class _QsciScintilla(QsciScintilla):
@@ -28,7 +28,7 @@ class _QsciScintilla(QsciScintilla):
             super(_QsciScintilla, self).keyPressEvent(event)
 
 
-class Editor(mks.abstractdocument.AbstractDocument):
+class Editor(mks.core.abstractdocument.AbstractDocument):
     """Text editor widget. Uses QScintilla internally
     """
     _lexerForLanguage = {
