@@ -1,4 +1,9 @@
-"""Text editor widget. Uses QScintilla internally"""
+"""
+editor --- Text editor. Uses QScintilla internally
+==================================================
+
+This text editor is used by default
+"""
 
 import os.path
 import shutil
@@ -14,7 +19,8 @@ from mks.core.core import core
 
 
 class _QsciScintilla(QsciScintilla):
-    """Class created only for filter Shift+Tab events.
+    """QsciScintilla wrapper class created only for filter Shift+Tab events.
+    
     When Shift+Tab pressed - Qt moves focus, but it is not desired behaviour
     """    
     def keyPressEvent(self, event):
@@ -29,7 +35,9 @@ class _QsciScintilla(QsciScintilla):
 
 
 class Editor(mks.core.abstractdocument.AbstractDocument):
-    """Text editor widget. Uses QScintilla internally
+    """Text editor widget.
+    
+    Uses QScintilla internally
     """
     _lexerForLanguage = {
         "Bash"          : QsciLexerBash,

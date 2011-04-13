@@ -1,6 +1,6 @@
 """
-monkeycore --- Instances of core classes, initialize and terminate the system
-=============================================================================
+core --- Instances of core classes, initialize and terminate the system
+=======================================================================
 
 Module initializes system at startup, terminates it, when mksv3 closed,
 and used for get core instances, such as main window, workspace, etc.
@@ -40,7 +40,7 @@ class Core:
         
         # Create plugins
         self._appShortcuts = mks.plugins.appshortcuts.AppShortcuts()
-        self._searchreplace = mks.plugins.searchandreplace.SearchAndReplace()
+        self._searchreplace = mks.plugins.searchreplace.searchreplace()
         self._fileBrowser = mks.plugins.filebrowser.FileBrowser()
 
     def term(self):
@@ -84,7 +84,7 @@ import mks.core.config
 # Plugins
 import mks.plugins.editor
 import mks.plugins.editortoolbar
-import mks.plugins.searchandreplace
+import mks.plugins.searchreplace
 import mks.plugins.filebrowser
 import mks.plugins.appshortcuts
 

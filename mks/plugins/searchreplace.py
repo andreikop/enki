@@ -1,4 +1,8 @@
-"""Search and Replace plugin. S&R GUI and implementation
+"""
+searchreplace --- Search and replace functionality
+==================================================
+
+Contains search dialog and search/replace in file/directory functionality
 """
 
 import os.path
@@ -29,7 +33,7 @@ def isBinary(fileObject):
     return binary
 
 
-class SearchAndReplace(QObject):  # TODO (Plugin) ?
+class SearchReplace(QObject):  # TODO (Plugin) ?
     """Main class of the plugin. Installs and uninstalls plugin to the system
     """
     ModeFlagSearch = 0x1
@@ -134,14 +138,14 @@ class SearchAndReplace(QObject):  # TODO (Plugin) ?
         
         newMode = self.sender().data().toInt()[0]
         # TODO if  ( document and document.editor() ) or not document :
-        if newMode & SearchAndReplace.ModeFlagFile:
+        if newMode & SearchReplace.ModeFlagFile:
             # TODO check if editor is a QScintilla
             self.widget.setMode(newMode)
-        elif newMode & SearchAndReplace.ModeFlagDirectory:
+        elif newMode & SearchReplace.ModeFlagDirectory:
             self.widget.setMode(newMode)
-        elif newMode & SearchAndReplace.ModeFlagProjectFiles:  # TODO
+        elif newMode & SearchReplace.ModeFlagProjectFiles:  # TODO
             pass
-        elif newMode & SearchAndReplace.ModeFlagOpenedFiles:
+        elif newMode & SearchReplace.ModeFlagOpenedFiles:
             # TODO check if have file based document
             if core.workspace().openedDocuments():
                 self.widget.setMode(newMode)
@@ -192,14 +196,14 @@ class SearchContext:
         flags = 0
         
         # if not reg exp
-        if not self.options & SearchAndReplace.OptionRegularExpression:
+        if not self.options & SearchReplace.OptionRegularExpression:
             pattern = re.escape( pattern )
         
-        if self.options & SearchAndReplace.OptionWholeWord:  # whole word
+        if self.options & SearchReplace.OptionWholeWord:  # whole word
             pattern = "\\b" + pattern + "\\b"
         
         # if not case sensetive
-        if not self.options & SearchAndReplace.OptionCaseSensitive:
+        if not self.options & SearchReplace.OptionCaseSensitive:
             flags = re.IGNORECASE
         
         return re.compile(pattern, flags)
@@ -272,22 +276,22 @@ class SearchWidget(QFrame):
         action = QAction( self.cbCaseSensitive )
         action.setCheckable( True )
         self.cbCaseSensitive.toggled.connect(action.setChecked)
-        self.mModeActions[ SearchAndReplace.OptionCaseSensitive ] = action
+        self.mModeActions[ SearchReplace.OptionCaseSensitive ] = action
         
         action = QAction( self.cbWholeWord )
         action.setCheckable( True )
         self.cbWholeWord.toggled.connect(action.setChecked)
-        self.mModeActions[ SearchAndReplace.OptionWholeWord ] = action
+        self.mModeActions[ SearchReplace.OptionWholeWord ] = action
         
         action = QAction( self.cbWrap )
         action.setCheckable( True )
         self.cbWrap.toggled.connect(action.setChecked)
-        self.mModeActions[ SearchAndReplace.OptionWrap ] = action
+        self.mModeActions[ SearchReplace.OptionWrap ] = action
         
         action = QAction( self.cbRegularExpression )
         action.setCheckable( True )
         self.cbRegularExpression.toggled.connect(action.setChecked)
-        self.mModeActions[ SearchAndReplace.OptionRegularExpression ] = action
+        self.mModeActions[ SearchReplace.OptionRegularExpression ] = action
         
         # init default options
         self.cbWrap.setChecked( True )
@@ -386,7 +390,7 @@ class SearchWidget(QFrame):
         currentDocumentOnly = False
         
         # clear search results if needed.
-        if mode & SearchAndReplace.ModeFlagFile:
+        if mode & SearchReplace.ModeFlagFile:
             currentDocumentOnly = True
         else:
             currentDocumentOnly = False
@@ -396,7 +400,7 @@ class SearchWidget(QFrame):
         
         self.initializeSearchContext( currentDocumentOnly )
         """TODO
-        if self.mMode & SearchAndReplace.ModeFlagProjectFiles :
+        if self.mMode & SearchReplace.ModeFlagProjectFiles :
             if  self.mSearchContext.project :
                 encoding = self.mSearchContext.project.temporaryValue(
                 "encoding", mks.monkeystudio.defaultCodec() ).toString()
@@ -414,13 +418,13 @@ class SearchWidget(QFrame):
         else:
             searchText = ''
         
-        self.setVisible( mode != SearchAndReplace.ModeNo )
+        self.setVisible( mode != SearchReplace.ModeNo )
 
         if searchText:
             self.cbSearch.setEditText( searchText )
             self.cbReplace.setEditText( searchText )
             
-        if  mode & SearchAndReplace.ModeFlagDirectory :
+        if  mode & SearchReplace.ModeFlagDirectory :
             self.cbPath.setEditText( searchPath )
 
         self.cbSearch.setFocus()
@@ -431,16 +435,16 @@ class SearchWidget(QFrame):
         widgets = (self.wSearch, self.pbPrevious, self.pbNext, self.pbSearch, self.wReplace, self.wPath, \
                    self.pbReplace, self.pbReplaceAll, self.pbReplaceChecked, self.wOptions, self.wMask, self.wEncoding,)
         #                                                       wSear  pbPrev pbNext pbSear wRepl  wPath  pbRep  pbRAll pbRCHK wOpti wMask wEncoding
-        visible = {SearchAndReplace.ModeNo     :             (    0,     0,     0,     0,     0,     0,     0,     0,     0,    0,    0,    0,),
-                   SearchAndReplace.ModeSearch :             (    1,     1,     1,     0,     0,     0,     0,     1,     1,    1,    0,    0,),
-                   SearchAndReplace.ModeReplace:             (    1,     1,     1,     0,     1,     0,     1,     1,     0,    1,    0,    0,),
-                   SearchAndReplace.ModeSearchDirectory:     (    1,     0,     0,     1,     0,     1,     0,     0,     0,    1,    1,    1,),
-                   SearchAndReplace.ModeReplaceDirectory:    (    1,     0,     0,     1,     1,     1,     0,     0,     1,    1,    1,    1,),
-                   SearchAndReplace.ModeSearchProjectFiles:  (    1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,    1,),
-                   SearchAndReplace.ModeSearchProjectFiles:  (    1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,    1,),
-                   SearchAndReplace.ModeReplaceProjectFiles: (    1,     0,     0,     1,     1,     0,     0,     0,     1,    1,    1,    1,),
-                   SearchAndReplace.ModeSearchOpenedFiles:   (    1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,    0,),
-                   SearchAndReplace.ModeReplaceOpenedFiles:  (    1,     0,     0,     1,     1,     0,     0,     0,     1,    1,    1,    0,)}
+        visible = {SearchReplace.ModeNo     :             (    0,     0,     0,     0,     0,     0,     0,     0,     0,    0,    0,    0,),
+                   SearchReplace.ModeSearch :             (    1,     1,     1,     0,     0,     0,     0,     1,     1,    1,    0,    0,),
+                   SearchReplace.ModeReplace:             (    1,     1,     1,     0,     1,     0,     1,     1,     0,    1,    0,    0,),
+                   SearchReplace.ModeSearchDirectory:     (    1,     0,     0,     1,     0,     1,     0,     0,     0,    1,    1,    1,),
+                   SearchReplace.ModeReplaceDirectory:    (    1,     0,     0,     1,     1,     1,     0,     0,     1,    1,    1,    1,),
+                   SearchReplace.ModeSearchProjectFiles:  (    1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,    1,),
+                   SearchReplace.ModeSearchProjectFiles:  (    1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,    1,),
+                   SearchReplace.ModeReplaceProjectFiles: (    1,     0,     0,     1,     1,     0,     0,     0,     1,    1,    1,    1,),
+                   SearchReplace.ModeSearchOpenedFiles:   (    1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,    0,),
+                   SearchReplace.ModeReplaceOpenedFiles:  (    1,     0,     0,     1,     1,     0,     0,     0,     1,    1,    1,    0,)}
         
         for i, widget in enumerate(widgets):
             widget.setVisible(visible[mode][i])
@@ -480,21 +484,21 @@ class SearchWidget(QFrame):
                 core.workspace().focusCurrentDocument()
                 self.hide()
             elif event.key() in (Qt.Key_Enter, Qt.Key_Return):
-                if self.mMode == SearchAndReplace.ModeNo:
+                if self.mMode == SearchReplace.ModeNo:
                     pass
-                elif self.mMode == SearchAndReplace.ModeSearch:
+                elif self.mMode == SearchReplace.ModeSearch:
                     self.pbNext.click()
-                elif self.mMode in (SearchAndReplace.ModeSearchDirectory, \
-                                    SearchAndReplace.ModeSearchProjectFiles, \
-                                    SearchAndReplace.ModeSearchOpenedFiles, \
-                                    SearchAndReplace.ModeReplaceDirectory, \
-                                    SearchAndReplace.ModeReplaceProjectFiles, \
-                                    SearchAndReplace.ModeReplaceOpenedFiles):
+                elif self.mMode in (SearchReplace.ModeSearchDirectory, \
+                                    SearchReplace.ModeSearchProjectFiles, \
+                                    SearchReplace.ModeSearchOpenedFiles, \
+                                    SearchReplace.ModeReplaceDirectory, \
+                                    SearchReplace.ModeReplaceProjectFiles, \
+                                    SearchReplace.ModeReplaceOpenedFiles):
                     if not self.mSearchThread.isRunning():
                         self.pbSearch.click()
                     else:
                         self.pbSearchStop.click()
-                elif self.mMode == SearchAndReplace.ModeReplace:
+                elif self.mMode == SearchReplace.ModeReplace:
                     self.pbReplace.click()
 
         QFrame.keyPressEvent( self, event )
@@ -652,10 +656,10 @@ class SearchWidget(QFrame):
             return False
 
         # get cursor position
-        isRE = self.mSearchContext.options & SearchAndReplace.OptionRegularExpression
-        isCS = self.mSearchContext.options & SearchAndReplace.OptionCaseSensitive
-        isWW = self.mSearchContext.options & SearchAndReplace.OptionWholeWord
-        isWrap = self.mSearchContext.options & SearchAndReplace.OptionWrap
+        isRE = self.mSearchContext.options & SearchReplace.OptionRegularExpression
+        isCS = self.mSearchContext.options & SearchReplace.OptionCaseSensitive
+        isWW = self.mSearchContext.options & SearchReplace.OptionWholeWord
+        isWrap = self.mSearchContext.options & SearchReplace.OptionWrap
         
         if  forward :
             if  incremental :
@@ -695,13 +699,13 @@ class SearchWidget(QFrame):
         count = 0
         
         if  replaceAll:
-            isWrap = self.mSearchContext.options & SearchAndReplace.OptionWrap
+            isWrap = self.mSearchContext.options & SearchReplace.OptionWrap
             col, line = editor.getCursorPosition()
 
             if  isWrap :
                 # don't need to give wrap parameter for search as we start at begin of document
                 editor.setCursorPosition( 0, 0 )
-                self.mSearchContext.options &= ~SearchAndReplace.OptionWrap
+                self.mSearchContext.options &= ~SearchReplace.OptionWrap
 
             editor.beginUndoAction()
             
@@ -715,7 +719,7 @@ class SearchWidget(QFrame):
             
             # restore wrap property if needed
             if  isWrap :
-                self.mSearchContext.options |= SearchAndReplace.OptionWrap
+                self.mSearchContext.options |= SearchReplace.OptionWrap
         else:
             line, col, temp, temp = editor.getSelection()
             editor.setCursorPosition( line, col )
@@ -788,9 +792,9 @@ class SearchWidget(QFrame):
         self.initializeSearchContext( True )
             
         # clear search results if needed.
-        if self.mMode == SearchAndReplace.ModeSearch:
+        if self.mMode == SearchReplace.ModeSearch:
             self.searchFile( True, True )
-        elif self.mMode == SearchAndReplace.ModeReplace:
+        elif self.mMode == SearchReplace.ModeReplace:
             self.mSearchThread.clear()
 
     def cdUp_pressed(self):
@@ -825,7 +829,7 @@ class SearchWidget(QFrame):
         assert self.mSearchContext.searchText
         
         """TODO
-        if  self.mSearchContext.mMode & SearchAndReplace.ModeFlagProjectFiles and not self.mSearchContext.project :
+        if  self.mSearchContext.mMode & SearchReplace.ModeFlagProjectFiles and not self.mSearchContext.project :
             core.messageManager().appendMessage( \
                                 self.tr( "You can't search in project files because there is no opened projet." ) )
             return
@@ -861,7 +865,7 @@ class SearchWidget(QFrame):
         self.updateComboBoxes()
         self.initializeSearchContext( False )
         """TODO
-        if  self.mSearchContext.mode & SearchAndReplace.ModeFlagProjectFiles and not self.mSearchContext.project :
+        if  self.mSearchContext.mode & SearchReplace.ModeFlagProjectFiles and not self.mSearchContext.project :
             core.messageManager().appendMessage(
                                     self.tr( "You can't replace in project files because there is no opened projet." ) )
             return
@@ -1049,7 +1053,7 @@ class SearchResultsModel(QAbstractItemModel):
         flags = QAbstractItemModel.flags( self, index )
         properties = self.mSearchThread.mSearchContext
 
-        if properties.mode & SearchAndReplace.ModeFlagReplace :
+        if properties.mode & SearchReplace.ModeFlagReplace :
             flags |= Qt.ItemIsUserCheckable
         
         if isinstance(index.internalPointer(), SearchResultsModel.Result):
@@ -1286,7 +1290,7 @@ class SearchThread(StopableThread):
         files = set()
 
         """
-        elif mode in (SearchAndReplace.ModeSearchProjectFiles, SearchAndReplace.ModeReplaceProjectFiles):
+        elif mode in (SearchReplace.ModeSearchProjectFiles, SearchReplace.ModeReplaceProjectFiles):
             sources = self.mSearchContext.sourcesFiles
             mask = self.mSearchContext.mask
 
@@ -1303,11 +1307,11 @@ class SearchThread(StopableThread):
         else:
             maskRegExp = None
 
-        if self.mSearchContext.mode in (SearchAndReplace.ModeSearchDirectory, SearchAndReplace.ModeReplaceDirectory):
+        if self.mSearchContext.mode in (SearchReplace.ModeSearchDirectory, SearchReplace.ModeReplaceDirectory):
             path = self.mSearchContext.searchPath
             return self._getFiles(path, maskRegExp)
         elif self.mSearchContext.mode in \
-                                (SearchAndReplace.ModeSearchOpenedFiles, SearchAndReplace.ModeReplaceOpenedFiles):
+                                (SearchReplace.ModeSearchOpenedFiles, SearchReplace.ModeReplaceOpenedFiles):
             files = self.mSearchContext.openedFiles.keys()
             if maskRegExp:
                 files = filter(maskRegExp.match, map(os.path.basename, files))
@@ -1480,7 +1484,7 @@ class ReplaceThread(StopableThread):
             for result in self.mResults[ fileName ][::-1]:
                 replaceText = self.mSearchContext.replaceText
                 # replace \number with groups
-                if self.mSearchContext.options & SearchAndReplace.OptionRegularExpression:
+                if self.mSearchContext.options & SearchReplace.OptionRegularExpression:
                     replaceText = self.mSearchContext.replaceText
                     pos = 0
                     match = subMatchRex.search(replaceText)
