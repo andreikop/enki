@@ -1,0 +1,132 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>appshortcuts — Manage application shortcuts &mdash; mksv3 v3.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="mksv3 v3.0.0 documentation" href="../index.html" />
+    <link rel="up" title="Developer documentation" href="../devindex.html" />
+    <link rel="next" title="editor — Text editor. Uses QScintilla internally" href="editor.html" />
+    <link rel="prev" title="config — Load and save settings" href="../core/config.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="editor.html" title="editor — Text editor. Uses QScintilla internally"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../core/config.html" title="config — Load and save settings"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">mksv3 v3.0.0 documentation</a> &raquo;</li>
+          <li><a href="../devindex.html" accesskey="U">Developer documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-mks.plugins.appshortcuts"></span><div class="section" id="appshortcuts-manage-application-shortcuts">
+<h1>appshortcuts &#8212; Manage application shortcuts<a class="headerlink" href="#appshortcuts-manage-application-shortcuts" title="Permalink to this headline">¶</a></h1>
+<p>Application shortcuts module transparently manages QAction shortcuts.</p>
+<p>Here is example of global action creation:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">action</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">menuBar</span><span class="p">()</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s">&quot;mEdit/aShortcuts&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tr</span><span class="p">(</span> <span class="s">&quot;Shortcuts...&quot;</span><span class="p">),</span>  <span class="n">QIcon</span><span class="p">(</span><span class="s">&#39;:/mksicons/shortcuts.png&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>This code adds <em>Shortcuts...</em> action to <em>Edit</em> menu.</p>
+<p>After action has been crated, Application shortcuts module will change its shortcut from default to defined by user 
+(if defined).</p>
+<p>Module also <strong>loads and saves</strong> shortcuts configuration to file and provides <strong>shortcuts editor dialog</strong>.</p>
+<dl class="class">
+<dt id="mks.plugins.appshortcuts.AppShortcuts">
+<em class="property">class </em><tt class="descclassname">mks.plugins.appshortcuts.</tt><tt class="descname">AppShortcuts</tt><a class="headerlink" href="#mks.plugins.appshortcuts.AppShortcuts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Module implementation</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../core/config.html"
+                        title="previous chapter">config &#8212; Load and save settings</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="editor.html"
+                        title="next chapter">editor &#8212; Text editor. Uses QScintilla internally</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/plugins/appshortcuts.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="editor.html" title="editor — Text editor. Uses QScintilla internally"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../core/config.html" title="config — Load and save settings"
+             >previous</a> |</li>
+        <li><a href="../index.html">mksv3 v3.0.0 documentation</a> &raquo;</li>
+          <li><a href="../devindex.html" >Developer documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Andrei Kopats, Filipe Azevedo.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+    </div>
+  </body>
+</html>

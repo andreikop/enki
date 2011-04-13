@@ -10,8 +10,8 @@ Core
 
 Plugin
 
-* provides additional useful functionality for user. Example - File Manager plugin
-* extends core functionality (adds additional patterns for parse console output to the console manager in the core
+* provides additional useful functionality for user. Example - File Browser
+* extends core functionality
 * provides some API for other plugins. NOT DESIRED. It's better to try to avoid plugin to plugin dependencies
 
 Main difference of core and plugins - plugin definitely knows about core API, architecture, functionality, but
@@ -22,7 +22,18 @@ Plugin API documentation
 
 .. toctree::
 
-   monkeycore.rst
-   workspace.rst
-   settings.rst
-   mainwindow.rst
+   core/core.rst
+   core/mainwindow.rst
+   core/workspace.rst
+   core/abstractdocument.rst
+   core/config.rst
+
+Plugins documentation
+---------------------
+.. toctree::
+
+   plugins/appshortcuts.rst
+   plugins/editor.rst
+   plugins/editortoolbar.rst
+   plugins/filebrowser.rst
+   plugins/searchreplace.rst

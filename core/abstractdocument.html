@@ -1,0 +1,276 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>abstractdocument — Base class for workspace documents &mdash; mksv3 v3.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="mksv3 v3.0.0 documentation" href="../index.html" />
+    <link rel="up" title="Developer documentation" href="../devindex.html" />
+    <link rel="next" title="config — Load and save settings" href="config.html" />
+    <link rel="prev" title="workspace — Open documents and manage it" href="workspace.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="config.html" title="config — Load and save settings"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="workspace.html" title="workspace — Open documents and manage it"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">mksv3 v3.0.0 documentation</a> &raquo;</li>
+          <li><a href="../devindex.html" accesskey="U">Developer documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-mks.core.abstractdocument"></span><div class="section" id="abstractdocument-base-class-for-workspace-documents">
+<h1>abstractdocument &#8212; Base class for workspace documents<a class="headerlink" href="#abstractdocument-base-class-for-workspace-documents" title="Permalink to this headline">¶</a></h1>
+<p>This class is inherited by textual editor, and must be inherited by other workspace widgets.</p>
+<p><tt class="xref py py-class docutils literal"><span class="pre">mks.core.workspace.AbstractDocument</span></tt>  - base class of workspace documents</p>
+<dl class="class">
+<dt id="mks.core.abstractdocument.AbstractDocument">
+<em class="property">class </em><tt class="descclassname">mks.core.abstractdocument.</tt><tt class="descname">AbstractDocument</tt><big>(</big><em>parentObject</em>, <em>filePath</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QWidget</span></tt></p>
+<p>Base class for documents on workspace, such as opened source file, Qt Designer and Qt Assistant, ...
+Inherit this class, if you want to create new document type</p>
+<p>This class may requre redesign, if we need to add support for non-textual or non-unicode editor.
+DO redesign instead of doing dirty hacks</p>
+<dl class="attribute">
+<dt id="mks.core.abstractdocument.AbstractDocument.modifiedChanged">
+<tt class="descname">modifiedChanged</tt><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.modifiedChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>modifiedChanged(modified)</p>
+<p><strong>Signal</strong> emitted, when modified state changed (file edited, or saved)
+Bool parameter contains new value</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mks.core.abstractdocument.AbstractDocument.cursorPositionChanged">
+<tt class="descname">cursorPositionChanged</tt><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.cursorPositionChanged" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.isExternallyRemoved">
+<tt class="descname">isExternallyRemoved</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.isExternallyRemoved" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if document&#8217;s file has been deleted externally.
+This method DOES NOT do any file system access, but only returns cached info</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.isExternallyModified">
+<tt class="descname">isExternallyModified</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.isExternallyModified" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if document&#8217;s file has been modified externally.
+This method DOES NOT do any file system access, but only returns cached info</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.eolMode">
+<tt class="descname">eolMode</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.eolMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return document&#8217;s EOL mode. Possible values are:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">\n</span></tt>  - UNIX EOL</li>
+<li><tt class="docutils literal"><span class="pre">\r\n</span></tt> - Windows EOL</li>
+<li><tt class="xref docutils literal"><span class="pre">None</span></tt> - not defined for the editor type</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.setEolMode">
+<tt class="descname">setEolMode</tt><big>(</big><em>mode</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.setEolMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set editor EOL mode.
+See eolMode() for a alowed mode values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.indentWidth">
+<tt class="descname">indentWidth</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.indentWidth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get width of tabulation symbol and count of spaces to insert, when Tab pressed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.setIndentWidth">
+<tt class="descname">setIndentWidth</tt><big>(</big><em>width</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.setIndentWidth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set width of tabulation symbol and count of spaces to insert, when Tab pressed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.indentUseTabs">
+<tt class="descname">indentUseTabs</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.indentUseTabs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get indentation uses tabs flag.
+If true -        inserted by Tab button, if false - spaces</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.setIndentUseTabs">
+<tt class="descname">setIndentUseTabs</tt><big>(</big><em>use</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.setIndentUseTabs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set indentation uses tabs flag.
+If true -        inserted by Tab button, if false - spaces</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.filePath">
+<tt class="descname">filePath</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.filePath" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the document file path</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.fileName">
+<tt class="descname">fileName</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.fileName" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the document file name</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.cursorPosition">
+<tt class="descname">cursorPosition</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.cursorPosition" title="Permalink to this definition">¶</a></dt>
+<dd><p>return cursor position as 2 values: line and column, if available</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.isModified">
+<tt class="descname">isModified</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.isModified" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True, if file is modified</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.invokeGoTo">
+<tt class="descname">invokeGoTo</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.invokeGoTo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show GUI dialog, go to line, if user accepted it</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.goTo">
+<tt class="descname">goTo</tt><big>(</big><em>line</em>, <em>column</em>, <em>selectionLength=-1</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.goTo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Go to specified line and column.
+If selectionLength is not -1, select selectionLength characters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.saveFile">
+<tt class="descname">saveFile</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.saveFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the file to file system</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.text">
+<tt class="descname">text</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contents of the editor.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.setText">
+<tt class="descname">setText</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.setText" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set contents in the editor.
+Usually this method is called only internally by openFile()</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.reload">
+<tt class="descname">reload</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.reload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reload the file from the disk</p>
+<p>If child class reimplemented this method, it MUST call method of the parent class
+for update internal bookkeeping</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.modelToolTip">
+<tt class="descname">modelToolTip</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.modelToolTip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tool tip for the opened files model</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.modelIcon">
+<tt class="descname">modelIcon</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.modelIcon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Icon for the opened files model</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="workspace.html"
+                        title="previous chapter">workspace &#8212; Open documents and manage it</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="config.html"
+                        title="next chapter">config &#8212; Load and save settings</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/core/abstractdocument.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="config.html" title="config — Load and save settings"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="workspace.html" title="workspace — Open documents and manage it"
+             >previous</a> |</li>
+        <li><a href="../index.html">mksv3 v3.0.0 documentation</a> &raquo;</li>
+          <li><a href="../devindex.html" >Developer documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Andrei Kopats, Filipe Azevedo.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+    </div>
+  </body>
+</html>

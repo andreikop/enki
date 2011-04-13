@@ -1,8 +1,4 @@
 
-<<<<<<< HEAD
-=======
-
->>>>>>> a38e4d3c473444a6718109986f9e7d139c56b2ba
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -11,11 +7,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
     <title>Developer documentation &mdash; mksv3 v3.0.0 documentation</title>
-<<<<<<< HEAD
     <link rel="stylesheet" href="static/nature.css" type="text/css" />
-=======
-    <link rel="stylesheet" href="static/default.css" type="text/css" />
->>>>>>> a38e4d3c473444a6718109986f9e7d139c56b2ba
     <link rel="stylesheet" href="static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -30,7 +22,7 @@
     <script type="text/javascript" src="static/underscore.js"></script>
     <script type="text/javascript" src="static/doctools.js"></script>
     <link rel="top" title="mksv3 v3.0.0 documentation" href="index.html" />
-    <link rel="next" title="monkeycore — Get instances of core classes, initialize and terminate the system" href="monkeycore.html" />
+    <link rel="next" title="core — Instances of core classes, initialize and terminate the system" href="core/core.html" />
     <link rel="prev" title="User manual" href="userindex.html" /> 
   </head>
   <body>
@@ -44,7 +36,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="monkeycore.html" title="monkeycore — Get instances of core classes, initialize and terminate the system"
+          <a href="core/core.html" title="core — Instances of core classes, initialize and terminate the system"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="userindex.html" title="User manual"
@@ -69,8 +61,8 @@
 </ul>
 <p>Plugin</p>
 <ul class="simple">
-<li>provides additional useful functionality for user. Example - File Manager plugin</li>
-<li>extends core functionality (adds additional patterns for parse console output to the console manager in the core</li>
+<li>provides additional useful functionality for user. Example - File Browser</li>
+<li>extends core functionality</li>
 <li>provides some API for other plugins. NOT DESIRED. It&#8217;s better to try to avoid plugin to plugin dependencies</li>
 </ul>
 <p>Main difference of core and plugins - plugin definitely knows about core API, architecture, functionality, but
@@ -79,10 +71,23 @@ core must not know anything about a plugin.</p>
 <h2>Plugin API documentation<a class="headerlink" href="#plugin-api-documentation" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="monkeycore.html">monkeycore &#8212; Get instances of core classes, initialize and terminate the system</a></li>
-<li class="toctree-l1"><a class="reference internal" href="workspace.html">workspace &#8212; Open documents and manage it</a></li>
-<li class="toctree-l1"><a class="reference internal" href="settings.html">settings &#8212; Set and get settings from config files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mainwindow.html">mainwindow &#8212; Main window of the UI. Fills main menu.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/core.html">core &#8212; Instances of core classes, initialize and terminate the system</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/mainwindow.html">mainwindow &#8212; Main window of the UI. Fills main menu.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/workspace.html">workspace &#8212; Open documents and manage it</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/abstractdocument.html">abstractdocument &#8212; Base class for workspace documents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/config.html">config &#8212; Load and save settings</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="plugins-documentation">
+<h2>Plugins documentation<a class="headerlink" href="#plugins-documentation" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="plugins/appshortcuts.html">appshortcuts &#8212; Manage application shortcuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins/editor.html">editor &#8212; Text editor. Uses QScintilla internally</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins/editortoolbar.html">editortoolbar &#8212; Shows position, save state, EOL and indent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins/filebrowser.html">filebrowser &#8212; Dock with file system tree</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins/searchreplace.html">searchreplace &#8212; Search and replace functionality</a></li>
 </ul>
 </div>
 </div>
@@ -100,6 +105,9 @@ core must not know anything about a plugin.</p>
 <li><a class="reference internal" href="#plugin-api-documentation">Plugin API documentation</a><ul>
 </ul>
 </li>
+<li><a class="reference internal" href="#plugins-documentation">Plugins documentation</a><ul>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -108,8 +116,8 @@ core must not know anything about a plugin.</p>
   <p class="topless"><a href="userindex.html"
                         title="previous chapter">User manual</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="monkeycore.html"
-                        title="next chapter">monkeycore &#8212; Get instances of core classes, initialize and terminate the system</a></p>
+  <p class="topless"><a href="core/core.html"
+                        title="next chapter">core &#8212; Instances of core classes, initialize and terminate the system</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="sources/devindex.txt"
@@ -142,7 +150,7 @@ core must not know anything about a plugin.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="monkeycore.html" title="monkeycore — Get instances of core classes, initialize and terminate the system"
+          <a href="core/core.html" title="core — Instances of core classes, initialize and terminate the system"
              >next</a> |</li>
         <li class="right" >
           <a href="userindex.html" title="User manual"
@@ -152,11 +160,7 @@ core must not know anything about a plugin.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Andrei Kopats, Filipe Azevedo.
-<<<<<<< HEAD
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
-=======
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
->>>>>>> a38e4d3c473444a6718109986f9e7d139c56b2ba
     </div>
   </body>
 </html>

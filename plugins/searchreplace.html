@@ -1,0 +1,582 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>searchreplace — Search and replace functionality &mdash; mksv3 v3.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '3.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="mksv3 v3.0.0 documentation" href="../index.html" />
+    <link rel="up" title="Developer documentation" href="../devindex.html" />
+    <link rel="prev" title="filebrowser — Dock with file system tree" href="filebrowser.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="filebrowser.html" title="filebrowser — Dock with file system tree"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">mksv3 v3.0.0 documentation</a> &raquo;</li>
+          <li><a href="../devindex.html" accesskey="U">Developer documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-mks.plugins.searchreplace"></span><div class="section" id="searchreplace-search-and-replace-functionality">
+<h1>searchreplace &#8212; Search and replace functionality<a class="headerlink" href="#searchreplace-search-and-replace-functionality" title="Permalink to this headline">¶</a></h1>
+<p>Contains search dialog and search/replace in file/directory functionality</p>
+<dl class="function">
+<dt id="mks.plugins.searchreplace.isBinary">
+<tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">isBinary</tt><big>(</big><em>fileObject</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.isBinary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expects, that file position is 0, when exits, file position is 0</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.plugins.searchreplace.SearchReplace">
+<em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">SearchReplace</tt><a class="headerlink" href="#mks.plugins.searchreplace.SearchReplace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtCore.QObject</span></tt></p>
+<p>Main class of the plugin. Installs and uninstalls plugin to the system</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.plugins.searchreplace.SearchContext">
+<em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">SearchContext</tt><big>(</big><em>searchText</em>, <em>replaceText</em>, <em>searchPath</em>, <em>mode</em>, <em>encoding</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchContext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure holds parameters of search or replace operation in progress</p>
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.SearchContext.mask">
+<tt class="descname">mask</tt><a class="headerlink" href="#mks.plugins.searchreplace.SearchContext.mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO
+encoding = &#8216;&#8217;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.SearchContext.openedFiles">
+<tt class="descname">openedFiles</tt><a class="headerlink" href="#mks.plugins.searchreplace.SearchContext.openedFiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO
+project = None
+sourcesFiles = &#8216;&#8217;</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchContext.regExp">
+<tt class="descname">regExp</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchContext.regExp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compile regular expression object according to search text and
+options</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.plugins.searchreplace.SearchWidget">
+<em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">SearchWidget</tt><big>(</big><em>plugin</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QFrame</span></tt></p>
+<p>Widget, appeared, when Ctrl+F pressed.
+Has different forms for different search modes</p>
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.setResultsDock">
+<tt class="descname">setResultsDock</tt><big>(</big><em>dock</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.setResultsDock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set to widget pointer to the search results dock</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.setMode">
+<tt class="descname">setMode</tt><big>(</big><em>mode</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.setMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change search mode.
+i.e. from &#8220;Search file&#8221; to &#8220;Replace directory&#8221;</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.eventFilter">
+<tt class="descname">eventFilter</tt><big>(</big><em>object_</em>, <em>event</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.eventFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Event filter for mode switch tool button
+Draws icons in the search and path lineEdits</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.keyPressEvent">
+<tt class="descname">keyPressEvent</tt><big>(</big><em>event</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.keyPressEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles ESC and ENTER pressings on widget for hide widget or start action</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.updateLabels">
+<tt class="descname">updateLabels</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.updateLabels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update &#8216;Search&#8217; &#8216;Replace&#8217; &#8216;Path&#8217; labels geometry</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.updateWidgets">
+<tt class="descname">updateWidgets</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.updateWidgets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update geometry of widgets with buttons</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.updateComboBoxes">
+<tt class="descname">updateComboBoxes</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.updateComboBoxes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update comboboxes with last used texts</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.initializeSearchContext">
+<tt class="descname">initializeSearchContext</tt><big>(</big><em>currentDocumentOnly</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.initializeSearchContext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill search context with actual data</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.showMessage">
+<tt class="descname">showMessage</tt><big>(</big><em>status</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.showMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show message on the status bar</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.setState">
+<tt class="descname">setState</tt><big>(</big><em>field</em>, <em>state</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.setState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change line edit color according to search result</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.searchFile">
+<tt class="descname">searchFile</tt><big>(</big><em>forward</em>, <em>incremental</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.searchFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do search in file operation. Will select next found item</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.replaceFile">
+<tt class="descname">replaceFile</tt><big>(</big><em>replaceAll</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.replaceFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do one or all replacements in the file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.searchThread_stateChanged">
+<tt class="descname">searchThread_stateChanged</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.searchThread_stateChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search thread started or stopped</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.searchThread_progressChanged">
+<tt class="descname">searchThread_progressChanged</tt><big>(</big><em>value</em>, <em>total</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.searchThread_progressChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>Signal from the thread, progress changed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.replaceThread_stateChanged">
+<tt class="descname">replaceThread_stateChanged</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.replaceThread_stateChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace thread started or stopped</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.replaceThread_openedFileHandled">
+<tt class="descname">replaceThread_openedFileHandled</tt><big>(</big><em>fileName</em>, <em>content</em>, <em>encoding</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.replaceThread_openedFileHandled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace thread processed currently opened file,
+need update text in the editor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.replaceThread_error">
+<tt class="descname">replaceThread_error</tt><big>(</big><em>error</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.replaceThread_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error message from the replace thread</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.search_textChanged">
+<tt class="descname">search_textChanged</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.search_textChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>Text changed, enable actions, if have text, disable, if haven&#8217;t</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.search_textEdited">
+<tt class="descname">search_textEdited</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.search_textEdited" title="Permalink to this definition">¶</a></dt>
+<dd><p>User edited search text, do incremental search</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.cdUp_pressed">
+<tt class="descname">cdUp_pressed</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.cdUp_pressed" title="Permalink to this definition">¶</a></dt>
+<dd><p>User pressed &#8220;Up&#8221; button, need to remove one level from search path</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.on_pbPrevious_pressed">
+<tt class="descname">on_pbPrevious_pressed</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.on_pbPrevious_pressed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler of click on &#8220;Previous&#8221; button</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.on_pbNext_pressed">
+<tt class="descname">on_pbNext_pressed</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.on_pbNext_pressed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler of click on &#8220;Next&#8221; button</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.on_pbSearch_pressed">
+<tt class="descname">on_pbSearch_pressed</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.on_pbSearch_pressed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler of click on &#8220;Search&#8221; button (for search in directory)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.on_pbSearchStop_pressed">
+<tt class="descname">on_pbSearchStop_pressed</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.on_pbSearchStop_pressed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler of click on &#8220;Stop&#8221; button. Stop search thread</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.on_pbReplace_pressed">
+<tt class="descname">on_pbReplace_pressed</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.on_pbReplace_pressed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler of click on &#8220;Replace&#8221; (in file) button</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.on_pbReplaceAll_pressed">
+<tt class="descname">on_pbReplaceAll_pressed</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.on_pbReplaceAll_pressed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler of click on &#8220;Replace all&#8221; (in file) button</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.on_pbReplaceChecked_pressed">
+<tt class="descname">on_pbReplaceChecked_pressed</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.on_pbReplaceChecked_pressed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler of click on &#8220;Replace checked&#8221; (in directory) button</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.on_pbReplaceCheckedStop_pressed">
+<tt class="descname">on_pbReplaceCheckedStop_pressed</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.on_pbReplaceCheckedStop_pressed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler of click on &#8220;Stop&#8221; button when replacing in directory</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.on_pbBrowse_pressed">
+<tt class="descname">on_pbBrowse_pressed</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.on_pbBrowse_pressed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler of click on &#8220;Browse&#8221; button. Explores FS for search directory path</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.plugins.searchreplace.SearchResultsModel">
+<em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">SearchResultsModel</tt><big>(</big><em>searchThread</em>, <em>parent</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtCore.QAbstractItemModel</span></tt></p>
+<p>AbstractItemModel used for display search results in &#8216;Search in directory&#8217; and &#8216;Replace in directory&#8217; mode</p>
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.SearchResultsModel.firstResultsAvailable">
+<tt class="descname">firstResultsAvailable</tt><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.firstResultsAvailable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="mks.plugins.searchreplace.SearchResultsModel.Result">
+<em class="property">class </em><tt class="descname">Result</tt><big>(</big><em>fileName</em>, <em>capture</em>, <em>groups</em>, <em>line</em>, <em>column</em>, <em>offset</em>, <em>length</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.Result" title="Permalink to this definition">¶</a></dt>
+<dd><p>One found by search thread item. Consists coordinates and capture. Used by SearchResultsModel</p>
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchResultsModel.Result.text">
+<tt class="descname">text</tt><big>(</big><em>notUsed</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.Result.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Displayable text of search result. Shown as line in the search results dock
+notUsed argument added for have same signature, as FileResults.text</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchResultsModel.Result.tooltip">
+<tt class="descname">tooltip</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.Result.tooltip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tooltip of the search result</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchResultsModel.Result.hasChildren">
+<tt class="descname">hasChildren</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.Result.hasChildren" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if QAbstractItem has children</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.plugins.searchreplace.SearchResultsModel.FileResults">
+<em class="property">class </em><tt class="descclassname">SearchResultsModel.</tt><tt class="descname">FileResults</tt><big>(</big><em>fileName</em>, <em>results</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.FileResults" title="Permalink to this definition">¶</a></dt>
+<dd><p>Object stores all items, found in the file</p>
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchResultsModel.FileResults.updateCheckState">
+<tt class="descname">updateCheckState</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.FileResults.updateCheckState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update own checked state after checked state of child result changed or
+child result removed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchResultsModel.FileResults.text">
+<tt class="descname">text</tt><big>(</big><em>baseDir</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.FileResults.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Displayable text of the file results. Shown as line in the search results dock
+baseDir is base directory of current search operation</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchResultsModel.FileResults.tooltip">
+<tt class="descname">tooltip</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.FileResults.tooltip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tooltip of the item in the results dock</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchResultsModel.FileResults.hasChildren">
+<tt class="descname">hasChildren</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.FileResults.hasChildren" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if item has children</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchResultsModel.index">
+<tt class="descclassname">SearchResultsModel.</tt><tt class="descname">index</tt><big>(</big><em>row</em>, <em>column</em>, <em>parent</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.index" title="Permalink to this definition">¶</a></dt>
+<dd><p>See QAbstractItemModel docs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchResultsModel.parent">
+<tt class="descclassname">SearchResultsModel.</tt><tt class="descname">parent</tt><big>(</big><em>index</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.parent" title="Permalink to this definition">¶</a></dt>
+<dd><p>See QAbstractItemModel docs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchResultsModel.hasChildren">
+<tt class="descclassname">SearchResultsModel.</tt><tt class="descname">hasChildren</tt><big>(</big><em>item</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.hasChildren" title="Permalink to this definition">¶</a></dt>
+<dd><p>See QAbstractItemModel docs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchResultsModel.columnCount">
+<tt class="descclassname">SearchResultsModel.</tt><tt class="descname">columnCount</tt><big>(</big><em>parent</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.columnCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>See QAbstractItemModel docs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchResultsModel.rowCount">
+<tt class="descclassname">SearchResultsModel.</tt><tt class="descname">rowCount</tt><big>(</big><em>parent</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.rowCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>See QAbstractItemModel docs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchResultsModel.flags">
+<tt class="descclassname">SearchResultsModel.</tt><tt class="descname">flags</tt><big>(</big><em>index</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.flags" title="Permalink to this definition">¶</a></dt>
+<dd><p>See QAbstractItemModel docs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchResultsModel.data">
+<tt class="descclassname">SearchResultsModel.</tt><tt class="descname">data</tt><big>(</big><em>index</em>, <em>role</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>See QAbstractItemModel docs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchResultsModel.setData">
+<tt class="descclassname">SearchResultsModel.</tt><tt class="descname">setData</tt><big>(</big><em>index</em>, <em>value</em>, <em>role</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.setData" title="Permalink to this definition">¶</a></dt>
+<dd><p>See QAbstractItemModel docs
+This method changes checked state of the item.
+If file unchecked - we need uncheck all items,
+if item unchecked...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchResultsModel.clear">
+<tt class="descclassname">SearchResultsModel.</tt><tt class="descname">clear</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear all results</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchResultsModel.thread_resultsAvailable">
+<tt class="descclassname">SearchResultsModel.</tt><tt class="descname">thread_resultsAvailable</tt><big>(</big><em>fileResultsList</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.thread_resultsAvailable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler of signal from the search thread.
+New result is available, need to add it to the model</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchResultsModel.thread_resultsHandled">
+<tt class="descclassname">SearchResultsModel.</tt><tt class="descname">thread_resultsHandled</tt><big>(</big><em>fileName</em>, <em>results</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.thread_resultsHandled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace thread processed result, need to remove it from the model</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.plugins.searchreplace.SearchResultsDock">
+<em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">SearchResultsDock</tt><big>(</big><em>searchThread</em>, <em>parent=None</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsDock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.fresh.pDockWidget</span></tt></p>
+<p>Dock with search results</p>
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchResultsDock.view_activated">
+<tt class="descname">view_activated</tt><big>(</big><em>index</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsDock.view_activated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Item doubleclicked in the model, opening file</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.plugins.searchreplace.StopableThread">
+<em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">StopableThread</tt><big>(</big><em>parentObject</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.StopableThread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtCore.QThread</span></tt></p>
+<p>Stoppable thread class. Used as base for search and replace thread.</p>
+<dl class="method">
+<dt id="mks.plugins.searchreplace.StopableThread.stop">
+<tt class="descname">stop</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.StopableThread.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop thread synchronously</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.StopableThread.start">
+<tt class="descname">start</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.StopableThread.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensure thread is stopped, and start it</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.plugins.searchreplace.SearchThread">
+<em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">SearchThread</tt><big>(</big><em>parentObject</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchThread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mks.plugins.searchreplace.StopableThread" title="mks.plugins.searchreplace.StopableThread"><tt class="xref py py-class docutils literal"><span class="pre">mks.plugins.searchreplace.StopableThread</span></tt></a></p>
+<p>Thread builds list of files for search and than searches in this files.append</p>
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.SearchThread.reset">
+<tt class="descname">reset</tt><a class="headerlink" href="#mks.plugins.searchreplace.SearchThread.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.SearchThread.resultsAvailable">
+<tt class="descname">resultsAvailable</tt><a class="headerlink" href="#mks.plugins.searchreplace.SearchThread.resultsAvailable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.SearchThread.progressChanged">
+<tt class="descname">progressChanged</tt><a class="headerlink" href="#mks.plugins.searchreplace.SearchThread.progressChanged" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchThread.search">
+<tt class="descname">search</tt><big>(</big><em>context</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchThread.search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start search process.
+context stores search text, directory and other parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchThread.clear">
+<tt class="descname">clear</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchThread.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop thread and clear search results</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchThread.run">
+<tt class="descname">run</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchThread.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start point of the code, running in thread.
+Build list of files for search, than do search</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.plugins.searchreplace.ReplaceThread">
+<em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">ReplaceThread</tt><big>(</big><em>parentObject</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.ReplaceThread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mks.plugins.searchreplace.StopableThread" title="mks.plugins.searchreplace.StopableThread"><tt class="xref py py-class docutils literal"><span class="pre">mks.plugins.searchreplace.StopableThread</span></tt></a></p>
+<p>Thread does replacements in the directory according to checked items</p>
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.ReplaceThread.resultsHandled">
+<tt class="descname">resultsHandled</tt><a class="headerlink" href="#mks.plugins.searchreplace.ReplaceThread.resultsHandled" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.ReplaceThread.openedFileHandled">
+<tt class="descname">openedFileHandled</tt><a class="headerlink" href="#mks.plugins.searchreplace.ReplaceThread.openedFileHandled" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.ReplaceThread.error">
+<tt class="descname">error</tt><a class="headerlink" href="#mks.plugins.searchreplace.ReplaceThread.error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.ReplaceThread.replace">
+<tt class="descname">replace</tt><big>(</big><em>context</em>, <em>results</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.ReplaceThread.replace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run replace process</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.ReplaceThread.run">
+<tt class="descname">run</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.ReplaceThread.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start point of the code, running i thread
+Does thread job</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="filebrowser.html"
+                        title="previous chapter">filebrowser &#8212; Dock with file system tree</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/plugins/searchreplace.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="filebrowser.html" title="filebrowser — Dock with file system tree"
+             >previous</a> |</li>
+        <li><a href="../index.html">mksv3 v3.0.0 documentation</a> &raquo;</li>
+          <li><a href="../devindex.html" >Developer documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Andrei Kopats, Filipe Azevedo.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+    </div>
+  </body>
+</html>
