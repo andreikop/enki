@@ -1,5 +1,8 @@
-"""Tool bar shows shows current line, column, save state, EOL and indent mode, save button
-It allows to change this parameters and save file
+"""
+editortoolbar --- Shows position, save state, EOL and indent
+============================================================
+
+It also allows to change this parameters and save the file
 """
 
 import os.path
@@ -16,6 +19,7 @@ from mks.core.core import core, DATA_FILES_PATH
 
 class _EolIndicatorAndSwitcher(QToolButton):
     """This widget is visible on Status Bar as EOL type icon.
+    
     It draws menu with EOL choise and switches EOL
     """
     _ICON_FOR_MODE = {r'\r\n'   : "winEol.png",
@@ -132,6 +136,7 @@ class _IndentationDialog(QDialog):
 
 class _IndentIndicatorAndSwitcher(QToolButton):
     """This widget is visible on Status Bar as indent type label
+    
     It draws menu with indent choise and switches indent
     """
     

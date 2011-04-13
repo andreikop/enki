@@ -1,6 +1,7 @@
-"""File Brower plugin. Implements dock with file system tree
 """
-
+filebrowser --- Dock with file system tree
+==========================================
+"""
 import sys
 import fnmatch
 import re
@@ -17,21 +18,10 @@ from PyQt4.fresh import pStringListEditor
 
 from mks.core.core import core
 
-"""
-    def fillPluginInfos(self):
-        self.pluginInfos.Caption = self.tr( "File Browser" )
-        self.pluginInfos.Description = self.tr( "Plugin for browsing file outside the project" )
-        self.pluginInfos.Author = "Azevedo Filipe aka Nox P@sNox <pasnox@gmail.com>, Andei aka hlamer <hlamer@tut.by>"
-        self.pluginInfos.Type = BasePlugin.iBase
-        self.pluginInfos.Name = PLUGIN_NAME
-        self.pluginInfos.Version = "1.0.0"
-        self.pluginInfos.FirstStartEnabled = True
-        self.pluginInfos.HaveSettingsWidget = True
-        self.pluginInfos.Pixmap = QPixmap( ":/icons/browser.png" )
-"""
-
 class FileBrowser(QObject):
-    """File system tree. Allows to open files quickly
+    """File system tree.
+    
+    Allows to open files quickly
     """
     def __init__(self):
         """Create and install the plugin
