@@ -40,8 +40,9 @@ class Core:
         
         # Create plugins
         self._appShortcuts = mks.plugins.appshortcuts.AppShortcuts()
-        self._searchreplace = mks.plugins.searchreplace.searchreplace()
+        self._searchreplace = mks.plugins.searchreplace.SearchReplace()
         self._fileBrowser = mks.plugins.filebrowser.FileBrowser()
+        self._editorShortcuts = mks.plugins.editorshortcuts.EditorShortcutsDialog().exec_()
 
     def term(self):
         """Terminate plugins and core modules
@@ -87,6 +88,7 @@ import mks.plugins.editortoolbar
 import mks.plugins.searchreplace
 import mks.plugins.filebrowser
 import mks.plugins.appshortcuts
+import mks.plugins.editorshortcuts
 
 
 """TODO restore or delete old code
