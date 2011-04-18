@@ -19,90 +19,124 @@ def tr(s):
     # FIXME add translation
     return s
 
-_SHORTCUTS = ((QsciScintilla.SCI_LINEDOWNEXTEND, tr("Extend selection down one line")),  
-              (QsciScintilla.SCI_LINEDOWNRECTEXTEND, tr("Extend rectangular selection down one line")),  
-              (QsciScintilla.SCI_LINESCROLLDOWN, tr("Scroll view down one line")),  
-              (QsciScintilla.SCI_LINEUPEXTEND, tr("Extend selection up")),  
-              (QsciScintilla.SCI_LINEUPRECTEXTEND, tr("Extend selection up one line")),  
-              (QsciScintilla.SCI_LINESCROLLUP, tr("Scroll view up one line")),  
-              (QsciScintilla.SCI_PARADOWN, tr("Move down one paragraph")),  
-              (QsciScintilla.SCI_PARADOWNEXTEND, tr("Extend selection up one paragraph")),  
-              (QsciScintilla.SCI_PARAUP, tr("Move down one paragraph")),  
-              (QsciScintilla.SCI_PARAUPEXTEND, tr("Extend selection down one paragraph")),  
-              (QsciScintilla.SCI_CHARLEFTEXTEND, tr("Extend selection left one character")),  
-              (QsciScintilla.SCI_CHARLEFTRECTEXTEND, tr("Extend rectangular selection left one character")),  
-              (QsciScintilla.SCI_CHARRIGHTEXTEND, tr("Extend selection right one character")),  
-              (QsciScintilla.SCI_CHARRIGHTRECTEXTEND, tr("Extend rectangular selection right one character")),  
-              (QsciScintilla.SCI_WORDLEFT, tr("Move left one word")),  
-              (QsciScintilla.SCI_WORDLEFTEXTEND, tr("Extend selection left one word")),  
-              (QsciScintilla.SCI_WORDRIGHT, tr("Move right one word")),  
-              (QsciScintilla.SCI_WORDRIGHTEXTEND, tr("Extend selection right one word")),  
-              (QsciScintilla.SCI_WORDLEFTEND, tr("Move left one word end")),  
-              (QsciScintilla.SCI_WORDLEFTENDEXTEND, tr("Extend selection left one word left")),  
-              (QsciScintilla.SCI_WORDRIGHTEND, tr("Move right one word end")),  
-              (QsciScintilla.SCI_WORDRIGHTENDEXTEND, tr("Extend selection right one word end")),  
-              (QsciScintilla.SCI_WORDPARTLEFT, tr("Move left one word part")),  
-              (QsciScintilla.SCI_WORDPARTLEFTEXTEND, tr("Extend selection left one word part ")),  
-              (QsciScintilla.SCI_WORDPARTRIGHT, tr("Move right one word part")),  
-              (QsciScintilla.SCI_WORDPARTRIGHTEXTEND, tr("Extend selection right one word part")),  
-              (QsciScintilla.SCI_HOME, tr("Move to line start")),  
-              (QsciScintilla.SCI_HOMEEXTEND, tr("Extend selection to line start")),  
-              (QsciScintilla.SCI_HOMERECTEXTEND, tr("Extend rectangular selection to line start")),  
-              (QsciScintilla.SCI_HOMEDISPLAY, tr("Move to start of displayed line")),  
-              (QsciScintilla.SCI_HOMEDISPLAYEXTEND, tr("Extend selection start of displayed line")),  
-              (QsciScintilla.SCI_HOMEWRAP, tr("Home wrap")),  
-              (QsciScintilla.SCI_HOMEWRAPEXTEND, tr("Extend selection on home wrap")),  
-              (QsciScintilla.SCI_VCHOME, tr("Move to firsst VC in line")),  
-              (QsciScintilla.SCI_VCHOMEEXTEND, tr("Extend selection to first VC in line")),  
-              (QsciScintilla.SCI_VCHOMERECTEXTEND, tr("Extend rectangular selection to firts VC in line")),  
-              (QsciScintilla.SCI_VCHOMEWRAP, tr("VC Home wrap")),  
-              (QsciScintilla.SCI_VCHOMEWRAPEXTEND, tr("Extend selection VC Home wrap")),  
-              (QsciScintilla.SCI_LINEEND, tr("Move to end of line")),  
-              (QsciScintilla.SCI_LINEENDEXTEND, tr("Extend selection to end of line")),  
-              (QsciScintilla.SCI_LINEENDRECTEXTEND, tr("Extend rectangular selection to end of line")),  
-              (QsciScintilla.SCI_LINEENDDISPLAY, tr("Move to end displayed line")),  
-              (QsciScintilla.SCI_LINEENDDISPLAYEXTEND, tr("Extend selection to end of displayed line")),  
-              (QsciScintilla.SCI_LINEENDWRAP, tr("Move to line end wrap")),  
-              (QsciScintilla.SCI_LINEENDWRAPEXTEND, tr("Extend selection to line end wrap")),  
-              (QsciScintilla.SCI_DOCUMENTSTART, tr("Move to document start")),  
-              (QsciScintilla.SCI_DOCUMENTSTARTEXTEND, tr("Extend selection to document start")),  
-              (QsciScintilla.SCI_DOCUMENTEND, tr("Move to document end")),  
-              (QsciScintilla.SCI_DOCUMENTENDEXTEND, tr("Extend selection to document end")),  
-              (QsciScintilla.SCI_PAGEUP, tr("Move up one page")),  
-              (QsciScintilla.SCI_PAGEUPEXTEND, tr("Extend selection up one page")),  
-              (QsciScintilla.SCI_PAGEUPRECTEXTEND, tr("Extend rectangular selection up one page")),  
-              (QsciScintilla.SCI_PAGEDOWN, tr("Move down one page")),  
-              (QsciScintilla.SCI_PAGEDOWNEXTEND, tr("Extend selection down one page")),  
-              (QsciScintilla.SCI_PAGEDOWNRECTEXTEND, tr("Extend rectangular selection down one page")),  
-              (QsciScintilla.SCI_STUTTEREDPAGEUP, tr("Move up one page stuttered")),  
-              (QsciScintilla.SCI_STUTTEREDPAGEUPEXTEND, tr("Extend selection up one page stuttered")),  
-              (QsciScintilla.SCI_STUTTEREDPAGEDOWN, tr("Move down one page stuttered")),  
-              (QsciScintilla.SCI_STUTTEREDPAGEDOWNEXTEND, tr("Extend selection down one page stuttered")),  
-              (QsciScintilla.SCI_DELETEBACKNOTLINE, tr("Backspace not a line")),  
-              (QsciScintilla.SCI_DELWORDLEFT, tr("Delete previous word")),  
-              (QsciScintilla.SCI_DELWORDRIGHT, tr("Delete next word")),  
-              (QsciScintilla.SCI_DELLINELEFT, tr("Delete line tp left")),  
-              (QsciScintilla.SCI_DELLINERIGHT, tr("Delete line to right")),  
-              (QsciScintilla.SCI_LINEDELETE, tr("Delete line")),  
-              (QsciScintilla.SCI_LINECUT, tr("Cut line")),  
-              (QsciScintilla.SCI_LINECOPY, tr("Copy line")),  
-              (QsciScintilla.SCI_LINETRANSPOSE, tr("Swap current and previous line")),  
-              (QsciScintilla.SCI_LINEDUPLICATE, tr("Duplicate line")),  
-              (QsciScintilla.SCI_LOWERCASE, tr("To lower case")),  
-              (QsciScintilla.SCI_UPPERCASE, tr("To upper case")),  
-              (QsciScintilla.SCI_EDITTOGGLEOVERTYPE, tr("Edit toggle over type")),  
-              (QsciScintilla.SCI_FORMFEED, tr("Formfeed")),  
-              (QsciScintilla.SCI_BACKTAB, tr("Delete one indent")),  
-              (QsciScintilla.SCI_SELECTIONDUPLICATE, tr("Duplicate selection")),  
-              (QsciScintilla.SCI_CLEAR, tr("Delete")),  
-              (QsciScintilla.SCI_SELECTALL, tr("Select All")),  
-              (QsciScintilla.SCI_ZOOMIN, tr("Zoom In")),  
-              (QsciScintilla.SCI_ZOOMOUT, tr("Zoom Out")),  
-              (QsciScintilla.SCI_SETZOOM, tr("Set Zoom")),  
-              (QsciScintilla.SCI_MARKERADD, tr("Set bookmark")),  
-              (QsciScintilla.SCI_MARKERDELETEALL, tr( "Delete all bookmarks" )), 
-              (QsciScintilla.SCI_MARKERPREVIOUS, tr( "Previous bookmark" )), 
-              (QsciScintilla.SCI_MARKERNEXT, tr( "Next bookmark" )))
+
+_SHORTCUTS = ((tr("Navigation"), 
+                 ((QsciScintilla.SCI_LINEDOWNEXTEND, tr("Extend selection down one line")),
+                  (QsciScintilla.SCI_LINEDOWNRECTEXTEND, tr("Extend rectangular selection down one line")),
+                  (QsciScintilla.SCI_LINESCROLLDOWN, tr("Scroll view down one line")),
+                  (QsciScintilla.SCI_LINEUPEXTEND, tr("Extend selection up")),
+                  (QsciScintilla.SCI_LINEUPRECTEXTEND, tr("Extend selection up one line")),
+                  (QsciScintilla.SCI_LINESCROLLUP, tr("Scroll view up one line")),
+                  (QsciScintilla.SCI_PARADOWN, tr("Move down one paragraph")),
+                  (QsciScintilla.SCI_PARADOWNEXTEND, tr("Extend selection up one paragraph")),
+                  (QsciScintilla.SCI_PARAUP, tr("Move down one paragraph")),
+                  (QsciScintilla.SCI_PARAUPEXTEND, tr("Extend selection down one paragraph")),
+                  (QsciScintilla.SCI_CHARLEFTEXTEND, tr("Extend selection left one character")),
+                  (QsciScintilla.SCI_CHARLEFTRECTEXTEND, tr("Extend rectangular selection left one character")),
+                  (QsciScintilla.SCI_CHARRIGHTEXTEND, tr("Extend selection right one character")),
+                  (QsciScintilla.SCI_CHARRIGHTRECTEXTEND, tr("Extend rectangular selection right one character")),
+                  (QsciScintilla.SCI_WORDLEFT, tr("Move left one word")),
+                  (QsciScintilla.SCI_WORDLEFTEXTEND, tr("Extend selection left one word")),
+                  (QsciScintilla.SCI_WORDRIGHT, tr("Move right one word")),
+                  (QsciScintilla.SCI_WORDRIGHTEXTEND, tr("Extend selection right one word")),
+                  (QsciScintilla.SCI_WORDLEFTEND, tr("Move left one word end")),
+                  (QsciScintilla.SCI_WORDLEFTENDEXTEND, tr("Extend selection left one word left")),
+                  (QsciScintilla.SCI_WORDRIGHTEND, tr("Move right one word end")),
+                  (QsciScintilla.SCI_WORDRIGHTENDEXTEND, tr("Extend selection right one word end")),
+                  (QsciScintilla.SCI_WORDPARTLEFT, tr("Move left one word part")),
+                  (QsciScintilla.SCI_WORDPARTLEFTEXTEND, tr("Extend selection left one word part ")),
+                  (QsciScintilla.SCI_WORDPARTRIGHT, tr("Move right one word part")),
+                  (QsciScintilla.SCI_WORDPARTRIGHTEXTEND, tr("Extend selection right one word part")),
+                  (QsciScintilla.SCI_HOME, tr("Move to line start")),
+                  (QsciScintilla.SCI_HOMEEXTEND, tr("Extend selection to line start")),
+                 )),
+              (tr("Edit"),
+                 ((QsciScintilla.SCI_HOMERECTEXTEND, tr("Extend rectangular selection to line start")),
+                  (QsciScintilla.SCI_HOMEDISPLAY, tr("Move to start of displayed line")),
+                  (QsciScintilla.SCI_HOMEDISPLAYEXTEND, tr("Extend selection start of displayed line")),
+                  (QsciScintilla.SCI_HOMEWRAP, tr("Home wrap")),
+                  (QsciScintilla.SCI_HOMEWRAPEXTEND, tr("Extend selection on home wrap")),
+                  (QsciScintilla.SCI_VCHOME, tr("Move to firsst VC in line")),
+                  (QsciScintilla.SCI_VCHOMEEXTEND, tr("Extend selection to first VC in line")),
+                  (QsciScintilla.SCI_VCHOMERECTEXTEND, tr("Extend rectangular selection to firts VC in line")),
+                  (QsciScintilla.SCI_VCHOMEWRAP, tr("VC Home wrap")),
+                  (QsciScintilla.SCI_VCHOMEWRAPEXTEND, tr("Extend selection VC Home wrap")),
+                  (QsciScintilla.SCI_LINEEND, tr("Move to end of line")),
+                  (QsciScintilla.SCI_LINEENDEXTEND, tr("Extend selection to end of line")),
+                  (QsciScintilla.SCI_LINEENDRECTEXTEND, tr("Extend rectangular selection to end of line")),
+                  (QsciScintilla.SCI_LINEENDDISPLAY, tr("Move to end displayed line")),
+                  (QsciScintilla.SCI_LINEENDDISPLAYEXTEND, tr("Extend selection to end of displayed line")),
+                  (QsciScintilla.SCI_LINEENDWRAP, tr("Move to line end wrap")),
+                  (QsciScintilla.SCI_LINEENDWRAPEXTEND, tr("Extend selection to line end wrap")),
+                  (QsciScintilla.SCI_DOCUMENTSTART, tr("Move to document start")),
+                  (QsciScintilla.SCI_DOCUMENTSTARTEXTEND, tr("Extend selection to document start")),
+                  (QsciScintilla.SCI_DOCUMENTEND, tr("Move to document end")),
+                  (QsciScintilla.SCI_DOCUMENTENDEXTEND, tr("Extend selection to document end")),
+                  (QsciScintilla.SCI_PAGEUP, tr("Move up one page")),
+                  (QsciScintilla.SCI_PAGEUPEXTEND, tr("Extend selection up one page")),
+                  (QsciScintilla.SCI_PAGEUPRECTEXTEND, tr("Extend rectangular selection up one page")),
+                  (QsciScintilla.SCI_PAGEDOWN, tr("Move down one page")),
+                  (QsciScintilla.SCI_PAGEDOWNEXTEND, tr("Extend selection down one page")),
+                  (QsciScintilla.SCI_PAGEDOWNRECTEXTEND, tr("Extend rectangular selection down one page")),
+                  (QsciScintilla.SCI_STUTTEREDPAGEUP, tr("Move up one page stuttered")),
+                  (QsciScintilla.SCI_STUTTEREDPAGEUPEXTEND, tr("Extend selection up one page stuttered")),
+                  (QsciScintilla.SCI_STUTTEREDPAGEDOWN, tr("Move down one page stuttered")),
+                  (QsciScintilla.SCI_STUTTEREDPAGEDOWNEXTEND, tr("Extend selection down one page stuttered")),
+                  (QsciScintilla.SCI_DELETEBACKNOTLINE, tr("Backspace not a line")),
+                  (QsciScintilla.SCI_DELWORDLEFT, tr("Delete previous word")),
+                  (QsciScintilla.SCI_DELWORDRIGHT, tr("Delete next word")),
+                  (QsciScintilla.SCI_DELLINELEFT, tr("Delete line tp left")),
+                  (QsciScintilla.SCI_DELLINERIGHT, tr("Delete line to right")),
+                  (QsciScintilla.SCI_LINEDELETE, tr("Delete line")),
+                  (QsciScintilla.SCI_LINECUT, tr("Cut line")),
+                  (QsciScintilla.SCI_LINECOPY, tr("Copy line")),
+                  (QsciScintilla.SCI_LINETRANSPOSE, tr("Swap current and previous line")),
+                  (QsciScintilla.SCI_LINEDUPLICATE, tr("Duplicate line")),
+                  (QsciScintilla.SCI_LOWERCASE, tr("To lower case")),
+                  (QsciScintilla.SCI_UPPERCASE, tr("To upper case")),
+                  (QsciScintilla.SCI_EDITTOGGLEOVERTYPE, tr("Edit toggle over type")),
+                  (QsciScintilla.SCI_FORMFEED, tr("Formfeed")),
+                  (QsciScintilla.SCI_BACKTAB, tr("Delete one indent")),
+                  (QsciScintilla.SCI_SELECTIONDUPLICATE, tr("Duplicate selection")),
+                  (QsciScintilla.SCI_CLEAR, tr("Delete")),
+                  (QsciScintilla.SCI_SELECTALL, tr("Select All")),
+                  (QsciScintilla.SCI_ZOOMIN, tr("Zoom In")),
+                  (QsciScintilla.SCI_ZOOMOUT, tr("Zoom Out")),
+                  (QsciScintilla.SCI_SETZOOM, tr("Set Zoom")),
+                  (QsciScintilla.SCI_MARKERADD, tr("Set bookmark")),
+                  (QsciScintilla.SCI_MARKERDELETEALL, tr( "Delete all bookmarks" )),
+                  (QsciScintilla.SCI_MARKERPREVIOUS, tr( "Previous bookmark" )),
+                  (QsciScintilla.SCI_MARKERNEXT, tr( "Next bookmark")),
+                 )),
+             )
+
+
+"""
+_SHORTCUTS = (("menu1", ((QsciScintilla.SCI_LINEDOWNRECTEXTEND, tr("Extend rectangular selection down one line")),
+                         (QsciScintilla.SCI_LINESCROLLDOWN, tr("Scroll view down one line")),
+                         (QsciScintilla.SCI_LINESCROLLDOWN, tr("Scroll view down one line")),
+                        )
+              ),
+              ("menu2", ((QsciScintilla.SCI_LINEDOWNRECTEXTEND, tr("Extend rectangular selection down one line")),
+                         (QsciScintilla.SCI_LINEDOWNRECTEXTEND, tr("Extend rectangular selection down one line")),
+                         (QsciScintilla.SCI_LINEDOWNRECTEXTEND, tr("Extend rectangular selection down one line")),
+                         (QsciScintilla.SCI_LINESCROLLDOWN, tr("Scroll view down one line")),
+                        )
+              ),
+             )
+"""
+
+"""
+_SHORTCUTS = (("menu1", ( (1, "action"),
+                          (2, "action2"),
+                        )
+              ),
+              ("menu2", (
+                        )
+              ),
+             )
+"""
+
 
 class EditorShortcutsModel(QAbstractItemModel):
     """Class implements list of actions, visible in the tree view
@@ -111,38 +145,57 @@ class EditorShortcutsModel(QAbstractItemModel):
         QAbstractItemModel.__init__(self, *args)
         self._dialog = dialog
 
-    def columnCount(self, parent ):
-        return 3
+    def columnCount(self, parent):
+        if parent.internalPointer():  # action
+            return 3
+        else:  # menu
+            return 1
 
     def data(self, index, role ):
-        if role in (Qt.DisplayRole, Qt.ToolTipRole):
-            if index.column() == 0:  # name
-                return _SHORTCUTS[index.row()][1]
-            elif index.column() == 1:  # shortcut
-                return self._dialog.shortcut(index)
-            elif index.column() == 2: # default shortcut
-                return self._dialog.defaultShortcut(index)
-        return QVariant()
+        if index.internalPointer():  # action
+            menu = index.internalPointer()
+            action = menu[1][index.row()]
+            if role in (Qt.DisplayRole, Qt.ToolTipRole):
+                if index.column() == 0:  # name
+                    return action[1]
+                elif index.column() == 1:  # shortcut
+                    return self._dialog.shortcut(action[0])
+                elif index.column() == 2: # default shortcut
+                    return self._dialog.defaultShortcut(action[0])
+            else:  # not supported role
+                return QVariant()
+        else:  # menu
+            if role in (Qt.DisplayRole, Qt.ToolTipRole):
+                menu  = _SHORTCUTS[index.row()]
+                return menu[0]
 
-    def index(self, row, column, parent ):
-        if (not row in range(0, len(_SHORTCUTS))) or \
-           (not column in range(0, 3)) or \
-           parent.isValid():
-            return QModelIndex()
-        return self.createIndex(row, column)
+    def index(self, row, column, parent):
+        if parent.isValid():  # action
+            return self.createIndex(row, column, _SHORTCUTS[parent.row()])
+        else:  # menu
+            return self.createIndex(row, column)
 
     def parent(self, index):
-        return QModelIndex()
+        if index.internalPointer():  # action
+            return self.createIndex(_SHORTCUTS.index(index.internalPointer()), 0)
+        else:  # menu
+            return QModelIndex()
 
-    def rowCount(self, parent ):
-        if parent.isValid():
-            return 0
-        return len(_SHORTCUTS)
+    def rowCount(self, parent):
+        if parent.isValid():  # action or menu
+            if parent.internalPointer():  # action
+                return 0
+            else:  # menu
+                menu = _SHORTCUTS[parent.row()]
+                #print 'menu', len(menu[1])
+                return len(menu[1])
+        else:  # root
+            return len(_SHORTCUTS)
 
-    def hasChildren(self, parent ):
-        if parent.isValid():
+    def hasChildren(self, parent):
+        if parent.internalPointer():  # action
             return False
-        else:
+        else:  # menu or root
             return True
 
     def headerData(self, section, orientation, role ):
