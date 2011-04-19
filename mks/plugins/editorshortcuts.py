@@ -8,7 +8,7 @@ Contains editor dialog and functionality for load and save the shortcuts
 import os.path
 
 from PyQt4 import uic
-from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt, QObject, QVariant
+from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt, QObject
 from PyQt4.QtGui import QDialog, QDialogButtonBox, QHeaderView
 
 from PyQt4.Qsci import QsciScintilla
@@ -150,7 +150,7 @@ class EditorShortcutsModel(QAbstractItemModel):
 
     def data(self, index, role ):
         if not index.isValid():
-            return QVariant()
+            return None
         
         if self.isAction(index):  # action
             action = self.action(index)
@@ -162,19 +162,20 @@ class EditorShortcutsModel(QAbstractItemModel):
                 elif index.column() == 2: # default shortcut
                     return self._dialog.defaultShortcut(action[0])
             else:  # not supported role
-                return QVariant()
+                return None
         else:
             assert(self.isMenu(index))
             if role in (Qt.DisplayRole, Qt.ToolTipRole):
-                return self.menu(index)[0]
+                if index.column() == 0:
+                    return self.menu(index)[0]
+                else:
+                    return None
 
     def index(self, row, column, parent):
         if self.isMenu(parent):
             index = self.createIndex(row, column, _SHORTCUTS[parent.row()])
         else:
             assert(self.isRoot(parent))
-            if column != 0:
-                return QModelIndex()
             index = self.createIndex(row, column)
         assert(index.isValid())
         return index
