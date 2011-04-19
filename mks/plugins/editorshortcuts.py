@@ -13,6 +13,8 @@ from PyQt4.QtGui import QDialog, QDialogButtonBox, QHeaderView
 
 from PyQt4.Qsci import QsciScintilla
 
+from PyQt4.fresh import pRecursiveSortFilterProxyModel
+
 from mks.core.core import core, DATA_FILES_PATH
 
 def tr(s):
@@ -20,8 +22,10 @@ def tr(s):
     return s
 
 
-_SHORTCUTS = ((tr("Navigation"), 
-                 ((QsciScintilla.SCI_LINEDOWNEXTEND, tr("Extend selection down one line")),
+_SHORTCUTS = (
+                (tr("Navigation"), 
+                 (
+                  (QsciScintilla.SCI_LINEDOWNEXTEND, tr("Extend selection down one line")),
                   (QsciScintilla.SCI_LINEDOWNRECTEXTEND, tr("Extend rectangular selection down one line")),
                   (QsciScintilla.SCI_LINESCROLLDOWN, tr("Scroll view down one line")),
                   (QsciScintilla.SCI_LINEUPEXTEND, tr("Extend selection up")),
@@ -49,9 +53,11 @@ _SHORTCUTS = ((tr("Navigation"),
                   (QsciScintilla.SCI_WORDPARTRIGHTEXTEND, tr("Extend selection right one word part")),
                   (QsciScintilla.SCI_HOME, tr("Move to line start")),
                   (QsciScintilla.SCI_HOMEEXTEND, tr("Extend selection to line start")),
-                 )),
-              (tr("Edit"),
-                 ((QsciScintilla.SCI_HOMERECTEXTEND, tr("Extend rectangular selection to line start")),
+                 ),
+                ),
+                (tr("Edit"),
+                 (
+                  (QsciScintilla.SCI_HOMERECTEXTEND, tr("Extend rectangular selection to line start")),
                   (QsciScintilla.SCI_HOMEDISPLAY, tr("Move to start of displayed line")),
                   (QsciScintilla.SCI_HOMEDISPLAYEXTEND, tr("Extend selection start of displayed line")),
                   (QsciScintilla.SCI_HOMEWRAP, tr("Home wrap")),
@@ -107,35 +113,9 @@ _SHORTCUTS = ((tr("Navigation"),
                   (QsciScintilla.SCI_MARKERDELETEALL, tr( "Delete all bookmarks" )),
                   (QsciScintilla.SCI_MARKERPREVIOUS, tr( "Previous bookmark" )),
                   (QsciScintilla.SCI_MARKERNEXT, tr( "Next bookmark")),
-                 )),
+                 ),
+                ),
              )
-
-
-"""
-_SHORTCUTS = (("menu1", ((QsciScintilla.SCI_LINEDOWNRECTEXTEND, tr("Extend rectangular selection down one line")),
-                         (QsciScintilla.SCI_LINESCROLLDOWN, tr("Scroll view down one line")),
-                         (QsciScintilla.SCI_LINESCROLLDOWN, tr("Scroll view down one line")),
-                        )
-              ),
-              ("menu2", ((QsciScintilla.SCI_LINEDOWNRECTEXTEND, tr("Extend rectangular selection down one line")),
-                         (QsciScintilla.SCI_LINEDOWNRECTEXTEND, tr("Extend rectangular selection down one line")),
-                         (QsciScintilla.SCI_LINEDOWNRECTEXTEND, tr("Extend rectangular selection down one line")),
-                         (QsciScintilla.SCI_LINESCROLLDOWN, tr("Scroll view down one line")),
-                        )
-              ),
-             )
-"""
-
-"""
-_SHORTCUTS = (("menu1", ( (1, "action"),
-                          (2, "action2"),
-                        )
-              ),
-              ("menu2", (
-                        )
-              ),
-             )
-"""
 
 
 class EditorShortcutsModel(QAbstractItemModel):
@@ -145,16 +125,35 @@ class EditorShortcutsModel(QAbstractItemModel):
         QAbstractItemModel.__init__(self, *args)
         self._dialog = dialog
 
+    def isRoot(self, index):
+        return not index.isValid()
+    
+    def isMenu(self, index):
+        return index.isValid() and \
+               not index.internalPointer()
+    
+    def isAction(self, index):
+        return index.isValid() and \
+               index.internalPointer()
+    
+    def menu(self, index):
+        assert(self.isMenu(index))
+        return _SHORTCUTS[index.row()]
+
+    def action(self, index):
+        assert(self.isAction(index))
+        menu = index.internalPointer()
+        return menu[1][index.row()]
+    
     def columnCount(self, parent):
-        if parent.internalPointer():  # action
-            return 3
-        else:  # menu
-            return 1
+        return 3
 
     def data(self, index, role ):
-        if index.internalPointer():  # action
-            menu = index.internalPointer()
-            action = menu[1][index.row()]
+        if not index.isValid():
+            return QVariant()
+        
+        if self.isAction(index):  # action
+            action = self.action(index)
             if role in (Qt.DisplayRole, Qt.ToolTipRole):
                 if index.column() == 0:  # name
                     return action[1]
@@ -164,36 +163,41 @@ class EditorShortcutsModel(QAbstractItemModel):
                     return self._dialog.defaultShortcut(action[0])
             else:  # not supported role
                 return QVariant()
-        else:  # menu
+        else:
+            assert(self.isMenu(index))
             if role in (Qt.DisplayRole, Qt.ToolTipRole):
-                menu  = _SHORTCUTS[index.row()]
-                return menu[0]
+                return self.menu(index)[0]
 
     def index(self, row, column, parent):
-        if parent.isValid():  # action
-            return self.createIndex(row, column, _SHORTCUTS[parent.row()])
-        else:  # menu
-            return self.createIndex(row, column)
+        if self.isMenu(parent):
+            index = self.createIndex(row, column, _SHORTCUTS[parent.row()])
+        else:
+            assert(self.isRoot(parent))
+            if column != 0:
+                return QModelIndex()
+            index = self.createIndex(row, column)
+        assert(index.isValid())
+        return index
 
     def parent(self, index):
-        if index.internalPointer():  # action
-            return self.createIndex(_SHORTCUTS.index(index.internalPointer()), 0)
-        else:  # menu
+        if self.isAction(index):
+            menu = index.internalPointer()
+            return self.createIndex(_SHORTCUTS.index(menu), 0)
+        else:
             return QModelIndex()
 
     def rowCount(self, parent):
-        if parent.isValid():  # action or menu
-            if parent.internalPointer():  # action
-                return 0
-            else:  # menu
-                menu = _SHORTCUTS[parent.row()]
-                #print 'menu', len(menu[1])
-                return len(menu[1])
-        else:  # root
+        if self.isAction(parent):
+            return 0
+        elif self.isMenu(parent):
+            menu = self.menu(parent)
+            return len(menu[1])
+        else:
+            assert(self.isRoot(parent))
             return len(_SHORTCUTS)
 
     def hasChildren(self, parent):
-        if parent.internalPointer():  # action
+        if self.isAction(parent):
             return False
         else:  # menu or root
             return True
@@ -219,7 +223,14 @@ class EditorShortcutsDialog(QDialog):
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/EditorShortcutsDialog.ui'), self)
         self.leFilter.setSearchButtonVisible( False )
         self.leFilter.setPromptText( self.tr( "Text filter..." ) )
-        self.tvActions.setModel( self._model )
+        
+        self._proxy = pRecursiveSortFilterProxyModel( self )
+        self._proxy.setSourceModel( self._model )
+        self._proxy.setFilterCaseSensitivity( Qt.CaseInsensitive )
+        self._proxy.setSortCaseSensitivity( Qt.CaseInsensitive )
+
+        
+        self.tvActions.setModel( self._proxy )
         self.tvActions.header().setResizeMode( 0, QHeaderView.Stretch )
         self.tvActions.header().setResizeMode( 1, QHeaderView.ResizeToContents )
         self.tvActions.header().setResizeMode( 2, QHeaderView.ResizeToContents )
@@ -314,5 +325,5 @@ class EditorShortcutsDialog(QDialog):
             self.accept()
 
     def on_leFilter_textChanged(self, text ):
-        mProxy.setFilterWildcard( text )
+        self._proxy.setFilterWildcard( text )
         self.tvActions.expandAll()
