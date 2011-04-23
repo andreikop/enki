@@ -20,22 +20,27 @@ import os.path
 
 from PyQt4.QtCore import QModelIndex
 from PyQt4.QtGui import QIcon
-from PyQt4.fresh import pActionsNodeShortcutEditor
+from PyQt4.fresh import pActionsShortcutEditor
 
 from mks._3rdparty.configobj import ConfigObj, ParseError
 
 from mks.core.core import core
 
+def tr(s):
+    return s
+
 _CONFIG_PATH = os.path.expanduser('~/.mksv3.shortcuts.cfg')
 
-def _recursiveIndexesList(model, parentIndex = QModelIndex()):
+def _recursiveActionsList(model, parentIndex = QModelIndex()):
     """Get recursive list of all model indexes
     """
     for childRow in range(model.rowCount(parentIndex)):
         childIndex = model.index(childRow, 0, parentIndex)
-        yield model.indexToNode(childIndex)
-        for index in _recursiveIndexesList(model, childIndex):
-            yield index
+        action = model.action(childIndex)
+        if not action.menu():
+            yield action
+        for action in _recursiveActionsList(model, childIndex):
+            yield action
 
 
 class AppShortcuts:
@@ -52,58 +57,53 @@ class AppShortcuts:
                                                     (_CONFIG_PATH, unicode(str(ex), 'utf_8')))
             self._config = None
 
-        mbar = core.menuBar()
-        self._model = mbar.model()
+        self._model = core.menuBar().model()
         self._model.rowsInserted.connect(self._onActionInserted)
         
-        action = mbar.addAction("mEdit/aShortcuts", mbar.tr( "Shortcuts..."),  QIcon(':/mksicons/shortcuts.png'))
-        action.setStatusTip(mbar.tr( "Edit application shortcuts..."))
+        action = self._model.addAction("mEdit/aShortcuts", tr( "Shortcuts..."),  QIcon(':/mksicons/shortcuts.png'))
+        action.setStatusTip(tr( "Edit application shortcuts..."))
         action.triggered.connect(self._onEditShortcuts)
         
-        for actionNode in _recursiveIndexesList(self._model):
-            if actionNode.action():
-                self._applyShortcut(actionNode)
+        for action in _recursiveActionsList(self._model):
+            self._applyShortcut(action)
 
-    def _applyShortcut(self, actionNode):
-        """Apply for the action node its shortcut if defined
+    def _applyShortcut(self, action):
+        """Apply for the action its shortcut if defined
         """
         if self._config is not None:
-            path = map(str, actionNode.path().split('/'))
+            path = map(str, self._model.path(action).split('/'))
             menuDict = self._config
             for menu in path[:-1]:
                 if menu not in menuDict:
                     return
                 menuDict = menuDict[menu]
-            actionNode.setShortcut(menuDict[path[-1]])
+            action.setShortcut(menuDict[path[-1]])
 
     def _onActionInserted(self, parentIndex, start, end):
         """Handler of action inserted signal. Changes action shortcut from default to configured by user
         """
         for row in range(start, end + 1):
             actionIndex = self._model.index(row, 0, parentIndex)
-            actionNode = self._model.indexToNode(actionIndex)
-            if actionNode.action():
-                self._applyShortcut(actionNode)
+            action = self._model.action(actionIndex)
+            self._applyShortcut(action)
 
     def _saveShortcuts(self):
         """Save shortcuts to configuration file
         """
         if self._config is None:
             return
-        for actionNode in _recursiveIndexesList(self._model):
-            if actionNode.action():
-                path = map(str, actionNode.path().split('/'))
-                menuDict = self._config
-                for menu in path[:-1]:
-                    if menu not in menuDict:
-                        menuDict[menu] = {}
-                    menuDict = menuDict[menu]
-                menuDict[path[-1]] = str(actionNode.shortcut().toString())
+        for action in _recursiveActionsList(self._model):
+            path = map(str, self._model.path(action).split('/'))
+            menuDict = self._config
+            for menu in path[:-1]:
+                if menu not in menuDict:
+                    menuDict[menu] = {}
+                menuDict = menuDict[menu]
+            menuDict[path[-1]] = str(self._model.shortcut(action).toString())
         self._config.write()
-
 
     def _onEditShortcuts(self):
         """Handler of *Edit->Shortcuts...* action. Shows dialog, than saves shortcuts to file
         """
-        pActionsNodeShortcutEditor (self._model, core.mainWindow()).exec_()
+        pActionsShortcutEditor (self._model, core.mainWindow()).exec_()
         self._saveShortcuts()

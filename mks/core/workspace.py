@@ -132,20 +132,20 @@ class Workspace(QStackedWidget):
         self.currentChanged.connect(self._onStackedLayoutIndexChanged)
         
         self.currentDocumentChanged.connect(self._updateMainWindowTitle)
-        mainWindow.menuBar().action( "mFile/aOpen" ).triggered.connect(self._fileOpen_triggered)
-        mainWindow.menuBar().action( "mFile/mReload/aCurrent" ).triggered.connect(self._onFileReloadTriggered)
-        mainWindow.menuBar().action( "mFile/mReload/aAll" ).triggered.connect(self._onFileReloadAllTriggered)
-        mainWindow.menuBar().action( "mFile/mClose/aCurrent" ).triggered.connect(self._onCloseCurrentDocument)
+        mainWindow.menuBar().model().action( "mFile/aOpen" ).triggered.connect(self._fileOpen_triggered)
+        mainWindow.menuBar().model().action( "mFile/mReload/aCurrent" ).triggered.connect(self._onFileReloadTriggered)
+        mainWindow.menuBar().model().action( "mFile/mReload/aAll" ).triggered.connect(self._onFileReloadAllTriggered)
+        mainWindow.menuBar().model().action( "mFile/mClose/aCurrent" ).triggered.connect(self._onCloseCurrentDocument)
     
-        mainWindow.menuBar().action( "mFile/mSave/aCurrent" ).triggered.connect(self._onFileSaveCurrent_triggered)
-        mainWindow.menuBar().action( "mFile/mSave/aAll" ).triggered.connect(self._onFileSaveAll_triggered)
+        mainWindow.menuBar().model().action( "mFile/mSave/aCurrent" ).triggered.connect(self._onFileSaveCurrent_triggered)
+        mainWindow.menuBar().model().action( "mFile/mSave/aAll" ).triggered.connect(self._onFileSaveAll_triggered)
         
-        mainWindow.menuBar().action( "mView/aNext" ).triggered.connect(self._activateNextDocument)
-        mainWindow.menuBar().action( "mView/aPrevious" ).triggered.connect(self._activatePreviousDocument)
+        mainWindow.menuBar().model().action( "mView/aNext" ).triggered.connect(self._activateNextDocument)
+        mainWindow.menuBar().model().action( "mView/aPrevious" ).triggered.connect(self._activatePreviousDocument)
         
-        mainWindow.menuBar().action( "mView/aFocusCurrentDocument" ).triggered.connect(self.focusCurrentDocument)
+        mainWindow.menuBar().model().action( "mView/aFocusCurrentDocument" ).triggered.connect(self.focusCurrentDocument)
         editConfigFile = lambda : self.openFile(core.config().filename)
-        mainWindow.menuBar().action( "mEdit/aConfigFile" ).triggered.connect(editConfigFile)
+        mainWindow.menuBar().model().action( "mEdit/aConfigFile" ).triggered.connect(editConfigFile)
     
     def _mainWindow(self):
         """Get mainWindow instance

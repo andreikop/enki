@@ -9,7 +9,7 @@ Module contains :class:`mks.core.mainwindow.MainWindow` implementation
 from PyQt4.QtCore import QModelIndex, QSize, Qt
 from PyQt4.QtGui import qApp, QIcon, QSizePolicy, QVBoxLayout, QWidget
 
-from PyQt4.fresh import pDockWidget, pMainWindow, pActionsNodeModel
+from PyQt4.fresh import pDockWidget, pMainWindow, pActionsModel
 
 from mks.core.core import core
 import mks.core.workspace
@@ -76,7 +76,7 @@ class MainWindow(pMainWindow):
         for act in self._createdActions:
             self.menuBar().removeAction(act)
         for menuPath in self._createdMenuPathes:
-            self.menuBar().removeMenu(menuPath)
+            self.menuBar().model().removeMenu(menuPath)
         
         self.menuBar().setModel( None )
         self.settings().sync()  # write window and docs geometry
@@ -87,7 +87,7 @@ class MainWindow(pMainWindow):
         because it's easier to create clear menu layout
         """
         # create menubar menus and actions
-        self._actionsModel = pActionsNodeModel(self)
+        self._actionsModel = pActionsModel(self)
         self.menuBar().setModel(self._actionsModel)
 
         """TODO restore or delete old actions
@@ -183,8 +183,7 @@ class MainWindow(pMainWindow):
         
         def menu(path, name, icon):
             """Subfunction for create a menu in the main menu"""
-            menuObject = self.menuBar().addMenu(path)
-            menuObject.setText(name)
+            menuObject = self.menuBar().model().addMenu(path, name)
             if icon:
                 menuObject.setIcon(QIcon(':/mksicons/' + icon))
             self._createdMenuPathes.append(path)
@@ -192,9 +191,9 @@ class MainWindow(pMainWindow):
         def action(path, name, icon, shortcut, tooltip, enabled):
             """Subfunction for create an action in the main menu"""
             if icon:  # has icon
-                actObject = self.menuBar().addAction(path, name, QIcon(':/mksicons/' + icon))
+                actObject = self.menuBar().model().addAction(path, name, QIcon(':/mksicons/' + icon))
             else:
-                actObject = self.menuBar().addAction(path, name)
+                actObject = self.menuBar().model().addAction(path, name)
             if shortcut:
                 actObject.setShortcut(shortcut)
             actObject.setStatusTip(tooltip)
@@ -203,7 +202,7 @@ class MainWindow(pMainWindow):
         
         def seperator(menu):
             """Subfunction for insert separator to the menu"""
-            self.menuBar().menu(menu).addSeparator()
+            self.menuBar().model().action(menu).menu().addSeparator()
         
         # Menu or action path                   Name                                Icon            Shortcut        Hint                                        Action enabled
         menu  ("mFile",                               self.tr("File"                   ), ""            )
@@ -233,10 +232,10 @@ class MainWindow(pMainWindow):
         menu  ("mHelp",                               self.tr( "Help"                  ), ""            )
         action("mHelp/aAboutQt",                      self.tr( "About &Qt..." ),          "qt.png",       "",             self.tr( "About Qt..."            ), True )
         
-        self.menuBar().action( "mFile/aQuit" ).triggered.connect(self.close)
-        self.menuBar().action( "mHelp/aAboutQt" ).triggered.connect(qApp.aboutQt)
+        self.menuBar().model().action( "mFile/aQuit" ).triggered.connect(self.close)
+        self.menuBar().model().action( "mHelp/aAboutQt" ).triggered.connect(qApp.aboutQt)
         # docks
-        self.menuBar().menu( "mDocks" ).aboutToShow.connect(self._menu_Docks_aboutToShow)
+        self.menuBar().model().action( "mDocks" ).menu().aboutToShow.connect(self._menu_Docks_aboutToShow)
 
         """TODO restore or delete old connections
         self.menuBar().action( "mFile/aNew" ).triggered.connect(core.workspace().fileNew_triggered)
