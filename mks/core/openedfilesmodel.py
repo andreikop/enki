@@ -328,9 +328,9 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         """
         menu = QMenu()
         
-        menu.addAction( core.menuBar().action( "mFile/mClose/aCurrent" ) )
-        menu.addAction( core.menuBar().action( "mFile/mSave/aCurrent" ) )
-        menu.addAction( core.menuBar().action( "mFile/mReload/aCurrent" ) )
+        menu.addAction( core.actionModel().action( "mFile/mClose/aCurrent" ) )
+        menu.addAction( core.actionModel().action( "mFile/mSave/aCurrent" ) )
+        menu.addAction( core.actionModel().action( "mFile/mReload/aCurrent" ) )
         menu.addSeparator()
         
         # sort menu

@@ -6,7 +6,7 @@ Application shortcuts module transparently manages QAction shortcuts.
 
 Here is example of global action creation: ::
 
-    action = core.menuBar().addAction("mEdit/aShortcuts", self.tr( "Shortcuts..."),  QIcon(':/mksicons/shortcuts.png'))
+    action = core.actionModel().addAction("mEdit/aShortcuts", self.tr( "Shortcuts..."),  QIcon(':/mksicons/shortcuts.png'))
 
 This code adds *Shortcuts...* action to *Edit* menu.
 
@@ -57,7 +57,7 @@ class AppShortcuts:
                                                     (_CONFIG_PATH, unicode(str(ex), 'utf_8')))
             self._config = None
 
-        self._model = core.menuBar().model()
+        self._model = core.actionModel()
         self._model.rowsInserted.connect(self._onActionInserted)
         
         action = self._model.addAction("mEdit/aShortcuts", tr( "Shortcuts..."),  QIcon(':/mksicons/shortcuts.png'))

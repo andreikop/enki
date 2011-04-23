@@ -59,10 +59,10 @@ class Core:
         """
         return self._mainWindow
 
-    def menuBar(self):
-        """Get main window `menu bar <http://api.monkeystudio.org/fresh/classp_actions_node_menu_bar.html>`_ instance
+    def actionModel(self):
+        """Get main window `action model <http://api.monkeystudio.org/fresh/classp_actions_model.html>`_ instance
         """
-        return self._mainWindow.menuBar()
+        return self._mainWindow.menuBar().model()
 
     def workspace(self):
         """Get :class:`mks.core.workspace.Workspace` instance

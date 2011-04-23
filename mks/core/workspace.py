@@ -132,20 +132,20 @@ class Workspace(QStackedWidget):
         self.currentChanged.connect(self._onStackedLayoutIndexChanged)
         
         self.currentDocumentChanged.connect(self._updateMainWindowTitle)
-        mainWindow.menuBar().model().action( "mFile/aOpen" ).triggered.connect(self._fileOpen_triggered)
-        mainWindow.menuBar().model().action( "mFile/mReload/aCurrent" ).triggered.connect(self._onFileReloadTriggered)
-        mainWindow.menuBar().model().action( "mFile/mReload/aAll" ).triggered.connect(self._onFileReloadAllTriggered)
-        mainWindow.menuBar().model().action( "mFile/mClose/aCurrent" ).triggered.connect(self._onCloseCurrentDocument)
+        core.actionModel().action( "mFile/aOpen" ).triggered.connect(self._fileOpen_triggered)
+        core.actionModel().action( "mFile/mReload/aCurrent" ).triggered.connect(self._onFileReloadTriggered)
+        core.actionModel().action( "mFile/mReload/aAll" ).triggered.connect(self._onFileReloadAllTriggered)
+        core.actionModel().action( "mFile/mClose/aCurrent" ).triggered.connect(self._onCloseCurrentDocument)
     
-        mainWindow.menuBar().model().action( "mFile/mSave/aCurrent" ).triggered.connect(self._onFileSaveCurrent_triggered)
-        mainWindow.menuBar().model().action( "mFile/mSave/aAll" ).triggered.connect(self._onFileSaveAll_triggered)
+        core.actionModel().action( "mFile/mSave/aCurrent" ).triggered.connect(self._onFileSaveCurrent_triggered)
+        core.actionModel().action( "mFile/mSave/aAll" ).triggered.connect(self._onFileSaveAll_triggered)
         
-        mainWindow.menuBar().model().action( "mView/aNext" ).triggered.connect(self._activateNextDocument)
-        mainWindow.menuBar().model().action( "mView/aPrevious" ).triggered.connect(self._activatePreviousDocument)
+        core.actionModel().action( "mView/aNext" ).triggered.connect(self._activateNextDocument)
+        core.actionModel().action( "mView/aPrevious" ).triggered.connect(self._activatePreviousDocument)
         
-        mainWindow.menuBar().model().action( "mView/aFocusCurrentDocument" ).triggered.connect(self.focusCurrentDocument)
+        core.actionModel().action( "mView/aFocusCurrentDocument" ).triggered.connect(self.focusCurrentDocument)
         editConfigFile = lambda : self.openFile(core.config().filename)
-        mainWindow.menuBar().model().action( "mEdit/aConfigFile" ).triggered.connect(editConfigFile)
+        core.actionModel().action( "mEdit/aConfigFile" ).triggered.connect(editConfigFile)
     
     def _mainWindow(self):
         """Get mainWindow instance
@@ -220,32 +220,32 @@ class Workspace(QStackedWidget):
             pass
         
         if document is not None:
-            core.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(document.isModified())
-            core.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled( document.isModified() )
+            core.actionModel().action( "mFile/mClose/aCurrent" ).setEnabled(document.isModified())
+            core.actionModel().action( "mFile/mSave/aCurrent" ).setEnabled( document.isModified() )
         else:  # no document
-            core.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled(False)
+            core.actionModel().action( "mFile/mClose/aCurrent" ).setEnabled(False)
                 
         # update file menu
-        core.menuBar().action( "mFile/mSave/aAll" ).setEnabled( document is not None)
-        core.menuBar().action( "mFile/mClose/aCurrent" ).setEnabled( document is not None)
-        core.menuBar().action( "mView/aFocusCurrentDocument" ).setEnabled( document is not None)
+        core.actionModel().action( "mFile/mSave/aAll" ).setEnabled( document is not None)
+        core.actionModel().action( "mFile/mClose/aCurrent" ).setEnabled( document is not None)
+        core.actionModel().action( "mView/aFocusCurrentDocument" ).setEnabled( document is not None)
         ''' TODO close all
-        core.menuBar().action( "mFile/mClose/aAll" ).setEnabled( document )
+        core.actionModel().action( "mFile/mClose/aAll" ).setEnabled( document )
         '''
-        core.menuBar().action( "mFile/mReload/aCurrent" ).setEnabled( document is not None )
+        core.actionModel().action( "mFile/mReload/aCurrent" ).setEnabled( document is not None )
         ''' TODO save as backup, quick print, print
-        core.menuBar().action( "mFile/aSaveAsBackup" ).setEnabled( document )
-        core.menuBar().action( "mFile/aQuickPrint" ).setEnabled( print_ )
-        core.menuBar().action( "mFile/aPrint" ).setEnabled( print_ )
+        core.actionModel().action( "mFile/aSaveAsBackup" ).setEnabled( document )
+        core.actionModel().action( "mFile/aQuickPrint" ).setEnabled( print_ )
+        core.actionModel().action( "mFile/aPrint" ).setEnabled( print_ )
         
         # update edit menu
-        core.menuBar().action( "mEdit/aExpandAbbreviation" ).setEnabled( document )
+        core.actionModel().action( "mEdit/aExpandAbbreviation" ).setEnabled( document )
         '''
         
         # update view menu
         moreThanOneDocument = self.count() > 1
-        core.menuBar().action( "mView/aNext" ).setEnabled( moreThanOneDocument )
-        core.menuBar().action( "mView/aPrevious" ).setEnabled( moreThanOneDocument )
+        core.actionModel().action( "mView/aNext" ).setEnabled( moreThanOneDocument )
+        core.actionModel().action( "mView/aPrevious" ).setEnabled( moreThanOneDocument )
         
         # internal update
         if  document and document.filePath():
@@ -309,7 +309,7 @@ class Workspace(QStackedWidget):
         """Add document to the workspace. Connect signals
         """
         # update file menu
-        document.modifiedChanged.connect(core.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled)
+        document.modifiedChanged.connect(core.actionModel().action( "mFile/mSave/aCurrent" ).setEnabled)
         document.modifiedChanged.connect(self._updateMainWindowTitle)
         
         # add to workspace
@@ -321,7 +321,7 @@ class Workspace(QStackedWidget):
     def _unhandleDocument( self, document ):
         """Remove document from the workspace. Disconnect signals
         """
-        document.modifiedChanged.disconnect(core.menuBar().action( "mFile/mSave/aCurrent" ).setEnabled)
+        document.modifiedChanged.disconnect(core.actionModel().action( "mFile/mSave/aCurrent" ).setEnabled)
         # update edit menu
 
         # remove from workspace
@@ -657,7 +657,7 @@ class Workspace(QStackedWidget):
 
     def internal_projectInstallCommandRequested(self, cmd, mnu ):
         # create action
-        action = core.menuBar().action( QString( "%1/%2" ).arg( mnu ).arg( cmd.text() ) , d.text() )
+        action = core.actionModel().action( QString( "%1/%2" ).arg( mnu ).arg( cmd.text() ) , d.text() )
         action.setStatusTip( cmd.text() )
 
         # set action custom data contain the command to execute
@@ -671,7 +671,7 @@ class Workspace(QStackedWidget):
 
 
     def internal_projectUninstallCommandRequested(self, cmd, mnu ):
-        menu = core.menuBar().menu( mnu )
+        menu = core.actionModel().menu( mnu )
         
         for action in u.actions():
             if  action.menu() :
