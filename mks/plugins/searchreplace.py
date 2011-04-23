@@ -64,12 +64,12 @@ class SearchReplace(QObject):  # TODO (Plugin) ?
         """
         QObject.__init__(self)
         self.widget = None
-        mbar = core.menuBar()
+        model = core.menuBar().model()
         
         def createAction(path, text, icon, shortcut, tooltip, slot, data, enabled=True):
-            actObject = mbar.addAction( 'mEdit/mSearchReplace/' + path,
-                                        self.tr(text),
-                                        QIcon(':/mksicons/' + icon))
+            actObject = model.addAction( 'mEdit/mSearchReplace/' + path,
+                                         self.tr(text),
+                                         QIcon(':/mksicons/' + icon))
             actObject.setShortcut(self.tr(shortcut))
             actObject.setToolTip(self.tr(tooltip))
             if slot:
@@ -127,7 +127,7 @@ class SearchReplace(QObject):  # TODO (Plugin) ?
     def __del__(self):
         """Plugin termination
         """        
-        core.menuBar().menu("mEdit/mSearchReplace").deleteLater()
+        core.menuBar().model().removeMenu("mEdit/mSearchReplace")
     
     def _modeSwitchTriggered(self):
         """Changing mode, i.e. from "Search file" to "Replace file"
