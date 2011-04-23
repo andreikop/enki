@@ -60,13 +60,18 @@ class AppShortcuts:
         self._model = core.actionModel()
         self._model.rowsInserted.connect(self._onActionInserted)
         
-        action = self._model.addAction("mEdit/aShortcuts", tr( "Shortcuts..."),  QIcon(':/mksicons/shortcuts.png'))
+        action = self._model.addAction("mEdit/aApplicationShortcuts",
+                                       tr( "Application shortcuts..."), 
+                                       QIcon(':/mksicons/shortcuts.png'))
         action.setStatusTip(tr( "Edit application shortcuts..."))
         action.triggered.connect(self._onEditShortcuts)
         
         for action in _recursiveActionsList(self._model):
             self._applyShortcut(action)
 
+    def __term__(self):
+        self._model.removeAction("mEdit/aApplicationShortcuts")
+    
     def _applyShortcut(self, action):
         """Apply for the action its shortcut if defined
         """
@@ -99,7 +104,7 @@ class AppShortcuts:
                 if menu not in menuDict:
                     menuDict[menu] = {}
                 menuDict = menuDict[menu]
-            menuDict[path[-1]] = str(self._model.shortcut(action).toString())
+            menuDict[path[-1]] = str(action.shortcut().toString())
         self._config.write()
 
     def _onEditShortcuts(self):

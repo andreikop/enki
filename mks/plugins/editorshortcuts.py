@@ -9,7 +9,7 @@ import os.path
 
 from PyQt4 import uic
 from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt, QObject
-from PyQt4.QtGui import QDialog, QDialogButtonBox, QHeaderView
+from PyQt4.QtGui import QDialog, QDialogButtonBox, QHeaderView, QIcon
 
 from PyQt4.Qsci import QsciScintilla
 
@@ -337,3 +337,13 @@ class EditorShortcutsDialog(QDialog):
     def on_leFilter_textChanged(self, text ):
         self._proxy.setFilterWildcard( text )
         self.tvActions.expandAll()
+
+class EditorShortcuts:
+    def __init__(self):
+        action = core.actionModel().addAction("mEdit/aEditorShortcuts",
+                                              tr( "Editor shortcuts..."),
+                                              QIcon(':/mksicons/shortcuts.png'))
+        action.triggered.connect(lambda : EditorShortcutsDialog().exec_())
+    
+    def __term__(self):
+        core.actionModel().removeAction("mEdit/aEditorShortcuts")

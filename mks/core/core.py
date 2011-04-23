@@ -42,13 +42,14 @@ class Core:
         self._appShortcuts = mks.plugins.appshortcuts.AppShortcuts()
         self._searchreplace = mks.plugins.searchreplace.SearchReplace()
         self._fileBrowser = mks.plugins.filebrowser.FileBrowser()
-        self._editorShortcuts = mks.plugins.editorshortcuts.EditorShortcutsDialog().exec_()
+        self._editorShortcuts = mks.plugins.editorshortcuts.EditorShortcuts()
 
     def term(self):
         """Terminate plugins and core modules
         
         Called only by main()
         """
+        del self._editorShortcuts
         del self._searchreplace
         del self._fileBrowser
         del self._appShortcuts
