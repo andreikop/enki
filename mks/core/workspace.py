@@ -9,14 +9,12 @@ Workspace - main working area, where documents are placed.
 Document - widget on workspace. Here is examples of documents:
 
 * Textual editor
-* QtDesigner
-* QtAssistant
+* QtDesigner (probably in the future)
+* QtAssistant (probably in the future)
 
-Document classes are herited from :class:`AbstractDocument`
+Document classes are herited from :class:`mks.core.abstractdocument.AbstractDocument`
 
-:class:`mks.workspace.Workspace` - module API
-
-Module also contains widget, which shows list of opened documents and AbstractItemModel for manage this list.
+:class:`mks.core.workspace.Workspace`
 """
 
 import os.path
@@ -34,9 +32,9 @@ from PyQt4.QtCore import pyqtSignal, \
                          QEvent, \
                          Qt
 
-from mks.monkeycore import core, DATA_FILES_PATH
-import mks.openedfilesmodel
-import mks.abstractdocument
+from mks.core.core import core, DATA_FILES_PATH
+import mks.core.openedfilesmodel
+import mks.core.abstractdocument
 
 
 class _UISaveFiles(QDialog):
@@ -84,17 +82,14 @@ class Workspace(QStackedWidget):
     """
     Class manages set of opened documents, allows to open new file
     
-    Instance accessible as: ::
+    instance is accessible as: ::
     
+        from mks.core.core import core
         core.workspace()
     
-    First time created by ::class:mks.mainwindow.MainWindow
-    
-    NOTE: class contains some methods, which are not public now, but, could be useful for plugins.
-    If you found such method - don't use it silently, send bug report for make it public and document
     """
         
-    documentOpened = pyqtSignal(mks.abstractdocument.AbstractDocument)
+    documentOpened = pyqtSignal(mks.core.abstractdocument.AbstractDocument)
     """
     documentOpened(:class:AbstractDocument)
     
@@ -102,15 +97,15 @@ class Workspace(QStackedWidget):
     or some other document added to workspace
     """
     
-    documentClosed = pyqtSignal(mks.abstractdocument.AbstractDocument)
+    documentClosed = pyqtSignal(mks.core.abstractdocument.AbstractDocument)
     """
     documentClosed(:class:AbstractDocument)
     
     **Signal** emitted, when document was closed
     """
         
-    currentDocumentChanged = pyqtSignal(mks.abstractdocument.AbstractDocument,
-                                        mks.abstractdocument.AbstractDocument)
+    currentDocumentChanged = pyqtSignal(mks.core.abstractdocument.AbstractDocument,
+                                        mks.core.abstractdocument.AbstractDocument)
     """
     currentDocumentChanged(:class:AbstractDocument old, :class:AbstractDocument current)
     
@@ -120,7 +115,7 @@ class Workspace(QStackedWidget):
         
     def __init__(self, mainWindow):
         """ list of opened documents as it is displayed in the Opened Files Explorer. 
-        List accessed and modified by mks.openedfilesmodel.OpenedFileModel class
+        List accessed and modified by mks.core.openedfilesmodel.OpenedFileModel class
         """
         QStackedWidget.__init__(self, mainWindow)
         self._sortedDocuments = []
@@ -128,7 +123,7 @@ class Workspace(QStackedWidget):
         self._textEditorClass = None
         
         # create opened files explorer
-        self._openedFileExplorer = mks.openedfilesmodel.OpenedFileExplorer(self)
+        self._openedFileExplorer = mks.core.openedfilesmodel.OpenedFileExplorer(self)
         lefttb = mainWindow.dockToolBar( Qt.LeftToolBarArea )
         lefttb.addDockWidget( self._openedFileExplorer,
                               self._openedFileExplorer.windowTitle(),
@@ -179,13 +174,13 @@ class Workspace(QStackedWidget):
             name = self._mainWindow().defaultTitle()
         self._mainWindow().setWindowTitle(name)
 
-    def setTextEditorClass(self, newEditor):
+    def setTextEditorClass(self, newEditorClass):
         """Set text editor, which is used for open textual documents.
         New editor would be used for newly opened textual documents.
         
-        newEditor is class, herited from :class:AbstractDocument 
+        newEditorClass is class, herited from :class:`mks.core.abstractdocument.AbstractDocument`
         """
-        self._textEditorClass = newEditor
+        self._textEditorClass = newEditorClass
     
     def eventFilter( self, object, event ):
         """NOT AN API function
@@ -289,8 +284,11 @@ class Workspace(QStackedWidget):
         if  document :
             document.goTo(line, column, selectionLength )
     
-    def closeDocument( self, document, showDialog = True):
-        """Close opened file, remove document from workspace and delete the widget"""
+    def closeDocument( self, document, showDialog=True):
+        """Close opened file, remove document from workspace and delete the widget
+        
+        If showDialog is True, dialog will be shown, if file is modified
+        """
         
         if showDialog and document.isModified():
             if _UISaveFiles(self._mainWindow, [document]).exec_() == QDialog.Rejected:
@@ -389,13 +387,15 @@ class Workspace(QStackedWidget):
         self.closeDocument( document )
     
     def openedDocuments(self):
-        """Get list of opened documents (:class:AbstractDocument instances)
+        """Get list of opened documents (:class:`mks.core.abstractdocument.AbstractDocument` instances)
         """
         return self._sortedDocuments
     
     def closeAllDocuments(self):
         """Close all documents
+        
         If there are not saved documents, dialog will be shown.
+        
         Returns True, if all files had been closed, and False, if save dialog rejected
         """
         if any([d.isModified() for d in self.openedDocuments()]):
@@ -422,10 +422,10 @@ class Workspace(QStackedWidget):
     
     def focusCurrentDocument(self):
         """Set focus (cursor) to current document.
+        
         Used if user finished work with some dialog, and, probably, want's to edit text
         """
         document = self.currentDocument()
-
         if  document :
             document.setFocus()
        
@@ -436,22 +436,17 @@ class Workspace(QStackedWidget):
                 
         for path in fileNames:
             self.openFile(path)
-        
-    def _saveDocument(self, document):
-        """Handler of File->Save->Current
-        """
-        document.saveFile()
     
     def _onFileSaveCurrent_triggered(self):
         """Handler of File->Save->Current
         """
-        return self._saveDocument(self.currentDocument())
+        return self.currentDocument().saveFile()
     
     def _onFileSaveAll_triggered(self):
         """Handler of File->Save->All
         """
         for document in self.openedDocuments():
-            self._saveDocument(document)
+            document.saveFile()
     
     def _reloadDocument(self, document):
         """Reload the document contents
