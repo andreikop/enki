@@ -8,7 +8,7 @@ import re
 import os
 import os.path
 
-from PyQt4.QtCore import QDir, QModelIndex, QObject, QTimer, Qt
+from PyQt4.QtCore import QDir, QModelIndex, QObject, Qt
 from PyQt4.QtGui import QAction, QDialogButtonBox, QFileDialog, QFrame, QFileSystemModel, \
                         QIcon, QItemSelectionModel, QKeySequence, QLineEdit, QMenu, \
                         QShortcut, QSortFilterProxyModel, QToolButton, QTreeView, QVBoxLayout, QWidget
@@ -328,14 +328,6 @@ class DockFileBrowser(pDockWidget):
         firstChild = self._filteredModel.index(0, 0, rootIndex)
         if firstChild.isValid():  # There may be no rows, if directory is empty, or not loaded yet
             self._tree.selectionModel().select(firstChild, QItemSelectionModel.SelectCurrent)
-        else:
-            """TODO QFileSystemModel version supports directoryLoaded() signal only the from version 4.7.0.
-            When this signal is supported by Ubuntu version of PyQt4, remove this timer and replace it with signal
-            from the QFileSystemModel
-            """
-            if attempts > 0:
-                timerFunc = lambda: self._setFocusToTree(attempts - 1)
-                QTimer.singleShot(30, timerFunc)
 
     def setCurrentPath(self, path):
         """Set current path (root of the tree)

@@ -23,8 +23,8 @@ class MainWindow(pMainWindow):
     If you need to access to some existing menu items - check action path 
     in the class constructor, than use next code: ::
         
-        core.menuBar().action( "mFile/aOpen" ).setEnabled(True)
-        core.menuBar().action( "mFile/aOpen" ).triggered.connect(self.myCoolMethod)
+        self._actionModel.action( "mFile/aOpen" ).setEnabled(True)
+        self._actionModel.action( "mFile/aOpen" ).triggered.connect(self.myCoolMethod)
     
     MainWindow instance is accessible as: ::
     
@@ -74,9 +74,9 @@ class MainWindow(pMainWindow):
     
     def __del__(self):
         for act in self._createdActions:
-            self.menuBar().removeAction(act)
+            self._actionModel.removeAction(act)
         for menuPath in self._createdMenuPathes:
-            self.menuBar().model().removeMenu(menuPath)
+            self._actionModel.removeMenu(menuPath)
         
         self.menuBar().setModel( None )
         self.settings().sync()  # write window and docs geometry
@@ -87,8 +87,8 @@ class MainWindow(pMainWindow):
         because it's easier to create clear menu layout
         """
         # create menubar menus and actions
-        self._actionsModel = pActionsModel(self)
-        self.menuBar().setModel(self._actionsModel)
+        self._actionModel = pActionsModel(self)
+        self.menuBar().setModel(self._actionModel)
 
         """TODO restore or delete old actions
         mb.action( "aNew", self.tr( "&New..." ), QIcon(":/mksicons/new.png" ),"Ctrl+N", self.tr( "Create a new file" ) )
@@ -183,7 +183,7 @@ class MainWindow(pMainWindow):
         
         def menu(path, name, icon):
             """Subfunction for create a menu in the main menu"""
-            menuObject = self.menuBar().model().addMenu(path, name)
+            menuObject = self._actionModel.addMenu(path, name)
             if icon:
                 menuObject.setIcon(QIcon(':/mksicons/' + icon))
             self._createdMenuPathes.append(path)
@@ -191,9 +191,9 @@ class MainWindow(pMainWindow):
         def action(path, name, icon, shortcut, tooltip, enabled):
             """Subfunction for create an action in the main menu"""
             if icon:  # has icon
-                actObject = self.menuBar().model().addAction(path, name, QIcon(':/mksicons/' + icon))
+                actObject = self._actionModel.addAction(path, name, QIcon(':/mksicons/' + icon))
             else:
-                actObject = self.menuBar().model().addAction(path, name)
+                actObject = self._actionModel.addAction(path, name)
             if shortcut:
                 actObject.setShortcut(shortcut)
             actObject.setStatusTip(tooltip)
@@ -202,7 +202,7 @@ class MainWindow(pMainWindow):
         
         def seperator(menu):
             """Subfunction for insert separator to the menu"""
-            self.menuBar().model().action(menu).menu().addSeparator()
+            self._actionModel.action(menu).menu().addSeparator()
         
         # Menu or action path                   Name                                Icon            Shortcut        Hint                                        Action enabled
         menu  ("mFile",                               self.tr("File"                   ), ""            )
@@ -232,29 +232,29 @@ class MainWindow(pMainWindow):
         menu  ("mHelp",                               self.tr( "Help"                  ), ""            )
         action("mHelp/aAboutQt",                      self.tr( "About &Qt..." ),          "qt.png",       "",             self.tr( "About Qt..."            ), True )
         
-        self.menuBar().model().action( "mFile/aQuit" ).triggered.connect(self.close)
-        self.menuBar().model().action( "mHelp/aAboutQt" ).triggered.connect(qApp.aboutQt)
+        self._actionModel.action( "mFile/aQuit" ).triggered.connect(self.close)
+        self._actionModel.action( "mHelp/aAboutQt" ).triggered.connect(qApp.aboutQt)
         # docks
-        self.menuBar().model().action( "mDocks" ).menu().aboutToShow.connect(self._menu_Docks_aboutToShow)
+        self._actionModel.action( "mDocks" ).menu().aboutToShow.connect(self._menu_Docks_aboutToShow)
 
         """TODO restore or delete old connections
-        self.menuBar().action( "mFile/aNew" ).triggered.connect(core.workspace().fileNew_triggered)
-        self.menuBar().action( "mFile/aNewTextEditor" ).triggered.connect(core.workspace().createNewTextEditor)
+        self._actionModel.action( "mFile/aNew" ).triggered.connect(core.workspace().fileNew_triggered)
+        self._actionModel.action( "mFile/aNewTextEditor" ).triggered.connect(core.workspace().createNewTextEditor)
         core.recentsManager().openFileRequested.connect(core.fileManager().openFile)
-        self.menuBar().action( "mFile/mSession/aSave" ).triggered.connect(core.workspace().fileSessionSave_triggered)
-        self.menuBar().action( "mFile/mSession/aRestore" ).triggered.connect(core.workspace().fileSessionRestore_triggered)
-        self.menuBar().action( "mFile/mClose/aAll" ).triggered.connect(core.workspace().fileCloseAll_triggered)
-        self.menuBar().action( "mFile/aSaveAsBackup" ).triggered.connect(core.workspace().fileSaveAsBackup_triggered)
-        self.menuBar().action( "mFile/aQuickPrint" ).triggered.connect(core.workspace().fileQuickPrint_triggered)
-        self.menuBar().action( "mFile/aPrint" ).triggered.connect(core.workspace().filePrint_triggered)
+        self._actionModel.action( "mFile/mSession/aSave" ).triggered.connect(core.workspace().fileSessionSave_triggered)
+        self._actionModel.action( "mFile/mSession/aRestore" ).triggered.connect(core.workspace().fileSessionRestore_triggered)
+        self._actionModel.action( "mFile/mClose/aAll" ).triggered.connect(core.workspace().fileCloseAll_triggered)
+        self._actionModel.action( "mFile/aSaveAsBackup" ).triggered.connect(core.workspace().fileSaveAsBackup_triggered)
+        self._actionModel.action( "mFile/aQuickPrint" ).triggered.connect(core.workspace().fileQuickPrint_triggered)
+        self._actionModel.action( "mFile/aPrint" ).triggered.connect(core.workspace().filePrint_triggered)
         # edit connection
-        self.menuBar().action( "mEdit/aSettings" ).triggered.connect(core.workspace().editSettings_triggered)
-        self.menuBar().action( "mEdit/aTranslations" ).triggered.connect(core.workspace().editTranslations_triggered)
-        self.menuBar().action( "mEdit/mSearchReplace/aSearchFile" ).triggered.connect(core.workspace().editSearch_triggered)
-        #menuBar().action( "mEdit/aSearchPrevious" ).triggered.connect(core.workspace().editSearchPrevious_triggered)
-        #menuBar().action( "mEdit/aSearchNext" ).triggered.connect(core.workspace().editSearchNext_triggered)
-        self.menuBar().action( "mEdit/aExpandAbbreviation" ).triggered.connect(core.workspace().editExpandAbbreviation_triggered)
-        self.menuBar().action( "mEdit/aPrepareAPIs" ).triggered.connect(core.workspace().editPrepareAPIs_triggered)
+        self._actionModel.action( "mEdit/aSettings" ).triggered.connect(core.workspace().editSettings_triggered)
+        self._actionModel.action( "mEdit/aTranslations" ).triggered.connect(core.workspace().editTranslations_triggered)
+        self._actionModel.action( "mEdit/mSearchReplace/aSearchFile" ).triggered.connect(core.workspace().editSearch_triggered)
+        #self._actionModel.action( "mEdit/aSearchPrevious" ).triggered.connect(core.workspace().editSearchPrevious_triggered)
+        #self._actionModel.action( "mEdit/aSearchNext" ).triggered.connect(core.workspace().editSearchNext_triggered)
+        self._actionModel.action( "mEdit/aExpandAbbreviation" ).triggered.connect(core.workspace().editExpandAbbreviation_triggered)
+        self._actionModel.action( "mEdit/aPrepareAPIs" ).triggered.connect(core.workspace().editPrepareAPIs_triggered)
         # view connection
         agStyles.styleSelected.connect(self.changeStyle)
 
@@ -262,17 +262,17 @@ class MainWindow(pMainWindow):
         core.recentsManager().openProjectRequested.connect(core.projectsManager().openProject)
         core.projectsManager().fileDoubleClicked.connect(core.workspace().openFile)
         # builder debugger interpreter menu
-        self.menuBar().menu( "mBuilder" ).aboutToShow.connect(self.menu_CustomAction_aboutToShow)
-        self.menuBar().menu( "mDebugger" ).aboutToShow.connect(self.menu_CustomAction_aboutToShow)
-        self.menuBar().menu( "mInterpreter" ).aboutToShow.connect(self.menu_CustomAction_aboutToShow)
+        self._actionModel.menu( "mBuilder" ).aboutToShow.connect(self.menu_CustomAction_aboutToShow)
+        self._actionModel.menu( "mDebugger" ).aboutToShow.connect(self.menu_CustomAction_aboutToShow)
+        self._actionModel.menu( "mInterpreter" ).aboutToShow.connect(self.menu_CustomAction_aboutToShow)
         # plugins menu
         # window menu
-        self.menuBar().action( "mWindow/aTile" ).triggered.connect(core.workspace().tile)
-        self.menuBar().action( "mWindow/aCascase" ).triggered.connect(core.workspace().cascade)
-        self.menuBar().action( "mWindow/aMinimize" ).triggered.connect(core.workspace().minimize)
-        self.menuBar().action( "mWindow/aRestore" ).triggered.connect(core.workspace().restore)
+        self._actionModel.action( "mWindow/aTile" ).triggered.connect(core.workspace().tile)
+        self._actionModel.action( "mWindow/aCascase" ).triggered.connect(core.workspace().cascade)
+        self._actionModel.action( "mWindow/aMinimize" ).triggered.connect(core.workspace().minimize)
+        self._actionModel.action( "mWindow/aRestore" ).triggered.connect(core.workspace().restore)
         # help menu
-        self.menuBar().action( "mHelp/aAbout" ).triggered.connect(core.workspace().helpAboutApplication_triggered)
+        self._actionModel.action( "mHelp/aAbout" ).triggered.connect(core.workspace().helpAboutApplication_triggered)
         """
     
     def _saveShortcuts(self):
@@ -287,7 +287,7 @@ class MainWindow(pMainWindow):
                 if node.action():
                     print node.action().text()
         
-        model = self.menuBar().model()
+        model = self._actionModel.model()
         printActions(model, QModelIndex())
     
     
@@ -307,13 +307,13 @@ class MainWindow(pMainWindow):
         """Fill docs menu with currently existing docs
         """
         # get menu
-        menu = self.menuBar().menu( "mDocks" )
+        menu = self._actionModel.menu( "mDocks" )
         
         # add actions
         for dock in self.findChildren(pDockWidget):
             action = dock.showAction()
             menu.addAction( action )
-            self.menuBar().addAction( "mDocks", action )
+            self._actionModel.addAction( "mDocks", action )
     
     def centralLayout(self):
         """Layout of the central widget. Contains Workspace and search widget
@@ -397,9 +397,9 @@ def updateMenuVisibility( self, menu ):
         if  sender() :
             menus.append(sender())
         else:
-            menus.append[self.menuBar().menu( "mBuilder" )]
-            menus.append[self.menuBar().menu( "mDebugger")]
-            menus.append[self.menuBar().menu( "mInterpreter")]
+            menus.append[self._actionModel.menu( "mBuilder" )]
+            menus.append[self._actionModel.menu( "mDebugger")]
+            menus.append[self._actionModel.menu( "mInterpreter")]
 
         for m in menus:
             self.updateMenuVisibility( m )

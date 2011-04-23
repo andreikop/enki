@@ -64,7 +64,7 @@ class SearchReplace(QObject):  # TODO (Plugin) ?
         """
         QObject.__init__(self)
         self.widget = None
-        model = core.menuBar().model()
+        model = core.actionModel()
         
         def createAction(path, text, icon, shortcut, tooltip, slot, data, enabled=True):
             actObject = model.addAction( 'mEdit/mSearchReplace/' + path,
@@ -127,7 +127,7 @@ class SearchReplace(QObject):  # TODO (Plugin) ?
     def __del__(self):
         """Plugin termination
         """        
-        core.menuBar().model().removeMenu("mEdit/mSearchReplace")
+        core.actionModel().removeMenu("mEdit/mSearchReplace")
     
     def _modeSwitchTriggered(self):
         """Changing mode, i.e. from "Search file" to "Replace file"
@@ -260,8 +260,8 @@ class SearchWidget(QFrame):
         self.tbMode = QToolButton( self.cbSearch.lineEdit() )
         self.tbMode.setIcon( QIcon( ":/mksicons/misc.png" ) )
         self.tbMode.setPopupMode( QToolButton.InstantPopup )
-        self.tbMode.setMenu( core.menuBar().\
-                menu( "mEdit/mSearchReplace" ) )
+        self.tbMode.setMenu( core.actionModel().\
+                action( "mEdit/mSearchReplace" ).menu() )
         self.tbMode.setCursor( Qt.ArrowCursor )
         self.tbMode.installEventFilter( self )
         
@@ -361,14 +361,14 @@ class SearchWidget(QFrame):
                                         self.replaceThread_openedFileHandled)
         self.mReplaceThread.error.connect(self.replaceThread_error)
         
-        core.menuBar().action("mEdit/mSearchReplace/aSearchNext").triggered.connect(self.on_pbNext_pressed)
-        core.menuBar().action("mEdit/mSearchReplace/aSearchPrevious").triggered.connect(self.on_pbPrevious_pressed)
+        core.actionModel().action("mEdit/mSearchReplace/aSearchNext").triggered.connect(self.on_pbNext_pressed)
+        core.actionModel().action("mEdit/mSearchReplace/aSearchPrevious").triggered.connect(self.on_pbPrevious_pressed)
         
         self.pbSearch.setEnabled(False)
         self.pbNext.setEnabled(False)
         self.pbPrevious.setEnabled(False)
-        core.menuBar().action("mEdit/mSearchReplace/aSearchNext").setEnabled(False)
-        core.menuBar().action("mEdit/mSearchReplace/aSearchPrevious").setEnabled(False)
+        core.actionModel().action("mEdit/mSearchReplace/aSearchNext").setEnabled(False)
+        core.actionModel().action("mEdit/mSearchReplace/aSearchPrevious").setEnabled(False)
 
 
     def setResultsDock(self, dock ):
@@ -783,8 +783,8 @@ class SearchWidget(QFrame):
         self.pbSearch.setEnabled(haveText)
         self.pbNext.setEnabled(haveText)
         self.pbPrevious.setEnabled(haveText)
-        core.menuBar().action("mEdit/mSearchReplace/aSearchNext").setEnabled(haveText)
-        core.menuBar().action("mEdit/mSearchReplace/aSearchPrevious").setEnabled(haveText)
+        core.actionModel().action("mEdit/mSearchReplace/aSearchNext").setEnabled(haveText)
+        core.actionModel().action("mEdit/mSearchReplace/aSearchPrevious").setEnabled(haveText)
     
     def search_textEdited(self):
         """User edited search text, do incremental search
