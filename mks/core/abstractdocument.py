@@ -4,7 +4,7 @@ abstractdocument --- Base class for workspace documents
 
 This class is inherited by textual editor, and must be inherited by other workspace widgets.
 
-:class:`mks.workspace.AbstractDocument`  - base class of workspace documents
+:class:`mks.core.workspace.AbstractDocument`  - base class of workspace documents
 """
 
 import os.path
@@ -98,9 +98,11 @@ class AbstractDocument(QWidget):
     
     def eolMode(self):
         """Return document's EOL mode. Possible values are:
-            r"\n"  - UNIX EOL
-            r"\r\n" - Windows EOL
-            None - not defined for the editor type
+        
+        * ``\\n``  - UNIX EOL
+        * ``\\r\\n`` - Windows EOL
+        * ``None`` - not defined for the editor type
+        
         """
         return None
     
@@ -186,6 +188,7 @@ class AbstractDocument(QWidget):
                                      self.tr( "Cannot create directory '%s'. Error '%s'" % (dirPath, error)))
                 return
         
+        self._fileWatcher.removePath(self.filePath())
         try:
             openedFile = open(self.filePath(), 'w')
         except IOError, ex:
@@ -194,7 +197,6 @@ class AbstractDocument(QWidget):
                                  unicode(str(ex), 'utf8'))
             return
         
-        self._fileWatcher.removePath(self.filePath())
         try:
             openedFile.write(unicode(self.text()).encode('utf8'))
         finally:
@@ -203,6 +205,7 @@ class AbstractDocument(QWidget):
         
         self._externallyRemoved = False
         self._externallyModified = False
+        
     
     def text(self):
         """Contents of the editor.

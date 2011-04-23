@@ -24,7 +24,7 @@ from PyQt4 import uic
 
 import PyQt4.fresh
 
-from mks.monkeycore import core, DATA_FILES_PATH
+from mks.core.core import core, DATA_FILES_PATH
 
 
 

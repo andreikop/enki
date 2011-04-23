@@ -3,7 +3,7 @@
 help = """Script helps to convert C/C++ sources to C/C++ -like Python sources.
 
 It does few edit operations, for convert C/C++ to Python.
-After it you must edit code by hands, but, probably you would spend less time for it.
+After it you must edit code manually, but, probably you would spend less time for it.
 
 Utility Will make mistaces and Will not generate ready for use code, so, it won't help you, 
 if you don't know C/C++ and Python
@@ -278,6 +278,12 @@ def process_file(filename):
 
 
 if __name__ == '__main__':
+    if '--help' in sys.argv or \
+       '-h' in sys.argv or \
+       '--version' in sys.argv or \
+       '-v' in sys.argv:
+        print help
+        sys.exit(0)
     if len (sys.argv) != 2:
         print >> sys.stderr, 'Invalid parameters count. Must be 1'
         print help

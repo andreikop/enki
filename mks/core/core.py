@@ -1,7 +1,6 @@
 """
-monkeycore --- Get instances of core classes, initialize and terminate the system
-=================================================================================
-
+core --- Instances of core classes, initialize and terminate the system
+=======================================================================
 
 Module initializes system at startup, terminates it, when mksv3 closed,
 and used for get core instances, such as main window, workspace, etc.
@@ -16,30 +15,34 @@ from PyQt4.fresh import pSettings
 
 import mks.resources.icons
 
-DATA_FILES_PATH = os.path.dirname(__file__)
+DATA_FILES_PATH = os.path.join(os.path.dirname(__file__), '..')
 
 class Core:
     """Core object initializes system at startup and terminates at close.
-    It create instances of other core modules and holds references to it
+    
+    It creates instances of other core modules and holds references to it
     """
     def init(self):
         """Initialize core.
+        
         Called only by main()
         """
         pSettings.setDefaultProperties(pSettings.Properties(qApp.applicationName(), \
                                                             "1.0.0",
                                                             pSettings.Normal))
-        self._mainWindow = mks.mainwindow.MainWindow()
-        self._config = mks.config.createConfig()
-        self._workspace = mks.workspace.Workspace(self._mainWindow)
+        self._mainWindow = mks.core.mainwindow.MainWindow()
+        self._config = mks.core.config.createConfig()
+        self._workspace = mks.core.workspace.Workspace(self._mainWindow)
         self._mainWindow.setWorkspace(self._workspace)
-        self._workspace.setTextEditorClass(mks.editor.Editor) 
+        self._workspace.setTextEditorClass(mks.plugins.editor.Editor) 
         
-        self._mainWindow.statusBar().addPermanentWidget(mks.editortoolbar.EditorToolBar(self._mainWindow.statusBar()))
+        self._mainWindow.statusBar().addPermanentWidget(mks.plugins.editortoolbar.EditorToolBar(self._mainWindow.statusBar()))
         
-        # Create searchreplacce and filebrowser plugins
-        self._searchreplace = mks.searchandreplace.SearchAndReplace()
-        self._fileBrowser = mks.filebrowser.FileBrowser()
+        # Create plugins
+        self._appShortcuts = mks.plugins.appshortcuts.AppShortcuts()
+        self._searchreplace = mks.plugins.searchreplace.SearchReplace()
+        self._fileBrowser = mks.plugins.filebrowser.FileBrowser()
+        self._editorShortcuts = mks.plugins.editorshortcuts.EditorShortcutsDialog().exec_()
 
     def term(self):
         """Terminate plugins and core modules
@@ -48,48 +51,45 @@ class Core:
         """
         del self._searchreplace
         del self._fileBrowser
+        del self._appShortcuts
         mks.resources.icons.qCleanupResources()
 
     def mainWindow(self):
-        """Get :class:`mks.mainwindow.MainWindow` instance 
-        
-        Instance created, if not exists yet
+        """Get :class:`mks.core.mainwindow.MainWindow` instance
         """
         return self._mainWindow
 
     def menuBar(self):
-        """Get main window menu bar.
-        
-        Instance created, if not exists yet
+        """Get main window `menu bar <http://api.monkeystudio.org/fresh/classp_actions_node_menu_bar.html>`_ instance
         """
         return self._mainWindow.menuBar()
 
     def workspace(self):
-        """Get :class:`mks.workspace.Workspace` instance
-        
-        Instance created, if not exists yet
+        """Get :class:`mks.core.workspace.Workspace` instance
         """
         return self._workspace
 
     def config(self):
-        """ConfigObj istance used for read and write settings
-        ConfigObj is cool config file reader and writer. Home page and documentation:
-            http://www.voidspace.org.uk/python/configobj.html
+        """Get :class:`mks.core.config.Config` instance
         """
         return self._config
         
     def messageManager(self):
-        """pQueuedMessageToolBar used for show popup messages
+        """Get `queued message bar <http://api.monkeystudio.org/fresh/classp_queued_message_tool_bar.html>`_ instance
         """
         return self._mainWindow.queuedMessageToolBar()
 
 core = Core()
-import mks.editor  # imports after core has been created, hack for fix cross-imports problem
-import mks.editortoolbar
-import mks.searchandreplace
-import mks.filebrowser
-import mks.mainwindow
-import mks.config
+import mks.core.mainwindow # imports after core has been created, hack for fix cross-imports problem
+import mks.core.config
+# Plugins
+import mks.plugins.editor
+import mks.plugins.editortoolbar
+import mks.plugins.searchreplace
+import mks.plugins.filebrowser
+import mks.plugins.appshortcuts
+import mks.plugins.editorshortcuts
+
 
 """TODO restore or delete old code
 def _isXmas():
@@ -189,7 +189,7 @@ if  mks.monkeystudio.restoreSessionOnStartup() :
 
 # ready
 _showMessage( splash, splash.tr( "%1 v%2 (%3) Ready" ).arg( 
-mks.config.PACKAGE_NAME, mks.config.PACKAGE_VERSION, mks.config.PACKAGE_VERSION_STR ) )
+mks.core.config.PACKAGE_NAME, mks.core.config.PACKAGE_VERSION, mks.core.config.PACKAGE_VERSION_STR ) )
 
 # finish splashscreen
 splash.finish( mainWindow() )
