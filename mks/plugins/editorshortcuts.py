@@ -6,6 +6,7 @@ Contains editor dialog and functionality for load and save the shortcuts
 """
 
 import os.path
+import copy
 
 from PyQt4 import uic
 from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt, QObject
@@ -22,118 +23,121 @@ def tr(s):
     # FIXME add translation
     return s
 
-#define SCI_SHIFT SCMOD_SHIFT
-#define SCI_CTRL SCMOD_CTRL
-#define SCI_ALT SCMOD_ALT
-#define SCI_CSHIFT (SCI_CTRL | SCI_SHIFT)
-#define SCI_ASHIFT (SCI_ALT | SCI_SHIFT)
+SCI_NORM = 0
+SCI_SHIFT = qsci.SCMOD_SHIFT
+SCI_CTRL = qsci.SCMOD_CTRL
+SCI_ALT = qsci.SCMOD_ALT
+SCI_CSHIFT = SCI_CTRL | SCI_SHIFT
+SCI_ASHIFT = SCI_ALT | SCI_SHIFT
+SCI_ACSHIFT = SCI_ALT | SCI_SHIFT | SCI_CTRL
 
 # Copy-pasted from QScintilla/src/KeyMap.cpp
 _DEFAULT_KEYMAP = {
-                    qsci.SCI_LINEDOWN:              (qsci.SCK_DOWN,         qsci.SCI_NORM),
-                    qsci.SCI_LINEDOWNEXTEND:        (qsci.SCK_DOWN,         qsci.SCI_SHIFT),
-                    qsci.SCI_LINESCROLLDOWN:        (qsci.SCK_DOWN,         qsci.SCI_CTRL),
-                    qsci.SCI_LINEDOWNRECTEXTEND:    (qsci.SCK_DOWN,         qsci.SCI_ASHIFT),
-                    qsci.SCI_LINEUP:                (qsci.SCK_UP,           qsci.SCI_NORM),
-                    qsci.SCI_LINEUPEXTEND:          (qsci.SCK_UP,           qsci.SCI_SHIFT),
-                    qsci.SCI_LINESCROLLUP:          (qsci.SCK_UP,           qsci.SCI_CTRL),
-                    qsci.SCI_LINEUPRECTEXTEND:      (qsci.SCK_UP,           qsci.SCI_ASHIFT),
-                    qsci.SCI_PARAUP:                (ord('['),              qsci.SCI_CTRL),
-                    qsci.SCI_PARAUPEXTEND:          (ord('['),              qsci.SCI_CSHIFT),
-                    qsci.SCI_PARADOWN:              (ord(']'),              qsci.SCI_CTRL),
-                    qsci.SCI_PARADOWNEXTEND:        (ord(']'),              qsci.SCI_CSHIFT),
-                    qsci.SCI_CHARLEFT:              (qsci.SCK_LEFT,         qsci.SCI_NORM),
-                    qsci.SCI_CHARLEFTEXTEND:        (qsci.SCK_LEFT,         qsci.SCI_SHIFT),
-                    qsci.SCI_WORDLEFT:              (qsci.SCK_LEFT,         qsci.SCI_CTRL),
-                    qsci.SCI_WORDLEFTEXTEND:        (qsci.SCK_LEFT,         qsci.SCI_CSHIFT),
-                    qsci.SCI_CHARLEFTRECTEXTEND:    (qsci.SCK_LEFT,         qsci.SCI_ASHIFT),
-                    qsci.SCI_CHARRIGHT:             (qsci.SCK_RIGHT,        qsci.SCI_NORM),
-                    qsci.SCI_CHARRIGHTEXTEND:       (qsci.SCK_RIGHT,        qsci.SCI_SHIFT),
-                    qsci.SCI_WORDRIGHT:             (qsci.SCK_RIGHT,        qsci.SCI_CTRL),
-                    qsci.SCI_WORDRIGHTEXTEND:       (qsci.SCK_RIGHT,        qsci.SCI_CSHIFT),
-                    qsci.SCI_CHARRIGHTRECTEXTEND:   (qsci.SCK_RIGHT,        qsci.SCI_ASHIFT),
-                    qsci.SCI_WORDPARTLEFT:          (ord('/'),              qsci.SCI_CTRL),
-                    qsci.SCI_WORDPARTLEFTEXTEND:    (ord('/'),              qsci.SCI_CSHIFT),
-                    qsci.SCI_WORDPARTRIGHT:         (ord('\\'),             qsci.SCI_CTRL),
-                    qsci.SCI_WORDPARTRIGHTEXTEND:   (ord('\\'),             qsci.SCI_CSHIFT),
-                    qsci.SCI_VCHOME:                (qsci.SCK_HOME,         qsci.SCI_NORM),
-                    qsci.SCI_VCHOMEEXTEND:          (qsci.SCK_HOME,         qsci.SCI_SHIFT),
-                    qsci.SCI_DOCUMENTSTART:         (qsci.SCK_HOME,         qsci.SCI_CTRL),
-                    qsci.SCI_DOCUMENTSTARTEXTEND:   (qsci.SCK_HOME,         qsci.SCI_CSHIFT),
-                    qsci.SCI_HOMEDISPLAY:           (qsci.SCK_HOME,         qsci.SCI_ALT),
-                    qsci.SCI_VCHOMERECTEXTEND:      (qsci.SCK_HOME,         qsci.SCI_ASHIFT),
-                    qsci.SCI_LINEEND:               (qsci.SCK_END,          qsci.SCI_NORM),
-                    qsci.SCI_LINEENDEXTEND:         (qsci.SCK_END,          qsci.SCI_SHIFT),
-                    qsci.SCI_DOCUMENTEND:           (qsci.SCK_END,          qsci.SCI_CTRL),
-                    qsci.SCI_DOCUMENTENDEXTEND:     (qsci.SCK_END,          qsci.SCI_CSHIFT),
-                    qsci.SCI_LINEENDDISPLAY:        (qsci.SCK_END,          qsci.SCI_ALT),
-                    qsci.SCI_LINEENDRECTEXTEND:     (qsci.SCK_END,          qsci.SCI_ASHIFT),
-                    qsci.SCI_PAGEUP:                (qsci.SCK_PRIOR,        qsci.SCI_NORM),
-                    qsci.SCI_PAGEUPEXTEND:          (qsci.SCK_PRIOR,        qsci.SCI_SHIFT),
-                    qsci.SCI_PAGEUPRECTEXTEND:      (qsci.SCK_PRIOR,        qsci.SCI_ASHIFT),
-                    qsci.SCI_PAGEDOWN:              (qsci.SCK_NEXT,         qsci.SCI_NORM),
-                    qsci.SCI_PAGEDOWNEXTEND:        (qsci.SCK_NEXT,         qsci.SCI_SHIFT),
-                    qsci.SCI_PAGEDOWNRECTEXTEND:    (qsci.SCK_NEXT,         qsci.SCI_ASHIFT),
-                    qsci.SCI_CLEAR:                 (qsci.SCK_DELETE,       qsci.SCI_NORM),
-                    qsci.SCI_CUT:                   (qsci.SCK_DELETE,       qsci.SCI_SHIFT),
-                    qsci.SCI_DELWORDRIGHT:          (qsci.SCK_DELETE,       qsci.SCI_CTRL),
-                    qsci.SCI_DELLINERIGHT:          (qsci.SCK_DELETE,       qsci.SCI_CSHIFT),
-                    qsci.SCI_EDITTOGGLEOVERTYPE:    (qsci.SCK_INSERT,       qsci.SCI_NORM),
-                    qsci.SCI_PASTE:                 (qsci.SCK_INSERT,       qsci.SCI_SHIFT),
-                    qsci.SCI_COPY:                  (qsci.SCK_INSERT,       qsci.SCI_CTRL),
-                    qsci.SCI_CANCEL:                (qsci.SCK_ESCAPE,       qsci.SCI_NORM),
-                    qsci.SCI_DELETEBACK:            (qsci.SCK_BACK,         qsci.SCI_NORM),
-                    qsci.SCI_DELETEBACK:            (qsci.SCK_BACK,         qsci.SCI_SHIFT),
-                    qsci.SCI_DELWORDLEFT:           (qsci.SCK_BACK,         qsci.SCI_CTRL),
-                    qsci.SCI_UNDO:                  (qsci.SCK_BACK,         qsci.SCI_ALT),
-                    qsci.SCI_DELLINELEFT:           (qsci.SCK_BACK,         qsci.SCI_CSHIFT),
-                    qsci.SCI_UNDO:                  (ord('Z'),               qsci.SCI_CTRL),
-                    qsci.SCI_REDO:                  (ord('Y'),               qsci.SCI_CTRL),
-                    qsci.SCI_CUT:                   (ord('X'),               qsci.SCI_CTRL),
-                    qsci.SCI_COPY:                  (ord('C'),               qsci.SCI_CTRL),
-                    qsci.SCI_PASTE:                 (ord('V'),               qsci.SCI_CTRL),
-                    qsci.SCI_SELECTALL:             (ord('A'),               qsci.SCI_CTRL),
-                    qsci.SCI_TAB:                   (qsci.SCK_TAB,          qsci.SCI_NORM),
-                    qsci.SCI_BACKTAB:               (qsci.SCK_TAB,          qsci.SCI_SHIFT),
-                    qsci.SCI_NEWLINE:               (qsci.SCK_RETURN,       qsci.SCI_NORM),
-                    qsci.SCI_NEWLINE:               (qsci.SCK_RETURN,       qsci.SCI_SHIFT),
-                    qsci.SCI_ZOOMIN:                (qsci.SCK_ADD,          qsci.SCI_CTRL),
-                    qsci.SCI_ZOOMOUT:               (qsci.SCK_SUBTRACT,     qsci.SCI_CTRL),
-                    qsci.SCI_SETZOOM:               (qsci.SCK_DIVIDE,       qsci.SCI_CTRL),
-                    qsci.SCI_LINECUT:               (ord('L'),              qsci.SCI_CTRL),
-                    qsci.SCI_LINEDELETE:            (ord('L'),              qsci.SCI_CSHIFT),
-                    qsci.SCI_LINECOPY:              (ord('T'),              qsci.SCI_CSHIFT),
-                    qsci.SCI_LINETRANSPOSE:         (ord('T'),              qsci.SCI_CTRL),
-                    qsci.SCI_SELECTIONDUPLICATE:    (ord('D'),              qsci.SCI_CTRL),
-                    qsci.SCI_LOWERCASE:             (ord('U'),              qsci.SCI_CTRL),
-                    qsci.SCI_UPPERCASE:             (ord('U'),              qsci.SCI_CSHIFT),
+                    qsci.SCI_LINEDOWN:              (qsci.SCK_DOWN,         SCI_NORM),
+                    qsci.SCI_LINEDOWNEXTEND:        (qsci.SCK_DOWN,         SCI_SHIFT),
+                    qsci.SCI_LINESCROLLDOWN:        (qsci.SCK_DOWN,         SCI_CTRL),
+                    qsci.SCI_LINEDOWNRECTEXTEND:    (qsci.SCK_DOWN,         SCI_ASHIFT),
+                    qsci.SCI_LINEUP:                (qsci.SCK_UP,           SCI_NORM),
+                    qsci.SCI_LINEUPEXTEND:          (qsci.SCK_UP,           SCI_SHIFT),
+                    qsci.SCI_LINESCROLLUP:          (qsci.SCK_UP,           SCI_CTRL),
+                    qsci.SCI_LINEUPRECTEXTEND:      (qsci.SCK_UP,           SCI_ASHIFT),
+                    qsci.SCI_PARAUP:                (ord('['),              SCI_CTRL),
+                    qsci.SCI_PARAUPEXTEND:          (ord('['),              SCI_CSHIFT),
+                    qsci.SCI_PARADOWN:              (ord(']'),              SCI_CTRL),
+                    qsci.SCI_PARADOWNEXTEND:        (ord(']'),              SCI_CSHIFT),
+                    qsci.SCI_CHARLEFT:              (qsci.SCK_LEFT,         SCI_NORM),
+                    qsci.SCI_CHARLEFTEXTEND:        (qsci.SCK_LEFT,         SCI_SHIFT),
+                    qsci.SCI_WORDLEFT:              (qsci.SCK_LEFT,         SCI_CTRL),
+                    qsci.SCI_WORDLEFTEXTEND:        (qsci.SCK_LEFT,         SCI_CSHIFT),
+                    qsci.SCI_CHARLEFTRECTEXTEND:    (qsci.SCK_LEFT,         SCI_ASHIFT),
+                    qsci.SCI_CHARRIGHT:             (qsci.SCK_RIGHT,        SCI_NORM),
+                    qsci.SCI_CHARRIGHTEXTEND:       (qsci.SCK_RIGHT,        SCI_SHIFT),
+                    qsci.SCI_WORDRIGHT:             (qsci.SCK_RIGHT,        SCI_CTRL),
+                    qsci.SCI_WORDRIGHTEXTEND:       (qsci.SCK_RIGHT,        SCI_CSHIFT),
+                    qsci.SCI_CHARRIGHTRECTEXTEND:   (qsci.SCK_RIGHT,        SCI_ASHIFT),
+                    qsci.SCI_WORDPARTLEFT:          (ord('/'),              SCI_CTRL),
+                    qsci.SCI_WORDPARTLEFTEXTEND:    (ord('/'),              SCI_CSHIFT),
+                    qsci.SCI_WORDPARTRIGHT:         (ord('\\'),             SCI_CTRL),
+                    qsci.SCI_WORDPARTRIGHTEXTEND:   (ord('\\'),             SCI_CSHIFT),
+                    qsci.SCI_VCHOME:                (qsci.SCK_HOME,         SCI_NORM),
+                    qsci.SCI_VCHOMEEXTEND:          (qsci.SCK_HOME,         SCI_SHIFT),
+                    qsci.SCI_DOCUMENTSTART:         (qsci.SCK_HOME,         SCI_CTRL),
+                    qsci.SCI_DOCUMENTSTARTEXTEND:   (qsci.SCK_HOME,         SCI_CSHIFT),
+                    qsci.SCI_HOMEDISPLAY:           (qsci.SCK_HOME,         SCI_ALT),
+                    qsci.SCI_VCHOMERECTEXTEND:      (qsci.SCK_HOME,         SCI_ASHIFT),
+                    qsci.SCI_LINEEND:               (qsci.SCK_END,          SCI_NORM),
+                    qsci.SCI_LINEENDEXTEND:         (qsci.SCK_END,          SCI_SHIFT),
+                    qsci.SCI_DOCUMENTEND:           (qsci.SCK_END,          SCI_CTRL),
+                    qsci.SCI_DOCUMENTENDEXTEND:     (qsci.SCK_END,          SCI_CSHIFT),
+                    qsci.SCI_LINEENDDISPLAY:        (qsci.SCK_END,          SCI_ALT),
+                    qsci.SCI_LINEENDRECTEXTEND:     (qsci.SCK_END,          SCI_ASHIFT),
+                    qsci.SCI_PAGEUP:                (qsci.SCK_PRIOR,        SCI_NORM),
+                    qsci.SCI_PAGEUPEXTEND:          (qsci.SCK_PRIOR,        SCI_SHIFT),
+                    qsci.SCI_PAGEUPRECTEXTEND:      (qsci.SCK_PRIOR,        SCI_ASHIFT),
+                    qsci.SCI_PAGEDOWN:              (qsci.SCK_NEXT,         SCI_NORM),
+                    qsci.SCI_PAGEDOWNEXTEND:        (qsci.SCK_NEXT,         SCI_SHIFT),
+                    qsci.SCI_PAGEDOWNRECTEXTEND:    (qsci.SCK_NEXT,         SCI_ASHIFT),
+                    qsci.SCI_CLEAR:                 (qsci.SCK_DELETE,       SCI_NORM),
+                    qsci.SCI_CUT:                   (qsci.SCK_DELETE,       SCI_SHIFT),
+                    qsci.SCI_DELWORDRIGHT:          (qsci.SCK_DELETE,       SCI_CTRL),
+                    qsci.SCI_DELLINERIGHT:          (qsci.SCK_DELETE,       SCI_CSHIFT),
+                    qsci.SCI_EDITTOGGLEOVERTYPE:    (qsci.SCK_INSERT,       SCI_NORM),
+                    qsci.SCI_PASTE:                 (qsci.SCK_INSERT,       SCI_SHIFT),
+                    qsci.SCI_COPY:                  (qsci.SCK_INSERT,       SCI_CTRL),
+                    qsci.SCI_CANCEL:                (qsci.SCK_ESCAPE,       SCI_NORM),
+                    qsci.SCI_DELETEBACK:            (qsci.SCK_BACK,         SCI_NORM),
+                    qsci.SCI_DELETEBACK:            (qsci.SCK_BACK,         SCI_SHIFT),
+                    qsci.SCI_DELWORDLEFT:           (qsci.SCK_BACK,         SCI_CTRL),
+                    qsci.SCI_UNDO:                  (qsci.SCK_BACK,         SCI_ALT),
+                    qsci.SCI_DELLINELEFT:           (qsci.SCK_BACK,         SCI_CSHIFT),
+                    qsci.SCI_UNDO:                  (ord('Z'),              SCI_CTRL),
+                    qsci.SCI_REDO:                  (ord('Y'),              SCI_CTRL),
+                    qsci.SCI_CUT:                   (ord('X'),              SCI_CTRL),
+                    qsci.SCI_COPY:                  (ord('C'),              SCI_CTRL),
+                    qsci.SCI_PASTE:                 (ord('V'),              SCI_CTRL),
+                    qsci.SCI_SELECTALL:             (ord('A'),              SCI_CTRL),
+                    qsci.SCI_TAB:                   (qsci.SCK_TAB,          SCI_NORM),
+                    qsci.SCI_BACKTAB:               (qsci.SCK_TAB,          SCI_SHIFT),
+                    qsci.SCI_NEWLINE:               (qsci.SCK_RETURN,       SCI_NORM),
+                    qsci.SCI_NEWLINE:               (qsci.SCK_RETURN,       SCI_SHIFT),
+                    qsci.SCI_ZOOMIN:                (qsci.SCK_ADD,          SCI_CTRL),
+                    qsci.SCI_ZOOMOUT:               (qsci.SCK_SUBTRACT,     SCI_CTRL),
+                    qsci.SCI_SETZOOM:               (qsci.SCK_DIVIDE,       SCI_CTRL),
+                    qsci.SCI_LINECUT:               (ord('L'),              SCI_CTRL),
+                    qsci.SCI_LINEDELETE:            (ord('L'),              SCI_CSHIFT),
+                    qsci.SCI_LINECOPY:              (ord('T'),              SCI_CSHIFT),
+                    qsci.SCI_LINETRANSPOSE:         (ord('T'),              SCI_CTRL),
+                    qsci.SCI_SELECTIONDUPLICATE:    (ord('D'),              SCI_CTRL),
+                    qsci.SCI_LOWERCASE:             (ord('U'),              SCI_CTRL),
+                    qsci.SCI_UPPERCASE:             (ord('U'),              SCI_CSHIFT),
                   }
 
 _QSCI_TO_QT_KEY = {
-                    SCK_ADD         : Qt.Key_Plus,
-                    SCK_BACK        : Qt.Key_Backspace,
-                    SCK_DELETE      : Qt.Key_Delete,
-                    SCK_DIVIDE      : Qt.Key_Slash,
-                    SCK_DOWN        : Qt.Key_Down,
-                    SCK_END         : Qt.Key_End,
-                    SCK_ESCAPE      : Qt.Key_Escape,
-                    SCK_HOME        : Qt.Key_Home,
-                    SCK_INSERT      : Qt.Key_Insert,
-                    SCK_LEFT        : Qt.Key_Left,
-                    SCK_MENU        : Qt.Key_Menu,
-                    SCK_NEXT        : Qt.Key_PageDown,
-                    SCK_PRIOR       : Qt.Key_PageUp,
-                    SCK_RETURN      : Qt.Key_Enter,
-                    SCK_RIGHT       : Qt.Key_Right,
-                    SCK_RWIN        : 0,
-                    SCK_SUBTRACT    : Qt.Key_Minus,
-                    SCK_TAB         : Qt.KeyTab,
-                    SCK_UP          : Qt.Key_Up,
-                    SCK_WIN         : 0,
-                    ord('/')        : Qt.Key_Slash,
-                    ord('[')        : Qt.Bracket_Left,
-                    ord(']')        : Qt.Bracket_Right,
-                    ord('\\')       : Qt.Key_Backslash,
+                    qsci.SCK_ADD         : Qt.Key_Plus,
+                    qsci.SCK_BACK        : Qt.Key_Backspace,
+                    qsci.SCK_DELETE      : Qt.Key_Delete,
+                    qsci.SCK_DIVIDE      : Qt.Key_Slash,
+                    qsci.SCK_DOWN        : Qt.Key_Down,
+                    qsci.SCK_END         : Qt.Key_End,
+                    qsci.SCK_ESCAPE      : Qt.Key_Escape,
+                    qsci.SCK_HOME        : Qt.Key_Home,
+                    qsci.SCK_INSERT      : Qt.Key_Insert,
+                    qsci.SCK_LEFT        : Qt.Key_Left,
+                    qsci.SCK_MENU        : Qt.Key_Menu,
+                    qsci.SCK_NEXT        : Qt.Key_PageDown,
+                    qsci.SCK_PRIOR       : Qt.Key_PageUp,
+                    qsci.SCK_RETURN      : Qt.Key_Enter,
+                    qsci.SCK_RIGHT       : Qt.Key_Right,
+                    qsci.SCK_RWIN        : 0,
+                    qsci.SCK_SUBTRACT    : Qt.Key_Minus,
+                    qsci.SCK_TAB         : Qt.Key_Tab,
+                    qsci.SCK_UP          : Qt.Key_Up,
+                    qsci.SCK_WIN         : 0,
+                    ord('/')             : Qt.Key_Slash,
+                    ord('[')             : Qt.Key_BracketLeft,
+                    ord(']')             : Qt.Key_BracketRight,
+                    ord('\\')            : Qt.Key_Backslash,
+                    0                    : 0,
                   }
 _QT_TO_QSCI_KEY = dict((v,k) for k, v in _QSCI_TO_QT_KEY.iteritems())
 
@@ -142,32 +146,12 @@ _QSCI_TO_QT_MODIFIER = {
                         SCI_ALT     : Qt.AltModifier,
                         SCI_CTRL    : Qt.ControlModifier,
                         SCI_SHIFT   : Qt.ShiftModifier,
-                        SCI_CSHIFT  : Qt.ControlModifier | Qt.AltModifier,
-                        SCI_ASHIFT  : Qt.AltModifier | Qt.ShiftModifier,
+                        SCI_CSHIFT  : int (Qt.ControlModifier | Qt.AltModifier),
+                        SCI_ASHIFT  : int (Qt.AltModifier | Qt.ShiftModifier),
+                        SCI_ACSHIFT : int (Qt.AltModifier | Qt.ShiftModifier | Qt.ControlModifier),
                        }
 _QT_TO_QSCI_MODIFIER = dict((v,k) for k, v in _QSCI_TO_QT_MODIFIER.iteritems())
 
-def sciToQt(key):
-    modifier = key >> 16
-    code = key & 0xffff0000
-    if code in range(ord('A'), ord('Z')):
-        qtCode = Qt.Key_A + (ord(code) - ord('A'))
-    else:
-        qtCode = _QSCI_TO_QT_KEY[code]
-    qtModifier = _QSCI_TO_QT_MODIFIER[modifier]
-    return QKeySequence(qtCode, qtModifier)
-
-def qtToQsci(key):
-    elements = filter([key[i] for i in range(0, 3)])
-    code = elements[-1]
-    modifiers = elements[:-1]
-    modifier = reduce(lambda a, b: a * b, modifiers)
-    if code in range(Qt.Key_A, Qt.Key_Z):
-        qsciCode = ord('A') + (code - Qt.Key_A)
-    else:
-        qsciCode = _QT_TO_QSCI_KEY[code]
-    qsciModifier = _QT_TO_QSCI_MODIFIER[modifier]
-    return (qsciModifier << 16) | qsciCode
 
 _SHORTCUTS = (
                 (tr("Selection"), (
@@ -263,15 +247,37 @@ _SHORTCUTS = (
                              ),
                 ),
                 (tr("Bookmarks"),
-                 (
-                  (qsci.SCI_MARKERADD, tr("Set bookmark")),
-                  (qsci.SCI_MARKERDELETEALL, tr( "Delete all bookmarks" )),
-                  (qsci.SCI_MARKERPREVIOUS, tr( "Previous bookmark" )),
-                  (qsci.SCI_MARKERNEXT, tr( "Next bookmark")),
-                 ),
-                ),
+                             (
+                              (qsci.SCI_MARKERADD, tr("Set bookmark")),
+                              (qsci.SCI_MARKERDELETEALL, tr( "Delete all bookmarks" )),
+                              (qsci.SCI_MARKERPREVIOUS, tr( "Previous bookmark" )),
+                              (qsci.SCI_MARKERNEXT, tr( "Next bookmark")),
+                             ),
+                            ),
              )
 
+
+def sciToQt(key):
+    modifier = key >> 16
+    code = key & 0x0000ffff
+    if code in range(ord('A'), ord('Z')):
+        qtCode = Qt.Key_A + (code - ord('A'))
+    else:
+        qtCode = _QSCI_TO_QT_KEY[code]
+    qtModifier = _QSCI_TO_QT_MODIFIER[modifier]
+    return QKeySequence(qtModifier + qtCode)
+
+def qtToQsci(key):
+    elements = filter([key[i] for i in range(0, 3)])
+    code = elements[-1]
+    modifiers = elements[:-1]
+    modifier = reduce(lambda a, b: a * b, modifiers)
+    if code in range(Qt.Key_A, Qt.Key_Z):
+        qsciCode = ord('A') + (code - Qt.Key_A)
+    else:
+        qsciCode = _QT_TO_QSCI_KEY[code]
+    qsciModifier = _QT_TO_QSCI_MODIFIER[modifier]
+    return (qsciModifier << 16) | qsciCode
 
 class EditorShortcutsModel(QAbstractItemModel):
     """Class implements list of actions, visible in the tree view
@@ -375,10 +381,9 @@ class EditorShortcutsDialog(QDialog):
     """
     _defaultShortcuts = {}
     
-    def __init__(self, editor, *args):
+    def __init__(self, currentShortcuts, *args):
         QDialog.__init__(self, *args)
-        self._editor = editor
-
+        self._currentShortcuts = currentShortcuts
         self._model = EditorShortcutsModel(self)
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/EditorShortcutsDialog.ui'), self)
         self.leFilter.setSearchButtonVisible( False )
@@ -414,17 +419,25 @@ class EditorShortcutsDialog(QDialog):
         # TODO implement
         pass
 
-    def shortcut(self, index):
+    def shortcut(self, sciAction):
         """Get shortcut for the action, identified by the index
         """    
-        # TODO implement
-        return 'short'
-    
-    def defaultShortcut(self, index):
+        if not sciAction in self._currentShortcuts:
+            return ''
+        
+        code, mod = _DEFAULT_KEYMAP[sciAction]
+        ret = sciToQt(code | (mod << 16))
+        return ret.toString()
+
+    def defaultShortcut(self, sciAction):
         """Get default shortcut for the action, identified by the index
         """
-        # TODO implement
-        return 'def'
+        if not sciAction in _DEFAULT_KEYMAP:
+            return ''
+        
+        code, mod = _DEFAULT_KEYMAP[sciAction]
+        ret = sciToQt(code | (mod << 16))
+        return ret.toString()
     
     def isDefaultShortcut(self, index):
         """Check if shortcut for action is default
@@ -489,16 +502,16 @@ class EditorShortcutsDialog(QDialog):
 
 class EditorShortcuts:
     def __init__(self):
+        self._currentShortcuts = copy.copy(_DEFAULT_KEYMAP)
         action = core.actionModel().addAction("mEdit/aEditorShortcuts",
                                               tr( "Editor shortcuts..."),
                                               QIcon(':/mksicons/shortcuts.png'))
-        action.triggered.connect(lambda : EditorShortcutsDialog().exec_())
+        action.triggered.connect(self.exec_)
     
     def __term__(self):
         core.actionModel().removeAction("mEdit/aEditorShortcuts")
 
-    def exec_():
+    def exec_(self):
         document = core.workspace().currentDocument()
         if document:
-            editor = document.qscintilla
-            EditorShortcutsDialog(editor).exec_()
+            EditorShortcutsDialog(self._currentShortcuts, core.mainWindow()).exec_()
