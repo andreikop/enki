@@ -9,7 +9,7 @@ and used for get core instances, such as main window, workspace, etc.
 
 import os.path
 
-from PyQt4.QtGui import qApp
+from PyQt4.QtGui import qApp, QIcon
 
 from PyQt4.fresh import pSettings
 
@@ -27,6 +27,7 @@ class Core:
         
         Called only by main()
         """
+        qApp.setWindowIcon(QIcon(':/mksicons/monkey2.png') )
         pSettings.setDefaultProperties(pSettings.Properties(qApp.applicationName(), \
                                                             "1.0.0",
                                                             pSettings.Normal))
