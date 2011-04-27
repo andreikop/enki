@@ -217,7 +217,7 @@ class _PositionIndicator(QToolButton):
         """
         template = unicode(self.tr("Line: %s Column: %s"))
         if line != -1 and col != -1:
-            line = str(line)
+            line = str(line + 1)
             col = str(col)
         else:
             line = '-'
