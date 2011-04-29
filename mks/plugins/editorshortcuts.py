@@ -337,17 +337,26 @@ class EditorShortcutsModel(QAbstractItemModel):
         return not index.isValid()
     
     def isMenu(self, index):
-        return index.internalPointer() == MENU_TYPE
+        print 'xx'
+        isinstance(index.internalPointer(), QsciMenu)
+        print 'yy'
+        return isinstance(index.internalPointer(), QsciMenu)
     
     def isAction(self, index):
-        return index.internalPointer() == ACTION_TYPE
+        print 'zz', index.isValid(), index.row(), index.column()
+        isinstance(index.internalPointer(), QsciAction)
+        print 'z1 z1'
+        return         isinstance(index.internalPointer(), QsciAction)
     
     def menu(self, index):
-        return _SHORTCUTS[index.row()]
+        menu = index.internalPointer()
+        assert(isinstance(menu, QsciMenu))
+        return menu
 
     def action(self, index):
-        menu = self.menu(index.parent())
-        return menu.actions[index.row()]
+        action = index.internalPointer()
+        assert(isinstance(action, QsciAction))
+        return action
     
     def columnCount(self, parent):
         return 3
@@ -378,16 +387,16 @@ class EditorShortcutsModel(QAbstractItemModel):
     def index(self, row, column, parent):
         if self.isMenu(parent):  # create index for an action
             menu = self.menu(parent)
-            index = self.createIndex(row, column, MENU_TYPE)
+            action = menu.actions[row]
+            index = self.createIndex(row, column, action)
             assert(self.isAction(index))
         else:  # create index for a menu
             assert(self.isRoot(parent))
-            index = self.createIndex(row, column, ACTION_TYPE)
-            print 'xx'
-            print index.internalPointer()
-            print 'yy'
+            menu = _SHORTCUTS[row]
+            index = self.createIndex(row, column, menu)
             assert(self.isMenu(index))
         assert(index.isValid())
+        assert(index.internalPointer())
         return index
 
     def parent(self, index):
