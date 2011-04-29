@@ -118,6 +118,8 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         pixmap = QIcon(":/mksicons/bookmark.png").pixmap(16, 16)
         self._MARKER_BOOKMARK = self.qscintilla.markerDefine(pixmap, -1)
         
+        self.initQsciShortcuts()
+
         self.qscintilla.installEventFilter(self)
         
         #self.qscintilla.markerDefine(QPixmap(":/editor/bookmark.png").scaled(self.mPixSize), mdBookmark)
@@ -179,6 +181,26 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         self.modifiedChanged.emit(self.isModified())
         self.cursorPositionChanged.emit(*self.cursorPosition())
 
+    def initQsciShortcuts(self):
+        qsci = self.qscintilla
+        qsci.SendScintilla( qsci.SCI_CLEARALLCMDKEYS )
+        # Some shortcuts are hardcoded there.
+        #If we made is a QActions, it will shadow Qt default keys for move focus, etc
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_TAB, qsci.SCI_TAB);
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_ESCAPE, qsci.SCI_CANCEL);
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_RETURN, qsci.SCI_NEWLINE);
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_DOWN, qsci.SCI_LINEDOWN);
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_UP, qsci.SCI_LINEUP);
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_RIGHT, qsci.SCI_CHARRIGHT);
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_LEFT, qsci.SCI_CHARLEFT);
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_BACK, qsci.SCI_DELETEBACK);
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_PRIOR, qsci.SCI_PAGEUP);
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_NEXT, qsci.SCI_PAGEDOWN);
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_HOME, qsci.SCI_VCHOME);
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_END, qsci.SCI_LINEEND);
+        for key in range(ord('A'), ord('Z')):
+            qsci.SendScintilla(qsci.SCI_ASSIGNCMDKEY, key + (qsci.SCMOD_CTRL << 16), qsci.SCI_NULL)
+        
     def _applySettings(self, myConfig):
         """Apply own settings form the config
         """

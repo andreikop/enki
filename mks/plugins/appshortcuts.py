@@ -75,6 +75,7 @@ class AppShortcuts:
     def _applyShortcut(self, action):
         """Apply for the action its shortcut if defined
         """
+        
         if self._config is not None:
             path = map(str, self._model.path(action).split('/'))
             menuDict = self._config
@@ -82,6 +83,8 @@ class AppShortcuts:
                 if menu not in menuDict:
                     return
                 menuDict = menuDict[menu]
+            if not path[-1] in menuDict:
+                return
             action.setShortcut(menuDict[path[-1]])
 
     def _onActionInserted(self, parentIndex, start, end):
@@ -90,7 +93,8 @@ class AppShortcuts:
         for row in range(start, end + 1):
             actionIndex = self._model.index(row, 0, parentIndex)
             action = self._model.action(actionIndex)
-            self._applyShortcut(action)
+            if not action.menu():
+                self._applyShortcut(action)
 
     def _saveShortcuts(self):
         """Save shortcuts to configuration file
