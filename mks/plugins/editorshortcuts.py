@@ -24,93 +24,95 @@ def tr(s):
     return s
 
 SCI_NORM = 0
-SCI_SHIFT = qsci.SCMOD_SHIFT
-SCI_CTRL = qsci.SCMOD_CTRL
-SCI_ALT = qsci.SCMOD_ALT
+SCI_SHIFT = qsci.SCMOD_SHIFT << 16
+SCI_CTRL = qsci.SCMOD_CTRL << 16
+SCI_ALT = qsci.SCMOD_ALT << 16
 SCI_CSHIFT = SCI_CTRL | SCI_SHIFT
 SCI_ASHIFT = SCI_ALT | SCI_SHIFT
 SCI_ACSHIFT = SCI_ALT | SCI_SHIFT | SCI_CTRL
 
 # Copy-pasted from QScintilla/src/KeyMap.cpp
 _DEFAULT_KEYMAP = {
-                    qsci.SCI_LINEDOWN:              (qsci.SCK_DOWN,         SCI_NORM),
-                    qsci.SCI_LINEDOWNEXTEND:        (qsci.SCK_DOWN,         SCI_SHIFT),
-                    qsci.SCI_LINESCROLLDOWN:        (qsci.SCK_DOWN,         SCI_CTRL),
-                    qsci.SCI_LINEDOWNRECTEXTEND:    (qsci.SCK_DOWN,         SCI_ASHIFT),
-                    qsci.SCI_LINEUP:                (qsci.SCK_UP,           SCI_NORM),
-                    qsci.SCI_LINEUPEXTEND:          (qsci.SCK_UP,           SCI_SHIFT),
-                    qsci.SCI_LINESCROLLUP:          (qsci.SCK_UP,           SCI_CTRL),
-                    qsci.SCI_LINEUPRECTEXTEND:      (qsci.SCK_UP,           SCI_ASHIFT),
-                    qsci.SCI_PARAUP:                (ord('['),              SCI_CTRL),
-                    qsci.SCI_PARAUPEXTEND:          (ord('['),              SCI_CSHIFT),
-                    qsci.SCI_PARADOWN:              (ord(']'),              SCI_CTRL),
-                    qsci.SCI_PARADOWNEXTEND:        (ord(']'),              SCI_CSHIFT),
-                    qsci.SCI_CHARLEFT:              (qsci.SCK_LEFT,         SCI_NORM),
-                    qsci.SCI_CHARLEFTEXTEND:        (qsci.SCK_LEFT,         SCI_SHIFT),
-                    qsci.SCI_WORDLEFT:              (qsci.SCK_LEFT,         SCI_CTRL),
-                    qsci.SCI_WORDLEFTEXTEND:        (qsci.SCK_LEFT,         SCI_CSHIFT),
-                    qsci.SCI_CHARLEFTRECTEXTEND:    (qsci.SCK_LEFT,         SCI_ASHIFT),
-                    qsci.SCI_CHARRIGHT:             (qsci.SCK_RIGHT,        SCI_NORM),
-                    qsci.SCI_CHARRIGHTEXTEND:       (qsci.SCK_RIGHT,        SCI_SHIFT),
-                    qsci.SCI_WORDRIGHT:             (qsci.SCK_RIGHT,        SCI_CTRL),
-                    qsci.SCI_WORDRIGHTEXTEND:       (qsci.SCK_RIGHT,        SCI_CSHIFT),
-                    qsci.SCI_CHARRIGHTRECTEXTEND:   (qsci.SCK_RIGHT,        SCI_ASHIFT),
-                    qsci.SCI_WORDPARTLEFT:          (ord('/'),              SCI_CTRL),
-                    qsci.SCI_WORDPARTLEFTEXTEND:    (ord('/'),              SCI_CSHIFT),
-                    qsci.SCI_WORDPARTRIGHT:         (ord('\\'),             SCI_CTRL),
-                    qsci.SCI_WORDPARTRIGHTEXTEND:   (ord('\\'),             SCI_CSHIFT),
-                    qsci.SCI_VCHOME:                (qsci.SCK_HOME,         SCI_NORM),
-                    qsci.SCI_VCHOMEEXTEND:          (qsci.SCK_HOME,         SCI_SHIFT),
-                    qsci.SCI_DOCUMENTSTART:         (qsci.SCK_HOME,         SCI_CTRL),
-                    qsci.SCI_DOCUMENTSTARTEXTEND:   (qsci.SCK_HOME,         SCI_CSHIFT),
-                    qsci.SCI_HOMEDISPLAY:           (qsci.SCK_HOME,         SCI_ALT),
-                    qsci.SCI_VCHOMERECTEXTEND:      (qsci.SCK_HOME,         SCI_ASHIFT),
-                    qsci.SCI_LINEEND:               (qsci.SCK_END,          SCI_NORM),
-                    qsci.SCI_LINEENDEXTEND:         (qsci.SCK_END,          SCI_SHIFT),
-                    qsci.SCI_DOCUMENTEND:           (qsci.SCK_END,          SCI_CTRL),
-                    qsci.SCI_DOCUMENTENDEXTEND:     (qsci.SCK_END,          SCI_CSHIFT),
-                    qsci.SCI_LINEENDDISPLAY:        (qsci.SCK_END,          SCI_ALT),
-                    qsci.SCI_LINEENDRECTEXTEND:     (qsci.SCK_END,          SCI_ASHIFT),
-                    qsci.SCI_PAGEUP:                (qsci.SCK_PRIOR,        SCI_NORM),
-                    qsci.SCI_PAGEUPEXTEND:          (qsci.SCK_PRIOR,        SCI_SHIFT),
-                    qsci.SCI_PAGEUPRECTEXTEND:      (qsci.SCK_PRIOR,        SCI_ASHIFT),
-                    qsci.SCI_PAGEDOWN:              (qsci.SCK_NEXT,         SCI_NORM),
-                    qsci.SCI_PAGEDOWNEXTEND:        (qsci.SCK_NEXT,         SCI_SHIFT),
-                    qsci.SCI_PAGEDOWNRECTEXTEND:    (qsci.SCK_NEXT,         SCI_ASHIFT),
-                    qsci.SCI_CLEAR:                 (qsci.SCK_DELETE,       SCI_NORM),
-                    qsci.SCI_CUT:                   (qsci.SCK_DELETE,       SCI_SHIFT),
-                    qsci.SCI_DELWORDRIGHT:          (qsci.SCK_DELETE,       SCI_CTRL),
-                    qsci.SCI_DELLINERIGHT:          (qsci.SCK_DELETE,       SCI_CSHIFT),
-                    qsci.SCI_EDITTOGGLEOVERTYPE:    (qsci.SCK_INSERT,       SCI_NORM),
-                    qsci.SCI_PASTE:                 (qsci.SCK_INSERT,       SCI_SHIFT),
-                    qsci.SCI_COPY:                  (qsci.SCK_INSERT,       SCI_CTRL),
-                    qsci.SCI_CANCEL:                (qsci.SCK_ESCAPE,       SCI_NORM),
-                    qsci.SCI_DELETEBACK:            (qsci.SCK_BACK,         SCI_NORM),
-                    qsci.SCI_DELETEBACK:            (qsci.SCK_BACK,         SCI_SHIFT),
-                    qsci.SCI_DELWORDLEFT:           (qsci.SCK_BACK,         SCI_CTRL),
-                    qsci.SCI_UNDO:                  (qsci.SCK_BACK,         SCI_ALT),
-                    qsci.SCI_DELLINELEFT:           (qsci.SCK_BACK,         SCI_CSHIFT),
-                    qsci.SCI_UNDO:                  (ord('Z'),              SCI_CTRL),
-                    qsci.SCI_REDO:                  (ord('Y'),              SCI_CTRL),
-                    qsci.SCI_CUT:                   (ord('X'),              SCI_CTRL),
-                    qsci.SCI_COPY:                  (ord('C'),              SCI_CTRL),
-                    qsci.SCI_PASTE:                 (ord('V'),              SCI_CTRL),
-                    qsci.SCI_SELECTALL:             (ord('A'),              SCI_CTRL),
-                    qsci.SCI_TAB:                   (qsci.SCK_TAB,          SCI_NORM),
-                    qsci.SCI_BACKTAB:               (qsci.SCK_TAB,          SCI_SHIFT),
-                    qsci.SCI_NEWLINE:               (qsci.SCK_RETURN,       SCI_NORM),
-                    qsci.SCI_NEWLINE:               (qsci.SCK_RETURN,       SCI_SHIFT),
-                    qsci.SCI_ZOOMIN:                (qsci.SCK_ADD,          SCI_CTRL),
-                    qsci.SCI_ZOOMOUT:               (qsci.SCK_SUBTRACT,     SCI_CTRL),
-                    qsci.SCI_SETZOOM:               (qsci.SCK_DIVIDE,       SCI_CTRL),
-                    qsci.SCI_LINECUT:               (ord('L'),              SCI_CTRL),
-                    qsci.SCI_LINEDELETE:            (ord('L'),              SCI_CSHIFT),
-                    qsci.SCI_LINECOPY:              (ord('T'),              SCI_CSHIFT),
-                    qsci.SCI_LINETRANSPOSE:         (ord('T'),              SCI_CTRL),
-                    qsci.SCI_SELECTIONDUPLICATE:    (ord('D'),              SCI_CTRL),
-                    qsci.SCI_LOWERCASE:             (ord('U'),              SCI_CTRL),
-                    qsci.SCI_UPPERCASE:             (ord('U'),              SCI_CSHIFT),
+                    qsci.SCI_LINEDOWN:              qsci.SCK_DOWN     | SCI_NORM,
+                    qsci.SCI_LINEDOWNEXTEND:        qsci.SCK_DOWN     | SCI_SHIFT,
+                    qsci.SCI_LINESCROLLDOWN:        qsci.SCK_DOWN     | SCI_CTRL,
+                    qsci.SCI_LINEDOWNRECTEXTEND:    qsci.SCK_DOWN     | SCI_ASHIFT,
+                    qsci.SCI_LINEUP:                qsci.SCK_UP       | SCI_NORM,
+                    qsci.SCI_LINEUPEXTEND:          qsci.SCK_UP       | SCI_SHIFT,
+                    qsci.SCI_LINESCROLLUP:          qsci.SCK_UP       | SCI_CTRL,
+                    qsci.SCI_LINEUPRECTEXTEND:      qsci.SCK_UP       | SCI_ASHIFT,
+                    qsci.SCI_PARAUP:                ord('[')          | SCI_CTRL,
+                    qsci.SCI_PARAUPEXTEND:          ord('[')          | SCI_CSHIFT,
+                    qsci.SCI_PARADOWN:              ord(']')          | SCI_CTRL,
+                    qsci.SCI_PARADOWNEXTEND:        ord(']')          | SCI_CSHIFT,
+                    qsci.SCI_CHARLEFT:              qsci.SCK_LEFT     | SCI_NORM,
+                    qsci.SCI_CHARLEFTEXTEND:        qsci.SCK_LEFT     | SCI_SHIFT,
+                    qsci.SCI_WORDLEFT:              qsci.SCK_LEFT     | SCI_CTRL,
+                    qsci.SCI_WORDLEFTEXTEND:        qsci.SCK_LEFT     | SCI_CSHIFT,
+                    qsci.SCI_CHARLEFTRECTEXTEND:    qsci.SCK_LEFT     | SCI_ASHIFT,
+                    qsci.SCI_CHARRIGHT:             qsci.SCK_RIGHT    | SCI_NORM,
+                    qsci.SCI_CHARRIGHTEXTEND:       qsci.SCK_RIGHT    | SCI_SHIFT,
+                    qsci.SCI_WORDRIGHT:             qsci.SCK_RIGHT    | SCI_CTRL,
+                    qsci.SCI_WORDRIGHTEXTEND:       qsci.SCK_RIGHT    | SCI_CSHIFT,
+                    qsci.SCI_CHARRIGHTRECTEXTEND:   qsci.SCK_RIGHT    | SCI_ASHIFT,
+                    qsci.SCI_WORDPARTLEFT:          ord('/')          | SCI_CTRL,
+                    qsci.SCI_WORDPARTLEFTEXTEND:    ord('/')          | SCI_CSHIFT,
+                    qsci.SCI_WORDPARTRIGHT:         ord('\\')         | SCI_CTRL,
+                    qsci.SCI_WORDPARTRIGHTEXTEND:   ord('\\')         | SCI_CSHIFT,
+                    qsci.SCI_VCHOME:                qsci.SCK_HOME     | SCI_NORM,
+                    qsci.SCI_VCHOMEEXTEND:          qsci.SCK_HOME     | SCI_SHIFT,
+                    qsci.SCI_DOCUMENTSTART:         qsci.SCK_HOME     | SCI_CTRL,
+                    qsci.SCI_DOCUMENTSTARTEXTEND:   qsci.SCK_HOME     | SCI_CSHIFT,
+                    qsci.SCI_HOMEDISPLAY:           qsci.SCK_HOME     | SCI_ALT,
+                    qsci.SCI_VCHOMERECTEXTEND:      qsci.SCK_HOME     | SCI_ASHIFT,
+                    qsci.SCI_LINEEND:               qsci.SCK_END      | SCI_NORM,
+                    qsci.SCI_LINEENDEXTEND:         qsci.SCK_END      | SCI_SHIFT,
+                    qsci.SCI_DOCUMENTEND:           qsci.SCK_END      | SCI_CTRL,
+                    qsci.SCI_DOCUMENTENDEXTEND:     qsci.SCK_END      | SCI_CSHIFT,
+                    qsci.SCI_LINEENDDISPLAY:        qsci.SCK_END      | SCI_ALT,
+                    qsci.SCI_LINEENDRECTEXTEND:     qsci.SCK_END      | SCI_ASHIFT,
+                    qsci.SCI_PAGEUP:                qsci.SCK_PRIOR    | SCI_NORM,
+                    qsci.SCI_PAGEUPEXTEND:          qsci.SCK_PRIOR    | SCI_SHIFT,
+                    qsci.SCI_PAGEUPRECTEXTEND:      qsci.SCK_PRIOR    | SCI_ASHIFT,
+                    qsci.SCI_PAGEDOWN:              qsci.SCK_NEXT     | SCI_NORM,
+                    qsci.SCI_PAGEDOWNEXTEND:        qsci.SCK_NEXT     | SCI_SHIFT,
+                    qsci.SCI_PAGEDOWNRECTEXTEND:    qsci.SCK_NEXT     | SCI_ASHIFT,
+                    qsci.SCI_CLEAR:                 qsci.SCK_DELETE   | SCI_NORM,
+                    qsci.SCI_CUT:                   qsci.SCK_DELETE   | SCI_SHIFT,
+                    qsci.SCI_DELWORDRIGHT:          qsci.SCK_DELETE   | SCI_CTRL,
+                    qsci.SCI_DELLINERIGHT:          qsci.SCK_DELETE   | SCI_CSHIFT,
+                    qsci.SCI_EDITTOGGLEOVERTYPE:    qsci.SCK_INSERT   | SCI_NORM,
+                    qsci.SCI_PASTE:                 qsci.SCK_INSERT   | SCI_SHIFT,
+                    qsci.SCI_COPY:                  qsci.SCK_INSERT   | SCI_CTRL,
+                    qsci.SCI_CANCEL:                qsci.SCK_ESCAPE   | SCI_NORM,
+                    qsci.SCI_DELETEBACK:            qsci.SCK_BACK     | SCI_NORM,
+                    qsci.SCI_DELETEBACK:            qsci.SCK_BACK     | SCI_SHIFT,
+                    qsci.SCI_DELWORDLEFT:           qsci.SCK_BACK     | SCI_CTRL,
+                    qsci.SCI_UNDO:                  qsci.SCK_BACK     | SCI_ALT,
+                    qsci.SCI_DELLINELEFT:           qsci.SCK_BACK     | SCI_CSHIFT,
+                    qsci.SCI_UNDO:                  ord('Z')          | SCI_CTRL,
+                    qsci.SCI_REDO:                  ord('Y')          | SCI_CTRL,
+                    qsci.SCI_CUT:                   ord('X')          | SCI_CTRL,
+                    qsci.SCI_COPY:                  ord('C')          | SCI_CTRL,
+                    qsci.SCI_PASTE:                 ord('V')          | SCI_CTRL,
+                    qsci.SCI_SELECTALL:             ord('A')          | SCI_CTRL,
+                    qsci.SCI_TAB:                   qsci.SCK_TAB      | SCI_NORM,
+                    qsci.SCI_BACKTAB:               qsci.SCK_TAB      | SCI_SHIFT,
+                    qsci.SCI_NEWLINE:               qsci.SCK_RETURN   | SCI_NORM,
+                    qsci.SCI_NEWLINE:               qsci.SCK_RETURN   | SCI_SHIFT,
+                    qsci.SCI_ZOOMIN:                qsci.SCK_ADD      | SCI_CTRL,
+                    qsci.SCI_ZOOMOUT:               qsci.SCK_SUBTRACT | SCI_CTRL,
+                    qsci.SCI_SETZOOM:               qsci.SCK_DIVIDE   | SCI_CTRL,
+                    qsci.SCI_LINECUT:               ord('L')          | SCI_CTRL,
+                    qsci.SCI_LINEDELETE:            ord('L')          | SCI_CSHIFT,
+                    qsci.SCI_LINECOPY:              ord('T')          | SCI_CSHIFT,
+                    qsci.SCI_LINETRANSPOSE:         ord('T')          | SCI_CTRL,
+                    qsci.SCI_SELECTIONDUPLICATE:    ord('D')          | SCI_CTRL,
+                    qsci.SCI_LOWERCASE:             ord('U')          | SCI_CTRL,
+                    qsci.SCI_UPPERCASE:             ord('U')          | SCI_CSHIFT,
                   }
+
+currentShortcuts = copy.copy(_DEFAULT_KEYMAP)
 
 _QSCI_TO_QT_KEY = {
                     qsci.SCK_ADD         : Qt.Key_Plus,
@@ -153,112 +155,159 @@ _QSCI_TO_QT_MODIFIER = {
 _QT_TO_QSCI_MODIFIER = dict((v,k) for k, v in _QSCI_TO_QT_MODIFIER.iteritems())
 
 
+class QsciAction:
+    def __init__(self, actionCode, text):
+        self.actionCode = actionCode
+        self.text = text
+        self.menu = None
+    
+    def shortcut(self):
+        if self.actionCode in currentShortcuts:
+            qsciKey = currentShortcuts[self.actionCode]
+            qtSeq = sciToQt(qsciKey)
+            return qtSeq.toString()
+        else:
+            return ''
+
+    def defaultShortcut(self):
+        if self.actionCode in _DEFAULT_KEYMAP:
+            qsciKey = _DEFAULT_KEYMAP[self.actionCode]
+            qtSeq = sciToQt(qsciKey)
+            return qtSeq.toString()
+        else:
+            return ''
+
+    def setShortcut(self, shortcut):
+        """Set shortcut for the action, identified by the index
+        """
+        qtKeySeq = QKeySequence(shortcut)
+        qtKey = qtKeySeq[0]
+        qsciCode = qtToQsci(qtKey)
+        currentShortcuts[self.actionCode] = qsciCode
+    
+    def isDefaultShortcut(self):
+        """Check if shortcut for action is default
+        """
+        return self.shortcut() == self.defaultShortcut()
+
+ACTION_TYPE = True
+
+class QsciMenu:
+    def __init__(self, text, actions):
+        self.text = text
+        self.actions = actions
+
+MENU_TYPE = False
+
 _SHORTCUTS = (
-                (tr("Selection"), (
-                                    (qsci.SCI_LINEDOWNEXTEND, tr("Extend selection down one line")),
-                                    (qsci.SCI_LINEDOWNRECTEXTEND, tr("Extend rectangular selection down one line")),
-                                    (qsci.SCI_LINESCROLLDOWN, tr("Scroll view down one line")),
-                                    (qsci.SCI_LINEUPEXTEND, tr("Extend selection up")),
-                                    (qsci.SCI_LINEUPRECTEXTEND, tr("Extend selection up one line")),
-                                    (qsci.SCI_PARADOWNEXTEND, tr("Extend selection up one paragraph")),
-                                    (qsci.SCI_CHARLEFTEXTEND, tr("Extend selection left one character")),
-                                    (qsci.SCI_CHARLEFTRECTEXTEND, tr("Extend rectangular selection left one character")),
-                                    (qsci.SCI_CHARRIGHTEXTEND, tr("Extend selection right one character")),
-                                    (qsci.SCI_CHARRIGHTRECTEXTEND, tr("Extend rectangular selection right one character")),
-                                    (qsci.SCI_PARAUPEXTEND, tr("Extend selection down one paragraph")),
-                                    (qsci.SCI_WORDLEFTEXTEND, tr("Extend selection left one word")),
-                                    (qsci.SCI_WORDRIGHTEXTEND, tr("Extend selection right one word")),
-                                    (qsci.SCI_WORDLEFTENDEXTEND, tr("Extend selection left one word left")),
-                                    (qsci.SCI_WORDRIGHTENDEXTEND, tr("Extend selection right one word end")),
-                                    (qsci.SCI_WORDPARTLEFTEXTEND, tr("Extend selection left one word part ")),
-                                    (qsci.SCI_WORDPARTRIGHTEXTEND, tr("Extend selection right one word part")),
-                                    (qsci.SCI_HOMEEXTEND, tr("Extend selection to line start")),                  
-                                    (qsci.SCI_HOMERECTEXTEND, tr("Extend rectangular selection to line start")),
-                                    (qsci.SCI_HOMEDISPLAYEXTEND, tr("Extend selection start of displayed line")),
-                                    (qsci.SCI_HOMEWRAPEXTEND, tr("Extend selection on home wrap")),
-                                    (qsci.SCI_VCHOMERECTEXTEND, tr("Extend rectangular selection to firts VC in line")),
-                                    (qsci.SCI_VCHOMEWRAPEXTEND, tr("Extend selection VC Home wrap")),
-                                    (qsci.SCI_LINEENDEXTEND, tr("Extend selection to end of line")),
-                                    (qsci.SCI_LINEENDRECTEXTEND, tr("Extend rectangular selection to end of line")),
-                                    (qsci.SCI_LINEENDDISPLAYEXTEND, tr("Extend selection to end of displayed line")),
-                                    (qsci.SCI_LINEENDWRAPEXTEND, tr("Extend selection to line end wrap")),
-                                    (qsci.SCI_DOCUMENTSTARTEXTEND, tr("Extend selection to document start")),
-                                    (qsci.SCI_DOCUMENTENDEXTEND, tr("Extend selection to document end")),
-                                    (qsci.SCI_PAGEDOWNEXTEND, tr("Extend selection down one page")),
-                                    (qsci.SCI_PAGEDOWNRECTEXTEND, tr("Extend rectangular selection down one page")),
-                                    (qsci.SCI_STUTTEREDPAGEUPEXTEND, tr("Extend selection up one page stuttered")),
-                                    (qsci.SCI_PAGEUPEXTEND, tr("Extend selection up one page")),
-                                    (qsci.SCI_PAGEUPRECTEXTEND, tr("Extend rectangular selection up one page")),
-                                    (qsci.SCI_STUTTEREDPAGEDOWNEXTEND, tr("Extend selection down one page stuttered")),
+                QsciMenu(tr("Selection"), (
+                                    QsciAction(qsci.SCI_LINEDOWNEXTEND, tr("Extend selection down one line")),
+                                    QsciAction(qsci.SCI_LINEDOWNRECTEXTEND, tr("Extend rectangular selection down one line")),
+                                    QsciAction(qsci.SCI_LINESCROLLDOWN, tr("Scroll view down one line")),
+                                    QsciAction(qsci.SCI_LINEUPEXTEND, tr("Extend selection up")),
+                                    QsciAction(qsci.SCI_LINEUPRECTEXTEND, tr("Extend selection up one line")),
+                                    QsciAction(qsci.SCI_PARADOWNEXTEND, tr("Extend selection up one paragraph")),
+                                    QsciAction(qsci.SCI_CHARLEFTEXTEND, tr("Extend selection left one character")),
+                                    QsciAction(qsci.SCI_CHARLEFTRECTEXTEND, tr("Extend rectangular selection left one character")),
+                                    QsciAction(qsci.SCI_CHARRIGHTEXTEND, tr("Extend selection right one character")),
+                                    QsciAction(qsci.SCI_CHARRIGHTRECTEXTEND, tr("Extend rectangular selection right one character")),
+                                    QsciAction(qsci.SCI_PARAUPEXTEND, tr("Extend selection down one paragraph")),
+                                    QsciAction(qsci.SCI_WORDLEFTEXTEND, tr("Extend selection left one word")),
+                                    QsciAction(qsci.SCI_WORDRIGHTEXTEND, tr("Extend selection right one word")),
+                                    QsciAction(qsci.SCI_WORDLEFTENDEXTEND, tr("Extend selection left one word left")),
+                                    QsciAction(qsci.SCI_WORDRIGHTENDEXTEND, tr("Extend selection right one word end")),
+                                    QsciAction(qsci.SCI_WORDPARTLEFTEXTEND, tr("Extend selection left one word part ")),
+                                    QsciAction(qsci.SCI_WORDPARTRIGHTEXTEND, tr("Extend selection right one word part")),
+                                    QsciAction(qsci.SCI_HOMEEXTEND, tr("Extend selection to line start")),
+                                    QsciAction(qsci.SCI_HOMERECTEXTEND, tr("Extend rectangular selection to line start")),
+                                    QsciAction(qsci.SCI_HOMEDISPLAYEXTEND, tr("Extend selection start of displayed line")),
+                                    QsciAction(qsci.SCI_HOMEWRAPEXTEND, tr("Extend selection on home wrap")),
+                                    QsciAction(qsci.SCI_VCHOMERECTEXTEND, tr("Extend rectangular selection to firts VC in line")),
+                                    QsciAction(qsci.SCI_VCHOMEWRAPEXTEND, tr("Extend selection VC Home wrap")),
+                                    QsciAction(qsci.SCI_LINEENDEXTEND, tr("Extend selection to end of line")),
+                                    QsciAction(qsci.SCI_LINEENDRECTEXTEND, tr("Extend rectangular selection to end of line")),
+                                    QsciAction(qsci.SCI_LINEENDDISPLAYEXTEND, tr("Extend selection to end of displayed line")),
+                                    QsciAction(qsci.SCI_LINEENDWRAPEXTEND, tr("Extend selection to line end wrap")),
+                                    QsciAction(qsci.SCI_DOCUMENTSTARTEXTEND, tr("Extend selection to document start")),
+                                    QsciAction(qsci.SCI_DOCUMENTENDEXTEND, tr("Extend selection to document end")),
+                                    QsciAction(qsci.SCI_PAGEDOWNEXTEND, tr("Extend selection down one page")),
+                                    QsciAction(qsci.SCI_PAGEDOWNRECTEXTEND, tr("Extend rectangular selection down one page")),
+                                    QsciAction(qsci.SCI_STUTTEREDPAGEUPEXTEND, tr("Extend selection up one page stuttered")),
+                                    QsciAction(qsci.SCI_PAGEUPEXTEND, tr("Extend selection up one page")),
+                                    QsciAction(qsci.SCI_PAGEUPRECTEXTEND, tr("Extend rectangular selection up one page")),
+                                    QsciAction(qsci.SCI_STUTTEREDPAGEDOWNEXTEND, tr("Extend selection down one page stuttered")),
                                   ),
                 ),
-                (tr("Navigation"), (
-                                    (qsci.SCI_LINESCROLLUP, tr("Scroll view up one line")),
-                                    (qsci.SCI_PARADOWN, tr("Move down one paragraph")),
-                                    (qsci.SCI_PARAUP, tr("Move down one paragraph")),
-                                    (qsci.SCI_WORDLEFT, tr("Move left one word")),
-                                    (qsci.SCI_WORDRIGHT, tr("Move right one word")),
-                                    (qsci.SCI_WORDLEFTEND, tr("Move left one word end")),
-                                    (qsci.SCI_WORDRIGHTEND, tr("Move right one word end")),
-                                    (qsci.SCI_WORDPARTLEFT, tr("Move left one word part")),
-                                    (qsci.SCI_WORDPARTRIGHT, tr("Move right one word part")),
-                                    (qsci.SCI_HOME, tr("Move to line start")),
-                                    (qsci.SCI_HOMEDISPLAY, tr("Move to start of displayed line")),
-                                    (qsci.SCI_HOMEWRAP, tr("Home wrap")),
-                                    (qsci.SCI_VCHOME, tr("Move to firsst VC in line")),
-                                    (qsci.SCI_VCHOMEEXTEND, tr("Extend selection to first VC in line")),
-                                    (qsci.SCI_VCHOMEWRAP, tr("VC Home wrap")),
-                                    (qsci.SCI_LINEEND, tr("Move to end of line")),
-                                    (qsci.SCI_LINEENDDISPLAY, tr("Move to end displayed line")),
-                                    (qsci.SCI_LINEENDWRAP, tr("Move to line end wrap")),
-                                    (qsci.SCI_DOCUMENTSTART, tr("Move to document start")),
-                                    (qsci.SCI_DOCUMENTEND, tr("Move to document end")),
-                                    (qsci.SCI_PAGEUP, tr("Move up one page")),
-                                    (qsci.SCI_PAGEDOWN, tr("Move down one page")),
-                                    (qsci.SCI_STUTTEREDPAGEUP, tr("Move up one page stuttered")),
-                                    (qsci.SCI_STUTTEREDPAGEDOWN, tr("Move down one page stuttered")),
+                QsciMenu(tr("Navigation"), (
+                                    QsciAction(qsci.SCI_LINESCROLLUP, tr("Scroll view up one line")),
+                                    QsciAction(qsci.SCI_PARADOWN, tr("Move down one paragraph")),
+                                    QsciAction(qsci.SCI_PARAUP, tr("Move down one paragraph")),
+                                    QsciAction(qsci.SCI_WORDLEFT, tr("Move left one word")),
+                                    QsciAction(qsci.SCI_WORDRIGHT, tr("Move right one word")),
+                                    QsciAction(qsci.SCI_WORDLEFTEND, tr("Move left one word end")),
+                                    QsciAction(qsci.SCI_WORDRIGHTEND, tr("Move right one word end")),
+                                    QsciAction(qsci.SCI_WORDPARTLEFT, tr("Move left one word part")),
+                                    QsciAction(qsci.SCI_WORDPARTRIGHT, tr("Move right one word part")),
+                                    QsciAction(qsci.SCI_HOME, tr("Move to line start")),
+                                    QsciAction(qsci.SCI_HOMEDISPLAY, tr("Move to start of displayed line")),
+                                    QsciAction(qsci.SCI_HOMEWRAP, tr("Home wrap")),
+                                    QsciAction(qsci.SCI_VCHOME, tr("Move to firsst VC in line")),
+                                    QsciAction(qsci.SCI_VCHOMEEXTEND, tr("Extend selection to first VC in line")),
+                                    QsciAction(qsci.SCI_VCHOMEWRAP, tr("VC Home wrap")),
+                                    QsciAction(qsci.SCI_LINEEND, tr("Move to end of line")),
+                                    QsciAction(qsci.SCI_LINEENDDISPLAY, tr("Move to end displayed line")),
+                                    QsciAction(qsci.SCI_LINEENDWRAP, tr("Move to line end wrap")),
+                                    QsciAction(qsci.SCI_DOCUMENTSTART, tr("Move to document start")),
+                                    QsciAction(qsci.SCI_DOCUMENTEND, tr("Move to document end")),
+                                    QsciAction(qsci.SCI_PAGEUP, tr("Move up one page")),
+                                    QsciAction(qsci.SCI_PAGEDOWN, tr("Move down one page")),
+                                    QsciAction(qsci.SCI_STUTTEREDPAGEUP, tr("Move up one page stuttered")),
+                                    QsciAction(qsci.SCI_STUTTEREDPAGEDOWN, tr("Move down one page stuttered")),
                                   ),
                 ),
-                (tr("Edit"), (
-                              (qsci.SCI_DELETEBACKNOTLINE, tr("Backspace not a line")),
-                              (qsci.SCI_DELWORDLEFT, tr("Delete previous word")),
-                              (qsci.SCI_DELWORDRIGHT, tr("Delete next word")),
-                              (qsci.SCI_DELLINELEFT, tr("Delete line tp left")),
-                              (qsci.SCI_DELLINERIGHT, tr("Delete line to right")),
-                              (qsci.SCI_LINEDELETE, tr("Delete line")),
-                              (qsci.SCI_LINECUT, tr("Cut line")),
-                              (qsci.SCI_LINECOPY, tr("Copy line")),
-                              (qsci.SCI_LINETRANSPOSE, tr("Swap current and previous line")),
-                              (qsci.SCI_LINEDUPLICATE, tr("Duplicate line")),
-                              (qsci.SCI_LOWERCASE, tr("To lower case")),
-                              (qsci.SCI_UPPERCASE, tr("To upper case")),
-                              (qsci.SCI_EDITTOGGLEOVERTYPE, tr("Edit toggle over type")),
-                              (qsci.SCI_FORMFEED, tr("Formfeed")),
-                              (qsci.SCI_BACKTAB, tr("Delete one indent")),
-                              (qsci.SCI_SELECTIONDUPLICATE, tr("Duplicate selection")),
-                              (qsci.SCI_CLEAR, tr("Delete")),
-                              (qsci.SCI_SELECTALL, tr("Select All")),
+                QsciMenu(tr("Edit"), (
+                              QsciAction(qsci.SCI_DELETEBACKNOTLINE, tr("Backspace not a line")),
+                              QsciAction(qsci.SCI_DELWORDLEFT, tr("Delete previous word")),
+                              QsciAction(qsci.SCI_DELWORDRIGHT, tr("Delete next word")),
+                              QsciAction(qsci.SCI_DELLINELEFT, tr("Delete line tp left")),
+                              QsciAction(qsci.SCI_DELLINERIGHT, tr("Delete line to right")),
+                              QsciAction(qsci.SCI_LINEDELETE, tr("Delete line")),
+                              QsciAction(qsci.SCI_LINECUT, tr("Cut line")),
+                              QsciAction(qsci.SCI_LINECOPY, tr("Copy line")),
+                              QsciAction(qsci.SCI_LINETRANSPOSE, tr("Swap current and previous line")),
+                              QsciAction(qsci.SCI_LINEDUPLICATE, tr("Duplicate line")),
+                              QsciAction(qsci.SCI_LOWERCASE, tr("To lower case")),
+                              QsciAction(qsci.SCI_UPPERCASE, tr("To upper case")),
+                              QsciAction(qsci.SCI_EDITTOGGLEOVERTYPE, tr("Edit toggle over type")),
+                              QsciAction(qsci.SCI_FORMFEED, tr("Formfeed")),
+                              QsciAction(qsci.SCI_BACKTAB, tr("Delete one indent")),
+                              QsciAction(qsci.SCI_SELECTIONDUPLICATE, tr("Duplicate selection")),
+                              QsciAction(qsci.SCI_CLEAR, tr("Delete")),
+                              QsciAction(qsci.SCI_SELECTALL, tr("Select All")),
                              ),
                 ),
-                (tr("Zoom"), (
-                              (qsci.SCI_ZOOMIN, tr("Zoom In")),
-                              (qsci.SCI_ZOOMOUT, tr("Zoom Out")),
-                              (qsci.SCI_SETZOOM, tr("Set Zoom")),
+                QsciMenu(tr("Zoom"), (
+                              QsciAction(qsci.SCI_ZOOMIN, tr("Zoom In")),
+                              QsciAction(qsci.SCI_ZOOMOUT, tr("Zoom Out")),
+                              QsciAction(qsci.SCI_SETZOOM, tr("Set Zoom")),
                              ),
                 ),
-                (tr("Bookmarks"),
+                QsciMenu(tr("Bookmarks"),
                              (
-                              (qsci.SCI_MARKERADD, tr("Set bookmark")),
-                              (qsci.SCI_MARKERDELETEALL, tr( "Delete all bookmarks" )),
-                              (qsci.SCI_MARKERPREVIOUS, tr( "Previous bookmark" )),
-                              (qsci.SCI_MARKERNEXT, tr( "Next bookmark")),
+                              QsciAction(qsci.SCI_MARKERADD, tr("Set bookmark")),
+                              QsciAction(qsci.SCI_MARKERDELETEALL, tr( "Delete all bookmarks" )),
+                              QsciAction(qsci.SCI_MARKERPREVIOUS, tr( "Previous bookmark" )),
+                              QsciAction(qsci.SCI_MARKERNEXT, tr( "Next bookmark")),
                              ),
                             ),
              )
 
+for menu in _SHORTCUTS:
+    for action in menu.actions:
+        action.menu = menu
 
 def sciToQt(key):
-    modifier = key >> 16
+    modifier = key & 0xffff0000
     code = key & 0x0000ffff
     if code in range(ord('A'), ord('Z')):
         qtCode = Qt.Key_A + (code - ord('A'))
@@ -268,16 +317,14 @@ def sciToQt(key):
     return QKeySequence(qtModifier + qtCode)
 
 def qtToQsci(key):
-    elements = filter([key[i] for i in range(0, 3)])
-    code = elements[-1]
-    modifiers = elements[:-1]
-    modifier = reduce(lambda a, b: a * b, modifiers)
+    code = key & 0x1ffffff
+    modifier = key & 0xfe000000
     if code in range(Qt.Key_A, Qt.Key_Z):
         qsciCode = ord('A') + (code - Qt.Key_A)
     else:
         qsciCode = _QT_TO_QSCI_KEY[code]
     qsciModifier = _QT_TO_QSCI_MODIFIER[modifier]
-    return (qsciModifier << 16) | qsciCode
+    return qsciModifier + qsciCode
 
 class EditorShortcutsModel(QAbstractItemModel):
     """Class implements list of actions, visible in the tree view
@@ -290,21 +337,17 @@ class EditorShortcutsModel(QAbstractItemModel):
         return not index.isValid()
     
     def isMenu(self, index):
-        return index.isValid() and \
-               not index.internalPointer()
+        return index.internalPointer() == MENU_TYPE
     
     def isAction(self, index):
-        return index.isValid() and \
-               index.internalPointer()
+        return index.internalPointer() == ACTION_TYPE
     
     def menu(self, index):
-        assert(self.isMenu(index))
         return _SHORTCUTS[index.row()]
 
     def action(self, index):
-        assert(self.isAction(index))
-        menu = index.internalPointer()
-        return menu[1][index.row()]
+        menu = self.menu(index.parent())
+        return menu.actions[index.row()]
     
     def columnCount(self, parent):
         return 3
@@ -317,33 +360,39 @@ class EditorShortcutsModel(QAbstractItemModel):
             action = self.action(index)
             if role in (Qt.DisplayRole, Qt.ToolTipRole):
                 if index.column() == 0:  # name
-                    return action[1]
+                    return action.text
                 elif index.column() == 1:  # shortcut
-                    return self._dialog.shortcut(action[0])
+                    return action.shortcut()
                 elif index.column() == 2: # default shortcut
-                    return self._dialog.defaultShortcut(action[0])
+                    return action.defaultShortcut()
             else:  # not supported role
                 return None
         else:
             assert(self.isMenu(index))
             if role in (Qt.DisplayRole, Qt.ToolTipRole):
                 if index.column() == 0:
-                    return self.menu(index)[0]
+                    return self.menu(index).text
                 else:
                     return None
 
     def index(self, row, column, parent):
-        if self.isMenu(parent):
-            index = self.createIndex(row, column, _SHORTCUTS[parent.row()])
-        else:
+        if self.isMenu(parent):  # create index for an action
+            menu = self.menu(parent)
+            index = self.createIndex(row, column, MENU_TYPE)
+            assert(self.isAction(index))
+        else:  # create index for a menu
             assert(self.isRoot(parent))
-            index = self.createIndex(row, column)
+            index = self.createIndex(row, column, ACTION_TYPE)
+            print 'xx'
+            print index.internalPointer()
+            print 'yy'
+            assert(self.isMenu(index))
         assert(index.isValid())
         return index
 
     def parent(self, index):
         if self.isAction(index):
-            menu = index.internalPointer()
+            menu = self.action(index).menu
             return self.createIndex(_SHORTCUTS.index(menu), 0)
         else:
             return QModelIndex()
@@ -353,7 +402,7 @@ class EditorShortcutsModel(QAbstractItemModel):
             return 0
         elif self.isMenu(parent):
             menu = self.menu(parent)
-            return len(menu[1])
+            return len(menu.actions)
         else:
             assert(self.isRoot(parent))
             return len(_SHORTCUTS)
@@ -381,9 +430,8 @@ class EditorShortcutsDialog(QDialog):
     """
     _defaultShortcuts = {}
     
-    def __init__(self, currentShortcuts, *args):
+    def __init__(self, *args):
         QDialog.__init__(self, *args)
-        self._currentShortcuts = currentShortcuts
         self._model = EditorShortcutsModel(self)
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/EditorShortcutsDialog.ui'), self)
         self.leFilter.setSearchButtonVisible( False )
@@ -405,83 +453,55 @@ class EditorShortcutsDialog(QDialog):
         
         self.tvActions_selectionModel_selectionChanged()
 
-    def selectedIndex(self):
-        """Get index of the selected item
+
+    def selectedAction(self):
+        """Get currently selected action
         """
         indexes = self.tvActions.selectionModel().selectedIndexes()
         if indexes:
-            return indexes[0]
-        return QModelIndex()
-
-    def setShortcut(self, index, shortcut):
-        """Set shortcut for the action, identified by the index
-        """
-        # TODO implement
-        pass
-
-    def shortcut(self, sciAction):
-        """Get shortcut for the action, identified by the index
-        """    
-        if not sciAction in self._currentShortcuts:
-            return ''
-        
-        code, mod = _DEFAULT_KEYMAP[sciAction]
-        ret = sciToQt(code | (mod << 16))
-        return ret.toString()
-
-    def defaultShortcut(self, sciAction):
-        """Get default shortcut for the action, identified by the index
-        """
-        if not sciAction in _DEFAULT_KEYMAP:
-            return ''
-        
-        code, mod = _DEFAULT_KEYMAP[sciAction]
-        ret = sciToQt(code | (mod << 16))
-        return ret.toString()
-    
-    def isDefaultShortcut(self, index):
-        """Check if shortcut for action is default
-        """
-        return index.isValid() and \
-               self.shortcut(index) != self.defaultShortcut(index)
+            index = indexes[0]
+            if self._model.isAction(index):
+                return self._model.action(index)
+        return None
 
     def tvActions_selectionModel_selectionChanged(self):
         """Selection changed in the list
         """
-        index = self.selectedIndex()
-        if index.isValid():
-            self.kseShortcut.setText(self.shortcut(index))
+        action = self.selectedAction()
+        if action is not None:
+            self.kseShortcut.setText(action.shortcut())
+            self.kseShortcut.setEnabled(True)
+            self.tbClear.setEnabled(self.shortcut(index))
+            self.dbbButtons.button( QDialogButtonBox.RestoreDefaults ).setEnabled(not action.isDefaultShortcut())
         else:
             self.kseShortcut.clear()
+            self.tbClear.setEnabled(False)
+            self.dbbButtons.button(False)
         
-        self.kseShortcut.setEnabled(index.isValid())
-        self.tbSet.setEnabled(False)
-        self.tbClear.setEnabled( index.isValid() and bool(self.shortcut(index)) )
+        self.tbSet.setEnabled(False)        
         self.dbbButtons.button( QDialogButtonBox.Reset ).setEnabled( False )
-        self.dbbButtons.button( QDialogButtonBox.RestoreDefaults ).setEnabled(not self.isDefaultShortcut(index))
         self.kseShortcut.setFocus()
 
     def on_kseShortcut_textChanged(self, text):
         """Text has been changed in the shortcut input
         """
-        index = self.selectedIndex()
-        self.tbSet.setEnabled( index.isValid() and bool(self.kseShortcut.text()) )
+        action = self.selectedAction()
+        self.tbSet.setEnabled( bool(self.kseShortcut.text()) )
         self.dbbButtons.button( QDialogButtonBox.Reset ).setEnabled( True )
-        self.dbbButtons.button( QDialogButtonBox.RestoreDefaults ).setEnabled(not self.isDefaultShortcut(index))
+        self.dbbButtons.button( QDialogButtonBox.RestoreDefaults ).setEnabled(not action.isDefaultShortcut())
 
     def on_tbSet_clicked(self):
         """*Set* button has been clicked
         """
-        index = self.selectedIndex()
-        if index.isValid() and not self.kseShortcut.text().isEmpty():
-            self.setShortcut(index, self.kseShortcut.text())
+        action = self.selectedAction()
+        if self.kseShortcut.text():
+            self.setShortcut(action[0], self.kseShortcut.text())
 
     def on_tbClear_clicked(self):
         """*Clear* button has been clicked
         """
-        index = self.selectedIndex()
-        if index.isValid():
-            self.setShortcut( index, None)
+        action = self.selectedAction()
+        action.setShortcut('')
 
     def on_dbbButtons_clicked(self, button ):
         """One of dialog button box buttons has been clicked
@@ -490,9 +510,8 @@ class EditorShortcutsDialog(QDialog):
         if stButton == QDialogButtonBox.Reset:
             self.tvActions_selectionModel_selectionChanged()
         elif stButton == QDialogButtonBox.RestoreDefaults:
-            index = self.selectedIndex()
-            if index.isValid():
-                self.setShortcut(index, self.defaultShortcut(index))
+            action = self.selectedAction()
+            self.setShortcut(index, self.defaultShortcut(index))
         elif stButton == QDialogButtonBox.Ok:
             self.accept()
 
@@ -502,7 +521,6 @@ class EditorShortcutsDialog(QDialog):
 
 class EditorShortcuts:
     def __init__(self):
-        self._currentShortcuts = copy.copy(_DEFAULT_KEYMAP)
         action = core.actionModel().addAction("mEdit/aEditorShortcuts",
                                               tr( "Editor shortcuts..."),
                                               QIcon(':/mksicons/shortcuts.png'))
@@ -512,6 +530,4 @@ class EditorShortcuts:
         core.actionModel().removeAction("mEdit/aEditorShortcuts")
 
     def exec_(self):
-        document = core.workspace().currentDocument()
-        if document:
-            EditorShortcutsDialog(self._currentShortcuts, core.mainWindow()).exec_()
+        EditorShortcutsDialog(core.mainWindow()).exec_()
