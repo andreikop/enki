@@ -140,12 +140,13 @@ class Workspace(QStackedWidget):
         core.actionModel().action( "mFile/mSave/aCurrent" ).triggered.connect(self._onFileSaveCurrent_triggered)
         core.actionModel().action( "mFile/mSave/aAll" ).triggered.connect(self._onFileSaveAll_triggered)
         
-        core.actionModel().action( "mView/aNext" ).triggered.connect(self._activateNextDocument)
-        core.actionModel().action( "mView/aPrevious" ).triggered.connect(self._activatePreviousDocument)
+        core.actionModel().action( "mNavigation/aNext" ).triggered.connect(self._activateNextDocument)
+        core.actionModel().action( "mNavigation/aPrevious" ).triggered.connect(self._activatePreviousDocument)
         
-        core.actionModel().action( "mView/aFocusCurrentDocument" ).triggered.connect(self.focusCurrentDocument)
+        core.actionModel().action( "mNavigation/aFocusCurrentDocument" ).triggered.connect(self.focusCurrentDocument)
+        core.actionModel().action( "mNavigation/aGoto" ).triggered.connect(self._onGotoTriggered)
         editConfigFile = lambda : self.openFile(core.config().filename)
-        core.actionModel().action( "mEdit/aConfigFile" ).triggered.connect(editConfigFile)
+        core.actionModel().action( "mSettings/aConfigFile" ).triggered.connect(editConfigFile)
     
     def _mainWindow(self):
         """Get mainWindow instance
@@ -228,7 +229,8 @@ class Workspace(QStackedWidget):
         # update file menu
         core.actionModel().action( "mFile/mSave/aAll" ).setEnabled( document is not None)
         core.actionModel().action( "mFile/mClose/aCurrent" ).setEnabled( document is not None)
-        core.actionModel().action( "mView/aFocusCurrentDocument" ).setEnabled( document is not None)
+        core.actionModel().action( "mNavigation/aFocusCurrentDocument" ).setEnabled( document is not None)
+        core.actionModel().action( "mNavigation/aGoto" ).setEnabled( document is not None)
         ''' TODO close all
         core.actionModel().action( "mFile/mClose/aAll" ).setEnabled( document )
         '''
@@ -244,8 +246,8 @@ class Workspace(QStackedWidget):
         
         # update view menu
         moreThanOneDocument = self.count() > 1
-        core.actionModel().action( "mView/aNext" ).setEnabled( moreThanOneDocument )
-        core.actionModel().action( "mView/aPrevious" ).setEnabled( moreThanOneDocument )
+        core.actionModel().action( "mNavigation/aNext" ).setEnabled( moreThanOneDocument )
+        core.actionModel().action( "mNavigation/aPrevious" ).setEnabled( moreThanOneDocument )
         
         # internal update
         if  document and document.filePath():
@@ -486,7 +488,12 @@ class Workspace(QStackedWidget):
         for document in self.openedDocuments():
             if not document.isExternallyRemoved():
                 self._reloadDocument(document)
-            
+    
+    def _onGotoTriggered(self):
+        """Handler of Navigation->Goto
+        """
+        self.currentDocument().invokeGoTo()
+
 '''TODO old code. Restore it partially, delete partially
 
     # document about to close

@@ -6,7 +6,7 @@ Application shortcuts module transparently manages QAction shortcuts.
 
 Here is example of global action creation: ::
 
-    action = core.actionModel().addAction("mEdit/aShortcuts", self.tr( "Shortcuts..."),  QIcon(':/mksicons/shortcuts.png'))
+    action = core.actionModel().addAction("mSettings/aShortcuts", self.tr( "Shortcuts..."),  QIcon(':/mksicons/shortcuts.png'))
 
 This code adds *Shortcuts...* action to *Edit* menu.
 
@@ -60,7 +60,7 @@ class AppShortcuts:
         self._model = core.actionModel()
         self._model.rowsInserted.connect(self._onActionInserted)
         
-        action = self._model.addAction("mEdit/aApplicationShortcuts",
+        action = self._model.addAction("mSettings/aApplicationShortcuts",
                                        tr( "Application shortcuts..."), 
                                        QIcon(':/mksicons/shortcuts.png'))
         action.setStatusTip(tr( "Edit application shortcuts..."))
@@ -70,7 +70,7 @@ class AppShortcuts:
             self._applyShortcut(action)
 
     def __term__(self):
-        self._model.removeAction("mEdit/aApplicationShortcuts")
+        self._model.removeAction("mSettings/aApplicationShortcuts")
     
     def _applyShortcut(self, action):
         """Apply for the action its shortcut if defined
@@ -93,7 +93,8 @@ class AppShortcuts:
         for row in range(start, end + 1):
             actionIndex = self._model.index(row, 0, parentIndex)
             action = self._model.action(actionIndex)
-            if not action.menu():
+            if action is not None and \
+               not action.menu():
                 self._applyShortcut(action)
 
     def _saveShortcuts(self):

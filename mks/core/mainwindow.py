@@ -170,9 +170,9 @@ class MainWindow(pMainWindow):
         
         mb.action( "aAbout", self.tr( "&About..." ), QIcon( ":/mksicons/monkey2.png" ), '', self.tr( "About application..." ) )
         # create action for styles
-        agStyles = pStylesActionGroup( self.tr( "Use %1 style" ), mb.menu( "mView/mStyle" ) )
+        agStyles = pStylesActionGroup( self.tr( "Use %1 style" ), mb.menu( "mNavigation/mStyle" ) )
         agStyles.setCurrentStyle( core.settings().value( "MainWindow/Style" ).toString() )
-        mb.menu( "mView/mStyle" ).addActions( agStyles.actions() )
+        mb.menu( "mNavigation/mStyle" ).addActions( agStyles.actions() )
         
         # create plugins actions
         core.pluginsManager().menuHandler().setMenu( mb.menu( "mPlugins" ) )        
@@ -218,16 +218,22 @@ class MainWindow(pMainWindow):
         seperator("mFile")
         action("mFile/aQuit",                         self.tr( "&Quit"                 ), "quit.png",     "Ctrl+Q",       self.tr( "Quit the application"   ), True )
         
+        menu ("mNavigation",                          self.tr("Navigation"             ), ""            ) 
+        menu ("mNavigation/mSearchReplace",           self.tr( "&Search && Replace"    ), "search-replace-directory.png")
+        menu ("mNavigation/mBookmarks",               self.tr( "&Bookmarks"            ), "bookmark.png")
+        menu ("mNavigation/mZoom",                    self.tr( "&Zoom"                 ), "search.png")
+
+        action("mNavigation/aNext",                   self.tr( "&Next file"            ), "next.png",     "Alt+Right",    self.tr( "Next file"    ), False)
+        action("mNavigation/aPrevious",               self.tr( "&Previous file"        ), "previous.png", "Alt+Left",     self.tr( "Previous file"), False)
+        action("mNavigation/aFocusCurrentDocument",   self.tr( "Focus to editor"       ), "text.png",     "Ctrl+Return",  self.tr( "Focus current document" ), False)
+        action("mNavigation/aGoto",                   self.tr( "Go go line..."         ), "goto.png",     "Ctrl+G",  self.tr( "Go to line..." ), False)
+
         menu  ("mEdit",                               self.tr( "Edit"                  ), ""            )
-        menu  ("mEdit/mSearchReplace",                self.tr( "&Search && Replace"    ), ""            )
-        action("mEdit/aConfigFile",                   self.tr( "Edit config file" ),   "",             "Ctrl+Alt+S", self.tr( "Edit config file"    ), True)
-        
-        menu  ("mView",                               self.tr( "View"                  ), ""            )
-        action("mView/aNext",                         self.tr( "&Next file" ),            "next.png",     "Alt+Right",    self.tr( "Active the next tab"    ), False)
-        action("mView/aPrevious",                     self.tr( "&Previous file" ),        "previous.png", "Alt+Left",     self.tr( "Active the previous tab"), False)
-        action("mView/aFocusCurrentDocument",         self.tr( "Focus to editor" ),       "text.png",     "Ctrl+Return",  self.tr( "Focus current document" ), False)
-        
-        menu  ("mDocks",                               self.tr( "Docks"                  ), ""            )
+
+        menu  ("mSettings",                           self.tr( "Settings"              ), ""            )
+        action("mSettings/aConfigFile",               self.tr( "Edit config file" ),   "",             "Ctrl+Alt+S", self.tr( "Edit config file"    ), True)
+
+        menu  ("mDocks",                              self.tr( "Docks"                 ), ""            )
         
         menu  ("mHelp",                               self.tr( "Help"                  ), ""            )
         action("mHelp/aAboutQt",                      self.tr( "About &Qt..." ),          "qt.png",       "",             self.tr( "About Qt..."            ), True )
@@ -250,9 +256,6 @@ class MainWindow(pMainWindow):
         # edit connection
         self._actionModel.action( "mEdit/aSettings" ).triggered.connect(core.workspace().editSettings_triggered)
         self._actionModel.action( "mEdit/aTranslations" ).triggered.connect(core.workspace().editTranslations_triggered)
-        self._actionModel.action( "mEdit/mSearchReplace/aSearchFile" ).triggered.connect(core.workspace().editSearch_triggered)
-        #self._actionModel.action( "mEdit/aSearchPrevious" ).triggered.connect(core.workspace().editSearchPrevious_triggered)
-        #self._actionModel.action( "mEdit/aSearchNext" ).triggered.connect(core.workspace().editSearchNext_triggered)
         self._actionModel.action( "mEdit/aExpandAbbreviation" ).triggered.connect(core.workspace().editExpandAbbreviation_triggered)
         self._actionModel.action( "mEdit/aPrepareAPIs" ).triggered.connect(core.workspace().editPrepareAPIs_triggered)
         # view connection
@@ -275,22 +278,6 @@ class MainWindow(pMainWindow):
         self._actionModel.action( "mHelp/aAbout" ).triggered.connect(core.workspace().helpAboutApplication_triggered)
         """
     
-    def _saveShortcuts(self):
-        """Save application shortcuts
-        """
-        def printActions(model, index):
-            if model.hasChildren(index):
-                for row in range(model.rowCount(index)):
-                    printActions(model, model.index(row, 0, index))
-            else:
-                node = model.indexToNode(index)
-                if node.action():
-                    print node.action().text()
-        
-        model = self._actionModel.model()
-        printActions(model, QModelIndex())
-    
-    
     def setWorkspace(self, workspace):
         """Set central widget of the main window.
         Normally called only by core when initializing system
@@ -307,7 +294,7 @@ class MainWindow(pMainWindow):
         """Fill docs menu with currently existing docs
         """
         # get menu
-        menu = self._actionModel.menu( "mDocks" )
+        menu = self._actionModel.action( "mDocks" ).menu()
         
         # add actions
         for dock in self.findChildren(pDockWidget):
