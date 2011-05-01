@@ -5,6 +5,7 @@ editorshortcuts --- Manages QScintilla shortcuts
 Contains editor dialog and functionality for load and save the shortcuts
 """
 from PyQt4.QtCore import QObject
+from PyQt4.QtGui import QIcon
 from PyQt4.Qsci import QsciScintilla as qsci
 
 from mks.core.core import core
@@ -15,115 +16,145 @@ def tr(s):
 MKS_TOGGLE_BOOKMARK = -1
 MKS_NEXT_BOOKMARK = -2
 MKS_PREV_BOOKMARK = -3
-MKS_GOTO = -4
-
 
 ACTIONS = (\
-(qsci.SCI_SELECTALL, 'mEdit/mSelection/aSelectAll', tr('Select All'), 'Ctrl+A'),
-(qsci.SCI_LINEDOWNEXTEND, 'mEdit/mSelection/aExtendSelectionDownOneLine', tr('Extend selection down one line'), 'Shift+Down'),
-(qsci.SCI_LINEDOWNRECTEXTEND, 'mEdit/mSelection/aExtendRectangularSelectionDownOneLine', tr('Extend rectangular selection down one line'), 'Alt+Shift+Down'),
-(qsci.SCI_LINEUPEXTEND, 'mEdit/mSelection/aExtendSelectionUp', tr('Extend selection up'), 'Shift+Up'),
-(qsci.SCI_LINEUPRECTEXTEND, 'mEdit/mSelection/aExtendSelectionUpOneLine', tr('Extend selection up one line'), 'Alt+Shift+Up'),
-(qsci.SCI_PARADOWNEXTEND, 'mEdit/mSelection/aExtendSelectionUpOneParagraph', tr('Extend selection up one paragraph'), 'Ctrl+Alt+]'),
-(qsci.SCI_CHARLEFTEXTEND, 'mEdit/mSelection/aExtendSelectionLeftOneCharacter', tr('Extend selection left one character'), 'Shift+Left'),
-(qsci.SCI_CHARLEFTRECTEXTEND, 'mEdit/mSelection/aExtendRectangularSelectionLeftOneCharacter', tr('Extend rectangular selection left one character'), 'Alt+Shift+Left'),
-(qsci.SCI_CHARRIGHTEXTEND, 'mEdit/mSelection/aExtendSelectionRightOneCharacter', tr('Extend selection right one character'), 'Shift+Right'),
-(qsci.SCI_CHARRIGHTRECTEXTEND, 'mEdit/mSelection/aExtendRectangularSelectionRightOneCharacter', tr('Extend rectangular selection right one character'), 'Alt+Shift+Right'),
-(qsci.SCI_PARAUPEXTEND, 'mEdit/mSelection/aExtendSelectionDownOneParagraph', tr('Extend selection down one paragraph'), 'Ctrl+Alt+['),
-(qsci.SCI_WORDLEFTEXTEND, 'mEdit/mSelection/aExtendSelectionLeftOneWord', tr('Extend selection left one word'), 'Ctrl+Alt+Left'),
-(qsci.SCI_WORDRIGHTEXTEND, 'mEdit/mSelection/aExtendSelectionRightOneWord', tr('Extend selection right one word'), 'Ctrl+Alt+Right'),
-(qsci.SCI_WORDLEFTENDEXTEND, 'mEdit/mSelection/aExtendSelectionLeftOneWordLeft', tr('Extend selection left one word left'), ''),
-(qsci.SCI_WORDRIGHTENDEXTEND, 'mEdit/mSelection/aExtendSelectionRightOneWordEnd', tr('Extend selection right one word end'), ''),
-(qsci.SCI_WORDPARTLEFTEXTEND, 'mEdit/mSelection/aExtendSelectionLeftOneWordPart', tr('Extend selection left one word part '), 'Ctrl+Alt+/'),
-(qsci.SCI_WORDPARTRIGHTEXTEND, 'mEdit/mSelection/aExtendSelectionRightOneWordPart', tr('Extend selection right one word part'), 'Ctrl+Alt+\\'),
-(qsci.SCI_HOMEEXTEND, 'mEdit/mSelection/aExtendSelectionToLineStart', tr('Extend selection to line start'), ''),
-(qsci.SCI_HOMERECTEXTEND, 'mEdit/mSelection/aExtendRectangularSelectionToLineStart', tr('Extend rectangular selection to line start'), ''),
-(qsci.SCI_HOMEDISPLAYEXTEND, 'mEdit/mSelection/aExtendSelectionStartOfDisplayedLine', tr('Extend selection start of displayed line'), ''),
-(qsci.SCI_HOMEWRAPEXTEND, 'mEdit/mSelection/aExtendSelectionOnHomeWrap', tr('Extend selection on home wrap'), ''),
-(qsci.SCI_VCHOMERECTEXTEND, 'mEdit/mSelection/aExtendRectangularSelectionToFirtsVCInLine', tr('Extend rectangular selection to firts VC in line'), 'Alt+Shift+Home'),
-(qsci.SCI_VCHOMEWRAPEXTEND, 'mEdit/mSelection/aExtendSelectionVCHomeWrap', tr('Extend selection VC Home wrap'), ''),
-(qsci.SCI_LINEENDEXTEND, 'mEdit/mSelection/aExtendSelectionToEndOfLine', tr('Extend selection to end of line'), 'Shift+End'),
-(qsci.SCI_LINEENDRECTEXTEND, 'mEdit/mSelection/aExtendRectangularSelectionToEndOfLine', tr('Extend rectangular selection to end of line'), 'Alt+Shift+End'),
-(qsci.SCI_LINEENDDISPLAYEXTEND, 'mEdit/mSelection/aExtendSelectionToEndOfDisplayedLine', tr('Extend selection to end of displayed line'), ''),
-(qsci.SCI_LINEENDWRAPEXTEND, 'mEdit/mSelection/aExtendSelectionToLineEndWrap', tr('Extend selection to line end wrap'), ''),
-(qsci.SCI_DOCUMENTSTARTEXTEND, 'mEdit/mSelection/aExtendSelectionToDocumentStart', tr('Extend selection to document start'), 'Ctrl+Alt+Home'),
-(qsci.SCI_DOCUMENTENDEXTEND, 'mEdit/mSelection/aExtendSelectionToDocumentEnd', tr('Extend selection to document end'), 'Ctrl+Alt+End'),
-(qsci.SCI_PAGEDOWNEXTEND, 'mEdit/mSelection/aExtendSelectionDownOnePage', tr('Extend selection down one page'), 'Shift+PgDown'),
-(qsci.SCI_PAGEDOWNRECTEXTEND, 'mEdit/mSelection/aExtendRectangularSelectionDownOnePage', tr('Extend rectangular selection down one page'), 'Alt+Shift+PgDown'),
-(qsci.SCI_STUTTEREDPAGEUPEXTEND, 'mEdit/mSelection/aExtendSelectionUpOnePageStuttered', tr('Extend selection up one page stuttered'), ''),
-(qsci.SCI_PAGEUPEXTEND, 'mEdit/mSelection/aExtendSelectionUpOnePage', tr('Extend selection up one page'), 'Shift+PgUp'),
-(qsci.SCI_PAGEUPRECTEXTEND, 'mEdit/mSelection/aExtendRectangularSelectionUpOnePage', tr('Extend rectangular selection up one page'), 'Alt+Shift+PgUp'),
-(qsci.SCI_STUTTEREDPAGEDOWNEXTEND, 'mEdit/mSelection/aExtendSelectionDownOnePageStuttered', tr('Extend selection down one page stuttered'), ''),
+(qsci.SCI_SELECTALL, 'mEdit/mSelection/aSelectAll', tr('Select All'), 'Ctrl+A', ''),
+(qsci.SCI_LINEDOWNEXTEND, 'mEdit/mSelection/aDownOneLine', tr('Extend Down'), 'Shift+Down', ''),
+(qsci.SCI_LINEUPEXTEND, 'mEdit/mSelection/aUp', tr('Extend Up'), 'Shift+Up', ''),
+(qsci.SCI_CHARLEFTEXTEND, 'mEdit/mSelection/aLeftOneCharacter', tr('Extend Left'), 'Shift+Left', ''),
+(qsci.SCI_CHARRIGHTEXTEND, 'mEdit/mSelection/aRightOneCharacter', tr('Extend Right'), 'Shift+Right', ''),
 \
-(MKS_GOTO, 'mEdit/mNavigation/aGoTo', tr('Go to line...'), 'Ctrl+G'),
-(qsci.SCI_LINEDOWN, 'mEdit/mNavigation/aLineDown', tr('Down'), ''),
-(qsci.SCI_LINEUP, 'mEdit/mNavigation/aLineUp', tr('Up'), ''),
-(qsci.SCI_CHARRIGHT, 'mEdit/mNavigation/aRight', tr('Right'), ''),
-(qsci.SCI_CHARRIGHT, 'mEdit/mNavigation/aLeft', tr('Left'), ''),
-(qsci.SCI_PAGEUP, 'mEdit/mNavigation/aPageUp', tr('Page Up'), ''),
-(qsci.SCI_PAGEDOWN, 'mEdit/mNavigation/aPageDown', tr('Page Down'), ''),
-(qsci.SCI_LINESCROLLDOWN, 'mEdit/mNavigation/aScrollViewDownOneLine', tr('Scroll view down one line'), 'Ctrl+Down'),
-(qsci.SCI_LINESCROLLUP, 'mEdit/mNavigation/aScrollViewUpOneLine', tr('Scroll view up one line'), 'Ctrl+Up'),
-(qsci.SCI_PARADOWN, 'mEdit/mNavigation/aMoveDownOneParagraph', tr('Move down one paragraph'), 'Ctrl+]'),
-(qsci.SCI_PARAUP, 'mEdit/mNavigation/aMoveDownOneParagraph', tr('Move down one paragraph'), 'Ctrl+['),
-(qsci.SCI_WORDLEFT, 'mEdit/mNavigation/aMoveLeftOneWord', tr('Move left one word'), 'Ctrl+Left'),
-(qsci.SCI_WORDRIGHT, 'mEdit/mNavigation/aMoveRightOneWord', tr('Move right one word'), 'Ctrl+Right'),
-(qsci.SCI_WORDLEFTEND, 'mEdit/mNavigation/aMoveLeftOneWordEnd', tr('Move left one word end'), ''),
-(qsci.SCI_WORDRIGHTEND, 'mEdit/mNavigation/aMoveRightOneWordEnd', tr('Move right one word end'), ''),
-(qsci.SCI_WORDPARTLEFT, 'mEdit/mNavigation/aMoveLeftOneWordPart', tr('Move left one word part'), 'Ctrl+/'),
-(qsci.SCI_WORDPARTRIGHT, 'mEdit/mNavigation/aMoveRightOneWordPart', tr('Move right one word part'), 'Ctrl+\\'),
-(qsci.SCI_HOME, 'mEdit/mNavigation/aMoveToLineStart', tr('Move to line start'), ''),
-(qsci.SCI_HOMEDISPLAY, 'mEdit/mNavigation/aMoveToStartOfDisplayedLine', tr('Move to start of displayed line'), 'Alt+Home'),
-(qsci.SCI_HOMEWRAP, 'mEdit/mNavigation/aHomeWrap', tr('Home wrap'), ''),
-(qsci.SCI_VCHOME, 'mEdit/mNavigation/aMoveToFirsstVCInLine', tr('Move to first VC in line'), ''),
-(qsci.SCI_VCHOMEEXTEND, 'mEdit/mNavigation/aExtendSelectionToFirstVCInLine', tr('Extend selection to first VC in line'), 'Shift+Home'),
-(qsci.SCI_VCHOMEWRAP, 'mEdit/mNavigation/aVCHomeWrap', tr('VC Home wrap'), ''),
-(qsci.SCI_LINEEND, 'mEdit/mNavigation/aMoveToEndOfLine', tr('Move to end of line'), ''),
-(qsci.SCI_LINEENDDISPLAY, 'mEdit/mNavigation/aMoveToEndDisplayedLine', tr('Move to end displayed line'), 'Alt+End'),
-(qsci.SCI_LINEENDWRAP, 'mEdit/mNavigation/aMoveToLineEndWrap', tr('Move to line end wrap'), ''),
-(qsci.SCI_DOCUMENTSTART, 'mEdit/mNavigation/aMoveToDocumentStart', tr('Move to document start'), 'Ctrl+Home'),
-(qsci.SCI_DOCUMENTEND, 'mEdit/mNavigation/aMoveToDocumentEnd', tr('Move to document end'), 'Ctrl+End'),
-(qsci.SCI_PAGEUP, 'mEdit/mNavigation/aMoveUpOnePage', tr('Move up one page'), 'PgUp'),
-(qsci.SCI_PAGEDOWN, 'mEdit/mNavigation/aMoveDownOnePage', tr('Move down one page'), 'PgDown'),
-(qsci.SCI_STUTTEREDPAGEUP, 'mEdit/mNavigation/aMoveUpOnePageStuttered', tr('Move up one page stuttered'), ''),
-(qsci.SCI_STUTTEREDPAGEDOWN, 'mEdit/mNavigation/aMoveDownOnePageStuttered', tr('Move down one page stuttered'), ''),
-(qsci.SCI_UNDO, 'mEdit/mEdit/aUndo', tr('Undo'), 'Ctrl+Z'),
-(qsci.SCI_REDO, 'mEdit/mEdit/aRedo', tr('Redo'), 'Ctrl+Y'),
-(qsci.SCI_DELETEBACK, 'mEdit/mEdit/aBackspace', tr('Backspace'), ''),
-(qsci.SCI_DELETEBACKNOTLINE, 'mEdit/mEdit/aBackspaceNotALine', tr('Backspace not a line'), ''),
-(qsci.SCI_DELWORDLEFT, 'mEdit/mEdit/aDeletePreviousWord', tr('Delete previous word'), 'Ctrl+Backspace'),
-(qsci.SCI_DELWORDRIGHT, 'mEdit/mEdit/aDeleteNextWord', tr('Delete next word'), 'Ctrl+Del'),
-(qsci.SCI_DELLINELEFT, 'mEdit/mEdit/aDeleteLineTpLeft', tr('Delete line tp left'), 'Ctrl+Alt+Backspace'),
-(qsci.SCI_DELLINERIGHT, 'mEdit/mEdit/aDeleteLineToRight', tr('Delete line to right'), 'Ctrl+Alt+Del'),
-(qsci.SCI_LINEDELETE, 'mEdit/mEdit/aDeleteLine', tr('Delete line'), 'Ctrl+Alt+L'),
-(qsci.SCI_LINECUT, 'mEdit/mEdit/aCutLine', tr('Cut line'), 'Ctrl+L'),
-(qsci.SCI_LINECOPY, 'mEdit/mEdit/aCopyLine', tr('Copy line'), 'Ctrl+Alt+T'),
-(qsci.SCI_LINETRANSPOSE, 'mEdit/mEdit/aSwapCurrentAndPreviousLine', tr('Swap current and previous line'), 'Ctrl+T'),
-(qsci.SCI_LINEDUPLICATE, 'mEdit/mEdit/aDuplicateLine', tr('Duplicate line'), ''),
-(qsci.SCI_LOWERCASE, 'mEdit/mEdit/aToLowerCase', tr('To lower case'), 'Ctrl+U'),
-(qsci.SCI_UPPERCASE, 'mEdit/mEdit/aToUpperCase', tr('To upper case'), 'Ctrl+Alt+U'),
-(qsci.SCI_EDITTOGGLEOVERTYPE, 'mEdit/mEdit/aEditToggleOverType', tr('Edit toggle over type'), 'Ins'),
-(qsci.SCI_FORMFEED, 'mEdit/mEdit/aFormfeed', tr('Formfeed'), ''),
-(qsci.SCI_TAB, 'mEdit/mEdit/aIndent', tr('Indent'), ''),
-(qsci.SCI_BACKTAB, 'mEdit/mEdit/aDeleteOneIndent', tr('Delete one indent'), 'Shift+Tab'),
-(qsci.SCI_SELECTIONDUPLICATE, 'mEdit/mEdit/aDuplicateSelection', tr('Duplicate selection'), 'Ctrl+D'),
-(qsci.SCI_CLEAR, 'mEdit/mEdit/aDelete', tr('Delete'), 'Del'),
-(qsci.SCI_NEWLINE, 'mEdit/mEdit/aNewLine', tr('New line'), ''),
-(qsci.SCI_ZOOMIN, 'mView/mZoom/aZoomIn', tr('Zoom In'), 'Ctrl++'),
-(qsci.SCI_ZOOMOUT, 'mView/mZoom/aZoomOut', tr('Zoom Out'), 'Ctrl+-'),
-(qsci.SCI_SETZOOM, 'mView/mZoom/aSetZoom', tr('Set Zoom'), 'Ctrl+/'),
-(MKS_TOGGLE_BOOKMARK, 'mEdit/mBookmarks/aSetBookmark', tr('Set bookmark'), 'Ctrl+B'),
-(qsci.SCI_MARKERDELETEALL, 'mEdit/mBookmarks/aDeleteAllBookmarks', tr('Delete all bookmarks'), ''),
-(MKS_NEXT_BOOKMARK, 'mEdit/mBookmarks/aPreviousBookmark', tr('Previous bookmark'), 'Alt+Down'),
-(MKS_PREV_BOOKMARK, 'mEdit/mBookmarks/aNextBookmark', tr('Next bookmark'), 'Alt+Up'),
+(qsci.SCI_DOCUMENTSTARTEXTEND, 'mEdit/mSelection/mDocument/aToStart', tr('Extend to start'), 'Ctrl+Alt+Home', ''),
+(qsci.SCI_DOCUMENTENDEXTEND, 'mEdit/mSelection/mDocument/aToEnd', tr('Extend to end'), 'Ctrl+Alt+End', ''),
+\
+(qsci.SCI_PAGEDOWNEXTEND, 'mEdit/mSelection/mPage/aDownOnePage', tr('Down'), 'Shift+PgDown', ''),
+(qsci.SCI_STUTTEREDPAGEUPEXTEND, 'mEdit/mSelection/mPage/aUpOnePageStuttered', tr('Up stuttered'), '', ''),
+(qsci.SCI_PAGEUPEXTEND, 'mEdit/mSelection/mPage/aUpOnePage', tr('Up'), 'Shift+PgUp', ''),
+(qsci.SCI_STUTTEREDPAGEDOWNEXTEND, 'mEdit/mSelection/mPage/aDownOnePageStuttered', tr('Down stuttered'), '', ''),
+\
+(qsci.SCI_HOMEEXTEND, 'mEdit/mSelection/mLine/aStart', tr('To start'), '', ''),
+(qsci.SCI_HOMEDISPLAYEXTEND, 'mEdit/mSelection/mLine/aStartOfDisplayed', tr('To start of displayed'), '', ''),
+(qsci.SCI_HOMEWRAPEXTEND, 'mEdit/mSelection/mLine/aOnHomeWrap', tr('Home wrap'), '', ''),
+(qsci.SCI_VCHOMEWRAPEXTEND, 'mEdit/mSelection/mLine/aVCHomeWrap', tr('Visible character Home wrap'), '', ''),
+(qsci.SCI_VCHOMEEXTEND, 'mEdit/mSelection/mLine/aToFirstVC', tr('First visible character'), 'Shift+Home', ''),
+(qsci.SCI_LINEENDEXTEND, 'mEdit/mSelection/mLine/aToEnd', tr('End'), 'Shift+End', ''),
+(qsci.SCI_LINEENDDISPLAYEXTEND, 'mEdit/mSelection/mLine/aToEndOfDisplayed', tr('End of displayed'), '', ''),
+(qsci.SCI_LINEENDWRAPEXTEND, 'mEdit/mSelection/mLine/aEndWrap', tr('End wrap'), '', ''),
+\
+(qsci.SCI_PARAUPEXTEND, 'mEdit/mSelection/mParagraph/aUp', tr('Up'), 'Ctrl+Alt+[', ''),
+(qsci.SCI_PARADOWNEXTEND, 'mEdit/mSelection/mParagraph/aDown', tr('Down'), 'Ctrl+Alt+]', ''),
+\
+(qsci.SCI_WORDLEFTEXTEND, 'mEdit/mSelection/mWord/aLeft', tr('Left'), 'Ctrl+Alt+Left', ''),
+(qsci.SCI_WORDRIGHTEXTEND, 'mEdit/mSelection/mWord/aRight', tr('Right'), 'Ctrl+Alt+Right', ''),
+(qsci.SCI_WORDLEFTENDEXTEND, 'mEdit/mSelection/mWord/aLeft', tr('Left end'), '', ''),
+(qsci.SCI_WORDRIGHTENDEXTEND, 'mEdit/mSelection/mWord/aRightEnd', tr('Right end'), '', ''),
+(qsci.SCI_WORDPARTLEFTEXTEND, 'mEdit/mSelection/mWord/aLeftPart', tr('Left part '), 'Ctrl+Alt+/', ''),
+(qsci.SCI_WORDPARTRIGHTEXTEND, 'mEdit/mSelection/mWord/aRightPart', tr('Right part'), 'Ctrl+Alt+\\', ''),
+\
+(qsci.SCI_LINEDOWNRECTEXTEND, 'mEdit/mSelection/mRectangular/aDownOneLine', tr('Down one line'), 'Alt+Shift+Down', ''),
+(qsci.SCI_CHARLEFTRECTEXTEND, 'mEdit/mSelection/mRectangular/aLeftOneCharacter', tr('Left one character'), 'Alt+Shift+Left', ''),
+(qsci.SCI_CHARRIGHTRECTEXTEND, 'mEdit/mSelection/mRectangular/aRightOneCharacter', tr('Right one character'), 'Alt+Shift+Right', ''),
+(qsci.SCI_HOMERECTEXTEND, 'mEdit/mSelection/mRectangular/aToLineStart', tr('Line start'), '', ''),
+(qsci.SCI_VCHOMERECTEXTEND, 'mEdit/mSelection/mRectangular/aToFirtsVCInLine', tr('First visible character in line'), 'Alt+Shift+Home', ''),
+(qsci.SCI_LINEENDRECTEXTEND, 'mEdit/mSelection/mRectangular/aToEndOfLine', tr('End of line'), 'Alt+Shift+End', ''),
+(qsci.SCI_PAGEDOWNRECTEXTEND, 'mEdit/mSelection/mRectangular/aDownOnePage', tr('Down one page'), 'Alt+Shift+PgDown', ''),
+(qsci.SCI_PAGEUPRECTEXTEND, 'mEdit/mSelection/mRectangular/aUpOnePage', tr('Up one page'), 'Alt+Shift+PgUp', ''),
+\
+(qsci.SCI_LINEDOWN, 'mNavigation/mMove/aLineDown', tr('Down'), '', ''),
+(qsci.SCI_LINEUP, 'mNavigation/mMove/aLineUp', tr('Up'), '', ''),
+(qsci.SCI_CHARRIGHT, 'mNavigation/mMove/aRight', tr('Right'), '', ''),
+(qsci.SCI_CHARLEFT, 'mNavigation/mMove/aLeft', tr('Left'), '', ''),
+\
+(qsci.SCI_HOME, 'mNavigation/mMove/mLine/aStart', tr('Start'), '', ''),
+(qsci.SCI_HOMEDISPLAY, 'mNavigation/mMove/mLine/aStartOfDisplayed', tr('Start of displayed'), 'Alt+Home', ''),
+(qsci.SCI_HOMEWRAP, 'mNavigation/mMove/mLine/aHomeWrap', tr('Home wrap'), '', ''),
+(qsci.SCI_VCHOME, 'mNavigation/mMove/mLine/aFirsstVCInLine', tr('First visible character'), '', ''),
+(qsci.SCI_VCHOMEWRAP, 'mNavigation/mMove/mLine/aVCHomeWrap', tr('Visible character home wrap'), '', ''),
+(qsci.SCI_LINEEND, 'mNavigation/mMove/mLine/aToEndOfLine', tr('End'), '', ''),
+(qsci.SCI_LINEENDDISPLAY, 'mNavigation/mMove/mLine/aToEndDisplayedLine', tr('End of displayed'), 'Alt+End', ''),
+(qsci.SCI_LINEENDWRAP, 'mNavigation/mMove/mLine/aEndWrap', tr('End wrap'), '', ''),
+\
+(qsci.SCI_DOCUMENTSTART, 'mNavigation/mMove/mDocument/aStart', tr('Start'), 'Ctrl+Home', ''),
+(qsci.SCI_DOCUMENTEND, 'mNavigation/mMove/mDocument/aEnd', tr('End'), 'Ctrl+End', ''),
+\
+(qsci.SCI_PAGEUP, 'mNavigation/mMove/mPage/aUp', tr('Up'), 'PgUp', ''),
+(qsci.SCI_PAGEDOWN, 'mNavigation/mMove/mPage/aDown', tr('Down'), 'PgDown', ''),
+(qsci.SCI_STUTTEREDPAGEUP, 'mNavigation/mMove/mPage/aUpStuttered', tr('Up stuttered'), '', ''),
+(qsci.SCI_STUTTEREDPAGEDOWN, 'mNavigation/mMove/mPage/aDownStuttered', tr('Down stuttered'), '', ''),
+\
+(qsci.SCI_PARAUP, 'mNavigation/mMove/mParagraph/aUp', tr('Up'), 'Ctrl+[', ''),
+(qsci.SCI_PARADOWN, 'mNavigation/mMove/mParagraph/aDown', tr('Down'), 'Ctrl+]', ''),
+\
+(qsci.SCI_WORDLEFT, 'mNavigation/mMove/mWord/aLeft', tr('Left'), 'Ctrl+Left', ''),
+(qsci.SCI_WORDRIGHT, 'mNavigation/mMove/mWord/aRight', tr('Right'), 'Ctrl+Right', ''),
+(qsci.SCI_WORDLEFTEND, 'mNavigation/mMove/mWord/aLeftEnd', tr('Left end'), '', ''),
+(qsci.SCI_WORDRIGHTEND, 'mNavigation/mMove/mWord/aRightEnd', tr('Right end'), '', ''),
+(qsci.SCI_WORDPARTLEFT, 'mNavigation/mMove/mWord/aLeftPart', tr('Left part'), 'Ctrl+/', ''),
+(qsci.SCI_WORDPARTRIGHT, 'mNavigation/mMove/mWord/aRightPart', tr('Right part'), 'Ctrl+\\', ''),
+\
+(qsci.SCI_UNDO, 'mEdit/mHistory/aUndo', tr('Undo'), 'Ctrl+Z', 'undo.png'),
+(qsci.SCI_REDO, 'mEdit/mHistory/aRedo', tr('Redo'), 'Ctrl+Y', 'redo.png'),
+\
+(qsci.SCI_LOWERCASE, 'mEdit/mCase/aToLower', tr('To lower'), 'Ctrl+U', ''),
+(qsci.SCI_UPPERCASE, 'mEdit/mCase/aToUpper', tr('To upper'), 'Ctrl+Alt+U', ''),
+\
+(qsci.SCI_LINETRANSPOSE, 'mEdit/aSwapCurrentAndPreviousLine', tr('Swap current and previous line'), 'Ctrl+T', ''),
+(qsci.SCI_EDITTOGGLEOVERTYPE, 'mEdit/aEditToggleOverType', tr('Toggle over type'), 'Ins', ''),
+\
+(qsci.SCI_TAB, 'mEdit/mInsert/aIndent', tr('Indent'), '', ''),
+(qsci.SCI_NEWLINE, 'mEdit/mInsert/aNewLine', tr('New line'), '', ''),
+(qsci.SCI_FORMFEED, 'mEdit/mInsert/aFormfeed', tr('Formfeed'), '', ''),
+\
+(qsci.SCI_CLEAR, 'mEdit/mDelete/aDelete', tr('Delete'), 'Del', ''),
+(qsci.SCI_DELETEBACK, 'mEdit/mDelete/aBackspace', tr('Backspace'), '', ''),
+(qsci.SCI_BACKTAB, 'mEdit/mDelete/aOneIndent', tr('Delete one indent'), 'Shift+Tab', ''),
+(qsci.SCI_DELETEBACKNOTLINE, 'mEdit/mDelete/aBackspaceNotALine', tr('Backspace not a line'), '', ''),
+(qsci.SCI_DELWORDLEFT, 'mEdit/mDelete/aPreviousWord', tr('Previous word'), 'Ctrl+Backspace', ''),
+(qsci.SCI_DELWORDRIGHT, 'mEdit/mDelete/aNextWord', tr('Next word'), 'Ctrl+Del', ''),
+(qsci.SCI_LINEDELETE, 'mEdit/mDelete/aLine', tr('Line'), 'Ctrl+Alt+L', ''),
+(qsci.SCI_DELLINELEFT, 'mEdit/mDelete/aLineTpLeft', tr('Line to left'), 'Ctrl+Alt+Backspace', ''),
+(qsci.SCI_DELLINERIGHT, 'mEdit/mDelete/aLineToRight', tr('Line to right'), 'Ctrl+Alt+Del', ''),
+\
+(qsci.SCI_COPY, 'mEdit/mCopyPaste/aCopy', tr('Copy'), 'Ctrl+C', 'copy.png'),
+(qsci.SCI_PASTE, 'mEdit/mCopyPaste/aPaste', tr('Paste'), 'Ctrl+V', 'paste.png'),
+(qsci.SCI_CUT, 'mEdit/mCopyPaste/aCut', tr('Cut'), 'Ctrl+X', 'cut.png'),
+(qsci.SCI_LINECUT, 'mEdit/mCopyPaste/aCutLine', tr('Cut line'), 'Ctrl+L', 'cut.png'),
+(qsci.SCI_LINECOPY, 'mEdit/mCopyPaste/aCopyLine', tr('Copy line'), 'Ctrl+Alt+T', 'copy.png'),
+(qsci.SCI_LINEDUPLICATE, 'mEdit/mCopyPaste/aDuplicateLine', tr('Duplicate line'), '', ''),
+(qsci.SCI_SELECTIONDUPLICATE, 'mEdit/mCopyPaste/aDuplicateSelection', tr('Duplicate selection'), 'Ctrl+D', ''),
+\
+(qsci.SCI_ZOOMIN, 'mNavigation/mZoom/aZoomIn', tr('Zoom In'), 'Ctrl++', ''),
+(qsci.SCI_ZOOMOUT, 'mNavigation/mZoom/aZoomOut', tr('Zoom Out'), 'Ctrl+-', ''),
+(qsci.SCI_SETZOOM, 'mNavigation/mZoom/aSetZoom', tr('Reset Zoom'), 'Ctrl+/', ''),
+(MKS_TOGGLE_BOOKMARK, 'mNavigation/mBookmarks/aSetBookmark', tr('Set bookmark'), 'Ctrl+B', ''),
+(qsci.SCI_MARKERDELETEALL, 'mNavigation/mBookmarks/aAllBookmarks', tr('Delete all bookmarks'), '', ''),
+(MKS_NEXT_BOOKMARK, 'mNavigation/mBookmarks/aPreviousBookmark', tr('Previous bookmark'), 'Alt+Down', ''),
+(MKS_PREV_BOOKMARK, 'mNavigation/mBookmarks/aNextBookmark', tr('Next bookmark'), 'Alt+Up', ''),
+\
+(qsci.SCI_LINESCROLLDOWN, 'mNavigation/mScroll/aDownOneLine', tr('Down one line'), 'Ctrl+Down', ''),
+(qsci.SCI_LINESCROLLUP, 'mNavigation/mScroll/aUpOneLine', tr('Up one line'), 'Ctrl+Up', ''),
 )
 
 _MENUS = (\
-('mEdit/mBookmarks', tr('Bookmarks')),
-('mEdit/mSelection', tr('Selection')),
-('mEdit/mNavigation', tr('Navigation')),
-('mEdit/mEdit', tr('Edit')),
-('mView/mZoom', tr('Zoom')),
+('mEdit/mSelection', tr('Selection'), ''),
+('mEdit/mSelection/mRectangular', tr('Rectangular'), ''),
+('mEdit/mSelection/mDocument', tr('Document'), ''),
+('mEdit/mSelection/mPage', tr('Extend by Page'), ''),
+('mEdit/mSelection/mParagraph', tr('Extend by Paragraph'), ''),
+('mEdit/mSelection/mLine', tr('Extend by Line'), ''),
+('mEdit/mSelection/mWord', tr('Extend by Word'), ''),
+('mNavigation/mMove', tr('Move'), ''),
+('mNavigation/mMove/mDocument', tr('Document'), ''),
+('mNavigation/mMove/mPage', tr('Page'), ''),
+('mNavigation/mMove/mParagraph', tr('Paragraph'), ''),
+('mNavigation/mMove/mLine', tr('Line'), ''),
+('mNavigation/mMove/mWord', tr('Word'), ''),
+('mEdit/mInsert', tr('Insert'), ''),
+('mEdit/mDelete', tr('Delete'), 'deleted.png'),
+('mEdit/mCopyPaste', tr('Copy-pasting'), 'cut.png'),
+('mEdit/mHistory', tr('History'), 'undo.png'),
+('mEdit/mCase', tr('Change case'), 'abbreviation.png'),
+('mNavigation/mScroll', tr('Scroll'), ''),
 )
 
 class EditorShortcuts:
@@ -133,7 +164,10 @@ class EditorShortcuts:
         model = core.actionModel()
         
         for menu in _MENUS:
-            menuObj = model.addMenu(menu[0], menu[1])
+            if menu[2]:
+                menuObj = model.addMenu(menu[0], menu[1], QIcon(':/mksicons/' + menu[2]))
+            else:
+                menuObj = model.addMenu(menu[0], menu[1])
             menuObj.setEnabled(False)
             self._createdMenus.append(menuObj)
         
@@ -141,6 +175,8 @@ class EditorShortcuts:
             actObject = model.addAction(action[1], action[2])
             if action[3]:
                 model.setDefaultShortcut(actObject, action[3])
+            if action[4]:
+                actObject.setIcon(QIcon(':/mksicons/' + action[4]))
             actObject.setData(action[0])
             actObject.setEnabled(False)
             actObject.triggered.connect(self.onAction)
@@ -153,7 +189,7 @@ class EditorShortcuts:
         for actObject in self._createdActions:
             model.removeAction(actObject)
 
-        for menuObj in self._createdMenus:
+        for menuObj in self._createdMenus[::-1]:
             model.removeMenu(menuObj)
 
     def onCurrentDocumentChanged(self, oldDocument, document):
@@ -174,7 +210,5 @@ class EditorShortcuts:
             self._currentDocument.nextBookmark()
         elif MKS_PREV_BOOKMARK == code:
             self._currentDocument.prevBookmark()
-        elif MKS_GOTO== code:
-            self._currentDocument.invokeGoTo()
         else:
             assert 0
