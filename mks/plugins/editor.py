@@ -434,16 +434,35 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
             self.qscintilla.setEolMode (QsciScintilla.EolUnix)
         elif '\r' in self.qscintilla.text():
             self.qscintilla.setEolMode (QsciScintilla.EolMac)
-    
+        
+    def toggleBookmark(self):
+        row = self.qscintilla.getCursorPosition()[0]
+        if self.qscintilla.markersAtLine(row) & 1 << self._MARKER_BOOKMARK:
+            self.qscintilla.markerDelete(row, self._MARKER_BOOKMARK)
+        else:
+            self.qscintilla.markerAdd(row, self._MARKER_BOOKMARK)
+        
+    def nextBookmark(self):
+        row = self.qscintilla.getCursorPosition()[0]
+        self.qscintilla.setCursorPosition(
+                    self.qscintilla.markerFindNext(row + 1, 1 << self._MARKER_BOOKMARK), 0)
+        
+    def prevBookmark(self):
+        row = self.qscintilla.getCursorPosition()[0]
+        self.qscintilla.setCursorPosition(
+                    self.qscintilla.markerFindPrevious(row - 1, 1 << self._MARKER_BOOKMARK), 0)
+        
+"""TODO restore or delete old code
+
     def eventFilter(self, selfObject, event):
-        """It is not an editor API function
-        Catches key press events from QScintilla for support bookmarks and autocompletion"""
+        '''It is not an editor API function
+        Catches key press events from QScintilla for support bookmarks and autocompletion'''
         
         if event.type() == QEvent.KeyPress:
             if not event.isAutoRepeat():
                 row = self.qscintilla.getCursorPosition()[0]
                 if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_Space: # autocompletion shortcut
-                    """ TODO autocompletion shortcut?
+                    ''' TODO autocompletion shortcut?
                     switch (autoCompletionSource())
                         case QsciScintilla.AcsAll:
                             autoCompleteFromAll()
@@ -456,28 +475,9 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
                             break
                         default:
                             break
-                    """
-                    return True
-                elif event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_B: # toogle bookmark
-                    if self.qscintilla.markersAtLine(row) & 1 << self._MARKER_BOOKMARK:
-                        self.qscintilla.markerDelete(row, self._MARKER_BOOKMARK)
-                    else:
-                        self.qscintilla.markerAdd(row, self._MARKER_BOOKMARK)
-                    return True
-                elif event.modifiers() & Qt.AltModifier and event.key() == Qt.Key_Down:  # next bookmark
-                    self.qscintilla.setCursorPosition(
-                                self.qscintilla.markerFindNext(row + 1, 1 << self._MARKER_BOOKMARK), 0)
-                    return True
-                elif event.modifiers() & Qt.AltModifier and event.key() == Qt.Key_Up:  # next bookmark
-                    self.qscintilla.setCursorPosition(
-                                self.qscintilla.markerFindPrevious(row - 1, 1 << self._MARKER_BOOKMARK), 0)
-                    return True
-                elif event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_G:  # goto
-                    self.invokeGoTo()
+                    '''
                     return True
         return False
-    
-    """TODO restore or delete old code
     
     def __init__
         self.qscintilla.textChanged.connect(self.contentChanged)
