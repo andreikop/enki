@@ -12,6 +12,12 @@ from mks.core.core import core
 def tr(s):
     return s
 
+MKS_TOGGLE_BOOKMARK = -1
+MKS_NEXT_BOOKMARK = -2
+MKS_PREV_BOOKMARK = -3
+MKS_GOTO = -4
+
+
 ACTIONS = (\
 (qsci.SCI_SELECTALL, 'mEdit/mSelection/aSelectAll', tr('Select All'), 'Ctrl+A'),
 (qsci.SCI_LINEDOWNEXTEND, 'mEdit/mSelection/aExtendSelectionDownOneLine', tr('Extend selection down one line'), 'Shift+Down'),
@@ -49,6 +55,7 @@ ACTIONS = (\
 (qsci.SCI_PAGEUPRECTEXTEND, 'mEdit/mSelection/aExtendRectangularSelectionUpOnePage', tr('Extend rectangular selection up one page'), 'Alt+Shift+PgUp'),
 (qsci.SCI_STUTTEREDPAGEDOWNEXTEND, 'mEdit/mSelection/aExtendSelectionDownOnePageStuttered', tr('Extend selection down one page stuttered'), ''),
 \
+(MKS_GOTO, 'mEdit/mNavigation/aGoTo', tr('Go to line...'), 'Ctrl+G'),
 (qsci.SCI_LINEDOWN, 'mEdit/mNavigation/aLineDown', tr('Down'), ''),
 (qsci.SCI_LINEUP, 'mEdit/mNavigation/aLineUp', tr('Up'), ''),
 (qsci.SCI_CHARRIGHT, 'mEdit/mNavigation/aRight', tr('Right'), ''),
@@ -105,10 +112,10 @@ ACTIONS = (\
 (qsci.SCI_ZOOMIN, 'mView/mZoom/aZoomIn', tr('Zoom In'), 'Ctrl++'),
 (qsci.SCI_ZOOMOUT, 'mView/mZoom/aZoomOut', tr('Zoom Out'), 'Ctrl+-'),
 (qsci.SCI_SETZOOM, 'mView/mZoom/aSetZoom', tr('Set Zoom'), 'Ctrl+/'),
-(qsci.SCI_MARKERADD, 'mEdit/mBookmarks/aSetBookmark', tr('Set bookmark'), ''),
+(MKS_TOGGLE_BOOKMARK, 'mEdit/mBookmarks/aSetBookmark', tr('Set bookmark'), 'Ctrl+B'),
 (qsci.SCI_MARKERDELETEALL, 'mEdit/mBookmarks/aDeleteAllBookmarks', tr('Delete all bookmarks'), ''),
-(qsci.SCI_MARKERPREVIOUS, 'mEdit/mBookmarks/aPreviousBookmark', tr('Previous bookmark'), ''),
-(qsci.SCI_MARKERNEXT, 'mEdit/mBookmarks/aNextBookmark', tr('Next bookmark'), ''),
+(MKS_NEXT_BOOKMARK, 'mEdit/mBookmarks/aPreviousBookmark', tr('Previous bookmark'), 'Alt+Down'),
+(MKS_PREV_BOOKMARK, 'mEdit/mBookmarks/aNextBookmark', tr('Next bookmark'), 'Alt+Up'),
 )
 
 _MENUS = (\
@@ -158,4 +165,16 @@ class EditorShortcuts:
     
     def onAction(self):
         action = self._currentDocument.sender()
-        self._currentDocument.qscintilla.SendScintilla(action.data().toInt()[0])
+        code = action.data().toInt()[0]
+        if code > 0:
+            self._currentDocument.qscintilla.SendScintilla(code)
+        elif MKS_TOGGLE_BOOKMARK == code:
+            self._currentDocument.toggleBookmark()
+        elif MKS_NEXT_BOOKMARK == code:
+            self._currentDocument.nextBookmark()
+        elif MKS_PREV_BOOKMARK == code:
+            self._currentDocument.prevBookmark()
+        elif MKS_GOTO== code:
+            self._currentDocument.invokeGoTo()
+        else:
+            assert 0
