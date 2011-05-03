@@ -237,6 +237,7 @@ class Workspace(QStackedWidget):
         core.actionModel().action( "mFile/mClose/aAll" ).setEnabled( document )
         '''
         core.actionModel().action( "mFile/mReload/aCurrent" ).setEnabled( document is not None )
+        core.actionModel().action( "mFile/mReload/aAll" ).setEnabled( document is not None )
         ''' TODO save as backup, quick print, print
         core.actionModel().action( "mFile/aSaveAsBackup" ).setEnabled( document )
         core.actionModel().action( "mFile/aQuickPrint" ).setEnabled( print_ )
