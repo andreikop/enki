@@ -2,7 +2,7 @@ FIXME
 
 FIXME when found
     Не могу сбросить shortcut для left
-    Если не сохранен один, UISaveFiles показывает все
+    crash при фильтрации
     Обновилось два файла. По одному из них file watcher не сработал
     Ставить фокус на UISaveFiles диалог
 
