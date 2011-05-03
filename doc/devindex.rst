@@ -35,5 +35,6 @@ Plugins documentation
    plugins/appshortcuts.rst
    plugins/editor.rst
    plugins/editortoolbar.rst
+   plugins/editorshortcuts.rst
    plugins/filebrowser.rst
    plugins/searchreplace.rst

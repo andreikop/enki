@@ -2,27 +2,29 @@
 editorshortcuts --- Manages QScintilla shortcuts
 ================================================
 
-Contains editor dialog and functionality for load and save the shortcuts
+Creates QActions, which represent QScintilla actions.
+
+Sends commands to the current editor, when action was triggered
 """
+
 from PyQt4.QtCore import QObject
 from PyQt4.QtGui import QIcon
 from PyQt4.Qsci import QsciScintilla as qsci
 
 from mks.core.core import core
 
-def tr(s):
-    return s
+tr = QObject().tr
 
 MKS_TOGGLE_BOOKMARK = -1
 MKS_NEXT_BOOKMARK = -2
 MKS_PREV_BOOKMARK = -3
 
-ACTIONS = (\
+_ACTIONS = (\
 (qsci.SCI_SELECTALL, 'mEdit/mSelection/aSelectAll', tr('Select All'), 'Ctrl+A', ''),
 (qsci.SCI_LINEDOWNEXTEND, 'mEdit/mSelection/aDownOneLine', tr('Extend Down'), 'Shift+Down', ''),
 (qsci.SCI_LINEUPEXTEND, 'mEdit/mSelection/aUp', tr('Extend Up'), 'Shift+Up', ''),
-(qsci.SCI_CHARLEFTEXTEND, 'mEdit/mSelection/aLeftOneCharacter', tr('Extend Left'), 'Shift+Left', ''),
-(qsci.SCI_CHARRIGHTEXTEND, 'mEdit/mSelection/aRightOneCharacter', tr('Extend Right'), 'Shift+Right', ''),
+(qsci.SCI_CHARLEFTEXTEND, 'mEdit/mSelection/aLeft', tr('Extend Left'), 'Shift+Left', ''),
+(qsci.SCI_CHARRIGHTEXTEND, 'mEdit/mSelection/aRight', tr('Extend Right'), 'Shift+Right', ''),
 \
 (qsci.SCI_DOCUMENTSTARTEXTEND, 'mEdit/mSelection/mDocument/aToStart', tr('Extend to start'), 'Ctrl+Alt+Home', ''),
 (qsci.SCI_DOCUMENTENDEXTEND, 'mEdit/mSelection/mDocument/aToEnd', tr('Extend to end'), 'Ctrl+Alt+End', ''),
@@ -157,10 +159,14 @@ _MENUS = (\
 ('mNavigation/mScroll', tr('Scroll'), ''),
 )
 
-class EditorShortcuts:
+class EditorShortcuts(QObject):
+    """Class creates all actions and sends events commands to the editor
+    """
     def __init__(self):
+        QObject.__init__(self)
         self._createdActions = []
         self._createdMenus = []
+        self._currentDocument = core.workspace().currentDocument()  # probably None
         model = core.actionModel()
         
         for menu in _MENUS:
@@ -171,7 +177,7 @@ class EditorShortcuts:
             menuObj.setEnabled(False)
             self._createdMenus.append(menuObj)
         
-        for action in ACTIONS:
+        for action in _ACTIONS:
             actObject = model.addAction(action[1], action[2])
             if action[3]:
                 model.setDefaultShortcut(actObject, action[3])
@@ -193,6 +199,8 @@ class EditorShortcuts:
             model.removeMenu(menuObj)
 
     def onCurrentDocumentChanged(self, oldDocument, document):
+        """Current document changed slot handler
+        """
         for actObject in self._createdActions:
             actObject.setEnabled(document is not None)
         for menuObject in self._createdMenus:
@@ -200,7 +208,9 @@ class EditorShortcuts:
         self._currentDocument = document
     
     def onAction(self):
-        action = self._currentDocument.sender()
+        """Action action triggered handler
+        """
+        action = self.sender()
         code = action.data().toInt()[0]
         if code > 0:
             self._currentDocument.qscintilla.SendScintilla(code)
