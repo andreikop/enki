@@ -33,7 +33,7 @@ def isBinary(fileObject):
     return binary
 
 
-class SearchReplace(QObject):  # TODO (Plugin) ?
+class Plugin(QObject):  # TODO (Plugin) ?
     """Main class of the plugin. Installs and uninstalls plugin to the system
     """
     ModeFlagSearch = 0x1

@@ -27,33 +27,38 @@ class Core:
         
         Called only by main()
         """
+        self._loadedPlugins = []
         qApp.setWindowIcon(QIcon(':/mksicons/monkey2.png') )
         pSettings.setDefaultProperties(pSettings.Properties(qApp.applicationName(), \
                                                             "1.0.0",
                                                             pSettings.Normal))
+        
+        # Imports are here for hack crossimport problem
+        import mks.core.mainwindow
         self._mainWindow = mks.core.mainwindow.MainWindow()
+        
+        import mks.core.config
         self._config = mks.core.config.createConfig()
+        
         self._workspace = mks.core.workspace.Workspace(self._mainWindow)
         self._mainWindow.setWorkspace(self._workspace)
-        self._workspace.setTextEditorClass(mks.plugins.editor.Editor) 
-        
-        self._mainWindow.statusBar().addPermanentWidget(mks.plugins.editortoolbar.EditorToolBar(self._mainWindow.statusBar()))
-        
+            
         # Create plugins
-        self._appShortcuts = mks.plugins.appshortcuts.AppShortcuts()
-        self._searchreplace = mks.plugins.searchreplace.SearchReplace()
-        self._fileBrowser = mks.plugins.filebrowser.FileBrowser()
-        self._editorShortcuts = mks.plugins.editorshortcuts.EditorShortcuts()
+        self._loadPlugin('editor')
+        self._loadPlugin('editortoolbar')
+        self._loadPlugin('searchreplace')
+        self._loadPlugin('filebrowser')
+        self._loadPlugin('appshortcuts')
+        self._loadPlugin('editorshortcuts')
 
     def term(self):
         """Terminate plugins and core modules
         
         Called only by main()
         """
-        del self._editorShortcuts
-        del self._searchreplace
-        del self._fileBrowser
-        del self._appShortcuts
+        while self._loadedPlugins:
+            plugin = self._loadedPlugins.pop()
+            del plugin
         mks.resources.icons.qCleanupResources()
 
     def mainWindow(self):
@@ -80,17 +85,14 @@ class Core:
         """Get `queued message bar <http://api.monkeystudio.org/fresh/classp_queued_message_tool_bar.html>`_ instance
         """
         return self._mainWindow.queuedMessageToolBar()
+    
+    def _loadPlugin(self, name):
+        """Load plugin by it's module name
+        """
+        exec("import mks.plugins.%s as module" % name)
+        self._loadedPlugins.append(module.Plugin())
 
 core = Core()
-import mks.core.mainwindow # imports after core has been created, hack for fix cross-imports problem
-import mks.core.config
-# Plugins
-import mks.plugins.editor
-import mks.plugins.editortoolbar
-import mks.plugins.searchreplace
-import mks.plugins.filebrowser
-import mks.plugins.appshortcuts
-import mks.plugins.editorshortcuts
 
 
 """TODO restore or delete old code

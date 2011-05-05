@@ -240,3 +240,16 @@ class EditorToolBar(QToolBar):
         self.addWidget(_IndentIndicatorAndSwitcher(self))
         # Position indicator
         self.addWidget(_PositionIndicator(self))
+
+class Plugin:
+    """Plugin interface implementation
+    
+    Installs and removes editor from the system
+    """
+    def __init__(self):
+        statusBar = core.mainWindow().statusBar()
+        self._editorToolBar = EditorToolBar(statusBar)
+        statusBar.addPermanentWidget(self._editorToolBar)
+    
+    def __term__(self):
+        del self._editorToolBar

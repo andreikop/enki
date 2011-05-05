@@ -43,7 +43,7 @@ def _recursiveActionsList(model, parentIndex = QModelIndex()):
             yield action
 
 
-class AppShortcuts:
+class Plugin:
     """Module implementation
     """
     def __init__(self):
