@@ -60,17 +60,17 @@ class AppShortcuts:
         self._model = core.actionModel()
         self._model.rowsInserted.connect(self._onActionInserted)
         
-        action = self._model.addAction("mSettings/aApplicationShortcuts",
+        self._action = self._model.addAction("mSettings/aApplicationShortcuts",
                                        tr( "Application shortcuts..."), 
                                        QIcon(':/mksicons/shortcuts.png'))
-        action.setStatusTip(tr( "Edit application shortcuts..."))
-        action.triggered.connect(self._onEditShortcuts)
+        self._action.setStatusTip(tr( "Edit application shortcuts..."))
+        self._action.triggered.connect(self._onEditShortcuts)
         
         for action in _recursiveActionsList(self._model):
             self._applyShortcut(action)
 
     def __term__(self):
-        self._model.removeAction("mSettings/aApplicationShortcuts")
+        self._model.removeAction(self._action)
     
     def _applyShortcut(self, action):
         """Apply for the action its shortcut if defined
