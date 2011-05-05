@@ -18,7 +18,7 @@ from PyQt4.fresh import pStringListEditor
 
 from mks.core.core import core
 
-class FileBrowser(QObject):
+class Plugin(QObject):
     """File system tree.
     
     Allows to open files quickly

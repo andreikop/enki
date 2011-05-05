@@ -452,6 +452,17 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         self.qscintilla.setCursorPosition(
                     self.qscintilla.markerFindPrevious(row - 1, 1 << self._MARKER_BOOKMARK), 0)
         
+class Plugin:
+    """Plugin interface implementation
+    
+    Installs and removes editor from the system
+    """
+    def __init__(self):
+        core.workspace().setTextEditorClass(Editor)
+    
+    def __term__(self):
+        core.workspace().setTextEditorClass(None)
+
 """TODO restore or delete old code
 
     def eventFilter(self, selfObject, event):

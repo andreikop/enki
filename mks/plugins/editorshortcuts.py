@@ -159,7 +159,7 @@ _MENUS = (\
 ('mNavigation/mScroll', tr('Scroll'), ''),
 )
 
-class EditorShortcuts(QObject):
+class Plugin(QObject):
     """Class creates all actions and sends events commands to the editor
     """
     def __init__(self):
