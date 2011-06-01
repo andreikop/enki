@@ -66,8 +66,8 @@ def main():
         QMessageBox.critical(None, "Fresh not found",
                                 "Failed to import Fresh framework. Probably it is not installed.\n" +
                                 str(ex) + '\n' +
-                                "Check for installation instructions"
-                                "http://www.riverbankcomputing.co.uk/software/qscintilla/download")
+                                "Check for installation instructions "
+                                "http://bettercodes.org/projects/fresh")
         return -1
     
     # Imports only here. Hack for ability to get help and version info even on system without PyQt and Fresh.
