@@ -6,7 +6,7 @@ mainwindow --- Main window of the UI. Fills main menu.
 Module contains :class:`mks.core.mainwindow.MainWindow` implementation
 """
 
-from PyQt4.QtCore import QModelIndex, QSize, Qt
+from PyQt4.QtCore import pyqtSignal, QModelIndex, QSize, Qt
 from PyQt4.QtGui import qApp, QIcon, QSizePolicy, QVBoxLayout, QWidget
 
 from PyQt4.fresh import pDockWidget, pMainWindow, pActionsModel
@@ -38,6 +38,15 @@ class MainWindow(pMainWindow):
     urlsDropped = pyqtSignal()
     """
 
+    hideAllWindows = pyqtSignal()
+    """
+    hideAllWindows()
+    
+    **Signal** emitted, when user toggled "Hide all" .
+    Dock widgets are closed automatically, but other widgets, i.e. search widget, must catch this signal and close
+    semself.
+    """
+    
     def __init__(self):
         pMainWindow.__init__(self)
         self.setUnifiedTitleAndToolBarOnMac( True )
@@ -234,7 +243,8 @@ class MainWindow(pMainWindow):
         action("mSettings/aConfigFile",               self.tr( "Edit config file" ),   "",             "Ctrl+Alt+S", self.tr( "Edit config file"    ), True)
 
         menu  ("mDocks",                              self.tr( "Docks"                 ), ""            )
-        
+        action("mDocks/aHideAll",                     self.tr( "Hide all"              ),   "",            "Ctrl+Esc", self.tr( "Hide all"    ), True)
+
         menu  ("mHelp",                               self.tr( "Help"                  ), ""            )
         action("mHelp/aAboutQt",                      self.tr( "About &Qt..." ),          "qt.png",       "",             self.tr( "About Qt..."            ), True )
         
@@ -242,6 +252,7 @@ class MainWindow(pMainWindow):
         self._actionModel.action( "mHelp/aAboutQt" ).triggered.connect(qApp.aboutQt)
         # docks
         self._actionModel.action( "mDocks" ).menu().aboutToShow.connect(self._menu_Docks_aboutToShow)
+        self._actionModel.action( "mDocks/aHideAll" ).triggered.connect(self._onHideAllWindows)
 
         """TODO restore or delete old connections
         self._actionModel.action( "mFile/aNew" ).triggered.connect(core.workspace().fileNew_triggered)
@@ -324,6 +335,14 @@ class MainWindow(pMainWindow):
             event.ignore()
             return
         return super(MainWindow, self).closeEvent(event)
+    
+    def _onHideAllWindows(self):
+        """Close all visible windows for get as much space on the screen, as possible
+        """
+        self.hideAllWindows.emit()
+        for dock in self.findChildren(pDockWidget):
+            dock.hide()
+
     
 """TODO restore or delete old code
     def dragEnterEvent( self, event ):
