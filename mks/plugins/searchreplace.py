@@ -303,6 +303,7 @@ class SearchWidget(QFrame):
         # mac
         pMonkeyStudio.showMacFocusRect( self, False, True )
         pMonkeyStudio.setMacSmallSize( self, True, True )
+        
 
     #ifdef Q_OS_MAC
          QSize size( 12, 12 )
@@ -369,6 +370,8 @@ class SearchWidget(QFrame):
         self.pbPrevious.setEnabled(False)
         core.actionModel().action("mNavigation/mSearchReplace/aSearchNext").setEnabled(False)
         core.actionModel().action("mNavigation/mSearchReplace/aSearchPrevious").setEnabled(False)
+        
+        core.mainWindow().hideAllWindows.connect(self.hide)
 
 
     def setResultsDock(self, dock ):
