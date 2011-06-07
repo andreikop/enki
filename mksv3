@@ -78,20 +78,20 @@ def main():
     app.setOrganizationDomain( mks.core.defines.PACKAGE_DOMAIN );
     
     app.lastWindowClosed.connect(app.quit)
-        
-    """TODO
-    support projects and files opening
-    """
     
     # init monkey studio core
     core.init();
-    
+
     # Get list of absolute pathes of files to open. List may contain not existing files
+
     filePathes = [os.path.abspath(arg) for arg in sys.argv[1:]]
-    
-    for file in filePathes:
-        core.workspace().openFile(file)
-    
+
+    if filePathes:
+        for file in filePathes:
+            core.workspace().openFile(file)
+    else:
+        core.workspace().createEmptyNotSavedDocument();
+
     if core.workspace().currentDocument():
         core.workspace().currentDocument().setFocus()
     

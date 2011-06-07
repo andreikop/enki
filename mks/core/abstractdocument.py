@@ -11,7 +11,8 @@ import os.path
 
 from PyQt4.QtCore import pyqtSignal, \
                          QFileSystemWatcher
-from PyQt4.QtGui import QIcon, \
+from PyQt4.QtGui import QFileDialog, \
+                        QIcon, \
                         QInputDialog, \
 						QMessageBox, \
 						QWidget
@@ -42,17 +43,26 @@ class AbstractDocument(QWidget):
     
     def __init__( self, parentObject, filePath):
         """Create editor and open file.
+        If file is '', empty not saved file is created
         IO Exceptions not catched, so, must be catched on upper level
         """
         QWidget.__init__( self, parentObject )
         
-        self._filePath = None # To be filled by child classes
+        self._filePath = filePath
         self._externallyRemoved = False
         self._externallyModified = False
-         # File opening should be implemented in the document classes
+        # File opening should be implemented in the document classes
+        
+        self._fileWatcher = None
         
         # create file watcher
-        self._fileWatcher = QFileSystemWatcher([filePath], self)
+        if filePath:
+            self._createFileWatcher()
+    
+    def _createFileWatcher(self):
+        """Create own filewatcher. Called from the constructor, or after name has been defined for new created file
+        """
+        self._fileWatcher = QFileSystemWatcher([self.filePath()], self)
         self._fileWatcher.fileChanged.connect(self._onWatcherFileChanged)
     
     def _onWatcherFileChanged(self):
@@ -140,7 +150,10 @@ class AbstractDocument(QWidget):
     
     def fileName(self):
         """return the document file name"""
-        return os.path.basename(self._filePath)
+        if self._filePath:
+            return os.path.basename(self._filePath)
+        else:
+            return 'untitled'
         
     def cursorPosition(self):
         """return cursor position as 2 values: line and column, if available
@@ -177,6 +190,15 @@ class AbstractDocument(QWidget):
             not self._externallyRemoved:
             return
         
+        # Get path
+        if not self._filePath:
+            path = QFileDialog.getSaveFileName (self, self.tr('Save file as...'))
+            if path:
+                self._filePath = unicode(path, 'utf8')
+            else:
+                return
+        
+        # Create directory
         dirPath = os.path.dirname(self.filePath())
         if  not os.path.exists(dirPath):
             try:
@@ -188,7 +210,10 @@ class AbstractDocument(QWidget):
                                      self.tr( "Cannot create directory '%s'. Error '%s'" % (dirPath, error)))
                 return
         
-        self._fileWatcher.removePath(self.filePath())
+        # Write file
+        if self._fileWatcher is not None:
+            self._fileWatcher.removePath(self.filePath())
+        
         try:
             openedFile = open(self.filePath(), 'w')
         except IOError, ex:
@@ -201,10 +226,15 @@ class AbstractDocument(QWidget):
             openedFile.write(unicode(self.text()).encode('utf8'))
         finally:
             openedFile.close()
-            self._fileWatcher.addPath(self.filePath())
+            if self._fileWatcher is None:  # file just get its name
+                self._createFileWatcher()            
+            else:
+                self._fileWatcher.addPath(self.filePath())
         
+        # Update states
         self._externallyRemoved = False
         self._externallyModified = False
+        self._setModified(False)
         
     
     def text(self):
@@ -259,6 +289,11 @@ class AbstractDocument(QWidget):
         else:
             icon = "transparent.png"
         return QIcon(":/mksicons/" + icon)
+    
+    def _setModified(self, value):
+        """Clear modified state for the file. Called by AbstractDocument, must be implemented by the children
+        """
+        pass
     
     
 ''' TODO restore or delete old code
