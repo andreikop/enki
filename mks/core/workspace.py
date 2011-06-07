@@ -340,7 +340,14 @@ class Workspace(QStackedWidget):
         
         Opens modal dialog, if failed to open the file
         """
-        
+        # Close 'untitled'
+        if len(self.openedDocuments()) == 1 and \
+           self.openedDocuments()[0].fileName() == 'untitled' and \
+           not self.openedDocuments()[0].filePath() and \
+           not self.openedDocuments()[0].text() and \
+           not self.openedDocuments()[0].isModified():
+            self.closeDocument(self.openedDocuments()[0])        
+
         # check if file is already opened
         for document in self._sortedDocuments:
             if os.path.isfile(filePath) and \
@@ -351,7 +358,7 @@ class Workspace(QStackedWidget):
         
         documentType = None  # TODO detect document type, choose editor
         
-        # open it with textual editor
+        # select editor for the file
         if not documentType :
             documentType = self._textEditorClass
         
@@ -376,6 +383,7 @@ class Workspace(QStackedWidget):
         
         self.documentOpened.emit( document )
         
+        
         self._handleDocument( document )
         
         if not os.access(filePath, os.W_OK):
@@ -383,6 +391,16 @@ class Workspace(QStackedWidget):
                         self.tr( "File '%s' is not writable" % filePath), 4000) # todo fix
         
         return document
+    
+    def createEmptyNotSavedDocument(self):
+        """Create empty not saved document.
+        Used on startup, if no file was specified
+        """
+        document = self._textEditorClass(self, '')
+        self.documentOpened.emit( document )
+        self._handleDocument( document )
+        return document
+        
     
     def _onCloseCurrentDocument(self):
         """Handler of File->Close->Current triggered

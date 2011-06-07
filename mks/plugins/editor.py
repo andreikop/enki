@@ -144,12 +144,13 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         self._applySettings(myConfig)
         self._applyLexer(myConfig, filePath)
         
-        try:
-            text = self._readFile(filePath)
-        except IOError, ex:  # exception in constructor
-            self.deleteLater()  # make sure C++ object deleted
-            raise ex
-        self.setText(text)
+        if filePath:
+            try:
+                text = self._readFile(filePath)
+            except IOError, ex:  # exception in constructor
+                self.deleteLater()  # make sure C++ object deleted
+                raise ex
+            self.setText(text)
         
         # make backup if needed
         if  myConfig["CreateBackupUponOpen"]:
@@ -290,6 +291,11 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         """
         self.qscintilla.setText(text)
         self._onLinesChanged()
+        self._setModified(False)
+    
+    def _setModified(self, modified):
+        """Clear modified state for the file. Called by AbstractDocument, must be implemented by the children
+        """
         self.qscintilla.setModified(False)
     
     def _onLinesChanged(self):
@@ -361,13 +367,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         self.qscintilla.setSelection(line, column, line, column +selectionLength)
         self.qscintilla.ensureLineVisible(line)
         self.qscintilla.setFocus()
-        
-    def saveFile(self):
-        """Reimplemented method of the parent, notifies QScintilla, that file is not modified
-        """
-        super(Editor, self).saveFile()
-        self.qscintilla.setModified(False)
-    
+
     def _convertTabs(self):
         """Try to fix indentation mode of the file, if there are mix of different indentation modes
         (tabs and spaces)
@@ -410,7 +410,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
             # clear undo buffer
             self.qscintilla.SendScintilla(QsciScintilla.SCI_EMPTYUNDOBUFFER)
             # set unmodified
-            self.qscintilla.setModified(False)
+            self._setModified(False)
         else:
             core.messageManager().appendMessage('Indentation converted. You can Undo the changes', 5000)
 
@@ -513,7 +513,7 @@ class Plugin:
     
     def closeFile(self):
         self.qscintilla.clear()
-        self.qscintilla.setModified(False)
+        self._setModified(False)
         self.setFilePath('')
         self.fileClosed.emit()
 
