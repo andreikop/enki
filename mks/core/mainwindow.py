@@ -243,7 +243,7 @@ class MainWindow(pMainWindow):
         action("mSettings/aConfigFile",               self.tr( "Edit config file" ),   "",             "Ctrl+Alt+S", self.tr( "Edit config file"    ), True)
 
         menu  ("mDocks",                              self.tr( "Docks"                 ), ""            )
-        action("mDocks/aHideAll",                     self.tr( "Hide all"              ),   "",            "Esc, Esc", self.tr( "Hide all"    ), True)
+        action("mDocks/aHideAll",                     self.tr( "Hide all"              ),   "",            "Ctrl+ Esc", self.tr( "Hide all"    ), True)
 
         menu  ("mHelp",                               self.tr( "Help"                  ), ""            )
         action("mHelp/aAboutQt",                      self.tr( "About &Qt..." ),          "qt.png",       "",             self.tr( "About Qt..."            ), True )
