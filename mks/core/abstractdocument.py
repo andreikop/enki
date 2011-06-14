@@ -106,6 +106,11 @@ class AbstractDocument(QWidget):
         """
         return self._externallyModified
     
+    def isNeverSaved(self):
+        """Check if document has been created, but never has been saved on disk
+        """
+        return self._filePath is None
+    
     def eolMode(self):
         """Return document's EOL mode. Possible values are:
         
@@ -186,8 +191,9 @@ class AbstractDocument(QWidget):
         """Save the file to file system
         """
         if  not self.isModified() and \
-            not self._externallyModified and \
-            not self._externallyRemoved:
+            not self.isNeverSaved() and \
+            not self.isExternallyModified() and \
+            not self.isExternallyRemoved():
             return
         
         # Get path
@@ -276,7 +282,9 @@ class AbstractDocument(QWidget):
     def modelIcon(self):
         """Icon for the opened files model
         """
-        if   self._externallyRemoved  and self._externallyModified:
+        if self.isNeverSaved():  # never has been saved
+            icon = "save.png"
+        elif   self._externallyRemoved  and self._externallyModified:
             icon = "modified-externally-deleted.png"
         elif self._externallyRemoved:
             icon = "deleted.png"

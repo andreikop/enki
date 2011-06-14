@@ -138,7 +138,7 @@ class Workspace(QStackedWidget):
         core.actionModel().action( "mFile/mReload/aCurrent" ).triggered.connect(self._onFileReloadTriggered)
         core.actionModel().action( "mFile/mReload/aAll" ).triggered.connect(self._onFileReloadAllTriggered)
         core.actionModel().action( "mFile/aNew" ).triggered.connect(self.createEmptyNotSavedDocument)
-        #core.actionModel().action( "mFile/mClose/aCurrent" ).triggered.connect(self._onCloseCurrentDocument)
+        core.actionModel().action( "mFile/mClose/aCurrent" ).triggered.connect(self._onCloseCurrentDocument)
         core.actionModel().action( "mFile/mClose/aAll" ).triggered.connect(self._onCloseAllDocuments)
     
         core.actionModel().action( "mFile/mSave/aCurrent" ).triggered.connect(self._onFileSaveCurrentTriggered)
@@ -225,7 +225,9 @@ class Workspace(QStackedWidget):
             pass
         
         # update file menu
-        core.actionModel().action( "mFile/mSave/aCurrent" ).setEnabled( document is not None and document.isModified() )
+        core.actionModel().action( "mFile/mSave/aCurrent" ).setEnabled( document is not None and \
+                                                                            (document.isModified() or 
+                                                                             document.isNeverSaved()))
         core.actionModel().action( "mFile/mSave/aAll" ).setEnabled( document is not None)
         core.actionModel().action( "mFile/mClose/aCurrent" ).setEnabled( document is not None)
         core.actionModel().action( "mFile/mClose/aAll" ).setEnabled( document is not None)
@@ -394,7 +396,7 @@ class Workspace(QStackedWidget):
         """Create empty not saved document.
         Used on startup, if no file was specified
         """
-        document = self._textEditorClass(self, '')
+        document = self._textEditorClass(self, None)
         self.documentOpened.emit( document )
         self._handleDocument( document )
         return document
