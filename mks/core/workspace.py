@@ -138,7 +138,8 @@ class Workspace(QStackedWidget):
         core.actionModel().action( "mFile/mReload/aCurrent" ).triggered.connect(self._onFileReloadTriggered)
         core.actionModel().action( "mFile/mReload/aAll" ).triggered.connect(self._onFileReloadAllTriggered)
         core.actionModel().action( "mFile/aNew" ).triggered.connect(self.createEmptyNotSavedDocument)
-        core.actionModel().action( "mFile/mClose/aCurrent" ).triggered.connect(self._onCloseCurrentDocument)
+        #core.actionModel().action( "mFile/mClose/aCurrent" ).triggered.connect(self._onCloseCurrentDocument)
+        core.actionModel().action( "mFile/mClose/aAll" ).triggered.connect(self._onCloseAllDocuments)
     
         core.actionModel().action( "mFile/mSave/aCurrent" ).triggered.connect(self._onFileSaveCurrentTriggered)
         core.actionModel().action( "mFile/mSave/aAll" ).triggered.connect(self._onFileSaveAllTriggered)
@@ -223,15 +224,11 @@ class Workspace(QStackedWidget):
         if self._oldCurrentDocument is not None:
             pass
         
-        if document is not None:
-            core.actionModel().action( "mFile/mClose/aCurrent" ).setEnabled(document.isModified())
-            core.actionModel().action( "mFile/mSave/aCurrent" ).setEnabled( document.isModified() )
-        else:  # no document
-            core.actionModel().action( "mFile/mClose/aCurrent" ).setEnabled(False)
-                
         # update file menu
+        core.actionModel().action( "mFile/mSave/aCurrent" ).setEnabled( document is not None and document.isModified() )
         core.actionModel().action( "mFile/mSave/aAll" ).setEnabled( document is not None)
         core.actionModel().action( "mFile/mClose/aCurrent" ).setEnabled( document is not None)
+        core.actionModel().action( "mFile/mClose/aAll" ).setEnabled( document is not None)
         core.actionModel().action( "mNavigation/aFocusCurrentDocument" ).setEnabled( document is not None)
         core.actionModel().action( "mNavigation/aGoto" ).setEnabled( document is not None)
         ''' TODO close all
@@ -409,6 +406,12 @@ class Workspace(QStackedWidget):
         document = self.currentWidget()
         assert(document is not None)
         self.closeDocument( document )
+    
+    def _onCloseAllDocuments(self):
+        """Handler of File->Close->All triggered
+        """
+        while self.currentDocument():
+            self.closeDocument(self.currentDocument())
     
     def openedDocuments(self):
         """Get list of opened documents (:class:`mks.core.abstractdocument.AbstractDocument` instances)
