@@ -134,13 +134,14 @@ class Workspace(QStackedWidget):
         self.currentChanged.connect(self._onStackedLayoutIndexChanged)
         
         self.currentDocumentChanged.connect(self._updateMainWindowTitle)
-        core.actionModel().action( "mFile/aOpen" ).triggered.connect(self._fileOpen_triggered)
+        core.actionModel().action( "mFile/aOpen" ).triggered.connect(self._onFileOpenTriggered)
         core.actionModel().action( "mFile/mReload/aCurrent" ).triggered.connect(self._onFileReloadTriggered)
         core.actionModel().action( "mFile/mReload/aAll" ).triggered.connect(self._onFileReloadAllTriggered)
+        core.actionModel().action( "mFile/aNew" ).triggered.connect(self.createEmptyNotSavedDocument)
         core.actionModel().action( "mFile/mClose/aCurrent" ).triggered.connect(self._onCloseCurrentDocument)
     
-        core.actionModel().action( "mFile/mSave/aCurrent" ).triggered.connect(self._onFileSaveCurrent_triggered)
-        core.actionModel().action( "mFile/mSave/aAll" ).triggered.connect(self._onFileSaveAll_triggered)
+        core.actionModel().action( "mFile/mSave/aCurrent" ).triggered.connect(self._onFileSaveCurrentTriggered)
+        core.actionModel().action( "mFile/mSave/aAll" ).triggered.connect(self._onFileSaveAllTriggered)
         
         core.actionModel().action( "mNavigation/aNext" ).triggered.connect(self._activateNextDocument)
         core.actionModel().action( "mNavigation/aPrevious" ).triggered.connect(self._activatePreviousDocument)
@@ -453,7 +454,7 @@ class Workspace(QStackedWidget):
         if  document :
             document.setFocus()
        
-    def _fileOpen_triggered(self):
+    def _onFileOpenTriggered(self):
         """Handler of File->Open
         """
         fileNames = map(unicode, QFileDialog.getOpenFileNames( self.window(), self.tr( "Choose the file(s) to open" )))
@@ -461,17 +462,17 @@ class Workspace(QStackedWidget):
         for path in fileNames:
             self.openFile(path)
     
-    def _onFileSaveCurrent_triggered(self):
+    def _onFileSaveCurrentTriggered(self):
         """Handler of File->Save->Current
         """
         return self.currentDocument().saveFile()
     
-    def _onFileSaveAll_triggered(self):
+    def _onFileSaveAllTriggered(self):
         """Handler of File->Save->All
         """
         for document in self.openedDocuments():
             document.saveFile()
-    
+        
     def _reloadDocument(self, document):
         """Reload the document contents
         """
