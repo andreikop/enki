@@ -50,7 +50,8 @@ class _UISaveFiles(QDialog):
         self._itemToDocument = {}
         for document in documents:
             item = QListWidgetItem( document.fileName(), self.listWidget )
-            item.setToolTip( document.filePath() )
+            if document.filePath() is not None:
+                item.setToolTip( document.filePath() )
             item.setCheckState( Qt.Checked )
             self._itemToDocument[item] = document
         self.buttonBox.button(self.buttonBox.Cancel).setText(self.tr('Cancel Close'))
@@ -162,7 +163,8 @@ class Workspace(QStackedWidget):
         Raises ValueError, if document hasn't been found
         """
         for document in self.openedDocuments():
-            if document.filePath() == filePath:
+            if document.filePath() is not None and \
+               document.filePath() == filePath:
                 return document
         else:
             raise ValueError("Document not found for" + filePath)
@@ -253,7 +255,7 @@ class Workspace(QStackedWidget):
         core.actionModel().action( "mNavigation/aPrevious" ).setEnabled( moreThanOneDocument )
         
         # internal update
-        if  document and document.filePath():
+        if  document and document.filePath() is not None:
             try:
                 os.chdir( os.path.dirname(document.filePath()) )
             except OSError, ex:  # directory might be deleted
@@ -279,10 +281,11 @@ class Workspace(QStackedWidget):
         """
         # TODO use openFile instead?
         for document in self.openedDocuments():
-            if os.path.realpath(document.filePath()) == \
-               os.path.realpath(filePath):
-                self.setCurrentDocument(document)
-                break
+            if document.filePath() is not None:
+                if os.path.realpath(document.filePath()) == \
+                   os.path.realpath(filePath):
+                    self.setCurrentDocument(document)
+                    break
         else:
             document = self.openFile(filePath)
 
@@ -351,6 +354,7 @@ class Workspace(QStackedWidget):
         # check if file is already opened
         for document in self._sortedDocuments:
             if os.path.isfile(filePath) and \
+               document.filePath() is not None and \
                os.path.isfile(document.filePath()) and \
                os.path.samefile( document.filePath(), filePath ) :
                 self.setCurrentDocument( document )
