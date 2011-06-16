@@ -10,6 +10,10 @@ from PyQt4.Qsci import QsciScintilla
 class UISettings(QDialog):
     """Settings dialog
     """
+    
+    _AUTOCOMPLETION_SOURCE = ("None", "All", "Document", "APIs")
+    _CALL_TIPS_STYLE = ("None", "NoContext", "NoAutoCompletionContext", "Context")
+    
     def __init__(self, **kwargs):
         QDialog.__init__(self, kwargs)
         
@@ -155,7 +159,7 @@ class UISettings(QDialog):
         self.cbSaveSession.setChecked( saveSessionOnClose() )
         self.cbRestoreSession.setChecked( restoreSessionOnStartup() )
         """
-        self.cbSortingMode.setCurrentIndex( self.cbSortingMode.findData( openedFileSortingMode() ) )
+        self.cbSortingMode.setCurrentIndex( self.cbSortingMode.findData( config["Workspace"]["FileSortMode"] ) )
 
         # Editor
         editorConfig = core.config()["Editor"]
@@ -177,12 +181,11 @@ class UISettings(QDialog):
         lDefaultDocumentFont.setFont( defFont )
         lDefaultDocumentFont.setToolTip( defFont.toString() )
         #  Auto Completion
-        self.gbAutoCompletionEnabled.setChecked( myConfig["AutoCompletion"]["Source"] != 'None' )
         self.cbAutoCompletionCaseSensitivity.setChecked( myConfig["AutoCompletion"]["CaseSensitivity"] )
         self.cbAutoCompletionReplaceWord.setChecked( myConfig["AutoCompletion"]["ReplaceWord"] )
         self.cbAutoCompletionShowSingle.setChecked( myConfig["AutoCompletion"]["ShowSingle"] )
         sAutoCompletionThreshold.setValue( myConfig["AutoCompletion"]["Threshold"] )
-        self.bgAutoCompletionSource.button( myConfig["AutoCompletion"]["Source"] ).setChecked( True )
+        self.bgAutoCompletionSource.button( _AUTOCOMPLETION_SOURCE[myConfig["AutoCompletion"]["Source"]] ).setChecked( True )
         
         #  Call Tips
         self.gbCalltipsEnabled.setChecked( myConfig["CallTips"]["Style"] != "None" )
@@ -286,34 +289,40 @@ class UISettings(QDialog):
 
     def saveSettings(self):
         # General
+        """TODO
         setSaveSessionOnClose( self.cbSaveSession.isChecked() )
         setRestoreSessionOnStartup( self.cbRestoreSession.isChecked() )
-        setOpenedFileSortingMode( (pOpenedFileModel.SortMode)cbSortingMode.itemData( self.cbSortingMode.currentIndex() ).toInt() )
+        """
+        config["Workspace"]["FileSortMode"] = cbSortingMode.itemData( self.cbSortingMode.currentIndex() ).toString()
 
         # Editor
         #  General
-        setAutoSyntaxCheck( self.cbAutoSyntaxCheck.isChecked() )
-        setConvertTabsUponOpen( self.cbConvertTabsUponOpen.isChecked() )
-        setCreateBackupUponOpen( self.cbCreateBackupUponOpen.isChecked() ) 
-        setDefaultCodec( self.cbDefaultCodec.currentText() )
-        setSelectionBackgroundColor( self.tbSelectionBackground.color() )
-        setSelectionForegroundColor( self.tbSelectionForeground.color() )
-        setDefaultDocumentColours( self.gbDefaultDocumentColours.isChecked() )
-        setDefaultDocumentPen( self.tbDefaultDocumentPen.color() )
-        setDefaultDocumentPaper( self.tbDefaultDocumentPaper.color() )
-        setDefaultDocumentFont( lDefaultDocumentFont.font() )
+        # TODO setAutoSyntaxCheck( self.cbAutoSyntaxCheck.isChecked() )
+        myConfig["Indentation"]["ConvertUponOpen"] = self.cbConvertTabsUponOpen.isChecked()
+        myConfig["CreateBackupUponOpen"] = self.cbCreateBackupUponOpen.isChecked()
+        # TODO setDefaultCodec( self.cbDefaultCodec.currentText() )
+        myConfig["SelectionBackgroundColor"] = self.tbSelectionBackground.color().name()
+        myConfig["SelectionForegroundColor"] = self.tbSelectionForeground.color().name()
+        myConfig["DefaultDocumentColours"] = self.gbDefaultDocumentColours.isChecked()
+        myConfig["DefaultDocumentPen"] = self.tbDefaultDocumentPen.color().name()
+        myConfig["DefaultDocumentPaper"] = self.tbDefaultDocumentPaper.color().name()
+        myConfig["DefaultFont"] = lDefaultDocumentFont.font().family()
+        myConfig["DefaultFontSize"] = lDefaultDocumentFont.font().size()
         #  Auto Completion
-        setAutoCompletionSource( QsciScintilla.AcsNone )
-        if  self.gbAutoCompletionEnabled.isChecked() :
-            setAutoCompletionSource( (QsciScintilla.AutoCompletionSource)bgAutoCompletionSource.checkedId() )
-        setAutoCompletionCaseSensitivity( self.cbAutoCompletionCaseSensitivity.isChecked() )
-        setAutoCompletionReplaceWord( self.cbAutoCompletionReplaceWord.isChecked() )
-        setAutoCompletionShowSingle( self.cbAutoCompletionShowSingle.isChecked() )
-        setAutoCompletionThreshold( sAutoCompletionThreshold.value() )
+        myConfig["AutoCompletion"]["Source"] = _AUTOCOMPLETION_SOURCE[bgAutoCompletionSource.checkedId()]
+        myConfig["AutoCompletion"]["CaseSensitivity"] = self.cbAutoCompletionCaseSensitivity.isChecked()
+        myConfig["AutoCompletion"]["ReplaceWord"] = self.cbAutoCompletionReplaceWord.isChecked()
+        myConfig["AutoCompletion"]["ShowSingle"] = self.cbAutoCompletionShowSingle.isChecked()
+        myConfig["AutoCompletion"]["Threshold"] = sAutoCompletionThreshold.value()
         #  Call Tips
-        setCallTipsStyle( QsciScintilla.CallTipsNone )
-        if  self.gbCalltipsEnabled.isChecked() :
-            setCallTipsStyle( (QsciScintilla.CallTipsStyle)bgCallTipsStyle.checkedId() )
+            self.gbCalltipsEnabled.setChecked( myConfig["CallTips"]["Style"] != "None" )
+        sCallTipsVisible.setValue( myConfig["CallTips"]["Visible"] )
+        self.bgCallTipsStyle.button( myConfig["CallTips"]["Style"] ).setChecked( True )
+        self.tbCalltipsBackground.setColor( QColor(myConfig["CallTips"]["BackgroundColor"]) )
+        self.tbCalltipsForeground.setColor( QColor(myConfig["CallTips"]["ForegroundColor"]) )
+        self.tbCalltipsHighlight.setColor( QColor(myConfig["CallTips"]["HighlightColor"]) )
+
+        myConfig["CallTips"]["Style"] = _CALL_TIPS_STYLE[bgCallTipsStyle.checkedId()]
         setCallTipsVisible( sCallTipsVisible.value() )
         setCallTipsBackgroundColor( self.tbCalltipsBackground.color() )
         setCallTipsForegroundColor( self.tbCalltipsForeground.color() )
