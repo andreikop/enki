@@ -79,8 +79,8 @@ _ACTIONS = (\
 (qsci.SCI_DOCUMENTSTART, 'mNavigation/mMove/mDocument/aStart', tr('Start'), 'Ctrl+Home', ''),
 (qsci.SCI_DOCUMENTEND, 'mNavigation/mMove/mDocument/aEnd', tr('End'), 'Ctrl+End', ''),
 \
-(qsci.SCI_PAGEUP, 'mNavigation/mMove/mPage/aUp', tr('Up'), 'PgUp', ''),
-(qsci.SCI_PAGEDOWN, 'mNavigation/mMove/mPage/aDown', tr('Down'), 'PgDown', ''),
+(qsci.SCI_PAGEUP, 'mNavigation/mMove/mPage/aUp', tr('Up'), '', ''),
+(qsci.SCI_PAGEDOWN, 'mNavigation/mMove/mPage/aDown', tr('Down'), '', ''),
 (qsci.SCI_STUTTEREDPAGEUP, 'mNavigation/mMove/mPage/aUpStuttered', tr('Up stuttered'), '', ''),
 (qsci.SCI_STUTTEREDPAGEDOWN, 'mNavigation/mMove/mPage/aDownStuttered', tr('Down stuttered'), '', ''),
 \
