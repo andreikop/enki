@@ -140,7 +140,7 @@ class Workspace(QStackedWidget):
         core.actionModel().action( "mFile/mReload/aAll" ).triggered.connect(self._onFileReloadAllTriggered)
         core.actionModel().action( "mFile/aNew" ).triggered.connect(self.createEmptyNotSavedDocument)
         core.actionModel().action( "mFile/mClose/aCurrent" ).triggered.connect(self._onCloseCurrentDocument)
-        core.actionModel().action( "mFile/mClose/aAll" ).triggered.connect(self._onCloseAllDocuments)
+        core.actionModel().action( "mFile/mClose/aAll" ).triggered.connect(self.closeAllDocuments)
     
         core.actionModel().action( "mFile/mSave/aCurrent" ).triggered.connect(self._onFileSaveCurrentTriggered)
         core.actionModel().action( "mFile/mSave/aAll" ).triggered.connect(self._onFileSaveAllTriggered)
@@ -412,13 +412,7 @@ class Workspace(QStackedWidget):
         document = self.currentWidget()
         assert(document is not None)
         self.closeDocument( document )
-    
-    def _onCloseAllDocuments(self):
-        """Handler of File->Close->All triggered
-        """
-        while self.currentDocument():
-            self.closeDocument(self.currentDocument())
-    
+
     def openedDocuments(self):
         """Get list of opened documents (:class:`mks.core.abstractdocument.AbstractDocument` instances)
         """
@@ -428,6 +422,8 @@ class Workspace(QStackedWidget):
         """Close all documents
         
         If there are not saved documents, dialog will be shown.
+        
+        Handler of File->Close->All
         
         Returns True, if all files had been closed, and False, if save dialog rejected
         """
