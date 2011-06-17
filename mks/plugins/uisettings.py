@@ -1,27 +1,115 @@
+import os.path
 from PyQt4 import uic
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QButtonGroup,
-                        QCheckBox,
-                        QDialog,
-                        QDialogButtonBox
+from PyQt4.QtCore import Qt, QVariant
+from PyQt4.QtGui import QButtonGroup, \
+                        QCheckBox, \
+                        QDialog, \
+                        QDialogButtonBox, \
+                        QFont, \
+                        QFontDialog, \
+                        QIcon, \
+                        QListWidgetItem, \
+                        QRadioButton
+
 
 from PyQt4.Qsci import QsciScintilla
+
+from mks.core.core import core, DATA_FILES_PATH
+from mks.plugins.editor import Editor
+
+def tr(s):
+    return s
+
+class Plugin:
+    """Module implementation
+    """
+    def __init__(self):
+        self._action = core.actionModel().addAction("mSettings/aSettings",
+                                                    tr( "Settings..."), 
+                                                    QIcon(':/mksicons/settings.png'))
+        self._action.setStatusTip(tr( "Edit settigns..."))
+        self._action.triggered.connect(self._onEditSettings)
+        self._onEditSettings()
+    
+    def __term__(self):
+        core.actionModel().removeAction(self._action)
+
+    def _onEditSettings(self):
+        UISettings(core.mainWindow()).exec_()
+
 
 class UISettings(QDialog):
     """Settings dialog
     """
     
-    _AUTOCOMPLETION_SOURCE = ("None", "All", "Document", "APIs")
-    _CALL_TIPS_STYLE = ("None", "NoContext", "NoAutoCompletionContext", "Context")
+    _AUTOCOMPLETION_SOURCE = Editor._AUTOCOMPLETION_MODE_TO_QSCI.keys()
+    _CALL_TIPS_STYLE = Editor._CALL_TIPS_STYLE_TO_QSCI.keys()
+    _BRACE_MATCHING = Editor._BRACE_MATCHING_TO_QSCI.keys()
+    _EDGE_MODE = Editor._EDGE_MODE_TO_QSCI.keys()
+    _EOL_MODE = Editor._EOL_CONVERTOR_TO_QSCI.keys()
+    _WHITE_MODE = Editor._WHITE_MODE_TO_QSCI.keys()
+    _WRAP_MODE = Editor._WRAP_MODE_TO_QSCI.keys()
+    _WRAP_FLAG = Editor._WRAP_FLAG_TO_QSCI.keys()
+    _SORT_MODE = ["OpeningOrder", "FileName", "URL", "Suffixes"]
+
     
-    def __init__(self, **kwargs):
-        QDialog.__init__(self, kwargs)
+    def __init__(self, parent):
+        QDialog.__init__(self, parent)
+        self._createdObjects = []
         
-        uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/UISaveSettings.ui'), self)
+        uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/UISettings.ui'), self)
 
         self.setAttribute( Qt.WA_DeleteOnClose )
         self.twMenu.topLevelItem( 2 ).setExpanded( True )
-        self.twMenu.setCurrentItem( self.twMenu.topLevelItem( 0 ) )
+
+        # sorting mode
+        self.bgSort = QButtonGroup(self.gbWorkspace)
+        for index, mode in enumerate(self._SORT_MODE):
+            button = QRadioButton(tr(mode))
+            self._createdObjects.append(button)
+            self.bgSort.addButton(button, index)
+            self.gbWorkspace.layout().addWidget(button)
+        
+        self.loadSettings()
+
+
+    def reject(self):
+        """ TODO
+        settings = MonkeyCore.settings()        
+        for lexer in mLexers:
+            lexer.readSettings( *settings, scintillaSettingsPath().toLocal8Bit().constData() )
+        """
+        QDialog.reject(self)
+
+    def accept(self):
+        self.saveSettings()
+        """TODO
+        self.applyProperties()
+        MonkeyCore.workspace().loadSettings()
+        self.apply()
+        """
+        QDialog.accept(self)
+
+    def loadSettings(self):
+        config = core.config()
+        self._selectId(self.bgSort, self._SORT_MODE.index(config["Workspace"]["FileSortMode"]))
+    
+    def saveSettings(self):
+        config = core.config()
+        # General
+        config["Workspace"]["FileSortMode"] = self._SORT_MODE[self.bgSort.checkedId()]
+        
+        config.flush()
+
+    @staticmethod
+    def _selectId(buttonGroup, id):
+        buttons = buttonGroup.buttons()
+        for button in buttons:
+            if buttonGroup.id(button) == id:
+                button.setChecked(True)
+                break
+        else:
+            assert 0
 
         """
         for b in self.findChildren(pColorButton):
@@ -37,19 +125,14 @@ class UISettings(QDialog):
         for s in availableLanguages():
             mLexers[s] = lexerForLanguage( s )
         """
-
-        # sorting mode
-        self.cbSortingMode.addItem( self.tr( "Opening order" ), "OpeningOrder" )
-        self.cbSortingMode.addItem( self.tr( "File name" ), "FileName" )
-        self.cbSortingMode.addItem( self.tr( "Url" ), "URL" )
-        self.cbSortingMode.addItem( self.tr( "Suffixes" ), "Suffixes" )
-        self.cbSortingMode.addItem( self.tr( "Custom" ), "Custom" )
-
+        
+        
         """
         # loads text codecs
         self.cbDefaultCodec.addItems( availableTextCodecs() )
         """
 
+        """TODO
         # auto completion source
         self.bgAutoCompletionSource = QButtonGroup( self.gbAutoCompletionSource )
         self.bgAutoCompletionSource.addButton( self.rbAcsDocument, QsciScintilla.AcsDocument )
@@ -150,28 +233,24 @@ class UISettings(QDialog):
         # resize to minimum size
         self.resize( self.minimumSizeHint() )
 
-
-    def loadSettings(self):
-        config = core.config()
+--------------------------------------------------------
 
         # General
-        """TODO
         self.cbSaveSession.setChecked( saveSessionOnClose() )
         self.cbRestoreSession.setChecked( restoreSessionOnStartup() )
-        """
-        self.cbSortingMode.setCurrentIndex( self.cbSortingMode.findData( config["Workspace"]["FileSortMode"] ) )
+
 
         # Editor
         editorConfig = core.config()["Editor"]
         #  General
-        """TODO
+        
         self.cbAutoSyntaxCheck.setChecked( autoSyntaxCheck() )
-        """
+        
         self.cbConvertTabsUponOpen.setChecked( myConfig["Indentation"]["ConvertUponOpen"] )
         self.cbCreateBackupUponOpen.setChecked( myConfig["CreateBackupUponOpen"] )
-        """TODO
+        
         self.cbDefaultCodec.setCurrentIndex( self.cbDefaultCodec.findText( defaultCodec() ) )
-        """
+        
         self.tbSelectionBackground.setColor( myConfig["SelectionBackgroundColor"] )
         self.tbSelectionForeground.setColor( myConfig["SelectionForegroundColor"] )
         self.gbDefaultDocumentColours.setChecked( myConfig["DefaultDocumentColours"] )
@@ -223,7 +302,7 @@ class UISettings(QDialog):
         self.tbCaretForeground.setColor( myConfig["Caret"]["ForegroundColor"]) )
         sCaretWidth.setValue( myConfig["Caret"]["Width"] )
         #  Margins
-        """
+        
         self.gbLineNumbersMarginEnabled.setChecked( lineNumbersMarginEnabled() )
         sLineNumbersMarginWidth.setValue( lineNumbersMarginWidth() )
         self.cbLineNumbersMarginAutoWidth.setChecked( lineNumbersMarginAutoWidth() )
@@ -237,7 +316,7 @@ class UISettings(QDialog):
         self.tbMarginsForeground.setColor( marginsForegroundColor() )
         self.tbMarginsBackground.setColor( marginsBackgroundColor() )
         self.tbMarginsFont.setFont( marginsFont() )
-        """
+        
         #  Special Characters
         self.bgEolMode.button( myConfig["EOL"]["Mode"] ).setChecked( True )
         self.cbEolVisibility.setChecked( myConfig["EOL"]["Visibility"] )
@@ -247,11 +326,10 @@ class UISettings(QDialog):
         self.bgWhitespaceVisibility.button( myConfig["WhitespaceVisibility"] ).setChecked( True )
         self.gbWrapModeEnabled.setChecked( myConfig["Wrap"]["Mode"] != 'None' )
         self.bgWrapMode.button( myConfig["Wrap"]["Mode"] ).setChecked( True )
-        self.gbWrapVisualFlagsEnabled.setChecked( wrapVisualFlagsEnabled() )
-        self.bgStartWrapVisualFlag.button( myConfig["Wrap"]["StartVisualFlag"] ).setChecked( True )
-        self.bgEndWrapVisualFlag.button( myConfig["Wrap"]["EndVisualFlag"] ).setChecked( True )
+        #self.bgStartWrapVisualFlag.button( myConfig["Wrap"]["StartVisualFlag"] ).setChecked( True )
+        #self.bgEndWrapVisualFlag.button( myConfig["Wrap"]["EndVisualFlag"] ).setChecked( True )
         sWrappedLineIndentWidth.setValue( myConfig["Wrap"]["LineIndentWidth"] )
-        """TODO
+        
         # Source APIs
         for ( i = 0; i < self.cbSourceAPIsLanguages.count(); i++ )
             self.cbSourceAPIsLanguages.setItemData( i, s.value( "SourceAPIs/" +cbSourceAPIsLanguages.itemText( i ) ).toStringList() )
@@ -284,17 +362,13 @@ class UISettings(QDialog):
         
         # environment variables editor
         eveVariables.setVariables( MonkeyCore.consoleManager().environmentVariablesManager().variables(), True )
-        """
         
 
-    def saveSettings(self):
-        # General
-        """TODO
+------------------------------------------------------------
+        
+        
         setSaveSessionOnClose( self.cbSaveSession.isChecked() )
         setRestoreSessionOnStartup( self.cbRestoreSession.isChecked() )
-        """
-        config["Workspace"]["FileSortMode"] = cbSortingMode.itemData( self.cbSortingMode.currentIndex() ).toString()
-
         # Editor
         #  General
         # TODO setAutoSyntaxCheck( self.cbAutoSyntaxCheck.isChecked() )
@@ -315,48 +389,38 @@ class UISettings(QDialog):
         myConfig["AutoCompletion"]["ShowSingle"] = self.cbAutoCompletionShowSingle.isChecked()
         myConfig["AutoCompletion"]["Threshold"] = sAutoCompletionThreshold.value()
         #  Call Tips
-            self.gbCalltipsEnabled.setChecked( myConfig["CallTips"]["Style"] != "None" )
-        sCallTipsVisible.setValue( myConfig["CallTips"]["Visible"] )
-        self.bgCallTipsStyle.button( myConfig["CallTips"]["Style"] ).setChecked( True )
-        self.tbCalltipsBackground.setColor( QColor(myConfig["CallTips"]["BackgroundColor"]) )
-        self.tbCalltipsForeground.setColor( QColor(myConfig["CallTips"]["ForegroundColor"]) )
-        self.tbCalltipsHighlight.setColor( QColor(myConfig["CallTips"]["HighlightColor"]) )
-
         myConfig["CallTips"]["Style"] = _CALL_TIPS_STYLE[bgCallTipsStyle.checkedId()]
-        setCallTipsVisible( sCallTipsVisible.value() )
-        setCallTipsBackgroundColor( self.tbCalltipsBackground.color() )
-        setCallTipsForegroundColor( self.tbCalltipsForeground.color() )
-        setCallTipsHighlightColor( self.tbCalltipsHighlight.color() )
+        myConfig["CallTips"]["Visible"] = sCallTipsVisible.value()
+        myConfig["CallTips"]["BackgroundColor"] = self.tbCalltipsBackground.color().name()
+        myConfig["CallTips"]["ForegroundColor"] = self.tbCalltipsForeground.color().name()
+        myConfig["CallTips"]["HighlightColor"] = self.tbCalltipsHighlight.color().name()
         #  Indentation
-        setAutoIndent( self.cbAutoIndent.isChecked()  )
-        setBackspaceUnindents( self.cbBackspaceUnindents.isChecked() )
-        setIndentationGuides( self.cbIndentationGuides.isChecked() )
-        setIndentationsUseTabs( self.cbIndentationUseTabs.isChecked() )
-        setTabIndents( self.cbTabIndents.isChecked() )
-        setAutoDetectIndent( self.cbAutodetectIndent.isChecked() )
-        setTabWidth( sIndentationTabWidth.value() )
-        setIndentationWidth( sIndentationWidth.value() )
-        setIndentationGuidesBackgroundColor( self.tbIndentationGuidesBackground.color() )
-        setIndentationGuidesForegroundColor( self.tbIndentationGuidesForeground.color() )
+        myConfig["Indentation"]["AutoIndent"] = self.cbAutoIndent.isChecked()
+        myConfig["Indentation"]["BackspaceUnindents"] = self.cbBackspaceUnindents.isChecked()
+        myConfig["Indentation"]["Guides"] = self.cbIndentationGuides.isChecked()
+        myConfig["Indentation"]["UseTabs"] = self.cbIndentationUseTabs.isChecked()
+        myConfig["Indentation"]["TabIndents"] = self.cbTabIndents.isChecked()
+        myConfig["Indentation"]["AutoDetect"] = self.cbAutodetectIndent.isChecked()
+        myConfig["Indentation"]["TabWidth"] = sIndentationTabWidth.value()
+        myConfig["Indentation"]["Width"] = sIndentationWidth.value()
+        myConfig["Indentation"]["GuidesBackgroundColor"] = self.tbIndentationGuidesBackground.color().name()
+        myConfig["Indentation"]["GuidesForegroundColor"] = self.tbIndentationGuidesForeground.color().name()
         #  Brace Matching
-        setBraceMatching( QsciScintilla.NoBraceMatch )
-        if  self.gbBraceMatchingEnabled.isChecked() :
-            setBraceMatching( (QsciScintilla.BraceMatch)bgBraceMatch.checkedId() )
-        setMatchedBraceBackgroundColor( self.tbMatchedBraceBackground.color() )
-        setMatchedBraceForegroundColor( self.tbMatchedBraceForeground.color() )
-        setUnmatchedBraceBackgroundColor( self.tbUnmatchedBraceBackground.color() )
-        setUnmatchedBraceForegroundColor( self.tbUnmatchedBraceForeground.color() )
+        myConfig["BraceMatching"]["Mode"] = _BRACE_MATCHING[bgBraceMatch.checkedId()]
+        myConfig["BraceMatching"]["MatchedForegroundColor"] = self.tbMatchedBraceBackground.color().name()
+        myConfig["BraceMatching"]["MatchedBackgroundColor"] = self.tbMatchedBraceForeground.color().name()
+        myConfig["BraceMatching"]["UnmatchedBackgroundColor"] = self.tbUnmatchedBraceBackground.color().name()
+        myConfig["BraceMatching"]["UnmatchedForegroundColor"] = self.tbUnmatchedBraceForeground.color().name()
         #  Edge Mode
-        setEdgeMode( QsciScintilla.EdgeNone )
-        if  self.gbEdgeModeEnabled.isChecked() :
-            setEdgeMode( (QsciScintilla.EdgeMode)bgEdgeMode.checkedId() )
-        setEdgeColumn( sEdgeColumnNumber.value() )
-        setEdgeColor( self.tbEdgeColor.color() )
+        myConfig["Edge"]["Mode"] = _EDGE_MODE[bgEdgeMode.checkedId()]
+        myConfig["Edge"]["Column"] = sEdgeColumnNumber.value()
+        myConfig["Edge"]["Color"].name()
         #  Caret
-        setCaretLineVisible( self.gbCaretLineVisible.isChecked() )
-        setCaretLineBackgroundColor( self.tbCaretLineBackground.color() )
-        setCaretForegroundColor( self.tbCaretForeground.color() )
-        setCaretWidth( sCaretWidth.value() )
+        myConfig["Caret"]["LineVisible"] = self.gbCaretLineVisible.isChecked()
+        myConfig["Caret"]["LineBackgroundColor"] = self.tbCaretLineBackground.color().name()
+        myConfig["Caret"]["ForegroundColor"] = self.tbCaretForeground.color().name()
+        myConfig["Caret"]["Width"] = sCaretWidth.value()
+        
         #  Margins
         setLineNumbersMarginEnabled( self.gbLineNumbersMarginEnabled.isChecked() )
         setLineNumbersMarginWidth( sLineNumbersMarginWidth.value() )
@@ -370,26 +434,19 @@ class UISettings(QDialog):
         setMarginsForegroundColor( self.tbMarginsForeground.color() )
         setMarginsBackgroundColor( self.tbMarginsBackground.color() )
         setMarginsFont( self.tbMarginsFont.font() )
+        
         #  Special Characters
-        setEolMode( (QsciScintilla.EolMode)bgEolMode.checkedId() )
-        setEolVisibility( self.cbEolVisibility.isChecked() )
-        setAutoDetectEol( self.cbAutoDetectEol.isChecked() )
-        setAutoEolConversion( self.cbAutoEolConversion.isChecked() )
-        setWhitespaceVisibility( QsciScintilla.WsInvisible )
-        if  self.gbWhitespaceVisibilityEnabled.isChecked() :
-            setWhitespaceVisibility( (QsciScintilla.WhitespaceVisibility)bgWhitespaceVisibility.checkedId() )
-        setWrapMode( QsciScintilla.WrapNone )
-        if  self.gbWrapModeEnabled.isChecked() :
-            setWrapMode( (QsciScintilla.WrapMode)bgWrapMode.checkedId() )
-        setWrapVisualFlagsEnabled( self.gbWrapVisualFlagsEnabled.isChecked() )
-        setStartWrapVisualFlag( QsciScintilla.WrapFlagNone )
-        if  self.gbWrapVisualFlagsEnabled.isChecked() :
-            setStartWrapVisualFlag( (QsciScintilla.WrapVisualFlag)bgStartWrapVisualFlag.checkedId() )
-        setEndWrapVisualFlag( QsciScintilla.WrapFlagNone )
-        if  self.gbWrapVisualFlagsEnabled.isChecked() :
-            setEndWrapVisualFlag( (QsciScintilla.WrapVisualFlag)bgEndWrapVisualFlag.checkedId() )
-        setWrappedLineIndentWidth( sWrappedLineIndentWidth.value() )
+        myConfig["EOL"]["Mode"] = _EOL_MODE[self.bgEolMode.checkedId()]
+        myConfig["EOL"]["Visibility"] = self.cbEolVisibility.isChecked()
+        myConfig["EOL"]["AutoDetect"] = self.cbAutoDetectEol.isChecked()
+        myConfig["EOL"]["AutoConvert"] = self.cbAutoEolConversion.isChecked()
+        myConfig["WhitespaceVisibility"] = _WHITESPACE_MODE[bgWhitespaceVisibility.checkedId()]
+        myConfig["Wrap"]["Mode"] = _WRAP_MODE[bgWrapMode.checkedId()]
+        myConfig["Wrap"]["StartVisualFlag"] = _WRAP_FLAG[bgStartWrapVisualFlag.checkedId()]
+        myConfig["Wrap"]["EndVisualFlag"] = _WRAP_FLAG[bgEndWrapVisualFlag.checkedId()]
+        myConfig["Wrap"]["LineIndentWidth"] = sWrappedLineIndentWidth.value()
         # Source APIs
+        
         sp = "SourceAPIs/"
         for ( i = 0; i < self.cbSourceAPIsLanguages.count(); i++ )
             s.setValue( sp +cbSourceAPIsLanguages.itemText( i ), self.cbSourceAPIsLanguages.itemData( i ).toStringList() )
@@ -439,43 +496,31 @@ class UISettings(QDialog):
 
         # flush settings to disk
         s.sync()
-
+        
 
     def on_twMenu_itemSelectionChanged(self):
         # get item
-        it = self.twMenu.selectedItems().value( 0 )
+        it = self.twMenu.selectedItems()[0]
 
         if  it :
             lInformations.setText( it.text( 0 ) )
             i = self.twMenu.indexOfTopLevelItem( it )
             if  not it.parent() :
-                switch ( i )
-                    case 0:
-                    case 1:
-                    case 2:
-                        swPages.setCurrentIndex( i )
-                        break
-                    default:
-                        swPages.setCurrentIndex( i +11 )
-                        break
-
-
+                if i in (0, 1, 2):
+                    swPages.setCurrentIndex( i )
+                else:
+                    swPages.setCurrentIndex( i +11 )
             else:
                 swPages.setCurrentIndex( it.parent().indexOfChild( it ) +2 )
 
-
-
     def on_pbDefaultDocumentFont_clicked(self):
         font = lDefaultDocumentFont.font()
-        bool ok
         
-        font = QFontDialog.getFont( &ok, font, self, self.tr( "Choose the default document font" ), QFontDialog.DontUseNativeDialog )
+        font, ok = QFontDialog.getFont( font, self, self.tr( "Choose the default document font" ), QFontDialog.DontUseNativeDialog )
         
-        if  ok :
+        if ok:
             lDefaultDocumentFont.setFont( font )
             lDefaultDocumentFont.setToolTip( font.toString() )
-
-
 
     def on_gbAutoCompletionEnabled_clicked(self, checked ):
         if  checked and self.bgAutoCompletionSource.checkedId() == -1 :
@@ -484,45 +529,33 @@ class UISettings(QDialog):
             if  mode == QsciScintilla.AcsNone :
                 mode = QsciScintilla.AcsAll
 
-            
             self.bgAutoCompletionSource.button( mode ).setChecked( True )
 
-
-
-    def self.tbFonts_clicked(self):
-        self.tb = qobject_cast<QToolButton*>( sender() )
-        bool b
-        f = QFontDialog.getFont( &b, self.tb.font(), window() )
-        if  b :
+    def on_tbFonts_clicked(self):
+        toolButton = self.sender()
+        f, b = QFontDialog.getFont(toolButton.font(), self.window() )
+        if  b:
             self.tb.setFont( f )
 
-
-    def self.cbSourceAPIsLanguages_beforeChanged(self, i ):
+    def on_cbSourceAPIsLanguages_beforeChanged(self, i ):
         if  i == self.cbSourceAPIsLanguages.currentIndex() :
-            QStringList l
-            for ( j = 0; j < lwSourceAPIs.count(); j++ )
-                l << lwSourceAPIs.item( j ).text()
+            l = [lwSourceAPIs.item( j ).text() for j in range(lwSourceAPIs.count())]
             self.cbSourceAPIsLanguages.setItemData( i, l )
-
-
 
     def on_cbSourceAPIsLanguages_currentIndexChanged(self, i ):
         lwSourceAPIs.clear()
         lwSourceAPIs.addItems( self.cbSourceAPIsLanguages.itemData( i ).toStringList() )
 
-
     def on_pbSourceAPIsDelete_clicked(self):
         # get selected item
-        it = lwSourceAPIs.selectedItems().value( 0 )
+        it = lwSourceAPIs.selectedItems()[0]
         if  it :
-            delete it
+            del it
             self.cbSourceAPIsLanguages_beforeChanged( self.cbSourceAPIsLanguages.currentIndex() )
-
-
 
     def on_pbSourceAPIsAdd_clicked(self):
         # get files
-        files = leSourceAPIs.text().split( ";", QString.SkipEmptyParts )
+        files = leSourceAPIs.text().split(";")
         # add them recursively
         for fn in files:
             if  lwSourceAPIs.findItems( fn, Qt.MatchFixedString ).count() == 0 :
@@ -532,30 +565,26 @@ class UISettings(QDialog):
         # save datas
         self.cbSourceAPIsLanguages_beforeChanged( self.cbSourceAPIsLanguages.currentIndex() )
 
-
     def on_pbSourceAPIsBrowse_clicked(self):
-        files = QFileDialog.getOpenFileNames( window(), self.tr( "Select API files" ), QString.null, self.tr( "API Files (*.api);;All Files (*)" ) )
-        if  not files.isEmpty() :
-            leSourceAPIs.setText( files.join( ";" ) )
-
+        files = QFileDialog.getOpenFileNames( self.window(), self.tr( "Select API files" ), QString.null, self.tr( "API Files (*.api);;All Files (*)" ) )
+        if files:
+            leSourceAPIs.setText( ';'.join(files))
 
     def on_twLexersAssociations_itemSelectionChanged(self):
-        it = self.twLexersAssociations.selectedItems().value( 0 )
+        it = self.twLexersAssociations.selectedItems()[0]
         if  it :
             leLexersAssociationsFilenamePattern.setText( it.text( 0 ) )
             self.cbLexersAssociationsLanguages.setCurrentIndex( self.cbLexersAssociationsLanguages.findText( it.text( 1 ) ) )
-
-
 
     def on_pbLexersAssociationsAddChange_clicked(self):
         f = leLexersAssociationsFilenamePattern.text()
         l = self.cbLexersAssociationsLanguages.currentText()
         if  f.isEmpty() or l.isEmpty() :
             return
-        it = self.twLexersAssociations.selectedItems().value( 0 )
-        if  not it or it.text( 0 ) != f :
+        it = self.twLexersAssociations.selectedItems()[0]
+        if  not it or it.text[0] != f :
             # check if item with same parameters already exists
-            QList<QTreeWidgetItem*> l = self.twLexersAssociations.findItems( f, Qt.MatchFixedString )
+            l = self.twLexersAssociations.findItems( f, Qt.MatchFixedString )
             if  l.count() :
                 it = l.at( 0 )
             else:
@@ -568,34 +597,28 @@ class UISettings(QDialog):
         leLexersAssociationsFilenamePattern.clear()
         self.cbLexersAssociationsLanguages.setCurrentIndex( -1 )
 
-
     def on_pbLexersAssociationsDelete_clicked(self):
-        it = self.twLexersAssociations.selectedItems().value( 0 )
+        it = self.twLexersAssociations.selectedItems()[0]
         if  it :
-            delete it
+            del it
             self.twLexersAssociations.setCurrentItem( 0 )
             self.twLexersAssociations.selectionModel().clear()
             leLexersAssociationsFilenamePattern.clear()
             self.cbLexersAssociationsLanguages.setCurrentIndex( -1 )
 
-
-
     def on_cbLexersHighlightingLanguages_currentIndexChanged(self, s ):
-        l = mLexers.value( s )
+        l = mLexers[s]
         lwLexersHighlightingElements.clear()
-        for ( i = 0; i < 128; i++ )
+        for i in range(128):
             n = l.description( i )
-            if  not n.isEmpty() :
+            if n:
                 it = QListWidgetItem( lwLexersHighlightingElements )
                 it.setText( n )
                 it.setForeground( l.color( i ) )
                 it.setBackground( l.paper( i ) )
                 it.setFont( l.font( i ) )
                 it.setData( Qt.UserRole, i )
-
-
-        # value
-        QVariant v
+        
         # fold comments
         v = lexerProperty( "foldComments", l )
         self.cbLexersHighlightingFoldComments.setVisible( v.isValid() )
@@ -669,43 +692,41 @@ class UISettings(QDialog):
 
 
     def on_lwLexersHighlightingElements_itemSelectionChanged(self):
-        it = lwLexersHighlightingElements.selectedItems().value( 0 )
+        it = lwLexersHighlightingElements.selectedItems()[0]
         if  it :
-            self.cbLexersHighlightingFillEol.setChecked( mLexers.value( self.cbLexersHighlightingLanguages.currentText() ).eolFill( it.data( Qt.UserRole ).toInt() ) )
-
+            self.cbLexersHighlightingFillEol.setChecked( mLexers.value[self.cbLexersHighlightingLanguages.currentText()].eolFill( it.data( Qt.UserRole ).toInt() ) )
 
     def lexersHighlightingColour_clicked(self):
-        # get sender
-        o = sender()
+        # get self.sender
+        o = self.sender()
         # color
-        QColor c
         # element colour
         if  o == self.pbLexersHighlightingForeground or o == self.pbLexersHighlightingBackground :
             # get item
-            it = lwLexersHighlightingElements.selectedItems().value( 0 )
+            it = lwLexersHighlightingElements.selectedItems()[0]
             # cancel if no item
             if  not it :
                 return
             # get color
-            c = QColorDialog.getColor( o == self.pbLexersHighlightingForeground ? it.foreground().color() : it.background().color(), window() )
+            if o == self.pbLexersHighlightingForeground:
+                p = it.foreground().color()
+            else:
+                p = it.background().color
+            c = QColorDialog.getColor(p, self.window() )
             # apply color
             if  c.isValid() :
                 if  o == self.pbLexersHighlightingForeground :
                     it.setForeground( c )
                     mLexers.value( self.cbLexersHighlightingLanguages.currentText() ).setColor( c, it.data( Qt.UserRole ).toInt() )
-
                 elif  o == self.pbLexersHighlightingBackground :
                     it.setBackground( c )
                     mLexers.value( self.cbLexersHighlightingLanguages.currentText() ).setPaper( c, it.data( Qt.UserRole ).toInt() )
-
-
-
         # gobal color
         elif  o == self.pbLexersHighlightingAllForeground or o == self.pbLexersHighlightingAllBackground :
             # get lexer
             l = mLexers.value( self.cbLexersHighlightingLanguages.currentText() )
             # get color
-            c = QColorDialog.getColor( o == self.pbLexersHighlightingAllForeground ? l.color( -1 ) : l.paper( -1 ), window() )
+            c = QColorDialog.getColor( o == self.pbLexersHighlightingAllForeground ? l.color( -1 ) : l.paper( -1 ), self.window() )
             # apply
             if  c.isValid() :
                 if  o == self.pbLexersHighlightingAllForeground :
@@ -715,59 +736,46 @@ class UISettings(QDialog):
                 # refresh
                 on_cbLexersHighlightingLanguages_currentIndexChanged( l.language() )
 
-
-
-
     def lexersHighlightingFont_clicked(self):
-        # get sender
-        o = sender()
+        # get self.sender
+        o = self.sender()
         # values
-        bool b
-        QFont f
         # element font
         if  o == self.pbLexersHighlightingFont :
             # get item
-            it = lwLexersHighlightingElements.selectedItems().value( 0 )
+            it = lwLexersHighlightingElements.selectedItems()[0]
             # cancel if no item
             if  not it :
                 return
             # get font
-            f = QFontDialog.getFont( &b, it.font(), window() )
+            f, b = QFontDialog.getFont( &b, it.font(), self.window() )
             # apply
             if  b :
                 it.setFont( f )
                 mLexers.value( self.cbLexersHighlightingLanguages.currentText() ).setFont( f, it.data( Qt.UserRole ).toInt() )
-
-
         # global font
         elif  o == self.pbLexersHighlightingAllFont :
             # get lexer
-            l = mLexers.value( self.cbLexersHighlightingLanguages.currentText() )
+            l = mLexers[self.cbLexersHighlightingLanguages.currentText()]
             # get font
-            f = QFontDialog.getFont( &b, l.font( -1 ), window() )
+            f, b = QFontDialog.getFont(l.font( -1 ), self.window() )
             # apply
             if  b :
                 l.setFont( f, -1 )
                 on_cbLexersHighlightingLanguages_currentIndexChanged( l.language() )
 
-
-
-
     def on_cbLexersHighlightingFillEol_clicked(self, b ):
-        it = lwLexersHighlightingElements.selectedItems().value( 0 )
+        it = lwLexersHighlightingElements.selectedItems()[0]
         if  it :
-            mLexers.value( self.cbLexersHighlightingLanguages.currentText() ).setEolFill( b, it.data( Qt.UserRole ).toInt() )
+            mLexers[self.cbLexersHighlightingLanguages.currentText()].setEolFill( b, it.data( Qt.UserRole ).toInt() )
 
-
-    def self.cbLexersHighlightingProperties_clicked(self, b ):
+    def on_cbLexersHighlightingProperties_clicked(self, b ):
         # get check box
-        self.cb = qobject_cast<QCheckBox*>( sender() )
-        if  not self.cb :
-            return
+        checkBox = self.sender()
         # get lexer
-        l = mLexers.value( self.cbLexersHighlightingLanguages.currentText() )
+        l = mLexers[self.cbLexersHighlightingLanguages.currentText()]
         # set lexer properties
-        if  self.cb == self.cbLexersHighlightingIndentOpeningBrace or self.cb == self.cbLexersHighlightingIndentClosingBrace :
+        if  checkBox == self.cbLexersHighlightingIndentOpeningBrace or checkBox == self.cbLexersHighlightingIndentClosingBrace :
             if  self.cbLexersHighlightingIndentOpeningBrace.isChecked() and self.cbLexersHighlightingIndentClosingBrace.isChecked() :
                 l.setAutoIndentStyle( QsciScintilla.AiOpening | QsciScintilla.AiClosing )
             elif  self.cbLexersHighlightingIndentOpeningBrace.isChecked() :
@@ -776,77 +784,64 @@ class UISettings(QDialog):
                 l.setAutoIndentStyle( QsciScintilla.AiClosing )
             else:
                 l.setAutoIndentStyle( QsciScintilla.AiMaintain )
-
         else:
-            setLexerProperty( self.cb.statusTip(), l, b )
-
+            setLexerProperty( checkBox.statusTip(), l, b )
 
     def on_cbLexersHighlightingIndentationWarning_currentIndexChanged(self, i ):
         # get lexer
-        l = mLexers.value( self.cbLexersHighlightingLanguages.currentText() )
+        l = mLexers[self.cbLexersHighlightingLanguages.currentText()]
         # set lexer properties
         setLexerProperty( self.cbLexersHighlightingIndentationWarning.statusTip(), l, self.cbLexersHighlightingIndentationWarning.itemData( i ) )
 
-
     def on_pbLexersHighlightingReset_clicked(self):
         # get lexer
-        l = mLexers.value( self.cbLexersHighlightingLanguages.currentText() )
+        l = mLexers[self.cbLexersHighlightingLanguages.currentText()]
         # reset and refresh
         if  l :
             resetLexer( l )
             on_cbLexersHighlightingLanguages_currentIndexChanged( l.language() )
 
-
-
     def on_pbLexersApplyDefaultFont_clicked(self):
         settings = MonkeyCore.settings()
-         font = lDefaultDocumentFont.font()
-         language = self.cbLexersHighlightingLanguages.currentText()
+        font = lDefaultDocumentFont.font()
+        language = self.cbLexersHighlightingLanguages.currentText()
         
         settings.setDefaultLexerProperties( font, False )
         on_cbLexersHighlightingLanguages_currentIndexChanged( language )
 
-
     def on_twAbbreviations_itemSelectionChanged(self):
         # get item
-        it = self.twAbbreviations.selectedItems().value( 0 )
+        it = self.twAbbreviations.selectedItems()[0]
         if  it :
             teAbbreviationsCode.setPlainText( it.data( 0, Qt.UserRole ).toString() )
         # enable/disable according to selection
         teAbbreviationsCode.setEnabled( it )
 
-
     def on_pbAbbreviationsAdd_clicked(self):
-    { UIAddAbbreviation.edit( self.twAbbreviations );
+        UIAddAbbreviation.edit( self.twAbbreviations );
 
     def on_pbAbbreviationsRemove_clicked(self):
-        delete self.twAbbreviations.selectedItems().value( 0 )
+        del self.twAbbreviations.selectedItems()[0]
         teAbbreviationsCode.clear()
-
 
     def on_teAbbreviationsCode_textChanged(self):
         # get item
-        it = self.twAbbreviations.selectedItems().value( 0 )
+        it = self.twAbbreviations.selectedItems()[0]
         if  it :
             it.setData( 0, Qt.UserRole, teAbbreviationsCode.toPlainText() )
 
-
     def reject(self):
-        settings = MonkeyCore.settings()
         
-        for lexer in mLexers:        lexer.readSettings( *settings, scintillaSettingsPath().toLocal8Bit().constData() )
-
+        settings = MonkeyCore.settings()        
+        for lexer in mLexers:
+            lexer.readSettings( *settings, scintillaSettingsPath().toLocal8Bit().constData() )
         
-        QDialog.reject()
-
+        QDialog.reject(self)
 
     def accept(self):
-        apply()
-        QDialog.accept()
-
-
-    def apply(self):
-        saveSettings()
-        applyProperties()
+        self.saveSettings()
+        self.applyProperties()
         MonkeyCore.workspace().loadSettings()
-
+        self.apply()
+        QDialog.accept(self)
+"""

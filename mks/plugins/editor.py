@@ -87,6 +87,10 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
                           "WrapWord"      : QsciScintilla.WrapWord,
                           "WrapCharacter" : QsciScintilla.WrapCharacter}
     
+    _WRAP_FLAG_TO_QSCI = {"None"           : QsciScintilla.WrapFlagNone,
+                          "ByText"         : QsciScintilla.WrapFlagByText,
+                          "ByBorder"       : QsciScintilla.WrapFlagByBorder}
+
     _EDGE_MODE_TO_QSCI = {"None"        : QsciScintilla.EdgeNone,
                           "Line"        : QsciScintilla.EdgeLine,
                           "Background"  : QsciScintilla.EdgeBackground} 
@@ -94,7 +98,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
     _WHITE_MODE_TO_QSCI = {"Invisible"           : QsciScintilla.WsInvisible,
                            "Visible"             : QsciScintilla.WsVisible,
                            "VisibleAfterIndent"  : QsciScintilla.WsVisibleAfterIndent}
-    
+        
     _AUTOCOMPLETION_MODE_TO_QSCI = {"None"      : QsciScintilla.AcsNone,
                                     "All"       : QsciScintilla.AcsAll,
                                     "Document"  : QsciScintilla.AcsDocument,
@@ -259,9 +263,9 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         self.qscintilla.setWhitespaceVisibility(self._WHITE_MODE_TO_QSCI[myConfig["WhitespaceVisibility"]])
         
         self.qscintilla.setWrapMode(self._WRAP_MODE_TO_QSCI[myConfig["Wrap"]["Mode"]])
-        self.qscintilla.setWrapVisualFlags(myConfig["Wrap"]["EndVisualFlag"],
-                                            myConfig["Wrap"]["StartVisualFlag"],
-                                            myConfig["Wrap"]["LineIndentWidth"])
+        self.qscintilla.setWrapVisualFlags(self._WRAP_FLAG_TO_QSCI[myConfig["Wrap"]["EndVisualFlag"]],
+                                           self._WRAP_FLAG_TO_QSCI[myConfig["Wrap"]["StartVisualFlag"]],
+                                           myConfig["Wrap"]["LineIndentWidth"])
     
     def _applyLexer(self, myConfig, filePath):
         """Detect lexer for file name, configure it and apply to the editor
