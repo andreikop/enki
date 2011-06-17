@@ -48,7 +48,7 @@ _ACTIONS = (\
 \
 (qsci.SCI_WORDLEFTEXTEND, 'mEdit/mSelection/mWord/aLeft', tr('Left'), 'Ctrl+Shift+Left', ''),
 (qsci.SCI_WORDRIGHTEXTEND, 'mEdit/mSelection/mWord/aRight', tr('Right'), 'Ctrl+Shift+Right', ''),
-(qsci.SCI_WORDLEFTENDEXTEND, 'mEdit/mSelection/mWord/aLeft', tr('Left end'), '', ''),
+(qsci.SCI_WORDLEFTENDEXTEND, 'mEdit/mSelection/mWord/aLeftEnd', tr('Left end'), '', ''),
 (qsci.SCI_WORDRIGHTENDEXTEND, 'mEdit/mSelection/mWord/aRightEnd', tr('Right end'), '', ''),
 (qsci.SCI_WORDPARTLEFTEXTEND, 'mEdit/mSelection/mWord/aLeftPart', tr('Left part '), 'Ctrl+Alt+/', ''),
 (qsci.SCI_WORDPARTRIGHTEXTEND, 'mEdit/mSelection/mWord/aRightPart', tr('Right part'), 'Ctrl+Alt+\\', ''),
