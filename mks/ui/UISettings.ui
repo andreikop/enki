@@ -228,7 +228,7 @@
    <item row="1" column="1">
     <widget class="QStackedWidget" name="swPages">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="pGeneral">
       <layout class="QGridLayout">
@@ -238,10 +238,10 @@
        <property name="spacing">
         <number>3</number>
        </property>
-       <item row="1" column="0">
+       <item row="0" column="0">
         <widget class="QGroupBox" name="gbWorkspace">
          <property name="title">
-          <string>&amp;Workspace</string>
+          <string>Files sorting mode</string>
          </property>
          <layout class="QGridLayout">
           <property name="margin">
@@ -250,63 +250,14 @@
           <property name="spacing">
            <number>3</number>
           </property>
-          <item row="1" column="0">
-           <widget class="QLabel" name="lSortingMode">
-            <property name="toolTip">
-             <string>The sorting mode apply to the &quot;Opened Files List&quot; dock.
-You can quickly change it using the dock context menu.</string>
-            </property>
-            <property name="text">
-             <string>Sorting Mode :</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1" colspan="2">
-           <widget class="QComboBox" name="cbSortingMode">
-            <property name="toolTip">
-             <string>The sorting mode apply to the &quot;Opened Files List&quot; dock.
-You can quickly change it using the dock context menu.</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0" colspan="3">
-           <spacer name="verticalSpacer">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="0" column="0" colspan="3">
-           <widget class="QCheckBox" name="cbQuickFileAccess">
-            <property name="toolTip">
-             <string>Add a combobox in the context toolbar that allow quick file change</string>
-            </property>
-            <property name="text">
-             <string>Show Quick File Acess</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="lTabMode">
-            <property name="text">
-             <string>Tab Mode :</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1" colspan="2">
-           <widget class="QComboBox" name="cbTabModes"/>
-          </item>
          </layout>
         </widget>
        </item>
-       <item row="1" column="1">
+       <item row="1" column="0">
         <widget class="QGroupBox" name="gbSession">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="title">
           <string>&amp;Session</string>
          </property>
@@ -343,44 +294,6 @@ You can quickly change it using the dock context menu.</string>
              </size>
             </property>
            </spacer>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="2" column="0" colspan="2">
-        <spacer>
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Expanding</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>471</width>
-           <height>16</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="0" column="0" colspan="2">
-        <widget class="QGroupBox" name="gbProjectSettings">
-         <property name="title">
-          <string>&amp;Project Settings</string>
-         </property>
-         <layout class="QGridLayout">
-          <property name="margin">
-           <number>5</number>
-          </property>
-          <property name="spacing">
-           <number>3</number>
-          </property>
-          <item row="0" column="0" colspan="2">
-           <widget class="QCheckBox" name="cbSaveFiles">
-            <property name="text">
-             <string>Save all files on custom action ( Build, Debugger, Interpreter )</string>
-            </property>
-           </widget>
           </item>
          </layout>
         </widget>
@@ -2793,12 +2706,12 @@ You can quickly change it using the dock context menu.</string>
   <customwidget>
    <class>pColorButton</class>
    <extends>QPushButton</extends>
-   <header location="global">widgets/pColorButton.h</header>
+   <header location="global">PyQt4/fresh.h</header>
   </customwidget>
   <customwidget>
    <class>pEnvironmentVariablesEditor</class>
    <extends>QWidget</extends>
-   <header location="global">widgets/pEnvironmentVariablesEditor.h</header>
+   <header location="global">PyQt4/fresh.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
