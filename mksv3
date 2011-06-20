@@ -56,7 +56,7 @@ def main():
         QMessageBox.critical(None, "QScintilla not found",
                                 "Failed to import QScintilla 2 python bindings.\n"
                                 "Try to install python-qscintilla2 package, or download sources from "
-                                "See http://github.com/hlamer/Fresh-framework/archives/master for installation instructions")
+                                "See https://github.com/pasnox/fresh for installation instructions")
         return -1
     
     try:
