@@ -299,7 +299,7 @@ class Workspace(QStackedWidget):
         """
         
         if showDialog and document.isModified():
-            if _UISaveFiles(self._mainWindow, [document]).exec_() == QDialog.Rejected:
+            if _UISaveFiles(self._mainWindow(), [document]).exec_() == QDialog.Rejected:
                 return
         
         if len(self._sortedDocuments) > 1:  # not the last document
@@ -429,11 +429,12 @@ class Workspace(QStackedWidget):
         """
         modifiedDocuments = filter(lambda d: d.isModified(), self.openedDocuments())
         if modifiedDocuments:
-            if (_UISaveFiles( self, modifiedDocuments).exec_() != QDialog.Rejected):
-                for document in self.openedDocuments():
-                    self.closeDocument(document, False)
-            else:
+            if (_UISaveFiles( self, modifiedDocuments).exec_() == QDialog.Rejected):
                 return False #do not close IDE
+
+        for document in self.openedDocuments()[::-1]:
+            self.closeDocument(document, False)
+
         return True
         
     def _activateNextDocument(self):
