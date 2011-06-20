@@ -170,7 +170,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         
         # convert tabs if needed
         if  myConfig["Indentation"]["ConvertUponOpen"]:
-            self._convertTabs()
+            self._convertIndentation()
         
         #autodetect eol, need
         if  myConfig["EOL"]["AutoDetect"]:
@@ -372,7 +372,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         self.qscintilla.ensureLineVisible(line)
         self.qscintilla.setFocus()
 
-    def _convertTabs(self):
+    def _convertIndentation(self):
         """Try to fix indentation mode of the file, if there are mix of different indentation modes
         (tabs and spaces)
         """
@@ -391,6 +391,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         for i in range(self.qscintilla.lines()):
             # get current line indent width
             lineIndent = self.qscintilla.indentation(i)
+            """
             # check if need troncate
             t = lineIndent /indentWidth
             r = lineIndent % indentWidth
@@ -401,7 +402,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
             elif  lastLineWasTroncate and lineIndent != 0:
                 lastLineWasTroncate = self.qscintilla.indentation(i + 1) == lineIndent
                 lineIndent += indentWidth
-
+            """
             # remove indentation
             self.qscintilla.setIndentation(i, 0)
             # restore it with possible troncate indentation
@@ -421,13 +422,20 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
     def _autoDetectIndent(self):
         """Delect indentation automatically and apply detected mode
         """
-        if '\t' in self.qscintilla.text():
-            self.qscintilla.setIndentationsUseTabs (True)
-        
-        #TODO improve algorythm sometimes for skip comments
-        for line in self.qscintilla.text().split('\n'):
+        haveTabs = '\t' in self.qscintilla.text()
+        for line in self.qscintilla.text().split('\n'):  #TODO improve algorythm sometimes for skip comments
             if unicode(line).startswith(' '):
-                self.qscintilla.setIndentationsUseTabs (False)
+                haveSpaces = True
+                break
+        else:
+            haveSpaces = False
+        
+        if haveTabs and not haveSpaces:
+            self.qscintilla.setIndentationsUseTabs (True)
+        elif haveSpaces and not haveTabs:
+            self.qscintilla.setIndentationsUseTabs (False)
+        else:
+            pass  # Don't touch current mode, if not sure
 
     def _autoDetectEol(self):
         """Detect end of line mode automatically and apply detected mode
