@@ -135,18 +135,8 @@
      </item>
      <item>
       <property name="text">
-       <string>Paths</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
        <string>Editor</string>
       </property>
-      <item>
-       <property name="text">
-        <string>General</string>
-       </property>
-      </item>
       <item>
        <property name="text">
         <string>Auto Completion</string>
@@ -228,7 +218,7 @@
    <item row="1" column="1">
     <widget class="QStackedWidget" name="swPages">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="pGeneral">
       <layout class="QGridLayout">
@@ -241,7 +231,7 @@
        <item row="0" column="0">
         <widget class="QGroupBox" name="gbWorkspace">
          <property name="title">
-          <string>Files sorting mode</string>
+          <string>Opened file list sorting mode</string>
          </property>
          <layout class="QGridLayout">
           <property name="margin">
@@ -331,16 +321,16 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="cbConvertTabsUponOpen">
+           <widget class="QCheckBox" name="cbConvertIndentationUponOpen">
             <property name="text">
-             <string>Convert Tabs Upon Open</string>
+             <string>Convert indentation upon open</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QCheckBox" name="cbCreateBackupUponOpen">
             <property name="text">
-             <string>Create Backup File Upon Open</string>
+             <string>Create backup file upon open</string>
             </property>
            </widget>
           </item>
@@ -349,6 +339,9 @@
        </item>
        <item>
         <widget class="QGroupBox" name="gbDefaultCodec">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="title">
           <string>Default text codec</string>
          </property>
