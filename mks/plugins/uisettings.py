@@ -29,7 +29,7 @@ class Plugin:
                                                     QIcon(':/mksicons/settings.png'))
         self._action.setStatusTip(tr( "Edit settigns..."))
         self._action.triggered.connect(self._onEditSettings)
-        self._onEditSettings()
+        #self._onEditSettings()
     
     def __term__(self):
         core.actionModel().removeAction(self._action)

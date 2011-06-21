@@ -252,7 +252,6 @@ class MainWindow(pMainWindow):
         self._actionModel.action( "mFile/aQuit" ).triggered.connect(self.close)
         self._actionModel.action( "mHelp/aAboutQt" ).triggered.connect(qApp.aboutQt)
         # docks
-        self._actionModel.action( "mDocks" ).menu().aboutToShow.connect(self._menu_Docks_aboutToShow)
         self._actionModel.action( "mDocks/aHideAll" ).triggered.connect(self._onHideAllWindows)
 
         """TODO restore or delete old connections
@@ -299,18 +298,6 @@ class MainWindow(pMainWindow):
         """Default title. Contains MkS name and version
         """
         return "%s v.%s" % (mks.core.defines.PACKAGE_NAME, mks.core.defines.PACKAGE_VERSION)
-    
-    def _menu_Docks_aboutToShow(self):
-        """Fill docs menu with currently existing docs
-        """
-        # get menu
-        menu = self._actionModel.action( "mDocks" ).menu()
-        
-        # add actions
-        for dock in self.findChildren(pDockWidget):
-            action = dock.showAction()
-            menu.addAction( action )
-            self._actionModel.addAction( "mDocks", action )
     
     def centralLayout(self):
         """Layout of the central widget. Contains Workspace and search widget

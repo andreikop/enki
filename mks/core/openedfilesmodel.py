@@ -281,7 +281,10 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         self.tvFiles.selectionModel().selectionChanged.connect(self.selectionModel_selectionChanged)
         
         self.showAction().setShortcut("F2")
-        workspace.parentWidget().addAction(self.showAction())
+        core.actionModel().addAction("mDocks/aOpenedFiles", self.showAction())
+    
+    def __term__(self):
+        core.actionModel().removeAction("mDocks/aOpenedFiles")
     
     def _startModifyModel(self):
         """Blocks signals from model while it modified by code
