@@ -32,8 +32,8 @@ class Plugin(QObject):
         self.dock.hide()
         # add dock to dock toolbar entry
         core.mainWindow().dockToolBar( Qt.LeftToolBarArea ).addDockWidget( self.dock,
-                                                                                     self.dock.windowTitle(),
-                                                                                     QIcon(':/mksicons/open.png'))
+                                                                           self.dock.windowTitle(),
+                                                                           QIcon(':/mksicons/open.png'))
     
     def __del__(self):
         """Uninstall the plugin
@@ -130,8 +130,12 @@ class DockFileBrowser(pDockWidget):
         pActionsManager.setDefaultShortcut( self.dock.toggleViewAction(), QKeySequence( "F7" ) )
         """
         self.showAction().setShortcut("F7")
-        core.mainWindow().addAction(self.showAction())
+        core.actionModel().addAction("mDocks/aFileBrowser", self.showAction())
+        
         self.visibilityChanged.connect(self._onVisibilityChanged)
+    
+    def __term__(self, parent):
+        core.actionModel().removeAction("mDocks/aFileBrowser")
     
     def _onVisibilityChanged(self, visible):
         """Postnoted widget initialization.
