@@ -31,9 +31,7 @@ class Plugin(QObject):
         self.dock = DockFileBrowser(core.mainWindow())
         self.dock.hide()
         # add dock to dock toolbar entry
-        core.mainWindow().dockToolBar( Qt.LeftToolBarArea ).addDockWidget( self.dock,
-                                                                           self.dock.windowTitle(),
-                                                                           QIcon(':/mksicons/open.png'))
+        core.mainWindow().dockToolBar( Qt.LeftToolBarArea ).addDockWidget(self.dock)
     
     def __del__(self):
         """Uninstall the plugin
@@ -122,6 +120,7 @@ class DockFileBrowser(pDockWidget):
         pDockWidget.__init__(self, parent)
         self.setObjectName("FileBrowserDock")
         self.setWindowTitle(self.tr( "File Browser" ))
+        self.setWindowIcon(QIcon(':/mksicons/open.png'))
         # restrict areas
         self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
         
