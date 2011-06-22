@@ -3,6 +3,7 @@ from PyQt4 import uic
 from PyQt4.QtCore import Qt, QVariant
 from PyQt4.QtGui import QButtonGroup, \
                         QCheckBox, \
+                        QColor, \
                         QDialog, \
                         QDialogButtonBox, \
                         QFont, \
@@ -25,9 +26,9 @@ class Plugin:
     """
     def __init__(self):
         self._action = core.actionModel().addAction("mSettings/aSettings",
-                                                    tr( "Settings..."), 
+                                                    tr( "Settings.."), 
                                                     QIcon(':/mksicons/settings.png'))
-        self._action.setStatusTip(tr( "Edit settigns..."))
+        self._action.setStatusTip(tr( "Edit settigns.."))
         self._action.triggered.connect(self._onEditSettings)
         #self._onEditSettings()
     
@@ -37,6 +38,43 @@ class Plugin:
     def _onEditSettings(self):
         UISettings(core.mainWindow()).exec_()
 
+
+class Option(self, optionName, control):
+    def __init__(self, option, control):
+        self.optionName = optionName
+        self.control = control
+
+class CheckBoxOption(Option):
+    def load(self):
+    def _selectId(buttonGroup, id):
+        buttons = buttonGroup.buttons()
+        for button in buttons:
+            if buttonGroup.id(button) == id:
+                button.setChecked(True)
+                break
+        else:
+            assert 0
+
+
+class NumericOption(Option):
+    pass
+
+class ColorOption(Option):
+    pass
+
+class FontOption(Option):
+    def __init__(self, familyOptionName, sizeOptionName, editControl, buttonControl):
+        self.familyOptionName = familyOptionName
+        self.sizeOptionName = sizeOptionName
+        self.editControl = editControl
+        self.buttonControl = buttonControl
+
+class ChoiseOption(Option):
+    """Radio button group, QComboBox
+    """
+    def __init__(self, optionName, control, textValuesList):
+        Option.__init__(self, optionName, control)
+        self.textValuesList = textValuesList
 
 class UISettings(QDialog):
     """Settings dialog
@@ -58,6 +96,7 @@ class UISettings(QDialog):
         self._createdObjects = []
         
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/UISettings.ui'), self)
+        
         self.setAttribute( Qt.WA_DeleteOnClose )
 
         # sorting mode
@@ -89,7 +128,6 @@ class UISettings(QDialog):
 
         self.loadSettings()
 
-
     def reject(self):
         """ TODO
         settings = MonkeyCore.settings()        
@@ -110,33 +148,29 @@ class UISettings(QDialog):
     def loadSettings(self):
         config = core.config()
         # General
-        self._selectId(self.bgSort, self._SORT_MODE.index(config["Workspace"]["FileSortMode"]))
+        ChoiseOption("Workspace/FileSortMod", self.bgSort, self._SORT_MODE)
         
         # Editor general
-        editorConfig = config["Editor"]
-        self.cbConvertIndentationUponOpen.setChecked( editorConfig["Indentation"]["ConvertUponOpen"] )
-        self.cbCreateBackupUponOpen.setChecked( editorConfig["CreateBackupUponOpen"] )
+        CheckBoxOption("Editor/Indentation/ConvertUponOpen", "self.cbConvertIndentationUponOpen")
+        CheckBoxOption("Editor/CreateBackupUponOpen", "self.cbCreateBackupUponOpen")
+        ColorOption("Editor/SelectionBackgroundColor", "self.tbSelectionBackground")
+        ColorOption("Editor/SelectionForegroundColor", "self.tbSelectionForeground")
+        CheckBoxOption("Editor/DefaultDocumentColours", "self.gbDefaultDocumentColour")
+        ColorOption("Editor/DefaultDocumentPen", "self.tbDefaultDocumentPen")
+        ColorOption("Editor/DefaultDocumentPaper", "self.tbDefaultDocumentPaper")
+        FontOption("Editor/DefaultFont", "Editor/DefaultFontSize", "self.lDefaultDocumentFont", "self.pbDefaultDocumentFon")
+
 
     def saveSettings(self):
         config = core.config()
         # General
-        config["Workspace"]["FileSortMode"] = self._SORT_MODE[self.bgSort.checkedId()]
+        config["Workspace/FileSortMode"] = self._SORT_MODE[self.bgSort.checkedId()]
         #Editor general
         editorConfig = config["Editor"]
-        editorConfig["Indentation"]["ConvertUponOpen"] = self.cbConvertIndentationUponOpen.isChecked()
-        editorConfig["CreateBackupUponOpen"] = self.cbCreateBackupUponOpen.isChecked()
+        "Editor/Indentation/ConvertUponOpen"] = self.cbConvertIndentationUponOpen.isChecked()
+        "Editor/CreateBackupUponOpen"] = self.cbCreateBackupUponOpen.isChecked()
         
         config.flush()
-
-    @staticmethod
-    def _selectId(buttonGroup, id):
-        buttons = buttonGroup.buttons()
-        for button in buttons:
-            if buttonGroup.id(button) == id:
-                button.setChecked(True)
-                break
-        else:
-            assert 0
 
     def on_twMenu_itemSelectionChanged(self):
         # get item
@@ -269,71 +303,58 @@ class UISettings(QDialog):
         # resize to minimum size
         self.resize( self.minimumSizeHint() )
 
---------------------------------------------------------
+--------------------------------------------------------  loadSettings
 
         # General
         self.cbSaveSession.setChecked( saveSessionOnClose() )
         self.cbRestoreSession.setChecked( restoreSessionOnStartup() )
 
-
-        # Editor
-        editorConfig = core.config()["Editor"]
         #  General
-        
-        self.cbAutoSyntaxCheck.setChecked( autoSyntaxCheck() )
         
         self.cbDefaultCodec.setCurrentIndex( self.cbDefaultCodec.findText( defaultCodec() ) )
         
-        self.tbSelectionBackground.setColor( editorConfig["SelectionBackgroundColor"] )
-        self.tbSelectionForeground.setColor( editorConfig["SelectionForegroundColor"] )
-        self.gbDefaultDocumentColours.setChecked( editorConfig["DefaultDocumentColours"] )
-        self.tbDefaultDocumentPen.setColor( editorConfig["DefaultDocumentPen"] )
-        self.tbDefaultDocumentPaper.setColor( editorConfig["DefaultDocumentPaper"] )
-        defFont = QFont(editorConfig["DefaultFont"], editorConfig["DefaultFontSize"])
-        lDefaultDocumentFont.setFont( defFont )
-        lDefaultDocumentFont.setToolTip( defFont.toString() )
         #  Auto Completion
-        self.cbAutoCompletionCaseSensitivity.setChecked( editorConfig["AutoCompletion"]["CaseSensitivity"] )
-        self.cbAutoCompletionReplaceWord.setChecked( editorConfig["AutoCompletion"]["ReplaceWord"] )
-        self.cbAutoCompletionShowSingle.setChecked( editorConfig["AutoCompletion"]["ShowSingle"] )
-        sAutoCompletionThreshold.setValue( editorConfig["AutoCompletion"]["Threshold"] )
-        self.bgAutoCompletionSource.button( _AUTOCOMPLETION_SOURCE[editorConfig["AutoCompletion"]["Source"]] ).setChecked( True )
+        CheckBoxOption("Editor/AutoCompletion/CaseSensitivity", "self.cbAutoCompletionCaseSensitivity")
+        CheckBoxOption("Editor/AutoCompletion/ReplaceWord", "self.cbAutoCompletionReplaceWord")
+        CheckBoxOption("Editor/AutoCompletion/ShowSingle", "self.cbAutoCompletionShowSingle")
+        NumericOption("Editor/AutoCompletion/Threshold", "sAutoCompletionThreshold")
+        self.bgAutoCompletionSource.button( _AUTOCOMPLETION_SOURCE["Editor/AutoCompletion/Source"]).setChecked( True )
         
         #  Call Tips
-        self.gbCalltipsEnabled.setChecked( editorConfig["CallTips"]["Style"] != "None" )
-        sCallTipsVisible.setValue( editorConfig["CallTips"]["Visible"] )
-        self.bgCallTipsStyle.button( editorConfig["CallTips"]["Style"] ).setChecked( True )
-        self.tbCalltipsBackground.setColor( QColor(editorConfig["CallTips"]["BackgroundColor"]) )
-        self.tbCalltipsForeground.setColor( QColor(editorConfig["CallTips"]["ForegroundColor"]) )
-        self.tbCalltipsHighlight.setColor( QColor(editorConfig["CallTips"]["HighlightColor"]) )
+        self.gbCalltipsEnabled.setChecked( "Editor/CallTips/Style"] != "None" )
+        NumericOption("Editor/CallTips/Visible", "sCallTipsVisible")
+        self.bgCallTipsStyle.button( "Editor/CallTips/Styl").setChecked( True )
+        ColorOption("Editor/CallTips/BackgroundColor", "self.tbCalltipsBackground")
+        ColorOption("Editor/CallTips/ForegroundColor", "self.tbCalltipsForeground")
+        ColorOption("Editor/CallTips/HighlightColor", "self.tbCalltipsHighlight")
         #  Indentation
-        self.cbAutoIndent.setChecked( editorConfig["Indentation"]["AutoIndent"] )
-        self.cbBackspaceUnindents.setChecked( editorConfig["Indentation"]["BackspaceUnindents"] )
-        self.cbIndentationGuides.setChecked( editorConfig["Indentation"]["Guides"] )
-        self.cbIndentationUseTabs.setChecked( editorConfig["Indentation"]["UseTabs"] )
-        self.cbAutodetectIndent.setChecked( editorConfig["Indentation"]["AutoDetect"] )
-        self.cbTabIndents.setChecked( editorConfig["Indentation"]["TabIndents"] )
-        sIndentationTabWidth.setValue( editorConfig["Indentation"]["TabWidth"] )
-        sIndentationWidth.setValue( editorConfig["Indentation"]["Width"] )
-        self.tbIndentationGuidesBackground.setColor( QColor(editorConfig["Indentation"]["GuidesBackgroundColor"]) )
-        self.tbIndentationGuidesForeground.setColor( QColor(editorConfig["Indentation"]["GuidesForegroundColor"]) )
+        CheckBoxOption("Editor/Indentation/AutoIndent", "self.cbAutoIndent")
+        CheckBoxOption("Editor/Indentation/BackspaceUnindents", "self.cbBackspaceUnindents")
+        CheckBoxOption("Editor/Indentation/Guides", "self.cbIndentationGuides")
+        CheckBoxOption("Editor/Indentation/UseTabs", "self.cbIndentationUseTabs")
+        CheckBoxOption("Editor/Indentation/AutoDetect", "self.cbAutodetectIndent")
+        CheckBoxOption("Editor/Indentation/TabIndents", "self.cbTabIndents")
+        NumericOption("Editor/Indentation/TabWidth", "sIndentationTabWidth")
+        NumericOption("Editor/Indentation/Width", "sIndentationWidth")
+        ColorOption("Editor/Indentation/GuidesBackgroundColor", "self.tbIndentationGuidesBackground")
+        ColorOption("Editor/Indentation/GuidesForegroundColor", "self.tbIndentationGuidesForeground")
         #  Brace Matching
-        self.gbBraceMatchingEnabled.setChecked( editorConfig["BraceMatching"]["Mode"] != 'None' )
-        self.bgBraceMatch.button( editorConfig["BraceMatching"]["Mode"] ).setChecked( True )
-        self.tbMatchedBraceForeground.setColor( QColor(editorConfig["BraceMatching"]["MatchedForegroundColor"]) )
-        self.tbMatchedBraceBackground.setColor( QColor(editorConfig["BraceMatching"]["MatchedBackgroundColor"]) )
-        self.tbUnmatchedBraceBackground.setColor( QColor(editorConfig["BraceMatching"]["UnmatchedBackgroundColor"]) )
-        self.tbUnmatchedBraceForeground.setColor( QColor(editorConfig["BraceMatching"]["UnmatchedForegroundColor"]) )
+        self.gbBraceMatchingEnabled.setChecked( "Editor/BraceMatching/Mode"] != 'None' )
+        self.bgBraceMatch.button( "Editor/BraceMatching/Mod").setChecked( True )
+        ColorOption("Editor/BraceMatching/MatchedForegroundColor", "self.tbMatchedBraceForeground")
+        ColorOption("Editor/BraceMatching/MatchedBackgroundColor", "self.tbMatchedBraceBackground")
+        ColorOption("Editor/BraceMatching/UnmatchedBackgroundColor", "self.tbUnmatchedBraceBackground")
+        ColorOption("Editor/BraceMatching/UnmatchedForegroundColor", "self.tbUnmatchedBraceForeground")
         #  Edge Mode
-        self.gbEdgeModeEnabled.setChecked( editorConfig["Edge"]["Mode"] != 'None' )
-        self.bgEdgeMode.button( editorConfig["Edge"]["Mode"] ).setChecked( True )
-        sEdgeColumnNumber.setValue( editorConfig["Edge"]["Column"] )
-        self.tbEdgeColor.setColor( QColor(editorConfig["Edge"]["Color"]) )
+        self.gbEdgeModeEnabled.setChecked( "Editor/Edge/Mode"] != 'None' )
+        self.bgEdgeMode.button( "Editor/Edge/Mod").setChecked( True )
+        NumericOption("Editor/Edge/Column", "sEdgeColumnNumber")
+        ColorOption("Editor/Edge/Color", "self.tbEdgeColor")
         #  Caret
-        self.gbCaretLineVisible.setChecked( editorConfig["Caret"]["LineVisible"] )
-        self.tbCaretLineBackground.setColor( QColor(editorConfig["Caret"]["LineBackgroundColor"]) )
-        self.tbCaretForeground.setColor( editorConfig["Caret"]["ForegroundColor"]) )
-        sCaretWidth.setValue( editorConfig["Caret"]["Width"] )
+        CheckBoxOption("Editor/Caret/LineVisible", "self.gbCaretLineVisible")
+        ColorOption("Editor/Caret/LineBackgroundColor", "self.tbCaretLineBackground")
+        ColorOption("Editor/Caret/ForegroundColor", "self.tbCaretForeground") )
+        NumericOption("Editor/Caret/Width", "sCaretWidth")
         #  Margins
         
         self.gbLineNumbersMarginEnabled.setChecked( lineNumbersMarginEnabled() )
@@ -351,17 +372,17 @@ class UISettings(QDialog):
         self.tbMarginsFont.setFont( marginsFont() )
         
         #  Special Characters
-        self.bgEolMode.button( editorConfig["EOL"]["Mode"] ).setChecked( True )
-        self.cbEolVisibility.setChecked( editorConfig["EOL"]["Visibility"] )
-        self.cbAutoDetectEol.setChecked( editorConfig["EOL"]["AutoDetect"] )
-        self.cbAutoEolConversion.setChecked( editorConfig["EOL"]["AutoConvert"] )
-        self.gbWhitespaceVisibilityEnabled.setChecked( editorConfig["WhitespaceVisibility"] != "Invisible")
-        self.bgWhitespaceVisibility.button( editorConfig["WhitespaceVisibility"] ).setChecked( True )
-        self.gbWrapModeEnabled.setChecked( editorConfig["Wrap"]["Mode"] != 'None' )
-        self.bgWrapMode.button( editorConfig["Wrap"]["Mode"] ).setChecked( True )
-        #self.bgStartWrapVisualFlag.button( editorConfig["Wrap"]["StartVisualFlag"] ).setChecked( True )
-        #self.bgEndWrapVisualFlag.button( editorConfig["Wrap"]["EndVisualFlag"] ).setChecked( True )
-        sWrappedLineIndentWidth.setValue( editorConfig["Wrap"]["LineIndentWidth"] )
+        self.bgEolMode.button( "Editor/EOL/Mod").setChecked( True )
+        CheckBoxOption("Editor/EOL/Visibility", "self.cbEolVisibility")
+        CheckBoxOption("Editor/EOL/AutoDetect", "self.cbAutoDetectEol")
+        CheckBoxOption("Editor/EOL/AutoConvert", "self.cbAutoEolConversion")
+        self.gbWhitespaceVisibilityEnabled.setChecked( "Editor/WhitespaceVisibility"] != "Invisibl")
+        self.bgWhitespaceVisibility.button( "Editor/WhitespaceVisibilit").setChecked( True )
+        self.gbWrapModeEnabled.setChecked( "Editor/Wrap/Mode"] != 'None' )
+        self.bgWrapMode.button( "Editor/Wrap/Mod").setChecked( True )
+        #self.bgStartWrapVisualFlag.button( "Editor/Wrap/StartVisualFla").setChecked( True )
+        #self.bgEndWrapVisualFlag.button( "Editor/Wrap/EndVisualFla").setChecked( True )
+        NumericOption("Editor/Wrap/LineIndentWidth", "sWrappedLineIndentWidth")
         
         # Source APIs
         for ( i = 0; i < self.cbSourceAPIsLanguages.count(); i++ )
@@ -406,51 +427,51 @@ class UISettings(QDialog):
         #  General
         # TODO setAutoSyntaxCheck( self.cbAutoSyntaxCheck.isChecked() )
         # TODO setDefaultCodec( self.cbDefaultCodec.currentText() )
-        editorConfig["SelectionBackgroundColor"] = self.tbSelectionBackground.color().name()
-        editorConfig["SelectionForegroundColor"] = self.tbSelectionForeground.color().name()
-        editorConfig["DefaultDocumentColours"] = self.gbDefaultDocumentColours.isChecked()
-        editorConfig["DefaultDocumentPen"] = self.tbDefaultDocumentPen.color().name()
-        editorConfig["DefaultDocumentPaper"] = self.tbDefaultDocumentPaper.color().name()
-        editorConfig["DefaultFont"] = lDefaultDocumentFont.font().family()
-        editorConfig["DefaultFontSize"] = lDefaultDocumentFont.font().size()
+        "Editor/SelectionBackgroundColor"] = self.tbSelectionBackground.color().name()
+        "Editor/SelectionForegroundColor"] = self.tbSelectionForeground.color().name()
+        "Editor/DefaultDocumentColours"] = self.gbDefaultDocumentColours.isChecked()
+        "Editor/DefaultDocumentPen"] = self.tbDefaultDocumentPen.color().name()
+        "Editor/DefaultDocumentPaper"] = self.tbDefaultDocumentPaper.color().name()
+        "Editor/DefaultFont"] = self.lDefaultDocumentFont.font().family()
+        "Editor/DefaultFontSize"] = self.lDefaultDocumentFont.font().size()
         #  Auto Completion
-        editorConfig["AutoCompletion"]["Source"] = _AUTOCOMPLETION_SOURCE[bgAutoCompletionSource.checkedId()]
-        editorConfig["AutoCompletion"]["CaseSensitivity"] = self.cbAutoCompletionCaseSensitivity.isChecked()
-        editorConfig["AutoCompletion"]["ReplaceWord"] = self.cbAutoCompletionReplaceWord.isChecked()
-        editorConfig["AutoCompletion"]["ShowSingle"] = self.cbAutoCompletionShowSingle.isChecked()
-        editorConfig["AutoCompletion"]["Threshold"] = sAutoCompletionThreshold.value()
+        "Editor/AutoCompletion/Source"] = _AUTOCOMPLETION_SOURCE[bgAutoCompletionSource.checkedId()]
+        "Editor/AutoCompletion/CaseSensitivity"] = self.cbAutoCompletionCaseSensitivity.isChecked()
+        "Editor/AutoCompletion/ReplaceWord"] = self.cbAutoCompletionReplaceWord.isChecked()
+        "Editor/AutoCompletion/ShowSingle"] = self.cbAutoCompletionShowSingle.isChecked()
+        "Editor/AutoCompletion/Threshold"] = sAutoCompletionThreshold.value()
         #  Call Tips
-        editorConfig["CallTips"]["Style"] = _CALL_TIPS_STYLE[bgCallTipsStyle.checkedId()]
-        editorConfig["CallTips"]["Visible"] = sCallTipsVisible.value()
-        editorConfig["CallTips"]["BackgroundColor"] = self.tbCalltipsBackground.color().name()
-        editorConfig["CallTips"]["ForegroundColor"] = self.tbCalltipsForeground.color().name()
-        editorConfig["CallTips"]["HighlightColor"] = self.tbCalltipsHighlight.color().name()
+        "Editor/CallTips/Style"] = _CALL_TIPS_STYLE[bgCallTipsStyle.checkedId()]
+        "Editor/CallTips/Visible"] = sCallTipsVisible.value()
+        "Editor/CallTips/BackgroundColor"] = self.tbCalltipsBackground.color().name()
+        "Editor/CallTips/ForegroundColor"] = self.tbCalltipsForeground.color().name()
+        "Editor/CallTips/HighlightColor"] = self.tbCalltipsHighlight.color().name()
         #  Indentation
-        editorConfig["Indentation"]["AutoIndent"] = self.cbAutoIndent.isChecked()
-        editorConfig["Indentation"]["BackspaceUnindents"] = self.cbBackspaceUnindents.isChecked()
-        editorConfig["Indentation"]["Guides"] = self.cbIndentationGuides.isChecked()
-        editorConfig["Indentation"]["UseTabs"] = self.cbIndentationUseTabs.isChecked()
-        editorConfig["Indentation"]["TabIndents"] = self.cbTabIndents.isChecked()
-        editorConfig["Indentation"]["AutoDetect"] = self.cbAutodetectIndent.isChecked()
-        editorConfig["Indentation"]["TabWidth"] = sIndentationTabWidth.value()
-        editorConfig["Indentation"]["Width"] = sIndentationWidth.value()
-        editorConfig["Indentation"]["GuidesBackgroundColor"] = self.tbIndentationGuidesBackground.color().name()
-        editorConfig["Indentation"]["GuidesForegroundColor"] = self.tbIndentationGuidesForeground.color().name()
+        "Editor/Indentation/AutoIndent"] = self.cbAutoIndent.isChecked()
+        "Editor/Indentation/BackspaceUnindents"] = self.cbBackspaceUnindents.isChecked()
+        "Editor/Indentation/Guides"] = self.cbIndentationGuides.isChecked()
+        "Editor/Indentation/UseTabs"] = self.cbIndentationUseTabs.isChecked()
+        "Editor/Indentation/TabIndents"] = self.cbTabIndents.isChecked()
+        "Editor/Indentation/AutoDetect"] = self.cbAutodetectIndent.isChecked()
+        "Editor/Indentation/TabWidth"] = sIndentationTabWidth.value()
+        "Editor/Indentation/Width"] = sIndentationWidth.value()
+        "Editor/Indentation/GuidesBackgroundColor"] = self.tbIndentationGuidesBackground.color().name()
+        "Editor/Indentation/GuidesForegroundColor"] = self.tbIndentationGuidesForeground.color().name()
         #  Brace Matching
-        editorConfig["BraceMatching"]["Mode"] = _BRACE_MATCHING[bgBraceMatch.checkedId()]
-        editorConfig["BraceMatching"]["MatchedForegroundColor"] = self.tbMatchedBraceBackground.color().name()
-        editorConfig["BraceMatching"]["MatchedBackgroundColor"] = self.tbMatchedBraceForeground.color().name()
-        editorConfig["BraceMatching"]["UnmatchedBackgroundColor"] = self.tbUnmatchedBraceBackground.color().name()
-        editorConfig["BraceMatching"]["UnmatchedForegroundColor"] = self.tbUnmatchedBraceForeground.color().name()
+        "Editor/BraceMatching/Mode"] = _BRACE_MATCHING[bgBraceMatch.checkedId()]
+        "Editor/BraceMatching/MatchedForegroundColor"] = self.tbMatchedBraceBackground.color().name()
+        "Editor/BraceMatching/MatchedBackgroundColor"] = self.tbMatchedBraceForeground.color().name()
+        "Editor/BraceMatching/UnmatchedBackgroundColor"] = self.tbUnmatchedBraceBackground.color().name()
+        "Editor/BraceMatching/UnmatchedForegroundColor"] = self.tbUnmatchedBraceForeground.color().name()
         #  Edge Mode
-        editorConfig["Edge"]["Mode"] = _EDGE_MODE[bgEdgeMode.checkedId()]
-        editorConfig["Edge"]["Column"] = sEdgeColumnNumber.value()
-        editorConfig["Edge"]["Color"].name()
+        "Editor/Edge/Mode"] = _EDGE_MODE[bgEdgeMode.checkedId()]
+        "Editor/Edge/Column"] = sEdgeColumnNumber.value()
+        "Editor/Edge/Color"].name()
         #  Caret
-        editorConfig["Caret"]["LineVisible"] = self.gbCaretLineVisible.isChecked()
-        editorConfig["Caret"]["LineBackgroundColor"] = self.tbCaretLineBackground.color().name()
-        editorConfig["Caret"]["ForegroundColor"] = self.tbCaretForeground.color().name()
-        editorConfig["Caret"]["Width"] = sCaretWidth.value()
+        "Editor/Caret/LineVisible"] = self.gbCaretLineVisible.isChecked()
+        "Editor/Caret/LineBackgroundColor"] = self.tbCaretLineBackground.color().name()
+        "Editor/Caret/ForegroundColor"] = self.tbCaretForeground.color().name()
+        "Editor/Caret/Width"] = sCaretWidth.value()
         
         #  Margins
         setLineNumbersMarginEnabled( self.gbLineNumbersMarginEnabled.isChecked() )
@@ -467,15 +488,15 @@ class UISettings(QDialog):
         setMarginsFont( self.tbMarginsFont.font() )
         
         #  Special Characters
-        editorConfig["EOL"]["Mode"] = _EOL_MODE[self.bgEolMode.checkedId()]
-        editorConfig["EOL"]["Visibility"] = self.cbEolVisibility.isChecked()
-        editorConfig["EOL"]["AutoDetect"] = self.cbAutoDetectEol.isChecked()
-        editorConfig["EOL"]["AutoConvert"] = self.cbAutoEolConversion.isChecked()
-        editorConfig["WhitespaceVisibility"] = _WHITESPACE_MODE[bgWhitespaceVisibility.checkedId()]
-        editorConfig["Wrap"]["Mode"] = _WRAP_MODE[bgWrapMode.checkedId()]
-        editorConfig["Wrap"]["StartVisualFlag"] = _WRAP_FLAG[bgStartWrapVisualFlag.checkedId()]
-        editorConfig["Wrap"]["EndVisualFlag"] = _WRAP_FLAG[bgEndWrapVisualFlag.checkedId()]
-        editorConfig["Wrap"]["LineIndentWidth"] = sWrappedLineIndentWidth.value()
+        "Editor/EOL/Mode"] = _EOL_MODE[self.bgEolMode.checkedId()]
+        "Editor/EOL/Visibility"] = self.cbEolVisibility.isChecked()
+        "Editor/EOL/AutoDetect"] = self.cbAutoDetectEol.isChecked()
+        "Editor/EOL/AutoConvert"] = self.cbAutoEolConversion.isChecked()
+        "Editor/WhitespaceVisibility"] = _WHITESPACE_MODE[bgWhitespaceVisibility.checkedId()]
+        "Editor/Wrap/Mode"] = _WRAP_MODE[bgWrapMode.checkedId()]
+        "Editor/Wrap/StartVisualFlag"] = _WRAP_FLAG[bgStartWrapVisualFlag.checkedId()]
+        "Editor/Wrap/EndVisualFlag"] = _WRAP_FLAG[bgEndWrapVisualFlag.checkedId()]
+        "Editor/Wrap/LineIndentWidth"] = sWrappedLineIndentWidth.value()
         # Source APIs
         
         sp = "SourceAPIs/"
@@ -492,7 +513,7 @@ class UISettings(QDialog):
 
 
         for type in suffixes.keys():
-            MonkeyCore.fileManager().setCommand( type, suffixes[ type ] )
+            MonkeyCore.fileManager().setCommand( type, suffixes[ type )
 
 
         MonkeyCore.fileManager().generateScript()
@@ -529,13 +550,13 @@ class UISettings(QDialog):
         s.sync()
         
     def on_pbDefaultDocumentFont_clicked(self):
-        font = lDefaultDocumentFont.font()
+        font = self.lDefaultDocumentFont.font()
         
         font, ok = QFontDialog.getFont( font, self, self.tr( "Choose the default document font" ), QFontDialog.DontUseNativeDialog )
         
         if ok:
-            lDefaultDocumentFont.setFont( font )
-            lDefaultDocumentFont.setToolTip( font.toString() )
+            self.lDefaultDocumentFont.setFont( font )
+            self.lDefaultDocumentFont.setToolTip( font.toString() )
 
     def on_gbAutoCompletionEnabled_clicked(self, checked ):
         if  checked and self.bgAutoCompletionSource.checkedId() == -1 :
@@ -570,7 +591,7 @@ class UISettings(QDialog):
 
     def on_pbSourceAPIsAdd_clicked(self):
         # get files
-        files = leSourceAPIs.text().split(";")
+        files = leSourceAPIs.text().split("")
         # add them recursively
         for fn in files:
             if  lwSourceAPIs.findItems( fn, Qt.MatchFixedString ).count() == 0 :
@@ -818,7 +839,7 @@ class UISettings(QDialog):
 
     def on_pbLexersApplyDefaultFont_clicked(self):
         settings = MonkeyCore.settings()
-        font = lDefaultDocumentFont.font()
+        font = self.lDefaultDocumentFont.font()
         language = self.cbLexersHighlightingLanguages.currentText()
         
         settings.setDefaultLexerProperties( font, False )
