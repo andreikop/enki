@@ -158,11 +158,12 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         
         # make backup if needed
         if  myConfig["CreateBackupUponOpen"]:
-            try:
-                shutil.copy(self.filePath(), self.filePath() + '.bak')
-            except (IOError, OSError), ex:
-                self.deleteLater()
-                raise ex
+            if self.filePath():
+                try:
+                    shutil.copy(self.filePath(), self.filePath() + '.bak')
+                except (IOError, OSError), ex:
+                    self.deleteLater()
+                    raise ex
         
         #autodetect indent, need
         if  myConfig["Indentation"]["AutoDetect"]:

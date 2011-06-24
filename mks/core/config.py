@@ -105,6 +105,24 @@ class Config(ConfigObj):
         super(Config, self).reload()
         self._validate()
 
+    def get(self, name):
+        """Get option by slash-separated path
+        """
+        object = self
+        path = name.split('/')
+        while len(path):
+            object = object[path.pop(0)]
+        return object
+    
+    def set(self, name, value):
+        """Set option by slash-separated path
+        """
+        object = self
+        path = name.split('/')
+        while len(path) > 1:
+            object = object[path.pop(0)]
+        object[path.pop(0)] = value
+
     def flush(self):
         """Flush config to the disk
         Does nothing, if default config opened (failed to create config in users home directory)

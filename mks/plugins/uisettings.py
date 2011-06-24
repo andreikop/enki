@@ -1,6 +1,6 @@
 import os.path
 from PyQt4 import uic
-from PyQt4.QtCore import Qt, QVariant
+from PyQt4.QtCore import QObject, Qt, QVariant
 from PyQt4.QtGui import QButtonGroup, \
                         QCheckBox, \
                         QColor, \
@@ -39,35 +39,59 @@ class Plugin:
         UISettings(core.mainWindow()).exec_()
 
 
-class Option(self, optionName, control):
-    def __init__(self, option, control):
+class Option:
+    def __init__(self, optionName, control):
         self.optionName = optionName
-        self.control = control
+        self.control = 'dialog.' + control
 
 class CheckBoxOption(Option):
-    def load(self):
-    def _selectId(buttonGroup, id):
-        buttons = buttonGroup.buttons()
-        for button in buttons:
-            if buttonGroup.id(button) == id:
-                button.setChecked(True)
-                break
-        else:
-            assert 0
-
+    def load(self, dialog):
+        eval(self.control).setChecked(core.config().get(self.optionName))
+    
+    def save(self, dialog):
+        core.config().set(self.optionName, eval(self.control).isChecked())
 
 class NumericOption(Option):
-    pass
+    def load(self, dialog):
+        eval(self.control).setValue(core.config().get(self.optionName))
+    
+    def save(self, dialog):
+        core.config().set(self.optionName, eval(self.control).value())
 
 class ColorOption(Option):
-    pass
+    def load(self, dialog):
+        eval(self.control).setColor(QColor(core.config().get(self.optionName)))
+    
+    def save(self, dialog):
+        core.config().set(self.optionName, eval(self.control).color().name())
 
 class FontOption(Option):
     def __init__(self, familyOptionName, sizeOptionName, editControl, buttonControl):
         self.familyOptionName = familyOptionName
         self.sizeOptionName = sizeOptionName
-        self.editControl = editControl
-        self.buttonControl = buttonControl
+        self.editControl = 'dialog.' + editControl
+        self.buttonControl = 'dialog.' + buttonControl
+    
+    def load(self, dialog):
+        font = QFont(core.config().get(self.familyOptionName), core.config().get(self.sizeOptionName))
+        eval(self.editControl).setFont( font )
+        eval(self.editControl).setToolTip( font.toString() )
+        eval(self.buttonControl).clicked.connect(self.onClicked)
+        self.dialog = dialog
+    
+    def save(self, dialog):
+        font = eval(self.editControl).font()
+        core.config().set(self.familyOptionName, font.family())
+        core.config().set(self.sizeOptionName, font.pointSize())
+        print self.familyOptionName, font.family()
+        print self.sizeOptionName, font.pointSize()
+    
+    def onClicked(self):
+        dialog = self.dialog
+        f, b = QFontDialog.getFont(eval(self.editControl).font(), core.mainWindow() )
+        if  b:
+            eval(self.editControl).setFont( f )
+
 
 class ChoiseOption(Option):
     """Radio button group, QComboBox
@@ -75,6 +99,17 @@ class ChoiseOption(Option):
     def __init__(self, optionName, control, textValuesList):
         Option.__init__(self, optionName, control)
         self.textValuesList = textValuesList
+    
+    def load(self, dialog):
+        control = eval(self.control)
+        value = core.config().get(self.optionName)
+        buttonIndex = self.textValuesList.index(value)
+        control.buttons()[buttonIndex].setChecked(True)
+        for i in range(len(self.textValuesList)):
+            control.setId(control.buttons()[i], i)
+    
+    def save(self, dialog):
+        core.config().set(self.optionName, self.textValuesList[eval(self.control).checkedId()])
 
 class UISettings(QDialog):
     """Settings dialog
@@ -89,7 +124,6 @@ class UISettings(QDialog):
     _WRAP_MODE = Editor._WRAP_MODE_TO_QSCI.keys()
     _WRAP_FLAG = Editor._WRAP_FLAG_TO_QSCI.keys()
     _SORT_MODE = ["OpeningOrder", "FileName", "URL", "Suffixes"]
-
     
     def __init__(self, parent):
         QDialog.__init__(self, parent)
@@ -126,7 +160,21 @@ class UISettings(QDialog):
         for topLevelItem in topLevelItems:
             topLevelItem.setExpanded(True)
 
+        self.createOptions()
         self.loadSettings()
+
+    def createOptions(self):
+        self._opions = \
+        (   ChoiseOption("Workspace/FileSortMode", "bgSort", self._SORT_MODE),
+            CheckBoxOption("Editor/Indentation/ConvertUponOpen", "cbConvertIndentationUponOpen"),
+            CheckBoxOption("Editor/CreateBackupUponOpen", "cbCreateBackupUponOpen"),
+            ColorOption("Editor/SelectionBackgroundColor", "tbSelectionBackground"),
+            ColorOption("Editor/SelectionForegroundColor", "tbSelectionForeground"),
+            CheckBoxOption("Editor/DefaultDocumentColours", "gbDefaultDocumentColours"),
+            ColorOption("Editor/DefaultDocumentPen", "tbDefaultDocumentPen"),
+            ColorOption("Editor/DefaultDocumentPaper", "tbDefaultDocumentPaper"),
+            FontOption("Editor/DefaultFont", "Editor/DefaultFontSize", "lDefaultDocumentFont", "pbDefaultDocumentFont")
+        )
 
     def reject(self):
         """ TODO
@@ -146,31 +194,14 @@ class UISettings(QDialog):
         QDialog.accept(self)
 
     def loadSettings(self):
-        config = core.config()
-        # General
-        ChoiseOption("Workspace/FileSortMod", self.bgSort, self._SORT_MODE)
-        
-        # Editor general
-        CheckBoxOption("Editor/Indentation/ConvertUponOpen", "self.cbConvertIndentationUponOpen")
-        CheckBoxOption("Editor/CreateBackupUponOpen", "self.cbCreateBackupUponOpen")
-        ColorOption("Editor/SelectionBackgroundColor", "self.tbSelectionBackground")
-        ColorOption("Editor/SelectionForegroundColor", "self.tbSelectionForeground")
-        CheckBoxOption("Editor/DefaultDocumentColours", "self.gbDefaultDocumentColour")
-        ColorOption("Editor/DefaultDocumentPen", "self.tbDefaultDocumentPen")
-        ColorOption("Editor/DefaultDocumentPaper", "self.tbDefaultDocumentPaper")
-        FontOption("Editor/DefaultFont", "Editor/DefaultFontSize", "self.lDefaultDocumentFont", "self.pbDefaultDocumentFon")
-
+        for option in self._opions:
+            option.load(self)
 
     def saveSettings(self):
-        config = core.config()
-        # General
-        config["Workspace/FileSortMode"] = self._SORT_MODE[self.bgSort.checkedId()]
-        #Editor general
-        editorConfig = config["Editor"]
-        "Editor/Indentation/ConvertUponOpen"] = self.cbConvertIndentationUponOpen.isChecked()
-        "Editor/CreateBackupUponOpen"] = self.cbCreateBackupUponOpen.isChecked()
+        for option in self._opions:
+            option.save(self)
         
-        config.flush()
+        core.config().flush()
 
     def on_twMenu_itemSelectionChanged(self):
         # get item
@@ -314,9 +345,9 @@ class UISettings(QDialog):
         self.cbDefaultCodec.setCurrentIndex( self.cbDefaultCodec.findText( defaultCodec() ) )
         
         #  Auto Completion
-        CheckBoxOption("Editor/AutoCompletion/CaseSensitivity", "self.cbAutoCompletionCaseSensitivity")
-        CheckBoxOption("Editor/AutoCompletion/ReplaceWord", "self.cbAutoCompletionReplaceWord")
-        CheckBoxOption("Editor/AutoCompletion/ShowSingle", "self.cbAutoCompletionShowSingle")
+        CheckBoxOption("Editor/AutoCompletion/CaseSensitivity", "cbAutoCompletionCaseSensitivity")
+        CheckBoxOption("Editor/AutoCompletion/ReplaceWord", "cbAutoCompletionReplaceWord")
+        CheckBoxOption("Editor/AutoCompletion/ShowSingle", "cbAutoCompletionShowSingle")
         NumericOption("Editor/AutoCompletion/Threshold", "sAutoCompletionThreshold")
         self.bgAutoCompletionSource.button( _AUTOCOMPLETION_SOURCE["Editor/AutoCompletion/Source"]).setChecked( True )
         
@@ -324,36 +355,36 @@ class UISettings(QDialog):
         self.gbCalltipsEnabled.setChecked( "Editor/CallTips/Style"] != "None" )
         NumericOption("Editor/CallTips/Visible", "sCallTipsVisible")
         self.bgCallTipsStyle.button( "Editor/CallTips/Styl").setChecked( True )
-        ColorOption("Editor/CallTips/BackgroundColor", "self.tbCalltipsBackground")
-        ColorOption("Editor/CallTips/ForegroundColor", "self.tbCalltipsForeground")
-        ColorOption("Editor/CallTips/HighlightColor", "self.tbCalltipsHighlight")
+        ColorOption("Editor/CallTips/BackgroundColor", "tbCalltipsBackground")
+        ColorOption("Editor/CallTips/ForegroundColor", "tbCalltipsForeground")
+        ColorOption("Editor/CallTips/HighlightColor", "tbCalltipsHighlight")
         #  Indentation
-        CheckBoxOption("Editor/Indentation/AutoIndent", "self.cbAutoIndent")
-        CheckBoxOption("Editor/Indentation/BackspaceUnindents", "self.cbBackspaceUnindents")
-        CheckBoxOption("Editor/Indentation/Guides", "self.cbIndentationGuides")
-        CheckBoxOption("Editor/Indentation/UseTabs", "self.cbIndentationUseTabs")
-        CheckBoxOption("Editor/Indentation/AutoDetect", "self.cbAutodetectIndent")
-        CheckBoxOption("Editor/Indentation/TabIndents", "self.cbTabIndents")
+        CheckBoxOption("Editor/Indentation/AutoIndent", "cbAutoIndent")
+        CheckBoxOption("Editor/Indentation/BackspaceUnindents", "cbBackspaceUnindents")
+        CheckBoxOption("Editor/Indentation/Guides", "cbIndentationGuides")
+        CheckBoxOption("Editor/Indentation/UseTabs", "cbIndentationUseTabs")
+        CheckBoxOption("Editor/Indentation/AutoDetect", "cbAutodetectIndent")
+        CheckBoxOption("Editor/Indentation/TabIndents", "cbTabIndents")
         NumericOption("Editor/Indentation/TabWidth", "sIndentationTabWidth")
         NumericOption("Editor/Indentation/Width", "sIndentationWidth")
-        ColorOption("Editor/Indentation/GuidesBackgroundColor", "self.tbIndentationGuidesBackground")
-        ColorOption("Editor/Indentation/GuidesForegroundColor", "self.tbIndentationGuidesForeground")
+        ColorOption("Editor/Indentation/GuidesBackgroundColor", "tbIndentationGuidesBackground")
+        ColorOption("Editor/Indentation/GuidesForegroundColor", "tbIndentationGuidesForeground")
         #  Brace Matching
         self.gbBraceMatchingEnabled.setChecked( "Editor/BraceMatching/Mode"] != 'None' )
         self.bgBraceMatch.button( "Editor/BraceMatching/Mod").setChecked( True )
-        ColorOption("Editor/BraceMatching/MatchedForegroundColor", "self.tbMatchedBraceForeground")
-        ColorOption("Editor/BraceMatching/MatchedBackgroundColor", "self.tbMatchedBraceBackground")
-        ColorOption("Editor/BraceMatching/UnmatchedBackgroundColor", "self.tbUnmatchedBraceBackground")
-        ColorOption("Editor/BraceMatching/UnmatchedForegroundColor", "self.tbUnmatchedBraceForeground")
+        ColorOption("Editor/BraceMatching/MatchedForegroundColor", "tbMatchedBraceForeground")
+        ColorOption("Editor/BraceMatching/MatchedBackgroundColor", "tbMatchedBraceBackground")
+        ColorOption("Editor/BraceMatching/UnmatchedBackgroundColor", "tbUnmatchedBraceBackground")
+        ColorOption("Editor/BraceMatching/UnmatchedForegroundColor", "tbUnmatchedBraceForeground")
         #  Edge Mode
         self.gbEdgeModeEnabled.setChecked( "Editor/Edge/Mode"] != 'None' )
         self.bgEdgeMode.button( "Editor/Edge/Mod").setChecked( True )
         NumericOption("Editor/Edge/Column", "sEdgeColumnNumber")
-        ColorOption("Editor/Edge/Color", "self.tbEdgeColor")
+        ColorOption("Editor/Edge/Color", "tbEdgeColor")
         #  Caret
-        CheckBoxOption("Editor/Caret/LineVisible", "self.gbCaretLineVisible")
-        ColorOption("Editor/Caret/LineBackgroundColor", "self.tbCaretLineBackground")
-        ColorOption("Editor/Caret/ForegroundColor", "self.tbCaretForeground") )
+        CheckBoxOption("Editor/Caret/LineVisible", "gbCaretLineVisible")
+        ColorOption("Editor/Caret/LineBackgroundColor", "tbCaretLineBackground")
+        ColorOption("Editor/Caret/ForegroundColor", "tbCaretForeground") )
         NumericOption("Editor/Caret/Width", "sCaretWidth")
         #  Margins
         
@@ -373,9 +404,9 @@ class UISettings(QDialog):
         
         #  Special Characters
         self.bgEolMode.button( "Editor/EOL/Mod").setChecked( True )
-        CheckBoxOption("Editor/EOL/Visibility", "self.cbEolVisibility")
-        CheckBoxOption("Editor/EOL/AutoDetect", "self.cbAutoDetectEol")
-        CheckBoxOption("Editor/EOL/AutoConvert", "self.cbAutoEolConversion")
+        CheckBoxOption("Editor/EOL/Visibility", "cbEolVisibility")
+        CheckBoxOption("Editor/EOL/AutoDetect", "cbAutoDetectEol")
+        CheckBoxOption("Editor/EOL/AutoConvert", "cbAutoEolConversion")
         self.gbWhitespaceVisibilityEnabled.setChecked( "Editor/WhitespaceVisibility"] != "Invisibl")
         self.bgWhitespaceVisibility.button( "Editor/WhitespaceVisibilit").setChecked( True )
         self.gbWrapModeEnabled.setChecked( "Editor/Wrap/Mode"] != 'None' )
