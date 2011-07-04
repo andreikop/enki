@@ -40,76 +40,87 @@ class Plugin:
 
 
 class Option:
-    def __init__(self, optionName, control):
+    def __init__(self, optionName, controlName):
         self.optionName = optionName
-        self.control = 'dialog.' + control
+        self.controlName = controlName
+    
+    def setDialog(self, dialog):
+        self.dialog = dialog
+    
+    def control(self):
+        return self.dialog.__getattribute__(self.controlName)
 
 class CheckBoxOption(Option):
-    def load(self, dialog):
-        eval(self.control).setChecked(core.config().get(self.optionName))
+    def load(self):
+        self.control().setChecked(core.config().get(self.optionName))
     
-    def save(self, dialog):
-        core.config().set(self.optionName, eval(self.control).isChecked())
+    def save(self):
+        core.config().set(self.optionName, self.control().isChecked())
 
 class NumericOption(Option):
-    def load(self, dialog):
-        eval(self.control).setValue(core.config().get(self.optionName))
+    def load(self):
+        self.control().setValue(core.config().get(self.optionName))
     
-    def save(self, dialog):
-        core.config().set(self.optionName, eval(self.control).value())
+    def save(self):
+        core.config().set(self.optionName, self.control().value())
 
 class ColorOption(Option):
-    def load(self, dialog):
-        eval(self.control).setColor(QColor(core.config().get(self.optionName)))
+    def load(self):
+        self.control().setColor(QColor(core.config().get(self.optionName)))
     
-    def save(self, dialog):
-        core.config().set(self.optionName, eval(self.control).color().name())
+    def save(self):
+        core.config().set(self.optionName, self.control().color().name())
 
 class FontOption(Option):
     def __init__(self, familyOptionName, sizeOptionName, editControl, buttonControl):
         self.familyOptionName = familyOptionName
         self.sizeOptionName = sizeOptionName
-        self.editControl = 'dialog.' + editControl
-        self.buttonControl = 'dialog.' + buttonControl
+        self.editControlName = editControl
+        self.buttonControlName = buttonControl
     
-    def load(self, dialog):
+    def editControl(self):
+        return self.dialog.__getattribute__(self.editControlName)
+    
+    def buttonControl(self):
+        return self.dialog.__getattribute__(self.buttonControlName)
+    
+    def load(self):
         font = QFont(core.config().get(self.familyOptionName), core.config().get(self.sizeOptionName))
-        eval(self.editControl).setFont( font )
-        eval(self.editControl).setToolTip( font.toString() )
-        eval(self.buttonControl).clicked.connect(self.onClicked)
-        self.dialog = dialog
+        self.editControl().setFont( font )
+        self.editControl().setToolTip( font.toString() )
+        self.buttonControl().clicked.connect(self.onClicked)
     
-    def save(self, dialog):
-        font = eval(self.editControl).font()
+    def save(self):
+        font = self.editControl().font()
         core.config().set(self.familyOptionName, font.family())
         core.config().set(self.sizeOptionName, font.pointSize())
-        print self.familyOptionName, font.family()
-        print self.sizeOptionName, font.pointSize()
     
     def onClicked(self):
-        dialog = self.dialog
-        f, b = QFontDialog.getFont(eval(self.editControl).font(), core.mainWindow() )
+        f, b = QFontDialog.getFont(self.editControl().font(), core.mainWindow() )
         if  b:
-            eval(self.editControl).setFont( f )
+            self.editControl().setFont( f )
 
 
 class ChoiseOption(Option):
     """Radio button group, QComboBox
     """
-    def __init__(self, optionName, control, textValuesList):
-        Option.__init__(self, optionName, control)
+    def __init__(self, optionName, controlsList, textValuesList):
+        Option.__init__(self, optionName, None)
+        self.controlNameList = controlsList
         self.textValuesList = textValuesList
     
-    def load(self, dialog):
-        control = eval(self.control)
+    def control(self, index):
+        return self.dialog.__getattribute__(self.controlNameList[index])
+    
+    def load(self):
         value = core.config().get(self.optionName)
         buttonIndex = self.textValuesList.index(value)
-        control.buttons()[buttonIndex].setChecked(True)
-        for i in range(len(self.textValuesList)):
-            control.setId(control.buttons()[i], i)
+        self.control(buttonIndex).setChecked(True)
     
-    def save(self, dialog):
-        core.config().set(self.optionName, self.textValuesList[eval(self.control).checkedId()])
+    def save(self):
+        for index in range(len(self.controlNameList)):
+            if self.control(index).isChecked():
+                core.config().set(self.optionName, self.textValuesList[index])
 
 class UISettings(QDialog):
     """Settings dialog
@@ -132,14 +143,6 @@ class UISettings(QDialog):
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/UISettings.ui'), self)
         
         self.setAttribute( Qt.WA_DeleteOnClose )
-
-        # sorting mode
-        self.bgSort = QButtonGroup(self.gbWorkspace)
-        for index, mode in enumerate(self._SORT_MODE):
-            button = QRadioButton(tr(mode))
-            self._createdObjects.append(button)
-            self.bgSort.addButton(button, index)
-            self.gbWorkspace.layout().addWidget(button)
         
         # Generate list of all tree items. Used for switch pages
         def allItems(twItem):
@@ -165,7 +168,7 @@ class UISettings(QDialog):
 
     def createOptions(self):
         self._opions = \
-        (   ChoiseOption("Workspace/FileSortMode", "bgSort", self._SORT_MODE),
+        (   ChoiseOption("Workspace/FileSortMode", ("rbOpeningOrder", "rbFileName", "rbUri", "rbSuffix"), self._SORT_MODE),
             CheckBoxOption("Editor/Indentation/ConvertUponOpen", "cbConvertIndentationUponOpen"),
             CheckBoxOption("Editor/CreateBackupUponOpen", "cbCreateBackupUponOpen"),
             ColorOption("Editor/SelectionBackgroundColor", "tbSelectionBackground"),
@@ -175,6 +178,9 @@ class UISettings(QDialog):
             ColorOption("Editor/DefaultDocumentPaper", "tbDefaultDocumentPaper"),
             FontOption("Editor/DefaultFont", "Editor/DefaultFontSize", "lDefaultDocumentFont", "pbDefaultDocumentFont")
         )
+        
+        for option in self._opions:
+            option.setDialog(self)
 
     def reject(self):
         """ TODO
@@ -195,11 +201,11 @@ class UISettings(QDialog):
 
     def loadSettings(self):
         for option in self._opions:
-            option.load(self)
+            option.load()
 
     def saveSettings(self):
         for option in self._opions:
-            option.save(self)
+            option.save()
         
         core.config().flush()
 
