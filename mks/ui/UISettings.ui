@@ -230,10 +230,38 @@
           <property name="spacing">
            <number>3</number>
           </property>
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="rbOpeningOrder">
+            <property name="text">
+             <string>Opening order</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="rbFileName">
+            <property name="text">
+             <string>File name</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QRadioButton" name="rbUri">
+            <property name="text">
+             <string>URI</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QRadioButton" name="rbSuffix">
+            <property name="text">
+             <string>Suffix</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
-       <item row="1" column="0">
+       <item row="2" column="0">
         <widget class="QGroupBox" name="gbSession">
          <property name="enabled">
           <bool>false</bool>
