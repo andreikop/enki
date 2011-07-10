@@ -99,8 +99,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
                            "Visible"             : QsciScintilla.WsVisible,
                            "VisibleAfterIndent"  : QsciScintilla.WsVisibleAfterIndent}
         
-    _AUTOCOMPLETION_MODE_TO_QSCI = {"None"      : QsciScintilla.AcsNone,
-                                    "APIs"      : QsciScintilla.AcsAPIs,
+    _AUTOCOMPLETION_MODE_TO_QSCI = {"APIs"      : QsciScintilla.AcsAPIs,
                                     "Document"  : QsciScintilla.AcsDocument,
                                     "All"       : QsciScintilla.AcsAll}
     
@@ -108,8 +107,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
                                "Strict"    : QsciScintilla.StrictBraceMatch,
                                "Sloppy"    : QsciScintilla.SloppyBraceMatch}
     
-    _CALL_TIPS_STYLE_TO_QSCI = {"None"                     : QsciScintilla.CallTipsNone,
-                                "NoContext"                : QsciScintilla.CallTipsNoContext,
+    _CALL_TIPS_STYLE_TO_QSCI = {"NoContext"                : QsciScintilla.CallTipsNoContext,
                                 "NoAutoCompletionContext"  : QsciScintilla.CallTipsNoAutoCompletionContext,
                                 "Context"                  : QsciScintilla.CallTipsContext}
     
@@ -220,17 +218,25 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
 
         self.qscintilla.setFont(QFont(myConfig["DefaultFont"], myConfig["DefaultFontSize"]))
         # Auto Completion
-        self.qscintilla.setAutoCompletionCaseSensitivity(myConfig["AutoCompletion"]["CaseSensitivity"])
-        self.qscintilla.setAutoCompletionReplaceWord(myConfig["AutoCompletion"]["ReplaceWord"])
-        self.qscintilla.setAutoCompletionShowSingle(myConfig["AutoCompletion"]["ShowSingle"])
-        self.qscintilla.setAutoCompletionSource(self._AUTOCOMPLETION_MODE_TO_QSCI[myConfig["AutoCompletion"]["Source"]])
-        self.qscintilla.setAutoCompletionThreshold(myConfig["AutoCompletion"]["Threshold"])
+        if myConfig["AutoCompletion"]["Enabled"]:
+            self.qscintilla.setAutoCompletionSource(self._AUTOCOMPLETION_MODE_TO_QSCI[myConfig["AutoCompletion"]["Source"]])
+            self.qscintilla.setAutoCompletionThreshold(myConfig["AutoCompletion"]["Threshold"])
+            self.qscintilla.setAutoCompletionCaseSensitivity(myConfig["AutoCompletion"]["CaseSensitivity"])
+            self.qscintilla.setAutoCompletionReplaceWord(myConfig["AutoCompletion"]["ReplaceWord"])
+            self.qscintilla.setAutoCompletionShowSingle(myConfig["AutoCompletion"]["ShowSingle"])
+        else:
+            self.qscintilla.setAutoCompletionSource(QsciScintilla.AcsNone)
+        
         # CallTips
-        self.qscintilla.setCallTipsVisible(myConfig["CallTips"]["Visible"])
-        self.qscintilla.setCallTipsBackgroundColor(QColor(myConfig["CallTips"]["BackgroundColor"]))
-        self.qscintilla.setCallTipsForegroundColor(QColor(myConfig["CallTips"]["ForegroundColor"]))
-        self.qscintilla.setCallTipsHighlightColor(QColor(myConfig["CallTips"]["HighlightColor"]))
-        self.qscintilla.setCallTipsStyle(self._CALL_TIPS_STYLE_TO_QSCI[myConfig["CallTips"]["Style"]])
+        if myConfig["CallTips"]["Enabled"]:
+            self.qscintilla.setCallTipsStyle(self._CALL_TIPS_STYLE_TO_QSCI[myConfig["CallTips"]["Style"]])
+            self.qscintilla.setCallTipsVisible(myConfig["CallTips"]["VisibleCount"])
+            self.qscintilla.setCallTipsBackgroundColor(QColor(myConfig["CallTips"]["BackgroundColor"]))
+            self.qscintilla.setCallTipsForegroundColor(QColor(myConfig["CallTips"]["ForegroundColor"]))
+            self.qscintilla.setCallTipsHighlightColor(QColor(myConfig["CallTips"]["HighlightColor"]))
+        else:
+            self.qscintilla.setCallTipsStyle(QsciScintilla.CallTipsNone)
+
         # Indentation
         self.qscintilla.setAutoIndent(myConfig["Indentation"]["AutoIndent"])
         self.qscintilla.setBackspaceUnindents(myConfig["Indentation"]["BackspaceUnindents"])

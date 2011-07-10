@@ -50,7 +50,7 @@ class Option:
     def control(self):
         return self.dialog.__getattribute__(self.controlName)
 
-class CheckBoxOption(Option):
+class CheckableOption(Option):
     def load(self):
         self.control().setChecked(core.config().get(self.optionName))
     
@@ -172,19 +172,32 @@ class UISettings(QDialog):
     def createOptions(self):
         self._opions = \
         (   ChoiseOption("Workspace/FileSortMode", ("rbOpeningOrder", "rbFileName", "rbUri", "rbSuffix"), self._SORT_MODE),
-            CheckBoxOption("Editor/Indentation/ConvertUponOpen", "cbConvertIndentationUponOpen"),
-            CheckBoxOption("Editor/CreateBackupUponOpen", "cbCreateBackupUponOpen"),
+            CheckableOption("Editor/Indentation/ConvertUponOpen", "cbConvertIndentationUponOpen"),
+            CheckableOption("Editor/CreateBackupUponOpen", "cbCreateBackupUponOpen"),
             ColorOption("Editor/SelectionBackgroundColor", "tbSelectionBackground"),
             ColorOption("Editor/SelectionForegroundColor", "tbSelectionForeground"),
-            CheckBoxOption("Editor/DefaultDocumentColours", "gbDefaultDocumentColours"),
+            CheckableOption("Editor/DefaultDocumentColours", "gbDefaultDocumentColours"),
             ColorOption("Editor/DefaultDocumentPen", "tbDefaultDocumentPen"),
             ColorOption("Editor/DefaultDocumentPaper", "tbDefaultDocumentPaper"),
             FontOption("Editor/DefaultFont", "Editor/DefaultFontSize", "lDefaultDocumentFont", "pbDefaultDocumentFont"),
-            ChoiseOption("Editor/AutoCompletion/Source", ("rbNone", "rbDocument", "rbApi", "rbFromBoth"), self._AUTOCOMPLETION_SOURCE),
-            CheckBoxOption("Editor/AutoCompletion/CaseSensitivity", "cbAutoCompletionCaseSensitivity"),
-            CheckBoxOption("Editor/AutoCompletion/ReplaceWord", "cbAutoCompletionReplaceWord"),
-            CheckBoxOption("Editor/AutoCompletion/ShowSingle", "cbAutoCompletionShowSingle"),
-            NumericOption("Editor/AutoCompletion/Threshold", "sAutoCompletionThreshold")
+            
+            CheckableOption("Editor/AutoCompletion/Enabled", "gbAutoCompletion"),
+            ChoiseOption("Editor/AutoCompletion/Source",
+                         ("rbDocument", "rbApi", "rbFromBoth"),
+                         self._AUTOCOMPLETION_SOURCE),
+            CheckableOption("Editor/AutoCompletion/CaseSensitivity", "cbAutoCompletionCaseSensitivity"),
+            CheckableOption("Editor/AutoCompletion/ReplaceWord", "cbAutoCompletionReplaceWord"),
+            CheckableOption("Editor/AutoCompletion/ShowSingle", "cbAutoCompletionShowSingle"),
+            NumericOption("Editor/AutoCompletion/Threshold", "sAutoCompletionThreshold"),
+            
+            CheckableOption("Editor/CallTips/Enabled", "gbCalltips"),
+            NumericOption("Editor/CallTips/VisibleCount", "sCallTipsVisible"),
+            ChoiseOption("Editor/CallTips/Style",
+                         ("rbCallTipsNoContext", "rbCallTipsContext", "rbCallTipsNoAutoCompletionContext"),
+                         self._CALL_TIPS_STYLE),
+            ColorOption("Editor/CallTips/BackgroundColor", "tbCalltipsBackground"),
+            ColorOption("Editor/CallTips/ForegroundColor", "tbCalltipsForeground"),
+            ColorOption("Editor/CallTips/HighlightColor", "tbCalltipsHighlight")
 
         )
         
@@ -248,12 +261,6 @@ class UISettings(QDialog):
         """
 
         """TODO
-
-        # calltips style
-        self.bgCallTipsStyle = QButtonGroup( self.gbCalltipsEnabled )
-        self.bgCallTipsStyle.addButton( self.rbCallTipsNoContext, QsciScintilla.CallTipsNoContext )
-        self.bgCallTipsStyle.addButton( self.rbCallTipsNoAutoCompletionContext, QsciScintilla.CallTipsNoAutoCompletionContext )
-        self.bgCallTipsStyle.addButton( self.rbCallTipsContext, QsciScintilla.CallTipsContext )
 
         # brace match
         self.bgBraceMatch = QButtonGroup( self.gbBraceMatchingEnabled )
@@ -353,20 +360,13 @@ class UISettings(QDialog):
         
         self.cbDefaultCodec.setCurrentIndex( self.cbDefaultCodec.findText( defaultCodec() ) )
         
-        #  Call Tips
-        self.gbCalltipsEnabled.setChecked( "Editor/CallTips/Style"] != "None" )
-        NumericOption("Editor/CallTips/Visible", "sCallTipsVisible")
-        self.bgCallTipsStyle.button( "Editor/CallTips/Styl").setChecked( True )
-        ColorOption("Editor/CallTips/BackgroundColor", "tbCalltipsBackground")
-        ColorOption("Editor/CallTips/ForegroundColor", "tbCalltipsForeground")
-        ColorOption("Editor/CallTips/HighlightColor", "tbCalltipsHighlight")
         #  Indentation
-        CheckBoxOption("Editor/Indentation/AutoIndent", "cbAutoIndent")
-        CheckBoxOption("Editor/Indentation/BackspaceUnindents", "cbBackspaceUnindents")
-        CheckBoxOption("Editor/Indentation/Guides", "cbIndentationGuides")
-        CheckBoxOption("Editor/Indentation/UseTabs", "cbIndentationUseTabs")
-        CheckBoxOption("Editor/Indentation/AutoDetect", "cbAutodetectIndent")
-        CheckBoxOption("Editor/Indentation/TabIndents", "cbTabIndents")
+        CheckableOption("Editor/Indentation/AutoIndent", "cbAutoIndent")
+        CheckableOption("Editor/Indentation/BackspaceUnindents", "cbBackspaceUnindents")
+        CheckableOption("Editor/Indentation/Guides", "cbIndentationGuides")
+        CheckableOption("Editor/Indentation/UseTabs", "cbIndentationUseTabs")
+        CheckableOption("Editor/Indentation/AutoDetect", "cbAutodetectIndent")
+        CheckableOption("Editor/Indentation/TabIndents", "cbTabIndents")
         NumericOption("Editor/Indentation/TabWidth", "sIndentationTabWidth")
         NumericOption("Editor/Indentation/Width", "sIndentationWidth")
         ColorOption("Editor/Indentation/GuidesBackgroundColor", "tbIndentationGuidesBackground")
@@ -384,7 +384,7 @@ class UISettings(QDialog):
         NumericOption("Editor/Edge/Column", "sEdgeColumnNumber")
         ColorOption("Editor/Edge/Color", "tbEdgeColor")
         #  Caret
-        CheckBoxOption("Editor/Caret/LineVisible", "gbCaretLineVisible")
+        CheckableOption("Editor/Caret/LineVisible", "gbCaretLineVisible")
         ColorOption("Editor/Caret/LineBackgroundColor", "tbCaretLineBackground")
         ColorOption("Editor/Caret/ForegroundColor", "tbCaretForeground") )
         NumericOption("Editor/Caret/Width", "sCaretWidth")
@@ -406,9 +406,9 @@ class UISettings(QDialog):
         
         #  Special Characters
         self.bgEolMode.button( "Editor/EOL/Mod").setChecked( True )
-        CheckBoxOption("Editor/EOL/Visibility", "cbEolVisibility")
-        CheckBoxOption("Editor/EOL/AutoDetect", "cbAutoDetectEol")
-        CheckBoxOption("Editor/EOL/AutoConvert", "cbAutoEolConversion")
+        CheckableOption("Editor/EOL/Visibility", "cbEolVisibility")
+        CheckableOption("Editor/EOL/AutoDetect", "cbAutoDetectEol")
+        CheckableOption("Editor/EOL/AutoConvert", "cbAutoEolConversion")
         self.gbWhitespaceVisibilityEnabled.setChecked( "Editor/WhitespaceVisibility"] != "Invisibl")
         self.bgWhitespaceVisibility.button( "Editor/WhitespaceVisibilit").setChecked( True )
         self.gbWrapModeEnabled.setChecked( "Editor/Wrap/Mode"] != 'None' )
@@ -460,19 +460,6 @@ class UISettings(QDialog):
         #  General
         # TODO setAutoSyntaxCheck( self.cbAutoSyntaxCheck.isChecked() )
         # TODO setDefaultCodec( self.cbDefaultCodec.currentText() )
-        "Editor/SelectionBackgroundColor"] = self.tbSelectionBackground.color().name()
-        "Editor/SelectionForegroundColor"] = self.tbSelectionForeground.color().name()
-        "Editor/DefaultDocumentColours"] = self.gbDefaultDocumentColours.isChecked()
-        "Editor/DefaultDocumentPen"] = self.tbDefaultDocumentPen.color().name()
-        "Editor/DefaultDocumentPaper"] = self.tbDefaultDocumentPaper.color().name()
-        "Editor/DefaultFont"] = self.lDefaultDocumentFont.font().family()
-        "Editor/DefaultFontSize"] = self.lDefaultDocumentFont.font().size()
-        #  Call Tips
-        "Editor/CallTips/Style"] = _CALL_TIPS_STYLE[bgCallTipsStyle.checkedId()]
-        "Editor/CallTips/Visible"] = sCallTipsVisible.value()
-        "Editor/CallTips/BackgroundColor"] = self.tbCalltipsBackground.color().name()
-        "Editor/CallTips/ForegroundColor"] = self.tbCalltipsForeground.color().name()
-        "Editor/CallTips/HighlightColor"] = self.tbCalltipsHighlight.color().name()
         #  Indentation
         "Editor/Indentation/AutoIndent"] = self.cbAutoIndent.isChecked()
         "Editor/Indentation/BackspaceUnindents"] = self.cbBackspaceUnindents.isChecked()
