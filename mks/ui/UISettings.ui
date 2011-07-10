@@ -218,7 +218,7 @@
    <item row="1" column="1">
     <widget class="QStackedWidget" name="swPages">
      <property name="currentIndex">
-      <number>2</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="pGeneral">
       <layout class="QGridLayout">
@@ -613,9 +613,12 @@
      <widget class="QWidget" name="pAutoCompletion">
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="QGroupBox" name="gbAutoCompletionSource">
+        <widget class="QGroupBox" name="gbAutoCompletion">
          <property name="title">
-          <string>Source</string>
+          <string>Autocompletion</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <property name="spacing">
@@ -624,13 +627,6 @@
           <property name="margin">
            <number>5</number>
           </property>
-          <item>
-           <widget class="QRadioButton" name="rbNone">
-            <property name="text">
-             <string>Autocompletion disabled</string>
-            </property>
-           </widget>
-          </item>
           <item>
            <widget class="QRadioButton" name="rbDocument">
             <property name="text">
@@ -652,12 +648,13 @@
             </property>
            </widget>
           </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QWidget" name="wAutoCompletionSettings" native="true">
-         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="Line" name="line">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
           <item>
            <widget class="QCheckBox" name="cbAutoCompletionCaseSensitivity">
             <property name="text">
@@ -732,10 +729,6 @@
            </layout>
           </item>
          </layout>
-         <zorder>cbAutoCompletionCaseSensitivity</zorder>
-         <zorder>cbAutoCompletionShowSingle</zorder>
-         <zorder>cbAutoCompletionReplaceWord</zorder>
-         <zorder></zorder>
         </widget>
        </item>
        <item>
@@ -762,7 +755,10 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QGroupBox" name="gbCalltipsEnabled">
+        <widget class="QGroupBox" name="gbCalltips">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="title">
           <string>Calltips Enabled</string>
          </property>
@@ -784,7 +780,7 @@
             <item>
              <widget class="QLabel" name="lCallTipsVisible">
               <property name="text">
-               <string>Visible Calltips :</string>
+               <string>Count of visible calltips</string>
               </property>
              </widget>
             </item>
@@ -844,21 +840,21 @@
               <item>
                <widget class="QRadioButton" name="rbCallTipsNoContext">
                 <property name="text">
-                 <string>No Context</string>
+                 <string>Without context</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QRadioButton" name="rbCallTipsContext">
                 <property name="text">
-                 <string>Context </string>
+                 <string>With context</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QRadioButton" name="rbCallTipsNoAutoCompletionContext">
                 <property name="text">
-                 <string>No Auto Completion Context</string>
+                 <string>If not in autocompletion</string>
                 </property>
                </widget>
               </item>
