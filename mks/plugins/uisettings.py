@@ -144,6 +144,7 @@ class UISettings(QDialog):
         
         self.setAttribute( Qt.WA_DeleteOnClose )
         
+        self.createOptions()
         self.loadSettings()
 
     def initTopLevelItems(self):
@@ -179,11 +180,12 @@ class UISettings(QDialog):
             ColorOption("Editor/DefaultDocumentPen", "tbDefaultDocumentPen"),
             ColorOption("Editor/DefaultDocumentPaper", "tbDefaultDocumentPaper"),
             FontOption("Editor/DefaultFont", "Editor/DefaultFontSize", "lDefaultDocumentFont", "pbDefaultDocumentFont"),
+            ChoiseOption("Editor/AutoCompletion/Source", ("rbNone", "rbDocument", "rbApi", "rbFromBoth"), self._AUTOCOMPLETION_SOURCE),
             CheckBoxOption("Editor/AutoCompletion/CaseSensitivity", "cbAutoCompletionCaseSensitivity"),
             CheckBoxOption("Editor/AutoCompletion/ReplaceWord", "cbAutoCompletionReplaceWord"),
             CheckBoxOption("Editor/AutoCompletion/ShowSingle", "cbAutoCompletionShowSingle"),
-            NumericOption("Editor/AutoCompletion/Threshold", "sAutoCompletionThreshold"),
-            ChoiseOption("Editor/AutoCompletion/Source", "bgAutoCompletionSource", self._AUTOCOMPLETION_SOURCE)
+            NumericOption("Editor/AutoCompletion/Threshold", "sAutoCompletionThreshold")
+
         )
         
         for option in self._opions:
