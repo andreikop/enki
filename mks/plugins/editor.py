@@ -100,9 +100,9 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
                            "VisibleAfterIndent"  : QsciScintilla.WsVisibleAfterIndent}
         
     _AUTOCOMPLETION_MODE_TO_QSCI = {"None"      : QsciScintilla.AcsNone,
-                                    "All"       : QsciScintilla.AcsAll,
+                                    "APIs"      : QsciScintilla.AcsAPIs,
                                     "Document"  : QsciScintilla.AcsDocument,
-                                    "APIs"      : QsciScintilla.AcsAPIs}
+                                    "All"       : QsciScintilla.AcsAll}
     
     _BRACE_MATCHING_TO_QSCI = {"None"      : QsciScintilla.NoBraceMatch,
                                "Strict"    : QsciScintilla.StrictBraceMatch,
@@ -145,7 +145,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         
         myConfig = core.config()["Editor"]
         
-        self._applySettings(myConfig)
+        self.applySettings()
         self._applyLexer(myConfig, filePath)
         
         if filePath:
@@ -207,7 +207,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         for key in range(ord('A'), ord('Z')):
             qsci.SendScintilla(qsci.SCI_ASSIGNCMDKEY, key + (qsci.SCMOD_CTRL << 16), qsci.SCI_NULL)
         
-    def _applySettings(self, myConfig):
+    def applySettings(self):
         """Apply own settings form the config
         """
         myConfig = core.config()["Editor"]

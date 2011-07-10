@@ -83,8 +83,6 @@ class FontOption(Option):
         font = eval(self.editControl).font()
         core.config().set(self.familyOptionName, font.family())
         core.config().set(self.sizeOptionName, font.pointSize())
-        print self.familyOptionName, font.family()
-        print self.sizeOptionName, font.pointSize()
     
     def onClicked(self):
         dialog = self.dialog
@@ -132,7 +130,11 @@ class UISettings(QDialog):
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/UISettings.ui'), self)
         
         self.setAttribute( Qt.WA_DeleteOnClose )
-
+        
+        self.initTopLevelItems()
+        
+        self.createOptions()
+        
         # sorting mode
         self.bgSort = QButtonGroup(self.gbWorkspace)
         for index, mode in enumerate(self._SORT_MODE):
@@ -140,8 +142,24 @@ class UISettings(QDialog):
             self._createdObjects.append(button)
             self.bgSort.addButton(button, index)
             self.gbWorkspace.layout().addWidget(button)
+
+        # autocompletion
+        self.bgAutoCompletionSource = QButtonGroup(self.gbAutoCompletionSource)
+        for index, mode in enumerate(self._AUTOCOMPLETION_SOURCE):
+            button = QRadioButton(tr(mode))
+            self._createdObjects.append(button)
+            self.bgAutoCompletionSource.addButton(button, index)
+            self.gbAutoCompletionSource.layout().addWidget(button)
+
+        def enableAutoCompletionSettings(noneChecked):
+            self.wAutoCompletionSettings.setEnabled(not noneChecked)
+        self.bgAutoCompletionSource.button(0).toggled.connect(enableAutoCompletionSettings)
         
-        # Generate list of all tree items. Used for switch pages
+        self.loadSettings()
+
+    def initTopLevelItems(self):
+        """Generate list of all tree items. Used for switch pages
+        """
         def allItems(twItem):
             """Item itself and all children (reqursive)
             """
@@ -160,8 +178,6 @@ class UISettings(QDialog):
         for topLevelItem in topLevelItems:
             topLevelItem.setExpanded(True)
 
-        self.createOptions()
-        self.loadSettings()
 
     def createOptions(self):
         self._opions = \
@@ -173,7 +189,12 @@ class UISettings(QDialog):
             CheckBoxOption("Editor/DefaultDocumentColours", "gbDefaultDocumentColours"),
             ColorOption("Editor/DefaultDocumentPen", "tbDefaultDocumentPen"),
             ColorOption("Editor/DefaultDocumentPaper", "tbDefaultDocumentPaper"),
-            FontOption("Editor/DefaultFont", "Editor/DefaultFontSize", "lDefaultDocumentFont", "pbDefaultDocumentFont")
+            FontOption("Editor/DefaultFont", "Editor/DefaultFontSize", "lDefaultDocumentFont", "pbDefaultDocumentFont"),
+            CheckBoxOption("Editor/AutoCompletion/CaseSensitivity", "cbAutoCompletionCaseSensitivity"),
+            CheckBoxOption("Editor/AutoCompletion/ReplaceWord", "cbAutoCompletionReplaceWord"),
+            CheckBoxOption("Editor/AutoCompletion/ShowSingle", "cbAutoCompletionShowSingle"),
+            NumericOption("Editor/AutoCompletion/Threshold", "sAutoCompletionThreshold"),
+            ChoiseOption("Editor/AutoCompletion/Source", "bgAutoCompletionSource", self._AUTOCOMPLETION_SOURCE)
         )
 
     def reject(self):
@@ -200,6 +221,8 @@ class UISettings(QDialog):
     def saveSettings(self):
         for option in self._opions:
             option.save(self)
+        for document in core.workspace().openedDocuments():
+            document.applySettings()
         
         core.config().flush()
 
@@ -209,7 +232,6 @@ class UISettings(QDialog):
         self.lInformations.setText( selectedItem.text( 0 ) )
         self.swPages.setCurrentIndex(self._allTwItems.index(selectedItem))
         
-
         """
 ----------------------------------------------------------- constructor
         
@@ -234,11 +256,6 @@ class UISettings(QDialog):
         """
 
         """TODO
-        # auto completion source
-        self.bgAutoCompletionSource = QButtonGroup( self.gbAutoCompletionSource )
-        self.bgAutoCompletionSource.addButton( self.rbAcsDocument, QsciScintilla.AcsDocument )
-        self.bgAutoCompletionSource.addButton( self.rbAcsAPIs, QsciScintilla.AcsAPIs )
-        self.bgAutoCompletionSource.addButton( self.rbAcsAll, QsciScintilla.AcsAll )
 
         # calltips style
         self.bgCallTipsStyle = QButtonGroup( self.gbCalltipsEnabled )
@@ -343,13 +360,6 @@ class UISettings(QDialog):
         #  General
         
         self.cbDefaultCodec.setCurrentIndex( self.cbDefaultCodec.findText( defaultCodec() ) )
-        
-        #  Auto Completion
-        CheckBoxOption("Editor/AutoCompletion/CaseSensitivity", "cbAutoCompletionCaseSensitivity")
-        CheckBoxOption("Editor/AutoCompletion/ReplaceWord", "cbAutoCompletionReplaceWord")
-        CheckBoxOption("Editor/AutoCompletion/ShowSingle", "cbAutoCompletionShowSingle")
-        NumericOption("Editor/AutoCompletion/Threshold", "sAutoCompletionThreshold")
-        self.bgAutoCompletionSource.button( _AUTOCOMPLETION_SOURCE["Editor/AutoCompletion/Source"]).setChecked( True )
         
         #  Call Tips
         self.gbCalltipsEnabled.setChecked( "Editor/CallTips/Style"] != "None" )
@@ -465,12 +475,6 @@ class UISettings(QDialog):
         "Editor/DefaultDocumentPaper"] = self.tbDefaultDocumentPaper.color().name()
         "Editor/DefaultFont"] = self.lDefaultDocumentFont.font().family()
         "Editor/DefaultFontSize"] = self.lDefaultDocumentFont.font().size()
-        #  Auto Completion
-        "Editor/AutoCompletion/Source"] = _AUTOCOMPLETION_SOURCE[bgAutoCompletionSource.checkedId()]
-        "Editor/AutoCompletion/CaseSensitivity"] = self.cbAutoCompletionCaseSensitivity.isChecked()
-        "Editor/AutoCompletion/ReplaceWord"] = self.cbAutoCompletionReplaceWord.isChecked()
-        "Editor/AutoCompletion/ShowSingle"] = self.cbAutoCompletionShowSingle.isChecked()
-        "Editor/AutoCompletion/Threshold"] = sAutoCompletionThreshold.value()
         #  Call Tips
         "Editor/CallTips/Style"] = _CALL_TIPS_STYLE[bgCallTipsStyle.checkedId()]
         "Editor/CallTips/Visible"] = sCallTipsVisible.value()
@@ -588,15 +592,6 @@ class UISettings(QDialog):
         if ok:
             self.lDefaultDocumentFont.setFont( font )
             self.lDefaultDocumentFont.setToolTip( font.toString() )
-
-    def on_gbAutoCompletionEnabled_clicked(self, checked ):
-        if  checked and self.bgAutoCompletionSource.checkedId() == -1 :
-            mode = autoCompletionSource()
-            
-            if  mode == QsciScintilla.AcsNone :
-                mode = QsciScintilla.AcsAll
-
-            self.bgAutoCompletionSource.button( mode ).setChecked( True )
 
     def on_tbFonts_clicked(self):
         toolButton = self.sender()
