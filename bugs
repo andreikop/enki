@@ -1,5 +1,17 @@
 FIXME
+помытка открыть поиск
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/mks/plugins/searchreplace.py", line 143, in _modeSwitchTriggered
+    self.widget.setMode(newMode)
+  File "/usr/local/lib/python2.7/dist-packages/mks/plugins/searchreplace.py", line 417, in setMode
+    searchPath = os.path.abspath(os.path.curdir)
+  File "/usr/lib/python2.7/posixpath.py", line 347, in abspath
+    cwd = os.getcwd()
+OSError: [Errno 2] файл ці тэчка ня йснуе
+
+
     Проверить, почему конвертим сгенеренные биндинги
+    Не работает кнопка Вверх в Search Results
 
 FIXME PasNox
 
