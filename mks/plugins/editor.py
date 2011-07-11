@@ -245,8 +245,9 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         self.qscintilla.setIndentationGuidesForegroundColor(QColor(myConfig["Indentation"]["GuidesForegroundColor"]))
         self.qscintilla.setIndentationsUseTabs(myConfig["Indentation"]["UseTabs"])
         self.qscintilla.setIndentationWidth(myConfig["Indentation"]["Width"])
+        self.qscintilla.setTabWidth(myConfig["Indentation"]["Width"])
         self.qscintilla.setTabIndents(myConfig["Indentation"]["TabIndents"])
-        self.qscintilla.setTabWidth(myConfig["Indentation"]["TabWidth"])
+
         # Brace Matching
         self.qscintilla.setBraceMatching(self._BRACE_MATCHING_TO_QSCI[myConfig["BraceMatching"]["Mode"]])
         self.qscintilla.setMatchedBraceBackgroundColor(QColor(myConfig["BraceMatching"]["MatchedBackgroundColor"]))

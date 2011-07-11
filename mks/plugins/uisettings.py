@@ -143,7 +143,7 @@ class UISettings(QDialog):
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/UISettings.ui'), self)
         
         self.setAttribute( Qt.WA_DeleteOnClose )
-        
+        self.initTopLevelItems()
         self.createOptions()
         self.loadSettings()
 
@@ -197,8 +197,18 @@ class UISettings(QDialog):
                          self._CALL_TIPS_STYLE),
             ColorOption("Editor/CallTips/BackgroundColor", "tbCalltipsBackground"),
             ColorOption("Editor/CallTips/ForegroundColor", "tbCalltipsForeground"),
-            ColorOption("Editor/CallTips/HighlightColor", "tbCalltipsHighlight")
-
+            ColorOption("Editor/CallTips/HighlightColor", "tbCalltipsHighlight"),
+            
+            CheckableOption("Editor/Indentation/AutoIndent", "cbAutoIndent"),
+            CheckableOption("Editor/Indentation/BackspaceUnindents", "cbBackspaceUnindents"),
+            CheckableOption("Editor/Indentation/Guides", "gbIndentationGuides"),
+            ChoiseOption("Editor/Indentation/UseTabs",
+                         ("rbIndentationSpaces", "rbIndentationTabs"),
+                         (False, True)),
+            CheckableOption("Editor/Indentation/AutoDetect", "cbAutodetectIndent"),
+            NumericOption("Editor/Indentation/Width", "sIndentationWidth"),
+            ColorOption("Editor/Indentation/GuidesBackgroundColor", "tbIndentationGuidesBackground"),
+            ColorOption("Editor/Indentation/GuidesForegroundColor", "tbIndentationGuidesForeground"),
         )
         
         for option in self._opions:
@@ -360,17 +370,6 @@ class UISettings(QDialog):
         
         self.cbDefaultCodec.setCurrentIndex( self.cbDefaultCodec.findText( defaultCodec() ) )
         
-        #  Indentation
-        CheckableOption("Editor/Indentation/AutoIndent", "cbAutoIndent")
-        CheckableOption("Editor/Indentation/BackspaceUnindents", "cbBackspaceUnindents")
-        CheckableOption("Editor/Indentation/Guides", "cbIndentationGuides")
-        CheckableOption("Editor/Indentation/UseTabs", "cbIndentationUseTabs")
-        CheckableOption("Editor/Indentation/AutoDetect", "cbAutodetectIndent")
-        CheckableOption("Editor/Indentation/TabIndents", "cbTabIndents")
-        NumericOption("Editor/Indentation/TabWidth", "sIndentationTabWidth")
-        NumericOption("Editor/Indentation/Width", "sIndentationWidth")
-        ColorOption("Editor/Indentation/GuidesBackgroundColor", "tbIndentationGuidesBackground")
-        ColorOption("Editor/Indentation/GuidesForegroundColor", "tbIndentationGuidesForeground")
         #  Brace Matching
         self.gbBraceMatchingEnabled.setChecked( "Editor/BraceMatching/Mode"] != 'None' )
         self.bgBraceMatch.button( "Editor/BraceMatching/Mod").setChecked( True )
@@ -460,17 +459,6 @@ class UISettings(QDialog):
         #  General
         # TODO setAutoSyntaxCheck( self.cbAutoSyntaxCheck.isChecked() )
         # TODO setDefaultCodec( self.cbDefaultCodec.currentText() )
-        #  Indentation
-        "Editor/Indentation/AutoIndent"] = self.cbAutoIndent.isChecked()
-        "Editor/Indentation/BackspaceUnindents"] = self.cbBackspaceUnindents.isChecked()
-        "Editor/Indentation/Guides"] = self.cbIndentationGuides.isChecked()
-        "Editor/Indentation/UseTabs"] = self.cbIndentationUseTabs.isChecked()
-        "Editor/Indentation/TabIndents"] = self.cbTabIndents.isChecked()
-        "Editor/Indentation/AutoDetect"] = self.cbAutodetectIndent.isChecked()
-        "Editor/Indentation/TabWidth"] = sIndentationTabWidth.value()
-        "Editor/Indentation/Width"] = sIndentationWidth.value()
-        "Editor/Indentation/GuidesBackgroundColor"] = self.tbIndentationGuidesBackground.color().name()
-        "Editor/Indentation/GuidesForegroundColor"] = self.tbIndentationGuidesForeground.color().name()
         #  Brace Matching
         "Editor/BraceMatching/Mode"] = _BRACE_MATCHING[bgBraceMatch.checkedId()]
         "Editor/BraceMatching/MatchedForegroundColor"] = self.tbMatchedBraceBackground.color().name()
