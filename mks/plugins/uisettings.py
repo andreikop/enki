@@ -209,6 +209,15 @@ class UISettings(QDialog):
             NumericOption("Editor/Indentation/Width", "sIndentationWidth"),
             ColorOption("Editor/Indentation/GuidesBackgroundColor", "tbIndentationGuidesBackground"),
             ColorOption("Editor/Indentation/GuidesForegroundColor", "tbIndentationGuidesForeground"),
+            
+            CheckableOption("Editor/BraceMatching/Enabled", "gbBraceMatchingEnabled"),
+            ChoiseOption("Editor/BraceMatching/Mode",
+                         ("rbStrictBraceMatch", "rbSloppyBraceMatch"),
+                         self._BRACE_MATCHING),
+            ColorOption("Editor/BraceMatching/MatchedForegroundColor", "tbMatchedBraceForeground"),
+            ColorOption("Editor/BraceMatching/MatchedBackgroundColor", "tbMatchedBraceBackground"),
+            ColorOption("Editor/BraceMatching/UnmatchedBackgroundColor", "tbUnmatchedBraceBackground"),
+            ColorOption("Editor/BraceMatching/UnmatchedForegroundColor", "tbUnmatchedBraceForeground"),
         )
         
         for option in self._opions:
@@ -272,10 +281,6 @@ class UISettings(QDialog):
 
         """TODO
 
-        # brace match
-        self.bgBraceMatch = QButtonGroup( self.gbBraceMatchingEnabled )
-        self.bgBraceMatch.addButton( self.rbStrictBraceMatch, QsciScintilla.StrictBraceMatch )
-        self.bgBraceMatch.addButton( self.rbSloppyBraceMatch, QsciScintilla.SloppyBraceMatch )
 
         # edge mode
         self.bgEdgeMode = QButtonGroup( self.gbEdgeModeEnabled )
@@ -369,14 +374,6 @@ class UISettings(QDialog):
         #  General
         
         self.cbDefaultCodec.setCurrentIndex( self.cbDefaultCodec.findText( defaultCodec() ) )
-        
-        #  Brace Matching
-        self.gbBraceMatchingEnabled.setChecked( "Editor/BraceMatching/Mode"] != 'None' )
-        self.bgBraceMatch.button( "Editor/BraceMatching/Mod").setChecked( True )
-        ColorOption("Editor/BraceMatching/MatchedForegroundColor", "tbMatchedBraceForeground")
-        ColorOption("Editor/BraceMatching/MatchedBackgroundColor", "tbMatchedBraceBackground")
-        ColorOption("Editor/BraceMatching/UnmatchedBackgroundColor", "tbUnmatchedBraceBackground")
-        ColorOption("Editor/BraceMatching/UnmatchedForegroundColor", "tbUnmatchedBraceForeground")
         #  Edge Mode
         self.gbEdgeModeEnabled.setChecked( "Editor/Edge/Mode"] != 'None' )
         self.bgEdgeMode.button( "Editor/Edge/Mod").setChecked( True )
@@ -459,12 +456,6 @@ class UISettings(QDialog):
         #  General
         # TODO setAutoSyntaxCheck( self.cbAutoSyntaxCheck.isChecked() )
         # TODO setDefaultCodec( self.cbDefaultCodec.currentText() )
-        #  Brace Matching
-        "Editor/BraceMatching/Mode"] = _BRACE_MATCHING[bgBraceMatch.checkedId()]
-        "Editor/BraceMatching/MatchedForegroundColor"] = self.tbMatchedBraceBackground.color().name()
-        "Editor/BraceMatching/MatchedBackgroundColor"] = self.tbMatchedBraceForeground.color().name()
-        "Editor/BraceMatching/UnmatchedBackgroundColor"] = self.tbUnmatchedBraceBackground.color().name()
-        "Editor/BraceMatching/UnmatchedForegroundColor"] = self.tbUnmatchedBraceForeground.color().name()
         #  Edge Mode
         "Editor/Edge/Mode"] = _EDGE_MODE[bgEdgeMode.checkedId()]
         "Editor/Edge/Column"] = sEdgeColumnNumber.value()
