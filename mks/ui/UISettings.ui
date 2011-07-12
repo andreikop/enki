@@ -218,7 +218,7 @@
    <item row="1" column="1">
     <widget class="QStackedWidget" name="swPages">
      <property name="currentIndex">
-      <number>4</number>
+      <number>5</number>
      </property>
      <widget class="QWidget" name="pGeneral">
       <layout class="QGridLayout">
@@ -1107,11 +1107,6 @@
            </widget>
           </item>
          </layout>
-         <zorder>lIndentationGuidesBackground</zorder>
-         <zorder>lIndentationGuidesBackground</zorder>
-         <zorder>tbIndentationGuidesBackground</zorder>
-         <zorder>lIndentationGuidesForeground</zorder>
-         <zorder>tbIndentationGuidesForeground</zorder>
         </widget>
        </item>
        <item>

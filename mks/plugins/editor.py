@@ -103,8 +103,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
                                     "Document"  : QsciScintilla.AcsDocument,
                                     "All"       : QsciScintilla.AcsAll}
     
-    _BRACE_MATCHING_TO_QSCI = {"None"      : QsciScintilla.NoBraceMatch,
-                               "Strict"    : QsciScintilla.StrictBraceMatch,
+    _BRACE_MATCHING_TO_QSCI = {"Strict"    : QsciScintilla.StrictBraceMatch,
                                "Sloppy"    : QsciScintilla.SloppyBraceMatch}
     
     _CALL_TIPS_STYLE_TO_QSCI = {"NoContext"                : QsciScintilla.CallTipsNoContext,
@@ -249,11 +248,15 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         self.qscintilla.setTabIndents(myConfig["Indentation"]["TabIndents"])
 
         # Brace Matching
-        self.qscintilla.setBraceMatching(self._BRACE_MATCHING_TO_QSCI[myConfig["BraceMatching"]["Mode"]])
-        self.qscintilla.setMatchedBraceBackgroundColor(QColor(myConfig["BraceMatching"]["MatchedBackgroundColor"]))
-        self.qscintilla.setMatchedBraceForegroundColor(QColor(myConfig["BraceMatching"]["MatchedForegroundColor"]))
-        self.qscintilla.setUnmatchedBraceBackgroundColor(QColor(myConfig["BraceMatching"]["UnmatchedBackgroundColor"]))
-        self.qscintilla.setUnmatchedBraceForegroundColor(QColor(myConfig["BraceMatching"]["UnmatchedForegroundColor"]))
+        if myConfig["BraceMatching"]["Enabled"]:
+            self.qscintilla.setBraceMatching(self._BRACE_MATCHING_TO_QSCI[myConfig["BraceMatching"]["Mode"]])
+            self.qscintilla.setMatchedBraceBackgroundColor(QColor(myConfig["BraceMatching"]["MatchedBackgroundColor"]))
+            self.qscintilla.setMatchedBraceForegroundColor(QColor(myConfig["BraceMatching"]["MatchedForegroundColor"]))
+            self.qscintilla.setUnmatchedBraceBackgroundColor(QColor(myConfig["BraceMatching"]["UnmatchedBackgroundColor"]))
+            self.qscintilla.setUnmatchedBraceForegroundColor(QColor(myConfig["BraceMatching"]["UnmatchedForegroundColor"]))
+        else:
+            self.qscintilla.setBraceMatching(QsciScintilla.NoBraceMatch)
+        
         # Edge Mode
         self.qscintilla.setEdgeMode(self._EDGE_MODE_TO_QSCI[myConfig["Edge"]["Mode"]])
         self.qscintilla.setEdgeColor(QColor(myConfig["Edge"]["Color"]))
