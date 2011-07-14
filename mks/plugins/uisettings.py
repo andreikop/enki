@@ -220,9 +220,7 @@ class UISettings(QDialog):
             ColorOption("Editor/BraceMatching/UnmatchedForegroundColor", "tbUnmatchedBraceForeground"),
             
             CheckableOption("Editor/Edge/Enabled", "gbEdgeModeEnabled"),
-            ChoiseOption("Editor/Edge/Mode",
-                         ("rbEdgeLine", "rbEdgeBackground"),
-                         self._EDGE_MODE),
+            ChoiseOption("Editor/Edge/Mode", ("rbEdgeLine", "rbEdgeBackground"), self._EDGE_MODE),
             NumericOption("Editor/Edge/Column", "sEdgeColumnNumber"),
             ColorOption("Editor/Edge/Color", "tbEdgeColor"),
 
@@ -230,6 +228,22 @@ class UISettings(QDialog):
             ColorOption("Editor/Caret/LineBackgroundColor", "tbCaretLineBackground"),
             ColorOption("Editor/Caret/ForegroundColor", "tbCaretForeground"),
             NumericOption("Editor/Caret/Width", "sCaretWidth"),
+
+            ChoiseOption("Editor/EOL/Mode", ("rbEolUnix", "rbEolWindows", "rbEolMac"), self._EOL_MODE),
+            CheckableOption("Editor/EOL/Visibility", "cbEolVisibility"),
+            CheckableOption("Editor/EOL/AutoDetect", "cbAutoDetectEol"),
+            CheckableOption("Editor/EOL/AutoConvert", "cbAutoEolConversion"),
+            ChoiseOption("Editor/WhitespaceVisibility", ("rbWsInvisible", "rbWsVisible", "rbWsVisibleAfterIndent"), self._WHITE_MODE),
+            
+            CheckableOption("Editor/Wrap/Enabled", "gbWrapModeEnabled"),
+            ChoiseOption("Editor/Wrap/Mode", ("rbWrapCharacter", "rbWrapWord"), self._WRAP_MODE),
+            ChoiseOption("Editor/Wrap/StartVisualFlag",
+                         ("rbStartWrapFlagNone", "rbStartWrapFlagByText", "rbStartWrapFlagByBorder"),
+                         self._WRAP_FLAG),
+            ChoiseOption("Editor/Wrap/EndVisualFlag",
+                         ("rbEndWrapFlagNone", "rbEndWrapFlagByText", "rbEndWrapFlagByBorder"),
+                         self._WRAP_FLAG),
+            NumericOption("Editor/Wrap/LineIndentWidth", "sWrappedLineIndentWidth"),
 
         )
         
@@ -294,30 +308,6 @@ class UISettings(QDialog):
 
         """TODO
 
-        # eol mode
-        self.bgEolMode = QButtonGroup( self.gbEolMode )
-        self.bgEolMode.addButton( self.rbEolUnix, QsciScintilla.EolUnix )
-        self.bgEolMode.addButton( self.rbEolMac, QsciScintilla.EolMac )
-        self.bgEolMode.addButton( self.rbEolWindows, QsciScintilla.EolWindows )
-
-        # whitespace visibility
-        self.bgWhitespaceVisibility = QButtonGroup( self.gbWhitespaceVisibilityEnabled )
-        self.bgWhitespaceVisibility.addButton( self.rbWsVisible, QsciScintilla.WsVisible )
-        self.bgWhitespaceVisibility.addButton( self.rbWsVisibleAfterIndent, QsciScintilla.WsVisibleAfterIndent )
-
-        # wrap mode
-        self.bgWrapMode = QButtonGroup( self.gbWrapModeEnabled )
-        self.bgWrapMode.addButton( self.rbWrapWord, QsciScintilla.WrapWord )
-        self.bgWrapMode.addButton( self.rbWrapCharacter, QsciScintilla.WrapCharacter )
-
-        # wrap visual flag
-        self.bgStartWrapVisualFlag = QButtonGroup( wStartWrapVisualFlags )
-        self.bgStartWrapVisualFlag.addButton( self.rbStartWrapFlagByText, QsciScintilla.WrapFlagByText )
-        self.bgStartWrapVisualFlag.addButton( self.rbStartWrapFlagByBorder, QsciScintilla.WrapFlagByBorder )
-        self.bgEndWrapVisualFlag = QButtonGroup( wEndWrapVisualFlags )
-        self.bgEndWrapVisualFlag.addButton( self.rbEndWrapFlagByText, QsciScintilla.WrapFlagByText )
-        self.bgEndWrapVisualFlag.addButton( self.rbEndWrapFlagByBorder, QsciScintilla.WrapFlagByBorder )
-
         # fill lexers combo
         self.cbSourceAPIsLanguages.addItems( availableLanguages() )
         self.cbLexersAssociationsLanguages.addItems( availableLanguages() )
@@ -371,20 +361,7 @@ class UISettings(QDialog):
         #  General
         
         self.cbDefaultCodec.setCurrentIndex( self.cbDefaultCodec.findText( defaultCodec() ) )
-        
-        #  Special Characters
-        self.bgEolMode.button( "Editor/EOL/Mod").setChecked( True )
-        CheckableOption("Editor/EOL/Visibility", "cbEolVisibility")
-        CheckableOption("Editor/EOL/AutoDetect", "cbAutoDetectEol")
-        CheckableOption("Editor/EOL/AutoConvert", "cbAutoEolConversion")
-        self.gbWhitespaceVisibilityEnabled.setChecked( "Editor/WhitespaceVisibility"] != "Invisibl")
-        self.bgWhitespaceVisibility.button( "Editor/WhitespaceVisibilit").setChecked( True )
-        self.gbWrapModeEnabled.setChecked( "Editor/Wrap/Mode"] != 'None' )
-        self.bgWrapMode.button( "Editor/Wrap/Mod").setChecked( True )
-        #self.bgStartWrapVisualFlag.button( "Editor/Wrap/StartVisualFla").setChecked( True )
-        #self.bgEndWrapVisualFlag.button( "Editor/Wrap/EndVisualFla").setChecked( True )
-        NumericOption("Editor/Wrap/LineIndentWidth", "sWrappedLineIndentWidth")
-        
+
         # Source APIs
         for ( i = 0; i < self.cbSourceAPIsLanguages.count(); i++ )
             self.cbSourceAPIsLanguages.setItemData( i, s.value( "SourceAPIs/" +cbSourceAPIsLanguages.itemText( i ) ).toStringList() )
@@ -430,16 +407,6 @@ class UISettings(QDialog):
         # TODO setDefaultCodec( self.cbDefaultCodec.currentText() )
         
         
-        #  Special Characters
-        "Editor/EOL/Mode"] = _EOL_MODE[self.bgEolMode.checkedId()]
-        "Editor/EOL/Visibility"] = self.cbEolVisibility.isChecked()
-        "Editor/EOL/AutoDetect"] = self.cbAutoDetectEol.isChecked()
-        "Editor/EOL/AutoConvert"] = self.cbAutoEolConversion.isChecked()
-        "Editor/WhitespaceVisibility"] = _WHITESPACE_MODE[bgWhitespaceVisibility.checkedId()]
-        "Editor/Wrap/Mode"] = _WRAP_MODE[bgWrapMode.checkedId()]
-        "Editor/Wrap/StartVisualFlag"] = _WRAP_FLAG[bgStartWrapVisualFlag.checkedId()]
-        "Editor/Wrap/EndVisualFlag"] = _WRAP_FLAG[bgEndWrapVisualFlag.checkedId()]
-        "Editor/Wrap/LineIndentWidth"] = sWrappedLineIndentWidth.value()
         # Source APIs
         
         sp = "SourceAPIs/"

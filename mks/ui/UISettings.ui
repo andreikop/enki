@@ -1579,10 +1579,10 @@
        <item>
         <widget class="QGroupBox" name="gbWhitespaceVisibilityEnabled">
          <property name="title">
-          <string>Whitespace Visibility Enabled</string>
+          <string>Whitespace visibility</string>
          </property>
          <property name="checkable">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <layout class="QHBoxLayout">
           <property name="spacing">
@@ -1592,16 +1592,23 @@
            <number>5</number>
           </property>
           <item>
+           <widget class="QRadioButton" name="rbWsInvisible">
+            <property name="text">
+             <string>Never</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QRadioButton" name="rbWsVisible">
             <property name="text">
-             <string>Visible</string>
+             <string>Always</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QRadioButton" name="rbWsVisibleAfterIndent">
             <property name="text">
-             <string>Visible After Indent</string>
+             <string>After indent</string>
             </property>
            </widget>
           </item>
@@ -1611,164 +1618,176 @@
        <item>
         <widget class="QGroupBox" name="gbWrapModeEnabled">
          <property name="title">
-          <string>Wrap Mode Enabled</string>
+          <string>Wrap long lines</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
          </property>
-         <layout class="QHBoxLayout">
-          <property name="spacing">
-           <number>3</number>
-          </property>
-          <property name="margin">
-           <number>5</number>
-          </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
-           <widget class="QRadioButton" name="rbWrapWord">
-            <property name="text">
-             <string>Wrap Word</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="rbWrapCharacter">
-            <property name="text">
-             <string>Wrap Character</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="gbWrapVisualFlagsEnabled">
-         <property name="title">
-          <string>Wrap Visual Flags Enabled</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <layout class="QGridLayout">
-          <property name="margin">
-           <number>5</number>
-          </property>
-          <property name="spacing">
-           <number>3</number>
-          </property>
-          <item row="2" column="0" colspan="3">
-           <layout class="QHBoxLayout">
-            <property name="spacing">
-             <number>3</number>
-            </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
             <item>
-             <widget class="QLabel" name="lWrappedLineIndentWidth">
+             <widget class="QRadioButton" name="rbWrapWord">
               <property name="text">
-               <string>Indent Width :</string>
+               <string>By word</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QSlider" name="sWrappedLineIndentWidth">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLCDNumber" name="lnWrappedLineIndentWidth">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="numDigits">
-               <number>2</number>
-              </property>
-              <property name="segmentStyle">
-               <enum>QLCDNumber::Flat</enum>
+             <widget class="QRadioButton" name="rbWrapCharacter">
+              <property name="text">
+               <string>By character</string>
               </property>
              </widget>
             </item>
            </layout>
           </item>
-          <item row="0" column="1" rowspan="2">
-           <widget class="Line" name="lWrapVisualFlags">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
+          <item>
+           <widget class="QGroupBox" name="gbWrapVisualFlagsEnabled">
+            <property name="title">
+             <string>Visual flags</string>
             </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QWidget" name="wEndWrapVisualFlags" native="true">
-            <layout class="QVBoxLayout">
-             <property name="spacing">
-              <number>0</number>
-             </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <layout class="QGridLayout">
              <property name="margin">
-              <number>0</number>
+              <number>5</number>
              </property>
-             <item>
-              <widget class="QRadioButton" name="rbEndWrapFlagByText">
-               <property name="text">
-                <string>Flag By Text</string>
+             <property name="spacing">
+              <number>3</number>
+             </property>
+             <item row="2" column="0" colspan="3">
+              <layout class="QHBoxLayout">
+               <property name="spacing">
+                <number>3</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="lWrappedLineIndentWidth">
+                 <property name="text">
+                  <string>Indent Width :</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSlider" name="sWrappedLineIndentWidth">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLCDNumber" name="lnWrappedLineIndentWidth">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="numDigits">
+                  <number>2</number>
+                 </property>
+                 <property name="segmentStyle">
+                  <enum>QLCDNumber::Flat</enum>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item row="0" column="1" rowspan="2">
+              <widget class="Line" name="lWrapVisualFlags">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
                </property>
               </widget>
              </item>
-             <item>
-              <widget class="QRadioButton" name="rbEndWrapFlagByBorder">
+             <item row="1" column="2">
+              <widget class="QWidget" name="wEndWrapVisualFlags" native="true">
+               <layout class="QVBoxLayout">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <property name="margin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QRadioButton" name="rbEndWrapFlagNone">
+                  <property name="text">
+                   <string>No flag</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="rbEndWrapFlagByText">
+                  <property name="text">
+                   <string>Flag by text</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="rbEndWrapFlagByBorder">
+                  <property name="text">
+                   <string>Flag by border</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QWidget" name="wStartWrapVisualFlags" native="true">
+               <layout class="QVBoxLayout">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <property name="margin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QRadioButton" name="rbStartWrapFlagNone">
+                  <property name="text">
+                   <string>No flag</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="rbStartWrapFlagByText">
+                  <property name="text">
+                   <string>Flag by text</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="rbStartWrapFlagByBorder">
+                  <property name="text">
+                   <string>Flag by border</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="lStartWrapVisualFlags">
                <property name="text">
-                <string>Flag By Border</string>
+                <string>Start:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QLabel" name="lEndWrapVisualFlags">
+               <property name="text">
+                <string>End :</string>
                </property>
               </widget>
              </item>
             </layout>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QWidget" name="wStartWrapVisualFlags" native="true">
-            <layout class="QVBoxLayout">
-             <property name="spacing">
-              <number>0</number>
-             </property>
-             <property name="margin">
-              <number>0</number>
-             </property>
-             <item>
-              <widget class="QRadioButton" name="rbStartWrapFlagByText">
-               <property name="text">
-                <string>Flag By Text</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="rbStartWrapFlagByBorder">
-               <property name="text">
-                <string>Flag By Border</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="lStartWrapVisualFlags">
-            <property name="text">
-             <string>Start :</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QLabel" name="lEndWrapVisualFlags">
-            <property name="text">
-             <string>End :</string>
-            </property>
            </widget>
           </item>
          </layout>

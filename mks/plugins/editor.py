@@ -83,8 +83,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
                                 QsciScintilla.EolUnix       : r"\n",
                                 QsciScintilla.EolMac        : r"\r"}
     
-    _WRAP_MODE_TO_QSCI = {"None"          : QsciScintilla.WrapNone,
-                          "WrapWord"      : QsciScintilla.WrapWord,
+    _WRAP_MODE_TO_QSCI = {"WrapWord"      : QsciScintilla.WrapWord,
                           "WrapCharacter" : QsciScintilla.WrapCharacter}
     
     _WRAP_FLAG_TO_QSCI = {"None"           : QsciScintilla.WrapFlagNone,
@@ -276,10 +275,14 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         
         self.qscintilla.setWhitespaceVisibility(self._WHITE_MODE_TO_QSCI[myConfig["WhitespaceVisibility"]])
         
-        self.qscintilla.setWrapMode(self._WRAP_MODE_TO_QSCI[myConfig["Wrap"]["Mode"]])
-        self.qscintilla.setWrapVisualFlags(self._WRAP_FLAG_TO_QSCI[myConfig["Wrap"]["EndVisualFlag"]],
-                                           self._WRAP_FLAG_TO_QSCI[myConfig["Wrap"]["StartVisualFlag"]],
-                                           myConfig["Wrap"]["LineIndentWidth"])
+        if myConfig["Wrap"]["Enabled"]:
+            print 'wrap', myConfig["Wrap"]["Mode"], self._WRAP_MODE_TO_QSCI[myConfig["Wrap"]["Mode"]]
+            self.qscintilla.setWrapMode(self._WRAP_MODE_TO_QSCI[myConfig["Wrap"]["Mode"]])
+            self.qscintilla.setWrapVisualFlags(self._WRAP_FLAG_TO_QSCI[myConfig["Wrap"]["EndVisualFlag"]],
+                                               self._WRAP_FLAG_TO_QSCI[myConfig["Wrap"]["StartVisualFlag"]],
+                                               myConfig["Wrap"]["LineIndentWidth"])
+        else:
+            self.qscintilla.setWrapMode(QsciScintilla.WrapNone)
     
     def _applyLexer(self, myConfig, filePath):
         """Detect lexer for file name, configure it and apply to the editor
