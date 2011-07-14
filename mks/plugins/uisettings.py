@@ -225,7 +225,12 @@ class UISettings(QDialog):
                          self._EDGE_MODE),
             NumericOption("Editor/Edge/Column", "sEdgeColumnNumber"),
             ColorOption("Editor/Edge/Color", "tbEdgeColor"),
-            
+
+            CheckableOption("Editor/Caret/LineVisible", "gbCaretLineVisible"),
+            ColorOption("Editor/Caret/LineBackgroundColor", "tbCaretLineBackground"),
+            ColorOption("Editor/Caret/ForegroundColor", "tbCaretForeground"),
+            NumericOption("Editor/Caret/Width", "sCaretWidth"),
+
         )
         
         for option in self._opions:
@@ -376,11 +381,6 @@ class UISettings(QDialog):
         #  General
         
         self.cbDefaultCodec.setCurrentIndex( self.cbDefaultCodec.findText( defaultCodec() ) )
-        #  Caret
-        CheckableOption("Editor/Caret/LineVisible", "gbCaretLineVisible")
-        ColorOption("Editor/Caret/LineBackgroundColor", "tbCaretLineBackground")
-        ColorOption("Editor/Caret/ForegroundColor", "tbCaretForeground") )
-        NumericOption("Editor/Caret/Width", "sCaretWidth")
         #  Margins
         
         self.gbLineNumbersMarginEnabled.setChecked( lineNumbersMarginEnabled() )
@@ -453,11 +453,6 @@ class UISettings(QDialog):
         #  General
         # TODO setAutoSyntaxCheck( self.cbAutoSyntaxCheck.isChecked() )
         # TODO setDefaultCodec( self.cbDefaultCodec.currentText() )
-        #  Caret
-        "Editor/Caret/LineVisible"] = self.gbCaretLineVisible.isChecked()
-        "Editor/Caret/LineBackgroundColor"] = self.tbCaretLineBackground.color().name()
-        "Editor/Caret/ForegroundColor"] = self.tbCaretForeground.color().name()
-        "Editor/Caret/Width"] = sCaretWidth.value()
         
         #  Margins
         setLineNumbersMarginEnabled( self.gbLineNumbersMarginEnabled.isChecked() )
