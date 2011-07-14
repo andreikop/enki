@@ -294,14 +294,6 @@ class UISettings(QDialog):
 
         """TODO
 
-        # fold style
-        self.bgFoldStyle = QButtonGroup( self.gbFoldMarginEnabled )
-        self.bgFoldStyle.addButton( self.rbPlainFoldStyle, QsciScintilla.PlainFoldStyle )
-        self.bgFoldStyle.addButton( self.rbCircledTreeFoldStyle, QsciScintilla.CircledTreeFoldStyle )
-        self.bgFoldStyle.addButton( self.rbCircledFoldStyle, QsciScintilla.CircledFoldStyle )
-        self.bgFoldStyle.addButton( self.rbBoxedFoldStyle, QsciScintilla.BoxedFoldStyle )
-        self.bgFoldStyle.addButton( self.rbBoxedTreeFoldStyle, QsciScintilla.BoxedTreeFoldStyle )
-
         # eol mode
         self.bgEolMode = QButtonGroup( self.gbEolMode )
         self.bgEolMode.addButton( self.rbEolUnix, QsciScintilla.EolUnix )
@@ -350,8 +342,6 @@ class UISettings(QDialog):
 
         # connections
         # event filter
-        # margin font
-        self.tbMarginsFont.clicked.connect(self.tbFonts_clicked)
         # lexer elements highlighting
         self.pbLexersHighlightingForeground.clicked.connect(self.lexersHighlightingColour_clicked)
         self.pbLexersHighlightingBackground.clicked.connect(self.lexersHighlightingColour_clicked)
@@ -381,21 +371,6 @@ class UISettings(QDialog):
         #  General
         
         self.cbDefaultCodec.setCurrentIndex( self.cbDefaultCodec.findText( defaultCodec() ) )
-        #  Margins
-        
-        self.gbLineNumbersMarginEnabled.setChecked( lineNumbersMarginEnabled() )
-        sLineNumbersMarginWidth.setValue( lineNumbersMarginWidth() )
-        self.cbLineNumbersMarginAutoWidth.setChecked( lineNumbersMarginAutoWidth() )
-        
-        self.gbFoldMarginEnabled.setChecked( folding() != QsciScintilla.NoFoldStyle )
-        if  self.bgFoldStyle.button( folding() ) :
-            self.bgFoldStyle.button( folding() ).setChecked( True )
-        self.tbFoldMarginForeground.setColor( foldMarginForegroundColor() )
-        self.tbFoldMarginBackground.setColor( foldMarginBackgroundColor() )
-        self.gbMarginsEnabled.setChecked( marginsEnabled() )
-        self.tbMarginsForeground.setColor( marginsForegroundColor() )
-        self.tbMarginsBackground.setColor( marginsBackgroundColor() )
-        self.tbMarginsFont.setFont( marginsFont() )
         
         #  Special Characters
         self.bgEolMode.button( "Editor/EOL/Mod").setChecked( True )
@@ -454,19 +429,6 @@ class UISettings(QDialog):
         # TODO setAutoSyntaxCheck( self.cbAutoSyntaxCheck.isChecked() )
         # TODO setDefaultCodec( self.cbDefaultCodec.currentText() )
         
-        #  Margins
-        setLineNumbersMarginEnabled( self.gbLineNumbersMarginEnabled.isChecked() )
-        setLineNumbersMarginWidth( sLineNumbersMarginWidth.value() )
-        setLineNumbersMarginAutoWidth( self.cbLineNumbersMarginAutoWidth.isChecked() )
-        setFolding( QsciScintilla.NoFoldStyle )
-        if  self.gbFoldMarginEnabled.isChecked() :
-            setFolding( (QsciScintilla.FoldStyle)bgFoldStyle.checkedId() )
-        setFoldMarginForegroundColor( self.tbFoldMarginForeground.color() )
-        setFoldMarginBackgroundColor( self.tbFoldMarginBackground.color() )
-        setMarginsEnabled( self.gbMarginsEnabled.isChecked() )
-        setMarginsForegroundColor( self.tbMarginsForeground.color() )
-        setMarginsBackgroundColor( self.tbMarginsBackground.color() )
-        setMarginsFont( self.tbMarginsFont.font() )
         
         #  Special Characters
         "Editor/EOL/Mode"] = _EOL_MODE[self.bgEolMode.checkedId()]

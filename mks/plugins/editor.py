@@ -263,6 +263,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
             self.qscintilla.setEdgeColumn(myConfig["Edge"]["Column"])
         else:
             self.qscintilla.setEdgeMode(QsciScintilla.EdgeNone)
+
         # Caret
         self.qscintilla.setCaretLineVisible(myConfig["Caret"]["LineVisible"])
         self.qscintilla.setCaretLineBackgroundColor(QColor(myConfig["Caret"]["LineBackgroundColor"]))
