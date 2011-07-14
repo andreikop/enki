@@ -91,8 +91,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
                           "ByText"         : QsciScintilla.WrapFlagByText,
                           "ByBorder"       : QsciScintilla.WrapFlagByBorder}
 
-    _EDGE_MODE_TO_QSCI = {"None"        : QsciScintilla.EdgeNone,
-                          "Line"        : QsciScintilla.EdgeLine,
+    _EDGE_MODE_TO_QSCI = {"Line"        : QsciScintilla.EdgeLine,
                           "Background"  : QsciScintilla.EdgeBackground} 
     
     _WHITE_MODE_TO_QSCI = {"Invisible"           : QsciScintilla.WsInvisible,
@@ -258,9 +257,12 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
             self.qscintilla.setBraceMatching(QsciScintilla.NoBraceMatch)
         
         # Edge Mode
-        self.qscintilla.setEdgeMode(self._EDGE_MODE_TO_QSCI[myConfig["Edge"]["Mode"]])
-        self.qscintilla.setEdgeColor(QColor(myConfig["Edge"]["Color"]))
-        self.qscintilla.setEdgeColumn(myConfig["Edge"]["Column"])
+        if myConfig["Edge"]["Enabled"]:
+            self.qscintilla.setEdgeMode(self._EDGE_MODE_TO_QSCI[myConfig["Edge"]["Mode"]])
+            self.qscintilla.setEdgeColor(QColor(myConfig["Edge"]["Color"]))
+            self.qscintilla.setEdgeColumn(myConfig["Edge"]["Column"])
+        else:
+            self.qscintilla.setEdgeMode(QsciScintilla.EdgeNone)
         # Caret
         self.qscintilla.setCaretLineVisible(myConfig["Caret"]["LineVisible"])
         self.qscintilla.setCaretLineBackgroundColor(QColor(myConfig["Caret"]["LineBackgroundColor"]))

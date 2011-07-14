@@ -218,6 +218,14 @@ class UISettings(QDialog):
             ColorOption("Editor/BraceMatching/MatchedBackgroundColor", "tbMatchedBraceBackground"),
             ColorOption("Editor/BraceMatching/UnmatchedBackgroundColor", "tbUnmatchedBraceBackground"),
             ColorOption("Editor/BraceMatching/UnmatchedForegroundColor", "tbUnmatchedBraceForeground"),
+            
+            CheckableOption("Editor/Edge/Enabled", "gbEdgeModeEnabled"),
+            ChoiseOption("Editor/Edge/Mode",
+                         ("rbEdgeLine", "rbEdgeBackground"),
+                         self._EDGE_MODE),
+            NumericOption("Editor/Edge/Column", "sEdgeColumnNumber"),
+            ColorOption("Editor/Edge/Color", "tbEdgeColor"),
+            
         )
         
         for option in self._opions:
@@ -280,12 +288,6 @@ class UISettings(QDialog):
         """
 
         """TODO
-
-
-        # edge mode
-        self.bgEdgeMode = QButtonGroup( self.gbEdgeModeEnabled )
-        self.bgEdgeMode.addButton( self.rbEdgeLine, QsciScintilla.EdgeLine )
-        self.bgEdgeMode.addButton( self.rbEdgeBackground, QsciScintilla.EdgeBackground )
 
         # fold style
         self.bgFoldStyle = QButtonGroup( self.gbFoldMarginEnabled )
@@ -374,11 +376,6 @@ class UISettings(QDialog):
         #  General
         
         self.cbDefaultCodec.setCurrentIndex( self.cbDefaultCodec.findText( defaultCodec() ) )
-        #  Edge Mode
-        self.gbEdgeModeEnabled.setChecked( "Editor/Edge/Mode"] != 'None' )
-        self.bgEdgeMode.button( "Editor/Edge/Mod").setChecked( True )
-        NumericOption("Editor/Edge/Column", "sEdgeColumnNumber")
-        ColorOption("Editor/Edge/Color", "tbEdgeColor")
         #  Caret
         CheckableOption("Editor/Caret/LineVisible", "gbCaretLineVisible")
         ColorOption("Editor/Caret/LineBackgroundColor", "tbCaretLineBackground")
@@ -456,10 +453,6 @@ class UISettings(QDialog):
         #  General
         # TODO setAutoSyntaxCheck( self.cbAutoSyntaxCheck.isChecked() )
         # TODO setDefaultCodec( self.cbDefaultCodec.currentText() )
-        #  Edge Mode
-        "Editor/Edge/Mode"] = _EDGE_MODE[bgEdgeMode.checkedId()]
-        "Editor/Edge/Column"] = sEdgeColumnNumber.value()
-        "Editor/Edge/Color"].name()
         #  Caret
         "Editor/Caret/LineVisible"] = self.gbCaretLineVisible.isChecked()
         "Editor/Caret/LineBackgroundColor"] = self.tbCaretLineBackground.color().name()
