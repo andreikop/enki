@@ -1,6 +1,6 @@
 import os.path
 from PyQt4 import uic
-from PyQt4.QtCore import QObject, Qt, QVariant
+from PyQt4.QtCore import QObject, QStringList, Qt, QVariant
 from PyQt4.QtGui import QButtonGroup, \
                         QCheckBox, \
                         QColor, \
@@ -10,7 +10,9 @@ from PyQt4.QtGui import QButtonGroup, \
                         QFontDialog, \
                         QIcon, \
                         QListWidgetItem, \
-                        QRadioButton
+                        QRadioButton, \
+                        QTreeWidgetItem, \
+                        QWidget
 
 
 from PyQt4.Qsci import QsciScintilla
@@ -122,6 +124,57 @@ class ChoiseOption(Option):
             if self.control(index).isChecked():
                 core.config().set(self.optionName, self.textValuesList[index])
 
+class LexerMainPage(QWidget):
+    def __init__(self, *args, **kwargs):
+        QWidget.__init__(self, *args, **kwargs)
+        uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/LexerMainPage.ui'), self)
+
+class LexerFontsPage(QWidget):
+    def __init__(self, *args, **kwargs):
+        QWidget.__init__(self, *args, **kwargs)
+        uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/LexerFontsPage.ui'), self)
+
+class LexerAbbreviationsPage(QWidget):
+    def __init__(self, *args, **kwargs):
+        QWidget.__init__(self, *args, **kwargs)
+        uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/LexerAbbreviationsPage.ui'), self)
+
+class LexerApiPage(QWidget):
+    def __init__(self, *args, **kwargs):
+        QWidget.__init__(self, *args, **kwargs)
+        uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/LexerApiPage.ui'), self)
+
+class LexerSettings(Option):
+    """It is not a option, but a few pages with options.
+    In difference with other options, this class creates widgets 
+    and contains internal options
+    """
+    def __init__(self, name, tree, pages):
+        languagesItem = tree.findItems("Editor", Qt.MatchExactly)[0]
+
+
+        self.mainItem = QTreeWidgetItem(languagesItem, QStringList(name))
+        self.mainPage = LexerMainPage(pages)
+        pages.addWidget(self.mainPage)
+        
+        self.fontItem = QTreeWidgetItem(self.mainItem, QStringList("Fonts"))        
+        self.fontsPage = LexerFontsPage(pages)
+        pages.addWidget(self.fontsPage)
+
+        self.abbreviationsItem = QTreeWidgetItem(self.mainItem, QStringList("Abbreviations"))
+        self.abbreviationsPage = LexerAbbreviationsPage(pages)
+        pages.addWidget(self.abbreviationsPage)
+
+        self.apiItem = QTreeWidgetItem(self.mainItem, QStringList("API files"))
+        self.apiPage = LexerApiPage(pages)
+        pages.addWidget(self.apiPage)
+
+    def load(self):
+        pass
+    
+    def save(self):
+        pass
+
 class UISettings(QDialog):
     """Settings dialog
     """
@@ -143,7 +196,6 @@ class UISettings(QDialog):
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/UISettings.ui'), self)
         
         self.setAttribute( Qt.WA_DeleteOnClose )
-        self.initTopLevelItems()
         self.createOptions()
         self.loadSettings()
 
@@ -163,15 +215,10 @@ class UISettings(QDialog):
         
         for topLevelItem in topLevelItems:
             self._allTwItems.extend(allItems(topLevelItem))
-        
-        # Expand all items
-        for topLevelItem in topLevelItems:
-            topLevelItem.setExpanded(True)
-
 
     def createOptions(self):
         self._opions = \
-        (   ChoiseOption("Workspace/FileSortMode", ("rbOpeningOrder", "rbFileName", "rbUri", "rbSuffix"), self._SORT_MODE),
+        [   ChoiseOption("Workspace/FileSortMode", ("rbOpeningOrder", "rbFileName", "rbUri", "rbSuffix"), self._SORT_MODE),
             CheckableOption("Editor/Indentation/ConvertUponOpen", "cbConvertIndentationUponOpen"),
             CheckableOption("Editor/CreateBackupUponOpen", "cbCreateBackupUponOpen"),
             ColorOption("Editor/SelectionBackgroundColor", "tbSelectionBackground"),
@@ -244,11 +291,17 @@ class UISettings(QDialog):
                          ("rbEndWrapFlagNone", "rbEndWrapFlagByText", "rbEndWrapFlagByBorder"),
                          self._WRAP_FLAG),
             NumericOption("Editor/Wrap/LineIndentWidth", "sWrappedLineIndentWidth"),
-
-        )
+            LexerSettings("Python", self.twMenu, self.swPages)
+        ]
         
         for option in self._opions:
             option.setDialog(self)
+        
+        # Expand all items
+        self.initTopLevelItems()
+        for topLevelItem in self._allTwItems:  # except Languages
+            topLevelItem.setExpanded(True)
+
 
     def reject(self):
         """ TODO
