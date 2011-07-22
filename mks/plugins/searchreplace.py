@@ -413,7 +413,6 @@ class SearchWidget(QFrame):
         """
         assert( self.mSearchContext.encoding )
         
-        searchPath = os.path.abspath(os.path.curdir)
         if core.workspace().currentDocument():
             searchText = core.workspace().currentDocument().\
                                                     qscintilla.selectedText()
@@ -427,7 +426,11 @@ class SearchWidget(QFrame):
             self.cbReplace.setEditText( searchText )
             
         if  mode & Plugin.ModeFlagDirectory :
-            self.cbPath.setEditText( searchPath )
+            try:
+                searchPath = os.path.abspath(os.path.curdir)
+                self.cbPath.setEditText( searchPath )
+            except OSError:  # current directory might be deleted
+                pass 
 
         self.cbSearch.setFocus()
         self.cbSearch.lineEdit().selectAll()
