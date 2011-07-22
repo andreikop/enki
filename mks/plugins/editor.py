@@ -276,7 +276,6 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         self.qscintilla.setWhitespaceVisibility(self._WHITE_MODE_TO_QSCI[myConfig["WhitespaceVisibility"]])
         
         if myConfig["Wrap"]["Enabled"]:
-            print 'wrap', myConfig["Wrap"]["Mode"], self._WRAP_MODE_TO_QSCI[myConfig["Wrap"]["Mode"]]
             self.qscintilla.setWrapMode(self._WRAP_MODE_TO_QSCI[myConfig["Wrap"]["Mode"]])
             self.qscintilla.setWrapVisualFlags(self._WRAP_FLAG_TO_QSCI[myConfig["Wrap"]["EndVisualFlag"]],
                                                self._WRAP_FLAG_TO_QSCI[myConfig["Wrap"]["StartVisualFlag"]],

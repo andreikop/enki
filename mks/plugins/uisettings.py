@@ -260,12 +260,13 @@ class UISettings(QDialog):
 
     def accept(self):
         self.saveSettings()
-        """TODO
-        self.applyProperties()
-        MonkeyCore.workspace().loadSettings()
-        self.apply()
-        """
+        self.applySettings()
         QDialog.accept(self)
+
+    def applySettings(self):
+        core.workspace()._openedFileExplorer.mModel.setSortMode(core.config()["Workspace"]["FileSortMode"])
+        for document in core.workspace().openedDocuments():
+            document.applySettings()
 
     def loadSettings(self):
         for option in self._opions:
@@ -342,8 +343,6 @@ class UISettings(QDialog):
         for cb in self.gbLexersHighlightingElements.findChildren(QCheckBox):
             if  self.cb != self.cbLexersHighlightingFillEol :
                 self.cb.clicked.connect(self.cbLexersHighlightingProperties_clicked)
-        # apply button
-        self.dbbButtons.button( QDialogButtonBox.Apply ).clicked.connect(self.apply)
 
         for widget in  self.findChildren(QWidget):
             widget.setAttribute( Qt.WA_MacSmallSize, True )
@@ -459,21 +458,6 @@ class UISettings(QDialog):
         # flush settings to disk
         s.sync()
         
-    def on_pbDefaultDocumentFont_clicked(self):
-        font = self.lDefaultDocumentFont.font()
-        
-        font, ok = QFontDialog.getFont( font, self, self.tr( "Choose the default document font" ), QFontDialog.DontUseNativeDialog )
-        
-        if ok:
-            self.lDefaultDocumentFont.setFont( font )
-            self.lDefaultDocumentFont.setToolTip( font.toString() )
-
-    def on_tbFonts_clicked(self):
-        toolButton = self.sender()
-        f, b = QFontDialog.getFont(toolButton.font(), self.window() )
-        if  b:
-            self.tb.setFont( f )
-
     def on_cbSourceAPIsLanguages_beforeChanged(self, i ):
         if  i == self.cbSourceAPIsLanguages.currentIndex() :
             l = [lwSourceAPIs.item( j ).text() for j in range(lwSourceAPIs.count())]
@@ -766,19 +750,4 @@ class UISettings(QDialog):
         it = self.twAbbreviations.selectedItems()[0]
         if  it :
             it.setData( 0, Qt.UserRole, teAbbreviationsCode.toPlainText() )
-
-    def reject(self):
-        
-        settings = MonkeyCore.settings()        
-        for lexer in mLexers:
-            lexer.readSettings( *settings, scintillaSettingsPath().toLocal8Bit().constData() )
-        
-        QDialog.reject(self)
-
-    def accept(self):
-        self.saveSettings()
-        self.applyProperties()
-        MonkeyCore.workspace().loadSettings()
-        self.apply()
-        QDialog.accept(self)
 """

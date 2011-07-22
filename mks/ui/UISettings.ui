@@ -206,14 +206,17 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
    <item row="1" column="1">
     <widget class="QStackedWidget" name="swPages">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="currentIndex">
-      <number>8</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="pGeneral">
       <layout class="QGridLayout">
@@ -631,6 +634,9 @@
           </item>
           <item>
            <widget class="QRadioButton" name="rbApi">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>From API files</string>
             </property>
@@ -638,6 +644,9 @@
           </item>
           <item>
            <widget class="QRadioButton" name="rbFromBoth">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>From document and API files</string>
             </property>
@@ -1051,7 +1060,7 @@
           <item>
            <widget class="QCheckBox" name="cbAutodetectIndent">
             <property name="text">
-             <string>Detect indentation automatically when opening file</string>
+             <string>Detect upon open</string>
             </property>
            </widget>
           </item>
@@ -1260,7 +1269,7 @@
        <item>
         <widget class="QGroupBox" name="gbEdgeModeEnabled">
          <property name="title">
-          <string>Edge Mode Enabled</string>
+          <string>Visible edge</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -1348,14 +1357,14 @@
           <item row="0" column="0">
            <widget class="QRadioButton" name="rbEdgeLine">
             <property name="text">
-             <string>Edge Line</string>
+             <string>Line</string>
             </property>
            </widget>
           </item>
           <item row="0" column="1">
            <widget class="QRadioButton" name="rbEdgeBackground">
             <property name="text">
-             <string>Edge Background</string>
+             <string>Background</string>
             </property>
            </widget>
           </item>
@@ -1818,6 +1827,9 @@
        </property>
        <item>
         <widget class="QGroupBox" name="gbSourceAPIs">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="title">
           <string>APIs</string>
          </property>
@@ -1879,6 +1891,9 @@
       </layout>
      </widget>
      <widget class="QWidget" name="pLexersAssociations">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <layout class="QGridLayout">
        <property name="margin">
         <number>0</number>
@@ -1955,6 +1970,9 @@
       </layout>
      </widget>
      <widget class="QWidget" name="pLexersHighlighting">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <layout class="QGridLayout">
        <property name="margin">
         <number>0</number>
@@ -2349,6 +2367,9 @@
       </layout>
      </widget>
      <widget class="QWidget" name="pAbbreviations">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <layout class="QVBoxLayout">
        <property name="spacing">
         <number>3</number>
@@ -2457,6 +2478,9 @@
       </layout>
      </widget>
      <widget class="QWidget" name="pEnvironmentVariables">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <property name="spacing">
         <number>3</number>
@@ -2490,7 +2514,7 @@
   <tabstop>dbbButtons</tabstop>
  </tabstops>
  <resources>
-  <include location="../../resources/resources.qrc"/>
+  <include location="../../icons/mksicons.qrc"/>
  </resources>
  <connections>
   <connection>
