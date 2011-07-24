@@ -326,14 +326,21 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
             digitsCount += 1
         self.qscintilla.setMarginWidth(0, '0' * digitsCount)
     
+    def getLanguage(self):
+        for language in self._lexerForLanguage.keys():
+            for pattern in core.config()["Editor"]["Assotiations"][language]:
+                if fnmatch.fnmatch(self.filePath(), pattern):
+                    return language
+        else:
+            return None
+    
     def _lexerForFileName(self, fileName):
         """Delect lexer for the file name
         """
-        for language in self._lexerForLanguage.keys():
-            for pattern in core.config()["Editor"]["Assotiations"][language]:
-                if  fnmatch.fnmatch(fileName , pattern)  :
-                    lexerClass =  self._lexerForLanguage[language]
-                    return lexerClass()
+        language = self.getLanguage()
+        if language is not None:
+            lexerClass =  self._lexerForLanguage[language]
+            return lexerClass()
         else:
             return None
     
