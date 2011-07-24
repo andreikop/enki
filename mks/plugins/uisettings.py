@@ -124,56 +124,6 @@ class ChoiseOption(Option):
             if self.control(index).isChecked():
                 core.config().set(self.optionName, self.textValuesList[index])
 
-class LexerMainPage(QWidget):
-    def __init__(self, *args, **kwargs):
-        QWidget.__init__(self, *args, **kwargs)
-        uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/LexerMainPage.ui'), self)
-
-class LexerFontsPage(QWidget):
-    def __init__(self, *args, **kwargs):
-        QWidget.__init__(self, *args, **kwargs)
-        uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/LexerFontsPage.ui'), self)
-
-class LexerAbbreviationsPage(QWidget):
-    def __init__(self, *args, **kwargs):
-        QWidget.__init__(self, *args, **kwargs)
-        uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/LexerAbbreviationsPage.ui'), self)
-
-class LexerApiPage(QWidget):
-    def __init__(self, *args, **kwargs):
-        QWidget.__init__(self, *args, **kwargs)
-        uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/LexerApiPage.ui'), self)
-
-class LexerSettings(Option):
-    """It is not a option, but a few pages with options.
-    In difference with other options, this class creates widgets 
-    and contains internal options
-    """
-    def __init__(self, name, tree, pages):
-        languagesItem = tree.findItems("Editor", Qt.MatchExactly)[0]
-
-
-        self.mainItem = QTreeWidgetItem(languagesItem, QStringList(name))
-        self.mainPage = LexerMainPage(pages)
-        pages.addWidget(self.mainPage)
-        
-        self.fontItem = QTreeWidgetItem(self.mainItem, QStringList("Fonts"))        
-        self.fontsPage = LexerFontsPage(pages)
-        pages.addWidget(self.fontsPage)
-
-        self.abbreviationsItem = QTreeWidgetItem(self.mainItem, QStringList("Abbreviations"))
-        self.abbreviationsPage = LexerAbbreviationsPage(pages)
-        pages.addWidget(self.abbreviationsPage)
-
-        self.apiItem = QTreeWidgetItem(self.mainItem, QStringList("API files"))
-        self.apiPage = LexerApiPage(pages)
-        pages.addWidget(self.apiPage)
-
-    def load(self):
-        pass
-    
-    def save(self):
-        pass
 
 class UISettings(QDialog):
     """Settings dialog
@@ -290,9 +240,16 @@ class UISettings(QDialog):
             ChoiseOption("Editor/Wrap/EndVisualFlag",
                          ("rbEndWrapFlagNone", "rbEndWrapFlagByText", "rbEndWrapFlagByBorder"),
                          self._WRAP_FLAG),
-            NumericOption("Editor/Wrap/LineIndentWidth", "sWrappedLineIndentWidth"),
-            LexerSettings("Python", self.twMenu, self.swPages)
+            NumericOption("Editor/Wrap/LineIndentWidth", "sWrappedLineIndentWidth")
         ]
+        
+        lexerItem = self.twMenu.findItems("Language", Qt.MatchExactly | Qt.MatchRecursive)[0]
+        if core.workspace().currentDocument() is not None and \
+           core.workspace().currentDocument().getLanguage() is not None:
+            language = core.workspace().currentDocument().getLanguage()
+            lexerItem.setText(0, language)
+        else:
+            lexerItem.setDisabled(True)
         
         for option in self._opions:
             option.setDialog(self)
@@ -370,19 +327,9 @@ class UISettings(QDialog):
         # resize column
         self.twLexersAssociations.setColumnWidth( 0, 200 )
 
-        # python indentation warning
-        self.cbLexersHighlightingIndentationWarning.addItem( self.tr( "No warning" ), QsciLexerPython.NoWarning )
-        self.cbLexersHighlightingIndentationWarning.addItem( self.tr( "Inconsistent" ), QsciLexerPython.Inconsistent )
-        self.cbLexersHighlightingIndentationWarning.addItem( self.tr( "Tabs after spaces" ), QsciLexerPython.TabsAfterSpaces )
-        self.cbLexersHighlightingIndentationWarning.addItem( self.tr( "Spaces" ), QsciLexerPython.Spaces )
-        self.cbLexersHighlightingIndentationWarning.addItem( self.tr( "Tabs" ), QsciLexerPython.Tabs )
-
         # resize column
         self.twAbbreviations.setColumnWidth( 0, 100 )
         self.twAbbreviations.setColumnWidth( 1, 180 )
-
-        # read settings
-        self.loadSettings()
 
         # connections
         # event filter
