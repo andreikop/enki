@@ -167,7 +167,7 @@ class UISettings(QDialog):
             self._allTwItems.extend(allItems(topLevelItem))
 
     def createOptions(self):
-        self._opions = \
+        self._options = \
         [   ChoiseOption("Workspace/FileSortMode", ("rbOpeningOrder", "rbFileName", "rbUri", "rbSuffix"), self._SORT_MODE),
             CheckableOption("Editor/Indentation/ConvertUponOpen", "cbConvertIndentationUponOpen"),
             CheckableOption("Editor/CreateBackupUponOpen", "cbCreateBackupUponOpen"),
@@ -248,17 +248,92 @@ class UISettings(QDialog):
            core.workspace().currentDocument().getLanguage() is not None:
             language = core.workspace().currentDocument().getLanguage()
             lexerItem.setText(0, language)
+            lexer = core.workspace().currentDocument().qscintilla.lexer()
+            optionNameBeginning = "Editor/Language/%s/" % language
+            
+            if hasattr(lexer, "foldComments"):
+                self._options.append(CheckableOption(optionNameBeginning + "FoldComments", "cbLexersHighlightingFoldComments"))
+            else:
+                self.cbLexersHighlightingFoldComments.hide()
+            
+            if hasattr(lexer, "foldCompact"):
+                self._options.append(CheckableOption(optionNameBeginning + "FoldCompact", "cbLexersHighlightingFoldCompact"))
+            else:
+                self.cbLexersHighlightingFoldCompact.hide()
+            
+            if hasattr(lexer, "foldQuotes"):
+                self._options.append(CheckableOption(optionNameBeginning + "FoldQuotes", "cbLexersHighlightingFoldQuotes"))
+            else:
+                self.cbLexersHighlightingFoldQuotes.hide()
+            
+            if hasattr(lexer, "foldDirectives"):
+                self._options.append(CheckableOption(optionNameBeginning + "FoldDirectives", "cbLexersHighlightingFoldDirectives"))
+            else:
+                self.cbLexersHighlightingFoldDirectives.hide()
+            
+            if hasattr(lexer, "foldAtBegin"):
+                self._options.append(CheckableOption(optionNameBeginning + "FoldAtBegin", "cbLexersHighlightingFoldAtBegin"))
+            else:
+                self.cbLexersHighlightingFoldAtBegin.hide()
+            
+            if hasattr(lexer, "foldAtParenthesis"):
+                self._options.append(CheckableOption(optionNameBeginning + "FoldAtParenthesis", "cbLexersHighlightingFoldAtParenthesis"))
+            else:
+                self.cbLexersHighlightingFoldAtParenthesis.hide()
+            
+            if hasattr(lexer, "foldAtElse"):
+                self._options.append(CheckableOption(optionNameBeginning + "FoldAtElse", "cbLexersHighlightingFoldAtElse"))
+            else:
+                self.cbLexersHighlightingFoldAtElse.hide()
+            
+            if hasattr(lexer, "foldAtModule"):
+                self._options.append(CheckableOption(optionNameBeginning + "FoldAtModule", "cbLexersHighlightingFoldAtModule"))
+            else:
+                self.cbLexersHighlightingFoldAtModule.hide()
+            
+            if hasattr(lexer, "foldPreprocessor"):
+                self._options.append(CheckableOption(optionNameBeginning + "FoldPreprocessor", "cbLexersHighlightingFoldPreprocessor"))
+            else:
+                self.cbLexersHighlightingFoldPreprocessor.hide()
+            
+            if hasattr(lexer, "stylePreprocessor"):
+                self._options.append(CheckableOption(optionNameBeginning + "StylePreprocessor", "cbLexersHighlightingStylePreprocessor"))
+            else:
+                self.cbLexersHighlightingStylePreprocessor.hide()
+            
+            self._options.append(CheckableOption(optionNameBeginning + "IndentOpeningBrace", "cbLexersHighlightingIndentOpeningBrace"))
+            self._options.append(CheckableOption(optionNameBeginning + "IndentClosingBrace", "cbLexersHighlightingIndentClosingBrace"))
+            
+            if hasattr(lexer, "caseSensitiveTags"):
+                self._options.append(CheckableOption(optionNameBeginning + "CaseSensetiveTags", "cbLexersHighlightingCaseSensitiveTags"))
+            else:
+                self.cbLexersHighlightingCaseSensitiveTags.hide()
+            
+            if hasattr(lexer, "backslashEscapes"):
+                self._options.append(CheckableOption(optionNameBeginning + "BackslashEscapes", "cbLexersHighlightingBackslashEscapes"))
+            else:
+                self.cbLexersHighlightingBackslashEscapes.hide()
+            
+            if hasattr(lexer, "indentationWarning"):
+                self._options.append(CheckableOption(optionNameBeginning + "IndentationWarning", "gbLexerHighlightingIndentationWarning"))
+                self._options.append(ChoiseOption(optionNameBeginning + "IndentationWarningReason", 
+                    ("cbIndentationWarningInconsistent", "cbIndentationWarningTabsAfterSpaces", "cbIndentationWarningTabs", "cbIndentationWarningSpaces"),
+                    ("Inconsistent", "TabsAfterSpaces", "Tabs", "Spaces")))
+            else:
+                self.gbLexerHighlightingIndentationWarning.hide()
         else:
             lexerItem.setDisabled(True)
         
-        for option in self._opions:
+        for option in self._options:
             option.setDialog(self)
         
         # Expand all items
         self.initTopLevelItems()
         for topLevelItem in self._allTwItems:  # except Languages
             topLevelItem.setExpanded(True)
-
+        
+        # resize to minimum size
+        self.resize( self.minimumSizeHint() )
 
     def reject(self):
         """ TODO
@@ -279,11 +354,11 @@ class UISettings(QDialog):
             document.applySettings()
 
     def loadSettings(self):
-        for option in self._opions:
+        for option in self._options:
             option.load()
 
     def saveSettings(self):
-        for option in self._opions:
+        for option in self._options:
             option.save()
         
         core.config().flush()
@@ -347,9 +422,6 @@ class UISettings(QDialog):
         for widget in  self.findChildren(QWidget):
             widget.setAttribute( Qt.WA_MacSmallSize, True )
             widget.setAttribute( Qt.WA_MacShowFocusRect, False )
-
-        # resize to minimum size
-        self.resize( self.minimumSizeHint() )
 
 --------------------------------------------------------  loadSettings
 
