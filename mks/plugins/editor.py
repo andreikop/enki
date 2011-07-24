@@ -289,6 +289,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         defaultFont = QFont(myConfig["DefaultFont"], myConfig["DefaultFontSize"])
         lexer = self._lexerForFileName(os.path.basename(unicode(filePath)))
         if lexer:
+            self.lexer = lexer
             lexer.setDefaultFont(defaultFont)
             for i in range(128):
                 if lexer.description(i):
