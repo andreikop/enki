@@ -8,6 +8,8 @@ and used for get core instances, such as main window, workspace, etc.
 """
 
 import os.path
+import shutil
+import sys
 
 from PyQt4.QtGui import qApp, QIcon
 
@@ -16,6 +18,11 @@ from PyQt4.fresh import pSettings
 import mks.resources.icons
 
 DATA_FILES_PATH = os.path.join(os.path.dirname(__file__), '..')
+
+_DEFAULT_CONFIG_PATH = os.path.join(DATA_FILES_PATH, 'config/mksv3.default.cfg')
+_DEFAULT_CONFIG_SPEC_PATH = os.path.join(DATA_FILES_PATH, 'config/mksv3.spec.cfg')
+_CONFIG_PATH = os.path.expanduser('~/.mksv3.cfg')
+
 
 class Core:
     """Core object initializes system at startup and terminates at close.
@@ -37,8 +44,7 @@ class Core:
         import mks.core.mainwindow
         self._mainWindow = mks.core.mainwindow.MainWindow()
         
-        import mks.core.config
-        self._config = mks.core.config.createConfig()
+        self._config = self._createConfig()
         
         self._workspace = mks.core.workspace.Workspace(self._mainWindow)
         self._mainWindow.setWorkspace(self._workspace)
@@ -92,6 +98,32 @@ class Core:
         """
         exec("import mks.plugins.%s as module" % name)
         self._loadedPlugins.append(module.Plugin())
+
+    def _createConfig(self):
+        """Open main config file and return Config instance
+         
+        Function creates config file in user's home directory, if necessary,
+        validates and opens it.
+        """
+        import mks.core.config
+        
+        try:
+            # Create config file in the users home
+            if not os.path.exists(_CONFIG_PATH):
+                try:
+                    shutil.copyfile(_DEFAULT_CONFIG_PATH, _CONFIG_PATH)
+                except IOError, ex:
+                    raise UserWarning('Failed to create configuration file. Error:\n' + 
+                                      unicode(str(ex), 'utf_8'))
+            # Open config file
+            config = mks.core.config.Config(True, _CONFIG_PATH, configspec=_DEFAULT_CONFIG_SPEC_PATH)
+        except UserWarning, ex:
+            messageString = unicode(str(ex)) + '\n' + 'Using default configuration'
+            print >> sys.stderr, messageString
+            core.messageManager().appendMessage(messageString)
+            
+            config = mks.core.config.Config(False, _DEFAULT_CONFIG_PATH, configspec=_DEFAULT_CONFIG_SPEC_PATH)
+        return config
 
 core = Core()
 
