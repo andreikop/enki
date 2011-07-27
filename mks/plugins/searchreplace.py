@@ -805,10 +805,10 @@ class SearchWidget(QFrame):
     def cdUp_pressed(self):
         """User pressed "Up" button, need to remove one level from search path
         """
-        if not os.path.exists(self.cbPath.currentText()):
+        text = unicode(self.cbPath.currentText(), 'utf_8')
+        if not os.path.exists(text):
             return
-
-        self.cbPath.setEditText( os.path.abspath(self.cbPath.currentText() + os.path.pardir))
+        self.cbPath.setEditText( os.path.abspath(text + '/' + os.path.pardir))
 
     def on_pbPrevious_pressed(self):
         """Handler of click on "Previous" button
