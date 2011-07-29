@@ -17,12 +17,13 @@ Module also **loads and saves** shortcuts configuration to file and provides **s
 """
 
 import os.path
+import sys
 
 from PyQt4.QtCore import QModelIndex
 from PyQt4.QtGui import QIcon
 from PyQt4.fresh import pActionsShortcutEditor
 
-from mks._3rdparty.configobj import ConfigObj, ParseError
+from mks.core.config import Config
 
 from mks.core.core import core
 
@@ -48,13 +49,9 @@ class Plugin:
     """
     def __init__(self):
         try:
-            self._config = ConfigObj(_CONFIG_PATH)
-        except ParseError, ex:
-            core.messageManager().appendMessage('Failed to parse configuration file %s\n'
-                                                'Error:\n'
-                                                '%s\n'
-                                                'Fix the file or delete it.' % 
-                                                    (_CONFIG_PATH, unicode(str(ex), 'utf_8')))
+            self._config = Config(True, _CONFIG_PATH)
+        except UserWarning, ex:
+            core.messageManager().appendMessage(unicode(str(ex), 'utf_8'))
             self._config = None
 
         self._model = core.actionModel()
@@ -77,15 +74,13 @@ class Plugin:
         """
         
         if self._config is not None:
-            path = map(str, self._model.path(action).split('/'))
-            menuDict = self._config
-            for menu in path[:-1]:
-                if menu not in menuDict:
-                    return
-                menuDict = menuDict[menu]
-            if not path[-1] in menuDict:
+            path = unicode(self._model.path(action), "utf_8")
+            try:
+                shortcut = self._config.get(path)
+            except KeyError:
+                print >> sys.stderr, "Shortcut not set for", path
                 return
-            action.setShortcut(menuDict[path[-1]])
+            action.setShortcut(shortcut)
 
     def _onActionInserted(self, parentIndex, start, end):
         """Handler of action inserted signal. Changes action shortcut from default to configured by user
@@ -103,14 +98,9 @@ class Plugin:
         if self._config is None:
             return
         for action in _recursiveActionsList(self._model):
-            path = map(str, self._model.path(action).split('/'))
-            menuDict = self._config
-            for menu in path[:-1]:
-                if menu not in menuDict:
-                    menuDict[menu] = {}
-                menuDict = menuDict[menu]
-            menuDict[path[-1]] = str(action.shortcut().toString())
-        self._config.write()
+            path = unicode(self._model.path(action), "utf_8")
+            self._config.set(path, action.shortcut().toString())
+        self._config.flush()
 
     def _onEditShortcuts(self):
         """Handler of *Edit->Shortcuts...* action. Shows dialog, than saves shortcuts to file
