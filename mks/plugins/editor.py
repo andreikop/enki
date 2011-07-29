@@ -17,6 +17,9 @@ from PyQt4.Qsci import *
 import mks.core.abstractdocument
 from mks.core.core import core
 
+from mks.core.config import Config
+
+_LEXERS_CONFIG_PATH = os.path.expanduser('~/.mksv3.lexers.cfg')
 
 class _QsciScintilla(QsciScintilla):
     """QsciScintilla wrapper class created only for filter Shift+Tab events.
@@ -487,17 +490,41 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         row = self.qscintilla.getCursorPosition()[0]
         self.qscintilla.setCursorPosition(
                     self.qscintilla.markerFindPrevious(row - 1, 1 << self._MARKER_BOOKMARK), 0)
-        
+    
 class Plugin:
     """Plugin interface implementation
     
     Installs and removes editor from the system
     """
     def __init__(self):
+        try:
+            self._lexersConfig = Config(True, _LEXERS_CONFIG_PATH)
+        except UserWarning, ex:
+            core.messageManager().appendMessage(unicode(str(ex), 'utf_8'))
+            self._lexersConfig = None
+        # First start, generate default settings
+        if self._lexersConfig is not None and \
+           len(self._lexersConfig) == 0:
+                self._generateDefaultLexerSettings()
+        
         core.workspace().setTextEditorClass(Editor)
     
     def __term__(self):
         core.workspace().setTextEditorClass(None)
+    
+    def _generateDefaultLexerSettings(self):
+        for language, lexerClass in Editor._lexerForLanguage.items():
+            self._lexersConfig[language] = {}
+            lexerObject = lexerClass()
+            properties = ("foldComments", "foldCompact", "foldQuotes", "foldDirectives", "foldAtBegin",
+                          "foldAtParenthesis", "foldAtElse", "foldAtModule", "foldPreprocessor",
+                          "stylePreprocessor", "indentOpeningBrace", "indentClosingBrace", "caseSensitiveTags",
+                          "backslashEscapes", "indentationWarning")
+            for property in properties:
+                if hasattr(lexerObject, property):
+                    self._lexersConfig[language][property] = getattr(lexerObject, property)()
+        self._lexersConfig.flush()
+
 
 """TODO restore or delete old code
 
