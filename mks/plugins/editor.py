@@ -149,7 +149,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         myConfig = core.config()["Editor"]
         
         self.applySettings()
-        self._applyLexer(myConfig, filePath)
+        self._applyLexer(filePath)
         
         if filePath:
             try:
@@ -291,24 +291,54 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         else:
             self.qscintilla.setWrapMode(QsciScintilla.WrapNone)
     
-    def _applyLexer(self, myConfig, filePath):
+    def _applyLexer(self, filePath):
         """Detect lexer for file name, configure it and apply to the editor
         """
-        defaultFont = QFont(myConfig["DefaultFont"], myConfig["DefaultFontSize"])
-        lexer = self._lexerForFileName(os.path.basename(unicode(filePath)))
-        if lexer:
-            self.lexer = lexer
-            lexer.setDefaultFont(defaultFont)
-            for i in range(128):
-                if lexer.description(i):
-                    font  = lexer.font(i)
-                    font.setFamily(defaultFont.family())
-                    lexer.setFont(font, i)
-                    #lexer->setColor(lexer->defaultColor(i), i);  # TODO configure lexer colors
-                    #lexer->setEolFill(lexer->defaultEolFill(i), i);
-                    #lexer->setPaper(lexer->defaultPaper(i), i);
-
-            self.qscintilla.setLexer(lexer)
+        language = self.getLanguage()
+        if language is None:  # no lexer
+            return
+        
+        lexerClass =  self._lexerForLanguage[language]
+        self.lexer = lexerClass()
+        self._applyLexerSettings(language, self.lexer)
+        self.qscintilla.setLexer(self.lexer)
+    
+    def _applyLexerSettings(self, language, lexer):
+        # Apply fonts and colors
+        defaultFont = QFont(core.config()["Editor"]["DefaultFont"],
+                            core.config()["Editor"]["DefaultFontSize"])
+        self.lexer.setDefaultFont(defaultFont)
+        for i in range(128):
+            if lexer.description(i):
+                font  = lexer.font(i)
+                font.setFamily(defaultFont.family())
+                lexer.setFont(font, i)
+                #lexer->setColor(lexer->defaultColor(i), i);  # TODO configure lexer colors
+                #lexer->setEolFill(lexer->defaultEolFill(i), i);
+                #lexer->setPaper(lexer->defaultPaper(i), i);
+        
+        # Apply attributes
+        lexerSection = Plugin.instance._lexerConfig[language]
+        attributes = ("foldComments", "foldCompact", "foldQuotes", "foldDirectives", "foldAtBegin",
+                      "foldAtParenthesis", "foldAtElse", "foldAtModule", "foldPreprocessor",
+                      "stylePreprocessor", "caseSensitiveTags", "backslashEscapes")  # FIXME remove copy-pasted list
+        
+        for attribute in attributes:
+            setterName = 'set' + attribute.capitalize()            
+            if hasattr(lexer, setterName):
+                getattr(lexer, setterName)(lexerSection[attribute])
+        
+        autoIndentStyle = 0
+        if lexerSection['indentOpeningBrace']:
+            autoIndentStyle &= QsciScintilla.AiOpening
+        if lexerSection['indentClosingBrace']:
+            autoIndentStyle &= QsciScintilla.AiClosing
+        lexer.setAutoIndentStyle(autoIndentStyle)
+        
+        if hasattr(lexer, "setIndentationWarning"):
+            if lexerSection['indentationWarning']:
+                qsciReason = self._PYTHON_INDENTATION_WARNING_TO_QSCI[lexerSection['indentationWarningReason']]
+                lexer.setIndentationWarning(qsciReason)
     
     def text(self):
         """Contents of the editor
@@ -342,17 +372,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
                     return language
         else:
             return None
-    
-    def _lexerForFileName(self, fileName):
-        """Delect lexer for the file name
-        """
-        language = self.getLanguage()
-        if language is not None:
-            lexerClass =  self._lexerForLanguage[language]
-            return lexerClass()
-        else:
-            return None
-    
+        
     def eolMode(self):
         """Line end mode of the file
         """
