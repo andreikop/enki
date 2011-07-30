@@ -43,88 +43,75 @@ class Plugin:
 
 
 class Option:
-    def __init__(self, config, optionName, controlName):
+    def __init__(self, dialog, config, optionName, control):
         self.config = config
         self.optionName = optionName
-        self.controlName = controlName
-    
-    def setDialog(self, dialog):
-        self.dialog = dialog
-    
-    def control(self):
-        return getattr(self.dialog, self.controlName)
+        self.control = control
+        dialog.accepted.connect(self.save)
+        self.load()
 
 class CheckableOption(Option):
     def load(self):
-        self.control().setChecked(self.config.get(self.optionName))
+        self.control.setChecked(self.config.get(self.optionName))
     
     def save(self):
-        self.config.set(self.optionName, self.control().isChecked())
+        self.config.set(self.optionName, self.control.isChecked())
 
 class NumericOption(Option):
     def load(self):
-        self.control().setValue(self.config.get(self.optionName))
+        self.control.setValue(self.config.get(self.optionName))
     
     def save(self):
-        self.config.set(self.optionName, self.control().value())
+        self.config.set(self.optionName, self.control.value())
 
 class ColorOption(Option):
     def load(self):
-        self.control().setColor(QColor(self.config.get(self.optionName)))
+        self.control.setColor(QColor(self.config.get(self.optionName)))
     
     def save(self):
-        self.config.set(self.optionName, self.control().color().name())
+        self.config.set(self.optionName, self.control.color().name())
 
 class FontOption(Option):
-    def __init__(self, config, familyOptionName, sizeOptionName, editControl, buttonControl):
-        self.config = config
+    def __init__(self, dialog, config, familyOptionName, sizeOptionName, editControl, buttonControl):
         self.familyOptionName = familyOptionName
         self.sizeOptionName = sizeOptionName
-        self.editControlName = editControl
-        self.buttonControlName = buttonControl
-    
-    def editControl(self):
-        return self.dialog.__getattribute__(self.editControlName)
-    
-    def buttonControl(self):
-        return self.dialog.__getattribute__(self.buttonControlName)
+        self.editControl = editControl
+        self.buttonControl = buttonControl
+        Option.__init__(self, dialog, config, None, None)
     
     def load(self):
         font = QFont(self.config.get(self.familyOptionName), self.config.get(self.sizeOptionName))
-        self.editControl().setFont( font )
-        self.editControl().setToolTip( font.toString() )
-        self.buttonControl().clicked.connect(self.onClicked)
+        self.editControl.setFont( font )
+        self.editControl.setToolTip( font.toString() )
+        self.buttonControl.clicked.connect(self.onClicked)
     
     def save(self):
-        font = self.editControl().font()
+        font = self.editControl.font()
         self.config.set(self.familyOptionName, font.family())
         self.config.set(self.sizeOptionName, font.pointSize())
     
     def onClicked(self):
-        f, b = QFontDialog.getFont(self.editControl().font(), core.mainWindow() )
+        f, b = QFontDialog.getFont(self.editControl.font(), core.mainWindow() )
         if  b:
-            self.editControl().setFont( f )
+            self.editControl.setFont( f )
 
 
 class ChoiseOption(Option):
     """Radio button group, QComboBox
     """
-    def __init__(self, config, optionName, controlsList, textValuesList):
-        Option.__init__(self, config, optionName, None)
-        self.controlNameList = controlsList
+    def __init__(self, dialog, config, optionName, controlsList, textValuesList):
+        self.controls = controlsList
         self.textValuesList = textValuesList
-    
-    def control(self, index):
-        return self.dialog.__getattribute__(self.controlNameList[index])
-    
+        Option.__init__(self, dialog, config, optionName, None)
+        
     def load(self):
         value = self.config.get(self.optionName)
         buttonIndex = self.textValuesList.index(value)
-        self.control(buttonIndex).setChecked(True)
+        self.controls[buttonIndex].setChecked(True)
     
     def save(self):
-        for index in range(len(self.controlNameList)):
-            if self.control(index).isChecked():
+        for index, control in enumerate(self.controls):
+            if control.isChecked():
                 self.config.set(self.optionName, self.textValuesList[index])
 
 
@@ -151,7 +138,8 @@ class UISettings(QDialog):
         
         self.setAttribute( Qt.WA_DeleteOnClose )
         self.createOptions()
-        self.loadSettings()
+        self.accepted.connect(self.saveSettings)
+        self.accepted.connect(self.applySettings)
 
     def initTopLevelItems(self):
         """Generate list of all tree items. Used for switch pages
@@ -173,79 +161,83 @@ class UISettings(QDialog):
     def createOptions(self):
         cfg = core.config()
         self._options = \
-        [   ChoiseOption(cfg, "Workspace/FileSortMode", ("rbOpeningOrder", "rbFileName", "rbUri", "rbSuffix"), self._SORT_MODE),
-            CheckableOption(cfg, "Editor/Indentation/ConvertUponOpen", "cbConvertIndentationUponOpen"),
-            CheckableOption(cfg, "Editor/CreateBackupUponOpen", "cbCreateBackupUponOpen"),
-            ColorOption(cfg, "Editor/SelectionBackgroundColor", "tbSelectionBackground"),
-            ColorOption(cfg, "Editor/SelectionForegroundColor", "tbSelectionForeground"),
-            CheckableOption(cfg, "Editor/DefaultDocumentColours", "gbDefaultDocumentColours"),
-            ColorOption(cfg, "Editor/DefaultDocumentPen", "tbDefaultDocumentPen"),
-            ColorOption(cfg, "Editor/DefaultDocumentPaper", "tbDefaultDocumentPaper"),
-            FontOption(cfg, "Editor/DefaultFont", "Editor/DefaultFontSize", "lDefaultDocumentFont", "pbDefaultDocumentFont"),
+        [   ChoiseOption(self, cfg, "Workspace/FileSortMode",
+                         (self.rbOpeningOrder, self.rbFileName, self.rbUri, self.rbSuffix),
+                         self._SORT_MODE),
+            CheckableOption(self, cfg, "Editor/Indentation/ConvertUponOpen", self.cbConvertIndentationUponOpen),
+            CheckableOption(self, cfg, "Editor/CreateBackupUponOpen", self.cbCreateBackupUponOpen),
+            ColorOption(self, cfg, "Editor/SelectionBackgroundColor", self.tbSelectionBackground),
+            ColorOption(self, cfg, "Editor/SelectionForegroundColor", self.tbSelectionForeground),
+            CheckableOption(self, cfg, "Editor/DefaultDocumentColours", self.gbDefaultDocumentColours),
+            ColorOption(self, cfg, "Editor/DefaultDocumentPen", self.tbDefaultDocumentPen),
+            ColorOption(self, cfg, "Editor/DefaultDocumentPaper", self.tbDefaultDocumentPaper),
+            FontOption(self, cfg, "Editor/DefaultFont", "Editor/DefaultFontSize",
+                        self.lDefaultDocumentFont, self.pbDefaultDocumentFont),
             
-            CheckableOption(cfg, "Editor/AutoCompletion/Enabled", "gbAutoCompletion"),
-            ChoiseOption(cfg, "Editor/AutoCompletion/Source",
-                         ("rbDocument", "rbApi", "rbFromBoth"),
-                         self._AUTOCOMPLETION_SOURCE),
-            CheckableOption(cfg, "Editor/AutoCompletion/CaseSensitivity", "cbAutoCompletionCaseSensitivity"),
-            CheckableOption(cfg, "Editor/AutoCompletion/ReplaceWord", "cbAutoCompletionReplaceWord"),
-            CheckableOption(cfg, "Editor/AutoCompletion/ShowSingle", "cbAutoCompletionShowSingle"),
-            NumericOption(cfg, "Editor/AutoCompletion/Threshold", "sAutoCompletionThreshold"),
+            CheckableOption(self, cfg, "Editor/AutoCompletion/Enabled", self.gbAutoCompletion),
+            ChoiseOption(self, cfg, "Editor/AutoCompletion/Source",
+                         (self.rbDocument, self.rbApi, self.rbFromBoth),
+                          self._AUTOCOMPLETION_SOURCE),
+            CheckableOption(self, cfg, "Editor/AutoCompletion/CaseSensitivity", self.cbAutoCompletionCaseSensitivity),
+            CheckableOption(self, cfg, "Editor/AutoCompletion/ReplaceWord", self.cbAutoCompletionReplaceWord),
+            CheckableOption(self, cfg, "Editor/AutoCompletion/ShowSingle", self.cbAutoCompletionShowSingle),
+            NumericOption(self, cfg, "Editor/AutoCompletion/Threshold", self.sAutoCompletionThreshold),
             
-            CheckableOption(cfg, "Editor/CallTips/Enabled", "gbCalltips"),
-            NumericOption(cfg, "Editor/CallTips/VisibleCount", "sCallTipsVisible"),
-            ChoiseOption(cfg, "Editor/CallTips/Style",
-                         ("rbCallTipsNoContext", "rbCallTipsContext", "rbCallTipsNoAutoCompletionContext"),
+            CheckableOption(self, cfg, "Editor/CallTips/Enabled", self.gbCalltips),
+            NumericOption(self, cfg, "Editor/CallTips/VisibleCount", self.sCallTipsVisible),
+            ChoiseOption(self, cfg, "Editor/CallTips/Style",
+                         (self.rbCallTipsNoContext, self.rbCallTipsContext, self.rbCallTipsNoAutoCompletionContext),
                          self._CALL_TIPS_STYLE),
-            ColorOption(cfg, "Editor/CallTips/BackgroundColor", "tbCalltipsBackground"),
-            ColorOption(cfg, "Editor/CallTips/ForegroundColor", "tbCalltipsForeground"),
-            ColorOption(cfg, "Editor/CallTips/HighlightColor", "tbCalltipsHighlight"),
+            ColorOption(self, cfg, "Editor/CallTips/BackgroundColor", self.tbCalltipsBackground),
+            ColorOption(self, cfg, "Editor/CallTips/ForegroundColor", self.tbCalltipsForeground),
+            ColorOption(self, cfg, "Editor/CallTips/HighlightColor", self.tbCalltipsHighlight),
             
-            CheckableOption(cfg, "Editor/Indentation/AutoIndent", "cbAutoIndent"),
-            CheckableOption(cfg, "Editor/Indentation/BackspaceUnindents", "cbBackspaceUnindents"),
-            CheckableOption(cfg, "Editor/Indentation/Guides", "gbIndentationGuides"),
-            ChoiseOption(cfg, "Editor/Indentation/UseTabs",
-                         ("rbIndentationSpaces", "rbIndentationTabs"),
+            CheckableOption(self, cfg, "Editor/Indentation/AutoIndent", self.cbAutoIndent),
+            CheckableOption(self, cfg, "Editor/Indentation/BackspaceUnindents", self.cbBackspaceUnindents),
+            CheckableOption(self, cfg, "Editor/Indentation/Guides", self.gbIndentationGuides),
+            ChoiseOption(self, cfg, "Editor/Indentation/UseTabs",
+                         (self.rbIndentationSpaces, self.rbIndentationTabs),
                          (False, True)),
-            CheckableOption(cfg, "Editor/Indentation/AutoDetect", "cbAutodetectIndent"),
-            NumericOption(cfg, "Editor/Indentation/Width", "sIndentationWidth"),
-            ColorOption(cfg, "Editor/Indentation/GuidesBackgroundColor", "tbIndentationGuidesBackground"),
-            ColorOption(cfg, "Editor/Indentation/GuidesForegroundColor", "tbIndentationGuidesForeground"),
+            CheckableOption(self, cfg, "Editor/Indentation/AutoDetect", self.cbAutodetectIndent),
+            NumericOption(self, cfg, "Editor/Indentation/Width", self.sIndentationWidth),
+            ColorOption(self, cfg, "Editor/Indentation/GuidesBackgroundColor", self.tbIndentationGuidesBackground),
+            ColorOption(self, cfg, "Editor/Indentation/GuidesForegroundColor", self.tbIndentationGuidesForeground),
             
-            CheckableOption(cfg, "Editor/BraceMatching/Enabled", "gbBraceMatchingEnabled"),
-            ChoiseOption(cfg, "Editor/BraceMatching/Mode",
-                         ("rbStrictBraceMatch", "rbSloppyBraceMatch"),
+            CheckableOption(self, cfg, "Editor/BraceMatching/Enabled", self.gbBraceMatchingEnabled),
+            ChoiseOption(self, cfg, "Editor/BraceMatching/Mode",
+                         (self.rbStrictBraceMatch, self.rbSloppyBraceMatch),
                          self._BRACE_MATCHING),
-            ColorOption(cfg, "Editor/BraceMatching/MatchedForegroundColor", "tbMatchedBraceForeground"),
-            ColorOption(cfg, "Editor/BraceMatching/MatchedBackgroundColor", "tbMatchedBraceBackground"),
-            ColorOption(cfg, "Editor/BraceMatching/UnmatchedBackgroundColor", "tbUnmatchedBraceBackground"),
-            ColorOption(cfg, "Editor/BraceMatching/UnmatchedForegroundColor", "tbUnmatchedBraceForeground"),
+            ColorOption(self, cfg, "Editor/BraceMatching/MatchedForegroundColor", self.tbMatchedBraceForeground),
+            ColorOption(self, cfg, "Editor/BraceMatching/MatchedBackgroundColor", self.tbMatchedBraceBackground),
+            ColorOption(self, cfg, "Editor/BraceMatching/UnmatchedBackgroundColor", self.tbUnmatchedBraceBackground),
+            ColorOption(self, cfg, "Editor/BraceMatching/UnmatchedForegroundColor", self.tbUnmatchedBraceForeground),
             
-            CheckableOption(cfg, "Editor/Edge/Enabled", "gbEdgeModeEnabled"),
-            ChoiseOption(cfg, "Editor/Edge/Mode", ("rbEdgeLine", "rbEdgeBackground"), self._EDGE_MODE),
-            NumericOption(cfg, "Editor/Edge/Column", "sEdgeColumnNumber"),
-            ColorOption(cfg, "Editor/Edge/Color", "tbEdgeColor"),
+            CheckableOption(self, cfg, "Editor/Edge/Enabled", self.gbEdgeModeEnabled),
+            ChoiseOption(self, cfg, "Editor/Edge/Mode", (self.rbEdgeLine, self.rbEdgeBackground), self._EDGE_MODE),
+            NumericOption(self, cfg, "Editor/Edge/Column", self.sEdgeColumnNumber),
+            ColorOption(self, cfg, "Editor/Edge/Color", self.tbEdgeColor),
 
-            CheckableOption(cfg, "Editor/Caret/LineVisible", "gbCaretLineVisible"),
-            ColorOption(cfg, "Editor/Caret/LineBackgroundColor", "tbCaretLineBackground"),
-            ColorOption(cfg, "Editor/Caret/ForegroundColor", "tbCaretForeground"),
-            NumericOption(cfg, "Editor/Caret/Width", "sCaretWidth"),
+            CheckableOption(self, cfg, "Editor/Caret/LineVisible", self.gbCaretLineVisible),
+            ColorOption(self, cfg, "Editor/Caret/LineBackgroundColor", self.tbCaretLineBackground),
+            ColorOption(self, cfg, "Editor/Caret/ForegroundColor", self.tbCaretForeground),
+            NumericOption(self, cfg, "Editor/Caret/Width", self.sCaretWidth),
 
-            ChoiseOption(cfg, "Editor/EOL/Mode", ("rbEolUnix", "rbEolWindows", "rbEolMac"), self._EOL_MODE),
-            CheckableOption(cfg, "Editor/EOL/Visibility", "cbEolVisibility"),
-            CheckableOption(cfg, "Editor/EOL/AutoDetect", "cbAutoDetectEol"),
-            CheckableOption(cfg, "Editor/EOL/AutoConvert", "cbAutoEolConversion"),
-            ChoiseOption(cfg, "Editor/WhitespaceVisibility", ("rbWsInvisible", "rbWsVisible", "rbWsVisibleAfterIndent"), self._WHITE_MODE),
+            ChoiseOption(self, cfg, "Editor/EOL/Mode", (self.rbEolUnix, self.rbEolWindows, self.rbEolMac), self._EOL_MODE),
+            CheckableOption(self, cfg, "Editor/EOL/Visibility", self.cbEolVisibility),
+            CheckableOption(self, cfg, "Editor/EOL/AutoDetect", self.cbAutoDetectEol),
+            CheckableOption(self, cfg, "Editor/EOL/AutoConvert", self.cbAutoEolConversion),
+            ChoiseOption(self, cfg, "Editor/WhitespaceVisibility",
+                            (self.rbWsInvisible, self.rbWsVisible, self.rbWsVisibleAfterIndent), self._WHITE_MODE),
             
-            CheckableOption(cfg, "Editor/Wrap/Enabled", "gbWrapModeEnabled"),
-            ChoiseOption(cfg, "Editor/Wrap/Mode", ("rbWrapCharacter", "rbWrapWord"), self._WRAP_MODE),
-            ChoiseOption(cfg, "Editor/Wrap/StartVisualFlag",
-                         ("rbStartWrapFlagNone", "rbStartWrapFlagByText", "rbStartWrapFlagByBorder"),
+            CheckableOption(self, cfg, "Editor/Wrap/Enabled", self.gbWrapModeEnabled),
+            ChoiseOption(self, cfg, "Editor/Wrap/Mode", (self.rbWrapCharacter, self.rbWrapWord), self._WRAP_MODE),
+            ChoiseOption(self, cfg, "Editor/Wrap/StartVisualFlag",
+                         (self.rbStartWrapFlagNone, self.rbStartWrapFlagByText, self.rbStartWrapFlagByBorder),
                          self._WRAP_FLAG),
-            ChoiseOption(cfg, "Editor/Wrap/EndVisualFlag",
-                         ("rbEndWrapFlagNone", "rbEndWrapFlagByText", "rbEndWrapFlagByBorder"),
+            ChoiseOption(self, cfg, "Editor/Wrap/EndVisualFlag",
+                         (self.rbEndWrapFlagNone, self.rbEndWrapFlagByText, self.rbEndWrapFlagByBorder),
                          self._WRAP_FLAG),
-            NumericOption(cfg, "Editor/Wrap/LineIndentWidth", "sWrappedLineIndentWidth")
+            NumericOption(self, cfg, "Editor/Wrap/LineIndentWidth", self.sWrappedLineIndentWidth)
         ]
         
         lexerCfg = mks.plugins.editor.Plugin.instance.lexerConfig._config  # FIXME
@@ -255,84 +247,81 @@ class UISettings(QDialog):
             language = core.workspace().currentDocument()._lexer._currentLanguage  # FIXME
             lexerItem.setText(0, language)
             lexer = core.workspace().currentDocument().qscintilla.lexer()
-            optionNameBeginning = "%s/" % language
+            beginning = "%s/" % language
             
             if hasattr(lexer, "foldComments"):
-                self._options.append(CheckableOption(lexerCfg, optionNameBeginning + "foldComments", "cbLexersHighlightingFoldComments"))
+                self._options.append(CheckableOption(self, lexerCfg, beginning + "foldComments", self.cbLexerFoldComments))
             else:
-                self.cbLexersHighlightingFoldComments.hide()
+                self.cbLexerFoldComments.hide()
             
             if hasattr(lexer, "foldCompact"):
-                self._options.append(CheckableOption(lexerCfg, optionNameBeginning + "foldCompact", "cbLexersHighlightingFoldCompact"))
+                self._options.append(CheckableOption(self, lexerCfg, beginning + "foldCompact", self.cbLexerFoldCompact))
             else:
-                self.cbLexersHighlightingFoldCompact.hide()
+                self.cbLexerFoldCompact.hide()
             
             if hasattr(lexer, "foldQuotes"):
-                self._options.append(CheckableOption(lexerCfg, optionNameBeginning + "foldQuotes", "cbLexersHighlightingFoldQuotes"))
+                self._options.append(CheckableOption(self, lexerCfg, beginning + "foldQuotes", self.cbLexerFoldQuotes))
             else:
-                self.cbLexersHighlightingFoldQuotes.hide()
+                self.cbLexerFoldQuotes.hide()
             
             if hasattr(lexer, "foldDirectives"):
-                self._options.append(CheckableOption(lexerCfg, optionNameBeginning + "foldDirectives", "cbLexersHighlightingFoldDirectives"))
+                self._options.append(CheckableOption(self, lexerCfg, beginning + "foldDirectives", self.cbLexerFoldDirectives))
             else:
-                self.cbLexersHighlightingFoldDirectives.hide()
+                self.cbLexerFoldDirectives.hide()
             
             if hasattr(lexer, "foldAtBegin"):
-                self._options.append(CheckableOption(lexerCfg, optionNameBeginning + "foldAtBegin", "cbLexersHighlightingFoldAtBegin"))
+                self._options.append(CheckableOption(self, lexerCfg, beginning + "foldAtBegin", self.cbLexerFoldAtBegin))
             else:
-                self.cbLexersHighlightingFoldAtBegin.hide()
+                self.cbLexerFoldAtBegin.hide()
             
             if hasattr(lexer, "foldAtParenthesis"):
-                self._options.append(CheckableOption(lexerCfg, optionNameBeginning + "foldAtParenthesis", "cbLexersHighlightingFoldAtParenthesis"))
+                self._options.append(CheckableOption(self, lexerCfg, beginning + "foldAtParenthesis", self.cbLexerFoldAtParenthesis))
             else:
-                self.cbLexersHighlightingFoldAtParenthesis.hide()
+                self.cbLexerFoldAtParenthesis.hide()
             
             if hasattr(lexer, "foldAtElse"):
-                self._options.append(CheckableOption(lexerCfg, optionNameBeginning + "foldAtElse", "cbLexersHighlightingFoldAtElse"))
+                self._options.append(CheckableOption(self, lexerCfg, beginning + "foldAtElse", self.cbLexerFoldAtElse))
             else:
-                self.cbLexersHighlightingFoldAtElse.hide()
+                self.cbLexerFoldAtElse.hide()
             
             if hasattr(lexer, "foldAtModule"):
-                self._options.append(CheckableOption(lexerCfg, optionNameBeginning + "foldAtModule", "cbLexersHighlightingFoldAtModule"))
+                self._options.append(CheckableOption(self, lexerCfg, beginning + "foldAtModule", self.cbLexerFoldAtModule))
             else:
-                self.cbLexersHighlightingFoldAtModule.hide()
+                self.cbLexerFoldAtModule.hide()
             
             if hasattr(lexer, "foldPreprocessor"):
-                self._options.append(CheckableOption(lexerCfg, optionNameBeginning + "foldPreprocessor", "cbLexersHighlightingFoldPreprocessor"))
+                self._options.append(CheckableOption(self, lexerCfg, beginning + "foldPreprocessor", self.cbLexerFoldPreprocessor))
             else:
-                self.cbLexersHighlightingFoldPreprocessor.hide()
+                self.cbLexerFoldPreprocessor.hide()
             
             if hasattr(lexer, "stylePreprocessor"):
-                self._options.append(CheckableOption(lexerCfg, optionNameBeginning + "stylePreprocessor", "cbLexersHighlightingStylePreprocessor"))
+                self._options.append(CheckableOption(self, lexerCfg, beginning + "stylePreprocessor", self.cbLexerStylePreprocessor))
             else:
-                self.cbLexersHighlightingStylePreprocessor.hide()
+                self.cbLexerStylePreprocessor.hide()
             
-            self._options.append(CheckableOption(lexerCfg, optionNameBeginning + "indentOpeningBrace", "cbLexersHighlightingIndentOpeningBrace"))
-            self._options.append(CheckableOption(lexerCfg, optionNameBeginning + "indentClosingBrace", "cbLexersHighlightingIndentClosingBrace"))
+            self._options.append(CheckableOption(self, lexerCfg, beginning + "indentOpeningBrace", self.cbLexerIndentOpeningBrace))
+            self._options.append(CheckableOption(self, lexerCfg, beginning + "indentClosingBrace", self.cbLexerIndentClosingBrace))
             
             if hasattr(lexer, "caseSensitiveTags"):
-                self._options.append(CheckableOption(lexerCfg, optionNameBeginning + "caseSensetiveTags", "cbLexersHighlightingCaseSensitiveTags"))
+                self._options.append(CheckableOption(self, lexerCfg, beginning + "caseSensetiveTags", self.cbLexerCaseSensitiveTags))
             else:
-                self.cbLexersHighlightingCaseSensitiveTags.hide()
+                self.cbLexerCaseSensitiveTags.hide()
             
             if hasattr(lexer, "backslashEscapes"):
-                self._options.append(CheckableOption(lexerCfg, optionNameBeginning + "backslashEscapes", "cbLexersHighlightingBackslashEscapes"))
+                self._options.append(CheckableOption(self, lexerCfg, beginning + "backslashEscapes", self.cbLexerBackslashEscapes))
             else:
-                self.cbLexersHighlightingBackslashEscapes.hide()
+                self.cbLexerBackslashEscapes.hide()
             
             if hasattr(lexer, "indentationWarning"):
-                self._options.append(CheckableOption(lexerCfg, optionNameBeginning + "indentationWarning", "gbLexerHighlightingIndentationWarning"))
-                self._options.append(ChoiseOption(lexerCfg, optionNameBeginning + "indentationWarningReason", 
-                    ("cbIndentationWarningInconsistent", "cbIndentationWarningTabsAfterSpaces", "cbIndentationWarningTabs", "cbIndentationWarningSpaces"),
+                self._options.append(CheckableOption(self, lexerCfg, beginning + "indentationWarning", self.gbLexerHighlightingIndentationWarning))
+                self._options.append(ChoiseOption(self, lexerCfg, beginning + "indentationWarningReason", 
+                    (self.cbIndentationWarningInconsistent, self.cbIndentationWarningTabsAfterSpaces, self.cbIndentationWarningTabs, self.cbIndentationWarningSpaces),
                     self._INDENT_WARNING))
             else:
                 self.gbLexerHighlightingIndentationWarning.hide()
         else:
             lexerItem.setDisabled(True)
-        
-        for option in self._options:
-            option.setDialog(self)
-        
+
         # Expand all items
         self.initTopLevelItems()
         for topLevelItem in self._allTwItems:  # except Languages
@@ -349,25 +338,13 @@ class UISettings(QDialog):
         """
         QDialog.reject(self)
 
-    def accept(self):
-        self.saveSettings()
-        self.applySettings()
-        QDialog.accept(self)
-
     def applySettings(self):
         core.workspace()._openedFileExplorer.mModel.setSortMode(core.config()["Workspace"]["FileSortMode"])
         for document in core.workspace().openedDocuments():
             document.applySettings()
             document._lexer._applySettings()
 
-    def loadSettings(self):
-        for option in self._options:
-            option.load()
-
     def saveSettings(self):
-        for option in self._options:
-            option.save()
-        
         core.config().flush()
         mks.plugins.editor.Plugin.instance.lexerConfig._config.flush()
 
@@ -405,7 +382,7 @@ class UISettings(QDialog):
         # fill lexers combo
         self.cbSourceAPIsLanguages.addItems( availableLanguages() )
         self.cbLexersAssociationsLanguages.addItems( availableLanguages() )
-        self.cbLexersHighlightingLanguages.addItems( availableLanguages() )
+        self.cbLexerLanguages.addItems( availableLanguages() )
 
         # resize column
         self.twLexersAssociations.setColumnWidth( 0, 200 )
@@ -424,8 +401,8 @@ class UISettings(QDialog):
         self.pbLexersHighlightingAllBackground.clicked.connect(self.lexersHighlightingColour_clicked)
         self.pbLexersHighlightingAllFont.clicked.connect(self.lexersHighlightingFont_clicked)
         for cb in self.gbLexersHighlightingElements.findChildren(QCheckBox):
-            if  self.cb != self.cbLexersHighlightingFillEol :
-                self.cb.clicked.connect(self.cbLexersHighlightingProperties_clicked)
+            if  self.cb != self.cbLexerFillEol :
+                self.cb.clicked.connect(self.cbLexerProperties_clicked)
 
         for widget in  self.findChildren(QWidget):
             widget.setAttribute( Qt.WA_MacSmallSize, True )
@@ -459,8 +436,8 @@ class UISettings(QDialog):
         for l in mLexers:
             l.readSettings( *s, scintillaSettingsPath().toLocal8Bit().constData() )
 
-        if  self.cbLexersHighlightingLanguages.count() :
-            on_cbLexersHighlightingLanguages_currentIndexChanged( self.cbLexersHighlightingLanguages.itemText( 0 ) )
+        if  self.cbLexerLanguages.count() :
+            on_cbLexerLanguages_currentIndexChanged( self.cbLexerLanguages.itemText( 0 ) )
 
         #  Abbreviations
         for a in MonkeyCore.abbreviationsManager().abbreviations():
@@ -607,7 +584,7 @@ class UISettings(QDialog):
             leLexersAssociationsFilenamePattern.clear()
             self.cbLexersAssociationsLanguages.setCurrentIndex( -1 )
 
-    def on_cbLexersHighlightingLanguages_currentIndexChanged(self, s ):
+    def on_cbLexerLanguages_currentIndexChanged(self, s ):
         l = mLexers[s]
         lwLexersHighlightingElements.clear()
         for i in range(128):
@@ -622,80 +599,80 @@ class UISettings(QDialog):
         
         # fold comments
         v = lexerProperty( "foldComments", l )
-        self.cbLexersHighlightingFoldComments.setVisible( v.isValid() )
+        self.cbLexerFoldComments.setVisible( v.isValid() )
         if  v.isValid() :
-            self.cbLexersHighlightingFoldComments.setChecked( v.toBool() )
+            self.cbLexerFoldComments.setChecked( v.toBool() )
         # fold compact
         v = lexerProperty( "foldCompact", l )
-        self.cbLexersHighlightingFoldCompact.setVisible( v.isValid() )
+        self.cbLexerFoldCompact.setVisible( v.isValid() )
         if  v.isValid() :
-            self.cbLexersHighlightingFoldCompact.setChecked( v.toBool() )
+            self.cbLexerFoldCompact.setChecked( v.toBool() )
         # fold quotes
         v = lexerProperty( "foldQuotes", l )
-        self.cbLexersHighlightingFoldQuotes.setVisible( v.isValid() )
+        self.cbLexerFoldQuotes.setVisible( v.isValid() )
         if  v.isValid() :
-            self.cbLexersHighlightingFoldQuotes.setChecked( v.toBool() )
+            self.cbLexerFoldQuotes.setChecked( v.toBool() )
         # fold directives
         v = lexerProperty( "foldDirectives", l )
-        self.cbLexersHighlightingFoldDirectives.setVisible( v.isValid() )
+        self.cbLexerFoldDirectives.setVisible( v.isValid() )
         if  v.isValid() :
-            self.cbLexersHighlightingFoldDirectives.setChecked( v.toBool() )
+            self.cbLexerFoldDirectives.setChecked( v.toBool() )
         # fold at begin
         v = lexerProperty( "foldAtBegin", l )
-        self.cbLexersHighlightingFoldAtBegin.setVisible( v.isValid() )
+        self.cbLexerFoldAtBegin.setVisible( v.isValid() )
         if  v.isValid() :
-            self.cbLexersHighlightingFoldAtBegin.setChecked( v.toBool() )
+            self.cbLexerFoldAtBegin.setChecked( v.toBool() )
         # fold at parenthesis
         v = lexerProperty( "foldAtParenthesis", l )
-        self.cbLexersHighlightingFoldAtParenthesis.setVisible( v.isValid() )
+        self.cbLexerFoldAtParenthesis.setVisible( v.isValid() )
         if  v.isValid() :
-            self.cbLexersHighlightingFoldAtParenthesis.setChecked( v.toBool() )
+            self.cbLexerFoldAtParenthesis.setChecked( v.toBool() )
         # fold at else:
         v = lexerProperty( "foldAtElse", l )
-        self.cbLexersHighlightingFoldAtElse.setVisible( v.isValid() )
+        self.cbLexerFoldAtElse.setVisible( v.isValid() )
         if  v.isValid() :
-            self.cbLexersHighlightingFoldAtElse.setChecked( v.toBool() )
+            self.cbLexerFoldAtElse.setChecked( v.toBool() )
         # fold at module
         v = lexerProperty( "foldAtModule", l )
-        self.cbLexersHighlightingFoldAtModule.setVisible( v.isValid() )
+        self.cbLexerFoldAtModule.setVisible( v.isValid() )
         if  v.isValid() :
-            self.cbLexersHighlightingFoldAtModule.setChecked( v.toBool() )
+            self.cbLexerFoldAtModule.setChecked( v.toBool() )
         # fold preprocessor
         v = lexerProperty( "foldPreprocessor", l )
-        self.cbLexersHighlightingFoldPreprocessor.setVisible( v.isValid() )
+        self.cbLexerFoldPreprocessor.setVisible( v.isValid() )
         if  v.isValid() :
-            self.cbLexersHighlightingFoldPreprocessor.setChecked( v.toBool() )
+            self.cbLexerFoldPreprocessor.setChecked( v.toBool() )
         # style preprocessor
         v = lexerProperty( "stylePreprocessor", l )
-        self.cbLexersHighlightingStylePreprocessor.setVisible( v.isValid() )
+        self.cbLexerStylePreprocessor.setVisible( v.isValid() )
         if  v.isValid() :
-            self.cbLexersHighlightingStylePreprocessor.setChecked( v.toBool() )
+            self.cbLexerStylePreprocessor.setChecked( v.toBool() )
         # indent opening brace
-        self.cbLexersHighlightingIndentOpeningBrace.setChecked( l.autoIndentStyle() & QsciScintilla.AiOpening )
+        self.cbLexerIndentOpeningBrace.setChecked( l.autoIndentStyle() & QsciScintilla.AiOpening )
         # indent closing brace
-        self.cbLexersHighlightingIndentClosingBrace.setChecked( l.autoIndentStyle() & QsciScintilla.AiClosing )
+        self.cbLexerIndentClosingBrace.setChecked( l.autoIndentStyle() & QsciScintilla.AiClosing )
         # case sensitive tags
         v = lexerProperty( "caseSensitiveTags", l )
-        self.cbLexersHighlightingCaseSensitiveTags.setVisible( v.isValid() )
+        self.cbLexerCaseSensitiveTags.setVisible( v.isValid() )
         if  v.isValid() :
-            self.cbLexersHighlightingCaseSensitiveTags.setChecked( v.toBool() )
+            self.cbLexerCaseSensitiveTags.setChecked( v.toBool() )
         # backslash escapes
         v = lexerProperty( "backslashEscapes", l )
-        self.cbLexersHighlightingBackslashEscapes.setVisible( v.isValid() )
+        self.cbLexerBackslashEscapes.setVisible( v.isValid() )
         if  v.isValid() :
-            self.cbLexersHighlightingBackslashEscapes.setChecked( v.toBool() )
+            self.cbLexerBackslashEscapes.setChecked( v.toBool() )
         # indentation warning
         v = lexerProperty( "indentationWarning", l )
         lLexersHighlightingIndentationWarning.setVisible( v.isValid() )
-        self.cbLexersHighlightingIndentationWarning.setVisible( lLexersHighlightingIndentationWarning.isVisible() )
+        self.cbLexerIndentationWarning.setVisible( lLexersHighlightingIndentationWarning.isVisible() )
         if  v.isValid() :
-            self.cbLexersHighlightingIndentationWarning.setCurrentIndex( self.cbLexersHighlightingIndentationWarning.findData( v.toInt() ) )
+            self.cbLexerIndentationWarning.setCurrentIndex( self.cbLexerIndentationWarning.findData( v.toInt() ) )
 
 
     def on_lwLexersHighlightingElements_itemSelectionChanged(self):
         it = lwLexersHighlightingElements.selectedItems()[0]
         if  it :
-            self.cbLexersHighlightingFillEol.setChecked( mLexers.value[self.cbLexersHighlightingLanguages.currentText()].eolFill( it.data( Qt.UserRole ).toInt() ) )
+            self.cbLexerFillEol.setChecked( mLexers.value[self.cbLexerLanguages.currentText()].eolFill( it.data( Qt.UserRole ).toInt() ) )
 
     def lexersHighlightingColour_clicked(self):
         # get self.sender
@@ -718,14 +695,14 @@ class UISettings(QDialog):
             if  c.isValid() :
                 if  o == self.pbLexersHighlightingForeground :
                     it.setForeground( c )
-                    mLexers.value( self.cbLexersHighlightingLanguages.currentText() ).setColor( c, it.data( Qt.UserRole ).toInt() )
+                    mLexers.value( self.cbLexerLanguages.currentText() ).setColor( c, it.data( Qt.UserRole ).toInt() )
                 elif  o == self.pbLexersHighlightingBackground :
                     it.setBackground( c )
-                    mLexers.value( self.cbLexersHighlightingLanguages.currentText() ).setPaper( c, it.data( Qt.UserRole ).toInt() )
+                    mLexers.value( self.cbLexerLanguages.currentText() ).setPaper( c, it.data( Qt.UserRole ).toInt() )
         # gobal color
         elif  o == self.pbLexersHighlightingAllForeground or o == self.pbLexersHighlightingAllBackground :
             # get lexer
-            l = mLexers.value( self.cbLexersHighlightingLanguages.currentText() )
+            l = mLexers.value( self.cbLexerLanguages.currentText() )
             # get color
             c = QColorDialog.getColor( o == self.pbLexersHighlightingAllForeground ? l.color( -1 ) : l.paper( -1 ), self.window() )
             # apply
@@ -735,7 +712,7 @@ class UISettings(QDialog):
                 elif  o == self.pbLexersHighlightingAllBackground :
                     l.setPaper( c, -1 )
                 # refresh
-                on_cbLexersHighlightingLanguages_currentIndexChanged( l.language() )
+                on_cbLexerLanguages_currentIndexChanged( l.language() )
 
     def lexersHighlightingFont_clicked(self):
         # get self.sender
@@ -753,62 +730,62 @@ class UISettings(QDialog):
             # apply
             if  b :
                 it.setFont( f )
-                mLexers.value( self.cbLexersHighlightingLanguages.currentText() ).setFont( f, it.data( Qt.UserRole ).toInt() )
+                mLexers.value( self.cbLexerLanguages.currentText() ).setFont( f, it.data( Qt.UserRole ).toInt() )
         # global font
         elif  o == self.pbLexersHighlightingAllFont :
             # get lexer
-            l = mLexers[self.cbLexersHighlightingLanguages.currentText()]
+            l = mLexers[self.cbLexerLanguages.currentText()]
             # get font
             f, b = QFontDialog.getFont(l.font( -1 ), self.window() )
             # apply
             if  b :
                 l.setFont( f, -1 )
-                on_cbLexersHighlightingLanguages_currentIndexChanged( l.language() )
+                on_cbLexerLanguages_currentIndexChanged( l.language() )
 
-    def on_cbLexersHighlightingFillEol_clicked(self, b ):
+    def on_cbLexerFillEol_clicked(self, b ):
         it = lwLexersHighlightingElements.selectedItems()[0]
         if  it :
-            mLexers[self.cbLexersHighlightingLanguages.currentText()].setEolFill( b, it.data( Qt.UserRole ).toInt() )
+            mLexers[self.cbLexerLanguages.currentText()].setEolFill( b, it.data( Qt.UserRole ).toInt() )
 
-    def on_cbLexersHighlightingProperties_clicked(self, b ):
+    def on_cbLexerProperties_clicked(self, b ):
         # get check box
         checkBox = self.sender()
         # get lexer
-        l = mLexers[self.cbLexersHighlightingLanguages.currentText()]
+        l = mLexers[self.cbLexerLanguages.currentText()]
         # set lexer properties
-        if  checkBox == self.cbLexersHighlightingIndentOpeningBrace or checkBox == self.cbLexersHighlightingIndentClosingBrace :
-            if  self.cbLexersHighlightingIndentOpeningBrace.isChecked() and self.cbLexersHighlightingIndentClosingBrace.isChecked() :
+        if  checkBox == self.cbLexerIndentOpeningBrace or checkBox == self.cbLexerIndentClosingBrace :
+            if  self.cbLexerIndentOpeningBrace.isChecked() and self.cbLexerIndentClosingBrace.isChecked() :
                 l.setAutoIndentStyle( QsciScintilla.AiOpening | QsciScintilla.AiClosing )
-            elif  self.cbLexersHighlightingIndentOpeningBrace.isChecked() :
+            elif  self.cbLexerIndentOpeningBrace.isChecked() :
                 l.setAutoIndentStyle( QsciScintilla.AiOpening )
-            elif  self.cbLexersHighlightingIndentClosingBrace.isChecked() :
+            elif  self.cbLexerIndentClosingBrace.isChecked() :
                 l.setAutoIndentStyle( QsciScintilla.AiClosing )
             else:
                 l.setAutoIndentStyle( QsciScintilla.AiMaintain )
         else:
             setLexerProperty( checkBox.statusTip(), l, b )
 
-    def on_cbLexersHighlightingIndentationWarning_currentIndexChanged(self, i ):
+    def on_cbLexerIndentationWarning_currentIndexChanged(self, i ):
         # get lexer
-        l = mLexers[self.cbLexersHighlightingLanguages.currentText()]
+        l = mLexers[self.cbLexerLanguages.currentText()]
         # set lexer properties
-        setLexerProperty( self.cbLexersHighlightingIndentationWarning.statusTip(), l, self.cbLexersHighlightingIndentationWarning.itemData( i ) )
+        setLexerProperty( self.cbLexerIndentationWarning.statusTip(), l, self.cbLexerIndentationWarning.itemData( i ) )
 
     def on_pbLexersHighlightingReset_clicked(self):
         # get lexer
-        l = mLexers[self.cbLexersHighlightingLanguages.currentText()]
+        l = mLexers[self.cbLexerLanguages.currentText()]
         # reset and refresh
         if  l :
             resetLexer( l )
-            on_cbLexersHighlightingLanguages_currentIndexChanged( l.language() )
+            on_cbLexerLanguages_currentIndexChanged( l.language() )
 
     def on_pbLexersApplyDefaultFont_clicked(self):
         settings = MonkeyCore.settings()
         font = self.lDefaultDocumentFont.font()
-        language = self.cbLexersHighlightingLanguages.currentText()
+        language = self.cbLexerLanguages.currentText()
         
         settings.setDefaultLexerProperties( font, False )
-        on_cbLexersHighlightingLanguages_currentIndexChanged( language )
+        on_cbLexerLanguages_currentIndexChanged( language )
 
     def on_twAbbreviations_itemSelectionChanged(self):
         # get item

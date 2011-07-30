@@ -1862,7 +1862,7 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_11">
           <item>
-           <widget class="QCheckBox" name="cbLexersHighlightingFoldComments">
+           <widget class="QCheckBox" name="cbLexerFoldComments">
             <property name="statusTip">
              <string>setFoldComments</string>
             </property>
@@ -1872,7 +1872,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="cbLexersHighlightingFoldCompact">
+           <widget class="QCheckBox" name="cbLexerFoldCompact">
             <property name="statusTip">
              <string>setFoldCompact</string>
             </property>
@@ -1882,7 +1882,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="cbLexersHighlightingFoldQuotes">
+           <widget class="QCheckBox" name="cbLexerFoldQuotes">
             <property name="statusTip">
              <string>setFoldQuotes</string>
             </property>
@@ -1892,7 +1892,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="cbLexersHighlightingFoldDirectives">
+           <widget class="QCheckBox" name="cbLexerFoldDirectives">
             <property name="statusTip">
              <string>setFoldDirectives</string>
             </property>
@@ -1902,7 +1902,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="cbLexersHighlightingFoldAtBegin">
+           <widget class="QCheckBox" name="cbLexerFoldAtBegin">
             <property name="statusTip">
              <string>setFoldAtBegin</string>
             </property>
@@ -1912,7 +1912,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="cbLexersHighlightingFoldAtParenthesis">
+           <widget class="QCheckBox" name="cbLexerFoldAtParenthesis">
             <property name="statusTip">
              <string>setFoldAtParenthesis</string>
             </property>
@@ -1922,7 +1922,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="cbLexersHighlightingFoldAtElse">
+           <widget class="QCheckBox" name="cbLexerFoldAtElse">
             <property name="statusTip">
              <string>setFoldAtElse</string>
             </property>
@@ -1932,7 +1932,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="cbLexersHighlightingFoldAtModule">
+           <widget class="QCheckBox" name="cbLexerFoldAtModule">
             <property name="statusTip">
              <string>setFoldAtModule</string>
             </property>
@@ -1942,7 +1942,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="cbLexersHighlightingFoldPreprocessor">
+           <widget class="QCheckBox" name="cbLexerFoldPreprocessor">
             <property name="statusTip">
              <string>setFoldPreprocessor</string>
             </property>
@@ -1961,7 +1961,7 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_6">
           <item>
-           <widget class="QCheckBox" name="cbLexersHighlightingStylePreprocessor">
+           <widget class="QCheckBox" name="cbLexerStylePreprocessor">
             <property name="statusTip">
              <string>setStylePreprocessor</string>
             </property>
@@ -1971,7 +1971,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="cbLexersHighlightingCaseSensitiveTags">
+           <widget class="QCheckBox" name="cbLexerCaseSensitiveTags">
             <property name="statusTip">
              <string>setCaseSensitiveTags</string>
             </property>
@@ -1981,7 +1981,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="cbLexersHighlightingBackslashEscapes">
+           <widget class="QCheckBox" name="cbLexerBackslashEscapes">
             <property name="statusTip">
              <string>setBackslashEscapes</string>
             </property>
@@ -1991,21 +1991,21 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="cbLexersHighlightingFillEol">
+           <widget class="QCheckBox" name="cbLexerFillEol">
             <property name="text">
              <string>Fill to end of line</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="cbLexersHighlightingIndentOpeningBrace">
+           <widget class="QCheckBox" name="cbLexerIndentOpeningBrace">
             <property name="text">
              <string>Indent opening brace</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="cbLexersHighlightingIndentClosingBrace">
+           <widget class="QCheckBox" name="cbLexerIndentClosingBrace">
             <property name="text">
              <string>Indent closing brace</string>
             </property>
