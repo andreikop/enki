@@ -358,6 +358,7 @@ class UISettings(QDialog):
         core.workspace()._openedFileExplorer.mModel.setSortMode(core.config()["Workspace"]["FileSortMode"])
         for document in core.workspace().openedDocuments():
             document.applySettings()
+            document._applyLexerSettings(document.getLanguage(), document.lexer)
 
     def loadSettings(self):
         for option in self._options:
