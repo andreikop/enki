@@ -19,8 +19,6 @@ from mks.core.core import core
 
 from mks.core.config import Config
 
-_LEXERS_CONFIG_PATH = os.path.expanduser('~/.mksv3.lexers.cfg')
-
 class _QsciScintilla(QsciScintilla):
     """QsciScintilla wrapper class created only for filter Shift+Tab events.
     
@@ -36,11 +34,77 @@ class _QsciScintilla(QsciScintilla):
         else:
             super(_QsciScintilla, self).keyPressEvent(event)
 
-
-class Editor(mks.core.abstractdocument.AbstractDocument):
-    """Text editor widget.
+class _LexerConfiguration:
+    """Class manages settings of QScintilla lexers. Functionality:
+    * Create configuration file with lexer defaults
+    * Load and save the file
+    """
+    _CONFIG_PATH = os.path.expanduser('~/.mksv3.lexers.cfg')
+    _LEXER_ATTRIBUTES = ("foldComments",
+                         "foldCompact",
+                         "foldQuotes",
+                         "foldDirectives",
+                         "foldAtBegin",
+                         "foldAtParenthesis",
+                         "foldAtElse",
+                         "foldAtModule",
+                         "foldPreprocessor",
+                         "stylePreprocessor",
+                         "caseSensitiveTags",
+                         "backslashEscapes")
     
-    Uses QScintilla internally
+    def __init__(self):
+        if os.path.exists(self._CONFIG_PATH):  # File exists, load it
+            try:
+                self._config = Config(True, self._CONFIG_PATH)
+            except UserWarning, ex:
+                core.messageManager().appendMessage(unicode(str(ex), 'utf_8'))
+                self._config = None
+            self._convertConfigValueTypes()
+        else:  # First start, generate file
+            self._config = Config(True, self._CONFIG_PATH)
+            self._generateDefaultConfig()
+            self._config.flush()
+
+    def _convertConfigValueTypes(self):
+        """There are no scheme for lexer configuration, therefore need to convert types manually
+        """
+        for languageOptions in self._config.itervalues():
+            for key in languageOptions.iterkeys():
+                value = languageOptions[key]
+                if value == 'True':
+                    languageOptions[key] = True
+                elif value == 'False':
+                    languageOptions[key] = False
+                elif value.isdigit():
+                    languageOptions[key] = int(value)
+
+    def _generateDefaultConfig(self):
+        for language, lexerClass in _Lexer._lexerForLanguage.items():
+            self._config[language] = {}
+            lexerSection = self._config[language]
+            lexerObject = lexerClass()
+
+            for attribute in _LexerConfiguration._LEXER_ATTRIBUTES:
+                if hasattr(lexerObject, attribute):
+                    lexerSection[attribute] = getattr(lexerObject, attribute)()
+            lexerSection['indentOpeningBrace'] = bool(lexerObject.autoIndentStyle() & QsciScintilla.AiOpening)
+            lexerSection['indentClosingBrace'] = bool(lexerObject.autoIndentStyle() & QsciScintilla.AiClosing)
+            if hasattr(lexerObject, "indentationWarning"):
+                reason = getattr(lexerObject, "indentationWarning")()
+                reasonFromQsci = dict((v, k) for k, v in _Lexer._PYTHON_INDENTATION_WARNING_TO_QSCI.items())
+                if reason == QsciLexerPython.NoWarning:
+                    lexerSection['indentationWarning'] = False
+                    # MkS default reason
+                    lexerSection['indentationWarningReason'] = reasonFromQsci[QsciLexerPython.Inconsistent]
+                else:
+                    lexerSection['indentationWarning'] = True
+                    lexerSection['indentationWarningReason'] = reasonFromQsci[reason]
+    
+class _Lexer:
+    """Wrapper for all Qscintilla lexers. Functionality:
+    * Choose lexer for file
+    * Apply lexer settings
     """
     _lexerForLanguage = {
         "Bash"          : QsciLexerBash,
@@ -75,6 +139,73 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         "Verilog"       : QsciLexerVerilog,
         "Spice"         : QsciLexerSpice,
     }
+
+    _PYTHON_INDENTATION_WARNING_TO_QSCI = {"Inconsistent"    : QsciLexerPython.Inconsistent,
+                                           "TabsAfterSpaces" : QsciLexerPython.TabsAfterSpaces,
+                                           "Spaces"          : QsciLexerPython.Spaces,
+                                           "Tabs"            : QsciLexerPython.Tabs}
+    
+    def __init__(self, editor):
+        """editor - reference to parent :class:`mks.plugins.editor.Editor` object
+        """
+        self._editor = editor
+        # Detect language
+        self._currentLanguage = self._getLanguage()
+        # Create lexer
+        lexerClass =  self._lexerForLanguage[self._currentLanguage]
+        self._qscilexer = lexerClass()
+        self._applySettings()
+        self._editor.qscintilla.setLexer(self._qscilexer)
+    
+    def _getLanguage(self):
+        """Get language name by file path
+        """
+        for language in self._lexerForLanguage.iterkeys():
+            for pattern in core.config()["Editor"]["Assotiations"][language]:
+                if fnmatch.fnmatch(self._editor.filePath(), pattern):
+                    return language
+        else:
+            return None
+        
+    def _applySettings(self):
+        # Apply fonts and colors
+        defaultFont = QFont(core.config()["Editor"]["DefaultFont"],
+                            core.config()["Editor"]["DefaultFontSize"])
+        self._qscilexer.setDefaultFont(defaultFont)
+        for i in range(128):
+            if self._qscilexer.description(i):
+                font  = self._qscilexer.font(i)
+                font.setFamily(defaultFont.family())
+                self._qscilexer.setFont(font, i)
+                #lexer->setColor(lexer->defaultColor(i), i);  # TODO configure lexer colors
+                #lexer->setEolFill(lexer->defaultEolFill(i), i);
+                #lexer->setPaper(lexer->defaultPaper(i), i);
+        
+        # Apply language specific settings
+        lexerSection = Plugin.instance.lexerConfig._config[self._currentLanguage]  # FIXME 
+        
+        for attribute in _LexerConfiguration._LEXER_ATTRIBUTES:
+            setterName = 'set' + attribute.capitalize()            
+            if hasattr(self._qscilexer, setterName):
+                getattr(self._qscilexer, setterName)(lexerSection[attribute])
+        
+        autoIndentStyle = 0
+        if lexerSection['indentOpeningBrace']:
+            autoIndentStyle &= QsciScintilla.AiOpening
+        if lexerSection['indentClosingBrace']:
+            autoIndentStyle &= QsciScintilla.AiClosing
+        self._qscilexer.setAutoIndentStyle(autoIndentStyle)
+        
+        if hasattr(self._qscilexer, "setIndentationWarning"):
+            if lexerSection['indentationWarning']:
+                qsciReason = self._PYTHON_INDENTATION_WARNING_TO_QSCI[lexerSection['indentationWarningReason']]
+                self._qscilexer.setIndentationWarning(qsciReason)
+
+class Editor(mks.core.abstractdocument.AbstractDocument):
+    """Text editor widget.
+    
+    Uses QScintilla internally
+    """
     
     _MARKER_BOOKMARK = -1  # QScintilla marker type
     
@@ -111,11 +242,6 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
                                 "NoAutoCompletionContext"  : QsciScintilla.CallTipsNoAutoCompletionContext,
                                 "Context"                  : QsciScintilla.CallTipsContext}
     
-    _PYTHON_INDENTATION_WARNING_TO_QSCI = {"Inconsistent"    : QsciLexerPython.Inconsistent,
-                                           "TabsAfterSpaces" : QsciLexerPython.TabsAfterSpaces,
-                                           "Spaces"          : QsciLexerPython.Spaces,
-                                           "Tabs"            : QsciLexerPython.Tabs}
-    
     def __init__(self, parentObject, filePath):
         super(Editor, self).__init__(parentObject, filePath)
         
@@ -146,10 +272,8 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         self.qscintilla.modificationChanged.connect(self.modifiedChanged)
         self.qscintilla.linesChanged.connect(self._onLinesChanged)
         
-        myConfig = core.config()["Editor"]
-        
         self.applySettings()
-        self._applyLexer(filePath)
+        self._lexer = _Lexer(self)
         
         if filePath:
             try:
@@ -158,6 +282,8 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
                 self.deleteLater()  # make sure C++ object deleted
                 raise ex
             self.setText(text)
+        
+        myConfig = core.config()["Editor"]
         
         # make backup if needed
         if  myConfig["CreateBackupUponOpen"]:
@@ -290,56 +416,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
                                                myConfig["Wrap"]["LineIndentWidth"])
         else:
             self.qscintilla.setWrapMode(QsciScintilla.WrapNone)
-    
-    def _applyLexer(self, filePath):
-        """Detect lexer for file name, configure it and apply to the editor
-        """
-        language = self.getLanguage()
-        if language is None:  # no lexer
-            return
         
-        lexerClass =  self._lexerForLanguage[language]
-        self.lexer = lexerClass()
-        self._applyLexerSettings(language, self.lexer)
-        self.qscintilla.setLexer(self.lexer)
-    
-    def _applyLexerSettings(self, language, lexer):
-        # Apply fonts and colors
-        defaultFont = QFont(core.config()["Editor"]["DefaultFont"],
-                            core.config()["Editor"]["DefaultFontSize"])
-        self.lexer.setDefaultFont(defaultFont)
-        for i in range(128):
-            if lexer.description(i):
-                font  = lexer.font(i)
-                font.setFamily(defaultFont.family())
-                lexer.setFont(font, i)
-                #lexer->setColor(lexer->defaultColor(i), i);  # TODO configure lexer colors
-                #lexer->setEolFill(lexer->defaultEolFill(i), i);
-                #lexer->setPaper(lexer->defaultPaper(i), i);
-        
-        # Apply attributes
-        lexerSection = Plugin.instance._lexerConfig[language]
-        attributes = ("foldComments", "foldCompact", "foldQuotes", "foldDirectives", "foldAtBegin",
-                      "foldAtParenthesis", "foldAtElse", "foldAtModule", "foldPreprocessor",
-                      "stylePreprocessor", "caseSensitiveTags", "backslashEscapes")  # FIXME remove copy-pasted list
-        
-        for attribute in attributes:
-            setterName = 'set' + attribute.capitalize()            
-            if hasattr(lexer, setterName):
-                getattr(lexer, setterName)(lexerSection[attribute])
-        
-        autoIndentStyle = 0
-        if lexerSection['indentOpeningBrace']:
-            autoIndentStyle &= QsciScintilla.AiOpening
-        if lexerSection['indentClosingBrace']:
-            autoIndentStyle &= QsciScintilla.AiClosing
-        lexer.setAutoIndentStyle(autoIndentStyle)
-        
-        if hasattr(lexer, "setIndentationWarning"):
-            if lexerSection['indentationWarning']:
-                qsciReason = self._PYTHON_INDENTATION_WARNING_TO_QSCI[lexerSection['indentationWarningReason']]
-                lexer.setIndentationWarning(qsciReason)
-    
     def text(self):
         """Contents of the editor
         """
@@ -365,14 +442,6 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
             digitsCount += 1
         self.qscintilla.setMarginWidth(0, '0' * digitsCount)
     
-    def getLanguage(self):
-        for language in self._lexerForLanguage.keys():
-            for pattern in core.config()["Editor"]["Assotiations"][language]:
-                if fnmatch.fnmatch(self.filePath(), pattern):
-                    return language
-        else:
-            return None
-        
     def eolMode(self):
         """Line end mode of the file
         """
@@ -522,58 +591,13 @@ class Plugin:
     Installs and removes editor from the system
     """
     def __init__(self):
-        if os.path.exists(_LEXERS_CONFIG_PATH):
-            try:
-                self._lexerConfig = Config(True, _LEXERS_CONFIG_PATH)
-            except UserWarning, ex:
-                core.messageManager().appendMessage(unicode(str(ex), 'utf_8'))
-                self._lexerConfig = None
-            
-            # There are no scheme for this config file, therefore need to resolve types manually
-            for languageOptions in self._lexerConfig.itervalues():
-                for key in languageOptions.iterkeys():
-                    value = languageOptions[key]
-                    if value == 'True':
-                        languageOptions[key] = True
-                    elif value == 'False':
-                        languageOptions[key] = False
-                    elif value.isdigit():
-                        languageOptions[key] = int(value)
-
-        else:  # First start, generate default settings
-            self._lexerConfig = Config(True, _LEXERS_CONFIG_PATH)
-            self._generateDefaultLexerSettings()
-            self._lexerConfig.flush()
-        
+        self.lexerConfig = _LexerConfiguration()
         core.workspace().setTextEditorClass(Editor)
-        Plugin.instance = self  # FIXME hack done for settings. Remove it
+        Plugin.instance = self
     
     def __term__(self):
         core.workspace().setTextEditorClass(None)
     
-    def _generateDefaultLexerSettings(self):
-        for language, lexerClass in Editor._lexerForLanguage.items():
-            self._lexerConfig[language] = {}
-            lexerSection = self._lexerConfig[language]
-            lexerObject = lexerClass()
-            properties = ("foldComments", "foldCompact", "foldQuotes", "foldDirectives", "foldAtBegin",
-                          "foldAtParenthesis", "foldAtElse", "foldAtModule", "foldPreprocessor",
-                          "stylePreprocessor", "caseSensitiveTags", "backslashEscapes")
-            for property in properties:
-                if hasattr(lexerObject, property):
-                    lexerSection[property] = getattr(lexerObject, property)()
-            lexerSection['indentOpeningBrace'] = bool(lexerObject.autoIndentStyle() & QsciScintilla.AiOpening)
-            lexerSection['indentClosingBrace'] = bool(lexerObject.autoIndentStyle() & QsciScintilla.AiClosing)
-            if hasattr(lexerObject, "indentationWarning"):
-                reason = getattr(lexerObject, "indentationWarning")()
-                reasonFromQsci = dict((v, k) for k, v in Editor._PYTHON_INDENTATION_WARNING_TO_QSCI.items())
-                if reason == QsciLexerPython.NoWarning:
-                    lexerSection['indentationWarning'] = False
-                    # MkS default reason
-                    lexerSection['indentationWarningReason'] = reasonFromQsci[QsciLexerPython.Inconsistent]
-                else:
-                    lexerSection['indentationWarning'] = True
-                    lexerSection['indentationWarningReason'] = reasonFromQsci[reason]
 
 """TODO restore or delete old code
 

@@ -18,7 +18,7 @@ from PyQt4.QtGui import QButtonGroup, \
 from PyQt4.Qsci import QsciScintilla
 
 from mks.core.core import core, DATA_FILES_PATH
-from mks.plugins.editor import Editor
+from mks.plugins.editor import Editor, _Lexer
 import mks.plugins.editor  # FIXME for lexer settings. Remove it
 
 def tr(s):
@@ -140,7 +140,7 @@ class UISettings(QDialog):
     _WHITE_MODE = Editor._WHITE_MODE_TO_QSCI.keys()
     _WRAP_MODE = Editor._WRAP_MODE_TO_QSCI.keys()
     _WRAP_FLAG = Editor._WRAP_FLAG_TO_QSCI.keys()
-    _INDENT_WARNING = Editor._PYTHON_INDENTATION_WARNING_TO_QSCI.keys()
+    _INDENT_WARNING = _Lexer._PYTHON_INDENTATION_WARNING_TO_QSCI.keys()
     _SORT_MODE = ["OpeningOrder", "FileName", "URL", "Suffixes"]
     
     def __init__(self, parent):
@@ -248,11 +248,11 @@ class UISettings(QDialog):
             NumericOption(cfg, "Editor/Wrap/LineIndentWidth", "sWrappedLineIndentWidth")
         ]
         
-        lexerCfg = mks.plugins.editor.Plugin.instance._lexerConfig
+        lexerCfg = mks.plugins.editor.Plugin.instance.lexerConfig._config  # FIXME
         lexerItem = self.twMenu.findItems("Language", Qt.MatchExactly | Qt.MatchRecursive)[0]
         if core.workspace().currentDocument() is not None and \
-           core.workspace().currentDocument().getLanguage() is not None:
-            language = core.workspace().currentDocument().getLanguage()
+           core.workspace().currentDocument()._lexer._currentLanguage is not None:
+            language = core.workspace().currentDocument()._lexer._currentLanguage  # FIXME
             lexerItem.setText(0, language)
             lexer = core.workspace().currentDocument().qscintilla.lexer()
             optionNameBeginning = "%s/" % language
@@ -358,7 +358,7 @@ class UISettings(QDialog):
         core.workspace()._openedFileExplorer.mModel.setSortMode(core.config()["Workspace"]["FileSortMode"])
         for document in core.workspace().openedDocuments():
             document.applySettings()
-            document._applyLexerSettings(document.getLanguage(), document.lexer)
+            document._lexer._applySettings()
 
     def loadSettings(self):
         for option in self._options:
@@ -369,7 +369,7 @@ class UISettings(QDialog):
             option.save()
         
         core.config().flush()
-        mks.plugins.editor.Plugin.instance._lexerConfig.flush()
+        mks.plugins.editor.Plugin.instance.lexerConfig._config.flush()
 
     def on_twMenu_itemSelectionChanged(self):
         # get item
