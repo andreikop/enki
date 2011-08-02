@@ -78,7 +78,6 @@ class Plugin:
             try:
                 shortcut = self._config.get(path)
             except KeyError:
-                print >> sys.stderr, "Shortcut not set for", path
                 return
             action.setShortcut(shortcut)
 

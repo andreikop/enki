@@ -127,7 +127,6 @@ class UISettings(QDialog):
     _WHITE_MODE = Editor._WHITE_MODE_TO_QSCI.keys()
     _WRAP_MODE = Editor._WRAP_MODE_TO_QSCI.keys()
     _WRAP_FLAG = Editor._WRAP_FLAG_TO_QSCI.keys()
-    _INDENT_WARNING = _Lexer._PYTHON_INDENTATION_WARNING_TO_QSCI.keys()
     _SORT_MODE = ["OpeningOrder", "FileName", "URL", "Suffixes"]
     
     def __init__(self, parent):
@@ -240,87 +239,7 @@ class UISettings(QDialog):
             NumericOption(self, cfg, "Editor/Wrap/LineIndentWidth", self.sWrappedLineIndentWidth)
         ]
         
-        lexerCfg = mks.plugins.editor.Plugin.instance.lexerConfig._config  # FIXME
-        lexerItem = self.twMenu.findItems("Language", Qt.MatchExactly | Qt.MatchRecursive)[0]
-        if core.workspace().currentDocument() is not None and \
-           core.workspace().currentDocument()._lexer._currentLanguage is not None:
-            language = core.workspace().currentDocument()._lexer._currentLanguage  # FIXME
-            lexerItem.setText(0, language)
-            lexer = core.workspace().currentDocument().qscintilla.lexer()
-            beginning = "%s/" % language
-            
-            if hasattr(lexer, "foldComments"):
-                self._options.append(CheckableOption(self, lexerCfg, beginning + "foldComments", self.cbLexerFoldComments))
-            else:
-                self.cbLexerFoldComments.hide()
-            
-            if hasattr(lexer, "foldCompact"):
-                self._options.append(CheckableOption(self, lexerCfg, beginning + "foldCompact", self.cbLexerFoldCompact))
-            else:
-                self.cbLexerFoldCompact.hide()
-            
-            if hasattr(lexer, "foldQuotes"):
-                self._options.append(CheckableOption(self, lexerCfg, beginning + "foldQuotes", self.cbLexerFoldQuotes))
-            else:
-                self.cbLexerFoldQuotes.hide()
-            
-            if hasattr(lexer, "foldDirectives"):
-                self._options.append(CheckableOption(self, lexerCfg, beginning + "foldDirectives", self.cbLexerFoldDirectives))
-            else:
-                self.cbLexerFoldDirectives.hide()
-            
-            if hasattr(lexer, "foldAtBegin"):
-                self._options.append(CheckableOption(self, lexerCfg, beginning + "foldAtBegin", self.cbLexerFoldAtBegin))
-            else:
-                self.cbLexerFoldAtBegin.hide()
-            
-            if hasattr(lexer, "foldAtParenthesis"):
-                self._options.append(CheckableOption(self, lexerCfg, beginning + "foldAtParenthesis", self.cbLexerFoldAtParenthesis))
-            else:
-                self.cbLexerFoldAtParenthesis.hide()
-            
-            if hasattr(lexer, "foldAtElse"):
-                self._options.append(CheckableOption(self, lexerCfg, beginning + "foldAtElse", self.cbLexerFoldAtElse))
-            else:
-                self.cbLexerFoldAtElse.hide()
-            
-            if hasattr(lexer, "foldAtModule"):
-                self._options.append(CheckableOption(self, lexerCfg, beginning + "foldAtModule", self.cbLexerFoldAtModule))
-            else:
-                self.cbLexerFoldAtModule.hide()
-            
-            if hasattr(lexer, "foldPreprocessor"):
-                self._options.append(CheckableOption(self, lexerCfg, beginning + "foldPreprocessor", self.cbLexerFoldPreprocessor))
-            else:
-                self.cbLexerFoldPreprocessor.hide()
-            
-            if hasattr(lexer, "stylePreprocessor"):
-                self._options.append(CheckableOption(self, lexerCfg, beginning + "stylePreprocessor", self.cbLexerStylePreprocessor))
-            else:
-                self.cbLexerStylePreprocessor.hide()
-            
-            self._options.append(CheckableOption(self, lexerCfg, beginning + "indentOpeningBrace", self.cbLexerIndentOpeningBrace))
-            self._options.append(CheckableOption(self, lexerCfg, beginning + "indentClosingBrace", self.cbLexerIndentClosingBrace))
-            
-            if hasattr(lexer, "caseSensitiveTags"):
-                self._options.append(CheckableOption(self, lexerCfg, beginning + "caseSensetiveTags", self.cbLexerCaseSensitiveTags))
-            else:
-                self.cbLexerCaseSensitiveTags.hide()
-            
-            if hasattr(lexer, "backslashEscapes"):
-                self._options.append(CheckableOption(self, lexerCfg, beginning + "backslashEscapes", self.cbLexerBackslashEscapes))
-            else:
-                self.cbLexerBackslashEscapes.hide()
-            
-            if hasattr(lexer, "indentationWarning"):
-                self._options.append(CheckableOption(self, lexerCfg, beginning + "indentationWarning", self.gbLexerHighlightingIndentationWarning))
-                self._options.append(ChoiseOption(self, lexerCfg, beginning + "indentationWarningReason", 
-                    (self.cbIndentationWarningInconsistent, self.cbIndentationWarningTabsAfterSpaces, self.cbIndentationWarningTabs, self.cbIndentationWarningSpaces),
-                    self._INDENT_WARNING))
-            else:
-                self.gbLexerHighlightingIndentationWarning.hide()
-        else:
-            lexerItem.setDisabled(True)
+        mks.plugins.editor.Plugin.setupSettingsOnUiDialog(self)
 
         # Expand all items
         self.initTopLevelItems()
@@ -330,6 +249,12 @@ class UISettings(QDialog):
         # resize to minimum size
         self.resize( self.minimumSizeHint() )
 
+    def appendOption(self, option):
+        """Append option to the list of holded options.
+        Used for save reference to the option, and free it, after dialog has been closed
+        """
+        self._options.append(option)
+    
     def reject(self):
         """ TODO
         settings = MonkeyCore.settings()        
@@ -596,78 +521,7 @@ class UISettings(QDialog):
                 it.setBackground( l.paper( i ) )
                 it.setFont( l.font( i ) )
                 it.setData( Qt.UserRole, i )
-        
-        # fold comments
-        v = lexerProperty( "foldComments", l )
-        self.cbLexerFoldComments.setVisible( v.isValid() )
-        if  v.isValid() :
-            self.cbLexerFoldComments.setChecked( v.toBool() )
-        # fold compact
-        v = lexerProperty( "foldCompact", l )
-        self.cbLexerFoldCompact.setVisible( v.isValid() )
-        if  v.isValid() :
-            self.cbLexerFoldCompact.setChecked( v.toBool() )
-        # fold quotes
-        v = lexerProperty( "foldQuotes", l )
-        self.cbLexerFoldQuotes.setVisible( v.isValid() )
-        if  v.isValid() :
-            self.cbLexerFoldQuotes.setChecked( v.toBool() )
-        # fold directives
-        v = lexerProperty( "foldDirectives", l )
-        self.cbLexerFoldDirectives.setVisible( v.isValid() )
-        if  v.isValid() :
-            self.cbLexerFoldDirectives.setChecked( v.toBool() )
-        # fold at begin
-        v = lexerProperty( "foldAtBegin", l )
-        self.cbLexerFoldAtBegin.setVisible( v.isValid() )
-        if  v.isValid() :
-            self.cbLexerFoldAtBegin.setChecked( v.toBool() )
-        # fold at parenthesis
-        v = lexerProperty( "foldAtParenthesis", l )
-        self.cbLexerFoldAtParenthesis.setVisible( v.isValid() )
-        if  v.isValid() :
-            self.cbLexerFoldAtParenthesis.setChecked( v.toBool() )
-        # fold at else:
-        v = lexerProperty( "foldAtElse", l )
-        self.cbLexerFoldAtElse.setVisible( v.isValid() )
-        if  v.isValid() :
-            self.cbLexerFoldAtElse.setChecked( v.toBool() )
-        # fold at module
-        v = lexerProperty( "foldAtModule", l )
-        self.cbLexerFoldAtModule.setVisible( v.isValid() )
-        if  v.isValid() :
-            self.cbLexerFoldAtModule.setChecked( v.toBool() )
-        # fold preprocessor
-        v = lexerProperty( "foldPreprocessor", l )
-        self.cbLexerFoldPreprocessor.setVisible( v.isValid() )
-        if  v.isValid() :
-            self.cbLexerFoldPreprocessor.setChecked( v.toBool() )
-        # style preprocessor
-        v = lexerProperty( "stylePreprocessor", l )
-        self.cbLexerStylePreprocessor.setVisible( v.isValid() )
-        if  v.isValid() :
-            self.cbLexerStylePreprocessor.setChecked( v.toBool() )
-        # indent opening brace
-        self.cbLexerIndentOpeningBrace.setChecked( l.autoIndentStyle() & QsciScintilla.AiOpening )
-        # indent closing brace
-        self.cbLexerIndentClosingBrace.setChecked( l.autoIndentStyle() & QsciScintilla.AiClosing )
-        # case sensitive tags
-        v = lexerProperty( "caseSensitiveTags", l )
-        self.cbLexerCaseSensitiveTags.setVisible( v.isValid() )
-        if  v.isValid() :
-            self.cbLexerCaseSensitiveTags.setChecked( v.toBool() )
-        # backslash escapes
-        v = lexerProperty( "backslashEscapes", l )
-        self.cbLexerBackslashEscapes.setVisible( v.isValid() )
-        if  v.isValid() :
-            self.cbLexerBackslashEscapes.setChecked( v.toBool() )
-        # indentation warning
-        v = lexerProperty( "indentationWarning", l )
-        lLexersHighlightingIndentationWarning.setVisible( v.isValid() )
-        self.cbLexerIndentationWarning.setVisible( lLexersHighlightingIndentationWarning.isVisible() )
-        if  v.isValid() :
-            self.cbLexerIndentationWarning.setCurrentIndex( self.cbLexerIndentationWarning.findData( v.toInt() ) )
-
+    
 
     def on_lwLexersHighlightingElements_itemSelectionChanged(self):
         it = lwLexersHighlightingElements.selectedItems()[0]
@@ -746,30 +600,6 @@ class UISettings(QDialog):
         it = lwLexersHighlightingElements.selectedItems()[0]
         if  it :
             mLexers[self.cbLexerLanguages.currentText()].setEolFill( b, it.data( Qt.UserRole ).toInt() )
-
-    def on_cbLexerProperties_clicked(self, b ):
-        # get check box
-        checkBox = self.sender()
-        # get lexer
-        l = mLexers[self.cbLexerLanguages.currentText()]
-        # set lexer properties
-        if  checkBox == self.cbLexerIndentOpeningBrace or checkBox == self.cbLexerIndentClosingBrace :
-            if  self.cbLexerIndentOpeningBrace.isChecked() and self.cbLexerIndentClosingBrace.isChecked() :
-                l.setAutoIndentStyle( QsciScintilla.AiOpening | QsciScintilla.AiClosing )
-            elif  self.cbLexerIndentOpeningBrace.isChecked() :
-                l.setAutoIndentStyle( QsciScintilla.AiOpening )
-            elif  self.cbLexerIndentClosingBrace.isChecked() :
-                l.setAutoIndentStyle( QsciScintilla.AiClosing )
-            else:
-                l.setAutoIndentStyle( QsciScintilla.AiMaintain )
-        else:
-            setLexerProperty( checkBox.statusTip(), l, b )
-
-    def on_cbLexerIndentationWarning_currentIndexChanged(self, i ):
-        # get lexer
-        l = mLexers[self.cbLexerLanguages.currentText()]
-        # set lexer properties
-        setLexerProperty( self.cbLexerIndentationWarning.statusTip(), l, self.cbLexerIndentationWarning.itemData( i ) )
 
     def on_pbLexersHighlightingReset_clicked(self):
         # get lexer
