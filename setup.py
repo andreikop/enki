@@ -8,11 +8,3 @@ setup(name='mksv3',
             package_data={'mks' : ['ui/*.ui', 'config/*.cfg']},
             scripts=['./mksv3']
             )
-func()
-
-sdfasd
-if fuck():
-    
-
-if fuck():
-    
