@@ -152,14 +152,18 @@ class _Lexer:
         # Detect language
         self._currentLanguage = self._getLanguage()
         # Create lexer
-        lexerClass =  self._lexerForLanguage[self._currentLanguage]
-        self._qscilexer = lexerClass()
-        self._applySettings()
-        self._editor.qscintilla.setLexer(self._qscilexer)
+        if self._currentLanguage:
+            lexerClass =  self._lexerForLanguage[self._currentLanguage]
+            self._qscilexer = lexerClass()
+            self._applySettings()
+            self._editor.qscintilla.setLexer(self._qscilexer)
     
     def _getLanguage(self):
         """Get language name by file path
         """
+        if not self._editor.filePath():  #  None or empty
+            return None
+        
         for language in self._lexerForLanguage.iterkeys():
             for pattern in core.config()["Editor"]["Assotiations"][language]:
                 if fnmatch.fnmatch(self._editor.filePath(), pattern):
