@@ -40,18 +40,18 @@ class _LexerConfiguration:
     * Load and save the file
     """
     _CONFIG_PATH = os.path.expanduser('~/.mksv3.lexers.cfg')
-    _LEXER_ATTRIBUTES = ("foldComments",
-                         "foldCompact",
-                         "foldQuotes",
-                         "foldDirectives",
-                         "foldAtBegin",
-                         "foldAtParenthesis",
-                         "foldAtElse",
-                         "foldAtModule",
-                         "foldPreprocessor",
-                         "stylePreprocessor",
-                         "caseSensitiveTags",
-                         "backslashEscapes")
+    _LEXER_BOOL_ATTRIBUTES = ("foldComments",
+                              "foldCompact",
+                              "foldQuotes",
+                              "foldDirectives",
+                              "foldAtBegin",
+                              "foldAtParenthesis",
+                              "foldAtElse",
+                              "foldAtModule",
+                              "foldPreprocessor",
+                              "stylePreprocessor",
+                              "caseSensitiveTags",
+                              "backslashEscapes")
     
     def __init__(self):
         if os.path.exists(self._CONFIG_PATH):  # File exists, load it
@@ -85,7 +85,7 @@ class _LexerConfiguration:
             lexerSection = self._config[language]
             lexerObject = lexerClass()
 
-            for attribute in _LexerConfiguration._LEXER_ATTRIBUTES:
+            for attribute in _LexerConfiguration._LEXER_BOOL_ATTRIBUTES:
                 if hasattr(lexerObject, attribute):
                     lexerSection[attribute] = getattr(lexerObject, attribute)()
             lexerSection['indentOpeningBrace'] = bool(lexerObject.autoIndentStyle() & QsciScintilla.AiOpening)
@@ -100,6 +100,51 @@ class _LexerConfiguration:
                 else:
                     lexerSection['indentationWarning'] = True
                     lexerSection['indentationWarningReason'] = reasonFromQsci[reason]
+    
+    def setupLexerSettingsOnUiDialog(self, dialog):
+        lexerItem = dialog.twMenu.findItems("Language", Qt.MatchExactly | Qt.MatchRecursive)[0]
+        editor = core.workspace().currentDocument()
+
+        if editor is None or \
+           editor._lexer._currentLanguage is None:  # If language is unknown
+            lexerItem.setDisabled(True)
+            return
+        
+        from mks.plugins.uisettings import CheckableOption, ChoiseOption  # fixme
+        
+        lexerItem.setText(0, editor._lexer._currentLanguage)
+        lexer = editor._lexer._qscilexer
+        beginning = "%s/" % editor._lexer._currentLanguage
+        
+        boolAttributeControls = (dialog.cbLexerFoldComments,
+                                 dialog.cbLexerFoldCompact,
+                                 dialog.cbLexerFoldQuotes,
+                                 dialog.cbLexerFoldDirectives,
+                                 dialog.cbLexerFoldAtBegin,
+                                 dialog.cbLexerFoldAtParenthesis,
+                                 dialog.cbLexerFoldAtElse,
+                                 dialog.cbLexerFoldAtModule,
+                                 dialog.cbLexerFoldPreprocessor,
+                                 dialog.cbLexerStylePreprocessor,
+                                 dialog.cbLexerCaseSensitiveTags,
+                                 dialog.cbLexerBackslashEscapes)
+        for attribute, control in zip(self._LEXER_BOOL_ATTRIBUTES, boolAttributeControls):
+            if hasattr(lexer, attribute):
+                dialog.appendOption(CheckableOption(dialog, self._config, beginning + attribute, control))
+            else:
+                control.hide()
+
+        dialog.appendOption(CheckableOption(dialog, self._config, beginning + "indentOpeningBrace", dialog.cbLexerIndentOpeningBrace))
+        dialog.appendOption(CheckableOption(dialog, self._config, beginning + "indentClosingBrace", dialog.cbLexerIndentClosingBrace))
+
+        if hasattr(lexer, "indentationWarning"):
+            dialog.appendOption(CheckableOption(dialog, self._config, beginning + "indentationWarning", dialog.gbLexerHighlightingIndentationWarning))
+            dialog.appendOption(ChoiseOption(dialog, self._config, beginning + "indentationWarningReason", 
+                (dialog.cbIndentationWarningInconsistent, dialog.cbIndentationWarningTabsAfterSpaces, dialog.cbIndentationWarningTabs, dialog.cbIndentationWarningSpaces),
+                _Lexer._PYTHON_INDENTATION_WARNING_TO_QSCI.keys()))
+        else:
+            dialog.gbLexerHighlightingIndentationWarning.hide()
+
     
 class _Lexer:
     """Wrapper for all Qscintilla lexers. Functionality:
@@ -188,7 +233,7 @@ class _Lexer:
         # Apply language specific settings
         lexerSection = Plugin.instance.lexerConfig._config[self._currentLanguage]  # FIXME 
         
-        for attribute in _LexerConfiguration._LEXER_ATTRIBUTES:
+        for attribute in _LexerConfiguration._LEXER_BOOL_ATTRIBUTES:
             setterName = 'set' + attribute.capitalize()            
             if hasattr(self._qscilexer, setterName):
                 getattr(self._qscilexer, setterName)(lexerSection[attribute])
@@ -602,6 +647,10 @@ class Plugin:
     def __term__(self):
         core.workspace().setTextEditorClass(None)
     
+    # FIXME make not static
+    @staticmethod
+    def setupSettingsOnUiDialog(dialog):
+        Plugin.instance.lexerConfig.setupLexerSettingsOnUiDialog(dialog)
 
 """TODO restore or delete old code
 
