@@ -101,7 +101,7 @@ class _LexerConfiguration:
                     lexerSection['indentationWarning'] = True
                     lexerSection['indentationWarningReason'] = reasonFromQsci[reason]
     
-    def setupLexerSettingsOnUiDialog(self, dialog):
+    def setupSettingsOnUiDialog(self, dialog):
         lexerItem = dialog.twMenu.findItems("Language", Qt.MatchExactly | Qt.MatchRecursive)[0]
         editor = core.workspace().currentDocument()
 
@@ -109,8 +109,6 @@ class _LexerConfiguration:
            editor._lexer._currentLanguage is None:  # If language is unknown
             lexerItem.setDisabled(True)
             return
-        
-        from mks.plugins.uisettings import CheckableOption, ChoiseOption  # fixme
         
         lexerItem.setText(0, editor._lexer._currentLanguage)
         lexer = editor._lexer._qscilexer
@@ -128,6 +126,9 @@ class _LexerConfiguration:
                                  dialog.cbLexerStylePreprocessor,
                                  dialog.cbLexerCaseSensitiveTags,
                                  dialog.cbLexerBackslashEscapes)
+        
+        from mks.plugins.uisettings import CheckableOption, ChoiseOption  # fixme
+        
         for attribute, control in zip(self._LEXER_BOOL_ATTRIBUTES, boolAttributeControls):
             if hasattr(lexer, attribute):
                 dialog.appendOption(CheckableOption(dialog, self._config, beginning + attribute, control))
@@ -465,7 +466,90 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
                                                myConfig["Wrap"]["LineIndentWidth"])
         else:
             self.qscintilla.setWrapMode(QsciScintilla.WrapNone)
-        
+    
+    @classmethod
+    def setupSettingsOnUiDialog(cls, dialog):
+            cfg = core.config()
+            from mks.plugins.uisettings import CheckableOption, ChoiseOption, FontOption, NumericOption, ColorOption
+            dialog.appendOption(CheckableOption(dialog, cfg, "Editor/Indentation/ConvertUponOpen", dialog.cbConvertIndentationUponOpen))
+            dialog.appendOption(CheckableOption(dialog, cfg, "Editor/CreateBackupUponOpen", dialog.cbCreateBackupUponOpen))
+            dialog.appendOption(ColorOption(dialog, cfg, "Editor/SelectionBackgroundColor", dialog.tbSelectionBackground))
+            dialog.appendOption(ColorOption(dialog, cfg, "Editor/SelectionForegroundColor", dialog.tbSelectionForeground))
+            dialog.appendOption(CheckableOption(dialog, cfg, "Editor/DefaultDocumentColours", dialog.gbDefaultDocumentColours))
+            dialog.appendOption(ColorOption(dialog, cfg, "Editor/DefaultDocumentPen", dialog.tbDefaultDocumentPen))
+            dialog.appendOption(ColorOption(dialog, cfg, "Editor/DefaultDocumentPaper", dialog.tbDefaultDocumentPaper))
+            dialog.appendOption(FontOption(dialog, cfg, "Editor/DefaultFont", "Editor/DefaultFontSize",
+                                dialog.lDefaultDocumentFont, dialog.pbDefaultDocumentFont))
+            
+            dialog.appendOption(CheckableOption(dialog, cfg, "Editor/AutoCompletion/Enabled", dialog.gbAutoCompletion))
+            dialog.appendOption(ChoiseOption(dialog, cfg, "Editor/AutoCompletion/Source",
+                                (dialog.rbDocument, dialog.rbApi, dialog.rbFromBoth),
+                                cls._AUTOCOMPLETION_MODE_TO_QSCI.keys()))
+            dialog.appendOption(CheckableOption(dialog, cfg, "Editor/AutoCompletion/CaseSensitivity", dialog.cbAutoCompletionCaseSensitivity))
+            dialog.appendOption(CheckableOption(dialog, cfg, "Editor/AutoCompletion/ReplaceWord", dialog.cbAutoCompletionReplaceWord))
+            dialog.appendOption(CheckableOption(dialog, cfg, "Editor/AutoCompletion/ShowSingle", dialog.cbAutoCompletionShowSingle))
+            dialog.appendOption(NumericOption(dialog, cfg, "Editor/AutoCompletion/Threshold", dialog.sAutoCompletionThreshold))
+            
+            dialog.appendOption(CheckableOption(dialog, cfg, "Editor/CallTips/Enabled", dialog.gbCalltips))
+            dialog.appendOption(NumericOption(dialog, cfg, "Editor/CallTips/VisibleCount", dialog.sCallTipsVisible))
+            dialog.appendOption(ChoiseOption(dialog, cfg, "Editor/CallTips/Style",
+                                (dialog.rbCallTipsNoContext, dialog.rbCallTipsContext, dialog.rbCallTipsNoAutoCompletionContext),
+                                cls._CALL_TIPS_STYLE_TO_QSCI.keys()))
+            dialog.appendOption(ColorOption(dialog, cfg, "Editor/CallTips/BackgroundColor", dialog.tbCalltipsBackground))
+            dialog.appendOption(ColorOption(dialog, cfg, "Editor/CallTips/ForegroundColor", dialog.tbCalltipsForeground))
+            dialog.appendOption(ColorOption(dialog, cfg, "Editor/CallTips/HighlightColor", dialog.tbCalltipsHighlight))
+            
+            dialog.appendOption(CheckableOption(dialog, cfg, "Editor/Indentation/AutoIndent", dialog.cbAutoIndent))
+            dialog.appendOption(CheckableOption(dialog, cfg, "Editor/Indentation/BackspaceUnindents", dialog.cbBackspaceUnindents))
+            dialog.appendOption(CheckableOption(dialog, cfg, "Editor/Indentation/Guides", dialog.gbIndentationGuides))
+            dialog.appendOption(ChoiseOption(dialog, cfg, "Editor/Indentation/UseTabs",
+                                (dialog.rbIndentationSpaces, dialog.rbIndentationTabs),
+                                (False, True)))
+            dialog.appendOption(CheckableOption(dialog, cfg, "Editor/Indentation/AutoDetect", dialog.cbAutodetectIndent))
+            dialog.appendOption(NumericOption(dialog, cfg, "Editor/Indentation/Width", dialog.sIndentationWidth))
+            dialog.appendOption(ColorOption(dialog, cfg, "Editor/Indentation/GuidesBackgroundColor", dialog.tbIndentationGuidesBackground))
+            dialog.appendOption(ColorOption(dialog, cfg, "Editor/Indentation/GuidesForegroundColor", dialog.tbIndentationGuidesForeground))
+            
+            dialog.appendOption(CheckableOption(dialog, cfg, "Editor/BraceMatching/Enabled", dialog.gbBraceMatchingEnabled))
+            dialog.appendOption(ChoiseOption(dialog, cfg, "Editor/BraceMatching/Mode",
+                                (dialog.rbStrictBraceMatch, dialog.rbSloppyBraceMatch),
+                                cls._BRACE_MATCHING_TO_QSCI.keys()))
+            dialog.appendOption(ColorOption(dialog, cfg, "Editor/BraceMatching/MatchedForegroundColor", dialog.tbMatchedBraceForeground))
+            dialog.appendOption(ColorOption(dialog, cfg, "Editor/BraceMatching/MatchedBackgroundColor", dialog.tbMatchedBraceBackground))
+            dialog.appendOption(ColorOption(dialog, cfg, "Editor/BraceMatching/UnmatchedBackgroundColor", dialog.tbUnmatchedBraceBackground))
+            dialog.appendOption(ColorOption(dialog, cfg, "Editor/BraceMatching/UnmatchedForegroundColor", dialog.tbUnmatchedBraceForeground))
+            
+            dialog.appendOption(CheckableOption(dialog, cfg, "Editor/Edge/Enabled", dialog.gbEdgeModeEnabled))
+            dialog.appendOption(ChoiseOption(dialog, cfg, "Editor/Edge/Mode", (dialog.rbEdgeLine, dialog.rbEdgeBackground),
+                                cls._EDGE_MODE_TO_QSCI.keys()))
+            dialog.appendOption(NumericOption(dialog, cfg, "Editor/Edge/Column", dialog.sEdgeColumnNumber))
+            dialog.appendOption(ColorOption(dialog, cfg, "Editor/Edge/Color", dialog.tbEdgeColor))
+
+            dialog.appendOption(CheckableOption(dialog, cfg, "Editor/Caret/LineVisible", dialog.gbCaretLineVisible))
+            dialog.appendOption(ColorOption(dialog, cfg, "Editor/Caret/LineBackgroundColor", dialog.tbCaretLineBackground))
+            dialog.appendOption(ColorOption(dialog, cfg, "Editor/Caret/ForegroundColor", dialog.tbCaretForeground))
+            dialog.appendOption(NumericOption(dialog, cfg, "Editor/Caret/Width", dialog.sCaretWidth))
+
+            dialog.appendOption(ChoiseOption(dialog, cfg, "Editor/EOL/Mode", (dialog.rbEolUnix, dialog.rbEolWindows, dialog.rbEolMac),
+                                cls._EOL_CONVERTOR_TO_QSCI.keys()))
+            dialog.appendOption(CheckableOption(dialog, cfg, "Editor/EOL/Visibility", dialog.cbEolVisibility))
+            dialog.appendOption(CheckableOption(dialog, cfg, "Editor/EOL/AutoDetect", dialog.cbAutoDetectEol))
+            dialog.appendOption(CheckableOption(dialog, cfg, "Editor/EOL/AutoConvert", dialog.cbAutoEolConversion))
+            dialog.appendOption(ChoiseOption(dialog, cfg, "Editor/WhitespaceVisibility",
+                                (dialog.rbWsInvisible, dialog.rbWsVisible, dialog.rbWsVisibleAfterIndent),
+                                cls._WHITE_MODE_TO_QSCI.keys()))
+            
+            dialog.appendOption(CheckableOption(dialog, cfg, "Editor/Wrap/Enabled", dialog.gbWrapModeEnabled))
+            dialog.appendOption(ChoiseOption(dialog, cfg, "Editor/Wrap/Mode", (dialog.rbWrapCharacter, dialog.rbWrapWord),
+                                cls._WRAP_MODE_TO_QSCI.keys()))
+            dialog.appendOption(ChoiseOption(dialog, cfg, "Editor/Wrap/StartVisualFlag",
+                                (dialog.rbStartWrapFlagNone, dialog.rbStartWrapFlagByText, dialog.rbStartWrapFlagByBorder),
+                                cls._WRAP_FLAG_TO_QSCI.keys()))
+            dialog.appendOption(ChoiseOption(dialog, cfg, "Editor/Wrap/EndVisualFlag",
+                                (dialog.rbEndWrapFlagNone, dialog.rbEndWrapFlagByText, dialog.rbEndWrapFlagByBorder),
+                                cls._WRAP_FLAG_TO_QSCI.keys()))
+            dialog.appendOption(NumericOption(dialog, cfg, "Editor/Wrap/LineIndentWidth", dialog.sWrappedLineIndentWidth))
+
     def text(self):
         """Contents of the editor
         """
@@ -650,7 +734,8 @@ class Plugin:
     # FIXME make not static
     @staticmethod
     def setupSettingsOnUiDialog(dialog):
-        Plugin.instance.lexerConfig.setupLexerSettingsOnUiDialog(dialog)
+        Plugin.instance.lexerConfig.setupSettingsOnUiDialog(dialog)
+        Editor.setupSettingsOnUiDialog(dialog)
 
 """TODO restore or delete old code
 
