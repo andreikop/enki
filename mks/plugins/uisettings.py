@@ -119,14 +119,6 @@ class UISettings(QDialog):
     """Settings dialog
     """
     
-    _AUTOCOMPLETION_SOURCE = Editor._AUTOCOMPLETION_MODE_TO_QSCI.keys()
-    _CALL_TIPS_STYLE = Editor._CALL_TIPS_STYLE_TO_QSCI.keys()
-    _BRACE_MATCHING = Editor._BRACE_MATCHING_TO_QSCI.keys()
-    _EDGE_MODE = Editor._EDGE_MODE_TO_QSCI.keys()
-    _EOL_MODE = Editor._EOL_CONVERTOR_TO_QSCI.keys()
-    _WHITE_MODE = Editor._WHITE_MODE_TO_QSCI.keys()
-    _WRAP_MODE = Editor._WRAP_MODE_TO_QSCI.keys()
-    _WRAP_FLAG = Editor._WRAP_FLAG_TO_QSCI.keys()
     _SORT_MODE = ["OpeningOrder", "FileName", "URL", "Suffixes"]
     
     def __init__(self, parent):
@@ -162,81 +154,7 @@ class UISettings(QDialog):
         self._options = \
         [   ChoiseOption(self, cfg, "Workspace/FileSortMode",
                          (self.rbOpeningOrder, self.rbFileName, self.rbUri, self.rbSuffix),
-                         self._SORT_MODE),
-            CheckableOption(self, cfg, "Editor/Indentation/ConvertUponOpen", self.cbConvertIndentationUponOpen),
-            CheckableOption(self, cfg, "Editor/CreateBackupUponOpen", self.cbCreateBackupUponOpen),
-            ColorOption(self, cfg, "Editor/SelectionBackgroundColor", self.tbSelectionBackground),
-            ColorOption(self, cfg, "Editor/SelectionForegroundColor", self.tbSelectionForeground),
-            CheckableOption(self, cfg, "Editor/DefaultDocumentColours", self.gbDefaultDocumentColours),
-            ColorOption(self, cfg, "Editor/DefaultDocumentPen", self.tbDefaultDocumentPen),
-            ColorOption(self, cfg, "Editor/DefaultDocumentPaper", self.tbDefaultDocumentPaper),
-            FontOption(self, cfg, "Editor/DefaultFont", "Editor/DefaultFontSize",
-                        self.lDefaultDocumentFont, self.pbDefaultDocumentFont),
-            
-            CheckableOption(self, cfg, "Editor/AutoCompletion/Enabled", self.gbAutoCompletion),
-            ChoiseOption(self, cfg, "Editor/AutoCompletion/Source",
-                         (self.rbDocument, self.rbApi, self.rbFromBoth),
-                          self._AUTOCOMPLETION_SOURCE),
-            CheckableOption(self, cfg, "Editor/AutoCompletion/CaseSensitivity", self.cbAutoCompletionCaseSensitivity),
-            CheckableOption(self, cfg, "Editor/AutoCompletion/ReplaceWord", self.cbAutoCompletionReplaceWord),
-            CheckableOption(self, cfg, "Editor/AutoCompletion/ShowSingle", self.cbAutoCompletionShowSingle),
-            NumericOption(self, cfg, "Editor/AutoCompletion/Threshold", self.sAutoCompletionThreshold),
-            
-            CheckableOption(self, cfg, "Editor/CallTips/Enabled", self.gbCalltips),
-            NumericOption(self, cfg, "Editor/CallTips/VisibleCount", self.sCallTipsVisible),
-            ChoiseOption(self, cfg, "Editor/CallTips/Style",
-                         (self.rbCallTipsNoContext, self.rbCallTipsContext, self.rbCallTipsNoAutoCompletionContext),
-                         self._CALL_TIPS_STYLE),
-            ColorOption(self, cfg, "Editor/CallTips/BackgroundColor", self.tbCalltipsBackground),
-            ColorOption(self, cfg, "Editor/CallTips/ForegroundColor", self.tbCalltipsForeground),
-            ColorOption(self, cfg, "Editor/CallTips/HighlightColor", self.tbCalltipsHighlight),
-            
-            CheckableOption(self, cfg, "Editor/Indentation/AutoIndent", self.cbAutoIndent),
-            CheckableOption(self, cfg, "Editor/Indentation/BackspaceUnindents", self.cbBackspaceUnindents),
-            CheckableOption(self, cfg, "Editor/Indentation/Guides", self.gbIndentationGuides),
-            ChoiseOption(self, cfg, "Editor/Indentation/UseTabs",
-                         (self.rbIndentationSpaces, self.rbIndentationTabs),
-                         (False, True)),
-            CheckableOption(self, cfg, "Editor/Indentation/AutoDetect", self.cbAutodetectIndent),
-            NumericOption(self, cfg, "Editor/Indentation/Width", self.sIndentationWidth),
-            ColorOption(self, cfg, "Editor/Indentation/GuidesBackgroundColor", self.tbIndentationGuidesBackground),
-            ColorOption(self, cfg, "Editor/Indentation/GuidesForegroundColor", self.tbIndentationGuidesForeground),
-            
-            CheckableOption(self, cfg, "Editor/BraceMatching/Enabled", self.gbBraceMatchingEnabled),
-            ChoiseOption(self, cfg, "Editor/BraceMatching/Mode",
-                         (self.rbStrictBraceMatch, self.rbSloppyBraceMatch),
-                         self._BRACE_MATCHING),
-            ColorOption(self, cfg, "Editor/BraceMatching/MatchedForegroundColor", self.tbMatchedBraceForeground),
-            ColorOption(self, cfg, "Editor/BraceMatching/MatchedBackgroundColor", self.tbMatchedBraceBackground),
-            ColorOption(self, cfg, "Editor/BraceMatching/UnmatchedBackgroundColor", self.tbUnmatchedBraceBackground),
-            ColorOption(self, cfg, "Editor/BraceMatching/UnmatchedForegroundColor", self.tbUnmatchedBraceForeground),
-            
-            CheckableOption(self, cfg, "Editor/Edge/Enabled", self.gbEdgeModeEnabled),
-            ChoiseOption(self, cfg, "Editor/Edge/Mode", (self.rbEdgeLine, self.rbEdgeBackground), self._EDGE_MODE),
-            NumericOption(self, cfg, "Editor/Edge/Column", self.sEdgeColumnNumber),
-            ColorOption(self, cfg, "Editor/Edge/Color", self.tbEdgeColor),
-
-            CheckableOption(self, cfg, "Editor/Caret/LineVisible", self.gbCaretLineVisible),
-            ColorOption(self, cfg, "Editor/Caret/LineBackgroundColor", self.tbCaretLineBackground),
-            ColorOption(self, cfg, "Editor/Caret/ForegroundColor", self.tbCaretForeground),
-            NumericOption(self, cfg, "Editor/Caret/Width", self.sCaretWidth),
-
-            ChoiseOption(self, cfg, "Editor/EOL/Mode", (self.rbEolUnix, self.rbEolWindows, self.rbEolMac), self._EOL_MODE),
-            CheckableOption(self, cfg, "Editor/EOL/Visibility", self.cbEolVisibility),
-            CheckableOption(self, cfg, "Editor/EOL/AutoDetect", self.cbAutoDetectEol),
-            CheckableOption(self, cfg, "Editor/EOL/AutoConvert", self.cbAutoEolConversion),
-            ChoiseOption(self, cfg, "Editor/WhitespaceVisibility",
-                            (self.rbWsInvisible, self.rbWsVisible, self.rbWsVisibleAfterIndent), self._WHITE_MODE),
-            
-            CheckableOption(self, cfg, "Editor/Wrap/Enabled", self.gbWrapModeEnabled),
-            ChoiseOption(self, cfg, "Editor/Wrap/Mode", (self.rbWrapCharacter, self.rbWrapWord), self._WRAP_MODE),
-            ChoiseOption(self, cfg, "Editor/Wrap/StartVisualFlag",
-                         (self.rbStartWrapFlagNone, self.rbStartWrapFlagByText, self.rbStartWrapFlagByBorder),
-                         self._WRAP_FLAG),
-            ChoiseOption(self, cfg, "Editor/Wrap/EndVisualFlag",
-                         (self.rbEndWrapFlagNone, self.rbEndWrapFlagByText, self.rbEndWrapFlagByBorder),
-                         self._WRAP_FLAG),
-            NumericOption(self, cfg, "Editor/Wrap/LineIndentWidth", self.sWrappedLineIndentWidth)
+                         self._SORT_MODE)
         ]
         
         mks.plugins.editor.Plugin.setupSettingsOnUiDialog(self)
