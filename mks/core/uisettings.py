@@ -24,23 +24,6 @@ import mks.plugins.editor  # FIXME for lexer settings. Remove it
 def tr(s):
     return s
 
-class Plugin:
-    """Module implementation
-    """
-    def __init__(self):
-        self._action = core.actionModel().addAction("mSettings/aSettings",
-                                                    tr( "Settings.."), 
-                                                    QIcon(':/mksicons/settings.png'))
-        self._action.setStatusTip(tr( "Edit settigns.."))
-        self._action.triggered.connect(self._onEditSettings)
-        #self._onEditSettings()
-    
-    def __term__(self):
-        core.actionModel().removeAction(self._action)
-
-    def _onEditSettings(self):
-        UISettings(core.mainWindow()).exec_()
-
 class ModuleConfigurator:
     def __init__(self, dialog):
         pass
@@ -122,6 +105,24 @@ class ChoiseOption(Option):
         for index, control in enumerate(self.controls):
             if control.isChecked():
                 self.config.set(self.optionName, self.textValuesList[index])
+
+
+class UISettingsManager:
+    """Module implementation
+    """
+    def __init__(self):
+        self._action = core.actionModel().addAction("mSettings/aSettings",
+                                                    tr( "Settings.."), 
+                                                    QIcon(':/mksicons/settings.png'))
+        self._action.setStatusTip(tr( "Edit settigns.."))
+        self._action.triggered.connect(self._onEditSettings)
+        #self._onEditSettings()
+    
+    def __term__(self):
+        core.actionModel().removeAction(self._action)
+
+    def _onEditSettings(self):
+        UISettings(core.mainWindow()).exec_()
 
 
 class UISettings(QDialog):

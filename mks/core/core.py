@@ -47,6 +47,9 @@ class Core:
         
         self._workspace = mks.core.workspace.Workspace(self._mainWindow)
         self._mainWindow.setWorkspace(self._workspace)
+        
+        import mks.core.uisettings
+        self._uisettings = mks.core.uisettings.UISettingsManager()
             
         # Create plugins
         self._loadPlugin('editor')
@@ -55,7 +58,6 @@ class Core:
         self._loadPlugin('filebrowser')
         self._loadPlugin('appshortcuts')
         self._loadPlugin('editorshortcuts')
-        self._loadPlugin('uisettings')
 
     def term(self):
         """Terminate plugins and core modules
