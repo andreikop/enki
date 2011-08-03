@@ -41,6 +41,15 @@ class Plugin:
     def _onEditSettings(self):
         UISettings(core.mainWindow()).exec_()
 
+class ModuleConfigurator:
+    def __init__(self, dialog):
+        pass
+
+    def saveSettings(self):
+        pass
+
+    def applySettings(self):
+        pass
 
 class Option:
     def __init__(self, dialog, config, optionName, control):
@@ -119,8 +128,6 @@ class UISettings(QDialog):
     """Settings dialog
     """
     
-    _SORT_MODE = ["OpeningOrder", "FileName", "URL", "Suffixes"]
-    
     def __init__(self, parent):
         QDialog.__init__(self, parent)
         self._createdObjects = []
@@ -149,15 +156,10 @@ class UISettings(QDialog):
         for topLevelItem in topLevelItems:
             self._allTwItems.extend(allItems(topLevelItem))
 
-    def createOptions(self):
-        cfg = core.config()
-        self._options = \
-        [   ChoiseOption(self, cfg, "Workspace/FileSortMode",
-                         (self.rbOpeningOrder, self.rbFileName, self.rbUri, self.rbSuffix),
-                         self._SORT_MODE)
-        ]
-        
-        mks.plugins.editor.Plugin.setupSettingsOnUiDialog(self)
+    def createOptions(self):       
+        self._moduleConfigurators = []
+        for moduleConfiguratorClass in core.getModuleConfigurators():
+            self._moduleConfigurators.append(moduleConfiguratorClass(self))
 
         # Expand all items
         self.initTopLevelItems()
@@ -166,12 +168,6 @@ class UISettings(QDialog):
         
         # resize to minimum size
         self.resize( self.minimumSizeHint() )
-
-    def appendOption(self, option):
-        """Append option to the list of holded options.
-        Used for save reference to the option, and free it, after dialog has been closed
-        """
-        self._options.append(option)
     
     def reject(self):
         """ TODO
@@ -182,14 +178,13 @@ class UISettings(QDialog):
         QDialog.reject(self)
 
     def applySettings(self):
-        core.workspace()._openedFileExplorer.mModel.setSortMode(core.config()["Workspace"]["FileSortMode"])
-        for document in core.workspace().openedDocuments():
-            document.applySettings()
-            document._lexer._applySettings()
+        for configurator in self._moduleConfigurators:
+            configurator.applySettings()
 
     def saveSettings(self):
+        for configurator in self._moduleConfigurators:
+            configurator.applySettings()
         core.config().flush()
-        mks.plugins.editor.Plugin.instance.lexerConfig._config.flush()
 
     def on_twMenu_itemSelectionChanged(self):
         # get item

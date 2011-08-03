@@ -23,7 +23,6 @@ _DEFAULT_CONFIG_PATH = os.path.join(DATA_FILES_PATH, 'config/mksv3.default.cfg')
 _DEFAULT_CONFIG_SPEC_PATH = os.path.join(DATA_FILES_PATH, 'config/mksv3.spec.cfg')
 _CONFIG_PATH = os.path.expanduser('~/.mksv3.cfg')
 
-
 class Core:
     """Core object initializes system at startup and terminates at close.
     
@@ -92,6 +91,12 @@ class Core:
         """Get `queued message bar <http://api.monkeystudio.org/fresh/classp_queued_message_tool_bar.html>`_ instance
         """
         return self._mainWindow.queuedMessageToolBar()
+    
+    def getModuleConfigurators(self):
+        import mks.plugins.editor
+        import mks.core.openedfilesmodel
+        return (mks.core.openedfilesmodel._Configurator,
+                mks.plugins.editor.Plugin.instance.getModuleConfigurator())
     
     def _loadPlugin(self, name):
         """Load plugin by it's module name

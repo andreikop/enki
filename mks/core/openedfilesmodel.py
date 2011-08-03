@@ -25,6 +25,24 @@ from PyQt4 import uic
 import PyQt4.fresh
 
 from mks.core.core import core, DATA_FILES_PATH
+from mks.plugins.uisettings import ChoiseOption
+
+class _Configurator:
+    _SORT_MODE = ["OpeningOrder", "FileName", "URL", "Suffixes"]
+    def __init__(self, dialog):
+        
+        cfg = core.config()
+        self._options = \
+        [   ChoiseOption(dialog, cfg, "Workspace/FileSortMode",
+                         (dialog.rbOpeningOrder, dialog.rbFileName, dialog.rbUri, dialog.rbSuffix),
+                         self._SORT_MODE)
+        ]
+    
+    def saveSettings(self):
+        pass
+    
+    def applySettings(self):
+        core.workspace()._openedFileExplorer.mModel.setSortMode(core.config()["Workspace"]["FileSortMode"])
 
 
 
