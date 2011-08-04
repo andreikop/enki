@@ -137,10 +137,16 @@
       <property name="text">
        <string>Environment Variables</string>
       </property>
+      <property name="flags">
+       <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
+      </property>
      </item>
      <item>
       <property name="text">
        <string>File assotiatons</string>
+      </property>
+      <property name="flags">
+       <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
       </property>
      </item>
      <item>
@@ -155,6 +161,9 @@
       <item>
        <property name="text">
         <string>CallTips</string>
+       </property>
+       <property name="flags">
+        <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
        </property>
       </item>
       <item>
@@ -190,15 +199,24 @@
         <property name="text">
          <string>Fonts</string>
         </property>
+        <property name="flags">
+         <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
+        </property>
        </item>
        <item>
         <property name="text">
          <string>API files</string>
         </property>
+        <property name="flags">
+         <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
+        </property>
        </item>
        <item>
         <property name="text">
          <string>Abbreviations</string>
+        </property>
+        <property name="flags">
+         <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
         </property>
        </item>
       </item>
