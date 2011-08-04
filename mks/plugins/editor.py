@@ -335,7 +335,7 @@ class _Lexer:
         lexerSection = Plugin.instance.lexerConfig._config[self._currentLanguage]  # FIXME 
         
         for attribute in _LexerConfiguration._LEXER_BOOL_ATTRIBUTES:
-            setterName = 'set' + attribute.capitalize()            
+            setterName = 'set' + attribute[0].capitalize() + attribute[1:]
             if hasattr(self._qscilexer, setterName):
                 getattr(self._qscilexer, setterName)(lexerSection[attribute])
         
@@ -350,6 +350,9 @@ class _Lexer:
             if lexerSection['indentationWarning']:
                 qsciReason = self._PYTHON_INDENTATION_WARNING_TO_QSCI[lexerSection['indentationWarningReason']]
                 self._qscilexer.setIndentationWarning(qsciReason)
+        
+        self._editor.qscintilla.setLexer(self._qscilexer)  # Settings are not applied without this action
+
 
 class Editor(mks.core.abstractdocument.AbstractDocument):
     """Text editor widget.
@@ -489,6 +492,8 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
     def applySettings(self):
         """Apply own settings form the config
         """
+        self.qscintilla.setFolding(QsciScintilla.BoxedTreeFoldStyle)
+        
         myConfig = core.config()["Editor"]
         self.qscintilla.setSelectionBackgroundColor(QColor(myConfig["SelectionBackgroundColor"]))
         self.qscintilla.setSelectionForegroundColor(QColor(myConfig["SelectionForegroundColor"]))

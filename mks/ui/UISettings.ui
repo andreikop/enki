@@ -2009,13 +2009,6 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="cbLexerFillEol">
-            <property name="text">
-             <string>Fill to end of line</string>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QCheckBox" name="cbLexerIndentOpeningBrace">
             <property name="text">
              <string>Indent opening brace</string>
