@@ -311,6 +311,8 @@ class _Lexer:
             self._qscilexer = lexerClass()
             self._applySettings()
             self._editor.qscintilla.setLexer(self._qscilexer)
+        else:
+            self._qscilexer = None
     
     def _getLanguage(self):
         """Get language name by file path
@@ -326,6 +328,9 @@ class _Lexer:
             return None
         
     def _applySettings(self):
+        if self._qscilexer is None:
+            return
+        
         # Apply fonts and colors
         defaultFont = QFont(core.config()["Editor"]["DefaultFont"],
                             core.config()["Editor"]["DefaultFontSize"])
