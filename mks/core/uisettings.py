@@ -135,6 +135,7 @@ class UISettings(QDialog):
         self._createdObjects = []
 
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/UISettings.ui'), self)
+        self.swPages.setCurrentIndex(0)
         
         self.setAttribute( Qt.WA_DeleteOnClose )
         self.createOptions()
