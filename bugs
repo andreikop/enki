@@ -1,5 +1,10 @@
 FIXME
+    Передавать в ChoiseOption словарь а не 2 списка
+    Сделать галочку выключения фолдинга и номеров строк
+    Тестить все
 
+    Нет иконок на панели доков
+    
     Попытка сохранить настройки
     a@a-desktop:~/code/mksv3$ ./mksv3 setup.py 
     Traceback (most recent call last):
