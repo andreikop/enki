@@ -184,7 +184,7 @@ class UISettings(QDialog):
 
     def saveSettings(self):
         for configurator in self._moduleConfigurators:
-            configurator.applySettings()
+            configurator.saveSettings()
         core.config().flush()
 
     def on_twMenu_itemSelectionChanged(self):
