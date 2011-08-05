@@ -239,7 +239,7 @@
       <bool>true</bool>
      </property>
      <property name="currentIndex">
-      <number>4</number>
+      <number>7</number>
      </property>
      <widget class="QWidget" name="pGeneral">
       <layout class="QGridLayout">
@@ -1208,7 +1208,7 @@
           <property name="spacing">
            <number>3</number>
           </property>
-          <item row="1" column="0" colspan="2">
+          <item row="0" column="0" colspan="2">
            <layout class="QGridLayout">
             <property name="spacing">
              <number>3</number>
@@ -1226,21 +1226,21 @@
             <item row="2" column="0">
              <widget class="QLabel" name="lUnmatchedBraceForeground">
               <property name="text">
-               <string>Unmatched Brace Foreground :</string>
+               <string>Unmatched brace foreground :</string>
               </property>
              </widget>
             </item>
             <item row="1" column="0">
              <widget class="QLabel" name="lMatchedBraceBackground">
               <property name="text">
-               <string>Matched Brace Background :</string>
+               <string>Matched brace background :</string>
               </property>
              </widget>
             </item>
             <item row="3" column="0">
              <widget class="QLabel" name="lUnmatchedBraceBackground">
               <property name="text">
-               <string>Unmatched Brace Background :</string>
+               <string>Unmatched brace background :</string>
               </property>
              </widget>
             </item>
@@ -1257,7 +1257,7 @@
             <item row="0" column="0">
              <widget class="QLabel" name="lMatchedBraceForeground">
               <property name="text">
-               <string>Matched Brace Foreground :</string>
+               <string>Matched brace foreground :</string>
               </property>
              </widget>
             </item>
@@ -1282,20 +1282,6 @@
              </widget>
             </item>
            </layout>
-          </item>
-          <item row="0" column="0">
-           <widget class="QRadioButton" name="rbStrictBraceMatch">
-            <property name="text">
-             <string>Strict Brace Match</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QRadioButton" name="rbSloppyBraceMatch">
-            <property name="text">
-             <string>Sloppy Brace Match</string>
-            </property>
-           </widget>
           </item>
          </layout>
         </widget>

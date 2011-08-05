@@ -87,9 +87,6 @@ class EditorConfigurator():  # FIXME ModuleConfigurator
             ColorOption(dialog, cfg, "Editor/Indentation/GuidesForegroundColor", dialog.tbIndentationGuidesForeground),
         
             CheckableOption(dialog, cfg, "Editor/BraceMatching/Enabled", dialog.gbBraceMatchingEnabled),
-            ChoiseOption(dialog, cfg, "Editor/BraceMatching/Mode",
-                         {dialog.rbStrictBraceMatch: "Strict",
-                          dialog.rbSloppyBraceMatch: "Sloppy"}),
             ColorOption(dialog, cfg, "Editor/BraceMatching/MatchedForegroundColor", dialog.tbMatchedBraceForeground),
             ColorOption(dialog, cfg, "Editor/BraceMatching/MatchedBackgroundColor", dialog.tbMatchedBraceBackground),
             ColorOption(dialog, cfg, "Editor/BraceMatching/UnmatchedBackgroundColor", dialog.tbUnmatchedBraceBackground),
