@@ -71,8 +71,6 @@ class EditorConfigurator():  # FIXME ModuleConfigurator
         self._options.append(ColorOption(dialog, cfg, "Editor/CallTips/ForegroundColor", dialog.tbCalltipsForeground))
         self._options.append(ColorOption(dialog, cfg, "Editor/CallTips/HighlightColor", dialog.tbCalltipsHighlight))
         
-        self._options.append(CheckableOption(dialog, cfg, "Editor/Indentation/AutoIndent", dialog.cbAutoIndent))
-        self._options.append(CheckableOption(dialog, cfg, "Editor/Indentation/BackspaceUnindents", dialog.cbBackspaceUnindents))
         self._options.append(CheckableOption(dialog, cfg, "Editor/Indentation/Guides", dialog.gbIndentationGuides))
         self._options.append(ChoiseOption(dialog, cfg, "Editor/Indentation/UseTabs",
                             (dialog.rbIndentationSpaces, dialog.rbIndentationTabs),
@@ -111,16 +109,7 @@ class EditorConfigurator():  # FIXME ModuleConfigurator
                             (dialog.rbWsInvisible, dialog.rbWsVisible, dialog.rbWsVisibleAfterIndent),
                             Editor._WHITE_MODE_TO_QSCI.keys()))
         
-        self._options.append(CheckableOption(dialog, cfg, "Editor/Wrap/Enabled", dialog.gbWrapModeEnabled))
-        self._options.append(ChoiseOption(dialog, cfg, "Editor/Wrap/Mode", (dialog.rbWrapCharacter, dialog.rbWrapWord),
-                            Editor._WRAP_MODE_TO_QSCI.keys()))
-        self._options.append(ChoiseOption(dialog, cfg, "Editor/Wrap/StartVisualFlag",
-                            (dialog.rbStartWrapFlagNone, dialog.rbStartWrapFlagByText, dialog.rbStartWrapFlagByBorder),
-                            Editor._WRAP_FLAG_TO_QSCI.keys()))
-        self._options.append(ChoiseOption(dialog, cfg, "Editor/Wrap/EndVisualFlag",
-                            (dialog.rbEndWrapFlagNone, dialog.rbEndWrapFlagByText, dialog.rbEndWrapFlagByBorder),
-                            Editor._WRAP_FLAG_TO_QSCI.keys()))
-        self._options.append(NumericOption(dialog, cfg, "Editor/Wrap/LineIndentWidth", dialog.sWrappedLineIndentWidth))
+        self._options.append(CheckableOption(dialog, cfg, "Editor/Wrap/Enabled", dialog.cbWrapLongLines))
     
     def _createLexerSettings(self, dialog):
         lexerItem = dialog.twMenu.findItems("Language", Qt.MatchExactly | Qt.MatchRecursive)[0]
