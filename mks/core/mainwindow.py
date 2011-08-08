@@ -244,7 +244,7 @@ class MainWindow(pMainWindow):
         action("mSettings/aConfigFile",               tr("Edit config file" ),   "",                "Ctrl+Alt+S",   tr("Edit config file"       ), True)
 
         menu  ("mDocks",                              tr("Docks"                 ), ""            )
-        action("mDocks/aHideAll",                     tr("Hide all"              ), "",             "Ctrl+ Esc",    tr("Hide all"               ), True)
+        action("mDocks/aHideAll",                     tr("Hide all"              ), "",             "Ctrl+Esc",    tr("Hide all"               ), True)
 
         menu  ("mHelp",                               tr("Help"                  ), ""            )
         action("mHelp/aAboutQt",                      tr("About &Qt..." ),          "qt.png",       "",             tr("About Qt..."            ), True )
