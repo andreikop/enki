@@ -98,11 +98,13 @@ class Config(ConfigObj):
     def set(self, name, value):
         """Set option by slash-separated path
         """
-        object = self
+        section = self
         path = name.split('/')
-        while len(path) > 1:
-            object = object[path.pop(0)]
-        object[path.pop(0)] = value
+        for sectionName in path[:-1]:
+            if not sectionName in section:
+                section[sectionName] = {}
+            section = section[sectionName]
+        section[path[-1]] = value
 
     def flush(self):
         """Flush config to the disk
