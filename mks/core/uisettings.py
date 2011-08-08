@@ -18,8 +18,6 @@ from PyQt4.QtGui import QButtonGroup, \
 from PyQt4.Qsci import QsciScintilla
 
 from mks.core.core import core, DATA_FILES_PATH
-from mks.plugins.editor import Editor, _Lexer
-import mks.plugins.editor  # FIXME for lexer settings. Remove it
 
 def tr(s):
     return s
@@ -91,20 +89,23 @@ class FontOption(Option):
 class ChoiseOption(Option):
     """Radio button group, QComboBox
     """
-    def __init__(self, dialog, config, optionName, controlsList, textValuesList):
-        self.controls = controlsList
-        self.textValuesList = textValuesList
+    def __init__(self, dialog, config, optionName, controlToValue):
+        self.cotrolToValue = controlToValue
         Option.__init__(self, dialog, config, optionName, None)
         
     def load(self):
         value = self.config.get(self.optionName)
-        buttonIndex = self.textValuesList.index(value)
-        self.controls[buttonIndex].setChecked(True)
+        for button, keyValue in self.cotrolToValue.iteritems():
+            if value == keyValue:
+                button.setChecked(True)
+                break
+        else:
+            print >> sys.stderr, 'Button not found for option %s value' % self.optionName, value
     
     def save(self):
-        for index, control in enumerate(self.controls):
-            if control.isChecked():
-                self.config.set(self.optionName, self.textValuesList[index])
+        for button in self.cotrolToValue.iterkeys():
+            if button.isChecked():
+                self.config.set(self.optionName, self.cotrolToValue[button])
 
 
 class UISettingsManager:
@@ -134,6 +135,7 @@ class UISettings(QDialog):
         self._createdObjects = []
 
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/UISettings.ui'), self)
+        self.swPages.setCurrentIndex(0)
         
         self.setAttribute( Qt.WA_DeleteOnClose )
         self.createOptions()
@@ -204,13 +206,7 @@ class UISettings(QDialog):
             b.setIconSize( QSize( 32, 16 ) )
         #endif
         """
-        
-        """
-        for s in availableLanguages():
-            mLexers[s] = lexerForLanguage( s )
-        """
-        
-        
+                
         """
         # loads text codecs
         self.cbDefaultCodec.addItems( availableTextCodecs() )
