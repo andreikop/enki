@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>824</width>
+    <width>767</width>
     <height>688</height>
    </rect>
   </property>
@@ -132,7 +132,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_15">
+    <layout class="QVBoxLayout" name="verticalLayout_5">
      <item>
       <widget class="QStackedWidget" name="swPages">
        <property name="enabled">
@@ -271,13 +271,7 @@
         </widget>
        </widget>
        <widget class="QWidget" name="pEditorGeneral">
-        <layout class="QVBoxLayout">
-         <property name="spacing">
-          <number>3</number>
-         </property>
-         <property name="margin">
-          <number>0</number>
-         </property>
+        <layout class="QVBoxLayout" name="verticalLayout_16">
          <item>
           <widget class="QGroupBox" name="gbOptions">
            <property name="title">
@@ -524,6 +518,45 @@
              <widget class="QPushButton" name="pbDefaultDocumentFont">
               <property name="text">
                <string>Change font...</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="gbWhitespaceVisibilityEnabled">
+           <property name="title">
+            <string>Whitespace visibility</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+           <layout class="QHBoxLayout" name="_3">
+            <property name="spacing">
+             <number>3</number>
+            </property>
+            <property name="margin">
+             <number>5</number>
+            </property>
+            <item>
+             <widget class="QRadioButton" name="rbWsInvisible">
+              <property name="text">
+               <string>Never</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="rbWsVisible">
+              <property name="text">
+               <string>Always</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="rbWsVisibleAfterIndent">
+              <property name="text">
+               <string>After indent</string>
               </property>
              </widget>
             </item>
@@ -1009,7 +1042,7 @@
               <item>
                <widget class="QLabel" name="lIndentationWidth">
                 <property name="text">
-                 <string>Indentation Width :</string>
+                 <string>Width :</string>
                 </property>
                </widget>
               </item>
@@ -1055,45 +1088,6 @@
                </widget>
               </item>
              </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="gbWhitespaceVisibilityEnabled">
-           <property name="title">
-            <string>Whitespace visibility</string>
-           </property>
-           <property name="checkable">
-            <bool>false</bool>
-           </property>
-           <layout class="QHBoxLayout" name="_3">
-            <property name="spacing">
-             <number>3</number>
-            </property>
-            <property name="margin">
-             <number>5</number>
-            </property>
-            <item>
-             <widget class="QRadioButton" name="rbWsInvisible">
-              <property name="text">
-               <string>Never</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="rbWsVisible">
-              <property name="text">
-               <string>Always</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="rbWsVisibleAfterIndent">
-              <property name="text">
-               <string>After indent</string>
-              </property>
-             </widget>
             </item>
            </layout>
           </widget>
@@ -1572,17 +1566,11 @@
         </layout>
        </widget>
        <widget class="QWidget" name="pEditorVisibility">
-        <layout class="QVBoxLayout">
-         <property name="spacing">
-          <number>3</number>
-         </property>
-         <property name="margin">
-          <number>0</number>
-         </property>
+        <layout class="QVBoxLayout" name="verticalLayout_15">
          <item>
           <widget class="QGroupBox" name="gbEolMode">
            <property name="title">
-            <string>EOL Mode</string>
+            <string>End Of Line symbol</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_4">
             <property name="margin">
@@ -1616,24 +1604,48 @@
               </item>
              </layout>
             </item>
-            <item row="1" column="0">
-             <widget class="QCheckBox" name="cbAutoDetectEol">
-              <property name="text">
-               <string>Autodetect EOL</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1" rowspan="2">
-             <widget class="QCheckBox" name="cbAutoEolConversion">
-              <property name="text">
-               <string>Automatic End of Line Conversion</string>
-              </property>
-             </widget>
-            </item>
             <item row="2" column="0">
              <widget class="QCheckBox" name="cbEolVisibility">
               <property name="text">
-               <string>Eol Visibility</string>
+               <string>EOL symbols are visible</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_5">
+           <property name="title">
+            <string>Upon openning file</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_14">
+            <item>
+             <widget class="QCheckBox" name="cbAutoDetectEol">
+              <property name="text">
+               <string>Try to detect EOL automatically</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="cbAutoEolConversion">
+              <property name="text">
+               <string>Convert EOL</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="font">
+               <font>
+                <italic>true</italic>
+               </font>
+              </property>
+              <property name="text">
+               <string>Hint: check both options for automatically fix inconsistent EOL</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -2108,16 +2120,6 @@
      </item>
     </layout>
    </item>
-   <item>
-    <widget class="QDialogButtonBox" name="dbbButtons">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -2139,9 +2141,6 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <tabstops>
-  <tabstop>dbbButtons</tabstop>
- </tabstops>
  <resources>
   <include location="../../icons/mksicons.qrc"/>
  </resources>
