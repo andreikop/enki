@@ -1,33 +1,12 @@
 FIXME
-    Перенести autoconvert indent в Indentation
-    Передавать в ChoiseOption словарь а не 2 списка
     Сделать галочку выключения фолдинга и номеров строк
-    Тестить все
-
     Нет иконок на панели доков
     
-    Попытка сохранить настройки
-    a@a-desktop:~/code/mksv3$ ./mksv3 setup.py 
-    Traceback (most recent call last):
-      File "/home/a/code/mksv3/mks/plugins/appshortcuts.py", line 108, in _onEditShortcuts
-        self._saveShortcuts()
-      File "/home/a/code/mksv3/mks/plugins/appshortcuts.py", line 101, in _saveShortcuts
-        self._config.set(path, action.shortcut().toString())
-      File "/home/a/code/mksv3/mks/core/config.py", line 104, in set
-        object = object[path.pop(0)]
-      File "/home/a/code/mksv3/mks/_3rdparty/configobj.py", line 567, in __getitem__
-        val = dict.__getitem__(self, key)
-    KeyError: u'mFile'
-    a@a-desktop:~/code/mksv3$ 
-
-    Ctrl+Shift+Left
-    Проверить, почему конвертим сгенеренные биндинги
-    Не работает кнопка Вверх в Search Results
 
 FIXME PasNox
 
 FIXME when found
-    Обновилось два файла. По одному из них file watcher не сработал
+
 
 FIXME need help
     Ставить фокус на UISaveFiles диалог
