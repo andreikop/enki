@@ -47,6 +47,8 @@ class EditorConfigurator():  # FIXME ModuleConfigurator
         (
             CheckableOption(dialog, cfg, "Editor/Indentation/ConvertUponOpen", dialog.cbConvertIndentationUponOpen),
             CheckableOption(dialog, cfg, "Editor/CreateBackupUponOpen", dialog.cbCreateBackupUponOpen),
+            CheckableOption(dialog, cfg, "Editor/ShowLineNumbers", dialog.cbShowLineNumbers),
+            CheckableOption(dialog, cfg, "Editor/EnableCodeFolding", dialog.cbEnableCodeFolding),
             ColorOption(dialog, cfg, "Editor/SelectionBackgroundColor", dialog.tbSelectionBackground),
             ColorOption(dialog, cfg, "Editor/SelectionForegroundColor", dialog.tbSelectionForeground),
             CheckableOption(dialog, cfg, "Editor/DefaultDocumentColours", dialog.gbDefaultDocumentColours),
@@ -418,7 +420,6 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         # connections
         self.qscintilla.cursorPositionChanged.connect(self.cursorPositionChanged)
         self.qscintilla.modificationChanged.connect(self.modifiedChanged)
-        self.qscintilla.linesChanged.connect(self._onLinesChanged)
         
         self.applySettings()
         self._lexer = _Lexer(self)
@@ -487,9 +488,23 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
     def applySettings(self):
         """Apply own settings form the config
         """
-        self.qscintilla.setFolding(QsciScintilla.BoxedTreeFoldStyle)
-        
         myConfig = core.config()["Editor"]
+
+        if myConfig["ShowLineNumbers"]:
+            self.qscintilla.linesChanged.connect(self._onLinesChanged)
+            self._onLinesChanged()
+        else:
+            try:
+                self.qscintilla.linesChanged.disconnect(self._onLinesChanged)
+            except TypeError:  # not connected
+                pass
+            self.qscintilla.setMarginWidth(0, 0)
+        
+        if myConfig["EnableCodeFolding"]:
+            self.qscintilla.setFolding(QsciScintilla.BoxedTreeFoldStyle)
+        else:
+            self.qscintilla.setFolding(QsciScintilla.NoFoldStyle)
+        
         self.qscintilla.setSelectionBackgroundColor(QColor(myConfig["SelectionBackgroundColor"]))
         self.qscintilla.setSelectionForegroundColor(QColor(myConfig["SelectionForegroundColor"]))
         if myConfig["DefaultDocumentColours"]:
@@ -576,7 +591,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         """Set text in the QScintilla, clear modified flag, update line numbers bar
         """
         self.qscintilla.setText(text)
-        self._onLinesChanged()
+        self.qscintilla.linesChanged.emit()
         self._setModified(False)
     
     def _setModified(self, modified):

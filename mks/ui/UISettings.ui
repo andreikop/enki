@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>767</width>
-    <height>688</height>
+    <width>669</width>
+    <height>711</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -136,7 +136,7 @@
         <bool>true</bool>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>8</number>
        </property>
        <widget class="QWidget" name="pGeneral">
         <layout class="QVBoxLayout" name="verticalLayout_18">
@@ -284,6 +284,20 @@
              <widget class="QCheckBox" name="cbCreateBackupUponOpen">
               <property name="text">
                <string>Create backup file upon open</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="cbShowLineNumbers">
+              <property name="text">
+               <string>Show line numbers</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="cbEnableCodeFolding">
+              <property name="text">
+               <string>Enable code folding</string>
               </property>
              </widget>
             </item>
@@ -1754,6 +1768,18 @@
               </property>
               <property name="text">
                <string>Preprocessor</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_3">
+              <property name="font">
+               <font>
+                <italic>true</italic>
+               </font>
+              </property>
+              <property name="text">
+               <string>Note: folding may be disabled globally on Editor tab</string>
               </property>
              </widget>
             </item>
