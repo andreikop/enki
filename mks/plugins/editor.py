@@ -18,7 +18,8 @@ import mks.core.abstractdocument
 from mks.core.core import core
 
 from mks.core.config import Config
-from mks.core.uisettings import CheckableOption, ChoiseOption, FontOption, NumericOption, ColorOption
+from mks.core.uisettings import ModuleConfigurator, \
+                                CheckableOption, ChoiseOption, FontOption, NumericOption, ColorOption
 
 class _QsciScintilla(QsciScintilla):
     """QsciScintilla wrapper class created only for filter Shift+Tab events.
@@ -35,7 +36,7 @@ class _QsciScintilla(QsciScintilla):
         else:
             super(_QsciScintilla, self).keyPressEvent(event)
 
-class EditorConfigurator():  # FIXME ModuleConfigurator
+class EditorConfigurator(ModuleConfigurator):
     def __init__(self, dialog):
         self._options = []
         self._createEditorSettings(dialog)

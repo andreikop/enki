@@ -27,6 +27,14 @@ Plugin API documentation
    core/workspace.rst
    core/abstractdocument.rst
    core/config.rst
+   core/uisettings.rst
+
+Not API core modules
+--------------------
+
+.. toctree::
+
+    core/openedfilesmodel.rst
 
 Plugins documentation
 ---------------------
