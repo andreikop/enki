@@ -1,3 +1,52 @@
+"""
+uisettings --- Settings dialogue
+================================
+Module provides GUI to edit settings. This GUI may be used by other core modules and by plugins.
+
+Conception
+----------
+
+There are next major parts:
+
+* UISettings.ui Gui dialog. Contains of controls.
+* CheckableOption, NumericOption, ColorOption, FontOption, ChoiseOption classes. Every object of the class links together control on GUI and option in the config file. It loads its option from :class:`mks.core.config.Config` to GUI, and saves from GUI to config.
+* :class:`mks.core.uisettings.ModuleConfigurator` interface. Must be implemented by plugin or core module. Creates and holds *Option objects, applies module settings, when necessary.
+
+.. raw:: html
+
+    <img src="https://docs.google.com/drawings/pub?id=1jDIHjn2dNIfeJlbQniFbwA4mdPZGRX_Sxj3pL7GgYeM&amp;w=869&amp;h=594">
+
+`Edit the diagramm <https://docs.google.com/drawings/d/1jDIHjn2dNIfeJlbQniFbwA4mdPZGRX_Sxj3pL7GgYeM/edit?hl=en_US>`_
+
+
+GUI dialog invocation workflow
+------------------------------
+
+#. MkS has starts. Every plugin registers its ModuleConfigurator
+#. An user clicks "Settings->Settings"
+#. UISettings.ui are created
+#. :class:`mks.core.uisettings.UISettingsManager` calls every ModuleConfigurator to load options
+#. ModuleConfigurator creates options. Every option loads its value from the mks.core.config
+#. The user edits settigns
+#. The user clicks "OK"
+#. :class:`mks.core.uisettings.UISettingsManager` calls every ModuleConfigurator to save settings
+#. ModuleConfigurator calls every option to save settings
+#. :class:`mks.core.uisettings.UISettingsManager` calls every ModuleConfigurator to apply settings
+#. ModuleConfigurator applies module specific settings
+
+Adding new settings
+-------------------
+
+If you need to add own settings to UISettings dialog, you should
+
+#. Implement and register your ModuleConfigurator
+#. Add controls to the dialog. You may edit UISettings.ui or add your controls dynamically during dialog creation (in *ModuleConfigurator.__init__()*)
+#. Add *Option class instance for every configurable option.
+
+Classes
+-------
+"""
+
 import os.path
 from PyQt4 import uic
 from PyQt4.QtCore import QObject, QStringList, Qt, QVariant
@@ -19,17 +68,31 @@ from PyQt4.Qsci import QsciScintilla
 
 from mks.core.core import core, DATA_FILES_PATH
 
-def tr(s):
+def _tr(s):
+    """Stub for translation
+    """
     return s
 
 class ModuleConfigurator:
+    """Interface, which must be implemented by core module or plugin, which needs to configure semself via GUI dialog.
+    
+    TODO core interface for register configurator in the core. Currently hardcoded in mks.core.Core.getModuleConfigurators()
+    
+    See :class:`mks.core.openedfilesmodel.Configurator` source for simple example of class implementation
+    """
     def __init__(self, dialog):
+        """Create all options. Every option loads its value during creation
+        """
         pass
 
     def saveSettings(self):
+        """ Save own settings. If there are own config file, flush it. If module uses core config file - do nothing.
+        """
         pass
 
     def applySettings(self):
+        """ Apply module specific settings
+        """
         pass
 
 class Option:
@@ -113,7 +176,7 @@ class UISettingsManager:
     """
     def __init__(self):
         self._action = core.actionModel().addAction("mSettings/aSettings",
-                                                    tr( "Settings.."), 
+                                                    _tr( "Settings.."), 
                                                     QIcon(':/mksicons/settings.png'))
         self._action.setStatusTip(tr( "Edit settigns.."))
         self._action.triggered.connect(self._onEditSettings)

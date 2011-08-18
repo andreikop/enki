@@ -97,7 +97,7 @@ class Core:
     def getModuleConfigurators(self):
         import mks.plugins.editor
         import mks.core.openedfilesmodel
-        return (mks.core.openedfilesmodel._Configurator,
+        return (mks.core.openedfilesmodel.Configurator,
                 mks.plugins.editor.Plugin.instance.getModuleConfigurator())
     
     def _loadPlugin(self, name):
