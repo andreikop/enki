@@ -26,7 +26,7 @@ GUI dialog invocation workflow
 #. An user clicks "Settings->Settings"
 #. UISettings.ui are created
 #. :class:`mks.core.uisettings.UISettingsManager` calls every ModuleConfigurator to load options
-#. ModuleConfigurator creates options. Every option loads its value from the mks.core.config
+#. ModuleConfigurator creates options. Every option loads its value from the ::class:`mks.core.config.Config`
 #. The user edits settigns
 #. The user clicks "OK"
 #. :class:`mks.core.uisettings.UISettingsManager` calls every ModuleConfigurator to save settings
@@ -37,11 +37,11 @@ GUI dialog invocation workflow
 Adding new settings
 -------------------
 
-If you need to add own settings to UISettings dialog, you should
+If you need to add own settings to UISettings dialog, you should:
 
 #. Implement and register your ModuleConfigurator
 #. Add controls to the dialog. You may edit UISettings.ui or add your controls dynamically during dialog creation (in *ModuleConfigurator.__init__()*)
-#. Add *Option class instance for every configurable option.
+#. Create *Option class instance for every configurable option.
 
 Classes
 -------
