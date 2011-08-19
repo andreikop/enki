@@ -37,12 +37,14 @@ class _QsciScintilla(QsciScintilla):
             super(_QsciScintilla, self).keyPressEvent(event)
 
 class EditorConfigurator(ModuleConfigurator):
+    """ModuleConfigurator interface implementation
+    """
     def __init__(self, dialog):
         self._options = []
-        self._createEditorSettings(dialog)
-        self._createLexerSettings(dialog)
+        self._createEditorOptions(dialog)
+        self._createLexerOptions(dialog)
     
-    def _createEditorSettings(self, dialog):
+    def _createEditorOptions(self, dialog):
         cfg = core.config()
         self._options.extend(\
         (
@@ -118,7 +120,7 @@ class EditorConfigurator(ModuleConfigurator):
                           dialog.rbWsVisibleAfterIndent: "VisibleAfterIndent"}),
         ))
     
-    def _createLexerSettings(self, dialog):
+    def _createLexerOptions(self, dialog):
         lexerItem = dialog.twMenu.findItems("Language", Qt.MatchExactly | Qt.MatchRecursive)[0]
         editor = core.workspace().currentDocument()
 
@@ -145,36 +147,43 @@ class EditorConfigurator(ModuleConfigurator):
                                  dialog.cbLexerCaseSensitiveTags,
                                  dialog.cbLexerBackslashEscapes)
         
-        for attribute, control in zip(_LexerConfiguration._LEXER_BOOL_ATTRIBUTES, boolAttributeControls):
+        for attribute, control in zip(LexerConfig._LEXER_BOOL_ATTRIBUTES, boolAttributeControls):
             if hasattr(lexer, attribute):
                 self._options.append(CheckableOption(dialog, lexerConfig, beginning + attribute, control))
             else:
                 control.hide()
 
-        self._options.append(CheckableOption(dialog, lexerConfig, beginning + "indentOpeningBrace", dialog.cbLexerIndentOpeningBrace))
-        self._options.append(CheckableOption(dialog, lexerConfig, beginning + "indentClosingBrace", dialog.cbLexerIndentClosingBrace))
+        self._options.extend(( \
+             CheckableOption(dialog, lexerConfig, beginning + "indentOpeningBrace", dialog.cbLexerIndentOpeningBrace),
+             CheckableOption(dialog, lexerConfig, beginning + "indentClosingBrace", dialog.cbLexerIndentClosingBrace)))
 
         if hasattr(lexer, "indentationWarning"):
-            self._options.append(CheckableOption(dialog, lexerConfig, beginning + "indentationWarning", dialog.gbLexerHighlightingIndentationWarning))
-            self._options.append(ChoiseOption(dialog, lexerConfig, beginning + "indentationWarningReason", 
-                                              {dialog.cbIndentationWarningInconsistent: "Inconsistent",
-                                               dialog.cbIndentationWarningTabsAfterSpaces: "TabsAfterSpaces",
-                                               dialog.cbIndentationWarningTabs: "Tabs",
-                                               dialog.cbIndentationWarningSpaces: "Spaces"}))
+            self._options.extend((
+                CheckableOption(dialog, lexerConfig,
+                                beginning + "indentationWarning", dialog.gbLexerHighlightingIndentationWarning),
+                ChoiseOption(dialog, lexerConfig, beginning + "indentationWarningReason", 
+                             {dialog.cbIndentationWarningInconsistent: "Inconsistent",
+                             dialog.cbIndentationWarningTabsAfterSpaces: "TabsAfterSpaces",
+                             dialog.cbIndentationWarningTabs: "Tabs",
+                             dialog.cbIndentationWarningSpaces: "Spaces"})))
         else:
             dialog.gbLexerHighlightingIndentationWarning.hide()
 
     def saveSettings(self):
-        # Main settings should be saved by the core
+        """Main settings should be saved by the core. Save only lexer settings
+        """
         Plugin.instance.lexerConfig._config.flush()
     
     def applySettings(self):
+        """Apply editor and lexer settings
+        """
         for document in core.workspace().openedDocuments():
             document.applySettings()
             document._lexer._applySettings()
 
-class _LexerConfiguration:
+class LexerConfig:
     """Class manages settings of QScintilla lexers. Functionality:
+    
     * Create configuration file with lexer defaults
     * Load and save the file
     """
@@ -224,7 +233,7 @@ class _LexerConfiguration:
             lexerSection = self._config[language]
             lexerObject = lexerClass()
 
-            for attribute in _LexerConfiguration._LEXER_BOOL_ATTRIBUTES:
+            for attribute in LexerConfig._LEXER_BOOL_ATTRIBUTES:
                 if hasattr(lexerObject, attribute):
                     lexerSection[attribute] = getattr(lexerObject, attribute)()
             lexerSection['indentOpeningBrace'] = bool(lexerObject.autoIndentStyle() & QsciScintilla.AiOpening)
@@ -240,9 +249,10 @@ class _LexerConfiguration:
                     lexerSection['indentationWarning'] = True
                     lexerSection['indentationWarningReason'] = reasonFromQsci[reason]
 
-class _Lexer:
+class Lexer:
     """Wrapper for all Qscintilla lexers. Functionality:
-    * Choose lexer for file
+    
+    * Choose lexer for a file
     * Apply lexer settings
     """
     _lexerForLanguage = {
@@ -332,7 +342,7 @@ class _Lexer:
         # Apply language specific settings
         lexerSection = Plugin.instance.lexerConfig._config[self._currentLanguage]  # FIXME 
         
-        for attribute in _LexerConfiguration._LEXER_BOOL_ATTRIBUTES:
+        for attribute in LexerConfig._LEXER_BOOL_ATTRIBUTES:
             setterName = 'set' + attribute[0].capitalize() + attribute[1:]
             if hasattr(self._qscilexer, setterName):
                 getattr(self._qscilexer, setterName)(lexerSection[attribute])
@@ -402,7 +412,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         pixmap = QIcon(":/mksicons/bookmark.png").pixmap(16, 16)
         self._MARKER_BOOKMARK = self.qscintilla.markerDefine(pixmap, -1)
         
-        self.initQsciShortcuts()
+        self._initQsciShortcuts()
 
         self.qscintilla.installEventFilter(self)
         
@@ -423,7 +433,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         self.qscintilla.modificationChanged.connect(self.modifiedChanged)
         
         self.applySettings()
-        self._lexer = _Lexer(self)
+        self._lexer = Lexer(self)
         
         if filePath:
             try:
@@ -466,7 +476,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         self.modifiedChanged.emit(self.isModified())
         self.cursorPositionChanged.emit(*self.cursorPosition())
 
-    def initQsciShortcuts(self):
+    def _initQsciShortcuts(self):
         qsci = self.qscintilla
         qsci.SendScintilla( qsci.SCI_CLEARALLCMDKEYS )
         # Some shortcuts are hardcoded there.
@@ -757,7 +767,7 @@ class Plugin:
     Installs and removes editor from the system
     """
     def __init__(self):
-        self.lexerConfig = _LexerConfiguration()
+        self.lexerConfig = LexerConfig()
         core.workspace().setTextEditorClass(Editor)
         Plugin.instance = self
     

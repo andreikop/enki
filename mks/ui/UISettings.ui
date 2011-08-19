@@ -78,7 +78,7 @@
       </item>
       <item>
        <property name="text">
-        <string>Brace Matching</string>
+        <string>Brace matching</string>
        </property>
       </item>
       <item>
@@ -307,7 +307,7 @@
          <item>
           <widget class="QGroupBox" name="gbDefaultFont">
            <property name="title">
-            <string>Default Font</string>
+            <string>Default font</string>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
@@ -616,7 +616,7 @@
             </size>
            </property>
            <property name="title">
-            <string>Selection Colours</string>
+            <string>Selection colours</string>
            </property>
            <layout class="QHBoxLayout" name="_4">
             <property name="spacing">
@@ -665,7 +665,7 @@
          <item>
           <widget class="QGroupBox" name="gbDefaultDocumentColours">
            <property name="title">
-            <string>Default Document Colours</string>
+            <string>Default document colours</string>
            </property>
            <property name="checkable">
             <bool>true</bool>
@@ -1368,7 +1368,7 @@
               <item>
                <widget class="QLabel" name="lEdgeColumnNumber">
                 <property name="text">
-                 <string>Column Number :</string>
+                 <string>Column number :</string>
                 </property>
                </widget>
               </item>

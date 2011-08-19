@@ -208,7 +208,7 @@ class UISettingsManager:
         self._action = core.actionModel().addAction("mSettings/aSettings",
                                                     _tr( "Settings.."), 
                                                     QIcon(':/mksicons/settings.png'))
-        self._action.setStatusTip(tr( "Edit settigns.."))
+        self._action.setStatusTip(_tr( "Edit settigns.."))
         self._action.triggered.connect(self._onEditSettings)
         #self._onEditSettings()
     
