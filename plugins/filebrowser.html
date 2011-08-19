@@ -24,7 +24,7 @@
     <link rel="top" title="mksv3 v3.0.0 documentation" href="../index.html" />
     <link rel="up" title="Developer documentation" href="../devindex.html" />
     <link rel="next" title="searchreplace — Search and replace functionality" href="searchreplace.html" />
-    <link rel="prev" title="editortoolbar — Shows position, save state, EOL and indent" href="editortoolbar.html" /> 
+    <link rel="prev" title="editorshortcuts — Manages QScintilla shortcuts" href="editorshortcuts.html" /> 
   </head>
   <body>
     <div class="related">
@@ -40,7 +40,7 @@
           <a href="searchreplace.html" title="searchreplace — Search and replace functionality"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="editortoolbar.html" title="editortoolbar — Shows position, save state, EOL and indent"
+          <a href="editorshortcuts.html" title="editorshortcuts — Manages QScintilla shortcuts"
              accesskey="P">previous</a> |</li>
         <li><a href="../index.html">mksv3 v3.0.0 documentation</a> &raquo;</li>
           <li><a href="../devindex.html" accesskey="U">Developer documentation</a> &raquo;</li> 
@@ -55,14 +55,14 @@
   <span class="target" id="module-mks.plugins.filebrowser"></span><div class="section" id="filebrowser-dock-with-file-system-tree">
 <h1>filebrowser &#8212; Dock with file system tree<a class="headerlink" href="#filebrowser-dock-with-file-system-tree" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="mks.plugins.filebrowser.FileBrowser">
-<em class="property">class </em><tt class="descclassname">mks.plugins.filebrowser.</tt><tt class="descname">FileBrowser</tt><a class="headerlink" href="#mks.plugins.filebrowser.FileBrowser" title="Permalink to this definition">¶</a></dt>
+<dt id="mks.plugins.filebrowser.Plugin">
+<em class="property">class </em><tt class="descclassname">mks.plugins.filebrowser.</tt><tt class="descname">Plugin</tt><a class="headerlink" href="#mks.plugins.filebrowser.Plugin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtCore.QObject</span></tt></p>
 <p>File system tree.</p>
 <p>Allows to open files quickly</p>
 <dl class="method">
-<dt id="mks.plugins.filebrowser.FileBrowser.settingsWidget">
-<tt class="descname">settingsWidget</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.FileBrowser.settingsWidget" title="Permalink to this definition">¶</a></dt>
+<dt id="mks.plugins.filebrowser.Plugin.settingsWidget">
+<tt class="descname">settingsWidget</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.Plugin.settingsWidget" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get settings widget of the plugin</p>
 </dd></dl>
 
@@ -95,13 +95,13 @@ i.e. does not show .o .pyc and other temporary files</p>
 
 <dl class="method">
 <dt id="mks.plugins.filebrowser.FileBrowserFilteredModel.columnCount">
-<tt class="descname">columnCount</tt><big>(</big><em>parent=&lt;PyQt4.QtCore.QModelIndex object at 0xa2a544c&gt;</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.FileBrowserFilteredModel.columnCount" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">columnCount</tt><big>(</big><em>parent=&lt;PyQt4.QtCore.QModelIndex object at 0x9de81b4&gt;</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.FileBrowserFilteredModel.columnCount" title="Permalink to this definition">¶</a></dt>
 <dd><p>Column count for the model</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mks.plugins.filebrowser.FileBrowserFilteredModel.hasChildren">
-<tt class="descname">hasChildren</tt><big>(</big><em>parent=&lt;PyQt4.QtCore.QModelIndex object at 0xa2a547c&gt;</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.FileBrowserFilteredModel.hasChildren" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">hasChildren</tt><big>(</big><em>parent=&lt;PyQt4.QtCore.QModelIndex object at 0x9de8224&gt;</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.FileBrowserFilteredModel.hasChildren" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if node has children. QAbstractItemModel standard method</p>
 </dd></dl>
 
@@ -204,8 +204,8 @@ up (relatively for current dirrectory)</p>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="editortoolbar.html"
-                        title="previous chapter">editortoolbar &#8212; Shows position, save state, EOL and indent</a></p>
+  <p class="topless"><a href="editorshortcuts.html"
+                        title="previous chapter">editorshortcuts &#8212; Manages QScintilla shortcuts</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="searchreplace.html"
                         title="next chapter">searchreplace &#8212; Search and replace functionality</a></p>
@@ -244,7 +244,7 @@ up (relatively for current dirrectory)</p>
           <a href="searchreplace.html" title="searchreplace — Search and replace functionality"
              >next</a> |</li>
         <li class="right" >
-          <a href="editortoolbar.html" title="editortoolbar — Shows position, save state, EOL and indent"
+          <a href="editorshortcuts.html" title="editorshortcuts — Manages QScintilla shortcuts"
              >previous</a> |</li>
         <li><a href="../index.html">mksv3 v3.0.0 documentation</a> &raquo;</li>
           <li><a href="../devindex.html" >Developer documentation</a> &raquo;</li> 
@@ -252,7 +252,7 @@ up (relatively for current dirrectory)</p>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Andrei Kopats, Filipe Azevedo.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

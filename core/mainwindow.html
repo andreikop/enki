@@ -63,8 +63,8 @@
 <p>Class creates window elements, fills main menu with items.</p>
 <p>If you need to access to some existing menu items - check action path 
 in the class constructor, than use next code:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">core</span><span class="o">.</span><span class="n">menuBar</span><span class="p">()</span><span class="o">.</span><span class="n">action</span><span class="p">(</span> <span class="s">&quot;mFile/aOpen&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
-<span class="n">core</span><span class="o">.</span><span class="n">menuBar</span><span class="p">()</span><span class="o">.</span><span class="n">action</span><span class="p">(</span> <span class="s">&quot;mFile/aOpen&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">myCoolMethod</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">_actionModel</span><span class="o">.</span><span class="n">action</span><span class="p">(</span> <span class="s">&quot;mFile/aOpen&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">_actionModel</span><span class="o">.</span><span class="n">action</span><span class="p">(</span> <span class="s">&quot;mFile/aOpen&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">myCoolMethod</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>MainWindow instance is accessible as:</p>
@@ -73,6 +73,15 @@ in the class constructor, than use next code:</p>
 </pre></div>
 </div>
 <p>Created by monkeycore</p>
+<dl class="attribute">
+<dt id="mks.core.mainwindow.MainWindow.hideAllWindows">
+<tt class="descname">hideAllWindows</tt><a class="headerlink" href="#mks.core.mainwindow.MainWindow.hideAllWindows" title="Permalink to this definition">¶</a></dt>
+<dd><p>hideAllWindows()</p>
+<p><strong>Signal</strong> emitted, when user toggled &#8220;Hide all&#8221; .
+Dock widgets are closed automatically, but other widgets, i.e. search widget, must catch this signal and close
+semself.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="mks.core.mainwindow.MainWindow.setWorkspace">
 <tt class="descname">setWorkspace</tt><big>(</big><em>workspace</em><big>)</big><a class="headerlink" href="#mks.core.mainwindow.MainWindow.setWorkspace" title="Permalink to this definition">¶</a></dt>
@@ -159,7 +168,7 @@ Shows save files dialog. Cancels close, if dialog was rejecteds</p>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Andrei Kopats, Filipe Azevedo.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

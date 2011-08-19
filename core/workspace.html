@@ -154,6 +154,13 @@ New editor would be used for newly opened textual documents.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mks.core.workspace.Workspace.createEmptyNotSavedDocument">
+<tt class="descname">createEmptyNotSavedDocument</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.createEmptyNotSavedDocument" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create empty not saved document.
+Used on startup, if no file was specified</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mks.core.workspace.Workspace.openedDocuments">
 <tt class="descname">openedDocuments</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.openedDocuments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get list of opened documents (<a class="reference internal" href="abstractdocument.html#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a> instances)</p>
@@ -164,6 +171,7 @@ New editor would be used for newly opened textual documents.</p>
 <tt class="descname">closeAllDocuments</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.closeAllDocuments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Close all documents</p>
 <p>If there are not saved documents, dialog will be shown.</p>
+<p>Handler of File-&gt;Close-&gt;All</p>
 <p>Returns True, if all files had been closed, and False, if save dialog rejected</p>
 </dd></dl>
 
@@ -233,7 +241,7 @@ New editor would be used for newly opened textual documents.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Andrei Kopats, Filipe Azevedo.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

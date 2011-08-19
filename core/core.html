@@ -82,9 +82,9 @@ and used for get core instances, such as main window, workspace, etc.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mks.core.core.Core.menuBar">
-<tt class="descname">menuBar</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.core.Core.menuBar" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get main window <a class="reference external" href="http://api.monkeystudio.org/fresh/classp_actions_node_menu_bar.html">menu bar</a> instance</p>
+<dt id="mks.core.core.Core.actionModel">
+<tt class="descname">actionModel</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.core.Core.actionModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get main window <a class="reference external" href="http://api.monkeystudio.org/fresh/classp_actions_model.html">action model</a> instance</p>
 </dd></dl>
 
 <dl class="method">
@@ -105,6 +105,188 @@ and used for get core instances, such as main window, workspace, etc.</p>
 <dd><p>Get <a class="reference external" href="http://api.monkeystudio.org/fresh/classp_queued_message_tool_bar.html">queued message bar</a> instance</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="mks.core.core.Core.getModuleConfigurators">
+<tt class="descname">getModuleConfigurators</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.core.Core.getModuleConfigurators" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="data">
+<dt id="mks.core.core.core">
+<tt class="descclassname">mks.core.core.</tt><tt class="descname">core</tt><a class="headerlink" href="#mks.core.core.core" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO restore or delete old code
+def _isXmas():</p>
+<blockquote>
+<div>return datetime.now().month in (11, 12, 1,)</div></blockquote>
+<dl class="docutils">
+<dt>def _showMessage(splash, message):</dt>
+<dd><dl class="first docutils">
+<dt>if _isXmas():</dt>
+<dd>splash.showMessage(message, Qt.AlignRight | Qt.AlignBottom, Qt.red)</dd>
+<dt>else:</dt>
+<dd>splash.showMessage(message, Qt.AlignRight | Qt.AlignBottom, Qt.white)</dd>
+</dl>
+<p class="last"># no update without hide/show
+splash.hide()
+splash.show()</p>
+</dd>
+</dl>
+<p># create splashscreen
+if _isXmas():</p>
+<blockquote>
+<div>pixmap = &#8220;splashscreen_christmas.png&#8221;</div></blockquote>
+<dl class="docutils">
+<dt>else:</dt>
+<dd>pixmap = &#8220;splashscreen.png&#8221;</dd>
+</dl>
+<p>splash = QSplashScreen (QIcon(&#8216;:/mksicons/pixmap.png&#8217;))</p>
+<p>ft = QFont( splash.font() )
+if sys.platform.startswith(&#8216;win&#8217;): # Windows platform</p>
+<blockquote>
+<div>ft.setPointSize( ft.pointSize() -2 )</div></blockquote>
+<p>ft.setBold( True )
+splash.setFont( ft )
+splash.show()</p>
+<p># restore application style
+_showMessage( splash, splash.tr( &#8216;Initializing Style...&#8217; ) )
+qApp.setStyle(settings().value(&#8216;MainWindow/Style&#8217;, &#8216;system&#8217;).toString())</p>
+<p># set default settings if first time running
+if  settings().value( &#8220;FirstTimeRunning&#8221;, True ) :</p>
+<blockquote>
+<div>settings().setDefaultSettings()</div></blockquote>
+<p># initialize locales
+_showMessage( splash, splash.tr( &#8220;Initializing locales...&#8221; ) )
+translationsManager().setFakeCLocaleEnabled( True )
+translationsManager().addTranslationsMask( &#8220;qt*.qm&#8221; )
+translationsManager().addTranslationsMask( &#8220;assistant*.qm&#8221; )
+translationsManager().addTranslationsMask( &#8220;designer*.qm&#8221; )
+translationsManager().addTranslationsMask( &#8220;monkeystudio*.qm&#8221; )
+translationsManager().addForbiddenTranslationsMask( &#8220;assistant_adp*.qm&#8221; )
+translationsManager().setTranslationsPaths( settings().storagePaths( Settings.SP_TRANSLATIONS ) )</p>
+<p># init translations
+_showMessage( splash, splash.tr( &#8220;Initializing Translations...&#8221; ) )
+if  not settings().value( &#8220;Translations/Accepted&#8221; ).toBool() :</p>
+<blockquote>
+<div><p>locale = TranslationDialog.getLocale( translationManager )</p>
+<dl class="docutils">
+<dt>if  not locale.isEmpty() :</dt>
+<dd>settings().setValue( &#8220;Translations/Locale&#8221;, locale )
+settings().setValue( &#8220;Translations/Accepted&#8221;, True )
+translationManager.setCurrentLocale( locale )
+translationManager.reloadTranslations()</dd>
+</dl>
+</div></blockquote>
+<p>translationManager.setCurrentLocale( settings().value( &#8220;Translations/Locale&#8221; ).toString() )
+translationManager.reloadTranslations()</p>
+<p># init shortcuts editor
+_showMessage( splash, splash.tr( &#8220;Initializing Actions Manager...&#8221; ) )
+actionsManager().setSettings( settings() )</p>
+<p># init shell and commands
+_showMessage( splash, splash.tr( &#8220;Initializing Shell...&#8221; ) )
+interpreter()</p>
+<p># start console manager
+_showMessage( splash, splash.tr( &#8220;Initializing Console...&#8221; ) )
+consoleManager()</p>
+<p># init abbreviations manager
+_showMessage( splash, splash.tr( &#8220;Initializing abbreviations manager...&#8221; ) )
+abbreviationsManager()</p>
+<p># init file manager
+_showMessage( splash, splash.tr( &#8220;Initializing file manager...&#8221; ) )
+fileManager()</p>
+<p># load mks scripts
+_showMessage( splash, splash.tr( &#8220;Executing scripts...&#8221; ) )
+interpreter().loadHomeScripts()</p>
+<p># init pluginsmanager
+_showMessage( splash, splash.tr( &#8220;Initializing Plugins...&#8221; ) )
+pluginsManager().loadsPlugins()</p>
+<p># restore session
+_showMessage( splash, splash.tr( &#8220;Restoring Session...&#8221; ) )
+if  mks.monkeystudio.restoreSessionOnStartup() :</p>
+<blockquote>
+<div>workspace().fileSessionRestore_triggered()</div></blockquote>
+<p># ready
+_showMessage( splash, splash.tr( &#8220;%1 v%2 (%3) Ready&#8221; ).arg(
+mks.core.config.PACKAGE_NAME, mks.core.config.PACKAGE_VERSION, mks.core.config.PACKAGE_VERSION_STR ) )</p>
+<p># finish splashscreen
+splash.finish( mainWindow() )</p>
+<p># show settings dialog the first time user start program
+if  settings().value( &#8220;FirstTimeRunning&#8221;, True ).toBool() :</p>
+<blockquote>
+<div><p># execute settings dialog
+if  UISettings.instance().exec_() :</p>
+<blockquote>
+<div>settings().setValue( &#8220;FirstTimeRunning&#8221;, False )</div></blockquote>
+</div></blockquote>
+<p># prepare apis
+mks.monkeystudio.prepareAPIs()</p>
+<dl class="docutils">
+<dt>def pluginsManager():</dt>
+<dd><p class="first">global _pluginsManager
+if _pluginsManager:</p>
+<blockquote>
+<div>_pluginsManager = PluginsManager( mainWindow() )</div></blockquote>
+<p class="last">return _pluginsManager</p>
+</dd>
+<dt>def actionsManager():</dt>
+<dd>return menuBar().actionsManager()</dd>
+<dt>def recentsManager():</dt>
+<dd><p class="first">global _recentsManager
+if _recentsManager is None:</p>
+<blockquote>
+<div>_recentsManager = pRecentsManager( mainWindow() )</div></blockquote>
+<p class="last">return _recentsManager</p>
+</dd>
+<dt>def projectsManager():</dt>
+<dd><p class="first">global _projectsManager
+if _projectsManager is None:</p>
+<blockquote>
+<div>_projectsManager = XUPProjectManager( mainWindow() )</div></blockquote>
+<p class="last">return _projectsManager</p>
+</dd>
+<dt>def fileManager():</dt>
+<dd><p class="first">global _fileManager
+if _fileManager is None:</p>
+<blockquote>
+<div>_fileManager = pFileManager( mainWindow() )</div></blockquote>
+<p class="last">return _fileManager</p>
+</dd>
+<dt>def consoleManager():</dt>
+<dd><p class="first">global _consoleManager
+if _consoleManager is None:</p>
+<blockquote>
+<div>_consoleManager = pConsoleManager( mainWindow() )</div></blockquote>
+<p class="last">return _consoleManager</p>
+</dd>
+<dt>def interpreter():</dt>
+<dd><p class="first">global _interpreter
+if _interpreter is None:</p>
+<blockquote>
+<div>_interpreter = MkSShellInterpreter.instance( mainWindow() )</div></blockquote>
+<p class="last">return _interpreter</p>
+</dd>
+<dt>def abbreviationsManager():</dt>
+<dd><p class="first">global _abbreviationsManager
+if _abbreviationsManager is None:</p>
+<blockquote>
+<div>_abbreviationsManager = pAbbreviationsManager( mainWindow() )</div></blockquote>
+<p class="last">return _abbreviationsManager</p>
+</dd>
+<dt>def multiToolBar():</dt>
+<dd><p class="first">global _multiToolBar
+if _multiToolBar is None:</p>
+<blockquote>
+<div>_multiToolBar = pMultiToolBar( mainWindow() )</div></blockquote>
+<p class="last">return _multiToolBar</p>
+</dd>
+<dt>def translationsManager():</dt>
+<dd><p class="first">global _translationManager
+if _translationManager is None:</p>
+<blockquote>
+<div>_translationManager = TranslationManager( mainWindow() )</div></blockquote>
+<p class="last">return _translationManager</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -164,7 +346,7 @@ and used for get core instances, such as main window, workspace, etc.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Andrei Kopats, Filipe Azevedo.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

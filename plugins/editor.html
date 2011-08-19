@@ -56,11 +56,56 @@
 <h1>editor &#8212; Text editor. Uses QScintilla internally<a class="headerlink" href="#editor-text-editor-uses-qscintilla-internally" title="Permalink to this headline">¶</a></h1>
 <p>This text editor is used by default</p>
 <dl class="class">
+<dt id="mks.plugins.editor.EditorConfigurator">
+<em class="property">class </em><tt class="descclassname">mks.plugins.editor.</tt><tt class="descname">EditorConfigurator</tt><big>(</big><em>dialog</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.EditorConfigurator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../core/uisettings.html#mks.core.uisettings.ModuleConfigurator" title="mks.core.uisettings.ModuleConfigurator"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.uisettings.ModuleConfigurator</span></tt></a></p>
+<p>ModuleConfigurator interface implementation</p>
+<dl class="method">
+<dt id="mks.plugins.editor.EditorConfigurator.saveSettings">
+<tt class="descname">saveSettings</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.EditorConfigurator.saveSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main settings should be saved by the core. Save only lexer settings</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.editor.EditorConfigurator.applySettings">
+<tt class="descname">applySettings</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.EditorConfigurator.applySettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply editor and lexer settings</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.plugins.editor.LexerConfig">
+<em class="property">class </em><tt class="descclassname">mks.plugins.editor.</tt><tt class="descname">LexerConfig</tt><a class="headerlink" href="#mks.plugins.editor.LexerConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class manages settings of QScintilla lexers. Functionality:</p>
+<ul class="simple">
+<li>Create configuration file with lexer defaults</li>
+<li>Load and save the file</li>
+</ul>
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.plugins.editor.Lexer">
+<em class="property">class </em><tt class="descclassname">mks.plugins.editor.</tt><tt class="descname">Lexer</tt><big>(</big><em>editor</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Lexer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper for all Qscintilla lexers. Functionality:</p>
+<ul class="simple">
+<li>Choose lexer for a file</li>
+<li>Apply lexer settings</li>
+</ul>
+</dd></dl>
+
+<dl class="class">
 <dt id="mks.plugins.editor.Editor">
 <em class="property">class </em><tt class="descclassname">mks.plugins.editor.</tt><tt class="descname">Editor</tt><big>(</big><em>parentObject</em>, <em>filePath</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../core/abstractdocument.html#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a></p>
 <p>Text editor widget.</p>
 <p>Uses QScintilla internally</p>
+<dl class="method">
+<dt id="mks.plugins.editor.Editor.applySettings">
+<tt class="descname">applySettings</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.applySettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply own settings form the config</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="mks.plugins.editor.Editor.text">
 <tt class="descname">text</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.text" title="Permalink to this definition">¶</a></dt>
@@ -128,17 +173,31 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="mks.plugins.editor.Editor.saveFile">
-<tt class="descname">saveFile</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.saveFile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reimplemented method of the parent, notifies QScintilla, that file is not modified</p>
-</dd></dl>
+<dt id="mks.plugins.editor.Editor.toggleBookmark">
+<tt class="descname">toggleBookmark</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.toggleBookmark" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
-<dt id="mks.plugins.editor.Editor.eventFilter">
-<tt class="descname">eventFilter</tt><big>(</big><em>selfObject</em>, <em>event</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.eventFilter" title="Permalink to this definition">¶</a></dt>
-<dd><p>It is not an editor API function
-Catches key press events from QScintilla for support bookmarks and autocompletion</p>
+<dt id="mks.plugins.editor.Editor.nextBookmark">
+<tt class="descname">nextBookmark</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.nextBookmark" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.editor.Editor.prevBookmark">
+<tt class="descname">prevBookmark</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.prevBookmark" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
+
+<dl class="class">
+<dt id="mks.plugins.editor.Plugin">
+<em class="property">class </em><tt class="descclassname">mks.plugins.editor.</tt><tt class="descname">Plugin</tt><a class="headerlink" href="#mks.plugins.editor.Plugin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plugin interface implementation</p>
+<p>Installs and removes editor from the system</p>
+<dl class="method">
+<dt id="mks.plugins.editor.Plugin.getModuleConfigurator">
+<tt class="descname">getModuleConfigurator</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Plugin.getModuleConfigurator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -199,7 +258,7 @@ Catches key press events from QScintilla for support bookmarks and autocompletio
     </div>
     <div class="footer">
         &copy; Copyright 2010, Andrei Kopats, Filipe Azevedo.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

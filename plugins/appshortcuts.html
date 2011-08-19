@@ -24,7 +24,7 @@
     <link rel="top" title="mksv3 v3.0.0 documentation" href="../index.html" />
     <link rel="up" title="Developer documentation" href="../devindex.html" />
     <link rel="next" title="editor — Text editor. Uses QScintilla internally" href="editor.html" />
-    <link rel="prev" title="config — Load and save settings" href="../core/config.html" /> 
+    <link rel="prev" title="openedfilesmodel — Model and treeview for list of opened files" href="../core/openedfilesmodel.html" /> 
   </head>
   <body>
     <div class="related">
@@ -40,7 +40,7 @@
           <a href="editor.html" title="editor — Text editor. Uses QScintilla internally"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="../core/config.html" title="config — Load and save settings"
+          <a href="../core/openedfilesmodel.html" title="openedfilesmodel — Model and treeview for list of opened files"
              accesskey="P">previous</a> |</li>
         <li><a href="../index.html">mksv3 v3.0.0 documentation</a> &raquo;</li>
           <li><a href="../devindex.html" accesskey="U">Developer documentation</a> &raquo;</li> 
@@ -56,16 +56,21 @@
 <h1>appshortcuts &#8212; Manage application shortcuts<a class="headerlink" href="#appshortcuts-manage-application-shortcuts" title="Permalink to this headline">¶</a></h1>
 <p>Application shortcuts module transparently manages QAction shortcuts.</p>
 <p>Here is example of global action creation:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">action</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">menuBar</span><span class="p">()</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s">&quot;mEdit/aShortcuts&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tr</span><span class="p">(</span> <span class="s">&quot;Shortcuts...&quot;</span><span class="p">),</span>  <span class="n">QIcon</span><span class="p">(</span><span class="s">&#39;:/mksicons/shortcuts.png&#39;</span><span class="p">))</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">action</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">actionModel</span><span class="p">()</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s">&quot;mSettings/aShortcuts&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tr</span><span class="p">(</span> <span class="s">&quot;Shortcuts...&quot;</span><span class="p">),</span>  <span class="n">QIcon</span><span class="p">(</span><span class="s">&#39;:/mksicons/shortcuts.png&#39;</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>This code adds <em>Shortcuts...</em> action to <em>Edit</em> menu.</p>
 <p>After action has been crated, Application shortcuts module will change its shortcut from default to defined by user 
 (if defined).</p>
 <p>Module also <strong>loads and saves</strong> shortcuts configuration to file and provides <strong>shortcuts editor dialog</strong>.</p>
+<dl class="function">
+<dt id="mks.plugins.appshortcuts.tr">
+<tt class="descclassname">mks.plugins.appshortcuts.</tt><tt class="descname">tr</tt><big>(</big><em>s</em><big>)</big><a class="headerlink" href="#mks.plugins.appshortcuts.tr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="class">
-<dt id="mks.plugins.appshortcuts.AppShortcuts">
-<em class="property">class </em><tt class="descclassname">mks.plugins.appshortcuts.</tt><tt class="descname">AppShortcuts</tt><a class="headerlink" href="#mks.plugins.appshortcuts.AppShortcuts" title="Permalink to this definition">¶</a></dt>
+<dt id="mks.plugins.appshortcuts.Plugin">
+<em class="property">class </em><tt class="descclassname">mks.plugins.appshortcuts.</tt><tt class="descname">Plugin</tt><a class="headerlink" href="#mks.plugins.appshortcuts.Plugin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Module implementation</p>
 </dd></dl>
 
@@ -78,8 +83,8 @@
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="../core/config.html"
-                        title="previous chapter">config &#8212; Load and save settings</a></p>
+  <p class="topless"><a href="../core/openedfilesmodel.html"
+                        title="previous chapter">openedfilesmodel &#8212; Model and treeview for list of opened files</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="editor.html"
                         title="next chapter">editor &#8212; Text editor. Uses QScintilla internally</a></p>
@@ -118,7 +123,7 @@
           <a href="editor.html" title="editor — Text editor. Uses QScintilla internally"
              >next</a> |</li>
         <li class="right" >
-          <a href="../core/config.html" title="config — Load and save settings"
+          <a href="../core/openedfilesmodel.html" title="openedfilesmodel — Model and treeview for list of opened files"
              >previous</a> |</li>
         <li><a href="../index.html">mksv3 v3.0.0 documentation</a> &raquo;</li>
           <li><a href="../devindex.html" >Developer documentation</a> &raquo;</li> 
@@ -126,7 +131,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2010, Andrei Kopats, Filipe Azevedo.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

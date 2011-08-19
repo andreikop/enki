@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../static/doctools.js"></script>
     <link rel="top" title="mksv3 v3.0.0 documentation" href="../index.html" />
     <link rel="up" title="Developer documentation" href="../devindex.html" />
-    <link rel="next" title="appshortcuts — Manage application shortcuts" href="../plugins/appshortcuts.html" />
+    <link rel="next" title="uisettings — Settings dialogue" href="uisettings.html" />
     <link rel="prev" title="abstractdocument — Base class for workspace documents" href="abstractdocument.html" /> 
   </head>
   <body>
@@ -37,7 +37,7 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../plugins/appshortcuts.html" title="appshortcuts — Manage application shortcuts"
+          <a href="uisettings.html" title="uisettings — Settings dialogue"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="abstractdocument.html" title="abstractdocument — Base class for workspace documents"
@@ -62,27 +62,28 @@
 <span class="n">core</span><span class="o">.</span><span class="n">config</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>First time created by ::class:mks.core.core.Core</p>
-<dl class="function">
-<dt id="mks.core.config.createConfig">
-<tt class="descclassname">mks.core.config.</tt><tt class="descname">createConfig</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.config.createConfig" title="Permalink to this definition">¶</a></dt>
-<dd><p>Open config file and return Config instance</p>
-<p>Function creates config file in user&#8217;s home directory, if necessary,
-validates and opens it.</p>
-</dd></dl>
-
+<p>Created by ::class:mks.core.core.Core</p>
 <dl class="class">
 <dt id="mks.core.config.Config">
-<em class="property">class </em><tt class="descclassname">mks.core.config.</tt><tt class="descname">Config</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mks.core.config.Config" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">mks.core.config.</tt><tt class="descname">Config</tt><big>(</big><em>enableWriting</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mks.core.config.Config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">mks._3rdparty.configobj.ConfigObj</span></tt></p>
-<p>Settings storage</p>
+<p>Settings storage
+Class extends ConfigObj with few methods, usefull for MkS
+There are 3 instances of this class currently (when the comment is being writen):
+* Main configuration file
+* QScintilla shortcuts
+* QScintilla settings</p>
 <p>Use this object as a dictionary for read and write options.
 Example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">font</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">config</span><span class="p">()[</span><span class="s">&quot;Editor&quot;</span><span class="p">][</span><span class="s">&quot;DefaultFont&quot;</span><span class="p">]</span>  <span class="c"># read option</span>
 <span class="n">core</span><span class="o">.</span><span class="n">config</span><span class="p">()[</span><span class="s">&quot;Editor&quot;</span><span class="p">][</span><span class="s">&quot;DefaultFont&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">font</span>  <span class="c"># write option</span>
 </pre></div>
 </div>
-<p>You SHOULD flush config, when writing changed settings finished.</p>
+<p>You SHOULD flush config, when writing changed settings is finished.
+Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">core</span><span class="o">.</span><span class="n">config</span><span class="p">()</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+</pre></div>
+</div>
 <dl class="method">
 <dt id="mks.core.config.Config.reload">
 <tt class="descname">reload</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.config.Config.reload" title="Permalink to this definition">¶</a></dt>
@@ -91,10 +92,22 @@ Example:</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mks.core.config.Config.get">
+<tt class="descname">get</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#mks.core.config.Config.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get option by slash-separated path</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.config.Config.set">
+<tt class="descname">set</tt><big>(</big><em>name</em>, <em>value</em><big>)</big><a class="headerlink" href="#mks.core.config.Config.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set option by slash-separated path</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mks.core.config.Config.flush">
 <tt class="descname">flush</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.config.Config.flush" title="Permalink to this definition">¶</a></dt>
 <dd><p>Flush config to the disk
-Does nothing, if default config opened (failed to create config in users home directory)</p>
+Does nothing, if enableWriting is False (probably default config is opened)</p>
 </dd></dl>
 
 </dd></dl>
@@ -111,8 +124,8 @@ Does nothing, if default config opened (failed to create config in users home di
   <p class="topless"><a href="abstractdocument.html"
                         title="previous chapter">abstractdocument &#8212; Base class for workspace documents</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="../plugins/appshortcuts.html"
-                        title="next chapter">appshortcuts &#8212; Manage application shortcuts</a></p>
+  <p class="topless"><a href="uisettings.html"
+                        title="next chapter">uisettings &#8212; Settings dialogue</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../sources/core/config.txt"
@@ -145,7 +158,7 @@ Does nothing, if default config opened (failed to create config in users home di
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../plugins/appshortcuts.html" title="appshortcuts — Manage application shortcuts"
+          <a href="uisettings.html" title="uisettings — Settings dialogue"
              >next</a> |</li>
         <li class="right" >
           <a href="abstractdocument.html" title="abstractdocument — Base class for workspace documents"
@@ -156,7 +169,7 @@ Does nothing, if default config opened (failed to create config in users home di
     </div>
     <div class="footer">
         &copy; Copyright 2010, Andrei Kopats, Filipe Azevedo.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>
