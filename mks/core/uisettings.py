@@ -6,7 +6,7 @@ Module provides GUI to edit settings. This GUI may be used by other core modules
 Conception
 ----------
 
-There are next major parts:
+Settings dialogue subsystem consists of 3 major entities:
 
 * UISettings.ui Gui dialog. Contains of controls.
 * CheckableOption, NumericOption, ColorOption, FontOption, ChoiseOption classes. Every object of the class links together control on GUI and option in the config file. It loads its option from :class:`mks.core.config.Config` to GUI, and saves from GUI to config.
@@ -76,7 +76,8 @@ def _tr(s):
 class ModuleConfigurator:
     """Interface, which must be implemented by core module or plugin, which needs to configure semself via GUI dialog.
     
-    TODO core interface for register configurator in the core. Currently hardcoded in mks.core.Core.getModuleConfigurators()
+    *TODO core interface to register configurator in the core. Currently hardcoded in
+    mks.core.Core.getModuleConfigurators()*
     
     See :class:`mks.core.openedfilesmodel.Configurator` source for simple example of class implementation
     """
@@ -96,6 +97,10 @@ class ModuleConfigurator:
         pass
 
 class Option:
+    """Base class for all Options. Every class knows control, configuration option name, and can load/save the option
+    
+    Do not create dirrectly, use *Option classes
+    """
     def __init__(self, dialog, config, optionName, control):
         self.config = config
         self.optionName = optionName
@@ -104,6 +109,10 @@ class Option:
         self.load()
 
 class CheckableOption(Option):
+    """Bool option.
+    
+    Control may be QCheckBox, QGroupBox or other control, which has .isChecked() and .setChecked()
+    """
     def load(self):
         self.control.setChecked(self.config.get(self.optionName))
     
@@ -111,6 +120,10 @@ class CheckableOption(Option):
         self.config.set(self.optionName, self.control.isChecked())
 
 class NumericOption(Option):
+    """Numeric option.
+    
+    Control may be QSlider or other control, which has .value() and .setValue() methods
+    """
     def load(self):
         self.control.setValue(self.config.get(self.optionName))
     
@@ -118,6 +131,10 @@ class NumericOption(Option):
         self.config.set(self.optionName, self.control.value())
 
 class ColorOption(Option):
+    """Color option
+    
+    Control must be PyQt4.Fresh.pColorButton
+    """
     def load(self):
         self.control.setColor(QColor(self.config.get(self.optionName)))
     
@@ -125,6 +142,15 @@ class ColorOption(Option):
         self.config.set(self.optionName, self.control.color().name())
 
 class FontOption(Option):
+    """Font option.
+    
+    Option has 2 controls:
+
+    * QLineEdit is an example of font
+    * Button is used for open font dialogue.
+    
+    This option opens Font dialogue automatically, when button has been clicked
+    """
     def __init__(self, dialog, config, familyOptionName, sizeOptionName, editControl, buttonControl):
         self.familyOptionName = familyOptionName
         self.sizeOptionName = sizeOptionName
@@ -150,7 +176,11 @@ class FontOption(Option):
 
 
 class ChoiseOption(Option):
-    """Radio button group, QComboBox
+    """This option allows to choose value from few possible.
+    
+    It is presented as set of QRadioButton's
+    
+    *controlToValue* dictionary contains mapping *checked radio button name: option value*
     """
     def __init__(self, dialog, config, optionName, controlToValue):
         self.cotrolToValue = controlToValue
@@ -172,7 +202,7 @@ class ChoiseOption(Option):
 
 
 class UISettingsManager:
-    """Module implementation
+    """Add to the main menu *Settings->Settings* action and execute settings dialogue
     """
     def __init__(self):
         self._action = core.actionModel().addAction("mSettings/aSettings",
@@ -190,7 +220,7 @@ class UISettingsManager:
 
 
 class UISettings(QDialog):
-    """Settings dialog
+    """Settings dialog widget
     """
     
     def __init__(self, parent):
@@ -206,7 +236,7 @@ class UISettings(QDialog):
         self.accepted.connect(self.applySettings)
 
     def initTopLevelItems(self):
-        """Generate list of all tree items. Used for switch pages
+        """Generate list of all tree items. Used to switch pages
         """
         def allItems(twItem):
             """Item itself and all children (reqursive)
@@ -222,7 +252,9 @@ class UISettings(QDialog):
         for topLevelItem in topLevelItems:
             self._allTwItems.extend(allItems(topLevelItem))
 
-    def createOptions(self):       
+    def createOptions(self):
+        """Create and load all opitons. Calls ::class:`mks.core.uisettings.ModuleConfigurator` instances
+        """
         self._moduleConfigurators = []
         for moduleConfiguratorClass in core.getModuleConfigurators():
             self._moduleConfigurators.append(moduleConfiguratorClass(self))
@@ -235,30 +267,41 @@ class UISettings(QDialog):
         # resize to minimum size
         self.resize( self.minimumSizeHint() )
     
-    def reject(self):
-        """ TODO
-        settings = MonkeyCore.settings()        
-        for lexer in mLexers:
-            lexer.readSettings( *settings, scintillaSettingsPath().toLocal8Bit().constData() )
-        """
-        QDialog.reject(self)
-
     def applySettings(self):
+        """Dialog has been accepted. Call ModuleConfigurators for apply settings
+        """
         for configurator in self._moduleConfigurators:
             configurator.applySettings()
 
     def saveSettings(self):
+        """Flush main configuration file. Call ModuleConfigurators for flush other config files
+        """
         for configurator in self._moduleConfigurators:
             configurator.saveSettings()
         core.config().flush()
 
     def on_twMenu_itemSelectionChanged(self):
+        """Qt slot. Switch current page, after item in the pages tree has been selected
+        """
         # get item
         selectedItem = self.twMenu.selectedItems()[0]
         self.lInformations.setText( selectedItem.text( 0 ) )
         self.swPages.setCurrentIndex(self._allTwItems.index(selectedItem))
-        
-        """
+
+
+
+
+""" TODO
+
+def Dialog reject(self):
+    
+    settings = MonkeyCore.settings()        
+    for lexer in mLexers:
+        lexer.readSettings( *settings, scintillaSettingsPath().toLocal8Bit().constData() )
+    QDialog.reject(self)
+"""
+
+"""
 ----------------------------------------------------------- constructor
         
         for b in self.findChildren(pColorButton):
@@ -268,14 +311,8 @@ class UISettings(QDialog):
         #else:
             b.setIconSize( QSize( 32, 16 ) )
         #endif
-        """
-                
-        """
         # loads text codecs
         self.cbDefaultCodec.addItems( availableTextCodecs() )
-        """
-
-        """TODO
 
         # fill lexers combo
         self.cbSourceAPIsLanguages.addItems( availableLanguages() )
