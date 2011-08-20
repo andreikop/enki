@@ -89,11 +89,11 @@ class Config(ConfigObj):
     def get(self, name):
         """Get option by slash-separated path
         """
-        object = self
+        object_ = self
         path = name.split('/')
         while len(path):
-            object = object[path.pop(0)]
-        return object
+            object_ = object_[path.pop(0)]
+        return object_
     
     def set(self, name, value):
         """Set option by slash-separated path
