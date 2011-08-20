@@ -69,6 +69,11 @@ class Plugin:
     def __term__(self):
         self._model.removeAction(self._action)
     
+    def moduleConfiguratorClass(self):
+        """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
+        """
+        return None  # No any settings
+
     def _applyShortcut(self, action):
         """Apply for the action its shortcut if defined
         """

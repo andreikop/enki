@@ -307,8 +307,10 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         
         self.showAction().setShortcut("F2")
         core.actionModel().addAction("mDocks/aOpenedFiles", self.showAction())
+        core.moduleConfiguratorClasses.append(Configurator)
     
     def __term__(self):
+        core.moduleConfiguratorClasses.remove(Configurator)
         core.actionModel().removeAction("mDocks/aOpenedFiles")
     
     def _startModifyModel(self):

@@ -767,14 +767,16 @@ class Plugin:
     Installs and removes editor from the system
     """
     def __init__(self):
+        Plugin.instance = self
         self.lexerConfig = LexerConfig()
         core.workspace().setTextEditorClass(Editor)
-        Plugin.instance = self
     
     def __term__(self):
         core.workspace().setTextEditorClass(None)
     
-    def getModuleConfigurator(self):
+    def moduleConfiguratorClass(self):
+        """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
+        """
         return EditorConfigurator
 
 """TODO restore or delete old code
