@@ -253,13 +253,22 @@ class UISettings(QDialog):
             self._allTwItems.extend(allItems(topLevelItem))
 
     def createOptions(self):
-        """Create and load all opitons. Calls ::class:`mks.core.uisettings.ModuleConfigurator` instances
+        """Create and load all opitons. Create ::class:`mks.core.uisettings.ModuleConfigurator` instances
         """
+        
+        # Get core and plugin configurators
+        moduleConfiguratorClasses = []
+        moduleConfiguratorClasses.extend(core.moduleConfiguratorClasses)
+        for plugin in core.loadedPlugins():
+            if plugin.moduleConfiguratorClass() is not None:  # If plugin has configurator
+                moduleConfiguratorClasses.append(plugin.moduleConfiguratorClass())
+        
+        # Create configurator instances
         self._moduleConfigurators = []
-        for moduleConfiguratorClass in core.getModuleConfigurators():
+        for moduleConfiguratorClass in moduleConfiguratorClasses:
             self._moduleConfigurators.append(moduleConfiguratorClass(self))
 
-        # Expand all items
+        # Expand all tree widget items
         self.initTopLevelItems()
         for topLevelItem in self._allTwItems:  # except Languages
             topLevelItem.setExpanded(True)
