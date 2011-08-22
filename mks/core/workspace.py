@@ -128,9 +128,7 @@ class Workspace(QStackedWidget):
         # create opened files explorer
         self._openedFileExplorer = mks.core.openedfilesmodel.OpenedFileExplorer(self)
         lefttb = mainWindow.dockToolBar( Qt.LeftToolBarArea )
-        lefttb.addDockWidget( self._openedFileExplorer,
-                              self._openedFileExplorer.windowTitle(),
-                              self._openedFileExplorer.windowIcon())
+        lefttb.addDockWidget( self._openedFileExplorer)
         
         self.currentChanged.connect(self._onStackedLayoutIndexChanged)
         

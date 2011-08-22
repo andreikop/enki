@@ -1,8 +1,9 @@
 """
-_openedfilesmodel --- Model and treeview manages list of opened files
-=====================================================================
+openedfilesmodel --- Model and treeview for list of opened files
+================================================================
 
-Module displays list of opened files, implements files sorting, drag-n-drop in the list, switches current file
+Module displays list of opened files, implements files sorting, drag-n-drop in the list, switches current file.
+
 Used only internally by Workspace
 """
 
@@ -25,6 +26,30 @@ from PyQt4 import uic
 import PyQt4.fresh
 
 from mks.core.core import core, DATA_FILES_PATH
+from mks.core.uisettings import ChoiseOption, ModuleConfigurator
+
+class Configurator(ModuleConfigurator):
+    """ Module configurator.
+    
+    Used for configure files sorting mode
+    """
+    _SORT_MODE = ["OpeningOrder", "FileName", "URL", "Suffixes"]
+    def __init__(self, dialog):
+        
+        cfg = core.config()
+        self._options = \
+        [   ChoiseOption(dialog, cfg, "Workspace/FileSortMode",
+                         {dialog.rbOpeningOrder: "OpeningOrder",
+                          dialog.rbFileName: "FileName",
+                          dialog.rbUri: "URL",
+                          dialog.rbSuffix: "Suffixes"})
+        ]
+    
+    def saveSettings(self):
+        pass
+    
+    def applySettings(self):
+        core.workspace()._openedFileExplorer.mModel.setSortMode(core.config()["Workspace"]["FileSortMode"])
 
 
 
