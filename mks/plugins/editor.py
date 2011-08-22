@@ -17,6 +17,9 @@ from PyQt4.Qsci import *
 import mks.core.abstractdocument
 from mks.core.core import core
 
+from mks.core.config import Config
+from mks.core.uisettings import ModuleConfigurator, \
+                                CheckableOption, ChoiseOption, FontOption, NumericOption, ColorOption
 
 class _QsciScintilla(QsciScintilla):
     """QsciScintilla wrapper class created only for filter Shift+Tab events.
@@ -33,11 +36,224 @@ class _QsciScintilla(QsciScintilla):
         else:
             super(_QsciScintilla, self).keyPressEvent(event)
 
-
-class Editor(mks.core.abstractdocument.AbstractDocument):
-    """Text editor widget.
+class EditorConfigurator(ModuleConfigurator):
+    """ModuleConfigurator interface implementation
+    """
+    def __init__(self, dialog):
+        self._options = []
+        self._createEditorOptions(dialog)
+        self._createLexerOptions(dialog)
     
-    Uses QScintilla internally
+    def _createEditorOptions(self, dialog):
+        cfg = core.config()
+        self._options.extend(\
+        (
+            CheckableOption(dialog, cfg, "Editor/Indentation/ConvertUponOpen", dialog.cbConvertIndentationUponOpen),
+            CheckableOption(dialog, cfg, "Editor/CreateBackupUponOpen", dialog.cbCreateBackupUponOpen),
+            CheckableOption(dialog, cfg, "Editor/ShowLineNumbers", dialog.cbShowLineNumbers),
+            CheckableOption(dialog, cfg, "Editor/EnableCodeFolding", dialog.cbEnableCodeFolding),
+            ColorOption(dialog, cfg, "Editor/SelectionBackgroundColor", dialog.tbSelectionBackground),
+            ColorOption(dialog, cfg, "Editor/SelectionForegroundColor", dialog.tbSelectionForeground),
+            CheckableOption(dialog, cfg, "Editor/DefaultDocumentColours", dialog.gbDefaultDocumentColours),
+            ColorOption(dialog, cfg, "Editor/DefaultDocumentPen", dialog.tbDefaultDocumentPen),
+            ColorOption(dialog, cfg, "Editor/DefaultDocumentPaper", dialog.tbDefaultDocumentPaper),
+            FontOption(dialog, cfg, "Editor/DefaultFont", "Editor/DefaultFontSize",
+                        dialog.lDefaultDocumentFont, dialog.pbDefaultDocumentFont),
+        
+            CheckableOption(dialog, cfg, "Editor/AutoCompletion/Enabled", dialog.gbAutoCompletion),
+            ChoiseOption(dialog, cfg, "Editor/AutoCompletion/Source",
+                         { dialog.rbDocument: "Document",
+                           dialog.rbApi: "APIs",
+                           dialog.rbFromBoth: "All" }),
+            CheckableOption(dialog, cfg, "Editor/AutoCompletion/CaseSensitivity", dialog.cbAutoCompletionCaseSensitivity),
+            CheckableOption(dialog, cfg, "Editor/AutoCompletion/ReplaceWord", dialog.cbAutoCompletionReplaceWord),
+            CheckableOption(dialog, cfg, "Editor/AutoCompletion/ShowSingle", dialog.cbAutoCompletionShowSingle),
+            NumericOption(dialog, cfg, "Editor/AutoCompletion/Threshold", dialog.sAutoCompletionThreshold),
+        
+            CheckableOption(dialog, cfg, "Editor/CallTips/Enabled", dialog.gbCalltips),
+            NumericOption(dialog, cfg, "Editor/CallTips/VisibleCount", dialog.sCallTipsVisible),
+            ChoiseOption(dialog, cfg, "Editor/CallTips/Style",
+                         { dialog.rbCallTipsNoContext : "NoContext",
+                           dialog.rbCallTipsContext : "Context",
+                           dialog.rbCallTipsNoAutoCompletionContext: "NoAutoCompletionContext"}),
+            ColorOption(dialog, cfg, "Editor/CallTips/BackgroundColor", dialog.tbCalltipsBackground),
+            ColorOption(dialog, cfg, "Editor/CallTips/ForegroundColor", dialog.tbCalltipsForeground),
+            ColorOption(dialog, cfg, "Editor/CallTips/HighlightColor", dialog.tbCalltipsHighlight),
+        
+            CheckableOption(dialog, cfg, "Editor/Indentation/Guides", dialog.gbIndentationGuides),
+            ChoiseOption(dialog, cfg, "Editor/Indentation/UseTabs",
+                         {dialog.rbIndentationSpaces : False,
+                          dialog.rbIndentationTabs: True}),
+            CheckableOption(dialog, cfg, "Editor/Indentation/AutoDetect", dialog.cbAutodetectIndent),
+            NumericOption(dialog, cfg, "Editor/Indentation/Width", dialog.sIndentationWidth),
+            ColorOption(dialog, cfg, "Editor/Indentation/GuidesBackgroundColor", dialog.tbIndentationGuidesBackground),
+            ColorOption(dialog, cfg, "Editor/Indentation/GuidesForegroundColor", dialog.tbIndentationGuidesForeground),
+        
+            CheckableOption(dialog, cfg, "Editor/BraceMatching/Enabled", dialog.gbBraceMatchingEnabled),
+            ColorOption(dialog, cfg, "Editor/BraceMatching/MatchedForegroundColor", dialog.tbMatchedBraceForeground),
+            ColorOption(dialog, cfg, "Editor/BraceMatching/MatchedBackgroundColor", dialog.tbMatchedBraceBackground),
+            ColorOption(dialog, cfg, "Editor/BraceMatching/UnmatchedBackgroundColor", dialog.tbUnmatchedBraceBackground),
+            ColorOption(dialog, cfg, "Editor/BraceMatching/UnmatchedForegroundColor", dialog.tbUnmatchedBraceForeground),
+        
+            CheckableOption(dialog, cfg, "Editor/Edge/Enabled", dialog.gbEdgeModeEnabled),
+            ChoiseOption(dialog, cfg, "Editor/Edge/Mode",
+                         {dialog.rbEdgeLine: "Line",
+                          dialog.rbEdgeBackground: "Background"}),
+            NumericOption(dialog, cfg, "Editor/Edge/Column", dialog.sEdgeColumnNumber),
+            ColorOption(dialog, cfg, "Editor/Edge/Color", dialog.tbEdgeColor),
+
+            CheckableOption(dialog, cfg, "Editor/Caret/LineVisible", dialog.gbCaretLineVisible),
+            ColorOption(dialog, cfg, "Editor/Caret/LineBackgroundColor", dialog.tbCaretLineBackground),
+            ColorOption(dialog, cfg, "Editor/Caret/ForegroundColor", dialog.tbCaretForeground),
+            NumericOption(dialog, cfg, "Editor/Caret/Width", dialog.sCaretWidth),
+
+            ChoiseOption(dialog, cfg, "Editor/EOL/Mode",
+                         {dialog.rbEolUnix: r'\n',
+                          dialog.rbEolWindows: r'\r\n',
+                          dialog.rbEolMac: r'\r'}),
+            CheckableOption(dialog, cfg, "Editor/EOL/Visibility", dialog.cbEolVisibility),
+            CheckableOption(dialog, cfg, "Editor/EOL/AutoDetect", dialog.cbAutoDetectEol),
+            CheckableOption(dialog, cfg, "Editor/EOL/AutoConvert", dialog.cbAutoEolConversion),
+            ChoiseOption(dialog, cfg, "Editor/WhitespaceVisibility",
+                         {dialog.rbWsInvisible: "Invisible",
+                          dialog.rbWsVisible: "Visible",
+                          dialog.rbWsVisibleAfterIndent: "VisibleAfterIndent"}),
+        ))
+    
+    def _createLexerOptions(self, dialog):
+        lexerItem = dialog.twMenu.findItems("Language", Qt.MatchExactly | Qt.MatchRecursive)[0]
+        editor = core.workspace().currentDocument()
+
+        if editor is None or \
+           editor._lexer._currentLanguage is None:  # If language is unknown
+            lexerItem.setDisabled(True)
+            return
+        
+        lexerConfig = Plugin.instance.lexerConfig._config
+        lexerItem.setText(0, editor._lexer._currentLanguage)
+        lexer = editor._lexer._qscilexer
+        beginning = "%s/" % editor._lexer._currentLanguage
+        
+        boolAttributeControls = (dialog.cbLexerFoldComments,
+                                 dialog.cbLexerFoldCompact,
+                                 dialog.cbLexerFoldQuotes,
+                                 dialog.cbLexerFoldDirectives,
+                                 dialog.cbLexerFoldAtBegin,
+                                 dialog.cbLexerFoldAtParenthesis,
+                                 dialog.cbLexerFoldAtElse,
+                                 dialog.cbLexerFoldAtModule,
+                                 dialog.cbLexerFoldPreprocessor,
+                                 dialog.cbLexerStylePreprocessor,
+                                 dialog.cbLexerCaseSensitiveTags,
+                                 dialog.cbLexerBackslashEscapes)
+        
+        for attribute, control in zip(LexerConfig._LEXER_BOOL_ATTRIBUTES, boolAttributeControls):
+            if hasattr(lexer, attribute):
+                self._options.append(CheckableOption(dialog, lexerConfig, beginning + attribute, control))
+            else:
+                control.hide()
+
+        self._options.extend(( \
+             CheckableOption(dialog, lexerConfig, beginning + "indentOpeningBrace", dialog.cbLexerIndentOpeningBrace),
+             CheckableOption(dialog, lexerConfig, beginning + "indentClosingBrace", dialog.cbLexerIndentClosingBrace)))
+
+        if hasattr(lexer, "indentationWarning"):
+            self._options.extend((
+                CheckableOption(dialog, lexerConfig,
+                                beginning + "indentationWarning", dialog.gbLexerHighlightingIndentationWarning),
+                ChoiseOption(dialog, lexerConfig, beginning + "indentationWarningReason", 
+                             {dialog.cbIndentationWarningInconsistent: "Inconsistent",
+                             dialog.cbIndentationWarningTabsAfterSpaces: "TabsAfterSpaces",
+                             dialog.cbIndentationWarningTabs: "Tabs",
+                             dialog.cbIndentationWarningSpaces: "Spaces"})))
+        else:
+            dialog.gbLexerHighlightingIndentationWarning.hide()
+
+    def saveSettings(self):
+        """Main settings should be saved by the core. Save only lexer settings
+        """
+        Plugin.instance.lexerConfig._config.flush()
+    
+    def applySettings(self):
+        """Apply editor and lexer settings
+        """
+        for document in core.workspace().openedDocuments():
+            document.applySettings()
+            document._lexer._applySettings()
+
+class LexerConfig:
+    """Class manages settings of QScintilla lexers. Functionality:
+    
+    * Create configuration file with lexer defaults
+    * Load and save the file
+    """
+    _CONFIG_PATH = os.path.expanduser('~/.mksv3.lexers.cfg')
+    _LEXER_BOOL_ATTRIBUTES = ("foldComments",
+                              "foldCompact",
+                              "foldQuotes",
+                              "foldDirectives",
+                              "foldAtBegin",
+                              "foldAtParenthesis",
+                              "foldAtElse",
+                              "foldAtModule",
+                              "foldPreprocessor",
+                              "stylePreprocessor",
+                              "caseSensitiveTags",
+                              "backslashEscapes")
+    
+    def __init__(self):
+        if os.path.exists(self._CONFIG_PATH):  # File exists, load it
+            try:
+                self._config = Config(True, self._CONFIG_PATH)
+            except UserWarning, ex:
+                core.messageManager().appendMessage(unicode(str(ex), 'utf_8'))
+                self._config = None
+            self._convertConfigValueTypes()
+        else:  # First start, generate file
+            self._config = Config(True, self._CONFIG_PATH)
+            self._generateDefaultConfig()
+            self._config.flush()
+
+    def _convertConfigValueTypes(self):
+        """There are no scheme for lexer configuration, therefore need to convert types manually
+        """
+        for languageOptions in self._config.itervalues():
+            for key in languageOptions.iterkeys():
+                value = languageOptions[key]
+                if value == 'True':
+                    languageOptions[key] = True
+                elif value == 'False':
+                    languageOptions[key] = False
+                elif value.isdigit():
+                    languageOptions[key] = int(value)
+
+    def _generateDefaultConfig(self):
+        for language, lexerClass in _Lexer._lexerForLanguage.items():
+            self._config[language] = {}
+            lexerSection = self._config[language]
+            lexerObject = lexerClass()
+
+            for attribute in LexerConfig._LEXER_BOOL_ATTRIBUTES:
+                if hasattr(lexerObject, attribute):
+                    lexerSection[attribute] = getattr(lexerObject, attribute)()
+            lexerSection['indentOpeningBrace'] = bool(lexerObject.autoIndentStyle() & QsciScintilla.AiOpening)
+            lexerSection['indentClosingBrace'] = bool(lexerObject.autoIndentStyle() & QsciScintilla.AiClosing)
+            if hasattr(lexerObject, "indentationWarning"):
+                reason = getattr(lexerObject, "indentationWarning")()
+                reasonFromQsci = dict((v, k) for k, v in _Lexer._PYTHON_INDENTATION_WARNING_TO_QSCI.items())
+                if reason == QsciLexerPython.NoWarning:
+                    lexerSection['indentationWarning'] = False
+                    # MkS default reason
+                    lexerSection['indentationWarningReason'] = reasonFromQsci[QsciLexerPython.Inconsistent]
+                else:
+                    lexerSection['indentationWarning'] = True
+                    lexerSection['indentationWarningReason'] = reasonFromQsci[reason]
+
+class Lexer:
+    """Wrapper for all Qscintilla lexers. Functionality:
+    
+    * Choose lexer for a file
+    * Apply lexer settings
     """
     _lexerForLanguage = {
         "Bash"          : QsciLexerBash,
@@ -72,6 +288,85 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         "Verilog"       : QsciLexerVerilog,
         "Spice"         : QsciLexerSpice,
     }
+
+    _PYTHON_INDENTATION_WARNING_TO_QSCI = {"Inconsistent"    : QsciLexerPython.Inconsistent,
+                                           "TabsAfterSpaces" : QsciLexerPython.TabsAfterSpaces,
+                                           "Spaces"          : QsciLexerPython.Spaces,
+                                           "Tabs"            : QsciLexerPython.Tabs}
+    
+    def __init__(self, editor):
+        """editor - reference to parent :class:`mks.plugins.editor.Editor` object
+        """
+        self._editor = editor
+        # Detect language
+        self._currentLanguage = self._getLanguage()
+        # Create lexer
+        if self._currentLanguage:
+            lexerClass =  self._lexerForLanguage[self._currentLanguage]
+            self._qscilexer = lexerClass()
+            self._applySettings()
+            self._editor.qscintilla.setLexer(self._qscilexer)
+        else:
+            self._qscilexer = None
+    
+    def _getLanguage(self):
+        """Get language name by file path
+        """
+        if not self._editor.filePath():  #  None or empty
+            return None
+        
+        for language in self._lexerForLanguage.iterkeys():
+            for pattern in core.config()["Editor"]["Assotiations"][language]:
+                if fnmatch.fnmatch(self._editor.filePath(), pattern):
+                    return language
+        else:
+            return None
+        
+    def _applySettings(self):
+        if self._qscilexer is None:
+            return
+        
+        # Apply fonts and colors
+        defaultFont = QFont(core.config()["Editor"]["DefaultFont"],
+                            core.config()["Editor"]["DefaultFontSize"])
+        self._qscilexer.setDefaultFont(defaultFont)
+        for i in range(128):
+            if self._qscilexer.description(i):
+                font  = self._qscilexer.font(i)
+                font.setFamily(defaultFont.family())
+                self._qscilexer.setFont(font, i)
+                #lexer->setColor(lexer->defaultColor(i), i);  # TODO configure lexer colors
+                #lexer->setEolFill(lexer->defaultEolFill(i), i);
+                #lexer->setPaper(lexer->defaultPaper(i), i);
+        
+        # Apply language specific settings
+        lexerSection = Plugin.instance.lexerConfig._config[self._currentLanguage]  # FIXME 
+        
+        for attribute in LexerConfig._LEXER_BOOL_ATTRIBUTES:
+            setterName = 'set' + attribute[0].capitalize() + attribute[1:]
+            if hasattr(self._qscilexer, setterName):
+                getattr(self._qscilexer, setterName)(lexerSection[attribute])
+        
+        autoIndentStyle = 0
+        if lexerSection['indentOpeningBrace']:
+            autoIndentStyle &= QsciScintilla.AiOpening
+        if lexerSection['indentClosingBrace']:
+            autoIndentStyle &= QsciScintilla.AiClosing
+        self._qscilexer.setAutoIndentStyle(autoIndentStyle)
+        
+        if hasattr(self._qscilexer, "setIndentationWarning"):
+            if lexerSection['indentationWarning']:
+                qsciReason = self._PYTHON_INDENTATION_WARNING_TO_QSCI[lexerSection['indentationWarningReason']]
+                self._qscilexer.setIndentationWarning(qsciReason)
+        
+        self._editor.qscintilla.setLexer(self._qscilexer)  # Settings are not applied without this action
+
+
+class Editor(mks.core.abstractdocument.AbstractDocument):
+    """Text editor widget.
+    
+    Uses QScintilla internally
+    """
     
     _MARKER_BOOKMARK = -1  # QScintilla marker type
     
@@ -83,33 +378,28 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
                                 QsciScintilla.EolUnix       : r"\n",
                                 QsciScintilla.EolMac        : r"\r"}
     
-    _WRAP_MODE_TO_QSCI = {"None"          : QsciScintilla.WrapNone,
-                          "WrapWord"      : QsciScintilla.WrapWord,
+    _WRAP_MODE_TO_QSCI = {"WrapWord"      : QsciScintilla.WrapWord,
                           "WrapCharacter" : QsciScintilla.WrapCharacter}
     
     _WRAP_FLAG_TO_QSCI = {"None"           : QsciScintilla.WrapFlagNone,
                           "ByText"         : QsciScintilla.WrapFlagByText,
                           "ByBorder"       : QsciScintilla.WrapFlagByBorder}
 
-    _EDGE_MODE_TO_QSCI = {"None"        : QsciScintilla.EdgeNone,
-                          "Line"        : QsciScintilla.EdgeLine,
+    _EDGE_MODE_TO_QSCI = {"Line"        : QsciScintilla.EdgeLine,
                           "Background"  : QsciScintilla.EdgeBackground} 
     
     _WHITE_MODE_TO_QSCI = {"Invisible"           : QsciScintilla.WsInvisible,
                            "Visible"             : QsciScintilla.WsVisible,
                            "VisibleAfterIndent"  : QsciScintilla.WsVisibleAfterIndent}
         
-    _AUTOCOMPLETION_MODE_TO_QSCI = {"None"      : QsciScintilla.AcsNone,
-                                    "All"       : QsciScintilla.AcsAll,
+    _AUTOCOMPLETION_MODE_TO_QSCI = {"APIs"      : QsciScintilla.AcsAPIs,
                                     "Document"  : QsciScintilla.AcsDocument,
-                                    "APIs"      : QsciScintilla.AcsAPIs}
+                                    "All"       : QsciScintilla.AcsAll}
     
-    _BRACE_MATCHING_TO_QSCI = {"None"      : QsciScintilla.NoBraceMatch,
-                               "Strict"    : QsciScintilla.StrictBraceMatch,
+    _BRACE_MATCHING_TO_QSCI = {"Strict"    : QsciScintilla.StrictBraceMatch,
                                "Sloppy"    : QsciScintilla.SloppyBraceMatch}
     
-    _CALL_TIPS_STYLE_TO_QSCI = {"None"                     : QsciScintilla.CallTipsNone,
-                                "NoContext"                : QsciScintilla.CallTipsNoContext,
+    _CALL_TIPS_STYLE_TO_QSCI = {"NoContext"                : QsciScintilla.CallTipsNoContext,
                                 "NoAutoCompletionContext"  : QsciScintilla.CallTipsNoAutoCompletionContext,
                                 "Context"                  : QsciScintilla.CallTipsContext}
     
@@ -122,7 +412,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         pixmap = QIcon(":/mksicons/bookmark.png").pixmap(16, 16)
         self._MARKER_BOOKMARK = self.qscintilla.markerDefine(pixmap, -1)
         
-        self.initQsciShortcuts()
+        self._initQsciShortcuts()
 
         self.qscintilla.installEventFilter(self)
         
@@ -141,12 +431,9 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         # connections
         self.qscintilla.cursorPositionChanged.connect(self.cursorPositionChanged)
         self.qscintilla.modificationChanged.connect(self.modifiedChanged)
-        self.qscintilla.linesChanged.connect(self._onLinesChanged)
         
-        myConfig = core.config()["Editor"]
-        
-        self._applySettings(myConfig)
-        self._applyLexer(myConfig, filePath)
+        self.applySettings()
+        self._lexer = Lexer(self)
         
         if filePath:
             try:
@@ -156,13 +443,16 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
                 raise ex
             self.setText(text)
         
+        myConfig = core.config()["Editor"]
+        
         # make backup if needed
         if  myConfig["CreateBackupUponOpen"]:
-            try:
-                shutil.copy(self.filePath(), self.filePath() + '.bak')
-            except (IOError, OSError), ex:
-                self.deleteLater()
-                raise ex
+            if self.filePath():
+                try:
+                    shutil.copy(self.filePath(), self.filePath() + '.bak')
+                except (IOError, OSError), ex:
+                    self.deleteLater()
+                    raise ex
         
         #autodetect indent, need
         if  myConfig["Indentation"]["AutoDetect"]:
@@ -186,7 +476,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         self.modifiedChanged.emit(self.isModified())
         self.cursorPositionChanged.emit(*self.cursorPosition())
 
-    def initQsciShortcuts(self):
+    def _initQsciShortcuts(self):
         qsci = self.qscintilla
         qsci.SendScintilla( qsci.SCI_CLEARALLCMDKEYS )
         # Some shortcuts are hardcoded there.
@@ -206,10 +496,26 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         for key in range(ord('A'), ord('Z')):
             qsci.SendScintilla(qsci.SCI_ASSIGNCMDKEY, key + (qsci.SCMOD_CTRL << 16), qsci.SCI_NULL)
         
-    def _applySettings(self, myConfig):
+    def applySettings(self):
         """Apply own settings form the config
         """
         myConfig = core.config()["Editor"]
+
+        if myConfig["ShowLineNumbers"]:
+            self.qscintilla.linesChanged.connect(self._onLinesChanged)
+            self._onLinesChanged()
+        else:
+            try:
+                self.qscintilla.linesChanged.disconnect(self._onLinesChanged)
+            except TypeError:  # not connected
+                pass
+            self.qscintilla.setMarginWidth(0, 0)
+        
+        if myConfig["EnableCodeFolding"]:
+            self.qscintilla.setFolding(QsciScintilla.BoxedTreeFoldStyle)
+        else:
+            self.qscintilla.setFolding(QsciScintilla.NoFoldStyle)
+        
         self.qscintilla.setSelectionBackgroundColor(QColor(myConfig["SelectionBackgroundColor"]))
         self.qscintilla.setSelectionForegroundColor(QColor(myConfig["SelectionForegroundColor"]))
         if myConfig["DefaultDocumentColours"]:
@@ -219,17 +525,25 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
 
         self.qscintilla.setFont(QFont(myConfig["DefaultFont"], myConfig["DefaultFontSize"]))
         # Auto Completion
-        self.qscintilla.setAutoCompletionCaseSensitivity(myConfig["AutoCompletion"]["CaseSensitivity"])
-        self.qscintilla.setAutoCompletionReplaceWord(myConfig["AutoCompletion"]["ReplaceWord"])
-        self.qscintilla.setAutoCompletionShowSingle(myConfig["AutoCompletion"]["ShowSingle"])
-        self.qscintilla.setAutoCompletionSource(self._AUTOCOMPLETION_MODE_TO_QSCI[myConfig["AutoCompletion"]["Source"]])
-        self.qscintilla.setAutoCompletionThreshold(myConfig["AutoCompletion"]["Threshold"])
+        if myConfig["AutoCompletion"]["Enabled"]:
+            self.qscintilla.setAutoCompletionSource(self._AUTOCOMPLETION_MODE_TO_QSCI[myConfig["AutoCompletion"]["Source"]])
+            self.qscintilla.setAutoCompletionThreshold(myConfig["AutoCompletion"]["Threshold"])
+            self.qscintilla.setAutoCompletionCaseSensitivity(myConfig["AutoCompletion"]["CaseSensitivity"])
+            self.qscintilla.setAutoCompletionReplaceWord(myConfig["AutoCompletion"]["ReplaceWord"])
+            self.qscintilla.setAutoCompletionShowSingle(myConfig["AutoCompletion"]["ShowSingle"])
+        else:
+            self.qscintilla.setAutoCompletionSource(QsciScintilla.AcsNone)
+        
         # CallTips
-        self.qscintilla.setCallTipsVisible(myConfig["CallTips"]["Visible"])
-        self.qscintilla.setCallTipsBackgroundColor(QColor(myConfig["CallTips"]["BackgroundColor"]))
-        self.qscintilla.setCallTipsForegroundColor(QColor(myConfig["CallTips"]["ForegroundColor"]))
-        self.qscintilla.setCallTipsHighlightColor(QColor(myConfig["CallTips"]["HighlightColor"]))
-        self.qscintilla.setCallTipsStyle(self._CALL_TIPS_STYLE_TO_QSCI[myConfig["CallTips"]["Style"]])
+        if myConfig["CallTips"]["Enabled"]:
+            self.qscintilla.setCallTipsStyle(self._CALL_TIPS_STYLE_TO_QSCI[myConfig["CallTips"]["Style"]])
+            self.qscintilla.setCallTipsVisible(myConfig["CallTips"]["VisibleCount"])
+            self.qscintilla.setCallTipsBackgroundColor(QColor(myConfig["CallTips"]["BackgroundColor"]))
+            self.qscintilla.setCallTipsForegroundColor(QColor(myConfig["CallTips"]["ForegroundColor"]))
+            self.qscintilla.setCallTipsHighlightColor(QColor(myConfig["CallTips"]["HighlightColor"]))
+        else:
+            self.qscintilla.setCallTipsStyle(QsciScintilla.CallTipsNone)
+
         # Indentation
         self.qscintilla.setAutoIndent(myConfig["Indentation"]["AutoIndent"])
         self.qscintilla.setBackspaceUnindents(myConfig["Indentation"]["BackspaceUnindents"])
@@ -238,18 +552,27 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         self.qscintilla.setIndentationGuidesForegroundColor(QColor(myConfig["Indentation"]["GuidesForegroundColor"]))
         self.qscintilla.setIndentationsUseTabs(myConfig["Indentation"]["UseTabs"])
         self.qscintilla.setIndentationWidth(myConfig["Indentation"]["Width"])
+        self.qscintilla.setTabWidth(myConfig["Indentation"]["Width"])
         self.qscintilla.setTabIndents(myConfig["Indentation"]["TabIndents"])
-        self.qscintilla.setTabWidth(myConfig["Indentation"]["TabWidth"])
+
         # Brace Matching
-        self.qscintilla.setBraceMatching(self._BRACE_MATCHING_TO_QSCI[myConfig["BraceMatching"]["Mode"]])
-        self.qscintilla.setMatchedBraceBackgroundColor(QColor(myConfig["BraceMatching"]["MatchedBackgroundColor"]))
-        self.qscintilla.setMatchedBraceForegroundColor(QColor(myConfig["BraceMatching"]["MatchedForegroundColor"]))
-        self.qscintilla.setUnmatchedBraceBackgroundColor(QColor(myConfig["BraceMatching"]["UnmatchedBackgroundColor"]))
-        self.qscintilla.setUnmatchedBraceForegroundColor(QColor(myConfig["BraceMatching"]["UnmatchedForegroundColor"]))
+        if myConfig["BraceMatching"]["Enabled"]:
+            self.qscintilla.setBraceMatching(self._BRACE_MATCHING_TO_QSCI[myConfig["BraceMatching"]["Mode"]])
+            self.qscintilla.setMatchedBraceBackgroundColor(QColor(myConfig["BraceMatching"]["MatchedBackgroundColor"]))
+            self.qscintilla.setMatchedBraceForegroundColor(QColor(myConfig["BraceMatching"]["MatchedForegroundColor"]))
+            self.qscintilla.setUnmatchedBraceBackgroundColor(QColor(myConfig["BraceMatching"]["UnmatchedBackgroundColor"]))
+            self.qscintilla.setUnmatchedBraceForegroundColor(QColor(myConfig["BraceMatching"]["UnmatchedForegroundColor"]))
+        else:
+            self.qscintilla.setBraceMatching(QsciScintilla.NoBraceMatch)
+        
         # Edge Mode
-        self.qscintilla.setEdgeMode(self._EDGE_MODE_TO_QSCI[myConfig["Edge"]["Mode"]])
-        self.qscintilla.setEdgeColor(QColor(myConfig["Edge"]["Color"]))
-        self.qscintilla.setEdgeColumn(myConfig["Edge"]["Column"])
+        if myConfig["Edge"]["Enabled"]:
+            self.qscintilla.setEdgeMode(self._EDGE_MODE_TO_QSCI[myConfig["Edge"]["Mode"]])
+            self.qscintilla.setEdgeColor(QColor(myConfig["Edge"]["Color"]))
+            self.qscintilla.setEdgeColumn(myConfig["Edge"]["Column"])
+        else:
+            self.qscintilla.setEdgeMode(QsciScintilla.EdgeNone)
+
         # Caret
         self.qscintilla.setCaretLineVisible(myConfig["Caret"]["LineVisible"])
         self.qscintilla.setCaretLineBackgroundColor(QColor(myConfig["Caret"]["LineBackgroundColor"]))
@@ -262,29 +585,14 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         
         self.qscintilla.setWhitespaceVisibility(self._WHITE_MODE_TO_QSCI[myConfig["WhitespaceVisibility"]])
         
-        self.qscintilla.setWrapMode(self._WRAP_MODE_TO_QSCI[myConfig["Wrap"]["Mode"]])
-        self.qscintilla.setWrapVisualFlags(self._WRAP_FLAG_TO_QSCI[myConfig["Wrap"]["EndVisualFlag"]],
-                                           self._WRAP_FLAG_TO_QSCI[myConfig["Wrap"]["StartVisualFlag"]],
-                                           myConfig["Wrap"]["LineIndentWidth"])
-    
-    def _applyLexer(self, myConfig, filePath):
-        """Detect lexer for file name, configure it and apply to the editor
-        """
-        defaultFont = QFont(myConfig["DefaultFont"], myConfig["DefaultFontSize"])
-        lexer = self._lexerForFileName(os.path.basename(unicode(filePath)))
-        if lexer:
-            lexer.setDefaultFont(defaultFont)
-            for i in range(128):
-                if lexer.description(i):
-                    font  = lexer.font(i)
-                    font.setFamily(defaultFont.family())
-                    lexer.setFont(font, i)
-                    #lexer->setColor(lexer->defaultColor(i), i);  # TODO configure lexer colors
-                    #lexer->setEolFill(lexer->defaultEolFill(i), i);
-                    #lexer->setPaper(lexer->defaultPaper(i), i);
+        if myConfig["Wrap"]["Enabled"]:
+            self.qscintilla.setWrapMode(self._WRAP_MODE_TO_QSCI[myConfig["Wrap"]["Mode"]])
+            self.qscintilla.setWrapVisualFlags(self._WRAP_FLAG_TO_QSCI[myConfig["Wrap"]["EndVisualFlag"]],
+                                               self._WRAP_FLAG_TO_QSCI[myConfig["Wrap"]["StartVisualFlag"]],
+                                               myConfig["Wrap"]["LineIndentWidth"])
+        else:
+            self.qscintilla.setWrapMode(QsciScintilla.WrapNone)
 
-            self.qscintilla.setLexer(lexer)
-    
     def text(self):
         """Contents of the editor
         """
@@ -294,7 +602,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         """Set text in the QScintilla, clear modified flag, update line numbers bar
         """
         self.qscintilla.setText(text)
-        self._onLinesChanged()
+        self.qscintilla.linesChanged.emit()
         self._setModified(False)
     
     def _setModified(self, modified):
@@ -309,17 +617,6 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         if digitsCount:
             digitsCount += 1
         self.qscintilla.setMarginWidth(0, '0' * digitsCount)
-    
-    def _lexerForFileName(self, fileName):
-        """Delect lexer for the file name
-        """
-        for language in self._lexerForLanguage.keys():
-            for pattern in core.config()["Editor"]["Assotiations"][language]:
-                if  fnmatch.fnmatch(fileName , pattern)  :
-                    lexerClass =  self._lexerForLanguage[language]
-                    return lexerClass()
-        else:
-            return None
     
     def eolMode(self):
         """Line end mode of the file
@@ -463,17 +760,22 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         row = self.qscintilla.getCursorPosition()[0]
         self.qscintilla.setCursorPosition(
                     self.qscintilla.markerFindPrevious(row - 1, 1 << self._MARKER_BOOKMARK), 0)
-        
+    
 class Plugin:
     """Plugin interface implementation
     
     Installs and removes editor from the system
     """
     def __init__(self):
+        self.lexerConfig = LexerConfig()
         core.workspace().setTextEditorClass(Editor)
+        Plugin.instance = self
     
     def __term__(self):
         core.workspace().setTextEditorClass(None)
+    
+    def getModuleConfigurator(self):
+        return EditorConfigurator
 
 """TODO restore or delete old code
 
