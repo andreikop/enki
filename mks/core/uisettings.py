@@ -9,8 +9,11 @@ Conception
 Settings dialogue subsystem consists of 3 major entities:
 
 * UISettings.ui Gui dialog. Contains of controls.
-* CheckableOption, NumericOption, ColorOption, FontOption, ChoiseOption classes. Every object of the class links together control on GUI and option in the config file. It loads its option from :class:`mks.core.config.Config` to GUI, and saves from GUI to config.
-* :class:`mks.core.uisettings.ModuleConfigurator` interface. Must be implemented by plugin or core module. Creates and holds *Option objects, applies module settings, when necessary.
+* CheckableOption, NumericOption, ColorOption, FontOption, ChoiseOption classes.
+  Every object of the class links together control on GUI and option in the config file.
+  It loads its option from :class:`mks.core.config.Config` to GUI, and saves from GUI to config.
+* :class:`mks.core.uisettings.ModuleConfigurator` interface. Must be implemented by plugin or core module.
+  Creates and holds *Option objects, applies module settings, when necessary.
 
 .. raw:: html
 
@@ -40,44 +43,34 @@ Adding new settings
 If you need to add own settings to UISettings dialog, you should:
 
 #. Implement and register your ModuleConfigurator
-#. Add controls to the dialog. You may edit UISettings.ui or add your controls dynamically during dialog creation (in *ModuleConfigurator.__init__()*)
+#. Add controls to the dialog.
+   You may edit UISettings.ui or add your controls dynamically during dialog creation
+   (in *ModuleConfigurator.__init__()*)
 #. Create *Option class instance for every configurable option.
 
 Classes
 -------
 """
 
+import sys
 import os.path
 from PyQt4 import uic
-from PyQt4.QtCore import QObject, QStringList, Qt, QVariant
-from PyQt4.QtGui import QButtonGroup, \
-                        QCheckBox, \
-                        QColor, \
+from PyQt4.QtCore import Qt
+from PyQt4.QtGui import QColor, \
                         QDialog, \
-                        QDialogButtonBox, \
                         QFont, \
                         QFontDialog, \
-                        QIcon, \
-                        QListWidgetItem, \
-                        QRadioButton, \
-                        QTreeWidgetItem, \
-                        QWidget
-
-
-from PyQt4.Qsci import QsciScintilla
+                        QIcon
 
 from mks.core.core import core, DATA_FILES_PATH
 
-def _tr(s):
+def _tr(text):
     """Stub for translation
     """
-    return s
+    return text
 
 class ModuleConfigurator:
     """Interface, which must be implemented by core module or plugin, which needs to configure semself via GUI dialog.
-    
-    *TODO core interface to register configurator in the core. Currently hardcoded in
-    mks.core.Core.getModuleConfigurators()*
     
     See :class:`mks.core.openedfilesmodel.Configurator` source for simple example of class implementation
     """
@@ -107,6 +100,16 @@ class Option:
         self.control = control
         dialog.accepted.connect(self.save)
         self.load()
+    
+    def load(self):
+        """Load the value from config to GUI. To be implemented by child classes
+        """
+        pass
+
+    def save(self):
+        """Save the value from GUI to config. To be implemented by child classes
+        """
+        pass
 
 class CheckableOption(Option):
     """Bool option.
@@ -114,9 +117,13 @@ class CheckableOption(Option):
     Control may be QCheckBox, QGroupBox or other control, which has .isChecked() and .setChecked()
     """
     def load(self):
+        """Load the value from config to GUI
+        """
         self.control.setChecked(self.config.get(self.optionName))
     
     def save(self):
+        """Save the value from GUI to config
+        """
         self.config.set(self.optionName, self.control.isChecked())
 
 class NumericOption(Option):
@@ -125,9 +132,13 @@ class NumericOption(Option):
     Control may be QSlider or other control, which has .value() and .setValue() methods
     """
     def load(self):
+        """Load the value from config to GUI
+        """
         self.control.setValue(self.config.get(self.optionName))
     
     def save(self):
+        """Save the value from GUI to config
+        """
         self.config.set(self.optionName, self.control.value())
 
 class ColorOption(Option):
@@ -136,9 +147,13 @@ class ColorOption(Option):
     Control must be PyQt4.Fresh.pColorButton
     """
     def load(self):
+        """Load the value from config to GUI
+        """
         self.control.setColor(QColor(self.config.get(self.optionName)))
     
     def save(self):
+        """Save the value from GUI to config
+        """
         self.config.set(self.optionName, self.control.color().name())
 
 class FontOption(Option):
@@ -156,23 +171,29 @@ class FontOption(Option):
         self.sizeOptionName = sizeOptionName
         self.editControl = editControl
         self.buttonControl = buttonControl
+        self.buttonControl.clicked.connect(self._onClicked)
         Option.__init__(self, dialog, config, None, None)
     
     def load(self):
+        """Load the value from config to GUI
+        """
         font = QFont(self.config.get(self.familyOptionName), self.config.get(self.sizeOptionName))
         self.editControl.setFont( font )
         self.editControl.setToolTip( font.toString() )
-        self.buttonControl.clicked.connect(self.onClicked)
     
     def save(self):
+        """Save the value from GUI to config
+        """
         font = self.editControl.font()
         self.config.set(self.familyOptionName, font.family())
         self.config.set(self.sizeOptionName, font.pointSize())
     
-    def onClicked(self):
-        f, b = QFontDialog.getFont(self.editControl.font(), core.mainWindow() )
-        if  b:
-            self.editControl.setFont( f )
+    def _onClicked(self):
+        """Button click handler. Open font dialog
+        """
+        font, accepted = QFontDialog.getFont(self.editControl.font(), core.mainWindow() )
+        if accepted:
+            self.editControl.setFont( font )
 
 
 class ChoiseOption(Option):
@@ -187,6 +208,8 @@ class ChoiseOption(Option):
         Option.__init__(self, dialog, config, optionName, None)
         
     def load(self):
+        """Load the value from config to GUI
+        """
         value = self.config.get(self.optionName)
         for button, keyValue in self.cotrolToValue.iteritems():
             if value == keyValue:
@@ -196,6 +219,8 @@ class ChoiseOption(Option):
             print >> sys.stderr, 'Button not found for option %s value' % self.optionName, value
     
     def save(self):
+        """Save the value from GUI to config
+        """
         for button in self.cotrolToValue.iterkeys():
             if button.isChecked():
                 self.config.set(self.optionName, self.cotrolToValue[button])
@@ -210,12 +235,13 @@ class UISettingsManager:
                                                     QIcon(':/mksicons/settings.png'))
         self._action.setStatusTip(_tr( "Edit settigns.."))
         self._action.triggered.connect(self._onEditSettings)
-        #self._onEditSettings()
     
     def __term__(self):
         core.actionModel().removeAction(self._action)
 
     def _onEditSettings(self):
+        """*Settings->Settings* menu item handler. Open the dialogue
+        """
         UISettings(core.mainWindow()).exec_()
 
 
@@ -226,6 +252,8 @@ class UISettings(QDialog):
     def __init__(self, parent):
         QDialog.__init__(self, parent)
         self._createdObjects = []
+        self._allTwItems = []
+        self._moduleConfigurators = []
 
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/UISettings.ui'), self)
         self.swPages.setCurrentIndex(0)
@@ -247,19 +275,26 @@ class UISettings(QDialog):
                     yield item
 
         topLevelItems = [self.twMenu.topLevelItem(index) for index in range(self.twMenu.topLevelItemCount())]
-        self._allTwItems = []
         
         for topLevelItem in topLevelItems:
             self._allTwItems.extend(allItems(topLevelItem))
 
     def createOptions(self):
-        """Create and load all opitons. Calls ::class:`mks.core.uisettings.ModuleConfigurator` instances
+        """Create and load all opitons. Create ::class:`mks.core.uisettings.ModuleConfigurator` instances
         """
-        self._moduleConfigurators = []
-        for moduleConfiguratorClass in core.getModuleConfigurators():
+        
+        # Get core and plugin configurators
+        moduleConfiguratorClasses = []
+        moduleConfiguratorClasses.extend(core.moduleConfiguratorClasses)
+        for plugin in core.loadedPlugins():
+            if plugin.moduleConfiguratorClass() is not None:  # If plugin has configurator
+                moduleConfiguratorClasses.append(plugin.moduleConfiguratorClass())
+        
+        # Create configurator instances
+        for moduleConfiguratorClass in moduleConfiguratorClasses:
             self._moduleConfigurators.append(moduleConfiguratorClass(self))
 
-        # Expand all items
+        # Expand all tree widget items
         self.initTopLevelItems()
         for topLevelItem in self._allTwItems:  # except Languages
             topLevelItem.setExpanded(True)
@@ -291,7 +326,7 @@ class UISettings(QDialog):
 
 
 
-""" TODO
+""" TODO restore or remove old code
 
 def Dialog reject(self):
     
@@ -299,9 +334,7 @@ def Dialog reject(self):
     for lexer in mLexers:
         lexer.readSettings( *settings, scintillaSettingsPath().toLocal8Bit().constData() )
     QDialog.reject(self)
-"""
 
-"""
 ----------------------------------------------------------- constructor
         
         for b in self.findChildren(pColorButton):
@@ -355,7 +388,8 @@ def Dialog reject(self):
 
         # Source APIs
         for ( i = 0; i < self.cbSourceAPIsLanguages.count(); i++ )
-            self.cbSourceAPIsLanguages.setItemData( i, s.value( "SourceAPIs/" +cbSourceAPIsLanguages.itemText( i ) ).toStringList() )
+            self.cbSourceAPIsLanguages.setItemData( i, 
+                        s.value( "SourceAPIs/" +cbSourceAPIsLanguages.itemText( i ) ).toStringList() )
         if  self.cbSourceAPIsLanguages.count() > 0 :
             self.cbSourceAPIsLanguages.setCurrentIndex( 0 )
         #  Lexers Associations
@@ -394,15 +428,16 @@ def Dialog reject(self):
         setRestoreSessionOnStartup( self.cbRestoreSession.isChecked() )
         # Editor
         #  General
-        # TODO setAutoSyntaxCheck( self.cbAutoSyntaxCheck.isChecked() )
-        # TODO setDefaultCodec( self.cbDefaultCodec.currentText() )
+        setAutoSyntaxCheck( self.cbAutoSyntaxCheck.isChecked() )
+        setDefaultCodec( self.cbDefaultCodec.currentText() )
         
         
         # Source APIs
         
         sp = "SourceAPIs/"
         for ( i = 0; i < self.cbSourceAPIsLanguages.count(); i++ )
-            s.setValue( sp +cbSourceAPIsLanguages.itemText( i ), self.cbSourceAPIsLanguages.itemData( i ).toStringList() )
+            s.setValue( sp +cbSourceAPIsLanguages.itemText( i ), 
+                        self.cbSourceAPIsLanguages.itemData( i ).toStringList() )
 
         #  Lexers Associations
         QMap<QString, suffixes
@@ -479,7 +514,8 @@ def Dialog reject(self):
         self.cbSourceAPIsLanguages_beforeChanged( self.cbSourceAPIsLanguages.currentIndex() )
 
     def on_pbSourceAPIsBrowse_clicked(self):
-        files = QFileDialog.getOpenFileNames( self.window(), self.tr( "Select API files" ), QString.null, self.tr( "API Files (*.api);;All Files (*)" ) )
+        files = QFileDialog.getOpenFileNames( self.window(), self.tr( "Select API files" ), 
+        QString.null, self.tr( "API Files (*.api);;All Files (*)" ) )
         if files:
             leSourceAPIs.setText( ';'.join(files))
 
@@ -487,7 +523,8 @@ def Dialog reject(self):
         it = self.twLexersAssociations.selectedItems()[0]
         if  it :
             leLexersAssociationsFilenamePattern.setText( it.text( 0 ) )
-            self.cbLexersAssociationsLanguages.setCurrentIndex( self.cbLexersAssociationsLanguages.findText( it.text( 1 ) ) )
+            self.cbLexersAssociationsLanguages.setCurrentIndex( 
+                        self.cbLexersAssociationsLanguages.findText( it.text( 1 ) ) )
 
     def on_pbLexersAssociationsAddChange_clicked(self):
         f = leLexersAssociationsFilenamePattern.text()
@@ -536,7 +573,8 @@ def Dialog reject(self):
     def on_lwLexersHighlightingElements_itemSelectionChanged(self):
         it = lwLexersHighlightingElements.selectedItems()[0]
         if  it :
-            self.cbLexerFillEol.setChecked( mLexers.value[self.cbLexerLanguages.currentText()].eolFill( it.data( Qt.UserRole ).toInt() ) )
+            self.cbLexerFillEol.setChecked( mLexers.value[self.cbLexerLanguages.currentText()].eolFill( 
+                        it.data( Qt.UserRole ).toInt() ) )
 
     def lexersHighlightingColour_clicked(self):
         # get self.sender
@@ -568,7 +606,8 @@ def Dialog reject(self):
             # get lexer
             l = mLexers.value( self.cbLexerLanguages.currentText() )
             # get color
-            c = QColorDialog.getColor( o == self.pbLexersHighlightingAllForeground ? l.color( -1 ) : l.paper( -1 ), self.window() )
+            c = QColorDialog.getColor( o == self.pbLexersHighlightingAllForeground ? l.color( -1 ) : 
+                        l.paper( -1 ), self.window() )
             # apply
             if  c.isValid() :
                 if  o == self.pbLexersHighlightingAllForeground :

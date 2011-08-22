@@ -129,6 +129,11 @@ class Plugin(QObject):  # TODO (Plugin) ?
         """        
         core.actionModel().removeMenu("mNavigation/mSearchReplace")
     
+    def moduleConfiguratorClass(self):
+        """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
+        """
+        return None  # No any settings
+
     def _modeSwitchTriggered(self):
         """Changing mode, i.e. from "Search file" to "Replace file"
         """

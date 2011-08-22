@@ -34,6 +34,12 @@ class Core:
         Called only by main()
         """
         self._loadedPlugins = []
+        
+        """ List of core configurators. To be filled ONLY by other core modules. Readed ONLY by core.uisettings
+        Use direct access to the list, no methods are provided
+        """
+        self.moduleConfiguratorClasses = []
+        
         qApp.setWindowIcon(QIcon(':/mksicons/monkey2.png') )
         pSettings.setDefaultProperties(pSettings.Properties(qApp.applicationName(), \
                                                             "1.0.0",
@@ -49,8 +55,8 @@ class Core:
         self._mainWindow.setWorkspace(self._workspace)
         
         import mks.core.uisettings
-        self._uisettings = mks.core.uisettings.UISettingsManager()
-            
+        self._uiSettingsManager = mks.core.uisettings.UISettingsManager()
+        
         # Create plugins
         self._loadPlugin('editor')
         self._loadPlugin('editortoolbar')
@@ -94,12 +100,11 @@ class Core:
         """
         return self._mainWindow.queuedMessageToolBar()
     
-    def getModuleConfigurators(self):
-        import mks.plugins.editor
-        import mks.core.openedfilesmodel
-        return (mks.core.openedfilesmodel.Configurator,
-                mks.plugins.editor.Plugin.instance.getModuleConfigurator())
-    
+    def loadedPlugins(self):
+        """Get list of curretly loaded plugins (::class:`mks.core.Plugin` instances)
+        """
+        return self._loadedPlugins
+        
     def _loadPlugin(self, name):
         """Load plugin by it's module name
         """
