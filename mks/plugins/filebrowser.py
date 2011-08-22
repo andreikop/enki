@@ -38,6 +38,11 @@ class Plugin(QObject):
         """
         self.dock.deleteLater()
 
+    def moduleConfiguratorClass(self):
+        """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
+        """
+        return None  # No any settings
+
     def settingsWidget(self):
         """Get settings widget of the plugin
         """

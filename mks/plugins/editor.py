@@ -40,11 +40,14 @@ class EditorConfigurator(ModuleConfigurator):
     """ModuleConfigurator interface implementation
     """
     def __init__(self, dialog):
+        ModuleConfigurator.__init__(self, dialog)
         self._options = []
         self._createEditorOptions(dialog)
         self._createLexerOptions(dialog)
     
     def _createEditorOptions(self, dialog):
+        """Create editor (not lexer) specific options
+        """
         cfg = core.config()
         self._options.extend(\
         (
@@ -65,7 +68,8 @@ class EditorConfigurator(ModuleConfigurator):
                          { dialog.rbDocument: "Document",
                            dialog.rbApi: "APIs",
                            dialog.rbFromBoth: "All" }),
-            CheckableOption(dialog, cfg, "Editor/AutoCompletion/CaseSensitivity", dialog.cbAutoCompletionCaseSensitivity),
+            CheckableOption(dialog, cfg, "Editor/AutoCompletion/CaseSensitivity",
+                            dialog.cbAutoCompletionCaseSensitivity),
             CheckableOption(dialog, cfg, "Editor/AutoCompletion/ReplaceWord", dialog.cbAutoCompletionReplaceWord),
             CheckableOption(dialog, cfg, "Editor/AutoCompletion/ShowSingle", dialog.cbAutoCompletionShowSingle),
             NumericOption(dialog, cfg, "Editor/AutoCompletion/Threshold", dialog.sAutoCompletionThreshold),
@@ -92,8 +96,10 @@ class EditorConfigurator(ModuleConfigurator):
             CheckableOption(dialog, cfg, "Editor/BraceMatching/Enabled", dialog.gbBraceMatchingEnabled),
             ColorOption(dialog, cfg, "Editor/BraceMatching/MatchedForegroundColor", dialog.tbMatchedBraceForeground),
             ColorOption(dialog, cfg, "Editor/BraceMatching/MatchedBackgroundColor", dialog.tbMatchedBraceBackground),
-            ColorOption(dialog, cfg, "Editor/BraceMatching/UnmatchedBackgroundColor", dialog.tbUnmatchedBraceBackground),
-            ColorOption(dialog, cfg, "Editor/BraceMatching/UnmatchedForegroundColor", dialog.tbUnmatchedBraceForeground),
+            ColorOption(dialog, cfg, "Editor/BraceMatching/UnmatchedBackgroundColor",
+                        dialog.tbUnmatchedBraceBackground),
+            ColorOption(dialog, cfg, "Editor/BraceMatching/UnmatchedForegroundColor",
+                        dialog.tbUnmatchedBraceForeground),
         
             CheckableOption(dialog, cfg, "Editor/Edge/Enabled", dialog.gbEdgeModeEnabled),
             ChoiseOption(dialog, cfg, "Editor/Edge/Mode",
@@ -121,18 +127,20 @@ class EditorConfigurator(ModuleConfigurator):
         ))
     
     def _createLexerOptions(self, dialog):
+        """Create lexer (not editor) specific options
+        """
         lexerItem = dialog.twMenu.findItems("Language", Qt.MatchExactly | Qt.MatchRecursive)[0]
         editor = core.workspace().currentDocument()
 
         if editor is None or \
-           editor._lexer._currentLanguage is None:  # If language is unknown
+           editor.lexer.currentLanguage is None:  # If language is unknown
             lexerItem.setDisabled(True)
             return
         
-        lexerConfig = Plugin.instance.lexerConfig._config
-        lexerItem.setText(0, editor._lexer._currentLanguage)
-        lexer = editor._lexer._qscilexer
-        beginning = "%s/" % editor._lexer._currentLanguage
+        lexerConfig = Plugin.instance.lexerConfig.config
+        lexerItem.setText(0, editor.lexer.currentLanguage)
+        lexer = editor.lexer.qscilexer
+        beginning = "%s/" % editor.lexer.currentLanguage
         
         boolAttributeControls = (dialog.cbLexerFoldComments,
                                  dialog.cbLexerFoldCompact,
@@ -147,7 +155,7 @@ class EditorConfigurator(ModuleConfigurator):
                                  dialog.cbLexerCaseSensitiveTags,
                                  dialog.cbLexerBackslashEscapes)
         
-        for attribute, control in zip(LexerConfig._LEXER_BOOL_ATTRIBUTES, boolAttributeControls):
+        for attribute, control in zip(Lexer.LEXER_BOOL_ATTRIBUTES, boolAttributeControls):
             if hasattr(lexer, attribute):
                 self._options.append(CheckableOption(dialog, lexerConfig, beginning + attribute, control))
             else:
@@ -172,14 +180,14 @@ class EditorConfigurator(ModuleConfigurator):
     def saveSettings(self):
         """Main settings should be saved by the core. Save only lexer settings
         """
-        Plugin.instance.lexerConfig._config.flush()
+        Plugin.instance.lexerConfig.config.flush()
     
     def applySettings(self):
         """Apply editor and lexer settings
         """
         for document in core.workspace().openedDocuments():
             document.applySettings()
-            document._lexer._applySettings()
+            document.lexer.applySettings()
 
 class LexerConfig:
     """Class manages settings of QScintilla lexers. Functionality:
@@ -188,36 +196,24 @@ class LexerConfig:
     * Load and save the file
     """
     _CONFIG_PATH = os.path.expanduser('~/.mksv3.lexers.cfg')
-    _LEXER_BOOL_ATTRIBUTES = ("foldComments",
-                              "foldCompact",
-                              "foldQuotes",
-                              "foldDirectives",
-                              "foldAtBegin",
-                              "foldAtParenthesis",
-                              "foldAtElse",
-                              "foldAtModule",
-                              "foldPreprocessor",
-                              "stylePreprocessor",
-                              "caseSensitiveTags",
-                              "backslashEscapes")
     
     def __init__(self):
         if os.path.exists(self._CONFIG_PATH):  # File exists, load it
             try:
-                self._config = Config(True, self._CONFIG_PATH)
+                self.config = Config(True, self._CONFIG_PATH)
             except UserWarning, ex:
                 core.messageManager().appendMessage(unicode(str(ex), 'utf_8'))
-                self._config = None
+                self.config = None
             self._convertConfigValueTypes()
         else:  # First start, generate file
-            self._config = Config(True, self._CONFIG_PATH)
+            self.config = Config(True, self._CONFIG_PATH)
             self._generateDefaultConfig()
-            self._config.flush()
+            self.config.flush()
 
     def _convertConfigValueTypes(self):
         """There are no scheme for lexer configuration, therefore need to convert types manually
         """
-        for languageOptions in self._config.itervalues():
+        for languageOptions in self.config.itervalues():
             for key in languageOptions.iterkeys():
                 value = languageOptions[key]
                 if value == 'True':
@@ -228,19 +224,21 @@ class LexerConfig:
                     languageOptions[key] = int(value)
 
     def _generateDefaultConfig(self):
-        for language, lexerClass in _Lexer._lexerForLanguage.items():
-            self._config[language] = {}
-            lexerSection = self._config[language]
+        """Generate default lexer configuration file. File contains QScintilla defaults
+        """
+        for language, lexerClass in Lexer.LEXER_FOR_LANGUAGE.items():
+            self.config[language] = {}
+            lexerSection = self.config[language]
             lexerObject = lexerClass()
 
-            for attribute in LexerConfig._LEXER_BOOL_ATTRIBUTES:
+            for attribute in Lexer.LEXER_BOOL_ATTRIBUTES:
                 if hasattr(lexerObject, attribute):
                     lexerSection[attribute] = getattr(lexerObject, attribute)()
             lexerSection['indentOpeningBrace'] = bool(lexerObject.autoIndentStyle() & QsciScintilla.AiOpening)
             lexerSection['indentClosingBrace'] = bool(lexerObject.autoIndentStyle() & QsciScintilla.AiClosing)
             if hasattr(lexerObject, "indentationWarning"):
                 reason = getattr(lexerObject, "indentationWarning")()
-                reasonFromQsci = dict((v, k) for k, v in _Lexer._PYTHON_INDENTATION_WARNING_TO_QSCI.items())
+                reasonFromQsci = dict((v, k) for k, v in Lexer.PYTHON_INDENTATION_WARNING_TO_QSCI.items())
                 if reason == QsciLexerPython.NoWarning:
                     lexerSection['indentationWarning'] = False
                     # MkS default reason
@@ -255,7 +253,7 @@ class Lexer:
     * Choose lexer for a file
     * Apply lexer settings
     """
-    _lexerForLanguage = {
+    LEXER_FOR_LANGUAGE = {
         "Bash"          : QsciLexerBash,
         "Batch"         : QsciLexerBatch,
         "C#"            : QsciLexerCSharp,
@@ -289,25 +287,38 @@ class Lexer:
         "Spice"         : QsciLexerSpice,
     }
 
-    _PYTHON_INDENTATION_WARNING_TO_QSCI = {"Inconsistent"    : QsciLexerPython.Inconsistent,
+    PYTHON_INDENTATION_WARNING_TO_QSCI = { "Inconsistent"    : QsciLexerPython.Inconsistent,
                                            "TabsAfterSpaces" : QsciLexerPython.TabsAfterSpaces,
                                            "Spaces"          : QsciLexerPython.Spaces,
                                            "Tabs"            : QsciLexerPython.Tabs}
+
+    LEXER_BOOL_ATTRIBUTES =  ("foldComments",
+                              "foldCompact",
+                              "foldQuotes",
+                              "foldDirectives",
+                              "foldAtBegin",
+                              "foldAtParenthesis",
+                              "foldAtElse",
+                              "foldAtModule",
+                              "foldPreprocessor",
+                              "stylePreprocessor",
+                              "caseSensitiveTags",
+                              "backslashEscapes")
     
     def __init__(self, editor):
         """editor - reference to parent :class:`mks.plugins.editor.Editor` object
         """
         self._editor = editor
         # Detect language
-        self._currentLanguage = self._getLanguage()
+        self.currentLanguage = self._getLanguage()
         # Create lexer
-        if self._currentLanguage:
-            lexerClass =  self._lexerForLanguage[self._currentLanguage]
-            self._qscilexer = lexerClass()
-            self._applySettings()
-            self._editor.qscintilla.setLexer(self._qscilexer)
+        if self.currentLanguage:
+            lexerClass =  self.LEXER_FOR_LANGUAGE[self.currentLanguage]
+            self.qscilexer = lexerClass()
+            self.applySettings()
+            self._editor.qscintilla.setLexer(self.qscilexer)
         else:
-            self._qscilexer = None
+            self.qscilexer = None
     
     def _getLanguage(self):
         """Get language name by file path
@@ -315,51 +326,53 @@ class Lexer:
         if not self._editor.filePath():  #  None or empty
             return None
         
-        for language in self._lexerForLanguage.iterkeys():
+        for language in self.LEXER_FOR_LANGUAGE.iterkeys():
             for pattern in core.config()["Editor"]["Assotiations"][language]:
                 if fnmatch.fnmatch(self._editor.filePath(), pattern):
                     return language
         else:
             return None
         
-    def _applySettings(self):
-        if self._qscilexer is None:
+    def applySettings(self):
+        """Apply editor and lexer settings
+        """
+        if self.qscilexer is None:
             return
         
         # Apply fonts and colors
         defaultFont = QFont(core.config()["Editor"]["DefaultFont"],
                             core.config()["Editor"]["DefaultFontSize"])
-        self._qscilexer.setDefaultFont(defaultFont)
+        self.qscilexer.setDefaultFont(defaultFont)
         for i in range(128):
-            if self._qscilexer.description(i):
-                font  = self._qscilexer.font(i)
+            if self.qscilexer.description(i):
+                font  = self.qscilexer.font(i)
                 font.setFamily(defaultFont.family())
-                self._qscilexer.setFont(font, i)
+                self.qscilexer.setFont(font, i)
                 #lexer->setColor(lexer->defaultColor(i), i);  # TODO configure lexer colors
                 #lexer->setEolFill(lexer->defaultEolFill(i), i);
                 #lexer->setPaper(lexer->defaultPaper(i), i);
         
         # Apply language specific settings
-        lexerSection = Plugin.instance.lexerConfig._config[self._currentLanguage]  # FIXME 
+        lexerSection = Plugin.instance.lexerConfig.config[self.currentLanguage]
         
-        for attribute in LexerConfig._LEXER_BOOL_ATTRIBUTES:
+        for attribute in self.LEXER_BOOL_ATTRIBUTES:
             setterName = 'set' + attribute[0].capitalize() + attribute[1:]
-            if hasattr(self._qscilexer, setterName):
-                getattr(self._qscilexer, setterName)(lexerSection[attribute])
+            if hasattr(self.qscilexer, setterName):
+                getattr(self.qscilexer, setterName)(lexerSection[attribute])
         
         autoIndentStyle = 0
         if lexerSection['indentOpeningBrace']:
             autoIndentStyle &= QsciScintilla.AiOpening
         if lexerSection['indentClosingBrace']:
             autoIndentStyle &= QsciScintilla.AiClosing
-        self._qscilexer.setAutoIndentStyle(autoIndentStyle)
+        self.qscilexer.setAutoIndentStyle(autoIndentStyle)
         
-        if hasattr(self._qscilexer, "setIndentationWarning"):
+        if hasattr(self.qscilexer, "setIndentationWarning"):
             if lexerSection['indentationWarning']:
-                qsciReason = self._PYTHON_INDENTATION_WARNING_TO_QSCI[lexerSection['indentationWarningReason']]
-                self._qscilexer.setIndentationWarning(qsciReason)
+                qsciReason = self.PYTHON_INDENTATION_WARNING_TO_QSCI[lexerSection['indentationWarningReason']]
+                self.qscilexer.setIndentationWarning(qsciReason)
         
-        self._editor.qscintilla.setLexer(self._qscilexer)  # Settings are not applied without this action
+        self._editor.qscintilla.setLexer(self.qscilexer)  # Settings are not applied without this action
 
 
 class Editor(mks.core.abstractdocument.AbstractDocument):
@@ -433,7 +446,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         self.qscintilla.modificationChanged.connect(self.modifiedChanged)
         
         self.applySettings()
-        self._lexer = Lexer(self)
+        self.lexer = Lexer(self)
         
         if filePath:
             try:
@@ -477,22 +490,26 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         self.cursorPositionChanged.emit(*self.cursorPosition())
 
     def _initQsciShortcuts(self):
+        """Clear default QScintilla shortcuts, and restore only ones, which are needed for MkS.
+        
+        Other shortcuts are disabled, or are configured with mks.plugins.editorshortcuts and defined here
+        """
         qsci = self.qscintilla
         qsci.SendScintilla( qsci.SCI_CLEARALLCMDKEYS )
         # Some shortcuts are hardcoded there.
         #If we made is a QActions, it will shadow Qt default keys for move focus, etc
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_TAB, qsci.SCI_TAB);
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_ESCAPE, qsci.SCI_CANCEL);
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_RETURN, qsci.SCI_NEWLINE);
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_DOWN, qsci.SCI_LINEDOWN);
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_UP, qsci.SCI_LINEUP);
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_RIGHT, qsci.SCI_CHARRIGHT);
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_LEFT, qsci.SCI_CHARLEFT);
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_BACK, qsci.SCI_DELETEBACK);
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_PRIOR, qsci.SCI_PAGEUP);
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_NEXT, qsci.SCI_PAGEDOWN);
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_HOME, qsci.SCI_VCHOME);
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_END, qsci.SCI_LINEEND);
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_TAB, qsci.SCI_TAB)
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_ESCAPE, qsci.SCI_CANCEL)
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_RETURN, qsci.SCI_NEWLINE)
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_DOWN, qsci.SCI_LINEDOWN)
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_UP, qsci.SCI_LINEUP)
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_RIGHT, qsci.SCI_CHARRIGHT)
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_LEFT, qsci.SCI_CHARLEFT)
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_BACK, qsci.SCI_DELETEBACK)
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_PRIOR, qsci.SCI_PAGEUP)
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_NEXT, qsci.SCI_PAGEDOWN)
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_HOME, qsci.SCI_VCHOME)
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_END, qsci.SCI_LINEEND)
         for key in range(ord('A'), ord('Z')):
             qsci.SendScintilla(qsci.SCI_ASSIGNCMDKEY, key + (qsci.SCMOD_CTRL << 16), qsci.SCI_NULL)
         
@@ -526,7 +543,8 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         self.qscintilla.setFont(QFont(myConfig["DefaultFont"], myConfig["DefaultFontSize"]))
         # Auto Completion
         if myConfig["AutoCompletion"]["Enabled"]:
-            self.qscintilla.setAutoCompletionSource(self._AUTOCOMPLETION_MODE_TO_QSCI[myConfig["AutoCompletion"]["Source"]])
+            self.qscintilla.setAutoCompletionSource(\
+                                            self._AUTOCOMPLETION_MODE_TO_QSCI[myConfig["AutoCompletion"]["Source"]])
             self.qscintilla.setAutoCompletionThreshold(myConfig["AutoCompletion"]["Threshold"])
             self.qscintilla.setAutoCompletionCaseSensitivity(myConfig["AutoCompletion"]["CaseSensitivity"])
             self.qscintilla.setAutoCompletionReplaceWord(myConfig["AutoCompletion"]["ReplaceWord"])
@@ -560,8 +578,10 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
             self.qscintilla.setBraceMatching(self._BRACE_MATCHING_TO_QSCI[myConfig["BraceMatching"]["Mode"]])
             self.qscintilla.setMatchedBraceBackgroundColor(QColor(myConfig["BraceMatching"]["MatchedBackgroundColor"]))
             self.qscintilla.setMatchedBraceForegroundColor(QColor(myConfig["BraceMatching"]["MatchedForegroundColor"]))
-            self.qscintilla.setUnmatchedBraceBackgroundColor(QColor(myConfig["BraceMatching"]["UnmatchedBackgroundColor"]))
-            self.qscintilla.setUnmatchedBraceForegroundColor(QColor(myConfig["BraceMatching"]["UnmatchedForegroundColor"]))
+            self.qscintilla.setUnmatchedBraceBackgroundColor(\
+                                                        QColor(myConfig["BraceMatching"]["UnmatchedBackgroundColor"]))
+            self.qscintilla.setUnmatchedBraceForegroundColor(\
+                                                        QColor(myConfig["BraceMatching"]["UnmatchedForegroundColor"]))
         else:
             self.qscintilla.setBraceMatching(QsciScintilla.NoBraceMatch)
         
@@ -606,9 +626,9 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         self._setModified(False)
     
     def _setModified(self, modified):
-        """Clear modified state for the file. Called by AbstractDocument, must be implemented by the children
+        """Update modified state for the file. Called by AbstractDocument, must be implemented by the children
         """
-        self.qscintilla.setModified(False)
+        self.qscintilla.setModified(modified)
     
     def _onLinesChanged(self):
         """Handler of change of lines count in the qscintilla
@@ -684,22 +704,9 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
             indentWidth = self.qscintilla.tabWidth()
         
         # iterate each line
-        lastLineWasTroncate = False  # remember if last line was troncate
         for i in range(self.qscintilla.lines()):
             # get current line indent width
             lineIndent = self.qscintilla.indentation(i)
-            """
-            # check if need troncate
-            t = lineIndent /indentWidth
-            r = lineIndent % indentWidth
-            if  r != 0 and r != indentWidth :
-                r += indentWidth -r
-                lineIndent = (t * indentWidth) +r
-                lastLineWasTroncate = True
-            elif  lastLineWasTroncate and lineIndent != 0:
-                lastLineWasTroncate = self.qscintilla.indentation(i + 1) == lineIndent
-                lineIndent += indentWidth
-            """
             # remove indentation
             self.qscintilla.setIndentation(i, 0)
             # restore it with possible troncate indentation
@@ -720,7 +727,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         """Delect indentation automatically and apply detected mode
         """
         haveTabs = '\t' in self.qscintilla.text()
-        for line in self.qscintilla.text().split('\n'):  #TODO improve algorythm sometimes for skip comments
+        for line in self.qscintilla.text().split('\n'):  #TODO improve algorythm sometimes to skip comments
             if unicode(line).startswith(' '):
                 haveSpaces = True
                 break
@@ -745,6 +752,8 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
             self.qscintilla.setEolMode (QsciScintilla.EolMac)
         
     def toggleBookmark(self):
+        """Set or clear bookmark on the line
+        """
         row = self.qscintilla.getCursorPosition()[0]
         if self.qscintilla.markersAtLine(row) & 1 << self._MARKER_BOOKMARK:
             self.qscintilla.markerDelete(row, self._MARKER_BOOKMARK)
@@ -752,11 +761,15 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
             self.qscintilla.markerAdd(row, self._MARKER_BOOKMARK)
         
     def nextBookmark(self):
+        """Move to the next bookmark
+        """
         row = self.qscintilla.getCursorPosition()[0]
         self.qscintilla.setCursorPosition(
                     self.qscintilla.markerFindNext(row + 1, 1 << self._MARKER_BOOKMARK), 0)
         
     def prevBookmark(self):
+        """Move to the previous bookmark
+        """
         row = self.qscintilla.getCursorPosition()[0]
         self.qscintilla.setCursorPosition(
                     self.qscintilla.markerFindPrevious(row - 1, 1 << self._MARKER_BOOKMARK), 0)
@@ -767,14 +780,16 @@ class Plugin:
     Installs and removes editor from the system
     """
     def __init__(self):
+        Plugin.instance = self
         self.lexerConfig = LexerConfig()
         core.workspace().setTextEditorClass(Editor)
-        Plugin.instance = self
     
     def __term__(self):
         core.workspace().setTextEditorClass(None)
     
-    def getModuleConfigurator(self):
+    def moduleConfiguratorClass(self):
+        """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
+        """
         return EditorConfigurator
 
 """TODO restore or delete old code
@@ -956,7 +971,8 @@ class _pEditor(QsciScintilla):
 
         
         # insert replace text
-            len = text.toUtf8().length(); # scintilla position are count from qbytearray data: ie: non ascii leter are 2 or more bits.
+            # scintilla position are count from qbytearray data: ie: non ascii leter are 2 or more bits.
+            len = text.toUtf8().length(); 
             insert(text)
 
         # Reset the selection.
@@ -1026,7 +1042,8 @@ class _pEditor(QsciScintilla):
             isRE = mSearchState.flags & SCFIND_REGEXP
             from = qMin(mSearchState.startpos, mSearchState.endpos)
             to = qMax(mSearchState.startpos, mSearchState.endpos)
-            data = self.text().toUtf8().mid(from, to -from); # scintilla position are from qbytearray size, non ascii letter are 2 or more bits.
+            # scintilla position are from qbytearray size, non ascii letter are 2 or more bits.
+            data = self.text().toUtf8().mid(from, to -from); 
             text = QString.fromUtf8(data)
             pattern = isRE ? mSearchState.expr : QRegExp.escape(mSearchState.expr)
             rx = mSearchState.rx

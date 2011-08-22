@@ -253,3 +253,8 @@ class Plugin:
     
     def __term__(self):
         del self._editorToolBar
+
+    def moduleConfiguratorClass(self):
+        """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
+        """
+        return None  # No any settings
