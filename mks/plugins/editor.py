@@ -347,6 +347,7 @@ class Lexer:
             if self.qscilexer.description(i):
                 font  = self.qscilexer.font(i)
                 font.setFamily(defaultFont.family())
+                font.setPointSize(defaultFont.pointSize())
                 self.qscilexer.setFont(font, i)
                 #lexer->setColor(lexer->defaultColor(i), i);  # TODO configure lexer colors
                 #lexer->setEolFill(lexer->defaultEolFill(i), i);
@@ -366,13 +367,10 @@ class Lexer:
         if lexerSection['indentClosingBrace']:
             autoIndentStyle &= QsciScintilla.AiClosing
         self.qscilexer.setAutoIndentStyle(autoIndentStyle)
-        
         if hasattr(self.qscilexer, "setIndentationWarning"):
             if lexerSection['indentationWarning']:
                 qsciReason = self.PYTHON_INDENTATION_WARNING_TO_QSCI[lexerSection['indentationWarningReason']]
                 self.qscilexer.setIndentationWarning(qsciReason)
-        
-        self._editor.qscintilla.setLexer(self.qscilexer)  # Settings are not applied without this action
 
 
 class Editor(mks.core.abstractdocument.AbstractDocument):
