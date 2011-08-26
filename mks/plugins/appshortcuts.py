@@ -23,6 +23,7 @@ from PyQt4.QtCore import QModelIndex
 from PyQt4.QtGui import QIcon
 from PyQt4.fresh import pActionsShortcutEditor
 
+import mks.core.defines
 from mks.core.config import Config
 
 from mks.core.core import core
@@ -30,7 +31,7 @@ from mks.core.core import core
 def tr(s):
     return s
 
-_CONFIG_PATH = os.path.expanduser('~/.mksv3.shortcuts.cfg')
+_CONFIG_PATH = os.path.join(mks.core.defines.CONFIG_DIR, 'shortcuts.cfg')
 
 def _recursiveActionsList(model, parentIndex = QModelIndex()):
     """Get recursive list of all model indexes

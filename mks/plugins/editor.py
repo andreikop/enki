@@ -17,6 +17,7 @@ from PyQt4.Qsci import *
 import mks.core.abstractdocument
 from mks.core.core import core
 
+import mks.core.defines
 from mks.core.config import Config
 from mks.core.uisettings import ModuleConfigurator, \
                                 CheckableOption, ChoiseOption, FontOption, NumericOption, ColorOption
@@ -133,7 +134,8 @@ class EditorConfigurator(ModuleConfigurator):
         editor = core.workspace().currentDocument()
 
         if editor is None or \
-           editor.lexer.currentLanguage is None:  # If language is unknown
+           editor.lexer.currentLanguage is None or \
+           Plugin.instance.lexerConfig is None:  # If language is unknown, or lexer configuration are not available
             lexerItem.setDisabled(True)
             return
         
@@ -195,7 +197,7 @@ class LexerConfig:
     * Create configuration file with lexer defaults
     * Load and save the file
     """
-    _CONFIG_PATH = os.path.expanduser('~/.mksv3.lexers.cfg')
+    _CONFIG_PATH = os.path.join(mks.core.defines.CONFIG_DIR, 'lexers.cfg')
     
     def __init__(self):
         if os.path.exists(self._CONFIG_PATH):  # File exists, load it
@@ -208,7 +210,12 @@ class LexerConfig:
         else:  # First start, generate file
             self.config = Config(True, self._CONFIG_PATH)
             self._generateDefaultConfig()
-            self.config.flush()
+            try:
+                self.config.flush()
+            except IOError, ex:
+                message = 'Failed to write file "%s". Error:\n%s' % \
+                        (unicode(ex.filename, 'utf8'), unicode(ex.strerror, 'utf8'))
+                core.messageManager().appendMessage(message)
 
     def _convertConfigValueTypes(self):
         """There are no scheme for lexer configuration, therefore need to convert types manually
@@ -336,7 +343,8 @@ class Lexer:
     def applySettings(self):
         """Apply editor and lexer settings
         """
-        if self.qscilexer is None:
+        if self.qscilexer is None or \
+           Plugin.instance.lexerConfig is None:
             return
         
         # Apply fonts and colors
@@ -779,7 +787,12 @@ class Plugin:
     """
     def __init__(self):
         Plugin.instance = self
-        self.lexerConfig = LexerConfig()
+        try:
+            self.lexerConfig = LexerConfig()
+        except UserWarning, ex:
+            messageString = 'Failed to create lexer configuration file. Error:\n' + ex.message
+            core.messageManager().appendMessage(messageString)
+            self.lexerConfig = None
         core.workspace().setTextEditorClass(Editor)
     
     def __term__(self):
