@@ -732,9 +732,9 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         else:
             haveSpaces = False
         
-        if haveTabs and not haveSpaces:
+        if haveTabs:
             self.qscintilla.setIndentationsUseTabs (True)
-        elif haveSpaces and not haveTabs:
+        elif haveSpaces:
             self.qscintilla.setIndentationsUseTabs (False)
         else:
             pass  # Don't touch current mode, if not sure
