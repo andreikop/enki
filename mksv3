@@ -5,6 +5,8 @@ Main file processes command line arguments and starts the system.
 """
 import sys
 import os.path
+import traceback
+import logging
 
 import mks.core.defines
 
@@ -29,6 +31,18 @@ def showVersion():
     print mks.core.defines.PACKAGE_COPYRIGHTS
     print "http://%s" % mks.core.defines.PACKAGE_DOMAIN
 
+def excepthook(excepttype, exceptvalue, tracebackobj):
+    """Show exception dialog, write to log
+    """
+    text = ''.join(traceback.format_exception(excepttype, exceptvalue, tracebackobj)).strip()
+    logging.critical(text)
+
+def _configureLogging():
+    logging.basicConfig(filename='/tmp/mksv3.log', level=logging.ERROR)
+    consoleLogger = logging.StreamHandler()
+    consoleLogger.setLevel(logging.ERROR)
+    logging.getLogger('').addHandler(consoleLogger)
+
 def main():
     if '-v' in sys.argv or '--version' in sys.argv:
         showVersion()
@@ -47,7 +61,10 @@ def main():
         return -1
 
     import PyQt4.QtGui
-    app = PyQt4.QtGui.QApplication ( sys.argv );
+    app = PyQt4.QtGui.QApplication ( sys.argv )
+    
+    _configureLogging()
+    sys.excepthook = excepthook
     
     try:
         import PyQt4.Qsci
