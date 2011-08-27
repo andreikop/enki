@@ -313,7 +313,10 @@ class UISettings(QDialog):
         """
         for configurator in self._moduleConfigurators:
             configurator.saveSettings()
-        core.config().flush()
+        try:
+            core.config().flush()
+        except UserWarning as ex:
+            core.messageManager().appendMessage(unicode(ex))
 
     def on_twMenu_itemSelectionChanged(self):
         """Qt slot. Switch current page, after item in the pages tree has been selected

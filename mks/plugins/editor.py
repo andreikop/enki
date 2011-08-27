@@ -182,7 +182,11 @@ class EditorConfigurator(ModuleConfigurator):
     def saveSettings(self):
         """Main settings should be saved by the core. Save only lexer settings
         """
-        Plugin.instance.lexerConfig.config.flush()
+        if Plugin.instance.lexerConfig is not None:
+            try:
+                Plugin.instance.lexerConfig.config.flush()
+            except UserWarning as ex:
+                core.messageManager().appendMessage(unicode(ex))
     
     def applySettings(self):
         """Apply editor and lexer settings
@@ -201,21 +205,12 @@ class LexerConfig:
     
     def __init__(self):
         if os.path.exists(self._CONFIG_PATH):  # File exists, load it
-            try:
-                self.config = Config(True, self._CONFIG_PATH)
-            except UserWarning, ex:
-                core.messageManager().appendMessage(unicode(str(ex), 'utf_8'))
-                self.config = None
+            self.config = Config(True, self._CONFIG_PATH)
             self._convertConfigValueTypes()
         else:  # First start, generate file
             self.config = Config(True, self._CONFIG_PATH)
             self._generateDefaultConfig()
-            try:
-                self.config.flush()
-            except IOError, ex:
-                message = 'Failed to write file "%s". Error:\n%s' % \
-                        (unicode(ex.filename, 'utf8'), unicode(ex.strerror, 'utf8'))
-                core.messageManager().appendMessage(message)
+            self.config.flush()
 
     def _convertConfigValueTypes(self):
         """There are no scheme for lexer configuration, therefore need to convert types manually
@@ -457,7 +452,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         if filePath:
             try:
                 text = self._readFile(filePath)
-            except IOError, ex:  # exception in constructor
+            except IOError as ex:  # exception in constructor
                 self.deleteLater()  # make sure C++ object deleted
                 raise ex
             self.setText(text)
@@ -469,7 +464,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
             if self.filePath():
                 try:
                     shutil.copy(self.filePath(), self.filePath() + '.bak')
-                except (IOError, OSError), ex:
+                except (IOError, OSError) as ex:
                     self.deleteLater()
                     raise ex
         
@@ -789,9 +784,8 @@ class Plugin:
         Plugin.instance = self
         try:
             self.lexerConfig = LexerConfig()
-        except UserWarning, ex:
-            messageString = 'Failed to create lexer configuration file. Error:\n' + ex.message
-            core.messageManager().appendMessage(messageString)
+        except UserWarning as ex:
+            core.messageManager().appendMessage(unicode(ex))
             self.lexerConfig = None
         core.workspace().setTextEditorClass(Editor)
     

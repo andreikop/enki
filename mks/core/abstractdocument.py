@@ -222,7 +222,7 @@ class AbstractDocument(QWidget):
         
         try:
             openedFile = open(self.filePath(), 'w')
-        except IOError, ex:
+        except IOError as ex:
             QMessageBox.critical(None,
                                  self.tr("Can not write to file"),
                                  unicode(str(ex), 'utf8'))
