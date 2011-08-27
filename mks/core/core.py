@@ -112,6 +112,24 @@ class Core:
         exec("import mks.plugins.%s as module" % name)
         self._loadedPlugins.append(module.Plugin())
 
+    def _createDefaultConfigFile(self):
+        """Create default configuration file, if it is not present
+        Called only by _createConfig()
+        """
+        import mks.core.config
+        
+        if not os.path.exists(mks.core.defines.CONFIG_DIR):
+            try:
+                os.makedirs(mks.core.defines.CONFIG_DIR)
+            except (OSError, IOError) as ex:
+                raise UserWarning(u'Failed to create directory "%s". Error: %s\n' % \
+                                  (mks.core.defines.CONFIG_DIR, unicode(str(ex), 'utf8')))
+        try:
+            shutil.copyfile(_DEFAULT_CONFIG_PATH, _CONFIG_PATH)
+        except (OSError, IOError) as ex:
+            raise UserWarning(u'Failed to create configuration file "%s". Error:\n%s' % \
+                              (_CONFIG_PATH, unicode(str(ex), 'utf8')))
+    
     def _createConfig(self):
         """Open main config file and return Config instance
          
@@ -120,27 +138,31 @@ class Core:
         """
         import mks.core.config
         
-        try:
-            # Create config file in the users home
-            if not os.path.exists(_CONFIG_PATH):
-                if not os.path.exists(mks.core.defines.CONFIG_DIR):
-                    try:
-                        os.makedirs(mks.core.defines.CONFIG_DIR)
-                    except IOError, ex:
-                        raise UserWarning('Failed to create directory "%s". Error: %s\n' % \
-                                          (unicode(ex.filename, 'utf8'), unicode(ex.strerror, 'utf8')))
-                try:
-                    shutil.copyfile(_DEFAULT_CONFIG_PATH, _CONFIG_PATH)
-                except IOError, ex:
-                    raise UserWarning('Failed to create configuration file "%s". Error:\n%s' % \
-                                      (unicode(ex.filename, 'utf8'), unicode(ex.strerror, 'utf8')))
-            # Open config file
-            config = mks.core.config.Config(True, _CONFIG_PATH, configspec=_DEFAULT_CONFIG_SPEC_PATH)
-        except UserWarning, ex:
-            messageString = ex.message + '\n' + 'Using default configuration'
-            core.messageManager().appendMessage(messageString)
-            
+        haveFileInHome = os.path.exists(_CONFIG_PATH)
+        
+        # Create file, if not exists
+        if not haveFileInHome:
+            try:
+                self._createDefaultConfigFile()
+                haveFileInHome = True
+            except UserWarning as ex:
+                self.messageManager().appendMessage(unicode(ex))
+        
+        # Try to open
+        if haveFileInHome:
+            try:
+                config = mks.core.config.Config(True, _CONFIG_PATH, configspec=_DEFAULT_CONFIG_SPEC_PATH)
+            except UserWarning as ex:
+                messageString = unicode(ex) + '\n' + 'Using default configuration'
+                self.messageManager().appendMessage(messageString)
+                config = None
+        else:
+            config = None
+        
+        # Open default, if previous step failed
+        if config is None:
             config = mks.core.config.Config(False, _DEFAULT_CONFIG_PATH, configspec=_DEFAULT_CONFIG_SPEC_PATH)
+        
         return config
 
 core = Core()

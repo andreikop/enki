@@ -375,7 +375,7 @@ class Workspace(QStackedWidget):
         try:
             QApplication.setOverrideCursor( Qt.WaitCursor )
             document = documentType(self, filePath)
-        except IOError, ex:
+        except IOError as ex:
             QMessageBox.critical(None,
                                  self.tr("Failed to open file"),
                                  unicode(str(ex), 'utf8'))
@@ -493,7 +493,7 @@ class Workspace(QStackedWidget):
         try:
             QApplication.setOverrideCursor( Qt.WaitCursor )
             document.reload()
-        except IOError, ex:
+        except IOError as ex:
             #TODO replace with messageManager ?
             QMessageBox.critical(None,
                                  self.tr("File not reloaded"),

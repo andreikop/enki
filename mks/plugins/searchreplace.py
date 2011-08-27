@@ -1342,7 +1342,7 @@ class SearchThread(StopableThread):
                 if  isBinary(openedFile):
                     return ''
                 return unicode(openedFile.read(), encoding, errors = 'ignore')
-        except IOError, ex:
+        except IOError as ex:
             print ex
             return ''
 
@@ -1444,7 +1444,7 @@ class ReplaceThread(StopableThread):
         if encoding:
             try:
                 content = content.encode(encoding)
-            except UnicodeEncodeError, ex:
+            except UnicodeEncodeError as ex:
                 pattern = unicode(self.tr("Failed to encode file to %s: %s"), 'utf_8')
                 text = unicode(str(ex), 'utf_8')
                 self.error.emit(pattern % (encoding, text))
@@ -1452,7 +1452,7 @@ class ReplaceThread(StopableThread):
         try:
             with open(fileName, 'w') as openFile:
                 openFile.write(content)
-        except IOError, ex:
+        except IOError as ex:
             pattern = unicode(self.tr("Error while saving replaced content: %s"), 'utf_8')
             text = unicode(str(ex), 'utf_8')
             self.error.emit(pattern % text)
@@ -1466,14 +1466,14 @@ class ReplaceThread(StopableThread):
             try:
                 with open(fileName) as openFile:
                     content = openFile.read()
-            except IOError, ex:
+            except IOError as ex:
                 self.error.emit( self.tr( "Error opening file: %s" % str(ex) ) )
                 return ''
             
             if encoding:
                 try:
                     return unicode(content, encoding)
-                except UnicodeDecodeError, ex:
+                except UnicodeDecodeError as ex:
                     self.error.emit(self.tr( "File %s not read: unicode error '%s'. File may be corrupted" % \
                                     (fileName, str(ex) ) ))
                     return ''

@@ -51,9 +51,10 @@ class Plugin:
     def __init__(self):
         try:
             self._config = Config(True, _CONFIG_PATH)
-        except UserWarning, ex:
-            core.messageManager().appendMessage(unicode(str(ex), 'utf_8'))
+        except UserWarning as ex:
+            core.messageManager().appendMessage(unicode(ex))
             self._config = None
+            return  # TODO plugin initialization failed
 
         self._model = core.actionModel()
         self._model.rowsInserted.connect(self._onActionInserted)
@@ -105,7 +106,10 @@ class Plugin:
         for action in _recursiveActionsList(self._model):
             path = unicode(self._model.path(action), "utf_8")
             self._config.set(path, action.shortcut().toString())
-        self._config.flush()
+        try:
+            self._config.flush()
+        except UserWarning as ex:
+            core.messageManager().appendMessage(unicode(ex))
 
     def _onEditShortcuts(self):
         """Handler of *Edit->Shortcuts...* action. Shows dialog, than saves shortcuts to file

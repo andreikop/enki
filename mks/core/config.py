@@ -44,10 +44,15 @@ class Config(ConfigObj):
         try:
             super(Config, self).__init__(*args, **kwargs)
         except ParseError, ex:
-            messageString = 'Failed to parse configuration file %s\n' \
-                            'Error:\n' \
-                            '%s\n' \
-                            'Fix the file or delete it.' % (self.filename, unicode(str(ex), 'utf_8'))
+            exText = unicode(str(ex), 'utf8')
+            messageString = u'Failed to parse configuration file %s. Error:\n' \
+                             '%s\n' \
+                             'Fix the file or delete it.' % (self.filename, exText)
+            raise UserWarning(messageString)
+        except IOError as ex:
+            exText = unicode(str(ex), 'utf8')
+            messageString = u'Failed to open configuration file %s\n' \
+                             'Error: %s\n' % (self.filename, exText)
             raise UserWarning(messageString)
         
         if self.configspec is not None:
@@ -71,11 +76,12 @@ class Config(ConfigObj):
                 if error == False:
                     error = 'Missing value or section.'
                 messageString += (sectionString + ' = ' + str(error) + '\n')
-            raise UserWarning('Invalid configuration file '
-                              '%s\n'
-                              'Error:\n'
-                              '%s\n'
-                              'Fix the file or delete it.' % (self.filename, messageString))
+            message = u'Invalid configuration file %s\n' \
+                       'Error:\n' \
+                       '%s\n' \
+                       'Fix the file or delete it.' % (self.filename, messageString)
+            
+            raise UserWarning(message)
     
     def reload(self):
         """Reload config from the disk
@@ -111,4 +117,9 @@ class Config(ConfigObj):
         Does nothing, if enableWriting is False (probably default config is opened)
         """
         if self.enableWriting:
-            self.write()
+            try:
+                self.write()
+            except IOError as ex:
+                exText = unicode(str(ex), 'utf8')
+                message = u'Failed to write configuration file. Error:\n%s' % exText
+                raise UserWarning(message)
