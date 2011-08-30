@@ -8,9 +8,10 @@ import re
 import os
 import os.path
 
-from PyQt4.QtCore import QDir, QModelIndex, QObject, Qt
+from PyQt4.QtCore import QDir, QRect, QEvent, QModelIndex, QObject, Qt
 from PyQt4.QtGui import QAction, QDialogButtonBox, QFileDialog, QFrame, QFileSystemModel, \
-                        QIcon, QItemSelectionModel, QKeySequence, QLineEdit, QMenu, \
+                        QIcon, QItemSelectionModel, QKeySequence, QComboBox, QMenu, \
+                        QPainter, \
                         QShortcut, QSortFilterProxyModel, QToolButton, QTreeView, QVBoxLayout, QWidget
 
 from PyQt4.fresh import pDockWidget
@@ -161,23 +162,22 @@ class DockFileBrowser(pDockWidget):
             actionObject.triggered.connect(slot)
             self.titleBar().addAction(actionObject, index )
 
-        createAction("Go Up",                                 "up_arrow",  self.aUp_triggered,        0)
-        createAction("Select a root folder",                  "goto",      self.aGoTo_triggered,      1)
-        self.titleBar().addSeparator( 2 )
-        createAction("Add selected folder to bookmarks",      "add",       self.aAdd_triggered,       3)
-        createAction("Remove selected folder from bookmarks", "remove",    self.aRemove_triggered,    4)
+        createAction("Select a root folder",                  "goto",      self.aGoTo_triggered,      0)
+        self.titleBar().addSeparator( 1 )
+        createAction("Add selected folder to bookmarks",      "add",       self.aAdd_triggered,       2)
+        createAction("Remove selected folder from bookmarks", "remove",    self.aRemove_triggered,    3)
         
         # bookmarks menu
         self._bookmarksMenu = QMenu( self )
         aBookmarks = QAction( self.tr( "Bookmarks..." ), self )
         aBookmarks.setIcon( QIcon(":/mksicons/bookmark.png" ) )
         aBookmarks.setToolTip( aBookmarks.text() )
-        toolButton = self.titleBar().addAction( aBookmarks, 5 )
+        toolButton = self.titleBar().addAction( aBookmarks, 4 )
         toolButton.setPopupMode( QToolButton.InstantPopup )
         aBookmarks.setMenu( self._bookmarksMenu )
         
         # add separator
-        self.titleBar().addSeparator( 6 )
+        self.titleBar().addSeparator( 5 )
 
         # central widget
         wdg = QWidget( self )
@@ -189,11 +189,12 @@ class DockFileBrowser(pDockWidget):
         vertLayout.setSpacing( 3 )
         
         # lineedit
-        self._lineEdit = QLineEdit()
-        self._lineEdit.setAttribute( Qt.WA_MacShowFocusRect, False )
-        self._lineEdit.setAttribute( Qt.WA_MacSmallSize )
-        self._lineEdit.setReadOnly( True )
-        vertLayout.addWidget( self._lineEdit )
+        self._comboBox = QComboBox()
+        self._comboBox.setAttribute( Qt.WA_MacShowFocusRect, False )
+        self._comboBox.setAttribute( Qt.WA_MacSmallSize )
+        self._comboBox.setEditable(True)
+        self._comboBox.lineEdit().setReadOnly( True )
+        vertLayout.addWidget( self._comboBox )
         
         # hline
         hline = QFrame( self )
@@ -222,6 +223,12 @@ class DockFileBrowser(pDockWidget):
         
         # assign model to views
         self._tree.setModel( self._filteredModel)
+
+        # cd up action
+        self._tbCdUp = QToolButton( self._comboBox.lineEdit() )
+        self._tbCdUp.setIcon( QIcon( ":/mksicons/go-up.png" ) )
+        self._tbCdUp.setCursor( Qt.ArrowCursor )
+        self._tbCdUp.installEventFilter( self )
         
         if not sys.platform.startswith('win'):
             self._dirsModel.setRootPath( "/" )
@@ -236,14 +243,36 @@ class DockFileBrowser(pDockWidget):
         aUpShortcut.setContext( Qt.WidgetShortcut )
         
         # connections
-        aUpShortcut.activated.connect(self.aUp_triggered)
+        aUpShortcut.activated.connect(self._onTbCdUpClicked)
         self._bookmarksMenu.triggered.connect(self.bookmark_triggered)
         self._tree.activated.connect(self.tv_activated)
+        self._tbCdUp.clicked.connect(self._onTbCdUpClicked)
         
         self.setCurrentPath( core.config()["FileBrowser"]["Path"] )
         self.setCurrentFilePath( core.config()["FileBrowser"]["FilePath"] )
         self._bookmarks = core.config()["FileBrowser"]["Bookmarks"]
         self.updateBookMarksMenu()
+        
+    
+    def eventFilter(self, object_, event ):
+        """ Event filter for mode switch tool button
+        Draws icons in the search and path lineEdits
+        """
+        if  event.type() == QEvent.Paint:
+            toolButton = object_
+            lineEdit = self._comboBox.lineEdit()
+            height = lineEdit.height()
+            lineEdit.setContentsMargins( height, 0, 0, 0 )
+            
+            availableRect = QRect( 0, 0, height, height )
+            toolButton.setGeometry( availableRect )
+            
+            painter = QPainter ( toolButton )
+            toolButton.icon().paint( painter, availableRect )
+            
+            return True
+
+        return pDockWidget.eventFilter( self, object_, event )
         
     def _filteredModelIndexToPath(self, index):
         """Map index to file path
@@ -251,7 +280,7 @@ class DockFileBrowser(pDockWidget):
         srcIndex = self._filteredModel.mapToSource( index )
         return unicode(self._dirsModel.filePath( srcIndex ))
     
-    def aUp_triggered(self):
+    def _onTbCdUpClicked(self):
         """Handler of click on Up button.
         """
         current = self._tree.currentIndex()
@@ -350,8 +379,9 @@ class DockFileBrowser(pDockWidget):
         self._setFocusToTree(15)
         
         # set lineedit path
-        self._lineEdit.setText( unicode(self._dirsModel.filePath( index )) )
-        self._lineEdit.setToolTip( self._lineEdit.text() )
+        text = unicode(self._dirsModel.filePath( index ))
+        self._comboBox.lineEdit().setText(text)
+        self._comboBox.setToolTip( text )
 
     def currentFilePath(self):
         """Get current file path (selected item)
