@@ -162,22 +162,20 @@ class DockFileBrowser(pDockWidget):
             actionObject.triggered.connect(slot)
             self.titleBar().addAction(actionObject, index )
 
-        createAction("Select a root folder",                  "goto",      self.aGoTo_triggered,      0)
-        self.titleBar().addSeparator( 1 )
-        createAction("Add selected folder to bookmarks",      "add",       self.aAdd_triggered,       2)
-        createAction("Remove selected folder from bookmarks", "remove",    self.aRemove_triggered,    3)
+        createAction("Add selected folder to bookmarks",      "add",       self.aAdd_triggered,       0)
+        createAction("Remove selected folder from bookmarks", "remove",    self.aRemove_triggered,    1)
         
         # bookmarks menu
         self._bookmarksMenu = QMenu( self )
         aBookmarks = QAction( self.tr( "Bookmarks..." ), self )
         aBookmarks.setIcon( QIcon(":/mksicons/bookmark.png" ) )
         aBookmarks.setToolTip( aBookmarks.text() )
-        toolButton = self.titleBar().addAction( aBookmarks, 4 )
+        toolButton = self.titleBar().addAction( aBookmarks, 2 )
         toolButton.setPopupMode( QToolButton.InstantPopup )
         aBookmarks.setMenu( self._bookmarksMenu )
         
         # add separator
-        self.titleBar().addSeparator( 5 )
+        self.titleBar().addSeparator( 3 )
 
         # central widget
         wdg = QWidget( self )
@@ -297,14 +295,6 @@ class DockFileBrowser(pDockWidget):
         parentOfCurrent = self._tree.currentIndex().parent()
         if parentOfCurrent != self._tree.rootIndex():  # if not reached top
             self._tree.setCurrentIndex(parentOfCurrent)  # move selection up
-
-    def aGoTo_triggered(self):
-        """GoTo (Select root folder) clicked
-        """
-        action = self.sender()
-        path = QFileDialog.getExistingDirectory( self, action.toolTip(), self.currentPath() )
-        if path:
-            self.setCurrentPath( path )
     
     def aAdd_triggered(self):
         """Add bookmark action triggered
