@@ -96,15 +96,13 @@ class SmartHistory(QObject):
         self._prevDir = None
         self._currDir = None
 
-    def onFileActivated(self, treeRootDirectory):
+    @pyqtSlot()
+    def onFileActivated(self):
         """FileBrowserDock notifies SmartHistory that file has been activated
         """
-        if self._currDir is None or \
-           self._currDir != treeRootDirectory:
-            self._prevDir = self._currDir
-            self._currDir = treeRootDirectory
-        self.historyChanged.emit(self._history())
+        print self._currDir
     
+    @pyqtSlot(unicode)
     def onRootChanged(self, newTreeRoot):
         """FileBrowserDock notifies SmartHistory user chose a directory in the combo
         """
@@ -130,6 +128,8 @@ class DockFileBrowser(pDockWidget):
     tree, for moving root of tree to currently selected dirrectory and
     up (relatively for current dirrectory)
     """
+    rootChanged = pyqtSignal(unicode)
+    fileActivated = pyqtSignal()
     
     def __init__(self, parent):
         pDockWidget.__init__(self, parent)
@@ -233,6 +233,10 @@ class DockFileBrowser(pDockWidget):
         self._comboBox.currentIndexChanged['QString'].connect(self._onComboItemSelected)
         self._history.historyChanged.connect(self._updateComboItems)
         
+        # outgoing connections
+        self.rootChanged.connect(self._history.onRootChanged)
+        self.fileActivated.connect(self._history.onFileActivated)
+        
         self.setCurrentPath( os.path.abspath(os.path.curdir) )
     
     def eventFilter(self, object_, event ):
@@ -303,7 +307,7 @@ class DockFileBrowser(pDockWidget):
             self.setCurrentPath(path)
         else:
             core.workspace().openFile(path)
-            self._history.onFileActivated(self.currentPath())
+            self.fileActivated.emit()
 
     def currentPath(self):
         """Get current path (root of the tree)
@@ -343,8 +347,7 @@ class DockFileBrowser(pDockWidget):
         # set lineedit path
         text = unicode(self._dirsModel.filePath( index ))
         self._comboBox.setToolTip( text )
-        
-        self._history.onRootChanged(path)
+        self.rootChanged.emit(text)
 
     def currentFilePath(self):
         """Get current file path (selected item)
