@@ -8,7 +8,8 @@ import re
 import os
 import os.path
 
-from PyQt4.QtCore import QDir, QRect, QEvent, QModelIndex, QObject, Qt
+from PyQt4.QtCore import QDir, QRect, QEvent, QModelIndex, QObject, Qt, \
+                         pyqtSignal, pyqtSlot
 from PyQt4.QtGui import QAction, QDialogButtonBox, QFileDialog, QFrame, QFileSystemModel, \
                         QIcon, QItemSelectionModel, QKeySequence, QComboBox, QMenu, \
                         QPainter, \
@@ -44,42 +45,6 @@ class Plugin(QObject):
         """
         return None  # No any settings
 
-    def settingsWidget(self):
-        """Get settings widget of the plugin
-        """
-        return FileBrowserSettings( self )
-
-class FileBrowserSettings(QWidget):
-    """Plugin settings widget
-    """
-    def __init__(self, plugin): 
-        QWidget.__init__(self, plugin)
-        self.plugin = plugin
-        
-        # list editor
-        self.editor = pStringListEditor( self, self.tr( "Except Suffixes" ) )
-        self.editor.setValues( core.config()["FileBrowser"]["NegativeFilter"] )
-        
-        # apply button
-        dbbApply = QDialogButtonBox( self )
-        dbbApply.addButton( QDialogButtonBox.Apply )
-        
-        # global layout
-        vbox = QVBoxLayout( self )
-        vbox.addWidget( self.editor )
-        vbox.addWidget( dbbApply )
-        
-        # connections
-        dbbApply.button( QDialogButtonBox.Apply ).clicked.connect(self.applySettings)
-
-    def applySettings(self):
-        """Handler of clicking Apply button. Applying settings
-        """
-        pyStrList = map(str, self.editor.values())
-        """FIXME
-        core.config()["FileBrowser"]["NegativeFilter"] = pyStrList
-        """
-        self.plugin.dock.setFilters(pyStrList)
 
 class FileBrowserFilteredModel(QSortFilterProxyModel):
     """Model filters out files using negative filter.
@@ -114,6 +79,50 @@ class FileBrowserFilteredModel(QSortFilterProxyModel):
             return True
         return not self.filterRegExp.match(source_parent.child( source_row, 0 ).data().toString() )
 
+
+class SmartHistory(QObject):
+    """Class stores File Browser history and provides variants for combo box.
+    
+    Variants include: ::
+    
+    * The most recent 2 dirrectories
+    * The most popular 5 dirrectories
+    """
+    
+    historyChanged = pyqtSignal('QStringList')
+
+    def __init__(self):
+        QObject.__init__(self)
+        self._prevDir = None
+        self._currDir = None
+
+    def onFileActivated(self, treeRootDirectory):
+        """FileBrowserDock notifies SmartHistory that file has been activated
+        """
+        if self._currDir is None or \
+           self._currDir != treeRootDirectory:
+            self._prevDir = self._currDir
+            self._currDir = treeRootDirectory
+        self.historyChanged.emit(self._history())
+    
+    def onRootChanged(self, newTreeRoot):
+        """FileBrowserDock notifies SmartHistory user chose a directory in the combo
+        """
+        # swap current and previous
+        self._prevDir , self._currDir = self._currDir, newTreeRoot
+        self.historyChanged.emit(self._history())
+
+    def _history(self):
+        """Get list of dirrectories, which will be shown in the combo box
+        """
+        history = []
+        if self._currDir is not None:
+            history.append(self._currDir)
+        if self._prevDir is not None:
+            history.append(self._prevDir)
+        
+        return history
+
 class DockFileBrowser(pDockWidget):
     """UI interface of FileBrowser plugin. 
         
@@ -130,10 +139,6 @@ class DockFileBrowser(pDockWidget):
         # restrict areas
         self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
         
-        """ FIXME
-        # create menu action for the dock
-        pActionsManager.setDefaultShortcut( self.dock.toggleViewAction(), QKeySequence( "F7" ) )
-        """
         self.showAction().setShortcut("F7")
         core.actionModel().addAction("mDocks/aFileBrowser", self.showAction())
         
@@ -153,6 +158,10 @@ class DockFileBrowser(pDockWidget):
     def _initialize(self):
         """Delayed initialization of the widget for quicker start of application
         """
+        # history
+        
+        self._history = SmartHistory()
+
         # central widget
         wdg = QWidget( self )
         self.setWidget( wdg )
@@ -216,13 +225,15 @@ class DockFileBrowser(pDockWidget):
         aUpShortcut = QShortcut( QKeySequence( "BackSpace" ), self._tree )
         aUpShortcut.setContext( Qt.WidgetShortcut )
         
-        # connections
+        # incoming connections
         aUpShortcut.activated.connect(self._onTbCdUpClicked)
         self._tree.activated.connect(self.tv_activated)
         self._tbCdUp.clicked.connect(self._onTbCdUpClicked)
+        # reconnected in self._updateComboItems()
+        self._comboBox.currentIndexChanged['QString'].connect(self._onComboItemSelected)
+        self._history.historyChanged.connect(self._updateComboItems)
         
-        self.setCurrentPath( core.config()["FileBrowser"]["Path"] )
-        self.setCurrentFilePath( core.config()["FileBrowser"]["FilePath"] )
+        self.setCurrentPath( os.path.abspath(os.path.curdir) )
     
     def eventFilter(self, object_, event ):
         """ Event filter for mode switch tool button
@@ -268,15 +279,31 @@ class DockFileBrowser(pDockWidget):
         if parentOfCurrent != self._tree.rootIndex():  # if not reached top
             self._tree.setCurrentIndex(parentOfCurrent)  # move selection up
     
+    @pyqtSlot('QString')
+    def _onComboItemSelected(self, itemText):
+        """Handler of item selection in the combo box
+        """
+        self.setCurrentPath(itemText)
+    
+    def _updateComboItems(self, items):
+        """Update items in the combo box according to current history
+        """
+        self._comboBox.currentIndexChanged['QString'].disconnect()
+        self._comboBox.clear()
+        self._comboBox.addItems(items)
+        self._comboBox.currentIndexChanged['QString'].connect(self._onComboItemSelected)
+        
     def tv_activated(self, idx ):
         """File or dirrectory doubleClicked
         """
         index = self._filteredModel.mapToSource( idx )
+        path = unicode(self._dirsModel.filePath( index ))
         
         if  self._dirsModel.isDir( index ) :
-            self.setCurrentPath( unicode(self._dirsModel.filePath( index )) )
+            self.setCurrentPath(path)
         else:
-            core.workspace().openFile( unicode(self._dirsModel.filePath( index )))
+            core.workspace().openFile(path)
+            self._history.onFileActivated(self.currentPath())
 
     def currentPath(self):
         """Get current path (root of the tree)
@@ -315,8 +342,9 @@ class DockFileBrowser(pDockWidget):
         
         # set lineedit path
         text = unicode(self._dirsModel.filePath( index ))
-        self._comboBox.lineEdit().setText(text)
         self._comboBox.setToolTip( text )
+        
+        self._history.onRootChanged(path)
 
     def currentFilePath(self):
         """Get current file path (selected item)
@@ -337,3 +365,37 @@ class DockFileBrowser(pDockWidget):
         """Set filter wildcards for filter out unneeded files
         """
         self._filteredModel.setFilters( filters )
+
+'''
+class FileBrowserSettings(QWidget):
+    """Plugin settings widget
+    """
+    def __init__(self, plugin): 
+        QWidget.__init__(self, plugin)
+        self.plugin = plugin
+        
+        # list editor
+        self.editor = pStringListEditor( self, self.tr( "Except Suffixes" ) )
+        self.editor.setValues( core.config()["FileBrowser"]["NegativeFilter"] )
+        
+        # apply button
+        dbbApply = QDialogButtonBox( self )
+        dbbApply.addButton( QDialogButtonBox.Apply )
+        
+        # global layout
+        vbox = QVBoxLayout( self )
+        vbox.addWidget( self.editor )
+        vbox.addWidget( dbbApply )
+        
+        # connections
+        dbbApply.button( QDialogButtonBox.Apply ).clicked.connect(self.applySettings)
+
+    def applySettings(self):
+        """Handler of clicking Apply button. Applying settings
+        """
+        pyStrList = map(str, self.editor.values())
+        """FIXME
+        core.config()["FileBrowser"]["NegativeFilter"] = pyStrList
+        """
+        self.plugin.dock.setFilters(pyStrList)
+'''
