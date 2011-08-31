@@ -153,30 +153,6 @@ class DockFileBrowser(pDockWidget):
     def _initialize(self):
         """Delayed initialization of the widget for quicker start of application
         """
-        def createAction(text, icon, slot, index):
-            """Create action object and add it to title bar
-            """
-            actionObject = QAction(self.tr(text), self)
-            actionObject.setIcon(QIcon(":/mksicons/%s.png" % icon))
-            actionObject.setToolTip( actionObject.text() )
-            actionObject.triggered.connect(slot)
-            self.titleBar().addAction(actionObject, index )
-
-        createAction("Add selected folder to bookmarks",      "add",       self.aAdd_triggered,       0)
-        createAction("Remove selected folder from bookmarks", "remove",    self.aRemove_triggered,    1)
-        
-        # bookmarks menu
-        self._bookmarksMenu = QMenu( self )
-        aBookmarks = QAction( self.tr( "Bookmarks..." ), self )
-        aBookmarks.setIcon( QIcon(":/mksicons/bookmark.png" ) )
-        aBookmarks.setToolTip( aBookmarks.text() )
-        toolButton = self.titleBar().addAction( aBookmarks, 2 )
-        toolButton.setPopupMode( QToolButton.InstantPopup )
-        aBookmarks.setMenu( self._bookmarksMenu )
-        
-        # add separator
-        self.titleBar().addSeparator( 3 )
-
         # central widget
         wdg = QWidget( self )
         self.setWidget( wdg )
@@ -242,15 +218,11 @@ class DockFileBrowser(pDockWidget):
         
         # connections
         aUpShortcut.activated.connect(self._onTbCdUpClicked)
-        self._bookmarksMenu.triggered.connect(self.bookmark_triggered)
         self._tree.activated.connect(self.tv_activated)
         self._tbCdUp.clicked.connect(self._onTbCdUpClicked)
         
         self.setCurrentPath( core.config()["FileBrowser"]["Path"] )
         self.setCurrentFilePath( core.config()["FileBrowser"]["FilePath"] )
-        self._bookmarks = core.config()["FileBrowser"]["Bookmarks"]
-        self.updateBookMarksMenu()
-        
     
     def eventFilter(self, object_, event ):
         """ Event filter for mode switch tool button
@@ -296,33 +268,6 @@ class DockFileBrowser(pDockWidget):
         if parentOfCurrent != self._tree.rootIndex():  # if not reached top
             self._tree.setCurrentIndex(parentOfCurrent)  # move selection up
     
-    def aAdd_triggered(self):
-        """Add bookmark action triggered
-        """
-        path = self.currentPath()
-        if not os.path.isdir(path):
-            path = os.path.dirname(path)
-        
-        if  path and not path in self._bookmarks:
-            self._bookmarks.append(path)
-            self.updateBookMarksMenu()
-
-    def aRemove_triggered(self):
-        """Remove bookmark triggered
-        """
-        path = self.currentPath()
-        if not os.path.isdir(path):
-            path = os.path.dirname(path)
-        
-        if  path in self._bookmarks:
-            self._bookmarks.remove( path )
-            self.updateBookMarksMenu()
-
-    def bookmark_triggered(self, action ):
-        """Bookmark triggered, go to marked folder
-        """
-        self.setCurrentPath( action.data().toString() )
-
     def tv_activated(self, idx ):
         """File or dirrectory doubleClicked
         """
@@ -392,14 +337,3 @@ class DockFileBrowser(pDockWidget):
         """Set filter wildcards for filter out unneeded files
         """
         self._filteredModel.setFilters( filters )
-
-    def updateBookMarksMenu(self):
-        """Create new Bookmarks menu
-        """
-        self._bookmarksMenu.clear()
-        
-        for path in self._bookmarks:
-            action = self._bookmarksMenu.addAction(path)
-            action.setToolTip( path )
-            action.setStatusTip( path )
-            action.setData( path )
