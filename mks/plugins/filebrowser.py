@@ -98,12 +98,14 @@ class SmartHistory(QObject):
         self._prevActiveDir = None
         self._currDir = None
         self._currIsActive = False
+        core.workspace().currentDocumentChanged.connect(self._updateHistory)
 
     @pyqtSlot()
     def onFileActivated(self):
         """FileBrowserDock notifies SmartHistory that file has been activated
         """
         self._currIsActive = True
+        # History update is not scheduled here, because it will be scheduled when workspace changes current file
 
     @pyqtSlot(unicode)
     def onRootChanged(self, newCurrDir):
@@ -114,19 +116,23 @@ class SmartHistory(QObject):
         
         self._currDir = newCurrDir
         self._currIsActive = False
-        
-        self.historyChanged.emit(self._history())
+        self._updateHistory()
 
-    def _history(self):
-        """Get list of directories, which will be shown in the combo box
+    @pyqtSlot()
+    def _updateHistory(self):
+        """Generate new list of directories, which will be shown in the combo box.
+        Emit this list
         """
         history = []
         if self._currDir is not None:
             history.append(self._currDir)
-        if self._prevActiveDir is not None and self._prevActiveDir != self._currDir:
+        if self._prevActiveDir is not None and \
+           self._prevActiveDir not in history:
             history.append(self._prevActiveDir)
-        
-        return history
+        currOsDir = os.path.abspath(os.curdir)
+        if currOsDir not in history:
+            history.append(currOsDir)
+        self.historyChanged.emit(history)
 
 class DockFileBrowser(pDockWidget):
     """UI interface of FileBrowser plugin. 
@@ -313,8 +319,8 @@ class DockFileBrowser(pDockWidget):
         if  self._dirsModel.isDir( index ) :
             self.setCurrentPath(path)
         else:
-            core.workspace().openFile(path)
             self.fileActivated.emit()
+            core.workspace().openFile(path)
 
     def currentPath(self):
         """Get current path (root of the tree)
