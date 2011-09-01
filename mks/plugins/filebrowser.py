@@ -85,39 +85,46 @@ class SmartHistory(QObject):
     
     Variants include: ::
     
-    * The most recent 2 dirrectories
-    * The most popular 5 dirrectories
+    * The most recent 2 directories
+    * The most popular 5 directories
+    
+    "Active directory" in this class means the last directory, where one or more files has been opened
     """
     
     historyChanged = pyqtSignal('QStringList')
 
     def __init__(self):
         QObject.__init__(self)
-        self._prevDir = None
+        self._prevActiveDir = None
         self._currDir = None
+        self._currIsActive = False
 
     @pyqtSlot()
     def onFileActivated(self):
         """FileBrowserDock notifies SmartHistory that file has been activated
         """
-        print self._currDir
-    
+        self._currIsActive = True
+
     @pyqtSlot(unicode)
-    def onRootChanged(self, newTreeRoot):
-        """FileBrowserDock notifies SmartHistory user chose a directory in the combo
+    def onRootChanged(self, newCurrDir):
+        """FileBrowserDock notifies SmartHistory that user changed current directory
         """
-        # swap current and previous
-        self._prevDir , self._currDir = self._currDir, newTreeRoot
+        if self._currIsActive:
+            self._prevActiveDir = self._currDir
+        
+        self._currDir = newCurrDir
+        self._currIsActive = False
+        
         self.historyChanged.emit(self._history())
 
     def _history(self):
-        """Get list of dirrectories, which will be shown in the combo box
+        """Get list of directories, which will be shown in the combo box
         """
         history = []
         if self._currDir is not None:
             history.append(self._currDir)
-        if self._prevDir is not None:
-            history.append(self._prevDir)
+        if self._prevActiveDir is not None and self._prevActiveDir != self._currDir:
+            history.append(self._prevActiveDir)
         
         return history
 
@@ -125,8 +132,8 @@ class DockFileBrowser(pDockWidget):
     """UI interface of FileBrowser plugin. 
         
     Dock with file system tree, Box, navigation in a file system
-    tree, for moving root of tree to currently selected dirrectory and
-    up (relatively for current dirrectory)
+    tree, for moving root of tree to currently selected directory and
+    up (relatively for current directory)
     """
     rootChanged = pyqtSignal(unicode)
     fileActivated = pyqtSignal()
@@ -298,7 +305,7 @@ class DockFileBrowser(pDockWidget):
         self._comboBox.currentIndexChanged['QString'].connect(self._onComboItemSelected)
         
     def tv_activated(self, idx ):
-        """File or dirrectory doubleClicked
+        """File or directory doubleClicked
         """
         index = self._filteredModel.mapToSource( idx )
         path = unicode(self._dirsModel.filePath( index ))
