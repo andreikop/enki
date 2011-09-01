@@ -91,7 +91,7 @@ class SmartHistory(QObject):
     "Active directory" in this class means the last directory, where one or more files has been opened
     """
     
-    historyChanged = pyqtSignal('QStringList')
+    historyChanged = pyqtSignal(list)
 
     def __init__(self):
         QObject.__init__(self)
@@ -126,12 +126,17 @@ class SmartHistory(QObject):
         history = []
         if self._currDir is not None:
             history.append(self._currDir)
+
         if self._prevActiveDir is not None and \
            self._prevActiveDir not in history:
             history.append(self._prevActiveDir)
         currOsDir = os.path.abspath(os.curdir)
         if currOsDir not in history:
             history.append(currOsDir)
+        
+        if len(history) > 1:
+            history.insert(1, None)  # separator
+        
         self.historyChanged.emit(history)
 
 class DockFileBrowser(pDockWidget):
@@ -302,12 +307,17 @@ class DockFileBrowser(pDockWidget):
         """
         self.setCurrentPath(itemText)
     
+    @pyqtSlot(list)
     def _updateComboItems(self, items):
         """Update items in the combo box according to current history
         """
         self._comboBox.currentIndexChanged['QString'].disconnect()
         self._comboBox.clear()
-        self._comboBox.addItems(items)
+        for item in items:
+            if item is not None:
+                self._comboBox.addItem(item)
+            else:
+                self._comboBox.insertSeparator(self._comboBox.count())
         self._comboBox.currentIndexChanged['QString'].connect(self._onComboItemSelected)
         
     def tv_activated(self, idx ):
