@@ -111,6 +111,8 @@ class SmartHistory(QObject):
     def onRootChanged(self, newCurrDir):
         """FileBrowserDock notifies SmartHistory that user changed current directory
         """
+        newCurrDir = unicode(newCurrDir, 'utf8')
+        
         if self._currIsActive:
             self._prevActiveDir = self._currDir
         
@@ -124,16 +126,21 @@ class SmartHistory(QObject):
         Emit this list
         """
         history = []
+        includedDirs = set()
         if self._currDir is not None:
-            history.append(self._currDir)
-
+            history.append((self._currDir, self._currDir,))
+            includedDirs.add(self._currDir)
+        # Back
         if self._prevActiveDir is not None and \
-           self._prevActiveDir not in history:
-            history.append(self._prevActiveDir)
-        currOsDir = os.path.abspath(os.curdir)
-        if currOsDir not in history:
-            history.append(currOsDir)
-        
+           self._prevActiveDir not in includedDirs:
+            history.append(('Back: '+ self._prevActiveDir, self._prevActiveDir,))
+            includedDirs.add(self._prevActiveDir)
+        # Current file
+        currOsDir = os.path.abspath(os.curdir)        
+        if currOsDir not in includedDirs:
+            history.append(('Current file: ' + currOsDir, currOsDir,))
+            includedDirs.add(currOsDir)
+        # Separator
         if len(history) > 1:
             history.insert(1, None)  # separator
         
@@ -248,7 +255,7 @@ class DockFileBrowser(pDockWidget):
         self._tree.activated.connect(self.tv_activated)
         self._tbCdUp.clicked.connect(self._onTbCdUpClicked)
         # reconnected in self._updateComboItems()
-        self._comboBox.currentIndexChanged['QString'].connect(self._onComboItemSelected)
+        self._comboBox.currentIndexChanged[int].connect(self._onComboItemSelected)
         self._history.historyChanged.connect(self._updateComboItems)
         
         # outgoing connections
@@ -301,24 +308,26 @@ class DockFileBrowser(pDockWidget):
         if parentOfCurrent != self._tree.rootIndex():  # if not reached top
             self._tree.setCurrentIndex(parentOfCurrent)  # move selection up
     
-    @pyqtSlot('QString')
-    def _onComboItemSelected(self, itemText):
+    @pyqtSlot(int)
+    def _onComboItemSelected(self, index):
         """Handler of item selection in the combo box
         """
-        self.setCurrentPath(itemText)
+        path = unicode(self._comboBox.itemData(index).toString(), 'utf8')
+        self.setCurrentPath(path)
     
     @pyqtSlot(list)
     def _updateComboItems(self, items):
         """Update items in the combo box according to current history
         """
-        self._comboBox.currentIndexChanged['QString'].disconnect()
+        self._comboBox.currentIndexChanged[int].disconnect()
         self._comboBox.clear()
-        for item in items:
+        for index, item in enumerate(items):
             if item is not None:
-                self._comboBox.addItem(item)
+                self._comboBox.addItem(item[0])  #  text
+                self._comboBox.setItemData(index, item[1])  # path
             else:
                 self._comboBox.insertSeparator(self._comboBox.count())
-        self._comboBox.currentIndexChanged['QString'].connect(self._onComboItemSelected)
+        self._comboBox.currentIndexChanged[int].connect(self._onComboItemSelected)
         
     def tv_activated(self, idx ):
         """File or directory doubleClicked
@@ -368,7 +377,7 @@ class DockFileBrowser(pDockWidget):
         self._setFocusToTree(15)
         
         # set lineedit path
-        text = unicode(self._dirsModel.filePath( index ))
+        text = unicode(self._dirsModel.filePath( index ), 'utf8')
         self._comboBox.setToolTip( text )
         self.rootChanged.emit(text)
 
