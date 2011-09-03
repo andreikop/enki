@@ -56,8 +56,6 @@ def excepthook(excepttype, exceptvalue, tracebackobj):
 
 def _configureLogging():
     logging.basicConfig(level=logging.ERROR)
-    consoleLogger = logging.StreamHandler()
-    logging.getLogger('').addHandler(consoleLogger)
     fileHandler = logging.handlers.RotatingFileHandler('/tmp/mksv3.log', 'a', 100 * 1024, 1)
     logging.getLogger('').addHandler(fileHandler)
 
