@@ -8,6 +8,7 @@ import re
 import os
 import os.path
 import operator
+import logging
 
 from PyQt4.QtCore import QDir, QRect, QEvent, QModelIndex, QObject, Qt, \
                          pyqtSignal, pyqtSlot
@@ -104,8 +105,19 @@ class SmartHistory(QObject):
         self._prevActiveDir = None
         self._currDir = None
         self._currIsActive = False
-        self._popularDirs = {}  # Directory: popularity points
+        self._loadPopularDirs()
         core.workspace().currentDocumentChanged.connect(self._updateHistory)
+
+    def _loadPopularDirs(self):
+        """Load popular directories from the config
+        """
+        self._popularDirs = core.config()["FileBrowser"]["PopularDirs"]  # Directory: popularity points
+        for k in self._popularDirs.iterkeys():
+            try:
+                self._popularDirs[k] = float(self._popularDirs[k])
+            except ValueError as ex:
+                logging.error('Invalid PopularDirs value: ' + unicode(ex))
+                self._popularDirs[k] = 0.0
 
     def _dirsByPopularity(self):
         """Return list of dirrectories, sorted by popularity
@@ -121,6 +133,9 @@ class SmartHistory(QObject):
     def onFileActivated(self):
         """FileBrowserDock notifies SmartHistory that file has been activated
         """
+        if self._currIsActive:  # statistics already has been updated
+            return
+        
         self._currIsActive = True
 
         # Replace the least popular
@@ -138,7 +153,10 @@ class SmartHistory(QObject):
         if multiplier < 1:
             for k in self._popularDirs.iterkeys():
                 self._popularDirs[k] *= multiplier
-
+        
+        core.config()["FileBrowser"]["PopularDirs"] = self._popularDirs
+        core.config().flush()
+        
         # History update is not scheduled here, because it will be scheduled when workspace changes current file
 
     @pyqtSlot(unicode)
