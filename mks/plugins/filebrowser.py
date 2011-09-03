@@ -7,6 +7,7 @@ import fnmatch
 import re
 import os
 import os.path
+import operator
 
 from PyQt4.QtCore import QDir, QRect, QEvent, QModelIndex, QObject, Qt, \
                          pyqtSignal, pyqtSlot
@@ -90,6 +91,11 @@ class SmartHistory(QObject):
     
     "Active directory" in this class means the last directory, where one or more files has been opened
     """
+    MAX_HISTORY_SIZE = 8
+    
+    STATISTICS_SIZE = 10.
+    BONUS_FOR_OPENING = 10.
+    MAX_POINTS_COUNT = 100.
     
     historyChanged = pyqtSignal(list)
 
@@ -98,13 +104,41 @@ class SmartHistory(QObject):
         self._prevActiveDir = None
         self._currDir = None
         self._currIsActive = False
+        self._popularDirs = {}  # Directory: popularity points
         core.workspace().currentDocumentChanged.connect(self._updateHistory)
 
+    def _dirsByPopularity(self):
+        """Return list of dirrectories, sorted by popularity
+        """
+        if not self._popularDirs:
+            return ()
+        
+        dirAndPopularity = sorted(self._popularDirs.iteritems(), key=operator.itemgetter(1), reverse=True)
+        dirs = zip(*dirAndPopularity)[0]  # take only first elements
+        return dirs
+    
     @pyqtSlot()
     def onFileActivated(self):
         """FileBrowserDock notifies SmartHistory that file has been activated
         """
         self._currIsActive = True
+
+        # Replace the least popular
+        if self._currDir not in self._popularDirs:
+            if len(self._popularDirs) == self.STATISTICS_SIZE:
+                leastPopular = self._dirsByPopularity()[-1]
+                del self._popularDirs[leastPopular]
+            self._popularDirs[self._currDir] = 0
+
+        self._popularDirs[self._currDir] += self.BONUS_FOR_OPENING
+
+        # Normalization
+        pointsSum = sum(self._popularDirs.itervalues())
+        multiplier = self.MAX_POINTS_COUNT / pointsSum
+        if multiplier < 1:
+            for k in self._popularDirs.iterkeys():
+                self._popularDirs[k] *= multiplier
+
         # History update is not scheduled here, because it will be scheduled when workspace changes current file
 
     @pyqtSlot(unicode)
@@ -143,6 +177,18 @@ class SmartHistory(QObject):
         # Separator
         if len(history) > 1:
             history.insert(1, None)  # separator
+        # Popular directories
+        firstPopularDir = True
+        popularDirs = self._dirsByPopularity()
+        for d in popularDirs:
+            if not d in includedDirs:
+                if firstPopularDir:
+                    history.append(None)  # separator
+                    firstPopularDir = False
+                history.append( (d, d,) )
+                includedDirs.add(d)
+            if len(history) >= self.MAX_HISTORY_SIZE:
+                break
         
         self.historyChanged.emit(history)
 
