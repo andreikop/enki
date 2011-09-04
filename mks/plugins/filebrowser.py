@@ -12,14 +12,13 @@ import logging
 
 from PyQt4.QtCore import QDir, QRect, QEvent, QModelIndex, QObject, Qt, \
                          pyqtSignal, pyqtSlot
-from PyQt4.QtGui import QAction, QCompleter, QDialogButtonBox, QDirModel, \
-                        QFileDialog, QFrame, QFileSystemModel, \
-                        QIcon, QItemSelectionModel, QKeySequence, QComboBox, QMenu, \
+from PyQt4.QtGui import QAction, QCompleter, QDirModel, \
+                        QFrame, QFileSystemModel, \
+                        QIcon, QItemSelectionModel, QKeySequence, QComboBox, \
                         QPainter, \
                         QShortcut, QSortFilterProxyModel, QToolButton, QTreeView, QVBoxLayout, QWidget
 
 from PyQt4.fresh import pDockWidget
-from PyQt4.fresh import pStringListEditor
 
 from mks.core.core import core
 from mks.core.uisettings import TextOption, ModuleConfigurator
@@ -59,6 +58,7 @@ class Configurator(ModuleConfigurator):
     Used for configure files sorting mode
     """
     def __init__(self, dialog):
+        ModuleConfigurator.__init__(self, dialog)
         self._options = \
         [   TextOption(dialog, core.config(), "FileBrowser/NegativeFilter", dialog.lFilesToHide) ]
     
@@ -125,6 +125,7 @@ class SmartHistory(QObject):
         self._prevActiveDir = None
         self._currDir = None
         self._currIsActive = False
+        self._popularDirs = None
         self._loadPopularDirs()
         core.workspace().currentDocumentChanged.connect(self._updateHistory)
 
@@ -218,13 +219,13 @@ class SmartHistory(QObject):
         # Popular directories
         firstPopularDir = True
         popularDirs = self._dirsByPopularity()
-        for d in popularDirs:
-            if not d in includedDirs:
+        for directory in popularDirs:
+            if not directory in includedDirs:
                 if firstPopularDir:
                     history.append(None)  # separator
                     firstPopularDir = False
-                history.append( (d, d, ':mksicons/bookmark.png') )
-                includedDirs.add(d)
+                history.append( (directory, directory, ':mksicons/bookmark.png') )
+                includedDirs.add(directory)
             if len(history) >= self.MAX_HISTORY_SIZE:
                 break
         
@@ -242,6 +243,16 @@ class DockFileBrowser(pDockWidget):
     
     def __init__(self, parent):
         pDockWidget.__init__(self, parent)
+        
+        self._filteredModel = None
+        self._showPopupAction = None
+        self._comboBox = None
+        self._completionModel = None
+        self._tbCdUp = None
+        self._tree = None
+        self._comboCount = None
+        self._dirsModel = None
+        
         self.setObjectName("FileBrowserDock")
         self.setWindowTitle(self.tr( "File Browser" ))
         self.setWindowIcon(QIcon(':/mksicons/open.png'))
@@ -253,7 +264,7 @@ class DockFileBrowser(pDockWidget):
         
         self.visibilityChanged.connect(self._onVisibilityChanged)
     
-    def __term__(self, parent):
+    def __term__(self):
         core.actionModel().removeAction("mDocks/aFileBrowser")
     
     def _onVisibilityChanged(self, visible):
@@ -456,7 +467,7 @@ class DockFileBrowser(pDockWidget):
         index = self._filteredModel.mapToSource( index )
         return unicode(self._dirsModel.filePath( index ))
 
-    def _setFocusToTree(self, attempts = 5):
+    def _setFocusToTree(self):
         """Moves focus and selection to the first item, if nothing focused
         If attempts > 0 and model not yet loaded data, function will call semself 
         automatically later after 10ms for do next attempt to set focus to the first child
@@ -482,7 +493,7 @@ class DockFileBrowser(pDockWidget):
         self._filteredModel.invalidate()
         self._tree.setRootIndex( self._filteredModel.mapFromSource( index ) )
         
-        self._setFocusToTree(15)
+        self._setFocusToTree()
         
         # set lineedit path
         text = unicode(self._dirsModel.filePath( index ), 'utf8')
