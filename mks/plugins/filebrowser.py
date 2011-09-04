@@ -181,17 +181,17 @@ class SmartHistory(QObject):
         history = []
         includedDirs = set()
         if self._currDir is not None:
-            history.append((self._currDir, self._currDir,))
+            history.append((self._currDir, self._currDir, None))
             includedDirs.add(self._currDir)
         # Back
         if self._prevActiveDir is not None and \
            self._prevActiveDir not in includedDirs:
-            history.append(('Back: '+ self._prevActiveDir, self._prevActiveDir,))
+            history.append((self._prevActiveDir, self._prevActiveDir, ':mksicons/previous.png'))
             includedDirs.add(self._prevActiveDir)
         # Current file
         currOsDir = os.path.abspath(os.curdir)        
         if currOsDir not in includedDirs:
-            history.append(('Current file: ' + currOsDir, currOsDir,))
+            history.append((currOsDir, currOsDir, ':mksicons/text.png'))
             includedDirs.add(currOsDir)
         # Separator
         if len(history) > 1:
@@ -204,7 +204,7 @@ class SmartHistory(QObject):
                 if firstPopularDir:
                     history.append(None)  # separator
                     firstPopularDir = False
-                history.append( (d, d,) )
+                history.append( (d, d, ':mksicons/bookmark.png') )
                 includedDirs.add(d)
             if len(history) >= self.MAX_HISTORY_SIZE:
                 break
@@ -403,6 +403,8 @@ class DockFileBrowser(pDockWidget):
             if item is not None:
                 self._comboBox.addItem(item[0])  #  text
                 self._comboBox.setItemData(index, item[1])  # path
+                if item[2] is not None:
+                    self._comboBox.setItemIcon(index, QIcon(item[2]))
             else:
                 self._comboBox.insertSeparator(self._comboBox.count())
         self._comboCount = self._comboBox.count()
