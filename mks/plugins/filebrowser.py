@@ -12,7 +12,8 @@ import logging
 
 from PyQt4.QtCore import QDir, QRect, QEvent, QModelIndex, QObject, Qt, \
                          pyqtSignal, pyqtSlot
-from PyQt4.QtGui import QAction, QDialogButtonBox, QFileDialog, QFrame, QFileSystemModel, \
+from PyQt4.QtGui import QAction, QCompleter, QDialogButtonBox, QDirModel, \
+                        QFileDialog, QFrame, QFileSystemModel, \
                         QIcon, QItemSelectionModel, QKeySequence, QComboBox, QMenu, \
                         QPainter, \
                         QShortcut, QSortFilterProxyModel, QToolButton, QTreeView, QVBoxLayout, QWidget
@@ -265,7 +266,15 @@ class DockFileBrowser(pDockWidget):
         self._comboBox.setAttribute( Qt.WA_MacShowFocusRect, False )
         self._comboBox.setAttribute( Qt.WA_MacSmallSize )
         self._comboBox.setEditable(True)
-        self._comboBox.lineEdit().setReadOnly( True )
+        self._comboBox.lineEdit().setReadOnly( False )
+        self._completionModel = QDirModel(self._comboBox.lineEdit())
+        self._completionModel.setFilter( QDir.AllDirs | QDir.NoDotAndDotDot )
+        self._comboBox.lineEdit().setCompleter(QCompleter(self._completionModel,
+                                               self._comboBox.lineEdit()))
+        """TODO QDirModel is deprecated but QCompleter does not yet handle
+        QFileSystemModel - please update when possible."""
+        self._comboCount = 0
+
         vertLayout.addWidget( self._comboBox )
         
         # hline
@@ -347,7 +356,7 @@ class DockFileBrowser(pDockWidget):
             return True
 
         return pDockWidget.eventFilter( self, object_, event )
-        
+    
     def _filteredModelIndexToPath(self, index):
         """Map index to file path
         """
@@ -376,8 +385,13 @@ class DockFileBrowser(pDockWidget):
     def _onComboItemSelected(self, index):
         """Handler of item selection in the combo box
         """
-        path = unicode(self._comboBox.itemData(index).toString(), 'utf8')
-        self.setCurrentPath(path)
+        if self._comboBox.count() > self._comboCount:  # It is user input
+            path = unicode(self._comboBox.itemText(index), 'utf8')
+            if os.path.isdir(path):
+                self.setCurrentPath(path)
+        else:
+            path = unicode(self._comboBox.itemData(index).toString(), 'utf8')
+            self.setCurrentPath(path)
     
     @pyqtSlot(list)
     def _updateComboItems(self, items):
@@ -391,6 +405,7 @@ class DockFileBrowser(pDockWidget):
                 self._comboBox.setItemData(index, item[1])  # path
             else:
                 self._comboBox.insertSeparator(self._comboBox.count())
+        self._comboCount = self._comboBox.count()
         self._comboBox.currentIndexChanged[int].connect(self._onComboItemSelected)
         
     def tv_activated(self, idx ):
