@@ -311,6 +311,11 @@ class DockFileBrowser(pDockWidget):
         self._tbCdUp.setCursor( Qt.ArrowCursor )
         self._tbCdUp.installEventFilter( self )
         
+        # Show popup action
+        self._showPopupAction = QAction(QIcon(':mksicons/filtered.png'), "File browser menu", self)
+        self._showPopupAction.setShortcut('Shift+F7')
+        core.actionModel().addAction("mNavigation/aFileBrowserMenuShow", self._showPopupAction)
+        
         if not sys.platform.startswith('win'):
             self._dirsModel.setRootPath( "/" )
         else:
@@ -325,6 +330,8 @@ class DockFileBrowser(pDockWidget):
         
         # incoming connections
         aUpShortcut.activated.connect(self._onTbCdUpClicked)
+        showPopupSlot = lambda triggered: self._comboBox.showPopup()
+        self._showPopupAction.triggered.connect(showPopupSlot)
         self._tree.activated.connect(self.tv_activated)
         self._tbCdUp.clicked.connect(self._onTbCdUpClicked)
         # reconnected in self._updateComboItems()
@@ -392,6 +399,7 @@ class DockFileBrowser(pDockWidget):
         else:
             path = unicode(self._comboBox.itemData(index).toString(), 'utf8')
             self.setCurrentPath(path)
+        self._tree.setFocus()
     
     @pyqtSlot(list)
     def _updateComboItems(self, items):
