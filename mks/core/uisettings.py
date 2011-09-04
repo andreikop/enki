@@ -126,6 +126,22 @@ class CheckableOption(Option):
         """
         self.config.set(self.optionName, self.control.isChecked())
 
+class TextOption(Option):
+    """Text option
+    
+    Control may be QLineEdit
+    """
+    def load(self):
+        """Load the value from config to GUI
+        """
+        self.control.setText(self.config.get(self.optionName))
+    
+    def save(self):
+        """Save the value from GUI to config
+        """
+        text = unicode(self.control.text(), 'utf8')
+        self.config.set(self.optionName, text)
+
 class NumericOption(Option):
     """Numeric option.
     

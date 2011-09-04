@@ -125,6 +125,11 @@
         </property>
        </item>
       </item>
+      <item>
+       <property name="text">
+        <string>File browser</string>
+       </property>
+      </item>
      </item>
     </widget>
    </item>
@@ -136,7 +141,7 @@
         <bool>true</bool>
        </property>
        <property name="currentIndex">
-        <number>8</number>
+        <number>15</number>
        </property>
        <widget class="QWidget" name="pGeneral">
         <layout class="QVBoxLayout" name="verticalLayout_18">
@@ -2120,6 +2125,35 @@
            <property name="acceptRichText">
             <bool>false</bool>
            </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="pFileBrowser">
+        <layout class="QVBoxLayout" name="verticalLayout_19">
+         <item>
+          <widget class="QGroupBox" name="gbFilesToHide">
+           <property name="title">
+            <string>Files to hide</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout">
+            <item>
+             <widget class="QLineEdit" name="lFilesToHide"/>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
           </widget>
          </item>
         </layout>
