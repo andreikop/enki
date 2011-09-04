@@ -22,12 +22,15 @@ from PyQt4.fresh import pDockWidget
 from PyQt4.fresh import pStringListEditor
 
 from mks.core.core import core
+from mks.core.uisettings import TextOption, ModuleConfigurator
 
 class Plugin(QObject):
     """File system tree.
     
     Allows to open files quickly
     """
+    instance = None
+
     def __init__(self):
         """Create and install the plugin
         """
@@ -37,17 +40,33 @@ class Plugin(QObject):
         self.dock.hide()
         # add dock to dock toolbar entry
         core.mainWindow().dockToolBar( Qt.LeftToolBarArea ).addDockWidget(self.dock)
+        Plugin.instance = self
     
     def __del__(self):
         """Uninstall the plugin
         """
+        Plugin.instance = None
         self.dock.deleteLater()
 
     def moduleConfiguratorClass(self):
         """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
         """
-        return None  # No any settings
+        return Configurator
 
+class Configurator(ModuleConfigurator):
+    """ Module configurator.
+    
+    Used for configure files sorting mode
+    """
+    def __init__(self, dialog):
+        self._options = \
+        [   TextOption(dialog, core.config(), "FileBrowser/NegativeFilter", dialog.lFilesToHide) ]
+    
+    def saveSettings(self):
+        pass
+    
+    def applySettings(self):
+        Plugin.instance.dock.setFilters(core.config()["FileBrowser"]["NegativeFilter"])
 
 class FileBrowserFilteredModel(QSortFilterProxyModel):
     """Model filters out files using negative filter.
@@ -485,41 +504,8 @@ class DockFileBrowser(pDockWidget):
         index = self._filteredModel.mapFromSource( index )
         self._tree.setCurrentIndex( index )
 
-    def setFilters(self, filters ):
+    def setFilters(self, filters):
         """Set filter wildcards for filter out unneeded files
         """
+        filters = filters.split()
         self._filteredModel.setFilters( filters )
-
-'''
-class FileBrowserSettings(QWidget):
-    """Plugin settings widget
-    """
-    def __init__(self, plugin): 
-        QWidget.__init__(self, plugin)
-        self.plugin = plugin
-        
-        # list editor
-        self.editor = pStringListEditor( self, self.tr( "Except Suffixes" ) )
-        self.editor.setValues( core.config()["FileBrowser"]["NegativeFilter"] )
-        
-        # apply button
-        dbbApply = QDialogButtonBox( self )
-        dbbApply.addButton( QDialogButtonBox.Apply )
-        
-        # global layout
-        vbox = QVBoxLayout( self )
-        vbox.addWidget( self.editor )
-        vbox.addWidget( dbbApply )
-        
-        # connections
-        dbbApply.button( QDialogButtonBox.Apply ).clicked.connect(self.applySettings)
-
-    def applySettings(self):
-        """Handler of clicking Apply button. Applying settings
-        """
-        pyStrList = map(str, self.editor.values())
-        """FIXME
-        core.config()["FileBrowser"]["NegativeFilter"] = pyStrList
-        """
-        self.plugin.dock.setFilters(pyStrList)
-'''
