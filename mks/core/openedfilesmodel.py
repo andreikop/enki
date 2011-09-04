@@ -35,7 +35,7 @@ class Configurator(ModuleConfigurator):
     """
     _SORT_MODE = ["OpeningOrder", "FileName", "URL", "Suffixes"]
     def __init__(self, dialog):
-        
+        ModuleConfigurator.__init__(self, dialog)
         cfg = core.config()
         self._options = \
         [   ChoiseOption(dialog, cfg, "Workspace/FileSortMode",
