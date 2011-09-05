@@ -296,6 +296,8 @@ class DockFileBrowser(pDockWidget):
         self._comboBox.setAttribute( Qt.WA_MacShowFocusRect, False )
         self._comboBox.setAttribute( Qt.WA_MacSmallSize )
         self._comboBox.setEditable(True)
+        self._comboBox.setMinimumContentsLength(1)
+        self._comboBox.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
         self._comboBox.lineEdit().setReadOnly( False )
         self._completionModel = QDirModel(self._comboBox.lineEdit())
         self._completionModel.setFilter( QDir.AllDirs | QDir.NoDotAndDotDot )
