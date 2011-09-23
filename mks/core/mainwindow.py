@@ -237,6 +237,7 @@ class MainWindow(pMainWindow):
         action("mNavigation/aPrevious",               tr("&Previous file"        ), "previous.png", "Alt+Left",     tr("Previous file"          ), False)
         action("mNavigation/aFocusCurrentDocument",   tr("Focus to editor"       ), "text.png",     "Ctrl+Return",  tr("Focus current document" ), False)
         action("mNavigation/aGoto",                   tr("Go go line..."         ), "goto.png",     "Ctrl+G",       tr("Go to line..."          ), False)
+        menu  ("mNavigation/mFileBrowser",            tr("File browser"          ), ':/mksicons/open.png')
 
         menu  ("mEdit",                               tr("Edit"                  ), ""            )
 

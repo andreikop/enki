@@ -208,11 +208,6 @@ class SmartHistory(QObject):
            self._prevActiveDir not in includedDirs:
             history.append((self._prevActiveDir, self._prevActiveDir, ':mksicons/previous.png'))
             includedDirs.add(self._prevActiveDir)
-        # Current file
-        currOsDir = os.path.abspath(os.curdir)        
-        if currOsDir not in includedDirs:
-            history.append((currOsDir, currOsDir, ':mksicons/text.png'))
-            includedDirs.add(currOsDir)
         # Separator
         if len(history) > 1:
             history.insert(1, None)  # separator
@@ -266,7 +261,16 @@ class DockFileBrowser(pDockWidget):
     
     def __term__(self):
         core.actionModel().removeAction("mDocks/aFileBrowser")
-    
+
+    def _createAction(self, text, icon, slot, index):
+        """Create action object and add it to title bar
+        """
+        actionObject = QAction(self.tr(text), self)
+        actionObject.setIcon(QIcon(icon))
+        actionObject.triggered.connect(slot)
+        self.titleBar().addAction(actionObject, index)
+        return actionObject
+
     def _onVisibilityChanged(self, visible):
         """Postnoted widget initialization.
         Create element, when widget appears first timer
@@ -337,6 +341,19 @@ class DockFileBrowser(pDockWidget):
         # assign model to views
         self._tree.setModel( self._filteredModel)
 
+        # cd to current file path action
+        self._aJumpToCurrent = self._createAction("Jump to current file path",
+                                                  ':mksicons/text.png',
+                                                  self._onTbJumpToCurrentTriggered,
+                                                  0)
+        self._aJumpToCurrent.setShortcut('Ctrl+Alt+J')
+        core.actionModel().addAction("mNavigation/mFileBrowser/aJumpToCurrent", self._aJumpToCurrent)
+        self.rootChanged.connect(self._updateJumpToCurrentAction)
+        core.workspace().currentDocumentChanged.connect(self._updateJumpToCurrentAction)
+        
+        # add separator
+        self.titleBar().addSeparator(1)
+
         # cd up action
         self._tbCdUp = QToolButton( self._comboBox.lineEdit() )
         self._tbCdUp.setIcon( QIcon( ":/mksicons/go-up.png" ) )
@@ -346,7 +363,7 @@ class DockFileBrowser(pDockWidget):
         # Show popup action
         self._showPopupAction = QAction(QIcon(':mksicons/filtered.png'), "File browser menu", self)
         self._showPopupAction.setShortcut('Shift+F7')
-        core.actionModel().addAction("mNavigation/aFileBrowserMenuShow", self._showPopupAction)
+        core.actionModel().addAction("mNavigation/mFileBrowser/aMenuShow", self._showPopupAction)
         
         if not sys.platform.startswith('win'):
             self._dirsModel.setRootPath( "/" )
@@ -420,6 +437,12 @@ class DockFileBrowser(pDockWidget):
         if parentOfCurrent != self._tree.rootIndex():  # if not reached top
             self._tree.setCurrentIndex(parentOfCurrent)  # move selection up
     
+    @pyqtSlot()
+    def _onTbJumpToCurrentTriggered(self):
+        """Jump to directory of current file
+        """
+        self.setCurrentPath(os.path.abspath(os.curdir))
+    
     @pyqtSlot(int)
     def _onComboItemSelected(self, index):
         """Handler of item selection in the combo box
@@ -485,6 +508,12 @@ class DockFileBrowser(pDockWidget):
         if firstChild.isValid():  # There may be no rows, if directory is empty, or not loaded yet
             self._tree.selectionModel().select(firstChild, QItemSelectionModel.SelectCurrent)
 
+    @pyqtSlot()
+    def _updateJumpToCurrentAction(self):
+        """Update action enabled state after current file or current directory changed
+        """
+        self._aJumpToCurrent.setEnabled(os.path.abspath(os.curdir) != self.currentPath())
+
     def setCurrentPath(self, path):
         """Set current path (root of the tree)
         """
@@ -500,6 +529,8 @@ class DockFileBrowser(pDockWidget):
         # set lineedit path
         text = unicode(self._dirsModel.filePath( index ), 'utf8')
         self._comboBox.setToolTip( text )
+        
+        # notify SmartHistory and own slots
         self.rootChanged.emit(text)
 
     def currentFilePath(self):
