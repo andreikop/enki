@@ -585,8 +585,6 @@ class DockFileBrowser(pDockWidget):
 
     def _setFocusToTree(self):
         """Moves focus and selection to the first item, if nothing focused
-        If attempts > 0 and model not yet loaded data, function will call semself 
-        automatically later after 10ms for do next attempt to set focus to the first child
         """
         rootIndex = self._tree.rootIndex()
         
