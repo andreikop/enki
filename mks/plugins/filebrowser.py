@@ -102,25 +102,21 @@ class FileBrowserFilteredModel(QSortFilterProxyModel):
         return not self.filterRegExp.match(source_parent.child( source_row, 0 ).data().toString() )
 
 
-class SmartHistory(QObject):
-    """Class stores File Browser history and provides variants for combo box.
+class SmartRecents(QObject):
+    """Class stores File Browser recent directories and provides variants for combo box.
     
-    Variants include: ::
-    
-    * The most recent 2 directories
-    * The most popular 5 directories
     
     "Active directory" in this class means the last directory, where one or more files has been opened
     """
-    MAX_HISTORY_SIZE = 8
+    MAX_RECENTS_SIZE = 8
     
     STATISTICS_SIZE = 10.
     BONUS_FOR_OPENING = 10.
     MAX_POINTS_COUNT = 100.
     
-    historyChanged = pyqtSignal(list)
+    _recentsChanged = pyqtSignal(list)
 
-    def __init__(self):
+    def __init__(self, fileBrowser):
         QObject.__init__(self)
         self._prevActiveDir = None
         self._currDir = None
@@ -128,6 +124,12 @@ class SmartHistory(QObject):
         self._popularDirs = None
         self._loadPopularDirs()
         core.workspace().currentDocumentChanged.connect(self._updateHistory)
+        
+        # incoming connections
+        fileBrowser.rootChanged.connect(self._onRootChanged)
+        fileBrowser.fileActivated.connect(self._onFileActivated)
+        # outgoing connections
+        self._recentsChanged.connect(fileBrowser.updateComboItems)
 
     def _loadPopularDirs(self):
         """Load popular directories from the config
@@ -151,8 +153,8 @@ class SmartHistory(QObject):
         return dirs
     
     @pyqtSlot()
-    def onFileActivated(self):
-        """FileBrowserDock notifies SmartHistory that file has been activated
+    def _onFileActivated(self):
+        """FileBrowserDock notifies SmartRecents that file has been activated
         """
         if self._currIsActive:  # statistics already has been updated
             return
@@ -181,8 +183,8 @@ class SmartHistory(QObject):
         # History update is not scheduled here, because it will be scheduled when workspace changes current file
 
     @pyqtSlot(unicode)
-    def onRootChanged(self, newCurrDir):
-        """FileBrowserDock notifies SmartHistory that user changed current directory
+    def _onRootChanged(self, newCurrDir):
+        """FileBrowserDock notifies SmartRecents that user changed current directory
         """
         newCurrDir = unicode(newCurrDir, 'utf8')
         
@@ -221,10 +223,10 @@ class SmartHistory(QObject):
                     firstPopularDir = False
                 history.append( (directory, directory, ':mksicons/bookmark.png') )
                 includedDirs.add(directory)
-            if len(history) >= self.MAX_HISTORY_SIZE:
+            if len(history) >= self.MAX_RECENTS_SIZE:
                 break
         
-        self.historyChanged.emit(history)
+        self._recentsChanged.emit(history)
 
 class DockFileBrowser(pDockWidget):
     """UI interface of FileBrowser plugin. 
@@ -284,7 +286,7 @@ class DockFileBrowser(pDockWidget):
         """
         # history
         
-        self._history = SmartHistory()
+        self._history = SmartRecents(self)
 
         # central widget
         wdg = QWidget( self )
@@ -383,13 +385,8 @@ class DockFileBrowser(pDockWidget):
         self._showPopupAction.triggered.connect(showPopupSlot)
         self._tree.activated.connect(self.tv_activated)
         self._tbCdUp.clicked.connect(self._onTbCdUpClicked)
-        # reconnected in self._updateComboItems()
+        # reconnected in self.updateComboItems()
         self._comboBox.currentIndexChanged[int].connect(self._onComboItemSelected)
-        self._history.historyChanged.connect(self._updateComboItems)
-        
-        # outgoing connections
-        self.rootChanged.connect(self._history.onRootChanged)
-        self.fileActivated.connect(self._history.onFileActivated)
         
         self.setCurrentPath( os.path.abspath(os.path.curdir) )
     
@@ -457,7 +454,7 @@ class DockFileBrowser(pDockWidget):
         self._tree.setFocus()
     
     @pyqtSlot(list)
-    def _updateComboItems(self, items):
+    def updateComboItems(self, items):
         """Update items in the combo box according to current history
         """
         self._comboBox.currentIndexChanged[int].disconnect()
@@ -530,7 +527,7 @@ class DockFileBrowser(pDockWidget):
         text = unicode(self._dirsModel.filePath( index ), 'utf8')
         self._comboBox.setToolTip( text )
         
-        # notify SmartHistory and own slots
+        # notify SmartRecents and own slots
         self.rootChanged.emit(text)
 
     def currentFilePath(self):
