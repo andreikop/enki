@@ -11,7 +11,7 @@ import operator
 import logging
 
 from PyQt4.QtCore import QDir, QRect, QEvent, QModelIndex, QObject, Qt, \
-                         pyqtSignal
+                         pyqtSignal, pyqtSlot
 from PyQt4.QtGui import QAction, QCompleter, QDirModel, \
                         QFrame, QFileSystemModel, \
                         QIcon, QItemSelectionModel, QKeySequence, QComboBox, \
@@ -517,11 +517,13 @@ class DockFileBrowser(pDockWidget):
         if parentOfCurrent != self._tree.rootIndex():  # if not reached top
             self._tree.setCurrentIndex(parentOfCurrent)  # move selection up
     
+    @pyqtSlot()
     def _onTbJumpToCurrentTriggered(self):
         """Jump to directory of current file
         """
         self.setCurrentPath(os.path.abspath(os.curdir))
     
+    @pyqtSlot(int)
     def _onComboItemSelected(self, index):
         """Handler of item selection in the combo box
         """
@@ -534,6 +536,7 @@ class DockFileBrowser(pDockWidget):
             self.setCurrentPath(path)
         self._tree.setFocus()
     
+    @pyqtSlot(list)
     def updateComboItems(self, items):
         """Update items in the combo box according to current history
         """
@@ -585,6 +588,7 @@ class DockFileBrowser(pDockWidget):
         if firstChild.isValid():  # There may be no rows, if directory is empty, or not loaded yet
             self._tree.selectionModel().select(firstChild, QItemSelectionModel.SelectCurrent)
 
+    @pyqtSlot()
     def _updateJumpToCurrentAction(self):
         """Update action enabled state after current file or current directory changed
         """
