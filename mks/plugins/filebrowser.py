@@ -11,7 +11,7 @@ import operator
 import logging
 
 from PyQt4.QtCore import QDir, QRect, QEvent, QModelIndex, QObject, Qt, \
-                         pyqtSignal, pyqtSlot
+                         pyqtSignal
 from PyQt4.QtGui import QAction, QCompleter, QDirModel, \
                         QFrame, QFileSystemModel, \
                         QIcon, QItemSelectionModel, QKeySequence, QComboBox, \
@@ -118,12 +118,11 @@ class SmartRecents(QObject):
 
     def __init__(self, fileBrowser):
         QObject.__init__(self)
-        self._prevActiveDir = None
         self._currDir = None
         self._currIsActive = False
         self._popularDirs = None
         self._loadPopularDirs()
-        core.workspace().currentDocumentChanged.connect(self._updateHistory)
+        core.workspace().currentDocumentChanged.connect(self._updateRecents)
         
         # incoming connections
         fileBrowser.rootChanged.connect(self._onRootChanged)
@@ -152,7 +151,6 @@ class SmartRecents(QObject):
         dirs = zip(*dirAndPopularity)[0]  # take only first elements
         return dirs
     
-    @pyqtSlot()
     def _onFileActivated(self):
         """FileBrowserDock notifies SmartRecents that file has been activated
         """
@@ -182,21 +180,14 @@ class SmartRecents(QObject):
         
         # History update is not scheduled here, because it will be scheduled when workspace changes current file
 
-    @pyqtSlot(unicode)
     def _onRootChanged(self, newCurrDir):
         """FileBrowserDock notifies SmartRecents that user changed current directory
         """
-        newCurrDir = unicode(newCurrDir, 'utf8')
-        
-        if self._currIsActive:
-            self._prevActiveDir = self._currDir
-        
-        self._currDir = newCurrDir
+        self._currDir = unicode(newCurrDir, 'utf8')
         self._currIsActive = False
-        self._updateHistory()
+        self._updateRecents()
 
-    @pyqtSlot()
-    def _updateHistory(self):
+    def _updateRecents(self):
         """Generate new list of directories, which will be shown in the combo box.
         Emit this list
         """
@@ -205,11 +196,6 @@ class SmartRecents(QObject):
         if self._currDir is not None:
             history.append((self._currDir, self._currDir, None))
             includedDirs.add(self._currDir)
-        # Back
-        if self._prevActiveDir is not None and \
-           self._prevActiveDir not in includedDirs:
-            history.append((self._prevActiveDir, self._prevActiveDir, ':mksicons/previous.png'))
-            includedDirs.add(self._prevActiveDir)
         # Separator
         if len(history) > 1:
             history.insert(1, None)  # separator
@@ -227,6 +213,112 @@ class SmartRecents(QObject):
                 break
         
         self._recentsChanged.emit(history)
+
+class SmartHistory(QObject):
+    """Class remembers file browser history and manages Back and Forward buttons
+    """
+    def __init__(self, fileBrowser):
+        QObject.__init__(self)
+        self._fileBrowser = fileBrowser
+        self._currDir = None
+        self._currIsActive = False
+        self._history = []
+        self._historyIndex = -1
+
+        self._aBack = QAction(  QIcon(':mksicons/previous.png'),
+                                self.tr("Back"),
+                                self)
+        self._aBack.setShortcut('Ctrl+Alt+B')
+        fileBrowser.titleBar().addAction(self._aBack, 0)
+        core.actionModel().addAction("mNavigation/mFileBrowser/aBack", self._aBack)
+        self._aBack.triggered.connect(self._onTbBackTriggered)
+
+        self._aForward = QAction(   QIcon(':mksicons/next.png'),
+                                    self.tr("Forward"),
+                                    self)
+        self._aForward.setShortcut('Ctrl+Alt+F')
+        fileBrowser.titleBar().addAction(self._aForward, 1)
+        core.actionModel().addAction("mNavigation/mFileBrowser/aForward", self._aForward)
+        self._aForward.triggered.connect(self._onTbForwardTriggered)
+        
+        fileBrowser.titleBar().addSeparator(2)
+        
+        # incoming connections
+        fileBrowser.rootChanged.connect(self._onRootChanged)
+        fileBrowser.fileActivated.connect(self._onFileActivated)
+
+    def _onRootChanged(self, newCurrDir):
+        """FileBrowserDock notifies SmartHistory that root has been changed
+        """
+        self._currDir = unicode(newCurrDir, 'utf8')
+        self._currIsActive = False
+        self._updateActions()
+
+    def _onFileActivated(self):
+        """FileBrowserDock notifies SmartHistory that file has been activated
+        """
+        if self._currIsActive:
+            return
+        self._currIsActive = True
+        self._updateHistory()
+
+    def _updateHistory(self):
+        """Directory has been activated. Update history
+        """
+        if  self._history and \
+            self._history[self._historyIndex] == self._currDir:
+                return # Do nothing, if moved back or forward
+
+        if (self._historyIndex + 1) < len(self._history):  # not on the top of the stack
+            # Cut history
+            self._history = self._history[:self._historyIndex + 1]
+        
+        # Append new root to the history
+        self._history.append(self._currDir)
+        self._historyIndex += 1
+        
+        self._updateActions()
+        
+    def _onTbBackTriggered(self):
+        """Back action handler
+        """
+        if not self._currIsActive:
+            self._updateHistory()
+        
+        self._historyIndex -= 1
+        self._fileBrowser.setCurrentPath(self._history[self._historyIndex])
+    
+    def _onTbForwardTriggered(self):
+        """Forward action handler
+        """
+        self._historyIndex += 1
+        self._fileBrowser.setCurrentPath(self._history[self._historyIndex])
+
+    def _updateActions(self):
+        """Update actions enabled state
+        """
+        if self._history and self._currDir != self._history[self._historyIndex]:
+            self._aBack.setEnabled(True)
+            self._aBack.setStatusTip(self._history[-1])
+            self._aBack.setToolTip(self._history[-1])
+        elif self._history and self._historyIndex > 0:
+            self._aBack.setEnabled(True)
+            self._aBack.setStatusTip(self._history[self._historyIndex - 1])
+            self._aBack.setToolTip(self._history[self._historyIndex - 1])
+        else:
+            self._aBack.setEnabled(False)
+            self._aBack.setStatusTip(self.tr("Back"))
+            self._aBack.setToolTip(self.tr("Back"))
+        
+        if (self._historyIndex + 1) < len(self._history):
+            self._aForward.setEnabled(True)
+            self._aForward.setStatusTip(self._history[self._historyIndex + 1])
+            self._aForward.setToolTip(self._history[self._historyIndex + 1])
+        else:
+            self._aForward.setEnabled(False)
+            self._aForward.setStatusTip(self.tr("Forward"))
+            self._aForward.setToolTip(self.tr("Forward"))
+
 
 class DockFileBrowser(pDockWidget):
     """UI interface of FileBrowser plugin. 
@@ -264,15 +356,6 @@ class DockFileBrowser(pDockWidget):
     def __term__(self):
         core.actionModel().removeAction("mDocks/aFileBrowser")
 
-    def _createAction(self, text, icon, slot, index):
-        """Create action object and add it to title bar
-        """
-        actionObject = QAction(self.tr(text), self)
-        actionObject.setIcon(QIcon(icon))
-        actionObject.triggered.connect(slot)
-        self.titleBar().addAction(actionObject, index)
-        return actionObject
-
     def _onVisibilityChanged(self, visible):
         """Postnoted widget initialization.
         Create element, when widget appears first timer
@@ -284,10 +367,6 @@ class DockFileBrowser(pDockWidget):
     def _initialize(self):
         """Delayed initialization of the widget for quicker start of application
         """
-        # history
-        
-        self._history = SmartRecents(self)
-
         # central widget
         wdg = QWidget( self )
         self.setWidget( wdg )
@@ -343,13 +422,14 @@ class DockFileBrowser(pDockWidget):
         # assign model to views
         self._tree.setModel( self._filteredModel)
 
-        # cd to current file path action
-        self._aJumpToCurrent = self._createAction("Jump to current file path",
-                                                  ':mksicons/text.png',
-                                                  self._onTbJumpToCurrentTriggered,
-                                                  0)
+        # jump to current file path action
+        self._aJumpToCurrent = QAction(QIcon(':mksicons/text.png'),
+                                       self.tr("Jump to current file path"),
+                                       self)
         self._aJumpToCurrent.setShortcut('Ctrl+Alt+J')
+        self.titleBar().addAction(self._aJumpToCurrent, 0)
         core.actionModel().addAction("mNavigation/mFileBrowser/aJumpToCurrent", self._aJumpToCurrent)
+        self._aJumpToCurrent.triggered.connect(self._onTbJumpToCurrentTriggered)
         self.rootChanged.connect(self._updateJumpToCurrentAction)
         core.workspace().currentDocumentChanged.connect(self._updateJumpToCurrentAction)
         
@@ -387,6 +467,9 @@ class DockFileBrowser(pDockWidget):
         self._tbCdUp.clicked.connect(self._onTbCdUpClicked)
         # reconnected in self.updateComboItems()
         self._comboBox.currentIndexChanged[int].connect(self._onComboItemSelected)
+        
+        self._smartRecents = SmartRecents(self)
+        self._smartHistory = SmartHistory(self)
         
         self.setCurrentPath( os.path.abspath(os.path.curdir) )
     
@@ -434,13 +517,11 @@ class DockFileBrowser(pDockWidget):
         if parentOfCurrent != self._tree.rootIndex():  # if not reached top
             self._tree.setCurrentIndex(parentOfCurrent)  # move selection up
     
-    @pyqtSlot()
     def _onTbJumpToCurrentTriggered(self):
         """Jump to directory of current file
         """
         self.setCurrentPath(os.path.abspath(os.curdir))
     
-    @pyqtSlot(int)
     def _onComboItemSelected(self, index):
         """Handler of item selection in the combo box
         """
@@ -453,7 +534,6 @@ class DockFileBrowser(pDockWidget):
             self.setCurrentPath(path)
         self._tree.setFocus()
     
-    @pyqtSlot(list)
     def updateComboItems(self, items):
         """Update items in the combo box according to current history
         """
@@ -505,7 +585,6 @@ class DockFileBrowser(pDockWidget):
         if firstChild.isValid():  # There may be no rows, if directory is empty, or not loaded yet
             self._tree.selectionModel().select(firstChild, QItemSelectionModel.SelectCurrent)
 
-    @pyqtSlot()
     def _updateJumpToCurrentAction(self):
         """Update action enabled state after current file or current directory changed
         """
