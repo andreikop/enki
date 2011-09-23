@@ -319,6 +319,36 @@ class SmartHistory(QObject):
             self._aForward.setStatusTip(self.tr("Forward"))
             self._aForward.setToolTip(self.tr("Forward"))
 
+class JumpToCurent(QObject):
+    """Class implements 'Jump to current' functionality
+    It creates the action and handles it
+    """
+    def __init__(self, fileBrowser):
+        QObject.__init__(self)
+        self._fileBrowser = fileBrowser
+        
+        self._action = QAction(QIcon(':mksicons/text.png'),
+                               self.tr("Jump to current file path"),
+                               self)
+        self._action.setShortcut('Ctrl+Alt+J')
+        self._action.triggered.connect(self._onTriggered)
+
+        fileBrowser.titleBar().addAction(self._action, 0)
+        fileBrowser.titleBar().addSeparator(1)
+        core.actionModel().addAction("mNavigation/mFileBrowser/aJumpToCurrent", self._action)
+
+        fileBrowser.rootChanged.connect(self._updateAction)
+        core.workspace().currentDocumentChanged.connect(self._updateAction)
+
+    def _updateAction(self):
+        """Update action enabled state after current file or current directory changed
+        """
+        self._action.setEnabled(os.path.abspath(os.curdir) != self._fileBrowser.currentPath())
+
+    def _onTriggered(self):
+        """Jump to directory of current file
+        """
+        self._fileBrowser.setCurrentPath(os.path.abspath(os.curdir))
 
 class DockFileBrowser(pDockWidget):
     """UI interface of FileBrowser plugin. 
@@ -422,20 +452,6 @@ class DockFileBrowser(pDockWidget):
         # assign model to views
         self._tree.setModel( self._filteredModel)
 
-        # jump to current file path action
-        self._aJumpToCurrent = QAction(QIcon(':mksicons/text.png'),
-                                       self.tr("Jump to current file path"),
-                                       self)
-        self._aJumpToCurrent.setShortcut('Ctrl+Alt+J')
-        self.titleBar().addAction(self._aJumpToCurrent, 0)
-        core.actionModel().addAction("mNavigation/mFileBrowser/aJumpToCurrent", self._aJumpToCurrent)
-        self._aJumpToCurrent.triggered.connect(self._onTbJumpToCurrentTriggered)
-        self.rootChanged.connect(self._updateJumpToCurrentAction)
-        core.workspace().currentDocumentChanged.connect(self._updateJumpToCurrentAction)
-        
-        # add separator
-        self.titleBar().addSeparator(1)
-
         # cd up action
         self._tbCdUp = QToolButton( self._comboBox.lineEdit() )
         self._tbCdUp.setIcon( QIcon( ":/mksicons/go-up.png" ) )
@@ -470,6 +486,7 @@ class DockFileBrowser(pDockWidget):
         
         self._smartRecents = SmartRecents(self)
         self._smartHistory = SmartHistory(self)
+        self._jumpToCurrent = JumpToCurent(self)
         
         self.setCurrentPath( os.path.abspath(os.path.curdir) )
     
@@ -516,13 +533,7 @@ class DockFileBrowser(pDockWidget):
         parentOfCurrent = self._tree.currentIndex().parent()
         if parentOfCurrent != self._tree.rootIndex():  # if not reached top
             self._tree.setCurrentIndex(parentOfCurrent)  # move selection up
-    
-    @pyqtSlot()
-    def _onTbJumpToCurrentTriggered(self):
-        """Jump to directory of current file
-        """
-        self.setCurrentPath(os.path.abspath(os.curdir))
-    
+        
     @pyqtSlot(int)
     def _onComboItemSelected(self, index):
         """Handler of item selection in the combo box
@@ -587,12 +598,6 @@ class DockFileBrowser(pDockWidget):
         firstChild = self._filteredModel.index(0, 0, rootIndex)
         if firstChild.isValid():  # There may be no rows, if directory is empty, or not loaded yet
             self._tree.selectionModel().select(firstChild, QItemSelectionModel.SelectCurrent)
-
-    @pyqtSlot()
-    def _updateJumpToCurrentAction(self):
-        """Update action enabled state after current file or current directory changed
-        """
-        self._aJumpToCurrent.setEnabled(os.path.abspath(os.curdir) != self.currentPath())
 
     def setCurrentPath(self, path):
         """Set current path (root of the tree)
