@@ -350,6 +350,122 @@ class JumpToCurent(QObject):
         """
         self._fileBrowser.setCurrentPath(os.path.abspath(os.curdir))
 
+class Tree(QTreeView):
+    """File system tree
+    """
+    
+    fileActivated = pyqtSignal()
+    
+    def __init__(self, fileBrowser):
+        QTreeView.__init__(self, fileBrowser)
+        
+        self._fileBrowser = fileBrowser
+        
+        self.setAttribute( Qt.WA_MacShowFocusRect, False )
+        self.setAttribute( Qt.WA_MacSmallSize )
+        self.setContextMenuPolicy( Qt.ActionsContextMenu )
+        self.setHeaderHidden( True )
+        self.setUniformRowHeights( True )
+        
+        # dir model
+        self._dirsModel = QFileSystemModel( self )
+        self._dirsModel.setNameFilterDisables( False )
+        self._dirsModel.setFilter( QDir.AllDirs | QDir.AllEntries | QDir.CaseSensitive | QDir.NoDotAndDotDot )
+        # self._dirsModel.directoryLoaded.connect(self.setFocus)  TODO don't have this signal in my Qt version
+        
+        # create proxy model
+        self._filteredModel = FileBrowserFilteredModel( self )
+        self._filteredModel.setSourceModel( self._dirsModel )
+        self.setFilters(core.config()["FileBrowser"]["NegativeFilter"])
+
+        self.setModel( self._filteredModel)
+        
+        if not sys.platform.startswith('win'):
+            self._dirsModel.setRootPath( "/" )
+        else:
+            self._dirsModel.setRootPath('')
+        
+        # shortcut accessible only when self._tree has focus
+        self._upShortcut = QShortcut( QKeySequence( "BackSpace" ), self )
+        self._upShortcut.setContext( Qt.WidgetShortcut )
+        self._upShortcut.activated.connect(self.moveUp)
+        
+        self.activated.connect(self._onActivated)
+        self.fileActivated.connect(fileBrowser.fileActivated)
+
+    def setFilters(self, filters):
+        """Set filter wildcards for filter out unneeded files
+        """
+        filters = filters.split()
+        self._filteredModel.setFilters( filters )
+
+    def _onActivated(self, idx ):
+        """File or directory doubleClicked
+        """
+        index = self._filteredModel.mapToSource( idx )
+        path = unicode(self._dirsModel.filePath( index ))
+        
+        if  os.path.isdir( path ) :
+            self._fileBrowser.setCurrentPath(path)
+        else:
+            self.fileActivated.emit()
+            core.workspace().openFile(path)
+    
+    def moveUp(self):
+        """User pressed Up key or button. Move focus and root up
+        """
+        current = self.currentIndex()
+        if not current.isValid():
+            current = self.rootIndex().child(0, 0)
+            self.setCurrentIndex(current)
+        
+        # move tree root up, if necessary
+        if current.parent() == self.rootIndex() or \
+           current == self.rootIndex():  # need to move root up
+            if self.rootIndex().parent().isValid():  # not reached root of the FS tree
+                self._fileBrowser.setCurrentPath( self._filteredModelIndexToPath(self.rootIndex().parent()))
+        
+        parentOfCurrent = self.currentIndex().parent()
+        if parentOfCurrent != self.rootIndex():  # if not reached top
+            self.setCurrentIndex(parentOfCurrent)  # move selection up
+
+    def _filteredModelIndexToPath(self, index):
+        """Map index to file path
+        """
+        srcIndex = self._filteredModel.mapToSource( index )
+        return unicode(self._dirsModel.filePath( srcIndex ))
+
+    def setFocus(self):
+        """Moves focus and selection to the first item, if nothing focused
+        """
+        rootIndex = self.rootIndex()
+        
+        selected =  self.selectionModel().selectedIndexes()
+        for index in selected:
+            if index.parent() == rootIndex:   # Already having selected item
+                return
+        
+        firstChild = self._filteredModel.index(0, 0, rootIndex)
+        if firstChild.isValid():  # There may be no rows, if directory is empty, or not loaded yet
+            self.selectionModel().select(firstChild, QItemSelectionModel.SelectCurrent)
+
+    def currentPath(self):
+        """Get current path (root of the tree)
+        """
+        index = self.rootIndex()
+        index = self._filteredModel.mapToSource( index )
+        return unicode(self._dirsModel.filePath( index ))
+
+    def setCurrentPath(self, path):
+        """Set current path (root of the tree)
+        """
+        # get index
+        index = self._dirsModel.index(path)
+        
+        # set current path
+        self._filteredModel.invalidate()
+        self.setRootIndex( self._filteredModel.mapFromSource( index ) )
+        
 class DockFileBrowser(pDockWidget):
     """UI interface of FileBrowser plugin. 
         
@@ -370,7 +486,10 @@ class DockFileBrowser(pDockWidget):
         self._tbCdUp = None
         self._tree = None
         self._comboCount = None
-        self._dirsModel = None
+        
+        self._smartRecents = None
+        self._smartHistory = None
+        self._jumpToCurrent = None
         
         self.setObjectName("FileBrowserDock")
         self.setWindowTitle(self.tr( "File Browser" ))
@@ -406,7 +525,7 @@ class DockFileBrowser(pDockWidget):
         vertLayout.setMargin( 5 )
         vertLayout.setSpacing( 3 )
         
-        # lineedit
+        # combo
         self._comboBox = QComboBox()
         self._comboBox.setAttribute( Qt.WA_MacShowFocusRect, False )
         self._comboBox.setAttribute( Qt.WA_MacSmallSize )
@@ -429,29 +548,10 @@ class DockFileBrowser(pDockWidget):
         hline.setFrameStyle( QFrame.HLine | QFrame.Sunken )
         vertLayout.addWidget( hline )
         
-        # dir model
-        self._dirsModel = QFileSystemModel( self )
-        self._dirsModel.setNameFilterDisables( False )
-        self._dirsModel.setFilter( QDir.AllDirs | QDir.AllEntries | QDir.CaseSensitive | QDir.NoDotAndDotDot )
-        # self._dirsModel.directoryLoaded.connect(self._setFocusToTree)  TODO don't have this signal in my Qt version
-        
-        # create proxy model
-        self._filteredModel = FileBrowserFilteredModel( self )
-        self._filteredModel.setSourceModel( self._dirsModel )
-        self.setFilters(core.config()["FileBrowser"]["NegativeFilter"])
-        
         # files view
-        self._tree = QTreeView()
-        self._tree.setAttribute( Qt.WA_MacShowFocusRect, False )
-        self._tree.setAttribute( Qt.WA_MacSmallSize )
-        self._tree.setContextMenuPolicy( Qt.ActionsContextMenu )
-        self._tree.setHeaderHidden( True )
-        self._tree.setUniformRowHeights( True )
+        self._tree = Tree(self)
         vertLayout.addWidget( self._tree )
         
-        # assign model to views
-        self._tree.setModel( self._filteredModel)
-
         # cd up action
         self._tbCdUp = QToolButton( self._comboBox.lineEdit() )
         self._tbCdUp.setIcon( QIcon( ":/mksicons/go-up.png" ) )
@@ -463,24 +563,14 @@ class DockFileBrowser(pDockWidget):
         self._showPopupAction.setShortcut('Shift+F7')
         core.actionModel().addAction("mNavigation/mFileBrowser/aMenuShow", self._showPopupAction)
         
-        if not sys.platform.startswith('win'):
-            self._dirsModel.setRootPath( "/" )
-        else:
-            self._dirsModel.setRootPath('')
-        
         # redirirect focus proxy
         self.setFocusProxy( self._tree )
         
-        # shortcut accessible only when self._tree has focus
-        aUpShortcut = QShortcut( QKeySequence( "BackSpace" ), self._tree )
-        aUpShortcut.setContext( Qt.WidgetShortcut )
-        
         # incoming connections
-        aUpShortcut.activated.connect(self._onTbCdUpClicked)
         showPopupSlot = lambda triggered: self._comboBox.showPopup()
         self._showPopupAction.triggered.connect(showPopupSlot)
-        self._tree.activated.connect(self.tv_activated)
-        self._tbCdUp.clicked.connect(self._onTbCdUpClicked)
+        
+        self._tbCdUp.clicked.connect(self._tree.moveUp)
         # reconnected in self.updateComboItems()
         self._comboBox.currentIndexChanged[int].connect(self._onComboItemSelected)
         
@@ -510,30 +600,6 @@ class DockFileBrowser(pDockWidget):
 
         return pDockWidget.eventFilter( self, object_, event )
     
-    def _filteredModelIndexToPath(self, index):
-        """Map index to file path
-        """
-        srcIndex = self._filteredModel.mapToSource( index )
-        return unicode(self._dirsModel.filePath( srcIndex ))
-    
-    def _onTbCdUpClicked(self):
-        """Handler of click on Up button.
-        """
-        current = self._tree.currentIndex()
-        if not current.isValid():
-            current = self._tree.rootIndex().child(0, 0)
-            self._tree.setCurrentIndex(current)
-        
-        # move tree root up, if necessary
-        if current.parent() == self._tree.rootIndex() or \
-           current == self._tree.rootIndex():  # need to move root up
-            if self._tree.rootIndex().parent().isValid():  # not reached root of the FS tree
-                self.setCurrentPath( self._filteredModelIndexToPath(self._tree.rootIndex().parent()))
-        
-        parentOfCurrent = self._tree.currentIndex().parent()
-        if parentOfCurrent != self._tree.rootIndex():  # if not reached top
-            self._tree.setCurrentIndex(parentOfCurrent)  # move selection up
-        
     @pyqtSlot(int)
     def _onComboItemSelected(self, index):
         """Handler of item selection in the combo box
@@ -563,76 +629,26 @@ class DockFileBrowser(pDockWidget):
                 self._comboBox.insertSeparator(self._comboBox.count())
         self._comboCount = self._comboBox.count()
         self._comboBox.currentIndexChanged[int].connect(self._onComboItemSelected)
-        
-    def tv_activated(self, idx ):
-        """File or directory doubleClicked
+    
+    def setFilters(self, filters):
+        """Set tree negative filters
         """
-        index = self._filteredModel.mapToSource( idx )
-        path = unicode(self._dirsModel.filePath( index ))
-        
-        if  self._dirsModel.isDir( index ) :
-            self.setCurrentPath(path)
-        else:
-            self.fileActivated.emit()
-            core.workspace().openFile(path)
+        self._tree.setFilters(filters)
 
     def currentPath(self):
         """Get current path (root of the tree)
         """
-        index = self._tree.rootIndex()
-        index = self._filteredModel.mapToSource( index )
-        return unicode(self._dirsModel.filePath( index ))
-
-    def _setFocusToTree(self):
-        """Moves focus and selection to the first item, if nothing focused
-        """
-        rootIndex = self._tree.rootIndex()
-        
-        selected =  self._tree.selectionModel().selectedIndexes()
-        for index in selected:
-            if index.parent() == rootIndex:   # Already having selected item
-                return
-        
-        firstChild = self._filteredModel.index(0, 0, rootIndex)
-        if firstChild.isValid():  # There may be no rows, if directory is empty, or not loaded yet
-            self._tree.selectionModel().select(firstChild, QItemSelectionModel.SelectCurrent)
+        return self._tree.currentPath()
 
     def setCurrentPath(self, path):
         """Set current path (root of the tree)
         """
-        # get index
-        index = self._dirsModel.index(path)
+        self._tree.setCurrentPath(path)
         
-        # set current path
-        self._filteredModel.invalidate()
-        self._tree.setRootIndex( self._filteredModel.mapFromSource( index ) )
-        
-        self._setFocusToTree()
+        self._tree.setFocus()
         
         # set lineedit path
-        text = unicode(self._dirsModel.filePath( index ), 'utf8')
-        self._comboBox.setToolTip( text )
+        self._comboBox.setToolTip(path)
         
         # notify SmartRecents and own slots
-        self.rootChanged.emit(text)
-
-    def currentFilePath(self):
-        """Get current file path (selected item)
-        """
-        index = self._tree.selectionModel().selectedIndexes().value( 0 )
-        index = self._filteredModel.mapToSource( index )
-        return unicode(self._dirsModel.filePath( index ))
-
-    def setCurrentFilePath(self, filePath):
-        """Set current file path (selected item)
-        """
-        # get index
-        index = self._dirsModel.index(filePath)
-        index = self._filteredModel.mapFromSource( index )
-        self._tree.setCurrentIndex( index )
-
-    def setFilters(self, filters):
-        """Set filter wildcards for filter out unneeded files
-        """
-        filters = filters.split()
-        self._filteredModel.setFilters( filters )
+        self.rootChanged.emit(path)
