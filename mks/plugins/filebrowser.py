@@ -448,6 +448,7 @@ class Tree(QTreeView):
         firstChild = self._filteredModel.index(0, 0, rootIndex)
         if firstChild.isValid():  # There may be no rows, if directory is empty, or not loaded yet
             self.selectionModel().select(firstChild, QItemSelectionModel.SelectCurrent)
+        QTreeView.setFocus(self)
 
     def currentPath(self):
         """Get current path (root of the tree)
@@ -465,7 +466,96 @@ class Tree(QTreeView):
         # set current path
         self._filteredModel.invalidate()
         self.setRootIndex( self._filteredModel.mapFromSource( index ) )
+
+class ComboBox(QComboBox):
+    """File browser combo box.
+    Widget and functionality
+    """
+    def __init__(self, fileBrowser):
+        QComboBox.__init__(self, fileBrowser)
         
+        self._fileBrowser = fileBrowser
+
+        self.setAttribute( Qt.WA_MacShowFocusRect, False )
+        self.setAttribute( Qt.WA_MacSmallSize )
+        self.setEditable(True)
+        self.setMinimumContentsLength(1)
+        self.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.lineEdit().setReadOnly( False )
+        self._completionModel = QDirModel(self.lineEdit())
+        self._completionModel.setFilter( QDir.AllDirs | QDir.NoDotAndDotDot )
+        self.lineEdit().setCompleter(QCompleter(self._completionModel,
+                                               self.lineEdit()))
+        """TODO QDirModel is deprecated but QCompleter does not yet handle
+        QFileSystemModel - please update when possible."""
+        self._count = 0
+
+        # Show popup action
+        self._showPopupAction = QAction(QIcon(':mksicons/filtered.png'), "File browser menu", self)
+        self._showPopupAction.setShortcut('Shift+F7')
+        core.actionModel().addAction("mNavigation/mFileBrowser/aMenuShow", self._showPopupAction)
+        showPopupSlot = lambda triggered: self.showPopup()
+        self._showPopupAction.triggered.connect(showPopupSlot)
+        
+        # cd up button
+        self._tbCdUp = QToolButton( self.lineEdit() )
+        self._tbCdUp.setIcon( QIcon( ":/mksicons/go-up.png" ) )
+        self._tbCdUp.setCursor( Qt.ArrowCursor )
+        self._tbCdUp.installEventFilter( self )
+        self._tbCdUp.clicked.connect(self._fileBrowser.moveUp)
+        
+        # reconnected in self.updateComboItems()
+        self.currentIndexChanged[int].connect(self._onItemSelected)
+
+    def eventFilter(self, object_, event ):
+        """ Event filter for mode switch tool button
+        Draws icons in the search and path lineEdits
+        """
+        if  event.type() == QEvent.Paint:
+            toolButton = object_
+            lineEdit = self.lineEdit()
+            height = lineEdit.height()
+            lineEdit.setContentsMargins( height, 0, 0, 0 )
+            
+            availableRect = QRect( 0, 0, height, height )
+            toolButton.setGeometry( availableRect )
+            
+            painter = QPainter ( toolButton )
+            toolButton.icon().paint( painter, availableRect )
+            
+            return True
+
+        return QComboBox.eventFilter( self, object_, event )
+
+    @pyqtSlot(int)
+    def _onItemSelected(self, index):
+        """Handler of item selection in the combo box
+        """
+        if self.count() > self._count:  # It is user input
+            path = unicode(self.itemText(index), 'utf8')
+            if os.path.isdir(path):
+                self._fileBrowser.setCurrentPath(path)
+        else:
+            path = unicode(self.itemData(index).toString(), 'utf8')
+            self._fileBrowser.setCurrentPath(path)
+
+    def updateItems(self, items):
+        """Update items in the combo box according to current history
+        """
+        self.currentIndexChanged[int].disconnect()
+        self.clear()
+        for index, item in enumerate(items):
+            if item is not None:
+                self.addItem(item[0])  #  text
+                self.setItemData(index, item[1])  # path
+                if item[2] is not None:
+                    self.setItemIcon(index, QIcon(item[2]))
+            else:
+                self.insertSeparator(self.count())
+        self._count = self.count()
+        self.currentIndexChanged[int].connect(self._onItemSelected)
+
+
 class DockFileBrowser(pDockWidget):
     """UI interface of FileBrowser plugin. 
         
@@ -479,14 +569,8 @@ class DockFileBrowser(pDockWidget):
     def __init__(self, parent):
         pDockWidget.__init__(self, parent)
         
-        self._filteredModel = None
-        self._showPopupAction = None
         self._comboBox = None
-        self._completionModel = None
-        self._tbCdUp = None
         self._tree = None
-        self._comboCount = None
-        
         self._smartRecents = None
         self._smartHistory = None
         self._jumpToCurrent = None
@@ -526,21 +610,7 @@ class DockFileBrowser(pDockWidget):
         vertLayout.setSpacing( 3 )
         
         # combo
-        self._comboBox = QComboBox()
-        self._comboBox.setAttribute( Qt.WA_MacShowFocusRect, False )
-        self._comboBox.setAttribute( Qt.WA_MacSmallSize )
-        self._comboBox.setEditable(True)
-        self._comboBox.setMinimumContentsLength(1)
-        self._comboBox.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
-        self._comboBox.lineEdit().setReadOnly( False )
-        self._completionModel = QDirModel(self._comboBox.lineEdit())
-        self._completionModel.setFilter( QDir.AllDirs | QDir.NoDotAndDotDot )
-        self._comboBox.lineEdit().setCompleter(QCompleter(self._completionModel,
-                                               self._comboBox.lineEdit()))
-        """TODO QDirModel is deprecated but QCompleter does not yet handle
-        QFileSystemModel - please update when possible."""
-        self._comboCount = 0
-
+        self._comboBox = ComboBox(self)
         vertLayout.addWidget( self._comboBox )
         
         # hline
@@ -552,27 +622,8 @@ class DockFileBrowser(pDockWidget):
         self._tree = Tree(self)
         vertLayout.addWidget( self._tree )
         
-        # cd up action
-        self._tbCdUp = QToolButton( self._comboBox.lineEdit() )
-        self._tbCdUp.setIcon( QIcon( ":/mksicons/go-up.png" ) )
-        self._tbCdUp.setCursor( Qt.ArrowCursor )
-        self._tbCdUp.installEventFilter( self )
-        
-        # Show popup action
-        self._showPopupAction = QAction(QIcon(':mksicons/filtered.png'), "File browser menu", self)
-        self._showPopupAction.setShortcut('Shift+F7')
-        core.actionModel().addAction("mNavigation/mFileBrowser/aMenuShow", self._showPopupAction)
-        
         # redirirect focus proxy
         self.setFocusProxy( self._tree )
-        
-        # incoming connections
-        showPopupSlot = lambda triggered: self._comboBox.showPopup()
-        self._showPopupAction.triggered.connect(showPopupSlot)
-        
-        self._tbCdUp.clicked.connect(self._tree.moveUp)
-        # reconnected in self.updateComboItems()
-        self._comboBox.currentIndexChanged[int].connect(self._onComboItemSelected)
         
         self._smartRecents = SmartRecents(self)
         self._smartHistory = SmartHistory(self)
@@ -580,55 +631,11 @@ class DockFileBrowser(pDockWidget):
         
         self.setCurrentPath( os.path.abspath(os.path.curdir) )
     
-    def eventFilter(self, object_, event ):
-        """ Event filter for mode switch tool button
-        Draws icons in the search and path lineEdits
-        """
-        if  event.type() == QEvent.Paint:
-            toolButton = object_
-            lineEdit = self._comboBox.lineEdit()
-            height = lineEdit.height()
-            lineEdit.setContentsMargins( height, 0, 0, 0 )
-            
-            availableRect = QRect( 0, 0, height, height )
-            toolButton.setGeometry( availableRect )
-            
-            painter = QPainter ( toolButton )
-            toolButton.icon().paint( painter, availableRect )
-            
-            return True
-
-        return pDockWidget.eventFilter( self, object_, event )
-    
-    @pyqtSlot(int)
-    def _onComboItemSelected(self, index):
-        """Handler of item selection in the combo box
-        """
-        if self._comboBox.count() > self._comboCount:  # It is user input
-            path = unicode(self._comboBox.itemText(index), 'utf8')
-            if os.path.isdir(path):
-                self.setCurrentPath(path)
-        else:
-            path = unicode(self._comboBox.itemData(index).toString(), 'utf8')
-            self.setCurrentPath(path)
-        self._tree.setFocus()
-    
     @pyqtSlot(list)
     def updateComboItems(self, items):
         """Update items in the combo box according to current history
         """
-        self._comboBox.currentIndexChanged[int].disconnect()
-        self._comboBox.clear()
-        for index, item in enumerate(items):
-            if item is not None:
-                self._comboBox.addItem(item[0])  #  text
-                self._comboBox.setItemData(index, item[1])  # path
-                if item[2] is not None:
-                    self._comboBox.setItemIcon(index, QIcon(item[2]))
-            else:
-                self._comboBox.insertSeparator(self._comboBox.count())
-        self._comboCount = self._comboBox.count()
-        self._comboBox.currentIndexChanged[int].connect(self._onComboItemSelected)
+        self._comboBox.updateItems(items)
     
     def setFilters(self, filters):
         """Set tree negative filters
@@ -645,10 +652,13 @@ class DockFileBrowser(pDockWidget):
         """
         self._tree.setCurrentPath(path)
         
-        self._tree.setFocus()
-        
         # set lineedit path
         self._comboBox.setToolTip(path)
         
         # notify SmartRecents and own slots
         self.rootChanged.emit(path)
+        self._tree.setFocus()
+
+    def moveUp(self):
+        """Move tree root up, or only move focus"""
+        self._tree.moveUp()
