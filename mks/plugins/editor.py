@@ -329,7 +329,7 @@ class Lexer:
             return None
         fileName = os.path.basename(self._editor.filePath())
         for language in self.LEXER_FOR_LANGUAGE.iterkeys():
-            for pattern in core.config()["Editor"]["Assotiations"][language]:
+            for pattern in core.config()["Associations"][language]:
                 if fnmatch.fnmatch(fileName, pattern):
                     return language
         else:
