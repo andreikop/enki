@@ -2138,7 +2138,19 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
-             <widget class="QLineEdit" name="lFilesToHide"/>
+             <widget class="QLabel" name="label_4">
+              <property name="font">
+               <font>
+                <italic>true</italic>
+               </font>
+              </property>
+              <property name="text">
+               <string>One glob per line</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPlainTextEdit" name="pteFilesToHide"/>
             </item>
             <item>
              <spacer name="verticalSpacer_3">
