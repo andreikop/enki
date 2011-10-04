@@ -142,6 +142,23 @@ class TextOption(Option):
         text = unicode(self.control.text(), 'utf8')
         self.config.set(self.optionName, text)
 
+class ListOnePerLineOption(Option):
+    """List of strings. One item per line.
+    
+    Control may be QPlainTextEdit
+    """
+    def load(self):
+        """Load the value from config to GUI
+        """
+        self.control.setPlainText('\n'.join(self.config.get(self.optionName)))
+    
+    def save(self):
+        """Save the value from GUI to config
+        """
+        text = unicode(self.control.toPlainText(), 'utf8')
+        lines = text.split('\n')
+        self.config.set(self.optionName, lines)
+
 class NumericOption(Option):
     """Numeric option.
     
