@@ -125,11 +125,11 @@
         </property>
        </item>
       </item>
-      <item>
-       <property name="text">
-        <string>File browser</string>
-       </property>
-      </item>
+     </item>
+     <item>
+      <property name="text">
+       <string>File browser</string>
+      </property>
      </item>
     </widget>
    </item>
