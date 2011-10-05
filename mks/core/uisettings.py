@@ -296,7 +296,7 @@ class UISettings(QDialog):
         self.accepted.connect(self.saveSettings)
         self.accepted.connect(self.applySettings)
 
-    def initTopLevelItems(self):
+    def _initTopLevelItems(self):
         """Generate list of all tree items. Used to switch pages
         """
         def allItems(twItem):
@@ -328,9 +328,7 @@ class UISettings(QDialog):
             self._moduleConfigurators.append(moduleConfiguratorClass(self))
 
         # Expand all tree widget items
-        self.initTopLevelItems()
-        for topLevelItem in self._allTwItems:  # except Languages
-            topLevelItem.setExpanded(True)
+        self._initTopLevelItems()
         
         # resize to minimum size
         self.resize( self.minimumSizeHint() )
