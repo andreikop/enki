@@ -271,23 +271,16 @@
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_20">
              <item>
-              <widget class="QToolBox" name="tboxAssociations">
-               <property name="currentIndex">
-                <number>0</number>
+              <widget class="QLabel" name="label_5">
+               <property name="text">
+                <string>Choose programming language at the tree to configure its associations</string>
                </property>
-               <widget class="QWidget" name="page">
-                <property name="geometry">
-                 <rect>
-                  <x>0</x>
-                  <y>0</y>
-                  <width>423</width>
-                  <height>582</height>
-                 </rect>
-                </property>
-                <attribute name="label">
-                 <string>Page</string>
-                </attribute>
-               </widget>
+               <property name="alignment">
+                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
             </layout>
