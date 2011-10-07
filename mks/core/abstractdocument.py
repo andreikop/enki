@@ -14,8 +14,8 @@ from PyQt4.QtCore import pyqtSignal, \
 from PyQt4.QtGui import QFileDialog, \
                         QIcon, \
                         QInputDialog, \
-						QMessageBox, \
-						QWidget
+                        QMessageBox, \
+                        QWidget
 
 
 class AbstractDocument(QWidget):
@@ -303,6 +303,11 @@ class AbstractDocument(QWidget):
         """
         pass
     
+    def setHighlightingLanguage(self, language):
+        """Set programming language of the file.
+        Called Only by FIXME link assotiations module to select syntax highlighting language.
+        """
+        pass
     
 ''' TODO restore or delete old code
     fileOpened = pyqtSignal()
