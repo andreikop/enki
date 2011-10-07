@@ -21,7 +21,7 @@ from PyQt4.QtGui import QAction, QCompleter, QDirModel, \
 from PyQt4.fresh import pDockWidget
 
 from mks.core.core import core
-from mks.core.uisettings import TextOption, ModuleConfigurator
+from mks.core.uisettings import ListOnePerLineOption, ModuleConfigurator
 
 class Plugin(QObject):
     """File system tree.
@@ -60,7 +60,7 @@ class Configurator(ModuleConfigurator):
     def __init__(self, dialog):
         ModuleConfigurator.__init__(self, dialog)
         self._options = \
-        [   TextOption(dialog, core.config(), "FileBrowser/NegativeFilter", dialog.lFilesToHide) ]
+        [   ListOnePerLineOption(dialog, core.config(), "FileBrowser/NegativeFilter", dialog.pteFilesToHide) ]
     
     def saveSettings(self):
         pass
@@ -396,7 +396,6 @@ class Tree(QTreeView):
     def setFilters(self, filters):
         """Set filter wildcards for filter out unneeded files
         """
-        filters = filters.split()
         self._filteredModel.setFilters( filters )
 
     def _onActivated(self, idx ):
