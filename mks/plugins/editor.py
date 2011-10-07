@@ -7,7 +7,6 @@ This text editor is used by default
 
 import os.path
 import shutil
-import fnmatch
 
 from PyQt4.QtCore import Qt, QEvent
 from PyQt4.QtGui import QColor, QFont, QFrame, QIcon, QKeyEvent, QVBoxLayout
@@ -311,8 +310,9 @@ class Lexer:
         """editor - reference to parent :class:`mks.plugins.editor.Editor` object
         """
         self._editor = editor
-        # Detect language
-        self.currentLanguage = self._getLanguage()
+    
+    def applyLanguage(self, language):
+        self.currentLanguage = language
         # Create lexer
         if self.currentLanguage:
             lexerClass =  self.LEXER_FOR_LANGUAGE[self.currentLanguage]
@@ -321,20 +321,7 @@ class Lexer:
             self._editor.qscintilla.setLexer(self.qscilexer)
         else:
             self.qscilexer = None
-    
-    def _getLanguage(self):
-        """Get language name by file path
-        """
-        if not self._editor.filePath():  #  None or empty
-            return None
-        fileName = os.path.basename(self._editor.filePath())
-        for language in self.LEXER_FOR_LANGUAGE.iterkeys():
-            for pattern in core.config()["Associations"][language]:
-                if fnmatch.fnmatch(fileName, pattern):
-                    return language
-        else:
-            return None
-        
+
     def applySettings(self):
         """Apply editor and lexer settings
         """
@@ -774,7 +761,14 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         row = self.qscintilla.getCursorPosition()[0]
         self.qscintilla.setCursorPosition(
                     self.qscintilla.markerFindPrevious(row - 1, 1 << self._MARKER_BOOKMARK), 0)
-    
+
+    def setHighlightingLanguage(self, language):
+        """Set programming language of the file.
+        Called Only by FIXME link assotiations module to select syntax highlighting language.
+        """
+        self.lexer.applyLanguage(language)
+
+
 class Plugin:
     """Plugin interface implementation
     
