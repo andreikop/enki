@@ -60,8 +60,11 @@
 <p>Settings dialogue subsystem consists of 3 major entities:</p>
 <ul class="simple">
 <li>UISettings.ui Gui dialog. Contains of controls.</li>
-<li>CheckableOption, NumericOption, ColorOption, FontOption, ChoiseOption classes. Every object of the class links together control on GUI and option in the config file. It loads its option from <a class="reference internal" href="config.html#mks.core.config.Config" title="mks.core.config.Config"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.config.Config</span></tt></a> to GUI, and saves from GUI to config.</li>
-<li><a class="reference internal" href="#mks.core.uisettings.ModuleConfigurator" title="mks.core.uisettings.ModuleConfigurator"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.uisettings.ModuleConfigurator</span></tt></a> interface. Must be implemented by plugin or core module. Creates and holds <a href="#id1"><span class="problematic" id="id2">*</span></a>Option objects, applies module settings, when necessary.</li>
+<li>CheckableOption, NumericOption, ColorOption, FontOption, ChoiseOption classes.
+Every object of the class links together control on GUI and option in the config file.
+It loads its option from <a class="reference internal" href="config.html#mks.core.config.Config" title="mks.core.config.Config"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.config.Config</span></tt></a> to GUI, and saves from GUI to config.</li>
+<li><a class="reference internal" href="#mks.core.uisettings.ModuleConfigurator" title="mks.core.uisettings.ModuleConfigurator"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.uisettings.ModuleConfigurator</span></tt></a> interface. Must be implemented by plugin or core module.
+Creates and holds <a href="#id1"><span class="problematic" id="id2">*</span></a>Option objects, applies module settings, when necessary.</li>
 </ul>
 <img src="https://docs.google.com/drawings/pub?id=1jDIHjn2dNIfeJlbQniFbwA4mdPZGRX_Sxj3pL7GgYeM&amp;w=869&amp;h=594"><p><a class="reference external" href="https://docs.google.com/drawings/d/1jDIHjn2dNIfeJlbQniFbwA4mdPZGRX_Sxj3pL7GgYeM/edit?hl=en_US">Edit the diagramm</a></p>
 </div>
@@ -86,7 +89,9 @@
 <p>If you need to add own settings to UISettings dialog, you should:</p>
 <ol class="arabic simple">
 <li>Implement and register your ModuleConfigurator</li>
-<li>Add controls to the dialog. You may edit UISettings.ui or add your controls dynamically during dialog creation (in <em>ModuleConfigurator.__init__()</em>)</li>
+<li>Add controls to the dialog.
+You may edit UISettings.ui or add your controls dynamically during dialog creation
+(in <em>ModuleConfigurator.__init__()</em>)</li>
 <li>Create <a href="#id3"><span class="problematic" id="id4">*</span></a>Option class instance for every configurable option.</li>
 </ol>
 </div>
@@ -96,8 +101,6 @@
 <dt id="mks.core.uisettings.ModuleConfigurator">
 <em class="property">class </em><tt class="descclassname">mks.core.uisettings.</tt><tt class="descname">ModuleConfigurator</tt><big>(</big><em>dialog</em><big>)</big><a class="headerlink" href="#mks.core.uisettings.ModuleConfigurator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interface, which must be implemented by core module or plugin, which needs to configure semself via GUI dialog.</p>
-<p><em>TODO core interface to register configurator in the core. Currently hardcoded in
-mks.core.Core.getModuleConfigurators()</em></p>
 <p>See <a class="reference internal" href="openedfilesmodel.html#mks.core.openedfilesmodel.Configurator" title="mks.core.openedfilesmodel.Configurator"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.openedfilesmodel.Configurator</span></tt></a> source for simple example of class implementation</p>
 <dl class="method">
 <dt id="mks.core.uisettings.ModuleConfigurator.saveSettings">
@@ -118,6 +121,18 @@ mks.core.Core.getModuleConfigurators()</em></p>
 <em class="property">class </em><tt class="descclassname">mks.core.uisettings.</tt><tt class="descname">Option</tt><big>(</big><em>dialog</em>, <em>config</em>, <em>optionName</em>, <em>control</em><big>)</big><a class="headerlink" href="#mks.core.uisettings.Option" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for all Options. Every class knows control, configuration option name, and can load/save the option</p>
 <p>Do not create dirrectly, use <a href="#id5"><span class="problematic" id="id6">*</span></a>Option classes</p>
+<dl class="method">
+<dt id="mks.core.uisettings.Option.load">
+<tt class="descname">load</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.uisettings.Option.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the value from config to GUI. To be implemented by child classes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.uisettings.Option.save">
+<tt class="descname">save</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.uisettings.Option.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the value from GUI to config. To be implemented by child classes</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -129,12 +144,54 @@ mks.core.Core.getModuleConfigurators()</em></p>
 <dl class="method">
 <dt id="mks.core.uisettings.CheckableOption.load">
 <tt class="descname">load</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.uisettings.CheckableOption.load" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Load the value from config to GUI</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="mks.core.uisettings.CheckableOption.save">
 <tt class="descname">save</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.uisettings.CheckableOption.save" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Save the value from GUI to config</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.core.uisettings.TextOption">
+<em class="property">class </em><tt class="descclassname">mks.core.uisettings.</tt><tt class="descname">TextOption</tt><big>(</big><em>dialog</em>, <em>config</em>, <em>optionName</em>, <em>control</em><big>)</big><a class="headerlink" href="#mks.core.uisettings.TextOption" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mks.core.uisettings.Option" title="mks.core.uisettings.Option"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.uisettings.Option</span></tt></a></p>
+<p>Text option</p>
+<p>Control may be QLineEdit</p>
+<dl class="method">
+<dt id="mks.core.uisettings.TextOption.load">
+<tt class="descname">load</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.uisettings.TextOption.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the value from config to GUI</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.uisettings.TextOption.save">
+<tt class="descname">save</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.uisettings.TextOption.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the value from GUI to config</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.core.uisettings.ListOnePerLineOption">
+<em class="property">class </em><tt class="descclassname">mks.core.uisettings.</tt><tt class="descname">ListOnePerLineOption</tt><big>(</big><em>dialog</em>, <em>config</em>, <em>optionName</em>, <em>control</em><big>)</big><a class="headerlink" href="#mks.core.uisettings.ListOnePerLineOption" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mks.core.uisettings.Option" title="mks.core.uisettings.Option"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.uisettings.Option</span></tt></a></p>
+<p>List of strings. One item per line.</p>
+<p>Control may be QPlainTextEdit</p>
+<dl class="method">
+<dt id="mks.core.uisettings.ListOnePerLineOption.load">
+<tt class="descname">load</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.uisettings.ListOnePerLineOption.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the value from config to GUI</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.uisettings.ListOnePerLineOption.save">
+<tt class="descname">save</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.uisettings.ListOnePerLineOption.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the value from GUI to config</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -147,12 +204,14 @@ mks.core.Core.getModuleConfigurators()</em></p>
 <dl class="method">
 <dt id="mks.core.uisettings.NumericOption.load">
 <tt class="descname">load</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.uisettings.NumericOption.load" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Load the value from config to GUI</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="mks.core.uisettings.NumericOption.save">
 <tt class="descname">save</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.uisettings.NumericOption.save" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Save the value from GUI to config</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -165,12 +224,14 @@ mks.core.Core.getModuleConfigurators()</em></p>
 <dl class="method">
 <dt id="mks.core.uisettings.ColorOption.load">
 <tt class="descname">load</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.uisettings.ColorOption.load" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Load the value from config to GUI</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="mks.core.uisettings.ColorOption.save">
 <tt class="descname">save</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.uisettings.ColorOption.save" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Save the value from GUI to config</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -188,17 +249,14 @@ mks.core.Core.getModuleConfigurators()</em></p>
 <dl class="method">
 <dt id="mks.core.uisettings.FontOption.load">
 <tt class="descname">load</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.uisettings.FontOption.load" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Load the value from config to GUI</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="mks.core.uisettings.FontOption.save">
 <tt class="descname">save</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.uisettings.FontOption.save" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="mks.core.uisettings.FontOption.onClicked">
-<tt class="descname">onClicked</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.uisettings.FontOption.onClicked" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Save the value from GUI to config</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -212,12 +270,14 @@ mks.core.Core.getModuleConfigurators()</em></p>
 <dl class="method">
 <dt id="mks.core.uisettings.ChoiseOption.load">
 <tt class="descname">load</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.uisettings.ChoiseOption.load" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Load the value from config to GUI</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="mks.core.uisettings.ChoiseOption.save">
 <tt class="descname">save</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.uisettings.ChoiseOption.save" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Save the value from GUI to config</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -233,15 +293,9 @@ mks.core.Core.getModuleConfigurators()</em></p>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QDialog</span></tt></p>
 <p>Settings dialog widget</p>
 <dl class="method">
-<dt id="mks.core.uisettings.UISettings.initTopLevelItems">
-<tt class="descname">initTopLevelItems</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.uisettings.UISettings.initTopLevelItems" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate list of all tree items. Used to switch pages</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="mks.core.uisettings.UISettings.createOptions">
 <tt class="descname">createOptions</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.uisettings.UISettings.createOptions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create and load all opitons. Calls :<a class="reference internal" href="#mks.core.uisettings.ModuleConfigurator" title="mks.core.uisettings.ModuleConfigurator"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.uisettings.ModuleConfigurator</span></tt></a> instances</p>
+<dd><p>Create and load all opitons. Create :<a class="reference internal" href="#mks.core.uisettings.ModuleConfigurator" title="mks.core.uisettings.ModuleConfigurator"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.uisettings.ModuleConfigurator</span></tt></a> instances</p>
 </dd></dl>
 
 <dl class="method">
@@ -333,7 +387,7 @@ mks.core.Core.getModuleConfigurators()</em></p>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Andrei Kopats, Filipe Azevedo.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.1.
     </div>
   </body>
 </html>
