@@ -44,34 +44,47 @@ class Configurator(ModuleConfigurator):
         return widget
     
     def saveSettings(self):
+        """Settings are stored in the core configuration file, therefore nothing to do here
+        Called by uisettings TODO documentation link
+        """
         pass
     
     def applySettings(self):
-        pass
+        """Apply associations to opened documents.
+        Called by uisettings TODO documentation link
+        """
+        for document in core.workspace().openedDocuments():
+            Associations.instance.applyLanguageToDocument(document)
 
 class Associations():
     """Module functionality
     """
+    
+    instance = None
+
     def __init__(self):
         core.moduleConfiguratorClasses.append(Configurator)
-        core.workspace().documentOpened.connect(self._onDocumentOpened)
+        core.workspace().documentOpened.connect(self.applyLanguageToDocument)
+        Associations.instance = self
     
     def __term__(self):
         core.moduleConfiguratorClasses.remove(Configurator)
 
-    def _onDocumentOpened(self, document):
+    def applyLanguageToDocument(self, document):
         """Signal handler. Executed when document is opened. Applyes lexer
         """
-        language = self._getLanguage(document.filePath())
+        language = self._getLanguage(document)
         if language:
             document.setHighlightingLanguage(language)
 
-    def _getLanguage(self, filePath):
+    def _getLanguage(self, document):
         """Get language name by file path
         """
-        if not filePath:  #  None or empty
-            return None
-        fileName = os.path.basename(filePath)
+        fileName = document.fileName()
+
+        if not fileName:
+            return
+
         for language, patterns in core.config()["Associations"].iteritems():
             for pattern in patterns:
                 if fnmatch.fnmatch(fileName, pattern):
