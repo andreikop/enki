@@ -11,7 +11,8 @@ import os.path
 import fnmatch
 
 from PyQt4 import uic
-from PyQt4.QtGui import QWidget, QTreeWidgetItem
+from PyQt4.QtCore import QFileInfo
+from PyQt4.QtGui import QIcon, QWidget, QTreeWidgetItem
 
 from mks.core.core import core, DATA_FILES_PATH
 from mks.core.uisettings import ListOnePerLineOption, ModuleConfigurator
@@ -28,7 +29,13 @@ class Configurator(ModuleConfigurator):
         fileAssociationsItem = dialog.twMenu.topLevelItem(1)
         for index, language in enumerate(core.config()["Associations"].iterkeys()):
             # Item to the tree
-            fileAssociationsItem.addChild(QTreeWidgetItem([language]))
+            item = QTreeWidgetItem([language])
+            iconPath = ":/mksicons/languages/%s.png" % language.lower()
+            if QFileInfo(iconPath).exists():
+                item.setIcon(0, QIcon(iconPath))
+            else:
+                item.setIcon(0, QIcon(":/mksicons/transparent.png"))
+            fileAssociationsItem.addChild(item)
             # Widget
             widget = self._createWidget(dialog, language)
             dialog.swPages.insertWidget(index + 2, widget)
