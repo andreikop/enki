@@ -57,6 +57,16 @@
 		<file>interpreter.png</file>
 		<file>kpf.png</file>
 		<file>kwin.png</file>
+		<file>languages/cmake.png</file>
+		<file>languages/d.png</file>
+		<file>languages/java.png</file>
+		<file>languages/lua.png</file>
+		<file>languages/perl.png</file>
+		<file>languages/pov.png</file>
+		<file>languages/python.png</file>
+		<file>languages/ruby.png</file>
+		<file>languages/tcl.png</file>
+		<file>languages/tex.png</file>
 		<file>macEol.png</file>
 		<file>member.png</file>
 		<file>misc-blue.png</file>
