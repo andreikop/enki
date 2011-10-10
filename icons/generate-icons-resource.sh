@@ -5,7 +5,7 @@ RESOURCE_FILE=../mks/resources/icons.py
 
 echo '<RCC>' > $QRC_FILE
 echo '	<qresource prefix="/mksicons" >' >> $QRC_FILE
-for file in `ls *.png`; do \
+for file in `ls *.png languages/*.png`; do \
 	echo '		<file>'$file'</file>' >> $QRC_FILE;
 done
 echo '	</qresource>' >>$QRC_FILE

@@ -310,6 +310,7 @@ class Lexer:
         """editor - reference to parent :class:`mks.plugins.editor.Editor` object
         """
         self._editor = editor
+        self.currentLanguage  = None
     
     def applyLanguage(self, language):
         self.currentLanguage = language
