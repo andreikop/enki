@@ -684,10 +684,6 @@ class Workspace(QStackedWidget):
             connect( currentProject, L( uninstallCommandRequested(  pCommand&, & ) ), s, T( internal_projectUninstallCommandRequested(  pCommand&, & ) ) )
 
             currentProject.installCommands()
-        
-        # update menu visibility
-        self._mainWindow().menu_CustomAction_aboutToShow()
-
 
     def internal_projectInstallCommandRequested(self, cmd, mnu ):
         # create action

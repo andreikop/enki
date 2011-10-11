@@ -306,11 +306,19 @@ class AbstractDocument(QWidget):
         """
         pass
     
+    def highlightingLanguage(self):
+        """Get programming language of the file.
+        """
+        return self._highlightingLanguage
+
     def setHighlightingLanguage(self, language):
         """Set programming language of the file.
         Called Only by FIXME link assotiations module to select syntax highlighting language.
+        
+        To be implemented by child classes
+        Implementation must call AbstractDocument class method
         """
-        pass
+        self._highlightingLanguage = language
     
 ''' TODO restore or delete old code
     fileOpened = pyqtSignal()

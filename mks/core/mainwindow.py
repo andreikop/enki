@@ -227,19 +227,21 @@ class MainWindow(pMainWindow):
         action("mFile/mClose/aAll",                   tr("Close &All"            ), "closeall.png", 'Shift+Ctrl+W', tr("Close all files"        ), False)
         seperator("mFile")
         action("mFile/aQuit",                         tr("&Quit"                 ), "quit.png",     "Ctrl+Q",       tr("Quit the application"   ), True )
-        
-        menu ("mNavigation",                          tr("Navigation"            ), ""            ) 
-        menu ("mNavigation/mSearchReplace",           tr("&Search && Replace"    ), "search-replace-directory.png")
-        menu ("mNavigation/mBookmarks",               tr("&Bookmarks"            ), "bookmark.png")
-        menu ("mNavigation/mZoom",                    tr("&Zoom"                 ), "search.png")
+
+        menu  ("mView",                               tr("View"                  ), ""            )
+        menu  ("mView/mZoom",                         tr("&Zoom"                 ), "search.png"  )
+
+        menu  ("mEdit",                               tr("Edit"                  ), ""            )
+
+        menu  ("mNavigation",                          tr("Navigation"            ), ""           ) 
+        menu  ("mNavigation/mSearchReplace",           tr("&Search && Replace"    ), "search-replace-directory.png")
+        menu  ("mNavigation/mBookmarks",               tr("&Bookmarks"            ), "bookmark.png")
 
         action("mNavigation/aNext",                   tr("&Next file"            ), "next.png",     "Alt+Right",    tr("Next file"              ), False)
         action("mNavigation/aPrevious",               tr("&Previous file"        ), "previous.png", "Alt+Left",     tr("Previous file"          ), False)
         action("mNavigation/aFocusCurrentDocument",   tr("Focus to editor"       ), "text.png",     "Ctrl+Return",  tr("Focus current document" ), False)
         action("mNavigation/aGoto",                   tr("Go go line..."         ), "goto.png",     "Ctrl+G",       tr("Go to line..."          ), False)
         menu  ("mNavigation/mFileBrowser",            tr("File browser"          ), ':/mksicons/open.png')
-
-        menu  ("mEdit",                               tr("Edit"                  ), ""            )
 
         menu  ("mSettings",                           tr("Settings"              ), ""            )
         action("mSettings/aConfigFile",               tr("Edit config file" ),   "",                "Ctrl+Alt+S",   tr("Edit config file"       ), True)
@@ -274,10 +276,6 @@ class MainWindow(pMainWindow):
         # project connection
         core.recentsManager().openProjectRequested.connect(core.projectsManager().openProject)
         core.projectsManager().fileDoubleClicked.connect(core.workspace().openFile)
-        # builder debugger interpreter menu
-        self._actionModel.menu( "mBuilder" ).aboutToShow.connect(self.menu_CustomAction_aboutToShow)
-        self._actionModel.menu( "mDebugger" ).aboutToShow.connect(self.menu_CustomAction_aboutToShow)
-        self._actionModel.menu( "mInterpreter" ).aboutToShow.connect(self.menu_CustomAction_aboutToShow)
         # plugins menu
         # window menu
         self._actionModel.action( "mWindow/aTile" ).triggered.connect(core.workspace().tile)
@@ -348,20 +346,6 @@ class MainWindow(pMainWindow):
         # default event
         pMainWindow.dropEvent( self, event )
     
-    def createPopupMenu(self):
-        # create default menu
-        menu = QMenu( self );
-        # add exclusive action of pDockToolBar
-        tbs = self.findChildren(pDockToolBar)
-        
-        for tb in tbs:
-            if  tb.parent() != self :
-                continue
-            
-            menu.addAction( tb.toggleExclusiveAction() )
-        
-        return menu
-
 def updateMenuVisibility( self, menu ):
         menuAction = menu.menuAction()
         
@@ -382,23 +366,5 @@ def updateMenuVisibility( self, menu ):
         menuAction.setVisible( menuVisible )
         menuAction.setEnabled( menuVisible )
         
-        return menuVisible
-    
-    def menu_CustomAction_aboutToShow(self):
-        menus = []
-
-        if  sender() :
-            menus.append(sender())
-        else:
-            menus.append[self._actionModel.menu( "mBuilder" )]
-            menus.append[self._actionModel.menu( "mDebugger")]
-            menus.append[self._actionModel.menu( "mInterpreter")]
-
-        for m in menus:
-            self.updateMenuVisibility( m )
-    
-    def changeStyle( style ):
-        qApp.setStyle( style )
-        qApp.setPalette( qApp.style().standardPalette() )
-        self.settings().setValue( "MainWindow/Style", style )
+        return menuVisible    
 """
