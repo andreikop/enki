@@ -17,6 +17,7 @@ from PyQt4.QtGui import QFileDialog, \
                         QMessageBox, \
                         QWidget
 
+from mks.core.core import core
 
 class AbstractDocument(QWidget):
     """Base class for documents on workspace, such as opened source file, Qt Designer and Qt Assistant, ...
@@ -200,7 +201,9 @@ class AbstractDocument(QWidget):
         if not self._filePath:
             path = QFileDialog.getSaveFileName (self, self.tr('Save file as...'))
             if path:
+                core.workspace().documentClosed.emit(self)
                 self._filePath = unicode(path, 'utf8')
+                core.workspace().documentOpened.emit(self)
             else:
                 return
         
