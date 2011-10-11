@@ -12,7 +12,7 @@ import fnmatch
 
 from PyQt4 import uic
 from PyQt4.QtCore import QFileInfo
-from PyQt4.QtGui import QIcon, QWidget, QTreeWidgetItem
+from PyQt4.QtGui import QAction, QIcon, QWidget, QTreeWidgetItem
 
 from mks.core.core import core, DATA_FILES_PATH
 from mks.core.uisettings import ListOnePerLineOption, ModuleConfigurator
@@ -27,20 +27,18 @@ class Configurator(ModuleConfigurator):
         ModuleConfigurator.__init__(self, dialog)
         self._options = []
         fileAssociationsItem = dialog.twMenu.topLevelItem(1)
-        for index, language in enumerate(core.config()["Associations"].iterkeys()):
+        for index, language in enumerate(Associations.instance.iterLanguages()):
+            languageName, globs, iconPath = language
             # Item to the tree
-            item = QTreeWidgetItem([language])
-            iconPath = ":/mksicons/languages/%s.png" % language.lower()
-            if QFileInfo(iconPath).exists():
-                item.setIcon(0, QIcon(iconPath))
-            else:
-                item.setIcon(0, QIcon(":/mksicons/transparent.png"))
+            item = QTreeWidgetItem([languageName])
+            item.setIcon(0, QIcon(iconPath))
             fileAssociationsItem.addChild(item)
             # Widget
-            widget = self._createWidget(dialog, language)
+            widget = self._createWidget(dialog, languageName)
             dialog.swPages.insertWidget(index + 2, widget)
             # Options
-            option = ListOnePerLineOption(dialog, core.config(), "Associations/%s" % language, widget.pteFileNameGlobs)
+            optionPath = "Associations/%s" % languageName
+            option = ListOnePerLineOption(dialog, core.config(), optionPath, widget.pteFileNameGlobs)
             self._options.append(option)
 
     def _createWidget(self, dialog, language):
@@ -72,10 +70,29 @@ class Associations():
     def __init__(self):
         core.moduleConfiguratorClasses.append(Configurator)
         core.workspace().documentOpened.connect(self.applyLanguageToDocument)
+        
+        self._menu = core.actionModel().addMenu("mView/mHighlighting", "Highlighting").menu()
+        
+        self._menu.aboutToShow.connect(self._onMenuAboutToShow)
+        self._menu.aboutToHide.connect(self._menu.clear)
+        
+        core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
+
+        
         Associations.instance = self
     
     def __term__(self):
         core.moduleConfiguratorClasses.remove(Configurator)
+
+    def iterLanguages(self):
+        """Get list of available languages as touple (name, globs, icon path)
+        """
+        for languageName, globs in core.config()["Associations"].iteritems():
+            item = QTreeWidgetItem([languageName])
+            iconPath = ":/mksicons/languages/%s.png" % languageName.lower()
+            if not QFileInfo(iconPath).exists():
+                iconPath = ":/mksicons/transparent.png"
+            yield (languageName, globs, iconPath)
 
     def applyLanguageToDocument(self, document):
         """Signal handler. Executed when document is opened. Applyes lexer
@@ -92,9 +109,33 @@ class Associations():
         if not fileName:
             return
 
-        for language, patterns in core.config()["Associations"].iteritems():
-            for pattern in patterns:
-                if fnmatch.fnmatch(fileName, pattern):
-                    return language
+        for languageName, globs, iconPath in self.iterLanguages():
+            for glob in globs:
+                if fnmatch.fnmatch(fileName, glob):
+                    return languageName
         else:
             return None
+
+    def _onMenuAboutToShow(self):
+        """View -> Highlighting menu is about to show. Fill it with items
+        """
+        currentLanguage = core.workspace().currentDocument().highlightingLanguage()
+        for languageName, globs, iconPath in self.iterLanguages():
+            action = QAction(QIcon(iconPath), languageName, self._menu)
+            action.setCheckable(True)
+            if languageName == currentLanguage:
+                action.setChecked(True)
+            self._menu.addAction(action)
+        self._menu.triggered.connect(self._onMenuTriggered)
+    
+    def _onMenuTriggered(self, action):
+        """View -> Highlighting -> Some language triggered
+        Change current file highlighting mode
+        """
+        languageName = unicode(action.text())
+        core.workspace().currentDocument().setHighlightingLanguage(languageName)
+
+    def _onCurrentDocumentChanged(self, old, new):
+        """Handler of current document change. Updates View -> Highlighting menu state
+        """
+        self._menu.setEnabled(new is not None)

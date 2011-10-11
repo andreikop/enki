@@ -13,7 +13,7 @@ from PyQt4.QtGui import QColor, QFont, QFrame, QIcon, QKeyEvent, QVBoxLayout
 
 from PyQt4.Qsci import *
 
-import mks.core.abstractdocument
+from mks.core.abstractdocument import AbstractDocument
 from mks.core.core import core
 
 import mks.core.defines
@@ -364,7 +364,7 @@ class Lexer:
                 self.qscilexer.setIndentationWarning(qsciReason)
 
 
-class Editor(mks.core.abstractdocument.AbstractDocument):
+class Editor(AbstractDocument):
     """Text editor widget.
     
     Uses QScintilla internally
@@ -767,6 +767,7 @@ class Editor(mks.core.abstractdocument.AbstractDocument):
         """Set programming language of the file.
         Called Only by FIXME link assotiations module to select syntax highlighting language.
         """
+        AbstractDocument.setHighlightingLanguage(self, language)
         self.lexer.applyLanguage(language)
 
 
