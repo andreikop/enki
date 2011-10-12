@@ -35,7 +35,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QPlainTextEdit" name="pteFrstLineGlobs"/>
+    <widget class="QPlainTextEdit" name="pteFirstLineGlobs"/>
    </item>
   </layout>
  </widget>
