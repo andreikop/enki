@@ -28,7 +28,7 @@ class Configurator(ModuleConfigurator):
         self._options = []
         fileAssociationsItem = dialog.twMenu.topLevelItem(1)
         for index, language in enumerate(Associations.instance.iterLanguages()):
-            languageName, globs, iconPath = language
+            languageName, fileNameGlobs, firstLineGlobs, iconPath = language
             # Item to the tree
             item = QTreeWidgetItem([languageName])
             item.setIcon(0, QIcon(iconPath))
@@ -37,8 +37,11 @@ class Configurator(ModuleConfigurator):
             widget = self._createWidget(dialog, languageName)
             dialog.swPages.insertWidget(index + 2, widget)
             # Options
-            optionPath = "Associations/%s" % languageName
+            optionPath = "Associations/%s/FileName" % languageName
             option = ListOnePerLineOption(dialog, core.config(), optionPath, widget.pteFileNameGlobs)
+            self._options.append(option)
+            optionPath = "Associations/%s/FirstLine" % languageName
+            option = ListOnePerLineOption(dialog, core.config(), optionPath, widget.pteFirstLineGlobs)
             self._options.append(option)
 
     def _createWidget(self, dialog, language):
@@ -77,7 +80,6 @@ class Associations():
         self._menu.aboutToHide.connect(self._menu.clear)
         
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
-
         
         Associations.instance = self
     
@@ -87,12 +89,12 @@ class Associations():
     def iterLanguages(self):
         """Get list of available languages as touple (name, globs, icon path)
         """
-        for languageName, globs in core.config()["Associations"].iteritems():
+        for languageName, params in core.config()["Associations"].iteritems():
             item = QTreeWidgetItem([languageName])
             iconPath = ":/mksicons/languages/%s.png" % languageName.lower()
             if not QFileInfo(iconPath).exists():
                 iconPath = ":/mksicons/transparent.png"
-            yield (languageName, globs, iconPath)
+            yield (languageName, params["FileName"], params["FirstLine"], iconPath)
 
     def applyLanguageToDocument(self, document):
         """Signal handler. Executed when document is opened. Applyes lexer
@@ -109,9 +111,9 @@ class Associations():
         if not fileName:
             return
 
-        for languageName, globs, iconPath in self.iterLanguages():
-            for glob in globs:
-                if fnmatch.fnmatch(fileName, glob):
+        for languageName, fileNameGlobs, firstLineGlobs, iconPath in self.iterLanguages():
+            for fileNameGlob in fileNameGlobs:
+                if fnmatch.fnmatch(fileName, fileNameGlob):
                     return languageName
         else:
             return None
@@ -120,7 +122,7 @@ class Associations():
         """View -> Highlighting menu is about to show. Fill it with items
         """
         currentLanguage = core.workspace().currentDocument().highlightingLanguage()
-        for languageName, globs, iconPath in self.iterLanguages():
+        for languageName, fileNameGlobs, firstLineGlobs, iconPath in self.iterLanguages():
             action = QAction(QIcon(iconPath), languageName, self._menu)
             action.setCheckable(True)
             if languageName == currentLanguage:
