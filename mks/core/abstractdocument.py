@@ -257,6 +257,13 @@ class AbstractDocument(QWidget):
         """
         pass
     
+    def line(self, index):
+        """Get line of the text by its index. Lines are indexed from 0
+        None, if index is invalid
+        To be implemented by the child class
+        """
+        pass
+    
     def reload(self):
         """Reload the file from the disk
         
