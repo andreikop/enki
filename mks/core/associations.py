@@ -115,8 +115,24 @@ class Associations():
             for fileNameGlob in fileNameGlobs:
                 if fnmatch.fnmatch(fileName, fileNameGlob):
                     return languageName
+        """
+        eolRe = re.compile('\r\n|\r|\n')
+        text = document.text()
+        match = eolRe.search(text)
+        if match:
+            firstLine = text[:match.end()]
         else:
-            return None
+            firstLine = text
+        firstLineEndIndex = document.text().index('\n'
+        """
+        firstLine = document.line(0)
+        if firstLine is not None:
+            for languageName, fileNameGlobs, firstLineGlobs, iconPath in self.iterLanguages():
+                for firstLineGlob in firstLineGlobs:
+                    if fnmatch.fnmatch(firstLine, firstLineGlob):
+                        return languageName
+
+        return None
 
     def _onMenuAboutToShow(self):
         """View -> Highlighting menu is about to show. Fill it with items

@@ -614,6 +614,15 @@ class Editor(AbstractDocument):
         self.qscintilla.linesChanged.emit()
         self._setModified(False)
     
+    def line(self, index):
+        """Get line of the text by its index. Lines are indexed from 0
+        None, if index is invalid
+        """
+        if self.qscintilla.lines() > index:
+            return self.qscintilla.text(index)
+        else:
+            return None
+
     def _setModified(self, modified):
         """Update modified state for the file. Called by AbstractDocument, must be implemented by the children
         """
