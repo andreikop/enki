@@ -1,10 +1,12 @@
 """
-associations --- File -> Programming language associations
-==========================================================
+associations --- Syntax highlighting support
+============================================
 
-Module detects language of a file
+Functionality:
 
-It contains functionality to detect file language and for edit association settings
+* Detect programming languge of the file
+* Automatically apply it via TODO link setLanguage() to newly opened editors
+* Edit associations settings via GUI
 """
 
 import os.path
@@ -21,7 +23,7 @@ from mks.core.uisettings import ListOnePerLineOption, ModuleConfigurator
 class Configurator(ModuleConfigurator):
     """ Module configurator.
     
-    Used for configure associations
+    Used to configure associations on the settings dialogue
     """
     def __init__(self, dialog):
         ModuleConfigurator.__init__(self, dialog)
@@ -52,7 +54,7 @@ class Configurator(ModuleConfigurator):
         return widget
     
     def saveSettings(self):
-        """Settings are stored in the core configuration file, therefore nothing to do here
+        """Settings are stored in the core configuration file, therefore nothing to do here.
         Called by uisettings TODO documentation link
         """
         pass
@@ -87,7 +89,7 @@ class Associations():
         core.moduleConfiguratorClasses.remove(Configurator)
 
     def iterLanguages(self):
-        """Get list of available languages as touple (name, globs, icon path)
+        """Get list of available languages as touple (name, file name globs, first line globs, icon path)
         """
         for languageName, params in core.config()["Associations"].iteritems():
             item = QTreeWidgetItem([languageName])
@@ -97,7 +99,7 @@ class Associations():
             yield (languageName, params["FileName"], params["FirstLine"], iconPath)
 
     def applyLanguageToDocument(self, document):
-        """Signal handler. Executed when document is opened. Applyes lexer
+        """Signal handler. Executed when document has been opened. Applyes lexer
         """
         language = self._getLanguage(document)
         if language:
@@ -115,16 +117,7 @@ class Associations():
             for fileNameGlob in fileNameGlobs:
                 if fnmatch.fnmatch(fileName, fileNameGlob):
                     return languageName
-        """
-        eolRe = re.compile('\r\n|\r|\n')
-        text = document.text()
-        match = eolRe.search(text)
-        if match:
-            firstLine = text[:match.end()]
-        else:
-            firstLine = text
-        firstLineEndIndex = document.text().index('\n'
-        """
+
         firstLine = document.line(0)
         if firstLine is not None:
             for languageName, fileNameGlobs, firstLineGlobs, iconPath in self.iterLanguages():
