@@ -8,12 +8,13 @@ Conception
 
 Settings dialogue subsystem consists of 3 major entities:
 
-* UISettings.ui Gui dialog. Contains of controls.
-* CheckableOption, NumericOption, ColorOption, FontOption, ChoiseOption classes.
+* *UISettings.ui* GUI form. Contains of controls.
+* *Option classes.
+
   Every object of the class links together control on GUI and option in the config file.
   It loads its option from :class:`mks.core.config.Config` to GUI, and saves from GUI to config.
 * :class:`mks.core.uisettings.ModuleConfigurator` interface. Must be implemented by plugin or core module.
-  Creates and holds *Option objects, applies module settings, when necessary.
+  Creates and holds *Option objects, applies module settings, when necessary. Flushes config.
 
 .. raw:: html
 
@@ -25,13 +26,13 @@ Settings dialogue subsystem consists of 3 major entities:
 GUI dialog invocation workflow
 ------------------------------
 
-#. MkS has starts. Every plugin registers its ModuleConfigurator
-#. An user clicks "Settings->Settings"
+#. MkS starts. Every plugin registers its ModuleConfigurator
+#. An user clicks *Settings->Settings*
 #. UISettings.ui are created
 #. :class:`mks.core.uisettings.UISettingsManager` calls every ModuleConfigurator to load options
-#. ModuleConfigurator creates options. Every option loads its value from the ::class:`mks.core.config.Config`
+#. ModuleConfigurator creates options. Every option loads its value from the :class:`mks.core.config.Config`
 #. The user edits settigns
-#. The user clicks "OK"
+#. The user clicks *OK*
 #. :class:`mks.core.uisettings.UISettingsManager` calls every ModuleConfigurator to save settings
 #. ModuleConfigurator calls every option to save settings
 #. :class:`mks.core.uisettings.UISettingsManager` calls every ModuleConfigurator to apply settings
@@ -90,7 +91,8 @@ class ModuleConfigurator:
         pass
 
 class Option:
-    """Base class for all Options. Every class knows control, configuration option name, and can load/save the option
+    """Base class for all Options. Every class knows control on UISettings form, configuration option name,
+    and can load/save the option
     
     Do not create dirrectly, use *Option classes
     """

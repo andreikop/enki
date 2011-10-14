@@ -94,7 +94,7 @@ class Workspace(QStackedWidget):
         
     documentOpened = pyqtSignal(mks.core.abstractdocument.AbstractDocument)
     """
-    documentOpened(:class:AbstractDocument)
+    documentOpened(:class:`mks.core.abstractdocument.AbstractDocument`)
     
     **Signal** emitted, when document has been created, i.e. textual file opened, 
     or some other document added to workspace
@@ -102,7 +102,7 @@ class Workspace(QStackedWidget):
     
     documentClosed = pyqtSignal(mks.core.abstractdocument.AbstractDocument)
     """
-    documentClosed(:class:AbstractDocument)
+    documentClosed(:class:`mks.core.abstractdocument.AbstractDocument`)
     
     **Signal** emitted, when document was closed
     """
@@ -110,7 +110,8 @@ class Workspace(QStackedWidget):
     currentDocumentChanged = pyqtSignal(mks.core.abstractdocument.AbstractDocument,
                                         mks.core.abstractdocument.AbstractDocument)
     """
-    currentDocumentChanged(:class:AbstractDocument old, :class:AbstractDocument current)
+    currentDocumentChanged(:class:`mks.core.abstractdocument.AbstractDocument` old, 
+    :class:`mks.core.abstractdocument.AbstractDocument` current)
     
     **Signal** emitted, when current document changed, i.e. user selected another document, 
     new document opened, current closed
@@ -268,7 +269,7 @@ class Workspace(QStackedWidget):
         self.setCurrentWidget( document )
     
     def currentDocument(self):
-        """Returns currently active (focused) document.
+        """Returns currently active (focused) document. None, if no documents are opened
         """
         return self.currentWidget()
     
@@ -293,7 +294,7 @@ class Workspace(QStackedWidget):
     def closeDocument( self, document, showDialog=True):
         """Close opened file, remove document from workspace and delete the widget
         
-        If showDialog is True, dialog will be shown, if file is modified
+        If showDialog is True and file is modified, dialog will be shown
         """
         
         if showDialog and document.isModified():
@@ -396,7 +397,7 @@ class Workspace(QStackedWidget):
     
     def createEmptyNotSavedDocument(self):
         """Create empty not saved document.
-        Used on startup, if no file was specified
+        Used on startup, if no file was specified, and after File->New file has been triggered
         """
         document = self._textEditorClass(self, None)
         self.documentOpened.emit( document )
@@ -452,7 +453,7 @@ class Workspace(QStackedWidget):
     def focusCurrentDocument(self):
         """Set focus (cursor) to current document.
         
-        Used if user finished work with some dialog, and, probably, want's to edit text
+        Used if user has finished work with some dialog, and, probably, want's to edit text
         """
         document = self.currentDocument()
         if  document :

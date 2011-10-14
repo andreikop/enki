@@ -41,6 +41,11 @@ class AbstractDocument(QWidget):
     
     # emit when cursor position changed
     cursorPositionChanged = pyqtSignal(int, int) # (line, column)
+    """
+    modifiedChanged(line, column)
+    
+    **Signal** emitted, when cursor position has been changed
+    """
     
     def __init__( self, parentObject, filePath):
         """Create editor and open file.
@@ -97,13 +102,15 @@ class AbstractDocument(QWidget):
 
     def isExternallyRemoved(self):
         """Check if document's file has been deleted externally.
-        This method DOES NOT do any file system access, but only returns cached info
+        
+        This method does not do any file system access, but only returns cached info
         """
         return self._externallyRemoved
     
     def isExternallyModified(self):
         """Check if document's file has been modified externally.
-        This method DOES NOT do any file system access, but only returns cached info
+        
+        This method does not do any file system access, but only returns cached info
         """
         return self._externallyModified
     
@@ -190,6 +197,8 @@ class AbstractDocument(QWidget):
     
     def saveFile(self):
         """Save the file to file system
+        
+        Shows QFileDialog if necessary
         """
         if  not self.isModified() and \
             not self.isNeverSaved() and \
@@ -258,9 +267,9 @@ class AbstractDocument(QWidget):
         pass
     
     def line(self, index):
-        """Get line of the text by its index. Lines are indexed from 0
+        """Get line of the text by its index. Lines are indexed from 0.
+        
         None, if index is invalid
-        To be implemented by the child class
         """
         pass
     
@@ -315,18 +324,20 @@ class AbstractDocument(QWidget):
     
     def highlightingLanguage(self):
         """Get programming language of the file.
+        
+        See list of supported programming languages in the settings
         """
         return self._highlightingLanguage
 
     def setHighlightingLanguage(self, language):
         """Set programming language of the file.
-        Called Only by FIXME link assotiations module to select syntax highlighting language.
         
-        To be implemented by child classes
-        Implementation must call AbstractDocument class method
+        Called Only by :class:`mks.core.associations.Associations` to select syntax highlighting language.
+        
+        Implementation must call AbstractDocument method
         """
         self._highlightingLanguage = language
-    
+
 ''' TODO restore or delete old code
     fileOpened = pyqtSignal()
     fileClosed = pyqtSignal()

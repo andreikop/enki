@@ -63,9 +63,17 @@ class Configurator(ModuleConfigurator):
         [   ListOnePerLineOption(dialog, core.config(), "FileBrowser/NegativeFilter", dialog.pteFilesToHide) ]
     
     def saveSettings(self):
-        pass
+        """Settings are stored in the core configuration file, therefore nothing to do here.
+        
+        Called by :mod:`mks.core.uisettings`
+        """
+
     
     def applySettings(self):
+        """Apply settings
+        
+        Called by :mod:`mks.core.uisettings`
+        """
         Plugin.instance.dock.setFilters(core.config()["FileBrowser"]["NegativeFilter"])
 
 class FileBrowserFilteredModel(QSortFilterProxyModel):
@@ -354,7 +362,7 @@ class Tree(QTreeView):
     """File system tree
     """
     
-    fileActivated = pyqtSignal()
+    _fileActivated = pyqtSignal()
     
     def __init__(self, fileBrowser):
         QTreeView.__init__(self, fileBrowser)
@@ -391,7 +399,7 @@ class Tree(QTreeView):
         self._upShortcut.activated.connect(self.moveUp)
         
         self.activated.connect(self._onActivated)
-        self.fileActivated.connect(fileBrowser.fileActivated)
+        self._fileActivated.connect(fileBrowser.fileActivated)
 
     def setFilters(self, filters):
         """Set filter wildcards for filter out unneeded files
@@ -563,7 +571,18 @@ class DockFileBrowser(pDockWidget):
     up (relatively for current directory)
     """
     rootChanged = pyqtSignal(unicode)
+    """
+    rootChanged(path)
+    
+    **Signal** emitted, when tree root has been changed
+    """
+    
     fileActivated = pyqtSignal()
+    """
+    rootChanged(path)
+    
+    **Signal** emitted, when file has been activated
+    """
     
     def __init__(self, parent):
         pDockWidget.__init__(self, parent)

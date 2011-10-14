@@ -7,33 +7,38 @@ MkS uses ConfigObj for store settings
 ConfigObj is cool config file reader and writer. Home page and documentation:
 http://www.voidspace.org.uk/python/configobj.html
 
-instance is accessible as: ::
+Instance is accessible as: ::
 
     from mks.core.core import core
     core.config()
 
-Created by ::class:mks.core.core.Core
+Created by :class:`mks.core.core.Core`
 """
 
 from mks._3rdparty.configobj import ConfigObj, flatten_errors, ParseError
 from mks._3rdparty.validate import Validator
 
 class Config(ConfigObj):
-    """Settings storage
+    """Settings storage.
+    
     Class extends ConfigObj with few methods, usefull for MkS
+    
     There are 3 instances of this class currently (when the comment is being writen):
+    
     * Main configuration file
     * QScintilla shortcuts
-    * QScintilla settings
+    * QScintilla leser settings
     
     Use this object as a dictionary for read and write options.
     Example: ::
         font = core.config()["Editor"]["DefaultFont"]  # read option
         core.config()["Editor"]["DefaultFont"] = font  # write option
+    See also get() and set() methods
     
     You SHOULD flush config, when writing changed settings is finished.
     Example: ::
         core.config().flush()
+    Usually flushing is done by :class:`mks.core.uisettings.ModuleConfigurator`
     """
     
     def __init__(self, enableWriting, *args, **kwargs):
@@ -93,7 +98,10 @@ class Config(ConfigObj):
             self._validate()
 
     def get(self, name):
-        """Get option by slash-separated path
+        """
+        Get option by slash-separated path. i.e. ::
+        
+            font = core.config().get("Editor/DefaultFont")
         """
         object_ = self
         path = name.split('/')
@@ -102,7 +110,10 @@ class Config(ConfigObj):
         return object_
     
     def set(self, name, value):
-        """Set option by slash-separated path
+        """
+        Set option by slash-separated path. i.e. ::
+        
+            core.config().get("Editor/DefaultFont") = font
         """
         section = self
         path = name.split('/')
@@ -113,8 +124,8 @@ class Config(ConfigObj):
         section[path[-1]] = value
 
     def flush(self):
-        """Flush config to the disk
-        Does nothing, if enableWriting is False (probably default config is opened)
+        """Flush config to the disk. 
+        Does nothing, if *enableWriting* is *False* (probably default config is opened)
         """
         if self.enableWriting:
             try:
