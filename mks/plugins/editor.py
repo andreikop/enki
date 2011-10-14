@@ -311,6 +311,7 @@ class Lexer:
         """
         self._editor = editor
         self.currentLanguage  = None
+        self.qscilexer = None
     
     def applyLanguage(self, language):
         """Apply programming language. Changes syntax highlighting mode
