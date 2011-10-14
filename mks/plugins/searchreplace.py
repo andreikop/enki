@@ -770,6 +770,7 @@ class SearchWidget(QFrame):
         """Replace thread processed currently opened file,
         need update text in the editor
         """
+        fileName = unicode(fileName)
         document = core.workspace().openFile(fileName)
         editor = document.qscintilla  # FIXME current editor specific
 
