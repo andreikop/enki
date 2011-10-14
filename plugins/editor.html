@@ -93,6 +93,12 @@
 <li>Apply lexer settings</li>
 </ul>
 <dl class="method">
+<dt id="mks.plugins.editor.Lexer.applyLanguage">
+<tt class="descname">applyLanguage</tt><big>(</big><em>language</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Lexer.applyLanguage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply programming language. Changes syntax highlighting mode</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mks.plugins.editor.Lexer.applySettings">
 <tt class="descname">applySettings</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Lexer.applySettings" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply editor and lexer settings</p>
@@ -122,6 +128,13 @@
 <dt id="mks.plugins.editor.Editor.setText">
 <tt class="descname">setText</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.setText" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set text in the QScintilla, clear modified flag, update line numbers bar</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.editor.Editor.line">
+<tt class="descname">line</tt><big>(</big><em>index</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get line of the text by its index. Lines are indexed from 0
+None, if index is invalid</p>
 </dd></dl>
 
 <dl class="method">
@@ -196,6 +209,13 @@
 <dd><p>Move to the previous bookmark</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="mks.plugins.editor.Editor.setHighlightingLanguage">
+<tt class="descname">setHighlightingLanguage</tt><big>(</big><em>language</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.setHighlightingLanguage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set programming language of the file.
+Called Only by <a class="reference internal" href="../core/associations.html#module-mks.core.associations" title="mks.core.associations"><tt class="xref py py-mod docutils literal"><span class="pre">mks.core.associations</span></tt></a> to select syntax highlighting language.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -268,7 +288,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2010, Andrei Kopats, Filipe Azevedo.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

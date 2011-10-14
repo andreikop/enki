@@ -57,33 +57,37 @@
 <p>MkS uses ConfigObj for store settings</p>
 <p>ConfigObj is cool config file reader and writer. Home page and documentation:
 <a class="reference external" href="http://www.voidspace.org.uk/python/configobj.html">http://www.voidspace.org.uk/python/configobj.html</a></p>
-<p>instance is accessible as:</p>
+<p>Instance is accessible as:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mks.core.core</span> <span class="kn">import</span> <span class="n">core</span>
 <span class="n">core</span><span class="o">.</span><span class="n">config</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Created by ::class:mks.core.core.Core</p>
+<p>Created by <a class="reference internal" href="core.html#mks.core.core.Core" title="mks.core.core.Core"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.core.Core</span></tt></a></p>
 <dl class="class">
 <dt id="mks.core.config.Config">
 <em class="property">class </em><tt class="descclassname">mks.core.config.</tt><tt class="descname">Config</tt><big>(</big><em>enableWriting</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mks.core.config.Config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">mks._3rdparty.configobj.ConfigObj</span></tt></p>
-<p>Settings storage
-Class extends ConfigObj with few methods, usefull for MkS
-There are 3 instances of this class currently (when the comment is being writen):
-* Main configuration file
-* QScintilla shortcuts
-* QScintilla settings</p>
+<p>Settings storage.</p>
+<p>Class extends ConfigObj with few methods, usefull for MkS</p>
+<p>There are 3 instances of this class currently (when the comment is being writen):</p>
+<ul class="simple">
+<li>Main configuration file</li>
+<li>QScintilla shortcuts</li>
+<li>QScintilla leser settings</li>
+</ul>
 <p>Use this object as a dictionary for read and write options.
 Example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">font</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">config</span><span class="p">()[</span><span class="s">&quot;Editor&quot;</span><span class="p">][</span><span class="s">&quot;DefaultFont&quot;</span><span class="p">]</span>  <span class="c"># read option</span>
 <span class="n">core</span><span class="o">.</span><span class="n">config</span><span class="p">()[</span><span class="s">&quot;Editor&quot;</span><span class="p">][</span><span class="s">&quot;DefaultFont&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">font</span>  <span class="c"># write option</span>
 </pre></div>
 </div>
+<p>See also get() and set() methods</p>
 <p>You SHOULD flush config, when writing changed settings is finished.
 Example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">core</span><span class="o">.</span><span class="n">config</span><span class="p">()</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 </pre></div>
 </div>
+<p>Usually flushing is done by <a class="reference internal" href="uisettings.html#mks.core.uisettings.ModuleConfigurator" title="mks.core.uisettings.ModuleConfigurator"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.uisettings.ModuleConfigurator</span></tt></a></p>
 <dl class="method">
 <dt id="mks.core.config.Config.reload">
 <tt class="descname">reload</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.config.Config.reload" title="Permalink to this definition">¶</a></dt>
@@ -94,20 +98,26 @@ Example:</p>
 <dl class="method">
 <dt id="mks.core.config.Config.get">
 <tt class="descname">get</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#mks.core.config.Config.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get option by slash-separated path</p>
+<dd><p>Get option by slash-separated path. i.e.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">font</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">config</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Editor/DefaultFont&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="mks.core.config.Config.set">
 <tt class="descname">set</tt><big>(</big><em>name</em>, <em>value</em><big>)</big><a class="headerlink" href="#mks.core.config.Config.set" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set option by slash-separated path</p>
+<dd><p>Set option by slash-separated path. i.e.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">core</span><span class="o">.</span><span class="n">config</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Editor/DefaultFont&quot;</span><span class="p">)</span> <span class="o">=</span> <span class="n">font</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="mks.core.config.Config.flush">
 <tt class="descname">flush</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.config.Config.flush" title="Permalink to this definition">¶</a></dt>
-<dd><p>Flush config to the disk
-Does nothing, if enableWriting is False (probably default config is opened)</p>
+<dd><p>Flush config to the disk. 
+Does nothing, if <em>enableWriting</em> is <em>False</em> (probably default config is opened)</p>
 </dd></dl>
 
 </dd></dl>
@@ -169,7 +179,7 @@ Does nothing, if enableWriting is False (probably default config is opened)</p>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Andrei Kopats, Filipe Azevedo.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

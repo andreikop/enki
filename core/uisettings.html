@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../static/doctools.js"></script>
     <link rel="top" title="mksv3 v3.0.0 documentation" href="../index.html" />
     <link rel="up" title="Developer documentation" href="../devindex.html" />
-    <link rel="next" title="openedfilesmodel — Model and treeview for list of opened files" href="openedfilesmodel.html" />
+    <link rel="next" title="associations — Syntax highlighting support" href="associations.html" />
     <link rel="prev" title="config — Load and save settings" href="config.html" /> 
   </head>
   <body>
@@ -37,7 +37,7 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="openedfilesmodel.html" title="openedfilesmodel — Model and treeview for list of opened files"
+          <a href="associations.html" title="associations — Syntax highlighting support"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="config.html" title="config — Load and save settings"
@@ -58,26 +58,29 @@
 <div class="section" id="conception">
 <h2>Conception<a class="headerlink" href="#conception" title="Permalink to this headline">¶</a></h2>
 <p>Settings dialogue subsystem consists of 3 major entities:</p>
-<ul class="simple">
-<li>UISettings.ui Gui dialog. Contains of controls.</li>
-<li>CheckableOption, NumericOption, ColorOption, FontOption, ChoiseOption classes.
-Every object of the class links together control on GUI and option in the config file.
-It loads its option from <a class="reference internal" href="config.html#mks.core.config.Config" title="mks.core.config.Config"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.config.Config</span></tt></a> to GUI, and saves from GUI to config.</li>
-<li><a class="reference internal" href="#mks.core.uisettings.ModuleConfigurator" title="mks.core.uisettings.ModuleConfigurator"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.uisettings.ModuleConfigurator</span></tt></a> interface. Must be implemented by plugin or core module.
-Creates and holds <a href="#id1"><span class="problematic" id="id2">*</span></a>Option objects, applies module settings, when necessary.</li>
+<ul>
+<li><p class="first"><em>UISettings.ui</em> GUI form. Contains of controls.</p>
+</li>
+<li><p class="first"><a href="#id1"><span class="problematic" id="id2">*</span></a>Option classes.</p>
+<p>Every object of the class links together control on GUI and option in the config file.
+It loads its option from <a class="reference internal" href="config.html#mks.core.config.Config" title="mks.core.config.Config"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.config.Config</span></tt></a> to GUI, and saves from GUI to config.</p>
+</li>
+<li><p class="first"><a class="reference internal" href="#mks.core.uisettings.ModuleConfigurator" title="mks.core.uisettings.ModuleConfigurator"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.uisettings.ModuleConfigurator</span></tt></a> interface. Must be implemented by plugin or core module.
+Creates and holds <a href="#id3"><span class="problematic" id="id4">*</span></a>Option objects, applies module settings, when necessary. Flushes config.</p>
+</li>
 </ul>
 <img src="https://docs.google.com/drawings/pub?id=1jDIHjn2dNIfeJlbQniFbwA4mdPZGRX_Sxj3pL7GgYeM&amp;w=869&amp;h=594"><p><a class="reference external" href="https://docs.google.com/drawings/d/1jDIHjn2dNIfeJlbQniFbwA4mdPZGRX_Sxj3pL7GgYeM/edit?hl=en_US">Edit the diagramm</a></p>
 </div>
 <div class="section" id="gui-dialog-invocation-workflow">
 <h2>GUI dialog invocation workflow<a class="headerlink" href="#gui-dialog-invocation-workflow" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic simple">
-<li>MkS has starts. Every plugin registers its ModuleConfigurator</li>
-<li>An user clicks &#8220;Settings-&gt;Settings&#8221;</li>
+<li>MkS starts. Every plugin registers its ModuleConfigurator</li>
+<li>An user clicks <em>Settings-&gt;Settings</em></li>
 <li>UISettings.ui are created</li>
 <li><a class="reference internal" href="#mks.core.uisettings.UISettingsManager" title="mks.core.uisettings.UISettingsManager"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.uisettings.UISettingsManager</span></tt></a> calls every ModuleConfigurator to load options</li>
-<li>ModuleConfigurator creates options. Every option loads its value from the :<a class="reference internal" href="config.html#mks.core.config.Config" title="mks.core.config.Config"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.config.Config</span></tt></a></li>
+<li>ModuleConfigurator creates options. Every option loads its value from the <a class="reference internal" href="config.html#mks.core.config.Config" title="mks.core.config.Config"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.config.Config</span></tt></a></li>
 <li>The user edits settigns</li>
-<li>The user clicks &#8220;OK&#8221;</li>
+<li>The user clicks <em>OK</em></li>
 <li><a class="reference internal" href="#mks.core.uisettings.UISettingsManager" title="mks.core.uisettings.UISettingsManager"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.uisettings.UISettingsManager</span></tt></a> calls every ModuleConfigurator to save settings</li>
 <li>ModuleConfigurator calls every option to save settings</li>
 <li><a class="reference internal" href="#mks.core.uisettings.UISettingsManager" title="mks.core.uisettings.UISettingsManager"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.uisettings.UISettingsManager</span></tt></a> calls every ModuleConfigurator to apply settings</li>
@@ -92,7 +95,7 @@ Creates and holds <a href="#id1"><span class="problematic" id="id2">*</span></a>
 <li>Add controls to the dialog.
 You may edit UISettings.ui or add your controls dynamically during dialog creation
 (in <em>ModuleConfigurator.__init__()</em>)</li>
-<li>Create <a href="#id3"><span class="problematic" id="id4">*</span></a>Option class instance for every configurable option.</li>
+<li>Create <a href="#id5"><span class="problematic" id="id6">*</span></a>Option class instance for every configurable option.</li>
 </ol>
 </div>
 <div class="section" id="classes">
@@ -119,8 +122,9 @@ You may edit UISettings.ui or add your controls dynamically during dialog creati
 <dl class="class">
 <dt id="mks.core.uisettings.Option">
 <em class="property">class </em><tt class="descclassname">mks.core.uisettings.</tt><tt class="descname">Option</tt><big>(</big><em>dialog</em>, <em>config</em>, <em>optionName</em>, <em>control</em><big>)</big><a class="headerlink" href="#mks.core.uisettings.Option" title="Permalink to this definition">¶</a></dt>
-<dd><p>Base class for all Options. Every class knows control, configuration option name, and can load/save the option</p>
-<p>Do not create dirrectly, use <a href="#id5"><span class="problematic" id="id6">*</span></a>Option classes</p>
+<dd><p>Base class for all Options. Every class knows control on UISettings form, configuration option name,
+and can load/save the option</p>
+<p>Do not create dirrectly, use <a href="#id7"><span class="problematic" id="id8">*</span></a>Option classes</p>
 <dl class="method">
 <dt id="mks.core.uisettings.Option.load">
 <tt class="descname">load</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.uisettings.Option.load" title="Permalink to this definition">¶</a></dt>
@@ -342,8 +346,8 @@ You may edit UISettings.ui or add your controls dynamically during dialog creati
   <p class="topless"><a href="config.html"
                         title="previous chapter">config &#8212; Load and save settings</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="openedfilesmodel.html"
-                        title="next chapter">openedfilesmodel &#8212; Model and treeview for list of opened files</a></p>
+  <p class="topless"><a href="associations.html"
+                        title="next chapter">associations &#8212; Syntax highlighting support</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../sources/core/uisettings.txt"
@@ -376,7 +380,7 @@ You may edit UISettings.ui or add your controls dynamically during dialog creati
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="openedfilesmodel.html" title="openedfilesmodel — Model and treeview for list of opened files"
+          <a href="associations.html" title="associations — Syntax highlighting support"
              >next</a> |</li>
         <li class="right" >
           <a href="config.html" title="config — Load and save settings"
@@ -387,7 +391,7 @@ You may edit UISettings.ui or add your controls dynamically during dialog creati
     </div>
     <div class="footer">
         &copy; Copyright 2010, Andrei Kopats, Filipe Azevedo.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

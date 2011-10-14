@@ -77,12 +77,16 @@
 <dl class="method">
 <dt id="mks.plugins.filebrowser.Configurator.saveSettings">
 <tt class="descname">saveSettings</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.Configurator.saveSettings" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Settings are stored in the core configuration file, therefore nothing to do here.</p>
+<p>Called by <a class="reference internal" href="../core/uisettings.html#module-mks.core.uisettings" title="mks.core.uisettings"><tt class="xref py py-mod docutils literal"><span class="pre">mks.core.uisettings</span></tt></a></p>
+</dd></dl>
 
 <dl class="method">
 <dt id="mks.plugins.filebrowser.Configurator.applySettings">
 <tt class="descname">applySettings</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.Configurator.applySettings" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Apply settings</p>
+<p>Called by <a class="reference internal" href="../core/uisettings.html#module-mks.core.uisettings" title="mks.core.uisettings"><tt class="xref py py-mod docutils literal"><span class="pre">mks.core.uisettings</span></tt></a></p>
+</dd></dl>
 
 </dd></dl>
 
@@ -100,13 +104,13 @@ i.e. does not show .o .pyc and other temporary files</p>
 
 <dl class="method">
 <dt id="mks.plugins.filebrowser.FileBrowserFilteredModel.columnCount">
-<tt class="descname">columnCount</tt><big>(</big><em>parent=&lt;PyQt4.QtCore.QModelIndex object at 0xb6f5224&gt;</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.FileBrowserFilteredModel.columnCount" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">columnCount</tt><big>(</big><em>parent=&lt;PyQt4.QtCore.QModelIndex object at 0xb114a74&gt;</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.FileBrowserFilteredModel.columnCount" title="Permalink to this definition">¶</a></dt>
 <dd><p>Column count for the model</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mks.plugins.filebrowser.FileBrowserFilteredModel.hasChildren">
-<tt class="descname">hasChildren</tt><big>(</big><em>parent=&lt;PyQt4.QtCore.QModelIndex object at 0xb6f5294&gt;</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.FileBrowserFilteredModel.hasChildren" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">hasChildren</tt><big>(</big><em>parent=&lt;PyQt4.QtCore.QModelIndex object at 0xb114f7c&gt;</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.FileBrowserFilteredModel.hasChildren" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if node has children. QAbstractItemModel standard method</p>
 </dd></dl>
 
@@ -146,11 +150,6 @@ It creates the action and handles it</p>
 <em class="property">class </em><tt class="descclassname">mks.plugins.filebrowser.</tt><tt class="descname">Tree</tt><big>(</big><em>fileBrowser</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.Tree" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QTreeView</span></tt></p>
 <p>File system tree</p>
-<dl class="attribute">
-<dt id="mks.plugins.filebrowser.Tree.fileActivated">
-<tt class="descname">fileActivated</tt><a class="headerlink" href="#mks.plugins.filebrowser.Tree.fileActivated" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="method">
 <dt id="mks.plugins.filebrowser.Tree.setFilters">
 <tt class="descname">setFilters</tt><big>(</big><em>filters</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.Tree.setFilters" title="Permalink to this definition">¶</a></dt>
@@ -215,12 +214,16 @@ up (relatively for current directory)</p>
 <dl class="attribute">
 <dt id="mks.plugins.filebrowser.DockFileBrowser.rootChanged">
 <tt class="descname">rootChanged</tt><a class="headerlink" href="#mks.plugins.filebrowser.DockFileBrowser.rootChanged" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>rootChanged(path)</p>
+<p><strong>Signal</strong> emitted, when tree root has been changed</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="mks.plugins.filebrowser.DockFileBrowser.fileActivated">
 <tt class="descname">fileActivated</tt><a class="headerlink" href="#mks.plugins.filebrowser.DockFileBrowser.fileActivated" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>rootChanged(path)</p>
+<p><strong>Signal</strong> emitted, when file has been activated</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="mks.plugins.filebrowser.DockFileBrowser.updateComboItems">
@@ -311,7 +314,7 @@ up (relatively for current directory)</p>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Andrei Kopats, Filipe Azevedo.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

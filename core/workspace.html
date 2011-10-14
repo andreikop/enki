@@ -77,7 +77,7 @@
 <dl class="attribute">
 <dt id="mks.core.workspace.Workspace.documentOpened">
 <tt class="descname">documentOpened</tt><a class="headerlink" href="#mks.core.workspace.Workspace.documentOpened" title="Permalink to this definition">¶</a></dt>
-<dd><p>documentOpened(:class:AbstractDocument)</p>
+<dd><p>documentOpened(<a class="reference internal" href="abstractdocument.html#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a>)</p>
 <p><strong>Signal</strong> emitted, when document has been created, i.e. textual file opened,
 or some other document added to workspace</p>
 </dd></dl>
@@ -85,14 +85,15 @@ or some other document added to workspace</p>
 <dl class="attribute">
 <dt id="mks.core.workspace.Workspace.documentClosed">
 <tt class="descname">documentClosed</tt><a class="headerlink" href="#mks.core.workspace.Workspace.documentClosed" title="Permalink to this definition">¶</a></dt>
-<dd><p>documentClosed(:class:AbstractDocument)</p>
+<dd><p>documentClosed(<a class="reference internal" href="abstractdocument.html#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a>)</p>
 <p><strong>Signal</strong> emitted, when document was closed</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="mks.core.workspace.Workspace.currentDocumentChanged">
 <tt class="descname">currentDocumentChanged</tt><a class="headerlink" href="#mks.core.workspace.Workspace.currentDocumentChanged" title="Permalink to this definition">¶</a></dt>
-<dd><p>currentDocumentChanged(:class:AbstractDocument old, :class:AbstractDocument current)</p>
+<dd><p>currentDocumentChanged(<a class="reference internal" href="abstractdocument.html#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a> old,
+<a class="reference internal" href="abstractdocument.html#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a> current)</p>
 <p><strong>Signal</strong> emitted, when current document changed, i.e. user selected another document,
 new document opened, current closed</p>
 </dd></dl>
@@ -128,7 +129,7 @@ New editor would be used for newly opened textual documents.</p>
 <dl class="method">
 <dt id="mks.core.workspace.Workspace.currentDocument">
 <tt class="descname">currentDocument</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.currentDocument" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns currently active (focused) document.</p>
+<dd><p>Returns currently active (focused) document. None, if no documents are opened</p>
 </dd></dl>
 
 <dl class="method">
@@ -142,7 +143,7 @@ New editor would be used for newly opened textual documents.</p>
 <dt id="mks.core.workspace.Workspace.closeDocument">
 <tt class="descname">closeDocument</tt><big>(</big><em>document</em>, <em>showDialog=True</em><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.closeDocument" title="Permalink to this definition">¶</a></dt>
 <dd><p>Close opened file, remove document from workspace and delete the widget</p>
-<p>If showDialog is True, dialog will be shown, if file is modified</p>
+<p>If showDialog is True and file is modified, dialog will be shown</p>
 </dd></dl>
 
 <dl class="method">
@@ -157,7 +158,7 @@ New editor would be used for newly opened textual documents.</p>
 <dt id="mks.core.workspace.Workspace.createEmptyNotSavedDocument">
 <tt class="descname">createEmptyNotSavedDocument</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.createEmptyNotSavedDocument" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create empty not saved document.
-Used on startup, if no file was specified</p>
+Used on startup, if no file was specified, and after File-&gt;New file has been triggered</p>
 </dd></dl>
 
 <dl class="method">
@@ -179,7 +180,7 @@ Used on startup, if no file was specified</p>
 <dt id="mks.core.workspace.Workspace.focusCurrentDocument">
 <tt class="descname">focusCurrentDocument</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.focusCurrentDocument" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set focus (cursor) to current document.</p>
-<p>Used if user finished work with some dialog, and, probably, want&#8217;s to edit text</p>
+<p>Used if user has finished work with some dialog, and, probably, want&#8217;s to edit text</p>
 </dd></dl>
 
 </dd></dl>
@@ -241,7 +242,7 @@ Used on startup, if no file was specified</p>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Andrei Kopats, Filipe Azevedo.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

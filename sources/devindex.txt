@@ -28,6 +28,7 @@ Plugin API documentation
    core/abstractdocument.rst
    core/config.rst
    core/uisettings.rst
+   core/associations.rst
 
 Not API core modules
 --------------------

@@ -75,20 +75,22 @@ Bool parameter contains new value</p>
 <dl class="attribute">
 <dt id="mks.core.abstractdocument.AbstractDocument.cursorPositionChanged">
 <tt class="descname">cursorPositionChanged</tt><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.cursorPositionChanged" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>modifiedChanged(line, column)</p>
+<p><strong>Signal</strong> emitted, when cursor position has been changed</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="mks.core.abstractdocument.AbstractDocument.isExternallyRemoved">
 <tt class="descname">isExternallyRemoved</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.isExternallyRemoved" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if document&#8217;s file has been deleted externally.
-This method DOES NOT do any file system access, but only returns cached info</p>
+<dd><p>Check if document&#8217;s file has been deleted externally.</p>
+<p>This method does not do any file system access, but only returns cached info</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mks.core.abstractdocument.AbstractDocument.isExternallyModified">
 <tt class="descname">isExternallyModified</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.isExternallyModified" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if document&#8217;s file has been modified externally.
-This method DOES NOT do any file system access, but only returns cached info</p>
+<dd><p>Check if document&#8217;s file has been modified externally.</p>
+<p>This method does not do any file system access, but only returns cached info</p>
 </dd></dl>
 
 <dl class="method">
@@ -182,6 +184,7 @@ If selectionLength is not -1, select selectionLength characters</p>
 <dt id="mks.core.abstractdocument.AbstractDocument.saveFile">
 <tt class="descname">saveFile</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.saveFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the file to file system</p>
+<p>Shows QFileDialog if necessary</p>
 </dd></dl>
 
 <dl class="method">
@@ -195,6 +198,13 @@ If selectionLength is not -1, select selectionLength characters</p>
 <tt class="descname">setText</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.setText" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set contents in the editor.
 Usually this method is called only internally by openFile()</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.line">
+<tt class="descname">line</tt><big>(</big><em>index</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get line of the text by its index. Lines are indexed from 0.</p>
+<p>None, if index is invalid</p>
 </dd></dl>
 
 <dl class="method">
@@ -215,6 +225,21 @@ for update internal bookkeeping</p>
 <dt id="mks.core.abstractdocument.AbstractDocument.modelIcon">
 <tt class="descname">modelIcon</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.modelIcon" title="Permalink to this definition">¶</a></dt>
 <dd><p>Icon for the opened files model</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.highlightingLanguage">
+<tt class="descname">highlightingLanguage</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.highlightingLanguage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get programming language of the file.</p>
+<p>See list of supported programming languages in the settings</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.setHighlightingLanguage">
+<tt class="descname">setHighlightingLanguage</tt><big>(</big><em>language</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.setHighlightingLanguage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set programming language of the file.</p>
+<p>Called Only by <a class="reference internal" href="associations.html#mks.core.associations.Associations" title="mks.core.associations.Associations"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.associations.Associations</span></tt></a> to select syntax highlighting language.</p>
+<p>Implementation must call AbstractDocument method</p>
 </dd></dl>
 
 </dd></dl>
@@ -276,7 +301,7 @@ for update internal bookkeeping</p>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Andrei Kopats, Filipe Azevedo.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>
