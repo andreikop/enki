@@ -46,9 +46,17 @@ class Configurator(ModuleConfigurator):
         ]
     
     def saveSettings(self):
-        pass
+        """Settings are stored in the core configuration file, therefore nothing to do here.
+        
+        Called by :mod:`mks.core.uisettings`
+        """
+
     
     def applySettings(self):
+        """Apply settings
+        
+        Called by :mod:`mks.core.uisettings`
+        """
         core.workspace()._openedFileExplorer.mModel.setSortMode(core.config()["Workspace"]["FileSortMode"])
 
 
@@ -300,10 +308,10 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         self.tvFiles.setAttribute( Qt.WA_MacSmallSize )
         self.setFocusProxy(self.tvFiles)
         
-        workspace.currentDocumentChanged.connect(self.currentDocumentChanged)
+        workspace.currentDocumentChanged.connect(self._onCurrentDocumentChanged)
         
         # disconnected by _startModifyModel()
-        self.tvFiles.selectionModel().selectionChanged.connect(self.selectionModel_selectionChanged)
+        self.tvFiles.selectionModel().selectionChanged.connect(self._onSelectionModelSelectionChanged)
         
         self.showAction().setShortcut("F2")
         core.actionModel().addAction("mDocks/aOpenedFiles", self.showAction())
@@ -316,18 +324,18 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
     def _startModifyModel(self):
         """Blocks signals from model while it modified by code
         """
-        self.tvFiles.selectionModel().selectionChanged.disconnect(self.selectionModel_selectionChanged)
+        self.tvFiles.selectionModel().selectionChanged.disconnect(self._onSelectionModelSelectionChanged)
     
     def _finishModifyModel(self):
         """Unblocks signals from model
         """
-        self.tvFiles.selectionModel().selectionChanged.connect(self.selectionModel_selectionChanged)
+        self.tvFiles.selectionModel().selectionChanged.connect(self._onSelectionModelSelectionChanged)
     
-    def sortTriggered(self, action ):
+    def _sortTriggered(self, action ):
         mode = action.data().toString()
         self.mModel.setSortMode( mode )
     
-    def currentDocumentChanged(self, oldDocument, currentDocument ):
+    def _onCurrentDocumentChanged(self, oldDocument, currentDocument ):
         if currentDocument is not None:
             index = self.mModel.documentIndex( currentDocument )
             
@@ -337,7 +345,7 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
             self.tvFiles.scrollTo( index )
             self._finishModifyModel()
     
-    def selectionModel_selectionChanged(self, selected, deselected ):
+    def _onSelectionModelSelectionChanged(self, selected, deselected ):
         if not selected.indexes():  # empty list, last file closed
             return
         
@@ -371,7 +379,7 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         group.addAction( self.tr( "File name" ) )
         group.addAction( self.tr( "URL" ) )
         group.addAction( self.tr( "Suffixes" ) )
-        group.triggered.connect(self.sortTriggered)
+        group.triggered.connect(self._sortTriggered)
         sortMenu.addActions( group.actions() )
         
         for i, sortMode in enumerate(["OpeningOrder", "FileName", "URL", "Suffixes"]):

@@ -313,6 +313,8 @@ class Lexer:
         self.currentLanguage  = None
     
     def applyLanguage(self, language):
+        """Apply programming language. Changes syntax highlighting mode
+        """
         self.currentLanguage = language
         # Create lexer
         if self.currentLanguage:
@@ -774,7 +776,7 @@ class Editor(AbstractDocument):
 
     def setHighlightingLanguage(self, language):
         """Set programming language of the file.
-        Called Only by FIXME link assotiations module to select syntax highlighting language.
+        Called Only by :mod:`mks.core.associations` to select syntax highlighting language.
         """
         AbstractDocument.setHighlightingLanguage(self, language)
         self.lexer.applyLanguage(language)

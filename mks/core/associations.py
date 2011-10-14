@@ -5,7 +5,7 @@ associations --- Syntax highlighting support
 Functionality:
 
 * Detect programming languge of the file
-* Automatically apply it via TODO link setLanguage() to newly opened editors
+* Automatically apply it via :func:`mks.core.abstractdocument.AbstractDocument.setHighlightingLanguage` for newly opened editors
 * Edit associations settings via GUI
 """
 
@@ -55,13 +55,15 @@ class Configurator(ModuleConfigurator):
     
     def saveSettings(self):
         """Settings are stored in the core configuration file, therefore nothing to do here.
-        Called by uisettings TODO documentation link
+        
+        Called by :mod:`mks.core.uisettings`
         """
         pass
     
     def applySettings(self):
         """Apply associations to opened documents.
-        Called by uisettings TODO documentation link
+        
+        Called by :mod:`mks.core.uisettings`
         """
         for document in core.workspace().openedDocuments():
             Associations.instance.applyLanguageToDocument(document)

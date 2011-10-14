@@ -306,7 +306,7 @@ class MainWindow(pMainWindow):
     def closeEvent( self, event ):
         """NOT A PUBLIC API
         Close event handler.
-        Shows save files dialog. Cancels close, if dialog was rejecteds
+        Shows save files dialog. Cancels close, if dialog was rejected
         
         """
         

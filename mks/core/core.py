@@ -4,7 +4,6 @@ core --- Instances of core classes, initialize and terminate the system
 
 Module initializes system at startup, terminates it, when mksv3 closed,
 and used for get core instances, such as main window, workspace, etc.
-
 """
 
 import os.path
@@ -25,7 +24,7 @@ _DEFAULT_CONFIG_SPEC_PATH = os.path.join(DATA_FILES_PATH, 'config/mksv3.spec.cfg
 _CONFIG_PATH = os.path.join(mks.core.defines.CONFIG_DIR, 'core.cfg')
 
 class Core:
-    """Core object initializes system at startup and terminates at close.
+    """Core object initializes system at startup and terminates when closing.
     
     It creates instances of other core modules and holds references to it
     """
@@ -85,7 +84,7 @@ class Core:
         return self._mainWindow
 
     def actionModel(self):
-        """Get main window `action model <http://api.monkeystudio.org/fresh/classp_actions_model.html>`_ instance
+        """Get main window `action model <http://api.monkeystudio.org/fresh/classp_actions_node_model.html>`_ instance
         """
         return self._mainWindow.menuBar().model()
 
@@ -169,9 +168,16 @@ class Core:
         return config
 
 core = Core()
+"""
+Core instance. It is accessible as: ::
+
+    from mks.core.core import core
+    core.anyMethod()
+"""
 
 
-"""TODO restore or delete old code
+"""
+TODO restore or delete old code
 def _isXmas():
     return datetime.now().month in (11, 12, 1,)
 
