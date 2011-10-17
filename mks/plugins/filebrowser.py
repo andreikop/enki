@@ -415,7 +415,7 @@ class Tree(QTreeView):
         if  os.path.isdir( path ) :
             self._fileBrowser.setCurrentPath(path)
         else:
-            self.fileActivated.emit()
+            self._fileActivated.emit()
             core.workspace().openFile(path)
     
     def moveUp(self):
