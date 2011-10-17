@@ -1,13 +1,4 @@
 FIXME
-    Traceback (most recent call last):
-    File "/usr/local/lib/python2.7/dist-packages/mks/core/uisettings.py", line 340, in applySettings
-    configurator.applySettings()
-    File "/usr/local/lib/python2.7/dist-packages/mks/plugins/editor.py", line 195, in applySettings
-    document.lexer.applySettings()
-    File "/usr/local/lib/python2.7/dist-packages/mks/plugins/editor.py", line 329, in applySettings
-    if self.qscilexer is None or \
-    AttributeError: Lexer instance has no attribute 'qscilexer'
-    Review all docs
     
 FIXME PasNox
 
