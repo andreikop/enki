@@ -211,7 +211,7 @@ class AbstractDocument(QWidget):
             path = QFileDialog.getSaveFileName (self, self.tr('Save file as...'))
             if path:
                 core.workspace().documentClosed.emit(self)
-                self._filePath = unicode(path, 'utf8')
+                self._filePath = unicode(path)
                 core.workspace().documentOpened.emit(self)
             else:
                 return
