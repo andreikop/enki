@@ -118,10 +118,13 @@ def main():
     # Get list of absolute pathes of files to open. List may contain not existing files
 
     filePathes = [os.path.abspath(arg) for arg in sys.argv[1:]]
+    
+    # convert to unicode for avoid Python <-> Qt interaction problems
+    filePathes = [unicode(f, 'utf8') for f in filePathes]
 
     if filePathes:
-        for file in filePathes:
-            core.workspace().openFile(file)
+        for filePath in filePathes:
+            core.workspace().openFile(filePath)
     else:
         core.workspace().createEmptyNotSavedDocument();
 
