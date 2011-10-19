@@ -244,7 +244,6 @@ class MainWindow(pMainWindow):
         menu  ("mNavigation/mFileBrowser",            tr("File browser"          ), ':/mksicons/open.png')
 
         menu  ("mSettings",                           tr("Settings"              ), ""            )
-        action("mSettings/aConfigFile",               tr("Edit config file" ),   "",                "Ctrl+Alt+S",   tr("Edit config file"       ), True)
 
         menu  ("mDocks",                              tr("Docks"                 ), ""            )
         action("mDocks/aHideAll",                     tr("Hide all"              ), "",             "Ctrl+Esc",    tr("Hide all"               ), True)
