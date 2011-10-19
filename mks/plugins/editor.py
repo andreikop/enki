@@ -729,7 +729,7 @@ class Editor(AbstractDocument):
         """
         haveTabs = '\t' in self.qscintilla.text()
         for line in self.qscintilla.text().split('\n'):  #TODO improve algorythm sometimes to skip comments
-            if unicode(line).startswith(' '):
+            if line.startswith(' '):
                 haveSpaces = True
                 break
         else:

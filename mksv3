@@ -9,8 +9,6 @@ import traceback
 import logging
 import logging.handlers
 
-from PyQt4.QtGui import QMessageBox
-
 import mks.core.defines
 
 helpString = \
@@ -50,7 +48,8 @@ def excepthook(excepttype, exceptvalue, tracebackobj):
                 'Include your description and this text:<br/>' + \
                 '<br/>' + \
                 text.replace('\n', '<br/>\n')
-    
+
+    from PyQt4.QtGui import QMessageBox
     QMessageBox.critical(None, 'Oops. Internal exception', mboxText)
 
 
@@ -69,6 +68,8 @@ def main():
         return 0
     
     try:
+        import sip
+        sip.setapi('QString', 2)
         import PyQt4
     except ImportError:
         print >> sys.stderr, 'Failed to import PyQt4 bindings'

@@ -141,8 +141,7 @@ class TextOption(Option):
     def save(self):
         """Save the value from GUI to config
         """
-        text = unicode(self.control.text(), 'utf8')
-        self.config.set(self.optionName, text)
+        self.config.set(self.optionName, self.control.text())
 
 class ListOnePerLineOption(Option):
     """List of strings. One item per line.
@@ -157,8 +156,7 @@ class ListOnePerLineOption(Option):
     def save(self):
         """Save the value from GUI to config
         """
-        text = unicode(self.control.toPlainText(), 'utf8')
-        lines = text.split('\n')
+        lines = self.control.toPlainText().split('\n')
         self.config.set(self.optionName, lines)
 
 class NumericOption(Option):

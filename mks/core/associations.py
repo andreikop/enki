@@ -145,7 +145,7 @@ class Associations():
         """View -> Highlighting -> Some language triggered
         Change current file highlighting mode
         """
-        languageName = unicode(action.text())
+        languageName = action.text()
         core.workspace().currentDocument().setHighlightingLanguage(languageName)
 
     def _onCurrentDocumentChanged(self, old, new):

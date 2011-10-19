@@ -460,7 +460,7 @@ class Workspace(QStackedWidget):
     def _onFileOpenTriggered(self):
         """Handler of File->Open
         """
-        fileNames = map(unicode, QFileDialog.getOpenFileNames( self.window(), self.tr( "Choose the file(s) to open" )))
+        fileNames = QFileDialog.getOpenFileNames( self.window(), self.tr( "Choose the file(s) to open" ))
                 
         for path in fileNames:
             self.openFile(path)
@@ -480,8 +480,8 @@ class Workspace(QStackedWidget):
         """Reload the document contents
         """
         if  document.isModified():
-            template = unicode(self.tr( "The file <b>%s</b> has been modified by you.\n"
-                                        "Do you want to reload and discard changes?" ))
+            template = self.tr( "The file <b>%s</b> has been modified by you.\n"
+                                "Do you want to reload and discard changes?" )
             text = template % document.fileName()
             ret = QMessageBox.question(self, self.tr( "Reload file..." ), text,
                                        QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
