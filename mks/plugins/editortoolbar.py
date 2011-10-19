@@ -114,7 +114,7 @@ class _IndentationDialog(QDialog):
     def _updateWidthLabel(self):
         """Update indentation with on GUI
         """
-        template = unicode(self.tr("Width: %d"))
+        template = self.tr("Width: %d")
         self._widthLabel.setText(template % self._document.indentWidth())
         
     def _onWidthChanged(self, value):
@@ -215,7 +215,7 @@ class _PositionIndicator(QToolButton):
     def _setCursorPosition(self, line, col):
         """Update cursor position on GUI.
         """
-        template = unicode(self.tr("Line: %s Column: %s"))
+        template = self.tr("Line: %s Column: %s")
         if line != -1 and col != -1:
             line = str(line + 1)
             col = str(col)

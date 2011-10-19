@@ -191,7 +191,7 @@ class SmartRecents(QObject):
     def _onRootChanged(self, newCurrDir):
         """FileBrowserDock notifies SmartRecents that user changed current directory
         """
-        self._currDir = unicode(newCurrDir, 'utf8')
+        self._currDir = newCurrDir
         self._currIsActive = False
         self._updateRecents()
 
@@ -258,7 +258,7 @@ class SmartHistory(QObject):
     def _onRootChanged(self, newCurrDir):
         """FileBrowserDock notifies SmartHistory that root has been changed
         """
-        self._currDir = unicode(newCurrDir, 'utf8')
+        self._currDir = newCurrDir
         self._currIsActive = False
         self._updateActions()
 
@@ -410,7 +410,7 @@ class Tree(QTreeView):
         """File or directory doubleClicked
         """
         index = self._filteredModel.mapToSource( idx )
-        path = unicode(self._dirsModel.filePath( index ))
+        path = self._dirsModel.filePath( index )
         
         if  os.path.isdir( path ) :
             self._fileBrowser.setCurrentPath(path)
@@ -440,7 +440,7 @@ class Tree(QTreeView):
         """Map index to file path
         """
         srcIndex = self._filteredModel.mapToSource( index )
-        return unicode(self._dirsModel.filePath( srcIndex ))
+        return self._dirsModel.filePath( srcIndex )
 
     def setFocus(self):
         """Moves focus and selection to the first item, if nothing focused
@@ -462,7 +462,7 @@ class Tree(QTreeView):
         """
         index = self.rootIndex()
         index = self._filteredModel.mapToSource( index )
-        return unicode(self._dirsModel.filePath( index ))
+        return self._dirsModel.filePath( index )
 
     def setCurrentPath(self, path):
         """Set current path (root of the tree)
@@ -539,11 +539,11 @@ class ComboBox(QComboBox):
         """Handler of item selection in the combo box
         """
         if self.count() > self._count:  # It is user input
-            path = unicode(self.itemText(index), 'utf8')
+            path = self.itemText(index)
             if os.path.isdir(path):
                 self._fileBrowser.setCurrentPath(path)
         else:
-            path = unicode(self.itemData(index).toString(), 'utf8')
+            path = self.itemData(index).toString()
             self._fileBrowser.setCurrentPath(path)
 
     def updateItems(self, items):

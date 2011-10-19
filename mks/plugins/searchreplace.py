@@ -582,11 +582,11 @@ class SearchWidget(QFrame):
         """Fill search context with actual data
         """
         self.mSearchContext = SearchContext(\
-            searchText = unicode(self.cbSearch.currentText()), \
-            replaceText = unicode(self.cbReplace.currentText()), \
-            searchPath = unicode(self.cbPath.currentText()), \
+            searchText = self.cbSearch.currentText(), \
+            replaceText = self.cbReplace.currentText(), \
+            searchPath = self.cbPath.currentText(), \
             mode = self.mMode,
-            encoding = unicode(self.cbEncoding.currentText()))
+            encoding = self.cbEncoding.currentText())
 
         """TODO
         self.mSearchContext.project = 
@@ -595,7 +595,7 @@ class SearchWidget(QFrame):
         
         # update masks
         self.mSearchContext.mask = \
-            [unicode(s).strip() for s in self.cbMask.currentText().split(' ')]
+            [s.strip() for s in self.cbMask.currentText().split(' ')]
         # remove empty
         self.mSearchContext.mask = filter(None, self.mSearchContext.mask)
         
@@ -615,8 +615,7 @@ class SearchWidget(QFrame):
 
         # update opened files
         for document in core.workspace().openedDocuments():
-            self.mSearchContext.openedFiles[document.filePath()] = \
-                                        unicode(document.text())
+            self.mSearchContext.openedFiles[document.filePath()] = document.text()
         """TODO
         # update sources files
         self.mSearchContext.sourcesFiles = []
@@ -770,7 +769,7 @@ class SearchWidget(QFrame):
         """Replace thread processed currently opened file,
         need update text in the editor
         """
-        fileName = unicode(fileName)
+        fileName = fileName
         document = core.workspace().openFile(fileName)
         editor = document.qscintilla  # FIXME current editor specific
 
@@ -811,7 +810,7 @@ class SearchWidget(QFrame):
     def cdUp_pressed(self):
         """User pressed "Up" button, need to remove one level from search path
         """
-        text = unicode(self.cbPath.currentText(), 'utf_8')
+        text = self.cbPath.currentText()
         if not os.path.exists(text):
             return
         self.cbPath.setEditText( os.path.abspath(text + '/' + os.path.pardir))
@@ -1284,7 +1283,7 @@ class SearchThread(StopableThread):
         maskRegExp is regExp object for check if file matches mask
         """
         retFiles = []
-        for root, dirs, files in os.walk(os.path.abspath(unicode(path))):
+        for root, dirs, files in os.walk(os.path.abspath(path)):
             if root.startswith('.') or (os.path.sep + '.') in root:
                 continue
             for fileName in files:
@@ -1446,7 +1445,7 @@ class ReplaceThread(StopableThread):
             try:
                 content = content.encode(encoding)
             except UnicodeEncodeError as ex:
-                pattern = unicode(self.tr("Failed to encode file to %s: %s"), 'utf_8')
+                pattern = self.tr("Failed to encode file to %s: %s")
                 text = unicode(str(ex), 'utf_8')
                 self.error.emit(pattern % (encoding, text))
                 return
@@ -1454,7 +1453,7 @@ class ReplaceThread(StopableThread):
             with open(fileName, 'w') as openFile:
                 openFile.write(content)
         except IOError as ex:
-            pattern = unicode(self.tr("Error while saving replaced content: %s"), 'utf_8')
+            pattern = self.tr("Error while saving replaced content: %s")
             text = unicode(str(ex), 'utf_8')
             self.error.emit(pattern % text)
 

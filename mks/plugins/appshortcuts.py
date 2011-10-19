@@ -81,7 +81,7 @@ class Plugin:
         """
         
         if self._config is not None:
-            path = unicode(self._model.path(action), "utf_8")
+            path = self._model.path(action)
             try:
                 shortcut = self._config.get(path)
             except KeyError:
@@ -104,7 +104,7 @@ class Plugin:
         if self._config is None:
             return
         for action in _recursiveActionsList(self._model):
-            path = unicode(self._model.path(action), "utf_8")
+            path = self._model.path(action)
             self._config.set(path, action.shortcut().toString())
         try:
             self._config.flush()
