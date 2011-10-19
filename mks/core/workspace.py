@@ -149,8 +149,6 @@ class Workspace(QStackedWidget):
         
         core.actionModel().action( "mNavigation/aFocusCurrentDocument" ).triggered.connect(self.focusCurrentDocument)
         core.actionModel().action( "mNavigation/aGoto" ).triggered.connect(self._onGotoTriggered)
-        editConfigFile = lambda : self.openFile(core.config().filename)
-        core.actionModel().action( "mSettings/aConfigFile" ).triggered.connect(editConfigFile)
     
     def _mainWindow(self):
         """Get mainWindow instance
@@ -803,10 +801,7 @@ class Workspace(QStackedWidget):
 
         if  document :
             document.printFile()
-    
-    # edit menu
-    def editSettings_triggered(self):
-        UISettings.instance( self ).exec_()
+
 
     def editTranslations_triggered(self):
         locale = TranslationDialog.getLocale( core.translationsManager(), self )
