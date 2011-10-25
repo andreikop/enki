@@ -408,8 +408,9 @@ class Editor(AbstractDocument):
                                 "NoAutoCompletionContext"  : QsciScintilla.CallTipsNoAutoCompletionContext,
                                 "Context"                  : QsciScintilla.CallTipsContext}
     
-    def __init__(self, parentObject, filePath):
-        super(Editor, self).__init__(parentObject, filePath)
+    def __init__(self, parentObject, filePath, createNew=False):
+        self._neverSaved = filePath is None or createNew
+        super(Editor, self).__init__(parentObject, filePath, createNew)
         
         # Configure editor
         self.qscintilla = _QsciScintilla(self)
@@ -440,7 +441,7 @@ class Editor(AbstractDocument):
         self.applySettings()
         self.lexer = Lexer(self)
         
-        if filePath:
+        if not self._neverSaved:
             try:
                 text = self._readFile(filePath)
             except IOError as ex:  # exception in constructor
@@ -452,7 +453,7 @@ class Editor(AbstractDocument):
         
         # make backup if needed
         if  myConfig["CreateBackupUponOpen"]:
-            if self.filePath():
+            if self.filePath() and not createNew:
                 try:
                     shutil.copy(self.filePath(), self.filePath() + '.bak')
                 except (IOError, OSError) as ex:

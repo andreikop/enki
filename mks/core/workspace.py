@@ -252,7 +252,8 @@ class Workspace(QStackedWidget):
         core.actionModel().action( "mNavigation/aPrevious" ).setEnabled( moreThanOneDocument )
         
         # internal update
-        if  document and document.filePath() is not None:
+        if  document and document.filePath() is not None and \
+            os.path.exists(os.path.dirname(document.filePath())):
             try:
                 os.chdir( os.path.dirname(document.filePath()) )
             except OSError, ex:  # directory might be deleted
@@ -393,11 +394,11 @@ class Workspace(QStackedWidget):
         
         return document
     
-    def createEmptyNotSavedDocument(self):
+    def createEmptyNotSavedDocument(self, filePath=None):
         """Create empty not saved document.
         Used on startup, if no file was specified, and after File->New file has been triggered
         """
-        document = self._textEditorClass(self, None)
+        document = self._textEditorClass(self, filePath, True)
         self.documentOpened.emit( document )
         self._handleDocument( document )
         return document

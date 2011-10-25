@@ -47,12 +47,12 @@ class AbstractDocument(QWidget):
     **Signal** emitted, when cursor position has been changed
     """
     
-    def __init__( self, parentObject, filePath):
+    def __init__( self, parentObject, filePath, createNew=False):
         """Create editor and open file.
         If file is '', empty not saved file is created
         IO Exceptions not catched, so, must be catched on upper level
         """
-        QWidget.__init__( self, parentObject )
+        QWidget.__init__( self, parentObject)
         
         self._filePath = filePath
         self._externallyRemoved = False
@@ -62,8 +62,11 @@ class AbstractDocument(QWidget):
         self._fileWatcher = None
         
         # create file watcher
-        if filePath:
+        if not self._neverSaved:
             self._createFileWatcher()
+        
+        if filePath and self._neverSaved:
+            core.messageManager().appendMessage('New file "%s" is going to be created' % filePath, 5000)
     
     def _createFileWatcher(self):
         """Create own filewatcher. Called from the constructor, or after name has been defined for new created file
@@ -117,7 +120,7 @@ class AbstractDocument(QWidget):
     def isNeverSaved(self):
         """Check if document has been created, but never has been saved on disk
         """
-        return self._filePath is None
+        return self._neverSaved
     
     def eolMode(self):
         """Return document's EOL mode. Possible values are:
@@ -250,6 +253,7 @@ class AbstractDocument(QWidget):
                 self._fileWatcher.addPath(self.filePath())
         
         # Update states
+        self._neverSaved = False
         self._externallyRemoved = False
         self._externallyModified = False
         self._setModified(False)
