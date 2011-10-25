@@ -107,14 +107,14 @@ def main():
     # Imports only here. Hack for ability to get help and version info even on system without PyQt and Fresh.
     from mks.core.core import core
     
-    app.setApplicationName( mks.core.defines.PACKAGE_NAME );
-    app.setOrganizationName( mks.core.defines.PACKAGE_ORGANISATION );
-    app.setOrganizationDomain( mks.core.defines.PACKAGE_DOMAIN );
+    app.setApplicationName( mks.core.defines.PACKAGE_NAME )
+    app.setOrganizationName( mks.core.defines.PACKAGE_ORGANISATION )
+    app.setOrganizationDomain( mks.core.defines.PACKAGE_DOMAIN )
     
     app.lastWindowClosed.connect(app.quit)
     
     # init monkey studio core
-    core.init();
+    core.init()
 
     # Get list of absolute pathes of files to open. List may contain not existing files
 
@@ -125,9 +125,12 @@ def main():
 
     if filePathes:
         for filePath in filePathes:
-            core.workspace().openFile(filePath)
+            if os.path.exists(filePath):
+                core.workspace().openFile(filePath)
+            else:
+                core.workspace().createEmptyNotSavedDocument(filePath)
     else:
-        core.workspace().createEmptyNotSavedDocument();
+        core.workspace().createEmptyNotSavedDocument()
 
     if core.workspace().currentDocument():
         core.workspace().currentDocument().setFocus()
