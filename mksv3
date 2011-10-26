@@ -55,15 +55,16 @@ def excepthook(excepttype, exceptvalue, tracebackobj):
 def _showErrorMessage(haveQt, header, text):
     """Show error message with messagebox
     """
+    print >> sys.stderr, header
+    print >> sys.stderr, text
     if haveQt:
         from PyQt4.QtGui import QApplication, QMessageBox
         app = QApplication ( sys.argv )
         QMessageBox.critical(None, header, text)
     else:
-        print >> sys.stderr, header
-        print >> sys.stderr, text
+        import tkMessageBox
+        tkMessageBox.showwarning(header, text)
 
-    
 def _checkDependencies():
     """Check if 3rdparty software is installed in the system.
     Notify user, how to install it
