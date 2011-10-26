@@ -15,8 +15,8 @@ Instance is accessible as: ::
 Created by :class:`mks.core.core.Core`
 """
 
-from mks._3rdparty.configobj import ConfigObj, flatten_errors, ParseError
-from mks._3rdparty.validate import Validator
+from configobj import ConfigObj, flatten_errors, ParseError
+from validate import Validator
 
 class Config(ConfigObj):
     """Settings storage.
