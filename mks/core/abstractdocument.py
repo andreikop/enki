@@ -54,6 +54,7 @@ class AbstractDocument(QWidget):
         """
         QWidget.__init__( self, parentObject)
         
+        self._highlightingLanguage = None
         self._filePath = filePath
         self._externallyRemoved = False
         self._externallyModified = False
