@@ -81,8 +81,6 @@ class Associations():
         self._menu = core.actionModel().addMenu("mView/mHighlighting", "Highlighting").menu()
         
         self._menu.aboutToShow.connect(self._onMenuAboutToShow)
-        self._menu.aboutToHide.connect(self._menu.clear)
-        
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
         
         Associations.instance = self
@@ -132,6 +130,7 @@ class Associations():
     def _onMenuAboutToShow(self):
         """View -> Highlighting menu is about to show. Fill it with items
         """
+        self._menu.clear()
         currentLanguage = core.workspace().currentDocument().highlightingLanguage()
         for languageName, fileNameGlobs, firstLineGlobs, iconPath in self.iterLanguages():
             action = QAction(QIcon(iconPath), languageName, self._menu)
