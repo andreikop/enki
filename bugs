@@ -1,5 +1,19 @@
 FIXME
-    Показывать tk messagebox если нету pyqt4
+	Exception occured.
+	MkS team tries to avoid such problems and make mksv3 stable
+	To help us send please a bug report to the developers
+	mailto:hlamer@tut.by
+
+	Include your description and this text:
+
+	Traceback (most recent call last):
+	File "/usr/local/lib/python2.7/dist-packages/mks/core/workspace.py", line 208, in _onStackedLayoutIndexChanged
+	self._onCurrentDocumentChanged(document)
+	File "/usr/local/lib/python2.7/dist-packages/mks/core/workspace.py", line 256, in _onCurrentDocumentChanged
+	os.path.exists(os.path.dirname(document.filePath())):
+	File "/usr/lib/python2.7/posixpath.py", line 120, in dirname
+	i = p.rfind('/') + 1
+	AttributeError: 'bool' object has no attribute 'rfind'
     
 FIXME PasNox
 
