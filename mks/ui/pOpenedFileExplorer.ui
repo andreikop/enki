@@ -15,7 +15,7 @@
     <normaloff>:/mksicons/filtered.png</normaloff>:/mksicons/filtered.png</iconset>
   </property>
   <property name="windowTitle">
-   <string>Opened Files List</string>
+   <string>Opened files</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">

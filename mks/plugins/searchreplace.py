@@ -444,7 +444,7 @@ class SearchWidget(QFrame):
         # Set widgets visibility flag according to state
         widgets = (self.wSearch, self.pbPrevious, self.pbNext, self.pbSearch, self.wReplace, self.wPath, \
                    self.pbReplace, self.pbReplaceAll, self.pbReplaceChecked, self.wOptions, self.wMask, self.wEncoding,)
-        #                                                       wSear  pbPrev pbNext pbSear wRepl  wPath  pbRep  pbRAll pbRCHK wOpti wMask wEncoding
+        #                                             wSear  pbPrev pbNext pbSear wRepl  wPath  pbRep  pbRAll pbRCHK wOpti wMask wEncoding
         visible = {Plugin.ModeNo     :             (    0,     0,     0,     0,     0,     0,     0,     0,     0,    0,    0,    0,),
                    Plugin.ModeSearch :             (    1,     1,     1,     0,     0,     0,     0,     1,     1,    1,    0,    0,),
                    Plugin.ModeReplace:             (    1,     1,     1,     0,     1,     0,     1,     1,     0,    1,    0,    0,),

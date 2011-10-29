@@ -16,7 +16,7 @@ helpString = \
 Usage:
 \t%s [options] [FILE1 [FILE2 ...]]
 
-Command line arguments:
+Command line switches:
 \t-h, --help      Show command line help
 \t-v, --version   Show program version
 """
