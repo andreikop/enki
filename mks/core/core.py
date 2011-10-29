@@ -67,6 +67,7 @@ class Core:
         self._loadPlugin('filebrowser')
         self._loadPlugin('appshortcuts')
         self._loadPlugin('editorshortcuts')
+        self._loadPlugin('about')
 
     def term(self):
         """Terminate plugins and core modules
