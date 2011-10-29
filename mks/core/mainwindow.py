@@ -7,7 +7,7 @@ Module contains :class:`mks.core.mainwindow.MainWindow` implementation
 """
 
 from PyQt4.QtCore import pyqtSignal, QModelIndex, QSize, Qt
-from PyQt4.QtGui import qApp, QIcon, QSizePolicy, QVBoxLayout, QWidget
+from PyQt4.QtGui import QIcon, QSizePolicy, QVBoxLayout, QWidget
 
 from PyQt4.fresh import pDockWidget, pMainWindow, pActionsModel
 
@@ -249,10 +249,8 @@ class MainWindow(pMainWindow):
         action("mDocks/aHideAll",                     tr("Hide all"              ), "",             "Ctrl+Esc",    tr("Hide all"               ), True)
 
         menu  ("mHelp",                               tr("Help"                  ), ""            )
-        action("mHelp/aAboutQt",                      tr("About &Qt..." ),          "qt.png",       "",             tr("About Qt..."            ), True )
         
         self._actionModel.action( "mFile/aQuit" ).triggered.connect(self.close)
-        self._actionModel.action( "mHelp/aAboutQt" ).triggered.connect(qApp.aboutQt)
         # docks
         self._actionModel.action( "mDocks/aHideAll" ).triggered.connect(self._onHideAllWindows)
 
