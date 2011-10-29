@@ -1,6 +1,6 @@
 """
-helpmenu --- Manage Help main menu items
-========================================
+helpmenu --- Help main menu items. Aboout dialogue
+==================================================
 
 Module contains about and help dialogues
 """
@@ -21,6 +21,8 @@ class Plugin(QObject):
         QObject.__init__(self)
         
         def createAction(menuItem, text, icon, tab):
+            """Create a menu action and connect it to the slot
+            """
             action = core.actionModel().addAction("mHelp/%s" % menuItem, text, QIcon(':mksicons/' + icon))
             slot = lambda : UIAbout(core.mainWindow(), tab).exec_()
             action.triggered.connect(slot)
@@ -30,11 +32,8 @@ class Plugin(QObject):
         createAction('aReportBug', self.tr('Report &Bug...'), 'debugger.png', 'bug')
         createAction('aDonate', self.tr('&Donate...'), 'add.png', 'donate')
 
-        self._aAboutQt = core.actionModel().addAction( "mHelp/aAboutQt", self.tr('About &Qt...'), QIcon(':mksicons/qt.png'))
-        self._aAboutQt.triggered.connect(qApp.aboutQt)
-
-    def __term__(self):
-        pass
+        action = core.actionModel().addAction( "mHelp/aAboutQt", self.tr('About &Qt...'), QIcon(':mksicons/qt.png'))
+        action.triggered.connect(qApp.aboutQt)
 
     def moduleConfiguratorClass(self):
         """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
@@ -53,8 +52,8 @@ class UIAbout(QDialog):
         self.lVersion.setText( self.tr( "Version %s" % PACKAGE_VERSION ))
         self.lCopyrights.setText( PACKAGE_COPYRIGHTS )
         
-        d = {'about': self.wLogo,
-             'help': self.tbHelp,
-             'bug': self.tbReportBug,
-             'donate': self.tbDonations}        
-        self.twAbout.setCurrentWidget(d[tab])
+        tabs = {'about': self.wLogo,
+                'help': self.tbHelp,
+                'bug': self.tbReportBug,
+                'donate': self.tbDonations}        
+        self.twAbout.setCurrentWidget(tabs[tab])
