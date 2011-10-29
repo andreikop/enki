@@ -137,7 +137,7 @@ class Workspace(QStackedWidget):
         core.actionModel().action( "mFile/aOpen" ).triggered.connect(self._onFileOpenTriggered)
         core.actionModel().action( "mFile/mReload/aCurrent" ).triggered.connect(self._onFileReloadTriggered)
         core.actionModel().action( "mFile/mReload/aAll" ).triggered.connect(self._onFileReloadAllTriggered)
-        core.actionModel().action( "mFile/aNew" ).triggered.connect(self.createEmptyNotSavedDocument)
+        core.actionModel().action( "mFile/aNew" ).triggered.connect(lambda : self.createEmptyNotSavedDocument(None))
         core.actionModel().action( "mFile/mClose/aCurrent" ).triggered.connect(self._onCloseCurrentDocument)
         core.actionModel().action( "mFile/mClose/aAll" ).triggered.connect(self.closeAllDocuments)
     
