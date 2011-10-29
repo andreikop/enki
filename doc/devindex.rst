@@ -46,4 +46,5 @@ Plugins documentation
    plugins/editortoolbar.rst
    plugins/editorshortcuts.rst
    plugins/filebrowser.rst
+   plugins/helpmenu.rst
    plugins/searchreplace.rst
