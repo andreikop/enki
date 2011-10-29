@@ -11,6 +11,7 @@ mv _sources sources
 perl -pi -e "s/_sources/sources/g;" `find -name '*.html'`
 perl -pi -e "s/_static/static/g;" `find -name '*.html'`
 git add -A
+git rm --cached build
 git commit -m 'Documentation update'
 git push
 git checkout master
