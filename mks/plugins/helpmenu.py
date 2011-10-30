@@ -2,7 +2,7 @@
 helpmenu --- Help main menu items. Aboout dialogue
 ==================================================
 
-Module contains about and help dialogues
+About dialogue and *Help* menu items
 """
 
 import os.path

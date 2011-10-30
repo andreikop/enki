@@ -352,6 +352,10 @@ class JumpToCurent(QObject):
         """Update action enabled state after current file or current directory changed
         """
         self._action.setEnabled(os.path.abspath(os.curdir) != self._fileBrowser.currentPath())
+        try:
+            self._action.setEnabled(os.path.abspath(os.curdir) != self._fileBrowser.currentPath())
+        except OSError:  # probably current dir has been deleted
+            self._action.setEnabled(False)
 
     def _onTriggered(self):
         """Jump to directory of current file
