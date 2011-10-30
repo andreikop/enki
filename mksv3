@@ -36,6 +36,7 @@ def excepthook(excepttype, exceptvalue, tracebackobj):
     """Show exception dialog, write to log
     """
     text = ''.join(traceback.format_exception(excepttype, exceptvalue, tracebackobj)).strip()
+    text = unicode(text, 'utf8')
     logging.critical(text)
     
     mailto = '<a href="mailto:hlamer@tut.by?subject=Crash&body=asdf">mailto:hlamer@tut.by</a>'
