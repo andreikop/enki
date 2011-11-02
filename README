@@ -5,13 +5,15 @@ Python port and next generation of Monkey Studio v2
 Home page:
     http://github.com/hlamer/mksv3
     http://monkeystudio.org
+Documentation:
+    http://hlamer.github.com/mksv3/
 Home IRC room:
     #monkeystudio on irc.freenode.net
     
                 === Authors ===
                 
-Andrei Kopats aka hlamer
-Philippe Azevedo aka PasNox
+Andrei Kopats aka hlamer <hlamer@tut.by>
+Philippe Azevedo aka PasNox <pasnox@gmail.com>
 The Monkey Studio Team. http://monkeystudio.org/team
 
                 === Copyright ===
@@ -27,7 +29,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+along with this program.  If not, see <http://www.gnu.org/licenses>.
 
                 === Supported operating systems ===
 
