@@ -1,0 +1,17 @@
+Source: mksv3
+Section: editors
+Priority: optional 
+Maintainer: Andrei Kopats <hlamer@tut.by>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.2
+Homepage: http://monkeystudio.org
+Vcs-Git: https://github.com/hlamer/mksv3.git
+Vcs-Browser: https://github.com/hlamer/mksv3
+
+Package: mksv3
+Architecture: all
+Depends: python python-qt4, python-qscintilla2
+Description: Next generation Unix code editor
+ Next generation Unix code editor.
+ mksv3 is Python port of Monkey Studio v2.
+ TODO more useful information
