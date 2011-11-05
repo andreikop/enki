@@ -1,0 +1,4 @@
+bugs export-ignore
+dev export-ignore
+devcopy export-ignore
+.gitattributes export-ignore
