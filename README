@@ -1,31 +1,45 @@
-Monkey Stuido v3
-Free crossplatform IDE
+mksv3
+The Free, Fast and Powerfull cross-platform text editor.
+Python port and next generation of Monkey Studio v2
+
 Home page:
     http://github.com/hlamer/mksv3
+    http://monkeystudio.org
+Documentation:
+    http://hlamer.github.com/mksv3/
 Home IRC room:
     #monkeystudio on irc.freenode.net
-
     
                 === Authors ===
-Philippe Azevedo aka PasNox
-Andrei Kopats aka hlamer
-And others. See the site
+                
+Andrei Kopats aka hlamer <hlamer@tut.by>
+Philippe Azevedo aka PasNox <pasnox@gmail.com>
+The Monkey Studio Team. http://monkeystudio.org/team
 
+                === Copyright ===
 
-                === License ===
-GPL
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-                === Waranties ===
-No any
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses>.
 
+                === Supported operating systems ===
+
+Currently mksv3 has been tested only on Ubuntu Linux.
+There are no strong technical reasons for having problems with other OSes.
+If you tried it, share please your experience.
 
                 === Dependencies ===
-    
-This dependences list created tested on Ubuntu 10.04.
-If you use other OS, write please about your experience, so,
-I could update this README.
-    hlamer.
+
+This dependences list created tested on Ubuntu 11.10.
 
 1. Qt4 library
 2. PyQt4 bindings
@@ -35,14 +49,16 @@ I could update this README.
 5. Fresh framework, including Python bindings
     (https://github.com/pasnox/fresh)
 
-On Ubuntu 10.04 all Except Fresh framework can be installed by command
+On Ubuntu 11.10 all Except Fresh framework can be installed by command
     sudo apt-get install python-qt4 python-qscintilla2
 
                 === Executing ===
-Unpack source code archive and execute main.py
+
+Unpack the source code archive and execute
+    ./mksv3
 
                 === Installation ===
-TODO
 
-                === Documentation ===
-http://hlamer.github.com/mksv3/
+Unpack the source code archive and execute
+    ./setup.py install
+Probably you need admin rights to do it
