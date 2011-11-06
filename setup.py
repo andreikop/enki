@@ -2,9 +2,9 @@
 
 import os
 import sys
-from mks.core.defines import PACKAGE_NAME, PACKAGE_VERSION 
-
 from distutils.core import setup
+
+from mks.core.defines import PACKAGE_NAME, PACKAGE_VERSION 
 
 """hlamer: A bit hacky way to exclude desktop files from distribution,
 but, I don't know how to do it better in crossplatform way
@@ -28,6 +28,17 @@ else:
     data_files=[('/usr/share/applications/', ['mksv3.desktop']),
                 ('/usr/share/pixmaps/', ['icons/xpm/mksv3.xpm'])]
 
+classifiers = ['Development Status :: 3 - Alpha',
+               'Environment :: X11 Applications :: Qt',
+               'Intended Audience :: Developers',
+               'License :: OSI Approved :: GNU General Public License (GPL)',
+               'Natural Language :: English',
+               'Operating System :: OS Independent',
+               'Programming Language :: Python',
+               'Topic :: Software Development',
+               'Topic :: Text Editors :: Integrated Development Environments (IDE)'
+               ]
+
 setup(name=PACKAGE_NAME,
         version=PACKAGE_VERSION,
         description='Next generation Unix code editor',
@@ -40,6 +51,6 @@ setup(name=PACKAGE_NAME,
         package_data={'mks' : ['ui/*.ui', 'config/*.cfg']},
         scripts=['./mksv3'],
         data_files=data_files,
-        command_packages='stdeb.command'
+        command_packages='stdeb.command',
+        classifiers=classifiers
         )
-# TODO classifiers!
