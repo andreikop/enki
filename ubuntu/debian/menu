@@ -1,2 +1,0 @@
-?package(mksv3):needs="X11" section="Applications/Editors"\
-  icon="mksv3.xpm" title="mksv3" command="/usr/bin/mksv3"
