@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=mksv3
+GenericName=Code editor
+Icon=mksv3
+Exec=monkeystudio
+MimeType=
+Categories=Development;Qt;IDE;TextEditor;
