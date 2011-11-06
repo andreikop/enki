@@ -3,6 +3,6 @@ Type=Application
 Name=mksv3
 GenericName=Code editor
 Icon=mksv3
-Exec=monkeystudio
+Exec=mksv3
 MimeType=
 Categories=Development;Qt;IDE;TextEditor;
