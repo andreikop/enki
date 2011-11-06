@@ -1,25 +1,26 @@
-#!/bin/sh
+#!/bin/bash
 
-export DEBFULLNAME='Andrei Kopats'
+export DEBFULLNAME=`./setup.py --author`
+export DEBEMAIL=`./setup.py --author-email`
+VERSION=`./setup.py --version`
+LICENSE=`./setup.py --license`
+PACKAGE_NAME=`./setup.py --name`
+ARCHIVE=../dist/${PACKAGE_NAME}-${VERSION}.tar.gz
 
-VERSION=`python -c 'import mks.core.defines; print mks.core.defines.PACKAGE_VERSION'`
-ARCHIVE=`ls mksv3-*.tar.gz`
+./setup.py sdist
 
-./scripts/make-release.sh
 
-cd ubuntu
-rm -rf debian mksv3*
+rm -rf build
+mkdir build
+cd build
+
 dh_make \
     --packagename=mksv3_${VERSION} \
-    --file=../${ARCHIVE} \
-    --copyright=gpl2 \
-    --email=hlamer@tut.by \
+    --file=${ARCHIVE} \
+    --copyright=${LICENSE} \
     --single
 
-mv debian/menu.ex debian/menu
-rm debian/*.ex debian/*.EX
-cp changelog control copyright debian
-
-#debuild -S
-
-
+cd debian && rm *.ex *.EX README.Debian && cd -
+cd ../files-for-deb && cp changelog control copyright ../build/debian && cd -
+echo '2.7-' > debian/pyversions
+debuild -us -uc

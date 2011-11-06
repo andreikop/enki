@@ -51,6 +51,7 @@ setup(name=PACKAGE_NAME,
         package_data={'mks' : ['ui/*.ui', 'config/*.cfg']},
         scripts=['./mksv3'],
         data_files=data_files,
-        command_packages='stdeb.command',
-        classifiers=classifiers
+        classifiers=classifiers,
+        license='gpl2',
+        command_packages='stdeb.command'
         )
