@@ -39,10 +39,17 @@ classifiers = ['Development Status :: 3 - Alpha',
                'Topic :: Text Editors :: Integrated Development Environments (IDE)'
                ]
 
+long_description = \
+"""Here is first line
+and here is the second
+
+empty line
+"""
+
 setup(name=PACKAGE_NAME,
         version=PACKAGE_VERSION,
         description='Next generation Unix code editor',
-        long_description='TODO write long description',
+        long_description=long_description,
         author='Andrei Kopats',
         author_email='hlamer@tut.by',
         url='www.monkeystudio.org',

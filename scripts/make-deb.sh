@@ -23,7 +23,7 @@ dh_make \
     --createorig
 
 cd debian && rm *.ex *.EX README.Debian && cd -
-cp ../../files-for-debian/* debian
+cp ../../debian/* debian
 echo '2.7-' > debian/pyversions
 debuild -S -us -uc
 debuild -us -uc
