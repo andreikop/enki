@@ -40,10 +40,14 @@ classifiers = ['Development Status :: 3 - Alpha',
                ]
 
 long_description = \
-"""Here is first line
-and here is the second
+"""Some of features:
 
-empty line
+ * Syntax highlighting for more than 30 languages
+ * Bookmarks
+ * Search and replace functionality for files and directories. Regular expressions are supported
+ * File browser
+ * Autocompletion, based on document contents
+ * Hightly configurable
 """
 
 setup(name=PACKAGE_NAME,
@@ -52,7 +56,7 @@ setup(name=PACKAGE_NAME,
         long_description=long_description,
         author='Andrei Kopats',
         author_email='hlamer@tut.by',
-        url='www.monkeystudio.org',
+        url='http://monkeystudio.org',
         download_url='TODO write download URL',
         packages=['mks', 'mks/core', 'mks/plugins', 'mks/resources'],
         package_data={'mks' : ['ui/*.ui', 'config/*.cfg']},

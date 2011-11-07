@@ -12,5 +12,10 @@ Package: mksv3
 Architecture: all
 Depends: ${misc:Depends}, ${python:Depends}, python-qt4, python-qscintilla2
 Description: Next generation Unix code editor
- mksv3 is Python port of Monkey Studio v2.
- TODO more useful information
+ Some of features:
+  * Syntax highlighting for more than 30 languages
+  * Bookmarks
+  * Search and replace functionality for files and directories. Regular expressions are supported
+  * File browser
+  * Autocompletion, based on document contents
+  * Hightly configurable
