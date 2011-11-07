@@ -50,7 +50,6 @@ class UIAbout(QDialog):
         
         self.lTitle.setText( PACKAGE_NAME )
         self.lVersion.setText( self.tr( "Version %s" % PACKAGE_VERSION ))
-        self.lCopyrights.setText( PACKAGE_COPYRIGHTS )
         
         tabs = {'about': self.wLogo,
                 'help': self.tbHelp,
