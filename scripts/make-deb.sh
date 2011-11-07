@@ -25,5 +25,5 @@ dh_make \
 cd debian && rm *.ex *.EX README.Debian && cd -
 cp ../../debian/* debian
 echo '2.7-' > debian/pyversions
-debuild -S -us -uc
-debuild -us -uc
+debuild -S
+
