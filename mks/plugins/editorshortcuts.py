@@ -125,9 +125,9 @@ _ACTIONS = (\
 (qsci.SCI_LINEDUPLICATE, 'mEdit/mCopyPaste/aDuplicateLine', tr('Duplicate line'), '', ''),
 (qsci.SCI_SELECTIONDUPLICATE, 'mEdit/mCopyPaste/aDuplicateSelection', tr('Duplicate selection'), 'Ctrl+D', ''),
 \
-(qsci.SCI_ZOOMIN, 'mNavigation/mZoom/aZoomIn', tr('Zoom In'), 'Ctrl++', ''),
-(qsci.SCI_ZOOMOUT, 'mNavigation/mZoom/aZoomOut', tr('Zoom Out'), 'Ctrl+-', ''),
-(qsci.SCI_SETZOOM, 'mNavigation/mZoom/aSetZoom', tr('Reset Zoom'), 'Ctrl+/', ''),
+(qsci.SCI_ZOOMIN, 'mView/mZoom/aZoomIn', tr('Zoom In'), 'Ctrl++', ''),
+(qsci.SCI_ZOOMOUT, 'mView/mZoom/aZoomOut', tr('Zoom Out'), 'Ctrl+-', ''),
+(qsci.SCI_SETZOOM, 'mView/mZoom/aSetZoom', tr('Reset Zoom'), 'Ctrl+/', ''),
 (MKS_TOGGLE_BOOKMARK, 'mNavigation/mBookmarks/aSetBookmark', tr('Set bookmark'), 'Ctrl+B', ''),
 (qsci.SCI_MARKERDELETEALL, 'mNavigation/mBookmarks/aAllBookmarks', tr('Delete all bookmarks'), '', ''),
 (MKS_NEXT_BOOKMARK, 'mNavigation/mBookmarks/aPreviousBookmark', tr('Previous bookmark'), 'Alt+Down', ''),
