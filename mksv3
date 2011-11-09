@@ -63,7 +63,10 @@ def _showErrorMessage(haveQt, header, text):
         app = QApplication ( sys.argv )
         QMessageBox.critical(None, header, text)
     else:
-        import tkMessageBox
+        try:
+            import tkMessageBox
+        except ImportError:
+            return
         tkMessageBox.showwarning(header, text)
 
 def _checkDependencies():
@@ -88,7 +91,7 @@ def _checkDependencies():
     except ImportError, ex:
         _showErrorMessage(True, "QScintilla not found",
             "<html>Failed to import QScintilla 2 python bindings:<br/>" +
-            str(ex) + '</br>' +
+            str(ex) + '<br/>' +
             "Install python-qscintilla2 package, or download and install sources from "
             "<a href='http://www.riverbankcomputing.co.uk/software/qscintilla/download'>this site</a></html>")
         raise ex
