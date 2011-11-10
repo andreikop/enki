@@ -208,7 +208,7 @@ p, li { white-space: pre-wrap; }
          <item>
           <widget class="QPushButton" name="pbReplaceChecked">
            <property name="text">
-            <string>Replace Chec&amp;ked</string>
+            <string>Replace chec&amp;ked</string>
            </property>
            <property name="icon">
             <iconset>
@@ -316,14 +316,14 @@ p, li { white-space: pre-wrap; }
       <item>
        <widget class="QCheckBox" name="cbCaseSensitive">
         <property name="text">
-         <string>&amp;Case Sensitive</string>
+         <string>&amp;Case sensitive</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QCheckBox" name="cbRegularExpression">
         <property name="text">
-         <string>Re&amp;gular Expression</string>
+         <string>Re&amp;gular expression</string>
         </property>
        </widget>
       </item>
