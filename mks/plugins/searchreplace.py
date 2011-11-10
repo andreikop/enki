@@ -53,9 +53,6 @@ class Plugin(QObject):  # TODO (Plugin) ?
     ModeReplaceProjectFiles = ModeFlagReplace | ModeFlagProjectFiles
     ModeSearchOpenedFiles = ModeFlagSearch | ModeFlagOpenedFiles
     ModeReplaceOpenedFiles = ModeFlagReplace | ModeFlagOpenedFiles
-
-    OptionCaseSensitive = 0x1
-    OptionRegularExpression = 0x2
     
     def __init__(self):
         """Plugin initialisation
@@ -172,7 +169,6 @@ class SearchContext:
     """TODO
     encoding = ''
     """
-    options = 0
     openedFiles = {}
     """TODO
     project = None
@@ -183,12 +179,16 @@ class SearchContext:
                  replaceText, \
                  searchPath, \
                  mode, \
-                 encoding):
+                 encoding,
+                 caseSensitive,
+                 regExp):
         self.searchText = searchText
         self.replaceText = replaceText
         self.searchPath = searchPath
         self.mode = mode
         self.encoding = encoding
+        self.caseSensitive = caseSensitive
+        self.isRegExp = regExp
     
     def regExp(self):
         """Compile regular expression object according to search text and
@@ -198,11 +198,11 @@ class SearchContext:
         flags = 0
         
         # if not reg exp
-        if not self.options & Plugin.OptionRegularExpression:
+        if not self.isRegExp:
             pattern = re.escape( pattern )
         
-        # if not case sensetive
-        if not self.options & Plugin.OptionCaseSensitive:
+        # if not case sensitive
+        if not self.caseSensitive:
             flags = re.IGNORECASE
         
         return re.compile(pattern, flags)
@@ -267,18 +267,6 @@ class SearchWidget(QFrame):
         self.tbCdUp.setCursor( Qt.ArrowCursor )
         self.tbCdUp.installEventFilter( self )
 
-        # options actions
-        self.mModeActions = {}
-        action = QAction( self.cbCaseSensitive )
-        action.setCheckable( True )
-        self.cbCaseSensitive.toggled.connect(action.setChecked)
-        self.mModeActions[ Plugin.OptionCaseSensitive ] = action
-        
-        action = QAction( self.cbRegularExpression )
-        action.setCheckable( True )
-        self.cbRegularExpression.toggled.connect(action.setChecked)
-        self.mModeActions[ Plugin.OptionRegularExpression ] = action
-        
         QWidget.setTabOrder(self.cbSearch, self.cbReplace)
         QWidget.setTabOrder(self.cbReplace, self.cbPath)
         
@@ -567,7 +555,10 @@ class SearchWidget(QFrame):
             replaceText = self.cbReplace.currentText(), \
             searchPath = self.cbPath.currentText(), \
             mode = self.mMode,
-            encoding = self.cbEncoding.currentText())
+            encoding = self.cbEncoding.currentText(),
+            caseSensitive = self.cbCaseSensitive.checkState() == Qt.Checked,
+            regExp = self.cbRegularExpression.checkState() == Qt.Checked
+            )
 
         """TODO
         self.mSearchContext.project = 
@@ -579,11 +570,6 @@ class SearchWidget(QFrame):
             [s.strip() for s in self.cbMask.currentText().split(' ')]
         # remove empty
         self.mSearchContext.mask = filter(None, self.mSearchContext.mask)
-        
-        # update options
-        for option in self.mModeActions.keys():
-            if  self.mModeActions[option].isChecked() :
-                self.mSearchContext.options |= option
         
         """TODO
         # update project
@@ -637,8 +623,7 @@ class SearchWidget(QFrame):
             return False
 
         # get cursor position
-        isRE = self.mSearchContext.options & Plugin.OptionRegularExpression
-        isCS = self.mSearchContext.options & Plugin.OptionCaseSensitive
+        isCS = not(self.mSearchContext.regExp().flags & re.IGNORECASE)
         
         if  forward :
             if  incremental :
@@ -652,7 +637,7 @@ class SearchWidget(QFrame):
                 line, col, temp, temp = editor.getSelection()
         
         # search
-        found = editor.findFirst( self.mSearchContext.searchText, isRE, isCS, False, enableWrap, forward, line, col, True )
+        found = editor.findFirst( self.mSearchContext.regExp().pattern, True, isCS, False, enableWrap, forward, line, col, True )
 
         # change background acording to found or not
         if found:
@@ -1455,18 +1440,17 @@ class ReplaceThread(StopableThread):
             for result in self.mResults[ fileName ][::-1]:
                 replaceText = self.mSearchContext.replaceText
                 # replace \number with groups
-                if self.mSearchContext.options & Plugin.OptionRegularExpression:
-                    replaceText = self.mSearchContext.replaceText
-                    pos = 0
-                    match = subMatchRex.search(replaceText)
-                    while match:
-                        index = int(match.group(1))
-                        if index in range(1, len(result.groups) + 1):
-                            replaceText = replaceText[:pos + match.start()] + \
-                                          result.groups[index - 1] + \
-                                          replaceText[pos + match.start() + len(match.group(0)):]
-                        pos += (match.start() + len(result.groups[index - 1]))
-                        match = subMatchRex.search(replaceText[pos:])
+                replaceText = self.mSearchContext.replaceText
+                pos = 0
+                match = subMatchRex.search(replaceText)
+                while match:
+                    index = int(match.group(1))
+                    if index in range(1, len(result.groups) + 1):
+                        replaceText = replaceText[:pos + match.start()] + \
+                                      result.groups[index - 1] + \
+                                      replaceText[pos + match.start() + len(match.group(0)):]
+                    pos += (match.start() + len(result.groups[index - 1]))
+                    match = subMatchRex.search(replaceText[pos:])
                 
                 # replace text
                 content = content[:result.offset] + replaceText + content[result.offset + result.length:]
