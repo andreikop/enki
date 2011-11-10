@@ -725,11 +725,10 @@ class SearchWidget(QFrame):
         self.pbReplaceChecked.setVisible( not self.mReplaceThread.isRunning() )
         self.updateWidgets()
 
-    def replaceThread_openedFileHandled(self, fileName, content, encoding ):
+    def replaceThread_openedFileHandled(self, fileName, content):
         """Replace thread processed currently opened file,
         need update text in the editor
         """
-        fileName = fileName
         document = core.workspace().openFile(fileName)
         editor = document.qscintilla  # FIXME current editor specific
 
@@ -1387,7 +1386,7 @@ class ReplaceThread(StopableThread):
     """Thread does replacements in the directory according to checked items
     """
     resultsHandled = pyqtSignal(unicode, list)
-    openedFileHandled = pyqtSignal(unicode, unicode, unicode)
+    openedFileHandled = pyqtSignal(unicode, unicode)
     error = pyqtSignal(unicode)
     
     def replace(self, context, results):
@@ -1474,7 +1473,8 @@ class ReplaceThread(StopableThread):
                 handledResults.append(result)
             
             if fileName in self.mSearchContext.openedFiles:
-                self.openedFileHandled.emit( fileName, content, self.mSearchContext.encoding )
+                # TODO encode content with self.mSearchContext.encoding 
+                self.openedFileHandled.emit( fileName, content)
             else:
                 self._saveContent( fileName, content, self.mSearchContext.encoding )
             
