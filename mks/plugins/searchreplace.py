@@ -57,8 +57,7 @@ class Plugin(QObject):  # TODO (Plugin) ?
     OptionNo = 0x0
     OptionCaseSensitive = 0x1
     OptionWholeWord = 0x2
-    OptionWrap = 0x4
-    OptionRegularExpression = 0x8
+    OptionRegularExpression = 0x4
     
     def __init__(self):
         """Plugin initialisation
@@ -284,19 +283,11 @@ class SearchWidget(QFrame):
         action.setCheckable( True )
         self.cbWholeWord.toggled.connect(action.setChecked)
         self.mModeActions[ Plugin.OptionWholeWord ] = action
-        
-        action = QAction( self.cbWrap )
-        action.setCheckable( True )
-        self.cbWrap.toggled.connect(action.setChecked)
-        self.mModeActions[ Plugin.OptionWrap ] = action
-        
+
         action = QAction( self.cbRegularExpression )
         action.setCheckable( True )
         self.cbRegularExpression.toggled.connect(action.setChecked)
         self.mModeActions[ Plugin.OptionRegularExpression ] = action
-        
-        # init default options
-        self.cbWrap.setChecked( True )
         
         QWidget.setTabOrder(self.cbSearch, self.cbReplace)
         QWidget.setTabOrder(self.cbReplace, self.cbPath)
@@ -644,7 +635,7 @@ class SearchWidget(QFrame):
         pal.setColor( widget.backgroundRole(), color[state] )
         widget.setPalette( pal )
     
-    def searchFile(self, forward, incremental ):
+    def searchFile(self, forward, incremental, enableWrap=True):
         """Do search in file operation. Will select next found item
         """
         document = core.workspace().currentDocument()
@@ -659,7 +650,6 @@ class SearchWidget(QFrame):
         isRE = self.mSearchContext.options & Plugin.OptionRegularExpression
         isCS = self.mSearchContext.options & Plugin.OptionCaseSensitive
         isWW = self.mSearchContext.options & Plugin.OptionWholeWord
-        isWrap = self.mSearchContext.options & Plugin.OptionWrap
         
         if  forward :
             if  incremental :
@@ -673,7 +663,7 @@ class SearchWidget(QFrame):
                 line, col, temp, temp = editor.getSelection()
         
         # search
-        found = editor.findFirst( self.mSearchContext.searchText, isRE, isCS, isWW, isWrap, forward, line, col, True )
+        found = editor.findFirst( self.mSearchContext.searchText, isRE, isCS, isWW, enableWrap, forward, line, col, True )
 
         # change background acording to found or not
         if found:
@@ -699,27 +689,17 @@ class SearchWidget(QFrame):
         count = 0
         
         if  replaceAll:
-            isWrap = self.mSearchContext.options & Plugin.OptionWrap
-            col, line = editor.getCursorPosition()
-
-            if  isWrap :
-                # don't need to give wrap parameter for search as we start at begin of document
-                editor.setCursorPosition( 0, 0 )
-                self.mSearchContext.options &= ~Plugin.OptionWrap
+            col, line = editor.getCursorPosition()            
+            editor.setCursorPosition( 0, 0 )
 
             editor.beginUndoAction()
-            
             count = 0
-            while ( self.searchFile( True, False ) ): # search next
+            while ( self.searchFile( True, False, False ) ): # search next
                 editor.replace( self.mSearchContext.replaceText )
                 count += 1
-
             editor.endUndoAction()
-            editor.setCursorPosition(col, line) # restore cursor position
             
-            # restore wrap property if needed
-            if  isWrap :
-                self.mSearchContext.options |= Plugin.OptionWrap
+            editor.setCursorPosition(col, line) # restore cursor position
         else:
             line, col, temp, temp = editor.getSelection()
             editor.setCursorPosition( line, col )
