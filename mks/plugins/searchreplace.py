@@ -54,10 +54,8 @@ class Plugin(QObject):  # TODO (Plugin) ?
     ModeSearchOpenedFiles = ModeFlagSearch | ModeFlagOpenedFiles
     ModeReplaceOpenedFiles = ModeFlagReplace | ModeFlagOpenedFiles
 
-    OptionNo = 0x0
     OptionCaseSensitive = 0x1
-    OptionWholeWord = 0x2
-    OptionRegularExpression = 0x4
+    OptionRegularExpression = 0x2
     
     def __init__(self):
         """Plugin initialisation
@@ -203,9 +201,6 @@ class SearchContext:
         if not self.options & Plugin.OptionRegularExpression:
             pattern = re.escape( pattern )
         
-        if self.options & Plugin.OptionWholeWord:  # whole word
-            pattern = "\\b" + pattern + "\\b"
-        
         # if not case sensetive
         if not self.options & Plugin.OptionCaseSensitive:
             flags = re.IGNORECASE
@@ -279,11 +274,6 @@ class SearchWidget(QFrame):
         self.cbCaseSensitive.toggled.connect(action.setChecked)
         self.mModeActions[ Plugin.OptionCaseSensitive ] = action
         
-        action = QAction( self.cbWholeWord )
-        action.setCheckable( True )
-        self.cbWholeWord.toggled.connect(action.setChecked)
-        self.mModeActions[ Plugin.OptionWholeWord ] = action
-
         action = QAction( self.cbRegularExpression )
         action.setCheckable( True )
         self.cbRegularExpression.toggled.connect(action.setChecked)
@@ -649,7 +639,6 @@ class SearchWidget(QFrame):
         # get cursor position
         isRE = self.mSearchContext.options & Plugin.OptionRegularExpression
         isCS = self.mSearchContext.options & Plugin.OptionCaseSensitive
-        isWW = self.mSearchContext.options & Plugin.OptionWholeWord
         
         if  forward :
             if  incremental :
@@ -663,7 +652,7 @@ class SearchWidget(QFrame):
                 line, col, temp, temp = editor.getSelection()
         
         # search
-        found = editor.findFirst( self.mSearchContext.searchText, isRE, isCS, isWW, enableWrap, forward, line, col, True )
+        found = editor.findFirst( self.mSearchContext.searchText, isRE, isCS, False, enableWrap, forward, line, col, True )
 
         # change background acording to found or not
         if found:
