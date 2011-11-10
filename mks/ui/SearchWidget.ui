@@ -328,13 +328,6 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="cbWrap">
-        <property name="text">
-         <string>&amp;Wrap</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QCheckBox" name="cbRegularExpression">
         <property name="text">
          <string>Re&amp;gular Expression</string>
