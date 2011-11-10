@@ -20,6 +20,7 @@ from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QDir, QEvent, \
 from PyQt4.QtGui import QAction, QCompleter, QColor, QDirModel, QFileDialog,  \
                         QFrame, QFileDialog, QHBoxLayout, QIcon, \
                         QPainter,  \
+                        QPalette, \
                         QProgressBar, QToolButton, QTreeView, QWidget
 from PyQt4.fresh import pDockWidget
 
@@ -217,14 +218,11 @@ class SearchWidget(QFrame):
     """Widget, appeared, when Ctrl+F pressed.
     Has different forms for different search modes
     """
-    
-    Search = 'search'
-    Replace = 'replace'
-    
+
     Normal = 'normal'
     Good = 'good'
     Bad = 'bad'
-    
+
     def __init__(self, plugin):
         QFrame.__init__(self, core.workspace())
         self.mMode = None
@@ -376,6 +374,8 @@ class SearchWidget(QFrame):
         core.actionModel().action("mNavigation/mSearchReplace/aSearchPrevious").setEnabled(False)
         
         core.mainWindow().hideAllWindows.connect(self.hide)
+
+        self._defaultBackgroundColor = self.cbSearch.palette().color(QPalette.Base)
 
 
     def setResultsDock(self, dock ):
@@ -631,27 +631,18 @@ class SearchWidget(QFrame):
         else:
             core.mainWindow().statusBar().showMessage( status, 30000 )
 
-    def setState(self, field, state ):
+    def setState(self, state ):
         """Change line edit color according to search result
         """
-        widget = 0
-        color = QColor( Qt.white )
+        widget = self.cbSearch.lineEdit()
         
-        if field == SearchWidget.Search:
-            widget = self.cbSearch.lineEdit()
-        elif field == SearchWidget.Replace:
-            widget = self.cbReplace.lineEdit()
-        
-        widget = {SearchWidget.Search: self.cbSearch.lineEdit(),
-                  SearchWidget.Replace: self.cbReplace.lineEdit()}
-        
-        color = {SearchWidget.Normal: Qt.white, \
+        color = {SearchWidget.Normal: self._defaultBackgroundColor, \
                  SearchWidget.Good: Qt.green, \
                  SearchWidget.Bad: Qt.red}
         
-        pal = widget[field].palette()
-        pal.setColor( widget[field].backgroundRole(), color[state] )
-        widget[field].setPalette( pal )
+        pal = widget.palette()
+        pal.setColor( widget.backgroundRole(), color[state] )
+        widget.setPalette( pal )
     
     def searchFile(self, forward, incremental ):
         """Do search in file operation. Will select next found item
@@ -660,7 +651,7 @@ class SearchWidget(QFrame):
         if document:
             editor = document.qscintilla  # FIXME current editor specific, 
         else:
-            self.setState( SearchWidget.Search, SearchWidget.Bad )
+            self.setState(SearchWidget.Bad )
             self.showMessage( self.tr( "No active editor" ) )
             return False
 
@@ -686,9 +677,9 @@ class SearchWidget(QFrame):
 
         # change background acording to found or not
         if found:
-            self.setState( SearchWidget.Search, SearchWidget.Good)
+            self.setState(SearchWidget.Good)
         else:
-            self.setState( SearchWidget.Search, SearchWidget.Bad)
+            self.setState(SearchWidget.Bad)
         
         # return found state
         return found
@@ -701,7 +692,7 @@ class SearchWidget(QFrame):
             editor = document.qscintilla  # FIXME current editor specific
         
         if  not editor :
-            self.setState( SearchWidget.Search, SearchWidget.Bad )
+            self.setState(SearchWidget.Bad )
             self.showMessage( self.tr( "No active editor" ) )
             return False
 
@@ -832,7 +823,7 @@ class SearchWidget(QFrame):
     def on_pbSearch_pressed(self):
         """Handler of click on "Search" button (for search in directory)
         """
-        self.setState( SearchWidget.Search, SearchWidget.Normal )
+        self.setState(SearchWidget.Normal )
         self.updateComboBoxes()
         self.initializeSearchContext( False )
         
