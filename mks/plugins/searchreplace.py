@@ -175,24 +175,16 @@ class SearchContext:
     sourcesFiles = ''
     """
     def __init__(self,
-                 searchText, \
+                 regExp, \
                  replaceText, \
                  searchPath, \
                  mode, \
-                 encoding,
-                 isCaseSensitive,
-                 isRegExp):
+                 encoding):
+        self.regExp = regExp
         self.replaceText = replaceText
         self.searchPath = searchPath
         self.mode = mode
         self.encoding = encoding
-        
-        flags = 0
-        if not isCaseSensitive:
-            flags = re.IGNORECASE
-        if not isRegExp:
-            searchText = re.escape(searchText)
-        self.regExp = re.compile(searchText, flags)
 
 
 class SearchWidget(QFrame):
@@ -534,18 +526,28 @@ class SearchWidget(QFrame):
             if  index == -1 :
                 self.cbMask.addItem( maskText )
     
+    def _getRegExp(self):
+        """Read search parameters from controls and present it as a regular expression
+        """
+        pattern = self.cbSearch.currentText()
+        if not self.cbRegularExpression.checkState() == Qt.Checked:
+            pattern = re.escape(pattern)
+        flags = 0
+        if not self.cbCaseSensitive.checkState() == Qt.Checked:
+            flags = re.IGNORECASE
+
+        return re.compile(pattern, flags)
+        
+        searchText = re.escape(searchText)
     def initializeSearchContext(self, currentDocumentOnly ):
         """Fill search context with actual data
         """
         self.mSearchContext = SearchContext(\
-            searchText = self.cbSearch.currentText(), \
+            self._getRegExp(), \
             replaceText = self.cbReplace.currentText(), \
             searchPath = self.cbPath.currentText(), \
             mode = self.mMode,
-            encoding = self.cbEncoding.currentText(),
-            isCaseSensitive = self.cbCaseSensitive.checkState() == Qt.Checked,
-            isRegExp = self.cbRegularExpression.checkState() == Qt.Checked
-            )
+            encoding = self.cbEncoding.currentText())
 
         """TODO
         self.mSearchContext.project = 
