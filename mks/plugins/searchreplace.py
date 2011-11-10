@@ -180,33 +180,20 @@ class SearchContext:
                  searchPath, \
                  mode, \
                  encoding,
-                 caseSensitive,
-                 regExp):
-        self.searchText = searchText
+                 isCaseSensitive,
+                 isRegExp):
         self.replaceText = replaceText
         self.searchPath = searchPath
         self.mode = mode
         self.encoding = encoding
-        self.caseSensitive = caseSensitive
-        self.isRegExp = regExp
-    
-    def regExp(self):
-        """Compile regular expression object according to search text and
-        options
-        """
-        pattern = self.searchText
+        
         flags = 0
-        
-        # if not reg exp
-        if not self.isRegExp:
-            pattern = re.escape( pattern )
-        
-        # if not case sensitive
-        if not self.caseSensitive:
+        if not isCaseSensitive:
             flags = re.IGNORECASE
-        
-        return re.compile(pattern, flags)
-        
+        if not isRegExp:
+            searchText = re.escape(searchText)
+        self.regExp = re.compile(searchText, flags)
+
 
 class SearchWidget(QFrame):
     """Widget, appeared, when Ctrl+F pressed.
@@ -556,8 +543,8 @@ class SearchWidget(QFrame):
             searchPath = self.cbPath.currentText(), \
             mode = self.mMode,
             encoding = self.cbEncoding.currentText(),
-            caseSensitive = self.cbCaseSensitive.checkState() == Qt.Checked,
-            regExp = self.cbRegularExpression.checkState() == Qt.Checked
+            isCaseSensitive = self.cbCaseSensitive.checkState() == Qt.Checked,
+            isRegExp = self.cbRegularExpression.checkState() == Qt.Checked
             )
 
         """TODO
@@ -623,7 +610,7 @@ class SearchWidget(QFrame):
             return False
 
         # get cursor position
-        isCS = not(self.mSearchContext.regExp().flags & re.IGNORECASE)
+        isCS = not(self.mSearchContext.regExp.flags & re.IGNORECASE)
         
         if  forward :
             if  incremental :
@@ -637,7 +624,7 @@ class SearchWidget(QFrame):
                 line, col, temp, temp = editor.getSelection()
         
         # search
-        found = editor.findFirst( self.mSearchContext.regExp().pattern, True, isCS, False, enableWrap, forward, line, col, True )
+        found = editor.findFirst( self.mSearchContext.regExp.pattern, True, isCS, False, enableWrap, forward, line, col, True )
 
         # change background acording to found or not
         if found:
@@ -780,7 +767,7 @@ class SearchWidget(QFrame):
         self.updateComboBoxes()
         self.initializeSearchContext( False )
         
-        assert self.mSearchContext.searchText
+        assert self.mSearchContext.regExp.pattern
         
         """TODO
         if  self.mSearchContext.mMode & Plugin.ModeFlagProjectFiles and not self.mSearchContext.project :
@@ -1308,8 +1295,6 @@ class SearchThread(StopableThread):
         # Prepare data for search process
         eol = "\n"
         
-        regExp = self.mSearchContext.regExp()
-        
         lastResultsEmitTime = time.clock()
         notEmittedFileResults = []
         # Search for all files
@@ -1321,7 +1306,7 @@ class SearchThread(StopableThread):
             results = []
             
             # Process result for all occurrences
-            for match in regExp.finditer(content):
+            for match in self.mSearchContext.regExp.finditer(content):
                 start = match.start()
                 
                 eolStart = content.rfind( eol, 0, start)
