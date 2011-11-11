@@ -109,13 +109,19 @@
 <dl class="class">
 <dt id="mks.plugins.editor.Editor">
 <em class="property">class </em><tt class="descclassname">mks.plugins.editor.</tt><tt class="descname">Editor</tt><big>(</big><em>parentObject</em>, <em>filePath</em>, <em>createNew=False</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../core/abstractdocument.html#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a></p>
+<dd><p>Bases: <a class="reference internal" href="../core/abstractdocument.html#mks.core.abstractdocument.AbstractTextEditor" title="mks.core.abstractdocument.AbstractTextEditor"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractTextEditor</span></tt></a></p>
 <p>Text editor widget.</p>
 <p>Uses QScintilla internally</p>
 <dl class="method">
 <dt id="mks.plugins.editor.Editor.applySettings">
 <tt class="descname">applySettings</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.applySettings" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply own settings form the config</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.editor.Editor.isModified">
+<tt class="descname">isModified</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.isModified" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check is file has been modified</p>
 </dd></dl>
 
 <dl class="method">
@@ -128,13 +134,6 @@
 <dt id="mks.plugins.editor.Editor.setText">
 <tt class="descname">setText</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.setText" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set text in the QScintilla, clear modified flag, update line numbers bar</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.line">
-<tt class="descname">line</tt><big>(</big><em>index</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.line" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get line of the text by its index. Lines are indexed from 0
-None, if index is invalid</p>
 </dd></dl>
 
 <dl class="method">
@@ -174,21 +173,29 @@ None, if index is invalid</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mks.plugins.editor.Editor.cursorPosition">
-<tt class="descname">cursorPosition</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.cursorPosition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get cursor position as touple (line, col)</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.isModified">
-<tt class="descname">isModified</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.isModified" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check is file has been modified</p>
+<dt id="mks.plugins.editor.Editor.setHighlightingLanguage">
+<tt class="descname">setHighlightingLanguage</tt><big>(</big><em>language</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.setHighlightingLanguage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set programming language of the file.
+Called Only by <a class="reference internal" href="../core/associations.html#module-mks.core.associations" title="mks.core.associations"><tt class="xref py py-mod docutils literal"><span class="pre">mks.core.associations</span></tt></a> to select syntax highlighting language.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mks.plugins.editor.Editor.goTo">
 <tt class="descname">goTo</tt><big>(</big><em>line</em>, <em>column</em>, <em>selectionLength=-1</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.goTo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Go to specified line and column. Select text if necessary</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.editor.Editor.line">
+<tt class="descname">line</tt><big>(</big><em>index</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get line of the text by its index. Lines are indexed from 0
+None, if index is invalid</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.editor.Editor.cursorPosition">
+<tt class="descname">cursorPosition</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.cursorPosition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get cursor position as touple (line, col)</p>
 </dd></dl>
 
 <dl class="method">
@@ -207,13 +214,6 @@ None, if index is invalid</p>
 <dt id="mks.plugins.editor.Editor.prevBookmark">
 <tt class="descname">prevBookmark</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.prevBookmark" title="Permalink to this definition">¶</a></dt>
 <dd><p>Move to the previous bookmark</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.setHighlightingLanguage">
-<tt class="descname">setHighlightingLanguage</tt><big>(</big><em>language</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.setHighlightingLanguage" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set programming language of the file.
-Called Only by <a class="reference internal" href="../core/associations.html#module-mks.core.associations" title="mks.core.associations"><tt class="xref py py-mod docutils literal"><span class="pre">mks.core.associations</span></tt></a> to select syntax highlighting language.</p>
 </dd></dl>
 
 </dd></dl>

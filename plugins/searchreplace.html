@@ -72,7 +72,7 @@
 
 <dl class="class">
 <dt id="mks.plugins.searchreplace.SearchContext">
-<em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">SearchContext</tt><big>(</big><em>searchText</em>, <em>replaceText</em>, <em>searchPath</em>, <em>mode</em>, <em>encoding</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchContext" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">SearchContext</tt><big>(</big><em>regExp</em>, <em>replaceText</em>, <em>searchPath</em>, <em>mode</em>, <em>encoding</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchContext" title="Permalink to this definition">¶</a></dt>
 <dd><p>Structure holds parameters of search or replace operation in progress</p>
 <dl class="attribute">
 <dt id="mks.plugins.searchreplace.SearchContext.mask">
@@ -87,13 +87,6 @@ encoding = &#8216;&#8217;</p>
 <dd><p>TODO
 project = None
 sourcesFiles = &#8216;&#8217;</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.searchreplace.SearchContext.regExp">
-<tt class="descname">regExp</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchContext.regExp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compile regular expression object according to search text and
-options</p>
 </dd></dl>
 
 </dd></dl>
@@ -162,13 +155,13 @@ Draws icons in the search and path lineEdits</p>
 
 <dl class="method">
 <dt id="mks.plugins.searchreplace.SearchWidget.setState">
-<tt class="descname">setState</tt><big>(</big><em>field</em>, <em>state</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.setState" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">setState</tt><big>(</big><em>state</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.setState" title="Permalink to this definition">¶</a></dt>
 <dd><p>Change line edit color according to search result</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mks.plugins.searchreplace.SearchWidget.searchFile">
-<tt class="descname">searchFile</tt><big>(</big><em>forward</em>, <em>incremental</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.searchFile" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">searchFile</tt><big>(</big><em>forward</em>, <em>incremental</em>, <em>enableWrap=True</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.searchFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Do search in file operation. Will select next found item</p>
 </dd></dl>
 
@@ -198,7 +191,7 @@ Draws icons in the search and path lineEdits</p>
 
 <dl class="method">
 <dt id="mks.plugins.searchreplace.SearchWidget.replaceThread_openedFileHandled">
-<tt class="descname">replaceThread_openedFileHandled</tt><big>(</big><em>fileName</em>, <em>content</em>, <em>encoding</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.replaceThread_openedFileHandled" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">replaceThread_openedFileHandled</tt><big>(</big><em>fileName</em>, <em>content</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.replaceThread_openedFileHandled" title="Permalink to this definition">¶</a></dt>
 <dd><p>Replace thread processed currently opened file,
 need update text in the editor</p>
 </dd></dl>

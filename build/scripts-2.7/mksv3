@@ -1,0 +1,183 @@
+#!/usr/bin/python
+"""
+Monkey Studio free crossplatform IDE.
+Main file processes command line arguments and starts the system.
+"""
+import sys
+import os.path
+import traceback
+import logging
+import logging.handlers
+
+import mks.core.defines
+
+helpString = \
+"""
+Usage:
+\t%s [options] [FILE1 [FILE2 ...]]
+
+Command line switches:
+\t-h, --help      Show command line help
+\t-v, --version   Show program version
+"""
+
+
+def showHelp():
+    showVersion()
+    print helpString % sys.argv[0]
+    
+
+def showVersion():
+    print "%s version %s" % (mks.core.defines.PACKAGE_NAME, mks.core.defines.PACKAGE_VERSION)
+    print mks.core.defines.PACKAGE_COPYRIGHTS
+    print "http://%s" % mks.core.defines.PACKAGE_DOMAIN
+
+def excepthook(excepttype, exceptvalue, tracebackobj):
+    """Show exception dialog, write to log
+    """
+    text = ''.join(traceback.format_exception(excepttype, exceptvalue, tracebackobj)).strip()
+    text = unicode(text, 'utf8')
+    logging.critical(text)
+    
+    mailto = '<a href="mailto:hlamer@tut.by?subject=Crash&body=asdf">mailto:hlamer@tut.by</a>'
+    
+    mboxText =  'Exception occured.<br/>' + \
+                'MkS team tries to avoid such problems and make mksv3 stable<br/>' + \
+                'To help us <font color="red">send please a bug report to the developers</font><br/>' + \
+                mailto + '<br/>' + \
+                '<br/>' + \
+                'Include your description and this text:<br/>' + \
+                '<br/>' + \
+                text.replace('\n', '<br/>\n')
+
+    from PyQt4.QtGui import QMessageBox
+    QMessageBox.critical(None, 'Oops. Internal exception', mboxText)
+
+def _showErrorMessage(haveQt, header, text):
+    """Show error message with messagebox
+    """
+    print >> sys.stderr, header
+    print >> sys.stderr, text
+    if haveQt:
+        from PyQt4.QtGui import QApplication, QMessageBox
+        app = QApplication ( sys.argv )
+        QMessageBox.critical(None, header, text)
+    else:
+        import tkMessageBox
+        tkMessageBox.showwarning(header, text)
+
+def _checkDependencies():
+    """Check if 3rdparty software is installed in the system.
+    Notify user, how to install it
+    """
+    try:
+        import PyQt4
+    except ImportError, ex:
+        _showErrorMessage(False, 'PyQt4 not found',
+                'Failed to import Qt4 python bindings:\n' +
+                str(ex) + '\n' +
+                'Install package python-qt4, or download sources from '
+                'http://www.riverbankcomputing.co.uk/software/pyqt/download')
+        raise ex
+
+    import sip
+    sip.setapi('QString', 2)
+
+    try:
+        import PyQt4.Qsci
+    except ImportError, ex:
+        _showErrorMessage(True, "QScintilla not found",
+            "<html>Failed to import QScintilla 2 python bindings:<br/>" +
+            str(ex) + '</br>' +
+            "Install python-qscintilla2 package, or download and install sources from "
+            "<a href='http://www.riverbankcomputing.co.uk/software/qscintilla/download'>this site</a></html>")
+        raise ex
+    
+    try:
+        import PyQt4.fresh
+    except ImportError, ex:
+        _showErrorMessage(True, "Fresh framework not found",
+                                "<html>Failed to import fresh framework python bindings:<br/>" + 
+                                str(ex) + '<br/>' +
+                                "Download and install sources from "
+                                "<a href='https://github.com/pasnox/fresh'>this site</a></html>")
+        raise ex
+    
+    try:
+        import configobj
+        import validate
+    except ImportError, ex:
+        _showErrorMessage(True, "ConfigObj not found",
+                        "<html>Failed to import ConfigObj modules:<br/>" +
+                        str(ex) + '<br/>' +
+                        "Download and install it from "
+                        "<a href='http://www.voidspace.org.uk/python/configobj.html#downloading'>this site</a></html>")
+        raise ex
+
+def _configureLogging():
+    logging.basicConfig(level=logging.ERROR)
+    fileHandler = logging.handlers.RotatingFileHandler('/tmp/mksv3.log', 'a', 100 * 1024, 1)
+    logging.getLogger('').addHandler(fileHandler)
+
+def main():
+    if '-v' in sys.argv or '--version' in sys.argv:
+        showVersion()
+        return 0
+    
+    if '-h' in sys.argv or '--help' in sys.argv:
+        showHelp()
+        return 0
+    
+    try:
+        _checkDependencies()
+    except ImportError:
+        return -1
+
+    import PyQt4.QtGui
+    app = PyQt4.QtGui.QApplication ( sys.argv )
+    
+    _configureLogging()
+    sys.excepthook = excepthook
+    
+    
+    # Imports only here. Hack for ability to get help and version info even on system without PyQt and Fresh.
+    from mks.core.core import core
+    
+    app.setApplicationName( mks.core.defines.PACKAGE_NAME )
+    app.setOrganizationName( mks.core.defines.PACKAGE_ORGANISATION )
+    app.setOrganizationDomain( mks.core.defines.PACKAGE_DOMAIN )
+    
+    app.lastWindowClosed.connect(app.quit)
+    
+    # init monkey studio core
+    core.init()
+
+    # Get list of absolute pathes of files to open. List may contain not existing files
+
+    filePathes = [os.path.abspath(arg) for arg in sys.argv[1:]]
+    
+    # convert to unicode for avoid Python <-> Qt interaction problems
+    filePathes = [unicode(f, 'utf8') for f in filePathes]
+
+    if filePathes:
+        for filePath in filePathes:
+            if os.path.exists(filePath):
+                core.workspace().openFile(filePath)
+            else:
+                core.workspace().createEmptyNotSavedDocument(filePath)
+    else:
+        core.workspace().createEmptyNotSavedDocument()
+
+    if core.workspace().currentDocument():
+        core.workspace().currentDocument().setFocus()
+    
+    core.mainWindow().show()
+    
+    # execute application
+    result = app.exec_()
+    core.term()
+    
+    return result
+
+if __name__ == '__main__':
+    sys.exit(main())

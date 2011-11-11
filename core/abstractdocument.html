@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>abstractdocument — Base class for workspace documents &mdash; mksv3 v3.0.0 documentation</title>
+    <title>abstractdocument — Base classes for workspace documents &mdash; mksv3 v3.0.0 documentation</title>
     <link rel="stylesheet" href="../static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -52,8 +52,8 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <span class="target" id="module-mks.core.abstractdocument"></span><div class="section" id="abstractdocument-base-class-for-workspace-documents">
-<h1>abstractdocument &#8212; Base class for workspace documents<a class="headerlink" href="#abstractdocument-base-class-for-workspace-documents" title="Permalink to this headline">¶</a></h1>
+  <span class="target" id="module-mks.core.abstractdocument"></span><div class="section" id="abstractdocument-base-classes-for-workspace-documents">
+<h1>abstractdocument &#8212; Base classes for workspace documents<a class="headerlink" href="#abstractdocument-base-classes-for-workspace-documents" title="Permalink to this headline">¶</a></h1>
 <p>This class is inherited by textual editor, and must be inherited by other workspace widgets.</p>
 <p><tt class="xref py py-class docutils literal"><span class="pre">mks.core.workspace.AbstractDocument</span></tt>  - base class of workspace documents</p>
 <dl class="class">
@@ -72,18 +72,11 @@ DO redesign instead of doing dirty hacks</p>
 Bool parameter contains new value</p>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="mks.core.abstractdocument.AbstractDocument.cursorPositionChanged">
-<tt class="descname">cursorPositionChanged</tt><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.cursorPositionChanged" title="Permalink to this definition">¶</a></dt>
-<dd><p>modifiedChanged(line, column)</p>
-<p><strong>Signal</strong> emitted, when cursor position has been changed</p>
-</dd></dl>
-
 <dl class="method">
-<dt id="mks.core.abstractdocument.AbstractDocument.isExternallyRemoved">
-<tt class="descname">isExternallyRemoved</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.isExternallyRemoved" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if document&#8217;s file has been deleted externally.</p>
-<p>This method does not do any file system access, but only returns cached info</p>
+<dt id="mks.core.abstractdocument.AbstractDocument.isModified">
+<tt class="descname">isModified</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.isModified" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True, if file is modified</p>
+<p>To be implemented by child class</p>
 </dd></dl>
 
 <dl class="method">
@@ -94,53 +87,16 @@ Bool parameter contains new value</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.isExternallyRemoved">
+<tt class="descname">isExternallyRemoved</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.isExternallyRemoved" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if document&#8217;s file has been deleted externally.</p>
+<p>This method does not do any file system access, but only returns cached info</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mks.core.abstractdocument.AbstractDocument.isNeverSaved">
 <tt class="descname">isNeverSaved</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.isNeverSaved" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if document has been created, but never has been saved on disk</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.core.abstractdocument.AbstractDocument.eolMode">
-<tt class="descname">eolMode</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.eolMode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return document&#8217;s EOL mode. Possible values are:</p>
-<ul class="simple">
-<li><tt class="docutils literal"><span class="pre">\n</span></tt>  - UNIX EOL</li>
-<li><tt class="docutils literal"><span class="pre">\r\n</span></tt> - Windows EOL</li>
-<li><tt class="xref docutils literal"><span class="pre">None</span></tt> - not defined for the editor type</li>
-</ul>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.core.abstractdocument.AbstractDocument.setEolMode">
-<tt class="descname">setEolMode</tt><big>(</big><em>mode</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.setEolMode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set editor EOL mode.
-See eolMode() for a alowed mode values</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.core.abstractdocument.AbstractDocument.indentWidth">
-<tt class="descname">indentWidth</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.indentWidth" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get width of tabulation symbol and count of spaces to insert, when Tab pressed</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.core.abstractdocument.AbstractDocument.setIndentWidth">
-<tt class="descname">setIndentWidth</tt><big>(</big><em>width</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.setIndentWidth" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set width of tabulation symbol and count of spaces to insert, when Tab pressed</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.core.abstractdocument.AbstractDocument.indentUseTabs">
-<tt class="descname">indentUseTabs</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.indentUseTabs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get indentation uses tabs flag.
-If true -        inserted by Tab button, if false - spaces</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.core.abstractdocument.AbstractDocument.setIndentUseTabs">
-<tt class="descname">setIndentUseTabs</tt><big>(</big><em>use</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.setIndentUseTabs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set indentation uses tabs flag.
-If true -        inserted by Tab button, if false - spaces</p>
 </dd></dl>
 
 <dl class="method">
@@ -156,55 +112,10 @@ If true -        inserted by Tab button, if false - spaces</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mks.core.abstractdocument.AbstractDocument.cursorPosition">
-<tt class="descname">cursorPosition</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.cursorPosition" title="Permalink to this definition">¶</a></dt>
-<dd><p>return cursor position as 2 values: line and column, if available</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.core.abstractdocument.AbstractDocument.isModified">
-<tt class="descname">isModified</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.isModified" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns True, if file is modified</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.core.abstractdocument.AbstractDocument.invokeGoTo">
-<tt class="descname">invokeGoTo</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.invokeGoTo" title="Permalink to this definition">¶</a></dt>
-<dd><p>Show GUI dialog, go to line, if user accepted it</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.core.abstractdocument.AbstractDocument.goTo">
-<tt class="descname">goTo</tt><big>(</big><em>line</em>, <em>column</em>, <em>selectionLength=-1</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.goTo" title="Permalink to this definition">¶</a></dt>
-<dd><p>Go to specified line and column.
-If selectionLength is not -1, select selectionLength characters</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="mks.core.abstractdocument.AbstractDocument.saveFile">
 <tt class="descname">saveFile</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.saveFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the file to file system</p>
 <p>Shows QFileDialog if necessary</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.core.abstractdocument.AbstractDocument.text">
-<tt class="descname">text</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.text" title="Permalink to this definition">¶</a></dt>
-<dd><p>Contents of the editor.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.core.abstractdocument.AbstractDocument.setText">
-<tt class="descname">setText</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.setText" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set contents in the editor.
-Usually this method is called only internally by openFile()</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.core.abstractdocument.AbstractDocument.line">
-<tt class="descname">line</tt><big>(</big><em>index</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.line" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get line of the text by its index. Lines are indexed from 0.</p>
-<p>None, if index is invalid</p>
 </dd></dl>
 
 <dl class="method">
@@ -227,19 +138,128 @@ for update internal bookkeeping</p>
 <dd><p>Icon for the opened files model</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.core.abstractdocument.AbstractTextEditor">
+<em class="property">class </em><tt class="descclassname">mks.core.abstractdocument.</tt><tt class="descname">AbstractTextEditor</tt><big>(</big><em>parentObject</em>, <em>filePath</em>, <em>createNew=False</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a></p>
+<p>Base class for text editors. Currently, only QScintilla is supported, but, we may replace it in the future</p>
+<dl class="attribute">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.cursorPositionChanged">
+<tt class="descname">cursorPositionChanged</tt><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.cursorPositionChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>modifiedChanged(line, column)</p>
+<p><strong>Signal</strong> emitted, when cursor position has been changed</p>
+</dd></dl>
+
 <dl class="method">
-<dt id="mks.core.abstractdocument.AbstractDocument.highlightingLanguage">
-<tt class="descname">highlightingLanguage</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.highlightingLanguage" title="Permalink to this definition">¶</a></dt>
+<dt id="mks.core.abstractdocument.AbstractTextEditor.text">
+<tt class="descname">text</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contents of the editor.</p>
+<p>To be implemented by child class</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.setText">
+<tt class="descname">setText</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.setText" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set contents in the editor.
+Usually this method is called only internally by openFile()</p>
+<p>To be implemented by child class</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.eolMode">
+<tt class="descname">eolMode</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.eolMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return document&#8217;s EOL mode. Possible values are:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">\n</span></tt>  - UNIX EOL</li>
+<li><tt class="docutils literal"><span class="pre">\r\n</span></tt> - Windows EOL</li>
+<li><tt class="xref docutils literal"><span class="pre">None</span></tt> - not defined for the editor type</li>
+</ul>
+<p>To be implemented by child class</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.setEolMode">
+<tt class="descname">setEolMode</tt><big>(</big><em>mode</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.setEolMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set editor EOL mode.
+See eolMode() for a alowed mode values</p>
+<p>To be implemented by child class</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.indentWidth">
+<tt class="descname">indentWidth</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.indentWidth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get width of tabulation symbol and count of spaces to insert, when Tab pressed</p>
+<p>To be implemented by child class</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.setIndentWidth">
+<tt class="descname">setIndentWidth</tt><big>(</big><em>width</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.setIndentWidth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set width of tabulation symbol and count of spaces to insert, when Tab pressed</p>
+<p>To be implemented by child class</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.indentUseTabs">
+<tt class="descname">indentUseTabs</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.indentUseTabs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get indentation uses tabs flag.
+If true -        inserted by Tab button, if false - spaces</p>
+<p>To be implemented by child class</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.setIndentUseTabs">
+<tt class="descname">setIndentUseTabs</tt><big>(</big><em>use</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.setIndentUseTabs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set indentation uses tabs flag.
+If true -        inserted by Tab button, if false - spaces</p>
+<p>To be implemented by child class</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.highlightingLanguage">
+<tt class="descname">highlightingLanguage</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.highlightingLanguage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get programming language of the file.</p>
 <p>See list of supported programming languages in the settings</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mks.core.abstractdocument.AbstractDocument.setHighlightingLanguage">
-<tt class="descname">setHighlightingLanguage</tt><big>(</big><em>language</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.setHighlightingLanguage" title="Permalink to this definition">¶</a></dt>
+<dt id="mks.core.abstractdocument.AbstractTextEditor.setHighlightingLanguage">
+<tt class="descname">setHighlightingLanguage</tt><big>(</big><em>language</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.setHighlightingLanguage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set programming language of the file.</p>
 <p>Called Only by <a class="reference internal" href="associations.html#mks.core.associations.Associations" title="mks.core.associations.Associations"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.associations.Associations</span></tt></a> to select syntax highlighting language.</p>
-<p>Implementation must call AbstractDocument method</p>
+<p>To be implemented by child class
+Implementation must call AbstractDocument method</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.cursorPosition">
+<tt class="descname">cursorPosition</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.cursorPosition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return cursor position as 2 values: line and column, if available</p>
+<p>To be implemented by child class</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.invokeGoTo">
+<tt class="descname">invokeGoTo</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.invokeGoTo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show GUI dialog, go to line, if user accepted it</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.goTo">
+<tt class="descname">goTo</tt><big>(</big><em>line</em>, <em>column</em>, <em>selectionLength=-1</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.goTo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Go to specified line and column.
+If selectionLength is not -1, select selectionLength characters</p>
+<p>To be implemented by child class</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.line">
+<tt class="descname">line</tt><big>(</big><em>index</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get line of the text by its index. Lines are indexed from 0.</p>
+<p>None, if index is invalid</p>
+<p>To be implemented by child class</p>
 </dd></dl>
 
 </dd></dl>
