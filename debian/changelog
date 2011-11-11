@@ -1,5 +1,12 @@
+mksv3 (0.1.1-0ubuntu1) oneiric; urgency=low
+
+  * Added fresh dependency
+
+ -- Andrei Kopats (Key for PPA) <hlamer@tut.by>  Fri, 11 Nov 2011 19:01:44 +0300
+
 mksv3 (0.1a-0ubuntu1) oneiric; urgency=low
 
+  [ Andrei Kopats ]
   * Initial release
 
- -- Andrei Kopats <hlamer@tut.by>  Fri, 04 Nov 2011 10:05:22 +0300
+ -- Andrei Kopats (Key for PPA) <hlamer@tut.by>  Fri, 11 Nov 2011 19:00:36 +0300
