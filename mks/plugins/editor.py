@@ -13,7 +13,7 @@ from PyQt4.QtGui import QColor, QFont, QFrame, QIcon, QKeyEvent, QVBoxLayout
 
 from PyQt4.Qsci import *
 
-from mks.core.abstractdocument import AbstractDocument
+from mks.core.abstractdocument import AbstractTextEditor
 from mks.core.core import core
 
 import mks.core.defines
@@ -367,7 +367,7 @@ class Lexer:
                 self.qscilexer.setIndentationWarning(qsciReason)
 
 
-class Editor(AbstractDocument):
+class Editor(AbstractTextEditor):
     """Text editor widget.
     
     Uses QScintilla internally
@@ -407,6 +407,10 @@ class Editor(AbstractDocument):
     _CALL_TIPS_STYLE_TO_QSCI = {"NoContext"                : QsciScintilla.CallTipsNoContext,
                                 "NoAutoCompletionContext"  : QsciScintilla.CallTipsNoAutoCompletionContext,
                                 "Context"                  : QsciScintilla.CallTipsContext}
+    
+    #
+    # Own methods
+    #
     
     def __init__(self, parentObject, filePath, createNew=False):
         self._neverSaved = filePath is None or createNew
@@ -606,91 +610,6 @@ class Editor(AbstractDocument):
         else:
             self.qscintilla.setWrapMode(QsciScintilla.WrapNone)
 
-    def text(self):
-        """Contents of the editor
-        """
-        return self.qscintilla.text()
-    
-    def setText(self, text):
-        """Set text in the QScintilla, clear modified flag, update line numbers bar
-        """
-        self.qscintilla.setText(text)
-        self.qscintilla.linesChanged.emit()
-        self._setModified(False)
-    
-    def line(self, index):
-        """Get line of the text by its index. Lines are indexed from 0
-        None, if index is invalid
-        """
-        if self.qscintilla.lines() > index:
-            return self.qscintilla.text(index)
-        else:
-            return None
-
-    def _setModified(self, modified):
-        """Update modified state for the file. Called by AbstractDocument, must be implemented by the children
-        """
-        self.qscintilla.setModified(modified)
-    
-    def _onLinesChanged(self):
-        """Handler of change of lines count in the qscintilla
-        """
-        digitsCount = len(str(self.qscintilla.lines()))
-        if digitsCount:
-            digitsCount += 1
-        self.qscintilla.setMarginWidth(0, '0' * digitsCount)
-    
-    def eolMode(self):
-        """Line end mode of the file
-        """
-        mode = self.qscintilla.eolMode()
-        return self._EOL_CONVERTOR_FROM_QSCI[mode]
-
-    def setEolMode(self, mode):
-        """Set line end mode of the file
-        """
-        self.qscintilla.setEolMode(self._EOL_CONVERTOR_TO_QSCI[mode])
-        self.qscintilla.convertEols(self._EOL_CONVERTOR_TO_QSCI[mode])
-
-    def indentWidth(self):
-        """Indentation width in symbol places (spaces)
-        """
-        return self.qscintilla.indentationWidth()
-    
-    def setIndentWidth(self, width):
-        """Set indentation width in symbol places (spaces)
-        """
-        return self.qscintilla.setIndentationWidth(width)
-    
-    def indentUseTabs(self):
-        """Indentation uses Tabs instead of Spaces
-        """
-        return self.qscintilla.indentationsUseTabs()
-    
-    def setIndentUseTabs(self, use):
-        """Set iindentation mode (Tabs or spaces)
-        """
-        return self.qscintilla.setIndentationsUseTabs(use)
-    
-    def cursorPosition(self):
-        """Get cursor position as touple (line, col)
-        """
-        line, col = self.qscintilla.getCursorPosition()
-        return line + 1, col
-        
-    def isModified(self):
-        """Check is file has been modified
-        """
-        return self.qscintilla.isModified()
-        
-    def goTo(self, line, column, selectionLength=-1):
-        """Go to specified line and column. Select text if necessary
-        """
-        self.qscintilla.setCursorPosition(line, column)
-        self.qscintilla.setSelection(line, column, line, column +selectionLength)
-        self.qscintilla.ensureLineVisible(line)
-        self.qscintilla.setFocus()
-
     def _convertIndentation(self):
         """Try to fix indentation mode of the file, if there are mix of different indentation modes
         (tabs and spaces)
@@ -752,7 +671,107 @@ class Editor(AbstractDocument):
             self.qscintilla.setEolMode (QsciScintilla.EolUnix)
         elif '\r' in self.qscintilla.text():
             self.qscintilla.setEolMode (QsciScintilla.EolMac)
+
+    def _onLinesChanged(self):
+        """Handler of change of lines count in the qscintilla
+        """
+        digitsCount = len(str(self.qscintilla.lines()))
+        if digitsCount:
+            digitsCount += 1
+        self.qscintilla.setMarginWidth(0, '0' * digitsCount)
+
+    #
+    # AbstractDocument interface
+    #
+    
+    def _setModified(self, modified):
+        """Update modified state for the file. Called by AbstractTextEditor, must be implemented by the children
+        """
+        self.qscintilla.setModified(modified)
+
+    def isModified(self):
+        """Check is file has been modified
+        """
+        return self.qscintilla.isModified()
+    
+    #
+    # AbstractTextEditor interface
+    #
+    
+    def text(self):
+        """Contents of the editor
+        """
+        return self.qscintilla.text()
+    
+    def setText(self, text):
+        """Set text in the QScintilla, clear modified flag, update line numbers bar
+        """
+        self.qscintilla.setText(text)
+        self.qscintilla.linesChanged.emit()
+        self._setModified(False)
         
+    def eolMode(self):
+        """Line end mode of the file
+        """
+        mode = self.qscintilla.eolMode()
+        return self._EOL_CONVERTOR_FROM_QSCI[mode]
+
+    def setEolMode(self, mode):
+        """Set line end mode of the file
+        """
+        self.qscintilla.setEolMode(self._EOL_CONVERTOR_TO_QSCI[mode])
+        self.qscintilla.convertEols(self._EOL_CONVERTOR_TO_QSCI[mode])
+
+    def indentWidth(self):
+        """Indentation width in symbol places (spaces)
+        """
+        return self.qscintilla.indentationWidth()
+    
+    def setIndentWidth(self, width):
+        """Set indentation width in symbol places (spaces)
+        """
+        return self.qscintilla.setIndentationWidth(width)
+    
+    def indentUseTabs(self):
+        """Indentation uses Tabs instead of Spaces
+        """
+        return self.qscintilla.indentationsUseTabs()
+    
+    def setIndentUseTabs(self, use):
+        """Set iindentation mode (Tabs or spaces)
+        """
+        return self.qscintilla.setIndentationsUseTabs(use)
+    
+    def setHighlightingLanguage(self, language):
+        """Set programming language of the file.
+        Called Only by :mod:`mks.core.associations` to select syntax highlighting language.
+        """
+        AbstractTextEditor.setHighlightingLanguage(self, language)
+        self.lexer.applyLanguage(language)
+
+    def goTo(self, line, column, selectionLength=-1):
+        """Go to specified line and column. Select text if necessary
+        """
+        self.qscintilla.setCursorPosition(line, column)
+        self.qscintilla.setSelection(line, column, line, column +selectionLength)
+        self.qscintilla.ensureLineVisible(line)
+        self.qscintilla.setFocus()
+
+    def line(self, index):
+        """Get line of the text by its index. Lines are indexed from 0
+        None, if index is invalid
+        """
+        if self.qscintilla.lines() > index:
+            return self.qscintilla.text(index)
+        else:
+            return None
+    
+    def cursorPosition(self):
+        """Get cursor position as touple (line, col)
+        """
+        line, col = self.qscintilla.getCursorPosition()
+        return line + 1, col
+    
     def toggleBookmark(self):
         """Set or clear bookmark on the line
         """
@@ -775,13 +794,6 @@ class Editor(AbstractDocument):
         row = self.qscintilla.getCursorPosition()[0]
         self.qscintilla.setCursorPosition(
                     self.qscintilla.markerFindPrevious(row - 1, 1 << self._MARKER_BOOKMARK), 0)
-
-    def setHighlightingLanguage(self, language):
-        """Set programming language of the file.
-        Called Only by :mod:`mks.core.associations` to select syntax highlighting language.
-        """
-        AbstractDocument.setHighlightingLanguage(self, language)
-        self.lexer.applyLanguage(language)
 
 
 class Plugin:
@@ -839,27 +851,9 @@ class Plugin:
     def isPrintAvailable(self):
         return True
 
-    def invokeSearch ():
-        '''MonkeyCore.searchWidget().showSearchFile ();'''
-        pass
-
-    def language(self):
-        # return the editor language
-        if  self.qscintilla.lexer() :
-            return self.qscintilla.lexer().language()
-
-        # return nothing
-        return ''
-
     def backupFileAs(self, filePath):
         shutil.copy(self.filePath(), fileName)
     
-    def closeFile(self):
-        self.qscintilla.clear()
-        self._setModified(False)
-        self.setFilePath('')
-        self.fileClosed.emit()
-
     def print_(self, quickPrint):
         # get printer
         p = QsciPrinter()

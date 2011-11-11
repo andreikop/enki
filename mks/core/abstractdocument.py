@@ -1,6 +1,6 @@
 """
-abstractdocument --- Base class for workspace documents
-=======================================================
+abstractdocument --- Base classes for workspace documents
+=========================================================
 
 This class is inherited by textual editor, and must be inherited by other workspace widgets.
 
@@ -20,7 +20,8 @@ from PyQt4.QtGui import QFileDialog, \
 from mks.core.core import core
 
 class AbstractDocument(QWidget):
-    """Base class for documents on workspace, such as opened source file, Qt Designer and Qt Assistant, ...
+    """
+    Base class for documents on workspace, such as opened source file, Qt Designer and Qt Assistant, ...
     Inherit this class, if you want to create new document type
     
     This class may requre redesign, if we need to add support for non-textual or non-unicode editor.
@@ -39,22 +40,13 @@ class AbstractDocument(QWidget):
     #(i.e. document has been modified externally)
     _documentDataChanged = pyqtSignal()
     
-    # emit when cursor position changed
-    cursorPositionChanged = pyqtSignal(int, int) # (line, column)
-    """
-    modifiedChanged(line, column)
-    
-    **Signal** emitted, when cursor position has been changed
-    """
-    
     def __init__( self, parentObject, filePath, createNew=False):
         """Create editor and open file.
-        If file is '', empty not saved file is created
-        IO Exceptions not catched, so, must be catched on upper level
+        If file is None or createNew is True, empty not saved file is created
+        IO Exceptions are not catched, therefore, must be catched on upper level
         """
         QWidget.__init__( self, parentObject)
         
-        self._highlightingLanguage = None
         self._filePath = filePath
         self._externallyRemoved = False
         self._externallyModified = False
@@ -104,13 +96,20 @@ class AbstractDocument(QWidget):
             text = unicode(data, 'utf8', 'replace')
         return text
 
-    def isExternallyRemoved(self):
-        """Check if document's file has been deleted externally.
+    def _setModified(self, value):
+        """Clear modified state for the file. Called by AbstractDocument
         
-        This method does not do any file system access, but only returns cached info
+        To be implemented by child class
         """
-        return self._externallyRemoved
-    
+        pass
+
+    def isModified(self):
+        """Returns True, if file is modified
+        
+        To be implemented by child class
+        """
+        pass
+
     def isExternallyModified(self):
         """Check if document's file has been modified externally.
         
@@ -118,49 +117,18 @@ class AbstractDocument(QWidget):
         """
         return self._externallyModified
     
+    def isExternallyRemoved(self):
+        """Check if document's file has been deleted externally.
+        
+        This method does not do any file system access, but only returns cached info
+        """
+        return self._externallyRemoved
+    
     def isNeverSaved(self):
         """Check if document has been created, but never has been saved on disk
         """
         return self._neverSaved
-    
-    def eolMode(self):
-        """Return document's EOL mode. Possible values are:
         
-        * ``\\n``  - UNIX EOL
-        * ``\\r\\n`` - Windows EOL
-        * ``None`` - not defined for the editor type
-        
-        """
-        return None
-    
-    def setEolMode(self, mode):
-        """Set editor EOL mode.
-        See eolMode() for a alowed mode values
-        """
-        pass
-    
-    def indentWidth(self):
-        """Get width of tabulation symbol and count of spaces to insert, when Tab pressed
-        """
-        pass
-    
-    def setIndentWidth(self, width):
-        """Set width of tabulation symbol and count of spaces to insert, when Tab pressed
-        """
-        pass
-    
-    def indentUseTabs(self):
-        """Get indentation uses tabs flag.
-        If true - \t inserted by Tab button, if false - spaces
-        """
-        pass
-    
-    def setIndentUseTabs(self, use):
-        """Set indentation uses tabs flag.
-        If true - \t inserted by Tab button, if false - spaces
-        """
-        pass
-    
     def filePath(self):
         """return the document file path"""
         return self._filePath
@@ -171,34 +139,7 @@ class AbstractDocument(QWidget):
             return os.path.basename(self._filePath)
         else:
             return 'untitled'
-        
-    def cursorPosition(self):
-        """return cursor position as 2 values: line and column, if available
-        """
-        pass
-    
-    def isModified(self):
-        """Returns True, if file is modified
-        """
-        pass
-        
-    def invokeGoTo(self):
-        """Show GUI dialog, go to line, if user accepted it
-        """
-        line, col = self.qscintilla.getCursorPosition()
-        gotoLine, accepted = QInputDialog.getInteger(self, self.tr( "Go To Line..." ),
-                                                      self.tr( "Enter the line you want to go:" ), 
-                                                      line +1, 1, self.qscintilla.lines(), 1)
-        
-        if accepted:
-            self.goTo(gotoLine - 1, 0)
-    
-    def goTo(self, line, column, selectionLength = -1 ):
-        """Go to specified line and column.
-        If selectionLength is not -1, select selectionLength characters
-        """
-        pass
-    
+            
     def saveFile(self):
         """Save the file to file system
         
@@ -259,25 +200,6 @@ class AbstractDocument(QWidget):
         self._externallyModified = False
         self._setModified(False)
         
-    
-    def text(self):
-        """Contents of the editor.
-        """
-        pass
-    
-    def setText(self, text):
-        """Set contents in the editor.
-        Usually this method is called only internally by openFile()
-        """
-        pass
-    
-    def line(self, index):
-        """Get line of the text by its index. Lines are indexed from 0.
-        
-        None, if index is invalid
-        """
-        pass
-    
     def reload(self):
         """Reload the file from the disk
         
@@ -321,12 +243,86 @@ class AbstractDocument(QWidget):
         else:
             icon = "transparent.png"
         return QIcon(":/mksicons/" + icon)
+
+
+class AbstractTextEditor(AbstractDocument):
+    """Base class for text editors. Currently, only QScintilla is supported, but, we may replace it in the future
+    """
     
-    def _setModified(self, value):
-        """Clear modified state for the file. Called by AbstractDocument, must be implemented by the children
+    cursorPositionChanged = pyqtSignal(int, int) # (line, column)
+    """
+    modifiedChanged(line, column)
+    
+    **Signal** emitted, when cursor position has been changed
+    """
+    def __init__(self, parentObject, filePath, createNew=False):
+        AbstractDocument.__init__(self, parentObject, filePath, createNew)
+        self._highlightingLanguage = None
+    
+    def text(self):
+        """Contents of the editor.
+        
+        To be implemented by child class
         """
         pass
     
+    def setText(self, text):
+        """Set contents in the editor.
+        Usually this method is called only internally by openFile()
+        
+        To be implemented by child class
+        """
+        pass
+
+    def eolMode(self):
+        """Return document's EOL mode. Possible values are:
+        
+        * ``\\n``  - UNIX EOL
+        * ``\\r\\n`` - Windows EOL
+        * ``None`` - not defined for the editor type
+        
+        To be implemented by child class
+        """
+        return None
+    
+    def setEolMode(self, mode):
+        """Set editor EOL mode.
+        See eolMode() for a alowed mode values
+        
+        To be implemented by child class
+        """
+        pass
+    
+    def indentWidth(self):
+        """Get width of tabulation symbol and count of spaces to insert, when Tab pressed
+        
+        To be implemented by child class
+        """
+        pass
+    
+    def setIndentWidth(self, width):
+        """Set width of tabulation symbol and count of spaces to insert, when Tab pressed
+        
+        To be implemented by child class
+        """
+        pass
+    
+    def indentUseTabs(self):
+        """Get indentation uses tabs flag.
+        If true - \t inserted by Tab button, if false - spaces
+        
+        To be implemented by child class
+        """
+        pass
+    
+    def setIndentUseTabs(self, use):
+        """Set indentation uses tabs flag.
+        If true - \t inserted by Tab button, if false - spaces
+        
+        To be implemented by child class
+        """
+        pass
+
     def highlightingLanguage(self):
         """Get programming language of the file.
         
@@ -339,84 +335,58 @@ class AbstractDocument(QWidget):
         
         Called Only by :class:`mks.core.associations.Associations` to select syntax highlighting language.
         
+        To be implemented by child class
         Implementation must call AbstractDocument method
         """
         self._highlightingLanguage = language
+
+    def cursorPosition(self):
+        """Return cursor position as 2 values: line and column, if available
+        
+        To be implemented by child class
+        """
+        pass
+
+    def invokeGoTo(self):
+        """Show GUI dialog, go to line, if user accepted it
+        """
+        line, col = self.qscintilla.getCursorPosition()
+        gotoLine, accepted = QInputDialog.getInteger(self, self.tr( "Go To Line..." ),
+                                                      self.tr( "Enter the line you want to go:" ), 
+                                                      line +1, 1, self.qscintilla.lines(), 1)
+        
+        if accepted:
+            self.goTo(gotoLine - 1, 0)
+    
+    def goTo(self, line, column, selectionLength = -1 ):
+        """Go to specified line and column.
+        If selectionLength is not -1, select selectionLength characters
+        
+        To be implemented by child class
+        """
+        pass
+    
+    def line(self, index):
+        """Get line of the text by its index. Lines are indexed from 0.
+        
+        None, if index is invalid
+        
+        To be implemented by child class
+        """
+        pass
+
 
 ''' TODO restore or delete old code
     fileOpened = pyqtSignal()
     fileClosed = pyqtSignal()
     # when.emit a file is reloaded
     fileReloaded = pyqtSignal()
-    # when.emit the content changed
-    contentChanged = pyqtSignal()
-    # when.emit the document layout mode has changed
-    layoutModeChanged = pyqtSignal()
-    # when.emit the document document mode has changed
-    documentModeChanged = pyqtSignal()
-
-    # when.emit search/replace is available
-    #searchReplaceAvailableChanged = pyqtSignal(bool)
-    # when.emit requesting search in editor
-    #requestSearchReplace = pyqtSignal()
-    # when.emit a document require to update workspace
-    #updateWorkspaceRequested()
-    
-    enum DocumentMode { mNone:, mNa, mInsert, mOverwrite, mReadOnly } mDocument
-    enum LayoutMode { lNone:, lNormal, lVertical, lHorizontal } mLayout
-    
-    mDocument = mNone
-    mLayout = lNone
-
-    def sizeHint(self):
-        """eturn defaultsize for document
-        """
-        return QSize( 640, 480 )
-
-    def documentMode(self):
-        """return document document mode
-        """
-        return self.mDocument
-
-    def layoutMode(self):
-        """return the document layout mode"""
-        return self.mLayout
-    
-    def language(self):
-        """return document language
-        """
-        return QString.null;
-
-    def path(self):
-        """return the absolute path of the document"""
-        wfp = self.windowFilePath()
-        if wfp.isEmpty():
-            return None
-        else:
-            return QFileInfo( wfp ).absolutePath()
 
     def isPrintAvailable(self):
         """return if print is available
         """
         pass
 
-    def setDocumentMode(self, documentMode ):
-        """set the document document mode"""
-        if  self.mDocument == documentMode :
-            return
-        self.mDocument = documentMode
-        self.documentModeChanged.emit( self.mDocument )
-
-    def setLayoutMode(self layoutMode )
-        """set the document layout mode
-        """
-        
-        if  self.mLayout == layoutMode :
-            return
-        self.mLayout = layoutMode
-        self.layoutModeChanged.emit( self.mLayout )
-
-    
     def textCodec(self)
     { return mCodec ? mCodec.name() : pMonkeyStudio.defaultCodec();
     
@@ -426,12 +396,6 @@ class AbstractDocument(QWidget):
     def backupFileAs(self fileName ):
         pass
     
-    def closeFile(self):
-        pass
-
-    def invokeSearch(self):
-        pass
-
     def printFile(self):
         pass
     
