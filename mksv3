@@ -30,7 +30,7 @@ def showHelp():
 def showVersion():
     print "%s version %s" % (mks.core.defines.PACKAGE_NAME, mks.core.defines.PACKAGE_VERSION)
     print mks.core.defines.PACKAGE_COPYRIGHTS
-    print "http://%s" % mks.core.defines.PACKAGE_DOMAIN
+    print "http://%s" % mks.core.defines.PACKAGE_URL
 
 def excepthook(excepttype, exceptvalue, tracebackobj):
     """Show exception dialog, write to log
@@ -148,7 +148,7 @@ def main():
     
     app.setApplicationName( mks.core.defines.PACKAGE_NAME )
     app.setOrganizationName( mks.core.defines.PACKAGE_ORGANISATION )
-    app.setOrganizationDomain( mks.core.defines.PACKAGE_DOMAIN )
+    app.setOrganizationDomain( mks.core.defines.PACKAGE_URL )
     
     app.lastWindowClosed.connect(app.quit)
     
