@@ -1,29 +1,30 @@
 #!/bin/bash
 
+#
+# Script excects, that dist/ directory contains one .tar.gz archive
+#
+
 export DEBFULLNAME=`./setup.py --author`
 export DEBEMAIL=`./setup.py --author-email`
-VERSION=`./setup.py --version`
-LICENSE=`./setup.py --license`
 PACKAGE_NAME=`./setup.py --name`
-ARCHIVE=dist/${PACKAGE_NAME}-${VERSION}.tar.gz
-BUILD_DIR=${PACKAGE_NAME}-${VERSION}
+ARCHIVE=`ls dist`
 
-./setup.py sdist
+# Version of archive, not a actual version from setup.py
+# It might be needed to repack old versions
+VERSION=${ARCHIVE/${PACKAGE_NAME}-/}
+VERSION=${VERSION/.tar.gz/}
 
-rm -rf build
+DEBIGAN_ORIG_ARCHIVE=${PACKAGE_NAME}_${VERSION}.orig.tar.gz
+rm -r build
 mkdir build
 cd build
-tar -xf ../${ARCHIVE}
-cd ${BUILD_DIR}
 
-dh_make \
-    --file=../../${ARCHIVE} \
-    --copyright=${LICENSE} \
-    --single \
-    --createorig
+cp ../dist/${ARCHIVE} ${DEBIGAN_ORIG_ARCHIVE}
+tar -xf ${DEBIGAN_ORIG_ARCHIVE}
+cd ${PACKAGE_NAME}-${VERSION}
+cp -R ../../debian/ .
 
-cd debian && rm *.ex *.EX README.Debian && cd -
-cp ../../debian/* debian
-echo '2.7-' > debian/pyversions
-debuild -S
+debuild -us -uc -S
+debsign ../*.dsc
+
 
