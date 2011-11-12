@@ -2,7 +2,11 @@
 
 import os
 import sys
-from distutils.core import setup
+
+try:
+  from setuptools import setup
+except ImportError:
+  from distutils.core import setup
 
 from mks.core.defines import PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_URL
 
