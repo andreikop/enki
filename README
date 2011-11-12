@@ -44,13 +44,16 @@ This dependences list created tested on Ubuntu 11.10.
 1. Qt4 library
 2. PyQt4 bindings
 3. QScintilla 2 library and Python bindings
-    (http://www.riverbankcomputing.co.uk/software/qscintilla/download)
+    http://www.riverbankcomputing.co.uk/software/qscintilla/download)
 4. Python
-5. Fresh framework, including Python bindings
-    (https://github.com/pasnox/fresh)
+5. ConfigObj config file reader and writer
+    http://pypi.python.org/pypi/configobj/
+    http://www.voidspace.org.uk/python/configobj.html
+6. Fresh framework, including Python bindings
+    https://github.com/pasnox/fresh
 
 On Ubuntu 11.10 all Except Fresh framework can be installed by command
-    sudo apt-get install python-qt4 python-qscintilla2
+    sudo apt-get install python-qt4 python-qscintilla2 python-configobj
 
                 === Executing ===
 
