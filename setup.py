@@ -4,7 +4,7 @@ import os
 import sys
 from distutils.core import setup
 
-from mks.core.defines import PACKAGE_NAME, PACKAGE_VERSION 
+from mks.core.defines import PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_URL
 
 """hlamer: A bit hacky way to exclude desktop files from distribution,
 but, I don't know how to do it better in crossplatform way
@@ -52,17 +52,16 @@ long_description = \
 
 setup(name=PACKAGE_NAME,
         version=PACKAGE_VERSION,
-        description='Next generation Unix code editor',
+        description='Simple programmers text editor',
         long_description=long_description,
         author='Andrei Kopats',
         author_email='hlamer@tut.by',
-        url='http://monkeystudio.org',
+        url=PACKAGE_URL,
         download_url='TODO write download URL',
         packages=['mks', 'mks/core', 'mks/plugins', 'mks/resources'],
         package_data={'mks' : ['ui/*.ui', 'config/*.cfg']},
         scripts=['./mksv3'],
         data_files=data_files,
         classifiers=classifiers,
-        license='gpl2',
-        command_packages='stdeb.command'
+        license='gpl2'
         )
