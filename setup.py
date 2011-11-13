@@ -3,10 +3,13 @@
 import os
 import sys
 
+""" setuptools ignores my .desktop and .cfg files
 try:
   from setuptools import setup
 except ImportError:
   from distutils.core import setup
+"""
+from distutils.core import setup
 
 from mks.core.defines import PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_URL
 

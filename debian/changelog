@@ -1,3 +1,9 @@
+mksv3 (0.1.3-ppa0) oneiric; urgency=low
+
+  * Added missing .desktop file
+
+ -- Andrei Kopats (laptop) <hlamer@tut.by>  Sun, 13 Nov 2011 09:36:18 +0300
+
 mksv3 (0.1.2-ppa0) oneiric; urgency=low
 
   * Changed version to ppa0
