@@ -16,7 +16,7 @@ Description: Simple programmers text editor
   * Syntax highlighting for more than 30 languages
   * Bookmarks
   * Search and replace functionality for files and directories.
-.   Regular expressions are supported
+      Regular expressions are supported
   * File browser
   * Autocompletion, based on document contents
   * Hightly configurable

@@ -24,5 +24,5 @@ tar -xf ${DEBIGAN_ORIG_ARCHIVE}
 cd ${PACKAGE_NAME}-${VERSION}
 cp -R ../../debian/ .
 debuild -us -uc -S
-cd ..
-debsign *.dsc *.changes
+
+debsign ../*.changes
