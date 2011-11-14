@@ -662,7 +662,8 @@ class DockFileBrowser(pDockWidget):
     def setFilters(self, filters):
         """Set tree negative filters
         """
-        self._tree.setFilters(filters)
+        if self._tree is not None:
+            self._tree.setFilters(filters)
 
     def currentPath(self):
         """Get current path (root of the tree)
