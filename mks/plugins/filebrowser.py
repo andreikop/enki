@@ -23,6 +23,11 @@ from PyQt4.fresh import pDockWidget
 from mks.core.core import core
 from mks.core.uisettings import ListOnePerLineOption, ModuleConfigurator
 
+def _getCurDir():
+    """Get process current directory
+    """
+    return os.path.abspath(unicode(os.curdir))
+
 class Plugin(QObject):
     """File system tree.
     
@@ -351,16 +356,16 @@ class JumpToCurent(QObject):
     def _updateAction(self):
         """Update action enabled state after current file or current directory changed
         """
-        self._action.setEnabled(os.path.abspath(os.curdir) != self._fileBrowser.currentPath())
+        self._action.setEnabled(_getCurDir() != self._fileBrowser.currentPath())
         try:
-            self._action.setEnabled(os.path.abspath(os.curdir) != self._fileBrowser.currentPath())
+            self._action.setEnabled(_getCurDir() != self._fileBrowser.currentPath())
         except OSError:  # probably current dir has been deleted
             self._action.setEnabled(False)
 
     def _onTriggered(self):
         """Jump to directory of current file
         """
-        self._fileBrowser.setCurrentPath(os.path.abspath(os.curdir))
+        self._fileBrowser.setCurrentPath(_getCurDir())
 
 class Tree(QTreeView):
     """File system tree
@@ -651,7 +656,7 @@ class DockFileBrowser(pDockWidget):
         self._smartHistory = SmartHistory(self)
         self._jumpToCurrent = JumpToCurent(self)
         
-        self.setCurrentPath( os.path.abspath(os.path.curdir) )
+        self.setCurrentPath(_getCurDir())
     
     @pyqtSlot(list)
     def updateComboItems(self, items):

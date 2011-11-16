@@ -380,7 +380,7 @@ class SearchWidget(QFrame):
             
         if  mode & Plugin.ModeFlagDirectory :
             try:
-                searchPath = os.path.abspath(os.path.curdir)
+                searchPath = os.path.abspath(unicode(os.path.curdir))
                 self.cbPath.setEditText( searchPath )
             except OSError:  # current directory might be deleted
                 pass 
