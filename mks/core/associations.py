@@ -115,14 +115,18 @@ class Associations():
 
         for languageName, fileNameGlobs, firstLineGlobs, iconPath in self.iterLanguages():
             for fileNameGlob in fileNameGlobs:
-                if fnmatch.fnmatch(fileName, fileNameGlob):
+                # Empty patterns are ignored
+                if fileNameGlob and \
+                    fnmatch.fnmatch(fileName, fileNameGlob):
                     return languageName
 
         firstLine = document.line(0)
         if firstLine is not None:
             for languageName, fileNameGlobs, firstLineGlobs, iconPath in self.iterLanguages():
                 for firstLineGlob in firstLineGlobs:
-                    if fnmatch.fnmatch(firstLine, firstLineGlob):
+                    # Empty patterns are ignored
+                    if firstLineGlob and \
+                       fnmatch.fnmatch(firstLine, firstLineGlob):
                         return languageName
 
         return None
