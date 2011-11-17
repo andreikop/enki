@@ -47,7 +47,7 @@ class Config(ConfigObj):
         self.enableWriting = enableWriting
         # Open config file
         try:
-            super(Config, self).__init__(*args, **kwargs)
+            super(Config, self).__init__(default_encoding='utf8', encoding='utf8', *args, **kwargs)
         except ParseError, ex:
             exText = unicode(str(ex), 'utf8')
             messageString = u'Failed to parse configuration file %s. Error:\n' \
