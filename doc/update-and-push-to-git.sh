@@ -2,6 +2,7 @@
 
 rm -rf /tmp/html
 sphinx-build . /tmp/html
+cp -R screenshots /tmp/html
 cd ..
 git checkout gh-pages || exit 1
 rm -rf *

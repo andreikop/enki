@@ -21,7 +21,21 @@ Features
 Screenshots
 -----------
 here is screenshot
-here is one more
+
+.. raw:: html
+
+        <table width="50%"><tr>
+        <td>
+            <a href="screenshots/main-ui.png"><img src="screenshots/main-ui.png" width="100%" height="100%"/></a>
+        </td>
+        <td>
+            <a href="screenshots/minimal.png"><img src="screenshots/minimal.png" width="100%" height="100%"/></a>
+        </td>
+        <td>
+            <a href="screenshots/search-replace.png"><img src="screenshots/search-replace.png" width="100%" height="100%"/></a>
+        </td>
+        </tr></table>
+
 
 .. toctree::
    :maxdepth: 1
