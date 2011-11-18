@@ -3,13 +3,14 @@ mksv3
 Simple programmers text editor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The goal of the project is making text editing as comfort as possible. There are 3 major principles:
+The goal of the project is making text editing as comfort as possible. Major principles:
+
 * User friendly interface. You don't need to read a lot of docs to understand it.
 * Keyboard friendly interface. Minimize your mouse usage and work quicker.
 * Minimalistic interface. Screen is left for code, not for bells and whistles.
 
 Features
---------
+^^^^^^^^
 
  * Syntax highlighting for more than 30 languages
  * Bookmarks
@@ -19,23 +20,24 @@ Features
  * Hightly configurable
 
 Screenshots
------------
-here is screenshot
+^^^^^^^^^^^
 
 .. raw:: html
 
         <table width="50%"><tr>
         <td>
-            <a href="screenshots/main-ui.png"><img src="screenshots/main-ui.png" width="100%" height="100%"/></a>
+            <a href="screenshots/main-ui.png"><img src="screenshots/main-ui-preview.png"/></a>
         </td>
         <td>
-            <a href="screenshots/minimal.png"><img src="screenshots/minimal.png" width="100%" height="100%"/></a>
+            <a href="screenshots/minimal.png"><img src="screenshots/minimal-preview.png"/></a>
         </td>
         <td>
-            <a href="screenshots/search-replace.png"><img src="screenshots/search-replace.png" width="100%" height="100%"/></a>
+            <a href="screenshots/search-replace.png"><img src="screenshots/search-replace-preview.png"/></a>
         </td>
         </tr></table>
 
+Documentation
+^^^^^^^^^^^^^
 
 .. toctree::
    :maxdepth: 1
