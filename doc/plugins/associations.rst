@@ -1,1 +1,1 @@
-.. automodule:: mks.core.associations
+.. automodule:: mks.plugins.associations
