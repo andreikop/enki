@@ -28,7 +28,6 @@ Plugin API documentation
    core/abstractdocument.rst
    core/config.rst
    core/uisettings.rst
-   core/associations.rst
 
 Not API core modules
 --------------------
@@ -48,3 +47,4 @@ Plugins documentation
    plugins/filebrowser.rst
    plugins/helpmenu.rst
    plugins/searchreplace.rst
+   plugins/associations.rst

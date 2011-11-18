@@ -68,7 +68,7 @@ class Configurator(ModuleConfigurator):
         for document in core.workspace().openedDocuments():
             Associations.instance.applyLanguageToDocument(document)
 
-class Associations():
+class Plugin():
     """Module functionality
     """
     
@@ -83,7 +83,7 @@ class Associations():
         self._menu.aboutToShow.connect(self._onMenuAboutToShow)
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
         
-        Associations.instance = self
+        Plugin.instance = self
     
     def __term__(self):
         core.moduleConfiguratorClasses.remove(Configurator)

@@ -333,7 +333,7 @@ class AbstractTextEditor(AbstractDocument):
     def setHighlightingLanguage(self, language):
         """Set programming language of the file.
         
-        Called Only by :class:`mks.core.associations.Associations` to select syntax highlighting language.
+        Called Only by :class:`mks.plugins.associations.Associations` to select syntax highlighting language.
         
         To be implemented by child class
         Implementation must call AbstractDocument method
