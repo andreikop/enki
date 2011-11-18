@@ -744,7 +744,7 @@ class Editor(AbstractTextEditor):
     
     def setHighlightingLanguage(self, language):
         """Set programming language of the file.
-        Called Only by :mod:`mks.core.associations` to select syntax highlighting language.
+        Called Only by :mod:`mks.plugins.associations` to select syntax highlighting language.
         """
         AbstractTextEditor.setHighlightingLanguage(self, language)
         self.lexer.applyLanguage(language)

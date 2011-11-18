@@ -57,9 +57,6 @@ class Core:
         import mks.core.uisettings
         self._uiSettingsManager = mks.core.uisettings.UISettingsManager()
         
-        import mks.core.associations
-        self._associations = mks.core.associations.Associations()
-        
         # Create plugins
         self._loadPlugin('editor')
         self._loadPlugin('editortoolbar')
@@ -68,6 +65,7 @@ class Core:
         self._loadPlugin('appshortcuts')
         self._loadPlugin('editorshortcuts')
         self._loadPlugin('helpmenu')
+        self._loadPlugin('associations')
 
     def term(self):
         """Terminate plugins and core modules
