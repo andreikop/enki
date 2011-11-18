@@ -1,5 +1,5 @@
-Developer documentation
-=======================
+Developer (internal) documentation
+==================================
 MkS is divided onto 2 parts: core and plugins.
 
 Core
