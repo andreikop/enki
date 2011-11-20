@@ -122,4 +122,4 @@ Authors
 * **Filipe Azevedo**, **Andrei Kopats** (aka **hlamer**) and `Monkey Studio v2 team <http://monkeystudio.org/team>`_ developed *Monkey Studio v2*
 * **Andrei Kopats** ported core and some plugins to Python, reworked it and released the result as *mksv3*
 
-Use mksv3-bugs@googlegroups.com or hlamer@tut.by as contact email.
+Use mksv3@googlegroups.com or hlamer@tut.by as contact email.
