@@ -6,13 +6,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>mksv3 &mdash; mksv3 v3.0.0 documentation</title>
+    <title>mksv3 &mdash; mksv3 home page</title>
     <link rel="stylesheet" href="static/nature.css" type="text/css" />
     <link rel="stylesheet" href="static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.0.0',
+        VERSION:     '0.1.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -21,8 +21,8 @@
     <script type="text/javascript" src="static/jquery.js"></script>
     <script type="text/javascript" src="static/underscore.js"></script>
     <script type="text/javascript" src="static/doctools.js"></script>
-    <link rel="top" title="mksv3 v3.0.0 documentation" href="#" />
-    <link rel="next" title="User manual" href="userindex.html" /> 
+    <link rel="shortcut icon" href="static/monkey2.ico"/>
+    <link rel="top" title="mksv3 home page" href="#" /> 
   </head>
   <body>
     <div class="related">
@@ -34,10 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="userindex.html" title="User manual"
-             accesskey="N">next</a> |</li>
-        <li><a href="#">mksv3 v3.0.0 documentation</a> &raquo;</li> 
+        <li><a href="#">mksv3 home page</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -48,14 +45,18 @@
             
   <div class="section" id="mksv3">
 <h1>mksv3<a class="headerlink" href="#mksv3" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="simple-programmers-text-editor">
-<h2>Simple programmers text editor<a class="headerlink" href="#simple-programmers-text-editor" title="Permalink to this headline">¶</a></h2>
-<p>The goal of the project is making text editing as comfort as possible. There are 3 major principles:
-* User friendly interface. You don&#8217;t need to read a lot of docs to understand it.
-* Keyboard friendly interface. Minimize your mouse usage and work quicker.
-* Minimalistic interface. Screen is left for code, not for bells and whistles.</p>
-<div class="section" id="features">
-<h3>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h3>
+<a class="reference external image-reference" href="https://sourceforge.net/donate/index.php?group_id=163493"><img alt="Support this project" src="https://images-ssl.sourceforge.net/images/project-support.jpg" /></a>
+<div class="section" id="about">
+<h2>About<a class="headerlink" href="#about" title="Permalink to this headline">¶</a></h2>
+<p><strong>Simple programmers text editor.</strong></p>
+<p>The goal of the project is making code editing as comfort as possible. Major principles:</p>
+<ul class="simple">
+<li>User friendly interface. You don&#8217;t need to read a lot of docs to understand it.</li>
+<li>Keyboard friendly interface. Minimize your mouse usage and work quicker.</li>
+<li>Minimalistic interface. Screen is left for code, not for bells and whistles.</li>
+</ul>
+<p>This project is Python port and new generation of <a class="reference external" href="http://monkeystudio.org">Monkey Studio</a></p>
+<p><strong>Features</strong>:</p>
 <blockquote>
 <div><ul class="simple">
 <li>Syntax highlighting for more than 30 languages</li>
@@ -66,27 +67,104 @@
 <li>Hightly configurable</li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="screenshots">
-<h3>Screenshots<a class="headerlink" href="#screenshots" title="Permalink to this headline">¶</a></h3>
-<p>here is screenshot</p>
+<p>Project is going to be <strong>crossplatform</strong>, and, will probably work on all platforms, but, currently has been tested only on Ubuntu. Team will be appreciate you, if you shared your experience about other platforms.</p>
+<p>Screenshots:</p>
 <table width="50%"><tr>
 <td>
-    <a href="screenshots/main-ui.png"><img src="screenshots/main-ui.png" width="100%" height="100%"/></a>
+    <a href="screenshots/main-ui.png"><img src="screenshots/main-ui-preview.png"/></a>
 </td>
 <td>
-    <a href="screenshots/minimal.png"><img src="screenshots/minimal.png" width="100%" height="100%"/></a>
+    <a href="screenshots/minimal.png"><img src="screenshots/minimal-preview.png"/></a>
 </td>
 <td>
-    <a href="screenshots/search-replace.png"><img src="screenshots/search-replace.png" width="100%" height="100%"/></a>
+    <a href="screenshots/search-replace.png"><img src="screenshots/search-replace-preview.png"/></a>
 </td>
-</tr></table><div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="userindex.html">User manual</a></li>
-<li class="toctree-l1"><a class="reference internal" href="devindex.html">Developer documentation</a></li>
+</tr></table><p>Project is licelsed under <a class="reference external" href="http://www.gnu.org/licenses/gpl-2.0.html">GNU GPL v2 license</a></p>
+</div>
+<div class="section" id="download-and-install">
+<h2>Download and install<a class="headerlink" href="#download-and-install" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="ubuntu-11-10">
+<h3>Ubuntu 11.10<a class="headerlink" href="#ubuntu-11-10" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic simple">
+<li>Add <a class="reference external" href="https://launchpad.net/~pasnox/+archive/ppa">P&#64;sNox&#8217;s PPA</a></li>
+<li>Add <a class="reference external" href="https://launchpad.net/~monkeystudio/+archive/ppa">Monkey studio PPA</a></li>
+<li>Install <strong>mksv3</strong> package</li>
+</ol>
+<p>All 3 steps:</p>
+<div class="highlight-python"><pre>sudo add-apt-repository ppa:pasnox/ppa
+sudo add-apt-repository ppa:monkeystudio/ppa
+sudo apt-get install mksv3</pre>
+</div>
+</div>
+<div class="section" id="other-ubuntus-and-debians">
+<h3>Other Ubuntus and Debians<a class="headerlink" href="#other-ubuntus-and-debians" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic">
+<li><p class="first">Download <em>libfresh1</em> and <em>python-qt4-fresh1</em> packages from <a class="reference external" href="https://launchpad.net/~pasnox/+archive/ppa/+packages">P&#64;sNox&#8217;s PPA</a></p>
+</li>
+<li><p class="first">Download <em>mksv3</em> package from <a class="reference external" href="https://launchpad.net/~monkeystudio/+archive/ppa/+packages">Monkey Studio PPA</a></p>
+</li>
+<li><p class="first">Install packages with</p>
+<div class="highlight-python"><pre>sudo dpkg --install libfresh1*.deb
+sudo dpkg --install python-qt4-fresh1*.deb
+sudo dpkg --install mksv3*.deb</pre>
+</div>
+</li>
+</ol>
+<p>This method not tested yet, but, should be working. Team will be appreciate you, if you shared your experience</p>
+</div>
+<div class="section" id="source-package">
+<h3>Source package<a class="headerlink" href="#source-package" title="Permalink to this headline">¶</a></h3>
+<p>The latest release are <a class="reference external" href="https://github.com/hlamer/mksv3/tags">here</a>.</p>
+<p>You should install all dependencies manually.</p>
+</div>
+<div class="section" id="dependencies">
+<h3>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic simple">
+<li>Qt4 library</li>
+<li>PyQt4 bindings</li>
+<li>QScintilla 2 library and Python bindings. <a class="reference external" href="http://www.riverbankcomputing.co.uk/software/qscintilla/download">http://www.riverbankcomputing.co.uk/software/qscintilla/download</a>)</li>
+<li>Python. <a class="reference external" href="http://python.org">http://python.org</a></li>
+<li>ConfigObj config file reader and writer. <a class="reference external" href="http://pypi.python.org/pypi/configobj/">http://pypi.python.org/pypi/configobj/</a> <a class="reference external" href="http://www.voidspace.org.uk/python/configobj.html">http://www.voidspace.org.uk/python/configobj.html</a></li>
+<li>Fresh framework, including Python bindings. <a class="reference external" href="https://github.com/pasnox/fresh">https://github.com/pasnox/fresh</a></li>
+</ol>
+</div>
+</div>
+<div class="section" id="support">
+<h2>Support<a class="headerlink" href="#support" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="user-manual">
+<h3>User manual<a class="headerlink" href="#user-manual" title="Permalink to this headline">¶</a></h3>
+<p>Documentation for users is <a class="reference internal" href="userindex.html"><em>here</em></a></p>
+</div>
+<div class="section" id="ask-question">
+<h3>Ask question<a class="headerlink" href="#ask-question" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>IRC room <em>#monkeystudio</em> on <em>irc.freenode.net</em>. <a class="reference external" href="http://monkeystudio.org/irc">Web interface</a></li>
+<li><a class="reference external" href="http://groups.google.com/group/mksv3">Discussion and support Google group</a></li>
 </ul>
 </div>
+<div class="section" id="report-bug">
+<h3>Report bug<a class="headerlink" href="#report-bug" title="Permalink to this headline">¶</a></h3>
+<p>There are 3 ways to report a bug</p>
+<ol class="arabic simple">
+<li>Fork <a class="reference external" href="https://github.com/hlamer/mksv3">https://github.com/hlamer/mksv3</a> and fix the bug</li>
+<li>Open an issue at <a class="reference external" href="https://github.com/hlamer/mksv3/issues">https://github.com/hlamer/mksv3/issues</a></li>
+<li>Send bug report to <a class="reference external" href="mailto:mksv3-bugs&#37;&#52;&#48;googlegroups&#46;com">mksv3-bugs<span>&#64;</span>googlegroups<span>&#46;</span>com</a></li>
+</ol>
 </div>
+</div>
+<div class="section" id="hacking">
+<h2>Hacking<a class="headerlink" href="#hacking" title="Permalink to this headline">¶</a></h2>
+<p>Documentation for developers is <a class="reference internal" href="devindex.html"><em>here</em></a></p>
+<p>Source code is <a class="reference external" href="https://github.com/hlamer/mksv3">here</a></p>
+</div>
+<div class="section" id="authors">
+<h2>Authors<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><strong>Filipe Azevedo</strong> (aka <strong>P&#64;sNox</strong>) and <a class="reference external" href="http://monkeystudio.org/node/17">Monkey Studio v1 team</a> developed <em>Monkey Studio v1</em></li>
+<li><strong>Filipe Azevedo</strong>, <strong>Andrei Kopats</strong> (aka <strong>hlamer</strong>) and <a class="reference external" href="http://monkeystudio.org/team">Monkey Studio v2 team</a> developed <em>Monkey Studio v2</em></li>
+<li><strong>Andrei Kopats</strong> ported core and some plugins to Python, reworked it and released the result as <em>mksv3</em></li>
+</ul>
+<p>Use <a class="reference external" href="mailto:mksv3&#37;&#52;&#48;googlegroups&#46;com">mksv3<span>&#64;</span>googlegroups<span>&#46;</span>com</a> or <a class="reference external" href="mailto:hlamer&#37;&#52;&#48;tut&#46;by">hlamer<span>&#64;</span>tut<span>&#46;</span>by</a> as contact email.</p>
 </div>
 </div>
 
@@ -96,23 +174,32 @@
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="#">
+              <img class="logo" src="static/monkey2.png" alt="Logo"/>
+            </a></p>
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">mksv3</a><ul>
-<li><a class="reference internal" href="#simple-programmers-text-editor">Simple programmers text editor</a><ul>
-<li><a class="reference internal" href="#features">Features</a></li>
-<li><a class="reference internal" href="#screenshots">Screenshots</a><ul>
+<li><a class="reference internal" href="#about">About</a></li>
+<li><a class="reference internal" href="#download-and-install">Download and install</a><ul>
+<li><a class="reference internal" href="#ubuntu-11-10">Ubuntu 11.10</a></li>
+<li><a class="reference internal" href="#other-ubuntus-and-debians">Other Ubuntus and Debians</a></li>
+<li><a class="reference internal" href="#source-package">Source package</a></li>
+<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#support">Support</a><ul>
+<li><a class="reference internal" href="#user-manual">User manual</a></li>
+<li><a class="reference internal" href="#ask-question">Ask question</a></li>
+<li><a class="reference internal" href="#report-bug">Report bug</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#hacking">Hacking</a></li>
+<li><a class="reference internal" href="#authors">Authors</a></li>
 </ul>
 </li>
 </ul>
 
-  <h4>Next topic</h4>
-  <p class="topless"><a href="userindex.html"
-                        title="next chapter">User manual</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="sources/index.txt"
@@ -144,14 +231,11 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="userindex.html" title="User manual"
-             >next</a> |</li>
-        <li><a href="#">mksv3 v3.0.0 documentation</a> &raquo;</li> 
+        <li><a href="#">mksv3 home page</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2010, Andrei Kopats, Filipe Azevedo.
+        &copy; Copyright (C) 2005 - 2010 Filipe AZEVEDO, Andrei KOPATS and The MkS Team.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>

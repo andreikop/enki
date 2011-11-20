@@ -6,13 +6,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Index &mdash; mksv3 v3.0.0 documentation</title>
+    <title>Index &mdash; mksv3 home page</title>
     <link rel="stylesheet" href="static/nature.css" type="text/css" />
     <link rel="stylesheet" href="static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.0.0',
+        VERSION:     '0.1.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -21,7 +21,8 @@
     <script type="text/javascript" src="static/jquery.js"></script>
     <script type="text/javascript" src="static/underscore.js"></script>
     <script type="text/javascript" src="static/doctools.js"></script>
-    <link rel="top" title="mksv3 v3.0.0 documentation" href="index.html" /> 
+    <link rel="shortcut icon" href="static/monkey2.ico"/>
+    <link rel="top" title="mksv3 home page" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -33,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="index.html">mksv3 v3.0.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">mksv3 home page</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -54,21 +55,20 @@
     <dt><a href="core/abstractdocument.html#mks.core.abstractdocument.AbstractDocument">AbstractDocument (class in mks.core.abstractdocument)</a></dt>
     <dt><a href="core/abstractdocument.html#mks.core.abstractdocument.AbstractTextEditor">AbstractTextEditor (class in mks.core.abstractdocument)</a></dt>
     <dt><a href="core/core.html#mks.core.core.Core.actionModel">actionModel() (mks.core.core.Core method)</a></dt>
-    <dt><a href="plugins/editor.html#mks.plugins.editor.Lexer.applyLanguage">applyLanguage() (mks.plugins.editor.Lexer method)</a></dt>
 </dl></td>
   <td style="width: 33%" valign="top"><dl>
-    <dt><a href="core/associations.html#mks.core.associations.Associations.applyLanguageToDocument">applyLanguageToDocument() (mks.core.associations.Associations method)</a></dt>
-    <dt><a href="core/associations.html#mks.core.associations.Configurator.applySettings">applySettings() (mks.core.associations.Configurator method)</a></dt>
+    <dt><a href="plugins/editor.html#mks.plugins.editor.Lexer.applyLanguage">applyLanguage() (mks.plugins.editor.Lexer method)</a></dt>
+    <dt><a href="plugins/associations.html#mks.plugins.associations.Plugin.applyLanguageToDocument">applyLanguageToDocument() (mks.plugins.associations.Plugin method)</a></dt>
+    <dt><a href="core/openedfilesmodel.html#mks.core.openedfilesmodel.Configurator.applySettings">applySettings() (mks.core.openedfilesmodel.Configurator method)</a></dt>
     <dd><dl>
-      <dt><a href="core/openedfilesmodel.html#mks.core.openedfilesmodel.Configurator.applySettings">(mks.core.openedfilesmodel.Configurator method)</a></dt>
       <dt><a href="core/uisettings.html#mks.core.uisettings.ModuleConfigurator.applySettings">(mks.core.uisettings.ModuleConfigurator method)</a></dt>
       <dt><a href="core/uisettings.html#mks.core.uisettings.UISettings.applySettings">(mks.core.uisettings.UISettings method)</a></dt>
+      <dt><a href="plugins/associations.html#mks.plugins.associations.Configurator.applySettings">(mks.plugins.associations.Configurator method)</a></dt>
       <dt><a href="plugins/editor.html#mks.plugins.editor.Editor.applySettings">(mks.plugins.editor.Editor method)</a></dt>
       <dt><a href="plugins/editor.html#mks.plugins.editor.EditorConfigurator.applySettings">(mks.plugins.editor.EditorConfigurator method)</a></dt>
       <dt><a href="plugins/editor.html#mks.plugins.editor.Lexer.applySettings">(mks.plugins.editor.Lexer method)</a></dt>
       <dt><a href="plugins/filebrowser.html#mks.plugins.filebrowser.Configurator.applySettings">(mks.plugins.filebrowser.Configurator method)</a></dt>
   </dl></dd>
-    <dt><a href="core/associations.html#mks.core.associations.Associations">Associations (class in mks.core.associations)</a></dt>
 </dl></td>
 </tr></table>
 
@@ -96,9 +96,9 @@
 </dl></td>
   <td style="width: 33%" valign="top"><dl>
     <dt><a href="core/core.html#mks.core.core.Core.config">config() (mks.core.core.Core method)</a></dt>
-    <dt><a href="core/associations.html#mks.core.associations.Configurator">Configurator (class in mks.core.associations)</a></dt>
+    <dt><a href="core/openedfilesmodel.html#mks.core.openedfilesmodel.Configurator">Configurator (class in mks.core.openedfilesmodel)</a></dt>
     <dd><dl>
-      <dt><a href="core/openedfilesmodel.html#mks.core.openedfilesmodel.Configurator">(class in mks.core.openedfilesmodel)</a></dt>
+      <dt><a href="plugins/associations.html#mks.plugins.associations.Configurator">(class in mks.plugins.associations)</a></dt>
       <dt><a href="plugins/filebrowser.html#mks.plugins.filebrowser.Configurator">(class in mks.plugins.filebrowser)</a></dt>
   </dl></dd>
     <dt><a href="core/core.html#mks.core.core.Core">Core (class in mks.core.core)</a></dt>
@@ -227,7 +227,7 @@
       <dt><a href="plugins/editor.html#mks.plugins.editor.Editor.isModified">(mks.plugins.editor.Editor method)</a></dt>
   </dl></dd>
     <dt><a href="core/abstractdocument.html#mks.core.abstractdocument.AbstractDocument.isNeverSaved">isNeverSaved() (mks.core.abstractdocument.AbstractDocument method)</a></dt>
-    <dt><a href="core/associations.html#mks.core.associations.Associations.iterLanguages">iterLanguages() (mks.core.associations.Associations method)</a></dt>
+    <dt><a href="plugins/associations.html#mks.plugins.associations.Plugin.iterLanguages">iterLanguages() (mks.plugins.associations.Plugin method)</a></dt>
 </dl></td>
 </tr></table>
 
@@ -279,7 +279,6 @@
     <dt><a href="plugins/searchreplace.html#mks.plugins.searchreplace.SearchContext.mask">mask (mks.plugins.searchreplace.SearchContext attribute)</a></dt>
     <dt><a href="core/core.html#mks.core.core.Core.messageManager">messageManager() (mks.core.core.Core method)</a></dt>
     <dt><a href="core/abstractdocument.html#module-mks.core.abstractdocument">mks.core.abstractdocument (module)</a></dt>
-    <dt><a href="core/associations.html#module-mks.core.associations">mks.core.associations (module)</a></dt>
     <dt><a href="core/config.html#module-mks.core.config">mks.core.config (module)</a></dt>
     <dt><a href="core/core.html#module-mks.core.core">mks.core.core (module)</a></dt>
     <dt><a href="core/mainwindow.html#module-mks.core.mainwindow">mks.core.mainwindow (module)</a></dt>
@@ -287,6 +286,7 @@
     <dt><a href="core/uisettings.html#module-mks.core.uisettings">mks.core.uisettings (module)</a></dt>
     <dt><a href="core/workspace.html#module-mks.core.workspace">mks.core.workspace (module)</a></dt>
     <dt><a href="plugins/appshortcuts.html#module-mks.plugins.appshortcuts">mks.plugins.appshortcuts (module)</a></dt>
+    <dt><a href="plugins/associations.html#module-mks.plugins.associations">mks.plugins.associations (module)</a></dt>
 </dl></td>
   <td style="width: 33%" valign="top"><dl>
     <dt><a href="plugins/editor.html#module-mks.plugins.editor">mks.plugins.editor (module)</a></dt>
@@ -358,6 +358,7 @@
     <dt><a href="plugins/searchreplace.html#mks.plugins.searchreplace.SearchResultsModel.parent">parent() (mks.plugins.searchreplace.SearchResultsModel method)</a></dt>
     <dt><a href="plugins/appshortcuts.html#mks.plugins.appshortcuts.Plugin">Plugin (class in mks.plugins.appshortcuts)</a></dt>
     <dd><dl>
+      <dt><a href="plugins/associations.html#mks.plugins.associations.Plugin">(class in mks.plugins.associations)</a></dt>
       <dt><a href="plugins/editor.html#mks.plugins.editor.Plugin">(class in mks.plugins.editor)</a></dt>
       <dt><a href="plugins/editorshortcuts.html#mks.plugins.editorshortcuts.Plugin">(class in mks.plugins.editorshortcuts)</a></dt>
       <dt><a href="plugins/editortoolbar.html#mks.plugins.editortoolbar.Plugin">(class in mks.plugins.editortoolbar)</a></dt>
@@ -413,11 +414,11 @@
       <dt><a href="core/uisettings.html#mks.core.uisettings.TextOption.save">(mks.core.uisettings.TextOption method)</a></dt>
   </dl></dd>
     <dt><a href="core/abstractdocument.html#mks.core.abstractdocument.AbstractDocument.saveFile">saveFile() (mks.core.abstractdocument.AbstractDocument method)</a></dt>
-    <dt><a href="core/associations.html#mks.core.associations.Configurator.saveSettings">saveSettings() (mks.core.associations.Configurator method)</a></dt>
+    <dt><a href="core/openedfilesmodel.html#mks.core.openedfilesmodel.Configurator.saveSettings">saveSettings() (mks.core.openedfilesmodel.Configurator method)</a></dt>
     <dd><dl>
-      <dt><a href="core/openedfilesmodel.html#mks.core.openedfilesmodel.Configurator.saveSettings">(mks.core.openedfilesmodel.Configurator method)</a></dt>
       <dt><a href="core/uisettings.html#mks.core.uisettings.ModuleConfigurator.saveSettings">(mks.core.uisettings.ModuleConfigurator method)</a></dt>
       <dt><a href="core/uisettings.html#mks.core.uisettings.UISettings.saveSettings">(mks.core.uisettings.UISettings method)</a></dt>
+      <dt><a href="plugins/associations.html#mks.plugins.associations.Configurator.saveSettings">(mks.plugins.associations.Configurator method)</a></dt>
       <dt><a href="plugins/editor.html#mks.plugins.editor.EditorConfigurator.saveSettings">(mks.plugins.editor.EditorConfigurator method)</a></dt>
       <dt><a href="plugins/filebrowser.html#mks.plugins.filebrowser.Configurator.saveSettings">(mks.plugins.filebrowser.Configurator method)</a></dt>
   </dl></dd>
@@ -552,6 +553,9 @@
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="static/monkey2.png" alt="Logo"/>
+            </a></p>
 
    
 
@@ -581,11 +585,11 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="index.html">mksv3 v3.0.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">mksv3 home page</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2010, Andrei Kopats, Filipe Azevedo.
+        &copy; Copyright (C) 2005 - 2010 Filipe AZEVEDO, Andrei KOPATS and The MkS Team.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
