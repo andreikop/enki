@@ -1,3 +1,9 @@
+mksv3 (0.1.5-ppa0) oneiric; urgency=low
+
+  * Crash fix
+
+ -- Andrei Kopats (laptop) <hlamer@tut.by>  Sun, 20 Nov 2011 23:18:00 +0300
+
 mksv3 (0.1.4-ppa0) oneiric; urgency=low
 
   * Few bug fixes
