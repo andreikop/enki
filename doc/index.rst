@@ -75,12 +75,6 @@ Other Ubuntus and Debians
 
 This method not tested yet, but, should be working. Team will be appreciate you, if you shared your experience
 
-Python package index
-^^^^^^^^^^^^^^^^^^^^
-TODO
-
-You should install all dependencies manually.
-
 Source package
 ^^^^^^^^^^^^^^
 Sources are hosted `here <https://github.com/hlamer/mksv3/downloads>`_.
