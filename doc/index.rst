@@ -77,7 +77,7 @@ This method not tested yet, but, should be working. Team will be appreciate you,
 
 Source package
 ^^^^^^^^^^^^^^
-Sources are hosted `here <https://github.com/hlamer/mksv3/downloads>`_.
+The latest release are `here <https://github.com/hlamer/mksv3/tags>`_.
 
 You should install all dependencies manually.
 
