@@ -29,7 +29,7 @@ class Configurator(ModuleConfigurator):
         ModuleConfigurator.__init__(self, dialog)
         self._options = []
         fileAssociationsItem = dialog.twMenu.topLevelItem(1)
-        for index, language in enumerate(Associations.instance.iterLanguages()):
+        for index, language in enumerate(Plugin.instance.iterLanguages()):
             languageName, fileNameGlobs, firstLineGlobs, iconPath = language
             # Item to the tree
             item = QTreeWidgetItem([languageName])
@@ -66,7 +66,7 @@ class Configurator(ModuleConfigurator):
         Called by :mod:`mks.core.uisettings`
         """
         for document in core.workspace().openedDocuments():
-            Associations.instance.applyLanguageToDocument(document)
+            Plugin.instance.applyLanguageToDocument(document)
 
 class Plugin():
     """Module functionality
@@ -75,7 +75,6 @@ class Plugin():
     instance = None
 
     def __init__(self):
-        core.moduleConfiguratorClasses.append(Configurator)
         core.workspace().documentOpened.connect(self.applyLanguageToDocument)
         
         self._menu = core.actionModel().addMenu("mView/mHighlighting", "Highlighting").menu()
@@ -84,9 +83,11 @@ class Plugin():
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
         
         Plugin.instance = self
-    
-    def __term__(self):
-        core.moduleConfiguratorClasses.remove(Configurator)
+
+    def moduleConfiguratorClass(self):
+        """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
+        """
+        return Configurator
 
     def iterLanguages(self):
         """Get list of available languages as touple (name, file name globs, first line globs, icon path)
