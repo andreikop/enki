@@ -104,7 +104,7 @@ Ask question
 
 Report bug
 ^^^^^^^^^^
-There are 3 ways to report a bug
+There are 3 ways to report a bug:
 
 #. Fork https://github.com/hlamer/mksv3 and fix the bug
 #. Open an issue at https://github.com/hlamer/mksv3/issues
