@@ -8,14 +8,13 @@ and used for get core instances, such as main window, workspace, etc.
 
 import os.path
 import shutil
-import sys
 
 from PyQt4.QtGui import qApp, QIcon
 
 from PyQt4.fresh import pSettings
 
 import mks.core.defines
-import mks.resources.icons
+import mks.resources.icons # pylint: disable=W0404
 
 DATA_FILES_PATH = os.path.join(os.path.dirname(__file__), '..')
 
@@ -28,25 +27,30 @@ class Core:
     
     It creates instances of other core modules and holds references to it
     """
+    def __init__(self):
+        self._mainWindow = None
+        self._workspace = None
+        self._config = None
+        self._uiSettingsManager = None
+
+        # List of core configurators. To be filled ONLY by other core modules. Readed ONLY by core.uisettings
+        # Use direct access to the list, no methods are provided
+        self.moduleConfiguratorClasses = []
+
+        self._loadedPlugins = []
+        
     def init(self):
         """Initialize core.
         
         Called only by main()
         """
-        self._loadedPlugins = []
-        
-        """ List of core configurators. To be filled ONLY by other core modules. Readed ONLY by core.uisettings
-        Use direct access to the list, no methods are provided
-        """
-        self.moduleConfiguratorClasses = []
-        
         qApp.setWindowIcon(QIcon(':/mksicons/monkey2.png') )
         pSettings.setDefaultProperties(pSettings.Properties(qApp.applicationName(), \
                                                             "1.0.0",
                                                             pSettings.Normal))
         
         # Imports are here for hack crossimport problem
-        import mks.core.mainwindow
+        import mks.core.mainwindow  # pylint: disable=W0621,W0404
         self._mainWindow = mks.core.mainwindow.MainWindow()
         
         self._config = self._createConfig()
@@ -54,7 +58,7 @@ class Core:
         self._workspace = mks.core.workspace.Workspace(self._mainWindow)
         self._mainWindow.setWorkspace(self._workspace)
         
-        import mks.core.uisettings
+        import mks.core.uisettings  # pylint: disable=W0404
         self._uiSettingsManager = mks.core.uisettings.UISettingsManager()
         
         # Create plugins
@@ -110,14 +114,14 @@ class Core:
     def _loadPlugin(self, name):
         """Load plugin by it's module name
         """
-        exec("import mks.plugins.%s as module" % name)
-        self._loadedPlugins.append(module.Plugin())
+        exec("import mks.plugins.%s as module" % name)  # pylint: disable=W0122
+        self._loadedPlugins.append(module.Plugin())  # pylint: disable=E0602
 
     def _createDefaultConfigFile(self):
         """Create default configuration file, if it is not present
         Called only by _createConfig()
         """
-        import mks.core.config
+        import mks.core.config  # pylint: disable=W0621,W0404
         
         if not os.path.exists(mks.core.defines.CONFIG_DIR):
             try:
@@ -137,7 +141,7 @@ class Core:
         Function creates config file in user's home directory, if necessary,
         validates and opens it.
         """
-        import mks.core.config
+        import mks.core.config  # pylint: disable=W0621,W0404
         
         haveFileInHome = os.path.exists(_CONFIG_PATH)
         
@@ -166,13 +170,12 @@ class Core:
         
         return config
 
-core = Core()
-"""
-Core instance. It is accessible as: ::
+core = Core()  # pylint: disable=C0103
+"""Core instance. It is accessible as: ::
 
     from mks.core.core import core
     core.anyMethod()
-"""
+"""  # pylint: disable=W0105
 
 
 """
@@ -345,4 +348,4 @@ def translationsManager():
     if _translationManager is None:
         _translationManager = TranslationManager( mainWindow() )
     return _translationManager
-"""
+"""  # pylint: disable=W0105
