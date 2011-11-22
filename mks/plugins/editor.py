@@ -413,7 +413,6 @@ class Editor(AbstractTextEditor):
     #
     
     def __init__(self, parentObject, filePath, createNew=False):
-        self._neverSaved = filePath is None or createNew
         super(Editor, self).__init__(parentObject, filePath, createNew)
         
         # Configure editor
