@@ -10,6 +10,9 @@ Used only internally by Workspace
 import os.path
 import copy
 
+# pylint: disable=E0611
+# pylint dislikes PyQt4.QtCore import
+
 from PyQt4.QtCore import QAbstractItemModel, \
                          QByteArray, \
                          QMimeData, \
@@ -81,21 +84,25 @@ class _OpenedFileModel(QAbstractItemModel):
         workspace.documentClosed.connect(self.documentClosed)
     
     def columnCount(self, parent ):
+        """See QAbstractItemModel documentation"""
         return 1
 
     def rowCount(self, parent ):
+        """See QAbstractItemModel documentation"""
         if parent.isValid():
             return 0
         else:
             return len(core.workspace()._sortedDocuments)
     
     def hasChildren(self, parent ):
+        """See QAbstractItemModel documentation"""
         if parent.isValid():
             return False
         else:
             return (len(core.workspace()._sortedDocuments) > 0)
 
     def headerData(self, section, orientation, role ):
+        """See QAbstractItemModel documentation"""
         if  section == 0 and \
             orientation == Qt.Horizontal and \
             role == Qt.DecorationRole:
@@ -104,6 +111,7 @@ class _OpenedFileModel(QAbstractItemModel):
             return QVariant()
 
     def data(self, index, role ):
+        """See QAbstractItemModel documentation"""
         if  not index.isValid() :
             return QVariant()
         
@@ -120,24 +128,29 @@ class _OpenedFileModel(QAbstractItemModel):
             return QVariant()
     
     def flags(self, index ):
+        """See QAbstractItemModel documentation"""
         if  index.isValid() :
             return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDragEnabled
         else:
             return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDropEnabled
     
     def index(self, row, column, parent ):
+        """See QAbstractItemModel documentation"""
         if  parent.isValid() or column > 0 or column < 0 or row < 0 or row >= len(core.workspace()._sortedDocuments) :
             return QModelIndex()
 
         return self.createIndex( row, column, core.workspace()._sortedDocuments[row] )
     
     def parent(self, index ):
+        """See QAbstractItemModel documentation"""
         return QModelIndex()
     
     def mimeTypes(self):
+        """See QAbstractItemModel documentation"""
         return ["application/x-modelindexrow"]
 
     def mimeData(self, indexes ):
+        """See QAbstractItemModel documentation"""
         if len(indexes) != 1:
             return 0
         
@@ -146,9 +159,11 @@ class _OpenedFileModel(QAbstractItemModel):
         return data
 
     def supportedDropActions(self):
+        """See QAbstractItemModel documentation"""
         return Qt.MoveAction
 
     def dropMimeData(self, data, action, row, column, parent ):
+        """See QAbstractItemModel documentation"""
         if  parent.isValid() or \
             ( row == -1 and column == -1 ) or \
             action != Qt.MoveAction or \
@@ -182,12 +197,14 @@ class _OpenedFileModel(QAbstractItemModel):
         return True
     
     def document(self, index ):
+        """Get document by model index"""
         if not index.isValid() :
             return None
 
         return index.internalPointer()
     
-    def documentIndex(self, document ):
+    def documentIndex(self, document):
+        """Get model index by document"""
         row = core.workspace()._sortedDocuments.index( document )
         
         if  row != -1 :
@@ -196,9 +213,11 @@ class _OpenedFileModel(QAbstractItemModel):
         return QModelIndex()
     
     def sortMode(self):
+        """Current sort mode"""
         return self.mSortMode
 
     def setSortMode(self, mode ):
+        """Set current sort mode, resort documents"""
         if  self.mSortMode != mode :
             self.mSortMode = mode
             if mode != self.Custom:
@@ -208,6 +227,7 @@ class _OpenedFileModel(QAbstractItemModel):
             self.sortDocuments()
 
     def sortDocuments(self):
+        """Sort documents list according to current sort mode"""
         newDocuments = copy.copy(core.workspace()._sortedDocuments)
         
         if self.mSortMode == self.OpeningOrder:
