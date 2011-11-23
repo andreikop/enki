@@ -33,7 +33,7 @@ from PyQt4.QtCore import pyqtSignal, \
                          Qt
 
 from mks.core.core import core, DATA_FILES_PATH
-import mks.core.openedfilesmodel
+import mks.core.openedfilemodel
 import mks.core.abstractdocument
 
 
@@ -119,7 +119,7 @@ class Workspace(QStackedWidget):
         
     def __init__(self, mainWindow):
         """ list of opened documents as it is displayed in the Opened Files Explorer. 
-        List accessed and modified by mks.core.openedfilesmodel.OpenedFileModel class
+        List accessed and modified by mks.core.openedfilemodel.OpenedFileModel class
         """
         QStackedWidget.__init__(self, mainWindow)
         self.sortedDocuments = []  # not protected, because available for OpenedFileModel
@@ -128,7 +128,7 @@ class Workspace(QStackedWidget):
         
         # create opened files explorer
         # openedFileExplorer is not protected, because it is available for OpenedFileModel
-        self.openedFileExplorer = mks.core.openedfilesmodel.OpenedFileExplorer(self)
+        self.openedFileExplorer = mks.core.openedfilemodel.OpenedFileExplorer(self)
         lefttb = mainWindow.dockToolBar( Qt.LeftToolBarArea )
         lefttb.addDockWidget( self.openedFileExplorer)
         
