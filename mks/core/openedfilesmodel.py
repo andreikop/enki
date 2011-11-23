@@ -60,7 +60,7 @@ class Configurator(ModuleConfigurator):
         
         Called by :mod:`mks.core.uisettings`
         """
-        core.workspace().openedFileExplorer._model.setSortMode(core.config()["Workspace"]["FileSortMode"])
+        core.workspace().openedFileExplorer.model.setSortMode(core.config()["Workspace"]["FileSortMode"])
 
 
 
@@ -329,10 +329,10 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
     """
     def __init__(self, workspace):
         PyQt4.fresh.pDockWidget.__init__(self, workspace)
-        self._model = _OpenedFileModel(self)
+        self.model = _OpenedFileModel(self)  # Not protected, because used by Configurator
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/pOpenedFileExplorer.ui'), self )
         self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
-        self.tvFiles.setModel( self._model )
+        self.tvFiles.setModel( self.model )
         self.tvFiles.setAttribute( Qt.WA_MacShowFocusRect, False )
         self.tvFiles.setAttribute( Qt.WA_MacSmallSize )
         self.setFocusProxy(self.tvFiles)
@@ -364,13 +364,13 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         """ One of sort actions has been triggered in the opened file list context menu
         """
         mode = action.data().toString()
-        self._model.setSortMode( mode )
+        self.model.setSortMode( mode )
     
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument ):  # pylint: disable=W0613
         """ Current document has been changed on workspace
         """
         if currentDocument is not None:
-            index = self._model.documentIndex( currentDocument )
+            index = self.model.documentIndex( currentDocument )
             
             self.startModifyModel()
             self.tvFiles.setCurrentIndex( index )
@@ -421,7 +421,7 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
             action = group.actions()[i]
             action.setData( sortMode )
             action.setCheckable( True )
-            if sortMode == self._model.sortMode():
+            if sortMode == self.model.sortMode():
                 action.setChecked( True )
         
         aSortMenu = QAction( self.tr( "Sorting" ), self )
