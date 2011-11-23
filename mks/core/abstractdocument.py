@@ -37,7 +37,7 @@ class AbstractDocument(QWidget):
     
     #Signal emitted, when document icon or toolTip has changed 
     #(i.e. document has been modified externally)
-    _documentDataChanged = pyqtSignal()
+    documentDataChanged = pyqtSignal()
     
     def __init__( self, parentObject, filePath, createNew=False):
         """Create editor and open file.
@@ -73,7 +73,7 @@ class AbstractDocument(QWidget):
             self._externallyModified = True
         else:
             self._externallyRemoved = True
-        self._documentDataChanged.emit()
+        self.documentDataChanged.emit()
 
     def _readFile(self, filePath):
         """Read the file contents.

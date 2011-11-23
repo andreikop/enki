@@ -122,14 +122,15 @@ class Workspace(QStackedWidget):
         List accessed and modified by mks.core.openedfilesmodel.OpenedFileModel class
         """
         QStackedWidget.__init__(self, mainWindow)
-        self._sortedDocuments = []
+        self.sortedDocuments = []  # not protected, because available for OpenedFileModel
         self._oldCurrentDocument = None
         self._textEditorClass = None
         
         # create opened files explorer
-        self._openedFileExplorer = mks.core.openedfilesmodel.OpenedFileExplorer(self)
+        # openedFileExplorer is not protected, because it is available for OpenedFileModel
+        self.openedFileExplorer = mks.core.openedfilesmodel.OpenedFileExplorer(self)
         lefttb = mainWindow.dockToolBar( Qt.LeftToolBarArea )
-        lefttb.addDockWidget( self._openedFileExplorer)
+        lefttb.addDockWidget( self.openedFileExplorer)
         
         self.currentChanged.connect(self._onStackedLayoutIndexChanged)
         
@@ -300,8 +301,8 @@ class Workspace(QStackedWidget):
             if _UISaveFiles(self._mainWindow(), [document]).exec_() == QDialog.Rejected:
                 return
         
-        if len(self._sortedDocuments) > 1:  # not the last document
-            if document == self._sortedDocuments[-1]:  # the last document
+        if len(self.sortedDocuments) > 1:  # not the last document
+            if document == self.sortedDocuments[-1]:  # the last document
                 self._activatePreviousDocument()
             else:  # not the last
                 self._activateNextDocument()
@@ -350,7 +351,7 @@ class Workspace(QStackedWidget):
             self.closeDocument(self.openedDocuments()[0])        
 
         # check if file is already opened
-        for document in self._sortedDocuments:
+        for document in self.sortedDocuments:
             if os.path.isfile(filePath) and \
                document.filePath() is not None and \
                os.path.isfile(document.filePath()) and \
@@ -414,7 +415,7 @@ class Workspace(QStackedWidget):
     def openedDocuments(self):
         """Get list of opened documents (:class:`mks.core.abstractdocument.AbstractDocument` instances)
         """
-        return self._sortedDocuments
+        return self.sortedDocuments
     
     def closeAllDocuments(self):
         """Close all documents
@@ -438,16 +439,16 @@ class Workspace(QStackedWidget):
     def _activateNextDocument(self):
         """Handler of View->Next triggered
         """
-        curIndex = self._sortedDocuments.index(self.currentDocument())
-        nextIndex = (curIndex + 1) % len(self._sortedDocuments)
-        self.setCurrentDocument( self._sortedDocuments[nextIndex] )
+        curIndex = self.sortedDocuments.index(self.currentDocument())
+        nextIndex = (curIndex + 1) % len(self.sortedDocuments)
+        self.setCurrentDocument( self.sortedDocuments[nextIndex] )
     
     def _activatePreviousDocument(self):
         """Handler of View->Previous triggered
         """
-        curIndex = self._sortedDocuments.index(self.currentDocument())
-        prevIndex = (curIndex - 1 + len(self._sortedDocuments)) % len(self._sortedDocuments)
-        self.setCurrentDocument( self._sortedDocuments[prevIndex] )
+        curIndex = self.sortedDocuments.index(self.currentDocument())
+        prevIndex = (curIndex - 1 + len(self.sortedDocuments)) % len(self.sortedDocuments)
+        self.setCurrentDocument( self.sortedDocuments[prevIndex] )
     
     def focusCurrentDocument(self):
         """Set focus (cursor) to current document.
