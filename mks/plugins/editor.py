@@ -425,7 +425,7 @@ class Editor(AbstractTextEditor):
 
         self.qscintilla.installEventFilter(self)
         
-        #self.qscintilla.markerDefine(QPixmap(":/editor/bookmark.png").scaled(self.mPixSize), mdBookmark)
+        #self.qscintilla.markerDefine(QPixmap(":/editor/bookmark.png").scaled(self._pixSize), mdBookmark)
         
         self.qscintilla.setUtf8(True) # deal with utf8
         
@@ -889,9 +889,9 @@ class Plugin:
 
 class _pEditor(QsciScintilla):
     
-        self.mPixSize = QSize(16, 16)
+        self._pixSize = QSize(16, 16)
         # register image for bookmarks
-        self.markerDefine(QPixmap(":/editor/bookmark.png").scaled(self.mPixSize), mdBookmark)
+        self.markerDefine(QPixmap(":/editor/bookmark.png").scaled(self._pixSize), mdBookmark)
         
         # Create shortcuts manager, not created
         qSciShortcutsManager.instance()

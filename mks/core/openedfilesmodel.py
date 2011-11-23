@@ -60,7 +60,7 @@ class Configurator(ModuleConfigurator):
         
         Called by :mod:`mks.core.uisettings`
         """
-        core.workspace().openedFileExplorer.mModel.setSortMode(core.config()["Workspace"]["FileSortMode"])
+        core.workspace().openedFileExplorer._model.setSortMode(core.config()["Workspace"]["FileSortMode"])
 
 
 
@@ -78,7 +78,7 @@ class _OpenedFileModel(QAbstractItemModel):  # pylint: disable=R0904
     
     def __init__(self, parentObject):
         QAbstractItemModel.__init__(self, parentObject )
-        self.mSortMode = core.config()["Workspace"]["FileSortMode"]
+        self._sortMode = core.config()["Workspace"]["FileSortMode"]
         workspace = parentObject.parent()
         workspace.documentOpened.connect(self._onDocumentOpened)
         workspace.documentClosed.connect(self._onDocumentClosed)
@@ -189,7 +189,7 @@ class _OpenedFileModel(QAbstractItemModel):  # pylint: disable=R0904
         
         self.rebuildMapping( core.workspace().sortedDocuments, newDocuments )
         
-        if  self.mSortMode != _OpenedFileModel.Custom :
+        if  self._sortMode != _OpenedFileModel.Custom :
             self.setSortMode( _OpenedFileModel.Custom )
         
         QObject.parent(self).tvFiles.setCurrentIndex(self.documentIndex(item))
@@ -214,12 +214,12 @@ class _OpenedFileModel(QAbstractItemModel):  # pylint: disable=R0904
     
     def sortMode(self):
         """Current sort mode"""
-        return self.mSortMode
+        return self._sortMode
 
     def setSortMode(self, mode ):
         """Set current sort mode, resort documents"""
-        if  self.mSortMode != mode :
-            self.mSortMode = mode
+        if  self._sortMode != mode :
+            self._sortMode = mode
             if mode != self.Custom:
                 core.config().reload()
                 core.config()["Workspace"]["FileSortMode"] = mode
@@ -230,21 +230,21 @@ class _OpenedFileModel(QAbstractItemModel):  # pylint: disable=R0904
         """Sort documents list according to current sort mode"""
         newDocuments = copy.copy(core.workspace().sortedDocuments)
         
-        if self.mSortMode == self.OpeningOrder:
+        if self._sortMode == self.OpeningOrder:
             newDocuments.sort(lambda a, b: cmp(core.workspace().sortedDocuments.index(a), \
                                                core.workspace().sortedDocuments.index(b)))
-        elif self.mSortMode == self.FileName:
+        elif self._sortMode == self.FileName:
             newDocuments.sort(lambda a, b: cmp(a.fileName(), b.fileName()))
-        elif self.mSortMode == self.URL:
+        elif self._sortMode == self.URL:
             newDocuments.sort(lambda a, b: cmp(a.filePath(), b.filePath()))
-        elif self.mSortMode == self.Suffixes:
+        elif self._sortMode == self.Suffixes:
             def sorter(a, b):  # pylint: disable=C0103
                 """ Compare 2 file pathes"""
                 aSuffix = os.path.splitext(a.filePath())[1]
                 bSuffix = os.path.splitext(b.filePath())[1]
                 return cmp(aSuffix, bSuffix)
             newDocuments.sort(sorter)
-        elif self.mSortMode == self.Custom:
+        elif self._sortMode == self.Custom:
             pass
         else:
             assert(0)
@@ -329,10 +329,10 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
     """
     def __init__(self, workspace):
         PyQt4.fresh.pDockWidget.__init__(self, workspace)
-        self.mModel = _OpenedFileModel(self)
+        self._model = _OpenedFileModel(self)
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/pOpenedFileExplorer.ui'), self )
         self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
-        self.tvFiles.setModel( self.mModel )
+        self.tvFiles.setModel( self._model )
         self.tvFiles.setAttribute( Qt.WA_MacShowFocusRect, False )
         self.tvFiles.setAttribute( Qt.WA_MacSmallSize )
         self.setFocusProxy(self.tvFiles)
@@ -364,13 +364,13 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
         """ One of sort actions has been triggered in the opened file list context menu
         """
         mode = action.data().toString()
-        self.mModel.setSortMode( mode )
+        self._model.setSortMode( mode )
     
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument ):  # pylint: disable=W0613
         """ Current document has been changed on workspace
         """
         if currentDocument is not None:
-            index = self.mModel.documentIndex( currentDocument )
+            index = self._model.documentIndex( currentDocument )
             
             self.startModifyModel()
             self.tvFiles.setCurrentIndex( index )
@@ -421,7 +421,7 @@ class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
             action = group.actions()[i]
             action.setData( sortMode )
             action.setCheckable( True )
-            if sortMode == self.mModel.sortMode():
+            if sortMode == self._model.sortMode():
                 action.setChecked( True )
         
         aSortMenu = QAction( self.tr( "Sorting" ), self )
