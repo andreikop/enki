@@ -539,7 +539,6 @@ class Workspace(QStackedWidget):
     buffersChanged = pyqtSignal(dict) # {file path : file contents}
 
     def __init__
-        self._contentChangedTimer = QTimer( self )
         
         # load settings
         self.loadSettings()
@@ -548,7 +547,6 @@ class Workspace(QStackedWidget):
         mViewModesGroup.triggered.connect(self.viewModes_triggered)
         parent.urlsDropped.connect(self.internal_urlsDropped)
         MonkeyCore.projectsManager().currentProjectChanged.connect(self.internal_currentProjectChanged)
-        self._contentChangedTimer.timeout.connect(self.contentChangedTimer_timeout)
         
     def fileSessionSave_triggered(self):
         files = []
@@ -611,7 +609,6 @@ class Workspace(QStackedWidget):
         return self.openFile( fileName, result[ "encoding" ].toString() )
 
     def document_contentChanged(self):
-        self._contentChangedTimer.start( CONTENT_CHANGED_TIME_OUT )
         document = self.sender() # signal sender
         self.documentChanged.emit( document )
     
@@ -623,17 +620,6 @@ class Workspace(QStackedWidget):
     def document_fileReloaded(self):
         document = self.sender()
         self.documentReloaded.emit( document )
-
-    def contentChangedTimer_timeout(self):
-        self._contentChangedTimer.stop()
-        
-        entries = {}
-        
-        for document in self.documents():
-            if  document.isModified() :
-                entries[ document.filePath() ] = document.text()
-
-        self.buffersChanged.emit( entries )
     
     def viewModes_triggered(self, action ):
         self.setDocumentMode( action.data().toInt() )
