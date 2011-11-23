@@ -73,7 +73,7 @@ def _tr(text):
 class ModuleConfigurator:
     """Interface, which must be implemented by core module or plugin, which needs to configure semself via GUI dialog.
     
-    See :class:`mks.core.openedfilesmodel.Configurator` source for simple example of class implementation
+    See :class:`mks.core.openedfilemodel.Configurator` source for simple example of class implementation
     """
     def __init__(self, dialog):
         """Create all options. Every option loads its value during creation

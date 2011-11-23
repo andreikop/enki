@@ -1,6 +1,6 @@
 """
-openedfilesmodel --- Model and treeview for list of opened files
-================================================================
+openedfilemodel --- Model and treeview for list of opened files
+===============================================================
 
 Module displays list of opened files, implements files sorting, drag-n-drop in the list, switches current file.
 
