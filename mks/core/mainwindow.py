@@ -224,7 +224,7 @@ class MainWindow(pMainWindow):
 #        # edit connection
 #        self._actionModel.action( "mEdit/aSettings" ).triggered.connect(core.workspace().editSettings_triggered)
 #        self._actionModel.action( "mEdit/aTranslations" ).triggered.connect(core.workspace().editTranslations_triggered)
-#        self._actionModel.action( "mEdit/aExpandAbbreviation" ).triggered.connect(core.workspace().editExpandAbbreviation_triggered)
+#        self._actionModel.action( "mEdit/aExpandAbbreviation" ).triggered.connect(core.workspace().onEditExpandAbbreviation)
 #        self._actionModel.action( "mEdit/aPrepareAPIs" ).triggered.connect(core.workspace().editPrepareAPIs_triggered)
 #        # view connection
 #        agStyles.styleSelected.connect(self.changeStyle)

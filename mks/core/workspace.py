@@ -801,7 +801,7 @@ class Workspace(QStackedWidget):
             core.translationsManager().reloadTranslations()
 
 
-    def editExpandAbbreviation_triggered(self):
+    def onEditExpandAbbreviation(self):
         document = self.currentDocument()
 
         if  document :
@@ -811,9 +811,4 @@ class Workspace(QStackedWidget):
 
     def editPrepareAPIs_triggered(self):
         mks.monkeystudio.prepareAPIs()
-
-    # help menu
-    def helpAboutApplication_triggered(self):
-        dlg = UIAbout( self )
-        dlg.open()
     '''
