@@ -18,7 +18,7 @@ Created by :class:`mks.core.core.Core`
 from configobj import ConfigObj, flatten_errors, ParseError
 from validate import Validator
 
-class Config(ConfigObj):  # pylint: disable=R0904
+class Config(ConfigObj):
     """Settings storage.
     
     Class extends ConfigObj with few methods, usefull for MkS

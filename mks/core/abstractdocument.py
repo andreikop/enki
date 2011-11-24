@@ -9,7 +9,7 @@ This class is inherited by textual editor, and must be inherited by other worksp
 
 import os.path
 
-from PyQt4.QtCore import pyqtSignal, QFileSystemWatcher  # pylint: disable=E0611
+from PyQt4.QtCore import pyqtSignal, QFileSystemWatcher
 from PyQt4.QtGui import QFileDialog, \
                         QIcon, \
                         QInputDialog, \

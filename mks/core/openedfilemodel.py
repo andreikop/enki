@@ -10,8 +10,6 @@ Used only internally by Workspace
 import os.path
 import copy
 
-# pylint: disable=E0611
-# pylint dislikes PyQt4.QtCore import
 
 from PyQt4.QtCore import QAbstractItemModel, \
                          QByteArray, \
@@ -64,7 +62,7 @@ class Configurator(ModuleConfigurator):
 
 
 
-class _OpenedFileModel(QAbstractItemModel):  # pylint: disable=R0904
+class _OpenedFileModel(QAbstractItemModel):
     """Model, herited from QAbstractItemModel, used for show list of opened files
     in the tree view (_OpenedFileExplorer)
     It switches current file, does file sorting

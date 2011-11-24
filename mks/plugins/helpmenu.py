@@ -11,7 +11,7 @@ from PyQt4 import uic
 from PyQt4.QtCore import QObject
 from PyQt4.QtGui import qApp, QDialog, QIcon
 
-from mks.core.defines import PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_COPYRIGHTS
+from mks.core.defines import PACKAGE_NAME, PACKAGE_VERSION
 from mks.core.core import core, DATA_FILES_PATH
 
 class Plugin(QObject):
@@ -24,7 +24,7 @@ class Plugin(QObject):
             """Create a menu action and connect it to the slot
             """
             action = core.actionModel().addAction("mHelp/%s" % menuItem, text, QIcon(':mksicons/' + icon))
-            slot = lambda : UIAbout(core.mainWindow(), tab).exec_()
+            slot = lambda : UIAbout(core.mainWindow(), tab).exec_()  # pylint: disable=W0108
             action.triggered.connect(slot)
         
         createAction('aAbout', self.tr('&About...'), 'monkey2.png', 'about')

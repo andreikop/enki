@@ -91,13 +91,13 @@ class FileBrowserFilteredModel(QSortFilterProxyModel):
     def setFilters(self, filters):
         """Set list of negative filters. (Wildards of files, which are not visible)
         """
-        regExPatterns = map(fnmatch.translate, filters)
+        regExPatterns = [fnmatch.translate(f) for f in filters]
         compositeRegExpPattern = '(' + ')|('.join(regExPatterns) + ')'
         self.filterRegExp = re.compile(compositeRegExpPattern)
         
         self.invalidateFilter()
 
-    def columnCount(self, parent = QModelIndex()):
+    def columnCount(self, parent = QModelIndex()):  # pylint: disable=W0613
         """Column count for the model
         """
         return 1
@@ -161,7 +161,7 @@ class SmartRecents(QObject):
             return ()
         
         dirAndPopularity = sorted(self._popularDirs.iteritems(), key=operator.itemgetter(1), reverse=True)
-        dirs = zip(*dirAndPopularity)[0]  # take only first elements
+        dirs = [dp[0] for dp in dirAndPopularity]  # take only first elements
         return dirs
     
     def _onFileActivated(self):
@@ -279,8 +279,8 @@ class SmartHistory(QObject):
         """Directory has been activated. Update history
         """
         if  self._history and \
-            self._history[self._historyIndex] == self._currDir:
-                return # Do nothing, if moved back or forward
+                self._history[self._historyIndex] == self._currDir:
+            return # Do nothing, if moved back or forward
 
         if (self._historyIndex + 1) < len(self._history):  # not on the top of the stack
             # Cut history
@@ -502,8 +502,8 @@ class ComboBox(QComboBox):
         self._completionModel.setFilter( QDir.AllDirs | QDir.NoDotAndDotDot )
         self.lineEdit().setCompleter(QCompleter(self._completionModel,
                                                self.lineEdit()))
-        """TODO QDirModel is deprecated but QCompleter does not yet handle
-        QFileSystemModel - please update when possible."""
+        #TODO QDirModel is deprecated but QCompleter does not yet handle
+        #QFileSystemModel - please update when possible.
         self._count = 0
 
         # Show popup action
@@ -584,14 +584,14 @@ class DockFileBrowser(pDockWidget):
     rootChanged(path)
     
     **Signal** emitted, when tree root has been changed
-    """
+    """  # pylint: disable=W0105
     
     fileActivated = pyqtSignal()
     """
     rootChanged(path)
     
     **Signal** emitted, when file has been activated
-    """
+    """  # pylint: disable=W0105
     
     def __init__(self, parent):
         pDockWidget.__init__(self, parent)

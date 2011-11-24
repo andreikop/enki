@@ -13,7 +13,10 @@ from PyQt4.Qsci import QsciScintilla as qsci
 
 from mks.core.core import core
 
-tr = QObject().tr
+def tr(text):  # pylint: disable=C0103
+    """ Stub for translation procedure
+    """
+    return text
 
 MKS_TOGGLE_BOOKMARK = -1
 MKS_NEXT_BOOKMARK = -2
@@ -54,12 +57,16 @@ _ACTIONS = (\
 (qsci.SCI_WORDPARTRIGHTEXTEND, 'mEdit/mSelection/mWord/aRightPart', tr('Right part'), 'Ctrl+Alt+\\', ''),
 \
 (qsci.SCI_LINEDOWNRECTEXTEND, 'mEdit/mSelection/mRectangular/aDownOneLine', tr('Down one line'), 'Alt+Shift+Down', ''),
-(qsci.SCI_CHARLEFTRECTEXTEND, 'mEdit/mSelection/mRectangular/aLeftOneCharacter', tr('Left one character'), 'Alt+Shift+Left', ''),
-(qsci.SCI_CHARRIGHTRECTEXTEND, 'mEdit/mSelection/mRectangular/aRightOneCharacter', tr('Right one character'), 'Alt+Shift+Right', ''),
+(qsci.SCI_CHARLEFTRECTEXTEND, 'mEdit/mSelection/mRectangular/aLeftOneCharacter', 
+                                                    tr('Left one character'), 'Alt+Shift+Left', ''),
+(qsci.SCI_CHARRIGHTRECTEXTEND, 'mEdit/mSelection/mRectangular/aRightOneCharacter',
+                                                    tr('Right one character'), 'Alt+Shift+Right', ''),
 (qsci.SCI_HOMERECTEXTEND, 'mEdit/mSelection/mRectangular/aToLineStart', tr('Line start'), '', ''),
-(qsci.SCI_VCHOMERECTEXTEND, 'mEdit/mSelection/mRectangular/aToFirtsVCInLine', tr('First visible character in line'), 'Alt+Shift+Home', ''),
+(qsci.SCI_VCHOMERECTEXTEND, 'mEdit/mSelection/mRectangular/aToFirtsVCInLine',
+                                                    tr('First visible character in line'), 'Alt+Shift+Home', ''),
 (qsci.SCI_LINEENDRECTEXTEND, 'mEdit/mSelection/mRectangular/aToEndOfLine', tr('End of line'), 'Alt+Shift+End', ''),
-(qsci.SCI_PAGEDOWNRECTEXTEND, 'mEdit/mSelection/mRectangular/aDownOnePage', tr('Down one page'), 'Alt+Shift+PgDown', ''),
+(qsci.SCI_PAGEDOWNRECTEXTEND, 'mEdit/mSelection/mRectangular/aDownOnePage',
+                                                    tr('Down one page'), 'Alt+Shift+PgDown', ''),
 (qsci.SCI_PAGEUPRECTEXTEND, 'mEdit/mSelection/mRectangular/aUpOnePage', tr('Up one page'), 'Alt+Shift+PgUp', ''),
 \
 (qsci.SCI_LINEDOWN, 'mNavigation/mMove/aLineDown', tr('Down'), '', ''),
@@ -203,7 +210,7 @@ class Plugin(QObject):
         """
         return None  # No any settings
 
-    def onCurrentDocumentChanged(self, oldDocument, document):
+    def onCurrentDocumentChanged(self, oldDocument, document):  # pylint: disable=W0613
         """Current document changed slot handler
         """
         for actObject in self._createdActions:
