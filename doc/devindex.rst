@@ -34,7 +34,7 @@ Not API core modules
 
 .. toctree::
 
-    core/openedfilesmodel.rst
+    core/openedfilemodel.rst
 
 Plugins documentation
 ---------------------

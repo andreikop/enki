@@ -156,7 +156,7 @@ class Plugin(QObject):  # TODO (Plugin) ?
         self.widget.setVisible( False )
         
         # FIXME create dock, only when have some search results!!!
-        self.dock = SearchResultsDock( self.widget.mSearchThread )
+        self.dock = SearchResultsDock( self.widget._searchThread )
         core.mainWindow().dockToolBar( Qt.BottomToolBarArea ).addDockWidget(self.dock)
         self.dock.setVisible( False )
 
@@ -198,8 +198,8 @@ class SearchWidget(QFrame):
 
     def __init__(self, plugin):
         QFrame.__init__(self, core.workspace())
-        self.mMode = None
-        self.mSearchContext = None
+        self._mode = None
+        self._searchContext = None
         self.plugin = plugin
         uic.loadUi(os.path.join(DATA_FILES_PATH,
                    'ui/SearchWidget.ui'),
@@ -212,24 +212,24 @@ class SearchWidget(QFrame):
         self.cbPath.lineEdit().setCompleter(QCompleter(self.fsModel,
                                                        self.cbPath.lineEdit() ))
         """TODO QDirModel is deprecated but QCompleter does not yet handle
-        QFileSystemModel - please update when possible."""
+        QFileSyste_model - please update when possible."""
         self.cbMask.completer().setCaseSensitivity( Qt.CaseSensitive )
         self.pbSearchStop.setVisible( False )
         self.pbReplaceCheckedStop.setVisible( False )
         
-        self.mProgress = QProgressBar( self )
-        self.mProgress.setAlignment( Qt.AlignCenter )
-        self.mProgress.setToolTip( self.tr( "Search in progress..." ) )
-        self.mProgress.setMaximumSize( QSize( 80, 16 ) )
+        self._progress = QProgressBar( self )
+        self._progress.setAlignment( Qt.AlignCenter )
+        self._progress.setToolTip( self.tr( "Search in progress..." ) )
+        self._progress.setMaximumSize( QSize( 80, 16 ) )
         core.mainWindow().statusBar().\
-                insertPermanentWidget( 0, self.mProgress )
-        self.mProgress.setVisible( False )
+                insertPermanentWidget( 0, self._progress )
+        self._progress.setVisible( False )
         
         # threads
-        self.mSearchThread = SearchThread( self )
-        self.mReplaceThread = ReplaceThread( self )
+        self._searchThread = SearchThread( self )
+        self._replaceThread = ReplaceThread( self )
 
-        self.mDock = None
+        self._dock = None
         
         # mode actions
         self.tbMode = QToolButton( self.cbSearch.lineEdit() )
@@ -302,15 +302,15 @@ class SearchWidget(QFrame):
         self.cbSearch.lineEdit().textChanged.connect(self.search_textChanged)
         self.cbSearch.lineEdit().textEdited.connect(self.search_textEdited)
         self.tbCdUp.clicked.connect(self.cdUp_pressed)
-        self.mSearchThread.started.connect(self.searchThread_stateChanged)
-        self.mSearchThread.finished.connect(self.searchThread_stateChanged)
-        self.mSearchThread.progressChanged.connect(\
+        self._searchThread.started.connect(self.searchThread_stateChanged)
+        self._searchThread.finished.connect(self.searchThread_stateChanged)
+        self._searchThread.progressChanged.connect(\
                                         self.searchThread_progressChanged)
-        self.mReplaceThread.started.connect(self.replaceThread_stateChanged)
-        self.mReplaceThread.finished.connect(self.replaceThread_stateChanged)
-        self.mReplaceThread.openedFileHandled.connect(\
+        self._replaceThread.started.connect(self.replaceThread_stateChanged)
+        self._replaceThread.finished.connect(self.replaceThread_stateChanged)
+        self._replaceThread.openedFileHandled.connect(\
                                         self.replaceThread_openedFileHandled)
-        self.mReplaceThread.error.connect(self.replaceThread_error)
+        self._replaceThread.error.connect(self.replaceThread_error)
         
         core.actionModel().action("mNavigation/mSearchReplace/aSearchNext").triggered.connect(self.on_pbNext_pressed)
         core.actionModel().action("mNavigation/mSearchReplace/aSearchPrevious").triggered.connect(self.on_pbPrevious_pressed)
@@ -329,18 +329,18 @@ class SearchWidget(QFrame):
     def setResultsDock(self, dock ):
         """Set to widget pointer to the search results dock
         """
-        self.mDock = dock
+        self._dock = dock
 
         # connections
-        self.mReplaceThread.resultsHandled.connect(\
-                                    self.mDock.mModel.thread_resultsHandled)
+        self._replaceThread.resultsHandled.connect(\
+                                    self._dock._model.thread_resultsHandled)
 
     def setMode(self, mode ):
         """Change search mode.
         i.e. from "Search file" to "Replace directory"
         """
-        self.mSearchThread.stop()
-        self.mReplaceThread.stop()
+        self._searchThread.stop()
+        self._replaceThread.stop()
         
         currentDocumentOnly = False
         
@@ -349,22 +349,22 @@ class SearchWidget(QFrame):
             currentDocumentOnly = True
         else:
             currentDocumentOnly = False
-            self.mSearchThread.clear()
+            self._searchThread.clear()
         
-        self.mMode = mode
+        self._mode = mode
         
         self.initializeSearchContext( currentDocumentOnly )
         """TODO
-        if self.mMode & Plugin.ModeFlagProjectFiles :
-            if  self.mSearchContext.project :
-                encoding = self.mSearchContext.project.temporaryValue(
+        if self._mode & Plugin.ModeFlagProjectFiles :
+            if  self._searchContext.project :
+                encoding = self._searchContext.project.temporaryValue(
                 "encoding", mks.monkeystudio.defaultCodec() ).toString()
                 
-                self.mSearchContext.encoding = encoding
+                self._searchContext.encoding = encoding
                 self.cbEncoding.setCurrentIndex( self.cbEncoding.findText(
                 encoding ) )
         """
-        assert( self.mSearchContext.encoding )
+        assert( self._searchContext.encoding )
         
         if core.workspace().currentDocument():
             searchText = core.workspace().currentDocument().\
@@ -442,21 +442,21 @@ class SearchWidget(QFrame):
                 core.workspace().focusCurrentDocument()
                 self.hide()
             elif event.key() in (Qt.Key_Enter, Qt.Key_Return):
-                if self.mMode == Plugin.ModeNo:
+                if self._mode == Plugin.ModeNo:
                     pass
-                elif self.mMode == Plugin.ModeSearch:
+                elif self._mode == Plugin.ModeSearch:
                     self.pbNext.click()
-                elif self.mMode in (Plugin.ModeSearchDirectory, \
+                elif self._mode in (Plugin.ModeSearchDirectory, \
                                     Plugin.ModeSearchProjectFiles, \
                                     Plugin.ModeSearchOpenedFiles, \
                                     Plugin.ModeReplaceDirectory, \
                                     Plugin.ModeReplaceProjectFiles, \
                                     Plugin.ModeReplaceOpenedFiles):
-                    if not self.mSearchThread.isRunning():
+                    if not self._searchThread.isRunning():
                         self.pbSearch.click()
                     else:
                         self.pbSearchStop.click()
-                elif self.mMode == Plugin.ModeReplace:
+                elif self._mode == Plugin.ModeReplace:
                     self.pbReplace.click()
 
         QFrame.keyPressEvent( self, event )
@@ -542,28 +542,28 @@ class SearchWidget(QFrame):
     def initializeSearchContext(self, currentDocumentOnly ):
         """Fill search context with actual data
         """
-        self.mSearchContext = SearchContext(\
+        self._searchContext = SearchContext(\
             self._getRegExp(), \
             replaceText = self.cbReplace.currentText(), \
             searchPath = self.cbPath.currentText(), \
-            mode = self.mMode,
+            mode = self._mode,
             encoding = self.cbEncoding.currentText())
 
         """TODO
-        self.mSearchContext.project = 
+        self._searchContext.project = 
             core.fileManager().currentProject()
         """
         
         # update masks
-        self.mSearchContext.mask = \
+        self._searchContext.mask = \
             [s.strip() for s in self.cbMask.currentText().split(' ')]
         # remove empty
-        self.mSearchContext.mask = filter(None, self.mSearchContext.mask)
+        self._searchContext.mask = filter(None, self._searchContext.mask)
         
         """TODO
         # update project
-        self.mSearchContext.project = \
-        self.mSearchContext.project.topLevelProject()
+        self._searchContext.project = \
+        self._searchContext.project.topLevelProject()
         """
         
         if  currentDocumentOnly :
@@ -571,13 +571,13 @@ class SearchWidget(QFrame):
 
         # update opened files
         for document in core.workspace().openedDocuments():
-            self.mSearchContext.openedFiles[document.filePath()] = document.text()
+            self._searchContext.openedFiles[document.filePath()] = document.text()
         """TODO
         # update sources files
-        self.mSearchContext.sourcesFiles = []
-        if self.mSearchContext.project:
-            self.mSearchContext.sourcesFiles = \
-                        self.mSearchContext.project.topLevelProjectSourceFiles()
+        self._searchContext.sourcesFiles = []
+        if self._searchContext.project:
+            self._searchContext.sourcesFiles = \
+                        self._searchContext.project.topLevelProjectSourceFiles()
         """
 
     def showMessage (self, status):
@@ -612,7 +612,7 @@ class SearchWidget(QFrame):
             return False
 
         # get cursor position
-        isCS = not(self.mSearchContext.regExp.flags & re.IGNORECASE)
+        isCS = not(self._searchContext.regExp.flags & re.IGNORECASE)
         
         if  forward :
             if  incremental :
@@ -626,7 +626,7 @@ class SearchWidget(QFrame):
                 line, col, temp, temp = editor.getSelection()
         
         # search
-        found = editor.findFirst( self.mSearchContext.regExp.pattern, True, isCS, False, enableWrap, forward, line, col, True )
+        found = editor.findFirst( self._searchContext.regExp.pattern, True, isCS, False, enableWrap, forward, line, col, True )
 
         # change background acording to found or not
         if found:
@@ -658,7 +658,7 @@ class SearchWidget(QFrame):
             editor.beginUndoAction()
             count = 0
             while ( self.searchFile( True, False, False ) ): # search next
-                editor.replace( self.mSearchContext.replaceText )
+                editor.replace( self._searchContext.replaceText )
                 count += 1
             editor.endUndoAction()
             
@@ -669,7 +669,7 @@ class SearchWidget(QFrame):
 
             if  self.searchFile( True, False ) :
                 editor.beginUndoAction()
-                editor.replace( self.mSearchContext.replaceText )
+                editor.replace( self._searchContext.replaceText )
                 editor.endUndoAction()
                 count += 1
                 self.pbNext.click() # move selection to next item
@@ -681,22 +681,22 @@ class SearchWidget(QFrame):
     def searchThread_stateChanged(self):
         """Search thread started or stopped
         """
-        self.pbSearchStop.setVisible( self.mSearchThread.isRunning() )
-        self.pbSearch.setVisible( not self.mSearchThread.isRunning() )
+        self.pbSearchStop.setVisible( self._searchThread.isRunning() )
+        self.pbSearch.setVisible( not self._searchThread.isRunning() )
         self.updateWidgets()
-        self.mProgress.setVisible( self.mSearchThread.isRunning() )
+        self._progress.setVisible( self._searchThread.isRunning() )
 
     def searchThread_progressChanged(self, value, total ):
         """Signal from the thread, progress changed
         """
-        self.mProgress.setValue( value )
-        self.mProgress.setMaximum( total )
+        self._progress.setValue( value )
+        self._progress.setMaximum( total )
 
     def replaceThread_stateChanged(self):
         """Replace thread started or stopped
         """
-        self.pbReplaceCheckedStop.setVisible( self.mReplaceThread.isRunning() )
-        self.pbReplaceChecked.setVisible( not self.mReplaceThread.isRunning() )
+        self.pbReplaceCheckedStop.setVisible( self._replaceThread.isRunning() )
+        self.pbReplaceChecked.setVisible( not self._replaceThread.isRunning() )
         self.updateWidgets()
 
     def replaceThread_openedFileHandled(self, fileName, content):
@@ -735,10 +735,10 @@ class SearchWidget(QFrame):
         self.initializeSearchContext( True )
             
         # clear search results if needed.
-        if self.mMode == Plugin.ModeSearch:
+        if self._mode == Plugin.ModeSearch:
             self.searchFile( True, True )
-        elif self.mMode == Plugin.ModeReplace:
-            self.mSearchThread.clear()
+        elif self._mode == Plugin.ModeReplace:
+            self._searchThread.clear()
 
     def cdUp_pressed(self):
         """User pressed "Up" button, need to remove one level from search path
@@ -769,21 +769,21 @@ class SearchWidget(QFrame):
         self.updateComboBoxes()
         self.initializeSearchContext( False )
         
-        assert self.mSearchContext.regExp.pattern
+        assert self._searchContext.regExp.pattern
         
         """TODO
-        if  self.mSearchContext.mMode & Plugin.ModeFlagProjectFiles and not self.mSearchContext.project :
+        if  self._searchContext._mode & Plugin.ModeFlagProjectFiles and not self._searchContext.project :
             core.messageManager().appendMessage( \
                                 self.tr( "You can't search in project files because there is no opened projet." ) )
             return
         """
 
-        self.mSearchThread.search( self.mSearchContext )
+        self._searchThread.search( self._searchContext )
 
     def on_pbSearchStop_pressed(self):
         """Handler of click on "Stop" button. Stop search thread
         """
-        self.mSearchThread.stop()
+        self._searchThread.stop()
 
     def on_pbReplace_pressed(self):
         """Handler of click on "Replace" (in file) button
@@ -803,12 +803,12 @@ class SearchWidget(QFrame):
         """Handler of click on "Replace checked" (in directory) button
         """
         items = {}
-        model = self.mDock.mModel
+        model = self._dock._model
 
         self.updateComboBoxes()
         self.initializeSearchContext( False )
         """TODO
-        if  self.mSearchContext.mode & Plugin.ModeFlagProjectFiles and not self.mSearchContext.project :
+        if  self._searchContext.mode & Plugin.ModeFlagProjectFiles and not self._searchContext.project :
             core.messageManager().appendMessage(
                                     self.tr( "You can't replace in project files because there is no opened projet." ) )
             return
@@ -822,14 +822,14 @@ class SearchWidget(QFrame):
                     items[ result.fileName ].append(result)
                 else:
                     index = model.createIndex(row, 0, result)
-                    self.mDock.mModel.setData( index, False, SearchResultsModel.EnabledRole )
+                    self._dock._model.setData( index, False, SearchResultsModel.EnabledRole )
 
-        self.mReplaceThread.replace( self.mSearchContext, items )
+        self._replaceThread.replace( self._searchContext, items )
 
     def on_pbReplaceCheckedStop_pressed(self):
         """Handler of click on "Stop" button when replacing in directory
         """
-        self.mReplaceThread.stop()
+        self._replaceThread.stop()
 
     def on_pbBrowse_pressed(self):
         """Handler of click on "Browse" button. Explores FS for search directory path
@@ -841,7 +841,7 @@ class SearchWidget(QFrame):
 
     
 class SearchResultsModel(QAbstractItemModel):
-    """AbstractItemModel used for display search results in 'Search in directory' and 'Replace in directory' mode
+    """AbstractIte_model used for display search results in 'Search in directory' and 'Replace in directory' mode
     """
     firstResultsAvailable = pyqtSignal()
     
@@ -926,15 +926,15 @@ class SearchResultsModel(QAbstractItemModel):
         """Constructor of SearchResultsModel class
         """
         QAbstractItemModel.__init__(self, parent )
-        self.mRowCount = 0
-        self.mSearchThread = searchThread
+        self._rowCount = 0
+        self._searchThread = searchThread
         
         self.fileResults = []  # list of FileResults
-        self.mSearchDir = QDir()
+        self._searchDir = QDir()
         
         # connections
-        self.mSearchThread.reset.connect(self.clear)
-        self.mSearchThread.resultsAvailable.connect(self.thread_resultsAvailable)
+        self._searchThread.reset.connect(self.clear)
+        self._searchThread.resultsAvailable.connect(self.thread_resultsAvailable)
 
     def index(self, row, column, parent ):
         """See QAbstractItemModel docs
@@ -994,7 +994,7 @@ class SearchResultsModel(QAbstractItemModel):
         """See QAbstractItemModel docs
         """
         flags = QAbstractItemModel.flags( self, index )
-        properties = self.mSearchThread.mSearchContext
+        properties = self._searchThread._searchContext
 
         if properties.mode & Plugin.ModeFlagReplace :
             flags |= Qt.ItemIsUserCheckable
@@ -1014,7 +1014,7 @@ class SearchResultsModel(QAbstractItemModel):
         
         # Common code for file and result
         if role == Qt.DisplayRole:
-            return self.tr( index.internalPointer().text(self.mSearchDir))
+            return self.tr( index.internalPointer().text(self._searchDir))
         elif role == Qt.ToolTipRole:
             return index.internalPointer().tooltip()
         elif role == Qt.CheckStateRole:
@@ -1063,10 +1063,10 @@ class SearchResultsModel(QAbstractItemModel):
         """Handler of signal from the search thread.
         New result is available, need to add it to the model
         """
-        properties = self.mSearchThread.mSearchContext
+        properties = self._searchThread._searchContext
         if not self.fileResults:  # appending first
             self.firstResultsAvailable.emit()
-            self.mSearchDir.setPath( properties.searchPath )
+            self._searchDir.setPath( properties.searchPath )
         self.beginInsertRows( QModelIndex(), \
                               len(self.fileResults), \
                               len(self.fileResults) + len(fileResultsList) - 1)
@@ -1107,7 +1107,7 @@ class SearchResultsDock(pDockWidget):
         self.setObjectName("SearchResultsDock")
         assert(searchThread)
 
-        self.mSearchThread = searchThread
+        self._searchThread = searchThread
 
         self.setObjectName( self.metaObject().className() )
         self.setWindowTitle( self.tr( "Search Results" ) )
@@ -1124,18 +1124,18 @@ class SearchResultsDock(pDockWidget):
         self.titleBar().addSeparator( 1 )
 
         widget = QWidget( self )
-        self.mModel = SearchResultsModel( searchThread, self )
-        self.mView = QTreeView( self )
-        self.mView.setHeaderHidden( True )
-        self.mView.setUniformRowHeights( True )
-        self.mView.setModel( self.mModel )
-        self.mLayout = QHBoxLayout( widget )
-        self.mLayout.setMargin( 5 )
-        self.mLayout.setSpacing( 5 )
-        self.mLayout.addWidget( self.mView )
+        self._model = SearchResultsModel( searchThread, self )
+        self._view = QTreeView( self )
+        self._view.setHeaderHidden( True )
+        self._view.setUniformRowHeights( True )
+        self._view.setModel( self._model )
+        self._layout = QHBoxLayout( widget )
+        self._layout.setMargin( 5 )
+        self._layout.setSpacing( 5 )
+        self._layout.addWidget( self._view )
 
         self.setWidget( widget )
-        self.setFocusProxy(self.mView)
+        self.setFocusProxy(self._view)
         
         """TODO
         # mac
@@ -1144,15 +1144,15 @@ class SearchResultsDock(pDockWidget):
         """
 
         # connections
-        aClear.triggered.connect(self.mModel.clear)
-        self.mModel.firstResultsAvailable.connect(self.show)
-        self.mView.activated.connect(self.view_activated)
+        aClear.triggered.connect(self._model.clear)
+        self._model.firstResultsAvailable.connect(self.show)
+        self._view.activated.connect(self.view_activated)
         
         self.showAction().setShortcut("F10")
-        core.actionModel().addAction("mDocks/aSearchResults", self.showAction())
+        core.actionModel().addAction("_docks/aSearchResults", self.showAction())
 
     def __term__(self):
-        core.actionModel().removeAction("mDocks/aSearchResults")
+        core.actionModel().removeAction("_docks/aSearchResults")
 
     def view_activated(self, index ):
         """Item doubleclicked in the model, opening file
@@ -1167,7 +1167,7 @@ class SearchResultsDock(pDockWidget):
 class StopableThread(QThread):
     """Stoppable thread class. Used as base for search and replace thread.
     """
-    mExit = False
+    _exit = False
     
     def __init__(self, parentObject):
         QThread.__init__(self, parentObject)
@@ -1178,14 +1178,14 @@ class StopableThread(QThread):
     def stop(self):
         """Stop thread synchronously
         """
-        self.mExit = True
+        self._exit = True
         self.wait()
     
     def start(self):
         """Ensure thread is stopped, and start it
         """
         self.stop()
-        self.mExit = False
+        self._exit = False
         QThread.start(self)
 
 class SearchThread(StopableThread):
@@ -1202,7 +1202,7 @@ class SearchThread(StopableThread):
         context stores search text, directory and other parameters
         """
         self.stop()
-        self.mSearchContext = context
+        self._searchContext = context
         self.start()
 
     def clear(self):
@@ -1224,7 +1224,7 @@ class SearchThread(StopableThread):
                     continue
                 if not maskRegExp or maskRegExp.match(fileName):
                     retFiles.append(root + os.path.sep + fileName)
-            if self.mExit :
+            if self._exit :
                 break
 
         return retFiles
@@ -1236,28 +1236,28 @@ class SearchThread(StopableThread):
 
         """
         elif mode in (Plugin.ModeSearchProjectFiles, Plugin.ModeReplaceProjectFiles):
-            sources = self.mSearchContext.sourcesFiles
-            mask = self.mSearchContext.mask
+            sources = self._searchContext.sourcesFiles
+            mask = self._searchContext.mask
 
             for fileName in sources:
                 if  QDir.match( mask, fileName ) :
                     files.append(fileName)
-                    if self.mExit :
+                    if self._exit :
                         return files
         """
-        if self.mSearchContext.mask:
-            regExPatterns = map(fnmatch.translate, self.mSearchContext.mask)
+        if self._searchContext.mask:
+            regExPatterns = map(fnmatch.translate, self._searchContext.mask)
             maskRegExpPattern = '(' + ')|('.join(regExPatterns) + ')'
             maskRegExp = re.compile(maskRegExpPattern)
         else:
             maskRegExp = None
 
-        if self.mSearchContext.mode in (Plugin.ModeSearchDirectory, Plugin.ModeReplaceDirectory):
-            path = self.mSearchContext.searchPath
+        if self._searchContext.mode in (Plugin.ModeSearchDirectory, Plugin.ModeReplaceDirectory):
+            path = self._searchContext.searchPath
             return self._getFiles(path, maskRegExp)
-        elif self.mSearchContext.mode in \
+        elif self._searchContext.mode in \
                                 (Plugin.ModeSearchOpenedFiles, Plugin.ModeReplaceOpenedFiles):
-            files = self.mSearchContext.openedFiles.keys()
+            files = self._searchContext.openedFiles.keys()
             if maskRegExp:
                 files = filter(maskRegExp.match, map(os.path.basename, files))
             return files
@@ -1267,8 +1267,8 @@ class SearchThread(StopableThread):
     def _fileContent(self, fileName, encoding='utf_8'):
         """Read text from file
         """
-        if fileName in self.mSearchContext.openedFiles:
-            return self.mSearchContext.openedFiles[ fileName ]
+        if fileName in self._searchContext.openedFiles:
+            return self._searchContext.openedFiles[ fileName ]
 
         try:
             with open(fileName) as openedFile:
@@ -1289,7 +1289,7 @@ class SearchThread(StopableThread):
 
         files = sorted(self._getFilesToScan())
 
-        if  self.mExit :
+        if  self._exit :
             return
         
         self.progressChanged.emit( 0, len(files))
@@ -1308,7 +1308,7 @@ class SearchThread(StopableThread):
             results = []
             
             # Process result for all occurrences
-            for match in self.mSearchContext.regExp.finditer(content):
+            for match in self._searchContext.regExp.finditer(content):
                 start = match.start()
                 
                 eolStart = content.rfind( eol, 0, start)
@@ -1331,7 +1331,7 @@ class SearchThread(StopableThread):
                 
                 results.append(result)
 
-                if self.mExit:
+                if self._exit:
                     break
 
             if  results:
@@ -1344,7 +1344,7 @@ class SearchThread(StopableThread):
                 notEmittedFileResults = []
                 lastResultsEmitTime = time.clock()
 
-            if  self.mExit :
+            if  self._exit :
                 self.progressChanged.emit( fileIndex, len(files))
                 break
         
@@ -1365,8 +1365,8 @@ class ReplaceThread(StopableThread):
         """Run replace process
         """
         self.stop()
-        self.mSearchContext = context
-        self.mResults = results
+        self._searchContext = context
+        self._results = results
         self.start()
 
     def _saveContent(self, fileName, content, encoding):
@@ -1391,8 +1391,8 @@ class ReplaceThread(StopableThread):
     def _fileContent(self, fileName, encoding=None):
         """Read file
         """
-        if fileName in self.mSearchContext.openedFiles:
-            return self.mSearchContext.openedFiles[ fileName ]
+        if fileName in self._searchContext.openedFiles:
+            return self._searchContext.openedFiles[ fileName ]
         else:
             try:
                 with open(fileName) as openFile:
@@ -1419,15 +1419,15 @@ class ReplaceThread(StopableThread):
         
         subMatchRex = re.compile( r"\\(\d+)" )
         
-        for fileName in self.mResults.keys():
+        for fileName in self._results.keys():
             handledResults = []
-            content = self._fileContent( fileName, self.mSearchContext.encoding )
+            content = self._fileContent( fileName, self._searchContext.encoding )
             
             # count from end to begin because we are replacing by offset in content
-            for result in self.mResults[ fileName ][::-1]:
-                replaceText = self.mSearchContext.replaceText
+            for result in self._results[ fileName ][::-1]:
+                replaceText = self._searchContext.replaceText
                 # replace \number with groups
-                replaceText = self.mSearchContext.replaceText
+                replaceText = self._searchContext.replaceText
                 pos = 0
                 match = subMatchRex.search(replaceText)
                 while match:
@@ -1443,15 +1443,15 @@ class ReplaceThread(StopableThread):
                 content = content[:result.offset] + replaceText + content[result.offset + result.length:]
                 handledResults.append(result)
             
-            if fileName in self.mSearchContext.openedFiles:
-                # TODO encode content with self.mSearchContext.encoding 
+            if fileName in self._searchContext.openedFiles:
+                # TODO encode content with self._searchContext.encoding 
                 self.openedFileHandled.emit( fileName, content)
             else:
-                self._saveContent( fileName, content, self.mSearchContext.encoding )
+                self._saveContent( fileName, content, self._searchContext.encoding )
             
             self.resultsHandled.emit( fileName, handledResults)
 
-            if  self.mExit :
+            if  self._exit :
                 break
 
         print "Replace finished in ", time.clock() - startTime
