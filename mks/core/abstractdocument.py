@@ -9,8 +9,7 @@ This class is inherited by textual editor, and must be inherited by other worksp
 
 import os.path
 
-from PyQt4.QtCore import pyqtSignal, \
-                         QFileSystemWatcher
+from PyQt4.QtCore import pyqtSignal, QFileSystemWatcher  # pylint: disable=E0611
 from PyQt4.QtGui import QFileDialog, \
                         QIcon, \
                         QInputDialog, \
@@ -34,11 +33,11 @@ class AbstractDocument(QWidget):
     
     **Signal** emitted, when modified state changed (file edited, or saved)
     Bool parameter contains new value
-    """
+    """  # pylint: disable=W0105
     
     #Signal emitted, when document icon or toolTip has changed 
     #(i.e. document has been modified externally)
-    _documentDataChanged = pyqtSignal()
+    documentDataChanged = pyqtSignal()
     
     def __init__( self, parentObject, filePath, createNew=False):
         """Create editor and open file.
@@ -46,7 +45,7 @@ class AbstractDocument(QWidget):
         IO Exceptions are not catched, therefore, must be catched on upper level
         """
         QWidget.__init__( self, parentObject)
-        
+        self._neverSaved = filePath is None or createNew
         self._filePath = filePath
         self._externallyRemoved = False
         self._externallyModified = False
@@ -74,7 +73,7 @@ class AbstractDocument(QWidget):
             self._externallyModified = True
         else:
             self._externallyRemoved = True
-        self._documentDataChanged.emit()
+        self.documentDataChanged.emit()
 
     def _readFile(self, filePath):
         """Read the file contents.
@@ -254,7 +253,7 @@ class AbstractTextEditor(AbstractDocument):
     modifiedChanged(line, column)
     
     **Signal** emitted, when cursor position has been changed
-    """
+    """  # pylint: disable=W0105
     def __init__(self, parentObject, filePath, createNew=False):
         AbstractDocument.__init__(self, parentObject, filePath, createNew)
         self._highlightingLanguage = None
@@ -350,7 +349,7 @@ class AbstractTextEditor(AbstractDocument):
     def invokeGoTo(self):
         """Show GUI dialog, go to line, if user accepted it
         """
-        line, col = self.qscintilla.getCursorPosition()
+        line, col = self.qscintilla.getCursorPosition()  # pylint: disable=W0612
         gotoLine, accepted = QInputDialog.getInteger(self, self.tr( "Go To Line..." ),
                                                       self.tr( "Enter the line you want to go:" ), 
                                                       line +1, 1, self.qscintilla.lines(), 1)
@@ -376,29 +375,29 @@ class AbstractTextEditor(AbstractDocument):
         pass
 
 
-''' TODO restore or delete old code
-    fileOpened = pyqtSignal()
-    fileClosed = pyqtSignal()
-    # when.emit a file is reloaded
-    fileReloaded = pyqtSignal()
+#    TODO restore or delete old code
+#    fileOpened = pyqtSignal()
+#    fileClosed = pyqtSignal()
+#    # when.emit a file is reloaded
+#    fileReloaded = pyqtSignal()
 
-    def isPrintAvailable(self):
-        """return if print is available
-        """
-        pass
+#    def isPrintAvailable(self):
+#    #    """return if print is available
+#    #    """
+#    #    pass
 
-    def textCodec(self)
-    { return mCodec ? mCodec.name() : pMonkeyStudio.defaultCodec();
-    
-    def encoding(self)
-    { return mCodec ? mCodec : QTextCodec.codecForName( pMonkeyStudio.defaultCodec().toLocal8Bit().constData() );
+#    def textCodec(self)
+#    { return mCodec ? mCodec.name() : pMonkeyStudio.defaultCodec();
+#    
+#    def encoding(self)
+#    { return mCodec ? mCodec : QTextCodec.codecForName( pMonkeyStudio.defaultCodec().toLocal8Bit().constData() );
 
-    def backupFileAs(self fileName ):
-        pass
-    
-    def printFile(self):
-        pass
-    
-    def quickPrintFile(self):
-        pass
-'''
+#    def backupFileAs(self fileName ):
+#    #    pass
+#    
+#    def printFile(self):
+#    #    pass
+#    
+#    def quickPrintFile(self):
+#    #    pass
+

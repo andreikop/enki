@@ -18,7 +18,7 @@ Created by :class:`mks.core.core.Core`
 from configobj import ConfigObj, flatten_errors, ParseError
 from validate import Validator
 
-class Config(ConfigObj):
+class Config(ConfigObj):  # pylint: disable=R0904
     """Settings storage.
     
     Class extends ConfigObj with few methods, usefull for MkS
@@ -97,7 +97,7 @@ class Config(ConfigObj):
         if self.configspec is not None:
             self._validate()
 
-    def get(self, name):
+    def get(self, name):  # pylint: disable=W0221
         """
         Get option by slash-separated path. i.e. ::
         
