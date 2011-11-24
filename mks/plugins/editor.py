@@ -8,10 +8,10 @@ This text editor is used by default
 import os.path
 import shutil
 
-from PyQt4.QtCore import Qt, QEvent
+from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QColor, QFont, QFrame, QIcon, QKeyEvent, QVBoxLayout
 
-from PyQt4.Qsci import *
+from PyQt4.Qsci import *  # pylint: disable=W0401,W0614
 
 from mks.core.abstractdocument import AbstractTextEditor
 from mks.core.core import core
@@ -509,7 +509,7 @@ class Editor(AbstractTextEditor):
         for key in range(ord('A'), ord('Z')):
             qsci.SendScintilla(qsci.SCI_ASSIGNCMDKEY, key + (qsci.SCMOD_CTRL << 16), qsci.SCI_NULL)
         
-    def applySettings(self):
+    def applySettings(self):  # pylint: disable=R0912,R0915
         """Apply own settings form the config
         """
         myConfig = core.config()["Editor"]
@@ -817,266 +817,266 @@ class Plugin:
         """
         return EditorConfigurator
 
-"""TODO restore or delete old code
+#TODO restore or delete old code
 
-    def eventFilter(self, selfObject, event):
-        '''It is not an editor API function
-        Catches key press events from QScintilla for support bookmarks and autocompletion'''
-        
-        if event.type() == QEvent.KeyPress:
-            if not event.isAutoRepeat():
-                row = self.qscintilla.getCursorPosition()[0]
-                if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_Space: # autocompletion shortcut
-                    ''' TODO autocompletion shortcut?
-                    switch (autoCompletionSource())
-                        case QsciScintilla.AcsAll:
-                            autoCompleteFromAll()
-                            break
-                        case QsciScintilla.AcsAPIs:
-                            autoCompleteFromAPIs()
-                            break
-                        case QsciScintilla.AcsDocument:
-                            autoCompleteFromDocument()
-                            break
-                        default:
-                            break
-                    '''
-                    return True
-        return False
-    
-    def __init__
-        self.qscintilla.textChanged.connect(self.contentChanged)
+#    def eventFilter(self, selfObject, event):
+#        '''It is not an editor API function
+#        Catches key press events from QScintilla for support bookmarks and autocompletion'''
+#        
+#        if event.type() == QEvent.KeyPress:
+#            if not event.isAutoRepeat():
+#                row = self.qscintilla.getCursorPosition()[0]
+#                if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_Space: # autocompletion shortcut
+#                    ''' TODO autocompletion shortcut?
+#                    switch (autoCompletionSource())
+#                        case QsciScintilla.AcsAll:
+#                            autoCompleteFromAll()
+#                            break
+#                        case QsciScintilla.AcsAPIs:
+#                            autoCompleteFromAPIs()
+#                            break
+#                        case QsciScintilla.AcsDocument:
+#                            autoCompleteFromDocument()
+#                            break
+#                        default:
+#                            break
+#                    '''
+#                    return True
+#        return False
+#    
+#    def __init__
+#        self.qscintilla.textChanged.connect(self.contentChanged)
 
-    def isPrintAvailable(self):
-        return True
+#    def isPrintAvailable(self):
+#        return True
 
-    def backupFileAs(self, filePath):
-        shutil.copy(self.filePath(), fileName)
-    
-    def print_(self, quickPrint):
-        # get printer
-        p = QsciPrinter()
-        
-        # set wrapmode
-        p.setWrapMode(PyQt4.Qsci.WrapWord)
+#    def backupFileAs(self, filePath):
+#        shutil.copy(self.filePath(), fileName)
+#    
+#    def print_(self, quickPrint):
+#        # get printer
+#        p = QsciPrinter()
+#        
+#        # set wrapmode
+#        p.setWrapMode(PyQt4.Qsci.WrapWord)
 
-        if  quickPrint:
-            # check if default printer is set
-            if  p.printerName().isEmpty() :
-                core.messageManager().appendMessage(\
-                    tr("There is no default printer, set one before trying quick print"))
-                return
-            
-            # print and return
-            p.printRange(self.qscintilla)
-            return
-        
-        d = QPrintDialog (p) # printer dialog
+#        if  quickPrint:
+#            # check if default printer is set
+#            if  p.printerName().isEmpty() :
+#                core.messageManager().appendMessage(\
+#                    tr("There is no default printer, set one before trying quick print"))
+#                return
+#            
+#            # print and return
+#            p.printRange(self.qscintilla)
+#            return
+#        
+#        d = QPrintDialog (p) # printer dialog
 
-        if d.exec_(): # if ok
-            # print
-            f = -1
-            t = -1
-            if  d.printRange() == QPrintDialog.Selection:
-                f, unused, t, unused1 = getSelection()
-            p.printRange(self.qscintilla, f, t)
-    
-    def printFile(self):
-        self.print_(False)
+#        if d.exec_(): # if ok
+#            # print
+#            f = -1
+#            t = -1
+#            if  d.printRange() == QPrintDialog.Selection:
+#                f, unused, t, unused1 = getSelection()
+#            p.printRange(self.qscintilla, f, t)
+#    
+#    def printFile(self):
+#        self.print_(False)
 
-    def quickPrintFile(self):
-        self.print_(True)
+#    def quickPrintFile(self):
+#        self.print_(True)
 
-class _pEditor(QsciScintilla):
-    
-        self._pixSize = QSize(16, 16)
-        # register image for bookmarks
-        self.markerDefine(QPixmap(":/editor/bookmark.png").scaled(self._pixSize), mdBookmark)
-        
-        # Create shortcuts manager, not created
-        qSciShortcutsManager.instance()
-    
-    def findFirst(self, expr, re, cs, wo, wrap, forward, line, index, show):
-    #if USE_QSCINTILLA_SEARCH_ENGINE == 1
-        return QsciScintilla.findFirst(expr, re, cs, wo, wrap, forward, line, index, show)
-    #else:
-        mSearchState.inProgress = False
+#class _pEditor(QsciScintilla):
+#    
+#        self._pixSize = QSize(16, 16)
+#        # register image for bookmarks
+#        self.markerDefine(QPixmap(":/editor/bookmark.png").scaled(self._pixSize), mdBookmark)
+#        
+#        # Create shortcuts manager, not created
+#        qSciShortcutsManager.instance()
+#    
+#    def findFirst(self, expr, re, cs, wo, wrap, forward, line, index, show):
+#    #if USE_QSCINTILLA_SEARCH_ENGINE == 1
+#        return QsciScintilla.findFirst(expr, re, cs, wo, wrap, forward, line, index, show)
+#    #else:
+#        mSearchState.inProgress = False
 
-        if  expr.isEmpty() :        return False
+#        if  expr.isEmpty() :        return False
 
+#
+#        mSearchState.expr = expr
+#        mSearchState.wrap = wrap
+#        mSearchState.forward = forward
 
-        mSearchState.expr = expr
-        mSearchState.wrap = wrap
-        mSearchState.forward = forward
+#        mSearchState.flags = (cs ? SCFIND_MATCHCASE : 0) | (wo ? SCFIND_WHOLEWORD : 0) | (re ? SCFIND_REGEXP : 0)
 
-        mSearchState.flags = (cs ? SCFIND_MATCHCASE : 0) | (wo ? SCFIND_WHOLEWORD : 0) | (re ? SCFIND_REGEXP : 0)
+#        if  line < 0 or index < 0 :        mSearchState.startpos = SendScintilla(SCI_GETCURRENTPOS)
 
-        if  line < 0 or index < 0 :        mSearchState.startpos = SendScintilla(SCI_GETCURRENTPOS)
+#        else:
+#            mSearchState.startpos = positionFromLineIndex(line, index)
 
-        else:
-            mSearchState.startpos = positionFromLineIndex(line, index)
+#
+#        if  forward :        mSearchState.endpos = SendScintilla(SCI_GETLENGTH)
 
+#        else:
+#            mSearchState.endpos = 0
 
-        if  forward :        mSearchState.endpos = SendScintilla(SCI_GETLENGTH)
+#
+#        mSearchState.show = show
 
-        else:
-            mSearchState.endpos = 0
+#        return search()
+#    #endif
 
+#
+#    def findNext(self):
+#    #if USE_QSCINTILLA_SEARCH_ENGINE == 1
+#        return QsciScintilla.findNext()
+#    #else:
+#        if  not mSearchState.inProgress :        return False
 
-        mSearchState.show = show
+#
+#        return search()
+#    #endif
 
-        return search()
-    #endif
+#
+#    def replace(self, replaceStr):
+#    #if USE_QSCINTILLA_SEARCH_ENGINE == 1
+#        QsciScintilla.replace(replaceStr)
+#    #else:
+#        if  not mSearchState.inProgress :        return
 
+#
+#        static QRegExp rxd("\\$(\\d+)")
+#        rxd.setMinimal(True)
+#   ?         isRE = mSearchState.flags & SCFIND_REGEXP
+#            rx = mSearchState.rx
+#            captures = rx.capturedTexts()
+#            text = replaceStr
+#            start = SendScintilla(SCI_GETSELECTIONSTART)
 
-    def findNext(self):
-    #if USE_QSCINTILLA_SEARCH_ENGINE == 1
-        return QsciScintilla.findNext()
-    #else:
-        if  not mSearchState.inProgress :        return False
+#            SendScintilla(SCI_TARGETFROMSELECTION)
+#            
+#            # remove selection
+#            removeSelectedText()
+#            
+#            # compute replace text
+#            if  isRE and captures.count() > 1 :        pos = 0
+#            
+#            while ((pos = rxd.indexIn(text, pos)) != -1)             id = rxd.cap(1).toInt()
+#                
+#                if  id < 0 or id >= captures.count() :                pos += rxd.matchedLength()
+#                    continue
 
+#                
+#                # update replace text with partial occurrences
+#                text.replace(pos, rxd.matchedLength(), captures.at(id))
+#                
+#                # next
+#                pos += captures.at(id).length()
 
-        return search()
-    #endif
+#
+#        
+#        # insert replace text
+#            # scintilla position are count from qbytearray data: ie: non ascii leter are 2 or more bits.
+#            len = text.toUtf8().length(); 
+#            insert(text)
 
+#        # Reset the selection.
+#        SendScintilla(SCI_SETSELECTIONSTART, start)
+#        SendScintilla(SCI_SETSELECTIONEND, start +len)
 
-    def replace(self, replaceStr):
-    #if USE_QSCINTILLA_SEARCH_ENGINE == 1
-        QsciScintilla.replace(replaceStr)
-    #else:
-        if  not mSearchState.inProgress :        return
+#        if  mSearchState.forward :        mSearchState.startpos = start +len
 
+#    #endif
 
-        static QRegExp rxd("\\$(\\d+)")
-        rxd.setMinimal(True)
-   ?         isRE = mSearchState.flags & SCFIND_REGEXP
-            rx = mSearchState.rx
-            captures = rx.capturedTexts()
-            text = replaceStr
-            start = SendScintilla(SCI_GETSELECTIONSTART)
+#    def search(self):
+#        SendScintilla(SCI_SETSEARCHFLAGS, mSearchState.flags)
 
-            SendScintilla(SCI_TARGETFROMSELECTION)
-            
-            # remove selection
-            removeSelectedText()
-            
-            # compute replace text
-            if  isRE and captures.count() > 1 :        pos = 0
-            
-            while ((pos = rxd.indexIn(text, pos)) != -1)             id = rxd.cap(1).toInt()
-                
-                if  id < 0 or id >= captures.count() :                pos += rxd.matchedLength()
-                    continue
+#        pos = simpleSearch()
 
-                
-                # update replace text with partial occurrences
-                text.replace(pos, rxd.matchedLength(), captures.at(id))
-                
-                # next
-                pos += captures.at(id).length()
+#        # See if it was found.  If not and wraparound is wanted, again.
+#        if  pos == -1 and mSearchState.wrap :        if  mSearchState.forward :            mSearchState.startpos = 0
+#                mSearchState.endpos = SendScintilla(SCI_GETLENGTH)
 
+#            else:
+#                mSearchState.startpos = SendScintilla(SCI_GETLENGTH)
+#                mSearchState.endpos = 0
 
-        
-        # insert replace text
-            # scintilla position are count from qbytearray data: ie: non ascii leter are 2 or more bits.
-            len = text.toUtf8().length(); 
-            insert(text)
+#
+#            pos = simpleSearch()
 
-        # Reset the selection.
-        SendScintilla(SCI_SETSELECTIONSTART, start)
-        SendScintilla(SCI_SETSELECTIONEND, start +len)
+#
+#        if  pos == -1 :        mSearchState.inProgress = False
+#            return False
 
-        if  mSearchState.forward :        mSearchState.startpos = start +len
+#
+#        # It was found.
+#        targstart = SendScintilla(SCI_GETTARGETSTART)
+#        targend = SendScintilla(SCI_GETTARGETEND)
 
-    #endif
+#        # Ensure the text found is visible if required.
+#        if  mSearchState.show :        startLine = SendScintilla(SCI_LINEFROMPOSITION, targstart)
+#            endLine = SendScintilla(SCI_LINEFROMPOSITION, targend)
 
-    def search(self):
-        SendScintilla(SCI_SETSEARCHFLAGS, mSearchState.flags)
+#            for (i = startLine; i <= endLine; ++i)            SendScintilla(SCI_ENSUREVISIBLEENFORCEPOLICY, i)
 
-        pos = simpleSearch()
+#
 
-        # See if it was found.  If not and wraparound is wanted, again.
-        if  pos == -1 and mSearchState.wrap :        if  mSearchState.forward :            mSearchState.startpos = 0
-                mSearchState.endpos = SendScintilla(SCI_GETLENGTH)
+#        # Now set the selection.
+#        SendScintilla(SCI_SETSEL, targstart, targend)
 
-            else:
-                mSearchState.startpos = SendScintilla(SCI_GETLENGTH)
-                mSearchState.endpos = 0
+#        # Finally adjust the start position so that we don't find the same one
+#        # again.
+#        if  mSearchState.forward :        mSearchState.startpos = targend
 
+#        elif  (mSearchState.startpos = targstart -1) < 0 :        mSearchState.startpos = 0
 
-            pos = simpleSearch()
+#
+#        mSearchState.inProgress = True
+#        return True
 
+#
+#    def simpleSearch(self):
+#        if  mSearchState.startpos == mSearchState.endpos :        return -1
 
-        if  pos == -1 :        mSearchState.inProgress = False
-            return False
+#
+#        SendScintilla(SCI_SETTARGETSTART, mSearchState.startpos)
+#        SendScintilla(SCI_SETTARGETEND, mSearchState.endpos)
+#        
+#            isCS = mSearchState.flags & SCFIND_MATCHCASE
+#            isWW = mSearchState.flags & SCFIND_WHOLEWORD
+#            isRE = mSearchState.flags & SCFIND_REGEXP
+#            from = qMin(mSearchState.startpos, mSearchState.endpos)
+#            to = qMax(mSearchState.startpos, mSearchState.endpos)
+#            # scintilla position are from qbytearray size, non ascii letter are 2 or more bits.
+#            data = self.text().toUtf8().mid(from, to -from); 
+#            text = QString.fromUtf8(data)
+#            pattern = isRE ? mSearchState.expr : QRegExp.escape(mSearchState.expr)
+#            rx = mSearchState.rx
+#            
+#            if  isWW :        pattern.prepend("\\b").append("\\b")
 
+#        
+#        rx.setMinimal(True)
+#        rx.setPattern(pattern)
+#        rx.setCaseSensitivity(isCS ? Qt.CaseSensitive : Qt.CaseInsensitive)
+#        
+#        pos = mSearchState.forward ? rx.indexIn(text, from -from) : rx.lastIndexIn(text, to -from)
+#        
+#        if  pos != -1 :         start = from +text.left(pos).toUtf8().length()
+#                end = start +text.mid(pos, rx.matchedLength()).toUtf8().length()
+#                SendScintilla(SCI_SETTARGETSTART, start)
+#                SendScintilla(SCI_SETTARGETEND, end)
 
-        # It was found.
-        targstart = SendScintilla(SCI_GETTARGETSTART)
-        targend = SendScintilla(SCI_GETTARGETEND)
+#        
+#        return pos
 
-        # Ensure the text found is visible if required.
-        if  mSearchState.show :        startLine = SendScintilla(SCI_LINEFROMPOSITION, targstart)
-            endLine = SendScintilla(SCI_LINEFROMPOSITION, targend)
-
-            for (i = startLine; i <= endLine; ++i)            SendScintilla(SCI_ENSUREVISIBLEENFORCEPOLICY, i)
-
-
-
-        # Now set the selection.
-        SendScintilla(SCI_SETSEL, targstart, targend)
-
-        # Finally adjust the start position so that we don't find the same one
-        # again.
-        if  mSearchState.forward :        mSearchState.startpos = targend
-
-        elif  (mSearchState.startpos = targstart -1) < 0 :        mSearchState.startpos = 0
-
-
-        mSearchState.inProgress = True
-        return True
-
-
-    def simpleSearch(self):
-        if  mSearchState.startpos == mSearchState.endpos :        return -1
-
-
-        SendScintilla(SCI_SETTARGETSTART, mSearchState.startpos)
-        SendScintilla(SCI_SETTARGETEND, mSearchState.endpos)
-        
-            isCS = mSearchState.flags & SCFIND_MATCHCASE
-            isWW = mSearchState.flags & SCFIND_WHOLEWORD
-            isRE = mSearchState.flags & SCFIND_REGEXP
-            from = qMin(mSearchState.startpos, mSearchState.endpos)
-            to = qMax(mSearchState.startpos, mSearchState.endpos)
-            # scintilla position are from qbytearray size, non ascii letter are 2 or more bits.
-            data = self.text().toUtf8().mid(from, to -from); 
-            text = QString.fromUtf8(data)
-            pattern = isRE ? mSearchState.expr : QRegExp.escape(mSearchState.expr)
-            rx = mSearchState.rx
-            
-            if  isWW :        pattern.prepend("\\b").append("\\b")
-
-        
-        rx.setMinimal(True)
-        rx.setPattern(pattern)
-        rx.setCaseSensitivity(isCS ? Qt.CaseSensitive : Qt.CaseInsensitive)
-        
-        pos = mSearchState.forward ? rx.indexIn(text, from -from) : rx.lastIndexIn(text, to -from)
-        
-        if  pos != -1 :         start = from +text.left(pos).toUtf8().length()
-                end = start +text.mid(pos, rx.matchedLength()).toUtf8().length()
-                SendScintilla(SCI_SETTARGETSTART, start)
-                SendScintilla(SCI_SETTARGETEND, end)
-
-        
-        return pos
-
-    def currentLineText(self):
-        int line
-        int index
-        
-        getCursorPosition(&line, &index)
-        
-        return text(line)
-    """
+#    def currentLineText(self):
+#        int line
+#        int index
+#        
+#        getCursorPosition(&line, &index)
+#        
+#        return text(line)
+#    """

@@ -56,7 +56,7 @@ Classes
 import sys
 import os.path
 from PyQt4 import uic
-from PyQt4.QtCore import Qt  # pylint: disable=E0611
+from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QColor, \
                         QDialog, \
                         QFont, \

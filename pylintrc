@@ -32,7 +32,10 @@ load-plugins=
 # Disable the message, report, category or checker with the given id(s). You
 # can either give multiple identifier separated by comma (,) or put this option
 # multiple time.
-disable=R0201
+#
+# E0611 is disabled, because pylint says "No name 'QtCore' in module 'PyQt4'" 
+#for all core imports
+disable=R0201,E0611,W0201
 
 
 [REPORTS]
@@ -199,13 +202,13 @@ max-statements=50
 max-parents=7
 
 # Maximum number of attributes for a class (see R0902).
-max-attributes=7
+max-attributes=12
 
 # Minimum number of public methods for a class (see R0903).
-min-public-methods=2
+min-public-methods=0
 
 # Maximum number of public methods for a class (see R0904).
-max-public-methods=20
+max-public-methods=40
 
 
 [IMPORTS]

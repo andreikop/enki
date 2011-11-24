@@ -6,7 +6,7 @@ mainwindow --- Main window of the UI. Fills main menu.
 Module contains :class:`mks.core.mainwindow.MainWindow` implementation
 """
 
-from PyQt4.QtCore import pyqtSignal, QSize, Qt  # pylint: disable=E0611
+from PyQt4.QtCore import pyqtSignal, QSize, Qt
 from PyQt4.QtGui import QIcon, QSizePolicy, QVBoxLayout, QWidget
 
 from PyQt4.fresh import pDockWidget, pMainWindow, pActionsModel

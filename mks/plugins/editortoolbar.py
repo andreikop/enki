@@ -14,8 +14,7 @@ from PyQt4.QtGui import QDialog, QIcon, QMenu, QToolBar, QToolButton
 
 from mks.core.core import core, DATA_FILES_PATH
 
-"""AK: Idea of _EolIndicatorAndSwitcher, and icons for it was taken from juffed
-"""
+# AK: Idea of _EolIndicatorAndSwitcher, and icons for it was taken from juffed
 
 class _EolIndicatorAndSwitcher(QToolButton):
     """This widget is visible on Status Bar as EOL type icon.
@@ -41,7 +40,7 @@ class _EolIndicatorAndSwitcher(QToolButton):
         
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
     
-    def _onCurrentDocumentChanged(self, oldDocument, currentDocument):
+    def _onCurrentDocumentChanged(self, oldDocument, currentDocument):  # pylint: disable=W0613
         """Current document on workspace has been changed
         """
         if currentDocument is not None:
@@ -151,7 +150,7 @@ class _IndentIndicatorAndSwitcher(QToolButton):
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
         
     
-    def _onCurrentDocumentChanged(self, oldDocument, currentDocument):
+    def _onCurrentDocumentChanged(self, oldDocument, currentDocument):  # pylint: disable=W0613
         """Current document on workspace has been changed
         """
         if currentDocument is not None:

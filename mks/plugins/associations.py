@@ -5,7 +5,8 @@ associations --- Syntax highlighting support
 Functionality:
 
 * Detect programming languge of the file
-* Automatically apply it via :func:`mks.core.abstractdocument.AbstractDocument.setHighlightingLanguage` for newly opened editors
+* Automatically apply it via :func:`mks.core.abstractdocument.AbstractDocument.setHighlightingLanguage` 
+  for newly opened editors
 * Edit associations settings via GUI
 """
 
@@ -30,13 +31,13 @@ class Configurator(ModuleConfigurator):
         self._options = []
         fileAssociationsItem = dialog.twMenu.topLevelItem(1)
         for index, language in enumerate(Plugin.instance.iterLanguages()):
-            languageName, fileNameGlobs, firstLineGlobs, iconPath = language
+            languageName, fileNameGlobs, firstLineGlobs, iconPath = language  # pylint: disable=W0612
             # Item to the tree
             item = QTreeWidgetItem([languageName])
             item.setIcon(0, QIcon(iconPath))
             fileAssociationsItem.addChild(item)
             # Widget
-            widget = self._createWidget(dialog, languageName)
+            widget = self._createWidget(dialog)
             dialog.swPages.insertWidget(index + 2, widget)
             # Options
             optionPath = "Associations/%s/FileName" % languageName
@@ -46,7 +47,7 @@ class Configurator(ModuleConfigurator):
             option = ListOnePerLineOption(dialog, core.config(), optionPath, widget.pteFirstLineGlobs)
             self._options.append(option)
 
-    def _createWidget(self, dialog, language):
+    def _createWidget(self, dialog):
         """Create configuration widget
         """
         widget = QWidget(dialog)
@@ -93,7 +94,7 @@ class Plugin():
         """Get list of available languages as touple (name, file name globs, first line globs, icon path)
         """
         for languageName, params in core.config()["Associations"].iteritems():
-            item = QTreeWidgetItem([languageName])
+            QTreeWidgetItem([languageName])
             iconPath = ":/mksicons/languages/%s.png" % languageName.lower()
             if not QFileInfo(iconPath).exists():
                 iconPath = ":/mksicons/transparent.png"
@@ -114,7 +115,7 @@ class Plugin():
         if not fileName:
             return
 
-        for languageName, fileNameGlobs, firstLineGlobs, iconPath in self.iterLanguages():
+        for languageName, fileNameGlobs, firstLineGlobs, iconPath in self.iterLanguages():  # pylint: disable=W0612
             for fileNameGlob in fileNameGlobs:
                 # Empty patterns are ignored
                 if fileNameGlob and \
@@ -137,7 +138,7 @@ class Plugin():
         """
         self._menu.clear()
         currentLanguage = core.workspace().currentDocument().highlightingLanguage()
-        for languageName, fileNameGlobs, firstLineGlobs, iconPath in self.iterLanguages():
+        for languageName, fileNameGlobs, firstLineGlobs, iconPath in self.iterLanguages():  # pylint: disable=W0612
             action = QAction(QIcon(iconPath), languageName, self._menu)
             action.setCheckable(True)
             if languageName == currentLanguage:
@@ -152,7 +153,7 @@ class Plugin():
         languageName = action.text()
         core.workspace().currentDocument().setHighlightingLanguage(languageName)
 
-    def _onCurrentDocumentChanged(self, old, new):
+    def _onCurrentDocumentChanged(self, old, new):  # pylint: disable=W0613
         """Handler of current document change. Updates View -> Highlighting menu state
         """
         self._menu.setEnabled(new is not None)

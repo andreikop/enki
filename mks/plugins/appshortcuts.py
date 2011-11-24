@@ -6,7 +6,9 @@ Application shortcuts module transparently manages QAction shortcuts.
 
 Here is example of global action creation: ::
 
-    action = core.actionModel().addAction("mSettings/aShortcuts", self.tr( "Shortcuts..."),  QIcon(':/mksicons/shortcuts.png'))
+    action = core.actionModel().addAction("mSettings/aShortcuts",
+                                          self.tr( "Shortcuts..."),
+                                          QIcon(':/mksicons/shortcuts.png'))
 
 This code adds *Shortcuts...* action to *Edit* menu.
 
@@ -17,7 +19,6 @@ Module also **loads and saves** shortcuts configuration to file and provides **s
 """
 
 import os.path
-import sys
 
 from PyQt4.QtCore import QModelIndex
 from PyQt4.QtGui import QIcon
@@ -28,8 +29,10 @@ from mks.core.config import Config
 
 from mks.core.core import core
 
-def tr(s):
-    return s
+def tr(text):  # pylint: disable=C0103
+    """ Stub for translation procedure
+    """
+    return text
 
 _CONFIG_PATH = os.path.join(mks.core.defines.CONFIG_DIR, 'shortcuts.cfg')
 
@@ -54,7 +57,7 @@ class Plugin:
         except UserWarning as ex:
             core.messageManager().appendMessage(unicode(ex))
             self._config = None
-            return  # TODO plugin initialization failed
+            return
 
         self._model = core.actionModel()
         self._model.rowsInserted.connect(self._onActionInserted)
