@@ -294,6 +294,8 @@ class SearchWidget(QFrame):
         self.cbRegularExpression.stateChanged.connect(self._onSearchContextChanged)
         self.cbCaseSensitive.stateChanged.connect(self._onSearchContextChanged)
         
+        core.workspace().currentDocumentChanged.connect(self._updateActionsState)
+        
         self.tbCdUp.clicked.connect(self.cdUp_pressed)
         self.searchThread.started.connect(self.searchThread_stateChanged)
         self.searchThread.finished.connect(self.searchThread_stateChanged)
