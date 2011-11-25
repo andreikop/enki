@@ -1,18 +1,4 @@
 FIXME
-    inc search reg exp
-    Traceback (most recent call last):
-    File "/usr/local/lib/python2.7/dist-packages/mks/plugins/searchreplace.py", line 735, in search_textEdited
-    self.initializeSearchContext( True )
-    File "/usr/local/lib/python2.7/dist-packages/mks/plugins/searchreplace.py", line 546, in initializeSearchContext
-    self._getRegExp(), \
-    File "/usr/local/lib/python2.7/dist-packages/mks/plugins/searchreplace.py", line 539, in _getRegExp
-    return re.compile(pattern, flags)
-    File "/usr/lib/python2.7/re.py", line 190, in compile
-    return _compile(pattern, flags)
-    File "/usr/lib/python2.7/re.py", line 244, in _compile
-    raise error, v # invalid expression
-    error: unexpected end of regular expression
-    
     Add watch file
     http://wiki.debian.org/debian/watch
 
