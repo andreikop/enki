@@ -12,6 +12,9 @@ FIXME
     File "/usr/lib/python2.7/re.py", line 244, in _compile
     raise error, v # invalid expression
     error: unexpected end of regular expression
+    
+    Add watch file
+    http://wiki.debian.org/debian/watch
 
 FIXME PasNox
 
@@ -21,9 +24,12 @@ FIXME need help
     Ставить фокус на UISaveFiles диалог
 
 TODO
-    Юзать mime db для определенія тіпа подсветкі
+    Юзать mime db для определения типа подсветки
     Возможность скрывать меню
+    Определять кодировку с помощью chardet
+    Подсвечивать результаты поиска, когда строка поиска видна
     Поддерживать кодировки кроме utf8
+    Если нажали backspace при инкрементальном поиске - начинать поиск с начала
     Восстанавливать сессию?
     Подсвечивать активный док
     Сделать методы закоментить/откоментить
@@ -34,8 +40,7 @@ TODO
     Fix trailing whitespaces
 
 TODO when releasing
-    irc support ссылка
-    help->about
+    проставить версии в зависимостях
 
 On Ubuntu 12.04
     Посмотреть, появилась ли QScintilla 2.5.2. Если да - заюзать posix флаг
