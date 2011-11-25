@@ -287,8 +287,13 @@ class SearchWidget(QFrame):
         #    self.cbEncoding.findText( pMonkeyStudio.defaultCodec() ) )
 
         # connections
-        self.cbSearch.lineEdit().textChanged.connect(self.search_textChanged)
-        self.cbSearch.lineEdit().textEdited.connect(self.search_textEdited)
+        self.cbSearch.lineEdit().textChanged.connect(self._onSearchContextChanged)
+        self.cbReplace.lineEdit().textChanged.connect(self._onSearchContextChanged)
+        self.cbPath.lineEdit().textChanged.connect(self._onSearchContextChanged)
+        self.cbMask.lineEdit().textChanged.connect(self._onSearchContextChanged)
+        self.cbRegularExpression.stateChanged.connect(self._onSearchContextChanged)
+        self.cbCaseSensitive.stateChanged.connect(self._onSearchContextChanged)
+        
         self.tbCdUp.clicked.connect(self.cdUp_pressed)
         self.searchThread.started.connect(self.searchThread_stateChanged)
         self.searchThread.finished.connect(self.searchThread_stateChanged)
@@ -305,11 +310,7 @@ class SearchWidget(QFrame):
         core.actionModel().action("mNavigation/mSearchReplace/aSearchPrevious")\
                                         .triggered.connect(self.on_pbPrevious_pressed)
         
-        self.pbSearch.setEnabled(False)
-        self.pbNext.setEnabled(False)
-        self.pbPrevious.setEnabled(False)
-        core.actionModel().action("mNavigation/mSearchReplace/aSearchNext").setEnabled(False)
-        core.actionModel().action("mNavigation/mSearchReplace/aSearchPrevious").setEnabled(False)
+        self._updateActionsState()
         
         core.mainWindow().hideAllWindows.connect(self.hide)
 
@@ -343,7 +344,6 @@ class SearchWidget(QFrame):
         
         self._mode = mode
         
-        self.initializeSearchContext( currentDocumentOnly )
         # TODO support search in project
         #if self._mode & Plugin.ModeFlagProjectFiles :
         #    if  self.searchContext.project :
@@ -527,7 +527,7 @@ class SearchWidget(QFrame):
 
         return re.compile(pattern, flags)
 
-    def initializeSearchContext(self, currentDocumentOnly ):
+    def _initializeSearchContext(self):
         """Fill search context with actual data
         """
         self.searchContext = SearchContext(\
@@ -548,9 +548,6 @@ class SearchWidget(QFrame):
         
         # TODO update project
         #self.searchContext.project = self.searchContext.project.topLevelProject()
-        
-        if  currentDocumentOnly :
-            return
 
         # update opened files
         for document in core.workspace().openedDocuments():
@@ -702,23 +699,35 @@ class SearchWidget(QFrame):
         """Error message from the replace thread
         """
         core.messageManager().appendMessage( error )
-
-    def search_textChanged(self):
-        """Text changed, enable actions, if have text, disable, if haven't
-        """
-        haveText = bool(self.cbSearch.currentText())
-        
-        self.pbSearch.setEnabled(haveText)
-        self.pbNext.setEnabled(haveText)
-        self.pbPrevious.setEnabled(haveText)
-        core.actionModel().action("mNavigation/mSearchReplace/aSearchNext").setEnabled(haveText)
-        core.actionModel().action("mNavigation/mSearchReplace/aSearchPrevious").setEnabled(haveText)
     
-    def search_textEdited(self):
-        """User edited search text, do incremental search
+    def _updateActionsState(self):
+        """Update actions state according to search context valid state
+        TODO and availability of editor
         """
-        self.initializeSearchContext( True )
-            
+        searchAvailable = self.searchContext is not None and \
+                          self.searchContext.regExp.pattern is not None
+        searchInFileAvailable = searchAvailable and core.workspace().currentDocument() is not None
+        
+        for button in (self.pbNext, self.pbPrevious, self.pbReplace, self.pbReplaceAll):
+            button.setEnabled(searchInFileAvailable)
+        core.actionModel().action("mNavigation/mSearchReplace/aSearchNext").setEnabled(searchInFileAvailable)
+        core.actionModel().action("mNavigation/mSearchReplace/aSearchPrevious").setEnabled(searchInFileAvailable)
+
+        self.pbSearch.setEnabled(searchAvailable)
+    
+    def _onSearchContextChanged(self):
+        """User edited search text or checked/unchecked checkboxes
+        """
+        try:
+            self._initializeSearchContext()
+        except re.error, ex:
+            self.searchContext = None
+            core.mainWindow().statusBar().showMessage(unicode(ex), 5000)
+            self._updateActionsState()
+            return
+        
+        self._updateActionsState()
+        
         # clear search results if needed.
         if self._mode == Plugin.ModeSearch:
             self.searchFile( True, True )
@@ -737,14 +746,12 @@ class SearchWidget(QFrame):
         """Handler of click on "Previous" button
         """
         self.updateComboBoxes()
-        self.initializeSearchContext( True )
         self.searchFile( False, False )
 
     def on_pbNext_pressed(self):
         """Handler of click on "Next" button
         """
         self.updateComboBoxes()
-        self.initializeSearchContext( True )
         self.searchFile( True, False )
 
     def on_pbSearch_pressed(self):
@@ -752,9 +759,6 @@ class SearchWidget(QFrame):
         """
         self.setState(SearchWidget.Normal )
         self.updateComboBoxes()
-        self.initializeSearchContext( False )
-        
-        assert self.searchContext.regExp.pattern
         
         # TODO support project
         #if  self.searchContext._mode & Plugin.ModeFlagProjectFiles and not self.searchContext.project :
@@ -762,7 +766,6 @@ class SearchWidget(QFrame):
         #                        self.tr( "You can't search in project files because there is no opened projet." ) )
         #    return
 
-        self.searchThread.search( self.searchContext )
 
     def on_pbSearchStop_pressed(self):
         """Handler of click on "Stop" button. Stop search thread
@@ -773,14 +776,12 @@ class SearchWidget(QFrame):
         """Handler of click on "Replace" (in file) button
         """
         self.updateComboBoxes()
-        self.initializeSearchContext( True )
         self.replaceFile( False )
 
     def on_pbReplaceAll_pressed(self):
         """Handler of click on "Replace all" (in file) button
         """
         self.updateComboBoxes()
-        self.initializeSearchContext( True )
         self.replaceFile( True )
 
     def on_pbReplaceChecked_pressed(self):
@@ -790,7 +791,7 @@ class SearchWidget(QFrame):
         model = self._dock.model
 
         self.updateComboBoxes()
-        self.initializeSearchContext( False )
+        
         # TODO support project
         # TODO disable action, don't show the message!
         #if  self.searchContext.mode & Plugin.ModeFlagProjectFiles and not self.searchContext.project :
