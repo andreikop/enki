@@ -138,7 +138,7 @@
         <bool>true</bool>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>10</number>
        </property>
        <widget class="QWidget" name="pGeneral">
         <layout class="QVBoxLayout" name="verticalLayout_18">
@@ -265,8 +265,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>441</width>
-              <height>631</height>
+              <width>100</width>
+              <height>115</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_20">
@@ -1633,37 +1633,21 @@
               </item>
              </layout>
             </item>
-            <item row="2" column="0">
+            <item row="4" column="0">
              <widget class="QCheckBox" name="cbEolVisibility">
               <property name="text">
                <string>EOL symbols are visible</string>
               </property>
              </widget>
             </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox_5">
-           <property name="title">
-            <string>Upon openning file</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_14">
-            <item>
+            <item row="2" column="0">
              <widget class="QCheckBox" name="cbAutoDetectEol">
               <property name="text">
-               <string>Try to detect EOL automatically</string>
+               <string>Try to detect EOL automatically upon opening file</string>
               </property>
              </widget>
             </item>
-            <item>
-             <widget class="QCheckBox" name="cbAutoEolConversion">
-              <property name="text">
-               <string>Convert EOL</string>
-              </property>
-             </widget>
-            </item>
-            <item>
+            <item row="3" column="0">
              <widget class="QLabel" name="label_2">
               <property name="font">
                <font>
@@ -1671,10 +1655,7 @@
                </font>
               </property>
               <property name="text">
-               <string>Hint: check both options for automatically fix inconsistent EOL</string>
-              </property>
-              <property name="wordWrap">
-               <bool>true</bool>
+               <string>Uncheck the option to force EOL mode for all files you are saving</string>
               </property>
              </widget>
             </item>
