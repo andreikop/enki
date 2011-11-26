@@ -185,7 +185,13 @@ class AbstractDocument(QWidget):
             return
         
         try:
-            openedFile.write(self.text().encode('utf8'))
+            converter = { r'\r\n': '\r\n',
+                          r'\r'  : '\r',
+                          r'\n'  : '\n'}
+            lines = self.text().splitlines()
+            eol = converter[self.eolMode()]
+            text = eol.join(lines)
+            openedFile.write(text.encode('utf8'))
         finally:
             openedFile.close()
             if self._fileWatcher is None:  # file just get its name
@@ -271,6 +277,9 @@ class AbstractTextEditor(AbstractDocument):
     
     def text(self):
         """Contents of the editor.
+        
+        For convenience, lines are always separated with *\\\\n*, even if text has another line separator.
+        See *eolMode()* for original separator
         
         To be implemented by child class
         """
@@ -410,6 +419,10 @@ class AbstractTextEditor(AbstractDocument):
         To be implemented by child class
         """
         pass
+    
+    def lineCount(self):
+        """Return count of lines of text
+        """
 
 
 #    TODO restore or delete old code
