@@ -731,10 +731,8 @@ class SearchWidget(QFrame):
         self._updateActionsState()
         
         # clear search results if needed.
-        if self._mode == Plugin.ModeSearch:
+        if self._mode in (Plugin.ModeSearch, Plugin.ModeReplace):
             self.searchFile( True, True )
-        elif self._mode == Plugin.ModeReplace:
-            self.searchThread.clear()
 
     def cdUp_pressed(self):
         """User pressed "Up" button, need to remove one level from search path
