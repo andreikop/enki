@@ -96,7 +96,7 @@ class AbstractDocument(QWidget):
         return text
 
     def _setModified(self, value):
-        """Clear modified state for the file. Called by AbstractDocument
+        """Set modified state for the file. Called by AbstractDocument
         
         To be implemented by child class
         """
@@ -274,7 +274,48 @@ class AbstractTextEditor(AbstractDocument):
         """Convert absolute position to (line, column)
         """
         pass
-    
+        
+    def _configureEolMode(self, originalText):
+        """Detect end of line mode automatically and apply detected mode
+        """
+        modes = set()
+        for line in originalText.splitlines(True):
+            if line.endswith('\r\n'):
+                modes.add(r'\r\n')
+            elif line.endswith('\n'):
+                modes.add(r'\n')
+            elif line.endswith('\r'):
+                modes.add(r'\r')
+
+        default = core.config()["Editor"]["EOL"]["Mode"]
+        
+        moreThanOne = len(modes) > 1
+        
+        if not moreThanOne and len(modes) == 1:
+            detectedMode = modes.pop()
+        else:
+            detectedMode = None
+        
+        if moreThanOne:
+            message = "Your file contains mix of End Of Line symbols. It will be saved with '%s'" % default
+            core.messageManager().appendMessage(message, 10000)
+            self.setEolMode(default)
+            self._setModified(True)
+        elif core.config()["Editor"]["EOL"]["AutoDetect"]:
+            if detectedMode is not None:
+                self.setEolMode (detectedMode)
+            else:  # empty set, not detected
+                self.setEolMode(default)
+        else:  # no mix, no autodetect. Force EOL
+            if detectedMode is not None and \
+                    detectedMode != default:
+                message = "%s: End Of Line mode is '%s', but file will be saved with '%s'. " \
+                          "EOL autodetection is disabled in the settings" % (self.fileName(), detectedMode, default)
+                core.messageManager().appendMessage(message, 10000)
+                self._setModified(True)
+            
+            self.setEolMode(default)
+
     def text(self):
         """Contents of the editor.
         
@@ -293,11 +334,19 @@ class AbstractTextEditor(AbstractDocument):
         """
         pass
 
+    def selectedText(self):
+        """Get selected text
+        
+        To be implemented by child class
+        """
+        return self.qscintilla.selectedText()
+
     def eolMode(self):
         """Return document's EOL mode. Possible values are:
         
         * ``\\n``  - UNIX EOL
         * ``\\r\\n`` - Windows EOL
+        * ``\\r`` - Mac EOL
         * ``None`` - not defined for the editor type
         
         To be implemented by child class
@@ -419,10 +468,6 @@ class AbstractTextEditor(AbstractDocument):
         To be implemented by child class
         """
         pass
-    
-    def lineCount(self):
-        """Return count of lines of text
-        """
 
 
 #    TODO restore or delete old code

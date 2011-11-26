@@ -357,8 +357,7 @@ class SearchWidget(QFrame):
         #assert( self.searchContext.encoding )
         
         if core.workspace().currentDocument():
-            searchText = core.workspace().currentDocument().\
-                                                    qscintilla.selectedText()
+            searchText = core.workspace().currentDocument().selectedText()
         else:
             searchText = ''
         

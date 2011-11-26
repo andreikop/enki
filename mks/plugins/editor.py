@@ -377,10 +377,6 @@ class Editor(AbstractTextEditor):
                               r'\r\n'   : QsciScintilla.EolWindows,
                               r'\r'     : QsciScintilla.EolMac}
     
-    _EOL_CONVERTOR_FROM_QSCI = {QsciScintilla.EolWindows    : r"\r\n",
-                                QsciScintilla.EolUnix       : r"\n",
-                                QsciScintilla.EolMac        : r"\r"}
-    
     _WRAP_MODE_TO_QSCI = {"WrapWord"      : QsciScintilla.WrapWord,
                           "WrapCharacter" : QsciScintilla.WrapCharacter}
     
@@ -413,6 +409,8 @@ class Editor(AbstractTextEditor):
     def __init__(self, parentObject, filePath, createNew=False):
         super(Editor, self).__init__(parentObject, filePath, createNew)
         
+        self._eolMode = None
+        
         # Configure editor
         self.qscintilla = _QsciScintilla(self)
         
@@ -444,11 +442,13 @@ class Editor(AbstractTextEditor):
         
         if not self._neverSaved:
             try:
-                text = self._readFile(filePath)
+                originalText = self._readFile(filePath)
             except IOError as ex:  # exception in constructor
                 self.deleteLater()  # make sure C++ object deleted
                 raise ex
-            self.setText(text)
+            self.setText(originalText)
+        else:
+            originalText = ''
         
         myConfig = core.config()["Editor"]
         
@@ -470,8 +470,7 @@ class Editor(AbstractTextEditor):
             self._convertIndentation()
         
         #autodetect eol, need
-        if  myConfig["EOL"]["AutoDetect"]:
-            self._autoDetectEol()
+        self._configureEolMode(originalText)
         
         self.modifiedChanged.emit(self.isModified())
         self.cursorPositionChanged.emit(*self.cursorPosition())
@@ -587,8 +586,6 @@ class Editor(AbstractTextEditor):
         self.qscintilla.setCaretWidth(myConfig["Caret"]["Width"])
         
         # Special Characters
-        self.qscintilla.setEolMode(self._EOL_CONVERTOR_TO_QSCI[myConfig["EOL"]["Mode"]])
-        
         self.qscintilla.setWhitespaceVisibility(self._WHITE_MODE_TO_QSCI[myConfig["WhitespaceVisibility"]])
         
         if myConfig["Wrap"]["Enabled"]:
@@ -652,16 +649,6 @@ class Editor(AbstractTextEditor):
         else:
             pass  # Don't touch current mode, if not sure
 
-    def _autoDetectEol(self):
-        """Detect end of line mode automatically and apply detected mode
-        """
-        if '\r\n' in self.qscintilla.text():
-            self.qscintilla.setEolMode (QsciScintilla.EolWindows)
-        elif '\n' in self.qscintilla.text():
-            self.qscintilla.setEolMode (QsciScintilla.EolUnix)
-        elif '\r' in self.qscintilla.text():
-            self.qscintilla.setEolMode (QsciScintilla.EolMac)
-
     def _onLinesChanged(self):
         """Handler of change of lines count in the qscintilla
         """
@@ -713,17 +700,22 @@ class Editor(AbstractTextEditor):
         self.qscintilla.linesChanged.emit()
         self._setModified(False)
         
+    def selectedText(self):
+        """Get selected text
+        """
+        pass
+
     def eolMode(self):
         """Line end mode of the file
         """
-        mode = self.qscintilla.eolMode()
-        return self._EOL_CONVERTOR_FROM_QSCI[mode]
+        return self._eolMode
 
     def setEolMode(self, mode):
         """Set line end mode of the file
         """
         self.qscintilla.setEolMode(self._EOL_CONVERTOR_TO_QSCI[mode])
         self.qscintilla.convertEols(self._EOL_CONVERTOR_TO_QSCI[mode])
+        self._eolMode = mode
 
     def indentWidth(self):
         """Indentation width in symbol places (spaces)
