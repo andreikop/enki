@@ -697,6 +697,19 @@ class Editor(AbstractTextEditor):
     # AbstractTextEditor interface
     #
     
+    def _toAbsPosition(self, line, col):
+        """Convert (line, column) to absolute position
+        """
+        line -= 1
+        return self.qscintilla.positionFromLineIndex(line, col)
+    
+    def _toLineCol(self, absPosition):
+        """Convert absolute position to (line, column)
+        """
+        line, col = self.qscintilla.lineIndexFromPosition(absPosition)
+        line += 1
+        return (line, col)
+
     def text(self):
         """Contents of the editor
         """
@@ -766,11 +779,16 @@ class Editor(AbstractTextEditor):
             return None
     
     def cursorPosition(self):
-        """Get cursor position as touple (line, col)
+        """Get cursor position as tuple (line, col)
         """
         line, col = self.qscintilla.getCursorPosition()
         return line + 1, col
     
+    def _setCursorPosition(self, line, col):
+        """Implementation of AbstractTextEditor.setCursorPosition
+        """
+        self.qscintilla.setCursorPosition(line - 1, col)
+
     def toggleBookmark(self):
         """Set or clear bookmark on the line
         """

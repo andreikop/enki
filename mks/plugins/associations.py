@@ -91,7 +91,7 @@ class Plugin():
         return Configurator
 
     def iterLanguages(self):
-        """Get list of available languages as touple (name, file name globs, first line globs, icon path)
+        """Get list of available languages as tuple (name, file name globs, first line globs, icon path)
         """
         for languageName, params in core.config()["Associations"].iteritems():
             QTreeWidgetItem([languageName])

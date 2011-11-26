@@ -250,13 +250,24 @@ class AbstractTextEditor(AbstractDocument):
     
     cursorPositionChanged = pyqtSignal(int, int) # (line, column)
     """
-    modifiedChanged(line, column)
+    cursorPositionChanged(line, column)
     
     **Signal** emitted, when cursor position has been changed
     """  # pylint: disable=W0105
+    
     def __init__(self, parentObject, filePath, createNew=False):
         AbstractDocument.__init__(self, parentObject, filePath, createNew)
         self._highlightingLanguage = None
+    
+    def _toAbsPosition(self, line, col):
+        """Convert (line, column) to absolute position
+        """
+        pass
+    
+    def _toLineCol(self, absPosition):
+        """Convert absolute position to (line, column)
+        """
+        pass
     
     def text(self):
         """Contents of the editor.
@@ -334,17 +345,43 @@ class AbstractTextEditor(AbstractDocument):
         
         Called Only by :class:`mks.plugins.associations.Associations` to select syntax highlighting language.
         
-        To be implemented by child class
-        Implementation must call AbstractDocument method
+        To be implemented by child class. Implementation must call AbstractDocument method
         """
         self._highlightingLanguage = language
 
     def cursorPosition(self):
-        """Return cursor position as 2 values: line and column, if available
+        """Return cursor position as tuple (line, column)
         
         To be implemented by child class
         """
         pass
+    
+    def absCursorPosition(self):
+        """Returns cursor position as offset from the very first symbol
+        """
+        line, col = self.cursorPosition()
+        return self._toAbsPosition(line, col)
+    
+    def setCursorPosition(self, line=None, col=None, absPos=None):
+        """Set cursor position.
+        Examples: ::
+        
+            document.setCursorPosition(line=7)
+            document.setCursorPosition(line=7, col=9)
+            document.setCursorPosition(abs=3)
+        
+        Implementation must implement _setCursorPosition(line, col)
+        """
+        assert line is not None or absPos is not None
+        
+        if line is not None:
+            assert absPos is None
+            if col is None:
+                col = 0
+        else:
+            assert line is None and col is None
+            line, col = self._toLineCol(absPos)
+        self._setCursorPosition(line, col)
 
     def invokeGoTo(self):
         """Show GUI dialog, go to line, if user accepted it

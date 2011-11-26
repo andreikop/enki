@@ -627,17 +627,10 @@ class SearchWidget(QFrame):
         document = core.workspace().currentDocument()
         if document:
             editor = document.qscintilla  # FIXME current editor specific
-        
-        if  not editor :
-            self.setState(SearchWidget.Bad )
-            self.showMessage( self.tr( "No active editor" ) )
-            return False
 
-        count = 0
-        
         if  replaceAll:
-            col, line = editor.getCursorPosition()            
-            editor.setCursorPosition( 0, 0 )
+            line, col = document.cursorPosition()
+            document.setCursorPosition(absPos = 0)
 
             editor.beginUndoAction()
             count = 0
@@ -646,19 +639,18 @@ class SearchWidget(QFrame):
                 count += 1
             editor.endUndoAction()
             
-            editor.setCursorPosition(col, line) # restore cursor position
+            document.setCursorPosition(line=line, col=col) # restore cursor position
+            self.showMessage( self.tr( "%d occurrence(s) replaced." % count ))
         else:
             line, col, temp, temp = editor.getSelection()  # pylint: disable=W0612
-            editor.setCursorPosition( line, col )
+            document.setCursorPosition(line = line + 1, col = col)
 
             if  self.searchFile( True, False ) :
                 editor.beginUndoAction()
                 editor.replace( self.searchContext.replaceText )
                 editor.endUndoAction()
-                count += 1
                 self.pbNext.click() # move selection to next item
 
-        self.showMessage( self.tr( "%d occurrence(s) replaced." % count ))
 
         return True
 
