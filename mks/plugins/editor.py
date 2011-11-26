@@ -482,6 +482,7 @@ class Editor(AbstractTextEditor):
             text = self.qscintilla.text()
             if text != oldText:
                 core.messageManager().appendMessage('EOLs converted. You can UNDO the changes', 5000)
+
         self.modifiedChanged.emit(self.isModified())
         self.cursorPositionChanged.emit(*self.cursorPosition())
 
@@ -646,8 +647,9 @@ class Editor(AbstractTextEditor):
     def _autoDetectIndent(self):
         """Delect indentation automatically and apply detected mode
         """
-        haveTabs = '\t' in self.qscintilla.text()
-        for line in self.qscintilla.text().split('\n'):  #TODO improve algorythm sometimes to skip comments
+        text = self.text()
+        haveTabs = '\t' in text
+        for line in text.splitlines():  #TODO improve algorythm sometimes to skip comments
             if line.startswith(' '):
                 haveSpaces = True
                 break
@@ -713,7 +715,7 @@ class Editor(AbstractTextEditor):
     def text(self):
         """Contents of the editor
         """
-        return self.qscintilla.text()
+        return '\n'.join(self.qscintilla.text().splitlines())
     
     def setText(self, text):
         """Set text in the QScintilla, clear modified flag, update line numbers bar
