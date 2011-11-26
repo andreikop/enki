@@ -119,7 +119,6 @@ class EditorConfigurator(ModuleConfigurator):
                           dialog.rbEolMac: r'\r'}),
             CheckableOption(dialog, cfg, "Editor/EOL/Visibility", dialog.cbEolVisibility),
             CheckableOption(dialog, cfg, "Editor/EOL/AutoDetect", dialog.cbAutoDetectEol),
-            CheckableOption(dialog, cfg, "Editor/EOL/AutoConvert", dialog.cbAutoEolConversion),
             ChoiseOption(dialog, cfg, "Editor/WhitespaceVisibility",
                          {dialog.rbWsInvisible: "Invisible",
                           dialog.rbWsVisible: "Visible",
@@ -475,14 +474,6 @@ class Editor(AbstractTextEditor):
         if  myConfig["EOL"]["AutoDetect"]:
             self._autoDetectEol()
         
-        # convert eol
-        if  myConfig["EOL"]["AutoConvert"]:
-            oldText = self.qscintilla.text()
-            self.qscintilla.convertEols(self.qscintilla.eolMode())
-            text = self.qscintilla.text()
-            if text != oldText:
-                core.messageManager().appendMessage('EOLs converted. You can UNDO the changes', 5000)
-
         self.modifiedChanged.emit(self.isModified())
         self.cursorPositionChanged.emit(*self.cursorPosition())
 
