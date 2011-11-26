@@ -1633,13 +1633,6 @@
               </item>
              </layout>
             </item>
-            <item row="4" column="0">
-             <widget class="QCheckBox" name="cbEolVisibility">
-              <property name="text">
-               <string>EOL symbols are visible</string>
-              </property>
-             </widget>
-            </item>
             <item row="2" column="0">
              <widget class="QCheckBox" name="cbAutoDetectEol">
               <property name="text">

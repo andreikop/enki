@@ -117,7 +117,6 @@ class EditorConfigurator(ModuleConfigurator):
                          {dialog.rbEolUnix: r'\n',
                           dialog.rbEolWindows: r'\r\n',
                           dialog.rbEolMac: r'\r'}),
-            CheckableOption(dialog, cfg, "Editor/EOL/Visibility", dialog.cbEolVisibility),
             CheckableOption(dialog, cfg, "Editor/EOL/AutoDetect", dialog.cbAutoDetectEol),
             ChoiseOption(dialog, cfg, "Editor/WhitespaceVisibility",
                          {dialog.rbWsInvisible: "Invisible",
@@ -589,7 +588,6 @@ class Editor(AbstractTextEditor):
         
         # Special Characters
         self.qscintilla.setEolMode(self._EOL_CONVERTOR_TO_QSCI[myConfig["EOL"]["Mode"]])
-        self.qscintilla.setEolVisibility(myConfig["EOL"]["Visibility"])
         
         self.qscintilla.setWhitespaceVisibility(self._WHITE_MODE_TO_QSCI[myConfig["WhitespaceVisibility"]])
         
