@@ -160,7 +160,7 @@ class MainWindow(pMainWindow):
         menu  ("mSettings",                           tr("Settings"              ), ""            )
 
         menu  ("mDocks",                              tr("Docks"                 ), ""            )
-        action("mDocks/aHideAll",                     tr("Hide all"              ), "",             "Ctrl+Esc",    tr("Hide all"               ), True)
+        action("mDocks/aHideAll",                     tr("Hide all"              ), "",             "Shift+Esc",    tr("Hide all"               ), True)
 
         menu  ("mHelp",                               tr("Help"                  ), ""            )
         
