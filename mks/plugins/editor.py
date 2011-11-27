@@ -704,6 +704,18 @@ class Editor(AbstractTextEditor):
         """Get selected text
         """
         pass
+        
+    def selection(self):
+        """Get coordinates of selected area as ((startLine, startCol), (endLine, endCol))
+        """
+        startLine, startCol, endLine, endCol = self.qscintilla.getSelection()
+        return ((startLine + 1, startCol), (endLine + 1, endCol))
+
+    def absSelection(self):
+        """Get coordinates of selected area as (startAbsPos, endAbsPos)
+        """
+        start, end = self.selection()
+        return (self._toAbsPosition(*start), self._toAbsPosition(*end))
 
     def eolMode(self):
         """Line end mode of the file

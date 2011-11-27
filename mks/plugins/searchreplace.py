@@ -595,21 +595,22 @@ class SearchWidget(QFrame):
         # get cursor position
         isCS = not(self.searchContext.regExp.flags & re.IGNORECASE)
         
+        start, end = document.selection()
         if  forward :
             if  incremental :
-                line, col, temp, temp = editor.getSelection()  # pylint: disable=W0612
+                point = start
             else:
-                temp, temp, line, col = editor.getSelection()
+                point = end
         else:
             if  incremental:
-                temp, temp, line, col = editor.getSelection()
+                point = end
             else:
-                line, col, temp, temp = editor.getSelection()
+                point = start
         
         # search
         found = editor.findFirst(self.searchContext.regExp.pattern,
                                  True, isCS, False, enableWrap, forward,
-                                 line, col, True)
+                                 point[0] - 1, point[1], True)
 
         # change background acording to found or not
         if found:
@@ -641,8 +642,8 @@ class SearchWidget(QFrame):
             document.setCursorPosition(line=line, col=col) # restore cursor position
             self.showMessage( self.tr( "%d occurrence(s) replaced." % count ))
         else:
-            line, col, temp, temp = editor.getSelection()  # pylint: disable=W0612
-            document.setCursorPosition(line = line + 1, col = col)
+            start, end = document.absSelection()  # pylint: disable=W0612
+            document.setCursorPosition(absPos = start)
 
             if  self.searchFile( True, False ) :
                 editor.beginUndoAction()

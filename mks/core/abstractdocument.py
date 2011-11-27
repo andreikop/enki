@@ -340,6 +340,16 @@ class AbstractTextEditor(AbstractDocument):
         To be implemented by child class
         """
         return self.qscintilla.selectedText()
+    
+    def selection(self):
+        """Get coordinates of selected area as ((startLine, startCol), (endLine, endCol))
+        """
+        pass
+
+    def absSelection(self):
+        """Get coordinates of selected area as (startAbsPos, endAbsPos)
+        """
+        pass
 
     def eolMode(self):
         """Return document's EOL mode. Possible values are:
@@ -420,13 +430,13 @@ class AbstractTextEditor(AbstractDocument):
         line, col = self.cursorPosition()
         return self._toAbsPosition(line, col)
     
-    def setCursorPosition(self, line=None, col=None, absPos=None):
+    def setCursorPosition(self, absPos=None, line=None, col=None):
         """Set cursor position.
         Examples: ::
         
             document.setCursorPosition(line=7)
             document.setCursorPosition(line=7, col=9)
-            document.setCursorPosition(abs=3)
+            document.setCursorPosition(absPos=3)
         
         Implementation must implement _setCursorPosition(line, col)
         """
