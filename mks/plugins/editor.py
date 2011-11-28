@@ -784,6 +784,11 @@ class Editor(AbstractTextEditor):
         """
         self.qscintilla.setCursorPosition(line - 1, col)
 
+    def replaceSelectedText(self, text):
+        """Replace selected text with text
+        """
+        self.qscintilla.replace(text)
+
     def toggleBookmark(self):
         """Set or clear bookmark on the line
         """
