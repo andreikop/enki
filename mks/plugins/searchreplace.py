@@ -635,7 +635,7 @@ class SearchWidget(QFrame):
             editor.beginUndoAction()
             count = 0
             while ( self.searchFile( True, False, False ) ): # search next
-                editor.replace( self.searchContext.replaceText )
+                document.replaceSelectedText( self.searchContext.replaceText )
                 count += 1
             editor.endUndoAction()
             
@@ -646,11 +646,8 @@ class SearchWidget(QFrame):
             document.setCursorPosition(absPos = start)
 
             if  self.searchFile( True, False ) :
-                editor.beginUndoAction()
-                editor.replace( self.searchContext.replaceText )
-                editor.endUndoAction()
+                document.replaceSelectedText(self.searchContext.replaceText)
                 self.pbNext.click() # move selection to next item
-
 
         return True
 

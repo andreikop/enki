@@ -451,6 +451,11 @@ class AbstractTextEditor(AbstractDocument):
             line, col = self._toLineCol(absPos)
         self._setCursorPosition(line, col)
 
+    def replaceSelectedText(self, text):
+        """Replace selected text with text
+        """
+        pass
+
     def invokeGoTo(self):
         """Show GUI dialog, go to line, if user accepted it
         """
