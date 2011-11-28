@@ -703,7 +703,7 @@ class Editor(AbstractTextEditor):
     def selectedText(self):
         """Get selected text
         """
-        pass
+        return self.qscintilla.selectedText()
         
     def selection(self):
         """Get coordinates of selected area as ((startLine, startCol), (endLine, endCol))
@@ -756,12 +756,13 @@ class Editor(AbstractTextEditor):
         AbstractTextEditor.setHighlightingLanguage(self, language)
         self.lexer.applyLanguage(language)
 
-    def goTo(self, line, column, selectionLength=-1):
+    def goTo(self, line, column, selectionLength=None):
         """Go to specified line and column. Select text if necessary
         """
-        self.qscintilla.setCursorPosition(line, column)
-        self.qscintilla.setSelection(line, column, line, column +selectionLength)
-        self.qscintilla.ensureLineVisible(line)
+        self.qscintilla.setCursorPosition(line - 1, column)
+        if selectionLength is not None:
+            self.qscintilla.setSelection(line, column, line - 1, column +selectionLength)
+        self.qscintilla.ensureLineVisible(line - 1)
         self.qscintilla.setFocus()
 
     def line(self, index):
@@ -788,6 +789,11 @@ class Editor(AbstractTextEditor):
         """Replace selected text with text
         """
         self.qscintilla.replace(text)
+    
+    def lineCount(self):
+        """Get line count
+        """
+        return self.qscintilla.lines()
 
     def toggleBookmark(self):
         """Set or clear bookmark on the line
