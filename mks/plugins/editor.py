@@ -759,10 +759,11 @@ class Editor(AbstractTextEditor):
     def goTo(self, line, column, selectionLength=None):
         """Go to specified line and column. Select text if necessary
         """
-        self.qscintilla.setCursorPosition(line - 1, column)
+        line -= 1
+        self.qscintilla.setCursorPosition(line, column)
         if selectionLength is not None:
-            self.qscintilla.setSelection(line, column, line - 1, column +selectionLength)
-        self.qscintilla.ensureLineVisible(line - 1)
+            self.qscintilla.setSelection(line, column, line, column + selectionLength)
+        self.qscintilla.ensureLineVisible(line)
         self.qscintilla.setFocus()
 
     def line(self, index):

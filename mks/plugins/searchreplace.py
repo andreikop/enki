@@ -755,6 +755,8 @@ class SearchWidget(QFrame):
         #                        self.tr( "You can't search in project files because there is no opened projet." ) )
         #    return
 
+        if self.searchContext.regExp is not None:
+            self.searchThread.search( self.searchContext )
 
     def on_pbSearchStop_pressed(self):
         """Handler of click on "Stop" button. Stop search thread
@@ -1126,7 +1128,7 @@ class SearchResultsDock(pDockWidget):
         result = index.internalPointer()
         if isinstance(result, SearchResultsModel.Result):
             core.workspace().goToLine( result.fileName,
-                                       result.line,
+                                       result.line + 1,
                                        result.column,
                                        result.length)
 
