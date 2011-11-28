@@ -339,7 +339,7 @@ class AbstractTextEditor(AbstractDocument):
         
         To be implemented by child class
         """
-        return self.qscintilla.selectedText()
+        pass
     
     def selection(self):
         """Get coordinates of selected area as ((startLine, startCol), (endLine, endCol))
@@ -459,17 +459,17 @@ class AbstractTextEditor(AbstractDocument):
     def invokeGoTo(self):
         """Show GUI dialog, go to line, if user accepted it
         """
-        line, col = self.qscintilla.getCursorPosition()  # pylint: disable=W0612
+        line = self.cursorPosition()[0]
         gotoLine, accepted = QInputDialog.getInteger(self, self.tr( "Go To Line..." ),
                                                       self.tr( "Enter the line you want to go:" ), 
-                                                      line +1, 1, self.qscintilla.lines(), 1)
+                                                      line, 1, self.lineCount(), 1)
         
         if accepted:
-            self.goTo(gotoLine - 1, 0)
+            self.goTo(gotoLine, 0)
     
-    def goTo(self, line, column, selectionLength = -1 ):
+    def goTo(self, line, column, selectionLength = None ):
         """Go to specified line and column.
-        If selectionLength is not -1, select selectionLength characters
+        If selectionLength is not None, select selectionLength characters
         
         To be implemented by child class
         """
@@ -481,6 +481,11 @@ class AbstractTextEditor(AbstractDocument):
         None, if index is invalid
         
         To be implemented by child class
+        """
+        pass
+    
+    def lineCount(self):
+        """Get line count
         """
         pass
 
