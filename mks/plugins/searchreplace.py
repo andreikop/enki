@@ -818,14 +818,12 @@ class SearchResultsModel(QAbstractItemModel):
     class Result:  # pylint: disable=R0902
         """One found by search thread item. Consists coordinates and capture. Used by SearchResultsModel
         """
-        def __init__ (  self, fileName, capture, groups, line, column, offset, length):  # pylint: disable=R0913
+        def __init__ (  self, fileName, wholeLine, line, column, match):  # pylint: disable=R0913
             self.fileName = fileName
-            self.capture = capture
-            self.groups = groups
+            self.wholeLine = wholeLine
             self.line = line
             self.column = column
-            self.offset = offset
-            self.length = length
+            self.match = match
             self.checkState =  Qt.Checked
             self.enabled = True
         
@@ -833,11 +831,11 @@ class SearchResultsModel(QAbstractItemModel):
             """Displayable text of search result. Shown as line in the search results dock
             notUsed argument added for have same signature, as FileResults.text
             """
-            return "Line: %d, Column: %d: %s" % ( self.line + 1, self.column, self.capture )
+            return "Line: %d, Column: %d: %s" % ( self.line + 1, self.column, self.wholeLine )
         
         def tooltip(self):
             """Tooltip of the search result"""
-            return self.capture
+            return self.wholeLine
         
         def hasChildren(self):
             """Check if QAbstractItem has children"""
@@ -1122,7 +1120,7 @@ class SearchResultsDock(pDockWidget):
             core.workspace().goToLine( result.fileName,
                                        result.line + 1,
                                        result.column,
-                                       result.length)
+                                       len(result.match.group(0)))
 
 class StopableThread(QThread):
     """Stoppable thread class. Used as base for search and replace thread.
@@ -1296,18 +1294,16 @@ class SearchThread(StopableThread):
             eolCount += content[lastPos:start].count( eol )
             lastPos = start
             
-            capture = content[eolStart + 1:eolEnd].strip()
+            wholeLine = content[eolStart + 1:eolEnd].strip()
             column = start - eolStart
             if eolStart != 0:
                 column -= 1
             
             result = SearchResultsModel.Result( fileName = fileName, \
-                             capture = capture, \
-                             groups = match.groups(), \
+                             wholeLine = wholeLine, \
                              line = eolCount, \
                              column = column, \
-                             offset = start, \
-                             length = match.end() - start)
+                             match=match)
             results.append(result)
 
             if self._exit:
@@ -1392,15 +1388,15 @@ class ReplaceThread(StopableThread):
                 match = subMatchRex.search(replaceText)
                 while match:
                     index = int(match.group(1))
-                    if index in range(1, len(result.groups) + 1):
+                    if index in range(1, len(result.match.groups()) + 1):
                         replaceText = replaceText[:pos + match.start()] + \
-                                      result.groups[index - 1] + \
+                                      result.match.groups()[index - 1] + \
                                       replaceText[pos + match.start() + len(match.group(0)):]
-                    pos += (match.start() + len(result.groups[index - 1]))
+                    pos += (match.start() + len(result.match.groups()[index - 1]))
                     match = subMatchRex.search(replaceText[pos:])
                 
                 # replace text
-                content = content[:result.offset] + replaceText + content[result.offset + result.length:]
+                content = content[:result.match.start()] + replaceText + content[result.match.end():]
                 handledResults.append(result)
             
             if fileName in self.searchContext.openedFiles:
