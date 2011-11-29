@@ -585,12 +585,7 @@ class SearchWidget(QFrame):
         """Do search in file operation. Will select next found item
         """
         document = core.workspace().currentDocument()
-        if document:
-            editor = document.qscintilla  # FIXME current editor specific, 
-        else:
-            self.setState(SearchWidget.Bad )
-            self.showMessage( self.tr( "No active editor" ) )
-            return False
+        editor = document.qscintilla  # FIXME current editor specific, 
 
         # get cursor position
         isCS = not(self.searchContext.regExp.flags & re.IGNORECASE)
@@ -625,8 +620,6 @@ class SearchWidget(QFrame):
         """Do one or all replacements in the file
         """
         document = core.workspace().currentDocument()
-        if document:
-            editor = document.qscintilla  # FIXME current editor specific
 
         if  replaceAll:
             line, col = document.cursorPosition()
@@ -680,7 +673,7 @@ class SearchWidget(QFrame):
         editor = document.qscintilla  # FIXME current editor specific
 
         document.beginUndoAction()
-        editor.selectAll()
+        editor.selectAll()  # TODO use common with replaceFile(all) code
         editor.removeSelectedText()
         editor.insert( content )
         document.endUndoAction()
@@ -693,7 +686,6 @@ class SearchWidget(QFrame):
     
     def _updateActionsState(self):
         """Update actions state according to search context valid state
-        TODO and availability of editor
         """
         searchAvailable = self.searchContext is not None and \
                           self.searchContext.regExp.pattern is not None
