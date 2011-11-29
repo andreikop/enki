@@ -632,12 +632,12 @@ class SearchWidget(QFrame):
             line, col = document.cursorPosition()
             document.setCursorPosition(absPos = 0)
 
-            editor.beginUndoAction()
+            document.beginUndoAction()
             count = 0
             while ( self.searchFile( True, False, False ) ): # search next
                 document.replaceSelectedText( self.searchContext.replaceText )
                 count += 1
-            editor.endUndoAction()
+            document.endUndoAction()
             
             document.setCursorPosition(line=line, col=col) # restore cursor position
             self.showMessage( self.tr( "%d occurrence(s) replaced." % count ))
@@ -679,11 +679,11 @@ class SearchWidget(QFrame):
         document = core.workspace().openFile(fileName)
         editor = document.qscintilla  # FIXME current editor specific
 
-        editor.beginUndoAction()
+        document.beginUndoAction()
         editor.selectAll()
         editor.removeSelectedText()
         editor.insert( content )
-        editor.endUndoAction()
+        document.endUndoAction()
 
 
     def replaceThread_error(self, error ):
