@@ -743,6 +743,36 @@ class Editor(AbstractTextEditor):
         start, end = self.selection()
         return (self._toAbsPosition(*start), self._toAbsPosition(*end))
 
+    def cursorPosition(self):
+        """Get cursor position as tuple (line, col)
+        """
+        line, col = self.qscintilla.getCursorPosition()
+        return line + 1, col
+    
+    def _setCursorPosition(self, line, col):
+        """Implementation of AbstractTextEditor.setCursorPosition
+        """
+        self.qscintilla.setCursorPosition(line - 1, col)
+
+    def replaceSelectedText(self, text):
+        """Replace selected text with text
+        """
+        self.qscintilla.replace(text)
+    
+    def beginUndoAction(self):
+        """Start doing set of modifications, which will be managed as one action.
+        User can Undo and Redo all modifications with one action
+        
+        DO NOT FORGET to call **endUndoAction()** after you have finished
+        """
+        self.qscintilla.beginUndoAction()
+
+    def endUndoAction(self):
+        """Finish doing set of modifications, which will be managed as one action.
+        User can Undo and Redo all modifications with one action
+        """
+        self.qscintilla.endUndoAction()
+
     def goTo(self, line, column, selectionLength=None):
         """Go to specified line and column. Select text if necessary
         """
@@ -761,22 +791,6 @@ class Editor(AbstractTextEditor):
             return self.qscintilla.text(index)
         else:
             return None
-    
-    def cursorPosition(self):
-        """Get cursor position as tuple (line, col)
-        """
-        line, col = self.qscintilla.getCursorPosition()
-        return line + 1, col
-    
-    def _setCursorPosition(self, line, col):
-        """Implementation of AbstractTextEditor.setCursorPosition
-        """
-        self.qscintilla.setCursorPosition(line - 1, col)
-
-    def replaceSelectedText(self, text):
-        """Replace selected text with text
-        """
-        self.qscintilla.replace(text)
     
     def lineCount(self):
         """Get line count

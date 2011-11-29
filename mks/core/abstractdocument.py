@@ -378,6 +378,20 @@ class AbstractTextEditor(AbstractDocument):
         """Replace selected text with text
         """
         pass
+    
+    def beginUndoAction(self):
+        """Start doing set of modifications, which will be managed as one action.
+        User can Undo and Redo all modifications with one action
+        
+        DO NOT FORGET to call **endUndoAction()** after you have finished
+        """
+        pass
+
+    def endUndoAction(self):
+        """Finish doing set of modifications, which will be managed as one action.
+        User can Undo and Redo all modifications with one action
+        """
+        pass
 
     def invokeGoTo(self):
         """Show GUI dialog, go to line, if user accepted it
