@@ -675,48 +675,6 @@ class Editor(AbstractTextEditor):
     # AbstractTextEditor interface
     #
     
-    def _toAbsPosition(self, line, col):
-        """Convert (line, column) to absolute position
-        """
-        line -= 1
-        return self.qscintilla.positionFromLineIndex(line, col)
-    
-    def _toLineCol(self, absPosition):
-        """Convert absolute position to (line, column)
-        """
-        line, col = self.qscintilla.lineIndexFromPosition(absPosition)
-        line += 1
-        return (line, col)
-
-    def text(self):
-        """Contents of the editor
-        """
-        return '\n'.join(self.qscintilla.text().splitlines())
-    
-    def setText(self, text):
-        """Set text in the QScintilla, clear modified flag, update line numbers bar
-        """
-        self.qscintilla.setText(text)
-        self.qscintilla.linesChanged.emit()
-        self._setModified(False)
-        
-    def selectedText(self):
-        """Get selected text
-        """
-        return self.qscintilla.selectedText()
-        
-    def selection(self):
-        """Get coordinates of selected area as ((startLine, startCol), (endLine, endCol))
-        """
-        startLine, startCol, endLine, endCol = self.qscintilla.getSelection()
-        return ((startLine + 1, startCol), (endLine + 1, endCol))
-
-    def absSelection(self):
-        """Get coordinates of selected area as (startAbsPos, endAbsPos)
-        """
-        start, end = self.selection()
-        return (self._toAbsPosition(*start), self._toAbsPosition(*end))
-
     def eolMode(self):
         """Line end mode of the file
         """
@@ -755,6 +713,35 @@ class Editor(AbstractTextEditor):
         """
         AbstractTextEditor.setHighlightingLanguage(self, language)
         self.lexer.applyLanguage(language)
+
+    def text(self):
+        """Contents of the editor
+        """
+        return '\n'.join(self.qscintilla.text().splitlines())
+    
+    def setText(self, text):
+        """Set text in the QScintilla, clear modified flag, update line numbers bar
+        """
+        self.qscintilla.setText(text)
+        self.qscintilla.linesChanged.emit()
+        self._setModified(False)
+
+    def selectedText(self):
+        """Get selected text
+        """
+        return self.qscintilla.selectedText()
+        
+    def selection(self):
+        """Get coordinates of selected area as ((startLine, startCol), (endLine, endCol))
+        """
+        startLine, startCol, endLine, endCol = self.qscintilla.getSelection()
+        return ((startLine + 1, startCol), (endLine + 1, endCol))
+
+    def absSelection(self):
+        """Get coordinates of selected area as (startAbsPos, endAbsPos)
+        """
+        start, end = self.selection()
+        return (self._toAbsPosition(*start), self._toAbsPosition(*end))
 
     def goTo(self, line, column, selectionLength=None):
         """Go to specified line and column. Select text if necessary
@@ -796,6 +783,23 @@ class Editor(AbstractTextEditor):
         """
         return self.qscintilla.lines()
 
+    def _toAbsPosition(self, line, col):
+        """Convert (line, column) to absolute position
+        """
+        line -= 1
+        return self.qscintilla.positionFromLineIndex(line, col)
+    
+    def _toLineCol(self, absPosition):
+        """Convert absolute position to (line, column)
+        """
+        line, col = self.qscintilla.lineIndexFromPosition(absPosition)
+        line += 1
+        return (line, col)
+    
+    #
+    # Public methods for editorshortcuts
+    #
+    
     def toggleBookmark(self):
         """Set or clear bookmark on the line
         """
