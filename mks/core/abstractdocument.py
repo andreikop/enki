@@ -97,15 +97,11 @@ class AbstractDocument(QWidget):
 
     def _setModified(self, value):
         """Set modified state for the file. Called by AbstractDocument
-        
-        To be implemented by child class
         """
         pass
 
     def isModified(self):
         """Returns True, if file is modified
-        
-        To be implemented by child class
         """
         pass
 
@@ -265,6 +261,153 @@ class AbstractTextEditor(AbstractDocument):
         AbstractDocument.__init__(self, parentObject, filePath, createNew)
         self._highlightingLanguage = None
     
+    def eolMode(self):
+        """Return document's EOL mode. Possible values are:
+        
+        * ``\\n``  - UNIX EOL
+        * ``\\r\\n`` - Windows EOL
+        * ``\\r`` - Mac EOL
+        * ``None`` - not defined for the editor type
+        """
+        return None
+    
+    def setEolMode(self, mode):
+        """Set editor EOL mode.
+        See eolMode() for a alowed mode values
+        """
+        pass
+    
+    def indentWidth(self):
+        """Get width of tabulation symbol and count of spaces to insert, when Tab pressed
+        """
+        pass
+    
+    def setIndentWidth(self, width):
+        """Set width of tabulation symbol and count of spaces to insert, when Tab pressed
+        """
+        pass
+    
+    def indentUseTabs(self):
+        """Get indentation uses tabs flag.
+        If true - \t inserted by Tab button, if false - spaces
+        """
+        pass
+    
+    def setIndentUseTabs(self, use):
+        """Set indentation uses tabs flag.
+        If true - \t inserted by Tab button, if false - spaces
+        """
+        pass
+
+    def highlightingLanguage(self):
+        """Get programming language of the file.
+        
+        See list of supported programming languages in the settings
+        """
+        return self._highlightingLanguage
+
+    def setHighlightingLanguage(self, language):
+        """Set programming language of the file.
+        
+        Called Only by :class:`mks.plugins.associations.Associations` to select syntax highlighting language.
+        """
+        self._highlightingLanguage = language
+
+    def text(self):
+        """Contents of the editor.
+        
+        For convenience, lines are always separated with *\\\\n*, even if text has another line separator.
+        See *eolMode()* for original separator
+        """
+        pass
+    
+    def setText(self, text):
+        """Set contents in the editor.
+        Usually this method is called only internally by openFile()
+        """
+        pass
+
+    def selectedText(self):
+        """Get selected text
+        """
+        pass
+    
+    def selection(self):
+        """Get coordinates of selected area as ((startLine, startCol), (endLine, endCol))
+        """
+        pass
+
+    def absSelection(self):
+        """Get coordinates of selected area as (startAbsPos, endAbsPos)
+        """
+        pass
+
+    def cursorPosition(self):
+        """Return cursor position as tuple (line, column)
+        """
+        pass
+    
+    def absCursorPosition(self):
+        """Returns cursor position as offset from the very first symbol
+        """
+        line, col = self.cursorPosition()
+        return self._toAbsPosition(line, col)
+    
+    def setCursorPosition(self, absPos=None, line=None, col=None):
+        """Set cursor position.
+        Examples: ::
+        
+            document.setCursorPosition(line=7)
+            document.setCursorPosition(line=7, col=9)
+            document.setCursorPosition(absPos=3)
+        
+        Implementation must implement _setCursorPosition(line, col)
+        """
+        assert line is not None or absPos is not None
+        
+        if line is not None:
+            assert absPos is None
+            if col is None:
+                col = 0
+        else:
+            assert line is None and col is None
+            line, col = self._toLineCol(absPos)
+        self._setCursorPosition(line, col)
+
+    def replaceSelectedText(self, text):
+        """Replace selected text with text
+        """
+        pass
+
+    def invokeGoTo(self):
+        """Show GUI dialog, go to line, if user accepted it
+        """
+        line = self.cursorPosition()[0]
+        gotoLine, accepted = QInputDialog.getInteger(self, self.tr( "Go To Line..." ),
+                                                      self.tr( "Enter the line you want to go:" ), 
+                                                      line, 1, self.lineCount(), 1)
+        
+        if accepted:
+            self.goTo(gotoLine, 0)
+    
+    def goTo(self, line, column, selectionLength = None ):
+        """Go to specified line and column.
+        If selectionLength is not None, select selectionLength characters
+        """
+        pass
+    
+    def line(self, index):
+        """Get line of the text by its index. Lines are indexed from 0.
+        
+        None, if index is invalid
+        """
+        pass
+    
+    def lineCount(self):
+        """Get line count
+        """
+        pass
+
     def _toAbsPosition(self, line, col):
         """Convert (line, column) to absolute position
         """
@@ -315,179 +458,6 @@ class AbstractTextEditor(AbstractDocument):
                 self._setModified(True)
             
             self.setEolMode(default)
-
-    def text(self):
-        """Contents of the editor.
-        
-        For convenience, lines are always separated with *\\\\n*, even if text has another line separator.
-        See *eolMode()* for original separator
-        
-        To be implemented by child class
-        """
-        pass
-    
-    def setText(self, text):
-        """Set contents in the editor.
-        Usually this method is called only internally by openFile()
-        
-        To be implemented by child class
-        """
-        pass
-
-    def selectedText(self):
-        """Get selected text
-        
-        To be implemented by child class
-        """
-        pass
-    
-    def selection(self):
-        """Get coordinates of selected area as ((startLine, startCol), (endLine, endCol))
-        """
-        pass
-
-    def absSelection(self):
-        """Get coordinates of selected area as (startAbsPos, endAbsPos)
-        """
-        pass
-
-    def eolMode(self):
-        """Return document's EOL mode. Possible values are:
-        
-        * ``\\n``  - UNIX EOL
-        * ``\\r\\n`` - Windows EOL
-        * ``\\r`` - Mac EOL
-        * ``None`` - not defined for the editor type
-        
-        To be implemented by child class
-        """
-        return None
-    
-    def setEolMode(self, mode):
-        """Set editor EOL mode.
-        See eolMode() for a alowed mode values
-        
-        To be implemented by child class
-        """
-        pass
-    
-    def indentWidth(self):
-        """Get width of tabulation symbol and count of spaces to insert, when Tab pressed
-        
-        To be implemented by child class
-        """
-        pass
-    
-    def setIndentWidth(self, width):
-        """Set width of tabulation symbol and count of spaces to insert, when Tab pressed
-        
-        To be implemented by child class
-        """
-        pass
-    
-    def indentUseTabs(self):
-        """Get indentation uses tabs flag.
-        If true - \t inserted by Tab button, if false - spaces
-        
-        To be implemented by child class
-        """
-        pass
-    
-    def setIndentUseTabs(self, use):
-        """Set indentation uses tabs flag.
-        If true - \t inserted by Tab button, if false - spaces
-        
-        To be implemented by child class
-        """
-        pass
-
-    def highlightingLanguage(self):
-        """Get programming language of the file.
-        
-        See list of supported programming languages in the settings
-        """
-        return self._highlightingLanguage
-
-    def setHighlightingLanguage(self, language):
-        """Set programming language of the file.
-        
-        Called Only by :class:`mks.plugins.associations.Associations` to select syntax highlighting language.
-        
-        To be implemented by child class. Implementation must call AbstractDocument method
-        """
-        self._highlightingLanguage = language
-
-    def cursorPosition(self):
-        """Return cursor position as tuple (line, column)
-        
-        To be implemented by child class
-        """
-        pass
-    
-    def absCursorPosition(self):
-        """Returns cursor position as offset from the very first symbol
-        """
-        line, col = self.cursorPosition()
-        return self._toAbsPosition(line, col)
-    
-    def setCursorPosition(self, absPos=None, line=None, col=None):
-        """Set cursor position.
-        Examples: ::
-        
-            document.setCursorPosition(line=7)
-            document.setCursorPosition(line=7, col=9)
-            document.setCursorPosition(absPos=3)
-        
-        Implementation must implement _setCursorPosition(line, col)
-        """
-        assert line is not None or absPos is not None
-        
-        if line is not None:
-            assert absPos is None
-            if col is None:
-                col = 0
-        else:
-            assert line is None and col is None
-            line, col = self._toLineCol(absPos)
-        self._setCursorPosition(line, col)
-
-    def replaceSelectedText(self, text):
-        """Replace selected text with text
-        """
-        pass
-
-    def invokeGoTo(self):
-        """Show GUI dialog, go to line, if user accepted it
-        """
-        line = self.cursorPosition()[0]
-        gotoLine, accepted = QInputDialog.getInteger(self, self.tr( "Go To Line..." ),
-                                                      self.tr( "Enter the line you want to go:" ), 
-                                                      line, 1, self.lineCount(), 1)
-        
-        if accepted:
-            self.goTo(gotoLine, 0)
-    
-    def goTo(self, line, column, selectionLength = None ):
-        """Go to specified line and column.
-        If selectionLength is not None, select selectionLength characters
-        
-        To be implemented by child class
-        """
-        pass
-    
-    def line(self, index):
-        """Get line of the text by its index. Lines are indexed from 0.
-        
-        None, if index is invalid
-        
-        To be implemented by child class
-        """
-        pass
-    
-    def lineCount(self):
-        """Get line count
-        """
-        pass
 
 
 #    TODO restore or delete old code
