@@ -341,7 +341,7 @@ class AbstractTextEditor(AbstractDocument):
         """Get coordinates of selected area as (startAbsPos, endAbsPos)
         """
         pass
-
+    
     def cursorPosition(self):
         """Return cursor position as tuple (line, column)
         """
@@ -374,6 +374,41 @@ class AbstractTextEditor(AbstractDocument):
             line, col = self._toLineCol(absPos)
         self._setCursorPosition(line, col)
 
+    def goTo(self, absPos=None, line=None, col=None, selectionLength = None, grabFocus = False):
+        """Go to specified line and column.
+        If selectionLength is not None, select selectionLength characters
+        
+        Examples: ::
+        
+            document.goTo(line=7)
+            document.goTo(line=7, col=9)
+            document.goTo(absPos=3)
+            document.goTo(line=7, col=5, selectionLength=8)  # Selection from line 7 col 5 to line 7 col 13
+                                                             # Cursor is in line 7 col 5
+                                                             # (If line 7 is >= 13 symbols) 
+            document.goTo(line=7, col=5, selectionLength=-3)  # Selection from line 7 col 2 to line 7 col 5.
+                                                              # Cursor at line 7 col 5
+        """
+        if line is not None:
+            assert absPos is None
+            if col is None:
+                col = 0
+        else:
+            assert line is None and col is None
+            line, col = self._toLineCol(absPos)
+
+        selLine = None
+        selCol = None
+        if selectionLength is not None:
+            if absPos is None:
+                absPos = self._toAbsPosition(line, col)
+            selAbsPos = absPos + selectionLength
+            selLine, selCol = self._toLineCol(selAbsPos)
+        self._goTo(line, col, selLine, selCol)
+        
+        if grabFocus:
+            self.setFocus()
+
     def replaceSelectedText(self, text):
         """Replace selected text with text
         """
@@ -402,14 +437,8 @@ class AbstractTextEditor(AbstractDocument):
                                                       line, 1, self.lineCount(), 1)
         
         if accepted:
-            self.goTo(gotoLine, 0)
-    
-    def goTo(self, line, column, selectionLength = None ):
-        """Go to specified line and column.
-        If selectionLength is not None, select selectionLength characters
-        """
-        pass
-    
+            self.goTo(line = gotoLine, grabFocus = True)
+        
     def line(self, index):
         """Get line of the text by its index. Lines are indexed from 0.
         

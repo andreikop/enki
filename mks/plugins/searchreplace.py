@@ -585,12 +585,9 @@ class SearchWidget(QFrame):
         """Do search in file operation. Will select next found item
         """
         document = core.workspace().currentDocument()
-        editor = document.qscintilla  # FIXME current editor specific, 
 
-        # get cursor position
-        isCS = not(self.searchContext.regExp.flags & re.IGNORECASE)
-        
-        start, end = document.selection()
+        # get cursor position        
+        start, end = document.absSelection()
         if  forward :
             if  incremental :
                 point = start
@@ -602,19 +599,16 @@ class SearchWidget(QFrame):
             else:
                 point = start
         
-        # search
-        found = editor.findFirst(self.searchContext.regExp.pattern,
-                                 True, isCS, False, enableWrap, forward,
-                                 point[0] - 1, point[1], True)
-
-        # change background acording to found or not
-        if found:
-            self.setState(SearchWidget.Good)
+        # TODO support reverse
+        match = self.searchContext.regExp.search(document.text(), point)
+        if match is not None:
+            document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
+            self.setState(SearchWidget.Good)  # change background acording to result
         else:
             self.setState(SearchWidget.Bad)
         
         # return found state
-        return found
+        return match is not None
 
     def replaceFile(self, replaceAll ):
         """Do one or all replacements in the file

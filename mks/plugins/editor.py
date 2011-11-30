@@ -773,15 +773,19 @@ class Editor(AbstractTextEditor):
         """
         self.qscintilla.endUndoAction()
 
-    def goTo(self, line, column, selectionLength=None):
+    def _goTo(self, line, column, selectionLine = None, selectionCol = None):
         """Go to specified line and column. Select text if necessary
         """
         line -= 1
-        self.qscintilla.setCursorPosition(line, column)
-        if selectionLength is not None:
-            self.qscintilla.setSelection(line, column, line, column + selectionLength)
+        if selectionLine is not None:
+            selectionLine -= 1
+
+        if selectionLine is None:
+            self.qscintilla.setCursorPosition(line, column)
+        else:
+            self.qscintilla.setSelection(selectionLine, selectionCol,
+                                         line, column)
         self.qscintilla.ensureLineVisible(line)
-        self.qscintilla.setFocus()
 
     def line(self, index):
         """Get line of the text by its index. Lines are indexed from 0
@@ -931,57 +935,6 @@ class Plugin:
 #        self.print_(True)
 
 #class _pEditor(QsciScintilla):
-#    
-#        self._pixSize = QSize(16, 16)
-#        # register image for bookmarks
-#        self.markerDefine(QPixmap(":/editor/bookmark.png").scaled(self._pixSize), mdBookmark)
-#        
-#        # Create shortcuts manager, not created
-#        qSciShortcutsManager.instance()
-#    
-#    def findFirst(self, expr, re, cs, wo, wrap, forward, line, index, show):
-#    #if USE_QSCINTILLA_SEARCH_ENGINE == 1
-#        return QsciScintilla.findFirst(expr, re, cs, wo, wrap, forward, line, index, show)
-#    #else:
-#        mSearchState.inProgress = False
-
-#        if  expr.isEmpty() :        return False
-
-#
-#        mSearchState.expr = expr
-#        mSearchState.wrap = wrap
-#        mSearchState.forward = forward
-
-#        mSearchState.flags = (cs ? SCFIND_MATCHCASE : 0) | (wo ? SCFIND_WHOLEWORD : 0) | (re ? SCFIND_REGEXP : 0)
-
-#        if  line < 0 or index < 0 :        mSearchState.startpos = SendScintilla(SCI_GETCURRENTPOS)
-
-#        else:
-#            mSearchState.startpos = positionFromLineIndex(line, index)
-
-#
-#        if  forward :        mSearchState.endpos = SendScintilla(SCI_GETLENGTH)
-
-#        else:
-#            mSearchState.endpos = 0
-
-#
-#        mSearchState.show = show
-
-#        return search()
-#    #endif
-
-#
-#    def findNext(self):
-#    #if USE_QSCINTILLA_SEARCH_ENGINE == 1
-#        return QsciScintilla.findNext()
-#    #else:
-#        if  not mSearchState.inProgress :        return False
-
-#
-#        return search()
-#    #endif
-
 #
 #    def replace(self, replaceStr):
 #    #if USE_QSCINTILLA_SEARCH_ENGINE == 1
@@ -1032,94 +985,3 @@ class Plugin:
 #        if  mSearchState.forward :        mSearchState.startpos = start +len
 
 #    #endif
-
-#    def search(self):
-#        SendScintilla(SCI_SETSEARCHFLAGS, mSearchState.flags)
-
-#        pos = simpleSearch()
-
-#        # See if it was found.  If not and wraparound is wanted, again.
-#        if  pos == -1 and mSearchState.wrap :        if  mSearchState.forward :            mSearchState.startpos = 0
-#                mSearchState.endpos = SendScintilla(SCI_GETLENGTH)
-
-#            else:
-#                mSearchState.startpos = SendScintilla(SCI_GETLENGTH)
-#                mSearchState.endpos = 0
-
-#
-#            pos = simpleSearch()
-
-#
-#        if  pos == -1 :        mSearchState.inProgress = False
-#            return False
-
-#
-#        # It was found.
-#        targstart = SendScintilla(SCI_GETTARGETSTART)
-#        targend = SendScintilla(SCI_GETTARGETEND)
-
-#        # Ensure the text found is visible if required.
-#        if  mSearchState.show :        startLine = SendScintilla(SCI_LINEFROMPOSITION, targstart)
-#            endLine = SendScintilla(SCI_LINEFROMPOSITION, targend)
-
-#            for (i = startLine; i <= endLine; ++i)            SendScintilla(SCI_ENSUREVISIBLEENFORCEPOLICY, i)
-
-#
-
-#        # Now set the selection.
-#        SendScintilla(SCI_SETSEL, targstart, targend)
-
-#        # Finally adjust the start position so that we don't find the same one
-#        # again.
-#        if  mSearchState.forward :        mSearchState.startpos = targend
-
-#        elif  (mSearchState.startpos = targstart -1) < 0 :        mSearchState.startpos = 0
-
-#
-#        mSearchState.inProgress = True
-#        return True
-
-#
-#    def simpleSearch(self):
-#        if  mSearchState.startpos == mSearchState.endpos :        return -1
-
-#
-#        SendScintilla(SCI_SETTARGETSTART, mSearchState.startpos)
-#        SendScintilla(SCI_SETTARGETEND, mSearchState.endpos)
-#        
-#            isCS = mSearchState.flags & SCFIND_MATCHCASE
-#            isWW = mSearchState.flags & SCFIND_WHOLEWORD
-#            isRE = mSearchState.flags & SCFIND_REGEXP
-#            from = qMin(mSearchState.startpos, mSearchState.endpos)
-#            to = qMax(mSearchState.startpos, mSearchState.endpos)
-#            # scintilla position are from qbytearray size, non ascii letter are 2 or more bits.
-#            data = self.text().toUtf8().mid(from, to -from); 
-#            text = QString.fromUtf8(data)
-#            pattern = isRE ? mSearchState.expr : QRegExp.escape(mSearchState.expr)
-#            rx = mSearchState.rx
-#            
-#            if  isWW :        pattern.prepend("\\b").append("\\b")
-
-#        
-#        rx.setMinimal(True)
-#        rx.setPattern(pattern)
-#        rx.setCaseSensitivity(isCS ? Qt.CaseSensitive : Qt.CaseInsensitive)
-#        
-#        pos = mSearchState.forward ? rx.indexIn(text, from -from) : rx.lastIndexIn(text, to -from)
-#        
-#        if  pos != -1 :         start = from +text.left(pos).toUtf8().length()
-#                end = start +text.mid(pos, rx.matchedLength()).toUtf8().length()
-#                SendScintilla(SCI_SETTARGETSTART, start)
-#                SendScintilla(SCI_SETTARGETEND, end)
-
-#        
-#        return pos
-
-#    def currentLineText(self):
-#        int line
-#        int index
-#        
-#        getCursorPosition(&line, &index)
-#        
-#        return text(line)
-#    """
