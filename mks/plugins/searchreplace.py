@@ -600,7 +600,16 @@ class SearchWidget(QFrame):
                 point = start
         
         # TODO support reverse
-        match = self.searchContext.regExp.search(document.text(), point)
+        if forward:
+            match = self.searchContext.regExp.search(document.text(), point)
+        else:  # reverse search
+            prevMatch = None
+            for match in self.searchContext.regExp.finditer(document.text()):
+                if match.start() >= point:
+                    break
+                prevMatch = match
+            match = prevMatch
+        
         if match is not None:
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
             self.setState(SearchWidget.Good)  # change background acording to result
