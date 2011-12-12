@@ -599,9 +599,10 @@ class SearchWidget(QFrame):
             else:
                 point = start
         
-        # TODO support reverse
         if forward:
             match = self.searchContext.regExp.search(document.text(), point)
+            if match is None and enableWrap:
+                match = self.searchContext.regExp.search(document.text(), 0)
         else:  # reverse search
             prevMatch = None
             for match in self.searchContext.regExp.finditer(document.text()):
@@ -609,6 +610,10 @@ class SearchWidget(QFrame):
                     break
                 prevMatch = match
             match = prevMatch
+            if match is None and enableWrap:
+                matches = [match for match in self.searchContext.regExp.finditer(document.text())]
+                if matches:
+                    match = matches[-1]
         
         if match is not None:
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
