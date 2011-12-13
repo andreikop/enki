@@ -26,7 +26,7 @@ from PyQt4.fresh import pDockWidget
 
 from mks.core.core import core, DATA_FILES_PATH
 
-def isBinary(fileObject):
+def _isBinary(fileObject):
     """Expects, that file position is 0, when exits, file position is 0
     """
     binary = '\0' in fileObject.read( 4096 )
@@ -581,36 +581,35 @@ class SearchWidget(QFrame):
         pal.setColor( widget.backgroundRole(), color[state] )
         widget.setPalette( pal )
     
-    def searchFile(self, forward, incremental, enableWrap=True):
+    def searchFile(self, forward, incremental = False):
         """Do search in file operation. Will select next found item
         """
         document = core.workspace().currentDocument()
 
         # get cursor position        
         start, end = document.absSelection()
-        if  forward :
+        
+        if start is None:
+            start = 0
+            end = 0
+        
+        if forward:
             if  incremental :
                 point = start
             else:
                 point = end
-        else:
-            if  incremental:
-                point = end
-            else:
-                point = start
-        
-        if forward:
+
             match = self.searchContext.regExp.search(document.text(), point)
-            if match is None and enableWrap:
+            if match is None:  # wrap
                 match = self.searchContext.regExp.search(document.text(), 0)
         else:  # reverse search
             prevMatch = None
             for match in self.searchContext.regExp.finditer(document.text()):
-                if match.start() >= point:
+                if match.start() >= start:
                     break
                 prevMatch = match
             match = prevMatch
-            if match is None and enableWrap:
+            if match is None:  # wrap
                 matches = [match for match in self.searchContext.regExp.finditer(document.text())]
                 if matches:
                     match = matches[-1]
@@ -624,33 +623,53 @@ class SearchWidget(QFrame):
         # return found state
         return match is not None
 
-    def replaceFile(self, replaceAll ):
-        """Do one or all replacements in the file
+    def replaceFile(self):
+        """Do one replacement in the file
         """
         document = core.workspace().currentDocument()
 
-        if  replaceAll:
-            line, col = document.cursorPosition()
-            document.setCursorPosition(absPos = 0)
-
-            document.beginUndoAction()
-            count = 0
-            while ( self.searchFile( True, False, False ) ): # search next
-                document.replaceSelectedText( self.searchContext.replaceText )
-                count += 1
-            document.endUndoAction()
-            
-            document.setCursorPosition(line=line, col=col) # restore cursor position
-            self.showMessage( self.tr( "%d occurrence(s) replaced." % count ))
+        start, end = document.absSelection()  # pylint: disable=W0612
+        if start is None:
+            start = 0
+        
+        match = self.searchContext.regExp.search(document.text(), start)
+        
+        if match is None:
+            match = self.searchContext.regExp.search(document.text(), 0)
+        
+        if match is not None:
+            document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
+            replText = self.searchContext.regExp.sub(self.searchContext.replaceText, match.group(0))
+            document.replaceSelectedText(replText)
+            self.pbNext.click() # move selection to next item
         else:
-            start, end = document.absSelection()  # pylint: disable=W0612
-            document.setCursorPosition(absPos = start)
+            self.setState(SearchWidget.Bad)
 
-            if  self.searchFile( True, False ) :
-                document.replaceSelectedText(self.searchContext.replaceText)
-                self.pbNext.click() # move selection to next item
+    def replaceFileAll(self):
+        """Do all replacements in the file
+        """
+        document = core.workspace().currentDocument()
 
-        return True
+        oldPos = document.absCursorPosition()
+        
+        document.beginUndoAction()
+        
+        pos = 0
+        count = 0
+        match = self.searchContext.regExp.search(document.text(), pos)
+        while match is not None:
+            document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
+            replText = self.searchContext.regExp.sub(self.searchContext.replaceText, match.group(0))
+            document.replaceSelectedText(replText)
+            pos = match.start() + len(replText)
+            
+            match = self.searchContext.regExp.search(document.text(), pos)
+            count += 1
+        document.endUndoAction()
+        
+        if oldPos is not None:
+            document.setCursorPosition(absPos = oldPos) # restore cursor position
+        self.showMessage( self.tr( "%d occurrence(s) replaced." % count ))
 
     def searchThread_stateChanged(self):
         """Search thread started or stopped
@@ -685,7 +704,6 @@ class SearchWidget(QFrame):
         editor.removeSelectedText()
         editor.insert( content )
         document.endUndoAction()
-
 
     def replaceThread_error(self, error ):
         """Error message from the replace thread
@@ -735,7 +753,7 @@ class SearchWidget(QFrame):
         """Handler of click on "Previous" button
         """
         self.updateComboBoxes()
-        self.searchFile( False, False )
+        self.searchFile( False )
 
     def on_pbNext_pressed(self):
         """Handler of click on "Next" button
@@ -767,13 +785,13 @@ class SearchWidget(QFrame):
         """Handler of click on "Replace" (in file) button
         """
         self.updateComboBoxes()
-        self.replaceFile( False )
+        self.replaceFile()
 
     def on_pbReplaceAll_pressed(self):
         """Handler of click on "Replace all" (in file) button
         """
         self.updateComboBoxes()
-        self.replaceFile( True )
+        self.replaceFileAll()
 
     def on_pbReplaceChecked_pressed(self):
         """Handler of click on "Replace checked" (in directory) button
@@ -1236,7 +1254,7 @@ class SearchThread(StopableThread):
 
         try:
             with open(fileName) as openedFile:
-                if  isBinary(openedFile):
+                if  _isBinary(openedFile):
                     return ''
                 return unicode(openedFile.read(), encoding, errors = 'ignore')
         except IOError as ex:

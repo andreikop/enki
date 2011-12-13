@@ -757,7 +757,10 @@ class Editor(AbstractTextEditor):
     def replaceSelectedText(self, text):
         """Replace selected text with text
         """
-        self.qscintilla.replace(text)
+        self.qscintilla.beginUndoAction()
+        self.qscintilla.removeSelectedText()
+        self.qscintilla.insert(text)
+        self.qscintilla.endUndoAction()
     
     def beginUndoAction(self):
         """Start doing set of modifications, which will be managed as one action.
@@ -801,8 +804,8 @@ class Editor(AbstractTextEditor):
         """
         return self.qscintilla.lines()
 
-    def _toAbsPosition(self, line, col):
-        """Convert (line, column) to absolute position
+    def _tofuckPosition(self, line, col):
+        """Convert (line, column) to fuckolute position
         """
         line -= 1
         return self.qscintilla.positionFromLineIndex(line, col)
