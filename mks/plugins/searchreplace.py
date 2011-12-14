@@ -11,6 +11,7 @@ import time
 import pkgutil
 import encodings
 import fnmatch
+import logging
 
 from PyQt4 import uic
 from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QDir, QEvent, \
@@ -140,7 +141,6 @@ class Plugin(QObject):
         
         newMode = self.sender().data().toInt()[0]
         if newMode & Plugin.ModeFlagFile:
-            # TODO check if editor is a QScintilla
             self.widget.setMode(newMode)
         elif newMode & Plugin.ModeFlagDirectory:
             self.widget.setMode(newMode)
@@ -1399,30 +1399,22 @@ class ReplaceThread(StopableThread):
         """
         startTime = time.clock()
         
-        subMatchRex = re.compile( r"\\(\d+)" )
-        
         for fileName in self._results.keys():
             handledResults = []
             content = self._fileContent( fileName, self.searchContext.encoding )
             
             # count from end to begin because we are replacing by offset in content
             for result in self._results[ fileName ][::-1]:
-                replaceText = self.searchContext.replaceText
-                # replace \number with groups
-                replaceText = self.searchContext.replaceText
-                pos = 0
-                match = subMatchRex.search(replaceText)
-                while match:
-                    index = int(match.group(1))
-                    if index in range(1, len(result.match.groups()) + 1):
-                        replaceText = replaceText[:pos + match.start()] + \
-                                      result.match.groups()[index - 1] + \
-                                      replaceText[pos + match.start() + len(match.group(0)):]
-                    pos += (match.start() + len(result.match.groups()[index - 1]))
-                    match = subMatchRex.search(replaceText[pos:])
-                
-                # replace text
-                content = content[:result.match.start()] + replaceText + content[result.match.end():]
+                try:
+                    replaceTextWithMatches = self.searchContext.regExp.sub(self.searchContext.replaceText, result.match.group(0))
+                except re.error, ex:
+                    message = unicode(ex.message, 'utf_8')
+                    message += r'. Probably <i>\group_index</i> used in replacement string, but such group not found. '\
+                                 'Try to escape it: <i>\\group_index</i>'
+                    logging.error(message)
+                    core.messageManager().appendMessage(message)
+                    return
+                content = content[:result.match.start()] + replaceTextWithMatches + content[result.match.end():]
                 handledResults.append(result)
             
             if fileName in self.searchContext.openedFiles:
