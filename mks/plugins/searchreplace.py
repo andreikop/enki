@@ -1410,9 +1410,9 @@ class ReplaceThread(StopableThread):
                 except re.error, ex:
                     message = unicode(ex.message, 'utf_8')
                     message += r'. Probably <i>\group_index</i> used in replacement string, but such group not found. '\
-                                 'Try to escape it: <i>\\group_index</i>'
+                               r'Try to escape it: <i>\\group_index</i>'
                     logging.error(message)
-                    core.messageManager().appendMessage(message)
+                    self.error.emit(message)
                     return
                 content = content[:result.match.start()] + replaceTextWithMatches + content[result.match.end():]
                 handledResults.append(result)
