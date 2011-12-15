@@ -184,7 +184,10 @@ class AbstractDocument(QWidget):
             converter = { r'\r\n': '\r\n',
                           r'\r'  : '\r',
                           r'\n'  : '\n'}
-            lines = self.text().splitlines()
+            text = self.text()
+            lines = text.splitlines()
+            if text.endswith('\n'):
+                lines.append('\n')
             eol = converter[self.eolMode()]
             text = eol.join(lines)
             openedFile.write(text.encode('utf8'))
@@ -528,4 +531,3 @@ class AbstractTextEditor(AbstractDocument):
 #    
 #    def quickPrintFile(self):
 #    #    pass
-

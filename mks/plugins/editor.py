@@ -717,7 +717,11 @@ class Editor(AbstractTextEditor):
     def text(self):
         """Contents of the editor
         """
-        return '\n'.join(self.qscintilla.text().splitlines())
+        text = self.qscintilla.text()
+        lines = text.splitlines()
+        if text.endswith('\r') or text.endswith('\n'):
+               lines.append('')
+        return '\n'.join(lines)
     
     def setText(self, text):
         """Set text in the QScintilla, clear modified flag, update line numbers bar
@@ -936,3 +940,4 @@ class Plugin:
 
 #    def quickPrintFile(self):
 #        self.print_(True)
+
