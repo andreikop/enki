@@ -20,6 +20,7 @@ from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QDir, QEvent, \
                          QThread, QVariant
 from PyQt4.QtGui import QAction, QCompleter, QDirModel, QFileDialog,  \
                         QFrame, QFileDialog, QHBoxLayout, QIcon, \
+                        QMessageBox, \
                         QPainter,  \
                         QPalette, \
                         QProgressBar, QToolButton, QTreeView, QWidget
@@ -639,7 +640,15 @@ class SearchWidget(QFrame):
         
         if match is not None:
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
-            replText = self.searchContext.regExp.sub(self.searchContext.replaceText, match.group(0))
+            try:
+                replText = self.searchContext.regExp.sub(self.searchContext.replaceText, match.group(0))
+            except re.error, ex:
+                message = unicode(ex.message, 'utf_8')
+                message += r'. Probably <i>\group_index</i> used in replacement string, but such group not found. '\
+                           r'Try to escape it: <i>\\group_index</i>'
+                QMessageBox.critical(None, "Invalid replace string", message)
+                # TODO link to replace help
+                return
             document.replaceSelectedText(replText)
             self.pbNext.click() # move selection to next item
         else:
