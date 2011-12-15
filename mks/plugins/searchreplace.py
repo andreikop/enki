@@ -11,7 +11,6 @@ import time
 import pkgutil
 import encodings
 import fnmatch
-import logging
 
 from PyQt4 import uic
 from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QDir, QEvent, \
@@ -1420,7 +1419,6 @@ class ReplaceThread(StopableThread):
                     message = unicode(ex.message, 'utf_8')
                     message += r'. Probably <i>\group_index</i> used in replacement string, but such group not found. '\
                                r'Try to escape it: <i>\\group_index</i>'
-                    logging.error(message)
                     self.error.emit(message)
                     return
                 content = content[:result.match.start()] + replaceTextWithMatches + content[result.match.end():]
