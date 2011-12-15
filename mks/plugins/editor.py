@@ -804,7 +804,7 @@ class Editor(AbstractTextEditor):
         """
         return self.qscintilla.lines()
 
-    def _tofuckPosition(self, line, col):
+    def _toAbsPosition(self, line, col):
         """Convert (line, column) to fuckolute position
         """
         line -= 1
