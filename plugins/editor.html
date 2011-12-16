@@ -12,7 +12,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.4',
+        VERSION:     '0.1.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -116,18 +116,6 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="mks.plugins.editor.Editor.text">
-<tt class="descname">text</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.text" title="Permalink to this definition">¶</a></dt>
-<dd><p>Contents of the editor</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.setText">
-<tt class="descname">setText</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.setText" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set text in the QScintilla, clear modified flag, update line numbers bar</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="mks.plugins.editor.Editor.eolMode">
 <tt class="descname">eolMode</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.eolMode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Line end mode of the file</p>
@@ -171,9 +159,60 @@ Called Only by <a class="reference internal" href="associations.html#module-mks.
 </dd></dl>
 
 <dl class="method">
-<dt id="mks.plugins.editor.Editor.goTo">
-<tt class="descname">goTo</tt><big>(</big><em>line</em>, <em>column</em>, <em>selectionLength=-1</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.goTo" title="Permalink to this definition">¶</a></dt>
-<dd><p>Go to specified line and column. Select text if necessary</p>
+<dt id="mks.plugins.editor.Editor.text">
+<tt class="descname">text</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contents of the editor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.editor.Editor.setText">
+<tt class="descname">setText</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.setText" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set text in the QScintilla, clear modified flag, update line numbers bar</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.editor.Editor.selectedText">
+<tt class="descname">selectedText</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.selectedText" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get selected text</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.editor.Editor.selection">
+<tt class="descname">selection</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.selection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get coordinates of selected area as ((startLine, startCol), (endLine, endCol))</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.editor.Editor.absSelection">
+<tt class="descname">absSelection</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.absSelection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get coordinates of selected area as (startAbsPos, endAbsPos)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.editor.Editor.cursorPosition">
+<tt class="descname">cursorPosition</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.cursorPosition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get cursor position as tuple (line, col)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.editor.Editor.replaceSelectedText">
+<tt class="descname">replaceSelectedText</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.replaceSelectedText" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace selected text with text</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.editor.Editor.beginUndoAction">
+<tt class="descname">beginUndoAction</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.beginUndoAction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start doing set of modifications, which will be managed as one action.
+User can Undo and Redo all modifications with one action</p>
+<p>DO NOT FORGET to call <strong>endUndoAction()</strong> after you have finished</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.editor.Editor.endUndoAction">
+<tt class="descname">endUndoAction</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.endUndoAction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finish doing set of modifications, which will be managed as one action.
+User can Undo and Redo all modifications with one action</p>
 </dd></dl>
 
 <dl class="method">
@@ -184,9 +223,9 @@ None, if index is invalid</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mks.plugins.editor.Editor.cursorPosition">
-<tt class="descname">cursorPosition</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.cursorPosition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get cursor position as touple (line, col)</p>
+<dt id="mks.plugins.editor.Editor.lineCount">
+<tt class="descname">lineCount</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.lineCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get line count</p>
 </dd></dl>
 
 <dl class="method">

@@ -12,7 +12,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.4',
+        VERSION:     '0.1.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -63,11 +63,15 @@ DO redesign instead of doing dirty hacks</p>
 Bool parameter contains new value</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="mks.core.abstractdocument.AbstractDocument.documentDataChanged">
+<tt class="descname">documentDataChanged</tt><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.documentDataChanged" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="mks.core.abstractdocument.AbstractDocument.isModified">
 <tt class="descname">isModified</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.isModified" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True, if file is modified</p>
-<p>To be implemented by child class</p>
 </dd></dl>
 
 <dl class="method">
@@ -139,23 +143,8 @@ for update internal bookkeeping</p>
 <dl class="attribute">
 <dt id="mks.core.abstractdocument.AbstractTextEditor.cursorPositionChanged">
 <tt class="descname">cursorPositionChanged</tt><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.cursorPositionChanged" title="Permalink to this definition">¶</a></dt>
-<dd><p>modifiedChanged(line, column)</p>
+<dd><p>cursorPositionChanged(line, column)</p>
 <p><strong>Signal</strong> emitted, when cursor position has been changed</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.core.abstractdocument.AbstractTextEditor.text">
-<tt class="descname">text</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.text" title="Permalink to this definition">¶</a></dt>
-<dd><p>Contents of the editor.</p>
-<p>To be implemented by child class</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.core.abstractdocument.AbstractTextEditor.setText">
-<tt class="descname">setText</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.setText" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set contents in the editor.
-Usually this method is called only internally by openFile()</p>
-<p>To be implemented by child class</p>
 </dd></dl>
 
 <dl class="method">
@@ -165,9 +154,9 @@ Usually this method is called only internally by openFile()</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">\n</span></tt>  - UNIX EOL</li>
 <li><tt class="docutils literal"><span class="pre">\r\n</span></tt> - Windows EOL</li>
+<li><tt class="docutils literal"><span class="pre">\r</span></tt> - Mac EOL</li>
 <li><tt class="xref docutils literal"><span class="pre">None</span></tt> - not defined for the editor type</li>
 </ul>
-<p>To be implemented by child class</p>
 </dd></dl>
 
 <dl class="method">
@@ -175,21 +164,18 @@ Usually this method is called only internally by openFile()</p>
 <tt class="descname">setEolMode</tt><big>(</big><em>mode</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.setEolMode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set editor EOL mode.
 See eolMode() for a alowed mode values</p>
-<p>To be implemented by child class</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mks.core.abstractdocument.AbstractTextEditor.indentWidth">
 <tt class="descname">indentWidth</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.indentWidth" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get width of tabulation symbol and count of spaces to insert, when Tab pressed</p>
-<p>To be implemented by child class</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mks.core.abstractdocument.AbstractTextEditor.setIndentWidth">
 <tt class="descname">setIndentWidth</tt><big>(</big><em>width</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.setIndentWidth" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set width of tabulation symbol and count of spaces to insert, when Tab pressed</p>
-<p>To be implemented by child class</p>
 </dd></dl>
 
 <dl class="method">
@@ -197,7 +183,6 @@ See eolMode() for a alowed mode values</p>
 <tt class="descname">indentUseTabs</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.indentUseTabs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get indentation uses tabs flag.
 If true -        inserted by Tab button, if false - spaces</p>
-<p>To be implemented by child class</p>
 </dd></dl>
 
 <dl class="method">
@@ -205,7 +190,6 @@ If true -        inserted by Tab button, if false - spaces</p>
 <tt class="descname">setIndentUseTabs</tt><big>(</big><em>use</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.setIndentUseTabs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set indentation uses tabs flag.
 If true -        inserted by Tab button, if false - spaces</p>
-<p>To be implemented by child class</p>
 </dd></dl>
 
 <dl class="method">
@@ -220,15 +204,111 @@ If true -        inserted by Tab button, if false - spaces</p>
 <tt class="descname">setHighlightingLanguage</tt><big>(</big><em>language</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.setHighlightingLanguage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set programming language of the file.</p>
 <p>Called Only by <tt class="xref py py-class docutils literal"><span class="pre">mks.plugins.associations.Associations</span></tt> to select syntax highlighting language.</p>
-<p>To be implemented by child class
-Implementation must call AbstractDocument method</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.text">
+<tt class="descname">text</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contents of the editor.</p>
+<p>For convenience, lines are always separated with <em>\n</em>, even if text has another line separator.
+See <em>eolMode()</em> for original separator</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.setText">
+<tt class="descname">setText</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.setText" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set contents in the editor.
+Usually this method is called only internally by openFile()</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.selectedText">
+<tt class="descname">selectedText</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.selectedText" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get selected text</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.selection">
+<tt class="descname">selection</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.selection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get coordinates of selected area as ((startLine, startCol), (endLine, endCol))</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.absSelection">
+<tt class="descname">absSelection</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.absSelection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get coordinates of selected area as (startAbsPos, endAbsPos)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mks.core.abstractdocument.AbstractTextEditor.cursorPosition">
 <tt class="descname">cursorPosition</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.cursorPosition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return cursor position as 2 values: line and column, if available</p>
-<p>To be implemented by child class</p>
+<dd><p>Return cursor position as tuple (line, column)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.absCursorPosition">
+<tt class="descname">absCursorPosition</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.absCursorPosition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns cursor position as offset from the very first symbol</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.setCursorPosition">
+<tt class="descname">setCursorPosition</tt><big>(</big><em>absPos=None</em>, <em>line=None</em>, <em>col=None</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.setCursorPosition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set cursor position.
+Examples:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">document</span><span class="o">.</span><span class="n">setCursorPosition</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">document</span><span class="o">.</span><span class="n">setCursorPosition</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+<span class="n">document</span><span class="o">.</span><span class="n">setCursorPosition</span><span class="p">(</span><span class="n">absPos</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Implementation must implement _setCursorPosition(line, col)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.goTo">
+<tt class="descname">goTo</tt><big>(</big><em>absPos=None</em>, <em>line=None</em>, <em>col=None</em>, <em>selectionLength=None</em>, <em>grabFocus=False</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.goTo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Go to specified line and column.
+If selectionLength is not None, select selectionLength characters</p>
+<p>Examples:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">document</span><span class="o">.</span><span class="n">goTo</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">document</span><span class="o">.</span><span class="n">goTo</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+<span class="n">document</span><span class="o">.</span><span class="n">goTo</span><span class="p">(</span><span class="n">absPos</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">document</span><span class="o">.</span><span class="n">goTo</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">selectionLength</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>  <span class="c"># Selection from line 7 col 5 to line 7 col 13</span>
+                                                 <span class="c"># Cursor is in line 7 col 5</span>
+                                                 <span class="c"># (If line 7 is &gt;= 13 symbols) </span>
+<span class="n">document</span><span class="o">.</span><span class="n">goTo</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">selectionLength</span><span class="o">=-</span><span class="mi">3</span><span class="p">)</span>  <span class="c"># Selection from line 7 col 2 to line 7 col 5.</span>
+                                                  <span class="c"># Cursor at line 7 col 5</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.replaceSelectedText">
+<tt class="descname">replaceSelectedText</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.replaceSelectedText" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace selected text with text</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.replace">
+<tt class="descname">replace</tt><big>(</big><em>text</em>, <em>startAbsPos=None</em>, <em>startLine=None</em>, <em>startCol=None</em>, <em>endAbsPos=None</em>, <em>endLine=None</em>, <em>endCol=None</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.replace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace text at specified position with text.</p>
+<p>startAbsPos or (startLine and startCol) must be specified.</p>
+<p>endAbsPos or (endLine and endCol) must be specified</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.beginUndoAction">
+<tt class="descname">beginUndoAction</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.beginUndoAction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start doing set of modifications, which will be managed as one action.
+User can Undo and Redo all modifications with one action</p>
+<p>DO NOT FORGET to call <strong>endUndoAction()</strong> after you have finished</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.endUndoAction">
+<tt class="descname">endUndoAction</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.endUndoAction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finish doing set of modifications, which will be managed as one action.
+User can Undo and Redo all modifications with one action</p>
 </dd></dl>
 
 <dl class="method">
@@ -238,19 +318,16 @@ Implementation must call AbstractDocument method</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mks.core.abstractdocument.AbstractTextEditor.goTo">
-<tt class="descname">goTo</tt><big>(</big><em>line</em>, <em>column</em>, <em>selectionLength=-1</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.goTo" title="Permalink to this definition">¶</a></dt>
-<dd><p>Go to specified line and column.
-If selectionLength is not -1, select selectionLength characters</p>
-<p>To be implemented by child class</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="mks.core.abstractdocument.AbstractTextEditor.line">
 <tt class="descname">line</tt><big>(</big><em>index</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get line of the text by its index. Lines are indexed from 0.</p>
 <p>None, if index is invalid</p>
-<p>To be implemented by child class</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.lineCount">
+<tt class="descname">lineCount</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.lineCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get line count</p>
 </dd></dl>
 
 </dd></dl>

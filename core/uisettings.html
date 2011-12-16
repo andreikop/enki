@@ -12,7 +12,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.4',
+        VERSION:     '0.1.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -94,8 +94,8 @@ You may edit UISettings.ui or add your controls dynamically during dialog creati
 <dl class="class">
 <dt id="mks.core.uisettings.ModuleConfigurator">
 <em class="property">class </em><tt class="descclassname">mks.core.uisettings.</tt><tt class="descname">ModuleConfigurator</tt><big>(</big><em>dialog</em><big>)</big><a class="headerlink" href="#mks.core.uisettings.ModuleConfigurator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Interface, which must be implemented by core module or plugin, which needs to configure semself via GUI dialog.</p>
-<p>See <a class="reference internal" href="openedfilesmodel.html#mks.core.openedfilesmodel.Configurator" title="mks.core.openedfilesmodel.Configurator"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.openedfilesmodel.Configurator</span></tt></a> source for simple example of class implementation</p>
+<dd><p>Interface, which must be implemented by core module or plugin, which needs to configure themselves via GUI dialog.</p>
+<p>See <a class="reference internal" href="openedfilemodel.html#mks.core.openedfilemodel.Configurator" title="mks.core.openedfilemodel.Configurator"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.openedfilemodel.Configurator</span></tt></a> source for simple example of class implementation</p>
 <dl class="method">
 <dt id="mks.core.uisettings.ModuleConfigurator.saveSettings">
 <tt class="descname">saveSettings</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.uisettings.ModuleConfigurator.saveSettings" title="Permalink to this definition">¶</a></dt>
@@ -232,7 +232,7 @@ and can load/save the option</p>
 
 <dl class="class">
 <dt id="mks.core.uisettings.FontOption">
-<em class="property">class </em><tt class="descclassname">mks.core.uisettings.</tt><tt class="descname">FontOption</tt><big>(</big><em>dialog</em>, <em>config</em>, <em>familyOptionName</em>, <em>sizeOptionName</em>, <em>editControl</em>, <em>buttonControl</em><big>)</big><a class="headerlink" href="#mks.core.uisettings.FontOption" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">mks.core.uisettings.</tt><tt class="descname">FontOption</tt><big>(</big><em>dialog</em>, <em>config</em>, <em>familyOption</em>, <em>sizeOption</em>, <em>editControl</em>, <em>buttonControl</em><big>)</big><a class="headerlink" href="#mks.core.uisettings.FontOption" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mks.core.uisettings.Option" title="mks.core.uisettings.Option"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.uisettings.Option</span></tt></a></p>
 <p>Font option.</p>
 <p>Option has 2 controls:</p>

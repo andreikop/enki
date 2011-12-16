@@ -45,7 +45,7 @@ Screenshots:
         </tr></table>
 
 
-Project is licelsed under `GNU GPL v2 license <http://www.gnu.org/licenses/gpl-2.0.html>`_
+Project is licensed under `GNU GPL v2 license <http://www.gnu.org/licenses/gpl-2.0.html>`_
 
 Download and install
 """"""""""""""""""""
@@ -90,21 +90,17 @@ Dependencies
 #. ConfigObj config file reader and writer. http://pypi.python.org/pypi/configobj/ http://www.voidspace.org.uk/python/configobj.html
 #. Fresh framework, including Python bindings. https://github.com/pasnox/fresh
 
-Support
-"""""""
+Documentation and support
+"""""""""""""""""""""""""
 
-User manual
-^^^^^^^^^^^
-Documentation for users is :doc:`here <userindex>`
-
-Ask question
-^^^^^^^^^^^^
-* IRC room *#monkeystudio* on *irc.freenode.net*. `Web interface <http://monkeystudio.org/irc>`_
+* `User manual <https://github.com/hlamer/mksv3/wiki/mksv3-documentation>`_
 * `Discussion and support Google group <http://groups.google.com/group/mksv3>`_
+* IRC room *#monkeystudio* on *irc.freenode.net*. `Web interface <http://monkeystudio.org/irc>`_  
+
 
 Report bug
-^^^^^^^^^^
-There are 3 ways to report a bug
+""""""""""
+There are 3 ways to report a bug:
 
 #. Fork https://github.com/hlamer/mksv3 and fix the bug
 #. Open an issue at https://github.com/hlamer/mksv3/issues
@@ -123,3 +119,4 @@ Authors
 * **Andrei Kopats** ported core and some plugins to Python, reworked it and released the result as *mksv3*
 
 Use mksv3@googlegroups.com or hlamer@tut.by as contact email.
+

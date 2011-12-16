@@ -12,7 +12,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.4',
+        VERSION:     '0.1.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -46,12 +46,6 @@
   <span class="target" id="module-mks.plugins.searchreplace"></span><div class="section" id="searchreplace-search-and-replace-functionality">
 <h1>searchreplace &#8212; Search and replace functionality<a class="headerlink" href="#searchreplace-search-and-replace-functionality" title="Permalink to this headline">¶</a></h1>
 <p>Contains search dialog and search/replace in file/directory functionality</p>
-<dl class="function">
-<dt id="mks.plugins.searchreplace.isBinary">
-<tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">isBinary</tt><big>(</big><em>fileObject</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.isBinary" title="Permalink to this definition">¶</a></dt>
-<dd><p>Expects, that file position is 0, when exits, file position is 0</p>
-</dd></dl>
-
 <dl class="class">
 <dt id="mks.plugins.searchreplace.Plugin">
 <em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">Plugin</tt><a class="headerlink" href="#mks.plugins.searchreplace.Plugin" title="Permalink to this definition">¶</a></dt>
@@ -69,21 +63,6 @@
 <dt id="mks.plugins.searchreplace.SearchContext">
 <em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">SearchContext</tt><big>(</big><em>regExp</em>, <em>replaceText</em>, <em>searchPath</em>, <em>mode</em>, <em>encoding</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchContext" title="Permalink to this definition">¶</a></dt>
 <dd><p>Structure holds parameters of search or replace operation in progress</p>
-<dl class="attribute">
-<dt id="mks.plugins.searchreplace.SearchContext.mask">
-<tt class="descname">mask</tt><a class="headerlink" href="#mks.plugins.searchreplace.SearchContext.mask" title="Permalink to this definition">¶</a></dt>
-<dd><p>TODO
-encoding = &#8216;&#8217;</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="mks.plugins.searchreplace.SearchContext.openedFiles">
-<tt class="descname">openedFiles</tt><a class="headerlink" href="#mks.plugins.searchreplace.SearchContext.openedFiles" title="Permalink to this definition">¶</a></dt>
-<dd><p>TODO
-project = None
-sourcesFiles = &#8216;&#8217;</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="class">
@@ -137,12 +116,6 @@ Draws icons in the search and path lineEdits</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mks.plugins.searchreplace.SearchWidget.initializeSearchContext">
-<tt class="descname">initializeSearchContext</tt><big>(</big><em>currentDocumentOnly</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.initializeSearchContext" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fill search context with actual data</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="mks.plugins.searchreplace.SearchWidget.showMessage">
 <tt class="descname">showMessage</tt><big>(</big><em>status</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.showMessage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Show message on the status bar</p>
@@ -156,14 +129,20 @@ Draws icons in the search and path lineEdits</p>
 
 <dl class="method">
 <dt id="mks.plugins.searchreplace.SearchWidget.searchFile">
-<tt class="descname">searchFile</tt><big>(</big><em>forward</em>, <em>incremental</em>, <em>enableWrap=True</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.searchFile" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">searchFile</tt><big>(</big><em>forward</em>, <em>incremental=False</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.searchFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Do search in file operation. Will select next found item</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mks.plugins.searchreplace.SearchWidget.replaceFile">
-<tt class="descname">replaceFile</tt><big>(</big><em>replaceAll</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.replaceFile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Do one or all replacements in the file</p>
+<tt class="descname">replaceFile</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.replaceFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do one replacement in the file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.searchreplace.SearchWidget.replaceFileAll">
+<tt class="descname">replaceFileAll</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.replaceFileAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do all replacements in the file</p>
 </dd></dl>
 
 <dl class="method">
@@ -195,18 +174,6 @@ need update text in the editor</p>
 <dt id="mks.plugins.searchreplace.SearchWidget.replaceThread_error">
 <tt class="descname">replaceThread_error</tt><big>(</big><em>error</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.replaceThread_error" title="Permalink to this definition">¶</a></dt>
 <dd><p>Error message from the replace thread</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.searchreplace.SearchWidget.search_textChanged">
-<tt class="descname">search_textChanged</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.search_textChanged" title="Permalink to this definition">¶</a></dt>
-<dd><p>Text changed, enable actions, if have text, disable, if haven&#8217;t</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.searchreplace.SearchWidget.search_textEdited">
-<tt class="descname">search_textEdited</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.search_textEdited" title="Permalink to this definition">¶</a></dt>
-<dd><p>User edited search text, do incremental search</p>
 </dd></dl>
 
 <dl class="method">
@@ -275,7 +242,7 @@ need update text in the editor</p>
 <dt id="mks.plugins.searchreplace.SearchResultsModel">
 <em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">SearchResultsModel</tt><big>(</big><em>searchThread</em>, <em>parent</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtCore.QAbstractItemModel</span></tt></p>
-<p>AbstractItemModel used for display search results in &#8216;Search in directory&#8217; and &#8216;Replace in directory&#8217; mode</p>
+<p>AbstractItemodel used for display search results in &#8216;Search in directory&#8217; and &#8216;Replace in directory&#8217; mode</p>
 <dl class="attribute">
 <dt id="mks.plugins.searchreplace.SearchResultsModel.firstResultsAvailable">
 <tt class="descname">firstResultsAvailable</tt><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.firstResultsAvailable" title="Permalink to this definition">¶</a></dt>
@@ -283,7 +250,7 @@ need update text in the editor</p>
 
 <dl class="class">
 <dt id="mks.plugins.searchreplace.SearchResultsModel.Result">
-<em class="property">class </em><tt class="descname">Result</tt><big>(</big><em>fileName</em>, <em>capture</em>, <em>groups</em>, <em>line</em>, <em>column</em>, <em>offset</em>, <em>length</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.Result" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">Result</tt><big>(</big><em>fileName</em>, <em>wholeLine</em>, <em>line</em>, <em>column</em>, <em>match</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.Result" title="Permalink to this definition">¶</a></dt>
 <dd><p>One found by search thread item. Consists coordinates and capture. Used by SearchResultsModel</p>
 <dl class="method">
 <dt id="mks.plugins.searchreplace.SearchResultsModel.Result.text">
@@ -399,7 +366,7 @@ if item unchecked...</p>
 <dt id="mks.plugins.searchreplace.SearchResultsModel.thread_resultsAvailable">
 <tt class="descclassname">SearchResultsModel.</tt><tt class="descname">thread_resultsAvailable</tt><big>(</big><em>fileResultsList</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.thread_resultsAvailable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handler of signal from the search thread.
-New result is available, need to add it to the model</p>
+New result is available, add it to the model</p>
 </dd></dl>
 
 <dl class="method">
