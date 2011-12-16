@@ -416,7 +416,24 @@ class AbstractTextEditor(AbstractDocument):
         """Replace selected text with text
         """
         pass
-    
+
+    def replace(self, text,
+                startAbsPos=None, startLine=None, startCol=None,
+                endAbsPos=None, endLine=None, endCol=None):
+        """Replace text at specified position with text.
+        
+        startAbsPos or (startLine and startCol) must be specified.
+        
+        endAbsPos or (endLine and endCol) must be specified
+        """
+        if startAbsPos is None:
+            assert startLine is not None and startCol is not None
+            startAbsPos = self._toAbsPosition(startLine, startCol)
+        if endAbsPos is None:
+            assert endLine is not None and endCol is not None
+            endAbsPos = self._toAbsPosition(endLine, endCol)
+        self._replace(startAbsPos, endAbsPos, text)
+
     def beginUndoAction(self):
         """Start doing set of modifications, which will be managed as one action.
         User can Undo and Redo all modifications with one action
