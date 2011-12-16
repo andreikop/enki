@@ -240,11 +240,6 @@ if  not settings().value( "Translations/Accepted" ).toBool() :
 translationManager.setCurrentLocale( settings().value( "Translations/Locale" ).toString() )
 translationManager.reloadTranslations()
 
-# init shortcuts editor
-_showMessage( splash, splash.tr( "Initializing Actions Manager..." ) )
-actionsManager().setSettings( settings() )
-
-
 # init shell and commands
 _showMessage( splash, splash.tr( "Initializing Shell..." ) )
 interpreter()
@@ -297,9 +292,6 @@ def pluginsManager():
         _pluginsManager = PluginsManager( mainWindow() )
     return _pluginsManager
 
-def actionsManager():
-    return menuBar().actionsManager()
-
 def recentsManager():
     global _recentsManager
     if _recentsManager is None:
@@ -311,13 +303,6 @@ def projectsManager():
     if _projectsManager is None:
         _projectsManager = XUPProjectManager( mainWindow() )
     return _projectsManager
-
-def fileManager():
-    global _fileManager
-    if _fileManager is None:
-        _fileManager = pFileManager( mainWindow() )
-    return _fileManager
-
 
 def consoleManager():
     global _consoleManager
@@ -349,3 +334,4 @@ def translationsManager():
         _translationManager = TranslationManager( mainWindow() )
     return _translationManager
 """  # pylint: disable=W0105
+

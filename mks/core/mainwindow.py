@@ -222,7 +222,6 @@ class MainWindow(pMainWindow):
 #        self._actionModel.action( "mFile/aQuickPrint" ).triggered.connect(core.workspace().fileQuickPrint_triggered)
 #        self._actionModel.action( "mFile/aPrint" ).triggered.connect(core.workspace().filePrint_triggered)
 #        # edit connection
-#        self._actionModel.action( "mEdit/aSettings" ).triggered.connect(core.workspace().editSettings_triggered)
 #        self._actionModel.action( "mEdit/aTranslations" ).triggered.connect(core.workspace().editTranslations_triggered)
 #        self._actionModel.action( "mEdit/aExpandAbbreviation" ).triggered.connect(core.workspace().onEditExpandAbbreviation)
 #        self._actionModel.action( "mEdit/aPrepareAPIs" ).triggered.connect(core.workspace().editPrepareAPIs_triggered)

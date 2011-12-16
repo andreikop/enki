@@ -524,10 +524,6 @@ class AbstractTextEditor(AbstractDocument):
 
 
 #    TODO restore or delete old code
-#    fileOpened = pyqtSignal()
-#    fileClosed = pyqtSignal()
-#    # when.emit a file is reloaded
-#    fileReloaded = pyqtSignal()
 
 #    def isPrintAvailable(self):
 #    #    """return if print is available
