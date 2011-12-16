@@ -1,6 +1,0 @@
-<RCC>
-	<qresource prefix="/phpqtitems" >
-		<file alias="forms.png">icons/items/forms.png</file>
-		<file alias="php.png">icons/items/php.png</file>
-	</qresource>
-</RCC>
