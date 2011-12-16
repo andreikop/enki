@@ -40,7 +40,7 @@ class MainWindow(pMainWindow):
     
     **Signal** emitted, when user toggled "Hide all" .
     Dock widgets are closed automatically, but other widgets, i.e. search widget, must catch this signal and close
-    semself.
+    themselves.
     """  # pylint: disable=W0105
     
     def __init__(self):

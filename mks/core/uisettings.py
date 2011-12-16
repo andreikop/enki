@@ -71,7 +71,7 @@ def _tr(text):
     return text
 
 class ModuleConfigurator:
-    """Interface, which must be implemented by core module or plugin, which needs to configure semself via GUI dialog.
+    """Interface, which must be implemented by core module or plugin, which needs to configure themselves via GUI dialog.
     
     See :class:`mks.core.openedfilemodel.Configurator` source for simple example of class implementation
     """
