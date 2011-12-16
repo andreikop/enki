@@ -195,6 +195,7 @@ class SearchWidget(QFrame):
     Normal = 'normal'
     Good = 'good'
     Bad = 'bad'
+    Incorrect = 'incorrect'
 
     def __init__(self, plugin):
         QFrame.__init__(self, core.workspace())
@@ -575,7 +576,8 @@ class SearchWidget(QFrame):
         
         color = {SearchWidget.Normal: self._defaultBackgroundColor, \
                  SearchWidget.Good: Qt.green, \
-                 SearchWidget.Bad: Qt.red}
+                 SearchWidget.Bad: Qt.red,
+                 SearchWidget.Incorrect: Qt.darkYellow}
         
         pal = widget.palette()
         pal.setColor( widget.backgroundRole(), color[state] )
@@ -737,10 +739,12 @@ class SearchWidget(QFrame):
         """
         try:
             self._initializeSearchContext()
+            self.setState(self.Normal)
         except re.error, ex:
             self.searchContext = None
             core.mainWindow().statusBar().showMessage(unicode(ex), 5000)
             self._updateActionsState()
+            self.setState(self.Incorrect)
             return
         
         self._updateActionsState()
