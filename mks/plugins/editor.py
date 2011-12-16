@@ -766,6 +766,15 @@ class Editor(AbstractTextEditor):
         self.qscintilla.insert(text)
         self.qscintilla.endUndoAction()
     
+    def _replace(self, startAbsPos, endAbsPos, text):
+        """Replace text at position with text
+        """
+        startLine, startCol = self._toLineCol(startAbsPos)
+        endLine, endCol = self._toLineCol(endAbsPos)
+        self.qscintilla.setSelection(startLine - 1, startCol,
+                                     endLine - 1, endCol)
+        self.replaceSelectedText(text)
+    
     def beginUndoAction(self):
         """Start doing set of modifications, which will be managed as one action.
         User can Undo and Redo all modifications with one action

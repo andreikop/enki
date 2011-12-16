@@ -707,13 +707,7 @@ class SearchWidget(QFrame):
         need update text in the editor
         """
         document = core.workspace().openFile(fileName)
-        editor = document.qscintilla  # FIXME current editor specific
-
-        document.beginUndoAction()
-        editor.selectAll()  # TODO use common with replaceFile(all) code
-        editor.removeSelectedText()
-        editor.insert( content )
-        document.endUndoAction()
+        document.replace(content, startAbsPos=0, endAbsPos=len(document.text()))
 
     def replaceThread_error(self, error ):
         """Error message from the replace thread
