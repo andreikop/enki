@@ -1,5 +1,4 @@
 FIXME
-    Add watch file http://wiki.debian.org/debian/watch
 
 FIXME PasNox
 
@@ -29,5 +28,6 @@ TODO
 
 TODO when releasing
     проставить версии в зависимостях
+
 
 
