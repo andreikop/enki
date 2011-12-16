@@ -26,7 +26,10 @@ from mks.core.uisettings import ListOnePerLineOption, ModuleConfigurator
 def _getCurDir():
     """Get process current directory
     """
-    return os.path.abspath(unicode(os.curdir))
+    try:
+        return os.path.abspath(unicode(os.curdir))
+    except OSError:
+        return ''
 
 class Plugin(QObject):
     """File system tree.
@@ -690,3 +693,4 @@ class DockFileBrowser(pDockWidget):
     def moveUp(self):
         """Move tree root up, or only move focus"""
         self._tree.moveUp()
+
