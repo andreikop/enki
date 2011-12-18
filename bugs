@@ -1,4 +1,7 @@
 FIXME
+    Не отображается html в старой Qt и в консоли - about и багтрэйсы
+    screenshot
+    python2.6 Qt 4.6.3
 
 FIXME PasNox
 
@@ -8,6 +11,8 @@ FIXME need help
     Ставить фокус на UISaveFiles диалог
 
 TODO
+    Плагин, показывающий сообщения от авторов. fortune?
+    https://www.virtualbox.org/wiki/Linux_Downloads - вот так нужно инсталить пакеты
     Закрываться по keyboard interupt
     Юзать mime db для определения типа подсветки
     Возможность скрывать меню
@@ -29,6 +34,6 @@ TODO
 TODO when releasing
     проставить версии в зависимостях
 
-
-
+Limitiations:
+    На python2.6 не гаратнируется правильная работа с не-ascii именами файлов
 
