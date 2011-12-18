@@ -282,6 +282,7 @@ class SearchWidget(QFrame):
         foundCodecs = sorted(list(foundCodecs))
 
         self.cbEncoding.addItems(foundCodecs)
+        self.cbEncoding.setCurrentIndex(foundCodecs.index('utf_8'))
         
         #TODO support encodings
         #self.cbEncoding.setCurrentIndex( 
@@ -1376,7 +1377,7 @@ class ReplaceThread(StopableThread):
             text = unicode(str(ex), 'utf_8')
             self.error.emit(pattern % text)
 
-    def _fileContent(self, fileName, encoding=None):
+    def _fileContent(self, fileName, encoding='utf_8'):
         """Read file
         """
         if fileName in self.searchContext.openedFiles:
