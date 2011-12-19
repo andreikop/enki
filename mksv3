@@ -41,33 +41,35 @@ def excepthook(excepttype, exceptvalue, tracebackobj):
     
     mailto = '<a href="mailto:hlamer@tut.by?subject=Crash&body=asdf">mailto:hlamer@tut.by</a>'
     
-    mboxText =  'Exception occured.<br/>' + \
+    mboxText =  '<html>' + \
+                'Exception occured.<br/>' + \
                 'MkS team tries to avoid such problems and make mksv3 stable<br/>' + \
                 'To help us <font color="red">send please a bug report to the developers</font><br/>' + \
                 mailto + '<br/>' + \
                 '<br/>' + \
                 'Include your description and this text:<br/>' + \
                 '<br/>' + \
-                text.replace('\n', '<br/>\n')
+                text.replace('\n', '<br/>\n') + \
+                '</html>'
 
     from PyQt4.QtGui import QMessageBox
     QMessageBox.critical(None, 'Oops. Internal exception', mboxText)
 
-def _showErrorMessage(haveQt, header, text):
+def _showErrorMessage(haveQt, header, html, plain):
     """Show error message with messagebox
     """
     print >> sys.stderr, header
-    print >> sys.stderr, text
+    print >> sys.stderr, plain
     if haveQt:
         from PyQt4.QtGui import QApplication, QMessageBox
         app = QApplication ( sys.argv )
-        QMessageBox.critical(None, header, text)
+        QMessageBox.critical(None, header, html)
     else:
         try:
             import tkMessageBox
         except ImportError:
             return
-        tkMessageBox.showwarning(header, text)
+        tkMessageBox.showwarning(header, plain)
 
 def _checkDependencies():
     """Check if 3rdparty software is installed in the system.
@@ -76,11 +78,12 @@ def _checkDependencies():
     try:
         import PyQt4
     except ImportError, ex:
-        _showErrorMessage(False, 'PyQt4 not found',
-                'Failed to import Qt4 python bindings:\n' +
-                str(ex) + '\n' +
-                'Install package python-qt4, or download sources from '
-                'http://www.riverbankcomputing.co.uk/software/pyqt/download')
+        plain =  'Failed to import Qt4 python bindings:\n' + \
+                 str(ex) + '\n' + \
+                 'Install package python-qt4, or download sources from ' \
+                 'http://www.riverbankcomputing.co.uk/software/pyqt/download'
+        
+        _showErrorMessage(False, 'PyQt4 not found', plain, plain)
         raise ex
 
     import sip
@@ -89,32 +92,44 @@ def _checkDependencies():
     try:
         import PyQt4.Qsci
     except ImportError, ex:
-        _showErrorMessage(True, "QScintilla not found",
-            "<html>Failed to import QScintilla 2 python bindings:<br/>" +
-            str(ex) + '<br/>' +
-            "Install python-qscintilla2 package, or download and install sources from "
-            "<a href='http://www.riverbankcomputing.co.uk/software/qscintilla/download'>this site</a></html>")
+        html = "<html>Failed to import QScintilla 2 python bindings:<br/>" + \
+                str(ex) + '<br/>' + \
+                "Install <i>python-qscintilla2</i> package, or download and install sources from " \
+                "<a href='http://www.riverbankcomputing.co.uk/software/qscintilla/download'>this site</a></html>"
+        plain = "Failed to import QScintilla 2 python bindings:\n" + \
+                str(ex) + '\n' + \
+                "Install python-qscintilla2 package, or download and install sources from " \
+                "http://www.riverbankcomputing.co.uk/software/qscintilla/download"
+        _showErrorMessage(True, "QScintilla not found", html, plain)
         raise ex
     
     try:
         import PyQt4.fresh
     except ImportError, ex:
-        _showErrorMessage(True, "Fresh framework not found",
-                                "<html>Failed to import fresh framework python bindings:<br/>" + 
-                                str(ex) + '<br/>' +
-                                "Download and install sources from "
-                                "<a href='https://github.com/pasnox/fresh'>this site</a></html>")
+        html = "<html>Failed to import fresh framework python bindings:<br/>" + \
+                str(ex) + '<br/>' + \
+                "Download and install sources from " \
+                "<a href='https://github.com/pasnox/fresh'>this site</a></html>"
+        plain = "Failed to import fresh framework python bindings:\n" + \
+                str(ex) + '\n' + \
+                "Download and install sources from " \
+                "https://github.com/pasnox/fresh"
+        _showErrorMessage(True, "Fresh framework not found", html, plain)
         raise ex
     
     try:
         import configobj
         import validate
     except ImportError, ex:
-        _showErrorMessage(True, "ConfigObj not found",
-                        "<html>Failed to import ConfigObj modules:<br/>" +
-                        str(ex) + '<br/>' +
-                        "Download and install it from <i>python-configobj</i> Debian/Ubuntu package or from"
-                        "<a href='http://www.voidspace.org.uk/python/configobj.html#downloading'>this site</a></html>")
+        html = "<html>Failed to import ConfigObj modules:<br/>" + \
+                str(ex) + '<br/>' + \
+                "Download and install it from <i>python-configobj</i> Debian/Ubuntu package or from" \
+                "<a href='http://www.voidspace.org.uk/python/configobj.html#downloading'>this site</a></html>"
+        plain = "Failed to import ConfigObj modules:" + \
+                str(ex) + '\n' + \
+                "Download and install it from python-configobj Debian/Ubuntu package or from " \
+                "http://www.voidspace.org.uk/python/configobj.html#downloading"
+        _showErrorMessage(True, "ConfigObj not found", html, plain)
         raise ex
 
 def _configureLogging():
@@ -184,3 +199,4 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
+
