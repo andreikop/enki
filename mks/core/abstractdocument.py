@@ -227,7 +227,7 @@ class AbstractDocument(QWidget):
             toolTip += "<br/><font color='red'>%s</font>" % self.tr("Externally Modified")
         if  self._externallyRemoved:
             toolTip += "<br/><font color='red'>%s</font>" % self.tr( "Externally Deleted" )
-        return toolTip
+        return '<html>' + toolTip + '</html>'
     
     def modelIcon(self):
         """Icon for the opened files model
