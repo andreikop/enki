@@ -1140,10 +1140,10 @@ class SearchResultsDock(pDockWidget):
         self._view.activated.connect(self.view_activated)
         
         self.showAction().setShortcut("F10")
-        core.actionModel().addAction("_docks/aSearchResults", self.showAction())
+        core.actionModel().addAction("mDocks/aSearchResults", self.showAction())
 
     def __term__(self):
-        core.actionModel().removeAction("_docks/aSearchResults")
+        core.actionModel().removeAction("mDocks/aSearchResults")
 
     def view_activated(self, index ):
         """Item doubleclicked in the model, opening file
