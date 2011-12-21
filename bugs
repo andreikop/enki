@@ -20,15 +20,12 @@ TODO
     Восстанавливать сессию?
     Подсвечивать активный док
     Сделать action закоментить/откоментить
-    SR:
-        SR не показывает статусы
     вверх-вниз для поиска следующего и предыдущего в файле
     Fix trailing whitespaces
     Посмотреть detectindent.vim
     Коментить-раскомменчивать код
     http://cx4a.org/software/gccsense/ - autocompletion for C++
 
-TODO when releasing
-    проставить версии в зависимостях
 
-ON QScintilla 2.5.1 QsciLexerMatlab and QsciLexerOctave
+ON QScintilla 2.5.1
+    QsciLexerMatlab and QsciLexerOctave
