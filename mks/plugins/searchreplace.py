@@ -1396,7 +1396,7 @@ class ReplaceThread(StopableThread):
                 except UnicodeDecodeError as ex:
                     self.error.emit(self.tr( "File %s not read: unicode error '%s'. File may be corrupted" % \
                                     (fileName, str(ex) ) ))
-                    return ''
+                    return None
             else:
                 return content
 
@@ -1409,6 +1409,8 @@ class ReplaceThread(StopableThread):
         for fileName in self._results.keys():
             handledResults = []
             content = self._fileContent( fileName, self.searchContext.encoding )
+            if content is None:  # if failed to read file
+                continue
             
             # count from end to begin because we are replacing by offset in content
             for result in self._results[ fileName ][::-1]:
