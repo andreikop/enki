@@ -1305,8 +1305,6 @@ class SearchThread(StopableThread):
         
         if notEmittedFileResults:
             self.resultsAvailable.emit(notEmittedFileResults)
-        
-        print "Search finished in ", time.clock() - startTime        
 
     def _searchInFile(self, fileName):
         """Search in the file and return SearchResultsModel.Result s
