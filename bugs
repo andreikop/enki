@@ -1,7 +1,5 @@
 FIXME
-    Не отображается html в старой Qt и в консоли - about и багтрэйсы
     Не делать замены в файле, если проблемы с кодировкой
-    python2.6 Qt 4.6.3
 
 FIXME PasNox
 
@@ -34,7 +32,4 @@ TODO
 TODO when releasing
     проставить версии в зависимостях
 
-Limitiations:
-    На python2.6 не гаратнируется правильная работа с не-ascii именами файлов
-
-
+ON QScintilla 2.5.1 QsciLexerMatlab and QsciLexerOctave
