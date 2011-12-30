@@ -167,7 +167,18 @@ class AbstractDocument(QWidget):
                                      self.tr("Can not save file"),
                                      self.tr( "Cannot create directory '%s'. Error '%s'" % (dirPath, error)))
                 return
-        
+
+        # Text may be separated with invalid EOL symbols. Join lines with EOL, set for the document
+        converter = { r'\r\n': '\r\n',
+                      r'\r'  : '\r',
+                      r'\n'  : '\n'}
+        text = self.text()
+        lines = text.splitlines()
+        if text.endswith('\n'):
+            lines.append('')
+        eol = converter[self.eolMode()]
+        text = eol.join(lines)
+
         # Write file
         if self._fileWatcher is not None:
             self._fileWatcher.removePath(self.filePath())
@@ -181,15 +192,6 @@ class AbstractDocument(QWidget):
             return
         
         try:
-            converter = { r'\r\n': '\r\n',
-                          r'\r'  : '\r',
-                          r'\n'  : '\n'}
-            text = self.text()
-            lines = text.splitlines()
-            if text.endswith('\n'):
-                lines.append('\n')
-            eol = converter[self.eolMode()]
-            text = eol.join(lines)
             openedFile.write(text.encode('utf8'))
         finally:
             openedFile.close()
