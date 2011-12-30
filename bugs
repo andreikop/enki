@@ -1,7 +1,6 @@
 FIXME
     https://www.virtualbox.org/wiki/Linux_Downloads - вот так нужно инсталить пакеты
     неправильный поиск, если есть левые юникод символы
-    /usr/lib/pbuilder/pbuilder-modules не определился как Bash-файл
 
 FIXME PasNox
 
