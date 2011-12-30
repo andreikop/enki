@@ -817,19 +817,6 @@ class Editor(AbstractTextEditor):
         """
         return self.qscintilla.lines()
 
-    def _toAbsPosition(self, line, col):
-        """Convert (line, column) to fuckolute position
-        """
-        line -= 1
-        return self.qscintilla.positionFromLineIndex(line, col)
-    
-    def _toLineCol(self, absPosition):
-        """Convert absolute position to (line, column)
-        """
-        line, col = self.qscintilla.lineIndexFromPosition(absPosition)
-        line += 1
-        return (line, col)
-    
     #
     # Public methods for editorshortcuts
     #
@@ -949,4 +936,3 @@ class Plugin:
 
 #    def quickPrintFile(self):
 #        self.print_(True)
-

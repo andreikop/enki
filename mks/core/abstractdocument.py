@@ -468,6 +468,16 @@ class AbstractTextEditor(AbstractDocument):
         """
         pass
     
+    def lines(self):
+        """Get text as list of lines. EOL symbol is not included.
+        If the last line ends with EOL, additional empty line is added.
+        """
+        text = self.text()
+        lines = text.splitlines()
+        if text.endswith('\n'):
+            lines.append('')
+        return lines
+
     def lineCount(self):
         """Get line count
         """
@@ -476,13 +486,33 @@ class AbstractTextEditor(AbstractDocument):
     def _toAbsPosition(self, line, col):
         """Convert (line, column) to absolute position
         """
-        pass
-    
+        lines = self.lines()
+        
+        lines = lines[:line]  # remove not included lines
+        if lines:
+            lines[-1] = lines[-1][:col]  # remove not included symbols
+            
+        pos = sum([len(l) for l in lines])  # sum of all visible symbols
+        pos += (len(lines) - 1)  # EOL symbols
+        
+        return pos
+
     def _toLineCol(self, absPosition):
         """Convert absolute position to (line, column)
         """
-        pass
+        textBefore = self.text()[:absPosition]
+        lines = textBefore.splitlines()
+        if textBefore.endswith('\n'):
+            lines.append('')
         
+        if lines:
+            line = len(lines)
+            col = len(lines[-1])
+        else:
+            line = 1
+            col = 0
+        return line, col
+
     def _configureEolMode(self, originalText):
         """Detect end of line mode automatically and apply detected mode
         """
