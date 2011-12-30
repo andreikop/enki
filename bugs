@@ -1,6 +1,5 @@
 FIXME
     https://www.virtualbox.org/wiki/Linux_Downloads - вот так нужно инсталить пакеты
-    неправильный поиск, если есть левые юникод символы
 
 FIXME PasNox
 
@@ -34,7 +33,3 @@ TODO
 
 ON QScintilla 2.5.1
     QsciLexerMatlab and QsciLexerOctave
-
-
-
-
