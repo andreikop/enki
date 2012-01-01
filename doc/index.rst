@@ -61,6 +61,7 @@ All 3 steps::
 
     sudo add-apt-repository ppa:pasnox/ppa
     sudo add-apt-repository ppa:monkeystudio/ppa
+    sudo apt-get update
     sudo apt-get install mksv3
 
 Other Ubuntus and Debians
@@ -119,4 +120,3 @@ Authors
 * **Andrei Kopats** ported core and some plugins to Python, reworked it and released the result as *mksv3*
 
 Use mksv3@googlegroups.com or hlamer@tut.by as contact email.
-
