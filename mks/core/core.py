@@ -8,8 +8,10 @@ and used for get core instances, such as main window, workspace, etc.
 
 import os.path
 import shutil
+import signal
 
 from PyQt4.QtGui import qApp, QIcon
+from PyQt4.QtCore import QTimer
 
 from PyQt4.fresh import pSettings
 
@@ -21,6 +23,7 @@ DATA_FILES_PATH = os.path.join(os.path.dirname(__file__), '..')
 _DEFAULT_CONFIG_PATH = os.path.join(DATA_FILES_PATH, 'config/mksv3.default.cfg')
 _DEFAULT_CONFIG_SPEC_PATH = os.path.join(DATA_FILES_PATH, 'config/mksv3.spec.cfg')
 _CONFIG_PATH = os.path.join(mks.core.defines.CONFIG_DIR, 'core.cfg')
+
 
 class Core:
     """Core object initializes system at startup and terminates when closing.
@@ -38,17 +41,28 @@ class Core:
         self.moduleConfiguratorClasses = []
 
         self._loadedPlugins = []
+
+    def _prepareToCatchSigInt(self):
+        """Catch SIGINT signal to close the application
+        """
+        signal.signal(signal.SIGINT, lambda signum, frame: qApp.closeAllWindows())
+        # Let the interpreter to run every .5 sec. to catch signal
+        self._checkSignalsTimer = QTimer()
+        self._checkSignalsTimer.start(500)  # You may change this if you wish.
+        self._checkSignalsTimer.timeout.connect(lambda: None)  # Let the interpreter run each 500 ms.
         
     def init(self):
         """Initialize core.
         
         Called only by main()
         """
+        self._prepareToCatchSigInt()
+        
         qApp.setWindowIcon(QIcon(':/mksicons/monkey2.png') )
         pSettings.setDefaultProperties(pSettings.Properties(qApp.applicationName(), \
                                                             "1.0.0",
                                                             pSettings.Normal))
-        
+
         # Imports are here for hack crossimport problem
         import mks.core.mainwindow  # pylint: disable=W0621,W0404
         self._mainWindow = mks.core.mainwindow.MainWindow()
@@ -80,6 +94,7 @@ class Core:
             plugin = self._loadedPlugins.pop()
             del plugin
         mks.resources.icons.qCleanupResources()
+        
 
     def mainWindow(self):
         """Get :class:`mks.core.mainwindow.MainWindow` instance
