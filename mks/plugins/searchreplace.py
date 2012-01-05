@@ -591,7 +591,7 @@ class SearchWidget(QFrame):
 
         # get cursor position        
         start, end = document.absSelection()
-        
+
         if start is None:
             start = 0
             end = 0
