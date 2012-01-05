@@ -652,6 +652,7 @@ class SearchWidget(QFrame):
                 # TODO link to replace help
                 return
             document.replaceSelectedText(replText)
+            document.goTo(absPos = match.start() + len(replText))
             self.pbNext.click() # move selection to next item
         else:
             self.setState(SearchWidget.Bad)
