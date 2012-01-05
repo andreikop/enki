@@ -739,6 +739,10 @@ class Editor(AbstractTextEditor):
         """Get coordinates of selected area as ((startLine, startCol), (endLine, endCol))
         """
         startLine, startCol, endLine, endCol = self.qscintilla.getSelection()
+        if startLine == -1:
+            cursorPos = self.cursorPosition()
+            return (cursorPos, cursorPos)
+
         return ((startLine + 1, startCol), (endLine + 1, endCol))
 
     def absSelection(self):
