@@ -347,8 +347,26 @@ class UISettings(QDialog):
                 raise KeyError("Item %s not found" % part)
         return item
 
+    def _itemPath(self, item):
+        """Get path of item by reference to it
+        """
+        parts = [item.text(0)]
+        while item.parent() is not None:
+            item = item.parent()
+            parts.insert(0, item.text(0))
+        return '/'.join(parts)
+
     def appendPage(self, path, widget, icon=None):
-        """Append page to the tree. I.e. append mode settings to Modes item of the tree. Example ::
+        """Append page to the tree. Called by a plugin module configurator to create own page. Example:
+        ::
+        
+            class Configurator(ModuleConfigurator):
+                def __init__(self, dialog):
+                    ModuleConfigurator.__init__(self, dialog)
+                    
+                    widget = MitSchemeSettings(dialog)
+                    dialog.appendPage(u"Modes/MIT Scheme", widget, QIcon(':/mksicons/languages/scheme.png'))
+        
         """
         pathParts = path.split('/')
         if len(pathParts) == 1:
@@ -394,13 +412,6 @@ class UISettings(QDialog):
         itemPath = self._itemPath(selectedItem)
         page = self._pageForItem[itemPath]
         self.swPages.setCurrentWidget(page)
-    
-    def _itemPath(self, item):
-        parts = [item.text(0)]
-        while item.parent() is not None:
-            item = item.parent()
-            parts.insert(0, item.text(0))
-        return '/'.join(parts)
 
 
 #TODO restore or remove old code

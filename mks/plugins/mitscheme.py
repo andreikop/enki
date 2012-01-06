@@ -14,6 +14,10 @@ import mks.lib.highlighter
 
 from mks.core.uisettings import ModuleConfigurator, ChoiseOption, TextOption
 
+#
+# Integration with the core
+#
+
 class MitSchemeSettings(QWidget):
     def __init__(self, *args):
         QWidget.__init__(self, *args)
@@ -165,6 +169,26 @@ class Plugin(QObject):
     def _onEvalTriggered(self):
         print 'eval'
 
+class MitSchemeDock(pDockWidget):
+    def __init__(self, widget):
+        pDockWidget.__init__(self, "MIT Scheme", core.mainWindow())
+        self.setObjectName("MitSchemeDock")
+        self.setWindowIcon(QIcon(':/mksicons/languages/scheme.png'))
+        self.setAllowedAreas( Qt.BottomDockWidgetArea)
+        
+        self.showAction().setShortcut("F8")
+        core.actionModel().addAction("mDocks/aMitScheme", self.showAction())
+
+        self.setWidget(widget)
+        self.setFocusProxy(widget)
+
+    def __del__(self):
+        core.actionModel().removeAction("mDocks/aMitScheme")
+
+#
+# Plugin functionality
+#
+
 class MitSchemeTermWidget(mks.lib.termwidget.TermWidget):
     def __init__(self, mitScheme, *args):
         mks.lib.termwidget.TermWidget.__init__(self, *args)
@@ -247,20 +271,3 @@ class MitScheme:
         if self._schemeIsRunning and not self._buffPopen.isAlive():
             self._term.appendError("Interpreter process exited. Execute any command to run it again\n")
             self.stop()
-
-class MitSchemeDock(pDockWidget):
-    def __init__(self, widget):
-        pDockWidget.__init__(self, "MIT Scheme", core.mainWindow())
-        self.setObjectName("MitSchemeDock")
-        self.setWindowIcon(QIcon(':/mksicons/languages/scheme.png'))
-        self.setAllowedAreas( Qt.BottomDockWidgetArea)
-        
-        self.showAction().setShortcut("F8")
-        core.actionModel().addAction("mDocks/aMitScheme", self.showAction())
-
-        self.setWidget(widget)
-        self.setFocusProxy(widget)
-
-    def __del__(self):
-        core.actionModel().removeAction("mDocks/aMitScheme")
-        self.deleteLater()

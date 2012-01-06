@@ -1,5 +1,10 @@
-"""Terminal emulator widget.
+"""
+termwidget --- Terminal emulator widget
+=======================================
+
 Shows intput and output text. Allows to enter commands. Supports history.
+
+This widget only provides GUI, but does not implement any system terminal or other functionality
 """
 
 import cgi
@@ -10,12 +15,23 @@ from PyQt4.QtGui import QColor, QKeySequence, QLineEdit, QPalette, \
                         QVBoxLayout, QWidget
 
 class _ExpandableTextEdit(QTextEdit):
-    """Class implements edit line, which expands themselves automatically
+    """Text editor widget, which expands themselves automatically, when line count changes
     """
     
     historyNext = pyqtSignal()
-    historyPrev = pyqtSignal()
+    """
+    historyNext()
     
+    **Signal** emitted, when user wants to roll history to next item
+    """  # pylint: disable=W0105
+
+    historyPrev = pyqtSignal()
+    """
+    historyPrev()
+    
+    **Signal** emitted, when user wants to roll history to previous item
+    """  # pylint: disable=W0105
+
     def __init__(self, termWidget, *args):
         QTextEdit.__init__(self, *args)
         self._termWidget = termWidget
@@ -23,13 +39,15 @@ class _ExpandableTextEdit(QTextEdit):
         self.textChanged.connect(self._fitToDocument)
 
     def sizeHint(self):
-        """QWidget sizeHint impelemtation
+        """QWidget.sizeHint impelemtation
         """
         hint = QTextEdit.sizeHint(self)
         hint.setHeight(self._fittedHeight)
         return hint
     
     def showEvent(self, event):  # TO fight fucking flickering, when settings are applied and widget is recreated
+        """QWidget.sizeHint impelemtation
+        """
         QWidget.showEvent(self, event)
         self._fitToDocument()
 
@@ -45,7 +63,7 @@ class _ExpandableTextEdit(QTextEdit):
             self.updateGeometry()
     
     def keyPressEvent(self, event):
-        """Catch keywoard events. Process Enter, Up, Down
+        """Catch keywoard events. Process Enter, Up, Down, PgUp, PgDown
         """
         if event.matches(QKeySequence.InsertParagraphSeparator):
             text = self.toPlainText()
@@ -78,8 +96,6 @@ class _ExpandableTextEdit(QTextEdit):
 class TermWidget(QWidget):
     """Widget wich represents terminal. It only displays text and allows to enter text.
     All highlevel logic should be implemented by client classes
-
-    User pressed Enter. Client class should decide, if command must be executed or user may continue edit it
     """
 
     def __init__(self, *args):
@@ -106,7 +122,7 @@ class TermWidget(QWidget):
         self._edit.setFocus()
 
     def _appendToBrowser(self, style, text):
-        """Convert text to HTML for inserting it to browser
+        """Convert text to HTML for inserting it to browser. Insert the HTML
         """
         assert style in ('in', 'out', 'err')
 
@@ -180,12 +196,9 @@ class TermWidget(QWidget):
         self.childExecCommand(text)
     
     def childExecCommand(self, text):
-        """Reimplement in the child classes
+        """Reimplement in the child classes to execute enterred commands
         """
         pass
-    
-    def addLineBreakToInput(self):
-        self._edit.textCursor().insertText('\n')
 
     def appendOutput(self, text):
         """Appent text to output widget
@@ -198,13 +211,11 @@ class TermWidget(QWidget):
         self._appendToBrowser('err', text)
 
     def isCommandComplete(self, text):
-        """Executed by _ExpandableTextEdit. Reimplement this function in the child classes.
+        """Executed by _ExpandableTextEdit when Enter is pressed.
+        Implement this function in the child classes.
         """
         return True
     
-    def browser(self):
-        return self._browser
-
     def _onHistoryNext(self):
         """Down pressed, show next item from the history
         """
