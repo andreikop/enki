@@ -84,6 +84,7 @@ class Core:
         self._loadPlugin('editorshortcuts')
         self._loadPlugin('helpmenu')
         self._loadPlugin('associations')
+        self._loadPlugin('mitscheme')
 
     def term(self):
         """Terminate plugins and core modules
