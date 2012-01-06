@@ -1,3 +1,10 @@
+"""
+buffpopen --- Buffered subprocess.Popen implementation
+======================================================
+
+This implementation allows to read and write output without blocking
+"""
+
 import subprocess
 import threading
 import os
@@ -12,7 +19,7 @@ except ImportError:
 class BufferedPopen:
     """Bufferred version of Popen.
     Never locks, but uses unlimited buffers. May eat all the system memory, if something goes wrong.
-    Output blocks are split to lines"""
+    """
     
     def __init__(self, command):
         self._command = command
@@ -25,6 +32,8 @@ class BufferedPopen:
         self._popen = None
     
     def start(self):
+        """Start the process
+        """
         env = copy.copy(os.environ)
         env['COLUMNS'] = str(2**16)  # Don't need to break lines in the mit scheme. It will be done by text edit
         env['LINES'] = '25'
@@ -43,6 +52,8 @@ class BufferedPopen:
         self._outThread.start()
 
     def stop(self):
+        """Stop the process
+        """
         self._mustDie = True
         
         if self._popen is not None:
@@ -67,10 +78,12 @@ class BufferedPopen:
             self._outThread.join()
     
     def isAlive(self):
+        """Check if process is alive
+        """
         return self._popen.poll() is None
 
     def _readOutputThread(self):
-        """Reader function. Reads output from process to queue
+        """Reader thread function. Reads output from process to queue
         """
         # hlamer: Reading output by one character is not effective, but, I don't know 
         # how to implement non-blocking reading of not full lines better
@@ -81,7 +94,7 @@ class BufferedPopen:
             
 
     def _writeInputThread(self):
-        """Writer function. Writes data from input queue to process
+        """Writer thread function. Writes data from input queue to process
         """
         while not self._mustDie:
             try:
