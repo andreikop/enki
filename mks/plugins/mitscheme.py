@@ -35,7 +35,7 @@ class Configurator(ModuleConfigurator):
                                        {widget.rbWhenOpened: "whenOpened",
                                         widget.rbNever: "never",
                                         widget.rbAlways: "always"}),
-                          TextOption(dialog, core.config(), "Modes/Scheme/Interpreter", widget.leInterpreterPath)
+                          TextOption(dialog, core.config(), "Modes/Scheme/InterpreterPath", widget.leInterpreterPath)
                         ]
     
     def saveSettings(self):
@@ -50,16 +50,23 @@ class Configurator(ModuleConfigurator):
         
         Called by :mod:`mks.core.uisettings`
         """
+        Plugin.instance.applySettings()
 
 
 class Plugin(QObject):
     """Module implementation
     """
+    
+    instance = None
+    
     def __init__(self):
         QObject.__init__(self)
         self._installed = False
         self._evalAction = None
+        self._activeInterpreterPath = None
+
         self._schemeDocumentsCount = 0
+        
         for doc in core.workspace().openedDocuments():
             self._schemeDocumentsCount += 1
         
@@ -67,16 +74,29 @@ class Plugin(QObject):
         core.workspace().documentOpened.connect(self._onDocumentOpened)
         core.workspace().documentClosed.connect(self._onDocumentClosed)
         
-        if self._schemeDocumentsCount > 0:
-            self._install()
+        self._installOrUninstallIfNecessary()
+        Plugin.instance = self
 
     def __del__(self):
         self._uninstall()
+        Plugin.instance = None
 
     def moduleConfiguratorClass(self):
         """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
         """
         return Configurator
+
+    def applySettings(self):
+        """Apply settings. Called by configurator class
+        """
+        # if path has been changed - restart the interpreter
+        if self._installed and \
+           self._activeInterpreterPath != core.config()["Modes"]["Scheme"]["InterpreterPath"]:
+            self._uninstall()
+        
+        self._uninstall()
+
+        self._installOrUninstallIfNecessary()
 
     def _isSchemeFile(self, document):
         return document is not None and \
@@ -86,32 +106,35 @@ class Plugin(QObject):
         document.languageChanged.connect(self._onDocumentLanguageChanged)
         if self._isSchemeFile(document):
             self._schemeDocumentsCount += 1
-            self._install()
+            self._installOrUninstallIfNecessary()
 
     def _onDocumentClosed(self, document):
         if self._isSchemeFile(document):
             self._schemeDocumentsCount -= 1
-            if self._schemeDocumentsCount == 0:
-                self._uninstall()
+            self._installOrUninstallIfNecessary()
     
     def _onDocumentLanguageChanged(self, old, new):
         if old is not None and old == 'Scheme':
             self._schemeDocumentsCount -= 1
-            if 0 == self._schemeDocumentsCount:
-                self._uninstall()
         if new is not None and new == 'Scheme':
             self._schemeDocumentsCount += 1
+        self._installOrUninstallIfNecessary()
+
+    def _installOrUninstallIfNecessary(self):
+        enabled =  core.config()["Modes"]["Scheme"]["Enabled"]
+        if enabled == 'always':
+            if not self._installed:
+                self._install()
+        elif enabled == 'never':
+            if self._installed:
+                self._uninstall()
+        else:
+            assert enabled == 'whenOpened'
             if self._schemeDocumentsCount > 0:
                 self._install()
+            else:
+                self._uninstall()
 
-    def _onCurrentDocumentChanged(self, old, new):
-        if new is not None and \
-           new.filePath() is not None and \
-           new.filePath().endswith(".scm"):  # TODO fix condition when scheme is fully supported
-            self._install()
-        else:
-            self._uninstall()
-    
     def _install(self):
         if self._installed:
             return
@@ -121,7 +144,8 @@ class Plugin(QObject):
         self._evalAction.setToolTip("Evaluate selection. If nothing is selected - evaluate whole file")
         self._evalAction.triggered.connect(self._onEvalTriggered)
 
-        self._mitScheme = MitScheme()
+        self._activeInterpreterPath = core.config()["Modes"]["Scheme"]["InterpreterPath"]
+        self._mitScheme = MitScheme(self._activeInterpreterPath)
         self._dock = MitSchemeDock(self._mitScheme.widget())
 
         core.mainWindow().dockToolBar( Qt.BottomToolBarArea ).addDockWidget(self._dock)
@@ -182,14 +206,14 @@ class MitSchemeTermWidget(mks.lib.termwidget.TermWidget):
 class MitScheme:
     """MIT scheme shell. Implements REPL. Graphical frontend for original terminal version.
     """
-    def __init__(self):
+    def __init__(self, interpreterPath):
         self._term = MitSchemeTermWidget(self)
         
         self._processOutputTimer = QTimer()  # I use Qt timer, because we must append data to GUI in the GUI thread
         self._processOutputTimer.timeout.connect(self._processOutput)
         self._processOutputTimer.setInterval(100)
 
-        self._buffPopen = mks.lib.buffpopen.BufferedPopen("scheme")
+        self._buffPopen = mks.lib.buffpopen.BufferedPopen(interpreterPath)
         self._schemeIsRunning = False
         
         self._term.appendOutput("Execute any command to run the scheme interpreter\n")
