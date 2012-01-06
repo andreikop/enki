@@ -29,16 +29,11 @@ class Configurator(ModuleConfigurator):
     def __init__(self, dialog):
         ModuleConfigurator.__init__(self, dialog)
         self._options = []
-        fileAssociationsItem = dialog.twMenu.topLevelItem(1)
         for index, language in enumerate(Plugin.instance.iterLanguages()):
             languageName, fileNameGlobs, firstLineGlobs, iconPath = language  # pylint: disable=W0612
-            # Item to the tree
-            item = QTreeWidgetItem([languageName])
-            item.setIcon(0, QIcon(iconPath))
-            fileAssociationsItem.addChild(item)
             # Widget
             widget = self._createWidget(dialog)
-            dialog.swPages.insertWidget(index + 2, widget)
+            dialog.appendPage(u"File associations/%s" % languageName, widget, QIcon(iconPath))
             # Options
             optionPath = "Associations/%s/FileName" % languageName
             option = ListOnePerLineOption(dialog, core.config(), optionPath, widget.pteFileNameGlobs)

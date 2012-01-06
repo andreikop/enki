@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>669</width>
-    <height>711</height>
+    <height>706</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -43,7 +43,7 @@
      </item>
      <item>
       <property name="text">
-       <string>File assotiatons</string>
+       <string>File associations</string>
       </property>
      </item>
      <item>
@@ -52,7 +52,7 @@
       </property>
       <item>
        <property name="text">
-        <string>Auto Completion</string>
+        <string>Auto completion</string>
        </property>
       </item>
       <item>
@@ -125,6 +125,11 @@
      </item>
      <item>
       <property name="text">
+       <string>Modes</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
        <string>File browser</string>
       </property>
      </item>
@@ -138,7 +143,7 @@
         <bool>true</bool>
        </property>
        <property name="currentIndex">
-        <number>10</number>
+        <number>15</number>
        </property>
        <widget class="QWidget" name="pGeneral">
         <layout class="QVBoxLayout" name="verticalLayout_18">
@@ -2118,6 +2123,30 @@
             <bool>false</bool>
            </property>
           </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="pModes">
+        <layout class="QVBoxLayout" name="verticalLayout_14">
+         <item>
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Select a mode in the tree to configure it</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </widget>

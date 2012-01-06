@@ -61,7 +61,8 @@ from PyQt4.QtGui import QColor, \
                         QDialog, \
                         QFont, \
                         QFontDialog, \
-                        QIcon
+                        QIcon, \
+                        QTreeWidgetItem
 
 from mks.core.core import core, DATA_FILES_PATH
 
@@ -285,7 +286,7 @@ class UISettings(QDialog):
     def __init__(self, parent):
         QDialog.__init__(self, parent)
         self._createdObjects = []
-        self._allTwItems = []
+        self._pageForItem = {}
         self._moduleConfigurators = []
 
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/UISettings.ui'), self)
@@ -295,22 +296,6 @@ class UISettings(QDialog):
         self.createOptions()
         self.accepted.connect(self.saveSettings)
         self.accepted.connect(self.applySettings)
-
-    def _initTopLevelItems(self):
-        """Generate list of all tree items. Used to switch pages
-        """
-        def allItems(twItem):
-            """Item itself and all children (reqursive)
-            """
-            yield twItem
-            for childIndex in range(twItem.childCount()):
-                for item in allItems(twItem.child(childIndex)):
-                    yield item
-
-        topLevelItems = [self.twMenu.topLevelItem(index) for index in range(self.twMenu.topLevelItemCount())]
-        
-        for topLevelItem in topLevelItems:
-            self._allTwItems.extend(allItems(topLevelItem))
 
     def createOptions(self):
         """Create and load all opitons. Create ::class:`mks.core.uisettings.ModuleConfigurator` instances
@@ -328,11 +313,61 @@ class UISettings(QDialog):
             self._moduleConfigurators.append(moduleConfiguratorClass(self))
 
         # Expand all tree widget items
-        self._initTopLevelItems()
+        self._pageForItem.update (  {u"General": self.pGeneral,
+                                     u"File associations": self.pAssociations,
+                                     u"Editor": self.pEditorGeneral,
+                                     u"Editor/Auto completion": self.pAutoCompletion,
+                                     u"Editor/Colours": self.pColours,
+                                     u"Editor/CallTips": self.pCalltips,
+                                     u"Editor/Indentation": self.pIndentation,
+                                     u"Editor/Brace matching": self.pBraceMatching,
+                                     u"Editor/Edge": self.pEdgeMode,
+                                     u"Editor/Caret": self.pCaret,
+                                     u"Editor/EOL": self.pEditorVisibility,
+                                     u"Editor/Language": self.pLexerGeneral,
+                                     u"Editor/Language/Fonts": self.pLexerFonts,
+                                     u"Editor/Language/API files": self.pLexerApi,
+                                     u"Editor/Language/Abbreviations": self.pLexerAbbreviations,
+                                     u"Modes": self.pModes,
+                                     u"File browser": self.pFileBrowser})
         
         # resize to minimum size
         self.resize( self.minimumSizeHint() )
     
+    def _itemByPath(self, pathParts):
+        """Find item by it's path. Path is list if parts
+        """
+        item = self.twMenu.findItems(pathParts[0], Qt.MatchExactly)[0]
+        for part in pathParts[1:]:
+            for index in range (item.childCount()):
+                if item.child(index).text[0] == part:
+                    item = item.child(index)
+                    break
+            else:
+                raise KeyError("Item %s not found" % part)
+        return item
+
+    def appendPage(self, path, widget, icon=None):
+        """Append page to the tree. I.e. append mode settings to Modes item of the tree. Example ::
+        """
+        pathParts = path.split('/')
+        if len(pathParts) == 1:
+            parentItem = None
+        else:
+            parentItem = self._itemByPath(pathParts[:-1])
+        
+        twItem = QTreeWidgetItem([pathParts[-1]])
+        if icon is not None:
+            twItem.setIcon(0, icon)
+        
+        if parentItem is not None:
+            parentItem.addChild(twItem)
+        else:
+            self.twMenu.addTopLevelItem(twItem)
+        
+        self.swPages.addWidget(widget)
+        self._pageForItem[path] = widget
+
     def applySettings(self):
         """Dialog has been accepted. Call ModuleConfigurators for apply settings
         """
@@ -352,12 +387,20 @@ class UISettings(QDialog):
     def on_twMenu_itemSelectionChanged(self):
         """Qt slot. Switch current page, after item in the pages tree has been selected
         """
-        # get item
         selectedItem = self.twMenu.selectedItems()[0]
+        
         self.lInformations.setText( selectedItem.text( 0 ) )
-        self.swPages.setCurrentIndex(self._allTwItems.index(selectedItem))
 
-
+        itemPath = self._itemPath(selectedItem)
+        page = self._pageForItem[itemPath]
+        self.swPages.setCurrentWidget(page)
+    
+    def _itemPath(self, item):
+        parts = [item.text(0)]
+        while item.parent() is not None:
+            item = item.parent()
+            parts.insert(0, item.text(0))
+        return '/'.join(parts)
 
 
 #TODO restore or remove old code
