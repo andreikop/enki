@@ -1,13 +1,56 @@
-from PyQt4.QtCore import QObject, Qt, QTimer
-from PyQt4.QtGui import QIcon
+import os.path
 
-from mks.core.core import core
+from PyQt4.QtCore import QObject, Qt, QTimer
+from PyQt4.QtGui import QIcon, QWidget
+from PyQt4 import uic
+
+from mks.core.core import core, DATA_FILES_PATH
 
 from PyQt4.fresh import pDockWidget
 
 import mks.lib.buffpopen
 import mks.lib.termwidget
 import mks.lib.highlighter
+
+from mks.core.uisettings import ModuleConfigurator, ChoiseOption, TextOption
+
+class MitSchemeSettings(QWidget):
+    def __init__(self, *args):
+        QWidget.__init__(self, *args)
+        uic.loadUi(os.path.join(DATA_FILES_PATH,'ui/plugins/MitSchemeSettings.ui'), self)
+
+class Configurator(ModuleConfigurator):
+    """ Module configurator.
+    
+    Used to configure associations on the settings dialogue
+    """
+    def __init__(self, dialog):
+        ModuleConfigurator.__init__(self, dialog)
+        
+        widget = MitSchemeSettings(dialog)
+        dialog.appendPage(u"Modes/MIT Scheme", widget, QIcon(':/mksicons/languages/scheme.png'))
+
+        # Options
+        self._options = [ ChoiseOption(dialog, core.config(), "Modes/Scheme/Enabled",
+                                       {widget.rbWhenOpened: "whenOpened",
+                                        widget.rbNever: "never",
+                                        widget.rbAlways: "always"}),
+                          TextOption(dialog, core.config(), "Modes/Scheme/Interpreter", widget.leInterpreterPath)
+                        ]
+    
+    def saveSettings(self):
+        """Settings are stored in the core configuration file, therefore nothing to do here.
+        
+        Called by :mod:`mks.core.uisettings`
+        """
+        pass
+    
+    def applySettings(self):
+        """Apply associations to opened documents.
+        
+        Called by :mod:`mks.core.uisettings`
+        """
+
 
 class Plugin(QObject):
     """Module implementation
@@ -29,6 +72,11 @@ class Plugin(QObject):
 
     def __del__(self):
         self._uninstall()
+
+    def moduleConfiguratorClass(self):
+        """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
+        """
+        return Configurator
 
     def _isSchemeFile(self, document):
         return document is not None and \
