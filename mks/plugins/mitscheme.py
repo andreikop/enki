@@ -32,10 +32,10 @@ class Plugin(QObject):
 
     def _isSchemeFile(self, document):
         return document is not None and \
-               document.fileName() is not None and \
-               document.fileName().endswith('.scm')
+               document.highlightingLanguage() == 'Scheme'
 
     def _onDocumentOpened(self, document):
+        document.languageChanged.connect(self._onDocumentLanguageChanged)
         if self._isSchemeFile(document):
             self._schemeDocumentsCount += 1
             self._install()
@@ -45,6 +45,16 @@ class Plugin(QObject):
             self._schemeDocumentsCount -= 1
             if self._schemeDocumentsCount == 0:
                 self._uninstall()
+    
+    def _onDocumentLanguageChanged(self, old, new):
+        if old is not None and old == 'Scheme':
+            self._schemeDocumentsCount -= 1
+            if 0 == self._schemeDocumentsCount:
+                self._uninstall()
+        if new is not None and new == 'Scheme':
+            self._schemeDocumentsCount += 1
+            if self._schemeDocumentsCount > 0:
+                self._install()
 
     def _onCurrentDocumentChanged(self, old, new):
         if new is not None and \
