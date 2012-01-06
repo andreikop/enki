@@ -132,6 +132,7 @@ class EditorConfigurator(ModuleConfigurator):
 
         if editor is None or \
            editor.lexer.currentLanguage is None or \
+           editor.lexer.currentLanguage not in Lexer.LEXER_FOR_LANGUAGE or \
            Plugin.instance.lexerConfig is None:  # If language is unknown, or lexer configuration are not available
             lexerItem.setDisabled(True)
             return
