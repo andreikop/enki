@@ -273,6 +273,7 @@ class Lexer:
         "Python"        : QsciLexerPython,
         "Ruby"          : QsciLexerRuby,
         "SQL"           : QsciLexerSQL,
+        "Spice"         : QsciLexerSpice,
         "TeX"           : QsciLexerTeX,
         "VHDL"          : QsciLexerVHDL,
         "TCL"           : QsciLexerTCL,
@@ -283,7 +284,6 @@ class Lexer:
         "XML"           : QsciLexerXML,
         "YAML"          : QsciLexerYAML,
         "Verilog"       : QsciLexerVerilog,
-        "Spice"         : QsciLexerSpice,
     }
 
     PYTHON_INDENTATION_WARNING_TO_QSCI = { "Inconsistent"    : QsciLexerPython.Inconsistent,
@@ -316,7 +316,8 @@ class Lexer:
         """
         self.currentLanguage = language
         # Create lexer
-        if self.currentLanguage:
+        if self.currentLanguage and \
+           self.currentLanguage in self.LEXER_FOR_LANGUAGE:  # if language is supported
             lexerClass =  self.LEXER_FOR_LANGUAGE[self.currentLanguage]
             self.qscilexer = lexerClass()
             self.applySettings()
@@ -707,11 +708,10 @@ class Editor(AbstractTextEditor):
         """
         return self.qscintilla.setIndentationsUseTabs(use)
     
-    def setHighlightingLanguage(self, language):
+    def _applyHighlightingLanguage(self, language):
         """Set programming language of the file.
         Called Only by :mod:`mks.plugins.associations` to select syntax highlighting language.
         """
-        AbstractTextEditor.setHighlightingLanguage(self, language)
         self.lexer.applyLanguage(language)
 
     def text(self):

@@ -255,11 +255,18 @@ class AbstractTextEditor(AbstractDocument):
     """Base class for text editors. Currently, only QScintilla is supported, but, we may replace it in the future
     """
     
-    cursorPositionChanged = pyqtSignal(int, int) # (line, column)
+    cursorPositionChanged = pyqtSignal(int, int)
     """
     cursorPositionChanged(line, column)
     
     **Signal** emitted, when cursor position has been changed
+    """  # pylint: disable=W0105
+    
+    languageChanged = pyqtSignal(unicode, unicode)
+    """
+    languageChanged(old, new)
+    
+    **Signal** emitted, when highlighting (programming) language of a file has been changed
     """  # pylint: disable=W0105
     
     def __init__(self, parentObject, filePath, createNew=False):
@@ -316,7 +323,15 @@ class AbstractTextEditor(AbstractDocument):
         
         Called Only by :class:`mks.plugins.associations.Associations` to select syntax highlighting language.
         """
+        old = self._highlightingLanguage
         self._highlightingLanguage = language
+        self._applyHighlightingLanguage(language)
+        self.languageChanged.emit(old, language)
+    
+    def _applyHighlightingLanguage(self, language):
+        """Apply new highlighting language
+        """
+        raise NotImplemented()
 
     def text(self):
         """Contents of the editor.
