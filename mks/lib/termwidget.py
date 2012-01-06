@@ -21,7 +21,6 @@ class _ExpandableTextEdit(QTextEdit):
         self._termWidget = termWidget
         self._fittedHeight = 0
         self.textChanged.connect(self._fitToDocument)
-        self.setPlainText("")  # Sometimes _fitToDocument does not work without setPlainText
 
     def sizeHint(self):
         """QWidget sizeHint impelemtation
@@ -30,15 +29,20 @@ class _ExpandableTextEdit(QTextEdit):
         hint.setHeight(self._fittedHeight)
         return hint
     
+    def showEvent(self, event):  # TO fight fucking flickering, when settings are applied and widget is recreated
+        QWidget.showEvent(self, event)
+        self._fitToDocument()
+
     def _fitToDocument(self):
         """Update widget height to fit all text
         """
         documentSize = self.document().size().toSize()
+        self.updateGeometry()
         fittedHeight = documentSize.height() + (self.height() - self.viewport().height())
-        if fittedHeight > 0:
+        if fittedHeight > 10:
             self._fittedHeight = fittedHeight
             self.setMaximumHeight(self._fittedHeight)
-            self.updateGeometry();
+            self.updateGeometry()
     
     def keyPressEvent(self, event):
         """Catch keywoard events. Process Enter, Up, Down
