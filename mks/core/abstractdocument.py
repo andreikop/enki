@@ -323,10 +323,13 @@ class AbstractTextEditor(AbstractDocument):
         
         Called Only by :class:`mks.plugins.associations.Associations` to select syntax highlighting language.
         """
+        if language == self._highlightingLanguage:
+            return
         old = self._highlightingLanguage
         self._highlightingLanguage = language
         self._applyHighlightingLanguage(language)
         self.languageChanged.emit(old, language)
+
     
     def _applyHighlightingLanguage(self, language):
         """Apply new highlighting language
