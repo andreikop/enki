@@ -88,7 +88,7 @@ class Plugin(QObject):
         Plugin.instance = self
 
     def __del__(self):
-        self._uninstall()
+        self.uninstall()
         Plugin.instance = None
 
     def moduleConfiguratorClass(self):
@@ -102,10 +102,8 @@ class Plugin(QObject):
         # if path has been changed - restart the interpreter
         if self._installed and \
            self._activeInterpreterPath != core.config()["Modes"]["Scheme"]["InterpreterPath"]:
-            self._uninstall()
+            self.uninstall()
         
-        self._uninstall()
-
         self._installOrUninstallIfNecessary()
 
     def _isSchemeFile(self, document):
@@ -137,13 +135,13 @@ class Plugin(QObject):
                 self._install()
         elif enabled == 'never':
             if self._installed:
-                self._uninstall()
+                self.uninstall()
         else:
             assert enabled == 'whenOpened'
             if self._schemeDocumentsCount > 0:
                 self._install()
             else:
-                self._uninstall()
+                self.uninstall()
 
     def _install(self):
         if self._installed:
@@ -162,7 +160,9 @@ class Plugin(QObject):
 
         self._installed = True
     
-    def _uninstall(self):
+    def uninstall(self):
+        """Terminate the plugin. Method called by core, when closing mksv3, and sometimes by plugin itself
+        """
         if not self._installed:
             return
         core.actionModel().removeAction("mScheme/mEval")
@@ -171,6 +171,7 @@ class Plugin(QObject):
         core.mainWindow().dockToolBar( Qt.BottomToolBarArea ).removeDockWidget(self._dock)
         del self._dock
         self._installed = False
+
 
     def _onEvalTriggered(self):
         print 'eval'
