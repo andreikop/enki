@@ -148,8 +148,9 @@ class Plugin(QObject):
             return
 
         self._schemeMenu = core.actionModel().addMenu("mScheme", "MIT Scheme")
-        self._evalAction = core.actionModel().addAction("mScheme/mEval", "Evaluate")
-        self._evalAction.setToolTip("Evaluate selection. If nothing is selected - evaluate whole file")
+        self._evalAction = core.actionModel().addAction("mScheme/mEval", "Eval. selection/Save and eval.")
+        self._evalAction.setStatusTip("Evaluate selection. If nothing is selected - save and evaluate whole file")
+        self._evalAction.setShortcut("Ctrl+E")
         self._evalAction.triggered.connect(self._onEvalTriggered)
 
         self._activeInterpreterPath = core.config()["Modes"]["Scheme"]["InterpreterPath"]
@@ -172,9 +173,18 @@ class Plugin(QObject):
         del self._dock
         self._installed = False
 
-
     def _onEvalTriggered(self):
-        print 'eval'
+        document = core.workspace().currentDocument()
+        if document is None:
+            return
+        
+        selection = document.selectedText()
+        if selection:
+            self._mitScheme.execCommand(selection)
+        else:
+            if document.isModified():
+                document.saveFile()
+            self._mitScheme.loadFile(document.filePath())
 
 class MitSchemeDock(pDockWidget):
     def __init__(self, widget):
@@ -257,7 +267,19 @@ class MitScheme:
         return self._term
 
     def start(self):
-        self._buffPopen.start()
+        try:
+            self._buffPopen.start()
+        except OSError, ex:
+            text = '<p>Interpreter path: %s</p>' % self._interpreterPath
+            text += '<p>Error: %s</p>' % unicode(str(ex), 'utf8')
+            text += '<p>Make sure MIT Scheme is installed and go to '\
+                    '<b>Settings -> Settings -> Modes -> MIT&nbsp;Scheme</b> to correct the path</p>'
+            text = '<html>%s</html' % text
+            QMessageBox.critical (core.mainWindow(),
+                                  "Failed to run MIT Scheme", 
+                                  text)
+            raise UserWarning("Failed to run the interpreter")
+
         self._processOutputTimer.start()
         self._schemeIsRunning = True
 
@@ -265,23 +287,26 @@ class MitScheme:
         self._processOutputTimer.stop()
         self._buffPopen.stop()
         self._schemeIsRunning = False
-    
+
     def execCommand(self, text):
         if not self._schemeIsRunning:
             try:
                 self.start()
-            except OSError, ex:
-                text = '<p>Interpreter path: %s</p>' % self._interpreterPath
-                text += '<p>Error: %s</p>' % unicode(str(ex), 'utf8')
-                text += '<p>Make sure MIT Scheme is installed and go to '\
-                        '<b>Edit -> Settings -> Modes -> MIT&nbsp;Scheme</b> to correct the path</p>'
-                text = '<html>%s</html' % text
-                QMessageBox.critical (core.mainWindow(),
-                                      "Failed to run MIT Scheme", 
-                                      text)
+            except UserWarning:
                 return
+
         self._processOutput() # write old output to the log, and only then write fresh input
         self._buffPopen.write(text)
+    
+    def loadFile(self, filePath):
+        """Load file using MIT Scheme load function
+        """
+        if not self._schemeIsRunning:
+            try:
+                self.start()
+            except UserWarning:
+                return
+        self._buffPopen.write('(load "%s")' % filePath)
     
     def _processOutput(self):
         output = self._buffPopen.readOutput()
