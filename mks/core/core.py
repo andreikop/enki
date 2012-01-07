@@ -93,6 +93,8 @@ class Core:
         """
         while self._loadedPlugins:
             plugin = self._loadedPlugins.pop()
+            if hasattr(plugin, 'uninstall'):  # TODO make plugin absract interface
+                plugin.uninstall()
             del plugin
         mks.resources.icons.qCleanupResources()
         
