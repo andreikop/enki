@@ -83,6 +83,7 @@ class Plugin(QObject):
         # TODO handle situation, when lexer changed for current document
         core.workspace().documentOpened.connect(self._onDocumentOpened)
         core.workspace().documentClosed.connect(self._onDocumentClosed)
+        core.workspace().currentDocumentChanged.connect(self._updateEvalActionEnabledState)
         
         self._installOrUninstallIfNecessary()
         Plugin.instance = self
@@ -112,6 +113,7 @@ class Plugin(QObject):
 
     def _onDocumentOpened(self, document):
         document.languageChanged.connect(self._onDocumentLanguageChanged)
+
         if self._isSchemeFile(document):
             self._schemeDocumentsCount += 1
             self._installOrUninstallIfNecessary()
@@ -127,6 +129,14 @@ class Plugin(QObject):
         if new is not None and new == 'Scheme':
             self._schemeDocumentsCount += 1
         self._installOrUninstallIfNecessary()
+        self._updateEvalActionEnabledState()
+
+    def _updateEvalActionEnabledState(self):
+        if self._evalAction is None:
+            return
+
+        currDoc = core.workspace().currentDocument()
+        self._evalAction.setEnabled(currDoc is not None and self._isSchemeFile(currDoc))
 
     def _installOrUninstallIfNecessary(self):
         enabled =  core.config()["Modes"]["Scheme"]["Enabled"]
@@ -152,6 +162,7 @@ class Plugin(QObject):
         self._evalAction.setStatusTip("Evaluate selection. If nothing is selected - save and evaluate whole file")
         self._evalAction.setShortcut("Ctrl+E")
         self._evalAction.triggered.connect(self._onEvalTriggered)
+        self._updateEvalActionEnabledState()
 
         self._activeInterpreterPath = core.config()["Modes"]["Scheme"]["InterpreterPath"]
         self._mitScheme = MitScheme(self._activeInterpreterPath)
@@ -167,6 +178,7 @@ class Plugin(QObject):
         if not self._installed:
             return
         core.actionModel().removeAction("mScheme/mEval")
+        self._evalAction = None
         core.actionModel().removeMenu("mScheme")
         self._mitScheme.stop()
         core.mainWindow().dockToolBar( Qt.BottomToolBarArea ).removeDockWidget(self._dock)
