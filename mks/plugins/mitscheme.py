@@ -1,7 +1,7 @@
 import os.path
 
 from PyQt4.QtCore import QObject, Qt, QTimer
-from PyQt4.QtGui import QIcon, QMessageBox, QWidget
+from PyQt4.QtGui import QFileDialog, QIcon, QMessageBox, QWidget
 from PyQt4 import uic
 
 from mks.core.core import core, DATA_FILES_PATH
@@ -22,6 +22,12 @@ class MitSchemeSettings(QWidget):
     def __init__(self, *args):
         QWidget.__init__(self, *args)
         uic.loadUi(os.path.join(DATA_FILES_PATH,'ui/plugins/MitSchemeSettings.ui'), self)
+        self.pbInterpreterPath.clicked.connect(self._onPbInterpreterPathClicked)
+    
+    def _onPbInterpreterPathClicked(self):
+        path = 	QFileDialog.getOpenFileName(core.mainWindow(), 'MIT Scheme interpreter path')
+        if path:
+            self.leInterpreterPath.setText(path)
 
 class Configurator(ModuleConfigurator):
     """ Module configurator.
