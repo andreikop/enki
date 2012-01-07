@@ -1,7 +1,7 @@
 import os.path
 
 from PyQt4.QtCore import QObject, Qt, QTimer
-from PyQt4.QtGui import QIcon, QWidget
+from PyQt4.QtGui import QIcon, QMessageBox, QWidget
 from PyQt4 import uic
 
 from mks.core.core import core, DATA_FILES_PATH
@@ -232,6 +232,7 @@ class MitScheme:
     """
     def __init__(self, interpreterPath):
         self._term = MitSchemeTermWidget(self)
+        self._interpreterPath = interpreterPath
         
         self._processOutputTimer = QTimer()  # I use Qt timer, because we must append data to GUI in the GUI thread
         self._processOutputTimer.timeout.connect(self._processOutput)
@@ -260,7 +261,18 @@ class MitScheme:
     
     def execCommand(self, text):
         if not self._schemeIsRunning:
-            self.start()
+            try:
+                self.start()
+            except OSError, ex:
+                text = '<p>Interpreter path: %s</p>' % self._interpreterPath
+                text += '<p>Error: %s</p>' % unicode(str(ex), 'utf8')
+                text += '<p>Make sure MIT Scheme is installed and go to '\
+                        '<b>Edit -> Settings -> Modes -> MIT&nbsp;Scheme</b> to correct the path</p>'
+                text = '<html>%s</html' % text
+                QMessageBox.critical (core.mainWindow(),
+                                      "Failed to run MIT Scheme", 
+                                      text)
+                return
         self._processOutput() # write old output to the log, and only then write fresh input
         self._buffPopen.write(text)
     
