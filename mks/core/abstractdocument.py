@@ -269,6 +269,13 @@ class AbstractTextEditor(AbstractDocument):
     **Signal** emitted, when highlighting (programming) language of a file has been changed
     """  # pylint: disable=W0105
     
+    newLineInserted = pyqtSignal()
+    """
+    newLineInserted()
+
+    **Signal** emitted, after new line has been inserted by user (user pressed Enter)
+    """  # pylint: disable=W0105
+    
     def __init__(self, parentObject, filePath, createNew=False):
         AbstractDocument.__init__(self, parentObject, filePath, createNew)
         self._highlightingLanguage = None
@@ -484,7 +491,14 @@ class AbstractTextEditor(AbstractDocument):
         
         None, if index is invalid
         """
-        pass
+        return self.lines()[index - 1]
+    
+    def setLine(self, index, text):
+        """Replace text in the line with the text.
+        Shortcut for replace(...)
+        """
+        self.replace(text, startLine=index, startCol=0,
+                           endLine=index, endCol=len(self.line(index)))
     
     def lines(self):
         """Get text as list of lines. EOL symbol is not included.

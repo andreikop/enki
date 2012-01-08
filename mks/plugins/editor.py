@@ -8,8 +8,8 @@ This text editor is used by default
 import os.path
 import shutil
 
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QColor, QFont, QFrame, QIcon, QKeyEvent, QVBoxLayout
+from PyQt4.QtCore import pyqtSignal, Qt
+from PyQt4.QtGui import QColor, QFont, QFrame, QIcon, QKeyEvent, QKeySequence, QVBoxLayout
 
 from PyQt4.Qsci import *  # pylint: disable=W0401,W0614
 
@@ -22,17 +22,26 @@ from mks.core.uisettings import ModuleConfigurator, \
                                 CheckableOption, ChoiseOption, FontOption, NumericOption, ColorOption
 
 class _QsciScintilla(QsciScintilla):
-    """QsciScintilla wrapper class created only for filter Shift+Tab events.
+    """QsciScintilla wrapper class. It is created to catch 2 key events:
     
-    When Shift+Tab pressed - Qt moves focus, but it is not desired behaviour
-    """    
+    * When Shift+Tab pressed - Qt moves focus, but it is not desired behaviour. This class catches the event
+    * When Enter presesed, class emits a signal after newline had been inserted
+    """
+    
+    newLineInserted = pyqtSignal()
+    
     def keyPressEvent(self, event):
         """Key pressing handler
         """
-        if event.key() == Qt.Key_Backtab:
+        if event.key() == Qt.Key_Backtab:  # convert the event to Shift+Tab pressing without backtab behaviour
             event.accept()
             newev = QKeyEvent(event.type(), Qt.Key_Tab, Qt.ShiftModifier)
             super(_QsciScintilla, self).keyPressEvent(newev)
+        elif event.matches(QKeySequence.InsertParagraphSeparator):
+            lineCount = self.lines()
+            super(_QsciScintilla, self).keyPressEvent(event)
+            if self.lines() > lineCount:  # bad hack, which checks, if autocompletion window is active
+                self.newLineInserted.emit()
         else:
             super(_QsciScintilla, self).keyPressEvent(event)
 
@@ -415,17 +424,14 @@ class Editor(AbstractTextEditor):
         
         # Configure editor
         self.qscintilla = _QsciScintilla(self)
+        self.qscintilla.newLineInserted.connect(self.newLineInserted)
         
         pixmap = QIcon(":/mksicons/bookmark.png").pixmap(16, 16)
         self._MARKER_BOOKMARK = self.qscintilla.markerDefine(pixmap, -1)
         
         self._initQsciShortcuts()
-
-        self.qscintilla.installEventFilter(self)
         
-        #self.qscintilla.markerDefine(QPixmap(":/editor/bookmark.png").scaled(self._pixSize), mdBookmark)
-        
-        self.qscintilla.setUtf8(True) # deal with utf8
+        self.qscintilla.setUtf8(True)
         
         self.qscintilla.setAttribute(Qt.WA_MacSmallSize)
         self.qscintilla.setFrameStyle(QFrame.NoFrame | QFrame.Plain)
@@ -807,15 +813,6 @@ class Editor(AbstractTextEditor):
             self.qscintilla.setSelection(selectionLine, selectionCol,
                                          line, column)
         self.qscintilla.ensureLineVisible(line)
-
-    def line(self, index):
-        """Get line of the text by its index. Lines are indexed from 0
-        None, if index is invalid
-        """
-        if self.qscintilla.lines() > index:
-            return self.qscintilla.text(index)
-        else:
-            return None
     
     def lineCount(self):
         """Get line count
