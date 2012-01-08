@@ -9,7 +9,7 @@ import os.path
 import shutil
 
 from PyQt4.QtCore import pyqtSignal, Qt
-from PyQt4.QtGui import QColor, QFont, QFrame, QIcon, QKeyEvent, QKeySequence, QVBoxLayout
+from PyQt4.QtGui import QColor, QFont, QFrame, QIcon, QKeyEvent, QKeySequence, QMessageBox, QVBoxLayout
 
 from PyQt4.Qsci import *  # pylint: disable=W0401,W0614
 
@@ -30,6 +30,10 @@ class _QsciScintilla(QsciScintilla):
     
     newLineInserted = pyqtSignal()
     
+    def __init__(self, editor):
+        self._editor = editor
+        QsciScintilla.__init__(self, editor)
+    
     def keyPressEvent(self, event):
         """Key pressing handler
         """
@@ -44,6 +48,7 @@ class _QsciScintilla(QsciScintilla):
                 self.newLineInserted.emit()
         else:
             super(_QsciScintilla, self).keyPressEvent(event)
+
 
 class EditorConfigurator(ModuleConfigurator):
     """ModuleConfigurator interface implementation
@@ -256,6 +261,18 @@ class LexerConfig:
                     lexerSection['indentationWarning'] = True
                     lexerSection['indentationWarningReason'] = reasonFromQsci[reason]
 
+def _getPygmentsSchemeLexer(editor):
+    """Construct and return pygments lexer for Scheme. Sets valid language name, lazy import
+    """
+    try:
+        import mks.plugins.lexerpygments
+    except ImportError:
+        QMessageBox.critical(core.workspace(), "Failed to load pygments",
+                             "<html>mksv3 can't highlight Scheme source, "\
+                             "because <b>pygments</b> library not found</html>")
+        return None
+    return mks.plugins.lexerpygments.LexerPygments(editor, 'Scheme')
+
 class Lexer:
     """Wrapper for all Qscintilla lexers. Functionality:
     
@@ -282,8 +299,9 @@ class Lexer:
         "Properties"    : QsciLexerProperties,
         "Python"        : QsciLexerPython,
         "Ruby"          : QsciLexerRuby,
-        "SQL"           : QsciLexerSQL,
         "Spice"         : QsciLexerSpice,
+        "SQL"           : QsciLexerSQL,
+        "Scheme"        : _getPygmentsSchemeLexer,
         "TeX"           : QsciLexerTeX,
         "VHDL"          : QsciLexerVHDL,
         "TCL"           : QsciLexerTCL,
@@ -325,15 +343,15 @@ class Lexer:
         """Apply programming language. Changes syntax highlighting mode
         """
         self.currentLanguage = language
+        self.qscilexer = None
         # Create lexer
         if self.currentLanguage and \
            self.currentLanguage in self.LEXER_FOR_LANGUAGE:  # if language is supported
             lexerClass =  self.LEXER_FOR_LANGUAGE[self.currentLanguage]
-            self.qscilexer = lexerClass()
+            self.qscilexer = lexerClass(self._editor.qscintilla)
+        if self.qscilexer is not None:
             self.applySettings()
             self._editor.qscintilla.setLexer(self.qscilexer)
-        else:
-            self.qscilexer = None
 
     def applySettings(self):
         """Apply editor and lexer settings

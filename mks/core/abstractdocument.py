@@ -508,6 +508,8 @@ class AbstractTextEditor(AbstractDocument):
         lines = text.splitlines()
         if text.endswith('\n'):
             lines.append('')
+        elif not lines:  # empty text contains one empty line
+            lines.append('')
         return lines
 
     def lineCount(self):
