@@ -85,6 +85,7 @@ class Core:
         self._loadPlugin('helpmenu')
         self._loadPlugin('associations')
         self._loadPlugin('mitscheme')
+        self._loadPlugin('schemeindenthelper')
 
     def term(self):
         """Terminate plugins and core modules
