@@ -318,16 +318,11 @@ class UISettings(QDialog):
                                      u"Editor": self.pEditorGeneral,
                                      u"Editor/Auto completion": self.pAutoCompletion,
                                      u"Editor/Colours": self.pColours,
-                                     u"Editor/CallTips": self.pCalltips,
                                      u"Editor/Indentation": self.pIndentation,
                                      u"Editor/Brace matching": self.pBraceMatching,
                                      u"Editor/Edge": self.pEdgeMode,
                                      u"Editor/Caret": self.pCaret,
                                      u"Editor/EOL": self.pEditorVisibility,
-                                     u"Editor/Language": self.pLexerGeneral,
-                                     u"Editor/Language/Fonts": self.pLexerFonts,
-                                     u"Editor/Language/API files": self.pLexerApi,
-                                     u"Editor/Language/Abbreviations": self.pLexerAbbreviations,
                                      u"Modes": self.pModes,
                                      u"File browser": self.pFileBrowser})
         
