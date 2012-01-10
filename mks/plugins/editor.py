@@ -23,10 +23,12 @@ from mks.core.uisettings import ModuleConfigurator, \
                                 CheckableOption, ChoiseOption, FontOption, NumericOption, ColorOption
 
 class _QsciScintilla(QsciScintilla):
-    """QsciScintilla wrapper class. It is created to catch 2 key events:
+    """QsciScintilla wrapper class. It is created to 
     
-    * When Shift+Tab pressed - Qt moves focus, but it is not desired behaviour. This class catches the event
-    * When Enter presesed, class emits a signal after newline had been inserted
+    
+    * Catch Shift+Tab. When pressed - Qt moves focus, but it is not desired behaviour. This class catches the event
+    * Catch Enter presesing and emits a signal after newline had been inserted
+    * Fix EOL mode when pasting text
     """
     
     newLineInserted = pyqtSignal()
@@ -49,6 +51,12 @@ class _QsciScintilla(QsciScintilla):
                 self.newLineInserted.emit()
         else:
             super(_QsciScintilla, self).keyPressEvent(event)
+    
+    def paste(self):
+        """paste() method reimplementation. Converts EOL after text had been pasted
+        """
+        QsciScintilla.paste(self)
+        self.convertEols(self.eolMode())
 
 
 class LexerSettingsWidget(QWidget):

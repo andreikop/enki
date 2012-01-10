@@ -22,6 +22,8 @@ MKS_TOGGLE_BOOKMARK = -1
 MKS_NEXT_BOOKMARK = -2
 MKS_PREV_BOOKMARK = -3
 
+MKS_PASTE = -4
+
 _ACTIONS = (\
 (qsci.SCI_SELECTALL, 'mEdit/mSelection/aSelectAll', tr('Select All'), 'Ctrl+A', ''),
 (qsci.SCI_LINEDOWNEXTEND, 'mEdit/mSelection/aDownOneLine', tr('Extend Down'), 'Shift+Down', ''),
@@ -125,7 +127,7 @@ _ACTIONS = (\
 (qsci.SCI_DELLINERIGHT, 'mEdit/mDelete/aLineToRight', tr('Line to right'), 'Ctrl+Alt+Del', ''),
 \
 (qsci.SCI_COPY, 'mEdit/mCopyPaste/aCopy', tr('Copy'), 'Ctrl+C', 'copy.png'),
-(qsci.SCI_PASTE, 'mEdit/mCopyPaste/aPaste', tr('Paste'), 'Ctrl+V', 'paste.png'),
+(MKS_PASTE, 'mEdit/mCopyPaste/aPaste', tr('Paste'), 'Ctrl+V', 'paste.png'),
 (qsci.SCI_CUT, 'mEdit/mCopyPaste/aCut', tr('Cut'), 'Ctrl+X', 'cut.png'),
 (qsci.SCI_LINECUT, 'mEdit/mCopyPaste/aCutLine', tr('Cut line'), 'Ctrl+L', 'cut.png'),
 (qsci.SCI_LINECOPY, 'mEdit/mCopyPaste/aCopyLine', tr('Copy line'), 'Ctrl+Alt+T', 'copy.png'),
@@ -232,5 +234,7 @@ class Plugin(QObject):
             self._currentDocument.nextBookmark()
         elif MKS_PREV_BOOKMARK == code:
             self._currentDocument.prevBookmark()
+        elif MKS_PASTE == code:  # Paste via method, to fix EOL
+            self._currentDocument.qscintilla.paste()
         else:
             assert 0
