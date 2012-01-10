@@ -8,13 +8,14 @@ This text editor is used by default
 import os.path
 import shutil
 
+from PyQt4 import uic
 from PyQt4.QtCore import pyqtSignal, Qt
-from PyQt4.QtGui import QColor, QFont, QFrame, QIcon, QKeyEvent, QKeySequence, QMessageBox, QVBoxLayout
+from PyQt4.QtGui import QColor, QFont, QFrame, QIcon, QKeyEvent, QKeySequence, QMessageBox, QWidget, QVBoxLayout
 
 from PyQt4.Qsci import *  # pylint: disable=W0401,W0614
 
 from mks.core.abstractdocument import AbstractTextEditor
-from mks.core.core import core
+from mks.core.core import core, DATA_FILES_PATH
 
 import mks.core.defines
 from mks.core.config import Config
@@ -49,6 +50,11 @@ class _QsciScintilla(QsciScintilla):
         else:
             super(_QsciScintilla, self).keyPressEvent(event)
 
+
+class LexerSettingsWidget(QWidget):
+    def __init__(self, *args):
+        QWidget.__init__(self, *args)
+        uic.loadUi(os.path.join(DATA_FILES_PATH,'ui/plugins/EditorLexerSettings.ui'), self)
 
 class EditorConfigurator(ModuleConfigurator):
     """ModuleConfigurator interface implementation
@@ -88,15 +94,16 @@ class EditorConfigurator(ModuleConfigurator):
             CheckableOption(dialog, cfg, "Editor/AutoCompletion/ShowSingle", dialog.cbAutoCompletionShowSingle),
             NumericOption(dialog, cfg, "Editor/AutoCompletion/Threshold", dialog.sAutoCompletionThreshold),
         
-            CheckableOption(dialog, cfg, "Editor/CallTips/Enabled", dialog.gbCalltips),
-            NumericOption(dialog, cfg, "Editor/CallTips/VisibleCount", dialog.sCallTipsVisible),
-            ChoiseOption(dialog, cfg, "Editor/CallTips/Style",
-                         { dialog.rbCallTipsNoContext : "NoContext",
-                           dialog.rbCallTipsContext : "Context",
-                           dialog.rbCallTipsNoAutoCompletionContext: "NoAutoCompletionContext"}),
-            ColorOption(dialog, cfg, "Editor/CallTips/BackgroundColor", dialog.tbCalltipsBackground),
-            ColorOption(dialog, cfg, "Editor/CallTips/ForegroundColor", dialog.tbCalltipsForeground),
-            ColorOption(dialog, cfg, "Editor/CallTips/HighlightColor", dialog.tbCalltipsHighlight),
+            # TODO restore or remove
+            #CheckableOption(dialog, cfg, "Editor/CallTips/Enabled", dialog.gbCalltips),
+            #NumericOption(dialog, cfg, "Editor/CallTips/VisibleCount", dialog.sCallTipsVisible),
+            #ChoiseOption(dialog, cfg, "Editor/CallTips/Style",
+            #             { dialog.rbCallTipsNoContext : "NoContext",
+            #               dialog.rbCallTipsContext : "Context",
+            #               dialog.rbCallTipsNoAutoCompletionContext: "NoAutoCompletionContext"}),
+            #ColorOption(dialog, cfg, "Editor/CallTips/BackgroundColor", dialog.tbCalltipsBackground),
+            #ColorOption(dialog, cfg, "Editor/CallTips/ForegroundColor", dialog.tbCalltipsForeground),
+            #ColorOption(dialog, cfg, "Editor/CallTips/HighlightColor", dialog.tbCalltipsHighlight),
         
             CheckableOption(dialog, cfg, "Editor/Indentation/Guides", dialog.gbIndentationGuides),
             ChoiseOption(dialog, cfg, "Editor/Indentation/UseTabs",
@@ -141,33 +148,33 @@ class EditorConfigurator(ModuleConfigurator):
     def _createLexerOptions(self, dialog):
         """Create lexer (not editor) specific options
         """
-        lexerItem = dialog.twMenu.findItems("Language", Qt.MatchExactly | Qt.MatchRecursive)[0]
         editor = core.workspace().currentDocument()
 
         if editor is None or \
            editor.lexer.currentLanguage is None or \
-           editor.lexer.currentLanguage not in Lexer.LEXER_FOR_LANGUAGE or \
+           editor.lexer.currentLanguage == 'Scheme' or \
            Plugin.instance.lexerConfig is None:  # If language is unknown, or lexer configuration are not available
-            lexerItem.setDisabled(True)
             return
         
+        widget = LexerSettingsWidget(dialog)
+        dialog.appendPage(u"Editor/%s" % editor.lexer.currentLanguage, widget)
+        
         lexerConfig = Plugin.instance.lexerConfig.config
-        lexerItem.setText(0, editor.lexer.currentLanguage)
         lexer = editor.lexer.qscilexer
         beginning = "%s/" % editor.lexer.currentLanguage
         
-        boolAttributeControls = (dialog.cbLexerFoldComments,
-                                 dialog.cbLexerFoldCompact,
-                                 dialog.cbLexerFoldQuotes,
-                                 dialog.cbLexerFoldDirectives,
-                                 dialog.cbLexerFoldAtBegin,
-                                 dialog.cbLexerFoldAtParenthesis,
-                                 dialog.cbLexerFoldAtElse,
-                                 dialog.cbLexerFoldAtModule,
-                                 dialog.cbLexerFoldPreprocessor,
-                                 dialog.cbLexerStylePreprocessor,
-                                 dialog.cbLexerCaseSensitiveTags,
-                                 dialog.cbLexerBackslashEscapes)
+        boolAttributeControls = (widget.cbLexerFoldComments,
+                                 widget.cbLexerFoldCompact,
+                                 widget.cbLexerFoldQuotes,
+                                 widget.cbLexerFoldDirectives,
+                                 widget.cbLexerFoldAtBegin,
+                                 widget.cbLexerFoldAtParenthesis,
+                                 widget.cbLexerFoldAtElse,
+                                 widget.cbLexerFoldAtModule,
+                                 widget.cbLexerFoldPreprocessor,
+                                 widget.cbLexerStylePreprocessor,
+                                 widget.cbLexerCaseSensitiveTags,
+                                 widget.cbLexerBackslashEscapes)
         
         for attribute, control in zip(Lexer.LEXER_BOOL_ATTRIBUTES, boolAttributeControls):
             if hasattr(lexer, attribute):
@@ -176,20 +183,20 @@ class EditorConfigurator(ModuleConfigurator):
                 control.hide()
 
         self._options.extend(( \
-             CheckableOption(dialog, lexerConfig, beginning + "indentOpeningBrace", dialog.cbLexerIndentOpeningBrace),
-             CheckableOption(dialog, lexerConfig, beginning + "indentClosingBrace", dialog.cbLexerIndentClosingBrace)))
+             CheckableOption(dialog, lexerConfig, beginning + "indentOpeningBrace", widget.cbLexerIndentOpeningBrace),
+             CheckableOption(dialog, lexerConfig, beginning + "indentClosingBrace", widget.cbLexerIndentClosingBrace)))
 
         if hasattr(lexer, "indentationWarning"):
             self._options.extend((
                 CheckableOption(dialog, lexerConfig,
-                                beginning + "indentationWarning", dialog.gbLexerHighlightingIndentationWarning),
+                                beginning + "indentationWarning", widget.gbLexerHighlightingIndentationWarning),
                 ChoiseOption(dialog, lexerConfig, beginning + "indentationWarningReason", 
-                             {dialog.cbIndentationWarningInconsistent: "Inconsistent",
-                             dialog.cbIndentationWarningTabsAfterSpaces: "TabsAfterSpaces",
-                             dialog.cbIndentationWarningTabs: "Tabs",
-                             dialog.cbIndentationWarningSpaces: "Spaces"})))
+                             {widget.cbIndentationWarningInconsistent: "Inconsistent",
+                             widget.cbIndentationWarningTabsAfterSpaces: "TabsAfterSpaces",
+                             widget.cbIndentationWarningTabs: "Tabs",
+                             widget.cbIndentationWarningSpaces: "Spaces"})))
         else:
-            dialog.gbLexerHighlightingIndentationWarning.hide()
+            widget.gbLexerHighlightingIndentationWarning.hide()
 
     def saveSettings(self):
         """Main settings should be saved by the core. Save only lexer settings
