@@ -74,7 +74,10 @@ class _ExpandableTextEdit(QTextEdit):
             text = self.toPlainText()
             cursorPos = self.textCursor().position()
             textBeforeEnd = text[cursorPos:]
-            if len(textBeforeEnd.splitlines()) <= 1:
+            lineCountBeforeEnd = len(textBeforeEnd.splitlines())
+            if textBeforeEnd.endswith('\r') or textBeforeEnd.endswith('\n'):
+                lineCountBeforeEnd += 1
+            if lineCountBeforeEnd <= 1:
                 self.historyNext.emit()
                 return
         elif event.matches(QKeySequence.MoveToPreviousLine):
