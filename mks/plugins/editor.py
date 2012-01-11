@@ -258,7 +258,7 @@ class LexerConfig:
         for language, lexerClass in Lexer.LEXER_FOR_LANGUAGE.items():
             self.config[language] = {}
             lexerSection = self.config[language]
-            lexerObject = lexerClass()
+            lexerObject = lexerClass(None)
 
             for attribute in Lexer.LEXER_BOOL_ATTRIBUTES:
                 if hasattr(lexerObject, attribute):

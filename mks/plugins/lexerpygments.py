@@ -25,14 +25,17 @@ class LexerPygments(QsciLexerCustom):
         self._lastBusyId = -1
         
         self._language = 'Scheme'
-        self._lexer = self._guessLexer(parent.text())
+        
+        if parent is not None:
+            self._lexer = self._guessLexer(parent.text())
         
         self._style = pygments.styles.get_style_by_name('default')
         
         self.TOKEN_TO_QSTYLE = {token: self._getNextStyleId() for token in pygments.token.STANDARD_TYPES}
         self.QSTYLE_TO_TOKEN = {v: k for k, v in self.TOKEN_TO_QSTYLE.items()}
         
-        parent.textChanged.connect(self._onTextChanged)
+        if parent is not None:
+            parent.textChanged.connect(self._onTextChanged)
     
     def _onTextChanged(self):
         """Handler of textChanged signal from the editor.
