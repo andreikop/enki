@@ -79,10 +79,10 @@ DEFAULT_STYLE = {   'defaultBackground':    QColor("#ffffff"),
                     'defaultForeground':    QColor("#000000"),
                     'matchedBrace':         _makeFormat(bg="#ffff7f", fg="#ff0000"),
                     'unMatchedBrace':       _makeFormat(bg="#ff0000", fg="#ffffff"),
-                    'keyword':              _makeFormat(bold=True),
-                    'standardFunction':     _makeFormat(fg="#000080", bold=True),
-                    'number':               _makeFormat(fg='#008080'),
-                    'string':               _makeFormat(fg='#800080'),
+                    'keyword':              _makeFormat(fg="#008000", bold=True),
+                    'standardFunction':     _makeFormat(fg="#008000"),
+                    'number':               _makeFormat(fg='#666666'),
+                    'string':               _makeFormat(fg='#BA2121'),
                 }
 
 class Highlighter(QSyntaxHighlighter):
