@@ -1,6 +1,6 @@
 import os.path
 
-from PyQt4.QtCore import QObject, Qt, QTimer
+from PyQt4.QtCore import pyqtSignal, QObject, Qt, QTimer
 from PyQt4.QtGui import QFileDialog, QIcon, QMessageBox, QWidget
 from PyQt4 import uic
 
@@ -25,7 +25,7 @@ class MitSchemeSettings(QWidget):
         self.pbInterpreterPath.clicked.connect(self._onPbInterpreterPathClicked)
     
     def _onPbInterpreterPathClicked(self):
-        path = 	QFileDialog.getOpenFileName(core.mainWindow(), 'MIT Scheme interpreter path')
+        path = QFileDialog.getOpenFileName(core.mainWindow(), 'MIT Scheme interpreter path')
         if path:
             self.leInterpreterPath.setText(path)
 
@@ -162,10 +162,17 @@ class Plugin(QObject):
         self._evalAction.setStatusTip("Evaluate selection. If nothing is selected - save and evaluate whole file")
         self._evalAction.setShortcut("Ctrl+E")
         self._evalAction.triggered.connect(self._onEvalTriggered)
-        self._updateEvalActionEnabledState()
+        self._breakAction = core.actionModel().addAction("mScheme/mBreak", "Stop the interpreter")
+        self._breakAction.setStatusTip("Use it as a restart action.")
+        self._breakAction.setShortcut("Pause")
+        self._breakAction.triggered.connect(self._onBreakTriggered)
+        self._breakAction.setEnabled(False)
 
         self._activeInterpreterPath = core.config()["Modes"]["Scheme"]["InterpreterPath"]
         self._mitScheme = MitScheme(self._activeInterpreterPath)
+        
+        self._mitScheme.processIsRunningChanged.connect(lambda isRunning: self._breakAction.setEnabled(isRunning))
+        
         self._dock = MitSchemeDock(self._mitScheme.widget())
 
         core.mainWindow().dockToolBar( Qt.BottomToolBarArea ).addDockWidget(self._dock)
@@ -197,6 +204,12 @@ class Plugin(QObject):
             if document.isModified():
                 document.saveFile()
             self._mitScheme.loadFile(document.filePath())
+    
+    def _onBreakTriggered(self):
+        """Break has been triggered. Stop the interpreter
+        """
+        self._mitScheme.stop()
+
 
 class MitSchemeDock(pDockWidget):
     def __init__(self, widget):
@@ -256,10 +269,19 @@ class MitSchemeTermWidget(mks.lib.termwidget.TermWidget):
     def childExecCommand(self, text):
         self._mitScheme.execCommand(text)
 
-class MitScheme:
+class MitScheme(QObject):
     """MIT scheme shell. Implements REPL. Graphical frontend for original terminal version.
     """
+    
+    processIsRunningChanged = pyqtSignal(bool)
+    """
+    processStopped(isRunning)
+    
+    **Signal** emitted, when MIT Scheme process starts and stops
+    """  # pylint: disable=W0105
+
     def __init__(self, interpreterPath):
+        QObject.__init__(self)
         self._term = MitSchemeTermWidget(self)
         self._interpreterPath = interpreterPath
         
@@ -279,6 +301,9 @@ class MitScheme:
         return self._term
 
     def start(self):
+        if self._schemeIsRunning:
+            return
+
         try:
             self._buffPopen.start()
         except OSError, ex:
@@ -294,11 +319,17 @@ class MitScheme:
 
         self._processOutputTimer.start()
         self._schemeIsRunning = True
+        self.processIsRunningChanged.emit(self._schemeIsRunning)
 
     def stop(self):
+        if not self._schemeIsRunning:
+            return
+
         self._processOutputTimer.stop()
         self._buffPopen.stop()
         self._schemeIsRunning = False
+        self._term.appendError("Interpreter process exited. Execute any command to run it again\n")
+        self.processIsRunningChanged.emit(self._schemeIsRunning)
 
     def execCommand(self, text):
         if not self._schemeIsRunning:
@@ -325,5 +356,4 @@ class MitScheme:
         if output:
             self._term.appendOutput(output)
         if self._schemeIsRunning and not self._buffPopen.isAlive():
-            self._term.appendError("Interpreter process exited. Execute any command to run it again\n")
             self.stop()
