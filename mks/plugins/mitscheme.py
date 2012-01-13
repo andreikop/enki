@@ -235,7 +235,6 @@ class MitSchemeTermWidget(mks.lib.termwidget.TermWidget):
     def __init__(self, mitScheme, *args):
         mks.lib.termwidget.TermWidget.__init__(self, *args)
         self._mitScheme = mitScheme
-        self._hl = mks.lib.highlighter.Highlighter(self._edit)
 
     def isCommandComplete(self, text):
         # TODO support comments
