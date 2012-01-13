@@ -6,7 +6,9 @@ This plugin will probably be converted to something more generic, or merged to e
 """
 
 from PyQt4.QtCore import QObject
+
 from mks.core.core import core
+import mks.core.abstractdocument
 
 #
 # Intergration with the core
@@ -17,41 +19,29 @@ class Plugin(QObject):
     """
     def __init__(self):
         QObject.__init__(self)
-        
-        core.workspace().documentOpened.connect(self._onDocumentOpened)
-        for document in core.workspace().openedDocuments():
-            if document.highlightingLanguage() == 'Scheme':
-                document.newLineInserted.connect(self._onNewLineInserted)
+        core.setIndentHelper("Scheme", SchemeIndentHelper)
+    
+    def uninstall(self):
+        """Plugin.uninstall implementation. Clear the indent helper
+        """
+        core.setIndentHelper("Scheme", None)
     
     def moduleConfiguratorClass(self):
         """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
         """
         return None  # No any settings
 
-    def _onDocumentOpened(self, document):
-        """New document had been opened. Connect to its signals
-        """
-        if document.highlightingLanguage() == 'Scheme':
-            document.newLineInserted.connect(self._onNewLineInserted)
-        document.languageChanged.connect(self._onDocumentLanguageChanged)
 
-    def _onDocumentLanguageChanged(self, old, new):
-        """Document language changed. Probably, now it is scheme document
+class SchemeIndentHelper(mks.core.abstractdocument.IndentHelper):
+    """IndentHelper implementation
+    """
+    @staticmethod
+    def indent(editor):
+        """IndentHelper.indent implementation
         """
-        document = self.sender()
-        if old == 'Scheme':
-            document.newLineInserted.disconnect(self._onNewLineInserted)
-        if new == 'Scheme':
-            document.newLineInserted.connect(self._onNewLineInserted)
-
-    def _onNewLineInserted(self):
-        """New line inserted to Scheme document. Indent it properly
-        """
-        editor = self.sender()
-
         # currently plugin can't deal with tabs correclty, so, don't need to corrupt users file
         if editor.indentUseTabs():
-            return
+            return None
 
         curAbsPos = editor.absCursorPosition()
         curLine, curCol = editor.cursorPosition()
@@ -59,21 +49,16 @@ class Plugin(QObject):
         linesBefore = editor.lines()[:curLine - 1]
         # if the last line before cursor is empty - use editors default indent
         if linesBefore and not linesBefore[-1].strip():
-            return
+            return None
         
         textBefore = '\n'.join(linesBefore)
 
         try:
             indentWidth = nextLineIndent(textBefore)
         except UserWarning:  # if we can't parse the text, let's leave default indentation
-            return
-    
-        indent = ' ' * indentWidth
-        
-        lineText = editor.line(curLine).lstrip()
+            return None
 
-        editor.setLine(curLine, indent + lineText)
-        editor.goTo(line=curLine, col=len(indent))
+        return ' ' * indentWidth
 
 #
 # Plugin functionality

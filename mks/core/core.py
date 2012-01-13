@@ -35,6 +35,7 @@ class Core:
         self._workspace = None
         self._config = None
         self._uiSettingsManager = None
+        self._indentHelpers = {}
 
         # List of core configurators. To be filled ONLY by other core modules. Readed ONLY by core.uisettings
         # Use direct access to the list, no methods are provided
@@ -129,7 +130,25 @@ class Core:
         """Get list of curretly loaded plugins (::class:`mks.core.Plugin` instances)
         """
         return self._loadedPlugins
+    
+    def setIndentHelper(self, language, indentHelper):
+        """Set  ::class:`mks.core.abstractdocument.IndentHelper` for language. Pass None to clear the value
+        """
+        if indentHelper is not None:
+            self._indentHelpers[language] = indentHelper
+        else:  # clear
+            try:
+                del self._indentHelpers[language]
+            except KeyError:
+                pass
         
+    def indentHelper(self, language):
+        """Get ::class:`mks.core.abstractdocument.IndentHelper` for the language
+        
+        Raises KeyError, if not available
+        """
+        return self._indentHelpers[language]
+
     def _loadPlugin(self, name):
         """Load plugin by it's module name
         """
