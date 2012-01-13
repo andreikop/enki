@@ -141,17 +141,15 @@ class Highlighter(QSyntaxHighlighter):
     def _makePatternFromList(self, strings):
         """Convert list of patterns for keywords, etc to one long pattern
         """
+        modifiedStrings = []
         for s in strings:
             if s[0].isalnum():
                 s = r'\b' + s
-            else:
-                s = r'[^\b]' + s
             if s[-1].isalnum():
                 s = s + r'\b'
-            else:
-                s = s + r'[^\b]'
+            modifiedStrings.append(s)
 
-        pattern = '|'.join(strings)  # join to one pattern
+        pattern = '|'.join(modifiedStrings)  # join to one pattern
         return re.compile(pattern)
 
     def highlightBlock(self, text):
