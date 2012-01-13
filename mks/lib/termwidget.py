@@ -9,12 +9,14 @@ This widget only provides GUI, but does not implement any system terminal or oth
 
 import cgi
 
-from PyQt4.QtCore import pyqtSignal
+from PyQt4.QtCore import pyqtSignal, QEvent
 from PyQt4.QtGui import QColor, QKeySequence, QLineEdit, QPalette, \
                         QSizePolicy, QTextCursor, QTextEdit, \
                         QVBoxLayout, QWidget
 
-class _ExpandableTextEdit(QTextEdit):
+import mks.plugins.editor
+
+class Edit(mks.plugins.editor.Editor):
     """Text editor widget, which expands themselves automatically, when line count changes
     """
     
@@ -31,70 +33,30 @@ class _ExpandableTextEdit(QTextEdit):
     
     **Signal** emitted, when user wants to roll history to previous item
     """  # pylint: disable=W0105
-
-    def __init__(self, termWidget, *args):
-        QTextEdit.__init__(self, *args)
-        self._termWidget = termWidget
-        self._fittedHeight = 0
-        self.textChanged.connect(self._fitToDocument)
-
-    def sizeHint(self):
-        """QWidget.sizeHint impelemtation
-        """
-        hint = QTextEdit.sizeHint(self)
-        hint.setHeight(self._fittedHeight)
-        return hint
     
-    def showEvent(self, event):  # TO fight fucking flickering, when settings are applied and widget is recreated
-        """QWidget.sizeHint impelemtation
-        """
-        QWidget.showEvent(self, event)
-        self._fitToDocument()
-
-    def _fitToDocument(self):
-        """Update widget height to fit all text
-        """
-        documentSize = self.document().size().toSize()
-        self.updateGeometry()
-        fittedHeight = documentSize.height() + (self.height() - self.viewport().height())
-        if fittedHeight > 10:
-            self._fittedHeight = fittedHeight
-            self.setMaximumHeight(self._fittedHeight)
-            self.updateGeometry()
+    def __init__(self, *args):
+        mks.plugins.editor.Editor.__init__(self, *args)
+        self.qscintilla.installEventFilter(self)
     
-    def keyPressEvent(self, event):
-        """Catch keywoard events. Process Enter, Up, Down, PgUp, PgDown
+    def eventFilter(self, obj, event):
+        """Catches _edit key pressings. Processes some of them
         """
-        if event.matches(QKeySequence.InsertParagraphSeparator):
-            text = self.toPlainText()
-            if self._termWidget.isCommandComplete(text):
-                self._termWidget.execCurrentCommand()
-                return
-        elif event.matches(QKeySequence.MoveToNextLine):
-            text = self.toPlainText()
-            cursorPos = self.textCursor().position()
-            textBeforeEnd = text[cursorPos:]
-            lineCountBeforeEnd = len(textBeforeEnd.splitlines())
-            if textBeforeEnd.endswith('\r') or textBeforeEnd.endswith('\n'):
-                lineCountBeforeEnd += 1
-            if lineCountBeforeEnd <= 1:
-                self.historyNext.emit()
-                return
-        elif event.matches(QKeySequence.MoveToPreviousLine):
-            text = self.toPlainText()
-            cursorPos = self.textCursor().position()
-            textBeforeStart = text[:cursorPos]
-            lineCount = len(textBeforeStart.splitlines())
-            if textBeforeStart.endswith('\n') or textBeforeStart.endswith('\r'):
-                lineCount += 1
-            if lineCount <= 1:
-                self.historyPrev.emit()
-                return
-        elif event.matches(QKeySequence.MoveToNextPage) or \
-             event.matches(QKeySequence.MoveToPreviousPage):
-            return self._termWidget.browser().keyPressEvent(event)
+        if event.type() == QEvent.KeyPress:
+            if event.matches(QKeySequence.MoveToNextLine):
+                if self.cursorPosition()[0] == self.lineCount():
+                    self.historyNext.emit()
+                    return True
+            elif event.matches(QKeySequence.MoveToPreviousLine):
+                if self.cursorPosition()[0] == 1:
+                    self.historyPrev.emit()
+                    return True
+            elif event.matches(QKeySequence.MoveToNextPage) or \
+                 event.matches(QKeySequence.MoveToPreviousPage):
+                self.parent()._browser().keyPressEvent(event)
+                return True
         
-        QTextEdit.keyPressEvent(self, event)
+        return mks.plugins.editor.Editor.eventFilter(self, obj, event)
+
 
 class TermWidget(QWidget):
     """Widget wich represents terminal. It only displays text and allows to enter text.
@@ -108,9 +70,11 @@ class TermWidget(QWidget):
         self._browser.document().setDefaultStyleSheet(self._browser.document().defaultStyleSheet() + 
                                                       "span {white-space:pre;}")
 
-        self._edit = _ExpandableTextEdit(self, self)
+        self._edit = Edit(self, None)
+        self._edit.newLineInserted.connect(self._onEditNewLine)
         self._edit.historyNext.connect(self._onHistoryNext)
         self._edit.historyPrev.connect(self._onHistoryPrev)
+
         self.setFocusProxy(self._edit)
 
         layout = QVBoxLayout(self)
@@ -175,13 +139,13 @@ class TermWidget(QWidget):
             scrollBar.setValue(scrollBar.maximum())
         else:
             scrollBar.setValue(oldValue)
-            
 
     def execCurrentCommand(self):
         """Save current command in the history. Append it to the log. Clear edit line
         Reimplement in the child classes to actually execute command
         """
-        text = self._edit.toPlainText()
+        text = self._edit.text()
+        text = text[:text.rindex('\n')]
         self._appendToBrowser('in', text + '\n')
 
         if len(self._history) < 2 or\
@@ -191,7 +155,7 @@ class TermWidget(QWidget):
         self._historyIndex = len(self._history) - 1
         
         self._history[-1] = ''
-        self._edit.clear()
+        self._edit.setText('')
         
         if not text.endswith('\n'):
             text += '\n'
@@ -219,20 +183,27 @@ class TermWidget(QWidget):
         """
         return True
     
+    def _onEditNewLine(self):
+        """Handler of Enter pressing in the edit
+        """
+        text = self._edit.text()
+        if self.isCommandComplete(text):
+            self.execCurrentCommand()
+
     def _onHistoryNext(self):
         """Down pressed, show next item from the history
         """
         if (self._historyIndex + 1) < len(self._history):
             self._historyIndex += 1
-            self._edit.setPlainText(self._history[self._historyIndex])
-            self._edit.moveCursor(QTextCursor.End)
+            self._edit.setText(self._history[self._historyIndex])
+            self._edit.goTo(absPos=len(self._edit.text()) - 1)
 
     def _onHistoryPrev(self):
         """Up pressed, show previous item from the history
         """
         if self._historyIndex > 0:
             if self._historyIndex == (len(self._history) - 1):
-                self._history[-1] = self._edit.toPlainText()
+                self._history[-1] = self._edit.text()
             self._historyIndex -= 1
-            self._edit.setPlainText(self._history[self._historyIndex])
-            self._edit.moveCursor(QTextCursor.End)
+            self._edit.setText(self._history[self._historyIndex])
+            self._edit.goTo(absPos=len(self._edit.text()) - 1)
