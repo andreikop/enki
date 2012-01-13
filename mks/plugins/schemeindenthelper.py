@@ -204,9 +204,9 @@ def nextLineIndent(text):
     >>> nextLineIndent( '  a\\n\\n' )
     0
     >>> nextLineIndent( '(define myfunc' )
-    3
+    2
     >>> nextLineIndent( '(let ((pi 3.14) (r 120))' )
-    3
+    2
     """
     
     # TODO support comments sometimes, when parsing Scheme sources
@@ -223,9 +223,9 @@ def nextLineIndent(text):
     
     strippedLastLine = lines[-1].rstrip()
     if strippedLastLine.endswith('define'):  # special case
-        return len(strippedLastLine) - len('define') + 2
+        return len(strippedLastLine) - len('define') + 1
     if strippedLastLine.endswith('let'):  # special case
-        return len(strippedLastLine) - len('let') + 2
+        return len(strippedLastLine) - len('let') + 1
     else:
         return len(lines[-1])
 
