@@ -250,6 +250,25 @@ class AbstractDocument(QWidget):
             icon = "transparent.png"
         return QIcon(":/mksicons/" + icon)
 
+class IndentHelper:
+    """This class is an interface declaration for indentation helpers. Indentation helper is a function,
+    which "knows", how to indent particular language.
+    
+    I.e., for Scheme, indent helper exists, which indentsit according to http://community.schemewiki.org/?scheme-style
+    
+    To create own indentation helper, subclass this class and implement indent() method.
+    
+    See core.indentHelper() and core.setIndentHelper()  TODO LINK
+    """
+    
+    @staticmethod
+    def indent(editor):
+        """Editor calls this method after new line has been inserted and it indented it automatically.
+        If indenHelper has better suggestion, it returns it, and line contents will be replaced with returned value.
+        None means "leave default indentation"
+        """
+        raise NotImplemented()
+    
 
 class AbstractTextEditor(AbstractDocument):
     """Base class for text editors. Currently, only QScintilla is supported, but, we may replace it in the future
@@ -279,6 +298,7 @@ class AbstractTextEditor(AbstractDocument):
     def __init__(self, parentObject, filePath, createNew=False):
         AbstractDocument.__init__(self, parentObject, filePath, createNew)
         self._highlightingLanguage = None
+        self.newLineInserted.connect(self._onNewLineInserted)
     
     def eolMode(self):
         """Return document's EOL mode. Possible values are:
@@ -587,6 +607,25 @@ class AbstractTextEditor(AbstractDocument):
                 self._setModified(True)
             
             self.setEolMode(default)
+
+    def _onNewLineInserted(self):
+        """New line inserted. Indent it properly with helper, if helper is available
+        """
+        lang = self.highlightingLanguage()
+        try:
+            indenHelper = core.indentHelper(lang)
+        except KeyError:
+            return
+        
+        indent = indenHelper.indent(self)
+        if indent is None:
+            return
+        
+        curLine = self.cursorPosition()[0]
+        lineText = self.line(curLine).lstrip()
+
+        self.setLine(curLine, indent + lineText)
+        self.goTo(line=curLine, col=len(indent))
 
 
 #    TODO restore or delete old code
