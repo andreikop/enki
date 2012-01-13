@@ -36,6 +36,7 @@ class Edit(mks.plugins.editor.Editor):
     
     def __init__(self, *args):
         mks.plugins.editor.Editor.__init__(self, *args)
+        self.qscintilla.setMarginWidth(0, 0)  # FIXME remove QScintilla specific code
         self.qscintilla.installEventFilter(self)
     
     def eventFilter(self, obj, event):
@@ -139,6 +140,11 @@ class TermWidget(QWidget):
             scrollBar.setValue(scrollBar.maximum())
         else:
             scrollBar.setValue(oldValue)
+    
+    def setLanguage(self, language):
+        """Set highlighting language for input widget
+        """
+        self._edit.setHighlightingLanguage(language)
 
     def execCurrentCommand(self):
         """Save current command in the history. Append it to the log. Clear edit line

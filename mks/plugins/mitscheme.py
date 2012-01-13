@@ -282,6 +282,7 @@ class MitScheme(QObject):
     def __init__(self, interpreterPath):
         QObject.__init__(self)
         self._term = MitSchemeTermWidget(self)
+        self._term.setLanguage('Scheme')
         self._interpreterPath = interpreterPath
         
         self._processOutputTimer = QTimer()  # I use Qt timer, because we must append data to GUI in the GUI thread
