@@ -203,7 +203,8 @@ class Plugin(QObject):
         else:
             if document.isModified():
                 document.saveFile()
-            self._mitScheme.loadFile(document.filePath())
+            if document.filePath():  # user may cancel saving document
+                self._mitScheme.loadFile(document.filePath())
     
     def _onBreakTriggered(self):
         """Break has been triggered. Stop the interpreter
