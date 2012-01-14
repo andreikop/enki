@@ -249,12 +249,7 @@ class AbstractDocument(QWidget):
         else:
             icon = "transparent.png"
         return QIcon(":/mksicons/" + icon)
-    
-    def widget(self):
-        """Return QWidget, which is used internally as main widget.
-        Default implementation returns self
-        """
-        return self
+
 
 class IndentHelper:
     """This class is an interface declaration for indentation helpers. Indentation helper is a function,
