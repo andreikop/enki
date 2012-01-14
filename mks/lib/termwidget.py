@@ -201,10 +201,11 @@ class TermWidget(QWidget):
         """Handler of Enter pressing in the edit
         """
         text = self._edit.text()
+        
+        # remove inserted \n
         cursorPos = self._edit.absCursorPosition()
-        if cursorPos < len(text):  # cursor at middle of line. Remove inserted \n
-            newlineIndex = text.rindex('\n', 0, cursorPos)
-            text = text[0:newlineIndex] + text[cursorPos:]
+        newlineIndex = text.rindex('\n', 0, cursorPos)
+        text = text[0:newlineIndex] + text[cursorPos:]
 
         if self.isCommandComplete(text):
             self.execCommand(text)
