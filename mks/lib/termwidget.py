@@ -156,13 +156,9 @@ class TermWidget(QWidget):
         """
         self._edit.setHighlightingLanguage(language)
 
-    def execCurrentCommand(self):
-        """Save current command in the history. Append it to the log. Clear edit line.
-        
-        Reimplement in the child classes to actually execute command
+    def execCommand(self, text):
+        """Save current command in the history. Append it to the log. Execute child's method. Clear edit line.
         """
-        text = self._edit.text()
-        text = text[:text.rindex('\n')]
         self._appendToBrowser('in', text + '\n')
 
         if len(self._history) < 2 or\
@@ -205,8 +201,13 @@ class TermWidget(QWidget):
         """Handler of Enter pressing in the edit
         """
         text = self._edit.text()
+        cursorPos = self._edit.absCursorPosition()
+        if cursorPos < len(text):  # cursor at middle of line. Remove inserted \n
+            newlineIndex = text.rindex('\n', 0, cursorPos)
+            text = text[0:newlineIndex] + text[cursorPos:]
+
         if self.isCommandComplete(text):
-            self.execCurrentCommand()
+            self.execCommand(text)
 
     def _onHistoryNext(self):
         """Down pressed, show next item from the history
