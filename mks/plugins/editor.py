@@ -702,6 +702,10 @@ class Editor(AbstractTextEditor):
     #
     # AbstractDocument interface
     #
+    def widget(self):
+        """Return QWidget, which is used internally as main widget.
+        """
+        return self.qscintilla
     
     def _setModified(self, modified):
         """Update modified state for the file. Called by AbstractTextEditor, must be implemented by the children
