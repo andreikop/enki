@@ -33,7 +33,12 @@ class TermWidget(QWidget):
 
         editorClass = self._makeEditorClass()
         self._edit = editorClass(self, None, terminalWidget=True)
-        self._edit.widget().installEventFilter(self)
+        
+        lowLevelWidget = self._edit.focusProxy()
+        if lowLevelWidget is None:
+            lowLevelWidget = self._edit
+        lowLevelWidget.installEventFilter(self)
+        
         self._edit.newLineInserted.connect(self._onEditNewLine)
         self._edit.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
         self.setFocusProxy(self._edit)
