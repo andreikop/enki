@@ -859,6 +859,9 @@ class Editor(AbstractTextEditor):
     def toggleBookmark(self):
         """Set or clear bookmark on the line
         """
+        if self._terminalWidget:
+            return
+
         row = self.qscintilla.getCursorPosition()[0]
         if self.qscintilla.markersAtLine(row) & 1 << self._MARKER_BOOKMARK:
             self.qscintilla.markerDelete(row, self._MARKER_BOOKMARK)
