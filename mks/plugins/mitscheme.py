@@ -196,6 +196,7 @@ class Plugin(QObject):
         self._dock = MitSchemeDock(self._mitScheme.widget())
 
         core.mainWindow().dockToolBar( Qt.BottomToolBarArea ).addDockWidget(self._dock)
+        self._dock.hide()
 
         self._installed = True
     
@@ -222,11 +223,13 @@ class Plugin(QObject):
         selection = document.selectedText()
         if selection:
             self._mitScheme.execCommand(selection)
+            self._dock.show()
         else:
             if document.isModified():
                 document.saveFile()
             if document.filePath():  # user may cancel saving document
                 self._mitScheme.loadFile(document.filePath())
+                self._dock.show()
     
     def _onBreakTriggered(self):
         """Break has been triggered. Stop the interpreter
