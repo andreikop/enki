@@ -60,4 +60,6 @@ Plugins documentation
    plugins/helpmenu.rst
    plugins/searchreplace.rst
    plugins/associations.rst
+   plugins/mitscheme.rst
+   plugins/schemeindenthelper.rst
 

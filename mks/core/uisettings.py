@@ -51,6 +51,19 @@ If you need to add own settings to UISettings dialog, you should:
 
 Classes
 -------
+Main classes:
+    * :class:`mks.core.uisettings.UISettings` - settings dialogue
+    * :class:`mks.core.uisettings.ModuleConfigurator` - plugin configurator
+
+Classes for options:
+    * :class:`mks.core.uisettings.CheckableOption` - bool option, CheckBox
+    * :class:`mks.core.uisettings.TextOption` - string option, line edit
+    * :class:`mks.core.uisettings.ListOnePerLineOption` - list of strings option, text edit
+    * :class:`mks.core.uisettings.NumericOption` - numeric option, any numeric control
+    * :class:`mks.core.uisettings.ColorOption` - color option, button
+    * :class:`mks.core.uisettings.FontOption` - font option, button
+    * :class:`mks.core.uisettings.ChoiseOption` - string from the set option, combo box
+
 """
 
 import sys
@@ -330,7 +343,7 @@ class UISettings(QDialog):
         self.resize( self.minimumSizeHint() )
     
     def _itemByPath(self, pathParts):
-        """Find item by it's path. Path is list if parts
+        """Find item by it's path. Path is list of parts. I.e. ['Editor', 'General']
         """
         item = self.twMenu.findItems(pathParts[0], Qt.MatchExactly)[0]
         for part in pathParts[1:]:

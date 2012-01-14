@@ -21,7 +21,8 @@ class TermWidget(QWidget):
     """Widget wich represents terminal. It only displays text and allows to enter text.
     All highlevel logic should be implemented by client classes
     
-    Text editor class must be set when initializing TermWidget. See Workspace.setTextEditorClass()  # TODO link
+    Text editor class must be set when initializing TermWidget.
+    See :meth:`mks.core.workspace.Workspace.setTextEditorClass`
     """
 
     def __init__(self, *args):
@@ -87,7 +88,7 @@ class TermWidget(QWidget):
         return Edit
 
     def eventFilter(self, obj, event):
-        """Catches _edit key pressings. Processes some of them
+        """QWidget.eventFilter implementation. Catches _edit key pressings. Processes some of them
         """
         if event.type() == QEvent.KeyPress:
             if event.matches(QKeySequence.MoveToNextLine):
@@ -145,13 +146,6 @@ class TermWidget(QWidget):
         self._browser.moveCursor(QTextCursor.End)
         self._browser.insertHtml(text)
         
-        """TODO When user enters second line to the input, and input is resized, scrollbar changes its positon
-        and stops moving. As quick fix of this problem, now we always scroll down when add new text.
-        To fix it correctly, srcoll to the bottom, if before intput has been resized, 
-        scrollbar was in the bottom, and remove next lien
-        """
-        scrollAtTheEnd = True
-        
         if scrollAtTheEnd:
             scrollBar.setValue(scrollBar.maximum())
         else:
@@ -163,7 +157,8 @@ class TermWidget(QWidget):
         self._edit.setHighlightingLanguage(language)
 
     def execCurrentCommand(self):
-        """Save current command in the history. Append it to the log. Clear edit line
+        """Save current command in the history. Append it to the log. Clear edit line.
+        
         Reimplement in the child classes to actually execute command
         """
         text = self._edit.text()
@@ -200,7 +195,8 @@ class TermWidget(QWidget):
         self._appendToBrowser('err', text)
 
     def isCommandComplete(self, text):
-        """Executed by _ExpandableTextEdit when Enter is pressed.
+        """Executed when Enter is pressed to check if widget should execute the command, or insert newline.
+        
         Implement this function in the child classes.
         """
         return True
