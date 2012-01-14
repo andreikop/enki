@@ -35,13 +35,7 @@ class Edit(mks.plugins.editor.Editor):
     """  # pylint: disable=W0105
     
     def __init__(self, *args):
-        mks.plugins.editor.Editor.__init__(self, *args)
-        self.qscintilla.setMarginWidth(0, 0)  # FIXME remove QScintilla specific code
-        try:
-            self.qscintilla.linesChanged.disconnect(self._onLinesChanged)
-        except TypeError:  # not connected
-            pass
-
+        mks.plugins.editor.Editor.__init__(self, *args, terminalWidget=True)
         self.qscintilla.installEventFilter(self)
     
     def eventFilter(self, obj, event):

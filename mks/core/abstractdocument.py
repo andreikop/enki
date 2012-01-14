@@ -295,7 +295,10 @@ class AbstractTextEditor(AbstractDocument):
     **Signal** emitted, after new line has been inserted by user (user pressed Enter)
     """  # pylint: disable=W0105
     
-    def __init__(self, parentObject, filePath, createNew=False):
+    def __init__(self, parentObject, filePath, createNew=False, terminalWidget=False):
+        """If terminalWidget is True, editor is used not as fully functional editor, but as interactive terminal.
+        In this mode line numbers and autocompletion won't be shown
+        """
         AbstractDocument.__init__(self, parentObject, filePath, createNew)
         self._highlightingLanguage = None
         self.newLineInserted.connect(self._onNewLineInserted)
