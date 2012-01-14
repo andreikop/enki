@@ -8,7 +8,7 @@ Sends commands to the current editor, when action was triggered
 """
 
 from PyQt4.QtCore import QObject
-from PyQt4.QtGui import QIcon
+from PyQt4.QtGui import QApplication, QIcon
 from PyQt4.Qsci import QsciScintilla as qsci
 
 from mks.core.core import core
@@ -226,15 +226,22 @@ class Plugin(QObject):
         """
         action = self.sender()
         code = action.data().toInt()[0]
+        
+        focusWidget = QApplication.focusWidget()
+        if focusWidget is not None and isinstance(focusWidget, qsci):
+            editor = focusWidget
+        else:
+            editor = self._currentDocument.qscintilla
+        
         if code > 0:
-            self._currentDocument.qscintilla.SendScintilla(code)
+            editor.SendScintilla(code)
         elif MKS_TOGGLE_BOOKMARK == code:
-            self._currentDocument.toggleBookmark()
+            editor.parent().toggleBookmark()
         elif MKS_NEXT_BOOKMARK == code:
-            self._currentDocument.nextBookmark()
+            editor.parent().nextBookmark()
         elif MKS_PREV_BOOKMARK == code:
-            self._currentDocument.prevBookmark()
+            editor.parent().prevBookmark()
         elif MKS_PASTE == code:  # Paste via method, to fix EOL
-            self._currentDocument.qscintilla.paste()
+            editor.paste()
         else:
             assert 0
