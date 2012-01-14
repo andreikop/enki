@@ -14,53 +14,13 @@ from PyQt4.QtGui import QColor, QKeySequence, QLineEdit, QPalette, \
                         QSizePolicy, QTextCursor, QTextEdit, \
                         QVBoxLayout, QWidget
 
-import mks.plugins.editor
-
-class Edit(mks.plugins.editor.Editor):
-    """Text editor widget, which expands themselves automatically, when line count changes
-    """
-    
-    historyNext = pyqtSignal()
-    """
-    historyNext()
-    
-    **Signal** emitted, when user wants to roll history to next item
-    """  # pylint: disable=W0105
-
-    historyPrev = pyqtSignal()
-    """
-    historyPrev()
-    
-    **Signal** emitted, when user wants to roll history to previous item
-    """  # pylint: disable=W0105
-    
-    def __init__(self, *args):
-        mks.plugins.editor.Editor.__init__(self, *args, terminalWidget=True)
-        self.qscintilla.installEventFilter(self)
-    
-    def eventFilter(self, obj, event):
-        """Catches _edit key pressings. Processes some of them
-        """
-        if event.type() == QEvent.KeyPress:
-            if event.matches(QKeySequence.MoveToNextLine):
-                if self.cursorPosition()[0] == self.lineCount():
-                    self.historyNext.emit()
-                    return True
-            elif event.matches(QKeySequence.MoveToPreviousLine):
-                if self.cursorPosition()[0] == 1:
-                    self.historyPrev.emit()
-                    return True
-            elif event.matches(QKeySequence.MoveToNextPage) or \
-                 event.matches(QKeySequence.MoveToPreviousPage):
-                self.parent()._browser().keyPressEvent(event)
-                return True
-        
-        return mks.plugins.editor.Editor.eventFilter(self, obj, event)
-
+from mks.core.core import core
 
 class TermWidget(QWidget):
     """Widget wich represents terminal. It only displays text and allows to enter text.
     All highlevel logic should be implemented by client classes
+    
+    Text editor class must be set when initializing TermWidget. See Workspace.setTextEditorClass()  # TODO link
     """
 
     def __init__(self, *args):
@@ -70,11 +30,9 @@ class TermWidget(QWidget):
         self._browser.document().setDefaultStyleSheet(self._browser.document().defaultStyleSheet() + 
                                                       "span {white-space:pre;}")
 
-        self._edit = Edit(self, None)
+        self._edit = core.workspace().textEditorClass()(self, None, terminalWidget=True)
+        self._edit.widget().installEventFilter(self)
         self._edit.newLineInserted.connect(self._onEditNewLine)
-        self._edit.historyNext.connect(self._onHistoryNext)
-        self._edit.historyPrev.connect(self._onHistoryPrev)
-
         self.setFocusProxy(self._edit)
 
         layout = QVBoxLayout(self)
@@ -87,6 +45,25 @@ class TermWidget(QWidget):
         self._historyIndex = 0
         
         self._edit.setFocus()
+
+    def eventFilter(self, obj, event):
+        """Catches _edit key pressings. Processes some of them
+        """
+        if event.type() == QEvent.KeyPress:
+            if event.matches(QKeySequence.MoveToNextLine):
+                if self._edit.cursorPosition()[0] == self._edit.lineCount():
+                    self._onHistoryNext()
+                    return True
+            elif event.matches(QKeySequence.MoveToPreviousLine):
+                if self._edit.cursorPosition()[0] == 1:
+                    self._onHistoryPrev()
+                    return True
+            elif event.matches(QKeySequence.MoveToNextPage) or \
+                 event.matches(QKeySequence.MoveToPreviousPage):
+                self._browser().keyPressEvent(event)
+                return True
+        
+        return QWidget.eventFilter(self, obj, event)
 
     def _appendToBrowser(self, style, text):
         """Convert text to HTML for inserting it to browser. Insert the HTML
