@@ -10,7 +10,6 @@ from PyQt4.fresh import pDockWidget
 
 import mks.lib.buffpopen
 import mks.lib.termwidget
-import mks.lib.highlighter
 
 from mks.core.uisettings import ModuleConfigurator, ChoiseOption, TextOption
 

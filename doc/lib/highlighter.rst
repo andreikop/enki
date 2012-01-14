@@ -1,1 +1,0 @@
-.. automodule:: mks.lib.highlighter

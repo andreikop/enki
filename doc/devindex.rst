@@ -45,7 +45,6 @@ Library modules
 
 .. toctree::
 
-    lib/highlighter.rst
     lib/termwidget.rst
     lib/buffpopen.rst
 
