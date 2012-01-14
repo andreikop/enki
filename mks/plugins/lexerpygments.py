@@ -168,12 +168,20 @@ class LexerPygments(QsciLexerCustom):
         if self._tokenCache is None:
             self._updateTokenCache()
 
-        self.startStyling(0)
         if self._tokenCache is None:
+            self.startStyling(0)
             self.setStyling(end, QsciScintillaBase.STYLE_DEFAULT)
         else:
             cpos = 0
             
+            for c in self.editor().text():  # pygments ignores empty line at start of text
+                if c == '\n':
+                    cpos += 1
+                else:
+                    break;
+
+            self.startStyling(cpos)
+
             if self.editor().eolMode() == QsciScintilla.EolWindows:
                 eolLen = 2
             else:
