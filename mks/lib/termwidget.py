@@ -9,12 +9,13 @@ This widget only provides GUI, but does not implement any system terminal or oth
 
 import cgi
 
-from PyQt4.QtCore import pyqtSignal, QEvent
-from PyQt4.QtGui import QColor, QKeySequence, QLineEdit, QPalette, \
+from PyQt4.QtCore import pyqtSignal, QEvent, QSize
+from PyQt4.QtGui import QColor, QFont, QKeySequence, QLabel, QLineEdit, QPalette,\
                         QSizePolicy, QTextCursor, QTextEdit, \
                         QVBoxLayout, QWidget
 
 from mks.core.core import core
+
 
 class TermWidget(QWidget):
     """Widget wich represents terminal. It only displays text and allows to enter text.
@@ -30,9 +31,11 @@ class TermWidget(QWidget):
         self._browser.document().setDefaultStyleSheet(self._browser.document().defaultStyleSheet() + 
                                                       "span {white-space:pre;}")
 
-        self._edit = core.workspace().textEditorClass()(self, None, terminalWidget=True)
+        editorClass = self._makeEditorClass()
+        self._edit = editorClass(self, None, terminalWidget=True)
         self._edit.widget().installEventFilter(self)
         self._edit.newLineInserted.connect(self._onEditNewLine)
+        self._edit.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
         self.setFocusProxy(self._edit)
 
         layout = QVBoxLayout(self)
@@ -45,6 +48,38 @@ class TermWidget(QWidget):
         self._historyIndex = 0
         
         self._edit.setFocus()
+    
+    def _makeEditorClass(self):
+        """Get an editor class with redefined size hints
+        """
+        defaultEditorClass = core.workspace().textEditorClass()
+        class Edit(defaultEditorClass):
+            """Text editor class, which implements good size hints
+            """
+            def __init__(self, *args, **kwargs):
+                defaultEditorClass.__init__(self, *args, **kwargs)
+                self._sizeHintLabel = QLabel("asdf")
+            
+            def minimumSizeHint(self):
+                """QWidget.minimumSizeHint implementation
+                """
+                lineHeight = self._calculateLineHeight()
+                return QSize(lineHeight * 2, lineHeight * 2)
+            
+            def sizeHint(self):
+                """QWidget.sizeHint implementation
+                """
+                lineHeight = self._calculateLineHeight()
+                return QSize(lineHeight * 6, lineHeight * 6)
+            
+            def _calculateLineHeight(self):
+                """Calculate height of one line of text
+                """
+                self._sizeHintLabel.setFont(QFont(core.config()["Editor"]["DefaultFont"],
+                                                  core.config()["Editor"]["DefaultFontSize"]))
+                return self._sizeHintLabel.sizeHint().height()
+        
+        return Edit
 
     def eventFilter(self, obj, event):
         """Catches _edit key pressings. Processes some of them
