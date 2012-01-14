@@ -23,8 +23,7 @@ from mks.core.uisettings import ModuleConfigurator, \
                                 CheckableOption, ChoiseOption, FontOption, NumericOption, ColorOption
 
 class _QsciScintilla(QsciScintilla):
-    """QsciScintilla wrapper class. It is created to 
-    
+    """QsciScintilla wrapper class. It is created to:
     
     * Catch Shift+Tab. When pressed - Qt moves focus, but it is not desired behaviour. This class catches the event
     * Catch Enter presesing and emits a signal after newline had been inserted
@@ -200,9 +199,9 @@ class EditorConfigurator(ModuleConfigurator):
                                 beginning + "indentationWarning", widget.gbLexerHighlightingIndentationWarning),
                 ChoiseOption(dialog, lexerConfig, beginning + "indentationWarningReason", 
                              {widget.cbIndentationWarningInconsistent: "Inconsistent",
-                             widget.cbIndentationWarningTabsAfterSpaces: "TabsAfterSpaces",
-                             widget.cbIndentationWarningTabs: "Tabs",
-                             widget.cbIndentationWarningSpaces: "Spaces"})))
+                              widget.cbIndentationWarningTabsAfterSpaces: "TabsAfterSpaces",
+                              widget.cbIndentationWarningTabs: "Tabs",
+                              widget.cbIndentationWarningSpaces: "Spaces"})))
         else:
             widget.gbLexerHighlightingIndentationWarning.hide()
 

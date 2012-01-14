@@ -4,7 +4,10 @@ abstractdocument --- Base classes for workspace documents
 
 This class is inherited by textual editor, and must be inherited by other workspace widgets.
 
-:class:`mks.core.workspace.AbstractDocument`  - base class of workspace documents
+Classes:
+    * :class:`mks.core.abstractdocument.AbstractDocument`
+    * :class:`mks.core.abstractdocument.AbstractTextEditor`
+    * :class:`mks.core.abstractdocument.IndentHelper`
 """
 
 import os.path
@@ -254,18 +257,19 @@ class AbstractDocument(QWidget):
 class IndentHelper:
     """This class is an interface declaration for indentation helpers. Indentation helper is a function,
     which "knows", how to indent particular language.
-    
-    I.e., for Scheme, indent helper exists, which indentsit according to http://community.schemewiki.org/?scheme-style
+
+    I.e., for Scheme, indent helper exists, which indents it according to http://community.schemewiki.org/?scheme-style
     
     To create own indentation helper, subclass this class and implement indent() method.
     
-    See core.indentHelper() and core.setIndentHelper()  TODO LINK
+    See :meth:`mks.core.core.Core.indentHelper`, :meth:`mks.core.core.Core.setIndentHelper`
     """
     
     @staticmethod
     def indent(editor):
-        """Editor calls this method after new line has been inserted and it indented it automatically.
-        If indenHelper has better suggestion, it returns it, and line contents will be replaced with returned value.
+        """Editor calls this method after new line has been inserted.
+        If indenHelper knows how to indent the line, it returns it,
+        and line contents will be replaced with returned value.
         None means "leave default indentation"
         """
         raise NotImplemented()
@@ -613,7 +617,7 @@ class AbstractTextEditor(AbstractDocument):
             self.setEolMode(default)
 
     def _onNewLineInserted(self):
-        """New line inserted. Indent it properly with helper, if helper is available
+        """New line has been inserted. Indent it properly with helper, if helper is available
         """
         lang = self.highlightingLanguage()
         try:

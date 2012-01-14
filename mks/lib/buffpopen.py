@@ -1,6 +1,6 @@
 """
-buffpopen --- Buffered subprocess.Popen implementation
-======================================================
+buffpopen --- Buffered subprocess. Popen implementation
+=======================================================
 
 This implementation allows to read and write output without blocking
 """

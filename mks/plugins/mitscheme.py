@@ -1,3 +1,8 @@
+"""
+mitscheme --- MIT Scheme integration. Interactive Scheme console
+================================================================
+"""
+
 import os.path
 
 from PyQt4.QtCore import pyqtSignal, QObject, Qt, QTimer
@@ -18,6 +23,8 @@ from mks.core.uisettings import ModuleConfigurator, ChoiseOption, TextOption
 #
 
 class MitSchemeSettings(QWidget):
+    """Settings widget. Insertted as a page to UISettings
+    """
     def __init__(self, *args):
         QWidget.__init__(self, *args)
         uic.loadUi(os.path.join(DATA_FILES_PATH,'ui/plugins/MitSchemeSettings.ui'), self)
@@ -107,10 +114,14 @@ class Plugin(QObject):
         self._installOrUninstallIfNecessary()
 
     def _isSchemeFile(self, document):
+        """Check if document is highlighted as Scheme
+        """
         return document is not None and \
                document.highlightingLanguage() == 'Scheme'
 
     def _onDocumentOpened(self, document):
+        """documentOpened() workspace signal handler
+        """
         document.languageChanged.connect(self._onDocumentLanguageChanged)
 
         if self._isSchemeFile(document):
@@ -118,11 +129,15 @@ class Plugin(QObject):
             self._installOrUninstallIfNecessary()
 
     def _onDocumentClosed(self, document):
+        """documentClosed() workspace signal handler
+        """
         if self._isSchemeFile(document):
             self._schemeDocumentsCount -= 1
             self._installOrUninstallIfNecessary()
     
     def _onDocumentLanguageChanged(self, old, new):
+        """languageChanged() document signal handler
+        """
         if old is not None and old == 'Scheme':
             self._schemeDocumentsCount -= 1
         if new is not None and new == 'Scheme':
@@ -131,6 +146,8 @@ class Plugin(QObject):
         self._updateEvalActionEnabledState()
 
     def _updateEvalActionEnabledState(self):
+        """Update action enabled state
+        """
         if self._evalAction is None:
             return
 
@@ -138,6 +155,8 @@ class Plugin(QObject):
         self._evalAction.setEnabled(currDoc is not None and self._isSchemeFile(currDoc))
 
     def _installOrUninstallIfNecessary(self):
+        """Install or uninstall according to settings and availability of opened Scheme files
+        """
         enabled =  core.config()["Modes"]["Scheme"]["Enabled"]
         if enabled == 'always':
             if not self._installed:
@@ -153,6 +172,8 @@ class Plugin(QObject):
                 self.uninstall()
 
     def _install(self):
+        """Install the plugin to the core
+        """
         if self._installed:
             return
 
@@ -192,6 +213,8 @@ class Plugin(QObject):
         self._installed = False
 
     def _onEvalTriggered(self):
+        """Eval action triggered. Evaluate file or expression
+        """
         document = core.workspace().currentDocument()
         if document is None:
             return
@@ -212,6 +235,8 @@ class Plugin(QObject):
 
 
 class MitSchemeDock(pDockWidget):
+    """Dock widget with terminal emulator
+    """
     def __init__(self, widget):
         pDockWidget.__init__(self, "MIT Scheme", core.mainWindow())
         self.setObjectName("MitSchemeDock")
@@ -232,11 +257,15 @@ class MitSchemeDock(pDockWidget):
 #
 
 class MitSchemeTermWidget(mks.lib.termwidget.TermWidget):
+    """Terminal emulator widget
+    """
     def __init__(self, mitScheme, *args):
         mks.lib.termwidget.TermWidget.__init__(self, *args)
         self._mitScheme = mitScheme
 
     def isCommandComplete(self, text):
+        """Parse the command and check, if it is complete and should be executed
+        """
         # TODO support comments
         # Stage 1: remove strings
         index = 0
@@ -266,6 +295,8 @@ class MitSchemeTermWidget(mks.lib.termwidget.TermWidget):
         return True
 
     def childExecCommand(self, text):
+        """Execute command. Called by parent class
+        """
         self._mitScheme.execCommand(text)
 
 class MitScheme(QObject):
@@ -298,9 +329,13 @@ class MitScheme(QObject):
         self.stop()
     
     def widget(self):
+        """MIT Scheme emulator
+        """
         return self._term
 
     def start(self):
+        """Start scheme process
+        """
         if self._schemeIsRunning:
             return
 
@@ -322,6 +357,8 @@ class MitScheme(QObject):
         self.processIsRunningChanged.emit(self._schemeIsRunning)
 
     def stop(self):
+        """Stop scheme process
+        """
         if not self._schemeIsRunning:
             return
 
@@ -332,6 +369,8 @@ class MitScheme(QObject):
         self.processIsRunningChanged.emit(self._schemeIsRunning)
 
     def execCommand(self, text):
+        """Execute text
+        """
         if not self._schemeIsRunning:
             try:
                 self.start()
@@ -352,6 +391,8 @@ class MitScheme(QObject):
         self._buffPopen.write('(load "%s")' % filePath)
     
     def _processOutput(self):
+        """Append output from Popen to widget, if available
+        """
         output = self._buffPopen.readOutput()
         if output:
             self._term.appendOutput(output)
