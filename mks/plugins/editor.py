@@ -450,9 +450,10 @@ class Editor(AbstractTextEditor):
     # Own methods
     #
     
-    def __init__(self, parentObject, filePath, createNew=False):
+    def __init__(self, parentObject, filePath, createNew=False, terminalWidget=False):
         super(Editor, self).__init__(parentObject, filePath, createNew)
         
+        self._terminalWidget = terminalWidget
         self._eolMode = None
         
         # Configure editor
@@ -545,7 +546,7 @@ class Editor(AbstractTextEditor):
         """
         myConfig = core.config()["Editor"]
 
-        if myConfig["ShowLineNumbers"]:
+        if myConfig["ShowLineNumbers"] and not self._terminalWidget:
             self.qscintilla.linesChanged.connect(self._onLinesChanged)
             self._onLinesChanged()
         else:
@@ -555,7 +556,7 @@ class Editor(AbstractTextEditor):
                 pass
             self.qscintilla.setMarginWidth(0, 0)
         
-        if myConfig["EnableCodeFolding"]:
+        if myConfig["EnableCodeFolding"] and not self._terminalWidget:
             self.qscintilla.setFolding(QsciScintilla.BoxedTreeFoldStyle)
         else:
             self.qscintilla.setFolding(QsciScintilla.NoFoldStyle)
@@ -569,7 +570,7 @@ class Editor(AbstractTextEditor):
 
         self.qscintilla.setFont(QFont(myConfig["DefaultFont"], myConfig["DefaultFontSize"]))
         # Auto Completion
-        if myConfig["AutoCompletion"]["Enabled"]:
+        if myConfig["AutoCompletion"]["Enabled"] and not self._terminalWidget:
             self.qscintilla.setAutoCompletionSource(\
                                             self._AUTOCOMPLETION_MODE_TO_QSCI[myConfig["AutoCompletion"]["Source"]])
             self.qscintilla.setAutoCompletionThreshold(myConfig["AutoCompletion"]["Threshold"])
