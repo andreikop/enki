@@ -293,6 +293,20 @@ class AbstractTextEditor(AbstractDocument):
     **Signal** emitted, when highlighting (programming) language of a file has been changed
     """  # pylint: disable=W0105
     
+    indentWidthChanged = pyqtSignal(int)
+    """
+    indentWidthChanged(width)
+    
+    **Signal** emitted, when indentation with has been changed
+    """  # pylint: disable=W0105
+
+    indentUseTabsChanged = pyqtSignal(bool)
+    """
+    indentUseTabsChanged(use)
+    
+    **Signal** emitted, when indentation mode has been changed
+    """  # pylint: disable=W0105
+
     newLineInserted = pyqtSignal()
     """
     newLineInserted()
@@ -327,24 +341,40 @@ class AbstractTextEditor(AbstractDocument):
     def indentWidth(self):
         """Get width of tabulation symbol and count of spaces to insert, when Tab pressed
         """
-        pass
+        raise NotImplemented()
     
     def setIndentWidth(self, width):
         """Set width of tabulation symbol and count of spaces to insert, when Tab pressed
         """
-        pass
+        if width == self.indentWidth():
+            return
+        self._applyIndentWidth(width)
+        self.indentWidthChanged.emit(width)
     
+    def _applyIndentWidth(self, width):
+        """Apply indentation width
+        """
+        raise NotImplemented()
+
     def indentUseTabs(self):
         """Get indentation uses tabs flag.
         If true - \t inserted by Tab button, if false - spaces
         """
-        pass
+        raise NotImplemented()
     
     def setIndentUseTabs(self, use):
         """Set indentation uses tabs flag.
         If true - \t inserted by Tab button, if false - spaces
         """
-        pass
+        if use == self.indentUseTabs():
+            return
+        self._applyIndentUseTabs(use)
+        self.indentUseTabsChanged.emit(use)
+    
+    def _applyIndentUseTabs(self, use):
+        """Apply indent uses tabs option
+        """
+        raise NotImplemented()
 
     def highlightingLanguage(self):
         """Get programming language of the file.

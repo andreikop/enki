@@ -733,7 +733,7 @@ class Editor(AbstractTextEditor):
         """
         return self.qscintilla.indentationWidth()
     
-    def setIndentWidth(self, width):
+    def _applyIndentWidth(self, width):
         """Set indentation width in symbol places (spaces)
         """
         return self.qscintilla.setIndentationWidth(width)
@@ -743,7 +743,7 @@ class Editor(AbstractTextEditor):
         """
         return self.qscintilla.indentationsUseTabs()
     
-    def setIndentUseTabs(self, use):
+    def _applyIndentUseTabs(self, use):
         """Set iindentation mode (Tabs or spaces)
         """
         return self.qscintilla.setIndentationsUseTabs(use)
