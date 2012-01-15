@@ -6,31 +6,104 @@ This plugin will probably be converted to something more generic, or merged to e
 """
 
 from PyQt4.QtCore import QObject
+from PyQt4.QtGui import QCheckBox
 
 from mks.core.core import core
 import mks.core.abstractdocument
-
+import mks.core.uisettings
 #
 # Intergration with the core
 #
 
+class ModuleConfigurator(mks.core.uisettings.ModuleConfigurator):
+    def __init__(self, dialog):
+        mks.core.uisettings.ModuleConfigurator.__init__(self, dialog)
+        self._wasEnabled = core.config()['SchemeIndentHelper']['Enabled']
+        text = "Indent Scheme according to http://community.schemewiki.org/?scheme-style"
+        checkBox = QCheckBox(text, dialog)
+        dialog.pIndentation.layout().addWidget(checkBox)
+        self._options = \
+        [   mks.core.uisettings.CheckableOption(dialog, core.config(),
+                                                "SchemeIndentHelper/Enabled", checkBox) ]
+
+    def saveSettings(self):
+        """Settings are stored in the core configuration file, therefore nothing to do here.
+        
+        Called by :mod:`mks.core.uisettings`
+        """
+        pass
+
+    def applySettings(self):
+        """Apply settings
+        
+        Called by :mod:`mks.core.uisettings`
+        """
+        if core.config()['SchemeIndentHelper']['Enabled']:
+            Plugin.instance.install()
+        else:
+            Plugin.instance.uninstall()
+
+
 class Plugin(QObject):
     """Module implementation
     """
+    instance = None
+    
     def __init__(self):
         QObject.__init__(self)
+        self._installed = False
+
+        if core.config()['SchemeIndentHelper']['Enabled']:
+            self.install()
+        Plugin.instance = self
+            
+    def install(self):
+        """Install themselves
+        """
+        for document in core.workspace().openedDocuments():  # reapply indentation, it might be changed
+            self._onDocumentOpened(document)
+
+        if self._installed:
+            return
         core.setIndentHelper("Scheme", SchemeIndentHelper)
+        core.workspace().documentOpened.connect(self._onDocumentOpened)
+        self._installed = True
+        
     
     def uninstall(self):
         """Plugin.uninstall implementation. Clear the indent helper
         """
+        if not self._installed:
+            return
         core.setIndentHelper("Scheme", None)
-    
+        for document in core.workspace().openedDocuments():
+            document.languageChanged.disconnect(self._onLanguageChanged)
+        self._installed = False
+
     def moduleConfiguratorClass(self):
         """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
         """
-        return None  # No any settings
-
+        return ModuleConfigurator
+    
+    def _onDocumentOpened(self, document):
+        """Document opened. Change it's indentation
+        """
+        if document.highlightingLanguage() == 'Scheme':
+            document.setIndentUseTabs(False)
+            document.setIndentWidth(1)
+        try:
+            document.languageChanged.disconnect(self._onLanguageChanged)
+        except TypeError:  # not connected
+            pass
+        document.languageChanged.connect(self._onLanguageChanged)
+    
+    def _onLanguageChanged(self, old, new):
+        """Document language changed. Change it's indentation, if necessary
+        """
+        if new == 'Scheme':
+            document = self.sender()
+            document.setIndentUseTabs(False)
+            document.setIndentWidth(1)
 
 class SchemeIndentHelper(mks.core.abstractdocument.IndentHelper):
     """IndentHelper implementation
