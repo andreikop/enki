@@ -9,7 +9,7 @@ This widget only provides GUI, but does not implement any system terminal or oth
 
 import cgi
 
-from PyQt4.QtCore import pyqtSignal, QEvent, QSize
+from PyQt4.QtCore import pyqtSignal, QEvent, QPoint, QSize
 from PyQt4.QtGui import QColor, QFont, QKeySequence, QLabel, QLineEdit, QPalette,\
                         QSizePolicy, QTextCursor, QTextEdit, \
                         QVBoxLayout, QWidget
@@ -150,7 +150,15 @@ class TermWidget(QWidget):
             scrollBar.setValue(scrollBar.maximum())
         else:
             scrollBar.setValue(oldValue)
-    
+        
+        while self._browser.document().characterCount() > 1024 * 1024:
+            cursor = self._browser.cursorForPosition(QPoint(0, 0))
+            cursor.select(cursor.LineUnderCursor)
+            if not cursor.selectedText():
+                cursor.movePosition(cursor.Down, cursor.KeepAnchor)
+                cursor.movePosition(cursor.EndOfLine, cursor.KeepAnchor)
+            cursor.removeSelectedText()
+
     def setLanguage(self, language):
         """Set highlighting language for input widget
         """
