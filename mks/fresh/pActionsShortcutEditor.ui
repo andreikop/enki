@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>pActionsShortcutEditor</class>
+ <widget class="QDialog" name="pActionsShortcutEditor">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>498</width>
+    <height>398</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Shortcut Editor</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLabel" name="lFilter">
+       <property name="text">
+        <string>Filter</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="pLineEdit" name="leFilter"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QTreeView" name="tvActions">
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <property name="alternatingRowColors">
+      <bool>true</bool>
+     </property>
+     <property name="verticalScrollMode">
+      <enum>QAbstractItemView::ScrollPerPixel</enum>
+     </property>
+     <property name="uniformRowHeights">
+      <bool>true</bool>
+     </property>
+     <property name="allColumnsShowFocus">
+      <bool>true</bool>
+     </property>
+     <attribute name="headerStretchLastSection">
+      <bool>false</bool>
+     </attribute>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="pKeySequenceEdit" name="kseShortcut"/>
+     </item>
+     <item>
+      <widget class="QToolButton" name="tbSet">
+       <property name="toolTip">
+        <string>Validate the shortcut</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../resources/fresh.qrc">
+         <normaloff>:/fresh/icons/apply.png</normaloff>:/fresh/icons/apply.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="tbClear">
+       <property name="toolTip">
+        <string>Clear the shortcut</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../resources/fresh.qrc">
+         <normaloff>:/fresh/icons/editclear.png</normaloff>:/fresh/icons/editclear.png</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="dbbButtons">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::Reset|QDialogButtonBox::RestoreDefaults</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>pKeySequenceEdit</class>
+   <extends>QLineEdit</extends>
+   <header>gui/pKeySequenceEdit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>pLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>gui/pLineEdit.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../../resources/fresh.qrc"/>
+ </resources>
+ <connections/>
+</ui>
