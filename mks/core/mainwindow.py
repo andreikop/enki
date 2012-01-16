@@ -9,12 +9,15 @@ Module contains :class:`mks.core.mainwindow.MainWindow` implementation
 from PyQt4.QtCore import pyqtSignal, QSize, Qt
 from PyQt4.QtGui import QIcon, QSizePolicy, QVBoxLayout, QWidget
 
-from PyQt4.fresh import pDockWidget, pMainWindow, pActionsModel
+from PyQt4.QtGui import QMainWindow
+#from PyQt4.fresh import pDockWidget, pMainWindow, pActionsModel
+from mks.fresh.actionmanager.pActionsModel import pActionsModel
+from mks.fresh.actionmanager.pActionsMenuBar import pActionsMenuBar
 
 from mks.core.core import core
 import mks.core.workspace
 
-class MainWindow(pMainWindow):
+class MainWindow(QMainWindow):
     """
     Main UI window
     
@@ -44,7 +47,7 @@ class MainWindow(pMainWindow):
     """  # pylint: disable=W0105
     
     def __init__(self):
-        pMainWindow.__init__(self)
+        QMainWindow.__init__(self)
         
         self._actionModel = None
         self._createdMenuPathes = []
@@ -97,8 +100,10 @@ class MainWindow(pMainWindow):
         because it's easier to create clear menu layout
         """
         # create menubar menus and actions
-        self._actionModel = pActionsModel(self)
-        self.menuBar().setModel(self._actionModel)
+        self._menuBar = pActionsMenuBar(self)
+        self._actionModel = pActionsModel(self._menuBar)
+        self._menuBar.setModel(self._actionModel)
+        self.setMenuBar(self._menuBar)
         
         def menu(path, name, icon):
             """Subfunction for create a menu in the main menu"""
