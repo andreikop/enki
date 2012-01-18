@@ -68,6 +68,7 @@ class MainWindow(QMainWindow):
 
         self._initMenuBar()
         
+        """ FIXME
         # Default exclusive settings for the tool bars
         self.dockToolBar( Qt.LeftToolBarArea ).setExclusive(False)
         self.dockToolBar( Qt.RightToolBarArea ).setExclusive(False)
@@ -79,6 +80,7 @@ class MainWindow(QMainWindow):
         modernDocksToolBar.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         modernDocksToolBar.setIconSize(QSize(16, 16))
         self.statusBar().addPermanentWidget(modernDocksToolBar)
+        """
         # create central layout
         widget = QWidget(self)
         self._centralLayout = QVBoxLayout(widget)
@@ -92,7 +94,7 @@ class MainWindow(QMainWindow):
             self._actionModel.removeMenu(menuPath)
         
         self.menuBar().setModel( None )
-        self.settings().sync()  # write window and docs geometry
+        # FIXME self.settings().sync()  # write window and docs geometry
 
     def _initMenuBar(self):
         """Fill menu bar with items. The majority of items are not connected to the slots,

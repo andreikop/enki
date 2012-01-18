@@ -127,8 +127,10 @@ class Workspace(QStackedWidget):
         # create opened files explorer
         # openedFileExplorer is not protected, because it is available for OpenedFileModel
         self.openedFileExplorer = mks.core.openedfilemodel.OpenedFileExplorer(self)
+        """FIXME
         lefttb = mainWindow.dockToolBar( Qt.LeftToolBarArea )
         lefttb.addDockWidget( self.openedFileExplorer)
+        """
         
         self.currentChanged.connect(self._onStackedLayoutIndexChanged)
         
