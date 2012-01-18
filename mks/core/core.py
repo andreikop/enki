@@ -100,7 +100,18 @@ class Core:
             if hasattr(plugin, 'uninstall'):  # TODO make plugin absract interface
                 plugin.uninstall()
             del plugin
+        
+        if self._mainWindow is not None:
+            del self._mainWindow
+        if self._workspace is not None:
+            del self._workspace
+        if self._config is not None:
+            del self._config
+        if self._uiSettingsManager is not None:
+            del self._uiSettingsManager
+
         mks.resources.icons.qCleanupResources()
+        
         
 
     def mainWindow(self):

@@ -91,6 +91,7 @@ class pActionsModel(QAbstractItemModel):
         return self.createIndex( row, column, self._actions[ path ] )
 
     def parent(self, index ):
+        assert isinstance(index, QModelIndex)
         action = self.action( index )
         parentAction = self.parent( action )
         parentParentAction = self.parent( parentAction )
@@ -141,7 +142,7 @@ class pActionsModel(QAbstractItemModel):
                 return None
         else:
             path = indexOrPath
-            return self._actions[self.cleanPath( path )]
+            return self._actions.get(self.cleanPath( path ), None)
 
     def path(self, action ):
         reverse = {v:k for k, v in self._actions.iteritems()}
@@ -194,6 +195,18 @@ class pActionsModel(QAbstractItemModel):
     def removeAction(self, pathOrAction, removeEmptyPath=False):
         return self.removeMenu( pathOrAction, removeEmptyPath )
 
+    def _removeAction(self, action, parent, row ):        
+        self.beginRemoveRows( self._index( parent ), row, row )
+        if  parent is not None:
+            parent.menu().removeAction( action )
+
+        self.cleanTree( action, parent )
+        self.endRemoveRows()
+        
+        self.actionRemoved.emit( action )
+        
+        action.deleteLater()
+
     def removeMenu(self, action, removeEmptyPath=False ):
         if isinstance(action, basestring):
             action = self.action( action )
@@ -202,9 +215,9 @@ class pActionsModel(QAbstractItemModel):
             return False
         
         parentAction = self.parent( action )
-        row = self.children( parentAction ).index( action )
-        
-        self.removeAction( action, parentAction, row )
+        if parentAction is not None:
+            row = self.children( parentAction ).index( action )
+            self._removeAction( action, parentAction, row )
         
         if  removeEmptyPath :
             self.removeCompleteEmptyPathNode( parentAction )
@@ -212,6 +225,7 @@ class pActionsModel(QAbstractItemModel):
         return True
 
     def parent(self, action ):
+        assert isinstance(action, QAction)
         return self._actions.get('/'.join(self.path( action ).split('/')[0: -1]), None)
 
     def children(self, action ):
@@ -321,26 +335,18 @@ class pActionsModel(QAbstractItemModel):
         self.actionInserted.emit( action )
 
     def cleanTree(self, action, parent ):
-        for a in self._children[action]:
-           self.cleanTree( a, action )
 
         parentChildren = self._children[ parent ]
         parentChildren.remove( action )
-        del self._children[action]
+
+        if action in self._children:
+            for a in self._children.get(action, []):
+                self.cleanTree( a, action )
+            del self._children[action]
+
         del self._actions[self.path( action )]
-        del self._createdMenuForAction[action]
-
-    def removeAction(self, action, parent, row ):        
-        self.beginRemoveRows( self._index( parent ), row, row )
-        if  parent is not None:
-            parent.menu().removeAction( action )
-
-        self.cleanTree( action, parent )
-        self.endRemoveRows()
-        
-        self.actionRemoved.emit( action )
-        
-        action.deleteLater()
+        if action in self._createdMenuForAction:
+            del self._createdMenuForAction[action]
 
     def createCompletePathNode(self, path ):
         action = self._actions.get( path, None )
@@ -374,6 +380,7 @@ class pActionsModel(QAbstractItemModel):
             row = len(self.children( parentAction ))
             menu = QMenu()
             action = menu.menuAction()
+
             self._createdMenuForAction[action] = menu
 
             action.setText( '/'.join(path.split('/')[i:i + 1]) )
@@ -389,7 +396,7 @@ class pActionsModel(QAbstractItemModel):
             parentAction = self.parent( action )
             row = self.children( parentAction ).index( action )
             
-            self.removeAction( action, parentAction, row )
+            self._removeAction( action, parentAction, row )
             self.removeCompleteEmptyPathNode( parentAction )
 
     def _onActionChanged(self):
