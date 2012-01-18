@@ -25,6 +25,7 @@ class pActionsModel(QAbstractItemModel):
         QAbstractItemModel.__init__(self,  parent )
         self._actions = {}
         self._children = {}
+        self._createdMenuForAction = {}
     
     def __term__(self):
         self.clear()
@@ -68,7 +69,7 @@ class pActionsModel(QAbstractItemModel):
         action = self.action( parent )
         actions = self.children( action )
         
-        if  row < 0 or row >= actions.count() or \
+        if  row < 0 or row >= len(actions) or \
             column < 0 or column >= pActionsModel._COLUMN_COUNT or \
             ( parent.column() != 0 and parent.isValid() ):
             return QModelIndex()
@@ -98,7 +99,7 @@ class pActionsModel(QAbstractItemModel):
         except ValueError:
             return QModelIndex()
         
-        return createIndex( row, 0, parentAction )
+        return self.createIndex( row, 0, parentAction )
 
     def rowCount(self, parent = QModelIndex()):
         action = self.action( parent )
@@ -107,12 +108,17 @@ class pActionsModel(QAbstractItemModel):
         else:
             return 0
 
-    def hasChildren(self, parent=QModelIndex()):
-        action = self.action( parent )
-        if ( parent.isValid() and parent.column() == 0 ) or parent == QModelIndex():
-            return hasChildren( action )
+    def hasChildren(self, param=QModelIndex()):
+        if isinstance(param, QModelIndex):
+            parent = param
+            action = self.action( parent )
+            if ( parent.isValid() and parent.column() == 0 ) or parent == QModelIndex():
+                return self.hasChildren( action )
+            else:
+                return False
         else:
-            return False
+            action = param
+            return action in self._children
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if orientation == Qt.Horizontal:
@@ -158,8 +164,9 @@ class pActionsModel(QAbstractItemModel):
     def addAction(self, _path, action, icon=QIcon() ):
         if isinstance(action, QAction):
             path = self.cleanPath( _path )
-            subPath = '/'.join(path.split('/')[0: -2])
-            parentAction = self.createCompletePathNode( subPath )        
+
+            subPath = '/'.join(path.split('/')[0: -1])
+            parentAction = self.createCompletePathNode( subPath )
             if parentAction is None:
                 return False
             
@@ -169,7 +176,6 @@ class pActionsModel(QAbstractItemModel):
         else:
             text = action
             action = QAction( icon, text, self )
-            
             if not self.addAction( _path, action ) :
                 return None
 
@@ -206,10 +212,7 @@ class pActionsModel(QAbstractItemModel):
         return True
 
     def parent(self, action ):
-        return self._actions.get('/'.join(self.path( action ).split('/')[0: -2]), None)
-
-    def hasChildren(self, action ):
-        return action in self._children
+        return self._actions.get('/'.join(self.path( action ).split('/')[0: -1]), None)
 
     def children(self, action ):
         return self._children.get(action, [])
@@ -233,7 +236,7 @@ class pActionsModel(QAbstractItemModel):
             if not action.shortcut():
                 self.setShortcut( action, shortcut )
 
-    def setShortcut(self, action, shortcut, error ):
+    def setShortcut(self, action, shortcut):
         if isinstance(action, basestring):
             action = self.action( action )
 
@@ -241,8 +244,7 @@ class pActionsModel(QAbstractItemModel):
             if  a != action :
                 if a.shortcut():
                     if  a.shortcut() == shortcut :
-                        if  error :
-                            error = tr( "Can't set shortcut, it's already used by action '%s'." % \
+                        error = tr( "Can't set shortcut, it's already used by action '%s'." % \
                                         self.cleanText( a.text() ))
                         return False, error
 
@@ -282,19 +284,30 @@ class pActionsModel(QAbstractItemModel):
         sep = "\001"
         return text.replace( "and", sep ).remove( "&" ).replace( sep, "and" )
 
-    def insertAction(self, path, action, parent, row ):        
+    def insertAction(self, path, actionOrMenu, parent, row ):
         p = parent
-        
         if p is None:
             p = self
+        
+        if isinstance(actionOrMenu, QAction):
+            action = actionOrMenu
+            menu = action.menu()
+            menuIsSet = False
+        else:
+            menu = actionOrMenu
+            action = menu.menuAction()
+            menuIsSet = True
         
         self.beginInsertRows( self._index( parent ), row, row )
         action.setObjectName( path.replace( "/", "_" ) )
         action.setParent( p )
-        if  parent :
-            parent.menu().addAction( action )
+        if  parent:
+            if menuIsSet:
+                parent.menu().addMenu( menu )
+            else:
+                parent.menu().addAction( action )
 
-        if not  action.text():
+        if not action.text():
             action.setText( path.split('/')[-1] )
 
         if not parent in self._children:
@@ -315,6 +328,7 @@ class pActionsModel(QAbstractItemModel):
         parentChildren.remove( action )
         del self._children[action]
         del self._actions[self.path( action )]
+        del self._createdMenuForAction[action]
 
     def removeAction(self, action, parent, row ):        
         self.beginRemoveRows( self._index( parent ), row, row )
@@ -331,14 +345,14 @@ class pActionsModel(QAbstractItemModel):
     def createCompletePathNode(self, path ):
         action = self._actions.get( path, None )
         
-        if  action :
-            if action.menu():
-               return action
+        if action is not None:
+            if action.menu() is not None:
+                return action
             else:
-               return None
+                return None
 
         separatorCount = path.count( "/" ) + 1
-        parentAction = 0
+        parentAction = None
         
         for i in range(separatorCount):
             subPath = '/'.join(path.split('/')[0:i + 1])
@@ -358,9 +372,12 @@ class pActionsModel(QAbstractItemModel):
             else:
                 parentAction = self._actions.get('/'.join(path.split('/')[0:i]), None)
             row = len(self.children( parentAction ))
-            action = QMenu().menuAction()  # crash!!!
+            menu = QMenu()
+            action = menu.menuAction()
+            self._createdMenuForAction[action] = menu
+
             action.setText( '/'.join(path.split('/')[i:i + 1]) )
-            self.insertAction( subPath, action, parentAction, row )
+            self.insertAction( subPath, menu, parentAction, row )
 
         return action
 
