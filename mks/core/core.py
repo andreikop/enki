@@ -13,8 +13,6 @@ import signal
 from PyQt4.QtGui import qApp, QIcon
 from PyQt4.QtCore import QTimer
 
-from PyQt4.fresh import pSettings
-
 import mks.core.defines
 import mks.resources.icons # pylint: disable=W0404
 
@@ -60,9 +58,6 @@ class Core:
         self._prepareToCatchSigInt()
         
         qApp.setWindowIcon(QIcon(':/mksicons/monkey2.png') )
-        pSettings.setDefaultProperties(pSettings.Properties(qApp.applicationName(), \
-                                                            "1.0.0",
-                                                            pSettings.Normal))
 
         # Imports are here for hack crossimport problem
         import mks.core.mainwindow  # pylint: disable=W0621,W0404
@@ -111,8 +106,6 @@ class Core:
             del self._uiSettingsManager
 
         mks.resources.icons.qCleanupResources()
-        
-        
 
     def mainWindow(self):
         """Get :class:`mks.core.mainwindow.MainWindow` instance
