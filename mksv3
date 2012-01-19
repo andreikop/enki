@@ -184,8 +184,8 @@ def main():
             else:
                 core.workspace().createEmptyNotSavedDocument(filePath)
     else:
-        pass
-        #FIXME core.workspace().createEmptyNotSavedDocument()
+        if core.workspace().textEditorClass():
+            core.workspace().createEmptyNotSavedDocument()
 
     if core.workspace().currentDocument():
         core.workspace().currentDocument().setFocus()

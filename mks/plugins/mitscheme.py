@@ -11,7 +11,7 @@ from PyQt4 import uic
 
 from mks.core.core import core, DATA_FILES_PATH
 
-from PyQt4.fresh import pDockWidget
+from mks.fresh.dockwidget.pDockWidget import pDockWidget
 
 import mks.lib.buffpopen
 import mks.lib.termwidget

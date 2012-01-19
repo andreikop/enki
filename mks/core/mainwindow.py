@@ -10,7 +10,8 @@ from PyQt4.QtCore import pyqtSignal, QSize, Qt
 from PyQt4.QtGui import QIcon, QSizePolicy, QVBoxLayout, QWidget
 
 from PyQt4.QtGui import QMainWindow
-#from PyQt4.fresh import pDockWidget, pMainWindow, pActionsModel
+#from PyQt4.fresh import pMainWindow, pActionsModel
+from mks.fresh.dockwidget.pDockWidget import pDockWidget
 from mks.fresh.actionmanager.pActionsModel import pActionsModel
 from mks.fresh.actionmanager.pActionsMenuBar import pActionsMenuBar
 
