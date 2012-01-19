@@ -5,7 +5,7 @@ from PyQt4.QtGui import QDockWidget, QFontMetrics, QIcon, QLinearGradient, QPale
                         QStyleOptionToolButton, \
                         QStyleOptionDockWidgetV2, QTransform, QToolBar, QBoxLayout, QWidget
 
-from PyQt4.fresh import pToolButton
+from mks.fresh.pToolButton import pToolButton
 
 class pDockWidgetTitleBar(QToolBar):
     

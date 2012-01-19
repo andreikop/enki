@@ -1,4 +1,3 @@
-
 from PyQt4.QtCore import QEvent, Qt
 from PyQt4.QtGui import QKeySequence
 
