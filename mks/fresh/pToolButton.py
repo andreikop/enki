@@ -71,7 +71,7 @@ class pToolButton(QToolButton):
         self.update()
 
     def mouseMoveEvent(self, event ):
-        QAbstractButton.mouseMoveEvent( self, event )
+        QToolButton.mouseMoveEvent( self, event )
 
         if  event.buttons() != Qt.NoButton :
             self.setDown( self.hitButton( event.pos() ) )

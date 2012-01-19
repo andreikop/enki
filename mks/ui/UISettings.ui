@@ -1524,7 +1524,7 @@
   <customwidget>
    <class>pColorButton</class>
    <extends>QPushButton</extends>
-   <header location="global">PyQt4/fresh.h</header>
+   <header location="global">mks/fresh/pColorButton.h</header>
   </customwidget>
  </customwidgets>
  <resources>
