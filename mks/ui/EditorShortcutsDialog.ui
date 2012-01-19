@@ -92,12 +92,12 @@
   <customwidget>
    <class>pKeySequenceEdit</class>
    <extends>QLineEdit</extends>
-   <header>PyQt4/fresh.h</header>
+   <header>mks/fresh/pKeySequenceEdit.h</header>
   </customwidget>
   <customwidget>
    <class>pLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>PyQt4/fresh.h</header>
+   <header>mks/fresh/pLineEdit.h</header>
   </customwidget>
  </customwidgets>
  <resources>

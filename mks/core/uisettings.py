@@ -191,7 +191,7 @@ class NumericOption(Option):
 class ColorOption(Option):
     """Color option
     
-    Control must be PyQt4.Fresh.pColorButton
+    Control must be mks.fresh.pColorButton
     """
     def load(self):
         """Load the value from config to GUI
