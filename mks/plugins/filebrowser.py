@@ -18,7 +18,7 @@ from PyQt4.QtGui import QAction, QCompleter, QDirModel, \
                         QPainter, \
                         QShortcut, QSortFilterProxyModel, QToolButton, QTreeView, QVBoxLayout, QWidget
 
-from PyQt4.fresh import pDockWidget
+from mks.fresh.dockwidget.pDockWidget import pDockWidget
 
 from mks.core.core import core
 from mks.core.uisettings import ListOnePerLineOption, ModuleConfigurator

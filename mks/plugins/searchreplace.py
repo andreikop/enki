@@ -23,7 +23,7 @@ from PyQt4.QtGui import QAction, QCompleter, QDirModel, QFileDialog,  \
                         QPainter,  \
                         QPalette, \
                         QProgressBar, QToolButton, QTreeView, QWidget
-from PyQt4.fresh import pDockWidget
+from mks.fresh.dockwidget.pDockWidget import pDockWidget
 
 from mks.core.core import core, DATA_FILES_PATH
 
