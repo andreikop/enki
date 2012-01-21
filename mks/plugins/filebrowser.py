@@ -46,7 +46,7 @@ class Plugin(QObject):
         self.dock = DockFileBrowser(core.mainWindow())
         self.dock.hide()
         # add dock to dock toolbar entry
-        core.mainWindow().dockToolBar( Qt.LeftToolBarArea ).addDockWidget(self.dock)
+        core.mainWindow().addDockWidget(Qt.LeftDockWidgetArea, self.dock)
         Plugin.instance = self
     
     def __del__(self):

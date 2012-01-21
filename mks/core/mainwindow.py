@@ -87,7 +87,9 @@ class MainWindow(QMainWindow):
         self._centralLayout = QVBoxLayout(widget)
         self._centralLayout.setMargin(0)
         self.setCentralWidget(widget)
-    
+        
+        self.resize(640, 480)
+
     def __del__(self):
         for act in self._createdActions:
             self._actionModel.removeAction(act)

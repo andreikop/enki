@@ -72,7 +72,6 @@ class Core:
         self._uiSettingsManager = mks.core.uisettings.UISettingsManager()
         
         # Create plugins
-        """
         self._loadPlugin('editor')
         self._loadPlugin('editortoolbar')
         self._loadPlugin('searchreplace')
@@ -83,7 +82,7 @@ class Core:
         self._loadPlugin('associations')
         self._loadPlugin('mitscheme')
         self._loadPlugin('schemeindenthelper')
-        """
+
 
     def term(self):
         """Terminate plugins and core modules

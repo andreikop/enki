@@ -195,7 +195,7 @@ class Plugin(QObject):
         
         self._dock = MitSchemeDock(self._mitScheme.widget())
 
-        core.mainWindow().dockToolBar( Qt.BottomToolBarArea ).addDockWidget(self._dock)
+        core.mainWindow().addDockWidget(Qt.BottomDockWidgetArea, self._dock)
         self._dock.hide()
 
         self._installed = True
@@ -209,7 +209,7 @@ class Plugin(QObject):
         self._evalAction = None
         core.actionModel().removeMenu("mScheme")
         self._mitScheme.stop()
-        core.mainWindow().dockToolBar( Qt.BottomToolBarArea ).removeDockWidget(self._dock)
+        core.mainWindow().dockToolBar( Qt.BottomDockWidgetArea ).removeDockWidget(self._dock)
         del self._dock
         self._installed = False
 
