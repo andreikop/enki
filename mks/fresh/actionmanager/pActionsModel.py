@@ -82,7 +82,7 @@ class pActionsModel(QAbstractItemModel):
         if not path in self._actions:
             return QModelIndex()
         
-        parentAction = self.parent( action )
+        parentAction = self.parentAction( action )
         try:
             row = self.children( parentAction ).index( action )
         except ValueError:
@@ -93,12 +93,8 @@ class pActionsModel(QAbstractItemModel):
     def parent(self, index ):
         assert isinstance(index, QModelIndex)
         action = self.action( index )
-        parentAction = self.parent( action )
-        parentParentAction = self.parent( parentAction )
-        try:
-            row = self.children( parentParentAction ).index( parentAction )
-        except ValueError:
-            return QModelIndex()
+        parentAction = self.parentAction( action )
+        return self._index(parentAction)
         
         return self.createIndex( row, 0, parentAction )
 
@@ -214,7 +210,7 @@ class pActionsModel(QAbstractItemModel):
         if action is None:
             return False
         
-        parentAction = self.parent( action )
+        parentAction = self.parentAction( action )
         if parentAction is not None:
             row = self.children( parentAction ).index( action )
             self._removeAction( action, parentAction, row )
@@ -224,7 +220,7 @@ class pActionsModel(QAbstractItemModel):
 
         return True
 
-    def parent(self, action ):
+    def parentAction(self, action ):
         assert isinstance(action, QAction)
         return self._actions.get('/'.join(self.path( action ).split('/')[0: -1]), None)
 
@@ -236,9 +232,11 @@ class pActionsModel(QAbstractItemModel):
             action = self.action( action )
 
         if action is not None:
-            return action.property( pActionsModel._DEFAULT_SHORTCUT_PROPERTY ).value(QKeySequence)
-        else:
-            return QKeySequence()
+            prop = action.property( pActionsModel._DEFAULT_SHORTCUT_PROPERTY )
+            if prop.isValid():
+                return prop.convert(QKeySequence)
+        
+        return QKeySequence()
 
     def setDefaultShortcut(self, action, shortcut ):
         if isinstance(action, basestring):
@@ -284,7 +282,7 @@ class pActionsModel(QAbstractItemModel):
             return False
 
         action = index.internalPointer()
-        parentAction = self.parent( action )
+        parentAction = self.parentAction( action )
         
         if  action is None:
             return False
@@ -296,7 +294,7 @@ class pActionsModel(QAbstractItemModel):
 
     def cleanText(self, text ):
         sep = "\001"
-        return text.replace( "and", sep ).remove( "&" ).replace( sep, "and" )
+        return text.replace( "and", sep ).replace( "&", "" ).replace( sep, "and" )
 
     def insertAction(self, path, actionOrMenu, parent, row ):
         p = parent
@@ -393,7 +391,7 @@ class pActionsModel(QAbstractItemModel):
             return
         
         if not self.hasChildren( action ) :
-            parentAction = self.parent( action )
+            parentAction = self.parentAction( action )
             row = self.children( parentAction ).index( action )
             
             self._removeAction( action, parentAction, row )

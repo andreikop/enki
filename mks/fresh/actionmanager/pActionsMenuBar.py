@@ -32,7 +32,7 @@ class pActionsMenuBar(QMenuBar):
         return self._model
 
     def model_actionInserted(self, action ):
-        parent = self._model.parent( action )
+        parent = self._model.parentAction( action )
         
         if parent is None and action.menu():
             self.addMenu( action.menu() )

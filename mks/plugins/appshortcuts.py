@@ -70,8 +70,6 @@ class Plugin:
         
         for action in _recursiveActionsList(self._model):
             self._applyShortcut(action)
-        
-        self._onEditShortcuts()
 
     def __term__(self):
         self._model.removeAction(self._action)

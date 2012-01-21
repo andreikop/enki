@@ -160,7 +160,7 @@ class Plugin(QObject):
         
         # FIXME create dock, only when have some search results!!!
         self.dock = SearchResultsDock( self.widget.searchThread )
-        core.mainWindow().dockToolBar( Qt.BottomToolBarArea ).addDockWidget(self.dock)
+        core.mainWindow().addDockWidget(Qt.BottomDockWidgetArea, self.dock)
         self.dock.setVisible( False )
 
         self.widget.setResultsDock( self.dock )
