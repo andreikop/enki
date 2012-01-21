@@ -55,7 +55,7 @@ class Plugin:
         try:
             self._config = Config(True, _CONFIG_PATH)
         except UserWarning as ex:
-            core.messageManager().appendMessage(unicode(ex))
+            core.messageToolBar().appendMessage(unicode(ex))
             self._config = None
             return
 
@@ -112,7 +112,7 @@ class Plugin:
         try:
             self._config.flush()
         except UserWarning as ex:
-            core.messageManager().appendMessage(unicode(ex))
+            core.messageToolBar().appendMessage(unicode(ex))
 
     def _onEditShortcuts(self):
         """Handler of *Edit->Shortcuts...* action. Shows dialog, than saves shortcuts to file

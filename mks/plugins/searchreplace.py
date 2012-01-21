@@ -714,7 +714,7 @@ class SearchWidget(QFrame):
     def replaceThread_error(self, error ):
         """Error message from the replace thread
         """
-        core.messageManager().appendMessage( error )
+        core.messageToolBar().appendMessage( error )
     
     def _updateActionsState(self):
         """Update actions state according to search context valid state
@@ -777,7 +777,7 @@ class SearchWidget(QFrame):
         
         # TODO support project
         #if  self.searchContext._mode & Plugin.ModeFlagProjectFiles and not self.searchContext.project :
-        #    core.messageManager().appendMessage( \
+        #    core.messageToolBar().appendMessage( \
         #                        self.tr( "You can't search in project files because there is no opened projet." ) )
         #    return
 
@@ -812,7 +812,7 @@ class SearchWidget(QFrame):
         # TODO support project
         # TODO disable action, don't show the message!
         #if  self.searchContext.mode & Plugin.ModeFlagProjectFiles and not self.searchContext.project :
-        #    core.messageManager().appendMessage(
+        #    core.messageToolBar().appendMessage(
         #         self.tr( "You can't replace in project files because there is no opened projet." ) )
         #    return
 
