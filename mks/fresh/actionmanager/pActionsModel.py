@@ -28,7 +28,8 @@ class pActionsModel(QAbstractItemModel):
 
     def __init__(self, parent=None):
         QAbstractItemModel.__init__(self,  parent )
-        self._actions = {}
+        self._pathToAction = {}
+        self._actionToPath = {}
         self._children = {}
         self._createdMenuForAction = {}
     
@@ -39,10 +40,10 @@ class pActionsModel(QAbstractItemModel):
         return pActionsModel._COLUMN_COUNT
 
     def data(self, index, role=Qt.DisplayRole):
-        action = self.action( index )
-        
-        if action is None:
+        if not index.isValid():
             return QVariant()
+        
+        action = index.internalPointer()
 
         if role == Qt.DecorationRole:
             if index.column() == 0:
@@ -71,8 +72,10 @@ class pActionsModel(QAbstractItemModel):
         return QVariant()
 
     def index(self, row, column, parent = QModelIndex()):
-        action = self.action( parent )
-        actions = self.children( action )
+        if parent.isValid():
+            actions = self.children(parent.internalPointer())
+        else:
+            actions = self.children(None)
         
         if  row < 0 or row >= len(actions) or \
             column < 0 or column >= pActionsModel._COLUMN_COUNT or \
@@ -84,7 +87,7 @@ class pActionsModel(QAbstractItemModel):
     def _index(self, action, column = 0):
         path = self.path( action )
         
-        if not path in self._actions:
+        if not path in self._pathToAction:
             return QModelIndex()
         
         parentAction = self.parentAction( action )
@@ -93,7 +96,7 @@ class pActionsModel(QAbstractItemModel):
         except ValueError:
             return QModelIndex()
         
-        return self.createIndex( row, column, self._actions[ path ] )
+        return self.createIndex( row, column, self._pathToAction[ path ] )
 
     def parent(self, index ):
         assert isinstance(index, QModelIndex)
@@ -143,11 +146,10 @@ class pActionsModel(QAbstractItemModel):
                 return None
         else:
             path = indexOrPath
-            return self._actions.get(self.cleanPath( path ), None)
+            return self._pathToAction.get(self.cleanPath( path ), None)
 
     def path(self, action ):
-        reverse = {v:k for k, v in self._actions.iteritems()}
-        return reverse.get(action, None)
+        return self._actionToPath.get(action, None)
 
     def clear(self):
         count = self.rowCount()
@@ -158,7 +160,8 @@ class pActionsModel(QAbstractItemModel):
         self.beginRemoveRows( QModelIndex(), 0, count -1 )
         #qDeleteAll( self._children[0] )
         self._children = {}
-        self._actions = {}
+        self._pathToAction = {}
+        self._actionToPath = {}
         self.endRemoveRows()
         
         self.actionsCleared.emit()
@@ -227,7 +230,7 @@ class pActionsModel(QAbstractItemModel):
 
     def parentAction(self, action ):
         assert isinstance(action, QAction)
-        return self._actions.get('/'.join(self.path( action ).split('/')[0: -1]), None)
+        return self._pathToAction.get('/'.join(self.path( action ).split('/')[0: -1]), None)
 
     def children(self, action ):
         return self._children.get(action, [])
@@ -258,7 +261,7 @@ class pActionsModel(QAbstractItemModel):
         if isinstance(action, basestring):
             action = self.action( action )
 
-        for a in self._actions.itervalues():
+        for a in self._pathToAction.itervalues():
             if  a != action :
                 if a.shortcut():
                     if  a.shortcut() == shortcut :
@@ -331,7 +334,8 @@ class pActionsModel(QAbstractItemModel):
         if not parent in self._children:
             self._children[ parent ] = []
         self._children[ parent ].append(action)
-        self._actions[ path ] = action
+        self._pathToAction[ path ] = action
+        self._actionToPath[ action ] = path
         action.changed.connect(self._onActionChanged)
         action.destroyed.connect(self.actionDestroyed)
         self.endInsertRows()
@@ -348,12 +352,14 @@ class pActionsModel(QAbstractItemModel):
                 self.cleanTree( a, action )
             del self._children[action]
 
-        del self._actions[self.path( action )]
+        path = self.path( action )
+        del self._actionToPath[action]
+        del self._pathToAction[path]
         if action in self._createdMenuForAction:
             del self._createdMenuForAction[action]
 
     def createCompletePathNode(self, path ):
-        action = self._actions.get( path, None )
+        action = self._pathToAction.get( path, None )
         
         if action is not None:
             if action.menu() is not None:
@@ -366,7 +372,7 @@ class pActionsModel(QAbstractItemModel):
         
         for i in range(separatorCount):
             subPath = '/'.join(path.split('/')[0:i + 1])
-            action = self._actions.get( subPath, None )
+            action = self._pathToAction.get( subPath, None )
             
             if action is not None:
                 if  path != subPath :
@@ -378,9 +384,9 @@ class pActionsModel(QAbstractItemModel):
                    return None
             
             if i == 0:
-                parentAction = self._actions.get(None, None)
+                parentAction = self._pathToAction.get(None, None)
             else:
-                parentAction = self._actions.get('/'.join(path.split('/')[0:i]), None)
+                parentAction = self._pathToAction.get('/'.join(path.split('/')[0:i]), None)
             row = len(self.children( parentAction ))
             menu = QMenu()
             action = menu.menuAction()
@@ -393,7 +399,7 @@ class pActionsModel(QAbstractItemModel):
         return action
 
     def removeCompleteEmptyPathNode(self, action ):
-        if action is None or not self.path( action ) in self._actions:
+        if action is None or not self.path( action ) in self._pathToAction:
             return
         
         if not self.hasChildren( action ) :
@@ -414,5 +420,5 @@ class pActionsModel(QAbstractItemModel):
         action = object
         path = self.path( action )
         
-        if  path in self._actions:
+        if  path in self._pathToAction:
             self.removeAction( path )
