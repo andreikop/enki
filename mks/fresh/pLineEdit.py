@@ -4,7 +4,6 @@ See information at https://github.com/pasnox/fresh and
 API docks at http://api.monkeystudio.org/fresh/
 """
 
-import os.path
 from PyQt4.QtCore import pyqtSignal, Qt, QSize, QTimer
 from PyQt4.QtGui import QAction, QFontMetrics, QIcon, QLineEdit, QPainter, QPalette, \
                         QStyle, QStyleOptionFrameV3, QToolButton
@@ -91,7 +90,7 @@ class pLineEdit(QLineEdit):
         self._spacing = 0
         
         self.tbSearch = QToolButton( self )
-        self.tbSearch.setIcon( QIcon(os.path.join(os.path.dirname(__file__), "resources/icons/search.png")) )
+        self.tbSearch.setIcon( QIcon(":mksicons/fresh/search.png"))
         self.tbSearch.setToolTip( tr( "Search Options" ) )
         self.tbSearch.setStyleSheet( 
             "QToolButton { border: none; padding: 0px; } QToolButton.menu-indicator { right: -2px; bottom: -2px; }" )
@@ -100,7 +99,7 @@ class pLineEdit(QLineEdit):
         self.tbSearch.setPopupMode( QToolButton.InstantPopup )
         
         self.tbClear = QToolButton( self )
-        self.tbClear.setIcon( QIcon(os.path.join(os.path.dirname(__file__), "resources/icons/edit-clear-rtl.png")) )
+        self.tbClear.setIcon( QIcon(":mksicons/fresh/edit-clear-rtl.png"))
         self.tbClear.setToolTip( tr( "Clear" ) )
         self.tbClear.setStyleSheet( "QToolButton { border: none; padding: 0px; }" )
         self.tbClear.setCursor( Qt.ArrowCursor )
