@@ -39,7 +39,7 @@ class pDockWidget(QDockWidget):
 
 
     def toggleViewAction_triggered(self, toggled ):
-        if  toggled and focusProxy():
+        if toggled and self.focusProxy() is not None:
             if  self.isFloating():
                 QTimer.singleShot( 0, self.handleWindowActivation )
             else:
@@ -47,11 +47,11 @@ class pDockWidget(QDockWidget):
 
     def handleWindowActivation(self):
         self.activateWindow()
-        QTimer.singleShot( 0, self.handleWindowActivation )
+        QTimer.singleShot( 0, self.handleFocusProxy )
 
     def handleFocusProxy(self):
-        if  self.focusProxy() :
-            self.focusProxy().setFocus()
+        if self.focusProxy() is not None:
+            self.setFocus()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape and \
