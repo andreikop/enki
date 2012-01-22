@@ -52,3 +52,10 @@ class pDockWidget(QDockWidget):
     def handleFocusProxy(self):
         if  self.focusProxy() :
             self.focusProxy().setFocus()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape and \
+           event.modifiers() == Qt.NoModifier:
+                self.hide()
+        else:
+            return QDockWidget.keyPressEvent( self, event )
