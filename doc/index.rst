@@ -53,25 +53,19 @@ Download and install
 Ubuntu 11.10
 ^^^^^^^^^^^^
 
-#. Add `P@sNox's PPA <https://launchpad.net/~pasnox/+archive/ppa>`_
 #. Add `Monkey studio PPA <https://launchpad.net/~monkeystudio/+archive/ppa>`_
 #. Install **mksv3** package
 
-All 3 steps::
+Console commands::
 
-    sudo add-apt-repository ppa:pasnox/ppa
     sudo add-apt-repository ppa:monkeystudio/ppa
     sudo apt-get update
     sudo apt-get install mksv3
 
 Other Ubuntus and Debians
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-#. Download *libfresh1* and *python-qt4-fresh1* packages from `P@sNox's PPA <https://launchpad.net/~pasnox/+archive/ppa/+packages>`_
 #. Download *mksv3* package from `Monkey Studio PPA <https://launchpad.net/~monkeystudio/+archive/ppa/+packages>`_
-#. Install packages with ::
-    
-    sudo dpkg --install libfresh1*.deb
-    sudo dpkg --install python-qt4-fresh1*.deb
+#. Install the package with ::    
     sudo dpkg --install mksv3*.deb
 
 This method not tested yet, but, should be working. Team will be appreciate you, if you shared your experience
@@ -89,7 +83,6 @@ Dependencies
 #. QScintilla 2 library and Python bindings. http://www.riverbankcomputing.co.uk/software/qscintilla/download)
 #. Python. http://python.org
 #. ConfigObj config file reader and writer. http://pypi.python.org/pypi/configobj/ http://www.voidspace.org.uk/python/configobj.html
-#. Fresh framework, including Python bindings. https://github.com/pasnox/fresh
 
 Documentation and support
 """""""""""""""""""""""""

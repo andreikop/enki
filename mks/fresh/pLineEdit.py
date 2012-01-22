@@ -1,3 +1,9 @@
+"""This file has been ported from fresh library by Azevedo Filippe aka PasNox
+
+See information at https://github.com/pasnox/fresh and 
+API docks at http://api.monkeystudio.org/fresh/
+"""
+
 import os.path
 from PyQt4.QtCore import pyqtSignal, Qt, QSize, QTimer
 from PyQt4.QtGui import QAction, QFontMetrics, QIcon, QLineEdit, QPainter, QPalette, \

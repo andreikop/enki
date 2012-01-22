@@ -1,3 +1,9 @@
+"""This file has been ported from fresh library by Azevedo Filippe aka PasNox
+
+See information at https://github.com/pasnox/fresh and 
+API docks at http://api.monkeystudio.org/fresh/
+"""
+
 from PyQt4.QtCore import pyqtSignal, Qt, QTimer
 from PyQt4.QtGui import QAbstractButton, QColor, QBrush, QDialogButtonBox, QHBoxLayout, \
                         QLabel, QPainter, QPixmap, QSizePolicy, QWidget
