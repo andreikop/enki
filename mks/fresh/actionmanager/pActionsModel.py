@@ -12,7 +12,6 @@ class pActionsModel(QAbstractItemModel):
     actionsCleared = pyqtSignal()
 
     _COLUMN_COUNT = 3
-    _DEFAULT_SHORTCUT_PROPERTY = "Default Shortcut"
     
     Action = 0
     Shortcut = 1
@@ -232,21 +231,22 @@ class pActionsModel(QAbstractItemModel):
             action = self.action( action )
 
         if action is not None:
-            prop = action.property( pActionsModel._DEFAULT_SHORTCUT_PROPERTY )
-            if prop.isValid():
-                return prop.convert(QKeySequence)
+            if hasattr(action, 'defaultShortcut'):
+                return action.defaultShortcut
         
         return QKeySequence()
 
     def setDefaultShortcut(self, action, shortcut ):
         if isinstance(action, basestring):
             action = self.action( action )
+        
+        if isinstance(shortcut, basestring):
+            shortcut = QKeySequence(shortcut)
 
-        if  action:
-            action.setProperty( pActionsModel._DEFAULT_SHORTCUT_PROPERTY, shortcut )
-            
-            if not action.shortcut():
-                self.setShortcut( action, shortcut )
+        action.defaultShortcut = shortcut
+        
+        if not action.shortcut():
+            self.setShortcut( action, shortcut )
 
     def setShortcut(self, action, shortcut):
         if isinstance(action, basestring):
