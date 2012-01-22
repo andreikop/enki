@@ -61,8 +61,8 @@
         <string>Validate the shortcut</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../resources/fresh.qrc">
-         <normaloff>:/fresh/icons/apply.png</normaloff>:/fresh/icons/apply.png</iconset>
+        <iconset resource="../../../icons/mksicons.qrc">
+         <normaloff>:/mksicons/fresh/apply.png</normaloff>:/mksicons/fresh/apply.png</iconset>
        </property>
       </widget>
      </item>
@@ -72,8 +72,8 @@
         <string>Clear the shortcut</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../resources/fresh.qrc">
-         <normaloff>:/fresh/icons/editclear.png</normaloff>:/fresh/icons/editclear.png</iconset>
+        <iconset resource="../../../icons/mksicons.qrc">
+         <normaloff>:/mksicons/fresh/editclear.png</normaloff>:/mksicons/fresh/editclear.png</iconset>
        </property>
       </widget>
      </item>
@@ -101,7 +101,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../resources/fresh.qrc"/>
+  <include location="../../../icons/mksicons.qrc"/>
  </resources>
  <connections/>
 </ui>

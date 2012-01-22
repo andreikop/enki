@@ -30,7 +30,7 @@ class pQueuedMessageWidget(QWidget):
         QWidget.__init__(self, *args)
         self._messages = []
         self._defaultTimeout = 0
-        self._defaultPixmap = QPixmap(":/fresh/icons/info.png" )
+        self._defaultPixmap = QPixmap(":/mksicons/fresh/info.png" )
         self._defaultBackground = QBrush( QColor( 250, 230, 147 ) )
         self._defaultForeground = QBrush( QColor( 0, 0, 0 ) )
         

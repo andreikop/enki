@@ -47,6 +47,11 @@
 		<file>files.png</file>
 		<file>filtered.png</file>
 		<file>folder.png</file>
+		<file>fresh/apply.png</file>
+		<file>fresh/editclear.png</file>
+		<file>fresh/edit-clear-rtl.png</file>
+		<file>fresh/info.png</file>
+		<file>fresh/search.png</file>
 		<file>function-green.png</file>
 		<file>function.png</file>
 		<file>goto.png</file>
