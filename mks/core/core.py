@@ -84,7 +84,6 @@ class Core:
         self._loadPlugin('associations')
         self._loadPlugin('mitscheme')
         self._loadPlugin('schemeindenthelper')
-        self.messageToolBar().appendMessage("hi")
 
         self._mainWindow.loadState()
 

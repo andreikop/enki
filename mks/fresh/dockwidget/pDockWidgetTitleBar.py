@@ -209,8 +209,8 @@ class pDockWidgetTitleBar(QToolBar):
         if  index != -1 :
             index += 1
         
-        if  index >= 0 and index < len(actions()):
-            QToolBar.insertAction(self, actions()[index], action )
+        if  index >= 0 and index < len(self.actions()):
+            QToolBar.insertAction(self, self.actions()[index], action )
         else:
             QToolBar.addAction( self, action )
 
@@ -220,8 +220,8 @@ class pDockWidgetTitleBar(QToolBar):
         if  index != -1 :
             index += 1
     
-        if  index >= 0 and index < len(actions()):
-            QToolBar.insertSeparator( self, actions()[index] )
+        if  index >= 0 and index < len(self.actions()):
+            QToolBar.insertSeparator( self, self.actions()[index] )
         else:
             QToolBar.addSeparator(self)
 
