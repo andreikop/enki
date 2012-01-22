@@ -65,7 +65,8 @@ class Core:
         self._mainWindow = mks.core.mainwindow.MainWindow()
         
         self._config = self._createConfig()
-        
+
+        import mks.core.workspace
         self._workspace = mks.core.workspace.Workspace(self._mainWindow)
         self._mainWindow.setWorkspace(self._workspace)
         
@@ -85,6 +86,7 @@ class Core:
         self._loadPlugin('schemeindenthelper')
         self.messageToolBar().appendMessage("hi")
 
+        self._mainWindow.loadState()
 
     def term(self):
         """Terminate plugins and core modules
