@@ -6,8 +6,10 @@ mainwindow --- Main window of the UI. Fills main menu.
 Module contains :class:`mks.core.mainwindow.MainWindow` implementation
 """
 
+import os.path
+
 from PyQt4.QtCore import pyqtSignal, QSize, Qt
-from PyQt4.QtGui import QIcon, QSizePolicy, QVBoxLayout, QWidget
+from PyQt4.QtGui import QIcon, QMessageBox, QSizePolicy, QVBoxLayout, QWidget
 
 from PyQt4.QtGui import QMainWindow
 
@@ -16,7 +18,7 @@ from mks.fresh.actionmanager.pActionsModel import pActionsModel
 from mks.fresh.actionmanager.pActionsMenuBar import pActionsMenuBar
 
 from mks.core.core import core
-import mks.core.workspace
+import mks.core.defines
 
 class MainWindow(QMainWindow):
     """
@@ -88,8 +90,6 @@ class MainWindow(QMainWindow):
         self._centralLayout.setMargin(0)
         self.setCentralWidget(widget)
         
-        self.resize(640, 480)
-
     def __del__(self):
         for act in self._createdActions:
             self._actionModel.removeAction(act)
@@ -211,7 +211,11 @@ class MainWindow(QMainWindow):
         if not core.workspace().closeAllDocuments():
             event.ignore()
             return
-        return super(MainWindow, self).closeEvent(event)
+        
+        self._saveState()
+        self._saveGeometry()
+        
+        return QMainWindow.closeEvent(self, event)
     
     def _onHideAllWindows(self):
         """Close all visible windows for get as much space on the screen, as possible
@@ -220,7 +224,57 @@ class MainWindow(QMainWindow):
         for dock in self.findChildren(pDockWidget):
             dock.hide()
 
+    def _saveState(self):
+        """Save window state to main_window_state.bin file in the config directory
+        """
+        path = os.path.join(mks.core.defines.CONFIG_DIR, "main_window_state.bin")
+        state = self.saveState()
+        try:
+            with open(path, 'w') as f:
+                f.write(state)
+        except (OSError, IOError), ex:
+            error = unicode(str(ex), 'utf8')
+            QMessageBox.critical(None,
+                                self.tr("Cannot save main window state"),
+                                self.tr( "Cannot create file '%s'\nError: %s" % (path, error)))
+            return
+    
+    def loadState(self):
+        """Restore window state from main_window_state.bin and config.
+        Called by the core after all plugins had been initialized
+        """
+        self._restoreGeometry()
 
+        path = os.path.join(mks.core.defines.CONFIG_DIR, "main_window_state.bin")
+        state = None
+        if os.path.exists(path):
+            try:
+                with open(path, 'r') as f:
+                    state = f.read()
+            except (OSError, IOError), ex:
+                error = unicode(str(ex), 'utf8')
+                QMessageBox.critical(None,
+                                    self.tr("Cannot restore main window state"),
+                                    self.tr( "Cannot read file '%s'\nError: %s" % (path, error)))
+        
+        if state is not None:
+            self.restoreState(state)
+        
+    def _saveGeometry(self):
+        """Save window geometry to the config file
+        """
+        section = core.config()["MainWindow"]
+        section["X"], section["Y"], section["Width"], section["Height"] = self.geometry().getRect()
+        section["Maximized"] = self.isMaximized()
+        core.config().flush()
+    
+    def _restoreGeometry(self):
+        """Restore window geometry to the config file
+        """
+        section = core.config()["MainWindow"]
+        self.setGeometry(section["X"], section["Y"], section["Width"], section["Height"])
+        if section["Maximized"]:
+           self.showMaximized()
 
 #   TODO restore or delete old code
 #    urlsDropped = pyqtSignal()
