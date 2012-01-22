@@ -137,7 +137,7 @@ class pActionsModel(QAbstractItemModel):
     def action(self, indexOrPath ):
         if isinstance(indexOrPath, QModelIndex):
             index = indexOrPath
-            if self.isValid( index ):
+            if index.isValid():
                 return index.internalPointer()
             else:
                 return None
