@@ -101,7 +101,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../resources/fresh.qrc"/>
+  <include location="../fresh/resources/fresh.qrc"/>
  </resources>
  <connections/>
 </ui>
