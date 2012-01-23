@@ -139,8 +139,8 @@ _ACTIONS = (\
 (qsci.SCI_SETZOOM, 'mView/mZoom/aSetZoom', tr('Reset Zoom'), 'Ctrl+/', ''),
 (MKS_TOGGLE_BOOKMARK, 'mNavigation/mBookmarks/aSetBookmark', tr('Set bookmark'), 'Ctrl+B', ''),
 (qsci.SCI_MARKERDELETEALL, 'mNavigation/mBookmarks/aAllBookmarks', tr('Delete all bookmarks'), '', ''),
-(MKS_NEXT_BOOKMARK, 'mNavigation/mBookmarks/aPreviousBookmark', tr('Previous bookmark'), 'Alt+Down', ''),
-(MKS_PREV_BOOKMARK, 'mNavigation/mBookmarks/aNextBookmark', tr('Next bookmark'), 'Alt+Up', ''),
+(MKS_NEXT_BOOKMARK, 'mNavigation/mBookmarks/aPreviousBookmark', tr('Next bookmark'), 'Alt+Down', ''),
+(MKS_PREV_BOOKMARK, 'mNavigation/mBookmarks/aNextBookmark', tr('Previous bookmark'), 'Alt+Up', ''),
 \
 (qsci.SCI_LINESCROLLDOWN, 'mNavigation/mScroll/aDownOneLine', tr('Down one line'), 'Ctrl+Down', ''),
 (qsci.SCI_LINESCROLLUP, 'mNavigation/mScroll/aUpOneLine', tr('Up one line'), 'Ctrl+Up', ''),
