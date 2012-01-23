@@ -1,19 +1,11 @@
-TODO scheme    
+FIXME
     freeze when using empty regexp pattern
-    
-    Howto и ссылка на него на UI
+    Scheme howto и ссылка на него на UI
     Нумеровать линии везде с 0
     Plugin abstract interface
-    invalid bookmark actions text
     поубирать сообщения на queued tool bar без таймаута
-    
-
-FIXME
     https://www.virtualbox.org/wiki/Linux_Downloads - вот так нужно инсталить пакеты
     падает при смене цвета
-    нумеровать строки с 0
-    Сохраняем новый файл. Сохранился, но светится как не сохраненный
-    почему не у всех action есть дефолтные сочетания клавиш?
 
 FIXME PasNox
 

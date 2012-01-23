@@ -189,7 +189,7 @@ class Plugin(QObject):
         for action in _ACTIONS:
             actObject = model.addAction(action[1], action[2])
             if action[3]:
-                model.setDefaultShortcut(actObject, action[3])
+                actObject.setShortcut(action[3])
             if action[4]:
                 actObject.setIcon(QIcon(':/mksicons/' + action[4]))
             actObject.setData(action[0])
