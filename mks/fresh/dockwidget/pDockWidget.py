@@ -24,7 +24,7 @@ class pDockWidget(QDockWidget):
     def paintEvent(self, event ):
         QDockWidget.paintEvent(self,  event )
         
-        if  self.isFloating() and style().objectName().tolower() != "Oxygen".tolower():
+        if  self.isFloating() and self.style().objectName().tolower() != "Oxygen".tolower():
             rect = self.rect().adjusted( 0, 0, -1, -1 )
             
             painter = QPainter( self )
