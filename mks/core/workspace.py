@@ -185,6 +185,12 @@ class Workspace(QStackedWidget):
         """
         self._textEditorClass = newEditorClass
     
+    def textEditorClass(self):
+        """Get text editor, which is used for open textual documents.
+        Text editor is class, herited from :class:`mks.core.abstractdocument.AbstractDocument`
+        """
+        return self._textEditorClass
+    
     def eventFilter( self, obj, event ):
         """NOT AN API function
         

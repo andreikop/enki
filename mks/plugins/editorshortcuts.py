@@ -8,7 +8,7 @@ Sends commands to the current editor, when action was triggered
 """
 
 from PyQt4.QtCore import QObject
-from PyQt4.QtGui import QIcon
+from PyQt4.QtGui import QApplication, QIcon
 from PyQt4.Qsci import QsciScintilla as qsci
 
 from mks.core.core import core
@@ -21,6 +21,8 @@ def tr(text):  # pylint: disable=C0103
 MKS_TOGGLE_BOOKMARK = -1
 MKS_NEXT_BOOKMARK = -2
 MKS_PREV_BOOKMARK = -3
+
+MKS_PASTE = -4
 
 _ACTIONS = (\
 (qsci.SCI_SELECTALL, 'mEdit/mSelection/aSelectAll', tr('Select All'), 'Ctrl+A', ''),
@@ -125,7 +127,7 @@ _ACTIONS = (\
 (qsci.SCI_DELLINERIGHT, 'mEdit/mDelete/aLineToRight', tr('Line to right'), 'Ctrl+Alt+Del', ''),
 \
 (qsci.SCI_COPY, 'mEdit/mCopyPaste/aCopy', tr('Copy'), 'Ctrl+C', 'copy.png'),
-(qsci.SCI_PASTE, 'mEdit/mCopyPaste/aPaste', tr('Paste'), 'Ctrl+V', 'paste.png'),
+(MKS_PASTE, 'mEdit/mCopyPaste/aPaste', tr('Paste'), 'Ctrl+V', 'paste.png'),
 (qsci.SCI_CUT, 'mEdit/mCopyPaste/aCut', tr('Cut'), 'Ctrl+X', 'cut.png'),
 (qsci.SCI_LINECUT, 'mEdit/mCopyPaste/aCutLine', tr('Cut line'), 'Ctrl+L', 'cut.png'),
 (qsci.SCI_LINECOPY, 'mEdit/mCopyPaste/aCopyLine', tr('Copy line'), 'Ctrl+Alt+T', 'copy.png'),
@@ -224,13 +226,22 @@ class Plugin(QObject):
         """
         action = self.sender()
         code = action.data().toInt()[0]
+        
+        focusWidget = QApplication.focusWidget()
+        if focusWidget is not None and isinstance(focusWidget, qsci):
+            editor = focusWidget
+        else:
+            editor = self._currentDocument.qscintilla
+        
         if code > 0:
-            self._currentDocument.qscintilla.SendScintilla(code)
+            editor.SendScintilla(code)
         elif MKS_TOGGLE_BOOKMARK == code:
-            self._currentDocument.toggleBookmark()
+            editor.parent().toggleBookmark()
         elif MKS_NEXT_BOOKMARK == code:
-            self._currentDocument.nextBookmark()
+            editor.parent().nextBookmark()
         elif MKS_PREV_BOOKMARK == code:
-            self._currentDocument.prevBookmark()
+            editor.parent().prevBookmark()
+        elif MKS_PASTE == code:  # Paste via method, to fix EOL
+            editor.paste()
         else:
             assert 0

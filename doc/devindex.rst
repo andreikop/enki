@@ -1,12 +1,16 @@
 Developer (internal) documentation
 ==================================
-MkS is divided onto 2 parts: core and plugins.
+MkS is divided onto 3 parts: **core** **lib** and **plugins**
 
 Core
 
 * creates basic user interface
 * provides basic functionality for user
 * contains plugin API for extend functionality
+
+Lib
+
+* Consists of code, which is not used by core, but, may be used by more than one plugin. I.e. common widgets.
 
 Plugin
 
@@ -36,6 +40,14 @@ Not API core modules
 
     core/openedfilemodel.rst
 
+Library modules
+---------------
+
+.. toctree::
+
+    lib/termwidget.rst
+    lib/buffpopen.rst
+
 Plugins documentation
 ---------------------
 .. toctree::
@@ -48,3 +60,6 @@ Plugins documentation
    plugins/helpmenu.rst
    plugins/searchreplace.rst
    plugins/associations.rst
+   plugins/mitscheme.rst
+   plugins/schemeindenthelper.rst
+
