@@ -71,7 +71,7 @@ class MainWindow(QMainWindow):
 
         self._initMenuBar()
         
-        """ FIXME
+        """ FIXME restore when having dock tool bar, or remove
         # Default exclusive settings for the tool bars
         self.dockToolBar( Qt.LeftToolBarArea ).setExclusive(False)
         self.dockToolBar( Qt.RightToolBarArea ).setExclusive(False)

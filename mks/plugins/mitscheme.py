@@ -209,7 +209,7 @@ class Plugin(QObject):
         self._evalAction = None
         core.actionModel().removeMenu("mScheme")
         self._mitScheme.stop()
-        core.mainWindow().dockToolBar( Qt.BottomDockWidgetArea ).removeDockWidget(self._dock)
+        core.mainWindow().removeDockWidget(self._dock)
         del self._dock
         self._installed = False
 
