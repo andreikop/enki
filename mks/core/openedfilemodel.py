@@ -24,10 +24,9 @@ from PyQt4.QtGui import QAction, QActionGroup, \
 
 from PyQt4 import uic
 
-import PyQt4.fresh
-
 from mks.core.core import core, DATA_FILES_PATH
 from mks.core.uisettings import ChoiseOption, ModuleConfigurator
+from mks.fresh.dockwidget.pDockWidget import pDockWidget
 
 class Configurator(ModuleConfigurator):
     """ Module configurator.
@@ -320,13 +319,13 @@ class _OpenedFileModel(QAbstractItemModel):
         QObject.parent(self).finishModifyModel()
 
 
-class OpenedFileExplorer(PyQt4.fresh.pDockWidget):
+class OpenedFileExplorer(pDockWidget):
     """Opened File Explorer is list widget with list of opened files.
     It implements switching current file, files sorting. Uses _OpenedFileModel internally.
     Class instance created by Workspace.
     """
     def __init__(self, workspace):
-        PyQt4.fresh.pDockWidget.__init__(self, workspace)
+        pDockWidget.__init__(self, workspace)
         self.model = _OpenedFileModel(self)  # Not protected, because used by Configurator
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/pOpenedFileExplorer.ui'), self )
         self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )

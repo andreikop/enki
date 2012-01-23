@@ -104,20 +104,6 @@ def _checkDependencies():
         raise ex
     
     try:
-        import PyQt4.fresh
-    except ImportError, ex:
-        html = "<html>Failed to import fresh framework python bindings:<br/>" + \
-                str(ex) + '<br/>' + \
-                "Download and install sources from " \
-                "<a href='https://github.com/pasnox/fresh'>this site</a></html>"
-        plain = "Failed to import fresh framework python bindings:\n" + \
-                str(ex) + '\n' + \
-                "Download and install sources from " \
-                "https://github.com/pasnox/fresh"
-        _showErrorMessage(True, "Fresh framework not found", html, plain)
-        raise ex
-    
-    try:
         import configobj
         import validate
     except ImportError, ex:
@@ -158,7 +144,7 @@ def main():
     sys.excepthook = excepthook
     
     
-    # Imports only here. Hack for ability to get help and version info even on system without PyQt and Fresh.
+    # Imports only here. Hack for ability to get help and version info even on system without PyQt.
     from mks.core.core import core
     
     app.setApplicationName( mks.core.defines.PACKAGE_NAME )
@@ -184,7 +170,8 @@ def main():
             else:
                 core.workspace().createEmptyNotSavedDocument(filePath)
     else:
-        core.workspace().createEmptyNotSavedDocument()
+        if core.workspace().textEditorClass():
+            core.workspace().createEmptyNotSavedDocument()
 
     if core.workspace().currentDocument():
         core.workspace().currentDocument().setFocus()

@@ -57,6 +57,23 @@ long_description = \
  * Hightly configurable
 """
 
+packages=['mks',
+          'mks/core',
+          'mks/lib',
+          'mks/fresh',
+          'mks/fresh/actionmanager',
+          'mks/fresh/dockwidget',
+          'mks/fresh/models',
+          'mks/fresh/queuedmessage',
+          'mks/plugins',
+          'mks/resources']
+
+package_data={'mks' : ['ui/*.ui',
+                       'ui/plugins/*.ui',
+                       'fresh/actionmanager/*.ui',
+                       'config/*.cfg']
+             }
+
 setup(name=PACKAGE_NAME,
         version=PACKAGE_VERSION,
         description='Simple programmers text editor',
@@ -65,8 +82,8 @@ setup(name=PACKAGE_NAME,
         author_email='hlamer@tut.by',
         url=PACKAGE_URL,
         download_url='TODO write download URL',
-        packages=['mks', 'mks/core', 'mks/plugins', 'mks/resources'],
-        package_data={'mks' : ['ui/*.ui', 'config/*.cfg']},
+        packages=packages,
+        package_data=package_data,
         scripts=['./mksv3'],
         data_files=data_files,
         classifiers=classifiers,
