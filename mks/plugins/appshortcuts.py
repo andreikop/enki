@@ -82,7 +82,7 @@ class Plugin:
     def _applyShortcut(self, action):
         """Apply for the action its shortcut if defined
         """
-        
+        self._model.setDefaultShortcut(action, action.shortcut())
         if self._config is not None:
             path = self._model.path(action)
             try:
