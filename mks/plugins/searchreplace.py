@@ -651,7 +651,6 @@ class SearchWidget(QFrame):
         """
         document = core.workspace().currentDocument()
         regExp = self._getRegExp()
-        replaceText = self.cbReplace.currentText()
 
         start, end = document.absSelection()  # pylint: disable=W0612
         if start is None:
@@ -664,8 +663,9 @@ class SearchWidget(QFrame):
         
         if match is not None:
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
+            replaceText = self.cbReplace.currentText()
             try:
-                replText = regExp.sub(replaceText, match.group(0))
+                replaceText = regExp.sub(replaceText, match.group(0))
             except re.error, ex:
                 message = unicode(ex.message, 'utf_8')
                 message += r'. Probably <i>\group_index</i> used in replacement string, but such group not found. '\
@@ -673,8 +673,8 @@ class SearchWidget(QFrame):
                 QMessageBox.critical(None, "Invalid replace string", message)
                 # TODO link to replace help
                 return
-            document.replaceSelectedText(replText)
-            document.goTo(absPos = match.start() + len(replText))
+            document.replaceSelectedText(replaceText)
+            document.goTo(absPos = match.start() + len(replaceText))
             self.pbNext.click() # move selection to next item
         else:
             self.setState(SearchWidget.Bad)
@@ -697,10 +697,18 @@ class SearchWidget(QFrame):
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
             replText = regExp.sub(replaceText, match.group(0))
             document.replaceSelectedText(replText)
+            
+            count += 1
+            
             pos = match.start() + len(replText)
             
-            match = regExp.search(document.text(), pos)
-            count += 1
+            if not match.group(0) and not replText:  # avoid freeze when replacing empty with empty
+                pos += 1
+            if pos < len(document.text()):
+                match = regExp.search(document.text(), pos)
+            else:
+                match = None
+
         document.endUndoAction()
         
         if oldPos is not None:
