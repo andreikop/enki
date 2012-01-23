@@ -191,7 +191,7 @@ class NumericOption(Option):
 class ColorOption(Option):
     """Color option
     
-    Control must be PyQt4.Fresh.pColorButton
+    Control must be mks.fresh.pColorButton
     """
     def load(self):
         """Load the value from config to GUI
@@ -408,7 +408,7 @@ class UISettings(QDialog):
         try:
             core.config().flush()
         except UserWarning as ex:
-            core.messageManager().appendMessage(unicode(ex))
+            core.messageToolBar().appendMessage(unicode(ex))
 
     def on_twMenu_itemSelectionChanged(self):
         """Qt slot. Switch current page, after item in the pages tree has been selected

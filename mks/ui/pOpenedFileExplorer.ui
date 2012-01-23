@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>pOpenedFileExplorer</class>
- <widget class="pDockWidget" name="pOpenedFileExplorer">
+ <widget class="QDockWidget" name="pOpenedFileExplorer">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -57,7 +57,7 @@
   <customwidget>
    <class>pDockWidget</class>
    <extends>QDockWidget</extends>
-   <header location="global">PyQt4/fresh.h</header>
+   <header location="global">mks/fresh/dockwidget/pDockWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

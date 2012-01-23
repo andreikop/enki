@@ -1,7 +1,18 @@
 TODO scheme
+    Traceback (most recent call last):
+    File "/usr/local/lib/python2.7/dist-packages/mks/plugins/searchreplace.py", line 750, in _onSearchContextChanged
+    self.searchFile( True, True )
+    File "/usr/local/lib/python2.7/dist-packages/mks/plugins/searchreplace.py", line 593, in searchFile
+    start, end = document.absSelection()
+    AttributeError: 'NoneType' object has no attribute 'absSelection'
+    
+    freeze when using empty regexp pattern
+    
     Howto и ссылка на него на UI
     Нумеровать линии везде с 0
     Plugin abstract interface
+    invalid bookmark actions text
+    поубирать сообщения на queued tool bar без таймаута
     
 
 FIXME
@@ -9,6 +20,7 @@ FIXME
     падает при смене цвета
     нумеровать строки с 0
     Сохраняем новый файл. Сохранился, но светится как не сохраненный
+    почему не у всех action есть дефолтные сочетания клавиш?
 
 FIXME PasNox
 

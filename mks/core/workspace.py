@@ -127,8 +127,7 @@ class Workspace(QStackedWidget):
         # create opened files explorer
         # openedFileExplorer is not protected, because it is available for OpenedFileModel
         self.openedFileExplorer = mks.core.openedfilemodel.OpenedFileExplorer(self)
-        lefttb = mainWindow.dockToolBar( Qt.LeftToolBarArea )
-        lefttb.addDockWidget( self.openedFileExplorer)
+        mainWindow.addDockWidget(Qt.LeftDockWidgetArea, self.openedFileExplorer)
         
         self.currentChanged.connect(self._onStackedLayoutIndexChanged)
         
@@ -383,7 +382,7 @@ class Workspace(QStackedWidget):
         self._handleDocument( document )
         
         if not os.access(filePath, os.W_OK):
-            core.messageManager().appendMessage( \
+            core.messageToolBar().appendMessage( \
                         self.tr( "File '%s' is not writable" % filePath), 4000) # todo fix
         
         return document
@@ -586,7 +585,7 @@ class Workspace(QStackedWidget):
 #        file = QFile ( fileName )
 
 #        if  not file.open( QIODevice.WriteOnly ) :
-#            core.messageManager().appendMessage(self.tr( "Can't create file '%1'" ).arg( QFileInfo( fileName ).fileName() ) )
+#            core.messageToolBar().appendMessage(self.tr( "Can't create file '%1'" ).arg( QFileInfo( fileName ).fileName() ) )
 #            return 0
 
 #        # reset file

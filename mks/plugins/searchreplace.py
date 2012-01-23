@@ -23,7 +23,7 @@ from PyQt4.QtGui import QAction, QCompleter, QDirModel, QFileDialog,  \
                         QPainter,  \
                         QPalette, \
                         QProgressBar, QToolButton, QTreeView, QWidget
-from PyQt4.fresh import pDockWidget
+from mks.fresh.dockwidget.pDockWidget import pDockWidget
 
 from mks.core.core import core, DATA_FILES_PATH
 
@@ -160,7 +160,7 @@ class Plugin(QObject):
         
         # FIXME create dock, only when have some search results!!!
         self.dock = SearchResultsDock( self.widget.searchThread )
-        core.mainWindow().dockToolBar( Qt.BottomToolBarArea ).addDockWidget(self.dock)
+        core.mainWindow().addDockWidget(Qt.BottomDockWidgetArea, self.dock)
         self.dock.setVisible( False )
 
         self.widget.setResultsDock( self.dock )
@@ -714,7 +714,7 @@ class SearchWidget(QFrame):
     def replaceThread_error(self, error ):
         """Error message from the replace thread
         """
-        core.messageManager().appendMessage( error )
+        core.messageToolBar().appendMessage( error )
     
     def _updateActionsState(self):
         """Update actions state according to search context valid state
@@ -777,7 +777,7 @@ class SearchWidget(QFrame):
         
         # TODO support project
         #if  self.searchContext._mode & Plugin.ModeFlagProjectFiles and not self.searchContext.project :
-        #    core.messageManager().appendMessage( \
+        #    core.messageToolBar().appendMessage( \
         #                        self.tr( "You can't search in project files because there is no opened projet." ) )
         #    return
 
@@ -812,7 +812,7 @@ class SearchWidget(QFrame):
         # TODO support project
         # TODO disable action, don't show the message!
         #if  self.searchContext.mode & Plugin.ModeFlagProjectFiles and not self.searchContext.project :
-        #    core.messageManager().appendMessage(
+        #    core.messageToolBar().appendMessage(
         #         self.tr( "You can't replace in project files because there is no opened projet." ) )
         #    return
 

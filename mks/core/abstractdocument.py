@@ -61,7 +61,7 @@ class AbstractDocument(QWidget):
             self._createFileWatcher()
         
         if filePath and self._neverSaved:
-            core.messageManager().appendMessage('New file "%s" is going to be created' % filePath, 5000)
+            core.messageToolBar().appendMessage('New file "%s" is going to be created' % filePath, 5000)
     
     def _createFileWatcher(self):
         """Create own filewatcher. Called from the constructor, or after name has been defined for new created file
@@ -628,7 +628,7 @@ class AbstractTextEditor(AbstractDocument):
         
         if moreThanOne:
             message = "Your file contains mix of End Of Line symbols. It will be saved with '%s'" % default
-            core.messageManager().appendMessage(message, 10000)
+            core.messageToolBar().appendMessage(message, 10000)
             self.setEolMode(default)
             self._setModified(True)
         elif core.config()["Editor"]["EOL"]["AutoDetect"]:
@@ -641,7 +641,7 @@ class AbstractTextEditor(AbstractDocument):
                     detectedMode != default:
                 message = "%s: End Of Line mode is '%s', but file will be saved with '%s'. " \
                           "EOL autodetection is disabled in the settings" % (self.fileName(), detectedMode, default)
-                core.messageManager().appendMessage(message, 10000)
+                core.messageToolBar().appendMessage(message, 10000)
                 self._setModified(True)
             
             self.setEolMode(default)
