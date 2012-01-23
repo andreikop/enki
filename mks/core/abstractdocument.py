@@ -4,7 +4,10 @@ abstractdocument --- Base classes for workspace documents
 
 This class is inherited by textual editor, and must be inherited by other workspace widgets.
 
-:class:`mks.core.workspace.AbstractDocument`  - base class of workspace documents
+Classes:
+    * :class:`mks.core.abstractdocument.AbstractDocument`
+    * :class:`mks.core.abstractdocument.AbstractTextEditor`
+    * :class:`mks.core.abstractdocument.IndentHelper`
 """
 
 import os.path
@@ -251,20 +254,73 @@ class AbstractDocument(QWidget):
         return QIcon(":/mksicons/" + icon)
 
 
+class IndentHelper:
+    """This class is an interface declaration for indentation helpers. Indentation helper is a function,
+    which "knows", how to indent particular language.
+
+    I.e., for Scheme, indent helper exists, which indents it according to http://community.schemewiki.org/?scheme-style
+    
+    To create own indentation helper, subclass this class and implement indent() method.
+    
+    See :meth:`mks.core.core.Core.indentHelper`, :meth:`mks.core.core.Core.setIndentHelper`
+    """
+    
+    @staticmethod
+    def indent(editor):
+        """Editor calls this method after new line has been inserted.
+        If indenHelper knows how to indent the line, it returns it,
+        and line contents will be replaced with returned value.
+        None means "leave default indentation"
+        """
+        raise NotImplemented()
+    
+
 class AbstractTextEditor(AbstractDocument):
     """Base class for text editors. Currently, only QScintilla is supported, but, we may replace it in the future
     """
     
-    cursorPositionChanged = pyqtSignal(int, int) # (line, column)
+    cursorPositionChanged = pyqtSignal(int, int)
     """
     cursorPositionChanged(line, column)
     
     **Signal** emitted, when cursor position has been changed
     """  # pylint: disable=W0105
     
-    def __init__(self, parentObject, filePath, createNew=False):
+    languageChanged = pyqtSignal(unicode, unicode)
+    """
+    languageChanged(old, new)
+    
+    **Signal** emitted, when highlighting (programming) language of a file has been changed
+    """  # pylint: disable=W0105
+    
+    indentWidthChanged = pyqtSignal(int)
+    """
+    indentWidthChanged(width)
+    
+    **Signal** emitted, when indentation with has been changed
+    """  # pylint: disable=W0105
+
+    indentUseTabsChanged = pyqtSignal(bool)
+    """
+    indentUseTabsChanged(use)
+    
+    **Signal** emitted, when indentation mode has been changed
+    """  # pylint: disable=W0105
+
+    newLineInserted = pyqtSignal()
+    """
+    newLineInserted()
+
+    **Signal** emitted, after new line has been inserted by user (user pressed Enter)
+    """  # pylint: disable=W0105
+    
+    def __init__(self, parentObject, filePath, createNew=False, terminalWidget=False):
+        """If terminalWidget is True, editor is used not as fully functional editor, but as interactive terminal.
+        In this mode line numbers and autocompletion won't be shown
+        """
         AbstractDocument.__init__(self, parentObject, filePath, createNew)
         self._highlightingLanguage = None
+        self.newLineInserted.connect(self._onNewLineInserted)
     
     def eolMode(self):
         """Return document's EOL mode. Possible values are:
@@ -285,24 +341,40 @@ class AbstractTextEditor(AbstractDocument):
     def indentWidth(self):
         """Get width of tabulation symbol and count of spaces to insert, when Tab pressed
         """
-        pass
+        raise NotImplemented()
     
     def setIndentWidth(self, width):
         """Set width of tabulation symbol and count of spaces to insert, when Tab pressed
         """
-        pass
+        if width == self.indentWidth():
+            return
+        self._applyIndentWidth(width)
+        self.indentWidthChanged.emit(width)
     
+    def _applyIndentWidth(self, width):
+        """Apply indentation width
+        """
+        raise NotImplemented()
+
     def indentUseTabs(self):
         """Get indentation uses tabs flag.
         If true - \t inserted by Tab button, if false - spaces
         """
-        pass
+        raise NotImplemented()
     
     def setIndentUseTabs(self, use):
         """Set indentation uses tabs flag.
         If true - \t inserted by Tab button, if false - spaces
         """
-        pass
+        if use == self.indentUseTabs():
+            return
+        self._applyIndentUseTabs(use)
+        self.indentUseTabsChanged.emit(use)
+    
+    def _applyIndentUseTabs(self, use):
+        """Apply indent uses tabs option
+        """
+        raise NotImplemented()
 
     def highlightingLanguage(self):
         """Get programming language of the file.
@@ -316,7 +388,18 @@ class AbstractTextEditor(AbstractDocument):
         
         Called Only by :class:`mks.plugins.associations.Associations` to select syntax highlighting language.
         """
+        if language == self._highlightingLanguage:
+            return
+        old = self._highlightingLanguage
         self._highlightingLanguage = language
+        self._applyHighlightingLanguage(language)
+        self.languageChanged.emit(old, language)
+
+    
+    def _applyHighlightingLanguage(self, language):
+        """Apply new highlighting language
+        """
+        raise NotImplemented()
 
     def text(self):
         """Contents of the editor.
@@ -466,7 +549,14 @@ class AbstractTextEditor(AbstractDocument):
         
         None, if index is invalid
         """
-        pass
+        return self.lines()[index - 1]
+    
+    def setLine(self, index, text):
+        """Replace text in the line with the text.
+        Shortcut for replace(...)
+        """
+        self.replace(text, startLine=index, startCol=0,
+                           endLine=index, endCol=len(self.line(index)))
     
     def lines(self):
         """Get text as list of lines. EOL symbol is not included.
@@ -475,6 +565,8 @@ class AbstractTextEditor(AbstractDocument):
         text = self.text()
         lines = text.splitlines()
         if text.endswith('\n'):
+            lines.append('')
+        elif not lines:  # empty text contains one empty line
             lines.append('')
         return lines
 
@@ -553,6 +645,25 @@ class AbstractTextEditor(AbstractDocument):
                 self._setModified(True)
             
             self.setEolMode(default)
+
+    def _onNewLineInserted(self):
+        """New line has been inserted. Indent it properly with helper, if helper is available
+        """
+        lang = self.highlightingLanguage()
+        try:
+            indenHelper = core.indentHelper(lang)
+        except KeyError:
+            return
+        
+        indent = indenHelper.indent(self)
+        if indent is None:
+            return
+        
+        curLine = self.cursorPosition()[0]
+        lineText = self.line(curLine).lstrip()
+
+        self.setLine(curLine, indent + lineText)
+        self.goTo(line=curLine, col=len(indent))
 
 
 #    TODO restore or delete old code

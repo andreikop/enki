@@ -1,7 +1,14 @@
+TODO scheme
+    Howto и ссылка на него на UI
+    Нумеровать линии везде с 0
+    Plugin abstract interface
+    
+
 FIXME
     https://www.virtualbox.org/wiki/Linux_Downloads - вот так нужно инсталить пакеты
     падает при смене цвета
     нумеровать строки с 0
+    Сохраняем новый файл. Сохранился, но светится как не сохраненный
 
 FIXME PasNox
 
