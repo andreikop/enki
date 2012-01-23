@@ -261,6 +261,10 @@ class pActionsModel(QAbstractItemModel):
         if isinstance(action, basestring):
             action = self.action( action )
 
+
+        if shortcut is None:
+            shortcut = QKeySequence()
+
         for a in self._pathToAction.itervalues():
             if  a != action :
                 if a.shortcut():

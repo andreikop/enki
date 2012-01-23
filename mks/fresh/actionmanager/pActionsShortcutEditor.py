@@ -114,7 +114,7 @@ class pActionsShortcutEditor(QDialog):
             self.accept()
         elif self.dbbButtons.standardButton( button ) == QDialogButtonBox.Cancel:
             for action in self._originalShortcuts.keys():
-                action.setShortcut( self._originalShortcuts.value( action ) )    
+                action.setShortcut( self._originalShortcuts[action] )
             self.reject()
         else:
             assert 0
