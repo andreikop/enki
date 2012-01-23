@@ -200,7 +200,6 @@ class SearchWidget(QFrame):
     def __init__(self, plugin):
         QFrame.__init__(self, core.workspace())
         self._mode = None
-        self.searchContext = None
         self.plugin = plugin
         uic.loadUi(os.path.join(DATA_FILES_PATH,
                    'ui/SearchWidget.ui'),
@@ -289,12 +288,13 @@ class SearchWidget(QFrame):
         #    self.cbEncoding.findText( pMonkeyStudio.defaultCodec() ) )
 
         # connections
-        self.cbSearch.lineEdit().textChanged.connect(self._onSearchContextChanged)
-        self.cbReplace.lineEdit().textChanged.connect(self._onSearchContextChanged)
-        self.cbPath.lineEdit().textChanged.connect(self._onSearchContextChanged)
-        self.cbMask.lineEdit().textChanged.connect(self._onSearchContextChanged)
-        self.cbRegularExpression.stateChanged.connect(self._onSearchContextChanged)
-        self.cbCaseSensitive.stateChanged.connect(self._onSearchContextChanged)
+        self.cbSearch.lineEdit().textChanged.connect(self._updateActionsState)
+        self.cbRegularExpression.stateChanged.connect(self._updateActionsState)
+        self.cbCaseSensitive.stateChanged.connect(self._updateActionsState)
+        
+        self.cbSearch.lineEdit().textChanged.connect(self._onSearchRegExpChanged)
+        self.cbRegularExpression.stateChanged.connect(self._onSearchRegExpChanged)
+        self.cbCaseSensitive.stateChanged.connect(self._onSearchRegExpChanged)
         
         core.workspace().currentDocumentChanged.connect(self._updateActionsState)
         
@@ -518,8 +518,8 @@ class SearchWidget(QFrame):
             if  index == -1 :
                 self.cbMask.addItem( maskText )
     
-    def _getRegExp(self):
-        """Read search parameters from controls and present it as a regular expression
+    def _searchPatternTextAndFlags(self):
+        """Get search pattern and flags
         """
         pattern = self.cbSearch.currentText()
         if not self.cbRegularExpression.checkState() == Qt.Checked:
@@ -527,34 +527,51 @@ class SearchWidget(QFrame):
         flags = 0
         if not self.cbCaseSensitive.checkState() == Qt.Checked:
             flags = re.IGNORECASE
+        return pattern, flags
 
+    def _getRegExp(self):
+        """Read search parameters from controls and present it as a regular expression
+        """
+        pattern, flags = self._searchPatternTextAndFlags()
         return re.compile(pattern, flags)
+    
+    def _isSearchRegExpValid(self):
+        """Try to compile search pattern to check if it is valid
+        Returns bool result and text error
+        """
+        pattern, flags = self._searchPatternTextAndFlags()
+        try:
+            re.compile(pattern, flags)
+        except re.error, ex:
+            return False, unicode(ex)
+        
+        return True, None
 
-    def _initializeSearchContext(self):
+    def _makeSearchContext(self):
         """Fill search context with actual data
         """
-        self.searchContext = SearchContext(\
-            self._getRegExp(), \
-            replaceText = self.cbReplace.currentText(), \
-            searchPath = self.cbPath.currentText(), \
-            mode = self._mode,
-            encoding = self.cbEncoding.currentText())
+
+        searchContext = SearchContext(  self._getRegExp(), \
+                                        replaceText = self.cbReplace.currentText(), \
+                                        searchPath = self.cbPath.currentText(), \
+                                        mode = self._mode,
+                                        encoding = self.cbEncoding.currentText())
 
         # TODO search in project
         #self.searchContext.project = core.fileManager().currentProject()
         
         # update masks
-        self.searchContext.mask = \
+        searchContext.mask = \
             [s.strip() for s in self.cbMask.currentText().split(' ')]
         # remove empty
-        self.searchContext.mask = [m for m in self.searchContext.mask if m]
+        searchContext.mask = [m for m in searchContext.mask if m]
         
         # TODO update project
         #self.searchContext.project = self.searchContext.project.topLevelProject()
 
         # update opened files
         for document in core.workspace().openedDocuments():
-            self.searchContext.openedFiles[document.filePath()] = document.text()
+            searchContext.openedFiles[document.filePath()] = document.text()
         
         # TODO support project
         # update sources files
@@ -562,6 +579,8 @@ class SearchWidget(QFrame):
         #if self.searchContext.project:
         #    self.searchContext.sourcesFiles = \
         #                self.searchContext.project.topLevelProjectSourceFiles()
+        
+        return searchContext
 
     def showMessage (self, status):
         """Show message on the status bar"""
@@ -588,6 +607,7 @@ class SearchWidget(QFrame):
         """Do search in file operation. Will select next found item
         """
         document = core.workspace().currentDocument()
+        regExp = self._getRegExp()
 
         # get cursor position        
         start, end = document.absSelection()
@@ -602,18 +622,18 @@ class SearchWidget(QFrame):
             else:
                 point = end
 
-            match = self.searchContext.regExp.search(document.text(), point)
+            match = regExp.search(document.text(), point)
             if match is None:  # wrap
-                match = self.searchContext.regExp.search(document.text(), 0)
+                match = regExp.search(document.text(), 0)
         else:  # reverse search
             prevMatch = None
-            for match in self.searchContext.regExp.finditer(document.text()):
+            for match in regExp.finditer(document.text()):
                 if match.start() >= start:
                     break
                 prevMatch = match
             match = prevMatch
             if match is None:  # wrap
-                matches = [match for match in self.searchContext.regExp.finditer(document.text())]
+                matches = [match for match in regExp.finditer(document.text())]
                 if matches:
                     match = matches[-1]
         
@@ -630,20 +650,22 @@ class SearchWidget(QFrame):
         """Do one replacement in the file
         """
         document = core.workspace().currentDocument()
+        regExp = self._getRegExp()
+        replaceText = self.cbReplace.currentText()
 
         start, end = document.absSelection()  # pylint: disable=W0612
         if start is None:
             start = 0
         
-        match = self.searchContext.regExp.search(document.text(), start)
+        match = regExp.search(document.text(), start)
         
         if match is None:
-            match = self.searchContext.regExp.search(document.text(), 0)
+            match = regExp.search(document.text(), 0)
         
         if match is not None:
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
             try:
-                replText = self.searchContext.regExp.sub(self.searchContext.replaceText, match.group(0))
+                replText = regExp.sub(replaceText, match.group(0))
             except re.error, ex:
                 message = unicode(ex.message, 'utf_8')
                 message += r'. Probably <i>\group_index</i> used in replacement string, but such group not found. '\
@@ -661,6 +683,8 @@ class SearchWidget(QFrame):
         """Do all replacements in the file
         """
         document = core.workspace().currentDocument()
+        regExp = self._getRegExp()
+        replaceText = self.cbReplace.currentText()
 
         oldPos = document.absCursorPosition()
         
@@ -668,14 +692,14 @@ class SearchWidget(QFrame):
         
         pos = 0
         count = 0
-        match = self.searchContext.regExp.search(document.text(), pos)
+        match = regExp.search(document.text(), pos)
         while match is not None:
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
-            replText = self.searchContext.regExp.sub(self.searchContext.replaceText, match.group(0))
+            replText = regExp.sub(replaceText, match.group(0))
             document.replaceSelectedText(replText)
             pos = match.start() + len(replText)
             
-            match = self.searchContext.regExp.search(document.text(), pos)
+            match = regExp.search(document.text(), pos)
             count += 1
         document.endUndoAction()
         
@@ -719,9 +743,9 @@ class SearchWidget(QFrame):
     def _updateActionsState(self):
         """Update actions state according to search context valid state
         """
-        searchAvailable = self.searchContext is not None and \
-                          self.searchContext.regExp.pattern is not None
-        searchInFileAvailable = searchAvailable and core.workspace().currentDocument() is not None
+        valid, error = self._isSearchRegExpValid()
+        searchAvailable = valid 
+        searchInFileAvailable = valid and core.workspace().currentDocument() is not None
         
         for button in (self.pbNext, self.pbPrevious, self.pbReplace, self.pbReplaceAll):
             button.setEnabled(searchInFileAvailable)
@@ -730,23 +754,20 @@ class SearchWidget(QFrame):
 
         self.pbSearch.setEnabled(searchAvailable)
     
-    def _onSearchContextChanged(self):
+    def _onSearchRegExpChanged(self):
         """User edited search text or checked/unchecked checkboxes
         """
-        try:
-            self._initializeSearchContext()
+        valid, error = self._isSearchRegExpValid()
+        if valid:
             self.setState(self.Normal)
-        except re.error, ex:
-            self.searchContext = None
-            core.mainWindow().statusBar().showMessage(unicode(ex), 5000)
-            self._updateActionsState()
+        else:
+            core.mainWindow().statusBar().showMessage(error, 5000)
             self.setState(self.Incorrect)
             return
         
-        self._updateActionsState()
-        
         # clear search results if needed.
-        if self._mode in (Plugin.ModeSearch, Plugin.ModeReplace):
+        if self._mode in (Plugin.ModeSearch, Plugin.ModeReplace) and \
+           core.workspace().currentDocument() is not None:
             self.searchFile( True, True )
 
     def cdUp_pressed(self):
@@ -781,8 +802,7 @@ class SearchWidget(QFrame):
         #                        self.tr( "You can't search in project files because there is no opened projet." ) )
         #    return
 
-        if self.searchContext.regExp is not None:
-            self.searchThread.search( self.searchContext )
+        self.searchThread.search( self._makeSearchContext() )
 
     def on_pbSearchStop_pressed(self):
         """Handler of click on "Stop" button. Stop search thread
@@ -826,7 +846,7 @@ class SearchWidget(QFrame):
                     index = model.createIndex(row, 0, result)
                     self._dock.model.setData( index, False, SearchResultsModel.EnabledRole )
 
-        self._replaceThread.replace( self.searchContext, items )
+        self._replaceThread.replace( self._makeSearchContext(), items )
 
     def on_pbReplaceCheckedStop_pressed(self):
         """Handler of click on "Stop" button when replacing in directory
