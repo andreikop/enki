@@ -1,11 +1,4 @@
-TODO scheme
-    Traceback (most recent call last):
-    File "/usr/local/lib/python2.7/dist-packages/mks/plugins/searchreplace.py", line 750, in _onSearchContextChanged
-    self.searchFile( True, True )
-    File "/usr/local/lib/python2.7/dist-packages/mks/plugins/searchreplace.py", line 593, in searchFile
-    start, end = document.absSelection()
-    AttributeError: 'NoneType' object has no attribute 'absSelection'
-    
+TODO scheme    
     freeze when using empty regexp pattern
     
     Howto и ссылка на него на UI
