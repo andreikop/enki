@@ -8,10 +8,10 @@ and used for get core instances, such as main window, workspace, etc.
 
 import os.path
 import shutil
+import signal
 
 from PyQt4.QtGui import qApp, QIcon
-
-from PyQt4.fresh import pSettings
+from PyQt4.QtCore import QTimer
 
 import mks.core.defines
 import mks.resources.icons # pylint: disable=W0404
@@ -22,39 +22,51 @@ _DEFAULT_CONFIG_PATH = os.path.join(DATA_FILES_PATH, 'config/mksv3.default.cfg')
 _DEFAULT_CONFIG_SPEC_PATH = os.path.join(DATA_FILES_PATH, 'config/mksv3.spec.cfg')
 _CONFIG_PATH = os.path.join(mks.core.defines.CONFIG_DIR, 'core.cfg')
 
+
 class Core:
     """Core object initializes system at startup and terminates when closing.
     
     It creates instances of other core modules and holds references to it
     """
     def __init__(self):
+        self._queuedMessageToolBar = None
         self._mainWindow = None
         self._workspace = None
         self._config = None
         self._uiSettingsManager = None
+        self._indentHelpers = {}
 
         # List of core configurators. To be filled ONLY by other core modules. Readed ONLY by core.uisettings
         # Use direct access to the list, no methods are provided
         self.moduleConfiguratorClasses = []
 
         self._loadedPlugins = []
+
+    def _prepareToCatchSigInt(self):
+        """Catch SIGINT signal to close the application
+        """
+        signal.signal(signal.SIGINT, lambda signum, frame: qApp.closeAllWindows())
+        # Let the interpreter to run every .5 sec. to catch signal
+        self._checkSignalsTimer = QTimer()
+        self._checkSignalsTimer.start(500)  # You may change this if you wish.
+        self._checkSignalsTimer.timeout.connect(lambda: None)  # Let the interpreter run each 500 ms.
         
     def init(self):
         """Initialize core.
         
         Called only by main()
         """
-        qApp.setWindowIcon(QIcon(':/mksicons/monkey2.png') )
-        pSettings.setDefaultProperties(pSettings.Properties(qApp.applicationName(), \
-                                                            "1.0.0",
-                                                            pSettings.Normal))
+        self._prepareToCatchSigInt()
         
+        qApp.setWindowIcon(QIcon(':/mksicons/monkey2.png') )
+
         # Imports are here for hack crossimport problem
         import mks.core.mainwindow  # pylint: disable=W0621,W0404
         self._mainWindow = mks.core.mainwindow.MainWindow()
         
         self._config = self._createConfig()
-        
+
+        import mks.core.workspace
         self._workspace = mks.core.workspace.Workspace(self._mainWindow)
         self._mainWindow.setWorkspace(self._workspace)
         
@@ -70,6 +82,10 @@ class Core:
         self._loadPlugin('editorshortcuts')
         self._loadPlugin('helpmenu')
         self._loadPlugin('associations')
+        self._loadPlugin('mitscheme')
+        self._loadPlugin('schemeindenthelper')
+
+        self._mainWindow.loadState()
 
     def term(self):
         """Terminate plugins and core modules
@@ -78,7 +94,22 @@ class Core:
         """
         while self._loadedPlugins:
             plugin = self._loadedPlugins.pop()
+            if hasattr(plugin, 'uninstall'):  # TODO make plugin absract interface
+                plugin.uninstall()
             del plugin
+        
+        if self._queuedMessageToolBar:
+            self._mainWindow.removeToolBar(self._queuedMessageToolBar)
+            del self._queuedMessageToolBar
+        if self._mainWindow is not None:
+            del self._mainWindow
+        if self._workspace is not None:
+            del self._workspace
+        if self._config is not None:
+            del self._config
+        if self._uiSettingsManager is not None:
+            del self._uiSettingsManager
+
         mks.resources.icons.qCleanupResources()
 
     def mainWindow(self):
@@ -101,16 +132,42 @@ class Core:
         """
         return self._config
         
-    def messageManager(self):
+    def messageToolBar(self):
         """Get `queued message bar <http://api.monkeystudio.org/fresh/classp_queued_message_tool_bar.html>`_ instance
         """
-        return self._mainWindow.queuedMessageToolBar()
+        if self._queuedMessageToolBar is None:
+            from mks.fresh.queuedmessage.pQueuedMessageToolBar import pQueuedMessageToolBar
+            from PyQt4.QtCore import Qt
+            
+            self._queuedMessageToolBar = pQueuedMessageToolBar(self._mainWindow)
+            self._mainWindow.addToolBar(Qt.BottomToolBarArea, self._queuedMessageToolBar)
+            self._queuedMessageToolBar.setVisible( False )
+        
+        return self._queuedMessageToolBar
     
     def loadedPlugins(self):
         """Get list of curretly loaded plugins (::class:`mks.core.Plugin` instances)
         """
         return self._loadedPlugins
+    
+    def setIndentHelper(self, language, indentHelper):
+        """Set  ::class:`mks.core.abstractdocument.IndentHelper` for language. Pass None to clear the value
+        """
+        if indentHelper is not None:
+            self._indentHelpers[language] = indentHelper
+        else:  # clear
+            try:
+                del self._indentHelpers[language]
+            except KeyError:
+                pass
         
+    def indentHelper(self, language):
+        """Get ::class:`mks.core.abstractdocument.IndentHelper` for the language
+        
+        Raises KeyError, if not available
+        """
+        return self._indentHelpers[language]
+
     def _loadPlugin(self, name):
         """Load plugin by it's module name
         """
@@ -151,7 +208,7 @@ class Core:
                 self._createDefaultConfigFile()
                 haveFileInHome = True
             except UserWarning as ex:
-                self.messageManager().appendMessage(unicode(ex))
+                self.messageToolBar().appendMessage(unicode(ex))
         
         # Try to open
         if haveFileInHome:
@@ -159,7 +216,7 @@ class Core:
                 config = mks.core.config.Config(True, _CONFIG_PATH, configspec=_DEFAULT_CONFIG_SPEC_PATH)
             except UserWarning as ex:
                 messageString = unicode(ex) + '\n' + 'Using default configuration'
-                self.messageManager().appendMessage(messageString)
+                self.messageToolBar().appendMessage(messageString)
                 config = None
         else:
             config = None

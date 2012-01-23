@@ -6,15 +6,21 @@ mainwindow --- Main window of the UI. Fills main menu.
 Module contains :class:`mks.core.mainwindow.MainWindow` implementation
 """
 
-from PyQt4.QtCore import pyqtSignal, QSize, Qt
-from PyQt4.QtGui import QIcon, QSizePolicy, QVBoxLayout, QWidget
+import os.path
 
-from PyQt4.fresh import pDockWidget, pMainWindow, pActionsModel
+from PyQt4.QtCore import pyqtSignal, QSize, Qt
+from PyQt4.QtGui import QIcon, QMessageBox, QSizePolicy, QVBoxLayout, QWidget
+
+from PyQt4.QtGui import QMainWindow
+
+from mks.fresh.dockwidget.pDockWidget import pDockWidget
+from mks.fresh.actionmanager.pActionsModel import pActionsModel
+from mks.fresh.actionmanager.pActionsMenuBar import pActionsMenuBar
 
 from mks.core.core import core
-import mks.core.workspace
+import mks.core.defines
 
-class MainWindow(pMainWindow):
+class MainWindow(QMainWindow):
     """
     Main UI window
     
@@ -44,7 +50,7 @@ class MainWindow(pMainWindow):
     """  # pylint: disable=W0105
     
     def __init__(self):
-        pMainWindow.__init__(self)
+        QMainWindow.__init__(self)
         
         self._actionModel = None
         self._createdMenuPathes = []
@@ -65,6 +71,7 @@ class MainWindow(pMainWindow):
 
         self._initMenuBar()
         
+        """ FIXME
         # Default exclusive settings for the tool bars
         self.dockToolBar( Qt.LeftToolBarArea ).setExclusive(False)
         self.dockToolBar( Qt.RightToolBarArea ).setExclusive(False)
@@ -76,12 +83,13 @@ class MainWindow(pMainWindow):
         modernDocksToolBar.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         modernDocksToolBar.setIconSize(QSize(16, 16))
         self.statusBar().addPermanentWidget(modernDocksToolBar)
+        """
         # create central layout
         widget = QWidget(self)
         self._centralLayout = QVBoxLayout(widget)
         self._centralLayout.setMargin(0)
         self.setCentralWidget(widget)
-    
+        
     def __del__(self):
         for act in self._createdActions:
             self._actionModel.removeAction(act)
@@ -89,7 +97,7 @@ class MainWindow(pMainWindow):
             self._actionModel.removeMenu(menuPath)
         
         self.menuBar().setModel( None )
-        self.settings().sync()  # write window and docs geometry
+        # FIXME self.settings().sync()  # write window and docs geometry
 
     def _initMenuBar(self):
         """Fill menu bar with items. The majority of items are not connected to the slots,
@@ -97,8 +105,10 @@ class MainWindow(pMainWindow):
         because it's easier to create clear menu layout
         """
         # create menubar menus and actions
-        self._actionModel = pActionsModel(self)
-        self.menuBar().setModel(self._actionModel)
+        self._menuBar = pActionsMenuBar(self)
+        self._actionModel = pActionsModel(self._menuBar)
+        self._menuBar.setModel(self._actionModel)
+        self.setMenuBar(self._menuBar)
         
         def menu(path, name, icon):
             """Subfunction for create a menu in the main menu"""
@@ -201,7 +211,11 @@ class MainWindow(pMainWindow):
         if not core.workspace().closeAllDocuments():
             event.ignore()
             return
-        return super(MainWindow, self).closeEvent(event)
+        
+        self._saveState()
+        self._saveGeometry()
+        
+        return QMainWindow.closeEvent(self, event)
     
     def _onHideAllWindows(self):
         """Close all visible windows for get as much space on the screen, as possible
@@ -210,7 +224,57 @@ class MainWindow(pMainWindow):
         for dock in self.findChildren(pDockWidget):
             dock.hide()
 
+    def _saveState(self):
+        """Save window state to main_window_state.bin file in the config directory
+        """
+        path = os.path.join(mks.core.defines.CONFIG_DIR, "main_window_state.bin")
+        state = self.saveState()
+        try:
+            with open(path, 'w') as f:
+                f.write(state)
+        except (OSError, IOError), ex:
+            error = unicode(str(ex), 'utf8')
+            QMessageBox.critical(None,
+                                self.tr("Cannot save main window state"),
+                                self.tr( "Cannot create file '%s'\nError: %s" % (path, error)))
+            return
+    
+    def loadState(self):
+        """Restore window state from main_window_state.bin and config.
+        Called by the core after all plugins had been initialized
+        """
+        self._restoreGeometry()
 
+        path = os.path.join(mks.core.defines.CONFIG_DIR, "main_window_state.bin")
+        state = None
+        if os.path.exists(path):
+            try:
+                with open(path, 'r') as f:
+                    state = f.read()
+            except (OSError, IOError), ex:
+                error = unicode(str(ex), 'utf8')
+                QMessageBox.critical(None,
+                                    self.tr("Cannot restore main window state"),
+                                    self.tr( "Cannot read file '%s'\nError: %s" % (path, error)))
+        
+        if state is not None:
+            self.restoreState(state)
+        
+    def _saveGeometry(self):
+        """Save window geometry to the config file
+        """
+        section = core.config()["MainWindow"]
+        section["X"], section["Y"], section["Width"], section["Height"] = self.geometry().getRect()
+        section["Maximized"] = self.isMaximized()
+        core.config().flush()
+    
+    def _restoreGeometry(self):
+        """Restore window geometry to the config file
+        """
+        section = core.config()["MainWindow"]
+        self.setGeometry(section["X"], section["Y"], section["Width"], section["Height"])
+        if section["Maximized"]:
+           self.showMaximized()
 
 #   TODO restore or delete old code
 #    urlsDropped = pyqtSignal()

@@ -22,7 +22,7 @@ import os.path
 
 from PyQt4.QtCore import QModelIndex
 from PyQt4.QtGui import QIcon
-from PyQt4.fresh import pActionsShortcutEditor
+from mks.fresh.actionmanager.pActionsShortcutEditor import pActionsShortcutEditor
 
 import mks.core.defines
 from mks.core.config import Config
@@ -55,7 +55,7 @@ class Plugin:
         try:
             self._config = Config(True, _CONFIG_PATH)
         except UserWarning as ex:
-            core.messageManager().appendMessage(unicode(ex))
+            core.messageToolBar().appendMessage(unicode(ex))
             self._config = None
             return
 
@@ -82,7 +82,7 @@ class Plugin:
     def _applyShortcut(self, action):
         """Apply for the action its shortcut if defined
         """
-        
+        self._model.setDefaultShortcut(action, action.shortcut())
         if self._config is not None:
             path = self._model.path(action)
             try:
@@ -112,7 +112,7 @@ class Plugin:
         try:
             self._config.flush()
         except UserWarning as ex:
-            core.messageManager().appendMessage(unicode(ex))
+            core.messageToolBar().appendMessage(unicode(ex))
 
     def _onEditShortcuts(self):
         """Handler of *Edit->Shortcuts...* action. Shows dialog, than saves shortcuts to file

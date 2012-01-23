@@ -1,9 +1,15 @@
 FIXME
+    поубирать сообщения на queued tool bar без таймаута
+    Убрать кнопку "clear list" с SR
+    падает при смене цвета
     https://www.virtualbox.org/wiki/Linux_Downloads - вот так нужно инсталить пакеты
-    Howto и ссылка на него на UI
+
+SCHEME release
+    Scheme howto и ссылка на него на UI
+
+REFACTORING
     Нумеровать линии везде с 0
     Plugin abstract interface
-    Убрать кнопку "clear list" с SR
 
 FIXME PasNox
 
@@ -14,8 +20,6 @@ FIXME need help
 
 TODO
   мелкие улучшения
-    вверх-вниз для поиска следующего и предыдущего в файле
-    Закрываться по keyboard interupt
     Начинать поиск с начала
   средний функционал
     Посмотреть detectindent.vim
@@ -26,7 +30,7 @@ TODO
     Восстанавливать сессию?
   большой функционал
     Сделать action закоментить/откоментить
-    Подсвечивать результаты поиска, когда строка поиска видна
+    Подсвечивать результаты поиска, когда строка поиска видна. Результаты на скроллбаре, как в google chrome
     Поддерживать кодировки кроме utf8 Определять кодировку с помощью chardet
     Плагин, показывающий сообщения от авторов. fortune?
     http://cx4a.org/software/gccsense/ - autocompletion for C++

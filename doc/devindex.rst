@@ -1,21 +1,26 @@
 Developer (internal) documentation
 ==================================
-MkS is divided onto 2 parts: core and plugins.
+MkS consists of 4 major packages:
 
-Core
+mks.core
 
 * creates basic user interface
 * provides basic functionality for user
 * contains plugin API for extend functionality
 
-Plugin
+mks.lib
+
+* Code, which is not used by core, but, may be used by more than one plugin. I.e. common widgets.
+
+mks.plugins
 
 * provides additional useful functionality for user. Example - File Browser
 * extends core functionality
 * provides some API for other plugins. NOT DESIRED. It's better to try to avoid plugin to plugin dependencies
 
-Main difference of core and plugins - plugin definitely knows about core API, architecture, functionality, but
-core must not know anything about a plugin.
+mks.fresh
+
+* Few GUI widgets. Ported from https://github.com/pasnox/fresh. Documented `here <http://api.monkeystudio.org/fresh/>`_.
 
 Plugin API documentation
 ------------------------
@@ -36,6 +41,14 @@ Not API core modules
 
     core/openedfilemodel.rst
 
+Library modules
+---------------
+
+.. toctree::
+
+    lib/termwidget.rst
+    lib/buffpopen.rst
+
 Plugins documentation
 ---------------------
 .. toctree::
@@ -48,3 +61,6 @@ Plugins documentation
    plugins/helpmenu.rst
    plugins/searchreplace.rst
    plugins/associations.rst
+   plugins/mitscheme.rst
+   plugins/schemeindenthelper.rst
+
