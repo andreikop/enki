@@ -212,7 +212,7 @@ class EditorConfigurator(ModuleConfigurator):
             try:
                 Plugin.instance.lexerConfig.config.flush()
             except UserWarning as ex:
-                core.messageManager().appendMessage(unicode(ex))
+                core.messageToolBar().appendMessage(unicode(ex))
     
     def applySettings(self):
         """Apply editor and lexer settings
@@ -669,7 +669,7 @@ class Editor(AbstractTextEditor):
             # set unmodified
             self._setModified(False)
         else:
-            core.messageManager().appendMessage('Indentation converted. You can Undo the changes', 5000)
+            core.messageToolBar().appendMessage('Indentation converted. You can Undo the changes', 5000)
 
     def _autoDetectIndent(self):
         """Delect indentation automatically and apply detected mode
@@ -893,7 +893,7 @@ class Plugin:
         try:
             self.lexerConfig = LexerConfig()
         except UserWarning as ex:
-            core.messageManager().appendMessage(unicode(ex))
+            core.messageToolBar().appendMessage(unicode(ex))
             self.lexerConfig = None
         core.workspace().setTextEditorClass(Editor)
     
@@ -951,7 +951,7 @@ class Plugin:
 #        if  quickPrint:
 #            # check if default printer is set
 #            if  p.printerName().isEmpty() :
-#                core.messageManager().appendMessage(\
+#                core.messageToolBar().appendMessage(\
 #                    tr("There is no default printer, set one before trying quick print"))
 #                return
 #            

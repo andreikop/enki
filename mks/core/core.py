@@ -13,8 +13,6 @@ import signal
 from PyQt4.QtGui import qApp, QIcon
 from PyQt4.QtCore import QTimer
 
-from PyQt4.fresh import pSettings
-
 import mks.core.defines
 import mks.resources.icons # pylint: disable=W0404
 
@@ -31,6 +29,7 @@ class Core:
     It creates instances of other core modules and holds references to it
     """
     def __init__(self):
+        self._queuedMessageToolBar = None
         self._mainWindow = None
         self._workspace = None
         self._config = None
@@ -60,16 +59,14 @@ class Core:
         self._prepareToCatchSigInt()
         
         qApp.setWindowIcon(QIcon(':/mksicons/monkey2.png') )
-        pSettings.setDefaultProperties(pSettings.Properties(qApp.applicationName(), \
-                                                            "1.0.0",
-                                                            pSettings.Normal))
 
         # Imports are here for hack crossimport problem
         import mks.core.mainwindow  # pylint: disable=W0621,W0404
         self._mainWindow = mks.core.mainwindow.MainWindow()
         
         self._config = self._createConfig()
-        
+
+        import mks.core.workspace
         self._workspace = mks.core.workspace.Workspace(self._mainWindow)
         self._mainWindow.setWorkspace(self._workspace)
         
@@ -88,6 +85,8 @@ class Core:
         self._loadPlugin('mitscheme')
         self._loadPlugin('schemeindenthelper')
 
+        self._mainWindow.loadState()
+
     def term(self):
         """Terminate plugins and core modules
         
@@ -98,8 +97,20 @@ class Core:
             if hasattr(plugin, 'uninstall'):  # TODO make plugin absract interface
                 plugin.uninstall()
             del plugin
-        mks.resources.icons.qCleanupResources()
         
+        if self._queuedMessageToolBar:
+            self._mainWindow.removeToolBar(self._queuedMessageToolBar)
+            del self._queuedMessageToolBar
+        if self._mainWindow is not None:
+            del self._mainWindow
+        if self._workspace is not None:
+            del self._workspace
+        if self._config is not None:
+            del self._config
+        if self._uiSettingsManager is not None:
+            del self._uiSettingsManager
+
+        mks.resources.icons.qCleanupResources()
 
     def mainWindow(self):
         """Get :class:`mks.core.mainwindow.MainWindow` instance
@@ -121,10 +132,18 @@ class Core:
         """
         return self._config
         
-    def messageManager(self):
+    def messageToolBar(self):
         """Get `queued message bar <http://api.monkeystudio.org/fresh/classp_queued_message_tool_bar.html>`_ instance
         """
-        return self._mainWindow.queuedMessageToolBar()
+        if self._queuedMessageToolBar is None:
+            from mks.fresh.queuedmessage.pQueuedMessageToolBar import pQueuedMessageToolBar
+            from PyQt4.QtCore import Qt
+            
+            self._queuedMessageToolBar = pQueuedMessageToolBar(self._mainWindow)
+            self._mainWindow.addToolBar(Qt.BottomToolBarArea, self._queuedMessageToolBar)
+            self._queuedMessageToolBar.setVisible( False )
+        
+        return self._queuedMessageToolBar
     
     def loadedPlugins(self):
         """Get list of curretly loaded plugins (::class:`mks.core.Plugin` instances)
@@ -189,7 +208,7 @@ class Core:
                 self._createDefaultConfigFile()
                 haveFileInHome = True
             except UserWarning as ex:
-                self.messageManager().appendMessage(unicode(ex))
+                self.messageToolBar().appendMessage(unicode(ex))
         
         # Try to open
         if haveFileInHome:
@@ -197,7 +216,7 @@ class Core:
                 config = mks.core.config.Config(True, _CONFIG_PATH, configspec=_DEFAULT_CONFIG_SPEC_PATH)
             except UserWarning as ex:
                 messageString = unicode(ex) + '\n' + 'Using default configuration'
-                self.messageManager().appendMessage(messageString)
+                self.messageToolBar().appendMessage(messageString)
                 config = None
         else:
             config = None

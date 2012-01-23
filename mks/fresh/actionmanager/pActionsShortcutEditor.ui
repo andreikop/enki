@@ -61,8 +61,8 @@
         <string>Validate the shortcut</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normaloff>:/fresh/icons/apply.png</normaloff>:/fresh/icons/apply.png</iconset>
+        <iconset resource="../../../icons/mksicons.qrc">
+         <normaloff>:/mksicons/fresh/apply.png</normaloff>:/mksicons/fresh/apply.png</iconset>
        </property>
       </widget>
      </item>
@@ -72,8 +72,8 @@
         <string>Clear the shortcut</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normaloff>:/fresh/icons/editclear.png</normaloff>:/fresh/icons/editclear.png</iconset>
+        <iconset resource="../../../icons/mksicons.qrc">
+         <normaloff>:/mksicons/fresh/editclear.png</normaloff>:/mksicons/fresh/editclear.png</iconset>
        </property>
       </widget>
      </item>
@@ -82,7 +82,7 @@
    <item>
     <widget class="QDialogButtonBox" name="dbbButtons">
      <property name="standardButtons">
-      <set>QDialogButtonBox::Ok|QDialogButtonBox::Reset|QDialogButtonBox::RestoreDefaults</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::Reset|QDialogButtonBox::RestoreDefaults</set>
      </property>
     </widget>
    </item>
@@ -101,7 +101,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../fresh/resources/fresh.qrc"/>
+  <include location="../../../icons/mksicons.qrc"/>
  </resources>
  <connections/>
 </ui>
