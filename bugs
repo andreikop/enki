@@ -1,7 +1,4 @@
 FIXME
-    поубирать сообщения на queued tool bar без таймаута
-    Убрать кнопку "clear list" с SR
-    падает при смене цвета
     https://www.virtualbox.org/wiki/Linux_Downloads - вот так нужно инсталить пакеты
     Scheme howto и ссылка на него на UI
 
@@ -35,7 +32,6 @@ TODO
     tab completion
     vim mode
     цветовые схемы
-    плагин для scheme
 
 ON QScintilla 2.5.1
     QsciLexerMatlab and QsciLexerOctave

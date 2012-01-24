@@ -1135,15 +1135,6 @@ class SearchResultsDock(pDockWidget):
         self.setWindowIcon( QIcon(":/mksicons/search.png") )
         
         # actions
-        # clear action
-        aClear = QAction( self.tr( "Clear results list" ), self )
-        aClear.setIcon( QIcon(":/mksicons/clear-list.png"))
-        aClear.setToolTip( aClear.text() )
-        self.titleBar().addAction( aClear, 0 )
-        
-        # add separator
-        self.titleBar().addSeparator( 1 )
-
         widget = QWidget( self )
         self.model = SearchResultsModel( searchThread, self )
         self._view = QTreeView( self )
@@ -1164,7 +1155,6 @@ class SearchResultsDock(pDockWidget):
         #pMonkeyStudio.setMacSmallSize( self, True, True )
 
         # connections
-        aClear.triggered.connect(self.model.clear)
         self.model.firstResultsAvailable.connect(self.show)
         self._view.activated.connect(self.view_activated)
         
