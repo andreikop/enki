@@ -5,7 +5,7 @@ mitscheme --- MIT Scheme integration. Interactive Scheme console
 
 import os.path
 
-from PyQt4.QtCore import pyqtSignal, QObject, Qt, QTimer
+from PyQt4.QtCore import pyqtSignal, QEvent, QObject, Qt, QTimer
 from PyQt4.QtGui import QFileDialog, QIcon, QMessageBox, QWidget
 from PyQt4 import uic
 
@@ -251,9 +251,20 @@ class MitSchemeDock(pDockWidget):
 
         self.setWidget(widget)
         self.setFocusProxy(widget)
-
+        widget.installEventFilter(self)
+    
     def __del__(self):
         core.actionModel().removeAction("mDocks/aMitScheme")
+    
+    def eventFilter(self, obj, event):
+        """Event filter for the widget. Catches Esc pressings. It is necessary, because QScintilla eats it
+        """
+        if (event.type() == QEvent.KeyPress or event.type() == QEvent.ShortcutOverride) and \
+           event.key() == Qt.Key_Escape and \
+           event.modifiers() == Qt.NoModifier:
+            self.hide()
+            return True
+        return pDockWidget.eventFilter(self, obj, event)
 
 #
 # Plugin functionality
