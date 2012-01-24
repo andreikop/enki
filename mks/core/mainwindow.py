@@ -161,8 +161,8 @@ class MainWindow(QMainWindow):
         menu  ("mNavigation/mSearchReplace",           tr("&Search && Replace"    ), "search-replace-directory.png")
         menu  ("mNavigation/mBookmarks",               tr("&Bookmarks"            ), "bookmark.png")
 
-        action("mNavigation/aNext",                   tr("&Next file"            ), "next.png",     "Alt+Right",    tr("Next file"              ), False)
-        action("mNavigation/aPrevious",               tr("&Previous file"        ), "previous.png", "Alt+Left",     tr("Previous file"          ), False)
+        action("mNavigation/aNext",                   tr("&Next file"            ), "next.png",     "Ctrl+PgDown",    tr("Next file"              ), False)
+        action("mNavigation/aPrevious",               tr("&Previous file"        ), "previous.png", "Ctrl+PgUp",     tr("Previous file"          ), False)
         action("mNavigation/aFocusCurrentDocument",   tr("Focus to editor"       ), "text.png",     "Ctrl+Return",  tr("Focus current document" ), False)
         action("mNavigation/aGoto",                   tr("Go go line..."         ), "goto.png",     "Ctrl+G",       tr("Go to line..."          ), False)
         menu  ("mNavigation/mFileBrowser",            tr("File browser"          ), ':/mksicons/open.png')
