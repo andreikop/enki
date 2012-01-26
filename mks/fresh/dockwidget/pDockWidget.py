@@ -38,8 +38,8 @@ class pDockWidget(QDockWidget):
     def showAction(self):
         if  not self._showAction :
             self._showAction = QAction(self.windowIcon(), self.windowTitle(), self)
-            self._showAction.activated.connect(self.show)
-            self._showAction.activated.connect(self.handleFocusProxy)
+            self._showAction.triggered.connect(self.show)
+            self._showAction.triggered.connect(self.handleFocusProxy)
 
         return self._showAction
 
