@@ -1,4 +1,5 @@
 FIXME
+
     Traceback (most recent call last):
     File "/home/a/code/mksv3/mks/fresh/actionmanager/pActionsModel.py", line 428, in actionDestroyed
     self.removeAction( path )
@@ -12,6 +13,8 @@ FIXME
     return self.createIndex( row, column, self._pathToAction[ path ] )
     RuntimeError: underlying C/C++ object has been deleted
 
+    завис при попытке искать во всем проекте.
+    
     https://www.virtualbox.org/wiki/Linux_Downloads - вот так нужно инсталить пакеты
     Scheme howto и ссылка на него на UI
 
