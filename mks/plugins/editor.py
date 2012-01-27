@@ -256,6 +256,10 @@ class LexerConfig:
         """
         for language, lexerClass in Lexer.LEXER_FOR_LANGUAGE.items():
             self.config[language] = {}
+            
+            if lexerClass == _getPygmentsSchemeLexer:
+                continue  # no any configuration for scheme lexer. Don't try to instantile it to avoid warnings
+            
             lexerSection = self.config[language]
             lexerObject = lexerClass(None)
 
