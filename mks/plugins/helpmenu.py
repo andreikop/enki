@@ -26,19 +26,27 @@ class Plugin(QObject):
             action = core.actionModel().addAction("mHelp/%s" % menuItem, text, QIcon(':mksicons/' + icon))
             slot = lambda : UIAbout(core.mainWindow(), tab).exec_()  # pylint: disable=W0108
             action.triggered.connect(slot)
+            return action
         
-        createAction('aAbout', self.tr('&About...'), 'monkey2.png', 'about')
-        createAction('aHelp', self.tr('&Help...'), 'help.png', 'help')
-        createAction('aReportBug', self.tr('Report &Bug...'), 'debugger.png', 'bug')
-        createAction('aDonate', self.tr('&Donate...'), 'add.png', 'donate')
+        self._createdActions = [createAction('aAbout', self.tr('&About...'), 'monkey2.png', 'about'),
+                                createAction('aHelp', self.tr('&Help...'), 'help.png', 'help'),
+                                createAction('aReportBug', self.tr('Report &Bug...'), 'debugger.png', 'bug'),
+                                createAction('aDonate', self.tr('&Donate...'), 'add.png', 'donate')]
 
         action = core.actionModel().addAction( "mHelp/aAboutQt", self.tr('About &Qt...'), QIcon(':mksicons/qt.png'))
         action.triggered.connect(qApp.aboutQt)
+        self._createdActions.append(action)
 
     def moduleConfiguratorClass(self):
         """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
         """
         return None  # No any settings
+    
+    def del_(self):
+        """Terminate the plugin
+        """
+        for action in self._createdActions:
+            core.actionModel().removeAction(action)
 
 class UIAbout(QDialog):
     """About dialogue

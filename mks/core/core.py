@@ -94,21 +94,23 @@ class Core:
         """
         while self._loadedPlugins:
             plugin = self._loadedPlugins.pop()
-            if hasattr(plugin, 'uninstall'):  # TODO make plugin absract interface
-                plugin.uninstall()
+            if hasattr(plugin, 'del_'):  # TODO make plugin absract interface
+                plugin.del_()
             del plugin
-        
+
+        if self._uiSettingsManager is not None:
+            del self._uiSettingsManager
         if self._queuedMessageToolBar:
             self._mainWindow.removeToolBar(self._queuedMessageToolBar)
             del self._queuedMessageToolBar
-        if self._mainWindow is not None:
-            del self._mainWindow
         if self._workspace is not None:
+            self._workspace.del_()
             del self._workspace
+        if self._mainWindow is not None:
+            self._mainWindow.del_()
+            del self._mainWindow
         if self._config is not None:
             del self._config
-        if self._uiSettingsManager is not None:
-            del self._uiSettingsManager
 
         mks.resources.icons.qCleanupResources()
 

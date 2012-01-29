@@ -148,6 +148,11 @@ class Workspace(QStackedWidget):
         core.actionModel().action( "mNavigation/aFocusCurrentDocument" ).triggered.connect(self.focusCurrentDocument)
         core.actionModel().action( "mNavigation/aGoto" ).triggered.connect(self._onGotoTriggered)
     
+    def del_(self):
+        """Terminate workspace. Called by the core to clear actions
+        """
+        self.openedFileExplorer.del_()
+    
     def _mainWindow(self):
         """Get mainWindow instance
         """
