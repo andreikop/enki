@@ -63,6 +63,8 @@ class Plugin(QObject):
         self.dock = None
         model = core.actionModel()
         
+        self._createdActions = []
+        
         def createAction(path, text, icon, shortcut, tooltip, slot, data, enabled=True):  # pylint: disable=R0913
             """Create action object
             """
@@ -75,6 +77,7 @@ class Plugin(QObject):
                 actObject.triggered.connect(slot)
             actObject.setData(data)
             actObject.setEnabled(enabled)
+            self._createdActions.append(actObject)
 
         # List if search actions.
         # First acition created by MainWindow, so, do not fill text
@@ -122,10 +125,11 @@ class Plugin(QObject):
         #                "Replace in the current project files...",
         #                self.modeSwitchTriggered, self.ModeReplaceProjectFiles),
     
-    def __del__(self):
+    def del_(self):
         """Plugin termination
-        """        
-        core.actionModel().removeMenu("mNavigation/mSearchReplace")
+        """
+        for action in self._createdActions:
+            core.actionModel().removeAction(action)
     
     def moduleConfiguratorClass(self):
         """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue

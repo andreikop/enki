@@ -150,7 +150,7 @@ class pActionsModel(QAbstractItemModel):
                 return None
         else:
             path = indexOrPath
-            return self._pathToAction.get(self.cleanPath( path ), None)
+            return self._pathToAction[self.cleanPath( path )]
 
     def path(self, action ):
         return self._actionToPath.get(action, None)
@@ -218,14 +218,12 @@ class pActionsModel(QAbstractItemModel):
     def removeMenu(self, action, removeEmptyPath=False ):
         if isinstance(action, basestring):
             action = self.action( action )
-        
-        if action is None:
-            return False
+        else:
+            assert action is not None
         
         parentAction = self.parentAction( action )
-        if parentAction is not None:
-            row = self.children( parentAction ).index( action )
-            self._removeAction( action, parentAction, row )
+        row = self.children( parentAction ).index( action )
+        self._removeAction( action, parentAction, row )
         
         if  removeEmptyPath :
             self.removeCompleteEmptyPathNode( parentAction )

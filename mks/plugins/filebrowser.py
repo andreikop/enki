@@ -50,11 +50,11 @@ class Plugin(QObject):
 
         Plugin.instance = self
     
-    def __del__(self):
+    def del_(self):
         """Uninstall the plugin
         """
         Plugin.instance = None
-        self.dock.deleteLater()
+        self.dock.del_()
 
     def moduleConfiguratorClass(self):
         """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
@@ -263,6 +263,12 @@ class SmartHistory(QObject):
         # incoming connections
         fileBrowser.rootChanged.connect(self._onRootChanged)
         fileBrowser.fileActivated.connect(self._onFileActivated)
+    
+    def del_(self):
+        """Explicitly called destructor
+        """
+        core.actionModel().removeAction("mNavigation/mFileBrowser/aBack")
+        core.actionModel().removeAction("mNavigation/mFileBrowser/aForward")
 
     def _onRootChanged(self, newCurrDir):
         """FileBrowserDock notifies SmartHistory that root has been changed
@@ -356,6 +362,11 @@ class JumpToCurent(QObject):
 
         fileBrowser.rootChanged.connect(self._updateAction)
         core.workspace().currentDocumentChanged.connect(self._updateAction)
+
+    def del_(self):
+        """Explicitly called destructor
+        """
+        core.actionModel().removeAction(self._action)
 
     def _updateAction(self):
         """Update action enabled state after current file or current directory changed
@@ -617,8 +628,13 @@ class DockFileBrowser(pDockWidget):
         
         self.visibilityChanged.connect(self._onVisibilityChanged)
     
-    def __del__(self):
+    def del_(self):
+        """Explicitly called destructor
+        """
+        self._smartHistory.del_()
+        self._jumpToCurrent.del_()
         core.actionModel().removeAction("mDocks/aFileBrowser")
+        self.deleteLater()
 
     def _onVisibilityChanged(self, visible):
         """Postnoted widget initialization.

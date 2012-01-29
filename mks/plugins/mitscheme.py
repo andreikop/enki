@@ -95,7 +95,7 @@ class Plugin(QObject):
         Plugin.instance = self
 
     def __del__(self):
-        self.uninstall()
+        self.del_()
         Plugin.instance = None
 
     def moduleConfiguratorClass(self):
@@ -109,7 +109,7 @@ class Plugin(QObject):
         # if path has been changed - restart the interpreter
         if self._installed and \
            self._activeInterpreterPath != core.config()["Modes"]["Scheme"]["InterpreterPath"]:
-            self.uninstall()
+            self.del_()
         
         self._installOrUninstallIfNecessary()
 
@@ -163,13 +163,13 @@ class Plugin(QObject):
                 self._install()
         elif enabled == 'never':
             if self._installed:
-                self.uninstall()
+                self.del_()
         else:
             assert enabled == 'whenOpened'
             if self._schemeDocumentsCount > 0:
                 self._install()
             else:
-                self.uninstall()
+                self.del_()
 
     def _install(self):
         """Install the plugin to the core
@@ -200,7 +200,7 @@ class Plugin(QObject):
 
         self._installed = True
     
-    def uninstall(self):
+    def del_(self):
         """Terminate the plugin. Method called by core, when closing mksv3, and sometimes by plugin itself
         """
         if not self._installed:

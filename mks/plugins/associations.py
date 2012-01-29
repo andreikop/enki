@@ -84,6 +84,11 @@ class Plugin():
         """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
         """
         return Configurator
+    
+    def del_(self):
+        """Plugin termination
+        """
+        core.actionModel().removeMenu("mView/mHighlighting")
 
     def iterLanguages(self):
         """Get list of available languages as tuple (name, file name globs, first line globs, icon path)

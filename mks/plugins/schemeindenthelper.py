@@ -70,7 +70,7 @@ class Plugin(QObject):
         self._installed = True
         
     
-    def uninstall(self):
+    def del_(self):
         """Plugin.uninstall implementation. Clear the indent helper
         """
         if not self._installed:

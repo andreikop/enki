@@ -90,10 +90,12 @@ class MainWindow(QMainWindow):
         self._centralLayout.setMargin(0)
         self.setCentralWidget(widget)
         
-    def __del__(self):
+    def del_(self):
+        """Explicitly called destructor
+        """
         for act in self._createdActions:
-            self._actionModel.removeAction(act)
-        for menuPath in self._createdMenuPathes:
+            self._actionModel.removeAction(act, False)
+        for menuPath in self._createdMenuPathes[::-1]:
             self._actionModel.removeMenu(menuPath)
         
         self.menuBar().setModel( None )
