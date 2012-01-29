@@ -1236,8 +1236,13 @@ class SearchThread(StopableThread):
             for fileName in files:
                 if fileName.startswith('.'):
                     continue
-                if not maskRegExp or maskRegExp.match(fileName):
-                    retFiles.append(root + os.path.sep + fileName)
+                if maskRegExp and not maskRegExp.match(fileName):
+                    continue
+                fullPath = os.path.join(root, fileName)
+                if not os.path.isfile(fullPath):
+                    continue
+                retFiles.append(root + os.path.sep + fileName)
+
             if self._exit :
                 break
 
@@ -1284,7 +1289,7 @@ class SearchThread(StopableThread):
 
         try:
             with open(fileName) as openedFile:
-                if  _isBinary(openedFile):
+                if _isBinary(openedFile):
                     return ''
                 return unicode(openedFile.read(), encoding, errors = 'ignore')
         except IOError as ex:
