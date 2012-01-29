@@ -229,8 +229,8 @@ class SearchWidget(QFrame):
         self._progress.setVisible( False )
         
         # threads
-        self.searchThread = SearchThread( self )
-        self._replaceThread = ReplaceThread( self )
+        self.searchThread = SearchThread()
+        self._replaceThread = ReplaceThread()
 
         self._dock = None
         
@@ -1183,8 +1183,8 @@ class StopableThread(QThread):
     """
     _exit = False
     
-    def __init__(self, parentObject):
-        QThread.__init__(self, parentObject)
+    def __init__(self):
+        QThread.__init__(self)
     
     def __del__(self):
         self.stop()
