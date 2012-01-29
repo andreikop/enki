@@ -343,7 +343,7 @@ class OpenedFileExplorer(pDockWidget):
         core.actionModel().addAction("mDocks/aOpenedFiles", self.showAction())
         core.moduleConfiguratorClasses.append(Configurator)
     
-    def __term__(self):
+    def __del__(self):
         core.moduleConfiguratorClasses.remove(Configurator)
         core.actionModel().removeAction("mDocks/aOpenedFiles")
     

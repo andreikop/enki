@@ -897,7 +897,7 @@ class Plugin:
             self.lexerConfig = None
         core.workspace().setTextEditorClass(Editor)
     
-    def __term__(self):
+    def __del__(self):
         core.workspace().setTextEditorClass(None)
     
     def moduleConfiguratorClass(self):

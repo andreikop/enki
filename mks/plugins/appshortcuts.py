@@ -71,7 +71,7 @@ class Plugin:
         for action in _recursiveActionsList(self._model):
             self._applyShortcut(action)
 
-    def __term__(self):
+    def __del__(self):
         self._model.removeAction(self._action)
     
     def moduleConfiguratorClass(self):

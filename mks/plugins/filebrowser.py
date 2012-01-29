@@ -617,7 +617,7 @@ class DockFileBrowser(pDockWidget):
         
         self.visibilityChanged.connect(self._onVisibilityChanged)
     
-    def __term__(self):
+    def __del__(self):
         core.actionModel().removeAction("mDocks/aFileBrowser")
 
     def _onVisibilityChanged(self, visible):
