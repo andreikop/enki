@@ -256,6 +256,10 @@ class LexerConfig:
         """
         for language, lexerClass in Lexer.LEXER_FOR_LANGUAGE.items():
             self.config[language] = {}
+            
+            if lexerClass == _getPygmentsSchemeLexer:
+                continue  # no any configuration for scheme lexer. Don't try to instantile it to avoid warnings
+            
             lexerSection = self.config[language]
             lexerObject = lexerClass(None)
 
@@ -275,6 +279,7 @@ class LexerConfig:
                     lexerSection['indentationWarning'] = True
                     lexerSection['indentationWarningReason'] = reasonFromQsci[reason]
 
+
 def _getPygmentsSchemeLexer(editor):
     """Construct and return pygments lexer for Scheme. Sets valid language name, lazy import
     """
@@ -283,7 +288,7 @@ def _getPygmentsSchemeLexer(editor):
     except ImportError:
         QMessageBox.critical(core.workspace(), "Failed to load pygments",
                              "<html>mksv3 can't highlight Scheme source, "\
-                             "because <b>pygments</b> library not found</html>")
+                             "because <b>pygments</b> package not found</html>")
         return None
     return mks.plugins.lexerpygments.LexerPygments(editor, 'Scheme')
 

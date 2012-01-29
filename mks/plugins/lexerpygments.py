@@ -31,8 +31,8 @@ class LexerPygments(QsciLexerCustom):
         
         self._style = pygments.styles.get_style_by_name('default')
         
-        self.TOKEN_TO_QSTYLE = {token: self._getNextStyleId() for token in pygments.token.STANDARD_TYPES}
-        self.QSTYLE_TO_TOKEN = {v: k for k, v in self.TOKEN_TO_QSTYLE.items()}
+        self.TOKEN_TO_QSTYLE = dict([(token, self._getNextStyleId()) for token in pygments.token.STANDARD_TYPES])
+        self.QSTYLE_TO_TOKEN = dict([(v, k) for k, v in self.TOKEN_TO_QSTYLE.items()])
         
         if parent is not None:
             parent.textChanged.connect(self._onTextChanged)
