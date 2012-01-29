@@ -1161,7 +1161,7 @@ class SearchResultsDock(pDockWidget):
         self.showAction().setShortcut("F10")
         core.actionModel().addAction("mDocks/aSearchResults", self.showAction())
 
-    def __term__(self):
+    def __del__(self):
         core.actionModel().removeAction("mDocks/aSearchResults")
 
     def view_activated(self, index ):

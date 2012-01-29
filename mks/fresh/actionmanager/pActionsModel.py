@@ -3,6 +3,7 @@
 See information at https://github.com/pasnox/fresh and 
 API docks at http://api.monkeystudio.org/fresh/
 """
+import sys
 
 from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QDir, QModelIndex, Qt, QVariant
 from PyQt4.QtGui import QAction, QKeySequence, QIcon, QMenu
@@ -33,8 +34,11 @@ class pActionsModel(QAbstractItemModel):
         self._children = {}
         self._createdMenuForAction = {}
     
-    def __term__(self):
-        self.clear()
+    def __del__(self):
+        if self._pathToAction:
+            print >> sys.stderr, 'pActionsModel: you have to delete all actions before destroying actions model'
+            print >> sys.stderr, 'Existing actions:', self._pathToAction.keys()
+            assert 0
 
     def columnCount(self, parent=QModelIndex()):
         return pActionsModel._COLUMN_COUNT

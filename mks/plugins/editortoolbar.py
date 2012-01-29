@@ -265,7 +265,7 @@ class Plugin:
         self._editorToolBar = EditorToolBar(statusBar)
         statusBar.addPermanentWidget(self._editorToolBar)
     
-    def __term__(self):
+    def __del__(self):
         del self._editorToolBar
 
     def moduleConfiguratorClass(self):
