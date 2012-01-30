@@ -1,3 +1,11 @@
+mksv3 (0.2.0-ppa0) oneiric; urgency=low
+
+  * Added Scheme support
+  * Removed dependency on fresh package
+  * Bug fixes
+
+ -- Andrei Kopats <hlamer@tut.by>  Mon, 30 Jan 2012 08:04:16 +0300
+
 mksv3 (0.1.5-ppa0) oneiric; urgency=low
 
   * Crash fix
