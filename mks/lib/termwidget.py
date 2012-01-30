@@ -141,7 +141,12 @@ class TermWidget(QWidget):
         
         scrollBar = self._browser.verticalScrollBar()
         oldValue = scrollBar.value()
-        scrollAtTheEnd = oldValue == scrollBar.maximum()
+        
+        if False:
+            # hlamer: It seems, it is more comfortant, if text is always scrolled
+            scrollAtTheEnd = oldValue == scrollBar.maximum()
+        else:
+            scrollAtTheEnd = True
         
         self._browser.moveCursor(QTextCursor.End)
         self._browser.insertHtml(text)
