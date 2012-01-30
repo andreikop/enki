@@ -394,6 +394,9 @@ class Lexer:
                 #lexer->setPaper(lexer->defaultPaper(i), i);
         
         # Apply language specific settings
+        if self.currentLanguage == 'Scheme':
+            return
+
         lexerSection = Plugin.instance.lexerConfig.config[self.currentLanguage]
         
         for attribute in self.LEXER_BOOL_ATTRIBUTES:
