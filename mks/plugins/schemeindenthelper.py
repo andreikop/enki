@@ -120,9 +120,6 @@ class SchemeIndentHelper(mks.core.abstractdocument.IndentHelper):
         curLine, curCol = editor.cursorPosition()
 
         linesBefore = editor.lines()[:curLine - 1]
-        # if the last line before cursor is empty - use editors default indent
-        if linesBefore and not linesBefore[-1].strip():
-            return None
         
         textBefore = '\n'.join(linesBefore)
 
@@ -260,7 +257,7 @@ def nextLineIndent(text):
     >>> nextLineIndent( 'a\\nb' )
     0
     >>> nextLineIndent( '  a\\n\\n' )
-    0
+    2
     >>> nextLineIndent( '(define myfunc' )
     2
     >>> nextLineIndent( '(let ((pi 3.14) (r 120))' )
@@ -269,7 +266,7 @@ def nextLineIndent(text):
     
     # TODO support comments sometimes, when parsing Scheme sources
     
-    text = text.rstrip(' \t')
+    text = text.rstrip()
     textBeforeLastExpression = _textBeforeLastExpression(text)
     
     if not textBeforeLastExpression:
