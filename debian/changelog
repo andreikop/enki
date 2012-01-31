@@ -1,3 +1,10 @@
+mksv3 (0.2.2-ppa0) oneiric; urgency=low
+
+  * Fixed syntax error in the debian/control
+  * Package metadata update
+
+ -- Andrei Kopats <hlamer@tut.by>  Tue, 31 Jan 2012 08:23:43 +0300
+
 mksv3 (0.2.1-ppa0) oneiric; urgency=low
 
   * Scheme support bug fixes
