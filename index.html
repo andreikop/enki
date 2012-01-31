@@ -12,7 +12,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.1.5',
+        VERSION:     '0.2.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -86,28 +86,25 @@
 <div class="section" id="ubuntu-11-10">
 <h3>Ubuntu 11.10<a class="headerlink" href="#ubuntu-11-10" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
-<li>Add <a class="reference external" href="https://launchpad.net/~pasnox/+archive/ppa">P&#64;sNox&#8217;s PPA</a></li>
 <li>Add <a class="reference external" href="https://launchpad.net/~monkeystudio/+archive/ppa">Monkey studio PPA</a></li>
 <li>Install <strong>mksv3</strong> package</li>
 </ol>
-<p>All 3 steps:</p>
-<div class="highlight-python"><pre>sudo add-apt-repository ppa:pasnox/ppa
-sudo add-apt-repository ppa:monkeystudio/ppa
+<p>Console commands:</p>
+<div class="highlight-python"><pre>sudo add-apt-repository ppa:monkeystudio/ppa
+sudo apt-get update
 sudo apt-get install mksv3</pre>
 </div>
 </div>
 <div class="section" id="other-ubuntus-and-debians">
 <h3>Other Ubuntus and Debians<a class="headerlink" href="#other-ubuntus-and-debians" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic">
-<li><p class="first">Download <em>libfresh1</em> and <em>python-qt4-fresh1</em> packages from <a class="reference external" href="https://launchpad.net/~pasnox/+archive/ppa/+packages">P&#64;sNox&#8217;s PPA</a></p>
-</li>
 <li><p class="first">Download <em>mksv3</em> package from <a class="reference external" href="https://launchpad.net/~monkeystudio/+archive/ppa/+packages">Monkey Studio PPA</a></p>
 </li>
-<li><p class="first">Install packages with</p>
-<div class="highlight-python"><pre>sudo dpkg --install libfresh1*.deb
-sudo dpkg --install python-qt4-fresh1*.deb
-sudo dpkg --install mksv3*.deb</pre>
-</div>
+<li><dl class="first docutils">
+<dt>Install the package with ::</dt>
+<dd><p class="first last">sudo dpkg &#8211;install mksv3*.deb</p>
+</dd>
+</dl>
 </li>
 </ol>
 <p>This method not tested yet, but, should be working. Team will be appreciate you, if you shared your experience</p>
@@ -125,7 +122,6 @@ sudo dpkg --install mksv3*.deb</pre>
 <li>QScintilla 2 library and Python bindings. <a class="reference external" href="http://www.riverbankcomputing.co.uk/software/qscintilla/download">http://www.riverbankcomputing.co.uk/software/qscintilla/download</a>)</li>
 <li>Python. <a class="reference external" href="http://python.org">http://python.org</a></li>
 <li>ConfigObj config file reader and writer. <a class="reference external" href="http://pypi.python.org/pypi/configobj/">http://pypi.python.org/pypi/configobj/</a> <a class="reference external" href="http://www.voidspace.org.uk/python/configobj.html">http://www.voidspace.org.uk/python/configobj.html</a></li>
-<li>Fresh framework, including Python bindings. <a class="reference external" href="https://github.com/pasnox/fresh">https://github.com/pasnox/fresh</a></li>
 </ol>
 </div>
 </div>
@@ -225,7 +221,7 @@ sudo dpkg --install mksv3*.deb</pre>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright (C) 2005 - 2010 Filipe AZEVEDO, Andrei KOPATS and The MkS Team.
+        &copy; Copyright (C) 2005 - 2012 Andrei KOPATS, Filipe AZEVEDO and The MkS Team.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>

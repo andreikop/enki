@@ -12,7 +12,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.5',
+        VERSION:     '0.2.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -72,10 +72,16 @@
 <dl class="class">
 <dt id="mks.core.openedfilemodel.OpenedFileExplorer">
 <em class="property">class </em><tt class="descclassname">mks.core.openedfilemodel.</tt><tt class="descname">OpenedFileExplorer</tt><big>(</big><em>workspace</em><big>)</big><a class="headerlink" href="#mks.core.openedfilemodel.OpenedFileExplorer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.fresh.pDockWidget</span></tt></p>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">mks.fresh.dockwidget.pDockWidget.pDockWidget</span></tt></p>
 <p>Opened File Explorer is list widget with list of opened files.
 It implements switching current file, files sorting. Uses _OpenedFileModel internally.
 Class instance created by Workspace.</p>
+<dl class="method">
+<dt id="mks.core.openedfilemodel.OpenedFileExplorer.del_">
+<tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.openedfilemodel.OpenedFileExplorer.del_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Explicitly called destructor</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="mks.core.openedfilemodel.OpenedFileExplorer.startModifyModel">
 <tt class="descname">startModifyModel</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.openedfilemodel.OpenedFileExplorer.startModifyModel" title="Permalink to this definition">¶</a></dt>
@@ -142,7 +148,7 @@ Class instance created by Workspace.</p>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright (C) 2005 - 2010 Filipe AZEVEDO, Andrei KOPATS and The MkS Team.
+        &copy; Copyright (C) 2005 - 2012 Andrei KOPATS, Filipe AZEVEDO and The MkS Team.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>

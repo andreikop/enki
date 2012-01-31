@@ -12,7 +12,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.1.5',
+        VERSION:     '0.2.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -45,21 +45,27 @@
             
   <div class="section" id="developer-internal-documentation">
 <h1>Developer (internal) documentation<a class="headerlink" href="#developer-internal-documentation" title="Permalink to this headline">¶</a></h1>
-<p>MkS is divided onto 2 parts: core and plugins.</p>
-<p>Core</p>
+<p>MkS consists of 4 major packages:</p>
+<p>mks.core</p>
 <ul class="simple">
 <li>creates basic user interface</li>
 <li>provides basic functionality for user</li>
 <li>contains plugin API for extend functionality</li>
 </ul>
-<p>Plugin</p>
+<p>mks.lib</p>
+<ul class="simple">
+<li>Code, which is not used by core, but, may be used by more than one plugin. I.e. common widgets.</li>
+</ul>
+<p>mks.plugins</p>
 <ul class="simple">
 <li>provides additional useful functionality for user. Example - File Browser</li>
 <li>extends core functionality</li>
 <li>provides some API for other plugins. NOT DESIRED. It&#8217;s better to try to avoid plugin to plugin dependencies</li>
 </ul>
-<p>Main difference of core and plugins - plugin definitely knows about core API, architecture, functionality, but
-core must not know anything about a plugin.</p>
+<p>mks.fresh</p>
+<ul class="simple">
+<li>Few GUI widgets. Ported from <a class="reference external" href="https://github.com/pasnox/fresh">https://github.com/pasnox/fresh</a>. Documented <a class="reference external" href="http://api.monkeystudio.org/fresh/">here</a>.</li>
+</ul>
 <div class="section" id="plugin-api-documentation">
 <h2>Plugin API documentation<a class="headerlink" href="#plugin-api-documentation" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
@@ -87,6 +93,15 @@ core must not know anything about a plugin.</p>
 </ul>
 </div>
 </div>
+<div class="section" id="library-modules">
+<h2>Library modules<a class="headerlink" href="#library-modules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="lib/termwidget.html">termwidget &#8212; Terminal emulator widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lib/buffpopen.html">buffpopen &#8212; Buffered subprocess. Popen implementation</a></li>
+</ul>
+</div>
+</div>
 <div class="section" id="plugins-documentation">
 <h2>Plugins documentation<a class="headerlink" href="#plugins-documentation" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
@@ -99,6 +114,8 @@ core must not know anything about a plugin.</p>
 <li class="toctree-l1"><a class="reference internal" href="plugins/helpmenu.html">helpmenu &#8212; Help main menu items. Aboout dialogue</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plugins/searchreplace.html">searchreplace &#8212; Search and replace functionality</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plugins/associations.html">associations &#8212; Syntax highlighting support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins/mitscheme.html">mitscheme &#8212; MIT Scheme integration. Interactive Scheme console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins/schemeindenthelper.html">schemeindenthelper &#8212; Properly indent new line in a Scheme file</a></li>
 </ul>
 </div>
 </div>
@@ -120,6 +137,9 @@ core must not know anything about a plugin.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#not-api-core-modules">Not API core modules</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#library-modules">Library modules</a><ul>
 </ul>
 </li>
 <li><a class="reference internal" href="#plugins-documentation">Plugins documentation</a><ul>
@@ -164,7 +184,7 @@ core must not know anything about a plugin.</p>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright (C) 2005 - 2010 Filipe AZEVEDO, Andrei KOPATS and The MkS Team.
+        &copy; Copyright (C) 2005 - 2012 Andrei KOPATS, Filipe AZEVEDO and The MkS Team.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>

@@ -12,7 +12,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.5',
+        VERSION:     '0.2.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -51,6 +51,12 @@
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtCore.QObject</span></tt></p>
 <p>File system tree.</p>
 <p>Allows to open files quickly</p>
+<dl class="method">
+<dt id="mks.plugins.filebrowser.Plugin.del_">
+<tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.Plugin.del_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uninstall the plugin</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="mks.plugins.filebrowser.Plugin.moduleConfiguratorClass">
 <tt class="descname">moduleConfiguratorClass</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.Plugin.moduleConfiguratorClass" title="Permalink to this definition">¶</a></dt>
@@ -95,13 +101,13 @@ i.e. does not show .o .pyc and other temporary files</p>
 
 <dl class="method">
 <dt id="mks.plugins.filebrowser.FileBrowserFilteredModel.columnCount">
-<tt class="descname">columnCount</tt><big>(</big><em>parent=&lt;PyQt4.QtCore.QModelIndex object at 0xaf33b54&gt;</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.FileBrowserFilteredModel.columnCount" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">columnCount</tt><big>(</big><em>parent=&lt;PyQt4.QtCore.QModelIndex object at 0xb59417c&gt;</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.FileBrowserFilteredModel.columnCount" title="Permalink to this definition">¶</a></dt>
 <dd><p>Column count for the model</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mks.plugins.filebrowser.FileBrowserFilteredModel.hasChildren">
-<tt class="descname">hasChildren</tt><big>(</big><em>parent=&lt;PyQt4.QtCore.QModelIndex object at 0xaf33bc4&gt;</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.FileBrowserFilteredModel.hasChildren" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">hasChildren</tt><big>(</big><em>parent=&lt;PyQt4.QtCore.QModelIndex object at 0xb5941ec&gt;</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.FileBrowserFilteredModel.hasChildren" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if node has children. QAbstractItemModel standard method</p>
 </dd></dl>
 
@@ -126,6 +132,12 @@ i.e. does not show .o .pyc and other temporary files</p>
 <em class="property">class </em><tt class="descclassname">mks.plugins.filebrowser.</tt><tt class="descname">SmartHistory</tt><big>(</big><em>fileBrowser</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.SmartHistory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtCore.QObject</span></tt></p>
 <p>Class remembers file browser history and manages Back and Forward buttons</p>
+<dl class="method">
+<dt id="mks.plugins.filebrowser.SmartHistory.del_">
+<tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.SmartHistory.del_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Explicitly called destructor</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -134,6 +146,12 @@ i.e. does not show .o .pyc and other temporary files</p>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtCore.QObject</span></tt></p>
 <p>Class implements &#8216;Jump to current&#8217; functionality
 It creates the action and handles it</p>
+<dl class="method">
+<dt id="mks.plugins.filebrowser.JumpToCurent.del_">
+<tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.JumpToCurent.del_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Explicitly called destructor</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -197,7 +215,7 @@ Draws icons in the search and path lineEdits</p>
 <dl class="class">
 <dt id="mks.plugins.filebrowser.DockFileBrowser">
 <em class="property">class </em><tt class="descclassname">mks.plugins.filebrowser.</tt><tt class="descname">DockFileBrowser</tt><big>(</big><em>parent</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.DockFileBrowser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.fresh.pDockWidget</span></tt></p>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">mks.fresh.dockwidget.pDockWidget.pDockWidget</span></tt></p>
 <p>UI interface of FileBrowser plugin.</p>
 <p>Dock with file system tree, Box, navigation in a file system
 tree, for moving root of tree to currently selected directory and
@@ -214,6 +232,12 @@ up (relatively for current directory)</p>
 <tt class="descname">fileActivated</tt><a class="headerlink" href="#mks.plugins.filebrowser.DockFileBrowser.fileActivated" title="Permalink to this definition">¶</a></dt>
 <dd><p>rootChanged(path)</p>
 <p><strong>Signal</strong> emitted, when file has been activated</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.filebrowser.DockFileBrowser.del_">
+<tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.DockFileBrowser.del_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Explicitly called destructor</p>
 </dd></dl>
 
 <dl class="method">
@@ -294,7 +318,7 @@ up (relatively for current directory)</p>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright (C) 2005 - 2010 Filipe AZEVEDO, Andrei KOPATS and The MkS Team.
+        &copy; Copyright (C) 2005 - 2012 Andrei KOPATS, Filipe AZEVEDO and The MkS Team.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>

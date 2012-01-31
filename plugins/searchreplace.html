@@ -12,7 +12,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.5',
+        VERSION:     '0.2.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -51,6 +51,12 @@
 <em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">Plugin</tt><a class="headerlink" href="#mks.plugins.searchreplace.Plugin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtCore.QObject</span></tt></p>
 <p>Main class of the plugin. Installs and uninstalls plugin to the system</p>
+<dl class="method">
+<dt id="mks.plugins.searchreplace.Plugin.del_">
+<tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.Plugin.del_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plugin termination</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="mks.plugins.searchreplace.Plugin.moduleConfiguratorClass">
 <tt class="descname">moduleConfiguratorClass</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.Plugin.moduleConfiguratorClass" title="Permalink to this definition">¶</a></dt>
@@ -380,7 +386,7 @@ New result is available, add it to the model</p>
 <dl class="class">
 <dt id="mks.plugins.searchreplace.SearchResultsDock">
 <em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">SearchResultsDock</tt><big>(</big><em>searchThread</em>, <em>parent=None</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsDock" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.fresh.pDockWidget</span></tt></p>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">mks.fresh.dockwidget.pDockWidget.pDockWidget</span></tt></p>
 <p>Dock with search results</p>
 <dl class="method">
 <dt id="mks.plugins.searchreplace.SearchResultsDock.view_activated">
@@ -392,7 +398,7 @@ New result is available, add it to the model</p>
 
 <dl class="class">
 <dt id="mks.plugins.searchreplace.StopableThread">
-<em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">StopableThread</tt><big>(</big><em>parentObject</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.StopableThread" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">StopableThread</tt><a class="headerlink" href="#mks.plugins.searchreplace.StopableThread" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtCore.QThread</span></tt></p>
 <p>Stoppable thread class. Used as base for search and replace thread.</p>
 <dl class="method">
@@ -411,7 +417,7 @@ New result is available, add it to the model</p>
 
 <dl class="class">
 <dt id="mks.plugins.searchreplace.SearchThread">
-<em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">SearchThread</tt><big>(</big><em>parentObject</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchThread" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">SearchThread</tt><a class="headerlink" href="#mks.plugins.searchreplace.SearchThread" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mks.plugins.searchreplace.StopableThread" title="mks.plugins.searchreplace.StopableThread"><tt class="xref py py-class docutils literal"><span class="pre">mks.plugins.searchreplace.StopableThread</span></tt></a></p>
 <p>Thread builds list of files for search and than searches in this files.append</p>
 <dl class="attribute">
@@ -453,7 +459,7 @@ Build list of files for search, than do search</p>
 
 <dl class="class">
 <dt id="mks.plugins.searchreplace.ReplaceThread">
-<em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">ReplaceThread</tt><big>(</big><em>parentObject</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.ReplaceThread" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">ReplaceThread</tt><a class="headerlink" href="#mks.plugins.searchreplace.ReplaceThread" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mks.plugins.searchreplace.StopableThread" title="mks.plugins.searchreplace.StopableThread"><tt class="xref py py-class docutils literal"><span class="pre">mks.plugins.searchreplace.StopableThread</span></tt></a></p>
 <p>Thread does replacements in the directory according to checked items</p>
 <dl class="attribute">
@@ -532,7 +538,7 @@ Does thread job</p>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright (C) 2005 - 2010 Filipe AZEVEDO, Andrei KOPATS and The MkS Team.
+        &copy; Copyright (C) 2005 - 2012 Andrei KOPATS, Filipe AZEVEDO and The MkS Team.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>

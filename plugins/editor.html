@@ -12,7 +12,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.5',
+        VERSION:     '0.2.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -46,6 +46,12 @@
   <span class="target" id="module-mks.plugins.editor"></span><div class="section" id="editor-text-editor-uses-qscintilla-internally">
 <h1>editor &#8212; Text editor. Uses QScintilla internally<a class="headerlink" href="#editor-text-editor-uses-qscintilla-internally" title="Permalink to this headline">¶</a></h1>
 <p>This text editor is used by default</p>
+<dl class="class">
+<dt id="mks.plugins.editor.LexerSettingsWidget">
+<em class="property">class </em><tt class="descclassname">mks.plugins.editor.</tt><tt class="descname">LexerSettingsWidget</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.LexerSettingsWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QWidget</span></tt></p>
+</dd></dl>
+
 <dl class="class">
 <dt id="mks.plugins.editor.EditorConfigurator">
 <em class="property">class </em><tt class="descclassname">mks.plugins.editor.</tt><tt class="descname">EditorConfigurator</tt><big>(</big><em>dialog</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.EditorConfigurator" title="Permalink to this definition">¶</a></dt>
@@ -99,7 +105,7 @@
 
 <dl class="class">
 <dt id="mks.plugins.editor.Editor">
-<em class="property">class </em><tt class="descclassname">mks.plugins.editor.</tt><tt class="descname">Editor</tt><big>(</big><em>parentObject</em>, <em>filePath</em>, <em>createNew=False</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">mks.plugins.editor.</tt><tt class="descname">Editor</tt><big>(</big><em>parentObject</em>, <em>filePath</em>, <em>createNew=False</em>, <em>terminalWidget=False</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../core/abstractdocument.html#mks.core.abstractdocument.AbstractTextEditor" title="mks.core.abstractdocument.AbstractTextEditor"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractTextEditor</span></tt></a></p>
 <p>Text editor widget.</p>
 <p>Uses QScintilla internally</p>
@@ -134,28 +140,9 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="mks.plugins.editor.Editor.setIndentWidth">
-<tt class="descname">setIndentWidth</tt><big>(</big><em>width</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.setIndentWidth" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set indentation width in symbol places (spaces)</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="mks.plugins.editor.Editor.indentUseTabs">
 <tt class="descname">indentUseTabs</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.indentUseTabs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Indentation uses Tabs instead of Spaces</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.setIndentUseTabs">
-<tt class="descname">setIndentUseTabs</tt><big>(</big><em>use</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.setIndentUseTabs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set iindentation mode (Tabs or spaces)</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.setHighlightingLanguage">
-<tt class="descname">setHighlightingLanguage</tt><big>(</big><em>language</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.setHighlightingLanguage" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set programming language of the file.
-Called Only by <a class="reference internal" href="associations.html#module-mks.plugins.associations" title="mks.plugins.associations"><tt class="xref py py-mod docutils literal"><span class="pre">mks.plugins.associations</span></tt></a> to select syntax highlighting language.</p>
 </dd></dl>
 
 <dl class="method">
@@ -213,13 +200,6 @@ User can Undo and Redo all modifications with one action</p>
 <tt class="descname">endUndoAction</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.endUndoAction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finish doing set of modifications, which will be managed as one action.
 User can Undo and Redo all modifications with one action</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.line">
-<tt class="descname">line</tt><big>(</big><em>index</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.line" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get line of the text by its index. Lines are indexed from 0
-None, if index is invalid</p>
 </dd></dl>
 
 <dl class="method">
@@ -307,7 +287,7 @@ None, if index is invalid</p>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright (C) 2005 - 2010 Filipe AZEVEDO, Andrei KOPATS and The MkS Team.
+        &copy; Copyright (C) 2005 - 2012 Andrei KOPATS, Filipe AZEVEDO and The MkS Team.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>

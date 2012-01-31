@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>helpmenu — Help main menu items. Aboout dialogue &mdash; mksv3 home page</title>
+    <title>buffpopen — Buffered subprocess. Popen implementation &mdash; mksv3 home page</title>
     <link rel="stylesheet" href="../static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -43,33 +43,44 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <span class="target" id="module-mks.plugins.helpmenu"></span><div class="section" id="helpmenu-help-main-menu-items-aboout-dialogue">
-<h1>helpmenu &#8212; Help main menu items. Aboout dialogue<a class="headerlink" href="#helpmenu-help-main-menu-items-aboout-dialogue" title="Permalink to this headline">¶</a></h1>
-<p>About dialogue and <em>Help</em> menu items</p>
+  <span class="target" id="module-mks.lib.buffpopen"></span><div class="section" id="buffpopen-buffered-subprocess-popen-implementation">
+<h1>buffpopen &#8212; Buffered subprocess. Popen implementation<a class="headerlink" href="#buffpopen-buffered-subprocess-popen-implementation" title="Permalink to this headline">¶</a></h1>
+<p>This implementation allows to read and write output without blocking</p>
 <dl class="class">
-<dt id="mks.plugins.helpmenu.Plugin">
-<em class="property">class </em><tt class="descclassname">mks.plugins.helpmenu.</tt><tt class="descname">Plugin</tt><a class="headerlink" href="#mks.plugins.helpmenu.Plugin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtCore.QObject</span></tt></p>
-<p>Module implementation</p>
+<dt id="mks.lib.buffpopen.BufferedPopen">
+<em class="property">class </em><tt class="descclassname">mks.lib.buffpopen.</tt><tt class="descname">BufferedPopen</tt><big>(</big><em>command</em><big>)</big><a class="headerlink" href="#mks.lib.buffpopen.BufferedPopen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bufferred version of Popen.
+Never locks, but uses unlimited buffers. May eat all the system memory, if something goes wrong.</p>
 <dl class="method">
-<dt id="mks.plugins.helpmenu.Plugin.moduleConfiguratorClass">
-<tt class="descname">moduleConfiguratorClass</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.helpmenu.Plugin.moduleConfiguratorClass" title="Permalink to this definition">¶</a></dt>
-<dd><p>:<a class="reference internal" href="../core/uisettings.html#mks.core.uisettings.ModuleConfigurator" title="mks.core.uisettings.ModuleConfigurator"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.uisettings.ModuleConfigurator</span></tt></a> used to configure plugin with UISettings dialogue</p>
+<dt id="mks.lib.buffpopen.BufferedPopen.start">
+<tt class="descname">start</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.lib.buffpopen.BufferedPopen.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the process</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mks.plugins.helpmenu.Plugin.del_">
-<tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.helpmenu.Plugin.del_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Terminate the plugin</p>
+<dt id="mks.lib.buffpopen.BufferedPopen.stop">
+<tt class="descname">stop</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.lib.buffpopen.BufferedPopen.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop the process</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="mks.lib.buffpopen.BufferedPopen.isAlive">
+<tt class="descname">isAlive</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.lib.buffpopen.BufferedPopen.isAlive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if process is alive</p>
 </dd></dl>
 
-<dl class="class">
-<dt id="mks.plugins.helpmenu.UIAbout">
-<em class="property">class </em><tt class="descclassname">mks.plugins.helpmenu.</tt><tt class="descname">UIAbout</tt><big>(</big><em>parentWindow</em>, <em>tab</em><big>)</big><a class="headerlink" href="#mks.plugins.helpmenu.UIAbout" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QDialog</span></tt></p>
-<p>About dialogue</p>
+<dl class="method">
+<dt id="mks.lib.buffpopen.BufferedPopen.write">
+<tt class="descname">write</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#mks.lib.buffpopen.BufferedPopen.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write data to the subprocess</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.lib.buffpopen.BufferedPopen.readOutput">
+<tt class="descname">readOutput</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.lib.buffpopen.BufferedPopen.readOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read stdout data from the subprocess</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -85,7 +96,7 @@
             </a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="../sources/plugins/helpmenu.txt"
+    <li><a href="../sources/lib/buffpopen.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">

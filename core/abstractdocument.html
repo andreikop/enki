@@ -12,7 +12,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.5',
+        VERSION:     '0.2.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -46,7 +46,15 @@
   <span class="target" id="module-mks.core.abstractdocument"></span><div class="section" id="abstractdocument-base-classes-for-workspace-documents">
 <h1>abstractdocument &#8212; Base classes for workspace documents<a class="headerlink" href="#abstractdocument-base-classes-for-workspace-documents" title="Permalink to this headline">¶</a></h1>
 <p>This class is inherited by textual editor, and must be inherited by other workspace widgets.</p>
-<p><tt class="xref py py-class docutils literal"><span class="pre">mks.core.workspace.AbstractDocument</span></tt>  - base class of workspace documents</p>
+<dl class="docutils">
+<dt>Classes:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference internal" href="#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a></li>
+<li><a class="reference internal" href="#mks.core.abstractdocument.AbstractTextEditor" title="mks.core.abstractdocument.AbstractTextEditor"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractTextEditor</span></tt></a></li>
+<li><a class="reference internal" href="#mks.core.abstractdocument.IndentHelper" title="mks.core.abstractdocument.IndentHelper"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.IndentHelper</span></tt></a></li>
+</ul>
+</dd>
+</dl>
 <dl class="class">
 <dt id="mks.core.abstractdocument.AbstractDocument">
 <em class="property">class </em><tt class="descclassname">mks.core.abstractdocument.</tt><tt class="descname">AbstractDocument</tt><big>(</big><em>parentObject</em>, <em>filePath</em>, <em>createNew=False</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument" title="Permalink to this definition">¶</a></dt>
@@ -136,8 +144,27 @@ for update internal bookkeeping</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="mks.core.abstractdocument.IndentHelper">
+<em class="property">class </em><tt class="descclassname">mks.core.abstractdocument.</tt><tt class="descname">IndentHelper</tt><a class="headerlink" href="#mks.core.abstractdocument.IndentHelper" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class is an interface declaration for indentation helpers. Indentation helper is a function,
+which &#8220;knows&#8221;, how to indent particular language.</p>
+<p>I.e., for Scheme, indent helper exists, which indents it according to <a class="reference external" href="http://community.schemewiki.org/?scheme-style">http://community.schemewiki.org/?scheme-style</a></p>
+<p>To create own indentation helper, subclass this class and implement indent() method.</p>
+<p>See <a class="reference internal" href="core.html#mks.core.core.Core.indentHelper" title="mks.core.core.Core.indentHelper"><tt class="xref py py-meth docutils literal"><span class="pre">mks.core.core.Core.indentHelper()</span></tt></a>, <a class="reference internal" href="core.html#mks.core.core.Core.setIndentHelper" title="mks.core.core.Core.setIndentHelper"><tt class="xref py py-meth docutils literal"><span class="pre">mks.core.core.Core.setIndentHelper()</span></tt></a></p>
+<dl class="staticmethod">
+<dt id="mks.core.abstractdocument.IndentHelper.indent">
+<em class="property">static </em><tt class="descname">indent</tt><big>(</big><em>editor</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.IndentHelper.indent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Editor calls this method after new line has been inserted.
+If indenHelper knows how to indent the line, it returns it,
+and line contents will be replaced with returned value.
+None means &#8220;leave default indentation&#8221;</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="mks.core.abstractdocument.AbstractTextEditor">
-<em class="property">class </em><tt class="descclassname">mks.core.abstractdocument.</tt><tt class="descname">AbstractTextEditor</tt><big>(</big><em>parentObject</em>, <em>filePath</em>, <em>createNew=False</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">mks.core.abstractdocument.</tt><tt class="descname">AbstractTextEditor</tt><big>(</big><em>parentObject</em>, <em>filePath</em>, <em>createNew=False</em>, <em>terminalWidget=False</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a></p>
 <p>Base class for text editors. Currently, only QScintilla is supported, but, we may replace it in the future</p>
 <dl class="attribute">
@@ -145,6 +172,34 @@ for update internal bookkeeping</p>
 <tt class="descname">cursorPositionChanged</tt><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.cursorPositionChanged" title="Permalink to this definition">¶</a></dt>
 <dd><p>cursorPositionChanged(line, column)</p>
 <p><strong>Signal</strong> emitted, when cursor position has been changed</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.languageChanged">
+<tt class="descname">languageChanged</tt><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.languageChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>languageChanged(old, new)</p>
+<p><strong>Signal</strong> emitted, when highlighting (programming) language of a file has been changed</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.indentWidthChanged">
+<tt class="descname">indentWidthChanged</tt><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.indentWidthChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>indentWidthChanged(width)</p>
+<p><strong>Signal</strong> emitted, when indentation with has been changed</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.indentUseTabsChanged">
+<tt class="descname">indentUseTabsChanged</tt><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.indentUseTabsChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>indentUseTabsChanged(use)</p>
+<p><strong>Signal</strong> emitted, when indentation mode has been changed</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.newLineInserted">
+<tt class="descname">newLineInserted</tt><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.newLineInserted" title="Permalink to this definition">¶</a></dt>
+<dd><p>newLineInserted()</p>
+<p><strong>Signal</strong> emitted, after new line has been inserted by user (user pressed Enter)</p>
 </dd></dl>
 
 <dl class="method">
@@ -325,6 +380,20 @@ User can Undo and Redo all modifications with one action</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.setLine">
+<tt class="descname">setLine</tt><big>(</big><em>index</em>, <em>text</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.setLine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace text in the line with the text.
+Shortcut for replace(...)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.lines">
+<tt class="descname">lines</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get text as list of lines. EOL symbol is not included.
+If the last line ends with EOL, additional empty line is added.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mks.core.abstractdocument.AbstractTextEditor.lineCount">
 <tt class="descname">lineCount</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.lineCount" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get line count</p>
@@ -378,7 +447,7 @@ User can Undo and Redo all modifications with one action</p>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright (C) 2005 - 2010 Filipe AZEVEDO, Andrei KOPATS and The MkS Team.
+        &copy; Copyright (C) 2005 - 2012 Andrei KOPATS, Filipe AZEVEDO and The MkS Team.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>

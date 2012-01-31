@@ -12,7 +12,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.5',
+        VERSION:     '0.2.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -90,6 +90,12 @@ new document opened, current closed</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mks.core.workspace.Workspace.del_">
+<tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.del_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminate workspace. Called by the core to clear actions</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mks.core.workspace.Workspace.documentForPath">
 <tt class="descname">documentForPath</tt><big>(</big><em>filePath</em><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.documentForPath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find document by it&#8217;s file path.
@@ -102,6 +108,13 @@ Raises ValueError, if document hasn&#8217;t been found</p>
 <dd><p>Set text editor, which is used for open textual documents.
 New editor would be used for newly opened textual documents.</p>
 <p>newEditorClass is class, herited from <a class="reference internal" href="abstractdocument.html#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.workspace.Workspace.textEditorClass">
+<tt class="descname">textEditorClass</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.textEditorClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get text editor, which is used for open textual documents.
+Text editor is class, herited from <a class="reference internal" href="abstractdocument.html#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a></p>
 </dd></dl>
 
 <dl class="method">
@@ -222,7 +235,7 @@ Used on startup, if no file was specified, and after File-&gt;New file has been 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright (C) 2005 - 2010 Filipe AZEVEDO, Andrei KOPATS and The MkS Team.
+        &copy; Copyright (C) 2005 - 2012 Andrei KOPATS, Filipe AZEVEDO and The MkS Team.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
