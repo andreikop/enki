@@ -1,13 +1,8 @@
-mksv3
-=====
+mksv3. Simple programmers text editor
+=====================================
 .. image:: https://images-ssl.sourceforge.net/images/project-support.jpg
    :alt: Support this project
    :target: https://sourceforge.net/donate/index.php?group_id=163493 
-
-About
-"""""
-
-**Simple programmers text editor.**
 
 The goal of the project is making code editing as comfort as possible. Major principles:
 
@@ -25,8 +20,11 @@ This project is Python port and new generation of `Monkey Studio <http://monkeys
  * File browser
  * Autocompletion, based on document contents
  * Hightly configurable
+ * MIT Scheme REPL integration
 
-Project is going to be **crossplatform**, and, will probably work on all platforms, but, currently has been tested only on Ubuntu. Team will be appreciate you, if you shared your experience about other platforms.
+mksv3 is **crossplatform**, but, currently has been tested only on Ubuntu. Team will be appreciate you, if you shared your experience about other platforms.
+
+Project is licensed under `GNU GPL v2 license <http://www.gnu.org/licenses/gpl-2.0.html>`_
 
 Screenshots:
 
@@ -35,17 +33,18 @@ Screenshots:
         <table width="50%"><tr>
         <td>
             <a href="screenshots/main-ui.png"><img src="screenshots/main-ui-preview.png"/></a>
+            UI
         </td>
         <td>
             <a href="screenshots/minimal.png"><img src="screenshots/minimal-preview.png"/></a>
+            Minimalistic UI
         </td>
         <td>
             <a href="screenshots/search-replace.png"><img src="screenshots/search-replace-preview.png"/></a>
+            Search and replace
         </td>
         </tr></table>
 
-
-Project is licensed under `GNU GPL v2 license <http://www.gnu.org/licenses/gpl-2.0.html>`_
 
 Download and install
 """"""""""""""""""""
@@ -65,31 +64,22 @@ Console commands::
 Other Ubuntus and Debians
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 #. Download *mksv3* package from `Monkey Studio PPA <https://launchpad.net/~monkeystudio/+archive/ppa/+packages>`_
-#. Install the package with ::    
+#. Install the package with ::
+
     sudo dpkg --install mksv3*.deb
 
 This method not tested yet, but, should be working. Team will be appreciate you, if you shared your experience
 
 Source package
 ^^^^^^^^^^^^^^
-The latest release are `here <https://github.com/hlamer/mksv3/tags>`_.
-
-You should install all dependencies manually.
-
-Dependencies
-^^^^^^^^^^^^
-#. Qt4 library
-#. PyQt4 bindings
-#. QScintilla 2 library and Python bindings. http://www.riverbankcomputing.co.uk/software/qscintilla/download)
-#. Python. http://python.org
-#. ConfigObj config file reader and writer. http://pypi.python.org/pypi/configobj/ http://www.voidspace.org.uk/python/configobj.html
+The latest release are `here <https://github.com/hlamer/mksv3/tags>`_. See README file for the installation instructions.
 
 Documentation and support
 """""""""""""""""""""""""
 
 * `User manual <https://github.com/hlamer/mksv3/wiki/mksv3-documentation>`_
 * `Discussion and support Google group <http://groups.google.com/group/mksv3>`_
-* IRC room *#monkeystudio* on *irc.freenode.net*. `Web interface <http://monkeystudio.org/irc>`_  
+* IRC room *#monkeystudio* on *irc.freenode.net*. `Web interface <http://monkeystudio.org/irc>`_. We never kick our users!
 
 
 Report bug
@@ -108,8 +98,8 @@ Source code is `here <https://github.com/hlamer/mksv3>`_
 
 Authors
 """""""
-* **Filipe Azevedo** (aka **P@sNox**) and `Monkey Studio v1 team <http://monkeystudio.org/node/17>`_ developed *Monkey Studio v1*
-* **Filipe Azevedo**, **Andrei Kopats** (aka **hlamer**) and `Monkey Studio v2 team <http://monkeystudio.org/team>`_ developed *Monkey Studio v2*
 * **Andrei Kopats** ported core and some plugins to Python, reworked it and released the result as *mksv3*
+* **Filipe Azevedo**, **Andrei Kopats** (aka **hlamer**) and `Monkey Studio v2 team <http://monkeystudio.org/team>`_ developed *Monkey Studio v2*
+* **Filipe Azevedo** (aka **P@sNox**) and `Monkey Studio v1 team <http://monkeystudio.org/node/17>`_ developed *Monkey Studio v1*
 
 Use mksv3@googlegroups.com or hlamer@tut.by as contact email.
