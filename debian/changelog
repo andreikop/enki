@@ -1,3 +1,17 @@
+mksv3 (0.2.2-ppa0) oneiric; urgency=low
+
+  * Fixed syntax error in the debian/control
+  * Package metadata update
+
+ -- Andrei Kopats <hlamer@tut.by>  Tue, 31 Jan 2012 08:23:43 +0300
+
+mksv3 (0.2.1-ppa0) oneiric; urgency=low
+
+  * Scheme support bug fixes
+  * Declared compatibility with python 2.6
+
+ -- Andrei Kopats <hlamer@tut.by>  Mon, 30 Jan 2012 21:54:36 +0300
+
 mksv3 (0.2.0-ppa0) oneiric; urgency=low
 
   * Added Scheme support
