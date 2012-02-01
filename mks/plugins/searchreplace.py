@@ -270,17 +270,15 @@ class SearchWidget(QFrame):
         #"Available languages: %1" ).arg( languages.join( ", " ) )
         # self.cbMask.setToolTip( maskToolTip )
         
-        # codecs
-        falsePositives = set(["aliases"])
-        foundCodecs = set(name for imp, name, ispkg in \
-                        pkgutil.iter_modules(encodings.__path__) if not ispkg)
-        foundCodecs.difference_update(falsePositives)
-        foundCodecs = sorted(list(foundCodecs))
-
-        self.cbEncoding.addItems(foundCodecs)
-        self.cbEncoding.setCurrentIndex(foundCodecs.index('utf_8'))
         
         #TODO support encodings
+        #falsePositives = set(["aliases"])
+        #foundCodecs = set(name for imp, name, ispkg in \
+        #                pkgutil.iter_modules(encodings.__path__) if not ispkg)
+        #foundCodecs.difference_update(falsePositives)
+        #foundCodecs = sorted(list(foundCodecs))
+        #self.cbEncoding.addItems(foundCodecs)
+        #self.cbEncoding.setCurrentIndex(foundCodecs.index('utf_8'))
         #self.cbEncoding.setCurrentIndex( 
         #    self.cbEncoding.findText( pMonkeyStudio.defaultCodec() ) )
 
