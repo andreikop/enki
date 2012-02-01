@@ -323,7 +323,7 @@ p, li { white-space: pre-wrap; }
       <item>
        <widget class="QCheckBox" name="cbRegularExpression">
         <property name="text">
-         <string>Re&amp;gular expression</string>
+         <string>Re&amp;g. exp.</string>
         </property>
        </widget>
       </item>
@@ -401,32 +401,6 @@ p, li { white-space: pre-wrap; }
          <property name="margin">
           <number>0</number>
          </property>
-         <item>
-          <widget class="QLabel" name="lEncoding">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Co&amp;dec</string>
-           </property>
-           <property name="buddy">
-            <cstring>cbEncoding</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="cbEncoding">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
         </layout>
        </widget>
       </item>
