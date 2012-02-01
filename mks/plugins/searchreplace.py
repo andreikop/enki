@@ -130,6 +130,8 @@ class Plugin(QObject):
         """
         for action in self._createdActions:
             core.actionModel().removeAction(action)
+        if self.dock is not None:
+            self.dock.del_()
     
     def moduleConfiguratorClass(self):
         """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
@@ -1156,7 +1158,7 @@ class SearchResultsDock(pDockWidget):
         self.showAction().setShortcut("F10")
         core.actionModel().addAction("mDocks/aSearchResults", self.showAction())
 
-    def __del__(self):
+    def del_(self):
         core.actionModel().removeAction("mDocks/aSearchResults")
 
     def view_activated(self, index ):
