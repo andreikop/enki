@@ -77,7 +77,7 @@ The latest release are `here <https://github.com/hlamer/mksv3/tags>`_. See READM
 Documentation and support
 """""""""""""""""""""""""
 
-* `User manual <https://github.com/hlamer/mksv3/wiki/mksv3-documentation>`_
+* `Documentation <https://github.com/hlamer/mksv3/wiki/Documentation-for-users>`_
 * `Discussion and support Google group <http://groups.google.com/group/mksv3>`_
 * IRC room *#monkeystudio* on *irc.freenode.net*. `Web interface <http://monkeystudio.org/irc>`_. We never kick our users!
 
