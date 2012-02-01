@@ -631,8 +631,10 @@ class DockFileBrowser(pDockWidget):
     def del_(self):
         """Explicitly called destructor
         """
-        self._smartHistory.del_()
-        self._jumpToCurrent.del_()
+        if self._smartHistory is not None:
+            self._smartHistory.del_()
+        if self._jumpToCurrent is not None:
+            self._jumpToCurrent.del_()
         core.actionModel().removeAction("mDocks/aFileBrowser")
         self.deleteLater()
 

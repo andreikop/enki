@@ -105,7 +105,7 @@ html_theme = 'nature'
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-html_title = mks.core.defines.PACKAGE_NAME + ' home page'
+html_title = 'mksv3. Simple programmers text editor'
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #html_short_title = mks.core.defines.PACKAGE_NAME
