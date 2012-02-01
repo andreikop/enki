@@ -1,21 +1,7 @@
 FIXME
     https://www.virtualbox.org/wiki/Linux_Downloads - вот так нужно инсталить пакеты
     Scheme howto и ссылка на него на UI
-    добавить apt-get update в инструкции по инсталяции
     маленькое разрешение иконки приложения
-    
-    Traceback (most recent call last):
-    File "/usr/bin/mksv3", line 188, in 
-    sys.exit(main())
-    File "/usr/bin/mksv3", line 183, in main
-    core.term()
-    File "/usr/lib/python2.7/dist-packages/mks/core/core.py", line 98, in term
-    plugin.del_()
-    File "/usr/lib/python2.7/dist-packages/mks/plugins/filebrowser.py", line 57, in del_
-    self.dock.del_()
-    File "/usr/lib/python2.7/dist-packages/mks/plugins/filebrowser.py", line 634, in del_
-    self._smartHistory.del_()
-    AttributeError: 'NoneType' object has no attribute 'del_'
 
 REFACTORING
     Нумеровать линии везде с 0
