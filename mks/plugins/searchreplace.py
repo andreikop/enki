@@ -174,14 +174,14 @@ class Plugin(QObject):
 class SearchContext:
     """Structure holds parameters of search or replace operation in progress
     """    
-    def __init__(self, regExp, replaceText, searchPath, mode, encoding):  # pylint: disable=R0913
+    def __init__(self, regExp, replaceText, searchPath, mode):
         self.mask = []
         self.openedFiles = {}
         self.regExp = regExp
         self.replaceText = replaceText
         self.searchPath = searchPath
         self.mode = mode
-        self.encoding = encoding
+        self.encoding = 'utf_8'
 
 
 class SearchWidget(QFrame):
@@ -549,8 +549,7 @@ class SearchWidget(QFrame):
         searchContext = SearchContext(  self._getRegExp(), \
                                         replaceText = self.cbReplace.currentText(), \
                                         searchPath = self.cbPath.currentText(), \
-                                        mode = self._mode,
-                                        encoding = self.cbEncoding.currentText())
+                                        mode = self._mode)
 
         # TODO search in project
         #self.searchContext.project = core.fileManager().currentProject()
