@@ -545,16 +545,16 @@ class AbstractTextEditor(AbstractDocument):
         gotoLine, accepted = QInputDialog.getInteger(self, self.tr( "Go To Line..." ),
                                                       self.tr( "Enter the line you want to go:" ), 
                                                       line, 1, self.lineCount(), 1)
-        
+        gotoLine -= 1
         if accepted:
-            self.goTo(line = gotoLine - 1, grabFocus = True)
+            self.goTo(line = gotoLine, grabFocus = True)
         
     def line(self, index):
         """Get line of the text by its index. Lines are indexed from 0.
         
         None, if index is invalid
         """
-        return self.lines()[index - 1]
+        return self.lines()[index]
     
     def setLine(self, index, text):
         """Replace text in the line with the text.
