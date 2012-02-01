@@ -1164,7 +1164,7 @@ class SearchResultsDock(pDockWidget):
         result = index.internalPointer()
         if isinstance(result, SearchResultsModel.Result):
             core.workspace().goToLine( result.fileName,
-                                       result.line + 1,
+                                       result.line,
                                        result.column,
                                        len(result.match.group(0)))
 

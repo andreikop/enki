@@ -468,7 +468,7 @@ class AbstractTextEditor(AbstractDocument):
         
         Examples: ::
         
-            document.goTo(line=7)
+            document.goTo(line=0)
             document.goTo(line=7, col=9)
             document.goTo(absPos=3)
             document.goTo(line=7, col=5, selectionLength=8)  # Selection from line 7 col 5 to line 7 col 13
@@ -496,6 +496,11 @@ class AbstractTextEditor(AbstractDocument):
         
         if grabFocus:
             self.setFocus()
+
+    def _goTo(self, line, column, selectionLine = None, selectionCol = None):
+        """Go to. Called by AbstractTextEditor.goTo
+        """
+        raise NotImplemented()
 
     def replaceSelectedText(self, text):
         """Replace selected text with text
@@ -542,7 +547,7 @@ class AbstractTextEditor(AbstractDocument):
                                                       line, 1, self.lineCount(), 1)
         
         if accepted:
-            self.goTo(line = gotoLine, grabFocus = True)
+            self.goTo(line = gotoLine - 1, grabFocus = True)
         
     def line(self, index):
         """Get line of the text by its index. Lines are indexed from 0.
@@ -580,7 +585,7 @@ class AbstractTextEditor(AbstractDocument):
         """
         lines = self.lines()
         
-        lines = lines[:line]  # remove not included lines
+        lines = lines[:line + 1]  # remove not included lines
         if lines:
             lines[-1] = lines[-1][:col]  # remove not included symbols
             
@@ -598,10 +603,10 @@ class AbstractTextEditor(AbstractDocument):
             lines.append('')
         
         if lines:
-            line = len(lines)
+            line = len(lines) - 1
             col = len(lines[-1])
         else:
-            line = 1
+            line = 0
             col = 0
         return line, col
 
