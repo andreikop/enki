@@ -2,6 +2,7 @@ FIXME
     https://www.virtualbox.org/wiki/Linux_Downloads - вот так нужно инсталить пакеты
     Scheme howto и ссылка на него на UI
     маленькое разрешение иконки приложения
+    убрать с диалога поиска codec чтобы не занимал места
 
 REFACTORING
     Нумеровать линии везде с 0

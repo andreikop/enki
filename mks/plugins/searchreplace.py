@@ -171,19 +171,10 @@ class Plugin(QObject):
 
 class SearchContext:
     """Structure holds parameters of search or replace operation in progress
-    """
-    mask = []
-    
-    #TODO support encodings
-    #encoding = ''
-    
-    openedFiles = {}
-    
-    #TODO support search in project
-    #project = None
-    #sourcesFiles = ''
-    
+    """    
     def __init__(self, regExp, replaceText, searchPath, mode, encoding):  # pylint: disable=R0913
+        self.mask = []
+        self.openedFiles = {}
         self.regExp = regExp
         self.replaceText = replaceText
         self.searchPath = searchPath
