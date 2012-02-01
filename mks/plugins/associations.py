@@ -122,7 +122,7 @@ class Plugin():
                     fnmatch.fnmatch(fileName, fileNameGlob):
                     return languageName
 
-        firstLine = document.line(1).strip()  # first line without \n and other spaces
+        firstLine = document.line(0).strip()  # first line without \n and other spaces
         if firstLine is not None:
             for languageName, fileNameGlobs, firstLineGlobs, iconPath in self.iterLanguages():
                 for firstLineGlob in firstLineGlobs:

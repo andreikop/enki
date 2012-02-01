@@ -823,8 +823,8 @@ class Editor(AbstractTextEditor):
         """
         startLine, startCol = self._toLineCol(startAbsPos)
         endLine, endCol = self._toLineCol(endAbsPos)
-        self.qscintilla.setSelection(startLine - 1, startCol,
-                                     endLine - 1, endCol)
+        self.qscintilla.setSelection(startLine, startCol,
+                                     endLine, endCol)
         self.replaceSelectedText(text)
     
     def beginUndoAction(self):
