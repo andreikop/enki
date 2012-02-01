@@ -1,3 +1,12 @@
+mksv3 (0.2.4-1~lucid1) lucid; urgency=low
+
+  * Fixed search widget width
+  * Fixed crash
+  * Changed debian version numbering
+  * Fixed incorrect search in a directory
+
+ -- Andrei Kopats <hlamer@tut.by>  Wed, 01 Feb 2012 19:25:53 +0300
+
 mksv3 (0.2.3-ppa0) oneiric; urgency=low
 
   * Fixed crash in the file browser
