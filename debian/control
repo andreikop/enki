@@ -2,7 +2,7 @@ Source: mksv3
 Section: editors
 Priority: optional
 Maintainer: Andrei Kopats <hlamer@tut.by>
-Build-Depends: debhelper (>= 8.0.0), python-support, python (>= 2.6)
+Build-Depends: debhelper (>= 7.4.1), python-support, python (>= 2.6)
 Standards-Version: 3.9.2
 Homepage: http://hlamer.github.com/mksv3/
 Vcs-Git: http://hlamer.github.com/mksv3/
