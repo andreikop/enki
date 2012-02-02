@@ -12,7 +12,7 @@ changelog-update:
 
 dsc:
 	rm -rf dist
-	rm -r build
+	rm -rf build
 	./setup.py sdist
 	./scripts/make-deb.sh
 
