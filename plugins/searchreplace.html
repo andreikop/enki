@@ -2,17 +2,20 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
     <title>searchreplace — Search and replace functionality &mdash; mksv3. Simple programmers text editor</title>
+    
     <link rel="stylesheet" href="../static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.2.3',
+        VERSION:     '0.2.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -51,6 +54,81 @@
 <em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">Plugin</tt><a class="headerlink" href="#mks.plugins.searchreplace.Plugin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtCore.QObject</span></tt></p>
 <p>Main class of the plugin. Installs and uninstalls plugin to the system</p>
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.Plugin.ModeFlagSearch">
+<tt class="descname">ModeFlagSearch</tt><em class="property"> = 1</em><a class="headerlink" href="#mks.plugins.searchreplace.Plugin.ModeFlagSearch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.Plugin.ModeFlagReplace">
+<tt class="descname">ModeFlagReplace</tt><em class="property"> = 2</em><a class="headerlink" href="#mks.plugins.searchreplace.Plugin.ModeFlagReplace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.Plugin.ModeFlagFile">
+<tt class="descname">ModeFlagFile</tt><em class="property"> = 4</em><a class="headerlink" href="#mks.plugins.searchreplace.Plugin.ModeFlagFile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.Plugin.ModeFlagDirectory">
+<tt class="descname">ModeFlagDirectory</tt><em class="property"> = 8</em><a class="headerlink" href="#mks.plugins.searchreplace.Plugin.ModeFlagDirectory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.Plugin.ModeFlagProjectFiles">
+<tt class="descname">ModeFlagProjectFiles</tt><em class="property"> = 16</em><a class="headerlink" href="#mks.plugins.searchreplace.Plugin.ModeFlagProjectFiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.Plugin.ModeFlagOpenedFiles">
+<tt class="descname">ModeFlagOpenedFiles</tt><em class="property"> = 32</em><a class="headerlink" href="#mks.plugins.searchreplace.Plugin.ModeFlagOpenedFiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.Plugin.ModeNo">
+<tt class="descname">ModeNo</tt><em class="property"> = 0</em><a class="headerlink" href="#mks.plugins.searchreplace.Plugin.ModeNo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.Plugin.ModeSearch">
+<tt class="descname">ModeSearch</tt><em class="property"> = 5</em><a class="headerlink" href="#mks.plugins.searchreplace.Plugin.ModeSearch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.Plugin.ModeReplace">
+<tt class="descname">ModeReplace</tt><em class="property"> = 6</em><a class="headerlink" href="#mks.plugins.searchreplace.Plugin.ModeReplace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.Plugin.ModeSearchDirectory">
+<tt class="descname">ModeSearchDirectory</tt><em class="property"> = 9</em><a class="headerlink" href="#mks.plugins.searchreplace.Plugin.ModeSearchDirectory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.Plugin.ModeReplaceDirectory">
+<tt class="descname">ModeReplaceDirectory</tt><em class="property"> = 10</em><a class="headerlink" href="#mks.plugins.searchreplace.Plugin.ModeReplaceDirectory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.Plugin.ModeSearchProjectFiles">
+<tt class="descname">ModeSearchProjectFiles</tt><em class="property"> = 17</em><a class="headerlink" href="#mks.plugins.searchreplace.Plugin.ModeSearchProjectFiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.Plugin.ModeReplaceProjectFiles">
+<tt class="descname">ModeReplaceProjectFiles</tt><em class="property"> = 18</em><a class="headerlink" href="#mks.plugins.searchreplace.Plugin.ModeReplaceProjectFiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.Plugin.ModeSearchOpenedFiles">
+<tt class="descname">ModeSearchOpenedFiles</tt><em class="property"> = 33</em><a class="headerlink" href="#mks.plugins.searchreplace.Plugin.ModeSearchOpenedFiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.Plugin.ModeReplaceOpenedFiles">
+<tt class="descname">ModeReplaceOpenedFiles</tt><em class="property"> = 34</em><a class="headerlink" href="#mks.plugins.searchreplace.Plugin.ModeReplaceOpenedFiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="mks.plugins.searchreplace.Plugin.del_">
 <tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.Plugin.del_" title="Permalink to this definition">¶</a></dt>
@@ -67,7 +145,7 @@
 
 <dl class="class">
 <dt id="mks.plugins.searchreplace.SearchContext">
-<em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">SearchContext</tt><big>(</big><em>regExp</em>, <em>replaceText</em>, <em>searchPath</em>, <em>mode</em>, <em>encoding</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchContext" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">SearchContext</tt><big>(</big><em>regExp</em>, <em>replaceText</em>, <em>searchPath</em>, <em>mode</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchContext" title="Permalink to this definition">¶</a></dt>
 <dd><p>Structure holds parameters of search or replace operation in progress</p>
 </dd></dl>
 
@@ -77,6 +155,26 @@
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QFrame</span></tt></p>
 <p>Widget, appeared, when Ctrl+F pressed.
 Has different forms for different search modes</p>
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.SearchWidget.Normal">
+<tt class="descname">Normal</tt><em class="property"> = 'normal'</em><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.Normal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.SearchWidget.Good">
+<tt class="descname">Good</tt><em class="property"> = 'good'</em><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.Good" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.SearchWidget.Bad">
+<tt class="descname">Bad</tt><em class="property"> = 'bad'</em><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.Bad" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.SearchWidget.Incorrect">
+<tt class="descname">Incorrect</tt><em class="property"> = 'incorrect'</em><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.Incorrect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="mks.plugins.searchreplace.SearchWidget.setResultsDock">
 <tt class="descname">setResultsDock</tt><big>(</big><em>dock</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchWidget.setResultsDock" title="Permalink to this definition">¶</a></dt>
@@ -254,6 +352,11 @@ need update text in the editor</p>
 <tt class="descname">firstResultsAvailable</tt><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.firstResultsAvailable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.SearchResultsModel.EnabledRole">
+<tt class="descname">EnabledRole</tt><em class="property"> = 32</em><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.EnabledRole" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="class">
 <dt id="mks.plugins.searchreplace.SearchResultsModel.Result">
 <em class="property">class </em><tt class="descname">Result</tt><big>(</big><em>fileName</em>, <em>wholeLine</em>, <em>line</em>, <em>column</em>, <em>match</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsModel.Result" title="Permalink to this definition">¶</a></dt>
@@ -389,6 +492,11 @@ New result is available, add it to the model</p>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">mks.fresh.dockwidget.pDockWidget.pDockWidget</span></tt></p>
 <p>Dock with search results</p>
 <dl class="method">
+<dt id="mks.plugins.searchreplace.SearchResultsDock.del_">
+<tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsDock.del_" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="mks.plugins.searchreplace.SearchResultsDock.view_activated">
 <tt class="descname">view_activated</tt><big>(</big><em>index</em><big>)</big><a class="headerlink" href="#mks.plugins.searchreplace.SearchResultsDock.view_activated" title="Permalink to this definition">¶</a></dt>
 <dd><p>Item doubleclicked in the model, opening file</p>
@@ -420,6 +528,11 @@ New result is available, add it to the model</p>
 <em class="property">class </em><tt class="descclassname">mks.plugins.searchreplace.</tt><tt class="descname">SearchThread</tt><a class="headerlink" href="#mks.plugins.searchreplace.SearchThread" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mks.plugins.searchreplace.StopableThread" title="mks.plugins.searchreplace.StopableThread"><tt class="xref py py-class docutils literal"><span class="pre">mks.plugins.searchreplace.StopableThread</span></tt></a></p>
 <p>Thread builds list of files for search and than searches in this files.append</p>
+<dl class="attribute">
+<dt id="mks.plugins.searchreplace.SearchThread.RESULTS_EMIT_TIMEOUT">
+<tt class="descname">RESULTS_EMIT_TIMEOUT</tt><em class="property"> = 1.0</em><a class="headerlink" href="#mks.plugins.searchreplace.SearchThread.RESULTS_EMIT_TIMEOUT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="attribute">
 <dt id="mks.plugins.searchreplace.SearchThread.reset">
 <tt class="descname">reset</tt><a class="headerlink" href="#mks.plugins.searchreplace.SearchThread.reset" title="Permalink to this definition">¶</a></dt>
@@ -511,7 +624,7 @@ Does thread job</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -539,7 +652,7 @@ Does thread job</p>
     </div>
     <div class="footer">
         &copy; Copyright (C) 2005 - 2012 Andrei KOPATS, Filipe AZEVEDO and The MkS Team.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>

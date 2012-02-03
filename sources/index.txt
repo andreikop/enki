@@ -49,8 +49,8 @@ Screenshots:
 Download and install
 """"""""""""""""""""
 
-Ubuntu 11.10
-^^^^^^^^^^^^
+Ubuntu 10.04 - 11.10
+^^^^^^^^^^^^^^^^^^^^
 
 #. Add `Monkey studio PPA <https://launchpad.net/~monkeystudio/+archive/ppa>`_
 #. Install **mksv3** package
@@ -61,14 +61,13 @@ Console commands::
     sudo apt-get update
     sudo apt-get install mksv3
 
-Other Ubuntus and Debians
-^^^^^^^^^^^^^^^^^^^^^^^^^
-#. Download *mksv3* package from `Monkey Studio PPA <https://launchpad.net/~monkeystudio/+archive/ppa/+packages>`_
+Debian and based on Debian
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+#. Download **mksv3_<version>~lucid1.deb** package from `Monkey Studio PPA <https://launchpad.net/~monkeystudio/+archive/ppa/+packages>`_
 #. Install the package with ::
 
     sudo dpkg --install mksv3*.deb
 
-This method not tested yet, but, should be working. Team will be appreciate you, if you shared your experience
 
 Source package
 ^^^^^^^^^^^^^^
@@ -77,7 +76,7 @@ The latest release are `here <https://github.com/hlamer/mksv3/tags>`_. See READM
 Documentation and support
 """""""""""""""""""""""""
 
-* `User manual <https://github.com/hlamer/mksv3/wiki/mksv3-documentation>`_
+* `Documentation <https://github.com/hlamer/mksv3/wiki/Documentation-for-users>`_
 * `Discussion and support Google group <http://groups.google.com/group/mksv3>`_
 * IRC room *#monkeystudio* on *irc.freenode.net*. `Web interface <http://monkeystudio.org/irc>`_. We never kick our users!
 

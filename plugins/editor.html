@@ -2,17 +2,20 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
     <title>editor — Text editor. Uses QScintilla internally &mdash; mksv3. Simple programmers text editor</title>
+    
     <link rel="stylesheet" href="../static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.2.3',
+        VERSION:     '0.2.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -89,6 +92,21 @@
 <li>Choose lexer for a file</li>
 <li>Apply lexer settings</li>
 </ul>
+<dl class="attribute">
+<dt id="mks.plugins.editor.Lexer.LEXER_FOR_LANGUAGE">
+<tt class="descname">LEXER_FOR_LANGUAGE</tt><em class="property"> = {'XML': &lt;class 'PyQt4.Qsci.QsciLexerXML'&gt;, 'Java': &lt;class 'PyQt4.Qsci.QsciLexerJava'&gt;, 'D': &lt;class 'PyQt4.Qsci.QsciLexerD'&gt;, 'VHDL': &lt;class 'PyQt4.Qsci.QsciLexerVHDL'&gt;, 'JavaScript': &lt;class 'PyQt4.Qsci.QsciLexerJavaScript'&gt;, 'Makefile': &lt;class 'PyQt4.Qsci.QsciLexerMakefile'&gt;, 'Batch': &lt;class 'PyQt4.Qsci.QsciLexerBatch'&gt;, 'C++': &lt;class 'PyQt4.Qsci.QsciLexerCPP'&gt;, 'Perl': &lt;class 'PyQt4.Qsci.QsciLexerPerl'&gt;, 'TeX': &lt;class 'PyQt4.Qsci.QsciLexerTeX'&gt;, 'Lua': &lt;class 'PyQt4.Qsci.QsciLexerLua'&gt;, 'IDL': &lt;class 'PyQt4.Qsci.QsciLexerIDL'&gt;, 'Verilog': &lt;class 'PyQt4.Qsci.QsciLexerVerilog'&gt;, 'Scheme': &lt;function _getPygmentsSchemeLexer at 0xab08cdc&gt;, 'CSS': &lt;class 'PyQt4.Qsci.QsciLexerCSS'&gt;, 'Fortran77': &lt;class 'PyQt4.Qsci.QsciLexerFortran77'&gt;, 'Python': &lt;class 'PyQt4.Qsci.QsciLexerPython'&gt;, 'CMake': &lt;class 'PyQt4.Qsci.QsciLexerCMake'&gt;, 'Fortran': &lt;class 'PyQt4.Qsci.QsciLexerFortran'&gt;, 'C#': &lt;class 'PyQt4.Qsci.QsciLexerCSharp'&gt;, 'YAML': &lt;class 'PyQt4.Qsci.QsciLexerYAML'&gt;, 'Pascal': &lt;class 'PyQt4.Qsci.QsciLexerPascal'&gt;, 'POV': &lt;class 'PyQt4.Qsci.QsciLexerPOV'&gt;, 'TCL': &lt;class 'PyQt4.Qsci.QsciLexerTCL'&gt;, 'HTML': &lt;class 'PyQt4.Qsci.QsciLexerHTML'&gt;, 'SQL': &lt;class 'PyQt4.Qsci.QsciLexerSQL'&gt;, 'PostScript': &lt;class 'PyQt4.Qsci.QsciLexerPostScript'&gt;, 'Diff': &lt;class 'PyQt4.Qsci.QsciLexerDiff'&gt;, 'Ruby': &lt;class 'PyQt4.Qsci.QsciLexerRuby'&gt;, 'Properties': &lt;class 'PyQt4.Qsci.QsciLexerProperties'&gt;, 'Bash': &lt;class 'PyQt4.Qsci.QsciLexerBash'&gt;, 'Spice': &lt;class 'PyQt4.Qsci.QsciLexerSpice'&gt;}</em><a class="headerlink" href="#mks.plugins.editor.Lexer.LEXER_FOR_LANGUAGE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.editor.Lexer.PYTHON_INDENTATION_WARNING_TO_QSCI">
+<tt class="descname">PYTHON_INDENTATION_WARNING_TO_QSCI</tt><em class="property"> = {'Tabs': 4, 'Spaces': 3, 'TabsAfterSpaces': 2, 'Inconsistent': 1}</em><a class="headerlink" href="#mks.plugins.editor.Lexer.PYTHON_INDENTATION_WARNING_TO_QSCI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.editor.Lexer.LEXER_BOOL_ATTRIBUTES">
+<tt class="descname">LEXER_BOOL_ATTRIBUTES</tt><em class="property"> = ('foldComments', 'foldCompact', 'foldQuotes', 'foldDirectives', 'foldAtBegin', 'foldAtParenthesis', 'foldAtElse', 'foldAtModule', 'foldPreprocessor', 'stylePreprocessor', 'caseSensitiveTags', 'backslashEscapes')</em><a class="headerlink" href="#mks.plugins.editor.Lexer.LEXER_BOOL_ATTRIBUTES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="mks.plugins.editor.Lexer.applyLanguage">
 <tt class="descname">applyLanguage</tt><big>(</big><em>language</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Lexer.applyLanguage" title="Permalink to this definition">¶</a></dt>
@@ -260,7 +278,7 @@ User can Undo and Redo all modifications with one action</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -288,7 +306,7 @@ User can Undo and Redo all modifications with one action</p>
     </div>
     <div class="footer">
         &copy; Copyright (C) 2005 - 2012 Andrei KOPATS, Filipe AZEVEDO and The MkS Team.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>
