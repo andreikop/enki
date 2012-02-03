@@ -2,11 +2,8 @@ FIXME
     https://www.virtualbox.org/wiki/Linux_Downloads - вот так нужно инсталить пакеты
     Scheme howto и ссылка на него на UI
     маленькое разрешение иконки приложения
-    назвать пакет mks3_0.2.3-1~lucid1
-    CRITICAL:root:Traceback (most recent call last):
-      File "/usr/lib/pymodules/python2.6/mks/fresh/dockwidget/pDockWidget.py", line 27, in paintEvent
-        if  self.isFloating() and self.style().objectName().tolower() != "Oxygen".tolower():
-    AttributeError: 'unicode' object has no attribute 'tolower'
+    +n нотация для перехода в конкретную строку
+    объединять весь индент в один undo action
 
 REFACTORING
     Нумеровать линии везде с 0
