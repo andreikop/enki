@@ -63,7 +63,7 @@ Console commands::
 
 Debian and based on Debian
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-#. Download **mksv3_<version>~lucid1.deb** package from `Monkey Studio PPA <https://launchpad.net/~monkeystudio/+archive/ppa/+packages>`_
+#. Download any **mksv3_<version>~lucid1_all.deb** package from `Monkey Studio PPA <https://launchpad.net/~monkeystudio/+archive/ppa/+packages>`_
 #. Install the package with ::
 
     sudo dpkg --install mksv3*.deb
