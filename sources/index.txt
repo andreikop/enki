@@ -49,8 +49,9 @@ Screenshots:
 Download and install
 """"""""""""""""""""
 
-Ubuntu 10.04 - 11.10
-^^^^^^^^^^^^^^^^^^^^
+Ubuntu
+^^^^^^
+Supported versions are 10.04 - 11.10. For other, see Debian instructions.
 
 #. Add `Monkey studio PPA <https://launchpad.net/~monkeystudio/+archive/ppa>`_
 #. Install **mksv3** package
@@ -61,8 +62,10 @@ Console commands::
     sudo apt-get update
     sudo apt-get install mksv3
 
-Debian and based on Debian
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Debian (based)
+^^^^^^^^^^^^^^
+Instructions for Debian and Debian based distributions.
+
 #. Download any **mksv3_<version>~lucid1_all.deb** package from `Monkey Studio PPA <https://launchpad.net/~monkeystudio/+archive/ppa/+packages>`_
 #. Install the package with ::
 
