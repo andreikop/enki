@@ -464,6 +464,8 @@ class AbstractTextEditor(AbstractDocument):
 
     def goTo(self, absPos=None, line=None, col=None, selectionLength = None, grabFocus = False):
         """Go to specified line and column.
+        If line is too big, go to the last line
+        If col is None - default is start of the text in the line (end of the indentation)
         If selectionLength is not None, select selectionLength characters
         
         Examples: ::
@@ -479,8 +481,13 @@ class AbstractTextEditor(AbstractDocument):
         """
         if line is not None:
             assert absPos is None
+            if line >= self.lineCount():
+                line = self.lineCount() - 1
+                col = None
+            
             if col is None:
-                col = 0
+                lineToGo = self.line(line)
+                col = len(lineToGo) - len(lineToGo.lstrip())  # count of whitespaces before text
         else:
             assert line is None and col is None
             line, col = self._toLineCol(absPos)
