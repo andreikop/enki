@@ -51,14 +51,12 @@ class Configurator(ModuleConfigurator):
         Called by :mod:`mks.core.uisettings`
         """
 
-    
     def applySettings(self):
         """Apply settings
         
         Called by :mod:`mks.core.uisettings`
         """
         core.workspace().openedFileExplorer.model.setSortMode(core.config()["Workspace"]["FileSortMode"])
-
 
 
 class _OpenedFileModel(QAbstractItemModel):
@@ -107,6 +105,30 @@ class _OpenedFileModel(QAbstractItemModel):
         else:
             return QVariant()
 
+    def _uniqueDocumentPath(self, document):
+        """ Get unique file path, which will be displayed in the list.
+        Usually unique path includes only file name, but, if there are duplicating files in the list,
+        last one or more directory name may be preppended.
+        """
+        docPath = document.filePath()
+        if docPath is None:
+            return 'untitled'
+        
+        documentPathes = [d.filePath() for d in core.workspace().openedDocuments()]
+
+        uniquePath = os.path.basename(docPath)
+        leftPath = os.path.dirname(docPath)
+        
+        sameEndOfPath = [path for path in documentPathes if path is not None and path.endswith(uniquePath)]
+        while len(sameEndOfPath) > 1:
+            leftPathDirname = os.path.abspath(os.path.join(leftPath, os.path.pardir))
+            leftPathBasename = os.path.basename(leftPath)
+            uniquePath = os.path.join(leftPathBasename, uniquePath)
+            leftPath = leftPathDirname
+            sameEndOfPath = [path for path in documentPathes if path is not None and path.endswith(uniquePath)]
+
+        return uniquePath
+    
     def data(self, index, role ):
         """See QAbstractItemModel documentation"""
         if  not index.isValid() :
@@ -118,7 +140,7 @@ class _OpenedFileModel(QAbstractItemModel):
         if   role == Qt.DecorationRole:
             return document.modelIcon()
         elif role == Qt.DisplayRole:
-            return document.fileName()
+            return self._uniqueDocumentPath(document)
         elif role == Qt.ToolTipRole:
             return document.modelToolTip()
         else:

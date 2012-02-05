@@ -136,7 +136,7 @@ class AbstractDocument(QWidget):
         if self._filePath:
             return os.path.basename(self._filePath)
         else:
-            return 'untitled'
+            return None
             
     def saveFile(self):
         """Save the file to file system
