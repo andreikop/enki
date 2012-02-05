@@ -1163,10 +1163,10 @@ class SearchResultsDock(pDockWidget):
         """
         result = index.internalPointer()
         if isinstance(result, SearchResultsModel.Result):
-            core.workspace().goToLine( result.fileName,
-                                       result.line,
-                                       result.column,
-                                       len(result.match.group(0)))
+            core.workspace().goTo( result.fileName,
+                                   result.line,
+                                   result.column,
+                                   len(result.match.group(0)))
 
 class StopableThread(QThread):
     """Stoppable thread class. Used as base for search and replace thread.
