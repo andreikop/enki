@@ -1,10 +1,9 @@
 FIXME
-    https://www.virtualbox.org/wiki/Linux_Downloads - вот так нужно инсталить пакеты
     Scheme howto и ссылка на него на UI
-    Если имя файла не уникальное - дописывать директорию
+    маленькое разрешение иконки приложения
+    убрать lucid из версии пакета
 
 REFACTORING
-    Нумеровать линии везде с 0
     Plugin abstract interface
 
 FIXME PasNox

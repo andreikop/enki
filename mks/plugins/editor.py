@@ -45,9 +45,11 @@ class _QsciScintilla(QsciScintilla):
             super(_QsciScintilla, self).keyPressEvent(newev)
         elif event.matches(QKeySequence.InsertParagraphSeparator):
             lineCount = self.lines()
+            self.beginUndoAction()
             super(_QsciScintilla, self).keyPressEvent(event)
             if self.lines() > lineCount:  # bad hack, which checks, if autocompletion window is active
                 self.newLineInserted.emit()
+            self.endUndoAction()
         else:
             super(_QsciScintilla, self).keyPressEvent(event)
     
