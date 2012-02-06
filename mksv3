@@ -156,17 +156,40 @@ def main():
     # init monkey studio core
     core.init()
 
-    # Get list of absolute pathes of files to open. List may contain not existing files
+    args = sys.argv[1:]
 
-    filePathes = [os.path.abspath(arg) for arg in sys.argv[1:]]
+    # Parse +N spec.
+    fistFileLineToGo = None
+    indexesToRemove = []
+    for index, arg in enumerate(args):
+        if arg.startswith('+'):
+            try:
+                fistFileLineToGo = int(arg[1:])
+            except ValueError:
+                core.messageToolBar().appendMessage( 'Invalid argument: ' + arg)
+
+            if fistFileLineToGo < 1:
+                core.messageToolBar().appendMessage( 'Invalid argument: ' + arg)
+                fistFileLineToGo = None
+            
+            indexesToRemove.append(index)
+    for index in indexesToRemove[::-1]:
+        args = args[:index] + args[index + 1:]
     
+    # Get list of absolute pathes of files to open. List may contain not existing files
+    filePathes = [os.path.abspath(arg) for arg in args]
     # convert to unicode for avoid Python <-> Qt interaction problems
     filePathes = [unicode(f, 'utf8') for f in filePathes]
 
     if filePathes:
         for filePath in filePathes:
             if os.path.exists(filePath):
-                core.workspace().openFile(filePath)
+                if fistFileLineToGo is not None:
+                    # -1 to convert from users to internal indexing
+                    core.workspace().goTo(filePath, line=fistFileLineToGo - 1)
+                    fistFileLineToGo = None
+                else:
+                    core.workspace().openFile(filePath)
             else:
                 core.workspace().createEmptyNotSavedDocument(filePath)
     else:

@@ -45,9 +45,11 @@ class _QsciScintilla(QsciScintilla):
             super(_QsciScintilla, self).keyPressEvent(newev)
         elif event.matches(QKeySequence.InsertParagraphSeparator):
             lineCount = self.lines()
+            self.beginUndoAction()
             super(_QsciScintilla, self).keyPressEvent(event)
             if self.lines() > lineCount:  # bad hack, which checks, if autocompletion window is active
                 self.newLineInserted.emit()
+            self.endUndoAction()
         else:
             super(_QsciScintilla, self).keyPressEvent(event)
     
@@ -791,7 +793,7 @@ class Editor(AbstractTextEditor):
             cursorPos = self.cursorPosition()
             return (cursorPos, cursorPos)
 
-        return ((startLine + 1, startCol), (endLine + 1, endCol))
+        return ((startLine, startCol), (endLine, endCol))
 
     def absSelection(self):
         """Get coordinates of selected area as (startAbsPos, endAbsPos)
@@ -803,12 +805,12 @@ class Editor(AbstractTextEditor):
         """Get cursor position as tuple (line, col)
         """
         line, col = self.qscintilla.getCursorPosition()
-        return line + 1, col
+        return line, col
     
     def _setCursorPosition(self, line, col):
         """Implementation of AbstractTextEditor.setCursorPosition
         """
-        self.qscintilla.setCursorPosition(line - 1, col)
+        self.qscintilla.setCursorPosition(line, col)
 
     def replaceSelectedText(self, text):
         """Replace selected text with text
@@ -823,8 +825,8 @@ class Editor(AbstractTextEditor):
         """
         startLine, startCol = self._toLineCol(startAbsPos)
         endLine, endCol = self._toLineCol(endAbsPos)
-        self.qscintilla.setSelection(startLine - 1, startCol,
-                                     endLine - 1, endCol)
+        self.qscintilla.setSelection(startLine, startCol,
+                                     endLine, endCol)
         self.replaceSelectedText(text)
     
     def beginUndoAction(self):
@@ -844,10 +846,6 @@ class Editor(AbstractTextEditor):
     def _goTo(self, line, column, selectionLine = None, selectionCol = None):
         """Go to specified line and column. Select text if necessary
         """
-        line -= 1
-        if selectionLine is not None:
-            selectionLine -= 1
-
         if selectionLine is None:
             self.qscintilla.setCursorPosition(line, column)
         else:

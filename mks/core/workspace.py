@@ -278,8 +278,8 @@ class Workspace(QStackedWidget):
         """
         return self.currentWidget()
     
-    def goToLine(self, filePath, line, column, selectionLength):
-        """Open file, activate it, and go to specified line.
+    def goTo(self, filePath, line, column=None, selectionLength=None):
+        """Open file, activate it, and go to specified position. Select text after position, if necessary.
         
         selectionLength specifies, how much characters should be selected
         """
