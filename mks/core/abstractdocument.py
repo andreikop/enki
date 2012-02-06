@@ -136,7 +136,7 @@ class AbstractDocument(QWidget):
         if self._filePath:
             return os.path.basename(self._filePath)
         else:
-            return 'untitled'
+            return None
             
     def saveFile(self):
         """Save the file to file system
@@ -464,11 +464,13 @@ class AbstractTextEditor(AbstractDocument):
 
     def goTo(self, absPos=None, line=None, col=None, selectionLength = None, grabFocus = False):
         """Go to specified line and column.
+        If line is too big, go to the last line
+        If col is None - default is start of the text in the line (end of the indentation)
         If selectionLength is not None, select selectionLength characters
         
         Examples: ::
         
-            document.goTo(line=7)
+            document.goTo(line=0)
             document.goTo(line=7, col=9)
             document.goTo(absPos=3)
             document.goTo(line=7, col=5, selectionLength=8)  # Selection from line 7 col 5 to line 7 col 13
@@ -479,8 +481,13 @@ class AbstractTextEditor(AbstractDocument):
         """
         if line is not None:
             assert absPos is None
+            if line >= self.lineCount():
+                line = self.lineCount() - 1
+                col = None
+            
             if col is None:
-                col = 0
+                lineToGo = self.line(line)
+                col = len(lineToGo) - len(lineToGo.lstrip())  # count of whitespaces before text
         else:
             assert line is None and col is None
             line, col = self._toLineCol(absPos)
@@ -496,6 +503,11 @@ class AbstractTextEditor(AbstractDocument):
         
         if grabFocus:
             self.setFocus()
+
+    def _goTo(self, line, column, selectionLine = None, selectionCol = None):
+        """Go to. Called by AbstractTextEditor.goTo
+        """
+        raise NotImplemented()
 
     def replaceSelectedText(self, text):
         """Replace selected text with text
@@ -540,7 +552,7 @@ class AbstractTextEditor(AbstractDocument):
         gotoLine, accepted = QInputDialog.getInteger(self, self.tr( "Go To Line..." ),
                                                       self.tr( "Enter the line you want to go:" ), 
                                                       line, 1, self.lineCount(), 1)
-        
+        gotoLine -= 1
         if accepted:
             self.goTo(line = gotoLine, grabFocus = True)
         
@@ -549,7 +561,7 @@ class AbstractTextEditor(AbstractDocument):
         
         None, if index is invalid
         """
-        return self.lines()[index - 1]
+        return self.lines()[index]
     
     def setLine(self, index, text):
         """Replace text in the line with the text.
@@ -580,7 +592,7 @@ class AbstractTextEditor(AbstractDocument):
         """
         lines = self.lines()
         
-        lines = lines[:line]  # remove not included lines
+        lines = lines[:line + 1]  # remove not included lines
         if lines:
             lines[-1] = lines[-1][:col]  # remove not included symbols
             
@@ -598,10 +610,10 @@ class AbstractTextEditor(AbstractDocument):
             lines.append('')
         
         if lines:
-            line = len(lines)
+            line = len(lines) - 1
             col = len(lines[-1])
         else:
-            line = 1
+            line = 0
             col = 0
         return line, col
 
