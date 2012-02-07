@@ -175,6 +175,8 @@ class Workspace(QStackedWidget):
         document = self.currentDocument()
         if document:
             name = document.fileName()
+            if name is None:
+                name = 'untitled'
             if document.isModified():
                 name += '*'
         else:
