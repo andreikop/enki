@@ -341,7 +341,7 @@ class Workspace(QStackedWidget):
         """
         # Close 'untitled'
         if len(self.openedDocuments()) == 1 and \
-           self.openedDocuments()[0].fileName() == 'untitled' and \
+           self.openedDocuments()[0].fileName() is None and \
            not self.openedDocuments()[0].filePath() and \
            not self.openedDocuments()[0].text() and \
            not self.openedDocuments()[0].isModified():
