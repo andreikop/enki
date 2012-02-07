@@ -225,7 +225,10 @@ class AbstractDocument(QWidget):
         """Tool tip for the opened files model
         """
         toolTip = self.filePath()
-        
+
+        if toolTip is None:
+            return None
+
         if self.isModified():
             toolTip += "<br/><font color='blue'>%s</font>" % self.tr("Locally Modified")
         if  self._externallyModified:
