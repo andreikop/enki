@@ -25,7 +25,7 @@ from PyQt4.QtGui import QAction, QCompleter, QDirModel, QFileDialog,  \
                         QProgressBar, QToolButton, QTreeView, QWidget
 from mks.fresh.dockwidget.pDockWidget import pDockWidget
 
-from mks.core.core import core, DATA_FILES_PATH
+from mks.core.core import core
 
 def _isBinary(fileObject):
     """Expects, that file position is 0, when exits, file position is 0
@@ -198,9 +198,7 @@ class SearchWidget(QFrame):
         QFrame.__init__(self, core.workspace())
         self._mode = None
         self.plugin = plugin
-        uic.loadUi(os.path.join(DATA_FILES_PATH,
-                   'ui/SearchWidget.ui'),
-                   self)
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'SearchWidget.ui'), self)
         
         self.cbSearch.completer().setCaseSensitivity( Qt.CaseSensitive )
         self.cbReplace.completer().setCaseSensitivity( Qt.CaseSensitive )
