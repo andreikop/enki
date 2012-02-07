@@ -20,7 +20,7 @@ This project is Python port and new generation of `Monkey Studio <http://monkeys
  * File browser
  * Autocompletion, based on document contents
  * Hightly configurable
- * MIT Scheme REPL integration
+ * `MIT Scheme REPL integration <https://github.com/hlamer/mksv3/wiki/Scheme-support/>`_
 
 mksv3 is **crossplatform**, but, currently has been tested only on Ubuntu. Team will be appreciate you, if you shared your experience about other platforms.
 
