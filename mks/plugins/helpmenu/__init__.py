@@ -12,7 +12,7 @@ from PyQt4.QtCore import QObject
 from PyQt4.QtGui import qApp, QDialog, QIcon
 
 from mks.core.defines import PACKAGE_NAME, PACKAGE_VERSION
-from mks.core.core import core, DATA_FILES_PATH
+from mks.core.core import core
 
 class Plugin(QObject):
     """Module implementation
@@ -53,7 +53,7 @@ class UIAbout(QDialog):
     """
     def __init__(self, parentWindow, tab):
         QDialog.__init__(self, parentWindow)
-        uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/UIAbout.ui'), self)
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'UIAbout.ui'), self)
         self.setWindowTitle( self.tr( "About : %s" % PACKAGE_NAME ) )
         
         self.lTitle.setText( PACKAGE_NAME )

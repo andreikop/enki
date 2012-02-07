@@ -2,6 +2,13 @@ FIXME
     Scheme howto и ссылка на него на UI
     маленькое разрешение иконки приложения
     убрать lucid из версии пакета
+    
+    Traceback (most recent call last):
+    File "/home/a/code/mksv3/mks/core/openedfilemodel.py", line 145, in data
+    return document.modelToolTip()
+    File "/home/a/code/mksv3/mks/core/abstractdocument.py", line 235, in modelToolTip
+    return '' + toolTip + ''
+    TypeError: cannot concatenate 'str' and 'NoneType' objects
 
 REFACTORING
     Plugin abstract interface

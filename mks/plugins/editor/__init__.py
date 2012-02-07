@@ -15,7 +15,7 @@ from PyQt4.QtGui import QColor, QFont, QFrame, QIcon, QKeyEvent, QKeySequence, Q
 from PyQt4.Qsci import *  # pylint: disable=W0401,W0614
 
 from mks.core.abstractdocument import AbstractTextEditor
-from mks.core.core import core, DATA_FILES_PATH
+from mks.core.core import core
 
 import mks.core.defines
 from mks.core.config import Config
@@ -63,7 +63,7 @@ class _QsciScintilla(QsciScintilla):
 class LexerSettingsWidget(QWidget):
     def __init__(self, *args):
         QWidget.__init__(self, *args)
-        uic.loadUi(os.path.join(DATA_FILES_PATH,'ui/plugins/EditorLexerSettings.ui'), self)
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'EditorLexerSettings.ui'), self)
 
 class EditorConfigurator(ModuleConfigurator):
     """ModuleConfigurator interface implementation
