@@ -101,7 +101,7 @@ class TermWidget(QWidget):
                     return True
             elif event.matches(QKeySequence.MoveToNextPage) or \
                  event.matches(QKeySequence.MoveToPreviousPage):
-                self._browser().keyPressEvent(event)
+                self._browser.keyPressEvent(event)
                 return True
         
         return QWidget.eventFilter(self, obj, event)
