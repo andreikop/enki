@@ -22,6 +22,8 @@ from mks.core.config import Config
 from mks.core.uisettings import ModuleConfigurator, \
                                 CheckableOption, ChoiseOption, FontOption, NumericOption, ColorOption
 
+import shortcuts
+
 class _QsciScintilla(QsciScintilla):
     """QsciScintilla wrapper class. It is created to:
     
@@ -902,8 +904,10 @@ class Plugin:
             core.messageToolBar().appendMessage(unicode(ex))
             self.lexerConfig = None
         core.workspace().setTextEditorClass(Editor)
+        self._shortcuts = shortcuts.Shortcuts()
     
-    def __del__(self):
+    def del_(self):
+        self._shortcuts.del_()
         core.workspace().setTextEditorClass(None)
     
     def moduleConfiguratorClass(self):
