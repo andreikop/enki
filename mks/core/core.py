@@ -9,6 +9,7 @@ and used for get core instances, such as main window, workspace, etc.
 import os.path
 import shutil
 import signal
+import pkgutil
 
 from PyQt4.QtGui import qApp, QIcon
 from PyQt4.QtCore import QTimer
@@ -74,15 +75,8 @@ class Core:
         self._uiSettingsManager = mks.core.uisettings.UISettingsManager()
         
         # Create plugins
-        self._loadPlugin('editor')
-        self._loadPlugin('editortoolbar')
-        self._loadPlugin('searchreplace')
-        self._loadPlugin('filebrowser')
-        self._loadPlugin('appshortcuts')
-        self._loadPlugin('helpmenu')
-        self._loadPlugin('associations')
-        self._loadPlugin('mitscheme')
-        self._loadPlugin('schemeindenthelper')
+        for loader, name, isPackage in pkgutil.iter_modules(['mks/plugins']):
+            self._loadPlugin(name)
 
         self._mainWindow.loadState()
 
