@@ -12,7 +12,7 @@ from PyQt4 import uic
 from PyQt4.QtCore import QSize
 from PyQt4.QtGui import QDialog, QIcon, QMenu, QToolBar, QToolButton
 
-from mks.core.core import core, DATA_FILES_PATH
+from mks.core.core import core
 
 # AK: Idea of _EolIndicatorAndSwitcher, and icons for it was taken from juffed
 
@@ -97,7 +97,7 @@ class _IndentationDialog(QDialog):
         QDialog.__init__(self, parent)
         self._document = document
         
-        uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/IndentationDialog.ui'), self)
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'IndentationDialog.ui'), self)
         self._widthSlider.setValue(document.indentWidth())
         self._updateWidthLabel()
         self._widthSlider.valueChanged.connect(self._onWidthChanged)
