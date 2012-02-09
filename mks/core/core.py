@@ -79,7 +79,6 @@ class Core:
         self._loadPlugin('searchreplace')
         self._loadPlugin('filebrowser')
         self._loadPlugin('appshortcuts')
-        self._loadPlugin('editorshortcuts')
         self._loadPlugin('helpmenu')
         self._loadPlugin('associations')
         self._loadPlugin('mitscheme')
