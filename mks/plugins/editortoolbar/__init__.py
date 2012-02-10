@@ -205,6 +205,7 @@ class _PositionIndicator(QToolButton):
         self.setEnabled(False)
         self._setCursorPosition(-1, -1)
         minWidth = QFontMetrics(self.font()).width("Line: xxxxx Column: xxx")
+        minWidth += 30  # for the button borders
         self.setMinimumWidth(minWidth)  # Avoid flickering when text width changed
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
 
