@@ -711,5 +711,5 @@ class DockFileBrowser(pDockWidget):
 
     def moveUp(self):
         """Move tree root up, or only move focus"""
-        self._tree.moveUp()
+        self.setCurrentPath(os.path.dirname(self._tree.currentPath()))
 
