@@ -210,6 +210,7 @@ class Plugin(QObject):
         core.actionModel().removeMenu("mScheme")
         self._mitScheme.stop()
         core.mainWindow().removeDockWidget(self._dock)
+        self._dock.del_()
         del self._dock
         self._installed = False
 
@@ -253,7 +254,7 @@ class MitSchemeDock(pDockWidget):
         self.setFocusProxy(widget)
         widget.installEventFilter(self)
     
-    def __del__(self):
+    def del_(self):
         core.actionModel().removeAction("mDocks/aMitScheme")
     
     def eventFilter(self, obj, event):
