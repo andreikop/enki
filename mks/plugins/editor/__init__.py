@@ -288,13 +288,13 @@ def _getPygmentsSchemeLexer(editor):
     """Construct and return pygments lexer for Scheme. Sets valid language name, lazy import
     """
     try:
-        import mks.plugins.lexerpygments
+        import mks.plugins.editor.lexerpygments
     except ImportError:
         QMessageBox.critical(core.workspace(), "Failed to load pygments",
                              "<html>mksv3 can't highlight Scheme source, "\
                              "because <b>pygments</b> package not found</html>")
         return None
-    return mks.plugins.lexerpygments.LexerPygments(editor, 'Scheme')
+    return mks.plugins.editor.lexerpygments.LexerPygments(editor, 'Scheme')
 
 class Lexer:
     """Wrapper for all Qscintilla lexers. Functionality:
