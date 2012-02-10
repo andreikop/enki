@@ -534,7 +534,10 @@ class Editor(AbstractTextEditor):
         Other shortcuts are disabled, or are configured with mks.plugins.editorshortcuts and defined here
         """
         qsci = self.qscintilla
-        qsci.SendScintilla( qsci.SCI_CLEARALLCMDKEYS )
+
+        qsci.standardCommands().clearKeys()
+        qsci.standardCommands().clearAlternateKeys()
+
         # Some shortcuts are hardcoded there.
         #If we made is a QActions, it will shadow Qt default keys for move focus, etc
         qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_TAB, qsci.SCI_TAB)
@@ -549,8 +552,6 @@ class Editor(AbstractTextEditor):
         qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_NEXT, qsci.SCI_PAGEDOWN)
         qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_HOME, qsci.SCI_VCHOME)
         qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_END, qsci.SCI_LINEEND)
-        for key in range(ord('A'), ord('Z')):
-            qsci.SendScintilla(qsci.SCI_ASSIGNCMDKEY, key + (qsci.SCMOD_CTRL << 16), qsci.SCI_NULL)
     
     def applySettings(self):  # pylint: disable=R0912,R0915
         """Apply own settings form the config
