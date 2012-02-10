@@ -75,7 +75,8 @@ class Core:
         self._uiSettingsManager = mks.core.uisettings.UISettingsManager()
         
         # Create plugins
-        for loader, name, isPackage in pkgutil.iter_modules(['mks/plugins']):
+        pluginsPath = os.path.join(os.path.dirname(__file__), '../plugins')
+        for loader, name, isPackage in pkgutil.iter_modules([pluginsPath]):
             self._loadPlugin(name)
 
         self._mainWindow.loadState()
