@@ -10,7 +10,7 @@ import os.path
 from PyQt4 import uic
 
 from PyQt4.QtCore import QSize
-from PyQt4.QtGui import QDialog, QIcon, QMenu, QToolBar, QToolButton
+from PyQt4.QtGui import QDialog, QFontMetrics, QIcon, QMenu, QToolBar, QToolButton
 
 from mks.core.core import core
 
@@ -204,7 +204,8 @@ class _PositionIndicator(QToolButton):
         self.setToolTip(self.tr("Cursor position"))
         self.setEnabled(False)
         self._setCursorPosition(-1, -1)
-        self.setMinimumWidth(180)  # Avoid flickering when text width changed
+        minWidth = QFontMetrics(self.font()).width("Line: xxxxx Column: xxx")
+        self.setMinimumWidth(minWidth)  # Avoid flickering when text width changed
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
 
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument):
