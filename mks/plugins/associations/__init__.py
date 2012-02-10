@@ -17,7 +17,7 @@ from PyQt4 import uic
 from PyQt4.QtCore import QFileInfo
 from PyQt4.QtGui import QAction, QIcon, QWidget, QTreeWidgetItem
 
-from mks.core.core import core, DATA_FILES_PATH
+from mks.core.core import core
 from mks.core.uisettings import ListOnePerLineOption, ModuleConfigurator
 
 
@@ -46,7 +46,7 @@ class Configurator(ModuleConfigurator):
         """Create configuration widget
         """
         widget = QWidget(dialog)
-        uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/Associations.ui'), widget)
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'Associations.ui'), widget)
         return widget
     
     def saveSettings(self):
