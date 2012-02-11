@@ -124,7 +124,7 @@ def _configureLogging():
     fileHandler = logging.handlers.RotatingFileHandler('/tmp/mksv3.log', 'a', 100 * 1024, 1)
     logging.getLogger('').addHandler(fileHandler)
 
-def main():
+def _parseCommandLine():
     parser = OptionParser(usage="%prog [options] [FILE [+LINE_NUMBER_TO_GO] .. [FILE]]]",
                           version="%prog " + mks.core.defines.PACKAGE_VERSION)
 
@@ -132,7 +132,45 @@ def main():
                       help="profile initialization and exit. For developers")
     (options, args) = parser.parse_args()
     
-    if options.profile:
+    cmdLine = {}
+    cmdLine["profile"] = options.profile
+
+    cmdLine["firstFileLineToGo"] = None
+    # Parse +N spec.
+    plusNSpecs = filter(lambda s: s.startswith('+'), args)
+    files = filter(lambda s: not s.startswith('+'), args)
+
+    if plusNSpecs:
+        if len(plusNSpecs) > 1:
+            print >> sys.stderr, "Only one +N spec are allowed"
+            sys.exit(-1)
+        spec = plusNSpecs[0]
+        try:
+            cmdLine["firstFileLineToGo"] = int(spec[1:])
+        except ValueError:
+            print >> sys.stderr, "Invalid +N spec value: '%s'" % spec
+            sys.exit(-1)
+
+    cmdLine["existingFiles"] = []
+    cmdLine["notExistingFiles"] = []
+    # Get list of absolute pathes of files to open. List may contain not existing files
+    filePathes = [os.path.abspath(arg) for arg in files]
+    # convert to unicode for avoid Python <-> Qt interaction problems
+    filePathes = [unicode(f, 'utf8') for f in filePathes]
+    if filePathes:
+        for filePath in filePathes:
+            if os.path.exists(filePath):
+                cmdLine["existingFiles"].append(filePath)
+            else:
+                cmdLine["notExistingFiles"].append(filePath)
+    
+    return cmdLine
+
+def main():
+    
+    cmdLine = _parseCommandLine()
+    
+    if cmdLine["profile"]:
         profiler = _StartProfiler()
     else:
         profiler = None
@@ -140,7 +178,7 @@ def main():
     try:
         _checkDependencies()
     except ImportError:
-        return -1
+        sys.exit(-1)
 
     # Imports only here. Hack for ability to get help and version info even on system without PyQt.
     import PyQt4.QtGui
@@ -164,40 +202,18 @@ def main():
     from mks.core.core import core
     core.init(profiler)
 
-    # Parse +N spec.
-    fistFileLineToGo = None
-    indexesToRemove = []
-    for index, arg in enumerate(args):
-        if arg.startswith('+'):
-            try:
-                fistFileLineToGo = int(arg[1:])
-            except ValueError:
-                core.messageToolBar().appendMessage( 'Invalid argument: ' + arg)
 
-            if fistFileLineToGo < 1:
-                core.messageToolBar().appendMessage( 'Invalid argument: ' + arg)
-                fistFileLineToGo = None
-            
-            indexesToRemove.append(index)
-    for index in indexesToRemove[::-1]:
-        args = args[:index] + args[index + 1:]
-    
-    # Get list of absolute pathes of files to open. List may contain not existing files
-    filePathes = [os.path.abspath(arg) for arg in args]
-    # convert to unicode for avoid Python <-> Qt interaction problems
-    filePathes = [unicode(f, 'utf8') for f in filePathes]
-
-    if filePathes:
-        for filePath in filePathes:
-            if os.path.exists(filePath):
-                if fistFileLineToGo is not None:
-                    # -1 to convert from users to internal indexing
-                    core.workspace().goTo(filePath, line=fistFileLineToGo - 1)
-                    fistFileLineToGo = None
-                else:
-                    core.workspace().openFile(filePath)
+    if cmdLine["existingFiles"] or cmdLine["notExistingFiles"]:
+        for path in cmdLine["existingFiles"]:
+            if cmdLine["firstFileLineToGo"] is not None:
+                # -1 to convert from users to internal indexing
+                core.workspace().goTo(path, line=cmdLine["firstFileLineToGo"] - 1)
+                cmdLine["firstFileLineToGo"] = None
             else:
-                core.workspace().createEmptyNotSavedDocument(filePath)
+                core.workspace().openFile(path)
+
+        for path in cmdLine["notExistingFiles"]:
+            core.workspace().createEmptyNotSavedDocument(path)
     else:
         if core.workspace().textEditorClass():
             core.workspace().createEmptyNotSavedDocument()
