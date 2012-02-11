@@ -21,6 +21,26 @@ Command line switches:
 \t-v, --version   Show program version
 """
 
+class _StartProfiler:
+    def __init__(self):
+        self._steps = []
+        from datetime import datetime
+        self._importedDateTime = datetime
+        self._startTime = datetime.now()
+
+    def stepDone(self, description):
+        self._steps.append((description, self._importedDateTime.now()))
+
+    def printInfo(self):
+        prev = self._startTime
+        totalMs = 0
+        for description, time in self._steps:
+            diffMs = (time - prev).microseconds / 1000
+            totalMs += diffMs
+            prev = time
+            print '%s: %d' % (description.ljust(30), diffMs)
+        print 'Total                         : %d' % totalMs
+
 
 def showHelp():
     showVersion()
@@ -132,29 +152,38 @@ def main():
         showHelp()
         return 0
     
+    profile = False
+    if profile:
+        profiler = _StartProfiler()
+    else:
+        profiler = None
+
     try:
         _checkDependencies()
     except ImportError:
         return -1
 
+    # Imports only here. Hack for ability to get help and version info even on system without PyQt.
     import PyQt4.QtGui
-    app = PyQt4.QtGui.QApplication ( sys.argv )
+    
+    if profiler is not None:
+        profiler.stepDone('Import modules')
     
     _configureLogging()
     sys.excepthook = excepthook
     
-    
-    # Imports only here. Hack for ability to get help and version info even on system without PyQt.
-    from mks.core.core import core
-    
+    app = PyQt4.QtGui.QApplication ( sys.argv )
     app.setApplicationName( mks.core.defines.PACKAGE_NAME )
     app.setOrganizationName( mks.core.defines.PACKAGE_ORGANISATION )
     app.setOrganizationDomain( mks.core.defines.PACKAGE_URL )
-    
     app.lastWindowClosed.connect(app.quit)
-    
+
+    if profiler is not None:
+        profiler.stepDone('Construct application')
+
     # init monkey studio core
-    core.init()
+    from mks.core.core import core
+    core.init(profiler)
 
     args = sys.argv[1:]
 
@@ -196,15 +225,31 @@ def main():
         if core.workspace().textEditorClass():
             core.workspace().createEmptyNotSavedDocument()
 
+    if profiler is not None:
+        profiler.stepDone('Open files')
+
     if core.workspace().currentDocument():
         core.workspace().currentDocument().setFocus()
     
     core.mainWindow().show()
     
-    # execute application
-    result = app.exec_()
-    core.term()
+    if profiler is not None:
+        profiler.stepDone('Show main window')
     
+    # execute application
+    if not profile:
+        result = app.exec_()
+    else:
+        result = 0
+
+    core.term()
+
+    if profiler is not None:
+        profiler.stepDone('Terminate core')
+
+    if profiler is not None:
+        profiler.printInfo()
+
     return result
 
 if __name__ == '__main__':
