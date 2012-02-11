@@ -9,17 +9,9 @@ import traceback
 import logging
 import logging.handlers
 
+from optparse import OptionParser  # Replace with argparse, when python 2.6 is not supported
+
 import mks.core.defines
-
-helpString = \
-"""
-Usage:
-\t%s [options] [FILE1 [FILE2 ...]]
-
-Command line switches:
-\t-h, --help      Show command line help
-\t-v, --version   Show program version
-"""
 
 class _StartProfiler:
     def __init__(self):
@@ -40,17 +32,6 @@ class _StartProfiler:
             prev = time
             print '%s: %d' % (description.ljust(30), diffMs)
         print 'Total                         : %d' % totalMs
-
-
-def showHelp():
-    showVersion()
-    print helpString % sys.argv[0]
-    
-
-def showVersion():
-    print "%s version %s" % (mks.core.defines.PACKAGE_NAME, mks.core.defines.PACKAGE_VERSION)
-    print mks.core.defines.PACKAGE_COPYRIGHTS
-    print "http://%s" % mks.core.defines.PACKAGE_URL
 
 def excepthook(excepttype, exceptvalue, tracebackobj):
     """Show exception dialog, write to log
@@ -144,16 +125,14 @@ def _configureLogging():
     logging.getLogger('').addHandler(fileHandler)
 
 def main():
-    if '-v' in sys.argv or '--version' in sys.argv:
-        showVersion()
-        return 0
+    parser = OptionParser(usage="%prog [options] [FILE [+LINE_NUMBER_TO_GO] .. [FILE]]]",
+                          version="%prog " + mks.core.defines.PACKAGE_VERSION)
+
+    parser.add_option("-p", "--profile", dest="profile", action="store_true",
+                      help="profile initialization and exit. For developers")
+    (options, args) = parser.parse_args()
     
-    if '-h' in sys.argv or '--help' in sys.argv:
-        showHelp()
-        return 0
-    
-    profile = False
-    if profile:
+    if options.profile:
         profiler = _StartProfiler()
     else:
         profiler = None
@@ -184,8 +163,6 @@ def main():
     # init monkey studio core
     from mks.core.core import core
     core.init(profiler)
-
-    args = sys.argv[1:]
 
     # Parse +N spec.
     fistFileLineToGo = None
@@ -237,7 +214,7 @@ def main():
         profiler.stepDone('Show main window')
     
     # execute application
-    if not profile:
+    if profiler is None:
         result = app.exec_()
     else:
         result = 0
