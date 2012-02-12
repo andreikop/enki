@@ -30,7 +30,6 @@ class pActionsModel(QAbstractItemModel):
     def __init__(self, parent=None):
         QAbstractItemModel.__init__(self,  parent )
         self._pathToAction = {}
-        self._actionToPath = {}
         self._children = {}
         self._createdMenuForAction = {}
         #from modeltest import ModelTest
@@ -91,9 +90,7 @@ class pActionsModel(QAbstractItemModel):
         return self.createIndex( row, column, actions[row] )
 
     def _index(self, action, column = 0):
-        path = self.path( action )
-        
-        if not path in self._pathToAction:
+        if action is None:
             return QModelIndex()
         
         parentAction = self.parentAction( action )
@@ -102,7 +99,7 @@ class pActionsModel(QAbstractItemModel):
         except ValueError:
             return QModelIndex()
         
-        return self.createIndex( row, column, self._pathToAction[ path ] )
+        return self.createIndex( row, column, action )
 
     def parent(self, index ):
         assert isinstance(index, QModelIndex)
@@ -155,7 +152,7 @@ class pActionsModel(QAbstractItemModel):
             return self._pathToAction[self.cleanPath( path )]
 
     def path(self, action ):
-        return self._actionToPath.get(action, None)
+        return action.path
 
     def clear(self):
         count = self.rowCount()
@@ -167,7 +164,6 @@ class pActionsModel(QAbstractItemModel):
         #qDeleteAll( self._children[0] )
         self._children = {}
         self._pathToAction = {}
-        self._actionToPath = {}
         self.endRemoveRows()
         
         self.actionsCleared.emit()
@@ -340,7 +336,7 @@ class pActionsModel(QAbstractItemModel):
             self._children[ parent ] = []
         self._children[ parent ].append(action)
         self._pathToAction[ path ] = action
-        self._actionToPath[ action ] = path
+        action.path = path
         action.changed.connect(self._onActionChanged)
         action.destroyed.connect(self.actionDestroyed)
         self.endInsertRows()
@@ -358,7 +354,6 @@ class pActionsModel(QAbstractItemModel):
             del self._children[action]
 
         path = self.path( action )
-        del self._actionToPath[action]
         del self._pathToAction[path]
         if action in self._createdMenuForAction:
             del self._createdMenuForAction[action]
