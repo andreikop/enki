@@ -113,13 +113,10 @@ _ACTIONS = (\
 (qsci.SCI_EDITTOGGLEOVERTYPE, 'mEdit/aEditToggleOverType', tr('Toggle over type'), 'Ins', ''),
 \
 (qsci.SCI_TAB, 'mEdit/mInsert/aIndent', tr('Indent'), '', ''),
-(qsci.SCI_NEWLINE, 'mEdit/mInsert/aNewLine', tr('New line'), '', ''),
-(qsci.SCI_FORMFEED, 'mEdit/mInsert/aFormfeed', tr('Formfeed'), '', ''),
 \
 (qsci.SCI_CLEAR, 'mEdit/mDelete/aDelete', tr('Delete'), 'Del', ''),
 (qsci.SCI_DELETEBACK, 'mEdit/mDelete/aBackspace', tr('Backspace'), '', ''),
 (qsci.SCI_BACKTAB, 'mEdit/mDelete/aOneIndent', tr('Delete one indent'), 'Shift+Tab', ''),
-(qsci.SCI_DELETEBACKNOTLINE, 'mEdit/mDelete/aBackspaceNotALine', tr('Backspace not a line'), '', ''),
 (qsci.SCI_DELWORDLEFT, 'mEdit/mDelete/aPreviousWord', tr('Previous word'), 'Ctrl+Backspace', ''),
 (qsci.SCI_DELWORDRIGHT, 'mEdit/mDelete/aNextWord', tr('Next word'), 'Ctrl+Del', ''),
 (qsci.SCI_LINEDELETE, 'mEdit/mDelete/aLine', tr('Line'), 'Ctrl+Alt+L', ''),
@@ -131,14 +128,12 @@ _ACTIONS = (\
 (qsci.SCI_CUT, 'mEdit/mCopyPaste/aCut', tr('Cut'), 'Ctrl+X', 'cut.png'),
 (qsci.SCI_LINECUT, 'mEdit/mCopyPaste/aCutLine', tr('Cut line'), 'Ctrl+L', 'cut.png'),
 (qsci.SCI_LINECOPY, 'mEdit/mCopyPaste/aCopyLine', tr('Copy line'), 'Ctrl+Alt+T', 'copy.png'),
-(qsci.SCI_LINEDUPLICATE, 'mEdit/mCopyPaste/aDuplicateLine', tr('Duplicate line'), '', ''),
 (qsci.SCI_SELECTIONDUPLICATE, 'mEdit/mCopyPaste/aDuplicateSelection', tr('Duplicate selection'), 'Ctrl+D', ''),
 \
 (qsci.SCI_ZOOMIN, 'mView/mZoom/aZoomIn', tr('Zoom In'), 'Ctrl++', ''),
 (qsci.SCI_ZOOMOUT, 'mView/mZoom/aZoomOut', tr('Zoom Out'), 'Ctrl+-', ''),
 (qsci.SCI_SETZOOM, 'mView/mZoom/aSetZoom', tr('Reset Zoom'), 'Ctrl+/', ''),
 (MKS_TOGGLE_BOOKMARK, 'mNavigation/mBookmarks/aSetBookmark', tr('Set bookmark'), 'Ctrl+B', ''),
-(qsci.SCI_MARKERDELETEALL, 'mNavigation/mBookmarks/aAllBookmarks', tr('Delete all bookmarks'), '', ''),
 (MKS_NEXT_BOOKMARK, 'mNavigation/mBookmarks/aPreviousBookmark', tr('Next bookmark'), 'Alt+Down', ''),
 (MKS_PREV_BOOKMARK, 'mNavigation/mBookmarks/aNextBookmark', tr('Previous bookmark'), 'Alt+Up', ''),
 \
