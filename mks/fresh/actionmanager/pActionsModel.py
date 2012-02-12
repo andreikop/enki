@@ -178,7 +178,7 @@ class pActionsModel(QAbstractItemModel):
                 return False
             
             row = len(self.children( parentAction ))
-            self.insertAction( path, action, parentAction, row )
+            self._insertAction( path, action, parentAction, row )
             return True
         else:
             text = action
@@ -306,31 +306,35 @@ class pActionsModel(QAbstractItemModel):
         sep = "\001"
         return text.replace( "and", sep ).replace( "&", "" ).replace( sep, "and" )
 
-    def insertAction(self, path, actionOrMenu, parent, row ):
-        p = parent
-        if p is None:
-            p = self
-        
-        if isinstance(actionOrMenu, QAction):
-            action = actionOrMenu
-            menu = action.menu()
-            menuIsSet = False
-        else:
-            menu = actionOrMenu
-            action = menu.menuAction()
-            menuIsSet = True
+    def _insertAction(self, path, action, parent, row ):
+        action.setParent( parent )
         
         self.beginInsertRows( self._index( parent ), row, row )
-        action.setObjectName( path.replace( "/", "_" ) )
-        action.setParent( p )
+        
+        if not parent in self._children:
+            self._children[ parent ] = []
+        self._children[ parent ].append(action)
+        self._pathToAction[ path ] = action
+        action.path = path
+        action.changed.connect(self._onActionChanged)
+        action.destroyed.connect(self.actionDestroyed)
+        
         if  parent:
-            if menuIsSet:
-                parent.menu().addMenu( menu )
-            else:
-                parent.menu().addAction( action )
+            parent.menu().addAction( action )
+        
+        self.endInsertRows()
+        
+        self.actionInserted.emit( action )
 
-        if not action.text():
-            action.setText( path.split('/')[-1] )
+    def _insertMenu(self, path, menu, parent, row ):        
+        action = menu.menuAction()
+
+        if parent is not None:
+            action.setParent( parent )
+        else:
+            action.setParent( self )
+
+        self.beginInsertRows( self._index( parent ), row, row )
 
         if not parent in self._children:
             self._children[ parent ] = []
@@ -339,6 +343,8 @@ class pActionsModel(QAbstractItemModel):
         action.path = path
         action.changed.connect(self._onActionChanged)
         action.destroyed.connect(self.actionDestroyed)
+        if  parent:
+            parent.menu().addMenu( menu )
         self.endInsertRows()
         
         self.actionInserted.emit( action )
@@ -394,7 +400,7 @@ class pActionsModel(QAbstractItemModel):
             self._createdMenuForAction[action] = menu
 
             action.setText( '/'.join(path.split('/')[i:i + 1]) )
-            self.insertAction( subPath, menu, parentAction, row )
+            self._insertMenu( subPath, menu, parentAction, row )
 
         return action
 
