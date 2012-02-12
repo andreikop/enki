@@ -8,7 +8,7 @@ Sends commands to the current editor, when action was triggered
 """
 
 from PyQt4.QtCore import QObject
-from PyQt4.QtGui import QApplication, QIcon
+from PyQt4.QtGui import QAction, QApplication, QIcon
 from PyQt4.Qsci import QsciScintilla as qsci
 
 from mks.core.core import core
@@ -186,15 +186,16 @@ class Shortcuts(QObject):
             menuObj.setEnabled(False)
             self._createdMenus.append(menuObj)
         
-        for action in _ACTIONS:
-            actObject = model.addAction(action[1], action[2])
-            if action[3]:
-                actObject.setShortcut(action[3])
-            if action[4]:
-                actObject.setIcon(QIcon(':/mksicons/' + action[4]))
-            actObject.setData(action[0])
+        for command, path, text, shortcut, icon in _ACTIONS:
+            actObject = QAction(text, self)
+            if shortcut:
+                actObject.setShortcut(shortcut)
+            if icon:
+                actObject.setIcon(QIcon(':/mksicons/' + icon))
+            actObject.setData(command)
             actObject.setEnabled(False)
             actObject.triggered.connect(self.onAction)
+            model.addAction(path, actObject)
             self._createdActions.append(actObject)
         
         core.workspace().currentDocumentChanged.connect(self.onCurrentDocumentChanged)
