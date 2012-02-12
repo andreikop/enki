@@ -33,6 +33,8 @@ class pActionsModel(QAbstractItemModel):
         self._actionToPath = {}
         self._children = {}
         self._createdMenuForAction = {}
+        #from modeltest import ModelTest
+        #self.test = ModelTest(self, self)
     
     def __del__(self):
         if self._pathToAction:
@@ -231,6 +233,8 @@ class pActionsModel(QAbstractItemModel):
         return True
 
     def parentAction(self, action ):
+        if action is None:
+            return None
         assert isinstance(action, QAction)
         return self._pathToAction.get('/'.join(self.path( action ).split('/')[0: -1]), None)
 
@@ -296,12 +300,8 @@ class pActionsModel(QAbstractItemModel):
             return False
 
         action = index.internalPointer()
-        parentAction = self.parentAction( action )
         
         if  action is None:
-            return False
-
-        if  index.row() >= len(self.children( parentAction )):
             return False
 
         return True
