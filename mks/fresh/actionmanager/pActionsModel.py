@@ -173,9 +173,8 @@ class pActionsModel(QAbstractItemModel):
             path = self.cleanPath( _path )
 
             subPath = '/'.join(path.split('/')[0: -1])
-            parentAction = self.createCompletePathNode( subPath )
-            if parentAction is None:
-                return False
+            parentAction = self._pathToAction[subPath]
+            assert parentAction is not None  # At first create menu, than actions
             
             row = len(self.children( parentAction ))
             self._insertAction( path, action, parentAction, row )
@@ -189,12 +188,28 @@ class pActionsModel(QAbstractItemModel):
             return action
 
     def addMenu(self, path, text, icon=QIcon() ):
-        action = self.createCompletePathNode( path )
+        action = self._pathToAction.get( path, None )
+        if action is not None:
+            if action.menu():
+               return action
+            else:
+               assert 0 # not a menu!
+
+        separatorCount = path.count( "/" ) + 1
+        if separatorCount:
+            parentAction = self._pathToAction.get('/'.join(path.split('/')[0:-1]), None)
+        else:
+            parentAction = self._pathToAction.get(None, None)
         
-        if  action is not None:
-            action.setIcon( icon )
-        if  text:
-            action.setText( text )
+        row = len(self.children( parentAction ))
+        menu = QMenu()
+        action = menu.menuAction()
+        self._createdMenuForAction[action] = menu
+        
+        self._insertMenu( path, menu, parentAction, row )
+        
+        action.setIcon( icon )
+        action.setText( text )
         
         return action
 
@@ -367,46 +382,6 @@ class pActionsModel(QAbstractItemModel):
         del self._pathToAction[path]
         if action in self._createdMenuForAction:
             del self._createdMenuForAction[action]
-
-    def createCompletePathNode(self, path ):
-        action = self._pathToAction.get( path, None )
-        
-        if action is not None:
-            if action.menu() is not None:
-                return action
-            else:
-                return None
-
-        separatorCount = path.count( "/" ) + 1
-        parentAction = None
-        
-        for i in range(separatorCount):
-            subPath = '/'.join(path.split('/')[0:i + 1])
-            action = self._pathToAction.get( subPath, None )
-            
-            if action is not None:
-                if  path != subPath :
-                    continue
-            
-                if action.menu():
-                   return action
-                else:
-                   return None
-            
-            if i == 0:
-                parentAction = self._pathToAction.get(None, None)
-            else:
-                parentAction = self._pathToAction.get('/'.join(path.split('/')[0:i]), None)
-            row = len(self.children( parentAction ))
-            menu = QMenu()
-            action = menu.menuAction()
-
-            self._createdMenuForAction[action] = menu
-
-            action.setText( '/'.join(path.split('/')[i:i + 1]) )
-            self._insertMenu( subPath, menu, parentAction, row )
-
-        return action
 
     def removeCompleteEmptyPathNode(self, action ):
         if action is None or not self.path( action ) in self._pathToAction:
