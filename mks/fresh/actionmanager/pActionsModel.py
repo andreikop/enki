@@ -257,12 +257,11 @@ class pActionsModel(QAbstractItemModel):
         action.defaultShortcut = shortcut
         
         if not action.shortcut():
-            self.setShortcut( action, shortcut )
+            action.setShortcut( shortcut )
 
     def setShortcut(self, action, shortcut):
         if isinstance(action, basestring):
             action = self.action( action )
-
 
         if shortcut is None:
             shortcut = QKeySequence()
