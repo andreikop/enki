@@ -231,8 +231,12 @@ class pActionsModel(QAbstractItemModel):
     def parentAction(self, action ):
         if action is None:
             return None
-        assert isinstance(action, QAction)
-        return self._pathToAction.get('/'.join(self.path( action ).split('/')[0: -1]), None)
+        
+        parentObject = action.parent()
+        if parentObject != self:
+            return parentObject
+        else:
+            return None
 
     def children(self, action ):
         return self._children.get(action, [])
