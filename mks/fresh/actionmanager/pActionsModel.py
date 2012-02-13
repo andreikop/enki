@@ -5,7 +5,7 @@ API docks at http://api.monkeystudio.org/fresh/
 """
 import sys
 
-from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QDir, QModelIndex, Qt, QVariant
+from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QDir, QModelIndex, Qt, QObject, QVariant
 from PyQt4.QtGui import QAction, QKeySequence, QIcon, QMenu
 
 def tr(text):
@@ -30,7 +30,6 @@ class pActionsModel(QAbstractItemModel):
     def __init__(self, parent=None):
         QAbstractItemModel.__init__(self,  parent )
         self._pathToAction = {}
-        self._children = {}
         #from modeltest import ModelTest
         #self.test = ModelTest(self, self)
     
@@ -120,12 +119,9 @@ class pActionsModel(QAbstractItemModel):
             parent = param
             action = self.action( parent )
             if ( parent.isValid() and parent.column() == 0 ) or parent == QModelIndex():
-                return self.hasChildren( action )
+                return len(self.children( action ) > 0)
             else:
                 return False
-        else:
-            action = param
-            return action in self._children
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if orientation == Qt.Horizontal:
@@ -160,7 +156,6 @@ class pActionsModel(QAbstractItemModel):
             return
         
         self.beginRemoveRows( QModelIndex(), 0, count -1 )
-        self._children = {}
         self._pathToAction = {}
         self.endRemoveRows()
         
@@ -252,7 +247,10 @@ class pActionsModel(QAbstractItemModel):
             return None
 
     def children(self, action ):
-        return self._children.get(action, [])
+        if action is None:
+            return QObject.children(self)
+        else:
+            return action.children()
 
     def defaultShortcut(self, action ):
         if isinstance(action, basestring):
@@ -328,9 +326,6 @@ class pActionsModel(QAbstractItemModel):
         
         self.beginInsertRows( self._index( parent ), row, row )
         
-        if not parent in self._children:
-            self._children[ parent ] = []
-        self._children[ parent ].append(action)
         self._pathToAction[ path ] = action
         action.path = path
         action.changed.connect(self._onActionChanged)
@@ -353,9 +348,6 @@ class pActionsModel(QAbstractItemModel):
 
         self.beginInsertRows( self._index( parent ), row, row )
 
-        if not parent in self._children:
-            self._children[ parent ] = []
-        self._children[ parent ].append(action)
         self._pathToAction[ path ] = action
         action.path = path
         action.changed.connect(self._onActionChanged)
@@ -367,15 +359,6 @@ class pActionsModel(QAbstractItemModel):
         self.actionInserted.emit( action )
 
     def cleanTree(self, action, parent ):
-
-        parentChildren = self._children[ parent ]
-        parentChildren.remove( action )
-
-        if action in self._children:
-            for a in self._children.get(action, []):
-                self.cleanTree( a, action )
-            del self._children[action]
-
         path = self.path( action )
         del self._pathToAction[path]
 
@@ -383,7 +366,7 @@ class pActionsModel(QAbstractItemModel):
         if action is None or not self.path( action ) in self._pathToAction:
             return
         
-        if not self.hasChildren( action ) :
+        if not self.children( action ) :
             parentAction = self.parentAction( action )
             row = self.children( parentAction ).index( action )
             
