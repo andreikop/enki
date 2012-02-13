@@ -31,7 +31,6 @@ class pActionsModel(QAbstractItemModel):
         QAbstractItemModel.__init__(self,  parent )
         self._pathToAction = {}
         self._children = {}
-        self._createdMenuForAction = {}
         #from modeltest import ModelTest
         #self.test = ModelTest(self, self)
     
@@ -161,7 +160,6 @@ class pActionsModel(QAbstractItemModel):
             return
         
         self.beginRemoveRows( QModelIndex(), 0, count -1 )
-        #qDeleteAll( self._children[0] )
         self._children = {}
         self._pathToAction = {}
         self.endRemoveRows()
@@ -204,7 +202,7 @@ class pActionsModel(QAbstractItemModel):
         row = len(self.children( parentAction ))
         menu = QMenu()
         action = menu.menuAction()
-        self._createdMenuForAction[action] = menu
+        action._menu = menu  # avoid deleting menu by the garbadge collectors
         
         self._insertMenu( path, menu, parentAction, row )
         
@@ -380,8 +378,6 @@ class pActionsModel(QAbstractItemModel):
 
         path = self.path( action )
         del self._pathToAction[path]
-        if action in self._createdMenuForAction:
-            del self._createdMenuForAction[action]
 
     def removeCompleteEmptyPathNode(self, action ):
         if action is None or not self.path( action ) in self._pathToAction:
