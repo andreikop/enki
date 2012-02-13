@@ -538,6 +538,11 @@ class ComboBox(QComboBox):
         # reconnected in self.updateComboItems()
         self.currentIndexChanged[int].connect(self._onItemSelected)
 
+    def del_(self):
+        """Explicitly called destructor
+        """
+        core.actionModel().removeAction(self._showPopupAction)
+
     def eventFilter(self, object_, event ):
         """ Event filter for mode switch tool button
         Draws icons in the search and path lineEdits
@@ -635,6 +640,8 @@ class DockFileBrowser(pDockWidget):
             self._smartHistory.del_()
         if self._jumpToCurrent is not None:
             self._jumpToCurrent.del_()
+        if self._comboBox is not None:
+            self._comboBox.del_()
         core.actionModel().removeAction("mDocks/aFileBrowser")
         self.deleteLater()
 
