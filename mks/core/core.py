@@ -9,6 +9,7 @@ and used for get core instances, such as main window, workspace, etc.
 import os.path
 import shutil
 import signal
+import pkgutil
 
 from PyQt4.QtGui import qApp, QIcon
 from PyQt4.QtCore import QTimer
@@ -51,7 +52,7 @@ class Core:
         self._checkSignalsTimer.start(500)  # You may change this if you wish.
         self._checkSignalsTimer.timeout.connect(lambda: None)  # Let the interpreter run each 500 ms.
         
-    def init(self):
+    def init(self, profiler):
         """Initialize core.
         
         Called only by main()
@@ -73,19 +74,21 @@ class Core:
         import mks.core.uisettings  # pylint: disable=W0404
         self._uiSettingsManager = mks.core.uisettings.UISettingsManager()
         
+        if profiler is not None:
+            profiler.stepDone('Init core classes')
+        
         # Create plugins
-        self._loadPlugin('editor')
-        self._loadPlugin('editortoolbar')
-        self._loadPlugin('searchreplace')
-        self._loadPlugin('filebrowser')
-        self._loadPlugin('appshortcuts')
-        self._loadPlugin('editorshortcuts')
-        self._loadPlugin('helpmenu')
-        self._loadPlugin('associations')
-        self._loadPlugin('mitscheme')
-        self._loadPlugin('schemeindenthelper')
+        pluginsPath = os.path.join(os.path.dirname(__file__), '../plugins')
+        for loader, name, isPackage in pkgutil.iter_modules([pluginsPath]):
+            self._loadPlugin(name)
+            
+            if profiler is not None:
+                profiler.stepDone('Load %s' % name)
 
         self._mainWindow.loadState()
+        
+        if profiler is not None:
+            profiler.stepDone('Load state')
 
     def term(self):
         """Terminate plugins and core modules

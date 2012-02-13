@@ -5,7 +5,7 @@ API docks at http://api.monkeystudio.org/fresh/
 """
 import sys
 
-from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QDir, QModelIndex, Qt, QVariant
+from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QDir, QModelIndex, Qt, QObject, QVariant
 from PyQt4.QtGui import QAction, QKeySequence, QIcon, QMenu
 
 def tr(text):
@@ -30,15 +30,248 @@ class pActionsModel(QAbstractItemModel):
     def __init__(self, parent=None):
         QAbstractItemModel.__init__(self,  parent )
         self._pathToAction = {}
-        self._actionToPath = {}
-        self._children = {}
-        self._createdMenuForAction = {}
+        #from modeltest import ModelTest
+        #self.test = ModelTest(self, self)
     
     def __del__(self):
         if self._pathToAction:
             print >> sys.stderr, 'pActionsModel: you have to delete all actions before destroying actions model'
             print >> sys.stderr, 'Existing actions:', self._pathToAction.keys()
             assert 0
+
+    def action(self, path ):
+        return self._pathToAction[self.cleanPath( path )]
+
+    def path(self, action ):
+        return action.path
+
+    def clear(self):
+        self.beginRemoveRows( QModelIndex(), 0, self.rowCount() -1 )
+        self._pathToAction = {}
+        self.endRemoveRows()
+        
+        self.actionsCleared.emit()
+
+    def addAction(self, _path, action, icon=QIcon() ):
+        if isinstance(action, QAction):
+            path = self.cleanPath( _path )
+
+            subPath = '/'.join(path.split('/')[0: -1])
+            parentAction = self._pathToAction[subPath]
+            assert parentAction is not None  # At first create menu, than actions
+            
+            row = len(self.children( parentAction ))
+            self._insertAction( path, action, parentAction, row )
+            return True
+        else:
+            text = action
+            action = QAction( icon, text, self )
+            if not self.addAction( _path, action ) :
+                return None
+
+            return action
+
+    def addMenu(self, path, text, icon=QIcon() ):
+        action = self._pathToAction.get( path, None )
+        if action is not None:
+            if action.menu():
+               return action
+            else:
+               assert 0 # not a menu!
+
+        separatorCount = path.count( "/" ) + 1
+        if separatorCount:
+            parentAction = self._pathToAction.get('/'.join(path.split('/')[0:-1]), None)
+        else:
+            parentAction = self._pathToAction.get(None, None)
+        
+        row = len(self.children( parentAction ))
+        menu = QMenu()
+        action = menu.menuAction()
+        action._menu = menu  # avoid deleting menu by the garbadge collectors
+        
+        self._insertMenu( path, menu, parentAction, row )
+        
+        action.setIcon( icon )
+        action.setText( text )
+        
+        return action
+
+    def removeAction(self, pathOrAction, removeEmptyPath=False):
+        return self.removeMenu( pathOrAction, removeEmptyPath )
+
+    def _removeAction(self, action, parent, row ):        
+        self.beginRemoveRows( self._index( parent ), row, row )
+        if  parent is not None:
+            parent.menu().removeAction( action )
+
+        self.cleanTree( action, parent )
+        self.endRemoveRows()
+        
+        self.actionRemoved.emit( action )
+        
+        action.deleteLater()
+
+    def removeMenu(self, action, removeEmptyPath=False ):
+        if isinstance(action, basestring):
+            action = self.action( action )
+        else:
+            assert action is not None
+        
+        parentAction = self.parentAction( action )
+        row = self.children( parentAction ).index( action )
+        self._removeAction( action, parentAction, row )
+        
+        if  removeEmptyPath :
+            self.removeCompleteEmptyPathNode( parentAction )
+
+        return True
+
+    def parentAction(self, action ):
+        if action is None:
+            return None
+        
+        parentObject = action.parent()
+        if parentObject != self:
+            return parentObject
+        else:
+            return None
+
+    def children(self, action ):
+        if action is None:
+            return QObject.children(self)
+        else:
+            return action.children()
+
+    def defaultShortcut(self, action ):
+        if isinstance(action, basestring):
+            action = self.action( action )
+
+        if action is not None:
+            if hasattr(action, 'defaultShortcut'):
+                return action.defaultShortcut
+        
+        return QKeySequence()
+
+    def setDefaultShortcut(self, action, shortcut ):
+        if isinstance(action, basestring):
+            action = self.action( action )
+        
+        if isinstance(shortcut, basestring):
+            shortcut = QKeySequence(shortcut)
+
+        action.defaultShortcut = shortcut
+        
+        if not action.shortcut():
+            action.setShortcut( shortcut )
+
+    def setShortcut(self, action, shortcut):
+        if isinstance(action, basestring):
+            action = self.action( action )
+
+        if shortcut is None:
+            shortcut = QKeySequence()
+
+        for a in self._pathToAction.itervalues():
+            if  a != action :
+                if a.shortcut():
+                    if  a.shortcut() == shortcut :
+                        error = tr( "Can't set shortcut, it's already used by action '%s'." % \
+                                        self.cleanText( a.text() ))
+                        return False, error
+
+        action.setShortcut( shortcut )
+        return True, None
+
+    def cleanPath(self, path ):
+        data = QDir.cleanPath( path ).replace( '\\', '/' ).strip()
+        
+        while ( data.startswith( '/' ) ):
+            data = data[1:]
+
+        while ( data.endswith( '/' ) ):
+            data = data[:-1]
+        
+        return data
+
+    def cleanText(self, text ):
+        sep = "\001"
+        return text.replace( "and", sep ).replace( "&", "" ).replace( sep, "and" )
+
+    def _insertAction(self, path, action, parent, row ):
+        action.setParent( parent )
+        
+        self.beginInsertRows( self._index( parent ), row, row )
+        
+        self._pathToAction[ path ] = action
+        action.path = path
+        action.changed.connect(self._onActionChanged)
+        action.destroyed.connect(self.actionDestroyed)
+        
+        if  parent:
+            parent.menu().addAction( action )
+        
+        self.endInsertRows()
+        
+        self.actionInserted.emit( action )
+
+    def _insertMenu(self, path, menu, parent, row ):        
+        action = menu.menuAction()
+
+        if parent is not None:
+            action.setParent( parent )
+        else:
+            action.setParent( self )
+
+        self.beginInsertRows( self._index( parent ), row, row )
+
+        self._pathToAction[ path ] = action
+        action.path = path
+        action.changed.connect(self._onActionChanged)
+        action.destroyed.connect(self.actionDestroyed)
+        if  parent:
+            parent.menu().addMenu( menu )
+        self.endInsertRows()
+        
+        self.actionInserted.emit( action )
+
+    def cleanTree(self, action, parent ):
+        path = self.path( action )
+        del self._pathToAction[path]
+
+    def removeCompleteEmptyPathNode(self, action ):
+        if action is None or not self.path( action ) in self._pathToAction:
+            return
+        
+        if not self.children( action ) :
+            parentAction = self.parentAction( action )
+            row = self.children( parentAction ).index( action )
+            
+            self._removeAction( action, parentAction, row )
+            self.removeCompleteEmptyPathNode( parentAction )
+
+    def _onActionChanged(self):
+        action = self.sender()
+        
+        if  action is not None:
+            self.dataChanged.emit( self._index( action, 0 ), self._index( action, pActionsModel._COLUMN_COUNT -1 ) )
+            self.actionChanged.emit( action )
+
+    def actionDestroyed(self, object ):
+        action = object
+        path = self.path( action )
+        
+        if  path in self._pathToAction:
+            self.removeAction( path )
+    
+    #
+    # QAbstractItemModel interface implementation
+    #
+    def actionByIndex(self, index):
+        if index.isValid():
+            return index.internalPointer()
+        else:
+            return None
 
     def columnCount(self, parent=QModelIndex()):
         return pActionsModel._COLUMN_COUNT
@@ -76,10 +309,7 @@ class pActionsModel(QAbstractItemModel):
         return QVariant()
 
     def index(self, row, column, parent = QModelIndex()):
-        if parent.isValid():
-            actions = self.children(parent.internalPointer())
-        else:
-            actions = self.children(None)
+        actions = self.children(self.actionByIndex(parent))
         
         if  row < 0 or row >= len(actions) or \
             column < 0 or column >= pActionsModel._COLUMN_COUNT or \
@@ -89,9 +319,7 @@ class pActionsModel(QAbstractItemModel):
         return self.createIndex( row, column, actions[row] )
 
     def _index(self, action, column = 0):
-        path = self.path( action )
-        
-        if not path in self._pathToAction:
+        if action is None:
             return QModelIndex()
         
         parentAction = self.parentAction( action )
@@ -100,18 +328,18 @@ class pActionsModel(QAbstractItemModel):
         except ValueError:
             return QModelIndex()
         
-        return self.createIndex( row, column, self._pathToAction[ path ] )
+        return self.createIndex( row, column, action )
 
     def parent(self, index ):
         assert isinstance(index, QModelIndex)
-        action = self.action( index )
+        action = self.actionByIndex( index )
         parentAction = self.parentAction( action )
         return self._index(parentAction)
         
         return self.createIndex( row, 0, parentAction )
 
     def rowCount(self, parent = QModelIndex()):
-        action = self.action( parent )
+        action = self.actionByIndex( parent )
         if ( parent.isValid() and parent.column() == 0 ) or parent == QModelIndex():
             return len(self.children( action ))
         else:
@@ -120,14 +348,11 @@ class pActionsModel(QAbstractItemModel):
     def hasChildren(self, param=QModelIndex()):
         if isinstance(param, QModelIndex):
             parent = param
-            action = self.action( parent )
+            action = self.actionByIndex( parent )
             if ( parent.isValid() and parent.column() == 0 ) or parent == QModelIndex():
-                return self.hasChildren( action )
+                return len(self.children( action )) > 0
             else:
                 return False
-        else:
-            action = param
-            return action in self._children
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if orientation == Qt.Horizontal:
@@ -140,155 +365,7 @@ class pActionsModel(QAbstractItemModel):
                     return tr( "Default Shortcut" )
         
         return QAbstractItemModel.headerData(self,  section, orientation, role )
-
-    def action(self, indexOrPath ):
-        if isinstance(indexOrPath, QModelIndex):
-            index = indexOrPath
-            if index.isValid():
-                return index.internalPointer()
-            else:
-                return None
-        else:
-            path = indexOrPath
-            return self._pathToAction[self.cleanPath( path )]
-
-    def path(self, action ):
-        return self._actionToPath.get(action, None)
-
-    def clear(self):
-        count = self.rowCount()
-        
-        if  count == 0:
-            return
-        
-        self.beginRemoveRows( QModelIndex(), 0, count -1 )
-        #qDeleteAll( self._children[0] )
-        self._children = {}
-        self._pathToAction = {}
-        self._actionToPath = {}
-        self.endRemoveRows()
-        
-        self.actionsCleared.emit()
-
-    def addAction(self, _path, action, icon=QIcon() ):
-        if isinstance(action, QAction):
-            path = self.cleanPath( _path )
-
-            subPath = '/'.join(path.split('/')[0: -1])
-            parentAction = self.createCompletePathNode( subPath )
-            if parentAction is None:
-                return False
-            
-            row = len(self.children( parentAction ))
-            self.insertAction( path, action, parentAction, row )
-            return True
-        else:
-            text = action
-            action = QAction( icon, text, self )
-            if not self.addAction( _path, action ) :
-                return None
-
-            return action
-
-    def addMenu(self, path, text, icon=QIcon() ):
-        action = self.createCompletePathNode( path )
-        
-        if  action is not None:
-            action.setIcon( icon )
-        if  text:
-            action.setText( text )
-        
-        return action
-
-    def removeAction(self, pathOrAction, removeEmptyPath=False):
-        return self.removeMenu( pathOrAction, removeEmptyPath )
-
-    def _removeAction(self, action, parent, row ):        
-        self.beginRemoveRows( self._index( parent ), row, row )
-        if  parent is not None:
-            parent.menu().removeAction( action )
-
-        self.cleanTree( action, parent )
-        self.endRemoveRows()
-        
-        self.actionRemoved.emit( action )
-        
-        action.deleteLater()
-
-    def removeMenu(self, action, removeEmptyPath=False ):
-        if isinstance(action, basestring):
-            action = self.action( action )
-        else:
-            assert action is not None
-        
-        parentAction = self.parentAction( action )
-        row = self.children( parentAction ).index( action )
-        self._removeAction( action, parentAction, row )
-        
-        if  removeEmptyPath :
-            self.removeCompleteEmptyPathNode( parentAction )
-
-        return True
-
-    def parentAction(self, action ):
-        assert isinstance(action, QAction)
-        return self._pathToAction.get('/'.join(self.path( action ).split('/')[0: -1]), None)
-
-    def children(self, action ):
-        return self._children.get(action, [])
-
-    def defaultShortcut(self, action ):
-        if isinstance(action, basestring):
-            action = self.action( action )
-
-        if action is not None:
-            if hasattr(action, 'defaultShortcut'):
-                return action.defaultShortcut
-        
-        return QKeySequence()
-
-    def setDefaultShortcut(self, action, shortcut ):
-        if isinstance(action, basestring):
-            action = self.action( action )
-        
-        if isinstance(shortcut, basestring):
-            shortcut = QKeySequence(shortcut)
-
-        action.defaultShortcut = shortcut
-        
-        if not action.shortcut():
-            self.setShortcut( action, shortcut )
-
-    def setShortcut(self, action, shortcut):
-        if isinstance(action, basestring):
-            action = self.action( action )
-
-
-        if shortcut is None:
-            shortcut = QKeySequence()
-
-        for a in self._pathToAction.itervalues():
-            if  a != action :
-                if a.shortcut():
-                    if  a.shortcut() == shortcut :
-                        error = tr( "Can't set shortcut, it's already used by action '%s'." % \
-                                        self.cleanText( a.text() ))
-                        return False, error
-
-        action.setShortcut( shortcut )
-        return True, None
-
-    def cleanPath(self, path ):
-        data = QDir.cleanPath( path ).replace( '\\', '/' ).strip()
-        
-        while ( data.startswith( '/' ) ):
-            data = data[1:]
-
-        while ( data.endswith( '/' ) ):
-            data = data[:-1]
-        
-        return data
-
+    
     def isValid(self, index ):
         if  not index.isValid() or \
             index.row() < 0 or \
@@ -296,135 +373,7 @@ class pActionsModel(QAbstractItemModel):
             index.column() >= pActionsModel._COLUMN_COUNT :
             return False
 
-        action = index.internalPointer()
-        parentAction = self.parentAction( action )
-        
-        if  action is None:
-            return False
-
-        if  index.row() >= len(self.children( parentAction )):
+        if index.internalPointer() is None:
             return False
 
         return True
-
-    def cleanText(self, text ):
-        sep = "\001"
-        return text.replace( "and", sep ).replace( "&", "" ).replace( sep, "and" )
-
-    def insertAction(self, path, actionOrMenu, parent, row ):
-        p = parent
-        if p is None:
-            p = self
-        
-        if isinstance(actionOrMenu, QAction):
-            action = actionOrMenu
-            menu = action.menu()
-            menuIsSet = False
-        else:
-            menu = actionOrMenu
-            action = menu.menuAction()
-            menuIsSet = True
-        
-        self.beginInsertRows( self._index( parent ), row, row )
-        action.setObjectName( path.replace( "/", "_" ) )
-        action.setParent( p )
-        if  parent:
-            if menuIsSet:
-                parent.menu().addMenu( menu )
-            else:
-                parent.menu().addAction( action )
-
-        if not action.text():
-            action.setText( path.split('/')[-1] )
-
-        if not parent in self._children:
-            self._children[ parent ] = []
-        self._children[ parent ].append(action)
-        self._pathToAction[ path ] = action
-        self._actionToPath[ action ] = path
-        action.changed.connect(self._onActionChanged)
-        action.destroyed.connect(self.actionDestroyed)
-        self.endInsertRows()
-        
-        self.actionInserted.emit( action )
-
-    def cleanTree(self, action, parent ):
-
-        parentChildren = self._children[ parent ]
-        parentChildren.remove( action )
-
-        if action in self._children:
-            for a in self._children.get(action, []):
-                self.cleanTree( a, action )
-            del self._children[action]
-
-        path = self.path( action )
-        del self._actionToPath[action]
-        del self._pathToAction[path]
-        if action in self._createdMenuForAction:
-            del self._createdMenuForAction[action]
-
-    def createCompletePathNode(self, path ):
-        action = self._pathToAction.get( path, None )
-        
-        if action is not None:
-            if action.menu() is not None:
-                return action
-            else:
-                return None
-
-        separatorCount = path.count( "/" ) + 1
-        parentAction = None
-        
-        for i in range(separatorCount):
-            subPath = '/'.join(path.split('/')[0:i + 1])
-            action = self._pathToAction.get( subPath, None )
-            
-            if action is not None:
-                if  path != subPath :
-                    continue
-            
-                if action.menu():
-                   return action
-                else:
-                   return None
-            
-            if i == 0:
-                parentAction = self._pathToAction.get(None, None)
-            else:
-                parentAction = self._pathToAction.get('/'.join(path.split('/')[0:i]), None)
-            row = len(self.children( parentAction ))
-            menu = QMenu()
-            action = menu.menuAction()
-
-            self._createdMenuForAction[action] = menu
-
-            action.setText( '/'.join(path.split('/')[i:i + 1]) )
-            self.insertAction( subPath, menu, parentAction, row )
-
-        return action
-
-    def removeCompleteEmptyPathNode(self, action ):
-        if action is None or not self.path( action ) in self._pathToAction:
-            return
-        
-        if not self.hasChildren( action ) :
-            parentAction = self.parentAction( action )
-            row = self.children( parentAction ).index( action )
-            
-            self._removeAction( action, parentAction, row )
-            self.removeCompleteEmptyPathNode( parentAction )
-
-    def _onActionChanged(self):
-        action = self.sender()
-        
-        if  action is not None:
-            self.dataChanged.emit( self._index( action, 0 ), self._index( action, pActionsModel._COLUMN_COUNT -1 ) )
-            self.actionChanged.emit( action )
-
-    def actionDestroyed(self, object ):
-        action = object
-        path = self.path( action )
-        
-        if  path in self._pathToAction:
-            self.removeAction( path )

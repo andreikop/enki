@@ -9,28 +9,29 @@ import traceback
 import logging
 import logging.handlers
 
+from optparse import OptionParser  # Replace with argparse, when python 2.6 is not supported
+
 import mks.core.defines
 
-helpString = \
-"""
-Usage:
-\t%s [options] [FILE1 [FILE2 ...]]
+class _StartProfiler:
+    def __init__(self):
+        self._steps = []
+        from datetime import datetime
+        self._importedDateTime = datetime
+        self._startTime = datetime.now()
 
-Command line switches:
-\t-h, --help      Show command line help
-\t-v, --version   Show program version
-"""
+    def stepDone(self, description):
+        self._steps.append((description, self._importedDateTime.now()))
 
-
-def showHelp():
-    showVersion()
-    print helpString % sys.argv[0]
-    
-
-def showVersion():
-    print "%s version %s" % (mks.core.defines.PACKAGE_NAME, mks.core.defines.PACKAGE_VERSION)
-    print mks.core.defines.PACKAGE_COPYRIGHTS
-    print "http://%s" % mks.core.defines.PACKAGE_URL
+    def printInfo(self):
+        prev = self._startTime
+        totalMs = 0
+        for description, time in self._steps:
+            diffMs = (time - prev).microseconds / 1000
+            totalMs += diffMs
+            prev = time
+            print '%s: %d' % (description.ljust(30), diffMs)
+        print 'Total                         : %d' % totalMs
 
 def excepthook(excepttype, exceptvalue, tracebackobj):
     """Show exception dialog, write to log
@@ -123,65 +124,125 @@ def _configureLogging():
     fileHandler = logging.handlers.RotatingFileHandler('/tmp/mksv3.log', 'a', 100 * 1024, 1)
     logging.getLogger('').addHandler(fileHandler)
 
+def _parseCommandLine():
+    parser = OptionParser(usage="%prog [options] [FILE [+LINE_NUMBER_TO_GO] .. [FILE]]]",
+                          version="%prog " + mks.core.defines.PACKAGE_VERSION)
+
+    parser.add_option("-p", "--profile", dest="profile", action="store_true",
+                      help="profile initialization and exit. For developers")
+    (options, args) = parser.parse_args()
+    
+    cmdLine = {}
+    cmdLine["profile"] = options.profile
+
+    cmdLine["firstFileLineToGo"] = None
+    # Parse +N spec.
+    plusNSpecs = filter(lambda s: s.startswith('+'), args)
+    files = filter(lambda s: not s.startswith('+'), args)
+
+    if plusNSpecs:
+        if len(plusNSpecs) > 1:
+            print >> sys.stderr, "Only one +N spec are allowed"
+            sys.exit(-1)
+        spec = plusNSpecs[0]
+        try:
+            cmdLine["firstFileLineToGo"] = int(spec[1:])
+        except ValueError:
+            print >> sys.stderr, "Invalid +N spec value: '%s'" % spec
+            sys.exit(-1)
+
+    cmdLine["existingFiles"] = []
+    cmdLine["notExistingFiles"] = []
+    # Get list of absolute pathes of files to open. List may contain not existing files
+    filePathes = [os.path.abspath(arg) for arg in files]
+    # convert to unicode for avoid Python <-> Qt interaction problems
+    filePathes = [unicode(f, 'utf8') for f in filePathes]
+    if filePathes:
+        for filePath in filePathes:
+            if os.path.exists(filePath):
+                cmdLine["existingFiles"].append(filePath)
+            else:
+                cmdLine["notExistingFiles"].append(filePath)
+    
+    return cmdLine
+
 def main():
-    if '-v' in sys.argv or '--version' in sys.argv:
-        showVersion()
-        return 0
     
-    if '-h' in sys.argv or '--help' in sys.argv:
-        showHelp()
-        return 0
+    cmdLine = _parseCommandLine()
     
+    if cmdLine["profile"]:
+        profiler = _StartProfiler()
+    else:
+        profiler = None
+
     try:
         _checkDependencies()
     except ImportError:
-        return -1
+        sys.exit(-1)
 
+    # Imports only here. Hack for ability to get help and version info even on system without PyQt.
     import PyQt4.QtGui
-    app = PyQt4.QtGui.QApplication ( sys.argv )
+    
+    if profiler is not None:
+        profiler.stepDone('Import modules')
     
     _configureLogging()
     sys.excepthook = excepthook
     
-    
-    # Imports only here. Hack for ability to get help and version info even on system without PyQt.
-    from mks.core.core import core
-    
+    app = PyQt4.QtGui.QApplication ( sys.argv )
     app.setApplicationName( mks.core.defines.PACKAGE_NAME )
     app.setOrganizationName( mks.core.defines.PACKAGE_ORGANISATION )
     app.setOrganizationDomain( mks.core.defines.PACKAGE_URL )
-    
     app.lastWindowClosed.connect(app.quit)
-    
+
+    if profiler is not None:
+        profiler.stepDone('Construct application')
+
     # init monkey studio core
-    core.init()
+    from mks.core.core import core
+    core.init(profiler)
 
-    # Get list of absolute pathes of files to open. List may contain not existing files
 
-    filePathes = [os.path.abspath(arg) for arg in sys.argv[1:]]
-    
-    # convert to unicode for avoid Python <-> Qt interaction problems
-    filePathes = [unicode(f, 'utf8') for f in filePathes]
-
-    if filePathes:
-        for filePath in filePathes:
-            if os.path.exists(filePath):
-                core.workspace().openFile(filePath)
+    if cmdLine["existingFiles"] or cmdLine["notExistingFiles"]:
+        for path in cmdLine["existingFiles"]:
+            if cmdLine["firstFileLineToGo"] is not None:
+                # -1 to convert from users to internal indexing
+                core.workspace().goTo(path, line=cmdLine["firstFileLineToGo"] - 1)
+                cmdLine["firstFileLineToGo"] = None
             else:
-                core.workspace().createEmptyNotSavedDocument(filePath)
+                core.workspace().openFile(path)
+
+        for path in cmdLine["notExistingFiles"]:
+            core.workspace().createEmptyNotSavedDocument(path)
     else:
         if core.workspace().textEditorClass():
             core.workspace().createEmptyNotSavedDocument()
+
+    if profiler is not None:
+        profiler.stepDone('Open files')
 
     if core.workspace().currentDocument():
         core.workspace().currentDocument().setFocus()
     
     core.mainWindow().show()
     
-    # execute application
-    result = app.exec_()
-    core.term()
+    if profiler is not None:
+        profiler.stepDone('Show main window')
     
+    # execute application
+    if profiler is None:
+        result = app.exec_()
+    else:
+        result = 0
+
+    core.term()
+
+    if profiler is not None:
+        profiler.stepDone('Terminate core')
+
+    if profiler is not None:
+        profiler.printInfo()
+
     return result
 
 if __name__ == '__main__':
