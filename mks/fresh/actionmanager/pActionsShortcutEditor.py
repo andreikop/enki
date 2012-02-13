@@ -46,7 +46,7 @@ class pActionsShortcutEditor(QDialog):
         if selected:
             proxyIndex = selected[0]
             index = self._proxy.mapToSource( proxyIndex )
-            action = self._model.action( index )
+            action = self._model.actionByIndex( index )
             if not action.menu():
                 return action
         

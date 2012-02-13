@@ -39,123 +39,14 @@ class pActionsModel(QAbstractItemModel):
             print >> sys.stderr, 'Existing actions:', self._pathToAction.keys()
             assert 0
 
-    def columnCount(self, parent=QModelIndex()):
-        return pActionsModel._COLUMN_COUNT
-
-    def data(self, index, role=Qt.DisplayRole):
-        if not index.isValid():
-            return QVariant()
-        
-        action = index.internalPointer()
-
-        if role == Qt.DecorationRole:
-            if index.column() == 0:
-                return action.icon()
-            else:
-                pass
-        elif role in (Qt.DisplayRole, Qt.ToolTipRole):
-            if index.column() == pActionsModel.Action:
-                return self.cleanText( action.text() )
-            elif index.column() == pActionsModel.Shortcut:
-                return action.shortcut().toString( QKeySequence.NativeText )
-            elif index.column() == pActionsModel.DefaultShortcut:
-                return self.defaultShortcut( action ).toString( QKeySequence.NativeText )
-        elif role == Qt.FontRole:
-            font = action.font()
-            if  action.menu():
-                font.setBold( True )
-            return font
-            '''case Qt.BackgroundRole:
-                return action.menu() ? QBrush( QColor( 0, 0, 255, 20 ) ) : QVariant();'''
-        elif role == pActionsModel.MenuRole:
-            return QVariant.fromValue( action.menu() )
-        elif role == pActionsModel.ActionRole:
-            return QVariant.fromValue( action )
-
-        return QVariant()
-
-    def index(self, row, column, parent = QModelIndex()):
-        if parent.isValid():
-            actions = self.children(parent.internalPointer())
-        else:
-            actions = self.children(None)
-        
-        if  row < 0 or row >= len(actions) or \
-            column < 0 or column >= pActionsModel._COLUMN_COUNT or \
-            ( parent.column() != 0 and parent.isValid() ):
-            return QModelIndex()
-
-        return self.createIndex( row, column, actions[row] )
-
-    def _index(self, action, column = 0):
-        if action is None:
-            return QModelIndex()
-        
-        parentAction = self.parentAction( action )
-        try:
-            row = self.children( parentAction ).index( action )
-        except ValueError:
-            return QModelIndex()
-        
-        return self.createIndex( row, column, action )
-
-    def parent(self, index ):
-        assert isinstance(index, QModelIndex)
-        action = self.action( index )
-        parentAction = self.parentAction( action )
-        return self._index(parentAction)
-        
-        return self.createIndex( row, 0, parentAction )
-
-    def rowCount(self, parent = QModelIndex()):
-        action = self.action( parent )
-        if ( parent.isValid() and parent.column() == 0 ) or parent == QModelIndex():
-            return len(self.children( action ))
-        else:
-            return 0
-
-    def hasChildren(self, param=QModelIndex()):
-        if isinstance(param, QModelIndex):
-            parent = param
-            action = self.action( parent )
-            if ( parent.isValid() and parent.column() == 0 ) or parent == QModelIndex():
-                return len(self.children( action ) > 0)
-            else:
-                return False
-
-    def headerData(self, section, orientation, role=Qt.DisplayRole):
-        if orientation == Qt.Horizontal:
-            if  role == Qt.DisplayRole or role == Qt.ToolTipRole :
-                if section == pActionsModel.Action:
-                    return tr( "Action" )
-                elif section == pActionsModel.Shortcut:
-                    return tr( "Shortcut" )
-                elif section == pActionsModel.DefaultShortcut:
-                    return tr( "Default Shortcut" )
-        
-        return QAbstractItemModel.headerData(self,  section, orientation, role )
-
-    def action(self, indexOrPath ):
-        if isinstance(indexOrPath, QModelIndex):
-            index = indexOrPath
-            if index.isValid():
-                return index.internalPointer()
-            else:
-                return None
-        else:
-            path = indexOrPath
-            return self._pathToAction[self.cleanPath( path )]
+    def action(self, path ):
+        return self._pathToAction[self.cleanPath( path )]
 
     def path(self, action ):
         return action.path
 
     def clear(self):
-        count = self.rowCount()
-        
-        if  count == 0:
-            return
-        
-        self.beginRemoveRows( QModelIndex(), 0, count -1 )
+        self.beginRemoveRows( QModelIndex(), 0, self.rowCount() -1 )
         self._pathToAction = {}
         self.endRemoveRows()
         
@@ -303,20 +194,6 @@ class pActionsModel(QAbstractItemModel):
         
         return data
 
-    def isValid(self, index ):
-        if  not index.isValid() or \
-            index.row() < 0 or \
-            index.column() < 0 or \
-            index.column() >= pActionsModel._COLUMN_COUNT :
-            return False
-
-        action = index.internalPointer()
-        
-        if  action is None:
-            return False
-
-        return True
-
     def cleanText(self, text ):
         sep = "\001"
         return text.replace( "and", sep ).replace( "&", "" ).replace( sep, "and" )
@@ -386,3 +263,117 @@ class pActionsModel(QAbstractItemModel):
         
         if  path in self._pathToAction:
             self.removeAction( path )
+    
+    #
+    # QAbstractItemModel interface implementation
+    #
+    def actionByIndex(self, index):
+        if index.isValid():
+            return index.internalPointer()
+        else:
+            return None
+
+    def columnCount(self, parent=QModelIndex()):
+        return pActionsModel._COLUMN_COUNT
+
+    def data(self, index, role=Qt.DisplayRole):
+        if not index.isValid():
+            return QVariant()
+        
+        action = index.internalPointer()
+
+        if role == Qt.DecorationRole:
+            if index.column() == 0:
+                return action.icon()
+            else:
+                pass
+        elif role in (Qt.DisplayRole, Qt.ToolTipRole):
+            if index.column() == pActionsModel.Action:
+                return self.cleanText( action.text() )
+            elif index.column() == pActionsModel.Shortcut:
+                return action.shortcut().toString( QKeySequence.NativeText )
+            elif index.column() == pActionsModel.DefaultShortcut:
+                return self.defaultShortcut( action ).toString( QKeySequence.NativeText )
+        elif role == Qt.FontRole:
+            font = action.font()
+            if  action.menu():
+                font.setBold( True )
+            return font
+            '''case Qt.BackgroundRole:
+                return action.menu() ? QBrush( QColor( 0, 0, 255, 20 ) ) : QVariant();'''
+        elif role == pActionsModel.MenuRole:
+            return QVariant.fromValue( action.menu() )
+        elif role == pActionsModel.ActionRole:
+            return QVariant.fromValue( action )
+
+        return QVariant()
+
+    def index(self, row, column, parent = QModelIndex()):
+        actions = self.children(self.actionByIndex(parent))
+        
+        if  row < 0 or row >= len(actions) or \
+            column < 0 or column >= pActionsModel._COLUMN_COUNT or \
+            ( parent.column() != 0 and parent.isValid() ):
+            return QModelIndex()
+
+        return self.createIndex( row, column, actions[row] )
+
+    def _index(self, action, column = 0):
+        if action is None:
+            return QModelIndex()
+        
+        parentAction = self.parentAction( action )
+        try:
+            row = self.children( parentAction ).index( action )
+        except ValueError:
+            return QModelIndex()
+        
+        return self.createIndex( row, column, action )
+
+    def parent(self, index ):
+        assert isinstance(index, QModelIndex)
+        action = self.actionByIndex( index )
+        parentAction = self.parentAction( action )
+        return self._index(parentAction)
+        
+        return self.createIndex( row, 0, parentAction )
+
+    def rowCount(self, parent = QModelIndex()):
+        action = self.actionByIndex( parent )
+        if ( parent.isValid() and parent.column() == 0 ) or parent == QModelIndex():
+            return len(self.children( action ))
+        else:
+            return 0
+
+    def hasChildren(self, param=QModelIndex()):
+        if isinstance(param, QModelIndex):
+            parent = param
+            action = self.actionByIndex( parent )
+            if ( parent.isValid() and parent.column() == 0 ) or parent == QModelIndex():
+                return len(self.children( action )) > 0
+            else:
+                return False
+
+    def headerData(self, section, orientation, role=Qt.DisplayRole):
+        if orientation == Qt.Horizontal:
+            if  role == Qt.DisplayRole or role == Qt.ToolTipRole :
+                if section == pActionsModel.Action:
+                    return tr( "Action" )
+                elif section == pActionsModel.Shortcut:
+                    return tr( "Shortcut" )
+                elif section == pActionsModel.DefaultShortcut:
+                    return tr( "Default Shortcut" )
+        
+        return QAbstractItemModel.headerData(self,  section, orientation, role )
+    
+    def isValid(self, index ):
+        if  not index.isValid() or \
+            index.row() < 0 or \
+            index.column() < 0 or \
+            index.column() >= pActionsModel._COLUMN_COUNT :
+            return False
+
+        if index.internalPointer() is None:
+            return False
+
+        return True
