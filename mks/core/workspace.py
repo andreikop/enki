@@ -175,6 +175,8 @@ class Workspace(QStackedWidget):
         document = self.currentDocument()
         if document:
             name = document.fileName()
+            if name is None:
+                name = 'untitled'
             if document.isModified():
                 name += '*'
         else:
@@ -278,8 +280,8 @@ class Workspace(QStackedWidget):
         """
         return self.currentWidget()
     
-    def goToLine(self, filePath, line, column, selectionLength):
-        """Open file, activate it, and go to specified line.
+    def goTo(self, filePath, line, column=None, selectionLength=None):
+        """Open file, activate it, and go to specified position. Select text after position, if necessary.
         
         selectionLength specifies, how much characters should be selected
         """
@@ -341,7 +343,7 @@ class Workspace(QStackedWidget):
         """
         # Close 'untitled'
         if len(self.openedDocuments()) == 1 and \
-           self.openedDocuments()[0].fileName() == 'untitled' and \
+           self.openedDocuments()[0].fileName() is None and \
            not self.openedDocuments()[0].filePath() and \
            not self.openedDocuments()[0].text() and \
            not self.openedDocuments()[0].isModified():

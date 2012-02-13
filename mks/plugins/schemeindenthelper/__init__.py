@@ -119,7 +119,7 @@ class SchemeIndentHelper(mks.core.abstractdocument.IndentHelper):
         curAbsPos = editor.absCursorPosition()
         curLine, curCol = editor.cursorPosition()
 
-        linesBefore = editor.lines()[:curLine - 1]
+        linesBefore = editor.lines()[:curLine]
         
         textBefore = '\n'.join(linesBefore)
 

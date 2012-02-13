@@ -8,7 +8,7 @@ Sends commands to the current editor, when action was triggered
 """
 
 from PyQt4.QtCore import QObject
-from PyQt4.QtGui import QApplication, QIcon
+from PyQt4.QtGui import QAction, QApplication, QIcon
 from PyQt4.Qsci import QsciScintilla as qsci
 
 from mks.core.core import core
@@ -113,13 +113,10 @@ _ACTIONS = (\
 (qsci.SCI_EDITTOGGLEOVERTYPE, 'mEdit/aEditToggleOverType', tr('Toggle over type'), 'Ins', ''),
 \
 (qsci.SCI_TAB, 'mEdit/mInsert/aIndent', tr('Indent'), '', ''),
-(qsci.SCI_NEWLINE, 'mEdit/mInsert/aNewLine', tr('New line'), '', ''),
-(qsci.SCI_FORMFEED, 'mEdit/mInsert/aFormfeed', tr('Formfeed'), '', ''),
 \
 (qsci.SCI_CLEAR, 'mEdit/mDelete/aDelete', tr('Delete'), 'Del', ''),
 (qsci.SCI_DELETEBACK, 'mEdit/mDelete/aBackspace', tr('Backspace'), '', ''),
 (qsci.SCI_BACKTAB, 'mEdit/mDelete/aOneIndent', tr('Delete one indent'), 'Shift+Tab', ''),
-(qsci.SCI_DELETEBACKNOTLINE, 'mEdit/mDelete/aBackspaceNotALine', tr('Backspace not a line'), '', ''),
 (qsci.SCI_DELWORDLEFT, 'mEdit/mDelete/aPreviousWord', tr('Previous word'), 'Ctrl+Backspace', ''),
 (qsci.SCI_DELWORDRIGHT, 'mEdit/mDelete/aNextWord', tr('Next word'), 'Ctrl+Del', ''),
 (qsci.SCI_LINEDELETE, 'mEdit/mDelete/aLine', tr('Line'), 'Ctrl+Alt+L', ''),
@@ -131,14 +128,12 @@ _ACTIONS = (\
 (qsci.SCI_CUT, 'mEdit/mCopyPaste/aCut', tr('Cut'), 'Ctrl+X', 'cut.png'),
 (qsci.SCI_LINECUT, 'mEdit/mCopyPaste/aCutLine', tr('Cut line'), 'Ctrl+L', 'cut.png'),
 (qsci.SCI_LINECOPY, 'mEdit/mCopyPaste/aCopyLine', tr('Copy line'), 'Ctrl+Alt+T', 'copy.png'),
-(qsci.SCI_LINEDUPLICATE, 'mEdit/mCopyPaste/aDuplicateLine', tr('Duplicate line'), '', ''),
 (qsci.SCI_SELECTIONDUPLICATE, 'mEdit/mCopyPaste/aDuplicateSelection', tr('Duplicate selection'), 'Ctrl+D', ''),
 \
 (qsci.SCI_ZOOMIN, 'mView/mZoom/aZoomIn', tr('Zoom In'), 'Ctrl++', ''),
 (qsci.SCI_ZOOMOUT, 'mView/mZoom/aZoomOut', tr('Zoom Out'), 'Ctrl+-', ''),
 (qsci.SCI_SETZOOM, 'mView/mZoom/aSetZoom', tr('Reset Zoom'), 'Ctrl+/', ''),
 (MKS_TOGGLE_BOOKMARK, 'mNavigation/mBookmarks/aSetBookmark', tr('Set bookmark'), 'Ctrl+B', ''),
-(qsci.SCI_MARKERDELETEALL, 'mNavigation/mBookmarks/aAllBookmarks', tr('Delete all bookmarks'), '', ''),
 (MKS_NEXT_BOOKMARK, 'mNavigation/mBookmarks/aPreviousBookmark', tr('Next bookmark'), 'Alt+Down', ''),
 (MKS_PREV_BOOKMARK, 'mNavigation/mBookmarks/aNextBookmark', tr('Previous bookmark'), 'Alt+Up', ''),
 \
@@ -168,7 +163,7 @@ _MENUS = (\
 ('mNavigation/mScroll', tr('Scroll'), ''),
 )
 
-class Plugin(QObject):
+class Shortcuts(QObject):
     """Class creates all actions and sends events commands to the editor
     """
     def __init__(self):
@@ -186,20 +181,21 @@ class Plugin(QObject):
             menuObj.setEnabled(False)
             self._createdMenus.append(menuObj)
         
-        for action in _ACTIONS:
-            actObject = model.addAction(action[1], action[2])
-            if action[3]:
-                actObject.setShortcut(action[3])
-            if action[4]:
-                actObject.setIcon(QIcon(':/mksicons/' + action[4]))
-            actObject.setData(action[0])
+        for command, path, text, shortcut, icon in _ACTIONS:
+            actObject = QAction(text, self)
+            if shortcut:
+                actObject.setShortcut(shortcut)
+            if icon:
+                actObject.setIcon(QIcon(':/mksicons/' + icon))
+            actObject.setData(command)
             actObject.setEnabled(False)
             actObject.triggered.connect(self.onAction)
+            model.addAction(path, actObject)
             self._createdActions.append(actObject)
         
         core.workspace().currentDocumentChanged.connect(self.onCurrentDocumentChanged)
 
-    def __del__(self):
+    def del_(self):
         model = core.actionModel()
         for actObject in self._createdActions:
             model.removeAction(actObject)

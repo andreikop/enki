@@ -4,7 +4,6 @@ FIXME
     убрать lucid из версии пакета
 
 REFACTORING
-    Нумеровать линии везде с 0
     Plugin abstract interface
 
 FIXME PasNox

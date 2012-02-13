@@ -9,7 +9,7 @@ from PyQt4.QtCore import pyqtSignal, QEvent, QObject, Qt, QTimer
 from PyQt4.QtGui import QFileDialog, QIcon, QMessageBox, QWidget
 from PyQt4 import uic
 
-from mks.core.core import core, DATA_FILES_PATH
+from mks.core.core import core
 
 from mks.fresh.dockwidget.pDockWidget import pDockWidget
 
@@ -27,7 +27,7 @@ class MitSchemeSettings(QWidget):
     """
     def __init__(self, *args):
         QWidget.__init__(self, *args)
-        uic.loadUi(os.path.join(DATA_FILES_PATH,'ui/plugins/MitSchemeSettings.ui'), self)
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'MitSchemeSettings.ui'), self)
         self.pbInterpreterPath.clicked.connect(self._onPbInterpreterPathClicked)
     
     def _onPbInterpreterPathClicked(self):
@@ -210,6 +210,7 @@ class Plugin(QObject):
         core.actionModel().removeMenu("mScheme")
         self._mitScheme.stop()
         core.mainWindow().removeDockWidget(self._dock)
+        self._dock.del_()
         del self._dock
         self._installed = False
 
@@ -253,7 +254,7 @@ class MitSchemeDock(pDockWidget):
         self.setFocusProxy(widget)
         widget.installEventFilter(self)
     
-    def __del__(self):
+    def del_(self):
         core.actionModel().removeAction("mDocks/aMitScheme")
     
     def eventFilter(self, obj, event):

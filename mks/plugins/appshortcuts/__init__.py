@@ -41,7 +41,7 @@ def _recursiveActionsList(model, parentIndex = QModelIndex()):
     """
     for childRow in range(model.rowCount(parentIndex)):
         childIndex = model.index(childRow, 0, parentIndex)
-        action = model.action(childIndex)
+        action = model.actionByIndex(childIndex)
         if not action.menu():
             yield action
         for action in _recursiveActionsList(model, childIndex):
@@ -83,20 +83,21 @@ class Plugin:
         """Apply for the action its shortcut if defined
         """
         self._model.setDefaultShortcut(action, action.shortcut())
-        if self._config is not None:
-            path = self._model.path(action)
-            try:
-                shortcut = self._config.get(path)
-            except KeyError:
-                return
-            action.setShortcut(shortcut)
+        path = self._model.path(action)
+
+        try:
+            shortcut = self._config.get(path)
+        except KeyError:
+            return
+
+        action.setShortcut(shortcut)
 
     def _onActionInserted(self, parentIndex, start, end):
         """Handler of action inserted signal. Changes action shortcut from default to configured by user
         """
         for row in range(start, end + 1):
             actionIndex = self._model.index(row, 0, parentIndex)
-            action = self._model.action(actionIndex)
+            action = self._model.actionByIndex(actionIndex)
             if action is not None and \
                not action.menu():
                 self._applyShortcut(action)
