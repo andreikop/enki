@@ -37,10 +37,6 @@ class pActionsManager(QObject):
     def path(self, action ):
         return action.path
 
-    def clear(self):
-        self._pathToAction = {}
-        self.actionsCleared.emit()
-
     def addAction(self, _path, action, icon=QIcon() ):        
         path = self.cleanPath( _path )
 
