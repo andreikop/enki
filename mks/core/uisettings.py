@@ -277,14 +277,14 @@ class UISettingsManager:  # pylint: disable=R0903
     """Add to the main menu *Settings->Settings* action and execute settings dialogue
     """
     def __init__(self):
-        self._action = core.actionModel().addAction("mSettings/aSettings",
+        self._action = core.actionManager().addAction("mSettings/aSettings",
                                                     _tr( "Settings.."), 
                                                     QIcon(':/mksicons/settings.png'))
         self._action.setStatusTip(_tr( "Edit settigns.."))
         self._action.triggered.connect(self._onEditSettings)
     
     def __del__(self):
-        core.actionModel().removeAction(self._action)
+        core.actionManager().removeAction(self._action)
 
     def _onEditSettings(self):
         """*Settings->Settings* menu item handler. Open the dialogue
