@@ -171,7 +171,7 @@ class Shortcuts(QObject):
         self._createdActions = []
         self._createdMenus = []
         self._currentDocument = core.workspace().currentDocument()  # probably None
-        model = core.actionModel()
+        model = core.actionManager()
         
         for menu in _MENUS:
             if menu[2]:
@@ -196,7 +196,7 @@ class Shortcuts(QObject):
         core.workspace().currentDocumentChanged.connect(self.onCurrentDocumentChanged)
 
     def del_(self):
-        model = core.actionModel()
+        model = core.actionManager()
         for actObject in self._createdActions:
             model.removeAction(actObject)
 
