@@ -41,24 +41,29 @@ class pActionsManager(QObject):
         self._pathToAction = {}
         self.actionsCleared.emit()
 
-    def addAction(self, _path, action, icon=QIcon() ):
-        if isinstance(action, QAction):
-            path = self.cleanPath( _path )
+    def addAction(self, _path, action, icon=QIcon() ):        
+        path = self.cleanPath( _path )
 
-            subPath = '/'.join(path.split('/')[0: -1])
-            parentAction = self.action(subPath)
-            assert parentAction is not None  # At first create menu, than actions
-            
-            row = len(self.children( parentAction ))
-            self._insertAction( path, action, parentAction, row )
-            return True
+        subPath = '/'.join(path.split('/')[0: -1])
+        parentAction = self.action(subPath)
+        assert parentAction is not None  # At first create menu, than actions
+        
+        if isinstance(action, basestring):
+            action = QAction( icon, action, parentAction )
         else:
-            text = action
-            action = QAction( icon, text, self )
-            if not self.addAction( _path, action ) :
-                return None
+            action.setParent( parentAction )
+        
+        parentAction.menu().addAction( action )
+        
+        self._pathToAction[ path ] = action
+        action.path = path
+        
+        action.changed.connect(self._onActionChanged)
+        action.destroyed.connect(self._onActionDestroyed)
 
-            return action
+        self.actionInserted.emit( action )
+        
+        return action
 
     def addMenu(self, path, text, icon=QIcon() ):
         action = self.action(path)
@@ -74,17 +79,33 @@ class pActionsManager(QObject):
         else:
             parentAction = None
         
-        row = len(self.children( parentAction ))
         menu = QMenu()
         action = menu.menuAction()
         action._menu = menu  # avoid deleting menu by the garbadge collectors
         
-        self._insertMenu( path, menu, parentAction, row )
+        self._insertMenu( path, menu, parentAction)
         
         action.setIcon( icon )
         action.setText( text )
         
         return action
+
+    def _insertMenu(self, path, menu, parent):        
+        action = menu.menuAction()
+
+        if parent is not None:
+            action.setParent( parent )
+        else:
+            action.setParent( self )
+
+        self._pathToAction[ path ] = action
+        action.path = path
+        action.changed.connect(self._onActionChanged)
+        action.destroyed.connect(self._onActionDestroyed)
+        if  parent:
+            parent.menu().addMenu( menu )
+        
+        self.actionInserted.emit( action )
 
     def removeAction(self, pathOrAction, removeEmptyPath=False):
         return self.removeMenu( pathOrAction, removeEmptyPath )
@@ -180,35 +201,6 @@ class pActionsManager(QObject):
         sep = "\001"
         return text.replace( "and", sep ).replace( "&", "" ).replace( sep, "and" )
 
-    def _insertAction(self, path, action, parent, row ):
-        action.setParent( parent )
-        
-        self._pathToAction[ path ] = action
-        action.path = path
-        action.changed.connect(self._onActionChanged)
-        action.destroyed.connect(self._onActionDestroyed)
-        
-        if  parent:
-            parent.menu().addAction( action )
-        
-        self.actionInserted.emit( action )
-
-    def _insertMenu(self, path, menu, parent, row ):        
-        action = menu.menuAction()
-
-        if parent is not None:
-            action.setParent( parent )
-        else:
-            action.setParent( self )
-
-        self._pathToAction[ path ] = action
-        action.path = path
-        action.changed.connect(self._onActionChanged)
-        action.destroyed.connect(self._onActionDestroyed)
-        if  parent:
-            parent.menu().addMenu( menu )
-        
-        self.actionInserted.emit( action )
 
     def cleanTree(self, action, parent ):
         path = self.path( action )
