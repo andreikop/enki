@@ -363,14 +363,14 @@ class OpenedFileExplorer(pDockWidget):
         self.tvFiles.selectionModel().selectionChanged.connect(self._onSelectionModelSelectionChanged)
         
         self.showAction().setShortcut("F2")
-        core.actionModel().addAction("mDocks/aOpenedFiles", self.showAction())
+        core.actionManager().addAction("mDocks/aOpenedFiles", self.showAction())
         core.moduleConfiguratorClasses.append(Configurator)
     
     def del_(self):
         """Explicitly called destructor
         """
         core.moduleConfiguratorClasses.remove(Configurator)
-        core.actionModel().removeAction("mDocks/aOpenedFiles")
+        core.actionManager().removeAction("mDocks/aOpenedFiles")
     
     def startModifyModel(self):
         """Blocks signals from model while it is modified by code
@@ -423,9 +423,9 @@ class OpenedFileExplorer(pDockWidget):
         """
         menu = QMenu()
         
-        menu.addAction( core.actionModel().action( "mFile/mClose/aCurrent" ) )
-        menu.addAction( core.actionModel().action( "mFile/mSave/aCurrent" ) )
-        menu.addAction( core.actionModel().action( "mFile/mReload/aCurrent" ) )
+        menu.addAction( core.actionManager().action( "mFile/mClose/aCurrent" ) )
+        menu.addAction( core.actionManager().action( "mFile/mSave/aCurrent" ) )
+        menu.addAction( core.actionManager().action( "mFile/mReload/aCurrent" ) )
         menu.addSeparator()
         
         # sort menu

@@ -177,12 +177,12 @@ class Plugin(QObject):
         if self._installed:
             return
 
-        self._schemeMenu = core.actionModel().addMenu("mScheme", "MIT Scheme")
-        self._evalAction = core.actionModel().addAction("mScheme/mEval", "Eval. selection/Save and eval.")
+        self._schemeMenu = core.actionManager().addMenu("mScheme", "MIT Scheme")
+        self._evalAction = core.actionManager().addAction("mScheme/mEval", "Eval. selection/Save and eval.")
         self._evalAction.setStatusTip("Evaluate selection. If nothing is selected - save and evaluate whole file")
         self._evalAction.setShortcut("Ctrl+E")
         self._evalAction.triggered.connect(self._onEvalTriggered)
-        self._breakAction = core.actionModel().addAction("mScheme/mBreak", "Stop the interpreter")
+        self._breakAction = core.actionManager().addAction("mScheme/mBreak", "Stop the interpreter")
         self._breakAction.setStatusTip("Use it as a restart action.")
         self._breakAction.setShortcut("Pause")
         self._breakAction.triggered.connect(self._onBreakTriggered)
@@ -205,9 +205,9 @@ class Plugin(QObject):
         """
         if not self._installed:
             return
-        core.actionModel().removeAction("mScheme/mEval")
+        core.actionManager().removeAction("mScheme/mEval")
         self._evalAction = None
-        core.actionModel().removeMenu("mScheme")
+        core.actionManager().removeMenu("mScheme")
         self._mitScheme.stop()
         core.mainWindow().removeDockWidget(self._dock)
         self._dock.del_()
@@ -248,14 +248,14 @@ class MitSchemeDock(pDockWidget):
         self.setAllowedAreas( Qt.BottomDockWidgetArea)
         
         self.showAction().setShortcut("F8")
-        core.actionModel().addAction("mDocks/aMitScheme", self.showAction())
+        core.actionManager().addAction("mDocks/aMitScheme", self.showAction())
 
         self.setWidget(widget)
         self.setFocusProxy(widget)
         widget.installEventFilter(self)
     
     def del_(self):
-        core.actionModel().removeAction("mDocks/aMitScheme")
+        core.actionManager().removeAction("mDocks/aMitScheme")
     
     def eventFilter(self, obj, event):
         """Event filter for the widget. Catches Esc pressings. It is necessary, because QScintilla eats it

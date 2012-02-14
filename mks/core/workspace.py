@@ -132,21 +132,21 @@ class Workspace(QStackedWidget):
         self.currentChanged.connect(self._onStackedLayoutIndexChanged)
         
         self.currentDocumentChanged.connect(self._updateMainWindowTitle)
-        core.actionModel().action( "mFile/aOpen" ).triggered.connect(self._onFileOpenTriggered)
-        core.actionModel().action( "mFile/mReload/aCurrent" ).triggered.connect(self._onFileReloadTriggered)
-        core.actionModel().action( "mFile/mReload/aAll" ).triggered.connect(self._onFileReloadAllTriggered)
-        core.actionModel().action( "mFile/aNew" ).triggered.connect(lambda : self.createEmptyNotSavedDocument(None))
-        core.actionModel().action( "mFile/mClose/aCurrent" ).triggered.connect(self._onCloseCurrentDocument)
-        core.actionModel().action( "mFile/mClose/aAll" ).triggered.connect(self.closeAllDocuments)
+        core.actionManager().action( "mFile/aOpen" ).triggered.connect(self._onFileOpenTriggered)
+        core.actionManager().action( "mFile/mReload/aCurrent" ).triggered.connect(self._onFileReloadTriggered)
+        core.actionManager().action( "mFile/mReload/aAll" ).triggered.connect(self._onFileReloadAllTriggered)
+        core.actionManager().action( "mFile/aNew" ).triggered.connect(lambda : self.createEmptyNotSavedDocument(None))
+        core.actionManager().action( "mFile/mClose/aCurrent" ).triggered.connect(self._onCloseCurrentDocument)
+        core.actionManager().action( "mFile/mClose/aAll" ).triggered.connect(self.closeAllDocuments)
     
-        core.actionModel().action( "mFile/mSave/aCurrent" ).triggered.connect(self._onFileSaveCurrentTriggered)
-        core.actionModel().action( "mFile/mSave/aAll" ).triggered.connect(self._onFileSaveAllTriggered)
+        core.actionManager().action( "mFile/mSave/aCurrent" ).triggered.connect(self._onFileSaveCurrentTriggered)
+        core.actionManager().action( "mFile/mSave/aAll" ).triggered.connect(self._onFileSaveAllTriggered)
         
-        core.actionModel().action( "mNavigation/aNext" ).triggered.connect(self._activateNextDocument)
-        core.actionModel().action( "mNavigation/aPrevious" ).triggered.connect(self._activatePreviousDocument)
+        core.actionManager().action( "mNavigation/aNext" ).triggered.connect(self._activateNextDocument)
+        core.actionManager().action( "mNavigation/aPrevious" ).triggered.connect(self._activatePreviousDocument)
         
-        core.actionModel().action( "mNavigation/aFocusCurrentDocument" ).triggered.connect(self.focusCurrentDocument)
-        core.actionModel().action( "mNavigation/aGoto" ).triggered.connect(self._onGotoTriggered)
+        core.actionManager().action( "mNavigation/aFocusCurrentDocument" ).triggered.connect(self.focusCurrentDocument)
+        core.actionManager().action( "mNavigation/aGoto" ).triggered.connect(self._onGotoTriggered)
     
     def del_(self):
         """Terminate workspace. Called by the core to clear actions
@@ -235,29 +235,29 @@ class Workspace(QStackedWidget):
             pass
         
         # update file menu
-        core.actionModel().action( "mFile/mSave/aCurrent" ).setEnabled( document is not None and \
+        core.actionManager().action( "mFile/mSave/aCurrent" ).setEnabled( document is not None and \
                                                                             (document.isModified() or 
                                                                              document.isNeverSaved()))
-        core.actionModel().action( "mFile/mSave/aAll" ).setEnabled( document is not None)
-        core.actionModel().action( "mFile/mClose/aCurrent" ).setEnabled( document is not None)
-        core.actionModel().action( "mFile/mClose/aAll" ).setEnabled( document is not None)
-        core.actionModel().action( "mNavigation/aFocusCurrentDocument" ).setEnabled( document is not None)
-        core.actionModel().action( "mNavigation/aGoto" ).setEnabled( document is not None)
-        core.actionModel().action( "mFile/mReload/aCurrent" ).setEnabled( document is not None )
-        core.actionModel().action( "mFile/mReload/aAll" ).setEnabled( document is not None )
+        core.actionManager().action( "mFile/mSave/aAll" ).setEnabled( document is not None)
+        core.actionManager().action( "mFile/mClose/aCurrent" ).setEnabled( document is not None)
+        core.actionManager().action( "mFile/mClose/aAll" ).setEnabled( document is not None)
+        core.actionManager().action( "mNavigation/aFocusCurrentDocument" ).setEnabled( document is not None)
+        core.actionManager().action( "mNavigation/aGoto" ).setEnabled( document is not None)
+        core.actionManager().action( "mFile/mReload/aCurrent" ).setEnabled( document is not None )
+        core.actionManager().action( "mFile/mReload/aAll" ).setEnabled( document is not None )
 
         # TODO save as backup, quick print, print
-        #core.actionModel().action( "mFile/aSaveAsBackup" ).setEnabled( document )
-        #core.actionModel().action( "mFile/aQuickPrint" ).setEnabled( print_ )
-        #core.actionModel().action( "mFile/aPrint" ).setEnabled( print_ )
+        #core.actionManager().action( "mFile/aSaveAsBackup" ).setEnabled( document )
+        #core.actionManager().action( "mFile/aQuickPrint" ).setEnabled( print_ )
+        #core.actionManager().action( "mFile/aPrint" ).setEnabled( print_ )
         
         # update edit menu
-        #core.actionModel().action( "mEdit/aExpandAbbreviation" ).setEnabled( document is not None)
+        #core.actionManager().action( "mEdit/aExpandAbbreviation" ).setEnabled( document is not None)
 
         # update view menu
         moreThanOneDocument = self.count() > 1
-        core.actionModel().action( "mNavigation/aNext" ).setEnabled( moreThanOneDocument )
-        core.actionModel().action( "mNavigation/aPrevious" ).setEnabled( moreThanOneDocument )
+        core.actionManager().action( "mNavigation/aNext" ).setEnabled( moreThanOneDocument )
+        core.actionManager().action( "mNavigation/aPrevious" ).setEnabled( moreThanOneDocument )
         
         # internal update
         if  document and document.filePath() is not None and \
@@ -315,7 +315,7 @@ class Workspace(QStackedWidget):
         """Add document to the workspace. Connect signals
         """
         # update file menu
-        document.modifiedChanged.connect(core.actionModel().action( "mFile/mSave/aCurrent" ).setEnabled)
+        document.modifiedChanged.connect(core.actionManager().action( "mFile/mSave/aCurrent" ).setEnabled)
         document.modifiedChanged.connect(self._updateMainWindowTitle)
         
         # add to workspace
@@ -327,7 +327,7 @@ class Workspace(QStackedWidget):
     def _unhandleDocument( self, document ):
         """Remove document from the workspace. Disconnect signals
         """
-        document.modifiedChanged.disconnect(core.actionModel().action( "mFile/mSave/aCurrent" ).setEnabled)
+        document.modifiedChanged.disconnect(core.actionManager().action( "mFile/mSave/aCurrent" ).setEnabled)
         # update edit menu
 
         # remove from workspace
@@ -672,7 +672,7 @@ class Workspace(QStackedWidget):
 
 #    def internal_projectInstallCommandRequested(self, cmd, mnu ):
 #        # create action
-#        action = core.actionModel().action( QString( "%1/%2" ).arg( mnu ).arg( cmd.text() ) , d.text() )
+#        action = core.actionManager().action( QString( "%1/%2" ).arg( mnu ).arg( cmd.text() ) , d.text() )
 #        action.setStatusTip( cmd.text() )
 
 #        # set action custom data contain the command to execute
@@ -686,7 +686,7 @@ class Workspace(QStackedWidget):
 
 #
 #    def internal_projectUninstallCommandRequested(self, cmd, mnu ):
-#        menu = core.actionModel().menu( mnu )
+#        menu = core.actionManager().menu( mnu )
 #        
 #        for action in u.actions():
 #            if  action.menu() :
