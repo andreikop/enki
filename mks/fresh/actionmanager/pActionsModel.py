@@ -73,39 +73,33 @@ class pActionsManager(QObject):
             else:
                assert 0 # not a menu!
 
-        separatorCount = path.count( "/" ) + 1
-        if separatorCount:
-            parentAction = self.action('/'.join(path.split('/')[0:-1]))
+        parentMenuPath = '/'.join(path.split('/')[0:-1])
+        if parentMenuPath:
+            parentAction = self.action(parentMenuPath)
         else:
             parentAction = None
         
         menu = QMenu()
         action = menu.menuAction()
-        action._menu = menu  # avoid deleting menu by the garbadge collectors
-        
-        self._insertMenu( path, menu, parentAction)
-        
+        action._menu = menu  # avoid deleting menu by the garbadge collectors        
         action.setIcon( icon )
         action.setText( text )
-        
-        return action
 
-    def _insertMenu(self, path, menu, parent):        
-        action = menu.menuAction()
-
-        if parent is not None:
-            action.setParent( parent )
+        if parentAction is not None:
+            action.setParent( parentAction )
+            parentAction.menu().addMenu( menu )
         else:
             action.setParent( self )
 
         self._pathToAction[ path ] = action
         action.path = path
+        
         action.changed.connect(self._onActionChanged)
         action.destroyed.connect(self._onActionDestroyed)
-        if  parent:
-            parent.menu().addMenu( menu )
-        
+                
         self.actionInserted.emit( action )
+        
+        return action
 
     def removeAction(self, pathOrAction, removeEmptyPath=False):
         return self.removeMenu( pathOrAction, removeEmptyPath )
