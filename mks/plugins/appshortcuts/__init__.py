@@ -60,7 +60,7 @@ class Plugin:
             return
 
         self._model = core.actionModel()
-        self._model.rowsInserted.connect(self._onActionInserted)
+        self._model.actionInserted.connect(self._onActionInserted)
         
         self._action = self._model.addAction("mSettings/aApplicationShortcuts",
                                        tr( "Application shortcuts..."), 
@@ -92,15 +92,11 @@ class Plugin:
 
         action.setShortcut(shortcut)
 
-    def _onActionInserted(self, parentIndex, start, end):
+    def _onActionInserted(self, action):
         """Handler of action inserted signal. Changes action shortcut from default to configured by user
         """
-        for row in range(start, end + 1):
-            actionIndex = self._model.index(row, 0, parentIndex)
-            action = self._model.actionByIndex(actionIndex)
-            if action is not None and \
-               not action.menu():
-                self._applyShortcut(action)
+        if not action.menu():
+            self._applyShortcut(action)
 
     def _saveShortcuts(self):
         """Save shortcuts to configuration file
