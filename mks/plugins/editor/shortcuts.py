@@ -241,3 +241,4 @@ class Shortcuts(QObject):
             editor.paste()
         else:
             assert 0
+
