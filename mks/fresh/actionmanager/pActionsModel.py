@@ -16,7 +16,6 @@ class pActionsManager(QObject):
     actionInserted = pyqtSignal(QAction)
     actionChanged = pyqtSignal(QAction)
     actionRemoved = pyqtSignal(QAction)
-    actionsCleared = pyqtSignal()
 
     def __init__(self, parent=None):
         QObject.__init__(self,  parent )
@@ -32,13 +31,16 @@ class pActionsManager(QObject):
         return ActionModel(self)
 
     def action(self, path ):
-        return self._pathToAction.get(self.cleanPath( path ), None)
+        return self._pathToAction.get(self._cleanPath( path ), None)
+    
+    def allActions(self):
+        return self._pathToAction.itervalues()
 
     def path(self, action ):
         return action.path
 
     def addAction(self, _path, action, icon=QIcon() ):        
-        path = self.cleanPath( _path )
+        path = self._cleanPath( _path )
 
         subPath = '/'.join(path.split('/')[0: -1])
         parentAction = self.action(subPath)
@@ -60,6 +62,9 @@ class pActionsManager(QObject):
         self.actionInserted.emit( action )
         
         return action
+
+    def removeAction(self, pathOrAction, removeEmptyPath=False):
+        return self.removeMenu( pathOrAction, removeEmptyPath )
 
     def addMenu(self, path, text, icon=QIcon() ):
         action = self.action(path)
@@ -97,9 +102,6 @@ class pActionsManager(QObject):
         
         return action
 
-    def removeAction(self, pathOrAction, removeEmptyPath=False):
-        return self.removeMenu( pathOrAction, removeEmptyPath )
-
     def removeMenu(self, action, removeEmptyPath=False ):
         if isinstance(action, basestring):
             action = self.action( action )
@@ -127,6 +129,10 @@ class pActionsManager(QObject):
             parentAction = self.parentAction( action )
             self._removeAction(action)
             self._removeCompleteEmptyPathNode( parentAction )
+
+    def _cleanPath(self, path ):
+        data = QDir.cleanPath( path ).replace( '\\', '/' ).strip()
+        return data.strip('/')
 
     def parentAction(self, action ):
         if action is None:
@@ -165,39 +171,6 @@ class pActionsManager(QObject):
         
         if not action.shortcut():
             action.setShortcut( shortcut )
-
-    def setShortcut(self, action, shortcut):
-        if isinstance(action, basestring):
-            action = self.action( action )
-
-        if shortcut is None:
-            shortcut = QKeySequence()
-
-        for a in self._pathToAction.itervalues():
-            if  a != action :
-                if a.shortcut():
-                    if  a.shortcut() == shortcut :
-                        error = tr( "Can't set shortcut, it's already used by action '%s'." % \
-                                        self.cleanText( a.text() ))
-                        return False, error
-
-        action.setShortcut( shortcut )
-        return True, None
-
-    def cleanPath(self, path ):
-        data = QDir.cleanPath( path ).replace( '\\', '/' ).strip()
-        
-        while ( data.startswith( '/' ) ):
-            data = data[1:]
-
-        while ( data.endswith( '/' ) ):
-            data = data[:-1]
-        
-        return data
-
-    def cleanText(self, text ):
-        sep = "\001"
-        return text.replace( "and", sep ).replace( "&", "" ).replace( sep, "and" )
 
     def _onActionChanged(self):
         action = self.sender()
@@ -245,7 +218,7 @@ class ActionModel(QAbstractItemModel):
                 pass
         elif role in (Qt.DisplayRole, Qt.ToolTipRole):
             if index.column() == ActionModel.Action:
-                return self._manager.cleanText( action.text() )
+                return self._manager._cleanText( action.text() )
             elif index.column() == ActionModel.Shortcut:
                 return action.shortcut().toString( QKeySequence.NativeText )
             elif index.column() == ActionModel.DefaultShortcut:
@@ -333,3 +306,26 @@ class ActionModel(QAbstractItemModel):
             return False
 
         return True
+
+    def setShortcut(self, action, shortcut):
+        if isinstance(action, basestring):
+            action = self.action( action )
+
+        if shortcut is None:
+            shortcut = QKeySequence()
+
+        for a in self._manager.allActions():
+            if  a != action :
+                if a.shortcut():
+                    if  a.shortcut() == shortcut :
+                        error = tr( "Can't set shortcut, it's already used by action '%s'." % \
+                                        self._cleanText( a.text() ))
+                        return False, error
+
+        action.setShortcut( shortcut )
+        return True, None
+    
+    def _cleanText(self, text ):
+        sep = "\001"
+        return text.replace( "and", sep ).replace( "&", "" ).replace( sep, "and" )
+
