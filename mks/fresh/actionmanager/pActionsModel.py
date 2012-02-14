@@ -104,25 +104,33 @@ class pActionsManager(QObject):
     def removeAction(self, pathOrAction, removeEmptyPath=False):
         return self.removeMenu( pathOrAction, removeEmptyPath )
 
-    def _removeAction(self, action, parent):
-        if  parent is not None:
-            parent.menu().removeAction( action )
-
-        self.cleanTree( action, parent )
-        self.actionRemoved.emit( action )
-        action.deleteLater()
-
     def removeMenu(self, action, removeEmptyPath=False ):
         if isinstance(action, basestring):
             action = self.action( action )
         
-        parentAction = self.parentAction( action )
-        self._removeAction( action, parentAction)
+        self._removeAction( action)
         
         if  removeEmptyPath :
-            self.removeCompleteEmptyPathNode( parentAction )
+            self._removeCompleteEmptyPathNode( parentAction )
 
         return True
+
+    def _removeAction(self, action):
+        parent = self.parentAction( action )
+        if  parent is not None:
+            parent.menu().removeAction( action )
+
+        path = self.path( action )
+        del self._pathToAction[path]
+
+        self.actionRemoved.emit( action )
+        action.deleteLater()
+
+    def _removeCompleteEmptyPathNode(self, action ):        
+        if not self.children( action ) :
+            parentAction = self.parentAction( action )
+            self._removeAction(action)
+            self._removeCompleteEmptyPathNode( parentAction )
 
     def parentAction(self, action ):
         if action is None:
@@ -194,20 +202,6 @@ class pActionsManager(QObject):
     def cleanText(self, text ):
         sep = "\001"
         return text.replace( "and", sep ).replace( "&", "" ).replace( sep, "and" )
-
-
-    def cleanTree(self, action, parent ):
-        path = self.path( action )
-        del self._pathToAction[path]
-
-    def removeCompleteEmptyPathNode(self, action ):
-        if action is None:
-            return
-        
-        if not self.children( action ) :
-            parentAction = self.parentAction( action )
-            self._removeAction( action, parentAction)
-            self.removeCompleteEmptyPathNode( parentAction )
 
     def _onActionChanged(self):
         action = self.sender()
