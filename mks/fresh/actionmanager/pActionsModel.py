@@ -203,8 +203,12 @@ class pActionsManager(QObject):
         action = self.sender()
         self.actionChanged.emit( action )
 
-    def _onActionDestroyed(self, object ):
-        action = object
+    def _onActionDestroyed(self, object):
+        try:
+            action = self.sender();
+        except RuntimeError:
+            return
+
         path = self.path( action )
         self.removeAction( path )
 
