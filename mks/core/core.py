@@ -122,7 +122,7 @@ class Core:
         """
         return self._mainWindow
 
-    def actionModel(self):
+    def actionManager(self):
         """Get main window `action model <http://api.monkeystudio.org/fresh/classp_actions_node_model.html>`_ instance
         """
         return self._mainWindow.menuBar().model()

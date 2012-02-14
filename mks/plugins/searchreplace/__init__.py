@@ -61,7 +61,7 @@ class Plugin(QObject):
         QObject.__init__(self)
         self.widget = None
         self.dock = None
-        model = core.actionModel()
+        model = core.actionManager()
         
         self._createdActions = []
         
@@ -129,7 +129,7 @@ class Plugin(QObject):
         """Plugin termination
         """
         for action in self._createdActions:
-            core.actionModel().removeAction(action)
+            core.actionManager().removeAction(action)
         if self.dock is not None:
             self.dock.del_()
     
@@ -229,7 +229,7 @@ class SearchWidget(QFrame):
         self.tbMode = QToolButton( self.cbSearch.lineEdit() )
         self.tbMode.setIcon( QIcon( ":/mksicons/misc.png" ) )
         self.tbMode.setPopupMode( QToolButton.InstantPopup )
-        self.tbMode.setMenu( core.actionModel().\
+        self.tbMode.setMenu( core.actionManager().\
                 action( "mNavigation/mSearchReplace" ).menu() )
         self.tbMode.setCursor( Qt.ArrowCursor )
         self.tbMode.installEventFilter( self )
@@ -302,9 +302,9 @@ class SearchWidget(QFrame):
                                         self.replaceThread_openedFileHandled)
         self._replaceThread.error.connect(self.replaceThread_error)
         
-        core.actionModel().action("mNavigation/mSearchReplace/aSearchNext")\
+        core.actionManager().action("mNavigation/mSearchReplace/aSearchNext")\
                                         .triggered.connect(self.on_pbNext_pressed)
-        core.actionModel().action("mNavigation/mSearchReplace/aSearchPrevious")\
+        core.actionManager().action("mNavigation/mSearchReplace/aSearchPrevious")\
                                         .triggered.connect(self.on_pbPrevious_pressed)
         
         self._updateActionsState()
@@ -749,8 +749,8 @@ class SearchWidget(QFrame):
         
         for button in (self.pbNext, self.pbPrevious, self.pbReplace, self.pbReplaceAll):
             button.setEnabled(searchInFileAvailable)
-        core.actionModel().action("mNavigation/mSearchReplace/aSearchNext").setEnabled(searchInFileAvailable)
-        core.actionModel().action("mNavigation/mSearchReplace/aSearchPrevious").setEnabled(searchInFileAvailable)
+        core.actionManager().action("mNavigation/mSearchReplace/aSearchNext").setEnabled(searchInFileAvailable)
+        core.actionManager().action("mNavigation/mSearchReplace/aSearchPrevious").setEnabled(searchInFileAvailable)
 
         self.pbSearch.setEnabled(searchAvailable)
     
@@ -1151,10 +1151,10 @@ class SearchResultsDock(pDockWidget):
         self._view.activated.connect(self.view_activated)
         
         self.showAction().setShortcut("F10")
-        core.actionModel().addAction("mDocks/aSearchResults", self.showAction())
+        core.actionManager().addAction("mDocks/aSearchResults", self.showAction())
 
     def del_(self):
-        core.actionModel().removeAction("mDocks/aSearchResults")
+        core.actionManager().removeAction("mDocks/aSearchResults")
 
     def view_activated(self, index ):
         """Item doubleclicked in the model, opening file

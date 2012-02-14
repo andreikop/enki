@@ -249,7 +249,7 @@ class EditorToolBar(QToolBar):
         self.setIconSize(QSize(16, 16))
         
         # Modified button
-        self.addAction(core.actionModel().action( "mFile/mSave/aCurrent" ))
+        self.addAction(core.actionManager().action( "mFile/mSave/aCurrent" ))
         # EOL indicator and switcher
         self.addWidget(_EolIndicatorAndSwitcher(self))
         # Indentation indicator and switcher        
