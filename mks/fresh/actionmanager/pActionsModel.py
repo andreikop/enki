@@ -150,6 +150,9 @@ class ActionModel(QAbstractItemModel):
                         return False, error
 
         action.setShortcut( shortcut )
+        index = self._index(action, 1)
+        self.dataChanged.emit(index, index)
+        
         return True, None
     
     def _cleanText(self, text ):
