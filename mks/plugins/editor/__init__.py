@@ -15,12 +15,14 @@ from PyQt4.QtGui import QColor, QFont, QFrame, QIcon, QKeyEvent, QKeySequence, Q
 from PyQt4.Qsci import *  # pylint: disable=W0401,W0614
 
 from mks.core.abstractdocument import AbstractTextEditor
-from mks.core.core import core, DATA_FILES_PATH
+from mks.core.core import core
 
 import mks.core.defines
 from mks.core.config import Config
 from mks.core.uisettings import ModuleConfigurator, \
                                 CheckableOption, ChoiseOption, FontOption, NumericOption, ColorOption
+
+import shortcuts
 
 class _QsciScintilla(QsciScintilla):
     """QsciScintilla wrapper class. It is created to:
@@ -63,7 +65,7 @@ class _QsciScintilla(QsciScintilla):
 class LexerSettingsWidget(QWidget):
     def __init__(self, *args):
         QWidget.__init__(self, *args)
-        uic.loadUi(os.path.join(DATA_FILES_PATH,'ui/plugins/EditorLexerSettings.ui'), self)
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'EditorLexerSettings.ui'), self)
 
 class EditorConfigurator(ModuleConfigurator):
     """ModuleConfigurator interface implementation
@@ -286,13 +288,13 @@ def _getPygmentsSchemeLexer(editor):
     """Construct and return pygments lexer for Scheme. Sets valid language name, lazy import
     """
     try:
-        import mks.plugins.lexerpygments
+        import mks.plugins.editor.lexerpygments
     except ImportError:
         QMessageBox.critical(core.workspace(), "Failed to load pygments",
                              "<html>mksv3 can't highlight Scheme source, "\
                              "because <b>pygments</b> package not found</html>")
         return None
-    return mks.plugins.lexerpygments.LexerPygments(editor, 'Scheme')
+    return mks.plugins.editor.lexerpygments.LexerPygments(editor, 'Scheme')
 
 class Lexer:
     """Wrapper for all Qscintilla lexers. Functionality:
@@ -532,7 +534,10 @@ class Editor(AbstractTextEditor):
         Other shortcuts are disabled, or are configured with mks.plugins.editorshortcuts and defined here
         """
         qsci = self.qscintilla
-        qsci.SendScintilla( qsci.SCI_CLEARALLCMDKEYS )
+
+        qsci.standardCommands().clearKeys()
+        qsci.standardCommands().clearAlternateKeys()
+
         # Some shortcuts are hardcoded there.
         #If we made is a QActions, it will shadow Qt default keys for move focus, etc
         qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_TAB, qsci.SCI_TAB)
@@ -547,8 +552,6 @@ class Editor(AbstractTextEditor):
         qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_NEXT, qsci.SCI_PAGEDOWN)
         qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_HOME, qsci.SCI_VCHOME)
         qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_END, qsci.SCI_LINEEND)
-        for key in range(ord('A'), ord('Z')):
-            qsci.SendScintilla(qsci.SCI_ASSIGNCMDKEY, key + (qsci.SCMOD_CTRL << 16), qsci.SCI_NULL)
     
     def applySettings(self):  # pylint: disable=R0912,R0915
         """Apply own settings form the config
@@ -793,7 +796,7 @@ class Editor(AbstractTextEditor):
             cursorPos = self.cursorPosition()
             return (cursorPos, cursorPos)
 
-        return ((startLine + 1, startCol), (endLine + 1, endCol))
+        return ((startLine, startCol), (endLine, endCol))
 
     def absSelection(self):
         """Get coordinates of selected area as (startAbsPos, endAbsPos)
@@ -805,12 +808,12 @@ class Editor(AbstractTextEditor):
         """Get cursor position as tuple (line, col)
         """
         line, col = self.qscintilla.getCursorPosition()
-        return line + 1, col
+        return line, col
     
     def _setCursorPosition(self, line, col):
         """Implementation of AbstractTextEditor.setCursorPosition
         """
-        self.qscintilla.setCursorPosition(line - 1, col)
+        self.qscintilla.setCursorPosition(line, col)
 
     def replaceSelectedText(self, text):
         """Replace selected text with text
@@ -825,8 +828,8 @@ class Editor(AbstractTextEditor):
         """
         startLine, startCol = self._toLineCol(startAbsPos)
         endLine, endCol = self._toLineCol(endAbsPos)
-        self.qscintilla.setSelection(startLine - 1, startCol,
-                                     endLine - 1, endCol)
+        self.qscintilla.setSelection(startLine, startCol,
+                                     endLine, endCol)
         self.replaceSelectedText(text)
     
     def beginUndoAction(self):
@@ -846,10 +849,6 @@ class Editor(AbstractTextEditor):
     def _goTo(self, line, column, selectionLine = None, selectionCol = None):
         """Go to specified line and column. Select text if necessary
         """
-        line -= 1
-        if selectionLine is not None:
-            selectionLine -= 1
-
         if selectionLine is None:
             self.qscintilla.setCursorPosition(line, column)
         else:
@@ -906,8 +905,10 @@ class Plugin:
             core.messageToolBar().appendMessage(unicode(ex))
             self.lexerConfig = None
         core.workspace().setTextEditorClass(Editor)
+        self._shortcuts = shortcuts.Shortcuts()
     
-    def __del__(self):
+    def del_(self):
+        self._shortcuts.del_()
         core.workspace().setTextEditorClass(None)
     
     def moduleConfiguratorClass(self):

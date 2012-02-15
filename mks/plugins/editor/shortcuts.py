@@ -168,7 +168,7 @@ _MENUS = (\
 ('mNavigation/mScroll', tr('Scroll'), ''),
 )
 
-class Plugin(QObject):
+class Shortcuts(QObject):
     """Class creates all actions and sends events commands to the editor
     """
     def __init__(self):
@@ -199,7 +199,7 @@ class Plugin(QObject):
         
         core.workspace().currentDocumentChanged.connect(self.onCurrentDocumentChanged)
 
-    def __del__(self):
+    def del_(self):
         model = core.actionModel()
         for actObject in self._createdActions:
             model.removeAction(actObject)
