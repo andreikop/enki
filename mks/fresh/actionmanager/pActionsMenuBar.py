@@ -6,7 +6,7 @@ API docks at http://api.monkeystudio.org/fresh/
 
 from PyQt4.QtGui import QMenuBar
 
-from .ActionManager import pActionsManager
+from .ActionManager import ActionManager
 
 class pActionsMenuBar(QMenuBar):
     def __init__(self, parent):
@@ -30,7 +30,7 @@ class pActionsMenuBar(QMenuBar):
 
     def model(self):
         if self._manager is None:
-            self.setModel( pActionsManager(self) )
+            self.setModel( ActionManager(self) )
 
         return self._manager
 
