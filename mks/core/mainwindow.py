@@ -14,7 +14,7 @@ from PyQt4.QtGui import QIcon, QMessageBox, QSizePolicy, QVBoxLayout, QWidget
 from PyQt4.QtGui import QMainWindow
 
 from mks.fresh.dockwidget.pDockWidget import pDockWidget
-from mks.fresh.actionmanager.ActionManager import pActionsManager
+from mks.fresh.actionmanager.ActionManager import ActionManager
 from mks.fresh.actionmanager.pActionsMenuBar import pActionsMenuBar
 
 from mks.core.core import core
@@ -108,7 +108,7 @@ class MainWindow(QMainWindow):
         """
         # create menubar menus and actions
         self._menuBar = pActionsMenuBar(self)
-        self._actionManager = pActionsManager(self._menuBar)
+        self._actionManager = ActionManager(self._menuBar)
         self._menuBar.setModel(self._actionManager)
         self.setMenuBar(self._menuBar)
         

@@ -3,7 +3,7 @@ import sys
 from PyQt4.QtCore import pyqtSignal, QDir, QObject
 from PyQt4.QtGui import QAction, QIcon, QKeySequence, QMenu
 
-class pActionsManager(QObject):
+class ActionManager(QObject):
 
     actionInserted = pyqtSignal(QAction)
     actionChanged = pyqtSignal(QAction)
@@ -15,7 +15,7 @@ class pActionsManager(QObject):
     
     def __del__(self):
         if self._pathToAction:
-            print >> sys.stderr, 'pActionsManager: you have to delete all actions before destroying actions model'
+            print >> sys.stderr, 'ActionManager: you have to delete all actions before destroying actions model'
             print >> sys.stderr, 'Existing actions:', self._pathToAction.keys()
             assert 0
 
