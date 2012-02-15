@@ -66,11 +66,11 @@ class ActionModel(QAbstractItemModel):
         return QVariant()
 
     def index(self, row, column, parent = QModelIndex()):
-        parentAction = self.actionByIndex(parent)
+        parentAction = parent.internalPointer()
         try:
             return self._indexCache[(parentAction, row, column)]
         except KeyError:
-            actions = self._manager.children(self.actionByIndex(parent))
+            actions = self._manager.children(parent.internalPointer())
             
             if  row < 0 or row >= len(actions) or \
                 column < 0 or column >= ActionModel._COLUMN_COUNT or \
@@ -95,12 +95,12 @@ class ActionModel(QAbstractItemModel):
         return self.createIndex( row, column, action )
 
     def parent(self, index ):
-        action = self.actionByIndex( index )
+        action = index.internalPointer()
         parentAction = self._manager.parentAction( action )
         return self._index(parentAction)
 
     def rowCount(self, parent = QModelIndex()):
-        action = self.actionByIndex( parent )
+        action = parent.internalPointer()
         if ( parent.isValid() and parent.column() == 0 ) or parent == QModelIndex():
             return len(self._manager.children( action ))
         else:
@@ -109,7 +109,7 @@ class ActionModel(QAbstractItemModel):
     def hasChildren(self, param=QModelIndex()):
         if isinstance(param, QModelIndex):
             parent = param
-            action = self.actionByIndex( parent )
+            action = parent.internalPointer()
             if ( parent.isValid() and parent.column() == 0 ) or parent == QModelIndex():
                 return len(self._manager.children( action )) > 0
             else:
