@@ -14,7 +14,7 @@ from PyQt4.QtGui import QIcon, QMessageBox, QSizePolicy, QVBoxLayout, QWidget
 from PyQt4.QtGui import QMainWindow
 
 from mks.fresh.dockwidget.pDockWidget import pDockWidget
-from mks.fresh.actionmanager.pActionsModel import pActionsManager
+from mks.fresh.actionmanager.ActionManager import pActionsManager
 from mks.fresh.actionmanager.pActionsMenuBar import pActionsMenuBar
 
 from mks.core.core import core

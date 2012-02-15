@@ -112,5 +112,5 @@ class Plugin:
     def _onEditShortcuts(self):
         """Handler of *Edit->Shortcuts...* action. Shows dialog, than saves shortcuts to file
         """
-        pActionsShortcutEditor (self._actionManager.model(), core.mainWindow()).exec_()
+        pActionsShortcutEditor (self._actionManager, core.mainWindow()).exec_()
         self._saveShortcuts()
