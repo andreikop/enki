@@ -57,7 +57,6 @@ class pActionsManager(QObject):
         action.path = path
         
         action.changed.connect(self._onActionChanged)
-        action.destroyed.connect(self._onActionDestroyed)
 
         self.actionInserted.emit( action )
         
@@ -96,7 +95,6 @@ class pActionsManager(QObject):
         action.path = path
         
         action.changed.connect(self._onActionChanged)
-        action.destroyed.connect(self._onActionDestroyed)
                 
         self.actionInserted.emit( action )
         
@@ -105,6 +103,7 @@ class pActionsManager(QObject):
     def removeMenu(self, action, removeEmptyPath=False ):
         if isinstance(action, basestring):
             action = self.action( action )
+        assert action is not None
         
         self._removeAction( action)
         
@@ -122,7 +121,6 @@ class pActionsManager(QObject):
         del self._pathToAction[path]
 
         self.actionRemoved.emit( action )
-        action.deleteLater()
 
     def _removeCompleteEmptyPathNode(self, action ):        
         if not self.children( action ) :
@@ -175,11 +173,6 @@ class pActionsManager(QObject):
     def _onActionChanged(self):
         action = self.sender()
         self.actionChanged.emit( action )
-
-    def _onActionDestroyed(self, object ):
-        action = object
-        path = self.path( action )
-        self.removeAction( path )
 
 
 class ActionModel(QAbstractItemModel):
