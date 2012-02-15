@@ -22,6 +22,7 @@ class ActionModel(QAbstractItemModel):
     def __init__(self, manager):
         QAbstractItemModel.__init__(self, manager)
         self._manager = manager
+        self._indexCache = {}
     
     def actionByIndex(self, index):
         if index.isValid():
@@ -65,15 +66,20 @@ class ActionModel(QAbstractItemModel):
         return QVariant()
 
     def index(self, row, column, parent = QModelIndex()):
-        actions = self._manager.children(self.actionByIndex(parent))
-        
-        if  row < 0 or row >= len(actions) or \
-            column < 0 or column >= ActionModel._COLUMN_COUNT or \
-            ( parent.column() != 0 and parent.isValid() ):
-            return QModelIndex()
+        parentAction = self.actionByIndex(parent)
+        try:
+            return self._indexCache[(parentAction, row, column)]
+        except KeyError:
+            actions = self._manager.children(self.actionByIndex(parent))
+            
+            if  row < 0 or row >= len(actions) or \
+                column < 0 or column >= ActionModel._COLUMN_COUNT or \
+                ( parent.column() != 0 and parent.isValid() ):
+                return QModelIndex()
 
-        assert isinstance(actions[row], QAction)
-        return self.createIndex( row, column, actions[row] )
+            index = self.createIndex( row, column, actions[row] )
+            self._indexCache[(parentAction, row, column)] = index
+            return index
 
     def _index(self, action, column = 0):
         if action is None:
@@ -89,7 +95,6 @@ class ActionModel(QAbstractItemModel):
         return self.createIndex( row, column, action )
 
     def parent(self, index ):
-        assert isinstance(index, QModelIndex)
         action = self.actionByIndex( index )
         parentAction = self._manager.parentAction( action )
         return self._index(parentAction)
