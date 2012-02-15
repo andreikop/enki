@@ -11,15 +11,17 @@ from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QDialog, QDialogButtonBox, QHeaderView
 
 from mks.fresh.models.pRecursiveSortFilterProxyModel import pRecursiveSortFilterProxyModel
+from pActionsModel import ActionModel
 
 def tr(text):
     return text
 
 class pActionsShortcutEditor(QDialog):
-    def __init__(self, model, parent):
+    def __init__(self, manager, parent):
         QDialog.__init__(self, parent)
 
-        self._model = model
+        self._manager = manager
+        self._model = ActionModel(manager)
         self._originalShortcuts = {}
         self._proxy = pRecursiveSortFilterProxyModel( self )
         
@@ -80,7 +82,7 @@ class pActionsShortcutEditor(QDialog):
         self.tbClear.setEnabled( action is not None and action.shortcut() )
         self.dbbButtons.button( QDialogButtonBox.Reset ).setEnabled( False )
         self.dbbButtons.button( QDialogButtonBox.RestoreDefaults ).setEnabled(
-                    action is not None and action.shortcut() != self._model.defaultShortcut( action ) )
+                    action is not None and action.shortcut() != self._manager.defaultShortcut( action ) )
         self.kseShortcut.setFocus()
 
     def on_kseShortcut_textChanged(self, text ):
@@ -89,7 +91,7 @@ class pActionsShortcutEditor(QDialog):
         self.tbSet.setEnabled( action is not None and self.kseShortcut.text() is not None )
         self.dbbButtons.button( QDialogButtonBox.Reset ).setEnabled( True )
         self.dbbButtons.button( QDialogButtonBox.RestoreDefaults ).setEnabled( 
-                            action is not None and action.shortcut() != self._model.defaultShortcut( action ) )
+                            action is not None and action.shortcut() != self._manager.defaultShortcut( action ) )
 
     def on_tbSet_clicked(self):
         action = self.selectedAction()
@@ -109,7 +111,7 @@ class pActionsShortcutEditor(QDialog):
         elif self.dbbButtons.standardButton( button ) == QDialogButtonBox.RestoreDefaults:
             action = self.selectedAction()
             if action is not None:
-                self.setShortcut( action, self._model.defaultShortcut( action ) )
+                self.setShortcut( action, self._manager.defaultShortcut( action ) )
         elif self.dbbButtons.standardButton( button ) == QDialogButtonBox.Ok:
             self.accept()
         elif self.dbbButtons.standardButton( button ) == QDialogButtonBox.Cancel:

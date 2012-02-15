@@ -6,7 +6,7 @@ API docks at http://api.monkeystudio.org/fresh/
 
 from PyQt4.QtGui import QMenuBar
 
-from .pActionsModel import pActionsManager
+from .ActionManager import pActionsManager
 
 class pActionsMenuBar(QMenuBar):
     def __init__(self, parent):
