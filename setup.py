@@ -2,6 +2,7 @@
 
 import os
 import sys
+import pkgutil
 
 """ setuptools ignores my .desktop and .cfg files
 try:
@@ -73,6 +74,11 @@ package_data={'mks' : ['ui/*.ui',
                        'fresh/actionmanager/*.ui',
                        'config/*.cfg']
              }
+
+
+for package in pkgutil.iter_modules(['mks/plugins']):
+    packages.append('mks/plugins/' + package[1])
+    package_data['mks'].append('plugins/%s/*.ui' % package[1])
 
 setup(name=PACKAGE_NAME,
         version=PACKAGE_VERSION,
