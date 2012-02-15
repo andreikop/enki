@@ -178,11 +178,11 @@ class Plugin(QObject):
             return
 
         self._schemeMenu = core.actionManager().addMenu("mScheme", "MIT Scheme")
-        self._evalAction = core.actionManager().addAction("mScheme/mEval", "Eval. selection/Save and eval.")
+        self._evalAction = core.actionManager().addAction("mScheme/aEval", "Eval. selection/Save and eval.")
         self._evalAction.setStatusTip("Evaluate selection. If nothing is selected - save and evaluate whole file")
         self._evalAction.setShortcut("Ctrl+E")
         self._evalAction.triggered.connect(self._onEvalTriggered)
-        self._breakAction = core.actionManager().addAction("mScheme/mBreak", "Stop the interpreter")
+        self._breakAction = core.actionManager().addAction("mScheme/aBreak", "Stop the interpreter")
         self._breakAction.setStatusTip("Use it as a restart action.")
         self._breakAction.setShortcut("Pause")
         self._breakAction.triggered.connect(self._onBreakTriggered)
@@ -205,8 +205,10 @@ class Plugin(QObject):
         """
         if not self._installed:
             return
-        core.actionManager().removeAction("mScheme/mEval")
+        core.actionManager().removeAction(self._evalAction)
         self._evalAction = None
+        core.actionManager().removeAction(self._breakAction)
+        self._breakAction = None
         core.actionManager().removeMenu("mScheme")
         self._mitScheme.stop()
         core.mainWindow().removeDockWidget(self._dock)
