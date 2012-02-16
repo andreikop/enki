@@ -8,7 +8,7 @@ import os.path
 
 from PyQt4 import uic
 from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QDialog, QDialogButtonBox, QHeaderView
+from PyQt4.QtGui import QDialog, QDialogButtonBox, QHeaderView, QMessageBox
 
 from mks.fresh.models.pRecursiveSortFilterProxyModel import pRecursiveSortFilterProxyModel
 from pActionsModel import ActionModel
@@ -58,12 +58,13 @@ class pActionsShortcutEditor(QDialog):
         if not action in self._originalShortcuts:
             self._originalShortcuts[action] = action.shortcut()
 
-        ret, error = self._model.setShortcut( action, shortcut)
-        if  self._model.setShortcut( action, shortcut):
-            self.tvActions_selectionModel_selectionChanged()
-        else:
-            QMessageBox.information(self, None, error)
-
+        try:
+            self._model.setShortcut( action, shortcut)
+        except UserWarning as ex:
+            QMessageBox.information(self, None, unicode(ex))
+            return
+        
+        self.tvActions_selectionModel_selectionChanged()
 
     def on_leFilter_textChanged(self, text ):
         self._proxy.setFilterWildcard( text )
@@ -93,7 +94,7 @@ class pActionsShortcutEditor(QDialog):
         self.dbbButtons.button( QDialogButtonBox.RestoreDefaults ).setEnabled( 
                             action is not None and action.shortcut() != self._manager.defaultShortcut( action ) )
 
-    def on_tbSet_clicked(self):
+    def on_tbSet_pressed(self):
         action = self.selectedAction()
         
         if  action is not None and self.kseShortcut.text():
