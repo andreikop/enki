@@ -36,15 +36,6 @@ def tr(text):  # pylint: disable=C0103
 
 _CONFIG_PATH = os.path.join(mks.core.defines.CONFIG_DIR, 'shortcuts.cfg')
 
-def _recursiveActionsList(model, parentAction = None):
-    """Get recursive list of all model indexes
-    """
-    for action in model.children(parentAction):
-        if not action.menu():
-            yield action
-        for action in _recursiveActionsList(model, action):
-            yield action
-
 
 class Plugin:
     """Module implementation
@@ -58,7 +49,6 @@ class Plugin:
             return
 
         self._actionManager = core.actionManager()
-        self._actionManager.actionInserted.connect(self._onActionInserted)
         
         self._action = self._actionManager.addAction("mSettings/aApplicationShortcuts",
                                        tr( "Application shortcuts..."), 
@@ -66,8 +56,11 @@ class Plugin:
         self._action.setStatusTip(tr( "Edit application shortcuts..."))
         self._action.triggered.connect(self._onEditShortcuts)
         
-        for action in _recursiveActionsList(self._actionManager):
-            self._applyShortcut(action)
+        for action in self._actionManager.allActions():
+            if not action.menu():
+                self._applyShortcut(action)
+        
+        self._actionManager.actionInserted.connect(self._onActionInserted)
 
     def __del__(self):
         self._actionManager.removeAction(self._action)
@@ -101,9 +94,10 @@ class Plugin:
         """
         if self._config is None:
             return
-        for action in _recursiveActionsList(self._actionManager):
-            path = self._actionManager.path(action)
-            self._config.set(path, action.shortcut().toString())
+        for action in self._actionManager.allActions():
+            if not action.menu():
+                path = self._actionManager.path(action)
+                self._config.set(path, action.shortcut().toString())
         try:
             self._config.flush()
         except UserWarning as ex:
