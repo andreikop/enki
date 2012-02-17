@@ -122,11 +122,9 @@ class MainWindow(QMainWindow):
         def action(path, name, icon, shortcut, tooltip, enabled):  # pylint: disable=R0913
             """Subfunction for create an action in the main menu"""
             if icon:  # has icon
-                actObject = self._actionManager.addAction(path, name, QIcon(':/mksicons/' + icon))
+                actObject = self._actionManager.addAction(path, name, QIcon(':/mksicons/' + icon), shortcut)
             else:
-                actObject = self._actionManager.addAction(path, name)
-            if shortcut:
-                actObject.setShortcut(shortcut)
+                actObject = self._actionManager.addAction(path, name, shortcut=shortcut)
             actObject.setStatusTip(tooltip)
             actObject.setEnabled(enabled)
             self._createdActions.append(actObject)

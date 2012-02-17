@@ -61,17 +61,17 @@ class Plugin(QObject):
         QObject.__init__(self)
         self.widget = None
         self.dock = None
-        model = core.actionManager()
+        actManager = core.actionManager()
         
         self._createdActions = []
         
         def createAction(path, text, icon, shortcut, tooltip, slot, data, enabled=True):  # pylint: disable=R0913
             """Create action object
             """
-            actObject = model.addAction( 'mNavigation/mSearchReplace/' + path,
-                                         self.tr(text),
-                                         QIcon(':/mksicons/' + icon))
-            actObject.setShortcut(self.tr(shortcut))
+            actObject = core.actionManager().addAction( 'mNavigation/mSearchReplace/' + path,
+                                                        self.tr(text),
+                                                        QIcon(':/mksicons/' + icon),
+                                                        shortcut)
             actObject.setToolTip(self.tr(tooltip))
             if slot:
                 actObject.triggered.connect(slot)
