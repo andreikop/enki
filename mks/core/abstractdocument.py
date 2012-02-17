@@ -156,6 +156,7 @@ class AbstractDocument(QWidget):
                 core.workspace().documentClosed.emit(self)
                 self._filePath = path
                 core.workspace().documentOpened.emit(self)
+                core.workspace().currentDocumentChanged.emit(self, self)
             else:
                 return
         
