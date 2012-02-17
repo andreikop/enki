@@ -28,7 +28,7 @@ class ActionManager(QObject):
     def path(self, action ):
         return action.path
 
-    def addAction(self, _path, action, icon=QIcon() ):        
+    def addAction(self, _path, action, icon=QIcon(), shortcut=None):
         path = self._cleanPath( _path )
 
         subPath = '/'.join(path.split('/')[0: -1])
@@ -39,7 +39,10 @@ class ActionManager(QObject):
             action = QAction( icon, action, parentAction )
         else:
             action.setParent( parentAction )
-        
+
+        if shortcut is not None:
+            action.setShortcut(shortcut)
+
         parentAction.menu().addAction( action )
         
         self._pathToAction[ path ] = action

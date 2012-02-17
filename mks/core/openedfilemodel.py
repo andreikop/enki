@@ -363,7 +363,7 @@ class OpenedFileExplorer(pDockWidget):
         self.tvFiles.selectionModel().selectionChanged.connect(self._onSelectionModelSelectionChanged)
         
         self.showAction().setShortcut("F2")
-        core.actionManager().addAction("mDocks/aOpenedFiles", self.showAction())
+        core.actionManager().addAction("mDocks/aOpenedFiles", self.showAction(), shortcut="F2")
         core.moduleConfiguratorClasses.append(Configurator)
     
     def del_(self):
