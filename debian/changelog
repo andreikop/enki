@@ -1,3 +1,11 @@
+mksv3 (0.2.7-1~ppa1) lucid; urgency=low
+
+  * File names in the list of opened files are always unique
+  * Support for +N specification to go to particular line in a file
+  * Bug fixes
+
+ -- Andrei Kopats <hlamer@tut.by>  Mon, 20 Feb 2012 01:14:47 +0300
+
 mksv3 (0.2.6-1~lucid1) lucid; urgency=low
 
   * Changed distribution name to lucid and compatibility level to 7

@@ -8,7 +8,11 @@ all install:
 	@exit -1
 
 changelog-update:
-	cd debian && DEBFULLNAME="$(AUTHOR)" DEBEMAIL=$(AUTHOR_EMAIL) EDITOR=mksv3 dch -v $(VERSION)-1~lucid1 -b
+	cd debian && \
+		DEBFULLNAME="$(AUTHOR)" \
+		DEBEMAIL=$(AUTHOR_EMAIL) \
+		EDITOR=mksv3 \
+			dch -v $(VERSION)-1~ppa1 -b --distribution lucid
 
 dsc:
 	rm -rf dist
