@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>507</width>
+    <width>562</width>
     <height>471</height>
    </rect>
   </property>
@@ -29,7 +29,7 @@
       </sizepolicy>
      </property>
      <property name="pixmap">
-      <pixmap resource="../../icons/mksicons.qrc">:/mksicons/monkey2.png</pixmap>
+      <pixmap resource="../../../icons/mksicons.qrc">:/mksicons/monkey2.png</pixmap>
      </property>
      <property name="alignment">
       <set>Qt::AlignHCenter|Qt::AlignTop</set>
@@ -201,7 +201,7 @@ p, li { white-space: pre-wrap; }
        <item>
         <widget class="QLabel" name="lLogo">
          <property name="pixmap">
-          <pixmap resource="../../icons/mksicons.qrc">:/mksicons/splashscreen.png</pixmap>
+          <pixmap resource="../../../icons/mksicons.qrc">:/mksicons/splashscreen.png</pixmap>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -847,8 +847,8 @@ p, li { white-space: pre-wrap; }
   </layout>
  </widget>
  <resources>
-  <include location="../../icons/mksicons.qrc"/>
-  <include location="../../icons/mksicons.qrc"/>
+  <include location="../../../icons/mksicons.qrc"/>
+  <include location="../../../icons/mksicons.qrc"/>
  </resources>
  <connections>
   <connection>
