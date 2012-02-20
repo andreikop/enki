@@ -40,7 +40,8 @@ def excepthook(excepttype, exceptvalue, tracebackobj):
     text = unicode(text, 'utf8')
     logging.critical(text)
     
-    mailto = '<a href="mailto:hlamer@tut.by?subject=Crash&body=asdf">mailto:hlamer@tut.by</a>'
+    mailto = '<a href="mailto:mksv3-bugs@googlegroups.com?subject=Crash&body=asdf">' \
+                'mailto:mksv3-bugs@googlegroups.com</a>'
     
     mboxText =  '<html>' + \
                 'Exception occured.<br/>' + \
@@ -202,7 +203,6 @@ def main():
     from mks.core.core import core
     core.init(profiler)
 
-
     if cmdLine["existingFiles"] or cmdLine["notExistingFiles"]:
         for path in cmdLine["existingFiles"]:
             if cmdLine["firstFileLineToGo"] is not None:
@@ -228,7 +228,7 @@ def main():
     
     if profiler is not None:
         profiler.stepDone('Show main window')
-    
+
     # execute application
     if profiler is None:
         result = app.exec_()
