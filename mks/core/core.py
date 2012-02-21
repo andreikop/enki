@@ -47,9 +47,8 @@ class Core:
         """Catch SIGINT signal to close the application
         """
         signal.signal(signal.SIGINT, lambda signum, frame: qApp.closeAllWindows())
-        # Let the interpreter to run every .5 sec. to catch signal
         self._checkSignalsTimer = QTimer()
-        self._checkSignalsTimer.start(500)  # You may change this if you wish.
+        self._checkSignalsTimer.start(500)
         self._checkSignalsTimer.timeout.connect(lambda: None)  # Let the interpreter run each 500 ms.
         
     def init(self, profiler):
@@ -58,24 +57,38 @@ class Core:
         Called only by main()
         """
         self._prepareToCatchSigInt()
-        
+
+        if profiler is not None:
+            profiler.stepDone('Catch SIGINT')
+
         qApp.setWindowIcon(QIcon(':/mksicons/monkey2.png') )
 
         # Imports are here for hack crossimport problem
         import mks.core.mainwindow  # pylint: disable=W0621,W0404
         self._mainWindow = mks.core.mainwindow.MainWindow()
         
+        if profiler is not None:
+            profiler.stepDone('create main window')
+
         self._config = self._createConfig()
 
+        if profiler is not None:
+            profiler.stepDone('create config')
+
         import mks.core.workspace
+        if profiler is not None:
+            profiler.stepDone('import workspace')
+
         self._workspace = mks.core.workspace.Workspace(self._mainWindow)
         self._mainWindow.setWorkspace(self._workspace)
-        
+        if profiler is not None:
+            profiler.stepDone('create workspace')
+
         import mks.core.uisettings  # pylint: disable=W0404
         self._uiSettingsManager = mks.core.uisettings.UISettingsManager()
         
         if profiler is not None:
-            profiler.stepDone('Init core classes')
+            profiler.stepDone('Create UISettings')
         
         # Create plugins
         pluginsPath = os.path.join(os.path.dirname(__file__), '../plugins')
