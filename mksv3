@@ -72,7 +72,7 @@ def _showErrorMessage(haveQt, header, html, plain):
             return
         tkMessageBox.showwarning(header, plain)
 
-def _checkDependencies():
+def _checkDependencies(profiler):
     """Check if 3rdparty software is installed in the system.
     Notify user, how to install it
     """
@@ -86,9 +86,12 @@ def _checkDependencies():
         
         _showErrorMessage(False, 'PyQt4 not found', plain, plain)
         raise ex
-
+    
     import sip
     sip.setapi('QString', 2)
+
+    if profiler is not None:
+        profiler.stepDone('Import PyQt4')
 
     try:
         import PyQt4.Qsci
@@ -103,7 +106,10 @@ def _checkDependencies():
                 "http://www.riverbankcomputing.co.uk/software/qscintilla/download"
         _showErrorMessage(True, "QScintilla not found", html, plain)
         raise ex
-    
+
+    if profiler is not None:
+        profiler.stepDone('Import QScintilla')
+
     try:
         import configobj
         import validate
@@ -118,6 +124,8 @@ def _checkDependencies():
                 "http://www.voidspace.org.uk/python/configobj.html#downloading"
         _showErrorMessage(True, "ConfigObj not found", html, plain)
         raise ex
+    if profiler is not None:
+        profiler.stepDone('import configobj')
 
 def _configureLogging():
     logging.basicConfig(level=logging.ERROR)
@@ -169,10 +177,10 @@ def main():
         profiler = None
 
     try:
-        _checkDependencies()
+        _checkDependencies(profiler)
     except ImportError:
         sys.exit(-1)
-
+    
     # Imports only here. Hack for ability to get help and version info even on system without PyQt.
     import PyQt4.QtGui
     
