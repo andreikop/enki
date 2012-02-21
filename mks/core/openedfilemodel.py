@@ -20,7 +20,8 @@ from PyQt4.QtCore import QAbstractItemModel, \
                          QVariant
 from PyQt4.QtGui import QAction, QActionGroup, \
                         QIcon, \
-                        QMenu
+                        QMenu, \
+                        QTreeView
 
 from PyQt4 import uic
 
@@ -349,14 +350,21 @@ class OpenedFileExplorer(pDockWidget):
     """
     def __init__(self, workspace):
         pDockWidget.__init__(self, workspace)
-        self.model = _OpenedFileModel(self)  # Not protected, because used by Configurator
-        uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/pOpenedFileExplorer.ui'), self )
+        self.setObjectName("OpenedFileExplorer")
+        self.setWindowTitle("Opened files")
+        self.setWindowIcon(QIcon(":/mksicons/filtered.png"))
         self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
+
+        self.tvFiles = QTreeView(self)
+        self.tvFiles.setHeaderHidden(True)
+        self.setWidget(self.tvFiles)
+        self.setFocusProxy(self.tvFiles)
+
+        self.model = _OpenedFileModel(self)  # Not protected, because used by Configurator
         self.tvFiles.setModel( self.model )
         self.tvFiles.setAttribute( Qt.WA_MacShowFocusRect, False )
         self.tvFiles.setAttribute( Qt.WA_MacSmallSize )
-        self.setFocusProxy(self.tvFiles)
-        
+
         workspace.currentDocumentChanged.connect(self._onCurrentDocumentChanged)
         
         # disconnected by startModifyModel()
