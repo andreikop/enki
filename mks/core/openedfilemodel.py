@@ -18,7 +18,7 @@ from PyQt4.QtCore import QAbstractItemModel, \
                          QObject, \
                          Qt, \
                          QVariant
-from PyQt4.QtGui import QAction, QActionGroup, \
+from PyQt4.QtGui import QAbstractItemView, QAction, QActionGroup, \
                         QIcon, \
                         QMenu, \
                         QTreeView
@@ -357,6 +357,11 @@ class OpenedFileExplorer(pDockWidget):
 
         self.tvFiles = QTreeView(self)
         self.tvFiles.setHeaderHidden(True)
+        self.tvFiles.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tvFiles.setDragEnabled(True)
+        self.tvFiles.setDragDropMode(QAbstractItemView.InternalMove)
+        self.tvFiles.customContextMenuRequested.connect(self._onTvFilesCustomContextMenuRequested)
+        
         self.setWidget(self.tvFiles)
         self.setFocusProxy(self.tvFiles)
 
@@ -426,7 +431,7 @@ class OpenedFileExplorer(pDockWidget):
         if  focusWidget :
             focusWidget.setFocus()
     
-    def on_tvFiles_customContextMenuRequested(self, pos ):
+    def _onTvFilesCustomContextMenuRequested(self, pos ):
         """Connected automatically by uic
         """
         menu = QMenu()
