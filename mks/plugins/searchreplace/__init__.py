@@ -18,25 +18,27 @@ from PyQt4.QtGui import QAction, QIcon
 
 from mks.core.core import core
 
+ModeFlagSearch = 0x1
+ModeFlagReplace = 0x2
+ModeFlagFile = 0x4
+ModeFlagDirectory = 0x8
+ModeFlagProjectFiles = 0x10
+ModeFlagOpenedFiles = 0x20
+
+ModeNo = 0
+ModeSearch = ModeFlagSearch | ModeFlagFile
+ModeReplace = ModeFlagReplace | ModeFlagFile
+ModeSearchDirectory = ModeFlagSearch | ModeFlagDirectory
+ModeReplaceDirectory = ModeFlagReplace | ModeFlagDirectory
+ModeSearchProjectFiles = ModeFlagSearch | ModeFlagProjectFiles
+ModeReplaceProjectFiles = ModeFlagReplace | ModeFlagProjectFiles
+ModeSearchOpenedFiles = ModeFlagSearch | ModeFlagOpenedFiles
+ModeReplaceOpenedFiles = ModeFlagReplace | ModeFlagOpenedFiles
+
+
 class Plugin(QObject):
     """Main class of the plugin. Installs and uninstalls plugin to the system
     """
-    ModeFlagSearch = 0x1
-    ModeFlagReplace = 0x2
-    ModeFlagFile = 0x4
-    ModeFlagDirectory = 0x8
-    ModeFlagProjectFiles = 0x10
-    ModeFlagOpenedFiles = 0x20
-
-    ModeNo = 0
-    ModeSearch = ModeFlagSearch | ModeFlagFile
-    ModeReplace = ModeFlagReplace | ModeFlagFile
-    ModeSearchDirectory = ModeFlagSearch | ModeFlagDirectory
-    ModeReplaceDirectory = ModeFlagReplace | ModeFlagDirectory
-    ModeSearchProjectFiles = ModeFlagSearch | ModeFlagProjectFiles
-    ModeReplaceProjectFiles = ModeFlagReplace | ModeFlagProjectFiles
-    ModeSearchOpenedFiles = ModeFlagSearch | ModeFlagOpenedFiles
-    ModeReplaceOpenedFiles = ModeFlagReplace | ModeFlagOpenedFiles
     
     def __init__(self):
         """Plugin initialisation
@@ -67,19 +69,19 @@ class Plugin(QObject):
         createAction("aSearchFile", "&Search...", 
                       "search.png", "Ctrl+F",
                       "Search in the current file...", 
-                      self._modeSwitchTriggered, self.ModeSearch)
+                      self._modeSwitchTriggered, ModeSearch)
         createAction("aSearchDirectory", "Search in &Directory...", 
                       "search-replace-directory.png", "Ctrl+Shift+F", 
                       "Search in directory...",
-                      self._modeSwitchTriggered, self.ModeSearchDirectory)
+                      self._modeSwitchTriggered, ModeSearchDirectory)
         createAction("aReplaceDirectory", "Replace in Director&y...",
                       "search-replace-directory.png", "Ctrl+Shift+R",
                       "Replace in directory...",
-                      self._modeSwitchTriggered, self.ModeReplaceDirectory)
+                      self._modeSwitchTriggered, ModeReplaceDirectory)
         createAction("aReplaceFile", "&Replace...",
                       "replace.png", "Ctrl+R",
                       "Replace in the current file...",
-                      self._modeSwitchTriggered, self.ModeReplace)
+                      self._modeSwitchTriggered, ModeReplace)
         createAction("aSearchPrevious", "Search &Previous",
                       "previous.png", "Shift+F3",
                       "Search previous occurrence",
@@ -93,20 +95,20 @@ class Plugin(QObject):
         createAction("aSearchOpenedFiles", "Search in &Opened Files...",
                       "search-replace-opened-files.png",
                       "Ctrl+Alt+Meta+F", "Search in opened files...",
-                      self._modeSwitchTriggered, self.ModeSearchOpenedFiles)
+                      self._modeSwitchTriggered, ModeSearchOpenedFiles)
         createAction("aReplaceOpenedFiles", "Replace in Open&ed Files...",
                       "search-replace-opened-files.png", "Ctrl+Alt+Meta+R",
                       "Replace in opened files...",
-                      self._modeSwitchTriggered, self.ModeReplaceOpenedFiles)
+                      self._modeSwitchTriggered, ModeReplaceOpenedFiles)
         #TODO search in project
         #                ("aSearchProjectFiles", "Search in Project &Files...",
         #                "search-replace-project-files.png", "Ctrl+Meta+F",
         #                "Search in the current project files..",
-        #                self.modeSwitchTriggered, self.ModeSearchProjectFiles),
+        #                self.modeSwitchTriggered, ModeSearchProjectFiles),
         #                ("aReplaceProjectFiles", "Replace in Projec&t Files...",
         #                "search-replace-project-files.png", "Ctrl+Meta+R",
         #                "Replace in the current project files...",
-        #                self.modeSwitchTriggered, self.ModeReplaceProjectFiles),
+        #                self.modeSwitchTriggered, ModeReplaceProjectFiles),
     
     def del_(self):
         """Plugin termination
@@ -129,13 +131,13 @@ class Plugin(QObject):
             self._createWidgets()
         
         newMode = self.sender().data().toInt()[0]
-        if newMode & Plugin.ModeFlagFile:
+        if newMode & ModeFlagFile:
             self.widget.setMode(newMode)
-        elif newMode & Plugin.ModeFlagDirectory:
+        elif newMode & ModeFlagDirectory:
             self.widget.setMode(newMode)
-        elif newMode & Plugin.ModeFlagProjectFiles:
+        elif newMode & ModeFlagProjectFiles:
             pass  # TODO search in project support
-        elif newMode & Plugin.ModeFlagOpenedFiles:
+        elif newMode & ModeFlagOpenedFiles:
             # TODO check if have file based document
             if core.workspace().openedDocuments():
                 self.widget.setMode(newMode)
@@ -155,15 +157,3 @@ class Plugin(QObject):
         self.dock.setVisible( False )
 
         self.widget.setResultsDock( self.dock )
-
-class SearchContext:
-    """Structure holds parameters of search or replace operation in progress
-    """    
-    def __init__(self, regExp, replaceText, searchPath, mode):
-        self.mask = []
-        self.openedFiles = {}
-        self.regExp = regExp
-        self.replaceText = replaceText
-        self.searchPath = searchPath
-        self.mode = mode
-        self.encoding = 'utf_8'

@@ -3,6 +3,8 @@ searchresultsmodel --- Model for search results
 ===============================================
 """
 
+from mks.plugins.searchreplace import *
+
 from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, \
                          QDir, \
                          QModelIndex, Qt, \
@@ -158,7 +160,7 @@ class SearchResultsModel(QAbstractItemModel):
         flags = QAbstractItemModel.flags( self, index )
         context = self.searchThread.searchContext
 
-        if context.mode & self.Plugin.ModeFlagReplace :
+        if context.mode & ModeFlagReplace :
             flags |= Qt.ItemIsUserCheckable
         
         if isinstance(index.internalPointer(), Result):
