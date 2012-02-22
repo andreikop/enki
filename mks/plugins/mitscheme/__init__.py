@@ -184,12 +184,12 @@ class Plugin(QObject):
         """
         if not self._installed:
             return
+        self._mitScheme.stop()
         core.actionManager().removeAction(self._evalAction)
         self._evalAction = None
         core.actionManager().removeAction(self._breakAction)
         self._breakAction = None
         core.actionManager().removeMenu("mScheme")
-        self._mitScheme.stop()
         core.mainWindow().removeDockWidget(self._dock)
         self._dock.del_()
         del self._dock
