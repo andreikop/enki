@@ -1,3 +1,10 @@
+"""
+editor --- AbstractTextEditor implementation
+============================================
+
+Uses QScintilla  internally
+"""
+
 import shutil
 
 from PyQt4.QtCore import pyqtSignal, Qt

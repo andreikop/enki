@@ -3,6 +3,8 @@ editortoolbar --- Shows position, save state, EOL and indent
 ============================================================
 
 It also allows to change this parameters and save the file
+
+File contains integration with the core
 """
 
 from mks.core.core import core

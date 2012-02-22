@@ -1,3 +1,8 @@
+"""
+lexer --- QScintilla lexers management
+======================================
+"""
+
 from PyQt4 import uic
 import os.path
 

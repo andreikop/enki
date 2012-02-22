@@ -1,3 +1,10 @@
+"""
+mitscheme --- MIT Scheme integration. Interactive Scheme console
+================================================================
+
+File contains module functionality
+"""
+
 import os.path
 
 from PyQt4.QtCore import pyqtSignal, QEvent, QObject, Qt, QTimer
