@@ -1,6 +1,6 @@
 """
-editorshortcuts --- Manages QScintilla shortcuts
-================================================
+shortcuts --- Manages QScintilla shortcuts
+==========================================
 
 Creates QActions, which represent QScintilla actions.
 

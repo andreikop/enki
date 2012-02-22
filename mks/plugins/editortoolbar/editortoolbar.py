@@ -1,3 +1,12 @@
+"""
+editortoolbar --- Shows position, save state, EOL and indent
+============================================================
+
+It also allows to change this parameters and save the file
+
+File contains module implementation
+"""
+
 import os.path
 
 from PyQt4 import uic

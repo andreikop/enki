@@ -1,6 +1,8 @@
 """
 mitscheme --- MIT Scheme integration. Interactive Scheme console
 ================================================================
+
+File contains integration with the core
 """
 
 from PyQt4.QtCore import QObject, Qt
