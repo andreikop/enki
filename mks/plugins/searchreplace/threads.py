@@ -13,6 +13,7 @@ import fnmatch
 from PyQt4.QtCore import pyqtSignal, \
                          QThread
 
+from mks.plugins.searchreplace import *
 import searchresultsmodel
 
 def _isBinary(fileObject):
@@ -99,7 +100,7 @@ class SearchThread(StopableThread):
         files = set()
 
         # TODO search in project
-        #elif mode in (Plugin.ModeSearchProjectFiles, Plugin.ModeReplaceProjectFiles):
+        #elif mode in (ModeSearchProjectFiles, ModeReplaceProjectFiles):
         #    sources = self.searchContext.sourcesFiles
         #    mask = self.searchContext.mask
         #    for fileName in sources:
@@ -113,12 +114,11 @@ class SearchThread(StopableThread):
         else:
             maskRegExp = None
 
-        from mks.plugins.searchreplace import Plugin  # TODO bad import
-        if self.searchContext.mode in (Plugin.ModeSearchDirectory, Plugin.ModeReplaceDirectory):
+        if self.searchContext.mode in (ModeSearchDirectory, ModeReplaceDirectory):
             path = self.searchContext.searchPath
             return self._getFiles(path, maskRegExp)
         elif self.searchContext.mode in \
-                                (Plugin.ModeSearchOpenedFiles, Plugin.ModeReplaceOpenedFiles):
+                                (ModeSearchOpenedFiles, ModeReplaceOpenedFiles):
             files = self.searchContext.openedFiles.keys()
             if maskRegExp:
                 basenames = [os.path.basename(f) for f in files]

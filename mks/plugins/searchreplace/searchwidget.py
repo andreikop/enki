@@ -21,7 +21,20 @@ from PyQt4.QtGui import QCompleter, QDirModel, QFileDialog,  \
 
 from mks.core.core import core
 
+from mks.plugins.searchreplace import *
 import searchresultsmodel
+
+class SearchContext:
+    """Structure holds parameters of search or replace operation in progress
+    """    
+    def __init__(self, regExp, replaceText, searchPath, mode):
+        self.mask = []
+        self.openedFiles = {}
+        self.regExp = regExp
+        self.replaceText = replaceText
+        self.searchPath = searchPath
+        self.mode = mode
+        self.encoding = 'utf_8'
 
 class SearchWidget(QFrame):
     """Widget, appeared, when Ctrl+F pressed.
@@ -174,7 +187,7 @@ class SearchWidget(QFrame):
         
         # clear search results if needed.
 
-        if mode & self.plugin.ModeFlagFile:
+        if mode & ModeFlagFile:
             currentDocumentOnly = True
         else:
             currentDocumentOnly = False
@@ -183,7 +196,7 @@ class SearchWidget(QFrame):
         self._mode = mode
         
         # TODO support search in project
-        #if self._mode & self.plugin.ModeFlagProjectFiles :
+        #if self._mode & ModeFlagProjectFiles :
         #    if  self.searchContext.project :
         #        encoding = self.searchContext.project.temporaryValue(
         #        "encoding", mks.monkeystudio.defaultCodec() ).toString()
@@ -197,13 +210,13 @@ class SearchWidget(QFrame):
         else:
             searchText = ''
         
-        self.setVisible( mode != self.plugin.ModeNo )
+        self.setVisible( mode != ModeNo )
 
         if searchText:
             self.cbSearch.setEditText( searchText )
             self.cbReplace.setEditText( searchText )
             
-        if  mode & self.plugin.ModeFlagDirectory :
+        if  mode & ModeFlagDirectory :
             try:
                 searchPath = os.path.abspath(unicode(os.path.curdir))
                 self.cbPath.setEditText( searchPath )
@@ -219,16 +232,16 @@ class SearchWidget(QFrame):
                    self.pbReplace, self.pbReplaceAll, self.pbReplaceChecked, self.wOptions, self.wMask, self.wEncoding,)
         #                             wSear  pbPrev pbNext pbSear wRepl  wPath  pbRep  pbRAll pbRCHK wOpti wMask wEnc
         visible = \
-        {self.plugin.ModeNo     :             (0,     0,     0,     0,     0,     0,     0,     0,     0,    0,    0,    0,),
-         self.plugin.ModeSearch :             (1,     1,     1,     0,     0,     0,     0,     1,     1,    1,    0,    0,),
-         self.plugin.ModeReplace:             (1,     1,     1,     0,     1,     0,     1,     1,     0,    1,    0,    0,),
-         self.plugin.ModeSearchDirectory:     (1,     0,     0,     1,     0,     1,     0,     0,     0,    1,    1,    1,),
-         self.plugin.ModeReplaceDirectory:    (1,     0,     0,     1,     1,     1,     0,     0,     1,    1,    1,    1,),
-         self.plugin.ModeSearchProjectFiles:  (1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,    1,),
-         self.plugin.ModeSearchProjectFiles:  (1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,    1,),
-         self.plugin.ModeReplaceProjectFiles: (1,     0,     0,     1,     1,     0,     0,     0,     1,    1,    1,    1,),
-         self.plugin.ModeSearchOpenedFiles:   (1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,    0,),
-         self.plugin.ModeReplaceOpenedFiles:  (1,     0,     0,     1,     1,     0,     0,     0,     1,    1,    1,    0,)}
+        {ModeNo     :             (0,     0,     0,     0,     0,     0,     0,     0,     0,    0,    0,    0,),
+         ModeSearch :             (1,     1,     1,     0,     0,     0,     0,     1,     1,    1,    0,    0,),
+         ModeReplace:             (1,     1,     1,     0,     1,     0,     1,     1,     0,    1,    0,    0,),
+         ModeSearchDirectory:     (1,     0,     0,     1,     0,     1,     0,     0,     0,    1,    1,    1,),
+         ModeReplaceDirectory:    (1,     0,     0,     1,     1,     1,     0,     0,     1,    1,    1,    1,),
+         ModeSearchProjectFiles:  (1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,    1,),
+         ModeSearchProjectFiles:  (1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,    1,),
+         ModeReplaceProjectFiles: (1,     0,     0,     1,     1,     0,     0,     0,     1,    1,    1,    1,),
+         ModeSearchOpenedFiles:   (1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,    0,),
+         ModeReplaceOpenedFiles:  (1,     0,     0,     1,     1,     0,     0,     0,     1,    1,    1,    0,)}
         
         for i, widget in enumerate(widgets):
             widget.setVisible(visible[mode][i])
@@ -268,21 +281,21 @@ class SearchWidget(QFrame):
                 core.workspace().focusCurrentDocument()
                 self.hide()
             elif event.key() in (Qt.Key_Enter, Qt.Key_Return):
-                if self._mode == self.plugin.ModeNo:
+                if self._mode == ModeNo:
                     pass
-                elif self._mode == self.plugin.ModeSearch:
+                elif self._mode == ModeSearch:
                     self.pbNext.click()
-                elif self._mode in (self.plugin.ModeSearchDirectory, \
-                                    self.plugin.ModeSearchProjectFiles, \
-                                    self.plugin.ModeSearchOpenedFiles, \
-                                    self.plugin.ModeReplaceDirectory, \
-                                    self.plugin.ModeReplaceProjectFiles, \
-                                    self.plugin.ModeReplaceOpenedFiles):
+                elif self._mode in (ModeSearchDirectory, \
+                                    ModeSearchProjectFiles, \
+                                    ModeSearchOpenedFiles, \
+                                    ModeReplaceDirectory, \
+                                    ModeReplaceProjectFiles, \
+                                    ModeReplaceOpenedFiles):
                     if not self.searchThread.isRunning():
                         self.pbSearch.click()
                     else:
                         self.pbSearchStop.click()
-                elif self._mode == self.plugin.ModeReplace:
+                elif self._mode == ModeReplace:
                     self.pbReplace.click()
 
         QFrame.keyPressEvent( self, event )
@@ -607,7 +620,7 @@ class SearchWidget(QFrame):
             return
         
         # clear search results if needed.
-        if self._mode in (self.plugin.ModeSearch, self.plugin.ModeReplace) and \
+        if self._mode in (ModeSearch, ModeReplace) and \
            core.workspace().currentDocument() is not None:
             self.searchFile( True, True )
 
@@ -638,7 +651,7 @@ class SearchWidget(QFrame):
         self.updateComboBoxes()
         
         # TODO support project
-        #if  self.searchContext._mode & self.plugin.ModeFlagProjectFiles and not self.searchContext.project :
+        #if  self.searchContext._mode & ModeFlagProjectFiles and not self.searchContext.project :
         #    core.messageToolBar().appendMessage( \
         #                        self.tr( "You can't search in project files because there is no opened projet." ) )
         #    return
@@ -672,7 +685,7 @@ class SearchWidget(QFrame):
         
         # TODO support project
         # TODO disable action, don't show the message!
-        #if  self.searchContext.mode & self.plugin.ModeFlagProjectFiles and not self.searchContext.project :
+        #if  self.searchContext.mode & ModeFlagProjectFiles and not self.searchContext.project :
         #    core.messageToolBar().appendMessage(
         #         self.tr( "You can't replace in project files because there is no opened projet." ) )
         #    return
