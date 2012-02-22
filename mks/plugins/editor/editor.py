@@ -1,0 +1,590 @@
+import shutil
+
+from PyQt4.QtCore import pyqtSignal, Qt
+from PyQt4.QtGui import QColor, QFont, QFrame, QIcon, QKeyEvent, QKeySequence, QVBoxLayout
+
+from PyQt4.Qsci import *  # pylint: disable=W0401,W0614
+
+from mks.core.core import core
+from mks.core.abstractdocument import AbstractTextEditor
+
+from lexer import Lexer
+
+class _QsciScintilla(QsciScintilla):
+    """QsciScintilla wrapper class. It is created to:
+    
+    * Catch Shift+Tab. When pressed - Qt moves focus, but it is not desired behaviour. This class catches the event
+    * Catch Enter presesing and emits a signal after newline had been inserted
+    * Fix EOL mode when pasting text
+    """
+    
+    newLineInserted = pyqtSignal()
+    
+    def __init__(self, editor):
+        self._editor = editor
+        QsciScintilla.__init__(self, editor)
+    
+    def keyPressEvent(self, event):
+        """Key pressing handler
+        """
+        if event.key() == Qt.Key_Backtab:  # convert the event to Shift+Tab pressing without backtab behaviour
+            event.accept()
+            newev = QKeyEvent(event.type(), Qt.Key_Tab, Qt.ShiftModifier)
+            super(_QsciScintilla, self).keyPressEvent(newev)
+        elif event.matches(QKeySequence.InsertParagraphSeparator):
+            lineCount = self.lines()
+            self.beginUndoAction()
+            super(_QsciScintilla, self).keyPressEvent(event)
+            if self.lines() > lineCount:  # bad hack, which checks, if autocompletion window is active
+                self.newLineInserted.emit()
+            self.endUndoAction()
+        else:
+            super(_QsciScintilla, self).keyPressEvent(event)
+    
+    def paste(self):
+        """paste() method reimplementation. Converts EOL after text had been pasted
+        """
+        QsciScintilla.paste(self)
+        self.convertEols(self.eolMode())
+
+
+class Editor(AbstractTextEditor):
+    """Text editor widget.
+    
+    Uses QScintilla internally
+    """
+    
+    _MARKER_BOOKMARK = -1  # QScintilla marker type
+    
+    _EOL_CONVERTOR_TO_QSCI = {r'\n'     : QsciScintilla.EolUnix,
+                              r'\r\n'   : QsciScintilla.EolWindows,
+                              r'\r'     : QsciScintilla.EolMac}
+    
+    _WRAP_MODE_TO_QSCI = {"WrapWord"      : QsciScintilla.WrapWord,
+                          "WrapCharacter" : QsciScintilla.WrapCharacter}
+    
+    _WRAP_FLAG_TO_QSCI = {"None"           : QsciScintilla.WrapFlagNone,
+                          "ByText"         : QsciScintilla.WrapFlagByText,
+                          "ByBorder"       : QsciScintilla.WrapFlagByBorder}
+
+    _EDGE_MODE_TO_QSCI = {"Line"        : QsciScintilla.EdgeLine,
+                          "Background"  : QsciScintilla.EdgeBackground} 
+    
+    _WHITE_MODE_TO_QSCI = {"Invisible"           : QsciScintilla.WsInvisible,
+                           "Visible"             : QsciScintilla.WsVisible,
+                           "VisibleAfterIndent"  : QsciScintilla.WsVisibleAfterIndent}
+        
+    _AUTOCOMPLETION_MODE_TO_QSCI = {"APIs"      : QsciScintilla.AcsAPIs,
+                                    "Document"  : QsciScintilla.AcsDocument,
+                                    "All"       : QsciScintilla.AcsAll}
+    
+    _BRACE_MATCHING_TO_QSCI = {"Strict"    : QsciScintilla.StrictBraceMatch,
+                               "Sloppy"    : QsciScintilla.SloppyBraceMatch}
+    
+    _CALL_TIPS_STYLE_TO_QSCI = {"NoContext"                : QsciScintilla.CallTipsNoContext,
+                                "NoAutoCompletionContext"  : QsciScintilla.CallTipsNoAutoCompletionContext,
+                                "Context"                  : QsciScintilla.CallTipsContext}
+    
+    #
+    # Own methods
+    #
+    
+    def __init__(self, parentObject, filePath, createNew=False, terminalWidget=False):
+        super(Editor, self).__init__(parentObject, filePath, createNew)
+        
+        self._terminalWidget = terminalWidget
+        self._eolMode = None
+        
+        # Configure editor
+        self.qscintilla = _QsciScintilla(self)
+        self.qscintilla.newLineInserted.connect(self.newLineInserted)
+        
+        pixmap = QIcon(":/mksicons/bookmark.png").pixmap(16, 16)
+        self._MARKER_BOOKMARK = self.qscintilla.markerDefine(pixmap, -1)
+        
+        self._initQsciShortcuts()
+        
+        self.qscintilla.setUtf8(True)
+        
+        self.qscintilla.setAttribute(Qt.WA_MacSmallSize)
+        self.qscintilla.setFrameStyle(QFrame.NoFrame | QFrame.Plain)
+
+        layout = QVBoxLayout(self)
+        layout.setMargin(0)
+        layout.addWidget(self.qscintilla)
+        
+        self.setFocusProxy(self.qscintilla)
+        # connections
+        self.qscintilla.cursorPositionChanged.connect(self.cursorPositionChanged)
+        self.qscintilla.modificationChanged.connect(self.modifiedChanged)
+        
+        self.applySettings()
+        self.lexer = Lexer(self)
+        
+        if not self._neverSaved:
+            try:
+                originalText = self._readFile(filePath)
+            except IOError as ex:  # exception in constructor
+                self.deleteLater()  # make sure C++ object deleted
+                raise ex
+            self.setText(originalText)
+        else:
+            originalText = ''
+        
+        myConfig = core.config()["Editor"]
+        
+        # make backup if needed
+        if  myConfig["CreateBackupUponOpen"]:
+            if self.filePath() and not createNew:
+                try:
+                    shutil.copy(self.filePath(), self.filePath() + '.bak')
+                except (IOError, OSError) as ex:
+                    self.deleteLater()
+                    raise ex
+        
+        #autodetect indent, need
+        if  myConfig["Indentation"]["AutoDetect"]:
+            self._autoDetectIndent()
+        
+        # convert tabs if needed
+        if  myConfig["Indentation"]["ConvertUponOpen"]:
+            self._convertIndentation()
+        
+        #autodetect eol, need
+        self._configureEolMode(originalText)
+        
+        self.modifiedChanged.emit(self.isModified())
+        self.cursorPositionChanged.emit(*self.cursorPosition())
+
+    def _initQsciShortcuts(self):
+        """Clear default QScintilla shortcuts, and restore only ones, which are needed for MkS.
+        
+        Other shortcuts are disabled, or are configured with mks.plugins.editorshortcuts and defined here
+        """
+        qsci = self.qscintilla
+
+        qsci.standardCommands().clearKeys()
+        qsci.standardCommands().clearAlternateKeys()
+
+        # Some shortcuts are hardcoded there.
+        #If we made is a QActions, it will shadow Qt default keys for move focus, etc
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_TAB, qsci.SCI_TAB)
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_ESCAPE, qsci.SCI_CANCEL)
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_RETURN, qsci.SCI_NEWLINE)
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_DOWN, qsci.SCI_LINEDOWN)
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_UP, qsci.SCI_LINEUP)
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_RIGHT, qsci.SCI_CHARRIGHT)
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_LEFT, qsci.SCI_CHARLEFT)
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_BACK, qsci.SCI_DELETEBACK)
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_PRIOR, qsci.SCI_PAGEUP)
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_NEXT, qsci.SCI_PAGEDOWN)
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_HOME, qsci.SCI_VCHOME)
+        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_END, qsci.SCI_LINEEND)
+    
+    def applySettings(self):  # pylint: disable=R0912,R0915
+        """Apply own settings form the config
+        """
+        myConfig = core.config()["Editor"]
+
+        if myConfig["ShowLineNumbers"] and not self._terminalWidget:
+            self.qscintilla.linesChanged.connect(self._onLinesChanged)
+            self._onLinesChanged()
+        else:
+            try:
+                self.qscintilla.linesChanged.disconnect(self._onLinesChanged)
+            except TypeError:  # not connected
+                pass
+            self.qscintilla.setMarginWidth(0, 0)
+        
+        if myConfig["EnableCodeFolding"] and not self._terminalWidget:
+            self.qscintilla.setFolding(QsciScintilla.BoxedTreeFoldStyle)
+        else:
+            self.qscintilla.setFolding(QsciScintilla.NoFoldStyle)
+        
+        self.qscintilla.setSelectionBackgroundColor(QColor(myConfig["SelectionBackgroundColor"]))
+        self.qscintilla.setSelectionForegroundColor(QColor(myConfig["SelectionForegroundColor"]))
+        if myConfig["DefaultDocumentColours"]:
+            # set scintilla default colors
+            self.qscintilla.setColor(QColor(myConfig["DefaultDocumentPen"]))
+            self.qscintilla.setPaper(QColor(myConfig["DefaultDocumentPaper"]))
+
+        self.qscintilla.setFont(QFont(myConfig["DefaultFont"], myConfig["DefaultFontSize"]))
+        # Auto Completion
+        if myConfig["AutoCompletion"]["Enabled"] and not self._terminalWidget:
+            self.qscintilla.setAutoCompletionSource(\
+                                            self._AUTOCOMPLETION_MODE_TO_QSCI[myConfig["AutoCompletion"]["Source"]])
+            self.qscintilla.setAutoCompletionThreshold(myConfig["AutoCompletion"]["Threshold"])
+            self.qscintilla.setAutoCompletionCaseSensitivity(myConfig["AutoCompletion"]["CaseSensitivity"])
+            self.qscintilla.setAutoCompletionReplaceWord(myConfig["AutoCompletion"]["ReplaceWord"])
+            self.qscintilla.setAutoCompletionShowSingle(myConfig["AutoCompletion"]["ShowSingle"])
+        else:
+            self.qscintilla.setAutoCompletionSource(QsciScintilla.AcsNone)
+        
+        # CallTips
+        if myConfig["CallTips"]["Enabled"]:
+            self.qscintilla.setCallTipsStyle(self._CALL_TIPS_STYLE_TO_QSCI[myConfig["CallTips"]["Style"]])
+            self.qscintilla.setCallTipsVisible(myConfig["CallTips"]["VisibleCount"])
+            self.qscintilla.setCallTipsBackgroundColor(QColor(myConfig["CallTips"]["BackgroundColor"]))
+            self.qscintilla.setCallTipsForegroundColor(QColor(myConfig["CallTips"]["ForegroundColor"]))
+            self.qscintilla.setCallTipsHighlightColor(QColor(myConfig["CallTips"]["HighlightColor"]))
+        else:
+            self.qscintilla.setCallTipsStyle(QsciScintilla.CallTipsNone)
+
+        # Indentation
+        self.qscintilla.setAutoIndent(myConfig["Indentation"]["AutoIndent"])
+        self.qscintilla.setBackspaceUnindents(myConfig["Indentation"]["BackspaceUnindents"])
+        self.qscintilla.setIndentationGuides(myConfig["Indentation"]["Guides"])
+        self.qscintilla.setIndentationGuidesBackgroundColor(QColor(myConfig["Indentation"]["GuidesBackgroundColor"]))
+        self.qscintilla.setIndentationGuidesForegroundColor(QColor(myConfig["Indentation"]["GuidesForegroundColor"]))
+        self.qscintilla.setIndentationsUseTabs(myConfig["Indentation"]["UseTabs"])
+        self.qscintilla.setIndentationWidth(myConfig["Indentation"]["Width"])
+        self.qscintilla.setTabWidth(myConfig["Indentation"]["Width"])
+        self.qscintilla.setTabIndents(myConfig["Indentation"]["TabIndents"])
+
+        # Brace Matching
+        if myConfig["BraceMatching"]["Enabled"]:
+            self.qscintilla.setBraceMatching(self._BRACE_MATCHING_TO_QSCI[myConfig["BraceMatching"]["Mode"]])
+            self.qscintilla.setMatchedBraceBackgroundColor(QColor(myConfig["BraceMatching"]["MatchedBackgroundColor"]))
+            self.qscintilla.setMatchedBraceForegroundColor(QColor(myConfig["BraceMatching"]["MatchedForegroundColor"]))
+            self.qscintilla.setUnmatchedBraceBackgroundColor(\
+                                                        QColor(myConfig["BraceMatching"]["UnmatchedBackgroundColor"]))
+            self.qscintilla.setUnmatchedBraceForegroundColor(\
+                                                        QColor(myConfig["BraceMatching"]["UnmatchedForegroundColor"]))
+        else:
+            self.qscintilla.setBraceMatching(QsciScintilla.NoBraceMatch)
+        
+        # Edge Mode
+        if myConfig["Edge"]["Enabled"]:
+            self.qscintilla.setEdgeMode(self._EDGE_MODE_TO_QSCI[myConfig["Edge"]["Mode"]])
+            self.qscintilla.setEdgeColor(QColor(myConfig["Edge"]["Color"]))
+            self.qscintilla.setEdgeColumn(myConfig["Edge"]["Column"])
+        else:
+            self.qscintilla.setEdgeMode(QsciScintilla.EdgeNone)
+
+        # Caret
+        self.qscintilla.setCaretLineVisible(myConfig["Caret"]["LineVisible"])
+        self.qscintilla.setCaretLineBackgroundColor(QColor(myConfig["Caret"]["LineBackgroundColor"]))
+        self.qscintilla.setCaretForegroundColor(QColor(myConfig["Caret"]["ForegroundColor"]))
+        self.qscintilla.setCaretWidth(myConfig["Caret"]["Width"])
+        
+        # Special Characters
+        self.qscintilla.setWhitespaceVisibility(self._WHITE_MODE_TO_QSCI[myConfig["WhitespaceVisibility"]])
+        
+        if myConfig["Wrap"]["Enabled"]:
+            self.qscintilla.setWrapMode(self._WRAP_MODE_TO_QSCI[myConfig["Wrap"]["Mode"]])
+            self.qscintilla.setWrapVisualFlags(self._WRAP_FLAG_TO_QSCI[myConfig["Wrap"]["EndVisualFlag"]],
+                                               self._WRAP_FLAG_TO_QSCI[myConfig["Wrap"]["StartVisualFlag"]],
+                                               myConfig["Wrap"]["LineIndentWidth"])
+        else:
+            self.qscintilla.setWrapMode(QsciScintilla.WrapNone)
+
+    def _convertIndentation(self):
+        """Try to fix indentation mode of the file, if there are mix of different indentation modes
+        (tabs and spaces)
+        """
+        # get original text
+        originalText = self.qscintilla.text()
+        # all modifications must believe as only one action
+        self.qscintilla.beginUndoAction()
+        # get indent width
+        indentWidth = self.qscintilla.indentationWidth()
+        
+        if indentWidth == 0:
+            indentWidth = self.qscintilla.tabWidth()
+        
+        # iterate each line
+        for i in range(self.qscintilla.lines()):
+            # get current line indent width
+            lineIndent = self.qscintilla.indentation(i)
+            # remove indentation
+            self.qscintilla.setIndentation(i, 0)
+            # restore it with possible troncate indentation
+            self.qscintilla.setIndentation(i, lineIndent)
+        
+        # end global undo action
+        self.qscintilla.endUndoAction()
+        # compare original and newer text
+        if  originalText == self.qscintilla.text():
+            # clear undo buffer
+            self.qscintilla.SendScintilla(QsciScintilla.SCI_EMPTYUNDOBUFFER)
+            # set unmodified
+            self._setModified(False)
+        else:
+            core.messageToolBar().appendMessage('Indentation converted. You can Undo the changes', 5000)
+
+    def _autoDetectIndent(self):
+        """Delect indentation automatically and apply detected mode
+        """
+        text = self.text()
+        haveTabs = '\t' in text
+        for line in text.splitlines():  #TODO improve algorythm sometimes to skip comments
+            if line.startswith(' '):
+                haveSpaces = True
+                break
+        else:
+            haveSpaces = False
+        
+        if haveTabs:
+            self.qscintilla.setIndentationsUseTabs (True)
+        elif haveSpaces:
+            self.qscintilla.setIndentationsUseTabs (False)
+        else:
+            pass  # Don't touch current mode, if not sure
+
+    def _onLinesChanged(self):
+        """Handler of change of lines count in the qscintilla
+        """
+        digitsCount = len(str(self.qscintilla.lines()))
+        if digitsCount:
+            digitsCount += 1
+        self.qscintilla.setMarginWidth(0, '0' * digitsCount)
+
+    #
+    # AbstractDocument interface
+    #
+    
+    def _setModified(self, modified):
+        """Update modified state for the file. Called by AbstractTextEditor, must be implemented by the children
+        """
+        self.qscintilla.setModified(modified)
+
+    def isModified(self):
+        """Check is file has been modified
+        """
+        return self.qscintilla.isModified()
+    
+    #
+    # AbstractTextEditor interface
+    #
+    
+    def eolMode(self):
+        """Line end mode of the file
+        """
+        return self._eolMode
+
+    def setEolMode(self, mode):
+        """Set line end mode of the file
+        """
+        self.qscintilla.setEolMode(self._EOL_CONVERTOR_TO_QSCI[mode])
+        self.qscintilla.convertEols(self._EOL_CONVERTOR_TO_QSCI[mode])
+        self._eolMode = mode
+
+    def indentWidth(self):
+        """Indentation width in symbol places (spaces)
+        """
+        return self.qscintilla.indentationWidth()
+    
+    def _applyIndentWidth(self, width):
+        """Set indentation width in symbol places (spaces)
+        """
+        return self.qscintilla.setIndentationWidth(width)
+    
+    def indentUseTabs(self):
+        """Indentation uses Tabs instead of Spaces
+        """
+        return self.qscintilla.indentationsUseTabs()
+    
+    def _applyIndentUseTabs(self, use):
+        """Set iindentation mode (Tabs or spaces)
+        """
+        return self.qscintilla.setIndentationsUseTabs(use)
+    
+    def _applyHighlightingLanguage(self, language):
+        """Set programming language of the file.
+        Called Only by :mod:`mks.plugins.associations` to select syntax highlighting language.
+        """
+        self.lexer.applyLanguage(language)
+
+    def text(self):
+        """Contents of the editor
+        """
+        text = self.qscintilla.text()
+        lines = text.splitlines()
+        if text.endswith('\r') or text.endswith('\n'):
+               lines.append('')
+        return '\n'.join(lines)
+    
+    def setText(self, text):
+        """Set text in the QScintilla, clear modified flag, update line numbers bar
+        """
+        self.qscintilla.setText(text)
+        self.qscintilla.linesChanged.emit()
+        self._setModified(False)
+
+    def selectedText(self):
+        """Get selected text
+        """
+        return self.qscintilla.selectedText()
+        
+    def selection(self):
+        """Get coordinates of selected area as ((startLine, startCol), (endLine, endCol))
+        """
+        startLine, startCol, endLine, endCol = self.qscintilla.getSelection()
+        if startLine == -1:
+            cursorPos = self.cursorPosition()
+            return (cursorPos, cursorPos)
+
+        return ((startLine, startCol), (endLine, endCol))
+
+    def absSelection(self):
+        """Get coordinates of selected area as (startAbsPos, endAbsPos)
+        """
+        start, end = self.selection()
+        return (self._toAbsPosition(*start), self._toAbsPosition(*end))
+
+    def cursorPosition(self):
+        """Get cursor position as tuple (line, col)
+        """
+        line, col = self.qscintilla.getCursorPosition()
+        return line, col
+    
+    def _setCursorPosition(self, line, col):
+        """Implementation of AbstractTextEditor.setCursorPosition
+        """
+        self.qscintilla.setCursorPosition(line, col)
+
+    def replaceSelectedText(self, text):
+        """Replace selected text with text
+        """
+        self.qscintilla.beginUndoAction()
+        self.qscintilla.removeSelectedText()
+        self.qscintilla.insert(text)
+        self.qscintilla.endUndoAction()
+    
+    def _replace(self, startAbsPos, endAbsPos, text):
+        """Replace text at position with text
+        """
+        startLine, startCol = self._toLineCol(startAbsPos)
+        endLine, endCol = self._toLineCol(endAbsPos)
+        self.qscintilla.setSelection(startLine, startCol,
+                                     endLine, endCol)
+        self.replaceSelectedText(text)
+    
+    def beginUndoAction(self):
+        """Start doing set of modifications, which will be managed as one action.
+        User can Undo and Redo all modifications with one action
+        
+        DO NOT FORGET to call **endUndoAction()** after you have finished
+        """
+        self.qscintilla.beginUndoAction()
+
+    def endUndoAction(self):
+        """Finish doing set of modifications, which will be managed as one action.
+        User can Undo and Redo all modifications with one action
+        """
+        self.qscintilla.endUndoAction()
+
+    def _goTo(self, line, column, selectionLine = None, selectionCol = None):
+        """Go to specified line and column. Select text if necessary
+        """
+        if selectionLine is None:
+            self.qscintilla.setCursorPosition(line, column)
+        else:
+            self.qscintilla.setSelection(selectionLine, selectionCol,
+                                         line, column)
+        self.qscintilla.ensureLineVisible(line)
+    
+    def lineCount(self):
+        """Get line count
+        """
+        return self.qscintilla.lines()
+
+    #
+    # Public methods for editorshortcuts
+    #
+    
+    def toggleBookmark(self):
+        """Set or clear bookmark on the line
+        """
+        if self._terminalWidget:
+            return
+
+        row = self.qscintilla.getCursorPosition()[0]
+        if self.qscintilla.markersAtLine(row) & 1 << self._MARKER_BOOKMARK:
+            self.qscintilla.markerDelete(row, self._MARKER_BOOKMARK)
+        else:
+            self.qscintilla.markerAdd(row, self._MARKER_BOOKMARK)
+        
+    def nextBookmark(self):
+        """Move to the next bookmark
+        """
+        row = self.qscintilla.getCursorPosition()[0]
+        self.qscintilla.setCursorPosition(
+                    self.qscintilla.markerFindNext(row + 1, 1 << self._MARKER_BOOKMARK), 0)
+        
+    def prevBookmark(self):
+        """Move to the previous bookmark
+        """
+        row = self.qscintilla.getCursorPosition()[0]
+        self.qscintilla.setCursorPosition(
+                    self.qscintilla.markerFindPrevious(row - 1, 1 << self._MARKER_BOOKMARK), 0)
+
+#TODO restore or delete old code
+
+#    def eventFilter(self, selfObject, event):
+#        '''It is not an editor API function
+#        Catches key press events from QScintilla for support bookmarks and autocompletion'''
+#        
+#        if event.type() == QEvent.KeyPress:
+#            if not event.isAutoRepeat():
+#                row = self.qscintilla.getCursorPosition()[0]
+#                if event.modifiers() & Qt.ControlModifier and event.key() == Qt.Key_Space: # autocompletion shortcut
+#                    ''' TODO autocompletion shortcut?
+#                    switch (autoCompletionSource())
+#                        case QsciScintilla.AcsAll:
+#                            autoCompleteFromAll()
+#                            break
+#                        case QsciScintilla.AcsAPIs:
+#                            autoCompleteFromAPIs()
+#                            break
+#                        case QsciScintilla.AcsDocument:
+#                            autoCompleteFromDocument()
+#                            break
+#                        default:
+#                            break
+#                    '''
+#                    return True
+#        return False
+#    
+#    def __init__
+#        self.qscintilla.textChanged.connect(self.contentChanged)
+
+#    def isPrintAvailable(self):
+#        return True
+
+#    def backupFileAs(self, filePath):
+#        shutil.copy(self.filePath(), fileName)
+#    
+#    def print_(self, quickPrint):
+#        # get printer
+#        p = QsciPrinter()
+#        
+#        # set wrapmode
+#        p.setWrapMode(PyQt4.Qsci.WrapWord)
+
+#        if  quickPrint:
+#            # check if default printer is set
+#            if  p.printerName().isEmpty() :
+#                core.messageToolBar().appendMessage(\
+#                    tr("There is no default printer, set one before trying quick print"))
+#                return
+#            
+#            # print and return
+#            p.printRange(self.qscintilla)
+#            return
+#        
+#        d = QPrintDialog (p) # printer dialog
+
+#        if d.exec_(): # if ok
+#            # print
+#            f = -1
+#            t = -1
+#            if  d.printRange() == QPrintDialog.Selection:
+#                f, unused, t, unused1 = getSelection()
+#            p.printRange(self.qscintilla, f, t)
+#    
+#    def printFile(self):
+#        self.print_(False)
+
+#    def quickPrintFile(self):
+#        self.print_(True)
