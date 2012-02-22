@@ -83,8 +83,8 @@ class Plugin(QObject):
 
         self._schemeDocumentsCount = 0
         
-        for doc in core.workspace().openedDocuments():
-            self._schemeDocumentsCount += 1
+        allDocs = core.workspace().openedDocuments()
+        self._schemeDocumentsCount = len(filter(self._isSchemeFile, allDocs))
         
         # TODO handle situation, when lexer changed for current document
         core.workspace().documentOpened.connect(self._onDocumentOpened)
