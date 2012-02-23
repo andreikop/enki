@@ -8,7 +8,7 @@ Uses QScintilla  internally
 import shutil
 
 from PyQt4.QtCore import pyqtSignal, Qt
-from PyQt4.QtGui import QColor, QFont, QFrame, QIcon, QKeyEvent, QKeySequence, QVBoxLayout
+from PyQt4.QtGui import qApp, QColor, QFont, QFrame, QIcon, QKeyEvent, QKeySequence, QVBoxLayout
 
 from PyQt4.Qsci import *  # pylint: disable=W0401,W0614
 
@@ -53,6 +53,16 @@ class _QsciScintilla(QsciScintilla):
         """
         QsciScintilla.paste(self)
         self.convertEols(self.eolMode())
+
+    def setSelection(self, startLine, startCol, endLine, endCol):
+        """Wrapper for QScintilla.setSelection.
+        QScintilla copies selected text to the selection clipboard. But, it is not desired behaviour.
+        This method restores selection clipboard.
+        """
+        clipboard = qApp.clipboard()
+        contents = clipboard.text(clipboard.Selection)
+        QsciScintilla.setSelection(self, startLine, startCol, endLine, endCol)
+        clipboard.setText(contents, clipboard.Selection)
 
 
 class Editor(AbstractTextEditor):
