@@ -1,13 +1,7 @@
 FIXME
     Scheme howto и ссылка на него на UI
     маленькое разрешение иконки приложения
-    убрать lucid из версии пакета
-
-
-Traceback (most recent call last):
-File "/home/a/code/mksv3/mks/plugins/mitscheme/__init__.py", line 170, in 
-self._mitScheme.processIsRunningChanged.connect(lambda isRunning: self._breakAction.setEnabled(isRunning))
-AttributeError: 'NoneType' object has no attribute 'setEnabled'
+    не перебивать выделением в qscintilla буфер обмена
     
 REFACTORING
     Plugin abstract interface
