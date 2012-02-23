@@ -76,9 +76,10 @@ package_data={'mks' : ['ui/*.ui',
              }
 
 
-for package in pkgutil.iter_modules(['mks/plugins']):
-    packages.append('mks/plugins/' + package[1])
-    package_data['mks'].append('plugins/%s/*.ui' % package[1])
+for loader, name, ispkg in pkgutil.iter_modules(['mks/plugins']):
+    if ispkg:
+        packages.append('mks/plugins/' + name)
+        package_data['mks'].append('plugins/%s/*.ui' % name)
 
 setup(name=PACKAGE_NAME,
         version=PACKAGE_VERSION,

@@ -18,9 +18,10 @@ from PyQt4.QtCore import QAbstractItemModel, \
                          QObject, \
                          Qt, \
                          QVariant
-from PyQt4.QtGui import QAction, QActionGroup, \
+from PyQt4.QtGui import QAbstractItemView, QAction, QActionGroup, \
                         QIcon, \
-                        QMenu
+                        QMenu, \
+                        QTreeView
 
 from PyQt4 import uic
 
@@ -349,28 +350,40 @@ class OpenedFileExplorer(pDockWidget):
     """
     def __init__(self, workspace):
         pDockWidget.__init__(self, workspace)
-        self.model = _OpenedFileModel(self)  # Not protected, because used by Configurator
-        uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/pOpenedFileExplorer.ui'), self )
+        self.setObjectName("OpenedFileExplorer")
+        self.setWindowTitle("Opened files")
+        self.setWindowIcon(QIcon(":/mksicons/filtered.png"))
         self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
+
+        self.tvFiles = QTreeView(self)
+        self.tvFiles.setHeaderHidden(True)
+        self.tvFiles.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tvFiles.setDragEnabled(True)
+        self.tvFiles.setDragDropMode(QAbstractItemView.InternalMove)
+        self.tvFiles.customContextMenuRequested.connect(self._onTvFilesCustomContextMenuRequested)
+        
+        self.setWidget(self.tvFiles)
+        self.setFocusProxy(self.tvFiles)
+
+        self.model = _OpenedFileModel(self)  # Not protected, because used by Configurator
         self.tvFiles.setModel( self.model )
         self.tvFiles.setAttribute( Qt.WA_MacShowFocusRect, False )
         self.tvFiles.setAttribute( Qt.WA_MacSmallSize )
-        self.setFocusProxy(self.tvFiles)
-        
+
         workspace.currentDocumentChanged.connect(self._onCurrentDocumentChanged)
         
         # disconnected by startModifyModel()
         self.tvFiles.selectionModel().selectionChanged.connect(self._onSelectionModelSelectionChanged)
         
         self.showAction().setShortcut("F2")
-        core.actionModel().addAction("mDocks/aOpenedFiles", self.showAction())
+        core.actionManager().addAction("mDocks/aOpenedFiles", self.showAction(), shortcut="F2")
         core.moduleConfiguratorClasses.append(Configurator)
     
     def del_(self):
         """Explicitly called destructor
         """
         core.moduleConfiguratorClasses.remove(Configurator)
-        core.actionModel().removeAction("mDocks/aOpenedFiles")
+        core.actionManager().removeAction("mDocks/aOpenedFiles")
     
     def startModifyModel(self):
         """Blocks signals from model while it is modified by code
@@ -418,14 +431,14 @@ class OpenedFileExplorer(pDockWidget):
         if  focusWidget :
             focusWidget.setFocus()
     
-    def on_tvFiles_customContextMenuRequested(self, pos ):
+    def _onTvFilesCustomContextMenuRequested(self, pos ):
         """Connected automatically by uic
         """
         menu = QMenu()
         
-        menu.addAction( core.actionModel().action( "mFile/mClose/aCurrent" ) )
-        menu.addAction( core.actionModel().action( "mFile/mSave/aCurrent" ) )
-        menu.addAction( core.actionModel().action( "mFile/mReload/aCurrent" ) )
+        menu.addAction( core.actionManager().action( "mFile/mClose/aCurrent" ) )
+        menu.addAction( core.actionManager().action( "mFile/mSave/aCurrent" ) )
+        menu.addAction( core.actionManager().action( "mFile/mReload/aCurrent" ) )
         menu.addSeparator()
         
         # sort menu

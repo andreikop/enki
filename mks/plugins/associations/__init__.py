@@ -73,7 +73,7 @@ class Plugin():
     def __init__(self):
         core.workspace().documentOpened.connect(self.applyLanguageToDocument)
         
-        self._menu = core.actionModel().addMenu("mView/mHighlighting", "Highlighting").menu()
+        self._menu = core.actionManager().addMenu("mView/mHighlighting", "Highlighting").menu()
         
         self._menu.aboutToShow.connect(self._onMenuAboutToShow)
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
@@ -88,7 +88,7 @@ class Plugin():
     def del_(self):
         """Plugin termination
         """
-        core.actionModel().removeMenu("mView/mHighlighting")
+        core.actionManager().removeMenu("mView/mHighlighting")
 
     def iterLanguages(self):
         """Get list of available languages as tuple (name, file name globs, first line globs, icon path)

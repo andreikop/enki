@@ -14,7 +14,7 @@ from PyQt4.QtGui import QIcon, QMessageBox, QSizePolicy, QVBoxLayout, QWidget
 from PyQt4.QtGui import QMainWindow
 
 from mks.fresh.dockwidget.pDockWidget import pDockWidget
-from mks.fresh.actionmanager.pActionsModel import pActionsModel
+from mks.fresh.actionmanager.ActionManager import ActionManager
 from mks.fresh.actionmanager.pActionsMenuBar import pActionsMenuBar
 
 from mks.core.core import core
@@ -29,8 +29,8 @@ class MainWindow(QMainWindow):
     If you need to access to some existing menu items - check action path 
     in the class constructor, than use next code: ::
         
-        self._actionModel.action( "mFile/aOpen" ).setEnabled(True)
-        self._actionModel.action( "mFile/aOpen" ).triggered.connect(self.myCoolMethod)
+        self._actionManager.action( "mFile/aOpen" ).setEnabled(True)
+        self._actionManager.action( "mFile/aOpen" ).triggered.connect(self.myCoolMethod)
     
     MainWindow instance is accessible as: ::
     
@@ -52,7 +52,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
         
-        self._actionModel = None
+        self._actionManager = None
         self._createdMenuPathes = []
         self._createdActions = []
 
@@ -94,9 +94,9 @@ class MainWindow(QMainWindow):
         """Explicitly called destructor
         """
         for act in self._createdActions:
-            self._actionModel.removeAction(act, False)
+            self._actionManager.removeAction(act, False)
         for menuPath in self._createdMenuPathes[::-1]:
-            self._actionModel.removeMenu(menuPath)
+            self._actionManager.removeMenu(menuPath)
         
         self.menuBar().setModel( None )
         # FIXME self.settings().sync()  # write window and docs geometry
@@ -108,13 +108,13 @@ class MainWindow(QMainWindow):
         """
         # create menubar menus and actions
         self._menuBar = pActionsMenuBar(self)
-        self._actionModel = pActionsModel(self._menuBar)
-        self._menuBar.setModel(self._actionModel)
+        self._actionManager = ActionManager(self._menuBar)
+        self._menuBar.setModel(self._actionManager)
         self.setMenuBar(self._menuBar)
         
         def menu(path, name, icon):
             """Subfunction for create a menu in the main menu"""
-            menuObject = self._actionModel.addMenu(path, name)
+            menuObject = self._actionManager.addMenu(path, name)
             if icon:
                 menuObject.setIcon(QIcon(':/mksicons/' + icon))
             self._createdMenuPathes.append(path)
@@ -122,18 +122,16 @@ class MainWindow(QMainWindow):
         def action(path, name, icon, shortcut, tooltip, enabled):  # pylint: disable=R0913
             """Subfunction for create an action in the main menu"""
             if icon:  # has icon
-                actObject = self._actionModel.addAction(path, name, QIcon(':/mksicons/' + icon))
+                actObject = self._actionManager.addAction(path, name, QIcon(':/mksicons/' + icon), shortcut)
             else:
-                actObject = self._actionModel.addAction(path, name)
-            if shortcut:
-                actObject.setShortcut(shortcut)
+                actObject = self._actionManager.addAction(path, name, shortcut=shortcut)
             actObject.setStatusTip(tooltip)
             actObject.setEnabled(enabled)
             self._createdActions.append(actObject)
         
         def seperator(menu):
             """Subfunction for insert separator to the menu"""
-            self._actionModel.action(menu).menu().addSeparator()
+            self._actionManager.action(menu).menu().addSeparator()
         
         # pylint: disable=C0301  
         # enable long lines for menu items
@@ -176,9 +174,9 @@ class MainWindow(QMainWindow):
 
         menu  ("mHelp",                               tr("Help"                  ), ""            )
         
-        self._actionModel.action( "mFile/aQuit" ).triggered.connect(self.close)
+        self._actionManager.action( "mFile/aQuit" ).triggered.connect(self.close)
         # docks
-        self._actionModel.action( "mDocks/aHideAll" ).triggered.connect(self._onHideAllWindows)
+        self._actionManager.action( "mDocks/aHideAll" ).triggered.connect(self._onHideAllWindows)
     
     def setWorkspace(self, workspace):
         """Set central widget of the main window.
@@ -282,15 +280,15 @@ class MainWindow(QMainWindow):
 #    urlsDropped = pyqtSignal()
 #
 #        core.recentsManager().openFileRequested.connect(core.fileManager().openFile)
-#        self._actionModel.action( "mFile/mSession/aSave" ).triggered.connect(core.workspace().fileSessionSave_triggered)
-#        self._actionModel.action( "mFile/mSession/aRestore" ).triggered.connect(core.workspace().fileSessionRestore_triggered)
-#        self._actionModel.action( "mFile/aSaveAsBackup" ).triggered.connect(core.workspace().fileSaveAsBackup_triggered)
-#        self._actionModel.action( "mFile/aQuickPrint" ).triggered.connect(core.workspace().fileQuickPrint_triggered)
-#        self._actionModel.action( "mFile/aPrint" ).triggered.connect(core.workspace().filePrint_triggered)
+#        self._actionManager.action( "mFile/mSession/aSave" ).triggered.connect(core.workspace().fileSessionSave_triggered)
+#        self._actionManager.action( "mFile/mSession/aRestore" ).triggered.connect(core.workspace().fileSessionRestore_triggered)
+#        self._actionManager.action( "mFile/aSaveAsBackup" ).triggered.connect(core.workspace().fileSaveAsBackup_triggered)
+#        self._actionManager.action( "mFile/aQuickPrint" ).triggered.connect(core.workspace().fileQuickPrint_triggered)
+#        self._actionManager.action( "mFile/aPrint" ).triggered.connect(core.workspace().filePrint_triggered)
 #        # edit connection
-#        self._actionModel.action( "mEdit/aTranslations" ).triggered.connect(core.workspace().editTranslations_triggered)
-#        self._actionModel.action( "mEdit/aExpandAbbreviation" ).triggered.connect(core.workspace().onEditExpandAbbreviation)
-#        self._actionModel.action( "mEdit/aPrepareAPIs" ).triggered.connect(core.workspace().editPrepareAPIs_triggered)
+#        self._actionManager.action( "mEdit/aTranslations" ).triggered.connect(core.workspace().editTranslations_triggered)
+#        self._actionManager.action( "mEdit/aExpandAbbreviation" ).triggered.connect(core.workspace().onEditExpandAbbreviation)
+#        self._actionManager.action( "mEdit/aPrepareAPIs" ).triggered.connect(core.workspace().editPrepareAPIs_triggered)
 #        # view connection
 #        agStyles.styleSelected.connect(self.changeStyle)
 
@@ -299,10 +297,10 @@ class MainWindow(QMainWindow):
 #        core.projectsManager().fileDoubleClicked.connect(core.workspace().openFile)
 #        # plugins menu
 #        # window menu
-#        self._actionModel.action( "mWindow/aTile" ).triggered.connect(core.workspace().tile)
-#        self._actionModel.action( "mWindow/aCascase" ).triggered.connect(core.workspace().cascade)
-#        self._actionModel.action( "mWindow/aMinimize" ).triggered.connect(core.workspace().minimize)
-#        self._actionModel.action( "mWindow/aRestore" ).triggered.connect(core.workspace().restore)
+#        self._actionManager.action( "mWindow/aTile" ).triggered.connect(core.workspace().tile)
+#        self._actionManager.action( "mWindow/aCascase" ).triggered.connect(core.workspace().cascade)
+#        self._actionManager.action( "mWindow/aMinimize" ).triggered.connect(core.workspace().minimize)
+#        self._actionManager.action( "mWindow/aRestore" ).triggered.connect(core.workspace().restore)
 #
 #   TODO can't configure pylint to ignore long lines in the commented code
 #        mb.menu( "mRecents", tr("&Recents" ), QIcon(":/mksicons/recents.png" ) )

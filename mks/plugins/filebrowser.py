@@ -247,7 +247,7 @@ class SmartHistory(QObject):
                                 self)
         self._aBack.setShortcut('Ctrl+Alt+B')
         fileBrowser.titleBar().addAction(self._aBack, 0)
-        core.actionModel().addAction("mNavigation/mFileBrowser/aBack", self._aBack)
+        core.actionManager().addAction("mNavigation/mFileBrowser/aBack", self._aBack)
         self._aBack.triggered.connect(self._onTbBackTriggered)
 
         self._aForward = QAction(   QIcon(':mksicons/next.png'),
@@ -255,7 +255,7 @@ class SmartHistory(QObject):
                                     self)
         self._aForward.setShortcut('Ctrl+Alt+F')
         fileBrowser.titleBar().addAction(self._aForward, 1)
-        core.actionModel().addAction("mNavigation/mFileBrowser/aForward", self._aForward)
+        core.actionManager().addAction("mNavigation/mFileBrowser/aForward", self._aForward)
         self._aForward.triggered.connect(self._onTbForwardTriggered)
         
         fileBrowser.titleBar().addSeparator(2)
@@ -267,8 +267,8 @@ class SmartHistory(QObject):
     def del_(self):
         """Explicitly called destructor
         """
-        core.actionModel().removeAction("mNavigation/mFileBrowser/aBack")
-        core.actionModel().removeAction("mNavigation/mFileBrowser/aForward")
+        core.actionManager().removeAction("mNavigation/mFileBrowser/aBack")
+        core.actionManager().removeAction("mNavigation/mFileBrowser/aForward")
 
     def _onRootChanged(self, newCurrDir):
         """FileBrowserDock notifies SmartHistory that root has been changed
@@ -358,7 +358,7 @@ class JumpToCurent(QObject):
 
         fileBrowser.titleBar().addAction(self._action, 0)
         fileBrowser.titleBar().addSeparator(1)
-        core.actionModel().addAction("mNavigation/mFileBrowser/aJumpToCurrent", self._action)
+        core.actionManager().addAction("mNavigation/mFileBrowser/aJumpToCurrent", self._action)
 
         fileBrowser.rootChanged.connect(self._updateAction)
         core.workspace().currentDocumentChanged.connect(self._updateAction)
@@ -366,7 +366,7 @@ class JumpToCurent(QObject):
     def del_(self):
         """Explicitly called destructor
         """
-        core.actionModel().removeAction(self._action)
+        core.actionManager().removeAction(self._action)
 
     def _updateAction(self):
         """Update action enabled state after current file or current directory changed
@@ -524,7 +524,7 @@ class ComboBox(QComboBox):
         # Show popup action
         self._showPopupAction = QAction(QIcon(':mksicons/filtered.png'), "File browser menu", self)
         self._showPopupAction.setShortcut('Shift+F7')
-        core.actionModel().addAction("mNavigation/mFileBrowser/aMenuShow", self._showPopupAction)
+        core.actionManager().addAction("mNavigation/mFileBrowser/aMenuShow", self._showPopupAction)
         showPopupSlot = lambda triggered: self.showPopup()
         self._showPopupAction.triggered.connect(showPopupSlot)
         
@@ -537,6 +537,11 @@ class ComboBox(QComboBox):
         
         # reconnected in self.updateComboItems()
         self.currentIndexChanged[int].connect(self._onItemSelected)
+
+    def del_(self):
+        """Explicitly called destructor
+        """
+        core.actionManager().removeAction(self._showPopupAction)
 
     def eventFilter(self, object_, event ):
         """ Event filter for mode switch tool button
@@ -624,7 +629,7 @@ class DockFileBrowser(pDockWidget):
         self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
         
         self.showAction().setShortcut("F7")
-        core.actionModel().addAction("mDocks/aFileBrowser", self.showAction())
+        core.actionManager().addAction("mDocks/aFileBrowser", self.showAction())
         
         self.visibilityChanged.connect(self._onVisibilityChanged)
     
@@ -635,7 +640,9 @@ class DockFileBrowser(pDockWidget):
             self._smartHistory.del_()
         if self._jumpToCurrent is not None:
             self._jumpToCurrent.del_()
-        core.actionModel().removeAction("mDocks/aFileBrowser")
+        if self._comboBox is not None:
+            self._comboBox.del_()
+        core.actionManager().removeAction("mDocks/aFileBrowser")
         self.deleteLater()
 
     def _onVisibilityChanged(self, visible):
