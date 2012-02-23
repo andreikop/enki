@@ -6,7 +6,7 @@ Application shortcuts module transparently manages QAction shortcuts.
 
 Here is example of global action creation: ::
 
-    action = core.actionModel().addAction("mSettings/aShortcuts",
+    action = core.actionManager().addAction("mSettings/aShortcuts",
                                           self.tr( "Shortcuts..."),
                                           QIcon(':/mksicons/shortcuts.png'))
 
@@ -36,17 +36,6 @@ def tr(text):  # pylint: disable=C0103
 
 _CONFIG_PATH = os.path.join(mks.core.defines.CONFIG_DIR, 'shortcuts.cfg')
 
-def _recursiveActionsList(model, parentIndex = QModelIndex()):
-    """Get recursive list of all model indexes
-    """
-    for childRow in range(model.rowCount(parentIndex)):
-        childIndex = model.index(childRow, 0, parentIndex)
-        action = model.action(childIndex)
-        if not action.menu():
-            yield action
-        for action in _recursiveActionsList(model, childIndex):
-            yield action
-
 
 class Plugin:
     """Module implementation
@@ -59,20 +48,22 @@ class Plugin:
             self._config = None
             return
 
-        self._model = core.actionModel()
-        self._model.rowsInserted.connect(self._onActionInserted)
+        self._actionManager = core.actionManager()
         
-        self._action = self._model.addAction("mSettings/aApplicationShortcuts",
+        self._action = self._actionManager.addAction("mSettings/aApplicationShortcuts",
                                        tr( "Application shortcuts..."), 
                                        QIcon(':/mksicons/shortcuts.png'))
         self._action.setStatusTip(tr( "Edit application shortcuts..."))
         self._action.triggered.connect(self._onEditShortcuts)
         
-        for action in _recursiveActionsList(self._model):
-            self._applyShortcut(action)
+        for action in self._actionManager.allActions():
+            if not action.menu():
+                self._applyShortcut(action)
+        
+        self._actionManager.actionInserted.connect(self._onActionInserted)
 
     def __del__(self):
-        self._model.removeAction(self._action)
+        self._actionManager.removeAction(self._action)
     
     def moduleConfiguratorClass(self):
         """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
@@ -82,33 +73,31 @@ class Plugin:
     def _applyShortcut(self, action):
         """Apply for the action its shortcut if defined
         """
-        self._model.setDefaultShortcut(action, action.shortcut())
-        if self._config is not None:
-            path = self._model.path(action)
-            try:
-                shortcut = self._config.get(path)
-            except KeyError:
-                return
-            action.setShortcut(shortcut)
+        self._actionManager.setDefaultShortcut(action, action.shortcut())
+        path = self._actionManager.path(action)
 
-    def _onActionInserted(self, parentIndex, start, end):
+        try:
+            shortcut = self._config.get(path)
+        except KeyError:
+            return
+
+        action.setShortcut(shortcut)
+
+    def _onActionInserted(self, action):
         """Handler of action inserted signal. Changes action shortcut from default to configured by user
         """
-        for row in range(start, end + 1):
-            actionIndex = self._model.index(row, 0, parentIndex)
-            action = self._model.action(actionIndex)
-            if action is not None and \
-               not action.menu():
-                self._applyShortcut(action)
+        if not action.menu():
+            self._applyShortcut(action)
 
     def _saveShortcuts(self):
         """Save shortcuts to configuration file
         """
         if self._config is None:
             return
-        for action in _recursiveActionsList(self._model):
-            path = self._model.path(action)
-            self._config.set(path, action.shortcut().toString())
+        for action in self._actionManager.allActions():
+            if not action.menu():
+                path = self._actionManager.path(action)
+                self._config.set(path, action.shortcut().toString())
         try:
             self._config.flush()
         except UserWarning as ex:
@@ -117,5 +106,5 @@ class Plugin:
     def _onEditShortcuts(self):
         """Handler of *Edit->Shortcuts...* action. Shows dialog, than saves shortcuts to file
         """
-        pActionsShortcutEditor (self._model, core.mainWindow()).exec_()
+        pActionsShortcutEditor (self._actionManager, core.mainWindow()).exec_()
         self._saveShortcuts()

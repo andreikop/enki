@@ -73,7 +73,7 @@ def _showErrorMessage(haveQt, header, html, plain):
             return
         tkMessageBox.showwarning(header, plain)
 
-def _checkDependencies():
+def _checkDependencies(profiler):
     """Check if 3rdparty software is installed in the system.
     Notify user, how to install it
     """
@@ -87,9 +87,12 @@ def _checkDependencies():
         
         _showErrorMessage(False, 'PyQt4 not found', plain, plain)
         raise ex
-
+    
     import sip
     sip.setapi('QString', 2)
+
+    if profiler is not None:
+        profiler.stepDone('Import PyQt4')
 
     try:
         import PyQt4.Qsci
@@ -104,7 +107,10 @@ def _checkDependencies():
                 "http://www.riverbankcomputing.co.uk/software/qscintilla/download"
         _showErrorMessage(True, "QScintilla not found", html, plain)
         raise ex
-    
+
+    if profiler is not None:
+        profiler.stepDone('Import QScintilla')
+
     try:
         import configobj
         import validate
@@ -119,6 +125,8 @@ def _checkDependencies():
                 "http://www.voidspace.org.uk/python/configobj.html#downloading"
         _showErrorMessage(True, "ConfigObj not found", html, plain)
         raise ex
+    if profiler is not None:
+        profiler.stepDone('import configobj')
 
 def _configureLogging():
     logging.basicConfig(level=logging.ERROR)
@@ -136,7 +144,6 @@ def _parseCommandLine():
     cmdLine = {}
     cmdLine["profile"] = options.profile
 
-    cmdLine["firstFileLineToGo"] = None
     # Parse +N spec.
     plusNSpecs = filter(lambda s: s.startswith('+'), args)
     files = filter(lambda s: not s.startswith('+'), args)
@@ -152,18 +159,12 @@ def _parseCommandLine():
             print >> sys.stderr, "Invalid +N spec value: '%s'" % spec
             sys.exit(-1)
 
-    cmdLine["existingFiles"] = []
-    cmdLine["notExistingFiles"] = []
+    
     # Get list of absolute pathes of files to open. List may contain not existing files
     filePathes = [os.path.abspath(arg) for arg in files]
     # convert to unicode for avoid Python <-> Qt interaction problems
     filePathes = [unicode(f, 'utf8') for f in filePathes]
-    if filePathes:
-        for filePath in filePathes:
-            if os.path.exists(filePath):
-                cmdLine["existingFiles"].append(filePath)
-            else:
-                cmdLine["notExistingFiles"].append(filePath)
+    cmdLine["files"] = filePathes
     
     return cmdLine
 
@@ -177,10 +178,10 @@ def main():
         profiler = None
 
     try:
-        _checkDependencies()
+        _checkDependencies(profiler)
     except ImportError:
         sys.exit(-1)
-
+    
     # Imports only here. Hack for ability to get help and version info even on system without PyQt.
     import PyQt4.QtGui
     
@@ -203,17 +204,17 @@ def main():
     from mks.core.core import core
     core.init(profiler)
 
-    if cmdLine["existingFiles"] or cmdLine["notExistingFiles"]:
-        for path in cmdLine["existingFiles"]:
-            if cmdLine["firstFileLineToGo"] is not None:
-                # -1 to convert from users to internal indexing
-                core.workspace().goTo(path, line=cmdLine["firstFileLineToGo"] - 1)
-                cmdLine["firstFileLineToGo"] = None
+    if cmdLine["files"]:
+        for filePath in cmdLine["files"]:
+            if os.path.exists(filePath):
+                if "firstFileLineToGo" in cmdLine:
+                    # -1 to convert from users to internal indexing
+                    core.workspace().goTo(path, line=cmdLine["firstFileLineToGo"] - 1)
+                    del cmdLine["firstFileLineToGo"]
+                else:
+                    core.workspace().openFile(filePath)
             else:
-                core.workspace().openFile(path)
-
-        for path in cmdLine["notExistingFiles"]:
-            core.workspace().createEmptyNotSavedDocument(path)
+                core.workspace().createEmptyNotSavedDocument(filePath)
     else:
         if core.workspace().textEditorClass():
             core.workspace().createEmptyNotSavedDocument()

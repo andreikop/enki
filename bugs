@@ -1,7 +1,7 @@
 FIXME
     маленькое разрешение иконки приложения
-    убрать lucid из версии пакета
-
+    не перебивать выделением в qscintilla буфер обмена
+    
 REFACTORING
     Plugin abstract interface
 

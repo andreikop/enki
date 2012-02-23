@@ -23,7 +23,7 @@ class Plugin(QObject):
         def createAction(menuItem, text, icon, tab):
             """Create a menu action and connect it to the slot
             """
-            action = core.actionModel().addAction("mHelp/%s" % menuItem, text, QIcon(':mksicons/' + icon))
+            action = core.actionManager().addAction("mHelp/%s" % menuItem, text, QIcon(':mksicons/' + icon))
             slot = lambda : UIAbout(core.mainWindow(), tab).exec_()  # pylint: disable=W0108
             action.triggered.connect(slot)
             return action
@@ -33,7 +33,7 @@ class Plugin(QObject):
                                 createAction('aReportBug', self.tr('Report &Bug...'), 'debugger.png', 'bug'),
                                 createAction('aDonate', self.tr('&Donate...'), 'add.png', 'donate')]
 
-        action = core.actionModel().addAction( "mHelp/aAboutQt", self.tr('About &Qt...'), QIcon(':mksicons/qt.png'))
+        action = core.actionManager().addAction( "mHelp/aAboutQt", self.tr('About &Qt...'), QIcon(':mksicons/qt.png'))
         action.triggered.connect(qApp.aboutQt)
         self._createdActions.append(action)
 
@@ -46,7 +46,7 @@ class Plugin(QObject):
         """Terminate the plugin
         """
         for action in self._createdActions:
-            core.actionModel().removeAction(action)
+            core.actionManager().removeAction(action)
 
 class UIAbout(QDialog):
     """About dialogue

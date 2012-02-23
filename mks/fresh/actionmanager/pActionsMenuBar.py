@@ -6,42 +6,36 @@ API docks at http://api.monkeystudio.org/fresh/
 
 from PyQt4.QtGui import QMenuBar
 
-from .pActionsModel import pActionsModel
+from .ActionManager import ActionManager
 
 class pActionsMenuBar(QMenuBar):
     def __init__(self, parent):
         QMenuBar.__init__(self, parent)
-        self._model = None
+        self._manager = None
 
     def setModel(self, model ):
-        if self._model is not None:
-            self._model.actionInserted.disconnect(self.model_actionInserted)
-            self._model.actionsCleared.disconnect(self.model_actionsCleared)
+        if self._manager is not None:
+            self._manager.actionInserted.disconnect(self.model_actionInserted)
             self.clear()
-            self._model = None
+            self._manager = None
         
-        self._model = model
+        self._manager = model
         
-        if  self._model is not None:
-            for i in range(self._model.rowCount()):
-                action = self._model.action( self._model.index( i, 0 ) )
+        if  self._manager is not None:
+            for action in self._manager.children(None):
                 self.model_actionInserted( action )
 
-        if self._model is not None:
-            self._model.actionInserted.connect(self.model_actionInserted)
-            self._model.actionsCleared.connect(self.model_actionsCleared)
+        if self._manager is not None:
+            self._manager.actionInserted.connect(self.model_actionInserted)
 
     def model(self):
-        if self._model is None:
-            self.setModel( pActionsModel(self) )
+        if self._manager is None:
+            self.setModel( ActionManager(self) )
 
-        return self._model
+        return self._manager
 
     def model_actionInserted(self, action ):
-        parent = self._model.parentAction( action )
+        parent = self._manager.parentAction( action )
         
         if parent is None and action.menu():
             self.addMenu( action.menu() )
-
-    def model_actionsCleared(self):
-        self.clear()

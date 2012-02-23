@@ -1,4 +1,4 @@
-"""Module implementing a custom lexer using pygments.
+"""Module implements a custom lexer using pygments.
 
 Based on pygments lexer for Eric, written by Detlev Offenbach
 """
