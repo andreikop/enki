@@ -169,24 +169,32 @@ class Editor(AbstractTextEditor):
         Other shortcuts are disabled, or are configured with mks.plugins.editorshortcuts and defined here
         """
         qsci = self.qscintilla
+        
+        leaveDefaults = set([\
+            "Move down one line", "Move up one line", "Move left one character", "Move right one character",
+            "Extend selection down one line", "Extend selection up one line", 
+                "Extend selection left one character", "Extend selection right one character",
+            "Move left one word", "Move right one word",
+                "Extend selection left one word", "Extend selection right one word",
+            "Move down one page", "Move up one page",
+                "Extend selection down one page", "Extend selection up one page",
+            "Move to first visible character in line", "Move to end of line",
+                "Extend selection to first visible character in line", "Extend selection to end of line",
+            "Move to start of text", "Move to end of text",
+                "Extend selection to start of text", "Extend selection to end of text",
+            "Indent one level", "Move back one indentation level",
+            "Insert new line",
+            "Cancel",
+            "Delete current character", "Delete previous character",
+            "Delete word to right", "Delete word to left",
+            "Select all text"
+            ])
 
-        qsci.standardCommands().clearKeys()
-        qsci.standardCommands().clearAlternateKeys()
+        for command in qsci.standardCommands().commands():
+            if not command.description() in leaveDefaults:
+                command.setKey(0)
+                command.setAlternateKey(0)
 
-        # Some shortcuts are hardcoded there.
-        #If we made is a QActions, it will shadow Qt default keys for move focus, etc
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_TAB, qsci.SCI_TAB)
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_ESCAPE, qsci.SCI_CANCEL)
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_RETURN, qsci.SCI_NEWLINE)
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_DOWN, qsci.SCI_LINEDOWN)
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_UP, qsci.SCI_LINEUP)
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_RIGHT, qsci.SCI_CHARRIGHT)
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_LEFT, qsci.SCI_CHARLEFT)
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_BACK, qsci.SCI_DELETEBACK)
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_PRIOR, qsci.SCI_PAGEUP)
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_NEXT, qsci.SCI_PAGEDOWN)
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_HOME, qsci.SCI_VCHOME)
-        qsci.SendScintilla( qsci.SCI_ASSIGNCMDKEY, qsci.SCK_END, qsci.SCI_LINEEND)
     
     def applySettings(self):  # pylint: disable=R0912,R0915
         """Apply own settings form the config
