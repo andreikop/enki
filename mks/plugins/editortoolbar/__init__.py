@@ -21,7 +21,8 @@ class Plugin:
         self._editorToolBar = EditorToolBar(statusBar)
         statusBar.addPermanentWidget(self._editorToolBar)
     
-    def __del__(self):
+    def del_(self):
+        core.mainWindow().statusBar().removeWidget(self._editorToolBar)
         del self._editorToolBar
 
     def moduleConfiguratorClass(self):
