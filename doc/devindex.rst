@@ -1,5 +1,5 @@
-Developer (internal) documentation
-==================================
+Internal documentation
+======================
 MkS consists of 4 major packages:
 
 mks.core
@@ -21,6 +21,13 @@ mks.plugins
 mks.fresh
 
 * Few GUI widgets. Ported from https://github.com/pasnox/fresh. Documented `here <http://api.monkeystudio.org/fresh/>`_.
+
+Plugins tutorial
+================
+To create your own plugins for mksv3, read tutorial at the `wiki <https://github.com/hlamer/mksv3/wiki/Plugins-tutorial>`_.
+
+Modules documentation
+=====================
 
 Plugin API documentation
 ------------------------
