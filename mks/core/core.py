@@ -110,9 +110,7 @@ class Core:
         """
         while self._loadedPlugins:
             plugin = self._loadedPlugins.pop()
-            if hasattr(plugin, 'del_'):  # TODO make plugin absract interface
-                plugin.del_()
-            del plugin
+            plugin.del_()
 
         if self._uiSettingsManager is not None:
             del self._uiSettingsManager
