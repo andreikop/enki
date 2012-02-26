@@ -413,7 +413,6 @@ class AbstractTextEditor(AbstractDocument):
         self._applyHighlightingLanguage(language)
         self.languageChanged.emit(old, language)
 
-    
     def _applyHighlightingLanguage(self, language):
         """Apply new highlighting language
         """
