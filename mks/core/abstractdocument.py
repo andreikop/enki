@@ -36,12 +36,18 @@ class AbstractDocument(QWidget):
     
     **Signal** emitted, when modified state changed (file edited, or saved)
     Bool parameter contains new value
+    
+    Signal is retransmitted by the workspace
     """  # pylint: disable=W0105
     
-    #Signal emitted, when document icon or toolTip has changed 
-    #(i.e. document has been modified externally)
     documentDataChanged = pyqtSignal()
+    """
+    documentDataChanged()
     
+    **Signal** emitted, when document icon or toolTip has changed
+    (i.e. document has been modified externally)
+    """
+
     def __init__( self, parentObject, filePath, createNew=False):
         """Create editor and open file.
         If file is None or createNew is True, empty not saved file is created
@@ -288,6 +294,8 @@ class AbstractTextEditor(AbstractDocument):
     cursorPositionChanged(line, column)
     
     **Signal** emitted, when cursor position has been changed
+
+    Signal is retransmitted by the workspace
     """  # pylint: disable=W0105
     
     languageChanged = pyqtSignal(unicode, unicode)
@@ -295,6 +303,8 @@ class AbstractTextEditor(AbstractDocument):
     languageChanged(old, new)
     
     **Signal** emitted, when highlighting (programming) language of a file has been changed
+
+    Signal is retransmitted by the workspace
     """  # pylint: disable=W0105
     
     indentWidthChanged = pyqtSignal(int)
@@ -302,6 +312,8 @@ class AbstractTextEditor(AbstractDocument):
     indentWidthChanged(width)
     
     **Signal** emitted, when indentation with has been changed
+
+    Signal is retransmitted by the workspace
     """  # pylint: disable=W0105
 
     indentUseTabsChanged = pyqtSignal(bool)
@@ -309,6 +321,8 @@ class AbstractTextEditor(AbstractDocument):
     indentUseTabsChanged(use)
     
     **Signal** emitted, when indentation mode has been changed
+
+    Signal is retransmitted by the workspace
     """  # pylint: disable=W0105
 
     newLineInserted = pyqtSignal()

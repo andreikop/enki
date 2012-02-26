@@ -78,6 +78,7 @@ class _OpenedFileModel(QAbstractItemModel):
         workspace = parentObject.parent()
         workspace.documentOpened.connect(self._onDocumentOpened)
         workspace.documentClosed.connect(self._onDocumentClosed)
+        workspace.modifiedChanged.connect(self._onDocumentDataChanged)
     
     def columnCount(self, parent):  # pylint: disable=W0613
         """See QAbstractItemModel documentation"""
@@ -317,13 +318,15 @@ class _OpenedFileModel(QAbstractItemModel):
         assert( not document in core.workspace().sortedDocuments )
         core.workspace().sortedDocuments.append( document )
         self.sortDocuments()
-        document.modifiedChanged.connect(self._onDocumentDataChanged)
         document.documentDataChanged.connect(self._onDocumentDataChanged)
 
-    def _onDocumentDataChanged(self):
+    def _onDocumentDataChanged(self, document=None):
         """Document data has been changed. Update views
         """
-        document = self.sender()
+        if document is None:
+            document_ = self.sender()
+        else:
+            document_ = document
         index = self.documentIndex( document )
         self.dataChanged.emit( index, index )
     

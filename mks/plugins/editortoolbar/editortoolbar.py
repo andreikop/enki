@@ -150,9 +150,8 @@ class _IndentIndicatorAndSwitcher(QToolButton):
         
         self.clicked.connect(self._onClicked)
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
-        core.workspace().documentOpened.connect(self._onDocumentOpened)
-        for document in core.workspace().openedDocuments():
-            self._onDocumentOpened(document)
+        core.workspace().indentUseTabsChanged.connect(self._onIndentSettingsChanged)
+        core.workspace().indentWidthChanged.connect(self._onIndentSettingsChanged)
     
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument):  # pylint: disable=W0613
         """Current document on workspace has been changed
@@ -161,17 +160,10 @@ class _IndentIndicatorAndSwitcher(QToolButton):
             self._setIndentMode( currentDocument.indentWidth(), currentDocument.indentUseTabs() )
         else:
             self._clearIndentMode()
-    
-    def _onDocumentOpened(self, document):
-        """Document opened. Connect its signals
-        """
-        document.indentUseTabsChanged.connect(self._onIndentSettingsChanged)
-        document.indentWidthChanged.connect(self._onIndentSettingsChanged)
-    
-    def _onIndentSettingsChanged(self, use):
+
+    def _onIndentSettingsChanged(self, document, newValue):
         """Document settings changed. Update themselves, if necessary
         """
-        document = self.sender()
         if document == core.workspace().currentDocument():
             self._setIndentMode(document.indentWidth(), document.indentUseTabs())
     
