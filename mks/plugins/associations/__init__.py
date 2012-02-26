@@ -77,6 +77,7 @@ class Plugin():
         
         self._menu.aboutToShow.connect(self._onMenuAboutToShow)
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
+        core.workspace().modifiedChanged.connect(self._onDocumentModifiedChanged)
         
         Plugin.instance = self
 
@@ -106,6 +107,15 @@ class Plugin():
         language = self._getLanguage(document)
         if language:
             document.setHighlightingLanguage(language)
+    
+    def _onDocumentModifiedChanged(self, document, modified):
+        """Signal handler. Try to redetect language, if document has been changed
+        """
+        if modified:
+            return
+        
+        if not hasattr(document, "languageIsManualySet"):
+            self.applyLanguageToDocument(document)
 
     def _getLanguage(self, document):
         """Get language name by file path
@@ -151,7 +161,9 @@ class Plugin():
         Change current file highlighting mode
         """
         languageName = action.text()
-        core.workspace().currentDocument().setHighlightingLanguage(languageName)
+        document = core.workspace().currentDocument()
+        document.setHighlightingLanguage(languageName)
+        document.languageIsManualySet = True
 
     def _onCurrentDocumentChanged(self, old, new):  # pylint: disable=W0613
         """Handler of current document change. Updates View -> Highlighting menu state
