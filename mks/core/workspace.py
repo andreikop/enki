@@ -368,7 +368,9 @@ class Workspace(QStackedWidget):
 
         # add to workspace
         document.installEventFilter( self )
-        
+
+        self.documentOpened.emit( document )
+
         self.addWidget( document )
         self.setCurrentWidget( document )
     
@@ -430,10 +432,7 @@ class Workspace(QStackedWidget):
             return None
         finally:
             QApplication.restoreOverrideCursor()
-        
-        self.documentOpened.emit( document )
-        
-        
+
         self._handleDocument( document )
         
         if not os.access(filePath, os.W_OK):
@@ -447,7 +446,6 @@ class Workspace(QStackedWidget):
         Used on startup, if no file was specified, and after File->New file has been triggered
         """
         document = self._textEditorClass(self, filePath, True)
-        self.documentOpened.emit( document )
         self._handleDocument( document )
         return document
         
