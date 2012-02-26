@@ -2,20 +2,17 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
     <title>mitscheme — MIT Scheme integration. Interactive Scheme console &mdash; mksv3. Simple programmers text editor</title>
-    
     <link rel="stylesheet" href="../static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.2.6',
+        VERSION:     '0.2.7',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -48,13 +45,7 @@
             
   <span class="target" id="module-mks.plugins.mitscheme"></span><div class="section" id="mitscheme-mit-scheme-integration-interactive-scheme-console">
 <h1>mitscheme &#8212; MIT Scheme integration. Interactive Scheme console<a class="headerlink" href="#mitscheme-mit-scheme-integration-interactive-scheme-console" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="mks.plugins.mitscheme.MitSchemeSettings">
-<em class="property">class </em><tt class="descclassname">mks.plugins.mitscheme.</tt><tt class="descname">MitSchemeSettings</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#mks.plugins.mitscheme.MitSchemeSettings" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QWidget</span></tt></p>
-<p>Settings widget. Insertted as a page to UISettings</p>
-</dd></dl>
-
+<p>File contains integration with the core</p>
 <dl class="class">
 <dt id="mks.plugins.mitscheme.Configurator">
 <em class="property">class </em><tt class="descclassname">mks.plugins.mitscheme.</tt><tt class="descname">Configurator</tt><big>(</big><em>dialog</em><big>)</big><a class="headerlink" href="#mks.plugins.mitscheme.Configurator" title="Permalink to this definition">¶</a></dt>
@@ -82,11 +73,6 @@
 <em class="property">class </em><tt class="descclassname">mks.plugins.mitscheme.</tt><tt class="descname">Plugin</tt><a class="headerlink" href="#mks.plugins.mitscheme.Plugin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtCore.QObject</span></tt></p>
 <p>Module implementation</p>
-<dl class="attribute">
-<dt id="mks.plugins.mitscheme.Plugin.instance">
-<tt class="descname">instance</tt><em class="property"> = None</em><a class="headerlink" href="#mks.plugins.mitscheme.Plugin.instance" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="method">
 <dt id="mks.plugins.mitscheme.Plugin.moduleConfiguratorClass">
 <tt class="descname">moduleConfiguratorClass</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.mitscheme.Plugin.moduleConfiguratorClass" title="Permalink to this definition">¶</a></dt>
@@ -103,82 +89,6 @@
 <dt id="mks.plugins.mitscheme.Plugin.del_">
 <tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.mitscheme.Plugin.del_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Terminate the plugin. Method called by core, when closing mksv3, and sometimes by plugin itself</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="mks.plugins.mitscheme.MitSchemeDock">
-<em class="property">class </em><tt class="descclassname">mks.plugins.mitscheme.</tt><tt class="descname">MitSchemeDock</tt><big>(</big><em>widget</em><big>)</big><a class="headerlink" href="#mks.plugins.mitscheme.MitSchemeDock" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">mks.fresh.dockwidget.pDockWidget.pDockWidget</span></tt></p>
-<p>Dock widget with terminal emulator</p>
-<dl class="method">
-<dt id="mks.plugins.mitscheme.MitSchemeDock.eventFilter">
-<tt class="descname">eventFilter</tt><big>(</big><em>obj</em>, <em>event</em><big>)</big><a class="headerlink" href="#mks.plugins.mitscheme.MitSchemeDock.eventFilter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Event filter for the widget. Catches Esc pressings. It is necessary, because QScintilla eats it</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="mks.plugins.mitscheme.MitSchemeTermWidget">
-<em class="property">class </em><tt class="descclassname">mks.plugins.mitscheme.</tt><tt class="descname">MitSchemeTermWidget</tt><big>(</big><em>mitScheme</em>, <em>*args</em><big>)</big><a class="headerlink" href="#mks.plugins.mitscheme.MitSchemeTermWidget" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../lib/termwidget.html#mks.lib.termwidget.TermWidget" title="mks.lib.termwidget.TermWidget"><tt class="xref py py-class docutils literal"><span class="pre">mks.lib.termwidget.TermWidget</span></tt></a></p>
-<p>Terminal emulator widget</p>
-<dl class="method">
-<dt id="mks.plugins.mitscheme.MitSchemeTermWidget.isCommandComplete">
-<tt class="descname">isCommandComplete</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#mks.plugins.mitscheme.MitSchemeTermWidget.isCommandComplete" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse the command and check, if it is complete and should be executed</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.mitscheme.MitSchemeTermWidget.childExecCommand">
-<tt class="descname">childExecCommand</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#mks.plugins.mitscheme.MitSchemeTermWidget.childExecCommand" title="Permalink to this definition">¶</a></dt>
-<dd><p>Execute command. Called by parent class</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="mks.plugins.mitscheme.MitScheme">
-<em class="property">class </em><tt class="descclassname">mks.plugins.mitscheme.</tt><tt class="descname">MitScheme</tt><big>(</big><em>interpreterPath</em><big>)</big><a class="headerlink" href="#mks.plugins.mitscheme.MitScheme" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtCore.QObject</span></tt></p>
-<p>MIT scheme shell. Implements REPL. Graphical frontend for original terminal version.</p>
-<dl class="attribute">
-<dt id="mks.plugins.mitscheme.MitScheme.processIsRunningChanged">
-<tt class="descname">processIsRunningChanged</tt><a class="headerlink" href="#mks.plugins.mitscheme.MitScheme.processIsRunningChanged" title="Permalink to this definition">¶</a></dt>
-<dd><p>processStopped(isRunning)</p>
-<p><strong>Signal</strong> emitted, when MIT Scheme process starts and stops</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.mitscheme.MitScheme.widget">
-<tt class="descname">widget</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.mitscheme.MitScheme.widget" title="Permalink to this definition">¶</a></dt>
-<dd><p>MIT Scheme emulator</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.mitscheme.MitScheme.start">
-<tt class="descname">start</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.mitscheme.MitScheme.start" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start scheme process</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.mitscheme.MitScheme.stop">
-<tt class="descname">stop</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.mitscheme.MitScheme.stop" title="Permalink to this definition">¶</a></dt>
-<dd><p>Stop scheme process</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.mitscheme.MitScheme.execCommand">
-<tt class="descname">execCommand</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#mks.plugins.mitscheme.MitScheme.execCommand" title="Permalink to this definition">¶</a></dt>
-<dd><p>Execute text</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.mitscheme.MitScheme.loadFile">
-<tt class="descname">loadFile</tt><big>(</big><em>filePath</em><big>)</big><a class="headerlink" href="#mks.plugins.mitscheme.MitScheme.loadFile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load file using MIT Scheme load function</p>
 </dd></dl>
 
 </dd></dl>
@@ -202,7 +112,7 @@
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" size="18" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -230,7 +140,7 @@
     </div>
     <div class="footer">
         &copy; Copyright (C) 2005 - 2012 Andrei KOPATS, Filipe AZEVEDO and The MkS Team.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

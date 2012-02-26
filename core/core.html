@@ -2,20 +2,17 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
     <title>core — Instances of core classes, initialize and terminate the system &mdash; mksv3. Simple programmers text editor</title>
-    
     <link rel="stylesheet" href="../static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.2.6',
+        VERSION:     '0.2.7',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -57,7 +54,7 @@ and used for get core instances, such as main window, workspace, etc.</p>
 <p>It creates instances of other core modules and holds references to it</p>
 <dl class="method">
 <dt id="mks.core.core.Core.init">
-<tt class="descname">init</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.core.Core.init" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">init</tt><big>(</big><em>profiler</em><big>)</big><a class="headerlink" href="#mks.core.core.Core.init" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize core.</p>
 <p>Called only by main()</p>
 </dd></dl>
@@ -76,8 +73,8 @@ and used for get core instances, such as main window, workspace, etc.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mks.core.core.Core.actionModel">
-<tt class="descname">actionModel</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.core.Core.actionModel" title="Permalink to this definition">¶</a></dt>
+<dt id="mks.core.core.Core.actionManager">
+<tt class="descname">actionManager</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.core.Core.actionManager" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get main window <a class="reference external" href="http://api.monkeystudio.org/fresh/classp_actions_node_model.html">action model</a> instance</p>
 </dd></dl>
 
@@ -122,7 +119,7 @@ and used for get core instances, such as main window, workspace, etc.</p>
 
 <dl class="data">
 <dt id="mks.core.core.core">
-<tt class="descclassname">mks.core.core.</tt><tt class="descname">core</tt><em class="property"> = &lt;mks.core.core.Core instance at 0xa41042c&gt;</em><a class="headerlink" href="#mks.core.core.core" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">mks.core.core.</tt><tt class="descname">core</tt><a class="headerlink" href="#mks.core.core.core" title="Permalink to this definition">¶</a></dt>
 <dd><p>Core instance. It is accessible as:</p>
 <p>from mks.core.core import core
 core.anyMethod()</p>
@@ -147,7 +144,7 @@ core.anyMethod()</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" size="18" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -175,7 +172,7 @@ core.anyMethod()</p>
     </div>
     <div class="footer">
         &copy; Copyright (C) 2005 - 2012 Andrei KOPATS, Filipe AZEVEDO and The MkS Team.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

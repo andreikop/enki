@@ -2,20 +2,17 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
     <title>editor — Text editor. Uses QScintilla internally &mdash; mksv3. Simple programmers text editor</title>
-    
     <link rel="stylesheet" href="../static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.2.6',
+        VERSION:     '0.2.7',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -50,12 +47,6 @@
 <h1>editor &#8212; Text editor. Uses QScintilla internally<a class="headerlink" href="#editor-text-editor-uses-qscintilla-internally" title="Permalink to this headline">¶</a></h1>
 <p>This text editor is used by default</p>
 <dl class="class">
-<dt id="mks.plugins.editor.LexerSettingsWidget">
-<em class="property">class </em><tt class="descclassname">mks.plugins.editor.</tt><tt class="descname">LexerSettingsWidget</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.LexerSettingsWidget" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QWidget</span></tt></p>
-</dd></dl>
-
-<dl class="class">
 <dt id="mks.plugins.editor.EditorConfigurator">
 <em class="property">class </em><tt class="descclassname">mks.plugins.editor.</tt><tt class="descname">EditorConfigurator</tt><big>(</big><em>dialog</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.EditorConfigurator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../core/uisettings.html#mks.core.uisettings.ModuleConfigurator" title="mks.core.uisettings.ModuleConfigurator"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.uisettings.ModuleConfigurator</span></tt></a></p>
@@ -75,182 +66,15 @@
 </dd></dl>
 
 <dl class="class">
-<dt id="mks.plugins.editor.LexerConfig">
-<em class="property">class </em><tt class="descclassname">mks.plugins.editor.</tt><tt class="descname">LexerConfig</tt><a class="headerlink" href="#mks.plugins.editor.LexerConfig" title="Permalink to this definition">¶</a></dt>
-<dd><p>Class manages settings of QScintilla lexers. Functionality:</p>
-<ul class="simple">
-<li>Create configuration file with lexer defaults</li>
-<li>Load and save the file</li>
-</ul>
-</dd></dl>
-
-<dl class="class">
-<dt id="mks.plugins.editor.Lexer">
-<em class="property">class </em><tt class="descclassname">mks.plugins.editor.</tt><tt class="descname">Lexer</tt><big>(</big><em>editor</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Lexer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Wrapper for all Qscintilla lexers. Functionality:</p>
-<ul class="simple">
-<li>Choose lexer for a file</li>
-<li>Apply lexer settings</li>
-</ul>
-<dl class="attribute">
-<dt id="mks.plugins.editor.Lexer.LEXER_FOR_LANGUAGE">
-<tt class="descname">LEXER_FOR_LANGUAGE</tt><em class="property"> = {'XML': &lt;class 'PyQt4.Qsci.QsciLexerXML'&gt;, 'Java': &lt;class 'PyQt4.Qsci.QsciLexerJava'&gt;, 'D': &lt;class 'PyQt4.Qsci.QsciLexerD'&gt;, 'VHDL': &lt;class 'PyQt4.Qsci.QsciLexerVHDL'&gt;, 'JavaScript': &lt;class 'PyQt4.Qsci.QsciLexerJavaScript'&gt;, 'Makefile': &lt;class 'PyQt4.Qsci.QsciLexerMakefile'&gt;, 'Batch': &lt;class 'PyQt4.Qsci.QsciLexerBatch'&gt;, 'C++': &lt;class 'PyQt4.Qsci.QsciLexerCPP'&gt;, 'Perl': &lt;class 'PyQt4.Qsci.QsciLexerPerl'&gt;, 'TeX': &lt;class 'PyQt4.Qsci.QsciLexerTeX'&gt;, 'Lua': &lt;class 'PyQt4.Qsci.QsciLexerLua'&gt;, 'IDL': &lt;class 'PyQt4.Qsci.QsciLexerIDL'&gt;, 'Verilog': &lt;class 'PyQt4.Qsci.QsciLexerVerilog'&gt;, 'Scheme': &lt;function _getPygmentsSchemeLexer at 0xab0fd84&gt;, 'CSS': &lt;class 'PyQt4.Qsci.QsciLexerCSS'&gt;, 'Fortran77': &lt;class 'PyQt4.Qsci.QsciLexerFortran77'&gt;, 'Python': &lt;class 'PyQt4.Qsci.QsciLexerPython'&gt;, 'CMake': &lt;class 'PyQt4.Qsci.QsciLexerCMake'&gt;, 'Fortran': &lt;class 'PyQt4.Qsci.QsciLexerFortran'&gt;, 'C#': &lt;class 'PyQt4.Qsci.QsciLexerCSharp'&gt;, 'YAML': &lt;class 'PyQt4.Qsci.QsciLexerYAML'&gt;, 'Pascal': &lt;class 'PyQt4.Qsci.QsciLexerPascal'&gt;, 'POV': &lt;class 'PyQt4.Qsci.QsciLexerPOV'&gt;, 'TCL': &lt;class 'PyQt4.Qsci.QsciLexerTCL'&gt;, 'HTML': &lt;class 'PyQt4.Qsci.QsciLexerHTML'&gt;, 'SQL': &lt;class 'PyQt4.Qsci.QsciLexerSQL'&gt;, 'PostScript': &lt;class 'PyQt4.Qsci.QsciLexerPostScript'&gt;, 'Diff': &lt;class 'PyQt4.Qsci.QsciLexerDiff'&gt;, 'Ruby': &lt;class 'PyQt4.Qsci.QsciLexerRuby'&gt;, 'Properties': &lt;class 'PyQt4.Qsci.QsciLexerProperties'&gt;, 'Bash': &lt;class 'PyQt4.Qsci.QsciLexerBash'&gt;, 'Spice': &lt;class 'PyQt4.Qsci.QsciLexerSpice'&gt;}</em><a class="headerlink" href="#mks.plugins.editor.Lexer.LEXER_FOR_LANGUAGE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="mks.plugins.editor.Lexer.PYTHON_INDENTATION_WARNING_TO_QSCI">
-<tt class="descname">PYTHON_INDENTATION_WARNING_TO_QSCI</tt><em class="property"> = {'Tabs': 4, 'Spaces': 3, 'TabsAfterSpaces': 2, 'Inconsistent': 1}</em><a class="headerlink" href="#mks.plugins.editor.Lexer.PYTHON_INDENTATION_WARNING_TO_QSCI" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="mks.plugins.editor.Lexer.LEXER_BOOL_ATTRIBUTES">
-<tt class="descname">LEXER_BOOL_ATTRIBUTES</tt><em class="property"> = ('foldComments', 'foldCompact', 'foldQuotes', 'foldDirectives', 'foldAtBegin', 'foldAtParenthesis', 'foldAtElse', 'foldAtModule', 'foldPreprocessor', 'stylePreprocessor', 'caseSensitiveTags', 'backslashEscapes')</em><a class="headerlink" href="#mks.plugins.editor.Lexer.LEXER_BOOL_ATTRIBUTES" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Lexer.applyLanguage">
-<tt class="descname">applyLanguage</tt><big>(</big><em>language</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Lexer.applyLanguage" title="Permalink to this definition">¶</a></dt>
-<dd><p>Apply programming language. Changes syntax highlighting mode</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Lexer.applySettings">
-<tt class="descname">applySettings</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Lexer.applySettings" title="Permalink to this definition">¶</a></dt>
-<dd><p>Apply editor and lexer settings</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="mks.plugins.editor.Editor">
-<em class="property">class </em><tt class="descclassname">mks.plugins.editor.</tt><tt class="descname">Editor</tt><big>(</big><em>parentObject</em>, <em>filePath</em>, <em>createNew=False</em>, <em>terminalWidget=False</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../core/abstractdocument.html#mks.core.abstractdocument.AbstractTextEditor" title="mks.core.abstractdocument.AbstractTextEditor"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractTextEditor</span></tt></a></p>
-<p>Text editor widget.</p>
-<p>Uses QScintilla internally</p>
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.applySettings">
-<tt class="descname">applySettings</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.applySettings" title="Permalink to this definition">¶</a></dt>
-<dd><p>Apply own settings form the config</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.isModified">
-<tt class="descname">isModified</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.isModified" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check is file has been modified</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.eolMode">
-<tt class="descname">eolMode</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.eolMode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Line end mode of the file</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.setEolMode">
-<tt class="descname">setEolMode</tt><big>(</big><em>mode</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.setEolMode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set line end mode of the file</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.indentWidth">
-<tt class="descname">indentWidth</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.indentWidth" title="Permalink to this definition">¶</a></dt>
-<dd><p>Indentation width in symbol places (spaces)</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.indentUseTabs">
-<tt class="descname">indentUseTabs</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.indentUseTabs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Indentation uses Tabs instead of Spaces</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.text">
-<tt class="descname">text</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.text" title="Permalink to this definition">¶</a></dt>
-<dd><p>Contents of the editor</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.setText">
-<tt class="descname">setText</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.setText" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set text in the QScintilla, clear modified flag, update line numbers bar</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.selectedText">
-<tt class="descname">selectedText</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.selectedText" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get selected text</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.selection">
-<tt class="descname">selection</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.selection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get coordinates of selected area as ((startLine, startCol), (endLine, endCol))</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.absSelection">
-<tt class="descname">absSelection</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.absSelection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get coordinates of selected area as (startAbsPos, endAbsPos)</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.cursorPosition">
-<tt class="descname">cursorPosition</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.cursorPosition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get cursor position as tuple (line, col)</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.replaceSelectedText">
-<tt class="descname">replaceSelectedText</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.replaceSelectedText" title="Permalink to this definition">¶</a></dt>
-<dd><p>Replace selected text with text</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.beginUndoAction">
-<tt class="descname">beginUndoAction</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.beginUndoAction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start doing set of modifications, which will be managed as one action.
-User can Undo and Redo all modifications with one action</p>
-<p>DO NOT FORGET to call <strong>endUndoAction()</strong> after you have finished</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.endUndoAction">
-<tt class="descname">endUndoAction</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.endUndoAction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Finish doing set of modifications, which will be managed as one action.
-User can Undo and Redo all modifications with one action</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.lineCount">
-<tt class="descname">lineCount</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.lineCount" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get line count</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.toggleBookmark">
-<tt class="descname">toggleBookmark</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.toggleBookmark" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set or clear bookmark on the line</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.nextBookmark">
-<tt class="descname">nextBookmark</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.nextBookmark" title="Permalink to this definition">¶</a></dt>
-<dd><p>Move to the next bookmark</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mks.plugins.editor.Editor.prevBookmark">
-<tt class="descname">prevBookmark</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Editor.prevBookmark" title="Permalink to this definition">¶</a></dt>
-<dd><p>Move to the previous bookmark</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
 <dt id="mks.plugins.editor.Plugin">
 <em class="property">class </em><tt class="descclassname">mks.plugins.editor.</tt><tt class="descname">Plugin</tt><a class="headerlink" href="#mks.plugins.editor.Plugin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plugin interface implementation</p>
 <p>Installs and removes editor from the system</p>
+<dl class="method">
+<dt id="mks.plugins.editor.Plugin.del_">
+<tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Plugin.del_" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="mks.plugins.editor.Plugin.moduleConfiguratorClass">
 <tt class="descname">moduleConfiguratorClass</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Plugin.moduleConfiguratorClass" title="Permalink to this definition">¶</a></dt>
@@ -278,7 +102,7 @@ User can Undo and Redo all modifications with one action</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" size="18" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -306,7 +130,7 @@ User can Undo and Redo all modifications with one action</p>
     </div>
     <div class="footer">
         &copy; Copyright (C) 2005 - 2012 Andrei KOPATS, Filipe AZEVEDO and The MkS Team.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

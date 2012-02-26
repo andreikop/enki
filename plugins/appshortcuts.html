@@ -2,20 +2,17 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
     <title>appshortcuts — Manage application shortcuts &mdash; mksv3. Simple programmers text editor</title>
-    
     <link rel="stylesheet" href="../static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.2.6',
+        VERSION:     '0.2.7',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -50,7 +47,7 @@
 <h1>appshortcuts &#8212; Manage application shortcuts<a class="headerlink" href="#appshortcuts-manage-application-shortcuts" title="Permalink to this headline">¶</a></h1>
 <p>Application shortcuts module transparently manages QAction shortcuts.</p>
 <p>Here is example of global action creation:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">action</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">actionModel</span><span class="p">()</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s">&quot;mSettings/aShortcuts&quot;</span><span class="p">,</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">action</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">actionManager</span><span class="p">()</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s">&quot;mSettings/aShortcuts&quot;</span><span class="p">,</span>
                                       <span class="bp">self</span><span class="o">.</span><span class="n">tr</span><span class="p">(</span> <span class="s">&quot;Shortcuts...&quot;</span><span class="p">),</span>
                                       <span class="n">QIcon</span><span class="p">(</span><span class="s">&#39;:/mksicons/shortcuts.png&#39;</span><span class="p">))</span>
 </pre></div>
@@ -69,6 +66,11 @@
 <dt id="mks.plugins.appshortcuts.Plugin">
 <em class="property">class </em><tt class="descclassname">mks.plugins.appshortcuts.</tt><tt class="descname">Plugin</tt><a class="headerlink" href="#mks.plugins.appshortcuts.Plugin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Module implementation</p>
+<dl class="method">
+<dt id="mks.plugins.appshortcuts.Plugin.del_">
+<tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.appshortcuts.Plugin.del_" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="mks.plugins.appshortcuts.Plugin.moduleConfiguratorClass">
 <tt class="descname">moduleConfiguratorClass</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.appshortcuts.Plugin.moduleConfiguratorClass" title="Permalink to this definition">¶</a></dt>
@@ -96,7 +98,7 @@
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" size="18" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -124,7 +126,7 @@
     </div>
     <div class="footer">
         &copy; Copyright (C) 2005 - 2012 Andrei KOPATS, Filipe AZEVEDO and The MkS Team.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

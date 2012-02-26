@@ -2,20 +2,17 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
     <title>abstractdocument — Base classes for workspace documents &mdash; mksv3. Simple programmers text editor</title>
-    
     <link rel="stylesheet" href="../static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.2.6',
+        VERSION:     '0.2.7',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -213,7 +210,7 @@ None means &#8220;leave default indentation&#8221;</p>
 <li><tt class="docutils literal"><span class="pre">\n</span></tt>  - UNIX EOL</li>
 <li><tt class="docutils literal"><span class="pre">\r\n</span></tt> - Windows EOL</li>
 <li><tt class="docutils literal"><span class="pre">\r</span></tt> - Mac EOL</li>
-<li><tt class="docutils literal"><span class="pre">None</span></tt> - not defined for the editor type</li>
+<li><tt class="xref docutils literal"><span class="pre">None</span></tt> - not defined for the editor type</li>
 </ul>
 </dd></dl>
 
@@ -326,9 +323,11 @@ Examples:</p>
 <dt id="mks.core.abstractdocument.AbstractTextEditor.goTo">
 <tt class="descname">goTo</tt><big>(</big><em>absPos=None</em>, <em>line=None</em>, <em>col=None</em>, <em>selectionLength=None</em>, <em>grabFocus=False</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.goTo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Go to specified line and column.
+If line is too big, go to the last line
+If col is None - default is start of the text in the line (end of the indentation)
 If selectionLength is not None, select selectionLength characters</p>
 <p>Examples:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">document</span><span class="o">.</span><span class="n">goTo</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">document</span><span class="o">.</span><span class="n">goTo</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">document</span><span class="o">.</span><span class="n">goTo</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
 <span class="n">document</span><span class="o">.</span><span class="n">goTo</span><span class="p">(</span><span class="n">absPos</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 <span class="n">document</span><span class="o">.</span><span class="n">goTo</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">selectionLength</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>  <span class="c"># Selection from line 7 col 5 to line 7 col 13</span>
@@ -423,7 +422,7 @@ If the last line ends with EOL, additional empty line is added.</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" size="18" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -451,7 +450,7 @@ If the last line ends with EOL, additional empty line is added.</p>
     </div>
     <div class="footer">
         &copy; Copyright (C) 2005 - 2012 Andrei KOPATS, Filipe AZEVEDO and The MkS Team.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

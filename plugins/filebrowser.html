@@ -2,20 +2,17 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
     <title>filebrowser — Dock with file system tree &mdash; mksv3. Simple programmers text editor</title>
-    
     <link rel="stylesheet" href="../static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.2.6',
+        VERSION:     '0.2.7',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -54,11 +51,6 @@
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtCore.QObject</span></tt></p>
 <p>File system tree.</p>
 <p>Allows to open files quickly</p>
-<dl class="attribute">
-<dt id="mks.plugins.filebrowser.Plugin.instance">
-<tt class="descname">instance</tt><em class="property"> = None</em><a class="headerlink" href="#mks.plugins.filebrowser.Plugin.instance" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="method">
 <dt id="mks.plugins.filebrowser.Plugin.del_">
 <tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.Plugin.del_" title="Permalink to this definition">¶</a></dt>
@@ -109,13 +101,13 @@ i.e. does not show .o .pyc and other temporary files</p>
 
 <dl class="method">
 <dt id="mks.plugins.filebrowser.FileBrowserFilteredModel.columnCount">
-<tt class="descname">columnCount</tt><big>(</big><em>parent=&lt;PyQt4.QtCore.QModelIndex object at 0xb4d9b9c&gt;</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.FileBrowserFilteredModel.columnCount" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">columnCount</tt><big>(</big><em>parent=&lt;PyQt4.QtCore.QModelIndex object at 0xb2084c4&gt;</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.FileBrowserFilteredModel.columnCount" title="Permalink to this definition">¶</a></dt>
 <dd><p>Column count for the model</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mks.plugins.filebrowser.FileBrowserFilteredModel.hasChildren">
-<tt class="descname">hasChildren</tt><big>(</big><em>parent=&lt;PyQt4.QtCore.QModelIndex object at 0xb4d9bcc&gt;</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.FileBrowserFilteredModel.hasChildren" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">hasChildren</tt><big>(</big><em>parent=&lt;PyQt4.QtCore.QModelIndex object at 0xb208534&gt;</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.FileBrowserFilteredModel.hasChildren" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if node has children. QAbstractItemModel standard method</p>
 </dd></dl>
 
@@ -133,26 +125,6 @@ i.e. does not show .o .pyc and other temporary files</p>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtCore.QObject</span></tt></p>
 <p>Class stores File Browser recent directories and provides variants for combo box.</p>
 <p>&#8220;Active directory&#8221; in this class means the last directory, where one or more files has been opened</p>
-<dl class="attribute">
-<dt id="mks.plugins.filebrowser.SmartRecents.MAX_RECENTS_SIZE">
-<tt class="descname">MAX_RECENTS_SIZE</tt><em class="property"> = 8</em><a class="headerlink" href="#mks.plugins.filebrowser.SmartRecents.MAX_RECENTS_SIZE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="mks.plugins.filebrowser.SmartRecents.STATISTICS_SIZE">
-<tt class="descname">STATISTICS_SIZE</tt><em class="property"> = 10.0</em><a class="headerlink" href="#mks.plugins.filebrowser.SmartRecents.STATISTICS_SIZE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="mks.plugins.filebrowser.SmartRecents.BONUS_FOR_OPENING">
-<tt class="descname">BONUS_FOR_OPENING</tt><em class="property"> = 10.0</em><a class="headerlink" href="#mks.plugins.filebrowser.SmartRecents.BONUS_FOR_OPENING" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="mks.plugins.filebrowser.SmartRecents.MAX_POINTS_COUNT">
-<tt class="descname">MAX_POINTS_COUNT</tt><em class="property"> = 100.0</em><a class="headerlink" href="#mks.plugins.filebrowser.SmartRecents.MAX_POINTS_COUNT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </dd></dl>
 
 <dl class="class">
@@ -225,6 +197,12 @@ It creates the action and handles it</p>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QComboBox</span></tt></p>
 <p>File browser combo box.
 Widget and functionality</p>
+<dl class="method">
+<dt id="mks.plugins.filebrowser.ComboBox.del_">
+<tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.ComboBox.del_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Explicitly called destructor</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="mks.plugins.filebrowser.ComboBox.eventFilter">
 <tt class="descname">eventFilter</tt><big>(</big><em>object_</em>, <em>event</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.ComboBox.eventFilter" title="Permalink to this definition">¶</a></dt>
@@ -319,7 +297,7 @@ up (relatively for current directory)</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" size="18" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -347,7 +325,7 @@ up (relatively for current directory)</p>
     </div>
     <div class="footer">
         &copy; Copyright (C) 2005 - 2012 Andrei KOPATS, Filipe AZEVEDO and The MkS Team.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>
