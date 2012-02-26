@@ -158,11 +158,7 @@ class Editor(AbstractTextEditor):
                 except (IOError, OSError) as ex:
                     self.deleteLater()
                     raise ex
-        
-        #autodetect indent, need
-        if  myConfig["Indentation"]["AutoDetect"]:
-            self._autoDetectIndent()
-        
+
         # convert tabs if needed
         if  myConfig["Indentation"]["ConvertUponOpen"]:
             self._convertIndentation()
@@ -336,25 +332,6 @@ class Editor(AbstractTextEditor):
             self._setModified(False)
         else:
             core.messageToolBar().appendMessage('Indentation converted. You can Undo the changes', 5000)
-
-    def _autoDetectIndent(self):
-        """Delect indentation automatically and apply detected mode
-        """
-        text = self.text()
-        haveTabs = '\t' in text
-        for line in text.splitlines():  #TODO improve algorythm sometimes to skip comments
-            if line.startswith(' '):
-                haveSpaces = True
-                break
-        else:
-            haveSpaces = False
-        
-        if haveTabs:
-            self.qscintilla.setIndentationsUseTabs (True)
-        elif haveSpaces:
-            self.qscintilla.setIndentationsUseTabs (False)
-        else:
-            pass  # Don't touch current mode, if not sure
 
     def _onLinesChanged(self):
         """Handler of change of lines count in the qscintilla
