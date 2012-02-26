@@ -363,6 +363,7 @@ class OpenedFileExplorer(pDockWidget):
         self.tvFiles.setContextMenuPolicy(Qt.CustomContextMenu)
         self.tvFiles.setDragEnabled(True)
         self.tvFiles.setDragDropMode(QAbstractItemView.InternalMove)
+        self.tvFiles.setRootIsDecorated(False)
         self.tvFiles.customContextMenuRequested.connect(self._onTvFilesCustomContextMenuRequested)
         
         self.setWidget(self.tvFiles)

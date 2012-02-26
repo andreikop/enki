@@ -2,7 +2,6 @@ FIXME
     маленькое разрешение иконки приложения
     не считать - разделителем слов в scheme. Как в Makefile
     Всегда использовать табы для Makefile
-    Слишком много места перед иконкой файла
 
 REFACTORING
     Plugin abstract interface
