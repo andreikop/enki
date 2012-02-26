@@ -32,7 +32,7 @@ from PyQt4.QtCore import pyqtSignal, QEvent, Qt  # pylint: disable=E0611
 
 from mks.core.core import core, DATA_FILES_PATH
 import mks.core.openedfilemodel
-import mks.core.abstractdocument  # pylint: disable=W0404
+from mks.core.abstractdocument import AbstractDocument
 
 
 class _UISaveFiles(QDialog):
@@ -90,7 +90,7 @@ class Workspace(QStackedWidget):
     
     """
         
-    documentOpened = pyqtSignal(mks.core.abstractdocument.AbstractDocument)
+    documentOpened = pyqtSignal(AbstractDocument)
     """
     documentOpened(:class:`mks.core.abstractdocument.AbstractDocument`)
     
@@ -98,15 +98,15 @@ class Workspace(QStackedWidget):
     or some other document added to workspace
     """  # pylint: disable=W0105
     
-    documentClosed = pyqtSignal(mks.core.abstractdocument.AbstractDocument)
+    documentClosed = pyqtSignal(AbstractDocument)
     """
     documentClosed(:class:`mks.core.abstractdocument.AbstractDocument`)
     
     **Signal** emitted, when document was closed
     """  # pylint: disable=W0105
         
-    currentDocumentChanged = pyqtSignal(mks.core.abstractdocument.AbstractDocument,
-                                        mks.core.abstractdocument.AbstractDocument)
+    currentDocumentChanged = pyqtSignal(AbstractDocument,
+                                        AbstractDocument)
     """
     currentDocumentChanged(:class:`mks.core.abstractdocument.AbstractDocument` old, 
     :class:`mks.core.abstractdocument.AbstractDocument` current)
@@ -114,7 +114,48 @@ class Workspace(QStackedWidget):
     **Signal** emitted, when current document changed, i.e. user selected another document, 
     new document opened, current closed
     """  # pylint: disable=W0105
-        
+    
+    modifiedChanged = pyqtSignal(AbstractDocument, bool)
+    """
+    modifiedChanged(document, modified)
+    
+    **Signal** emitted, when modified state of a document had been changed (file edited, or saved)
+    Bool parameter contains new value
+    Convenience signal, which retransmits original signal, sent by the document
+    """  # pylint: disable=W0105
+
+    cursorPositionChanged = pyqtSignal(AbstractDocument, int, int)
+    """
+    cursorPositionChanged(document, line, column)
+    
+    **Signal** emitted, when cursor position has been changed
+    Convenience signal, which retransmits original signal, sent by the document
+    """  # pylint: disable=W0105
+    
+    languageChanged = pyqtSignal(AbstractDocument, unicode, unicode)
+    """
+    languageChanged(document, old, new)
+    
+    **Signal** emitted, when highlighting (programming) language of a file has been changed
+    Convenience signal, which retransmits original signal, sent by the document
+    """  # pylint: disable=W0105
+    
+    indentWidthChanged = pyqtSignal(AbstractDocument, int)
+    """
+    indentWidthChanged(document, width)
+    
+    **Signal** emitted, when indentation with has been changed
+    Convenience signal, which retransmits original signal, sent by the document
+    """  # pylint: disable=W0105
+
+    indentUseTabsChanged = pyqtSignal(AbstractDocument, bool)
+    """
+    indentUseTabsChanged(document, use)
+    
+    **Signal** emitted, when indentation mode has been changed
+    Convenience signal, which retransmits original signal, sent by the document
+    """  # pylint: disable=W0105
+
     def __init__(self, mainWindow):
         """ list of opened documents as it is displayed in the Opened Files Explorer. 
         List accessed and modified by mks.core.openedfilemodel.OpenedFileModel class
@@ -217,7 +258,7 @@ class Workspace(QStackedWidget):
         """
         document = self.widget(index)
         self._onCurrentDocumentChanged(document)
-    
+
     def _onCurrentDocumentChanged( self, document ):
         """Connect/disconnect document signals and update enabled/disabled 
         state of the actions
@@ -317,7 +358,14 @@ class Workspace(QStackedWidget):
         # update file menu
         document.modifiedChanged.connect(core.actionManager().action( "mFile/mSave/aCurrent" ).setEnabled)
         document.modifiedChanged.connect(self._updateMainWindowTitle)
-        
+
+        # Create lambda functions, which retransmit conveniense signals, and connect it to document signals
+        document.modifiedChanged.connect(lambda modified: self.modifiedChanged.emit(document, modified))
+        document.cursorPositionChanged.connect(lambda row, col: self.cursorPositionChanged.emit(document, row, col))
+        document.languageChanged.connect(lambda old, new: self.languageChanged.emit(document, old, new))
+        document.indentWidthChanged.connect(lambda width: self.indentWidthChanged.emit(document, width))
+        document.indentUseTabsChanged.connect(lambda useTabs: self.indentUseTabsChanged.emit(document, useTabs))    
+
         # add to workspace
         document.installEventFilter( self )
         

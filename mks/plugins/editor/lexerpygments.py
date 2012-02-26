@@ -36,7 +36,7 @@ class LexerPygments(QsciLexerCustom):
         
         if parent is not None:
             parent.textChanged.connect(self._onTextChanged)
-    
+
     def _onTextChanged(self):
         """Handler of textChanged signal from the editor.
         Invalidates cached list of tokens
