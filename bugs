@@ -1,5 +1,7 @@
 FIXME
     маленькое разрешение иконки приложения
+    не считать - разделителем слов в scheme. Как в Makefile
+    Всегда использовать табы для Makefile
 
 REFACTORING
     Plugin abstract interface
