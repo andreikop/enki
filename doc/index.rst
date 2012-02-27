@@ -66,7 +66,7 @@ Debian (based)
 ^^^^^^^^^^^^^^
 Instructions for Debian and Debian based distributions.
 
-#. Download any **mksv3_<version>~lucid1_all.deb** package from `Monkey Studio PPA <https://launchpad.net/~monkeystudio/+archive/ppa/+packages>`_
+#. Download any **mksv3_<version>~ppa1_all.deb** package from `Monkey Studio PPA <https://launchpad.net/~monkeystudio/+archive/ppa/+packages>`_
 #. Install the package with ::
 
     sudo dpkg --install mksv3*.deb

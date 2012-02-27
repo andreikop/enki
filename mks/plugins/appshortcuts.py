@@ -62,7 +62,7 @@ class Plugin:
         
         self._actionManager.actionInserted.connect(self._onActionInserted)
 
-    def __del__(self):
+    def del_(self):
         self._actionManager.removeAction(self._action)
     
     def moduleConfiguratorClass(self):
