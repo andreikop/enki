@@ -47,7 +47,10 @@ class _UISaveFiles(QDialog):
         
         self._itemToDocument = {}
         for document in documents:
-            item = QListWidgetItem( document.fileName(), self.listWidget )
+            name = document.fileName()
+            if name is None:
+                name = 'untitled'
+            item = QListWidgetItem( name, self.listWidget )
             if document.filePath() is not None:
                 item.setToolTip( document.filePath() )
             item.setCheckState( Qt.Checked )
