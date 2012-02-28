@@ -33,7 +33,6 @@ class Plugin:
     def _onLanguageChanged(self, document, old, new):
         """Signal handler. Document language had been changed
         """
-        print 'lang changed'
         if new == 'Makefile':
             self._detectAndApplyIndentation(document, True)
 
