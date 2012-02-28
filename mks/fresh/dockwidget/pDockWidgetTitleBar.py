@@ -27,20 +27,12 @@ class pDockWidgetTitleBar(QToolBar):
         spacer = QWidget( self )
         spacer.setSizePolicy( QSizePolicy( QSizePolicy.Expanding, QSizePolicy.Maximum ) )
         
-        self.tbOrientation = pToolButton( self )
-        self.tbOrientation.installEventFilter( self )
-        self.tbFloat = pToolButton( self )
-        self.tbFloat.installEventFilter( self )
         self.tbClose = pToolButton( self )
         self.tbClose.installEventFilter( self )
         
         self.addWidget( spacer )
-        self.aOrientation = self.addWidget( self.tbOrientation )
-        self.aFloat = self.addWidget( self.tbFloat )
         self.aClose = self.addWidget( self.tbClose )
         
-        self.tbOrientation.setDefaultAction( self.aOrientation )
-        self.tbFloat.setDefaultAction( self.aFloat )
         self.tbClose.setDefaultAction( self.aClose )
         
         self.setMovable( False )
@@ -50,8 +42,6 @@ class pDockWidgetTitleBar(QToolBar):
         self.dockWidget_featuresChanged( self._dock.features() )
         
         self._dock.featuresChanged.connect(self.dockWidget_featuresChanged)
-        self.aOrientation.triggered.connect(self.aOrientation_triggered)
-        self.aFloat.triggered.connect(self.aFloat_triggered)
         self.aClose.triggered.connect(self._dock.close)
 
     def icon(self):
@@ -176,22 +166,12 @@ class pDockWidgetTitleBar(QToolBar):
         
         icon = QIcon()
         
-        icon = self.style().standardIcon( QStyle.SP_TitleBarShadeButton, None, self.widgetForAction( self.aOrientation ) )
-        self.aOrientation.setIcon( icon )
-        
-        icon = self.style().standardIcon( QStyle.SP_TitleBarNormalButton, None, self.widgetForAction( self.aFloat ) )
-        self.aFloat.setIcon( icon )
-        
         icon = self.style().standardIcon( QStyle.SP_TitleBarCloseButton, None, self.widgetForAction( self.aClose ) )
         self.aClose.setIcon( icon )
         
         if  self.orientation() == Qt.Horizontal :
-            self.tbOrientation.setDirection( QBoxLayout.LeftToRight )
-            self.tbFloat.setDirection( QBoxLayout.LeftToRight )
             self.tbClose.setDirection( QBoxLayout.LeftToRight )
         else:
-            self.tbOrientation.setDirection( QBoxLayout.BottomToTop )
-            self.tbFloat.setDirection( QBoxLayout.BottomToTop )
             self.tbClose.setDirection( QBoxLayout.BottomToTop )
 
     def minimumSizeHint(self):
@@ -245,19 +225,7 @@ class pDockWidgetTitleBar(QToolBar):
     def defaultNativeRendering(self):
         return self._useNativePaintDefault
 
-    def aOrientation_triggered(self):
-        features = self._dock.features()
-        
-        if  features & QDockWidget.DockWidgetVerticalTitleBar:
-            self._dock.setFeatures( features ^ QDockWidget.DockWidgetVerticalTitleBar )
-        else:
-            self._dock.setFeatures( features | QDockWidget.DockWidgetVerticalTitleBar )
-
-    def aFloat_triggered(self):
-        self._dock.setFloating( not self._dock.isFloating() )
-
     def dockWidget_featuresChanged(self, features ):
-        self.aFloat.setVisible( features & QDockWidget.DockWidgetFloatable )
         self.aClose.setVisible( features & QDockWidget.DockWidgetClosable )
         
         # update toolbar orientation
