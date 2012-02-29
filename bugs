@@ -2,7 +2,6 @@ FIXME
     маленькое разрешение иконки приложения
     scheme indenter должен игнорировать комментарии
     Пастить строку как строку
-    elide в середине для file browser
     использовать shortcut вместо event в file browser?
 
 REFACTORING
