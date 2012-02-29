@@ -488,6 +488,17 @@ class Tree(QTreeView):
         index = self._filteredModel.mapToSource( index )
         return self._dirsModel.filePath( index )
 
+    def _isDescendant(self, child, parent):
+        """Check if child is descendant of parent
+        """
+        childsParent = child.parent()
+        while childsParent.isValid():
+            if childsParent == parent:
+                return True
+            childsParent = childsParent.parent()
+        
+        return False
+
     def setCurrentPath(self, path):
         """Set current path (root of the tree)
         """
@@ -496,7 +507,10 @@ class Tree(QTreeView):
         
         # set current path
         self._filteredModel.invalidate()
-        self.setRootIndex( self._filteredModel.mapFromSource( index ) )
+        newRoot = self._filteredModel.mapFromSource( index )
+        self.setRootIndex(newRoot)
+        if not self._isDescendant(self.currentIndex(), newRoot):
+            self.setCurrentIndex(QModelIndex())
 
 class ComboBox(QComboBox):
     """File browser combo box.
@@ -719,4 +733,3 @@ class DockFileBrowser(pDockWidget):
     def moveUp(self):
         """Move tree root up, or only move focus"""
         self.setCurrentPath(os.path.dirname(self._tree.currentPath()))
-
