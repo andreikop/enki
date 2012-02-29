@@ -1,10 +1,8 @@
 FIXME
     маленькое разрешение иконки приложения
     scheme indenter должен игнорировать комментарии
-    Сортировать список в file browser
     Пастить строку как строку
     elide в середине для file browser
-    file browser слишком быстро все забывает
     использовать shortcut вместо event в file browser?
 
 REFACTORING

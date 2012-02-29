@@ -168,6 +168,16 @@ class SmartRecents(QObject):
         dirs = [dp[0] for dp in dirAndPopularity]  # take only first elements
         return dirs
     
+    def _dirsByPath(self):
+        """Return list of dirrectories, sorted by popularity
+        """
+        if not self._popularDirs:
+            return ()
+        
+        dirAndPopularity = sorted(self._popularDirs.iteritems(), key=operator.itemgetter(0))
+        dirs = [dp[0] for dp in dirAndPopularity]  # take only first elements
+        return dirs
+
     def _onFileActivated(self):
         """FileBrowserDock notifies SmartRecents that file has been activated
         """
@@ -218,7 +228,7 @@ class SmartRecents(QObject):
             history.insert(1, None)  # separator
         # Popular directories
         firstPopularDir = True
-        popularDirs = self._dirsByPopularity()
+        popularDirs = self._dirsByPath()
         for directory in popularDirs:
             if not directory in includedDirs:
                 if firstPopularDir:
@@ -596,10 +606,11 @@ class ComboBox(QComboBox):
         self.clear()
         for index, item in enumerate(items):
             if item is not None:
-                self.addItem(item[0])  #  text
-                self.setItemData(index, item[1])  # path
+                text, path, icon = item
+                self.addItem(text)  #  text
+                self.setItemData(index, path)  # path
                 if item[2] is not None:
-                    self.setItemIcon(index, QIcon(item[2]))
+                    self.setItemIcon(index, QIcon(icon))
             else:
                 self.insertSeparator(self.count())
         self._count = self.count()
