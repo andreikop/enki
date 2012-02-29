@@ -5,7 +5,7 @@ API docks at http://api.monkeystudio.org/fresh/
 """
 
 from PyQt4.QtCore import pyqtSignal, Qt, QTimer
-from PyQt4.QtGui import QAction, QColor, QDockWidget, QPainter
+from PyQt4.QtGui import QAction, QColor, QDockWidget, QKeySequence, QPainter, QShortcut
 
 from .pDockWidgetTitleBar import pDockWidgetTitleBar
 
@@ -20,6 +20,10 @@ class pDockWidget(QDockWidget):
         self._titleBar = pDockWidgetTitleBar( self )
         self.setTitleBarWidget( self._titleBar )
         self.toggleViewAction().triggered.connect(self.toggleViewAction_triggered)
+        
+        self._closeShortcut = QShortcut( QKeySequence( "Esc" ), self )
+        self._closeShortcut.setContext( Qt.WidgetWithChildrenShortcut )
+        self._closeShortcut.activated.connect(self.hide)
 
     def paintEvent(self, event ):
         QDockWidget.paintEvent(self,  event )
@@ -43,7 +47,6 @@ class pDockWidget(QDockWidget):
 
         return self._showAction
 
-
     def toggleViewAction_triggered(self, toggled ):
         if toggled and self.focusProxy() is not None:
             if  self.isFloating():
@@ -58,10 +61,3 @@ class pDockWidget(QDockWidget):
     def handleFocusProxy(self):
         if self.focusProxy() is not None:
             self.setFocus()
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Escape and \
-           event.modifiers() == Qt.NoModifier:
-                self.hide()
-        else:
-            return QDockWidget.keyPressEvent( self, event )
