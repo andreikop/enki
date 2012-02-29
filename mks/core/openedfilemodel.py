@@ -365,6 +365,8 @@ class OpenedFileExplorer(pDockWidget):
         self.tvFiles.setDragDropMode(QAbstractItemView.InternalMove)
         self.tvFiles.setRootIsDecorated(False)
         self.tvFiles.setTextElideMode(Qt.ElideMiddle)
+        self.tvFiles.setUniformRowHeights( True )
+        
         self.tvFiles.customContextMenuRequested.connect(self._onTvFilesCustomContextMenuRequested)
         
         self.setWidget(self.tvFiles)
