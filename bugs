@@ -1,8 +1,6 @@
 FIXME
     маленькое разрешение иконки приложения
     scheme indenter должен игнорировать комментарии
-    Пастить строку как строку
-    использовать shortcut вместо event в file browser?
 
 REFACTORING
     Plugin abstract interface
@@ -16,6 +14,7 @@ FIXME need help
 
 TODO
   мелкие улучшения
+    Пастить строку как строку
     перемапить Fx на Alt+c
     Начинать поиск с начала
     менять размер доков по Ctrl++-
