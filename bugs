@@ -1,8 +1,11 @@
 FIXME
     маленькое разрешение иконки приложения
-    не считать - разделителем слов в scheme. Как в Makefile
     scheme indenter должен игнорировать комментарии
     Сортировать список в file browser
+    Пастить строку как строку
+    elide в середине для file browser
+    file browser слишком быстро все забывает
+    использовать shortcut вместо event в file browser?
 
 REFACTORING
     Plugin abstract interface
@@ -18,6 +21,7 @@ TODO
   мелкие улучшения
     перемапить Fx на Alt+c
     Начинать поиск с начала
+    менять размер доков по Ctrl++-
     Подсвечивать найденное в результатах поиска
   средний функционал
     Посмотреть detectindent.vim
@@ -39,3 +43,6 @@ TODO
 
 ON QScintilla 2.5.1
     QsciLexerMatlab and QsciLexerOctave
+
+ON QScintilla 2.6
+    не считать "-" разделителем слов в scheme. Как в Makefile
