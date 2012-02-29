@@ -408,6 +408,7 @@ class Tree(QTreeView):
         self.setContextMenuPolicy( Qt.ActionsContextMenu )
         self.setHeaderHidden( True )
         self.setUniformRowHeights( True )
+        self.setTextElideMode(Qt.ElideMiddle)
         
         # dir model
         self._dirsModel = QFileSystemModel( self )
