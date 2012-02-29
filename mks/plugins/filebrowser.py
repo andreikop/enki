@@ -128,7 +128,7 @@ class SmartRecents(QObject):
     MAX_RECENTS_SIZE = 8
     
     STATISTICS_SIZE = 10.
-    BONUS_FOR_OPENING = 10.
+    BONUS_FOR_OPENING = 1.
     MAX_POINTS_COUNT = 100.
     
     _recentsChanged = pyqtSignal(list)
