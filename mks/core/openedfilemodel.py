@@ -355,7 +355,7 @@ class OpenedFileExplorer(pDockWidget):
     def __init__(self, workspace):
         pDockWidget.__init__(self, workspace)
         self.setObjectName("OpenedFileExplorer")
-        self.setWindowTitle("Opened files")
+        self.setWindowTitle("Opened Files")
         self.setWindowIcon(QIcon(":/mksicons/filtered.png"))
         self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
 
