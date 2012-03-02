@@ -1,9 +1,9 @@
 FIXME
     маленькое разрешение иконки приложения
     scheme indenter должен игнорировать комментарии
+    не удаляются корневые меню
 
 REFACTORING
-    Plugin abstract interface
 
 FIXME PasNox
 
