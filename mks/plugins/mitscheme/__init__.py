@@ -58,15 +58,16 @@ class Plugin(QObject):
         self._evalAction = None
         self._activeInterpreterPath = None
 
-        self._schemeDocumentsCount = 0
-        
         allDocs = core.workspace().openedDocuments()
         self._schemeDocumentsCount = len(filter(self._isSchemeFile, allDocs))
         
         # TODO handle situation, when lexer changed for current document
-        core.workspace().documentOpened.connect(self._onDocumentOpened)
-        core.workspace().documentClosed.connect(self._onDocumentClosed)
+        core.workspace().documentOpened.connect(self._installOrUninstallIfNecessary)
+        core.workspace().documentClosed.connect(self._installOrUninstallIfNecessary)
+        core.workspace().currentDocumentChanged.connect(self._installOrUninstallIfNecessary)
         core.workspace().currentDocumentChanged.connect(self._updateEvalActionEnabledState)
+        core.workspace().languageChanged.connect(self._installOrUninstallIfNecessary)
+        core.workspace().languageChanged.connect(self._updateEvalActionEnabledState)
         self._installOrUninstallIfNecessary()
         Plugin.instance = self
 
@@ -95,31 +96,11 @@ class Plugin(QObject):
         return document is not None and \
                document.highlightingLanguage() == 'Scheme'
 
-    def _onDocumentOpened(self, document):
-        """documentOpened() workspace signal handler
+    def _schemeDocumentIsOpened(self):
+        """Check if at least one Scheme document is opened
         """
-        document.languageChanged.connect(self._onDocumentLanguageChanged)
-
-        if self._isSchemeFile(document):
-            self._schemeDocumentsCount += 1
-            self._installOrUninstallIfNecessary()
-
-    def _onDocumentClosed(self, document):
-        """documentClosed() workspace signal handler
-        """
-        if self._isSchemeFile(document):
-            self._schemeDocumentsCount -= 1
-            self._installOrUninstallIfNecessary()
-    
-    def _onDocumentLanguageChanged(self, old, new):
-        """languageChanged() document signal handler
-        """
-        if old is not None and old == 'Scheme':
-            self._schemeDocumentsCount -= 1
-        if new is not None and new == 'Scheme':
-            self._schemeDocumentsCount += 1
-        self._installOrUninstallIfNecessary()
-        self._updateEvalActionEnabledState()
+        schemeDocs = filter(self._isSchemeFile, core.workspace().openedDocuments())
+        return len(schemeDocs) > 0
 
     def _updateEvalActionEnabledState(self):
         """Update action enabled state
@@ -142,7 +123,7 @@ class Plugin(QObject):
                 self.del_()
         else:
             assert enabled == 'whenOpened'
-            if self._schemeDocumentsCount > 0:
+            if self._schemeDocumentIsOpened():
                 self._install()
             else:
                 self.del_()
