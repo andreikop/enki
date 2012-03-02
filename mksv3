@@ -55,7 +55,8 @@ def excepthook(excepttype, exceptvalue, tracebackobj):
                 '</html>'
 
     from PyQt4.QtGui import QMessageBox
-    QMessageBox.critical(None, 'Oops. Internal exception', mboxText)
+    from mks.core.core import core
+    QMessageBox.critical(core.mainWindow(), 'Oops. Internal exception', mboxText)
 
 def _showErrorMessage(haveQt, header, html, plain):
     """Show error message with messagebox
