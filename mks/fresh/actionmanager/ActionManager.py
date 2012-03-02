@@ -113,6 +113,7 @@ class ActionManager(QObject):
         del self._pathToAction[path]
 
         self.actionRemoved.emit( action )
+        action.deleteLater()
 
     def _removeCompleteEmptyPathNode(self, action ):        
         if not self.children( action ) :
