@@ -327,7 +327,8 @@ class _OpenedFileModel(QAbstractItemModel):
             document_ = self.sender()
         else:
             document_ = document
-        index = self.documentIndex( document )
+        
+        index = self.documentIndex( document_ )
         self.dataChanged.emit( index, index )
     
     def _onDocumentClosed(self, document ):
