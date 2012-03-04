@@ -240,6 +240,23 @@ def _textBeforeLastExpression(text):
     lastExpression = _lastExpression(text)
     return text[:-len(lastExpression)]
 
+def _filterComments(lines):
+    """Primitive algorithm for filtering comments.
+    Will work incorrectly for multiline comments and for ';' symbol inside a string
+    """
+    for index in range(len(lines)):
+        try:
+            foundComment = lines[index].rindex(';')
+        except ValueError:
+            continue
+        lines[index] = lines[index][:foundComment]
+    return lines
+
+def _filterEmptyLines(lines):
+    """Filter lines, which contain nothing, or contain only spaces
+    """
+    return filter(lambda l: l.strip(), lines)
+
 def nextLineIndent(text):
     """Parse Scheme source code and suggest indentation for the next line
     Function raises UserWarning, if failed to parse the source
@@ -275,6 +292,8 @@ def nextLineIndent(text):
     lines = textBeforeLastExpression.splitlines()
     if textBeforeLastExpression.endswith('\n'):
         lines.append('')
+    lines = _filterComments(lines)
+    lines = _filterEmptyLines(lines)
     
     strippedLastLine = lines[-1].rstrip()
     if strippedLastLine.endswith('define'):  # special case
