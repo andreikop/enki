@@ -23,7 +23,7 @@ class SearchResultsDock(pDockWidget):
         self.searchThread = searchThread
 
         self.setObjectName( self.metaObject().className() )
-        self.setWindowTitle( self.tr( "Search Results" ) )
+        self.setWindowTitle( self.tr( "&Search Results" ) )
         self.setWindowIcon( QIcon(":/mksicons/search.png") )
         
         # actions
@@ -50,7 +50,7 @@ class SearchResultsDock(pDockWidget):
         self.model.firstResultsAvailable.connect(self.show)
         self._view.activated.connect(self.view_activated)
         
-        self.showAction().setShortcut("F10")
+        self.showAction().setShortcut("Alt+S")
         core.actionManager().addAction("mDocks/aSearchResults", self.showAction())
 
     def del_(self):

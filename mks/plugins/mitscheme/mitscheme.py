@@ -40,12 +40,12 @@ class MitSchemeDock(pDockWidget):
     """Dock widget with terminal emulator
     """
     def __init__(self, widget):
-        pDockWidget.__init__(self, "MIT Scheme", core.mainWindow())
+        pDockWidget.__init__(self, "&MIT Scheme", core.mainWindow())
         self.setObjectName("MitSchemeDock")
         self.setWindowIcon(QIcon(':/mksicons/languages/scheme.png'))
         self.setAllowedAreas( Qt.BottomDockWidgetArea)
         
-        self.showAction().setShortcut("F8")
+        self.showAction().setShortcut("Alt+M")
         core.actionManager().addAction("mDocks/aMitScheme", self.showAction())
 
         self.setWidget(widget)

@@ -355,7 +355,7 @@ class OpenedFileExplorer(pDockWidget):
     def __init__(self, workspace):
         pDockWidget.__init__(self, workspace)
         self.setObjectName("OpenedFileExplorer")
-        self.setWindowTitle("Opened Files")
+        self.setWindowTitle("&Opened Files")
         self.setWindowIcon(QIcon(":/mksicons/filtered.png"))
         self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
 
@@ -383,7 +383,7 @@ class OpenedFileExplorer(pDockWidget):
         # disconnected by startModifyModel()
         self.tvFiles.selectionModel().selectionChanged.connect(self._onSelectionModelSelectionChanged)
         
-        self.showAction().setShortcut("F2")
+        self.showAction().setShortcut("Alt+O")
         core.actionManager().addAction("mDocks/aOpenedFiles", self.showAction(), shortcut="F2")
         core.moduleConfiguratorClasses.append(Configurator)
     
