@@ -35,7 +35,7 @@
       <item>
        <widget class="QLabel" name="lSearch">
         <property name="text">
-         <string>&amp;Search</string>
+         <string>Search</string>
         </property>
         <property name="buddy">
          <cstring>cbSearch</cstring>

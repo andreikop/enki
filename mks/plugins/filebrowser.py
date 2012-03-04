@@ -649,12 +649,12 @@ class DockFileBrowser(pDockWidget):
         self._jumpToCurrent = None
         
         self.setObjectName("FileBrowserDock")
-        self.setWindowTitle(self.tr( "File Browser" ))
+        self.setWindowTitle(self.tr( "&File Browser" ))
         self.setWindowIcon(QIcon(':/mksicons/open.png'))
         # restrict areas
         self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
         
-        self.showAction().setShortcut("F7")
+        self.showAction().setShortcut("Alt+F")
         core.actionManager().addAction("mDocks/aFileBrowser", self.showAction())
         
         self.visibilityChanged.connect(self._onVisibilityChanged)
