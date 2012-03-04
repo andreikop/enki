@@ -1,6 +1,4 @@
 FIXME
-    маленькое разрешение иконки приложения
-    scheme indenter должен игнорировать комментарии
 
 REFACTORING
 
@@ -41,3 +39,6 @@ ON QScintilla 2.5.1
 
 ON QScintilla 2.6
     не считать "-" разделителем слов в scheme. Как в Makefile
+
+ON Unity
+    маленькое разрешение иконки приложения

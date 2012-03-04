@@ -122,6 +122,12 @@ class Config(ConfigObj):
                 section[sectionName] = {}
             section = section[sectionName]
         section[path[-1]] = value
+    
+    def clear(self):
+        """Clear the config
+        """
+        for key in self.keys():
+            del self[key]
 
     def flush(self):
         """Flush config to the disk. 
