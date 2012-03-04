@@ -80,7 +80,7 @@ class Plugin:
             shortcut = self._config.get(path)
         except KeyError:
             return
-
+        
         action.setShortcut(shortcut)
 
     def _onActionInserted(self, action):
@@ -94,10 +94,12 @@ class Plugin:
         """
         if self._config is None:
             return
+        self._config.clear()
         for action in self._actionManager.allActions():
             if not action.menu():
                 path = self._actionManager.path(action)
-                self._config.set(path, action.shortcut().toString())
+                if action.shortcut() != self._actionManager.defaultShortcut(action):
+                    self._config.set(path, action.shortcut().toString())
         try:
             self._config.flush()
         except UserWarning as ex:
