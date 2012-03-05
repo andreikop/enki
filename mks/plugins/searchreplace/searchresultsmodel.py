@@ -10,6 +10,8 @@ from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, \
                          QModelIndex, Qt, \
                          QVariant
 
+import cgi
+
 class Result:  # pylint: disable=R0902
     """One found by search thread item. Consists coordinates and capture. Used by SearchResultsModel
     """
@@ -26,7 +28,15 @@ class Result:  # pylint: disable=R0902
         """Displayable text of search result. Shown as line in the search results dock
         notUsed argument added for have same signature, as FileResults.text
         """
-        return "Line: %d, Column: %d: %s" % ( self.line + 1, self.column, self.wholeLine )
+        beforeMatch = self.wholeLine[:self.column]
+        afterMatch = self.wholeLine[self.column + len(self.match.group(0)):]
+        
+        return "<html>Line: %d, Column: %d: %s<font style=\"background-color: yellow\">%s</font>%s</html>" % \
+                ( self.line + 1,
+                  self.column,
+                  cgi.escape(beforeMatch),
+                  cgi.escape(self.match.group(0)),
+                  cgi.escape(afterMatch))
     
     def tooltip(self):
         """Tooltip of the search result"""
@@ -177,13 +187,14 @@ class SearchResultsModel(QAbstractItemModel):
             return QVariant()
         
         # Common code for file and result
+        result = index.internalPointer()
         if role == Qt.DisplayRole:
-            return self.tr( index.internalPointer().text(self._searchDir))
+            return self.tr( result.text(self._searchDir))
         elif role == Qt.ToolTipRole:
-            return index.internalPointer().tooltip()
+            return result.tooltip()
         elif role == Qt.CheckStateRole:
             if  self.flags( index ) & Qt.ItemIsUserCheckable:
-                return index.internalPointer().checkState
+                return result.checkState
         
         return QVariant()
     
