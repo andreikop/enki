@@ -199,7 +199,7 @@ class SearchThread(StopableThread):
             eolCount += content[lastPos:start].count( eol )
             lastPos = start
             
-            wholeLine = content[eolStart + 1:eolEnd].strip()
+            wholeLine = content[eolStart + 1:eolEnd]
             column = start - eolStart
             if eolStart != 0:
                 column -= 1

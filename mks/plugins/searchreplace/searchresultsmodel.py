@@ -28,8 +28,8 @@ class Result:  # pylint: disable=R0902
         """Displayable text of search result. Shown as line in the search results dock
         notUsed argument added for have same signature, as FileResults.text
         """
-        beforeMatch = self.wholeLine[:self.column]
-        afterMatch = self.wholeLine[self.column + len(self.match.group(0)):]
+        beforeMatch = self.wholeLine[:self.column].rstrip()
+        afterMatch = self.wholeLine[self.column + len(self.match.group(0)):].lstrip()
         
         return "<html>Line: %d, Column: %d: %s<font style=\"background-color: yellow\">%s</font>%s</html>" % \
                 ( self.line + 1,
