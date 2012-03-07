@@ -10,6 +10,8 @@ from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, \
                          QModelIndex, Qt, \
                          QVariant
 
+from PyQt4.QtGui import qApp
+
 HTML_ESCAPE_TABLE = \
 {
     "&": "&amp;",
@@ -45,14 +47,20 @@ class Result:  # pylint: disable=R0902
         beforeMatch = self.wholeLine[:self.column].lstrip()
         afterMatch = self.wholeLine[self.column + len(self.match.group(0)):].rstrip()
         
+        if qApp.palette().base().color().lightnessF() > 0.5:
+            color = 'yellow'
+        else:
+            color = 'maroon'
+        
         return '<html>' \
                     'Line: %d, Column: %d: %s' \
-                    '<font style=\'background-color: yellow\'>%s</font>' \
+                    '<font style=\'background-color: %s\'>%s</font>' \
                     '%s' \
                '</html>' % \
                 ( self.line + 1,
                   self.column,
                   htmlEscape(beforeMatch),
+                  color,
                   htmlEscape(self.match.group(0)),
                   htmlEscape(afterMatch))
     
