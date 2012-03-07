@@ -10,7 +10,21 @@ from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, \
                          QModelIndex, Qt, \
                          QVariant
 
-import cgi
+HTML_ESCAPE_TABLE = \
+{
+    "&": "&amp;",
+    '"': "&quot;",
+    "'": "&apos;",
+    ">": "&gt;",
+    "<": "&lt;",
+    " ": "&nbsp;",
+    "\t": "&nbsp;&nbsp;&nbsp;&nbsp;",
+}
+
+def htmlEscape(text):
+    """Produce entities within text.
+    """
+    return "".join(HTML_ESCAPE_TABLE.get(c,c) for c in text)
 
 class Result:  # pylint: disable=R0902
     """One found by search thread item. Consists coordinates and capture. Used by SearchResultsModel
@@ -28,15 +42,19 @@ class Result:  # pylint: disable=R0902
         """Displayable text of search result. Shown as line in the search results dock
         notUsed argument added for have same signature, as FileResults.text
         """
-        beforeMatch = self.wholeLine[:self.column].rstrip()
-        afterMatch = self.wholeLine[self.column + len(self.match.group(0)):].lstrip()
+        beforeMatch = self.wholeLine[:self.column].lstrip()
+        afterMatch = self.wholeLine[self.column + len(self.match.group(0)):].rstrip()
         
-        return "<html>Line: %d, Column: %d: %s<font style=\"background-color: yellow\">%s</font>%s</html>" % \
+        return '<html>' \
+                    'Line: %d, Column: %d: %s' \
+                    '<font style=\'background-color: yellow\'>%s</font>' \
+                    '%s' \
+               '</html>' % \
                 ( self.line + 1,
                   self.column,
-                  cgi.escape(beforeMatch),
-                  cgi.escape(self.match.group(0)),
-                  cgi.escape(afterMatch))
+                  htmlEscape(beforeMatch),
+                  htmlEscape(self.match.group(0)),
+                  htmlEscape(afterMatch))
     
     def tooltip(self):
         """Tooltip of the search result"""
