@@ -110,3 +110,4 @@ class SearchResultsDock(pDockWidget):
                                    result.line,
                                    result.column,
                                    len(result.match.group(0)))
+            self.setFocus()
