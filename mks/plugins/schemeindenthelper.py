@@ -257,6 +257,17 @@ def _filterEmptyLines(lines):
     """
     return filter(lambda l: l.strip(), lines)
 
+def _filterCommentsAndEmptyLines(text):
+    """Remove comments and empty lines from the text
+    """
+    eolAtEnd = text.endswith('\n')    
+    lines = text.splitlines()
+    lines = _filterComments(lines)
+    lines = _filterEmptyLines(lines)
+    if eolAtEnd:
+        lines.append('')
+    return '\n'.join(lines)
+
 def nextLineIndent(text):
     """Parse Scheme source code and suggest indentation for the next line
     Function raises UserWarning, if failed to parse the source
@@ -284,16 +295,15 @@ def nextLineIndent(text):
     # TODO support comments sometimes, when parsing Scheme sources
     
     text = text.rstrip()
+    text = _filterCommentsAndEmptyLines(text)
+
     textBeforeLastExpression = _textBeforeLastExpression(text)
-    
     if not textBeforeLastExpression:
         return 0
     
     lines = textBeforeLastExpression.splitlines()
     if textBeforeLastExpression.endswith('\n'):
         lines.append('')
-    lines = _filterComments(lines)
-    lines = _filterEmptyLines(lines)
     
     strippedLastLine = lines[-1].rstrip()
     if strippedLastLine.endswith('define'):  # special case
