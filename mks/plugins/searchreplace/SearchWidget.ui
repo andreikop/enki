@@ -73,7 +73,7 @@
          <item>
           <widget class="QPushButton" name="pbPrevious">
            <property name="text">
-            <string>&amp;Previous</string>
+            <string>Previous</string>
            </property>
            <property name="icon">
             <iconset>
@@ -84,7 +84,7 @@
          <item>
           <widget class="QPushButton" name="pbNext">
            <property name="text">
-            <string>&amp;Next</string>
+            <string>Next↵</string>
            </property>
            <property name="icon">
             <iconset>
@@ -95,7 +95,7 @@
          <item>
           <widget class="QPushButton" name="pbSearch">
            <property name="text">
-            <string>Searc&amp;h</string>
+            <string>Search↵</string>
            </property>
            <property name="icon">
             <iconset>
@@ -106,7 +106,7 @@
          <item>
           <widget class="QPushButton" name="pbSearchStop">
            <property name="text">
-            <string>S&amp;top</string>
+            <string>Stop↵</string>
            </property>
            <property name="icon">
             <iconset>
@@ -186,7 +186,7 @@ p, li { white-space: pre-wrap; }
          <item>
           <widget class="QPushButton" name="pbReplace">
            <property name="text">
-            <string>Rep&amp;lace</string>
+            <string>Replace↵</string>
            </property>
            <property name="icon">
             <iconset>
@@ -208,7 +208,7 @@ p, li { white-space: pre-wrap; }
          <item>
           <widget class="QPushButton" name="pbReplaceChecked">
            <property name="text">
-            <string>Replace chec&amp;ked</string>
+            <string>Replace c&amp;hecked</string>
            </property>
            <property name="icon">
             <iconset>
@@ -219,7 +219,7 @@ p, li { white-space: pre-wrap; }
          <item>
           <widget class="QPushButton" name="pbReplaceCheckedStop">
            <property name="text">
-            <string>S&amp;top</string>
+            <string>Stop↵</string>
            </property>
            <property name="icon">
             <iconset>
@@ -367,7 +367,7 @@ p, li { white-space: pre-wrap; }
             </sizepolicy>
            </property>
            <property name="text">
-            <string>&amp;Mask</string>
+            <string>Mas&amp;k</string>
            </property>
            <property name="buddy">
             <cstring>cbMask</cstring>
