@@ -14,13 +14,10 @@ from PyQt4.QtCore import QDir, QEvent, \
 
 from PyQt4.QtGui import QCompleter, QDirModel, QFileDialog,  \
                         QFrame, QFileDialog, QIcon, \
-                        QKeySequence, \
                         QMessageBox, \
                         QPainter,  \
                         QPalette, \
-                        QProgressBar, \
-                        QShortcut, \
-                        QToolButton, QWidget
+                        QProgressBar, QToolButton, QWidget
 
 from mks.core.core import core
 
@@ -145,15 +142,6 @@ class SearchWidget(QFrame):
         self.cbRegularExpression.stateChanged.connect(self._onSearchRegExpChanged)
         self.cbCaseSensitive.stateChanged.connect(self._onSearchRegExpChanged)
         
-        def createShortcut(seq, slot):
-            shortcut = QShortcut( QKeySequence( seq ), self )
-            shortcut.setContext( Qt.WidgetWithChildrenShortcut )
-            shortcut.activated.connect(slot)
-        
-        createShortcut("Esc", self._onEscPressed)
-        createShortcut("Return", self._onReturnPressed)
-        createShortcut("Enter", self._onReturnPressed)
-
         core.workspace().currentDocumentChanged.connect(self._updateActionsState)
         
         self.tbCdUp.clicked.connect(self.cdUp_pressed)
@@ -286,31 +274,31 @@ class SearchWidget(QFrame):
 
         return QFrame.eventFilter( self, object_, event )
 
-    def _onEscPressed(self):
-        """Esc pressed, hide themselves
-        """
-        core.workspace().focusCurrentDocument()
-        self.hide()
+    def keyPressEvent(self, event ):
+        """Handles ESC and ENTER pressings on widget for hide widget or start action"""
+        if  event.modifiers() == Qt.NoModifier :
+            if event.key() == Qt.Key_Escape:
+                core.workspace().focusCurrentDocument()
+                self.hide()
+            elif event.key() in (Qt.Key_Enter, Qt.Key_Return):
+                if self._mode == ModeNo:
+                    pass
+                elif self._mode == ModeSearch:
+                    self.pbNext.click()
+                elif self._mode in (ModeSearchDirectory, \
+                                    ModeSearchProjectFiles, \
+                                    ModeSearchOpenedFiles, \
+                                    ModeReplaceDirectory, \
+                                    ModeReplaceProjectFiles, \
+                                    ModeReplaceOpenedFiles):
+                    if not self.searchThread.isRunning():
+                        self.pbSearch.click()
+                    else:
+                        self.pbSearchStop.click()
+                elif self._mode == ModeReplace:
+                    self.pbReplace.click()
 
-    def _onReturnPressed(self):
-        """Return pressed, search/replace next
-        """
-        if self._mode == ModeNo:
-            pass
-        elif self._mode == ModeSearch:
-            self.pbNext.click()
-        elif self._mode in (ModeSearchDirectory, \
-                            ModeSearchProjectFiles, \
-                            ModeSearchOpenedFiles, \
-                            ModeReplaceDirectory, \
-                            ModeReplaceProjectFiles, \
-                            ModeReplaceOpenedFiles):
-            if not self.searchThread.isRunning():
-                self.pbSearch.click()
-            else:
-                self.pbSearchStop.click()
-        elif self._mode == ModeReplace:
-            self.pbReplace.click()
+        QFrame.keyPressEvent( self, event )
 
     def updateLabels(self):
         """Update 'Search' 'Replace' 'Path' labels geometry
