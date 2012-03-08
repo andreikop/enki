@@ -180,6 +180,10 @@ class SearchWidget(QFrame):
         """Change search mode.
         i.e. from "Search file" to "Replace directory"
         """
+        if self._mode == mode and self.isVisible():
+            self.cbSearch.setFocus()
+            return
+        
         self.searchThread.stop()
         self._replaceThread.stop()
         
