@@ -450,8 +450,8 @@ class Workspace(QStackedWidget):
         """
         document = self._textEditorClass(self, filePath, True)
         self._handleDocument( document )
+        document.setFocus()
         return document
-        
     
     def _onCloseCurrentDocument(self):
         """Handler of File->Close->Current triggered
