@@ -68,6 +68,8 @@ class MainWindow(QMainWindow):
         
         self.setWindowTitle(self.defaultTitle())  # overwriten by workspace when file or it's modified state changes
         self.setWindowIcon( QIcon(':/mksicons/monkey2.png') )
+        
+        self.setStyleSheet("QTreeView:focus {border: 1px solid red}")
 
         self._initMenuBar()
         
