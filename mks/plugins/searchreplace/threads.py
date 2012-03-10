@@ -238,12 +238,12 @@ class ReplaceThread(StopableThread):
     openedFileHandled = pyqtSignal(unicode, unicode)
     error = pyqtSignal(unicode)
 
-    def replace(self, context, results):
+    def replace(self, results, replaceText):
         """Run replace process
         """
         self.stop()
-        self.searchContext = context
         self._results = results
+        self._replaceText = replaceText
         
         self._openedFiles = {}
         for document in core.workspace().openedDocuments():
@@ -306,8 +306,8 @@ class ReplaceThread(StopableThread):
             # count from end to begin because we are replacing by offset in content
             for result in self._results[ fileName ][::-1]:
                 try:
-                    replaceTextWithMatches = self.searchContext.regExp.sub(self.searchContext.replaceText,
-                                                                           result.match.group(0))
+                    replaceTextWithMatches = result.match.re.sub(self._replaceText,
+                                                                 result.match.group(0))
                 except re.error, ex:
                     message = unicode(ex.message, 'utf8')
                     message += r'. Probably <i>\group_index</i> used in replacement string, but such group not found. '\
