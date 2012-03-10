@@ -57,7 +57,7 @@ class SearchThread(StopableThread):
     resultsAvailable = pyqtSignal(list)  # list of searchresultsmodel.FileResults
     progressChanged = pyqtSignal(int, int)  # int value, int total
 
-    def search(self, context, mask):
+    def search(self, context, mask, inOpenedFiles, forReplace):
         """Start search process.
         context stores search text, directory and other parameters
         """
@@ -65,14 +65,15 @@ class SearchThread(StopableThread):
         
         self.searchContext = context
         self._mask = mask
+        self._inOpenedFiles = inOpenedFiles
         
         self._openedFiles = {}
         for document in core.workspace().openedDocuments():
             self._openedFiles[document.filePath()] = document.text()
 
-        if context.mode & ModeFlagReplace:
+        if forReplace:
             self._checkStateForResults = Qt.Checked
-        else: 
+        else:
             self._checkStateForResults = None
         
         self.start()
@@ -126,18 +127,15 @@ class SearchThread(StopableThread):
         else:
             maskRegExp = None
 
-        if self.searchContext.mode in (ModeSearchDirectory, ModeReplaceDirectory):
-            path = self.searchContext.searchPath
-            return self._getFiles(path, maskRegExp)
-        elif self.searchContext.mode in \
-                                (ModeSearchOpenedFiles, ModeReplaceOpenedFiles):
+        if self._inOpenedFiles:
             files = self._openedFiles.keys()
             if maskRegExp:
                 basenames = [os.path.basename(f) for f in files]
                 files = [f for f in basenames if maskRegExp.match(f)]
             return files
         else:
-            assert(0)
+            path = self.searchContext.searchPath
+            return self._getFiles(path, maskRegExp)
 
     def _fileContent(self, fileName):
         """Read text from file
