@@ -27,9 +27,8 @@ import searchresultsmodel
 class SearchContext:
     """Structure holds parameters of search or replace operation in progress
     """    
-    def __init__(self, regExp, replaceText):
+    def __init__(self, regExp):
         self.regExp = regExp
-        self.replaceText = replaceText
 
 
 class SearchWidget(QFrame):
@@ -386,8 +385,7 @@ class SearchWidget(QFrame):
         """Fill search context with actual data
         """
 
-        searchContext = SearchContext(  self._getRegExp(), \
-                                        replaceText = self.cbReplace.currentText())
+        searchContext = SearchContext(  self._getRegExp())
 
         # TODO search in project
         #self.searchContext.project = core.fileManager().currentProject()
@@ -662,7 +660,8 @@ class SearchWidget(QFrame):
         """Handler of click on "Replace checked" (in directory) button
         """
         self.updateComboBoxes()
-        self._replaceThread.replace( self._makeSearchContext(), self._dock.getCheckedItems() )
+        self._replaceThread.replace( self._dock.getCheckedItems(),
+                                     self.cbReplace.currentText())
 
     def on_pbReplaceCheckedStop_pressed(self):
         """Handler of click on "Stop" button when replacing in directory
