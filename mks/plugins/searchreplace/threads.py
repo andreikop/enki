@@ -57,13 +57,13 @@ class SearchThread(StopableThread):
     resultsAvailable = pyqtSignal(list)  # list of searchresultsmodel.FileResults
     progressChanged = pyqtSignal(int, int)  # int value, int total
 
-    def search(self, context, mask, inOpenedFiles, forReplace, searchPath):
+    def search(self, regExp, mask, inOpenedFiles, forReplace, searchPath):
         """Start search process.
         context stores search text, directory and other parameters
         """
         self.stop()
         
-        self.searchContext = context
+        self._regExp = regExp
         self._mask = mask
         self._inOpenedFiles = inOpenedFiles
         self._searchPath = searchPath
@@ -115,7 +115,7 @@ class SearchThread(StopableThread):
 
         # TODO search in project
         #elif mode in (ModeSearchProjectFiles, ModeReplaceProjectFiles):
-        #    sources = self.searchContext.sourcesFiles
+        #    sources = self._regExp.sourcesFiles
         #    mask = self._mask
         #    for fileName in sources:
         #        if  QDir.match( mask, fileName ) :
@@ -206,7 +206,7 @@ class SearchThread(StopableThread):
         content = self._fileContent( fileName )
         
         # Process result for all occurrences
-        for match in self.searchContext.regExp.finditer(content):
+        for match in self._regExp.finditer(content):
             start = match.start()
             
             eolStart = content.rfind( eol, 0, start)

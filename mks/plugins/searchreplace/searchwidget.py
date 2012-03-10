@@ -24,12 +24,6 @@ from mks.core.core import core
 from mks.plugins.searchreplace import *
 import searchresultsmodel
 
-class SearchContext:
-    """Structure holds parameters of search or replace operation in progress
-    """    
-    def __init__(self, regExp):
-        self.regExp = regExp
-
 
 class SearchWidget(QFrame):
     """Widget, appeared, when Ctrl+F pressed.
@@ -381,27 +375,6 @@ class SearchWidget(QFrame):
         mask = filter(None, mask)
         return mask
 
-    def _makeSearchContext(self):
-        """Fill search context with actual data
-        """
-
-        searchContext = SearchContext(  self._getRegExp())
-
-        # TODO search in project
-        #self.searchContext.project = core.fileManager().currentProject()
-        
-        # TODO update project
-        #self.searchContext.project = self.searchContext.project.topLevelProject()
-        
-        # TODO support project
-        # update sources files
-        #self.searchContext.sourcesFiles = []
-        #if self.searchContext.project:
-        #    self.searchContext.sourcesFiles = \
-        #                self.searchContext.project.topLevelProjectSourceFiles()
-        
-        return searchContext
-
     def showMessage (self, status):
         """Show message on the status bar"""
         if not status:
@@ -569,7 +542,7 @@ class SearchWidget(QFrame):
         core.messageToolBar().appendMessage( error )
     
     def _updateActionsState(self):
-        """Update actions state according to search context valid state
+        """Update actions state according to search reg exp valid state
         """
         valid, error = self._isSearchRegExpValid()
         searchAvailable = valid 
@@ -633,7 +606,7 @@ class SearchWidget(QFrame):
         inOpenedFiles = self._mode in (ModeSearchOpenedFiles, ModeReplaceOpenedFiles,)
         forReplace = self._mode & ModeFlagReplace
         path = self.cbPath.currentText()
-        self.searchThread.search( self._makeSearchContext(),
+        self.searchThread.search( self._getRegExp(),
                                   self._getSearchMask(),
                                   inOpenedFiles,
                                   forReplace,
