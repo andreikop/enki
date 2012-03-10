@@ -139,7 +139,7 @@ class SearchThread(StopableThread):
         else:
             assert(0)
 
-    def _fileContent(self, fileName, encoding='utf_8'):
+    def _fileContent(self, fileName):
         """Read text from file
         """
         if fileName in self._openedFiles:
@@ -149,7 +149,7 @@ class SearchThread(StopableThread):
             with open(fileName) as openedFile:
                 if _isBinary(openedFile):
                     return ''
-                return unicode(openedFile.read(), encoding, errors = 'ignore')
+                return unicode(openedFile.read(), 'utf8', errors = 'ignore')
         except IOError as ex:
             print ex
             return ''
@@ -252,26 +252,27 @@ class ReplaceThread(StopableThread):
 
         self.start()
 
-    def _saveContent(self, fileName, content, encoding):
+    def _saveContent(self, fileName, content):
         """Write text to the file
         """
-        if encoding:
-            try:
-                content = content.encode(encoding)
-            except UnicodeEncodeError as ex:
-                pattern = self.tr("Failed to encode file to %s: %s")
-                text = unicode(str(ex), 'utf_8')
-                self.error.emit(pattern % (encoding, text))
-                return
+
+        try:
+            content = content.encode('utf8')
+        except UnicodeEncodeError as ex:
+            pattern = self.tr("Failed to encode file to utf8: %s")
+            text = unicode(str(ex), 'utf8')
+            self.error.emit(pattern % text)
+            return
+        
         try:
             with open(fileName, 'w') as openFile:
                 openFile.write(content)
         except IOError as ex:
             pattern = self.tr("Error while saving replaced content: %s")
-            text = unicode(str(ex), 'utf_8')
+            text = unicode(str(ex), 'utf8')
             self.error.emit(pattern % text)
 
-    def _fileContent(self, fileName, encoding='utf_8'):
+    def _fileContent(self, fileName):
         """Read file
         """
         if fileName in self._openedFiles:
@@ -284,15 +285,12 @@ class ReplaceThread(StopableThread):
                 self.error.emit( self.tr( "Error opening file: %s" % str(ex) ) )
                 return ''
             
-            if encoding:
-                try:
-                    return unicode(content, encoding)
-                except UnicodeDecodeError as ex:
-                    self.error.emit(self.tr( "File %s not read: unicode error '%s'. File may be corrupted" % \
-                                    (fileName, str(ex) ) ))
-                    return None
-            else:
-                return content
+            try:
+                return unicode(content, 'utf8')
+            except UnicodeDecodeError as ex:
+                self.error.emit(self.tr( "File %s not read: unicode error '%s'. File may be corrupted" % \
+                                (fileName, str(ex) ) ))
+                return None
 
     def run(self):
         """Start point of the code, running i thread
@@ -302,7 +300,7 @@ class ReplaceThread(StopableThread):
         
         for fileName in self._results.keys():
             handledResults = []
-            content = self._fileContent( fileName, self.searchContext.encoding )
+            content = self._fileContent(fileName)
             if content is None:  # if failed to read file
                 continue
             
@@ -312,7 +310,7 @@ class ReplaceThread(StopableThread):
                     replaceTextWithMatches = self.searchContext.regExp.sub(self.searchContext.replaceText,
                                                                            result.match.group(0))
                 except re.error, ex:
-                    message = unicode(ex.message, 'utf_8')
+                    message = unicode(ex.message, 'utf8')
                     message += r'. Probably <i>\group_index</i> used in replacement string, but such group not found. '\
                                r'Try to escape it: <i>\\group_index</i>'
                     self.error.emit(message)
@@ -321,10 +319,9 @@ class ReplaceThread(StopableThread):
                 handledResults.append(result)
             
             if fileName in self._openedFiles:
-                # TODO encode content with self.searchContext.encoding 
                 self.openedFileHandled.emit( fileName, content)
             else:
-                self._saveContent( fileName, content, self.searchContext.encoding )
+                self._saveContent(fileName, content)
             
             self.resultsHandled.emit( fileName, handledResults)
 

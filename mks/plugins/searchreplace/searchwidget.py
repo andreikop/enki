@@ -32,7 +32,7 @@ class SearchContext:
         self.replaceText = replaceText
         self.searchPath = searchPath
         self.mode = mode
-        self.encoding = 'utf_8'
+
 
 class SearchWidget(QFrame):
     """Widget, appeared, when Ctrl+F pressed.
@@ -119,18 +119,6 @@ class SearchWidget(QFrame):
         #"Available languages: %1" ).arg( languages.join( ", " ) )
         # self.cbMask.setToolTip( maskToolTip )
         
-        
-        #TODO support encodings
-        #falsePositives = set(["aliases"])
-        #foundCodecs = set(name for imp, name, ispkg in \
-        #                pkgutil.iter_modules(encodings.__path__) if not ispkg)
-        #foundCodecs.difference_update(falsePositives)
-        #foundCodecs = sorted(list(foundCodecs))
-        #self.cbEncoding.addItems(foundCodecs)
-        #self.cbEncoding.setCurrentIndex(foundCodecs.index('utf_8'))
-        #self.cbEncoding.setCurrentIndex( 
-        #    self.cbEncoding.findText( pMonkeyStudio.defaultCodec() ) )
-
         # connections
         self.cbSearch.lineEdit().textChanged.connect(self._updateActionsState)
         self.cbRegularExpression.stateChanged.connect(self._updateActionsState)
@@ -199,16 +187,6 @@ class SearchWidget(QFrame):
         
         self._mode = mode
         
-        # TODO support search in project
-        #if self._mode & ModeFlagProjectFiles :
-        #    if  self.searchContext.project :
-        #        encoding = self.searchContext.project.temporaryValue(
-        #        "encoding", mks.monkeystudio.defaultCodec() ).toString()
-        #        self.searchContext.encoding = encoding
-        #        self.cbEncoding.setCurrentIndex( self.cbEncoding.findText(
-        #        encoding ) )
-        #assert( self.searchContext.encoding )
-        
         if core.workspace().currentDocument():
             searchText = core.workspace().currentDocument().selectedText()
         else:
@@ -233,19 +211,19 @@ class SearchWidget(QFrame):
         # hlamer: I'm sory for long lines, but, even workse without it
         # Set widgets visibility flag according to state
         widgets = (self.wSearch, self.pbPrevious, self.pbNext, self.pbSearch, self.wReplace, self.wPath, \
-                   self.pbReplace, self.pbReplaceAll, self.pbReplaceChecked, self.wOptions, self.wMask, self.wEncoding,)
-        #                             wSear  pbPrev pbNext pbSear wRepl  wPath  pbRep  pbRAll pbRCHK wOpti wMask wEnc
+                   self.pbReplace, self.pbReplaceAll, self.pbReplaceChecked, self.wOptions, self.wMask)
+        #                         wSear  pbPrev pbNext pbSear wRepl  wPath  pbRep  pbRAll pbRCHK wOpti wMask 
         visible = \
-        {ModeNo     :             (0,     0,     0,     0,     0,     0,     0,     0,     0,    0,    0,    0,),
-         ModeSearch :             (1,     1,     1,     0,     0,     0,     0,     1,     1,    1,    0,    0,),
-         ModeReplace:             (1,     1,     1,     0,     1,     0,     1,     1,     0,    1,    0,    0,),
-         ModeSearchDirectory:     (1,     0,     0,     1,     0,     1,     0,     0,     0,    1,    1,    1,),
-         ModeReplaceDirectory:    (1,     0,     0,     1,     1,     1,     0,     0,     1,    1,    1,    1,),
-         ModeSearchProjectFiles:  (1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,    1,),
-         ModeSearchProjectFiles:  (1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,    1,),
-         ModeReplaceProjectFiles: (1,     0,     0,     1,     1,     0,     0,     0,     1,    1,    1,    1,),
-         ModeSearchOpenedFiles:   (1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,    0,),
-         ModeReplaceOpenedFiles:  (1,     0,     0,     1,     1,     0,     0,     0,     1,    1,    1,    0,)}
+        {ModeNo     :             (0,     0,     0,     0,     0,     0,     0,     0,     0,    0,    0,),
+         ModeSearch :             (1,     1,     1,     0,     0,     0,     0,     1,     1,    1,    0,),
+         ModeReplace:             (1,     1,     1,     0,     1,     0,     1,     1,     0,    1,    0,),
+         ModeSearchDirectory:     (1,     0,     0,     1,     0,     1,     0,     0,     0,    1,    1,),
+         ModeReplaceDirectory:    (1,     0,     0,     1,     1,     1,     0,     0,     1,    1,    1,),
+         ModeSearchProjectFiles:  (1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,),
+         ModeSearchProjectFiles:  (1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,),
+         ModeReplaceProjectFiles: (1,     0,     0,     1,     1,     0,     0,     0,     1,    1,    1,),
+         ModeSearchOpenedFiles:   (1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,),
+         ModeReplaceOpenedFiles:  (1,     0,     0,     1,     1,     0,     0,     0,     1,    1,    1,)}
         
         for i, widget in enumerate(widgets):
             widget.setVisible(visible[mode][i])

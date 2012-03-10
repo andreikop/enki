@@ -5,12 +5,7 @@ searchreplace --- Search and replace functionality
 Contains search dialog and search/replace in file/directory functionality
 """
 
-import os.path
 import re
-import time
-import pkgutil
-import encodings
-import fnmatch
 
 from PyQt4 import uic
 from PyQt4.QtCore import QObject, Qt
