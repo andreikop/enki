@@ -28,8 +28,6 @@ class SearchContext:
     """Structure holds parameters of search or replace operation in progress
     """    
     def __init__(self, regExp, replaceText, searchPath, mode):
-        self.mask = []
-        self.openedFiles = {}
         self.regExp = regExp
         self.replaceText = replaceText
         self.searchPath = searchPath
@@ -400,6 +398,14 @@ class SearchWidget(QFrame):
         
         return True, None
 
+    def _getSearchMask(self):
+        """Get search mask as list of patterns
+        """
+        mask = [s.strip() for s in self.cbMask.currentText().split(' ')]
+        # remove empty
+        mask = filter(None, mask)
+        return mask
+
     def _makeSearchContext(self):
         """Fill search context with actual data
         """
@@ -412,18 +418,8 @@ class SearchWidget(QFrame):
         # TODO search in project
         #self.searchContext.project = core.fileManager().currentProject()
         
-        # update masks
-        searchContext.mask = \
-            [s.strip() for s in self.cbMask.currentText().split(' ')]
-        # remove empty
-        searchContext.mask = [m for m in searchContext.mask if m]
-        
         # TODO update project
         #self.searchContext.project = self.searchContext.project.topLevelProject()
-
-        # update opened files
-        for document in core.workspace().openedDocuments():
-            searchContext.openedFiles[document.filePath()] = document.text()
         
         # TODO support project
         # update sources files
@@ -662,7 +658,7 @@ class SearchWidget(QFrame):
         #                        self.tr( "You can't search in project files because there is no opened projet." ) )
         #    return
 
-        self.searchThread.search( self._makeSearchContext() )
+        self.searchThread.search( self._makeSearchContext(), self._getSearchMask())
 
     def on_pbSearchStop_pressed(self):
         """Handler of click on "Stop" button. Stop search thread

@@ -57,13 +57,19 @@ class SearchThread(StopableThread):
     resultsAvailable = pyqtSignal(list)  # list of searchresultsmodel.FileResults
     progressChanged = pyqtSignal(int, int)  # int value, int total
 
-    def search(self, context ):
+    def search(self, context, mask):
         """Start search process.
         context stores search text, directory and other parameters
         """
         self.stop()
         
         self.searchContext = context
+        self._mask = mask
+        
+        self._openedFiles = {}
+        for document in core.workspace().openedDocuments():
+            self._openedFiles[document.filePath()] = document.text()
+
         if context.mode & ModeFlagReplace:
             self._checkStateForResults = Qt.Checked
         else: 
@@ -108,13 +114,13 @@ class SearchThread(StopableThread):
         # TODO search in project
         #elif mode in (ModeSearchProjectFiles, ModeReplaceProjectFiles):
         #    sources = self.searchContext.sourcesFiles
-        #    mask = self.searchContext.mask
+        #    mask = self._mask
         #    for fileName in sources:
         #        if  QDir.match( mask, fileName ) :
         #            files.append(fileName)
         
-        if self.searchContext.mask:
-            regExPatterns = [fnmatch.translate(pat) for pat in self.searchContext.mask]
+        if self._mask:
+            regExPatterns = [fnmatch.translate(pat) for pat in self._mask]
             maskRegExpPattern = '(' + ')|('.join(regExPatterns) + ')'
             maskRegExp = re.compile(maskRegExpPattern)
         else:
@@ -125,7 +131,7 @@ class SearchThread(StopableThread):
             return self._getFiles(path, maskRegExp)
         elif self.searchContext.mode in \
                                 (ModeSearchOpenedFiles, ModeReplaceOpenedFiles):
-            files = self.searchContext.openedFiles.keys()
+            files = self._openedFiles.keys()
             if maskRegExp:
                 basenames = [os.path.basename(f) for f in files]
                 files = [f for f in basenames if maskRegExp.match(f)]
@@ -136,8 +142,8 @@ class SearchThread(StopableThread):
     def _fileContent(self, fileName, encoding='utf_8'):
         """Read text from file
         """
-        if fileName in self.searchContext.openedFiles:
-            return self.searchContext.openedFiles[ fileName ]
+        if fileName in self._openedFiles:
+            return self._openedFiles[ fileName ]
 
         try:
             with open(fileName) as openedFile:
@@ -239,6 +245,11 @@ class ReplaceThread(StopableThread):
         self.stop()
         self.searchContext = context
         self._results = results
+        
+        self._openedFiles = {}
+        for document in core.workspace().openedDocuments():
+            self._openedFiles[document.filePath()] = document.text()
+
         self.start()
 
     def _saveContent(self, fileName, content, encoding):
@@ -263,8 +274,8 @@ class ReplaceThread(StopableThread):
     def _fileContent(self, fileName, encoding='utf_8'):
         """Read file
         """
-        if fileName in self.searchContext.openedFiles:
-            return self.searchContext.openedFiles[ fileName ]
+        if fileName in self._openedFiles:
+            return self._openedFiles[ fileName ]
         else:
             try:
                 with open(fileName) as openFile:
@@ -309,7 +320,7 @@ class ReplaceThread(StopableThread):
                 content = content[:result.match.start()] + replaceTextWithMatches + content[result.match.end():]
                 handledResults.append(result)
             
-            if fileName in self.searchContext.openedFiles:
+            if fileName in self._openedFiles:
                 # TODO encode content with self.searchContext.encoding 
                 self.openedFileHandled.emit( fileName, content)
             else:
