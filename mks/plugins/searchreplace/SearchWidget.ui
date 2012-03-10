@@ -392,18 +392,6 @@ p, li { white-space: pre-wrap; }
         </layout>
        </widget>
       </item>
-      <item>
-       <widget class="QWidget" name="wEncoding" native="true">
-        <layout class="QHBoxLayout" name="horizontalLayout_8">
-         <property name="spacing">
-          <number>5</number>
-         </property>
-         <property name="margin">
-          <number>0</number>
-         </property>
-        </layout>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
