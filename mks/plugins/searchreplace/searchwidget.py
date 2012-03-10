@@ -181,6 +181,7 @@ class SearchWidget(QFrame):
         i.e. from "Search file" to "Replace directory"
         """
         if self._mode == mode and self.isVisible():
+            self.cbSearch.lineEdit().selectAll()
             self.cbSearch.setFocus()
             return
         
