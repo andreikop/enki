@@ -5,6 +5,7 @@ searchresultsdock --- Search results dock widget
 Shows results with SearchResultsModel
 """
 
+from PyQt4.QtCore import Qt, pyqtSignal
 from PyQt4.QtGui import QHBoxLayout, QIcon, \
                         QTreeView, QWidget
 from mks.fresh.dockwidget.pDockWidget import pDockWidget
@@ -57,12 +58,12 @@ class HTMLDelegate(QtGui.QStyledItemDelegate):
 class SearchResultsDock(pDockWidget):
     """Dock with search results
     """
-    def __init__(self, searchThread, parent=None):
+    
+    onResultsHandledByReplaceThread = pyqtSignal(str, list)
+
+    def __init__(self, parent=None):
         pDockWidget.__init__( self, parent )
         self.setObjectName("SearchResultsDock")
-        assert(searchThread)
-
-        self.searchThread = searchThread
 
         self.setObjectName( self.metaObject().className() )
         self.setWindowTitle( self.tr( "&Search Results" ) )
@@ -70,11 +71,14 @@ class SearchResultsDock(pDockWidget):
         
         # actions
         widget = QWidget( self )
-        self.model = searchresultsmodel.SearchResultsModel( searchThread, self )
+        
+        self._model = searchresultsmodel.SearchResultsModel(self)
+        self.onResultsHandledByReplaceThread.connect(self._model.onResultsHandledByReplaceThread)
+
         self._view = QTreeView( self )
         self._view.setHeaderHidden( True )
         self._view.setUniformRowHeights( True )
-        self._view.setModel( self.model )
+        self._view.setModel( self._model )
         self._delegate = HTMLDelegate()
         self._view.setItemDelegate(self._delegate)
         
@@ -92,8 +96,8 @@ class SearchResultsDock(pDockWidget):
         #pMonkeyStudio.setMacSmallSize( self, True, True )
 
         # connections
-        self.model.firstResultsAvailable.connect(self.show)
-        self._view.activated.connect(self.view_activated)
+        self._model.firstResultsAvailable.connect(self.show)
+        self._view.activated.connect(self._onResultActivated)
         
         self.showAction().setShortcut("Alt+S")
         core.actionManager().addAction("mDocks/aSearchResults", self.showAction())
@@ -101,7 +105,7 @@ class SearchResultsDock(pDockWidget):
     def del_(self):
         core.actionManager().removeAction("mDocks/aSearchResults")
 
-    def view_activated(self, index ):
+    def _onResultActivated(self, index ):
         """Item doubleclicked in the model, opening file
         """
         result = index.internalPointer()
@@ -111,3 +115,26 @@ class SearchResultsDock(pDockWidget):
                                    result.column,
                                    len(result.match.group(0)))
             self.setFocus()
+
+    def clear(self):
+        """Clear themselves
+        """
+        self._model.clear()
+    
+    def appendResults(self, fileResultList):
+        """Append results. Handler for signal from the search thread
+        """
+        self._model.appendResults(fileResultList)
+
+    def getCheckedItems(self):
+        """Get items, which must be replaced, as dictionary {file name : list of items}
+        """
+        items = {}
+
+        for fileRes in self._model.fileResults:
+            for row, result in enumerate(fileRes.results):
+                if result.checkState == Qt.Checked :
+                    if not result.fileName in items: 
+                        items[result.fileName] = []
+                    items[ result.fileName ].append(result)
+        return items

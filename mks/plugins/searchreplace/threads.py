@@ -62,7 +62,13 @@ class SearchThread(StopableThread):
         context stores search text, directory and other parameters
         """
         self.stop()
+        
         self.searchContext = context
+        if context.mode & ModeFlagReplace:
+            self._checkStateForResults = Qt.Checked
+        else: 
+            self._checkStateForResults = None
+        
         self.start()
 
     def clear(self):
@@ -164,7 +170,11 @@ class SearchThread(StopableThread):
         for fileIndex, fileName in enumerate(files):
             results = self._searchInFile(fileName)
             if  results:
-                notEmittedFileResults.append(searchresultsmodel.FileResults(fileName, results))
+                newFileRes = searchresultsmodel.FileResults(self.searchContext.searchPath,
+                                                            fileName,
+                                                            results,
+                                                            self._checkStateForResults)
+                notEmittedFileResults.append(newFileRes)
 
             if notEmittedFileResults and \
                (time.clock() - lastResultsEmitTime) > self.RESULTS_EMIT_TIMEOUT:
@@ -208,7 +218,8 @@ class SearchThread(StopableThread):
                              wholeLine = wholeLine, \
                              line = eolCount, \
                              column = column, \
-                             match=match)
+                             match=match,
+                             checkState = self._checkStateForResults)
             results.append(result)
 
             if self._exit:

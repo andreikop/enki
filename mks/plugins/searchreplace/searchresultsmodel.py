@@ -3,8 +3,6 @@ searchresultsmodel --- Model for search results
 ===============================================
 """
 
-from mks.plugins.searchreplace import *
-
 from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, \
                          QDir, \
                          QModelIndex, Qt, \
@@ -31,18 +29,17 @@ def htmlEscape(text):
 class Result:  # pylint: disable=R0902
     """One found by search thread item. Consists coordinates and capture. Used by SearchResultsModel
     """
-    def __init__ (  self, fileName, wholeLine, line, column, match):  # pylint: disable=R0913
+    def __init__ (  self, fileName, wholeLine, line, column, match, checkState):  # pylint: disable=R0913
         self.fileName = fileName
         self.wholeLine = wholeLine
         self.line = line
         self.column = column
         self.match = match
-        self.checkState =  Qt.Checked
-        self.enabled = True
+        if checkState is not None:
+            self.checkState = checkState
     
-    def text(self, notUsed):  # pylint: disable=W0613
+    def text(self):  # pylint: disable=W0613
         """Displayable text of search result. Shown as line in the search results dock
-        notUsed argument added for have same signature, as FileResults.text
         """
         beforeMatch = self.wholeLine[:self.column].lstrip()
         afterMatch = self.wholeLine[self.column + len(self.match.group(0)):].rstrip()
@@ -75,10 +72,12 @@ class Result:  # pylint: disable=R0902
 class FileResults:
     """Object stores all items, found in the file
     """
-    def __init__(self, fileName, results):
+    def __init__(self, baseDir, fileName, results, checkState):
+        self.baseDir = baseDir
         self.fileName = fileName
         self.results = results
-        self.checkState = Qt.Checked
+        if checkState is not None:
+            self.checkState = checkState
     
     def __str__(self):
         """Convertor to string. Used for debugging
@@ -96,11 +95,11 @@ class FileResults:
         else:
             self.checkState = Qt.Unchecked
     
-    def text(self, baseDir):
+    def text(self):
         """Displayable text of the file results. Shown as line in the search results dock
         baseDir is base directory of current search operation
         """
-        return '%s (%d)' % (baseDir.relativeFilePath(self.fileName), len(self.results))
+        return '%s (%d)' % (QDir(self.baseDir).relativeFilePath(self.fileName), len(self.results))
     
     def tooltip(self):
         """Tooltip of the item in the results dock
@@ -117,24 +116,13 @@ class SearchResultsModel(QAbstractItemModel):
     """
     firstResultsAvailable = pyqtSignal()
     
-    EnabledRole = Qt.UserRole
-        
-    def __init__(self, searchThread, parent ):
+    def __init__(self, parent ):
         """Constructor of SearchResultsModel class
         """
         QAbstractItemModel.__init__(self, parent )
         self._rowCount = 0
-        self.searchThread = searchThread
         
         self.fileResults = []  # list of FileResults
-        self._searchDir = QDir()
-        
-        # connections
-        self.searchThread.reset.connect(self.clear)
-        self.searchThread.resultsAvailable.connect(self.thread_resultsAvailable)
-        
-        from mks.plugins.searchreplace import Plugin
-        self.Plugin = Plugin  #  FIXME remove this dirty hack
 
     def index(self, row, column, parent ):
         """See QAbstractItemModel docs
@@ -194,15 +182,9 @@ class SearchResultsModel(QAbstractItemModel):
         """See QAbstractItemModel docs
         """
         flags = QAbstractItemModel.flags( self, index )
-        context = self.searchThread.searchContext
-
-        if context.mode & ModeFlagReplace :
-            flags |= Qt.ItemIsUserCheckable
         
-        if isinstance(index.internalPointer(), Result):
-            if not index.internalPointer().enabled :
-                flags &= ~Qt.ItemIsEnabled
-                flags &= ~Qt.ItemIsSelectable
+        if hasattr(index.internalPointer(), 'checkState'):
+            flags |= Qt.ItemIsUserCheckable
         
         return flags
     
@@ -215,7 +197,7 @@ class SearchResultsModel(QAbstractItemModel):
         # Common code for file and result
         result = index.internalPointer()
         if role == Qt.DisplayRole:
-            return self.tr( result.text(self._searchDir))
+            return result.text()
         elif role == Qt.ToolTipRole:
             return result.tooltip()
         elif role == Qt.CheckStateRole:
@@ -260,22 +242,20 @@ class SearchResultsModel(QAbstractItemModel):
         self.fileResults = []
         self.endRemoveRows()
 
-    def thread_resultsAvailable(self, fileResultsList ):
+    def appendResults(self, fileResultList ):
         """Handler of signal from the search thread.
         New result is available, add it to the model
         """
-        context = self.searchThread.searchContext
         if not self.fileResults:  # appending first
             self.firstResultsAvailable.emit()
-            self._searchDir.setPath( context.searchPath )
         self.beginInsertRows( QModelIndex(), \
                               len(self.fileResults), \
-                              len(self.fileResults) + len(fileResultsList) - 1)
-        self.fileResults.extend(fileResultsList)
+                              len(self.fileResults) + len(fileResultList) - 1)
+        self.fileResults.extend(fileResultList)
         self.endInsertRows()
     
-    def thread_resultsHandled(self, fileName, results):
-        """Replace thread processed result, need to remove it from the model
+    def onResultsHandledByReplaceThread(self, fileName, results):
+        """Replace thread has processed result, need to it from the model
         """
         for index, fileRes in enumerate(self.fileResults):  # try to find FileResults
             if fileRes.fileName == fileName:  # found
