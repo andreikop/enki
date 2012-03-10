@@ -180,7 +180,9 @@ class SearchWidget(QFrame):
         """Change search mode.
         i.e. from "Search file" to "Replace directory"
         """
-        if self._mode == mode and self.isVisible():
+        if self._mode == mode and \
+           self.isVisible() and \
+           not core.workspace().currentDocument().hasFocus():
             self.cbSearch.lineEdit().selectAll()
             self.cbSearch.setFocus()
             return
