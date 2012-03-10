@@ -166,7 +166,6 @@ class SearchWidget(QFrame):
 
         self._defaultBackgroundColor = self.cbSearch.palette().color(QPalette.Base)
 
-
     def setResultsDock(self, dock ):
         """Set to widget pointer to the search results dock
         """
@@ -174,7 +173,7 @@ class SearchWidget(QFrame):
 
         # connections
         self._replaceThread.resultsHandled.connect(\
-                                    self._dock.model.thread_resultsHandled)
+                                    self._dock.onResultsHandledByReplaceThread)
 
     def setMode(self, mode ):
         """Change search mode.
@@ -685,29 +684,8 @@ class SearchWidget(QFrame):
     def on_pbReplaceChecked_pressed(self):
         """Handler of click on "Replace checked" (in directory) button
         """
-        items = {}
-        model = self._dock.model
-
         self.updateComboBoxes()
-        
-        # TODO support project
-        # TODO disable action, don't show the message!
-        #if  self.searchContext.mode & ModeFlagProjectFiles and not self.searchContext.project :
-        #    core.messageToolBar().appendMessage(
-        #         self.tr( "You can't replace in project files because there is no opened projet." ) )
-        #    return
-
-        for fileRes in model.fileResults:
-            for row, result in enumerate(fileRes.results):
-                if result.enabled and result.checkState == Qt.Checked :
-                    if not result.fileName in items:
-                        items[result.fileName] = []
-                    items[ result.fileName ].append(result)
-                else:
-                    index = model.createIndex(row, 0, result)
-                    self._dock.model.setData( index, False, searchresultsmodel.SearchResultsModel.EnabledRole )
-
-        self._replaceThread.replace( self._makeSearchContext(), items )
+        self._replaceThread.replace( self._makeSearchContext(), self._dock.getCheckedItems() )
 
     def on_pbReplaceCheckedStop_pressed(self):
         """Handler of click on "Stop" button when replacing in directory
