@@ -113,14 +113,6 @@ class SearchThread(StopableThread):
         """
         files = set()
 
-        # TODO search in project
-        #elif mode in (ModeSearchProjectFiles, ModeReplaceProjectFiles):
-        #    sources = self._regExp.sourcesFiles
-        #    mask = self._mask
-        #    for fileName in sources:
-        #        if  QDir.match( mask, fileName ) :
-        #            files.append(fileName)
-        
         if self._mask:
             regExPatterns = [fnmatch.translate(pat) for pat in self._mask]
             maskRegExpPattern = '(' + ')|('.join(regExPatterns) + ')'

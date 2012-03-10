@@ -209,9 +209,6 @@ class SearchWidget(QFrame):
          ModeReplace:             (1,     1,     1,     0,     1,     0,     1,     1,     0,    1,    0,),
          ModeSearchDirectory:     (1,     0,     0,     1,     0,     1,     0,     0,     0,    1,    1,),
          ModeReplaceDirectory:    (1,     0,     0,     1,     1,     1,     0,     0,     1,    1,    1,),
-         ModeSearchProjectFiles:  (1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,),
-         ModeSearchProjectFiles:  (1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,),
-         ModeReplaceProjectFiles: (1,     0,     0,     1,     1,     0,     0,     0,     1,    1,    1,),
          ModeSearchOpenedFiles:   (1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,),
          ModeReplaceOpenedFiles:  (1,     0,     0,     1,     1,     0,     0,     0,     1,    1,    1,)}
         
@@ -256,10 +253,8 @@ class SearchWidget(QFrame):
                 if self._mode == ModeSearch:
                     self.pbNext.click()
                 elif self._mode in (ModeSearchDirectory, \
-                                    ModeSearchProjectFiles, \
                                     ModeSearchOpenedFiles, \
                                     ModeReplaceDirectory, \
-                                    ModeReplaceProjectFiles, \
                                     ModeReplaceOpenedFiles):
                     if not self.searchThread.isRunning():
                         self.pbSearch.click()
@@ -593,12 +588,6 @@ class SearchWidget(QFrame):
         """
         self.setState(SearchWidget.Normal )
         self.updateComboBoxes()
-        
-        # TODO support project
-        #if  self.searchContext._mode & ModeFlagProjectFiles and not self.searchContext.project :
-        #    core.messageToolBar().appendMessage( \
-        #                        self.tr( "You can't search in project files because there is no opened projet." ) )
-        #    return
 
         inOpenedFiles = self._mode in (ModeSearchOpenedFiles, ModeReplaceOpenedFiles,)
         forReplace = self._mode & ModeFlagReplace

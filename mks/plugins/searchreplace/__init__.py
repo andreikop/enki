@@ -17,15 +17,12 @@ ModeFlagSearch = 0x1
 ModeFlagReplace = 0x2
 ModeFlagFile = 0x4
 ModeFlagDirectory = 0x8
-ModeFlagProjectFiles = 0x10
-ModeFlagOpenedFiles = 0x20
+ModeFlagOpenedFiles = 0x10
 
 ModeSearch = ModeFlagSearch | ModeFlagFile
 ModeReplace = ModeFlagReplace | ModeFlagFile
 ModeSearchDirectory = ModeFlagSearch | ModeFlagDirectory
 ModeReplaceDirectory = ModeFlagReplace | ModeFlagDirectory
-ModeSearchProjectFiles = ModeFlagSearch | ModeFlagProjectFiles
-ModeReplaceProjectFiles = ModeFlagReplace | ModeFlagProjectFiles
 ModeSearchOpenedFiles = ModeFlagSearch | ModeFlagOpenedFiles
 ModeReplaceOpenedFiles = ModeFlagReplace | ModeFlagOpenedFiles
 
@@ -94,15 +91,6 @@ class Plugin(QObject):
                       "search-replace-opened-files.png", "Ctrl+Alt+Meta+R",
                       "Replace in opened files...",
                       self._modeSwitchTriggered, ModeReplaceOpenedFiles)
-        #TODO search in project
-        #                ("aSearchProjectFiles", "Search in Project &Files...",
-        #                "search-replace-project-files.png", "Ctrl+Meta+F",
-        #                "Search in the current project files..",
-        #                self.modeSwitchTriggered, ModeSearchProjectFiles),
-        #                ("aReplaceProjectFiles", "Replace in Projec&t Files...",
-        #                "search-replace-project-files.png", "Ctrl+Meta+R",
-        #                "Replace in the current project files...",
-        #                self.modeSwitchTriggered, ModeReplaceProjectFiles),
     
     def del_(self):
         """Plugin termination
@@ -129,8 +117,6 @@ class Plugin(QObject):
             self.widget.setMode(newMode)
         elif newMode & ModeFlagDirectory:
             self.widget.setMode(newMode)
-        elif newMode & ModeFlagProjectFiles:
-            pass  # TODO search in project support
         elif newMode & ModeFlagOpenedFiles:
             # TODO check if have file based document
             if core.workspace().openedDocuments():
