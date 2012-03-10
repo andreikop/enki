@@ -183,7 +183,7 @@ class SearchWidget(QFrame):
         else:
             searchText = ''
         
-        self.setVisible( mode != ModeNo )
+        self.show()
 
         if searchText:
             self.cbSearch.setEditText( searchText )
@@ -205,8 +205,7 @@ class SearchWidget(QFrame):
                    self.pbReplace, self.pbReplaceAll, self.pbReplaceChecked, self.wOptions, self.wMask)
         #                         wSear  pbPrev pbNext pbSear wRepl  wPath  pbRep  pbRAll pbRCHK wOpti wMask 
         visible = \
-        {ModeNo     :             (0,     0,     0,     0,     0,     0,     0,     0,     0,    0,    0,),
-         ModeSearch :             (1,     1,     1,     0,     0,     0,     0,     1,     1,    1,    0,),
+        {ModeSearch :             (1,     1,     1,     0,     0,     0,     0,     1,     1,    1,    0,),
          ModeReplace:             (1,     1,     1,     0,     1,     0,     1,     1,     0,    1,    0,),
          ModeSearchDirectory:     (1,     0,     0,     1,     0,     1,     0,     0,     0,    1,    1,),
          ModeReplaceDirectory:    (1,     0,     0,     1,     1,     1,     0,     0,     1,    1,    1,),
@@ -254,9 +253,7 @@ class SearchWidget(QFrame):
                 core.workspace().focusCurrentDocument()
                 self.hide()
             elif event.key() in (Qt.Key_Enter, Qt.Key_Return):
-                if self._mode == ModeNo:
-                    pass
-                elif self._mode == ModeSearch:
+                if self._mode == ModeSearch:
                     self.pbNext.click()
                 elif self._mode in (ModeSearchDirectory, \
                                     ModeSearchProjectFiles, \

@@ -20,7 +20,6 @@ ModeFlagDirectory = 0x8
 ModeFlagProjectFiles = 0x10
 ModeFlagOpenedFiles = 0x20
 
-ModeNo = 0
 ModeSearch = ModeFlagSearch | ModeFlagFile
 ModeReplace = ModeFlagReplace | ModeFlagFile
 ModeSearchDirectory = ModeFlagSearch | ModeFlagDirectory
