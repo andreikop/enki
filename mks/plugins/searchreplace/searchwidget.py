@@ -27,10 +27,9 @@ import searchresultsmodel
 class SearchContext:
     """Structure holds parameters of search or replace operation in progress
     """    
-    def __init__(self, regExp, replaceText, searchPath):
+    def __init__(self, regExp, replaceText):
         self.regExp = regExp
         self.replaceText = replaceText
-        self.searchPath = searchPath
 
 
 class SearchWidget(QFrame):
@@ -388,8 +387,7 @@ class SearchWidget(QFrame):
         """
 
         searchContext = SearchContext(  self._getRegExp(), \
-                                        replaceText = self.cbReplace.currentText(), \
-                                        searchPath = self.cbPath.currentText())
+                                        replaceText = self.cbReplace.currentText())
 
         # TODO search in project
         #self.searchContext.project = core.fileManager().currentProject()
@@ -636,10 +634,12 @@ class SearchWidget(QFrame):
 
         inOpenedFiles = self._mode in (ModeSearchOpenedFiles, ModeReplaceOpenedFiles,)
         forReplace = self._mode & ModeFlagReplace
+        path = self.cbPath.currentText()
         self.searchThread.search( self._makeSearchContext(),
                                   self._getSearchMask(),
                                   inOpenedFiles,
-                                  forReplace)
+                                  forReplace,
+                                  path)
 
     def on_pbSearchStop_pressed(self):
         """Handler of click on "Stop" button. Stop search thread

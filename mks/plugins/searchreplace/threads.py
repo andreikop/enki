@@ -57,7 +57,7 @@ class SearchThread(StopableThread):
     resultsAvailable = pyqtSignal(list)  # list of searchresultsmodel.FileResults
     progressChanged = pyqtSignal(int, int)  # int value, int total
 
-    def search(self, context, mask, inOpenedFiles, forReplace):
+    def search(self, context, mask, inOpenedFiles, forReplace, searchPath):
         """Start search process.
         context stores search text, directory and other parameters
         """
@@ -66,6 +66,7 @@ class SearchThread(StopableThread):
         self.searchContext = context
         self._mask = mask
         self._inOpenedFiles = inOpenedFiles
+        self._searchPath = searchPath
         
         self._openedFiles = {}
         for document in core.workspace().openedDocuments():
@@ -134,7 +135,7 @@ class SearchThread(StopableThread):
                 files = [f for f in basenames if maskRegExp.match(f)]
             return files
         else:
-            path = self.searchContext.searchPath
+            path = self._searchPath
             return self._getFiles(path, maskRegExp)
 
     def _fileContent(self, fileName):
@@ -174,7 +175,7 @@ class SearchThread(StopableThread):
         for fileIndex, fileName in enumerate(files):
             results = self._searchInFile(fileName)
             if  results:
-                newFileRes = searchresultsmodel.FileResults(self.searchContext.searchPath,
+                newFileRes = searchresultsmodel.FileResults(self._searchPath,
                                                             fileName,
                                                             results,
                                                             self._checkStateForResults)
