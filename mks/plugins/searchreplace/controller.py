@@ -11,8 +11,6 @@ from PyQt4.QtGui import QAction, QIcon
 
 from mks.core.core import core
 
-from threads import SearchThread, ReplaceThread  # TODO why it is created here???
-
 ModeFlagSearch = 0x1
 ModeFlagReplace = 0x2
 ModeFlagFile = 0x4
@@ -33,24 +31,19 @@ class Controller(QObject):
     def __init__(self):
         QObject.__init__(self)
         self._mode = None
-        self.widget = None  # FIXME make private
-        self.dock = None # FIXME make private
+        self._searchThread = None
+        self._replaceThread = None
+        self._widget = None
+        self._dock = None
         self._createActions()
-        
-        self._searchThread = SearchThread()  # FIXME delayed initialisation
-        self._searchThread.finished.connect(self._onSearchThreadFinished)
-
-        self._replaceThread = ReplaceThread()   # FIXME delayed initialisation
-        self._replaceThread.openedFileHandled.connect(self._onReplaceThreadOpenedFileHandled)
-        self._replaceThread.error.connect(self._onReplaceThreadError)
 
     def del_(self):
         """Explicitly called destructor
         """
         for action in self._createdActions:
             core.actionManager().removeAction(action)
-        if self.dock is not None:
-            self.dock.del_()
+        if self._dock is not None:
+            self._dock.del_()
 
     def _createActions(self):
         """Create main menu actions
@@ -110,12 +103,36 @@ class Controller(QObject):
                       "Replace in opened files...",
                       self._onModeSwitchTriggered, ModeReplaceOpenedFiles)
 
+    def _createSearchWidget(self):
+        """ Create search widget. Called only when user requested it first time
+        """
+        import searchwidget
+        self._widget = searchwidget.SearchWidget( self )
+        self._widget.searchInDirectoryStartPressed.connect(self._onSearchInDirectoryStartPressed)
+        self._widget.searchInDirectoryStopPressed.connect(self._onSearchInDirectoryStopPressed)
+        self._widget.replaceCheckedStartPressed.connect(self._onReplaceCheckedStartPressed)
+        self._widget.replaceCheckedStopPressed.connect(self._onReplaceCheckedStopPressed)
+
+        core.mainWindow().centralLayout().addWidget( self._widget )
+        self._widget.setVisible( False )
+
+    def _createDockWidget(self):
+        """Create dock widget, which displays search results.
+        Called only when search in direcory process starts
+        """
+        import searchresultsdock
+        self._dock = searchresultsdock.SearchResultsDock()
+
+        core.mainWindow().addDockWidget(Qt.BottomDockWidgetArea, self._dock)
+        self._dock.setVisible( False )
+
+    
     def _onModeSwitchTriggered(self):
         """Changing mode, i.e. from "Search file" to "Replace file"
         """
         
-        if not self.widget:
-            self._createWidgets()
+        if not self._widget:
+            self._createSearchWidget()
         
         newMode = self.sender().data().toInt()[0]
         
@@ -123,37 +140,14 @@ class Controller(QObject):
            not core.workspace().openedDocuments():
             return
         
-        self.widget.setMode(newMode)
+        self._widget.setMode(newMode)
         
-        self._searchThread.stop()
-        self._replaceThread.stop()
-        
+        if self._searchThread is not None:
+            self._searchThread.stop()
+        if self._replaceThread is not None:
+            self._replaceThread.stop()
+
         self._mode = newMode
-    
-    def _createWidgets(self):
-        """ Create search widget and dock. Called only when user requested it first time
-        """
-        import searchwidget
-        self.widget = searchwidget.SearchWidget( self )
-        self.widget.searchInDirectoryStartPressed.connect(self._onSearchInDirectoryStartPressed)
-        self.widget.searchInDirectoryStopPressed.connect(self._onSearchInDirectoryStopPressed)
-        self.widget.replaceCheckedStartPressed.connect(self._onReplaceCheckedStartPressed)
-        self.widget.replaceCheckedStopPressed.connect(self._onReplaceCheckedStopPressed)
-
-        # FIXME to thread creation
-        self._searchThread.progressChanged.connect(self.widget.onSearchProgressChanged)
-
-        core.mainWindow().centralLayout().addWidget( self.widget )
-        self.widget.setVisible( False )
-        
-        # FIXME create dock, only when have some search results!!!
-        import searchresultsdock
-        self.dock = searchresultsdock.SearchResultsDock()
-        self._searchThread.resultsAvailable.connect(self.dock.appendResults)
-        self._replaceThread.resultsHandled.connect(self.dock.onResultsHandledByReplaceThread)
-
-        core.mainWindow().addDockWidget(Qt.BottomDockWidgetArea, self.dock)
-        self.dock.setVisible( False )
 
     #
     # Search in directory (with thread)
@@ -161,11 +155,21 @@ class Controller(QObject):
 
     def _onSearchInDirectoryStartPressed(self, regEx, mask, path):
         """Handler for 'search in directory' action
-        """
+        """ 
+        if self._dock is None:
+            self._createDockWidget()
+        
+        from threads import SearchThread
+        self._searchThread = SearchThread()
+        self._searchThread.progressChanged.connect(self._widget.onSearchProgressChanged)
+        self._searchThread.resultsAvailable.connect(self._dock.appendResults)
+        self._searchThread.finished.connect(self._onSearchThreadFinished)
+        
         inOpenedFiles = self._mode in (ModeSearchOpenedFiles, ModeReplaceOpenedFiles,)
         forReplace = self._mode & ModeFlagReplace
-        self.widget.setSearchInProgress(True)
-        self.dock.clear()
+        
+        self._widget.setSearchInProgress(True)
+        self._dock.clear()
         self._searchThread.search( regEx,
                                    mask,
                                    inOpenedFiles,
@@ -175,12 +179,13 @@ class Controller(QObject):
     def _onSearchInDirectoryStopPressed(self):
         """Handler for 'search in directory' action
         """
-        self._searchThread.stop()
+        if self._searchThread is not None:
+            self._searchThread.stop()
 
     def _onSearchThreadFinished(self):
         """Handler for search in directory finished signal
         """
-        self.widget.setSearchInProgress(False)
+        self._widget.setSearchInProgress(False)
     
     #
     # Replace in directory (with thread)
@@ -189,13 +194,20 @@ class Controller(QObject):
     def _onReplaceCheckedStartPressed(self, replaceText):
         """Handler for 'replace checked' action
         """
-        self._replaceThread.replace( self.dock.getCheckedItems(),
+        from threads import ReplaceThread 
+        self._replaceThread = ReplaceThread()
+        self._replaceThread.resultsHandled.connect(self._dock.onResultsHandledByReplaceThread)
+        self._replaceThread.openedFileHandled.connect(self._onReplaceThreadOpenedFileHandled)
+        self._replaceThread.error.connect(self._onReplaceThreadError)
+
+        self._replaceThread.replace( self._dock.getCheckedItems(),
                                      replaceText)
 
     def _onReplaceCheckedStopPressed(self):
         """Handler for 'stop replacing checked' action
         """
-        self._replaceThread.stop()
+        if self._replaceThread is not None:
+            self._replaceThread.stop()
 
     def _onReplaceThreadError(self, error ):
         """Error message from the replace thread
@@ -212,4 +224,4 @@ class Controller(QObject):
     def _onReplaceThreadFinished(self):
         """Handler for replace in directory finished event
         """
-        self.widget.setReplaceInProgress(False)
+        self._widget.setReplaceInProgress(False)
