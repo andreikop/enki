@@ -210,8 +210,8 @@ class SearchWidget(QFrame):
             self.pbNext.setText(u'Next↵')
 
         self.show()  # show before updating widgets and labels
-        self.updateLabels()
-        self.updateWidgets()
+        self._updateLabels()
+        self._updateWidgets()
 
     def eventFilter(self, object_, event ):
         """ Event filter for mode switch tool button
@@ -253,7 +253,7 @@ class SearchWidget(QFrame):
 
         QFrame.keyPressEvent( self, event )
 
-    def updateLabels(self):
+    def _updateLabels(self):
         """Update 'Search' 'Replace' 'Path' labels geometry
         """
         width = 0
@@ -272,7 +272,7 @@ class SearchWidget(QFrame):
         self.lPath.setMinimumWidth( width )
 
 
-    def updateWidgets(self):
+    def _updateWidgets(self):
         """Update geometry of widgets with buttons
         """
         width = 0
@@ -290,7 +290,7 @@ class SearchWidget(QFrame):
         self.wReplaceRight.setMinimumWidth( width )
         self.wPathRight.setMinimumWidth( width )
 
-    def updateComboBoxes(self):
+    def _updateComboBoxes(self):
         """Update comboboxes with last used texts
         """
         searchText = self.cbSearch.currentText()
@@ -374,7 +374,7 @@ class SearchWidget(QFrame):
         """
         self.pbSearchStop.setVisible( inProgress )
         self.pbSearch.setVisible( not inProgress )
-        self.updateWidgets()
+        self._updateWidgets()
         self._progress.setVisible( inProgress )
 
     def onSearchProgressChanged(self, value, total ):
@@ -388,7 +388,7 @@ class SearchWidget(QFrame):
         """
         self.pbReplaceCheckedStop.setVisible( inProgress )
         self.pbReplaceChecked.setVisible( not inProgress )
-        self.updateWidgets()
+        self._updateWidgets()
     
     def setSearchInFileActionsEnabled(self, enabled):
         """Set enabled state for Next, Prev, Replace, ReplaceAll
@@ -423,20 +423,20 @@ class SearchWidget(QFrame):
     def on_pbPrevious_pressed(self):
         """Handler of click on "Previous" button
         """
-        self.updateComboBoxes()
+        self._updateComboBoxes()
         self.searchPrevious.emit()
 
     def on_pbNext_pressed(self):
         """Handler of click on "Next" button
         """
-        self.updateComboBoxes()
+        self._updateComboBoxes()
         self.searchNext.emit()
 
     def on_pbSearch_pressed(self):
         """Handler of click on "Search" button (for search in directory)
         """
         self.setState(SearchWidget.Normal )
-        self.updateComboBoxes()
+        self._updateComboBoxes()
 
         self.searchInDirectoryStartPressed.emit(self.getRegExp(),
                                                 self._getSearchMask(),
@@ -450,19 +450,19 @@ class SearchWidget(QFrame):
     def on_pbReplace_pressed(self):
         """Handler of click on "Replace" (in file) button
         """
-        self.updateComboBoxes()
+        self._updateComboBoxes()
         self.replaceFileOne.emit(self.cbReplace.currentText())
 
     def on_pbReplaceAll_pressed(self):
         """Handler of click on "Replace all" (in file) button
         """
-        self.updateComboBoxes()
+        self._updateComboBoxes()
         self.replaceFileAll.emit(self.cbReplace.currentText())
 
     def on_pbReplaceChecked_pressed(self):
         """Handler of click on "Replace checked" (in directory) button
         """
-        self.updateComboBoxes()
+        self._updateComboBoxes()
         self.replaceCheckedStartPressed.emit(self.cbReplace.currentText())
 
     def on_pbReplaceCheckedStop_pressed(self):
