@@ -13,6 +13,7 @@ import fnmatch
 from PyQt4.QtCore import pyqtSignal, \
                          QThread
 
+from mks.core.core import core
 from mks.plugins.searchreplace import *
 import searchresultsmodel
 
@@ -53,7 +54,6 @@ class SearchThread(StopableThread):
     """
     RESULTS_EMIT_TIMEOUT = 1.0
 
-    reset = pyqtSignal()
     resultsAvailable = pyqtSignal(list)  # list of searchresultsmodel.FileResults
     progressChanged = pyqtSignal(int, int)  # int value, int total
 
@@ -78,12 +78,6 @@ class SearchThread(StopableThread):
             self._checkStateForResults = None
         
         self.start()
-
-    def clear(self):
-        """Stop thread and clear search results
-        """
-        self.stop()
-        self.reset.emit()            
 
     def _getFiles(self, path, maskRegExp):
         """Get recursive list of files from directory.
@@ -150,7 +144,6 @@ class SearchThread(StopableThread):
         Build list of files for search, than do search
         """
         startTime = time.clock()
-        self.reset.emit()
         self.progressChanged.emit( -1, 0 )
 
         files = sorted(self._getFilesToScan())

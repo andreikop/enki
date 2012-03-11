@@ -10,7 +10,8 @@ import re
 
 from PyQt4 import uic
 from PyQt4.QtCore import QDir, QEvent, \
-                         QRect, QSize, Qt
+                         QRect, QSize, Qt, \
+                         pyqtSignal
 
 from PyQt4.QtGui import QCompleter, QDirModel, QFileDialog,  \
                         QFrame, QFileDialog, QIcon, \
@@ -24,6 +25,7 @@ from mks.core.core import core
 from mks.plugins.searchreplace import *
 import searchresultsmodel
 
+from controller import *
 
 class SearchWidget(QFrame):
     """Widget, appeared, when Ctrl+F pressed.
@@ -34,6 +36,21 @@ class SearchWidget(QFrame):
     Good = 'good'
     Bad = 'bad'
     Incorrect = 'incorrect'
+
+    searchInDirectoryStartPressed = pyqtSignal(type(re.compile('')), list, unicode)
+    """
+    searchInDirectoryStartPressed(regEx, mask, path)
+    
+    **Signal** emitted, when 'search in directory' button had been pressed
+    """  # pylint: disable=W0105
+
+    searchInDirectoryStopPressed = pyqtSignal()
+    """
+    searchInDirectoryStopPressed()
+    
+    **Signal** emitted, when 'stop search in directory' button had been pressed
+    """  # pylint: disable=W0105
+
 
     def __init__(self, plugin):
         QFrame.__init__(self, core.workspace())
@@ -61,8 +78,7 @@ class SearchWidget(QFrame):
         self._progress.setVisible( False )
         
         # threads
-        from threads import SearchThread, ReplaceThread  # TODO why it is created here???
-        self.searchThread = SearchThread()
+        from threads import ReplaceThread  # TODO why it is created here???
         self._replaceThread = ReplaceThread()
 
         self._dock = None
@@ -122,10 +138,6 @@ class SearchWidget(QFrame):
         core.workspace().currentDocumentChanged.connect(self._updateActionsState)
         
         self.tbCdUp.clicked.connect(self.cdUp_pressed)
-        self.searchThread.started.connect(self.searchThread_stateChanged)
-        self.searchThread.finished.connect(self.searchThread_stateChanged)
-        self.searchThread.progressChanged.connect(\
-                                        self.searchThread_progressChanged)
         self._replaceThread.started.connect(self.replaceThread_stateChanged)
         self._replaceThread.finished.connect(self.replaceThread_stateChanged)
         self._replaceThread.openedFileHandled.connect(\
@@ -163,7 +175,6 @@ class SearchWidget(QFrame):
             self.cbSearch.setFocus()
             return
         
-        self.searchThread.stop()
         self._replaceThread.stop()
         
         currentDocumentOnly = False
@@ -174,7 +185,6 @@ class SearchWidget(QFrame):
             currentDocumentOnly = True
         else:
             currentDocumentOnly = False
-            self.searchThread.clear()
         
         self._mode = mode
         
@@ -256,7 +266,7 @@ class SearchWidget(QFrame):
                                     ModeSearchOpenedFiles, \
                                     ModeReplaceDirectory, \
                                     ModeReplaceOpenedFiles):
-                    if not self.searchThread.isRunning():
+                    if self.pbSearch.isVisible():
                         self.pbSearch.click()
                     else:
                         self.pbSearchStop.click()
@@ -488,7 +498,7 @@ class SearchWidget(QFrame):
             pos = match.start() + len(replText)
             
             if not match.group(0) and not replText:  # avoid freeze when replacing empty with empty
-                pos += 1
+                pos  += 1
             if pos < len(document.text()):
                 match = regExp.search(document.text(), pos)
             else:
@@ -500,15 +510,15 @@ class SearchWidget(QFrame):
             document.setCursorPosition(absPos = oldPos) # restore cursor position
         self.showMessage( self.tr( "%d occurrence(s) replaced." % count ))
 
-    def searchThread_stateChanged(self):
+    def setSearchInProgress(self, inProgress):
         """Search thread started or stopped
         """
-        self.pbSearchStop.setVisible( self.searchThread.isRunning() )
-        self.pbSearch.setVisible( not self.searchThread.isRunning() )
+        self.pbSearchStop.setVisible( inProgress )
+        self.pbSearch.setVisible( not inProgress )
         self.updateWidgets()
-        self._progress.setVisible( self.searchThread.isRunning() )
+        self._progress.setVisible( inProgress )
 
-    def searchThread_progressChanged(self, value, total ):
+    def onSearchProgressChanged(self, value, total ):
         """Signal from the thread, progress changed
         """
         self._progress.setValue( value )
@@ -589,19 +599,14 @@ class SearchWidget(QFrame):
         self.setState(SearchWidget.Normal )
         self.updateComboBoxes()
 
-        inOpenedFiles = self._mode in (ModeSearchOpenedFiles, ModeReplaceOpenedFiles,)
-        forReplace = self._mode & ModeFlagReplace
-        path = self.cbPath.currentText()
-        self.searchThread.search( self._getRegExp(),
-                                  self._getSearchMask(),
-                                  inOpenedFiles,
-                                  forReplace,
-                                  path)
+        self.searchInDirectoryStartPressed.emit(self._getRegExp(),
+                                                self._getSearchMask(),
+                                                self.cbPath.currentText())
 
     def on_pbSearchStop_pressed(self):
         """Handler of click on "Stop" button. Stop search thread
         """
-        self.searchThread.stop()
+        self.searchInDirectoryStopPressed.emit()
 
     def on_pbReplace_pressed(self):
         """Handler of click on "Replace" (in file) button
