@@ -51,6 +51,20 @@ class SearchWidget(QFrame):
     **Signal** emitted, when 'stop search in directory' button had been pressed
     """  # pylint: disable=W0105
 
+    replaceCheckedStartPressed = pyqtSignal(unicode)
+    """
+    replaceCheckedStartPressed(replText)
+    
+    **Signal** emitted, when 'replace checked' button had been pressed
+    """  # pylint: disable=W0105
+
+    replaceCheckedStopPressed = pyqtSignal()
+    """
+    replaceCheckedStartPressed()
+    
+    **Signal** emitted, when 'stop replacing checked' button had been pressed
+    """  # pylint: disable=W0105
+
 
     def __init__(self, plugin):
         QFrame.__init__(self, core.workspace())
@@ -76,12 +90,6 @@ class SearchWidget(QFrame):
         self._progress.setMaximumSize( QSize( 80, 16 ) )
         core.mainWindow().statusBar().insertPermanentWidget( 0, self._progress )
         self._progress.setVisible( False )
-        
-        # threads
-        from threads import ReplaceThread  # TODO why it is created here???
-        self._replaceThread = ReplaceThread()
-
-        self._dock = None
         
         # mode actions
         self.tbMode = QToolButton( self.cbSearch.lineEdit() )
@@ -138,11 +146,6 @@ class SearchWidget(QFrame):
         core.workspace().currentDocumentChanged.connect(self._updateActionsState)
         
         self.tbCdUp.clicked.connect(self.cdUp_pressed)
-        self._replaceThread.started.connect(self.replaceThread_stateChanged)
-        self._replaceThread.finished.connect(self.replaceThread_stateChanged)
-        self._replaceThread.openedFileHandled.connect(\
-                                        self.replaceThread_openedFileHandled)
-        self._replaceThread.error.connect(self.replaceThread_error)
         
         core.actionManager().action("mNavigation/mSearchReplace/aSearchNext")\
                                         .triggered.connect(self.on_pbNext_pressed)
@@ -155,15 +158,6 @@ class SearchWidget(QFrame):
 
         self._defaultBackgroundColor = self.cbSearch.palette().color(QPalette.Base)
 
-    def setResultsDock(self, dock ):
-        """Set to widget pointer to the search results dock
-        """
-        self._dock = dock
-
-        # connections
-        self._replaceThread.resultsHandled.connect(\
-                                    self._dock.onResultsHandledByReplaceThread)
-
     def setMode(self, mode ):
         """Change search mode.
         i.e. from "Search file" to "Replace directory"
@@ -174,8 +168,6 @@ class SearchWidget(QFrame):
             self.cbSearch.lineEdit().selectAll()
             self.cbSearch.setFocus()
             return
-        
-        self._replaceThread.stop()
         
         currentDocumentOnly = False
         
@@ -524,24 +516,12 @@ class SearchWidget(QFrame):
         self._progress.setValue( value )
         self._progress.setMaximum( total )
 
-    def replaceThread_stateChanged(self):
+    def setReplaceInProgress(self, inProgress):
         """Replace thread started or stopped
         """
-        self.pbReplaceCheckedStop.setVisible( self._replaceThread.isRunning() )
-        self.pbReplaceChecked.setVisible( not self._replaceThread.isRunning() )
+        self.pbReplaceCheckedStop.setVisible( inProgress )
+        self.pbReplaceChecked.setVisible( not inProgress )
         self.updateWidgets()
-
-    def replaceThread_openedFileHandled(self, fileName, content):
-        """Replace thread processed currently opened file,
-        need update text in the editor
-        """
-        document = core.workspace().openFile(fileName)
-        document.replace(content, startAbsPos=0, endAbsPos=len(document.text()))
-
-    def replaceThread_error(self, error ):
-        """Error message from the replace thread
-        """
-        core.messageToolBar().appendMessage( error )
     
     def _updateActionsState(self):
         """Update actions state according to search reg exp valid state
@@ -624,13 +604,12 @@ class SearchWidget(QFrame):
         """Handler of click on "Replace checked" (in directory) button
         """
         self.updateComboBoxes()
-        self._replaceThread.replace( self._dock.getCheckedItems(),
-                                     self.cbReplace.currentText())
+        self.replaceCheckedStartPressed.emit(self.cbReplace.currentText())
 
     def on_pbReplaceCheckedStop_pressed(self):
         """Handler of click on "Stop" button when replacing in directory
         """
-        self._replaceThread.stop()
+        self.replaceCheckedStopPressed.emit()
 
     def on_pbBrowse_pressed(self):
         """Handler of click on "Browse" button. Explores FS for search directory path
