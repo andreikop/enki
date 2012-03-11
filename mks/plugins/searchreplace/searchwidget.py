@@ -83,23 +83,14 @@ class SearchWidget(QFrame):
         self.cbMask.completer().setCaseSensitivity( Qt.CaseSensitive )
         self.pbSearchStop.setVisible( False )
         self.pbReplaceCheckedStop.setVisible( False )
-        
+
         self._progress = QProgressBar( self )
         self._progress.setAlignment( Qt.AlignCenter )
         self._progress.setToolTip( self.tr( "Search in progress..." ) )
         self._progress.setMaximumSize( QSize( 80, 16 ) )
         core.mainWindow().statusBar().insertPermanentWidget( 0, self._progress )
         self._progress.setVisible( False )
-        
-        # mode actions
-        self.tbMode = QToolButton( self.cbSearch.lineEdit() )
-        self.tbMode.setIcon( QIcon( ":/mksicons/misc.png" ) )
-        self.tbMode.setPopupMode( QToolButton.InstantPopup )
-        self.tbMode.setMenu( core.actionManager().\
-                action( "mNavigation/mSearchReplace" ).menu() )
-        self.tbMode.setCursor( Qt.ArrowCursor )
-        self.tbMode.installEventFilter( self )
-        
+
         # cd up action
         self.tbCdUp = QToolButton( self.cbPath.lineEdit() )
         self.tbCdUp.setIcon( QIcon( ":/mksicons/go-up.png" ) )
@@ -226,10 +217,7 @@ class SearchWidget(QFrame):
         """
         if  event.type() == QEvent.Paint :
             toolButton = object_
-            if toolButton == self.tbMode:
-                lineEdit = self.cbSearch.lineEdit()
-            else:
-                lineEdit = self.cbPath.lineEdit()
+            lineEdit = self.cbPath.lineEdit()
             lineEdit.setContentsMargins( lineEdit.height(), 0, 0, 0 )
             
             height = lineEdit.height()
