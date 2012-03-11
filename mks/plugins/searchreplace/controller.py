@@ -38,7 +38,11 @@ class Controller(QObject):
         self._createActions()
         
         self._searchThread = SearchThread()  # FIXME delayed initialisation
+        self._searchThread.finished.connect(self._onSearchThreadFinished)
 
+        self._replaceThread = ReplaceThread()   # FIXME delayed initialisation
+        self._replaceThread.openedFileHandled.connect(self._onReplaceThreadOpenedFileHandled)
+        self._replaceThread.error.connect(self._onReplaceThreadError)
 
     def del_(self):
         """Explicitly called destructor
@@ -122,6 +126,7 @@ class Controller(QObject):
         self.widget.setMode(newMode)
         
         self._searchThread.stop()
+        self._replaceThread.stop()
         
         self._mode = newMode
     
@@ -132,11 +137,11 @@ class Controller(QObject):
         self.widget = searchwidget.SearchWidget( self )
         self.widget.searchInDirectoryStartPressed.connect(self._onSearchInDirectoryStartPressed)
         self.widget.searchInDirectoryStopPressed.connect(self._onSearchInDirectoryStopPressed)
+        self.widget.replaceCheckedStartPressed.connect(self._onReplaceCheckedStartPressed)
+        self.widget.replaceCheckedStopPressed.connect(self._onReplaceCheckedStopPressed)
 
         # FIXME to thread creation
-        self._searchThread.finished.connect(self._onSearchThreadFinished)
-        self._searchThread.progressChanged.connect(\
-                                        self.widget.onSearchProgressChanged)
+        self._searchThread.progressChanged.connect(self.widget.onSearchProgressChanged)
 
         core.mainWindow().centralLayout().addWidget( self.widget )
         self.widget.setVisible( False )
@@ -145,12 +150,15 @@ class Controller(QObject):
         import searchresultsdock
         self.dock = searchresultsdock.SearchResultsDock()
         self._searchThread.resultsAvailable.connect(self.dock.appendResults)
+        self._replaceThread.resultsHandled.connect(self.dock.onResultsHandledByReplaceThread)
 
         core.mainWindow().addDockWidget(Qt.BottomDockWidgetArea, self.dock)
         self.dock.setVisible( False )
 
-        self.widget.setResultsDock( self.dock )
-    
+    #
+    # Search in directory (with thread)
+    #
+
     def _onSearchInDirectoryStartPressed(self, regEx, mask, path):
         """Handler for 'search in directory' action
         """
@@ -170,6 +178,38 @@ class Controller(QObject):
         self._searchThread.stop()
 
     def _onSearchThreadFinished(self):
-        """Handler for search in directory finished
+        """Handler for search in directory finished signal
         """
         self.widget.setSearchInProgress(False)
+    
+    #
+    # Replace in directory (with thread)
+    #
+
+    def _onReplaceCheckedStartPressed(self, replaceText):
+        """Handler for 'replace checked' action
+        """
+        self._replaceThread.replace( self.dock.getCheckedItems(),
+                                     replaceText)
+
+    def _onReplaceCheckedStopPressed(self):
+        """Handler for 'stop replacing checked' action
+        """
+        self._replaceThread.stop()
+
+    def _onReplaceThreadError(self, error ):
+        """Error message from the replace thread
+        """
+        core.messageToolBar().appendMessage( error )
+
+    def _onReplaceThreadOpenedFileHandled(self, fileName, content):
+        """Replace thread processed currently opened file,
+        need update text in the editor
+        """
+        document = core.workspace().openFile(fileName)
+        document.replace(content, startAbsPos=0, endAbsPos=len(document.text()))
+    
+    def _onReplaceThreadFinished(self):
+        """Handler for replace in directory finished event
+        """
+        self.widget.setReplaceInProgress(False)

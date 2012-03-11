@@ -11,6 +11,7 @@ import time
 import fnmatch
 
 from PyQt4.QtCore import pyqtSignal, \
+                         Qt, \
                          QThread
 
 from mks.core.core import core
