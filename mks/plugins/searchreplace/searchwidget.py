@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 searchwidget --- Search widget and controler
 ============================================
@@ -158,7 +159,7 @@ class SearchWidget(QFrame):
         
         self.cbSearch.setFocus()
         self.cbSearch.lineEdit().selectAll()
-            
+        
         if  mode & ModeFlagDirectory :
             try:
                 searchPath = os.path.abspath(unicode(os.path.curdir))
@@ -180,6 +181,11 @@ class SearchWidget(QFrame):
         
         for i, widget in enumerate(widgets):
             widget.setVisible(visible[mode][i])
+
+        if mode == ModeReplace:
+            self.pbNext.setText('Next')
+        else:
+            self.pbNext.setText(u'Next↵')
 
         self.updateLabels()
         self.updateWidgets()
@@ -215,18 +221,14 @@ class SearchWidget(QFrame):
                 core.workspace().focusCurrentDocument()
                 self.hide()
             elif event.key() in (Qt.Key_Enter, Qt.Key_Return):
-                if self._mode == ModeSearch:
-                    self.pbNext.click()
-                elif self._mode in (ModeSearchDirectory, \
-                                    ModeSearchOpenedFiles, \
-                                    ModeReplaceDirectory, \
-                                    ModeReplaceOpenedFiles):
-                    if self.pbSearch.isVisible():
-                        self.pbSearch.click()
-                    else:
-                        self.pbSearchStop.click()
-                elif self._mode == ModeReplace:
+                if self.pbReplace.isVisible():
                     self.pbReplace.click()
+                elif self.pbNext.isVisible():
+                    self.pbNext.click()
+                elif self.pbSearch.isVisible():
+                    self.pbSearch.click()
+                elif self.pbSearchStop.isVisible():
+                    self.pbSearchStop.click()
 
         QFrame.keyPressEvent( self, event )
 
