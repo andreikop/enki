@@ -9,7 +9,7 @@ import os.path
 import re
 
 from PyQt4 import uic
-from PyQt4.QtCore import QDir, QEvent, \
+from PyQt4.QtCore import qApp, QDir, QEvent, \
                          QRect, QSize, Qt, \
                          pyqtSignal
 
@@ -113,18 +113,6 @@ class SearchWidget(QFrame):
         #vlMain.setSpacing( 0 )
         #endif
         
-        # TODO mask tooltip
-        #languages = pMonkeyStudio.availableLanguages()
-        #
-        #for ( i = 0; i < languages.count(); i += 10 )
-        #    languages[ i ].prepend( "\n" )
-        #maskToolTip = self.tr( "Space separated list of wildcards, *.h *.cpp 
-        #file???.txt\n"
-        #"You can use language name too so the search will only apply to 
-        #the language suffixes.\n"
-        #"Available languages: %1" ).arg( languages.join( ", " ) )
-        # self.cbMask.setToolTip( maskToolTip )
-        
         # connections
         self.cbSearch.lineEdit().textChanged.connect(self._updateActionsState)
         self.cbRegularExpression.stateChanged.connect(self._updateActionsState)
@@ -136,7 +124,7 @@ class SearchWidget(QFrame):
         
         core.workspace().currentDocumentChanged.connect(self._updateActionsState)
         
-        self.tbCdUp.clicked.connect(self.cdUp_pressed)
+        self.tbCdUp.clicked.connect(self._onCdUpPressed)
         
         core.actionManager().action("mNavigation/mSearchReplace/aSearchNext")\
                                         .triggered.connect(self.on_pbNext_pressed)
@@ -146,8 +134,6 @@ class SearchWidget(QFrame):
         self._updateActionsState()
         
         core.mainWindow().hideAllWindows.connect(self.hide)
-
-        self._defaultBackgroundColor = self.cbSearch.palette().color(QPalette.Base)
 
     def setMode(self, mode ):
         """Change search mode.
@@ -159,40 +145,28 @@ class SearchWidget(QFrame):
             self.cbSearch.lineEdit().selectAll()
             self.cbSearch.setFocus()
             return
-        
-        currentDocumentOnly = False
-        
-        # clear search results if needed.
 
-        if mode & ModeFlagFile:
-            currentDocumentOnly = True
-        else:
-            currentDocumentOnly = False
-        
         self._mode = mode
-        
-        if core.workspace().currentDocument():
+
+        if core.workspace().currentDocument() and \
             searchText = core.workspace().currentDocument().selectedText()
         else:
             searchText = ''
-        
-        self.show()
 
         if searchText:
             self.cbSearch.setEditText( searchText )
             self.cbReplace.setEditText( searchText )
+        
+        self.cbSearch.setFocus()
+        self.cbSearch.lineEdit().selectAll()
             
         if  mode & ModeFlagDirectory :
             try:
                 searchPath = os.path.abspath(unicode(os.path.curdir))
                 self.cbPath.setEditText( searchPath )
-            except OSError:  # current directory might be deleted
+            except OSError:  # current directory might have been deleted
                 pass 
 
-        self.cbSearch.setFocus()
-        self.cbSearch.lineEdit().selectAll()
-
-        # hlamer: I'm sory for long lines, but, even workse without it
         # Set widgets visibility flag according to state
         widgets = (self.wSearch, self.pbPrevious, self.pbNext, self.pbSearch, self.wReplace, self.wPath, \
                    self.pbReplace, self.pbReplaceAll, self.pbReplaceChecked, self.wOptions, self.wMask)
@@ -210,6 +184,8 @@ class SearchWidget(QFrame):
 
         self.updateLabels()
         self.updateWidgets()
+
+        self.show()
 
     def eventFilter(self, object_, event ):
         """ Event filter for mode switch tool button
@@ -357,19 +333,12 @@ class SearchWidget(QFrame):
         mask = filter(None, mask)
         return mask
 
-    def showMessage (self, status):
-        """Show message on the status bar"""
-        if not status:
-            core.mainWindow().statusBar().clearMessage()
-        else:
-            core.mainWindow().statusBar().showMessage( status, 30000 )
-
     def setState(self, state ):
         """Change line edit color according to search result
         """
         widget = self.cbSearch.lineEdit()
         
-        color = {SearchWidget.Normal: self._defaultBackgroundColor, \
+        color = {SearchWidget.Normal: qApp.palette().color(QPalette.Base), \
                  SearchWidget.Good: Qt.green, \
                  SearchWidget.Bad: Qt.red,
                  SearchWidget.Incorrect: Qt.darkYellow}
@@ -488,7 +457,7 @@ class SearchWidget(QFrame):
         
         if oldPos is not None:
             document.setCursorPosition(absPos = oldPos) # restore cursor position
-        self.showMessage( self.tr( "%d occurrence(s) replaced." % count ))
+        core.mainWindow().statusBar().showMessage( self.tr( "%d occurrence(s) replaced." % count ), 10000 )
 
     def setSearchInProgress(self, inProgress):
         """Search thread started or stopped
@@ -541,7 +510,7 @@ class SearchWidget(QFrame):
            core.workspace().currentDocument() is not None:
             self.searchFile( True, True )
 
-    def cdUp_pressed(self):
+    def _onCdUpPressed(self):
         """User pressed "Up" button, need to remove one level from search path
         """
         text = self.cbPath.currentText()
