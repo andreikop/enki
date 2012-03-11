@@ -112,9 +112,13 @@ class Controller(QObject):
         self._widget.searchInDirectoryStopPressed.connect(self._onSearchInDirectoryStopPressed)
         self._widget.replaceCheckedStartPressed.connect(self._onReplaceCheckedStartPressed)
         self._widget.replaceCheckedStopPressed.connect(self._onReplaceCheckedStopPressed)
+        
+        self._widget.searchRegExpChanged.connect(self._updateFileActionsState)
+        core.workspace().currentDocumentChanged.connect(self._updateFileActionsState)  # always disabled, if no widget
 
         core.mainWindow().centralLayout().addWidget( self._widget )
         self._widget.setVisible( False )
+        self._updateFileActionsState()
 
     def _createDockWidget(self):
         """Create dock widget, which displays search results.
@@ -130,7 +134,6 @@ class Controller(QObject):
     def _onModeSwitchTriggered(self):
         """Changing mode, i.e. from "Search file" to "Replace file"
         """
-        
         if not self._widget:
             self._createSearchWidget()
         
@@ -149,6 +152,22 @@ class Controller(QObject):
 
         self._mode = newMode
 
+    #
+    # Search and replace in file
+    #
+    def _updateFileActionsState(self):
+        """Update actions enabled/disabled state.
+        Called if current document had been changed or if reg exp had been changed
+        """
+        valid, error = self._widget.isSearchRegExpValid()
+        searchAvailable = valid 
+        searchInFileAvailable = valid and core.workspace().currentDocument() is not None
+        
+        self._widget.setSearchInFileActionsEnabled(searchInFileAvailable)
+        core.actionManager().action("mNavigation/mSearchReplace/aSearchNext").setEnabled(searchInFileAvailable)
+        core.actionManager().action("mNavigation/mSearchReplace/aSearchPrevious").setEnabled(searchInFileAvailable)
+
+    
     #
     # Search in directory (with thread)
     #
