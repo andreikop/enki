@@ -9,11 +9,11 @@ import os.path
 import re
 
 from PyQt4 import uic
-from PyQt4.QtCore import qApp, QDir, QEvent, \
+from PyQt4.QtCore import QDir, QEvent, \
                          QRect, QSize, Qt, \
                          pyqtSignal
 
-from PyQt4.QtGui import QCompleter, QDirModel, QFileDialog,  \
+from PyQt4.QtGui import qApp, QCompleter, QDirModel, QFileDialog,  \
                         QFrame, QFileDialog, QIcon, \
                         QMessageBox, \
                         QPainter,  \
@@ -65,6 +65,13 @@ class SearchWidget(QFrame):
     **Signal** emitted, when 'stop replacing checked' button had been pressed
     """  # pylint: disable=W0105
 
+    searchRegExpChanged = pyqtSignal(type(re.compile('')))
+    """
+    searchRegExpValidStateChanged(regEx)
+    
+    **Signal** emitted, when search regexp has been changed.
+    If reg exp is invalid - regEx object contains empty pattern
+    """  # pylint: disable=W0105
 
     def __init__(self, plugin):
         QFrame.__init__(self, core.workspace())
@@ -113,16 +120,10 @@ class SearchWidget(QFrame):
         #vlMain.setSpacing( 0 )
         #endif
         
-        # connections
-        self.cbSearch.lineEdit().textChanged.connect(self._updateActionsState)
-        self.cbRegularExpression.stateChanged.connect(self._updateActionsState)
-        self.cbCaseSensitive.stateChanged.connect(self._updateActionsState)
-        
+        # connections        
         self.cbSearch.lineEdit().textChanged.connect(self._onSearchRegExpChanged)
         self.cbRegularExpression.stateChanged.connect(self._onSearchRegExpChanged)
         self.cbCaseSensitive.stateChanged.connect(self._onSearchRegExpChanged)
-        
-        core.workspace().currentDocumentChanged.connect(self._updateActionsState)
         
         self.tbCdUp.clicked.connect(self._onCdUpPressed)
         
@@ -130,8 +131,6 @@ class SearchWidget(QFrame):
                                         .triggered.connect(self.on_pbNext_pressed)
         core.actionManager().action("mNavigation/mSearchReplace/aSearchPrevious")\
                                         .triggered.connect(self.on_pbPrevious_pressed)
-        
-        self._updateActionsState()
         
         core.mainWindow().hideAllWindows.connect(self.hide)
 
@@ -148,7 +147,7 @@ class SearchWidget(QFrame):
 
         self._mode = mode
 
-        if core.workspace().currentDocument() and \
+        if core.workspace().currentDocument():
             searchText = core.workspace().currentDocument().selectedText()
         else:
             searchText = ''
@@ -313,7 +312,7 @@ class SearchWidget(QFrame):
         pattern, flags = self._searchPatternTextAndFlags()
         return re.compile(pattern, flags)
     
-    def _isSearchRegExpValid(self):
+    def isSearchRegExpValid(self):
         """Try to compile search pattern to check if it is valid
         Returns bool result and text error
         """
@@ -480,32 +479,28 @@ class SearchWidget(QFrame):
         self.pbReplaceChecked.setVisible( not inProgress )
         self.updateWidgets()
     
-    def _updateActionsState(self):
-        """Update actions state according to search reg exp valid state
+    def setSearchInFileActionsEnabled(self, enabled):
+        """Set enabled state for Next, Prev, Replace, ReplaceAll
         """
-        valid, error = self._isSearchRegExpValid()
-        searchAvailable = valid 
-        searchInFileAvailable = valid and core.workspace().currentDocument() is not None
-        
         for button in (self.pbNext, self.pbPrevious, self.pbReplace, self.pbReplaceAll):
-            button.setEnabled(searchInFileAvailable)
-        core.actionManager().action("mNavigation/mSearchReplace/aSearchNext").setEnabled(searchInFileAvailable)
-        core.actionManager().action("mNavigation/mSearchReplace/aSearchPrevious").setEnabled(searchInFileAvailable)
-
-        self.pbSearch.setEnabled(searchAvailable)
+            button.setEnabled(enabled)
     
     def _onSearchRegExpChanged(self):
         """User edited search text or checked/unchecked checkboxes
         """
-        valid, error = self._isSearchRegExpValid()
+        valid, error = self.isSearchRegExpValid()
         if valid:
             self.setState(self.Normal)
+            self.pbSearch.setEnabled(True)
         else:
             core.mainWindow().statusBar().showMessage(error, 5000)
             self.setState(self.Incorrect)
+            self.pbSearch.setEnabled(False)
+            self.searchRegExpChanged.emit(re.compile(''))
             return
-        
-        # clear search results if needed.
+
+        self.searchRegExpChanged.emit(self._getRegExp())
+
         if self._mode in (ModeSearch, ModeReplace) and \
            core.workspace().currentDocument() is not None:
             self.searchFile( True, True )
