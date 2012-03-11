@@ -7,7 +7,8 @@ This module implements S&R plugin functionality. It joins together all other mod
 
 
 from PyQt4.QtCore import QObject, Qt
-from PyQt4.QtGui import QAction, QIcon
+from PyQt4.QtGui import QAction, QIcon, QMessageBox
+
 
 from mks.core.core import core
 
@@ -87,12 +88,12 @@ class Controller(QObject):
         createAction("aSearchPrevious", "Search &Previous",
                       "previous.png", "Shift+F3",
                       "Search previous occurrence",
-                      None, None,
+                      self._onSearchPrevious, None,
                       False)  # will be connected to search widget, when it is created
         createAction("aSearchNext", "Search &Next",
                       "next.png", "F3",
                       "Search next occurrence",
-                      None, None,
+                      self._onSearchNext, None,
                       False)  # will be connected to search widget, when it is created
         createAction("aSearchOpenedFiles", "Search in &Opened Files...",
                       "search-replace-opened-files.png",
@@ -114,6 +115,14 @@ class Controller(QObject):
         self._widget.replaceCheckedStopPressed.connect(self._onReplaceCheckedStopPressed)
         
         self._widget.searchRegExpChanged.connect(self._updateFileActionsState)
+        self._widget.searchRegExpChanged.connect(self._onRegExpChanged)
+        
+        self._widget.searchNext.connect(self._onSearchNext)
+        self._widget.searchPrevious.connect(self._onSearchPrevious)
+        
+        self._widget.replaceFileOne.connect(self._onReplaceFileOne)
+        self._widget.replaceFileAll.connect(self._onReplaceFileAll)
+        
         core.workspace().currentDocumentChanged.connect(self._updateFileActionsState)  # always disabled, if no widget
 
         core.mainWindow().centralLayout().addWidget( self._widget )
@@ -167,6 +176,132 @@ class Controller(QObject):
         core.actionManager().action("mNavigation/mSearchReplace/aSearchNext").setEnabled(searchInFileAvailable)
         core.actionManager().action("mNavigation/mSearchReplace/aSearchPrevious").setEnabled(searchInFileAvailable)
 
+    def _onRegExpChanged(self, regExp):
+        """Search regExp changed. Do incremental search
+        """
+        if self._mode in (ModeSearch, ModeReplace) and \
+           core.workspace().currentDocument() is not None:
+            self._searchFile( True, True )
+
+    def _onSearchNext(self):
+        """Search Next clicked
+        """
+        self._searchFile( True, False )
+
+    def _onSearchPrevious(self):
+        """Search Previous clicked
+        """
+        self._searchFile( False )
+
+    def _searchFile(self, forward, incremental = False):
+        """Do search in file operation. Will select next found item
+        """
+        document = core.workspace().currentDocument()
+        regExp = self._widget.getRegExp()
+
+        # get cursor position        
+        start, end = document.absSelection()
+
+        if start is None:
+            start = 0
+            end = 0
+        
+        if forward:
+            if  incremental :
+                point = start
+            else:
+                point = end
+
+            match = regExp.search(document.text(), point)
+            if match is None:  # wrap
+                match = regExp.search(document.text(), 0)
+        else:  # reverse search
+            prevMatch = None
+            for match in regExp.finditer(document.text()):
+                if match.start() >= start:
+                    break
+                prevMatch = match
+            match = prevMatch
+            if match is None:  # wrap
+                matches = [match for match in regExp.finditer(document.text())]
+                if matches:
+                    match = matches[-1]
+        
+        if match is not None:
+            document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
+            self._widget.setState(self._widget.Good)  # change background acording to result
+        else:
+            self._widget.setState(self._widget.Bad)
+        
+        # return found state
+        return match is not None
+
+    def _onReplaceFileOne(self, replaceText):
+        """Do one replacement in the file
+        """
+        document = core.workspace().currentDocument()
+        regExp = self._widget.getRegExp()
+
+        start, end = document.absSelection()  # pylint: disable=W0612
+        if start is None:
+            start = 0
+        
+        match = regExp.search(document.text(), start)
+        
+        if match is None:
+            match = regExp.search(document.text(), 0)
+        
+        if match is not None:
+            document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
+            try:
+                replaceTextSubed = regExp.sub(replaceText, match.group(0))
+            except re.error, ex:
+                message = unicode(ex.message, 'utf_8')
+                message += r'. Probably <i>\group_index</i> used in replacement string, but such group not found. '\
+                           r'Try to escape it: <i>\\group_index</i>'
+                QMessageBox.critical(None, "Invalid replace string", message)
+                # TODO link to replace help
+                return
+            document.replaceSelectedText(replaceTextSubed)
+            document.goTo(absPos = match.start() + len(replaceTextSubed))
+            self._searchFile( True, False )  # move selection to the next item
+        else:
+            self._widget.setState(self._widget.Bad)
+
+    def _onReplaceFileAll(self, replaceText):
+        """Do all replacements in the file
+        """
+        document = core.workspace().currentDocument()
+        regExp = self._widget.getRegExp()
+
+        oldPos = document.absCursorPosition()
+        
+        document.beginUndoAction()
+        
+        pos = 0
+        count = 0
+        match = regExp.search(document.text(), pos)
+        while match is not None:
+            document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
+            replaceTextSubed = regExp.sub(replaceText, match.group(0))
+            document.replaceSelectedText(replaceTextSubed)
+            
+            count += 1
+            
+            pos = match.start() + len(replaceTextSubed)
+            
+            if not match.group(0) and not replText:  # avoid freeze when replacing empty with empty
+                pos  += 1
+            if pos < len(document.text()):
+                match = regExp.search(document.text(), pos)
+            else:
+                match = None
+
+        document.endUndoAction()
+        
+        if oldPos is not None:
+            document.setCursorPosition(absPos = oldPos) # restore cursor position
+        core.mainWindow().statusBar().showMessage( self.tr( "%d occurrence(s) replaced." % count ), 10000 )
     
     #
     # Search in directory (with thread)

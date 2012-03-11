@@ -16,7 +16,6 @@ from PyQt4.QtCore import QDir, QEvent, \
 
 from PyQt4.QtGui import qApp, QCompleter, QDirModel, QFileDialog,  \
                         QFrame, QFileDialog, QIcon, \
-                        QMessageBox, \
                         QPainter,  \
                         QPalette, \
                         QProgressBar, QToolButton, QWidget
@@ -74,6 +73,34 @@ class SearchWidget(QFrame):
     If reg exp is invalid - regEx object contains empty pattern
     """  # pylint: disable=W0105
 
+    searchNext = pyqtSignal()
+    """
+    searchNext()
+    
+    **Signal** emitted, when 'Search Next' had been pressed
+    """  # pylint: disable=W0105
+
+    searchPrevious = pyqtSignal()
+    """
+    searchPrevious()
+    
+    **Signal** emitted, when 'Search Previous' had been pressed
+    """  # pylint: disable=W0105
+
+    replaceFileOne = pyqtSignal(unicode)
+    """
+    replaceFileOne(replText)
+    
+    **Signal** emitted, when 'Replace' had been pressed
+    """  # pylint: disable=W0105
+
+    replaceFileAll = pyqtSignal(unicode)
+    """
+    replaceFileAll(replText)
+    
+    **Signal** emitted, when 'Replace All' had been pressed
+    """  # pylint: disable=W0105
+
     def __init__(self, plugin):
         QFrame.__init__(self, core.workspace())
         self._mode = None
@@ -127,11 +154,6 @@ class SearchWidget(QFrame):
         self.cbCaseSensitive.stateChanged.connect(self._onSearchRegExpChanged)
         
         self.tbCdUp.clicked.connect(self._onCdUpPressed)
-        
-        core.actionManager().action("mNavigation/mSearchReplace/aSearchNext")\
-                                        .triggered.connect(self.on_pbNext_pressed)
-        core.actionManager().action("mNavigation/mSearchReplace/aSearchPrevious")\
-                                        .triggered.connect(self.on_pbPrevious_pressed)
         
         core.mainWindow().hideAllWindows.connect(self.hide)
 
@@ -187,10 +209,9 @@ class SearchWidget(QFrame):
         else:
             self.pbNext.setText(u'Next↵')
 
+        self.show()  # show before updating widgets and labels
         self.updateLabels()
         self.updateWidgets()
-
-        self.show()
 
     def eventFilter(self, object_, event ):
         """ Event filter for mode switch tool button
@@ -308,7 +329,7 @@ class SearchWidget(QFrame):
             flags = re.IGNORECASE
         return pattern, flags
 
-    def _getRegExp(self):
+    def getRegExp(self):
         """Read search parameters from controls and present it as a regular expression
         """
         pattern, flags = self._searchPatternTextAndFlags()
@@ -348,118 +369,6 @@ class SearchWidget(QFrame):
         pal.setColor( widget.backgroundRole(), color[state] )
         widget.setPalette( pal )
     
-    def searchFile(self, forward, incremental = False):
-        """Do search in file operation. Will select next found item
-        """
-        document = core.workspace().currentDocument()
-        regExp = self._getRegExp()
-
-        # get cursor position        
-        start, end = document.absSelection()
-
-        if start is None:
-            start = 0
-            end = 0
-        
-        if forward:
-            if  incremental :
-                point = start
-            else:
-                point = end
-
-            match = regExp.search(document.text(), point)
-            if match is None:  # wrap
-                match = regExp.search(document.text(), 0)
-        else:  # reverse search
-            prevMatch = None
-            for match in regExp.finditer(document.text()):
-                if match.start() >= start:
-                    break
-                prevMatch = match
-            match = prevMatch
-            if match is None:  # wrap
-                matches = [match for match in regExp.finditer(document.text())]
-                if matches:
-                    match = matches[-1]
-        
-        if match is not None:
-            document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
-            self.setState(SearchWidget.Good)  # change background acording to result
-        else:
-            self.setState(SearchWidget.Bad)
-        
-        # return found state
-        return match is not None
-
-    def replaceFile(self):
-        """Do one replacement in the file
-        """
-        document = core.workspace().currentDocument()
-        regExp = self._getRegExp()
-
-        start, end = document.absSelection()  # pylint: disable=W0612
-        if start is None:
-            start = 0
-        
-        match = regExp.search(document.text(), start)
-        
-        if match is None:
-            match = regExp.search(document.text(), 0)
-        
-        if match is not None:
-            document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
-            replaceText = self.cbReplace.currentText()
-            try:
-                replaceText = regExp.sub(replaceText, match.group(0))
-            except re.error, ex:
-                message = unicode(ex.message, 'utf_8')
-                message += r'. Probably <i>\group_index</i> used in replacement string, but such group not found. '\
-                           r'Try to escape it: <i>\\group_index</i>'
-                QMessageBox.critical(None, "Invalid replace string", message)
-                # TODO link to replace help
-                return
-            document.replaceSelectedText(replaceText)
-            document.goTo(absPos = match.start() + len(replaceText))
-            self.pbNext.click() # move selection to next item
-        else:
-            self.setState(SearchWidget.Bad)
-
-    def replaceFileAll(self):
-        """Do all replacements in the file
-        """
-        document = core.workspace().currentDocument()
-        regExp = self._getRegExp()
-        replaceText = self.cbReplace.currentText()
-
-        oldPos = document.absCursorPosition()
-        
-        document.beginUndoAction()
-        
-        pos = 0
-        count = 0
-        match = regExp.search(document.text(), pos)
-        while match is not None:
-            document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
-            replText = regExp.sub(replaceText, match.group(0))
-            document.replaceSelectedText(replText)
-            
-            count += 1
-            
-            pos = match.start() + len(replText)
-            
-            if not match.group(0) and not replText:  # avoid freeze when replacing empty with empty
-                pos  += 1
-            if pos < len(document.text()):
-                match = regExp.search(document.text(), pos)
-            else:
-                match = None
-
-        document.endUndoAction()
-        
-        if oldPos is not None:
-            document.setCursorPosition(absPos = oldPos) # restore cursor position
-        core.mainWindow().statusBar().showMessage( self.tr( "%d occurrence(s) replaced." % count ), 10000 )
-
     def setSearchInProgress(self, inProgress):
         """Search thread started or stopped
         """
@@ -501,11 +410,7 @@ class SearchWidget(QFrame):
             self.searchRegExpChanged.emit(re.compile(''))
             return
 
-        self.searchRegExpChanged.emit(self._getRegExp())
-
-        if self._mode in (ModeSearch, ModeReplace) and \
-           core.workspace().currentDocument() is not None:
-            self.searchFile( True, True )
+        self.searchRegExpChanged.emit(self.getRegExp())
 
     def _onCdUpPressed(self):
         """User pressed "Up" button, need to remove one level from search path
@@ -519,13 +424,13 @@ class SearchWidget(QFrame):
         """Handler of click on "Previous" button
         """
         self.updateComboBoxes()
-        self.searchFile( False )
+        self.searchPrevious.emit()
 
     def on_pbNext_pressed(self):
         """Handler of click on "Next" button
         """
         self.updateComboBoxes()
-        self.searchFile( True, False )
+        self.searchNext.emit()
 
     def on_pbSearch_pressed(self):
         """Handler of click on "Search" button (for search in directory)
@@ -533,7 +438,7 @@ class SearchWidget(QFrame):
         self.setState(SearchWidget.Normal )
         self.updateComboBoxes()
 
-        self.searchInDirectoryStartPressed.emit(self._getRegExp(),
+        self.searchInDirectoryStartPressed.emit(self.getRegExp(),
                                                 self._getSearchMask(),
                                                 self.cbPath.currentText())
 
@@ -546,13 +451,13 @@ class SearchWidget(QFrame):
         """Handler of click on "Replace" (in file) button
         """
         self.updateComboBoxes()
-        self.replaceFile()
+        self.replaceFileOne.emit(self.cbReplace.currentText())
 
     def on_pbReplaceAll_pressed(self):
         """Handler of click on "Replace all" (in file) button
         """
         self.updateComboBoxes()
-        self.replaceFileAll()
+        self.replaceFileAll.emit(self.cbReplace.currentText())
 
     def on_pbReplaceChecked_pressed(self):
         """Handler of click on "Replace checked" (in directory) button
