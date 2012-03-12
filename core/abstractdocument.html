@@ -69,12 +69,16 @@ DO redesign instead of doing dirty hacks</p>
 <dd><p>modifiedChanged(modified)</p>
 <p><strong>Signal</strong> emitted, when modified state changed (file edited, or saved)
 Bool parameter contains new value</p>
+<p>Signal is retransmitted by the workspace</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="mks.core.abstractdocument.AbstractDocument.documentDataChanged">
 <tt class="descname">documentDataChanged</tt><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.documentDataChanged" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>documentDataChanged()</p>
+<p><strong>Signal</strong> emitted, when document icon or toolTip has changed
+(i.e. document has been modified externally)</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="mks.core.abstractdocument.AbstractDocument.isModified">
@@ -172,6 +176,7 @@ None means &#8220;leave default indentation&#8221;</p>
 <tt class="descname">cursorPositionChanged</tt><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.cursorPositionChanged" title="Permalink to this definition">¶</a></dt>
 <dd><p>cursorPositionChanged(line, column)</p>
 <p><strong>Signal</strong> emitted, when cursor position has been changed</p>
+<p>Signal is retransmitted by the workspace</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -179,6 +184,7 @@ None means &#8220;leave default indentation&#8221;</p>
 <tt class="descname">languageChanged</tt><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.languageChanged" title="Permalink to this definition">¶</a></dt>
 <dd><p>languageChanged(old, new)</p>
 <p><strong>Signal</strong> emitted, when highlighting (programming) language of a file has been changed</p>
+<p>Signal is retransmitted by the workspace</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -186,6 +192,7 @@ None means &#8220;leave default indentation&#8221;</p>
 <tt class="descname">indentWidthChanged</tt><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.indentWidthChanged" title="Permalink to this definition">¶</a></dt>
 <dd><p>indentWidthChanged(width)</p>
 <p><strong>Signal</strong> emitted, when indentation with has been changed</p>
+<p>Signal is retransmitted by the workspace</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -193,6 +200,7 @@ None means &#8220;leave default indentation&#8221;</p>
 <tt class="descname">indentUseTabsChanged</tt><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.indentUseTabsChanged" title="Permalink to this definition">¶</a></dt>
 <dd><p>indentUseTabsChanged(use)</p>
 <p><strong>Signal</strong> emitted, when indentation mode has been changed</p>
+<p>Signal is retransmitted by the workspace</p>
 </dd></dl>
 
 <dl class="attribute">

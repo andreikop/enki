@@ -89,6 +89,47 @@ or some other document added to workspace</p>
 new document opened, current closed</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="mks.core.workspace.Workspace.modifiedChanged">
+<tt class="descname">modifiedChanged</tt><a class="headerlink" href="#mks.core.workspace.Workspace.modifiedChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>modifiedChanged(document, modified)</p>
+<p><strong>Signal</strong> emitted, when modified state of a document had been changed (file edited, or saved)
+Bool parameter contains new value
+Convenience signal, which retransmits original signal, sent by the document</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mks.core.workspace.Workspace.cursorPositionChanged">
+<tt class="descname">cursorPositionChanged</tt><a class="headerlink" href="#mks.core.workspace.Workspace.cursorPositionChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>cursorPositionChanged(document, line, column)</p>
+<p><strong>Signal</strong> emitted, when cursor position has been changed
+Convenience signal, which retransmits original signal, sent by the document</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mks.core.workspace.Workspace.languageChanged">
+<tt class="descname">languageChanged</tt><a class="headerlink" href="#mks.core.workspace.Workspace.languageChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>languageChanged(document, old, new)</p>
+<p><strong>Signal</strong> emitted, when highlighting (programming) language of a file has been changed
+Convenience signal, which retransmits original signal, sent by the document</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mks.core.workspace.Workspace.indentWidthChanged">
+<tt class="descname">indentWidthChanged</tt><a class="headerlink" href="#mks.core.workspace.Workspace.indentWidthChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>indentWidthChanged(document, width)</p>
+<p><strong>Signal</strong> emitted, when indentation with has been changed
+Convenience signal, which retransmits original signal, sent by the document</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mks.core.workspace.Workspace.indentUseTabsChanged">
+<tt class="descname">indentUseTabsChanged</tt><a class="headerlink" href="#mks.core.workspace.Workspace.indentUseTabsChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>indentUseTabsChanged(document, use)</p>
+<p><strong>Signal</strong> emitted, when indentation mode has been changed
+Convenience signal, which retransmits original signal, sent by the document</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="mks.core.workspace.Workspace.del_">
 <tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.del_" title="Permalink to this definition">¶</a></dt>
