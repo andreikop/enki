@@ -7,7 +7,7 @@ This module implements S&R plugin functionality. It joins together all other mod
 
 
 from PyQt4.QtCore import QObject, Qt
-from PyQt4.QtGui import QAction, QIcon, QMessageBox
+from PyQt4.QtGui import qApp, QAction, QIcon, QMessageBox
 
 
 from mks.core.core import core
@@ -36,7 +36,13 @@ class Controller(QObject):
         self._replaceThread = None
         self._widget = None
         self._dock = None
+        self._searchInFileStartPoint = None
+        self._searchInFileLastCursorPos = None
         self._createActions()
+        
+        core.workspace().currentDocumentChanged.connect(self._resetSearchInFileStartPoint)
+        qApp.focusChanged.connect(self._resetSearchInFileStartPoint)
+        # QScintilla .cursorPositionChanged is emitted with delay.
 
     def del_(self):
         """Explicitly called destructor
@@ -159,11 +165,20 @@ class Controller(QObject):
         if self._replaceThread is not None:
             self._replaceThread.stop()
 
+        #self._resetSearchInFileStartPoint()
+
         self._mode = newMode
 
     #
     # Search and replace in file
     #
+    
+    def _resetSearchInFileStartPoint(self):
+        """Reset the start point.
+        Something changed, restart the search process
+        """
+        self._searchInFileStartPoint = None
+
     def _updateFileActionsState(self):
         """Update actions enabled/disabled state.
         Called if current document had been changed or if reg exp had been changed
@@ -181,44 +196,51 @@ class Controller(QObject):
         """
         if self._mode in (ModeSearch, ModeReplace) and \
            core.workspace().currentDocument() is not None:
-            self._searchFile( True, True )
+            self._searchFile( forward=True, incremental=True )
 
     def _onSearchNext(self):
         """Search Next clicked
         """
-        self._searchFile( True, False )
+        self._searchFile( forward=True, incremental=False )
 
     def _onSearchPrevious(self):
         """Search Previous clicked
         """
-        self._searchFile( False )
+        self._searchFile( forward=False, incremental=False )
 
-    def _searchFile(self, forward, incremental = False):
+    def _searchFile(self, forward, incremental=False):
         """Do search in file operation. Will select next found item
         """
         document = core.workspace().currentDocument()
         regExp = self._widget.getRegExp()
 
-        # get cursor position        
-        start, end = document.absSelection()
+        if document.absCursorPosition() != self._searchInFileLastCursorPos:
+            self._searchInFileStartPoint = None
+        
+        if self._searchInFileStartPoint is None or not incremental:
+            # get cursor position        
+            start, end = document.absSelection()
 
-        if start is None:
-            start = 0
-            end = 0
+            if start is None:
+                start = 0
+                end = 0
+        
+            if forward:
+                if  incremental :
+                    self._searchInFileStartPoint = start
+                else:
+                    self._searchInFileStartPoint = end
+            else:
+                self._searchInFileStartPoint = start
         
         if forward:
-            if  incremental :
-                point = start
-            else:
-                point = end
-
-            match = regExp.search(document.text(), point)
+            match = regExp.search(document.text(), self._searchInFileStartPoint)
             if match is None:  # wrap
                 match = regExp.search(document.text(), 0)
         else:  # reverse search
             prevMatch = None
             for match in regExp.finditer(document.text()):
-                if match.start() >= start:
+                if match.start() >= self._searchInFileStartPoint:
                     break
                 prevMatch = match
             match = prevMatch
@@ -229,6 +251,7 @@ class Controller(QObject):
         
         if match is not None:
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
+            self._searchInFileLastCursorPos = match.start()
             self._widget.setState(self._widget.Good)  # change background acording to result
         else:
             self._widget.setState(self._widget.Bad)
