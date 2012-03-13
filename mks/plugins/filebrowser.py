@@ -363,7 +363,7 @@ class JumpToCurent(QObject):
         self._action = QAction(QIcon(':mksicons/text.png'),
                                self.tr("Jump to current file path"),
                                self)
-        self._action.setShortcut('Ctrl+Alt+J')
+        self._action.setShortcut('Ctrl+J')
         self._action.triggered.connect(self._onTriggered)
 
         fileBrowser.titleBar().addAction(self._action, 0)
@@ -548,7 +548,7 @@ class ComboBox(QComboBox):
 
         # Show popup action
         self._showPopupAction = QAction(QIcon(':mksicons/filtered.png'), "File browser menu", self)
-        self._showPopupAction.setShortcut('Shift+F7')
+        self._showPopupAction.setShortcut('Alt+Shift+F')
         core.actionManager().addAction("mNavigation/mFileBrowser/aMenuShow", self._showPopupAction)
         showPopupSlot = lambda triggered: self.showPopup()
         self._showPopupAction.triggered.connect(showPopupSlot)
