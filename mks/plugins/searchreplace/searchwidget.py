@@ -176,8 +176,11 @@ class SearchWidget(QFrame):
             searchText = ''
 
         if searchText:
-            self.cbSearch.setEditText( searchText )
             self.cbReplace.setEditText( searchText )
+
+            if self.cbRegularExpression.checkState() == Qt.Checked:
+                searchText = re.escape(searchText)
+            self.cbSearch.setEditText( searchText )
         
         self.cbSearch.setFocus()
         self.cbSearch.lineEdit().selectAll()
