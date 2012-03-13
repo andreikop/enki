@@ -152,7 +152,6 @@ class MainWindow(QMainWindow):
         action("mFile/mClose/aCurrent",               tr("&Close"                ), "close.png",    "Ctrl+W",       tr("Close the current file" ), False)
         action("mFile/mClose/aAll",                   tr("Close &All"            ), "closeall.png", 'Shift+Ctrl+W', tr("Close all files"        ), False)
         seperator("mFile")
-        action("mFile/aQuit",                         tr("&Quit"                 ), "quit.png",     "Ctrl+Q",       tr("Quit the application"   ), True )
 
         menu  ("mView",                               tr("View"                  ), ""            )
         menu  ("mView/mZoom",                         tr("&Zoom"                 ), "search.png"  )
@@ -176,7 +175,6 @@ class MainWindow(QMainWindow):
 
         menu  ("mHelp",                               tr("Help"                  ), ""            )
         
-        self._actionManager.action( "mFile/aQuit" ).triggered.connect(self.close)
         # docks
         self._actionManager.action( "mDocks/aHideAll" ).triggered.connect(self._onHideAllWindows)
     
