@@ -195,7 +195,8 @@ class Controller(QObject):
         """Search regExp changed. Do incremental search
         """
         if self._mode in (ModeSearch, ModeReplace) and \
-           core.workspace().currentDocument() is not None:
+           core.workspace().currentDocument() is not None and \
+           regExp.pattern:
             self._searchFile( forward=True, incremental=True )
 
     def _onSearchNext(self):
@@ -330,7 +331,7 @@ class Controller(QObject):
     # Search in directory (with thread)
     #
 
-    def _onSearchInDirectoryStartPressed(self, regEx, mask, path):
+    def _onSearchInDirectoryStartPressed(self, regExp, mask, path):
         """Handler for 'search in directory' action
         """ 
         if self._dock is None:
@@ -347,7 +348,7 @@ class Controller(QObject):
         
         self._widget.setSearchInProgress(True)
         self._dock.clear()
-        self._searchThread.search( regEx,
+        self._searchThread.search( regExp,
                                    mask,
                                    inOpenedFiles,
                                    forReplace,
