@@ -255,7 +255,7 @@ class SmartHistory(QObject):
         self._aBack = QAction(  QIcon(':mksicons/previous.png'),
                                 self.tr("Back"),
                                 self)
-        self._aBack.setShortcut('Ctrl+Alt+B')
+        self._aBack.setShortcut('Alt+Left')
         fileBrowser.titleBar().addAction(self._aBack, 0)
         core.actionManager().addAction("mNavigation/mFileBrowser/aBack", self._aBack)
         self._aBack.triggered.connect(self._onTbBackTriggered)
@@ -263,7 +263,7 @@ class SmartHistory(QObject):
         self._aForward = QAction(   QIcon(':mksicons/next.png'),
                                     self.tr("Forward"),
                                     self)
-        self._aForward.setShortcut('Ctrl+Alt+F')
+        self._aForward.setShortcut('Alt+Right')
         fileBrowser.titleBar().addAction(self._aForward, 1)
         core.actionManager().addAction("mNavigation/mFileBrowser/aForward", self._aForward)
         self._aForward.triggered.connect(self._onTbForwardTriggered)
@@ -547,8 +547,8 @@ class ComboBox(QComboBox):
         self._count = 0
 
         # Show popup action
-        self._showPopupAction = QAction(QIcon(':mksicons/filtered.png'), "File browser menu", self)
-        self._showPopupAction.setShortcut('Alt+Shift+F')
+        self._showPopupAction = QAction(QIcon(':mksicons/filtered.png'), "File browser history", self)
+        self._showPopupAction.setShortcut('Ctrl+H')
         core.actionManager().addAction("mNavigation/mFileBrowser/aMenuShow", self._showPopupAction)
         showPopupSlot = lambda triggered: self.showPopup()
         self._showPopupAction.triggered.connect(showPopupSlot)
