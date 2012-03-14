@@ -164,7 +164,7 @@ class EditorConfigurator(ModuleConfigurator):
             try:
                 Plugin.instance.lexerConfig.config.flush()
             except UserWarning as ex:
-                core.messageToolBar().appendMessage(unicode(ex))
+                core.mainWindow().appendMessage(unicode(ex))
     
     def applySettings(self):
         """Apply editor and lexer settings
@@ -184,7 +184,7 @@ class Plugin:
         try:
             self.lexerConfig = LexerConfig()
         except UserWarning as ex:
-            core.messageToolBar().appendMessage(unicode(ex))
+            core.mainWindow().appendMessage(unicode(ex))
             self.lexerConfig = None
         core.workspace().setTextEditorClass(Editor)
         self._shortcuts = shortcuts.Shortcuts()

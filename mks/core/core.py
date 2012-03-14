@@ -30,7 +30,6 @@ class Core:
     It creates instances of other core modules and holds references to it
     """
     def __init__(self):
-        self._queuedMessageToolBar = None
         self._mainWindow = None
         self._workspace = None
         self._config = None
@@ -114,9 +113,6 @@ class Core:
 
         if self._uiSettingsManager is not None:
             del self._uiSettingsManager
-        if self._queuedMessageToolBar:
-            self._mainWindow.removeToolBar(self._queuedMessageToolBar)
-            del self._queuedMessageToolBar
         if self._workspace is not None:
             self._workspace.del_()
             del self._workspace
@@ -147,19 +143,6 @@ class Core:
         """Get :class:`mks.core.config.Config` instance
         """
         return self._config
-        
-    def messageToolBar(self):
-        """Get `queued message bar <http://api.monkeystudio.org/fresh/classp_queued_message_tool_bar.html>`_ instance
-        """
-        if self._queuedMessageToolBar is None:
-            from mks.fresh.queuedmessage.pQueuedMessageToolBar import pQueuedMessageToolBar
-            from PyQt4.QtCore import Qt
-            
-            self._queuedMessageToolBar = pQueuedMessageToolBar(self._mainWindow)
-            self._mainWindow.addToolBar(Qt.BottomToolBarArea, self._queuedMessageToolBar)
-            self._queuedMessageToolBar.setVisible( False )
-        
-        return self._queuedMessageToolBar
     
     def loadedPlugins(self):
         """Get list of curretly loaded plugins (::class:`mks.core.Plugin` instances)

@@ -439,7 +439,7 @@ class Workspace(QStackedWidget):
         self._handleDocument( document )
         
         if not os.access(filePath, os.W_OK):
-            core.messageToolBar().appendMessage( \
+            core.mainWindow().appendMessage( \
                         self.tr( "File '%s' is not writable" % filePath), 4000) # todo fix
         
         return document
@@ -641,7 +641,7 @@ class Workspace(QStackedWidget):
 #        file = QFile ( fileName )
 
 #        if  not file.open( QIODevice.WriteOnly ) :
-#            core.messageToolBar().appendMessage(self.tr( "Can't create file '%1'" ).arg( QFileInfo( fileName ).fileName() ) )
+#            core.mainWindow().appendMessage(self.tr( "Can't create file '%1'" ).arg( QFileInfo( fileName ).fileName() ) )
 #            return 0
 
 #        # reset file
