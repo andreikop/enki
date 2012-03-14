@@ -390,7 +390,7 @@ class Controller(QObject):
     def _onReplaceThreadError(self, error ):
         """Error message from the replace thread
         """
-        core.messageToolBar().appendMessage( error )
+        core.mainWindow().appendMessage( error )
 
     def _onReplaceThreadOpenedFileHandled(self, fileName, content):
         """Replace thread processed currently opened file,

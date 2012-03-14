@@ -52,6 +52,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
         
+        self._queuedMessageToolBar = None
         self._actionManager = None
         self._createdMenuPathes = []
         self._createdActions = []
@@ -95,6 +96,10 @@ class MainWindow(QMainWindow):
     def del_(self):
         """Explicitly called destructor
         """
+        if self._queuedMessageToolBar:
+            self.removeToolBar(self._queuedMessageToolBar)
+            del self._queuedMessageToolBar
+
         for act in self._createdActions:
             self._actionManager.removeAction(act, False)
         for menuPath in self._createdMenuPathes[::-1]:
@@ -194,6 +199,21 @@ class MainWindow(QMainWindow):
         """Layout of the central widget. Contains Workspace and search widget
         """
         return self._centralLayout
+    
+    def appendMessage(self, text, timeoutMs=10000):
+        """Append message to the queue. It will be shown as non-modal at the bottom of the window.
+        Use such notifications, which are too long or too important for status bar
+        but, not so important, to interrupt an user with QMessageBox
+        """
+        if self._queuedMessageToolBar is None:
+            from mks.fresh.queuedmessage.pQueuedMessageToolBar import pQueuedMessageToolBar
+            from PyQt4.QtCore import Qt
+            
+            self._queuedMessageToolBar = pQueuedMessageToolBar(self)
+            self.addToolBar(Qt.BottomToolBarArea, self._queuedMessageToolBar)
+            self._queuedMessageToolBar.setVisible( False )
+        
+        self._queuedMessageToolBar.appendMessage(text, timeoutMs)
     
     def closeEvent( self, event ):
         """NOT A PUBLIC API

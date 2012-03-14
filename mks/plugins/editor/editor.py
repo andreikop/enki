@@ -331,7 +331,7 @@ class Editor(AbstractTextEditor):
             # set unmodified
             self._setModified(False)
         else:
-            core.messageToolBar().appendMessage('Indentation converted. You can Undo the changes', 5000)
+            core.mainWindow().appendMessage('Indentation converted. You can Undo the changes', 5000)
 
     def _onLinesChanged(self):
         """Handler of change of lines count in the qscintilla
@@ -567,7 +567,7 @@ class Editor(AbstractTextEditor):
 #        if  quickPrint:
 #            # check if default printer is set
 #            if  p.printerName().isEmpty() :
-#                core.messageToolBar().appendMessage(\
+#                core.mainWindow().appendMessage(\
 #                    tr("There is no default printer, set one before trying quick print"))
 #                return
 #            
