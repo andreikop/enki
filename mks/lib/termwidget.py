@@ -218,9 +218,10 @@ class TermWidget(QWidget):
         # remove inserted \n
         cursorPos = self._edit.absCursorPosition()
         newlineIndex = text.rindex('\n', 0, cursorPos)
-        text = text[0:newlineIndex] + text[cursorPos:]
 
         if self.isCommandComplete(text):
+            self._edit.qscintilla.undo()  # remove newline and indentation
+            text = self._edit.text()
             self.execCommand(text)
 
     def _onHistoryNext(self):
