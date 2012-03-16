@@ -23,6 +23,7 @@ MKS_NEXT_BOOKMARK = -2
 MKS_PREV_BOOKMARK = -3
 
 MKS_PASTE = -4
+MKS_PASTE_LINE = -5
 
 _ACTIONS = (\
 (qsci.SCI_PARAUPEXTEND, 'mEdit/mSelection/mParagraph/aUp', tr('Up'), 'Ctrl+Shift+[', ''),
@@ -54,8 +55,9 @@ _ACTIONS = (\
 (qsci.SCI_COPY, 'mEdit/mCopyPaste/aCopy', tr('Copy'), 'Ctrl+C', 'copy.png'),
 (MKS_PASTE, 'mEdit/mCopyPaste/aPaste', tr('Paste'), 'Ctrl+V', 'paste.png'),
 (qsci.SCI_CUT, 'mEdit/mCopyPaste/aCut', tr('Cut'), 'Ctrl+X', 'cut.png'),
-(qsci.SCI_LINECUT, 'mEdit/mCopyPaste/aCutLine', tr('Cut line'), 'Ctrl+L', 'cut.png'),
-(qsci.SCI_LINECOPY, 'mEdit/mCopyPaste/aCopyLine', tr('Copy line'), 'Ctrl+Alt+T', 'copy.png'),
+(qsci.SCI_LINECOPY, 'mEdit/mCopyPaste/aCopyLine', tr('Copy line'), 'Alt+C', 'copy.png'),
+(qsci.SCI_LINECUT, 'mEdit/mCopyPaste/aCutLine', tr('Cut line'), 'Alt+X', 'cut.png'),
+(MKS_PASTE_LINE, 'mEdit/mCopyPaste/aPasteLine', tr('Paste line'), 'Alt+V', 'paste.png'),
 (qsci.SCI_SELECTIONDUPLICATE, 'mEdit/mCopyPaste/aDuplicateSelection', tr('Duplicate selection'), 'Ctrl+D', ''),
 \
 (qsci.SCI_ZOOMIN, 'mView/mZoom/aZoomIn', tr('Zoom In'), 'Ctrl++', ''),
@@ -157,6 +159,7 @@ class Shortcuts(QObject):
             editor.parent().prevBookmark()
         elif MKS_PASTE == code:  # Paste via method, to fix EOL
             editor.paste()
+        elif MKS_PASTE_LINE == code:  # Own method
+            editor.pasteLine()
         else:
             assert 0
-
