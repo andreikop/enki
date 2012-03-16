@@ -64,6 +64,40 @@ class _QsciScintilla(QsciScintilla):
         QsciScintilla.setSelection(self, startLine, startCol, endLine, endCol)
         clipboard.setText(contents, clipboard.Selection)
 
+    def pasteLine(self):
+        """Paste lines from the clipboard.
+        
+        Lines are always pasted to new lines of document.
+        If something is selected - not only selection, but whole lines, which contain selection,
+        will be removed
+        
+        New method, extends QScintilla functionality
+        """
+        text = qApp.clipboard().text()
+        
+        self.beginUndoAction()
+
+        if self.hasSelectedText():
+            startLine, startCol, endLine, endCol = self.getSelection()
+            if endCol == 0:
+                endLine -= 1
+            endLineLength = len(self.text(endLine))
+            self.setSelection(startLine, 0, endLine, endLineLength)
+            self.removeSelectedText()
+        else:
+            line, col = self.getCursorPosition()
+            endLineLength = len(self.text(line))
+            self.setCursorPosition(line, endLineLength)
+            if not self.text(line).endswith('\n'):
+                text = '\n' + text
+        
+        if not text.endswith('\n'):
+            text += '\n'
+
+        self.insert(text)
+        
+        self.endUndoAction()
+
 
 class Editor(AbstractTextEditor):
     """Text editor widget.
