@@ -245,7 +245,7 @@ p, li { white-space: pre-wrap; }
       <item>
        <widget class="QLabel" name="lPath">
         <property name="text">
-         <string>&amp;Path</string>
+         <string>Pa&amp;th</string>
         </property>
         <property name="buddy">
          <cstring>cbPath</cstring>
@@ -316,7 +316,7 @@ p, li { white-space: pre-wrap; }
       <item>
        <widget class="QCheckBox" name="cbCaseSensitive">
         <property name="text">
-         <string>&amp;Case sensitive</string>
+         <string>Case s&amp;ensitive</string>
         </property>
        </widget>
       </item>
