@@ -170,21 +170,33 @@ class SearchWidget(QFrame):
 
         self._mode = mode
 
-        if core.workspace().currentDocument():
+        # Set Search and Replace text
+        if core.workspace().currentDocument() and \
+           core.workspace().currentDocument().hasFocus() and \
+           core.workspace().currentDocument().selectedText():
             searchText = core.workspace().currentDocument().selectedText()
-        else:
-            searchText = ''
 
-        if searchText:
             self.cbReplace.setEditText( searchText )
 
             if self.cbRegularExpression.checkState() == Qt.Checked:
                 searchText = re.escape(searchText)
             self.cbSearch.setEditText( searchText )
         
-        self.cbSearch.setFocus()
-        self.cbSearch.lineEdit().selectAll()
+        if not self.cbReplace.lineEdit().text() and \
+            self.cbSearch.lineEdit().text() and \
+            not self.cbRegularExpression.checkState() == Qt.Checked:
+            self.cbReplace.setEditText(self.cbSearch.lineEdit().text())
+
+        # Move focus to Search or Replace edit
+        if self.isVisible() and \
+           mode & ModeFlagReplace:
+            self.cbReplace.setFocus()
+            self.cbReplace.lineEdit().selectAll()
+        else:
+            self.cbSearch.setFocus()
+            self.cbSearch.lineEdit().selectAll()
         
+        # Set search path
         if  mode & ModeFlagDirectory :
             try:
                 searchPath = os.path.abspath(unicode(os.path.curdir))
@@ -207,11 +219,13 @@ class SearchWidget(QFrame):
         for i, widget in enumerate(widgets):
             widget.setVisible(visible[mode][i])
 
+        # Search next button text
         if mode == ModeReplace:
             self.pbNext.setText('Next')
         else:
             self.pbNext.setText(u'Next↵')
 
+        # Finaly show all with valid size
         self.show()  # show before updating widgets and labels
         self._updateLabels()
         self._updateWidgets()
