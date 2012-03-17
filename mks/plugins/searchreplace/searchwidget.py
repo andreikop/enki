@@ -197,7 +197,8 @@ class SearchWidget(QFrame):
             self.cbSearch.lineEdit().selectAll()
         
         # Set search path
-        if  mode & ModeFlagDirectory :
+        if mode & ModeFlagDirectory and \
+           not (self.isVisible() and self.cbPath.isVisible()):
             try:
                 searchPath = os.path.abspath(unicode(os.path.curdir))
                 self.cbPath.setEditText( searchPath )
