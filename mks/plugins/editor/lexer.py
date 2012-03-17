@@ -3,16 +3,16 @@ lexer --- QScintilla lexers management
 ======================================
 """
 
-from PyQt4 import uic
 import os.path
+import json
 
+from PyQt4 import uic
 from PyQt4.QtGui import QFont, QWidget
 
 from PyQt4.Qsci import *  # pylint: disable=W0401,W0614
 
 from mks.core.core import core
 import mks.core.defines
-from mks.core.config import Config
 
 def _getPygmentsSchemeLexer(editor):
     """Construct and return pygments lexer for Scheme. Sets valid language name, lazy import
@@ -39,62 +39,79 @@ class LexerConfig:
     * Create configuration file with lexer defaults
     * Load and save the file
     """
-    _CONFIG_PATH = os.path.join(mks.core.defines.CONFIG_DIR, 'lexers.cfg')
+    _CONFIG_PATH = os.path.join(mks.core.defines.CONFIG_DIR, 'lexers.json')
     instance = None
     
     def __init__(self):
         if os.path.exists(self._CONFIG_PATH):  # File exists, load it
-            self.config = Config(True, self._CONFIG_PATH)
-            self._convertConfigValueTypes()
+            self.config = self._load()
         else:  # First start, generate file
-            self.config = Config(True, self._CONFIG_PATH)
-            self._generateDefaultConfig()
-            self.config.flush()
+            self.config = self._defaultConfig()
         LexerConfig.instance = self
     
     def __del__(self):
         LexerConfig.instance = None
 
-    def _convertConfigValueTypes(self):
-        """There are no scheme for lexer configuration, therefore need to convert types manually
-        """
-        for languageOptions in self.config.itervalues():
-            for key in languageOptions.iterkeys():
-                value = languageOptions[key]
-                if value == 'True':
-                    languageOptions[key] = True
-                elif value == 'False':
-                    languageOptions[key] = False
-                elif value.isdigit():
-                    languageOptions[key] = int(value)
-
-    def _generateDefaultConfig(self):
+    def _defaultConfig(self):
         """Generate default lexer configuration file. File contains QScintilla defaults
         """
+        config = {}
+
         for language, lexerClass in Lexer.LEXER_FOR_LANGUAGE.items():
-            self.config[language] = {}
-            
             if lexerClass == _getPygmentsSchemeLexer:
                 continue  # no any configuration for scheme lexer. Don't try to instantile it to avoid warnings
             
-            lexerSection = self.config[language]
             lexerObject = lexerClass(None)
 
+            def _set(key, value):
+                config['%s/%s' % (language, key)] = value
+            
             for attribute in Lexer.LEXER_BOOL_ATTRIBUTES:
                 if hasattr(lexerObject, attribute):
-                    lexerSection[attribute] = getattr(lexerObject, attribute)()
-            lexerSection['indentOpeningBrace'] = bool(lexerObject.autoIndentStyle() & QsciScintilla.AiOpening)
-            lexerSection['indentClosingBrace'] = bool(lexerObject.autoIndentStyle() & QsciScintilla.AiClosing)
+                    _set(attribute, getattr(lexerObject, attribute)())
+            _set('indentOpeningBrace', bool(lexerObject.autoIndentStyle() & QsciScintilla.AiOpening))
+            _set('indentClosingBrace', bool(lexerObject.autoIndentStyle() & QsciScintilla.AiClosing))
             if hasattr(lexerObject, "indentationWarning"):
                 reason = getattr(lexerObject, "indentationWarning")()
                 reasonFromQsci = dict((v, k) for k, v in Lexer.PYTHON_INDENTATION_WARNING_TO_QSCI.items())
                 if reason == QsciLexerPython.NoWarning:
-                    lexerSection['indentationWarning'] = False
+                    _set('indentationWarning', False)
                     # MkS default reason
-                    lexerSection['indentationWarningReason'] = reasonFromQsci[QsciLexerPython.Inconsistent]
+                    _set('indentationWarningReason', reasonFromQsci[QsciLexerPython.Inconsistent])
                 else:
-                    lexerSection['indentationWarning'] = True
-                    lexerSection['indentationWarningReason'] = reasonFromQsci[reason]
+                    _set('indentationWarning', True)
+                    _set('indentationWarningReason', reasonFromQsci[reason])
+        
+        return config
+
+    def save(self):
+        """Save the config
+        """
+        if self.config == self._defaultConfig():
+            try:
+                os.path.unlink(self._CONFIG_PATH)
+            except:  # nothing to do here
+                pass
+        else:
+            try:
+                with open(self._CONFIG_PATH, 'w') as f:
+                    json.dump(self.config, f, sort_keys=True, indent=4)
+            except (OSError, IOError), ex:
+                error = unicode(str(ex), 'utf8')
+                text = "Failed to save lexer settings file '%s': %s" % (self._CONFIG_PATH, error)
+                core.mainWindow().appendMessage(text)
+
+    def _load(self):
+        """Load the config
+        """
+        try:
+            with open(self._CONFIG_PATH, 'r') as f:
+                return json.load(f)
+        except (OSError, IOError), ex:
+            error = unicode(str(ex), 'utf8')
+            text = "Failed to load lexer settings file '%s': %s" % (self._CONFIG_PATH, error)
+            core.mainWindow().appendMessage(text)
+            return None
 
 
 class Lexer:
@@ -202,21 +219,21 @@ class Lexer:
         if self.currentLanguage == 'Scheme':
             return
 
-        lexerSection = LexerConfig.instance.config[self.currentLanguage]
+        def _getLexerOPtion(key):
+            return LexerConfig.instance.config['%s/%s' % (self.currentLanguage, key)]
         
         for attribute in self.LEXER_BOOL_ATTRIBUTES:
             setterName = 'set' + attribute[0].capitalize() + attribute[1:]
             if hasattr(self.qscilexer, setterName):
-                getattr(self.qscilexer, setterName)(lexerSection[attribute])
+                getattr(self.qscilexer, setterName)(_getLexerOPtion(attribute))
         
         autoIndentStyle = 0
-        if lexerSection['indentOpeningBrace']:
+        if _getLexerOPtion('indentOpeningBrace'):
             autoIndentStyle &= QsciScintilla.AiOpening
-        if lexerSection['indentClosingBrace']:
+        if _getLexerOPtion('indentClosingBrace'):
             autoIndentStyle &= QsciScintilla.AiClosing
         self.qscilexer.setAutoIndentStyle(autoIndentStyle)
         if hasattr(self.qscilexer, "setIndentationWarning"):
-            if lexerSection['indentationWarning']:
-                qsciReason = self.PYTHON_INDENTATION_WARNING_TO_QSCI[lexerSection['indentationWarningReason']]
+            if _getLexerOPtion('indentationWarning'):
+                qsciReason = self.PYTHON_INDENTATION_WARNING_TO_QSCI[_getLexerOPtion('indentationWarningReason')]
                 self.qscilexer.setIndentationWarning(qsciReason)
-
