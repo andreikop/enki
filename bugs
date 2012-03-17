@@ -1,4 +1,5 @@
 FIXME
+    при stash file watcher сработал, а при stash pop - нет
 
 REFACTORING
 

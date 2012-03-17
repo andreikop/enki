@@ -29,14 +29,13 @@ def htmlEscape(text):
 class Result:  # pylint: disable=R0902
     """One found by search thread item. Consists coordinates and capture. Used by SearchResultsModel
     """
-    def __init__ (  self, fileName, wholeLine, line, column, match, checkState):  # pylint: disable=R0913
+    def __init__ (self, fileName, wholeLine, line, column, match):  # pylint: disable=R0913
         self.fileName = fileName
         self.wholeLine = wholeLine
         self.line = line
         self.column = column
         self.match = match
-        if checkState is not None:
-            self.checkState = checkState
+        self.checkState = Qt.Checked
     
     def text(self):  # pylint: disable=W0613
         """Displayable text of search result. Shown as line in the search results dock
@@ -72,12 +71,11 @@ class Result:  # pylint: disable=R0902
 class FileResults:
     """Object stores all items, found in the file
     """
-    def __init__(self, baseDir, fileName, results, checkState):
+    def __init__(self, baseDir, fileName, results):
         self.baseDir = baseDir
         self.fileName = fileName
         self.results = results
-        if checkState is not None:
-            self.checkState = checkState
+        self.checkState = Qt.Checked
     
     def __str__(self):
         """Convertor to string. Used for debugging
@@ -120,9 +118,14 @@ class SearchResultsModel(QAbstractItemModel):
         """Constructor of SearchResultsModel class
         """
         QAbstractItemModel.__init__(self, parent )
-        self._rowCount = 0
+        self._replaceMode = False
         
         self.fileResults = []  # list of FileResults
+
+    def setReplaceMode(self, enabled):
+        """When replace mode is enabled, all items are checkState
+        """
+        self._replaceMode = enabled
 
     def index(self, row, column, parent ):
         """See QAbstractItemModel docs
@@ -183,7 +186,7 @@ class SearchResultsModel(QAbstractItemModel):
         """
         flags = QAbstractItemModel.flags( self, index )
         
-        if hasattr(index.internalPointer(), 'checkState'):
+        if self._replaceMode:
             flags |= Qt.ItemIsUserCheckable
         
         return flags

@@ -11,7 +11,6 @@ import time
 import fnmatch
 
 from PyQt4.QtCore import pyqtSignal, \
-                         Qt, \
                          QThread
 
 from mks.core.core import core
@@ -58,7 +57,7 @@ class SearchThread(StopableThread):
     resultsAvailable = pyqtSignal(list)  # list of searchresultsmodel.FileResults
     progressChanged = pyqtSignal(int, int)  # int value, int total
 
-    def search(self, regExp, mask, inOpenedFiles, forReplace, searchPath):
+    def search(self, regExp, mask, inOpenedFiles, searchPath):
         """Start search process.
         context stores search text, directory and other parameters
         """
@@ -73,11 +72,6 @@ class SearchThread(StopableThread):
         for document in core.workspace().openedDocuments():
             self._openedFiles[document.filePath()] = document.text()
 
-        if forReplace:
-            self._checkStateForResults = Qt.Checked
-        else:
-            self._checkStateForResults = None
-        
         self.start()
 
     def _getFiles(self, path, maskRegExp):
@@ -163,8 +157,7 @@ class SearchThread(StopableThread):
             if  results:
                 newFileRes = searchresultsmodel.FileResults(self._searchPath,
                                                             fileName,
-                                                            results,
-                                                            self._checkStateForResults)
+                                                            results)
                 notEmittedFileResults.append(newFileRes)
 
             if notEmittedFileResults and \
@@ -209,8 +202,7 @@ class SearchThread(StopableThread):
                              wholeLine = wholeLine, \
                              line = eolCount, \
                              column = column, \
-                             match=match,
-                             checkState = self._checkStateForResults)
+                             match=match)
             results.append(result)
 
             if self._exit:
