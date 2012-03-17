@@ -131,7 +131,7 @@
             "FirstLine": []
         }, 
         "JavaScript": {
-            "FileName": [ "*.js" ],
+            "FileName": [ "*.js", "*.json" ],
             "FirstLine": []
         }, 
         "Lua": {
