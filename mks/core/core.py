@@ -19,9 +19,8 @@ import mks.resources.icons # pylint: disable=W0404
 
 DATA_FILES_PATH = os.path.join(os.path.dirname(__file__), '..')
 
-_DEFAULT_CONFIG_PATH = os.path.join(DATA_FILES_PATH, 'config/mksv3.default.cfg')
-_DEFAULT_CONFIG_SPEC_PATH = os.path.join(DATA_FILES_PATH, 'config/mksv3.spec.cfg')
-_CONFIG_PATH = os.path.join(mks.core.defines.CONFIG_DIR, 'core.cfg')
+_DEFAULT_CONFIG_PATH = os.path.join(DATA_FILES_PATH, 'config/mksv3.default.json')
+_CONFIG_PATH = os.path.join(mks.core.defines.CONFIG_DIR, 'mksv3.json')
 
 
 class Core:
@@ -210,19 +209,16 @@ class Core:
                 self.messageToolBar().appendMessage(unicode(ex))
         
         # Try to open
+        config = None
         if haveFileInHome:
             try:
-                config = mks.core.config.Config(True, _CONFIG_PATH, configspec=_DEFAULT_CONFIG_SPEC_PATH)
-            except UserWarning as ex:
-                messageString = unicode(ex) + '\n' + 'Using default configuration'
-                self.messageToolBar().appendMessage(messageString)
-                config = None
-        else:
-            config = None
+                config = mks.core.config.Config(True, _CONFIG_PATH)
+            except:  # messages are shown by the Config class
+                pass            
         
         # Open default, if previous step failed
         if config is None:
-            config = mks.core.config.Config(False, _DEFAULT_CONFIG_PATH, configspec=_DEFAULT_CONFIG_SPEC_PATH)
+            config = mks.core.config.Config(False, _DEFAULT_CONFIG_PATH)
         
         return config
 
