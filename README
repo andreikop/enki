@@ -49,13 +49,9 @@ This dependences list created tested on Ubuntu 11.10.
 4. Python 2
     tested on v2.6.6 and v2.7.2
     http:://python.org
-5. ConfigObj config file reader and writer
-    tested on v4.7.2
-    http://pypi.python.org/pypi/configobj/
-    http://www.voidspace.org.uk/python/configobj.html
 
 On Ubuntu 11.10 all can be installed with command
-    sudo apt-get install python-qt4 python-qscintilla2 python-configobj
+    sudo apt-get install python-qt4 python-qscintilla2
 
                 === Executing ===
 

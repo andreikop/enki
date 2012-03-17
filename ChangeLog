@@ -1,3 +1,7 @@
+Date:   Sat Mar 17 11:26:59 2012
+
+    Removed dependency on ConfigObj
+
 Date:   Fri Mar 16 08:47:14 2012
 
     Paste line functionality.

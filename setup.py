@@ -94,6 +94,5 @@ setup(name=PACKAGE_NAME,
         scripts=['./mksv3'],
         data_files=data_files,
         classifiers=classifiers,
-        requires=['configobj'],
         license='gpl2'
         )
