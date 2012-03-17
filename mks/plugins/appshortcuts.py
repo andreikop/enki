@@ -91,12 +91,20 @@ class Plugin:
     def _saveShortcuts(self):
         """Save shortcuts to configuration file
         """
-        self._config = {}
+        if self._config is None:
+            self._config = {}
+        
         for action in self._actionManager.allActions():
             if not action.menu():
                 path = self._actionManager.path(action)
-                if action.shortcut() != self._actionManager.defaultShortcut(action):
+                # Remove default values
+                if action.shortcut().toString() != self._actionManager.defaultShortcut(action).toString():
                     self._config[path] = action.shortcut().toString()
+                else:
+                    try:
+                        del self._config[path]
+                    except KeyError:
+                        pass
         self._save()
 
     def _onEditShortcuts(self):
