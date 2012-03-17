@@ -1,4 +1,5 @@
 FIXME
+    Работать без lexer config, не создавать почем зря
 
 REFACTORING
 

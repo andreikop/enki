@@ -12,7 +12,9 @@ Settings dialogue subsystem consists of 3 major entities:
 * *Option classes.
 
   Every object of the class links together control on GUI and option in the config file.
-  It loads its option from :class:`mks.core.config.Config` to GUI, and saves from GUI to config.
+  It loads its option from config to GUI, and saves from GUI to config.
+  
+  config may be either :class:`mks.core.config.Config` or python dictionary
 * :class:`mks.core.uisettings.ModuleConfigurator` interface. Must be implemented by plugin or core module.
   Creates and holds *Option objects, applies module settings, when necessary. Flushes config.
 
@@ -84,6 +86,14 @@ def _tr(text):
     """
     return text
 
+def _set(config, key, value):
+    """This method saves value for either core.config.Config instance and dictionary
+    """
+    if hasattr(config, 'set'):
+        config.set(key, value)
+    else:
+        config[key] = value
+
 class ModuleConfigurator:
     """Interface, which must be implemented by core module or plugin, which needs to configure themselves via GUI dialog.
     
@@ -140,7 +150,7 @@ class CheckableOption(Option):
     def save(self):
         """Save the value from GUI to config
         """
-        self.config.set(self.optionName, self.control.isChecked())
+        _set(self.config, self.optionName, self.control.isChecked())
 
 class TextOption(Option):
     """Text option
@@ -155,7 +165,7 @@ class TextOption(Option):
     def save(self):
         """Save the value from GUI to config
         """
-        self.config.set(self.optionName, self.control.text())
+        _set(self.config, self.optionName, self.control.text())
 
 class ListOnePerLineOption(Option):
     """List of strings. One item per line.
@@ -171,7 +181,7 @@ class ListOnePerLineOption(Option):
         """Save the value from GUI to config
         """
         lines = self.control.toPlainText().split('\n')
-        self.config.set(self.optionName, lines)
+        _set(self.config, self.optionName, lines)
 
 class NumericOption(Option):
     """Numeric option.
@@ -186,7 +196,7 @@ class NumericOption(Option):
     def save(self):
         """Save the value from GUI to config
         """
-        self.config.set(self.optionName, self.control.value())
+        _set(self.config, self.optionName, self.control.value())
 
 class ColorOption(Option):
     """Color option
@@ -201,7 +211,7 @@ class ColorOption(Option):
     def save(self):
         """Save the value from GUI to config
         """
-        self.config.set(self.optionName, self.control.color().name())
+        _set(self.config, self.optionName, self.control.color().name())
 
 class FontOption(Option):
     """Font option.
@@ -232,8 +242,8 @@ class FontOption(Option):
         """Save the value from GUI to config
         """
         font = self.editControl.font()
-        self.config.set(self.familyOptionName, font.family())
-        self.config.set(self.sizeOptionName, font.pointSize())
+        _set(self.config, self.familyOptionName, font.family())
+        _set(self.config, self.sizeOptionName, font.pointSize())
     
     def _onClicked(self):
         """Button click handler. Open font dialog
@@ -270,7 +280,7 @@ class ChoiseOption(Option):
         """
         for button in self.cotrolToValue.iterkeys():
             if button.isChecked():
-                self.config.set(self.optionName, self.cotrolToValue[button])
+                _set(self.config, self.optionName, self.cotrolToValue[button])
 
 
 class UISettingsManager:  # pylint: disable=R0903

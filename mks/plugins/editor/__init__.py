@@ -161,10 +161,7 @@ class EditorConfigurator(ModuleConfigurator):
         """Main settings should be saved by the core. Save only lexer settings
         """
         if Plugin.instance.lexerConfig is not None:
-            try:
-                Plugin.instance.lexerConfig.config.flush()
-            except UserWarning as ex:
-                core.mainWindow().appendMessage(unicode(ex))
+            Plugin.instance.lexerConfig.save()
     
     def applySettings(self):
         """Apply editor and lexer settings
