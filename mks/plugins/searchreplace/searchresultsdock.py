@@ -138,3 +138,9 @@ class SearchResultsDock(pDockWidget):
                         items[result.fileName] = []
                     items[ result.fileName ].append(result)
         return items
+
+    def setReplaceMode(self, enabled):
+        """When replace mode is enabled, dock shows checkbox near every item
+        """
+        self._model.setReplaceMode(enabled)
+        self._view.update()  # redraw the model

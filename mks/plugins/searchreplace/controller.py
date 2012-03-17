@@ -144,8 +144,8 @@ class Controller(QObject):
 
         core.mainWindow().addDockWidget(Qt.BottomDockWidgetArea, self._dock)
         self._dock.setVisible( False )
+        self._dock.setReplaceMode(self._mode & ModeFlagReplace)
 
-    
     def _onModeSwitchTriggered(self):
         """Changing mode, i.e. from "Search file" to "Replace file"
         """
@@ -160,6 +160,9 @@ class Controller(QObject):
         
         self._widget.setMode(newMode)
         
+        if self._dock is not None:
+            self._dock.setReplaceMode(newMode & ModeFlagReplace)
+            
         if self._searchThread is not None:
             self._searchThread.stop()
         if self._replaceThread is not None:
@@ -344,14 +347,12 @@ class Controller(QObject):
         self._searchThread.finished.connect(self._onSearchThreadFinished)
         
         inOpenedFiles = self._mode in (ModeSearchOpenedFiles, ModeReplaceOpenedFiles,)
-        forReplace = self._mode & ModeFlagReplace
         
         self._widget.setSearchInProgress(True)
         self._dock.clear()
         self._searchThread.search( regExp,
                                    mask,
                                    inOpenedFiles,
-                                   forReplace,
                                    path)
 
     def _onSearchInDirectoryStopPressed(self):
