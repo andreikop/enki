@@ -72,7 +72,7 @@ packages=['mks',
 package_data={'mks' : ['ui/*.ui',
                        'ui/plugins/*.ui',
                        'fresh/actionmanager/*.ui',
-                       'config/*.cfg']
+                       'config/*.json']
              }
 
 
