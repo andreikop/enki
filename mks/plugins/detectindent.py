@@ -83,8 +83,9 @@ class Plugin:
         
         sortedIndents = sorted(popularityTable.iteritems(), key = lambda item: item[1], reverse = True)
         theMostPopular = sortedIndents[0]
-        secondPopular = sortedIndents[1]
+        
         if len(sortedIndents) >= 2:
+            secondPopular = sortedIndents[1]
             if theMostPopular[1] == secondPopular[1]:  # if equal results - give up
                 return
         
