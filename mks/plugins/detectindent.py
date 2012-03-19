@@ -36,25 +36,63 @@ class Plugin:
         if new == 'Makefile':
             self._detectAndApplyIndentation(document, True)
 
+
     def _detectAndApplyIndentation(self, document, isMakefile=False):
         """Delect indentation automatically and apply detected mode
         Handler for signal from the workspace
         """
+        
+        #TODO improve algorythm sometimes to skip comments
+        
         if not core.config()["Editor"]["Indentation"]["AutoDetect"]:
             return
 
-        text = document.text()
-        haveTabs = '\t' in text
-        for line in text.splitlines():  #TODO improve algorythm sometimes to skip comments
-            if line.startswith(' '):
-                haveSpaces = True
-                break
-        else:
-            haveSpaces = False
-
-        if haveTabs or isMakefile:
-            document.setIndentUseTabs(True)
-        elif haveSpaces:
-            document.setIndentUseTabs(False)
-        else:
-            pass  # Don't touch current mode, if not sure
+        def _lineIndent(line):
+            """Detect indentation for single line.
+            Returns whitespaces from the start of the line
+            """
+            return line[:len(line) - len(line.lstrip())]
+        
+        def _diffIndents(a, b):
+            """Compare two indentations and return its difference or None
+            """
+            if a == b:
+                return None
+            elif a.startswith(b):
+                return a[len(b):]  # rest of a
+            elif b.startswith(a):
+                return b[len(a):]  # rest of b
+            else:  # indents are totally not equal
+                return None
+        
+        lines = document.lines()
+        lastIndent = ''
+        popularityTable = {}
+        for l in lines:
+            currentIndent = _lineIndent(l)
+            diff = _diffIndents(currentIndent, lastIndent)
+            if diff is not None:
+                if diff in popularityTable:
+                    popularityTable[diff] += 1
+                else:
+                    popularityTable[diff] = 1
+            lastIndent = currentIndent
+        
+        if not popularityTable:  # no indents. Empty file?
+            return  # give up
+        
+        sortedIndents = sorted(popularityTable.iteritems(), key = lambda item: item[1], reverse = True)
+        theMostPopular = sortedIndents[0]
+        secondPopular = sortedIndents[1]
+        if len(sortedIndents) >= 2:
+            if theMostPopular[1] == secondPopular[1]:  # if equal results - give up
+                return
+        
+        indent, count = theMostPopular
+        if count > 2:  # if more than 2 indents
+            if indent == '\t':
+                document.setIndentUseTabs(True)
+            elif all([char == ' ' for char in indent]):  # if all spaces
+                document.setIndentUseTabs(False)
+                document.setIndentWidth(len(indent))
+        # Else - give up. If can't detect, leave as is
