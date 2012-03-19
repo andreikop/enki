@@ -29,3 +29,6 @@ ON QScintilla 2.6
 
 ON Unity
     маленькое разрешение иконки приложения
+
+ON new editor
+    Игнорировать комментарии когда определяем indentation
