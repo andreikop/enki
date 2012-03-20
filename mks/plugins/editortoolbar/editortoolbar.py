@@ -198,8 +198,8 @@ class _PositionIndicator(QToolButton):
         self.setToolTip(self.tr("Cursor position"))
         self.setEnabled(False)
         self._setCursorPosition(-1, -1)
-        minWidth = QFontMetrics(self.font()).width("Line: xxxxx Column: xxx")
-        minWidth += 30  # for the button borders
+        minWidth = QFontMetrics(self.font()).width("xxxxx : xxx")
+        minWidth += 20  # for the button borders
         self.setMinimumWidth(minWidth)  # Avoid flickering when text width changed
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
 
@@ -225,7 +225,7 @@ class _PositionIndicator(QToolButton):
     def _setCursorPosition(self, line, col):
         """Update cursor position on GUI.
         """
-        template = self.tr("Line: %s Column: %s")
+        template = self.tr("%s : %s")
         if line != -1 and col != -1:
             line = str(line + 1)
             col = str(col)
