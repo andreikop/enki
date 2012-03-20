@@ -12,13 +12,13 @@ import os.path
 from PyQt4 import uic
 
 from PyQt4.QtCore import QSize
-from PyQt4.QtGui import QDialog, QFontMetrics, QIcon, QMenu, QToolBar, QToolButton
+from PyQt4.QtGui import QDialog, QFontMetrics, QIcon, QMenu, QToolButton
 
 from mks.core.core import core
 
 # AK: Idea of _EolIndicatorAndSwitcher, and icons for it was taken from juffed
 
-class _EolIndicatorAndSwitcher(QToolButton):
+class EolIndicatorAndSwitcher(QToolButton):
     """This widget is visible on Status Bar as EOL type icon.
     
     It draws menu with EOL choise and switches EOL
@@ -135,7 +135,7 @@ class _IndentationDialog(QDialog):
         """
         self._document.setIndentUseTabs(toggled)
 
-class _IndentIndicatorAndSwitcher(QToolButton):
+class IndentIndicatorAndSwitcher(QToolButton):
     """This widget is visible on Status Bar as indent type label
     
     It draws menu with indent choise and switches indent
@@ -190,7 +190,7 @@ class _IndentIndicatorAndSwitcher(QToolButton):
         """
         self.setEnabled(False)
 
-class _PositionIndicator(QToolButton):
+class PositionIndicator(QToolButton):
     """Indicator, which shows text "Line: yy Column: xx"
     """
     def __init__(self, parent):
@@ -233,20 +233,3 @@ class _PositionIndicator(QToolButton):
             line = '-'
             col = '-'
         self.setText(template % (line, col))
-
-class EditorToolBar(QToolBar):
-    """Class implementes tool bar, which shows current indentation, EOL mode and cursor position
-    """
-
-    def __init__(self, parent):
-        QToolBar.__init__(self, parent)
-        self.setIconSize(QSize(16, 16))
-        
-        # Modified button
-        self.addAction(core.actionManager().action( "mFile/mSave/aCurrent" ))
-        # EOL indicator and switcher
-        self.addWidget(_EolIndicatorAndSwitcher(self))
-        # Indentation indicator and switcher        
-        self.addWidget(_IndentIndicatorAndSwitcher(self))
-        # Position indicator
-        self.addWidget(_PositionIndicator(self))
