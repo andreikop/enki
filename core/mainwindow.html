@@ -80,6 +80,25 @@ themselves.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mks.core.mainwindow.MainWindow.menuBar">
+<tt class="descname">menuBar</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.mainwindow.MainWindow.menuBar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reference to menuBar</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.mainwindow.MainWindow.topToolBar">
+<tt class="descname">topToolBar</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.mainwindow.MainWindow.topToolBar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Top tool bar. Contains main menu, position indicator, etc</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.mainwindow.MainWindow.statusBar">
+<tt class="descname">statusBar</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.mainwindow.MainWindow.statusBar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return main window status bar.
+It is located on the top tool bar</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mks.core.mainwindow.MainWindow.setWorkspace">
 <tt class="descname">setWorkspace</tt><big>(</big><em>workspace</em><big>)</big><a class="headerlink" href="#mks.core.mainwindow.MainWindow.setWorkspace" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set central widget of the main window.
@@ -96,6 +115,14 @@ Normally called only by core when initializing system</p>
 <dt id="mks.core.mainwindow.MainWindow.centralLayout">
 <tt class="descname">centralLayout</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.mainwindow.MainWindow.centralLayout" title="Permalink to this definition">¶</a></dt>
 <dd><p>Layout of the central widget. Contains Workspace and search widget</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.mainwindow.MainWindow.appendMessage">
+<tt class="descname">appendMessage</tt><big>(</big><em>text</em>, <em>timeoutMs=10000</em><big>)</big><a class="headerlink" href="#mks.core.mainwindow.MainWindow.appendMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append message to the queue. It will be shown as non-modal at the bottom of the window.
+Use such notifications, which are too long or too important for status bar
+but, not so important, to interrupt an user with QMessageBox</p>
 </dd></dl>
 
 <dl class="method">

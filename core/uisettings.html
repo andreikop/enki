@@ -54,7 +54,8 @@
 </li>
 <li><p class="first"><a href="#id1"><span class="problematic" id="id2">*</span></a>Option classes.</p>
 <p>Every object of the class links together control on GUI and option in the config file.
-It loads its option from <a class="reference internal" href="config.html#mks.core.config.Config" title="mks.core.config.Config"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.config.Config</span></tt></a> to GUI, and saves from GUI to config.</p>
+It loads its option from config to GUI, and saves from GUI to config.</p>
+<p>config may be either <a class="reference internal" href="config.html#mks.core.config.Config" title="mks.core.config.Config"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.config.Config</span></tt></a> or python dictionary</p>
 </li>
 <li><p class="first"><a class="reference internal" href="#mks.core.uisettings.ModuleConfigurator" title="mks.core.uisettings.ModuleConfigurator"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.uisettings.ModuleConfigurator</span></tt></a> interface. Must be implemented by plugin or core module.
 Creates and holds <a href="#id3"><span class="problematic" id="id4">*</span></a>Option objects, applies module settings, when necessary. Flushes config.</p>
