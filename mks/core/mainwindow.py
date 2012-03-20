@@ -9,7 +9,7 @@ Module contains :class:`mks.core.mainwindow.MainWindow` implementation
 import os.path
 
 from PyQt4.QtCore import pyqtSignal, QSize, Qt
-from PyQt4.QtGui import QIcon, QMessageBox, QSizePolicy, QVBoxLayout, QWidget
+from PyQt4.QtGui import QHBoxLayout, QIcon, QMessageBox, QSizePolicy, QStatusBar, QToolBar, QVBoxLayout, QWidget
 
 from PyQt4.QtGui import QMainWindow
 
@@ -72,21 +72,35 @@ class MainWindow(QMainWindow):
         
         self.setStyleSheet("QTreeView:focus {border: 1px solid red}")
 
-        self._initMenuBar()
-        
-        """ FIXME restore when having dock tool bar, or remove
-        # Default exclusive settings for the tool bars
-        self.dockToolBar( Qt.LeftToolBarArea ).setExclusive(False)
-        self.dockToolBar( Qt.RightToolBarArea ).setExclusive(False)
-        
-        # Move docks tool bar to statusbar
-        modernDocksToolBar = self.dockToolBarManager().modernToolBar()
-        self.removeToolBar(modernDocksToolBar)
-        modernDocksToolBar.setOrientation(Qt.Horizontal)
-        modernDocksToolBar.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        modernDocksToolBar.setIconSize(QSize(16, 16))
-        self.statusBar().addPermanentWidget(modernDocksToolBar)
+        # Create top tool bar
+        self._topToolBar = self.addToolBar("topToolBar")
+        self._topToolBar.setObjectName("topToolBar")
+        self._topToolBar.setMovable(False)
+        self._topToolBar.setIconSize(QSize(16, 16))
+        toolBarStyleSheet = "QToolBar {border: 0; border-bottom-width: 0.5; border-bottom-style: solid}"""
+        self._topToolBar.setStyleSheet(toolBarStyleSheet)
+
+        # Create menu bar
+        self._menuBar = pActionsMenuBar(self)
+        self._menuBar.setAutoFillBackground(False)
+        menuBarStyleSheet = """
+        QMenuBar {background-color: transparent;}
+        QMenuBar::item:!selected {background: transparent;}
         """
+        self._menuBar.setStyleSheet(menuBarStyleSheet)
+        self._menuBar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self._actionManager = ActionManager(self._menuBar)
+        self._menuBar.setModel(self._actionManager)
+        self._topToolBar.addWidget(self._menuBar)
+        self._topToolBar.addSeparator()
+
+        # Create status bar
+        self._statusBar = QStatusBar(self)
+        self._statusBar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self._topToolBar.addWidget(self._statusBar)
+        
+        self._createMenuStructure()
+        
         # create central layout
         widget = QWidget(self)
         self._centralLayout = QVBoxLayout(widget)
@@ -108,16 +122,16 @@ class MainWindow(QMainWindow):
         self.menuBar().setModel( None )
         # FIXME self.settings().sync()  # write window and docs geometry
 
-    def _initMenuBar(self):
+    def _initTopWidget(self):
+        """Create top widget and put it on its place
+        """
+        
+    def _createMenuStructure(self):
         """Fill menu bar with items. The majority of items are not connected to the slots,
         Connections made by module, which implements menu item functionality, but, all items are in one place,
         because it's easier to create clear menu layout
         """
         # create menubar menus and actions
-        self._menuBar = pActionsMenuBar(self)
-        self._actionManager = ActionManager(self._menuBar)
-        self._menuBar.setModel(self._actionManager)
-        self.setMenuBar(self._menuBar)
         
         def menu(path, name, icon):
             """Subfunction for create a menu in the main menu"""
@@ -183,6 +197,22 @@ class MainWindow(QMainWindow):
         # docks
         self._actionManager.action( "mDocks/aHideAll" ).triggered.connect(self._onHideAllWindows)
     
+    def menuBar(self):
+        """Reference to menuBar
+        """
+        return self._menuBar
+
+    def topToolBar(self):
+        """Top tool bar. Contains main menu, position indicator, etc
+        """
+        return self._topToolBar
+    
+    def statusBar(self):
+        """Return main window status bar.
+        It is located on the top tool bar
+        """
+        return self._statusBar
+
     def setWorkspace(self, workspace):
         """Set central widget of the main window.
         Normally called only by core when initializing system
