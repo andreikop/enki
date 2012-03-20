@@ -187,14 +187,9 @@ class SearchWidget(QFrame):
             not self.cbRegularExpression.checkState() == Qt.Checked:
             self.cbReplace.setEditText(self.cbSearch.lineEdit().text())
 
-        # Move focus to Search or Replace edit
-        if self.isVisible() and \
-           mode & ModeFlagReplace:
-            self.cbReplace.setFocus()
-            self.cbReplace.lineEdit().selectAll()
-        else:
-            self.cbSearch.setFocus()
-            self.cbSearch.lineEdit().selectAll()
+        # Move focus to Search edit
+        self.cbSearch.setFocus()
+        self.cbSearch.lineEdit().selectAll()
         
         # Set search path
         if mode & ModeFlagDirectory and \
