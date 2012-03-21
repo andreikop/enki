@@ -61,7 +61,8 @@ _ACTIONS = (\
 (MKS_PASTE_LINE, 'mEdit/mCopyPaste/aPasteLine', tr('Paste line'), 'Alt+V', 'paste.png'),
 (qsci.SCI_SELECTIONDUPLICATE, 'mEdit/mCopyPaste/aDuplicateSelection', tr('Duplicate selection or line'), 'Ctrl+D', ''),
 \
-(qsci.SCI_ZOOMIN, 'mView/mZoom/aZoomIn', tr('Zoom In'), 'Ctrl++', ''),
+(qsci.SCI_ZOOMIN, 'mView/mZoom/aZoomIn', tr('Zoom In'), 'Ctrl+=', ''),
+(qsci.SCI_ZOOMIN, 'mView/mZoom/aZoomInAlt', tr('Zoom In  (alt. shortcut)'), 'Ctrl++', ''),
 (qsci.SCI_ZOOMOUT, 'mView/mZoom/aZoomOut', tr('Zoom Out'), 'Ctrl+-', ''),
 \
 (MKS_TOGGLE_BOOKMARK, 'mNavigation/mBookmarks/aSetBookmark', tr('Set (clear) bookmark'), 'Ctrl+B', ''),
