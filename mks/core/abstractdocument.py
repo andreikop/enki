@@ -143,31 +143,20 @@ class AbstractDocument(QWidget):
             return os.path.basename(self._filePath)
         else:
             return None
-            
-    def saveFile(self):
-        """Save the file to file system
-        
-        Shows QFileDialog if necessary
+    
+    def _setFilePath(self, newPath):
+        """File path changed. Update workspace
         """
-        if  not self.isModified() and \
-            not self.isNeverSaved() and \
-            not self.isExternallyModified() and \
-            not self.isExternallyRemoved():
-            return
-        
-        # Get path
-        if not self._filePath:
-            path = QFileDialog.getSaveFileName (self, self.tr('Save file as...'))
-            if path:
-                core.workspace().documentClosed.emit(self)
-                self._filePath = path
-                core.workspace().documentOpened.emit(self)
-                core.workspace().currentDocumentChanged.emit(self, self)
-            else:
-                return
-        
+        core.workspace().documentClosed.emit(self)
+        self._filePath = newPath
+        core.workspace().documentOpened.emit(self)
+        core.workspace().currentDocumentChanged.emit(self, self)
+
+    def _saveFile(self, filePath):
+        """Low level method. Always saves file, even if not modified
+        """
         # Create directory
-        dirPath = os.path.dirname(self.filePath())
+        dirPath = os.path.dirname(filePath)
         if  not os.path.exists(dirPath):
             try:
                 os.mkdir(dirPath)
@@ -194,7 +183,7 @@ class AbstractDocument(QWidget):
             self._fileWatcher.removePath(self.filePath())
         
         try:
-            openedFile = open(self.filePath(), 'w')
+            openedFile = open(filePath, 'w')
         except IOError as ex:
             QMessageBox.critical(None,
                                  self.tr("Can not write to file"),
@@ -208,13 +197,43 @@ class AbstractDocument(QWidget):
             if self._fileWatcher is None:  # file just get its name
                 self._createFileWatcher()            
             else:
-                self._fileWatcher.addPath(self.filePath())
+                self._fileWatcher.addPath(filePath)
         
         # Update states
         self._neverSaved = False
         self._externallyRemoved = False
         self._externallyModified = False
         self._setModified(False)
+
+    def saveFile(self):
+        """Save the file to file system
+        
+        Shows QFileDialog if necessary
+        """
+        if  not self.isModified() and \
+            not self.isNeverSaved() and \
+            not self.isExternallyModified() and \
+            not self.isExternallyRemoved():
+            return
+        
+        # Get path
+        if not self._filePath:
+            path = QFileDialog.getSaveFileName (self, self.tr('Save file as...'))
+            if path:
+                self._setFilePath(path)
+            else:
+                return
+        self._saveFile(self.filePath())
+        
+    def saveFileAs(self):
+        """Ask for new file name with dialog. Save file
+        """
+        path = QFileDialog.getSaveFileName (self, self.tr('Save file as...'))
+        if not path:
+            return
+        
+        self._setFilePath(path)
+        self._saveFile(path)
         
     def reload(self):
         """Reload the file from the disk

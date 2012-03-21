@@ -187,6 +187,7 @@ class Workspace(QStackedWidget):
     
         core.actionManager().action( "mFile/mSave/aCurrent" ).triggered.connect(self._onFileSaveCurrentTriggered)
         core.actionManager().action( "mFile/mSave/aAll" ).triggered.connect(self._onFileSaveAllTriggered)
+        core.actionManager().action( "mFile/mSave/aSaveAs" ).triggered.connect(self._onFileSaveAsTriggered)
         
         core.actionManager().action( "mNavigation/aNext" ).triggered.connect(self._activateNextDocument)
         core.actionManager().action( "mNavigation/aPrevious" ).triggered.connect(self._activatePreviousDocument)
@@ -285,6 +286,7 @@ class Workspace(QStackedWidget):
                                                                             (document.isModified() or 
                                                                              document.isNeverSaved()))
         core.actionManager().action( "mFile/mSave/aAll" ).setEnabled( document is not None)
+        core.actionManager().action( "mFile/mSave/aSaveAs" ).setEnabled( document is not None)
         core.actionManager().action( "mFile/mClose/aCurrent" ).setEnabled( document is not None)
         core.actionManager().action( "mFile/mClose/aAll" ).setEnabled( document is not None)
         core.actionManager().action( "mNavigation/aFocusCurrentDocument" ).setEnabled( document is not None)
@@ -293,7 +295,6 @@ class Workspace(QStackedWidget):
         core.actionManager().action( "mFile/mReload/aAll" ).setEnabled( document is not None )
 
         # TODO save as backup, quick print, print
-        #core.actionManager().action( "mFile/aSaveAsBackup" ).setEnabled( document )
         #core.actionManager().action( "mFile/aQuickPrint" ).setEnabled( print_ )
         #core.actionManager().action( "mFile/aPrint" ).setEnabled( print_ )
         
@@ -527,7 +528,12 @@ class Workspace(QStackedWidget):
         """
         for document in self.openedDocuments():
             document.saveFile()
-        
+    
+    def _onFileSaveAsTriggered(self):
+        """Handler for File->Save->Save as
+        """
+        self.currentDocument().saveFileAs();
+    
     def _reloadDocument(self, document):
         """Reload the document contents
         """
@@ -816,15 +822,6 @@ class Workspace(QStackedWidget):
 #        wizard = UITemplatesWizard ( self )
 #        wizard.setType( "Files" )
 #        wizard.exec_()
-
-#    def fileSaveAsBackup_triggered(self):
-#        document = self.currentDocument()
-
-#        if  document :
-#            fileName = mks.monkeystudio.getSaveFileName(self.tr( "Choose a filename to backup your file" ), document.fileName(), '', self )
-
-#            if  not fileName.isEmpty() :
-#                document.backupFileAs( fileName )
 
 #    def fileQuickPrint_triggered(self):
 #        document = self.currentDocument()
