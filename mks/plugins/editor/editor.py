@@ -8,7 +8,7 @@ Uses QScintilla  internally
 import shutil
 
 from PyQt4.QtCore import pyqtSignal, Qt
-from PyQt4.QtGui import qApp, QColor, QFont, QFrame, QIcon, QKeyEvent, QKeySequence, QVBoxLayout
+from PyQt4.QtGui import qApp, QColor, QFont, QFrame, QIcon, QKeyEvent, QKeySequence, QPrintDialog, QVBoxLayout
 
 from PyQt4.Qsci import *  # pylint: disable=W0401,W0614
 
@@ -524,6 +524,25 @@ class Editor(AbstractTextEditor):
         """Get line count
         """
         return self.qscintilla.lines()
+
+    def printFile(self):
+        """Print file
+        """
+        printer = QsciPrinter()
+        
+        # set wrapmode
+        printer.setWrapMode(QsciScintilla.WrapWord)
+
+        dialog = QPrintDialog (printer)
+        
+        if dialog.exec_() == dialog.Accepted:
+            if  dialog.printRange() == dialog.Selection:
+                f, unused, t, unused1 = self.qscintilla.getSelection()
+            else:
+                f = -1
+                t = -1
+
+            printer.printRange(self.qscintilla, f, t)
 
     #
     # Public methods for editorshortcuts

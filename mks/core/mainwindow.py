@@ -150,7 +150,7 @@ class MainWindow(QMainWindow):
             actObject.setEnabled(enabled)
             self._createdActions.append(actObject)
         
-        def seperator(menu):
+        def separator(menu):
             """Subfunction for insert separator to the menu"""
             self._actionManager.action(menu).menu().addSeparator()
         
@@ -171,7 +171,7 @@ class MainWindow(QMainWindow):
         menu  ("mFile/mClose",                        tr("&Close"                ), "close.png"   )
         action("mFile/mClose/aCurrent",               tr("&Close"                ), "close.png",    "Ctrl+W",       tr("Close the current file" ), False)
         action("mFile/mClose/aAll",                   tr("Close &All"            ), "closeall.png", 'Shift+Ctrl+W', tr("Close all files"        ), False)
-        seperator("mFile")
+        action("mFile/aPrint",                        tr("&Print..."             ), "print.png" ,   "Ctrl+P",       tr("Print the current file" ), False)
 
         menu  ("mView",                               tr("View"                  ), ""            )
         menu  ("mView/mZoom",                         tr("&Zoom"                 ), "search.png"  )

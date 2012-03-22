@@ -715,25 +715,7 @@ class AbstractTextEditor(AbstractDocument):
         self.setLine(curLine, indent + lineText)
         self.goTo(line=curLine, col=len(indent))
 
-
-#    TODO restore or delete old code
-
-#    def isPrintAvailable(self):
-#    #    """return if print is available
-#    #    """
-#    #    pass
-
-#    def textCodec(self)
-#    { return mCodec ? mCodec.name() : pMonkeyStudio.defaultCodec();
-#    
-#    def encoding(self)
-#    { return mCodec ? mCodec : QTextCodec.codecForName( pMonkeyStudio.defaultCodec().toLocal8Bit().constData() );
-
-#    def backupFileAs(self fileName ):
-#    #    pass
-#    
-#    def printFile(self):
-#    #    pass
-#    
-#    def quickPrintFile(self):
-#    #    pass
+    def printFile(self):
+        """Print file
+        """
+        raise NotImplemented()

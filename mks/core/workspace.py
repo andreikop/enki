@@ -188,6 +188,7 @@ class Workspace(QStackedWidget):
         core.actionManager().action( "mFile/mSave/aCurrent" ).triggered.connect(self._onFileSaveCurrentTriggered)
         core.actionManager().action( "mFile/mSave/aAll" ).triggered.connect(self._onFileSaveAllTriggered)
         core.actionManager().action( "mFile/mSave/aSaveAs" ).triggered.connect(self._onFileSaveAsTriggered)
+        core.actionManager().action( "mFile/aPrint").triggered.connect(lambda: self.currentDocument().printFile())
         
         core.actionManager().action( "mNavigation/aNext" ).triggered.connect(self._activateNextDocument)
         core.actionManager().action( "mNavigation/aPrevious" ).triggered.connect(self._activatePreviousDocument)
@@ -294,9 +295,7 @@ class Workspace(QStackedWidget):
         core.actionManager().action( "mFile/mReload/aCurrent" ).setEnabled( document is not None )
         core.actionManager().action( "mFile/mReload/aAll" ).setEnabled( document is not None )
 
-        # TODO save as backup, quick print, print
-        #core.actionManager().action( "mFile/aQuickPrint" ).setEnabled( print_ )
-        #core.actionManager().action( "mFile/aPrint" ).setEnabled( print_ )
+        core.actionManager().action( "mFile/aPrint" ).setEnabled( document is not None )
         
         # update edit menu
         #core.actionManager().action( "mEdit/aExpandAbbreviation" ).setEnabled( document is not None)
