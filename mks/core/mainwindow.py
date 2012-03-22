@@ -329,43 +329,16 @@ class MainWindow(QMainWindow):
 
 #   TODO restore or delete old code
 #    urlsDropped = pyqtSignal()
-#
-#        core.recentsManager().openFileRequested.connect(core.fileManager().openFile)
-#        self._actionManager.action( "mFile/mSession/aSave" ).triggered.connect(core.workspace().fileSessionSave_triggered)
-#        self._actionManager.action( "mFile/mSession/aRestore" ).triggered.connect(core.workspace().fileSessionRestore_triggered)
-#        self._actionManager.action( "mFile/aQuickPrint" ).triggered.connect(core.workspace().fileQuickPrint_triggered)
-#        self._actionManager.action( "mFile/aPrint" ).triggered.connect(core.workspace().filePrint_triggered)
 #        # edit connection
-#        self._actionManager.action( "mEdit/aTranslations" ).triggered.connect(core.workspace().editTranslations_triggered)
 #        self._actionManager.action( "mEdit/aExpandAbbreviation" ).triggered.connect(core.workspace().onEditExpandAbbreviation)
 #        self._actionManager.action( "mEdit/aPrepareAPIs" ).triggered.connect(core.workspace().editPrepareAPIs_triggered)
-#        # view connection
-#        agStyles.styleSelected.connect(self.changeStyle)
 
 #        # project connection
 #        core.recentsManager().openProjectRequested.connect(core.projectsManager().openProject)
-#        core.projectsManager().fileDoubleClicked.connect(core.workspace().openFile)
-#        # plugins menu
-#        # window menu
-#        self._actionManager.action( "mWindow/aTile" ).triggered.connect(core.workspace().tile)
-#        self._actionManager.action( "mWindow/aCascase" ).triggered.connect(core.workspace().cascade)
-#        self._actionManager.action( "mWindow/aMinimize" ).triggered.connect(core.workspace().minimize)
-#        self._actionManager.action( "mWindow/aRestore" ).triggered.connect(core.workspace().restore)
 #
-#   TODO can't configure pylint to ignore long lines in the commented code
 #        mb.menu( "mRecents", tr("&Recents" ), QIcon(":/mksicons/recents.png" ) )
 #        mb.action( "mRecents/aClear", tr("&Clear" ), QIcon(":/mksicons/clear.png" ), '', tr("Clear the recents file list" ) )
 #        mb.action( "mRecents/aSeparator1" )
-#        mb.action( "aSeparator1" )
-#        mb.menu( "mSession", tr("Session" ), QIcon(":/mksicons/session.png" ) )
-#        mb.action( "mSession/aSave", tr("Save" ), QIcon(":/mksicons/save.png" ), '', tr("Save the current session file list" ) )
-#        mb.action( "mSession/aRestore", tr("Restore" ), QIcon(":/mksicons/restore.png" ), '', tr("Restore the current session file list" ) )
-#        mb.action( "aSeparator4" )
-#        mb.action( "aQuickPrint", tr("Quic&k Print" ), QIcon(":/mksicons/quickprint.png" ), '', tr("Quick print the current file" ) ).setEnabled( False )
-#        mb.action( "aPrint", tr("&Print..." ), QIcon(":/mksicons/print.png" ), "Ctrl+P", tr("Print the current file" ) ).setEnabled( False )
-#        mb.action( "aSeparator5" )
-#        mb.action( "aSettings", tr("Settings..." ), QIcon( ":/mksicons/settings.png" ), "", tr("Edit the application settings" ) )
-#        mb.action( "aTranslations", tr("Translations..." ), QIcon( ":/mksicons/translations.png" ), "Ctrl+T", tr("Change the application translations files" ) )
 #        mb.action( "aSeparator1" )
 #        mb.action( "aSeparator3" )
 #        mb.menu( "mAllCommands", tr("&All Commands" ), QIcon( ":/mksicons/commands.png" ) )
@@ -373,57 +346,12 @@ class MainWindow(QMainWindow):
 #        mb.action( "aSeparator5" )
 #        mb.action( "aExpandAbbreviation", tr("Expand Abbreviation" ), QIcon( ":/mksicons/abbreviation.png" ), "Ctrl+E", tr("Expand Abbreviation" ) ).setEnabled( False )
 #        mb.action( "aPrepareAPIs", tr("Prepare APIs" ), QIcon( ":/mksicons/prepareapis.png" ), "Ctrl+Alt+P", tr("Prepare the APIs files for auto completion / calltips" ) )
-#        mb.menu( "mStyle", tr("&Style" ), QIcon( ":/mksicons/style.png" ) )
-#        mb.menu( "mProject", tr("Project" ) )
-#        mb.beginGroup( "mProject" )
-#        
-#        mb.addAction( '', core.projectsManager().action( XUPProjectManager.atNew ) )
-#        mb.addAction( '', core.projectsManager().action( XUPProjectManager.atOpen ) )
-#        mb.action( "aSeparator1" )
-#        mb.addAction( '', core.projectsManager().action( XUPProjectManager.atClose ) )
-#        mb.addAction( '', core.projectsManager().action( XUPProjectManager.atCloseAll ) )
-#        mb.action( "aSeparator2" )
-#        mb.addAction( '', core.projectsManager().action( XUPProjectManager.atEdit ) )
-#        mb.action( "aSeparator3" )
-#        mb.addAction( '', core.projectsManager().action( XUPProjectManager.atAddFiles ) )
-#        mb.addAction( '', core.projectsManager().action( XUPProjectManager.atRemoveFiles ) )
-#        mb.action( "aSeparator4" )
 #        
 #        mb.menu( "mRecents", tr("&Recents" ), QIcon( ":/mksicons/recents.png" ) )
 #        mb.action( "mRecents/aClear", tr("&Clear" ), QIcon( ":/mksicons/clear.png" ), '', tr("Clear the recents projects list" ) )
 #        mb.action( "mRecents/aSeparator1" )
 #        mb.endGroup()
-#        
-#        mb.menu( "mBuilder", tr("Build" ) ).menuAction().setEnabled( False )
-#        mb.menu( "mBuilder" ).menuAction().setVisible( False )
-#        
-#        mb.beginGroup( "mBuilder" )
-#        mb.menu( "mBuild", tr("&Build" ), QIcon( ":/mksicons/build.png" ) )
-#        mb.menu( "mRebuild", tr("&Rebuild" ), QIcon( ":/mksicons/rebuild.png" ) )
-#        mb.menu( "mClean", tr("&Clean" ), QIcon( ":/mksicons/clean.png" ) )
-#        mb.menu( "mExecute", tr("&Execute" ), QIcon( ":/mksicons/execute.png" ) )
-#        mb.menu( "mUserCommands", tr("&User Commands" ), QIcon( ":/mksicons/misc.png" ) )
-#        mb.action( "aSeparator1" )
-#        mb.endGroup()
-#        
-#        mb.menu( "mDebugger", tr("Debugger" ) ).menuAction().setEnabled( False )
-#        mb.menu( "mDebugger" ).menuAction().setVisible( False )
-#        mb.menu( "mInterpreter", tr("Interpreter" ) ).menuAction().setEnabled( False )
-#        mb.menu( "mInterpreter" ).menuAction().setVisible( False )
-#        mb.menu( "mPlugins", tr("Plugins" ) )
-#        
-#        mb.beginGroup( "mPlugins" )
-#        mb.action( "aSeparator1" )
-#        mb.endGroup()
-#        
-#        mb.menu( "mWindow", tr("Window" ) )
 
-#        mb.beginGroup( "mWindow" )
-#        mb.action( "aCascase", tr("&Cascade" ), QIcon( "" ), '', tr("Cascade" ) )
-#        mb.action( "aTile", tr("&Tile" ), QIcon( "" ), '', tr("Tile" ) )
-#        mb.action( "aMinimize", tr("&Minimize" ), QIcon( "" ), '', tr("Minimize" ) )
-#        mb.action( "aRestore", tr("&Restore" ), QIcon( "" ), '', tr("Restore normal size" ) )
-#        mb.endGroup()
 #        
 #        mb.action( "aAbout", tr("&About..." ), QIcon( ":/mksicons/monkey2.png" ), '', tr("About application..." ) )
 #        # create action for styles
@@ -450,24 +378,3 @@ class MainWindow(QMainWindow):
 #        # default event
 #        pMainWindow.dropEvent( self, event )
 #    
-#def updateMenuVisibility( self, menu ):
-#        menuAction = menu.menuAction()
-#        
-#        menuVisible = False
-
-#        for action in menu.actions():
-#            if  action.isSeparator() :
-#                continue
-#            
-#            subMenu = action.menu()
-
-#            if  subMenu :
-#                if  self.updateMenuVisibility( subMenu ) :
-#                    menuVisible = True
-#            else:
-#                menuVisible = True
-#        
-#        menuAction.setVisible( menuVisible )
-#        menuAction.setEnabled( menuVisible )
-#        
-#        return menuVisible    
