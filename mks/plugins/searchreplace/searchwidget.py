@@ -107,15 +107,15 @@ class SearchWidget(QFrame):
         self.plugin = plugin
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'SearchWidget.ui'), self)
         
-        self.cbSearch.completer().setCaseSensitivity( Qt.CaseSensitive )
-        self.cbReplace.completer().setCaseSensitivity( Qt.CaseSensitive )
+        self.cbSearch.setCompleter(None)
+        self.cbSearch.setCompleter(None)
         self.fsModel = QDirModel(self.cbPath.lineEdit())
         self.fsModel.setFilter( QDir.AllDirs | QDir.NoDotAndDotDot )
         self.cbPath.lineEdit().setCompleter(QCompleter(self.fsModel,
                                                        self.cbPath.lineEdit() ))
         # TODO QDirModel is deprecated but QCompleter does not yet handle
         # QFileSystemodel - please update when possible."""
-        self.cbMask.completer().setCaseSensitivity( Qt.CaseSensitive )
+        self.cbSearch.setCompleter(None)
         self.pbSearchStop.setVisible( False )
         self.pbReplaceCheckedStop.setVisible( False )
 
