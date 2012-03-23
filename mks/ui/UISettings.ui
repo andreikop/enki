@@ -106,7 +106,7 @@
         <bool>true</bool>
        </property>
        <property name="currentIndex">
-        <number>11</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="pGeneral">
         <layout class="QVBoxLayout" name="verticalLayout_18">
@@ -147,38 +147,6 @@
              <widget class="QRadioButton" name="rbSuffix">
               <property name="text">
                <string>Suffix</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="gbSession">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="title">
-            <string>&amp;Session</string>
-           </property>
-           <layout class="QVBoxLayout">
-            <property name="spacing">
-             <number>3</number>
-            </property>
-            <property name="margin">
-             <number>5</number>
-            </property>
-            <item>
-             <widget class="QCheckBox" name="cbSaveSession">
-              <property name="text">
-               <string>Save Session On Close</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="cbRestoreSession">
-              <property name="text">
-               <string>Restore Session On Startup</string>
               </property>
              </widget>
             </item>
@@ -233,8 +201,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>443</width>
-              <height>633</height>
+              <width>100</width>
+              <height>115</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_20">

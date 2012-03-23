@@ -485,10 +485,6 @@ class UISettings(QDialog):
 #--------------------------------------------------------  loadSettings
 
 #        # General
-#        self.cbSaveSession.setChecked( saveSessionOnClose() )
-#        self.cbRestoreSession.setChecked( restoreSessionOnStartup() )
-
-#        #  General
 #        
 #        self.cbDefaultCodec.setCurrentIndex( self.cbDefaultCodec.findText( defaultCodec() ) )
 
@@ -529,9 +525,6 @@ class UISettings(QDialog):
 
 #------------------------------------------------------------
 #        
-#        
-#        setSaveSessionOnClose( self.cbSaveSession.isChecked() )
-#        setRestoreSessionOnStartup( self.cbRestoreSession.isChecked() )
 #        # Editor
 #        #  General
 #        setAutoSyntaxCheck( self.cbAutoSyntaxCheck.isChecked() )
