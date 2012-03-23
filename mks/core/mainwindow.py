@@ -250,14 +250,8 @@ class MainWindow(QMainWindow):
         """NOT A PUBLIC API
         Close event handler.
         Shows save files dialog. Cancels close, if dialog was rejected
-        
         """
         
-        #TODO save session on close
-        # save session if needed
-        #if  mks.monkeystudio.saveSessionOnClose() :
-        #    core.workspace().fileSessionSave_triggered()
-
         # request close all documents
         if not core.workspace().closeAllDocuments():
             event.ignore()
