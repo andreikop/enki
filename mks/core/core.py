@@ -12,7 +12,7 @@ import signal
 import pkgutil
 
 from PyQt4.QtGui import qApp, QIcon
-from PyQt4.QtCore import QTimer
+from PyQt4.QtCore import pyqtSignal, QObject, QTimer
 
 import mks.core.defines
 import mks.resources.icons # pylint: disable=W0404
@@ -23,12 +23,23 @@ _DEFAULT_CONFIG_PATH = os.path.join(DATA_FILES_PATH, 'config/mksv3.default.json'
 _CONFIG_PATH = os.path.join(mks.core.defines.CONFIG_DIR, 'mksv3.json')
 
 
-class Core:
+class Core(QObject):
     """Core object initializes system at startup and terminates when closing.
     
     It creates instances of other core modules and holds references to it
     """
+    
+    initFinished = pyqtSignal()
+    """
+    initFinished()
+    
+    **Signal** emitted, when initialization has been finished and all files,
+    listed in the command line has been opened.
+    Currently used to restore session
+    """  # pylint: disable=W0105
+
     def __init__(self):
+        QObject.__init__(self)
         self._mainWindow = None
         self._workspace = None
         self._config = None

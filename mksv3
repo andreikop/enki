@@ -207,6 +207,8 @@ def main():
     if profiler is not None:
         profiler.stepDone('Open files')
 
+    core.initFinished.emit()
+    
     if core.workspace().currentDocument():
         core.workspace().currentDocument().setFocus()
     
