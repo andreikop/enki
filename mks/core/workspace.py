@@ -107,7 +107,16 @@ class Workspace(QStackedWidget):
     
     **Signal** emitted, when document was closed
     """  # pylint: disable=W0105
-        
+    
+    aboutToCloseAll = pyqtSignal()
+    """
+    aboutToCloseAll()
+    
+    **Signal** emitted, when workspace is about to close all documents.
+    Either mksv3 exits, or File->Close->All had been triggered.
+    Currently used to restore session
+    """  # pylint: disable=W0105
+
     currentDocumentChanged = pyqtSignal(AbstractDocument,
                                         AbstractDocument)
     """
@@ -326,7 +335,7 @@ class Workspace(QStackedWidget):
         """
         return self.currentWidget()
     
-    def goTo(self, filePath, line, column=None, selectionLength=None):
+    def goTo(self, filePath, absPos=None, line=None, column=None, selectionLength=None):
         """Open file, activate it, and go to specified position. Select text after position, if necessary.
         
         selectionLength specifies, how much characters should be selected
@@ -334,7 +343,7 @@ class Workspace(QStackedWidget):
         document = self.openFile(filePath)  # search for already opened or open new
 
         if  document :
-            document.goTo(line = line, col = column, selectionLength = selectionLength, grabFocus = True )
+            document.goTo(absPos=absPos, line=line, col=column, selectionLength=selectionLength, grabFocus=True )
     
     def closeDocument( self, document, showDialog=True):
         """Close opened file, remove document from workspace and delete the widget
@@ -481,6 +490,7 @@ class Workspace(QStackedWidget):
             if (_UISaveFiles( self, modifiedDocuments).exec_() == QDialog.Rejected):
                 return False #do not close IDE
 
+        self.aboutToCloseAll.emit()
         for document in self.openedDocuments()[::-1]:
             self.closeDocument(document, False)
 

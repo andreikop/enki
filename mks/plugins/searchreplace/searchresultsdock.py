@@ -111,9 +111,9 @@ class SearchResultsDock(pDockWidget):
         result = index.internalPointer()
         if isinstance(result, searchresultsmodel.Result):
             core.workspace().goTo( result.fileName,
-                                   result.line,
-                                   result.column,
-                                   len(result.match.group(0)))
+                                   line=result.line,
+                                   col=result.column,
+                                   selectionLength=len(result.match.group(0)))
             self.setFocus()
 
     def clear(self):

@@ -1,29 +1,32 @@
-Thu Mar 22 23:43:37 2012
+Thu Mar 23 2012
+    Restore session
+
+Thu Mar 22 2012
     Printing is supported
 
-Sat Mar 17 11:26:59 2012
+Sat Mar 17 2012
     Removed dependency on ConfigObj
 
-Fri Mar 16 08:47:14 2012
+Fri Mar 16 2012
     Paste line functionality.
 
-Fri Mar 9 19:37:09 2012
+Fri Mar 9 2012
     Highlight focused GUI widgets with red border
 
-Mon Mar 5 08:15:07 2012
+Mon Mar 5 2012
     Highlight search in direcoty results in the list with yellow background
 
-Sun Feb 5 08:04:57 2012
+Sun Feb 5 2012
     Support +N spec to go to particular line of the file
 
-Sun Jan 22 10:46:23 2012
+Sun Jan 22 2012
     Removed dependency on binary fresh package
 
-Sat Jan 14 13:24:05 2012
+Sat Jan 14 2012
     MIT Scheme plugin
 
-Tue Dec 13 08:33:55 2011
+Tue Dec 13 2011
     Replace with submatches
 
-Mon Nov 21 00:08:35 2011
+Mon Nov 21 2011
     First public release. Basic text editor
