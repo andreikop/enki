@@ -476,7 +476,7 @@ class Workspace(QStackedWidget):
         """
         return self.sortedDocuments
     
-    def closeAllDocuments(self):
+    def closeAllDocuments(self, hideMainWindow=False):
         """Close all documents
         
         If there are not saved documents, dialog will be shown.
@@ -484,6 +484,8 @@ class Workspace(QStackedWidget):
         Handler of File->Close->All
         
         Returns True, if all files had been closed, and False, if save dialog rejected
+        
+        If hideMainWindow is True, main window will be hidden, if user hadn't pressed "Cancel Close"
         """
         modifiedDocuments = [d for d in self.openedDocuments() if d.isModified()]
         if modifiedDocuments:
@@ -491,6 +493,8 @@ class Workspace(QStackedWidget):
                 return False #do not close IDE
 
         self.aboutToCloseAll.emit()
+        core.mainWindow().hide()
+        
         for document in self.openedDocuments()[::-1]:
             self.closeDocument(document, False)
 
