@@ -59,10 +59,12 @@ class Controller(QObject):
         
         self._createdActions = []
         
+        menu = 'mNavigation/mSearchReplace/'
+        
         def createAction(path, text, icon, shortcut, tooltip, slot, data, enabled=True):  # pylint: disable=R0913
             """Create action object
             """
-            actObject = core.actionManager().addAction( 'mNavigation/mSearchReplace/' + path,
+            actObject = core.actionManager().addAction( menu + path,
                                                         self.tr(text),
                                                         QIcon(':/mksicons/' + icon),
                                                         shortcut)
@@ -109,6 +111,16 @@ class Controller(QObject):
                       "search-replace-opened-files.png", "Ctrl+Alt+Meta+R",
                       "Replace in opened files...",
                       self._onModeSwitchTriggered, ModeReplaceOpenedFiles)
+        
+        am = core.actionManager()
+        core.workspace().currentDocumentChanged.connect( \
+            lambda old, new: am.action(menu + "aSearchFile").setEnabled(new is not None))
+        core.workspace().currentDocumentChanged.connect( \
+            lambda old, new: am.action(menu + "aReplaceFile").setEnabled(new is not None))
+        core.workspace().currentDocumentChanged.connect( \
+            lambda old, new: am.action(menu + "aSearchOpenedFiles").setEnabled(new is not None))
+        core.workspace().currentDocumentChanged.connect( \
+            lambda old, new: am.action(menu + "aReplaceOpenedFiles").setEnabled(new is not None))
 
     def _createSearchWidget(self):
         """ Create search widget. Called only when user requested it first time
