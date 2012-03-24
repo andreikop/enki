@@ -156,6 +156,8 @@ class SearchWidget(QFrame):
         self.tbCdUp.clicked.connect(self._onCdUpPressed)
         
         core.mainWindow().hideAllWindows.connect(self.hide)
+        core.workspace().currentDocumentChanged.connect( \
+                    lambda old, new: self.setVisible(self.isVisible() and new is not None))
 
     def setMode(self, mode ):
         """Change search mode.
