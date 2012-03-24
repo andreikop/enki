@@ -107,11 +107,6 @@ class Core(QObject):
             if profiler is not None:
                 profiler.stepDone('Load %s' % name)
 
-        self._mainWindow.loadState()
-        
-        if profiler is not None:
-            profiler.stepDone('Load state')
-
     def term(self):
         """Terminate plugins and core modules
         

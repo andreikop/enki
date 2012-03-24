@@ -212,6 +212,10 @@ def main():
     if core.workspace().currentDocument():
         core.workspace().currentDocument().setFocus()
     
+    core.mainWindow().loadState()
+    if profiler is not None:
+        profiler.stepDone('Load state')
+
     core.mainWindow().show()
     
     if profiler is not None:
