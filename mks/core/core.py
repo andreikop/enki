@@ -29,13 +29,14 @@ class Core(QObject):
     It creates instances of other core modules and holds references to it
     """
     
-    initFinished = pyqtSignal()
+    restoreSession = pyqtSignal()
     """
-    initFinished()
+    restoreSession()
     
-    **Signal** emitted, when initialization has been finished and all files,
+    **Signal** for session plugin.
+    Emitted, when initialization has been finished and all files,
     listed in the command line has been opened.
-    Currently used to restore session
+    Only if user hadn't passed --no-session key
     """  # pylint: disable=W0105
 
     def __init__(self):

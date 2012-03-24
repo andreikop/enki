@@ -16,7 +16,7 @@ class Plugin:
     """Plugin interface
     """
     def __init__(self):
-        core.initFinished.connect(self._onInitFinished)
+        core.restoreSession.connect(self._onRestoreSession)
         core.workspace().aboutToCloseAll.connect(self._onAboutToClose)
 
     def del_(self):
@@ -29,7 +29,7 @@ class Plugin:
         """
         return None
 
-    def _onInitFinished(self):
+    def _onRestoreSession(self):
         """mksv3 initialisation finished.
         Now restore session
         """
