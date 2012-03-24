@@ -121,13 +121,17 @@ def _configureLogging():
 def _parseCommandLine():
     parser = OptionParser(usage="%prog [options] [FILE [+LINE_NUMBER_TO_GO] .. [FILE]]]",
                           version="%prog " + mks.core.defines.PACKAGE_VERSION)
+    
+    parser.add_option("-n", "--no-session", dest="no_session", action="store_true",
+                      help="Do not restore session")
 
     parser.add_option("-p", "--profile", dest="profile", action="store_true",
                       help="profile initialization and exit. For developers")
+
     (options, args) = parser.parse_args()
     
-    cmdLine = {}
-    cmdLine["profile"] = options.profile
+    cmdLine = {"profile" : options.profile,
+               "no-session" : options.no_session}
 
     # Parse +N spec.
     plusNSpecs = filter(lambda s: s.startswith('+'), args)
@@ -207,7 +211,8 @@ def main():
     if profiler is not None:
         profiler.stepDone('Open files')
 
-    core.initFinished.emit()
+    if not cmdLine["no-session"]:
+        core.restoreSession.emit()
     
     if core.workspace().currentDocument():
         core.workspace().currentDocument().setFocus()
