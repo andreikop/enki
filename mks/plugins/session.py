@@ -50,9 +50,9 @@ class Plugin:
             core.mainWindow().appendMessage(text)
             return
         
-        for filePath, pos in session['opened']:
+        for filePath in session['opened']:
             if os.path.exists(filePath):
-                core.workspace().goTo(filePath, absPos=pos)
+                core.workspace().openFile(filePath)
         
         if session['current'] is not None:
             try:
@@ -66,17 +66,17 @@ class Plugin:
         """mksv3 will probably be closed.
         Save session
         """
-        fileAndPosList = [(document.filePath(), document.absCursorPosition()) \
-                            for document in core.workspace().openedDocuments() \
-                                if document.filePath() is not None and \
-                                   os.path.exists(document.filePath())]
+        fileList = [document.filePath() \
+                        for document in core.workspace().openedDocuments() \
+                            if document.filePath() is not None and \
+                                os.path.exists(document.filePath())]
 
         currentPath = None
         if core.workspace().currentDocument() is not None:
             currentPath = core.workspace().currentDocument().filePath()
         
         session = {'current' : currentPath,
-                   'opened' : fileAndPosList}
+                   'opened' : fileList}
         
         try:
             with open(_SESSION_FILE_PATH, 'w') as f:
