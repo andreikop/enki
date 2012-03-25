@@ -198,7 +198,7 @@ def main():
             if os.path.exists(filePath):
                 if "firstFileLineToGo" in cmdLine:
                     # -1 to convert from users to internal indexing
-                    core.workspace().goTo(path, line=cmdLine["firstFileLineToGo"] - 1)
+                    core.workspace().goTo(filePath, line=cmdLine["firstFileLineToGo"] - 1)
                     del cmdLine["firstFileLineToGo"]
                 else:
                     core.workspace().openFile(filePath)
