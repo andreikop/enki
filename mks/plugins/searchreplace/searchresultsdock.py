@@ -112,7 +112,7 @@ class SearchResultsDock(pDockWidget):
         if isinstance(result, searchresultsmodel.Result):
             core.workspace().goTo( result.fileName,
                                    line=result.line,
-                                   col=result.column,
+                                   column=result.column,
                                    selectionLength=len(result.match.group(0)))
             self.setFocus()
 

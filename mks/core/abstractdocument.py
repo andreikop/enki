@@ -479,65 +479,65 @@ class AbstractTextEditor(AbstractDocument):
         line, col = self.cursorPosition()
         return self._toAbsPosition(line, col)
     
-    def setCursorPosition(self, absPos=None, line=None, col=None):
+    def setCursorPosition(self, absPos=None, line=None, column=None):
         """Set cursor position.
         Examples: ::
         
             document.setCursorPosition(line=7)
-            document.setCursorPosition(line=7, col=9)
+            document.setCursorPosition(line=7, column=9)
             document.setCursorPosition(absPos=3)
         
-        Implementation must implement _setCursorPosition(line, col)
+        Implementation must implement _setCursorPosition(line, column)
         """
         assert line is not None or absPos is not None
         
         if line is not None:
             assert absPos is None
-            if col is None:
-                col = 0
+            if column is None:
+                column = 0
         else:
-            assert line is None and col is None
-            line, col = self._toLineCol(absPos)
-        self._setCursorPosition(line, col)
+            assert line is None and column is None
+            line, column = self._toLineCol(absPos)
+        self._setCursorPosition(line, column)
 
-    def goTo(self, absPos=None, line=None, col=None, selectionLength = None, grabFocus = False):
+    def goTo(self, absPos=None, line=None, column=None, selectionLength = None, grabFocus = False):
         """Go to specified line and column.
         If line is too big, go to the last line
-        If col is None - default is start of the text in the line (end of the indentation)
+        If column is None - default is start of the text in the line (end of the indentation)
         If selectionLength is not None, select selectionLength characters
         
         Examples: ::
         
             document.goTo(line=0)
-            document.goTo(line=7, col=9)
+            document.goTo(line=7, column=9)
             document.goTo(absPos=3)
-            document.goTo(line=7, col=5, selectionLength=8)  # Selection from line 7 col 5 to line 7 col 13
-                                                             # Cursor is in line 7 col 5
+            document.goTo(line=7, column=5, selectionLength=8)  # Selection from line 7 column 5 to line 7 column 13
+                                                             # Cursor is in line 7 column 5
                                                              # (If line 7 is >= 13 symbols) 
-            document.goTo(line=7, col=5, selectionLength=-3)  # Selection from line 7 col 2 to line 7 col 5.
-                                                              # Cursor at line 7 col 5
+            document.goTo(line=7, column=5, selectionLength=-3)  # Selection from line 7 column 2 to line 7 column 5.
+                                                              # Cursor at line 7 column 5
         """
         if line is not None:
             assert absPos is None
             if line >= self.lineCount():
                 line = self.lineCount() - 1
-                col = None
+                column = None
             
-            if col is None:
+            if column is None:
                 lineToGo = self.line(line)
-                col = len(lineToGo) - len(lineToGo.lstrip())  # count of whitespaces before text
+                column = len(lineToGo) - len(lineToGo.lstrip())  # count of whitespaces before text
         else:
-            assert line is None and col is None
-            line, col = self._toLineCol(absPos)
+            assert line is None and column is None
+            line, column = self._toLineCol(absPos)
 
         selLine = None
-        selCol = None
+        selcolumn = None
         if selectionLength is not None:
             if absPos is None:
-                absPos = self._toAbsPosition(line, col)
+                absPos = self._toAbsPosition(line, column)
             selAbsPos = absPos + selectionLength
-            selLine, selCol = self._toLineCol(selAbsPos)
-        self._goTo(line, col, selLine, selCol)
+            selLine, selcolumn = self._toLineCol(selAbsPos)
+        self._goTo(line, column, selLine, selcolumn)
         
         if grabFocus:
             self.setFocus()
@@ -713,7 +713,7 @@ class AbstractTextEditor(AbstractDocument):
         lineText = self.line(curLine).lstrip()
 
         self.setLine(curLine, indent + lineText)
-        self.goTo(line=curLine, col=len(indent))
+        self.goTo(line=curLine, column=len(indent))
 
     def printFile(self):
         """Print file
