@@ -732,6 +732,7 @@ class DockFileBrowser(pDockWidget):
 
     def setCurrentPath(self, path):
         """Set current path (root of the tree)
+        If there are no documents on workspace, also changes process current directory
         """
         self._tree.setCurrentPath(path)
         
@@ -741,6 +742,11 @@ class DockFileBrowser(pDockWidget):
         # notify SmartRecents and own slots
         self.rootChanged.emit(path)
         self._tree.setFocus()
+        
+        # cd if no files with known path
+        if not any([doc for doc in core.workspace().openedDocuments() \
+                        if doc.filePath() is not None]):
+            os.chdir(path)
 
     def moveUp(self):
         """Move tree root up, or only move focus"""
