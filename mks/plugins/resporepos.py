@@ -65,7 +65,7 @@ class Plugin:
             text = "Failed to save file positions to '%s': %s" % (_FILE_PATH, error)
             print >> sys.stderr, error
 
-    def moduleConfiguratorClass(self, document):
+    def moduleConfiguratorClass(self):
         """Module configurator
         """
         return None
