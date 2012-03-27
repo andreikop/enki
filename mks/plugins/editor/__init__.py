@@ -166,7 +166,7 @@ class EditorConfigurator(ModuleConfigurator):
     def applySettings(self):
         """Apply editor and lexer settings
         """
-        for document in core.workspace().openedDocuments():
+        for document in core.workspace().documents():
             document.applySettings()
             document.lexer.applySettings()
 

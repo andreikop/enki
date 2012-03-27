@@ -61,7 +61,7 @@ class Configurator(ModuleConfigurator):
         
         Called by :mod:`mks.core.uisettings`
         """
-        for document in core.workspace().openedDocuments():
+        for document in core.workspace().documents():
             Plugin.instance.applyLanguageToDocument(document)
 
 class Plugin():

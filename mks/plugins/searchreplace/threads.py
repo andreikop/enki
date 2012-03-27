@@ -69,7 +69,7 @@ class SearchThread(StopableThread):
         self._searchPath = searchPath
         
         self._openedFiles = {}
-        for document in core.workspace().openedDocuments():
+        for document in core.workspace().documents():
             self._openedFiles[document.filePath()] = document.text()
 
         self.start()
@@ -224,7 +224,7 @@ class ReplaceThread(StopableThread):
         self._replaceText = replaceText
         
         self._openedFiles = {}
-        for document in core.workspace().openedDocuments():
+        for document in core.workspace().documents():
             self._openedFiles[document.filePath()] = document.text()
 
         self.start()

@@ -167,7 +167,7 @@ class Controller(QObject):
         newMode = self.sender().data().toInt()[0]
         
         if newMode & ModeFlagOpenedFiles and \
-           not core.workspace().openedDocuments():
+           not core.workspace().documents():
             return
         
         self._widget.setMode(newMode)

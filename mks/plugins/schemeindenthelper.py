@@ -60,7 +60,7 @@ class Plugin(QObject):
     def install(self):
         """Install themselves
         """
-        for document in core.workspace().openedDocuments():  # reapply indentation, it might be changed
+        for document in core.workspace().documents():  # reapply indentation, it might be changed
             self._onDocumentOpened(document)
 
         if self._installed:
@@ -76,7 +76,7 @@ class Plugin(QObject):
         if not self._installed:
             return
         core.setIndentHelper("Scheme", None)
-        for document in core.workspace().openedDocuments():
+        for document in core.workspace().documents():
             document.languageChanged.disconnect(self._onLanguageChanged)
         self._installed = False
 

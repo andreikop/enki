@@ -34,7 +34,7 @@ class Plugin:
         Now restore session
         """
         # if have documents except 'untitled' new doc, don't restore session
-        if [document for document in core.workspace().openedDocuments() \
+        if [document for document in core.workspace().documents() \
                 if document.filePath() is not None]:
             return
         
@@ -67,7 +67,7 @@ class Plugin:
         Save session
         """
         fileList = [document.filePath() \
-                        for document in core.workspace().openedDocuments() \
+                        for document in core.workspace().documents() \
                             if document.filePath() is not None and \
                                 os.path.exists(document.filePath())]
 
