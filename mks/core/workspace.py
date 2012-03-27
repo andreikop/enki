@@ -219,7 +219,7 @@ class Workspace(QStackedWidget):
         """Find document by it's file path.
         Raises ValueError, if document hasn't been found
         """
-        for document in self.openedDocuments():
+        for document in self.documents():
             if document.filePath() is not None and \
                document.filePath() == filePath:
                 return document
@@ -406,12 +406,12 @@ class Workspace(QStackedWidget):
         Opens modal dialog, if failed to open the file
         """
         # Close 'untitled'
-        if len(self.openedDocuments()) == 1 and \
-           self.openedDocuments()[0].fileName() is None and \
-           not self.openedDocuments()[0].filePath() and \
-           not self.openedDocuments()[0].text() and \
-           not self.openedDocuments()[0].isModified():
-            self.closeDocument(self.openedDocuments()[0])        
+        if len(self.documents()) == 1 and \
+           self.documents()[0].fileName() is None and \
+           not self.documents()[0].filePath() and \
+           not self.documents()[0].text() and \
+           not self.documents()[0].isModified():
+            self.closeDocument(self.documents()[0])        
 
         # check if file is already opened
         for document in self.sortedDocuments:
@@ -471,7 +471,7 @@ class Workspace(QStackedWidget):
         assert(document is not None)
         self.closeDocument( document )
 
-    def openedDocuments(self):
+    def documents(self):
         """Get list of opened documents (:class:`mks.core.abstractdocument.AbstractDocument` instances)
         """
         return self.sortedDocuments
@@ -487,7 +487,7 @@ class Workspace(QStackedWidget):
         
         If hideMainWindow is True, main window will be hidden, if user hadn't pressed "Cancel Close"
         """
-        modifiedDocuments = [d for d in self.openedDocuments() if d.isModified()]
+        modifiedDocuments = [d for d in self.documents() if d.isModified()]
         if modifiedDocuments:
             if (_UISaveFiles( self, modifiedDocuments).exec_() == QDialog.Rejected):
                 return False #do not close IDE
@@ -495,7 +495,7 @@ class Workspace(QStackedWidget):
         self.aboutToCloseAll.emit()
         core.mainWindow().hide()
         
-        for document in self.openedDocuments()[::-1]:
+        for document in self.documents()[::-1]:
             self.closeDocument(document, False)
 
         return True
@@ -539,7 +539,7 @@ class Workspace(QStackedWidget):
     def _onFileSaveAllTriggered(self):
         """Handler of File->Save->All
         """
-        for document in self.openedDocuments():
+        for document in self.documents():
             document.saveFile()
     
     def _onFileSaveAsTriggered(self):
@@ -581,7 +581,7 @@ class Workspace(QStackedWidget):
     def _onFileReloadAllTriggered(self):
         """Handler of File->Reload->All
         """
-        for document in self.openedDocuments():
+        for document in self.documents():
             if not document.isExternallyRemoved():
                 self._reloadDocument(document)
     

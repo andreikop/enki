@@ -744,7 +744,7 @@ class DockFileBrowser(pDockWidget):
         self._tree.setFocus()
         
         # cd if no files with known path
-        if not any([doc for doc in core.workspace().openedDocuments() \
+        if not any([doc for doc in core.workspace().documents() \
                         if doc.filePath() is not None]):
             os.chdir(path)
 

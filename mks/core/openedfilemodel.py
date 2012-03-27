@@ -116,7 +116,7 @@ class _OpenedFileModel(QAbstractItemModel):
         if docPath is None:
             return 'untitled'
         
-        documentPathes = [d.filePath() for d in self._workspace.openedDocuments()]
+        documentPathes = [d.filePath() for d in self._workspace.documents()]
 
         uniquePath = os.path.basename(docPath)
         leftPath = os.path.dirname(docPath)

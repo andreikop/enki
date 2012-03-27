@@ -58,7 +58,7 @@ class Plugin(QObject):
         self._evalAction = None
         self._activeInterpreterPath = None
 
-        allDocs = core.workspace().openedDocuments()
+        allDocs = core.workspace().documents()
         self._schemeDocumentsCount = len(filter(self._isSchemeFile, allDocs))
         
         # TODO handle situation, when lexer changed for current document
@@ -99,7 +99,7 @@ class Plugin(QObject):
     def _schemeDocumentIsOpened(self):
         """Check if at least one Scheme document is opened
         """
-        schemeDocs = filter(self._isSchemeFile, core.workspace().openedDocuments())
+        schemeDocs = filter(self._isSchemeFile, core.workspace().documents())
         return len(schemeDocs) > 0
 
     def _updateEvalActionEnabledState(self):
