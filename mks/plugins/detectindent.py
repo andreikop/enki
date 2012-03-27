@@ -34,10 +34,10 @@ class Plugin:
         """Signal handler. Document language had been changed
         """
         if new == 'Makefile':
-            self._detectAndApplyIndentation(document, True)
+            document.setIndentUseTabs(True)
+            document.setIndentWidth(4)
 
-
-    def _detectAndApplyIndentation(self, document, isMakefile=False):
+    def _detectAndApplyIndentation(self, document):
         """Delect indentation automatically and apply detected mode
         Handler for signal from the workspace
         """
