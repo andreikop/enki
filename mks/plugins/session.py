@@ -69,7 +69,13 @@ class Plugin:
         fileList = [document.filePath() \
                         for document in core.workspace().documents() \
                             if document.filePath() is not None and \
-                                os.path.exists(document.filePath())]
+                                os.path.exists(document.filePath()) and \
+                                not document.filePath().endswith('.git/COMMIT_EDITMSG') and \
+                                not (document.fileName().startswith('svn-commit') and \
+                                     document.fileName().endswith('.tmp'))]
+        
+        if not fileList:
+            return
 
         currentPath = None
         if core.workspace().currentDocument() is not None:
