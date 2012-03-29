@@ -97,6 +97,11 @@ class _QsciScintilla(QsciScintilla):
         self.insert(text)
         
         self.endUndoAction()
+    
+    def ensureLineVisible(self, line):
+        """QScintilla method reimplementation. Saves margins
+        """
+        self.SendScintilla(self.SCI_ENSUREVISIBLEENFORCEPOLICY, line)
 
 
 class Editor(AbstractTextEditor):
@@ -159,7 +164,11 @@ class Editor(AbstractTextEditor):
         
         self.qscintilla.setAttribute(Qt.WA_MacSmallSize)
         self.qscintilla.setFrameStyle(QFrame.NoFrame | QFrame.Plain)
-
+        
+        self.qscintilla.SendScintilla(self.qscintilla.SCI_SETVISIBLEPOLICY,
+                                      self.qscintilla.CARET_SLOP | self.qscintilla.CARET_STRICT,
+                                      100)
+        
         layout = QVBoxLayout(self)
         layout.setMargin(0)
         layout.addWidget(self.qscintilla)
@@ -478,6 +487,7 @@ class Editor(AbstractTextEditor):
         """Implementation of AbstractTextEditor.setCursorPosition
         """
         self.qscintilla.setCursorPosition(line, col)
+        self.qscintilla.ensureLineVisible(line)
 
     def replaceSelectedText(self, text):
         """Replace selected text with text
