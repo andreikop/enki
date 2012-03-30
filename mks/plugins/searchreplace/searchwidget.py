@@ -123,7 +123,7 @@ class SearchWidget(QFrame):
         self._progress.setAlignment( Qt.AlignCenter )
         self._progress.setToolTip( self.tr( "Search in progress..." ) )
         self._progress.setMaximumSize( QSize( 80, 16 ) )
-        core.mainWindow().statusBar().insertPermanentWidget( 0, self._progress )
+        core.mainWindow().statusBar().insertPermanentWidget( 1, self._progress )
         self._progress.setVisible( False )
 
         # cd up action
