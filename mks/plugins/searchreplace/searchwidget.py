@@ -419,7 +419,7 @@ class SearchWidget(QFrame):
             self.setState(self.Normal)
             self.pbSearch.setEnabled(True)
         else:
-            core.mainWindow().statusBar().showMessage(error, 5000)
+            core.mainWindow().statusBar().showMessage(error, 3000)
             self.setState(self.Incorrect)
             self.pbSearch.setEnabled(False)
             self.searchRegExpChanged.emit(re.compile(''))

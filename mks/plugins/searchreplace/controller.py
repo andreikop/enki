@@ -340,7 +340,7 @@ class Controller(QObject):
         
         if oldPos is not None:
             document.setCursorPosition(absPos = oldPos) # restore cursor position
-        core.mainWindow().statusBar().showMessage( self.tr( "%d occurrence(s) replaced." % count ), 10000 )
+        core.mainWindow().statusBar().showMessage( self.tr( "%d occurrence(s) replaced." % count ), 3000 )
     
     #
     # Search in directory (with thread)
