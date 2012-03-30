@@ -8,8 +8,9 @@ Module contains :class:`mks.core.mainwindow.MainWindow` implementation
 
 import os.path
 
-from PyQt4.QtCore import pyqtSignal, QSize, Qt
-from PyQt4.QtGui import QHBoxLayout, QIcon, QMessageBox, QSizePolicy, QStatusBar, QToolBar, QVBoxLayout, QWidget
+from PyQt4.QtCore import pyqtSignal, QSize, Qt, QTimer
+from PyQt4.QtGui import QHBoxLayout, QIcon, QLabel, QMessageBox, \
+                        QSizePolicy, QStatusBar, QToolBar, QVBoxLayout, QWidget
 
 from PyQt4.QtGui import QMainWindow
 
@@ -19,6 +20,29 @@ from mks.fresh.actionmanager.pActionsMenuBar import pActionsMenuBar
 
 from mks.core.core import core
 import mks.core.defines
+
+class _StatusBar(QStatusBar):
+    """Extended status bar. Supports HTML messages
+    """
+    def __init__(self, *args):
+        QStatusBar.__init__(self, *args)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self._label = QLabel(self)
+        self._label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self._label.setAlignment(Qt.AlignHCenter)
+        self.addWidget(self._label)
+        self._timer = QTimer()
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(self._label.clear)
+    
+    def showMessage(self, text, timeout=0):
+        """QStatusBar.showMessage()
+        """
+        html = '<html><font style=\'background-color: yellow; color: black\'>%s</font></html>' % text
+        self._label.setText(html)
+        self._timer.stop()
+        if timeout > 0:
+            self._timer.start(timeout)
 
 class MainWindow(QMainWindow):
     """
@@ -95,8 +119,7 @@ class MainWindow(QMainWindow):
         self._topToolBar.addSeparator()
 
         # Create status bar
-        self._statusBar = QStatusBar(self)
-        self._statusBar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self._statusBar = _StatusBar(self)
         self._topToolBar.addWidget(self._statusBar)
         
         self._createMenuStructure()
