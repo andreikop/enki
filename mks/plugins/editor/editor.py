@@ -167,7 +167,7 @@ class Editor(AbstractTextEditor):
         
         self.qscintilla.SendScintilla(self.qscintilla.SCI_SETVISIBLEPOLICY,
                                       self.qscintilla.CARET_SLOP | self.qscintilla.CARET_STRICT,
-                                      100)
+                                      3)
         
         layout = QVBoxLayout(self)
         layout.setMargin(0)
