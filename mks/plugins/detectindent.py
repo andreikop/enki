@@ -65,7 +65,8 @@ class Plugin:
             else:  # indents are totally not equal
                 return None
         
-        lines = document.lines()
+        # non-empty lines. Empty (without trailing whitespaces) lines between code blocks break detection algorythm
+        lines = [l for l in document.lines() if l]
         lastIndent = ''
         popularityTable = {}
         for l in lines:
