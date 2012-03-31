@@ -5,9 +5,9 @@ searchresultsdock --- Search results dock widget
 Shows results with SearchResultsModel
 """
 
-from PyQt4.QtCore import Qt, pyqtSignal
-from PyQt4.QtGui import QHBoxLayout, QIcon, \
-                        QTreeView, QWidget
+from PyQt4.QtCore import Qt, pyqtSignal, QModelIndex
+from PyQt4.QtGui import QFontMetrics, QHBoxLayout, QIcon, \
+                        QTreeView, QWidget, QPushButton
 from mks.fresh.dockwidget.pDockWidget import pDockWidget
 from mks.core.core import core
 
@@ -55,6 +55,52 @@ class HTMLDelegate(QtGui.QStyledItemDelegate):
         doc.setTextWidth(options.rect.width())
         return QtCore.QSize(doc.idealWidth(), doc.size().height())
 
+class ExpandCollapseAllButton(QPushButton):
+    """Expand all/Collapse all button and functionality
+    """
+    def __init__(self, toolBar, view, model):
+        QPushButton.__init__(self, QIcon(':mksicons/scope.png'), "<to be set>", toolBar)
+        toolBar.insertWidget(toolBar.actions()[0], self)
+        self.setMinimumWidth(QFontMetrics(self.font()).width("Colla&pse all)") + 36)
+        self.setStyleSheet("padding: 0")
+        self.setFlat(True)
+        self._view = view
+        self._model = model
+        self.clicked.connect(self._onTriggered)
+        self._view.expanded.connect(self._updateText)
+        self._view.collapsed.connect(self._updateText)
+        self._updateText()
+    
+    def _updateText(self):
+        """Update action text according to expanded state of the first item
+        """
+        self._view.expanded.disconnect(self._updateText)
+        self._view.collapsed.disconnect(self._updateText)
+        
+        if self._isFirstFileExpanded():
+            self.setText("Colla&pse all")
+        else:
+            self.setText("Ex&pand all")
+        
+        self._view.expanded.connect(self._updateText)
+        self._view.collapsed.connect(self._updateText)
+    
+    def _onTriggered(self):
+        """Expand or colapse all search results
+        """
+        if self._isFirstFileExpanded():
+            self._view.collapseAll()
+        else:
+            self._view.expandAll()
+        self._updateText()
+        self._view.setFocus()
+
+    def _isFirstFileExpanded(self):
+        """Check if first file in the search results is expanded
+        """
+        return self._view.isExpanded(self._model.index(0, 0, QModelIndex()))
+
+
 class SearchResultsDock(pDockWidget):
     """Dock with search results
     """
@@ -101,6 +147,8 @@ class SearchResultsDock(pDockWidget):
         
         self.showAction().setShortcut("Alt+S")
         core.actionManager().addAction("mDocks/aSearchResults", self.showAction())
+        
+        self._expandCollapseAll = ExpandCollapseAllButton(self.titleBar(), self._view, self._model)
 
     def del_(self):
         core.actionManager().removeAction("mDocks/aSearchResults")
