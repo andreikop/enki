@@ -249,31 +249,28 @@ class Controller(QObject):
             else:
                 self._searchInFileStartPoint = start
         
-        if forward:
-            match = regExp.search(document.text(), self._searchInFileStartPoint)
-            if match is None:  # wrap
-                match = regExp.search(document.text(), 0)
-        else:  # reverse search
-            prevMatch = None
-            for match in regExp.finditer(document.text()):
-                if match.start() >= self._searchInFileStartPoint:
-                    break
-                prevMatch = match
-            match = prevMatch
-            if match is None:  # wrap
-                matches = [match for match in regExp.finditer(document.text())]
-                if matches:
+        matches = [m for m in regExp.finditer(document.text())]
+        if matches:
+            if forward:
+                matchesAfter = filter (lambda m: m.start() >= self._searchInFileStartPoint, matches)
+                if matchesAfter:
+                    match = matchesAfter[0]
+                else:  # wrap, search from start
+                    match = matches[0]
+            else:  # reverse search
+                matchesBefore = filter (lambda m: m.start() < self._searchInFileStartPoint, matches)
+                if matchesBefore:
+                    match = matchesBefore[-1]
+                else:  # wrap, search from end
                     match = matches[-1]
-        
-        if match is not None:
+            
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
             self._searchInFileLastCursorPos = match.start()
             self._widget.setState(self._widget.Good)  # change background acording to result
+            core.mainWindow().statusBar().showMessage('Match %d of %d' % \
+                                                      (matches.index(match) + 1, len(matches)), 1000)
         else:
             self._widget.setState(self._widget.Bad)
-        
-        # return found state
-        return match is not None
 
     def _onReplaceFileOne(self, replaceText):
         """Do one replacement in the file
@@ -340,7 +337,7 @@ class Controller(QObject):
         
         if oldPos is not None:
             document.setCursorPosition(absPos = oldPos) # restore cursor position
-        core.mainWindow().statusBar().showMessage( self.tr( "%d occurrence(s) replaced." % count ), 3000 )
+        core.mainWindow().statusBar().showMessage( self.tr( "%d match(es) replaced." % count ), 3000 )
     
     #
     # Search in directory (with thread)
