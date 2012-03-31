@@ -30,6 +30,7 @@ class _StatusBar(QStatusBar):
         self._label = QLabel(self)
         self._label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self._label.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+        self._label.setStyleSheet("color: red")
         self.addWidget(self._label)
         self._timer = QTimer()
         self._timer.setSingleShot(True)
@@ -38,9 +39,7 @@ class _StatusBar(QStatusBar):
     def showMessage(self, text, timeout=0):
         """QStatusBar.showMessage()
         """
-        self._label.setStyleSheet("background: yellow")
-        html = '<html><font color=black>%s</font></html>' % text
-        self._label.setText(html)
+        self._label.setText(text)
         self._timer.stop()
         if timeout > 0:
             self._timer.start(timeout)
@@ -48,7 +47,6 @@ class _StatusBar(QStatusBar):
     def clearMessage(self):
         """QStatusBar.clearMessage()
         """
-        self._label.setStyleSheet("")
         self._label.clear()
 
 class MainWindow(QMainWindow):
