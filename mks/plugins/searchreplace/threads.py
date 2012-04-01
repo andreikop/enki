@@ -214,6 +214,7 @@ class ReplaceThread(StopableThread):
     """
     resultsHandled = pyqtSignal(unicode, list)
     openedFileHandled = pyqtSignal(unicode, unicode)
+    finalStatus = pyqtSignal(unicode)
     error = pyqtSignal(unicode)
 
     def replace(self, results, replaceText):
@@ -305,4 +306,6 @@ class ReplaceThread(StopableThread):
             if  self._exit :
                 break
 
-        print "Replace finished in ", time.clock() - startTime
+        self.finalStatus.emit("%d replacements in %d second(s)" % \
+                              (sum([len(v) for v in self._results.itervalues()]),
+                               time.clock() - startTime))

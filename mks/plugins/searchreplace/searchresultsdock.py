@@ -252,4 +252,8 @@ class SearchResultsDock(pDockWidget):
         else:
             if self._checkUncheckAll is not None:
                 self._checkUncheckAll.hide()
-        
+    
+    def matchesCount(self):
+        """Get count of matches, stored by the model
+        """
+        return self._model.matchesCount()
