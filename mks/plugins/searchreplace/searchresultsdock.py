@@ -69,36 +69,84 @@ class ExpandCollapseAllButton(QPushButton):
         self.clicked.connect(self._onTriggered)
         self._view.expanded.connect(self._updateText)
         self._view.collapsed.connect(self._updateText)
+        self._model.rowsInserted.connect(self._updateText)
         self._updateText()
     
     def _updateText(self):
         """Update action text according to expanded state of the first item
         """
-        self._view.expanded.disconnect(self._updateText)
-        self._view.collapsed.disconnect(self._updateText)
-        
         if self._isFirstFileExpanded():
             self.setText("Colla&pse all")
         else:
             self.setText("Ex&pand all")
-        
-        self._view.expanded.connect(self._updateText)
-        self._view.collapsed.connect(self._updateText)
-    
+            
     def _onTriggered(self):
         """Expand or colapse all search results
         """
+        self._view.expanded.disconnect(self._updateText)
+        self._view.collapsed.disconnect(self._updateText)
+
         if self._isFirstFileExpanded():
             self._view.collapseAll()
         else:
             self._view.expandAll()
         self._updateText()
         self._view.setFocus()
+        
+        self._view.expanded.connect(self._updateText)
+        self._view.collapsed.connect(self._updateText)
 
     def _isFirstFileExpanded(self):
         """Check if first file in the search results is expanded
         """
         return self._view.isExpanded(self._model.index(0, 0, QModelIndex()))
+
+
+class CheckUncheckAllButton(QPushButton):
+    """Check/Uncheck all matches button for replace mode
+    """
+    def __init__(self, toolBar, view, model):
+        QPushButton.__init__(self, QIcon(':mksicons/button-ok.png'), "<to be set>", toolBar)
+        self._action = toolBar.insertWidget(toolBar.actions()[1], self)
+        self.setMinimumWidth(QFontMetrics(self.font()).width("Uncheck all)") + 36)
+        self.setStyleSheet("padding: 0")
+        self.setFlat(True)
+        self._view = view
+        self._model = model
+        self.clicked.connect(self._onTriggered)
+        self._model.dataChanged.connect(self._updateText)
+        self._model.rowsInserted.connect(self._updateText)
+        self._updateText()
+    
+    def _updateText(self):
+        """Update action text according to expanded state of the first item
+        """
+        if self._model.isFirstMatchChecked():
+            self.setText("Unc&heck all")
+        else:
+            self.setText("C&heck all")
+    
+    def _onTriggered(self):
+        """Expand or colapse all search results
+        """
+        self._model.dataChanged.disconnect(self._updateText)
+        if self._model.isFirstMatchChecked():
+            self._model.setCheckStateForAll(Qt.Unchecked)
+        else:
+            self._model.setCheckStateForAll(Qt.Checked)
+        self._updateText()
+        self._view.setFocus()
+        self._model.dataChanged.connect(self._updateText)
+    
+    def show(self):
+        """Show on tool bar
+        """
+        self._action.setVisible(True)
+
+    def hide(self):
+        """Hide on tool bar
+        """
+        self._action.setVisible(False)
 
 
 class SearchResultsDock(pDockWidget):
@@ -149,6 +197,7 @@ class SearchResultsDock(pDockWidget):
         core.actionManager().addAction("mDocks/aSearchResults", self.showAction())
         
         self._expandCollapseAll = ExpandCollapseAllButton(self.titleBar(), self._view, self._model)
+        self._checkUncheckAll = None
 
     def del_(self):
         core.actionManager().removeAction("mDocks/aSearchResults")
@@ -196,3 +245,11 @@ class SearchResultsDock(pDockWidget):
         """
         self._model.setReplaceMode(enabled)
         self._view.update()  # redraw the model
+        if enabled:
+            if self._checkUncheckAll is None:
+                self._checkUncheckAll = CheckUncheckAllButton(self.titleBar(), self._view, self._model)
+            self._checkUncheckAll.show()
+        else:
+            if self._checkUncheckAll is not None:
+                self._checkUncheckAll.hide()
+        

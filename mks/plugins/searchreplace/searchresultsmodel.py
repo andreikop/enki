@@ -238,6 +238,23 @@ class SearchResultsModel(QAbstractItemModel):
             assert(0)
         return True
     
+    def setCheckStateForAll(self, state):
+        """Check all items
+        """
+        for fileRes in self.fileResults:
+            fileRes.checkState = state
+            for match in fileRes.results:
+                match.checkState = state
+        self.dataChanged.emit(self.createIndex(0, 0, self.fileResults[0]),
+                              self.createIndex(len(self.fileResults) - 1, 0, self.fileResults[-1]))
+    
+    def isFirstMatchChecked(self):
+        """Check if first file in the search results is expanded
+        """
+        file = self.index(0, 0, QModelIndex())
+        match = file.child(0, 0)
+        return match.data(Qt.CheckStateRole).toInt()[0] == Qt.Checked
+
     def clear(self):
         """Clear all results
         """
