@@ -208,7 +208,7 @@ p, li { white-space: pre-wrap; }
          <item>
           <widget class="QPushButton" name="pbReplaceChecked">
            <property name="text">
-            <string>Replace c&amp;hecked</string>
+            <string>Repl&amp;ace checked</string>
            </property>
            <property name="icon">
             <iconset>
