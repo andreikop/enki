@@ -8,9 +8,8 @@ FIXME when found
 
 TODO
   мелкие улучшения
-    Добавить на Search Results кнопку Expand all / Collapse all, Check all / Uncheck all
-    Говорить сколько нашли в директории
   средний функционал
+    Переключатор header/implementation
   большой функционал
     Вставляя текст - выравнивать его
     Открыватор файлов с tab completion
@@ -23,6 +22,9 @@ TODO
     vim mode
     цветовые схемы
     Умная навигация по коду
+
+WHEN releasing
+    Обновить скриншоты
 
 ON QScintilla 2.5.1
     QsciLexerMatlab and QsciLexerOctave

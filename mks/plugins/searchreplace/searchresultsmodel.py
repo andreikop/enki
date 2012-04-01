@@ -299,3 +299,8 @@ class SearchResultsModel(QAbstractItemModel):
                 return
         else:  # not found
             assert(0)
+
+    def matchesCount(self):
+        """Get count of matches, stored by the model
+        """
+        return sum([len (fileRes.results) for fileRes in self.fileResults])

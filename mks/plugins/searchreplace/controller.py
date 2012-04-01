@@ -374,6 +374,11 @@ class Controller(QObject):
         """Handler for search in directory finished signal
         """
         self._widget.setSearchInProgress(False)
+        matchesCount = self._dock.matchesCount()
+        if matchesCount:
+            core.mainWindow().statusBar().showMessage('%d matches ' % matchesCount, 2000)
+        else:
+            core.mainWindow().statusBar().showMessage('Nothing found', 2000)
     
     #
     # Replace in directory (with thread)
@@ -387,6 +392,7 @@ class Controller(QObject):
         self._replaceThread.resultsHandled.connect(self._dock.onResultsHandledByReplaceThread)
         self._replaceThread.openedFileHandled.connect(self._onReplaceThreadOpenedFileHandled)
         self._replaceThread.error.connect(self._onReplaceThreadError)
+        self._replaceThread.finalStatus.connect(self._onReplaceThreadFinalStatus)
 
         self._replaceThread.replace( self._dock.getCheckedItems(),
                                      replaceText)
@@ -413,3 +419,8 @@ class Controller(QObject):
         """Handler for replace in directory finished event
         """
         self._widget.setReplaceInProgress(False)
+
+    def _onReplaceThreadFinalStatus(self, message):
+        """Show replace thread status on status bar
+        """
+        core.mainWindow().statusBar().showMessage(message, 2000)
