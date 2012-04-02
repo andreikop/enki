@@ -1,38 +1,38 @@
-Sun Apr 1
+Apr 1
     Expland/Collapse all; Check/Uncheck all buttons on search results dock
 
-Sun Mar 25 2012
+Mar 25 2012
     Restore position in the file when repopening it
 
-Thu Mar 23 2012
+Mar 23 2012
     Restore session
 
-Thu Mar 22 2012
+Mar 22 2012
     Printing is supported
 
-Sat Mar 17 2012
+Mar 17 2012
     Removed dependency on ConfigObj
 
-Fri Mar 16 2012
+Mar 16 2012
     Paste line functionality.
 
-Fri Mar 9 2012
+Mar 9 2012
     Highlight focused GUI widgets with red border
 
-Mon Mar 5 2012
+Mar 5 2012
     Highlight search in direcoty results in the list with yellow background
 
-Sun Feb 5 2012
+Feb 5 2012
     Support +N spec to go to particular line of the file
 
-Sun Jan 22 2012
+Jan 22 2012
     Removed dependency on binary fresh package
 
-Sat Jan 14 2012
+Jan 14 2012
     MIT Scheme plugin
 
-Tue Dec 13 2011
+Dec 13 2011
     Replace with submatches
 
-Mon Nov 21 2011
+Nov 21 2011
     First public release. Basic text editor
