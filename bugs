@@ -1,4 +1,5 @@
 FIXME
+    Не требовать moduleConfigurator
 
 REFACTORING
 
@@ -9,7 +10,6 @@ FIXME when found
 TODO
   мелкие улучшения
   средний функционал
-    Переключатор header/implementation
   большой функционал
     Вставляя текст - выравнивать его
     Открыватор файлов с tab completion
