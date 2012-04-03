@@ -76,9 +76,8 @@ Supported versions are 10.04 - 11.10. For other, see Debian instructions.
 
 1. Download any **mksv3_<version>~ppa1_all.deb** package from [Monkey Studio PPA](https://launchpad.net/~monkeystudio/+archive/ppa/+packages)
 2. Install the package with
-#### 
-    sudo dpkg --install mksv3*.deb
 
+`sudo dpkg --install mksv3*.deb`
 
 #### Source package
 
