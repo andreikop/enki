@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>mksv3. Simple programmers text editor &mdash; mksv3. Simple programmers text editor</title>
+    <title>Internal documentation &mdash; mksv3. Simple programmers text editor</title>
     <link rel="stylesheet" href="static/nature.css" type="text/css" />
     <link rel="stylesheet" href="static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -22,7 +22,8 @@
     <script type="text/javascript" src="static/underscore.js"></script>
     <script type="text/javascript" src="static/doctools.js"></script>
     <link rel="shortcut icon" href="static/monkey2.ico"/>
-    <link rel="top" title="mksv3. Simple programmers text editor" href="#" /> 
+    <link rel="top" title="mksv3. Simple programmers text editor" href="#" />
+    <link rel="next" title="core — Instances of core classes, initialize and terminate the system" href="core/core.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,6 +35,9 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="core/core.html" title="core — Instances of core classes, initialize and terminate the system"
+             accesskey="N">next</a> |</li>
         <li><a href="#">mksv3. Simple programmers text editor</a> &raquo;</li> 
       </ul>
     </div>  
@@ -43,106 +47,84 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="mksv3-simple-programmers-text-editor">
-<h1>mksv3. Simple programmers text editor<a class="headerlink" href="#mksv3-simple-programmers-text-editor" title="Permalink to this headline">¶</a></h1>
-<a class="reference external image-reference" href="https://sourceforge.net/donate/index.php?group_id=163493"><img alt="Support this project" src="https://images-ssl.sourceforge.net/images/project-support.jpg" /></a>
-<p>The goal of the project is making code editing as comfort as possible. Major principles:</p>
+  <div class="section" id="internal-documentation">
+<h1>Internal documentation<a class="headerlink" href="#internal-documentation" title="Permalink to this headline">¶</a></h1>
+<p>To create your own plugins for mksv3, at first read tutorial at the <a class="reference external" href="https://github.com/hlamer/mksv3/wiki/Plugins-tutorial">wiki</a>.</p>
+<p>MkS consists of 4 major packages:</p>
+<p>mks.core</p>
 <ul class="simple">
-<li>User friendly interface. You don&#8217;t need to read a lot of docs to understand it.</li>
-<li>Keyboard friendly interface. Minimize your mouse usage and work quicker.</li>
-<li>Minimalistic interface. Screen is left for code, not for bells and whistles.</li>
+<li>creates basic user interface</li>
+<li>provides basic functionality for user</li>
+<li>contains plugin API for extend functionality</li>
 </ul>
-<p>This project is Python port and new generation of <a class="reference external" href="http://monkeystudio.org">Monkey Studio</a></p>
-<p><strong>Features</strong>:</p>
-<blockquote>
-<div><ul class="simple">
-<li>Syntax highlighting for more than 30 languages</li>
-<li>Bookmarks</li>
-<li>Search and replace functionality for files and directories. Regular expressions are supported</li>
-<li>File browser</li>
-<li>Autocompletion, based on document contents</li>
-<li>Hightly configurable</li>
-<li><a class="reference external" href="https://github.com/hlamer/mksv3/wiki/Scheme-support/">MIT Scheme REPL integration</a></li>
+<p>mks.lib</p>
+<ul class="simple">
+<li>Code, which is not used by core, but, may be used by more than one plugin. I.e. common widgets.</li>
 </ul>
-</div></blockquote>
-<p>mksv3 is <strong>crossplatform</strong>, but, currently has been tested only on Ubuntu. Team will be appreciate you, if you shared your experience about other platforms.</p>
-<p>Project is licensed under <a class="reference external" href="http://www.gnu.org/licenses/gpl-2.0.html">GNU GPL v2 license</a></p>
-<p>Screenshots:</p>
-<table width="50%"><tr>
-<td>
-    <a href="screenshots/main-ui.png"><img src="screenshots/main-ui-preview.png"/></a>
-    UI
-</td>
-<td>
-    <a href="screenshots/minimal.png"><img src="screenshots/minimal-preview.png"/></a>
-    Minimalistic UI
-</td>
-<td>
-    <a href="screenshots/search-replace.png"><img src="screenshots/search-replace-preview.png"/></a>
-    Search and replace
-</td>
-</tr></table><div class="section" id="download-and-install">
-<h2>Download and install<a class="headerlink" href="#download-and-install" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="ubuntu">
-<h3>Ubuntu<a class="headerlink" href="#ubuntu" title="Permalink to this headline">¶</a></h3>
-<p>Supported versions are 10.04 - 11.10. For other, see Debian instructions.</p>
-<ol class="arabic simple">
-<li>Add <a class="reference external" href="https://launchpad.net/~monkeystudio/+archive/ppa">Monkey studio PPA</a></li>
-<li>Install <strong>mksv3</strong> package</li>
-</ol>
-<p>Console commands:</p>
-<div class="highlight-python"><pre>sudo add-apt-repository ppa:monkeystudio/ppa
-sudo apt-get update
-sudo apt-get install mksv3</pre>
+<p>mks.plugins</p>
+<ul class="simple">
+<li>provides additional useful functionality for user. Example - File Browser</li>
+<li>extends core functionality</li>
+<li>provides some API for other plugins. NOT DESIRED. It&#8217;s better to try to avoid plugin to plugin dependencies</li>
+</ul>
+<p>mks.fresh</p>
+<ul class="simple">
+<li>Few GUI widgets. Ported from <a class="reference external" href="https://github.com/pasnox/fresh">https://github.com/pasnox/fresh</a>. Documented <a class="reference external" href="http://api.monkeystudio.org/fresh/">here</a>.</li>
+</ul>
 </div>
-</div>
-<div class="section" id="debian-based">
-<h3>Debian (based)<a class="headerlink" href="#debian-based" title="Permalink to this headline">¶</a></h3>
-<p>Instructions for Debian and Debian based distributions.</p>
-<ol class="arabic">
-<li><p class="first">Download any <strong>mksv3_&lt;version&gt;~ppa1_all.deb</strong> package from <a class="reference external" href="https://launchpad.net/~monkeystudio/+archive/ppa/+packages">Monkey Studio PPA</a></p>
+<div class="section" id="modules-documentation">
+<h1>Modules documentation<a class="headerlink" href="#modules-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="plugin-api-documentation">
+<h2>Plugin API documentation<a class="headerlink" href="#plugin-api-documentation" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="core/core.html">core &#8212; Instances of core classes, initialize and terminate the system</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/mainwindow.html">mainwindow &#8212; Main window of the UI. Fills main menu.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/workspace.html">workspace &#8212; Open documents and manage it</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/abstractdocument.html">abstractdocument &#8212; Base classes for workspace documents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/config.html">config &#8212; Load and save settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/uisettings.html">uisettings &#8212; Settings dialogue</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core/uisettings.html#conception">Conception</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core/uisettings.html#gui-dialog-invocation-workflow">GUI dialog invocation workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core/uisettings.html#adding-new-settings">Adding new settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core/uisettings.html#classes">Classes</a></li>
+</ul>
 </li>
-<li><p class="first">Install the package with</p>
-<div class="highlight-python"><pre>sudo dpkg --install mksv3*.deb</pre>
-</div>
-</li>
-</ol>
-</div>
-<div class="section" id="source-package">
-<h3>Source package<a class="headerlink" href="#source-package" title="Permalink to this headline">¶</a></h3>
-<p>The latest release are <a class="reference external" href="https://github.com/hlamer/mksv3/tags">here</a>. See README file for the installation instructions.</p>
-</div>
-</div>
-<div class="section" id="documentation-and-support">
-<h2>Documentation and support<a class="headerlink" href="#documentation-and-support" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><a class="reference external" href="https://github.com/hlamer/mksv3/wiki/Documentation-for-users">Documentation</a></li>
-<li><a class="reference external" href="http://groups.google.com/group/mksv3">Discussion and support Google group</a></li>
-<li>IRC room <em>#monkeystudio</em> on <em>irc.freenode.net</em>. <a class="reference external" href="http://monkeystudio.org/irc">Web interface</a>. We never kick our users!</li>
 </ul>
 </div>
-<div class="section" id="report-bug">
-<h2>Report bug<a class="headerlink" href="#report-bug" title="Permalink to this headline">¶</a></h2>
-<p>There are 3 ways to report a bug:</p>
-<ol class="arabic simple">
-<li>Fork <a class="reference external" href="https://github.com/hlamer/mksv3">https://github.com/hlamer/mksv3</a> and fix the bug</li>
-<li>Open an issue at <a class="reference external" href="https://github.com/hlamer/mksv3/issues">https://github.com/hlamer/mksv3/issues</a></li>
-<li>Send bug report to <a class="reference external" href="mailto:mksv3-bugs&#37;&#52;&#48;googlegroups&#46;com">mksv3-bugs<span>&#64;</span>googlegroups<span>&#46;</span>com</a></li>
-</ol>
 </div>
-<div class="section" id="hacking">
-<h2>Hacking<a class="headerlink" href="#hacking" title="Permalink to this headline">¶</a></h2>
-<p>Documentation for developers is <a class="reference internal" href="devindex.html"><em>here</em></a></p>
-<p>Source code is <a class="reference external" href="https://github.com/hlamer/mksv3">here</a></p>
-</div>
-<div class="section" id="authors">
-<h2>Authors<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><strong>Andrei Kopats</strong> ported core and some plugins to Python, reworked it and released the result as <em>mksv3</em></li>
-<li><strong>Filipe Azevedo</strong>, <strong>Andrei Kopats</strong> (aka <strong>hlamer</strong>) and <a class="reference external" href="http://monkeystudio.org/team">Monkey Studio v2 team</a> developed <em>Monkey Studio v2</em></li>
-<li><strong>Filipe Azevedo</strong> (aka <strong>P&#64;sNox</strong>) and <a class="reference external" href="http://monkeystudio.org/node/17">Monkey Studio v1 team</a> developed <em>Monkey Studio v1</em></li>
+<div class="section" id="not-api-core-modules">
+<h2>Not API core modules<a class="headerlink" href="#not-api-core-modules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="core/openedfilemodel.html">openedfilemodel &#8212; Model and treeview for list of opened files</a></li>
 </ul>
-<p>Use <a class="reference external" href="mailto:mksv3&#37;&#52;&#48;googlegroups&#46;com">mksv3<span>&#64;</span>googlegroups<span>&#46;</span>com</a> or <a class="reference external" href="mailto:hlamer&#37;&#52;&#48;tut&#46;by">hlamer<span>&#64;</span>tut<span>&#46;</span>by</a> as contact email.</p>
+</div>
+</div>
+<div class="section" id="library-modules">
+<h2>Library modules<a class="headerlink" href="#library-modules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="lib/termwidget.html">termwidget &#8212; Terminal emulator widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lib/buffpopen.html">buffpopen &#8212; Buffered subprocess. Popen implementation</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="plugins-documentation">
+<h2>Plugins documentation<a class="headerlink" href="#plugins-documentation" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="plugins/appshortcuts.html">appshortcuts &#8212; Manage application shortcuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins/editor.html">editor &#8212; Text editor. Uses QScintilla internally</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins/editortoolbar.html">editortoolbar &#8212; Shows position, save state, EOL and indent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins/filebrowser.html">filebrowser &#8212; Dock with file system tree</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins/helpmenu.html">helpmenu &#8212; Help main menu items. Aboout dialogue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins/searchreplace.html">searchreplace &#8212; Search and replace functionality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins/associations.html">associations &#8212; Syntax highlighting support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins/mitscheme.html">mitscheme &#8212; MIT Scheme integration. Interactive Scheme console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins/schemeindenthelper.html">schemeindenthelper &#8212; Properly indent new line in a Scheme file</a></li>
+</ul>
+</div>
 </div>
 </div>
 
@@ -157,21 +139,27 @@ sudo apt-get install mksv3</pre>
             </a></p>
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">mksv3. Simple programmers text editor</a><ul>
-<li><a class="reference internal" href="#download-and-install">Download and install</a><ul>
-<li><a class="reference internal" href="#ubuntu">Ubuntu</a></li>
-<li><a class="reference internal" href="#debian-based">Debian (based)</a></li>
-<li><a class="reference internal" href="#source-package">Source package</a></li>
+<li><a class="reference internal" href="#">Internal documentation</a></li>
+<li><a class="reference internal" href="#modules-documentation">Modules documentation</a><ul>
+<li><a class="reference internal" href="#plugin-api-documentation">Plugin API documentation</a><ul>
 </ul>
 </li>
-<li><a class="reference internal" href="#documentation-and-support">Documentation and support</a></li>
-<li><a class="reference internal" href="#report-bug">Report bug</a></li>
-<li><a class="reference internal" href="#hacking">Hacking</a></li>
-<li><a class="reference internal" href="#authors">Authors</a></li>
+<li><a class="reference internal" href="#not-api-core-modules">Not API core modules</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#library-modules">Library modules</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#plugins-documentation">Plugins documentation</a><ul>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 
+  <h4>Next topic</h4>
+  <p class="topless"><a href="core/core.html"
+                        title="next chapter">core &#8212; Instances of core classes, initialize and terminate the system</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="sources/index.txt"
@@ -203,6 +191,9 @@ sudo apt-get install mksv3</pre>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="core/core.html" title="core — Instances of core classes, initialize and terminate the system"
+             >next</a> |</li>
         <li><a href="#">mksv3. Simple programmers text editor</a> &raquo;</li> 
       </ul>
     </div>

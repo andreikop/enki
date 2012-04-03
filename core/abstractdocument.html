@@ -22,7 +22,9 @@
     <script type="text/javascript" src="../static/underscore.js"></script>
     <script type="text/javascript" src="../static/doctools.js"></script>
     <link rel="shortcut icon" href="../static/monkey2.ico"/>
-    <link rel="top" title="mksv3. Simple programmers text editor" href="../index.html" /> 
+    <link rel="top" title="mksv3. Simple programmers text editor" href="../index.html" />
+    <link rel="next" title="config — Load and save settings" href="config.html" />
+    <link rel="prev" title="workspace — Open documents and manage it" href="workspace.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,6 +36,12 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="config.html" title="config — Load and save settings"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="workspace.html" title="workspace — Open documents and manage it"
+             accesskey="P">previous</a> |</li>
         <li><a href="../index.html">mksv3. Simple programmers text editor</a> &raquo;</li> 
       </ul>
     </div>  
@@ -123,6 +131,12 @@ Bool parameter contains new value</p>
 <tt class="descname">saveFile</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.saveFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the file to file system</p>
 <p>Shows QFileDialog if necessary</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractDocument.saveFileAs">
+<tt class="descname">saveFileAs</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractDocument.saveFileAs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ask for new file name with dialog. Save file</p>
 </dd></dl>
 
 <dl class="method">
@@ -316,33 +330,33 @@ Usually this method is called only internally by openFile()</p>
 
 <dl class="method">
 <dt id="mks.core.abstractdocument.AbstractTextEditor.setCursorPosition">
-<tt class="descname">setCursorPosition</tt><big>(</big><em>absPos=None</em>, <em>line=None</em>, <em>col=None</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.setCursorPosition" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">setCursorPosition</tt><big>(</big><em>absPos=None</em>, <em>line=None</em>, <em>column=None</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.setCursorPosition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set cursor position.
 Examples:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">document</span><span class="o">.</span><span class="n">setCursorPosition</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
-<span class="n">document</span><span class="o">.</span><span class="n">setCursorPosition</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+<span class="n">document</span><span class="o">.</span><span class="n">setCursorPosition</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
 <span class="n">document</span><span class="o">.</span><span class="n">setCursorPosition</span><span class="p">(</span><span class="n">absPos</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Implementation must implement _setCursorPosition(line, col)</p>
+<p>Implementation must implement _setCursorPosition(line, column)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mks.core.abstractdocument.AbstractTextEditor.goTo">
-<tt class="descname">goTo</tt><big>(</big><em>absPos=None</em>, <em>line=None</em>, <em>col=None</em>, <em>selectionLength=None</em>, <em>grabFocus=False</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.goTo" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">goTo</tt><big>(</big><em>absPos=None</em>, <em>line=None</em>, <em>column=None</em>, <em>selectionLength=None</em>, <em>grabFocus=False</em><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.goTo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Go to specified line and column.
 If line is too big, go to the last line
-If col is None - default is start of the text in the line (end of the indentation)
+If column is None - default is start of the text in the line (end of the indentation)
 If selectionLength is not None, select selectionLength characters</p>
 <p>Examples:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">document</span><span class="o">.</span><span class="n">goTo</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">document</span><span class="o">.</span><span class="n">goTo</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+<span class="n">document</span><span class="o">.</span><span class="n">goTo</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
 <span class="n">document</span><span class="o">.</span><span class="n">goTo</span><span class="p">(</span><span class="n">absPos</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">document</span><span class="o">.</span><span class="n">goTo</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">selectionLength</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>  <span class="c"># Selection from line 7 col 5 to line 7 col 13</span>
-                                                 <span class="c"># Cursor is in line 7 col 5</span>
+<span class="n">document</span><span class="o">.</span><span class="n">goTo</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">selectionLength</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>  <span class="c"># Selection from line 7 column 5 to line 7 column 13</span>
+                                                 <span class="c"># Cursor is in line 7 column 5</span>
                                                  <span class="c"># (If line 7 is &gt;= 13 symbols) </span>
-<span class="n">document</span><span class="o">.</span><span class="n">goTo</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">selectionLength</span><span class="o">=-</span><span class="mi">3</span><span class="p">)</span>  <span class="c"># Selection from line 7 col 2 to line 7 col 5.</span>
-                                                  <span class="c"># Cursor at line 7 col 5</span>
+<span class="n">document</span><span class="o">.</span><span class="n">goTo</span><span class="p">(</span><span class="n">line</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">selectionLength</span><span class="o">=-</span><span class="mi">3</span><span class="p">)</span>  <span class="c"># Selection from line 7 column 2 to line 7 column 5.</span>
+                                                  <span class="c"># Cursor at line 7 column 5</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -409,6 +423,12 @@ If the last line ends with EOL, additional empty line is added.</p>
 <dd><p>Get line count</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="mks.core.abstractdocument.AbstractTextEditor.printFile">
+<tt class="descname">printFile</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.abstractdocument.AbstractTextEditor.printFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print file</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -422,6 +442,12 @@ If the last line ends with EOL, additional empty line is added.</p>
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../static/monkey2.png" alt="Logo"/>
             </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="workspace.html"
+                        title="previous chapter">workspace &#8212; Open documents and manage it</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="config.html"
+                        title="next chapter">config &#8212; Load and save settings</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../sources/core/abstractdocument.txt"
@@ -453,6 +479,12 @@ If the last line ends with EOL, additional empty line is added.</p>
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="config.html" title="config — Load and save settings"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="workspace.html" title="workspace — Open documents and manage it"
+             >previous</a> |</li>
         <li><a href="../index.html">mksv3. Simple programmers text editor</a> &raquo;</li> 
       </ul>
     </div>

@@ -22,7 +22,9 @@
     <script type="text/javascript" src="../static/underscore.js"></script>
     <script type="text/javascript" src="../static/doctools.js"></script>
     <link rel="shortcut icon" href="../static/monkey2.ico"/>
-    <link rel="top" title="mksv3. Simple programmers text editor" href="../index.html" /> 
+    <link rel="top" title="mksv3. Simple programmers text editor" href="../index.html" />
+    <link rel="next" title="abstractdocument — Base classes for workspace documents" href="abstractdocument.html" />
+    <link rel="prev" title="mainwindow — Main window of the UI. Fills main menu." href="mainwindow.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,6 +36,12 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="abstractdocument.html" title="abstractdocument — Base classes for workspace documents"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mainwindow.html" title="mainwindow — Main window of the UI. Fills main menu."
+             accesskey="P">previous</a> |</li>
         <li><a href="../index.html">mksv3. Simple programmers text editor</a> &raquo;</li> 
       </ul>
     </div>  
@@ -78,6 +86,15 @@ or some other document added to workspace</p>
 <tt class="descname">documentClosed</tt><a class="headerlink" href="#mks.core.workspace.Workspace.documentClosed" title="Permalink to this definition">¶</a></dt>
 <dd><p>documentClosed(<a class="reference internal" href="abstractdocument.html#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a>)</p>
 <p><strong>Signal</strong> emitted, when document was closed</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mks.core.workspace.Workspace.aboutToCloseAll">
+<tt class="descname">aboutToCloseAll</tt><a class="headerlink" href="#mks.core.workspace.Workspace.aboutToCloseAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>aboutToCloseAll()</p>
+<p><strong>Signal</strong> emitted, when workspace is about to close all documents.
+Either mksv3 exits, or File-&gt;Close-&gt;All had been triggered.
+Currently used to restore session</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -179,7 +196,7 @@ Text editor is class, herited from <a class="reference internal" href="abstractd
 
 <dl class="method">
 <dt id="mks.core.workspace.Workspace.goTo">
-<tt class="descname">goTo</tt><big>(</big><em>filePath</em>, <em>line</em>, <em>column=None</em>, <em>selectionLength=None</em><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.goTo" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">goTo</tt><big>(</big><em>filePath</em>, <em>absPos=None</em>, <em>line=None</em>, <em>column=None</em>, <em>selectionLength=None</em><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.goTo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Open file, activate it, and go to specified position. Select text after position, if necessary.</p>
 <p>selectionLength specifies, how much characters should be selected</p>
 </dd></dl>
@@ -207,18 +224,19 @@ Used on startup, if no file was specified, and after File-&gt;New file has been 
 </dd></dl>
 
 <dl class="method">
-<dt id="mks.core.workspace.Workspace.openedDocuments">
-<tt class="descname">openedDocuments</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.openedDocuments" title="Permalink to this definition">¶</a></dt>
+<dt id="mks.core.workspace.Workspace.documents">
+<tt class="descname">documents</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.documents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get list of opened documents (<a class="reference internal" href="abstractdocument.html#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a> instances)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mks.core.workspace.Workspace.closeAllDocuments">
-<tt class="descname">closeAllDocuments</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.closeAllDocuments" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">closeAllDocuments</tt><big>(</big><em>hideMainWindow=False</em><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.closeAllDocuments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Close all documents</p>
 <p>If there are not saved documents, dialog will be shown.</p>
 <p>Handler of File-&gt;Close-&gt;All</p>
 <p>Returns True, if all files had been closed, and False, if save dialog rejected</p>
+<p>If hideMainWindow is True, main window will be hidden, if user hadn&#8217;t pressed &#8220;Cancel Close&#8221;</p>
 </dd></dl>
 
 <dl class="method">
@@ -241,6 +259,12 @@ Used on startup, if no file was specified, and after File-&gt;New file has been 
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../static/monkey2.png" alt="Logo"/>
             </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mainwindow.html"
+                        title="previous chapter">mainwindow &#8212; Main window of the UI. Fills main menu.</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="abstractdocument.html"
+                        title="next chapter">abstractdocument &#8212; Base classes for workspace documents</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../sources/core/workspace.txt"
@@ -272,6 +296,12 @@ Used on startup, if no file was specified, and after File-&gt;New file has been 
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="abstractdocument.html" title="abstractdocument — Base classes for workspace documents"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="mainwindow.html" title="mainwindow — Main window of the UI. Fills main menu."
+             >previous</a> |</li>
         <li><a href="../index.html">mksv3. Simple programmers text editor</a> &raquo;</li> 
       </ul>
     </div>

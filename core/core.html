@@ -22,7 +22,9 @@
     <script type="text/javascript" src="../static/underscore.js"></script>
     <script type="text/javascript" src="../static/doctools.js"></script>
     <link rel="shortcut icon" href="../static/monkey2.ico"/>
-    <link rel="top" title="mksv3. Simple programmers text editor" href="../index.html" /> 
+    <link rel="top" title="mksv3. Simple programmers text editor" href="../index.html" />
+    <link rel="next" title="mainwindow — Main window of the UI. Fills main menu." href="mainwindow.html" />
+    <link rel="prev" title="Internal documentation" href="../index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,6 +36,12 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="mainwindow.html" title="mainwindow — Main window of the UI. Fills main menu."
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Internal documentation"
+             accesskey="P">previous</a> |</li>
         <li><a href="../index.html">mksv3. Simple programmers text editor</a> &raquo;</li> 
       </ul>
     </div>  
@@ -50,8 +58,19 @@ and used for get core instances, such as main window, workspace, etc.</p>
 <dl class="class">
 <dt id="mks.core.core.Core">
 <em class="property">class </em><tt class="descclassname">mks.core.core.</tt><tt class="descname">Core</tt><a class="headerlink" href="#mks.core.core.Core" title="Permalink to this definition">¶</a></dt>
-<dd><p>Core object initializes system at startup and terminates when closing.</p>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtCore.QObject</span></tt></p>
+<p>Core object initializes system at startup and terminates when closing.</p>
 <p>It creates instances of other core modules and holds references to it</p>
+<dl class="attribute">
+<dt id="mks.core.core.Core.restoreSession">
+<tt class="descname">restoreSession</tt><a class="headerlink" href="#mks.core.core.Core.restoreSession" title="Permalink to this definition">¶</a></dt>
+<dd><p>restoreSession()</p>
+<p><strong>Signal</strong> for session plugin.
+Emitted, when initialization has been finished and all files,
+listed in the command line has been opened.
+Only if user hadn&#8217;t passed &#8211;no-session key</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="mks.core.core.Core.init">
 <tt class="descname">init</tt><big>(</big><em>profiler</em><big>)</big><a class="headerlink" href="#mks.core.core.Core.init" title="Permalink to this definition">¶</a></dt>
@@ -130,6 +149,12 @@ core.anyMethod()</p>
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../static/monkey2.png" alt="Logo"/>
             </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../index.html"
+                        title="previous chapter">Internal documentation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="mainwindow.html"
+                        title="next chapter">mainwindow &#8212; Main window of the UI. Fills main menu.</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../sources/core/core.txt"
@@ -161,6 +186,12 @@ core.anyMethod()</p>
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="mainwindow.html" title="mainwindow — Main window of the UI. Fills main menu."
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Internal documentation"
+             >previous</a> |</li>
         <li><a href="../index.html">mksv3. Simple programmers text editor</a> &raquo;</li> 
       </ul>
     </div>
