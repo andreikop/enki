@@ -65,11 +65,6 @@ class Plugin:
             text = "Failed to save file positions to '%s': %s" % (_FILE_PATH, error)
             print >> sys.stderr, error
 
-    def moduleConfiguratorClass(self):
-        """Module configurator
-        """
-        return None
-
     def _onDocumentOpened(self, document):
         """Document has been opened, restore position, if known
         """

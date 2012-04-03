@@ -36,11 +36,6 @@ class Plugin(QObject):
         action = core.actionManager().addAction( "mHelp/aAboutQt", self.tr('About &Qt...'), QIcon(':mksicons/qt.png'))
         action.triggered.connect(qApp.aboutQt)
         self._createdActions.append(action)
-
-    def moduleConfiguratorClass(self):
-        """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
-        """
-        return None  # No any settings
     
     def del_(self):
         """Terminate the plugin

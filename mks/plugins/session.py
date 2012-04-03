@@ -23,11 +23,6 @@ class Plugin:
         """Explicitly called destructor
         """
         pass
-    
-    def moduleConfiguratorClass(self):
-        """Module configurator
-        """
-        return None
 
     def _onRestoreSession(self):
         """mksv3 initialisation finished.

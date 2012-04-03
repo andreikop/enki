@@ -20,11 +20,6 @@ class Plugin:
         core.workspace().documentOpened.disconnect(self._onDocumentOpened)
         core.workspace().languageChanged.disconnect(self._onLanguageChanged)
 
-    def moduleConfiguratorClass(self):
-        """Module configurator
-        """
-        return None
-
     def _onDocumentOpened(self, document):
         """Signal handler. Document had been opened
         """

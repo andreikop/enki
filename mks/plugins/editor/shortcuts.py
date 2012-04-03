@@ -125,11 +125,6 @@ class Shortcuts(QObject):
         for menuObj in self._createdMenus[::-1]:
             model.removeMenu(menuObj)
 
-    def moduleConfiguratorClass(self):
-        """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
-        """
-        return None  # No any settings
-
     def onCurrentDocumentChanged(self, oldDocument, document):  # pylint: disable=W0613
         """Current document changed slot handler
         """
