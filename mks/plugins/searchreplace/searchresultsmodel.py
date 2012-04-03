@@ -304,3 +304,8 @@ class SearchResultsModel(QAbstractItemModel):
         """Get count of matches, stored by the model
         """
         return sum([len (fileRes.results) for fileRes in self.fileResults])
+
+    def empty(self):
+        """Check if have some items
+        """
+        return len(self.fileResults) == 0
