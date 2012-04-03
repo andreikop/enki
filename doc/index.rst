@@ -1,107 +1,72 @@
-mksv3. Simple programmers text editor
-=====================================
-.. image:: https://images-ssl.sourceforge.net/images/project-support.jpg
-   :alt: Support this project
-   :target: https://sourceforge.net/donate/index.php?group_id=163493 
+Internal documentation
+======================
 
-The goal of the project is making code editing as comfort as possible. Major principles:
+To create your own plugins for mksv3, at first read tutorial at the `wiki <https://github.com/hlamer/mksv3/wiki/Plugins-tutorial>`_.
 
-* User friendly interface. You don't need to read a lot of docs to understand it.
-* Keyboard friendly interface. Minimize your mouse usage and work quicker.
-* Minimalistic interface. Screen is left for code, not for bells and whistles.
+MkS consists of 4 major packages:
 
-This project is Python port and new generation of `Monkey Studio <http://monkeystudio.org>`_
+mks.core
 
-**Features**:
+* creates basic user interface
+* provides basic functionality for user
+* contains plugin API for extend functionality
 
- * Syntax highlighting for more than 30 languages
- * Bookmarks
- * Search and replace functionality for files and directories. Regular expressions are supported
- * File browser
- * Autocompletion, based on document contents
- * Hightly configurable
- * `MIT Scheme REPL integration <https://github.com/hlamer/mksv3/wiki/Scheme-support/>`_
+mks.lib
 
-mksv3 is **crossplatform**, but, currently has been tested only on Ubuntu. Team will be appreciate you, if you shared your experience about other platforms.
+* Code, which is not used by core, but, may be used by more than one plugin. I.e. common widgets.
 
-Project is licensed under `GNU GPL v2 license <http://www.gnu.org/licenses/gpl-2.0.html>`_
+mks.plugins
 
-Screenshots:
+* provides additional useful functionality for user. Example - File Browser
+* extends core functionality
+* provides some API for other plugins. NOT DESIRED. It's better to try to avoid plugin to plugin dependencies
 
-.. raw:: html
+mks.fresh
 
-        <table width="50%"><tr>
-        <td>
-            <a href="screenshots/main-ui.png"><img src="screenshots/main-ui-preview.png"/></a>
-            UI
-        </td>
-        <td>
-            <a href="screenshots/minimal.png"><img src="screenshots/minimal-preview.png"/></a>
-            Minimalistic UI
-        </td>
-        <td>
-            <a href="screenshots/search-replace.png"><img src="screenshots/search-replace-preview.png"/></a>
-            Search and replace
-        </td>
-        </tr></table>
+* Few GUI widgets. Ported from https://github.com/pasnox/fresh. Documented `here <http://api.monkeystudio.org/fresh/>`_.
 
+Modules documentation
+=====================
 
-Download and install
-""""""""""""""""""""
+Plugin API documentation
+------------------------
 
-Ubuntu
-^^^^^^
-Supported versions are 10.04 - 11.10. For other, see Debian instructions.
+.. toctree::
 
-#. Add `Monkey studio PPA <https://launchpad.net/~monkeystudio/+archive/ppa>`_
-#. Install **mksv3** package
+   core/core.rst
+   core/mainwindow.rst
+   core/workspace.rst
+   core/abstractdocument.rst
+   core/config.rst
+   core/uisettings.rst
 
-Console commands::
+Not API core modules
+--------------------
 
-    sudo add-apt-repository ppa:monkeystudio/ppa
-    sudo apt-get update
-    sudo apt-get install mksv3
+.. toctree::
 
-Debian (based)
-^^^^^^^^^^^^^^
-Instructions for Debian and Debian based distributions.
+    core/openedfilemodel.rst
 
-#. Download any **mksv3_<version>~ppa1_all.deb** package from `Monkey Studio PPA <https://launchpad.net/~monkeystudio/+archive/ppa/+packages>`_
-#. Install the package with ::
+Library modules
+---------------
 
-    sudo dpkg --install mksv3*.deb
+.. toctree::
 
+    lib/termwidget.rst
+    lib/buffpopen.rst
 
-Source package
-^^^^^^^^^^^^^^
-The latest release are `here <https://github.com/hlamer/mksv3/tags>`_. See README file for the installation instructions.
+Plugins documentation
+---------------------
+.. toctree::
 
-Documentation and support
-"""""""""""""""""""""""""
+   plugins/appshortcuts.rst
+   plugins/editor.rst
+   plugins/editortoolbar.rst
+   plugins/editorshortcuts.rst
+   plugins/filebrowser.rst
+   plugins/helpmenu.rst
+   plugins/searchreplace.rst
+   plugins/associations.rst
+   plugins/mitscheme.rst
+   plugins/schemeindenthelper.rst
 
-* `Documentation <https://github.com/hlamer/mksv3/wiki/Documentation-for-users>`_
-* `Discussion and support Google group <http://groups.google.com/group/mksv3>`_
-* IRC room *#monkeystudio* on *irc.freenode.net*. `Web interface <http://monkeystudio.org/irc>`_. We never kick our users!
-
-
-Report bug
-""""""""""
-There are 3 ways to report a bug:
-
-#. Fork https://github.com/hlamer/mksv3 and fix the bug
-#. Open an issue at https://github.com/hlamer/mksv3/issues
-#. Send bug report to mksv3-bugs@googlegroups.com
-
-Hacking
-"""""""
-Documentation for developers is :doc:`here <devindex>`
-
-Source code is `here <https://github.com/hlamer/mksv3>`_
-
-Authors
-"""""""
-* **Andrei Kopats** ported core and some plugins to Python, reworked it and released the result as *mksv3*
-* **Filipe Azevedo**, **Andrei Kopats** (aka **hlamer**) and `Monkey Studio v2 team <http://monkeystudio.org/team>`_ developed *Monkey Studio v2*
-* **Filipe Azevedo** (aka **P@sNox**) and `Monkey Studio v1 team <http://monkeystudio.org/node/17>`_ developed *Monkey Studio v1*
-
-Use mksv3@googlegroups.com or hlamer@tut.by as contact email.
