@@ -59,42 +59,47 @@ class ExpandCollapseAllButton(QPushButton):
     """Expand all/Collapse all button and functionality
     """
     def __init__(self, toolBar, view, model):
-        QPushButton.__init__(self, QIcon(':mksicons/scope.png'), "<to be set>", toolBar)
-        toolBar.insertWidget(toolBar.actions()[0], self)
+        QPushButton.__init__(self, QIcon(':mksicons/scope.png'), "Ex&pand all", toolBar)
+        self._action = toolBar.insertWidget(toolBar.actions()[0], self)
         self.setMinimumWidth(QFontMetrics(self.font()).width("Colla&pse all)") + 36)
         self.setStyleSheet("padding: 0")
         self.setFlat(True)
         self._view = view
         self._model = model
         self.clicked.connect(self._onTriggered)
-        self._view.expanded.connect(self._updateText)
-        self._view.collapsed.connect(self._updateText)
-        self._model.rowsInserted.connect(self._updateText)
-        self._updateText()
+        self._view.expanded.connect(self._update)
+        self._view.collapsed.connect(self._update)
+        self._model.rowsInserted.connect(self._update)
+        self._model.rowsRemoved.connect(self._update)
+        self._update()
     
-    def _updateText(self):
+    def _update(self):
         """Update action text according to expanded state of the first item
         """
-        if self._isFirstFileExpanded():
-            self.setText("Colla&pse all")
+        if self._model.empty():
+            self._action.setEnabled(False)
         else:
-            self.setText("Ex&pand all")
+            self._action.setEnabled(True)
+            if self._isFirstFileExpanded():
+                self.setText("Colla&pse all")
+            else:
+                self.setText("Ex&pand all")
             
     def _onTriggered(self):
         """Expand or colapse all search results
         """
-        self._view.expanded.disconnect(self._updateText)
-        self._view.collapsed.disconnect(self._updateText)
+        self._view.expanded.disconnect(self._update)
+        self._view.collapsed.disconnect(self._update)
 
         if self._isFirstFileExpanded():
             self._view.collapseAll()
         else:
             self._view.expandAll()
-        self._updateText()
+        self._update()
         self._view.setFocus()
         
-        self._view.expanded.connect(self._updateText)
-        self._view.collapsed.connect(self._updateText)
+        self._view.expanded.connect(self._update)
+        self._view.collapsed.connect(self._update)
 
     def _isFirstFileExpanded(self):
         """Check if first file in the search results is expanded
@@ -106,7 +111,7 @@ class CheckUncheckAllButton(QPushButton):
     """Check/Uncheck all matches button for replace mode
     """
     def __init__(self, toolBar, view, model):
-        QPushButton.__init__(self, QIcon(':mksicons/button-ok.png'), "<to be set>", toolBar)
+        QPushButton.__init__(self, QIcon(':mksicons/button-ok.png'), "Unc&heck all", toolBar)
         self._action = toolBar.insertWidget(toolBar.actions()[1], self)
         self.setMinimumWidth(QFontMetrics(self.font()).width("Uncheck all)") + 36)
         self.setStyleSheet("padding: 0")
@@ -114,29 +119,34 @@ class CheckUncheckAllButton(QPushButton):
         self._view = view
         self._model = model
         self.clicked.connect(self._onTriggered)
-        self._model.dataChanged.connect(self._updateText)
-        self._model.rowsInserted.connect(self._updateText)
-        self._updateText()
+        self._model.dataChanged.connect(self._update)
+        self._model.rowsInserted.connect(self._update)
+        self._model.rowsRemoved.connect(self._update)
+        self._update()
     
-    def _updateText(self):
+    def _update(self):
         """Update action text according to expanded state of the first item
         """
-        if self._model.isFirstMatchChecked():
-            self.setText("Unc&heck all")
+        if self._model.empty():
+            self._action.setEnabled(False)
         else:
-            self.setText("C&heck all")
+            self._action.setEnabled(True)
+            if self._model.isFirstMatchChecked():
+                self.setText("Unc&heck all")
+            else:
+                self.setText("C&heck all")
     
     def _onTriggered(self):
         """Expand or colapse all search results
         """
-        self._model.dataChanged.disconnect(self._updateText)
+        self._model.dataChanged.disconnect(self._update)
         if self._model.isFirstMatchChecked():
             self._model.setCheckStateForAll(Qt.Unchecked)
         else:
             self._model.setCheckStateForAll(Qt.Checked)
-        self._updateText()
+        self._update()
         self._view.setFocus()
-        self._model.dataChanged.connect(self._updateText)
+        self._model.dataChanged.connect(self._update)
     
     def show(self):
         """Show on tool bar
