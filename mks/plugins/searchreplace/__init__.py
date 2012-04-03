@@ -20,8 +20,3 @@ class Plugin():
         """Plugin termination
         """
         self._controller.del_()
-    
-    def moduleConfiguratorClass(self):
-        """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
-        """
-        return None  # No any settings

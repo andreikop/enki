@@ -37,8 +37,3 @@ class Plugin:
         self._eol.deleteLater()
         self._indent.deleteLater()
         self._pos.deleteLater()
-
-    def moduleConfiguratorClass(self):
-        """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
-        """
-        return None  # No any settings
