@@ -35,25 +35,25 @@ I'm going to create next Unix text editor. Of course, such revolution can't be d
     <tr>
         <td>
             <a href="http://hlamer.github.com/mksv3/screenshots/main-ui.png">
-                <img src="http://hlamer.github.com/mksv3/screenshots/preview/main-ui.png"/>
+                <img src="http://hlamer.github.com/mksv3/screenshots/preview/main-ui.png width="100%" height="100%""/>
             </a>
             UI
         <td/>
         <td>
             <a href="http://hlamer.github.com/mksv3/screenshots/minimal.png">
-                <img src="http://hlamer.github.com/mksv3/screenshots/preview/minimal.png"/>
+                <img src="http://hlamer.github.com/mksv3/screenshots/preview/minimal.png width="100%" height="100%""/>
             </a>
             Minimalistic UI
         <td/>
         <td>
             <a href="http://hlamer.github.com/mksv3/screenshots/search.png">
-                <img src="http://hlamer.github.com/mksv3/screenshots/preview/search.png"/>
+                <img src="http://hlamer.github.com/mksv3/screenshots/preview/search.png width="100%" height="100%""/>
             </a>
             Search
         <td/>
         <td>
             <a href="http://hlamer.github.com/mksv3/screenshots/search-replace.png">
-                <img src="http://hlamer.github.com/mksv3/screenshots/preview/search-replace.png"/>
+                <img src="http://hlamer.github.com/mksv3/screenshots/preview/search-replace.png" width="100%" height="100%"/>
             </a>
             Replace in direcotry (Good bye sed)
         <td/>
