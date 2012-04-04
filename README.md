@@ -116,6 +116,9 @@ Documentation for developers is [here](http://hlamer.github.com/mksv3/)
 * **Filipe Azevedo**, **Andrei Kopats** (aka **hlamer**) and [Monkey Studio v2 team](http://monkeystudio.org/team) developed *Monkey Studio v2*
 * **Filipe Azevedo** (aka **P@sNox**) and [Monkey Studio v1 team](http://monkeystudio.org/node/17) developed *Monkey Studio v1*
 
+See [The Team](https://github.com/hlamer/mksv3/wiki/Team)
+
+
 Use mksv3@googlegroups.com or hlamer@tut.by as contact email.
 
 <a href="https://sourceforge.net/donate/index.php?group_id=163493" target="_blank"> <img src="https://images-ssl.sourceforge.net/images/project-support.jpg"/></a>
