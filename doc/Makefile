@@ -15,7 +15,7 @@ doc: check-dir
 	sphinx-build $(IN_DIR) $(OUT_DIR)
 	cp -R $(IN_DIR)/screenshots $(OUT_DIR)
 	mkdir -p $(OUT_DIR)/screenshots/preview
-	cd $(IN_DIR)/screenshots && ls *.png | xargs -i convert -scale 16% {} $(OUT_DIR)/screenshots/preview/{}
+	cd $(IN_DIR)/screenshots && ls *.png | xargs -i convert -scale 10% {} $(OUT_DIR)/screenshots/preview/{}
 	
 	mv $(OUT_DIR)/_static $(OUT_DIR)/static
 	mv $(OUT_DIR)/_sources $(OUT_DIR)/sources
