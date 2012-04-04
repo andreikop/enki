@@ -35,19 +35,19 @@ I'm going to create next Unix text editor. Of course, such revolution can't be d
     <tr>
         <td>
             <a href="http://hlamer.github.com/mksv3/screenshots/main-ui.png">
-                <img src="http://hlamer.github.com/mksv3/screenshots/main-ui-preview.png"/>
+                <img src="http://hlamer.github.com/mksv3/screenshots/preview/main-ui.png"/>
             </a>
             UI
         <td/>
         <td>
             <a href="http://hlamer.github.com/mksv3/screenshots/minimal.png">
-                <img src="http://hlamer.github.com/mksv3/screenshots/minimal-preview.png"/>
+                <img src="http://hlamer.github.com/mksv3/screenshots/preview/minimal.png"/>
             </a>
             Minimalistic UI
         <td/>
         <td>
             <a href="http://hlamer.github.com/mksv3/screenshots/search-replace.png">
-                <img src="http://hlamer.github.com/mksv3/screenshots/search-replace-preview.png"/>
+                <img src="http://hlamer.github.com/mksv3/screenshots/preview/search-replace.png"/>
             </a>
             Search and replace
         <td/>
