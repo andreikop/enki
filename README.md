@@ -46,10 +46,16 @@ I'm going to create next Unix text editor. Of course, such revolution can't be d
             Minimalistic UI
         <td/>
         <td>
+            <a href="http://hlamer.github.com/mksv3/screenshots/search.png">
+                <img src="http://hlamer.github.com/mksv3/screenshots/preview/search.png"/>
+            </a>
+            Search
+        <td/>
+        <td>
             <a href="http://hlamer.github.com/mksv3/screenshots/search-replace.png">
                 <img src="http://hlamer.github.com/mksv3/screenshots/preview/search-replace.png"/>
             </a>
-            Search and replace
+            Replace in direcotry (Good bye sed)
         <td/>
     <tr/>
 <table/>
