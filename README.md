@@ -31,7 +31,7 @@ I'm going to create next Unix text editor. Of course, such revolution can't be d
  * Hightly configurable
  * [MIT Scheme REPL integration](https://github.com/hlamer/mksv3/wiki/Scheme-support)
 
-<table>
+<table frame="void">
     <tr>
         <td width="25%">
             <a href="http://hlamer.github.com/mksv3/screenshots/main-ui.png">
