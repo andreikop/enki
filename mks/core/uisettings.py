@@ -328,7 +328,7 @@ class UISettings(QDialog):
         moduleConfiguratorClasses = []
         moduleConfiguratorClasses.extend(core.moduleConfiguratorClasses)
         for plugin in core.loadedPlugins():
-            if hasattr(plugin, 'moduleConfiguratorClass')::  # If plugin has configurator
+            if hasattr(plugin, 'moduleConfiguratorClass'):  # If plugin has configurator
                 moduleConfiguratorClasses.append(plugin.moduleConfiguratorClass())
         
         # Create configurator instances
