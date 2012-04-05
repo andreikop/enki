@@ -583,3 +583,27 @@ class Editor(AbstractTextEditor):
         row = self.qscintilla.getCursorPosition()[0]
         self.qscintilla.setCursorPosition(
                     self.qscintilla.markerFindPrevious(row - 1, 1 << self._MARKER_BOOKMARK), 0)
+
+    def _moveLines(self, disposition):
+        """Move selected lines down
+        """
+        clipboard = qApp.clipboard()
+        contents = clipboard.text(clipboard.Selection)
+        self.beginUndoAction()
+        start, end = self.selection()
+        self.qscintilla.SendScintilla(self.qscintilla.SCI_LINECUT)
+        self.setCursorPosition(line=start[0] + disposition, column = 0)
+        self.qscintilla.insert(qApp.clipboard().text())
+        self.qscintilla.setSelection(start[0] + disposition, start[1], end[0] + disposition, end[1])
+        self.endUndoAction()
+        clipboard.setText(contents, clipboard.Selection)
+
+    def moveLinesDown(self):
+        """Move selected lines down
+        """
+        return self._moveLines(1)
+
+    def moveLinesUp(self):
+        """Move selected lines up
+        """
+        return self._moveLines(-1)

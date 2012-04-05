@@ -24,6 +24,8 @@ MKS_PREV_BOOKMARK = -3
 
 MKS_PASTE = -4
 MKS_PASTE_LINE = -5
+MKS_MOVE_LINES_DOWN = -6
+MKS_MOVE_LINES_UP = -7
 
 _ACTIONS = (\
 (qsci.SCI_PARAUPEXTEND, 'mEdit/mSelection/mParagraph/aUp', tr('Up'), 'Ctrl+Shift+[', ''),
@@ -60,6 +62,8 @@ _ACTIONS = (\
 (qsci.SCI_LINECUT, 'mEdit/mCopyPaste/aCutLine', tr('Cut line'), 'Alt+X', 'cut.png'),
 (MKS_PASTE_LINE, 'mEdit/mCopyPaste/aPasteLine', tr('Paste line'), 'Alt+V', 'paste.png'),
 (qsci.SCI_SELECTIONDUPLICATE, 'mEdit/mCopyPaste/aDuplicateSelection', tr('Duplicate selection or line'), 'Ctrl+D', ''),
+(MKS_MOVE_LINES_UP, 'mEdit/aMoveLinesUp', tr('Move lines up'), 'Ctrl+K', 'up.png'),
+(MKS_MOVE_LINES_DOWN, 'mEdit/aMoveLinesDown', tr('Move lines down'), 'Ctrl+J', 'down.png'),
 \
 (qsci.SCI_ZOOMIN, 'mView/mZoom/aZoomIn', tr('Zoom In'), 'Ctrl+=', ''),
 (qsci.SCI_ZOOMIN, 'mView/mZoom/aZoomInAlt', tr('Zoom In  (alt. shortcut)'), 'Ctrl++', ''),
@@ -158,5 +162,9 @@ class Shortcuts(QObject):
             editor.paste()
         elif MKS_PASTE_LINE == code:  # Own method
             editor.pasteLine()
+        elif MKS_MOVE_LINES_DOWN == code:
+            editor.parent().moveLinesDown()
+        elif MKS_MOVE_LINES_UP == code:
+            editor.parent().moveLinesUp()
         else:
             assert 0

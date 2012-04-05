@@ -363,7 +363,7 @@ class JumpToCurent(QObject):
         self._action = QAction(QIcon(':mksicons/text.png'),
                                self.tr("Jump to current file path"),
                                self)
-        self._action.setShortcut('Ctrl+J')
+        self._action.setShortcut('Shift+Ctrl+J')
         self._action.triggered.connect(self._onTriggered)
 
         fileBrowser.titleBar().addAction(self._action, 0)
