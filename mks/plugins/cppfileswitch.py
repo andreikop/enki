@@ -31,11 +31,6 @@ class Plugin(QObject):
         if self._action is not None:
             self._action.deleteLater()
 
-    def moduleConfiguratorClass(self):
-        """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
-        """
-        return Configurator
-
     def _updateAction(self):
         """Create, show or hide, enable or disable action
         """
