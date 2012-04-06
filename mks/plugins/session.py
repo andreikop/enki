@@ -17,7 +17,7 @@ class Plugin:
     """
     def __init__(self):
         core.restoreSession.connect(self._onRestoreSession)
-        core.workspace().aboutToCloseAll.connect(self._onAboutToClose)
+        core.aboutToTerminate.connect(self._onAboutToTerminate)
 
     def del_(self):
         """Explicitly called destructor
@@ -57,8 +57,8 @@ class Plugin:
             
             core.workspace().setCurrentDocument(document)
 
-    def _onAboutToClose(self):
-        """mksv3 will probably be closed.
+    def _onAboutToTerminate(self):
+        """mksv3 is going to be terminated.
         Save session
         """
         fileList = [document.filePath() \

@@ -39,6 +39,13 @@ class Core(QObject):
     Only if user hadn't passed --no-session key
     """  # pylint: disable=W0105
 
+    aboutToTerminate = pyqtSignal()
+    """
+    aboutToTerminate()
+    
+    **Signal** emitted, before closing all files and terminating mksv3
+    """  # pylint: disable=W0105
+
     def __init__(self):
         QObject.__init__(self)
         self._mainWindow = None
