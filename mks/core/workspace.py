@@ -108,15 +108,6 @@ class Workspace(QStackedWidget):
     **Signal** emitted, when document was closed
     """  # pylint: disable=W0105
     
-    aboutToCloseAll = pyqtSignal()
-    """
-    aboutToCloseAll()
-    
-    **Signal** emitted, when workspace is about to close all documents.
-    Either mksv3 exits, or File->Close->All had been triggered.
-    Currently used to restore session
-    """  # pylint: disable=W0105
-
     currentDocumentChanged = pyqtSignal(AbstractDocument,
                                         AbstractDocument)
     """
@@ -476,7 +467,19 @@ class Workspace(QStackedWidget):
         """
         return self.sortedDocuments
     
-    def closeAllDocuments(self, hideMainWindow=False):
+    def askToCloseAll(self):
+        """If have unsaved documents, ask user to save it and close all
+        Will save documents, checked by user
+        Returns True, if user hasn't pressed Cancel Close
+        """
+        modifiedDocuments = [d for d in self.documents() if d.isModified()]
+        if modifiedDocuments:
+            if (_UISaveFiles( self, modifiedDocuments).exec_() == QDialog.Rejected):
+                return False # do not close
+        
+        return True
+    
+    def closeAllDocuments(self):
         """Close all documents
         
         If there are not saved documents, dialog will be shown.
@@ -487,19 +490,17 @@ class Workspace(QStackedWidget):
         
         If hideMainWindow is True, main window will be hidden, if user hadn't pressed "Cancel Close"
         """
-        modifiedDocuments = [d for d in self.documents() if d.isModified()]
-        if modifiedDocuments:
-            if (_UISaveFiles( self, modifiedDocuments).exec_() == QDialog.Rejected):
-                return False #do not close IDE
-
-        self.aboutToCloseAll.emit()
-        core.mainWindow().hide()
+        if not self.askToCloseAll():
+            return
         
+        self.forceCloseAllDocuments()
+    
+    def forceCloseAllDocuments(self):
+        """Close all documents without asking user to save
+        """
         for document in self.documents()[::-1]:
             self.closeDocument(document, False)
 
-        return True
-        
     def _activateNextDocument(self):
         """Handler of View->Next triggered
         """

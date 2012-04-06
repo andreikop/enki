@@ -281,13 +281,18 @@ class MainWindow(QMainWindow):
         """
         
         # request close all documents
-        if not core.workspace().closeAllDocuments():
+        if not core.workspace().askToCloseAll():
             event.ignore()
             return
-        
+
+        core.aboutToTerminate.emit()
+        self.hide()
+
+        core.workspace().forceCloseAllDocuments()
+
         self._saveState()
         self._saveGeometry()
-        
+
         return QMainWindow.closeEvent(self, event)
     
     def _onHideAllWindows(self):
