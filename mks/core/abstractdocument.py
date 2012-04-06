@@ -134,7 +134,8 @@ class AbstractDocument(QWidget):
         return self._neverSaved
         
     def filePath(self):
-        """return the document file path"""
+        """return the document file absolute path
+        None if not set (new document)"""
         return self._filePath
     
     def fileName(self):
