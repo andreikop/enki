@@ -592,32 +592,6 @@ class Workspace(QStackedWidget):
         self.currentDocument().invokeGoTo()
 
 
-#TODO Restore or delete old code
-#    def __init__
-#        # connections
-#        parent.urlsDropped.connect(self.internal_urlsDropped)
-#        
-#    def internal_urlsDropped(self, urls ):
-#        # create menu
-#        menu = QMenu()
-#        aof = menu.addAction(self.tr( "Open As &File" ) )
-#        aop = menu.addAction(self.tr( "Open As &Project" ) )
-#        menu.addSeparator()
-#        menu.addAction(self.tr( "Cancel" ) )
-
-#        # execute menu
-#        action = menu.exec_( QCursor.pos() )
-
-#        # check triggered action
-#        if action == aof :
-#            for url in s:
-#                if  not url.toLocalFile().trimmed().isEmpty() :
-#                    self.openFile( url.toLocalFile(), c() )
-#        elif action == aop :
-#            for url in s:
-#                if  not url.toLocalFile().trimmed().isEmpty() :
-#                    core.projectsManager().openProject( url.toLocalFile(), c() )
-#
 #    def onEditExpandAbbreviation(self):
 #        document = self.currentDocument()
 
