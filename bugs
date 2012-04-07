@@ -2,26 +2,22 @@ FIXME
 
 REFACTORING
 
-FIXME PasNox
-
-FIXME when found
-
 TODO
-  мелкие улучшения
-  средний функционал
-    Объединить список открытых файлов и FileBrowser
-  большой функционал
-    Вставляя текст - выравнивать его
-    Открыватор файлов с tab completion
-    Сделать action закоментить/откоментить
-    Подсвечивать результаты поиска, когда строка поиска видна. Результаты на скроллбаре, как в google chrome
-    Поддерживать кодировки кроме utf8 Определять кодировку с помощью chardet
-    Плагин, показывающий сообщения от авторов. fortune?
+  minor improvements
+  medium functionality
+    Autoresize opened file list
+  big functionality
+    Indent text when pasting
+    File opener with Tab completion
+    Comment/Uncomment code functionality
+    Highlight search results in the editor and on the scroll bar (See google-chrome)
+    Support non-utf8 encodings. Detect with chardet
+    Show tips of the day and news from the team.
     http://cx4a.org/software/gccsense/ - autocompletion for C++
     tab completion
     vim mode
-    цветовые схемы
-    Умная навигация по коду
+    color schemes
+    Clever navigation in the code
     Split editor window
     Code syntax checker
     Console (VimEx)
@@ -34,18 +30,15 @@ NOT PORTED from MkS
     Qt Designer
     Qt Project
 
-WHEN releasing
-    Обновить скриншоты
-
 ON QScintilla 2.5.1
     QsciLexerMatlab and QsciLexerOctave
 
 ON QScintilla 2.6
-    не считать "-" разделителем слов в scheme. Как в Makefile
+    Don't treat "-" word separator in Scheme. As in Makefiles
 
 ON Unity
-    маленькое разрешение иконки приложения
+    Too little application icon resolution
 
 ON new editor
-    Игнорировать комментарии когда определяем indentation
-    Выделять два куска текста и менять местами.
+    Ignore comments when autodetecting indentation
+    Select 2 peaces of text and swap
