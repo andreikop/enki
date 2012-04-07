@@ -89,15 +89,6 @@ or some other document added to workspace</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="mks.core.workspace.Workspace.aboutToCloseAll">
-<tt class="descname">aboutToCloseAll</tt><a class="headerlink" href="#mks.core.workspace.Workspace.aboutToCloseAll" title="Permalink to this definition">¶</a></dt>
-<dd><p>aboutToCloseAll()</p>
-<p><strong>Signal</strong> emitted, when workspace is about to close all documents.
-Either mksv3 exits, or File-&gt;Close-&gt;All had been triggered.
-Currently used to restore session</p>
-</dd></dl>
-
-<dl class="attribute">
 <dt id="mks.core.workspace.Workspace.currentDocumentChanged">
 <tt class="descname">currentDocumentChanged</tt><a class="headerlink" href="#mks.core.workspace.Workspace.currentDocumentChanged" title="Permalink to this definition">¶</a></dt>
 <dd><p>currentDocumentChanged(<a class="reference internal" href="abstractdocument.html#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a> old,
@@ -230,13 +221,27 @@ Used on startup, if no file was specified, and after File-&gt;New file has been 
 </dd></dl>
 
 <dl class="method">
+<dt id="mks.core.workspace.Workspace.askToCloseAll">
+<tt class="descname">askToCloseAll</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.askToCloseAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>If have unsaved documents, ask user to save it and close all
+Will save documents, checked by user
+Returns True, if user hasn&#8217;t pressed Cancel Close</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mks.core.workspace.Workspace.closeAllDocuments">
-<tt class="descname">closeAllDocuments</tt><big>(</big><em>hideMainWindow=False</em><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.closeAllDocuments" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">closeAllDocuments</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.closeAllDocuments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Close all documents</p>
 <p>If there are not saved documents, dialog will be shown.</p>
 <p>Handler of File-&gt;Close-&gt;All</p>
 <p>Returns True, if all files had been closed, and False, if save dialog rejected</p>
 <p>If hideMainWindow is True, main window will be hidden, if user hadn&#8217;t pressed &#8220;Cancel Close&#8221;</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.workspace.Workspace.forceCloseAllDocuments">
+<tt class="descname">forceCloseAllDocuments</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.forceCloseAllDocuments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close all documents without asking user to save</p>
 </dd></dl>
 
 <dl class="method">
