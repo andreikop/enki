@@ -22,6 +22,17 @@ TODO
     vim mode
     цветовые схемы
     Умная навигация по коду
+    Split editor window
+    Code syntax checker
+    Console (VimEx)
+
+NOT PORTED from MkS
+    Abbreviations
+    Build projects
+    Class browser
+    Tools (Console commands)
+    Qt Designer
+    Qt Project
 
 WHEN releasing
     Обновить скриншоты
