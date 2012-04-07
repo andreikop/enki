@@ -33,7 +33,9 @@ class ActionManager(QObject):
 
         subPath = '/'.join(path.split('/')[0: -1])
         parentAction = self.action(subPath)
-        assert parentAction is not None  # At first create menu, than actions
+        if parentAction is None:
+            print >> sys.stderr, "Menu path not found", subPath
+            assert False
         
         if isinstance(action, basestring):
             action = QAction( icon, action, parentAction )

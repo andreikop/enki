@@ -188,6 +188,7 @@ class MainWindow(QMainWindow):
         tr = self.tr  # pylint: disable=C0103
         menu  ("mFile",                               tr("File"                  ), ""            )
         action("mFile/aOpen",                         tr("&Open..."              ), "open.png",     "Ctrl+O" ,      tr("Open a file"            ), True )
+        menu  ("mFile/mUndoClose",                    tr("Undo Close"            ), "recents.png" )
         menu  ("mFile/mSave",                         tr("&Save"                 ), "save.png"    )
         action("mFile/mSave/aCurrent",                tr("&Save"                 ), "save.png" ,    "Ctrl+S" ,      tr("Save the current file"  ), False)
         action("mFile/mSave/aSaveAs",                 tr("Save As..."            ), "save.png" ,    "Ctrl+Alt+S" ,  ""                           , False)
@@ -363,32 +364,12 @@ class MainWindow(QMainWindow):
 #        # project connection
 #        core.recentsManager().openProjectRequested.connect(core.projectsManager().openProject)
 #
-#        mb.menu( "mRecents", tr("&Recents" ), QIcon(":/mksicons/recents.png" ) )
-#        mb.action( "mRecents/aClear", tr("&Clear" ), QIcon(":/mksicons/clear.png" ), '', tr("Clear the recents file list" ) )
-#        mb.action( "mRecents/aSeparator1" )
-#        mb.action( "aSeparator1" )
-#        mb.action( "aSeparator3" )
 #        mb.menu( "mAllCommands", tr("&All Commands" ), QIcon( ":/mksicons/commands.png" ) )
 #        
 #        mb.action( "aSeparator5" )
 #        mb.action( "aExpandAbbreviation", tr("Expand Abbreviation" ), QIcon( ":/mksicons/abbreviation.png" ), "Ctrl+E", tr("Expand Abbreviation" ) ).setEnabled( False )
 #        mb.action( "aPrepareAPIs", tr("Prepare APIs" ), QIcon( ":/mksicons/prepareapis.png" ), "Ctrl+Alt+P", tr("Prepare the APIs files for auto completion / calltips" ) )
 #        
-#        mb.menu( "mRecents", tr("&Recents" ), QIcon( ":/mksicons/recents.png" ) )
-#        mb.action( "mRecents/aClear", tr("&Clear" ), QIcon( ":/mksicons/clear.png" ), '', tr("Clear the recents projects list" ) )
-#        mb.action( "mRecents/aSeparator1" )
-#        mb.endGroup()
-
-#        
-#        mb.action( "aAbout", tr("&About..." ), QIcon( ":/mksicons/monkey2.png" ), '', tr("About application..." ) )
-#        # create action for styles
-#        agStyles = pStylesActionGroup( tr("Use %1 style" ), mb.menu( "mNavigation/mStyle" ) )
-#        agStyles.setCurrentStyle( core.settings().value( "MainWindow/Style" ).toString() )
-#        mb.menu( "mNavigation/mStyle" ).addActions( agStyles.actions() )
-#        
-#        # create plugins actions
-#        core.pluginsManager().menuHandler().setMenu( mb.menu( "mPlugins" ) )        
-
 #    def dragEnterEvent( self, event ):
 #        # if correct mime and same tabbar
 #        if  event.mimeData().hasUrls() :
