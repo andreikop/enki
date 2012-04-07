@@ -355,8 +355,32 @@ class MainWindow(QMainWindow):
         if section["Maximized"]:
            self.showMaximized()
 
+    def dragEnterEvent( self, event):
+        """QMainWindow method reimplementation.
+        Say, that we are ready to accept dragged urls
+        """
+        if  event.mimeData().hasUrls() :
+            # accept drag
+            event.acceptProposedAction()
+        
+        # default handler
+        QMainWindow.dragEnterEvent(self, event)
+    
+    def dropEvent( self, event ):
+        """QMainWindow method reimplementation.
+        Open dropt files
+        """
+        if event.mimeData().hasUrls():
+            for url in event.mimeData().urls():
+                localFile = url.toLocalFile()
+                if os.path.isfile(localFile):
+                    core.workspace().openFile(localFile)
+        
+        # default handler
+        QMainWindow.dropEvent(self, event)
+
+
 #   TODO restore or delete old code
-#    urlsDropped = pyqtSignal()
 #        # edit connection
 #        self._actionManager.action( "mEdit/aExpandAbbreviation" ).triggered.connect(core.workspace().onEditExpandAbbreviation)
 #        self._actionManager.action( "mEdit/aPrepareAPIs" ).triggered.connect(core.workspace().editPrepareAPIs_triggered)
@@ -364,25 +388,6 @@ class MainWindow(QMainWindow):
 #        # project connection
 #        core.recentsManager().openProjectRequested.connect(core.projectsManager().openProject)
 #
-#        mb.menu( "mAllCommands", tr("&All Commands" ), QIcon( ":/mksicons/commands.png" ) )
-#        
-#        mb.action( "aSeparator5" )
 #        mb.action( "aExpandAbbreviation", tr("Expand Abbreviation" ), QIcon( ":/mksicons/abbreviation.png" ), "Ctrl+E", tr("Expand Abbreviation" ) ).setEnabled( False )
 #        mb.action( "aPrepareAPIs", tr("Prepare APIs" ), QIcon( ":/mksicons/prepareapis.png" ), "Ctrl+Alt+P", tr("Prepare the APIs files for auto completion / calltips" ) )
 #        
-#    def dragEnterEvent( self, event ):
-#        # if correct mime and same tabbar
-#        if  event.mimeData().hasUrls() :
-#            # accept drag
-#            event.acceptProposedAction()
-#        
-#        # default event
-#        pMainWindow.dragEnterEvent( self, event )
-#    
-#    def dropEvent( self, event ):
-#        if  event.mimeData().hasUrls() :
-#            self.urlsDropped.emit( event.mimeData().urls () )
-#        
-#        # default event
-#        pMainWindow.dropEvent( self, event )
-#    
