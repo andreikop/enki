@@ -1,3 +1,19 @@
+mksv3 (12.04-1~ppa1) lucid; urgency=low
+
+  * Reopen recent files (File -> Recents menu)
+  * Move lines Up and Down
+  * C++ header/implementation switcher
+  * Expland/Collapse all; Check/Uncheck all buttons on search results dock
+  * Restore position in the file when repopening it
+  * Restore session
+  * Printing is supported
+  * Removed dependency on ConfigObj
+  * Paste line functionality
+  * Highlight focused GUI widgets with red border
+  * Highlight search in direcoty results in the list with yellow background
+
+ -- Andrei Kopats <hlamer@tut.by>  Sun, 08 Apr 2012 08:21:55 +0300
+
 mksv3 (0.2.7-1~ppa1) lucid; urgency=low
 
   * File names in the list of opened files are always unique
