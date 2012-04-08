@@ -1,5 +1,6 @@
 recursive-include icons *
 include LICENSE*
+include README.md*
 
 # hlamer: I don't know why, but setuptools ignores this file, if not mentioned here
 include mksv3.desktop
