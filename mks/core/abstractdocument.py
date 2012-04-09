@@ -75,6 +75,13 @@ class AbstractDocument(QWidget):
         self._fileWatcher = QFileSystemWatcher([self.filePath()], self)
         self._fileWatcher.fileChanged.connect(self._onWatcherFileChanged)
     
+    def _deleteFileWatcher(self):
+        """Delete file watcher
+        """
+        if self._fileWatcher is not None:
+            self._fileWatcher.deleteLater()
+            self._fileWatcher = None
+    
     def _onWatcherFileChanged(self):
         """QFileSystemWatcher sent signal, that file has been changed or deleted
         """
@@ -179,8 +186,7 @@ class AbstractDocument(QWidget):
         text = eol.join(lines)
 
         # Write file
-        if self._fileWatcher is not None:
-            self._fileWatcher.removePath(self.filePath())
+        self._deleteFileWatcher()
         
         try:
             openedFile = open(filePath, 'w')
@@ -194,10 +200,7 @@ class AbstractDocument(QWidget):
             openedFile.write(text.encode('utf8'))
         finally:
             openedFile.close()
-            if self._fileWatcher is None:  # file just get its name
-                self._createFileWatcher()            
-            else:
-                self._fileWatcher.addPath(filePath)
+            self._createFileWatcher()
         
         # Update states
         self._neverSaved = False
