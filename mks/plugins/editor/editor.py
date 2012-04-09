@@ -243,8 +243,12 @@ class Editor(AbstractTextEditor):
             if not command.description() in leaveDefaults:
                 command.setKey(0)
                 command.setAlternateKey(0)
+        
+        for key in range(ord('A'), ord('Z')):
+            qsci.SendScintilla(qsci.SCI_ASSIGNCMDKEY,
+                               key + ((qsci.SCMOD_CTRL | qsci.SCMOD_ALT) << 16),
+                               qsci.SCI_NULL)
 
-    
     def applySettings(self):  # pylint: disable=R0912,R0915
         """Apply own settings form the config
         """
