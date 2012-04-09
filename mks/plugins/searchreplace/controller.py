@@ -268,7 +268,7 @@ class Controller(QObject):
             self._searchInFileLastCursorPos = match.start()
             self._widget.setState(self._widget.Good)  # change background acording to result
             core.mainWindow().statusBar().showMessage('Match %d of %d' % \
-                                                      (matches.index(match) + 1, len(matches)), 1000)
+                                                      (matches.index(match) + 1, len(matches)), 3000)
         else:
             self._widget.setState(self._widget.Bad)
 
@@ -376,9 +376,9 @@ class Controller(QObject):
         self._widget.setSearchInProgress(False)
         matchesCount = self._dock.matchesCount()
         if matchesCount:
-            core.mainWindow().statusBar().showMessage('%d matches ' % matchesCount, 2000)
+            core.mainWindow().statusBar().showMessage('%d matches ' % matchesCount, 3000)
         else:
-            core.mainWindow().statusBar().showMessage('Nothing found', 2000)
+            core.mainWindow().statusBar().showMessage('Nothing found', 3000)
     
     #
     # Replace in directory (with thread)
@@ -423,4 +423,4 @@ class Controller(QObject):
     def _onReplaceThreadFinalStatus(self, message):
         """Show replace thread status on status bar
         """
-        core.mainWindow().statusBar().showMessage(message, 2000)
+        core.mainWindow().statusBar().showMessage(message, 3000)

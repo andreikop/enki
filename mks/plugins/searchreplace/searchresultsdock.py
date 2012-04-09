@@ -224,7 +224,7 @@ class SearchResultsDock(pDockWidget):
                                    selectionLength=len(result.match.group(0)))
             core.mainWindow().statusBar().showMessage('Match %d of %d' % \
                                                       (fileResults.results.index(result) + 1,
-                                                       len(fileResults.results)), 1000)
+                                                       len(fileResults.results)), 3000)
             self.setFocus()
 
     def clear(self):
