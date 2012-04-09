@@ -1,3 +1,9 @@
+mksv3 (12.04.1-1~ppa1) lucid; urgency=low
+
+  * Bug fixes
+
+ -- Andrei Kopats <hlamer@tut.by>  Mon, 09 Apr 2012 20:38:10 +0300
+
 mksv3 (12.04-1~ppa1) lucid; urgency=low
 
   * Reopen recent files (File -> Recents menu)
