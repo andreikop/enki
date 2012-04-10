@@ -4,6 +4,7 @@ REFACTORING
 
 TODO
   minor improvements
+    When filewatcher signals a change - diff files
   medium functionality
     Autoresize opened file list
   big functionality
