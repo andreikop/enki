@@ -12,7 +12,7 @@ Classes:
 
 import os.path
 
-from PyQt4.QtCore import pyqtSignal, QFileSystemWatcher
+from PyQt4.QtCore import pyqtSignal, QFileSystemWatcher, QObject
 from PyQt4.QtGui import QFileDialog, \
                         QIcon, \
                         QInputDialog, \
@@ -20,6 +20,65 @@ from PyQt4.QtGui import QFileDialog, \
                         QWidget
 
 from mks.core.core import core
+
+class _FileWatcher(QObject):
+    """File watcher.
+    
+    QFileSystemWatcher notifies client about any change (file access mode, modification date, etc.)
+    But, we need signal, only after file contents had been changed
+    """
+    modified = pyqtSignal(bool)
+    removed = pyqtSignal()
+    
+    def __init__(self, path):
+        QObject.__init__(self)
+        self._contents = None
+        self._watcher = QFileSystemWatcher()
+        self.setPath(path)
+        self.enable()
+        
+    def enable(self):
+        """Enable signals from the watcher
+        """
+        self._watcher.fileChanged.connect(self._onFileChanged)
+    
+    def disable(self):
+        """Disable signals from the watcher
+        """
+        self._watcher.fileChanged.disconnect(self._onFileChanged)
+    
+    def setContents(self, contents):
+        """Set file contents. Watcher uses it to compare old and new contents of the file.
+        """
+        self._contents = contents
+        # Qt File watcher may work incorrectly, if file was not existing, when it started
+        self.setPath(self._path)
+
+    def setPath(self, path):
+        """Path had been changed or file had been created. Set new path
+        """
+        if self._watcher.files():
+            self._watcher.removePaths(self._watcher.files())
+        if path is not None:
+            self._watcher.addPath(path)
+        self._path = path
+
+    def _onFileChanged(self, path):
+        """File changed. Emit own signal, if contents changed
+        """
+        if os.path.exists(path):
+            self.modified.emit(self._contents != self._safeRead(path))
+        else:
+            self.removed.emit()
+    
+    def _safeRead(self, path):
+        """Read file. Ignore exceptions
+        """
+        try:
+            with open(path) as file:
+                return file.read()
+        except OSError, IOError:
+            return None
 
 class AbstractDocument(QWidget):
     """
@@ -60,35 +119,23 @@ class AbstractDocument(QWidget):
         self._externallyModified = False
         # File opening should be implemented in the document classes
         
-        self._fileWatcher = None
-        
-        # create file watcher
-        if not self._neverSaved:
-            self._createFileWatcher()
+        self._fileWatcher = _FileWatcher(filePath)
+        self._fileWatcher.modified.connect(self._onWatcherFileModified)
+        self._fileWatcher.removed.connect(self._onWatcherFileRemoved)
         
         if filePath and self._neverSaved:
             core.mainWindow().appendMessage('New file "%s" is going to be created' % filePath, 5000)
     
-    def _createFileWatcher(self):
-        """Create own filewatcher. Called from the constructor, or after name has been defined for new created file
+    def _onWatcherFileModified(self, modified):
+        """File has been modified
         """
-        self._fileWatcher = QFileSystemWatcher([self.filePath()], self)
-        self._fileWatcher.fileChanged.connect(self._onWatcherFileChanged)
-    
-    def _deleteFileWatcher(self):
-        """Delete file watcher
+        self._externallyModified = modified
+        self.documentDataChanged.emit()
+
+    def _onWatcherFileRemoved(self):
+        """File has been removed
         """
-        if self._fileWatcher is not None:
-            self._fileWatcher.deleteLater()
-            self._fileWatcher = None
-    
-    def _onWatcherFileChanged(self):
-        """QFileSystemWatcher sent signal, that file has been changed or deleted
-        """
-        if os.path.exists(self.filePath()):
-            self._externallyModified = True
-        else:
-            self._externallyRemoved = True
+        self._externallyRemoved = True
         self.documentDataChanged.emit()
 
     def _readFile(self, filePath):
@@ -98,6 +145,8 @@ class AbstractDocument(QWidget):
         with open(filePath, 'r') as openedFile:  # Exception is ok, raise it up
             self._filePath = os.path.abspath(filePath)
             data = openedFile.read()                
+        
+        self._fileWatcher.setContents(data)
         
         try:
             text = unicode(data, 'utf8')
@@ -157,6 +206,7 @@ class AbstractDocument(QWidget):
         """
         core.workspace().documentClosed.emit(self)
         self._filePath = newPath
+        self._fileWatcher.setPath(newPath)
         core.workspace().documentOpened.emit(self)
         core.workspace().currentDocumentChanged.emit(self, self)
 
@@ -187,7 +237,7 @@ class AbstractDocument(QWidget):
         text = eol.join(lines)
 
         # Write file
-        self._deleteFileWatcher()
+        self._fileWatcher.disable()
         
         try:
             openedFile = open(filePath, 'w')
@@ -197,11 +247,13 @@ class AbstractDocument(QWidget):
                                  unicode(str(ex), 'utf8'))
             return
         
+        data = text.encode('utf8')
         try:
-            openedFile.write(text.encode('utf8'))
+            openedFile.write(data)
+            self._fileWatcher.setContents(data)
         finally:
             openedFile.close()
-            self._createFileWatcher()
+            self._fileWatcher.enable()
         
         # Update states
         self._neverSaved = False
@@ -251,7 +303,6 @@ class AbstractDocument(QWidget):
         self._externallyModified = False
         self._externallyRemoved = False
         # recreate the watcher. Because if file was replaced, old watcher does not monitor it
-        self._createFileWatcher()
         
     def modelToolTip(self):
         """Tool tip for the opened files model
