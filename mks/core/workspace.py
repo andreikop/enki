@@ -361,7 +361,7 @@ class Workspace(QStackedWidget):
         """Add document to the workspace. Connect signals
         """
         # update file menu
-        document.modifiedChanged.connect(core.actionManager().action( "mFile/mSave/aCurrent" ).setEnabled)
+        document.saveActionEnabledChanged.connect(core.actionManager().action( "mFile/mSave/aCurrent" ).setEnabled)
         document.modifiedChanged.connect(self._updateMainWindowTitle)
 
         # Create lambda functions, which retransmit conveniense signals, and connect it to document signals
@@ -382,7 +382,7 @@ class Workspace(QStackedWidget):
     def _unhandleDocument( self, document ):
         """Remove document from the workspace. Disconnect signals
         """
-        document.modifiedChanged.disconnect(core.actionManager().action( "mFile/mSave/aCurrent" ).setEnabled)
+        document.saveActionEnabledChanged.disconnect(core.actionManager().action( "mFile/mSave/aCurrent" ).setEnabled)
         # update edit menu
 
         # remove from workspace
