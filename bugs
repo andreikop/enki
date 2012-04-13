@@ -1,7 +1,14 @@
 FIXME
+    Traceback (most recent call last):
+    File "/usr/local/lib/python2.6/dist-packages/mks/core/abstractdocument.py", line 153, in _onWatcherFileModified
+    self.documentDataChanged.emit()
+    TypeError: pyqtSignal must be bound to a QObject, not 'Editor'
 
-REFACTORING
-
+    Keep positiion, when reloading file
+    Don't copy lines, when moving up/down
+    Too big undo close history
+    Remove completer on mask
+    
 TODO
   minor improvements
     When filewatcher signals a change - diff files
