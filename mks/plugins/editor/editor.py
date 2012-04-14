@@ -247,7 +247,8 @@ class Editor(AbstractTextEditor):
         for key in range(ord('A'), ord('Z')):
             for modifier in [qsci.SCMOD_CTRL | qsci.SCMOD_ALT,
                              qsci.SCMOD_CTRL | qsci.SCMOD_SHIFT,
-                             qsci.SCMOD_ALT | qsci.SCMOD_SHIFT]:
+                             qsci.SCMOD_ALT | qsci.SCMOD_SHIFT,
+                             qsci.SCMOD_CTRL | qsci.SCMOD_ALT | qsci.SCMOD_SHIFT]:
                 qsci.SendScintilla(qsci.SCI_ASSIGNCMDKEY,
                                    key + (modifier << 16),
                                    qsci.SCI_NULL)
