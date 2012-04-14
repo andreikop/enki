@@ -139,6 +139,11 @@ class AbstractDocument(QWidget):
         if filePath and self._neverSaved:
             core.mainWindow().appendMessage('New file "%s" is going to be created' % filePath, 5000)
     
+    def del_(self):
+        """Explicytly called destructor
+        """
+        self._fileWatcher.disable()
+
     def _emitSaveActionEnabledChanged(self):
         """Emit saveActionEnabledChanged() signal with valid current state
         """
