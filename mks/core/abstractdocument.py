@@ -323,11 +323,12 @@ class AbstractDocument(QWidget):
         for update internal bookkeeping"""
 
         text = self._readFile(self.filePath())
+        pos = self.absCursorPosition()
         self.setText(text)
         #self.fileReloaded.emit()
         self._externallyModified = False
         self._externallyRemoved = False
-        # recreate the watcher. Because if file was replaced, old watcher does not monitor it
+        self.setCursorPosition(absPos = pos)
         
     def modelToolTip(self):
         """Tool tip for the opened files model
