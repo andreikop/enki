@@ -596,7 +596,8 @@ class Editor(AbstractTextEditor):
         """Move selected lines down
         """
         clipboard = qApp.clipboard()
-        contents = clipboard.text(clipboard.Selection)
+        selectionBuffer = clipboard.text(clipboard.Selection)
+        copyBuffer = clipboard.text(clipboard.Clipboard)
         self.beginUndoAction()
         start, end = self.selection()
         self.qscintilla.SendScintilla(self.qscintilla.SCI_LINECUT)
@@ -604,7 +605,8 @@ class Editor(AbstractTextEditor):
         self.qscintilla.insert(qApp.clipboard().text())
         self.qscintilla.setSelection(start[0] + disposition, start[1], end[0] + disposition, end[1])
         self.endUndoAction()
-        clipboard.setText(contents, clipboard.Selection)
+        clipboard.setText(selectionBuffer, clipboard.Selection)
+        clipboard.setText(copyBuffer, clipboard.Clipboard)
 
     def moveLinesDown(self):
         """Move selected lines down
