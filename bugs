@@ -2,7 +2,6 @@ FIXME
     Keep positiion, when reloading file
     Don't copy lines, when moving up/down
     Too big undo close history
-    Remove completer on mask
     
 TODO
   minor improvements

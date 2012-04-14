@@ -108,7 +108,9 @@ class SearchWidget(QFrame):
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'SearchWidget.ui'), self)
         
         self.cbSearch.setCompleter(None)
-        self.cbSearch.setCompleter(None)
+        self.cbReplace.setCompleter(None)
+        self.cbMask.setCompleter(None)
+        
         self.fsModel = QDirModel(self.cbPath.lineEdit())
         self.fsModel.setFilter( QDir.AllDirs | QDir.NoDotAndDotDot )
         self.cbPath.lineEdit().setCompleter(QCompleter(self.fsModel,
