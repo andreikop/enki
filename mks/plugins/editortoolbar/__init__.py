@@ -22,18 +22,18 @@ class Plugin:
         tb.addAction(core.actionManager().action( "mFile/mSave/aCurrent" ))
         # EOL indicator and switcher
         self._eol = editortoolbar.EolIndicatorAndSwitcher(tb)
-        tb.addWidget(self._eol)
+        self._eolAct = tb.addWidget(self._eol)
         # Indentation indicator and switcher        
         self._indent = editortoolbar.IndentIndicatorAndSwitcher(tb)
-        tb.addWidget(self._indent)
+        self._indentAct = tb.addWidget(self._indent)
         # Position indicator
         self._pos = editortoolbar.PositionIndicator(tb)
-        tb.addWidget(self._pos)
+        self._posAct = tb.addWidget(self._pos)
     
     def del_(self):
         tb = core.mainWindow().topToolBar()
         tb.removeAction(core.actionManager().action( "mFile/mSave/aCurrent" ))
         tb.removeAction(self._sep)
-        self._eol.deleteLater()
-        self._indent.deleteLater()
-        self._pos.deleteLater()
+        tb.removeAction(self._eolAct)
+        tb.removeAction(self._indentAct)
+        tb.removeAction(self._posAct)
