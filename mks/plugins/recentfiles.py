@@ -116,7 +116,9 @@ class Plugin:
         if len(existing) <= 1:
             return
         
-        for path in self._existingNotOpenedRecents()[1:]:  # first already available as Undo Close action
+        recents = self._existingNotOpenedRecents()
+        count = min(len(recents), 10)
+        for path in recents[1:count]:  # first already available as Undo Close action
             actionId = "mFile/mUndoClose/a%s" % path.replace('/', ':')
             action = core.actionManager().addAction(actionId, path)
             action.triggered.connect(lambda: core.workspace().openFile(path))

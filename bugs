@@ -1,7 +1,6 @@
 FIXME
     Keep positiion, when reloading file
     Don't copy lines, when moving up/down
-    Too big undo close history
     
 TODO
   minor improvements
