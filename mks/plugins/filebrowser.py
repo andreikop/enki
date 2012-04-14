@@ -669,7 +669,6 @@ class DockFileBrowser(pDockWidget):
         if self._comboBox is not None:
             self._comboBox.del_()
         core.actionManager().removeAction("mDocks/aFileBrowser")
-        self.deleteLater()
 
     def _onVisibilityChanged(self, visible):
         """Postnoted widget initialization.

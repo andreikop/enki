@@ -29,7 +29,8 @@ class Plugin(QObject):
         core.workspace().currentDocumentChanged.disconnect(self._updateAction)
         core.workspace().languageChanged.disconnect(self._updateAction)
         if self._action is not None:
-            self._action.deleteLater()
+            core.actionManager().removeAction(self._action)
+            del self._action
 
     def _updateAction(self):
         """Create, show or hide, enable or disable action

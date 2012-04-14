@@ -182,11 +182,7 @@ class Editor(AbstractTextEditor):
         self.lexer = Lexer(self)
         
         if not self._neverSaved:
-            try:
-                originalText = self._readFile(filePath)
-            except IOError as ex:  # exception in constructor
-                self.deleteLater()  # make sure C++ object deleted
-                raise ex
+            originalText = self._readFile(filePath)
             self.setText(originalText)
         else:
             originalText = ''
@@ -196,11 +192,7 @@ class Editor(AbstractTextEditor):
         # make backup if needed
         if  myConfig["CreateBackupUponOpen"]:
             if self.filePath() and not createNew:
-                try:
-                    shutil.copy(self.filePath(), self.filePath() + '.bak')
-                except (IOError, OSError) as ex:
-                    self.deleteLater()
-                    raise ex
+                shutil.copy(self.filePath(), self.filePath() + '.bak')
 
         # convert tabs if needed
         if  myConfig["Indentation"]["ConvertUponOpen"]:
