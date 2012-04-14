@@ -355,7 +355,7 @@ class Workspace(QStackedWidget):
         self.documentClosed.emit( document )
         # close document
         self._unhandleDocument( document )
-        document.deleteLater()
+        document.del_()
 
     def _handleDocument( self, document ):
         """Add document to the workspace. Connect signals
