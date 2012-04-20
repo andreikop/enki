@@ -1,4 +1,6 @@
 FIXME
+    prepend / when comparing file names in the Opened Files
+    ~ in the filebrowser goes to home dir, . to current file dir
     
 TODO
   minor improvements
@@ -40,3 +42,4 @@ ON Unity
 ON new editor
     Ignore comments when autodetecting indentation
     Select 2 peaces of text and swap
+    Move lines with Shift+Ctrl+Up/Down
