@@ -1,6 +1,9 @@
 FIXME
     prepend / when comparing file names in the Opened Files
     ~ in the filebrowser goes to home dir, . to current file dir
+    don't drag a line with zero selection
+    Use Alt+Up/Down to move lines
+    Alt+A selects whole line
     
 TODO
   minor improvements

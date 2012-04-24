@@ -54,6 +54,7 @@ Library modules
 
     lib/termwidget.rst
     lib/buffpopen.rst
+    lib/htmldelegate.rst
 
 Plugins documentation
 ---------------------
