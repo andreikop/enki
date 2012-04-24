@@ -3,8 +3,6 @@ filebrowser --- Dock with file system tree
 ==========================================
 """
 import sys
-import fnmatch
-import re
 import os
 import os.path
 import operator
@@ -45,12 +43,6 @@ class Plugin(QObject):
         self.dock.hide()
         # add dock to dock toolbar entry
         core.mainWindow().addDockWidget(Qt.LeftDockWidgetArea, self.dock)
-        core.settingsDialogAccepted.connect(self._applySettings)
-    
-    def _applySettings(self):
-        """Settings have been changed. Apply it
-        """
-        self.dock.setFilters(core.config()["NegativeFileFilter"])
     
     def del_(self):
         """Uninstall the plugin
@@ -64,16 +56,8 @@ class FileBrowserFilteredModel(QSortFilterProxyModel):
     """
     def __init__(self, parent):
         QSortFilterProxyModel.__init__(self, parent)
+        core.fileFilter().regExpChanged.connect(self.invalidateFilter)
     
-    def setFilters(self, filters):
-        """Set list of negative filters. (Wildards of files, which are not visible)
-        """
-        regExPatterns = [fnmatch.translate(f) for f in filters]
-        compositeRegExpPattern = '(' + ')|('.join(regExPatterns) + ')'
-        self.filterRegExp = re.compile(compositeRegExpPattern)
-        
-        self.invalidateFilter()
-
     def columnCount(self, parent = QModelIndex()):  # pylint: disable=W0613
         """Column count for the model
         """
@@ -89,7 +73,7 @@ class FileBrowserFilteredModel(QSortFilterProxyModel):
         """
         if  source_parent == QModelIndex():
             return True
-        return not self.filterRegExp.match(source_parent.child( source_row, 0 ).data().toString() )
+        return not core.fileFilter().regExp().match(source_parent.child( source_row, 0 ).data().toString() )
 
 
 class SmartRecents(QObject):
@@ -392,7 +376,6 @@ class Tree(QTreeView):
         # create proxy model
         self._filteredModel = FileBrowserFilteredModel( self )
         self._filteredModel.setSourceModel( self._dirsModel )
-        self.setFilters(core.config()["NegativeFileFilter"])
 
         self.setModel( self._filteredModel)
         
@@ -408,11 +391,6 @@ class Tree(QTreeView):
         
         self.activated.connect(self._onActivated)
         self._fileActivated.connect(fileBrowser.fileActivated)
-
-    def setFilters(self, filters):
-        """Set filter wildcards for filter out unneeded files
-        """
-        self._filteredModel.setFilters( filters )
 
     def _onActivated(self, idx ):
         """File or directory doubleClicked
@@ -691,12 +669,6 @@ class DockFileBrowser(pDockWidget):
         """
         self._comboBox.updateItems(items)
     
-    def setFilters(self, filters):
-        """Set tree negative filters
-        """
-        if self._tree is not None:
-            self._tree.setFilters(filters)
-
     def currentPath(self):
         """Get current path (root of the tree)
         """
