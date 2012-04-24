@@ -10,21 +10,7 @@ from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, \
 
 from PyQt4.QtGui import qApp
 
-HTML_ESCAPE_TABLE = \
-{
-    "&": "&amp;",
-    '"': "&quot;",
-    "'": "&apos;",
-    ">": "&gt;",
-    "<": "&lt;",
-    " ": "&nbsp;",
-    "\t": "&nbsp;&nbsp;&nbsp;&nbsp;",
-}
-
-def htmlEscape(text):
-    """Produce entities within text.
-    """
-    return "".join(HTML_ESCAPE_TABLE.get(c,c) for c in text)
+from mks.lib.htmldelegate import htmlEscape
 
 class Result:  # pylint: disable=R0902
     """One found by search thread item. Consists coordinates and capture. Used by SearchResultsModel
