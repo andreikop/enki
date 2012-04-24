@@ -59,6 +59,7 @@ class Core(QObject):
         self._workspace = None
         self._config = None
         self._uiSettingsManager = None
+        self._fileFilter = None
         self._indentHelpers = {}
 
         # List of core configurators. To be filled ONLY by other core modules. Readed ONLY by core.uisettings
@@ -114,6 +115,9 @@ class Core(QObject):
         if profiler is not None:
             profiler.stepDone('Create UISettings')
         
+        import mks.core.filefilter
+        self._fileFilter = mks.core.filefilter.FileFilter()
+        
         # Create plugins
         pluginsPath = os.path.join(os.path.dirname(__file__), '../plugins')
         for loader, name, isPackage in pkgutil.iter_modules([pluginsPath]):
@@ -131,6 +135,8 @@ class Core(QObject):
             plugin = self._loadedPlugins.pop()
             plugin.del_()
 
+        if self._fileFilter is not None:
+            del self._fileFilter
         if self._uiSettingsManager is not None:
             del self._uiSettingsManager
         if self._workspace is not None:
@@ -242,6 +248,14 @@ class Core(QObject):
             config = mks.core.config.Config(False, _DEFAULT_CONFIG_PATH)
         
         return config
+    
+    def fileFilter(self):
+        """Negative file filter
+        
+        See ::mod:`mks.core.filefilter`
+        """
+        return self._fileFilter
+
 
 core = Core()  # pylint: disable=C0103
 """Core instance. It is accessible as: ::

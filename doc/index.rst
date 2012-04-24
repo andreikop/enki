@@ -39,6 +39,7 @@ Plugin API documentation
    core/abstractdocument.rst
    core/config.rst
    core/uisettings.rst
+   core/filefilter.rst
 
 Not API core modules
 --------------------

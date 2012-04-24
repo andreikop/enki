@@ -302,25 +302,6 @@ class UISettingsManager:  # pylint: disable=R0903
         UISettings(core.mainWindow()).exec_()
 
 
-class _CoreConfigurator(ModuleConfigurator):
-    """mksv3 core configurator
-    """
-    def __init__(self, dialog):
-        ModuleConfigurator.__init__(self, dialog)
-        self._options = \
-          [ListOnePerLineOption(dialog, core.config(), "NegativeFileFilter", dialog.pteFilesToHide)]
-    
-    def saveSettings(self):
-        """Settings are stored in the core configuration file, therefore nothing to do here.
-        """
-        pass
-
-    def applySettings(self):
-        """Plugins shall apply the setting
-        """
-        core.settingsDialogAccepted.emit()
-
-
 class UISettings(QDialog):
     """Settings dialog widget
     """
@@ -344,7 +325,7 @@ class UISettings(QDialog):
         """
         
         # Get core and plugin configurators
-        moduleConfiguratorClasses = [_CoreConfigurator]
+        moduleConfiguratorClasses = []
         moduleConfiguratorClasses.extend(core.moduleConfiguratorClasses)
         for plugin in core.loadedPlugins():
             if hasattr(plugin, 'moduleConfiguratorClass'):  # If plugin has configurator
