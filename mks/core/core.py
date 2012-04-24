@@ -46,6 +46,13 @@ class Core(QObject):
     **Signal** emitted, before closing all files and terminating mksv3
     """  # pylint: disable=W0105
 
+    settingsDialogAccepted = pyqtSignal()
+    """
+    settingsDialogAccepted()
+    
+    **Signal** emitted, when settings dialog had been accepted
+    """  # pylint: disable=W0105
+
     def __init__(self):
         QObject.__init__(self)
         self._mainWindow = None
