@@ -35,12 +35,20 @@ class Config():
         """
         self._enableWriting = enableWriting
         self._filePath = filePath
-        self._data = self._load()  # exceptions are ok, raise it to upper level
+        self.reload()  # exceptions are ok, raise it to upper level
+    
+    def _updateVersion(self):
+        """Update config version, if config is old
+        """
+        if not '_version' in self._data:
+            self._data['_version'] = 1
+            self._data['NegativeFileFilter'] = self._data['FileBrowser']['NegativeFilter']
     
     def reload(self):
         """Reload config from the disk
         """
         self._data = self._load()  # exceptions are ok, raise it to upper level
+        self._updateVersion()
 
     def get(self, name):  # pylint: disable=W0221
         """

@@ -21,7 +21,6 @@ from PyQt4.QtGui import QAction, QCompleter, QDirModel, \
 from mks.fresh.dockwidget.pDockWidget import pDockWidget
 
 from mks.core.core import core
-from mks.core.uisettings import ListOnePerLineOption, ModuleConfigurator
 
 def _getCurDir():
     """Get process current directory
@@ -36,7 +35,6 @@ class Plugin(QObject):
     
     Allows to open files quickly
     """
-    instance = None
 
     def __init__(self):
         """Create and install the plugin
@@ -47,43 +45,18 @@ class Plugin(QObject):
         self.dock.hide()
         # add dock to dock toolbar entry
         core.mainWindow().addDockWidget(Qt.LeftDockWidgetArea, self.dock)
-
-        Plugin.instance = self
+        core.settingsDialogAccepted.connect(self._applySettings)
+    
+    def _applySettings(self):
+        """Settings have been changed. Apply it
+        """
+        self.dock.setFilters(core.config()["NegativeFileFilter"])
     
     def del_(self):
         """Uninstall the plugin
         """
-        Plugin.instance = None
         self.dock.del_()
 
-    def moduleConfiguratorClass(self):
-        """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
-        """
-        return Configurator
-
-class Configurator(ModuleConfigurator):
-    """ Module configurator.
-    
-    Used for configure files sorting mode
-    """
-    def __init__(self, dialog):
-        ModuleConfigurator.__init__(self, dialog)
-        self._options = \
-        [   ListOnePerLineOption(dialog, core.config(), "FileBrowser/NegativeFilter", dialog.pteFilesToHide) ]
-    
-    def saveSettings(self):
-        """Settings are stored in the core configuration file, therefore nothing to do here.
-        
-        Called by :mod:`mks.core.uisettings`
-        """
-
-    
-    def applySettings(self):
-        """Apply settings
-        
-        Called by :mod:`mks.core.uisettings`
-        """
-        Plugin.instance.dock.setFilters(core.config()["FileBrowser"]["NegativeFilter"])
 
 class FileBrowserFilteredModel(QSortFilterProxyModel):
     """Model filters out files using negative filter.
@@ -419,7 +392,7 @@ class Tree(QTreeView):
         # create proxy model
         self._filteredModel = FileBrowserFilteredModel( self )
         self._filteredModel.setSourceModel( self._dirsModel )
-        self.setFilters(core.config()["FileBrowser"]["NegativeFilter"])
+        self.setFilters(core.config()["NegativeFileFilter"])
 
         self.setModel( self._filteredModel)
         

@@ -1,4 +1,6 @@
 {
+    "NegativeFileFilter": [ "*~", "*.o", "*.pyc", "*.bak" ], 
+
     "Workspace": {
         "FileSortMode": "URL"
     },
@@ -208,7 +210,6 @@
         }
     }, 
     "FileBrowser": {
-        "NegativeFilter": [ "*~", "*.o", "*.pyc", "*.bak" ], 
         "PopularDirs": {}
     }, 
     "Modes": {
