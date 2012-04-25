@@ -226,12 +226,15 @@ class AbstractDocument(QWidget):
         else:
             return None
     
-    def _setFilePath(self, newPath):
-        """File path changed. Update workspace
+    def setFilePath(self, newPath):
+        """Change document file path.
+        
+        Used when saving first time, or on Save As action
         """
         core.workspace().documentClosed.emit(self)
         self._filePath = newPath
         self._fileWatcher.setPath(newPath)
+        self._neverSaved = True
         core.workspace().documentOpened.emit(self)
         core.workspace().currentDocumentChanged.emit(self, self)
 
@@ -301,7 +304,7 @@ class AbstractDocument(QWidget):
         if not self._filePath:
             path = QFileDialog.getSaveFileName (self, self.tr('Save file as...'))
             if path:
-                self._setFilePath(path)
+                self.setFilePath(path)
             else:
                 return
         self._saveFile(self.filePath())
@@ -313,7 +316,7 @@ class AbstractDocument(QWidget):
         if not path:
             return
         
-        self._setFilePath(path)
+        self.setFilePath(path)
         self._saveFile(path)
         
     def reload(self):
