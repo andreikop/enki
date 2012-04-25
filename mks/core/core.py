@@ -111,12 +111,18 @@ class Core(QObject):
 
         import mks.core.uisettings  # pylint: disable=W0404
         self._uiSettingsManager = mks.core.uisettings.UISettingsManager()
-        
         if profiler is not None:
             profiler.stepDone('Create UISettings')
         
         import mks.core.filefilter
         self._fileFilter = mks.core.filefilter.FileFilter()
+        if profiler is not None:
+            profiler.stepDone('Create FileFilter')
+        
+        import mks.core.locator
+        self._locator = mks.core.locator.Locator()
+        if profiler is not None:
+            profiler.stepDone('Create Locator')
         
         # Create plugins
         pluginsPath = os.path.join(os.path.dirname(__file__), '../plugins')
@@ -135,6 +141,9 @@ class Core(QObject):
             plugin = self._loadedPlugins.pop()
             plugin.del_()
 
+        if self._locator is not None:
+            self._locator.del_()
+            del self._locator
         if self._fileFilter is not None:
             del self._fileFilter
         if self._uiSettingsManager is not None:
@@ -255,7 +264,14 @@ class Core(QObject):
         See ::mod:`mks.core.filefilter`
         """
         return self._fileFilter
-
+    
+    def locator(self):
+        """Locator
+        
+        Widget, which appears on Ctrl+L. Allows to execute textual commands
+        Extendable with new commands
+        """
+        return self._locator
 
 core = Core()  # pylint: disable=C0103
 """Core instance. It is accessible as: ::
