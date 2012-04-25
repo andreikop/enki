@@ -56,7 +56,7 @@ class FileBrowserFilteredModel(QSortFilterProxyModel):
     """
     def __init__(self, parent):
         QSortFilterProxyModel.__init__(self, parent)
-        core.fileFilter().regExpChanged.connect(self.invalidateFilter)
+        core.fileFilter().regExpChanged.connect(self.invalidate)
     
     def columnCount(self, parent = QModelIndex()):  # pylint: disable=W0613
         """Column count for the model
