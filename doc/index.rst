@@ -40,6 +40,7 @@ Plugin API documentation
    core/config.rst
    core/uisettings.rst
    core/filefilter.rst
+   core/locator.rst
 
 Not API core modules
 --------------------
@@ -56,6 +57,7 @@ Library modules
     lib/termwidget.rst
     lib/buffpopen.rst
     lib/htmldelegate.rst
+    lib/pathcompleter.rst
 
 Plugins documentation
 ---------------------
