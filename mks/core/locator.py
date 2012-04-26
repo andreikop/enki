@@ -364,7 +364,6 @@ class Locator(QDialog):
     """
     def __init__(self, *args):
         QDialog.__init__(self, *args)
-        self.setWindowTitle(os.path.abspath(os.path.curdir))
         
         self._commandClasses = []
         self._history = ['']
@@ -516,6 +515,8 @@ class Locator(QDialog):
     def show(self):
         """QWidget.show implementation. Updates completion before showing widget
         """
+        self.setWindowTitle(os.path.abspath(os.path.curdir))
+
         self._edit.setPlainText('')
         self._updateCompletion()
         QDialog.show(self)
