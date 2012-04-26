@@ -88,11 +88,12 @@ setup(name=PACKAGE_NAME,
         author='Andrei Kopats',
         author_email='hlamer@tut.by',
         url=PACKAGE_URL,
-        download_url='TODO write download URL',
+        download_url='https://github.com/hlamer/mksv3/tags',
         packages=packages,
         package_data=package_data,
         scripts=['./mksv3'],
         data_files=data_files,
         classifiers=classifiers,
-        license='gpl2'
+        license='gpl2',
+        requires=['pyparsing']
         )
