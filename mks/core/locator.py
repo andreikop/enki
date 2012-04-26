@@ -512,4 +512,5 @@ class Locator(QDialog):
         """QWidget.show implementation. Updates completion before showing widget
         """
         self._edit.setPlainText('')
+        self._updateCompletion()
         QDialog.show(self)
