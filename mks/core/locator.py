@@ -398,6 +398,9 @@ class Locator(QDialog):
         
         self._action = core.actionManager().addAction("mNavigation/aLocator", "Locator", shortcut='Ctrl+L')
         self._action.triggered.connect(self._onAction)
+        
+        # without it action works only when main window is focused, and user can't move focus, when tree is focused
+        self.addAction(self._action)
     
     def del_(self):
         """Explicitly called destructor
