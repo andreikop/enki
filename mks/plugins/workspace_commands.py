@@ -237,7 +237,7 @@ class CommandSaveAs(AbstractCommand):
     def execute(self):
         """Execute command
         """
-        path = os.path.abspath(self._path)
+        path = os.path.abspath(os.path.expanduser(self._path))
         core.workspace().currentDocument().setFilePath(path)
         core.workspace().currentDocument().saveFile()
 
