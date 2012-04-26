@@ -4,7 +4,6 @@ FIXME
     don't drag a line with zero selection
     Use Alt+Up/Down to move lines
     Alt+A selects whole line
-    pyparsing dependency
     
 TODO
   minor improvements
