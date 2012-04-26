@@ -364,6 +364,7 @@ class Locator(QDialog):
     """
     def __init__(self, *args):
         QDialog.__init__(self, *args)
+        self.setWindowTitle(os.path.abspath(os.path.curdir))
         
         self._commandClasses = []
         self._history = ['']
