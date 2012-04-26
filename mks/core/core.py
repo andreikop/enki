@@ -120,7 +120,7 @@ class Core(QObject):
             profiler.stepDone('Create FileFilter')
         
         import mks.core.locator
-        self._locator = mks.core.locator.Locator()
+        self._locator = mks.core.locator.Locator(self._mainWindow)
         if profiler is not None:
             profiler.stepDone('Create Locator')
         
