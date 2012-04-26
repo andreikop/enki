@@ -47,16 +47,9 @@ class AbstractCommand:
     def pattern():
         """pyparsing pattern, which recognizes and constructs commands.
         
-        See TODO LINK workspace_commands as example
+        See `workspace_commands <https://github.com/hlamer/mksv3/blob/master/mks/plugins/workspace_commands.py>` as example
         """
         raise NotImplemented()
-    
-    def completer(self, text, pos):
-        """TODO LINK Completer instance for partially typed command.
-        
-        Return None, if your command doesn't have completer, or if completion is not available now
-        """
-        return None
 
     @staticmethod
     def isAvailable():
@@ -65,6 +58,13 @@ class AbstractCommand:
         i.e. SaveAs command is not available, if not files are opened
         """
         return True
+    
+    def completer(self, text, pos):
+        """ ::class:`mks.core.locator.AbstractCompleter` instance for partially typed command.
+        
+        Return None, if your command doesn't have completer, or if completion is not available now
+        """
+        return None
     
     def constructCommand(self, completableText):
         """After user clicked item on the TreeView, Locator
@@ -93,6 +93,7 @@ class AbstractCompleter:
     """Completer for Locator.
     
     Provides:
+    
     * inline completion
     * command(s) description
     * status and any other information from command
