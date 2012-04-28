@@ -387,6 +387,9 @@ class Controller(QObject):
     def _onReplaceCheckedStartPressed(self, replaceText):
         """Handler for 'replace checked' action
         """
+        if self._dock is None:  # no any results
+            return
+
         from threads import ReplaceThread 
         self._replaceThread = ReplaceThread()
         self._replaceThread.resultsHandled.connect(self._dock.onResultsHandledByReplaceThread)
