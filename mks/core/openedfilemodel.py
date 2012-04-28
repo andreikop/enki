@@ -122,13 +122,13 @@ class _OpenedFileModel(QAbstractItemModel):
         leftPath = os.path.dirname(docPath)
         
         sameEndOfPath = [path for path in documentPathes \
-                    if path is not None and path.endswith('/' + uniquePath)]
+                            if path is not None and path.endswith('/' + uniquePath)]
         while len(sameEndOfPath) > 1:
             leftPathDirname = os.path.abspath(os.path.join(leftPath, os.path.pardir))
             leftPathBasename = os.path.basename(leftPath)
             uniquePath = os.path.join(leftPathBasename, uniquePath)
             leftPath = leftPathDirname
-            sameEndOfPath = [path for path in documentPathes if path is not None and path.endswith(uniquePath)]
+            sameEndOfPath = [path for path in documentPathes if path is not None and path.endswith('/' + uniquePath)]
 
         return uniquePath
     
