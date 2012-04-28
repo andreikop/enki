@@ -265,8 +265,6 @@ class AbstractDocument(QWidget):
         text = eol.join(lines)
 
         # Write file
-        self._fileWatcher.disable()
-        
         try:
             openedFile = open(filePath, 'w')
         except IOError as ex:
@@ -276,6 +274,8 @@ class AbstractDocument(QWidget):
             return
         
         data = text.encode('utf8')
+        
+        self._fileWatcher.disable()
         try:
             openedFile.write(data)
             self._fileWatcher.setContents(data)
