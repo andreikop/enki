@@ -591,25 +591,57 @@ class Editor(AbstractTextEditor):
         selectionBuffer = clipboard.text(clipboard.Selection)
         copyBuffer = clipboard.text(clipboard.Clipboard)
         start, end = self.selection()
+        startLine, startCol = start
+        endLine, endCol = end
         
-        # Don't cut line, in start of which cursor stays
-        if self.qscintilla.selectedText().endswith('\n') and \
-           end > start:
-            absEnd = self._toAbsPosition(*end)
-            absEnd -= 1
-            end = self._toLineCol(absEnd)
-            self.qscintilla.setSelection(start[0], start[1], end[0], end[1])
+        if startLine == endLine and startCol == endCol:  # empty selection, select 1 line
+            endCol = len(self.line(endLine))
         
-        if start != end and \
-           end[0] + disposition in range(self.lineCount()):  # if have text and can move
-            self.beginUndoAction()
-            self.qscintilla.SendScintilla(self.qscintilla.SCI_LINECUT)
-            self.setCursorPosition(line=start[0] + disposition, column = 0)
-            self.qscintilla.insert(qApp.clipboard().text())
-            self.qscintilla.setSelection(start[0] + disposition, start[1], end[0] + disposition, end[1])
-            self.endUndoAction()
-            clipboard.setText(selectionBuffer, clipboard.Selection)
-            clipboard.setText(copyBuffer, clipboard.Clipboard)
+        startCol = 0  # always cut whole line
+        if endCol > 0:
+            if (endLine + 1) < self.lineCount():
+                # expand to line end (with \n)
+                endCol = 0
+                endLine += 1
+            else:
+                # expand to line end WITHOUT \n
+                endCol = len(self.line(endLine))
+
+        if startLine != endLine or startCol != endCol:  # if have text to move
+            if disposition < 0:  # move up
+                canMove = startLine + disposition >= 0
+            else:  # move down
+                endAbsPos = self._toAbsPosition(endLine, endCol)
+                canMove = endAbsPos + 1 < len(self.text())
+            
+            if canMove:
+                self.beginUndoAction()
+                self.qscintilla.setSelection(startLine, startCol, endLine, endCol)
+                self.qscintilla.cut()
+                
+                # add missing line to end before pasting, if necessary
+                if self.lineCount() <= startLine + disposition:
+                    lineBefore = startLine + disposition - 1
+                    self.setCursorPosition(line=lineBefore,
+                                           column = len(self.line(lineBefore)))
+                    self.qscintilla.insert('\n')
+                    newlineAddedWhenCut = True
+                else:
+                    newlineAddedWhenCut = False
+
+                self.setCursorPosition(line=startLine + disposition, column = 0)
+                text = qApp.clipboard().text()
+                if not text.endswith('\n'):  # if copied line without \n, add it
+                    text += '\n'
+                
+                if newlineAddedWhenCut:
+                    text = text[:-1]
+                
+                self.qscintilla.insert(text)
+                self.qscintilla.setSelection(startLine + disposition, startCol, endLine + disposition, endCol)
+                self.endUndoAction()
+                clipboard.setText(selectionBuffer, clipboard.Selection)
+                clipboard.setText(copyBuffer, clipboard.Clipboard)
 
     def moveLinesDown(self):
         """Move selected lines down
