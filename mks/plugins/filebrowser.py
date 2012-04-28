@@ -187,14 +187,15 @@ class SmartRecents(QObject):
         firstPopularDir = True
         popularDirs = self._dirsByPath()
         for directory in popularDirs:
-            if not directory in includedDirs:
-                if firstPopularDir:
-                    history.append(None)  # separator
-                    firstPopularDir = False
-                history.append( (directory, directory, ':mksicons/bookmark.png') )
-                includedDirs.add(directory)
-            if len(history) >= self.MAX_RECENTS_SIZE:
-                break
+            if os.path.isdir(directory):
+                if not directory in includedDirs:
+                    if firstPopularDir:
+                        history.append(None)  # separator
+                        firstPopularDir = False
+                    history.append( (directory, directory, ':mksicons/bookmark.png') )
+                    includedDirs.add(directory)
+                if len(history) >= self.MAX_RECENTS_SIZE:
+                    break
         
         self._recentsChanged.emit(history)
 
