@@ -236,7 +236,7 @@ class Editor(AbstractTextEditor):
                 command.setKey(0)
                 command.setAlternateKey(0)
         
-        for key in range(ord('A'), ord('Z')):
+        for key in range(ord('A'), ord('Z') + 1):
             for modifier in [qsci.SCMOD_CTRL | qsci.SCMOD_ALT,
                              qsci.SCMOD_CTRL | qsci.SCMOD_SHIFT,
                              qsci.SCMOD_ALT | qsci.SCMOD_SHIFT,

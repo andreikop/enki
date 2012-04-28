@@ -4,11 +4,11 @@ FIXME
     Alt+A selects whole line
     docs for plugins
     collapse all when jumping in FileBrowser
-    shift+ctrl+z inserts symbols
 
 TODO
   minor improvements
   medium functionality
+    tutorial
     Autoresize opened file list
   big functionality
     Indent text when pasting
