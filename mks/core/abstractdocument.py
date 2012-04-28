@@ -59,7 +59,7 @@ class _FileWatcher(QObject):
         """
         if self._watcher.files():
             self._watcher.removePaths(self._watcher.files())
-        if path is not None:
+        if path is not None and os.path.isfile(path):
             self._watcher.addPath(path)
         self._path = path
 
