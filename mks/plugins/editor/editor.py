@@ -592,6 +592,15 @@ class Editor(AbstractTextEditor):
         copyBuffer = clipboard.text(clipboard.Clipboard)
         self.beginUndoAction()
         start, end = self.selection()
+        
+        # Don't cut line, in start of which cursor stays
+        if self.qscintilla.selectedText().endswith('\n') and \
+           end > start:
+            absEnd = self._toAbsPosition(*end)
+            absEnd -= 1
+            end = self._toLineCol(absEnd)
+            self.qscintilla.setSelection(start[0], start[1], end[0], end[1])
+        
         self.qscintilla.SendScintilla(self.qscintilla.SCI_LINECUT)
         self.setCursorPosition(line=start[0] + disposition, column = 0)
         self.qscintilla.insert(qApp.clipboard().text())
