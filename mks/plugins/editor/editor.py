@@ -590,7 +590,6 @@ class Editor(AbstractTextEditor):
         clipboard = qApp.clipboard()
         selectionBuffer = clipboard.text(clipboard.Selection)
         copyBuffer = clipboard.text(clipboard.Clipboard)
-        self.beginUndoAction()
         start, end = self.selection()
         
         # Don't cut line, in start of which cursor stays
@@ -601,13 +600,16 @@ class Editor(AbstractTextEditor):
             end = self._toLineCol(absEnd)
             self.qscintilla.setSelection(start[0], start[1], end[0], end[1])
         
-        self.qscintilla.SendScintilla(self.qscintilla.SCI_LINECUT)
-        self.setCursorPosition(line=start[0] + disposition, column = 0)
-        self.qscintilla.insert(qApp.clipboard().text())
-        self.qscintilla.setSelection(start[0] + disposition, start[1], end[0] + disposition, end[1])
-        self.endUndoAction()
-        clipboard.setText(selectionBuffer, clipboard.Selection)
-        clipboard.setText(copyBuffer, clipboard.Clipboard)
+        if start != end and \
+           end[0] + disposition in range(self.lineCount()):  # if have text and can move
+            self.beginUndoAction()
+            self.qscintilla.SendScintilla(self.qscintilla.SCI_LINECUT)
+            self.setCursorPosition(line=start[0] + disposition, column = 0)
+            self.qscintilla.insert(qApp.clipboard().text())
+            self.qscintilla.setSelection(start[0] + disposition, start[1], end[0] + disposition, end[1])
+            self.endUndoAction()
+            clipboard.setText(selectionBuffer, clipboard.Selection)
+            clipboard.setText(copyBuffer, clipboard.Clipboard)
 
     def moveLinesDown(self):
         """Move selected lines down
