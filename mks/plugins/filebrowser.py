@@ -390,6 +390,16 @@ class Tree(QTreeView):
         self._upShortcut.setContext( Qt.WidgetShortcut )
         self._upShortcut.activated.connect(self.moveUp)
         
+        # shortcut accessible only when self._tree has focus
+        self._homeShortcut = QShortcut( QKeySequence( "`" ), self )
+        self._homeShortcut.setContext( Qt.WidgetShortcut )
+        self._homeShortcut.activated.connect(self._goUserHomeDir)
+        
+        # shortcut accessible only when self._tree has focus
+        self._homeShortcut = QShortcut( QKeySequence( "." ), self )
+        self._homeShortcut.setContext( Qt.WidgetShortcut )
+        self._homeShortcut.activated.connect(self._goCurrentDir)
+        
         self.activated.connect(self._onActivated)
         self._fileActivated.connect(fileBrowser.fileActivated)
 
@@ -423,6 +433,16 @@ class Tree(QTreeView):
         if parentOfCurrent != self.rootIndex():  # if not reached top
             self.setCurrentIndex(parentOfCurrent)  # move selection up
 
+    def _goUserHomeDir(self):
+        """Go to home directory
+        """
+        self._fileBrowser.setCurrentPath(os.path.expanduser("~"))
+    
+    def _goCurrentDir(self):
+        """Go to current directory
+        """
+        self._fileBrowser.setCurrentPath(os.path.abspath("."))
+    
     def _filteredModelIndexToPath(self, index):
         """Map index to file path
         """
