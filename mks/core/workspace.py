@@ -527,7 +527,8 @@ class Workspace(QStackedWidget):
     def _onFileOpenTriggered(self):
         """Handler of File->Open
         """
-        fileNames = QFileDialog.getOpenFileNames( self.window(), self.tr( "Choose the file(s) to open" ))
+        fileNames = QFileDialog.getOpenFileNames( self.window(),
+                                                  self.tr( "Classic open dialog. Main menu -> Navigation -> Locator is better" ))
                 
         for path in fileNames:
             self.openFile(path)
