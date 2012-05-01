@@ -310,46 +310,6 @@ class SmartHistory(QObject):
             self._aForward.setStatusTip(self.tr("Forward"))
             self._aForward.setToolTip(self.tr("Forward"))
 
-class JumpToCurent(QObject):
-    """Class implements 'Jump to current' functionality
-    It creates the action and handles it
-    """
-    def __init__(self, fileBrowser):
-        QObject.__init__(self)
-        self._fileBrowser = fileBrowser
-        
-        self._action = QAction(QIcon(':mksicons/text.png'),
-                               self.tr("Jump to current file path"),
-                               self)
-        self._action.setShortcut('Shift+Ctrl+J')
-        self._action.triggered.connect(self._onTriggered)
-
-        fileBrowser.titleBar().addAction(self._action, 0)
-        fileBrowser.titleBar().addSeparator(1)
-        core.actionManager().addAction("mNavigation/mFileBrowser/aJumpToCurrent", self._action)
-
-        fileBrowser.rootChanged.connect(self._updateAction)
-        core.workspace().currentDocumentChanged.connect(self._updateAction)
-
-    def del_(self):
-        """Explicitly called destructor
-        """
-        core.actionManager().removeAction(self._action)
-
-    def _updateAction(self):
-        """Update action enabled state after current file or current directory changed
-        """
-        self._action.setEnabled(_getCurDir() != self._fileBrowser.currentPath())
-        try:
-            self._action.setEnabled(_getCurDir() != self._fileBrowser.currentPath())
-        except OSError:  # probably current dir has been deleted
-            self._action.setEnabled(False)
-
-    def _onTriggered(self):
-        """Jump to directory of current file
-        """
-        self._fileBrowser.setCurrentPath(_getCurDir())
-
 class Tree(QTreeView):
     """File system tree
     """
@@ -621,7 +581,6 @@ class DockFileBrowser(pDockWidget):
         self._tree = None
         self._smartRecents = None
         self._smartHistory = None
-        self._jumpToCurrent = None
         
         self.setObjectName("FileBrowserDock")
         self.setWindowTitle(self.tr( "&File Browser" ))
@@ -639,8 +598,6 @@ class DockFileBrowser(pDockWidget):
         """
         if self._smartHistory is not None:
             self._smartHistory.del_()
-        if self._jumpToCurrent is not None:
-            self._jumpToCurrent.del_()
         if self._comboBox is not None:
             self._comboBox.del_()
         core.actionManager().removeAction("mDocks/aFileBrowser")
@@ -683,7 +640,6 @@ class DockFileBrowser(pDockWidget):
         
         self._smartRecents = SmartRecents(self)
         self._smartHistory = SmartHistory(self)
-        self._jumpToCurrent = JumpToCurent(self)
         
         self.setCurrentPath(_getCurDir())
     
