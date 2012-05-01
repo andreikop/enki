@@ -64,13 +64,16 @@ Plugins documentation
 .. toctree::
 
    plugins/appshortcuts.rst
+   plugins/associations.rst
+   plugins/cppfileswitch.rst
+   plugins/detectindent.rst
    plugins/editor.rst
    plugins/editortoolbar.rst
    plugins/editorshortcuts.rst
    plugins/filebrowser.rst
    plugins/helpmenu.rst
-   plugins/searchreplace.rst
-   plugins/associations.rst
    plugins/mitscheme.rst
+   plugins/recentfiles.rst
+   plugins/restorepos.rst
    plugins/schemeindenthelper.rst
-
+   plugins/searchreplace.rst

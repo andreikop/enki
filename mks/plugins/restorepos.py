@@ -1,5 +1,5 @@
 """
-resporepos --- Restore cursor position in a file
+restorepos --- Restore cursor position in a file
 ================================================
 """
 
