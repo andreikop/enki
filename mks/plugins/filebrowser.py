@@ -428,6 +428,7 @@ class Tree(QTreeView):
            current == self.rootIndex():  # need to move root up
             if self.rootIndex().parent().isValid():  # not reached root of the FS tree
                 self._fileBrowser.setCurrentPath( self._filteredModelIndexToPath(self.rootIndex().parent()))
+                self.collapseAll()  # if moving root up - collapse all items
         
         parentOfCurrent = self.currentIndex().parent()
         if parentOfCurrent != self.rootIndex():  # if not reached top
@@ -437,11 +438,13 @@ class Tree(QTreeView):
         """Go to home directory
         """
         self._fileBrowser.setCurrentPath(os.path.expanduser("~"))
+        self.collapseAll()
     
     def _goCurrentDir(self):
         """Go to current directory
         """
         self._fileBrowser.setCurrentPath(os.path.abspath("."))
+        self.collapseAll()
     
     def _filteredModelIndexToPath(self, index):
         """Map index to file path

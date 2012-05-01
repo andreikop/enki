@@ -1,7 +1,7 @@
 FIXME
     Use Alt+Up/Down to move lines
     docs for plugins
-    collapse all when jumping in FileBrowser
+    import pyparsing when needed
 
 TODO
   minor improvements
