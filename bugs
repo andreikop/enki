@@ -8,7 +8,6 @@ TODO
     Autoresize opened file list
   big functionality
     Indent text when pasting
-    File opener with Tab completion
     Comment/Uncomment code functionality
     Highlight search results in the editor and on the scroll bar (See google-chrome)
     Support non-utf8 encodings. Detect with chardet
