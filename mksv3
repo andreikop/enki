@@ -112,24 +112,6 @@ def _checkDependencies(profiler):
     if profiler is not None:
         profiler.stepDone('Import QScintilla')
 
-    try:
-        import pyparsing
-    except ImportError, ex:
-        html = "<html>Failed to import pyparsing module:<br/>" + \
-                str(ex) + '<br/>' + \
-                "Install <i>python-pyparsing</i> package, or download and install sources from " \
-                "<a href='http://pyparsing.wikispaces.com/Download+and+Installation'>this site</a></html>"
-        plain = "Failed to import pyparsing module:\n" + \
-                str(ex) + '\n' + \
-                "Install python-pyparsing package, or download and install sources from " \
-                "http://pyparsing.wikispaces.com/Download+and+Installation"
-        _showErrorMessage(True, "pyparsing not found", html, plain)
-        raise ex
-
-    if profiler is not None:
-        profiler.stepDone('Import pyparsing')
-
-
 def _configureLogging():
     logging.basicConfig(level=logging.ERROR)
     fileHandler = logging.handlers.RotatingFileHandler('/tmp/mksv3.log', 'a', 100 * 1024, 1)

@@ -10,13 +10,11 @@ Contains definition of AbstractCommand and AbstractCompleter interfaces
 
 
 from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QModelIndex, QSize, Qt
-from PyQt4.QtGui import QApplication, QDialog, QFontMetrics, QPalette, QSizePolicy, QStyle, \
+from PyQt4.QtGui import QApplication, QDialog, QFontMetrics, QMessageBox, QPalette, QSizePolicy, \
                         QStyle, QStyleOptionFrameV2, \
                         QTextCursor, QTextEdit, QTextOption, QTreeView, QVBoxLayout
 
 import os
-
-from pyparsing import Optional, Or, ParseException, StringEnd, White
 
 from mks.core.core import core
 from mks.lib.htmldelegate import HTMLDelegate
@@ -394,9 +392,6 @@ class Locator(QDialog):
         editSizeHint = self._edit.sizeHint()
         self.resize(editSizeHint.width(), editSizeHint.width() * 0.62)
         
-        self._edit.setFocus()
-        self._updateCompletion()
-        
         self._action = core.actionManager().addAction("mNavigation/aLocator", "Locator", shortcut='Ctrl+L')
         self._action.triggered.connect(self._onAction)
         
@@ -408,9 +403,27 @@ class Locator(QDialog):
         """
         core.actionManager().removeAction(self._action)
     
+    def _checkPyParsing(self):
+        """Check if pyparsing is available.
+        Show message, if not available
+        """
+        try:
+            import pyparsing
+            return True
+        except ImportError, ex:
+            QMessageBox.warning(core.mainWindow(), "Failed to start Locator",
+                                "<html>Locator requires <b>pyparsing</b> python module.<br\>\n"
+                                "Install <b>python-pyparsing</b> Debian package or see <br\>"
+                                "<a href='http://pyparsing.wikispaces.com/Download+and+Installation'>"
+                                    "official site</a></html>")
+            return False
+
     def _onAction(self):
         """Locator action triggered. Show themselves and make focused
         """
+        if not self._checkPyParsing():
+            return
+        
         self.show()
         self._edit.setFocus()
 
@@ -504,6 +517,8 @@ class Locator(QDialog):
     def _parseCommand(self, text):
         """Parse text and try to get command
         """
+        # delayed import, for optimize application start time
+        from pyparsing import Optional, Or, ParseException, StringEnd, White
         optWs = Optional(White()).suppress()
         pattern = optWs + Or([cmd.pattern() for cmd in self._availableCommands()]) + optWs + StringEnd()
         try:
