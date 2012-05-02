@@ -6,9 +6,6 @@ workspace_commands --- Open, SaveAs, GotoLine commands
 import os.path
 import glob
 
-from pyparsing import CharsNotIn, Combine, Keyword, Literal, Optional, Or, ParseException, \
-                     StringEnd, Suppress, White, Word, nums
-
 from mks.core.core import core
 from mks.lib.pathcompleter import makeSuitableCompleter, PathCompleter
 
@@ -34,6 +31,8 @@ class CommandGotoLine(AbstractCommand):
     def pattern():
         """Pyparsing pattern
         """
+        from pyparsing import Literal, Optional, Suppress, White, Word, nums  # delayed import, performance optimization
+
         line = Word(nums)("line")
         pat = (Literal('l ') + Suppress(Optional(White())) + Optional(line)) ^ line
         pat.leaveWhitespace()
@@ -100,6 +99,8 @@ class CommandOpen(AbstractCommand):
         longPath.setParseAction(attachLocation)
         slashPath = Combine(Literal('/') + Optional(CharsNotIn(" \t")))("path")
         slashPath.setParseAction(attachLocation)
+
+        from pyparsing import Literal, Optional, White, Word, nums  # delayed import, performance optimization
 
         pat = ((Literal('f ') + Optional(White()) + Optional(path)) ^ longPath ^ slashPath) + \
                     Optional(White() + Word(nums)("line"))
@@ -187,6 +188,8 @@ class CommandSaveAs(AbstractCommand):
         path = CharsNotIn(" \t")("path")
         path.setParseAction(attachLocation)
 
+        from pyparsing import Literal, Optional, White  # delayed import, performance optimization
+
         pat = (Literal('s ') + Optional(White()) + Optional(path))
         pat.leaveWhitespace()
         pat.setParseAction(CommandSaveAs.create)
@@ -246,11 +249,11 @@ class Plugin:
     """Plugin interface
     """
     def __init__(self):
-        for comCl in (CommandGotoLine, CommandOpen, CommandSaveAs):
-            core.locator().addCommandClass(comCl)
+        for comClass in (CommandGotoLine, CommandOpen, CommandSaveAs):
+            core.locator().addCommandClass(comClass)
 
     def del_(self):
         """Explicitly called destructor
         """
-        for comCl in (CommandGotoLine, CommandOpen, CommandSaveAs):
-            core.locator().removeCommandClass(comCl)
+        for comClass in (CommandGotoLine, CommandOpen, CommandSaveAs):
+            core.locator().removeCommandClass(comClass)
