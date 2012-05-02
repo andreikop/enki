@@ -93,14 +93,14 @@ class CommandOpen(AbstractCommand):
             """
             return [(loc, tocs[0])]
 
+        from pyparsing import CharsNotIn, Combine, Literal, Optional, White, Word, nums  # delayed import, performance optimization
+
         path = CharsNotIn(" \t")("path")
         path.setParseAction(attachLocation)
         longPath = CharsNotIn(" \t", min=2)("path")
         longPath.setParseAction(attachLocation)
         slashPath = Combine(Literal('/') + Optional(CharsNotIn(" \t")))("path")
         slashPath.setParseAction(attachLocation)
-
-        from pyparsing import Literal, Optional, White, Word, nums  # delayed import, performance optimization
 
         pat = ((Literal('f ') + Optional(White()) + Optional(path)) ^ longPath ^ slashPath) + \
                     Optional(White() + Word(nums)("line"))
@@ -185,10 +185,10 @@ class CommandSaveAs(AbstractCommand):
         def attachLocation(s, loc, tocs):
             return [(loc, tocs[0])]
 
+        from pyparsing import CharsNotIn, Literal, Optional, White  # delayed import, performance optimization
+
         path = CharsNotIn(" \t")("path")
         path.setParseAction(attachLocation)
-
-        from pyparsing import Literal, Optional, White  # delayed import, performance optimization
 
         pat = (Literal('s ') + Optional(White()) + Optional(path))
         pat.leaveWhitespace()
