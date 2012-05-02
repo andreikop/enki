@@ -23,7 +23,7 @@ class pDockWidget(QDockWidget):
         
         self._closeShortcut = QShortcut( QKeySequence( "Esc" ), self )
         self._closeShortcut.setContext( Qt.WidgetWithChildrenShortcut )
-        self._closeShortcut.activated.connect(self.hide)
+        self._closeShortcut.activated.connect(self._hide)
 
     def paintEvent(self, event ):
         QDockWidget.paintEvent(self,  event )
@@ -61,3 +61,11 @@ class pDockWidget(QDockWidget):
     def handleFocusProxy(self):
         if self.focusProxy() is not None:
             self.setFocus()
+
+    def _hide(self):
+        """Hide and return focus to MainWindow focus proxy
+        """
+        self.hide()
+        if self.parent() is not None and \
+           self.parent().focusProxy() is not None:
+            self.parent().focusProxy().setFocus()
