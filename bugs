@@ -1,10 +1,14 @@
 FIXME
-    Document line manipulaitons
+    Use QApplication.instance instead of qApp
+    link to github in the user docs
+    add deb commands to installation instructions
+    add pyparsing to installation instructions
+    remove monkeystudio ppa dependency
+    handle too old configs
 
 TODO
   minor improvements
   medium functionality
-    tutorial
     Autoresize opened file list
   big functionality
     Indent text when pasting
