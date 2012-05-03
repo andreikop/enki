@@ -4,7 +4,9 @@ FIXME
     add deb commands to installation instructions
     add pyparsing to installation instructions
     remove monkeystudio ppa dependency
-    handle too old configs
+    scheme wiki link is broken
+    scheme indentation is no clear
+
 
 TODO
   minor improvements

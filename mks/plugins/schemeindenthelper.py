@@ -41,7 +41,7 @@ class ModuleConfigurator(mks.core.uisettings.ModuleConfigurator):
         if core.config()['SchemeIndentHelper']['Enabled']:
             Plugin.instance.install()
         else:
-            Plugin.instance.uninstall()
+            Plugin.instance.del_()
 
 
 class Plugin(QObject):
@@ -71,7 +71,7 @@ class Plugin(QObject):
         
     
     def del_(self):
-        """Plugin.uninstall implementation. Clear the indent helper
+        """Plugin.del_ implementation. Clear the indent helper
         """
         if not self._installed:
             return
