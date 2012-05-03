@@ -6,7 +6,14 @@ FIXME
     remove monkeystudio ppa dependency
     scheme wiki link is broken
     scheme indentation is no clear
-
+    red rectangle is an option
+    handle dependencies on install step
+    remove submenus, except edit, recents
+    undo, redo - first menu actions
+    locator width is too small. Use line edit and selection!!
+    prepend * when searching in current dir
+    thread and sand clock while searching in locator
+    cd file browser to dragged folder
 
 TODO
   minor improvements
