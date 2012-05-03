@@ -1,4 +1,6 @@
 {
+    "_version" : 1,
+
     "NegativeFileFilter": [ "*~", "*.o", "*.pyc", "*.bak" ], 
 
     "Workspace": {
