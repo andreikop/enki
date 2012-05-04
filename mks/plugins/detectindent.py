@@ -5,6 +5,8 @@ detectindent --- Automatic indentation detection
 
 from mks.core.core import core
 
+# Bigger indents are probably not an indents
+_MAX_INDENT = 8
 
 class Plugin:
     """Plugin interface
@@ -67,7 +69,8 @@ class Plugin:
         for l in lines:
             currentIndent = _lineIndent(l)
             diff = _diffIndents(currentIndent, lastIndent)
-            if diff is not None:
+            if diff is not None and \
+               len(diff) <= _MAX_INDENT:
                 if diff in popularityTable:
                     popularityTable[diff] += 1
                 else:
