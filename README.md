@@ -12,7 +12,7 @@ Vim and Emacs are powerful, extensible and hacker friendly. But not usable. Mode
 
 I'm absolutelly sure, that it is possible to **join all the best in one project**. I really can't understand why the open source comunity hasn't done it yet. **Where are heros of the new generation?**
 
-I'm going to create next Unix text editor. Of course, such revolution can't be done by one man, but only by the comunity. **Your help needed!**
+I'm going to create next Unix text editor. Of course, such revolution can't be done by one man, but only by the comunity. **Your bug reports, suggestions, patches... are welcome!**
 
 ## mksv3 principles
 
