@@ -1,18 +1,19 @@
 FIXME
   docs
-    link to github in the user docs
     add deb commands to installation instructions
     add pyparsing to installation instructions
     remove monkeystudio ppa dependency
   bugs
     handle dependencies on install step
-    remove submenus, except edit, recents
-    undo, redo - first menu actions
     locator width is too small. Use line edit and selection!!
     prepend * when searching in current dir
     thread and sand clock while searching in locator
     cd file browser to dragged folder
     default font in the settings in white on white
+won't fix
+    remove submenus, except edit, recents
+    undo, redo - first menu actions
+
 
 TODO
   minor improvements
