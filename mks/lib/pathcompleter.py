@@ -5,7 +5,7 @@ pathcompleter --- Path completer for Locator
 
 
 from PyQt4.QtCore import Qt
-from PyQt4.QtGui import qApp, QFileSystemModel, QPalette, QStyle
+from PyQt4.QtGui import QApplication, QFileSystemModel, QPalette, QStyle
 
 import os
 import os.path
@@ -86,8 +86,8 @@ class AbstractPathCompleter(AbstractCompleter):
         """Format current directory for show it in the list of completions
         """
         return '<font style="background-color: %s; color: %s">%s</font>' % \
-                (qApp.palette().color(QPalette.Window).name(),
-                 qApp.palette().color(QPalette.WindowText).name(),
+                (QApplication.instance().palette().color(QPalette.Window).name(),
+                 QApplication.instance().palette().color(QPalette.WindowText).name(),
                  htmlEscape(text))
 
     def rowCount(self):
@@ -130,7 +130,7 @@ class AbstractPathCompleter(AbstractCompleter):
         """
         rowType, index = self._classifyRowIndex(row)
         if rowType == self._ERROR:
-            return qApp.style().standardIcon(QStyle.SP_MessageBoxCritical)
+            return QApplication.instance().style().standardIcon(QStyle.SP_MessageBoxCritical)
         elif rowType == self._HEADER:
             return None
         elif rowType == self._STATUS:

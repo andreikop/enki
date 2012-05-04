@@ -11,7 +11,7 @@ import shutil
 import signal
 import pkgutil
 
-from PyQt4.QtGui import qApp, QIcon
+from PyQt4.QtGui import QApplication, QIcon
 from PyQt4.QtCore import pyqtSignal, QObject, QTimer
 
 import mks.core.defines
@@ -71,7 +71,7 @@ class Core(QObject):
     def _prepareToCatchSigInt(self):
         """Catch SIGINT signal to close the application
         """
-        signal.signal(signal.SIGINT, lambda signum, frame: qApp.closeAllWindows())
+        signal.signal(signal.SIGINT, lambda signum, frame: QApplication.instance().closeAllWindows())
         self._checkSignalsTimer = QTimer()
         self._checkSignalsTimer.start(500)
         self._checkSignalsTimer.timeout.connect(lambda: None)  # Let the interpreter run each 500 ms.
@@ -86,7 +86,7 @@ class Core(QObject):
         if profiler is not None:
             profiler.stepDone('Catch SIGINT')
 
-        qApp.setWindowIcon(QIcon(':/mksicons/monkey2.png') )
+        QApplication.instance().setWindowIcon(QIcon(':/mksicons/monkey2.png') )
 
         # Imports are here for hack crossimport problem
         import mks.core.mainwindow  # pylint: disable=W0621,W0404

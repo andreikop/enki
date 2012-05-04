@@ -7,7 +7,7 @@ This module implements S&R plugin functionality. It joins together all other mod
 
 
 from PyQt4.QtCore import QObject, Qt
-from PyQt4.QtGui import qApp, QAction, QIcon, QMessageBox
+from PyQt4.QtGui import QApplication, QAction, QIcon, QMessageBox
 
 
 from mks.core.core import core
@@ -41,7 +41,7 @@ class Controller(QObject):
         self._createActions()
         
         core.workspace().currentDocumentChanged.connect(self._resetSearchInFileStartPoint)
-        qApp.focusChanged.connect(self._resetSearchInFileStartPoint)
+        QApplication.instance().focusChanged.connect(self._resetSearchInFileStartPoint)
         # QScintilla .cursorPositionChanged is emitted with delay.
 
     def del_(self):

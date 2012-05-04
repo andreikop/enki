@@ -8,7 +8,7 @@ from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, \
                          QModelIndex, Qt, \
                          QVariant
 
-from PyQt4.QtGui import qApp
+from PyQt4.QtGui import QApplication
 
 from mks.lib.htmldelegate import htmlEscape
 
@@ -29,7 +29,7 @@ class Result:  # pylint: disable=R0902
         beforeMatch = self.wholeLine[:self.column].lstrip()
         afterMatch = self.wholeLine[self.column + len(self.match.group(0)):].rstrip()
         
-        if qApp.palette().base().color().lightnessF() > 0.5:
+        if QApplication.instance().palette().base().color().lightnessF() > 0.5:
             color = 'yellow'
         else:
             color = 'maroon'

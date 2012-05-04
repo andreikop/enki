@@ -8,7 +8,7 @@ Uses QScintilla  internally
 import shutil
 
 from PyQt4.QtCore import pyqtSignal, Qt
-from PyQt4.QtGui import qApp, QColor, QFont, QFrame, QIcon, QKeyEvent, QKeySequence, QPrintDialog, QVBoxLayout
+from PyQt4.QtGui import QApplication, QColor, QFont, QFrame, QIcon, QKeyEvent, QKeySequence, QPrintDialog, QVBoxLayout
 
 from PyQt4.Qsci import *  # pylint: disable=W0401,W0614
 
@@ -59,7 +59,7 @@ class _QsciScintilla(QsciScintilla):
         QScintilla copies selected text to the selection clipboard. But, it is not desired behaviour.
         This method restores selection clipboard.
         """
-        clipboard = qApp.clipboard()
+        clipboard = QApplication.instance().clipboard()
         contents = clipboard.text(clipboard.Selection)
         QsciScintilla.setSelection(self, startLine, startCol, endLine, endCol)
         clipboard.setText(contents, clipboard.Selection)
@@ -73,7 +73,7 @@ class _QsciScintilla(QsciScintilla):
         
         New method, extends QScintilla functionality
         """
-        text = qApp.clipboard().text()
+        text = QApplication.instance().clipboard().text()
         
         self.beginUndoAction()
 
@@ -587,7 +587,7 @@ class Editor(AbstractTextEditor):
     def _moveLines(self, disposition):
         """Move selected lines down
         """
-        clipboard = qApp.clipboard()
+        clipboard = QApplication.instance().clipboard()
         selectionBuffer = clipboard.text(clipboard.Selection)
         copyBuffer = clipboard.text(clipboard.Clipboard)
         start, end = self.selection()
@@ -630,7 +630,7 @@ class Editor(AbstractTextEditor):
                     newlineAddedWhenCut = False
 
                 self.setCursorPosition(line=startLine + disposition, column = 0)
-                text = qApp.clipboard().text()
+                text = QApplication.instance().clipboard().text()
                 if not text.endswith('\n'):  # if copied line without \n, add it
                     text += '\n'
                 
