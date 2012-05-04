@@ -1,8 +1,4 @@
 FIXME
-  docs
-    add deb commands to installation instructions
-    add pyparsing to installation instructions
-    remove monkeystudio ppa dependency
   bugs
     handle dependencies on install step
     locator width is too small. Use line edit and selection!!
