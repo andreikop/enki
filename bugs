@@ -1,10 +1,10 @@
 FIXME
+  docs
     link to github in the user docs
     add deb commands to installation instructions
     add pyparsing to installation instructions
     remove monkeystudio ppa dependency
-    scheme wiki link is broken
-    scheme indentation is no clear
+  bugs
     red rectangle is an option
     handle dependencies on install step
     remove submenus, except edit, recents
@@ -13,6 +13,7 @@ FIXME
     prepend * when searching in current dir
     thread and sand clock while searching in locator
     cd file browser to dragged folder
+    default font in the settings in white on white
 
 TODO
   minor improvements
