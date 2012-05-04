@@ -15,35 +15,6 @@ import mks.core.uisettings
 # Intergration with the core
 #
 
-class ModuleConfigurator(mks.core.uisettings.ModuleConfigurator):
-    def __init__(self, dialog):
-        mks.core.uisettings.ModuleConfigurator.__init__(self, dialog)
-        self._wasEnabled = core.config()['SchemeIndentHelper']['Enabled']
-        text = "Indent Scheme according to http://community.schemewiki.org/?scheme-style"
-        checkBox = QCheckBox(text, dialog)
-        dialog.pIndentation.layout().addWidget(checkBox)
-        self._options = \
-        [   mks.core.uisettings.CheckableOption(dialog, core.config(),
-                                                "SchemeIndentHelper/Enabled", checkBox) ]
-
-    def saveSettings(self):
-        """Settings are stored in the core configuration file, therefore nothing to do here.
-        
-        Called by :mod:`mks.core.uisettings`
-        """
-        pass
-
-    def applySettings(self):
-        """Apply settings
-        
-        Called by :mod:`mks.core.uisettings`
-        """
-        if core.config()['SchemeIndentHelper']['Enabled']:
-            Plugin.instance.install()
-        else:
-            Plugin.instance.del_()
-
-
 class Plugin(QObject):
     """Module implementation
     """
@@ -80,11 +51,6 @@ class Plugin(QObject):
             document.languageChanged.disconnect(self._onLanguageChanged)
         self._installed = False
 
-    def moduleConfiguratorClass(self):
-        """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
-        """
-        return ModuleConfigurator
-    
     def _onDocumentOpened(self, document):
         """Document opened. Change it's indentation
         """
