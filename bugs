@@ -1,5 +1,4 @@
 FIXME
-    Use QApplication.instance instead of qApp
     link to github in the user docs
     add deb commands to installation instructions
     add pyparsing to installation instructions

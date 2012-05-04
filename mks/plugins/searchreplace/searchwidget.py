@@ -14,7 +14,7 @@ from PyQt4.QtCore import QDir, QEvent, \
                          QRect, QSize, Qt, \
                          pyqtSignal
 
-from PyQt4.QtGui import qApp, QCompleter, QDirModel, QFileDialog,  \
+from PyQt4.QtGui import QApplication, QCompleter, QDirModel, QFileDialog,  \
                         QFrame, QFileDialog, QIcon, \
                         QPainter,  \
                         QPalette, \
@@ -377,7 +377,7 @@ class SearchWidget(QFrame):
         """
         widget = self.cbSearch.lineEdit()
         
-        color = {SearchWidget.Normal: qApp.palette().color(QPalette.Base), \
+        color = {SearchWidget.Normal: QApplication.instance().palette().color(QPalette.Base), \
                  SearchWidget.Good: Qt.green, \
                  SearchWidget.Bad: Qt.red,
                  SearchWidget.Incorrect: Qt.darkYellow}

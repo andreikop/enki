@@ -9,7 +9,7 @@ import os.path
 
 from PyQt4 import uic
 from PyQt4.QtCore import QObject
-from PyQt4.QtGui import qApp, QDialog, QIcon
+from PyQt4.QtGui import QApplication, QDialog, QIcon
 
 from mks.core.defines import PACKAGE_NAME, PACKAGE_VERSION
 from mks.core.core import core
@@ -34,7 +34,7 @@ class Plugin(QObject):
                                 createAction('aDonate', self.tr('&Donate...'), 'add.png', 'donate')]
 
         action = core.actionManager().addAction( "mHelp/aAboutQt", self.tr('About &Qt...'), QIcon(':mksicons/qt.png'))
-        action.triggered.connect(qApp.aboutQt)
+        action.triggered.connect(QApplication.instance().aboutQt)
         self._createdActions.append(action)
     
     def del_(self):
