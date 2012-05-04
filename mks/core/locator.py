@@ -480,6 +480,8 @@ class Locator(QDialog):
             self._history.append('')  # new edited command
             self._historyIndex = len(self._history) - 1
             self._edit.clear()
+            if core.workspace().currentDocument():
+                core.workspace().currentDocument().setFocus()
             self.hide()
     
     def _onHistoryPrevious(self):
