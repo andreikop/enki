@@ -88,7 +88,7 @@ Supported versions are 10.04 - 11.10. For other, see Debian instructions.
 
 #### Source package
 
-The latest release is [here](https://github.com/hlamer/mksv3/tags). See [source installation instructions](https://github.com/hlamer/mksv3/wiki/source-installation-instructions)
+See [source installation instructions](https://github.com/hlamer/mksv3/wiki/source-installation-instructions)
 
 ## Documentation and support
 
