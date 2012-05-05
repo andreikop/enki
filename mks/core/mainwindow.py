@@ -78,6 +78,14 @@ class MainWindow(QMainWindow):
     themselves.
     """  # pylint: disable=W0105
     
+    directoryDropt = pyqtSignal(unicode)
+    """
+    directoryDropt()
+    
+    **Signal** emitted, when user drag-n-dropt directory to main windowd.
+    FileBrowser shows directory
+    """  # pylint: disable=W0105
+    
     def __init__(self):
         QMainWindow.__init__(self)
         
@@ -374,6 +382,8 @@ class MainWindow(QMainWindow):
                 localFile = url.toLocalFile()
                 if os.path.isfile(localFile):
                     core.workspace().openFile(localFile)
+                elif os.path.isdir(localFile):
+                    self.directoryDropt.emit(localFile)
         
         # default handler
         QMainWindow.dropEvent(self, event)
