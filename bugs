@@ -1,6 +1,5 @@
 FIXME
   bugs
-    handle dependencies on install step
     locator width is too small. Use line edit and selection!!
     prepend * when searching in current dir
     thread and sand clock while searching in locator
