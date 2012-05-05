@@ -413,9 +413,8 @@ class Locator(QDialog):
         except ImportError, ex:
             QMessageBox.warning(core.mainWindow(), "Failed to start Locator",
                                 "<html>Locator requires <b>pyparsing</b> python module.<br\>\n"
-                                "Install <b>python-pyparsing</b> Debian package or see <br\>"
-                                "<a href='http://pyparsing.wikispaces.com/Download+and+Installation'>"
-                                    "official site</a></html>")
+                                "See <a href='https://github.com/hlamer/mksv3/wiki/source-installation-instructions'>"
+                                    "installation instructions</a></html>")
             return False
 
     def _onAction(self):
