@@ -74,6 +74,10 @@ def _showErrorMessage(haveQt, header, html, plain):
             return
         tkMessageBox.showwarning(header, plain)
 
+_SEE_SITE_PLAIN = 'See https://github.com/hlamer/mksv3/wiki/source-installation-instructions'
+_SEE_SITE_HTML = \
+    'See <a href="https://github.com/hlamer/mksv3/wiki/source-installation-instructions"> installation instructions</a>'
+
 def _checkDependencies(profiler):
     """Check if 3rdparty software is installed in the system.
     Notify user, how to install it
@@ -83,8 +87,7 @@ def _checkDependencies(profiler):
     except ImportError, ex:
         plain =  'Failed to import Qt4 python bindings:\n' + \
                  str(ex) + '\n' + \
-                 'Install package python-qt4, or download sources from ' \
-                 'http://www.riverbankcomputing.co.uk/software/pyqt/download'
+                 _SEE_SITE_PLAIN
         
         _showErrorMessage(False, 'PyQt4 not found', plain, plain)
         raise ex
@@ -98,14 +101,14 @@ def _checkDependencies(profiler):
     try:
         import PyQt4.Qsci
     except ImportError, ex:
-        html = "<html>Failed to import QScintilla 2 python bindings:<br/>" + \
-                str(ex) + '<br/>' + \
-                "Install <i>python-qscintilla2</i> package, or download and install sources from " \
-                "<a href='http://www.riverbankcomputing.co.uk/software/qscintilla/download'>this site</a></html>"
+        html = "<html>" + \
+                    "Failed to import QScintilla 2 python bindings:<br/>" + \
+                    str(ex) + '<br/>' + \
+                    _SEE_SITE_HTML + \
+                "</html>"
         plain = "Failed to import QScintilla 2 python bindings:\n" + \
                 str(ex) + '\n' + \
-                "Install python-qscintilla2 package, or download and install sources from " \
-                "http://www.riverbankcomputing.co.uk/software/qscintilla/download"
+                _SEE_SITE_PLAIN
         _showErrorMessage(True, "QScintilla not found", html, plain)
         raise ex
 
