@@ -14,10 +14,42 @@ from distutils.core import setup
 
 from mks.core.defines import PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_URL
 
+def _checkDepencencies():
+    """Check if 3rdparty software is installed in the system.
+    Notify user, how to install it
+    """
+    _SEE_SITE_PLAIN = 'See https://github.com/hlamer/mksv3/wiki/source-installation-instructions'
+    ok = True
+    try:
+        import PyQt4
+    except ImportError, ex:
+        print 'Failed to import Qt4 python bindings:'
+        print '\t' + str(ex)
+        ok = False
+
+    try:
+        import PyQt4.Qsci
+    except ImportError, ex:
+        print "Failed to import QScintilla 2 python bindings:"
+        print '\t' + str(ex)
+        ok = False
+
+    try:
+        import pyparsing
+    except ImportError, ex:
+        print "Failed to import pyparsing:"
+        print '\t' + str(ex)
+        ok = False
+    
+    if not ok:
+        print 'See https://github.com/hlamer/mksv3/wiki/source-installation-instructions'
+
+    return ok
+
 """hlamer: A bit hacky way to exclude desktop files from distribution,
 but, I don't know how to do it better in crossplatform way
 """
-def isWinDist():
+def _isWinDist():
     for arg in sys.argv:
         if arg.startswith('--format') and \
            ('wininst' in arg or \
@@ -25,10 +57,11 @@ def isWinDist():
                return True
     return False
 
+#  Install .desktop and .xpm and .desktop only on unixes
 if (('install' in sys.argv or \
      'install_data' in sys.argv) and \
         os.name != 'posix') or \
-    'bdist' in sys.argv and isWinDist() or \
+    'bdist' in sys.argv and _isWinDist() or \
     'bdist_winints' in sys.argv or \
     'bdist_msi' in sys.argv:
         data_files = []
@@ -80,6 +113,9 @@ for loader, name, ispkg in pkgutil.iter_modules(['mks/plugins']):
     if ispkg:
         packages.append('mks/plugins/' + name)
         package_data['mks'].append('plugins/%s/*.ui' % name)
+
+if 'install' in sys.argv and not _checkDepencencies():
+    sys.exit(-1)
 
 setup(name=PACKAGE_NAME,
         version=PACKAGE_VERSION,

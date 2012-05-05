@@ -74,14 +74,16 @@ def _showErrorMessage(haveQt, header, html, plain):
             return
         tkMessageBox.showwarning(header, plain)
 
-_SEE_SITE_PLAIN = 'See https://github.com/hlamer/mksv3/wiki/source-installation-instructions'
-_SEE_SITE_HTML = \
-    'See <a href="https://github.com/hlamer/mksv3/wiki/source-installation-instructions"> installation instructions</a>'
 
 def _checkDependencies(profiler):
     """Check if 3rdparty software is installed in the system.
     Notify user, how to install it
     """
+    _SEE_SITE_PLAIN = 'See https://github.com/hlamer/mksv3/wiki/source-installation-instructions'
+    _SEE_SITE_HTML = \
+        'See <a href="https://github.com/hlamer/mksv3/wiki/source-installation-instructions">' \
+            'installation instructions</a>'
+
     try:
         import PyQt4
     except ImportError, ex:
