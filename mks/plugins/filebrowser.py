@@ -591,6 +591,8 @@ class DockFileBrowser(pDockWidget):
         self.showAction().setShortcut("Alt+F")
         core.actionManager().addAction("mDocks/aFileBrowser", self.showAction())
         
+        core.mainWindow().directoryDropt.connect(self._onDirectoryDropt)
+        
         self.visibilityChanged.connect(self._onVisibilityChanged)
     
     def del_(self):
@@ -642,6 +644,12 @@ class DockFileBrowser(pDockWidget):
         self._smartHistory = SmartHistory(self)
         
         self.setCurrentPath(_getCurDir())
+    
+    def _onDirectoryDropt(self, path):
+        """Directory drag-n-dropt to main window. Show it
+        """
+        self.setCurrentPath(path)
+        self.show()
     
     @pyqtSlot(list)
     def updateComboItems(self, items):
