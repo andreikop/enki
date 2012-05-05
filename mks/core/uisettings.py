@@ -424,8 +424,6 @@ class UISettings(QDialog):
         """
         selectedItem = self.twMenu.selectedItems()[0]
         
-        self.lInformations.setText( selectedItem.text( 0 ) )
-
         itemPath = self._itemPath(selectedItem)
         page = self._pageForItem[itemPath]
         self.swPages.setCurrentWidget(page)

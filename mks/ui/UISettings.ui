@@ -101,7 +101,7 @@
         <bool>true</bool>
        </property>
        <property name="currentIndex">
-        <number>10</number>
+        <number>9</number>
        </property>
        <widget class="QWidget" name="pGeneral">
         <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -199,8 +199,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>100</width>
-              <height>115</height>
+              <width>443</width>
+              <height>424</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_20">
@@ -278,12 +278,12 @@
               <property name="palette">
                <palette>
                 <active>
-                 <colorrole role="Base">
+                 <colorrole role="WindowText">
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
-                    <red>255</red>
-                    <green>255</green>
-                    <blue>255</blue>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
                    </color>
                   </brush>
                  </colorrole>
@@ -298,12 +298,12 @@
                  </colorrole>
                 </active>
                 <inactive>
-                 <colorrole role="Base">
+                 <colorrole role="WindowText">
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
-                    <red>255</red>
-                    <green>255</green>
-                    <blue>255</blue>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
                    </color>
                   </brush>
                  </colorrole>
@@ -318,12 +318,12 @@
                  </colorrole>
                 </inactive>
                 <disabled>
-                 <colorrole role="Base">
+                 <colorrole role="WindowText">
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
-                    <red>255</red>
-                    <green>255</green>
-                    <blue>255</blue>
+                    <red>165</red>
+                    <green>166</green>
+                    <blue>166</blue>
                    </color>
                   </brush>
                  </colorrole>
@@ -688,92 +688,6 @@
        </widget>
        <widget class="QWidget" name="pIndentation">
         <layout class="QVBoxLayout" name="verticalLayout_2">
-         <item>
-          <widget class="QLabel" name="lInformations">
-           <property name="palette">
-            <palette>
-             <active>
-              <colorrole role="Base">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>255</red>
-                 <green>255</green>
-                 <blue>255</blue>
-                </color>
-               </brush>
-              </colorrole>
-              <colorrole role="Window">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>255</red>
-                 <green>255</green>
-                 <blue>255</blue>
-                </color>
-               </brush>
-              </colorrole>
-             </active>
-             <inactive>
-              <colorrole role="Base">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>255</red>
-                 <green>255</green>
-                 <blue>255</blue>
-                </color>
-               </brush>
-              </colorrole>
-              <colorrole role="Window">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>255</red>
-                 <green>255</green>
-                 <blue>255</blue>
-                </color>
-               </brush>
-              </colorrole>
-             </inactive>
-             <disabled>
-              <colorrole role="Base">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>255</red>
-                 <green>255</green>
-                 <blue>255</blue>
-                </color>
-               </brush>
-              </colorrole>
-              <colorrole role="Window">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>255</red>
-                 <green>255</green>
-                 <blue>255</blue>
-                </color>
-               </brush>
-              </colorrole>
-             </disabled>
-            </palette>
-           </property>
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="autoFillBackground">
-            <bool>true</bool>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
-           </property>
-           <property name="text">
-            <string>General</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
          <item>
           <widget class="QGroupBox" name="gbIndentation">
            <property name="title">
