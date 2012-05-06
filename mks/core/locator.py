@@ -12,7 +12,7 @@ Contains definition of AbstractCommand and AbstractCompleter interfaces
 from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QModelIndex, QSize, Qt
 from PyQt4.QtGui import QApplication, QDialog, QFontMetrics, QMessageBox, QPalette, QSizePolicy, \
                         QStyle, QStyleOptionFrameV2, \
-                        QTextCursor, QTextEdit, QTextOption, QTreeView, QVBoxLayout
+                        QTextCursor, QLineEdit, QTextOption, QTreeView, QVBoxLayout
 
 import os
 
@@ -217,10 +217,10 @@ class _CompleterModel(QAbstractItemModel):
         self.modelReset.emit()
 
 
-class _CompletableLineEdit(QTextEdit):
+class _CompletableLineEdit(QLineEdit):
     """Locator line edit.
     
-    Based on QTextEdit, because needs HTML support
+    Based on QLineEdit, because needs HTML support
     
     Supports inline completion, emits signals when user wants to roll history or execute command
     """
@@ -241,120 +241,72 @@ class _CompletableLineEdit(QTextEdit):
     historyNext = pyqtSignal()
     
     def __init__(self, *args):
-        QTextEdit.__init__(self, *args)
-        self.setTabChangesFocus(True)
-        self.setWordWrapMode(QTextOption.NoWrap)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.setFixedHeight(self.sizeHint().height())
-        self._inlineCompletion = None
-
-    def sizeHint(self):
-        """QWidget.sizeHint implementation. Returns height of 1 line of text
-        """
-        fm = QFontMetrics(self.font())
-        h = fm.height() + 4
-        w = fm.width('x' * 64)
-        opt = QStyleOptionFrameV2()
-        opt.initFrom(self);
-        return self.style().sizeFromContents(QStyle.CT_LineEdit,
-                                             opt,
-                                             QSize(w, h).expandedTo(QApplication.globalStrut()),
-                                             self)
+        QLineEdit.__init__(self, *args)
 
     def event(self, event):
         """QObject.event implementation. Catches Tab events
         """
         if event.type() == event.KeyPress and \
            event.key() == Qt.Key_Tab:
-            if self._inlineCompletion is not None:
-                color = self.palette().color(QPalette.Base).name()
-                self.insertHtml('<font style="background-color: %s">%s</font>' % (color, self._inlineCompletion))
-                self._clearInlineCompletion()
+            if self.selectedText():
+                self.setCursorPosition(self.selectionStart() + len(self.selectedText()))
                 self.updateCompletion.emit()
             return True
         else:
-            return QTextEdit.event(self, event)
+            return QLineEdit.event(self, event)
     
     def keyPressEvent(self, event):
         """QWidget.keyPressEvent implementation. Catches Return, Up, Down, Ctrl+Backspace
         """
-        self._clearInlineCompletion()
         if event.key() in (Qt.Key_Enter, Qt.Key_Return):
+            self.setCursorPosition(self.selectionStart() + len(self.selectedText()))
             self.enterPressed.emit()
         elif event.key() == Qt.Key_Up:
             self.historyPrevious.emit()
         elif event.key() == Qt.Key_Down:
             self.historyNext.emit()
+        elif event.key() == Qt.Key_Right:
+            if self.selectedText():
+                self.setCursorPosition(self.selectionStart() + len(self.selectedText()))
+            else:
+                QLineEdit.keyPressEvent(self, event)
         elif event.key() == Qt.Key_Backspace and \
              event.modifiers() == Qt.ControlModifier:
             # Ctrl+Backspace. Usualy deletes word, but, for this edit should delete path level
-            pos = self.textCursor().position()
-            textBefore = self.toPlainText()[:pos - 1]  # -1 to ignore / at the end
+            self._clearInlineCompletion()
+            pos = self.cursorPosition()
+            textBefore = self.text()[:pos - 1]  # -1 to ignore / at the end
             slashIndex = textBefore.rfind('/')
             spaceIndex = textBefore.rfind(' ')
             if slashIndex != -1 and slashIndex > spaceIndex:
                 self._deleteToSlash()
             else:
-                QTextEdit.keyPressEvent(self, event)
+                QLineEdit.keyPressEvent(self, event)
         else:
-            QTextEdit.keyPressEvent(self, event)
+            self._clearInlineCompletion()
+            QLineEdit.keyPressEvent(self, event)
         self.updateCompletion.emit()
     
     def _deleteToSlash(self):
         """Delete back until /. Called on Ctrl+Backspace pressing
         """
-        text = self.toPlainText()
-        cursor = self.textCursor()
-        cursorPos = cursor.position()
+        text = self.text()
+        cursorPos = self.cursorPosition()
         slashPos = text.rfind('/', 0, cursorPos - 1)
-        cursor.movePosition(cursor.Left, cursor.KeepAnchor, cursorPos - slashPos - 1)
-        cursor.removeSelectedText()
-    
-    def mousePressEvent(self, event):
-        """Mouse event handler.
-        Removed inline completion before processing event
-        """
+        self.setSelection(slashPos + 1, cursorPos - slashPos)
         self._clearInlineCompletion()
-        QTextEdit.mousePressEvent(self, event)
-        if self.textCursor().atEnd():
-            self.updateCompletion.emit()
 
     def _clearInlineCompletion(self):
-        """Remove inline completion
+        """Clear inline completion, if exists
         """
-        if self._inlineCompletion is not None:
-            cursor = self.textCursor()
-            for c in self._inlineCompletion:
-                cursor.deleteChar()
-            self._inlineCompletion = None
-    
+        if self.selectedText():
+            self.del_()
+
     def setInlineCompletion(self, text):
         """Set inline completion
         """
-        self._inlineCompletion = text
-        cursor = self.textCursor()
-        pos = cursor.position()
-        color = self.palette().color(QPalette.Highlight).name()
-        cursor.insertHtml('<font style="background-color: %s">%s</font>' % (color, text))
-        cursor.setPosition(pos)
-        self.setTextCursor(cursor)
-    
-    def setPlainText(self, text):
-        """QTextEdit.setPlainText implementation.
-        Clears inline completion before setting new text
-        """
-        self.setInlineCompletion('')
-        QTextEdit.setPlainText(self, text)
-        self.moveCursor(QTextCursor.End)
-    
-    def insertPlainText(self, text):
-        """QTextEdit.insertPlainText implementation.
-        Clears inline completion before inserting new text
-        """
-        self._clearInlineCompletion()
-        QTextEdit.insertPlainText(self, text)
+        self.insert(text)
+        self.setSelection(self.cursorPosition(), -len(text))
 
 
 class Locator(QDialog):
@@ -389,9 +341,9 @@ class Locator(QDialog):
         self._edit.historyNext.connect(self._onHistoryNext)
         self.setFocusProxy(self._edit)
 
-        editSizeHint = self._edit.sizeHint()
-        self.resize(editSizeHint.width(), editSizeHint.width() * 0.62)
-        
+        width = QFontMetrics(self.font()).width('x' * 64)  # width of 64 'x' letters
+        self.resize(width, width * 0.62)
+
         self._action = core.actionManager().addAction("mNavigation/aLocator", "Locator", shortcut='Ctrl+L')
         self._action.triggered.connect(self._onAction)
         
@@ -430,13 +382,13 @@ class Locator(QDialog):
         """Item in the TreeView has been clicked.
         Open file, if user selected it
         """
-        command = self._parseCommand(self._edit.toPlainText())
+        command = self._parseCommand(self._edit.text())
         if command is not None:
             newText = self._model.completer.getFullText(index.row())
             if newText is not None:
                 newCommandText = command.constructCommand(newText)
                 if newCommandText is not None:
-                    self._edit.setPlainText(newCommandText)
+                    self._edit.setText(newCommandText)
                     self._edit.setFocus()
                     self._onEnterPressed()
                     self._updateCompletion()
@@ -444,12 +396,12 @@ class Locator(QDialog):
     def _updateCompletion(self):
         """User edited text or moved cursor. Update inline and TreeView completion
         """
-        text = self._edit.toPlainText()
+        text = self._edit.text()
         completer = None
         
         command = self._parseCommand(text)
         if command is not None:
-            completer = command.completer(self._edit.toPlainText(), self._edit.textCursor().position())
+            completer = command.completer(self._edit.text(), self._edit.cursorPosition())
 
             if completer is not None:
                 inline = completer.inline()
@@ -468,7 +420,7 @@ class Locator(QDialog):
     def _onEnterPressed(self):
         """User pressed Enter or clicked item. Execute command, if possible
         """
-        text = self._edit.toPlainText().strip()
+        text = self._edit.text().strip()
         command = self._parseCommand(text)
         if command is not None and command.isReadyToExecute():
             command.execute()
@@ -487,18 +439,18 @@ class Locator(QDialog):
         """User pressed Up. Roll history
         """
         if self._historyIndex == len(self._history) - 1:  # save edited command
-            self._history[self._historyIndex] = self._edit.toPlainText()
+            self._history[self._historyIndex] = self._edit.text()
         
         if self._historyIndex > 0:
             self._historyIndex -= 1
-            self._edit.setPlainText(self._history[self._historyIndex])
+            self._edit.setText(self._history[self._historyIndex])
     
     def _onHistoryNext(self):
         """User pressed Down. Roll history
         """
         if self._historyIndex < len(self._history) - 1:
             self._historyIndex += 1
-            self._edit.setPlainText(self._history[self._historyIndex])
+            self._edit.setText(self._history[self._historyIndex])
     
     def addCommandClass(self, commandClass):
         """Add new command to the locator. Shall be called by plugins, which provide locator commands
@@ -533,6 +485,6 @@ class Locator(QDialog):
         """
         self.setWindowTitle(os.path.abspath(os.path.curdir))
 
-        self._edit.setPlainText('')
+        self._edit.setText('')
         self._updateCompletion()
         QDialog.show(self)
