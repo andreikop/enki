@@ -1,10 +1,4 @@
 FIXME
-  bugs
-    thread and sand clock while searching in locator
-won't fix
-    prepend * when searching in current dir
-    remove submenus, except edit, recents
-    undo, redo - first menu actions
 
 TODO
   minor improvements
