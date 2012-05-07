@@ -337,9 +337,12 @@ class _CompleterConstructorThread(QThread):
     
     completerReady = pyqtSignal(object, object)
     
-    def __init__(self, locator):
-        QThread.__init__(self, locator)
-        self._locator = locator
+    def __init__(self):
+        QThread.__init__(self)
+        self._terminated = False
+    
+    def __del__(self):
+        self.terminate()
     
     def start(self, command, text, cursorPos):
         """Start constructing completer
@@ -347,6 +350,7 @@ class _CompleterConstructorThread(QThread):
         self._command = command
         self._text = text
         self._cursorPos = cursorPos
+        self._terminated = False
         QThread.start(self)
     
     def run(self):
@@ -356,7 +360,15 @@ class _CompleterConstructorThread(QThread):
         completer = self._command.completer(self._text, self._cursorPos)
         self.setTerminationEnabled(False)
         
-        self.completerReady.emit(self._command, completer)
+        if not self._terminated:
+            self.completerReady.emit(self._command, completer)
+    
+    def terminate(self):
+        """Terminate thread only if running
+        """
+        self._terminated = True
+        if self.isRunning():
+            QThread.terminate(self)
 
 
 class Locator(QDialog):
@@ -405,14 +417,13 @@ class Locator(QDialog):
         self._loadingTimer.setInterval(200)
         self._loadingTimer.timeout.connect(self._applyLoadingCompleter)
         
-        self._completerConstructorThread = _CompleterConstructorThread(self)
-        self._completerConstructorThread.completerReady.connect(self._applyCompleter)
+        self._completerConstructorThread = None
+
     
     def del_(self):
         """Explicitly called destructor
         """
         core.actionManager().removeAction(self._action)
-        self._completerConstructorThread.terminate()
     
     def _checkPyParsing(self):
         """Check if pyparsing is available.
@@ -460,7 +471,11 @@ class Locator(QDialog):
         
         command = self._parseCommand(text)
         if command is not None:
-            self._completerConstructorThread.terminate()
+            if self._completerConstructorThread is not None:
+                self._completerConstructorThread.terminate()
+            self._completerConstructorThread = _CompleterConstructorThread()
+            self._completerConstructorThread.completerReady.connect(self._applyCompleter)
+
             self._loadingTimer.start()
             self._completerConstructorThread.start(command,
                                self._edit.text(),
