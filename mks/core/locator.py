@@ -9,7 +9,7 @@ Contains definition of AbstractCommand and AbstractCompleter interfaces
 
 
 
-from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QModelIndex, QSize, Qt
+from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QModelIndex, QSize, Qt, QTimer, QThread
 from PyQt4.QtGui import QApplication, QDialog, QFontMetrics, QMessageBox, QPalette, QSizePolicy, \
                         QStyle, QStyleOptionFrameV2, \
                         QTextCursor, QLineEdit, QTextOption, QTreeView, QVBoxLayout
@@ -158,6 +158,27 @@ class _HelpCompleter(AbstractCompleter):
             return self._commands[row].signature()
         else:
             return self._commands[row].description()
+
+
+class _StatusCompleter(AbstractCompleter):
+    """AbstractCompleter implementation, which shows status message
+    """
+    def __init__(self, text):
+        self._text = text
+    
+    def rowCount(self):
+        """AbstractCompleter method implementation
+        
+        Return count of available commands
+        """
+        return 1
+    
+    def text(self, row, column):
+        """AbstractCompleter method implementation
+        
+        Return command description
+        """
+        return self._text
 
 
 class _CompleterModel(QAbstractItemModel):
@@ -309,6 +330,35 @@ class _CompletableLineEdit(QLineEdit):
         self.setSelection(self.cursorPosition(), -len(text))
 
 
+class _CompleterConstructorThread(QThread):
+    """Thread constructs Completer
+    Sometimes it requires a lot of time, i.e. when expanding "/usr/lib/*"
+    """
+    
+    completerReady = pyqtSignal(object, object)
+    
+    def __init__(self, locator):
+        QThread.__init__(self, locator)
+        self._locator = locator
+    
+    def start(self, command, text, cursorPos):
+        """Start constructing completer
+        """
+        self._command = command
+        self._text = text
+        self._cursorPos = cursorPos
+        QThread.start(self)
+    
+    def run(self):
+        """Thread function
+        """
+        self.setTerminationEnabled(True)
+        completer = self._command.completer(self._text, self._cursorPos)
+        self.setTerminationEnabled(False)
+        
+        self.completerReady.emit(self._command, completer)
+
+
 class Locator(QDialog):
     """Locator widget and implementation
     """
@@ -349,11 +399,20 @@ class Locator(QDialog):
         
         # without it action works only when main window is focused, and user can't move focus, when tree is focused
         self.addAction(self._action)
+        
+        self._loadingTimer = QTimer(self)
+        self._loadingTimer.setSingleShot(True)
+        self._loadingTimer.setInterval(200)
+        self._loadingTimer.timeout.connect(self._applyLoadingCompleter)
+        
+        self._completerConstructorThread = _CompleterConstructorThread(self)
+        self._completerConstructorThread.completerReady.connect(self._applyCompleter)
     
     def del_(self):
         """Explicitly called destructor
         """
         core.actionManager().removeAction(self._action)
+        self._completerConstructorThread.terminate()
     
     def _checkPyParsing(self):
         """Check if pyparsing is available.
@@ -392,7 +451,7 @@ class Locator(QDialog):
                     self._edit.setFocus()
                     self._onEnterPressed()
                     self._updateCompletion()
-
+        
     def _updateCompletion(self):
         """User edited text or moved cursor. Update inline and TreeView completion
         """
@@ -401,21 +460,35 @@ class Locator(QDialog):
         
         command = self._parseCommand(text)
         if command is not None:
-            completer = command.completer(self._edit.text(), self._edit.cursorPosition())
-
-            if completer is not None:
-                inline = completer.inline()
-                if inline:
-                    self._edit.setInlineCompletion(inline)
-            else:
-                completer = _HelpCompleter([command])
+            self._completerConstructorThread.terminate()
+            self._loadingTimer.start()
+            self._completerConstructorThread.start(command,
+                               self._edit.text(),
+                               self._edit.cursorPosition())
         else:
-            completer = _HelpCompleter(self._availableCommands())
+            self._applyCompleter(None, _HelpCompleter(self._availableCommands()))
 
+    def _applyLoadingCompleter(self):
+        """Set 'Loading...' message
+        """
+        self._applyCompleter(None, _StatusCompleter('<i>Loading...</i>'))
+    
+    def _applyCompleter(self, command, completer):
+        """Apply completer. Called by _updateCompletion or by thread function when Completer is constructed
+        """
+        self._loadingTimer.stop()
+
+        if completer is None:
+            completer = _HelpCompleter([command])
+        
+        inline = completer.inline()
+        if inline:
+            self._edit.setInlineCompletion(inline)
         self._model.setCompleter(completer)
         if completer.columnCount() > 1:
             self._table.resizeColumnToContents(0)
             self._table.setColumnWidth(0, self._table.columnWidth(0) + 20)  # 20 px spacing between columns
+
     
     def _onEnterPressed(self):
         """User pressed Enter or clicked item. Execute command, if possible
