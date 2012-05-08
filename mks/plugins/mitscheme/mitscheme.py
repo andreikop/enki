@@ -175,8 +175,8 @@ class MitScheme(QObject):
         if not self._schemeIsRunning:
             return
 
-        self._processOutputTimer.stop()
         self._buffPopen.stop()
+        self._processOutputTimer.stop()
         self._schemeIsRunning = False
         self._term.appendError("Interpreter process exited. Execute any command to run it again\n")
         self.processIsRunningChanged.emit(self._schemeIsRunning)
