@@ -1,0 +1,144 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>htmldelegate — QStyledItemDelegate delegate. Draws HTML &mdash; mksv3. Simple programmers text editor</title>
+    <link rel="stylesheet" href="../static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '12.04.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/underscore.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <link rel="shortcut icon" href="../static/monkey2.ico"/>
+    <link rel="top" title="mksv3. Simple programmers text editor" href="../index.html" />
+    <link rel="next" title="pathcompleter — Path completer for Locator" href="pathcompleter.html" />
+    <link rel="prev" title="buffpopen — Buffered subprocess. Popen implementation" href="buffpopen.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pathcompleter.html" title="pathcompleter — Path completer for Locator"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="buffpopen.html" title="buffpopen — Buffered subprocess. Popen implementation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">mksv3. Simple programmers text editor</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-mks.lib.htmldelegate"></span><div class="section" id="htmldelegate-qstyleditemdelegate-delegate-draws-html">
+<h1>htmldelegate &#8212; QStyledItemDelegate delegate. Draws HTML<a class="headerlink" href="#htmldelegate-qstyleditemdelegate-delegate-draws-html" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="mks.lib.htmldelegate.htmlEscape">
+<tt class="descclassname">mks.lib.htmldelegate.</tt><tt class="descname">htmlEscape</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#mks.lib.htmldelegate.htmlEscape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace special HTML symbols with escase sequences</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.lib.htmldelegate.HTMLDelegate">
+<em class="property">class </em><tt class="descclassname">mks.lib.htmldelegate.</tt><tt class="descname">HTMLDelegate</tt><a class="headerlink" href="#mks.lib.htmldelegate.HTMLDelegate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QStyledItemDelegate</span></tt></p>
+<p>QStyledItemDelegate implementation. Draws HTML</p>
+<p><a class="reference external" href="http://stackoverflow.com/questions/1956542/how-to-make-item-view-render-rich-html-text-in-qt/1956781#1956781">http://stackoverflow.com/questions/1956542/how-to-make-item-view-render-rich-html-text-in-qt/1956781#1956781</a></p>
+<dl class="method">
+<dt id="mks.lib.htmldelegate.HTMLDelegate.paint">
+<tt class="descname">paint</tt><big>(</big><em>painter</em>, <em>option</em>, <em>index</em><big>)</big><a class="headerlink" href="#mks.lib.htmldelegate.HTMLDelegate.paint" title="Permalink to this definition">¶</a></dt>
+<dd><p>QStyledItemDelegate.paint implementation</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.lib.htmldelegate.HTMLDelegate.sizeHint">
+<tt class="descname">sizeHint</tt><big>(</big><em>option</em>, <em>index</em><big>)</big><a class="headerlink" href="#mks.lib.htmldelegate.HTMLDelegate.sizeHint" title="Permalink to this definition">¶</a></dt>
+<dd><p>QStyledItemDelegate.sizeHint implementation</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../static/monkey2.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="buffpopen.html"
+                        title="previous chapter">buffpopen &#8212; Buffered subprocess. Popen implementation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pathcompleter.html"
+                        title="next chapter">pathcompleter &#8212; Path completer for Locator</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../sources/lib/htmldelegate.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pathcompleter.html" title="pathcompleter — Path completer for Locator"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="buffpopen.html" title="buffpopen — Buffered subprocess. Popen implementation"
+             >previous</a> |</li>
+        <li><a href="../index.html">mksv3. Simple programmers text editor</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright (C) 2005 - 2012 Andrei KOPATS, Filipe AZEVEDO and The MkS Team.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

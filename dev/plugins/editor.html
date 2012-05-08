@@ -1,0 +1,156 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>editor — Text editor. Uses QScintilla internally &mdash; mksv3. Simple programmers text editor</title>
+    <link rel="stylesheet" href="../static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '12.04.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/underscore.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <link rel="shortcut icon" href="../static/monkey2.ico"/>
+    <link rel="top" title="mksv3. Simple programmers text editor" href="../index.html" />
+    <link rel="next" title="editortoolbar — Shows position, save state, EOL and indent" href="editortoolbar.html" />
+    <link rel="prev" title="detectindent — Automatic indentation detection" href="detectindent.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="editortoolbar.html" title="editortoolbar — Shows position, save state, EOL and indent"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="detectindent.html" title="detectindent — Automatic indentation detection"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">mksv3. Simple programmers text editor</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-mks.plugins.editor"></span><div class="section" id="editor-text-editor-uses-qscintilla-internally">
+<h1>editor &#8212; Text editor. Uses QScintilla internally<a class="headerlink" href="#editor-text-editor-uses-qscintilla-internally" title="Permalink to this headline">¶</a></h1>
+<p>This text editor is used by default</p>
+<dl class="class">
+<dt id="mks.plugins.editor.EditorConfigurator">
+<em class="property">class </em><tt class="descclassname">mks.plugins.editor.</tt><tt class="descname">EditorConfigurator</tt><big>(</big><em>dialog</em><big>)</big><a class="headerlink" href="#mks.plugins.editor.EditorConfigurator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../core/uisettings.html#mks.core.uisettings.ModuleConfigurator" title="mks.core.uisettings.ModuleConfigurator"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.uisettings.ModuleConfigurator</span></tt></a></p>
+<p>ModuleConfigurator interface implementation</p>
+<dl class="method">
+<dt id="mks.plugins.editor.EditorConfigurator.saveSettings">
+<tt class="descname">saveSettings</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.EditorConfigurator.saveSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main settings should be saved by the core. Save only lexer settings</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.editor.EditorConfigurator.applySettings">
+<tt class="descname">applySettings</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.EditorConfigurator.applySettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply editor and lexer settings</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.plugins.editor.Plugin">
+<em class="property">class </em><tt class="descclassname">mks.plugins.editor.</tt><tt class="descname">Plugin</tt><a class="headerlink" href="#mks.plugins.editor.Plugin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plugin interface implementation</p>
+<p>Installs and removes editor from the system</p>
+<dl class="method">
+<dt id="mks.plugins.editor.Plugin.del_">
+<tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Plugin.del_" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.editor.Plugin.moduleConfiguratorClass">
+<tt class="descname">moduleConfiguratorClass</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.editor.Plugin.moduleConfiguratorClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>:<a class="reference internal" href="../core/uisettings.html#mks.core.uisettings.ModuleConfigurator" title="mks.core.uisettings.ModuleConfigurator"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.uisettings.ModuleConfigurator</span></tt></a> used to configure plugin with UISettings dialogue</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../static/monkey2.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="detectindent.html"
+                        title="previous chapter">detectindent &#8212; Automatic indentation detection</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="editortoolbar.html"
+                        title="next chapter">editortoolbar &#8212; Shows position, save state, EOL and indent</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../sources/plugins/editor.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="editortoolbar.html" title="editortoolbar — Shows position, save state, EOL and indent"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="detectindent.html" title="detectindent — Automatic indentation detection"
+             >previous</a> |</li>
+        <li><a href="../index.html">mksv3. Simple programmers text editor</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright (C) 2005 - 2012 Andrei KOPATS, Filipe AZEVEDO and The MkS Team.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

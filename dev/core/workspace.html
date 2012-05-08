@@ -1,0 +1,318 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>workspace — Open documents and manage it &mdash; mksv3. Simple programmers text editor</title>
+    <link rel="stylesheet" href="../static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '12.04.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/underscore.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <link rel="shortcut icon" href="../static/monkey2.ico"/>
+    <link rel="top" title="mksv3. Simple programmers text editor" href="../index.html" />
+    <link rel="next" title="abstractdocument — Base classes for workspace documents" href="abstractdocument.html" />
+    <link rel="prev" title="mainwindow — Main window of the UI. Fills main menu." href="mainwindow.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="abstractdocument.html" title="abstractdocument — Base classes for workspace documents"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mainwindow.html" title="mainwindow — Main window of the UI. Fills main menu."
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">mksv3. Simple programmers text editor</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-mks.core.workspace"></span><div class="section" id="workspace-open-documents-and-manage-it">
+<h1>workspace &#8212; Open documents and manage it<a class="headerlink" href="#workspace-open-documents-and-manage-it" title="Permalink to this headline">¶</a></h1>
+<p>Terminology:</p>
+<p>Workspace - main working area, where documents are placed.</p>
+<p>Document - widget on workspace. Here is examples of documents:</p>
+<ul class="simple">
+<li>Textual editor</li>
+<li>QtDesigner (probably in the future)</li>
+<li>QtAssistant (probably in the future)</li>
+</ul>
+<p>Document classes are herited from <a class="reference internal" href="abstractdocument.html#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a></p>
+<p><a class="reference internal" href="#mks.core.workspace.Workspace" title="mks.core.workspace.Workspace"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.workspace.Workspace</span></tt></a></p>
+<dl class="class">
+<dt id="mks.core.workspace.Workspace">
+<em class="property">class </em><tt class="descclassname">mks.core.workspace.</tt><tt class="descname">Workspace</tt><big>(</big><em>mainWindow</em><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QStackedWidget</span></tt></p>
+<p>Class manages set of opened documents, allows to open new file</p>
+<p>instance is accessible as:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">mks.core.core</span> <span class="kn">import</span> <span class="n">core</span>
+<span class="n">core</span><span class="o">.</span><span class="n">workspace</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="attribute">
+<dt id="mks.core.workspace.Workspace.documentOpened">
+<tt class="descname">documentOpened</tt><a class="headerlink" href="#mks.core.workspace.Workspace.documentOpened" title="Permalink to this definition">¶</a></dt>
+<dd><p>documentOpened(<a class="reference internal" href="abstractdocument.html#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a>)</p>
+<p><strong>Signal</strong> emitted, when document has been created, i.e. textual file opened,
+or some other document added to workspace</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mks.core.workspace.Workspace.documentClosed">
+<tt class="descname">documentClosed</tt><a class="headerlink" href="#mks.core.workspace.Workspace.documentClosed" title="Permalink to this definition">¶</a></dt>
+<dd><p>documentClosed(<a class="reference internal" href="abstractdocument.html#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a>)</p>
+<p><strong>Signal</strong> emitted, when document was closed</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mks.core.workspace.Workspace.currentDocumentChanged">
+<tt class="descname">currentDocumentChanged</tt><a class="headerlink" href="#mks.core.workspace.Workspace.currentDocumentChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>currentDocumentChanged(<a class="reference internal" href="abstractdocument.html#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a> old,
+<a class="reference internal" href="abstractdocument.html#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a> current)</p>
+<p><strong>Signal</strong> emitted, when current document changed, i.e. user selected another document,
+new document opened, current closed</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mks.core.workspace.Workspace.modifiedChanged">
+<tt class="descname">modifiedChanged</tt><a class="headerlink" href="#mks.core.workspace.Workspace.modifiedChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>modifiedChanged(document, modified)</p>
+<p><strong>Signal</strong> emitted, when modified state of a document had been changed (file edited, or saved)
+Bool parameter contains new value
+Convenience signal, which retransmits original signal, sent by the document</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mks.core.workspace.Workspace.cursorPositionChanged">
+<tt class="descname">cursorPositionChanged</tt><a class="headerlink" href="#mks.core.workspace.Workspace.cursorPositionChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>cursorPositionChanged(document, line, column)</p>
+<p><strong>Signal</strong> emitted, when cursor position has been changed
+Convenience signal, which retransmits original signal, sent by the document</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mks.core.workspace.Workspace.languageChanged">
+<tt class="descname">languageChanged</tt><a class="headerlink" href="#mks.core.workspace.Workspace.languageChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>languageChanged(document, old, new)</p>
+<p><strong>Signal</strong> emitted, when highlighting (programming) language of a file has been changed
+Convenience signal, which retransmits original signal, sent by the document</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mks.core.workspace.Workspace.indentWidthChanged">
+<tt class="descname">indentWidthChanged</tt><a class="headerlink" href="#mks.core.workspace.Workspace.indentWidthChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>indentWidthChanged(document, width)</p>
+<p><strong>Signal</strong> emitted, when indentation with has been changed
+Convenience signal, which retransmits original signal, sent by the document</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mks.core.workspace.Workspace.indentUseTabsChanged">
+<tt class="descname">indentUseTabsChanged</tt><a class="headerlink" href="#mks.core.workspace.Workspace.indentUseTabsChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>indentUseTabsChanged(document, use)</p>
+<p><strong>Signal</strong> emitted, when indentation mode has been changed
+Convenience signal, which retransmits original signal, sent by the document</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.workspace.Workspace.del_">
+<tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.del_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminate workspace. Called by the core to clear actions</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.workspace.Workspace.documentForPath">
+<tt class="descname">documentForPath</tt><big>(</big><em>filePath</em><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.documentForPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find document by it&#8217;s file path.
+Raises ValueError, if document hasn&#8217;t been found</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.workspace.Workspace.setTextEditorClass">
+<tt class="descname">setTextEditorClass</tt><big>(</big><em>newEditorClass</em><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.setTextEditorClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set text editor, which is used for open textual documents.
+New editor would be used for newly opened textual documents.</p>
+<p>newEditorClass is class, herited from <a class="reference internal" href="abstractdocument.html#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.workspace.Workspace.textEditorClass">
+<tt class="descname">textEditorClass</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.textEditorClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get text editor, which is used for open textual documents.
+Text editor is class, herited from <a class="reference internal" href="abstractdocument.html#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.workspace.Workspace.eventFilter">
+<tt class="descname">eventFilter</tt><big>(</big><em>obj</em>, <em>event</em><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.eventFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>NOT AN API function</p>
+<p>Handler for QObject events of children</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.workspace.Workspace.setCurrentDocument">
+<tt class="descname">setCurrentDocument</tt><big>(</big><em>document</em><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.setCurrentDocument" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select active (focused and visible) document form list of opened documents</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.workspace.Workspace.currentDocument">
+<tt class="descname">currentDocument</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.currentDocument" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns currently active (focused) document. None, if no documents are opened</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.workspace.Workspace.goTo">
+<tt class="descname">goTo</tt><big>(</big><em>filePath</em>, <em>absPos=None</em>, <em>line=None</em>, <em>column=None</em>, <em>selectionLength=None</em><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.goTo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open file, activate it, and go to specified position. Select text after position, if necessary.</p>
+<p>selectionLength specifies, how much characters should be selected</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.workspace.Workspace.closeDocument">
+<tt class="descname">closeDocument</tt><big>(</big><em>document</em>, <em>showDialog=True</em><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.closeDocument" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close opened file, remove document from workspace and delete the widget</p>
+<p>If showDialog is True and file is modified, dialog will be shown</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.workspace.Workspace.openFile">
+<tt class="descname">openFile</tt><big>(</big><em>filePath</em><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.openFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open named file using suitable plugin, or textual editor, if other suitable editor not found.</p>
+<p>Returns document, if opened, None otherwise</p>
+<p>Opens modal dialog, if failed to open the file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.workspace.Workspace.createEmptyNotSavedDocument">
+<tt class="descname">createEmptyNotSavedDocument</tt><big>(</big><em>filePath=None</em><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.createEmptyNotSavedDocument" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create empty not saved document.
+Used on startup, if no file was specified, and after File-&gt;New file has been triggered</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.workspace.Workspace.documents">
+<tt class="descname">documents</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.documents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of opened documents (<a class="reference internal" href="abstractdocument.html#mks.core.abstractdocument.AbstractDocument" title="mks.core.abstractdocument.AbstractDocument"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.abstractdocument.AbstractDocument</span></tt></a> instances)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.workspace.Workspace.askToCloseAll">
+<tt class="descname">askToCloseAll</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.askToCloseAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>If have unsaved documents, ask user to save it and close all
+Will save documents, checked by user
+Returns True, if user hasn&#8217;t pressed Cancel Close</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.workspace.Workspace.closeAllDocuments">
+<tt class="descname">closeAllDocuments</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.closeAllDocuments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close all documents</p>
+<p>If there are not saved documents, dialog will be shown.</p>
+<p>Handler of File-&gt;Close-&gt;All</p>
+<p>Returns True, if all files had been closed, and False, if save dialog rejected</p>
+<p>If hideMainWindow is True, main window will be hidden, if user hadn&#8217;t pressed &#8220;Cancel Close&#8221;</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.workspace.Workspace.forceCloseAllDocuments">
+<tt class="descname">forceCloseAllDocuments</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.forceCloseAllDocuments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close all documents without asking user to save</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.workspace.Workspace.focusCurrentDocument">
+<tt class="descname">focusCurrentDocument</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.workspace.Workspace.focusCurrentDocument" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set focus (cursor) to current document.</p>
+<p>Used if user has finished work with some dialog, and, probably, want&#8217;s to edit text</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../static/monkey2.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mainwindow.html"
+                        title="previous chapter">mainwindow &#8212; Main window of the UI. Fills main menu.</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="abstractdocument.html"
+                        title="next chapter">abstractdocument &#8212; Base classes for workspace documents</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../sources/core/workspace.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="abstractdocument.html" title="abstractdocument — Base classes for workspace documents"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="mainwindow.html" title="mainwindow — Main window of the UI. Fills main menu."
+             >previous</a> |</li>
+        <li><a href="../index.html">mksv3. Simple programmers text editor</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright (C) 2005 - 2012 Andrei KOPATS, Filipe AZEVEDO and The MkS Team.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

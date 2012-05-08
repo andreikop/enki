@@ -1,0 +1,268 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>locator — Locator dialog and functionality &mdash; mksv3. Simple programmers text editor</title>
+    <link rel="stylesheet" href="../static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '12.04.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/underscore.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <link rel="shortcut icon" href="../static/monkey2.ico"/>
+    <link rel="top" title="mksv3. Simple programmers text editor" href="../index.html" />
+    <link rel="next" title="openedfilemodel — Model and treeview for list of opened files" href="openedfilemodel.html" />
+    <link rel="prev" title="filefilter — Filter temporary files from FS views" href="filefilter.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="openedfilemodel.html" title="openedfilemodel — Model and treeview for list of opened files"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="filefilter.html" title="filefilter — Filter temporary files from FS views"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">mksv3. Simple programmers text editor</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-mks.core.locator"></span><div class="section" id="locator-locator-dialog-and-functionality">
+<h1>locator &#8212; Locator dialog and functionality<a class="headerlink" href="#locator-locator-dialog-and-functionality" title="Permalink to this headline">¶</a></h1>
+<p>Implements widget, which appears, when you press Ctrl+L and it&#8217;s functionality</p>
+<p>Contains definition of AbstractCommand and AbstractCompleter interfaces</p>
+<dl class="class">
+<dt id="mks.core.locator.AbstractCommand">
+<em class="property">class </em><tt class="descclassname">mks.core.locator.</tt><tt class="descname">AbstractCommand</tt><a class="headerlink" href="#mks.core.locator.AbstractCommand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for Locator commands.</p>
+<p>Inherit it to create own commands. Than add your command with Locator.addCommandClass()</p>
+<dl class="staticmethod">
+<dt id="mks.core.locator.AbstractCommand.signature">
+<em class="property">static </em><tt class="descname">signature</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.locator.AbstractCommand.signature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command signature. Shown in the Help. Example:</p>
+<p>&#8216;[f] PATH [LINE]&#8217;</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="mks.core.locator.AbstractCommand.description">
+<em class="property">static </em><tt class="descname">description</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.locator.AbstractCommand.description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command description. Shown in the Help. Example:</p>
+<p>&#8216;Open file. Globs are supported&#8217;</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="mks.core.locator.AbstractCommand.pattern">
+<em class="property">static </em><tt class="descname">pattern</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.locator.AbstractCommand.pattern" title="Permalink to this definition">¶</a></dt>
+<dd><p>pyparsing pattern, which recognizes and constructs commands.</p>
+<p>See <cite>workspace_commands &lt;https://github.com/hlamer/mksv3/blob/master/mks/plugins/workspace_commands.py&gt;</cite> as example</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="mks.core.locator.AbstractCommand.isAvailable">
+<em class="property">static </em><tt class="descname">isAvailable</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.locator.AbstractCommand.isAvailable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if command is available now.</p>
+<p>i.e. SaveAs command is not available, if not files are opened</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.locator.AbstractCommand.completer">
+<tt class="descname">completer</tt><big>(</big><em>text</em>, <em>pos</em><big>)</big><a class="headerlink" href="#mks.core.locator.AbstractCommand.completer" title="Permalink to this definition">¶</a></dt>
+<dd><p>:<a class="reference internal" href="#mks.core.locator.AbstractCompleter" title="mks.core.locator.AbstractCompleter"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.locator.AbstractCompleter</span></tt></a> instance for partially typed command.</p>
+<p>Return None, if your command doesn&#8217;t have completer, or if completion is not available now</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.locator.AbstractCommand.constructCommand">
+<tt class="descname">constructCommand</tt><big>(</big><em>completableText</em><big>)</big><a class="headerlink" href="#mks.core.locator.AbstractCommand.constructCommand" title="Permalink to this definition">¶</a></dt>
+<dd><p>After user clicked item on the TreeView, Locator</p>
+<ol class="arabic simple">
+<li>gets item full text with AbstractCompleter.getFullText() method</li>
+<li>constructs a command with this text using currentCommand.constructCommand()</li>
+<li>sets command to the LineEdit</li>
+<li>tries to execute the command</li>
+</ol>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.locator.AbstractCommand.isReadyToExecute">
+<tt class="descname">isReadyToExecute</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.locator.AbstractCommand.isReadyToExecute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if command is ready to execute.</p>
+<p>It is ready, when it is complete (contains all mandatory arguments) and arguments are valid</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.locator.AbstractCommand.execute">
+<tt class="descname">execute</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.locator.AbstractCommand.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the command</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.core.locator.AbstractCompleter">
+<em class="property">class </em><tt class="descclassname">mks.core.locator.</tt><tt class="descname">AbstractCompleter</tt><a class="headerlink" href="#mks.core.locator.AbstractCompleter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Completer for Locator.</p>
+<p>Provides:</p>
+<ul class="simple">
+<li>inline completion</li>
+<li>command(s) description</li>
+<li>status and any other information from command</li>
+<li>list of possible completions</li>
+</ul>
+<dl class="method">
+<dt id="mks.core.locator.AbstractCompleter.rowCount">
+<tt class="descname">rowCount</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.locator.AbstractCompleter.rowCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Row count for TreeView</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.locator.AbstractCompleter.columnCount">
+<tt class="descname">columnCount</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.locator.AbstractCompleter.columnCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Column count for tree view. Default is 1</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.locator.AbstractCompleter.text">
+<tt class="descname">text</tt><big>(</big><em>row</em>, <em>column</em><big>)</big><a class="headerlink" href="#mks.core.locator.AbstractCompleter.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Text for TreeView item</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.locator.AbstractCompleter.icon">
+<tt class="descname">icon</tt><big>(</big><em>row</em>, <em>column</em><big>)</big><a class="headerlink" href="#mks.core.locator.AbstractCompleter.icon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Icon for TreeView item. Default is None</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.locator.AbstractCompleter.inline">
+<tt class="descname">inline</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.locator.AbstractCompleter.inline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inline completion.</p>
+<p>Shown after cursor. Appedned to the typed text, if Tab is pressed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.locator.AbstractCompleter.getFullText">
+<tt class="descname">getFullText</tt><big>(</big><em>row</em><big>)</big><a class="headerlink" href="#mks.core.locator.AbstractCompleter.getFullText" title="Permalink to this definition">¶</a></dt>
+<dd><p>Row had been clicked by mouse. Get inline completion, which will be inserted after cursor</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.core.locator.Locator">
+<em class="property">class </em><tt class="descclassname">mks.core.locator.</tt><tt class="descname">Locator</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#mks.core.locator.Locator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QDialog</span></tt></p>
+<p>Locator widget and implementation</p>
+<dl class="method">
+<dt id="mks.core.locator.Locator.del_">
+<tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.locator.Locator.del_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Explicitly called destructor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.locator.Locator.addCommandClass">
+<tt class="descname">addCommandClass</tt><big>(</big><em>commandClass</em><big>)</big><a class="headerlink" href="#mks.core.locator.Locator.addCommandClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add new command to the locator. Shall be called by plugins, which provide locator commands</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.locator.Locator.removeCommandClass">
+<tt class="descname">removeCommandClass</tt><big>(</big><em>commandClass</em><big>)</big><a class="headerlink" href="#mks.core.locator.Locator.removeCommandClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove command from the locator. Shall be called by plugins when terminating it</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.core.locator.Locator.show">
+<tt class="descname">show</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.core.locator.Locator.show" title="Permalink to this definition">¶</a></dt>
+<dd><p>QWidget.show implementation. Updates completion before showing widget</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../static/monkey2.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="filefilter.html"
+                        title="previous chapter">filefilter &#8212; Filter temporary files from FS views</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="openedfilemodel.html"
+                        title="next chapter">openedfilemodel &#8212; Model and treeview for list of opened files</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../sources/core/locator.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="openedfilemodel.html" title="openedfilemodel — Model and treeview for list of opened files"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="filefilter.html" title="filefilter — Filter temporary files from FS views"
+             >previous</a> |</li>
+        <li><a href="../index.html">mksv3. Simple programmers text editor</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright (C) 2005 - 2012 Andrei KOPATS, Filipe AZEVEDO and The MkS Team.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>
