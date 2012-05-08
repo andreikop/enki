@@ -43,9 +43,9 @@ class BufferedPopen:
                                        stderr=subprocess.PIPE)
 
         self._inThread = threading.Thread(target=self._writeInputThread)
-        self._inThread.name = 'mks.buffpopen.input'
+        self._inThread.setName('mks.buffpopen.input')
         self._outThread = threading.Thread(target=self._readOutputThread)
-        self._inThread.setName('mks.buffpopen.output')
+        self._outThread.setName('mks.buffpopen.output')
 
         self._mustDie = False
         self._inThread.start()
