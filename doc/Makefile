@@ -1,4 +1,4 @@
-OUT_DIR=$(PWD)/../../mksv3.gh-pages
+OUT_DIR=$(PWD)/../../mksv3.gh-pages/dev
 IN_DIR=$(PWD)
 
 check-dir:
@@ -9,7 +9,7 @@ check-dir:
 
 doc: check-dir
 	cd $(OUT_DIR) && git reset --hard HEAD
-	cd $(OUT_DIR) && git ls-files -z | xargs -0 rm -rf
+	cd $(OUT_DIR) && git ls-files -z | xargs -0 git rm -rf
 	cd $(OUT_DIR) && rm -rf *
 
 	sphinx-build $(IN_DIR) $(OUT_DIR)
