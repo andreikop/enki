@@ -12,9 +12,9 @@ import copy
 import time
 
 try:
-    from Queue import Queue, Empty
+    from Queue import Queue, Empty, Full
 except ImportError:
-    from queue import Queue, Empty  # python 3.x
+    from queue import Queue, Empty, Full  # python 3.x
 
 class BufferedPopen:
     """Bufferred version of Popen.
@@ -24,8 +24,8 @@ class BufferedPopen:
     def __init__(self, command):
         self._command = command
         
-        self._inQueue = Queue()
-        self._outQueue = Queue()
+        self._inQueue = Queue(8192)
+        self._outQueue = Queue(8192)
 
         self._inThread = None
         self._outThread = None
@@ -88,8 +88,13 @@ class BufferedPopen:
         # hlamer: Reading output by one character is not effective, but, I don't know 
         # how to implement non-blocking reading of not full lines better
         char = self._popen.stdout.read(1)
-        while char:
-            self._outQueue.put(char)
+        while char and not self._mustDie:
+            try:
+                self._outQueue.put(char, False)
+            except Full:
+                time.sleep(0.01)
+                continue
+
             char = self._popen.stdout.read(1)
             
 
@@ -115,6 +120,6 @@ class BufferedPopen:
         """Read stdout data from the subprocess
         """
         text = ''
-        while not self._outQueue.empty():
+        while not self._outQueue.empty() and len(text) < 256:
             text += self._outQueue.get(False)
         return text
