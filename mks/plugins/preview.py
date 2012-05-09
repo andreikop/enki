@@ -114,7 +114,7 @@ class PreviewDock(pDockWidget):
         """Text changed, update preview
         """
         self._saveScrollPos(document)
-        self._view.setHtml(text)
+        self._view.setHtml(self._getHtml(document))
         self._restoreScrollPos(document)
 
     def _getHtml(self, document):
