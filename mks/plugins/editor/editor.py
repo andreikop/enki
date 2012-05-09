@@ -177,6 +177,7 @@ class Editor(AbstractTextEditor):
         # connections
         self.qscintilla.cursorPositionChanged.connect(self.cursorPositionChanged)
         self.qscintilla.modificationChanged.connect(self.modifiedChanged)
+        self.qscintilla.textChanged.connect(self._onTextChanged)
         
         self.applySettings()
         self.lexer = Lexer(self)
@@ -383,6 +384,11 @@ class Editor(AbstractTextEditor):
         if digitsCount:
             digitsCount += 1
         self.qscintilla.setMarginWidth(0, '0' * digitsCount)
+    
+    def _onTextChanged(self):
+        """QScintilla signal handler. Emits own signal
+        """
+        self.textChanged.emit(self.text())
 
     #
     # AbstractDocument interface
