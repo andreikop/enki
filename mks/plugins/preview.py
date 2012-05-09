@@ -1,5 +1,5 @@
 """
-preview --- HTML, MarkDown preview
+preview --- HTML, Markdown preview
 ==================================
 """
 
@@ -28,7 +28,7 @@ class Plugin(QObject):
         """
         if core.workspace().currentDocument() is not None and \
            core.workspace().currentDocument().highlightingLanguage() is not None and \
-           core.workspace().currentDocument().highlightingLanguage() in ('HTML'):
+           core.workspace().currentDocument().highlightingLanguage() in ('HTML', 'Markdown'):
             # create dock
             self._dock = PreviewDock(core.mainWindow())
             # add dock to dock toolbar entry
@@ -52,7 +52,6 @@ class PreviewDock(pDockWidget):
         self._view = QWebView(self)
         self.setWidget(self._view)
         self.setFocusProxy(self._view)
-        self._view.setHtml("hello, world\n")
         self.setObjectName("PreviewDock")
         self.setWindowTitle(self.tr( "&Preview" ))
         self.setWindowIcon(QIcon(':/mksicons/internet.png'))
@@ -121,7 +120,22 @@ class PreviewDock(pDockWidget):
     def _getHtml(self, document):
         """Get HTML for document
         """
+        text = document.text()
         if document.highlightingLanguage() == 'HTML':
-            return document.text()
+            return text
+        elif document.highlightingLanguage() == 'Markdown':
+            return self._convertMarkdown(text)
         else:
             return 'No preview for this type of file'
+
+    def _convertMarkdown(self, text):
+        """Convert Markdown to HTML
+        """
+        try:
+            import markdown
+        except ImportError:
+            return "Markdown preview requires <i>python-markdown</i> package<br/>" \
+                   "Install it with your package manager or see " \
+                   "<a href=http://packages.python.org/Markdown/install.html>installation instructions</a>"
+        
+        return markdown.markdown(text)
