@@ -43,6 +43,11 @@ class Config():
         if not '_version' in self._data:
             self._data['_version'] = 1
             self._data['NegativeFileFilter'] = self._data['FileBrowser']['NegativeFilter']
+        
+        if self._data['_version'] == 1:
+            self._data['Associations']['Markdown'] = { "FileName": [ "*.md", "*.markdown"], \
+                                                       "FirstLine": [] }
+            self._data['_version'] = 2
     
     def reload(self):
         """Reload config from the disk
