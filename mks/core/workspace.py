@@ -135,6 +135,14 @@ class Workspace(QStackedWidget):
     Convenience signal, which retransmits original signal, sent by the document
     """  # pylint: disable=W0105
     
+    textChanged = pyqtSignal(AbstractDocument, unicode)
+    """
+    textChanged(document, text)
+    
+    **Signal** emitted, when text has been chagned
+    Convenience signal, which retransmits original signal, sent by the document
+    """  # pylint: disable=W0105
+    
     languageChanged = pyqtSignal(AbstractDocument, unicode, unicode)
     """
     languageChanged(document, old, new)
@@ -368,6 +376,7 @@ class Workspace(QStackedWidget):
         # Create lambda functions, which retransmit conveniense signals, and connect it to document signals
         document.modifiedChanged.connect(lambda modified: self.modifiedChanged.emit(document, modified))
         document.cursorPositionChanged.connect(lambda row, col: self.cursorPositionChanged.emit(document, row, col))
+        document.textChanged.connect(lambda text: self.textChanged.emit(document, text))
         document.languageChanged.connect(lambda old, new: self.languageChanged.emit(document, old, new))
         document.indentWidthChanged.connect(lambda width: self.indentWidthChanged.emit(document, width))
         document.indentUseTabsChanged.connect(lambda useTabs: self.indentUseTabsChanged.emit(document, useTabs))    
