@@ -3,7 +3,7 @@ preview --- HTML, Markdown preview
 ==================================
 """
 
-from PyQt4.QtCore import pyqtSignal, QObject, Qt, QThread
+from PyQt4.QtCore import pyqtSignal, QObject, QSize, Qt, QThread
 from PyQt4.QtGui import QIcon
 from PyQt4.QtWebKit import QWebView
 
@@ -146,6 +146,9 @@ class PreviewDock(pDockWidget):
         """Save scroll bar position for document
         """
         frame = self._view.page().mainFrame()
+        if frame.contentsSize() == QSize(0, 0):
+            return # no valida data, nothing to save
+        
         pos = frame.scrollPosition()
         self._scrollPos[self._visiblePath] = pos
         self._hAtEnd[self._visiblePath] = frame.scrollBarMaximum(Qt.Horizontal) == pos.x()
@@ -156,7 +159,7 @@ class PreviewDock(pDockWidget):
         """
         self._view.page().mainFrame().contentsSizeChanged.disconnect(self._restoreScrollPos)
         
-        if not self._visiblePath in self._hAtEnd:
+        if not self._visiblePath in self._scrollPos:
             return  # no data for this document
         
         frame = self._view.page().mainFrame()
