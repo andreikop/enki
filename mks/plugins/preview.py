@@ -49,21 +49,22 @@ class PreviewDock(pDockWidget):
     """
     def __init__(self, *args):
         pDockWidget.__init__(self, *args)
-        self._view = QWebView(self)
-        self.setWidget(self._view)
-        self.setFocusProxy(self._view)
+
         self.setObjectName("PreviewDock")
         self.setWindowTitle(self.tr( "&Preview" ))
         self.setWindowIcon(QIcon(':/mksicons/internet.png'))
         self.showAction().setShortcut("Alt+P")
         core.actionManager().addAction("mDocks/aPreview", self.showAction())
 
+        self._view = QWebView(self)
+        self.setWidget(self._view)
+        self.setFocusProxy(self._view)
+        
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         core.workspace().textChanged.connect(self._onTextChanged)
         
-        self._vPos = {}
+        self._scrollPos = {}
         self._vAtEnd = {}
-        self._hPos = {}
         self._hAtEnd = {}
         
         self._onDocumentChanged(None, core.workspace().currentDocument())
@@ -77,28 +78,30 @@ class PreviewDock(pDockWidget):
         """Save scroll bar position for document
         """
         frame = self._view.page().mainFrame()
-        self._hPos[document.filePath()] = frame.scrollBarValue(Qt.Horizontal)
-        self._hAtEnd[document.filePath()] = frame.scrollBarMaximum(Qt.Horizontal) == self._hPos[document.filePath()]
-        self._vPos[document.filePath()] = frame.scrollBarValue(Qt.Vertical)
-        self._vAtEnd[document.filePath()] = frame.scrollBarMaximum(Qt.Vertical) == self._vPos[document.filePath()]
+        pos = frame.scrollPosition()
+        self._scrollPos[document.filePath()] = pos
+        self._hAtEnd[document.filePath()] = frame.scrollBarMaximum(Qt.Horizontal) == pos.x()
+        self._vAtEnd[document.filePath()] = frame.scrollBarMaximum(Qt.Vertical) == pos.y()
 
-    def _restoreScrollPos(self, document):
+    def _restoreScrollPos(self):
         """Restore scroll bar position for document
         """
+        document = core.workspace().currentDocument()
+        self._view.page().mainFrame().contentsSizeChanged.disconnect(self._restoreScrollPos)
+        
         if not document.filePath() in self._hAtEnd:
             return  # no data for this document
         
         frame = self._view.page().mainFrame()
 
+        frame.setScrollPosition(self._scrollPos[document.filePath()])
+        
         if self._hAtEnd[document.filePath()]:
             frame.setScrollBarValue(Qt.Horizontal, frame.scrollBarMaximum(Qt.Horizontal))
-        else:
-            frame.setScrollBarValue(Qt.Horizontal, self._hPos[document.filePath()])
         
         if self._vAtEnd[document.filePath()]:
             frame.setScrollBarValue(Qt.Vertical, frame.scrollBarMaximum(Qt.Vertical))
-        else:
-            frame.setScrollBarValue(Qt.Vertical, self._vPos[document.filePath()])
+    
 
     def _onDocumentChanged(self, old, new):
         """Current document changed, update preview
@@ -107,16 +110,20 @@ class PreviewDock(pDockWidget):
             self._saveScrollPos(old)
 
         if new is not None:
-            self._view.setHtml(self._getHtml(new))
-            self._restoreScrollPos(new)
+            self._showDocument(new)
 
     def _onTextChanged(self, document, text):
         """Text changed, update preview
         """
         self._saveScrollPos(document)
-        self._view.setHtml(self._getHtml(document))
-        self._restoreScrollPos(document)
+        self._showDocument(document)
 
+    def _showDocument(self, document):
+        """Set HTML to the view and restore position
+        """
+        self._view.setHtml(self._getHtml(document))
+        self._view.page().mainFrame().contentsSizeChanged.connect(self._restoreScrollPos)
+    
     def _getHtml(self, document):
         """Get HTML for document
         """
