@@ -4,7 +4,10 @@ FIXME
     show sorted list of languages
     replace highlightingLanguage with language
     Locator and Markdown preview screens
-    плохие сочетания для букмарков
+    bad shortcuts for bookmarks
+    ignore .svn files
+    Locator moves to +1 line
+    filebrowser: up button
 
 TODO
   minor improvements
@@ -47,3 +50,6 @@ ON new editor
     Ignore comments when autodetecting indentation
     Select 2 peaces of text and swap
     Move lines with Shift+Ctrl+Up/Down
+
+ENKI:
+    add here: http://en.wikibooks.org/wiki/Ruby_Programming/Ruby_editors
