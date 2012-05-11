@@ -72,7 +72,7 @@ class CheckUncheckAllButton(QPushButton):
     """
     def __init__(self, toolBar, view, model):
         QPushButton.__init__(self, QIcon(':mksicons/button-ok.png'), "Unc&heck all", toolBar)
-        self._action = toolBar.insertWidget(toolBar.actions()[1], self)
+        self._action = toolBar.insertWidget(toolBar.actions()[0], self)
         self.setMinimumWidth(QFontMetrics(self.font()).width("Uncheck all)") + 36)
         self.setStyleSheet("padding: 0")
         self.setFlat(True)
