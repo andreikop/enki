@@ -4,14 +4,11 @@ See information at https://github.com/pasnox/fresh and
 API docks at http://api.monkeystudio.org/fresh/
 """
 
-from PyQt4.QtCore import QEvent, QSize, Qt
-from PyQt4.QtGui import QDockWidget, QFontMetrics, QIcon, QLinearGradient, QPalette, QPainter, \
+from PyQt4.QtCore import QSize, Qt
+from PyQt4.QtGui import QDockWidget, QFontMetrics, QPainter, \
                         QSizePolicy, QStyle, \
                         QStyleOptionButton, \
-                        QStyleOptionToolButton, \
-                        QStyleOptionDockWidgetV2, QTransform, QToolBar, QBoxLayout, QWidget
-
-from mks.fresh.pToolButton import pToolButton
+                        QTransform, QToolBar, QWidget
 
 class pDockWidgetTitleBar(QToolBar):
     
