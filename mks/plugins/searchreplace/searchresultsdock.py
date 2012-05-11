@@ -166,7 +166,7 @@ class SearchResultsDock(pDockWidget):
         self.showAction().setShortcut("Alt+S")
         core.actionManager().addAction("mDocks/aSearchResults", self.showAction())
         
-        self._expandCollapseAll = ExpandCollapseAllButton(self.titleBar(), self._view, self._model)
+        self._expandCollapseAll = ExpandCollapseAllButton(self.titleBarWidget(), self._view, self._model)
         self._checkUncheckAll = None
 
     def del_(self):
@@ -217,7 +217,7 @@ class SearchResultsDock(pDockWidget):
         self._view.update()  # redraw the model
         if enabled:
             if self._checkUncheckAll is None:
-                self._checkUncheckAll = CheckUncheckAllButton(self.titleBar(), self._view, self._model)
+                self._checkUncheckAll = CheckUncheckAllButton(self.titleBarWidget(), self._view, self._model)
             self._checkUncheckAll.show()
         else:
             if self._checkUncheckAll is not None:
