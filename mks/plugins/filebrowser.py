@@ -214,7 +214,7 @@ class SmartHistory(QObject):
                                 self.tr("Back"),
                                 self)
         self._aBack.setShortcut('Alt+Left')
-        fileBrowser.titleBar().addAction(self._aBack)
+        fileBrowser.titleBarWidget().addAction(self._aBack)
         core.actionManager().addAction("mNavigation/mFileBrowser/aBack", self._aBack)
         self._aBack.triggered.connect(self._onTbBackTriggered)
 
@@ -222,11 +222,11 @@ class SmartHistory(QObject):
                                     self.tr("Forward"),
                                     self)
         self._aForward.setShortcut('Alt+Right')
-        fileBrowser.titleBar().addAction(self._aForward)
+        fileBrowser.titleBarWidget().addAction(self._aForward)
         core.actionManager().addAction("mNavigation/mFileBrowser/aForward", self._aForward)
         self._aForward.triggered.connect(self._onTbForwardTriggered)
         
-        fileBrowser.titleBar().addSeparator()
+        fileBrowser.titleBarWidget().addSeparator()
         
         # incoming connections
         fileBrowser.rootChanged.connect(self._onRootChanged)
