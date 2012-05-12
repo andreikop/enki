@@ -120,6 +120,10 @@ class SearchWidget(QFrame):
         self.cbSearch.setCompleter(None)
         self.pbSearchStop.setVisible( False )
         self.pbReplaceCheckedStop.setVisible( False )
+        
+        # must not take focus when Alt+... pressed
+        self.cbRegularExpression.setFocusPolicy(Qt.NoFocus)
+        self.cbCaseSensitive.setFocusPolicy(Qt.NoFocus)
 
         self._progress = QProgressBar( self )
         self._progress.setAlignment( Qt.AlignCenter )
