@@ -94,7 +94,9 @@ class Plugin():
     def iterLanguages(self):
         """Get list of available languages as tuple (name, file name globs, first line globs, icon path)
         """
-        for languageName, params in core.config()["Associations"].iteritems():
+        languageNames = sorted(core.config()["Associations"].iterkeys())
+        for languageName in languageNames:
+            params = core.config()["Associations"][languageName]
             QTreeWidgetItem([languageName])
             iconPath = ":/mksicons/languages/%s.png" % languageName.lower()
             if not QFileInfo(iconPath).exists():
