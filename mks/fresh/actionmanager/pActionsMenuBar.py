@@ -16,6 +16,7 @@ class pActionsMenuBar(QMenuBar):
     def setModel(self, model ):
         if self._manager is not None:
             self._manager.actionInserted.disconnect(self.model_actionInserted)
+            self._manager.actionRemoved.disconnect(self.model_actionRemoved)
             self.clear()
             self._manager = None
         
@@ -27,6 +28,7 @@ class pActionsMenuBar(QMenuBar):
 
         if self._manager is not None:
             self._manager.actionInserted.connect(self.model_actionInserted)
+            self._manager.actionRemoved.connect(self.model_actionRemoved)
 
     def model(self):
         if self._manager is None:
@@ -39,3 +41,9 @@ class pActionsMenuBar(QMenuBar):
         
         if parent is None and action.menu():
             self.addMenu( action.menu() )
+
+    def model_actionRemoved(self, action):
+        parent = self._manager.parentAction( action )
+        
+        if parent is None and action.menu():
+            self.removeAction( action )

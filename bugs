@@ -1,11 +1,9 @@
 FIXME
-    kill empty MIT Scheme menu
     show sorted list of languages
     replace highlightingLanguage with language
     Locator and Markdown preview screens
     bad shortcuts for bookmarks
     ignore .svn files
-    Locator moves to +1 line
 
 TODO
   minor improvements
