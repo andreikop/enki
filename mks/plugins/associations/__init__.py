@@ -5,7 +5,7 @@ associations --- Syntax highlighting support
 Functionality:
 
 * Detect programming languge of the file
-* Automatically apply it via :func:`mks.core.abstractdocument.AbstractDocument.setHighlightingLanguage` 
+* Automatically apply it via :func:`mks.core.abstractdocument.AbstractDocument.setLanguage` 
   for newly opened editors
 * Edit associations settings via GUI
 """
@@ -108,7 +108,7 @@ class Plugin():
         """
         language = self._getLanguage(document)
         if language:
-            document.setHighlightingLanguage(language)
+            document.setLanguage(language)
     
     def _onDocumentModifiedChanged(self, document, modified):
         """Signal handler. Try to redetect language, if document has been changed
@@ -149,7 +149,7 @@ class Plugin():
         """View -> Highlighting menu is about to show. Fill it with items
         """
         self._menu.clear()
-        currentLanguage = core.workspace().currentDocument().highlightingLanguage()
+        currentLanguage = core.workspace().currentDocument().language()
         for languageName, fileNameGlobs, firstLineGlobs, iconPath in self.iterLanguages():  # pylint: disable=W0612
             action = QAction(QIcon(iconPath), languageName, self._menu)
             action.setCheckable(True)
@@ -164,7 +164,7 @@ class Plugin():
         """
         languageName = action.text()
         document = core.workspace().currentDocument()
-        document.setHighlightingLanguage(languageName)
+        document.setLanguage(languageName)
         document.languageIsManualySet = True
 
     def _onCurrentDocumentChanged(self, old, new):  # pylint: disable=W0613

@@ -94,7 +94,7 @@ class Plugin(QObject):
         """Check if document is highlighted as Scheme
         """
         return document is not None and \
-               document.highlightingLanguage() == 'Scheme'
+               document.language() == 'Scheme'
 
     def _schemeDocumentIsOpened(self):
         """Check if at least one Scheme document is opened

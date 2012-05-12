@@ -29,8 +29,8 @@ class Plugin(QObject):
         Create dock, if necessary
         """
         if core.workspace().currentDocument() is not None and \
-           core.workspace().currentDocument().highlightingLanguage() is not None and \
-           core.workspace().currentDocument().highlightingLanguage() in ('HTML', 'Markdown'):
+           core.workspace().currentDocument().language() is not None and \
+           core.workspace().currentDocument().language() in ('HTML', 'Markdown'):
             # create dock
             self._dock = PreviewDock(core.mainWindow())
             # add dock to dock toolbar entry
@@ -176,12 +176,12 @@ class PreviewDock(pDockWidget):
         """Current document changed, update preview
         """
         if new is not None:
-            self._thread.process(new.filePath(), new.highlightingLanguage(), new.text())
+            self._thread.process(new.filePath(), new.language(), new.text())
 
     def _onTextChanged(self, document, text):
         """Text changed, update preview
         """
-        self._thread.process(document.filePath(), document.highlightingLanguage(), document.text())
+        self._thread.process(document.filePath(), document.language(), document.text())
 
     def _setHtml(self, filePath, html):
         """Set HTML to the view and restore scroll bars position.

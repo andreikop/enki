@@ -440,7 +440,7 @@ class Editor(AbstractTextEditor):
         """
         return self.qscintilla.setIndentationsUseTabs(use)
     
-    def _applyHighlightingLanguage(self, language):
+    def _applyLanguage(self, language):
         """Set programming language of the file.
         Called Only by :mod:`mks.plugins.associations` to select syntax highlighting language.
         """

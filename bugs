@@ -1,6 +1,4 @@
 FIXME
-    show sorted list of languages
-    replace highlightingLanguage with language
     Locator and Markdown preview screens
     bad shortcuts for bookmarks
 
@@ -44,7 +42,6 @@ ON Unity
 ON new editor
     Ignore comments when autodetecting indentation
     Select 2 peaces of text and swap
-    Move lines with Shift+Ctrl+Up/Down
 
 ENKI:
     add here: http://en.wikibooks.org/wiki/Ruby_Programming/Ruby_editors
