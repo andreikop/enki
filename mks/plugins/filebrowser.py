@@ -125,16 +125,6 @@ class SmartRecents(QObject):
         dirs = [dp[0] for dp in dirAndPopularity]  # take only first elements
         return dirs
     
-    def _dirsByPath(self):
-        """Return list of dirrectories, sorted by popularity
-        """
-        if not self._popularDirs:
-            return ()
-        
-        dirAndPopularity = sorted(self._popularDirs.iteritems(), key=operator.itemgetter(0))
-        dirs = [dp[0] for dp in dirAndPopularity]  # take only first elements
-        return dirs
-
     def _onFileActivated(self):
         """FileBrowserDock notifies SmartRecents that file has been activated
         """
@@ -174,28 +164,17 @@ class SmartRecents(QObject):
     def _updateRecents(self):
         """Generate new list of directories, which will be shown in the combo box.
         Emit this list
-        """
-        history = []
-        includedDirs = set()
-        if self._currDir is not None:
-            history.append((self._currDir, self._currDir, None))
-            includedDirs.add(self._currDir)
-        # Separator
-        if len(history) > 1:
-            history.insert(1, None)  # separator
+        """        
         # Popular directories
-        firstPopularDir = True
-        popularDirs = self._dirsByPath()
-        for directory in popularDirs:
-            if os.path.isdir(directory):
-                if not directory in includedDirs:
-                    if firstPopularDir:
-                        history.append(None)  # separator
-                        firstPopularDir = False
-                    history.append( (directory, directory, ':mksicons/bookmark.png') )
-                    includedDirs.add(directory)
-                if len(history) >= self.MAX_RECENTS_SIZE:
-                    break
+        history = [path for path in self._dirsByPopularity() \
+                        if os.path.isdir(path) and \
+                           path != self._currDir]
+        # leave not more than MAX_RECENTS_SIZE
+        if len(history) > self.MAX_RECENTS_SIZE:
+            history = history[:self.MAX_RECENTS_SIZE]
+        
+        # now sort by path
+        history = sorted(history)
         
         self._recentsChanged.emit(history)
 
@@ -513,15 +492,14 @@ class ComboBox(QComboBox):
         """
         self.currentIndexChanged[int].disconnect()
         self.clear()
-        for index, item in enumerate(items):
-            if item is not None:
-                text, path, icon = item
-                self.addItem(text)  #  text
-                self.setItemData(index, path)  # path
-                if item[2] is not None:
-                    self.setItemIcon(index, QIcon(icon))
-            else:
-                self.insertSeparator(self.count())
+        # Current text
+        self.addItem(self._fileBrowser.currentPath())
+        self.setItemData(0, self._fileBrowser.currentPath())
+        self.insertSeparator(self.count())
+        
+        for index, path in enumerate(items):
+            self.addItem(path)
+            self.setItemData(index + 2, path)
         self._count = self.count()
         self.currentIndexChanged[int].connect(self._onItemSelected)
 
