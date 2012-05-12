@@ -210,6 +210,7 @@ class SmartHistory(QObject):
         self._history = []
         self._historyIndex = -1
 
+        fileBrowser.titleBarWidget().addSeparator()
         self._aBack = QAction(  QIcon(':mksicons/previous.png'),
                                 self.tr("Back"),
                                 self)
@@ -487,13 +488,6 @@ class ComboBox(QComboBox):
         core.actionManager().addAction("mNavigation/mFileBrowser/aMenuShow", self._showPopupAction)
         self._showPopupAction.triggered.connect(self.showPopup)
         
-        # cd up button
-        self._tbCdUp = QToolButton( self.lineEdit() )
-        self._tbCdUp.setIcon( QIcon( ":/mksicons/go-up.png" ) )
-        self._tbCdUp.setCursor( Qt.ArrowCursor )
-        self._tbCdUp.installEventFilter( self )
-        self._tbCdUp.clicked.connect(self._fileBrowser.moveUp)
-        
         # reconnected in self.updateComboItems()
         self.currentIndexChanged[int].connect(self._onItemSelected)
 
@@ -501,26 +495,6 @@ class ComboBox(QComboBox):
         """Explicitly called destructor
         """
         core.actionManager().removeAction(self._showPopupAction)
-
-    def eventFilter(self, object_, event ):
-        """ Event filter for mode switch tool button
-        Draws icons in the search and path lineEdits
-        """
-        if  event.type() == QEvent.Paint:
-            toolButton = object_
-            lineEdit = self.lineEdit()
-            height = lineEdit.height()
-            lineEdit.setContentsMargins( height, 0, 0, 0 )
-            
-            availableRect = QRect( 0, 0, height, height )
-            toolButton.setGeometry( availableRect )
-            
-            painter = QPainter ( toolButton )
-            toolButton.icon().paint( painter, availableRect )
-            
-            return True
-
-        return QComboBox.eventFilter( self, object_, event )
 
     @pyqtSlot(int)
     def _onItemSelected(self, index):
@@ -635,7 +609,14 @@ class DockFileBrowser(pDockWidget):
         # files view
         self._tree = Tree(self)
         vertLayout.addWidget( self._tree )
-        
+
+        # cd up button
+        self._aCdUp = QAction(  QIcon(':mksicons/go-up.png'),
+                                self.tr("Up"),
+                                self)
+        self.titleBarWidget().addAction(self._aCdUp)
+        self._aCdUp.triggered.connect(self.moveUp)
+
         # redirirect focus proxy
         self.setFocusProxy( self._tree )
         
@@ -643,6 +624,7 @@ class DockFileBrowser(pDockWidget):
         self._smartHistory = SmartHistory(self)
         
         self.setCurrentPath(_getCurDir())
+
     
     def _onDirectoryDropt(self, path):
         """Directory drag-n-dropt to main window. Show it
