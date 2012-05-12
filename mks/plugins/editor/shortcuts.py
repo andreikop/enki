@@ -69,9 +69,9 @@ _ACTIONS = (\
 (qsci.SCI_ZOOMIN, 'mView/mZoom/aZoomInAlt', tr('Zoom In  (alt. shortcut)'), 'Ctrl++', ''),
 (qsci.SCI_ZOOMOUT, 'mView/mZoom/aZoomOut', tr('Zoom Out'), 'Ctrl+-', ''),
 \
-(MKS_TOGGLE_BOOKMARK, 'mNavigation/mBookmarks/aSetBookmark', tr('Set (clear) bookmark'), 'Ctrl+M', ''),
-(MKS_NEXT_BOOKMARK, 'mNavigation/mBookmarks/aPreviousBookmark', tr('Next bookmark'), 'Ctrl+J', ''),
-(MKS_PREV_BOOKMARK, 'mNavigation/mBookmarks/aNextBookmark', tr('Previous bookmark'), 'Ctrl+K', ''),
+(MKS_TOGGLE_BOOKMARK, 'mNavigation/mBookmarks/aSetBookmark', tr('Set (clear) bookmark'), 'Ctrl+B', ''),
+(MKS_NEXT_BOOKMARK, 'mNavigation/mBookmarks/aPreviousBookmark', tr('Next bookmark'), 'Alt+PgDown', ''),
+(MKS_PREV_BOOKMARK, 'mNavigation/mBookmarks/aNextBookmark', tr('Previous bookmark'), 'Alt+PgUp', ''),
 \
 (qsci.SCI_LINESCROLLDOWN, 'mNavigation/mScroll/aDownOneLine', tr('Down one line'), 'Ctrl+Down', ''),
 (qsci.SCI_LINESCROLLUP, 'mNavigation/mScroll/aUpOneLine', tr('Up one line'), 'Ctrl+Up', ''),

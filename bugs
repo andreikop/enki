@@ -1,6 +1,7 @@
 FIXME
     Locator and Markdown preview screens
-    bad shortcuts for bookmarks
+    case sensetive and reg exp must not take focus
+    no file browser favorites
 
 TODO
   minor improvements
