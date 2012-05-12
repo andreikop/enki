@@ -485,8 +485,7 @@ class ComboBox(QComboBox):
         self._showPopupAction = QAction(QIcon(':mksicons/filtered.png'), "File browser history", self)
         self._showPopupAction.setShortcut('Ctrl+H')
         core.actionManager().addAction("mNavigation/mFileBrowser/aMenuShow", self._showPopupAction)
-        showPopupSlot = lambda triggered: self.showPopup()
-        self._showPopupAction.triggered.connect(showPopupSlot)
+        self._showPopupAction.triggered.connect(self.showPopup)
         
         # cd up button
         self._tbCdUp = QToolButton( self.lineEdit() )
