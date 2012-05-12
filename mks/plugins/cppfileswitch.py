@@ -37,7 +37,7 @@ class Plugin(QObject):
         """
         document = core.workspace().currentDocument()
         if document is not None and \
-           document.highlightingLanguage() == 'C++':
+           document.language() == 'C++':
             if self._action is None:
                 self._action = core.actionManager().addAction("mNavigation/aHeaderImplementation",
                                                               "Switch C/C++ header/implementation",

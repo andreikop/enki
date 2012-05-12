@@ -54,7 +54,7 @@ class Plugin(QObject):
     def _onDocumentOpened(self, document):
         """Document opened. Change it's indentation
         """
-        if document.highlightingLanguage() == 'Scheme':
+        if document.language() == 'Scheme':
             document.setIndentUseTabs(False)
             document.setIndentWidth(1)
         try:

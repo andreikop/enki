@@ -451,7 +451,7 @@ class AbstractTextEditor(AbstractDocument):
         In this mode line numbers and autocompletion won't be shown
         """
         AbstractDocument.__init__(self, parentObject, filePath, createNew)
-        self._highlightingLanguage = None
+        self._language = None
         self.newLineInserted.connect(self._onNewLineInserted)
     
     def eolMode(self):
@@ -508,26 +508,26 @@ class AbstractTextEditor(AbstractDocument):
         """
         raise NotImplemented()
 
-    def highlightingLanguage(self):
+    def language(self):
         """Get programming language of the file.
         
         See list of supported programming languages in the settings
         """
-        return self._highlightingLanguage
+        return self._language
 
-    def setHighlightingLanguage(self, language):
+    def setLanguage(self, language):
         """Set programming language of the file.
         
         Called Only by :class:`mks.plugins.associations.Associations` to select syntax highlighting language.
         """
-        if language == self._highlightingLanguage:
+        if language == self._language:
             return
-        old = self._highlightingLanguage
-        self._highlightingLanguage = language
-        self._applyHighlightingLanguage(language)
+        old = self._language
+        self._language = language
+        self._applyLanguage(language)
         self.languageChanged.emit(old, language)
 
-    def _applyHighlightingLanguage(self, language):
+    def _applyLanguage(self, language):
         """Apply new highlighting language
         """
         raise NotImplemented()
@@ -792,7 +792,7 @@ class AbstractTextEditor(AbstractDocument):
     def _onNewLineInserted(self):
         """New line has been inserted. Indent it properly with helper, if helper is available
         """
-        lang = self.highlightingLanguage()
+        lang = self.language()
         try:
             indenHelper = core.indentHelper(lang)
         except KeyError:
