@@ -1,0 +1,285 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>filebrowser — Dock with file system tree &mdash; mksv3. Simple programmers text editor</title>
+    <link rel="stylesheet" href="../static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '12.04.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/underscore.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <link rel="shortcut icon" href="../static/monkey2.ico"/>
+    <link rel="top" title="mksv3. Simple programmers text editor" href="../index.html" />
+    <link rel="next" title="helpmenu — Help main menu items. Aboout dialogue" href="helpmenu.html" />
+    <link rel="prev" title="editortoolbar — Shows position, save state, EOL and indent" href="editortoolbar.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="helpmenu.html" title="helpmenu — Help main menu items. Aboout dialogue"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="editortoolbar.html" title="editortoolbar — Shows position, save state, EOL and indent"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">mksv3. Simple programmers text editor</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-mks.plugins.filebrowser"></span><div class="section" id="filebrowser-dock-with-file-system-tree">
+<h1>filebrowser &#8212; Dock with file system tree<a class="headerlink" href="#filebrowser-dock-with-file-system-tree" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="mks.plugins.filebrowser.Plugin">
+<em class="property">class </em><tt class="descclassname">mks.plugins.filebrowser.</tt><tt class="descname">Plugin</tt><a class="headerlink" href="#mks.plugins.filebrowser.Plugin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtCore.QObject</span></tt></p>
+<p>File system tree.</p>
+<p>Allows to open files quickly</p>
+<dl class="method">
+<dt id="mks.plugins.filebrowser.Plugin.del_">
+<tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.Plugin.del_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uninstall the plugin</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.plugins.filebrowser.FileBrowserFilteredModel">
+<em class="property">class </em><tt class="descclassname">mks.plugins.filebrowser.</tt><tt class="descname">FileBrowserFilteredModel</tt><big>(</big><em>parent</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.FileBrowserFilteredModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QSortFilterProxyModel</span></tt></p>
+<p>Model filters out files using negative filter.
+i.e. does not show .o .pyc and other temporary files</p>
+<dl class="method">
+<dt id="mks.plugins.filebrowser.FileBrowserFilteredModel.columnCount">
+<tt class="descname">columnCount</tt><big>(</big><em>parent=&lt;PyQt4.QtCore.QModelIndex object at 0xaf6e56c&gt;</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.FileBrowserFilteredModel.columnCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Column count for the model</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.filebrowser.FileBrowserFilteredModel.hasChildren">
+<tt class="descname">hasChildren</tt><big>(</big><em>parent=&lt;PyQt4.QtCore.QModelIndex object at 0xaf6e5dc&gt;</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.FileBrowserFilteredModel.hasChildren" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if node has children. QAbstractItemModel standard method</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.filebrowser.FileBrowserFilteredModel.filterAcceptsRow">
+<tt class="descname">filterAcceptsRow</tt><big>(</big><em>source_row</em>, <em>source_parent</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.FileBrowserFilteredModel.filterAcceptsRow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main method. Check if file matches filter</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.plugins.filebrowser.SmartRecents">
+<em class="property">class </em><tt class="descclassname">mks.plugins.filebrowser.</tt><tt class="descname">SmartRecents</tt><big>(</big><em>fileBrowser</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.SmartRecents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtCore.QObject</span></tt></p>
+<p>Class stores File Browser recent directories and provides variants for combo box.</p>
+<p>&#8220;Active directory&#8221; in this class means the last directory, where one or more files has been opened</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.plugins.filebrowser.SmartHistory">
+<em class="property">class </em><tt class="descclassname">mks.plugins.filebrowser.</tt><tt class="descname">SmartHistory</tt><big>(</big><em>fileBrowser</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.SmartHistory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtCore.QObject</span></tt></p>
+<p>Class remembers file browser history and manages Back and Forward buttons</p>
+<dl class="method">
+<dt id="mks.plugins.filebrowser.SmartHistory.del_">
+<tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.SmartHistory.del_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Explicitly called destructor</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.plugins.filebrowser.Tree">
+<em class="property">class </em><tt class="descclassname">mks.plugins.filebrowser.</tt><tt class="descname">Tree</tt><big>(</big><em>fileBrowser</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.Tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QTreeView</span></tt></p>
+<p>File system tree</p>
+<dl class="method">
+<dt id="mks.plugins.filebrowser.Tree.moveUp">
+<tt class="descname">moveUp</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.Tree.moveUp" title="Permalink to this definition">¶</a></dt>
+<dd><p>User pressed Up key or button. Move focus and root up</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.filebrowser.Tree.setFocus">
+<tt class="descname">setFocus</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.Tree.setFocus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves focus and selection to the first item, if nothing focused</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.filebrowser.Tree.currentPath">
+<tt class="descname">currentPath</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.Tree.currentPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get current path (root of the tree)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.filebrowser.Tree.setCurrentPath">
+<tt class="descname">setCurrentPath</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.Tree.setCurrentPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set current path (root of the tree)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.plugins.filebrowser.ComboBox">
+<em class="property">class </em><tt class="descclassname">mks.plugins.filebrowser.</tt><tt class="descname">ComboBox</tt><big>(</big><em>fileBrowser</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.ComboBox" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QComboBox</span></tt></p>
+<p>File browser combo box.
+Widget and functionality</p>
+<dl class="method">
+<dt id="mks.plugins.filebrowser.ComboBox.del_">
+<tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.ComboBox.del_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Explicitly called destructor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.filebrowser.ComboBox.updateItems">
+<tt class="descname">updateItems</tt><big>(</big><em>items</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.ComboBox.updateItems" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update items in the combo box according to current history</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.plugins.filebrowser.DockFileBrowser">
+<em class="property">class </em><tt class="descclassname">mks.plugins.filebrowser.</tt><tt class="descname">DockFileBrowser</tt><big>(</big><em>parent</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.DockFileBrowser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">mks.fresh.dockwidget.pDockWidget.pDockWidget</span></tt></p>
+<p>UI interface of FileBrowser plugin.</p>
+<p>Dock with file system tree, Box, navigation in a file system
+tree, for moving root of tree to currently selected directory and
+up (relatively for current directory)</p>
+<dl class="attribute">
+<dt id="mks.plugins.filebrowser.DockFileBrowser.rootChanged">
+<tt class="descname">rootChanged</tt><a class="headerlink" href="#mks.plugins.filebrowser.DockFileBrowser.rootChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>rootChanged(path)</p>
+<p><strong>Signal</strong> emitted, when tree root has been changed</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mks.plugins.filebrowser.DockFileBrowser.fileActivated">
+<tt class="descname">fileActivated</tt><a class="headerlink" href="#mks.plugins.filebrowser.DockFileBrowser.fileActivated" title="Permalink to this definition">¶</a></dt>
+<dd><p>rootChanged(path)</p>
+<p><strong>Signal</strong> emitted, when file has been activated</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.filebrowser.DockFileBrowser.del_">
+<tt class="descname">del_</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.DockFileBrowser.del_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Explicitly called destructor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.filebrowser.DockFileBrowser.updateComboItems">
+<tt class="descname">updateComboItems</tt><big>(</big><em>items</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.DockFileBrowser.updateComboItems" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update items in the combo box according to current history</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.filebrowser.DockFileBrowser.currentPath">
+<tt class="descname">currentPath</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.DockFileBrowser.currentPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get current path (root of the tree)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.filebrowser.DockFileBrowser.setCurrentPath">
+<tt class="descname">setCurrentPath</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.DockFileBrowser.setCurrentPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set current path (root of the tree)
+If there are no documents on workspace, also changes process current directory</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.plugins.filebrowser.DockFileBrowser.moveUp">
+<tt class="descname">moveUp</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.plugins.filebrowser.DockFileBrowser.moveUp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move tree root up, or only move focus</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../static/monkey2.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="editortoolbar.html"
+                        title="previous chapter">editortoolbar &#8212; Shows position, save state, EOL and indent</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="helpmenu.html"
+                        title="next chapter">helpmenu &#8212; Help main menu items. Aboout dialogue</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../sources/plugins/filebrowser.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="helpmenu.html" title="helpmenu — Help main menu items. Aboout dialogue"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="editortoolbar.html" title="editortoolbar — Shows position, save state, EOL and indent"
+             >previous</a> |</li>
+        <li><a href="../index.html">mksv3. Simple programmers text editor</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright (C) 2005 - 2012 Andrei KOPATS, Filipe AZEVEDO and The MkS Team.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

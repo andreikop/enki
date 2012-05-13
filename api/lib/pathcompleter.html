@@ -1,0 +1,177 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pathcompleter — Path completer for Locator &mdash; mksv3. Simple programmers text editor</title>
+    <link rel="stylesheet" href="../static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '12.04.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/underscore.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <link rel="shortcut icon" href="../static/monkey2.ico"/>
+    <link rel="top" title="mksv3. Simple programmers text editor" href="../index.html" />
+    <link rel="next" title="appshortcuts — Manage application shortcuts" href="../plugins/appshortcuts.html" />
+    <link rel="prev" title="htmldelegate — QStyledItemDelegate delegate. Draws HTML" href="htmldelegate.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../plugins/appshortcuts.html" title="appshortcuts — Manage application shortcuts"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="htmldelegate.html" title="htmldelegate — QStyledItemDelegate delegate. Draws HTML"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">mksv3. Simple programmers text editor</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-mks.lib.pathcompleter"></span><div class="section" id="pathcompleter-path-completer-for-locator">
+<h1>pathcompleter &#8212; Path completer for Locator<a class="headerlink" href="#pathcompleter-path-completer-for-locator" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="mks.lib.pathcompleter.makeSuitableCompleter">
+<tt class="descclassname">mks.lib.pathcompleter.</tt><tt class="descname">makeSuitableCompleter</tt><big>(</big><em>text</em>, <em>pos</em><big>)</big><a class="headerlink" href="#mks.lib.pathcompleter.makeSuitableCompleter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns PathCompleter if text is normal path or GlobCompleter for glob</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.lib.pathcompleter.AbstractPathCompleter">
+<em class="property">class </em><tt class="descclassname">mks.lib.pathcompleter.</tt><tt class="descname">AbstractPathCompleter</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#mks.lib.pathcompleter.AbstractPathCompleter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../core/locator.html#mks.core.locator.AbstractCompleter" title="mks.core.locator.AbstractCompleter"><tt class="xref py py-class docutils literal"><span class="pre">mks.core.locator.AbstractCompleter</span></tt></a></p>
+<p>Base class for PathCompleter and GlobCompleter</p>
+<dl class="method">
+<dt id="mks.lib.pathcompleter.AbstractPathCompleter.rowCount">
+<tt class="descname">rowCount</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.lib.pathcompleter.AbstractPathCompleter.rowCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Row count in the list of completions</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.lib.pathcompleter.AbstractPathCompleter.text">
+<tt class="descname">text</tt><big>(</big><em>row</em>, <em>column</em><big>)</big><a class="headerlink" href="#mks.lib.pathcompleter.AbstractPathCompleter.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Item text in the list of completions</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.lib.pathcompleter.AbstractPathCompleter.icon">
+<tt class="descname">icon</tt><big>(</big><em>row</em>, <em>column</em><big>)</big><a class="headerlink" href="#mks.lib.pathcompleter.AbstractPathCompleter.icon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Item icon in the list of completions</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mks.lib.pathcompleter.AbstractPathCompleter.getFullText">
+<tt class="descname">getFullText</tt><big>(</big><em>row</em><big>)</big><a class="headerlink" href="#mks.lib.pathcompleter.AbstractPathCompleter.getFullText" title="Permalink to this definition">¶</a></dt>
+<dd><p>User clicked a row. Get inline completion for this row</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.lib.pathcompleter.PathCompleter">
+<em class="property">class </em><tt class="descclassname">mks.lib.pathcompleter.</tt><tt class="descname">PathCompleter</tt><big>(</big><em>text</em>, <em>pos</em><big>)</big><a class="headerlink" href="#mks.lib.pathcompleter.PathCompleter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mks.lib.pathcompleter.AbstractPathCompleter" title="mks.lib.pathcompleter.AbstractPathCompleter"><tt class="xref py py-class docutils literal"><span class="pre">mks.lib.pathcompleter.AbstractPathCompleter</span></tt></a></p>
+<p>Path completer for Locator. Supports globs</p>
+<p>Used by Open command</p>
+<dl class="method">
+<dt id="mks.lib.pathcompleter.PathCompleter.inline">
+<tt class="descname">inline</tt><big>(</big><big>)</big><a class="headerlink" href="#mks.lib.pathcompleter.PathCompleter.inline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inline completion. Displayed after the cursor</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mks.lib.pathcompleter.GlobCompleter">
+<em class="property">class </em><tt class="descclassname">mks.lib.pathcompleter.</tt><tt class="descname">GlobCompleter</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#mks.lib.pathcompleter.GlobCompleter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mks.lib.pathcompleter.AbstractPathCompleter" title="mks.lib.pathcompleter.AbstractPathCompleter"><tt class="xref py py-class docutils literal"><span class="pre">mks.lib.pathcompleter.AbstractPathCompleter</span></tt></a></p>
+<p>Path completer for Locator. Supports globs, does not support inline completion</p>
+<p>Used by Open command</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../static/monkey2.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="htmldelegate.html"
+                        title="previous chapter">htmldelegate &#8212; QStyledItemDelegate delegate. Draws HTML</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../plugins/appshortcuts.html"
+                        title="next chapter">appshortcuts &#8212; Manage application shortcuts</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../sources/lib/pathcompleter.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../plugins/appshortcuts.html" title="appshortcuts — Manage application shortcuts"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="htmldelegate.html" title="htmldelegate — QStyledItemDelegate delegate. Draws HTML"
+             >previous</a> |</li>
+        <li><a href="../index.html">mksv3. Simple programmers text editor</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright (C) 2005 - 2012 Andrei KOPATS, Filipe AZEVEDO and The MkS Team.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>
