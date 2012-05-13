@@ -1,1 +1,0 @@
-.. automodule:: mks.plugins.detectindent

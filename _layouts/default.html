@@ -3,6 +3,13 @@
     <title>{{ page.title }}</title>
   </head>
   <body>
-    {{ content }}    
+  <table>
+    <td>
+      {% include menu.html %}
+    </td>
+    <td>
+    {{ content }}
+    </td>
+  </table>
   </body>
 </html>
