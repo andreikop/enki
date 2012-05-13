@@ -10,7 +10,7 @@ title: mksv3 official site
 
 
 * Intuitive and clear interface. Works out of the box. You don't have to read a lot of docs
-* Hacker friendly. Minimize your mouse usage and work quicker.
+* Hacker friendly. You don't need your mouse for coding
 * Minimalistic interface. Screen is used for code, not for bells and whistles.
 * Powerful. Smart.
 * Extensible. Missing feature or language support? Don't create a new IDE, create a plugin
