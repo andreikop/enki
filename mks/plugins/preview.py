@@ -188,6 +188,6 @@ class PreviewDock(pDockWidget):
         Called by the thread
         """
         self._saveScrollPos()
-        self._view.setHtml(html)
         self._visiblePath = filePath
         self._view.page().mainFrame().contentsSizeChanged.connect(self._restoreScrollPos)
+        self._view.setHtml(html)
