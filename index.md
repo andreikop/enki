@@ -19,26 +19,26 @@ See [Features](features.html) and [Why new code editor?](why-new.html)
 <table frame="void">
     <tr>
         <td width="25%">
-            <a href="http://hlamer.github.com/mksv3/screenshots/main-ui.png">
-                <img src="http://hlamer.github.com/mksv3/screenshots/preview/main-ui.png" width="100%" height="100%"/>
+            <a href="screenshots/main-ui.png">
+                <img src="screenshots/preview/main-ui.png" width="100%" height="100%"/>
             </a>
             UI
         </td>
         <td width="25%">
-            <a href="http://hlamer.github.com/mksv3/screenshots/minimal.png">
-                <img src="http://hlamer.github.com/mksv3/screenshots/preview/minimal.png" width="100%" height="100%"/>
+            <a href="screenshots/minimal.png">
+                <img src="screenshots/preview/minimal.png" width="100%" height="100%"/>
             </a>
             Minimalistic UI
         </td>
         <td width="25%">
-            <a href="http://hlamer.github.com/mksv3/screenshots/search.png">
-                <img src="http://hlamer.github.com/mksv3/screenshots/preview/search.png" width="100%" height="100%"/>
+            <a href="screenshots/search.png">
+                <img src="screenshots/preview/search.png" width="100%" height="100%"/>
             </a>
             Search
         </td>
         <td width="25%">
-            <a href="http://hlamer.github.com/mksv3/screenshots/search-replace.png">
-                <img src="http://hlamer.github.com/mksv3/screenshots/preview/search-replace.png" width="100%" height="100%"/>
+            <a href="screenshots/search-replace.png">
+                <img src="screenshots/preview/search-replace.png" width="100%" height="100%"/>
             </a>
             Good bye sed
         </td>
