@@ -465,7 +465,7 @@ class ComboBox(QComboBox):
         self._showPopupAction = QAction(QIcon(':mksicons/filtered.png'), "File browser history", self)
         self._showPopupAction.setShortcut('Ctrl+H')
         core.actionManager().addAction("mNavigation/mFileBrowser/aMenuShow", self._showPopupAction)
-        self._showPopupAction.triggered.connect(self.showPopup)
+        self._showPopupAction.triggered.connect(self._onShowPopup)
         
         # reconnected in self.updateComboItems()
         self.currentIndexChanged[int].connect(self._onItemSelected)
@@ -475,6 +475,11 @@ class ComboBox(QComboBox):
         """
         core.actionManager().removeAction(self._showPopupAction)
 
+    def _onShowPopup(self, triggered):
+        """Handler for self._showPopupAction
+        """
+        self.showPopup()
+        
     @pyqtSlot(int)
     def _onItemSelected(self, index):
         """Handler of item selection in the combo box
