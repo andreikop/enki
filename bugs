@@ -5,6 +5,7 @@ FIXME
     show page title on preview
     include preview.rst to TOC
     python-markdown - processes indented list
+    docs to view menu
 
 TODO
   minor improvements
