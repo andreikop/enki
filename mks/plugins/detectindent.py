@@ -7,6 +7,7 @@ from mks.core.core import core
 
 # Bigger indents are probably not an indents
 _MAX_INDENT = 8
+_MIN_INDENT = 2
 
 class Plugin:
     """Plugin interface
@@ -70,7 +71,8 @@ class Plugin:
             currentIndent = _lineIndent(l)
             diff = _diffIndents(currentIndent, lastIndent)
             if diff is not None and \
-               len(diff) <= _MAX_INDENT:
+               len(diff) <= _MAX_INDENT and \
+               len(diff) >= _MIN_INDENT:
                 if diff in popularityTable:
                     popularityTable[diff] += 1
                 else:
