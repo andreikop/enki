@@ -75,6 +75,7 @@ Plugins documentation
    plugins/filebrowser.rst
    plugins/helpmenu.rst
    plugins/mitscheme.rst
+   plugins/preview.rst
    plugins/recentfiles.rst
    plugins/restorepos.rst
    plugins/schemeindenthelper.rst
