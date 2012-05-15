@@ -12,7 +12,7 @@ from mks.core.uisettings import ModuleConfigurator, \
 
 import shortcuts
 
-from lexer import Lexer, LexerConfig, LexerSettingsWidget
+from lexer import Lexer
 from editor import Editor
 
 class EditorConfigurator(ModuleConfigurator):
@@ -22,7 +22,6 @@ class EditorConfigurator(ModuleConfigurator):
         ModuleConfigurator.__init__(self, dialog)
         self._options = []
         self._createEditorOptions(dialog)
-        self._createLexerOptions(dialog)
     
     def _createEditorOptions(self, dialog):
         """Create editor (not lexer) specific options
@@ -104,65 +103,6 @@ class EditorConfigurator(ModuleConfigurator):
                           dialog.rbWsVisibleAfterIndent: "VisibleAfterIndent"}),
         ))
     
-    def _createLexerOptions(self, dialog):
-        """Create lexer (not editor) specific options
-        """
-        editor = core.workspace().currentDocument()
-
-        if editor is None or \
-           editor.lexer.currentLanguage is None or \
-           editor.lexer.currentLanguage == 'Scheme' or \
-           Plugin.instance.lexerConfig is None:  # If language is unknown, or lexer configuration are not available
-            return
-        
-        widget = LexerSettingsWidget(dialog)
-        dialog.appendPage(u"Editor/%s" % editor.lexer.currentLanguage, widget)
-        
-        lexerConfig = Plugin.instance.lexerConfig.config
-        lexer = editor.lexer.qscilexer
-        beginning = "%s/" % editor.lexer.currentLanguage
-        
-        boolAttributeControls = (widget.cbLexerFoldComments,
-                                 widget.cbLexerFoldCompact,
-                                 widget.cbLexerFoldQuotes,
-                                 widget.cbLexerFoldDirectives,
-                                 widget.cbLexerFoldAtBegin,
-                                 widget.cbLexerFoldAtParenthesis,
-                                 widget.cbLexerFoldAtElse,
-                                 widget.cbLexerFoldAtModule,
-                                 widget.cbLexerFoldPreprocessor,
-                                 widget.cbLexerStylePreprocessor,
-                                 widget.cbLexerCaseSensitiveTags,
-                                 widget.cbLexerBackslashEscapes)
-        
-        for attribute, control in zip(Lexer.LEXER_BOOL_ATTRIBUTES, boolAttributeControls):
-            if hasattr(lexer, attribute):
-                self._options.append(CheckableOption(dialog, lexerConfig, beginning + attribute, control))
-            else:
-                control.hide()
-
-        self._options.extend(( \
-             CheckableOption(dialog, lexerConfig, beginning + "indentOpeningBrace", widget.cbLexerIndentOpeningBrace),
-             CheckableOption(dialog, lexerConfig, beginning + "indentClosingBrace", widget.cbLexerIndentClosingBrace)))
-
-        if hasattr(lexer, "indentationWarning"):
-            self._options.extend((
-                CheckableOption(dialog, lexerConfig,
-                                beginning + "indentationWarning", widget.gbLexerHighlightingIndentationWarning),
-                ChoiseOption(dialog, lexerConfig, beginning + "indentationWarningReason", 
-                             {widget.cbIndentationWarningInconsistent: "Inconsistent",
-                              widget.cbIndentationWarningTabsAfterSpaces: "TabsAfterSpaces",
-                              widget.cbIndentationWarningTabs: "Tabs",
-                              widget.cbIndentationWarningSpaces: "Spaces"})))
-        else:
-            widget.gbLexerHighlightingIndentationWarning.hide()
-
-    def saveSettings(self):
-        """Main settings should be saved by the core. Save only lexer settings
-        """
-        if Plugin.instance.lexerConfig is not None:
-            Plugin.instance.lexerConfig.save()
-    
     def applySettings(self):
         """Apply editor and lexer settings
         """
@@ -178,11 +118,6 @@ class Plugin:
     """
     def __init__(self):
         Plugin.instance = self
-        try:
-            self.lexerConfig = LexerConfig()
-        except UserWarning as ex:
-            core.mainWindow().appendMessage(unicode(ex))
-            self.lexerConfig = None
         core.workspace().setTextEditorClass(Editor)
         self._shortcuts = shortcuts.Shortcuts()
     
