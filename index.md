@@ -1,6 +1,7 @@
 ---
 layout: default
 title: mksv3 official site
+root: .
 ---
 
 
@@ -51,3 +52,12 @@ mksv3 is **crossplatform**, but, currently has been tested only on Linux. Team w
 The project is licensed under **GNU GPL v2** license
 
 Use [mksv3@googlegroups.com](mailto:mksv3@googlegroups.com) or [hlamer@tut.by](mailto:hlamer@tut.by) as contact email.
+
+Blog<br/>
+{% for post in site.posts limit:5 %}
+<div>
+  {{ post.date | date_to_string }}
+  <a href="{{ page.root }}{{ post.url }}">{{ post.title }}</a>
+  <p>{{ post.excerpt }}</p>
+</div>
+{% endfor %}
