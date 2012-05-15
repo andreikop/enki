@@ -7,6 +7,12 @@ FIXME
     python-markdown - processes indented list
     docs to view menu
 
+SITE:
+    update links to API docs
+    update user manual
+    add blog
+
+
 TODO
   minor improvements
   medium functionality
@@ -50,3 +56,4 @@ ON new editor
 
 ENKI:
     add here: http://en.wikibooks.org/wiki/Ruby_Programming/Ruby_editors
+    add to Octopress wiki
