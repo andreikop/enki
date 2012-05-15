@@ -122,9 +122,9 @@
             "FirstLine": []
         }, 
         "HTML": {
-            "FileName": [ "*.asp", "*.xml", "*.xsd", "*.xsl", "*.xslt", "*.docbook", "*.dtd",
-                          "*.htm*", "*.php*", "*.phtm*", "*.rdf", "*.svg", "*.shtm*" ],
-            "FirstLine": [ "<!doctype html*", "<html*", "<?php*", "<? *", "<?" ]
+            "FileName": [ "*.asp",
+                          "*.htm*", "*.php*", "*.phtm*", "*.rdf", "*.shtm*" ],
+            "FirstLine": [ "<!doctype html*", "<html*", "<?php*"]
         }, 
         "IDL": {
             "FileName": [ "*.idl" ],
@@ -207,7 +207,7 @@
             "FirstLine": []
         }, 
         "XML": {
-            "FileName": [ "*.xml" ],
+            "FileName": [ "*.xml", "*.xsd", "*.xsl", "*.xslt", "*.docbook", "*.dtd", "*.svg" ],
             "FirstLine": [ "<!doctype*", "<?xml*" ]
         }, 
         "YAML": {
