@@ -4,15 +4,14 @@ cppfileswitch --- Switch C/C++ between header and implementation files
 """
 
 import fnmatch
-import glob
-import operator
+import os.path
 
 from PyQt4.QtCore import QObject
 
 from mks.core.core import core
 
-_HEADER_SUFFIXES = ["*.h", "*.hh", "*.hpp", "*.hxx", "*.h++"]
-_IMPLEMENTATION_SUFFIXES = ["*.c", "*.cc", "*.cpp", "*.cxx", "*.c++"]
+_HEADER_SUFFIXES = [".h", ".hh", ".hpp", ".hxx", ".h++"]
+_IMPLEMENTATION_SUFFIXES = [".c", ".cc", ".cpp", ".cxx", ".c++"]
 
 class Plugin(QObject):
     def __init__(self):
@@ -52,35 +51,33 @@ class Plugin(QObject):
     def _isHeader(self, filePath):
         """Check if file is a header
         """
-        return any(fnmatch.fnmatch(filePath, pattern) \
-                            for pattern in _HEADER_SUFFIXES)
+        return any([filePath.endswith(suffix)
+                            for suffix in _HEADER_SUFFIXES])
     
     def _isImplementation(self, filePath):
         """Check if file is a header
         """
-        return any(fnmatch.fnmatch(filePath, pattern) \
-                            for pattern in _IMPLEMENTATION_SUFFIXES)
-
-    def _expandGlobs(self, listOfGlobs):
-        """Expland list of globs
-        """
-        return reduce(operator.add, [glob.glob(globPattern) \
-                                        for globPattern in listOfGlobs])
+        return any([filePath.endswith(suffix)
+                            for suffix in _IMPLEMENTATION_SUFFIXES])
 
     def _getFileToSwitch(self):
         """Try to find implementation for header, header for implementation
         """
         filePath = core.workspace().currentDocument().filePath()
         filePathWithoutSuffix = filePath[:filePath.rindex('.')]
-        filesToSwitch = []
+
         if self._isHeader(filePath):
-            filesToSwitch = self._expandGlobs([filePathWithoutSuffix + suffix \
-                                                for suffix in _IMPLEMENTATION_SUFFIXES])
+            variants = [filePathWithoutSuffix + suffix \
+                            for suffix in _IMPLEMENTATION_SUFFIXES]
         elif self._isImplementation(filePath):
-            filesToSwitch = self._expandGlobs([filePathWithoutSuffix + suffix \
-                                                for suffix in _HEADER_SUFFIXES])
-        if filesToSwitch:
-            return filesToSwitch[0]
+            variants = [filePathWithoutSuffix + suffix \
+                            for suffix in _HEADER_SUFFIXES]
+        
+        existing = [path
+                        for path in variants \
+                            if os.path.isfile(path)]
+        if existing:
+            return existing[0]
         else:
             return None
     

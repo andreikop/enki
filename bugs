@@ -1,5 +1,5 @@
 FIXME
-    Crash on new QScintilla
+    MIN_INDENT 2
     Locator and Markdown preview screens
     no file browser favorites
     close preview when last file closed
@@ -33,6 +33,7 @@ TODO
     Code syntax checker
     Inexact search of tags and files
     Search when selecting
+    Terminal emulator
 
 NOT PORTED from MkS
     Abbreviations
