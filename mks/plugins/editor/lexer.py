@@ -225,7 +225,10 @@ class Lexer:
         for attribute in self.LEXER_BOOL_ATTRIBUTES:
             setterName = 'set' + attribute[0].capitalize() + attribute[1:]
             if hasattr(self.qscilexer, setterName):
-                getattr(self.qscilexer, setterName)(_getLexerOPtion(attribute))
+                try:  # no key in the previous version
+                    getattr(self.qscilexer, setterName)(_getLexerOPtion(attribute))
+                except KeyError:
+                    pass
         
         autoIndentStyle = 0
         if _getLexerOPtion('indentOpeningBrace'):
