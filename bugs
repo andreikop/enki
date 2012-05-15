@@ -1,4 +1,5 @@
 FIXME
+    Crash on new QScintilla
     Locator and Markdown preview screens
     no file browser favorites
     close preview when last file closed
