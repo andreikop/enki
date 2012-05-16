@@ -1,4 +1,5 @@
 FIXME
+    irc.md works slowly
     Your file contains mix  - insert file name
     Always jump to end of file when reopening
     Undo Close menu shows not existing, opens wrong
@@ -17,12 +18,13 @@ FIXME
         5. pygments. (Optional, for highlighting Scheme files)
         6. markdown. (Optional, for Markdown preview)
         #### Install on Debian and Debian based
+    Icons on the docks became smaller
 
 
 SITE:
     update links to API docs
     update user manual
-    add blog
+    write blog posts
 
 
 TODO
