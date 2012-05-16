@@ -1,10 +1,23 @@
 FIXME
     Your file contains mix  - insert file name
+    Always jump to end of file when reopening
+    Undo Close menu shows not existing, opens wrong
+    Does not work Backspace in FB if directory is empty
     Locator and Markdown preview screens
     no file browser favorites
     show page title on preview
     python-markdown - processes indented list
     docs to view menu
+    different output:
+        ## Dependencies
+        1. Python 2. Tested on v2.6.6 and v2.7.2
+        2. PyQt4
+        3. QScintilla 2 and Python bindings. v2.4.1 or newer
+        4. pyparsing
+        5. pygments. (Optional, for highlighting Scheme files)
+        6. markdown. (Optional, for Markdown preview)
+        #### Install on Debian and Debian based
+
 
 SITE:
     update links to API docs

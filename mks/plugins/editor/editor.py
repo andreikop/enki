@@ -220,8 +220,12 @@ class Editor(AbstractTextEditor):
                 "Extend selection left one word", "Extend selection right one word",
             "Move down one page", "Move up one page",
                 "Extend selection down one page", "Extend selection up one page",
-            "Move to first visible character in line", "Move to end of line",
-                "Extend selection to first visible character in line", "Extend selection to end of line",
+            "Move to first visible character in line", "Move to first visible character in document line", 
+            "Move to end of line", "Move to end of document line",
+                "Extend selection to first visible character in line",
+                    "Extend selection to first visible character in document line",
+                "Extend selection to end of line",
+                    "Extend selection to end of document line",
             "Move to start of text", "Move to end of text",
                 "Extend selection to start of text", "Extend selection to end of text",
             "Indent one level", "Move back one indentation level", "De-indent one level",
@@ -229,7 +233,7 @@ class Editor(AbstractTextEditor):
             "Cancel",
             "Delete current character", "Delete previous character",
             "Delete word to right", "Delete word to left",
-            "Select all text"
+            "Select all text", "Select all"
             ])
 
         for command in qsci.standardCommands().commands():
