@@ -1,0 +1,16 @@
+<html>
+  <head>
+    <title>{{ page.title }}</title>
+  </head>
+  <body>
+  <table>
+    <td>
+      {% include menu.html %}
+    </td>
+    <td>
+    {{ content }}
+    {{ page.date | date_to_string }}
+    </td>
+  </table>
+  </body>
+</html>
