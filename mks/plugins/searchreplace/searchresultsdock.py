@@ -214,7 +214,6 @@ class SearchResultsDock(pDockWidget):
         """When replace mode is enabled, dock shows checkbox near every item
         """
         self._model.setReplaceMode(enabled)
-        self._view.update()  # redraw the model
         if enabled:
             if self._checkUncheckAll is None:
                 self._checkUncheckAll = CheckUncheckAllButton(self.titleBarWidget(), self._view, self._model)

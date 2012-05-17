@@ -112,6 +112,11 @@ class SearchResultsModel(QAbstractItemModel):
         """When replace mode is enabled, all items are checkState
         """
         self._replaceMode = enabled
+        if self.fileResults:
+            self.dataChanged.emit(self.index(0, 0, QModelIndex()),
+                                  self.index(len(self.fileResults) - 1,
+                                             len(self.fileResults[-1].results) - 1,
+                                             QModelIndex()))
 
     def index(self, row, column, parent ):
         """See QAbstractItemModel docs
