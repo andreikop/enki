@@ -8,6 +8,8 @@ title: mksv3 official site
 
 **hlamer**
 
+[hlamer@tut.by](mailto:hlamer@tut.by)
+
 mksv3 developer
 
 ## Filipe Azevedo

@@ -51,7 +51,6 @@ mksv3 is **crossplatform**, but, currently has been tested only on Linux. Team w
 
 The project is licensed under **GNU GPL v2** license
 
-Use [mksv3@googlegroups.com](mailto:mksv3@googlegroups.com) or [hlamer@tut.by](mailto:hlamer@tut.by) as contact email.
 
 ## Blog
 {% for post in site.posts limit:5 %}
