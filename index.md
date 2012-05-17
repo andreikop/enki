@@ -53,7 +53,7 @@ The project is licensed under **GNU GPL v2** license
 
 Use [mksv3@googlegroups.com](mailto:mksv3@googlegroups.com) or [hlamer@tut.by](mailto:hlamer@tut.by) as contact email.
 
-Blog<br/>
+## Blog
 {% for post in site.posts limit:5 %}
 <div>
   {{ post.date | date_to_string }}
@@ -61,3 +61,5 @@ Blog<br/>
   <p>{{ post.excerpt }}</p>
 </div>
 {% endfor %}
+
+<a href="archive.html">Archives</a>
