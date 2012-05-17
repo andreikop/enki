@@ -173,10 +173,6 @@ class Controller(QObject):
         
         self._widget.setMode(newMode)
         
-        if self._dock is not None:
-            self._dock.setReplaceMode(self._mode == ModeReplaceDirectory or \
-                                      self._mode == ModeReplaceOpenedFiles)
-            
         if self._searchThread is not None:
             self._searchThread.stop()
         if self._replaceThread is not None:
@@ -185,6 +181,11 @@ class Controller(QObject):
         #self._resetSearchInFileStartPoint()
 
         self._mode = newMode
+        
+        if self._dock is not None:
+            self._dock.setReplaceMode(self._mode == ModeReplaceDirectory or \
+                                      self._mode == ModeReplaceOpenedFiles)
+            
 
     #
     # Search and replace in file
