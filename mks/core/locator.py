@@ -445,8 +445,8 @@ class Locator(QDialog):
         if not self._checkPyParsing():
             return
         
-        self.show()
         self._edit.setFocus()
+        self.exec_()
 
     def _onItemClicked(self, index):
         """Item in the TreeView has been clicked.
@@ -568,11 +568,11 @@ class Locator(QDialog):
         except ParseException:
             return None
 
-    def show(self):
-        """QWidget.show implementation. Updates completion before showing widget
+    def exec_(self):
+        """QDialog.exec() implementation. Updates completion before showing widget
         """
         self.setWindowTitle(os.path.abspath(os.path.curdir))
 
         self._edit.setText('')
         self._updateCompletion()
-        QDialog.show(self)
+        QDialog.exec_(self)
