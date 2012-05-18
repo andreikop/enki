@@ -2,25 +2,15 @@ FIXME
     irc.md works slowly
     Always jump to end of file when reopening
     Does not work Backspace in FB if directory is empty
-    Locator and Markdown preview screens
-    python-markdown - processes indented list
     docs to view menu
-    different output:
-        ## Dependencies
-        1. Python 2. Tested on v2.6.6 and v2.7.2
-        2. PyQt4
-        3. QScintilla 2 and Python bindings. v2.4.1 or newer
-        4. pyparsing
-        5. pygments. (Optional, for highlighting Scheme files)
-        6. markdown. (Optional, for Markdown preview)
-        #### Install on Debian and Debian based
-    Icons on the docks became smaller
+    smaller dock tool bars
     Move popular dirs to separate file
 
 SITE:
     update links to API docs
     update user manual
     write blog posts
+    Locator and Markdown preview screens and docs
 
 
 TODO
