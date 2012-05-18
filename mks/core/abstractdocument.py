@@ -770,7 +770,8 @@ class AbstractTextEditor(AbstractDocument):
             detectedMode = None
         
         if moreThanOne:
-            message = "Your file contains mix of End Of Line symbols. It will be saved with '%s'" % default
+            message = "%s contains mix of End Of Line symbols. It will be saved with '%s'" % \
+                        (self.filePath(), default)
             core.mainWindow().appendMessage(message, 10000)
             self.setEolMode(default)
             self._setModified(True)
