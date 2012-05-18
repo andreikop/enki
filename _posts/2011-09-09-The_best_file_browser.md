@@ -3,6 +3,8 @@ I decided to improve the UI...
 
 Here is old version:
 
+<img src="../../../blog-screens/old-file-browser.png"/>
+
 ###Useless functionality
 
 At first, I just removed 2 of the buttons.
@@ -39,6 +41,10 @@ I'm also thinking about adding web browser like Back and Forward buttons to the 
 
 So, I think, here is the best text editor File Browser:
 
+<span>
+    <img src="../../../blog-screens/new-file-browser-2.png"/><br/><br/>
+    <img src="../../../blog-screens/new-file-browser.png"/>
+</span>
 
 
 Of course, I'm trolling you with this _the best_. Try to argue, that it is possible to do even better ;)

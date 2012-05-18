@@ -12,7 +12,7 @@ I just finished file associations for syntax highlighting.
 
 <table>
     <td>
-        <img src="../../../../blog-screens/switch-lang.png" width="300px"/>
-        <img src="../../../../blog-screens/detect-by-first-line.png" width="300px"/>
+        <img src="../../../blog-screens/switch-lang.png" width="300px"/>
+        <img src="../../../blog-screens/detect-by-first-line.png" width="300px"/>
     </td>
 </table>
