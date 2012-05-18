@@ -5,6 +5,7 @@ config --- Load and save settings
 
 import json
 
+from mks.core.core import core
 
 class Config():
     """Settings storage.
@@ -105,11 +106,11 @@ class Config():
         try:
             with open(self._filePath, 'r') as f:
                 return json.load(f)
-        except (OSError, IOError), ex:
+        except (OSError, IOError, ValueError), ex:
             error = unicode(str(ex), 'utf8')
             text = "Failed to load settings file '%s': %s" % (self._filePath, error)
             core.mainWindow().appendMessage(text)
-            raise ex
+            raise UserWarning()
 
     def __getitem__(self, key):
         """Python dictionary interface implementation

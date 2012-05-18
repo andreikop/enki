@@ -6,7 +6,6 @@ FIXME
     Undo Close menu shows not existing, opens wrong
     Does not work Backspace in FB if directory is empty
     Locator and Markdown preview screens
-    no file browser favorites
     show page title on preview
     python-markdown - processes indented list
     docs to view menu
