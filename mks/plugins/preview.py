@@ -147,6 +147,7 @@ class PreviewDock(pDockWidget):
         self.showAction().setShortcut("Alt+P")
 
         self._view = QWebView(self)
+        self._view.page().mainFrame().titleChanged.connect(self._updateTitle)
         self.setWidget(self._view)
         self.setFocusProxy(self._view)
         
@@ -167,6 +168,14 @@ class PreviewDock(pDockWidget):
         """Uninstall themselves
         """
         self._thread.wait()
+    
+    def _updateTitle(self, pageTitle):
+        """Web page title changed. Update own title
+        """
+        if pageTitle:
+            self.setWindowTitle("&Preview - " + pageTitle)
+        else:
+            self.setWindowTitle("&Preview")
     
     def _saveScrollPos(self):
         """Save scroll bar position for document
