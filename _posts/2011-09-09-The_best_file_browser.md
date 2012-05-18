@@ -1,3 +1,9 @@
+---
+layout: post
+title: The best file browser
+---
+
+
 Some time ago I noticed, that I dislike our File Browser ui. It takes too lot of free space, and there are too lot of buttons, but I never use them.
 I decided to improve the UI...
 
