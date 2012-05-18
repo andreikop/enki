@@ -249,8 +249,8 @@ class Core(QObject):
         if haveFileInHome:
             try:
                 config = mks.core.config.Config(True, _CONFIG_PATH)
-            except:  # messages are shown by the Config class
-                pass            
+            except UserWarning:  # messages are shown by the Config class
+                pass
         
         # Open default, if previous step failed
         if config is None:
