@@ -13,27 +13,6 @@ from mks.fresh.dockwidget.pDockWidget import pDockWidget
 
 from threading import Lock
 
-zen = \
-"""Beautiful is better than ugly.<br/>
-Explicit is better than implicit.<br/>
-Simple is better than complex.<br/>
-Complex is better than complicated.<br/>
-Flat is better than nested.<br/>
-Sparse is better than dense.<br/>
-Readability counts.<br/>
-Special cases aren't special enough to break the rules.<br/>
-Although practicality beats purity.<br/>
-Errors should never pass silently.<br/>
-Unless explicitly silenced.<br/>
-In the face of ambiguity, refuse the temptation to guess.<br/>
-There should be one-- and preferably only one --obvious way to do it.<br/>
-Although that way may not be obvious at first unless you're Dutch.<br/>
-Now is better than never.<br/>
-Although never is often better than *right* now.<br/>
-If the implementation is hard to explain, it's a bad idea.<br/>
-If the implementation is easy to explain, it may be a good idea.<br/>
-Namespaces are one honking great idea -- let's do more of those!"""
-
 class Plugin(QObject):
     """Plugin interface implementation
     """
@@ -42,6 +21,8 @@ class Plugin(QObject):
         """
         QObject.__init__(self)
         self._dock = None
+        self._dockInstalled = False
+        self._wasVisible = None
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         core.workspace().languageChanged.connect(self._onDocumentChanged)
 
@@ -49,22 +30,48 @@ class Plugin(QObject):
         """Document or Language changed.
         Create dock, if necessary
         """
-        if core.workspace().currentDocument() is not None and \
-           core.workspace().currentDocument().language() is not None and \
-           core.workspace().currentDocument().language() in ('HTML', 'Markdown'):
-            # create dock
+        if self._canHighlight(core.workspace().currentDocument()):
+            if not self._dockInstalled:
+                self._createDock()
+        else:
+            if self._dockInstalled:
+                self._removeDock()
+    
+    def _canHighlight(self, document):
+        """Check if can highlight document
+        """
+        return document is not None and \
+           document.language() is not None and \
+           document.language() in ('HTML', 'Markdown')
+
+    def _createDock(self):
+        """Install dock
+        """
+        # create dock
+        if self._dock is None:
             self._dock = PreviewDock(core.mainWindow())
-            # add dock to dock toolbar entry
-            core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
-            
-            core.workspace().currentDocumentChanged.disconnect(self._onDocumentChanged)
-            core.workspace().languageChanged.disconnect(self._onDocumentChanged)
+        # add dock to dock toolbar entry
+        core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
+        core.actionManager().addAction("mDocks/aPreview", self._dock.showAction())
+        self._dockInstalled = True
+        if self._wasVisible is not None and self._wasVisible:
+            self._dock.show()
+    
+    def _removeDock(self):
+        """Remove dock from GUI
+        """
+        self._wasVisible = self._dock.isVisible()
+        core.actionManager().removeAction("mDocks/aPreview")
+        core.mainWindow().removeDockWidget(self._dock)
+        self._dockInstalled = False
     
     def del_(self):
         """Uninstall the plugin
         """
+        if self._dockInstalled:
+            self._removeDock()
+        
         if self._dock is not None:
-            core.mainWindow().removeDockWidget(self._dock)
             self._dock.del_()
 
 class ConverterThread(QThread):
@@ -138,7 +145,6 @@ class PreviewDock(pDockWidget):
         self.setWindowTitle(self.tr( "&Preview" ))
         self.setWindowIcon(QIcon(':/mksicons/internet.png'))
         self.showAction().setShortcut("Alt+P")
-        core.actionManager().addAction("mDocks/aPreview", self.showAction())
 
         self._view = QWebView(self)
         self.setWidget(self._view)
@@ -160,7 +166,6 @@ class PreviewDock(pDockWidget):
     def del_(self):
         """Uninstall themselves
         """
-        core.actionManager().removeAction("mDocks/aPreview")
         self._thread.wait()
     
     def _saveScrollPos(self):
@@ -198,8 +203,6 @@ class PreviewDock(pDockWidget):
         """
         if new is not None:
             self._thread.process(new.filePath(), new.language(), new.text())
-        else:
-            self._setHtml(None, zen)  # empty dock looks so empty
 
     def _onTextChanged(self, document, text):
         """Text changed, update preview
