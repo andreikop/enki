@@ -3,7 +3,6 @@ FIXME
     Always jump to end of file when reopening
     Does not work Backspace in FB if directory is empty
     Locator and Markdown preview screens
-    show page title on preview
     python-markdown - processes indented list
     docs to view menu
     different output:
@@ -16,7 +15,7 @@ FIXME
         6. markdown. (Optional, for Markdown preview)
         #### Install on Debian and Debian based
     Icons on the docks became smaller
-
+    Move popular dirs to separate file
 
 SITE:
     update links to API docs
