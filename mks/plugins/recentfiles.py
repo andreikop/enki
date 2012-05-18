@@ -5,16 +5,19 @@ recentfiles --- Recent files menu and Undo Close action
 import os.path
 import json
 
+from PyQt4.QtCore import QObject, QVariant
+
 from mks.core.core import core
 from mks.core.defines import CONFIG_DIR
 
 _FILE_PATH = os.path.join(CONFIG_DIR, 'recent_files.json')
 _MAX_SIZE = 100
 
-class Plugin:
+class Plugin(QObject):
     """Plugin interface
     """
     def __init__(self):
+        QObject.__init__(self)
         self._recentFileActions = []
         self._recent = self._load()
         self._undoClose = core.actionManager().addAction("mFile/mUndoClose/aUndoClose",
@@ -107,6 +110,13 @@ class Plugin:
         if doc is not None:  # sucessfully opened
             self._recent.remove(existing[0])
     
+    def _onMenuItemTriggered(self):
+        """One of recents, but not first, triggered
+        """
+        action = self.sender()
+        path = action.data().toString()
+        core.workspace().openFile(path)
+    
     def _onMenuAboutToShow(self):
         """Menu is going to be shown. Fill it
         """
@@ -121,7 +131,8 @@ class Plugin:
         for path in recents[1:count]:  # first already available as Undo Close action
             actionId = "mFile/mUndoClose/a%s" % path.replace('/', ':')
             action = core.actionManager().addAction(actionId, path)
-            action.triggered.connect(lambda: core.workspace().openFile(path))
+            action.setData(QVariant(path))
+            action.triggered.connect(self._onMenuItemTriggered)
             self._recentFileActions.append(action)
 
     def _onMenuAboutToHide(self):

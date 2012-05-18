@@ -1,7 +1,6 @@
 FIXME
     irc.md works slowly
     Always jump to end of file when reopening
-    Undo Close menu shows not existing, opens wrong
     Does not work Backspace in FB if directory is empty
     Locator and Markdown preview screens
     show page title on preview
