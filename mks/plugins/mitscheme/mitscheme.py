@@ -46,14 +46,14 @@ class MitSchemeDock(pDockWidget):
         self.setAllowedAreas( Qt.BottomDockWidgetArea)
         
         self.showAction().setShortcut("Alt+M")
-        core.actionManager().addAction("mDocks/aMitScheme", self.showAction())
+        core.actionManager().addAction("mView/aMitScheme", self.showAction())
 
         self.setWidget(widget)
         self.setFocusProxy(widget)
         widget.installEventFilter(self)
     
     def del_(self):
-        core.actionManager().removeAction("mDocks/aMitScheme")
+        core.actionManager().removeAction("mView/aMitScheme")
     
     def eventFilter(self, obj, event):
         """Event filter for the widget. Catches Esc pressings. It is necessary, because QScintilla eats it

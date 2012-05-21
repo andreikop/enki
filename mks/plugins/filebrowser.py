@@ -532,7 +532,7 @@ class DockFileBrowser(pDockWidget):
         self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
         
         self.showAction().setShortcut("Alt+F")
-        core.actionManager().addAction("mDocks/aFileBrowser", self.showAction())
+        core.actionManager().addAction("mView/aFileBrowser", self.showAction())
         
         core.mainWindow().directoryDropt.connect(self._onDirectoryDropt)
         
@@ -545,7 +545,7 @@ class DockFileBrowser(pDockWidget):
             self._smartHistory.del_()
         if self._comboBox is not None:
             self._comboBox.del_()
-        core.actionManager().removeAction("mDocks/aFileBrowser")
+        core.actionManager().removeAction("mView/aFileBrowser")
 
     def _onVisibilityChanged(self, visible):
         """Postnoted widget initialization.

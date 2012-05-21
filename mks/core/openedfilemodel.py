@@ -384,14 +384,14 @@ class OpenedFileExplorer(pDockWidget):
         # disconnected by startModifyModel()
         self.tvFiles.selectionModel().selectionChanged.connect(self._onSelectionModelSelectionChanged)
         
-        core.actionManager().addAction("mDocks/aOpenedFiles", self.showAction(), shortcut="Alt+O")
+        core.actionManager().addAction("mView/aOpenedFiles", self.showAction(), shortcut="Alt+O")
         core.moduleConfiguratorClasses.append(Configurator)
     
     def del_(self):
         """Explicitly called destructor
         """
         core.moduleConfiguratorClasses.remove(Configurator)
-        core.actionManager().removeAction("mDocks/aOpenedFiles")
+        core.actionManager().removeAction("mView/aOpenedFiles")
     
     def startModifyModel(self):
         """Blocks signals from model while it is modified by code

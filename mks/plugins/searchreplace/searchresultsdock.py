@@ -164,13 +164,13 @@ class SearchResultsDock(pDockWidget):
         self._view.activated.connect(self._onResultActivated)
         
         self.showAction().setShortcut("Alt+S")
-        core.actionManager().addAction("mDocks/aSearchResults", self.showAction())
+        core.actionManager().addAction("mView/aSearchResults", self.showAction())
         
         self._expandCollapseAll = ExpandCollapseAllButton(self.titleBarWidget(), self._view, self._model)
         self._checkUncheckAll = None
 
     def del_(self):
-        core.actionManager().removeAction("mDocks/aSearchResults")
+        core.actionManager().removeAction("mView/aSearchResults")
 
     def _onResultActivated(self, index ):
         """Item doubleclicked in the model, opening file
