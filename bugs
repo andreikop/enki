@@ -1,6 +1,5 @@
 FIXME
     Always jump to end of file when reopening
-    Does not work Backspace in FB if directory is empty
     docs to view menu
     smaller dock tool bars
     Move popular dirs to separate file
