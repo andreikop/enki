@@ -52,7 +52,7 @@ class Plugin(QObject):
             self._dock = PreviewDock(core.mainWindow())
         # add dock to dock toolbar entry
         core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
-        core.actionManager().addAction("mDocks/aPreview", self._dock.showAction())
+        core.actionManager().addAction("mView/aPreview", self._dock.showAction())
         self._dockInstalled = True
         if self._wasVisible is not None and self._wasVisible:
             self._dock.show()
@@ -61,7 +61,7 @@ class Plugin(QObject):
         """Remove dock from GUI
         """
         self._wasVisible = self._dock.isVisible()
-        core.actionManager().removeAction("mDocks/aPreview")
+        core.actionManager().removeAction("mView/aPreview")
         core.mainWindow().removeDockWidget(self._dock)
         self._dockInstalled = False
     

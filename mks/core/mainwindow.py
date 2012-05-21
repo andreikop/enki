@@ -212,6 +212,9 @@ class MainWindow(QMainWindow):
 
         menu  ("mView",                               tr("View"                  ), ""            )
         menu  ("mView/mZoom",                         tr("&Zoom"                 ), "search.png"  )
+        menu  ("mView/mHighlighting",                 tr("Highlighting"          ), ""            )
+        separator("mView")
+        action("mView/aHideAll",                      tr("Hide all widgets"      ), "",             "Shift+Esc",    tr("Hide all widgets"          ), True)
 
         menu  ("mEdit",                               tr("Edit"                  ), ""            )
 
@@ -228,13 +231,10 @@ class MainWindow(QMainWindow):
 
         menu  ("mSettings",                           tr("Settings"              ), ""            )
 
-        menu  ("mDocks",                              tr("Docks"                 ), ""            )
-        action("mDocks/aHideAll",                     tr("Hide all"              ), "",             "Shift+Esc",    tr("Hide all"               ), True)
-
         menu  ("mHelp",                               tr("Help"                  ), ""            )
         
         # docks
-        self._actionManager.action( "mDocks/aHideAll" ).triggered.connect(self._onHideAllWindows)
+        self._actionManager.action( "mView/aHideAll" ).triggered.connect(self._onHideAllWindows)
     
     def menuBar(self):
         """Reference to menuBar
