@@ -1,5 +1,4 @@
 FIXME
-    irc.md works slowly
     Always jump to end of file when reopening
     Does not work Backspace in FB if directory is empty
     docs to view menu
@@ -9,9 +8,10 @@ FIXME
 SITE:
     update links to API docs
     update user manual
-    write blog posts
     Locator and Markdown preview screens and docs
-
+    add discuss
+    add google analyst
+    add twitter
 
 TODO
   minor improvements
