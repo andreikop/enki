@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 """
-Monkey Studio free crossplatform IDE.
-Main file processes command line arguments and starts the system.
+mksv3. Code editor
+Main file processes command line arguments, checks dependencies and starts the system.
 """
+
 import sys
 import os.path
 import traceback
