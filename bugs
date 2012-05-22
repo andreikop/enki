@@ -1,5 +1,6 @@
 FIXME
-    Always jump to end of file when reopening
+    When clicked Opened Files - set focus to editor
+    device_settings  - переход на 260 вместо 259
 
 SITE:
     update links to API docs

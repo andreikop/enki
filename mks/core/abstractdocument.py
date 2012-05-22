@@ -591,7 +591,6 @@ class AbstractTextEditor(AbstractDocument):
         else:
             assert line is None and column is None
             line, column = self._toLineCol(absPos)
-            print self.fileName(), 'convert abs', absPos, 'to', line, column
         self._setCursorPosition(line, column)
 
     def goTo(self, absPos=None, line=None, column=None, selectionLength = None, grabFocus = False):
