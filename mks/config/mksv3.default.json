@@ -215,9 +215,6 @@
             "FirstLine": []
         }
     }, 
-    "FileBrowser": {
-        "PopularDirs": {}
-    }, 
     "Modes": {
         "Scheme": {
             "Enabled": "whenOpened",

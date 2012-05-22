@@ -6,6 +6,7 @@ import sys
 import os
 import os.path
 import operator
+import json
 import logging
 
 from PyQt4.QtCore import QDir, QRect, QEvent, QModelIndex, QObject, Qt, \
@@ -18,6 +19,7 @@ from PyQt4.QtGui import QAction, QCompleter, QDirModel, \
 
 from mks.fresh.dockwidget.pDockWidget import pDockWidget
 
+from mks.core.defines import CONFIG_DIR
 from mks.core.core import core
 
 def _getCurDir():
@@ -79,10 +81,10 @@ class FileBrowserFilteredModel(QSortFilterProxyModel):
 class SmartRecents(QObject):
     """Class stores File Browser recent directories and provides variants for combo box.
     
-    
     "Active directory" in this class means the last directory, where one or more files has been opened
     """
     MAX_RECENTS_SIZE = 8
+    FILE_PATH = os.path.join(CONFIG_DIR, 'file_browser_popular_dirs.json')
     
     STATISTICS_SIZE = 10.
     BONUS_FOR_OPENING = 1.
@@ -107,13 +109,34 @@ class SmartRecents(QObject):
     def _loadPopularDirs(self):
         """Load popular directories from the config
         """
-        self._popularDirs = core.config()["FileBrowser"]["PopularDirs"]  # Directory: popularity points
+        self._popularDirs = {}
+        if os.path.exists(self.FILE_PATH):
+            try:
+                with open(self.FILE_PATH, 'r') as f:
+                    self._popularDirs = json.load(f)
+            except (OSError, IOError, ValueError), ex:
+                error = unicode(str(ex), 'utf8')
+                text = "Failed to load popular directories from '%s': %s" % (self.FILE_PATH, error)
+                core.mainWindow().appendMessage(text)
+
         for k in self._popularDirs.iterkeys():
             try:
                 self._popularDirs[k] = float(self._popularDirs[k])
             except ValueError as ex:
                 logging.error('Invalid PopularDirs value: ' + unicode(ex))
                 self._popularDirs[k] = 0.0
+    
+    def _savePopularDirs(self):
+        """Save dirs to file
+        """
+        try:
+            with open(self.FILE_PATH, 'w') as f:
+                json.dump(self._popularDirs, f, sort_keys=True, indent=4)
+        except (OSError, IOError), ex:
+            error = unicode(str(ex), 'utf8')
+            text = "Failed to save popular directories to '%s': %s" % (self.FILE_PATH, error)
+            print >> sys.stderr, error
+        
 
     def _dirsByPopularity(self):
         """Return list of dirrectories, sorted by popularity
@@ -149,8 +172,7 @@ class SmartRecents(QObject):
             for k in self._popularDirs.iterkeys():
                 self._popularDirs[k] *= multiplier
         
-        core.config()["FileBrowser"]["PopularDirs"] = self._popularDirs
-        core.config().flush()
+        self._savePopularDirs()
         
         # History update is not scheduled here, because it will be scheduled when workspace changes current file
 
@@ -177,6 +199,7 @@ class SmartRecents(QObject):
         history = sorted(history)
         
         self._recentsChanged.emit(history)
+
 
 class SmartHistory(QObject):
     """Class remembers file browser history and manages Back and Forward buttons
