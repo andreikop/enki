@@ -105,7 +105,7 @@ html_theme = 'nature'
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-html_title = 'mksv3. Simple programmers text editor'
+html_title = 'mksv3. Plugin API'
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #html_short_title = mks.core.defines.PACKAGE_NAME
@@ -149,7 +149,7 @@ html_static_path = ['_static']
 #html_split_index = False
 
 # If true, links to the reST sources are added to the pages.
-#html_show_sourcelink = True
+html_show_sourcelink = False
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
 #html_show_sphinx = True
@@ -214,7 +214,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'mksv3', u'mksv3 Documentation',
-     [u'Filipe Azevedo, Andrei Kopats'], 1)
+     [u'Andrei Kopats'], 1)
 ]
 
 autodoc_default_flags = [ 'members', 'undoc-members', 'show-inheritance']
