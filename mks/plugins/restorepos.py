@@ -68,6 +68,9 @@ class Plugin:
     def _onDocumentOpened(self, document):
         """Document has been opened, restore position, if known
         """
+        if document.filePath() is None:
+            return
+        
         if document.filePath() in self._positions:
             time, pos = self._positions[document.filePath()]
             if pos <= len(document.text()):

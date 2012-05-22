@@ -342,8 +342,9 @@ class Workspace(QStackedWidget):
         """
         document = self.openFile(filePath)  # search for already opened or open new
 
-        if  document :
-            document.goTo(absPos=absPos, line=line, column=column, selectionLength=selectionLength, grabFocus=True )
+        if  document and \
+            (absPos is not None or line is not None or col is not None or selectionLength is not None):
+                document.goTo(absPos=absPos, line=line, column=column, selectionLength=selectionLength, grabFocus=True)
     
     def closeDocument( self, document, showDialog=True):
         """Close opened file, remove document from workspace and delete the widget
