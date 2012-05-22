@@ -342,8 +342,11 @@ class Workspace(QStackedWidget):
         """
         document = self.openFile(filePath)  # search for already opened or open new
 
-        if  document and \
-            (absPos is not None or line is not None or col is not None or selectionLength is not None):
+        if  document is not None and \
+            (absPos is not None or \
+             line is not None or \
+             column is not None or \
+             selectionLength is not None):
                 document.goTo(absPos=absPos, line=line, column=column, selectionLength=selectionLength, grabFocus=True)
     
     def closeDocument( self, document, showDialog=True):

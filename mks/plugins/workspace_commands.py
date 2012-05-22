@@ -159,7 +159,10 @@ class CommandOpen(AbstractCommand):
         """
         for path in glob.iglob(os.path.expanduser(self._path)):
             path = os.path.abspath(path)
-            core.workspace().goTo(path, line = self._line)
+            if self._line is None:
+                core.workspace().goTo(path)
+            else:
+                core.workspace().goTo(path, line = self._line - 1)
 
 
 class CommandSaveAs(AbstractCommand):
