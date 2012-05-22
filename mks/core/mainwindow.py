@@ -7,6 +7,7 @@ Module contains :class:`mks.core.mainwindow.MainWindow` implementation
 """
 
 import os.path
+import json
 
 from PyQt4.QtCore import pyqtSignal, QSize, Qt, QTimer
 from PyQt4.QtGui import QHBoxLayout, QIcon, QLabel, QMessageBox, \
@@ -87,6 +88,9 @@ class MainWindow(QMainWindow):
     **Signal** emitted, when user drag-n-dropt directory to main windowd.
     FileBrowser shows directory
     """  # pylint: disable=W0105
+    
+    _STATE_FILE = os.path.join(mks.core.defines.CONFIG_DIR, "main_window_state.bin")
+    _GEOMETRY_FILE = os.path.join(mks.core.defines.CONFIG_DIR, "main_window_geometry.bin")
     
     def __init__(self):
         QMainWindow.__init__(self)
@@ -315,10 +319,9 @@ class MainWindow(QMainWindow):
     def _saveState(self):
         """Save window state to main_window_state.bin file in the config directory
         """
-        path = os.path.join(mks.core.defines.CONFIG_DIR, "main_window_state.bin")
         state = self.saveState()
         try:
-            with open(path, 'w') as f:
+            with open(self._STATE_FILE, 'w') as f:
                 f.write(state)
         except (OSError, IOError), ex:
             error = unicode(str(ex), 'utf8')
@@ -333,11 +336,10 @@ class MainWindow(QMainWindow):
         """
         self._restoreGeometry()
 
-        path = os.path.join(mks.core.defines.CONFIG_DIR, "main_window_state.bin")
         state = None
-        if os.path.exists(path):
+        if os.path.exists(self._STATE_FILE):
             try:
-                with open(path, 'r') as f:
+                with open(self._STATE_FILE, 'r') as f:
                     state = f.read()
             except (OSError, IOError), ex:
                 error = unicode(str(ex), 'utf8')
@@ -351,18 +353,33 @@ class MainWindow(QMainWindow):
     def _saveGeometry(self):
         """Save window geometry to the config file
         """
-        section = core.config()["MainWindow"]
-        section["X"], section["Y"], section["Width"], section["Height"] = self.geometry().getRect()
-        section["Maximized"] = self.isMaximized()
-        core.config().flush()
-    
+        geometry = {}
+        geometry["X"], geometry["Y"], geometry["Width"], geometry["Height"] = self.geometry().getRect()
+        geometry["Maximized"] = self.isMaximized()
+        
+        try:
+            with open(self._GEOMETRY_FILE, 'w') as f:
+                json.dump(geometry, f, sort_keys=True, indent=4)
+        except (OSError, IOError), ex:
+            error = unicode(str(ex), 'utf8')
+            text = "Failed to save popular directories to '%s': %s" % (self._GEOMETRY_FILE, error)
+            print >> sys.stderr, error
+
     def _restoreGeometry(self):
         """Restore window geometry to the config file
         """
-        section = core.config()["MainWindow"]
-        self.setGeometry(section["X"], section["Y"], section["Width"], section["Height"])
-        if section["Maximized"]:
-           self.showMaximized()
+        if os.path.exists(self._GEOMETRY_FILE):
+            try:
+                with open(self._GEOMETRY_FILE, 'r') as f:
+                    geometry = json.load(f)
+            except (OSError, IOError, ValueError), ex:
+                error = unicode(str(ex), 'utf8')
+                text = "Failed to load main window geometry from '%s': %s" % (self._GEOMETRY_FILE, error)
+                self.appendMessage(text)
+            
+            self.setGeometry(geometry["X"], geometry["Y"], geometry["Width"], geometry["Height"])
+            if geometry["Maximized"]:
+               self.showMaximized()
 
     def dragEnterEvent( self, event):
         """QMainWindow method reimplementation.

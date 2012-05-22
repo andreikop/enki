@@ -73,13 +73,6 @@
             "Mode": "WrapWord", "StartVisualFlag": "None"
         }
     }, 
-    "MainWindow": {
-        "Height": 480, 
-        "Maximized": true, 
-        "Width": 640, 
-        "X": 0, 
-        "Y": 0
-    }, 
     "Associations": {
         "Bash": {
             "FileName": [ "*.sh" ],
