@@ -15,6 +15,7 @@ doc: check-dir
 
 	sphinx-build $(IN_DIR) $(OUT_DIR)/api
 	
+	rm -rf $(OUT_DIR)/api/static $(OUT_DIR)/api/sources
 	cd $(OUT_DIR)/api && mv _static static
 	cd $(OUT_DIR)/api && mv _sources sources
 	perl -pi -e "s/_sources/sources/g;" `find $(OUT_DIR)/api -name '*.html'`

@@ -108,7 +108,7 @@ There are 3 ways to report a bug:
 
 ## Hacking
 
-Documentation for developers is [here](http://hlamer.github.com/mksv3/)
+Documentation for developers is [here](http://hlamer.github.com/mksv3/api)
 
 
 ## Authors
