@@ -384,6 +384,8 @@ class OpenedFileExplorer(pDockWidget):
         # disconnected by startModifyModel()
         self.tvFiles.selectionModel().selectionChanged.connect(self._onSelectionModelSelectionChanged)
         
+        self.tvFiles.clicked.connect(self._workspace.focusCurrentDocument)
+        
         core.actionManager().addAction("mView/aOpenedFiles", self.showAction(), shortcut="Alt+O")
         core.moduleConfiguratorClasses.append(Configurator)
     
