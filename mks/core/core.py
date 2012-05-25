@@ -244,7 +244,7 @@ class Core(QObject):
                 self._createDefaultConfigFile()
                 haveFileInHome = True
             except UserWarning as ex:
-                self.messageToolBar().appendMessage(unicode(ex))
+                self.mainWindow().appendMessage(unicode(ex))
         
         # Try to open
         config = None
