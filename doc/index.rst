@@ -23,6 +23,8 @@ mks.plugins
 * extends core functionality
 * provides some API for other plugins. NOT DESIRED. It's better to try to avoid plugin to plugin dependencies
 
+Plugins do not export any public API and are not included to this docs. But are documented with docstrings in the code.
+
 mks.fresh
 
 * Few GUI widgets. Ported from https://github.com/pasnox/fresh. Documented `here <http://api.monkeystudio.org/fresh/>`_.
@@ -60,23 +62,3 @@ Library modules
     lib/buffpopen.rst
     lib/htmldelegate.rst
     lib/pathcompleter.rst
-
-Plugins documentation
----------------------
-.. toctree::
-
-   plugins/appshortcuts.rst
-   plugins/associations.rst
-   plugins/cppfileswitch.rst
-   plugins/detectindent.rst
-   plugins/editor.rst
-   plugins/editortoolbar.rst
-   plugins/editorshortcuts.rst
-   plugins/filebrowser.rst
-   plugins/helpmenu.rst
-   plugins/mitscheme.rst
-   plugins/preview.rst
-   plugins/recentfiles.rst
-   plugins/restorepos.rst
-   plugins/schemeindenthelper.rst
-   plugins/searchreplace.rst
