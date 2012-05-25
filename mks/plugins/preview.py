@@ -192,7 +192,10 @@ class PreviewDock(pDockWidget):
     def _restoreScrollPos(self):
         """Restore scroll bar position for document
         """
-        self._view.page().mainFrame().contentsSizeChanged.disconnect(self._restoreScrollPos)
+        try:
+            self._view.page().mainFrame().contentsSizeChanged.disconnect(self._restoreScrollPos)
+        except TypeError:  # already has been disconnected
+            pass
         
         if not self._visiblePath in self._scrollPos:
             return  # no data for this document
