@@ -15,7 +15,7 @@ from PyQt4.QtGui import QApplication, QIcon
 from PyQt4.QtCore import pyqtSignal, QObject, QTimer
 
 import mks.core.defines
-import mks.resources.icons # pylint: disable=W0404
+from mks.resources.icons import qInitResources, qCleanupResources
 
 DATA_FILES_PATH = os.path.join(os.path.dirname(__file__), '..')
 
@@ -86,7 +86,7 @@ class Core(QObject):
         if profiler is not None:
             profiler.stepDone('Catch SIGINT')
 
-        mks.resources.icons.qInitResources()
+        qInitResources()
 
         QApplication.instance().setWindowIcon(QIcon(':/mksicons/monkey2.png') )
 
@@ -159,7 +159,7 @@ class Core(QObject):
         if self._config is not None:
             del self._config
 
-        mks.resources.icons.qCleanupResources()
+        qCleanupResources()
 
     def mainWindow(self):
         """Get :class:`mks.core.mainwindow.MainWindow` instance
