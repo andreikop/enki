@@ -238,11 +238,13 @@ class Mock(object):
         if name in ('__file__', '__path__'):
             return '/dev/null'
         elif name[0] == name[0].upper():
-            return type(name, (), {})
+            mockType = type(name, (), {})
+            mockType.__module__ = __name__
+            return mockType
         else:
             return Mock()
 
-MOCK_MODULES = ['PyQt4', 'PyQt4.QtCore', 'PyQt4.QtGui', 'PyQt4.QtWebKit', 'PyQt4.Qsci']
+MOCK_MODULES = ['PyQt4.QtCore', 'PyQt4.QtGui', 'PyQt4.QtWebKit', 'PyQt4.Qsci']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = Mock()
 
