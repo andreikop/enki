@@ -86,6 +86,8 @@ class Core(QObject):
         if profiler is not None:
             profiler.stepDone('Catch SIGINT')
 
+        mks.resources.icons.qInitResources()
+
         QApplication.instance().setWindowIcon(QIcon(':/mksicons/monkey2.png') )
 
         # Imports are here for hack crossimport problem
