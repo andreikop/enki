@@ -1,6 +1,7 @@
 FIXME
 
 SITE:
+    http://readthedocs.org/
     update links to API docs
     update user manual
     Locator and Markdown preview screens and docs
@@ -14,6 +15,7 @@ TODO
     Autoresize opened file list
     Shift+Enter opens new line and inserts comment start
   big functionality
+    http://readthedocs.org/docs/pyqtermwidget
     Indent text when pasting
     Comment/Uncomment code functionality
     Highlight search results in the editor and on the scroll bar (See google-chrome)
