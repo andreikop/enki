@@ -6,7 +6,7 @@ title: Scheme REPL integration
 mksv3 supports MIT Scheme interpreter integration. It allows 
 you to quickly execute code, which is contained in your current opened file, and to evaluate expressions interactively with REPL.
 
-<iframe width="640" height="480" src="http://www.youtube.com/embed/yr66IRF4__M" frameborder="0" allowfullscreen></iframe>
+<iframe width="720" height="540" src="http://www.youtube.com/embed/yr66IRF4__M" frameborder="0" allowfullscreen="true"></iframe>
 
 ## Activating scheme mode
 * Make sure **pygments** (`python-pygments`) python package is installed
