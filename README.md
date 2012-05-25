@@ -93,7 +93,7 @@ See [source installation instructions](https://github.com/hlamer/mksv3/wiki/sour
 ## Documentation and support
 
 
-* [Documentation](https://github.com/hlamer/mksv3/wiki/Documentation-for-users)
+* [Documentation](https://github.com/hlamer/mksv3/wiki/User-manual)
 * [Discussion and support Google group](http://groups.google.com/group/mksv3)
 * IRC room `#monkeystudio` on `irc.freenode.net`. [Web interface](http://monkeystudio.org/irc). We never kick our users!
 
