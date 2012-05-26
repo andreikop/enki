@@ -1,7 +1,7 @@
-`Back to site <http://hlamer.github.com/mksv3/>`_.
+`mksv3 home page<http://hlamer.github.com/mksv3/>`_.
 
-Internal documentation
-======================
+Plugin API documentation
+========================
 
 To create your own plugins for mksv3, at first read tutorial at the `wiki <https://github.com/hlamer/mksv3/wiki/Plugins-tutorial>`_.
 
