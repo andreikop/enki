@@ -1,4 +1,4 @@
-`mksv3 home page<http://hlamer.github.com/mksv3/>`_.
+`mksv3 home page <http://hlamer.github.com/mksv3/>`_.
 
 Plugin API documentation
 ========================
