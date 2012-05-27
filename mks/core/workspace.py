@@ -57,13 +57,9 @@ class _UISaveFiles(QDialog):
             self._itemToDocument[item] = document
         self.buttonBox.button(self.buttonBox.Cancel).setText(self.tr('Cancel Close'))
         self.buttonBox.button(self.buttonBox.Save).setText(self.tr('Save checked'))
-    
-    def showEvent(self, event):
-        """Show event handler, moves focus to the Cancel button
-        """
-        self.setFocus()
+        
         self.buttonBox.button(QDialogButtonBox.Cancel).setFocus()
-        super(_UISaveFiles, self).showEvent(event)
+
     
     def _onButtonClicked(self, button):
         """Button click handler.
@@ -356,7 +352,7 @@ class Workspace(QStackedWidget):
         """
         
         if showDialog and document.isModified():
-            if _UISaveFiles(self._mainWindow(), [document]).exec_() == QDialog.Rejected:
+            if _UISaveFiles(self, [document]).exec_() == QDialog.Rejected:
                 return
         
         if len(self.sortedDocuments) > 1:  # not the last document
