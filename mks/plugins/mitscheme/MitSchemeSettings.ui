@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;html&gt;Mode documentation is &lt;a href=https://github.com/hlamer/mksv3/wiki/Scheme-support&gt;here&lt;/a&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;Mode documentation is &lt;a href=http://hlamer.github.com/mksv3/scheme.html&gt;here&lt;/a&gt;&lt;/html&gt;</string>
      </property>
      <property name="openExternalLinks">
       <bool>true</bool>

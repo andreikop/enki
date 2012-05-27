@@ -1,5 +1,4 @@
 FIXME
-    To slowly open icons.py
 
 SITE:
     http://readthedocs.org/
@@ -57,3 +56,5 @@ ON new editor
 ENKI:
     add here: http://en.wikibooks.org/wiki/Ruby_Programming/Ruby_editors
 
+CANT FIX
+    To slowly open icons.py. Solution - drop qscintilla
