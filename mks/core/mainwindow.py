@@ -293,7 +293,6 @@ class MainWindow(QMainWindow):
         Close event handler.
         Shows save files dialog. Cancels close, if dialog was rejected
         """
-        
         # request close all documents
         if not core.workspace().askToCloseAll():
             event.ignore()
