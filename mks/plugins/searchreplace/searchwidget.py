@@ -37,6 +37,13 @@ class SearchWidget(QFrame):
     Bad = 'bad'
     Incorrect = 'incorrect'
 
+    visibilityChanged = pyqtSignal(bool)
+    """
+    visibilityChanged(visible)
+    
+    **Signal** emitted, when widget has been shown or hidden
+    """  # pylint: disable=W0105
+
     searchInDirectoryStartPressed = pyqtSignal(type(re.compile('')), list, unicode)
     """
     searchInDirectoryStartPressed(regEx, mask, path)
@@ -165,6 +172,24 @@ class SearchWidget(QFrame):
         core.workspace().currentDocumentChanged.connect( \
                     lambda old, new: self.setVisible(self.isVisible() and new is not None))
 
+    def show(self):
+        """Reimplemented function. Sends signal
+        """
+        super(SearchWidget, self).show()
+        self.visibilityChanged.emit(self.isVisible())
+
+    def hide(self):
+        """Reimplemented function. Sends signal
+        """
+        super(SearchWidget, self).hide()
+        self.visibilityChanged.emit(self.isVisible())
+    
+    def setVisible(self, visible):
+        """Reimplemented function. Sends signal
+        """
+        super(SearchWidget, self).setVisible(visible)
+        self.visibilityChanged.emit(self.isVisible())
+    
     def setMode(self, mode ):
         """Change search mode.
         i.e. from "Search file" to "Replace directory"
