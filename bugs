@@ -1,6 +1,6 @@
 FIXME
-    поставить фокус на не-топ-левел item и кликнуть up. Фокус не там, где выделение а
     FileBrowser must have focus!!!
+    clear selection when search text is empty
     slow toLineCol
 
 SITE:
@@ -14,6 +14,7 @@ SITE:
 
 TODO
   minor improvements
+    Zoom with Ctrl+Wheel
   medium functionality
     Autoresize opened file list
     Shift+Enter opens new line and inserts comment start

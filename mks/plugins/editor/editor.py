@@ -580,6 +580,61 @@ class Editor(AbstractTextEditor):
 
             printer.printRange(self.qscintilla, f, t)
 
+    def setExtraSelections(self, selections):
+        """Set additional selections.
+        Used for highlighting search results
+        Selections is list of turples (startAbsolutePosition, length)
+        """
+        self.qscintilla.SendScintilla(self.qscintilla.SCI_INDICATORCLEARRANGE, 0, self.qscintilla.length())
+        self.qscintilla.SendScintilla(self.qscintilla.SCI_SETINDICATORCURRENT, 0)
+        
+        """We have positions as turples (absolute position of unicode symbol or EOL, length)
+        We need to convert it to byte indexes, used internally by Scintilla
+        Sorry, code below is a bit complicated. It is optimized for performance, not for readability
+        !!! If you edited it, check performance with profiler on 4K LOC file. Try to search reg exp "." !!!
+        """
+        # Convert absolute positions to (line, column)
+        # Applying _toLineCol() to every item is too slow, if we have many search results (i.e. 5K)
+        line = 0
+        column = 0
+        lastPos = 0
+        text = self.text()
+        for startAbsPos, length in selections:
+            endAbsPos = startAbsPos + length
+        
+            # Calculate index of start of selection. WARNING: COPY-PASTED CODE, SEE BELOW
+            textBetween = text[lastPos:startAbsPos]
+            textBetweenLen = startAbsPos - lastPos
+            eolCount = textBetween.count('\n')
+            line = line + eolCount
+            if eolCount:
+                column = textBetweenLen - textBetween.rfind('\n') - 1
+            else:
+                column = column + textBetweenLen
+            startLine, startCol = line, column
+            lastPos = startAbsPos
+            
+            # Calculate index of end of selection WARNING: COPY-PASTED CODE, SEE ABOVE
+            textBetween = text[lastPos:endAbsPos]
+            textBetweenLen = endAbsPos - lastPos
+            eolCount = textBetween.count('\n')
+            line = line + eolCount
+            if eolCount:
+                column = textBetweenLen - textBetween.rfind('\n') - 1
+            else:
+                column = column + textBetweenLen
+            endLine, endCol = line, column
+            lastPos = endAbsPos
+            
+            #Underlying Scintilla uses a byte index from the start of the text
+            #This index differs from absolute position, if \r\n or unicode is being used
+            startScintillaIndex = self.qscintilla.positionFromLineIndex(startLine, startCol)
+            endScintillaIndex = self.qscintilla.positionFromLineIndex(endLine, endCol)
+        
+            self.qscintilla.SendScintilla(self.qscintilla.SCI_INDICATORFILLRANGE,
+                                          startScintillaIndex,
+                                          endScintillaIndex - startScintillaIndex)
+            
     #
     # Public methods for editorshortcuts
     #

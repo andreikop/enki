@@ -131,9 +131,11 @@ class Controller(QObject):
         self._widget.searchInDirectoryStopPressed.connect(self._onSearchInDirectoryStopPressed)
         self._widget.replaceCheckedStartPressed.connect(self._onReplaceCheckedStartPressed)
         self._widget.replaceCheckedStopPressed.connect(self._onReplaceCheckedStopPressed)
+        self._widget.visibilityChanged.connect(self._updateFoundItemsHighlighting)
         
         self._widget.searchRegExpChanged.connect(self._updateFileActionsState)
         self._widget.searchRegExpChanged.connect(self._onRegExpChanged)
+        self._widget.searchRegExpChanged.connect(self._updateFoundItemsHighlighting)
         
         self._widget.searchNext.connect(self._onSearchNext)
         self._widget.searchPrevious.connect(self._onSearchPrevious)
@@ -142,6 +144,8 @@ class Controller(QObject):
         self._widget.replaceFileAll.connect(self._onReplaceFileAll)
         
         core.workspace().currentDocumentChanged.connect(self._updateFileActionsState)  # always disabled, if no widget
+        core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
+        core.workspace().textChanged.connect(self._updateFoundItemsHighlighting)
 
         core.mainWindow().centralLayout().addWidget( self._widget )
         self._widget.setVisible( False )
@@ -185,8 +189,33 @@ class Controller(QObject):
         if self._dock is not None:
             self._dock.setReplaceMode(self._mode == ModeReplaceDirectory or \
                                       self._mode == ModeReplaceOpenedFiles)
-            
-
+    
+    #
+    # Highlight found items with yellow
+    #
+    def _updateFoundItemsHighlighting(self):
+        """(Re)highlight found items with yellow color
+        """
+        document = core.workspace().currentDocument()
+        if document is None:
+            return
+        
+        if not self._widget.isVisible() or \
+           not self._widget.isSearchRegExpValid()[0] or \
+           not self._widget.getRegExp().pattern:
+            document.setExtraSelections([])
+            return
+        
+        regExp = self._widget.getRegExp()
+        selections = [ (match.start(), len(match.group(0)))\
+                        for match in regExp.finditer(document.text())]
+        document.setExtraSelections(selections)
+    
+    def _onCurrentDocumentChanged(self, old, new):
+        """Current document changed. Clear highlighted items
+        """
+        old.setExtraSelections([])
+    
     #
     # Search and replace in file
     #
