@@ -11,7 +11,7 @@ import json
 
 from PyQt4.QtCore import pyqtSignal, QSize, Qt, QTimer
 from PyQt4.QtGui import QHBoxLayout, QIcon, QLabel, QMessageBox, \
-                        QSizePolicy, QStatusBar, QToolBar, QVBoxLayout, QWidget
+                        QSizePolicy, QStatusBar, QToolBar, QVBoxLayout, QWidget, QPalette
 
 from PyQt4.QtGui import QMainWindow
 
@@ -118,23 +118,32 @@ class MainWindow(QMainWindow):
         self._topToolBar.setObjectName("topToolBar")
         self._topToolBar.setMovable(False)
         self._topToolBar.setIconSize(QSize(16, 16))
-        toolBarStyleSheet = "QToolBar {border: 0; border-bottom-width: 0.5; border-bottom-style: solid}"""
-        self._topToolBar.setStyleSheet(toolBarStyleSheet)
 
         # Create menu bar
         self._menuBar = pActionsMenuBar(self)
         self._menuBar.setAutoFillBackground(False)
-        menuBarStyleSheet = """
-        QMenuBar {background-color: transparent;}
-        QMenuBar::item:!selected {background: transparent;}
-        """
-        self._menuBar.setStyleSheet(menuBarStyleSheet)
         self._menuBar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self._actionManager = ActionManager(self._menuBar)
         self._menuBar.setModel(self._actionManager)
         self._topToolBar.addWidget(self._menuBar)
         self._topToolBar.addSeparator()
 
+        # Tune tool bar look
+        toolBarStyleSheet = """
+        QToolBar { border: 0; border-bottom-width: 0.5; border-bottom-style: solid;
+                    background: %(background)s; color: %(color)s;
+                 }
+        QToolButton {background: %(background)s; color: %(color)s;}
+        """ % {'background' : self._menuBar.palette().color(QPalette.Window).name(),
+               'color': self._menuBar.palette().color(QPalette.WindowText).name()}
+        self._topToolBar.setStyleSheet(toolBarStyleSheet)
+        
+        menuBarStyleSheet = """
+        QMenuBar {background-color: transparent;}
+        QMenuBar::item:!selected {background: transparent;}
+        """
+        self._menuBar.setStyleSheet(menuBarStyleSheet)
+        
         # Create status bar
         self._statusBar = _StatusBar(self)
         self._topToolBar.addWidget(self._statusBar)
