@@ -735,16 +735,9 @@ class AbstractTextEditor(AbstractDocument):
         """Convert absolute position to (line, column)
         """
         textBefore = self.text()[:absPosition]
-        lines = textBefore.splitlines()
-        if textBefore.endswith('\n'):
-            lines.append('')
-        
-        if lines:
-            line = len(lines) - 1
-            col = len(lines[-1])
-        else:
-            line = 0
-            col = 0
+        line = textBefore.count('\n')
+        eolIndex = textBefore.rfind('\n')  # -1 is ok
+        col = len(textBefore) - eolIndex - 1
         return line, col
 
     def _configureEolMode(self, originalText):
