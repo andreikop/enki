@@ -149,6 +149,8 @@ class Editor(AbstractTextEditor):
         super(Editor, self).__init__(parentObject, filePath, createNew)
         
         self._terminalWidget = terminalWidget
+        
+        self._cachedText = None  # QScintilla.text is slow, therefore we cache it
         self._eolMode = '\n'
         
         # Configure editor
@@ -398,6 +400,7 @@ class Editor(AbstractTextEditor):
     def _onTextChanged(self):
         """QScintilla signal handler. Emits own signal
         """
+        self._cachedText = None
         self.textChanged.emit(self.text())
 
     #
@@ -459,15 +462,18 @@ class Editor(AbstractTextEditor):
     def text(self):
         """Contents of the editor
         """
-        text = self.qscintilla.text()
+        if self._cachedText is not None:
+            return self._cachedText
+        
+        self._cachedText = self.qscintilla.text()
 
         if self._eolMode == r'\r\n':
-            text = text.replace('\r\n', '\n')
+            self._cachedText = self._cachedText.replace('\r\n', '\n')
         elif self._eolMode == r'\r':
-            text = text.replace('\r', '\n')
+            self._cachedText = self._cachedText.replace('\r', '\n')
         
-        return text
-    
+        return self._cachedText
+
     def setText(self, text):
         """Set text in the QScintilla, clear modified flag, update line numbers bar
         """
