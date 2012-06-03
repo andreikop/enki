@@ -149,7 +149,7 @@ class Editor(AbstractTextEditor):
         super(Editor, self).__init__(parentObject, filePath, createNew)
         
         self._terminalWidget = terminalWidget
-        self._eolMode = None
+        self._eolMode = '\n'
         
         # Configure editor
         self.qscintilla = _QsciScintilla(self)
@@ -460,10 +460,13 @@ class Editor(AbstractTextEditor):
         """Contents of the editor
         """
         text = self.qscintilla.text()
-        lines = text.splitlines()
-        if text.endswith('\r') or text.endswith('\n'):
-               lines.append('')
-        return '\n'.join(lines)
+
+        if self._eolMode == r'\r\n':
+            text = text.replace('\r\n', '\n')
+        elif self._eolMode == r'\r':
+            text = text.replace('\r', '\n')
+        
+        return text
     
     def setText(self, text):
         """Set text in the QScintilla, clear modified flag, update line numbers bar
