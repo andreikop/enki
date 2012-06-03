@@ -11,7 +11,7 @@ import json
 
 from PyQt4.QtCore import pyqtSignal, QSize, Qt, QTimer
 from PyQt4.QtGui import QHBoxLayout, QIcon, QLabel, QMessageBox, \
-                        QSizePolicy, QStatusBar, QToolBar, QVBoxLayout, QWidget
+                        QPalette, QSizePolicy, QStatusBar, QToolBar, QVBoxLayout, QWidget
 
 from PyQt4.QtGui import QMainWindow
 
@@ -125,9 +125,10 @@ class MainWindow(QMainWindow):
         self._menuBar = pActionsMenuBar(self)
         self._menuBar.setAutoFillBackground(False)
         menuBarStyleSheet = """
-        QMenuBar {background-color: transparent;}
+        QMenuBar {background-color: transparent;
+                  color: %s}
         QMenuBar::item:!selected {background: transparent;}
-        """
+        """ % self.palette().color(QPalette.WindowText).name()
         self._menuBar.setStyleSheet(menuBarStyleSheet)
         self._menuBar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self._actionManager = ActionManager(self._menuBar)
