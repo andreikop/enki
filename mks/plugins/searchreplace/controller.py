@@ -255,13 +255,15 @@ class Controller(QObject):
         matches = [m for m in regExp.finditer(document.text())]
         if matches:
             if forward:
-                matchesAfter = filter (lambda m: m.start() >= self._searchInFileStartPoint, matches)
+                matchesAfter = [match for match in matches \
+                                    if match.start() >= self._searchInFileStartPoint]
                 if matchesAfter:
                     match = matchesAfter[0]
                 else:  # wrap, search from start
                     match = matches[0]
             else:  # reverse search
-                matchesBefore = filter (lambda m: m.start() < self._searchInFileStartPoint, matches)
+                matchesBefore = [match for match in matches \
+                                    if match.start() < self._searchInFileStartPoint]
                 if matchesBefore:
                     match = matchesBefore[-1]
                 else:  # wrap, search from end
