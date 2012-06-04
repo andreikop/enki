@@ -213,9 +213,12 @@ class Controller(QObject):
         """Search regExp changed. Do incremental search
         """
         if self._mode in (ModeSearch, ModeReplace) and \
-           core.workspace().currentDocument() is not None and \
-           regExp.pattern:
-            self._searchFile( forward=True, incremental=True )
+           core.workspace().currentDocument() is not None:
+            if regExp.pattern:
+                self._searchFile( forward=True, incremental=True )
+            else:  # Clear selection
+                line, column = core.workspace().currentDocument().cursorPosition()
+                core.workspace().currentDocument().goTo(line=line, column=column)
 
     def _onSearchNext(self):
         """Search Next clicked
