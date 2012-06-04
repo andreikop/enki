@@ -1,7 +1,6 @@
 FIXME
     поставить фокус на не-топ-левел item и кликнуть up. Фокус не там, где выделение а
     FileBrowser must have focus!!!
-    F3 shows results if pattern is empty
     slow toLineCol
 
 SITE:

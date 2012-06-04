@@ -202,7 +202,8 @@ class Controller(QObject):
         Called if current document had been changed or if reg exp had been changed
         """
         valid, error = self._widget.isSearchRegExpValid()
-        searchAvailable = valid 
+        valid = valid and len(self._widget.getRegExp().pattern) > 0  # valid and not empty
+        searchAvailable = valid
         searchInFileAvailable = valid and core.workspace().currentDocument() is not None
         
         self._widget.setSearchInFileActionsEnabled(searchInFileAvailable)
