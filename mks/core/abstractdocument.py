@@ -328,7 +328,6 @@ class AbstractDocument(QWidget):
         text = self._readFile(self.filePath())
         pos = self.absCursorPosition()
         self.setText(text)
-        #self.fileReloaded.emit()
         self._externallyModified = False
         self._externallyRemoved = False
         self.setCursorPosition(absPos = pos)

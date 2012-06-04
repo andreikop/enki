@@ -594,7 +594,8 @@ class Workspace(QStackedWidget):
         """Handler of File->Reload->All
         """
         for document in self.documents():
-            if not document.isExternallyRemoved():
+            if not document.isExternallyRemoved() and \
+               document.filePath() is not None:
                 self._reloadDocument(document)
     
     def _onGotoTriggered(self):
