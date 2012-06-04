@@ -647,6 +647,7 @@ class DockFileBrowser(pDockWidget):
         
         # notify SmartRecents and own slots
         self.rootChanged.emit(path)
+        
         self._tree.setFocus()
         
         # cd if no files with known path
