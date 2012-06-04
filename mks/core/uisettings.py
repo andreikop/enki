@@ -340,7 +340,6 @@ class UISettings(QDialog):
                                      u"File associations": self.pAssociations,
                                      u"Editor": self.pEditorGeneral,
                                      u"Editor/Auto completion": self.pAutoCompletion,
-                                     u"Editor/Colours": self.pColours,
                                      u"Editor/Indentation": self.pIndentation,
                                      u"Editor/Brace matching": self.pBraceMatching,
                                      u"Editor/Edge": self.pEdgeMode,

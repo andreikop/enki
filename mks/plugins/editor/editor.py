@@ -30,7 +30,15 @@ class _QsciScintilla(QsciScintilla):
     def __init__(self, editor):
         self._editor = editor
         QsciScintilla.__init__(self, editor)
-    
+        
+        # Init extra selection
+        # We use 0 id for it
+        self.SendScintilla(self.SCI_INDICSETSTYLE, 0, self.INDIC_STRAIGHTBOX)
+        self.SendScintilla(self.SCI_INDICSETUNDER, 0, True)
+        self.SendScintilla(self.SCI_INDICSETFORE, 0, QColor('yellow'))
+        self.SendScintilla(self.SCI_INDICSETALPHA, 0, 100)
+        self.SendScintilla(self.SCI_INDICSETOUTLINEALPHA, 0, 0)
+
     def keyPressEvent(self, event):
         """Key pressing handler
         """
@@ -278,13 +286,6 @@ class Editor(AbstractTextEditor):
         else:
             self.qscintilla.setFolding(QsciScintilla.NoFoldStyle)
         
-        self.qscintilla.setSelectionBackgroundColor(QColor(myConfig["SelectionBackgroundColor"]))
-        self.qscintilla.setSelectionForegroundColor(QColor(myConfig["SelectionForegroundColor"]))
-        if myConfig["DefaultDocumentColours"]:
-            # set scintilla default colors
-            self.qscintilla.setColor(QColor(myConfig["DefaultDocumentPen"]))
-            self.qscintilla.setPaper(QColor(myConfig["DefaultDocumentPaper"]))
-
         self.qscintilla.setFont(QFont(myConfig["DefaultFont"], myConfig["DefaultFontSize"]))
         # Auto Completion
         if myConfig["AutoCompletion"]["Enabled"] and not self._terminalWidget:
