@@ -271,7 +271,7 @@ class Workspace(QStackedWidget):
         document = self.widget(index)
         self._onCurrentDocumentChanged(document)
 
-    def _onCurrentDocumentChanged( self, document ):
+    def _onCurrentDocumentChanged( self, document):
         """Connect/disconnect document signals and update enabled/disabled 
         state of the actions
         """
@@ -594,8 +594,8 @@ class Workspace(QStackedWidget):
         """Handler of File->Reload->All
         """
         for document in self.documents():
-            if not document.isExternallyRemoved() and \
-               document.filePath() is not None:
+            if document.filePath() is not None and \
+               os.path.isfile(document.filePath()):
                 self._reloadDocument(document)
     
     def _onGotoTriggered(self):
