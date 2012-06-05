@@ -7,7 +7,7 @@ import os.path
 import json
 
 from PyQt4 import uic
-from PyQt4.QtGui import QFont, QWidget
+from PyQt4.QtGui import QColor, QFont, QWidget
 
 from PyQt4.Qsci import *  # pylint: disable=W0401,W0614
 
@@ -96,8 +96,9 @@ class Lexer:
             return
         
         # Apply fonts and colors
-        defaultFont = QFont(core.config()["Editor"]["DefaultFont"],
-                            core.config()["Editor"]["DefaultFontSize"])
+        config = core.config()["Editor"]
+        defaultFont = QFont(config["DefaultFont"],
+                            config["DefaultFontSize"])
         self.qscilexer.setDefaultFont(defaultFont)
         for i in range(128):
             if self.qscilexer.description(i):
@@ -108,3 +109,14 @@ class Lexer:
                 #lexer->setColor(lexer->defaultColor(i), i);  # TODO configure lexer colors
                 #lexer->setEolFill(lexer->defaultEolFill(i), i);
                 #lexer->setPaper(lexer->defaultPaper(i), i);
+                if config["DefaultDocumentColours"]:
+                    self.qscilexer.setPaper(QColor(config["DefaultDocumentPaper"]), i)
+                    self.qscilexer.setEolFill(True, i);
+                else:
+                    self.qscilexer.setPaper(self.qscilexer.defaultPaper(i), i)
+                    self.qscilexer.setEolFill(self.qscilexer.defaultEolFill(i), i)
+
+        if config["DefaultDocumentColours"]:
+            self.qscilexer.setColor(QColor(config["DefaultDocumentPen"]), 0)
+        else:
+            self.qscilexer.setColor(self.qscilexer.defaultColor(0), 0)
