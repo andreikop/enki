@@ -1,7 +1,6 @@
 FIXME
     FileBrowser must have focus!!!
-    clear selection when search text is empty
-    slow toLineCol
+    slow text editing on 4K LOC file
 
 SITE:
     http://readthedocs.org/
@@ -56,6 +55,7 @@ ON Unity
 ON new editor
     Ignore comments when autodetecting indentation
     Select 2 peaces of text and swap
+    Can't highlight more than 1000 search results
 
 ENKI:
     add here: http://en.wikibooks.org/wiki/Ruby_Programming/Ruby_editors
