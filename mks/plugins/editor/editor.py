@@ -288,7 +288,10 @@ class Editor(AbstractTextEditor):
             self.qscintilla.setFolding(QsciScintilla.NoFoldStyle)
         
         self.qscintilla.setSelectionBackgroundColor(QColor(myConfig["SelectionBackgroundColor"]))
-        self.qscintilla.setSelectionForegroundColor(QColor(myConfig["SelectionForegroundColor"]))
+        if myConfig["MonochromeSelectionForeground"]:
+            self.qscintilla.setSelectionForegroundColor(QColor(myConfig["SelectionForegroundColor"]))
+        else:
+            self.qscintilla.resetSelectionForegroundColor()
         if myConfig["DefaultDocumentColours"]:
             # set scintilla default colors
             self.qscintilla.setColor(QColor(myConfig["DefaultDocumentPen"]))
