@@ -287,6 +287,13 @@ class Editor(AbstractTextEditor):
         else:
             self.qscintilla.setFolding(QsciScintilla.NoFoldStyle)
         
+        self.qscintilla.setSelectionBackgroundColor(QColor(myConfig["SelectionBackgroundColor"]))
+        self.qscintilla.setSelectionForegroundColor(QColor(myConfig["SelectionForegroundColor"]))
+        if myConfig["DefaultDocumentColours"]:
+            # set scintilla default colors
+            self.qscintilla.setColor(QColor(myConfig["DefaultDocumentPen"]))
+            self.qscintilla.setPaper(QColor(myConfig["DefaultDocumentPaper"]))
+
         self.qscintilla.setFont(QFont(myConfig["DefaultFont"], myConfig["DefaultFontSize"]))
         # Auto Completion
         if myConfig["AutoCompletion"]["Enabled"] and not self._terminalWidget:

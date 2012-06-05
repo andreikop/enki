@@ -1,6 +1,8 @@
 FIXME
     FileBrowser must have focus!!!
     slow text editing on 4K LOC file
+    use QScintilla API for extra selection
+    применять default color к лексерам
 
 SITE:
     http://readthedocs.org/
