@@ -208,7 +208,7 @@ class MainWindow(QMainWindow):
         action("mFile/mSave/aAll",                    tr("Save &All"             ), "saveall.png",  'Shift+Ctrl+S', tr("Save all files"         ), False)
         menu  ("mFile/mReload",                       tr("&Reload"               ), "reload.png"    )
         action("mFile/mReload/aCurrent",              tr("Reload"                ), "reload.png"  , 'F5',           tr("Reload the current file"), False)
-        action("mFile/mReload/aAll",                  tr("Reload All"            ), "reload.png"  , 'Alt+Shift+F5', tr("Reload all files"       ), True)
+        action("mFile/mReload/aAll",                  tr("Reload All"            ), "reload.png"  , 'Shift+F5',     tr("Reload all files"       ), True)
         action("mFile/aNew",                          tr("&New file..."          ), "new.png",      'Ctrl+N',       tr("New file"               ), True )
         menu  ("mFile/mClose",                        tr("&Close"                ), "close.png"   )
         action("mFile/mClose/aCurrent",               tr("&Close"                ), "close.png",    "Ctrl+W",       tr("Close the current file" ), False)
