@@ -218,7 +218,10 @@ def main():
 
     if not cmdLine["no-session"]:
         core.restoreSession.emit()
-    
+
+    if profiler is not None:
+        profiler.stepDone('Restore session')
+
     if core.workspace().currentDocument():
         core.workspace().currentDocument().setFocus()
     
