@@ -588,6 +588,12 @@ class Editor(AbstractTextEditor):
         self.qscintilla.SendScintilla(self.qscintilla.SCI_INDICATORCLEARRANGE, 0, self.qscintilla.length())
         self.qscintilla.SendScintilla(self.qscintilla.SCI_SETINDICATORCURRENT, 0)
         
+        """hlamer: I'm very sorry, but, too lot of extra selections freezes the editor
+        I should to an optimization for searching and highlighting only visible lines
+        """
+        if len(selections) > 1000:
+            return
+        
         """We have positions as turples (absolute position of unicode symbol or EOL, length)
         We need to convert it to byte indexes, used internally by Scintilla
         Sorry, code below is a bit complicated. It is optimized for performance, not for readability
