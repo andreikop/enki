@@ -64,6 +64,7 @@
             "Width": 4
         }, 
         "SelectionBackgroundColor": "#7fafb4",
+        "MonochromeSelectionForeground": false,
         "SelectionForegroundColor": "#000000",
         "ShowLineNumbers": true, 
         "WhitespaceVisibility": "Invisible",

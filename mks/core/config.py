@@ -49,6 +49,11 @@ class Config():
             self._data['Associations']['Markdown'] = { "FileName": [ "*.md", "*.markdown"], \
                                                        "FirstLine": [] }
             self._data['_version'] = 2
+        
+        if self._data['_version'] == 2:
+            self._data["Editor"]["MonochromeSelectionForeground"] = False
+            self._data['_version'] = 3
+
     
     def reload(self):
         """Reload config from the disk
