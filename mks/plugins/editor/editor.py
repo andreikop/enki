@@ -33,11 +33,12 @@ class _QsciScintilla(QsciScintilla):
         
         # Init extra selection
         # We use 0 id for it
-        self.SendScintilla(self.SCI_INDICSETSTYLE, 0, self.INDIC_STRAIGHTBOX)
+        self.SendScintilla(self.SCI_INDICSETSTYLE, 0, self.INDIC_ROUNDBOX)
         self.SendScintilla(self.SCI_INDICSETUNDER, 0, True)
         self.SendScintilla(self.SCI_INDICSETFORE, 0, QColor('yellow'))
         self.SendScintilla(self.SCI_INDICSETALPHA, 0, 100)
-        self.SendScintilla(self.SCI_INDICSETOUTLINEALPHA, 0, 0)
+        if hasattr(self, "SCI_INDICSETOUTLINEALPHA"):
+            self.SendScintilla(self.SCI_INDICSETOUTLINEALPHA, 0, 0)
 
     def keyPressEvent(self, event):
         """Key pressing handler
