@@ -214,7 +214,8 @@ class Controller(QObject):
     def _onCurrentDocumentChanged(self, old, new):
         """Current document changed. Clear highlighted items
         """
-        old.setExtraSelections([])
+        if old is not None:
+            old.setExtraSelections([])
     
     #
     # Search and replace in file
