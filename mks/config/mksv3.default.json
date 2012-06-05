@@ -29,11 +29,14 @@
         }, 
         "Caret": {
             "ForegroundColor": "#000000",
-            "LineBackgroundColor": "#aaaaff",
+            "LineBackgroundColor": "#c7cdff",
             "LineVisible": true, 
             "Width": 1
         }, 
         "CreateBackupUponOpen": false, 
+        "DefaultDocumentColours": false, 
+        "DefaultDocumentPaper": "#ffffff",
+        "DefaultDocumentPen": "#000000",
         "DefaultFont": "Monospace",
         "DefaultFontSize": 9, 
         "EOL": {
@@ -60,6 +63,8 @@
             "UseTabs": false, 
             "Width": 4
         }, 
+        "SelectionBackgroundColor": "#7fafb4",
+        "SelectionForegroundColor": "#000000",
         "ShowLineNumbers": true, 
         "WhitespaceVisibility": "Invisible",
         "Wrap": {
