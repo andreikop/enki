@@ -339,7 +339,6 @@ class _CompleterConstructorThread(QThread):
     
     def __init__(self):
         QThread.__init__(self)
-        self._terminated = False
     
     def __del__(self):
         self.terminate()
@@ -350,7 +349,6 @@ class _CompleterConstructorThread(QThread):
         self._command = command
         self._text = text
         self._cursorPos = cursorPos
-        self._terminated = False
         QThread.start(self)
     
     def run(self):
@@ -360,13 +358,11 @@ class _CompleterConstructorThread(QThread):
         completer = self._command.completer(self._text, self._cursorPos)
         self.setTerminationEnabled(False)
         
-        if not self._terminated:
-            self.completerReady.emit(self._command, completer)
+        self.completerReady.emit(self._command, completer)
     
     def terminate(self):
         """Terminate thread only if running
         """
-        self._terminated = True
         if self.isRunning():
             QThread.terminate(self)
 
