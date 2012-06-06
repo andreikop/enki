@@ -63,9 +63,9 @@
             "UseTabs": false, 
             "Width": 4
         }, 
-        "SelectionBackgroundColor": "#7fafb4",
-        "MonochromeSelectionForeground": false,
-        "SelectionForegroundColor": "#000000",
+        "SelectionBackgroundColor": "#39397f",
+        "MonochromeSelectionForeground": true,
+        "SelectionForegroundColor": "#ffffff",
         "ShowLineNumbers": true, 
         "WhitespaceVisibility": "Invisible",
         "Wrap": {
