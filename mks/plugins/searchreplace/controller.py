@@ -240,6 +240,13 @@ class Controller(QObject):
         core.actionManager().action("mNavigation/mSearchReplace/aSearchNext").setEnabled(searchInFileAvailable)
         core.actionManager().action("mNavigation/mSearchReplace/aSearchPrevious").setEnabled(searchInFileAvailable)
 
+    @staticmethod
+    def _resetSelection(document):
+        """Reset selection in the document
+        """
+        line, column = document.cursorPosition()
+        document.goTo(line=line, column=column)
+    
     def _onRegExpChanged(self, regExp):
         """Search regExp changed. Do incremental search
         """
@@ -248,8 +255,7 @@ class Controller(QObject):
             if regExp.pattern:
                 self._searchFile( forward=True, incremental=True )
             else:  # Clear selection
-                line, column = core.workspace().currentDocument().cursorPosition()
-                core.workspace().currentDocument().goTo(line=line, column=column)
+                self._resetSelection(core.workspace().currentDocument())
 
     def _onSearchNext(self):
         """Search Next clicked
@@ -310,6 +316,8 @@ class Controller(QObject):
                                                       (matches.index(match) + 1, len(matches)), 3000)
         else:
             self._widget.setState(self._widget.Bad)
+            self._resetSelection(core.workspace().currentDocument())
+
 
     def _onReplaceFileOne(self, replaceText):
         """Do one replacement in the file
