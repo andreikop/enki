@@ -51,7 +51,7 @@ class Config():
             self._data['_version'] = 2
         
         if self._data['_version'] == 2:
-            self._data["Editor"]["MonochromeSelectionForeground"] = False
+            self._data["Editor"]["MonochromeSelectionForeground"] = True
             self._data['_version'] = 3
 
     
