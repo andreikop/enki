@@ -14,7 +14,7 @@ from PyQt4.QtCore import QDir, QEvent, \
                          QRect, QSize, Qt, \
                          pyqtSignal
 
-from PyQt4.QtGui import QApplication, QCompleter, QDirModel, QFileDialog,  \
+from PyQt4.QtGui import QApplication, QCompleter, QColor, QDirModel, QFileDialog,  \
                         QFrame, QFileDialog, QIcon, \
                         QPainter,  \
                         QPalette, \
@@ -405,14 +405,18 @@ class SearchWidget(QFrame):
         """Change line edit color according to search result
         """
         widget = self.cbSearch.lineEdit()
-        
+
         color = {SearchWidget.Normal: QApplication.instance().palette().color(QPalette.Base), \
-                 SearchWidget.Good: Qt.green, \
-                 SearchWidget.Bad: Qt.red,
-                 SearchWidget.Incorrect: Qt.darkYellow}
+                 SearchWidget.Good: QColor(Qt.green), \
+                 SearchWidget.Bad: QColor(Qt.red),
+                 SearchWidget.Incorrect: QColor(Qt.darkYellow)}
+        
+        stateColor = color[state]
+        if state != SearchWidget.Normal:
+            stateColor.setAlpha(100)
         
         pal = widget.palette()
-        pal.setColor( widget.backgroundRole(), color[state] )
+        pal.setColor( widget.backgroundRole(), stateColor )
         widget.setPalette( pal )
     
     def setSearchInProgress(self, inProgress):
