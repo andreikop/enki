@@ -216,7 +216,7 @@ class PreviewDock(pDockWidget):
         if new is not None:
             self._thread.process(new.filePath(), new.language(), new.text())
 
-    def _onTextChanged(self, document, text):
+    def _onTextChanged(self, document):
         """Text changed, update preview
         """
         self._thread.process(document.filePath(), document.language(), document.text())

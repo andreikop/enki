@@ -402,9 +402,9 @@ class AbstractTextEditor(AbstractDocument):
     Signal is retransmitted by the workspace
     """  # pylint: disable=W0105
     
-    textChanged = pyqtSignal(unicode)
+    textChanged = pyqtSignal()
     """
-    textChanged(text)
+    textChanged()
     
     **Signal** emitted, when text has been chagned
 

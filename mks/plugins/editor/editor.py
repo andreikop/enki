@@ -425,7 +425,7 @@ class Editor(AbstractTextEditor):
         """QScintilla signal handler. Emits own signal
         """
         self._cachedText = None
-        self.textChanged.emit(self.text())
+        self.textChanged.emit()
 
     #
     # AbstractDocument interface
