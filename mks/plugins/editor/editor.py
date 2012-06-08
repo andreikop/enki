@@ -358,8 +358,17 @@ class Editor(AbstractTextEditor):
         
         # Special Characters
         self.qscintilla.setWhitespaceVisibility(self._WHITE_MODE_TO_QSCI[myConfig["WhitespaceVisibility"]])
+        self._applyWrapMode()
+
+    def _applyWrapMode(self):
+        """Apply wrap mode settigns.
+        Called when line count changed and when applying settings
+        """
+        # QScintilla freezes, if editor has too lot of lines (i.e. > 2048)
+        # and wrapping is enabled
+        myConfig = core.config()["Editor"]
         
-        if myConfig["Wrap"]["Enabled"]:
+        if myConfig["Wrap"]["Enabled"] and self.qscintilla.lines() < 2048:
             self.qscintilla.setWrapMode(self._WRAP_MODE_TO_QSCI[myConfig["Wrap"]["Mode"]])
             self.qscintilla.setWrapVisualFlags(self._WRAP_FLAG_TO_QSCI[myConfig["Wrap"]["EndVisualFlag"]],
                                                self._WRAP_FLAG_TO_QSCI[myConfig["Wrap"]["StartVisualFlag"]],
@@ -367,6 +376,7 @@ class Editor(AbstractTextEditor):
         else:
             self.qscintilla.setWrapMode(QsciScintilla.WrapNone)
 
+        
     def _convertIndentation(self):
         """Try to fix indentation mode of the file, if there are mix of different indentation modes
         (tabs and spaces)
@@ -408,6 +418,8 @@ class Editor(AbstractTextEditor):
         if digitsCount:
             digitsCount += 1
         self.qscintilla.setMarginWidth(0, '0' * digitsCount)
+        
+        self._applyWrapMode()
     
     def _onTextChanged(self):
         """QScintilla signal handler. Emits own signal

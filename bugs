@@ -2,7 +2,6 @@ FIXME
     FileBrowser must have focus!!!
     slow text editing on 4K LOC file
     slow workspace_commands import
-    slow close
 
 SITE:
     http://readthedocs.org/
