@@ -36,7 +36,7 @@ class _QsciScintilla(QsciScintilla):
         self.SendScintilla(self.SCI_INDICSETSTYLE, 0, self.INDIC_ROUNDBOX)
         self.SendScintilla(self.SCI_INDICSETUNDER, 0, True)
         self.SendScintilla(self.SCI_INDICSETFORE, 0, QColor('yellow'))
-        self.SendScintilla(self.SCI_INDICSETALPHA, 0, 100)
+        self.SendScintilla(self.SCI_INDICSETALPHA, 0, 120)
         if hasattr(self, "SCI_INDICSETOUTLINEALPHA"):
             self.SendScintilla(self.SCI_INDICSETOUTLINEALPHA, 0, 0)
 

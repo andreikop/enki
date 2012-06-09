@@ -29,12 +29,12 @@
         }, 
         "Caret": {
             "ForegroundColor": "#000000",
-            "LineBackgroundColor": "#c7cdff",
+            "LineBackgroundColor": "#c9d2ff",
             "LineVisible": true, 
             "Width": 1
         }, 
         "CreateBackupUponOpen": false, 
-        "DefaultDocumentColours": false, 
+        "DefaultDocumentColours": true, 
         "DefaultDocumentPaper": "#ffffff",
         "DefaultDocumentPen": "#000000",
         "DefaultFont": "Monospace",
