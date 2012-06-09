@@ -232,6 +232,13 @@ class Workspace(QStackedWidget):
                 name = 'untitled'
             if document.isModified():
                 name += '*'
+            if document.filePath() is not None:
+                path = os.path.dirname(document.filePath())
+            else:
+                path = os.path.abspath(os.curdir)
+            
+            name += ' - '
+            name += path
         else:
             name = self._mainWindow().defaultTitle()
         self._mainWindow().setWindowTitle(name)
