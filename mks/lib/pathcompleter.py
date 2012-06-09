@@ -13,12 +13,7 @@ import glob
 
 from mks.lib.htmldelegate import htmlEscape
 from mks.core.locator import AbstractCompleter
-
-import fnmatch
-import re
-regExPatterns = [fnmatch.translate(f) for f in ['*.pyc']]
-compositeRegExpPattern = '(' + ')|('.join(regExPatterns) + ')'
-filterRegExp = re.compile(compositeRegExpPattern)
+from mks.core.core import core
 
 def makeSuitableCompleter(text, pos):
     """Returns PathCompleter if text is normal path or GlobCompleter for glob
@@ -54,7 +49,7 @@ class AbstractPathCompleter(AbstractCompleter):
         """
         return [path for path in paths \
                     if not os.path.basename(path).startswith('.') and \
-                        not filterRegExp.match(path)]
+                        not core.fileFilter().regExp().match(path)]
 
     def _classifyRowIndex(self, row):
         """Get list item type and index by it's row

@@ -286,7 +286,7 @@ class _CompletableLineEdit(QLineEdit):
             self.historyPrevious.emit()
         elif event.key() == Qt.Key_Down:
             self.historyNext.emit()
-        elif event.key() == Qt.Key_Right:
+        elif event.key() in (Qt.Key_Right, Qt.Key_End):
             if self.selectedText():
                 self.setCursorPosition(self.selectionStart() + len(self.selectedText()))
             else:
