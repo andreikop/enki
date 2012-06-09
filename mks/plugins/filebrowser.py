@@ -9,7 +9,7 @@ import operator
 import json
 import logging
 
-from PyQt4.QtCore import QDir, QRect, QEvent, QModelIndex, QObject, Qt, \
+from PyQt4.QtCore import QDir, QRect, QEvent, QModelIndex, QObject, Qt, QTimer, \
                          pyqtSignal, pyqtSlot
 from PyQt4.QtGui import QAction, QCompleter, QDirModel, \
                         QFrame, QFileSystemModel, \
@@ -365,6 +365,12 @@ class Tree(QTreeView):
         
         self.activated.connect(self._onActivated)
         self._fileActivated.connect(fileBrowser.fileActivated)
+        
+        # QDirModel loads item asynchronously, therefore we need timer for setting focus to the first item
+        self._setFocusTimer = QTimer()
+        self._setFocusTimer.timeout.connect(self._setFirstItemAsCurrent)
+        self._setFocusTimer.setInterval(50)
+        self._timerAttempts = 0
 
     def _onActivated(self, idx ):
         """File or directory doubleClicked
@@ -386,16 +392,18 @@ class Tree(QTreeView):
             current = self.rootIndex().child(0, 0)
             self.setCurrentIndex(current)
         
-        # move tree root up, if necessary
         if current.parent() == self.rootIndex() or \
            current == self.rootIndex():  # need to move root up
             if self.rootIndex().parent().isValid():  # not reached root of the FS tree
-                self._fileBrowser.setCurrentPath( self._filteredModelIndexToPath(self.rootIndex().parent()))
+                newRoot = self.rootIndex().parent()
+                parentPath = self._filteredModelIndexToPath(current.parent())
+                self._fileBrowser.setCurrentPath(self._filteredModelIndexToPath(newRoot))
                 self.collapseAll()  # if moving root up - collapse all items
-        
-        parentOfCurrent = self.currentIndex().parent()
-        if parentOfCurrent != self.rootIndex():  # if not reached top
-            self.setCurrentIndex(parentOfCurrent)  # move selection up
+                parentIndex = self._filteredModel.mapFromSource(self._dirsModel.index(parentPath))
+                self._setCurrentItem(parentIndex)
+        else:  # need to move selection up
+            parentOfCurrent = self.currentIndex().parent()
+            self._setCurrentItem(parentOfCurrent)  # move selection up
 
     def _goUserHomeDir(self):
         """Go to home directory
@@ -415,27 +423,38 @@ class Tree(QTreeView):
         srcIndex = self._filteredModel.mapToSource( index )
         return self._dirsModel.filePath( srcIndex )
 
-    def setFocus(self):
-        """Moves focus and selection to the first item, if nothing focused
-        """
-        rootIndex = self.rootIndex()
-        
-        selected =  self.selectionModel().selectedIndexes()
-        for index in selected:
-            if index.parent() == rootIndex:   # Already having selected item
-                return
-        
-        firstChild = self._filteredModel.index(0, 0, rootIndex)
-        if firstChild.isValid():  # There may be no rows, if directory is empty, or not loaded yet
-            self.selectionModel().select(firstChild, QItemSelectionModel.SelectCurrent)
-        QTreeView.setFocus(self)
-
     def currentPath(self):
         """Get current path (root of the tree)
         """
         index = self.rootIndex()
         index = self._filteredModel.mapToSource( index )
         return self._dirsModel.filePath( index )
+
+    def _isDescendant(self, child, parent):
+        """Check if child is descendant of parent
+        """
+        while child.isValid():
+            if child.parent() == parent:
+                return True
+            child = child.parent()
+        return False
+    
+    def _setFirstItemAsCurrent(self):
+        """QDirModel loads items asynchronously.
+        Therefore we select current item by timer
+        """
+        if not self.currentIndex().isValid() or \
+           not self._isDescendant(self.currentIndex(), self.rootIndex()):
+            firstChild = self.rootIndex().child(0, 0)
+            if firstChild.isValid():
+                self._setFocusTimer.stop()
+                self._setCurrentItem(self.rootIndex().child(0, 0))
+            else:
+                self._timerAttempts -= 1
+                if not self._timerAttempts:
+                    self._setFocusTimer.stop()
+        else: # nothing to do, have focus
+            self._setFocusTimer.stop()
 
     def setCurrentPath(self, path):
         """Set current path (root of the tree)
@@ -447,6 +466,15 @@ class Tree(QTreeView):
         self._filteredModel.invalidate()
         newRoot = self._filteredModel.mapFromSource( index )
         self.setRootIndex(newRoot)
+        
+        self._timerAttempts = 10
+        self._setFocusTimer.start()
+    
+    def _setCurrentItem(self, index):
+        """Make the item current and select it
+        """
+        self.setCurrentIndex(index)
+        self.selectionModel().select(index, QItemSelectionModel.SelectCurrent)
 
 class ComboBox(QComboBox):
     """File browser combo box.
@@ -641,14 +669,13 @@ class DockFileBrowser(pDockWidget):
         If there are no documents on workspace, also changes process current directory
         """
         self._tree.setCurrentPath(path)
+        self._tree.setFocus()
         
         # set lineedit path
         self._comboBox.setToolTip(path)
         
         # notify SmartRecents and own slots
         self.rootChanged.emit(path)
-        
-        self._tree.setFocus()
         
         # cd if no files with known path
         if not any([doc for doc in core.workspace().documents() \
