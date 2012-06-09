@@ -1,5 +1,4 @@
 FIXME
-    FileBrowser must have focus!!!
 
 SITE:
     http://readthedocs.org/
@@ -13,6 +12,8 @@ SITE:
 TODO
   minor improvements
     Zoom with Ctrl+Wheel
+    Show path on window title
+    Support End in Locator input
   medium functionality
     Autoresize opened file list
     Shift+Enter opens new line and inserts comment start
