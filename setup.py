@@ -96,8 +96,6 @@ packages=['mks',
           'mks/lib',
           'mks/fresh',
           'mks/fresh/actionmanager',
-          'mks/fresh/dockwidget',
-          'mks/fresh/models',
           'mks/fresh/queuedmessage',
           'mks/plugins',
           'mks/resources']

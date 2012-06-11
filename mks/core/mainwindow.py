@@ -15,7 +15,7 @@ from PyQt4.QtGui import QHBoxLayout, QIcon, QLabel, QMessageBox, \
 
 from PyQt4.QtGui import QMainWindow
 
-from mks.fresh.dockwidget.pDockWidget import pDockWidget
+from mks.fresh.pDockWidget import pDockWidget
 from mks.fresh.actionmanager.ActionManager import ActionManager
 from mks.fresh.actionmanager.pActionsMenuBar import pActionsMenuBar
 

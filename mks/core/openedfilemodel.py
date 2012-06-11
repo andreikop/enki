@@ -27,7 +27,7 @@ from PyQt4 import uic
 
 from mks.core.core import core, DATA_FILES_PATH
 from mks.core.uisettings import ChoiseOption, ModuleConfigurator
-from mks.fresh.dockwidget.pDockWidget import pDockWidget
+from mks.fresh.pDockWidget import pDockWidget
 
 class Configurator(ModuleConfigurator):
     """ Module configurator.
