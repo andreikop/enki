@@ -80,7 +80,6 @@ class pActionsShortcutEditor(QDialog):
         
         self.kseShortcut.setEnabled( action is not None )
         self.tbSet.setEnabled( False )
-        self.tbClear.setEnabled( action is not None and action.shortcut() )
         self.dbbButtons.button( QDialogButtonBox.Reset ).setEnabled( False )
         self.dbbButtons.button( QDialogButtonBox.RestoreDefaults ).setEnabled(
                     action is not None and action.shortcut() != self._manager.defaultShortcut( action ) )
@@ -97,14 +96,8 @@ class pActionsShortcutEditor(QDialog):
     def on_tbSet_pressed(self):
         action = self.selectedAction()
         
-        if  action is not None and self.kseShortcut.text():
+        if  action is not None:
             self.setShortcut( action, self.kseShortcut.text() )
-
-    def on_tbClear_clicked(self):
-        action = self.selectedAction()
-        
-        if action is not None:
-            self.setShortcut( action, None )
 
     def on_dbbButtons_clicked(self, button ):
         if self.dbbButtons.standardButton( button ) == QDialogButtonBox.Reset:
