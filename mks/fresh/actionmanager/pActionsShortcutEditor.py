@@ -42,7 +42,6 @@ class pActionsShortcutEditor(QDialog):
         self._proxy.setSortCaseSensitivity( Qt.CaseInsensitive )
         
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'pActionsShortcutEditor.ui'), self)
-        self.leFilter.setSearchButtonVisible( False )
         self.leFilter.setPromptText( tr( "Text filter..." ) )
         self.tvActions.setModel( self._proxy )
         self.tvActions.header().setResizeMode( 0, QHeaderView.Stretch )

@@ -17,7 +17,6 @@ class pKeySequenceEdit(pLineEdit):
         pLineEdit.__init__(self, parent )
         self._finished = True
     
-        self.setSearchButtonVisible( False )
         self.setPromptText( tr( "Press a keybord shortcut..." ) )
 
     def shortcut(self):
