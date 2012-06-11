@@ -17,13 +17,6 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QLabel" name="lFilter">
-       <property name="text">
-        <string>Filter</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="pLineEdit" name="leFilter"/>
      </item>
     </layout>
@@ -63,17 +56,6 @@
        <property name="icon">
         <iconset resource="../../../icons/mksicons.qrc">
          <normaloff>:/mksicons/fresh/apply.png</normaloff>:/mksicons/fresh/apply.png</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="tbClear">
-       <property name="toolTip">
-        <string>Clear the shortcut</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../../../icons/mksicons.qrc">
-         <normaloff>:/mksicons/fresh/editclear.png</normaloff>:/mksicons/fresh/editclear.png</iconset>
        </property>
       </widget>
      </item>
