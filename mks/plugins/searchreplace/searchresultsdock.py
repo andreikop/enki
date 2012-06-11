@@ -8,7 +8,7 @@ Shows results with SearchResultsModel
 from PyQt4.QtCore import Qt, pyqtSignal, QModelIndex
 from PyQt4.QtGui import QFontMetrics, QHBoxLayout, QIcon, \
                         QTreeView, QWidget, QPushButton
-from mks.fresh.dockwidget.pDockWidget import pDockWidget
+from mks.fresh.pDockWidget import pDockWidget
 from mks.core.core import core
 from mks.lib.htmldelegate import HTMLDelegate
 

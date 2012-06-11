@@ -13,7 +13,7 @@ from PyQt4 import uic
 
 from mks.core.core import core
 
-from mks.fresh.dockwidget.pDockWidget import pDockWidget
+from mks.fresh.pDockWidget import pDockWidget
 
 import mks.lib.buffpopen
 import mks.lib.termwidget

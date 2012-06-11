@@ -9,7 +9,7 @@ from PyQt4.QtWebKit import QWebView
 
 from mks.core.core import core
 
-from mks.fresh.dockwidget.pDockWidget import pDockWidget
+from mks.fresh.pDockWidget import pDockWidget
 
 from threading import Lock
 

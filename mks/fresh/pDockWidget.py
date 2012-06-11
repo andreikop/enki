@@ -4,13 +4,13 @@ See information at https://github.com/pasnox/fresh and
 API docks at http://api.monkeystudio.org/fresh/
 """
 
-from PyQt4.QtCore import QSize, Qt
-from PyQt4.QtGui import QDockWidget, QFontMetrics, QPainter, \
-                        QSizePolicy, QStyle, \
-                        QStyleOptionButton, \
+from PyQt4.QtCore import pyqtSignal, QSize, Qt, QTimer
+from PyQt4.QtGui import QAction, QColor, QDockWidget, QFontMetrics, \
+                        QKeySequence, QPainter, QShortcut, QSizePolicy, QStyle, QStyleOptionButton, \
                         QTransform, QToolBar, QWidget
 
-class pDockWidgetTitleBar(QToolBar):
+
+class _TitleBar(QToolBar):
     
     def __init__(self, parent, *args):
         QToolBar.__init__(self, parent, *args)
@@ -86,3 +86,37 @@ class pDockWidgetTitleBar(QToolBar):
 
     def addWidget(self, widget):
         return self.insertWidget(self.aClose, widget)
+
+
+class pDockWidget(QDockWidget):
+    
+    def __init__(self, *args):
+        QDockWidget.__init__(self, *args)
+
+        self._showAction = None
+        self._titleBar = _TitleBar( self )
+        self.setTitleBarWidget( self._titleBar )
+        
+        self._closeShortcut = QShortcut( QKeySequence( "Esc" ), self )
+        self._closeShortcut.setContext( Qt.WidgetWithChildrenShortcut )
+        self._closeShortcut.activated.connect(self._hide)
+
+    def showAction(self):
+        if  not self._showAction :
+            self._showAction = QAction(self.windowIcon(), self.windowTitle(), self)
+            self._showAction.triggered.connect(self.show)
+            self._showAction.triggered.connect(self.handleFocusProxy)
+
+        return self._showAction
+
+    def handleFocusProxy(self):
+        if self.focusProxy() is not None:
+            self.setFocus()
+
+    def _hide(self):
+        """Hide and return focus to MainWindow focus proxy
+        """
+        self.hide()
+        if self.parent() is not None and \
+           self.parent().focusProxy() is not None:
+            self.parent().focusProxy().setFocus()
