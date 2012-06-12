@@ -16,8 +16,7 @@ from PyQt4.QtGui import QHBoxLayout, QIcon, QLabel, QMessageBox, \
 from PyQt4.QtGui import QMainWindow
 
 from mks.widgets.dockwidget import DockWidget
-from mks.fresh.actionmanager.ActionManager import ActionManager
-from mks.fresh.actionmanager.pActionsMenuBar import pActionsMenuBar
+from mks.fresh.actionmanager.ActionManager import ActionManager, ActionMenuBar
 
 from mks.core.core import core
 import mks.core.defines
@@ -61,8 +60,8 @@ class MainWindow(QMainWindow):
     If you need to access to some existing menu items - check action path 
     in the class constructor, than use next code: ::
         
-        self._actionManager.action( "mFile/aOpen" ).setEnabled(True)
-        self._actionManager.action( "mFile/aOpen" ).triggered.connect(self.myCoolMethod)
+        core.actionManager().action( "mFile/aOpen" ).setEnabled(True)
+        core.actionManager().action( "mFile/aOpen" ).triggered.connect(self.myCoolMethod)
     
     MainWindow instance is accessible as: ::
     
@@ -96,7 +95,6 @@ class MainWindow(QMainWindow):
         QMainWindow.__init__(self)
         
         self._queuedMessageToolBar = None
-        self._actionManager = None
         self._createdMenuPathes = []
         self._createdActions = []
 
@@ -122,7 +120,7 @@ class MainWindow(QMainWindow):
         self._topToolBar.setStyleSheet(toolBarStyleSheet)
 
         # Create menu bar
-        self._menuBar = pActionsMenuBar(self)
+        self._menuBar = ActionMenuBar(self, core.actionManager())
         self._menuBar.setAutoFillBackground(False)
         menuBarStyleSheet = """
         QMenuBar {background-color: transparent;
@@ -131,8 +129,6 @@ class MainWindow(QMainWindow):
         """ % self.palette().color(QPalette.WindowText).name()
         self._menuBar.setStyleSheet(menuBarStyleSheet)
         self._menuBar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        self._actionManager = ActionManager(self._menuBar)
-        self._menuBar.setModel(self._actionManager)
         self._topToolBar.addWidget(self._menuBar)
         self._topToolBar.addSeparator()
 
@@ -156,13 +152,10 @@ class MainWindow(QMainWindow):
             del self._queuedMessageToolBar
 
         for act in self._createdActions:
-            self._actionManager.removeAction(act, False)
+            core.actionManager().removeAction(act, False)
         for menuPath in self._createdMenuPathes[::-1]:
-            self._actionManager.removeMenu(menuPath)
+            core.actionManager().removeMenu(menuPath)
         
-        self.menuBar().setModel( None )
-        # FIXME self.settings().sync()  # write window and docs geometry
-
     def _initTopWidget(self):
         """Create top widget and put it on its place
         """
@@ -176,7 +169,7 @@ class MainWindow(QMainWindow):
         
         def menu(path, name, icon):
             """Subfunction for create a menu in the main menu"""
-            menuObject = self._actionManager.addMenu(path, name)
+            menuObject = core.actionManager().addMenu(path, name)
             if icon:
                 menuObject.setIcon(QIcon(':/mksicons/' + icon))
             self._createdMenuPathes.append(path)
@@ -184,16 +177,16 @@ class MainWindow(QMainWindow):
         def action(path, name, icon, shortcut, tooltip, enabled):  # pylint: disable=R0913
             """Subfunction for create an action in the main menu"""
             if icon:  # has icon
-                actObject = self._actionManager.addAction(path, name, QIcon(':/mksicons/' + icon), shortcut)
+                actObject = core.actionManager().addAction(path, name, QIcon(':/mksicons/' + icon), shortcut)
             else:
-                actObject = self._actionManager.addAction(path, name, shortcut=shortcut)
+                actObject = core.actionManager().addAction(path, name, shortcut=shortcut)
             actObject.setStatusTip(tooltip)
             actObject.setEnabled(enabled)
             self._createdActions.append(actObject)
         
         def separator(menu):
             """Subfunction for insert separator to the menu"""
-            self._actionManager.action(menu).menu().addSeparator()
+            core.actionManager().action(menu).menu().addSeparator()
         
         # pylint: disable=C0301  
         # enable long lines for menu items
@@ -239,7 +232,7 @@ class MainWindow(QMainWindow):
         menu  ("mHelp",                               tr("Help"                  ), ""            )
         
         # docks
-        self._actionManager.action( "mView/aHideAll" ).triggered.connect(self._onHideAllWindows)
+        core.actionManager().action( "mView/aHideAll" ).triggered.connect(self._onHideAllWindows)
     
     def menuBar(self):
         """Reference to menuBar
@@ -410,8 +403,8 @@ class MainWindow(QMainWindow):
 
 #   TODO restore or delete old code
 #        # edit connection
-#        self._actionManager.action( "mEdit/aExpandAbbreviation" ).triggered.connect(core.workspace().onEditExpandAbbreviation)
-#        self._actionManager.action( "mEdit/aPrepareAPIs" ).triggered.connect(core.workspace().editPrepareAPIs_triggered)
+#        core.actionManager().action( "mEdit/aExpandAbbreviation" ).triggered.connect(core.workspace().onEditExpandAbbreviation)
+#        core.actionManager().action( "mEdit/aPrepareAPIs" ).triggered.connect(core.workspace().editPrepareAPIs_triggered)
 
 #        # project connection
 #        core.recentsManager().openProjectRequested.connect(core.projectsManager().openProject)

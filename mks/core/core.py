@@ -90,6 +90,9 @@ class Core(QObject):
 
         QApplication.instance().setWindowIcon(QIcon(':/mksicons/monkey2.png') )
 
+        import mks.core.actionmanager
+        self._actionManager = mks.core.actionmanager.ActionManager(self)
+        
         # Imports are here for hack crossimport problem
         import mks.core.mainwindow  # pylint: disable=W0621,W0404
         self._mainWindow = mks.core.mainwindow.MainWindow()
@@ -167,9 +170,9 @@ class Core(QObject):
         return self._mainWindow
 
     def actionManager(self):
-        """Get main window `action model <http://api.monkeystudio.org/fresh/classp_actions_node_model.html>`_ instance
+        """Get main window ::class:`mks.core.actionmanager.ActionManager` instance
         """
-        return self._mainWindow.menuBar().model()
+        return self._actionManager
 
     def workspace(self):
         """Get :class:`mks.core.workspace.Workspace` instance

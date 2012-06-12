@@ -18,7 +18,7 @@ class ColorButton(QToolButton):
     
     colorChanged = pyqtSignal(QColor)
     """
-    colorChanged()
+    colorChanged(color)
     
     **Signal** emitted, after current color has changed
     """
