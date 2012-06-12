@@ -7,14 +7,14 @@ API docks at http://api.monkeystudio.org/fresh/
 from PyQt4.QtCore import QEvent, Qt
 from PyQt4.QtGui import QKeySequence
 
-from mks.fresh.pLineEdit import pLineEdit
+from mks.widgets.lineedit import LineEdit
 
 def tr(text):
     return text
 
-class pKeySequenceEdit(pLineEdit):
+class pKeySequenceEdit(LineEdit):
     def __init__(self, parent):
-        pLineEdit.__init__(self, parent )
+        LineEdit.__init__(self, parent )
         self._finished = True
     
         self.setPromptText( tr( "Press a keybord shortcut..." ) )

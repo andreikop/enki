@@ -17,7 +17,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="pLineEdit" name="leFilter"/>
+      <widget class="LineEdit" name="leFilter"/>
      </item>
     </layout>
    </item>
@@ -77,9 +77,9 @@
    <header>mks/fresh/pKeySequenceEdit.h</header>
   </customwidget>
   <customwidget>
-   <class>pLineEdit</class>
+   <class>LineEdit</class>
    <extends>QLineEdit</extends>
-   <header>mks/fresh/pLineEdit.h</header>
+   <header>mks/widgets/lineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources>
