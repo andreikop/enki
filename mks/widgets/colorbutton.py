@@ -1,19 +1,28 @@
-"""This file has been ported from fresh library by Azevedo Filippe aka PasNox
-
-See information at https://github.com/pasnox/fresh and 
-API docks at http://api.monkeystudio.org/fresh/
 """
+colorbutton --- Button, which is used for configuring colors
+============================================================
 
+Button shows selected color as own icon and opens QColorDialog when clicked
+"""
 from PyQt4.QtCore import pyqtSignal, QSize
 from PyQt4.QtGui import QColor, QColorDialog, QIcon, QPixmap, QToolButton
 
 def tr(text):
+    """Dummy tr() implementation
+    """
     return text
 
-class pColorButton(QToolButton):
+class ColorButton(QToolButton):
+    """Button, which is used for configuring colors
+    """
     
     colorChanged = pyqtSignal(QColor)
+    """
+    colorChanged()
     
+    **Signal** emitted, after current color has changed
+    """
+
     def __init__(self, colorOrParent, *args):
         if isinstance(colorOrParent, QColor):
             QToolButton.__init__(self, *args)
@@ -22,13 +31,17 @@ class pColorButton(QToolButton):
             QToolButton.__init__(self, colorOrParent, *args)
             self.setColor(QColor())
         
-        self.clicked.connect(self._q_clicked)
+        self.clicked.connect(self._onClicked)
         self.setIconSize( QSize( 16, 16 ) )
 
     def color(self):
+        """Currently selected color
+        """
         return self._color
 
     def setColor(self, color ):
+        """Set color. Update button icon
+        """
         self._color = color
         
         c = self._color
@@ -45,8 +58,10 @@ class pColorButton(QToolButton):
         
         self.colorChanged.emit( self._color )
 
-
-    def _q_clicked(self):
+    def _onClicked(self):
+        """Button has been clicked.
+        Show dialog and update color
+        """
         color = QColorDialog.getColor( self._color,
                                        self.window(),
                                        tr( "Choose a color" ),

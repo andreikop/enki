@@ -584,7 +584,7 @@
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="pColorButton" name="tbSelectionBackground">
+             <widget class="ColorButton" name="tbSelectionBackground">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -616,7 +616,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="pColorButton" name="tbSelectionForeground">
+                <widget class="ColorButton" name="tbSelectionForeground">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -654,7 +654,7 @@
              </widget>
             </item>
             <item>
-             <widget class="pColorButton" name="tbDefaultDocumentPen">
+             <widget class="ColorButton" name="tbDefaultDocumentPen">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -671,7 +671,7 @@
              </widget>
             </item>
             <item>
-             <widget class="pColorButton" name="tbDefaultDocumentPaper">
+             <widget class="ColorButton" name="tbDefaultDocumentPaper">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -837,7 +837,7 @@
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="pColorButton" name="tbIndentationGuidesForeground">
+             <widget class="ColorButton" name="tbIndentationGuidesForeground">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -854,7 +854,7 @@
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="pColorButton" name="tbIndentationGuidesBackground">
+             <widget class="ColorButton" name="tbIndentationGuidesBackground">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -910,7 +910,7 @@
                <number>3</number>
               </property>
               <item row="1" column="1">
-               <widget class="pColorButton" name="tbMatchedBraceBackground">
+               <widget class="ColorButton" name="tbMatchedBraceBackground">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -941,7 +941,7 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="pColorButton" name="tbMatchedBraceForeground">
+               <widget class="ColorButton" name="tbMatchedBraceForeground">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -958,7 +958,7 @@
                </widget>
               </item>
               <item row="3" column="1">
-               <widget class="pColorButton" name="tbUnmatchedBraceBackground">
+               <widget class="ColorButton" name="tbUnmatchedBraceBackground">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -968,7 +968,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="pColorButton" name="tbUnmatchedBraceForeground">
+               <widget class="ColorButton" name="tbUnmatchedBraceForeground">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -1033,7 +1033,7 @@
                </widget>
               </item>
               <item>
-               <widget class="pColorButton" name="tbEdgeColor">
+               <widget class="ColorButton" name="tbEdgeColor">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -1149,7 +1149,7 @@
              <number>3</number>
             </property>
             <item row="1" column="1">
-             <widget class="pColorButton" name="tbCaretForeground">
+             <widget class="ColorButton" name="tbCaretForeground">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -1228,7 +1228,7 @@
              </layout>
             </item>
             <item row="0" column="1">
-             <widget class="pColorButton" name="tbCaretLineBackground">
+             <widget class="ColorButton" name="tbCaretLineBackground">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -1373,9 +1373,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>pColorButton</class>
+   <class>ColorButton</class>
    <extends>QPushButton</extends>
-   <header location="global">mks/fresh/pColorButton.h</header>
+   <header location="global">mks/widgets/colorbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources>
