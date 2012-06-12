@@ -201,7 +201,7 @@ class NumericOption(Option):
 class ColorOption(Option):
     """Color option
     
-    Control must be mks.fresh.pColorButton
+    Control must be mks.widgets.ColorButton
     """
     def load(self):
         """Load the value from config to GUI
@@ -440,7 +440,7 @@ class UISettings(QDialog):
 
 #----------------------------------------------------------- constructor
 #        
-#        for b in self.findChildren(pColorButton):
+#        for b in self.findChildren(ColorButton):
 #            b.setColorNameHidden( True )
 #        #ifdef Q_WS_MAC
 #            b.setIconSize( QSize( 32, 12 ) )
