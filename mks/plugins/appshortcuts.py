@@ -123,7 +123,6 @@ class Plugin:
             core.mainWindow().appendMessage(text)
             return None
 
-        
     def _save(self):
         """Save the config
         """
