@@ -77,7 +77,7 @@ class _FileWatcher(QObject):
         try:
             with open(path) as file:
                 return file.read()
-        except OSError, IOError:
+        except (OSError, IOError):
             return None
 
 class AbstractDocument(QWidget):
