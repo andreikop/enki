@@ -8,7 +8,7 @@ Shows results with SearchResultsModel
 from PyQt4.QtCore import Qt, pyqtSignal, QModelIndex
 from PyQt4.QtGui import QFontMetrics, QHBoxLayout, QIcon, \
                         QTreeView, QWidget, QPushButton
-from mks.fresh.pDockWidget import pDockWidget
+from mks.widgets.dockwidget import DockWidget
 from mks.core.core import core
 from mks.lib.htmldelegate import HTMLDelegate
 
@@ -119,14 +119,14 @@ class CheckUncheckAllButton(QPushButton):
         self._action.setVisible(False)
 
 
-class SearchResultsDock(pDockWidget):
+class SearchResultsDock(DockWidget):
     """Dock with search results
     """
     
     onResultsHandledByReplaceThread = pyqtSignal(str, list)
 
     def __init__(self, parent=None):
-        pDockWidget.__init__( self, parent )
+        DockWidget.__init__( self, parent )
         self.setObjectName("SearchResultsDock")
 
         self.setObjectName( self.metaObject().className() )

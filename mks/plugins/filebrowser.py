@@ -17,7 +17,7 @@ from PyQt4.QtGui import QAction, QCompleter, QDirModel, \
                         QPainter, \
                         QShortcut, QSortFilterProxyModel, QToolButton, QTreeView, QVBoxLayout, QWidget
 
-from mks.fresh.pDockWidget import pDockWidget
+from mks.widgets.dockwidget import DockWidget
 
 from mks.core.defines import CONFIG_DIR
 from mks.core.core import core
@@ -547,7 +547,7 @@ class ComboBox(QComboBox):
         self.currentIndexChanged[int].connect(self._onItemSelected)
 
 
-class DockFileBrowser(pDockWidget):
+class DockFileBrowser(DockWidget):
     """UI interface of FileBrowser plugin. 
         
     Dock with file system tree, Box, navigation in a file system
@@ -569,7 +569,7 @@ class DockFileBrowser(pDockWidget):
     """  # pylint: disable=W0105
     
     def __init__(self, parent):
-        pDockWidget.__init__(self, parent)
+        DockWidget.__init__(self, parent)
         
         self._comboBox = None
         self._tree = None

@@ -1,7 +1,11 @@
-"""This file has been ported from fresh library by Azevedo Filippe aka PasNox
+"""
+dockwidget --- Extended QDockWidget for mksv3 main window
+=========================================================
 
-See information at https://github.com/pasnox/fresh and 
-API docks at http://api.monkeystudio.org/fresh/
+This class adds next features to QDockWidget:
+    * has action for showing and focusing the widget
+    * closes themselves on Esc
+    * title bar contains QToolBar
 """
 
 from PyQt4.QtCore import pyqtSignal, QSize, Qt, QTimer
@@ -11,7 +15,9 @@ from PyQt4.QtGui import QAction, QColor, QDockWidget, QFontMetrics, \
 
 
 class _TitleBar(QToolBar):
-    
+    """Widget title bar.
+    Contains standard dock widget buttons and allows to add new buttons and widgets
+    """
     def __init__(self, parent, *args):
         QToolBar.__init__(self, parent, *args)
 
@@ -34,6 +40,9 @@ class _TitleBar(QToolBar):
         self.addWidget( self._spacer )
 
     def paintEvent(self, event ):
+        """QToolBar.paintEvent reimplementation
+        Draws buttons, dock icon and text
+        """
         rect = self._spacer.rect()
 
         painter = QPainter( self )
@@ -64,9 +73,13 @@ class _TitleBar(QToolBar):
         self.style().drawControl( QStyle.CE_PushButtonLabel, optionB, painter, self._dock )
 
     def minimumSizeHint(self):
+        """QToolBar.minimumSizeHint implementation
+        """
         return QToolBar.sizeHint(self)
 
     def sizeHint(self):
+        """QToolBar.sizeHint implementation
+        """
         wis = self.iconSize()
         size = QToolBar.sizeHint(self)
         fm = QFontMetrics ( self.font() )
@@ -79,17 +92,27 @@ class _TitleBar(QToolBar):
         return size
 
     def addAction(self, action):
+        """QToolBar.addAction implementation
+        Adjusts indexes for behaving like standard empty QTitleBar
+        """
         return self.insertAction(self.aClose, action)
 
     def addSeparator(self):
+        """QToolBar.addAction implementation
+        Adjusts indexes for behaving like standard empty QTitleBar
+        """
         return self.insertSeparator(self.aClose)
 
     def addWidget(self, widget):
+        """QToolBar.addAction implementation
+        Adjusts indexes for behaving like standard empty QTitleBar
+        """
         return self.insertWidget(self.aClose, widget)
 
 
-class pDockWidget(QDockWidget):
-    
+class DockWidget(QDockWidget):
+    """Extended QDockWidget for mksv3 main window
+    """
     def __init__(self, *args):
         QDockWidget.__init__(self, *args)
 
@@ -102,14 +125,20 @@ class pDockWidget(QDockWidget):
         self._closeShortcut.activated.connect(self._hide)
 
     def showAction(self):
+        """Action shows the widget and set focus on it
+        Add this action to the main menu
+        """
         if  not self._showAction :
             self._showAction = QAction(self.windowIcon(), self.windowTitle(), self)
             self._showAction.triggered.connect(self.show)
-            self._showAction.triggered.connect(self.handleFocusProxy)
+            self._showAction.triggered.connect(self._handleFocusProxy)
 
         return self._showAction
 
-    def handleFocusProxy(self):
+    def _handleFocusProxy(self):
+        """Set focus to focus proxy.
+        Called after widget has been shown
+        """
         if self.focusProxy() is not None:
             self.setFocus()
 

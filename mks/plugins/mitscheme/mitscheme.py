@@ -13,7 +13,7 @@ from PyQt4 import uic
 
 from mks.core.core import core
 
-from mks.fresh.pDockWidget import pDockWidget
+from mks.widgets.dockwidget import DockWidget
 
 import mks.lib.buffpopen
 import mks.lib.termwidget
@@ -36,11 +36,11 @@ class MitSchemeSettings(QWidget):
             self.leInterpreterPath.setText(path)
 
 
-class MitSchemeDock(pDockWidget):
+class MitSchemeDock(DockWidget):
     """Dock widget with terminal emulator
     """
     def __init__(self, widget):
-        pDockWidget.__init__(self, "&MIT Scheme", core.mainWindow())
+        DockWidget.__init__(self, "&MIT Scheme", core.mainWindow())
         self.setObjectName("MitSchemeDock")
         self.setWindowIcon(QIcon(':/mksicons/languages/scheme.png'))
         self.setAllowedAreas( Qt.BottomDockWidgetArea)
@@ -63,7 +63,7 @@ class MitSchemeDock(pDockWidget):
            event.modifiers() == Qt.NoModifier:
             self.hide()
             return True
-        return pDockWidget.eventFilter(self, obj, event)
+        return DockWidget.eventFilter(self, obj, event)
 
 #
 # Plugin functionality
