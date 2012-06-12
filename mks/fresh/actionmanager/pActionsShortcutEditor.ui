@@ -46,7 +46,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="pKeySequenceEdit" name="kseShortcut"/>
+      <widget class="_KeySequenceEdit" name="kseShortcut"/>
      </item>
      <item>
       <widget class="QToolButton" name="tbSet">
@@ -72,9 +72,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>pKeySequenceEdit</class>
+   <class>_KeySequenceEdit</class>
    <extends>QLineEdit</extends>
-   <header>mks/fresh/pKeySequenceEdit.h</header>
+   <header>mks/fresh/actionmanager/pActionsShortcutEditor.h</header>
   </customwidget>
   <customwidget>
    <class>LineEdit</class>
