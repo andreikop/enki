@@ -27,7 +27,7 @@ from PyQt4 import uic
 
 from mks.core.core import core, DATA_FILES_PATH
 from mks.core.uisettings import ChoiseOption, ModuleConfigurator
-from mks.fresh.pDockWidget import pDockWidget
+from mks.widgets.dockwidget import DockWidget
 
 class Configurator(ModuleConfigurator):
     """ Module configurator.
@@ -347,13 +347,13 @@ class _OpenedFileModel(QAbstractItemModel):
         QObject.parent(self).finishModifyModel()
 
 
-class OpenedFileExplorer(pDockWidget):
+class OpenedFileExplorer(DockWidget):
     """Opened File Explorer is list widget with list of opened files.
     It implements switching current file, files sorting. Uses _OpenedFileModel internally.
     Class instance created by Workspace.
     """
     def __init__(self, workspace):
-        pDockWidget.__init__(self, workspace)
+        DockWidget.__init__(self, workspace)
         self._workspace = workspace
         self.setObjectName("OpenedFileExplorer")
         self.setWindowTitle("&Opened Files")

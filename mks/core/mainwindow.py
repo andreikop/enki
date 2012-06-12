@@ -15,7 +15,7 @@ from PyQt4.QtGui import QHBoxLayout, QIcon, QLabel, QMessageBox, \
 
 from PyQt4.QtGui import QMainWindow
 
-from mks.fresh.pDockWidget import pDockWidget
+from mks.widgets.dockwidget import DockWidget
 from mks.fresh.actionmanager.ActionManager import ActionManager
 from mks.fresh.actionmanager.pActionsMenuBar import pActionsMenuBar
 
@@ -313,7 +313,7 @@ class MainWindow(QMainWindow):
         """Close all visible windows for get as much space on the screen, as possible
         """
         self.hideAllWindows.emit()
-        for dock in self.findChildren(pDockWidget):
+        for dock in self.findChildren(DockWidget):
             dock.hide()
 
     def _saveState(self):

@@ -94,6 +94,7 @@ long_description = \
 packages=['mks',
           'mks/core',
           'mks/lib',
+          'mks/widgets',
           'mks/fresh',
           'mks/fresh/actionmanager',
           'mks/fresh/queuedmessage',

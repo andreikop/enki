@@ -9,7 +9,7 @@ from PyQt4.QtWebKit import QWebView
 
 from mks.core.core import core
 
-from mks.fresh.pDockWidget import pDockWidget
+from mks.widgets.dockwidget import DockWidget
 
 from threading import Lock
 
@@ -135,11 +135,11 @@ class ConverterThread(QThread):
                 # else - next iteration
 
 
-class PreviewDock(pDockWidget):
+class PreviewDock(DockWidget):
     """GUI and implementation
     """
     def __init__(self, *args):
-        pDockWidget.__init__(self, *args)
+        DockWidget.__init__(self, *args)
 
         self.setObjectName("PreviewDock")
         self.setWindowTitle(self.tr( "&Preview" ))
