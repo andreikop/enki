@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>pActionsShortcutEditor</class>
- <widget class="QDialog" name="pActionsShortcutEditor">
+ <class>ActionShortcutEditor</class>
+ <widget class="QDialog" name="ActionShortcutEditor">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -74,7 +74,7 @@
   <customwidget>
    <class>_KeySequenceEdit</class>
    <extends>QLineEdit</extends>
-   <header>mks/fresh/actionmanager/pActionsShortcutEditor.h</header>
+   <header>mks/plugins/appshortcuts/ActionShortcutEditor.h</header>
   </customwidget>
   <customwidget>
    <class>LineEdit</class>

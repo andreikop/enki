@@ -10,7 +10,7 @@ from PyQt4 import uic
 from PyQt4.QtCore import QEvent, Qt
 from PyQt4.QtGui import QDialog, QDialogButtonBox, QHeaderView, QKeySequence, QMessageBox, QSortFilterProxyModel
 
-from pActionsModel import ActionModel
+from ActionModel import ActionModel
 from mks.widgets.lineedit import LineEdit
 
 def tr(text):
@@ -91,7 +91,7 @@ class _KeySequenceEdit(LineEdit):
         # return human readable key sequence
         return QKeySequence( self._keys ).toString()
 
-class pRecursiveSortFilterProxyModel(QSortFilterProxyModel):
+class _RecursiveSortFilterProxyModel(QSortFilterProxyModel):
     def filterAcceptsRow(self, source_row, source_parent):
         index = self.sourceModel().index( source_row, 0, source_parent )
         rowCount = self.sourceModel().rowCount( index )
@@ -104,20 +104,20 @@ class pRecursiveSortFilterProxyModel(QSortFilterProxyModel):
     
         return accepted
 
-class pActionsShortcutEditor(QDialog):
+class ActionShortcutEditor(QDialog):
     def __init__(self, manager, parent):
         QDialog.__init__(self, parent)
 
         self._manager = manager
         self._model = ActionModel(manager)
         self._originalShortcuts = {}
-        self._proxy = pRecursiveSortFilterProxyModel( self )
+        self._proxy = _RecursiveSortFilterProxyModel( self )
         
         self._proxy.setSourceModel( self._model )
         self._proxy.setFilterCaseSensitivity( Qt.CaseInsensitive )
         self._proxy.setSortCaseSensitivity( Qt.CaseInsensitive )
         
-        uic.loadUi(os.path.join(os.path.dirname(__file__), 'pActionsShortcutEditor.ui'), self)
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'ActionShortcutEditor.ui'), self)
         self.leFilter.setPromptText( tr( "Text filter..." ) )
         self.tvActions.setModel( self._proxy )
         self.tvActions.header().setResizeMode( 0, QHeaderView.Stretch )
