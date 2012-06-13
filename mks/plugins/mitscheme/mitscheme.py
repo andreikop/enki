@@ -16,7 +16,7 @@ from mks.core.core import core
 from mks.widgets.dockwidget import DockWidget
 
 import mks.lib.buffpopen
-import mks.lib.termwidget
+import mks.widgets.termwidget
 
 #
 # Integration with the core
@@ -69,11 +69,11 @@ class MitSchemeDock(DockWidget):
 # Plugin functionality
 #
 
-class MitSchemeTermWidget(mks.lib.termwidget.TermWidget):
+class MitSchemeTermWidget(mks.widgets.termwidget.TermWidget):
     """Terminal emulator widget
     """
     def __init__(self, mitScheme, *args):
-        mks.lib.termwidget.TermWidget.__init__(self, *args)
+        mks.widgets.termwidget.TermWidget.__init__(self, *args)
         self._mitScheme = mitScheme
 
     def isCommandComplete(self, text):
