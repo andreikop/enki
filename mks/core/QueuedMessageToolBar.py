@@ -1,14 +1,12 @@
-"""This file has been ported from fresh library by Azevedo Filippe aka PasNox
-
-See information at https://github.com/pasnox/fresh and 
-API docks at http://api.monkeystudio.org/fresh/
+"""Queued message tool bar. Not a public API, but available via MainWindow.appendMessage()
 """
 
-from PyQt4.QtCore import pyqtSignal, Qt, QTimer
+from PyQt4.QtCore import pyqtSignal, QEvent, Qt, QTimer
 from PyQt4.QtGui import QAbstractButton, QColor, QBrush, QDialogButtonBox, QHBoxLayout, \
-                        QLabel, QPainter, QPixmap, QSizePolicy, QWidget
+                        QLabel, QPainter, QPixmap, QSizePolicy, QToolBar, QWidget
 
-class pQueuedMessage:
+
+class _QueuedMessage:
     def __init__(self):
         self.milliSeconds = -1
         self.background = QBrush( Qt.NoBrush )
@@ -16,7 +14,7 @@ class pQueuedMessage:
         self.slot = None
         self.buttons = {}
 
-class pQueuedMessageWidget(QWidget):
+class _QueuedMessageWidget(QWidget):
     
     cleared = pyqtSignal()
     finished = pyqtSignal()
@@ -93,7 +91,7 @@ class pQueuedMessageWidget(QWidget):
         return self._messages[0]
 
     def append(self, message, milliSeconds ):
-        msg = pQueuedMessage()
+        msg = _QueuedMessage()
         msg.message = message
         if milliSeconds == -1:
             msg.milliSeconds = self._defaultTimeout
@@ -237,3 +235,57 @@ class pQueuedMessageWidget(QWidget):
         self.lPixmap.clear()
         self.lMessage.clear()
         self.dbbButtons.clear()
+
+
+class QueuedMessageToolBar(QToolBar):
+    def __init__(self, *args):
+        QToolBar.__init__(self, *args)
+        self._queuedWidget = _QueuedMessageWidget( self )
+        
+        self.setObjectName( self.metaObject().className() )
+        self.setMovable( False )
+        self.setFloatable( False )
+        self.setAllowedAreas( Qt.TopToolBarArea )
+        self.toggleViewAction().setEnabled( False )
+        self.toggleViewAction().setVisible( False )
+        
+        self.addWidget( self._queuedWidget )
+        self.layout().setMargin( 3 )
+        
+        # connections
+        self._queuedWidget.shown.connect(self.messageShown)
+        self._queuedWidget.finished.connect(self.messageFinished)
+
+    def queuedMessageWidget(self):
+        return self._queuedWidget
+
+    def changeEvent(self, event ):
+        if  event.type() == QEvent.FontChange :
+            self._queuedWidget.setFont( self.font() )
+
+        QToolBar.changeEvent( self, event )
+
+    def paintEvent(self, event ):
+        if  self._queuedWidget.pendingMessageCount() == 0 :
+            QToolBar.paintEvent( self, event )
+            return
+
+        brush = self._queuedWidget.currentMessageBackground()
+        painter = QPainter( self )
+        painter.setPen( brush.color().darker( 150 ) )
+        painter.setBrush( brush )
+        painter.drawRect( self.contentsRect().adjusted( 0, 0, -1, -1 ) )
+
+    def appendMessage(self, message, milliSeconds = -1):
+        return self._queuedWidget.append( message, milliSeconds )
+
+    def removeMessage(self, message ):
+        self._queuedWidget.remove( message )
+
+    def messageShown(self):
+        if  not self.isVisible() :
+            self.setVisible( True )
+
+    def messageFinished(self):
+        if self.isVisible() :
+            self.setVisible( False )

@@ -95,15 +95,10 @@ packages=['mks',
           'mks/core',
           'mks/lib',
           'mks/widgets',
-          'mks/fresh',
-          'mks/fresh/actionmanager',
-          'mks/fresh/queuedmessage',
           'mks/plugins',
           'mks/resources']
 
 package_data={'mks' : ['ui/*.ui',
-                       'ui/plugins/*.ui',
-                       'fresh/actionmanager/*.ui',
                        'config/*.json']
              }
 
