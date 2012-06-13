@@ -136,13 +136,13 @@ class DockWidget(QDockWidget):
 
         return self._showAction
 
-    def titleBarWidget():
+    def titleBarWidget(self):
         """QToolBar on the title.
         
         You may add own actions to this tool bar
         """
         # method was added only for documenting
-        return QDockWidget.titleBarWidget()
+        return QDockWidget.titleBarWidget(self)
     
     def _handleFocusProxy(self):
         """Set focus to focus proxy.
