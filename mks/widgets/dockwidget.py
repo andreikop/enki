@@ -125,7 +125,8 @@ class DockWidget(QDockWidget):
         self._closeShortcut.activated.connect(self._hide)
 
     def showAction(self):
-        """Action shows the widget and set focus on it
+        """Action shows the widget and set focus on it.
+        
         Add this action to the main menu
         """
         if  not self._showAction :
@@ -135,6 +136,14 @@ class DockWidget(QDockWidget):
 
         return self._showAction
 
+    def titleBarWidget():
+        """QToolBar on the title.
+        
+        You may add own actions to this tool bar
+        """
+        # method was added only for documenting
+        return QDockWidget.titleBarWidget()
+    
     def _handleFocusProxy(self):
         """Set focus to focus proxy.
         Called after widget has been shown

@@ -271,7 +271,7 @@ class Core(QObject):
         return self._fileFilter
     
     def locator(self):
-        """Locator
+        """::class:`mks.core.locator.Locator` instance
         
         Widget, which appears on Ctrl+L. Allows to execute textual commands
         Extendable with new commands
@@ -279,7 +279,9 @@ class Core(QObject):
         return self._locator
 
 core = Core()  # pylint: disable=C0103
-"""Core instance. It is accessible as: ::
+"""Core instance. It is accessible as: 
+
+::
 
     from mks.core.core import core
     core.anyMethod()
