@@ -23,7 +23,6 @@ import json
 
 from PyQt4.QtCore import QModelIndex
 from PyQt4.QtGui import QIcon
-from mks.fresh.actionmanager.pActionsShortcutEditor import pActionsShortcutEditor
 
 import mks.core.defines
 
@@ -105,7 +104,8 @@ class Plugin:
     def _onEditShortcuts(self):
         """Handler of *Edit->Shortcuts...* action. Shows dialog, than saves shortcuts to file
         """
-        pActionsShortcutEditor (self._actionManager, core.mainWindow()).exec_()
+        from ActionShortcutEditor import ActionShortcutEditor  # lazy import for quicker app startup
+        ActionShortcutEditor (self._actionManager, core.mainWindow()).exec_()
         self._saveShortcuts()
 
     def _load(self):
