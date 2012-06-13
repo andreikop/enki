@@ -143,7 +143,7 @@ class MainWindow(QMainWindow):
         self._centralLayout = QVBoxLayout(widget)
         self._centralLayout.setMargin(0)
         self.setCentralWidget(widget)
-        
+
     def del_(self):
         """Explicitly called destructor
         """
@@ -273,10 +273,9 @@ class MainWindow(QMainWindow):
         but, not so important, to interrupt an user with QMessageBox
         """
         if self._queuedMessageToolBar is None:
-            from mks.fresh.queuedmessage.pQueuedMessageToolBar import pQueuedMessageToolBar
-            from PyQt4.QtCore import Qt
+            from mks.core.QueuedMessageToolBar import QueuedMessageToolBar
             
-            self._queuedMessageToolBar = pQueuedMessageToolBar(self)
+            self._queuedMessageToolBar = QueuedMessageToolBar(self)
             self.addToolBar(Qt.BottomToolBarArea, self._queuedMessageToolBar)
             self._queuedMessageToolBar.setVisible( False )
         
