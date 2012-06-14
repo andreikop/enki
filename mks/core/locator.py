@@ -342,6 +342,7 @@ class _CompleterConstructorThread(QThread):
     
     def __del__(self):
         self.terminate()
+        self.wait()
     
     def start(self, command, text, cursorPos):
         """Start constructing completer
@@ -357,14 +358,7 @@ class _CompleterConstructorThread(QThread):
         self.setTerminationEnabled(True)
         completer = self._command.completer(self._text, self._cursorPos)
         self.setTerminationEnabled(False)
-        
         self.completerReady.emit(self._command, completer)
-    
-    def terminate(self):
-        """Terminate thread only if running
-        """
-        if self.isRunning():
-            QThread.terminate(self)
 
 
 class Locator(QDialog):
