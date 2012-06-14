@@ -523,14 +523,18 @@ class Workspace(QStackedWidget):
         """
         curIndex = self.sortedDocuments.index(self.currentDocument())
         nextIndex = (curIndex + 1) % len(self.sortedDocuments)
-        self.setCurrentDocument( self.sortedDocuments[nextIndex] )
+        document = self.sortedDocuments[nextIndex]
+        self.setCurrentDocument(document)
+        document.setFocus()
     
     def _activatePreviousDocument(self):
         """Handler of View->Previous triggered
         """
         curIndex = self.sortedDocuments.index(self.currentDocument())
         prevIndex = (curIndex - 1 + len(self.sortedDocuments)) % len(self.sortedDocuments)
-        self.setCurrentDocument( self.sortedDocuments[prevIndex] )
+        document = self.sortedDocuments[nextIndex]
+        self.setCurrentDocument(document)
+        document.setFocus()
     
     def focusCurrentDocument(self):
         """Set focus (cursor) to current document.
