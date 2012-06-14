@@ -42,6 +42,12 @@ class AbstractPathCompleter(AbstractCompleter):
         self._files = []
         self._error = None
         self._status = None
+        
+        """hlamer: my first approach is making self._model static member of class. But, sometimes it 
+        returns incorrect icons. I really can't understand when and why.
+        When it is private member of instance, it seems it works
+        """
+        self._model = None # can't construct in the construtor, must be constructed in GUI thread
     
     @staticmethod
     def _filterHidden(paths):
@@ -98,12 +104,14 @@ class AbstractPathCompleter(AbstractCompleter):
             count += len(self._files)
             return count
 
-    @staticmethod
-    def _iconForPath(path):
+    def _iconForPath(self, path):
         """Get icon for file or directory path. Uses QFileSystemModel
         """
-        index = AbstractPathCompleter._fsModel.index(path)
-        return AbstractPathCompleter._fsModel.data(index, Qt.DecorationRole)
+        if self._model is None:
+            self._model = QFileSystemModel()
+        
+        index = self._model.index(path)
+        return self._model.data(index, Qt.DecorationRole)
 
     def text(self, row, column):
         """Item text in the list of completions
