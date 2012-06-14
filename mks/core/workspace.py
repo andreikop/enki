@@ -532,7 +532,7 @@ class Workspace(QStackedWidget):
         """
         curIndex = self.sortedDocuments.index(self.currentDocument())
         prevIndex = (curIndex - 1 + len(self.sortedDocuments)) % len(self.sortedDocuments)
-        document = self.sortedDocuments[nextIndex]
+        document = self.sortedDocuments[prevIndex]
         self.setCurrentDocument(document)
         document.setFocus()
     
