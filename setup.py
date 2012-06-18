@@ -91,6 +91,11 @@ long_description = \
  * Hightly configurable
 """
 
+if 'install' in sys.argv and \
+    not '--force' in sys.argv:
+        if not _checkDepencencies():
+            sys.exit(-1)
+
 packages=['mks',
           'mks/core',
           'mks/lib',
@@ -108,14 +113,11 @@ package_data={'mks' : ['ui/*.ui',
                        'config/*.json']
              }
 
-
 for loader, name, ispkg in pkgutil.iter_modules(['mks/plugins']):
     if ispkg:
         packages.append('mks/plugins/' + name)
         package_data['mks'].append('plugins/%s/*.ui' % name)
 
-if 'install' in sys.argv and not _checkDepencencies():
-    sys.exit(-1)
 
 setup(name=PACKAGE_NAME,
         version=PACKAGE_VERSION,
