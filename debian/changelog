@@ -1,3 +1,9 @@
+mksv3 (12.06.3-1~ppa1) lucid; urgency=low
+
+  * Added missing .ui and .json
+
+ -- Andrei Kopats <hlamer@tut.by>  Mon, 18 Jun 2012 23:13:00 +0300
+
 mksv3 (12.06.2-1~ppa1) lucid; urgency=low
 
   * Fix for Debian build system
