@@ -1,3 +1,11 @@
+mksv3 (12.06.1-1~ppa1) lucid; urgency=low
+
+  * Locator. (File open dialog with bash-like tab completion)
+  * Open directories in File Browser, when drag-n-dropt to the main window
+  * Highlight search results with yellow in the editor
+
+ -- Andrei Kopats <hlamer@tut.by>  Mon, 18 Jun 2012 08:10:32 +0300
+
 mksv3 (12.04.1-1~ppa1) lucid; urgency=low
 
   * Bug fixes
