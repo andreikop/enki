@@ -1,12 +1,10 @@
 FIXME
     Make exception dialog scrollable
-    тормозит редактирование с подсветкой
 
 SITE:
     http://readthedocs.org/
     update links to API docs
     update user manual
-    Locator and Markdown preview screens and docs
     add discuss
     add google analyst
     add twitter

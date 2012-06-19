@@ -614,7 +614,7 @@ class Editor(AbstractTextEditor):
         """hlamer: I'm very sorry, but, too lot of extra selections freezes the editor
         I should to an optimization for searching and highlighting only visible lines
         """
-        if len(selections) > 1000:
+        if len(selections) > 256:
             return
         
         """We have positions as turples (absolute position of unicode symbol or EOL, length)
