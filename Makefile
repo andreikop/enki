@@ -21,7 +21,7 @@ dsc:
 	./scripts/make-deb.sh
 
 dput: dsc
-	cd build && dput ppa:monkeystudio/ppa *.changes
+	cd build && dput monkeystudio *.changes
 
 deb: dsc
 	cd build/mksv3-$(VERSION) && debuild
