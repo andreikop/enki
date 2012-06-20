@@ -66,8 +66,11 @@ if (('install' in sys.argv or \
     'bdist_msi' in sys.argv:
         data_files = []
 else:
-    data_files=[('/usr/share/applications/', ['mksv3.desktop']),
-                ('/usr/share/pixmaps/', ['icons/xpm/mksv3.xpm'])]
+    data_files=[('share/applications/', ['mksv3.desktop']),
+                ('share/pixmaps/', ['icons/xpm/mksv3.xpm']),
+                ('share/icons/hicolor/32x32/apps', ['icons/mksv3.png']),
+                ('share/icons/hicolor/scalable/apps', ['icons/mksv3.svg'])
+                ]
 
 classifiers = ['Development Status :: 3 - Alpha',
                'Environment :: X11 Applications :: Qt',
@@ -91,6 +94,11 @@ long_description = \
  * Hightly configurable
 """
 
+if 'install' in sys.argv and \
+    not '--force' in sys.argv:
+        if not _checkDepencencies():
+            sys.exit(-1)
+
 packages=['mks',
           'mks/core',
           'mks/lib',
@@ -102,14 +110,11 @@ package_data={'mks' : ['ui/*.ui',
                        'config/*.json']
              }
 
-
 for loader, name, ispkg in pkgutil.iter_modules(['mks/plugins']):
     if ispkg:
         packages.append('mks/plugins/' + name)
         package_data['mks'].append('plugins/%s/*.ui' % name)
 
-if 'install' in sys.argv and not _checkDepencencies():
-    sys.exit(-1)
 
 setup(name=PACKAGE_NAME,
         version=PACKAGE_VERSION,

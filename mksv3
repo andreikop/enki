@@ -114,11 +114,6 @@ def _checkDependencies(profiler):
     if profiler is not None:
         profiler.stepDone('Import QScintilla')
 
-def _configureLogging():
-    logging.basicConfig(level=logging.ERROR)
-    fileHandler = logging.handlers.RotatingFileHandler('/tmp/mksv3.log', 'a', 100 * 1024, 1)
-    logging.getLogger('').addHandler(fileHandler)
-
 def _parseCommandLine():
     parser = OptionParser(usage="%prog [options] [FILE [+LINE_NUMBER_TO_GO] .. [FILE]]]",
                           version="%prog " + mks.core.defines.PACKAGE_VERSION)
@@ -178,7 +173,8 @@ def main():
     if profiler is not None:
         profiler.stepDone('Import modules')
     
-    _configureLogging()
+    logging.basicConfig(level=logging.ERROR)
+    
     sys.excepthook = excepthook
     
     app = PyQt4.QtGui.QApplication ( sys.argv )
