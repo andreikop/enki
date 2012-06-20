@@ -57,7 +57,12 @@ def _isWinDist():
                return True
     return False
 
-#  Install .desktop and .xpm and .desktop only on unixes
+"""Install .desktop and .xpm and .desktop only on unixes
+hlamer: We should use relative pathes here, without /usr/, so it will be installed to
+/usr/local/share with setup.py and to /usr/share with Debian packages.
+BUT KDE4 on Suse 12.02 ignores data in /usr/local/share, and, probably, some other systems do
+Therefore mksv3 always installs its .desktop and icons to /usr/share
+"""
 if (('install' in sys.argv or \
      'install_data' in sys.argv) and \
         os.name != 'posix') or \
@@ -66,10 +71,10 @@ if (('install' in sys.argv or \
     'bdist_msi' in sys.argv:
         data_files = []
 else:
-    data_files=[('share/applications/', ['mksv3.desktop']),
-                ('share/pixmaps/', ['icons/xpm/mksv3.xpm']),
-                ('share/icons/hicolor/32x32/apps', ['icons/mksv3.png']),
-                ('share/icons/hicolor/scalable/apps', ['icons/mksv3.svg'])
+    data_files=[('/usr/share/applications/', ['mksv3.desktop']),
+                ('/usr/share/pixmaps/', ['icons/xpm/mksv3.xpm']),
+                ('/usr/share/icons/hicolor/32x32/apps', ['icons/mksv3.png']),
+                ('/usr/share/icons/hicolor/scalable/apps', ['icons/mksv3.svg'])
                 ]
 
 classifiers = ['Development Status :: 3 - Alpha',
