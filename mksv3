@@ -34,6 +34,7 @@ class _StartProfiler:
             print '%s: %d' % (description.ljust(30), diffMs)
         print 'Total                         : %d' % totalMs
 
+
 def excepthook(excepttype, exceptvalue, tracebackobj):
     """Show exception dialog, write to log
     """
@@ -41,23 +42,18 @@ def excepthook(excepttype, exceptvalue, tracebackobj):
     text = unicode(text, 'utf8')
     logging.critical(text)
     
-    mailto = '<a href="mailto:mksv3-bugs@googlegroups.com?subject=Crash&body=asdf">' \
-                'mailto:mksv3-bugs@googlegroups.com</a>'
+    from PyQt4 import uic
+    from PyQt4.QtGui import QDialog
     
-    mboxText =  '<html>' + \
-                'Exception occured.<br/>' + \
-                'MkS team tries to avoid such problems and make mksv3 stable<br/>' + \
-                'To help us <font color="red">send please a bug report to the developers</font><br/>' + \
-                mailto + '<br/>' + \
-                '<br/>' + \
-                'Include your description and this text:<br/>' + \
-                '<br/>' + \
-                text.replace('\n', '<br/>\n') + \
-                '</html>'
+    from mks.core.core import core, DATA_FILES_PATH
+    
+    dialog = QDialog(core.mainWindow())
+    uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/Exception.ui'), dialog)
+    
+    dialog.textBrowser.setText(text)
+    
+    dialog.exec_()
 
-    from PyQt4.QtGui import QMessageBox
-    from mks.core.core import core
-    QMessageBox.critical(core.mainWindow(), 'Oops. Internal exception', mboxText)
 
 def _showErrorMessage(haveQt, header, html, plain):
     """Show error message with messagebox
