@@ -83,7 +83,7 @@ class SmartRecents(QObject):
     
     "Active directory" in this class means the last directory, where one or more files has been opened
     """
-    MAX_RECENTS_SIZE = 8
+    MAX_RECENTS_SIZE = 5
     FILE_PATH = os.path.join(CONFIG_DIR, 'file_browser_popular_dirs.json')
     
     STATISTICS_SIZE = 10.
