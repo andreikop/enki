@@ -106,11 +106,6 @@ class _QsciScintilla(QsciScintilla):
         self.insert(text)
         
         self.endUndoAction()
-    
-    def ensureLineVisible(self, line):
-        """QScintilla method reimplementation. Saves margins
-        """
-        self.SendScintilla(self.SCI_ENSUREVISIBLEENFORCEPOLICY, line)
 
 
 class Editor(AbstractTextEditor):
@@ -536,7 +531,6 @@ class Editor(AbstractTextEditor):
         """Implementation of AbstractTextEditor.setCursorPosition
         """
         self.qscintilla.setCursorPosition(line, col)
-        self.qscintilla.ensureLineVisible(line)
 
     def replaceSelectedText(self, text):
         """Replace selected text with text
@@ -577,7 +571,6 @@ class Editor(AbstractTextEditor):
         else:
             self.qscintilla.setSelection(selectionLine, selectionCol,
                                          line, column)
-        self.qscintilla.ensureLineVisible(line)
     
     def lineCount(self):
         """Get line count
