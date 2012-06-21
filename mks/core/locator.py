@@ -436,7 +436,8 @@ class Locator(QDialog):
             return
         
         self._edit.setFocus()
-        self.exec_()
+        if not self.isVisible():
+            self.exec_()
 
     def _onItemClicked(self, index):
         """Item in the TreeView has been clicked.
