@@ -13,12 +13,12 @@ title: Install mksv3 from sources
 5. pygments. (Optional, for highlighting Scheme files)
 6. markdown. (Optional, for Markdown preview)
 
-##### Install on Debian and Debian based
+#### Debian and Debian based
 
    `apt-get install python python-qt4 python-qscintilla2 python-pyparsing python-pygments python-markdown`
-##### Install on other Unixes
+#### Other Unixes
    Find and install listed packages with your package manager
-##### Install on other systems
+#### Other systems
 
 * [http://python.org/download](http://python.org/download)
 * [http://www.riverbankcomputing.co.uk/software/pyqt/download](http://www.riverbankcomputing.co.uk/software/pyqt/download)
