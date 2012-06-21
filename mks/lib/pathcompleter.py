@@ -199,7 +199,14 @@ class PathCompleter(AbstractPathCompleter):
         variants = [path for path in filesAndDirs\
                         if path.startswith(enterredFile)]
         
-        variants = self._filterHidden(variants)
+        notHiddenVariants = self._filterHidden(variants)
+        """If list if not ignored (not hidden) variants is empty, we use list of
+        hidden variants.
+        Use case: user types path "~/.", dotfiles shall be visible and completed
+        """
+        if notHiddenVariants:
+            variants = notHiddenVariants
+        
         variants.sort()
         
         for variant in variants:
