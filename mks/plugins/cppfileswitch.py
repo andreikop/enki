@@ -60,8 +60,8 @@ class Plugin(QObject):
         return any([filePath.endswith(suffix)
                             for suffix in _IMPLEMENTATION_SUFFIXES])
 
-    def _getFileToSwitch(self):
-        """Try to find implementation for header, header for implementation
+    def _tryFindFileOnFileSystem(self):
+        """Try to find file on File system with the same path, but different suffix
         """
         filePath = core.workspace().currentDocument().filePath()
         filePathWithoutSuffix = filePath[:filePath.rindex('.')]
@@ -80,7 +80,39 @@ class Plugin(QObject):
             return existing[0]
         else:
             return None
+        
+    def _tryFindFileAmongOpened(self):
+        """Try to find file with the same name but different suffix among opened files
+        Works, when header and implementation are in different directories, but both opened
+        """
+        fileName = core.workspace().currentDocument().fileName()
+        fileNameWithoutSuffix = fileName[:fileName.rindex('.')]
+
+        if self._isHeader(fileName):
+            variants = [fileNameWithoutSuffix + suffix \
+                            for suffix in _IMPLEMENTATION_SUFFIXES]
+        elif self._isImplementation(fileName):
+            variants = [fileNameWithoutSuffix + suffix \
+                            for suffix in _HEADER_SUFFIXES]
+        
+        matchingDocuments = [document.filePath() \
+                                for document in core.workspace().documents() \
+                                    if document.fileName() in variants]
+        if matchingDocuments:
+            return matchingDocuments[0]
+        else:
+            return None
     
+        
+    def _getFileToSwitch(self):
+        """Try to find implementation for header, header for implementation
+        """
+        res = self._tryFindFileOnFileSystem()
+        if res:
+            return res
+        else:
+            return self._tryFindFileAmongOpened()
+
     def _onTriggered(self):
         """Action handler. Do the job
         """
