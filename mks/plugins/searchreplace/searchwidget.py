@@ -200,9 +200,16 @@ class SearchWidget(QFrame):
         for symbol in (' ,_=\'"/:@#%&'):
             text = text.replace('\\' + symbol, symbol)
         # make \t and \n visible symbols
+        return self._makeEscapeSeqsVisible(text)
+    
+    def _makeEscapeSeqsVisible(self, text):
+        """Replace invisible \n and \t with escape sequences
+        """
+        text = text.replace('\\', '\\\\')
         text = text.replace('\t', '\\t')
-        text = text.replace('\\\n', '\\n')
+        text = text.replace('\n', '\\n')
         return text
+        
     
     def setMode(self, mode ):
         """Change search mode.
@@ -223,7 +230,7 @@ class SearchWidget(QFrame):
            core.workspace().currentDocument().selectedText():
             searchText = core.workspace().currentDocument().selectedText()
 
-            self.cbReplace.setEditText( searchText )
+            self.cbReplace.setEditText(self._makeEscapeSeqsVisible(searchText) )
 
             if self.cbRegularExpression.checkState() == Qt.Checked:
                 searchText = self._regExEscape(searchText)
