@@ -190,6 +190,20 @@ class SearchWidget(QFrame):
         super(SearchWidget, self).setVisible(visible)
         self.visibilityChanged.emit(self.isVisible())
     
+    def _regExEscape(self, text):
+        """Improved version of re.escape()
+        Doesn't escape space, comma, underscore.
+        Escapes \n and \t
+        """
+        text = re.escape(text)
+        # re.escape escapes space, comma, underscore, but, it is not necessary and makes text not readable
+        for symbol in (' ,_=\'"/:@#%&'):
+            text = text.replace('\\' + symbol, symbol)
+        # make \t and \n visible symbols
+        text = text.replace('\t', '\\t')
+        text = text.replace('\\\n', '\\n')
+        return text
+    
     def setMode(self, mode ):
         """Change search mode.
         i.e. from "Search file" to "Replace directory"
@@ -212,7 +226,7 @@ class SearchWidget(QFrame):
             self.cbReplace.setEditText( searchText )
 
             if self.cbRegularExpression.checkState() == Qt.Checked:
-                searchText = re.escape(searchText)
+                searchText = self._regExEscape(searchText)
             self.cbSearch.setEditText( searchText )
         
         if not self.cbReplace.lineEdit().text() and \
