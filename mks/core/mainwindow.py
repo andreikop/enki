@@ -89,7 +89,7 @@ class MainWindow(QMainWindow):
     """  # pylint: disable=W0105
     
     _STATE_FILE = os.path.join(mks.core.defines.CONFIG_DIR, "main_window_state.bin")
-    _GEOMETRY_FILE = os.path.join(mks.core.defines.CONFIG_DIR, "main_window_geometry.bin")
+    _GEOMETRY_FILE = os.path.join(mks.core.defines.CONFIG_DIR, "main_window_geometry.json")
     
     def __init__(self):
         QMainWindow.__init__(self)
@@ -341,6 +341,10 @@ class MainWindow(QMainWindow):
         
         if state is not None:
             self.restoreState(state)
+        else:  # not state, first start
+            self.showMaximized()
+            for dock in self.findChildren(DockWidget):
+                dock.show()
         
     def _saveGeometry(self):
         """Save window geometry to the config file
