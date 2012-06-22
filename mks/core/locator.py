@@ -355,9 +355,7 @@ class _CompleterConstructorThread(QThread):
     def run(self):
         """Thread function
         """
-        self.setTerminationEnabled(True)
         completer = self._command.completer(self._text, self._cursorPos)
-        self.setTerminationEnabled(False)
         self.completerReady.emit(self._command, completer)
 
 
