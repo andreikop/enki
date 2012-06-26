@@ -104,13 +104,6 @@ class EditorConfigurator(ModuleConfigurator):
                           dialog.rbWsVisibleAfterIndent: "VisibleAfterIndent"}),
         ))
     
-    def applySettings(self):
-        """Apply editor and lexer settings
-        """
-        for document in core.workspace().documents():
-            document.applySettings()
-            document.lexer.applySettings()
-
 
 class Plugin:
     """Plugin interface implementation
@@ -121,10 +114,19 @@ class Plugin:
         Plugin.instance = self
         core.workspace().setTextEditorClass(Editor)
         self._shortcuts = shortcuts.Shortcuts()
+        core.uiSettingsManager().dialogAccepted.connect(self._applySettings)
     
     def del_(self):
         self._shortcuts.del_()
         core.workspace().setTextEditorClass(None)
+    
+    def _applySettings(self):
+        """Settings dialogue has been accepted.
+        Apply editor and lexer settings
+        """
+        for document in core.workspace().documents():
+            document.applySettings()
+            document.lexer.applySettings()
     
     def moduleConfiguratorClass(self):
         """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue

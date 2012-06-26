@@ -105,6 +105,11 @@ class Core(QObject):
         if profiler is not None:
             profiler.stepDone('create config')
 
+        import mks.core.uisettings  # pylint: disable=W0404
+        self._uiSettingsManager = mks.core.uisettings.UISettingsManager()
+        if profiler is not None:
+            profiler.stepDone('Create UISettings')
+        
         import mks.core.workspace
         if profiler is not None:
             profiler.stepDone('import workspace')
@@ -114,11 +119,6 @@ class Core(QObject):
         if profiler is not None:
             profiler.stepDone('create workspace')
 
-        import mks.core.uisettings  # pylint: disable=W0404
-        self._uiSettingsManager = mks.core.uisettings.UISettingsManager()
-        if profiler is not None:
-            profiler.stepDone('Create UISettings')
-        
         import mks.core.filefilter
         self._fileFilter = mks.core.filefilter.FileFilter()
         if profiler is not None:
@@ -277,6 +277,14 @@ class Core(QObject):
         Extendable with new commands
         """
         return self._locator
+    
+    def uiSettingsManager(self):
+        """::class:`mks.core.uisettings.UISettingsManager` instance
+        
+        Settings dialogue (Edit -> Settings) manager.
+        Use it for adding own settings to the dialogue
+        """
+        return self._uiSettingsManager
 
 core = Core()  # pylint: disable=C0103
 """Core instance. It is accessible as: 

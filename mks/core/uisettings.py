@@ -71,7 +71,7 @@ Classes for options:
 import sys
 import os.path
 from PyQt4 import uic
-from PyQt4.QtCore import Qt
+from PyQt4.QtCore import pyqtSignal, Qt, QObject
 from PyQt4.QtGui import QColor, \
                         QDialog, \
                         QFont, \
@@ -104,15 +104,6 @@ class ModuleConfigurator:
         """
         pass
 
-    def saveSettings(self):
-        """ Save own settings. If there are own config file, flush it. If module uses core config file - do nothing.
-        """
-        pass
-
-    def applySettings(self):
-        """ Apply module specific settings
-        """
-        pass
 
 class Option:
     """Base class for all Options. Every class knows control on UISettings form, configuration option name,
@@ -283,25 +274,6 @@ class ChoiseOption(Option):
                 _set(self.config, self.optionName, self.cotrolToValue[button])
 
 
-class UISettingsManager:  # pylint: disable=R0903
-    """Add to the main menu *Settings->Settings* action and execute settings dialogue
-    """
-    def __init__(self):
-        self._action = core.actionManager().addAction("mSettings/aSettings",
-                                                    _tr( "Settings.."), 
-                                                    QIcon(':/mksicons/settings.png'))
-        self._action.setStatusTip(_tr( "Edit settigns.."))
-        self._action.triggered.connect(self._onEditSettings)
-    
-    def __del__(self):
-        core.actionManager().removeAction(self._action)
-
-    def _onEditSettings(self):
-        """*Settings->Settings* menu item handler. Open the dialogue
-        """
-        UISettings(core.mainWindow()).exec_()
-
-
 class UISettings(QDialog):
     """Settings dialog widget
     """
@@ -317,8 +289,6 @@ class UISettings(QDialog):
         
         self.setAttribute( Qt.WA_DeleteOnClose )
         self.createOptions()
-        self.accepted.connect(self.saveSettings)
-        self.accepted.connect(self.applySettings)
 
     def createOptions(self):
         """Create and load all opitons. Create ::class:`mks.core.uisettings.ModuleConfigurator` instances
@@ -403,21 +373,10 @@ class UISettings(QDialog):
         self.swPages.addWidget(widget)
         self._pageForItem[path] = widget
 
-    def applySettings(self):
-        """Dialog has been accepted. Call ModuleConfigurators for apply settings
+    def appendOption(self, option):
+        """Append *Option instance to list of options
         """
-        for configurator in self._moduleConfigurators:
-            configurator.applySettings()
-
-    def saveSettings(self):
-        """Flush main configuration file. Call ModuleConfigurators for flush other config files
-        """
-        for configurator in self._moduleConfigurators:
-            configurator.saveSettings()
-        try:
-            core.config().flush()
-        except UserWarning as ex:
-            core.mainWindow().appendMessage(unicode(ex))
+        self._createdObjects.append(option)
 
     def on_twMenu_itemSelectionChanged(self):
         """Qt slot. Switch current page, after item in the pages tree has been selected
@@ -427,3 +386,50 @@ class UISettings(QDialog):
         itemPath = self._itemPath(selectedItem)
         page = self._pageForItem[itemPath]
         self.swPages.setCurrentWidget(page)
+
+
+class UISettingsManager(QObject):  # pylint: disable=R0903
+    """Add to the main menu *Settings->Settings* action and execute settings dialogue
+    """
+    
+    aboutToExecute = pyqtSignal(UISettings)
+    """
+    aboutToExecute(:class:`mks.core.uisettings.UISettings`)
+    
+    **Signal** emitted, when dialog is about to be executed. Plugins shall add own settings to the dialogue
+    """  # pylint: disable=W0105
+    
+    dialogAccepted = pyqtSignal()
+    """
+    accepted()
+    
+    **Signal** emitted, when dialog has been accepted. Plugins shall save and apply settings
+    """  # pylint: disable=W0105
+    
+    def __init__(self):
+        QObject.__init__(self)
+        self._action = core.actionManager().addAction("mSettings/aSettings",
+                                                    _tr( "Settings.."), 
+                                                    QIcon(':/mksicons/settings.png'))
+        self._action.setStatusTip(_tr( "Edit settigns.."))
+        self._action.triggered.connect(self._onEditSettings)
+    
+    def __del__(self):
+        core.actionManager().removeAction(self._action)
+
+    def _onEditSettings(self):
+        """*Settings->Settings* menu item handler. Open the dialogue
+        """
+        dialog = UISettings(core.mainWindow())
+        self.aboutToExecute.emit(dialog)
+        dialog.accepted.connect(self.dialogAccepted)
+        dialog.accepted.connect(self._saveSettings)
+        dialog.exec_()
+
+    def _saveSettings(self):
+        """Flush main configuration file. Call ModuleConfigurators for flush other config files
+        """
+        try:
+            core.config().flush()
+        except UserWarning as ex:
+            core.mainWindow().appendMessage(unicode(ex))

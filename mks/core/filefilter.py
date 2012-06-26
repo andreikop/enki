@@ -24,16 +24,6 @@ class _Configurator(ModuleConfigurator):
         ModuleConfigurator.__init__(self, dialog)
         self._options = \
           [ListOnePerLineOption(dialog, core.config(), "NegativeFileFilter", dialog.pteFilesToHide)]
-    
-    def saveSettings(self):
-        """Settings are stored in the core configuration file, therefore nothing to do here.
-        """
-        pass
-
-    def applySettings(self):
-        """Plugins shall apply the setting
-        """
-        core.fileFilter().applySettings()
 
 
 class FileFilter(QObject):
@@ -50,7 +40,8 @@ class FileFilter(QObject):
     
     def __init__(self):
         QObject.__init__(self)
-        self.applySettings()
+        self._applySettings()
+        core.uiSettingsManager().dialogAccepted.connect(self._applySettings)
         core.moduleConfiguratorClasses.append(_Configurator)
 
     def regExp(self):
@@ -60,10 +51,9 @@ class FileFilter(QObject):
         """
         return self._regExp
     
-    def applySettings(self):
-        """Recompile the regExPatterns
-        
-        Called only by module Configurator
+    def _applySettings(self):
+        """Settings dialogue has been accepted.
+        Recompile the regExPatterns
         """
         filters = core.config()["NegativeFileFilter"]
         regExPatterns = [fnmatch.translate(f) for f in filters]
