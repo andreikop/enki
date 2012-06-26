@@ -9,29 +9,8 @@ from PyQt4.QtCore import QObject, Qt
 from PyQt4.QtGui import QIcon
 
 from mks.core.core import core
-from mks.core.uisettings import ModuleConfigurator, ChoiseOption, TextOption
+from mks.core.uisettings import ChoiseOption, TextOption
 
-
-class Configurator(ModuleConfigurator):
-    """ Module configurator.
-    
-    Used to configure associations on the settings dialogue
-    """
-    def __init__(self, dialog):
-        ModuleConfigurator.__init__(self, dialog)
-        
-        from mitscheme import MitSchemeSettings
-        widget = MitSchemeSettings(dialog)
-        dialog.appendPage(u"Modes/MIT Scheme", widget, QIcon(':/mksicons/languages/scheme.png'))
-
-        # Options
-        self._options = [ ChoiseOption(dialog, core.config(), "Modes/Scheme/Enabled",
-                                       {widget.rbWhenOpened: "whenOpened",
-                                        widget.rbNever: "never",
-                                        widget.rbAlways: "always"}),
-                          TextOption(dialog, core.config(), "Modes/Scheme/InterpreterPath", widget.leInterpreterPath)
-                        ]
-    
 
 class Plugin(QObject):
     """Module implementation
@@ -56,16 +35,12 @@ class Plugin(QObject):
         core.workspace().languageChanged.connect(self._installOrUninstallIfNecessary)
         core.workspace().languageChanged.connect(self._updateEvalActionEnabledState)
         core.uiSettingsManager().dialogAccepted.connect(self._applySettings)
+        core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
         
         self._installOrUninstallIfNecessary()
 
     def __del__(self):
         self.del_()
-
-    def moduleConfiguratorClass(self):
-        """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
-        """
-        return Configurator
 
     def _applySettings(self):
         """Apply settings. Called by configurator class
@@ -76,6 +51,21 @@ class Plugin(QObject):
             self.del_()
         
         self._installOrUninstallIfNecessary()
+    
+    def _onSettingsDialogAboutToExecute(self, dialog):
+        """UI settings dialogue is about to execute.
+        Add own options
+        """
+        from mitscheme import MitSchemeSettings
+        widget = MitSchemeSettings(dialog)
+        dialog.appendPage(u"Modes/MIT Scheme", widget, QIcon(':/mksicons/languages/scheme.png'))
+
+        # Options
+        dialog.appendOption(ChoiseOption(dialog, core.config(), "Modes/Scheme/Enabled",
+                                       {widget.rbWhenOpened: "whenOpened",
+                                        widget.rbNever: "never",
+                                        widget.rbAlways: "always"}))
+        dialog.appendOption(TextOption(dialog, core.config(), "Modes/Scheme/InterpreterPath", widget.leInterpreterPath))
 
     def _isSchemeFile(self, document):
         """Check if document is highlighted as Scheme

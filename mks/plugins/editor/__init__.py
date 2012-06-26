@@ -7,27 +7,44 @@ This text editor is used by default
 
 from mks.core.core import core
 
-from mks.core.uisettings import ModuleConfigurator, \
-                                CheckableOption, ChoiseOption, FontOption, NumericOption, ColorOption
+from mks.core.uisettings import CheckableOption, ChoiseOption, FontOption, NumericOption, ColorOption
 
 import shortcuts
 
 from lexer import Lexer
 from editor import Editor
 
-class EditorConfigurator(ModuleConfigurator):
-    """ModuleConfigurator interface implementation
-    """
-    def __init__(self, dialog):
-        ModuleConfigurator.__init__(self, dialog)
-        self._options = []
-        self._createEditorOptions(dialog)
+
+class Plugin:
+    """Plugin interface implementation
     
-    def _createEditorOptions(self, dialog):
-        """Create editor (not lexer) specific options
+    Installs and removes editor from the system
+    """
+    def __init__(self):
+        Plugin.instance = self
+        core.workspace().setTextEditorClass(Editor)
+        self._shortcuts = shortcuts.Shortcuts()
+        core.uiSettingsManager().dialogAccepted.connect(self._applySettings)
+        core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
+    
+    def del_(self):
+        self._shortcuts.del_()
+        core.workspace().setTextEditorClass(None)
+    
+    def _applySettings(self):
+        """Settings dialogue has been accepted.
+        Apply editor and lexer settings
+        """
+        for document in core.workspace().documents():
+            document.applySettings()
+            document.lexer.applySettings()
+
+    def _onSettingsDialogAboutToExecute(self, dialog):
+        """UI settings dialogue is about to execute.
+        Add own options
         """
         cfg = core.config()
-        self._options.extend(\
+        options = \
         (
             CheckableOption(dialog, cfg, "Editor/Indentation/ConvertUponOpen", dialog.cbConvertIndentationUponOpen),
             CheckableOption(dialog, cfg, "Editor/CreateBackupUponOpen", dialog.cbCreateBackupUponOpen),
@@ -102,33 +119,7 @@ class EditorConfigurator(ModuleConfigurator):
                          {dialog.rbWsInvisible: "Invisible",
                           dialog.rbWsVisible: "Visible",
                           dialog.rbWsVisibleAfterIndent: "VisibleAfterIndent"}),
-        ))
-    
-
-class Plugin:
-    """Plugin interface implementation
-    
-    Installs and removes editor from the system
-    """
-    def __init__(self):
-        Plugin.instance = self
-        core.workspace().setTextEditorClass(Editor)
-        self._shortcuts = shortcuts.Shortcuts()
-        core.uiSettingsManager().dialogAccepted.connect(self._applySettings)
-    
-    def del_(self):
-        self._shortcuts.del_()
-        core.workspace().setTextEditorClass(None)
-    
-    def _applySettings(self):
-        """Settings dialogue has been accepted.
-        Apply editor and lexer settings
-        """
-        for document in core.workspace().documents():
-            document.applySettings()
-            document.lexer.applySettings()
-    
-    def moduleConfiguratorClass(self):
-        """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
-        """
-        return EditorConfigurator
+        )
+        
+        for option in options:
+            dialog.appendOption(option)

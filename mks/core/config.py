@@ -28,7 +28,7 @@ class Config():
     You SHOULD flush config, when writing changed settings is finished.
     Example: ::
         core.config().flush()
-    Usually flushing is done by :class:`mks.core.uisettings.ModuleConfigurator`
+    Usually flushing is done by :class:`mks.core.uisettings.UISettingsManager`
     """
     
     def __init__(self, enableWriting, filePath):

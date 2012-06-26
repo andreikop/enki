@@ -61,11 +61,6 @@ class Core(QObject):
         self._uiSettingsManager = None
         self._fileFilter = None
         self._indentHelpers = {}
-
-        # List of core configurators. To be filled ONLY by other core modules. Readed ONLY by core.uisettings
-        # Use direct access to the list, no methods are provided
-        self.moduleConfiguratorClasses = []
-
         self._loadedPlugins = []
 
     def _prepareToCatchSigInt(self):

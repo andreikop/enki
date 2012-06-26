@@ -15,8 +15,8 @@ Settings dialogue subsystem consists of 3 major entities:
   It loads its option from config to GUI, and saves from GUI to config.
   
   config may be either :class:`mks.core.config.Config` or python dictionary
-* :class:`mks.core.uisettings.ModuleConfigurator` interface. Must be implemented by plugin or core module.
-  Creates and holds *Option objects, applies module settings, when necessary. Flushes config.
+* :class:`mks.core.uisettings.UISettingsManager`. Invokes the dialogue.
+  Emits signals when Plugins shall add own settings to the dialogue and when Plugins shall apply settings
 
 .. raw:: html
 
@@ -28,36 +28,36 @@ Settings dialogue subsystem consists of 3 major entities:
 GUI dialog invocation workflow
 ------------------------------
 
-#. MkS starts. Every plugin registers its ModuleConfigurator
+#. MkS starts. Each plugin connects themselves to **UISettingsManager.aboutToExecute**
 #. An user clicks *Settings->Settings*
 #. UISettings.ui are created
-#. :class:`mks.core.uisettings.UISettingsManager` calls every ModuleConfigurator to load options
-#. ModuleConfigurator creates options. Every option loads its value from the :class:`mks.core.config.Config`
+#. :class:`mks.core.uisettings.UISettingsManager` emits **aboutToExecute**
+#. Each plugins adds own options to the dialogue
+#. Each option loads its value from the :class:`mks.core.config.Config`
 #. The user edits settigns
 #. The user clicks *OK*
-#. :class:`mks.core.uisettings.UISettingsManager` calls every ModuleConfigurator to save settings
-#. ModuleConfigurator calls every option to save settings
-#. :class:`mks.core.uisettings.UISettingsManager` calls every ModuleConfigurator to apply settings
-#. ModuleConfigurator applies module specific settings
+#. Each option writes it's new value to the config
+#. :class:`mks.core.uisettings.UISettingsManager` emits **dialogAccepted**
+#. Each plugin applies own settings
 
 Adding new settings
 -------------------
 
 If you need to add own settings to UISettings dialog, you should:
 
-#. Implement and register your ModuleConfigurator
+#. Connect to UISettingsManager.aboutToExecute and UISettingsManager.dialogAccepted
 #. Add controls to the dialog.
    You may edit UISettings.ui or add your controls dynamically during dialog creation
-   (in *ModuleConfigurator.__init__()*)
-#. Create *Option class instance for every configurable option.
+   (connect to UISettingsManager.aboutToExecute for adding dynamically)
+#. Create *Option class instance for every configurable option on UISettingsManager.aboutToExecute
 
 Classes
 -------
 Main classes:
-    * :class:`mks.core.uisettings.UISettings` - settings dialogue
-    * :class:`mks.core.uisettings.ModuleConfigurator` - plugin configurator
+    * :class:`mks.core.uisettings.UISettings` - settings dialogue. Created when shall be executed
+    * :class:`mks.core.uisettings.UISettingsManager` - manager. Exists always
 
-Classes for options:
+Option types:
     * :class:`mks.core.uisettings.CheckableOption` - bool option, CheckBox
     * :class:`mks.core.uisettings.TextOption` - string option, line edit
     * :class:`mks.core.uisettings.ListOnePerLineOption` - list of strings option, text edit
@@ -93,16 +93,6 @@ def _set(config, key, value):
         config.set(key, value)
     else:
         config[key] = value
-
-class ModuleConfigurator:
-    """Interface, which must be implemented by core module or plugin, which needs to configure themselves via GUI dialog.
-    
-    See :class:`mks.core.openedfilemodel.Configurator` source for simple example of class implementation
-    """
-    def __init__(self, dialog):
-        """Create all options. Every option loads its value during creation
-        """
-        pass
 
 
 class Option:
@@ -282,28 +272,11 @@ class UISettings(QDialog):
         QDialog.__init__(self, parent)
         self._createdObjects = []
         self._pageForItem = {}
-        self._moduleConfigurators = []
 
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/UISettings.ui'), self)
         self.swPages.setCurrentIndex(0)
         
         self.setAttribute( Qt.WA_DeleteOnClose )
-        self.createOptions()
-
-    def createOptions(self):
-        """Create and load all opitons. Create ::class:`mks.core.uisettings.ModuleConfigurator` instances
-        """
-        
-        # Get core and plugin configurators
-        moduleConfiguratorClasses = []
-        moduleConfiguratorClasses.extend(core.moduleConfiguratorClasses)
-        for plugin in core.loadedPlugins():
-            if hasattr(plugin, 'moduleConfiguratorClass'):  # If plugin has configurator
-                moduleConfiguratorClasses.append(plugin.moduleConfiguratorClass())
-        
-        # Create configurator instances
-        for moduleConfiguratorClass in moduleConfiguratorClasses:
-            self._moduleConfigurators.append(moduleConfiguratorClass(self))
 
         # Expand all tree widget items
         self._pageForItem.update (  {u"General": self.pGeneral,
@@ -344,15 +317,11 @@ class UISettings(QDialog):
         return '/'.join(parts)
 
     def appendPage(self, path, widget, icon=None):
-        """Append page to the tree. Called by a plugin module configurator to create own page. Example:
+        """Append page to the tree. Called by a plugin for creating own page. Example:
         ::
         
-            class Configurator(ModuleConfigurator):
-                def __init__(self, dialog):
-                    ModuleConfigurator.__init__(self, dialog)
-                    
-                    widget = MitSchemeSettings(dialog)
-                    dialog.appendPage(u"Modes/MIT Scheme", widget, QIcon(':/mksicons/languages/scheme.png'))
+            widget = MitSchemeSettings(dialog)
+            dialog.appendPage(u"Modes/MIT Scheme", widget, QIcon(':/mksicons/languages/scheme.png'))
         
         """
         pathParts = path.split('/')
@@ -427,7 +396,7 @@ class UISettingsManager(QObject):  # pylint: disable=R0903
         dialog.exec_()
 
     def _saveSettings(self):
-        """Flush main configuration file. Call ModuleConfigurators for flush other config files
+        """Flush main configuration file.
         """
         try:
             core.config().flush()

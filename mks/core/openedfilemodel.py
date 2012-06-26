@@ -26,25 +26,8 @@ from PyQt4.QtGui import QAbstractItemView, QAction, QActionGroup, \
 from PyQt4 import uic
 
 from mks.core.core import core, DATA_FILES_PATH
-from mks.core.uisettings import ChoiseOption, ModuleConfigurator
+from mks.core.uisettings import ChoiseOption
 from mks.widgets.dockwidget import DockWidget
-
-class Configurator(ModuleConfigurator):
-    """ Module configurator.
-    
-    Used for configure files sorting mode
-    """
-    _SORT_MODE = ["OpeningOrder", "FileName", "URL", "Suffixes"]
-    def __init__(self, dialog):
-        ModuleConfigurator.__init__(self, dialog)
-        cfg = core.config()
-        self._options = \
-        [   ChoiseOption(dialog, cfg, "Workspace/FileSortMode",
-                         {dialog.rbOpeningOrder: "OpeningOrder",
-                          dialog.rbFileName: "FileName",
-                          dialog.rbUri: "URL",
-                          dialog.rbSuffix: "Suffixes"})
-        ]
 
 
 class _OpenedFileModel(QAbstractItemModel):
@@ -376,12 +359,11 @@ class OpenedFileExplorer(DockWidget):
         core.actionManager().addAction("mView/aOpenedFiles", self.showAction(), shortcut="Alt+O")
         
         core.uiSettingsManager().dialogAccepted.connect(self._applySettings)
-        core.moduleConfiguratorClasses.append(Configurator)
+        core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
     
     def del_(self):
         """Explicitly called destructor
         """
-        core.moduleConfiguratorClasses.remove(Configurator)
         core.actionManager().removeAction("mView/aOpenedFiles")
 
     def _applySettings(self):
@@ -389,6 +371,16 @@ class OpenedFileExplorer(DockWidget):
         Apply settings
         """
         self.model.setSortMode(core.config()["Workspace"]["FileSortMode"])
+
+    def _onSettingsDialogAboutToExecute(self, dialog):
+        """UI settings dialogue is about to execute.
+        Add own option
+        """
+        dialog.appendOption(ChoiseOption(dialog, core.config(), "Workspace/FileSortMode",
+                                         {dialog.rbOpeningOrder: "OpeningOrder",
+                                          dialog.rbFileName: "FileName",
+                                          dialog.rbUri: "URL",
+                                          dialog.rbSuffix: "Suffixes"}))
 
     def startModifyModel(self):
         """Blocks signals from model while it is modified by code

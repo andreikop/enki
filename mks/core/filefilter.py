@@ -15,15 +15,7 @@ import re
 from PyQt4.QtCore import pyqtSignal, QObject
 
 from mks.core.core import core
-from mks.core.uisettings import ModuleConfigurator, ListOnePerLineOption
-
-class _Configurator(ModuleConfigurator):
-    """ModuleConfigurator implementation
-    """
-    def __init__(self, dialog):
-        ModuleConfigurator.__init__(self, dialog)
-        self._options = \
-          [ListOnePerLineOption(dialog, core.config(), "NegativeFileFilter", dialog.pteFilesToHide)]
+from mks.core.uisettings import ListOnePerLineOption
 
 
 class FileFilter(QObject):
@@ -42,7 +34,7 @@ class FileFilter(QObject):
         QObject.__init__(self)
         self._applySettings()
         core.uiSettingsManager().dialogAccepted.connect(self._applySettings)
-        core.moduleConfiguratorClasses.append(_Configurator)
+        core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
 
     def regExp(self):
         """Get negative filer reg exp.
@@ -51,6 +43,12 @@ class FileFilter(QObject):
         """
         return self._regExp
     
+    def _onSettingsDialogAboutToExecute(self, dialog):
+        """UI settings dialogue is about to execute.
+        Add own option
+        """
+        dialog.appendOption(ListOnePerLineOption(dialog, core.config(), "NegativeFileFilter", dialog.pteFilesToHide))
+        
     def _applySettings(self):
         """Settings dialogue has been accepted.
         Recompile the regExPatterns
