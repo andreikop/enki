@@ -18,37 +18,8 @@ from PyQt4.QtCore import QFileInfo
 from PyQt4.QtGui import QAction, QIcon, QWidget, QTreeWidgetItem
 
 from mks.core.core import core
-from mks.core.uisettings import ListOnePerLineOption, ModuleConfigurator
+from mks.core.uisettings import ListOnePerLineOption
 
-
-class Configurator(ModuleConfigurator):
-    """ Module configurator.
-    
-    Used to configure associations on the settings dialogue
-    """
-    def __init__(self, dialog):
-        ModuleConfigurator.__init__(self, dialog)
-        self._options = []
-        for index, language in enumerate(Plugin.instance.iterLanguages()):
-            languageName, fileNameGlobs, firstLineGlobs, iconPath = language  # pylint: disable=W0612
-            # Widget
-            widget = self._createWidget(dialog)
-            dialog.appendPage(u"File associations/%s" % languageName, widget, QIcon(iconPath))
-            # Options
-            optionPath = "Associations/%s/FileName" % languageName
-            option = ListOnePerLineOption(dialog, core.config(), optionPath, widget.pteFileNameGlobs)
-            self._options.append(option)
-            optionPath = "Associations/%s/FirstLine" % languageName
-            option = ListOnePerLineOption(dialog, core.config(), optionPath, widget.pteFirstLineGlobs)
-            self._options.append(option)
-
-    def _createWidget(self, dialog):
-        """Create configuration widget
-        """
-        widget = QWidget(dialog)
-        uic.loadUi(os.path.join(os.path.dirname(__file__), 'Associations.ui'), widget)
-        return widget
-    
 
 class Plugin():
     """Module functionality
@@ -66,6 +37,7 @@ class Plugin():
         core.workspace().modifiedChanged.connect(self._onDocumentModifiedChanged)
         
         core.uiSettingsManager().dialogAccepted.connect(self._applySettings)
+        core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
         
         Plugin.instance = self
 
@@ -75,12 +47,26 @@ class Plugin():
         """
         for document in core.workspace().documents():
             self._applyLanguageToDocument(document)
-        
-    def moduleConfiguratorClass(self):
-        """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
+
+    def _onSettingsDialogAboutToExecute(self, dialog):
+        """UI settings dialogue is about to execute.
+        Add own option
         """
-        return Configurator
-    
+        for index, language in enumerate(Plugin.instance.iterLanguages()):
+            languageName, fileNameGlobs, firstLineGlobs, iconPath = language  # pylint: disable=W0612
+            # Widget
+            widget = QWidget(dialog)
+            uic.loadUi(os.path.join(os.path.dirname(__file__), 'Associations.ui'), widget)
+
+            dialog.appendPage(u"File associations/%s" % languageName, widget, QIcon(iconPath))
+            # Options
+            optionPath = "Associations/%s/FileName" % languageName
+            option = ListOnePerLineOption(dialog, core.config(), optionPath, widget.pteFileNameGlobs)
+            dialog.appendOption(option)
+            optionPath = "Associations/%s/FirstLine" % languageName
+            option = ListOnePerLineOption(dialog, core.config(), optionPath, widget.pteFirstLineGlobs)
+            dialog.appendOption(option)
+
     def del_(self):
         """Plugin termination
         """
