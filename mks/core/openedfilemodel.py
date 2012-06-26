@@ -45,19 +45,6 @@ class Configurator(ModuleConfigurator):
                           dialog.rbUri: "URL",
                           dialog.rbSuffix: "Suffixes"})
         ]
-    
-    def saveSettings(self):
-        """Settings are stored in the core configuration file, therefore nothing to do here.
-        
-        Called by :mod:`mks.core.uisettings`
-        """
-
-    def applySettings(self):
-        """Apply settings
-        
-        Called by :mod:`mks.core.uisettings`
-        """
-        core.workspace().openedFileExplorer.model.setSortMode(core.config()["Workspace"]["FileSortMode"])
 
 
 class _OpenedFileModel(QAbstractItemModel):
@@ -387,6 +374,8 @@ class OpenedFileExplorer(DockWidget):
         self.tvFiles.activated.connect(self._workspace.focusCurrentDocument)
         
         core.actionManager().addAction("mView/aOpenedFiles", self.showAction(), shortcut="Alt+O")
+        
+        core.uiSettingsManager().dialogAccepted.connect(self._applySettings)
         core.moduleConfiguratorClasses.append(Configurator)
     
     def del_(self):
@@ -394,7 +383,13 @@ class OpenedFileExplorer(DockWidget):
         """
         core.moduleConfiguratorClasses.remove(Configurator)
         core.actionManager().removeAction("mView/aOpenedFiles")
-    
+
+    def _applySettings(self):
+        """Settings dialogue has been accepted.
+        Apply settings
+        """
+        self.model.setSortMode(core.config()["Workspace"]["FileSortMode"])
+
     def startModifyModel(self):
         """Blocks signals from model while it is modified by code
         """

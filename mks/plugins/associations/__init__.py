@@ -49,20 +49,6 @@ class Configurator(ModuleConfigurator):
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Associations.ui'), widget)
         return widget
     
-    def saveSettings(self):
-        """Settings are stored in the core configuration file, therefore nothing to do here.
-        
-        Called by :mod:`mks.core.uisettings`
-        """
-        pass
-    
-    def applySettings(self):
-        """Apply associations to opened documents.
-        
-        Called by :mod:`mks.core.uisettings`
-        """
-        for document in core.workspace().documents():
-            Plugin.instance.applyLanguageToDocument(document)
 
 class Plugin():
     """Module functionality
@@ -71,7 +57,7 @@ class Plugin():
     instance = None
 
     def __init__(self):
-        core.workspace().documentOpened.connect(self.applyLanguageToDocument)
+        core.workspace().documentOpened.connect(self._applyLanguageToDocument)
         
         self._menu = core.actionManager().action("mView/mHighlighting").menu()
         
@@ -79,8 +65,17 @@ class Plugin():
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
         core.workspace().modifiedChanged.connect(self._onDocumentModifiedChanged)
         
+        core.uiSettingsManager().dialogAccepted.connect(self._applySettings)
+        
         Plugin.instance = self
 
+    def _applySettings(self):
+        """Settings dialogue has been accepted.
+        Apply settings to opened documents
+        """
+        for document in core.workspace().documents():
+            self._applyLanguageToDocument(document)
+        
     def moduleConfiguratorClass(self):
         """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
         """
@@ -103,7 +98,7 @@ class Plugin():
                 iconPath = ":/mksicons/transparent.png"
             yield (languageName, params["FileName"], params["FirstLine"], iconPath)
 
-    def applyLanguageToDocument(self, document):
+    def _applyLanguageToDocument(self, document):
         """Signal handler. Executed when document has been opened. Applyes lexer
         """
         language = self._getLanguage(document)
@@ -117,7 +112,7 @@ class Plugin():
             return
         
         if not hasattr(document, "languageIsManualySet"):
-            self.applyLanguageToDocument(document)
+            self._applyLanguageToDocument(document)
 
     def _getLanguage(self, document):
         """Get language name by file path

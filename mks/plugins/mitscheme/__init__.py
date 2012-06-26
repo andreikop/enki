@@ -32,19 +32,6 @@ class Configurator(ModuleConfigurator):
                           TextOption(dialog, core.config(), "Modes/Scheme/InterpreterPath", widget.leInterpreterPath)
                         ]
     
-    def saveSettings(self):
-        """Settings are stored in the core configuration file, therefore nothing to do here.
-        
-        Called by :mod:`mks.core.uisettings`
-        """
-        pass
-    
-    def applySettings(self):
-        """Apply associations to opened documents.
-        
-        Called by :mod:`mks.core.uisettings`
-        """
-        Plugin.instance.applySettings()
 
 class Plugin(QObject):
     """Module implementation
@@ -68,19 +55,19 @@ class Plugin(QObject):
         core.workspace().currentDocumentChanged.connect(self._updateEvalActionEnabledState)
         core.workspace().languageChanged.connect(self._installOrUninstallIfNecessary)
         core.workspace().languageChanged.connect(self._updateEvalActionEnabledState)
+        core.uiSettingsManager().dialogAccepted.connect(self._applySettings)
+        
         self._installOrUninstallIfNecessary()
-        Plugin.instance = self
 
     def __del__(self):
         self.del_()
-        Plugin.instance = None
 
     def moduleConfiguratorClass(self):
         """ ::class:`mks.core.uisettings.ModuleConfigurator` used to configure plugin with UISettings dialogue
         """
         return Configurator
 
-    def applySettings(self):
+    def _applySettings(self):
         """Apply settings. Called by configurator class
         """
         # if path has been changed - restart the interpreter
