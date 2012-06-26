@@ -9,12 +9,14 @@ Contains definition of AbstractCommand and AbstractCompleter interfaces
 
 
 
-from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QModelIndex, QSize, Qt, QTimer, QThread
+from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QModelIndex, QSize, Qt, QTimer
 from PyQt4.QtGui import QApplication, QDialog, QFontMetrics, QMessageBox, QPalette, QSizePolicy, \
                         QStyle, QStyleOptionFrameV2, \
                         QTextCursor, QLineEdit, QTextOption, QTreeView, QVBoxLayout
 
 import os
+import threading
+import Queue
 
 from mks.core.core import core
 from mks.lib.htmldelegate import HTMLDelegate
@@ -330,33 +332,54 @@ class _CompletableLineEdit(QLineEdit):
         self.setSelection(self.cursorPosition(), -len(text))
 
 
-class _CompleterConstructorThread(QThread):
+class _CompleterConstructorThread(threading.Thread):
     """Thread constructs Completer
     Sometimes it requires a lot of time, i.e. when expanding "/usr/lib/*"
+    hlamer: I tried to use QThread + pyqtSignal, but got tired with crashes and deadlocks
     """
     
-    completerReady = pyqtSignal(object, object)
-    
-    def __init__(self):
-        QThread.__init__(self)
-    
-    def __del__(self):
-        self.terminate()
-        self.wait()
-    
+    def __init__(self, locator):
+        """Works in the GUI thread
+        """
+        threading.Thread.__init__(self)
+        
+        self._locator = locator
+        self._queue = Queue.Queue()
+        self._checkQueueTimer = QTimer()
+        self._checkQueueTimer.setInterval(50)
+        self._checkQueueTimer.timeout.connect(self._checkQueue)
+
+    def _checkQueue(self):
+        """Check if thread constructed a completer and put it to the queue
+        Works in the GUI thread
+        """
+        if not self._queue.empty():
+            command, completer = self._queue.get()
+            self._locator._applyCompleter(command, completer)
+
     def start(self, command, text, cursorPos):
         """Start constructing completer
+        Works in the GUI thread
         """
+        self._terminated = False
         self._command = command
         self._text = text
         self._cursorPos = cursorPos
-        QThread.start(self)
-    
+        self._checkQueueTimer.start()
+        threading.Thread.start(self)
+
+    def terminate(self):
+        """Set termination flag
+        Works in the GUI thread
+        """
+        self._checkQueueTimer.stop()
+
     def run(self):
         """Thread function
+        Works in NEW thread
         """
         completer = self._command.completer(self._text, self._cursorPos)
-        self.completerReady.emit(self._command, completer)
+        self._queue.put([self._command, completer])
 
 
 class Locator(QDialog):
@@ -462,13 +485,12 @@ class Locator(QDialog):
         if command is not None:
             if self._completerConstructorThread is not None:
                 self._completerConstructorThread.terminate()
-            self._completerConstructorThread = _CompleterConstructorThread()
-            self._completerConstructorThread.completerReady.connect(self._applyCompleter)
+            self._completerConstructorThread = _CompleterConstructorThread(self)
 
             self._loadingTimer.start()
             self._completerConstructorThread.start(command,
-                               self._edit.text(),
-                               self._edit.cursorPosition())
+                                                   self._edit.text(),
+                                                   self._edit.cursorPosition())
         else:
             self._applyCompleter(None, _HelpCompleter(self._availableCommands()))
 
