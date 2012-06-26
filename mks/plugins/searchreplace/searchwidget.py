@@ -205,7 +205,6 @@ class SearchWidget(QFrame):
     def _makeEscapeSeqsVisible(self, text):
         """Replace invisible \n and \t with escape sequences
         """
-        text = text.replace('\\', '\\\\')
         text = text.replace('\t', '\\t')
         text = text.replace('\n', '\\n')
         return text
