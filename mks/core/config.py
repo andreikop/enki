@@ -126,3 +126,8 @@ class Config():
         """Python dictionary interface implementation
         """
         self._data[key] = value
+
+    def __contains__(self, key):
+        """Python dictionary interface implementation
+        """
+        return key in self._data
