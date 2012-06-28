@@ -125,8 +125,13 @@ class Core(QObject):
             profiler.stepDone('Create Locator')
         
         # Create plugins
+        if profiler is not None:
+            firstPlugin = True
         pluginsPath = os.path.join(os.path.dirname(__file__), '../plugins')
         for loader, name, isPackage in pkgutil.iter_modules([pluginsPath]):
+            if profiler is not None and firstPlugin:
+                firstPlugin = False
+                profiler.stepDone('Search plugins')
             self._loadPlugin(name)
             
             if profiler is not None:
