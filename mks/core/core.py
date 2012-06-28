@@ -135,7 +135,7 @@ class Core(QObject):
             self._loadPlugin(name)
             
             if profiler is not None:
-                profiler.stepDone('Load %s' % name)
+                profiler.stepDone('  Load %s' % name)
 
     def term(self):
         """Terminate plugins and core modules

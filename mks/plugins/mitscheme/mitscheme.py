@@ -9,7 +9,6 @@ import os.path
 
 from PyQt4.QtCore import pyqtSignal, QEvent, QObject, Qt, QTimer
 from PyQt4.QtGui import QFileDialog, QIcon, QMessageBox, QWidget
-from PyQt4 import uic
 
 from mks.core.core import core
 
@@ -27,6 +26,7 @@ class MitSchemeSettings(QWidget):
     """
     def __init__(self, *args):
         QWidget.__init__(self, *args)
+        from PyQt4 import uic  # lazy import for better startup performance
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'MitSchemeSettings.ui'), self)
         self.pbInterpreterPath.clicked.connect(self._onPbInterpreterPathClicked)
     
