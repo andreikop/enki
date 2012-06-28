@@ -113,7 +113,7 @@ class ConverterThread(QThread):
                    "Install it with your package manager or see " \
                    "<a href=http://packages.python.org/Markdown/install.html>installation instructions</a>"
         
-        return markdown.markdown(text, ['fenced_code'])
+        return markdown.markdown(text, ['fenced_code', 'nl2br'])
 
     def run(self):
         """Thread function
