@@ -201,15 +201,16 @@ def main():
                     core.workspace().openFile(filePath)
             else:
                 core.workspace().createEmptyNotSavedDocument(filePath)
-    else:
-        if core.workspace().textEditorClass():
-            core.workspace().createEmptyNotSavedDocument()
 
     if profiler is not None:
         profiler.stepDone('Open files')
 
     if not cmdLine["no-session"]:
         core.restoreSession.emit()
+    else:  # no session
+        if core.workspace().currentDocument() is None and \
+           core.workspace().textEditorClass() is not None:
+            core.workspace().createEmptyNotSavedDocument()
 
     if profiler is not None:
         profiler.stepDone('Restore session')
@@ -235,10 +236,10 @@ def main():
     core.term()
 
     if profiler is not None:
-        profiler.stepDone('Terminate core')
+        profiler.printInfo()
 
     if profiler is not None:
-        profiler.printInfo()
+        profiler.stepDone('Terminate core')
 
     return result
 
