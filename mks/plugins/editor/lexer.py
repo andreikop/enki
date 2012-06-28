@@ -6,7 +6,6 @@ lexer --- QScintilla lexers management
 import os.path
 import json
 
-from PyQt4 import uic
 from PyQt4.QtGui import QColor, QFont, QWidget
 
 from PyQt4.Qsci import *  # pylint: disable=W0401,W0614

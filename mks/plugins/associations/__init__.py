@@ -13,7 +13,6 @@ Functionality:
 import os.path
 import fnmatch
 
-from PyQt4 import uic
 from PyQt4.QtCore import QFileInfo
 from PyQt4.QtGui import QAction, QIcon, QWidget, QTreeWidgetItem
 
@@ -52,6 +51,7 @@ class Plugin():
         """UI settings dialogue is about to execute.
         Add own option
         """
+        from PyQt4 import uic  # lazy import for better startup performance
         for index, language in enumerate(Plugin.instance.iterLanguages()):
             languageName, fileNameGlobs, firstLineGlobs, iconPath = language  # pylint: disable=W0612
             # Widget

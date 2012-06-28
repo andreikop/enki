@@ -70,7 +70,7 @@ Option types:
 
 import sys
 import os.path
-from PyQt4 import uic
+
 from PyQt4.QtCore import pyqtSignal, Qt, QObject
 from PyQt4.QtGui import QColor, \
                         QDialog, \
@@ -273,6 +273,7 @@ class UISettings(QDialog):
         self._createdObjects = []
         self._pageForItem = {}
 
+        from PyQt4 import uic  # lazy import for better startup performance
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/UISettings.ui'), self)
         self.swPages.setCurrentIndex(0)
         

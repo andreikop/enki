@@ -23,7 +23,6 @@ from PyQt4.QtGui import QAbstractItemView, QAction, QActionGroup, \
                         QMenu, \
                         QTreeView
 
-from PyQt4 import uic
 
 from mks.core.core import core, DATA_FILES_PATH
 from mks.core.uisettings import ChoiseOption
