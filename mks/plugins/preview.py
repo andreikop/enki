@@ -5,7 +5,6 @@ preview --- HTML, Markdown preview
 
 from PyQt4.QtCore import pyqtSignal, QObject, QSize, Qt, QThread
 from PyQt4.QtGui import QIcon
-from PyQt4.QtWebKit import QWebView
 
 from mks.core.core import core
 
@@ -146,6 +145,7 @@ class PreviewDock(DockWidget):
         self.setWindowIcon(QIcon(':/mksicons/internet.png'))
         self.showAction().setShortcut("Alt+P")
 
+        from PyQt4.QtWebKit import QWebView  # delayed import, startup performance optimization
         self._view = QWebView(self)
         self._view.page().mainFrame().titleChanged.connect(self._updateTitle)
         self.setWidget(self._view)
