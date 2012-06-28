@@ -24,13 +24,12 @@ class Plugin:
         """
         pass
 
-    def _onRestoreSession(self):
-        """mksv3 initialisation finished.
-        Now restore session
+    def _restoreSession(self):
+        """Try to restore session.
+        Returns bool result
         """
         # if have documents except 'untitled' new doc, don't restore session
-        if [document for document in core.workspace().documents() \
-                if document.filePath() is not None]:
+        if core.workspace().currentDocument() is not None:
             return
         
         if not os.path.exists(_SESSION_FILE_PATH):
@@ -56,6 +55,15 @@ class Plugin:
                 return
             
             core.workspace().setCurrentDocument(document)
+        
+    def _onRestoreSession(self):
+        """mksv3 initialisation finished.
+        Now restore session
+        """
+        self._restoreSession()
+        if core.workspace().currentDocument() is None:  # no session or failed to restore
+            if core.workspace().textEditorClass():
+                core.workspace().createEmptyNotSavedDocument()
 
     def _onAboutToTerminate(self):
         """mksv3 is going to be terminated.
