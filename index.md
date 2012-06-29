@@ -11,10 +11,10 @@ root: .
 
 
 * **User friendly.** Intuitive interface. Works out of the box. You don't have to read a lot of docs
-* **Hacker friendly**. Code as quickly as possible. Without mouse.
-* **Minimalistic interface**. Screen is used for code, not for bells and whistles.
-* **High quality**. No long list of fancy features. But, what is done, is done well.
+* **Hacker friendly.** Code as quickly as possible. Without mouse.
+* **Lighweight.** Some IDEs show splashscreen. mksv3 will never do it. It just starts quickly.
 * **Extensible.** Missing feature or language support? Don't create a new IDE, create a plugin
+* **High quality.** No long list of fancy features. But, what is done, is done well.
 
 See [Features](features.html) and [Why new code editor?](why-new.html)
     
