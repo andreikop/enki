@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Install mksv3 from sources
+title: Install enki from sources
 ---
 
 # Instal from sources
@@ -29,7 +29,7 @@ title: Install mksv3 from sources
 
 ## 2. Get the sources
 
-Download from [github tags](https://github.com/hlamer/mksv3/tags) and unpack
+Download from [github tags](https://github.com/hlamer/enki/tags) and unpack
 
 ## 3. Setup
     

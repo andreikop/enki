@@ -1,6 +1,6 @@
 ---
 layout: default
-title: mksv3 irc channel
+title: enki irc channel
 root: .
 ---
 

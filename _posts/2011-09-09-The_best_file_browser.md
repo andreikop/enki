@@ -55,4 +55,4 @@ So, I think, here is the best text editor File Browser:
 
 Of course, I'm trolling you with this _the best_. Try to argue, that it is possible to do even better ;)
 
-Now this file browser included to mksv3. But, it is not released yet, only available as sources.
+Now this file browser included to enki. But, it is not released yet, only available as sources.

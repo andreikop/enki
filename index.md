@@ -1,18 +1,15 @@
 ---
 layout: default
-title: mksv3. Code editor
+title: Enki. Code editor
 root: .
 ---
 
 
-# mksv3
-
-mksv3 is a text editor for programmers. It is:
-
+enki is a text editor for programmers. It is:
 
 * **User friendly.** Intuitive interface. Works out of the box. You don't have to read a lot of docs
 * **Hacker friendly.** Code as quickly as possible. Without mouse.
-* **Lighweight.** Some IDEs show splashscreen. mksv3 will never do it. It just starts quickly.
+* **Lighweight.** Some IDEs show splashscreen. enki will never do it. It just starts quickly.
 * **Extensible.** Operating systems are designer for running applications. MkS is designed for running plugins.
 * **High quality.** No long list of fancy features. But, what is done, is done well.
 * **Open source.** This is our religion.

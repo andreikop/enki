@@ -1,6 +1,6 @@
 ---
 layout: default
-title: mksv3 team
+title: Enki team
 ---
 
 
@@ -10,7 +10,7 @@ title: mksv3 team
 
 [hlamer@tut.by](mailto:hlamer@tut.by)
 
-mksv3 developer
+enki developer
 
 ## Filipe Azevedo
 **PasNox**

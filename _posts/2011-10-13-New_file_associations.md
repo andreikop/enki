@@ -8,7 +8,7 @@ title: New file associations
 I just finished file associations for syntax highlighting.
 
 * Now it is possible to switch current langauge
-* Now mksv3 tries to recognize file type by its first line
+* Now enki tries to recognize file type by its first line
 
 <table>
     <td>

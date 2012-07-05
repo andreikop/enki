@@ -5,7 +5,7 @@ title: Scheme REPL integration
 
 ## Scheme REPL integration
 
-mksv3 supports MIT Scheme interpreter integration. It allows 
+enki supports MIT Scheme interpreter integration. It allows 
 you to quickly execute code, which is contained in your current opened file, and to evaluate expressions interactively with REPL.
 
 ### Activating scheme mode
@@ -21,12 +21,12 @@ In the MIT Scheme dock you can evaluate your expressions. If you don't see the d
 Remember that you can use *F8* to jump to dock, and *Ctrl+Enter* to return back to the code
 
 ### Debugging
-mksv3 does not support GUI debugging. But, you can use MIT Scheme interpreter functionality. See http://www.gnu.org/software/mit-scheme/
+enki does not support GUI debugging. But, you can use MIT Scheme interpreter functionality. See http://www.gnu.org/software/mit-scheme/
 
 ### Indentation
-By default, mksv3 indents Scheme files according to http://community.schemewiki.org/?scheme-style. If you want to disable smart indentation, edit ''SchemeIndentHelper'' option in your ${HOME}/.mksv3/mksv3.json
+By default, enki indents Scheme files according to http://community.schemewiki.org/?scheme-style. If you want to disable smart indentation, edit ''SchemeIndentHelper'' option in your ${HOME}/.enki/enki.json
 
-### Make mksv3 Scheme mode better
+### Make enki Scheme mode better
 hlamer: I created this mode for my SICP exercises (When I'm writing this post, I'm near to finish 3rd chapter). I'm not an experienced schemer, and not an emacs guru. If you know, how to enhance the mode, say me.
 
 <iframe width="720" height="540" src="http://www.youtube.com/embed/yr66IRF4__M" frameborder="0" allowfullscreen="true"></iframe>

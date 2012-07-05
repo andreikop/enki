@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Download mksv3
+title: Download enki
 ---
 
 
@@ -10,7 +10,7 @@ Supported versions are 10.04 - 11.10. For other, see [Debian instructions](insta
 
     sudo add-apt-repository ppa:monkeystudio/ppa
     sudo apt-get update
-    sudo apt-get install mksv3
+    sudo apt-get install enki
     
 ### Enjoy
 Don't forget to send a bug report, if you are having some problems
