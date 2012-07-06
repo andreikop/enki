@@ -209,23 +209,21 @@ class SearchWidget(QFrame):
         text = text.replace('\t', '\\t')
         text = text.replace('\n', '\\n')
         return text
-        
     
     def setMode(self, mode ):
         """Change search mode.
         i.e. from "Search file" to "Replace directory"
         """
-        if self._mode == mode and \
-           self.isVisible() and \
-           not core.workspace().currentDocument().hasFocus():
-            self.cbSearch.lineEdit().selectAll()
-            self.cbSearch.setFocus()
-            return
+        if self._mode == mode and self.isVisible():
+            if core.workspace().currentDocument() is not None and \
+               not core.workspace().currentDocument().hasFocus():
+                self.cbSearch.lineEdit().selectAll()
+                self.cbSearch.setFocus()
 
         self._mode = mode
 
         # Set Search and Replace text
-        if core.workspace().currentDocument() and \
+        if core.workspace().currentDocument() is not None and \
            core.workspace().currentDocument().hasFocus() and \
            core.workspace().currentDocument().selectedText():
             searchText = core.workspace().currentDocument().selectedText()

@@ -130,6 +130,7 @@ class Plugin():
         """View -> Highlighting menu is about to show. Fill it with items
         """
         self._menu.clear()
+        # if menu is enabled - current document is not NULL
         currentLanguage = core.workspace().currentDocument().language()
         for languageName, fileNameGlobs, firstLineGlobs, iconPath in self.iterLanguages():  # pylint: disable=W0612
             action = QAction(QIcon(iconPath), languageName, self._menu)
