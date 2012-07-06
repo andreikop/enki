@@ -12,7 +12,7 @@ Classes:
 
 import os.path
 
-from PyQt4.QtCore import pyqtSignal, QFileSystemWatcher, QObject
+from PyQt4.QtCore import pyqtSignal, QFileSystemWatcher, QObject, QTimer
 from PyQt4.QtGui import QFileDialog, \
                         QIcon, \
                         QInputDialog, \
@@ -28,14 +28,20 @@ class _FileWatcher(QObject):
     But, we need signal, only after file contents had been changed
     """
     modified = pyqtSignal(bool)
-    removed = pyqtSignal()
+    removed = pyqtSignal(bool)
     
     def __init__(self, path):
         QObject.__init__(self)
         self._contents = None
         self._watcher = QFileSystemWatcher()
+        self._timer = None
+        self._fileRemoved = False
+        self._path = path
         self.setPath(path)
         self.enable()
+    
+    def __del__(self):
+        self._stopTimer()
         
     def enable(self):
         """Enable signals from the watcher
@@ -63,13 +69,40 @@ class _FileWatcher(QObject):
             self._watcher.addPath(path)
         self._path = path
 
-    def _onFileChanged(self, path):
+    def _onFileChanged(self):
         """File changed. Emit own signal, if contents changed
         """
-        if os.path.exists(path):
-            self.modified.emit(self._contents != self._safeRead(path))
+        if os.path.exists(self._path):
+            if self._fileRemoved:
+                self.removed.emit(False)
+                self._fileRemoved = False
+                self.setPath(self._path)  # restart Qt file watcher after file has been restored
+            self.modified.emit(self._contents != self._safeRead(self._path))
+            self._stopTimer()
         else:
-            self.removed.emit()
+            if not self._fileRemoved:
+                self.removed.emit(True)
+                self._fileRemoved = True
+            self._startTimer()
+    
+    def _startTimer(self):
+        """Init a timer.
+        It is used for monitoring file after deletion.
+        Git removes file, than restores it.
+        """
+        if self._timer is None:
+            self._timer = QTimer()
+            self._timer.setInterval(500)
+            self._timer.timeout.connect(self._onFileChanged)
+        self._timer.start()
+    
+    def _stopTimer(self):
+        """Stop timer, if exists
+        """
+        if self._timer is not None:
+            self._timer.stop()
+        
+        
     
     def _safeRead(self, path):
         """Read file. Ignore exceptions
@@ -138,7 +171,7 @@ class AbstractDocument(QWidget):
         
         if filePath and self._neverSaved:
             core.mainWindow().appendMessage('New file "%s" is going to be created' % filePath, 5000)
-    
+
     def del_(self):
         """Explicytly called destructor
         """
@@ -157,10 +190,10 @@ class AbstractDocument(QWidget):
         self._externallyModified = modified
         self.documentDataChanged.emit()
 
-    def _onWatcherFileRemoved(self):
+    def _onWatcherFileRemoved(self, isRemoved):
         """File has been removed
         """
-        self._externallyRemoved = True
+        self._externallyRemoved = isRemoved
         self.documentDataChanged.emit()
 
     def _readFile(self, filePath):
