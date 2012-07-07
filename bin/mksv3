@@ -12,6 +12,12 @@ import logging.handlers
 
 from optparse import OptionParser  # Replace with argparse, when python 2.6 is not supported
 
+"""
+When script is executed from the source tree, it shall import mks package, which is one level higher.
+First item in sys.path points to script location
+"""
+sys.path.insert(0, os.path.join(sys.path[0], '..'))
+
 import mks.core.defines
 
 class _StartProfiler:
