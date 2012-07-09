@@ -35,7 +35,6 @@ class _FileWatcher(QObject):
         self._contents = None
         self._watcher = QFileSystemWatcher()
         self._timer = None
-        self._fileRemoved = False
         self._path = path
         self.setPath(path)
         self.enable()
@@ -69,20 +68,19 @@ class _FileWatcher(QObject):
             self._watcher.addPath(path)
         self._path = path
 
+    def _emitModifiedStatus(self):
+        """Emit self.modified signal with right status
+        """
+        isModified = self._contents != self._safeRead(self._path)
+        self.modified.emit(isModified)
+        
     def _onFileChanged(self):
         """File changed. Emit own signal, if contents changed
         """
         if os.path.exists(self._path):
-            if self._fileRemoved:
-                self.removed.emit(False)
-                self._fileRemoved = False
-                self.setPath(self._path)  # restart Qt file watcher after file has been restored
-            self.modified.emit(self._contents != self._safeRead(self._path))
-            self._stopTimer()
+            self._emitModifiedStatus()
         else:
-            if not self._fileRemoved:
-                self.removed.emit(True)
-                self._fileRemoved = True
+            self.removed.emit(True)
             self._startTimer()
     
     def _startTimer(self):
@@ -93,7 +91,7 @@ class _FileWatcher(QObject):
         if self._timer is None:
             self._timer = QTimer()
             self._timer.setInterval(500)
-            self._timer.timeout.connect(self._onFileChanged)
+            self._timer.timeout.connect(self._onCheckIfDeletedTimer)
         self._timer.start()
     
     def _stopTimer(self):
@@ -101,8 +99,15 @@ class _FileWatcher(QObject):
         """
         if self._timer is not None:
             self._timer.stop()
-        
-        
+    
+    def _onCheckIfDeletedTimer(self):
+        """Check, if file has been restored
+        """
+        if os.path.exists(self._path):
+            self.removed.emit(False)
+            self._emitModifiedStatus()
+            self.setPath(self._path)  # restart Qt file watcher after file has been restored
+            self._stopTimer()
     
     def _safeRead(self, path):
         """Read file. Ignore exceptions
