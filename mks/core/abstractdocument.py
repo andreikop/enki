@@ -51,6 +51,7 @@ class _FileWatcher(QObject):
         """Disable signals from the watcher
         """
         self._watcher.fileChanged.disconnect(self._onFileChanged)
+        self._stopTimer()
     
     def setContents(self, contents):
         """Set file contents. Watcher uses it to compare old and new contents of the file.
