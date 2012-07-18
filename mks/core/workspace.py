@@ -183,23 +183,6 @@ class Workspace(QStackedWidget):
         
         self.currentDocumentChanged.connect(self._updateMainWindowTitle)
         self.currentDocumentChanged.connect(self._onCurrentDocumentChanged)
-        core.actionManager().action( "mFile/aOpen" ).triggered.connect(self._onFileOpenTriggered)
-        core.actionManager().action( "mFile/mReload/aCurrent" ).triggered.connect(self._onFileReloadTriggered)
-        core.actionManager().action( "mFile/mReload/aAll" ).triggered.connect(self._onFileReloadAllTriggered)
-        core.actionManager().action( "mFile/aNew" ).triggered.connect(lambda : self.createEmptyNotSavedDocument(None))
-        core.actionManager().action( "mFile/mClose/aCurrent" ).triggered.connect(self._onCloseCurrentDocument)
-        core.actionManager().action( "mFile/mClose/aAll" ).triggered.connect(self.closeAllDocuments)
-    
-        core.actionManager().action( "mFile/mSave/aCurrent" ).triggered.connect(self._onFileSaveCurrentTriggered)
-        core.actionManager().action( "mFile/mSave/aAll" ).triggered.connect(self._onFileSaveAllTriggered)
-        core.actionManager().action( "mFile/mSave/aSaveAs" ).triggered.connect(self._onFileSaveAsTriggered)
-        core.actionManager().action( "mFile/aPrint").triggered.connect(lambda: self.currentDocument().printFile())
-        
-        core.actionManager().action( "mNavigation/aNext" ).triggered.connect(self._activateNextDocument)
-        core.actionManager().action( "mNavigation/aPrevious" ).triggered.connect(self._activatePreviousDocument)
-        
-        core.actionManager().action( "mNavigation/aFocusCurrentDocument" ).triggered.connect(self.focusCurrentDocument)
-        core.actionManager().action( "mNavigation/aGoto" ).triggered.connect(self._onGotoTriggered)
     
     def del_(self):
         """Terminate workspace. Called by the core to clear actions
@@ -290,35 +273,8 @@ class Workspace(QStackedWidget):
         self._oldCurrentDocument = document
 
     def _onCurrentDocumentChanged( self, document):
-        """Connect/disconnect document signals and update enabled/disabled 
-        state of the actions
+        """Change current directory, if current file changed
         """
-        
-        
-        # update file menu
-        core.actionManager().action( "mFile/mSave/aCurrent" ).setEnabled( document is not None and \
-                                                                            (document.isModified() or 
-                                                                             document.isNeverSaved()))
-        core.actionManager().action( "mFile/mSave/aAll" ).setEnabled( document is not None)
-        core.actionManager().action( "mFile/mSave/aSaveAs" ).setEnabled( document is not None)
-        core.actionManager().action( "mFile/mClose/aCurrent" ).setEnabled( document is not None)
-        core.actionManager().action( "mFile/mClose/aAll" ).setEnabled( document is not None)
-        core.actionManager().action( "mNavigation/aFocusCurrentDocument" ).setEnabled( document is not None)
-        core.actionManager().action( "mNavigation/aGoto" ).setEnabled( document is not None)
-        core.actionManager().action( "mFile/mReload/aCurrent" ).setEnabled( document is not None )
-        core.actionManager().action( "mFile/mReload/aAll" ).setEnabled( document is not None )
-
-        core.actionManager().action( "mFile/aPrint" ).setEnabled( document is not None )
-        
-        # update edit menu
-        #core.actionManager().action( "mEdit/aExpandAbbreviation" ).setEnabled( document is not None)
-
-        # update view menu
-        moreThanOneDocument = self.count() > 1
-        core.actionManager().action( "mNavigation/aNext" ).setEnabled( moreThanOneDocument )
-        core.actionManager().action( "mNavigation/aPrevious" ).setEnabled( moreThanOneDocument )
-        
-        # internal update
         if  document and document.filePath() is not None and \
             os.path.exists(os.path.dirname(document.filePath())):
             try:
@@ -330,6 +286,34 @@ class Workspace(QStackedWidget):
         """Select active (focused and visible) document form list of opened documents
         """
         self.setCurrentWidget( document )
+    
+    def _activeDocumentByIndex(self, index):
+        """Activate document by it's index in the list of documents
+        """
+        document = self.documents()[index]
+        self.setCurrentDocument(document)
+        document.setFocus()
+        
+    def activateNextDocument(self):
+        """Activate next document in the list
+        """
+        documents = self.documents()
+        
+        curIndex = documents.index(self.currentDocument())
+        nextIndex = (curIndex + 1) % len(documents)
+        self._activeDocumentByIndex(nextIndex)
+        
+    
+    def activatePreviousDocument(self):
+        """Activate previous document in the list
+        """
+        documents = self.documents()
+        
+        curIndex = documents.index(self.currentDocument())
+        prevIndex = (curIndex - 1 + len(documents)) % len(documents)
+        
+        self._activeDocumentByIndex(prevIndex)
+
     
     def currentDocument(self):
         """Returns currently active (focused) document. None, if no documents are opened
@@ -362,9 +346,9 @@ class Workspace(QStackedWidget):
         
         if len(self.sortedDocuments) > 1:  # not the last document
             if document == self.sortedDocuments[-1]:  # the last document
-                self._activatePreviousDocument()
+                self.activatePreviousDocument()
             else:  # not the last
-                self._activateNextDocument()
+                self.activateNextDocument()
         
         self.documentClosed.emit( document )
         # close document
@@ -375,7 +359,6 @@ class Workspace(QStackedWidget):
         """Add document to the workspace. Connect signals
         """
         # update file menu
-        document.saveActionEnabledChanged.connect(core.actionManager().action( "mFile/mSave/aCurrent" ).setEnabled)
         document.modifiedChanged.connect(self._updateMainWindowTitle)
 
         # Create lambda functions, which retransmit conveniense signals, and connect it to document signals
@@ -397,9 +380,6 @@ class Workspace(QStackedWidget):
     def _unhandleDocument( self, document ):
         """Remove document from the workspace. Disconnect signals
         """
-        document.saveActionEnabledChanged.disconnect(core.actionManager().action( "mFile/mSave/aCurrent" ).setEnabled)
-        # update edit menu
-
         # remove from workspace
         document.removeEventFilter( self )
         self.removeWidget(document)
@@ -470,13 +450,6 @@ class Workspace(QStackedWidget):
         document.setFocus()
         return document
     
-    def _onCloseCurrentDocument(self):
-        """Handler of File->Close->Current triggered
-        """
-        document = self.currentWidget()
-        assert(document is not None)
-        self.closeDocument( document )
-
     def documents(self):
         """Get list of opened documents (:class:`mks.core.abstractdocument.AbstractDocument` instances)
         """
@@ -516,24 +489,6 @@ class Workspace(QStackedWidget):
         for document in self.documents()[::-1]:
             self.closeDocument(document, False)
 
-    def _activateNextDocument(self):
-        """Handler of View->Next triggered
-        """
-        curIndex = self.sortedDocuments.index(self.currentDocument())
-        nextIndex = (curIndex + 1) % len(self.sortedDocuments)
-        document = self.sortedDocuments[nextIndex]
-        self.setCurrentDocument(document)
-        document.setFocus()
-    
-    def _activatePreviousDocument(self):
-        """Handler of View->Previous triggered
-        """
-        curIndex = self.sortedDocuments.index(self.currentDocument())
-        prevIndex = (curIndex - 1 + len(self.sortedDocuments)) % len(self.sortedDocuments)
-        document = self.sortedDocuments[prevIndex]
-        self.setCurrentDocument(document)
-        document.setFocus()
-    
     def focusCurrentDocument(self):
         """Set focus (cursor) to current document.
         
@@ -542,76 +497,6 @@ class Workspace(QStackedWidget):
         document = self.currentDocument()
         if  document :
             document.setFocus()
-       
-    def _onFileOpenTriggered(self):
-        """Handler of File->Open
-        """
-        fileNames = QFileDialog.getOpenFileNames( self.window(),
-                                                  self.tr( "Classic open dialog. Main menu -> Navigation -> Locator is better" ))
-                
-        for path in fileNames:
-            self.openFile(path)
-    
-    def _onFileSaveCurrentTriggered(self):
-        """Handler of File->Save->Current
-        """
-        return self.currentDocument().saveFile()
-    
-    def _onFileSaveAllTriggered(self):
-        """Handler of File->Save->All
-        """
-        for document in self.documents():
-            document.saveFile()
-    
-    def _onFileSaveAsTriggered(self):
-        """Handler for File->Save->Save as
-        """
-        self.currentDocument().saveFileAs();
-    
-    def _reloadDocument(self, document):
-        """Reload the document contents
-        """
-        if  document.isModified():
-            template = self.tr( "The file <b>%s</b> has been modified by you.\n"
-                                "Do you want to reload and discard changes?" )
-            text = template % document.fileName()
-            ret = QMessageBox.question(self, self.tr( "Reload file..." ), text,
-                                       QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-            if ret != QMessageBox.Yes:
-                return
-
-        # open file
-        try:
-            QApplication.setOverrideCursor( Qt.WaitCursor )
-            document.reload()
-        except IOError as ex:
-            QMessageBox.critical(None,
-                                 self.tr("File not reloaded"),
-                                 unicode(str(ex), 'utf8'))
-            return None
-        finally:
-            QApplication.restoreOverrideCursor()
-        
-    def _onFileReloadTriggered(self):
-        """Handler of File->Reload->Current
-        """
-        document = self.currentDocument()
-        if  document is not None:
-            self._reloadDocument(document)
-    
-    def _onFileReloadAllTriggered(self):
-        """Handler of File->Reload->All
-        """
-        for document in self.documents():
-            if document.filePath() is not None and \
-               os.path.isfile(document.filePath()):
-                self._reloadDocument(document)
-    
-    def _onGotoTriggered(self):
-        """Handler of Navigation->Goto
-        """
-        self.currentDocument().invokeGoTo()
-
 
 #    def onEditExpandAbbreviation(self):
 #        document = self.currentDocument()
