@@ -182,6 +182,7 @@ class Workspace(QStackedWidget):
         self.currentChanged.connect(self._onStackedLayoutIndexChanged)
         
         self.currentDocumentChanged.connect(self._updateMainWindowTitle)
+        self.currentDocumentChanged.connect(self._onCurrentDocumentChanged)
         core.actionManager().action( "mFile/aOpen" ).triggered.connect(self._onFileOpenTriggered)
         core.actionManager().action( "mFile/mReload/aCurrent" ).triggered.connect(self._onFileReloadTriggered)
         core.actionManager().action( "mFile/mReload/aAll" ).triggered.connect(self._onFileReloadAllTriggered)
@@ -276,11 +277,6 @@ class Workspace(QStackedWidget):
         """
         document = self.widget(index)
         self._onCurrentDocumentChanged(document)
-
-    def _onCurrentDocumentChanged( self, document):
-        """Connect/disconnect document signals and update enabled/disabled 
-        state of the actions
-        """
         
         if document is None and self.count():  # just lost focus, no real change
             return
@@ -289,9 +285,15 @@ class Workspace(QStackedWidget):
         
         if document is not None:
             self.setFocusProxy(document)
+
+        self.currentDocumentChanged.emit(self._oldCurrentDocument, document)
+        self._oldCurrentDocument = document
+
+    def _onCurrentDocumentChanged( self, document):
+        """Connect/disconnect document signals and update enabled/disabled 
+        state of the actions
+        """
         
-        if self._oldCurrentDocument is not None:
-            pass
         
         # update file menu
         core.actionManager().action( "mFile/mSave/aCurrent" ).setEnabled( document is not None and \
@@ -323,10 +325,7 @@ class Workspace(QStackedWidget):
                 os.chdir( os.path.dirname(document.filePath()) )
             except OSError, ex:  # directory might be deleted
                 print >> sys.stderr, 'Failed to change directory:', str(ex)
-        
-        self.currentDocumentChanged.emit(self._oldCurrentDocument, document)
-        self._oldCurrentDocument = document
-        
+
     def setCurrentDocument( self, document ):
         """Select active (focused and visible) document form list of opened documents
         """
