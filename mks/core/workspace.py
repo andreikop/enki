@@ -487,9 +487,3 @@ class Workspace(QStackedWidget):
         """
         for document in self.documents()[::-1]:
             self._doCloseDocument(document)
-
-#    def onEditExpandAbbreviation(self):
-#        document = self.currentDocument()
-
-#        if  document :
-#            core.abbreviationsManager().expandMacro( document.editor() )
