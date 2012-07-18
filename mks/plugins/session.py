@@ -49,12 +49,20 @@ class Plugin:
                 core.workspace().openFile(filePath)
         
         if session['current'] is not None:
-            try:
-                document = core.workspace().documentForPath(session['current'])
-            except ValueError:  # document might be already deleted
-                return
-            
-            core.workspace().setCurrentDocument(document)
+            document = self._documentForPath(session['current'])
+            if document is not None: # document might be already deleted
+                core.workspace().setCurrentDocument(document)
+
+    def _documentForPath(self, filePath):
+        """Find document by it's file path.
+        Raises ValueError, if document hasn't been found
+        """
+        for document in core.workspace().documents():
+            if document.filePath() is not None and \
+               document.filePath() == filePath:
+                return document
+        
+        return None
 
     def _onAboutToTerminate(self):
         """mksv3 is going to be terminated.
