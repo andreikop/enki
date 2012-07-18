@@ -402,16 +402,3 @@ class MainWindow(QMainWindow):
         
         # default handler
         QMainWindow.dropEvent(self, event)
-
-
-#   TODO restore or delete old code
-#        # edit connection
-#        core.actionManager().action( "mEdit/aExpandAbbreviation" ).triggered.connect(core.workspace().onEditExpandAbbreviation)
-#        core.actionManager().action( "mEdit/aPrepareAPIs" ).triggered.connect(core.workspace().editPrepareAPIs_triggered)
-
-#        # project connection
-#        core.recentsManager().openProjectRequested.connect(core.projectsManager().openProject)
-#
-#        mb.action( "aExpandAbbreviation", tr("Expand Abbreviation" ), QIcon( ":/mksicons/abbreviation.png" ), "Ctrl+E", tr("Expand Abbreviation" ) ).setEnabled( False )
-#        mb.action( "aPrepareAPIs", tr("Prepare APIs" ), QIcon( ":/mksicons/prepareapis.png" ), "Ctrl+Alt+P", tr("Prepare the APIs files for auto completion / calltips" ) )
-#        
