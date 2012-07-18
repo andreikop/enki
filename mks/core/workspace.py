@@ -323,16 +323,9 @@ class Workspace(QStackedWidget):
              selectionLength is not None):
                 document.goTo(absPos=absPos, line=line, column=column, selectionLength=selectionLength, grabFocus=True)
     
-    def closeDocument( self, document, showDialog=True):
-        """Close opened file, remove document from workspace and delete the widget
-        
-        If showDialog is True and file is modified, dialog will be shown
+    def _doCloseDocument(self, document):
+        """Closes document, even if it is modified
         """
-        
-        if showDialog and document.isModified():
-            if _UISaveFiles(self, [document]).exec_() == QDialog.Rejected:
-                return
-        
         if len(self.sortedDocuments) > 1:  # not the last document
             if document == self.sortedDocuments[-1]:  # the last document
                 self.activatePreviousDocument()
@@ -342,7 +335,16 @@ class Workspace(QStackedWidget):
         self.documentClosed.emit( document )
         # close document
         self._unhandleDocument( document )
-        document.del_()
+        document.del_()        
+
+    def closeDocument( self, document):
+        """Close opened file, remove document from workspace and delete the widget
+        """
+        if document.isModified():
+            if _UISaveFiles(self, [document]).exec_() == QDialog.Rejected:
+                return
+        
+        self._doCloseDocument(document)
 
     def _handleDocument( self, document ):
         """Add document to the workspace. Connect signals
@@ -476,7 +478,7 @@ class Workspace(QStackedWidget):
         """Close all documents without asking user to save
         """
         for document in self.documents()[::-1]:
-            self.closeDocument(document, False)
+            self._doCloseDocument(document)
 
     def focusCurrentDocument(self):
         """Set focus (cursor) to current document.
