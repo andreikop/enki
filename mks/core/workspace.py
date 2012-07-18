@@ -271,6 +271,11 @@ class Workspace(QStackedWidget):
             except OSError, ex:  # directory might be deleted
                 print >> sys.stderr, 'Failed to change directory:', str(ex)
 
+    def currentDocument(self):
+        """Returns currently active (focused) document. None, if no documents are opened
+        """
+        return self.currentWidget()
+    
     def setCurrentDocument( self, document ):
         """Select active (focused and visible) document form list of opened documents
         """
@@ -303,12 +308,15 @@ class Workspace(QStackedWidget):
         
         self._activeDocumentByIndex(prevIndex)
 
-    
-    def currentDocument(self):
-        """Returns currently active (focused) document. None, if no documents are opened
+    def focusCurrentDocument(self):
+        """Set focus (cursor) to current document.
+        
+        Used if user has finished work with some dialog, and, probably, want's to edit text
         """
-        return self.currentWidget()
-    
+        document = self.currentDocument()
+        if  document :
+            document.setFocus()
+
     def goTo(self, filePath, absPos=None, line=None, column=None, selectionLength=None):
         """Open file, activate it, and go to specified position. Select text after position, if necessary.
         
@@ -323,29 +331,6 @@ class Workspace(QStackedWidget):
              selectionLength is not None):
                 document.goTo(absPos=absPos, line=line, column=column, selectionLength=selectionLength, grabFocus=True)
     
-    def _doCloseDocument(self, document):
-        """Closes document, even if it is modified
-        """
-        if len(self.sortedDocuments) > 1:  # not the last document
-            if document == self.sortedDocuments[-1]:  # the last document
-                self.activatePreviousDocument()
-            else:  # not the last
-                self.activateNextDocument()
-        
-        self.documentClosed.emit( document )
-        # close document
-        self._unhandleDocument( document )
-        document.del_()        
-
-    def closeDocument( self, document):
-        """Close opened file, remove document from workspace and delete the widget
-        """
-        if document.isModified():
-            if _UISaveFiles(self, [document]).exec_() == QDialog.Rejected:
-                return
-        
-        self._doCloseDocument(document)
-
     def _handleDocument( self, document ):
         """Add document to the workspace. Connect signals
         """
@@ -446,6 +431,29 @@ class Workspace(QStackedWidget):
         """
         return self.sortedDocuments
     
+    def _doCloseDocument(self, document):
+        """Closes document, even if it is modified
+        """
+        if len(self.sortedDocuments) > 1:  # not the last document
+            if document == self.sortedDocuments[-1]:  # the last document
+                self.activatePreviousDocument()
+            else:  # not the last
+                self.activateNextDocument()
+        
+        self.documentClosed.emit( document )
+        # close document
+        self._unhandleDocument( document )
+        document.del_()        
+
+    def closeDocument( self, document):
+        """Close opened file, remove document from workspace and delete the widget
+        """
+        if document.isModified():
+            if _UISaveFiles(self, [document]).exec_() == QDialog.Rejected:
+                return
+        
+        self._doCloseDocument(document)
+
     def askToCloseAll(self):
         """If have unsaved documents, ask user to save it and close all
         Will save documents, checked by user
@@ -479,15 +487,6 @@ class Workspace(QStackedWidget):
         """
         for document in self.documents()[::-1]:
             self._doCloseDocument(document)
-
-    def focusCurrentDocument(self):
-        """Set focus (cursor) to current document.
-        
-        Used if user has finished work with some dialog, and, probably, want's to edit text
-        """
-        document = self.currentDocument()
-        if  document :
-            document.setFocus()
 
 #    def onEditExpandAbbreviation(self):
 #        document = self.currentDocument()
