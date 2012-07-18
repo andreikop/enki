@@ -16,6 +16,7 @@ TODO
     Autoresize opened file list
     Shift+Enter opens new line and inserts comment start
   big functionality
+    what is sublime command palette?
     http://readthedocs.org/docs/pyqtermwidget
     Indent text when pasting
     Comment/Uncomment code functionality

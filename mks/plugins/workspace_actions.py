@@ -40,27 +40,24 @@ class Plugin(QObject):
     def del_(self):
         pass
 
-    def _onCurrentDocumentChanged( self, document):
+    def _onCurrentDocumentChanged( self, oldDocument, newDocument):
         """Update actions enabled state
         """
         # update file menu
-        core.actionManager().action( "mFile/mSave/aCurrent" ).setEnabled( document is not None and \
-                                                                            (document.isModified() or 
-                                                                             document.isNeverSaved()))
-        core.actionManager().action( "mFile/mSave/aAll" ).setEnabled( document is not None)
-        core.actionManager().action( "mFile/mSave/aSaveAs" ).setEnabled( document is not None)
-        core.actionManager().action( "mFile/mClose/aCurrent" ).setEnabled( document is not None)
-        core.actionManager().action( "mFile/mClose/aAll" ).setEnabled( document is not None)
-        core.actionManager().action( "mNavigation/aFocusCurrentDocument" ).setEnabled( document is not None)
-        core.actionManager().action( "mNavigation/aGoto" ).setEnabled( document is not None)
-        core.actionManager().action( "mFile/mReload/aCurrent" ).setEnabled( document is not None )
-        core.actionManager().action( "mFile/mReload/aAll" ).setEnabled( document is not None )
+        core.actionManager().action( "mFile/mSave/aCurrent" ).setEnabled( newDocument is not None and \
+                                                                            (newDocument.isModified() or 
+                                                                             newDocument.isNeverSaved()))
+        core.actionManager().action( "mFile/mSave/aAll" ).setEnabled( newDocument is not None)
+        core.actionManager().action( "mFile/mSave/aSaveAs" ).setEnabled( newDocument is not None)
+        core.actionManager().action( "mFile/mClose/aCurrent" ).setEnabled( newDocument is not None)
+        core.actionManager().action( "mFile/mClose/aAll" ).setEnabled( newDocument is not None)
+        core.actionManager().action( "mNavigation/aFocusCurrentDocument" ).setEnabled( newDocument is not None)
+        core.actionManager().action( "mNavigation/aGoto" ).setEnabled( newDocument is not None)
+        core.actionManager().action( "mFile/mReload/aCurrent" ).setEnabled( newDocument is not None )
+        core.actionManager().action( "mFile/mReload/aAll" ).setEnabled( newDocument is not None )
 
-        core.actionManager().action( "mFile/aPrint" ).setEnabled( document is not None )
+        core.actionManager().action( "mFile/aPrint" ).setEnabled( newDocument is not None )
         
-        # update edit menu
-        #core.actionManager().action( "mEdit/aExpandAbbreviation" ).setEnabled( document is not None)
-
         # update view menu
         moreThanOneDocument = len(core.workspace().documents()) > 1
         core.actionManager().action( "mNavigation/aNext" ).setEnabled( moreThanOneDocument )
