@@ -193,17 +193,6 @@ class Workspace(QStackedWidget):
         """Get mainWindow instance
         """
         return self.parentWidget().parentWidget()
-    
-    def documentForPath(self, filePath):
-        """Find document by it's file path.
-        Raises ValueError, if document hasn't been found
-        """
-        for document in self.documents():
-            if document.filePath() is not None and \
-               document.filePath() == filePath:
-                return document
-        else:
-            raise ValueError("Document not found for" + filePath)
 
     def _updateMainWindowTitle(self):
         """Update window title after document or it's modified state has been changed
