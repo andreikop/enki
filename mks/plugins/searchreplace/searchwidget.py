@@ -200,6 +200,9 @@ class SearchWidget(QFrame):
         # re.escape escapes space, comma, underscore, but, it is not necessary and makes text not readable
         for symbol in (' ,_=\'"/:@#%&'):
             text = text.replace('\\' + symbol, symbol)
+        
+        text = text.replace('\\\n', '\\n')
+        text = text.replace('\\\t', '\\t')
 
         return text
     
