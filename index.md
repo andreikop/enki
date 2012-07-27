@@ -63,8 +63,12 @@ enki is a text editor for programmers. It is:
 {% for post in site.posts limit:5 %}
 <div>
   {{ post.date | date_to_string }}
+</div>
+{% endfor %}
+
+{% for post in site.posts limit:5 %}
+<div>
   <a href="{{ page.root }}{{ post.url }}">{{ post.title }}</a>
-  <p>{{ post.excerpt }}</p>
 </div>
 {% endfor %}
 
