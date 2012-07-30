@@ -104,7 +104,7 @@ class Plugin(QObject):
             template = self.tr( "The file <b>%s</b> has been modified by you.\n"
                                 "Do you want to reload and discard changes?" )
             text = template % document.fileName()
-            ret = QMessageBox.question(self, self.tr( "Reload file..." ), text,
+            ret = QMessageBox.question(core.mainWindow(), self.tr( "Reload file..." ), text,
                                        QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if ret != QMessageBox.Yes:
                 return
