@@ -1,15 +1,4 @@
 FIXME
-    Traceback (most recent call last):
-      File "/usr/local/lib/python2.6/dist-packages/mks/plugins/workspace_actions.py", line 90, in _onFileReloadTriggered
-        self._reloadDocument(document)
-      File "/usr/local/lib/python2.6/dist-packages/mks/plugins/workspace_actions.py", line 108, in _reloadDocument
-        QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-    TypeError: arguments did not match any overloaded call:
-      QMessageBox.question(QWidget, QString, QString, QMessageBox.StandardButtons buttons=QMessageBox.Ok, QMessageBox.StandardButton defaultButton=QMessageBox.NoButton): argument 1 has unexpected type 'Plugin'
-      QMessageBox.question(QWidget, QString, QString, int, int button1=0, int button2=0): argument 1 has unexpected type 'Plugin'
-      QMessageBox.question(QWidget, QString, QString, QString, QString button1Text=QString(), QString button2Text=QString(), int defaultButtonNumber=0, int escapeButtonNumber=-1): argument 1 has unexpected type 'Plugin'
-
-    текущая директория - старая, а не новая
 
 SITE:
     http://readthedocs.org/

@@ -245,10 +245,9 @@ class Workspace(QStackedWidget):
     
     def _onStackedLayoutIndexChanged(self, index):
         """Handler of change of current document in the stacked layout.
-        Only calls _onCurrentDocumentChanged(document)
+        Only emits a signal, if document realy has changed
         """
         document = self.widget(index)
-        self._onCurrentDocumentChanged(document)
         
         if document is None and self.count():  # just lost focus, no real change
             return
@@ -261,13 +260,13 @@ class Workspace(QStackedWidget):
         self.currentDocumentChanged.emit(self._oldCurrentDocument, document)
         self._oldCurrentDocument = document
 
-    def _onCurrentDocumentChanged( self, document):
+    def _onCurrentDocumentChanged(self, old, new):
         """Change current directory, if current file changed
         """
-        if  document and document.filePath() is not None and \
-            os.path.exists(os.path.dirname(document.filePath())):
+        if  new and new.filePath() is not None and \
+            os.path.exists(os.path.dirname(new.filePath())):
             try:
-                os.chdir( os.path.dirname(document.filePath()) )
+                os.chdir( os.path.dirname(new.filePath()) )
             except OSError, ex:  # directory might be deleted
                 print >> sys.stderr, 'Failed to change directory:', str(ex)
 
