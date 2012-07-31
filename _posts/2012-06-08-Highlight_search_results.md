@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Search results highlighting
+baseurl: ../../../
 ---
 
 # Search results highlighting

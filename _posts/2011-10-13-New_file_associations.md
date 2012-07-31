@@ -1,6 +1,7 @@
 ---
 layout: post
 title: New file associations
+baseurl: ../../../
 ---
 
 # New file associations

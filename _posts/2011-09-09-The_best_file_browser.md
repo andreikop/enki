@@ -1,6 +1,7 @@
 ---
 layout: post
 title: The best file browser
+baseurl: ../../../
 ---
 
 

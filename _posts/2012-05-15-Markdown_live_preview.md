@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Markdown live preview
+baseurl: ../../../
 ---
 
 # Markdown and HTML live preview
