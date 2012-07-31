@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Scheme REPL integration
+baseurl: .
 ---
 
 ## Scheme REPL integration

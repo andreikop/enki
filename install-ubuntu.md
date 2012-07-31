@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Download enki
+baseurl: .
 ---
 
 

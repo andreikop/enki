@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Blog archives
-root: .
+baseurl: .
 ---
 
 # {{ page.title }}
@@ -20,7 +20,7 @@ root: .
     {% endunless %}
     <li>
         {{ post.date | date_to_string }}
-        <a href="{{ page.root }}/{{ post.url }}">{{ post.title }}</a>
+        <a href="{{ page.baseurl }}/{{ post.url }}">{{ post.title }}</a>
     </li>
   {% endfor %}
 </ul>

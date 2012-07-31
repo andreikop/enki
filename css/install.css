@@ -1,0 +1,26 @@
+#enki {
+color: white;
+font-size: 100px;
+left: 10px;
+position: relative;
+font-weight: bold;
+}
+
+#editor {
+top: -32px;
+position: relative;
+letter-spacing: 15px;
+font-size: 45px;
+left: 3px;
+font-weight: bold;
+color: #30567D;
+background: white;
+display: block;
+padding: 0px 0px 0px 769px;
+margin: 2px 0px 0px -782px;
+text-align: right;
+}
+
+#product-name {
+z-index: 1000;
+float: right;

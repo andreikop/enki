@@ -1,17 +1,18 @@
 ---
 layout: default
 title: Install enki from sources
+baseurl: .
 ---
 
-# Instal from sources
+# Install from sources
 
 ## 1. Install dependencies
-1. Python 2. Tested on v2.6.6 and v2.7.2
-2. PyQt4
-3. QScintilla 2 and Python bindings. v2.4.1 or newer
-4. pyparsing
-5. pygments. (Optional, for highlighting Scheme files)
-6. markdown. (Optional, for Markdown preview)
+* Python 2. Tested on v2.6.6 and v2.7.2
+* PyQt4
+* QScintilla 2 and Python bindings. v2.4.1 or newer
+* pyparsing
+* pygments. (Optional, for highlighting Scheme files)
+* markdown. (Optional, for Markdown preview)
 
 #### Debian and Debian based
 
@@ -33,7 +34,7 @@ Download from [github tags](https://github.com/hlamer/enki/tags) and unpack
 
 ## 3. Setup
     
-`./setup.py instal`
+`./setup.py install`
 
 ## 4. Enjoy
 Don't forget to send a bug report, if you are having some problems

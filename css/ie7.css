@@ -1,0 +1,54 @@
+/* ie7 stylesheet */
+
+.content-row-1 h2 {
+	display: block;
+	z-index: 8000;
+	position: relative;
+}
+
+#product-name {
+	top: 10px;
+}
+
+#editor {
+	display: inline-block;
+	position: relative;
+}
+
+#menu {
+	background-image: url('../img/menu-top.png');
+	background-repeat: no-repeat;
+}
+
+#menu a {
+	color: #30567D;
+}
+
+#menu li {
+	list-style: disc;
+	color: #F1613C;
+}
+
+.content-row-1 li {
+	list-style-image: url('../img/orange-bullet.png');
+	color: #30567D;	
+}
+
+.content-row-1 ul {
+	padding-bottom: 10px;
+}
+
+#content-row-2 h2 {
+	color: white;
+	text-align: center;
+	margin: 0;
+}
+
+#download h2 {
+	padding: 20px 0px 20px 0px;
+}
+
+
+#news h2 {
+	padding: 5px 0px 5px 0px;
+}

@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Enki team
+baseurl: .
 ---
 
 

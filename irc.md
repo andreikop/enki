@@ -1,7 +1,7 @@
 ---
-layout: default
+layout: irc
 title: enki irc channel
-root: .
+baseurl: .
 ---
 
 If you want to use an external IRC client, go to `irc.freenode.net` server and join `#monkeystudio` channel.

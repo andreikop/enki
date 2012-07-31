@@ -1,0 +1,441 @@
+/* Main stylesheet */
+
+html, body {
+	font-family: "arial", times;
+	margin: 0;
+	background-color: #FFFFFF;
+	/* color: #30567D; */
+	color: #FFFFFF;
+	height: 100%;
+}
+
+#container {
+	  
+    height: 100%;
+}
+
+a img {
+	border: none;
+}
+
+a {
+	text-decoration: none;
+	color: #D2A8AE;
+}
+
+a:visited {
+	color: #777;
+}
+
+ul {
+	padding: 0;
+	margin: 0;
+}
+
+ul li {
+	list-style-type: none;
+}
+
+ul li::before {
+	content: "\2022 ";
+	color: #F1613C;
+	padding-right: 0px;
+}
+
+
+
+h1, h2 {
+	margin: 15px 0px 10px 0px;
+	position: relative;
+	z-index: 3000;
+}
+
+/** Menu - Left Bar **/
+
+#menu {
+	float: left;
+	width: 160px;
+	font-size: 20px;
+	font-weight: bolder;
+	background-color: white;
+	color: #30567D;
+	background-image: url('../img/menu-top.png');
+	background-repeat: no-repeat;
+	margin: 0px 0px 0px 0px;
+}
+
+.main {
+	height: 100%;
+	
+}
+
+#menu #logo {
+	margin: 20px 0px 5px 0px;
+}
+
+#menu ul {
+	font-weight: normal;
+	margin: 10px 0px 10px 0px;
+	font-size: 18px;
+	line-height: 1em;
+}
+
+#menu a {
+color: inherit;
+}
+
+.menuitem {
+	padding: 0px 0px 0px 20px;
+}
+
+#donate-button {
+	margin: 10px 40px 0px 40px;
+	width: 88px;
+}
+
+#menu a:hover, a:hover {
+	color: #FF6000;
+}
+
+.wrapper {
+	width: 1186px;
+	height: 100%;
+	margin: 0 auto 0 auto;
+}
+
+
+/* enki editor White and Blue top right header */
+
+#product-name {
+	position: relative;
+	z-index: 1000;
+	left: 835px;
+	width: 196px;
+}
+
+#enki {
+	color: white;
+	font-size: 100px;
+	left: -2px;
+	position: relative;
+	font-weight: bold;
+}
+
+#editor {
+top: -32px;
+position: relative;
+letter-spacing: 15px;
+font-size: 45px;
+left: -25px;
+font-weight: bold;
+color: #30567D;
+background: white;
+display: block;
+padding: 0px 0px 0px 814px;
+margin: 2px -23px 0px -812px;
+text-align: right;
+}
+
+/** Content Div **/
+/* Description list. Starts with User friendly. Hacker friendly... */
+
+.page { height: 100%;}
+
+#content {
+	float: left;
+	background-color: #2E4869;
+	min-height: 100%;
+	height: auto;
+	width: 1024px;
+}
+
+
+#content li::before {
+	padding-right: 10px;
+}
+
+.innercontent {
+min-height: 460px;
+}
+
+.content-row-1 {
+	background-color: #FFFFFF;
+	float: left;
+	position: relative;
+	width: 1025px;
+	font-size: 13px;
+	margin: -79px 0px 0px 0px;
+	color: #30567D;
+}
+
+.content-row-1 h2 {
+	font-size: 26px;
+	margin: 0px 0px 20px 20px;
+}
+
+.content-row-1 ul {
+	float:left;
+	margin: -15px 0px 10px 40px;
+	position: relative;
+	z-index: 4000;
+}
+
+#social-buttons {
+	position: absolute;
+	right:  0px;
+	bottom: 20px;
+}
+
+/* Twitter */
+
+#content iframe {
+	float:left;
+}
+
+#facebook {
+	padding: 0px 0px 0px 30px;
+	display: inline-block;
+}
+
+
+/* Content Row 2 */
+/* Downloads Screenshots and News */
+
+#content-row-2 {
+	clear: both;
+}
+
+
+/* Container for Downloads, Screenshots, News */
+
+#left-col {
+	float: left;
+	width: 511px;
+}
+
+#left-col h2 {
+	color: white;
+	text-align: center;
+}
+
+#download {
+	margin: 0 auto;
+width: 340px;
+}
+
+#source-button {
+	display: inline-block;
+	position: relative;
+	background: url('../img/source-button.gif') bottom;
+	background-position-y:  bottom;
+	width: 341px;
+	height: 46px;
+	color: transparent;
+}
+
+#source-button:hover {
+	background-position-y:  top;
+	background-position:  top;
+}
+
+#ubuntu-button {
+	display: inline-block;
+	position: relative;
+	background: url('../img/ubuntu-button.gif') bottom;
+	background-position-y:  bottom;
+	width: 341px;
+	height: 46px;
+	color: transparent;
+}
+
+#ubuntu-button:hover {
+	background-position-y:  top;
+	background-position:  top;
+}
+
+#debian-button {
+	display: inline-block;
+	position: relative;
+	background: url('../img/debian-button.gif') bottom;
+	background-position-y:  bottom;
+	width: 341px;
+	height: 46px;
+	color: transparent;
+}
+
+#debian-button:hover {
+	background-position-y:  top;
+	background-position:  top;
+}
+
+#macos-button {
+	display: inline-block;
+	position: relative;
+	background: url('../img/macos-button.gif') bottom;
+	background-position-y:  bottom;
+	width: 341px;
+	height: 46px;
+	color: transparent;
+}
+
+#macos-button:hover {
+	background-position-y:  top;
+	background-position:  top;
+}
+
+#windows-button {
+	display: inline-block;
+	position: relative;
+	background: url('../img/windows-button.gif') bottom;
+	background-position-y:  bottom;
+	width: 341px;
+	height: 46px;
+	color: transparent;
+}
+
+#windows-button:hover {
+	background-position-y:  top;
+	background-position:  top;
+}
+
+#more-downloads {
+	text-align: right;
+	font-size: 13px;
+	padding: 10px 0px 0px 0px;
+}
+
+/* Seperator */
+
+#seperator {
+	width: 2px;
+	height: 343px;
+	background-color: white;
+	margin: 0 auto 0 auto;
+	top: 20px;
+	position: relative;
+}
+
+/* Screenshots */
+
+#screenshot-container {
+float: right;
+position: relative;
+top: 39px;
+right: 10px;
+width: 454px;
+}
+
+.screenshot-row {
+	width: 100%;
+/*overflow: auto; */
+	padding: 3px 0px 0px 0px;
+}
+
+.screenshot {
+float: left;
+width: 217px;
+text-align: center;
+font-size: 15px;
+padding: 0px 0px 10px 0px;
+}
+
+#screenshot-container img {
+	width: 179px;
+	margin: 0px 0px 10px 0px;
+}
+
+#screenshot-container img:hover {
+	outline: solid #FF6000;
+}
+
+#more-screenshots {
+float: right !important;
+text-align: right;
+font-size: 13px;
+}
+
+/* News */
+
+#news {
+width: 490px;
+}
+
+#news div {
+	font-size: 15px;
+}
+
+#news-inner-container {
+	margin: 0 auto;
+	width: 488px;
+}
+
+#dates {
+font-family: monospace;
+font-weight: bold;
+display: inline-block;
+margin: 0 auto;
+width: 38%;
+float:left;
+padding-right:10px;
+}
+
+#dates div {
+	float: right;
+}
+
+#posts {
+float: left;
+margin: 0 auto;
+min-width: 200px;
+}
+
+#allnews {
+	padding: 10px;
+	float: right;
+	width: 115px;
+	text-align: right;
+}
+
+/* Install from sources h1 header */
+
+#install_from_sources {
+	margin: -90px 0px 0px -20px;
+	padding: 10px 16px 10px 20px;
+	color: #30567D;
+	font-size: 45px;
+}
+
+.md-content {padding: 0px 0px 0px 30px; margin: -30px 0px 0px 0px; min-height: 593px;}
+
+.md-content p, .md-content ol li {
+	padding-right: 100px;
+}
+
+code {
+	background: #FFFFFF;
+	color: #30567D;
+	padding: 10px;
+	display: inline-block;
+	margin: 0px 0px 0px 0px;
+}
+
+
+/* Disqus Container */
+
+#disqus_container {
+	outline:solid;
+	outline-color: #FFFFFF;
+/* overflow: hidden; */
+	padding: 20px 20px;
+	background-color: #777;
+	width: 985px;
+	display: inline-block;
+	margin: 30px 0px 0px 0px;
+}
+
+.irc p {padding: 0 10px;}
+
+.irc iframe{
+	width: 90%;
+	margin: 5%;
+}

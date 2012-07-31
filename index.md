@@ -1,75 +1,127 @@
 ---
-layout: default
+layout: home
 title: Enki. Code editor
-root: .
+baseurl: .
 ---
 
+<!--[if lte IE 7]>
+  <link rel="stylesheet" type="text/css" href="{{ page.baseurl }}/css/ie7index.css">
+  <![endif]-->
 
-enki is a text editor for programmers. It is:
+<div class="content-row-1" markdown="1">
+##enki is a text editor for programmers. It is:
 
 * **User friendly.** Intuitive interface. Works out of the box. You don't have to read a lot of docs
-* **Hacker friendly.** Code as quickly as possible. Without mouse.
+* **Hacker friendly** Code as quickly as possible. Without mouse.
 * **Lighweight.** Some IDEs show splashscreen. enki will never do it. It just starts quickly.
-* **Extensible.** Operating systems are designer for running applications. MkS is designed for running plugins.
+* **Extensible.** Operating systems are designed for running applications. MkS is designed for running plugins.
 * **High quality.** No long list of fancy features. But, what is done, is done well.
 * **Open source.** This is our religion.
 
-<a href="https://twitter.com/AndreiKopats" class="twitter-follow-button" data-show-count="false" data-size="large" data-show-screen-name="false">Follow @AndreiKopats</a>
+    <div id="social-buttons">
+        <div id="twitter">
+            <a href="https://twitter.com/AndreiKopats" class="twitter-follow-button" data-show-count="false" data-size="large" data-show-screen-name="false">Follow @AndreiKopats</a>
+        </div>
 
-##Download
-<ul>
-    <li>
-        <a href="install-sources.html">Sources</a>
-    </li>
-    <li>
-        <a href="install-ubuntu.html">Ubuntu package</a>
-    </li>
-    <li>
-        <a href="install-debian.html">Debian package</a>
-    </li>
-</ul>
+    <!-- Hiding Facebook button
+        <div id="facebook">
+            <a href="http://www.facebook.com/sharer.php?u=http://hlamer.github.com/mksv3/"><img src="./img/facebook.png" title="Share enki editor on Facebook" alt="Share enki editor on Facebook"></a>
+        </div>
+        -->
+    
+    </div>
+</div>
 
-<table frame="void">
-    <tr>
-        <td width="20%">
+<div id="content-row-2">
+    <div id="left-col">
+
+
+        <div id="download">
+            
+            <h2>Download</h2>
+            
+            <div><a id="source-button" href="install-sources.html">Source Package</a></div>
+            
+            <div><a id="ubuntu-button" href="install-ubuntu.html">Ubuntu Package</a></div>
+
+            <div><a id="debian-button" href="install-debian.html">Debian Package</a></div>
+
+       
+    <!-- Hiding unused download buttons
+
+    <div><a id="macos-button" href="install-macos.html">MacOS Package</a></div>
+
+    <div><a id="windows-button" href="install-windows.html">Windows Package</a></div>
+
+    <div id="more-downloads"><a href="#">More downloads ...</a></div>
+    -->
+
+
+        </div>
+          
+
+        <div id="news">
+            <h2>News</h2>
+            <div id="news-inner-container">
+                <div id="dates">
+                    {% for post in site.posts limit:5 %}
+                    <div>
+                    {{ post.date | date_to_string }}
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div id="posts">
+                    {% for post in site.posts limit:5 %}
+                    <div>
+                    <a href="{{ page.baseurl }}{{ post.url }}">{{ post.title }}</a>
+                    {{ post.excerpt }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <br />
+            <div id="allnews">
+                <a href="archive.html">All news...</a>
+            </div>
+
+        </div>
+    </div>
+
+
+<div id="screenshot-container">
+     <div class="screenshot-row">
+       <div class="screenshot">
             <a href="screenshots/minimal.png">
-                <img src="screenshots/preview/minimal.png" width="100%" height="100%"/>
-            </a>
+                <img src="screenshots/preview/minimal.png"/></a><br />
             Minimalistic UI
-        </td>
-        <td width="20%">
+        </div>
+        <div class="screenshot">
             <a href="screenshots/search.png">
-                <img src="screenshots/preview/search.png" width="100%" height="100%"/>
-            </a>
+                <img src="screenshots/preview/search.png"/></a><br />
             Search
-        </td>
-        <td width="20%">
+        </div>
+    </div>
+    <div class="screenshot-row">
+        <div class="screenshot">
             <a href="screenshots/search-replace.png">
-                <img src="screenshots/preview/search-replace.png" width="100%" height="100%"/>
-            </a>
+                <img src="screenshots/preview/search-replace.png"/></a><br />
             Good bye sed
-        </td>
-        <td width="20%">
+        </div>
+        <div class="screenshot">
             <a href="screenshots/markdown-preview.png">
-                <img src="screenshots/preview/markdown-preview.png" width="100%" height="100%"/>
-            </a>
+                <img src="screenshots/preview/markdown-preview.png"/></a><br />
             Markdown live preview
-        </td>
-    </tr>
-</table>
+        </div>
+    </div>
+    
+    <!-- Hiding More Screenshots link
+    <div id="more-screenshots"><a href="#">More screenshots ...</a></div>
+    -->
+    
+    </div>
 
+    <div id="seperator">
+    </div>
 
-## News
-{% for post in site.posts limit:5 %}
-<div>
-  {{ post.date | date_to_string }}
 </div>
-{% endfor %}
-
-{% for post in site.posts limit:5 %}
-<div>
-  <a href="{{ page.root }}{{ post.url }}">{{ post.title }}</a>
-</div>
-{% endfor %}
-
-<a href="archive.html">All news...</a>
