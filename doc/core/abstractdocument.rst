@@ -1,1 +1,1 @@
-.. automodule:: mks.core.abstractdocument
+.. automodule:: enkilib.core.abstractdocument

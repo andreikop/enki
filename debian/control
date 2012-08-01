@@ -1,14 +1,14 @@
-Source: mksv3
+Source: enki
 Section: editors
 Priority: optional
 Maintainer: Andrei Kopats <hlamer@tut.by>
 Build-Depends: debhelper (>= 7.4.1), python-support, python (>= 2.6)
 Standards-Version: 3.9.2
-Homepage: https://github.com/hlamer/mksv3
-Vcs-Git: https://github.com/hlamer/mksv3
-Vcs-Browser: https://github.com/hlamer/mksv3
+Homepage: https://github.com/hlamer/enki
+Vcs-Git: https://github.com/hlamer/enki
+Vcs-Browser: https://github.com/hlamer/enki
 
-Package: mksv3
+Package: enki
 Architecture: all
 Depends: ${misc:Depends}, ${python:Depends}, python-qt4, python-qscintilla2, python-pyparsing
 Suggests: python-pygments, mit-scheme, python-markdown

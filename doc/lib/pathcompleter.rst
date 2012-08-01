@@ -1,1 +1,1 @@
-.. automodule:: mks.lib.pathcompleter
+.. automodule:: enkilib.lib.pathcompleter

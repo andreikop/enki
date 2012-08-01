@@ -1,1 +1,1 @@
-.. automodule:: mks.widgets.colorbutton
+.. automodule:: enkilib.widgets.colorbutton

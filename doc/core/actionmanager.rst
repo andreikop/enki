@@ -1,1 +1,1 @@
-.. automodule:: mks.core.actionmanager
+.. automodule:: enkilib.core.actionmanager

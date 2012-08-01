@@ -12,13 +12,13 @@ except ImportError:
 """
 from distutils.core import setup
 
-from mks.core.defines import PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_URL
+from enkilib.core.defines import PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_URL
 
 def _checkDepencencies():
     """Check if 3rdparty software is installed in the system.
     Notify user, how to install it
     """
-    _SEE_SITE_PLAIN = 'See https://github.com/hlamer/mksv3/wiki/source-installation-instructions'
+    _SEE_SITE_PLAIN = 'See https://github.com/hlamer/enki/wiki/source-installation-instructions'
     ok = True
     try:
         import PyQt4
@@ -42,7 +42,7 @@ def _checkDepencencies():
         ok = False
     
     if not ok:
-        print 'See https://github.com/hlamer/mksv3/wiki/source-installation-instructions'
+        print 'See https://github.com/hlamer/enki/wiki/source-installation-instructions'
 
     return ok
 
@@ -61,7 +61,7 @@ def _isWinDist():
 hlamer: We should use relative pathes here, without /usr/, so it will be installed to
 /usr/local/share with setup.py and to /usr/share with Debian packages.
 BUT KDE4 on Suse 12.02 ignores data in /usr/local/share, and, probably, some other systems do
-Therefore mksv3 always installs its .desktop and icons to /usr/share
+Therefore Enki always installs its .desktop and icons to /usr/share
 """
 if (('install' in sys.argv or \
      'install_data' in sys.argv) and \
@@ -71,10 +71,11 @@ if (('install' in sys.argv or \
     'bdist_msi' in sys.argv:
         data_files = []
 else:
-    data_files=[('/usr/share/applications/', ['mksv3.desktop']),
-                ('/usr/share/pixmaps/', ['icons/xpm/mksv3.xpm']),
-                ('/usr/share/icons/hicolor/32x32/apps', ['icons/mksv3.png']),
-                ('/usr/share/icons/hicolor/scalable/apps', ['icons/mksv3.svg'])
+    data_files=[('/usr/share/applications/', ['enki.desktop']),
+                ('/usr/share/pixmaps/', ['icons/xpm/enki.xpm']),
+                ('/usr/share/icons/hicolor/32x32/apps', ['icons/enki.png']),
+                ('/usr/share/icons/hicolor/48x48/apps', ['icons/logo/48x48/enki.png']),
+                ('/usr/share/icons/hicolor/scalable/apps', ['icons/enki.svg'])
                 ]
 
 classifiers = ['Development Status :: 3 - Alpha',
@@ -104,21 +105,21 @@ if 'install' in sys.argv and \
         if not _checkDepencencies():
             sys.exit(-1)
 
-packages=['mks',
-          'mks/core',
-          'mks/lib',
-          'mks/widgets',
-          'mks/plugins',
-          'mks/resources']
+packages=['enkilib',
+          'enkilib/core',
+          'enkilib/lib',
+          'enkilib/widgets',
+          'enkilib/plugins',
+          'enkilib/resources']
 
-package_data={'mks' : ['ui/*.ui',
-                       'config/*.json']
+package_data={'enkilib' : ['ui/*.ui',
+                           'config/*.json']
              }
 
-for loader, name, ispkg in pkgutil.iter_modules(['mks/plugins']):
+for loader, name, ispkg in pkgutil.iter_modules(['enkilib/plugins']):
     if ispkg:
-        packages.append('mks/plugins/' + name)
-        package_data['mks'].append('plugins/%s/*.ui' % name)
+        packages.append('enkilib/plugins/' + name)
+        package_data['enkilib'].append('plugins/%s/*.ui' % name)
 
 
 setup(name=PACKAGE_NAME,
@@ -128,10 +129,10 @@ setup(name=PACKAGE_NAME,
         author='Andrei Kopats',
         author_email='hlamer@tut.by',
         url=PACKAGE_URL,
-        download_url='https://github.com/hlamer/mksv3/tags',
+        download_url='https://github.com/hlamer/enki/tags',
         packages=packages,
         package_data=package_data,
-        scripts=['bin/mksv3'],
+        scripts=['bin/enki'],
         data_files=data_files,
         classifiers=classifiers,
         license='gpl2',

@@ -1,9 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=mksv3 editor
-GenericName=Text editor for programmers
-Icon=mksv3
-Exec=mksv3
-MimeType=text/css;text/html;text/plain;text/xml;text/x-adasrc;text/x-chdr;text/x-cmake;text/x-csharp;text/x-c++src;text/x-csrc;text/x-fortran;text/x-idl;text/x-java;text/x-lua;text/x-makefile;text/x-pascal;text/x-patch;text/x-python;text/x-readme;text/x-tcl;text/x-texinfo;text/x-tex;text/x-verilog;text/x-vhdl
-Categories=Development;Qt;IDE;TextEditor;
-
