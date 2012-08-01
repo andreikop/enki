@@ -1,1 +1,1 @@
-.. automodule:: mks.widgets.lineedit
+.. automodule:: enkilib.widgets.lineedit

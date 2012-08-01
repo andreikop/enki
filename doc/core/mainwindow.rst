@@ -1,1 +1,1 @@
-.. automodule:: mks.core.mainwindow
+.. automodule:: enkilib.core.mainwindow

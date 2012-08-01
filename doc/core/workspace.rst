@@ -1,1 +1,1 @@
-.. automodule:: mks.core.workspace
+.. automodule:: enkilib.core.workspace

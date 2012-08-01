@@ -1,2 +1,0 @@
-"""mksv3 plugins
-"""

@@ -1,14 +1,14 @@
-`mksv3 home page <http://hlamer.github.com/mksv3/>`_.
+`Enki home page <http://hlamer.github.com/enki/>`_.
 
 Plugin API documentation
 ========================
-This is API documentation. It lists all modules, which may be used by mksv3 plugins.
+This is API documentation. It lists all modules, which may be used by Enki plugins.
 
-To create your own plugins, at first read tutorial at the `wiki <https://github.com/hlamer/mksv3/wiki/Plugins-tutorial>`_.
+To create your own plugins, at first read tutorial at the `wiki <https://github.com/hlamer/enki/wiki/Plugins-tutorial>`_.
 
 
-mks.core
---------
+enkilib.core
+-----------
 Core creates basic user interface, provides basic functionality for user, contains plugin API.
 
 .. toctree::
@@ -23,7 +23,7 @@ Core creates basic user interface, provides basic functionality for user, contai
    core/filefilter.rst
    core/locator.rst
 
-mks.lib
+enkilib.lib
 -------
 Code (but not widgets), which is not used by core, but, may be used by more than one plugin.
 
@@ -33,8 +33,8 @@ Code (but not widgets), which is not used by core, but, may be used by more than
     lib/htmldelegate.rst
     lib/pathcompleter.rst
 
-mks.widgets
------------
+enkilib.widgets
+--------------
 Set of reusable widgets.
 
 .. toctree::
@@ -44,8 +44,8 @@ Set of reusable widgets.
     widgets/colorbutton.rst
     widgets/termwidget.rst
 
-mks.plugins
------------
+enkilib.plugins
+--------------
 This package contains plugins, which extend the core with additional functionality.
 
 Plugins do not export any public API and are not included to this docs. But code consists docstrings.

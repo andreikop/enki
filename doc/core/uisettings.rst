@@ -1,1 +1,1 @@
-.. automodule:: mks.core.uisettings
+.. automodule:: enkilib.core.uisettings

@@ -11,7 +11,7 @@ changelog-update:
 	cd debian && \
 		DEBFULLNAME="$(AUTHOR)" \
 		DEBEMAIL=$(AUTHOR_EMAIL) \
-		EDITOR=mksv3 \
+		EDITOR=enki \
 			dch -v $(VERSION)-1~ppa1 -b --distribution lucid
 
 dsc:
@@ -24,4 +24,4 @@ dput: dsc
 	cd build && dput monkeystudio *.changes
 
 deb: dsc
-	cd build/mksv3-$(VERSION) && debuild
+	cd build/enki-$(VERSION) && debuild

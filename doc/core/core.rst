@@ -1,1 +1,1 @@
-.. automodule:: mks.core.core
+.. automodule:: enkilib.core.core
