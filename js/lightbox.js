@@ -336,7 +336,9 @@ lightbox = new Lightbox options
       $(window).off("resize", this.sizeOverlay);
       $('#lightbox').fadeOut(this.options.fadeDuration);
       $('#lightboxOverlay').fadeOut(this.options.fadeDuration);
-      
+          
+          // fix Opera bug
+          $('.screenshot > a > img').addClass("fancy-border");
 
       return $('select, object, embed').css({
         visibility: "visible"
