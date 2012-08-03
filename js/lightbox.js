@@ -335,7 +335,7 @@ lightbox = new Lightbox options
       $(window).off("resize", this.sizeOverlay);
       $('#lightbox').fadeOut(this.options.fadeDuration);
       $('#lightboxOverlay').fadeOut(this.options.fadeDuration);
-      $('img').css("outline","solid #FF6000");
+      $('.screenshot > a > img:hover').css("outline","solid #FF6000");
       return $('select, object, embed').css({
         visibility: "visible"
       });
