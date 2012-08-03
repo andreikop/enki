@@ -2,4 +2,4 @@ safe: true
 lsi: false
 pygments: true
 
-baseurl: '/mustached-octo-robot'
+baseurl: '/home/a/code/mksv3.gh-pages'
