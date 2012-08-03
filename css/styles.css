@@ -351,8 +351,12 @@ padding: 0px 0px 10px 0px;
 	margin: 0px 0px 10px 0px;
 }
 
-#screenshot-container img:hover {
+#screenshot-container a img:hover {
 	outline: solid #FF6000;
+}
+
+#screenshot-container a img:active, #screenshot-container a img:focus {
+	outline: 0;
 }
 
 #more-screenshots {
