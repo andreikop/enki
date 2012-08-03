@@ -81,24 +81,24 @@ baseurl: .
      <div class="screenshot-row">
        <div class="screenshot">
             <a href="screenshots/minimal.png" rel="lightbox[screenshots]" title="Minimalistic UI">
-                <img src="screenshots/preview/minimal.png"/></a><br />
+                <img src="screenshots/preview/minimal.png" class="fancy-border" /></a><br />
             Minimalistic UI
         </div>
         <div class="screenshot">
             <a href="screenshots/search.png" rel="lightbox[screenshots]" title="Search">
-                <img src="screenshots/preview/search.png"/></a><br />
+                <img src="screenshots/preview/search.png" class="fancy-border" /></a><br />
             Search
         </div>
     </div>
     <div class="screenshot-row">
         <div class="screenshot">
             <a href="screenshots/search-replace.png" rel="lightbox[screenshots]" title="Good bye sed">
-                <img src="screenshots/preview/search-replace.png"/></a><br />
+                <img src="screenshots/preview/search-replace.png" class="fancy-border" /></a><br />
             Good bye sed
         </div>
         <div class="screenshot">
             <a href="screenshots/markdown-preview.png" rel="lightbox[screenshots]" title="Markdown live preview">
-                <img src="screenshots/preview/markdown-preview.png"/></a><br />
+                <img src="screenshots/preview/markdown-preview.png" class="fancy-border" /></a><br />
             Markdown live preview
         </div>
     </div>
