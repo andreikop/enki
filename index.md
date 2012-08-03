@@ -69,7 +69,7 @@ baseurl: .
                         {{ post.date | date_to_string }}
                     </div>
                     <div class="post-title">
-                        <a href="{{ page.root }}{{ post.url }}">{{ post.title }}</a>
+                        <a href="{{ page.baseurl }}{{ post.url }}">{{ post.title }}</a>
                     </div>
                 </div>
                 {% endfor %}

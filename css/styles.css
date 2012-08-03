@@ -144,7 +144,6 @@ text-align: right;
 #content {
 	float: left;
 	background-color: #2E4869;
-	min-height: 100%;
 	height: auto;
 	width: 1024px;
 }
@@ -390,9 +389,7 @@ width: 490px;
 }
 
 #allnews {
-	padding: 10px;
-	float: right;
-	width: 115px;
+	margin-right: 60px;
 	text-align: right;
 }
 
@@ -405,7 +402,7 @@ width: 490px;
 	font-size: 45px;
 }
 
-.md-content {padding: 0px 0px 30px 30px; margin: -30px 0px 0px 0px; min-height: 450px;}
+.md-content {padding: 0px 0px 30px 30px; margin: -30px 0px 0px 0px; min-height: 446px;}
 
 .md-content p, .md-content ol li {
 	padding-right: 100px;
