@@ -356,7 +356,7 @@ padding: 0px 0px 10px 0px;
 }
 
 #screenshot-container a img:active, #screenshot-container a img:focus {
-	outline: 0;
+	outline: none;
 }
 
 #more-screenshots {
