@@ -357,7 +357,7 @@ padding: 0px 0px 10px 0px;
 
 /* this fancy-border class is called by the javascript lightbox to fix a bug in Opera where the outline remains visible above the lightbox - Aug 3, 2012 */
 #screenshot-container a img.fancy-border:hover {
-	outline: solid #FF6000;
+	outline: solid #FF6000 !important;
 }
 
 #more-screenshots {
