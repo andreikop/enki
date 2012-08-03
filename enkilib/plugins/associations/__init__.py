@@ -38,6 +38,8 @@ class Plugin():
         core.uiSettingsManager().dialogAccepted.connect(self._applySettings)
         core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
         
+        self._menu.setEnabled(False)
+        
         Plugin.instance = self
 
     def _applySettings(self):
