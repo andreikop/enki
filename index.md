@@ -10,7 +10,7 @@ baseurl: .
 * **User friendly.** Intuitive interface. Works out of the box. You don't have to read a lot of docs
 * **Hacker friendly** Code as quickly as possible. Without mouse.
 * **Lighweight.** Some IDEs show splashscreen. enki will never do it. It just starts quickly.
-* **Extensible.** Operating systems are designed for running applications. MkS is designed for running plugins.
+* **Extensible.** Operating systems are designed for running applications. Enki is designed for running plugins.
 * **High quality.** No long list of fancy features. But, what is done, is done well.
 * **Open source.** This is our religion.
 
@@ -21,7 +21,7 @@ baseurl: .
 
     <!-- Hiding Facebook button
         <div id="facebook">
-            <a href="http://www.facebook.com/sharer.php?u=http://hlamer.github.com/mksv3/"><img src="./img/facebook.png" title="Share enki editor on Facebook" alt="Share enki editor on Facebook"></a>
+            <a href="http://www.facebook.com/sharer.php?u=http://hlamer.github.com/enki/"><img src="./img/facebook.png" title="Share enki editor on Facebook" alt="Share enki editor on Facebook"></a>
         </div>
         -->
     
