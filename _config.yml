@@ -2,4 +2,3 @@ safe: true
 lsi: false
 pygments: true
 
-baseurl: '/home/a/code/mksv3.gh-pages'

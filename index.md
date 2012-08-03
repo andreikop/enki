@@ -4,10 +4,6 @@ title: Enki. Code editor
 baseurl: .
 ---
 
-<!--[if lte IE 7]>
-  <link rel="stylesheet" type="text/css" href="{{ page.baseurl }}/css/ie7index.css">
-  <![endif]-->
-
 <div class="content-row-1" markdown="1">
 ##enki is a text editor for programmers. It is:
 

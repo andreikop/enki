@@ -27,6 +27,14 @@ a:visited {
 	color: #777;
 }
 
+a {
+  outline: none;
+}
+a:focus {
+  -moz-outline-style: none;
+}
+
+
 ul {
 	padding: 0;
 	margin: 0;
