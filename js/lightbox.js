@@ -335,8 +335,8 @@ lightbox = new Lightbox options
       $(window).off("resize", this.sizeOverlay);
       $('#lightbox').fadeOut(this.options.fadeDuration);
       $('#lightboxOverlay').fadeOut(this.options.fadeDuration);
-      $('.screenshot > a > img').css("outline","");
-      $('.screenshot > a > img').addClass("fancy-border");
+      
+      
 
       return $('select, object, embed').css({
         visibility: "visible"
