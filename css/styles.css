@@ -364,29 +364,29 @@ width: 490px;
 	font-size: 15px;
 }
 
-#news-inner-container {
-	margin: 0 auto;
-	width: 488px;
+
+#news .news-row {
+
 }
 
-#dates {
-font-family: monospace;
-font-weight: bold;
-display: inline-block;
-margin: 0 auto;
-width: 38%;
-float:left;
-padding-right:10px;
+
+#news .date {
+	display: inline-block;
+	font-family: monospace;
+	padding-right: 10px;
+}
+
+#news .post-title {
+	display: inline-block;
+}
+
+#news-inner-container {
+	width: 25em;
+	margin: 0 auto;
 }
 
 #dates div {
 	float: right;
-}
-
-#posts {
-float: left;
-margin: 0 auto;
-min-width: 200px;
 }
 
 #allnews {
@@ -405,7 +405,7 @@ min-width: 200px;
 	font-size: 45px;
 }
 
-.md-content {padding: 0px 0px 0px 30px; margin: -30px 0px 0px 0px; min-height: 593px;}
+.md-content {padding: 0px 0px 30px 30px; margin: -30px 0px 0px 0px; min-height: 450px;}
 
 .md-content p, .md-content ol li {
 	padding-right: 100px;

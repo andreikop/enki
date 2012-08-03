@@ -63,29 +63,21 @@ baseurl: .
         <div id="news">
             <h2>News</h2>
             <div id="news-inner-container">
-                <div id="dates">
-                    {% for post in site.posts limit:5 %}
-                    <div>
-                    {{ post.date | date_to_string }}
+                {% for post in site.posts limit:5 %}
+                <div class="news-row">
+                    <div class="date">
+                        {{ post.date | date_to_string }}
                     </div>
-                    {% endfor %}
-                </div>
-                
-                <div id="posts">
-                    {% for post in site.posts limit:5 %}
-                    <div>
-                    <a href="{{ page.baseurl }}{{ post.url }}">{{ post.title }}</a>
-                    {{ post.excerpt }}
+                    <div class="post-title">
+                        <a href="{{ page.root }}{{ post.url }}">{{ post.title }}</a>
                     </div>
-                    {% endfor %}
                 </div>
+                {% endfor %}
             </div>
-            <br />
+        </div>
             <div id="allnews">
                 <a href="archive.html">All news...</a>
             </div>
-
-        </div>
     </div>
 
 
