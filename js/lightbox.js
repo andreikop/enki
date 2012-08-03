@@ -178,7 +178,7 @@ lightbox = new Lightbox options
       }
       $window = $(window);
           //code to fix Opera bug where outline of image is still visible over the lightbox
-          $("div.screenshot > img").css("outline", "none");
+          $("div.screenshot > img:hover").css("outline", "none");
       top = $window.scrollTop() + $window.height() / 20;
       left = $window.scrollLeft();
       $lightbox = $('#lightbox');
