@@ -355,10 +355,6 @@ padding: 0px 0px 10px 0px;
 	outline: solid #FF6000;
 }
 
-#screenshot-container a img:active, #screenshot-container a img:focus {
-	outline: none;
-}
-
 #more-screenshots {
 float: right !important;
 text-align: right;
