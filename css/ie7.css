@@ -1,4 +1,4 @@
-/* ie7 stylesheet */
+/* ie7 ie8 stylesheet */
 
 .content-row-1 h2 {
 	display: block;
@@ -7,7 +7,7 @@
 }
 
 #product-name {
-	top: 10px;
+	top: -12px
 }
 
 #editor {
