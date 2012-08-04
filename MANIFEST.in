@@ -1,6 +1,6 @@
 recursive-include icons *
 include LICENSE*
 include README.md
-recursive-include enkilib *.ui *.json
+recursive-include enki *.ui *.json
 
 include enki.desktop

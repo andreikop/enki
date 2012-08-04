@@ -1,1 +1,1 @@
-.. automodule:: enkilib.core.workspace
+.. automodule:: enki.core.workspace

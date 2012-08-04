@@ -1,1 +1,1 @@
-.. automodule:: enkilib.lib.htmldelegate
+.. automodule:: enki.lib.htmldelegate

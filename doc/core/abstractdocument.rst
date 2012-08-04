@@ -1,1 +1,1 @@
-.. automodule:: enkilib.core.abstractdocument
+.. automodule:: enki.core.abstractdocument

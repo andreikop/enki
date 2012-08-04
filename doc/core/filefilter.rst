@@ -1,1 +1,1 @@
-.. automodule:: enkilib.core.filefilter
+.. automodule:: enki.core.filefilter

@@ -1,1 +1,1 @@
-.. automodule:: enkilib.widgets.dockwidget
+.. automodule:: enki.widgets.dockwidget

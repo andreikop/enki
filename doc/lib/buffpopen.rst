@@ -1,1 +1,1 @@
-.. automodule:: enkilib.lib.buffpopen
+.. automodule:: enki.lib.buffpopen

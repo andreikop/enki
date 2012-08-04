@@ -12,7 +12,7 @@ except ImportError:
 """
 from distutils.core import setup
 
-from enkilib.core.defines import PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_URL
+from enki.core.defines import PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_URL
 
 def _checkDepencencies():
     """Check if 3rdparty software is installed in the system.
@@ -105,21 +105,21 @@ if 'install' in sys.argv and \
         if not _checkDepencencies():
             sys.exit(-1)
 
-packages=['enkilib',
-          'enkilib/core',
-          'enkilib/lib',
-          'enkilib/widgets',
-          'enkilib/plugins',
-          'enkilib/resources']
+packages=['enki',
+          'enki/core',
+          'enki/lib',
+          'enki/widgets',
+          'enki/plugins',
+          'enki/resources']
 
-package_data={'enkilib' : ['ui/*.ui',
+package_data={'enki' : ['ui/*.ui',
                            'config/*.json']
              }
 
-for loader, name, ispkg in pkgutil.iter_modules(['enkilib/plugins']):
+for loader, name, ispkg in pkgutil.iter_modules(['enki/plugins']):
     if ispkg:
-        packages.append('enkilib/plugins/' + name)
-        package_data['enkilib'].append('plugins/%s/*.ui' % name)
+        packages.append('enki/plugins/' + name)
+        package_data['enki'].append('plugins/%s/*.ui' % name)
 
 
 setup(name=PACKAGE_NAME,
@@ -132,7 +132,7 @@ setup(name=PACKAGE_NAME,
         download_url='https://github.com/hlamer/enki/tags',
         packages=packages,
         package_data=package_data,
-        scripts=['enki'],
+        scripts=['bin/enki'],
         data_files=data_files,
         classifiers=classifiers,
         license='gpl2',

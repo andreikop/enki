@@ -1,1 +1,1 @@
-.. automodule:: enkilib.core.core
+.. automodule:: enki.core.core
