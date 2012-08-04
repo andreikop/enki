@@ -18,7 +18,7 @@ dsc:
 	rm -rf dist
 	rm -rf build
 	./setup.py sdist
-	./scripts/make-deb.sh
+	./tools/make-deb.sh
 
 dput: dsc
 	cd build && dput monkeystudio *.changes
