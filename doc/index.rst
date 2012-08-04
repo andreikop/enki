@@ -7,7 +7,7 @@ This is API documentation. It lists all modules, which may be used by Enki plugi
 To create your own plugins, at first read tutorial at the `wiki <https://github.com/hlamer/enki/wiki/Plugins-tutorial>`_.
 
 
-enkilib.core
+enki.core
 -----------
 Core creates basic user interface, provides basic functionality for user, contains plugin API.
 
@@ -23,7 +23,7 @@ Core creates basic user interface, provides basic functionality for user, contai
    core/filefilter.rst
    core/locator.rst
 
-enkilib.lib
+enki.lib
 -------
 Code (but not widgets), which is not used by core, but, may be used by more than one plugin.
 
@@ -33,7 +33,7 @@ Code (but not widgets), which is not used by core, but, may be used by more than
     lib/htmldelegate.rst
     lib/pathcompleter.rst
 
-enkilib.widgets
+enki.widgets
 --------------
 Set of reusable widgets.
 
@@ -44,7 +44,7 @@ Set of reusable widgets.
     widgets/colorbutton.rst
     widgets/termwidget.rst
 
-enkilib.plugins
+enki.plugins
 --------------
 This package contains plugins, which extend the core with additional functionality.
 

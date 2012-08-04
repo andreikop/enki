@@ -1,1 +1,1 @@
-.. automodule:: enkilib.widgets.colorbutton
+.. automodule:: enki.widgets.colorbutton

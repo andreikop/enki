@@ -1,1 +1,1 @@
-.. automodule:: enkilib.widgets.termwidget
+.. automodule:: enki.widgets.termwidget

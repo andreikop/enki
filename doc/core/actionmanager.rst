@@ -1,1 +1,1 @@
-.. automodule:: enkilib.core.actionmanager
+.. automodule:: enki.core.actionmanager

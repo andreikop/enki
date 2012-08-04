@@ -1,1 +1,1 @@
-.. automodule:: enkilib.widgets.lineedit
+.. automodule:: enki.widgets.lineedit

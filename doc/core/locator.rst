@@ -1,1 +1,1 @@
-.. automodule:: enkilib.core.locator
+.. automodule:: enki.core.locator

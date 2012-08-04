@@ -1,7 +1,7 @@
 #!/bin/sh
 
 QRC_FILE=enkiicons.qrc
-RESOURCE_FILE=../enkilib/resources/icons.py
+RESOURCE_FILE=../enki/resources/icons.py
 
 echo '<RCC>' > $QRC_FILE
 echo '	<qresource prefix="/enkiicons" >' >> $QRC_FILE
