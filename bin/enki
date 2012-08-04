@@ -213,10 +213,10 @@ def main():
 
     if not cmdLine["no-session"]:
         core.restoreSession.emit()
-    else:  # no session
-        if core.workspace().currentDocument() is None and \
-           core.workspace().textEditorClass() is not None:
-            core.workspace().createEmptyNotSavedDocument()
+    
+    if core.workspace().currentDocument() is None and \
+       core.workspace().textEditorClass() is not None:
+        core.workspace().createEmptyNotSavedDocument()
 
     if profiler is not None:
         profiler.stepDone('Restore session')
