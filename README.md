@@ -34,4 +34,5 @@ GPL v2
 
 ## Contacts
 [enki-editor@googlegroups.com](mailto:enki-editor@googlegroups.com)
+
 [hlamer@tut.by](mailto:hlamer@tut.by)
