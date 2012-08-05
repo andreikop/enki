@@ -11,7 +11,7 @@ baseurl: .
 
 [hlamer@tut.by](mailto:hlamer@tut.by)
 
-enki developer
+Enki developer
 
 ## Filipe Azevedo
 **PasNox**
