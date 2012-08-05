@@ -36,18 +36,18 @@ baseurl: .
             
             <h2>Download</h2>
             
-            <div><a id="source-button" href="install-sources.html">Source Package</a></div>
+            <div><a id="source-button" href="install-sources.html"> </a></div>
             
-            <div><a id="ubuntu-button" href="install-ubuntu.html">Ubuntu Package</a></div>
+            <div><a id="ubuntu-button" href="install-ubuntu.html"> </a></div>
 
-            <div><a id="debian-button" href="install-debian.html">Debian Package</a></div>
+            <div><a id="debian-button" href="install-debian.html"> </a></div>
 
        
     <!-- Hiding unused download buttons
 
-    <div><a id="macos-button" href="install-macos.html">MacOS Package</a></div>
+    <div><a id="macos-button" href="install-macos.html"> </a></div>
 
-    <div><a id="windows-button" href="install-windows.html">Windows Package</a></div>
+    <div><a id="windows-button" href="install-windows.html"> </a></div>
 
     <div id="more-downloads"><a href="#">More downloads ...</a></div>
     -->
