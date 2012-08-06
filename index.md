@@ -16,7 +16,7 @@ baseurl: .
 
     <div id="social-buttons">
         <div id="twitter">
-            <a href="https://twitter.com/AndreiKopats" class="twitter-follow-button" data-show-count="false" data-size="large" data-show-screen-name="false">Follow @AndreiKopats</a>
+            <a href="https://twitter.com/EnkiEditor" class="twitter-follow-button" data-show-count="false" data-size="large" data-show-screen-name="false">Follow @EnkiEditor</a>
         </div>
 
     <!-- Hiding Facebook button
