@@ -21,7 +21,7 @@ dsc:
 	./tools/make-deb.sh
 
 dput: dsc
-	cd build && dput monkeystudio *.changes
+	cd build && dput enki *.changes
 
 deb: dsc
 	cd build/enki-$(VERSION) && debuild
