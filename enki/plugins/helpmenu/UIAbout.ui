@@ -29,7 +29,7 @@
       </sizepolicy>
      </property>
      <property name="pixmap">
-      <pixmap resource="../../../icons/enkiicons.qrc">:/enkiicons/enki.png</pixmap>
+      <pixmap resource="../../../icons/enkiicons.qrc">:/enkiicons/logo/32x32/enki.png</pixmap>
      </property>
      <property name="alignment">
       <set>Qt::AlignHCenter|Qt::AlignTop</set>

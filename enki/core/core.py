@@ -83,7 +83,7 @@ class Core(QObject):
 
         qInitResources()
 
-        QApplication.instance().setWindowIcon(QIcon(':/enkiicons/enki.png') )
+        QApplication.instance().setWindowIcon(QIcon(':/enkiicons/logo/32x32/enki.png') )
 
         import enki.core.actionmanager
         self._actionManager = enki.core.actionmanager.ActionManager(self)
