@@ -72,7 +72,7 @@ if (('install' in sys.argv or \
         data_files = []
 else:
     data_files=[('/usr/share/applications/', ['enki.desktop']),
-                ('/usr/share/pixmaps/', ['icons/xpm/enki.xpm']),
+                ('/usr/share/pixmaps/', ['icons/logo/48x48/enki.png']),
                 ('/usr/share/icons/hicolor/32x32/apps', ['icons/enki.png']),
                 ('/usr/share/icons/hicolor/48x48/apps', ['icons/logo/48x48/enki.png']),
                 ('/usr/share/icons/hicolor/scalable/apps', ['icons/enki.svg'])
