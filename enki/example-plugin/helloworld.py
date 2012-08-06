@@ -55,7 +55,7 @@ class Plugin:
         """Add action to main menu
         This action uses embedded icons. You can find list of icons in **icons** directory at project root
         """
-        action = core.actionManager().addAction( "mHelp/aSayHello", 'Say Hello...', QIcon(':enkiicons/enki.png'))
+        action = core.actionManager().addAction( "mHelp/aSayHello", 'Say Hello...', QIcon(':/enkiicons/logo/32x32/enki.png'))
         core.actionManager().setDefaultShortcut(action, "Ctrl+Alt+Shift+H")
         action.triggered.connect(self._sayHello)
         

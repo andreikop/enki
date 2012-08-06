@@ -5,7 +5,7 @@ RESOURCE_FILE=../enki/resources/icons.py
 
 echo '<RCC>' > $QRC_FILE
 echo '	<qresource prefix="/enkiicons" >' >> $QRC_FILE
-for file in `ls *.png languages/*.png fresh/*.png`; do \
+for file in `ls -d *.png languages/*.png fresh/*.png logo/* logo/*/*`; do \
 	echo '		<file>'$file'</file>' >> $QRC_FILE;
 done
 echo '	</qresource>' >>$QRC_FILE
