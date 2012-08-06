@@ -7,7 +7,7 @@ baseurl: .
 # Install on Debian (and based on it)
 
     su
-    echo 'deb http://ppa.launchpad.net/monkeystudio/ppa/ubuntu lucid main' >  \
+    echo 'deb http://ppa.launchpad.net/hlamer/enki/ubuntu lucid main' >  \
         /etc/apt/sources.list.d/enki
     apt-get update
     apt-get install enki
