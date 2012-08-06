@@ -1,16 +1,16 @@
-mksv3 (12.06.3-1~ppa1) lucid; urgency=low
+enki (12.06.3-1~ppa1) lucid; urgency=low
 
   * Added missing .ui and .json
 
  -- Andrei Kopats <hlamer@tut.by>  Mon, 18 Jun 2012 23:13:00 +0300
 
-mksv3 (12.06.2-1~ppa1) lucid; urgency=low
+enki (12.06.2-1~ppa1) lucid; urgency=low
 
   * Fix for Debian build system
 
  -- Andrei Kopats <hlamer@tut.by>  Mon, 18 Jun 2012 08:10:32 +0300
 
-mksv3 (12.06.1-1~ppa1) lucid; urgency=low
+enki (12.06.1-1~ppa1) lucid; urgency=low
 
   * Locator. (File open dialog with bash-like tab completion)
   * Open directories in File Browser, when drag-n-dropt to the main window
@@ -18,13 +18,13 @@ mksv3 (12.06.1-1~ppa1) lucid; urgency=low
 
  -- Andrei Kopats <hlamer@tut.by>  Mon, 18 Jun 2012 08:10:32 +0300
 
-mksv3 (12.04.1-1~ppa1) lucid; urgency=low
+enki (12.04.1-1~ppa1) lucid; urgency=low
 
   * Bug fixes
 
  -- Andrei Kopats <hlamer@tut.by>  Mon, 09 Apr 2012 20:38:10 +0300
 
-mksv3 (12.04-1~ppa1) lucid; urgency=low
+enki (12.04-1~ppa1) lucid; urgency=low
 
   * Reopen recent files (File -> Recents menu)
   * Move lines Up and Down
@@ -40,7 +40,7 @@ mksv3 (12.04-1~ppa1) lucid; urgency=low
 
  -- Andrei Kopats <hlamer@tut.by>  Sun, 08 Apr 2012 08:21:55 +0300
 
-mksv3 (0.2.7-1~ppa1) lucid; urgency=low
+enki (0.2.7-1~ppa1) lucid; urgency=low
 
   * File names in the list of opened files are always unique
   * Support for +N specification to go to particular line in a file
@@ -48,19 +48,19 @@ mksv3 (0.2.7-1~ppa1) lucid; urgency=low
 
  -- Andrei Kopats <hlamer@tut.by>  Mon, 20 Feb 2012 01:14:47 +0300
 
-mksv3 (0.2.6-1~lucid1) lucid; urgency=low
+enki (0.2.6-1~lucid1) lucid; urgency=low
 
   * Changed distribution name to lucid and compatibility level to 7
 
  -- Andrei Kopats <hlamer@tut.by>  Thu, 02 Feb 2012 10:47:00 +0300
 
-mksv3 (0.2.5-1~lucid1) lucid; urgency=low
+enki (0.2.5-1~lucid1) lucid; urgency=low
 
   * Crash fix
 
  -- Andrei Kopats <hlamer@tut.by>  Wed, 01 Feb 2012 19:54:34 +0300
 
-mksv3 (0.2.4-1~lucid1) lucid; urgency=low
+enki (0.2.4-1~lucid1) lucid; urgency=low
 
   * Fixed search widget width
   * Fixed crash
@@ -69,27 +69,27 @@ mksv3 (0.2.4-1~lucid1) lucid; urgency=low
 
  -- Andrei Kopats <hlamer@tut.by>  Wed, 01 Feb 2012 19:25:53 +0300
 
-mksv3 (0.2.3-ppa0) oneiric; urgency=low
+enki (0.2.3-ppa0) oneiric; urgency=low
 
   * Fixed crash in the file browser
 
  -- Andrei Kopats <hlamer@tut.by>  Tue, 31 Jan 2012 20:33:17 +0300
 
-mksv3 (0.2.2-ppa0) oneiric; urgency=low
+enki (0.2.2-ppa0) oneiric; urgency=low
 
   * Fixed syntax error in the debian/control
   * Package metadata update
 
  -- Andrei Kopats <hlamer@tut.by>  Tue, 31 Jan 2012 08:23:43 +0300
 
-mksv3 (0.2.1-ppa0) oneiric; urgency=low
+enki (0.2.1-ppa0) oneiric; urgency=low
 
   * Scheme support bug fixes
   * Declared compatibility with python 2.6
 
  -- Andrei Kopats <hlamer@tut.by>  Mon, 30 Jan 2012 21:54:36 +0300
 
-mksv3 (0.2.0-ppa0) oneiric; urgency=low
+enki (0.2.0-ppa0) oneiric; urgency=low
 
   * Added Scheme support
   * Removed dependency on fresh package
@@ -97,37 +97,37 @@ mksv3 (0.2.0-ppa0) oneiric; urgency=low
 
  -- Andrei Kopats <hlamer@tut.by>  Mon, 30 Jan 2012 08:04:16 +0300
 
-mksv3 (0.1.5-ppa0) oneiric; urgency=low
+enki (0.1.5-ppa0) oneiric; urgency=low
 
   * Crash fix
 
  -- Andrei Kopats (laptop) <hlamer@tut.by>  Sun, 20 Nov 2011 23:18:00 +0300
 
-mksv3 (0.1.4-ppa0) oneiric; urgency=low
+enki (0.1.4-ppa0) oneiric; urgency=low
 
   * Few bug fixes
 
  -- Andrei Kopats (laptop) <hlamer@tut.by>  Sun, 20 Nov 2011 21:00:54 +0300
 
-mksv3 (0.1.3-ppa0) oneiric; urgency=low
+enki (0.1.3-ppa0) oneiric; urgency=low
 
   * Added missing .desktop file
 
  -- Andrei Kopats (laptop) <hlamer@tut.by>  Sun, 13 Nov 2011 09:36:18 +0300
 
-mksv3 (0.1.2-ppa0) oneiric; urgency=low
+enki (0.1.2-ppa0) oneiric; urgency=low
 
   * Changed version to ppa0
 
  -- Andrei Kopats (laptop) <hlamer@tut.by>  Sat, 12 Nov 2011 14:06:54 +0300
 
-mksv3 (0.1.1-0ubuntu1) oneiric; urgency=low
+enki (0.1.1-0ubuntu1) oneiric; urgency=low
 
   * Added fresh dependency
 
  -- Andrei Kopats (Key for PPA) <hlamer@tut.by>  Fri, 11 Nov 2011 19:01:44 +0300
 
-mksv3 (0.1a-0ubuntu1) oneiric; urgency=low
+enki (0.1a-0ubuntu1) oneiric; urgency=low
 
   [ Andrei Kopats ]
   * Initial release

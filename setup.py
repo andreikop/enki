@@ -122,7 +122,7 @@ for loader, name, ispkg in pkgutil.iter_modules(['enki/plugins']):
         package_data['enki'].append('plugins/%s/*.ui' % name)
 
 
-setup(name=PACKAGE_NAME,
+setup(  name=PACKAGE_NAME.lower(),
         version=PACKAGE_VERSION,
         description='Simple programmers text editor',
         long_description=long_description,
