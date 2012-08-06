@@ -25,3 +25,6 @@ dput: dsc
 
 deb: dsc
 	cd build/enki-$(VERSION) && debuild
+
+sdist:
+	./setup.py sdist --formats=gztar,zip
