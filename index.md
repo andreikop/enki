@@ -5,7 +5,7 @@ baseurl: .
 ---
 
 <div class="content-row-1" markdown="1">
-##enki is a text editor for programmers. It is:
+##Enki is a text editor for programmers. It is:
 
 * **User friendly.** Intuitive interface. Works out of the box. You don't have to read a lot of docs
 * **Hacker friendly** Code as quickly as possible. Without mouse.
