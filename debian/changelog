@@ -1,3 +1,9 @@
+enki (12.08.0-1~ppa1) lucid; urgency=low
+
+  * Renamed from mksv3 to Enki
+
+ -- Andrei Kopats <hlamer@tut.by>  Tue, 07 Aug 2012 10:05:22 +0300
+
 enki (12.06.3-1~ppa1) lucid; urgency=low
 
   * Added missing .ui and .json
