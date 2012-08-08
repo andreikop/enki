@@ -83,6 +83,7 @@
 		<file>logo/48x48/enki.png</file>
 		<file>logo/enki.ico</file>
 		<file>logo/enki.svg</file>
+		<file>logo/splashscreen.png</file>
 		<file>macEol.png</file>
 		<file>member.png</file>
 		<file>misc-blue.png</file>
@@ -134,8 +135,6 @@
 		<file>settings.png</file>
 		<file>shortcuts.png</file>
 		<file>sort.png</file>
-		<file>splashscreen_christmas.png</file>
-		<file>splashscreen.png</file>
 		<file>stop.png</file>
 		<file>struct.png</file>
 		<file>style.png</file>
