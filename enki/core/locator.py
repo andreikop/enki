@@ -446,7 +446,7 @@ class Locator(QDialog):
         except ImportError, ex:
             QMessageBox.warning(core.mainWindow(), "Failed to start Locator",
                                 "<html>Locator requires <b>pyparsing</b> python module.<br\>\n"
-                                "See <a href='https://github.com/hlamer/enki/wiki/source-installation-instructions'>"
+                                "See <a href='http://enki-editor.org/install-sources.html'>"
                                     "installation instructions</a></html>")
             return False
 

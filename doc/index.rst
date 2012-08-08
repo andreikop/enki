@@ -1,4 +1,4 @@
-`Enki home page <http://hlamer.github.com/enki/>`_.
+`Enki home page <http://enki-editor.org/>`_.
 
 Plugin API documentation
 ========================
