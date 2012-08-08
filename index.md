@@ -1,6 +1,6 @@
 ---
 layout: home
-title: Enki. Code editor
+title: Enki. A text editor for programmers
 baseurl: .
 ---
 
@@ -21,7 +21,7 @@ baseurl: .
 
     <!-- Hiding Facebook button
         <div id="facebook">
-            <a href="http://www.facebook.com/sharer.php?u=http://hlamer.github.com/enki/"><img src="./img/facebook.png" title="Share enki editor on Facebook" alt="Share enki editor on Facebook"></a>
+            <a href="http://www.facebook.com/sharer.php?u=http://enki-editor.org/"><img src="./img/facebook.png" title="Share enki editor on Facebook" alt="Share enki editor on Facebook"></a>
         </div>
         -->
     
