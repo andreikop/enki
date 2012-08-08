@@ -12,6 +12,6 @@ baseurl: .
  * File browser (File system tree)
  * Locator. File open dialog with bash-like Tab completion and globs support. Even better, than bash.
  * Autocompletion, based on document contents
- * [MIT Scheme REPL integration](https://github.com/hlamer/enki/wiki/Scheme-support)
+ * [MIT Scheme REPL integration]({{ page.baseurl }}/scheme.html)
  * HTML and Markdown live preview
 
