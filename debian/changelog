@@ -1,3 +1,10 @@
+enki (12.08.1-1~ppa1) lucid; urgency=low
+
+  * Fix official page link
+  * Better SVG logo
+
+ -- Andrei Kopats <hlamer@tut.by>  Wed, 08 Aug 2012 09:41:09 +0300
+
 enki (12.08.0-1~ppa1) lucid; urgency=low
 
   * Renamed from mksv3 to Enki
