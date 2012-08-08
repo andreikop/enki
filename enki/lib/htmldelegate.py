@@ -5,7 +5,7 @@ htmldelegate --- QStyledItemDelegate delegate. Draws HTML
 
 from PyQt4.QtGui import QApplication, QAbstractTextDocumentLayout, \
                         QStyledItemDelegate, QStyle, QStyleOptionViewItemV4, \
-                        QTextDocument
+                        QTextDocument, QPalette
 from PyQt4.QtCore import QSize
 
 _HTML_ESCAPE_TABLE = \
@@ -51,8 +51,8 @@ class HTMLDelegate(QStyledItemDelegate):
         ctx = QAbstractTextDocumentLayout.PaintContext()
 
         # Highlighting text if item is selected
-        #if (optionV4.state & QStyle::State_Selected)
-            #ctx.palette.setColor(QPalette::Text, optionV4.palette.color(QPalette::Active, QPalette::HighlightedText));
+        if option.state & QStyle.State_Selected:
+            ctx.palette.setColor(QPalette.Text, option.palette.color(QPalette.Active, QPalette.HighlightedText))
 
         textRect = style.subElementRect(QStyle.SE_ItemViewItemText, options)
         painter.save()
