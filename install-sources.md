@@ -30,7 +30,7 @@ baseurl: .
 
 ## 2. Get the sources
 
-[Download](https://github.com/hlamer/enki/downloads) source archive
+[Download](https://github.com/hlamer/enki/tags) source archive
 
 ## 3. Setup
     
