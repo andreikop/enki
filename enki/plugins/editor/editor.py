@@ -5,8 +5,6 @@ editor --- AbstractTextEditor implementation
 Uses QScintilla  internally
 """
 
-import shutil
-
 from PyQt4.QtCore import pyqtSignal, Qt
 from PyQt4.QtGui import QApplication, QColor, QFont, QFrame, QIcon, QKeyEvent, QKeySequence, QPrintDialog, QVBoxLayout
 
@@ -196,11 +194,6 @@ class Editor(AbstractTextEditor):
         
         myConfig = core.config()["Editor"]
         
-        # make backup if needed
-        if  myConfig["CreateBackupUponOpen"]:
-            if self.filePath() and not createNew:
-                shutil.copy(self.filePath(), self.filePath() + '.bak')
-
         # convert tabs if needed
         if  myConfig["Indentation"]["ConvertUponOpen"]:
             self._convertIndentation()

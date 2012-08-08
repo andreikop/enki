@@ -33,7 +33,6 @@
             "LineVisible": true, 
             "Width": 1
         }, 
-        "CreateBackupUponOpen": false, 
         "DefaultDocumentColours": true, 
         "DefaultDocumentPaper": "#ffffff",
         "DefaultDocumentPen": "#000000",

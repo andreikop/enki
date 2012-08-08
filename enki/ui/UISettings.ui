@@ -238,13 +238,6 @@
              <number>5</number>
             </property>
             <item>
-             <widget class="QCheckBox" name="cbCreateBackupUponOpen">
-              <property name="text">
-               <string>Create backup file upon open</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QCheckBox" name="cbShowLineNumbers">
               <property name="text">
                <string>Show line numbers</string>
