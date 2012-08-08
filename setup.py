@@ -18,7 +18,7 @@ def _checkDepencencies():
     """Check if 3rdparty software is installed in the system.
     Notify user, how to install it
     """
-    _SEE_SITE_PLAIN = 'See https://github.com/hlamer/enki/wiki/source-installation-instructions'
+    _SEE_SITE_PLAIN = 'See http://enki-editor.org/install-sources.html'
     ok = True
     try:
         import PyQt4
@@ -42,7 +42,7 @@ def _checkDepencencies():
         ok = False
     
     if not ok:
-        print 'See https://github.com/hlamer/enki/wiki/source-installation-instructions'
+        print 'See http://enki-editor.org/install-sources.html'
 
     return ok
 
@@ -129,7 +129,7 @@ setup(  name=PACKAGE_NAME.lower(),
         author='Andrei Kopats',
         author_email='hlamer@tut.by',
         url=PACKAGE_URL,
-        download_url='https://github.com/hlamer/enki/tags',
+        download_url='https://github.com/hlamer/enki/downloads',
         packages=packages,
         package_data=package_data,
         scripts=['bin/enki'],

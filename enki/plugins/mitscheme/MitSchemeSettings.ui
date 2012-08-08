@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;html&gt;Mode documentation is &lt;a href=http://hlamer.github.com/enki/scheme.html&gt;here&lt;/a&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;Mode documentation is &lt;a href=http://enki-editor.org/scheme.html&gt;here&lt;/a&gt;&lt;/html&gt;</string>
      </property>
      <property name="openExternalLinks">
       <bool>true</bool>
