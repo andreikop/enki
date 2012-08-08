@@ -28,7 +28,7 @@ class _StatusBar(QStatusBar):
         QStatusBar.__init__(self, *args)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setSizeGripEnabled(False)
-        self.setStyleSheet("border: 0")
+        self.setStyleSheet("QStatusBar {border: 0} QStatusBar::item {border: 0}")
         self._label = QLabel(self)
         self._label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self._label.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)

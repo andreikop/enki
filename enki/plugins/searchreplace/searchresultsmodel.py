@@ -30,19 +30,22 @@ class Result:  # pylint: disable=R0902
         afterMatch = self.wholeLine[self.column + len(self.match.group(0)):].rstrip()
         
         if QApplication.instance().palette().base().color().lightnessF() > 0.5:
-            color = 'yellow'
+            backgroundColor = 'yellow'
+            foregroundColor = 'black'
         else:
-            color = 'maroon'
+            backgroundColor = 'maroon'
+            foregroundColor = 'white'
         
         return '<html>' \
                     'Line: %d, Column: %d: %s' \
-                    '<font style=\'background-color: %s\'>%s</font>' \
+                    '<font style=\'background-color: %s; color: %s\'>%s</font>' \
                     '%s' \
                '</html>' % \
                 ( self.line + 1,
                   self.column,
                   htmlEscape(beforeMatch),
-                  color,
+                  backgroundColor,
+                  foregroundColor,
                   htmlEscape(self.match.group(0)),
                   htmlEscape(afterMatch))
     
