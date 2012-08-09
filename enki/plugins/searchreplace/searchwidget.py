@@ -151,6 +151,12 @@ class SearchWidget(QFrame):
         
         # connections        
         self.cbSearch.lineEdit().textChanged.connect(self._onSearchRegExpChanged)
+        
+        self.cbSearch.lineEdit().returnPressed.connect(self._onReturnPressed)
+        self.cbReplace.lineEdit().returnPressed.connect(self._onReturnPressed)
+        self.cbPath.lineEdit().returnPressed.connect(self._onReturnPressed)
+        self.cbMask.lineEdit().returnPressed.connect(self._onReturnPressed)
+        
         self.cbRegularExpression.stateChanged.connect(self._onSearchRegExpChanged)
         self.cbCaseSensitive.stateChanged.connect(self._onSearchRegExpChanged)
         
@@ -297,16 +303,22 @@ class SearchWidget(QFrame):
                 core.workspace().focusCurrentDocument()
                 self.hide()
             elif event.key() in (Qt.Key_Enter, Qt.Key_Return):
-                if self.pbReplace.isVisible():
-                    self.pbReplace.click()
-                elif self.pbNext.isVisible():
-                    self.pbNext.click()
-                elif self.pbSearch.isVisible():
-                    self.pbSearch.click()
-                elif self.pbSearchStop.isVisible():
-                    self.pbSearchStop.click()
-
+                self._onReturnPressed()
         QFrame.keyPressEvent( self, event )
+
+    def _onReturnPressed(self):
+        """Return or Enter pressed on widget.
+        Search next or Replace next
+        """
+        if self.pbReplace.isVisible():
+            self.pbReplace.click()
+        elif self.pbNext.isVisible():
+            self.pbNext.click()
+        elif self.pbSearch.isVisible():
+            self.pbSearch.click()
+        elif self.pbSearchStop.isVisible():
+            self.pbSearchStop.click()
+
 
     def _updateLabels(self):
         """Update 'Search' 'Replace' 'Path' labels geometry
