@@ -1,3 +1,9 @@
+enki (12.08.3-1~ppa1) lucid; urgency=low
+
+  * Make next search or replace when Return pressed
+
+ -- Andrei Kopats <hlamer@tut.by>  Thu, 09 Aug 2012 20:45:06 +0300
+
 enki (12.08.2-1~ppa1) lucid; urgency=low
 
   * Fix look on some platforms
