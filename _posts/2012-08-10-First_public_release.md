@@ -13,3 +13,5 @@ But, now I think it is right time. The project is already not a prototype, but c
 10 August 2012. **Enki birthday!**
 
 I hope, you will enjoy it!
+
+Andrei Kopats
