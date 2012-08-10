@@ -129,8 +129,12 @@ class MainWindow(QMainWindow):
         """ % self.palette().color(QPalette.WindowText).name()
         self._menuBar.setStyleSheet(menuBarStyleSheet)
         self._menuBar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        self._topToolBar.addWidget(self._menuBar)
-        self._topToolBar.addSeparator()
+        
+        if 'UBUNTU_MENUPROXY' in os.environ:
+            self.setMenuBar(self._menuBar)
+        else:
+            self._topToolBar.addWidget(self._menuBar)
+            self._topToolBar.addSeparator()
 
         # Create status bar
         self._statusBar = _StatusBar(self)
