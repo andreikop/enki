@@ -302,8 +302,6 @@ class SearchWidget(QFrame):
             if event.key() == Qt.Key_Escape:
                 core.workspace().focusCurrentDocument()
                 self.hide()
-            elif event.key() in (Qt.Key_Enter, Qt.Key_Return):
-                self._onReturnPressed()
         QFrame.keyPressEvent( self, event )
 
     def _onReturnPressed(self):
