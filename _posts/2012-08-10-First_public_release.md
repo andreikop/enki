@@ -1,10 +1,10 @@
 ---
 layout: post
-title: First public release
+title: The first public release
 baseurl: ../../../
 ---
 
-## First public release
+## The first public release
 
 I started this project 2 years ago. During this time I made few releases. But, project was mentioned only in few technical blogs and mailing lists. I didn't do any public announcements. Because the project was not ready. Not better, than other text editors.
 
