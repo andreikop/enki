@@ -1,3 +1,9 @@
+enki (12.08.4-1~ppa1) lucid; urgency=low
+
+  * Fix double search
+
+ -- Andrei Kopats <hlamer@tut.by>  Fri, 10 Aug 2012 09:37:46 +0300
+
 enki (12.08.3-1~ppa1) lucid; urgency=low
 
   * Make next search or replace when Return pressed
