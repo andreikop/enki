@@ -1,3 +1,9 @@
+enki (12.08.5-1~ppa1) lucid; urgency=low
+
+  * Experimental appmenu crash fix
+
+ -- Andrei Kopats <hlamer@tut.by>  Sat, 11 Aug 2012 15:26:04 +0300
+
 enki (12.08.4-1~ppa1) lucid; urgency=low
 
   * Fix double search
