@@ -72,6 +72,9 @@
          </property>
          <item>
           <widget class="QPushButton" name="pbPrevious">
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
            <property name="text">
             <string>Previous</string>
            </property>
@@ -83,6 +86,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="pbNext">
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
            <property name="text">
             <string>Next↵</string>
            </property>
@@ -97,6 +103,9 @@
            <property name="enabled">
             <bool>false</bool>
            </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
            <property name="text">
             <string>Search↵</string>
            </property>
@@ -108,6 +117,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="pbSearchStop">
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
            <property name="text">
             <string>Stop↵</string>
            </property>
@@ -188,6 +200,9 @@ p, li { white-space: pre-wrap; }
          </property>
          <item>
           <widget class="QPushButton" name="pbReplace">
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
            <property name="text">
             <string>Replace↵</string>
            </property>
@@ -199,6 +214,9 @@ p, li { white-space: pre-wrap; }
          </item>
          <item>
           <widget class="QPushButton" name="pbReplaceAll">
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
            <property name="text">
             <string>Replace &amp;All</string>
            </property>
@@ -210,6 +228,9 @@ p, li { white-space: pre-wrap; }
          </item>
          <item>
           <widget class="QPushButton" name="pbReplaceChecked">
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
            <property name="text">
             <string>Repl&amp;ace checked</string>
            </property>
@@ -221,6 +242,9 @@ p, li { white-space: pre-wrap; }
          </item>
          <item>
           <widget class="QPushButton" name="pbReplaceCheckedStop">
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
            <property name="text">
             <string>Stop↵</string>
            </property>
@@ -285,6 +309,9 @@ p, li { white-space: pre-wrap; }
          </property>
          <item>
           <widget class="QPushButton" name="pbBrowse">
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
            <property name="text">
             <string>&amp;Browse</string>
            </property>
@@ -318,6 +345,9 @@ p, li { white-space: pre-wrap; }
       </property>
       <item>
        <widget class="QCheckBox" name="cbCaseSensitive">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="text">
          <string>Case s&amp;ensitive</string>
         </property>
@@ -325,6 +355,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item>
        <widget class="QCheckBox" name="cbRegularExpression">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="text">
          <string>Re&amp;g. exp.</string>
         </property>

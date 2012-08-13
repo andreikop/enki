@@ -129,10 +129,6 @@ class SearchWidget(QFrame):
         self.pbSearchStop.setVisible( False )
         self.pbReplaceCheckedStop.setVisible( False )
         
-        # must not take focus when Alt+... pressed
-        self.cbRegularExpression.setFocusPolicy(Qt.NoFocus)
-        self.cbCaseSensitive.setFocusPolicy(Qt.NoFocus)
-
         self._progress = QProgressBar( self )
         self._progress.setAlignment( Qt.AlignCenter )
         self._progress.setToolTip( self.tr( "Search in progress..." ) )
@@ -144,10 +140,12 @@ class SearchWidget(QFrame):
         self.tbCdUp = QToolButton( self.cbPath.lineEdit() )
         self.tbCdUp.setIcon( QIcon( ":/enkiicons/go-up.png" ) )
         self.tbCdUp.setCursor( Qt.ArrowCursor )
-        self.tbCdUp.installEventFilter( self )
-
-        QWidget.setTabOrder(self.cbSearch, self.cbReplace)
-        QWidget.setTabOrder(self.cbReplace, self.cbPath)
+        self.tbCdUp.installEventFilter( self )  # for drawing button
+        
+        self.cbSearch.installEventFilter(self)  # for catching Tab and Shift+Tab
+        self.cbReplace.installEventFilter(self)  # for catching Tab and Shift+Tab
+        self.cbPath.installEventFilter(self)  # for catching Tab and Shift+Tab
+        self.cbMask.installEventFilter(self)  # for catching Tab and Shift+Tab
         
         # connections        
         self.cbSearch.lineEdit().textChanged.connect(self._onSearchRegExpChanged)
@@ -278,7 +276,7 @@ class SearchWidget(QFrame):
         """ Event filter for mode switch tool button
         Draws icons in the search and path lineEdits
         """
-        if  event.type() == QEvent.Paint :
+        if  event.type() == QEvent.Paint and object_ is self.tbCdUp:
             toolButton = object_
             lineEdit = self.cbPath.lineEdit()
             lineEdit.setContentsMargins( lineEdit.height(), 0, 0, 0 )
@@ -293,6 +291,15 @@ class SearchWidget(QFrame):
             toolButton.icon().paint( painter, availableRect )
             
             return True
+        
+        elif event.type() == QEvent.KeyPress:
+            
+            if event.key() == Qt.Key_Tab:
+                self._moveFocus(1)
+                return True
+            elif event.key() == Qt.Key_Backtab:
+                self._moveFocus(-1)
+                return True
 
         return QFrame.eventFilter( self, object_, event )
 
@@ -316,7 +323,25 @@ class SearchWidget(QFrame):
             self.pbSearch.click()
         elif self.pbSearchStop.isVisible():
             self.pbSearchStop.click()
-
+    
+    def _moveFocus(self, step):
+        """Move focus forward or backward according to step.
+        Standard Qt Keyboard focus algorithm doesn't allow circular navigation
+        """
+        allFocusableWidgets = (self.cbSearch, self.cbReplace, self.cbPath, self.cbMask)
+        visibleWidgets = [widget for widget in allFocusableWidgets \
+                                    if widget.isVisible()]
+        
+        try:
+            focusedIndex = visibleWidgets.index(QApplication.focusWidget())
+        except ValueError:
+            print >> sys.stderr, 'Invalid focused widget in Search Widget'
+            return
+        
+        nextFocusedIndex = (focusedIndex + step) % len(visibleWidgets)
+        
+        visibleWidgets[nextFocusedIndex].setFocus()
+        visibleWidgets[nextFocusedIndex].lineEdit().selectAll()
 
     def _updateLabels(self):
         """Update 'Search' 'Replace' 'Path' labels geometry
