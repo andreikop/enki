@@ -16,9 +16,12 @@ from PyQt4.QtCore import QDir, QEvent, \
 
 from PyQt4.QtGui import QApplication, QCompleter, QColor, QDirModel, QFileDialog,  \
                         QFrame, QFileDialog, QIcon, \
+                        QKeySequence, \
                         QPainter,  \
                         QPalette, \
-                        QProgressBar, QToolButton, QWidget
+                        QProgressBar, \
+                        QShortcut, \
+                        QToolButton, QWidget
 
 from enki.core.core import core
 
@@ -147,6 +150,10 @@ class SearchWidget(QFrame):
         self.cbPath.installEventFilter(self)  # for catching Tab and Shift+Tab
         self.cbMask.installEventFilter(self)  # for catching Tab and Shift+Tab
         
+        self._closeShortcut = QShortcut( QKeySequence( "Esc" ), self )
+        self._closeShortcut.setContext( Qt.WidgetWithChildrenShortcut )
+        self._closeShortcut.activated.connect(self.hide)
+
         # connections        
         self.cbSearch.lineEdit().textChanged.connect(self._onSearchRegExpChanged)
         
@@ -171,9 +178,11 @@ class SearchWidget(QFrame):
         self.visibilityChanged.emit(self.isVisible())
 
     def hide(self):
-        """Reimplemented function. Sends signal
+        """Reimplemented function.
+        Sends signal, returns focus to workspace
         """
         super(SearchWidget, self).hide()
+        core.workspace().focusCurrentDocument()
         self.visibilityChanged.emit(self.isVisible())
     
     def setVisible(self, visible):
@@ -276,7 +285,7 @@ class SearchWidget(QFrame):
         """ Event filter for mode switch tool button
         Draws icons in the search and path lineEdits
         """
-        if  event.type() == QEvent.Paint and object_ is self.tbCdUp:
+        if  event.type() == QEvent.Paint and object_ is self.tbCdUp:  # draw CdUp button in search path QLineEdit
             toolButton = object_
             lineEdit = self.cbPath.lineEdit()
             lineEdit.setContentsMargins( lineEdit.height(), 0, 0, 0 )
@@ -292,7 +301,7 @@ class SearchWidget(QFrame):
             
             return True
         
-        elif event.type() == QEvent.KeyPress:
+        elif event.type() == QEvent.KeyPress:  # Tab and Shift+Tab in QLineEdits
             
             if event.key() == Qt.Key_Tab:
                 self._moveFocus(1)
@@ -302,14 +311,6 @@ class SearchWidget(QFrame):
                 return True
 
         return QFrame.eventFilter( self, object_, event )
-
-    def keyPressEvent(self, event ):
-        """Handles ESC and ENTER pressings on widget for hide widget or start action"""
-        if  event.modifiers() == Qt.NoModifier :
-            if event.key() == Qt.Key_Escape:
-                core.workspace().focusCurrentDocument()
-                self.hide()
-        QFrame.keyPressEvent( self, event )
 
     def _onReturnPressed(self):
         """Return or Enter pressed on widget.
