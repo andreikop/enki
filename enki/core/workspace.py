@@ -358,6 +358,21 @@ class Workspace(QStackedWidget):
         # remove from workspace
         document.removeEventFilter( self )
         self.removeWidget(document)
+
+    @staticmethod
+    def _isSameFile(pathA, pathB):
+        """Check if we are trying to open same file, as already opened
+        None is never equal
+        """
+        if pathA is None or pathB is None:
+            return False
+        
+        if hasattr(os.path, "samefile"):
+            return os.path.isfile(pathA) and \
+                   os.path.isfile(pathB) and \
+                   os.path.samefile(pathA, pathB)
+        else:  # os.path.samefile not available
+            return pathA == pathB
         
     def openFile(self, filePath):
         """Open named file using suitable plugin, or textual editor, if other suitable editor not found.
@@ -376,10 +391,7 @@ class Workspace(QStackedWidget):
 
         # check if file is already opened
         for document in self.sortedDocuments:
-            if os.path.isfile(filePath) and \
-               document.filePath() is not None and \
-               os.path.isfile(document.filePath()) and \
-               os.path.samefile( document.filePath(), filePath ) :
+            if self._isSameFile(filePath, document.filePath()):
                 self.setCurrentDocument( document )
                 return document
 
