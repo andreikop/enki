@@ -313,6 +313,20 @@ class SmartHistory(QObject):
             self._aForward.setStatusTip(self.tr("Forward"))
             self._aForward.setToolTip(self.tr("Forward"))
 
+
+class _FileSystemModel(QFileSystemModel):
+    """Extended QFileSystemModel.
+    Shows full path on tool tips
+    """
+    def __init__(self, *args):
+        QFileSystemModel.__init__(self)
+    
+    def data(self, index, role):
+        if role == Qt.ToolTipRole:
+            return self.filePath(index)
+        else:
+            return QFileSystemModel.data(self, index, role)
+
 class Tree(QTreeView):
     """File system tree
     """
@@ -332,7 +346,7 @@ class Tree(QTreeView):
         self.setTextElideMode(Qt.ElideMiddle)
         
         # dir model
-        self._dirsModel = QFileSystemModel( self )
+        self._dirsModel = _FileSystemModel( self )
         self._dirsModel.setNameFilterDisables( False )
         self._dirsModel.setFilter( QDir.AllDirs | QDir.AllEntries | QDir.CaseSensitive | QDir.NoDotAndDotDot )
         # self._dirsModel.directoryLoaded.connect(self.setFocus)  TODO don't have this signal in my Qt version
