@@ -7,6 +7,13 @@ all install:
 	@echo Use setup.py script
 	@exit -1
 
+_edit_version:
+	enki enki/core/defines.py
+
+make-version: _edit_version changelog-update
+	git commit -a -m v`./setup.py --version`
+	git tag v`./setup.py --version`
+
 changelog-update:
 	cd debian && \
 		DEBFULLNAME="$(AUTHOR)" \
