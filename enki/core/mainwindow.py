@@ -110,35 +110,17 @@ class MainWindow(QMainWindow):
         
         self.setWindowTitle(self.defaultTitle())  # overwriten by workspace when file or it's modified state changes
         self.setWindowIcon( QIcon(':/enkiicons/logo/32x32/enki.png') )
-        
+
         # Create top tool bar
-        self._topToolBar = self.addToolBar("topToolBar")
+        self._topToolBar = QToolBar("topToolBar")
         self._topToolBar.setObjectName("topToolBar")
         self._topToolBar.setMovable(False)
         self._topToolBar.setIconSize(QSize(16, 16))
-        toolBarStyleSheet = "QToolBar {border: 0; border-bottom-width: 0.5; border-bottom-style: solid}"""
-        self._topToolBar.setStyleSheet(toolBarStyleSheet)
 
         # Create menu bar
         self._menuBar = ActionMenuBar(self, core.actionManager())
-        self._menuBar.setAutoFillBackground(False)
-        menuBarStyleSheet = """
-        QMenuBar {background-color: transparent;
-                  color: %s}
-        QMenuBar::item:!selected {background: transparent;}
-        """ % self.palette().color(QPalette.WindowText).name()
-        self._menuBar.setStyleSheet(menuBarStyleSheet)
-        self._menuBar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        
-        if 'UBUNTU_MENUPROXY' in os.environ:
-            self.setMenuBar(self._menuBar)
-        else:
-            self._topToolBar.addWidget(self._menuBar)
-            self._topToolBar.addSeparator()
 
-        # Create status bar
-        self._statusBar = _StatusBar(self)
-        self._topToolBar.addWidget(self._statusBar)
+        self._initMenubarAndStatusBarLayout()
         
         self._createMenuStructure()
         
@@ -160,9 +142,33 @@ class MainWindow(QMainWindow):
         for menuPath in self._createdMenuPathes[::-1]:
             core.actionManager().removeMenu(menuPath)
         
-    def _initTopWidget(self):
+    def _initMenubarAndStatusBarLayout(self):
         """Create top widget and put it on its place
         """
+        
+        if 'UBUNTU_MENUPROXY' in os.environ:  # separate menu bar
+            self.addToolBar(self._topToolBar)
+            self.setMenuBar(self._menuBar)
+        else:  # menubar, statusbar and editor tool bar on one line
+            self._menuBar.setAutoFillBackground(False)
+            menuBarStyleSheet = """
+            QMenuBar {background-color: transparent;
+                      color: %s}
+            QMenuBar::item:!selected {background: transparent;}
+            """ % self.palette().color(QPalette.WindowText).name()
+            self._menuBar.setStyleSheet(menuBarStyleSheet)
+            self._menuBar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+
+            self.addToolBar(self._topToolBar)
+            self._topToolBar.addWidget(self._menuBar)
+            self._topToolBar.addSeparator()
+            
+            toolBarStyleSheet = "QToolBar {border: 0; border-bottom-width: 0.5; border-bottom-style: solid}"""
+            self._topToolBar.setStyleSheet(toolBarStyleSheet)
+
+        # Create status bar
+        self._statusBar = _StatusBar(self)
+        self._topToolBar.addWidget(self._statusBar)
         
     def _createMenuStructure(self):
         """Fill menu bar with items. The majority of items are not connected to the slots,
