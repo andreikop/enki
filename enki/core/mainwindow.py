@@ -147,7 +147,7 @@ class MainWindow(QMainWindow):
     def _isMenuEmbeddedToTaskBar():
         """On Unity (Ubuntu) and MacOS menu bar is embedded to task bar
         """
-        return 'UBUNTU_MENUPROXY' in os.environ or 'darwin' == sys.platform or 1
+        return 'UBUNTU_MENUPROXY' in os.environ or 'darwin' == sys.platform
     
     def _initMenubarAndStatusBarLayout(self):
         """Create top widget and put it on its place
