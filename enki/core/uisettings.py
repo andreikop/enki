@@ -293,7 +293,7 @@ class UISettings(QDialog):
                                      u"Modes": self.pModes})
         
         # resize to minimum size
-        self.resize( self.minimumSizeHint() )
+        self.resize( self.sizeHint() )
     
     def _itemByPath(self, pathParts):
         """Find item by it's path. Path is list of parts. I.e. ['Editor', 'General']
