@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Download enki
+title: Install Enki on Ubuntu
 baseurl: .
 ---
 

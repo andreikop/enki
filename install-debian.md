@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Install enki on Debian
+title: Install Enki on Debian
 baseurl: .
 ---
 
