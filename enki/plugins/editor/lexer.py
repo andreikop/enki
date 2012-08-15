@@ -8,7 +8,7 @@ import json
 
 from PyQt4.QtGui import QColor, QFont, QWidget
 
-from PyQt4.Qsci import *  # pylint: disable=W0401,W0614
+import PyQt4.Qsci
 
 from enki.core.core import core
 import enki.core.defines
@@ -25,6 +25,52 @@ def _getPygmentsSchemeLexer(editor):
         return None
     return enki.plugins.editor.lexerpygments.LexerPygments(editor, 'Scheme')
 
+def _getLexer(editor, lexerName):
+    """Get lexer by lexer name
+    """
+    LEXER_FOR_LANGUAGE = {
+        "Bash"          : 'QsciLexerBash',
+        "Batch"         : 'QsciLexerBatch',
+        "C#"            : 'QsciLexerCSharp',
+        "C++"           : 'QsciLexerCPP',
+        "CMake"         : 'QsciLexerCMake',
+        "CSS"           : 'QsciLexerCSS',
+        "D"             : 'QsciLexerD',
+        "Diff"          : 'QsciLexerDiff',
+        "HTML"          : 'QsciLexerHTML',
+        "IDL"           : 'QsciLexerIDL',
+        "Java"          : 'QsciLexerJava',
+        "JavaScript"    : 'QsciLexerJavaScript',
+        "Lua"           : 'QsciLexerLua',
+        "Makefile"      : 'QsciLexerMakefile',
+        "POV"           : 'QsciLexerPOV',
+        "Perl"          : 'QsciLexerPerl',
+        "Properties"    : 'QsciLexerProperties',
+        "Python"        : 'QsciLexerPython',
+        "Ruby"          : 'QsciLexerRuby',
+        "Spice"         : 'QsciLexerSpice',
+        "SQL"           : 'QsciLexerSQL',
+        "TeX"           : 'QsciLexerTeX',
+        "VHDL"          : 'QsciLexerVHDL',
+        "TCL"           : 'QsciLexerTCL',
+        "Fortran"       : 'QsciLexerFortran',
+        "Fortran77"     : 'QsciLexerFortran77',
+        "Pascal"        : 'QsciLexerPascal',
+        "PostScript"    : 'QsciLexerPostScript',
+        "XML"           : 'QsciLexerXML',
+        "YAML"          : 'QsciLexerYAML',
+        "Verilog"       : 'QsciLexerVerilog'
+    }
+    
+    if lexerName == 'Scheme':
+        return _getPygmentsSchemeLexer(editor)
+    elif lexerName in LEXER_FOR_LANGUAGE:
+        className = LEXER_FOR_LANGUAGE[lexerName]
+        if hasattr(PyQt4.Qsci, className):
+            classObject = getattr(PyQt4.Qsci, className)
+            return classObject(editor)
+        else:  # old QScintilla, doesn't support this lexer
+            return None
 
 class Lexer:
     """Wrapper for all Qscintilla lexers. Functionality:
@@ -32,40 +78,6 @@ class Lexer:
     * Choose lexer for a file
     * Apply lexer settings
     """
-    LEXER_FOR_LANGUAGE = {
-        "Bash"          : QsciLexerBash,
-        "Batch"         : QsciLexerBatch,
-        "C#"            : QsciLexerCSharp,
-        "C++"           : QsciLexerCPP,
-        "CMake"         : QsciLexerCMake,
-        "CSS"           : QsciLexerCSS,
-        "D"             : QsciLexerD,
-        "Diff"          : QsciLexerDiff,
-        "HTML"          : QsciLexerHTML,
-        "IDL"           : QsciLexerIDL,
-        "Java"          : QsciLexerJava,
-        "JavaScript"    : QsciLexerJavaScript,
-        "Lua"           : QsciLexerLua,
-        "Makefile"      : QsciLexerMakefile,
-        "POV"           : QsciLexerPOV,
-        "Perl"          : QsciLexerPerl,
-        "Properties"    : QsciLexerProperties,
-        "Python"        : QsciLexerPython,
-        "Ruby"          : QsciLexerRuby,
-        "Spice"         : QsciLexerSpice,
-        "SQL"           : QsciLexerSQL,
-        "Scheme"        : _getPygmentsSchemeLexer,
-        "TeX"           : QsciLexerTeX,
-        "VHDL"          : QsciLexerVHDL,
-        "TCL"           : QsciLexerTCL,
-        "Fortran"       : QsciLexerFortran,
-        "Fortran77"     : QsciLexerFortran77,
-        "Pascal"        : QsciLexerPascal,
-        "PostScript"    : QsciLexerPostScript,
-        "XML"           : QsciLexerXML,
-        "YAML"          : QsciLexerYAML,
-        "Verilog"       : QsciLexerVerilog,
-    }
 
     def __init__(self, editor):
         """editor - reference to parent :class:`enki.plugins.editor.Editor` object
@@ -80,10 +92,8 @@ class Lexer:
         self.currentLanguage = language
         self.qscilexer = None
         # Create lexer
-        if self.currentLanguage and \
-           self.currentLanguage in self.LEXER_FOR_LANGUAGE:  # if language is supported
-            lexerClass =  self.LEXER_FOR_LANGUAGE[self.currentLanguage]
-            self.qscilexer = lexerClass(self._editor.qscintilla)
+        if self.currentLanguage:
+            self.qscilexer = _getLexer(self._editor, self.currentLanguage)  # might return None
         if self.qscilexer is not None:
             self.applySettings()
             self._editor.qscintilla.setLexer(self.qscilexer)
