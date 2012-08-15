@@ -6,6 +6,7 @@ mainwindow --- Main window of the UI. Fills main menu.
 Module contains :class:`enki.core.mainwindow.MainWindow` implementation
 """
 
+import sys
 import os.path
 import json
 
@@ -141,11 +142,17 @@ class MainWindow(QMainWindow):
             core.actionManager().removeAction(act, False)
         for menuPath in self._createdMenuPathes[::-1]:
             core.actionManager().removeMenu(menuPath)
-        
+    
+    @staticmethod
+    def _isMenuEmbeddedToTaskBar():
+        """On Unity (Ubuntu) and MacOS menu bar is embedded to task bar
+        """
+        return 'UBUNTU_MENUPROXY' in os.environ or 'darwin' == sys.platform or 1
+    
     def _initMenubarAndStatusBarLayout(self):
         """Create top widget and put it on its place
         """
-        if 'UBUNTU_MENUPROXY' in os.environ:  # separate menu bar
+        if self._isMenuEmbeddedToTaskBar():  # separate menu bar
             self.addToolBar(self._topToolBar)
             self.setMenuBar(self._menuBar)
         else:  # menubar, statusbar and editor tool bar on one line
