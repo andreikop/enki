@@ -319,7 +319,7 @@ class _FileSystemModel(QFileSystemModel):
     Shows full path on tool tips
     """
     def __init__(self, *args):
-        QFileSystemModel.__init__(self)
+        QFileSystemModel.__init__(self, *args)
     
     def data(self, index, role):
         if role == Qt.ToolTipRole:
