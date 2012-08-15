@@ -3,7 +3,7 @@ preview --- HTML, Markdown preview
 ==================================
 """
 
-from PyQt4.QtCore import pyqtSignal, QObject, QSize, Qt, QThread
+from PyQt4.QtCore import pyqtSignal, QObject, QSize, Qt, QThread, QUrl
 from PyQt4.QtGui import QIcon
 
 from enki.core.core import core
@@ -113,7 +113,12 @@ class ConverterThread(QThread):
                    "Install it with your package manager or see " \
                    "<a href=http://packages.python.org/Markdown/install.html>installation instructions</a>"
         
-        return markdown.markdown(text, ['fenced_code', 'nl2br'])
+        try: import mdx_mathjax
+        except: pass  #mathjax doesn't require import statement if installed as extension
+        try:
+            return markdown.markdown(text, ['fenced_code', 'nl2br', 'mathjax'])
+        except:
+            return markdown.markdown(text, ['fenced_code', 'nl2br']) #keep going without mathjax
 
     def run(self):
         """Thread function
@@ -228,4 +233,4 @@ class PreviewDock(DockWidget):
         self._saveScrollPos()
         self._visiblePath = filePath
         self._view.page().mainFrame().contentsSizeChanged.connect(self._restoreScrollPos)
-        self._view.setHtml(html)
+        self._view.setHtml(html,baseUrl=QUrl.fromLocalFile(filePath))
