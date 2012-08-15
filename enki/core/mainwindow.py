@@ -145,7 +145,6 @@ class MainWindow(QMainWindow):
     def _initMenubarAndStatusBarLayout(self):
         """Create top widget and put it on its place
         """
-        
         if 'UBUNTU_MENUPROXY' in os.environ:  # separate menu bar
             self.addToolBar(self._topToolBar)
             self.setMenuBar(self._menuBar)
@@ -161,7 +160,6 @@ class MainWindow(QMainWindow):
 
             self.addToolBar(self._topToolBar)
             self._topToolBar.addWidget(self._menuBar)
-            self._topToolBar.addSeparator()
             
             toolBarStyleSheet = "QToolBar {border: 0; border-bottom-width: 0.5; border-bottom-style: solid}"""
             self._topToolBar.setStyleSheet(toolBarStyleSheet)
