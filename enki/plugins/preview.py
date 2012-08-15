@@ -113,11 +113,14 @@ class ConverterThread(QThread):
                    "Install it with your package manager or see " \
                    "<a href=http://packages.python.org/Markdown/install.html>installation instructions</a>"
         
-        try: import mdx_mathjax
-        except: pass  #mathjax doesn't require import statement if installed as extension
+        try:
+            import mdx_mathjax
+        except ImportError:
+            pass  #mathjax doesn't require import statement if installed as extension
+        
         try:
             return markdown.markdown(text, ['fenced_code', 'nl2br', 'mathjax'])
-        except:
+        except:  # markdown raises ValueError, it is not clear, how to distinguish missing mathjax from other errors
             return markdown.markdown(text, ['fenced_code', 'nl2br']) #keep going without mathjax
 
     def run(self):
