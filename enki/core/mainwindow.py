@@ -147,11 +147,15 @@ class MainWindow(QMainWindow):
     def _isMenuEmbeddedToTaskBar():
         """On Unity (Ubuntu) and MacOS menu bar is embedded to task bar
         """
-        return 'UBUNTU_MENUPROXY' in os.environ or 'darwin' == sys.platform
+        return 'UBUNTU_MENUPROXY' in os.environ or \
+               'darwin' == sys.platform
     
     def _initMenubarAndStatusBarLayout(self):
         """Create top widget and put it on its place
         """
+        toolBarStyleSheet = "QToolBar {border: 0; border-bottom-width: 1; border-bottom-style: solid}"""
+        self._topToolBar.setStyleSheet(toolBarStyleSheet)
+
         if self._isMenuEmbeddedToTaskBar():  # separate menu bar
             self.addToolBar(self._topToolBar)
             self.setMenuBar(self._menuBar)
@@ -168,9 +172,6 @@ class MainWindow(QMainWindow):
             self.addToolBar(self._topToolBar)
             self._topToolBar.addWidget(self._menuBar)
             
-            toolBarStyleSheet = "QToolBar {border: 0; border-bottom-width: 0.5; border-bottom-style: solid}"""
-            self._topToolBar.setStyleSheet(toolBarStyleSheet)
-
         # Create status bar
         self._statusBar = _StatusBar(self)
         self._topToolBar.addWidget(self._statusBar)
