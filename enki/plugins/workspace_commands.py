@@ -158,7 +158,10 @@ class CommandOpen(AbstractCommand):
         """Execute the command
         """
         for path in glob.iglob(os.path.expanduser(self._path)):
-            path = os.path.abspath(path)
+            try:
+                path = os.path.abspath(path)
+            except OSError:
+                pass
             if self._line is None:
                 core.workspace().goTo(path)
             else:

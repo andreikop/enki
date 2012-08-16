@@ -488,7 +488,9 @@ class SearchWidget(QFrame):
         text = self.cbPath.currentText()
         if not os.path.exists(text):
             return
-        self.cbPath.setEditText( os.path.abspath(text + '/' + os.path.pardir))
+        
+        editText = os.path.abspath(os.path.join(text, os.path.pardir))
+        self.cbPath.setEditText(editText)
 
     def on_pbPrevious_pressed(self):
         """Handler of click on "Previous" button

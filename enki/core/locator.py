@@ -582,7 +582,12 @@ class Locator(QDialog):
     def exec_(self):
         """QDialog.exec() implementation. Updates completion before showing widget
         """
-        self.setWindowTitle(os.path.abspath(os.path.curdir))
+        try:
+            curDir = os.path.abspath(os.path.curdir)
+        except OSError:  # deleted
+            curDir = '?'
+        
+        self.setWindowTitle(curDir)
 
         self._edit.setText('')
         self._updateCompletion()

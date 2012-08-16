@@ -414,7 +414,7 @@ class Tree(QTreeView):
     def _goCurrentDir(self):
         """Go to current directory
         """
-        self._fileBrowser.setCurrentPath(os.path.abspath("."))
+        self._fileBrowser.setCurrentPath(_getCurDir())
         self.collapseAll()
     
     def _filteredModelIndexToPath(self, index):
@@ -680,7 +680,10 @@ class DockFileBrowser(DockWidget):
         # cd if no files with known path
         if not any([doc for doc in core.workspace().documents() \
                         if doc.filePath() is not None]):
-            os.chdir(path)
+            try:
+                os.chdir(path)
+            except OSError:  # directory deleted
+                pass
 
     def moveUp(self):
         """Move tree root up, or only move focus"""

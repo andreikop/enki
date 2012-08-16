@@ -1,21 +1,4 @@
 FIXME
-    Traceback (most recent call last):
-      File "/usr/local/lib/python2.6/dist-packages/enki/plugins/filebrowser.py", line 687, in moveUp
-        self.setCurrentPath(os.path.dirname(self._tree.currentPath()))
-      File "/usr/local/lib/python2.6/dist-packages/enki/plugins/filebrowser.py", line 683, in setCurrentPath
-        os.chdir(path)
-    OSError: [Errno 2] No such file or directory: '/home/a/code/enki/mks'
-
-
-    Traceback (most recent call last):
-      File "/usr/local/lib/python2.6/dist-packages/enki/core/locator.py", line 461, in _onAction
-        self.exec_()
-      File "/usr/local/lib/python2.6/dist-packages/enki/core/locator.py", line 585, in exec_
-        self.setWindowTitle(os.path.abspath(os.path.curdir))
-      File "/usr/lib/python2.6/posixpath.py", line 346, in abspath
-        cwd = os.getcwd()
-    OSError: [Errno 2] No such file or directory
-
     Close/Quit/Exit поставить кнопку Print
     use issamefile when matching files in search and replace
 
