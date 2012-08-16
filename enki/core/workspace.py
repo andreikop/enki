@@ -288,7 +288,6 @@ class Workspace(QStackedWidget):
         """
         document = self.documents()[index]
         self.setCurrentDocument(document)
-        document.setFocus()
         
     def activateNextDocument(self):
         """Activate next document in the list
