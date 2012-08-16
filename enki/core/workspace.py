@@ -207,7 +207,10 @@ class Workspace(QStackedWidget):
             if document.filePath() is not None:
                 path = os.path.dirname(document.filePath())
             else:
-                path = os.path.abspath(os.curdir)
+                try:
+                    path = os.path.abspath(os.curdir)
+                except OSError:  # deleted
+                    path = '?'
             
             name += ' - '
             name += path
