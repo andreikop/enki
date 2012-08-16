@@ -318,6 +318,9 @@ p, li { white-space: pre-wrap; }
       </property>
       <item>
        <widget class="QCheckBox" name="cbCaseSensitive">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="text">
          <string>Case s&amp;ensitive</string>
         </property>
@@ -325,6 +328,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item>
        <widget class="QCheckBox" name="cbRegularExpression">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="text">
          <string>Re&amp;g. exp.</string>
         </property>
