@@ -7,6 +7,8 @@ import json
 
 from enki.core.core import core
 
+from PyQt4.QtGui import QFont, QFontDatabase
+
 class Config():
     """Settings storage.
         
@@ -53,13 +55,37 @@ class Config():
         if self._data['_version'] == 2:
             self._data["Editor"]["MonochromeSelectionForeground"] = True
             self._data['_version'] = 3
+        
+        if self._data['_version'] == 3:
+            self._data['PlatformDefaultsHaveBeenSet'] = False
+            self._data['_version'] = 4
 
+    def _setPlatformDefaults(self):
+        """Set default values, which depend on platform
+        """
+        
+        """Monaco - old Mac font,
+        Menlo - modern Mac font,
+        Monospace - default for other platforms
+        """
+        fontFamilies = ("Menlo", "Monaco", "Monospace")
+        availableFontFamilies = QFontDatabase().families()
+        for fontFamily in fontFamilies:
+            if fontFamily in availableFontFamilies:
+                self._data['Editor']['DefaultFont'] = fontFamily
+                break
+        else:
+            self._data['Editor']['DefaultFont'] = 'Monospace'
+        
+        self._data['PlatformDefaultsHaveBeenSet'] = True
     
     def reload(self):
         """Reload config from the disk
         """
         self._data = self._load()  # exceptions are ok, raise it to upper level
         self._updateVersion()
+        if not self._data['PlatformDefaultsHaveBeenSet']:
+            self._setPlatformDefaults()
 
     def get(self, name):  # pylint: disable=W0221
         """

@@ -1,5 +1,6 @@
 {
-    "_version" : 3,
+    "_version" : 4,
+    "PlatformDefaultsHaveBeenSet" : false,
 
     "NegativeFileFilter": [ "*~", "*.o", "*.pyc", "*.bak" ], 
 
