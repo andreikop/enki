@@ -3,6 +3,7 @@ FIXME
     use issamefile when matching files in search and replace
 
 SITE:
+    Declare, that Enki is crossplatform, when finished tuning for mac
 
 TODO
   minor improvements
