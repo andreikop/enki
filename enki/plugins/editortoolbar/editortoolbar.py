@@ -10,7 +10,7 @@ File contains module implementation
 import os.path
 
 
-from PyQt4.QtCore import QSize
+from PyQt4.QtCore import QSize, QTimer
 from PyQt4.QtGui import QDialog, QFontMetrics, QIcon, QMenu, QToolButton
 
 from enki.core.core import core
@@ -202,16 +202,47 @@ class PositionIndicator(QToolButton):
         minWidth += 30  # for the button borders
         self.setMinimumWidth(minWidth)  # Avoid flickering when text width changed
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
+        
+        core.workspace().cursorPositionChanged.connect(self._onCursorPositionChanged)
+        
+        self._timer = QTimer()
+        self._timer.setInterval(200)
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(self._onUpdatePositionTimer)
+        self._passedUpdate = False
+    
+    def __del__(self):
+        if self._timer.isActive():
+            self._timer.stop()
+    
+    def _onUpdatePositionTimer(self):
+        """Update text on GUI according to current position
+        """
+        if self._passedUpdate:
+            document = core.workspace().currentDocument()
+            self._setCursorPosition( *document.cursorPosition())
+            self._passedUpdate = False
+
+    def _onCursorPositionChanged(self, document, line, col):
+        """Cursor position changed.
+        Update it now or schedule update later
+        """
+        if self._timer.isActive():
+            self._passedUpdate = True
+        else:
+            self._setCursorPosition(line, col)
+            self._timer.start()  # one more update after timeout.
 
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument):
         """Current document has been changed
         """
+        if self._timer.isActive():
+            self._timer.stop()
+        
         # Update connections
         if oldDocument is not None:
-            oldDocument.cursorPositionChanged.disconnect(self._setCursorPosition)
             self.clicked.disconnect(oldDocument.invokeGoTo)
         if currentDocument is not None:
-            currentDocument.cursorPositionChanged.connect(self._setCursorPosition)
             self.clicked.connect(currentDocument.invokeGoTo)
         
         # Update info
