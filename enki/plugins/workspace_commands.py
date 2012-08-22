@@ -157,11 +157,16 @@ class CommandOpen(AbstractCommand):
     def execute(self):
         """Execute the command
         """
+        expandedPathes = []
         for path in glob.iglob(os.path.expanduser(self._path)):
             try:
                 path = os.path.abspath(path)
             except OSError:
                 pass
+            expandedPathes.append(path)
+        
+        # 2 loops, because we should open absolute pathes. When opening files, enki changes its current directory
+        for path in expandedPathes:
             if self._line is None:
                 core.workspace().goTo(path)
             else:
