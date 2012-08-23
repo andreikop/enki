@@ -189,11 +189,11 @@ class SearchThread(StopableThread):
             start = match.start()
             
             eolStart = content.rfind( eol, 0, start)
-            eolEnd = content.find( eol, start)
+            eolEnd = content.find( eol, start + len(match.group(0)))
             eolCount += content[lastPos:start].count( eol )
             lastPos = start
             
-            wholeLine = content[eolStart + 1:eolEnd]
+            wholeLine = content[eolStart+1 : eolEnd]
             column = start - eolStart
             if eolStart != 0:
                 column -= 1

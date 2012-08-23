@@ -1,6 +1,7 @@
 FIXME
     Close/Quit/Exit поставить кнопку Print
     use issamefile when matching files in search and replace
+    При замене портим \r
 
 SITE:
 
