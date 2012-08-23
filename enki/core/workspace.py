@@ -392,10 +392,10 @@ class Workspace(QStackedWidget):
             self.closeDocument(self.documents()[0])        
 
         # check if file is already opened
-        for document in self.sortedDocuments:
-            if self._isSameFile(filePath, document.filePath()):
-                self.setCurrentDocument( document )
-                return document
+        alreadyOpenedDocument = self.findDocumentForPath(filePath)
+        if alreadyOpenedDocument is not None:
+            self.setCurrentDocument( alreadyOpenedDocument )
+            return alreadyOpenedDocument
 
         documentType = None  # TODO detect document type, choose editor
         
@@ -429,6 +429,16 @@ class Workspace(QStackedWidget):
                         self.tr( "File '%s' is not writable" % filePath), 4000) # todo fix
         
         return document
+    
+    def findDocumentForPath(self, filePath):
+        """Try to find document for path.
+        Fimilar to open(), but doesn't open file, if it is not opened
+        On Unix may return file, for which path is not equal, if soft or hards links are used
+        Return None, if not found
+        """
+        for document in self.sortedDocuments:
+            if self._isSameFile(filePath, document.filePath()):
+                return document
     
     def createEmptyNotSavedDocument(self, filePath=None):
         """Create empty not saved document.

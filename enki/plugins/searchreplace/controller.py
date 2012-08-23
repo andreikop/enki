@@ -440,7 +440,6 @@ class Controller(QObject):
         from threads import ReplaceThread 
         self._replaceThread = ReplaceThread()
         self._replaceThread.resultsHandled.connect(self._dock.onResultsHandledByReplaceThread)
-        self._replaceThread.openedFileHandled.connect(self._onReplaceThreadOpenedFileHandled)
         self._replaceThread.error.connect(self._onReplaceThreadError)
         self._replaceThread.finalStatus.connect(self._onReplaceThreadFinalStatus)
 
@@ -458,13 +457,6 @@ class Controller(QObject):
         """
         core.mainWindow().appendMessage( error )
 
-    def _onReplaceThreadOpenedFileHandled(self, fileName, content):
-        """Replace thread processed currently opened file,
-        need update text in the editor
-        """
-        document = core.workspace().openFile(fileName)
-        document.replace(content, startAbsPos=0, endAbsPos=len(document.text()))
-    
     def _onReplaceThreadFinished(self):
         """Handler for replace in directory finished event
         """
