@@ -170,7 +170,8 @@ class PreviewDock(DockWidget):
         self._thread.htmlReady.connect(self._setHtml)
 
         self._visiblePath = None
-        self._onDocumentChanged(None, core.workspace().currentDocument())
+        
+        self._scheduleDocumentProcessing()
 
     def del_(self):
         """Uninstall themselves
@@ -222,12 +223,25 @@ class PreviewDock(DockWidget):
         """Current document changed, update preview
         """
         if new is not None:
-            self._thread.process(new.filePath(), new.language(), new.text())
+            self._scheduleDocumentProcessing()
 
     def _onTextChanged(self, document):
         """Text changed, update preview
         """
-        self._thread.process(document.filePath(), document.language(), document.text())
+        self._scheduleDocumentProcessing()
+
+    def show(self):
+        """When shown, update document, if posible
+        """
+        DockWidget.show(self)
+        self._scheduleDocumentProcessing()
+
+    def _scheduleDocumentProcessing(self):
+        """Start document processing with the thread.
+        """
+        document = core.workspace().currentDocument()
+        if document is not None:
+            self._thread.process(document.filePath(), document.language(), document.text())
 
     def _setHtml(self, filePath, html):
         """Set HTML to the view and restore scroll bars position.
