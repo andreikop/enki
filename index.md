@@ -13,7 +13,7 @@ baseurl: .
 * **Extensible.** Operating systems are designed for running applications. Enki is designed for running plugins.
 * **High quality.** No long list of fancy features. But, what is done, is done well.
 * **Open source.** This is our religion.
-* **Cross platform.** Use your habitual editor on any OS. Tested on Linux, MacOS X, Windows.
+* **Cross platform.** Use your habitual editor on any OS. Currently has beeen tested on Linux, MacOS X, Windows.
 
     <div id="social-buttons">
         <div id="twitter">
