@@ -211,9 +211,10 @@ class SearchThread(StopableThread):
 
 class ReplaceThread(StopableThread):
     """Thread does replacements in the directory according to checked items
+    
+    Replacements in opened documents are done by GUI thread, in other - by new thread
     """
     resultsHandled = pyqtSignal(unicode, list)
-    openedFileHandled = pyqtSignal(unicode, unicode)
     finalStatus = pyqtSignal(unicode)
     error = pyqtSignal(unicode)
 
@@ -221,19 +222,32 @@ class ReplaceThread(StopableThread):
         """Run replace process
         """
         self.stop()
-        self._results = results
-        self._replaceText = replaceText
         
-        self._openedFiles = {}
-        for document in core.workspace().documents():
-            self._openedFiles[document.filePath()] = document.text()
-
+        self._replaceText = replaceText
+        self._totalCount = sum([len(v) for v in results.itervalues()])
+        
+        # do replacements in opened files, prepare for replacing in not opened
+        self._results = {}
+        for filePath, matches in results.iteritems():
+            foundDocument = core.workspace().findDocumentForPath(filePath)
+            if foundDocument is not None:
+                self._replaceInOpenedDocument(foundDocument, matches)
+                self.resultsHandled.emit( filePath, matches)
+            else:
+                self._results[filePath] = matches
+        
         self.start()
+
+    def _replaceInOpenedDocument(self, document, matches):
+        """Do replacements in opened document
+        """
+        oldText = document.text()
+        newText = self._doReplacements(document.text(), matches)
+        document.replace(newText, startAbsPos=0, endAbsPos=len(oldText))
 
     def _saveContent(self, fileName, content):
         """Write text to the file
         """
-
         try:
             content = content.encode('utf8')
         except UnicodeEncodeError as ex:
@@ -253,22 +267,19 @@ class ReplaceThread(StopableThread):
     def _fileContent(self, fileName):
         """Read file
         """
-        if fileName in self._openedFiles:
-            return self._openedFiles[ fileName ]
-        else:
-            try:
-                with open(fileName) as openFile:
-                    content = openFile.read()
-            except IOError as ex:
-                self.error.emit( self.tr( "Error opening file: %s" % str(ex) ) )
-                return ''
-            
-            try:
-                return unicode(content, 'utf8')
-            except UnicodeDecodeError as ex:
-                self.error.emit(self.tr( "File %s not read: unicode error '%s'. File may be corrupted" % \
-                                (fileName, str(ex) ) ))
-                return None
+        try:
+            with open(fileName) as openFile:
+                content = openFile.read()
+        except IOError as ex:
+            self.error.emit( self.tr( "Error opening file: %s" % str(ex) ) )
+            return ''
+        
+        try:
+            return unicode(content, 'utf8')
+        except UnicodeDecodeError as ex:
+            self.error.emit(self.tr( "File %s not read: unicode error '%s'. File may be corrupted" % \
+                            (fileName, str(ex) ) ))
+            return None
 
     def run(self):
         """Start point of the code, running i thread
@@ -277,35 +288,38 @@ class ReplaceThread(StopableThread):
         startTime = time.clock()
         
         for fileName in self._results.keys():
-            handledResults = []
             content = self._fileContent(fileName)
             if content is None:  # if failed to read file
                 continue
             
-            # count from end to begin because we are replacing by offset in content
-            for result in self._results[ fileName ][::-1]:
-                try:
-                    replaceTextWithMatches = result.match.re.sub(self._replaceText,
-                                                                 result.match.group(0))
-                except re.error, ex:
-                    message = unicode(ex.message, 'utf8')
-                    message += r'. Probably <i>\group_index</i> used in replacement string, but such group not found. '\
-                               r'Try to escape it: <i>\\group_index</i>'
-                    self.error.emit(message)
-                    return
-                content = content[:result.match.start()] + replaceTextWithMatches + content[result.match.end():]
-                handledResults.append(result)
+            matches = self._results[ fileName ]
             
-            if fileName in self._openedFiles:
-                self.openedFileHandled.emit( fileName, content)
-            else:
-                self._saveContent(fileName, content)
+            content = self._doReplacements(content, matches)
             
-            self.resultsHandled.emit( fileName, handledResults)
+            self._saveContent(fileName, content)
+            
+            self.resultsHandled.emit( fileName, matches)
 
             if  self._exit :
                 break
 
         self.finalStatus.emit("%d replacements in %d second(s)" % \
-                              (sum([len(v) for v in self._results.itervalues()]),
+                              (self._totalCount,
                                time.clock() - startTime))
+
+    def _doReplacements(self, content, matches):
+        """Do replacements for one file
+        """
+        for result in matches[::-1]:  # count from end to begin because we are replacing by offset in content
+            try:
+                replaceTextWithMatches = result.match.re.sub(self._replaceText,
+                                                             result.match.group(0))
+            except re.error, ex:
+                message = unicode(ex.message, 'utf8')
+                message += r'. Probably <i>\group_index</i> used in replacement string, but such group not found. '\
+                           r'Try to escape it: <i>\\group_index</i>'
+                self.error.emit(message)
+                return
+            content = content[:result.match.start()] + replaceTextWithMatches + content[result.match.end():]
+        
+        return content
