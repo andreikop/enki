@@ -202,6 +202,7 @@ class SearchWidget(QFrame):
     def _makeEscapeSeqsVisible(self, text):
         """Replace invisible \n and \t with escape sequences
         """
+        text = text.replace('\\', '\\\\')
         text = text.replace('\t', '\\t')
         text = text.replace('\n', '\\n')
         return text
@@ -233,7 +234,8 @@ class SearchWidget(QFrame):
         if not self.cbReplace.lineEdit().text() and \
             self.cbSearch.lineEdit().text() and \
             not self.cbRegularExpression.checkState() == Qt.Checked:
-            self.cbReplace.setEditText(self.cbSearch.lineEdit().text())
+                replaceText = self.cbSearch.lineEdit().text().replace('\\', '\\\\')
+                self.cbReplace.setEditText(replaceText)
 
         # Move focus to Search edit
         self.cbSearch.setFocus()
