@@ -222,13 +222,14 @@ class PreviewDock(DockWidget):
     def _onDocumentChanged(self, old, new):
         """Current document changed, update preview
         """
-        if new is not None:
+        if new is not None and self.isVisible():
             self._scheduleDocumentProcessing()
 
     def _onTextChanged(self, document):
         """Text changed, update preview
         """
-        self._scheduleDocumentProcessing()
+        if self.isVisible():
+            self._scheduleDocumentProcessing()
 
     def show(self):
         """When shown, update document, if posible
