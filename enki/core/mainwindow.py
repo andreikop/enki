@@ -153,8 +153,12 @@ class MainWindow(QMainWindow):
     def _initMenubarAndStatusBarLayout(self):
         """Create top widget and put it on its place
         """
-        toolBarStyleSheet = "QToolBar {border: 0; border-bottom-width: 1; border-bottom-style: solid}"""
-        self._topToolBar.setStyleSheet(toolBarStyleSheet)
+        if not 'darwin' == sys.platform:
+            # on Ubuntu toolbar, docs and editor area look as one widget. Ugly
+            # Therefore it is separated with line. On Mac seems OK
+            # I can't predict, how it will look on other platforms, therefore line is used for all, except Mac
+            toolBarStyleSheet = "QToolBar {border: 0; border-bottom-width: 1; border-bottom-style: solid}"""
+            self._topToolBar.setStyleSheet(toolBarStyleSheet)
 
         if self._isMenuEmbeddedToTaskBar():  # separate menu bar
             self.addToolBar(self._topToolBar)
