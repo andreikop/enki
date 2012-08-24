@@ -260,11 +260,13 @@ class Controller(QObject):
     def _onSearchNext(self):
         """Search Next clicked
         """
+        self._widget.updateComboBoxes()
         self._searchFile( forward=True, incremental=False )
 
     def _onSearchPrevious(self):
         """Search Previous clicked
         """
+        self._widget.updateComboBoxes()
         self._searchFile( forward=False, incremental=False )
 
     def _searchFile(self, forward, incremental=False):
@@ -322,6 +324,8 @@ class Controller(QObject):
     def _onReplaceFileOne(self, replaceText):
         """Do one replacement in the file
         """
+        self._widget.updateComboBoxes()
+        
         document = core.workspace().currentDocument()
         regExp = self._widget.getRegExp()
 
@@ -354,6 +358,8 @@ class Controller(QObject):
     def _onReplaceFileAll(self, replaceText):
         """Do all replacements in the file
         """
+        self._widget.updateComboBoxes()
+        
         document = core.workspace().currentDocument()
         regExp = self._widget.getRegExp()
 
@@ -392,7 +398,9 @@ class Controller(QObject):
 
     def _onSearchInDirectoryStartPressed(self, regExp, mask, path):
         """Handler for 'search in directory' action
-        """ 
+        """
+        self._widget.updateComboBoxes()
+        
         if self._dock is None:
             self._createDockWidget()
         
@@ -434,6 +442,8 @@ class Controller(QObject):
     def _onReplaceCheckedStartPressed(self, replaceText):
         """Handler for 'replace checked' action
         """
+        self._widget.updateComboBoxes()
+        
         if self._dock is None:  # no any results
             return
 
