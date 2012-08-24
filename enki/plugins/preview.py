@@ -171,6 +171,8 @@ class PreviewDock(DockWidget):
 
         self._visiblePath = None
         
+        # If we update Preview on every key pressing, freezes are sensible (GUI thread draws preview too slowly
+        # This timer is used for drawing Preview 300 ms After user has stopped typing text
         self._typingTimer = QTimer()
         self._typingTimer.setInterval(300)
         self._typingTimer.timeout.connect(self._scheduleDocumentProcessing)
