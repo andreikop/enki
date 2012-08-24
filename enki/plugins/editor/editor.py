@@ -55,6 +55,12 @@ class _QsciScintilla(QsciScintilla):
         else:
             super(_QsciScintilla, self).keyPressEvent(event)
     
+    def focusOutEvent(self, event):
+        """Old QScintilla versions doesn't close autocompletion, when lost focus.
+        Workaround for this bug
+        """
+        self.cancelList()
+        
     def paste(self):
         """paste() method reimplementation. Converts EOL after text had been pasted
         """
