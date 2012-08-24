@@ -3,7 +3,7 @@ preview --- HTML, Markdown preview
 ==================================
 """
 
-from PyQt4.QtCore import pyqtSignal, QObject, QSize, Qt, QThread, QUrl
+from PyQt4.QtCore import pyqtSignal, QObject, QSize, Qt, QThread, QTimer, QUrl
 from PyQt4.QtGui import QIcon
 
 from enki.core.core import core
@@ -171,11 +171,16 @@ class PreviewDock(DockWidget):
 
         self._visiblePath = None
         
+        self._typingTimer = QTimer()
+        self._typingTimer.setInterval(300)
+        self._typingTimer.timeout.connect(self._scheduleDocumentProcessing)
+
         self._scheduleDocumentProcessing()
 
     def del_(self):
         """Uninstall themselves
         """
+        self._typingTimer.stop()
         self._thread.wait()
     
     def _updateTitle(self, pageTitle):
@@ -229,7 +234,8 @@ class PreviewDock(DockWidget):
         """Text changed, update preview
         """
         if self.isVisible():
-            self._scheduleDocumentProcessing()
+            self._typingTimer.stop()
+            self._typingTimer.start()
 
     def show(self):
         """When shown, update document, if posible
@@ -240,6 +246,8 @@ class PreviewDock(DockWidget):
     def _scheduleDocumentProcessing(self):
         """Start document processing with the thread.
         """
+        self._typingTimer.stop()
+        
         document = core.workspace().currentDocument()
         if document is not None:
             self._thread.process(document.filePath(), document.language(), document.text())
