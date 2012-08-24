@@ -201,8 +201,7 @@ class ActionManager(QObject):
     def _cleanPath(self, path ):
         """Escape \\ in the path
         """
-        data = QDir.cleanPath( path ).replace( '\\', '/' ).strip()
-        return data.strip('/')
+        return path.strip('/')
 
     def parentAction(self, action ):
         """Parent action of the action
