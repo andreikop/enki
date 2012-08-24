@@ -167,6 +167,11 @@ class SearchWidget(QFrame):
         
         self.tbCdUp.clicked.connect(self._onCdUpPressed)
         
+        self.pbNext.pressed.connect(self.searchNext)
+        self.pbPrevious.pressed.connect(self.searchPrevious)
+        self.pbSearchStop.pressed.connect(self.searchInDirectoryStopPressed)
+        self.pbReplaceCheckedStop.pressed.connect(self.replaceCheckedStopPressed)
+        
         core.mainWindow().hideAllWindows.connect(self.hide)
         core.workspace().currentDocumentChanged.connect( \
                     lambda old, new: self.setVisible(self.isVisible() and new is not None))
@@ -383,7 +388,7 @@ class SearchWidget(QFrame):
         self.wReplaceRight.setMinimumWidth( width )
         self.wPathRight.setMinimumWidth( width )
 
-    def _updateComboBoxes(self):
+    def updateComboBoxes(self):
         """Update comboboxes with last used texts
         """
         searchText = self.cbSearch.currentText()
@@ -520,55 +525,29 @@ class SearchWidget(QFrame):
         editText = os.path.abspath(os.path.join(text, os.path.pardir))
         self.cbPath.setEditText(editText)
 
-    def on_pbPrevious_pressed(self):
-        """Handler of click on "Previous" button
-        """
-        self._updateComboBoxes()
-        self.searchPrevious.emit()
-
-    def on_pbNext_pressed(self):
-        """Handler of click on "Next" button
-        """
-        self._updateComboBoxes()
-        self.searchNext.emit()
-
     def on_pbSearch_pressed(self):
         """Handler of click on "Search" button (for search in directory)
         """
         self.setState(SearchWidget.Normal )
-        self._updateComboBoxes()
 
         self.searchInDirectoryStartPressed.emit(self.getRegExp(),
                                                 self._getSearchMask(),
                                                 self.cbPath.currentText())
 
-    def on_pbSearchStop_pressed(self):
-        """Handler of click on "Stop" button. Stop search thread
-        """
-        self.searchInDirectoryStopPressed.emit()
-
     def on_pbReplace_pressed(self):
         """Handler of click on "Replace" (in file) button
         """
-        self._updateComboBoxes()
         self.replaceFileOne.emit(self.cbReplace.currentText())
 
     def on_pbReplaceAll_pressed(self):
         """Handler of click on "Replace all" (in file) button
         """
-        self._updateComboBoxes()
         self.replaceFileAll.emit(self.cbReplace.currentText())
 
     def on_pbReplaceChecked_pressed(self):
         """Handler of click on "Replace checked" (in directory) button
         """
-        self._updateComboBoxes()
         self.replaceCheckedStartPressed.emit(self.cbReplace.currentText())
-
-    def on_pbReplaceCheckedStop_pressed(self):
-        """Handler of click on "Stop" button when replacing in directory
-        """
-        self.replaceCheckedStopPressed.emit()
 
     def on_pbBrowse_pressed(self):
         """Handler of click on "Browse" button. Explores FS for search directory path
