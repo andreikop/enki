@@ -130,6 +130,8 @@ class MainWindow(QMainWindow):
         self._centralLayout = QVBoxLayout(widget)
         self._centralLayout.setMargin(0)
         self.setCentralWidget(widget)
+        
+        core.actionManager().action("mFile/aQuit").triggered.connect(self.close)
 
     def del_(self):
         """Explicitly called destructor
@@ -226,7 +228,9 @@ class MainWindow(QMainWindow):
         menu  ("mFile/mClose",                        tr("&Close"                ), "close.png"   )
         action("mFile/mClose/aCurrent",               tr("&Close"                ), "close.png",    "Ctrl+W",       tr("Close the current file" ), False)
         action("mFile/mClose/aAll",                   tr("Close &All"            ), "closeall.png", 'Shift+Ctrl+W', tr("Close all files"        ), False)
-        action("mFile/aPrint",                        tr("&Print..."             ), "print.png" ,   "Ctrl+P",       tr("Print the current file" ), False)
+        action("mFile/aPrint",                        tr("&Print..."             ), "print.png"   , "Ctrl+P",       tr("Print the current file" ), False)
+        separator("mFile")
+        action("mFile/aQuit",                         tr("&Quit"                 ), "quit.png"    , ""            , tr("Quit"                   ), True)
 
         menu  ("mView",                               tr("View"                  ), ""            )
         menu  ("mView/mZoom",                         tr("&Zoom"                 ), "search.png"  )
