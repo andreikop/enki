@@ -124,6 +124,11 @@ class DockWidget(QDockWidget):
             self.setWindowIcon(windowIcon)
         if shortcut is not None:
             self.showAction().setShortcut(shortcut)
+        
+        if shortcut is not None:
+            self.setToolTip("Move focus with <b>%s</b>,<br/>close with <b>Esc</b>" % shortcut)
+        else:
+            self.setToolTip("Close with <b>Esc</b>")
 
         self._titleBar = _TitleBar( self )
         self.setTitleBarWidget( self._titleBar )
