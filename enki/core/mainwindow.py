@@ -212,48 +212,48 @@ class MainWindow(QMainWindow):
         
         # pylint: disable=C0301  
         # enable long lines for menu items
-        # Menu or action path                   Name                                Icon            Shortcut        Hint                     Action enabled
+        # Menu or action path                          Name                     Icon            Shortcut        Hint                     Action enabled
         tr = self.tr  # pylint: disable=C0103
-        menu  ("mFile",                               tr("File"                  ), ""            )
-        action("mFile/aOpen",                         tr("&Open..."              ), "open.png",     "Ctrl+O" ,      tr("Open a file"            ), True )
-        menu  ("mFile/mUndoClose",                    tr("Undo Close"            ), "recents.png" )
-        menu  ("mFile/mSave",                         tr("&Save"                 ), "save.png"    )
-        action("mFile/mSave/aCurrent",                tr("&Save"                 ), "save.png" ,    "Ctrl+S" ,      tr("Save the current file"  ), False)
-        action("mFile/mSave/aSaveAs",                 tr("Save As..."            ), "save.png" ,    "Ctrl+Alt+S" ,  ""                           , False)
-        action("mFile/mSave/aAll",                    tr("Save &All"             ), "saveall.png",  'Shift+Ctrl+S', tr("Save all files"         ), False)
-        menu  ("mFile/mReload",                       tr("&Reload"               ), "reload.png"    )
-        action("mFile/mReload/aCurrent",              tr("Reload"                ), "reload.png"  , 'F5',           tr("Reload the current file"), False)
-        action("mFile/mReload/aAll",                  tr("Reload All"            ), "reload.png"  , 'Shift+F5',     tr("Reload all files"       ), True)
-        action("mFile/aNew",                          tr("&New file..."          ), "new.png",      'Ctrl+N',       tr("New file"               ), True )
-        menu  ("mFile/mClose",                        tr("&Close"                ), "close.png"   )
-        action("mFile/mClose/aCurrent",               tr("&Close"                ), "close.png",    "Ctrl+W",       tr("Close the current file" ), False)
-        action("mFile/mClose/aAll",                   tr("Close &All"            ), "closeall.png", 'Shift+Ctrl+W', tr("Close all files"        ), False)
-        action("mFile/aPrint",                        tr("&Print..."             ), "print.png"   , "Ctrl+P",       tr("Print the current file" ), False)
+        menu  ("mFile",                               "File"                  , ""            )
+        action("mFile/aOpen",                         "&Open..."              , "open.png",     "Ctrl+O" ,      "Open a file"            , True )
+        menu  ("mFile/mUndoClose",                    "Undo Close"            , "recents.png" )
+        menu  ("mFile/mSave",                         "&Save"                 , "save.png"    )
+        action("mFile/mSave/aCurrent",                "&Save"                 , "save.png" ,    "Ctrl+S" ,      "Save the current file"  , False)
+        action("mFile/mSave/aSaveAs",                 "Save As..."            , "save.png" ,    "Ctrl+Alt+S" ,  ""                           , False)
+        action("mFile/mSave/aAll",                    "Save &All"             , "saveall.png",  'Shift+Ctrl+S', "Save all files"         , False)
+        menu  ("mFile/mReload",                       "&Reload"               , "reload.png"    )
+        action("mFile/mReload/aCurrent",              "Reload"                , "reload.png"  , 'F5',           "Reload the current file", False)
+        action("mFile/mReload/aAll",                  "Reload All"            , "reload.png"  , 'Shift+F5',     "Reload all files"       , True)
+        action("mFile/aNew",                          "&New file..."          , "new.png",      'Ctrl+N',       "New file"               , True )
+        menu  ("mFile/mClose",                        "&Close"                , "close.png"   )
+        action("mFile/mClose/aCurrent",               "&Close"                , "close.png",    "Ctrl+W",       "Close the current file" , False)
+        action("mFile/mClose/aAll",                   "Close &All"            , "closeall.png", 'Shift+Ctrl+W', "Close all files"        , False)
+        action("mFile/aPrint",                        "&Print..."             , "print.png"   , "Ctrl+P",       "Print the current file" , False)
         separator("mFile")
-        action("mFile/aQuit",                         tr("&Quit"                 ), "quit.png"    , ""            , tr("Quit"                   ), True)
+        action("mFile/aQuit",                         "&Quit"                 , "quit.png"    , ""            , "Quit"                   , True)
 
-        menu  ("mView",                               tr("View"                  ), ""            )
-        menu  ("mView/mZoom",                         tr("&Zoom"                 ), "search.png"  )
-        menu  ("mView/mHighlighting",                 tr("Highlighting"          ), ""            )
+        menu  ("mView",                               "View"                  , ""            )
+        menu  ("mView/mZoom",                         "&Zoom"                 , "search.png"  )
+        menu  ("mView/mHighlighting",                 "Highlighting"          , ""            )
         separator("mView")
-        action("mView/aHideAll",                      tr("Hide all widgets"      ), "",             "Shift+Esc",    tr("Hide all widgets"          ), True)
+        action("mView/aHideAll",                      "Hide all widgets"      , "",             "Shift+Esc",    "Hide all widgets"          , True)
 
-        menu  ("mEdit",                               tr("Edit"                  ), ""            )
+        menu  ("mEdit",                               "Edit"                  , ""            )
 
-        menu  ("mNavigation",                          tr("Navigation"            ), ""           ) 
-        action("mNavigation/aFocusCurrentDocument",   tr("Focus to editor"       ), "text.png",     "Ctrl+Return",  tr("Focus current document" ), False)
+        menu  ("mNavigation",                          "Navigation"            , ""           ) 
+        action("mNavigation/aFocusCurrentDocument",   "Focus to editor"       , "text.png",     "Ctrl+Return",  "Focus current document" , False)
 
-        menu  ("mNavigation/mSearchReplace",           tr("&Search && Replace"    ), "search-replace-directory.png")
-        menu  ("mNavigation/mBookmarks",               tr("&Bookmarks"            ), "bookmark.png")
+        menu  ("mNavigation/mSearchReplace",           "&Search && Replace"    , "search-replace-directory.png")
+        menu  ("mNavigation/mBookmarks",               "&Bookmarks"            , "bookmark.png")
 
-        action("mNavigation/aNext",                   tr("&Next file"            ), "next.png",     "Ctrl+PgDown",    tr("Next file"              ), False)
-        action("mNavigation/aPrevious",               tr("&Previous file"        ), "previous.png", "Ctrl+PgUp",     tr("Previous file"          ), False)
-        action("mNavigation/aGoto",                   tr("Go go line..."         ), "goto.png",     "Ctrl+G",       tr("Go to line..."          ), False)
-        menu  ("mNavigation/mFileBrowser",            tr("File browser"          ), ':/enkiicons/open.png')
+        action("mNavigation/aNext",                   "&Next file"            , "next.png",     "Ctrl+PgDown",    "Next file"              , False)
+        action("mNavigation/aPrevious",               "&Previous file"        , "previous.png", "Ctrl+PgUp",     "Previous file"          , False)
+        action("mNavigation/aGoto",                   "Go go line..."         , "goto.png",     "Ctrl+G",       "Go to line..."          , False)
+        menu  ("mNavigation/mFileBrowser",            "File browser"          , ':/enkiicons/open.png')
 
-        menu  ("mSettings",                           tr("Settings"              ), ""            )
+        menu  ("mSettings",                           "Settings"              , ""            )
 
-        menu  ("mHelp",                               tr("Help"                  ), ""            )
+        menu  ("mHelp",                               "Help"                  , ""            )
         
         # docks
         core.actionManager().action( "mView/aHideAll" ).triggered.connect(self._onHideAllWindows)
