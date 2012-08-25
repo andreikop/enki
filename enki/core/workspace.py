@@ -54,8 +54,9 @@ class _UISaveFiles(QDialog):
                 item.setToolTip( document.filePath() )
             item.setCheckState( Qt.Checked )
             self._itemToDocument[item] = document
-        self.buttonBox.button(self.buttonBox.Cancel).setText(self.tr('Cancel Close'))
-        self.buttonBox.button(self.buttonBox.Save).setText(self.tr('Save checked'))
+        self.buttonBox.button(self.buttonBox.Discard).setText(self.tr('Close &without Saving'))
+        self.buttonBox.button(self.buttonBox.Cancel).setText(self.tr('&Cancel Close'))
+        self.buttonBox.button(self.buttonBox.Save).setText(self.tr('&Save checked'))
         
         self.buttonBox.button(QDialogButtonBox.Cancel).setFocus()
 
