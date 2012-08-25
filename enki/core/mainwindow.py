@@ -215,8 +215,10 @@ class MainWindow(QMainWindow):
         # Menu or action path                          Name                     Icon            Shortcut        Hint                     Action enabled
         tr = self.tr  # pylint: disable=C0103
         menu  ("mFile",                               "File"                  , ""            )
-        action("mFile/aOpen",                         "&Open..."              , "open.png",     "Ctrl+O" ,      "Open a file"            , True )
         menu  ("mFile/mUndoClose",                    "Undo Close"            , "recents.png" )
+        separator("mFile")
+        action("mFile/aNew",                          "&New file..."          , "new.png",      'Ctrl+N',       "New file"               , True )
+        action("mFile/aOpen",                         "&Open..."              , "open.png",     "Ctrl+O" ,      "Open a file"            , True )
         menu  ("mFile/mSave",                         "&Save"                 , "save.png"    )
         action("mFile/mSave/aCurrent",                "&Save"                 , "save.png" ,    "Ctrl+S" ,      "Save the current file"  , False)
         action("mFile/mSave/aSaveAs",                 "Save As..."            , "save.png" ,    "Ctrl+Alt+S" ,  ""                           , False)
@@ -224,11 +226,10 @@ class MainWindow(QMainWindow):
         menu  ("mFile/mReload",                       "&Reload"               , "reload.png"    )
         action("mFile/mReload/aCurrent",              "Reload"                , "reload.png"  , 'F5',           "Reload the current file", False)
         action("mFile/mReload/aAll",                  "Reload All"            , "reload.png"  , 'Shift+F5',     "Reload all files"       , True)
-        action("mFile/aNew",                          "&New file..."          , "new.png",      'Ctrl+N',       "New file"               , True )
+        action("mFile/aPrint",                        "&Print..."             , "print.png"   , "Ctrl+P",       "Print the current file" , False)
         menu  ("mFile/mClose",                        "&Close"                , "close.png"   )
         action("mFile/mClose/aCurrent",               "&Close"                , "close.png",    "Ctrl+W",       "Close the current file" , False)
         action("mFile/mClose/aAll",                   "Close &All"            , "closeall.png", 'Shift+Ctrl+W', "Close all files"        , False)
-        action("mFile/aPrint",                        "&Print..."             , "print.png"   , "Ctrl+P",       "Print the current file" , False)
         separator("mFile")
         action("mFile/aQuit",                         "&Quit"                 , "quit.png"    , ""            , "Quit"                   , True)
 
