@@ -1,3 +1,9 @@
+enki (12.08.7-1~ppa1) lucid; urgency=low
+
+  * Bug fixes
+
+ -- Andrei Kopats <hlamer@tut.by>  Sat, 25 Aug 2012 10:30:33 +0300
+
 enki (12.08.5-1~ppa1) lucid; urgency=low
 
   * Experimental appmenu crash fix
