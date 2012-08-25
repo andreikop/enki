@@ -9,7 +9,7 @@ This class adds next features to QDockWidget:
 """
 
 from PyQt4.QtCore import pyqtSignal, QSize, Qt, QTimer
-from PyQt4.QtGui import QAction, QColor, QDockWidget, QFontMetrics, \
+from PyQt4.QtGui import QAction, QColor, QDockWidget, QFontMetrics, QIcon, \
                         QKeySequence, QPainter, QShortcut, QSizePolicy, QStyle, QStyleOptionButton, \
                         QTransform, QToolBar, QWidget
 
@@ -113,10 +113,18 @@ class _TitleBar(QToolBar):
 class DockWidget(QDockWidget):
     """Extended QDockWidget for Enki main window
     """
-    def __init__(self, *args):
-        QDockWidget.__init__(self, *args)
-
+    def __init__(self, parentObject, objectName, windowTitle, windowIcon = QIcon(), shortcut = None):
+        QDockWidget.__init__(self, parentObject)
         self._showAction = None
+
+        self.setObjectName(objectName)
+        self.setWindowTitle(windowTitle)
+        
+        if not windowIcon.isNull():
+            self.setWindowIcon(windowIcon)
+        if shortcut is not None:
+            self.showAction().setShortcut(shortcut)
+
         self._titleBar = _TitleBar( self )
         self.setTitleBarWidget( self._titleBar )
         

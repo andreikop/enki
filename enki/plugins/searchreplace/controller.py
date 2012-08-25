@@ -156,7 +156,7 @@ class Controller(QObject):
         Called only when search in direcory process starts
         """
         import searchresultsdock
-        self._dock = searchresultsdock.SearchResultsDock()
+        self._dock = searchresultsdock.SearchResultsDock(core.mainWindow())
 
         core.mainWindow().addDockWidget(Qt.BottomDockWidgetArea, self._dock)
         self._dock.setVisible( False )

@@ -125,14 +125,9 @@ class SearchResultsDock(DockWidget):
     
     onResultsHandledByReplaceThread = pyqtSignal(str, list)
 
-    def __init__(self, parent=None):
-        DockWidget.__init__( self, parent )
-        self.setObjectName("SearchResultsDock")
+    def __init__(self, parent):
+        DockWidget.__init__( self, parent, "SearchResultsDock", "&Search Results", QIcon(":/enkiicons/search.png"), "Alt+S")
 
-        self.setObjectName( self.metaObject().className() )
-        self.setWindowTitle( self.tr( "&Search Results" ) )
-        self.setWindowIcon( QIcon(":/enkiicons/search.png") )
-        
         # actions
         widget = QWidget( self )
         
@@ -158,7 +153,6 @@ class SearchResultsDock(DockWidget):
         self._model.firstResultsAvailable.connect(self.show)
         self._view.activated.connect(self._onResultActivated)
         
-        self.showAction().setShortcut("Alt+S")
         core.actionManager().addAction("mView/aSearchResults", self.showAction())
         
         self._expandCollapseAll = ExpandCollapseAllButton(self.titleBarWidget(), self._view, self._model)

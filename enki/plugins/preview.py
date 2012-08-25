@@ -48,7 +48,7 @@ class Plugin(QObject):
         """
         # create dock
         if self._dock is None:
-            self._dock = PreviewDock(core.mainWindow())
+            self._dock = PreviewDock()
         # add dock to dock toolbar entry
         core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
         core.actionManager().addAction("mView/aPreview", self._dock.showAction())
@@ -145,13 +145,8 @@ class ConverterThread(QThread):
 class PreviewDock(DockWidget):
     """GUI and implementation
     """
-    def __init__(self, *args):
-        DockWidget.__init__(self, *args)
-
-        self.setObjectName("PreviewDock")
-        self.setWindowTitle(self.tr( "&Preview" ))
-        self.setWindowIcon(QIcon(':/enkiicons/internet.png'))
-        self.showAction().setShortcut("Alt+P")
+    def __init__(self):
+        DockWidget.__init__(self, core.mainWindow(), "PreviewDock", "&Preview", QIcon(':/enkiicons/internet.png'), "Alt+P")
 
         from PyQt4.QtWebKit import QWebView  # delayed import, startup performance optimization
         self._view = QWebView(self)
