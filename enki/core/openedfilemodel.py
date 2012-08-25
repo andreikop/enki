@@ -322,11 +322,11 @@ class OpenedFileExplorer(DockWidget):
     Class instance created by Workspace.
     """
     def __init__(self, workspace):
-        DockWidget.__init__(self, workspace)
+        DockWidget.__init__(self, workspace, "OpenedFileExplorer",
+                            "&Opened Files", QIcon(":/enkiicons/filtered.png"), "Alt+O")
+        
         self._workspace = workspace
-        self.setObjectName("OpenedFileExplorer")
-        self.setWindowTitle("&Opened Files")
-        self.setWindowIcon(QIcon(":/enkiicons/filtered.png"))
+
         self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
 
         self.tvFiles = QTreeView(self)
@@ -355,7 +355,7 @@ class OpenedFileExplorer(DockWidget):
         
         self.tvFiles.activated.connect(self._workspace.focusCurrentDocument)
         
-        core.actionManager().addAction("mView/aOpenedFiles", self.showAction(), shortcut="Alt+O")
+        core.actionManager().addAction("mView/aOpenedFiles", self.showAction())
         
         core.uiSettingsManager().dialogAccepted.connect(self._applySettings)
         core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)

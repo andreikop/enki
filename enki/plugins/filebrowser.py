@@ -583,20 +583,16 @@ class DockFileBrowser(DockWidget):
     """  # pylint: disable=W0105
     
     def __init__(self, parent):
-        DockWidget.__init__(self, parent)
+        DockWidget.__init__(self, parent, "FileBrowserDock", "&File Browser", QIcon(':/enkiicons/open.png'), "Alt+F")
         
         self._comboBox = None
         self._tree = None
         self._smartRecents = None
         self._smartHistory = None
         
-        self.setObjectName("FileBrowserDock")
-        self.setWindowTitle(self.tr( "&File Browser" ))
-        self.setWindowIcon(QIcon(':/enkiicons/open.png'))
         # restrict areas
         self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
         
-        self.showAction().setShortcut("Alt+F")
         core.actionManager().addAction("mView/aFileBrowser", self.showAction())
         
         core.mainWindow().directoryDropt.connect(self._onDirectoryDropt)

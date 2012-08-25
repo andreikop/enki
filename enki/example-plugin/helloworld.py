@@ -8,13 +8,13 @@ import enki.widgets.dockwidget
 
 class MyDock(enki.widgets.dockwidget.DockWidget):
     def __init__(self):
-        enki.widgets.dockwidget.DockWidget.__init__(self)
+        enki.widgets.dockwidget.DockWidget.__init__(self, core.mainWindow(),
+                                                    "Hello dock",
+                                                    "Hello dock",
+                                                    QIcon(":enkiicons/help.png"),
+                                                    "Alt+H")
         self.label = QLabel("This is Hello World dock")
         self.setWidget(self.label)
-        self.setObjectName("Hello dock")
-        self.setWindowTitle("Hello dock")
-        self.setWindowIcon(QIcon(":enkiicons/help.png"))
-        self.showAction().setShortcut("Alt+H")
 
 
 from enki.core.uisettings import TextOption
