@@ -71,9 +71,8 @@ class ActionManager(QObject):
     
     def __del__(self):
         if self._pathToAction:
-            print >> sys.stderr, 'ActionManager: you have to delete all actions before destroying actions model'
-            print >> sys.stderr, 'Existing actions:', self._pathToAction.keys()
-            assert 0
+            assert 0, 'ActionManager: you have to delete all actions before destroying actions model. ' + \
+                      'Existing actions: ' + str(self._pathToAction.keys())
 
     def action(self, path ):
         """Get action by its path. i.e.
@@ -99,8 +98,7 @@ class ActionManager(QObject):
         subPath = '/'.join(path.split('/')[0: -1])
         parentAction = self.action(subPath)
         if parentAction is None:
-            print >> sys.stderr, "Menu path not found", subPath
-            assert False
+            assert False, "Menu path not found: " + subPath
         
         if isinstance(action, basestring):
             action = QAction( icon, action, parentAction )
