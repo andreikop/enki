@@ -12,6 +12,15 @@ from enki.widgets.dockwidget import DockWidget
 
 from threading import Lock
 
+def _isRestFile(document):
+    """Check if document is a ReST file
+    Currently, there are no highlighting language for ReST
+    """
+    return document is not None and \
+           document.fileName() is not None and \
+           document.fileName().endswith('.rst')
+
+
 class Plugin(QObject):
     """Plugin interface implementation
     """
@@ -39,9 +48,17 @@ class Plugin(QObject):
     def _canHighlight(self, document):
         """Check if can highlight document
         """
-        return document is not None and \
-           document.language() is not None and \
-           document.language() in ('HTML', 'Markdown')
+        if document is None:
+            return False
+        
+        if document.language() is not None and \
+           document.language() in ('HTML', 'Markdown'):
+            return True
+        
+        if _isRestFile(document):
+            return True
+        
+        return False
 
     def _createDock(self):
         """Install dock
@@ -100,6 +117,8 @@ class ConverterThread(QThread):
             return text
         elif language == 'Markdown':
             return self._convertMarkdown(text)
+        elif language == 'ReST':
+            return self._convertReST(text)
         else:
             return 'No preview for this type of file'
 
@@ -109,9 +128,9 @@ class ConverterThread(QThread):
         try:
             import markdown
         except ImportError:
-            return "Markdown preview requires <i>python-markdown</i> package<br/>" \
-                   "Install it with your package manager or see " \
-                   "<a href=http://packages.python.org/Markdown/install.html>installation instructions</a>"
+            return 'Markdown preview requires <i>python-markdown</i> package<br/>' \
+                   'Install it with your package manager or see ' \
+                   '<a href="http://packages.python.org/Markdown/install.html">installation instructions</a>'
         
         try:
             import mdx_mathjax
@@ -122,6 +141,19 @@ class ConverterThread(QThread):
             return markdown.markdown(text, ['fenced_code', 'nl2br', 'mathjax'])
         except:  # markdown raises ValueError, it is not clear, how to distinguish missing mathjax from other errors
             return markdown.markdown(text, ['fenced_code', 'nl2br']) #keep going without mathjax
+    
+    def _convertReST(self, text):
+        """Convert ReST
+        """
+        try:
+            import docutils.core
+        except ImportError:
+            return 'ReStructuredText preview requires <i>python-docutils</i> package<br/>' \
+                   'Install it with your package manager or see ' \
+                   '<a href="http://pypi.python.org/pypi/docutils"/>this page</a>'
+
+
+        return docutils.core.publish_string(text, writer_name='html')
 
     def run(self):
         """Thread function
@@ -247,7 +279,11 @@ class PreviewDock(DockWidget):
         
         document = core.workspace().currentDocument()
         if document is not None:
-            self._thread.process(document.filePath(), document.language(), document.text())
+            language = document.language()
+            if language is None and _isRestFile(document):
+                language = 'ReST'
+            
+            self._thread.process(document.filePath(), language, document.text())
 
     def _setHtml(self, filePath, html):
         """Set HTML to the view and restore scroll bars position.
