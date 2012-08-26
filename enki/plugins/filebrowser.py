@@ -583,7 +583,7 @@ class DockFileBrowser(DockWidget):
     """  # pylint: disable=W0105
     
     def __init__(self, parent):
-        DockWidget.__init__(self, parent, "FileBrowserDock", "&File Browser", QIcon(':/enkiicons/open.png'), "Alt+F")
+        DockWidget.__init__(self, parent, "&File Browser", QIcon(':/enkiicons/open.png'), "Alt+F")
         
         self._comboBox = None
         self._tree = None

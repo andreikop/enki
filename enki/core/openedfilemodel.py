@@ -322,8 +322,7 @@ class OpenedFileExplorer(DockWidget):
     Class instance created by Workspace.
     """
     def __init__(self, workspace):
-        DockWidget.__init__(self, workspace, "OpenedFileExplorer",
-                            "&Opened Files", QIcon(":/enkiicons/filtered.png"), "Alt+O")
+        DockWidget.__init__(self, workspace, "&Opened Files", QIcon(":/enkiicons/filtered.png"), "Alt+O")
         
         self._workspace = workspace
 

@@ -10,7 +10,6 @@ class MyDock(enki.widgets.dockwidget.DockWidget):
     def __init__(self):
         enki.widgets.dockwidget.DockWidget.__init__(self, core.mainWindow(),
                                                     "Hello dock",
-                                                    "Hello dock",
                                                     QIcon(":enkiicons/help.png"),
                                                     "Alt+H")
         self.label = QLabel("This is Hello World dock")
