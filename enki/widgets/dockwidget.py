@@ -125,14 +125,15 @@ class DockWidget(QDockWidget):
         if shortcut is not None:
             self.showAction().setShortcut(shortcut)
         
-        if shortcut is not None:
-            self.setToolTip("Move focus with <b>%s</b>,<br/>close with <b>Esc</b>" % shortcut)
-        else:
-            self.setToolTip("Close with <b>Esc</b>")
-
         self._titleBar = _TitleBar( self )
         self.setTitleBarWidget( self._titleBar )
-        
+
+        if shortcut is not None:
+            toolTip = "Move focus with <b>%s</b>,<br/>close with <b>Esc</b>" % shortcut
+        else:
+            toolTip = "Close with <b>Esc</b>"
+        self._titleBar.setToolTip(toolTip)
+
         self._closeShortcut = QShortcut( QKeySequence( "Esc" ), self )
         self._closeShortcut.setContext( Qt.WidgetWithChildrenShortcut )
         self._closeShortcut.activated.connect(self._hide)
