@@ -146,7 +146,7 @@ class PreviewDock(DockWidget):
     """GUI and implementation
     """
     def __init__(self):
-        DockWidget.__init__(self, core.mainWindow(), "PreviewDock", "&Preview", QIcon(':/enkiicons/internet.png'), "Alt+P")
+        DockWidget.__init__(self, core.mainWindow(), "&Preview", QIcon(':/enkiicons/internet.png'), "Alt+P")
 
         from PyQt4.QtWebKit import QWebView  # delayed import, startup performance optimization
         self._view = QWebView(self)

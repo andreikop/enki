@@ -126,7 +126,7 @@ class SearchResultsDock(DockWidget):
     onResultsHandledByReplaceThread = pyqtSignal(str, list)
 
     def __init__(self, parent):
-        DockWidget.__init__( self, parent, "SearchResultsDock", "&Search Results", QIcon(":/enkiicons/search.png"), "Alt+S")
+        DockWidget.__init__( self, parent, "&Search Results", QIcon(":/enkiicons/search.png"), "Alt+S")
 
         # actions
         widget = QWidget( self )

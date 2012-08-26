@@ -113,11 +113,11 @@ class _TitleBar(QToolBar):
 class DockWidget(QDockWidget):
     """Extended QDockWidget for Enki main window
     """
-    def __init__(self, parentObject, objectName, windowTitle, windowIcon = QIcon(), shortcut = None):
+    def __init__(self, parentObject, windowTitle, windowIcon = QIcon(), shortcut = None):
         QDockWidget.__init__(self, parentObject)
         self._showAction = None
 
-        self.setObjectName(objectName)
+        self.setObjectName(str(self.__class__))
         self.setWindowTitle(windowTitle)
         
         if not windowIcon.isNull():
