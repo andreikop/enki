@@ -101,7 +101,7 @@
         <bool>true</bool>
        </property>
        <property name="currentIndex">
-        <number>4</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="pGeneral">
         <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -151,9 +151,19 @@
          <item>
           <widget class="QGroupBox" name="gbFilesToHide">
            <property name="title">
-            <string>Files to hide in File Browser and Locator</string>
+            <string>Ignored files</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
+            <item>
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>This files are not displayed by File Browser, Locator, ignored when searching in directory</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
             <item>
              <widget class="QLabel" name="label_4">
               <property name="font">

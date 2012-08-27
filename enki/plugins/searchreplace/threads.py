@@ -74,7 +74,7 @@ class SearchThread(StopableThread):
 
         self.start()
 
-    def _getFiles(self, path, maskRegExp):
+    def _getFiles(self, path, maskRegExp, filterRegExp):
         """Get recursive list of files from directory.
         maskRegExp is regExp object for check if file matches mask
         """
@@ -87,6 +87,10 @@ class SearchThread(StopableThread):
                     continue
                 if maskRegExp and not maskRegExp.match(fileName):
                     continue
+                
+                if filterRegExp.match(fileName):
+                    continue
+                
                 fullPath = os.path.join(root, fileName)
                 if not os.path.isfile(fullPath):
                     continue
@@ -117,7 +121,7 @@ class SearchThread(StopableThread):
             return files
         else:
             path = self._searchPath
-            return self._getFiles(path, maskRegExp)
+            return self._getFiles(path, maskRegExp, core.fileFilter().regExp())
 
     def _fileContent(self, fileName):
         """Read text from file
