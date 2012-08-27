@@ -306,8 +306,23 @@ class _CompletableLineEdit(QLineEdit):
             else:
                 QLineEdit.keyPressEvent(self, event)
         else:
+            oldTextBeforeCompletion = self.text()[:self.cursorPosition()]
+            inlineCompletion = self._inlineCompletion()
+            textAfterCompletion = self.text()[:self.cursorPosition() + len(inlineCompletion)]
+            
             self._clearInlineCompletion()
+            
             QLineEdit.keyPressEvent(self, event)
+            
+            # Inline completion will be recalculated later in the thread.
+            # But, this code helps to avoid flickering in case when user typed first letter of inline completion
+            textBeforeCompletion = self.text()[:self.cursorPosition()]
+            if inlineCompletion and \
+               len(oldTextBeforeCompletion) + 1 == len(textBeforeCompletion) and \
+               textBeforeCompletion.startswith(oldTextBeforeCompletion) and \
+               textBeforeCompletion[-1] == inlineCompletion[0]:
+                self.setInlineCompletion(inlineCompletion[1:])  # set rest of the inline completion
+
         self.updateCompletion.emit()
     
     def _deleteToSlash(self):
@@ -324,6 +339,14 @@ class _CompletableLineEdit(QLineEdit):
         """
         if self.selectedText():
             self.del_()
+
+    def _inlineCompletion(self):
+        """Get current inline completion text
+        """
+        if self.selectionStart() == self.cursorPosition():
+            return self.selectedText()
+        else:
+            return ''
 
     def setInlineCompletion(self, text):
         """Set inline completion
