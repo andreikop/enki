@@ -163,6 +163,14 @@ class Workspace(QStackedWidget):
     Convenience signal, which retransmits original signal, sent by the document
     """  # pylint: disable=W0105
 
+    escPressed = pyqtSignal()
+    """
+    escPressed()
+    
+    **Signal** emitted, when Esc pressed in the editor.
+    Search widget closes themselves on this signal
+    """  # pylint: disable=W0105
+
     def __init__(self, mainWindow):
         """ list of opened documents as it is displayed in the Opened Files Explorer. 
         List accessed and modified by enki.core.openedfilemodel.OpenedFileModel class
