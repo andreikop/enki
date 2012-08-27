@@ -173,6 +173,8 @@ class SearchWidget(QFrame):
         self.pbReplaceCheckedStop.pressed.connect(self.replaceCheckedStopPressed)
         
         core.mainWindow().hideAllWindows.connect(self.hide)
+        core.workspace().escPressed.connect(self.hide)
+        
         core.workspace().currentDocumentChanged.connect( \
                     lambda old, new: self.setVisible(self.isVisible() and new is not None))
 

@@ -46,12 +46,17 @@ class _QsciScintilla(QsciScintilla):
             newev = QKeyEvent(event.type(), Qt.Key_Tab, Qt.ShiftModifier)
             super(_QsciScintilla, self).keyPressEvent(newev)
         elif event.matches(QKeySequence.InsertParagraphSeparator):
-            lineCount = self.lines()
+            autocompletionListActive = self.isListActive()
             self.beginUndoAction()
             super(_QsciScintilla, self).keyPressEvent(event)
-            if self.lines() > lineCount:  # bad hack, which checks, if autocompletion window is active
+            if not autocompletionListActive:
                 self.newLineInserted.emit()
             self.endUndoAction()
+        elif event.key() == Qt.Key_Escape:
+            if self.isListActive():  # autocompletion window
+                super(_QsciScintilla, self).keyPressEvent(event)  # close it
+            else:
+                core.workspace().escPressed.emit()
         else:
             super(_QsciScintilla, self).keyPressEvent(event)
     
