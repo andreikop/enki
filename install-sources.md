@@ -4,9 +4,9 @@ title: Install enki from sources
 baseurl: .
 ---
 
-On **Windows**, [this link](https://github.com/hlamer/enki/issues/19) might be helpful.
-
 # Install from sources
+
+On **Windows**, [this link](https://github.com/hlamer/enki/issues/19) might be helpful.
 
 ## 1. Install dependencies
 * Python 2. Tested on v2.6.6 and v2.7.2
