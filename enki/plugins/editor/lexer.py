@@ -129,3 +129,16 @@ class Lexer:
             self.qscilexer.setColor(QColor(config["DefaultDocumentPen"]), 0)
         else:
             self.qscilexer.setColor(self.qscilexer.defaultColor(0), 0)
+
+    def wordCharacters(self):
+        """Get set of word characters.
+        If QScintilla lexer is not available, or doesn't implement the method - return default set
+        """
+        def _charRange(c1, c2):
+            """Generates the characters from `c1` to `c2`, inclusive."""
+            return [chr(c) for c in xrange(ord(c1), ord(c2)+1)]
+        
+        if self.qscilexer is not None and self.qscilexer.wordCharacters():
+            return set(self.qscilexer.wordCharacters())
+        else:
+            return set(_charRange('a', 'z') + _charRange('A', 'Z') + _charRange('0', '9') + ['_'])

@@ -756,6 +756,13 @@ class AbstractTextEditor(AbstractDocument):
         """
         pass
 
+    def wordUnderCursor(self):
+        """Get word under cursor.
+        What is a "word" depends on current language
+        Return (word, wordStartAbsPos, wordEndAbsPos) or (None, None, None)
+        """
+        raise NotImplemented()
+
     def _toAbsPosition(self, line, col):
         """Convert (line, column) to absolute position
         """
