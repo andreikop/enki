@@ -138,7 +138,9 @@ class Lexer:
             """Generates the characters from `c1` to `c2`, inclusive."""
             return [chr(c) for c in xrange(ord(c1), ord(c2)+1)]
         
-        if self.qscilexer is not None and self.qscilexer.wordCharacters():
+        if self.qscilexer is not None and \
+           hasattr(self.qscilexer, "wordCharacters") and \
+           self.qscilexer.wordCharacters():
             return set(self.qscilexer.wordCharacters())
         else:
             return set(_charRange('a', 'z') + _charRange('A', 'Z') + _charRange('0', '9') + ['_'])
