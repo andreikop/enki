@@ -349,7 +349,7 @@ class Controller(QObject):
         self._widget.updateComboBoxes()
         self._searchFile(forward=False, incremental=False )
     
-    def _searchFile(self, regExp, forward=True, incremental=False):
+    def _searchFile(self, forward=True, incremental=False):
         """Do search in file operation. Will select next found item
         """
         document = core.workspace().currentDocument()
