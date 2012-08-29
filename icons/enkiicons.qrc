@@ -7,6 +7,7 @@
 		<file>assistant.png</file>
 		<file>background.png</file>
 		<file>backup.png</file>
+		<file>bigger.png</file>
 		<file>big-next.png</file>
 		<file>big-previous.png</file>
 		<file>bookmark_add.png</file>
@@ -75,6 +76,7 @@
 		<file>languages/scheme.png</file>
 		<file>languages/tcl.png</file>
 		<file>languages/tex.png</file>
+		<file>less.png</file>
 		<file>logo/128x128</file>
 		<file>logo/128x128/enki.png</file>
 		<file>logo/32x32</file>
