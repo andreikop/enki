@@ -759,3 +759,35 @@ class Editor(AbstractTextEditor):
         """Move selected lines up
         """
         return self._moveLines(-1)
+
+    def wordUnderCursor(self):
+        """Get word under cursor.
+        What is a "word" depends on current language
+        """
+        wordCharacters = self.lexer.wordCharacters()
+        
+        line, col = self.cursorPosition()
+        lineText = self.line(line)
+
+        textBefore = lineText[:col]
+        countBefore = 0
+        for character in textBefore[::-1]:
+            if character in wordCharacters:
+                countBefore += 1
+            else:
+                break
+        
+        textAfter = lineText[col:]
+        countAfter = 0
+        for character in textAfter:
+            if character in wordCharacters:
+                countAfter += 1
+            else:
+                break
+        
+        if countBefore or countAfter:
+            word = lineText[col - countBefore:col + countAfter]
+            absPos = self.absCursorPosition()
+            return word, absPos - countBefore, absPos + countAfter
+        else:
+            return None, None, None

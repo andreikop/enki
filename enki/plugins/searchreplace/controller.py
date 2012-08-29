@@ -4,7 +4,7 @@ controller --- Main module. Business logic
 
 This module implements S&R plugin functionality. It joins together all other modules
 """
-
+import re
 
 from PyQt4.QtCore import QObject, Qt
 from PyQt4.QtGui import QApplication, QAction, QIcon, QMessageBox
@@ -81,18 +81,6 @@ class Controller(QObject):
                       "search.png", "Ctrl+F",
                       "Search in the current file...", 
                       self._onModeSwitchTriggered, ModeSearch)
-        createAction("aSearchDirectory", "Search in &Directory...", 
-                      "search-replace-directory.png", "Ctrl+Shift+F", 
-                      "Search in directory...",
-                      self._onModeSwitchTriggered, ModeSearchDirectory)
-        createAction("aReplaceDirectory", "Replace in Director&y...",
-                      "search-replace-directory.png", "Ctrl+Shift+R",
-                      "Replace in directory...",
-                      self._onModeSwitchTriggered, ModeReplaceDirectory)
-        createAction("aReplaceFile", "&Replace...",
-                      "replace.png", "Ctrl+R",
-                      "Replace in the current file...",
-                      self._onModeSwitchTriggered, ModeReplace)
         createAction("aSearchPrevious", "Search &Previous",
                       "previous.png", "Shift+F3",
                       "Search previous occurrence",
@@ -103,6 +91,26 @@ class Controller(QObject):
                       "Search next occurrence",
                       self._onSearchNext, None,
                       False)  # will be connected to search widget, when it is created
+        createAction("aReplaceFile", "&Replace...",
+                      "replace.png", "Ctrl+R",
+                      "Replace in the current file...",
+                      self._onModeSwitchTriggered, ModeReplace)
+        createAction("aSearchWordBackward", "Search word under cursor backward",
+                      "less.png", "Ctrl+,",
+                      "",
+                      self._onSearchCurrentWordBackward, None)
+        createAction("aSearchWordForward", "Search word under cursor forward",
+                      "bigger.png", "Ctrl+.",
+                      "",
+                      self._onSearchCurrentWordForward, None)
+        createAction("aSearchDirectory", "Search in &Directory...", 
+                      "search-replace-directory.png", "Ctrl+Shift+F", 
+                      "Search in directory...",
+                      self._onModeSwitchTriggered, ModeSearchDirectory)
+        createAction("aReplaceDirectory", "Replace in Director&y...",
+                      "search-replace-directory.png", "Ctrl+Shift+R",
+                      "Replace in directory...",
+                      self._onModeSwitchTriggered, ModeReplaceDirectory)
         createAction("aSearchOpenedFiles", "Search in &Opened Files...",
                       "search-replace-opened-files.png",
                       "Ctrl+Alt+Meta+F", "Search in opened files...",
@@ -217,6 +225,73 @@ class Controller(QObject):
         if old is not None:
             old.setExtraSelections([])
     
+    @staticmethod
+    def _searchInText(regExp, text, startPoint, forward):
+        """Search in text and return tuple (nearest match, all matches)
+        (None, None) if not found
+        """
+        matches = [m for m in regExp.finditer(text)]
+        if matches:
+            if forward:
+                matchesAfter = [match for match in matches \
+                                    if match.start() >= startPoint]
+                if matchesAfter:
+                    match = matchesAfter[0]
+                else:  # wrap, search from start
+                    match = matches[0]
+            else:  # reverse search
+                matchesBefore = [match for match in matches \
+                                    if match.start() < startPoint]
+                if matchesBefore:
+                    match = matchesBefore[-1]
+                else:  # wrap, search from end
+                    match = matches[-1]
+            return match, matches
+        else:
+            return None, None
+
+    #
+    # Search word under cursor
+    #
+    def _onSearchCurrentWordBackward(self):
+        """Search current word backward.
+        This search doesn't depend on search widget state, mode and contents
+        """
+        self._searchWord(forward=False)
+
+    def _onSearchCurrentWordForward(self):
+        """Search current word forward.
+        This search doesn't depend on search widget state, mode and contents
+        """
+        self._searchWord(forward=True)
+
+    def _searchWord(self, forward=True):
+        """Do search in file operation. Will select next found item
+        if updateWidget is True, search widget line edit will color will be set according to result
+        """
+        document = core.workspace().currentDocument()
+
+        word, wordStartAbsPos, wordEndAbsPos = document.wordUnderCursor()
+        if word is None:
+            return
+        
+        regExp = re.compile('\\b%s\\b' % re.escape(word))
+        text = document.text()
+
+        # avoid matching word under cursor
+        if forward:
+            startPoint = wordEndAbsPos
+        else:
+            startPoint = wordStartAbsPos
+        
+        match, matches = self._searchInText(regExp, document.text(), startPoint, forward)
+        if match is not None:
+            document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
+            core.mainWindow().statusBar().showMessage('Match %d of %d' % \
+                                                      (matches.index(match) + 1, len(matches)), 3000)
+        else:
+            self._resetSelection(core.workspace().currentDocument())
+
     #
     # Search and replace in file
     #
@@ -234,11 +309,16 @@ class Controller(QObject):
         valid, error = self._widget.isSearchRegExpValid()
         valid = valid and len(self._widget.getRegExp().pattern) > 0  # valid and not empty
         searchAvailable = valid
-        searchInFileAvailable = valid and core.workspace().currentDocument() is not None
+        
+        haveDocument = core.workspace().currentDocument() is not None
+        searchInFileAvailable = valid and haveDocument
         
         self._widget.setSearchInFileActionsEnabled(searchInFileAvailable)
         core.actionManager().action("mNavigation/mSearchReplace/aSearchNext").setEnabled(searchInFileAvailable)
         core.actionManager().action("mNavigation/mSearchReplace/aSearchPrevious").setEnabled(searchInFileAvailable)
+        
+        core.actionManager().action("mNavigation/mSearchReplace/aSearchWordBackward").setEnabled(haveDocument)
+        core.actionManager().action("mNavigation/mSearchReplace/aSearchWordForward").setEnabled(haveDocument)
 
     @staticmethod
     def _resetSelection(document):
@@ -253,7 +333,7 @@ class Controller(QObject):
         if self._mode in (ModeSearch, ModeReplace) and \
            core.workspace().currentDocument() is not None:
             if regExp.pattern:
-                self._searchFile( forward=True, incremental=True )
+                self._searchFile(forward=True, incremental=True )
             else:  # Clear selection
                 self._resetSelection(core.workspace().currentDocument())
 
@@ -261,18 +341,19 @@ class Controller(QObject):
         """Search Next clicked
         """
         self._widget.updateComboBoxes()
-        self._searchFile( forward=True, incremental=False )
+        self._searchFile(forward=True, incremental=False )
 
     def _onSearchPrevious(self):
         """Search Previous clicked
         """
         self._widget.updateComboBoxes()
-        self._searchFile( forward=False, incremental=False )
-
-    def _searchFile(self, forward, incremental=False):
+        self._searchFile(forward=False, incremental=False )
+    
+    def _searchFile(self, regExp, forward=True, incremental=False):
         """Do search in file operation. Will select next found item
         """
         document = core.workspace().currentDocument()
+        
         regExp = self._widget.getRegExp()
 
         if document.absCursorPosition() != self._searchInFileLastCursorPos:
@@ -294,23 +375,8 @@ class Controller(QObject):
             else:
                 self._searchInFileStartPoint = start
         
-        matches = [m for m in regExp.finditer(document.text())]
-        if matches:
-            if forward:
-                matchesAfter = [match for match in matches \
-                                    if match.start() >= self._searchInFileStartPoint]
-                if matchesAfter:
-                    match = matchesAfter[0]
-                else:  # wrap, search from start
-                    match = matches[0]
-            else:  # reverse search
-                matchesBefore = [match for match in matches \
-                                    if match.start() < self._searchInFileStartPoint]
-                if matchesBefore:
-                    match = matchesBefore[-1]
-                else:  # wrap, search from end
-                    match = matches[-1]
-            
+        match, matches = self._searchInText(regExp, document.text(), self._searchInFileStartPoint, forward)
+        if match:
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
             self._searchInFileLastCursorPos = match.start()
             self._widget.setState(self._widget.Good)  # change background acording to result
@@ -319,7 +385,6 @@ class Controller(QObject):
         else:
             self._widget.setState(self._widget.Bad)
             self._resetSelection(core.workspace().currentDocument())
-
 
     def _onReplaceFileOne(self, replaceText):
         """Do one replacement in the file
@@ -351,7 +416,8 @@ class Controller(QObject):
                 return
             document.replaceSelectedText(replaceTextSubed)
             document.goTo(absPos = match.start() + len(replaceTextSubed))
-            self._searchFile( True, False )  # move selection to the next item
+            # move selection to the next item
+            self._searchFile(forward=True, incremental=False )
         else:
             self._widget.setState(self._widget.Bad)
 
