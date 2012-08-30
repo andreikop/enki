@@ -265,6 +265,7 @@ class _CompletableLineEdit(QLineEdit):
     
     def __init__(self, *args):
         QLineEdit.__init__(self, *args)
+        self._inlineCompletionIsSet = False  # for differentiate inline completion and selection
 
     def event(self, event):
         """QObject.event implementation. Catches Tab events
@@ -337,13 +338,14 @@ class _CompletableLineEdit(QLineEdit):
     def _clearInlineCompletion(self):
         """Clear inline completion, if exists
         """
-        if self.selectedText():
+        if self._inlineCompletionIsSet:
             self.del_()
+            self._inlineCompletionIsSet = False
 
     def _inlineCompletion(self):
         """Get current inline completion text
         """
-        if self.selectionStart() == self.cursorPosition():
+        if self._inlineCompletionIsSet:
             return self.selectedText()
         else:
             return ''
@@ -351,8 +353,23 @@ class _CompletableLineEdit(QLineEdit):
     def setInlineCompletion(self, text):
         """Set inline completion
         """
-        self.insert(text)
-        self.setSelection(self.cursorPosition(), -len(text))
+        if text:
+            self.insert(text)
+            self.setSelection(self.cursorPosition(), -len(text))
+            self._inlineCompletionIsSet = True
+        else:
+            self._clearInlineCompletion()
+    
+    def commandText(self):
+        """Get text, which doesn't include inline completion
+        Text is stripped
+        """
+        text = self.text()
+        if self._inlineCompletionIsSet:
+            selectionStart = self.selectionStart()
+            selectionEnd = selectionStart + len(self.selectedText())
+            text = text[:selectionStart] + text[selectionEnd:]
+        return text.strip()
 
 
 class _CompleterConstructorThread(threading.Thread):
@@ -487,7 +504,7 @@ class Locator(QDialog):
         """Item in the TreeView has been clicked.
         Open file, if user selected it
         """
-        command = self._parseCommand(self._edit.text())
+        command = self._parseCommand(self._edit.commandText())
         if command is not None:
             newText = self._model.completer.getFullText(index.row())
             if newText is not None:
@@ -501,7 +518,7 @@ class Locator(QDialog):
     def _updateCompletion(self):
         """User edited text or moved cursor. Update inline and TreeView completion
         """
-        text = self._edit.text()
+        text = self._edit.commandText()
         completer = None
         
         command = self._parseCommand(text)
@@ -512,7 +529,7 @@ class Locator(QDialog):
 
             self._loadingTimer.start()
             self._completerConstructorThread.start(command,
-                                                   self._edit.text(),
+                                                   text,
                                                    self._edit.cursorPosition())
         else:
             self._applyCompleter(None, _HelpCompleter(self._availableCommands()))
@@ -531,18 +548,17 @@ class Locator(QDialog):
             completer = _HelpCompleter([command])
         
         inline = completer.inline()
-        if inline:
-            self._edit.setInlineCompletion(inline)
+        self._edit.setInlineCompletion(inline)
+
         self._model.setCompleter(completer)
         if completer.columnCount() > 1:
             self._table.resizeColumnToContents(0)
             self._table.setColumnWidth(0, self._table.columnWidth(0) + 20)  # 20 px spacing between columns
-
     
     def _onEnterPressed(self):
         """User pressed Enter or clicked item. Execute command, if possible
         """
-        text = self._edit.text().strip()
+        text = self._edit.commandText()
         command = self._parseCommand(text)
         if command is not None and command.isReadyToExecute():
             command.execute()
@@ -561,7 +577,7 @@ class Locator(QDialog):
         """User pressed Up. Roll history
         """
         if self._historyIndex == len(self._history) - 1:  # save edited command
-            self._history[self._historyIndex] = self._edit.text()
+            self._history[self._historyIndex] = self._edit.commandText()
         
         if self._historyIndex > 0:
             self._historyIndex -= 1
