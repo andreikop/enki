@@ -17,8 +17,6 @@ class Plugin:
     """
     def __init__(self):
         tb = core.mainWindow().topToolBar()
-        # Modified button
-        tb.addAction(core.actionManager().action( "mFile/mSave/aCurrent" ))
         # EOL indicator and switcher
         self._eol = editortoolbar.EolIndicatorAndSwitcher(tb)
         self._eolAct = tb.addWidget(self._eol)
@@ -31,7 +29,6 @@ class Plugin:
     
     def del_(self):
         tb = core.mainWindow().topToolBar()
-        tb.removeAction(core.actionManager().action( "mFile/mSave/aCurrent" ))
         tb.removeAction(self._eolAct)
         tb.removeAction(self._indentAct)
         tb.removeAction(self._posAct)

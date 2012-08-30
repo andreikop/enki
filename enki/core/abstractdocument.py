@@ -138,16 +138,6 @@ class AbstractDocument(QWidget):
     Signal is retransmitted by the workspace
     """  # pylint: disable=W0105
     
-    saveActionEnabledChanged = pyqtSignal(bool)
-    """
-    saveActionEnabledChanged(enabled)
-    
-    **Signal** emitted, when save action state shall be changed.
-    
-    True emited, if document was modified, externally modified or externally removed.connect
-    False after it has been saved
-    """  # pylint: disable=W0105
-    
     documentDataChanged = pyqtSignal()
     """
     documentDataChanged()
@@ -168,9 +158,6 @@ class AbstractDocument(QWidget):
         self._externallyModified = False
         # File opening should be implemented in the document classes
         
-        self.modifiedChanged.connect(self._emitSaveActionEnabledChanged)
-        self.documentDataChanged.connect(self._emitSaveActionEnabledChanged)
-        
         self._fileWatcher = _FileWatcher(filePath)
         self._fileWatcher.modified.connect(self._onWatcherFileModified)
         self._fileWatcher.removed.connect(self._onWatcherFileRemoved)
@@ -182,13 +169,6 @@ class AbstractDocument(QWidget):
         """Explicytly called destructor
         """
         self._fileWatcher.disable()
-
-    def _emitSaveActionEnabledChanged(self):
-        """Emit saveActionEnabledChanged() signal with valid current state
-        """
-        self.saveActionEnabledChanged.emit(self.isModified() or \
-                                           self._externallyModified or \
-                                           self._externallyRemoved)
 
     def _onWatcherFileModified(self, modified):
         """File has been modified

@@ -15,8 +15,6 @@ class Plugin(QObject):
         QObject.__init__(self)
         
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
-        core.workspace().documentOpened.connect(self._onDocumentOpened)
-        core.workspace().documentClosed.connect(self._onDocumentClosed)
 
         core.actionManager().action( "mFile/aOpen" ).triggered.connect(self._onFileOpenTriggered)
         core.actionManager().action( "mFile/mReload/aCurrent" ).triggered.connect(self._onFileReloadTriggered)
@@ -44,9 +42,10 @@ class Plugin(QObject):
         """Update actions enabled state
         """
         # update file menu
-        core.actionManager().action( "mFile/mSave/aCurrent" ).setEnabled( newDocument is not None and \
-                                                                            (newDocument.isModified() or 
-                                                                             newDocument.isNeverSaved()))
+        
+        # enabled, even if not modified. Filewatcher doesn't work on Ssh-FS
+        core.actionManager().action( "mFile/mSave/aCurrent" ).setEnabled( newDocument is not None )
+        
         core.actionManager().action( "mFile/mSave/aAll" ).setEnabled( newDocument is not None)
         core.actionManager().action( "mFile/mSave/aSaveAs" ).setEnabled( newDocument is not None)
         core.actionManager().action( "mFile/mClose/aCurrent" ).setEnabled( newDocument is not None)
@@ -62,17 +61,7 @@ class Plugin(QObject):
         moreThanOneDocument = len(core.workspace().documents()) > 1
         core.actionManager().action( "mNavigation/aNext" ).setEnabled( moreThanOneDocument )
         core.actionManager().action( "mNavigation/aPrevious" ).setEnabled( moreThanOneDocument )
-    
-    def _onDocumentOpened(self, document):
-        """Connect document signals to self
-        """
-        document.saveActionEnabledChanged.connect(core.actionManager().action( "mFile/mSave/aCurrent" ).setEnabled)
 
-    def _onDocumentClosed(self, document):
-        """Disconnect document signals from self
-        """
-        document.saveActionEnabledChanged.disconnect(core.actionManager().action( "mFile/mSave/aCurrent" ).setEnabled)
-    
     def _onFileOpenTriggered(self):
         """Handler of File->Open
         """
