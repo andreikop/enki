@@ -96,6 +96,8 @@ class Plugin(QObject):
         elif self._isImplementation(fileName):
             variants = [fileNameWithoutSuffix + suffix \
                             for suffix in _HEADER_SUFFIXES]
+        else:  # oops, unknown file. Suffixes DB is not up to date
+            variants = []
         
         matchingDocuments = [document.filePath() \
                                 for document in core.workspace().documents() \
