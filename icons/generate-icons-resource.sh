@@ -7,7 +7,7 @@ TMP_RESOURCE_FILE=/tmp/icons.py
 
 echo '<RCC>' > $QRC_FILE
 echo '	<qresource prefix="/enkiicons" >' >> $QRC_FILE
-for file in `ls -d *.png languages/*.png fresh/*.png logo/* logo/*/*`; do \
+for file in `ls -d *.png languages/*.png logo/* logo/*/*`; do \
 	echo '		<file>'$file'</file>' >> $QRC_FILE;
 done
 echo '	</qresource>' >>$QRC_FILE

@@ -5,7 +5,6 @@
 		<file>add.png</file>
 		<file>addtab.png</file>
 		<file>assistant.png</file>
-		<file>background.png</file>
 		<file>backup.png</file>
 		<file>bigger.png</file>
 		<file>big-next.png</file>
@@ -39,6 +38,8 @@
 		<file>dll.png</file>
 		<file>down.png</file>
 		<file>dynamicfolder.png</file>
+		<file>editclear.png</file>
+		<file>edit-clear-rtl.png</file>
 		<file>edit.png</file>
 		<file>editsettings.png</file>
 		<file>emptyline.png</file>
@@ -49,11 +50,6 @@
 		<file>files.png</file>
 		<file>filtered.png</file>
 		<file>folder.png</file>
-		<file>fresh/apply.png</file>
-		<file>fresh/editclear.png</file>
-		<file>fresh/edit-clear-rtl.png</file>
-		<file>fresh/info.png</file>
-		<file>fresh/search.png</file>
 		<file>function-green.png</file>
 		<file>function.png</file>
 		<file>goto.png</file>
