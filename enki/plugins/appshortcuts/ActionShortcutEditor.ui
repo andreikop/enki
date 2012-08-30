@@ -55,7 +55,7 @@
        </property>
        <property name="icon">
         <iconset resource="../../../icons/enkiicons.qrc">
-         <normaloff>:/enkiicons/fresh/apply.png</normaloff>:/enkiicons/fresh/apply.png</iconset>
+         <normaloff>:/enkiicons/button-ok.png</normaloff>:/enkiicons/button-ok.png</iconset>
        </property>
       </widget>
      </item>

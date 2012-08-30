@@ -35,7 +35,7 @@ class LineEdit(QLineEdit):
         self._spacing = 0
         
         self._tbClear = QToolButton( self )
-        self._tbClear.setIcon( QIcon(":enkiicons/fresh/edit-clear-rtl.png"))
+        self._tbClear.setIcon( QIcon(":enkiicons/edit-clear-rtl.png"))
         self._tbClear.setToolTip( tr( "Clear" ) )
         self._tbClear.setStyleSheet( "QToolButton { border: none; padding: 0px; }" )
         self._tbClear.setCursor( Qt.ArrowCursor )
