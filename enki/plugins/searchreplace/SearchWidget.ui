@@ -396,11 +396,6 @@ p, li { white-space: pre-wrap; }
            <property name="editable">
             <bool>true</bool>
            </property>
-           <item>
-            <property name="text">
-             <string>*</string>
-            </property>
-           </item>
           </widget>
          </item>
         </layout>
