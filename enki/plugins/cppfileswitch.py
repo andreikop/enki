@@ -72,6 +72,8 @@ class Plugin(QObject):
         elif self._isImplementation(filePath):
             variants = [filePathWithoutSuffix + suffix \
                             for suffix in _HEADER_SUFFIXES]
+        else:  # oops, unknown file. Suffixes DB is not up to date
+            variants = []
         
         existing = [path
                         for path in variants \
