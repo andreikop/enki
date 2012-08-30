@@ -313,12 +313,6 @@ class AbstractDocument(QWidget):
         
         Shows QFileDialog if necessary
         """
-        if  not self.isModified() and \
-            not self.isNeverSaved() and \
-            not self.isExternallyModified() and \
-            not self.isExternallyRemoved():
-            return
-        
         # Get path
         if not self._filePath:
             path = QFileDialog.getSaveFileName (self, self.tr('Save file as...'))
