@@ -369,7 +369,7 @@ class _CompletableLineEdit(QLineEdit):
             selectionStart = self.selectionStart()
             selectionEnd = selectionStart + len(self.selectedText())
             text = text[:selectionStart] + text[selectionEnd:]
-        return text.strip()
+        return text
 
 
 class _CompleterConstructorThread(threading.Thread):
