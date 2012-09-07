@@ -147,30 +147,56 @@ class CommandOpen(AbstractCommand):
             command += ' %d' % self._line
         return command
 
+    @staticmethod
+    def _isGlob(text):
+        return '*' in text or \
+               '?' in text or \
+               '[' in text
+    
     def isReadyToExecute(self):
         """Check if command is complete and ready to execute
         """
-        files = glob.glob(os.path.expanduser(self._path))
-        return len(files) > 0 and \
-               all([os.path.isfile(p) for p in files])
+        if self._isGlob(self._path):
+            files = glob.glob(os.path.expanduser(self._path))
+            return len(files) > 0 and \
+                   all([os.path.isfile(p) for p in files])
+        else:
+            if not self._path:
+                return False
+            
+            if os.path.exists(self._path) and \
+               not os.path.isfile(self._path):
+                return False
+            
+            return True
 
     def execute(self):
         """Execute the command
         """
-        expandedPathes = []
-        for path in glob.iglob(os.path.expanduser(self._path)):
-            try:
-                path = os.path.abspath(path)
-            except OSError:
-                pass
-            expandedPathes.append(path)
+        if self._isGlob(self._path):
+            expandedPathes = []
+            for path in glob.iglob(os.path.expanduser(self._path)):
+                try:
+                    path = os.path.abspath(path)
+                except OSError:
+                    pass
+                expandedPathes.append(path)
         
-        # 2 loops, because we should open absolute pathes. When opening files, enki changes its current directory
-        for path in expandedPathes:
-            if self._line is None:
-                core.workspace().goTo(path)
+            # 2 loops, because we should open absolute pathes. When opening files, enki changes its current directory
+            for path in expandedPathes:
+                if self._line is None:
+                    core.workspace().goTo(path)
+                else:
+                    core.workspace().goTo(path, line = self._line - 1)
+
+        else:  # file may be not existing
+            if os.path.isfile(self._path):
+                if self._line is None:
+                    core.workspace().goTo(self._path)
+                else:
+                    core.workspace().goTo(self._path, line = self._line - 1)
             else:
-                core.workspace().goTo(path, line = self._line - 1)
+                core.workspace().createEmptyNotSavedDocument(self._path)
 
 
 class CommandSaveAs(AbstractCommand):
