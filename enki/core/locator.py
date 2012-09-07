@@ -283,7 +283,8 @@ class _CompletableLineEdit(QLineEdit):
         """QWidget.keyPressEvent implementation. Catches Return, Up, Down, Ctrl+Backspace
         """
         if event.key() in (Qt.Key_Enter, Qt.Key_Return):
-            self.setCursorPosition(self.selectionStart() + len(self.selectedText()))
+            if self._inlineCompletionIsSet:
+                self.setCursorPosition(self.selectionStart() + len(self.selectedText()))
             self.enterPressed.emit()
         elif event.key() == Qt.Key_Up:
             self.historyPrevious.emit()
