@@ -453,6 +453,14 @@ class Workspace(QStackedWidget):
         """Create empty not saved document.
         Used on startup, if no file was specified, and after File->New file has been triggered
         """
+        if filePath is not None and \
+           not os.path.isabs(filePath):
+            try:
+                current = os.path.abspath(os.path.curdir)
+                filePath = os.path.join(current, filePath)
+            except OSError:  # current directory might have been deleted
+                pass  # leave as is
+        
         document = self._textEditorClass(self, filePath, True)
         self._handleDocument( document )
         document.setFocus()
