@@ -192,7 +192,7 @@ class _QueuedMessageWidget(QWidget):
         
         # set buttons
         if not msg.buttons:
-            msg.buttons[ QDialogButtonBox.Ok ] = None
+            msg.buttons[ QDialogButtonBox.Close ] = None
 
         self.dbbButtons.clear()
         
