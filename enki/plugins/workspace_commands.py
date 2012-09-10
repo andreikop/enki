@@ -190,13 +190,14 @@ class CommandOpen(AbstractCommand):
                     core.workspace().goTo(path, line = self._line - 1)
 
         else:  # file may be not existing
-            if os.path.isfile(self._path):
+            path = os.path.expanduser(self._path)
+            if os.path.isfile(path):
                 if self._line is None:
-                    core.workspace().goTo(self._path)
+                    core.workspace().goTo(path)
                 else:
-                    core.workspace().goTo(self._path, line = self._line - 1)
+                    core.workspace().goTo(path, line = self._line - 1)
             else:
-                core.workspace().createEmptyNotSavedDocument(self._path)
+                core.workspace().createEmptyNotSavedDocument(path)
 
 
 class CommandSaveAs(AbstractCommand):
