@@ -141,13 +141,13 @@ class ActionModel(QAbstractItemModel):
         if shortcut is None:
             shortcut = QKeySequence()
 
-        for a in self._manager.allActions():
-            if  a != action :
-                if a.shortcut():
-                    if  a.shortcut() == shortcut :
-                        error = tr( "Can't set shortcut, it's already used by action '%s'." % \
-                                        self._cleanText( a.text() ))
-                        raise UserWarning(error)
+        for actionToCheck in self._manager.allActions():
+            if actionToCheck != action and \
+               not actionToCheck.shortcut().isEmpty() and \
+               actionToCheck.shortcut() == shortcut :
+                error = tr( "Can't set shortcut, it's already used by action '%s'." % \
+                            self._cleanText( a.text() ))
+                raise UserWarning(error)
 
         action.setShortcut( shortcut )
         index = self._index(action, 1)
