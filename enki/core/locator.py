@@ -334,7 +334,8 @@ class _CompletableLineEdit(QLineEdit):
         cursorPos = self.cursorPosition()
         slashPos = text.rfind('/', 0, cursorPos - 1)
         self.setSelection(slashPos + 1, cursorPos - slashPos)
-        self._clearInlineCompletion()
+        self.del_()
+        self._inlineCompletionIsSet = False
 
     def _clearInlineCompletion(self):
         """Clear inline completion, if exists
