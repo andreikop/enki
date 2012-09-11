@@ -47,6 +47,10 @@ class _QueuedMessageWidget(QWidget):
         
         # button
         self.dbbButtons = QDialogButtonBox( self )
+        
+        # if false - buttons don't have neither text nor icons
+        self.dbbButtons.setStyleSheet("dialogbuttonbox-buttons-have-icons: true;")
+
         self.dbbButtons.setSizePolicy( QSizePolicy( QSizePolicy.Maximum, QSizePolicy.Preferred ) )
         
         self.setSizePolicy( QSizePolicy( QSizePolicy.Expanding, QSizePolicy.Maximum ) )
