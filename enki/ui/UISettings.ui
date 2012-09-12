@@ -101,7 +101,7 @@
         <bool>true</bool>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>3</number>
        </property>
        <widget class="QWidget" name="pGeneral">
         <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -425,7 +425,7 @@
          <item>
           <widget class="QGroupBox" name="gbAutoCompletion">
            <property name="title">
-            <string>Autocompletion</string>
+            <string>Automatically show completion</string>
            </property>
            <property name="checkable">
             <bool>true</bool>
@@ -461,37 +461,6 @@
               </property>
               <property name="text">
                <string>From document and API files</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="Line" name="line">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="cbAutoCompletionCaseSensitivity">
-              <property name="text">
-               <string>Case sensitive</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="cbAutoCompletionShowSingle">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>Show Single</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="cbAutoCompletionReplaceWord">
-              <property name="text">
-               <string>Replace whole word</string>
               </property>
              </widget>
             </item>
@@ -548,6 +517,46 @@
              </layout>
             </item>
            </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="Line" name="line">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="cbAutoCompletionCaseSensitivity">
+           <property name="text">
+            <string>Case sensitive</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="cbAutoCompletionShowSingle">
+           <property name="text">
+            <string>Show Single</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="cbAutoCompletionReplaceWord">
+           <property name="text">
+            <string>Replace whole word</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_7">
+           <property name="font">
+            <font>
+             <italic>true</italic>
+            </font>
+           </property>
+           <property name="text">
+            <string>Default shortcut to manually show completion is Ctrl+Space</string>
+           </property>
           </widget>
          </item>
          <item>

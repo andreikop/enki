@@ -302,11 +302,11 @@ class Editor(AbstractTextEditor):
             self.qscintilla.setAutoCompletionSource(\
                                             self._AUTOCOMPLETION_MODE_TO_QSCI[myConfig["AutoCompletion"]["Source"]])
             self.qscintilla.setAutoCompletionThreshold(myConfig["AutoCompletion"]["Threshold"])
-            self.qscintilla.setAutoCompletionCaseSensitivity(myConfig["AutoCompletion"]["CaseSensitivity"])
-            self.qscintilla.setAutoCompletionReplaceWord(myConfig["AutoCompletion"]["ReplaceWord"])
-            self.qscintilla.setAutoCompletionShowSingle(myConfig["AutoCompletion"]["ShowSingle"])
         else:
             self.qscintilla.setAutoCompletionSource(QsciScintilla.AcsNone)
+        self.qscintilla.setAutoCompletionCaseSensitivity(myConfig["AutoCompletion"]["CaseSensitivity"])
+        self.qscintilla.setAutoCompletionReplaceWord(myConfig["AutoCompletion"]["ReplaceWord"])
+        self.qscintilla.setAutoCompletionShowSingle(myConfig["AutoCompletion"]["ShowSingle"])
         
         # CallTips
         if myConfig["CallTips"]["Enabled"]:
