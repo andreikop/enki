@@ -27,6 +27,8 @@ ENKI_PASTE_LINE = -5
 ENKI_MOVE_LINES_DOWN = -6
 ENKI_MOVE_LINES_UP = -7
 
+ENKI_SHOW_COMPLETION = -8
+
 _ACTIONS = (\
 (qsci.SCI_PARAUPEXTEND, 'mEdit/mSelection/mParagraph/aUp', tr('Up'), 'Ctrl+Shift+[', ''),
 (qsci.SCI_PARADOWNEXTEND, 'mEdit/mSelection/mParagraph/aDown', tr('Down'), 'Ctrl+Shift+]', ''),
@@ -75,6 +77,8 @@ _ACTIONS = (\
 \
 (qsci.SCI_LINESCROLLDOWN, 'mNavigation/mScroll/aDownOneLine', tr('Down one line'), 'Ctrl+Down', ''),
 (qsci.SCI_LINESCROLLUP, 'mNavigation/mScroll/aUpOneLine', tr('Up one line'), 'Ctrl+Up', ''),
+\
+(ENKI_SHOW_COMPLETION, 'mEdit/aShowCompletion', tr('Show completion'), 'Ctrl+Space', ''),
 )
 
 _MENUS = (\
@@ -166,5 +170,7 @@ class Shortcuts(QObject):
             editor.parent().moveLinesDown()
         elif ENKI_MOVE_LINES_UP == code:
             editor.parent().moveLinesUp()
+        elif ENKI_SHOW_COMPLETION == code:
+            editor.autoCompleteFromAll()
         else:
             assert 0
