@@ -3,9 +3,8 @@ config --- Load and save settings
 =================================
 """
 
-import json
-
 from enki.core.core import core
+import enki.core.json_wrapper
 
 from PyQt4.QtGui import QFont, QFontDatabase
 
@@ -123,24 +122,15 @@ class Config():
         Does nothing, if *enableWriting* is *False* (probably default config is opened)
         """
         if self._enableWriting:
-            try:
-                with open(self._filePath, 'w') as f:
-                    json.dump(self._data, f, sort_keys=True, indent=4)
-            except (OSError, IOError), ex:
-                error = unicode(str(ex), 'utf8')
-                text = "Failed to save settings file '%s': %s" % (self._filePath, error)
-                core.mainWindow().appendMessage(text)
+            enki.core.json_wrapper.dump(self._filePath, 'settings', self._data)
 
     def _load(self):
         """Load the config
         """
-        try:
-            with open(self._filePath, 'r') as f:
-                return json.load(f)
-        except (OSError, IOError, ValueError), ex:
-            error = unicode(str(ex), 'utf8')
-            text = "Failed to load settings file '%s': %s" % (self._filePath, error)
-            core.mainWindow().appendMessage(text)
+        data = enki.core.json_wrapper.load(self._filePath, 'settings', None)
+        if data is not None:
+            return data
+        else:
             raise UserWarning()
 
     def __getitem__(self, key):

@@ -9,6 +9,7 @@ from PyQt4.QtCore import QObject, QVariant
 
 from enki.core.core import core
 from enki.core.defines import CONFIG_DIR
+import enki.core.json_wrapper
 
 _FILE_PATH = os.path.join(CONFIG_DIR, 'recent_files.json')
 _MAX_SIZE = 100
@@ -19,7 +20,7 @@ class Plugin(QObject):
     def __init__(self):
         QObject.__init__(self)
         self._recentFileActions = []
-        self._recent = self._load()
+        self._recent = enki.core.json_wrapper.load(_FILE_PATH, 'recent file list', [])
         self._undoClose = core.actionManager().addAction("mFile/mUndoClose/aUndoClose",
                                                          "Undo close",
                                                          shortcut = 'Shift+Ctrl+U')
@@ -34,7 +35,7 @@ class Plugin(QObject):
         """
         core.workspace().documentClosed.disconnect(self._onDocumentClosed)
         core.actionManager().removeAction(self._undoClose)
-        self._save()
+        enki.core.json_wrapper.dump(_FILE_PATH, 'recent file', self._recent)
 
     def _onDocumentClosed(self, document):
         """Document has been closed, remember it
@@ -51,32 +52,6 @@ class Plugin(QObject):
             self._recent.remove(self._recent[-1])
         self._updateUndoCloseAction()
         
-    def _load(self):
-        """Load from file
-        """
-        if not os.path.exists(_FILE_PATH):
-            return []
-        
-        try:
-            with open(_FILE_PATH, 'r') as jsonFile:
-                return json.load(jsonFile)
-        except (OSError, IOError), ex:
-            error = unicode(str(ex), 'utf8')
-            text = "Failed to load recent file list '%s': %s" % (_FILE_PATH, error)
-            core.mainWindow().appendMessage(text)
-            return []
-
-    def _save(self):
-        """Save to file
-        """
-        try:
-            with open(_FILE_PATH, 'w') as jsonFile:
-                json.dump(self._recent, jsonFile, sort_keys=True, indent=4)
-        except (OSError, IOError), ex:
-            error = unicode(str(ex), 'utf8')
-            text = "Failed to save recent file list '%s': %s" % (_FILE_PATH, error)
-            print >> sys.stderr, error
-    
     def _existingNotOpenedRecents(self):
         """List of existing recent files
         """

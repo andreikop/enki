@@ -22,9 +22,10 @@ Core creates basic user interface, provides basic functionality for user, contai
    core/uisettings.rst
    core/filefilter.rst
    core/locator.rst
+   core/json_wrapper.rst
 
 enki.lib
--------
+--------
 Code (but not widgets), which is not used by core, but, may be used by more than one plugin.
 
 .. toctree::

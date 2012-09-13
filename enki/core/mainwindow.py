@@ -8,7 +8,6 @@ Module contains :class:`enki.core.mainwindow.MainWindow` implementation
 
 import sys
 import os.path
-import json
 
 from PyQt4.QtCore import pyqtSignal, QSize, Qt, QTimer
 from PyQt4.QtGui import QHBoxLayout, QIcon, QLabel, QMessageBox, \
@@ -21,6 +20,7 @@ from enki.core.actionmanager import ActionMenuBar
 
 from enki.core.core import core
 import enki.core.defines
+import enki.core.json_wrapper
 
 class _StatusBar(QStatusBar):
     """Extended status bar. Supports HTML messages
@@ -378,26 +378,13 @@ class MainWindow(QMainWindow):
         geometry["X"], geometry["Y"], geometry["Width"], geometry["Height"] = self.geometry().getRect()
         geometry["Maximized"] = self.isMaximized()
         
-        try:
-            with open(self._GEOMETRY_FILE, 'w') as f:
-                json.dump(geometry, f, sort_keys=True, indent=4)
-        except (OSError, IOError), ex:
-            error = unicode(str(ex), 'utf8')
-            text = "Failed to save popular directories to '%s': %s" % (self._GEOMETRY_FILE, error)
-            print >> sys.stderr, error
+        enki.core.json_wrapper.dump(self._GEOMETRY_FILE, 'main window geometry', geometry)
 
     def _restoreGeometry(self):
         """Restore window geometry to the config file
         """
-        if os.path.exists(self._GEOMETRY_FILE):
-            try:
-                with open(self._GEOMETRY_FILE, 'r') as f:
-                    geometry = json.load(f)
-            except (OSError, IOError, ValueError), ex:
-                error = unicode(str(ex), 'utf8')
-                text = "Failed to load main window geometry from '%s': %s" % (self._GEOMETRY_FILE, error)
-                self.appendMessage(text)
-            
+        geometry = enki.core.json_wrapper.load(self._GEOMETRY_FILE, 'main window geometry', None)
+        if geometry is not None:
             self.setGeometry(geometry["X"], geometry["Y"], geometry["Width"], geometry["Height"])
             if geometry["Maximized"]:
                self.showMaximized()

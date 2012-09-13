@@ -9,6 +9,7 @@ import json
 
 from enki.core.core import core
 from enki.core.defines import CONFIG_DIR
+import enki.core.json_wrapper
 
 _SESSION_FILE_PATH = os.path.join(CONFIG_DIR, 'session.json')
 
@@ -34,24 +35,18 @@ class Plugin:
         
         if not os.path.exists(_SESSION_FILE_PATH):
             return
+
+        session = enki.core.json_wrapper.load(_SESSION_FILE_PATH, 'session', None)
         
-        try:
-            with open(_SESSION_FILE_PATH, 'r') as f:
-                session = json.load(f)
-        except (OSError, IOError), ex:
-            error = unicode(str(ex), 'utf8')
-            text = "Failed to load session file '%s': %s" % (_SESSION_FILE_PATH, error)
-            core.mainWindow().appendMessage(text)
-            return
-        
-        for filePath in session['opened']:
-            if os.path.exists(filePath):
-                core.workspace().openFile(filePath)
-        
-        if session['current'] is not None:
-            document = self._documentForPath(session['current'])
-            if document is not None: # document might be already deleted
-                core.workspace().setCurrentDocument(document)
+        if session is not None:
+            for filePath in session['opened']:
+                if os.path.exists(filePath):
+                    core.workspace().openFile(filePath)
+            
+            if session['current'] is not None:
+                document = self._documentForPath(session['current'])
+                if document is not None: # document might be already deleted
+                    core.workspace().setCurrentDocument(document)
 
     def _documentForPath(self, filePath):
         """Find document by it's file path.
@@ -86,10 +81,4 @@ class Plugin:
         session = {'current' : currentPath,
                    'opened' : fileList}
         
-        try:
-            with open(_SESSION_FILE_PATH, 'w') as f:
-                json.dump(session, f, sort_keys=True, indent=4)
-        except (OSError, IOError), ex:
-            error = unicode(str(ex), 'utf8')
-            text = "Failed to save session file '%s': %s" % (_SESSION_FILE_PATH, error)
-            print >> sys.stderr, error
+        enki.core.json_wrapper.dump(_SESSION_FILE_PATH, 'session', session)
