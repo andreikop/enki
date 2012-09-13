@@ -5,11 +5,11 @@ restorepos --- Restore cursor position in a file
 
 import sys
 import os.path
-import json
 import time
 
 from enki.core.core import core
 from enki.core.defines import CONFIG_DIR
+import enki.core.json_wrapper
 
 _FILE_PATH = os.path.join(CONFIG_DIR, 'lastpos.json')
 _MAX_HISTORY_SIZE = 1024
@@ -20,28 +20,13 @@ class Plugin:
     def __init__(self):
         core.workspace().documentOpened.connect(self._onDocumentOpened)
         core.workspace().documentClosed.connect(self._onDocumentClosed)
-        self._positions = self._load()  # { file path: (lasttime, position)}
+        self._positions = enki.core.json_wrapper.load(_FILE_PATH, 'cursor positions', {})  # { file path: (lasttime, position)}
 
     def del_(self):
         """Explicitly called destructor
         """
         self._save(self._positions)
 
-    def _load(self):
-        """Load saved data from a file.
-        Returns empty list, if failed to load
-        """
-        positions = {}
-        if os.path.exists(_FILE_PATH):
-            try:
-                with open(_FILE_PATH, 'r') as f:
-                    positions = json.load(f)
-            except (OSError, IOError), ex:
-                error = unicode(str(ex), 'utf8')
-                text = "Failed to load old cursor positions file '%s': %s" % (_FILE_PATH, error)
-                core.mainWindow().appendMessage(text)
-        return positions
-    
     def _save(self, positions):
         """Saves 1000 or less last positions
         """
@@ -57,13 +42,7 @@ class Plugin:
             for item in positionsAsList:
                 positions[item[0]] = (item[1], item[2])
         
-        try:
-            with open(_FILE_PATH, 'w') as f:
-                json.dump(positions, f, sort_keys=True, indent=4)
-        except (OSError, IOError), ex:
-            error = unicode(str(ex), 'utf8')
-            text = "Failed to save file positions to '%s': %s" % (_FILE_PATH, error)
-            print >> sys.stderr, error
+        enki.core.json_wrapper.dump(_FILE_PATH, 'cursor positions', positions)
 
     def _onDocumentOpened(self, document):
         """Document has been opened, restore position, if known

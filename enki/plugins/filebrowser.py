@@ -21,6 +21,7 @@ from enki.widgets.dockwidget import DockWidget
 
 from enki.core.defines import CONFIG_DIR
 from enki.core.core import core
+import enki.core.json_wrapper
 
 def _getCurDir():
     """Get process current directory
@@ -109,15 +110,7 @@ class SmartRecents(QObject):
     def _loadPopularDirs(self):
         """Load popular directories from the config
         """
-        self._popularDirs = {}
-        if os.path.exists(self.FILE_PATH):
-            try:
-                with open(self.FILE_PATH, 'r') as f:
-                    self._popularDirs = json.load(f)
-            except (OSError, IOError, ValueError), ex:
-                error = unicode(str(ex), 'utf8')
-                text = "Failed to load popular directories from '%s': %s" % (self.FILE_PATH, error)
-                core.mainWindow().appendMessage(text)
+        self._popularDirs = enki.core.json_wrapper.load(self.FILE_PATH, 'file browser popular directories', {})
 
         for k in self._popularDirs.iterkeys():
             try:
@@ -129,14 +122,7 @@ class SmartRecents(QObject):
     def _savePopularDirs(self):
         """Save dirs to file
         """
-        try:
-            with open(self.FILE_PATH, 'w') as f:
-                json.dump(self._popularDirs, f, sort_keys=True, indent=4)
-        except (OSError, IOError), ex:
-            error = unicode(str(ex), 'utf8')
-            text = "Failed to save popular directories to '%s': %s" % (self.FILE_PATH, error)
-            print >> sys.stderr, error
-        
+        enki.core.json_wrapper.dump(self.FILE_PATH, 'file browser popular directories', self._popularDirs)
 
     def _dirsByPopularity(self):
         """Return list of dirrectories, sorted by popularity

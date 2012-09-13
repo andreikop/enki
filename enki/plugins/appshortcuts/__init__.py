@@ -24,9 +24,9 @@ import json
 from PyQt4.QtCore import QModelIndex
 from PyQt4.QtGui import QIcon
 
-import enki.core.defines
-
 from enki.core.core import core
+import enki.core.defines
+import enki.core.json_wrapper
 
 def tr(text):  # pylint: disable=C0103
     """ Stub for translation procedure
@@ -40,7 +40,7 @@ class Plugin:
     """Module implementation
     """
     def __init__(self):
-        self._config = self._load()
+        self._config = enki.core.json_wrapper.load(_CONFIG_PATH, 'shortcuts', None)
 
         self._actionManager = core.actionManager()
         
@@ -108,32 +108,11 @@ class Plugin:
         ActionShortcutEditor (self._actionManager, core.mainWindow()).exec_()
         self._saveShortcuts()
 
-    def _load(self):
-        """Load the config
-        """
-        if not os.path.exists(_CONFIG_PATH):
-            return None
-        
-        try:
-            with open(_CONFIG_PATH, 'r') as f:
-                return json.load(f)
-        except (OSError, IOError), ex:
-            error = unicode(str(ex), 'utf8')
-            text = "Failed to load shortcut settings file '%s': %s" % (_CONFIG_PATH, error)
-            core.mainWindow().appendMessage(text)
-            return None
-
     def _save(self):
         """Save the config
         """
         if self._config:
-            try:
-                with open(_CONFIG_PATH, 'w') as f:
-                    json.dump(self._config, f, sort_keys=True, indent=4)
-            except (OSError, IOError), ex:
-                error = unicode(str(ex), 'utf8')
-                text = "Failed to save shortcut settings file '%s': %s" % (_CONFIG_PATH, error)
-                core.mainWindow().appendMessage(text)
+            enki.core.json_wrapper.dump(_CONFIG_PATH, 'shortcuts', self._config)
         else:  # config is empty, remove the file
             try:
                 os.unlink(_CONFIG_PATH)
