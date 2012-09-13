@@ -408,7 +408,7 @@ class Controller(QObject):
             try:
                 replaceTextSubed = regExp.sub(replaceText, match.group(0))
             except re.error, ex:
-                message = unicode(ex.message, 'utf_8')
+                message = unicode(str(ex), 'utf_8')
                 message += r'. Probably <i>\group_index</i> used in replacement string, but such group not found. '\
                            r'Try to escape it: <i>\\group_index</i>'
                 QMessageBox.critical(None, "Invalid replace string", message)
@@ -438,7 +438,15 @@ class Controller(QObject):
         match = regExp.search(document.text(), pos)
         while match is not None:
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
-            replaceTextSubed = regExp.sub(replaceText, match.group(0))
+            try:
+                replaceTextSubed = regExp.sub(replaceText, match.group(0))
+            except re.error as ex:
+                message = unicode(str(ex), 'utf_8')
+                message += r'. Probably <i>\group_index</i> used in replacement string, but such group not found. '\
+                           r'Try to escape it: <i>\\group_index</i>'
+                QMessageBox.critical(None, "Invalid replace string", message)
+                break
+                
             document.replaceSelectedText(replaceTextSubed)
             
             count += 1
