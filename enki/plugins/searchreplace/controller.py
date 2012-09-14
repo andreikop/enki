@@ -49,6 +49,8 @@ class Controller(QObject):
         """
         for action in self._createdActions:
             core.actionManager().removeAction(action)
+        self._menuSeparator.parent().removeAction(self._menuSeparator)
+        
         if self._dock is not None:
             self._dock.del_()
 
@@ -59,12 +61,12 @@ class Controller(QObject):
         
         self._createdActions = []
         
-        menu = 'mNavigation/mSearchReplace/'
+        menu = 'mNavigation/mSearchReplace'
         
         def createAction(path, text, icon, shortcut, tooltip, slot, data, enabled=True):  # pylint: disable=R0913
             """Create action object
             """
-            actObject = core.actionManager().addAction( menu + path,
+            actObject = core.actionManager().addAction( menu + '/' + path,
                                                         self.tr(text),
                                                         QIcon(':/enkiicons/' + icon),
                                                         shortcut)
@@ -74,7 +76,7 @@ class Controller(QObject):
             actObject.setData(data)
             actObject.setEnabled(enabled)
             self._createdActions.append(actObject)
-
+        
         # List if search actions.
         # First acition created by MainWindow, so, do not fill text
         createAction("aSearchFile", "&Search...", 
@@ -103,6 +105,7 @@ class Controller(QObject):
                       "bigger.png", "Ctrl+.",
                       "",
                       self._onSearchCurrentWordForward, None)
+        self._menuSeparator = core.actionManager().menu(menu).addSeparator()
         createAction("aSearchDirectory", "Search in &Directory...", 
                       "search-replace-directory.png", "Ctrl+Shift+F", 
                       "Search in directory...",
@@ -122,13 +125,13 @@ class Controller(QObject):
         
         am = core.actionManager()
         core.workspace().currentDocumentChanged.connect( \
-            lambda old, new: am.action(menu + "aSearchFile").setEnabled(new is not None))
+            lambda old, new: am.action(menu + "/aSearchFile").setEnabled(new is not None))
         core.workspace().currentDocumentChanged.connect( \
-            lambda old, new: am.action(menu + "aReplaceFile").setEnabled(new is not None))
+            lambda old, new: am.action(menu + "/aReplaceFile").setEnabled(new is not None))
         core.workspace().currentDocumentChanged.connect( \
-            lambda old, new: am.action(menu + "aSearchOpenedFiles").setEnabled(new is not None))
+            lambda old, new: am.action(menu + "/aSearchOpenedFiles").setEnabled(new is not None))
         core.workspace().currentDocumentChanged.connect( \
-            lambda old, new: am.action(menu + "aReplaceOpenedFiles").setEnabled(new is not None))
+            lambda old, new: am.action(menu + "/aReplaceOpenedFiles").setEnabled(new is not None))
 
     def _createSearchWidget(self):
         """ Create search widget. Called only when user requested it first time
