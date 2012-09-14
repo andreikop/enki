@@ -78,7 +78,17 @@ class ActionManager(QObject):
         """Get action by its path. i.e.
             actionManager.action("mFile/mClose/aAll")
         """
-        return self._pathToAction.get(self._cleanPath( path ), None)
+        return self._pathToAction.get(path, None)
+    
+    def menu(self, path ):
+        """Get action by its path. i.e.
+            actionManager.action("mFile/mClose/aAll")
+        """
+        action = self._pathToAction.get(path, None)
+        if action is None:
+            return None
+        else:
+            return action.menu()
     
     def path(self, action):
         """Get action path by reference to action
@@ -90,12 +100,15 @@ class ActionManager(QObject):
         """
         return self._pathToAction.itervalues()
 
-    def addAction(self, _path, action, icon=QIcon(), shortcut=None):
+    @staticmethod
+    def _parentPath(path):
+        return '/'.join(path.split('/')[0: -1])
+    
+    def addAction(self, path, action, icon=QIcon(), shortcut=None):
         """Add new action to the menu
+        Returns created QAction object
         """
-        path = self._cleanPath( _path )
-
-        subPath = '/'.join(path.split('/')[0: -1])
+        subPath = self._parentPath(path)
         parentAction = self.action(subPath)
         if parentAction is None:
             assert False, "Menu path not found: " + subPath
@@ -134,7 +147,7 @@ class ActionManager(QObject):
             else:
                assert 0 # not a menu!
 
-        parentMenuPath = '/'.join(path.split('/')[0:-1])
+        parentMenuPath = self._parentPath(path)
         if parentMenuPath:
             parentAction = self.action(parentMenuPath)
         else:
@@ -195,11 +208,6 @@ class ActionManager(QObject):
             parentAction = self.parentAction( action )
             self._removeAction(action)
             self._removeCompleteEmptyPathNode( parentAction )
-
-    def _cleanPath(self, path ):
-        """Escape \\ in the path
-        """
-        return path.strip('/')
 
     def parentAction(self, action ):
         """Parent action of the action

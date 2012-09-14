@@ -33,19 +33,29 @@ _ACTIONS = (\
 (qsci.SCI_PARAUPEXTEND, 'mEdit/mSelection/mParagraph/aUp', tr('Up'), 'Ctrl+Shift+[', ''),
 (qsci.SCI_PARADOWNEXTEND, 'mEdit/mSelection/mParagraph/aDown', tr('Down'), 'Ctrl+Shift+]', ''),
 \
+(qsci.SCI_LINEUPRECTEXTEND, 'mEdit/mSelection/mRectangular/aUpOneLine', tr('Up one line'), 'Alt+Shift+Up', ''),
 (qsci.SCI_LINEDOWNRECTEXTEND, 'mEdit/mSelection/mRectangular/aDownOneLine', tr('Down one line'), 'Alt+Shift+Down', ''),
 (qsci.SCI_CHARLEFTRECTEXTEND, 'mEdit/mSelection/mRectangular/aLeftOneCharacter', 
                                                     tr('Left one character'), 'Alt+Shift+Left', ''),
 (qsci.SCI_CHARRIGHTRECTEXTEND, 'mEdit/mSelection/mRectangular/aRightOneCharacter',
                                                     tr('Right one character'), 'Alt+Shift+Right', ''),
+("mEdit/mSelection/mRectangular"),
 (qsci.SCI_HOMERECTEXTEND, 'mEdit/mSelection/mRectangular/aToLineStart', tr('Line start'), 'Alt+Shift+Home', ''),
-(qsci.SCI_LINEENDRECTEXTEND, 'mEdit/mSelection/mRectangular/aToEndOfLine', tr('End of line'), 'Alt+Shift+End', ''),
+(qsci.SCI_LINEENDRECTEXTEND, 'mEdit/mSelection/mRectangular/aToEndOfLine', tr('Line end'), 'Alt+Shift+End', ''),
+("mEdit/mSelection/mRectangular"),
+\
 (qsci.SCI_PAGEDOWNRECTEXTEND, 'mEdit/mSelection/mRectangular/aDownOnePage',
                                                     tr('Down one page'), 'Alt+Shift+PgDown', ''),
 (qsci.SCI_PAGEUPRECTEXTEND, 'mEdit/mSelection/mRectangular/aUpOnePage', tr('Up one page'), 'Alt+Shift+PgUp', ''),
 \
-(qsci.SCI_PARAUP, 'mNavigation/mMove/aUp', tr('Paragraph Up'), 'Ctrl+[', ''),
-(qsci.SCI_PARADOWN, 'mNavigation/mMove/aDown', tr('Paragraph Down'), 'Ctrl+]', ''),
+(qsci.SCI_COPY, 'mEdit/mCopyPaste/aCopy', tr('Copy'), 'Ctrl+C', 'copy.png'),
+(ENKI_PASTE, 'mEdit/mCopyPaste/aPaste', tr('Paste'), 'Ctrl+V', 'paste.png'),
+(qsci.SCI_CUT, 'mEdit/mCopyPaste/aCut', tr('Cut'), 'Ctrl+X', 'cut.png'),
+(qsci.SCI_SELECTIONDUPLICATE, 'mEdit/mCopyPaste/aDuplicateSelection', tr('Duplicate selection or line'), 'Ctrl+D', ''),
+("mEdit/mCopyPaste"),
+(qsci.SCI_LINECOPY, 'mEdit/mCopyPaste/aCopyLine', tr('Copy line'), 'Alt+C', 'copy.png'),
+(qsci.SCI_LINECUT, 'mEdit/mCopyPaste/aCutLine', tr('Cut line'), 'Alt+X', 'cut.png'),
+(ENKI_PASTE_LINE, 'mEdit/mCopyPaste/aPasteLine', tr('Paste line'), 'Alt+V', 'paste.png'),
 \
 (qsci.SCI_UNDO, 'mEdit/mHistory/aUndo', tr('Undo'), 'Ctrl+Z', 'undo.png'),
 (qsci.SCI_REDO, 'mEdit/mHistory/aRedo', tr('Redo'), 'Ctrl+Y', 'redo.png'),
@@ -53,19 +63,14 @@ _ACTIONS = (\
 (qsci.SCI_LOWERCASE, 'mEdit/mCase/aToLower', tr('To lower'), 'Ctrl+U', ''),
 (qsci.SCI_UPPERCASE, 'mEdit/mCase/aToUpper', tr('To upper'), 'Ctrl+Alt+U', ''),
 \
-(qsci.SCI_LINETRANSPOSE, 'mEdit/aSwapCurrentAndPreviousLine', tr('Swap current and previous line'), 'Ctrl+T', ''),
 (qsci.SCI_EDITTOGGLEOVERTYPE, 'mEdit/aEditToggleOverType', tr('Toggle over type'), 'Ins', ''),
+("mEdit"),
+(qsci.SCI_LINETRANSPOSE, 'mEdit/aSwapCurrentAndPreviousLine', tr('Swap current and previous line'), 'Ctrl+T', ''),
 (qsci.SCI_LINEDELETE, 'mEdit/aDeleteLine', tr('Delete line'), 'Alt+Del', 'deleted.png'),
 \
-(qsci.SCI_COPY, 'mEdit/mCopyPaste/aCopy', tr('Copy'), 'Ctrl+C', 'copy.png'),
-(ENKI_PASTE, 'mEdit/mCopyPaste/aPaste', tr('Paste'), 'Ctrl+V', 'paste.png'),
-(qsci.SCI_CUT, 'mEdit/mCopyPaste/aCut', tr('Cut'), 'Ctrl+X', 'cut.png'),
-(qsci.SCI_LINECOPY, 'mEdit/mCopyPaste/aCopyLine', tr('Copy line'), 'Alt+C', 'copy.png'),
-(qsci.SCI_LINECUT, 'mEdit/mCopyPaste/aCutLine', tr('Cut line'), 'Alt+X', 'cut.png'),
-(ENKI_PASTE_LINE, 'mEdit/mCopyPaste/aPasteLine', tr('Paste line'), 'Alt+V', 'paste.png'),
-(qsci.SCI_SELECTIONDUPLICATE, 'mEdit/mCopyPaste/aDuplicateSelection', tr('Duplicate selection or line'), 'Ctrl+D', ''),
 (ENKI_MOVE_LINES_UP, 'mEdit/aMoveLinesUp', tr('Move lines up'), 'Alt+Up', 'up.png'),
 (ENKI_MOVE_LINES_DOWN, 'mEdit/aMoveLinesDown', tr('Move lines down'), 'Alt+Down', 'down.png'),
+("mEdit"),
 \
 (qsci.SCI_ZOOMIN, 'mView/mZoom/aZoomIn', tr('Zoom In'), 'Ctrl+=', ''),
 (qsci.SCI_ZOOMIN, 'mView/mZoom/aZoomInAlt', tr('Zoom In  (alt. shortcut)'), 'Ctrl++', ''),
@@ -74,6 +79,9 @@ _ACTIONS = (\
 (ENKI_TOGGLE_BOOKMARK, 'mNavigation/mBookmarks/aSetBookmark', tr('Set (clear) bookmark'), 'Ctrl+B', ''),
 (ENKI_NEXT_BOOKMARK, 'mNavigation/mBookmarks/aPreviousBookmark', tr('Next bookmark'), 'Alt+PgDown', ''),
 (ENKI_PREV_BOOKMARK, 'mNavigation/mBookmarks/aNextBookmark', tr('Previous bookmark'), 'Alt+PgUp', ''),
+\
+(qsci.SCI_PARAUP, 'mNavigation/mMove/aUp', tr('Paragraph Up'), 'Ctrl+[', ''),
+(qsci.SCI_PARADOWN, 'mNavigation/mMove/aDown', tr('Paragraph Down'), 'Ctrl+]', ''),
 \
 (qsci.SCI_LINESCROLLDOWN, 'mNavigation/mScroll/aDownOneLine', tr('Down one line'), 'Ctrl+Down', ''),
 (qsci.SCI_LINESCROLLUP, 'mNavigation/mScroll/aUpOneLine', tr('Up one line'), 'Ctrl+Up', ''),
@@ -99,39 +107,47 @@ class Shortcuts(QObject):
     def __init__(self):
         QObject.__init__(self)
         self._createdActions = []
+        self._createdSeparators = []
         self._createdMenus = []
         self._currentDocument = core.workspace().currentDocument()  # probably None
-        model = core.actionManager()
         
         for menu in _MENUS:
             if menu[2]:
-                menuObj = model.addMenu(menu[0], menu[1], QIcon(':/enkiicons/' + menu[2]))
+                menuObj = core.actionManager().addMenu(menu[0], menu[1], QIcon(':/enkiicons/' + menu[2]))
             else:
-                menuObj = model.addMenu(menu[0], menu[1])
+                menuObj = core.actionManager().addMenu(menu[0], menu[1])
             menuObj.setEnabled(False)
             self._createdMenus.append(menuObj)
         
-        for command, path, text, shortcut, icon in _ACTIONS:
-            actObject = QAction(text, self)
-            if shortcut:
-                actObject.setShortcut(shortcut)
-            if icon:
-                actObject.setIcon(QIcon(':/enkiicons/' + icon))
-            actObject.setData(command)
-            actObject.setEnabled(False)
-            actObject.triggered.connect(self.onAction)
-            model.addAction(path, actObject)
-            self._createdActions.append(actObject)
+        for item in _ACTIONS:
+            if isinstance(item, tuple):  # action
+                command, path, text, shortcut, icon = item
+                actObject = QAction(text, self)
+                if shortcut:
+                    actObject.setShortcut(shortcut)
+                if icon:
+                    actObject.setIcon(QIcon(':/enkiicons/' + icon))
+                actObject.setData(command)
+                actObject.setEnabled(False)
+                actObject.triggered.connect(self.onAction)
+                core.actionManager().addAction(path, actObject)
+                self._createdActions.append(actObject)
+            else:  # separator
+                menuPath = item
+                menu = core.actionManager().menu(menuPath)
+                self._createdSeparators.append(menu.addSeparator())
         
         core.workspace().currentDocumentChanged.connect(self.onCurrentDocumentChanged)
 
     def del_(self):
-        model = core.actionManager()
         for actObject in self._createdActions:
-            model.removeAction(actObject)
+            core.actionManager().removeAction(actObject)
+
+        for separatorObject in self._createdSeparators:
+            separatorObject.parent().removeAction(separatorObject)
 
         for menuObj in self._createdMenus[::-1]:
-            model.removeMenu(menuObj)
+            core.actionManager().removeMenu(menuObj)
 
     def onCurrentDocumentChanged(self, oldDocument, document):  # pylint: disable=W0613
         """Current document changed slot handler
