@@ -461,6 +461,7 @@ class Locator(QDialog):
 
         self._action = core.actionManager().addAction("mNavigation/aLocator", "Locator", shortcut='Ctrl+L')
         self._action.triggered.connect(self._onAction)
+        self._separator = core.actionManager().menu("mNavigation").addSeparator()
         
         # without it action works only when main window is focused, and user can't move focus, when tree is focused
         self.addAction(self._action)
@@ -477,6 +478,7 @@ class Locator(QDialog):
         """Explicitly called destructor
         """
         core.actionManager().removeAction(self._action)
+        core.actionManager().menu("mNavigation").removeAction(self._separator)
     
     def _checkPyParsing(self):
         """Check if pyparsing is available.

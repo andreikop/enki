@@ -247,8 +247,10 @@ class MainWindow(QMainWindow):
         menu  ("mNavigation/mSearchReplace",           "&Search && Replace"    , "search-replace-directory.png")
         menu  ("mNavigation/mBookmarks",               "&Bookmarks"            , "bookmark.png")
 
+        separator("mNavigation"),
         action("mNavigation/aNext",                   "&Next file"            , "next.png",     "Ctrl+PgDown",    "Next file"              , False)
         action("mNavigation/aPrevious",               "&Previous file"        , "previous.png", "Ctrl+PgUp",     "Previous file"          , False)
+        separator("mNavigation")
         action("mNavigation/aGoto",                   "Go go line..."         , "goto.png",     "Ctrl+G",       "Go to line..."          , False)
         menu  ("mNavigation/mFileBrowser",            "File browser"          , ':/enkiicons/open.png')
 
