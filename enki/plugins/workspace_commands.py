@@ -8,6 +8,7 @@ import glob
 
 from enki.core.core import core
 from enki.lib.pathcompleter import makeSuitableCompleter, PathCompleter
+from enki.lib.fuzzycompleter import FuzzySearchCompleter
 
 from enki.core.locator import AbstractCommand
 
@@ -283,15 +284,81 @@ class CommandSaveAs(AbstractCommand):
         core.workspace().currentDocument().saveFile()
 
 
+class CommandFuzzySearch(AbstractCommand):
+    """Fuzzy search command implementation
+    """
+    @staticmethod
+    def signature():
+        return '[z] [word]'
+    
+    @staticmethod
+    def description():
+        return 'Fuzzy search'
+
+    @staticmethod
+    def pattern():
+        """Match only C/C++ indentifiers
+        """
+        from pyparsing import Literal, Optional, Suppress, White, Word, srange  # delayed import, performance optimization
+
+        # FIXME it's black magic - ("line")
+        line = Word(srange("[a-zA-Z_]"), srange("[a-zA-Z0-9_]"))("line")
+        pat = Literal('z ') + Suppress(Optional(White())) + Optional(line)
+        pat.leaveWhitespace()
+        pat.setParseAction(CommandFuzzySearch.create)
+        return pat
+    
+    @staticmethod
+    def create(str, loc, tocs):
+        """tocs contain typed word for searching
+        Return instance of CommandFuzzySearch
+        """
+        return [CommandFuzzySearch(tocs.line)]
+
+    @staticmethod
+    def isAvailable():
+        """Searching available if any document opened
+        """
+        return core.workspace().currentDocument() is not None
+
+    def __init__(self, word):
+        self._fuzzy_word = word.lower()
+    
+    def completer(self, text, pos):
+        """Just call FuzzySearchCompleter for fuzzy searching and display results
+        """
+        if len(self._fuzzy_word) > 1:
+            return FuzzySearchCompleter(self._fuzzy_word)
+        else:
+            return None
+
+    def constructCommand(self, completableText):
+        """Construct command by path
+        """
+        #print "CommandFuzzySearch::constructCommand ", completableText
+        return 'z ' + completableText
+    
+    def isReadyToExecute(self):
+        """Check if command is complete and ready to execute
+        """
+        #print "CommandFuzzySearch::isReadyToExecute", self._fuzzy_word
+        return self._fuzzy_word is not None
+
+    def execute(self):
+        """Execute the command
+        """
+        #print "CommandFuzzySearch::execute", self._fuzzy_word
+
+
 class Plugin:
     """Plugin interface
     """
     def __init__(self):
-        for comClass in (CommandGotoLine, CommandOpen, CommandSaveAs):
+        for comClass in (CommandGotoLine, CommandOpen, CommandSaveAs, CommandFuzzySearch):
             core.locator().addCommandClass(comClass)
 
     def del_(self):
         """Explicitly called destructor
         """
-        for comClass in (CommandGotoLine, CommandOpen, CommandSaveAs):
+        for comClass in (CommandGotoLine, CommandOpen, CommandSaveAs, CommandFuzzySearch):
             core.locator().removeCommandClass(comClass)
