@@ -6,42 +6,41 @@ fuzzycompleter --- Fuzzy completer for Locator
 from enki.core.locator import AbstractCompleter
 from enki.core.core import core
 
+class ViewMode:
+    """These constants defines the view of displaying searched results
+    """
+    SEARCH_ANY_WORD = 0
+    SEARCH_TAGS = 1
+
 class FuzzySearchCompleter(AbstractCompleter):
     """Class for fuzzy searching.
     It is base on finding Levenshtein distance
     """
-    def __init__(self, fuzzy_word):
+    def __init__(self, fuzzy_word, words, viewMode):
         """Retrieve all words(correct C/C++ names of identificators) from current document.
+        words - dict, where key is word, value - additional descriptions stored in list (one word may have more than one description)
         Compare its with typed (fuzzy_word) word.
         Prepare list for display results of matching.
         """
-        import re
         #   1. Check for correct type
         if fuzzy_word is None:
             return
         if not isinstance(fuzzy_word, unicode):
             return
         fuzzy_word = fuzzy_word.strip()
-        if len(fuzzy_word) < 1:
-            return
         self._fuzzy_word = fuzzy_word.lower()
-        #   2. Retrieve unique words from document
-        full_text = core.workspace().currentDocument().text()
-        words = re.findall(r"\b([a-zA-Z]\w*)\b", full_text, re.I);
-        word_occurrence = {} # key: unique word, value: count of occurance this word in document
-        for word in words:
-            word_occurrence[word] = word_occurrence.get(word, 0) + 1
-        #   3. Find levenshteine distance for each word
+        self._viewMode = viewMode
+        #   2. Find levenshteine distance for each word
         nearest_words = {}
-        for word in word_occurrence.keys():
+        for word in words.keys():
             lev_distance = self._levenshtein(self._fuzzy_word, word.lower())
             if nearest_words.has_key(lev_distance):
                 nearest_words[lev_distance].append(word)
             else:
                 nearest_words[lev_distance] = [word]
-        #   4. Maximal number of distinct between original fuzzy_word and existed
+        #   3. Maximal number of distinct between original fuzzy_word and existed
         max_distance = len(self._fuzzy_word) / 2
-        #   5. Prepare displayed list. In beginning it contain more precise matched words
+        #   4. Prepare displayed list. In beginning it contain more precise matched words
         self._displayed_list = []
         for i in range(max_distance + 1):
             if not nearest_words.has_key(i):
@@ -49,7 +48,8 @@ class FuzzySearchCompleter(AbstractCompleter):
             matched_words = nearest_words[i]
             matched_words.sort()
             for word in matched_words:
-                self._displayed_list.append([word, word_occurrence[word]])
+                for description in words[word]:
+                    self._displayed_list.append([word, description])
     
     def rowCount(self):
         """Return len of _displayed_list list
@@ -77,7 +77,13 @@ class FuzzySearchCompleter(AbstractCompleter):
             if column == 0:
                 return "Results:"
             else:
-                return "Occurrence:"
+                if self._viewMode == ViewMode.SEARCH_ANY_WORD:
+                    return "Occurrence:"
+                elif self._viewMode == ViewMode.SEARCH_TAGS:
+                    return "Place in document:"
+                else:
+                    print __file__, "FuzzySearchCompleter::text Invalid viewMode =", self._viewMode
+                    return ""
         
         if column == 0:
             word = (self._displayed_list[row - 1])[0]
@@ -93,7 +99,26 @@ class FuzzySearchCompleter(AbstractCompleter):
             return highlighted_word
         
         if column == 1:
-            return (self._displayed_list[row - 1])[1]
+            if self._viewMode == ViewMode.SEARCH_ANY_WORD:
+                return (self._displayed_list[row - 1])[1]
+            elif self._viewMode == ViewMode.SEARCH_TAGS:
+                tagAddress = (self._displayed_list[row - 1])[1]
+                if tagAddress.isdigit():
+                    return tagAddress
+                else:
+                    if tagAddress.startswith("/^"):
+                        tagAddress = tagAddress[2 : ]
+                    else:
+                        print __file__, "FuzzySearchCompleter::text Unusual tag address =", tagAddress
+                    if tagAddress.endswith('$/'):
+                        tagAddress = tagAddress[ : -2]
+                    else:
+                        print __file__, "FuzzySearchCompleter::text Unusual tag address =", tagAddress
+                    tagAddress.strip()
+                    return tagAddress
+            else:
+                print __file__, "FuzzySearchCompleter::text Invalid viewMode =", self._viewMode
+                return ""
         
         return "-1"
     
@@ -115,7 +140,15 @@ class FuzzySearchCompleter(AbstractCompleter):
         """
         #print "getFullText " + str(row)
         if row != 0:
-            return (self._displayed_list[row - 1])[0]
+            fullText = (self._displayed_list[row - 1])[0]
+            offsetOfIdenticWords = 0
+            row -= 1
+            while row > 0:
+                if fullText != (self._displayed_list[row - 1])[0]:
+                    break
+                offsetOfIdenticWords += 1
+                row -= 1
+            return fullText + ";\"%d" % offsetOfIdenticWords
             
         return ""
 

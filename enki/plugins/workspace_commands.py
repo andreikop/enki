@@ -5,10 +5,11 @@ workspace_commands --- Open, SaveAs, GotoLine commands
 
 import os.path
 import glob
+import re
 
 from enki.core.core import core
 from enki.lib.pathcompleter import makeSuitableCompleter, PathCompleter
-from enki.lib.fuzzycompleter import FuzzySearchCompleter
+from enki.lib.fuzzycompleter import FuzzySearchCompleter, ViewMode
 
 from enki.core.locator import AbstractCommand
 
@@ -289,7 +290,7 @@ class CommandFuzzySearch(AbstractCommand):
     """
     @staticmethod
     def signature():
-        return '[z] [word]'
+        return 'z [word]'
     
     @staticmethod
     def description():
@@ -327,8 +328,18 @@ class CommandFuzzySearch(AbstractCommand):
     def completer(self, text, pos):
         """Just call FuzzySearchCompleter for fuzzy searching and display results
         """
+        import re
+
         if len(self._fuzzy_word) > 1:
-            return FuzzySearchCompleter(self._fuzzy_word)
+            #   Retrieve unique words from document
+            full_text = core.workspace().currentDocument().text()
+            words = re.findall(r"\b([a-zA-Z]\w*)\b", full_text, re.I);
+            word_occurrence = {} # key: unique word, value: count of occurance this word in document stored in list
+            for word in words:
+                count = word_occurrence.get(word, [0])
+                count[0] += 1
+                word_occurrence[word] = count
+            return FuzzySearchCompleter(self._fuzzy_word, word_occurrence, ViewMode.SEARCH_ANY_WORD)
         else:
             return None
 
@@ -350,15 +361,190 @@ class CommandFuzzySearch(AbstractCommand):
         #print "CommandFuzzySearch::execute", self._fuzzy_word
 
 
+class CommandShowTags(AbstractCommand):
+    """Fuzzy search command implementation
+    """
+    @staticmethod
+    def signature():
+        return 't [word]'
+    
+    @staticmethod
+    def description():
+        return 'Show tags (symbols) for current document'
+
+    @staticmethod
+    def pattern():
+        """Match only C/C++ indentifiers
+        """
+        from pyparsing import Literal, Optional, Suppress, White, Word, srange  # delayed import, performance optimization
+
+        tag = Word(srange("[a-zA-Z_]"), srange("[a-zA-Z0-9_]"))("tag")
+        offsetOfIdenticalTags = Word(srange("[0-9]"))("offset")
+        pat = Literal('t ') + Suppress(Optional(White())) + Optional(tag) + Optional(Literal(';\"')) + Optional(offsetOfIdenticalTags)
+        pat.leaveWhitespace()
+        pat.setParseAction(CommandShowTags.create)
+        return pat
+    
+    @staticmethod
+    def create(str, loc, tocs):
+        """tocs contain typed word for searching
+        Return instance of CommandShowTags
+        """
+        return [CommandShowTags(tocs.tag, tocs.offset)]
+
+    @staticmethod
+    def isAvailable():
+        """Tags available only for opened document
+        """
+        from os import path
+        from errno import ENOENT
+        
+        haveDocument = core.workspace().currentDocument() is not None
+        
+        if haveDocument:
+            openedDoc = core.workspace().currentDocument()
+            tagsFile = path.dirname(openedDoc.filePath())
+            tagsFile += path.sep + ".tags"
+            haveDocument = path.exists(tagsFile)
+        return haveDocument
+
+    SymbolsDict = {}
+    @staticmethod
+    def loadTagFile(path, documentName):
+        from errno import ENOENT
+        
+        try:
+            tagsFile = open(path, 'r')
+            lines = tagsFile.readlines()
+            tagsFile.close()
+        except OSError, ex:
+            if ex.errno != ENOENT: 
+                error = unicode(str(ex), 'utf8')
+                text = "Failed opening file '%s': %s" % (path, error)
+                core.mainWindow().appendMessage(text)
+        
+        CommandShowTags.SymbolsDict = {}
+        for line in lines:
+            if line.startswith("!_"):
+                continue
+            parts = line.split('\t', 2)
+            tagName = parts[0]
+            tagFile = parts[1]
+            rest = parts[2]
+            if tagFile != documentName:
+                continue
+
+            parts = rest.split(";\"\t")
+            if len(parts) == 1:
+                tagAddress = parts[0]
+            elif len(parts) == 2:
+                tagAddress = parts[0]
+                tagExtensionFields = parts[1]
+            else:
+                print "CommandShowTags::completer incorrect tag format =", line
+            
+            symbol = CommandShowTags.SymbolsDict.get(tagName, [])
+            symbol.append(tagAddress)
+            CommandShowTags.SymbolsDict[tagName] = symbol
+        
+    def __init__(self, word, offset):
+        self._fuzzy_word = unicode(word)
+        if offset is not "":
+            self._offsetOfIdenticalTags = int(offset)
+        else:
+            self._offsetOfIdenticalTags = 0
+    
+    def completer(self, text, pos):
+        """Just call FuzzySearchCompleter for fuzzy searching and display results
+        http://ctags.sourceforge.net/FORMAT
+        """
+        from os import path
+
+        openedDoc = core.workspace().currentDocument()
+        docName = path.split(openedDoc.filePath())[1]
+        tagsFileName = path.split(openedDoc.filePath())[0]
+        tagsFileName += path.sep + ".tags"
+        CommandShowTags.loadTagFile(tagsFileName, docName)
+        
+        return FuzzySearchCompleter(self._fuzzy_word.lower(), CommandShowTags.SymbolsDict, ViewMode.SEARCH_TAGS)
+
+    def constructCommand(self, completableText):
+        """Construct command by path
+        """
+        #print "CommandShowTags::constructCommand", completableText
+        return 't ' + completableText
+    
+    def isReadyToExecute(self):
+        """Check if command is complete and ready to execute
+        """
+        #print "CommandShowTags::isReadyToExecute", self._fuzzy_word, self._offsetOfIdenticalTags
+        if self._fuzzy_word not in CommandShowTags.SymbolsDict:
+            return False
+        
+        tagAddresses = CommandShowTags.SymbolsDict[self._fuzzy_word]
+        if self._offsetOfIdenticalTags >= len(tagAddresses):
+            print __name__, "CommandShowTags::isReadyToExecute", self._offsetOfIdenticalTags, tagAddresses
+            return False
+        
+        self._address = tagAddresses[self._offsetOfIdenticalTags]
+        return True
+
+    def execute(self):
+        """Execute the command
+        """
+        address = self._address
+        #print "CommandShowTags::execute", address
+        if address.isdigit():
+            core.workspace().currentDocument().goTo(line = int(address) - 1)
+        else:
+            # /^int c;$/
+            # /struct xyz {/;/int count;/
+            # 389;/struct foo/;/char *s;/
+            line_number = 0
+            if address[0].isdigit():
+                i = 0
+                while address[i].isdigit:
+                    i += 1
+                line_number = int(address[0 : i - 1])
+                address = address[0 : i] # remove line number and semicolon
+            address = address[1 : -1] # remove heading and trailing slashes
+            parts = address.split("/;/")
+            if len(parts) == 0:
+                print __name__, "CommandShowTags::execute Incorrect tagAddress =", self._address
+                return
+            for exp in parts:
+                haveCaret = False
+                haveEnd = False
+                if exp.startswith("^"):
+                    haveCaret = True
+                    exp = exp[1 : ]
+                if exp.endswith('$'):
+                    haveEnd = True
+                    exp = exp[ : -1]
+                exp = re.escape(exp)
+                if haveCaret:
+                    exp = '^' + exp
+                if haveEnd:
+                    exp = exp + '$'
+                regExp = re.compile(exp)
+                #print "CommandShowTags::execute", line_number, exp
+                totalLines = core.workspace().currentDocument().lineCount()
+                for num in range(line_number, totalLines):
+                    if regExp.match(core.workspace().currentDocument().line(num)) is not None:
+                        line_number = num
+                        break
+            core.workspace().currentDocument().goTo(line = int(line_number))
+
+
 class Plugin:
     """Plugin interface
     """
     def __init__(self):
-        for comClass in (CommandGotoLine, CommandOpen, CommandSaveAs, CommandFuzzySearch):
+        for comClass in (CommandGotoLine, CommandOpen, CommandSaveAs, CommandFuzzySearch, CommandShowTags):
             core.locator().addCommandClass(comClass)
 
     def del_(self):
         """Explicitly called destructor
         """
-        for comClass in (CommandGotoLine, CommandOpen, CommandSaveAs, CommandFuzzySearch):
+        for comClass in (CommandGotoLine, CommandOpen, CommandSaveAs, CommandFuzzySearch, CommandShowTags):
             core.locator().removeCommandClass(comClass)

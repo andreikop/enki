@@ -48,16 +48,9 @@ class Plugin:
         
         if haveDocument:
             openedDoc = core.workspace().currentDocument()
-            tagsFile = os.path.split(openedDoc.filePath())[0]
+            tagsFile = os.path.dirname(openedDoc.filePath())
             tagsFile += os.path.sep + ".tags"
-            try:
-                haveDocument = len(os.stat(tagsFile)) > 1 # usually os.stat return 10 values
-            except OSError, ex:
-                if ex.errno != errno.ENOENT: 
-                    error = unicode(str(ex), 'utf8')
-                    text = "Failed checking status of file '%s': %s" % (tagsFile, error)
-                    core.mainWindow().appendMessage(text)
-                haveDocument = False
+            haveDocument = os.path.exists(tagsFile)
             
         core.actionManager().action("mNavigation/mCtags/aUpdate").setEnabled(haveDocument)
     
@@ -107,7 +100,7 @@ class Plugin:
         if openedDoc is None:
             raise UserWarning("Action is available, but must not")
         
-        curDir = os.path.split(openedDoc.filePath())[0]
+        curDir = os.path.dirname(openedDoc.filePath())
         curDir += os.path.sep
         command = "ctags -f .tags *"
         
@@ -150,7 +143,7 @@ class UICtags(QDialog):
         openedDoc = core.workspace().currentDocument()
         projectPath = os.path.expanduser('~')
         if openedDoc is not None:
-            projectPath = os.path.split(openedDoc.filePath())[0]
+            projectPath = os.path.dirname(openedDoc.filePath())
         self.lineEditPath.setText(projectPath)
         
         self.buttonBrowse.pressed.connect(self._browseDirectory)
