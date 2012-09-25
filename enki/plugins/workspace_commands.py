@@ -323,17 +323,15 @@ class CommandFuzzySearch(AbstractCommand):
         return core.workspace().currentDocument() is not None
 
     def __init__(self, word):
-        self._fuzzy_word = word.lower()
+        self._fuzzy_word = word
     
     def completer(self, text, pos):
         """Just call FuzzySearchCompleter for fuzzy searching and display results
         """
-        import re
-
-        if len(self._fuzzy_word) > 1:
+        if len(self._fuzzy_word) > 0:
             #   Retrieve unique words from document
             full_text = core.workspace().currentDocument().text()
-            words = re.findall(r"\b([a-zA-Z]\w*)\b", full_text, re.I);
+            words = re.findall(r"\b([a-zA-Z_]\w*)\b", full_text, re.I);
             word_occurrence = {} # key: unique word, value: count of occurance this word in document stored in list
             for word in words:
                 count = word_occurrence.get(word, [0])
@@ -359,6 +357,18 @@ class CommandFuzzySearch(AbstractCommand):
         """Execute the command
         """
         #print "CommandFuzzySearch::execute", self._fuzzy_word
+        totalLines = core.workspace().currentDocument().lineCount()
+        exp = '\\b' + self._fuzzy_word + '\\b'
+        regExp = re.compile(exp)
+        for lineNumber in range(0, totalLines):
+            content = core.workspace().currentDocument().line(lineNumber)
+            matchObject = regExp.search(content)
+            if matchObject is not None:
+                core.workspace().currentDocument().goTo(line = int(lineNumber),
+                                                        column = matchObject.start(),
+                                                        selectionLength = len(self._fuzzy_word))
+                return
+        print "CommandFuzzySearch::execute Info: Can't find", '\"' + self._fuzzy_word + '\"', "in document"
 
 
 class CommandShowTags(AbstractCommand):
@@ -483,7 +493,7 @@ class CommandShowTags(AbstractCommand):
         
         tagAddresses = CommandShowTags.SymbolsDict[self._fuzzy_word]
         if self._offsetOfIdenticalTags >= len(tagAddresses):
-            print __name__, "CommandShowTags::isReadyToExecute", self._offsetOfIdenticalTags, tagAddresses
+            print __name__, "CommandShowTags::isReadyToExecute Warn: Incorrect tag file", self._offsetOfIdenticalTags, tagAddresses
             return False
         
         self._address = tagAddresses[self._offsetOfIdenticalTags]
@@ -496,44 +506,55 @@ class CommandShowTags(AbstractCommand):
         #print "CommandShowTags::execute", address
         if address.isdigit():
             core.workspace().currentDocument().goTo(line = int(address) - 1)
+            return
+            
+        # /^int c;$/
+        # /struct xyz {/;/int count;/
+        # 389;/struct foo/;/char *s;/
+        lineNumber = 0
+        if address[0].isdigit():
+            i = 0
+            while address[i].isdigit:
+                i += 1
+            lineNumber = int(address[0 : i - 1])
+            address = address[0 : i] # remove line number and semicolon
+        address = address[1 : -1] # remove heading and trailing slashes
+        #   Divide tagAddress on parts and find next part only after previous part was finded
+        parts = address.split("/;/")
+        if len(parts) == 0:
+            print "CommandShowTags::execute Warn: Incorrect tagAddress =", self._address
+            return
+        for exp in parts:
+            haveCaret = False
+            haveEnd = False
+            if exp.startswith("^"):
+                haveCaret = True
+                exp = exp[1 : ]
+            if exp.endswith('$'):
+                haveEnd = True
+                exp = exp[ : -1]
+            exp = re.escape(exp)
+            if haveCaret:
+                exp = '^' + exp
+            if haveEnd:
+                exp = exp + '$'
+            regExp = re.compile(exp)
+            totalLines = core.workspace().currentDocument().lineCount()
+            for num in range(lineNumber, totalLines):
+                if regExp.match(core.workspace().currentDocument().line(num)) is not None:
+                    lineNumber = num
+                    break
+        #   Select tag in corresponding line
+        exp = '\\b' + self._fuzzy_word + '\\b'
+        regExp = re.compile(exp)
+        content = core.workspace().currentDocument().line(lineNumber)
+        matchObject = regExp.search(content)
+        if matchObject is None:
+            print "CommandShowTags::execute Info: Can't find", '\"' + self._fuzzy_word + '\"', "in document"
         else:
-            # /^int c;$/
-            # /struct xyz {/;/int count;/
-            # 389;/struct foo/;/char *s;/
-            line_number = 0
-            if address[0].isdigit():
-                i = 0
-                while address[i].isdigit:
-                    i += 1
-                line_number = int(address[0 : i - 1])
-                address = address[0 : i] # remove line number and semicolon
-            address = address[1 : -1] # remove heading and trailing slashes
-            parts = address.split("/;/")
-            if len(parts) == 0:
-                print __name__, "CommandShowTags::execute Incorrect tagAddress =", self._address
-                return
-            for exp in parts:
-                haveCaret = False
-                haveEnd = False
-                if exp.startswith("^"):
-                    haveCaret = True
-                    exp = exp[1 : ]
-                if exp.endswith('$'):
-                    haveEnd = True
-                    exp = exp[ : -1]
-                exp = re.escape(exp)
-                if haveCaret:
-                    exp = '^' + exp
-                if haveEnd:
-                    exp = exp + '$'
-                regExp = re.compile(exp)
-                #print "CommandShowTags::execute", line_number, exp
-                totalLines = core.workspace().currentDocument().lineCount()
-                for num in range(line_number, totalLines):
-                    if regExp.match(core.workspace().currentDocument().line(num)) is not None:
-                        line_number = num
-                        break
-            core.workspace().currentDocument().goTo(line = int(line_number))
+            core.workspace().currentDocument().goTo(line = int(lineNumber),
+                                                    column = matchObject.start(),
+                                                    selectionLength = len(self._fuzzy_word))
 
 
 class Plugin:

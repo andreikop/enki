@@ -28,12 +28,13 @@ class FuzzySearchCompleter(AbstractCompleter):
         if not isinstance(fuzzy_word, unicode):
             return
         fuzzy_word = fuzzy_word.strip()
-        self._fuzzy_word = fuzzy_word.lower()
+        self._fuzzy_word = fuzzy_word
         self._viewMode = viewMode
         #   2. Find levenshteine distance for each word
         nearest_words = {}
+        fuzzy_word = fuzzy_word.lower()
         for word in words.keys():
-            lev_distance = self._levenshtein(self._fuzzy_word, word.lower())
+            lev_distance = self._levenshtein(fuzzy_word, word.lower())
             if nearest_words.has_key(lev_distance):
                 nearest_words[lev_distance].append(word)
             else:
@@ -87,7 +88,7 @@ class FuzzySearchCompleter(AbstractCompleter):
         
         if column == 0:
             word = (self._displayed_list[row - 1])[0]
-            prescription = self._levenshtein(self._fuzzy_word, word.lower(), True)
+            prescription = self._levenshtein(self._fuzzy_word.lower(), word.lower(), True)
             highlighted_word = ""
             for action in prescription:
                 if action == 'M':
@@ -132,15 +133,22 @@ class FuzzySearchCompleter(AbstractCompleter):
         
         Shown after cursor. Appended to the typed text, if Tab is pressed
         """
-        #print "inline"
+        #print "FuzzySearchCompleter::inline", self._fuzzy_word
+        if len(self._displayed_list) > 0:
+            offer = self._displayed_list[0][0]
+            if offer.startswith(self._fuzzy_word):
+                tail = offer[len(self._fuzzy_word) : ]
+                return tail
         return ""
     
     def getFullText(self, row):
         """Row had been clicked by mouse. Get inline completion, which will be inserted after cursor
         """
-        #print "getFullText " + str(row)
+        #print "FuzzySearchCompleter::getFullText " + str(row)
         if row != 0:
             fullText = (self._displayed_list[row - 1])[0]
+            if self._viewMode == ViewMode.SEARCH_ANY_WORD:
+                return fullText
             offsetOfIdenticWords = 0
             row -= 1
             while row > 0:
