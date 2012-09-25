@@ -6,6 +6,9 @@ fuzzycompleter --- Fuzzy completer for Locator
 from enki.core.locator import AbstractCompleter
 from enki.core.core import core
 
+class HidedField:
+    SEPARATOR = ';\"'
+
 class ViewMode:
     """These constants defines the view of displaying searched results
     """
@@ -17,10 +20,9 @@ class FuzzySearchCompleter(AbstractCompleter):
     It is base on finding Levenshtein distance
     """
     def __init__(self, fuzzy_word, words, viewMode):
-        """Retrieve all words(correct C/C++ names of identificators) from current document.
-        words - dict, where key is word, value - additional descriptions stored in list (one word may have more than one description)
+        """words - dict, where key is word, value - additional descriptions stored in list (one word may have more than one description)
         Compare its with typed (fuzzy_word) word.
-        Prepare list for display results of matching.
+        Prepare list for display results of matching in viewMode mode.
         """
         #   1. Check for correct type
         if fuzzy_word is None:
@@ -63,7 +65,7 @@ class FuzzySearchCompleter(AbstractCompleter):
     def columnCount(self):
         """Column count for tree view.
         In first column displayed search results.
-        In second - total count of occurrence each matched word
+        In second - total count of occurrence each matched word or tag address
         """
         columns = 2
         return columns
@@ -72,8 +74,9 @@ class FuzzySearchCompleter(AbstractCompleter):
         """First row reserved for columns titles
         In each displayed word are highlighting matched symbols with
         typed word(_fuzzy_word)
-        In second column displayed total count of occurrence each matched word
+        In second column displayed total count of occurrence each matched word or tag address
         """
+        #   Columns titles
         if row == 0:
             if column == 0:
                 return "Results:"
@@ -86,6 +89,7 @@ class FuzzySearchCompleter(AbstractCompleter):
                     print __file__, "FuzzySearchCompleter::text Invalid viewMode =", self._viewMode
                     return ""
         
+        #   Highlighted(according to typed fuzzy word) existed words or tags
         if column == 0:
             word = (self._displayed_list[row - 1])[0]
             prescription = self._levenshtein(self._fuzzy_word.lower(), word.lower(), True)
@@ -99,6 +103,7 @@ class FuzzySearchCompleter(AbstractCompleter):
                 word = word[1:]
             return highlighted_word
         
+        #   Number of occurrences words or tag address
         if column == 1:
             if self._viewMode == ViewMode.SEARCH_ANY_WORD:
                 return (self._displayed_list[row - 1])[1]
@@ -130,8 +135,8 @@ class FuzzySearchCompleter(AbstractCompleter):
     
     def inline(self):
         """Inline completion.
-        
-        Shown after cursor. Appended to the typed text, if Tab is pressed
+        If first displayed item matching with typed word - append to this word tail
+        of displayed item
         """
         #print "FuzzySearchCompleter::inline", self._fuzzy_word
         if len(self._displayed_list) > 0:
@@ -142,7 +147,9 @@ class FuzzySearchCompleter(AbstractCompleter):
         return ""
     
     def getFullText(self, row):
-        """Row had been clicked by mouse. Get inline completion, which will be inserted after cursor
+        """Row had clicked by mouse.
+        Return word from row of displayed list
+        or, for tags, return tag and offset between duplicated tags, divided by ;"
         """
         #print "FuzzySearchCompleter::getFullText " + str(row)
         if row != 0:
@@ -156,7 +163,7 @@ class FuzzySearchCompleter(AbstractCompleter):
                     break
                 offsetOfIdenticWords += 1
                 row -= 1
-            return fullText + ";\"%d" % offsetOfIdenticWords
+            return fullText + HidedField.SEPARATOR + "%d" % offsetOfIdenticWords
             
         return ""
 
