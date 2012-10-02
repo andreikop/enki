@@ -70,7 +70,8 @@ class SearchThread(StopableThread):
         
         self._openedFiles = {}
         for document in core.workspace().documents():
-            self._openedFiles[document.filePath()] = document.text()
+            if document.filePath() is not None:
+                self._openedFiles[document.filePath()] = document.text()
 
         self.start()
 

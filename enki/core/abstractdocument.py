@@ -239,7 +239,8 @@ class AbstractDocument(QWidget):
         return self._filePath
     
     def fileName(self):
-        """return the document file name"""
+        """Document file name without a path
+        None if not set (new document)"""
         if self._filePath:
             return os.path.basename(self._filePath)
         else:
