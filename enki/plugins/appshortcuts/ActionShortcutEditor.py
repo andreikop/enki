@@ -54,17 +54,17 @@ class _KeySequenceEdit(LineEdit):
         keyPressed = event.type() == QEvent.KeyPress
         
         # or-ed keys
-        self._keys = 0
+        keys = 0
         
         # check modifiers pressed
         if  event.modifiers() & Qt.ControlModifier :
-            self._keys |= Qt.ControlModifier
+            keys |= Qt.ControlModifier
         if  event.modifiers() & Qt.AltModifier :
-            self._keys |= Qt.AltModifier
+            keys |= Qt.AltModifier
         if  event.modifiers() & Qt.ShiftModifier :
-            self._keys |= Qt.ShiftModifier
+            keys |= Qt.ShiftModifier
         if  event.modifiers() & Qt.MetaModifier :
-            self._keys |= Qt.MetaModifier
+            keys |= Qt.MetaModifier
 
         if  keyPressed :        # get press key
             if event.key() in  (Qt.Key_Control,
@@ -83,13 +83,13 @@ class _KeySequenceEdit(LineEdit):
                 pass
             else:
                 # add pressed key
-                self._keys |= event.key()
+                keys |= event.key()
                     
                 # set sequence finished
                 self._finished = True
         
         # return human readable key sequence
-        return QKeySequence( self._keys ).toString()
+        return QKeySequence( keys ).toString()
 
 class _RecursiveSortFilterProxyModel(QSortFilterProxyModel):
     def filterAcceptsRow(self, source_row, source_parent):
