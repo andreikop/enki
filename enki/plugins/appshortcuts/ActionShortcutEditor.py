@@ -58,13 +58,13 @@ class _KeySequenceEdit(LineEdit):
         
         # check modifiers pressed
         if  event.modifiers() & Qt.ControlModifier :
-            keys |= Qt.ControlModifier
+            keys = int(keys) | Qt.ControlModifier
         if  event.modifiers() & Qt.AltModifier :
-            keys |= Qt.AltModifier
+            keys = int(keys) | Qt.AltModifier
         if  event.modifiers() & Qt.ShiftModifier :
-            keys |= Qt.ShiftModifier
+            keys = int(keys) | Qt.ShiftModifier
         if  event.modifiers() & Qt.MetaModifier :
-            keys |= Qt.MetaModifier
+            keys = int(keys) | Qt.MetaModifier
 
         if  keyPressed :        # get press key
             if event.key() in  (Qt.Key_Control,
@@ -83,7 +83,7 @@ class _KeySequenceEdit(LineEdit):
                 pass
             else:
                 # add pressed key
-                keys |= event.key()
+                keys = int(keys) | event.key()
                     
                 # set sequence finished
                 self._finished = True
