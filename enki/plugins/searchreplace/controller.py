@@ -11,6 +11,7 @@ from PyQt4.QtGui import QApplication, QAction, QIcon, QMessageBox
 
 
 from enki.core.core import core
+import substitutions
 
 ModeFlagSearch = 0x1
 ModeFlagReplace = 0x2
@@ -409,13 +410,9 @@ class Controller(QObject):
         if match is not None:
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
             try:
-                replaceTextSubed = regExp.sub(replaceText, match.group(0))
-            except re.error, ex:
-                message = unicode(str(ex), 'utf_8')
-                message += r'. Probably <i>\group_index</i> used in replacement string, but such group not found. '\
-                           r'Try to escape it: <i>\\group_index</i>'
-                QMessageBox.critical(None, "Invalid replace string", message)
-                # TODO link to replace help
+                replaceTextSubed = substitutions.makeSubstitutions(regExp, replaceText, match.group(0))
+            except UserWarning as ex:
+                QMessageBox.critical(None, "Invalid replace string", str(ex))
                 return
             document.replaceSelectedText(replaceTextSubed)
             document.goTo(absPos = match.start() + len(replaceTextSubed))
@@ -442,12 +439,9 @@ class Controller(QObject):
         while match is not None:
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
             try:
-                replaceTextSubed = regExp.sub(replaceText, match.group(0))
-            except re.error as ex:
-                message = unicode(str(ex), 'utf_8')
-                message += r'. Probably <i>\group_index</i> used in replacement string, but such group not found. '\
-                           r'Try to escape it: <i>\\group_index</i>'
-                QMessageBox.critical(None, "Invalid replace string", message)
+                replaceTextSubed = substitutions.makeSubstitutions(regExp, replaceText, match.group(0))
+            except UserWarning as ex:
+                QMessageBox.critical(None, "Invalid replace string", str(ex))
                 break
                 
             document.replaceSelectedText(replaceTextSubed)
