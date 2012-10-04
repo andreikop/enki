@@ -9,6 +9,8 @@ FIXME
       File "/usr/lib/python2.6/sre_parse.py", line 795, in expand_template
         raise error, "invalid group reference"
     error: invalid group reference
+
+    Заменять \0 на все совпадение
     
 SITE:
 
