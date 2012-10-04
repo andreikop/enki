@@ -14,8 +14,8 @@ from PyQt4.QtCore import pyqtSignal, \
                          QThread
 
 from enki.core.core import core
-from enki.plugins.searchreplace import *
 import searchresultsmodel
+import substitutions
 
 def _isBinary(fileObject):
     """Expects, that file position is 0, when exits, file position is 0
@@ -317,13 +317,10 @@ class ReplaceThread(StopableThread):
         """
         for result in matches[::-1]:  # count from end to begin because we are replacing by offset in content
             try:
-                replaceTextWithMatches = result.match.re.sub(self._replaceText,
-                                                             result.match.group(0))
-            except re.error, ex:
-                message = unicode(ex.message, 'utf8')
-                message += r'. Probably <i>\group_index</i> used in replacement string, but such group not found. '\
-                           r'Try to escape it: <i>\\group_index</i>'
-                self.error.emit(message)
+                replaceTextWithMatches = substitutions.makeSubstitutions(self._replaceText,
+                                                                       result.match.group(0))
+            except UserWarning as ex:
+                self.error.emit(str(ex))
                 return
             content = content[:result.match.start()] + replaceTextWithMatches + content[result.match.end():]
         

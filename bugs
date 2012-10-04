@@ -1,5 +1,15 @@
 FIXME
+    lastpos.json оказался битым
 
+    Traceback (most recent call last):
+      File "/usr/local/lib/python2.6/dist-packages/enki/plugins/searchreplace/controller.py", line 441, in _onReplaceFileAll
+        replaceTextSubed = regExp.sub(replaceText, match.group(0))
+      File "/usr/lib/python2.6/re.py", line 278, in filter
+        return sre_parse.expand_template(template, match)
+      File "/usr/lib/python2.6/sre_parse.py", line 795, in expand_template
+        raise error, "invalid group reference"
+    error: invalid group reference
+    
 SITE:
 
 TODO

@@ -25,7 +25,6 @@ from PyQt4.QtGui import QApplication, QCompleter, QColor, QDirModel, QFileDialog
 
 from enki.core.core import core
 
-from enki.plugins.searchreplace import *
 import searchresultsmodel
 
 from controller import *
