@@ -1,5 +1,6 @@
 """Module contains makeSubstitutions() function, which is used by controller and threads
 """
+import re
 
 def makeSubstitutions(regExp, replaceText, matchText):
     """Replace patterns like \n and \1 with symbols and matches
