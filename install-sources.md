@@ -44,5 +44,5 @@ If your default python version is python3 (i.e. in **Gentoo**), open file /usr/l
 with
 `#!/usr/bin/env python2`
 
-## 4. Enjoy
+## 5. Enjoy
 Don't forget to send a bug report, if you are having some problems
