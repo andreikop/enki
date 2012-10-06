@@ -38,5 +38,11 @@ On **Windows**, [this link](https://github.com/hlamer/enki/issues/19) might be h
     
 `./setup.py install`
 
+## 4. Fix python interpreter version
+If your default python version is python3 (i.e. in **Gentoo**), open file /usr/local/bin/enki with your text editor and replace
+`#!/usr/bin/env python`
+with
+`#!/usr/bin/env python2`
+
 ## 4. Enjoy
 Don't forget to send a bug report, if you are having some problems
