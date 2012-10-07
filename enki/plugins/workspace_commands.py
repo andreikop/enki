@@ -357,18 +357,17 @@ class CommandFuzzySearch(AbstractCommand):
         and rewind document to this place
         """
         #print "CommandFuzzySearch::execute", self._fuzzy_word
-        totalLines = core.workspace().currentDocument().lineCount()
         exp = '\\b' + self._fuzzy_word + '\\b'
         regExp = re.compile(exp)
-        for lineNumber in range(0, totalLines):
-            content = core.workspace().currentDocument().line(lineNumber)
-            matchObject = regExp.search(content)
-            if matchObject is not None:
-                core.workspace().currentDocument().goTo(line = int(lineNumber),
-                                                        column = matchObject.start(),
-                                                        selectionLength = len(self._fuzzy_word))
-                return
-        print "CommandFuzzySearch::execute Info: Can't find", '\"' + self._fuzzy_word + '\"', "in document"
+        text = core.workspace().currentDocument().text()
+        matchObject = regExp.search(text)
+        if matchObject is None:
+            print "CommandFuzzySearch::execute Info: Can't find", '\"' + self._fuzzy_word + '\"', "in document"
+            return
+        pos = matchObject.start()
+        core.workspace().currentDocument().goTo(absPos = pos,
+                                                selectionLength = len(self._fuzzy_word))
+        return
 
 
 class CommandShowTags(AbstractCommand):
@@ -547,6 +546,7 @@ class CommandShowTags(AbstractCommand):
             address = address[0 : i] # remove line number and semicolon
         address = address[1 : -1] # remove heading and trailing slashes
         
+        absPos = 0  #   TODO add convert line number to absolute position in document
         #   Divide tagAddress(now it may contain only regular expressions) on parts
         # and find next part only after previous part was finded
         parts = address.split("/;/")
@@ -568,28 +568,28 @@ class CommandShowTags(AbstractCommand):
                 exp = '^' + exp
             if haveEnd:
                 exp = exp + '$'
-            regExp = re.compile(exp)
+            regExp = re.compile(exp, re.M)
             #   Find tag in entire document
-            totalLines = core.workspace().currentDocument().lineCount()
-            for num in range(lineNumber, totalLines):
-                if regExp.match(core.workspace().currentDocument().line(num)) is not None:
-                    lineNumber = num
-                    break
+            text = core.workspace().currentDocument().text()
+            matchObject = regExp.search(text, absPos)
+            if matchObject is None:
+                print "CommandShowTags::execute Info: Can't find", '\"' + self._fuzzy_word + '\"', "in document"
+                return
+            absPos = matchObject.start()
         #   Rewind document
-        self._selectTag(lineNumber)
+        self._selectTag(absPos)
 
-    def _selectTag(self, lineNumber):
-        """Rewind document and select tag in corresponding line
+    def _selectTag(self, linePos):
+        """Rewind document and select tag in line, started from linePos
         """
         exp = '\\b' + self._fuzzy_word + '\\b'
         regExp = re.compile(exp)
-        content = core.workspace().currentDocument().line(lineNumber)
-        matchObject = regExp.search(content)
+        text = core.workspace().currentDocument().text()
+        matchObject = regExp.search(text, linePos)
         if matchObject is None:
             print "CommandShowTags::_selectTag Info: Can't find", '\"' + self._fuzzy_word + '\"', "in document"
         else:
-            core.workspace().currentDocument().goTo(line = int(lineNumber),
-                                                    column = matchObject.start(),
+            core.workspace().currentDocument().goTo(absPos = matchObject.start(),
                                                     selectionLength = len(self._fuzzy_word))
 
 

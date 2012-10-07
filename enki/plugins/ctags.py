@@ -44,13 +44,16 @@ class Plugin:
     def _enableActionsState(self):
         """Enable actions if any document opens and tags file presents
         """
-        haveDocument = core.workspace().currentDocument() is not None
+        openedDoc = core.workspace().currentDocument()
+        haveDocument = openedDoc is not None
         
         if haveDocument:
-            openedDoc = core.workspace().currentDocument()
-            tagsFile = os.path.dirname(openedDoc.filePath())
-            tagsFile += os.path.sep + ".tags"
-            haveDocument = os.path.exists(tagsFile)
+            if openedDoc.filePath() is None: #  If new file has created its path is None
+                haveDocument = False
+            else:
+                tagsFile = os.path.dirname(openedDoc.filePath())
+                tagsFile += os.path.sep + ".tags"
+                haveDocument = os.path.exists(tagsFile)
             
         core.actionManager().action("mNavigation/mCtags/aUpdate").setEnabled(haveDocument)
     
