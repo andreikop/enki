@@ -406,11 +406,7 @@ class Controller(QObject):
         
         if match is not None:
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
-            try:
-                replaceTextSubed = substitutions.makeSubstitutions(replaceText, match)
-            except UserWarning as ex:
-                QMessageBox.critical(None, "Invalid replace string", str(ex))
-                return
+            replaceTextSubed = substitutions.makeSubstitutions(replaceText, match)
             document.replaceSelectedText(replaceTextSubed)
             document.goTo(absPos = match.start() + len(replaceTextSubed))
             # move selection to the next item
@@ -435,11 +431,7 @@ class Controller(QObject):
         match = regExp.search(document.text(), pos)
         while match is not None:
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
-            try:
-                replaceTextSubed = substitutions.makeSubstitutions(replaceText, match)
-            except UserWarning as ex:
-                QMessageBox.critical(None, "Invalid replace string", str(ex))
-                break
+            replaceTextSubed = substitutions.makeSubstitutions(replaceText, match)
             
             document.replaceSelectedText(replaceTextSubed)
             
