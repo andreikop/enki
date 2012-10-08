@@ -410,7 +410,7 @@ class Controller(QObject):
         if match is not None:
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
             try:
-                replaceTextSubed = substitutions.makeSubstitutions(regExp, replaceText, match.group(0))
+                replaceTextSubed = substitutions.makeSubstitutions(replaceText, match)
             except UserWarning as ex:
                 QMessageBox.critical(None, "Invalid replace string", str(ex))
                 return
@@ -439,7 +439,7 @@ class Controller(QObject):
         while match is not None:
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
             try:
-                replaceTextSubed = substitutions.makeSubstitutions(regExp, replaceText, match.group(0))
+                replaceTextSubed = substitutions.makeSubstitutions(replaceText, match)
             except UserWarning as ex:
                 QMessageBox.critical(None, "Invalid replace string", str(ex))
                 break

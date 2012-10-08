@@ -318,7 +318,7 @@ class ReplaceThread(StopableThread):
         for result in matches[::-1]:  # count from end to begin because we are replacing by offset in content
             try:
                 replaceTextWithMatches = substitutions.makeSubstitutions(self._replaceText,
-                                                                       result.match.group(0))
+                                                                         result.match)
             except UserWarning as ex:
                 self.error.emit(str(ex))
                 return
