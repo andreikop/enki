@@ -316,12 +316,8 @@ class ReplaceThread(StopableThread):
         """Do replacements for one file
         """
         for result in matches[::-1]:  # count from end to begin because we are replacing by offset in content
-            try:
-                replaceTextWithMatches = substitutions.makeSubstitutions(self._replaceText,
-                                                                         result.match)
-            except UserWarning as ex:
-                self.error.emit(str(ex))
-                return
+            replaceTextWithMatches = substitutions.makeSubstitutions(self._replaceText,
+                                                                     result.match)
             content = content[:result.match.start()] + replaceTextWithMatches + content[result.match.end():]
         
         return content
