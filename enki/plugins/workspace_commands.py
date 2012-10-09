@@ -416,8 +416,8 @@ class CommandShowTags(AbstractCommand):
         
         if haveDocument:
             openedDoc = core.workspace().currentDocument()
-            tagsFile = os.path.dirname(openedDoc.filePath())
-            tagsFile += os.path.sep + ".tags"
+            tagsFileDir = os.path.dirname(openedDoc.filePath())
+            tagsFile = os.path.join(tagsFileDir, ".tags")
             haveDocument = os.path.exists(tagsFile)
         return haveDocument
 
@@ -484,12 +484,10 @@ class CommandShowTags(AbstractCommand):
     def completer(self, text, pos):
         """Load tags for current document and call FuzzySearchCompleter for fuzzy searching and displaying results
         """
-        from os import path
-
         openedDoc = core.workspace().currentDocument()
-        docName = path.split(openedDoc.filePath())[1]
-        tagsFileName = path.split(openedDoc.filePath())[0]
-        tagsFileName += path.sep + ".tags"
+        docName = os.path.split(openedDoc.filePath())[1]
+        tagsFileDir = os.path.split(openedDoc.filePath())[0]
+        tagsFileName = os.path.join(tagsFileDir, ".tags")
         CommandShowTags.loadTagFile(tagsFileName, docName)
         
         return FuzzySearchCompleter(self._fuzzy_word.lower(), CommandShowTags.SymbolsDict, ViewMode.SEARCH_TAGS)

@@ -51,8 +51,8 @@ class Plugin:
             if openedDoc.filePath() is None: #  If new file has created its path is None
                 haveDocument = False
             else:
-                tagsFile = os.path.dirname(openedDoc.filePath())
-                tagsFile += os.path.sep + ".tags"
+                tagsFileDir = os.path.dirname(openedDoc.filePath())
+                tagsFile = os.path.join(tagsFileDir, ".tags")
                 haveDocument = os.path.exists(tagsFile)
             
         core.actionManager().action("mNavigation/mCtags/aUpdate").setEnabled(haveDocument)
@@ -68,28 +68,27 @@ class Plugin:
         dialog = UICtags(core.mainWindow())
         if dialog.exec_() == QDialog.Rejected:
             return
-        projectPath = dialog.getPath()
+        projectPath = dialog.getPath() + os.path.sep
         
         # Generate local tags in each folder
-        dirs = self._getDirs(projectPath)
-        for dir in dirs:
-            from subprocess import call
+        command = "ctags -f .tags *"
+        p = Popen(command, cwd = projectPath, shell=True, stdout=PIPE, stderr=STDOUT)
+        if p.wait():
+            print "error:", p.stdout.read()
         
-            dir += os.path.sep
-            command = "ctags -f .tags *"
-            p = Popen(command, cwd = dir, shell=True, stdout=PIPE, stderr=STDOUT)
-            returnCode = p.wait()
-
-            if returnCode:
-                print "error:", p.stdout.read()
+        for root, folders, files in os.walk(projectPath):
+            for dir in folders:
+                if dir.startswith('.'):
+                    continue
+                absPath = os.path.join(root, dir, "")
+                p = Popen(command, cwd = absPath, shell=True, stdout=PIPE, stderr=STDOUT)
+                if p.wait():
+                    print "error:", p.stdout.read()
         
         # Generate global tags file
-        projectPath += os.path.sep
         command = "ctags -f .tags_global_scope --file-scope=no -R *"
         p = Popen(command, cwd = projectPath, shell=True, stdout=PIPE, stderr=STDOUT)
-        returnCode = p.wait()
-
-        if returnCode:
+        if p.wait():
             print "error:", p.stdout.read()
         
         self._enableActionsState()
@@ -103,41 +102,17 @@ class Plugin:
         if openedDoc is None:
             raise UserWarning("Action is available, but must not")
         
-        curDir = os.path.dirname(openedDoc.filePath())
-        curDir += os.path.sep
         command = "ctags -f .tags *"
-        
+        curDir = os.path.dirname(openedDoc.filePath()) + os.path.sep
         p = Popen(command, cwd = curDir, shell=True, stdout=PIPE, stderr=STDOUT)
-        returnCode = p.wait()
-        if returnCode:
+        if p.wait():
             print "error:", p.stdout.read()
-
-    def _getDirs(self, absPath):
-        """Recursive walk through directory.
-        Return list of all directories
-        """ 
-        result = [absPath]
-        
-        for name in os.listdir(absPath):
-            # skip .svn and similar directories (or hidden)
-            if name.startswith('.'):
-                continue
-            
-            fullPath = os.path.join(absPath, name)
-            if os.path.isdir(fullPath):
-                dirs = self._getDirs(fullPath)
-                if dirs is not None:
-                    result += dirs
-        
-        return result
 
 class UICtags(QDialog):
     """Dialogue for choosing root folder of any project,
     for which tags files will generate
     """
     def __init__(self, parentWindow):
-        import os.path
-        
         QDialog.__init__(self, parentWindow)
         from PyQt4 import uic  # lazy import for better startup performance
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'uictags.ui'), self)
