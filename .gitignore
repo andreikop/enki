@@ -4,5 +4,4 @@ fresh/build
 build
 doc/html
 .*.swp
-MANIFEST
 dist/
