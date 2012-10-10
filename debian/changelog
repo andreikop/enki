@@ -1,3 +1,17 @@
+enki (12.10.0-1~ppa1) lucid; urgency=low
+
+  * Quickly search word under cursor
+  * Preview ReST
+  * Improvements and bug fixes
+
+ -- Andrei Kopats <hlamer@tut.by>  Wed, 10 Oct 2012 09:08:59 +0300
+
+enki (12.08.7-1~ppa1) lucid; urgency=low
+
+  * Bug fixes
+
+ -- Andrei Kopats <hlamer@tut.by>  Sat, 25 Aug 2012 10:30:33 +0300
+
 enki (12.08.5-1~ppa1) lucid; urgency=low
 
   * Experimental appmenu crash fix
