@@ -92,6 +92,8 @@ class Config():
         Get option by slash-separated path. i.e. ::
         
             font = core.config().get("Editor/DefaultFont")
+        
+        Raises KeyError if not found
         """
         object_ = self._data
         path = name.split('/')
