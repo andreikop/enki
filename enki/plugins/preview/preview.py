@@ -1,16 +1,15 @@
-"""
-preview --- HTML, Markdown preview
-==================================
+"""HTML, Markdown and ReST preview
 """
 
-from PyQt4.QtCore import pyqtSignal, QObject, QSize, Qt, QThread, QTimer, QUrl
-from PyQt4.QtGui import QIcon
+import threading
+import os.path
+
+from PyQt4.QtCore import pyqtSignal, QSize, Qt, QThread, QTimer, QUrl
+from PyQt4.QtGui import QIcon, QWidget
 
 from enki.core.core import core
 
 from enki.widgets.dockwidget import DockWidget
-
-from threading import Lock
 
 def _isRestFile(document):
     """Check if document is a ReST file
@@ -21,74 +20,6 @@ def _isRestFile(document):
            document.fileName().endswith('.rst')
 
 
-class Plugin(QObject):
-    """Plugin interface implementation
-    """
-    def __init__(self):
-        """Create and install the plugin
-        """
-        QObject.__init__(self)
-        self._dock = None
-        self._dockInstalled = False
-        self._wasVisible = None
-        core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
-        core.workspace().languageChanged.connect(self._onDocumentChanged)
-
-    def _onDocumentChanged(self):
-        """Document or Language changed.
-        Create dock, if necessary
-        """
-        if self._canHighlight(core.workspace().currentDocument()):
-            if not self._dockInstalled:
-                self._createDock()
-        else:
-            if self._dockInstalled:
-                self._removeDock()
-    
-    def _canHighlight(self, document):
-        """Check if can highlight document
-        """
-        if document is None:
-            return False
-        
-        if document.language() is not None and \
-           document.language() in ('HTML', 'Markdown'):
-            return True
-        
-        if _isRestFile(document):
-            return True
-        
-        return False
-
-    def _createDock(self):
-        """Install dock
-        """
-        # create dock
-        if self._dock is None:
-            self._dock = PreviewDock()
-        # add dock to dock toolbar entry
-        core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
-        core.actionManager().addAction("mView/aPreview", self._dock.showAction())
-        self._dockInstalled = True
-        if self._wasVisible is not None and self._wasVisible:
-            self._dock.show()
-    
-    def _removeDock(self):
-        """Remove dock from GUI
-        """
-        self._wasVisible = self._dock.isVisible()
-        core.actionManager().removeAction("mView/aPreview")
-        core.mainWindow().removeDockWidget(self._dock)
-        self._dockInstalled = False
-    
-    def del_(self):
-        """Uninstall the plugin
-        """
-        if self._dockInstalled:
-            self._removeDock()
-        
-        if self._dock is not None:
-            self._dock.del_()
 
 class ConverterThread(QThread):
     """Thread converts markdown to HTML
@@ -97,7 +28,7 @@ class ConverterThread(QThread):
     
     def __init__(self):
         QThread.__init__(self)
-        self._lock = Lock()
+        self._lock = threading.Lock()
     
     def process(self, filePath, language, text):
         """Convert data and emit result
@@ -180,11 +111,16 @@ class PreviewDock(DockWidget):
     def __init__(self):
         DockWidget.__init__(self, core.mainWindow(), "&Preview", QIcon(':/enkiicons/internet.png'), "Alt+P")
 
-        from PyQt4.QtWebKit import QWebView  # delayed import, startup performance optimization
-        self._view = QWebView(self)
-        self._view.page().mainFrame().titleChanged.connect(self._updateTitle)
-        self.setWidget(self._view)
-        self.setFocusProxy(self._view)
+        self._widget = QWidget(self)
+        
+        from PyQt4 import uic  # lazy import for better startup performance
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'Preview.ui'), self._widget)
+
+        self._widget.webView.page().mainFrame().titleChanged.connect(self._updateTitle)
+        self.setWidget(self._widget)
+        self.setFocusProxy(self._widget.webView )
+        
+        self._widget.cbEnableJavascript.clicked.connect(self._onJavaScriptEnabledCheckbox)
         
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         core.workspace().textChanged.connect(self._onTextChanged)
@@ -205,6 +141,7 @@ class PreviewDock(DockWidget):
         self._typingTimer.timeout.connect(self._scheduleDocumentProcessing)
 
         self._scheduleDocumentProcessing()
+        self._applyJavaScriptEnabled(self._isJavaScriptEnabled())
 
     def del_(self):
         """Uninstall themselves
@@ -223,7 +160,7 @@ class PreviewDock(DockWidget):
     def _saveScrollPos(self):
         """Save scroll bar position for document
         """
-        frame = self._view.page().mainFrame()
+        frame = self._widget.webView .page().mainFrame()
         if frame.contentsSize() == QSize(0, 0):
             return # no valida data, nothing to save
         
@@ -236,14 +173,14 @@ class PreviewDock(DockWidget):
         """Restore scroll bar position for document
         """
         try:
-            self._view.page().mainFrame().contentsSizeChanged.disconnect(self._restoreScrollPos)
+            self._widget.webView .page().mainFrame().contentsSizeChanged.disconnect(self._restoreScrollPos)
         except TypeError:  # already has been disconnected
             pass
         
         if not self._visiblePath in self._scrollPos:
             return  # no data for this document
         
-        frame = self._view.page().mainFrame()
+        frame = self._widget.webView .page().mainFrame()
 
         frame.setScrollPosition(self._scrollPos[self._visiblePath])
         
@@ -291,5 +228,31 @@ class PreviewDock(DockWidget):
         """
         self._saveScrollPos()
         self._visiblePath = filePath
-        self._view.page().mainFrame().contentsSizeChanged.connect(self._restoreScrollPos)
-        self._view.setHtml(html,baseUrl=QUrl.fromLocalFile(filePath))
+        self._widget.webView .page().mainFrame().contentsSizeChanged.connect(self._restoreScrollPos)
+        self._widget.webView .setHtml(html,baseUrl=QUrl.fromLocalFile(filePath))
+
+    def _isJavaScriptEnabled(self):
+        """Check if JS is enabled in the settings
+        """
+        try:
+            return core.config()['HtmlPreviewJavaScriptEnabled']
+        except KeyError:
+            return True  # default value
+
+    def _onJavaScriptEnabledCheckbox(self, enabled):
+        """Checkbox clicked, save and apply settings
+        """
+        core.config()['HtmlPreviewJavaScriptEnabled'] = enabled;
+        core.config().flush()
+
+        self._applyJavaScriptEnabled(enabled)
+
+    def _applyJavaScriptEnabled(self, enabled):
+        """Update QWebView settings and QCheckBox state
+        """        
+        self._widget.cbEnableJavascript.setChecked(enabled)
+        
+        settings = self._widget.webView.settings()
+        settings.setAttribute(settings.JavascriptEnabled, enabled)
+        
+        self._scheduleDocumentProcessing()
