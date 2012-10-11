@@ -1,19 +1,5 @@
 FIXME
-    lastpos.json оказался битым
-
-    Traceback (most recent call last):
-      File "/usr/local/lib/python2.6/dist-packages/enki/plugins/searchreplace/controller.py", line 441, in _onReplaceFileAll
-        replaceTextSubed = regExp.sub(replaceText, match.group(0))
-      File "/usr/lib/python2.6/re.py", line 278, in filter
-        return sre_parse.expand_template(template, match)
-      File "/usr/lib/python2.6/sre_parse.py", line 795, in expand_template
-        raise error, "invalid group reference"
-    error: invalid group reference
-
-    Заменять \0 на все совпадение
     
-SITE:
-
 TODO
   minor improvements
     Zoom with Ctrl+Wheel
@@ -22,7 +8,7 @@ TODO
     Shift+Enter opens new line and inserts comment start
   big functionality
     what is sublime command palette?
-    http://readthedocs.org/docs/pyqtermwidget
+    Terminal emulator. http://readthedocs.org/docs/pyqtermwidget
     Indent text when pasting
     Comment/Uncomment code functionality
     Highlight search results in the editor and on the scroll bar (See google-chrome)
@@ -31,13 +17,12 @@ TODO
     http://cx4a.org/software/gccsense/ - autocompletion for C++
     tab completion
     vim mode
-    color schemes
     Clever navigation in the code
     Split editor window
     Code syntax checker
     Inexact search of tags and files
     Search when selecting
-    Terminal emulator
+    
 
 NOT PORTED from MkS
     Abbreviations
@@ -60,8 +45,7 @@ ON new editor
     Ignore comments when autodetecting indentation
     Select 2 peaces of text and swap
     Can't highlight more than 1000 search results
-
-ENKI:
+    color schemes
     add here: http://en.wikibooks.org/wiki/Ruby_Programming/Ruby_editors
 
 CANT FIX
