@@ -11,15 +11,6 @@ from enki.core.core import core
 
 from enki.widgets.dockwidget import DockWidget
 
-def _isRestFile(document):
-    """Check if document is a ReST file
-    Currently, there are no highlighting language for ReST
-    """
-    return document is not None and \
-           document.fileName() is not None and \
-           document.fileName().endswith('.rst')
-
-
 
 class ConverterThread(QThread):
     """Thread converts markdown to HTML
