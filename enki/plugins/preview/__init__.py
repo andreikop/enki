@@ -7,6 +7,16 @@ from PyQt4.QtCore import QObject, Qt
 
 from enki.core.core import core
 
+
+def _isRestFile(document):
+    """Check if document is a ReST file
+    Currently, there are no highlighting language for ReST
+    """
+    return document is not None and \
+           document.fileName() is not None and \
+           document.fileName().endswith('.rst')
+
+
 class Plugin(QObject):
     """Plugin interface implementation
     """
