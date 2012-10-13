@@ -1,9 +1,14 @@
+"""
+tags_generator --- Generate and update tags (based on utility ctags).
+======================================================
+"""
+
 from PyQt4.QtGui import QIcon, QDialog, QFileDialog
 from enki.core.core import core
 import os
 import errno
 
-class Plugin:
+class TagsGenerator:
     """This is plugin used for generate tags files by ctags
     """
     def __init__(self):

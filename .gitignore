@@ -6,3 +6,4 @@ doc/html
 .*.swp
 MANIFEST
 dist/
+.tags*
