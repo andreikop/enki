@@ -59,22 +59,30 @@ class ConverterThread(QThread):
         except ImportError:
             pass  #mathjax doesn't require import statement if installed as extension
 
-
-        class _StrikeThroughExtension(markdown.Extension):
-            """http://achinghead.com/python-markdown-adding-insert-delete.html
-            Class is placed here, because depends on imported markdown, and markdown import is lazy
-            """
-            DEL_RE = r'(~~)(.*?)~~'
-            def extendMarkdown(self, md, md_globals):
-                # Create the del pattern
-                del_tag = markdown.inlinepatterns.SimpleTagPattern(self.DEL_RE, 'del')
-                # Insert del pattern into markdown parser
-                md.inlinePatterns.add('del', del_tag, '>not_strong')
+        extensions = ['fenced_code', 'nl2br']
+        
+        # version 2.0 supports only extension names, not instances
+        if markdown.version_info[0] > 2 or \
+           (markdown.version_info[0] == 2 and markdown.version_info[1] > 0):
+           
+            class _StrikeThroughExtension(markdown.Extension):
+                """http://achinghead.com/python-markdown-adding-insert-delete.html
+                Class is placed here, because depends on imported markdown, and markdown import is lazy
+                """
+                DEL_RE = r'(~~)(.*?)~~'
+                def extendMarkdown(self, md, md_globals):
+                    # Create the del pattern
+                    del_tag = markdown.inlinepatterns.SimpleTagPattern(self.DEL_RE, 'del')
+                    # Insert del pattern into markdown parser
+                    md.inlinePatterns.add('del', del_tag, '>not_strong')
+            
+            extensions.append(_StrikeThroughExtension())
 
         try:
-            return markdown.markdown(text, ['fenced_code', 'nl2br', _StrikeThroughExtension(), 'mathjax'])
-        except ValueError:  # markdown raises ValueError, it is not clear, how to distinguish missing mathjax from other errors
-            return markdown.markdown(text, ['fenced_code', 'nl2br', _StrikeThroughExtension()]) #keep going without mathjax
+            return markdown.markdown(text,  extensions + ['mathjax'])
+        except (ImportError, ValueError):  # markdown raises ValueError or ImportError, depends on version
+                                           # it is not clear, how to distinguish missing mathjax from other errors
+            return markdown.markdown(text, extensions) #keep going without mathjax
     
     def _convertReST(self, text):
         """Convert ReST
