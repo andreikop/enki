@@ -192,6 +192,7 @@ class CommandOpen(AbstractCommand):
         else:  # file may be not existing
             path = os.path.expanduser(self._path)
             if os.path.isfile(path):
+                path = os.path.abspath(path)
                 if self._line is None:
                     core.workspace().goTo(path)
                 else:
