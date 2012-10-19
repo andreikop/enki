@@ -202,6 +202,13 @@ class AbstractDocument(QWidget):
                                  '\nProbably invalid encoding was set. ' +
                                  'You may corrupt your file, if saved it')
             text = unicode(data, 'utf8', 'replace')
+        
+        # Strip last EOL. It will be restored, when saving
+        if text.endswith('\r\n'):
+            text = text[:-2]
+        elif text.endswith('\r') or text.endswith('\n'):
+            text = text[:-1]
+        
         return text
 
     def _setModified(self, value):
@@ -257,6 +264,14 @@ class AbstractDocument(QWidget):
         self._neverSaved = True
         core.workspace().documentOpened.emit(self)
         core.workspace().currentDocumentChanged.emit(self, self)
+    
+    def _eolSymbol(self):
+        """Convert EOL mode to symbol, insertable to text
+        """
+        converter = { r'\r\n': '\r\n',
+                      r'\r'  : '\r',
+                      r'\n'  : '\n'}
+        return converter[self.eolMode()]
 
     def _saveFile(self, filePath):
         """Low level method. Always saves file, even if not modified
@@ -274,15 +289,16 @@ class AbstractDocument(QWidget):
                 return
 
         # Text may be separated with invalid EOL symbols. Join lines with EOL, set for the document
-        converter = { r'\r\n': '\r\n',
-                      r'\r'  : '\r',
-                      r'\n'  : '\n'}
         text = self.text()
         lines = text.splitlines()
         if text.endswith('\n'):
             lines.append('')
-        eol = converter[self.eolMode()]
-        text = eol.join(lines)
+
+        text = self._eolSymbol().join(lines)
+
+        # Append \n to the end, if file is not empty. Enki always ends last line with EOL
+        if text:
+            text += self._eolSymbol()
 
         # Write file
         try:
