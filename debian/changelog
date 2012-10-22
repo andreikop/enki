@@ -1,3 +1,9 @@
+enki (12.10.2-1~ppa1) lucid; urgency=low
+
+  * Fixed false "File is not writable" warning
+
+ -- Andrei Kopats <hlamer@tut.by>  Mon, 22 Oct 2012 08:22:53 +0300
+
 enki (12.10.1-1~ppa1) lucid; urgency=low
 
   * Add missing source file
