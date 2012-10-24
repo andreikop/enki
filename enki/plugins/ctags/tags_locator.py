@@ -8,7 +8,8 @@ import glob
 import re
 
 from enki.core.core import core
-from enki.lib.fuzzycompleter import FuzzySearchCompleter, ViewMode, HidedField
+from enki.core.workspace import Workspace
+from tags_completer import TagsCompleter, HidedField
 from enki.core.locator import AbstractCommand
 
 
@@ -72,7 +73,7 @@ class CommandShowTags(AbstractCommand):
     SymbolsDict = {}
     
     @staticmethod
-    def loadTagFile(path, documentName):
+    def loadTagFile(path, documentName, isGlobalScope):
         """Load and parse tags file as described in http://ctags.sourceforge.net/FORMAT
         Result of parsing stores in SymbolsDict
         """
@@ -88,7 +89,9 @@ class CommandShowTags(AbstractCommand):
                 text = "Failed opening file '%s': %s" % (path, error)
                 core.mainWindow().appendMessage(text)
         
-        CommandShowTags.SymbolsDict = {}
+        absDirPath = os.path.dirname(path)
+        rootProjectDir = os.path.basename(absDirPath)
+        
         for line in lines:
             #   Skip tag file information
             if line.startswith("!_"):
@@ -98,7 +101,7 @@ class CommandShowTags(AbstractCommand):
             tagName = parts[0]
             tagFile = parts[1]
             rest = parts[2]
-            if tagFile != documentName:
+            if (not isGlobalScope) and (tagFile != documentName):
                 continue
             #   Extract tag absolute address
             parts = rest.split(";\"\t")
@@ -111,7 +114,11 @@ class CommandShowTags(AbstractCommand):
                 print "CommandShowTags::completer incorrect tag format =", line
             #   Store tag name and it address in SymbolsDict
             symbol = CommandShowTags.SymbolsDict.get(tagName, [])
-            symbol.append(tagAddress)
+            if isGlobalScope:
+                tagFile = os.path.join(rootProjectDir, tagFile)
+                symbol.append((tagAddress, tagFile))
+            else:
+                symbol.append((tagAddress, tagFile))
             CommandShowTags.SymbolsDict[tagName] = symbol
         
     def __init__(self, tag, offset):
@@ -124,15 +131,20 @@ class CommandShowTags(AbstractCommand):
             self._offsetOfIdenticalTags = 0
     
     def completer(self, text, pos):
-        """Load tags for current document and call FuzzySearchCompleter for fuzzy searching and displaying results
+        """Load tags for current document and call TagsCompleter for fuzzy searching and displaying results
         """
         openedDoc = core.workspace().currentDocument()
-        docName = os.path.split(openedDoc.filePath())[1]
-        tagsFileDir = os.path.split(openedDoc.filePath())[0]
-        tagsFileName = os.path.join(tagsFileDir, ".tags")
-        CommandShowTags.loadTagFile(tagsFileName, docName)
+        CommandShowTags.SymbolsDict = {}
         
-        return FuzzySearchCompleter(self._fuzzy_word.lower(), CommandShowTags.SymbolsDict, ViewMode.SEARCH_TAGS)
+        #   Load local scope tags
+        (tagsFileDir, docName) = os.path.split(openedDoc.filePath())
+        tagsFileName = os.path.join(tagsFileDir, ".tags")
+        CommandShowTags.loadTagFile(tagsFileName, docName, False)
+        #   Load global scope tags
+        tagsFileName = self._globalTagFilePath()
+        if tagsFileName != "":
+            CommandShowTags.loadTagFile(tagsFileName, docName, True)
+        return TagsCompleter(self._fuzzy_word.lower(), CommandShowTags.SymbolsDict)
 
     def constructCommand(self, completableText):
         """Construct command by typed tag
@@ -153,7 +165,15 @@ class CommandShowTags(AbstractCommand):
             print "CommandShowTags::isReadyToExecute Warn: Incorrect tag file", self._offsetOfIdenticalTags, tagAddresses
             return False
         
-        self._address = tagAddresses[self._offsetOfIdenticalTags]
+        (self._address, self._documentPath) = tagAddresses[self._offsetOfIdenticalTags]
+        tagsFileName = self._globalTagFilePath()
+        #if tagsFileName == "":
+            #self._documentPath = core.workspace().currentDocument().filePath()
+        #else:
+            #projectDir = os.path.dirname(tagsFileName)
+            #baseDir = os.path.dirname(projectDir)
+            #self._documentPath  = os.path.join(baseDir, self._documentPath)
+            
         return True
 
     def execute(self):
@@ -166,6 +186,8 @@ class CommandShowTags(AbstractCommand):
             /struct xyz {/;/int count;/
             389;/struct foo/;/char *s;/
         """
+        from errno import ENOENT
+
         address = self._address
         #print "CommandShowTags::execute", address
         
@@ -173,6 +195,17 @@ class CommandShowTags(AbstractCommand):
         if address.isdigit():
             self._selectTag(int(address) - 1)
             return
+        
+        try:
+            document = open(self._documentPath, 'r')
+            documentContent = document.read()
+            document.close()
+        except OSError, ex:
+            if ex.errno != ENOENT: 
+                error = unicode(str(ex), 'utf8')
+                text = "Failed opening file '%s': %s" % (self._documentPath, error)
+                core.mainWindow().appendMessage(text)
+                return
         
         #   Parsing combination of line number and regular expression.
         
@@ -210,24 +243,38 @@ class CommandShowTags(AbstractCommand):
                 exp = exp + '$'
             regExp = re.compile(exp, re.M)
             #   Find tag in entire document
-            text = core.workspace().currentDocument().text()
-            matchObject = regExp.search(text, absPos)
+#            text = core.workspace().currentDocument().text()
+            matchObject = regExp.search(documentContent, absPos)
             if matchObject is None:
                 print "CommandShowTags::execute Info: Can't find", '\"' + self._fuzzy_word + '\"', "in document"
                 return
             absPos = matchObject.start()
-        #   Rewind document
-        self._selectTag(absPos)
-
-    def _selectTag(self, linePos):
-        """Rewind document and select tag in line, started from linePos
-        """
+            
+        #   Rewind document and select tag in line, started from linePos
         exp = '\\b' + self._fuzzy_word + '\\b'
         regExp = re.compile(exp)
-        text = core.workspace().currentDocument().text()
-        matchObject = regExp.search(text, linePos)
+        matchObject = regExp.search(documentContent, absPos)
         if matchObject is None:
-            print "CommandShowTags::_selectTag Info: Can't find", '\"' + self._fuzzy_word + '\"', "in document"
-        else:
+            print "CommandShowTags::execute Info: Can't find", '\"' + self._fuzzy_word + '\"', "in document"
+            return
+        openedDocPath = core.workspace().currentDocument().filePath()
+        if (self._documentPath == openedDocPath):
             core.workspace().currentDocument().goTo(absPos = matchObject.start(),
                                                     selectionLength = len(self._fuzzy_word))
+        else:
+            core.workspace().goTo(self._documentPath, absPos = matchObject.start(),
+                                  selectionLength = len(self._fuzzy_word))
+
+    def _globalTagFilePath(self):
+        """Scanning file system tree from current directory to root, while
+        doesn't find Global scope tags file.
+        Return path to this file, if it exist. Otherwise - return empty string.
+        """
+        openedDoc = core.workspace().currentDocument()
+        (tagsFileDir, prevDir) = os.path.split(openedDoc.filePath())
+        while (os.path.exists(tagsFileDir) and (prevDir != "")):
+            tagsFileName = os.path.join(tagsFileDir, ".tags_global_scope")
+            if os.path.exists(tagsFileName):
+                return tagsFileName
+            (tagsFileDir, prevDir) = os.path.split(tagsFileDir) # choose upper directory
+        return ""
