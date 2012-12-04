@@ -73,7 +73,7 @@ class CommandShowTags(AbstractCommand):
     SymbolsDict = {}
     
     @staticmethod
-    def loadTagFile(path, documentName, isGlobalScope):
+    def loadTagFile(path, singleSourceFile, excludedSourceFile, projectDir):
         """Load and parse tags file as described in http://ctags.sourceforge.net/FORMAT
         Result of parsing stores in SymbolsDict
         """
@@ -89,8 +89,7 @@ class CommandShowTags(AbstractCommand):
                 text = "Failed opening file '%s': %s" % (path, error)
                 core.mainWindow().appendMessage(text)
         
-        absDirPath = os.path.dirname(path)
-        rootProjectDir = os.path.basename(absDirPath)
+        # print "loadTagFile", path, singleSourceFile, excludedSourceFile, projectDir
         
         for line in lines:
             #   Skip tag file information
@@ -99,9 +98,11 @@ class CommandShowTags(AbstractCommand):
             parts = line.split('\t', 2)
             #   Extract tags only for current document
             tagName = parts[0]
-            tagFile = parts[1]
+            sourceFile = parts[1]
             rest = parts[2]
-            if (not isGlobalScope) and (tagFile != documentName):
+            if (singleSourceFile is not None) and (sourceFile != singleSourceFile):
+                continue
+            if (excludedSourceFile is not None) and (sourceFile == excludedSourceFile):
                 continue
             #   Extract tag absolute address
             parts = rest.split(";\"\t")
@@ -114,11 +115,11 @@ class CommandShowTags(AbstractCommand):
                 print "CommandShowTags::completer incorrect tag format =", line
             #   Store tag name and it address in SymbolsDict
             symbol = CommandShowTags.SymbolsDict.get(tagName, [])
-            if isGlobalScope:
-                tagFile = os.path.join(rootProjectDir, tagFile)
-                symbol.append((tagAddress, tagFile))
+            if projectDir is not None:
+                sourceFile = os.path.join(projectDir, sourceFile)
+                symbol.append((tagAddress, sourceFile))
             else:
-                symbol.append((tagAddress, tagFile))
+                symbol.append((tagAddress, sourceFile))
             CommandShowTags.SymbolsDict[tagName] = symbol
         
     def __init__(self, tag, offset):
@@ -139,11 +140,17 @@ class CommandShowTags(AbstractCommand):
         #   Load local scope tags
         (tagsFileDir, docName) = os.path.split(openedDoc.filePath())
         tagsFileName = os.path.join(tagsFileDir, ".tags")
-        CommandShowTags.loadTagFile(tagsFileName, docName, False)
+        CommandShowTags.loadTagFile(tagsFileName, docName, None, None)
         #   Load global scope tags
         tagsFileName = self._globalTagFilePath()
         if tagsFileName != "":
-            CommandShowTags.loadTagFile(tagsFileName, docName, True)
+            prefix = os.path.relpath(tagsFileDir, os.path.dirname(tagsFileName))
+            if prefix == ".":
+                relDocPath = docName
+            else:
+                relDocPath = os.path.join(prefix, docName);
+            projectDir = os.path.basename(os.path.dirname(tagsFileName))
+            CommandShowTags.loadTagFile(tagsFileName, None, relDocPath, projectDir)
         return TagsCompleter(self._fuzzy_word.lower(), CommandShowTags.SymbolsDict)
 
     def constructCommand(self, completableText):
@@ -166,13 +173,12 @@ class CommandShowTags(AbstractCommand):
             return False
         
         (self._address, self._documentPath) = tagAddresses[self._offsetOfIdenticalTags]
-        tagsFileName = self._globalTagFilePath()
-        #if tagsFileName == "":
-            #self._documentPath = core.workspace().currentDocument().filePath()
-        #else:
-            #projectDir = os.path.dirname(tagsFileName)
-            #baseDir = os.path.dirname(projectDir)
-            #self._documentPath  = os.path.join(baseDir, self._documentPath)
+        if os.path.dirname(self._documentPath) != "":
+            #   self._documentPath is relative path with project dir name included
+            tagsFileName = self._globalTagFilePath()
+            projectDir = os.path.dirname(tagsFileName)
+            baseDir = os.path.dirname(projectDir)
+            self._documentPath = os.path.join(baseDir, self._documentPath)
             
         return True
 
@@ -240,13 +246,12 @@ class CommandShowTags(AbstractCommand):
             if haveCaret:
                 exp = '^' + exp
             if haveEnd:
-                exp = exp + '$'
+                exp = exp + '[\r]?' + '$'
             regExp = re.compile(exp, re.M)
             #   Find tag in entire document
-#            text = core.workspace().currentDocument().text()
             matchObject = regExp.search(documentContent, absPos)
             if matchObject is None:
-                print "CommandShowTags::execute Info: Can't find", '\"' + self._fuzzy_word + '\"', "in document"
+                print "CommandShowTags::execute Info: Can't find", '\"' + self._fuzzy_word + '\"', "in document", self._documentPath
                 return
             absPos = matchObject.start()
             
@@ -255,7 +260,7 @@ class CommandShowTags(AbstractCommand):
         regExp = re.compile(exp)
         matchObject = regExp.search(documentContent, absPos)
         if matchObject is None:
-            print "CommandShowTags::execute Info: Can't find", '\"' + self._fuzzy_word + '\"', "in document"
+            print "CommandShowTags::execute Info: Can't rewind to", '\"' + self._fuzzy_word + '\"', "in document", self._documentPath
             return
         openedDocPath = core.workspace().currentDocument().filePath()
         if (self._documentPath == openedDocPath):

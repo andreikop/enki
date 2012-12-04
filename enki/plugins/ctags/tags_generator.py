@@ -23,7 +23,10 @@ class TagsGenerator:
         
         # Actions added to main menu only if ctags presents in system
         self._addAction()
-    
+        
+        # Adds tracking states of opened files
+        core.workspace().modifiedChanged.connect(self._checkForTagsUpdate)
+
     def del_(self):
         """This method is called by core for each plugin during termination
         """
@@ -81,17 +84,21 @@ class TagsGenerator:
         if p.wait():
             print "error:", p.stdout.read()
         
-        for root, folders, files in os.walk(projectPath):
-            for dir in folders:
-                if dir.startswith('.'):
-                    continue
-                absPath = os.path.join(root, dir, "")
-                p = Popen(command, cwd = absPath, shell=True, stdout=PIPE, stderr=STDOUT)
-                if p.wait():
-                    print "error:", p.stdout.read()
+        if dialog.isRecursive():
+            for root, folders, files in os.walk(projectPath):
+                for dir in folders:
+                    if dir.startswith('.'):
+                        continue
+                    absPath = os.path.join(root, dir, "")
+                    p = Popen(command, cwd = absPath, shell=True, stdout=PIPE, stderr=STDOUT)
+                    if p.wait():
+                        print "error:", p.stdout.read()
         
         # Generate global tags file
-        command = "ctags -f .tags_global_scope --file-scope=no -R *"
+        if dialog.isRecursive():
+            command = "ctags -f .tags_global_scope --file-scope=no -R *"
+        else:
+            command = "ctags -f .tags_global_scope --file-scope=no *"
         p = Popen(command, cwd = projectPath, shell=True, stdout=PIPE, stderr=STDOUT)
         if p.wait():
             print "error:", p.stdout.read()
@@ -113,6 +120,25 @@ class TagsGenerator:
         if p.wait():
             print "error:", p.stdout.read()
 
+    def _checkForTagsUpdate(self, document, modified):
+        """If folder with opened document contain .tags file - run updating tags.
+        """
+        if document is None:
+            print "_checkForTagsUpdate NULL document", modified
+            return
+        if modified:    # update tags only upon save files
+            return
+        tagsFileDir = os.path.dirname(document.filePath())
+        tagsFile = os.path.join(tagsFileDir, ".tags")
+        if not os.path.exists(tagsFile):
+            return
+        try:
+            os.remove(tagsFile)
+        except OSError, e:
+            print "_checkForTagsUpdate Can't delete", tagsFile
+            return
+        self._updateTags()
+
 class UICtags(QDialog):
     """Dialogue for choosing root folder of any project,
     for which tags files will generate
@@ -133,6 +159,9 @@ class UICtags(QDialog):
         
     def getPath(self):
         return self.lineEditPath.text()
+    
+    def isRecursive(self):
+        return self.checkBoxRecursive.isChecked()
         
     def _browseDirectory(self):
         path = QFileDialog.getExistingDirectory( self, self.tr( "Project directory" ), self.lineEditPath.text() )
