@@ -5,9 +5,11 @@ workspace_commands --- Open, SaveAs, GotoLine commands
 
 import os.path
 import glob
+import re
 
 from enki.core.core import core
 from enki.lib.pathcompleter import makeSuitableCompleter, PathCompleter
+from enki.lib.fuzzycompleter import FuzzySearchCompleter, ViewMode
 
 from enki.core.locator import AbstractCommand
 
@@ -284,15 +286,100 @@ class CommandSaveAs(AbstractCommand):
         core.workspace().currentDocument().saveFile()
 
 
+class CommandFuzzySearch(AbstractCommand):
+    """Fuzzy search command implementation for finding any word from document
+    """
+    @staticmethod
+    def signature():
+        return 'z [word]'
+    
+    @staticmethod
+    def description():
+        return 'Fuzzy search'
+
+    @staticmethod
+    def pattern():
+        """Match only C/C++ indentifiers
+        """
+        from pyparsing import Literal, Optional, Suppress, White, Word, srange  # delayed import, performance optimization
+
+        line = Word(srange("[a-zA-Z_]"), srange("[a-zA-Z0-9_]"))("line")
+        pat = Literal('z ') + Suppress(Optional(White())) + Optional(line)
+        pat.leaveWhitespace()
+        pat.setParseAction(CommandFuzzySearch.create)
+        return pat
+    
+    @staticmethod
+    def create(str, loc, tocs):
+        """tocs contain typed word for searching
+        Return instance of CommandFuzzySearch
+        """
+        return [CommandFuzzySearch(tocs.line)]
+
+    @staticmethod
+    def isAvailable():
+        """Searching available if any document opened
+        """
+        return core.workspace().currentDocument() is not None
+
+    def __init__(self, word):
+        self._fuzzy_word = word
+    
+    def completer(self, text, pos):
+        """Retrieve unique words(like C/C++ identifiers) from document and
+        call FuzzySearchCompleter for fuzzy searching and display results
+        """
+        if len(self._fuzzy_word) > 0:
+            full_text = core.workspace().currentDocument().text()
+            words = re.findall(r"\b([a-zA-Z_]\w*)\b", full_text, re.I);
+            word_occurrence = {} # key: unique word, value: count of occurance this word in document stored in list
+            for word in words:
+                count = word_occurrence.get(word, [0])
+                count[0] += 1
+                word_occurrence[word] = count
+            return FuzzySearchCompleter(self._fuzzy_word, word_occurrence, ViewMode.SEARCH_ANY_WORD)
+        else:
+            return None
+
+    def constructCommand(self, completableText):
+        """Construct command by typed word
+        """
+        #print "CommandFuzzySearch::constructCommand ", completableText
+        return 'z ' + completableText
+    
+    def isReadyToExecute(self):
+        """Return True if any part of word is typed
+        """
+        #print "CommandFuzzySearch::isReadyToExecute", self._fuzzy_word
+        return self._fuzzy_word is not None
+
+    def execute(self):
+        """Find first occurance of fuzzy word in document
+        and rewind document to this place
+        """
+        #print "CommandFuzzySearch::execute", self._fuzzy_word
+        exp = '\\b' + self._fuzzy_word + '\\b'
+        regExp = re.compile(exp)
+        text = core.workspace().currentDocument().text()
+        matchObject = regExp.search(text)
+        if matchObject is None:
+            print "CommandFuzzySearch::execute Info: Can't find", '\"' + self._fuzzy_word + '\"', "in document"
+            return
+        pos = matchObject.start()
+        core.workspace().currentDocument().goTo(absPos = pos,
+                                                selectionLength = len(self._fuzzy_word))
+        return
+
+
 class Plugin:
     """Plugin interface
     """
     def __init__(self):
-        for comClass in (CommandGotoLine, CommandOpen, CommandSaveAs):
+        for comClass in (CommandGotoLine, CommandOpen, CommandSaveAs, CommandFuzzySearch):
             core.locator().addCommandClass(comClass)
 
     def del_(self):
         """Explicitly called destructor
         """
-        for comClass in (CommandGotoLine, CommandOpen, CommandSaveAs):
+        for comClass in (CommandGotoLine, CommandOpen, CommandSaveAs, CommandFuzzySearch):
             core.locator().removeCommandClass(comClass)
