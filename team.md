@@ -9,6 +9,7 @@ baseurl: .
 
 **hlamer**
 
+![Photo](photo/andrei.kopats.png)
 [hlamer@tut.by](mailto:hlamer@tut.by)
 
 Enki developer
