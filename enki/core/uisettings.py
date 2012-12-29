@@ -105,6 +105,7 @@ class Option:
         self.config = config
         self.optionName = optionName
         self.control = control
+        self.dialog = dialog
         dialog.accepted.connect(self.save)
         self.load()
     
@@ -229,7 +230,7 @@ class FontOption(Option):
     def _onClicked(self):
         """Button click handler. Open font dialog
         """
-        font, accepted = QFontDialog.getFont(self.editControl.font(), core.mainWindow() )
+        font, accepted = QFontDialog.getFont(self.editControl.font(), self.dialog )
         if accepted:
             self.editControl.setFont( font )
 
