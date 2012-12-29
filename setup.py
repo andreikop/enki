@@ -46,37 +46,25 @@ def _checkDepencencies():
 
     return ok
 
-"""hlamer: A bit hacky way to exclude desktop files from distribution,
-but, I don't know how to do it better in crossplatform way
-"""
-def _isWinDist():
-    for arg in sys.argv:
-        if arg.startswith('--format') and \
-           ('wininst' in arg or \
-            'msi' in arg):
-               return True
-    return False
 
-"""Install .desktop and .xpm and .desktop only on unixes
+"""Install .desktop and .xpm and .desktop only on linux. (Shall we do it on 
 hlamer: We should use relative pathes here, without /usr/, so it will be installed to
 /usr/local/share with setup.py and to /usr/share with Debian packages.
 BUT KDE4 on Suse 12.02 ignores data in /usr/local/share, and, probably, some other systems do
 Therefore Enki always installs its .desktop and icons to /usr/share
 """
-if (('install' in sys.argv or \
-     'install_data' in sys.argv) and \
-        os.name != 'posix') or \
-    'bdist' in sys.argv and _isWinDist() or \
-    'bdist_winints' in sys.argv or \
-    'bdist_msi' in sys.argv:
-        data_files = []
-else:
+
+if sys.platform.startswith('linux2') or \
+   'sdist' in sys.argv or \
+   'upload' in sys.argv:
     data_files=[('/usr/share/applications/', ['enki.desktop']),
                 ('/usr/share/pixmaps/', ['icons/logo/48x48/enki.png']),
                 ('/usr/share/icons/hicolor/32x32/apps', ['icons/logo/32x32/enki.png']),
                 ('/usr/share/icons/hicolor/48x48/apps', ['icons/logo/48x48/enki.png']),
                 ('/usr/share/icons/hicolor/scalable/apps', ['icons/logo/enki.svg'])
                 ]
+else:
+    data_files = []
 
 classifiers = ['Development Status :: 3 - Alpha',
                'Environment :: X11 Applications :: Qt',
