@@ -7,6 +7,8 @@ Creates QActions, which represent QScintilla actions.
 Sends commands to the current editor, when action was triggered
 """
 
+import sys
+
 from PyQt4.QtCore import QObject
 from PyQt4.QtGui import QAction, QApplication, QIcon
 from PyQt4.Qsci import QsciScintilla as qsci
@@ -89,6 +91,14 @@ _ACTIONS = (\
 (ENKI_SHOW_COMPLETION, 'mEdit/aShowCompletion', tr('Show completion'), 'Ctrl+Space', ''),
 )
 
+_PLATFORM_DEPENDENT_SHORTCUTS = \
+{
+    'darwin':
+        {
+            ENKI_SHOW_COMPLETION: 'Meta+Space'  # Ctrl+Space conflicts with Spotlight
+        }
+}
+
 _MENUS = (\
 ('mEdit/mSelection', tr('Selection'), ''),
 ('mEdit/mSelection/mRectangular', tr('Rectangular'), ''),
@@ -119,10 +129,16 @@ class Shortcuts(QObject):
             menuObj.setEnabled(False)
             self._createdMenus.append(menuObj)
         
+        platformDependentShortcuts = _PLATFORM_DEPENDENT_SHORTCUTS.get(sys.platform, {})
+        
         for item in _ACTIONS:
             if isinstance(item, tuple):  # action
                 command, path, text, shortcut, icon = item
                 actObject = QAction(text, self)
+                
+                if command in platformDependentShortcuts:
+                    shortcut = platformDependentShortcuts[command]
+                
                 if shortcut:
                     actObject.setShortcut(shortcut)
                 if icon:
