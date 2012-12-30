@@ -5,6 +5,7 @@ controller --- Main module. Business logic
 This module implements S&R plugin functionality. It joins together all other modules
 """
 import re
+import sys
 
 from PyQt4.QtCore import QObject, Qt
 from PyQt4.QtGui import QApplication, QAction, QIcon, QMessageBox
@@ -78,6 +79,12 @@ class Controller(QObject):
             actObject.setEnabled(enabled)
             self._createdActions.append(actObject)
         
+        if sys.platform == 'darwin':
+            # Ctrl+, conflicts with "Open preferences"
+            searchWordBackwardShortcut, searchWordForwardShortcut = 'Meta+,', 'Meta+.'
+        else:
+            searchWordBackwardShortcut, searchWordForwardShortcut = 'Ctrl+,', 'Ctrl+.'
+        
         # List if search actions.
         # First acition created by MainWindow, so, do not fill text
         createAction("aSearchFile", "&Search...", 
@@ -99,11 +106,11 @@ class Controller(QObject):
                       "Replace in the current file...",
                       self._onModeSwitchTriggered, ModeReplace)
         createAction("aSearchWordBackward", "Search word under cursor backward",
-                      "less.png", "Ctrl+,",
+                      "less.png", searchWordBackwardShortcut,
                       "",
                       self._onSearchCurrentWordBackward, None)
         createAction("aSearchWordForward", "Search word under cursor forward",
-                      "bigger.png", "Ctrl+.",
+                      "bigger.png", searchWordForwardShortcut,
                       "",
                       self._onSearchCurrentWordForward, None)
         self._menuSeparator = core.actionManager().menu(menu).addSeparator()
