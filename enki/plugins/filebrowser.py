@@ -87,7 +87,7 @@ class SmartRecents(QObject):
     MAX_RECENTS_SIZE = 5
     FILE_PATH = os.path.join(CONFIG_DIR, 'file_browser_popular_dirs.json')
     
-    STATISTICS_SIZE = 10.
+    STATISTICS_SIZE = 50.
     BONUS_FOR_OPENING = 1.
     MAX_POINTS_COUNT = 100.
     
