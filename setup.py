@@ -144,7 +144,7 @@ if __name__ == '__main__':
 
     if not '--force' in sys.argv and not '--help' in sys.argv:
         if not os.listdir('qutepart'):
-            print "qutepart directory is empty. It seems like you haven't not fetched its contents. Run"
+            print "qutepart directory is empty. It seems like you haven't fetched its contents. Run"
             print "    git submodule init"
             print "    git submodule update"
             sys.exit(-1)
