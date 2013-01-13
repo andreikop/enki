@@ -10,11 +10,16 @@ try:
 except ImportError:
   from distutils.core import setup
 """
-from distutils.core import setup
+
+import distutils.ccompiler
+from distutils.core import setup, Extension
 
 from enki.core.defines import PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_URL
 
-def _checkDepencencies():
+# probably will add flags later. Always True now
+installQutepart = True
+
+def _checkDependencies():
     """Check if 3rdparty software is installed in the system.
     Notify user, how to install it
     """
@@ -41,6 +46,14 @@ def _checkDepencencies():
         print '\t' + str(ex)
         ok = False
     
+    if installQutepart:
+        compiler = distutils.ccompiler.new_compiler()
+        if not compiler.has_function('pcre_version', includes = ['pcre.h'], libraries = ['pcre']):
+            print "Failed to find pcre library."
+            print "\tTry to install libpcre{version}-dev package, or go to http://pcre.org"
+            print "\tIf not standard directories are used, set CFLAGS and LDFLAGS environment variables"
+            ok = False
+
     if not ok:
         print 'See http://enki-editor.org/install-sources.html'
 
@@ -88,20 +101,18 @@ long_description = \
  * Hightly configurable
 """
 
-if 'install' in sys.argv and \
-    not '--force' in sys.argv:
-        if not _checkDepencencies():
-            sys.exit(-1)
-
 packages=['enki',
           'enki/core',
           'enki/lib',
           'enki/widgets',
           'enki/plugins',
-          'enki/resources']
+          'enki/resources',
+         ]
+
+package_dir = {}
 
 package_data={'enki' : ['ui/*.ui',
-                           'config/*.json']
+                        'config/*.json'],
              }
 
 for loader, name, ispkg in pkgutil.iter_modules(['enki/plugins']):
@@ -109,20 +120,50 @@ for loader, name, ispkg in pkgutil.iter_modules(['enki/plugins']):
         packages.append('enki/plugins/' + name)
         package_data['enki'].append('plugins/%s/*.ui' % name)
 
+ext_modules = []
 
-setup(  name=PACKAGE_NAME.lower(),
-        version=PACKAGE_VERSION,
-        description='Simple programmers text editor',
-        long_description=long_description,
-        author='Andrei Kopats',
-        author_email='hlamer@tut.by',
-        url=PACKAGE_URL,
-        download_url='https://github.com/hlamer/enki/tags',
-        packages=packages,
-        package_data=package_data,
-        scripts=['bin/enki'],
-        data_files=data_files,
-        classifiers=classifiers,
-        license='gpl2',
-        requires=['pyparsing']
-        )
+if installQutepart:
+    packages += ['qutepart',
+                 'qutepart/syntax']
+
+    package_dir.update({'qutepart': 'qutepart/qutepart',
+                        'qutepart/syntax': 'qutepart/qutepart/syntax'})
+    
+    package_data.update({ 'qutepart/qutepart/syntax' : ['data/*.xml',
+                                                        'data/syntax_db.json']})
+    
+    ext_modules.append(Extension('qutepart.syntax.cParser',
+                                 sources = ['qutepart/qutepart/syntax/cParser.c'],
+                                 libraries = ['pcre']))
+
+if __name__ == '__main__':
+    if 'install' in sys.argv or 'build' in sys.argv or 'build_ext' in sys.argv:
+        if not '--force' in sys.argv and not '--help' in sys.argv:
+            if not _checkDependencies():
+                sys.exit(-1)
+
+    if not '--force' in sys.argv and not '--help' in sys.argv:
+        if not os.listdir('qutepart'):
+            print "qutepart directory is empty. It seems like you haven't not fetched its contents. Run"
+            print "    git submodule init"
+            print "    git submodule update"
+            sys.exit(-1)
+
+    setup(  name=PACKAGE_NAME.lower(),
+            version=PACKAGE_VERSION,
+            description='Simple programmers text editor',
+            long_description=long_description,
+            author='Andrei Kopats',
+            author_email='hlamer@tut.by',
+            url=PACKAGE_URL,
+            download_url='https://github.com/hlamer/enki/tags',
+            packages=packages,
+            package_dir = package_dir,
+            package_data=package_data,
+            scripts=['bin/enki'],
+            data_files=data_files,
+            classifiers=classifiers,
+            license='gpl2',
+            requires=['pyparsing'],
+            ext_modules = ext_modules
+         )

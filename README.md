@@ -13,6 +13,8 @@
 * pyparsing
 * pygments. (Optional, for highlighting Scheme files)
 * markdown. (Optional, for Markdown preview)
+* pcre
+
 
 #### Install Enki
     ./setup.py install

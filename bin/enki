@@ -17,6 +17,8 @@ When script is executed from the source tree, it shall import enki package, whic
 First item in sys.path points to script location
 """
 sys.path.insert(0, os.path.join(sys.path[0], '..'))
+sys.path.insert(0, os.path.join(sys.path[0], '../qutepart'))
+
 
 import enki.core.defines
 

@@ -1,0 +1,3 @@
+[submodule "qutepart"]
+	path = qutepart
+	url = git@github.com:hlamer/qutepart.git

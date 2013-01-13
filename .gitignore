@@ -5,3 +5,5 @@ build
 doc/html
 .*.swp
 dist/
+a.out
+tmp
