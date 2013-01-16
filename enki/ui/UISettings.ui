@@ -101,7 +101,7 @@
         <bool>true</bool>
        </property>
        <property name="currentIndex">
-        <number>3</number>
+        <number>7</number>
        </property>
        <widget class="QWidget" name="pGeneral">
         <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -760,7 +760,7 @@
                  <number>1</number>
                 </property>
                 <property name="maximum">
-                 <number>20</number>
+                 <number>16</number>
                 </property>
                 <property name="pageStep">
                  <number>2</number>
@@ -1069,37 +1069,15 @@
                </widget>
               </item>
               <item>
-               <widget class="QSlider" name="sEdgeColumnNumber">
+               <widget class="QSpinBox" name="sEdgeColumnNumber">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
                 <property name="maximum">
-                 <number>160</number>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="tickInterval">
-                 <number>10</number>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLCDNumber" name="lnEdgeColumnNumber">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="numDigits">
-                 <number>3</number>
-                </property>
-                <property name="segmentStyle">
-                 <enum>QLCDNumber::Flat</enum>
+                 <number>512</number>
                 </property>
                </widget>
               </item>
@@ -1439,22 +1417,6 @@
     <hint type="destinationlabel">
      <x>555</x>
      <y>135</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>sEdgeColumnNumber</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>lnEdgeColumnNumber</receiver>
-   <slot>display(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>503</x>
-     <y>101</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>555</x>
-     <y>102</y>
     </hint>
    </hints>
   </connection>
