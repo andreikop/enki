@@ -138,10 +138,8 @@ class Editor(AbstractTextEditor):
         """Get coordinates of selected area as (startAbsPos, endAbsPos)
         """
         cursor = self.qutepart.textCursor()
-        startPos = cursor.selectionStart()
-        endPos = cursor.selectionEnd()
         
-        return (startAbsPos, endAbsPos)
+        return (cursor.selectionStart(), cursor.selectionEnd())
 
     def cursorPosition(self):
         """Get cursor position as tuple (line, col)
@@ -195,7 +193,7 @@ class Editor(AbstractTextEditor):
             cursor.setPosition(self._toAbsPosition(line, column))
         else:
             cursor.setPosition(self._toAbsPosition(selectionLine, selectionCol))
-            cursor.setPosition(self._toAbsPosition(line, column), Qt.KeepAnchor)
+            cursor.setPosition(self._toAbsPosition(line, column), QTextCursor.KeepAnchor)
         
         self.qutepart.setTextCursor(cursor)
     

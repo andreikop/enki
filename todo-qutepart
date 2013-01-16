@@ -1,0 +1,10 @@
+critical
+	home moves cursor to line start/text start
+	completion disappears
+	indentation markers
+	tab indents instead of replacing
+
+other
+	detect syntax by first line
+	set tab width
+
