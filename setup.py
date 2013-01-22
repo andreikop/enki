@@ -33,13 +33,6 @@ def _checkDependencies():
         ok = False
 
     try:
-        import PyQt4.Qsci
-    except ImportError, ex:
-        print "Failed to import QScintilla 2 python bindings:"
-        print '\t' + str(ex)
-        ok = False
-
-    try:
         import pyparsing
     except ImportError, ex:
         print "Failed to import pyparsing:"

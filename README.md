@@ -9,7 +9,6 @@
 #### Install dependencies
 * Python 2. Tested on v2.6.6 and v2.7.2
 * PyQt4
-* QScintilla 2 and Python bindings. v2.4.1 or newer
 * pyparsing
 * pygments. (Optional, for highlighting Scheme files)
 * markdown. (Optional, for Markdown preview)

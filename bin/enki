@@ -104,23 +104,6 @@ def _checkDependencies(profiler):
 
     if profiler is not None:
         profiler.stepDone('Import PyQt4')
-
-    try:
-        import PyQt4.Qsci
-    except ImportError, ex:
-        html = "<html>" + \
-                    "Failed to import QScintilla 2 python bindings:<br/>" + \
-                    str(ex) + '<br/>' + \
-                    _SEE_SITE_HTML + \
-                "</html>"
-        plain = "Failed to import QScintilla 2 python bindings:\n" + \
-                str(ex) + '\n' + \
-                _SEE_SITE_PLAIN
-        _showErrorMessage(True, "QScintilla not found", html, plain)
-        raise ex
-
-    if profiler is not None:
-        profiler.stepDone('Import QScintilla')
     
     try:
         import qutepart
@@ -142,7 +125,7 @@ def _checkDependencies(profiler):
                  "If you are using installed version, something is installed incorrectly\n" + \
                 str(ex) + '\n' + \
                 _SEE_SITE_PLAIN
-        _showErrorMessage(True, "QScintilla not found", html, plain)
+        _showErrorMessage(True, "Qutepart not found", html, plain)
         raise ex
 
         print "qutepart directory is empty. It seems like you haven't fetched its contents. Run"

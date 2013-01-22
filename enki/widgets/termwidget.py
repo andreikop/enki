@@ -220,7 +220,7 @@ class TermWidget(QWidget):
         newlineIndex = text.rindex('\n', 0, cursorPos)
 
         if self.isCommandComplete(text):
-            self._edit.qscintilla.undo()  # remove newline and indentation
+            self._edit.qutepart.undo()  # remove newline and indentation
             text = self._edit.text()
             self.execCommand(text)
 

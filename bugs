@@ -32,15 +32,6 @@ NOT PORTED from MkS
     Qt Designer
     Qt Project
 
-ON QScintilla 2.5.1
-    QsciLexerMatlab and QsciLexerOctave
-
-ON QScintilla 2.6
-    Don't treat "-" word separator in Scheme. As in Makefiles
-
-ON Unity
-    Too little application icon resolution
-
 ON new editor
     Ignore comments when autodetecting indentation
     Select 2 peaces of text and swap
@@ -48,5 +39,3 @@ ON new editor
     color schemes
     add here: http://en.wikibooks.org/wiki/Ruby_Programming/Ruby_editors
 
-CANT FIX
-    To slowly open icons.py. Solution - drop qscintilla

@@ -16,7 +16,7 @@ from qutepart import Qutepart
 class Editor(AbstractTextEditor):
     """Text editor widget.
     
-    Uses QScintilla internally
+    Uses Qutepart internally
     """
     
     def __init__(self, parentObject, filePath, createNew=False, terminalWidget=False):
@@ -115,7 +115,7 @@ class Editor(AbstractTextEditor):
         return self.qutepart.toPlainText()
 
     def setText(self, text):
-        """Set text in the QScintilla, clear modified flag, update line numbers bar
+        """Set text in the Qutepart, clear modified flag, update line numbers bar
         """
         self.qutepart.setPlainText(text)
         self._setModified(False)
