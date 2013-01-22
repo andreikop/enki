@@ -10,9 +10,8 @@
 * Python 2. Tested on v2.6.6 and v2.7.2
 * PyQt4
 * pyparsing
-* pygments. (Optional, for highlighting Scheme files)
+* Qutepart. https://github.com/hlamer/qutepart
 * markdown. (Optional, for Markdown preview)
-* pcre
 
 
 #### Install Enki
