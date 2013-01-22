@@ -16,8 +16,6 @@ from distutils.core import setup, Extension
 
 from enki.core.defines import PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_URL
 
-# probably will add flags later. Always True now
-installQutepart = True
 
 def _checkDependencies():
     """Check if 3rdparty software is installed in the system.
@@ -39,14 +37,13 @@ def _checkDependencies():
         print '\t' + str(ex)
         ok = False
     
-    if installQutepart:
-        compiler = distutils.ccompiler.new_compiler()
-        if not compiler.has_function('pcre_version', includes = ['pcre.h'], libraries = ['pcre']):
-            print "Failed to find pcre library."
-            print "\tTry to install libpcre{version}-dev package, or go to http://pcre.org"
-            print "\tIf not standard directories are used, set CFLAGS and LDFLAGS environment variables"
-            ok = False
-
+    try:
+        import qutepart
+    except ImportError, ex:
+        print "Failed to import qutepart:"
+        print '\t' + str(ex)
+        ok = False
+    
     if not ok:
         print 'See http://enki-editor.org/install-sources.html'
 
@@ -113,34 +110,13 @@ for loader, name, ispkg in pkgutil.iter_modules(['enki/plugins']):
         packages.append('enki/plugins/' + name)
         package_data['enki'].append('plugins/%s/*.ui' % name)
 
-ext_modules = []
 
-if installQutepart:
-    packages += ['qutepart',
-                 'qutepart/syntax']
-
-    package_dir.update({'qutepart': 'qutepart/qutepart',
-                        'qutepart/syntax': 'qutepart/qutepart/syntax'})
-    
-    package_data.update({ 'qutepart/qutepart/syntax' : ['data/*.xml',
-                                                        'data/syntax_db.json']})
-    
-    ext_modules.append(Extension('qutepart.syntax.cParser',
-                                 sources = ['qutepart/qutepart/syntax/cParser.c'],
-                                 libraries = ['pcre']))
 
 if __name__ == '__main__':
     if 'install' in sys.argv or 'build' in sys.argv or 'build_ext' in sys.argv:
         if not '--force' in sys.argv and not '--help' in sys.argv:
             if not _checkDependencies():
                 sys.exit(-1)
-
-    if not '--force' in sys.argv and not '--help' in sys.argv:
-        if not os.listdir('qutepart'):
-            print "qutepart directory is empty. It seems like you haven't fetched its contents. Run"
-            print "    git submodule init"
-            print "    git submodule update"
-            sys.exit(-1)
 
     setup(  name=PACKAGE_NAME.lower(),
             version=PACKAGE_VERSION,
@@ -158,5 +134,4 @@ if __name__ == '__main__':
             classifiers=classifiers,
             license='gpl2',
             requires=['pyparsing'],
-            ext_modules = ext_modules
          )

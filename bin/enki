@@ -17,7 +17,6 @@ When script is executed from the source tree, it shall import enki package, whic
 First item in sys.path points to script location
 """
 sys.path.insert(0, os.path.join(sys.path[0], '..'))
-sys.path.insert(0, os.path.join(sys.path[0], '../qutepart'))
 
 
 import enki.core.defines
@@ -110,29 +109,18 @@ def _checkDependencies(profiler):
     except ImportError, ex:
         html = "<html>" + \
                     "Failed to import qutepart.<br/>" \
-                    "If you are using git version, it seems like you haven't fetched submodules. Run:<br/>" \
-                    "<code>git submodule init</code><br/>" \
-                    "<code>git submodule update</code><br/>" \
-                    "If you are using installed version, something is installed incorrectly<br/>" \
+                    "See <a href=\"https://github.com/hlamer/qutepart\">qutepart site</a><br/>" \
                     "Exception:<br/>" + \
                     str(ex) + '<br/>' + \
                     _SEE_SITE_HTML + \
                 "</html>"
         plain =  "Failed to import qutepart.\n" \
-                 "If you are using git version, it seems like you haven't fetched submodules. Run:\n" \
-                 "    git submodule init\n" \
-                 "    git submodule update\n" \
-                 "If you are using installed version, something is installed incorrectly\n" + \
+                 "See https://github.com/hlamer/qutepart\n" + \
                 str(ex) + '\n' + \
                 _SEE_SITE_PLAIN
         _showErrorMessage(True, "Qutepart not found", html, plain)
         raise ex
 
-        print "qutepart directory is empty. It seems like you haven't fetched its contents. Run"
-        print "    git submodule init"
-        print "    git submodule update"
-        sys.exit(-1)
-    
 
 def _parseCommandLine():
     parser = OptionParser(usage="%prog [options] [FILE [+LINE_NUMBER_TO_GO] .. [FILE]]]",
