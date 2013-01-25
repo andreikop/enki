@@ -8,7 +8,7 @@ from PyQt4.QtCore import QObject, Qt
 from enki.core.core import core
 
 
-def _isRestFile(document):
+def isRestFile(document):
     """Check if document is a ReST file
     Currently, there are no highlighting language for ReST
     """
@@ -51,7 +51,7 @@ class Plugin(QObject):
            document.language() in ('HTML', 'Markdown'):
             return True
         
-        if _isRestFile(document):
+        if isRestFile(document):
             return True
         
         return False

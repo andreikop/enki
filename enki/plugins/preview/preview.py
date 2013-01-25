@@ -11,6 +11,8 @@ from enki.core.core import core
 
 from enki.widgets.dockwidget import DockWidget
 
+from enki.plugins.preview import isRestFile
+
 
 class ConverterThread(QThread):
     """Thread converts markdown to HTML
@@ -228,7 +230,7 @@ class PreviewDock(DockWidget):
         document = core.workspace().currentDocument()
         if document is not None:
             language = document.language()
-            if language is None and _isRestFile(document):
+            if language is None and isRestFile(document):
                 language = 'ReST'
             
             self._thread.process(document.filePath(), language, document.text())
