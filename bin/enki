@@ -181,7 +181,9 @@ def main():
     if profiler is not None:
         profiler.stepDone('Import modules')
     
+    import qutepart
     logging.basicConfig(level=logging.ERROR)
+    logging.getLogger('qutepart').removeHandler(qutepart.consoleHandler)
     
     sys.excepthook = excepthook
     
