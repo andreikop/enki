@@ -80,9 +80,6 @@
             "InterpreterPath": "scheme"
         }
     }, 
-    "SchemeIndentHelper": {
-        "Enabled": true
-    },
     "Preview": {
         "Enabled": true,
         "JavaScriptEnabled": true

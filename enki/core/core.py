@@ -60,7 +60,6 @@ class Core(QObject):
         self._config = None
         self._uiSettingsManager = None
         self._fileFilter = None
-        self._indentHelpers = {}
         self._loadedPlugins = []
 
     def _prepareToCatchSigInt(self):
@@ -188,24 +187,6 @@ class Core(QObject):
         """Get list of curretly loaded plugins (::class:`enki.core.Plugin` instances)
         """
         return self._loadedPlugins
-    
-    def setIndentHelper(self, language, indentHelper):
-        """Set  ::class:`enki.core.abstractdocument.IndentHelper` for language. Pass None to clear the value
-        """
-        if indentHelper is not None:
-            self._indentHelpers[language] = indentHelper
-        else:  # clear
-            try:
-                del self._indentHelpers[language]
-            except KeyError:
-                pass
-        
-    def indentHelper(self, language):
-        """Get ::class:`enki.core.abstractdocument.IndentHelper` for the language
-        
-        Raises KeyError, if not available
-        """
-        return self._indentHelpers[language]
 
     def _loadPlugin(self, name):
         """Load plugin by it's module name

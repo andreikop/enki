@@ -7,7 +7,6 @@ This class is inherited by textual editor, and must be inherited by other worksp
 Classes:
     * :class:`enki.core.abstractdocument.AbstractDocument`
     * :class:`enki.core.abstractdocument.AbstractTextEditor`
-    * :class:`enki.core.abstractdocument.IndentHelper`
 """
 
 import os.path
@@ -393,27 +392,6 @@ class AbstractDocument(QWidget):
         else:
             icon = "transparent.png"
         return QIcon(":/enkiicons/" + icon)
-
-
-class IndentHelper:
-    """This class is an interface declaration for indentation helpers. Indentation helper is a function,
-    which "knows", how to indent particular language.
-
-    I.e., for Scheme, indent helper exists, which indents it according to http://community.schemewiki.org/?scheme-style
-    
-    To create own indentation helper, subclass this class and implement indent() method.
-    
-    See :meth:`enki.core.core.Core.indentHelper`, :meth:`enki.core.core.Core.setIndentHelper`
-    """
-    
-    @staticmethod
-    def indent(editor):
-        """Editor calls this method after new line has been inserted.
-        If indenHelper knows how to indent the line, it returns it,
-        and line contents will be replaced with returned value.
-        None means "leave default indentation"
-        """
-        raise NotImplemented()
     
 
 class AbstractTextEditor(AbstractDocument):
@@ -478,7 +456,6 @@ class AbstractTextEditor(AbstractDocument):
         """
         AbstractDocument.__init__(self, parentObject, filePath, createNew)
         self._language = None
-        self.newLineInserted.connect(self._onNewLineInserted)
     
     def eolMode(self):
         """Return document's EOL mode. Possible values are:
@@ -815,25 +792,6 @@ class AbstractTextEditor(AbstractDocument):
                 self._setModified(True)
             
             self.setEolMode(default)
-
-    def _onNewLineInserted(self):
-        """New line has been inserted. Indent it properly with helper, if helper is available
-        """
-        lang = self.language()
-        try:
-            indenHelper = core.indentHelper(lang)
-        except KeyError:
-            return
-        
-        indent = indenHelper.indent(self)
-        if indent is None:
-            return
-        
-        curLine = self.cursorPosition()[0]
-        lineText = self.line(curLine).lstrip()
-
-        self.setLine(curLine, indent + lineText)
-        self.goTo(line=curLine, column=len(indent))
 
     def printFile(self):
         """Print file
