@@ -1,8 +1,8 @@
 """
-mitscheme --- MIT Scheme integration. Interactive Scheme console
-================================================================
+repl --- MIT Scheme and Standard ML REPL
+========================================
 
-File contains module functionality
+File contains plugin functionality implementation
 """
 
 import os.path
@@ -79,7 +79,7 @@ class _AbstractReplTermWidget(enki.widgets.termwidget.TermWidget):
         self._interpreter.execCommand(text)
 
 class MitSchemeTermWidget(_AbstractReplTermWidget):
-    """Terminal emulator widget
+    """Scheme terminal emulator widget
     """
     def isCommandComplete(self, text):
         """Parse the command and check, if it is complete and should be executed
@@ -111,6 +111,15 @@ class MitSchemeTermWidget(_AbstractReplTermWidget):
             return False
         
         return True
+
+
+class SmlTermWidget(_AbstractReplTermWidget):
+    """Standard ML terminal emulator widget
+    """
+    def isCommandComplete(self, text):
+        """TODO support comments and strings
+        """
+        return text.endswith(';')
 
 
 class _AbstractInterpreter(QObject):
@@ -215,7 +224,8 @@ class _AbstractInterpreter(QObject):
         if self._processIsRunning and not self._buffPopen.isAlive():
             self.stop()
 
-class MitScheme(_AbstractInterpreter):
+
+class MitSchemeInterpreter(_AbstractInterpreter):
     """MIT scheme interpreter
     """
     def _createTermWidget(self):
@@ -230,4 +240,21 @@ class MitScheme(_AbstractInterpreter):
             except UserWarning:
                 return
         self._buffPopen.write('(load "%s")\n' % filePath)
+
+
+class SmlInterpreter(_AbstractInterpreter):
+    """SML interpreter
+    """
+    def _createTermWidget(self):
+        return SmlTermWidget(self)
+    
+    def loadFile(self, filePath):
+        """Load file with 'use foo.sml;'
+        """
+        if not self._processIsRunning:
+            try:
+                self.start()
+            except UserWarning:
+                return
+        self._buffPopen.write('use "%s";\n' % filePath)
 

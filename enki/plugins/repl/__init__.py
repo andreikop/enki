@@ -1,6 +1,6 @@
 """
-mitscheme --- MIT Scheme integration. Interactive Scheme console
-================================================================
+repl --- MIT Scheme and SML REPL
+================================
 
 File contains integration with the core
 """
@@ -12,7 +12,7 @@ from enki.core.core import core
 from enki.core.uisettings import ChoiseOption, TextOption
 
 class _AbstractReplPlugin(QObject):
-    """Base class for language-specific REPL plugins
+    """Base class for language-specific REPL sub-plugins
     """
     _LANGUAGE = None
     _FULL_NAME = None
@@ -37,6 +37,16 @@ class _AbstractReplPlugin(QObject):
         core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
         
         self._installOrUninstallIfNecessary()
+
+    def _icon(self):
+        """Settings widget icon
+        """
+        raise NotImplementedError()
+
+    def _createInterpreter(self):
+        """Create interpreter instance
+        """
+        raise NotImplementedError()
 
     def __del__(self):
         self.del_()
@@ -133,16 +143,11 @@ class _AbstractReplPlugin(QObject):
         """
         self._interpreter.stop()
 
-    def _icon(self):
-        """Settings widget icon
-        """
-        raise NotImplementedError()
-
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.
         Add own options
         """
-        from mitscheme import SettingsWidget
+        from repl import SettingsWidget
         widget = SettingsWidget(dialog)
 
         dialog.appendPage(u"Modes/%s" % self._FULL_NAME, widget, self._icon())
@@ -154,11 +159,6 @@ class _AbstractReplPlugin(QObject):
                                         widget.rbAlways: "always"}))
         dialog.appendOption(TextOption(dialog, core.config(),
                                        "Modes/%s/InterpreterPath" % self._LANGUAGE, widget.leInterpreterPath))
-
-    def _createInterpreter(self):
-        """Create interpreter instance
-        """
-        raise NotImplementedError()
 
     def _install(self):
         """Install the plugin to the core
@@ -184,7 +184,7 @@ class _AbstractReplPlugin(QObject):
         
         self._interpreter.processIsRunningChanged.connect(lambda isRunning: self._breakAction.setEnabled(isRunning))
         
-        from mitscheme import ReplDock
+        from repl import ReplDock
         self._dock = ReplDock(self._interpreter.widget(), self._LANGUAGE, self._DOCK_TITLE, self._icon())
 
         core.mainWindow().addDockWidget(Qt.BottomDockWidgetArea, self._dock)
@@ -211,16 +211,46 @@ class _SchemeReplPlugin(_AbstractReplPlugin):
     def _createInterpreter(self):
         """Create interpreter instance
         """
-        from mitscheme import MitScheme
-        return MitScheme(self._LANGUAGE, self._FULL_NAME, self._activeInterpreterPath)
+        from repl import MitSchemeInterpreter
+        return MitSchemeInterpreter(self._LANGUAGE, self._FULL_NAME, self._activeInterpreterPath)
+
+
+class _SmlReplPlugin(_AbstractReplPlugin):
+    """Standard ML REPL sub-plugin
+    """
+    instance = None
+
+    _LANGUAGE = "SML"
+    _FULL_NAME = "Standard ML"
+    _MENU_PATH = "mSml"
+    _DOCK_TITLE = "Standard &ML"
+
+    def __init__(self):
+        if not 'SML' in core.config()['Modes']: # if config file is old, add own settings
+            core.config()['Modes']['SML'] = {'Enabled': 'whenOpened', 'InterpreterPath': 'sml'}
+        
+        _AbstractReplPlugin.__init__(self)
+
+    def _icon(self):
+        """Settings widget icon
+        """
+        return QIcon()
+
+    def _createInterpreter(self):
+        """Create interpreter instance
+        """
+        from repl import SmlInterpreter
+        return SmlInterpreter(self._LANGUAGE, self._FULL_NAME, self._activeInterpreterPath)
 
 
 class Plugin:
     """Module implementation
     """
     def __init__(self):
-        self._schemePlugin = _SchemeReplPlugin()
+        self._schemeSubPlugin = _SchemeReplPlugin()
+        self._smlSubPlugin = _SmlReplPlugin()
 
     def del_(self):
-        self._schemePlugin.del_()
+        self._schemeSubPlugin.del_()
+        self._smlSubPlugin.del_()
 

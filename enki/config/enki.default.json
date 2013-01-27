@@ -78,6 +78,10 @@
         "Scheme": {
             "Enabled": "whenOpened",
             "InterpreterPath": "scheme"
+        },
+        "SML": {
+            "Enabled": "whenOpened",
+            "InterpreterPath": "sml"
         }
     }, 
     "Preview": {
