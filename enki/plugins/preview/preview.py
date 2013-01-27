@@ -11,7 +11,7 @@ from enki.core.core import core
 
 from enki.widgets.dockwidget import DockWidget
 
-from enki.plugins.preview import isRestFile
+from enki.plugins.preview import isMarkdownFile
 
 
 class ConverterThread(QThread):
@@ -41,7 +41,7 @@ class ConverterThread(QThread):
             return text
         elif language == 'Markdown':
             return self._convertMarkdown(text)
-        elif language == 'ReST':
+        elif language == 'reStructuredText':
             return self._convertReST(text)
         else:
             return 'No preview for this type of file'
@@ -239,9 +239,9 @@ class PreviewDock(DockWidget):
         
         document = core.workspace().currentDocument()
         if document is not None:
-            language = document.language()
-            if language is None and isRestFile(document):
-                language = 'ReST'
+            language = document.qutepart.language()
+            if isMarkdownFile(document):
+                language = 'Markdown'
             
             self._thread.process(document.filePath(), language, document.text())
 

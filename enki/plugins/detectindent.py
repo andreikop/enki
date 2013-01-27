@@ -28,10 +28,10 @@ class Plugin:
         """
         self._detectAndApplyIndentation(document)
 
-    def _onLanguageChanged(self, document, old, new):
+    def _onLanguageChanged(self, document, language):
         """Signal handler. Document language had been changed
         """
-        if new == 'Makefile':
+        if language == 'Makefile':
             document.setIndentUseTabs(True)
             document.setIndentWidth(4)
 

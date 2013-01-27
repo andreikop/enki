@@ -167,7 +167,7 @@ class TermWidget(QWidget):
     def setLanguage(self, language):
         """Set highlighting language for input widget
         """
-        self._edit.setLanguage(language)
+        self._edit.qutepart.detectSyntax(language=language)
 
     def execCommand(self, text):
         """Save current command in the history. Append it to the log. Execute child's method. Clear edit line.

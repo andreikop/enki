@@ -103,12 +103,6 @@ class Editor(AbstractTextEditor):
         """
         pass  # TODO
     
-    def _applyLanguage(self, language):
-        """Set programming language of the file.
-        Called Only by :mod:`enki.plugins.associations` to select syntax highlighting language.
-        """
-        pass  # TODO
-
     def text(self):
         """Contents of the editor
         """

@@ -416,15 +416,6 @@ class AbstractTextEditor(AbstractDocument):
     Signal is retransmitted by the workspace
     """  # pylint: disable=W0105
     
-    languageChanged = pyqtSignal(unicode, unicode)
-    """
-    languageChanged(old, new)
-    
-    **Signal** emitted, when highlighting (programming) language of a file has been changed
-
-    Signal is retransmitted by the workspace
-    """  # pylint: disable=W0105
-    
     indentWidthChanged = pyqtSignal(int)
     """
     indentWidthChanged(width)
@@ -508,30 +499,6 @@ class AbstractTextEditor(AbstractDocument):
     
     def _applyIndentUseTabs(self, use):
         """Apply indent uses tabs option
-        """
-        raise NotImplemented()
-
-    def language(self):
-        """Get programming language of the file.
-        
-        See list of supported programming languages in the settings
-        """
-        return self._language
-
-    def setLanguage(self, language):
-        """Set programming language of the file.
-        
-        Called Only by :class:`enki.plugins.associations.Associations` to select syntax highlighting language.
-        """
-        if language == self._language:
-            return
-        old = self._language
-        self._language = language
-        self._applyLanguage(language)
-        self.languageChanged.emit(old, language)
-
-    def _applyLanguage(self, language):
-        """Apply new highlighting language
         """
         raise NotImplemented()
 

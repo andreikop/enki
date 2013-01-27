@@ -139,12 +139,12 @@ class Workspace(QStackedWidget):
     Convenience signal, which retransmits original signal, sent by the document
     """  # pylint: disable=W0105
     
-    languageChanged = pyqtSignal(AbstractDocument, unicode, unicode)
+    languageChanged = pyqtSignal(AbstractDocument, unicode)
     """
-    languageChanged(document, old, new)
+    languageChanged(document, language)
     
     **Signal** emitted, when highlighting (programming) language of a file has been changed
-    Convenience signal, which retransmits original signal, sent by the document
+    Convenience signal, which retransmits original signal, sent by Qutepart
     """  # pylint: disable=W0105
     
     indentWidthChanged = pyqtSignal(AbstractDocument, int)
@@ -351,7 +351,7 @@ class Workspace(QStackedWidget):
         document.modifiedChanged.connect(lambda modified: self.modifiedChanged.emit(document, modified))
         document.cursorPositionChanged.connect(lambda row, col: self.cursorPositionChanged.emit(document, row, col))
         document.textChanged.connect(lambda: self.textChanged.emit(document))
-        document.languageChanged.connect(lambda old, new: self.languageChanged.emit(document, old, new))
+        document.qutepart.languageChanged.connect(lambda name: self.languageChanged.emit(document, name))
         document.indentWidthChanged.connect(lambda width: self.indentWidthChanged.emit(document, width))
         document.indentUseTabsChanged.connect(lambda useTabs: self.indentUseTabsChanged.emit(document, useTabs))    
 

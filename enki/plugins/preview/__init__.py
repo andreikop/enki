@@ -8,13 +8,14 @@ from PyQt4.QtCore import QObject, Qt
 from enki.core.core import core
 
 
-def isRestFile(document):
+def isMarkdownFile(document):
     """Check if document is a ReST file
     Currently, there are no highlighting language for ReST
     """
     return document is not None and \
            document.fileName() is not None and \
-           document.fileName().endswith('.rst')
+           (document.fileName().endswith('.md') or \
+            document.fileName().endswith('.markdown'))
 
 
 class Plugin(QObject):
@@ -69,11 +70,10 @@ class Plugin(QObject):
         if document is None:
             return False
         
-        if document.language() is not None and \
-           document.language() in ('HTML', 'Markdown'):
+        if document.qutepart.language() in ('HTML', 'reStructuredText'):
             return True
         
-        if isRestFile(document):
+        if isMarkdownFile(document):
             return True
         
         return False

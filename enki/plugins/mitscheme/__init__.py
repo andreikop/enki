@@ -61,7 +61,7 @@ class _AbstractReplPlugin(QObject):
         """Check if document is highlighted as Scheme
         """
         return document is not None and \
-               document.language() == self._LANGUAGE
+               document.qutepart.language() == self._LANGUAGE
 
     def _applySettings(self):
         """Apply settings. Called by configurator class
