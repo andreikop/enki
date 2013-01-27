@@ -21,37 +21,37 @@ import enki.widgets.termwidget
 # Integration with the core
 #
 
-class MitSchemeSettings(QWidget):
+class SettingsWidget(QWidget):
     """Settings widget. Insertted as a page to UISettings
     """
     def __init__(self, *args):
         QWidget.__init__(self, *args)
         from PyQt4 import uic  # lazy import for better startup performance
-        uic.loadUi(os.path.join(os.path.dirname(__file__), 'MitSchemeSettings.ui'), self)
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'Settings.ui'), self)
         self.pbInterpreterPath.clicked.connect(self._onPbInterpreterPathClicked)
     
     def _onPbInterpreterPathClicked(self):
-        path = QFileDialog.getOpenFileName(core.mainWindow(), 'MIT Scheme interpreter path')
+        path = QFileDialog.getOpenFileName(core.mainWindow(), 'Interpreter path')
         if path:
             self.leInterpreterPath.setText(path)
 
 
-class MitSchemeDock(DockWidget):
+class ReplDock(DockWidget):
     """Dock widget with terminal emulator
     """
-    def __init__(self, widget):
-        DockWidget.__init__(self, core.mainWindow(), "&MIT Scheme", QIcon(':/enkiicons/languages/scheme.png'), "Alt+M")
+    def __init__(self, widget, replName, title, icon):
+        DockWidget.__init__(self, core.mainWindow(), title, icon, "Alt+M")
 
         self.setAllowedAreas( Qt.BottomDockWidgetArea)
         
-        core.actionManager().addAction("mView/aMitScheme", self.showAction())
+        self._action = core.actionManager().addAction("mView/a%s" % replName, self.showAction())
 
         self.setWidget(widget)
         self.setFocusProxy(widget)
         widget.installEventFilter(self)
     
     def del_(self):
-        core.actionManager().removeAction("mView/aMitScheme")
+        core.actionManager().removeAction(self._action)
     
     def eventFilter(self, obj, event):
         """Event filter for the widget. Catches Esc pressings. It is necessary, because QScintilla eats it
@@ -66,14 +66,21 @@ class MitSchemeDock(DockWidget):
 #
 # Plugin functionality
 #
+class _AbstractReplTermWidget(enki.widgets.termwidget.TermWidget):
+    """Base class for REPL terminal widgets
+    """
+    def __init__(self, interpreter, *args):
+        enki.widgets.termwidget.TermWidget.__init__(self, *args)
+        self._interpreter = interpreter
 
-class MitSchemeTermWidget(enki.widgets.termwidget.TermWidget):
+    def childExecCommand(self, text):
+        """Execute command. Called by parent class
+        """
+        self._interpreter.execCommand(text)
+
+class MitSchemeTermWidget(_AbstractReplTermWidget):
     """Terminal emulator widget
     """
-    def __init__(self, mitScheme, *args):
-        enki.widgets.termwidget.TermWidget.__init__(self, *args)
-        self._mitScheme = mitScheme
-
     def isCommandComplete(self, text):
         """Parse the command and check, if it is complete and should be executed
         """
@@ -105,12 +112,8 @@ class MitSchemeTermWidget(enki.widgets.termwidget.TermWidget):
         
         return True
 
-    def childExecCommand(self, text):
-        """Execute command. Called by parent class
-        """
-        self._mitScheme.execCommand(text)
 
-class MitScheme(QObject):
+class _AbstractInterpreter(QObject):
     """MIT scheme shell. Implements REPL. Graphical frontend for original terminal version.
     """
     
@@ -121,10 +124,11 @@ class MitScheme(QObject):
     **Signal** emitted, when MIT Scheme process starts and stops
     """  # pylint: disable=W0105
 
-    def __init__(self, interpreterPath):
+    def __init__(self, language, fullName, interpreterPath):
         QObject.__init__(self)
-        self._term = MitSchemeTermWidget(self)
-        self._term.setLanguage('Scheme')
+        self._fullName = fullName
+        self._term = self._createTermWidget()
+        self._term.setLanguage(language)
         self._interpreterPath = interpreterPath
         
         self._processOutputTimer = QTimer()  # I use Qt timer, because we must append data to GUI in the GUI thread
@@ -132,57 +136,68 @@ class MitScheme(QObject):
         self._processOutputTimer.setInterval(100)
 
         self._buffPopen = enki.lib.buffpopen.BufferedPopen(interpreterPath)
-        self._schemeIsRunning = False
+        self._processIsRunning = False
         
-        self._term.appendOutput("Execute any command to run the scheme interpreter\n")
+        self._term.appendOutput("Execute any command to run the interpreter\n")
 
     def __del__(self):
         self.stop()
     
+    def loadFile(self, filePath):
+        """Load (interpret) the file
+        """
+        raise NotImplementedError()
+    
+    def _createTermWidget(self):
+        """Create terminal emulator widget instance
+        """
+        raise NotImplementedError()
+
     def widget(self):
-        """MIT Scheme emulator
+        """Terminal emulator widget
         """
         return self._term
 
     def start(self):
         """Start scheme process
         """
-        if self._schemeIsRunning:
+        if self._processIsRunning:
             return
 
         try:
             self._buffPopen.start()
         except OSError, ex:
+            fullName = self._fullName.replace(' ', '&nbsp;')
             text = '<p>Interpreter path: %s</p>' % self._interpreterPath
             text += '<p>Error: %s</p>' % unicode(str(ex), 'utf8')
-            text += '<p>Make sure MIT Scheme is installed and go to '\
-                    '<b>Settings -> Settings -> Modes -> MIT&nbsp;Scheme</b> to correct the path</p>'
+            text += '<p>Make sure interpreter is installed and go to '\
+                    '<b>Settings -> Settings -> Modes -> %s</b> to correct the path</p>' % fullName
             text = '<html>%s</html' % text
             QMessageBox.critical (core.mainWindow(),
-                                  "Failed to run MIT Scheme", 
+                                  "Failed to run the interpreter", 
                                   text)
             raise UserWarning("Failed to run the interpreter")
 
         self._processOutputTimer.start()
-        self._schemeIsRunning = True
-        self.processIsRunningChanged.emit(self._schemeIsRunning)
+        self._processIsRunning = True
+        self.processIsRunningChanged.emit(self._processIsRunning)
 
     def stop(self):
         """Stop scheme process
         """
-        if not self._schemeIsRunning:
+        if not self._processIsRunning:
             return
 
         self._buffPopen.stop()
         self._processOutputTimer.stop()
-        self._schemeIsRunning = False
+        self._processIsRunning = False
         self._term.appendError("Interpreter process exited. Execute any command to run it again\n")
-        self.processIsRunningChanged.emit(self._schemeIsRunning)
+        self.processIsRunningChanged.emit(self._processIsRunning)
 
     def execCommand(self, text):
         """Execute text
         """
-        if not self._schemeIsRunning:
+        if not self._processIsRunning:
             try:
                 self.start()
             except UserWarning:
@@ -191,21 +206,28 @@ class MitScheme(QObject):
         self._processOutput() # write old output to the log, and only then write fresh input
         self._buffPopen.write(text)
     
-    def loadFile(self, filePath):
-        """Load file using MIT Scheme load function
-        """
-        if not self._schemeIsRunning:
-            try:
-                self.start()
-            except UserWarning:
-                return
-        self._buffPopen.write('(load "%s")' % filePath)
-    
     def _processOutput(self):
         """Append output from Popen to widget, if available
         """
         output = self._buffPopen.readOutput()
         if output:
             self._term.appendOutput(output)
-        if self._schemeIsRunning and not self._buffPopen.isAlive():
+        if self._processIsRunning and not self._buffPopen.isAlive():
             self.stop()
+
+class MitScheme(_AbstractInterpreter):
+    """MIT scheme interpreter
+    """
+    def _createTermWidget(self):
+        return MitSchemeTermWidget(self)
+    
+    def loadFile(self, filePath):
+        """Load file using MIT Scheme load function
+        """
+        if not self._processIsRunning:
+            try:
+                self.start()
+            except UserWarning:
+                return
+        self._buffPopen.write('(load "%s")' % filePath)
+

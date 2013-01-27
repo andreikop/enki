@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;html&gt;Mode documentation is &lt;a href=http://enki-editor.org/scheme.html&gt;here&lt;/a&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;REPL documentation is &lt;a href=&quot;http://enki-editor.org/scheme.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;here&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="openExternalLinks">
       <bool>true</bool>
@@ -27,13 +27,13 @@
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Enable MIT Scheme mode</string>
+      <string>Show REPL widget</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QRadioButton" name="rbWhenOpened">
         <property name="text">
-         <string>When Scheme file is opened</string>
+         <string>When supported file is opened</string>
         </property>
        </widget>
       </item>

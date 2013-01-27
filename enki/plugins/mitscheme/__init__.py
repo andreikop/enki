@@ -11,22 +11,21 @@ from PyQt4.QtGui import QIcon
 from enki.core.core import core
 from enki.core.uisettings import ChoiseOption, TextOption
 
-
-class Plugin(QObject):
-    """Module implementation
+class _AbstractReplPlugin(QObject):
+    """Base class for language-specific REPL plugins
     """
-    
-    instance = None
+    _LANGUAGE = None
+    _FULL_NAME = None
+    _MENU_PATH = None
+    _DOCK_TITLE = None
     
     def __init__(self):
         QObject.__init__(self)
+        
         self._installed = False
         self._evalAction = None
         self._activeInterpreterPath = None
 
-        allDocs = core.workspace().documents()
-        self._schemeDocumentsCount = len(filter(self._isSchemeFile, allDocs))
-        
         # TODO handle situation, when lexer changed for current document
         core.workspace().documentOpened.connect(self._installOrUninstallIfNecessary)
         core.workspace().documentClosed.connect(self._installOrUninstallIfNecessary)
@@ -41,42 +40,43 @@ class Plugin(QObject):
 
     def __del__(self):
         self.del_()
+    
+    def del_(self):
+        """Terminate the plugin. Method called by core, when closing Enki, and sometimes by plugin itself
+        """
+        if not self._installed:
+            return
+        self._interpreter.stop()
+        core.actionManager().removeAction(self._evalAction)
+        self._evalAction = None
+        core.actionManager().removeAction(self._breakAction)
+        self._breakAction = None
+        core.actionManager().removeMenu(self._MENU_PATH)
+        core.mainWindow().removeDockWidget(self._dock)
+        self._dock.del_()
+        del self._dock
+        self._installed = False
+
+    def _isSupportedFile(self, document):
+        """Check if document is highlighted as Scheme
+        """
+        return document is not None and \
+               document.language() == self._LANGUAGE
 
     def _applySettings(self):
         """Apply settings. Called by configurator class
         """
         # if path has been changed - restart the interpreter
         if self._installed and \
-           self._activeInterpreterPath != core.config()["Modes"]["Scheme"]["InterpreterPath"]:
+           self._activeInterpreterPath != self._settingsGroup()["InterpreterPath"]:
             self.del_()
         
         self._installOrUninstallIfNecessary()
     
-    def _onSettingsDialogAboutToExecute(self, dialog):
-        """UI settings dialogue is about to execute.
-        Add own options
-        """
-        from mitscheme import MitSchemeSettings
-        widget = MitSchemeSettings(dialog)
-        dialog.appendPage(u"Modes/MIT Scheme", widget, QIcon(':/enkiicons/languages/scheme.png'))
-
-        # Options
-        dialog.appendOption(ChoiseOption(dialog, core.config(), "Modes/Scheme/Enabled",
-                                       {widget.rbWhenOpened: "whenOpened",
-                                        widget.rbNever: "never",
-                                        widget.rbAlways: "always"}))
-        dialog.appendOption(TextOption(dialog, core.config(), "Modes/Scheme/InterpreterPath", widget.leInterpreterPath))
-
-    def _isSchemeFile(self, document):
-        """Check if document is highlighted as Scheme
-        """
-        return document is not None and \
-               document.language() == 'Scheme'
-
-    def _schemeDocumentIsOpened(self):
+    def _supportedDocumentIsOpened(self):
         """Check if at least one Scheme document is opened
         """
-        schemeDocs = filter(self._isSchemeFile, core.workspace().documents())
+        schemeDocs = filter(self._isSupportedFile, core.workspace().documents())
         return len(schemeDocs) > 0
 
     def _updateEvalActionEnabledState(self):
@@ -86,12 +86,17 @@ class Plugin(QObject):
             return
 
         currDoc = core.workspace().currentDocument()
-        self._evalAction.setEnabled(currDoc is not None and self._isSchemeFile(currDoc))
+        self._evalAction.setEnabled(currDoc is not None and self._isSupportedFile(currDoc))
+
+    def _settingsGroup(self):
+        """Get own settings group
+        """
+        return core.config().get("Modes/%s" % self._LANGUAGE)
 
     def _installOrUninstallIfNecessary(self):
         """Install or uninstall according to settings and availability of opened Scheme files
         """
-        enabled =  core.config()["Modes"]["Scheme"]["Enabled"]
+        enabled = self._settingsGroup()["Enabled"]
         if enabled == 'always':
             if not self._installed:
                 self._install()
@@ -100,58 +105,10 @@ class Plugin(QObject):
                 self.del_()
         else:
             assert enabled == 'whenOpened'
-            if self._schemeDocumentIsOpened():
+            if self._supportedDocumentIsOpened():
                 self._install()
             else:
                 self.del_()
-
-    def _install(self):
-        """Install the plugin to the core
-        """
-        if self._installed:
-            return
-
-        self._schemeMenu = core.actionManager().addMenu("mScheme", "MIT Scheme")
-        self._evalAction = core.actionManager().addAction("mScheme/aEval", "Eval. selection/Save and eval.")
-        self._evalAction.setStatusTip("Evaluate selection. If nothing is selected - save and evaluate whole file")
-        self._evalAction.setShortcut("Ctrl+E")
-        self._evalAction.triggered.connect(self._onEvalTriggered)
-        self._breakAction = core.actionManager().addAction("mScheme/aBreak", "Stop the interpreter")
-        self._breakAction.setStatusTip("Use it as a restart action.")
-        self._breakAction.setShortcut("Pause")
-        self._breakAction.triggered.connect(self._onBreakTriggered)
-        self._breakAction.setEnabled(False)
-
-        self._activeInterpreterPath = core.config()["Modes"]["Scheme"]["InterpreterPath"]
-        
-        from mitscheme import MitScheme
-        self._mitScheme = MitScheme(self._activeInterpreterPath)
-        
-        self._mitScheme.processIsRunningChanged.connect(lambda isRunning: self._breakAction.setEnabled(isRunning))
-        
-        from mitscheme import MitSchemeDock
-        self._dock = MitSchemeDock(self._mitScheme.widget())
-
-        core.mainWindow().addDockWidget(Qt.BottomDockWidgetArea, self._dock)
-        self._dock.hide()
-
-        self._installed = True
-    
-    def del_(self):
-        """Terminate the plugin. Method called by core, when closing Enki, and sometimes by plugin itself
-        """
-        if not self._installed:
-            return
-        self._mitScheme.stop()
-        core.actionManager().removeAction(self._evalAction)
-        self._evalAction = None
-        core.actionManager().removeAction(self._breakAction)
-        self._breakAction = None
-        core.actionManager().removeMenu("mScheme")
-        core.mainWindow().removeDockWidget(self._dock)
-        self._dock.del_()
-        del self._dock
-        self._installed = False
 
     def _onEvalTriggered(self):
         """Eval action triggered. Evaluate file or expression
@@ -162,16 +119,108 @@ class Plugin(QObject):
         
         selection = document.selectedText()
         if selection:
-            self._mitScheme.execCommand(selection)
+            self._interpreter.execCommand(selection)
             self._dock.show()
         else:
             if document.isModified():
                 document.saveFile()
             if document.filePath():  # user may cancel saving document
-                self._mitScheme.loadFile(document.filePath())
+                self._interpreter.loadFile(document.filePath())
                 self._dock.show()
     
     def _onBreakTriggered(self):
         """Break has been triggered. Stop the interpreter
         """
-        self._mitScheme.stop()
+        self._interpreter.stop()
+
+    def _icon(self):
+        """Settings widget icon
+        """
+        raise NotImplementedError()
+
+    def _onSettingsDialogAboutToExecute(self, dialog):
+        """UI settings dialogue is about to execute.
+        Add own options
+        """
+        from mitscheme import SettingsWidget
+        widget = SettingsWidget(dialog)
+
+        dialog.appendPage(u"Modes/%s" % self._FULL_NAME, widget, self._icon())
+
+        # Options
+        dialog.appendOption(ChoiseOption(dialog, core.config(), "Modes/%s/Enabled" % self._LANGUAGE,
+                                       {widget.rbWhenOpened: "whenOpened",
+                                        widget.rbNever: "never",
+                                        widget.rbAlways: "always"}))
+        dialog.appendOption(TextOption(dialog, core.config(),
+                                       "Modes/%s/InterpreterPath" % self._LANGUAGE, widget.leInterpreterPath))
+
+    def _createInterpreter(self):
+        """Create interpreter instance
+        """
+        raise NotImplementedError()
+
+    def _install(self):
+        """Install the plugin to the core
+        """
+        if self._installed:
+            return
+
+        self._schemeMenu = core.actionManager().addMenu(self._MENU_PATH, self._FULL_NAME)
+        self._evalAction = core.actionManager().addAction("%s/aEval" % self._MENU_PATH,
+                                                          "Eval. selection/Save and eval.")
+        self._evalAction.setStatusTip("Evaluate selection. If nothing is selected - save and evaluate whole file")
+        self._evalAction.setShortcut("Ctrl+E")
+        self._evalAction.triggered.connect(self._onEvalTriggered)
+        self._breakAction = core.actionManager().addAction("%s/aBreak" % self._MENU_PATH, "Stop the interpreter")
+        self._breakAction.setStatusTip("Use it as a restart action.")
+        self._breakAction.setShortcut("Pause")
+        self._breakAction.triggered.connect(self._onBreakTriggered)
+        self._breakAction.setEnabled(False)
+
+        self._activeInterpreterPath = self._settingsGroup()["InterpreterPath"]
+        
+        self._interpreter = self._createInterpreter()
+        
+        self._interpreter.processIsRunningChanged.connect(lambda isRunning: self._breakAction.setEnabled(isRunning))
+        
+        from mitscheme import ReplDock
+        self._dock = ReplDock(self._interpreter.widget(), self._LANGUAGE, self._DOCK_TITLE, self._icon())
+
+        core.mainWindow().addDockWidget(Qt.BottomDockWidgetArea, self._dock)
+        self._dock.hide()
+
+        self._installed = True
+
+
+class _SchemeReplPlugin(_AbstractReplPlugin):
+    """Scheme REPL plugin
+    """
+    instance = None
+
+    _LANGUAGE = "Scheme"
+    _FULL_NAME = "MIT Scheme"
+    _MENU_PATH = "mScheme"
+    _DOCK_TITLE = "&MIT Scheme"
+    
+    def _icon(self):
+        """Settings widget icon
+        """
+        return QIcon(':/enkiicons/languages/scheme.png')
+
+    def _createInterpreter(self):
+        """Create interpreter instance
+        """
+        from mitscheme import MitScheme
+        return MitScheme(self._LANGUAGE, self._FULL_NAME, self._activeInterpreterPath)
+
+
+class Plugin:
+    """Module implementation
+    """
+    def __init__(self):
+        self._schemePlugin = _SchemeReplPlugin()
+
+    def del_(self):
+        self._schemePlugin.del_()
+
