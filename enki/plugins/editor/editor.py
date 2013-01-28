@@ -161,7 +161,7 @@ class Editor(AbstractTextEditor):
         """
         cursor = QTextCursor(self.qutepart.document())
         cursor.setPosition(startAbsPos)
-        cursor.setPosition(endAbsPos, Qt.KeepAnchor)
+        cursor.setPosition(endAbsPos, QTextCursor.KeepAnchor)
         cursor.insertText(text)
     
     def beginUndoAction(self):
