@@ -229,5 +229,5 @@ class MitScheme(_AbstractInterpreter):
                 self.start()
             except UserWarning:
                 return
-        self._buffPopen.write('(load "%s")' % filePath)
+        self._buffPopen.write('(load "%s")\n' % filePath)
 
