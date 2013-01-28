@@ -52,16 +52,6 @@ class ReplDock(DockWidget):
     
     def del_(self):
         core.actionManager().removeAction(self._action)
-    
-    def eventFilter(self, obj, event):
-        """Event filter for the widget. Catches Esc pressings. It is necessary, because QScintilla eats it
-        """
-        if (event.type() == QEvent.KeyPress or event.type() == QEvent.ShortcutOverride) and \
-           event.key() == Qt.Key_Escape and \
-           event.modifiers() == Qt.NoModifier:
-            self.hide()
-            return True
-        return DockWidget.eventFilter(self, obj, event)
 
 #
 # Plugin functionality

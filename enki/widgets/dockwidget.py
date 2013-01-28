@@ -138,6 +138,16 @@ class DockWidget(QDockWidget):
         self._closeShortcut.setContext( Qt.WidgetWithChildrenShortcut )
         self._closeShortcut.activated.connect(self._close)
 
+    def keyPressEvent(self, event):
+        """Catch Esc. Not using QShortcut, because dock shall be closed,
+        only if child widgets haven't catched Esc event
+        """
+        if event.key() == Qt.Key_Escape and \
+           event.modifiers() == Qt.NoModifier:
+            self._hide()
+        else:
+            QDockWidget.keyPressEvent(self, event)
+    
     def showAction(self):
         """Action shows the widget and set focus on it.
         
