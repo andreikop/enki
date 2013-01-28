@@ -40,7 +40,6 @@ class TermWidget(QWidget):
             lowLevelWidget = self._edit
         lowLevelWidget.installEventFilter(self)
         
-        self._edit.newLineInserted.connect(self._onEditNewLine)
         self._edit.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
         self.setFocusProxy(self._edit)
 
@@ -103,6 +102,8 @@ class TermWidget(QWidget):
                  event.matches(QKeySequence.MoveToPreviousPage):
                 self._browser.keyPressEvent(event)
                 return True
+            elif event.matches(QKeySequence.InsertParagraphSeparator):
+                 return self._editNewLineEvent()
         
         return QWidget.eventFilter(self, obj, event)
 
@@ -210,19 +211,17 @@ class TermWidget(QWidget):
         """
         return True
     
-    def _onEditNewLine(self):
+    def _editNewLineEvent(self):
         """Handler of Enter pressing in the edit
         """
         text = self._edit.text()
         
-        # remove inserted \n
-        cursorPos = self._edit.absCursorPosition()
-        newlineIndex = text.rindex('\n', 0, cursorPos)
-
         if self.isCommandComplete(text):
-            self._edit.qutepart.undo()  # remove newline and indentation
             text = self._edit.text()
             self.execCommand(text)
+            return True # processing finished
+        else:
+            return False  # let the editor process the event
 
     def _onHistoryNext(self):
         """Down pressed, show next item from the history

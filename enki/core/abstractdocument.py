@@ -434,13 +434,6 @@ class AbstractTextEditor(AbstractDocument):
     Signal is retransmitted by the workspace
     """  # pylint: disable=W0105
 
-    newLineInserted = pyqtSignal()
-    """
-    newLineInserted()
-
-    **Signal** emitted, after new line has been inserted by user (user pressed Enter)
-    """  # pylint: disable=W0105
-    
     def __init__(self, parentObject, filePath, createNew=False, terminalWidget=False):
         """If terminalWidget is True, editor is used not as fully functional editor, but as interactive terminal.
         In this mode line numbers and autocompletion won't be shown
