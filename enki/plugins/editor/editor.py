@@ -118,19 +118,6 @@ class Editor(AbstractTextEditor):
         """
         self.qutepart.textCursor().endEditBlock()
 
-    def _goTo(self, line, column, selectionLine = None, selectionCol = None):
-        """Go to specified line and column. Select text if necessary
-        """
-        cursor  = QTextCursor(self.qutepart.document())
-        
-        if selectionLine is None:
-            cursor.setPosition(self._toAbsPosition(line, column))
-        else:
-            cursor.setPosition(self._toAbsPosition(selectionLine, selectionCol))
-            cursor.setPosition(self._toAbsPosition(line, column), QTextCursor.KeepAnchor)
-        
-        self.qutepart.setTextCursor(cursor)
-    
     def lineCount(self):
         """Get line count
         """

@@ -333,13 +333,28 @@ class Workspace(QStackedWidget):
         selectionLength specifies, how much characters should be selected
         """
         document = self.openFile(filePath)  # search for already opened or open new
-
-        if  document is not None and \
-            (absPos is not None or \
-             line is not None or \
-             column is not None or \
-             selectionLength is not None):
-                document.goTo(absPos=absPos, line=line, column=column, selectionLength=selectionLength, grabFocus=True)
+        if document is None:
+            return
+        
+        if line is not None:
+            assert absPos is None
+            if line >= document.lineCount():
+                line = document.lineCount() - 1
+                column = None
+            
+            if column is None:
+                lineToGo = document.line(line)
+                column = len(lineToGo) - len(lineToGo.lstrip())  # count of whitespaces before text
+            
+            document.qutepart.cursorPosition = line, column
+        else:
+            assert line is None and column is None
+            assert absPos is not None
+            document.qutepart.absCursorPosition = absPos
+        
+        if selectionLength is not None:
+            document.absSelectedPosition = (document.qutepart.absCursorPosition,
+                                            document.qutepart.absCursorPosition + selectionLength)
     
     def _handleDocument( self, document ):
         """Add document to the workspace. Connect signals

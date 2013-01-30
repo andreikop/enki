@@ -66,7 +66,7 @@ class CommandGotoLine(AbstractCommand):
     def execute(self):
         """Execute the command
         """
-        core.workspace().currentDocument().goTo(line = self._line - 1)
+        core.workspace().currentDocument().qutepart.cursorPosition = self._line - 1, None
 
 
 class CommandOpen(AbstractCommand):

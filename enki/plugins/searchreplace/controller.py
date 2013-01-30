@@ -297,7 +297,7 @@ class Controller(QObject):
         
         match, matches = self._searchInText(regExp, document.qutepart.text, startPoint, forward)
         if match is not None:
-            document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
+            document.qutepart.absSelectedPosition = (match.start(), match.start() + len(match.group(0)))
             core.mainWindow().statusBar().showMessage('Match %d of %d' % \
                                                       (matches.index(match) + 1, len(matches)), 3000)
         else:
@@ -335,8 +335,8 @@ class Controller(QObject):
     def _resetSelection(document):
         """Reset selection in the document
         """
-        line, column = document.qutepart.cursorPosition
-        document.goTo(line=line, column=column)
+        pos = document.qutepart.absCursorPosition
+        document.qutepart.absSelectedPosition = (cursorPosition, cursorPosition)
     
     def _onRegExpChanged(self, regExp):
         """Search regExp changed. Do incremental search
@@ -390,7 +390,7 @@ class Controller(QObject):
         
         match, matches = self._searchInText(regExp, document.qutepart.text, self._searchInFileStartPoint, forward)
         if match:
-            document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
+            document.qutepart.absSelectedPosition = (match.start(), match.start() + len(match.group(0)))
             self._searchInFileLastCursorPos = match.start()
             self._widget.setState(self._widget.Good)  # change background acording to result
             core.mainWindow().statusBar().showMessage('Match %d of %d' % \
@@ -417,7 +417,7 @@ class Controller(QObject):
             match = regExp.search(document.qutepart.text, 0)
         
         if match is not None:
-            document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
+            document.qutepart.absSelectedPosition = (match.start(), match.start() + len(match.group(0)))
             replaceTextSubed = substitutions.makeSubstitutions(replaceText, match)
             document.qutepart.selectedText = replaceTextSubed
             document.qutepart.absCursorPosition = match.start() + len(replaceTextSubed)
@@ -442,7 +442,7 @@ class Controller(QObject):
         count = 0
         match = regExp.search(document.qutepart.text, pos)
         while match is not None:
-            document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
+            document.qutepart.absSelectedPosition = (match.start(), match.start() + len(match.group(0)))
             replaceTextSubed = substitutions.makeSubstitutions(replaceText, match)
                 
             document.qutepart.selectedText = replaceTextSubed

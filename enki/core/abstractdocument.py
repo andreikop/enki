@@ -477,53 +477,6 @@ class AbstractTextEditor(AbstractDocument):
         """
         raise NotImplemented()
 
-    def goTo(self, absPos=None, line=None, column=None, selectionLength = None, grabFocus = False):
-        """Go to specified line and column.
-        If line is too big, go to the last line
-        If column is None - default is start of the text in the line (end of the indentation)
-        If selectionLength is not None, select selectionLength characters
-        
-        Examples: ::
-        
-            document.goTo(line=0)
-            document.goTo(line=7, column=9)
-            document.goTo(absPos=3)
-            document.goTo(line=7, column=5, selectionLength=8)  # Selection from line 7 column 5 to line 7 column 13
-                                                             # Cursor is in line 7 column 5
-                                                             # (If line 7 is >= 13 symbols) 
-            document.goTo(line=7, column=5, selectionLength=-3)  # Selection from line 7 column 2 to line 7 column 5.
-                                                              # Cursor at line 7 column 5
-        """
-        if line is not None:
-            assert absPos is None
-            if line >= self.lineCount():
-                line = self.lineCount() - 1
-                column = None
-            
-            if column is None:
-                lineToGo = self.line(line)
-                column = len(lineToGo) - len(lineToGo.lstrip())  # count of whitespaces before text
-        else:
-            assert line is None and column is None
-            line, column = self._toLineCol(absPos)
-
-        selLine = None
-        selcolumn = None
-        if selectionLength is not None:
-            if absPos is None:
-                absPos = self._toAbsPosition(line, column)
-            selAbsPos = absPos + selectionLength
-            selLine, selcolumn = self._toLineCol(selAbsPos)
-        self._goTo(line, column, selLine, selcolumn)
-        
-        if grabFocus:
-            self.setFocus()
-
-    def _goTo(self, line, column, selectionLine = None, selectionCol = None):
-        """Go to. Called by AbstractTextEditor.goTo
-        """
-        raise NotImplemented()
-
     def replace(self, text,
                 startAbsPos=None, startLine=None, startCol=None,
                 endAbsPos=None, endLine=None, endCol=None):
@@ -562,9 +515,11 @@ class AbstractTextEditor(AbstractDocument):
         gotoLine, accepted = QInputDialog.getInteger(self, self.tr( "Go To Line..." ),
                                                       self.tr( "Enter the line you want to go:" ), 
                                                       line, 1, self.lineCount(), 1)
-        gotoLine -= 1
         if accepted:
-            self.goTo(line = gotoLine, grabFocus = True)
+            gotoLine -= 1
+            self.qutepart.cursorPosition = gotoLine, None
+            self.setFocus()
+
         
     def line(self, index):
         """Get line of the text by its index. Lines are indexed from 0.
