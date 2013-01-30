@@ -477,15 +477,10 @@ class AbstractTextEditor(AbstractDocument):
         """
         raise NotImplemented()
 
-    def cursorPosition(self):
-        """Return cursor position as tuple (line, column)
-        """
-        pass
-    
     def absCursorPosition(self):
         """Returns cursor position as offset from the very first symbol
         """
-        line, col = self.cursorPosition()
+        line, col = self.qutepart.cursorPosition
         return self._toAbsPosition(line, col)
     
     def setCursorPosition(self, absPos=None, line=None, column=None):
@@ -590,7 +585,7 @@ class AbstractTextEditor(AbstractDocument):
     def invokeGoTo(self):
         """Show GUI dialog, go to line, if user accepted it
         """
-        line = self.cursorPosition()[0]
+        line = self.qutepart.cursorPosition[0]
         gotoLine, accepted = QInputDialog.getInteger(self, self.tr( "Go To Line..." ),
                                                       self.tr( "Enter the line you want to go:" ), 
                                                       line, 1, self.lineCount(), 1)

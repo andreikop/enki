@@ -335,7 +335,7 @@ class Controller(QObject):
     def _resetSelection(document):
         """Reset selection in the document
         """
-        line, column = document.cursorPosition()
+        line, column = document.qutepart.cursorPosition
         document.goTo(line=line, column=column)
     
     def _onRegExpChanged(self, regExp):

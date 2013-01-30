@@ -96,13 +96,6 @@ class Editor(AbstractTextEditor):
         """
         pass  # TODO
     
-    def cursorPosition(self):
-        """Get cursor position as tuple (line, col)
-        """
-        cursor = self.qutepart.textCursor()
-        
-        return self._toLineCol(cursor.position())
-    
     def _setCursorPosition(self, line, col):
         """Implementation of AbstractTextEditor.setCursorPosition
         """
