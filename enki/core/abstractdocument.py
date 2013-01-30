@@ -477,11 +477,6 @@ class AbstractTextEditor(AbstractDocument):
         """
         raise NotImplemented()
 
-    def selection(self):
-        """Get coordinates of selected area as ((startLine, startCol), (endLine, endCol))
-        """
-        pass
-
     def absSelection(self):
         """Get coordinates of selected area as (startAbsPos, endAbsPos)
         """

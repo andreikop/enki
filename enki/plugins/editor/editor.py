@@ -96,16 +96,6 @@ class Editor(AbstractTextEditor):
         """
         pass  # TODO
     
-
-    def selection(self):
-        """Get coordinates of selected area as ((startLine, startCol), (endLine, endCol))
-        """
-        cursor = self.qutepart.textCursor()
-        startPos = cursor.selectionStart()
-        endPos = cursor.selectionEnd()
-        
-        return (self._toLineCol(startPos), self._toLineCol(endPos))
-
     def absSelection(self):
         """Get coordinates of selected area as (startAbsPos, endAbsPos)
         """
