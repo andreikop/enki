@@ -227,7 +227,7 @@ class Controller(QObject):
         
         regExp = self._widget.getRegExp()
         selections = [ (match.start(), len(match.group(0)))\
-                        for match in regExp.finditer(document.text())]
+                        for match in regExp.finditer(document.qutepart.text)]
         document.qutepart.setExtraSelections(selections)
     
     def _onCurrentDocumentChanged(self, old, new):
@@ -287,7 +287,7 @@ class Controller(QObject):
             return
         
         regExp = re.compile('\\b%s\\b' % re.escape(word))
-        text = document.text()
+        text = document.qutepart.text
 
         # avoid matching word under cursor
         if forward:
@@ -295,7 +295,7 @@ class Controller(QObject):
         else:
             startPoint = wordStartAbsPos
         
-        match, matches = self._searchInText(regExp, document.text(), startPoint, forward)
+        match, matches = self._searchInText(regExp, document.qutepart.text, startPoint, forward)
         if match is not None:
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
             core.mainWindow().statusBar().showMessage('Match %d of %d' % \
@@ -386,7 +386,7 @@ class Controller(QObject):
             else:
                 self._searchInFileStartPoint = start
         
-        match, matches = self._searchInText(regExp, document.text(), self._searchInFileStartPoint, forward)
+        match, matches = self._searchInText(regExp, document.qutepart.text, self._searchInFileStartPoint, forward)
         if match:
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
             self._searchInFileLastCursorPos = match.start()
@@ -409,10 +409,10 @@ class Controller(QObject):
         if start is None:
             start = 0
         
-        match = regExp.search(document.text(), start)
+        match = regExp.search(document.qutepart.text, start)
         
         if match is None:
-            match = regExp.search(document.text(), 0)
+            match = regExp.search(document.qutepart.text, 0)
         
         if match is not None:
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
@@ -438,7 +438,7 @@ class Controller(QObject):
         
         pos = 0
         count = 0
-        match = regExp.search(document.text(), pos)
+        match = regExp.search(document.qutepart.text, pos)
         while match is not None:
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
             replaceTextSubed = substitutions.makeSubstitutions(replaceText, match)
@@ -451,8 +451,8 @@ class Controller(QObject):
             
             if not match.group(0) and not replText:  # avoid freeze when replacing empty with empty
                 pos  += 1
-            if pos < len(document.text()):
-                match = regExp.search(document.text(), pos)
+            if pos < len(document.qutepart.text):
+                match = regExp.search(document.qutepart.text, pos)
             else:
                 match = None
 

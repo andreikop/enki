@@ -71,7 +71,7 @@ class SearchThread(StopableThread):
         self._openedFiles = {}
         for document in core.workspace().documents():
             if document.filePath() is not None:
-                self._openedFiles[document.filePath()] = document.text()
+                self._openedFiles[document.filePath()] = document.qutepart.text
 
         self.start()
 
@@ -246,8 +246,8 @@ class ReplaceThread(StopableThread):
     def _replaceInOpenedDocument(self, document, matches):
         """Do replacements in opened document
         """
-        oldText = document.text()
-        newText = self._doReplacements(document.text(), matches)
+        oldText = document.qutepart.text
+        newText = self._doReplacements(document.qutepart.text, matches)
         document.replace(newText, startAbsPos=0, endAbsPos=len(oldText))
 
     def _saveContent(self, fileName, content):

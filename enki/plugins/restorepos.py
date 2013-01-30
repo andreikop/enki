@@ -52,7 +52,7 @@ class Plugin:
         
         if document.filePath() in self._positions:
             time, pos = self._positions[document.filePath()]
-            if pos <= len(document.text()):
+            if pos <= len(document.qutepart.text):
                 document.setCursorPosition(absPos = pos)
         
     def _onDocumentClosed(self, document):

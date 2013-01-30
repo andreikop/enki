@@ -38,7 +38,7 @@ class Editor(AbstractTextEditor):
         
         if not self._neverSaved:
             originalText = self._readFile(filePath)
-            self.setText(originalText)
+            self.qutepart.text = originalText
         else:
             originalText = ''
 
@@ -103,17 +103,6 @@ class Editor(AbstractTextEditor):
         """
         pass  # TODO
     
-    def text(self):
-        """Contents of the editor
-        """
-        return self.qutepart.toPlainText()
-
-    def setText(self, text):
-        """Set text in the Qutepart, clear modified flag, update line numbers bar
-        """
-        self.qutepart.setPlainText(text)
-        self._setModified(False)
-
     def selectedText(self):
         """Get selected text
         """

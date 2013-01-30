@@ -243,7 +243,7 @@ class PreviewDock(DockWidget):
             if isMarkdownFile(document):
                 language = 'Markdown'
             
-            self._thread.process(document.filePath(), language, document.text())
+            self._thread.process(document.filePath(), language, document.qutepart.text)
 
     def _setHtml(self, filePath, html):
         """Set HTML to the view and restore scroll bars position.

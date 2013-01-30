@@ -182,7 +182,7 @@ class TermWidget(QWidget):
         self._historyIndex = len(self._history) - 1
         
         self._history[-1] = ''
-        self._edit.setText('')
+        self._edit.qutepart.text = ''
         
         if not text.endswith('\n'):
             text += '\n'
@@ -214,10 +214,9 @@ class TermWidget(QWidget):
     def _editNewLineEvent(self):
         """Handler of Enter pressing in the edit
         """
-        text = self._edit.text()
+        text = self._edit.qutepart.text
         
         if self.isCommandComplete(text):
-            text = self._edit.text()
             self.execCommand(text)
             return True # processing finished
         else:
@@ -228,7 +227,7 @@ class TermWidget(QWidget):
         """
         if (self._historyIndex + 1) < len(self._history):
             self._historyIndex += 1
-            self._edit.setText(self._history[self._historyIndex])
+            self._edit.qutepart.text = self._history[self._historyIndex]
             self._edit.goTo(absPos=len(self._edit.text()))
 
     def _onHistoryPrev(self):
@@ -238,5 +237,5 @@ class TermWidget(QWidget):
             if self._historyIndex == (len(self._history) - 1):
                 self._history[-1] = self._edit.text()
             self._historyIndex -= 1
-            self._edit.setText(self._history[self._historyIndex])
+            self._edit.qutepart.text = self._history[self._historyIndex]
             self._edit.goTo(absPos=len(self._edit.text()))

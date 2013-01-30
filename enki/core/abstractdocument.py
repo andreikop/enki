@@ -288,7 +288,7 @@ class AbstractDocument(QWidget):
                 return
 
         # Text may be separated with invalid EOL symbols. Join lines with EOL, set for the document
-        text = self.text()
+        text = self.qutepart.text
         lines = text.splitlines()
         if text.endswith('\n'):
             lines.append('')
@@ -353,7 +353,7 @@ class AbstractDocument(QWidget):
 
         text = self._readFile(self.filePath())
         pos = self.absCursorPosition()
-        self.setText(text)
+        self.qutepart.text = text
         self._externallyModified = False
         self._externallyRemoved = False
         self.setCursorPosition(absPos = pos)
@@ -494,20 +494,6 @@ class AbstractTextEditor(AbstractDocument):
         """Apply indent uses tabs option
         """
         raise NotImplemented()
-
-    def text(self):
-        """Contents of the editor.
-        
-        For convenience, lines are always separated with *\\\\n*, even if text has another line separator.
-        See *eolMode()* for original separator
-        """
-        pass
-    
-    def setText(self, text):
-        """Set contents in the editor.
-        Usually this method is called only internally by openFile()
-        """
-        pass
 
     def selectedText(self):
         """Get selected text
@@ -668,7 +654,7 @@ class AbstractTextEditor(AbstractDocument):
         """Get text as list of lines. EOL symbol is not included.
         If the last line ends with EOL, additional empty line is added.
         """
-        text = self.text()
+        text = self.qutepart.text
         lines = text.splitlines()
         if text.endswith('\n'):
             lines.append('')
@@ -705,7 +691,7 @@ class AbstractTextEditor(AbstractDocument):
     def _toLineCol(self, absPosition):
         """Convert absolute position to (line, column)
         """
-        textBefore = self.text()[:absPosition]
+        textBefore = self.qutepart.text[:absPosition]
         line = textBefore.count('\n')
         eolIndex = textBefore.rfind('\n')  # -1 is ok
         col = len(textBefore) - eolIndex - 1

@@ -396,7 +396,7 @@ class Workspace(QStackedWidget):
         if len(self.documents()) == 1 and \
            self.documents()[0].fileName() is None and \
            not self.documents()[0].filePath() and \
-           not self.documents()[0].text() and \
+           not self.documents()[0].qutepart.text and \
            not self.documents()[0].isModified():
             self.closeDocument(self.documents()[0])        
 
