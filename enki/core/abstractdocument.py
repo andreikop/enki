@@ -477,27 +477,6 @@ class AbstractTextEditor(AbstractDocument):
         """
         raise NotImplemented()
 
-    def setCursorPosition(self, absPos=None, line=None, column=None):
-        """Set cursor position.
-        Examples: ::
-        
-            document.setCursorPosition(line=7)
-            document.setCursorPosition(line=7, column=9)
-            document.setCursorPosition(absPos=3)
-        
-        Implementation must implement _setCursorPosition(line, column)
-        """
-        assert line is not None or absPos is not None
-        
-        if line is not None:
-            assert absPos is None
-            if column is None:
-                column = 0
-        else:
-            assert line is None and column is None
-            line, column = self._toLineCol(absPos)
-        self._setCursorPosition(line, column)
-
     def goTo(self, absPos=None, line=None, column=None, selectionLength = None, grabFocus = False):
         """Go to specified line and column.
         If line is too big, go to the last line

@@ -420,7 +420,7 @@ class Controller(QObject):
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
             replaceTextSubed = substitutions.makeSubstitutions(replaceText, match)
             document.qutepart.selectedText = replaceTextSubed
-            document.goTo(absPos = match.start() + len(replaceTextSubed))
+            document.qutepart.absCursorPosition = match.start() + len(replaceTextSubed)
             # move selection to the next item
             self._searchFile(forward=True, incremental=False )
         else:
@@ -461,7 +461,7 @@ class Controller(QObject):
         document.endUndoAction()
         
         if oldPos is not None:
-            document.setCursorPosition(absPos = oldPos) # restore cursor position
+            document.qutepart.absCursorPosition = oldPos # restore cursor position
         core.mainWindow().statusBar().showMessage( self.tr( "%d match(es) replaced." % count ), 3000 )
     
     #

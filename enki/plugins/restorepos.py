@@ -53,7 +53,7 @@ class Plugin:
         if document.filePath() in self._positions:
             time, pos = self._positions[document.filePath()]
             if pos <= len(document.qutepart.text):
-                document.setCursorPosition(absPos = pos)
+                document.qutepart.absCursorPosition = pos
         
     def _onDocumentClosed(self, document):
         """Document has been closed. Save position

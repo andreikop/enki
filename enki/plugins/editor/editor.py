@@ -96,15 +96,6 @@ class Editor(AbstractTextEditor):
         """
         pass  # TODO
     
-    def _setCursorPosition(self, line, col):
-        """Implementation of AbstractTextEditor.setCursorPosition
-        """
-        absPos = self._toAbsPosition(line, col)
-        
-        cursor = QTextCursor(self.qutepart.document())
-        cursor.setPosition(absPos)
-        self.qutepart.setTextCursor(cursor)
-    
     def _replace(self, startAbsPos, endAbsPos, text):
         """Replace text at position with text
         """
