@@ -477,11 +477,6 @@ class AbstractTextEditor(AbstractDocument):
         """
         raise NotImplemented()
 
-    def selectedText(self):
-        """Get selected text
-        """
-        pass
-    
     def selection(self):
         """Get coordinates of selected area as ((startLine, startCol), (endLine, endCol))
         """
@@ -570,11 +565,6 @@ class AbstractTextEditor(AbstractDocument):
         """Go to. Called by AbstractTextEditor.goTo
         """
         raise NotImplemented()
-
-    def replaceSelectedText(self, text):
-        """Replace selected text with text
-        """
-        pass
 
     def replace(self, text,
                 startAbsPos=None, startLine=None, startCol=None,

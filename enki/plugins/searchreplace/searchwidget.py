@@ -233,10 +233,11 @@ class SearchWidget(QFrame):
         self._mode = mode
 
         # Set Search and Replace text
-        if core.workspace().currentDocument() is not None and \
-           core.workspace().currentDocument().hasFocus() and \
-           core.workspace().currentDocument().selectedText():
-            searchText = core.workspace().currentDocument().selectedText()
+        document = core.workspace().currentDocument()
+        if document is not None and \
+           document.hasFocus() and \
+           document.qutepart.selectedText:
+            searchText = document.qutepart.selectedText
 
             self.cbReplace.setEditText(self._makeEscapeSeqsVisible(searchText) )
 

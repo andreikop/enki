@@ -96,11 +96,7 @@ class Editor(AbstractTextEditor):
         """
         pass  # TODO
     
-    def selectedText(self):
-        """Get selected text
-        """
-        return self.qutepart.textCursor().selectedText()
-        
+
     def selection(self):
         """Get coordinates of selected area as ((startLine, startCol), (endLine, endCol))
         """
@@ -132,11 +128,6 @@ class Editor(AbstractTextEditor):
         cursor = QTextCursor(self.qutepart.document())
         cursor.setPosition(absPos)
         self.qutepart.setTextCursor(cursor)
-
-    def replaceSelectedText(self, text):
-        """Replace selected text with text
-        """
-        self.qutepart.textCursor().insertText(text)
     
     def _replace(self, startAbsPos, endAbsPos, text):
         """Replace text at position with text

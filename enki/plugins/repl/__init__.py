@@ -127,7 +127,7 @@ class _AbstractReplPlugin(QObject):
         if document is None:
             return
         
-        selection = document.selectedText()
+        selection = document.qutepart.selectedText
         if selection:
             self._interpreter.execCommand(selection)
             self._dock.show()

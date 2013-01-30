@@ -417,7 +417,7 @@ class Controller(QObject):
         if match is not None:
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
             replaceTextSubed = substitutions.makeSubstitutions(replaceText, match)
-            document.replaceSelectedText(replaceTextSubed)
+            document.qutepart.selectedText = replaceTextSubed
             document.goTo(absPos = match.start() + len(replaceTextSubed))
             # move selection to the next item
             self._searchFile(forward=True, incremental=False )
@@ -443,7 +443,7 @@ class Controller(QObject):
             document.goTo(absPos = match.start(), selectionLength = len(match.group(0)))
             replaceTextSubed = substitutions.makeSubstitutions(replaceText, match)
                 
-            document.replaceSelectedText(replaceTextSubed)
+            document.qutepart.selectedText = replaceTextSubed
             
             count += 1
             
