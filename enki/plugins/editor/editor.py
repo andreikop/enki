@@ -96,13 +96,6 @@ class Editor(AbstractTextEditor):
         """
         pass  # TODO
     
-    def absSelection(self):
-        """Get coordinates of selected area as (startAbsPos, endAbsPos)
-        """
-        cursor = self.qutepart.textCursor()
-        
-        return (cursor.selectionStart(), cursor.selectionEnd())
-
     def cursorPosition(self):
         """Get cursor position as tuple (line, col)
         """

@@ -371,10 +371,12 @@ class Controller(QObject):
             self._searchInFileStartPoint = None
         
         if self._searchInFileStartPoint is None or not incremental:
-            # get cursor position        
-            start, end = document.absSelection()
-
-            if start is None:
+            # get cursor position
+            cursor = document.qutepart.textCursor()
+            if cursor.hasSelection():
+                start = cursor.selectionStart()
+                end = cursor.selectionEnd()
+            else:
                 start = 0
                 end = 0
         

@@ -477,11 +477,6 @@ class AbstractTextEditor(AbstractDocument):
         """
         raise NotImplemented()
 
-    def absSelection(self):
-        """Get coordinates of selected area as (startAbsPos, endAbsPos)
-        """
-        pass
-    
     def cursorPosition(self):
         """Return cursor position as tuple (line, column)
         """
