@@ -398,15 +398,6 @@ class AbstractTextEditor(AbstractDocument):
     """Base class for text editors.
     """
     
-    cursorPositionChanged = pyqtSignal(int, int)
-    """
-    cursorPositionChanged(line, column)
-    
-    **Signal** emitted, when cursor position has been changed
-
-    Signal is retransmitted by the workspace
-    """  # pylint: disable=W0105
-    
     textChanged = pyqtSignal()
     """
     textChanged()

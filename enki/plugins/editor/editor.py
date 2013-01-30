@@ -32,7 +32,6 @@ class Editor(AbstractTextEditor):
         self.setFocusProxy(self.qutepart)
         
         self.qutepart.document().modificationChanged.connect(self.modifiedChanged)
-        self.qutepart.cursorPositionChanged.connect(self._onCursorPositionChanged)
         
         self._eolMode = r'\n'
         
@@ -64,12 +63,6 @@ class Editor(AbstractTextEditor):
     #
     # AbstractTextEditor interface
     #
-    
-    def _onCursorPositionChanged(self):
-        """Emit signal with current position
-        """
-        cursor = self.qutepart.textCursor()
-        self.cursorPositionChanged.emit(cursor.blockNumber(), cursor.positionInBlock())
 
     def eolMode(self):
         """Line end mode of the file

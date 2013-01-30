@@ -220,17 +220,17 @@ class PositionIndicator(QToolButton):
         """
         if self._passedUpdate:
             document = core.workspace().currentDocument()
-            self._setCursorPosition( *document.cursorPosition())
+            self._setCursorPosition( *document.qutepart.cursorPosition())
             self._passedUpdate = False
 
-    def _onCursorPositionChanged(self, document, line, col):
+    def _onCursorPositionChanged(self, document):
         """Cursor position changed.
         Update it now or schedule update later
         """
         if self._timer.isActive():
             self._passedUpdate = True
         else:
-            self._setCursorPosition(line, col)
+            self._setCursorPosition(*document.qutepart.cursorPosition())
             self._timer.start()  # one more update after timeout.
 
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument):
@@ -247,7 +247,7 @@ class PositionIndicator(QToolButton):
         
         # Update info
         if currentDocument is not None:
-            self._setCursorPosition( *currentDocument.cursorPosition())
+            self._setCursorPosition( *currentDocument.qutepart.cursorPosition())
             self.setEnabled(True)
         else:
             self._setCursorPosition(-1, -1)
