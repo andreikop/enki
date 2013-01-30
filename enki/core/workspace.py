@@ -350,7 +350,7 @@ class Workspace(QStackedWidget):
         # Create lambda functions, which retransmit conveniense signals, and connect it to document signals
         document.modifiedChanged.connect(lambda modified: self.modifiedChanged.emit(document, modified))
         document.qutepart.cursorPositionChanged.connect(lambda: self.cursorPositionChanged.emit(document))
-        document.textChanged.connect(lambda: self.textChanged.emit(document))
+        document.qutepart.textChanged.connect(lambda: self.textChanged.emit(document))
         document.qutepart.languageChanged.connect(lambda name: self.languageChanged.emit(document, name))
         document.indentWidthChanged.connect(lambda width: self.indentWidthChanged.emit(document, width))
         document.indentUseTabsChanged.connect(lambda useTabs: self.indentUseTabsChanged.emit(document, useTabs))    

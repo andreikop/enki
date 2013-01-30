@@ -398,15 +398,6 @@ class AbstractTextEditor(AbstractDocument):
     """Base class for text editors.
     """
     
-    textChanged = pyqtSignal()
-    """
-    textChanged()
-    
-    **Signal** emitted, when text has been chagned
-
-    Signal is retransmitted by the workspace
-    """  # pylint: disable=W0105
-    
     indentWidthChanged = pyqtSignal(int)
     """
     indentWidthChanged(width)
