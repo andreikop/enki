@@ -352,11 +352,11 @@ class AbstractDocument(QWidget):
         for update internal bookkeeping"""
 
         text = self._readFile(self.filePath())
-        pos = self.absCursorPosition()
+        pos = self.qutepart.cursorPosition
         self.qutepart.text = text
         self._externallyModified = False
         self._externallyRemoved = False
-        self.setCursorPosition(absPos = pos)
+        qutepart.cursorPosition = pos
         
     def modelToolTip(self):
         """Tool tip for the opened files model
@@ -477,12 +477,6 @@ class AbstractTextEditor(AbstractDocument):
         """
         raise NotImplemented()
 
-    def absCursorPosition(self):
-        """Returns cursor position as offset from the very first symbol
-        """
-        line, col = self.qutepart.cursorPosition
-        return self._toAbsPosition(line, col)
-    
     def setCursorPosition(self, absPos=None, line=None, column=None):
         """Set cursor position.
         Examples: ::

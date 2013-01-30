@@ -367,7 +367,7 @@ class Controller(QObject):
         
         regExp = self._widget.getRegExp()
 
-        if document.absCursorPosition() != self._searchInFileLastCursorPos:
+        if document.qutepart.absCursorPosition != self._searchInFileLastCursorPos:
             self._searchInFileStartPoint = None
         
         if self._searchInFileStartPoint is None or not incremental:
@@ -434,7 +434,7 @@ class Controller(QObject):
         document = core.workspace().currentDocument()
         regExp = self._widget.getRegExp()
 
-        oldPos = document.absCursorPosition()
+        oldPos = document.qutepart.absCursorPosition
         
         document.beginUndoAction()
         
