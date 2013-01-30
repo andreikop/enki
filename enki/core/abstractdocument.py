@@ -758,9 +758,3 @@ class AbstractTextEditor(AbstractDocument):
         """
         raise NotImplemented()
 
-    def setExtraSelections(self, selections):
-        """Set additional selections.
-        Used for highlighting search results
-        Selections is list of turples (startAbsolutePosition, length)
-        """
-        pass

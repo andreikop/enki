@@ -222,19 +222,19 @@ class Controller(QObject):
         if not self._widget.isVisible() or \
            not self._widget.isSearchRegExpValid()[0] or \
            not self._widget.getRegExp().pattern:
-            document.setExtraSelections([])
+            document.qutepart.setExtraSelections([])
             return
         
         regExp = self._widget.getRegExp()
         selections = [ (match.start(), len(match.group(0)))\
                         for match in regExp.finditer(document.text())]
-        document.setExtraSelections(selections)
+        document.qutepart.setExtraSelections(selections)
     
     def _onCurrentDocumentChanged(self, old, new):
         """Current document changed. Clear highlighted items
         """
         if old is not None:
-            old.setExtraSelections([])
+            old.qutepart.setExtraSelections([])
     
     @staticmethod
     def _searchInText(regExp, text, startPoint, forward):
