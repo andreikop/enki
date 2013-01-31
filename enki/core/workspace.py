@@ -347,9 +347,8 @@ class Workspace(QStackedWidget):
                 column = len(lineToGo) - len(lineToGo.lstrip())  # count of whitespaces before text
             
             document.qutepart.cursorPosition = line, column
-        else:
+        elif absPos is not None:
             assert line is None and column is None
-            assert absPos is not None
             document.qutepart.absCursorPosition = absPos
         
         if selectionLength is not None:

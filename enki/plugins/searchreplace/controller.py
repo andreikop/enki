@@ -336,7 +336,7 @@ class Controller(QObject):
         """Reset selection in the document
         """
         pos = document.qutepart.absCursorPosition
-        document.qutepart.absSelectedPosition = (cursorPosition, cursorPosition)
+        document.qutepart.absSelectedPosition = (pos, pos)
     
     def _onRegExpChanged(self, regExp):
         """Search regExp changed. Do incremental search
@@ -407,7 +407,7 @@ class Controller(QObject):
         document = core.workspace().currentDocument()
         regExp = self._widget.getRegExp()
 
-        start, end = document.absSelection()  # pylint: disable=W0612
+        start, end = document.qutepart.absSelectedPosition
         if start is None:
             start = 0
         

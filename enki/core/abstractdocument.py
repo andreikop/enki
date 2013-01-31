@@ -356,7 +356,7 @@ class AbstractDocument(QWidget):
         self.qutepart.text = text
         self._externallyModified = False
         self._externallyRemoved = False
-        qutepart.cursorPosition = pos
+        self.qutepart.cursorPosition = pos
         
     def modelToolTip(self):
         """Tool tip for the opened files model
