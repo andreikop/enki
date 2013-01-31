@@ -89,7 +89,7 @@ class Plugin(QObject):
     def _reloadDocument(self, document):
         """Reload the document contents
         """
-        if  document.isModified():
+        if  document.qutepart.document().isModified():
             template = self.tr( "The file <b>%s</b> has been modified by you.\n"
                                 "Do you want to reload and discard changes?" )
             text = template % document.fileName()

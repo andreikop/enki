@@ -132,7 +132,7 @@ class _AbstractReplPlugin(QObject):
             self._interpreter.execCommand(selection)
             self._dock.show()
         else:
-            if document.isModified():
+            if document.qutepart.document().isModified():
                 document.saveFile()
             if document.filePath():  # user may cancel saving document
                 self._interpreter.loadFile(document.filePath())

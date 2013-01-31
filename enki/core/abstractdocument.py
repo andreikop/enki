@@ -215,11 +215,6 @@ class AbstractDocument(QWidget):
         """
         pass
 
-    def isModified(self):
-        """Returns True, if file is modified
-        """
-        pass
-
     def isExternallyModified(self):
         """Check if document's file has been modified externally.
         
@@ -366,7 +361,7 @@ class AbstractDocument(QWidget):
         if toolTip is None:
             return None
 
-        if self.isModified():
+        if self.qutepart.document().isModified():
             toolTip += "<br/><font color='blue'>%s</font>" % self.tr("Locally Modified")
         if  self._externallyModified:
             toolTip += "<br/><font color='red'>%s</font>" % self.tr("Externally Modified")
@@ -383,16 +378,33 @@ class AbstractDocument(QWidget):
             icon = "modified-externally-deleted.png"
         elif self._externallyRemoved:
             icon = "deleted.png"
-        elif self._externallyModified and self.isModified():
+        elif self._externallyModified and self.qutepart.document().isModified():
             icon = "modified-externally-modified.png"
         elif self._externallyModified:
             icon = "modified-externally.png"
-        elif self.isModified():
+        elif self.qutepart.document().isModified():
             icon = "save.png"
         else:
             icon = "transparent.png"
         return QIcon(":/enkiicons/" + icon)
     
+    def invokeGoTo(self):
+        """Show GUI dialog, go to line, if user accepted it
+        """
+        line = self.qutepart.cursorPosition[0]
+        gotoLine, accepted = QInputDialog.getInteger(self, self.tr( "Go To Line..." ),
+                                                      self.tr( "Enter the line you want to go:" ), 
+                                                      line, 1, len(self.qutepart.lines), 1)
+        if accepted:
+            gotoLine -= 1
+            self.qutepart.cursorPosition = gotoLine, None
+            self.setFocus()
+    
+    def printFile(self):
+        """Print file
+        """
+        raise NotImplemented()
+
 
 class AbstractTextEditor(AbstractDocument):
     """Base class for text editors.
@@ -477,111 +489,6 @@ class AbstractTextEditor(AbstractDocument):
         """
         raise NotImplemented()
 
-    def replace(self, text,
-                startAbsPos=None, startLine=None, startCol=None,
-                endAbsPos=None, endLine=None, endCol=None):
-        """Replace text at specified position with text.
-        
-        startAbsPos or (startLine and startCol) must be specified.
-        
-        endAbsPos or (endLine and endCol) must be specified
-        """
-        if startAbsPos is None:
-            assert startLine is not None and startCol is not None
-            startAbsPos = self._toAbsPosition(startLine, startCol)
-        if endAbsPos is None:
-            assert endLine is not None and endCol is not None
-            endAbsPos = self._toAbsPosition(endLine, endCol)
-        self._replace(startAbsPos, endAbsPos, text)
-
-    def beginUndoAction(self):
-        """Start doing set of modifications, which will be managed as one action.
-        User can Undo and Redo all modifications with one action
-        
-        DO NOT FORGET to call **endUndoAction()** after you have finished
-        """
-        pass
-
-    def endUndoAction(self):
-        """Finish doing set of modifications, which will be managed as one action.
-        User can Undo and Redo all modifications with one action
-        """
-        pass
-
-    def invokeGoTo(self):
-        """Show GUI dialog, go to line, if user accepted it
-        """
-        line = self.qutepart.cursorPosition[0]
-        gotoLine, accepted = QInputDialog.getInteger(self, self.tr( "Go To Line..." ),
-                                                      self.tr( "Enter the line you want to go:" ), 
-                                                      line, 1, self.lineCount(), 1)
-        if accepted:
-            gotoLine -= 1
-            self.qutepart.cursorPosition = gotoLine, None
-            self.setFocus()
-
-        
-    def line(self, index):
-        """Get line of the text by its index. Lines are indexed from 0.
-        
-        None, if index is invalid
-        """
-        return self.lines()[index]
-    
-    def setLine(self, index, text):
-        """Replace text in the line with the text.
-        Shortcut for replace(...)
-        """
-        self.replace(text, startLine=index, startCol=0,
-                           endLine=index, endCol=len(self.line(index)))
-    
-    def lines(self):
-        """Get text as list of lines. EOL symbol is not included.
-        If the last line ends with EOL, additional empty line is added.
-        """
-        text = self.qutepart.text
-        lines = text.splitlines()
-        if text.endswith('\n'):
-            lines.append('')
-        elif not lines:  # empty text contains one empty line
-            lines.append('')
-        return lines
-
-    def lineCount(self):
-        """Get line count
-        """
-        pass
-
-    def wordUnderCursor(self):
-        """Get word under cursor.
-        What is a "word" depends on current language
-        Return (word, wordStartAbsPos, wordEndAbsPos) or (None, None, None)
-        """
-        raise NotImplemented()
-
-    def _toAbsPosition(self, line, col):
-        """Convert (line, column) to absolute position
-        """
-        lines = self.lines()
-        
-        lines = lines[:line + 1]  # remove not included lines
-        if lines:
-            lines[-1] = lines[-1][:col]  # remove not included symbols
-            
-        pos = sum([len(l) for l in lines])  # sum of all visible symbols
-        pos += (len(lines) - 1)  # EOL symbols
-        
-        return pos
-
-    def _toLineCol(self, absPosition):
-        """Convert absolute position to (line, column)
-        """
-        textBefore = self.qutepart.text[:absPosition]
-        line = textBefore.count('\n')
-        eolIndex = textBefore.rfind('\n')  # -1 is ok
-        col = len(textBefore) - eolIndex - 1
-        return line, col
-
     def _configureEolMode(self, originalText):
         """Detect end of line mode automatically and apply detected mode
         """
@@ -623,9 +530,4 @@ class AbstractTextEditor(AbstractDocument):
                 self._setModified(True)
             
             self.setEolMode(default)
-
-    def printFile(self):
-        """Print file
-        """
-        raise NotImplemented()
 

@@ -55,11 +55,6 @@ class Editor(AbstractTextEditor):
         """
         self.qutepart.document().setModified(modified)
 
-    def isModified(self):
-        """Check is file has been modified
-        """
-        return self.qutepart.document().isModified()
-
     #
     # AbstractTextEditor interface
     #
@@ -93,38 +88,6 @@ class Editor(AbstractTextEditor):
     
     def _applyIndentUseTabs(self, use):
         """Set iindentation mode (Tabs or spaces)
-        """
-        pass  # TODO
-    
-    def _replace(self, startAbsPos, endAbsPos, text):
-        """Replace text at position with text
-        """
-        cursor = QTextCursor(self.qutepart.document())
-        cursor.setPosition(startAbsPos)
-        cursor.setPosition(endAbsPos, QTextCursor.KeepAnchor)
-        cursor.insertText(text)
-    
-    def beginUndoAction(self):
-        """Start doing set of modifications, which will be managed as one action.
-        User can Undo and Redo all modifications with one action
-        
-        DO NOT FORGET to call **endUndoAction()** after you have finished
-        """
-        self.qutepart.textCursor().beginEditBlock()
-
-    def endUndoAction(self):
-        """Finish doing set of modifications, which will be managed as one action.
-        User can Undo and Redo all modifications with one action
-        """
-        self.qutepart.textCursor().endEditBlock()
-
-    def lineCount(self):
-        """Get line count
-        """
-        return self.qutepart.blockCount()
-
-    def printFile(self):
-        """Print file
         """
         pass  # TODO
 

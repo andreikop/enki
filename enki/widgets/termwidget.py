@@ -91,7 +91,7 @@ class TermWidget(QWidget):
         """
         if event.type() == QEvent.KeyPress:
             if event.matches(QKeySequence.MoveToNextLine):
-                if self._edit.qutepart.cursorPosition[0] == (self._edit.lineCount() - 1):
+                if self._edit.qutepart.cursorPosition[0] == (len(self._edit.qutepart.lines) - 1):
                     self._onHistoryNext()
                     return True
             elif event.matches(QKeySequence.MoveToPreviousLine):

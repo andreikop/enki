@@ -282,8 +282,14 @@ class Controller(QObject):
         """
         document = core.workspace().currentDocument()
 
-        word, wordStartAbsPos, wordEndAbsPos = document.wordUnderCursor()
-        if word is None:
+        cursor = document.qutepart.textCursor()
+        if not cursor.hasSelection():
+            cursor.select(cursor.WordUnderCursor)
+        word = cursor.selectedText()
+        wordStartAbsPos = cursor.anchor()
+        wordEndAbsPos = cursor.position()
+        
+        if not word:
             return
         
         regExp = re.compile('\\b%s\\b' % re.escape(word))
@@ -436,29 +442,26 @@ class Controller(QObject):
 
         oldPos = document.qutepart.absCursorPosition
         
-        document.beginUndoAction()
-        
-        pos = 0
-        count = 0
-        match = regExp.search(document.qutepart.text, pos)
-        while match is not None:
-            document.qutepart.absSelectedPosition = (match.start(), match.start() + len(match.group(0)))
-            replaceTextSubed = substitutions.makeSubstitutions(replaceText, match)
+        with document.qutepart:
+            pos = 0
+            count = 0
+            match = regExp.search(document.qutepart.text, pos)
+            while match is not None:
+                document.qutepart.absSelectedPosition = (match.start(), match.start() + len(match.group(0)))
+                replaceTextSubed = substitutions.makeSubstitutions(replaceText, match)
+                    
+                document.qutepart.selectedText = replaceTextSubed
                 
-            document.qutepart.selectedText = replaceTextSubed
-            
-            count += 1
-            
-            pos = match.start() + len(replaceTextSubed)
-            
-            if not match.group(0) and not replText:  # avoid freeze when replacing empty with empty
-                pos  += 1
-            if pos < len(document.qutepart.text):
-                match = regExp.search(document.qutepart.text, pos)
-            else:
-                match = None
-
-        document.endUndoAction()
+                count += 1
+                
+                pos = match.start() + len(replaceTextSubed)
+                
+                if not match.group(0) and not replText:  # avoid freeze when replacing empty with empty
+                    pos  += 1
+                if pos < len(document.qutepart.text):
+                    match = regExp.search(document.qutepart.text, pos)
+                else:
+                    match = None
         
         if oldPos is not None:
             document.qutepart.absCursorPosition = oldPos # restore cursor position

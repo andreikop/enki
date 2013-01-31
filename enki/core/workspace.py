@@ -211,7 +211,7 @@ class Workspace(QStackedWidget):
             name = document.fileName()
             if name is None:
                 name = 'untitled'
-            if document.isModified():
+            if document.qutepart.document().isModified():
                 name += '*'
             if document.filePath() is not None:
                 path = os.path.dirname(document.filePath())
@@ -338,12 +338,12 @@ class Workspace(QStackedWidget):
         
         if line is not None:
             assert absPos is None
-            if line >= document.lineCount():
-                line = document.lineCount() - 1
+            if line >= len(document.qutepart.lines):
+                line = len(document.qutepart.lines) - 1
                 column = None
             
             if column is None:
-                lineToGo = document.line(line)
+                lineToGo = document.qutepart.lines[line]
                 column = len(lineToGo) - len(lineToGo.lstrip())  # count of whitespaces before text
             
             document.qutepart.cursorPosition = line, column
@@ -411,7 +411,7 @@ class Workspace(QStackedWidget):
            self.documents()[0].fileName() is None and \
            not self.documents()[0].filePath() and \
            not self.documents()[0].qutepart.text and \
-           not self.documents()[0].isModified():
+           not self.documents()[0].qutepart.document().isModified():
             self.closeDocument(self.documents()[0])        
 
         # check if file is already opened
@@ -502,7 +502,7 @@ class Workspace(QStackedWidget):
     def closeDocument( self, document):
         """Close opened file, remove document from workspace and delete the widget
         """
-        if document.isModified():
+        if document.qutepart.document().isModified():
             if _UISaveFiles(self, [document]).exec_() == QDialog.Rejected:
                 return
         
@@ -513,7 +513,7 @@ class Workspace(QStackedWidget):
         Will save documents, checked by user
         Returns True, if user hasn't pressed Cancel Close
         """
-        modifiedDocuments = [d for d in self.documents() if d.isModified()]
+        modifiedDocuments = [d for d in self.documents() if d.qutepart.document().isModified()]
         if modifiedDocuments:
             if (_UISaveFiles( self, modifiedDocuments).exec_() == QDialog.Rejected):
                 return False # do not close

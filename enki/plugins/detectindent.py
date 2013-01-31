@@ -64,7 +64,7 @@ class Plugin:
                 return None
         
         # non-empty lines. Empty (without trailing whitespaces) lines between code blocks break detection algorythm
-        lines = [l for l in document.lines() if l]
+        lines = [l for l in document.qutepart.lines if l]
         lastIndent = ''
         popularityTable = {}
         for l in lines:
