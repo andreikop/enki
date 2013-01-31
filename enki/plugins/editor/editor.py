@@ -31,8 +31,6 @@ class Editor(AbstractTextEditor):
         layout.addWidget(self.qutepart)
         self.setFocusProxy(self.qutepart)
         
-        self.qutepart.document().modificationChanged.connect(self.modifiedChanged)
-        
         self._eolMode = r'\n'
         
         if not self._neverSaved:
@@ -45,16 +43,7 @@ class Editor(AbstractTextEditor):
         pass  # TODO self._configureEolMode(originalText)
         
         self.qutepart.detectSyntax(sourceFilePath = filePath)
-
-    #
-    # AbstractDocument interface
-    #
     
-    def _setModified(self, modified):
-        """Update modified state for the file. Called by AbstractTextEditor, must be implemented by the children
-        """
-        self.qutepart.document().setModified(modified)
-
     #
     # AbstractTextEditor interface
     #

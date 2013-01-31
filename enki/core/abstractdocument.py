@@ -127,16 +127,6 @@ class AbstractDocument(QWidget):
     DO redesign instead of doing dirty hacks
     """
     
-    modifiedChanged = pyqtSignal(bool)
-    """
-    modifiedChanged(modified)
-    
-    **Signal** emitted, when modified state changed (file edited, or saved)
-    Bool parameter contains new value
-    
-    Signal is retransmitted by the workspace
-    """  # pylint: disable=W0105
-    
     documentDataChanged = pyqtSignal()
     """
     documentDataChanged()
@@ -209,11 +199,6 @@ class AbstractDocument(QWidget):
             text = text[:-1]
         
         return text
-
-    def _setModified(self, value):
-        """Set modified state for the file. Called by AbstractDocument
-        """
-        pass
 
     def isExternallyModified(self):
         """Check if document's file has been modified externally.
@@ -314,7 +299,7 @@ class AbstractDocument(QWidget):
         self._neverSaved = False
         self._externallyRemoved = False
         self._externallyModified = False
-        self._setModified(False)
+        self.qutepart.document().setModified(False)
 
     def saveFile(self):
         """Save the file to file system
@@ -515,7 +500,7 @@ class AbstractTextEditor(AbstractDocument):
                         (self.filePath(), default)
             core.mainWindow().appendMessage(message, 10000)
             self.setEolMode(default)
-            self._setModified(True)
+            self.qutepart.document().setModified(True)
         elif core.config()["Editor"]["EOL"]["AutoDetect"]:
             if detectedMode is not None:
                 self.setEolMode (detectedMode)
@@ -527,7 +512,7 @@ class AbstractTextEditor(AbstractDocument):
                 message = "%s: End Of Line mode is '%s', but file will be saved with '%s'. " \
                           "EOL autodetection is disabled in the settings" % (self.fileName(), detectedMode, default)
                 core.mainWindow().appendMessage(message, 10000)
-                self._setModified(True)
+                self.qutepart.document().setModified(True)
             
             self.setEolMode(default)
 

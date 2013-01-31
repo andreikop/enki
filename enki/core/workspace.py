@@ -359,10 +359,10 @@ class Workspace(QStackedWidget):
         """Add document to the workspace. Connect signals
         """
         # update file menu
-        document.modifiedChanged.connect(self._updateMainWindowTitle)
+        document.qutepart.document().modifiedChanged.connect(self._updateMainWindowTitle)
 
         # Create lambda functions, which retransmit conveniense signals, and connect it to document signals
-        document.modifiedChanged.connect(lambda modified: self.modifiedChanged.emit(document, modified))
+        document.qutepart.document().modifiedChanged.connect(lambda modified: self.modifiedChanged.emit(document, modified))
         document.qutepart.cursorPositionChanged.connect(lambda: self.cursorPositionChanged.emit(document))
         document.qutepart.textChanged.connect(lambda: self.textChanged.emit(document))
         document.qutepart.languageChanged.connect(lambda name: self.languageChanged.emit(document, name))
