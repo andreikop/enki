@@ -114,9 +114,9 @@ class Workspace(QStackedWidget):
     new document opened, current closed
     """  # pylint: disable=W0105
     
-    modifiedChanged = pyqtSignal(AbstractDocument, bool)
+    modificationChanged = pyqtSignal(AbstractDocument, bool)
     """
-    modifiedChanged(document, modified)
+    modificationChanged(document, modified)
     
     **Signal** emitted, when modified state of a document had been changed (file edited, or saved)
     Bool parameter contains new value
@@ -359,10 +359,10 @@ class Workspace(QStackedWidget):
         """Add document to the workspace. Connect signals
         """
         # update file menu
-        document.qutepart.document().modifiedChanged.connect(self._updateMainWindowTitle)
+        document.qutepart.document().modificationChanged.connect(self._updateMainWindowTitle)
 
         # Create lambda functions, which retransmit conveniense signals, and connect it to document signals
-        document.qutepart.document().modifiedChanged.connect(lambda modified: self.modifiedChanged.emit(document, modified))
+        document.qutepart.document().modificationChanged.connect(lambda modified: self.modificationChanged.emit(document, modified))
         document.qutepart.cursorPositionChanged.connect(lambda: self.cursorPositionChanged.emit(document))
         document.qutepart.textChanged.connect(lambda: self.textChanged.emit(document))
         document.qutepart.languageChanged.connect(lambda name: self.languageChanged.emit(document, name))
