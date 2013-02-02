@@ -17,7 +17,7 @@ Core creates basic user interface, provides basic functionality for user, contai
    core/mainwindow.rst
    core/actionmanager.rst
    core/workspace.rst
-   core/abstractdocument.rst
+   core/document.rst
    core/config.rst
    core/uisettings.rst
    core/filefilter.rst

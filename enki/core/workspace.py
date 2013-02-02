@@ -6,13 +6,7 @@ Terminology:
 
 Workspace - main working area, where documents are placed.
 
-Document - widget on workspace. Here is examples of documents:
-
-* Textual editor
-* QtDesigner (probably in the future)
-* QtAssistant (probably in the future)
-
-Document classes are herited from :class:`enki.core.abstractdocument.AbstractDocument`
+Document - opened file, widget on workspace. :class:`enki.core.document.Document` instance
 
 :class:`enki.core.workspace.Workspace`
 """
@@ -30,7 +24,7 @@ from PyQt4.QtCore import pyqtSignal, QEvent, Qt  # pylint: disable=E0611
 
 from enki.core.core import core, DATA_FILES_PATH
 import enki.core.openedfilemodel
-from enki.core.abstractdocument import AbstractDocument
+from enki.core.document import Document
 
 
 class _UISaveFiles(QDialog):
@@ -89,32 +83,32 @@ class Workspace(QStackedWidget):
     
     """
         
-    documentOpened = pyqtSignal(AbstractDocument)
+    documentOpened = pyqtSignal(Document)
     """
-    documentOpened(:class:`enki.core.abstractdocument.AbstractDocument`)
+    documentOpened(:class:`enki.core.document.Document`)
     
     **Signal** emitted, when document has been created, i.e. textual file opened, 
     or some other document added to workspace
     """  # pylint: disable=W0105
     
-    documentClosed = pyqtSignal(AbstractDocument)
+    documentClosed = pyqtSignal(Document)
     """
-    documentClosed(:class:`enki.core.abstractdocument.AbstractDocument`)
+    documentClosed(:class:`enki.core.document.Document`)
     
     **Signal** emitted, when document was closed
     """  # pylint: disable=W0105
     
-    currentDocumentChanged = pyqtSignal(AbstractDocument,
-                                        AbstractDocument)
+    currentDocumentChanged = pyqtSignal(Document,
+                                        Document)
     """
-    currentDocumentChanged(:class:`enki.core.abstractdocument.AbstractDocument` old, 
-    :class:`enki.core.abstractdocument.AbstractDocument` current)
+    currentDocumentChanged(:class:`enki.core.document.Document` old, 
+    :class:`enki.core.document.Document` current)
     
     **Signal** emitted, when current document changed, i.e. user selected another document, 
     new document opened, current closed
     """  # pylint: disable=W0105
     
-    modificationChanged = pyqtSignal(AbstractDocument, bool)
+    modificationChanged = pyqtSignal(Document, bool)
     """
     modificationChanged(document, modified)
     
@@ -123,7 +117,7 @@ class Workspace(QStackedWidget):
     Convenience signal, which retransmits original signal, sent by the document
     """  # pylint: disable=W0105
 
-    cursorPositionChanged = pyqtSignal(AbstractDocument)
+    cursorPositionChanged = pyqtSignal(Document)
     """
     cursorPositionChanged(document)
     
@@ -131,7 +125,7 @@ class Workspace(QStackedWidget):
     Convenience signal, which retransmits original signal, sent by the document
     """  # pylint: disable=W0105
     
-    textChanged = pyqtSignal(AbstractDocument)
+    textChanged = pyqtSignal(Document)
     """
     textChanged(document)
     
@@ -139,7 +133,7 @@ class Workspace(QStackedWidget):
     Convenience signal, which retransmits original signal, sent by the document
     """  # pylint: disable=W0105
     
-    languageChanged = pyqtSignal(AbstractDocument, unicode)
+    languageChanged = pyqtSignal(Document, unicode)
     """
     languageChanged(document, language)
     
@@ -147,7 +141,7 @@ class Workspace(QStackedWidget):
     Convenience signal, which retransmits original signal, sent by Qutepart
     """  # pylint: disable=W0105
     
-    indentWidthChanged = pyqtSignal(AbstractDocument, int)
+    indentWidthChanged = pyqtSignal(Document, int)
     """
     indentWidthChanged(document, width)
     
@@ -155,7 +149,7 @@ class Workspace(QStackedWidget):
     Convenience signal, which retransmits original signal, sent by the document
     """  # pylint: disable=W0105
 
-    indentUseTabsChanged = pyqtSignal(AbstractDocument, bool)
+    indentUseTabsChanged = pyqtSignal(Document, bool)
     """
     indentUseTabsChanged(document, use)
     
@@ -181,7 +175,6 @@ class Workspace(QStackedWidget):
         self.setStyleSheet("QStackedWidget { padding-bottom: 5; }");
         self.sortedDocuments = []  # not protected, because available for OpenedFileModel
         self._oldCurrentDocument = None
-        self._textEditorClass = None
         
         # create opened files explorer
         # openedFileExplorer is not protected, because it is available for OpenedFileModel
@@ -226,21 +219,7 @@ class Workspace(QStackedWidget):
         else:
             name = self._mainWindow().defaultTitle()
         self._mainWindow().setWindowTitle(name)
-
-    def setTextEditorClass(self, newEditorClass):
-        """Set text editor, which is used for open textual documents.
-        New editor would be used for newly opened textual documents.
         
-        newEditorClass is class, herited from :class:`enki.core.abstractdocument.AbstractDocument`
-        """
-        self._textEditorClass = newEditorClass
-    
-    def textEditorClass(self):
-        """Get text editor, which is used for open textual documents.
-        Text editor is class, herited from :class:`enki.core.abstractdocument.AbstractDocument`
-        """
-        return self._textEditorClass
-    
     def eventFilter( self, obj, event ):
         """NOT AN API function
         
@@ -419,24 +398,11 @@ class Workspace(QStackedWidget):
         if alreadyOpenedDocument is not None:
             self.setCurrentDocument( alreadyOpenedDocument )
             return alreadyOpenedDocument
-
-        documentType = None  # TODO detect document type, choose editor
-        
-        # select editor for the file
-        if not documentType :
-            documentType = self._textEditorClass
-        
-        if not documentType:
-            QMessageBox.critical(None,
-                                 self.tr("Failed to open file"),
-                                 self.tr("Don't have any editor for open %s. Is any text editor plugin enabled?" % 
-                                         filePath))
-            return None
         
         # open file
         try:
             QApplication.setOverrideCursor( Qt.WaitCursor )
-            document = documentType(self, filePath)
+            document = Document(self, filePath)
         except IOError as ex:
             QMessageBox.critical(None,
                                  self.tr("Failed to open file"),
@@ -475,13 +441,13 @@ class Workspace(QStackedWidget):
             except OSError:  # current directory might have been deleted
                 pass  # leave as is
         
-        document = self._textEditorClass(self, filePath, True)
+        document = Document(self, filePath, createNew=True)
         self._handleDocument( document )
         document.setFocus()
         return document
     
     def documents(self):
-        """Get list of opened documents (:class:`enki.core.abstractdocument.AbstractDocument` instances)
+        """Get list of opened documents (:class:`enki.core.document.Document` instances)
         """
         return self.sortedDocuments
     

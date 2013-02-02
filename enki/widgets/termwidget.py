@@ -16,13 +16,37 @@ from PyQt4.QtGui import QColor, QFont, QKeySequence, QLabel, QLineEdit, QPalette
 
 from enki.core.core import core
 
+from qutepart import Qutepart
+
+class _TextEdit(Qutepart):
+    """Text editor class, which implements good size hints
+    """
+    def __init__(self, *args, **kwargs):
+        Qutepart.__init__(self, *args, **kwargs)
+        self._sizeHintLabel = QLabel("asdf")
+    
+    def minimumSizeHint(self):
+        """QWidget.minimumSizeHint implementation
+        """
+        lineHeight = self._calculateLineHeight()
+        return QSize(lineHeight * 2, lineHeight * 2)
+    
+    def sizeHint(self):
+        """QWidget.sizeHint implementation
+        """
+        lineHeight = self._calculateLineHeight()
+        return QSize(lineHeight * 6, lineHeight * 6)
+    
+    def _calculateLineHeight(self):
+        """Calculate height of one line of text
+        """
+        self._sizeHintLabel.setFont(QFont(core.config()["Editor"]["DefaultFont"],
+                                          core.config()["Editor"]["DefaultFontSize"]))
+        return self._sizeHintLabel.sizeHint().height()
 
 class TermWidget(QWidget):
     """Widget wich represents terminal. It only displays text and allows to enter text.
     All highlevel logic should be implemented by client classes
-    
-    Text editor class must be set when initializing TermWidget.
-    See :meth:`enki.core.workspace.Workspace.setTextEditorClass`
     """
 
     def __init__(self, *args):
@@ -32,8 +56,7 @@ class TermWidget(QWidget):
         self._browser.document().setDefaultStyleSheet(self._browser.document().defaultStyleSheet() + 
                                                       "span {white-space:pre;}")
 
-        editorClass = self._makeEditorClass()
-        self._edit = editorClass(self, None, terminalWidget=True)
+        self._edit = _TextEdit(self)
         
         lowLevelWidget = self._edit.focusProxy()
         if lowLevelWidget is None:
@@ -54,48 +77,16 @@ class TermWidget(QWidget):
         
         self._edit.setFocus()
     
-    def _makeEditorClass(self):
-        """Get an editor class with redefined size hints
-        """
-        defaultEditorClass = core.workspace().textEditorClass()
-        class Edit(defaultEditorClass):
-            """Text editor class, which implements good size hints
-            """
-            def __init__(self, *args, **kwargs):
-                defaultEditorClass.__init__(self, *args, **kwargs)
-                self._sizeHintLabel = QLabel("asdf")
-            
-            def minimumSizeHint(self):
-                """QWidget.minimumSizeHint implementation
-                """
-                lineHeight = self._calculateLineHeight()
-                return QSize(lineHeight * 2, lineHeight * 2)
-            
-            def sizeHint(self):
-                """QWidget.sizeHint implementation
-                """
-                lineHeight = self._calculateLineHeight()
-                return QSize(lineHeight * 6, lineHeight * 6)
-            
-            def _calculateLineHeight(self):
-                """Calculate height of one line of text
-                """
-                self._sizeHintLabel.setFont(QFont(core.config()["Editor"]["DefaultFont"],
-                                                  core.config()["Editor"]["DefaultFontSize"]))
-                return self._sizeHintLabel.sizeHint().height()
-        
-        return Edit
-
     def eventFilter(self, obj, event):
         """QWidget.eventFilter implementation. Catches _edit key pressings. Processes some of them
         """
         if event.type() == QEvent.KeyPress:
             if event.matches(QKeySequence.MoveToNextLine):
-                if self._edit.qutepart.cursorPosition[0] == (len(self._edit.qutepart.lines) - 1):
+                if self._edit.cursorPosition[0] == (len(self._edit.lines) - 1):
                     self._onHistoryNext()
                     return True
             elif event.matches(QKeySequence.MoveToPreviousLine):
-                if self._edit.qutepart.cursorPosition[0] == 0:
+                if self._edit.cursorPosition[0] == 0:
                     self._onHistoryPrev()
                     return True
             elif event.matches(QKeySequence.MoveToNextPage) or \
@@ -168,7 +159,7 @@ class TermWidget(QWidget):
     def setLanguage(self, language):
         """Set highlighting language for input widget
         """
-        self._edit.qutepart.detectSyntax(language=language)
+        self._edit.detectSyntax(language=language)
 
     def execCommand(self, text):
         """Save current command in the history. Append it to the log. Execute child's method. Clear edit line.
@@ -182,7 +173,7 @@ class TermWidget(QWidget):
         self._historyIndex = len(self._history) - 1
         
         self._history[-1] = ''
-        self._edit.qutepart.text = ''
+        self._edit.text = ''
         
         if not text.endswith('\n'):
             text += '\n'
@@ -214,7 +205,7 @@ class TermWidget(QWidget):
     def _editNewLineEvent(self):
         """Handler of Enter pressing in the edit
         """
-        text = self._edit.qutepart.text
+        text = self._edit.text
         
         if self.isCommandComplete(text):
             self.execCommand(text)
@@ -227,15 +218,15 @@ class TermWidget(QWidget):
         """
         if (self._historyIndex + 1) < len(self._history):
             self._historyIndex += 1
-            self._edit.qutepart.text = self._history[self._historyIndex]
-            self._edit.qutepart.cursorPosition = len(self._edit.qutepart.text)
+            self._edit.text = self._history[self._historyIndex]
+            self._edit.absCursorPosition = len(self._edit.text)
 
     def _onHistoryPrev(self):
         """Up pressed, show previous item from the history
         """
         if self._historyIndex > 0:
             if self._historyIndex == (len(self._history) - 1):
-                self._history[-1] = self._edit.qutepart.text
+                self._history[-1] = self._edit.text
             self._historyIndex -= 1
-            self._edit.qutepart.text = self._history[self._historyIndex]
-            self._edit.qutepart.cursorPosition = len(self._edit.qutepart.text)
+            self._edit.text = self._history[self._historyIndex]
+            self._edit.absCursorPosition = len(self._edit.text)

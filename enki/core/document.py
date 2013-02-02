@@ -1,12 +1,6 @@
 """
-abstractdocument --- Base classes for workspace documents
-=========================================================
-
-This class is inherited by textual editor, and must be inherited by other workspace widgets.
-
-Classes:
-    * :class:`enki.core.abstractdocument.AbstractDocument`
-    * :class:`enki.core.abstractdocument.AbstractTextEditor`
+document --- Opened file representation
+=======================================
 """
 
 import os.path
@@ -16,7 +10,10 @@ from PyQt4.QtGui import QFileDialog, \
                         QIcon, \
                         QInputDialog, \
                         QMessageBox, \
-                        QWidget
+                        QWidget, \
+                        QVBoxLayout
+
+from qutepart import Qutepart
 
 from enki.core.core import core
 
@@ -118,7 +115,7 @@ class _FileWatcher(QObject):
         except (OSError, IOError):
             return None
 
-class AbstractDocument(QWidget):
+class Document(QWidget):
     """
     Base class for documents on workspace, such as opened source file, Qt Designer and Qt Assistant, ...
     Inherit this class, if you want to create new document type
@@ -153,6 +150,25 @@ class AbstractDocument(QWidget):
         
         if filePath and self._neverSaved:
             core.mainWindow().appendMessage('New file "%s" is going to be created' % filePath, 5000)
+
+        self.qutepart = Qutepart(self)
+        
+        layout = QVBoxLayout(self)
+        layout.setMargin(0)
+        layout.addWidget(self.qutepart)
+        self.setFocusProxy(self.qutepart)
+        
+        if not self._neverSaved:
+            originalText = self._readFile(filePath)
+            self.qutepart.text = originalText
+        else:
+            originalText = ''
+
+        #autodetect eol, if need
+        self._configureEolMode(originalText)
+        
+        self.qutepart.detectSyntax(sourceFilePath = filePath)
+
 
     def del_(self):
         """Explicytly called destructor
@@ -417,16 +433,4 @@ class AbstractDocument(QWidget):
                 self.qutepart.document().setModified(True)
             
             self.qutepart.eol = default
-
-
-class AbstractTextEditor(AbstractDocument):
-    """Base class for text editors.
-    """
-    
-    def __init__(self, parentObject, filePath, createNew=False, terminalWidget=False):
-        """If terminalWidget is True, editor is used not as fully functional editor, but as interactive terminal.
-        In this mode line numbers and autocompletion won't be shown
-        """
-        AbstractDocument.__init__(self, parentObject, filePath, createNew)
-        self._language = None
 
