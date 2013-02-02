@@ -272,7 +272,6 @@ class UISettings(QDialog):
     def __init__(self, parent):
         QDialog.__init__(self, parent)
         self._createdObjects = []
-        self._pageForItem = {}
 
         from PyQt4 import uic  # lazy import for better startup performance
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/UISettings.ui'), self)
@@ -281,11 +280,13 @@ class UISettings(QDialog):
         self.setAttribute( Qt.WA_DeleteOnClose )
 
         # Expand all tree widget items
-        self._pageForItem.update (  {u"General": self.pGeneral,
-                                     u"Modes": self.pModes})
+        self._pageForItem = {u"General": self.pGeneral,
+                             u"Modes": self.pModes,
+                             u"Editor": self.pEditor}
         
         # resize to minimum size
-        self.resize( self.sizeHint() )
+        hint = self.sizeHint()
+        self.resize(max(hint.width(), hint.height() * 1.61), hint.height())
     
     def _itemByPath(self, pathParts):
         """Find item by it's path. Path is list of parts. I.e. ['Editor', 'General']
@@ -329,6 +330,7 @@ class UISettings(QDialog):
         
         if parentItem is not None:
             parentItem.addChild(twItem)
+            self.twMenu.expandAll()
         else:
             self.twMenu.addTopLevelItem(twItem)
         

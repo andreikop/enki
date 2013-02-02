@@ -7,6 +7,7 @@ import os.path
 
 from PyQt4.QtCore import pyqtSignal, QFileSystemWatcher, QObject, QTimer
 from PyQt4.QtGui import QFileDialog, \
+                        QFont, \
                         QIcon, \
                         QInputDialog, \
                         QMessageBox, \
@@ -152,6 +153,8 @@ class Document(QWidget):
             core.mainWindow().appendMessage('New file "%s" is going to be created' % filePath, 5000)
 
         self.qutepart = Qutepart(self)
+        self._applyQpartSettings()
+        core.uiSettingsManager().dialogAccepted.connect(self._applyQpartSettings)
         
         layout = QVBoxLayout(self)
         layout.setMargin(0)
@@ -168,7 +171,6 @@ class Document(QWidget):
         self._configureEolMode(originalText)
         
         self.qutepart.detectSyntax(sourceFilePath = filePath)
-
 
     def del_(self):
         """Explicytly called destructor
@@ -433,4 +435,9 @@ class Document(QWidget):
                 self.qutepart.document().setModified(True)
             
             self.qutepart.eol = default
-
+    
+    def _applyQpartSettings(self):
+        """Apply qutepart settings
+        """
+        conf = core.config()['Editor']
+        self.qutepart.setFont(QFont(conf['DefaultFont'], conf['DefaultFontSize']))

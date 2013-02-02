@@ -46,6 +46,11 @@
        <string>Modes</string>
       </property>
      </item>
+     <item>
+      <property name="text">
+       <string>Editor</string>
+      </property>
+     </item>
     </widget>
    </item>
    <item>
@@ -151,6 +156,21 @@
           </widget>
          </item>
         </layout>
+       </widget>
+       <widget class="QWidget" name="pEditor">
+        <widget class="QLabel" name="label_7">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>20</y>
+           <width>547</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Select a page in the tree</string>
+         </property>
+        </widget>
        </widget>
        <widget class="QWidget" name="pModes">
         <layout class="QVBoxLayout" name="verticalLayout_14">
