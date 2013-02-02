@@ -282,15 +282,6 @@ class UISettings(QDialog):
 
         # Expand all tree widget items
         self._pageForItem.update (  {u"General": self.pGeneral,
-                                     u"File associations": self.pAssociations,
-                                     u"Editor": self.pEditorGeneral,
-                                     u"Editor/Auto completion": self.pAutoCompletion,
-                                     u"Editor/Colours": self.pColours,
-                                     u"Editor/Indentation": self.pIndentation,
-                                     u"Editor/Brace matching": self.pBraceMatching,
-                                     u"Editor/Edge": self.pEdgeMode,
-                                     u"Editor/Caret": self.pCaret,
-                                     u"Editor/EOL": self.pEditorVisibility,
                                      u"Modes": self.pModes})
         
         # resize to minimum size
