@@ -22,9 +22,9 @@ class EolIndicatorAndSwitcher(QToolButton):
     
     It draws menu with EOL choise and switches EOL
     """
-    _ICON_FOR_MODE = {r'\r\n'   : "winEol.png",
-                      r'\r'     : "macEol.png",
-                      r'\n'     : "unixEol.png"}
+    _ICON_FOR_MODE = {'\r\n'   : "winEol.png",
+                      '\r'     : "macEol.png",
+                      '\n'     : "unixEol.png"}
     
     def __init__(self, parent):
         QToolButton.__init__(self, parent)
@@ -45,7 +45,7 @@ class EolIndicatorAndSwitcher(QToolButton):
         """Current document on workspace has been changed
         """
         if currentDocument is not None:
-            self._setEolMode( currentDocument.eolMode() )
+            self._setEolMode( currentDocument.qutepart.eol )
             self.setEnabled(True)
         else:
             self._setEolMode(None)
@@ -56,7 +56,7 @@ class EolIndicatorAndSwitcher(QToolButton):
         """
         document = core.workspace().currentDocument()
         if document is not None:
-            currentMode = document.eolMode()
+            currentMode = document.qutepart.eol
             self._updateEolMenu(currentMode)
 
     def _updateEolMenu(self, currentMode):
@@ -73,17 +73,18 @@ class EolIndicatorAndSwitcher(QToolButton):
                 action.setChecked(True)
             return action
 
-        addAction(self.tr("CR+LF: Windows"), r'\r\n')
-        addAction(self.tr("CR: Mac OS (but not Mac OS X)"), r'\r')
-        addAction(self.tr("LF: Unix"), r'\n')
+        addAction(self.tr("CR+LF: Windows"), '\r\n')
+        addAction(self.tr("CR: Mac OS (but not Mac OS X)"), '\r')
+        addAction(self.tr("LF: Unix"), '\n')
 
     def _onEolActionTriggered(self, action):
         """EOL mode selected
         """
         newEol = str(action.data().toString())
-        editor = core.workspace().currentDocument()
-        editor.setEolMode(newEol)
-        self._setEolMode(editor.eolMode())
+        document = core.workspace().currentDocument()
+        document.qutepart.eol = newEol
+        document.qutepart.document().setModified(True)
+        self._setEolMode(document.qutepart.eol)
 
     def _setEolMode(self, mode):
         """Change EOL mode on GUI

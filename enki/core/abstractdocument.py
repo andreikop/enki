@@ -244,14 +244,6 @@ class AbstractDocument(QWidget):
         core.workspace().documentOpened.emit(self)
         core.workspace().currentDocumentChanged.emit(self, self)
     
-    def _eolSymbol(self):
-        """Convert EOL mode to symbol, insertable to text
-        """
-        converter = { r'\r\n': '\r\n',
-                      r'\r'  : '\r',
-                      r'\n'  : '\n'}
-        return converter[self.eolMode()]
-
     def _saveFile(self, filePath):
         """Low level method. Always saves file, even if not modified
         """
@@ -267,17 +259,9 @@ class AbstractDocument(QWidget):
                                      self.tr( "Cannot create directory '%s'. Error '%s'" % (dirPath, error)))
                 return
 
-        # Text may be separated with invalid EOL symbols. Join lines with EOL, set for the document
-        text = self.qutepart.text
-        lines = text.splitlines()
-        if text.endswith('\n'):
-            lines.append('')
-
-        text = self._eolSymbol().join(lines)
-
-        # Append \n to the end, if file is not empty. Enki always ends last line with EOL
-        if text:
-            text += self._eolSymbol()
+        text = self.qutepart.textForSaving()
+        if not text.endswith(self.qutepart.eol):
+            text += self.qutepart.eol
 
         # Write file
         data = text.encode('utf8')
@@ -390,6 +374,50 @@ class AbstractDocument(QWidget):
         """
         raise NotImplemented()
 
+    def _configureEolMode(self, originalText):
+        """Detect end of line mode automatically and apply detected mode
+        """
+        modes = set()
+        for line in originalText.splitlines(True):
+            if line.endswith('\r\n'):
+                modes.add('\r\n')
+            elif line.endswith('\n'):
+                modes.add('\n')
+            elif line.endswith('\r'):
+                modes.add('\r')
+
+        if len(modes) == 1:  # exactly one
+            detectedMode = modes.pop()
+        else:
+            detectedMode = None
+        
+        convertor = {r'\r\n': '\r\n',
+                     r'\n': '\n',
+                     r'\r': '\r'}
+        default = convertor[core.config()["Editor"]["EOL"]["Mode"]]
+
+        if len(modes) > 1:
+            message = "%s contains mix of End Of Line symbols. It will be saved with '%s'" % \
+                        (self.filePath(), repr(default))
+            core.mainWindow().appendMessage(message)
+            self.qutepart.eol = default
+            self.qutepart.document().setModified(True)
+        elif core.config()["Editor"]["EOL"]["AutoDetect"]:
+            if detectedMode is not None:
+                self.qutepart.eol = detectedMode
+            else:  # empty set, not detected
+                self.qutepart.eol = default
+        else:  # no mix, no autodetect. Force EOL
+            if detectedMode is not None and \
+                    detectedMode != default:
+                message = "%s: End Of Line mode is '%s', but file will be saved with '%s'. " \
+                          "EOL autodetection is disabled in the settings" % \
+                                (self.fileName(), repr(detectedMode), repr(default))
+                core.mainWindow().appendMessage(message)
+                self.qutepart.document().setModified(True)
+            
+            self.qutepart.eol = default
+
 
 class AbstractTextEditor(AbstractDocument):
     """Base class for text editors.
@@ -419,22 +447,6 @@ class AbstractTextEditor(AbstractDocument):
         """
         AbstractDocument.__init__(self, parentObject, filePath, createNew)
         self._language = None
-    
-    def eolMode(self):
-        """Return document's EOL mode. Possible values are:
-        
-        * ``\\n``  - UNIX EOL
-        * ``\\r\\n`` - Windows EOL
-        * ``\\r`` - Mac EOL
-        * ``None`` - not defined for the editor type
-        """
-        return None
-    
-    def setEolMode(self, mode):
-        """Set editor EOL mode.
-        See eolMode() for a alowed mode values
-        """
-        pass
     
     def indentWidth(self):
         """Get width of tabulation symbol and count of spaces to insert, when Tab pressed
@@ -473,46 +485,4 @@ class AbstractTextEditor(AbstractDocument):
         """Apply indent uses tabs option
         """
         raise NotImplemented()
-
-    def _configureEolMode(self, originalText):
-        """Detect end of line mode automatically and apply detected mode
-        """
-        modes = set()
-        for line in originalText.splitlines(True):
-            if line.endswith('\r\n'):
-                modes.add(r'\r\n')
-            elif line.endswith('\n'):
-                modes.add(r'\n')
-            elif line.endswith('\r'):
-                modes.add(r'\r')
-
-        default = core.config()["Editor"]["EOL"]["Mode"]
-        
-        moreThanOne = len(modes) > 1
-        
-        if not moreThanOne and len(modes) == 1:
-            detectedMode = modes.pop()
-        else:
-            detectedMode = None
-        
-        if moreThanOne:
-            message = "%s contains mix of End Of Line symbols. It will be saved with '%s'" % \
-                        (self.filePath(), default)
-            core.mainWindow().appendMessage(message, 10000)
-            self.setEolMode(default)
-            self.qutepart.document().setModified(True)
-        elif core.config()["Editor"]["EOL"]["AutoDetect"]:
-            if detectedMode is not None:
-                self.setEolMode (detectedMode)
-            else:  # empty set, not detected
-                self.setEolMode(default)
-        else:  # no mix, no autodetect. Force EOL
-            if detectedMode is not None and \
-                    detectedMode != default:
-                message = "%s: End Of Line mode is '%s', but file will be saved with '%s'. " \
-                          "EOL autodetection is disabled in the settings" % (self.fileName(), detectedMode, default)
-                core.mainWindow().appendMessage(message, 10000)
-                self.qutepart.document().setModified(True)
-            
-            self.setEolMode(default)
 

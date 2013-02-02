@@ -31,8 +31,6 @@ class Editor(AbstractTextEditor):
         layout.addWidget(self.qutepart)
         self.setFocusProxy(self.qutepart)
         
-        self._eolMode = r'\n'
-        
         if not self._neverSaved:
             originalText = self._readFile(filePath)
             self.qutepart.text = originalText
@@ -40,24 +38,13 @@ class Editor(AbstractTextEditor):
             originalText = ''
 
         #autodetect eol, if need
-        pass  # TODO self._configureEolMode(originalText)
+        self._configureEolMode(originalText)
         
         self.qutepart.detectSyntax(sourceFilePath = filePath)
     
     #
     # AbstractTextEditor interface
     #
-
-    def eolMode(self):
-        """Line end mode of the file
-        """
-        return self._eolMode
-
-    def setEolMode(self, mode):
-        """Set line end mode of the file
-        """
-        # TODO
-        self._eolMode = mode
 
     def indentWidth(self):
         """Indentation width in symbol places (spaces)
