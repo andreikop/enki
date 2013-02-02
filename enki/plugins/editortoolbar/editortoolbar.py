@@ -101,11 +101,11 @@ class _IndentationDialog(QDialog):
         
         from PyQt4 import uic  # lazy import for better startup performance
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'IndentationDialog.ui'), self)
-        self._widthSlider.setValue(document.indentWidth())
+        self._widthSlider.setValue(document.qutepart.indentWidth)
         self._updateWidthLabel()
         self._widthSlider.valueChanged.connect(self._onWidthChanged)
         
-        if document.indentUseTabs():
+        if document.qutepart.indentUseTabs:
             self._tabsRadio.setChecked(True)
         else:
             self._spacesRadio.setChecked(True)
@@ -117,12 +117,12 @@ class _IndentationDialog(QDialog):
         """Update indentation with on GUI
         """
         template = self.tr("Width: %d")
-        self._widthLabel.setText(template % self._document.indentWidth())
+        self._widthLabel.setText(template % self._document.qutepart.indentWidth)
         
     def _onWidthChanged(self, value):
         """Handler of change of indentation width
         """
-        self._document.setIndentWidth(value)
+        self._document.qutepart.indentWidth = value
         self._updateWidthLabel()
     
     def _onConvertClicked(self):
@@ -134,7 +134,7 @@ class _IndentationDialog(QDialog):
     def _onTabsToggled(self, toggled):
         """Handler of change of 'Indentation uses tabs' flag
         """
-        self._document.setIndentUseTabs(toggled)
+        self._document.qutepart.indentUseTabs = toggled
 
 class IndentIndicatorAndSwitcher(QToolButton):
     """This widget is visible on Status Bar as indent type label
@@ -158,7 +158,8 @@ class IndentIndicatorAndSwitcher(QToolButton):
         """Current document on workspace has been changed
         """
         if currentDocument is not None:
-            self._setIndentMode( currentDocument.indentWidth(), currentDocument.indentUseTabs() )
+            self._setIndentMode( currentDocument.qutepart.indentWidth,
+                                 currentDocument.qutepart.indentUseTabs )
         else:
             self._clearIndentMode()
 
@@ -166,7 +167,8 @@ class IndentIndicatorAndSwitcher(QToolButton):
         """Document settings changed. Update themselves, if necessary
         """
         if document == core.workspace().currentDocument():
-            self._setIndentMode(document.indentWidth(), document.indentUseTabs())
+            self._setIndentMode(document.qutepart.indentWidth,
+                                document.qutepart.indentUseTabs)
     
     def _onClicked(self):
         """Indentation button clicked. Show dialog
@@ -175,7 +177,7 @@ class IndentIndicatorAndSwitcher(QToolButton):
         if document is not None:
             dialog = _IndentationDialog(self, document)
             dialog.exec_()
-            self._setIndentMode(document.indentWidth(), document.indentUseTabs())
+            self._setIndentMode(document.qutepart.indentWidth, document.qutepart.indentUseTabs)
     
     def _setIndentMode(self, width, useTabs):
         """Update indentation mode on GUI

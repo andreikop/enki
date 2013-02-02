@@ -423,66 +423,10 @@ class AbstractTextEditor(AbstractDocument):
     """Base class for text editors.
     """
     
-    indentWidthChanged = pyqtSignal(int)
-    """
-    indentWidthChanged(width)
-    
-    **Signal** emitted, when indentation with has been changed
-
-    Signal is retransmitted by the workspace
-    """  # pylint: disable=W0105
-
-    indentUseTabsChanged = pyqtSignal(bool)
-    """
-    indentUseTabsChanged(use)
-    
-    **Signal** emitted, when indentation mode has been changed
-
-    Signal is retransmitted by the workspace
-    """  # pylint: disable=W0105
-
     def __init__(self, parentObject, filePath, createNew=False, terminalWidget=False):
         """If terminalWidget is True, editor is used not as fully functional editor, but as interactive terminal.
         In this mode line numbers and autocompletion won't be shown
         """
         AbstractDocument.__init__(self, parentObject, filePath, createNew)
         self._language = None
-    
-    def indentWidth(self):
-        """Get width of tabulation symbol and count of spaces to insert, when Tab pressed
-        """
-        raise NotImplemented()
-    
-    def setIndentWidth(self, width):
-        """Set width of tabulation symbol and count of spaces to insert, when Tab pressed
-        """
-        if width == self.indentWidth():
-            return
-        self._applyIndentWidth(width)
-        self.indentWidthChanged.emit(width)
-    
-    def _applyIndentWidth(self, width):
-        """Apply indentation width
-        """
-        raise NotImplemented()
-
-    def indentUseTabs(self):
-        """Get indentation uses tabs flag.
-        If true - \t inserted by Tab button, if false - spaces
-        """
-        raise NotImplemented()
-    
-    def setIndentUseTabs(self, use):
-        """Set indentation uses tabs flag.
-        If true - \t inserted by Tab button, if false - spaces
-        """
-        if use == self.indentUseTabs():
-            return
-        self._applyIndentUseTabs(use)
-        self.indentUseTabsChanged.emit(use)
-    
-    def _applyIndentUseTabs(self, use):
-        """Apply indent uses tabs option
-        """
-        raise NotImplemented()
 

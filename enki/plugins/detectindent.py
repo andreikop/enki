@@ -32,8 +32,7 @@ class Plugin:
         """Signal handler. Document language had been changed
         """
         if language == 'Makefile':
-            document.setIndentUseTabs(True)
-            document.setIndentWidth(4)
+            document.qutepart.indentUseTabs = True
 
     def _detectAndApplyIndentation(self, document):
         """Delect indentation automatically and apply detected mode
@@ -43,6 +42,10 @@ class Plugin:
         #TODO improve algorythm sometimes to skip comments
         
         if not core.config()["Editor"]["Indentation"]["AutoDetect"]:
+            return
+
+        if document.qutepart.language() == 'Makefile':
+            document.qutepart.indentUseTabs = True
             return
 
         def _lineIndent(line):
@@ -93,8 +96,8 @@ class Plugin:
         indent, count = theMostPopular
         if count > 2:  # if more than 2 indents
             if indent == '\t':
-                document.setIndentUseTabs(True)
+                document.qutepart.indentUseTabs = True
             elif all([char == ' ' for char in indent]):  # if all spaces
-                document.setIndentUseTabs(False)
-                document.setIndentWidth(len(indent))
+                document.qutepart.indentUseTabs = False
+                document.qutepart.indentWidth = len(indent)
         # Else - give up. If can't detect, leave as is

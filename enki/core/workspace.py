@@ -366,8 +366,8 @@ class Workspace(QStackedWidget):
         document.qutepart.cursorPositionChanged.connect(lambda: self.cursorPositionChanged.emit(document))
         document.qutepart.textChanged.connect(lambda: self.textChanged.emit(document))
         document.qutepart.languageChanged.connect(lambda name: self.languageChanged.emit(document, name))
-        document.indentWidthChanged.connect(lambda width: self.indentWidthChanged.emit(document, width))
-        document.indentUseTabsChanged.connect(lambda useTabs: self.indentUseTabsChanged.emit(document, useTabs))    
+        document.qutepart.indentWidthChanged.connect(lambda width: self.indentWidthChanged.emit(document, width))
+        document.qutepart.indentUseTabsChanged.connect(lambda useTabs: self.indentUseTabsChanged.emit(document, useTabs))
 
         # add to workspace
         document.installEventFilter( self )

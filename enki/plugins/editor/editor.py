@@ -41,29 +41,4 @@ class Editor(AbstractTextEditor):
         self._configureEolMode(originalText)
         
         self.qutepart.detectSyntax(sourceFilePath = filePath)
-    
-    #
-    # AbstractTextEditor interface
-    #
-
-    def indentWidth(self):
-        """Indentation width in symbol places (spaces)
-        """
-        return 4 # TODO
-    
-    def _applyIndentWidth(self, width):
-        """Set indentation width in symbol places (spaces)
-        """
-        # TODO 
-        pass
-    
-    def indentUseTabs(self):
-        """Indentation uses Tabs instead of Spaces
-        """
-        return False  # TODO
-    
-    def _applyIndentUseTabs(self, use):
-        """Set iindentation mode (Tabs or spaces)
-        """
-        pass  # TODO
 
