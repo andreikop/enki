@@ -6,9 +6,11 @@ This module implements S&R plugin functionality. It joins together all other mod
 """
 import re
 import sys
+import itertools
+import time
 
-from PyQt4.QtCore import QObject, Qt
-from PyQt4.QtGui import QApplication, QAction, QIcon, QMessageBox
+from PyQt4.QtCore import QObject, QRegExp, Qt
+from PyQt4.QtGui import QApplication, QAction, QIcon, QMessageBox, QTextCursor, QTextDocument
 
 
 from enki.core.core import core
@@ -27,6 +29,11 @@ ModeReplaceDirectory = ModeFlagReplace | ModeFlagDirectory
 ModeSearchOpenedFiles = ModeFlagSearch | ModeFlagOpenedFiles
 ModeReplaceOpenedFiles = ModeFlagReplace | ModeFlagOpenedFiles
 
+# Do not count matches count, if it would require too lot of time
+_MAX_MATCH_COUNTING_TIME_SEC = 0.040
+_MAX_MATCH_COUNTING_OFFSET = 64 * 1024 * 1024
+_MAX_MATCH_COUNTING_LINE_COUNT = 10 * 1024
+_MAX_MATCH_COUNTING_COUNT = 64
 
 class Controller(QObject):
     """S&R module business logic
@@ -38,13 +45,20 @@ class Controller(QObject):
         self._replaceThread = None
         self._widget = None
         self._dock = None
+        
+        # search session context
+        self._matchIndex = None
+        self._matchCount = None
+        
         self._searchInFileStartPoint = None
         self._searchInFileLastCursorPos = None
+        
         self._createActions()
         
-        core.workspace().currentDocumentChanged.connect(self._resetSearchInFileStartPoint)
+        core.workspace().currentDocumentChanged.connect(self._resetSearchSessionContext)
+        core.workspace().textChanged.connect(self._resetSearchSessionContext)
+        
         QApplication.instance().focusChanged.connect(self._resetSearchInFileStartPoint)
-        # QScintilla .cursorPositionChanged is emitted with delay.
 
     def del_(self):
         """Explicitly called destructor
@@ -155,6 +169,7 @@ class Controller(QObject):
         self._widget.searchRegExpChanged.connect(self._updateFileActionsState)
         self._widget.searchRegExpChanged.connect(self._onRegExpChanged)
         self._widget.searchRegExpChanged.connect(self._updateFoundItemsHighlighting)
+        self._widget.searchRegExpChanged.connect(self._resetSearchSessionContext)
         
         self._widget.searchNext.connect(self._onSearchNext)
         self._widget.searchPrevious.connect(self._onSearchPrevious)
@@ -201,8 +216,6 @@ class Controller(QObject):
         if self._replaceThread is not None:
             self._replaceThread.stop()
 
-        #self._resetSearchInFileStartPoint()
-
         self._mode = newMode
         
         if self._dock is not None:
@@ -215,6 +228,7 @@ class Controller(QObject):
     def _updateFoundItemsHighlighting(self):
         """(Re)highlight found items with yellow color
         """
+        return #TODO
         document = core.workspace().currentDocument()
         if document is None:
             return
@@ -224,10 +238,12 @@ class Controller(QObject):
            not self._widget.getRegExp().pattern:
             document.qutepart.setExtraSelections([])
             return
-        
+
         regExp = self._widget.getRegExp()
+
         selections = [ (match.start(), len(match.group(0)))\
                         for match in regExp.finditer(document.qutepart.text)]
+
         document.qutepart.setExtraSelections(selections)
     
     def _onCurrentDocumentChanged(self, old, new):
@@ -236,31 +252,6 @@ class Controller(QObject):
         if old is not None:
             old.qutepart.setExtraSelections([])
     
-    @staticmethod
-    def _searchInText(regExp, text, startPoint, forward):
-        """Search in text and return tuple (nearest match, all matches)
-        (None, None) if not found
-        """
-        matches = [m for m in regExp.finditer(text)]
-        if matches:
-            if forward:
-                matchesAfter = [match for match in matches \
-                                    if match.start() >= startPoint]
-                if matchesAfter:
-                    match = matchesAfter[0]
-                else:  # wrap, search from start
-                    match = matches[0]
-            else:  # reverse search
-                matchesBefore = [match for match in matches \
-                                    if match.start() < startPoint]
-                if matchesBefore:
-                    match = matchesBefore[-1]
-                else:  # wrap, search from end
-                    match = matches[-1]
-            return match, matches
-        else:
-            return None, None
-
     #
     # Search word under cursor
     #
@@ -280,51 +271,80 @@ class Controller(QObject):
         """Do search in file operation. Will select next found item
         if updateWidget is True, search widget line edit will color will be set according to result
         """
-        document = core.workspace().currentDocument()
+        qpart = core.workspace().currentDocument().qutepart
+        qDocument = core.workspace().currentDocument().qutepart.document()
 
-        cursor = document.qutepart.textCursor()
+        cursor = qpart.textCursor()
         if not cursor.hasSelection():
-            cursor.select(cursor.WordUnderCursor)
+            cursor.select(QTextCursor.WordUnderCursor)
         word = cursor.selectedText()
-        wordStartAbsPos = cursor.anchor()
-        wordEndAbsPos = cursor.position()
         
         if not word:
             return
-        
-        regExp = re.compile('\\b%s\\b' % re.escape(word))
-        text = document.qutepart.text
 
-        # avoid matching word under cursor
         if forward:
-            startPoint = wordEndAbsPos
+            cursor.setPosition(cursor.selectionEnd())
         else:
-            startPoint = wordStartAbsPos
+            cursor.setPosition(cursor.selectionStart())
+
+        flags = QTextDocument.FindWholeWords
+        if not forward:
+            flags |= QTextDocument.FindBackward
         
-        match, matches = self._searchInText(regExp, document.qutepart.text, startPoint, forward)
-        if match is not None:
-            document.qutepart.absSelectedPosition = (match.start(), match.start() + len(match.group(0)))
-            core.mainWindow().statusBar().showMessage('Match %d of %d' % \
-                                                      (matches.index(match) + 1, len(matches)), 3000)
-        else:
-            self._resetSelection(core.workspace().currentDocument())
+        newCursor = qDocument.find(word, cursor, flags)
+
+        wrap = newCursor.isNull()
+        
+        if wrap:
+            cursor.movePosition(QTextCursor.Start if forward else QTextCursor.End)
+            newCursor = qDocument.find(word, cursor, flags)
+        
+        # should have found something, probably initial word
+        if not newCursor.isNull():
+            qpart.setTextCursor(newCursor)
+            self._updateMatchIndex(wrap, forward)
+            self._displayMatchIndex(qDocument, word, newCursor.position())
 
     #
     # Search and replace in file
     #
-    
     def _resetSearchInFileStartPoint(self):
+        """Focus changed, cursor moved.
+        Do not continue previous search, but start new
+        """
+        self._searchInFileStartPoint = None
+    
+    def _resetSearchSessionContext(self):
         """Reset the start point.
         Something changed, restart the search process
         """
-        self._searchInFileStartPoint = None
+        self._matchIndex = None
+        self._matchCount = None
+    
+    def _updateMatchIndex(self, wrap, forward):
+        """Update match index after sucessfull search operation
+        """
+        if self._matchIndex is None:
+            return
+        
+        if wrap:
+            if forward:
+                self._matchIndex = 0
+            else:
+                if self._matchCount is not None:
+                    self._matchIndex = self._matchCount - 1
+                else:
+                    self._matchIndex = None
+        else:
+            self._matchIndex += 1 if forward else -1
+
 
     def _updateFileActionsState(self):
         """Update actions enabled/disabled state.
         Called if current document had been changed or if reg exp had been changed
         """
         valid, error = self._widget.isSearchRegExpValid()
-        valid = valid and len(self._widget.getRegExp().pattern) > 0  # valid and not empty
+        valid = valid and len(self._widget.getRegExp().pattern()) > 0  # valid and not empty
         searchAvailable = valid
         
         haveDocument = core.workspace().currentDocument() is not None
@@ -349,7 +369,7 @@ class Controller(QObject):
         """
         if self._mode in (ModeSearch, ModeReplace) and \
            core.workspace().currentDocument() is not None:
-            if regExp.pattern:
+            if regExp.pattern():
                 self._searchFile(forward=True, incremental=True )
             else:  # Clear selection
                 self._resetSelection(core.workspace().currentDocument())
@@ -366,67 +386,125 @@ class Controller(QObject):
         self._widget.updateComboBoxes()
         self._searchFile(forward=False, incremental=False )
     
+    @staticmethod
+    def _calculateMatchPosition(qDocument, regExpOrWord, posToFind):
+        """Search all matches in document. Return (matchIndex, matchCount)
+        matchIndex is index of match, which pos is posToFind. None, if not found
+        matchCount is None, if not found
+        """
+        if posToFind > _MAX_MATCH_COUNTING_OFFSET:
+            return None, None
+        
+        def matchPositions(cursor):
+            cursor = qDocument.find(regExpOrWord, cursor)
+            while not cursor.isNull():
+                yield cursor.position()
+                cursor = qDocument.find(regExpOrWord, cursor)
+        
+        matchIndex = None
+        matchCount = None
+        
+        cursor = QTextCursor(qDocument)
+        exitTime = time.clock() + _MAX_MATCH_COUNTING_TIME_SEC
+        
+        for index, pos in enumerate(matchPositions(cursor)):
+            if pos == posToFind:
+                matchIndex = index
+                if qDocument.lineCount() > _MAX_MATCH_COUNTING_LINE_COUNT:
+                    break
+            if time.clock() >= exitTime or \
+               index > _MAX_MATCH_COUNTING_COUNT:
+                break
+        else:
+            matchCount = index + 1
+        
+        return matchIndex, matchCount
+    
+    def _displayMatchIndex(self, qDocument, regExpOrWord, posToFind):
+        """Display match index on status bar
+        """
+        if self._matchIndex is None and self._matchCount is None:
+            self._matchIndex, self._matchCount = \
+                self._calculateMatchPosition(qDocument, regExpOrWord, posToFind)
+        
+        if self._matchIndex is not None:
+            if self._matchCount is not None:
+                text = 'Match %d of %d' % (self._matchIndex + 1, self._matchCount)
+            else:
+                text = 'Match %d' % (self._matchIndex + 1)
+            core.mainWindow().statusBar().showMessage(text, 3000)
+        else:
+            core.mainWindow().statusBar().clearMessage()
+
     def _searchFile(self, forward=True, incremental=False):
         """Do search in file operation. Will select next found item
         """
-        document = core.workspace().currentDocument()
+        qpart = core.workspace().currentDocument().qutepart
+        qDocument = core.workspace().currentDocument().qutepart.document()
         
         regExp = self._widget.getRegExp()
 
-        if document.qutepart.absCursorPosition != self._searchInFileLastCursorPos:
+        if qpart.absCursorPosition != self._searchInFileLastCursorPos or \
+           not incremental:
             self._searchInFileStartPoint = None
         
-        if self._searchInFileStartPoint is None or not incremental:
-            # get cursor position
-            cursor = document.qutepart.textCursor()
-            if cursor.hasSelection():
-                start = cursor.selectionStart()
-                end = cursor.selectionEnd()
-            else:
-                start = 0
-                end = 0
+        cursor = qpart.textCursor()
         
+        if self._searchInFileStartPoint is not None:
+            cursor.setPosition(self._searchInFileStartPoint)
+        elif cursor.hasSelection():
             if forward:
                 if  incremental :
-                    self._searchInFileStartPoint = start
+                    cursor.setPosition(cursor.selectionStart())
                 else:
-                    self._searchInFileStartPoint = end
+                    cursor.setPosition(cursor.selectionEnd())
             else:
-                self._searchInFileStartPoint = start
+                cursor.setPosition(cursor.selectionStart())
         
-        match, matches = self._searchInText(regExp, document.qutepart.text, self._searchInFileStartPoint, forward)
-        if match:
-            document.qutepart.absSelectedPosition = (match.start(), match.start() + len(match.group(0)))
-            self._searchInFileLastCursorPos = match.start()
-            self._widget.setState(self._widget.Good)  # change background acording to result
-            core.mainWindow().statusBar().showMessage('Match %d of %d' % \
-                                                      (matches.index(match) + 1, len(matches)), 3000)
-        else:
+        self._searchInFileStartPoint = cursor.position()
+        
+        flags = QTextDocument.FindFlags() if forward else QTextDocument.FindBackward
+        newCursor = qDocument.find(regExp, cursor, flags)
+        wrap = newCursor.isNull()
+        
+        if wrap:  # try wrap
+            cursor.movePosition(QTextCursor.Start if forward else QTextCursor.End)
+            newCursor = qDocument.find(regExp, cursor, flags)
+        
+        if newCursor.isNull():
             self._widget.setState(self._widget.Bad)
             self._resetSelection(core.workspace().currentDocument())
+        else:
+            self._widget.setState(self._widget.Good)  # change background acording to result
+            qpart.setTextCursor(newCursor)
+            self._searchInFileLastCursorPos = newCursor.position()
+            
+            self._updateMatchIndex(wrap, forward)
+            self._displayMatchIndex(qDocument, regExp, newCursor.position())
 
     def _onReplaceFileOne(self, replaceText):
         """Do one replacement in the file
         """
         self._widget.updateComboBoxes()
         
-        document = core.workspace().currentDocument()
+        qpart = core.workspace().currentDocument().qutepart
+        qDocument = core.workspace().currentDocument().qutepart.document()
+
         regExp = self._widget.getRegExp()
 
-        start, end = document.qutepart.absSelectedPosition
-        if start is None:
-            start = 0
+        cursor = QTextCursor(qDocument)
+        cursor.setPosition(qpart.textCursor().selectionStart())
         
-        match = regExp.search(document.qutepart.text, start)
+        newCursor = qDocument.find(regExp, cursor)
+        if newCursor.isNull():  # try wrap
+            cursor.movePosition(QTextCursor.Start)
+            newCursor = qDocument.find(regExp, cursor)
         
-        if match is None:
-            match = regExp.search(document.qutepart.text, 0)
-        
-        if match is not None:
-            document.qutepart.absSelectedPosition = (match.start(), match.start() + len(match.group(0)))
-            replaceTextSubed = substitutions.makeSubstitutions(replaceText, match)
-            document.qutepart.selectedText = replaceTextSubed
-            document.qutepart.absCursorPosition = match.start() + len(replaceTextSubed)
+        if not newCursor.isNull():
+            qpart.setTextCursor(newCursor)
+            regExp.exactMatch(newCursor.selectedText())  # calculate capturedTexts()
+            replaceTextSubed = substitutions.makeSubstitutions(replaceText, regExp)
+            newCursor.insertText(replaceTextSubed)
             # move selection to the next item
             self._searchFile(forward=True, incremental=False )
         else:
@@ -437,34 +515,26 @@ class Controller(QObject):
         """
         self._widget.updateComboBoxes()
         
-        document = core.workspace().currentDocument()
+        qpart = core.workspace().currentDocument().qutepart
+        qDocument = core.workspace().currentDocument().qutepart.document()
+
         regExp = self._widget.getRegExp()
 
-        oldPos = document.qutepart.absCursorPosition
-        
-        with document.qutepart:
-            pos = 0
-            count = 0
-            match = regExp.search(document.qutepart.text, pos)
-            while match is not None:
-                document.qutepart.absSelectedPosition = (match.start(), match.start() + len(match.group(0)))
-                replaceTextSubed = substitutions.makeSubstitutions(replaceText, match)
-                    
-                document.qutepart.selectedText = replaceTextSubed
+        cursor = QTextCursor(qDocument)
+        count = 0
+        cursor = qDocument.find(regExp, cursor)
+        with qpart:
+            while not cursor.isNull():
+                regExp.exactMatch(cursor.selectedText())  # calculate capturedTexts()
+                replaceTextSubed = substitutions.makeSubstitutions(replaceText, regExp)
+                cursor.insertText(replaceTextSubed)
                 
                 count += 1
                 
-                pos = match.start() + len(replaceTextSubed)
-                
-                if not match.group(0) and not replText:  # avoid freeze when replacing empty with empty
-                    pos  += 1
-                if pos < len(document.qutepart.text):
-                    match = regExp.search(document.qutepart.text, pos)
-                else:
-                    match = None
+                if not replaceTextSubed: # avoid freeze when replacing empty with empty
+                    cursor.movePosition(QTextCursor.NextCharacter)
+                cursor = qDocument.find(regExp, cursor)
         
-        if oldPos is not None:
-            document.qutepart.absCursorPosition = oldPos # restore cursor position
         core.mainWindow().statusBar().showMessage( self.tr( "%d match(es) replaced." % count ), 3000 )
     
     #
