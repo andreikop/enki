@@ -225,10 +225,16 @@ class Controller(QObject):
     #
     # Highlight found items with yellow
     #
+    @staticmethod
+    def findIter(qDocument, regExpOrWord):
+        cursor = qDocument.find(regExpOrWord, QTextCursor(qDocument))
+        while not cursor.isNull():
+            yield cursor
+            cursor = qDocument.find(regExpOrWord, cursor)
+
     def _updateFoundItemsHighlighting(self):
         """(Re)highlight found items with yellow color
         """
-        return #TODO
         document = core.workspace().currentDocument()
         if document is None:
             return
@@ -239,12 +245,19 @@ class Controller(QObject):
             document.qutepart.setExtraSelections([])
             return
 
+        qDocument = document.qutepart.document()
         regExp = self._widget.getRegExp()
+        
+        if qDocument.lineCount() > _MAX_MATCH_COUNTING_LINE_COUNT:
+            document.qutepart.setExtraSelections([])
+            return
 
-        selections = [ (match.start(), len(match.group(0)))\
-                        for match in regExp.finditer(document.qutepart.text)]
+        firstMatches = list(itertools.islice(self.findIter(qDocument, regExp), _MAX_MATCH_COUNTING_COUNT))
+        if len(firstMatches) == _MAX_MATCH_COUNTING_COUNT:  # probably, not finished searchin
+            document.qutepart.setExtraSelections([])
+            return
 
-        document.qutepart.setExtraSelections(selections)
+        document.qutepart.setExtraSelections(firstMatches)
     
     def _onCurrentDocumentChanged(self, old, new):
         """Current document changed. Clear highlighted items
@@ -395,20 +408,13 @@ class Controller(QObject):
         if posToFind > _MAX_MATCH_COUNTING_OFFSET:
             return None, None
         
-        def matchPositions(cursor):
-            cursor = qDocument.find(regExpOrWord, cursor)
-            while not cursor.isNull():
-                yield cursor.position()
-                cursor = qDocument.find(regExpOrWord, cursor)
-        
         matchIndex = None
         matchCount = None
         
-        cursor = QTextCursor(qDocument)
         exitTime = time.clock() + _MAX_MATCH_COUNTING_TIME_SEC
         
-        for index, pos in enumerate(matchPositions(cursor)):
-            if pos == posToFind:
+        for index, cursor in enumerate(Controller.findIter(qDocument, regExpOrWord)):
+            if cursor.position() == posToFind:
                 matchIndex = index
                 if qDocument.lineCount() > _MAX_MATCH_COUNTING_LINE_COUNT:
                     break
