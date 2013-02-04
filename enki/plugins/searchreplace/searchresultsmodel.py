@@ -15,19 +15,20 @@ from enki.lib.htmldelegate import htmlEscape
 class Result:  # pylint: disable=R0902
     """One found by search thread item. Consists coordinates and capture. Used by SearchResultsModel
     """
-    def __init__ (self, fileName, wholeLine, line, column, match):  # pylint: disable=R0913
+    def __init__ (self, fileName, wholeLine, line, column, captures, matchStartIndex):  # pylint: disable=R0913
         self.fileName = fileName
         self.wholeLine = wholeLine
         self.line = line
         self.column = column
-        self.match = match
+        self.captures = captures
+        self.matchStartIndex = matchStartIndex
         self.checkState = Qt.Checked
     
     def text(self):  # pylint: disable=W0613
         """Displayable text of search result. Shown as line in the search results dock
         """
         beforeMatch = self.wholeLine[:self.column].lstrip()
-        afterMatch = self.wholeLine[self.column + len(self.match.group(0)):].rstrip()
+        afterMatch = self.wholeLine[self.column + len(self.captures[0]):].rstrip()
         
         if QApplication.instance().palette().base().color().lightnessF() > 0.5:
             backgroundColor = 'yellow'
@@ -46,7 +47,7 @@ class Result:  # pylint: disable=R0902
                   htmlEscape(beforeMatch),
                   backgroundColor,
                   foregroundColor,
-                  htmlEscape(self.match.group(0)),
+                  htmlEscape(self.captures[0]),
                   htmlEscape(afterMatch))
     
     def tooltip(self):

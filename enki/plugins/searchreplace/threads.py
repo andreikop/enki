@@ -189,17 +189,17 @@ class SearchThread(StopableThread):
         
         content = self._fileContent( fileName )
         
-        # Process result for all occurrences
-        for match in self._regExp.finditer(content):
-            start = match.start()
-            
-            eolStart = content.rfind( eol, 0, start)
-            eolEnd = content.find( eol, start + len(match.group(0)))
-            eolCount += content[lastPos:start].count( eol )
-            lastPos = start
+        regExp = self._regExp
+        index = regExp.indexIn(content)
+        while index != -1:
+            capLen = len(regExp.cap(0))
+            eolStart = content.rfind( eol, 0, index)
+            eolEnd = content.find( eol, index + capLen)
+            eolCount += content[lastPos:index].count( eol )
+            lastPos = index
             
             wholeLine = content[eolStart+1 : eolEnd]
-            column = start - eolStart
+            column = index - eolStart
             if eolStart != 0:
                 column -= 1
             
@@ -207,11 +207,15 @@ class SearchThread(StopableThread):
                              wholeLine = wholeLine, \
                              line = eolCount, \
                              column = column, \
-                             match=match)
+                             captures = regExp.capturedTexts(),
+                             matchStartIndex = index)
             results.append(result)
-
+            
             if self._exit:
                 break
+
+            index = regExp.indexIn(content, index + capLen)
+            
         return results
 
 class ReplaceThread(StopableThread):
@@ -315,7 +319,8 @@ class ReplaceThread(StopableThread):
         """
         for result in matches[::-1]:  # count from end to begin because we are replacing by offset in content
             replaceTextWithMatches = substitutions.makeSubstitutions(self._replaceText,
-                                                                     result.match)
-            content = content[:result.match.start()] + replaceTextWithMatches + content[result.match.end():]
+                                                                     result.captures)
+            endIndex = result.matchStartIndex + len(result.captures[0])
+            content = content[:result.matchStartIndex] + replaceTextWithMatches + content[endIndex:]
         
         return content

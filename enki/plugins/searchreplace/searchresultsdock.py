@@ -170,7 +170,7 @@ class SearchResultsDock(DockWidget):
             core.workspace().goTo( result.fileName,
                                    line=result.line,
                                    column=result.column,
-                                   selectionLength=len(result.match.group(0)))
+                                   selectionLength=len(result.captures[0]))
             core.mainWindow().statusBar().showMessage('Match %d of %d' % \
                                                       (fileResults.results.index(result) + 1,
                                                        len(fileResults.results)), 3000)

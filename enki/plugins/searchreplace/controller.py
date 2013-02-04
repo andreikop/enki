@@ -509,7 +509,7 @@ class Controller(QObject):
         if not newCursor.isNull():
             qpart.setTextCursor(newCursor)
             regExp.exactMatch(newCursor.selectedText())  # calculate capturedTexts()
-            replaceTextSubed = substitutions.makeSubstitutions(replaceText, regExp)
+            replaceTextSubed = substitutions.makeSubstitutions(replaceText, regExp.capturedTexts())
             newCursor.insertText(replaceTextSubed)
             # move selection to the next item
             self._searchFile(forward=True, incremental=False )
@@ -532,7 +532,7 @@ class Controller(QObject):
         with qpart:
             while not cursor.isNull():
                 regExp.exactMatch(cursor.selectedText())  # calculate capturedTexts()
-                replaceTextSubed = substitutions.makeSubstitutions(replaceText, regExp)
+                replaceTextSubed = substitutions.makeSubstitutions(replaceText, regExp.capturedTexts())
                 cursor.insertText(replaceTextSubed)
                 
                 count += 1
