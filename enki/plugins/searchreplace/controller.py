@@ -27,6 +27,9 @@ ModeReplaceDirectory = ModeFlagReplace | ModeFlagDirectory
 ModeSearchOpenedFiles = ModeFlagSearch | ModeFlagOpenedFiles
 ModeReplaceOpenedFiles = ModeFlagReplace | ModeFlagOpenedFiles
 
+# Too many extra se
+MAX_EXTRA_SELECTIONS_COUNT = 256
+
 
 class Controller(QObject):
     """S&R module business logic
@@ -40,11 +43,16 @@ class Controller(QObject):
         self._dock = None
         self._searchInFileStartPoint = None
         self._searchInFileLastCursorPos = None
+        
+        # all matches cache
+        self._cachedRegExp = None
+        self._cachedText = None
+        self._catchedMatches = None
+        
         self._createActions()
         
         core.workspace().currentDocumentChanged.connect(self._resetSearchInFileStartPoint)
         QApplication.instance().focusChanged.connect(self._resetSearchInFileStartPoint)
-        # QScintilla .cursorPositionChanged is emitted with delay.
 
     def del_(self):
         """Explicitly called destructor
@@ -212,6 +220,18 @@ class Controller(QObject):
     #
     # Highlight found items with yellow
     #
+    def _findAllMatches(self, text, regExp):
+        """Find all matces of regExp in text
+        This method caches found items for last text and regExp
+        """
+        if self._cachedText != text or \
+           self._cachedRegExp != regExp:
+            self._catchedMatches = [match for match in regExp.finditer(text)]
+            self._cachedText = text
+            self._cachedRegExp = regExp
+        
+        return self._catchedMatches
+    
     def _updateFoundItemsHighlighting(self):
         """(Re)highlight found items with yellow color
         """
@@ -226,8 +246,14 @@ class Controller(QObject):
             return
         
         regExp = self._widget.getRegExp()
-        selections = [ (match.start(), len(match.group(0)))\
-                        for match in regExp.finditer(document.qutepart.text)]
+        matches = self._findAllMatches(document.qutepart.text, regExp)
+        
+        if len(matches) <= MAX_EXTRA_SELECTIONS_COUNT:
+            selections = [ (match.start(), len(match.group(0))) \
+                                for match in matches]
+        else:
+            selections = []
+        
         document.qutepart.setExtraSelections(selections)
     
     def _onCurrentDocumentChanged(self, old, new):
@@ -236,25 +262,22 @@ class Controller(QObject):
         if old is not None:
             old.qutepart.setExtraSelections([])
     
-    @staticmethod
-    def _searchInText(regExp, text, startPoint, forward):
+    def _searchInText(self, regExp, text, startPoint, forward):
         """Search in text and return tuple (nearest match, all matches)
         (None, None) if not found
         """
-        matches = [m for m in regExp.finditer(text)]
+        matches = self._findAllMatches(text, regExp)
         if matches:
             if forward:
-                matchesAfter = [match for match in matches \
-                                    if match.start() >= startPoint]
-                if matchesAfter:
-                    match = matchesAfter[0]
+                for match in matches:
+                    if match.start() >= startPoint:
+                        break
                 else:  # wrap, search from start
                     match = matches[0]
             else:  # reverse search
-                matchesBefore = [match for match in matches \
-                                    if match.start() < startPoint]
-                if matchesBefore:
-                    match = matchesBefore[-1]
+                for match in matches[::-1]:
+                    if match.start() < startPoint:
+                        break
                 else:  # wrap, search from end
                     match = matches[-1]
             return match, matches
