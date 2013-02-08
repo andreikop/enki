@@ -424,23 +424,21 @@ class Controller(QObject):
         """
         self._widget.updateComboBoxes()
         
-        document = core.workspace().currentDocument()
+        qpart = core.workspace().currentDocument().qutepart
         regExp = self._widget.getRegExp()
 
-        start, end = document.qutepart.absSelectedPosition
-        if start is None:
-            start = 0
+        start, end = qpart.absSelectedPosition
         
-        match = regExp.search(document.qutepart.text, start)
+        match = regExp.search(qpart.text, start)
         
         if match is None:
-            match = regExp.search(document.qutepart.text, 0)
+            match = regExp.search(qpart.text, 0)
         
         if match is not None:
-            document.qutepart.absSelectedPosition = (match.start(), match.start() + len(match.group(0)))
             replaceTextSubed = substitutions.makeSubstitutions(replaceText, match)
-            document.qutepart.selectedText = replaceTextSubed
-            document.qutepart.absCursorPosition = match.start() + len(replaceTextSubed)
+            qpart.replaceText(match.start(), len(match.group(0)), replaceTextSubed)
+            # move cursor to the end of replaced text
+            qpart.absCursorPosition = match.start() + len(replaceTextSubed)
             # move selection to the next item
             self._searchFile(forward=True, incremental=False )
         else:
