@@ -14,7 +14,7 @@ _escapeSequences = \
   't': '\t',}
 
 
-def makeSubstitutions(replaceText, captures):
+def makeSubstitutions(replaceText, matchObject):
     """Replace patterns like \n and \1 with symbols and matches
     """
     def _replaceFunc(escapeMatchObject):
@@ -23,9 +23,9 @@ def makeSubstitutions(replaceText, captures):
             return _escapeSequences[char]
         elif char.isdigit():
             index = int(char)
-            if index < len(captures):
-                return captures[index]
-            else:
+            try:
+                return matchObject.group(index)
+            except IndexError:
                 return escapeMatchObject.group(0)
         
         return escapeMatchObject.group(0)  # no any replacements, return original value

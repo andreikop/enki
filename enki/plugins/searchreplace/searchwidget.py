@@ -7,10 +7,11 @@ Module implements search widget and manages search and replace operations
 """
 
 import os.path
+import re
 
 
 from PyQt4.QtCore import QDir, QEvent, \
-                         QRect, QRegExp, QSize, Qt, \
+                         QRect, QSize, Qt, \
                          pyqtSignal
 
 from PyQt4.QtGui import QApplication, QCompleter, QColor, QDirModel, QFileDialog,  \
@@ -45,7 +46,7 @@ class SearchWidget(QFrame):
     **Signal** emitted, when widget has been shown or hidden
     """  # pylint: disable=W0105
 
-    searchInDirectoryStartPressed = pyqtSignal(QRegExp, list, unicode)
+    searchInDirectoryStartPressed = pyqtSignal(type(re.compile('')), list, unicode)
     """
     searchInDirectoryStartPressed(regEx, mask, path)
     
@@ -73,7 +74,7 @@ class SearchWidget(QFrame):
     **Signal** emitted, when 'stop replacing checked' button had been pressed
     """  # pylint: disable=W0105
 
-    searchRegExpChanged = pyqtSignal(QRegExp)
+    searchRegExpChanged = pyqtSignal(type(re.compile('')))
     """
     searchRegExpValidStateChanged(regEx)
     
@@ -196,6 +197,21 @@ class SearchWidget(QFrame):
         super(SearchWidget, self).setVisible(visible)
         self.visibilityChanged.emit(self.isVisible())
     
+    def _regExEscape(self, text):
+        """Improved version of re.escape()
+        Doesn't escape space, comma, underscore.
+        Escapes \n and \t
+        """
+        text = re.escape(text)
+        # re.escape escapes space, comma, underscore, but, it is not necessary and makes text not readable
+        for symbol in (' ,_=\'"/:@#%&'):
+            text = text.replace('\\' + symbol, symbol)
+        
+        text = text.replace('\\\n', '\\n')
+        text = text.replace('\\\t', '\\t')
+
+        return text
+    
     def _makeEscapeSeqsVisible(self, text):
         """Replace invisible \n and \t with escape sequences
         """
@@ -226,7 +242,7 @@ class SearchWidget(QFrame):
             self.cbReplace.setEditText(self._makeEscapeSeqsVisible(searchText) )
 
             if self.cbRegularExpression.checkState() == Qt.Checked:
-                searchText = QRegExp.escape(searchText)
+                searchText = self._regExEscape(searchText)
             self.cbSearch.setEditText( searchText )
         
         if not self.cbReplace.lineEdit().text() and \
@@ -402,27 +418,32 @@ class SearchWidget(QFrame):
             if  index == -1 :
                 self.cbMask.addItem( maskText )
     
-    def getRegExp(self):
-        """Read search parameters from controls and present it as a regular expression
+    def _searchPatternTextAndFlags(self):
+        """Get search pattern and flags
         """
         pattern = self.cbSearch.currentText()
         if not self.cbRegularExpression.checkState() == Qt.Checked:
-            pattern = QRegExp.escape(pattern)
-        
-        caseSensitive = Qt.CaseSensitive if self.cbCaseSensitive.checkState() == Qt.Checked else Qt.CaseInsensitive
-        return QRegExp(pattern,
-                       caseSensitive,
-                       QRegExp.RegExp2)
+            pattern = re.escape(pattern)
+        flags = 0
+        if not self.cbCaseSensitive.checkState() == Qt.Checked:
+            flags = re.IGNORECASE
+        return pattern, flags
+
+    def getRegExp(self):
+        """Read search parameters from controls and present it as a regular expression
+        """
+        pattern, flags = self._searchPatternTextAndFlags()
+        return re.compile(pattern, flags)
     
     def isSearchRegExpValid(self):
         """Try to compile search pattern to check if it is valid
         Returns bool result and text error
         """
-        regExp = self.getRegExp()
-        if regExp.isValid():
-            return True, None
-        else:
-            return False, regExp.errorString()
+        pattern, flags = self._searchPatternTextAndFlags()
+        try:
+            re.compile(pattern, flags)
+        except re.error, ex:
+            return False, unicode(ex)
         
         return True, None
 
@@ -486,12 +507,12 @@ class SearchWidget(QFrame):
         if valid:
             self.setState(self.Normal)
             core.mainWindow().statusBar().clearMessage()
-            self.pbSearch.setEnabled(len(self.getRegExp().pattern()) > 0)
+            self.pbSearch.setEnabled(len(self.getRegExp().pattern) > 0)
         else:
             core.mainWindow().statusBar().showMessage(error, 3000)
             self.setState(self.Incorrect)
             self.pbSearch.setEnabled(False)
-            self.searchRegExpChanged.emit(QRegExp())
+            self.searchRegExpChanged.emit(re.compile(''))
             return
 
         self.searchRegExpChanged.emit(self.getRegExp())
