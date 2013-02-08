@@ -209,8 +209,6 @@ class Controller(QObject):
         if self._replaceThread is not None:
             self._replaceThread.stop()
 
-        #self._resetSearchInFileStartPoint()
-
         self._mode = newMode
         
         if self._dock is not None:
@@ -330,7 +328,7 @@ class Controller(QObject):
             core.mainWindow().statusBar().showMessage('Match %d of %d' % \
                                                       (matches.index(match) + 1, len(matches)), 3000)
         else:
-            self._resetSelection(core.workspace().currentDocument())
+            core.workspace().currentDocument().qutepart.resetSelection()
 
     #
     # Search and replace in file
@@ -360,13 +358,6 @@ class Controller(QObject):
         core.actionManager().action("mNavigation/mSearchReplace/aSearchWordBackward").setEnabled(haveDocument)
         core.actionManager().action("mNavigation/mSearchReplace/aSearchWordForward").setEnabled(haveDocument)
 
-    @staticmethod
-    def _resetSelection(document):
-        """Reset selection in the document
-        """
-        pos = document.qutepart.absCursorPosition
-        document.qutepart.absSelectedPosition = (pos, pos)
-    
     def _onRegExpChanged(self, regExp):
         """Search regExp changed. Do incremental search
         """
@@ -375,7 +366,7 @@ class Controller(QObject):
             if regExp.pattern:
                 self._searchFile(forward=True, incremental=True )
             else:  # Clear selection
-                self._resetSelection(core.workspace().currentDocument())
+                core.workspace().currentDocument().qutepart.resetSelection()
 
     def _onSearchNext(self):
         """Search Next clicked
@@ -426,7 +417,7 @@ class Controller(QObject):
                                                       (matches.index(match) + 1, len(matches)), 3000)
         else:
             self._widget.setState(self._widget.Bad)
-            self._resetSelection(core.workspace().currentDocument())
+            core.workspace().currentDocument().qutepart.resetSelection()
 
     def _onReplaceFileOne(self, replaceText):
         """Do one replacement in the file
