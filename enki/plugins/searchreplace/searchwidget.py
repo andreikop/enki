@@ -256,7 +256,7 @@ class SearchWidget(QFrame):
         self.cbSearch.lineEdit().selectAll()
         
         # Set search path
-        if mode & ModeFlagDirectory and \
+        if mode & MODE_FLAG_DIRECTORY and \
            not (self.isVisible() and self.cbPath.isVisible()):
             try:
                 searchPath = os.path.abspath(unicode(os.path.curdir))
@@ -269,18 +269,18 @@ class SearchWidget(QFrame):
                    self.pbReplace, self.pbReplaceAll, self.pbReplaceChecked, self.wOptions, self.wMask)
         #                         wSear  pbPrev pbNext pbSear wRepl  wPath  pbRep  pbRAll pbRCHK wOpti wMask 
         visible = \
-        {ModeSearch :             (1,     1,     1,     0,     0,     0,     0,     1,     1,    1,    0,),
-         ModeReplace:             (1,     1,     1,     0,     1,     0,     1,     1,     0,    1,    0,),
-         ModeSearchDirectory:     (1,     0,     0,     1,     0,     1,     0,     0,     0,    1,    1,),
-         ModeReplaceDirectory:    (1,     0,     0,     1,     1,     1,     0,     0,     1,    1,    1,),
-         ModeSearchOpenedFiles:   (1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,),
-         ModeReplaceOpenedFiles:  (1,     0,     0,     1,     1,     0,     0,     0,     1,    1,    1,)}
+        {MODE_SEARCH :               (1,     1,     1,     0,     0,     0,     0,     1,     1,    1,    0,),
+         MODE_REPLACE:               (1,     1,     1,     0,     1,     0,     1,     1,     0,    1,    0,),
+         MODE_SEARCH_DIRECTORY:      (1,     0,     0,     1,     0,     1,     0,     0,     0,    1,    1,),
+         MODE_REPLACE_DIRECTORY:     (1,     0,     0,     1,     1,     1,     0,     0,     1,    1,    1,),
+         MODE_SEARCH_OPENED_FILES:   (1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,),
+         MODE_REPLACE_OPENED_FILES:  (1,     0,     0,     1,     1,     0,     0,     0,     1,    1,    1,)}
         
         for i, widget in enumerate(widgets):
             widget.setVisible(visible[mode][i])
 
         # Search next button text
-        if mode == ModeReplace:
+        if mode == MODE_REPLACE:
             self.pbNext.setText('Next')
         else:
             self.pbNext.setText(u'Next↵')

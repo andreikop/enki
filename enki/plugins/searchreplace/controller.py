@@ -14,18 +14,18 @@ from PyQt4.QtGui import QApplication, QAction, QIcon, QMessageBox
 from enki.core.core import core
 import substitutions
 
-ModeFlagSearch = 0x1
-ModeFlagReplace = 0x2
-ModeFlagFile = 0x4
-ModeFlagDirectory = 0x8
-ModeFlagOpenedFiles = 0x10
+MODE_FLAG_SEARCH = 0x1
+MODE_FLAG_REPLACE = 0x2
+MODE_FLAG_FILE = 0x4
+MODE_FLAG_DIRECTORY = 0x8
+MODE_FLAG_FILES = 0x10
 
-ModeSearch = ModeFlagSearch | ModeFlagFile
-ModeReplace = ModeFlagReplace | ModeFlagFile
-ModeSearchDirectory = ModeFlagSearch | ModeFlagDirectory
-ModeReplaceDirectory = ModeFlagReplace | ModeFlagDirectory
-ModeSearchOpenedFiles = ModeFlagSearch | ModeFlagOpenedFiles
-ModeReplaceOpenedFiles = ModeFlagReplace | ModeFlagOpenedFiles
+MODE_SEARCH = MODE_FLAG_SEARCH | MODE_FLAG_FILE
+MODE_REPLACE = MODE_FLAG_REPLACE | MODE_FLAG_FILE
+MODE_SEARCH_DIRECTORY = MODE_FLAG_SEARCH | MODE_FLAG_DIRECTORY
+MODE_REPLACE_DIRECTORY = MODE_FLAG_REPLACE | MODE_FLAG_DIRECTORY
+MODE_SEARCH_OPENED_FILES = MODE_FLAG_SEARCH | MODE_FLAG_FILES
+MODE_REPLACE_OPENED_FILES = MODE_FLAG_REPLACE | MODE_FLAG_FILES
 
 # Too many extra se
 MAX_EXTRA_SELECTIONS_COUNT = 256
@@ -98,7 +98,7 @@ class Controller(QObject):
         createAction("aSearchFile", "&Search...", 
                       "search.png", "Ctrl+F",
                       "Search in the current file...", 
-                      self._onModeSwitchTriggered, ModeSearch)
+                      self._onModeSwitchTriggered, MODE_SEARCH)
         createAction("aSearchPrevious", "Search &Previous",
                       "previous.png", "Shift+F3",
                       "Search previous occurrence",
@@ -112,7 +112,7 @@ class Controller(QObject):
         createAction("aReplaceFile", "&Replace...",
                       "replace.png", "Ctrl+R",
                       "Replace in the current file...",
-                      self._onModeSwitchTriggered, ModeReplace)
+                      self._onModeSwitchTriggered, MODE_REPLACE)
         createAction("aSearchWordBackward", "Search word under cursor backward",
                       "less.png", searchWordBackwardShortcut,
                       "",
@@ -125,19 +125,19 @@ class Controller(QObject):
         createAction("aSearchDirectory", "Search in &Directory...", 
                       "search-replace-directory.png", "Ctrl+Shift+F", 
                       "Search in directory...",
-                      self._onModeSwitchTriggered, ModeSearchDirectory)
+                      self._onModeSwitchTriggered, MODE_SEARCH_DIRECTORY)
         createAction("aReplaceDirectory", "Replace in Director&y...",
                       "search-replace-directory.png", "Ctrl+Shift+R",
                       "Replace in directory...",
-                      self._onModeSwitchTriggered, ModeReplaceDirectory)
+                      self._onModeSwitchTriggered, MODE_REPLACE_DIRECTORY)
         createAction("aSearchOpenedFiles", "Search in &Opened Files...",
                       "search-replace-opened-files.png",
                       "Ctrl+Alt+Meta+F", "Search in opened files...",
-                      self._onModeSwitchTriggered, ModeSearchOpenedFiles)
+                      self._onModeSwitchTriggered, MODE_SEARCH_OPENED_FILES)
         createAction("aReplaceOpenedFiles", "Replace in Open&ed Files...",
                       "search-replace-opened-files.png", "Ctrl+Alt+Meta+R",
                       "Replace in opened files...",
-                      self._onModeSwitchTriggered, ModeReplaceOpenedFiles)
+                      self._onModeSwitchTriggered, MODE_REPLACE_OPENED_FILES)
         
         am = core.actionManager()
         core.workspace().currentDocumentChanged.connect( \
@@ -187,8 +187,8 @@ class Controller(QObject):
 
         core.mainWindow().addDockWidget(Qt.BottomDockWidgetArea, self._dock)
         self._dock.setVisible( False )
-        self._dock.setReplaceMode(self._mode == ModeReplaceDirectory or \
-                                  self._mode == ModeReplaceOpenedFiles)
+        self._dock.setReplaceMode(self._mode == MODE_REPLACE_DIRECTORY or \
+                                  self._mode == MODE_REPLACE_OPENED_FILES)
 
     def _onModeSwitchTriggered(self):
         """Changing mode, i.e. from "Search file" to "Replace file"
@@ -198,7 +198,7 @@ class Controller(QObject):
         
         newMode = self.sender().data().toInt()[0]
         
-        if newMode & ModeFlagOpenedFiles and \
+        if newMode & MODE_FLAG_FILES and \
            not core.workspace().documents():
             return
         
@@ -212,8 +212,8 @@ class Controller(QObject):
         self._mode = newMode
         
         if self._dock is not None:
-            self._dock.setReplaceMode(self._mode == ModeReplaceDirectory or \
-                                      self._mode == ModeReplaceOpenedFiles)
+            self._dock.setReplaceMode(self._mode == MODE_REPLACE_DIRECTORY or \
+                                      self._mode == MODE_REPLACE_OPENED_FILES)
     
     #
     # Highlight found items with yellow
@@ -361,7 +361,7 @@ class Controller(QObject):
     def _onRegExpChanged(self, regExp):
         """Search regExp changed. Do incremental search
         """
-        if self._mode in (ModeSearch, ModeReplace) and \
+        if self._mode in (MODE_SEARCH, MODE_REPLACE) and \
            core.workspace().currentDocument() is not None:
             if regExp.pattern:
                 self._searchFile(forward=True, incremental=True )
@@ -478,7 +478,7 @@ class Controller(QObject):
         self._searchThread.resultsAvailable.connect(self._dock.appendResults)
         self._searchThread.finished.connect(self._onSearchThreadFinished)
         
-        inOpenedFiles = self._mode in (ModeSearchOpenedFiles, ModeReplaceOpenedFiles,)
+        inOpenedFiles = self._mode in (MODE_SEARCH_OPENED_FILES, MODE_REPLACE_OPENED_FILES,)
         
         self._widget.setSearchInProgress(True)
         self._dock.clear()
