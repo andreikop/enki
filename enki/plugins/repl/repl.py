@@ -109,7 +109,7 @@ class SmlTermWidget(_AbstractReplTermWidget):
     def isCommandComplete(self, text):
         """TODO support comments and strings
         """
-        return text.endswith(';')
+        return text.rstrip().endswith(';')
 
 
 class _AbstractInterpreter(QObject):
@@ -247,4 +247,3 @@ class SmlInterpreter(_AbstractInterpreter):
             except UserWarning:
                 return
         self._buffPopen.write('use "%s";\n' % filePath)
-

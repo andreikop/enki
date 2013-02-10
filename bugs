@@ -1,4 +1,6 @@
 FIXME
+    allow to move repl to sides
+    hint about ; ends command
     
 TODO
   minor improvements
@@ -38,4 +40,3 @@ ON new editor
     Can't highlight more than 1000 search results
     color schemes
     add here: http://en.wikibooks.org/wiki/Ruby_Programming/Ruby_editors
-
