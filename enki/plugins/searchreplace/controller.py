@@ -449,35 +449,16 @@ class Controller(QObject):
         """
         self._widget.updateComboBoxes()
         
-        document = core.workspace().currentDocument()
+        qpart = core.workspace().currentDocument().qutepart
         regExp = self._widget.getRegExp()
 
-        oldPos = document.qutepart.absCursorPosition
-        
-        with document.qutepart:
-            pos = 0
-            count = 0
-            match = regExp.search(document.qutepart.text, pos)
-            while match is not None:
-                document.qutepart.absSelectedPosition = (match.start(), match.start() + len(match.group(0)))
+        matches = self._findAllMatches(qpart.text, regExp)
+        with qpart:
+            for match in matches[::-1]:  # reverse order, because replacement may move indexes
                 replaceTextSubed = substitutions.makeSubstitutions(replaceText, match)
-                    
-                document.qutepart.selectedText = replaceTextSubed
-                
-                count += 1
-                
-                pos = match.start() + len(replaceTextSubed)
-                
-                if not match.group(0) and not replText:  # avoid freeze when replacing empty with empty
-                    pos  += 1
-                if pos < len(document.qutepart.text):
-                    match = regExp.search(document.qutepart.text, pos)
-                else:
-                    match = None
-        
-        if oldPos is not None:
-            document.qutepart.absCursorPosition = oldPos # restore cursor position
-        core.mainWindow().statusBar().showMessage( self.tr( "%d match(es) replaced." % count ), 3000 )
+                qpart.replaceText(match.start(), len(match.group(0)), replaceTextSubed)
+
+        core.mainWindow().statusBar().showMessage( self.tr( "%d match(es) replaced." % len(matches) ), 3000 )
     
     #
     # Search in directory (with thread)
