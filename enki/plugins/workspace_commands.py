@@ -165,7 +165,10 @@ class CommandOpen(AbstractCommand):
                 return False
             
             if os.path.exists(self._path) and \
-               not os.path.isfile(self._path):
+               not os.path.isfile(self._path):  # a directory
+                return False
+            
+            if self._path.endswith('/'):  # going to create a directory
                 return False
             
             return True

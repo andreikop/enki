@@ -1,8 +1,6 @@
 FIXME
-    allow to move repl to sides
     hint about ; ends command
     follow symlinks when searching?
-    locator selected path, which ends with /
     
 TODO
   minor improvements
