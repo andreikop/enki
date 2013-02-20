@@ -383,41 +383,36 @@ class Controller(QObject):
     def _searchFile(self, forward=True, incremental=False):
         """Do search in file operation. Will select next found item
         """
-        document = core.workspace().currentDocument()
+        qutepart = core.workspace().currentDocument().qutepart
         
         regExp = self._widget.getRegExp()
 
-        if document.qutepart.absCursorPosition != self._searchInFileLastCursorPos:
+        if qutepart.absCursorPosition != self._searchInFileLastCursorPos:
             self._searchInFileStartPoint = None
         
         if self._searchInFileStartPoint is None or not incremental:
             # get cursor position
-            cursor = document.qutepart.textCursor()
-            if cursor.hasSelection():
-                start = cursor.selectionStart()
-                end = cursor.selectionEnd()
-            else:
-                start = 0
-                end = 0
-        
+            cursor = qutepart.textCursor()
+    
             if forward:
                 if  incremental :
-                    self._searchInFileStartPoint = start
+                    self._searchInFileStartPoint = cursor.selectionStart()
                 else:
-                    self._searchInFileStartPoint = end
+                    self._searchInFileStartPoint = cursor.selectionEnd()
             else:
-                self._searchInFileStartPoint = start
+                self._searchInFileStartPoint = cursor.selectionStart()
         
-        match, matches = self._searchInText(regExp, document.qutepart.text, self._searchInFileStartPoint, forward)
+        match, matches = self._searchInText(regExp, qutepart.text, self._searchInFileStartPoint, forward)
         if match:
-            document.qutepart.absSelectedPosition = (match.start(), match.start() + len(match.group(0)))
-            self._searchInFileLastCursorPos = match.start()
+            selectionStart, selectionEnd = match.start(), match.start() + len(match.group(0))
+            qutepart.absSelectedPosition = (selectionStart, selectionEnd)
+            self._searchInFileLastCursorPos = selectionEnd
             self._widget.setState(self._widget.Good)  # change background acording to result
             core.mainWindow().statusBar().showMessage('Match %d of %d' % \
                                                       (matches.index(match) + 1, len(matches)), 3000)
         else:
             self._widget.setState(self._widget.Bad)
-            core.workspace().currentDocument().qutepart.resetSelection()
+            qutepart.resetSelection()
 
     def _onReplaceFileOne(self, replaceText):
         """Do one replacement in the file
