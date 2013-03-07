@@ -41,7 +41,7 @@ class _AbstractReplPlugin(QObject):
     def _icon(self):
         """Settings widget icon
         """
-        raise NotImplementedError()
+        return QIcon(':/enkiicons/transparent.png')
 
     def _createInterpreter(self):
         """Create interpreter instance
@@ -231,11 +231,6 @@ class _SmlReplPlugin(_AbstractReplPlugin):
         
         _AbstractReplPlugin.__init__(self)
 
-    def _icon(self):
-        """Settings widget icon
-        """
-        return QIcon()
-
     def _createInterpreter(self):
         """Create interpreter instance
         """
@@ -253,4 +248,3 @@ class Plugin:
     def del_(self):
         self._schemeSubPlugin.del_()
         self._smlSubPlugin.del_()
-
