@@ -301,22 +301,19 @@ class AbstractDocument(QWidget):
             text += self._eolSymbol()
 
         # Write file
+        data = text.encode('utf8')
+        
+        self._fileWatcher.disable()
         try:
-            openedFile = open(filePath, 'w')
+            with open(filePath, 'w') as openedFile:
+                openedFile.write(data)
+            self._fileWatcher.setContents(data)
         except IOError as ex:
             QMessageBox.critical(None,
                                  self.tr("Can not write to file"),
                                  unicode(str(ex), 'utf8'))
             return
-        
-        data = text.encode('utf8')
-        
-        self._fileWatcher.disable()
-        try:
-            openedFile.write(data)
-            self._fileWatcher.setContents(data)
         finally:
-            openedFile.close()
             self._fileWatcher.enable()
         
         # Update states
