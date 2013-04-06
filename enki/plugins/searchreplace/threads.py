@@ -131,7 +131,7 @@ class SearchThread(StopableThread):
             return self._openedFiles[ fileName ]
 
         try:
-            with open(fileName) as openedFile:
+            with open(fileName, 'rb') as openedFile:
                 if _isBinary(openedFile):
                     return ''
                 return unicode(openedFile.read(), 'utf8', errors = 'ignore')
@@ -262,7 +262,7 @@ class ReplaceThread(StopableThread):
             return
         
         try:
-            with open(fileName, 'w') as openFile:
+            with open(fileName, 'wb') as openFile:
                 openFile.write(content)
         except IOError as ex:
             pattern = self.tr("Error while saving replaced content: %s")
@@ -273,7 +273,7 @@ class ReplaceThread(StopableThread):
         """Read file
         """
         try:
-            with open(fileName) as openFile:
+            with open(fileName, 'rb') as openFile:
                 content = openFile.read()
         except IOError as ex:
             self.error.emit( self.tr( "Error opening file: %s" % str(ex) ) )

@@ -114,7 +114,7 @@ class _FileWatcher(QObject):
         """Read file. Ignore exceptions
         """
         try:
-            with open(path) as file:
+            with open(path, 'rb') as file:
                 return file.read()
         except (OSError, IOError):
             return None
@@ -186,7 +186,7 @@ class AbstractDocument(QWidget):
         """Read the file contents.
         Shows QMessageBox for UnicodeDecodeError, but raises IOError, if failed to read file
         """
-        with open(filePath, 'r') as openedFile:  # Exception is ok, raise it up
+        with open(filePath, 'rb') as openedFile:  # Exception is ok, raise it up
             self._filePath = os.path.abspath(filePath)
             data = openedFile.read()                
         
@@ -305,7 +305,7 @@ class AbstractDocument(QWidget):
         
         self._fileWatcher.disable()
         try:
-            with open(filePath, 'w') as openedFile:
+            with open(filePath, 'wb') as openedFile:
                 openedFile.write(data)
             self._fileWatcher.setContents(data)
         except IOError as ex:
