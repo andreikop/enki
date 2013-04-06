@@ -338,7 +338,7 @@ class MainWindow(QMainWindow):
         """
         state = self.saveState()
         try:
-            with open(self._STATE_FILE, 'w') as f:
+            with open(self._STATE_FILE, 'wb') as f:
                 f.write(state)
         except (OSError, IOError), ex:
             error = unicode(str(ex), 'utf8')
@@ -356,7 +356,7 @@ class MainWindow(QMainWindow):
         state = None
         if os.path.exists(self._STATE_FILE):
             try:
-                with open(self._STATE_FILE, 'r') as f:
+                with open(self._STATE_FILE, 'rb') as f:
                     state = f.read()
             except (OSError, IOError), ex:
                 error = unicode(str(ex), 'utf8')
