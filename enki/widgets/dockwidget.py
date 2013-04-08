@@ -136,7 +136,7 @@ class DockWidget(QDockWidget):
 
         self._closeShortcut = QShortcut( QKeySequence( "Esc" ), self )
         self._closeShortcut.setContext( Qt.WidgetWithChildrenShortcut )
-        self._closeShortcut.activated.connect(self._hide)
+        self._closeShortcut.activated.connect(self._close)
 
     def showAction(self):
         """Action shows the widget and set focus on it.
@@ -165,10 +165,10 @@ class DockWidget(QDockWidget):
         if self.focusProxy() is not None:
             self.setFocus()
 
-    def _hide(self):
+    def _close(self):
         """Hide and return focus to MainWindow focus proxy
         """
-        self.hide()
+        self.close()
         if self.parent() is not None and \
            self.parent().focusProxy() is not None:
             self.parent().focusProxy().setFocus()
