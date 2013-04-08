@@ -26,7 +26,6 @@ class Plugin(QObject):
         QObject.__init__(self)
         
         if not 'Preview' in core.config():  # migration from old configs versions
-            print 'no preview'
             core.config()['Preview'] = {'Enabled': True,
                                         'JavaScriptEnabled' : True}
 
@@ -86,6 +85,8 @@ class Plugin(QObject):
         if self._dock is None:
             from enki.plugins.preview.preview import PreviewDock
             self._dock = PreviewDock()
+            self._dock.closed.connect(self._onDockClosed)
+            self._dock.showAction().triggered.connect(self._onDockShown)
         # add dock to dock toolbar entry
         core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
         core.actionManager().addAction("mView/aPreview", self._dock.showAction())
@@ -93,14 +94,21 @@ class Plugin(QObject):
         if core.config()['Preview']['Enabled']:
             self._dock.show()
     
+    def _onDockClosed(self):
+        """Dock has been closed by user. Change Enabled option
+        """
+        core.config()['Preview']['Enabled'] = False
+        core.config().flush()
+    
+    def _onDockShown(self):
+        """Dock has been shown by user. Change Enabled option
+        """
+        core.config()['Preview']['Enabled'] = True
+        core.config().flush()
+    
     def _removeDock(self):
         """Remove dock from GUI
         """
-        if core.config()['Preview']['Enabled'] != self._dock.isVisible():
-            core.config()['Preview']['Enabled'] = self._dock.isVisible()
-            core.config().flush()
-        
         core.actionManager().removeAction("mView/aPreview")
         core.mainWindow().removeDockWidget(self._dock)
-        print 'removed dock widget'
         self._dockInstalled = False
