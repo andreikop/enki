@@ -24,12 +24,17 @@ class Plugin(QObject):
         """Create and install the plugin
         """
         QObject.__init__(self)
+        
+        if not 'Preview' in core.config():  # migration from old configs versions
+            print 'no preview'
+            core.config()['Preview'] = {'Enabled': True,
+                                        'JavaScriptEnabled' : True}
+
         self._dock = None
         self._dockInstalled = False
-        self._wasVisible = None
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         core.workspace().languageChanged.connect(self._onDocumentChanged)
-
+    
     def _onDocumentChanged(self):
         """Document or Language changed.
         Create dock, if necessary
@@ -67,13 +72,16 @@ class Plugin(QObject):
         core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
         core.actionManager().addAction("mView/aPreview", self._dock.showAction())
         self._dockInstalled = True
-        if self._wasVisible is not None and self._wasVisible:
+        if core.config()['Preview']['Enabled']:
             self._dock.show()
     
     def _removeDock(self):
         """Remove dock from GUI
         """
-        self._wasVisible = self._dock.isVisible()
+        if core.config()['Preview']['Enabled'] != self._dock.isVisible():
+            core.config()['Preview']['Enabled'] = self._dock.isVisible()
+            core.config().flush()
+        
         core.actionManager().removeAction("mView/aPreview")
         core.mainWindow().removeDockWidget(self._dock)
         self._dockInstalled = False

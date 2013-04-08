@@ -123,7 +123,6 @@ class PreviewDock(DockWidget):
     """
     def __init__(self):
         DockWidget.__init__(self, core.mainWindow(), "&Preview", QIcon(':/enkiicons/internet.png'), "Alt+P")
-
         self._widget = QWidget(self)
         
         from PyQt4 import uic  # lazy import for better startup performance
@@ -221,7 +220,7 @@ class PreviewDock(DockWidget):
         """
         DockWidget.show(self)
         self._scheduleDocumentProcessing()
-
+    
     def _scheduleDocumentProcessing(self):
         """Start document processing with the thread.
         """
@@ -247,15 +246,12 @@ class PreviewDock(DockWidget):
     def _isJavaScriptEnabled(self):
         """Check if JS is enabled in the settings
         """
-        try:
-            return core.config()['HtmlPreviewJavaScriptEnabled']
-        except KeyError:
-            return True  # default value
+        return core.config()['Preview']['JavaScriptEnabled']
 
     def _onJavaScriptEnabledCheckbox(self, enabled):
         """Checkbox clicked, save and apply settings
         """
-        core.config()['HtmlPreviewJavaScriptEnabled'] = enabled;
+        core.config()['Preview']['JavaScriptEnabled'] = enabled;
         core.config().flush()
 
         self._applyJavaScriptEnabled(enabled)

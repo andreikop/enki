@@ -217,5 +217,9 @@
     }, 
     "SchemeIndentHelper": {
         "Enabled": true
+    },
+    "Preview": {
+        "Enabled": true,
+        "JavaScriptEnabled": true
     }
 }
