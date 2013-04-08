@@ -34,6 +34,16 @@ class Plugin(QObject):
         self._dockInstalled = False
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         core.workspace().languageChanged.connect(self._onDocumentChanged)
+        core.mainWindow().stateRestored.connect(self._onMainWindowStateRestored)
+    
+    def del_(self):
+        """Uninstall the plugin
+        """
+        if self._dockInstalled:
+            self._removeDock()
+        
+        if self._dock is not None:
+            self._dock.del_()
     
     def _onDocumentChanged(self):
         """Document or Language changed.
@@ -45,6 +55,14 @@ class Plugin(QObject):
         else:
             if self._dockInstalled:
                 self._removeDock()
+    
+    def _onMainWindowStateRestored(self):
+        """When main window state is restored - dock is made visible, even if should not. Qt bug?
+        Hide dock, if can't view current document
+        """
+        if (not self._canHighlight(core.workspace().currentDocument())) and \
+           self._dock is not None:
+               self._dock.hide()
     
     def _canHighlight(self, document):
         """Check if can highlight document
@@ -84,13 +102,5 @@ class Plugin(QObject):
         
         core.actionManager().removeAction("mView/aPreview")
         core.mainWindow().removeDockWidget(self._dock)
+        print 'removed dock widget'
         self._dockInstalled = False
-    
-    def del_(self):
-        """Uninstall the plugin
-        """
-        if self._dockInstalled:
-            self._removeDock()
-        
-        if self._dock is not None:
-            self._dock.del_()

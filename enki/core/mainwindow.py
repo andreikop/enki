@@ -89,6 +89,14 @@ class MainWindow(QMainWindow):
     FileBrowser shows directory
     """  # pylint: disable=W0105
     
+    stateRestored = pyqtSignal()
+    """
+    stateRestored()
+    
+    **Signal** emitted, after state has been restored
+    Plugin might want to change docks visibility. Do not do it, unless necessary.
+    """  # pylint: disable=W0105
+    
     _STATE_FILE = os.path.join(enki.core.defines.CONFIG_DIR, "main_window_state.bin")
     _GEOMETRY_FILE = os.path.join(enki.core.defines.CONFIG_DIR, "main_window_geometry.json")
     
@@ -313,6 +321,11 @@ class MainWindow(QMainWindow):
         Close event handler.
         Shows save files dialog. Cancels close, if dialog was rejected
         """
+        
+        # saving geometry BEFORE closing widgets, because state might be changed, when docks are closed
+        self._saveState()
+        self._saveGeometry()
+
         # request close all documents
         if not core.workspace().askToCloseAll():
             event.ignore()
@@ -322,9 +335,6 @@ class MainWindow(QMainWindow):
         self.hide()
 
         core.workspace().forceCloseAllDocuments()
-
-        self._saveState()
-        self._saveGeometry()
 
         return QMainWindow.closeEvent(self, event)
     
@@ -368,6 +378,7 @@ class MainWindow(QMainWindow):
         
         if state is not None:
             self.restoreState(state)
+            self.stateRestored.emit()
         else:  # not state, first start
             self.showMaximized()
             for dock in self.findChildren(DockWidget):
