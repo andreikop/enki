@@ -168,6 +168,7 @@ class PreviewDock(DockWidget):
         Probably should update enabled state
         """
         self.closed.emit()
+        self._clear()
 
     def _updateTitle(self, pageTitle):
         """Web page title changed. Update own title
@@ -215,6 +216,8 @@ class PreviewDock(DockWidget):
         """
         if new is not None and self.isVisible():
             self._scheduleDocumentProcessing()
+        else:
+            self._clear()
 
     def _onTextChanged(self, document):
         """Text changed, update preview
@@ -250,6 +253,12 @@ class PreviewDock(DockWidget):
         self._visiblePath = filePath
         self._widget.webView .page().mainFrame().contentsSizeChanged.connect(self._restoreScrollPos)
         self._widget.webView .setHtml(html,baseUrl=QUrl.fromLocalFile(filePath))
+
+    def _clear(self):
+        """Clear themselves.
+        Might be necesssary for stop executing JS and loading data
+        """
+        self._setHtml('', '')
 
     def _isJavaScriptEnabled(self):
         """Check if JS is enabled in the settings
