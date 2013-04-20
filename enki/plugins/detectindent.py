@@ -38,8 +38,7 @@ class Plugin:
         """Delect indentation automatically and apply detected mode
         Handler for signal from the workspace
         """
-        
-        #TODO improve algorythm sometimes to skip comments
+        #TODO improve algorighm sometimes to skip comments
         
         if not core.config()["Editor"]["Indentation"]["AutoDetect"]:
             return
@@ -66,7 +65,7 @@ class Plugin:
             else:  # indents are totally not equal
                 return None
         
-        # non-empty lines. Empty (without trailing whitespaces) lines between code blocks break detection algorythm
+        # non-empty lines. Empty (without trailing whitespaces) lines between code blocks break detection algorighm
         lines = [l for l in document.qutepart.lines if l]
         lastIndent = ''
         popularityTable = {}
@@ -74,8 +73,8 @@ class Plugin:
             currentIndent = _lineIndent(l)
             diff = _diffIndents(currentIndent, lastIndent)
             if diff is not None and \
-               len(diff) <= _MAX_INDENT and \
-               len(diff) >= _MIN_INDENT:
+               (len(diff) <= _MAX_INDENT and len(diff) >= _MIN_INDENT) or \
+               diff == '\t':
                 if diff in popularityTable:
                     popularityTable[diff] += 1
                 else:
