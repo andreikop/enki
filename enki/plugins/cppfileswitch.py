@@ -41,7 +41,7 @@ class Plugin(QObject):
             if self._action is None:
                 self._action = core.actionManager().addAction("mNavigation/aHeaderImplementation",
                                                               "Switch C/C++ header/implementation",
-                                                              shortcut = 'Ctrl+I')
+                                                              shortcut = 'Ctrl+Alt+I')
                 self._action.triggered.connect(self._onTriggered)
             self._action.setVisible(True)
             self._action.setEnabled(self._getFileToSwitch() is not None)
