@@ -105,8 +105,9 @@ class ActionManager(QObject):
         return '/'.join(path.split('/')[0: -1])
     
     def addAction(self, path, action, icon=QIcon(), shortcut=None):
-        """Add new action to the menu
-        Returns created QAction object
+        """Add new action to the menu.
+        Returns created QAction object.
+        ``action`` might be string text or QAction instance.
         """
         subPath = self._parentPath(path)
         parentAction = self.action(subPath)

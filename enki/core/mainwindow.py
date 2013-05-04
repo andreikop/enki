@@ -139,8 +139,6 @@ class MainWindow(QMainWindow):
         self._centralLayout.setMargin(0)
         self.setCentralWidget(widget)
         
-        core.actionManager().action("mFile/aQuit").triggered.connect(self.close)
-
     def del_(self):
         """Explicitly called destructor
         """
@@ -234,12 +232,10 @@ class MainWindow(QMainWindow):
         menu  ("mFile/mReload",                       "&Reload"               , "reload.png"    )
         action("mFile/mReload/aCurrent",              "Reload"                , "reload.png"  , 'F5',           "Reload the current file", False)
         action("mFile/mReload/aAll",                  "Reload All"            , "reload.png"  , 'Shift+F5',     "Reload all files"       , True)
-        action("mFile/aPrint",                        "&Print..."             , "print.png"   , "Ctrl+P",       "Print the current file" , False)
         menu  ("mFile/mClose",                        "&Close"                , "close.png"   )
         action("mFile/mClose/aCurrent",               "&Close"                , "close.png",    "Ctrl+W",       "Close the current file" , False)
         action("mFile/mClose/aAll",                   "Close &All"            , "closeall.png", 'Shift+Ctrl+W', "Close all files"        , False)
         separator("mFile")
-        action("mFile/aQuit",                         "&Quit"                 , "quit.png"    , ""            , "Quit"                   , True)
 
         menu  ("mView",                               "View"                  , ""            )
         menu  ("mView/mZoom",                         "&Zoom"                 , "search.png"  )
@@ -248,6 +244,7 @@ class MainWindow(QMainWindow):
         action("mView/aHideAll",                      "Hide all widgets"      , "",             "Shift+Esc",    "Hide all widgets"          , True)
 
         menu  ("mEdit",                               "Edit"                  , ""            )
+        menu  ("mEdit/mCopyPasteLines",               "Copy-paste lines"      , ""            )
 
         menu  ("mNavigation",                          "Navigation"            , ""           ) 
         action("mNavigation/aFocusCurrentDocument",   "Focus to editor"       , "text.png",     "Ctrl+Return",  "Focus current document" , False)
@@ -261,6 +258,7 @@ class MainWindow(QMainWindow):
         separator("mNavigation")
         action("mNavigation/aGoto",                   "Go go line..."         , "goto.png",     "Ctrl+G",       "Go to line..."          , False)
         menu  ("mNavigation/mFileBrowser",            "File browser"          , ':/enkiicons/open.png')
+        menu  ("mNavigation/mScroll",                 "Scroll file"           , '')
 
         menu  ("mSettings",                           "Settings"              , ""            )
 

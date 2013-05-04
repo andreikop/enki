@@ -14,7 +14,8 @@ Document - opened file, widget on workspace. :class:`enki.core.document.Document
 import os.path
 import sys
 
-from PyQt4.QtGui import QApplication, \
+from PyQt4.QtGui import QAction, \
+                        QApplication, \
                         QDialog, QDialogButtonBox, \
                         QFileDialog, \
                         QListWidgetItem, \
@@ -165,6 +166,33 @@ class Workspace(QStackedWidget):
     Search widget closes themselves on this signal
     """  # pylint: disable=W0105
 
+    _QUTEPART_ACTIONS = (
+        
+        ('mEdit/mCopyPasteLines/aCopy', 'copyLineAction'),
+        ('mEdit/mCopyPasteLines/aPaste', 'pasteLineAction'),
+        ('mEdit/mCopyPasteLines/aCut', 'cutLineAction'),
+        ('mEdit/mCopyPasteLines/aDuplicate', 'duplicateLineAction'),
+        
+        ('mEdit/aMoveLineUp', 'moveLineUpAction'),
+        ('mEdit/aMoveLineDown', 'moveLineDownAction'),
+        ('mEdit/aDeleteLine', 'deleteLineAction'),
+        
+        ('mEdit/aSeparatorBeforeIndent', None),
+        ('mEdit/aDecreaseIndent', 'decreaseIndentAction'),
+        ('mEdit/aAutoIndent', 'autoIndentLineAction'),
+        
+        ('mNavigation/mScroll/aUp', 'scrollUpAction'),
+        ('mNavigation/mScroll/aDown', 'scrollDownAction'),
+        ('mNavigation/mScroll/aSelectAndScrollUp', 'selectAndScrollUpAction'),
+        ('mNavigation/mScroll/aSelectAndScrollDown', 'selectAndScrollDownAction'),
+        
+        ('mFile/aPrint', 'printAction'),
+        
+        ('mNavigation/mBookmarks/aToggle', 'toggleBookmarkAction'),
+        ('mNavigation/mBookmarks/aPrevious', 'prevBookmarkAction'),
+        ('mNavigation/mBookmarks/aNext', 'nextBookmarkAction'),
+    )
+
     def __init__(self, mainWindow):
         """ list of opened documents as it is displayed in the Opened Files Explorer. 
         List accessed and modified by enki.core.openedfilemodel.OpenedFileModel class
@@ -260,6 +288,19 @@ class Workspace(QStackedWidget):
                 os.chdir( os.path.dirname(new.filePath()) )
             except OSError, ex:  # directory might be deleted
                 print >> sys.stderr, 'Failed to change directory:', str(ex)
+        
+        if old is not None:
+            for path, name in self._QUTEPART_ACTIONS:
+                core.actionManager().removeAction(path)
+    
+        if new is not None:
+            for path, name in self._QUTEPART_ACTIONS:
+                if name is not None:
+                    core.actionManager().addAction(path, getattr(new.qutepart, name))
+                else:
+                    act = QAction(self)
+                    act.setSeparator(True)
+                    core.actionManager().addAction(path, act)
 
     def currentDocument(self):
         """Returns currently active (focused) document. None, if no documents are opened

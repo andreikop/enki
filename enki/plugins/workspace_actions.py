@@ -26,7 +26,6 @@ class Plugin(QObject):
         core.actionManager().action( "mFile/mSave/aCurrent" ).triggered.connect(self._onFileSaveCurrentTriggered)
         core.actionManager().action( "mFile/mSave/aAll" ).triggered.connect(self._onFileSaveAllTriggered)
         core.actionManager().action( "mFile/mSave/aSaveAs" ).triggered.connect(self._onFileSaveAsTriggered)
-        core.actionManager().action( "mFile/aPrint").triggered.connect(lambda: core.workspace().currentDocument().printFile())
         
         core.actionManager().action( "mNavigation/aNext" ).triggered.connect(core.workspace().activateNextDocument)
         core.actionManager().action( "mNavigation/aPrevious" ).triggered.connect(core.workspace().activatePreviousDocument)
@@ -55,8 +54,6 @@ class Plugin(QObject):
         core.actionManager().action( "mFile/mReload/aCurrent" ).setEnabled( newDocument is not None )
         core.actionManager().action( "mFile/mReload/aAll" ).setEnabled( newDocument is not None )
 
-        core.actionManager().action( "mFile/aPrint" ).setEnabled( newDocument is not None )
-        
         # update view menu
         moreThanOneDocument = len(core.workspace().documents()) > 1
         core.actionManager().action( "mNavigation/aNext" ).setEnabled( moreThanOneDocument )
