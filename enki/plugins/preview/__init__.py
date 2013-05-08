@@ -70,7 +70,8 @@ class Plugin(QObject):
         if document is None:
             return False
         
-        if document.qutepart.language() in ('HTML', 'reStructuredText'):
+        if document.qutepart.language() == 'reStructuredText' or \
+           'html' in document.qutepart.language().lower():  # 'Django HTML Template'
             return True
         
         if isMarkdownFile(document):

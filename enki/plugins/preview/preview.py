@@ -37,7 +37,7 @@ class ConverterThread(QThread):
     def _getHtml(self, language, text):
         """Get HTML for document
         """
-        if language == 'HTML':
+        if 'html' in language.lower():  # 'Django HTML Template'
             return text
         elif language == 'Markdown':
             return self._convertMarkdown(text)
