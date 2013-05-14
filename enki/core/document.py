@@ -441,3 +441,7 @@ class Document(QWidget):
         """
         conf = core.config()['Editor']
         self.qutepart.setFont(QFont(conf['DefaultFont'], conf['DefaultFontSize']))
+        self.qutepart.indentUseTabs = conf['Indentation']['UseTabs']
+        self.qutepart.indentWidth = conf['Indentation']['Width']
+        
+        # EOL is managed separately

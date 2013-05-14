@@ -40,6 +40,7 @@ class EolIndicatorAndSwitcher(QToolButton):
         menu.triggered.connect(self._onEolActionTriggered)
         
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
+        core.workspace().eolChanged.connect(self._setEolMode)
     
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument):  # pylint: disable=W0613
         """Current document on workspace has been changed
@@ -92,6 +93,7 @@ class EolIndicatorAndSwitcher(QToolButton):
         if mode is not None:
             self.setIcon(QIcon(':/enkiicons/' + self._ICON_FOR_MODE[mode]))
 
+
 class _IndentationDialog(QDialog):
     """Indentation dialog appears, if indentation label on the status bar clicked
     """
@@ -135,6 +137,7 @@ class _IndentationDialog(QDialog):
         """Handler of change of 'Indentation uses tabs' flag
         """
         self._document.qutepart.indentUseTabs = toggled
+
 
 class IndentIndicatorAndSwitcher(QToolButton):
     """This widget is visible on Status Bar as indent type label

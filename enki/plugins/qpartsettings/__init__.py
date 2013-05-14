@@ -27,6 +27,33 @@ class _FontSettingsWidget(QWidget):
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Font.ui'), self)
 
 
+class _IndentationSettingsWidget(QWidget):
+    """Font settings widget. Insertted as a page to UISettings
+    """
+    def __init__(self, *args):
+        QWidget.__init__(self, *args)
+        from PyQt4 import uic  # lazy import for better startup performance
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'Indentation.ui'), self)
+
+
+class _AutocompletionSettingsWidget(QWidget):
+    """Font settings widget. Insertted as a page to UISettings
+    """
+    def __init__(self, *args):
+        QWidget.__init__(self, *args)
+        from PyQt4 import uic  # lazy import for better startup performance
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'Autocompletion.ui'), self)
+
+
+class _EolSettingsWidget(QWidget):
+    """Font settings widget. Insertted as a page to UISettings
+    """
+    def __init__(self, *args):
+        QWidget.__init__(self, *args)
+        from PyQt4 import uic  # lazy import for better startup performance
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'Eol.ui'), self)
+
+
 class Plugin:
     """Plugin interface implementation
     
@@ -45,14 +72,36 @@ class Plugin:
         """UI settings dialogue is about to execute.
         Add own options
         """
-        fontWidget =_FontSettingsWidget(dialog)
+        fontWidget = _FontSettingsWidget(dialog)
+        indentWidget = _IndentationSettingsWidget(dialog)
+        complWidget = _AutocompletionSettingsWidget(dialog)
+        eolWidget = _EolSettingsWidget(dialog)
+        
         dialog.appendPage(u"Editor/Font", fontWidget)
+        dialog.appendPage(u"Editor/Indentation", indentWidget)
+        dialog.appendPage(u"Editor/Autocompletion", complWidget)
+        dialog.appendPage(u"Editor/EOL", eolWidget)
 
         cfg = core.config()
         options = \
         (
             FontOption(dialog, cfg, "Editor/DefaultFont", "Editor/DefaultFontSize",
                        fontWidget.lFont, fontWidget.pbFont),
+            
+            ChoiseOption(dialog, cfg, "Editor/Indentation/UseTabs",
+                         {indentWidget.rbIndentationSpaces : False,
+                          indentWidget.rbIndentationTabs: True}),
+            NumericOption(dialog, cfg, "Editor/Indentation/Width", indentWidget.sIndentationWidth),
+            CheckableOption(dialog, cfg, "Editor/Indentation/AutoDetect", indentWidget.cbAutodetectIndent),
+            
+            ChoiseOption(dialog, cfg, "Editor/EOL/Mode",
+                         {eolWidget.rbEolUnix: r'\n',
+                          eolWidget.rbEolWindows: r'\r\n',
+                          eolWidget.rbEolMac: r'\r'}),            
+            CheckableOption(dialog, cfg, "Editor/EOL/AutoDetect", eolWidget.cbAutoDetectEol),
+            
+            CheckableOption(dialog, cfg, "Editor/AutoCompletion/Enabled", complWidget.gbAutoCompletion),
+            NumericOption(dialog, cfg, "Editor/AutoCompletion/Threshold", complWidget.sThreshold),
         )
         
         for option in options:
@@ -61,11 +110,6 @@ class Plugin:
 
 """ Old options. TODO Uncomment or delete
             CheckableOption(dialog, cfg, "Editor/Indentation/ConvertUponOpen", dialog.cbConvertIndentationUponOpen),
-            ChoiseOption(dialog, cfg, "Editor/Indentation/UseTabs",
-                         {dialog.rbIndentationSpaces : False,
-                          dialog.rbIndentationTabs: True}),
-            CheckableOption(dialog, cfg, "Editor/Indentation/AutoDetect", dialog.cbAutodetectIndent),
-            NumericOption(dialog, cfg, "Editor/Indentation/Width", dialog.sIndentationWidth),
             
             CheckableOption(dialog, cfg, "Editor/ShowLineNumbers", dialog.cbShowLineNumbers),
             CheckableOption(dialog, cfg, "Editor/EnableCodeFolding", dialog.cbEnableCodeFolding),
@@ -76,7 +120,6 @@ class Plugin:
             ColorOption(dialog, cfg, "Editor/DefaultDocumentPen", dialog.tbDefaultDocumentPen),
             ColorOption(dialog, cfg, "Editor/DefaultDocumentPaper", dialog.tbDefaultDocumentPaper),
         
-            CheckableOption(dialog, cfg, "Editor/AutoCompletion/Enabled", dialog.gbAutoCompletion),
             ChoiseOption(dialog, cfg, "Editor/AutoCompletion/Source",
                          { dialog.rbDocument: "Document",
                            dialog.rbApi: "APIs",
@@ -85,7 +128,6 @@ class Plugin:
                             dialog.cbAutoCompletionCaseSensitivity),
             CheckableOption(dialog, cfg, "Editor/AutoCompletion/ReplaceWord", dialog.cbAutoCompletionReplaceWord),
             CheckableOption(dialog, cfg, "Editor/AutoCompletion/ShowSingle", dialog.cbAutoCompletionShowSingle),
-            NumericOption(dialog, cfg, "Editor/AutoCompletion/Threshold", dialog.sAutoCompletionThreshold),
         
             # TODO restore or remove
             #CheckableOption(dialog, cfg, "Editor/CallTips/Enabled", dialog.gbCalltips),
@@ -122,11 +164,6 @@ class Plugin:
             ColorOption(dialog, cfg, "Editor/Caret/ForegroundColor", dialog.tbCaretForeground),
             NumericOption(dialog, cfg, "Editor/Caret/Width", dialog.sCaretWidth),
 
-            ChoiseOption(dialog, cfg, "Editor/EOL/Mode",
-                         {dialog.rbEolUnix: r'\n',
-                          dialog.rbEolWindows: r'\r\n',
-                          dialog.rbEolMac: r'\r'}),
-            CheckableOption(dialog, cfg, "Editor/EOL/AutoDetect", dialog.cbAutoDetectEol),
             ChoiseOption(dialog, cfg, "Editor/WhitespaceVisibility",
                          {dialog.rbWsInvisible: "Invisible",
                           dialog.rbWsVisible: "Visible",

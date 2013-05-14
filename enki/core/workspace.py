@@ -158,6 +158,14 @@ class Workspace(QStackedWidget):
     Convenience signal, which retransmits original signal, sent by the document
     """  # pylint: disable=W0105
 
+    eolChanged = pyqtSignal(Document, unicode)
+    """
+    eolChanged(document, eol)
+    
+    **Signal** emitted, when EOL mode has been changed
+    Convenience signal, which retransmits original signal, sent by the document
+    """  # pylint: disable=W0105
+
     escPressed = pyqtSignal()
     """
     escPressed()
@@ -388,6 +396,7 @@ class Workspace(QStackedWidget):
         document.qutepart.languageChanged.connect(lambda name: self.languageChanged.emit(document, name))
         document.qutepart.indentWidthChanged.connect(lambda width: self.indentWidthChanged.emit(document, width))
         document.qutepart.indentUseTabsChanged.connect(lambda useTabs: self.indentUseTabsChanged.emit(document, useTabs))
+        document.qutepart.eolChanged.connect(lambda eol: self.eolChanged.emit(document, eol))
 
         # add to workspace
         document.installEventFilter( self )

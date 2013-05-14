@@ -97,87 +97,10 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox_4">
-     <property name="title">
-      <string>Upon openning file</string>
+    <widget class="QCheckBox" name="cbAutodetectIndent">
+     <property name="text">
+      <string>Try to detect indentation automatically</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_12">
-      <item>
-       <widget class="QCheckBox" name="cbAutodetectIndent">
-        <property name="text">
-         <string>Try to detect indentation automatically</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="cbConvertIndentationUponOpen">
-        <property name="text">
-         <string>Convert indentation</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label">
-        <property name="font">
-         <font>
-          <italic>true</italic>
-         </font>
-        </property>
-        <property name="text">
-         <string>Hint: check both options for automatically fix inconsistent indentation</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="gbIndentationGuides">
-     <property name="title">
-      <string>Indentation guides</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="lIndentationGuidesForeground">
-        <property name="text">
-         <string>Foreground :</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="ColorButton" name="tbIndentationGuidesForeground">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="lIndentationGuidesBackground">
-        <property name="text">
-         <string>Background :</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="ColorButton" name="tbIndentationGuidesBackground">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-     </layout>
     </widget>
    </item>
    <item>
@@ -195,13 +118,23 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>ColorButton</class>
-   <extends>QPushButton</extends>
-   <header location="global">enki/widgets/colorbutton.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>sIndentationWidth</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>lnIndentationWidth</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>515</x>
+     <y>80</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>596</x>
+     <y>77</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

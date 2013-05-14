@@ -1,3 +1,7 @@
+Qutepart:
+    convert indentation
+    autocompletion settings
+
 FIXME
     hint about ; ends command
     follow symlinks when searching?
