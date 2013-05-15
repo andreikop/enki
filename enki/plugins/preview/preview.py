@@ -11,7 +11,7 @@ from enki.core.core import core
 
 from enki.widgets.dockwidget import DockWidget
 
-from enki.plugins.preview import isMarkdownFile
+from enki.plugins.preview import isMarkdownFile, isHtmlFile
 
 
 class ConverterThread(QThread):
@@ -37,7 +37,7 @@ class ConverterThread(QThread):
     def _getHtml(self, language, text):
         """Get HTML for document
         """
-        if 'html' in language.lower():  # 'Django HTML Template'
+        if language == 'HTML':
             return text
         elif language == 'Markdown':
             return self._convertMarkdown(text)
@@ -242,6 +242,8 @@ class PreviewDock(DockWidget):
             language = document.qutepart.language()
             if isMarkdownFile(document):
                 language = 'Markdown'
+            elif isHtmlFile(document):
+                language = 'HTML'
             
             self._thread.process(document.filePath(), language, document.qutepart.text)
 
