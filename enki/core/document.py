@@ -444,4 +444,7 @@ class Document(QWidget):
         self.qutepart.indentUseTabs = conf['Indentation']['UseTabs']
         self.qutepart.indentWidth = conf['Indentation']['Width']
         
+        self.qutepart.completionEnabled = conf['AutoCompletion']['Enabled']
+        self.qutepart.completionThreshold = conf['AutoCompletion']['Threshold']
+        
         # EOL is managed separately
