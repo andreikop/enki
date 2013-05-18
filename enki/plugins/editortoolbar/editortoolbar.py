@@ -40,7 +40,7 @@ class EolIndicatorAndSwitcher(QToolButton):
         menu.triggered.connect(self._onEolActionTriggered)
         
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
-        core.workspace().eolChanged.connect(self._setEolMode)
+        core.workspace().eolChanged.connect(lambda document, eol: self._setEolMode(eol))
     
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument):  # pylint: disable=W0613
         """Current document on workspace has been changed
