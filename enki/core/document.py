@@ -170,7 +170,8 @@ class Document(QWidget):
         #autodetect eol, if need
         self._configureEolMode(originalText)
         
-        self.qutepart.detectSyntax(sourceFilePath = filePath)
+        self.qutepart.detectSyntax(sourceFilePath=filePath,
+                                   firstLine=self.qutepart.lines[0])
 
     def del_(self):
         """Explicytly called destructor
