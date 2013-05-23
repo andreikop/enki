@@ -1,7 +1,4 @@
 Qutepart:
-    no Ctrl+PgUp Ctrl+PgDown  key hints
-    duplicating Edit menu items in the shortcuts config
-    scroll bars on Localtor if too many files
 
 FIXME
     hint about ; ends command

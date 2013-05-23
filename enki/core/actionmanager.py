@@ -226,10 +226,14 @@ class ActionManager(QObject):
         """List of children of action
         """
         if action is None:
-            return [object for object in QObject.children(self) if \
-                        isinstance(object, QAction)]
+            return [object \
+                        for object in QObject.children(self) \
+                            if isinstance(object, QAction) and \
+                               object in self._pathToAction.values()]
         else:
-            return action.children()
+            return [object \
+                        for object in action.children() \
+                            if object in self._pathToAction.values()]
 
     def defaultShortcut(self, action ):
         """Get actions default shortcut
