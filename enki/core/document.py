@@ -116,6 +116,7 @@ class _FileWatcher(QObject):
         except (OSError, IOError):
             return None
 
+
 class Document(QWidget):
     """
     Base class for documents on workspace, such as opened source file, Qt Designer and Qt Assistant, ...
@@ -170,7 +171,10 @@ class Document(QWidget):
         #autodetect eol, if need
         self._configureEolMode(originalText)
         
-        self.qutepart.detectSyntax(sourceFilePath=filePath,
+        self._tryDetectSyntax()
+    
+    def _tryDetectSyntax(self):
+        self.qutepart.detectSyntax(sourceFilePath=self.filePath(),
                                    firstLine=self.qutepart.lines[0])
 
     def del_(self):
@@ -303,6 +307,9 @@ class Document(QWidget):
         self._externallyRemoved = False
         self._externallyModified = False
         self.qutepart.document().setModified(False)
+        
+        if self.qutepart.language() is None:
+            self._tryDetectSyntax()
 
     def saveFile(self):
         """Save the file to file system
