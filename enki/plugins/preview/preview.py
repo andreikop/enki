@@ -5,7 +5,7 @@ import threading
 import os.path
 
 from PyQt4.QtCore import pyqtSignal, QSize, Qt, QThread, QTimer, QUrl
-from PyQt4.QtGui import QIcon, QWidget
+from PyQt4.QtGui import QFileDialog, QIcon, QMessageBox, QWidget
 
 from enki.core.core import core
 
@@ -156,6 +156,8 @@ class PreviewDock(DockWidget):
 
         self._scheduleDocumentProcessing()
         self._applyJavaScriptEnabled(self._isJavaScriptEnabled())
+        
+        self._widget.tbSave.clicked.connect(self._onSave)
 
     def del_(self):
         """Uninstall themselves
@@ -253,8 +255,8 @@ class PreviewDock(DockWidget):
         """
         self._saveScrollPos()
         self._visiblePath = filePath
-        self._widget.webView .page().mainFrame().contentsSizeChanged.connect(self._restoreScrollPos)
-        self._widget.webView .setHtml(html,baseUrl=QUrl.fromLocalFile(filePath))
+        self._widget.webView.page().mainFrame().contentsSizeChanged.connect(self._restoreScrollPos)
+        self._widget.webView.setHtml(html,baseUrl=QUrl.fromLocalFile(filePath))
 
     def _clear(self):
         """Clear themselves.
@@ -284,3 +286,13 @@ class PreviewDock(DockWidget):
         settings.setAttribute(settings.JavascriptEnabled, enabled)
         
         self._scheduleDocumentProcessing()
+    
+    def _onSave(self):
+        """Save contents of the preview"""
+        path = QFileDialog.getSaveFileName(self, 'Save Preview as HTML', filter='HTML (*.html)')
+        if path:
+            try:
+                with open(path, 'w') as openedFile:
+                    openedFile.write(self._widget.webView.page().mainFrame().toHtml())
+            except (OSError, IOError) as ex:
+                QMessageBox.critical(self, "Failed to save HTML", unicode(str(ex), 'utf8'))
