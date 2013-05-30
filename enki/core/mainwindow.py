@@ -238,9 +238,6 @@ class MainWindow(QMainWindow):
         separator("mFile")
 
         menu  ("mView",                               "View"                  , ""            )
-        menu  ("mView/mZoom",                         "&Zoom"                 , "search.png"  )
-        menu  ("mView/mHighlighting",                 "Highlighting"          , ""            )
-        separator("mView")
         action("mView/aHideAll",                      "Hide all widgets"      , "",             "Shift+Esc",    "Hide all widgets"          , True)
 
         menu  ("mEdit",                               "Edit"                  , ""            )
