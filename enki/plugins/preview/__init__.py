@@ -95,7 +95,7 @@ class Plugin(QObject):
             self._dock.closed.connect(self._onDockClosed)
             self._dock.showAction().triggered.connect(self._onDockShown)
             self._saveAction = QAction(QIcon(':enkiicons/save.png'), 'Save Preview as HTML', self._dock)
-            self._saveAction.setShortcut(QKeySequence("Alt+Ctrl+P"))
+            self._saveAction.setShortcut(QKeySequence("Alt+Shift+P"))
             self._saveAction.triggered.connect(self._dock.onSave)
         
         # add dock to dock toolbar entry
