@@ -157,7 +157,7 @@ class PreviewDock(DockWidget):
         self._scheduleDocumentProcessing()
         self._applyJavaScriptEnabled(self._isJavaScriptEnabled())
         
-        self._widget.tbSave.clicked.connect(self._onSave)
+        self._widget.tbSave.clicked.connect(self.onSave)
 
     def del_(self):
         """Uninstall themselves
@@ -287,7 +287,7 @@ class PreviewDock(DockWidget):
         
         self._scheduleDocumentProcessing()
     
-    def _onSave(self):
+    def onSave(self):
         """Save contents of the preview"""
         path = QFileDialog.getSaveFileName(self, 'Save Preview as HTML', filter='HTML (*.html)')
         if path:

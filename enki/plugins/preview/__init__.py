@@ -4,6 +4,7 @@ preview --- HTML, Markdown preview
 """
 
 from PyQt4.QtCore import QObject, Qt
+from PyQt4.QtGui import QAction, QIcon, QKeySequence
 
 from enki.core.core import core
 
@@ -35,6 +36,7 @@ class Plugin(QObject):
                                         'JavaScriptEnabled' : True}
 
         self._dock = None
+        self._saveAction = None
         self._dockInstalled = False
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         core.workspace().languageChanged.connect(self._onDocumentChanged)
@@ -92,9 +94,14 @@ class Plugin(QObject):
             self._dock = PreviewDock()
             self._dock.closed.connect(self._onDockClosed)
             self._dock.showAction().triggered.connect(self._onDockShown)
+            self._saveAction = QAction(QIcon(':enkiicons/save.png'), 'Save Preview as HTML', self._dock)
+            self._saveAction.setShortcut(QKeySequence("Alt+Ctrl+P"))
+            self._saveAction.triggered.connect(self._dock.onSave)
+        
         # add dock to dock toolbar entry
         core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
         core.actionManager().addAction("mView/aPreview", self._dock.showAction())
+        core.actionManager().addAction("mFile/aSavePreview", self._saveAction)
         self._dockInstalled = True
         if core.config()['Preview']['Enabled']:
             self._dock.show()
@@ -115,5 +122,6 @@ class Plugin(QObject):
         """Remove dock from GUI
         """
         core.actionManager().removeAction("mView/aPreview")
+        core.actionManager().removeAction("mFile/aSavePreview")
         core.mainWindow().removeDockWidget(self._dock)
         self._dockInstalled = False
