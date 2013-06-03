@@ -17,6 +17,7 @@ from enki.core.core import core
 import searchresultsmodel
 import substitutions
 
+
 def _isBinary(fileObject):
     """Expects, that file position is 0, when exits, file position is 0
     """
@@ -49,6 +50,7 @@ class StopableThread(QThread):
         self._exit = False
         QThread.start(self)
 
+
 class SearchThread(StopableThread):
     """Thread builds list of files for search and than searches in this files.append
     """
@@ -56,6 +58,7 @@ class SearchThread(StopableThread):
 
     resultsAvailable = pyqtSignal(list)  # list of searchresultsmodel.FileResults
     progressChanged = pyqtSignal(int, int)  # int value, int total
+    error = pyqtSignal(unicode)
 
     def search(self, regExp, mask, inOpenedFiles, searchPath):
         """Start search process.
@@ -80,27 +83,34 @@ class SearchThread(StopableThread):
         maskRegExp is regExp object for check if file matches mask
         """
         retFiles = []
-        for root, dirs, files in os.walk(os.path.abspath(path)):  # pylint: disable=W0612
-            if root.startswith('.') or (os.path.sep + '.') in root:
-                continue
-            for fileName in files:
-                if fileName.startswith('.'):
+        
+        absPath = os.path.abspath(path)
+        try:
+            for root, dirs, files in os.walk(absPath):  # pylint: disable=W0612
+                if root.startswith('.') or (os.path.sep + '.') in root:
                     continue
-                if maskRegExp and not maskRegExp.match(fileName):
-                    continue
-                
-                if filterRegExp.match(fileName):
-                    continue
-                
-                fullPath = os.path.join(root, fileName)
-                if not os.path.isfile(fullPath):
-                    continue
-                retFiles.append(root + os.path.sep + fileName)
-
-            if self._exit :
-                break
-
+                for fileName in files:
+                    if fileName.startswith('.'):
+                        continue
+                    if maskRegExp and not maskRegExp.match(fileName):
+                        continue
+                    
+                    if filterRegExp.match(fileName):
+                        continue
+                    
+                    fullPath = os.path.join(root, fileName)
+                    if not os.path.isfile(fullPath):
+                        continue
+                    retFiles.append(root + os.path.sep + fileName)
+    
+                if self._exit :
+                    break
+        except UnicodeDecodeError:  # from os.walk()
+            self.error.emit('Failed to build list of files. Unicode decode error. Is correct locale set?')
+            return []
+        
         return retFiles
+
     
     def _getFilesToScan(self):
         """Get list of files for search.
@@ -213,6 +223,7 @@ class SearchThread(StopableThread):
             if self._exit:
                 break
         return results
+
 
 class ReplaceThread(StopableThread):
     """Thread does replacements in the directory according to checked items

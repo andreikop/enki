@@ -472,6 +472,7 @@ class Controller(QObject):
         self._searchThread.progressChanged.connect(self._widget.onSearchProgressChanged)
         self._searchThread.resultsAvailable.connect(self._dock.appendResults)
         self._searchThread.finished.connect(self._onSearchThreadFinished)
+        self._searchThread.error.connect(self._onThreadError)
         
         inOpenedFiles = self._mode in (MODE_SEARCH_OPENED_FILES, MODE_REPLACE_OPENED_FILES,)
         
@@ -513,7 +514,7 @@ class Controller(QObject):
         from threads import ReplaceThread 
         self._replaceThread = ReplaceThread()
         self._replaceThread.resultsHandled.connect(self._dock.onResultsHandledByReplaceThread)
-        self._replaceThread.error.connect(self._onReplaceThreadError)
+        self._replaceThread.error.connect(self._onThreadError)
         self._replaceThread.finalStatus.connect(self._onReplaceThreadFinalStatus)
 
         self._replaceThread.replace( self._dock.getCheckedItems(),
@@ -525,7 +526,7 @@ class Controller(QObject):
         if self._replaceThread is not None:
             self._replaceThread.stop()
 
-    def _onReplaceThreadError(self, error ):
+    def _onThreadError(self, error ):
         """Error message from the replace thread
         """
         core.mainWindow().appendMessage( error )
