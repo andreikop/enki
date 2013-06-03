@@ -57,6 +57,11 @@ class Controller(QObject):
     def del_(self):
         """Explicitly called destructor
         """
+        if self._searchThread is not None:
+            self._searchThread.stop()
+        if self._replaceThread is not None:
+            self._replaceThread.stop()
+
         for action in self._createdActions:
             core.actionManager().removeAction(action)
         self._menuSeparator.parent().removeAction(self._menuSeparator)
