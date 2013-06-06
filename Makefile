@@ -35,7 +35,7 @@ dput: dsc
 	cd build && dput enki *.changes
 
 deb: dsc
-	cd build/enki-$(VERSION) && debuild
+	cd build/$(PACKAGE_NAME)-$(VERSION) && debuild
 
 sdist:
 	./setup.py sdist --formats=gztar,zip
