@@ -3,21 +3,23 @@ Section: editors
 Priority: optional
 Maintainer: Andrei Kopats <hlamer@tut.by>
 Build-Depends: debhelper (>= 7.4.1), python-support, python (>= 2.6)
-Standards-Version: 3.9.2
+Standards-Version: 3.9.4
 Homepage: http://enki-editor.org
 Vcs-Git: https://github.com/hlamer/enki
 Vcs-Browser: https://github.com/hlamer/enki
 
 Package: enki
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}, python-qt4, python-pyparsing
+Depends: ${misc:Depends}, ${python:Depends}, python-qt4, python-pyparsing, python-qutepart
 Suggests: mit-scheme, python-markdown
 Description: Simple programmers text editor
  Some of features:
-  * Syntax highlighting for more than 30 languages
+  * Syntax highlighting for 196 languages
   * Bookmarks
   * Search and replace functionality for files and directories. Regexps are supported.
   * File browser
   * Autocompletion, based on document contents
   * Hightly configurable
   * MIT Scheme REPL integration
+  * Standard ML REPL integration
+Homepage: http://enki-editor.org
