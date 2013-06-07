@@ -154,6 +154,7 @@ class Document(QWidget):
             core.mainWindow().appendMessage('New file "%s" is going to be created' % filePath, 5000)
 
         self.qutepart = Qutepart(self)
+        self.qutepart.setStyleSheet('border: 0')
         self._applyQpartSettings()
         core.uiSettingsManager().dialogAccepted.connect(self._applyQpartSettings)
         
