@@ -129,12 +129,12 @@ def _parseCommandLine():
     parser.add_option("-n", "--no-session", dest="no_session", action="store_true",
                       help="Do not restore session")
 
-    parser.add_option("-p", "--profile", dest="profile", action="store_true",
+    parser.add_option("-p", "--profiling", dest="profiling", action="store_true",
                       help="profile initialization and exit. For developers")
 
     (options, args) = parser.parse_args()
     
-    cmdLine = {"profile" : options.profile,
+    cmdLine = {"profiling" : options.profiling,
                "no-session" : options.no_session}
 
     # Parse +N spec.
@@ -165,7 +165,7 @@ def main():
     
     cmdLine = _parseCommandLine()
     
-    if cmdLine["profile"]:
+    if cmdLine["profiling"]:
         profiler = _StartProfiler()
     else:
         profiler = None
