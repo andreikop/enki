@@ -35,7 +35,8 @@ class _StartProfiler:
         prev = self._startTime
         totalMs = 0
         for description, time in self._steps:
-            diffMs = (time - prev).microseconds / 1000
+            diff = time - prev
+            diffMs = (diff.seconds / 1000.) + (diff.microseconds / 1000)
             totalMs += diffMs
             prev = time
             print '%s: %d' % (description.ljust(30), diffMs)
