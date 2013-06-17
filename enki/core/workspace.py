@@ -404,7 +404,6 @@ class Workspace(QStackedWidget):
         self.documentOpened.emit( document )
 
         self.addWidget( document )
-        self.setCurrentWidget( document )
     
     def _unhandleDocument( self, document ):
         """Remove document from the workspace. Disconnect signals
@@ -427,13 +426,10 @@ class Workspace(QStackedWidget):
                    os.path.samefile(pathA, pathB)
         else:  # os.path.samefile not available
             return pathA == pathB
-        
-    def openFile(self, filePath):
-        """Open named file using suitable plugin, or textual editor, if other suitable editor not found.
-        
-        Returns document, if opened, None otherwise
-        
-        Opens modal dialog, if failed to open the file
+    
+    def _openSingleFile(self, filePath):
+        """Open 1 file.
+        Helper method, used by openFile() and openFiles()
         """
         # Close 'untitled'
         if len(self.documents()) == 1 and \
@@ -451,15 +447,12 @@ class Workspace(QStackedWidget):
         
         # open file
         try:
-            QApplication.setOverrideCursor( Qt.WaitCursor )
             document = Document(self, filePath)
         except IOError as ex:
             QMessageBox.critical(None,
                                  self.tr("Failed to open file"),
                                  unicode(str(ex), 'utf8'))
             return None
-        finally:
-            QApplication.restoreOverrideCursor()
 
         self._handleDocument( document )
         
@@ -468,6 +461,42 @@ class Workspace(QStackedWidget):
                         self.tr( "File '%s' is not writable" % filePath), 4000) # todo fix
         
         return document
+    
+    def openFile(self, filePath):
+        """Open file.
+        
+        Return document, if opened, None otherwise
+        
+        Open modal message box, if failed to open the file
+        """
+        try:
+            QApplication.setOverrideCursor( Qt.WaitCursor )
+            
+            document = self._openSingleFile(filePath)
+        finally:
+            QApplication.restoreOverrideCursor()
+        
+        if document is not None:
+            self.setCurrentWidget(document)
+        
+        return document
+    
+    def openFiles(self, filePaths):
+        """Open files.
+        
+        Open modal message box and stop opening files, if failed to open any file
+        """
+        documents = []
+        try:
+            QApplication.setOverrideCursor( Qt.WaitCursor )
+            for filePath in filePaths:
+                document = self._openSingleFile(filePath)
+                if document is None:
+                    break
+                
+                documents.append(document)
+        finally:
+            QApplication.restoreOverrideCursor()
     
     def findDocumentForPath(self, filePath):
         """Try to find document for path.
@@ -492,8 +521,11 @@ class Workspace(QStackedWidget):
                 pass  # leave as is
         
         document = Document(self, filePath, createNew=True)
-        self._handleDocument( document )
+        self._handleDocument(document)
+        self.setCurrentWidget(document)
+
         document.setFocus()
+        
         return document
     
     def documents(self):

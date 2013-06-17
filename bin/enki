@@ -201,17 +201,15 @@ def main():
     from enki.core.core import core
     core.init(profiler)
 
-    if cmdLine["files"]:
-        for filePath in cmdLine["files"]:
-            if os.path.exists(filePath):
-                if "firstFileLineToGo" in cmdLine:
-                    # -1 to convert from users to internal indexing
-                    core.workspace().goTo(filePath, line=cmdLine["firstFileLineToGo"] - 1)
-                    del cmdLine["firstFileLineToGo"]
-                else:
-                    core.workspace().openFile(filePath)
-            else:
-                core.workspace().createEmptyNotSavedDocument(filePath)
+    # open file by path and line number
+    if cmdLine["files"] and \
+       "firstFileLineToGo" in cmdLine:
+        firstFilePath = cmdLine["files"].pop(0)
+        line = cmdLine["firstFileLineToGo"] - 1  # convert from users to internal indexing
+        core.workspace().goTo(firstFilePath, line=line)
+    
+    # open all other files
+    core.workspace().openFiles(cmdLine["files"])
 
     if profiler is not None:
         profiler.stepDone('Open files')
