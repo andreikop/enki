@@ -124,7 +124,11 @@ def _checkDependencies(profiler):
 
 
 def _parseCommandLine():
-    parser = OptionParser(usage="%prog [options] [FILE [+LINE_NUMBER_TO_GO] .. [FILE]]]",
+    usage = "\n" \
+            "  %prog [options]                             Restore previous session\n" \
+            "  %prog [options] FILE [+LINE_NUMBER_TO_GO]   Open file\n" \
+            "  %prog [options] FILES                       Open or create files\n"
+    parser = OptionParser(usage=usage,
                           version="%prog " + enki.core.defines.PACKAGE_VERSION)
     
     parser.add_option("-n", "--no-session", dest="no_session", action="store_true",
@@ -201,16 +205,29 @@ def main():
     from enki.core.core import core
     core.init(profiler)
 
+    def openOrCreate(filePath):
+        if os.path.exists(filePath):
+            core.workspace().open
+    
     # open file by path and line number
-    if cmdLine["files"] and \
+    if len(cmdLine["files"]) == 1 and \
        "firstFileLineToGo" in cmdLine:
         firstFilePath = cmdLine["files"].pop(0)
         line = cmdLine["firstFileLineToGo"] - 1  # convert from users to internal indexing
         core.workspace().goTo(firstFilePath, line=line)
+    else:
+        existing = [filePath \
+                        for filePath in cmdLine["files"] \
+                            if os.path.exists(filePath)]
+        notExisting = [filePath \
+                        for filePath in cmdLine["files"] \
+                            if not os.path.exists(filePath)]
+        
+        # open all other files
+        core.workspace().openFiles(existing)
+        for filePath in notExisting:
+            core.workspace().createEmptyNotSavedDocument(filePath)
     
-    # open all other files
-    core.workspace().openFiles(cmdLine["files"])
-
     if profiler is not None:
         profiler.stepDone('Open files')
 
