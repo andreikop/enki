@@ -36,7 +36,7 @@ class Plugin(QObject):
         """
         document = core.workspace().currentDocument()
         if document is not None and \
-           document.qutepart.language() == 'C++' and \
+           document.qutepart.language() in ('C++', 'C') and \
            document.filePath() is not None:
             if self._action is None:
                 self._action = core.actionManager().addAction("mNavigation/aHeaderImplementation",
