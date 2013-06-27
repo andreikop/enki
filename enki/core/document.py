@@ -308,6 +308,7 @@ class Document(QWidget):
         self._externallyRemoved = False
         self._externallyModified = False
         self.qutepart.document().setModified(False)
+        self.documentDataChanged.emit()
         
         if self.qutepart.language() is None:
             self._tryDetectSyntax()
