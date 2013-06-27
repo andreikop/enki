@@ -98,8 +98,10 @@ class Plugin(QObject):
             self._saveAction.setShortcut(QKeySequence("Alt+Shift+P"))
             self._saveAction.triggered.connect(self._dock.onSave)
         
-        # add dock to dock toolbar entry
-        core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
+        restored = core.mainWindow().restoreDockWidget(self._dock)
+        if not restored:
+            core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
+        
         core.actionManager().addAction("mView/aPreview", self._dock.showAction())
         core.actionManager().addAction("mFile/aSavePreview", self._saveAction)
         self._dockInstalled = True
