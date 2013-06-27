@@ -28,3 +28,8 @@ Guy, who knows Qt better, than its developers do.
 ![Photo](photo/EvgenyGolov.jpg)  
 Monkey Studio Debian packager.  
 Our Debian guru
+
+## Vitaly Shukela
+Early adopter. The most active user.
+
+Generaged huge amount of useful bug reports and feature ideas.
