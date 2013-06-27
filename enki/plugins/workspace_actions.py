@@ -15,6 +15,8 @@ class Plugin(QObject):
         QObject.__init__(self)
         
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
+        core.workspace().documentOpened.connect(self._onDocumentOpenedOrClosed)
+        core.workspace().documentClosed.connect(self._onDocumentOpenedOrClosed)
 
         core.actionManager().action( "mFile/aOpen" ).triggered.connect(self._onFileOpenTriggered)
         core.actionManager().action( "mFile/mReload/aCurrent" ).triggered.connect(self._onFileReloadTriggered)
@@ -54,6 +56,7 @@ class Plugin(QObject):
         core.actionManager().action( "mFile/mReload/aCurrent" ).setEnabled( newDocument is not None )
         core.actionManager().action( "mFile/mReload/aAll" ).setEnabled( newDocument is not None )
 
+    def _onDocumentOpenedOrClosed(self):
         # update view menu
         moreThanOneDocument = len(core.workspace().documents()) > 1
         core.actionManager().action( "mNavigation/aNext" ).setEnabled( moreThanOneDocument )
