@@ -146,7 +146,7 @@ class ActionModel(QAbstractItemModel):
                not actionToCheck.shortcut().isEmpty() and \
                actionToCheck.shortcut() == shortcut :
                 error = tr( "Can't set shortcut, it's already used by action '%s'." % \
-                            self._cleanText( a.text() ))
+                            self._cleanText( action.text() ))
                 raise UserWarning(error)
 
         action.setShortcut( shortcut )
@@ -156,4 +156,3 @@ class ActionModel(QAbstractItemModel):
     def _cleanText(self, text ):
         sep = "\001"
         return text.replace( "and", sep ).replace( "&", "" ).replace( sep, "and" )
-
