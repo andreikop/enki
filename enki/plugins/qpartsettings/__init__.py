@@ -18,6 +18,14 @@ from enki.core.core import core
 from enki.core.uisettings import CheckableOption, ChoiseOption, FontOption, NumericOption, ColorOption
 
 
+class _SettingsPageWidget(QWidget):
+    """Font settings widget. Insertted as a page to UISettings
+    """
+    def __init__(self, formName, *args):
+        QWidget.__init__(self, *args)
+        from PyQt4 import uic  # lazy import for better startup performance
+        uic.loadUi(os.path.join(os.path.dirname(__file__), formName), self)
+
 class _FontSettingsWidget(QWidget):
     """Font settings widget. Insertted as a page to UISettings
     """
@@ -72,15 +80,17 @@ class Plugin:
         """UI settings dialogue is about to execute.
         Add own options
         """
-        fontWidget = _FontSettingsWidget(dialog)
-        indentWidget = _IndentationSettingsWidget(dialog)
-        complWidget = _AutocompletionSettingsWidget(dialog)
-        eolWidget = _EolSettingsWidget(dialog)
+        fontWidget = _SettingsPageWidget('Font.ui', dialog)
+        indentWidget = _SettingsPageWidget('Indentation.ui', dialog)
+        complWidget = _SettingsPageWidget('Autocompletion.ui', dialog)
+        eolWidget = _SettingsPageWidget('Eol.ui', dialog)
+        edgeWidget = _SettingsPageWidget('Edge.ui', dialog)
         
         dialog.appendPage(u"Editor/Font", fontWidget)
         dialog.appendPage(u"Editor/Indentation", indentWidget)
         dialog.appendPage(u"Editor/Autocompletion", complWidget)
         dialog.appendPage(u"Editor/EOL", eolWidget)
+        dialog.appendPage(u"Editor/Edge", edgeWidget)
 
         cfg = core.config()
         options = \
@@ -99,6 +109,9 @@ class Plugin:
                           eolWidget.rbEolWindows: r'\r\n',
                           eolWidget.rbEolMac: r'\r'}),            
             CheckableOption(dialog, cfg, "Editor/EOL/AutoDetect", eolWidget.cbAutoDetectEol),
+            
+            CheckableOption(dialog, cfg, "Editor/Edge/Enabled", edgeWidget.gbEdgeEnabled),
+            NumericOption(dialog, cfg, "Editor/Edge/Column", edgeWidget.sEdgeColumnNumber),
             
             CheckableOption(dialog, cfg, "Editor/AutoCompletion/Enabled", complWidget.gbAutoCompletion),
             NumericOption(dialog, cfg, "Editor/AutoCompletion/Threshold", complWidget.sThreshold),
@@ -152,13 +165,6 @@ class Plugin:
             ColorOption(dialog, cfg, "Editor/BraceMatching/UnmatchedForegroundColor",
                         dialog.tbUnmatchedBraceForeground),
         
-            CheckableOption(dialog, cfg, "Editor/Edge/Enabled", dialog.gbEdgeModeEnabled),
-            ChoiseOption(dialog, cfg, "Editor/Edge/Mode",
-                         {dialog.rbEdgeLine: "Line",
-                          dialog.rbEdgeBackground: "Background"}),
-            NumericOption(dialog, cfg, "Editor/Edge/Column", dialog.sEdgeColumnNumber),
-            ColorOption(dialog, cfg, "Editor/Edge/Color", dialog.tbEdgeColor),
-
             CheckableOption(dialog, cfg, "Editor/Caret/LineVisible", dialog.gbCaretLineVisible),
             ColorOption(dialog, cfg, "Editor/Caret/LineBackgroundColor", dialog.tbCaretLineBackground),
             ColorOption(dialog, cfg, "Editor/Caret/ForegroundColor", dialog.tbCaretForeground),

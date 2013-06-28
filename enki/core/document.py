@@ -451,8 +451,13 @@ class Document(QWidget):
         """
         conf = core.config()['Editor']
         self.qutepart.setFont(QFont(conf['DefaultFont'], conf['DefaultFontSize']))
+        
         self.qutepart.indentUseTabs = conf['Indentation']['UseTabs']
         self.qutepart.indentWidth = conf['Indentation']['Width']
+        if conf['Edge']['Enabled']:
+            self.qutepart.lineLengthEdge = conf['Edge']['Column']
+        else:
+            self.qutepart.lineLengthEdge = None
         
         self.qutepart.completionEnabled = conf['AutoCompletion']['Enabled']
         self.qutepart.completionThreshold = conf['AutoCompletion']['Threshold']
