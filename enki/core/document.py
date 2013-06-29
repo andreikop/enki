@@ -6,7 +6,7 @@ document --- Opened file representation
 import os.path
 
 from PyQt4.QtCore import pyqtSignal, QFileSystemWatcher, QObject, QTimer
-from PyQt4.QtGui import QFileDialog, \
+from PyQt4.QtGui import QColor, QFileDialog, \
                         QFont, \
                         QIcon, \
                         QInputDialog, \
@@ -454,10 +454,12 @@ class Document(QWidget):
         
         self.qutepart.indentUseTabs = conf['Indentation']['UseTabs']
         self.qutepart.indentWidth = conf['Indentation']['Width']
+        
         if conf['Edge']['Enabled']:
             self.qutepart.lineLengthEdge = conf['Edge']['Column']
         else:
             self.qutepart.lineLengthEdge = None
+        self.qutepart.lineLengthEdgeColor = QColor(conf['Edge']['Color'])
         
         self.qutepart.completionEnabled = conf['AutoCompletion']['Enabled']
         self.qutepart.completionThreshold = conf['AutoCompletion']['Threshold']

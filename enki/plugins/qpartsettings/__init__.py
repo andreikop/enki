@@ -112,6 +112,7 @@ class Plugin:
             
             CheckableOption(dialog, cfg, "Editor/Edge/Enabled", edgeWidget.gbEdgeEnabled),
             NumericOption(dialog, cfg, "Editor/Edge/Column", edgeWidget.sEdgeColumnNumber),
+            ColorOption(dialog, cfg, "Editor/Edge/Color", edgeWidget.tbEdgeColor),
             
             CheckableOption(dialog, cfg, "Editor/AutoCompletion/Enabled", complWidget.gbAutoCompletion),
             NumericOption(dialog, cfg, "Editor/AutoCompletion/Threshold", complWidget.sThreshold),
