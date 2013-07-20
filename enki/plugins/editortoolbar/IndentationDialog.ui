@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>291</width>
-    <height>167</height>
+    <width>154</width>
+    <height>121</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -49,16 +49,6 @@
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="_convertButton">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>Convert</string>
      </property>
     </widget>
    </item>

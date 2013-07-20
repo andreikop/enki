@@ -112,8 +112,6 @@ class _IndentationDialog(QDialog):
         else:
             self._spacesRadio.setChecked(True)
         self._tabsRadio.toggled.connect(self._onTabsToggled)        
-        
-        self._convertButton.clicked.connect(self._onConvertClicked)
     
     def _updateWidthLabel(self):
         """Update indentation with on GUI
@@ -126,12 +124,6 @@ class _IndentationDialog(QDialog):
         """
         self._document.qutepart.indentWidth = value
         self._updateWidthLabel()
-    
-    def _onConvertClicked(self):
-        """Handler of Convert button.
-        Not implemented yet
-        """
-        pass
     
     def _onTabsToggled(self, toggled):
         """Handler of change of 'Indentation uses tabs' flag
