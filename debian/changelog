@@ -1,3 +1,9 @@
+enki (13.08.0-1~ppa1) lucid; urgency=low
+
+  * New code editor component: Qutepart
+
+ -- Andrei Kopats <hlamer@tut.by>  Mon, 29 Jul 2013 08:56:00 +0300
+
 enki (12.08.5-1~ppa1) lucid; urgency=low
 
   * Experimental appmenu crash fix
