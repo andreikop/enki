@@ -113,7 +113,7 @@ for loader, name, ispkg in pkgutil.iter_modules(['enki/plugins']):
 
 
 if __name__ == '__main__':
-    if 'install' in sys.argv or 'build' in sys.argv or 'build_ext' in sys.argv:
+    if 'install' in sys.argv:
         if not '--force' in sys.argv and not '--help' in sys.argv:
             if not _checkDependencies():
                 sys.exit(-1)
