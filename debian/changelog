@@ -1,3 +1,9 @@
+enki (13.08.1-1~ppa1) lucid; urgency=low
+
+  * Do not check dependencies during build
+
+ -- Andrei Kopats <hlamer@tut.by>  Thu, 08 Aug 2013 23:16:29 +0300
+
 enki (13.08.0-1~ppa1) lucid; urgency=low
 
   * New code editor component: Qutepart
