@@ -7,7 +7,7 @@ baseurl: .
 # Install on Debian (and based on it)
 
     su
-    echo 'deb http://ppa.launchpad.net/hlamer/enki/ubuntu lucid main' >  \
+    echo 'deb http://ppa.launchpad.net/hlamer/enki/ubuntu precise main' >  \
         /etc/apt/sources.list.d/enki.list
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 33DF07F5
     apt-get update
