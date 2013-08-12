@@ -2,7 +2,7 @@ Source: enki
 Section: editors
 Priority: optional
 Maintainer: Andrei Kopats <hlamer@tut.by>
-Build-Depends: debhelper (>= 7.4.1), python-support, python (>= 2.6)
+Build-Depends: debhelper (>= 7.4.1), python-support, python (>= 2.7)
 Standards-Version: 3.9.4
 Homepage: http://enki-editor.org
 Vcs-Git: https://github.com/hlamer/enki

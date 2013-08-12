@@ -7,7 +7,7 @@
 [Full instructions](http://enki-editor.org/install-sources.html)
 
 #### Install dependencies
-* Python 2. Tested on v2.6.6 and v2.7.2
+* Python 2.7
 * PyQt4
 * pyparsing
 * Qutepart. https://github.com/hlamer/qutepart
