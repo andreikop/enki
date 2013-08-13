@@ -1,3 +1,11 @@
+---
+layout: post
+title: New code editor component release
+baseurl: ../../../
+---
+
+# New code editor component resease
+
 Today I've released Enki v13.08. This version is based on [Qutepart](https://github.com/hlamer/qutepart). It is new code editor component, which replaces QScintilla.
 New features are:
 
