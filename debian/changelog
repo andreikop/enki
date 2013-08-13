@@ -1,65 +1,65 @@
-enki (13.08.1-1~ppa1) lucid; urgency=low
+enki (13.08.1-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Do not check dependencies during build
 
  -- Andrei Kopats <hlamer@tut.by>  Thu, 08 Aug 2013 23:16:29 +0300
 
-enki (13.08.0-1~ppa1) lucid; urgency=low
+enki (13.08.0-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * New code editor component: Qutepart
 
  -- Andrei Kopats <hlamer@tut.by>  Mon, 29 Jul 2013 08:56:00 +0300
 
-enki (12.08.5-1~ppa1) lucid; urgency=low
+enki (12.08.5-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Experimental appmenu crash fix
 
  -- Andrei Kopats <hlamer@tut.by>  Sat, 11 Aug 2012 15:26:04 +0300
 
-enki (12.08.4-1~ppa1) lucid; urgency=low
+enki (12.08.4-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Fix double search
 
  -- Andrei Kopats <hlamer@tut.by>  Fri, 10 Aug 2012 09:37:46 +0300
 
-enki (12.08.3-1~ppa1) lucid; urgency=low
+enki (12.08.3-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Make next search or replace when Return pressed
 
  -- Andrei Kopats <hlamer@tut.by>  Thu, 09 Aug 2012 20:45:06 +0300
 
-enki (12.08.2-1~ppa1) lucid; urgency=low
+enki (12.08.2-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Fix look on some platforms
 
  -- Andrei Kopats <hlamer@tut.by>  Thu, 09 Aug 2012 10:03:03 +0300
 
-enki (12.08.1-1~ppa1) lucid; urgency=low
+enki (12.08.1-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Fix official page link
   * Better SVG logo
 
  -- Andrei Kopats <hlamer@tut.by>  Wed, 08 Aug 2012 09:41:09 +0300
 
-enki (12.08.0-1~ppa1) lucid; urgency=low
+enki (12.08.0-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Renamed from mksv3 to Enki
 
  -- Andrei Kopats <hlamer@tut.by>  Tue, 07 Aug 2012 10:05:22 +0300
 
-enki (12.06.3-1~ppa1) lucid; urgency=low
+enki (12.06.3-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Added missing .ui and .json
 
  -- Andrei Kopats <hlamer@tut.by>  Mon, 18 Jun 2012 23:13:00 +0300
 
-enki (12.06.2-1~ppa1) lucid; urgency=low
+enki (12.06.2-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Fix for Debian build system
 
  -- Andrei Kopats <hlamer@tut.by>  Mon, 18 Jun 2012 08:10:32 +0300
 
-enki (12.06.1-1~ppa1) lucid; urgency=low
+enki (12.06.1-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Locator. (File open dialog with bash-like tab completion)
   * Open directories in File Browser, when drag-n-dropt to the main window
@@ -67,13 +67,13 @@ enki (12.06.1-1~ppa1) lucid; urgency=low
 
  -- Andrei Kopats <hlamer@tut.by>  Mon, 18 Jun 2012 08:10:32 +0300
 
-enki (12.04.1-1~ppa1) lucid; urgency=low
+enki (12.04.1-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Bug fixes
 
  -- Andrei Kopats <hlamer@tut.by>  Mon, 09 Apr 2012 20:38:10 +0300
 
-enki (12.04-1~ppa1) lucid; urgency=low
+enki (12.04-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Reopen recent files (File -> Recents menu)
   * Move lines Up and Down
@@ -89,7 +89,7 @@ enki (12.04-1~ppa1) lucid; urgency=low
 
  -- Andrei Kopats <hlamer@tut.by>  Sun, 08 Apr 2012 08:21:55 +0300
 
-enki (0.2.7-1~ppa1) lucid; urgency=low
+enki (0.2.7-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * File names in the list of opened files are always unique
   * Support for +N specification to go to particular line in a file
@@ -97,19 +97,19 @@ enki (0.2.7-1~ppa1) lucid; urgency=low
 
  -- Andrei Kopats <hlamer@tut.by>  Mon, 20 Feb 2012 01:14:47 +0300
 
-enki (0.2.6-1~lucid1) lucid; urgency=low
+enki (0.2.6-1~ubuntuseries1) ubuntuseries; urgency=low
 
-  * Changed distribution name to lucid and compatibility level to 7
+  * Changed distribution name to ubuntuseries and compatibility level to 7
 
  -- Andrei Kopats <hlamer@tut.by>  Thu, 02 Feb 2012 10:47:00 +0300
 
-enki (0.2.5-1~lucid1) lucid; urgency=low
+enki (0.2.5-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Crash fix
 
  -- Andrei Kopats <hlamer@tut.by>  Wed, 01 Feb 2012 19:54:34 +0300
 
-enki (0.2.4-1~lucid1) lucid; urgency=low
+enki (0.2.4-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Fixed search widget width
   * Fixed crash
