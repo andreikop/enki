@@ -18,8 +18,11 @@ On **Windows**, [this link](https://github.com/hlamer/enki/issues/19) might be h
 #### Debian and Debian based
 
    `apt-get install python python-qt4 python-pyparsing python-markdown`
+
+Install Qutepart from [sources](https://github.com/hlamer/qutepart).
 #### Other Unixes
-   Find and install listed packages with your package manager
+Find and install listed packages with your package manager.
+Install Qutepart from [sources](https://github.com/hlamer/qutepart).
 #### Other systems
 
 * [http://python.org/download](http://python.org/download)
