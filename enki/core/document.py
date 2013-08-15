@@ -453,8 +453,8 @@ class Document(QWidget):
     def _applyQpartSettings(self):
         """Apply qutepart settings
         """
-        conf = core.config()['Editor']
-        self.qutepart.setFont(QFont(conf['DefaultFont'], conf['DefaultFontSize']))
+        conf = core.config()['Qutepart']
+        self.qutepart.setFont(QFont(conf['Font']['Family'], conf['Font']['Size']))
         
         self.qutepart.indentUseTabs = conf['Indentation']['UseTabs']
         self.qutepart.indentWidth = conf['Indentation']['Width']

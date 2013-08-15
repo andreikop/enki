@@ -1,5 +1,5 @@
 {
-    "_version" : 4,
+    "_version" : 5,
     "PlatformDefaultsHaveBeenSet" : false,
 
     "NegativeFileFilter": [ "*~", "*.o", "*.pyc", "*.bak" ], 
@@ -74,6 +74,26 @@
             "Mode": "WrapWord", "StartVisualFlag": "None"
         }
     }, 
+    "Qutepart": {
+        "DefaultFont": "Monospace",
+        "DefaultFontSize": 9, 
+        "Indentation": {
+            "UseTabs": false, 
+            "Width": 4
+        },
+        "Edge": {
+            "Color": "#ff0000",
+            "Column": 80, 
+            "Enabled": false, 
+        },
+        "AutoCompletion": {
+            "Enabled": true, 
+            "Threshold": 3
+        },
+        "Wrap": {
+            "Mode": "WrapAtWordBoundaryOrAnywhere"
+        }
+    },
     "Modes": {
         "Scheme": {
             "Enabled": "whenOpened",

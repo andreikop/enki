@@ -58,6 +58,27 @@ class Config():
         if self._data['_version'] == 3:
             self._data['PlatformDefaultsHaveBeenSet'] = False
             self._data['_version'] = 4
+        
+        if self._data['_version'] == 4:
+            editor = self._data['Editor']
+            self._data['Qutepart'] = {
+                "Font": { "Family": editor['DefaultFont'],
+                          "Size": editor['DefaultFontSize'] },
+                "Indentation": {'UseTabs': editor['Indentation']['UseTabs'],
+                                'Width': editor['Indentation']['Width']
+                               },
+                "Edge": { 'Color': editor['Edge']['Color'],
+                          'Column': editor['Edge']['Column'],
+                          'Enabled': editor['Edge']['Enabled']
+                        },
+                "AutoCompletion": { 'Enabled': editor['AutoCompletion']['Enabled'],
+                                    "Threshold": editor['AutoCompletion']['Threshold']
+                                  },
+                "Wrap": { 'Mode': 'WrapAtWordBoundaryOrAnywhere' }
+            }
+            self._data['_version'] = 5
+        
+        
 
     def _setPlatformDefaults(self):
         """Set default values, which depend on platform
