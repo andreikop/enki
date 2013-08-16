@@ -22,8 +22,8 @@ class Config():
     
     Use this object as a dictionary for read and write options.
     Example: ::
-        font = core.config()["Editor"]["DefaultFont"]  # read option
-        core.config()["Editor"]["DefaultFont"] = font  # write option
+        font = core.config()["Qutepart"]["DefaultFont"]  # read option
+        core.config()["Qutepart"]["DefaultFont"] = font  # write option
     See also get() and set() methods
     
     You SHOULD flush config, when writing changed settings is finished.
@@ -65,7 +65,8 @@ class Config():
                 "Font": { "Family": editor['DefaultFont'],
                           "Size": editor['DefaultFontSize'] },
                 "Indentation": {'UseTabs': editor['Indentation']['UseTabs'],
-                                'Width': editor['Indentation']['Width']
+                                'Width': editor['Indentation']['Width'],
+                                'AutoDetect': editor['Indentation']['AutoDetect'],
                                },
                 "Edge": { 'Color': editor['Edge']['Color'],
                           'Column': editor['Edge']['Column'],
@@ -74,7 +75,9 @@ class Config():
                 "AutoCompletion": { 'Enabled': editor['AutoCompletion']['Enabled'],
                                     "Threshold": editor['AutoCompletion']['Threshold']
                                   },
-                "Wrap": { 'Mode': 'WrapAtWordBoundaryOrAnywhere' }
+                "Wrap": { 'Enabled': editor['Wrap']['Enabled'],
+                          'Mode': 'WrapAtWord' if editor['Wrap']['Mode'] == "WrapWord" else "WrapAnywhere" },
+                "EOL": editor["EOL"]
             }
             self._data['_version'] = 5
         
@@ -92,10 +95,10 @@ class Config():
         availableFontFamilies = QFontDatabase().families()
         for fontFamily in fontFamilies:
             if fontFamily in availableFontFamilies:
-                self._data['Editor']['DefaultFont'] = fontFamily
+                self._data['Qutepart']['Font']['Family'] = fontFamily
                 break
         else:
-            self._data['Editor']['DefaultFont'] = 'Monospace'
+            self._data['Qutepart']['Font']['Family'] = 'Monospace'
         
         self._data['PlatformDefaultsHaveBeenSet'] = True
     

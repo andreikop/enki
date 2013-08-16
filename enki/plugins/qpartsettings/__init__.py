@@ -85,37 +85,44 @@ class Plugin:
         complWidget = _SettingsPageWidget('Autocompletion.ui', dialog)
         eolWidget = _SettingsPageWidget('Eol.ui', dialog)
         edgeWidget = _SettingsPageWidget('Edge.ui', dialog)
+        wrapWidget = _SettingsPageWidget('Wrap.ui', dialog)
         
         dialog.appendPage(u"Editor/Font", fontWidget)
         dialog.appendPage(u"Editor/Indentation", indentWidget)
         dialog.appendPage(u"Editor/Autocompletion", complWidget)
         dialog.appendPage(u"Editor/EOL", eolWidget)
         dialog.appendPage(u"Editor/Edge", edgeWidget)
+        dialog.appendPage(u"Editor/Wrap", wrapWidget)
 
         cfg = core.config()
         options = \
         (
-            FontOption(dialog, cfg, "Editor/DefaultFont", "Editor/DefaultFontSize",
+            FontOption(dialog, cfg, "Qutepart/Font/Family", "Qutepart/Font/Size",
                        fontWidget.lFont, fontWidget.pbFont),
             
-            ChoiseOption(dialog, cfg, "Editor/Indentation/UseTabs",
+            ChoiseOption(dialog, cfg, "Qutepart/Indentation/UseTabs",
                          {indentWidget.rbIndentationSpaces : False,
                           indentWidget.rbIndentationTabs: True}),
-            NumericOption(dialog, cfg, "Editor/Indentation/Width", indentWidget.sIndentationWidth),
-            CheckableOption(dialog, cfg, "Editor/Indentation/AutoDetect", indentWidget.cbAutodetectIndent),
+            NumericOption(dialog, cfg, "Qutepart/Indentation/Width", indentWidget.sIndentationWidth),
+            CheckableOption(dialog, cfg, "Qutepart/Indentation/AutoDetect", indentWidget.cbAutodetectIndent),
             
-            ChoiseOption(dialog, cfg, "Editor/EOL/Mode",
+            ChoiseOption(dialog, cfg, "Qutepart/EOL/Mode",
                          {eolWidget.rbEolUnix: r'\n',
                           eolWidget.rbEolWindows: r'\r\n',
                           eolWidget.rbEolMac: r'\r'}),            
-            CheckableOption(dialog, cfg, "Editor/EOL/AutoDetect", eolWidget.cbAutoDetectEol),
+            CheckableOption(dialog, cfg, "Qutepart/EOL/AutoDetect", eolWidget.cbAutoDetectEol),
             
-            CheckableOption(dialog, cfg, "Editor/Edge/Enabled", edgeWidget.gbEdgeEnabled),
-            NumericOption(dialog, cfg, "Editor/Edge/Column", edgeWidget.sEdgeColumnNumber),
-            ColorOption(dialog, cfg, "Editor/Edge/Color", edgeWidget.tbEdgeColor),
+            CheckableOption(dialog, cfg, "Qutepart/Edge/Enabled", edgeWidget.gbEdgeEnabled),
+            NumericOption(dialog, cfg, "Qutepart/Edge/Column", edgeWidget.sEdgeColumnNumber),
+            ColorOption(dialog, cfg, "Qutepart/Edge/Color", edgeWidget.tbEdgeColor),
             
-            CheckableOption(dialog, cfg, "Editor/AutoCompletion/Enabled", complWidget.gbAutoCompletion),
-            NumericOption(dialog, cfg, "Editor/AutoCompletion/Threshold", complWidget.sThreshold),
+            CheckableOption(dialog, cfg, "Qutepart/AutoCompletion/Enabled", complWidget.gbAutoCompletion),
+            NumericOption(dialog, cfg, "Qutepart/AutoCompletion/Threshold", complWidget.sThreshold),
+            
+            CheckableOption(dialog, cfg, "Qutepart/Wrap/Enabled", wrapWidget.gbWrapEnabled),
+            ChoiseOption(dialog, cfg, "Qutepart/Wrap/Mode",
+                         {wrapWidget.rbWrapAtWord : "WrapAtWord",
+                          wrapWidget.rbWrapAnywhere: "WrapAnywhere"}),
         )
         
         for option in options:

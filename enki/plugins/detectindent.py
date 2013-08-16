@@ -40,7 +40,7 @@ class Plugin:
         """
         #TODO improve algorighm sometimes to skip comments
         
-        if not core.config()["Editor"]["Indentation"]["AutoDetect"]:
+        if not core.config()["Qutepart"]["Indentation"]["AutoDetect"]:
             return
 
         if document.qutepart.language() == 'Makefile':

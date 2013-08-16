@@ -31,6 +31,7 @@ def load(filePath, dataName, defaultValue):
                 error = unicode(str(ex), 'utf8')
                 text = "Failed to parse %s file '%s': %s" % (dataName, filePath, error)
                 core.mainWindow().appendMessage(text)
+                print >> sys.stderr, text
                 return defaultValue
     except (OSError, IOError), ex:
         error = unicode(str(ex), 'utf8')

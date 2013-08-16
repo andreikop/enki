@@ -11,6 +11,8 @@ from PyQt4.QtGui import QColor, QFileDialog, \
                         QIcon, \
                         QInputDialog, \
                         QMessageBox, \
+                        QPlainTextEdit, \
+                        QTextOption, \
                         QWidget, \
                         QVBoxLayout
 
@@ -426,7 +428,7 @@ class Document(QWidget):
         convertor = {r'\r\n': '\r\n',
                      r'\n': '\n',
                      r'\r': '\r'}
-        default = convertor[core.config()["Editor"]["EOL"]["Mode"]]
+        default = convertor[core.config()["Qutepart"]["EOL"]["Mode"]]
 
         if len(modes) > 1:
             message = "%s contains mix of End Of Line symbols. It will be saved with '%s'" % \
@@ -434,7 +436,7 @@ class Document(QWidget):
             core.mainWindow().appendMessage(message)
             self.qutepart.eol = default
             self.qutepart.document().setModified(True)
-        elif core.config()["Editor"]["EOL"]["AutoDetect"]:
+        elif core.config()["Qutepart"]["EOL"]["AutoDetect"]:
             if detectedMode is not None:
                 self.qutepart.eol = detectedMode
             else:  # empty set, not detected
@@ -468,4 +470,11 @@ class Document(QWidget):
         self.qutepart.completionEnabled = conf['AutoCompletion']['Enabled']
         self.qutepart.completionThreshold = conf['AutoCompletion']['Threshold']
         
+        self.qutepart.setLineWrapMode(QPlainTextEdit.WidgetWidth if conf['Wrap']['Enabled'] else QPlainTextEdit.NoWrap)
+        if conf['Wrap']['Mode'] == 'WrapAtWord':
+            self.qutepart.setWordWrapMode(QTextOption.WrapAtWordBoundaryOrAnywhere)
+        elif conf['Wrap']['Mode'] == 'WrapAnywhere':
+            self.qutepart.setWordWrapMode(QTextOption.WrapAnywhere)
+        else:
+            assert 'Invalid wrap mode', conf['Wrap']['Mode']
         # EOL is managed separately

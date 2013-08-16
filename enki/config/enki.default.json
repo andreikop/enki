@@ -7,91 +7,32 @@
     "Workspace": {
         "FileSortMode": "URL"
     },
-    "Editor": {
-        "AutoCompletion": {
-            "CaseSensitivity": true, 
-            "Enabled": true, 
-            "ReplaceWord": false, 
-            "ShowSingle": false, 
-            "Source": "Document",
-            "Threshold": 3
-        }, 
-        "BraceMatching": {
-            "Enabled": true, 
-            "MatchedBackgroundColor": "#ffff7f",
-            "MatchedForegroundColor": "#ff0000",
-            "Mode": "Sloppy",
-            "UnmatchedBackgroundColor": "#ff0000",
-            "UnmatchedForegroundColor": "#ffffff"
-        }, 
-        "CallTips": {
-            "BackgroundColor": "#ffff9b", "Enabled": false, 
-            "ForegroundColor": "#000000", "HighlightColor": "#ff0000", "Style": "NoAutoCompletionContext", "VisibleCount": 1
-        }, 
-        "Caret": {
-            "ForegroundColor": "#000000",
-            "LineBackgroundColor": "#c9d2ff",
-            "LineVisible": true, 
-            "Width": 1
-        }, 
-        "DefaultDocumentColours": true, 
-        "DefaultDocumentPaper": "#ffffff",
-        "DefaultDocumentPen": "#000000",
-        "DefaultFont": "Monospace",
-        "DefaultFontSize": 9, 
+    "Qutepart": {
+        "Font": {
+            "Family": "Monospace",
+            "Size": 9
+        },
+        "Indentation": {
+            "UseTabs": false, 
+            "Width": 4,
+            "AutoDetect": true
+        },
         "EOL": {
             "AutoDetect": true, 
             "Mode": "\\n"
         }, 
         "Edge": {
-            "Color": "#ff0000",
-            "Column": 80, 
-            "Enabled": false, 
-            "Mode": "Line"
-        }, 
-        "EnableCodeFolding": false, 
-        "Indentation": {
-            "AutoDetect": true, 
-            "AutoIndent": true, 
-            "BackspaceUnindents": true, 
-            "ConvertUponOpen": false, 
-            "Guides": true, 
-            "GuidesBackgroundColor": "#0000ff",
-            "GuidesForegroundColor": "#0000ff", 
-            "TabIndents": true, 
-            "TabWidth": 4, 
-            "UseTabs": false, 
-            "Width": 4
-        }, 
-        "SelectionBackgroundColor": "#39397f",
-        "MonochromeSelectionForeground": true,
-        "SelectionForegroundColor": "#ffffff",
-        "ShowLineNumbers": true, 
-        "WhitespaceVisibility": "Invisible",
-        "Wrap": {
-            "Enabled": true, 
-            "EndVisualFlag": "None", "LineIndentWidth": 4, 
-            "Mode": "WrapWord", "StartVisualFlag": "None"
-        }
-    }, 
-    "Qutepart": {
-        "DefaultFont": "Monospace",
-        "DefaultFontSize": 9, 
-        "Indentation": {
-            "UseTabs": false, 
-            "Width": 4
-        },
-        "Edge": {
-            "Color": "#ff0000",
-            "Column": 80, 
-            "Enabled": false, 
+            "Enabled": false,
+            "Column": 80,
+            "Color": "#ff0000"
         },
         "AutoCompletion": {
             "Enabled": true, 
             "Threshold": 3
         },
         "Wrap": {
-            "Mode": "WrapAtWordBoundaryOrAnywhere"
+            "Enabled": true,
+            "Mode": "WrapAtWord"
         }
     },
     "Modes": {

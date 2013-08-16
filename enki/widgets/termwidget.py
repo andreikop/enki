@@ -40,8 +40,8 @@ class _TextEdit(Qutepart):
     def _calculateLineHeight(self):
         """Calculate height of one line of text
         """
-        self._sizeHintLabel.setFont(QFont(core.config()["Editor"]["DefaultFont"],
-                                          core.config()["Editor"]["DefaultFontSize"]))
+        self._sizeHintLabel.setFont(QFont(core.config()["Qutepart"]["Font"]["Family"],
+                                          core.config()["Qutepart"]["Font"]["Size"]))
         return self._sizeHintLabel.sizeHint().height()
 
 class TermWidget(QWidget):
