@@ -205,10 +205,6 @@ def main():
     from enki.core.core import core
     core.init(profiler)
 
-    def openOrCreate(filePath):
-        if os.path.exists(filePath):
-            core.workspace().open
-    
     # open file by path and line number
     if len(cmdLine["files"]) == 1 and \
        "firstFileLineToGo" in cmdLine:
