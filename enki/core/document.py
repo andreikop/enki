@@ -136,6 +136,10 @@ class Document(QWidget):
     (i.e. document has been modified externally)
     """
 
+    _EOL_CONVERTOR = {r'\r\n': '\r\n',
+                      r'\n': '\n',
+                      r'\r': '\r'}
+
     def __init__( self, parentObject, filePath, createNew=False):
         """Create editor and open file.
         If file is None or createNew is True, empty not saved file is created
@@ -425,10 +429,7 @@ class Document(QWidget):
         else:
             detectedMode = None
         
-        convertor = {r'\r\n': '\r\n',
-                     r'\n': '\n',
-                     r'\r': '\r'}
-        default = convertor[core.config()["Qutepart"]["EOL"]["Mode"]]
+        default = self._EOL_CONVERTOR[core.config()["Qutepart"]["EOL"]["Mode"]]
 
         if len(modes) > 1:
             message = "%s contains mix of End Of Line symbols. It will be saved with '%s'" % \
@@ -477,4 +478,8 @@ class Document(QWidget):
             self.qutepart.setWordWrapMode(QTextOption.WrapAnywhere)
         else:
             assert 'Invalid wrap mode', conf['Wrap']['Mode']
-        # EOL is managed separately
+        
+        # EOL is managed by _configureEolMode(). But, if autodetect is disabled, we may apply new value here
+        if not conf['EOL']['AutoDetect']:
+            self.qutepart.eol = self._EOL_CONVERTOR[conf['EOL']['Mode']]
+        

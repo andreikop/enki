@@ -128,6 +128,7 @@ class Plugin:
         for option in options:
             dialog.appendOption(option)
 
+        eolWidget.lReloadToReapply.setVisible(eolWidget.cbAutoDetectEol.isChecked())
 
 """ Old options. TODO Uncomment or delete
             CheckableOption(dialog, cfg, "Editor/Indentation/ConvertUponOpen", dialog.cbConvertIndentationUponOpen),
