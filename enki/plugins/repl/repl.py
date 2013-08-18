@@ -8,7 +8,7 @@ File contains plugin functionality implementation
 import os.path
 
 from PyQt4.QtCore import pyqtSignal, QEvent, QObject, Qt, QTimer
-from PyQt4.QtGui import QFileDialog, QIcon, QMessageBox, QWidget
+from PyQt4.QtGui import QFileDialog, QFont, QIcon, QMessageBox, QWidget
 
 from enki.core.core import core
 
@@ -215,12 +215,17 @@ class _AbstractInterpreter(QObject):
         if self._processIsRunning and not self._buffPopen.isAlive():
             self.stop()
 
+    @staticmethod
+    def _termWidgetFont():
+        return QFont(core.config()["Qutepart"]["Font"]["Family"],
+                     core.config()["Qutepart"]["Font"]["Size"])
+
 
 class MitSchemeInterpreter(_AbstractInterpreter):
     """MIT scheme interpreter
     """
     def _createTermWidget(self):
-        return MitSchemeTermWidget(self)
+        return MitSchemeTermWidget(self, self._termWidgetFont())
     
     def loadFile(self, filePath):
         """Load file using MIT Scheme load function
@@ -241,7 +246,7 @@ class SmlInterpreter(_AbstractInterpreter):
         self._term.appendHint("Commands are ended with ';'\n")
     
     def _createTermWidget(self):
-        return SmlTermWidget(self)
+        return SmlTermWidget(self, self._termWidgetFont())
     
     def loadFile(self, filePath):
         """Load file with 'use foo.sml;'

@@ -21,9 +21,10 @@ from qutepart import Qutepart
 class _TextEdit(Qutepart):
     """Text editor class, which implements good size hints
     """
-    def __init__(self, *args, **kwargs):
-        Qutepart.__init__(self, *args, **kwargs)
+    def __init__(self, parent, font):
+        Qutepart.__init__(self, parent)
         self._sizeHintLabel = QLabel("asdf")
+        self._sizeHintLabel.setFont(font)
     
     def minimumSizeHint(self):
         """QWidget.minimumSizeHint implementation
@@ -40,23 +41,22 @@ class _TextEdit(Qutepart):
     def _calculateLineHeight(self):
         """Calculate height of one line of text
         """
-        self._sizeHintLabel.setFont(QFont(core.config()["Qutepart"]["Font"]["Family"],
-                                          core.config()["Qutepart"]["Font"]["Size"]))
         return self._sizeHintLabel.sizeHint().height()
+
 
 class TermWidget(QWidget):
     """Widget wich represents terminal. It only displays text and allows to enter text.
     All highlevel logic should be implemented by client classes
     """
 
-    def __init__(self, *args):
+    def __init__(self, font, *args):
         QWidget.__init__(self, *args)
         self._browser = QTextEdit(self)
         self._browser.setReadOnly(True)
         self._browser.document().setDefaultStyleSheet(self._browser.document().defaultStyleSheet() + 
                                                       "span {white-space:pre;}")
 
-        self._edit = _TextEdit(self)
+        self._edit = _TextEdit(self, font)
         
         lowLevelWidget = self._edit.focusProxy()
         if lowLevelWidget is None:
@@ -78,6 +78,7 @@ class TermWidget(QWidget):
         self._edit.setFocus()
     
     def eventFilter(self, obj, event):
+        pass # suppress docsting for non-public method
         """QWidget.eventFilter implementation. Catches _edit key pressings. Processes some of them
         """
         if event.type() == QEvent.KeyPress:
@@ -106,41 +107,32 @@ class TermWidget(QWidget):
         text = text.replace('\n', '<br/>')
         
         defBg = self._browser.palette().color(QPalette.Base)
-        
-        if style == 'out':
-            bg = defBg
-        elif style == 'in':
-            if defBg.valueF() > 0.5:  # white background
-                bg = defBg.darker(130)
-            else:
-                bg = defBg.lighter(150)
-        elif style == 'err':
-            if defBg.valueF() < 0.5:  # dark background
-                bg = defBg.lighter(150)
-            else:
-                bg = defBg
 
-            h, s, v, a = bg.getHsvF()
+        h, s, v, a = defBg.getHsvF()
+
+        if style == 'out':
+            pass
+        elif style == 'in':
+            if v > 0.5:  # white background
+                v = v - (v / 8)  # make darker
+            else:
+                v = v + ((1 - v) / 4)  # make ligher
+        elif style == 'err':
+            if v < 0.5:  # dark background
+                v = v + ((1 - v) / 4)  # make ligher
             
             h = 0
             s = .4
-            
-            bg = QColor.fromHsvF(h, s, v)
         elif style == 'hint':
-            if defBg.valueF() < 0.5:  # dark background
-                bg = defBg.lighter(150)
-            else:
-                bg = defBg
-
-            h, s, v, a = bg.getHsvF()
+            if v < 0.5:  # dark background
+                v = v + ((1 - v) / 4)  # make ligher
             
             h = 0.33
             s = .4
-            
-            bg = QColor.fromHsvF(h, s, v)
         else:
             assert 0
         
+        bg = QColor.fromHsvF(h, s, v)
         text = '<span style="background-color: %s;">%s</span>' % (bg.name(), text)
         
         scrollBar = self._browser.verticalScrollBar()
