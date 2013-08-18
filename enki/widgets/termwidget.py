@@ -101,35 +101,47 @@ class TermWidget(QWidget):
     def _appendToBrowser(self, style, text):
         """Convert text to HTML for inserting it to browser. Insert the HTML
         """
-        assert style in ('in', 'out', 'err')
-
         text = cgi.escape(text)
         
         text = text.replace('\n', '<br/>')
         
-        if style != 'out':
-            defBg = self._browser.palette().color(QPalette.Base)
-            h, s, v, a = defBg.getHsvF()
-            
-            if style == 'in':
-                if v > 0.5:  # white background
-                    v = v - (v / 8)  # make darker
-                else:
-                    v = v + ((1 - v) / 4)  # make ligher
-            else:  # err
-                if v < 0.5:
-                    v = v + ((1 - v) / 4)  # make ligher
+        defBg = self._browser.palette().color(QPalette.Base)
+        
+        if style == 'out':
+            bg = defBg
+        elif style == 'in':
+            if defBg.valueF() > 0.5:  # white background
+                bg = defBg.darker(130)
+            else:
+                bg = defBg.lighter(150)
+        elif style == 'err':
+            if defBg.valueF() < 0.5:  # dark background
+                bg = defBg.lighter(150)
+            else:
+                bg = defBg
 
-                if h == -1:  # make red
-                    h = 0
-                    s = .4
-                else:
-                    h = h + ((1 - h) * 0.5)  # make more red
+            h, s, v, a = bg.getHsvF()
             
-            bg = QColor.fromHsvF(h, s, v).name()
-            text = '<span style="background-color: %s;">%s</span>' % (bg, text)
+            h = 0
+            s = .4
+            
+            bg = QColor.fromHsvF(h, s, v)
+        elif style == 'hint':
+            if defBg.valueF() < 0.5:  # dark background
+                bg = defBg.lighter(150)
+            else:
+                bg = defBg
+
+            h, s, v, a = bg.getHsvF()
+            
+            h = 0.33
+            s = .4
+            
+            bg = QColor.fromHsvF(h, s, v)
         else:
-            text = '<span>%s</span>' % text  # without span <br/> is ignored!!!
+            assert 0
+        
+        text = '<span style="background-color: %s;">%s</span>' % (bg.name(), text)
         
         scrollBar = self._browser.verticalScrollBar()
         oldValue = scrollBar.value()
@@ -194,6 +206,11 @@ class TermWidget(QWidget):
         """Appent error text to output widget. Text is drawn with red background
         """
         self._appendToBrowser('err', text)
+
+    def appendHint(self, text):
+        """Appent error text to output widget. Text is drawn with red background
+        """
+        self._appendToBrowser('hint', text)
 
     def isCommandComplete(self, text):
         """Executed when Enter is pressed to check if widget should execute the command, or insert newline.

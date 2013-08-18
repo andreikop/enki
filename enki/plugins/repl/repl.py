@@ -68,6 +68,7 @@ class _AbstractReplTermWidget(enki.widgets.termwidget.TermWidget):
         """
         self._interpreter.execCommand(text)
 
+
 class MitSchemeTermWidget(_AbstractReplTermWidget):
     """Scheme terminal emulator widget
     """
@@ -137,7 +138,7 @@ class _AbstractInterpreter(QObject):
         self._buffPopen = enki.lib.buffpopen.BufferedPopen(interpreterPath)
         self._processIsRunning = False
         
-        self._term.appendOutput("Execute any command to run the interpreter\n")
+        self._term.appendHint("Execute any command to run the interpreter\n")
 
     def __del__(self):
         self.stop()
@@ -235,6 +236,10 @@ class MitSchemeInterpreter(_AbstractInterpreter):
 class SmlInterpreter(_AbstractInterpreter):
     """SML interpreter
     """
+    def __init__(self, *args):
+        super(SmlInterpreter, self).__init__(*args)
+        self._term.appendHint("Commands are ended with ';'\n")
+    
     def _createTermWidget(self):
         return SmlTermWidget(self)
     
