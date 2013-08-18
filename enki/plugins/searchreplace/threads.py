@@ -86,7 +86,7 @@ class SearchThread(StopableThread):
         
         absPath = os.path.abspath(path)
         try:
-            for root, dirs, files in os.walk(absPath):  # pylint: disable=W0612
+            for root, dirs, files in os.walk(absPath, followlinks=True):  # pylint: disable=W0612
                 if root.startswith('.') or (os.path.sep + '.') in root:
                     continue
                 for fileName in files:
