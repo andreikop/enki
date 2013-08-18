@@ -422,6 +422,9 @@ class SearchWidget(QFrame):
         """Get search pattern and flags
         """
         pattern = self.cbSearch.currentText()
+        
+        pattern = pattern.replace(u'\u2029', '\n')  # replace unicode paragraph separator with habitual \n
+        
         if not self.cbRegularExpression.checkState() == Qt.Checked:
             pattern = re.escape(pattern)
         flags = 0
