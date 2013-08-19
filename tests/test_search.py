@@ -34,6 +34,16 @@ a
 b
 """
 
+_TEXT_WHOLE_WORD = """spam
+foobarbaz
+foo bar baz"""
+
+
+def _findSearchController():
+     for plugin in core.loadedPlugins():
+          if isinstance(plugin, enki.plugins.searchreplace.Plugin):
+               return plugin._controller
+
 
 class InFile(base.TestCase):
     NOT_SAVED_DOCUMENT_TEXT = _TEXT
@@ -123,15 +133,40 @@ class InFile(base.TestCase):
         
         self.assertEqual(qpart.selectedPosition, ((3, 0), (4, 1)))
         self.assertEqual(qpart.selectedText, "a\nb")
-   
+
+    @base.in_main_loop
+    def test_whole_word(self):
+        qpart = core.workspace().currentDocument().qutepart
+        
+        qpart.text = _TEXT_WHOLE_WORD
+        
+        # select first 'string'
+        QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
+        
+        QTest.keyClicks(self.app.focusWidget(), "bar")
+        self.assertEqual(qpart.cursorPosition[0], 1)
+        
+        # 2 items found
+        QTest.keyClick(self.app.focusWidget(), Qt.Key_F3)
+        self.assertEqual(qpart.cursorPosition[0], 2)
+        QTest.keyClick(self.app.focusWidget(), Qt.Key_F3)
+        self.assertEqual(qpart.cursorPosition[0], 1)
+        
+        # only 1 item found
+        QTest.mouseClick(_findSearchController()._widget.cbWholeWord, Qt.LeftButton)
+        self.assertEqual(qpart.cursorPosition[0], 2)
+        QTest.keyClick(self.app.focusWidget(), Qt.Key_F3)
+        self.assertEqual(qpart.cursorPosition[0], 2)  # not moved, only line 2
+
+        # only 1 item found in reg exp mode
+        qpart.cursorPosition = (0, 0)
+        QTest.mouseClick(_findSearchController()._widget.cbRegularExpression, Qt.LeftButton)
+        self.assertEqual(qpart.cursorPosition[0], 2)
+        QTest.keyClick(self.app.focusWidget(), Qt.Key_F3)
+        self.assertEqual(qpart.cursorPosition[0], 2)  # not moved, only line 2
+
 
 class Gui(base.TestCase):
-     @staticmethod
-     def _findSearchController():
-          for plugin in core.loadedPlugins():
-               if isinstance(plugin, enki.plugins.searchreplace.Plugin):
-                    return plugin._controller
-     
      @base.in_main_loop
      def test_esc_on_widget_closes(self):
           QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
@@ -144,7 +179,7 @@ class Gui(base.TestCase):
      @base.in_main_loop
      def test_esc_on_editor_closes(self):
           QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
-          widget = self._findSearchController()._widget
+          widget = _findSearchController()._widget
           self.assertFalse(widget.isHidden())
           
           QTest.keyClick(core.mainWindow(), Qt.Key_Return, Qt.ControlModifier)  # focus to editor

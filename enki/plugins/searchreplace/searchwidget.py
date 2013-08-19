@@ -163,6 +163,7 @@ class SearchWidget(QFrame):
         
         self.cbRegularExpression.stateChanged.connect(self._onSearchRegExpChanged)
         self.cbCaseSensitive.stateChanged.connect(self._onSearchRegExpChanged)
+        self.cbWholeWord.stateChanged.connect(self._onSearchRegExpChanged)
         
         self.tbCdUp.clicked.connect(self._onCdUpPressed)
         
@@ -427,6 +428,10 @@ class SearchWidget(QFrame):
         
         if not self.cbRegularExpression.checkState() == Qt.Checked:
             pattern = re.escape(pattern)
+        
+        if self.cbWholeWord.checkState() == Qt.Checked:
+            pattern = r'\b' + pattern + r'\b'
+        
         flags = 0
         if not self.cbCaseSensitive.checkState() == Qt.Checked:
             flags = re.IGNORECASE
