@@ -8,7 +8,7 @@ from PyQt4.QtCore import Qt, QTimer
 from PyQt4.QtTest import QTest
 
 from enki.core.core import core
-
+import enki.plugins.searchreplace
 
 _TEXT = """middle_underscore
 abc ab4d a@cd8 a@
@@ -124,6 +124,33 @@ class InFile(base.TestCase):
         self.assertEqual(qpart.selectedPosition, ((3, 0), (4, 1)))
         self.assertEqual(qpart.selectedText, "a\nb")
    
+
+class Gui(base.TestCase):
+     @staticmethod
+     def _findSearchController():
+          for plugin in core.loadedPlugins():
+               if isinstance(plugin, enki.plugins.searchreplace.Plugin):
+                    return plugin._controller
+     
+     @base.in_main_loop
+     def test_esc_on_widget_closes(self):
+          QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
+          widget = self._findSearchController()._widget
+          self.assertFalse(widget.isHidden())
+          
+          QTest.keyClick(widget, Qt.Key_Escape)
+          self.assertTrue(widget.isHidden())
+
+     @base.in_main_loop
+     def test_esc_on_editor_closes(self):
+          QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
+          widget = self._findSearchController()._widget
+          self.assertFalse(widget.isHidden())
+          
+          QTest.keyClick(core.mainWindow(), Qt.Key_Return, Qt.ControlModifier)  # focus to editor
+          QTest.keyClick(core.workspace().currentDocument(), Qt.Key_Escape)
+          self.assertTrue(widget.isHidden())
+
 
 if __name__ == '__main__':
     unittest.main()

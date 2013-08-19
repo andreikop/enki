@@ -18,9 +18,11 @@ from PyQt4.QtGui import QAction, \
                         QApplication, \
                         QDialog, QDialogButtonBox, \
                         QFileDialog, \
+                        QKeySequence, \
                         QListWidgetItem, \
                         QMessageBox, \
-                        QStackedWidget
+                        QStackedWidget, \
+                        QShortcut
 from PyQt4.QtCore import pyqtSignal, QEvent, Qt  # pylint: disable=E0611
 
 from enki.core.core import core, DATA_FILES_PATH
@@ -258,8 +260,8 @@ class Workspace(QStackedWidget):
         self._mainWindow().setWindowTitle(name)
         
     def eventFilter( self, obj, event ):
-        """NOT AN API function
-        
+        pass  # suppress docstring for non-public method
+        """
         Handler for QObject events of children
         """
         if  obj.isWidgetType() :
@@ -270,6 +272,14 @@ class Workspace(QStackedWidget):
                 return True
         
         return super(Workspace, self).eventFilter(obj, event)
+    
+    def keyPressEvent(self, event):
+        pass  # suppress docstring for non-public method
+        """Esc press handler. Closes search widget.
+        If QShortcut is used instead of keyPressEvent(), completion list is not closed by Esc
+        """
+        if event.key() == Qt.Key_Escape:
+            self.escPressed.emit()
     
     def _onStackedLayoutIndexChanged(self, index):
         """Handler of change of current document in the stacked layout.
