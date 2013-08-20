@@ -238,7 +238,7 @@ class MainWindow(QMainWindow):
         separator("mFile")
 
         menu  ("mView",                               "View"                  , ""            )
-        action("mView/aHideAll",                      "Hide all widgets"      , "",             "Shift+Esc",    "Hide all widgets"          , True)
+        action("mView/aHideAll",                      "Hide all / Restore"      , "",             "Shift+Esc",    "Hide all widgets"          , True)
 
         menu  ("mEdit",                               "Edit"                  , ""            )
         menu  ("mEdit/mCopyPasteLines",               "Copy-paste lines"      , ""            )
@@ -260,9 +260,6 @@ class MainWindow(QMainWindow):
         menu  ("mSettings",                           "Settings"              , ""            )
 
         menu  ("mHelp",                               "Help"                  , ""            )
-        
-        # docks
-        core.actionManager().action( "mView/aHideAll" ).triggered.connect(self._onHideAllWindows)
     
     def menuBar(self):
         """Reference to menuBar
@@ -333,13 +330,6 @@ class MainWindow(QMainWindow):
 
         return QMainWindow.closeEvent(self, event)
     
-    def _onHideAllWindows(self):
-        """Close all visible windows for get as much space on the screen, as possible
-        """
-        self.hideAllWindows.emit()
-        for dock in self.findChildren(DockWidget):
-            dock.hide()
-
     def _saveState(self):
         """Save window state to main_window_state.bin file in the config directory
         """
