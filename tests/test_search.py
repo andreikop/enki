@@ -40,9 +40,9 @@ foo bar baz"""
 
 
 def _findSearchController():
-     for plugin in core.loadedPlugins():
-          if isinstance(plugin, enki.plugins.searchreplace.Plugin):
-               return plugin._controller
+    for plugin in core.loadedPlugins():
+        if isinstance(plugin, enki.plugins.searchreplace.Plugin):
+            return plugin._controller
 
 
 class InFile(base.TestCase):
@@ -165,27 +165,65 @@ class InFile(base.TestCase):
         QTest.keyClick(self.app.focusWidget(), Qt.Key_F3)
         self.assertEqual(qpart.cursorPosition[0], 2)  # not moved, only line 2
 
+    @base.in_main_loop
+    def test_highlight_found_items(self):
+        qpart = core.workspace().currentDocument().qutepart
+        
+        qpart.text = "one two two three three three"
+        
+        def highlightedWordsCount():
+            return len(qpart.extraSelections()) - 1  # 1 for cursor
+        
+        # select first 'string'
+        QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
+        self.assertEqual(highlightedWordsCount(), 0)
+        
+        # search results are highlighted
+        QTest.keyClicks(self.app.focusWidget(), "one")
+        self.assertEqual(highlightedWordsCount(), 1)
+        for i in range(3):
+            QTest.keyClick(self.app.focusWidget(), Qt.Key_Backspace)
+        QTest.keyClicks(self.app.focusWidget(), "three")
+        self.assertEqual(highlightedWordsCount(), 3)
+        
+        # widget search highlighting updated on text chagne
+        qpart.text = qpart.text + ' '
+        self.assertEqual(highlightedWordsCount(), 3)
+        
+        # Escape hides search widget and items
+        QTest.keyClick(self.app.focusWidget(), Qt.Key_Escape)
+        self.assertEqual(highlightedWordsCount(), 0)
+        
+        # 'two' is highlighted during word search
+        qpart.cursorPosition = (0, 5)
+        QTest.keyClick(self.app.focusWidget(), Qt.Key_Period, Qt.ControlModifier)
+        self.assertEqual(highlightedWordsCount(), 2)
+        
+        # word search highlighting cleared on text chagne
+        qpart.text = qpart.text + ' '
+        self.assertEqual(highlightedWordsCount(), 0)
+
 
 class Gui(base.TestCase):
-     @base.in_main_loop
-     def test_esc_on_widget_closes(self):
-          QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
-          widget = self._findSearchController()._widget
-          self.assertFalse(widget.isHidden())
-          
-          QTest.keyClick(widget, Qt.Key_Escape)
-          self.assertTrue(widget.isHidden())
-
-     @base.in_main_loop
-     def test_esc_on_editor_closes(self):
-          QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
-          widget = _findSearchController()._widget
-          self.assertFalse(widget.isHidden())
-          
-          QTest.keyClick(core.mainWindow(), Qt.Key_Return, Qt.ControlModifier)  # focus to editor
-          QTest.keyClick(core.workspace().currentDocument(), Qt.Key_Escape)
-          self.assertTrue(widget.isHidden())
-
+    @base.in_main_loop
+    def test_esc_on_widget_closes(self):
+        QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
+        widget = self._findSearchController()._widget
+        self.assertFalse(widget.isHidden())
+        
+        QTest.keyClick(widget, Qt.Key_Escape)
+        self.assertTrue(widget.isHidden())
+    
+    @base.in_main_loop
+    def test_esc_on_editor_closes(self):
+        QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
+        widget = _findSearchController()._widget
+        self.assertFalse(widget.isHidden())
+        
+        QTest.keyClick(core.mainWindow(), Qt.Key_Return, Qt.ControlModifier)  # focus to editor
+        QTest.keyClick(core.workspace().currentDocument(), Qt.Key_Escape)
+        self.assertTrue(widget.isHidden())
+    
 
 if __name__ == '__main__':
     unittest.main()

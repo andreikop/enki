@@ -81,4 +81,3 @@ class TestCase(unittest.TestCase):
     def openSettings(self, continueFunc):
         QTimer.singleShot(0, lambda: continueFunc(self._findDialog()))
         core.actionManager().action("mSettings/aSettings").trigger()
-    

@@ -163,11 +163,11 @@ class Controller(QObject):
         self._widget.searchInDirectoryStopPressed.connect(self._onSearchInDirectoryStopPressed)
         self._widget.replaceCheckedStartPressed.connect(self._onReplaceCheckedStartPressed)
         self._widget.replaceCheckedStopPressed.connect(self._onReplaceCheckedStopPressed)
-        self._widget.visibilityChanged.connect(self._updateFoundItemsHighlighting)
+        self._widget.visibilityChanged.connect(self._updateSearchWidgetFoundItemsHighlighting)
         
         self._widget.searchRegExpChanged.connect(self._updateFileActionsState)
         self._widget.searchRegExpChanged.connect(self._onRegExpChanged)
-        self._widget.searchRegExpChanged.connect(self._updateFoundItemsHighlighting)
+        self._widget.searchRegExpChanged.connect(self._updateSearchWidgetFoundItemsHighlighting)
         
         self._widget.searchNext.connect(self._onSearchNext)
         self._widget.searchPrevious.connect(self._onSearchPrevious)
@@ -177,7 +177,7 @@ class Controller(QObject):
         
         core.workspace().currentDocumentChanged.connect(self._updateFileActionsState)  # always disabled, if no widget
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
-        core.workspace().textChanged.connect(self._updateFoundItemsHighlighting)
+        core.workspace().textChanged.connect(self._updateSearchWidgetFoundItemsHighlighting)
 
         core.mainWindow().centralLayout().addWidget( self._widget )
         self._widget.setVisible( False )
@@ -234,21 +234,26 @@ class Controller(QObject):
             self._cachedRegExp = regExp
         
         return self._catchedMatches
-    
-    def _updateFoundItemsHighlighting(self):
-        """(Re)highlight found items with yellow color
-        """
+
+    def _updateSearchWidgetFoundItemsHighlighting(self):
         document = core.workspace().currentDocument()
         if document is None:
             return
-        
+
         if not self._widget.isVisible() or \
            not self._widget.isSearchRegExpValid()[0] or \
            not self._widget.getRegExp().pattern:
             document.qutepart.setExtraSelections([])
             return
         
-        regExp = self._widget.getRegExp()
+        return self._updateFoundItemsHighlighting(self._widget.getRegExp())
+
+    def _updateFoundItemsHighlighting(self, regExp):
+        """(Re)highlight found items with yellow color
+        Called by _updateSearchWidgetFoundItemsHighlighting and by word search highlighting
+        """
+        document = core.workspace().currentDocument()
+        
         matches = self._findAllMatches(document.qutepart.text, regExp)
         
         if len(matches) <= MAX_EXTRA_SELECTIONS_COUNT:
@@ -302,7 +307,7 @@ class Controller(QObject):
         """
         self._searchWord(forward=True)
 
-    def _searchWord(self, forward=True):
+    def _searchWord(self, forward):
         """Do search in file operation. Will select next found item
         if updateWidget is True, search widget line edit will color will be set according to result
         """
@@ -326,6 +331,8 @@ class Controller(QObject):
             startPoint = wordEndAbsPos
         else:
             startPoint = wordStartAbsPos
+        
+        self._updateFoundItemsHighlighting(regExp)
         
         match, matches = self._searchInText(regExp, document.qutepart.text, startPoint, forward)
         if match is not None:
