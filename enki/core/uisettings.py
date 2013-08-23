@@ -338,11 +338,12 @@ class UISettings(QDialog):
         self._pageForItem[path] = widget
 
     def appendOption(self, option):
-        """Append *Option instance to list of options
+        """Append *Option instance to the list of options
         """
         self._createdObjects.append(option)
 
     def on_twMenu_itemSelectionChanged(self):
+        pass  # suppress docstring for non-public method
         """Qt slot. Switch current page, after item in the pages tree has been selected
         """
         selectedItem = self.twMenu.selectedItems()[0]
