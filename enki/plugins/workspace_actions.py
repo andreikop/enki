@@ -152,18 +152,27 @@ class Plugin(QObject):
             QMessageBox.warning(core.mainWindow(), 'Rename file', 'Save the file before renaming')
             return
         
-        text, ok = QInputDialog.getText(core.mainWindow(), 'Rename file', 'New file name', text=document.filePath())
+        newPath, ok = QInputDialog.getText(core.mainWindow(), 'Rename file', 'New file name', text=document.filePath())
         if not ok:
             return
         
-        try:
-            os.rename(document.filePath(), text)
-        except (OSError, IOError) as ex:
-            QMessageBox.critical(core.mainWindow(), 'Failed to rename file', str(ex))
+        if newPath == '/dev/null':
+            try:
+                os.remove(document.filePath())
+            except (OSError, IOError) as ex:
+                QMessageBox.critical(core.mainWindow(), 'Not this time', 'The OS thinks it needs the file')
+            else:
+                core.workspace().closeDocument(document)
         else:
-            document.setFilePath(text)
-            document.saveFile()
-    
+            try:
+                os.rename(document.filePath(), newPath)
+            except (OSError, IOError) as ex:
+                QMessageBox.critical(core.mainWindow(), 'Failed to rename file', str(ex))
+            else:
+                document.setFilePath(newPath)
+                document.saveFile()
+
+        
     EXECUTABLE_FLAGS = stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
     
     def _isCurrentFileExecutable(self):

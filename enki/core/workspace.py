@@ -559,7 +559,9 @@ class Workspace(QStackedWidget):
         document.del_()        
 
     def closeDocument( self, document):
-        """Close opened file, remove document from workspace and delete the widget
+        """Close opened file, remove document from workspace and delete the widget.
+        
+        Ask for confirmation with dialog, if modified.
         """
         if document.qutepart.document().isModified():
             if _UISaveFiles(self, [document]).exec_() == QDialog.Rejected:
@@ -568,8 +570,9 @@ class Workspace(QStackedWidget):
         self._doCloseDocument(document)
 
     def askToCloseAll(self):
-        """If have unsaved documents, ask user to save it and close all
-        Will save documents, checked by user
+        """If have unsaved documents, ask user to save it and close all.
+        Will save documents, checked by user.
+        
         Returns True, if user hasn't pressed Cancel Close
         """
         modifiedDocuments = [d for d in self.documents() if d.qutepart.document().isModified()]

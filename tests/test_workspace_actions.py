@@ -88,6 +88,46 @@ class Rename(base.TestCase):
         
         self.openDialog(action.trigger, runInDialog)
 
+    @base.in_main_loop
+    def test_dev_null(self):
+        action = core.actionManager().action("mFile/mFileSystem/aRename")
+        
+        FILE_PATH = self.TEST_FILES_DIR + 'file'
+        
+        document = core.workspace().currentDocument()
+        document.setFilePath(FILE_PATH)
+        document.saveFile()
+
+        self.assertTrue(os.path.isfile(FILE_PATH))
+        
+        def runInDialog(dialog):
+            QTest.keyClicks(self.app.focusWidget(), '/dev/null')
+            QTest.keyClick(self.app.focusWidget(), Qt.Key_Return)
+        
+        self.openDialog(action.trigger, runInDialog)
+        
+        self.assertFalse(os.path.isfile(FILE_PATH))
+        self.assertIsNone(core.workspace().currentDocument())
+
+    @base.in_main_loop
+    def test_dev_null_os_fail(self):
+        action = core.actionManager().action("mFile/mFileSystem/aRename")
+        
+        core.workspace().closeAllDocuments()
+        document = core.workspace().openFile('/etc/passwd')
+        
+        def runInDialog(dialog):
+            QTest.keyClicks(self.app.focusWidget(), '/dev/null')
+            
+            def runInNextDialog(nextDialog):
+                self.assertTrue(nextDialog.windowTitle(), 'Not this time')
+                QTest.keyClick(self.app.focusWidget(), Qt.Key_Return)
+            
+            self.openDialog(lambda: QTest.keyClick(self.app.focusWidget(), Qt.Key_Return),
+                            runInNextDialog)
+        
+        self.openDialog(action.trigger, runInDialog)
+
 
 class ToggleExecutable(base.TestCase):
     def test_action_enabled(self):
