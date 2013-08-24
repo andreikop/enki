@@ -160,6 +160,9 @@ class Core(QObject):
             del self._mainWindow
         if self._config is not None:
             del self._config
+        if self._actionManager is not None:
+            self._actionManager.del_()
+            del self._actionManager
 
         qCleanupResources()
 

@@ -69,7 +69,7 @@ class ActionManager(QObject):
         QObject.__init__(self,  parent )
         self._pathToAction = {}
     
-    def __del__(self):
+    def del_(self):
         if self._pathToAction:
             assert 0, 'ActionManager: you have to delete all actions before destroying actions model. ' + \
                       'Existing actions: ' + str(self._pathToAction.keys())

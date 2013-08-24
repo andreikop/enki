@@ -32,7 +32,7 @@ class Plugin:
         core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
 
     def del_(self):
-        pass
+        core.actionManager().removeAction('mView/aOpenTerm')
 
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.
