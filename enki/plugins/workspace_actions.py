@@ -4,9 +4,10 @@ workspace_actions --- Workspace actons, such as "Open file", "Next document", ..
 """
 
 import os.path
+import stat
 
 from PyQt4.QtCore import QObject, Qt
-from PyQt4.QtGui import QApplication, QFileDialog, QMessageBox
+from PyQt4.QtGui import QApplication, QFileDialog, QInputDialog, QMessageBox
 
 from enki.core.core import core
 
@@ -28,6 +29,10 @@ class Plugin(QObject):
         core.actionManager().action( "mFile/mSave/aCurrent" ).triggered.connect(self._onFileSaveCurrentTriggered)
         core.actionManager().action( "mFile/mSave/aAll" ).triggered.connect(self._onFileSaveAllTriggered)
         core.actionManager().action( "mFile/mSave/aSaveAs" ).triggered.connect(self._onFileSaveAsTriggered)
+        
+        core.actionManager().action('mFile/mFileSystem').menu().aboutToShow.connect(self._onFsMenuAboutToShow)
+        core.actionManager().action( "mFile/mFileSystem/aRename" ).triggered.connect(self._onRename)
+        core.actionManager().action( "mFile/mFileSystem/aToggleExecutable" ).triggered.connect(self._onToggleExecutable)
         
         core.actionManager().action( "mNavigation/aNext" ).triggered.connect(core.workspace().activateNextDocument)
         core.actionManager().action( "mNavigation/aPrevious" ).triggered.connect(core.workspace().activatePreviousDocument)
@@ -55,6 +60,10 @@ class Plugin(QObject):
         core.actionManager().action( "mNavigation/aGoto" ).setEnabled( newDocument is not None)
         core.actionManager().action( "mFile/mReload/aCurrent" ).setEnabled( newDocument is not None )
         core.actionManager().action( "mFile/mReload/aAll" ).setEnabled( newDocument is not None )
+        core.actionManager().action( "mFile/mFileSystem/aRename" ).setEnabled(
+                                        newDocument is not None and newDocument.filePath() is not None)
+        core.actionManager().action( "mFile/mFileSystem/aToggleExecutable" ).setEnabled(
+                                        newDocument is not None and newDocument.filePath() is not None)
 
     def _onDocumentOpenedOrClosed(self):
         # update view menu
@@ -133,3 +142,79 @@ class Plugin(QObject):
         """
         core.workspace().currentDocument().saveFileAs();
     
+    def _onRename(self):
+        """Handler for File->File System->Rename"""
+        document = core.workspace().currentDocument()
+        if document.qutepart.document().isModified() or \
+           document.isExternallyModified() or \
+           document.isExternallyRemoved() or \
+           document.isNeverSaved():
+            QMessageBox.warning(core.mainWindow(), 'Rename file', 'Save the file before renaming')
+            return
+        
+        text, ok = QInputDialog.getText(core.mainWindow(), 'Rename file', 'New file name', text=document.filePath())
+        if not ok:
+            return
+        
+        try:
+            os.rename(document.filePath(), text)
+        except (OSError, IOError) as ex:
+            QMessageBox.critical(core.mainWindow(), 'Failed to rename file', str(ex))
+        else:
+            document.setFilePath(text)
+            document.saveFile()
+    
+    EXECUTABLE_FLAGS = stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+    
+    def _isCurrentFileExecutable(self):
+        """True if executable, False if not, None if no file or not saved"""
+        document = core.workspace().currentDocument()
+        if document is None:
+            return None
+        filePath = core.workspace().currentDocument().filePath()
+        if filePath is None:
+            return None
+        
+        if not os.path.isfile(filePath):
+            return None
+
+        try:
+            st = os.stat(filePath)
+        except:
+            return None
+        
+        return st.st_mode & self.EXECUTABLE_FLAGS
+    
+    def _onFsMenuAboutToShow(self):
+        action = core.actionManager().action('mFile/mFileSystem/aToggleExecutable')
+        executable = self._isCurrentFileExecutable()
+        action.setEnabled(executable is not None)
+        
+        if executable:
+            action.setText('Make Not executable')
+        else:
+            action.setText('Make executable')
+    
+    def _onToggleExecutable(self):
+        executable = self._isCurrentFileExecutable()
+        assert executable is not None, 'aToggleExecutable must have been disabled'
+        filePath = core.workspace().currentDocument().filePath()
+        
+        try:
+            st = os.stat(filePath)
+        except (IOError, OSError) as ex:
+            QMessageBox.critical(core.mainWindow(), 'Failed to change executable mode',
+                                 'Failed to get current file mode: %s' % str(ex))
+            return
+        
+        if executable:
+            newMode = st.st_mode & (~ self.EXECUTABLE_FLAGS)
+        else:
+            newMode = st.st_mode | self.EXECUTABLE_FLAGS
+        
+        try:
+            os.chmod(filePath, newMode)
+        except (IOError, OSError) as ex:
+            QMessageBox.critical(core.mainWindow(), 'Failed to change executable mode',
+                                 'Failed to set current file mode: %s' % str(ex))
+            return

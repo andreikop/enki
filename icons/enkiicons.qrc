@@ -48,6 +48,7 @@
 		<file>execute.png</file>
 		<file>file.png</file>
 		<file>files.png</file>
+		<file>filesystem.png</file>
 		<file>filtered.png</file>
 		<file>folder.png</file>
 		<file>function-green.png</file>
@@ -150,7 +151,6 @@
 		<file>value.png</file>
 		<file>values.png</file>
 		<file>variable.png</file>
-		<file>view-list-tree.png</file>
 		<file>winEol.png</file>
 	</qresource>
 </RCC>

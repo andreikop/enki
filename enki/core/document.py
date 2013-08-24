@@ -254,13 +254,15 @@ class Document(QWidget):
         return self._neverSaved
         
     def filePath(self):
-        """return the document file absolute path
-        None if not set (new document)"""
+        """Return the document file absolute path.
+        
+        ``None`` if not set (new document)"""
         return self._filePath
     
     def fileName(self):
-        """Document file name without a path
-        None if not set (new document)"""
+        """Document file name without a path.
+        
+        ``None`` if not set (new document)"""
         if self._filePath:
             return os.path.basename(self._filePath)
         else:

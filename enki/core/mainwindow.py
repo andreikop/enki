@@ -235,6 +235,9 @@ class MainWindow(QMainWindow):
         menu  ("mFile/mClose",                        "&Close"                , "close.png"   )
         action("mFile/mClose/aCurrent",               "&Close"                , "close.png",    "Ctrl+W",       "Close the current file" , False)
         action("mFile/mClose/aAll",                   "Close &All"            , "closeall.png", 'Shift+Ctrl+W', "Close all files"        , False)
+        menu  ("mFile/mFileSystem",                   "File System"           , "filesystem.png")
+        action("mFile/mFileSystem/aRename",           "Rename"                , "edit.png",     '',             "Rename current file"    , False)
+        action("mFile/mFileSystem/aToggleExecutable", "Make executable"        , "",            '',             "Toggle executable mode", False)
         separator("mFile")
 
         menu  ("mView",                               "View"                  , ""            )

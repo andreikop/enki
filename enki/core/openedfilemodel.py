@@ -434,6 +434,7 @@ class OpenedFileExplorer(DockWidget):
         menu.addAction( core.actionManager().action( "mFile/mClose/aCurrent" ) )
         menu.addAction( core.actionManager().action( "mFile/mSave/aCurrent" ) )
         menu.addAction( core.actionManager().action( "mFile/mReload/aCurrent" ) )
+        menu.addMenu( core.actionManager().action( "mFile/mFileSystem" ).menu() )
         menu.addSeparator()
         
         # sort menu

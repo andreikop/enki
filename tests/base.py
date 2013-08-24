@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 import threading
+import shutil
 
 import sip
 sip.setapi('QString', 2)
@@ -54,13 +55,22 @@ class TestCase(unittest.TestCase):
     CREATE_NOT_SAVED_DOCUMENT = True
     NOT_SAVED_DOCUMENT_TEXT = None
     
-    def setUp(self):
-        try:
+    app = QApplication( sys.argv )
+    
+    TEST_FILES_DIR = '/tmp/enki-tests/'
+    
+    def _cleanUpFs(self):
+        if os.path.isfile('/tmp/enki.json'):
             os.unlink('/tmp/enki.json')
-        except OSError, IOError:
-            pass
         
-        self.app = QApplication( sys.argv )
+        if os.path.isdir(self.TEST_FILES_DIR):
+            shutil.rmtree(self.TEST_FILES_DIR)
+        
+    
+    def setUp(self):
+        self._cleanUpFs()
+        os.mkdir(self.TEST_FILES_DIR)
+        
         core.init(None)
         
         if self.CREATE_NOT_SAVED_DOCUMENT:
@@ -69,15 +79,28 @@ class TestCase(unittest.TestCase):
                 core.workspace().currentDocument().qutepart.text = self.NOT_SAVED_DOCUMENT_TEXT
     
     def tearDown(self):
+        core.workspace().closeAllDocuments()
         core.term()
+        self._cleanUpFs()
 
     def _findDialog(self):
         for widget in self.app.topLevelWidgets():
             if widget.isVisible() and isinstance(widget, QDialog):
+                QTest.qWaitForWindowShown(widget)
                 return widget
         else:
-            return None
+            self.fail("Dialog not found")
 
-    def openSettings(self, continueFunc):
-        QTimer.singleShot(0, lambda: continueFunc(self._findDialog()))
-        core.actionManager().action("mSettings/aSettings").trigger()
+    def openDialog(self, openDialogFunc, runInDialogFunc):
+        """Open dialog by executing ``openDialogFunc`` and run ``runInDialogFunc``.
+        Dialog is passed as a parameter to ``runInDialogFunc``
+        """
+        QTimer.singleShot(0, lambda: runInDialogFunc(self._findDialog()))
+        openDialogFunc()
+
+    def openSettings(self, runInDialogFunc):
+        """Open Enki settings dialog and run ``runInDialogFunc``.
+        Dialog is passed as a parameter to ``runInDialogFunc``
+        """
+        return self.openDialog(core.actionManager().action("mSettings/aSettings").trigger,
+                               runInDialogFunc)
