@@ -37,7 +37,7 @@ class Rename(base.TestCase):
         workspace.openFile('/etc/passwd')
         self.assertTrue(editable())  # normal document
         
-        QTest.keyClicks(workspace.currentDocument().qutepart, 'adsf')
+        self.keyClicks('adsf', widget=workspace.currentDocument().qutepart)
         self.assertFalse(editable())  # modified document
     
     @base.in_main_loop
@@ -47,8 +47,8 @@ class Rename(base.TestCase):
         NEW_PATH = self.TEST_FILES_DIR + 'newname'
         _startEditCurrentFilePath()
         
-        QTest.keyClicks(self.app.focusWidget(), NEW_PATH)
-        QTest.keyClick(self.app.focusWidget(), Qt.Key_Return)
+        self.keyClicks(NEW_PATH)
+        self.keyClick(Qt.Key_Return)
         QTest.qWait(100)  # Test fails without a sleep. Threads inside Qt???
 
         self.assertTrue(os.path.isfile(NEW_PATH))
@@ -63,13 +63,13 @@ class Rename(base.TestCase):
         NEW_PATH = '/root/newname'
         
         _startEditCurrentFilePath()
-        QTest.keyClicks(self.app.focusWidget(), NEW_PATH)
+        self.keyClicks(NEW_PATH)
 
         def runInDialog(dialog):
             self.assertEqual(dialog.windowTitle(), 'Failed to rename file')
-            QTest.keyClick(self.app.focusWidget(), Qt.Key_Return)
+            self.keyClick(Qt.Key_Return)
         
-        self.openDialog(lambda: QTest.keyClick(self.app.focusWidget(), Qt.Key_Return),
+        self.openDialog(lambda: self.keyClick(Qt.Key_Return),
                         runInDialog)
 
     @base.in_main_loop
@@ -78,8 +78,8 @@ class Rename(base.TestCase):
         core.workspace().openFile(FILE_PATH)
         
         _startEditCurrentFilePath()
-        QTest.keyClicks(self.app.focusWidget(), FILE_PATH)
-        QTest.keyClick(self.app.focusWidget(), Qt.Key_Return)
+        self.keyClicks(FILE_PATH)
+        self.keyClick(Qt.Key_Return)
         
         self.assertEqual(self.app.activeWindow(), core.mainWindow())  # not messagebox with error
 
@@ -90,8 +90,8 @@ class Rename(base.TestCase):
         
         _startEditCurrentFilePath()
         
-        QTest.keyClicks(self.app.focusWidget(), NEW_PATH)
-        QTest.keyClick(self.app.focusWidget(), Qt.Key_Return)
+        self.keyClicks(NEW_PATH)
+        self.keyClick(Qt.Key_Return)
         QTest.qWait(100)  # Test fails without a sleep. Threads inside Qt???
 
         self.assertFalse(os.path.isfile(self.EXISTING_FILE))
@@ -104,13 +104,13 @@ class Rename(base.TestCase):
         
         _startEditCurrentFilePath()
                 
-        QTest.keyClicks(self.app.focusWidget(), NEW_PATH)
+        self.keyClicks(NEW_PATH)
         
         def runInDialog(dialog):
             self.assertTrue(dialog.windowTitle(), 'Not this time')
-            QTest.keyClick(self.app.focusWidget(), Qt.Key_Return)
+            self.keyClick(Qt.Key_Return)
         
-        self.openDialog(lambda: QTest.keyClick(self.app.focusWidget(), Qt.Key_Return),
+        self.openDialog(lambda: self.keyClick(Qt.Key_Return),
                         runInDialog)
 
 

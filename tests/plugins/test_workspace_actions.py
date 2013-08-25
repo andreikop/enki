@@ -49,7 +49,7 @@ class Rename(base.TestCase):
         # can not rename, if not saved
         def runInDialog(dialog):
             self.assertTrue(dialog.windowTitle(), 'Rename file')
-            QTest.keyClick(self.app.focusWidget(), Qt.Key_Return)
+            self.keyClick(Qt.Key_Return)
         
         self.openDialog(action.trigger, runInDialog)
         
@@ -58,7 +58,7 @@ class Rename(base.TestCase):
         # can rename
         def runInDialog(dialog):
             QTest.keyClicks(self.app.focusWidget(), NEW_PATH)
-            QTest.keyClick(self.app.focusWidget(), Qt.Key_Return)
+            self.keyClick(Qt.Key_Return)
         
         self.openDialog(action.trigger, runInDialog)
 
@@ -79,9 +79,9 @@ class Rename(base.TestCase):
             
             def nextRunInDialog(nextDialog):
                 self.assertEqual(nextDialog.windowTitle(), 'Failed to rename file')
-                QTest.keyClick(self.app.focusWidget(), Qt.Key_Return)
+                self.keyClick(Qt.Key_Return)
             
-            self.openDialog(lambda: QTest.keyClick(self.app.focusWidget(), Qt.Key_Return),
+            self.openDialog(lambda: self.keyClick(Qt.Key_Return),
                             nextRunInDialog)
         
         self.openDialog(action.trigger, runInDialog)
@@ -95,7 +95,7 @@ class Rename(base.TestCase):
         def runInDialog(dialog):
             QTest.keyClicks(self.app.focusWidget(), FILE_PATH)
             # will not generate error messagebox, because same path is used
-            QTest.keyClick(self.app.focusWidget(), Qt.Key_Return)
+            self.keyClick(Qt.Key_Return)
         
         self.openDialog(action.trigger, runInDialog)
         # will freeze, if error happened
@@ -110,7 +110,7 @@ class Rename(base.TestCase):
         
         def runInDialog(dialog):
             QTest.keyClicks(self.app.focusWidget(), '/dev/null')
-            QTest.keyClick(self.app.focusWidget(), Qt.Key_Return)
+            self.keyClick(Qt.Key_Return)
         
         self.openDialog(action.trigger, runInDialog)
         
@@ -129,9 +129,9 @@ class Rename(base.TestCase):
             
             def runInNextDialog(nextDialog):
                 self.assertTrue(nextDialog.windowTitle(), 'Not this time')
-                QTest.keyClick(self.app.focusWidget(), Qt.Key_Return)
+                self.keyClick(Qt.Key_Return)
             
-            self.openDialog(lambda: QTest.keyClick(self.app.focusWidget(), Qt.Key_Return),
+            self.openDialog(lambda: self.keyClick(Qt.Key_Return),
                             runInNextDialog)
         
         self.openDialog(action.trigger, runInDialog)
@@ -194,7 +194,7 @@ class ToggleExecutable(base.TestCase):
         
         def runInDialog(dialog):
             self.assertEqual(dialog.windowTitle(), 'Failed to change executable mode')
-            QTest.keyClick(self.app.focusWidget(), Qt.Key_Return)
+            self.keyClick(Qt.Key_Return)
         
         self.openDialog(action.trigger, runInDialog)
 

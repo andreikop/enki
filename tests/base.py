@@ -113,3 +113,21 @@ class TestCase(unittest.TestCase):
         """
         return self.openDialog(core.actionManager().action("mSettings/aSettings").trigger,
                                runInDialogFunc)
+    
+    def keyClick(self, key, modifiers=Qt.NoModifier, widget=None):
+        """Alias for ``QTest.keyClick``.
+        
+        If widget is none - focused widget will be keyclicked"""
+        if widget is not None:
+            QTest.keyClick(widget, key, modifiers)
+        else:
+            QTest.keyClick(self.app.focusWidget(), key, modifiers)
+    
+    def keyClicks(self, text, modifiers=Qt.NoModifier, widget=None):
+        """Alias for ``QTest.keyClicks``.
+        
+        If widget is none - focused widget will be keyclicked"""
+        if widget is not None:
+            QTest.keyClicks(widget, text, modifiers)
+        else:
+            QTest.keyClicks(self.app.focusWidget(), text, modifiers)

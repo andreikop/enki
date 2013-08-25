@@ -9,7 +9,6 @@ sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."
 import base
 
 from PyQt4.QtCore import Qt
-from PyQt4.QtTest import QTest
 
 from enki.core.core import core
 from enki.widgets.dockwidget import DockWidget
@@ -33,11 +32,11 @@ class Test(base.TestCase):
         originalStates = states()
         
         # hide
-        QTest.keyClick(core.mainWindow(), Qt.Key_Escape, Qt.ShiftModifier)
+        self.keyClick(Qt.Key_Escape, Qt.ShiftModifier, core.mainWindow())
         self.assertTrue(all(states()))  # all hidden
         
         # restore
-        QTest.keyClick(core.mainWindow(), Qt.Key_Escape, Qt.ShiftModifier)
+        self.keyClick(Qt.Key_Escape, Qt.ShiftModifier, core.mainWindow())
         self.assertTrue(originalStates, states())
 
 

@@ -58,7 +58,7 @@ class InFile(base.TestCase):
         
         qpart = core.workspace().currentDocument().qutepart
         
-        QTest.keyClicks(self.app.focusWidget(), "string")
+        self.keyClicks("string")
         
         self.assertEqual(qpart.cursorPosition, (6, 18))
         self.assertEqual(qpart.selectedText, "string")
@@ -69,21 +69,21 @@ class InFile(base.TestCase):
         
         qpart = core.workspace().currentDocument().qutepart
         
-        QTest.keyClicks(self.app.focusWidget(), "string")
+        self.keyClicks("string")
         
         self.assertEqual(qpart.cursorPosition, (6, 18))
         self.assertEqual(qpart.selectedText, "string")
         
-        QTest.keyClick(self.app.focusWidget(), Qt.Key_F3)
+        self.keyClick(Qt.Key_F3)
         self.assertEqual(qpart.cursorPosition, (7, 9))
         self.assertEqual(qpart.selectedText, "string")
    
-        QTest.keyClick(self.app.focusWidget(), Qt.Key_F3)
+        self.keyClick(Qt.Key_F3)
         self.assertEqual(qpart.cursorPosition, (7, 57))
         self.assertEqual(qpart.selectedText, "string")
    
         # wrap
-        QTest.keyClick(self.app.focusWidget(), Qt.Key_F3)
+        self.keyClick(Qt.Key_F3)
         self.assertEqual(qpart.cursorPosition, (6, 18))
         self.assertEqual(qpart.selectedText, "string")
    
@@ -93,21 +93,21 @@ class InFile(base.TestCase):
         
         qpart = core.workspace().currentDocument().qutepart
         
-        QTest.keyClicks(self.app.focusWidget(), "string")
+        self.keyClicks("string")
         
         self.assertEqual(qpart.cursorPosition, (6, 18))
         self.assertEqual(qpart.selectedText, "string")
         
-        QTest.keyClick(self.app.focusWidget(), Qt.Key_F3, Qt.ShiftModifier)
+        self.keyClick(Qt.Key_F3, Qt.ShiftModifier)
         self.assertEqual(qpart.cursorPosition, (7, 57))
         self.assertEqual(qpart.selectedText, "string")
    
-        QTest.keyClick(self.app.focusWidget(), Qt.Key_F3, Qt.ShiftModifier)
+        self.keyClick(Qt.Key_F3, Qt.ShiftModifier)
         self.assertEqual(qpart.cursorPosition, (7, 9))
         self.assertEqual(qpart.selectedText, "string")
    
         # wrap
-        QTest.keyClick(self.app.focusWidget(), Qt.Key_F3, Qt.ShiftModifier)
+        self.keyClick(Qt.Key_F3, Qt.ShiftModifier)
         self.assertEqual(qpart.cursorPosition, (6, 18))
         self.assertEqual(qpart.selectedText, "string")
 
@@ -119,7 +119,7 @@ class InFile(base.TestCase):
         qpart.selectedPosition = ((6, 12), (6, 18))
         QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
         
-        QTest.keyClick(self.app.focusWidget(), Qt.Key_F3)
+        self.keyClick(Qt.Key_F3)
         self.assertEqual(qpart.cursorPosition, (7, 9))
         self.assertEqual(qpart.selectedText, "string")
    
@@ -133,7 +133,7 @@ class InFile(base.TestCase):
         qpart.selectedPosition = ((0, 0), (1, 1))
         QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
         
-        QTest.keyClick(self.app.focusWidget(), Qt.Key_F3)
+        self.keyClick(Qt.Key_F3)
         
         self.assertEqual(qpart.selectedPosition, ((3, 0), (4, 1)))
         self.assertEqual(qpart.selectedText, "a\nb")
@@ -147,26 +147,26 @@ class InFile(base.TestCase):
         # select first 'string'
         QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
         
-        QTest.keyClicks(self.app.focusWidget(), "bar")
+        self.keyClicks("bar")
         self.assertEqual(qpart.cursorPosition[0], 1)
         
         # 2 items found
-        QTest.keyClick(self.app.focusWidget(), Qt.Key_F3)
+        self.keyClick(Qt.Key_F3)
         self.assertEqual(qpart.cursorPosition[0], 2)
-        QTest.keyClick(self.app.focusWidget(), Qt.Key_F3)
+        self.keyClick(Qt.Key_F3)
         self.assertEqual(qpart.cursorPosition[0], 1)
         
         # only 1 item found
         QTest.mouseClick(_findSearchController()._widget.cbWholeWord, Qt.LeftButton)
         self.assertEqual(qpart.cursorPosition[0], 2)
-        QTest.keyClick(self.app.focusWidget(), Qt.Key_F3)
+        self.keyClick(Qt.Key_F3)
         self.assertEqual(qpart.cursorPosition[0], 2)  # not moved, only line 2
 
         # only 1 item found in reg exp mode
         qpart.cursorPosition = (0, 0)
         QTest.mouseClick(_findSearchController()._widget.cbRegularExpression, Qt.LeftButton)
         self.assertEqual(qpart.cursorPosition[0], 2)
-        QTest.keyClick(self.app.focusWidget(), Qt.Key_F3)
+        self.keyClick(Qt.Key_F3)
         self.assertEqual(qpart.cursorPosition[0], 2)  # not moved, only line 2
 
     @base.in_main_loop
@@ -183,11 +183,11 @@ class InFile(base.TestCase):
         self.assertEqual(highlightedWordsCount(), 0)
         
         # search results are highlighted
-        QTest.keyClicks(self.app.focusWidget(), "one")
+        self.keyClicks("one")
         self.assertEqual(highlightedWordsCount(), 1)
         for i in range(3):
-            QTest.keyClick(self.app.focusWidget(), Qt.Key_Backspace)
-        QTest.keyClicks(self.app.focusWidget(), "three")
+            self.keyClick(Qt.Key_Backspace)
+        self.keyClicks("three")
         self.assertEqual(highlightedWordsCount(), 3)
         
         # widget search highlighting updated on text chagne
@@ -195,12 +195,12 @@ class InFile(base.TestCase):
         self.assertEqual(highlightedWordsCount(), 3)
         
         # Escape hides search widget and items
-        QTest.keyClick(self.app.focusWidget(), Qt.Key_Escape)
+        self.keyClick(Qt.Key_Escape)
         self.assertEqual(highlightedWordsCount(), 0)
         
         # 'two' is highlighted during word search
         qpart.cursorPosition = (0, 5)
-        QTest.keyClick(self.app.focusWidget(), Qt.Key_Period, Qt.ControlModifier)
+        self.keyClick(Qt.Key_Period, Qt.ControlModifier)
         self.assertEqual(highlightedWordsCount(), 2)
         
         # word search highlighting cleared on text chagne
