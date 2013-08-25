@@ -6,7 +6,10 @@
 import unittest
 import os.path
 import os
+import sys
 import stat
+
+sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
 import base  # configures sys.path ans sip
 
@@ -65,15 +68,10 @@ class Rename(base.TestCase):
             self.assertEqual(text, 'hi\n')
 
     def test_os_fail(self):
-        OLD_PATH = self.TEST_FILES_DIR + 'oldname'
         NEW_PATH = '/root/newname'
 
-        document = core.workspace().currentDocument()
+        document = core.workspace().openFile(self.EXISTING_FILE)
         action = core.actionManager().action("mFile/mFileSystem/aRename")
-        
-        document.setFilePath(OLD_PATH)
-        document.qutepart.text = 'hi'
-        document.saveFile()
         
         # can rename
         def runInDialog(dialog):
@@ -88,17 +86,27 @@ class Rename(base.TestCase):
         
         self.openDialog(action.trigger, runInDialog)
 
+    def test_same_path(self):
+        FILE_PATH = '/etc/passwd'
+
+        document = core.workspace().openFile(FILE_PATH)
+        action = core.actionManager().action("mFile/mFileSystem/aRename")
+        
+        def runInDialog(dialog):
+            QTest.keyClicks(self.app.focusWidget(), FILE_PATH)
+            # will not generate error messagebox, because same path is used
+            QTest.keyClick(self.app.focusWidget(), Qt.Key_Return)
+        
+        self.openDialog(action.trigger, runInDialog)
+        # will freeze, if error happened
+
     @base.in_main_loop
     def test_dev_null(self):
         action = core.actionManager().action("mFile/mFileSystem/aRename")
         
-        FILE_PATH = self.TEST_FILES_DIR + 'file'
-        
-        document = core.workspace().currentDocument()
-        document.setFilePath(FILE_PATH)
-        document.saveFile()
+        document = core.workspace().openFile(self.EXISTING_FILE)
 
-        self.assertTrue(os.path.isfile(FILE_PATH))
+        self.assertTrue(os.path.isfile(self.EXISTING_FILE))
         
         def runInDialog(dialog):
             QTest.keyClicks(self.app.focusWidget(), '/dev/null')
@@ -106,7 +114,7 @@ class Rename(base.TestCase):
         
         self.openDialog(action.trigger, runInDialog)
         
-        self.assertFalse(os.path.isfile(FILE_PATH))
+        self.assertFalse(os.path.isfile(self.EXISTING_FILE))
         self.assertIsNone(core.workspace().currentDocument())
 
     @base.in_main_loop
@@ -139,50 +147,40 @@ class ToggleExecutable(base.TestCase):
         document = core.workspace().createEmptyNotSavedDocument()
         self.assertFalse(action.isEnabled())
         
-        document.setFilePath(self.TEST_FILES_DIR + 'file')
-        document.saveFile()
+        document = core.workspace().openFile(self.EXISTING_FILE)
         self.assertTrue(action.isEnabled())
         
         core.workspace().closeAllDocuments()
         self.assertFalse(action.isEnabled())
     
     def test_action_text(self):
-        document = core.workspace().currentDocument()
+        document = core.workspace().openFile(self.EXISTING_FILE)
         menu = core.actionManager().action("mFile/mFileSystem").menu()
         action = core.actionManager().action("mFile/mFileSystem/aToggleExecutable")
-        
-        FILE_PATH = self.TEST_FILES_DIR + 'file'
-        
-        document.setFilePath(FILE_PATH)
-        document.saveFile()
         
         menu.aboutToShow.emit()
         self.assertEqual(action.text(), 'Make executable')
         
-        st = os.stat(FILE_PATH)
-        os.chmod(FILE_PATH, st.st_mode | stat.S_IEXEC)
+        st = os.stat(self.EXISTING_FILE)
+        os.chmod(self.EXISTING_FILE, st.st_mode | stat.S_IEXEC)
 
         menu.aboutToShow.emit()
         self.assertEqual(action.text(), 'Make Not executable')
 
-        os.chmod(FILE_PATH, st.st_mode)
+        os.chmod(self.EXISTING_FILE, st.st_mode)
         menu.aboutToShow.emit()
         self.assertEqual(action.text(), 'Make executable')
     
     def test_modify_flags(self):
         action = core.actionManager().action("mFile/mFileSystem/aToggleExecutable")
         
-        FILE_PATH = self.TEST_FILES_DIR + 'file'
-        
-        document = core.workspace().currentDocument()
-        document.setFilePath(FILE_PATH)
-        document.saveFile()
+        document = core.workspace().openFile(self.EXISTING_FILE)
 
-        self.assertFalse(os.access(FILE_PATH, os.X_OK))
+        self.assertFalse(os.access(self.EXISTING_FILE, os.X_OK))
         action.trigger()
-        self.assertTrue(os.access(FILE_PATH, os.X_OK))
+        self.assertTrue(os.access(self.EXISTING_FILE, os.X_OK))
         action.trigger()
-        self.assertFalse(os.access(FILE_PATH, os.X_OK))
+        self.assertFalse(os.access(self.EXISTING_FILE, os.X_OK))
 
     @base.in_main_loop
     def test_os_fail(self):
@@ -190,8 +188,7 @@ class ToggleExecutable(base.TestCase):
         
         FILE_PATH = '/etc/passwd'
         
-        document = core.workspace().currentDocument()
-        document.setFilePath(FILE_PATH)
+        document = core.workspace().openFile(FILE_PATH)
 
         self.assertFalse(os.access(FILE_PATH, os.X_OK))
         

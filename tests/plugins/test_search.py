@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
 import unittest
+import os.path
+import sys
+
+sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
 import base
 
@@ -208,7 +212,7 @@ class Gui(base.TestCase):
     @base.in_main_loop
     def test_esc_on_widget_closes(self):
         QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
-        widget = self._findSearchController()._widget
+        widget = _findSearchController()._widget
         self.assertFalse(widget.isHidden())
         
         QTest.keyClick(widget, Qt.Key_Escape)

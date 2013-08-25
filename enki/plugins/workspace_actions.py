@@ -156,6 +156,9 @@ class Plugin(QObject):
         if not ok:
             return
         
+        if newPath == document.filePath():
+            return
+        
         if newPath == '/dev/null':
             try:
                 os.remove(document.filePath())

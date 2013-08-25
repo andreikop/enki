@@ -5,6 +5,10 @@ Formatting and history is tested here, functionality shall be tested by tests fo
 """
 
 import unittest
+import os.path
+import sys
+
+sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
 import base  # configures sys.path ans sip
 

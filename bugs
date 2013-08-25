@@ -1,4 +1,14 @@
 FIXME
+        QTest.mouseClick(tree, Qt.LeftButton, 0, QPoint(90, 10))
+        QTest.qWait(1000)
+        QTest.mouseClick(tree, Qt.LeftButton, 0, QPoint(10, 10))
+        QTest.qWait(1000)
+        QTest.mouseClick(tree, Qt.LeftButton, 0, QPoint(10, 10))
+        QTest.qWait(1000)
+        QTest.mouseClick(tree, Qt.LeftButton, 0, QPoint(10, 10))
+        QTest.qWait(1000)
+    
+    block remove 0, QPoint
     
 TODO
   minor improvements

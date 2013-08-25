@@ -21,6 +21,7 @@ from PyQt4.QtCore import QAbstractItemModel, \
 from PyQt4.QtGui import QAbstractItemView, QAction, QActionGroup, \
                         QIcon, \
                         QMenu, \
+                        QMessageBox, \
                         QTreeView
 
 
@@ -113,19 +114,53 @@ class _OpenedFileModel(QAbstractItemModel):
             return document.modelIcon()
         elif role == Qt.DisplayRole:
             return self._uniqueDocumentPath(document)
+        elif role == Qt.EditRole:
+            return document.filePath()
         elif role == Qt.ToolTipRole:
             return document.modelToolTip()
         else:
             return QVariant()
     
+    def setData(self, index, value, role=Qt.EditRole):
+        document = self.document(index)
+        newPath = value.toString()
+        
+        if newPath == document.filePath():
+            return False
+        
+        if newPath == '/dev/null':
+            try:
+                os.remove(document.filePath())
+            except (OSError, IOError) as ex:
+                QMessageBox.critical(core.mainWindow(), 'Not this time', 'The OS thinks it needs the file')
+                return False
+            core.workspace().closeDocument(document)
+        else:
+            try:
+                os.rename(document.filePath(), newPath)
+            except (OSError, IOError) as ex:
+                QMessageBox.critical(core.mainWindow(), 'Failed to rename file', str(ex))
+                return False
+            else:
+                document.setFilePath(newPath)
+                document.saveFile()
+                self.dataChanged.emit(index, index)
+        
+        return True
+
     def flags(self, index ):
         """See QAbstractItemModel documentation"""
-        if  index.isValid() :
+        document = self.document( index )
+        if document.filePath() is None or \
+           document.qutepart.document().isModified() or \
+           document.isExternallyModified() or \
+           document.isExternallyRemoved() or \
+           document.isNeverSaved():
             return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDragEnabled
         else:
-            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDropEnabled
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDragEnabled | Qt.ItemIsEditable
     
-    def index(self, row, column, parent ):
+    def index(self, row, column, parent=QModelIndex()):
         """See QAbstractItemModel documentation"""
         if  parent.isValid() or column > 0 or column < 0 or row < 0 or row >= len(self._workspace.sortedDocuments) :
             return QModelIndex()
@@ -330,6 +365,7 @@ class OpenedFileExplorer(DockWidget):
 
         self.tvFiles = QTreeView(self)
         self.tvFiles.setHeaderHidden(True)
+        self.tvFiles.setEditTriggers(QAbstractItemView.SelectedClicked)
         self.tvFiles.setContextMenuPolicy(Qt.CustomContextMenu)
         self.tvFiles.setDragEnabled(True)
         self.tvFiles.setDragDropMode(QAbstractItemView.InternalMove)

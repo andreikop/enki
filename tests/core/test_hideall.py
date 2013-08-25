@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
 import unittest
+import os.path
+import sys
+
+sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
 import base
 
