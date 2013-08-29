@@ -81,7 +81,9 @@ class Config():
             }
             self._data['_version'] = 5
         
-        
+        if self._data['_version'] == 5:
+            self._data['Qutepart']['WhiteSpaceVisibility'] = 'Trailing'
+            self._data['_version'] = 6
 
     def _setPlatformDefaults(self):
         """Set default values, which depend on platform

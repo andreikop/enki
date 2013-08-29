@@ -206,5 +206,39 @@ class Wrap(base.TestCase):
         self._do_test(False, False, QPlainTextEdit.NoWrap, QTextOption.WrapAnywhere, "WrapAnywhere")
 
 
+class WhiteSpaceVisibility(base.TestCase):
+    def _do_test(self, mode, trailing, indentation):
+        def continueFunc(dialog):
+            page = dialog._pageForItem["Editor/White space"]
+            
+            if mode == 'None':
+                page.rbNone.setChecked(True)
+            elif mode == 'Trailing':
+                page.rbTrailing.setChecked(True)
+            elif mode == 'AnyIndentation':
+                page.rbAnyIndentation.setChecked(True)
+            
+            QTest.keyClick(dialog, Qt.Key_Enter)
+            
+        self.openSettings(continueFunc)
+        
+        self.assertEqual(core.config()['Qutepart']['WhiteSpaceVisibility'], mode)
+        
+        self.assertEqual(core.workspace().currentDocument().qutepart.drawWhiteSpaceTrailing,
+                         trailing)
+        self.assertEqual(core.workspace().currentDocument().qutepart.drawWhiteSpaceAnyIndentation,
+                         indentation)
+
+
+    def test_1(self):
+        self._do_test('None', False, False)
+    
+    def test_2(self):
+        self._do_test('Trailing', True, False)
+    
+    def test_3(self):
+        self._do_test('AnyIndentation', True, True)
+
+
 if __name__ == '__main__':
     unittest.main()

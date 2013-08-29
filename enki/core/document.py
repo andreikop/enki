@@ -485,3 +485,8 @@ class Document(QWidget):
         if not conf['EOL']['AutoDetect']:
             self.qutepart.eol = self._EOL_CONVERTOR[conf['EOL']['Mode']]
         
+        wsVisibilityConvertor = {'None':            (False, False),
+                                 'Trailing':        (True, False),
+                                 'AnyIndentation':  (True, True)}
+        self.qutepart.drawWhiteSpaceTrailing, self.qutepart.drawWhiteSpaceAnyIndentation = \
+                wsVisibilityConvertor[conf['WhiteSpaceVisibility']]

@@ -86,6 +86,7 @@ class Plugin:
         eolWidget = _SettingsPageWidget('Eol.ui', dialog)
         edgeWidget = _SettingsPageWidget('Edge.ui', dialog)
         wrapWidget = _SettingsPageWidget('Wrap.ui', dialog)
+        whiteSpaceWidget = _SettingsPageWidget('WhiteSpace.ui', dialog)
         
         dialog.appendPage(u"Editor/Font", fontWidget)
         dialog.appendPage(u"Editor/Indentation", indentWidget)
@@ -93,6 +94,7 @@ class Plugin:
         dialog.appendPage(u"Editor/EOL", eolWidget)
         dialog.appendPage(u"Editor/Edge", edgeWidget)
         dialog.appendPage(u"Editor/Wrap", wrapWidget)
+        dialog.appendPage(u"Editor/White space", whiteSpaceWidget)
 
         cfg = core.config()
         options = \
@@ -123,6 +125,12 @@ class Plugin:
             ChoiseOption(dialog, cfg, "Qutepart/Wrap/Mode",
                          {wrapWidget.rbWrapAtWord : "WrapAtWord",
                           wrapWidget.rbWrapAnywhere: "WrapAnywhere"}),
+            
+            ChoiseOption(dialog, cfg, "Qutepart/WhiteSpaceVisibility",
+                         {whiteSpaceWidget.rbNone: "None",
+                          whiteSpaceWidget.rbTrailing: "Trailing",
+                          whiteSpaceWidget.rbAnyIndentation: "AnyIndentation",
+                          }),
         )
         
         for option in options:
@@ -179,8 +187,4 @@ class Plugin:
             ColorOption(dialog, cfg, "Editor/Caret/ForegroundColor", dialog.tbCaretForeground),
             NumericOption(dialog, cfg, "Editor/Caret/Width", dialog.sCaretWidth),
 
-            ChoiseOption(dialog, cfg, "Editor/WhitespaceVisibility",
-                         {dialog.rbWsInvisible: "Invisible",
-                          dialog.rbWsVisible: "Visible",
-                          dialog.rbWsVisibleAfterIndent: "VisibleAfterIndent"}),
 """
