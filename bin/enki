@@ -122,6 +122,23 @@ def _checkDependencies(profiler):
         _showErrorMessage(True, "Qutepart not found", html, plain)
         raise ex
 
+    if qutepart.VERSION[0] != enki.core.defines.QUTEPART_SUPPORTED_MAJOR or \
+       qutepart.VERSION[1] < enki.core.defines.QUTEPART_SUPPORTED_MINOR:
+        text = "Qutepart version not supported\n" + \
+               "This Enki version requires Qutepart {}.>={}.*\n". \
+                     format(enki.core.defines.QUTEPART_SUPPORTED_MAJOR,
+                            enki.core.defines.QUTEPART_SUPPORTED_MINOR) + \
+               "But {}.{}.{} is detected\n\n".format(*qutepart.VERSION)
+        
+        html = "<html>" + text.replace('\n', '<br/>') + \
+                    _SEE_SITE_HTML + \
+                "</html>"
+        plain = text + _SEE_SITE_PLAIN
+
+        _showErrorMessage(True, "Not supported Qutepart version", html, plain)
+        raise ImportError('Not supported Qutepart')
+
+
 
 def _parseCommandLine():
     usage = "\n" \
