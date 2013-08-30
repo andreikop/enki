@@ -1,15 +1,7 @@
 FIXME
-        QTest.mouseClick(tree, Qt.LeftButton, 0, QPoint(90, 10))
-        QTest.qWait(1000)
-        QTest.mouseClick(tree, Qt.LeftButton, 0, QPoint(10, 10))
-        QTest.qWait(1000)
-        QTest.mouseClick(tree, Qt.LeftButton, 0, QPoint(10, 10))
-        QTest.qWait(1000)
-        QTest.mouseClick(tree, Qt.LeftButton, 0, QPoint(10, 10))
-        QTest.qWait(1000)
-    
-    block remove 0, QPoint
-    
+    restore position on reload by replace in file. or replace in place
+    workspace docs are missing
+
 TODO
   minor improvements
     Zoom with Ctrl+Wheel

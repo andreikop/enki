@@ -72,10 +72,48 @@ class Plugin:
     def __init__(self):
         Plugin.instance = self
         core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
+        
+        trailingAction = core.actionManager().action('mView/aShowTrailingWhitespaces')
+        trailingAction.triggered.connect(self._onShowTrailingTriggered)
+        trailingAction.setChecked(self._confShowTrailing())
+        trailingAction.setEnabled(not self._confShowAnyIndentation())
+        
+        anyIndentAction = core.actionManager().action('mView/aShowAnyIndentWhitespaces')
+        anyIndentAction.triggered.connect(self._onShowIndentationTriggered)
+        anyIndentAction.setChecked(self._confShowAnyIndentation())
+        anyIndentAction.setEnabled(True)
+        
+        core.workspace().documentOpened.connect(self._onDocumentOpened)
     
     def del_(self):
         pass
     
+    @staticmethod
+    def _confShowTrailing():
+        return core.config()['Qutepart']['WhiteSpaceVisibility']['Trailing']
+    
+    @staticmethod
+    def _confShowAnyIndentation():
+        return core.config()['Qutepart']['WhiteSpaceVisibility']['AnyIndentation']
+    
+    def _onDocumentOpened(self, document):
+        document.qutepart.drawWhiteSpaceTrailing = self._confShowTrailing()
+        document.qutepart.drawWhiteSpaceAnyIndentation = self._confShowAnyIndentation()
+    
+    def _onShowTrailingTriggered(self, checked):
+        for document in core.workspace().documents():
+            document.qutepart.drawWhiteSpaceTrailing = checked
+        core.config()['Qutepart']['WhiteSpaceVisibility']['Trailing'] = checked
+        core.config().flush()
+        
+    def _onShowIndentationTriggered(self, checked):
+        for document in core.workspace().documents():
+            document.qutepart.drawWhiteSpaceAnyIndentation = checked
+        core.config()['Qutepart']['WhiteSpaceVisibility']['AnyIndentation'] = checked
+        core.config().flush()
+        
+        core.actionManager().action('mView/aShowTrailingWhitespaces').setEnabled(not checked)
+
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.
         Add own options
@@ -86,7 +124,6 @@ class Plugin:
         eolWidget = _SettingsPageWidget('Eol.ui', dialog)
         edgeWidget = _SettingsPageWidget('Edge.ui', dialog)
         wrapWidget = _SettingsPageWidget('Wrap.ui', dialog)
-        whiteSpaceWidget = _SettingsPageWidget('WhiteSpace.ui', dialog)
         
         dialog.appendPage(u"Editor/Font", fontWidget)
         dialog.appendPage(u"Editor/Indentation", indentWidget)
@@ -94,7 +131,6 @@ class Plugin:
         dialog.appendPage(u"Editor/EOL", eolWidget)
         dialog.appendPage(u"Editor/Edge", edgeWidget)
         dialog.appendPage(u"Editor/Wrap", wrapWidget)
-        dialog.appendPage(u"Editor/White space", whiteSpaceWidget)
 
         cfg = core.config()
         options = \
@@ -125,12 +161,6 @@ class Plugin:
             ChoiseOption(dialog, cfg, "Qutepart/Wrap/Mode",
                          {wrapWidget.rbWrapAtWord : "WrapAtWord",
                           wrapWidget.rbWrapAnywhere: "WrapAnywhere"}),
-            
-            ChoiseOption(dialog, cfg, "Qutepart/WhiteSpaceVisibility",
-                         {whiteSpaceWidget.rbNone: "None",
-                          whiteSpaceWidget.rbTrailing: "Trailing",
-                          whiteSpaceWidget.rbAnyIndentation: "AnyIndentation",
-                          }),
         )
         
         for option in options:

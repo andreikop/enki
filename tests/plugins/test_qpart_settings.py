@@ -207,37 +207,43 @@ class Wrap(base.TestCase):
 
 
 class WhiteSpaceVisibility(base.TestCase):
-    def _do_test(self, mode, trailing, indentation):
-        def continueFunc(dialog):
-            page = dialog._pageForItem["Editor/White space"]
-            
-            if mode == 'None':
-                page.rbNone.setChecked(True)
-            elif mode == 'Trailing':
-                page.rbTrailing.setChecked(True)
-            elif mode == 'AnyIndentation':
-                page.rbAnyIndentation.setChecked(True)
-            
-            QTest.keyClick(dialog, Qt.Key_Enter)
-            
-        self.openSettings(continueFunc)
+    def _do_test(self, trailing, anyIndent):
+        trailingAction = core.actionManager().action('mView/aShowTrailingWhitespaces')
+        anyIndentAction = core.actionManager().action('mView/aShowAnyIndentWhitespaces')
         
-        self.assertEqual(core.config()['Qutepart']['WhiteSpaceVisibility'], mode)
+        if anyIndentAction.isChecked() != anyIndent:
+            anyIndentAction.trigger()
         
-        self.assertEqual(core.workspace().currentDocument().qutepart.drawWhiteSpaceTrailing,
-                         trailing)
+        if not anyIndent:
+            if trailingAction.isChecked() != trailing:
+                trailingAction.trigger()
+        
+        self.assertEqual(core.config()['Qutepart']['WhiteSpaceVisibility']['AnyIndentation'], anyIndent)
         self.assertEqual(core.workspace().currentDocument().qutepart.drawWhiteSpaceAnyIndentation,
-                         indentation)
-
+                         anyIndent)
+        
+        if not anyIndent:
+            self.assertEqual(core.config()['Qutepart']['WhiteSpaceVisibility']['Trailing'], trailing)
+            self.assertEqual(core.workspace().currentDocument().qutepart.drawWhiteSpaceTrailing,
+                             trailing)
+        
+        self.assertEqual(trailingAction.isEnabled(), not anyIndent)
 
     def test_1(self):
-        self._do_test('None', False, False)
-    
-    def test_2(self):
-        self._do_test('Trailing', True, False)
-    
-    def test_3(self):
-        self._do_test('AnyIndentation', True, True)
+        combinations = []
+        for trailing in (True, False):
+            for anyIndent in (True, False):
+                combinations.append((trailing, anyIndent))
+        
+        combinationsOfCombinations = []
+        for a in combinations:
+            for b in combinations:
+                combinationsOfCombinations.append((a, b))
+        
+        # test transition from any state to any
+        for a, b in combinationsOfCombinations:
+            self._do_test(*a)
+            self._do_test(*b)
 
 
 if __name__ == '__main__':

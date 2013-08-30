@@ -202,14 +202,16 @@ class MainWindow(QMainWindow):
                 menuObject.setIcon(QIcon(':/enkiicons/' + icon))
             self._createdMenuPathes.append(path)
             
-        def action(path, name, icon, shortcut, tooltip, enabled):  # pylint: disable=R0913
+        def action(path, name, icon, shortcut, tooltip, enabled, checkable=False):  # pylint: disable=R0913
             """Subfunction for create an action in the main menu"""
             if icon:  # has icon
                 actObject = core.actionManager().addAction(path, name, QIcon(':/enkiicons/' + icon), shortcut)
             else:
                 actObject = core.actionManager().addAction(path, name, shortcut=shortcut)
-            actObject.setStatusTip(tooltip)
+            if tooltip:
+                actObject.setStatusTip(tooltip)
             actObject.setEnabled(enabled)
+            actObject.setCheckable(checkable)
             self._createdActions.append(actObject)
         
         def separator(menu):
@@ -218,7 +220,7 @@ class MainWindow(QMainWindow):
         
         # pylint: disable=C0301  
         # enable long lines for menu items
-        # Menu or action path                          Name                     Icon            Shortcut        Hint                     Action enabled
+        # Menu or action path                          Name                     Icon            Shortcut        Hint                     enabled  checkable
         tr = self.tr  # pylint: disable=C0103
         menu  ("mFile",                               "File"                  , ""            )
         menu  ("mFile/mUndoClose",                    "Undo Close"            , "recents.png" )
@@ -237,11 +239,14 @@ class MainWindow(QMainWindow):
         action("mFile/mClose/aAll",                   "Close &All"            , "closeall.png", 'Shift+Ctrl+W', "Close all files"        , False)
         menu  ("mFile/mFileSystem",                   "File System"           , "filesystem.png")
         action("mFile/mFileSystem/aRename",           "Rename"                , "edit.png",     '',             "Rename current file"    , False)
-        action("mFile/mFileSystem/aToggleExecutable", "Make executable"        , "",            '',             "Toggle executable mode", False)
+        action("mFile/mFileSystem/aToggleExecutable", "Make executable"        , "",            '',             "Toggle executable mode" , False)
         separator("mFile")
 
         menu  ("mView",                               "View"                  , ""            )
-        action("mView/aHideAll",                      "Hide all / Restore"      , "",             "Shift+Esc",    "Hide all widgets"          , True)
+        action("mView/aShowTrailingWhitespaces",      "Show trailing whitespaces", "",          "",              ""                       , False, True)
+        action("mView/aShowAnyIndentWhitespaces",     "Show indentation",      "",              "",              ""                       , False, True)
+        separator("mView")
+        action("mView/aHideAll",                      "Hide all / Restore"   , "",             "Shift+Esc",   "Hide all widgets"       , True)
 
         menu  ("mEdit",                               "Edit"                  , ""            )
         menu  ("mEdit/mCopyPasteLines",               "Copy-paste lines"      , ""            )

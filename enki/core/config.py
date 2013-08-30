@@ -81,9 +81,9 @@ class Config():
             }
             self._data['_version'] = 5
         
-        if self._data['_version'] == 5:
-            self._data['Qutepart']['WhiteSpaceVisibility'] = 'Trailing'
-            self._data['_version'] = 6
+        if self._data['_version'] in (5, 6):
+            self._data['Qutepart']['WhiteSpaceVisibility'] = {'Trailing': True, 'AnyIndentation': False}
+            self._data['_version'] = 7
 
     def _setPlatformDefaults(self):
         """Set default values, which depend on platform
