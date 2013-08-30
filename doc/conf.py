@@ -226,6 +226,8 @@ Fake PyQt4 module, for building docs on system without PyQt (rtfd.org)
 
 http://read-the-docs.readthedocs.org/en/latest/faq.html#my-project-isn-t-building-with-autodoc
 """
+extraAttributes = {'EditRole': 0}
+
 class Mock(object):
     def __init__(self, *args, **kwargs):
         pass
@@ -238,7 +240,7 @@ class Mock(object):
         if name in ('__file__', '__path__'):
             return '/dev/null'
         elif name[0] == name[0].upper():
-            mockType = type(name, (), {})
+            mockType = type(name, (), extraAttributes)
             mockType.__module__ = __name__
             return mockType
         else:
