@@ -135,7 +135,8 @@ class Plugin(QObject):
         """Handler of File->Save->All
         """
         for document in core.workspace().documents():
-            document.saveFile()
+            if document.qutepart.document().isModified():
+                document.saveFile()
     
     def _onFileSaveAsTriggered(self):
         """Handler for File->Save->Save as
