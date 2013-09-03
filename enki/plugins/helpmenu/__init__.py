@@ -14,6 +14,9 @@ from PyQt4.QtGui import QApplication, QDialog, QIcon
 from enki.core.defines import PACKAGE_NAME, PACKAGE_VERSION
 from enki.core.core import core
 
+import qutepart
+
+
 class Plugin(QObject):
     """Module implementation
     """
@@ -53,7 +56,9 @@ class UIAbout(QDialog):
         self.setWindowTitle( self.tr( "About : %s" % PACKAGE_NAME ) )
         
         self.lTitle.setText( PACKAGE_NAME )
-        self.lVersion.setText( self.tr( "Version %s" % PACKAGE_VERSION ))
+        qutepartVersion = '.'.join( [str(item) for item in qutepart.VERSION] )
+        self.lVersion.setText( self.tr( "Version %s\nUses Qutepart %s") % \
+                                        (PACKAGE_VERSION, qutepartVersion))
         
         tabs = {'about': self.wLogo,
                 'help': self.tbHelp,

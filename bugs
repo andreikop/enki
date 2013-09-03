@@ -1,7 +1,8 @@
 FIXME
     restore position on reload by replace in file. or replace in place
-    workspace docs are missing
-
+    after rebase files look like modified
+    
+>>>>>>> Show Qutepart version on about dialog
 TODO
   minor improvements
     Zoom with Ctrl+Wheel
