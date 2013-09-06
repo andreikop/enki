@@ -130,6 +130,8 @@ class PreviewDock(DockWidget):
         from PyQt4 import uic  # lazy import for better startup performance
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Preview.ui'), self._widget)
 
+        self._loadTemplates()
+
         self._widget.webView.page().mainFrame().titleChanged.connect(self._updateTitle)
         self.setWidget(self._widget)
         self.setFocusProxy(self._widget.webView )
@@ -153,6 +155,8 @@ class PreviewDock(DockWidget):
         self._typingTimer = QTimer()
         self._typingTimer.setInterval(300)
         self._typingTimer.timeout.connect(self._scheduleDocumentProcessing)
+        
+        self._widget.cbTemplate.currentIndexChanged.connect(self._onCurrentTemplateChanged)
 
         self._scheduleDocumentProcessing()
         self._applyJavaScriptEnabled(self._isJavaScriptEnabled())
@@ -216,11 +220,55 @@ class PreviewDock(DockWidget):
     def _onDocumentChanged(self, old, new):
         """Current document changed, update preview
         """
+        if new is not None:
+            if isMarkdownFile(new):
+                self._widget.cbTemplate.show()
+                self._widget.lTemplate.show()
+            else:
+                self._widget.cbTemplate.hide()
+                self._widget.lTemplate.hide()
+        
         if new is not None and self.isVisible():
             self._scheduleDocumentProcessing()
         else:
             self._clear()
+        
+    def _loadTemplates(self):
+        for path in [os.path.join(os.path.dirname(__file__), 'templates'),
+                     os.path.expanduser('~/.enki/markdown-templates')]:
+            if os.path.isdir(path):
+                for fileName in os.listdir(path):
+                    fullPath = os.path.join(path, fileName)
+                    if os.path.isfile(fullPath):
+                        self._widget.cbTemplate.addItem(fileName, fullPath)
+        
+        # restore previous template
+        index = self._widget.cbTemplate.findText(core.config()['Preview']['Template'])
+        if index != -1:
+            self._widget.cbTemplate.setCurrentIndex(index)
 
+    def _getCurrentTemplate(self):
+        index = self._widget.cbTemplate.currentIndex()
+        if index == -1:  # empty combo
+            return ''
+        
+        path = self._widget.cbTemplate.itemData(index).toString()
+        try:
+            with open(path) as file:
+                text = file.read()
+        except Exception as ex:
+            text = 'Failed to load template {}: {}'.format(path, ex)
+            core.mainWindow().statusBar().showMessage(text)
+            return ''
+        else:
+            return text
+
+    def _onCurrentTemplateChanged(self):
+        """Update text or show message to the user"""
+        core.config()['Preview']['Template'] = self._widget.cbTemplate.currentText()
+        core.config().flush()
+        self._scheduleDocumentProcessing()
+    
     def _onTextChanged(self, document):
         """Text changed, update preview
         """
@@ -242,12 +290,14 @@ class PreviewDock(DockWidget):
         document = core.workspace().currentDocument()
         if document is not None:
             language = document.qutepart.language()
+            text = document.qutepart.text
             if isMarkdownFile(document):
                 language = 'Markdown'
+                text = self._getCurrentTemplate() + text
             elif isHtmlFile(document):
                 language = 'HTML'
-            
-            self._thread.process(document.filePath(), language, document.qutepart.text)
+            # for rest language is already correct
+            self._thread.process(document.filePath(), language, text)
 
     def _setHtml(self, filePath, html):
         """Set HTML to the view and restore scroll bars position.

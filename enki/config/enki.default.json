@@ -1,5 +1,5 @@
 {
-    "_version" : 7,
+    "_version" : 8,
     "PlatformDefaultsHaveBeenSet" : false,
 
     "NegativeFileFilter": [ "*~", "*.o", "*.pyc", "*.bak" ], 
@@ -51,6 +51,7 @@
     }, 
     "Preview": {
         "Enabled": true,
-        "JavaScriptEnabled": true
+        "JavaScriptEnabled": true,
+        "Template": "Default"
     }
 }

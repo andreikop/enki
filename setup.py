@@ -109,6 +109,7 @@ for loader, name, ispkg in pkgutil.iter_modules(['enki/plugins']):
     if ispkg:
         packages.append('enki/plugins/' + name)
         package_data['enki'].append('plugins/%s/*.ui' % name)
+        package_data['enki'].append('plugins/%s/templates/*' % name)
 
 
 

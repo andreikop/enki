@@ -85,6 +85,10 @@ class Config():
             self._data['Qutepart']['WhiteSpaceVisibility'] = {'Trailing': True, 'AnyIndentation': False}
             self._data['_version'] = 7
 
+        if self._data['_version'] == 7:
+            self._data['Preview']['Template'] = 'Default'
+            self._data['_version'] = 8
+
     def _setPlatformDefaults(self):
         """Set default values, which depend on platform
         """
