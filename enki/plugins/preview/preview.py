@@ -232,7 +232,8 @@ class PreviewDock(DockWidget):
             self._scheduleDocumentProcessing()
         else:
             self._clear()
-        
+    
+    _CUSTOM_TEMPLATE_PATH = '<custom template>'
     def _loadTemplates(self):
         for path in [os.path.join(os.path.dirname(__file__), 'templates'),
                      os.path.expanduser('~/.enki/markdown-templates')]:
@@ -242,17 +243,28 @@ class PreviewDock(DockWidget):
                     if os.path.isfile(fullPath):
                         self._widget.cbTemplate.addItem(fileName, fullPath)
         
+        self._widget.cbTemplate.addItem('Custom templates...', self._CUSTOM_TEMPLATE_PATH)
+        
+        self._restorePreviousTemplate()
+    
+    def _restorePreviousTemplate(self):
         # restore previous template
         index = self._widget.cbTemplate.findText(core.config()['Preview']['Template'])
         if index != -1:
             self._widget.cbTemplate.setCurrentIndex(index)
 
-    def _getCurrentTemplate(self):
+    def _getCurrentTemplatePath(self):
         index = self._widget.cbTemplate.currentIndex()
         if index == -1:  # empty combo
             return ''
+
+        return self._widget.cbTemplate.itemData(index).toString()
+    
+    def _getCurrentTemplate(self):
+        path = self._getCurrentTemplatePath()
+        if not path:
+            return ''
         
-        path = self._widget.cbTemplate.itemData(index).toString()
         try:
             with open(path) as file:
                 text = file.read()
@@ -265,6 +277,13 @@ class PreviewDock(DockWidget):
 
     def _onCurrentTemplateChanged(self):
         """Update text or show message to the user"""
+        if self._getCurrentTemplatePath() == self._CUSTOM_TEMPLATE_PATH:
+            QMessageBox.information(core.mainWindow(),
+                                   'Custom templaes help',
+                                   '<html>See <a href="https://github.com/hlamer/enki/wiki/Markdown-preview-templates">'
+                                   'this</a> wiki page for information about custom templates')
+            self._restorePreviousTemplate()
+            
         core.config()['Preview']['Template'] = self._widget.cbTemplate.currentText()
         core.config().flush()
         self._scheduleDocumentProcessing()
