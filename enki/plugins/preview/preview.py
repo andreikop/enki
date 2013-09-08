@@ -228,7 +228,7 @@ class PreviewDock(DockWidget):
                 self._widget.cbTemplate.hide()
                 self._widget.lTemplate.hide()
         
-        if new is not None and self.isVisible():
+        if new is not None and core.config()['Preview']['Enabled']:
             self._scheduleDocumentProcessing()
         else:
             self._clear()
@@ -291,7 +291,7 @@ class PreviewDock(DockWidget):
     def _onTextChanged(self, document):
         """Text changed, update preview
         """
-        if self.isVisible():
+        if core.config()['Preview']['Enabled']:
             self._typingTimer.stop()
             self._typingTimer.start()
 

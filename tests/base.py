@@ -93,6 +93,31 @@ class TestCase(unittest.TestCase):
         core.term()
         self._cleanUpFs()
 
+    def keyClick(self, key, modifiers=Qt.NoModifier, widget=None):
+        """Alias for ``QTest.keyClick``.
+        
+        If widget is none - focused widget will be keyclicked"""
+        if widget is not None:
+            QTest.keyClick(widget, key, modifiers)
+        else:
+            QTest.keyClick(self.app.focusWidget(), key, modifiers)
+    
+    def keyClicks(self, text, modifiers=Qt.NoModifier, widget=None):
+        """Alias for ``QTest.keyClicks``.
+        
+        If widget is none - focused widget will be keyclicked"""
+        if widget is not None:
+            QTest.keyClicks(widget, text, modifiers)
+        else:
+            QTest.keyClicks(self.app.focusWidget(), text, modifiers)
+    
+    def createFile(self, name, text):
+        path = self.TEST_FILES_DIR + name
+        with open(path, 'w') as file_:
+            file_.write(text)
+        
+        return core.workspace().openFile(path)
+    
     def _findDialog(self):
         for widget in self.app.topLevelWidgets():
             if widget.isVisible() and isinstance(widget, QDialog):
@@ -114,20 +139,9 @@ class TestCase(unittest.TestCase):
         return self.openDialog(core.actionManager().action("mSettings/aSettings").trigger,
                                runInDialogFunc)
     
-    def keyClick(self, key, modifiers=Qt.NoModifier, widget=None):
-        """Alias for ``QTest.keyClick``.
-        
-        If widget is none - focused widget will be keyclicked"""
-        if widget is not None:
-            QTest.keyClick(widget, key, modifiers)
+    def findDock(self, windowTitle):
+        for dock in core.mainWindow().findChildren(DockWidget):
+            if dock.windowTitle() == windowTitle:
+                return dock
         else:
-            QTest.keyClick(self.app.focusWidget(), key, modifiers)
-    
-    def keyClicks(self, text, modifiers=Qt.NoModifier, widget=None):
-        """Alias for ``QTest.keyClicks``.
-        
-        If widget is none - focused widget will be keyclicked"""
-        if widget is not None:
-            QTest.keyClicks(widget, text, modifiers)
-        else:
-            QTest.keyClicks(self.app.focusWidget(), text, modifiers)
+            self.fail('Dock {} not found'.format(windowTitle))
