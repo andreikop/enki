@@ -151,6 +151,10 @@ class _OpenedFileModel(QAbstractItemModel):
     def flags(self, index ):
         """See QAbstractItemModel documentation"""
         document = self.document( index )
+        
+        if document is None:  # Hmm, strange
+            return Qt.ItemIsEnabled
+        
         if document.filePath() is None or \
            document.qutepart.document().isModified() or \
            document.isExternallyModified() or \
