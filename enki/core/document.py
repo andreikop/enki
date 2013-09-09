@@ -20,6 +20,7 @@ from qutepart import Qutepart
 
 from enki.core.core import core
 
+
 class _FileWatcher(QObject):
     """File watcher.
     
@@ -104,10 +105,10 @@ class _FileWatcher(QObject):
         """Check, if file has been restored
         """
         if os.path.exists(self._path):
-            self.removed.emit(False)
-            self._emitModifiedStatus()
             self.setPath(self._path)  # restart Qt file watcher after file has been restored
             self._stopTimer()
+            self.removed.emit(False)
+            self._emitModifiedStatus()
     
     def _safeRead(self, path):
         """Read file. Ignore exceptions
