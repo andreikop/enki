@@ -36,8 +36,13 @@ class _FileWatcher(QObject):
         self._watcher = QFileSystemWatcher()
         self._timer = None
         self._path = path
+        
+        self._lastEmittedModifiedStatus = None
+        self._lastEmittedRemovedStatus = None
+        
         self.setPath(path)
         self.enable()
+        
     
     def __del__(self):
         self._stopTimer()
@@ -73,16 +78,27 @@ class _FileWatcher(QObject):
         """Emit self.modified signal with right status
         """
         isModified = self._contents != self._safeRead(self._path)
-        self.modified.emit(isModified)
-        
+        if isModified != self._lastEmittedModifiedStatus:
+            self.modified.emit(isModified)
+            self._lastEmittedModifiedStatus = isModified
+    
+    def _emitRemovedStatus(self, isRemoved):
+        """Emit 'removed', if status changed"""
+        if isRemoved != self._lastEmittedRemovedStatus:
+            self._lastEmittedRemovedStatus = isRemoved
+            self.removed.emit(isRemoved)
+    
     def _onFileChanged(self):
         """File changed. Emit own signal, if contents changed
         """
         if os.path.exists(self._path):
             self._emitModifiedStatus()
         else:
-            self.removed.emit(True)
-            self._startTimer()
+            self._emitRemovedStatus(True)
+        
+        """When git does many changes on file with minimal delays, sometimes modification
+        is missing by QFileSystemWatcher. Check the file .5 sec later"""
+        self._startTimer()
     
     def _startTimer(self):
         """Init a timer.
@@ -107,7 +123,7 @@ class _FileWatcher(QObject):
         if os.path.exists(self._path):
             self.setPath(self._path)  # restart Qt file watcher after file has been restored
             self._stopTimer()
-            self.removed.emit(False)
+            self._emitRemovedStatus(False)
             self._emitModifiedStatus()
     
     def _safeRead(self, path):
