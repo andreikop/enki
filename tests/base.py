@@ -112,6 +112,10 @@ class TestCase(unittest.TestCase):
             QTest.keyClicks(self.app.focusWidget(), text, modifiers)
     
     def createFile(self, name, text):
+        """Create file in TEST_FILES_DIR.
+        
+        File is opened
+        """
         path = self.TEST_FILES_DIR + name
         with open(path, 'w') as file_:
             file_.write(text)

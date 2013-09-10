@@ -208,6 +208,32 @@ class InFile(base.TestCase):
         self.assertEqual(highlightedWordsCount(), 0)
 
 
+class ReplaceInDirectory(base.TestCase):
+    @base.in_main_loop
+    def test_1(self):
+        # replace 'foo' with 'UUH' in opened and not opened file
+        opened_file = self.createFile('opened_file.txt', 'the text contains foo bar\nand\nfew\nmore lines')
+        opened_file.qutepart.cursorPosition = (3, 2)
+        
+        not_opened_file_path = self.TEST_FILES_DIR + 'not_opened_file.txt'
+        with open(not_opened_file_path, 'w') as file_:
+            file_.write('this file also contains foo bar')
+            
+        self.keyClick(Qt.Key_R, Qt.ShiftModifier | Qt.ControlModifier)
+        self.keyClicks('foo')
+        self.keyClick(Qt.Key_Tab)
+        self.keyClicks('UUHHH')
+        self.keyClick(Qt.Key_Enter)
+        QTest.qWait(200)  # searching
+        self.keyClick(Qt.Key_A, Qt.AltModifier)
+        QTest.qWait(200)  # replacing
+        
+        self.assertEqual(opened_file.qutepart.text, 'the text contains UUHHH bar\nand\nfew\nmore lines')
+        self.assertEqual(opened_file.qutepart.cursorPosition, (3, 2))
+        with open(not_opened_file_path) as file_:
+            self.assertEqual(file_.read(), 'this file also contains UUHHH bar')
+
+
 class Gui(base.TestCase):
     @base.in_main_loop
     def test_esc_on_widget_closes(self):
