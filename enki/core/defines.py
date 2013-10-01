@@ -6,7 +6,7 @@ import os.path
 PACKAGE_NAME = "Enki"
 PACKAGE_ORGANISATION = "Andrei Kopats"
 PACKAGE_URL = "https://enki-editor.org"
-PACKAGE_VERSION = "git"
+PACKAGE_VERSION = "13.09.1"
 PACKAGE_COPYRIGHTS = "(C) 2013 Andrei KOPATS"
 
 CONFIG_DIR = os.path.expanduser('~/.enki/')
