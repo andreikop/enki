@@ -1,3 +1,18 @@
+enki (13.09.1-1~ubuntuseries1) ubuntuseries; urgency=low
+
+  * Search supports 'Whole word' flag
+  * Restore main window state on Shift+Esc
+  * Highlight word under cursor search results with yellow
+  * Open terminal action
+  * Rename files from Enki, make scripts executable
+  * White space visibility settings
+  * Add and remove bookmarks with mouse
+  * Rectangular selection with mouse
+  * Templates for Markdown preview
+  * Restore position after replace in file
+
+ -- Andrei Kopats <hlamer@tut.by>  Tue, 01 Oct 2013 08:21:59 +0300
+
 enki (13.08.1-1~ppa1) ubuntuseries; urgency=low
 
   * Do not check dependencies during build
