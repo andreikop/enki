@@ -6,7 +6,7 @@ baseurl: .
 
 
 ## Features
- * Syntax highlighting for more than 30 languages
+ * Syntax highlighting for more than 200 languages
  * Bookmarks
  * Powerful search and replace functionality for files and directories.
  * File browser (File system tree)
