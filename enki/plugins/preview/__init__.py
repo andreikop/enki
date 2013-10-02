@@ -31,10 +31,6 @@ class Plugin(QObject):
         """
         QObject.__init__(self)
         
-        if not 'Preview' in core.config():  # migration from old configs versions
-            core.config()['Preview'] = {'Enabled': True,
-                                        'JavaScriptEnabled' : True}
-
         self._dock = None
         self._saveAction = None
         self._dockInstalled = False
