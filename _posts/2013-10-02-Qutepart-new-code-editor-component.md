@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Qutepart - new code editor component for Enki
+title: Qutepart - new code editor component
 baseurl: ../../../
 ---
 
