@@ -1,6 +1,6 @@
 ---
 layout: post
-title: New code editor component release
+title: Qutepart - new code editor component for Enki
 baseurl: ../../../
 ---
 
@@ -28,4 +28,5 @@ QScintilla allows to configure colors for parsers. But, there are no common sett
 But Qutepart (Kate Syntax Definition Files) allows to configure classes of code. I.e. all strings, or all keywords. So, it is **much easier to create a color theme** now.
 
 I released first version of Enki, based on Qutepart, more than month ago. After this few bugs have been found and fixed, many improvements have been done. Except this, I finally got time to make quick but useful improvements, not related to code editor component.
+
 I hope you will enjoy Qutepart and new Enki!
