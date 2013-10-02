@@ -57,6 +57,9 @@ class Config():
         
         if self._data['_version'] == 3:
             self._data['PlatformDefaultsHaveBeenSet'] = False
+            self._data["Preview"] = {"Enabled": True,
+                                     "JavaScriptEnabled": True}
+
             self._data['_version'] = 4
         
         if self._data['_version'] == 4:
@@ -86,6 +89,9 @@ class Config():
             self._data['_version'] = 7
 
         if self._data['_version'] == 7:
+            if not 'Preview' in self._data:  # should appear in version 4, but migration was broken in some versions
+                self._data["Preview"] = {"Enabled": True,
+                                         "JavaScriptEnabled": True}
             self._data['Preview']['Template'] = 'Default'
             self._data['_version'] = 8
 
