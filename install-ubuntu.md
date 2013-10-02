@@ -7,7 +7,7 @@ baseurl: .
 
 # Install on Ubuntu
 
-Supported versions are Lucid, Natty, Oneiric, Precise, Quantal. For other, see [Debian instructions](install-debian.html)
+Supported versions are Precise, Quantal, Raring. For other, see [Debian instructions](install-debian.html)
 
     sudo add-apt-repository ppa:hlamer/enki
     sudo apt-get update
