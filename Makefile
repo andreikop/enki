@@ -36,7 +36,7 @@ dsc-%: dist/${ARCHIVE}
 	cd build-$*/${PACKAGE_NAME}-${VERSION} && $(ENV) debsign ../*.changes
 
 dput-%: dsc-%
-	cd build-$* && dput enki *.changes
+	cd build-$* && dput enki-testing *.changes
 
 dput-all: $(foreach series, $(ALL_SERIES), dput-$(series))
 	echo
