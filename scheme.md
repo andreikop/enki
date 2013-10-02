@@ -11,7 +11,6 @@ baseurl: .
 Enki supports MIT Scheme interpreter integration. It allows you to quickly execute code, which is contained in your current opened file, and to evaluate expressions interactively with REPL.
 
 ### Activating scheme mode
-* Make sure **pygments** (*python-pygments*) python package is installed
 * Make sure **MIT Scheme** (*mit-scheme*) package is installed
 * Open any Scheme file (*.scm, *.ss). Scheme mode will be loaded. You will have *MIT Scheme* item in your main menu.
 Alternatively you can go to *Settings -> Settings -> Modes -> Scheme* and choose option *Enable MIT Scheme always*
