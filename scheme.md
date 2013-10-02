@@ -6,6 +6,8 @@ baseurl: .
 
 ## Scheme REPL integration
 
+*Update: Standard ML (SML) REPL also is supported!*
+
 Enki supports MIT Scheme interpreter integration. It allows you to quickly execute code, which is contained in your current opened file, and to evaluate expressions interactively with REPL.
 
 ### Activating scheme mode
