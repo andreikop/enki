@@ -611,7 +611,7 @@ class DockFileBrowser(DockWidget):
         
         # vertical layout
         vertLayout = QVBoxLayout( wdg )
-        vertLayout.setMargin( 5 )
+        vertLayout.setMargin( 0 )
         vertLayout.setSpacing( 3 )
         
         # combo
