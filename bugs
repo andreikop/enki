@@ -1,4 +1,5 @@
 FIXME
+  ~/tmp/tags - filewatcher doesn't work
 
 TODO
   minor improvements
@@ -37,4 +38,3 @@ ON new editor
     Select 2 peaces of text and swap
     Can't highlight more than 1000 search results
     color schemes
-    add here: http://en.wikibooks.org/wiki/Ruby_Programming/Ruby_editors
