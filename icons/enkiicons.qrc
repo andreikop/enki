@@ -19,7 +19,6 @@
 		<file>builder.png</file>
 		<file>build.png</file>
 		<file>button-ok.png</file>
-		<file>class.png</file>
 		<file>clean.png</file>
 		<file>clear-list.png</file>
 		<file>clear.png</file>
@@ -44,7 +43,6 @@
 		<file>editsettings.png</file>
 		<file>emptyline.png</file>
 		<file>empty.png</file>
-		<file>enum.png</file>
 		<file>execute.png</file>
 		<file>file.png</file>
 		<file>files.png</file>
@@ -52,7 +50,6 @@
 		<file>filtered.png</file>
 		<file>folder.png</file>
 		<file>function-green.png</file>
-		<file>function.png</file>
 		<file>goto.png</file>
 		<file>go-up.png</file>
 		<file>greenfolder.png</file>
@@ -84,14 +81,12 @@
 		<file>logo/enki.svg</file>
 		<file>logo/splashscreen.png</file>
 		<file>macEol.png</file>
-		<file>member.png</file>
 		<file>misc-blue.png</file>
 		<file>misc.png</file>
 		<file>modified-externally-deleted.png</file>
 		<file>modified-externally-modified.png</file>
 		<file>modified-externally.png</file>
 		<file>modules.png</file>
-		<file>namespace.png</file>
 		<file>new.png</file>
 		<file>next.png</file>
 		<file>open.png</file>
@@ -135,13 +130,11 @@
 		<file>shortcuts.png</file>
 		<file>sort.png</file>
 		<file>stop.png</file>
-		<file>struct.png</file>
 		<file>style.png</file>
 		<file>text.png</file>
 		<file>translation.png</file>
 		<file>translations.png</file>
 		<file>transparent.png</file>
-		<file>typedef.png</file>
 		<file>undo.png</file>
 		<file>unixEol.png</file>
 		<file>up_arrow.png</file>
