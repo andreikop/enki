@@ -1,7 +1,13 @@
 """Navigator dock widget and functionality
 """
 
-from PyQt4.QtCore import QObject, Qt, QVariant, QAbstractItemModel, QModelIndex
+import tempfile
+import subprocess
+import shutil
+import os.path
+import threading
+
+from PyQt4.QtCore import pyqtSignal, QObject, Qt, QThread, QTimer, QVariant, QAbstractItemModel, QModelIndex
 from PyQt4.QtGui import QIcon, QTreeView
 
 from enki.widgets.dockwidget import DockWidget
@@ -31,7 +37,6 @@ class Tag:
 def parseTags(text):
     def parseTag(line):
         items = line.split('\t')
-        print items
         name = items[0]
         if len(items) == 5:
             type_ = items[-2]
@@ -53,7 +58,6 @@ def parseTags(text):
         """
         if tag is None:
             return None
-        print tag.name, scopeName
         if tag.name == scopeName:
             return tag
         elif tag.parent is not None:
@@ -77,6 +81,20 @@ def parseTags(text):
             lastTag = tag
     
     return tags
+
+
+def processText(fileName, text):
+    tmpDir = tempfile.mkdtemp()
+    try:
+        path = os.path.join(tmpDir, fileName)
+        with open(path, 'w') as file_:
+            file_.write(text)
+        popen = subprocess.Popen(['ctags', '-f', '-', '-u', '--fields=nKs', path], stdout=subprocess.PIPE)
+        stdout, stderr = popen.communicate()
+    finally:
+        shutil.rmtree(tmpDir)
+    
+    return parseTags(stdout)
 
 
 class TagModel(QAbstractItemModel):
@@ -132,6 +150,46 @@ class TagModel(QAbstractItemModel):
             return QVariant()
 
 
+class ProcessorThread(QThread):
+    """Thread processes text with ctags and returns tags
+    """
+    tagsReady = pyqtSignal(list)
+
+    def __init__(self):
+        QThread.__init__(self)
+        self._fileName = None
+        self._text = None
+        self._haveData = False
+        self._lock = threading.Lock()
+
+    def process(self, fileName, text):
+        """Parse text and emit tags
+        """
+        with self._lock:
+            self._fileName = fileName
+            self._haveData = True
+            self._text = text
+            if not self.isRunning():
+                self.start(QThread.LowPriority)
+
+    def run(self):
+        """Thread function
+        """
+        while True:  # exits with break
+            with self._lock:
+                fileName = self._fileName
+                text = self._text
+                self._haveData = False
+            
+            tags = processText(fileName, text)
+            
+            with self._lock:
+                if not self._haveData:
+                    self.tagsReady.emit(tags)
+                    break
+                # else - next iteration
+
+
 class Plugin(QObject):
     """Main class. Interface for the core.
     """
@@ -146,11 +204,56 @@ class Plugin(QObject):
         
         self._model = TagModel(self._tree)
         self._tree.setModel(self._model)
+        self._model.layoutChanged.connect(self._tree.expandAll)
 
         core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
         core.actionManager().addAction("mView/aNavigator", self._dock.showAction())
+        
+        core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
+        core.workspace().textChanged.connect(self._onTextChanged)
+        
+        # If we update Tree on every key pressing, freezes are sensible (GUI thread draws tree too slowly
+        # This timer is used for drawing Preview 1000 ms After user has stopped typing text
+        self._typingTimer = QTimer()
+        self._typingTimer.setInterval(1000)
+        self._typingTimer.timeout.connect(self._scheduleDocumentProcessing)
+
+        self._thread = ProcessorThread()
+        self._thread.tagsReady.connect(self._model.setTags)
 
     def del_(self):
         """Uninstall the plugin
         """
         core.actionManager().removeAction("mView/aNavigator")
+        self._typingTimer.stop()
+        self._thread.wait()
+    
+    def _isEnabled(self):
+        return True
+    
+    def _isSupported(self, document):
+        return True
+    
+    def _onDocumentChanged(self, old, new):
+        if self._isEnabled() and self._isSupported(new):
+            self._scheduleDocumentProcessing()
+        else:
+            self._clear()
+
+    def _onTextChanged(self):
+        if self._isEnabled():
+            self._typingTimer.stop()
+            self._typingTimer.start()
+    
+    def _clear(self):
+        self._model.setTags([])
+    
+    def _scheduleDocumentProcessing(self):
+        """Start document processing with the thread.
+        """
+        self._typingTimer.stop()
+        
+        document = core.workspace().currentDocument()
+        if document is not None and \
+           document.fileName() is not None:
+            self._thread.process(document.fileName(), document.qutepart.text)
