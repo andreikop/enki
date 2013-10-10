@@ -6,7 +6,7 @@ config --- Load and save settings
 from enki.core.core import core
 import enki.core.json_wrapper
 
-from PyQt4.QtGui import QFont, QFontDatabase
+from PyQt4.QtGui import QApplication, QFont, QFontDatabase
 
 class Config():
     """Settings storage.
@@ -112,6 +112,7 @@ class Config():
         else:
             self._data['Qutepart']['Font']['Family'] = 'Monospace'
         
+        self._data['Qutepart']['Font']['Size'] = QApplication.instance().font().pointSize()
         self._data['PlatformDefaultsHaveBeenSet'] = True
     
     def reload(self):
