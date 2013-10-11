@@ -95,6 +95,11 @@ class Config():
                                          "JavaScriptEnabled": True}
             self._data['Preview']['Template'] = 'Default'
             self._data['_version'] = 8
+        
+        if self._data['_version'] == 8:
+            self._data['Ctags'] = {'Enabled': True}
+            self._data['_version'] = 9
+            
 
     def _setPlatformDefaults(self):
         """Set default values, which depend on platform

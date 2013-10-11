@@ -1,5 +1,5 @@
 {
-    "_version" : 8,
+    "_version" : 9,
     "PlatformDefaultsHaveBeenSet" : false,
 
     "NegativeFileFilter": [ "*~", "*.o", "*.pyc", "*.bak" ], 
@@ -53,5 +53,8 @@
         "Enabled": true,
         "JavaScriptEnabled": true,
         "Template": "Default"
+    },
+    "Ctags": {
+        "Enabled": true
     }
 }

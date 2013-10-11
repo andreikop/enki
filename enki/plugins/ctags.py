@@ -100,7 +100,9 @@ def processText(fileName, text):
 class TagModel(QAbstractItemModel):
     def __init__(self, *args):
         QAbstractItemModel.__init__(self, *args)
+        self.beginResetModel()
         self._tags = []
+        self.endResetModel()
     
     def setTags(self, tags):
         self._tags = tags
@@ -190,21 +192,42 @@ class ProcessorThread(QThread):
                 # else - next iteration
 
 
+class NavigatorDock(DockWidget):
+    
+    closed = pyqtSignal()
+    
+    def __init__(self):
+        DockWidget.__init__(self, core.mainWindow(), '&Navigator', QIcon(':/enkiicons/goto.png'), "Alt+N")
+        
+        self._tree = QTreeView(self)
+        self._tree.setHeaderHidden(True)
+        self.setWidget(self._tree)
+        self.setFocusProxy(self._tree)
+
+        self._model = TagModel(self._tree)
+        self._tree.setModel(self._model)
+        self._model.layoutChanged.connect(self._tree.expandAll)
+    
+    def setTags(self, tags):
+        self._model.setTags(tags)
+
+    def closeEvent(self, event):
+        """Widget is closed.
+        Probably should update enabled state
+        """
+        self.closed.emit()
+        self.setTags([])
+
+
 class Plugin(QObject):
     """Main class. Interface for the core.
     """
     def __init__(self):
         QObject.__init__(self)
-        self._dock = DockWidget(core.mainWindow(), '&Navigator', QIcon(':/enkiicons/goto.png'), "Alt+N")
-        
-        self._tree = QTreeView(self._dock)
-        self._tree.setHeaderHidden(True)
-        self._dock.setWidget(self._tree)
-        self._dock.setFocusProxy(self._tree)
-        
-        self._model = TagModel(self._tree)
-        self._tree.setModel(self._model)
-        self._model.layoutChanged.connect(self._tree.expandAll)
+        self._dock = NavigatorDock()
+        self._dock.closed.connect(self._onDockClosed)
+        self._dock.showAction().triggered.connect(self._onDockShown)
+        core.mainWindow().stateRestored.connect(self._onMainWindowStateRestored)
 
         core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
         core.actionManager().addAction("mView/aNavigator", self._dock.showAction())
@@ -219,7 +242,7 @@ class Plugin(QObject):
         self._typingTimer.timeout.connect(self._scheduleDocumentProcessing)
 
         self._thread = ProcessorThread()
-        self._thread.tagsReady.connect(self._model.setTags)
+        self._thread.tagsReady.connect(self._dock.setTags)
 
     def del_(self):
         """Uninstall the plugin
@@ -229,16 +252,37 @@ class Plugin(QObject):
         self._thread.wait()
     
     def _isEnabled(self):
-        return True
+        return core.config()['Ctags']['Enabled']
     
     def _isSupported(self, document):
         return True
+    
+    def _onDockClosed(self):
+        """Dock has been closed by a user. Change Enabled option
+        """
+        core.config()['Ctags']['Enabled'] = False
+        core.config().flush()
+    
+    def _onDockShown(self):
+        """Dock has been shown by a user. Change Enabled option
+        """
+        core.config()['Ctags']['Enabled'] = True
+        core.config().flush()
+    
+    def _onMainWindowStateRestored(self):
+        """When main window state is restored - dock is made visible, even if should not. Qt bug?
+        Hide dock, if can't view current document
+        """
+        if not (self._isEnabled() and \
+                self._isSupported(core.workspace().currentDocument())):
+            self._dock.hide()
     
     def _onDocumentChanged(self, old, new):
         if self._isEnabled() and self._isSupported(new):
             self._scheduleDocumentProcessing()
         else:
             self._clear()
+            self._dock.hide()
 
     def _onTextChanged(self):
         if self._isEnabled():
@@ -246,7 +290,7 @@ class Plugin(QObject):
             self._typingTimer.start()
     
     def _clear(self):
-        self._model.setTags([])
+        self._dock.setTags([])
     
     def _scheduleDocumentProcessing(self):
         """Start document processing with the thread.
