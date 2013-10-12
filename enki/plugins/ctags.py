@@ -259,6 +259,21 @@ class NavigatorDock(DockWidget):
         self._model = TagModel(self._tree)
         self._tree.setModel(self._model)
         self._model.layoutChanged.connect(self._tree.expandAll)
+        
+        self._installed = False
+    
+    def install(self):
+        if not self._installed:
+            core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self)
+            core.actionManager().addAction("mView/aNavigator", self.showAction())
+            self._installed = True
+
+    def remove(self):
+        if self._installed:
+            core.mainWindow().removeDockWidget(self)
+            core.actionManager().removeAction("mView/aNavigator")
+            self.hide()
+            self._installed = False
     
     def setTags(self, tags):
         self._model.setTags(tags)
@@ -282,9 +297,6 @@ class Plugin(QObject):
         self._dock.showAction().triggered.connect(self._onDockShown)
         core.mainWindow().stateRestored.connect(self._onMainWindowStateRestored)
 
-        core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
-        core.actionManager().addAction("mView/aNavigator", self._dock.showAction())
-        
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         core.workspace().textChanged.connect(self._onTextChanged)
         
@@ -300,7 +312,7 @@ class Plugin(QObject):
     def del_(self):
         """Uninstall the plugin
         """
-        core.actionManager().removeAction("mView/aNavigator")
+        self._dock.remove()
         self._typingTimer.stop()
         self._thread.wait()
     
@@ -333,12 +345,14 @@ class Plugin(QObject):
             self._dock.hide()
     
     def _onDocumentChanged(self, old, new):
-        if self._isEnabled() and self._isSupported(new):
-            self._scheduleDocumentProcessing()
-            self._dock.show()
+        if self._isSupported(new):
+            self._dock.install()
+            if self._isEnabled():
+                self._dock.show()
+                self._scheduleDocumentProcessing()
         else:
             self._clear()
-            self._dock.hide()
+            self._dock.remove()
 
     def _onTextChanged(self):
         if self._isEnabled():
