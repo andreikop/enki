@@ -15,6 +15,58 @@ from enki.widgets.dockwidget import DockWidget
 from enki.core.core import core
 
 
+# source map. 1 ctags language is mapped to multiply Qutepart languages
+# NOTE this map must be updated after new languages has been added to ctags or Qutepart
+#  Initially filled on Qutepart 1.1.0 and Ctags 5.9~svn20110310
+_CTAGS_TO_QUTEPART_LANG_MAP = {
+    "Asm": ("AVR Assembler", "GNU Assembler", "MIPS Assembler",
+            "Asm6502", "Intel x86 (NASM)", "Motorola 68k (VASM/Devpac)", "PicAsm"),
+    "Asp": ("ASP",),
+    "Awk": ("AWK",),
+    "Basic": ("FreeBASIC", "KBasic", "MonoBasic", "PureBasic", "TI Basic"),
+    "C": ("C",),
+    "C#": ("C#",),
+    "C++": ("C++",),
+    "DosBatch": ("MS-DOS Batch",),
+    "Eiffel": ("Eiffel",),
+    "Erlang": ("Erlang",),
+    "Flex": "Lex/Flex",
+    "Fortran": ("Fortran",),
+    "Go": ("Go",),
+    "HTML": ("Django HTML Template", "HTML", "Ruby/Rails/RHTML"),
+    "Java": ("Java",),
+    "JavaScript": ("JavaScript",),
+    "Lisp": ("Common Lisp",),
+    "Lua": ("Lua",),
+    "Make": ("Makefile",),
+    "Matlab": ("Matlab",),
+    "ObjectiveC": ("Objective-C", "Objective-C++"),
+    "OCaml": "Objective Caml",
+    "Pascal": ("Pascal",),
+    "Perl": ("Perl",),
+    "PHP": "PHP/PHP",
+    "Python": ("Python",),
+    "REXX": ("REXX",),
+    "Ruby": ("Ruby",),
+    "Scheme": ("Scheme",),
+    "Sh": ("Zsh", "Bash"),
+    "SML": ("SML",),
+    "SQL": ("SQL", "SQL (MySQL)", "SQL (PostgreSQL)"),
+    "Tcl": "Tcl/Tk",
+    "Tex": ("LaTeX", "Texinfo"),
+    "Vera": ("Vera",),
+    "Verilog": ("Verilog",),
+    "VHDL": ("VHDL",),
+    "YACC": ("Yacc/Bison",)
+}
+
+# build reverse map
+_QUTEPART_TO_CTAGS_LANG_MAP = {}
+for ctagsLang, qutepartLangs in _CTAGS_TO_QUTEPART_LANG_MAP.iteritems():
+        for qutepartLang in qutepartLangs:
+            _QUTEPART_TO_CTAGS_LANG_MAP[qutepartLang] = ctagsLang
+
+
 class Tag:
     def __init__(self, name, lineNumber, parent):
         self.name = name
@@ -226,6 +278,7 @@ class Plugin(QObject):
         QObject.__init__(self)
         self._dock = NavigatorDock()
         self._dock.closed.connect(self._onDockClosed)
+        
         self._dock.showAction().triggered.connect(self._onDockShown)
         core.mainWindow().stateRestored.connect(self._onMainWindowStateRestored)
 
@@ -255,7 +308,8 @@ class Plugin(QObject):
         return core.config()['Ctags']['Enabled']
     
     def _isSupported(self, document):
-        return True
+        return document is not None and \
+               document.qutepart.language() in _QUTEPART_TO_CTAGS_LANG_MAP
     
     def _onDockClosed(self):
         """Dock has been closed by a user. Change Enabled option
@@ -268,6 +322,7 @@ class Plugin(QObject):
         """
         core.config()['Ctags']['Enabled'] = True
         core.config().flush()
+        self._scheduleDocumentProcessing()
     
     def _onMainWindowStateRestored(self):
         """When main window state is restored - dock is made visible, even if should not. Qt bug?
@@ -280,6 +335,7 @@ class Plugin(QObject):
     def _onDocumentChanged(self, old, new):
         if self._isEnabled() and self._isSupported(new):
             self._scheduleDocumentProcessing()
+            self._dock.show()
         else:
             self._clear()
             self._dock.hide()
