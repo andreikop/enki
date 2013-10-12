@@ -135,16 +135,14 @@ def parseTags(text):
     return tags
 
 
-def processText(fileName, text):
-    tmpDir = tempfile.mkdtemp()
-    try:
-        path = os.path.join(tmpDir, fileName)
-        with open(path, 'w') as file_:
-            file_.write(text)
-        popen = subprocess.Popen(['ctags', '-f', '-', '-u', '--fields=nKs', path], stdout=subprocess.PIPE)
-        stdout, stderr = popen.communicate()
-    finally:
-        shutil.rmtree(tmpDir)
+def processText(ctagsLang, text):
+    tempFile = tempfile.NamedTemporaryFile()
+    tempFile.file.write(text)
+    langArg = '--language-force={}'.format(ctagsLang)
+    popen = subprocess.Popen(
+            ['ctags', '-f', '-', '-u', '--fields=nKs', langArg, tempFile.name],
+            stdout=subprocess.PIPE)
+    stdout, stderr = popen.communicate()
     
     return parseTags(stdout)
 
@@ -211,16 +209,16 @@ class ProcessorThread(QThread):
 
     def __init__(self):
         QThread.__init__(self)
-        self._fileName = None
+        self._ctagsLang = None
         self._text = None
         self._haveData = False
         self._lock = threading.Lock()
 
-    def process(self, fileName, text):
+    def process(self, ctagsLang, text):
         """Parse text and emit tags
         """
         with self._lock:
-            self._fileName = fileName
+            self._ctagsLang = ctagsLang
             self._haveData = True
             self._text = text
             if not self.isRunning():
@@ -231,11 +229,11 @@ class ProcessorThread(QThread):
         """
         while True:  # exits with break
             with self._lock:
-                fileName = self._fileName
+                ctagsLang = self._ctagsLang
                 text = self._text
                 self._haveData = False
             
-            tags = processText(fileName, text)
+            tags = processText(ctagsLang, text)
             
             with self._lock:
                 if not self._haveData:
@@ -369,5 +367,6 @@ class Plugin(QObject):
         
         document = core.workspace().currentDocument()
         if document is not None and \
-           document.fileName() is not None:
-            self._thread.process(document.fileName(), document.qutepart.text)
+           document.qutepart.language() in _QUTEPART_TO_CTAGS_LANG_MAP:
+            ctagsLang = _QUTEPART_TO_CTAGS_LANG_MAP[document.qutepart.language()]
+            self._thread.process(ctagsLang, document.qutepart.text)
