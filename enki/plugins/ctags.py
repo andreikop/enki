@@ -162,10 +162,16 @@ class TagModel(QAbstractItemModel):
     
     def index(self, row, column, parent):
         if not parent.isValid():  # top level
-            return self.createIndex(row, column, self._tags[row])
+            if row < len(self._tags):
+                return self.createIndex(row, column, self._tags[row])
+            else:
+                return QModelIndex()
         else:  # nested
             parentTag = parent.internalPointer()
-            return self.createIndex(row, column, parentTag.children[row])
+            if row < len(parentTag.children):
+                return self.createIndex(row, column, parentTag.children[row])
+            else:
+                return QModelIndex()
     
     def parent(self, index):
         if not index.isValid():
@@ -175,9 +181,15 @@ class TagModel(QAbstractItemModel):
         if tag.parent is not None:
             parent = tag.parent
             if parent.parent:
-                row = parent.parent.children.index(parent)
+                try:
+                    row = parent.parent.children.index(parent)
+                except ValueError:
+                    return QModelIndex()
             else:
-                row = self._tags.index(parent)
+                try:
+                    row = self._tags.index(parent)
+                except ValueError:
+                    return QModelIndex()
             
             return self.createIndex(row, 0, parent)
         else:
