@@ -211,9 +211,18 @@ class TagModel(QAbstractItemModel):
         
         tag = index.internalPointer()
         if role == Qt.DisplayRole:
-            return '{} {}'.format(tag.name, tag.lineNumber)
+            return tag.name
         else:
             return QVariant()
+    
+    def onActivated(self, index):
+        tag = index.internalPointer()
+        
+        document = core.workspace().currentDocument()
+        if document is not None:
+            document.qutepart.cursorPosition = (tag.lineNumber - 1, 0)
+            document.qutepart.centerCursor()
+            document.qutepart.setFocus()
 
 
 class ProcessorThread(QThread):
@@ -270,6 +279,8 @@ class NavigatorDock(DockWidget):
 
         self._model = TagModel(self._tree)
         self._tree.setModel(self._model)
+        self._tree.activated.connect(self._model.onActivated)
+        self._tree.clicked.connect(self._model.onActivated)
         self._model.layoutChanged.connect(self._tree.expandAll)
         
         self._installed = False
