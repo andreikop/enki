@@ -138,7 +138,9 @@ def parseTags(text):
 def processText(ctagsLang, text):
     tempFile = tempfile.NamedTemporaryFile()
     tempFile.file.write(text)
+    tempFile.flush()
     langArg = '--language-force={}'.format(ctagsLang)
+    
     popen = subprocess.Popen(
             ['ctags', '-f', '-', '-u', '--fields=nKs', langArg, tempFile.name],
             stdout=subprocess.PIPE)
