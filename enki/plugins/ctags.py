@@ -30,7 +30,7 @@ _CTAGS_TO_QUTEPART_LANG_MAP = {
     "DosBatch": ("MS-DOS Batch",),
     "Eiffel": ("Eiffel",),
     "Erlang": ("Erlang",),
-    "Flex": "Lex/Flex",
+    "Flex": ("Lex/Flex",),
     "Fortran": ("Fortran",),
     "Go": ("Go",),
     "HTML": ("Django HTML Template", "HTML", "Ruby/Rails/RHTML"),
@@ -41,7 +41,7 @@ _CTAGS_TO_QUTEPART_LANG_MAP = {
     "Make": ("Makefile",),
     "Matlab": ("Matlab",),
     "ObjectiveC": ("Objective-C", "Objective-C++"),
-    "OCaml": "Objective Caml",
+    "OCaml": ("Objective Caml",),
     "Pascal": ("Pascal",),
     "Perl": ("Perl",),
     "PHP": "PHP/PHP",
@@ -52,7 +52,7 @@ _CTAGS_TO_QUTEPART_LANG_MAP = {
     "Sh": ("Zsh", "Bash"),
     "SML": ("SML",),
     "SQL": ("SQL", "SQL (MySQL)", "SQL (PostgreSQL)"),
-    "Tcl": "Tcl/Tk",
+    "Tcl": ("Tcl/Tk",),
     "Tex": ("LaTeX", "Texinfo"),
     "Vera": ("Vera",),
     "Verilog": ("Verilog",),
@@ -63,8 +63,8 @@ _CTAGS_TO_QUTEPART_LANG_MAP = {
 # build reverse map
 _QUTEPART_TO_CTAGS_LANG_MAP = {}
 for ctagsLang, qutepartLangs in _CTAGS_TO_QUTEPART_LANG_MAP.iteritems():
-        for qutepartLang in qutepartLangs:
-            _QUTEPART_TO_CTAGS_LANG_MAP[qutepartLang] = ctagsLang
+    for qutepartLang in qutepartLangs:
+        _QUTEPART_TO_CTAGS_LANG_MAP[qutepartLang] = ctagsLang
 
 
 class Tag:
@@ -144,6 +144,7 @@ def processText(ctagsLang, text):
     popen = subprocess.Popen(
             ['ctags', '-f', '-', '-u', '--fields=nKs', langArg, tempFile.name],
             stdout=subprocess.PIPE)
+    
     stdout, stderr = popen.communicate()
     
     return parseTags(stdout)
