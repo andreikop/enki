@@ -152,13 +152,12 @@ def processText(ctagsLang, text):
 class TagModel(QAbstractItemModel):
     def __init__(self, *args):
         QAbstractItemModel.__init__(self, *args)
-        self.beginResetModel()
         self._tags = []
-        self.endResetModel()
     
     def setTags(self, tags):
+        self.beginResetModel()
         self._tags = tags
-        self.layoutChanged.emit()
+        self.endResetModel()
     
     def index(self, row, column, parent):
         if row < 0 or column != 0:
@@ -284,7 +283,7 @@ class NavigatorDock(DockWidget):
         self._tree.setModel(self._model)
         self._tree.activated.connect(self._model.onActivated)
         self._tree.clicked.connect(self._model.onActivated)
-        self._model.layoutChanged.connect(self._tree.expandAll)
+        self._model.modelReset.connect(self._tree.expandAll)
         
         self._installed = False
     
