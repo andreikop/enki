@@ -161,6 +161,9 @@ class TagModel(QAbstractItemModel):
         self.layoutChanged.emit()
     
     def index(self, row, column, parent):
+        if row < 0 or column != 0:
+            return QModelIndex()
+        
         if not parent.isValid():  # top level
             if row < len(self._tags):
                 return self.createIndex(row, column, self._tags[row])
