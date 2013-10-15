@@ -225,6 +225,43 @@ class TagModel(QAbstractItemModel):
             document.qutepart.cursorPosition = (tag.lineNumber - 1, 0)
             document.qutepart.centerCursor()
             document.qutepart.setFocus()
+    
+    def tagPathForIndex(self, index):
+        def tagPath(tag):
+            if tag is None:
+                return []
+            else:
+                return tagPath(tag.parent) + [tag.name]
+        
+        tag = index.internalPointer()
+        return '.'.join(tagPath(tag))
+    
+    def indexForTagPath(self, tagPath):
+        def findTag(tagList, name):
+            for tag in tagList:
+                if tag.name == name:
+                    return tag
+            else:
+                return None
+        
+        def findPath(currentTag, childTags, parts):
+            if not parts:
+                return currentTag
+            
+            part = parts[0]
+            tag = findTag(childTags, part)
+            if tag is not None:
+                return findPath(tag, tag.children, parts[1:])
+            else:
+                return currentTag
+        
+        parts = tagPath.split('.')
+        tag = findPath(None, self._tags, parts)
+        if tag is not None:
+            row = tag.parent.children.index(tag) if tag.parent else self._tags.index(tag)
+            return self.createIndex(row, 0, tag)
+        else:
+            return QModelIndex()
 
 
 class ProcessorThread(QThread):
@@ -283,7 +320,9 @@ class NavigatorDock(DockWidget):
         self._tree.setModel(self._model)
         self._tree.activated.connect(self._model.onActivated)
         self._tree.clicked.connect(self._model.onActivated)
-        self._model.modelReset.connect(self._tree.expandAll)
+        self._model.modelAboutToBeReset.connect(self._onModelAboutToBeReset)
+        self._model.modelReset.connect(self._onModelReset)
+        self._currentTagPath = None
         
         self._installed = False
     
@@ -309,6 +348,19 @@ class NavigatorDock(DockWidget):
         """
         self.closed.emit()
         self.setTags([])
+    
+    def _onModelAboutToBeReset(self):
+        currIndex = self._tree.currentIndex()
+        self._currentTagPath = self._model.tagPathForIndex(currIndex) if currIndex.isValid() else None
+    
+    def _onModelReset(self):
+        self._tree.expandAll()
+        
+        # restore current item
+        if self._currentTagPath is not None:
+            index = self._model.indexForTagPath(self._currentTagPath)
+            if index.isValid():
+                self._tree.setCurrentIndex(index)
 
 
 class Plugin(QObject):
