@@ -8,12 +8,12 @@ import os.path
 import threading
 
 from PyQt4.QtCore import pyqtSignal, QObject, Qt, QThread, QTimer, QVariant, QAbstractItemModel, QModelIndex
-from PyQt4.QtGui import QLabel, QIcon, QTreeView
+from PyQt4.QtGui import QFileDialog, QLabel, QIcon, QTreeView, QWidget
 
 from enki.widgets.dockwidget import DockWidget
 
 from enki.core.core import core
-
+from enki.core.uisettings import TextOption
 
 # source map. 1 ctags language is mapped to multiply Qutepart languages
 # NOTE this map must be updated after new languages has been added to ctags or Qutepart
@@ -141,12 +141,14 @@ def processText(ctagsLang, text):
     tempFile.flush()
     langArg = '--language-force={}'.format(ctagsLang)
     
+    ctagsPath = core.config()['Navigator']['CtagsPath']
     try:
         popen = subprocess.Popen(
-                ['ctags', '-f', '-', '-u', '--fields=nKs', langArg, tempFile.name],
+                [ctagsPath, '-f', '-', '-u', '--fields=nKs', langArg, tempFile.name],
                 stdout=subprocess.PIPE)
     except OSError as ex:
-        return 'Failed to execute ctags console utility: {}\n'.format(str(ex)) + \
+        return 'Failed to execute ctags console utility "{}": {}\n'\
+                    .format(ctagsPath, str(ex)) + \
                'Go to Settings -> Settings -> Navigator to set path to ctags'
     
     stdout, stderr = popen.communicate()
@@ -395,6 +397,21 @@ class NavigatorDock(DockWidget):
                 self._tree.setCurrentIndex(index)
 
 
+class SettingsWidget(QWidget):
+    """Settings widget. Insertted as a page to UISettings
+    """
+    def __init__(self, *args):
+        QWidget.__init__(self, *args)
+        from PyQt4 import uic  # lazy import for better startup performance
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'Settings.ui'), self)
+        self.pbCtagsPath.clicked.connect(self._onPbCtagsPathClicked)
+    
+    def _onPbCtagsPathClicked(self):
+        path = QFileDialog.getOpenFileName(core.mainWindow(), 'Ctags path')
+        if path:
+            self.leCtagsPath.setText(path)
+
+
 class Plugin(QObject):
     """Main class. Interface for the core.
     """
@@ -408,6 +425,8 @@ class Plugin(QObject):
 
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         core.workspace().textChanged.connect(self._onTextChanged)
+        
+        core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
         
         # If we update Tree on every key pressing, freezes are sensible (GUI thread draws tree too slowly
         # This timer is used for drawing Preview 1000 ms After user has stopped typing text
@@ -427,7 +446,7 @@ class Plugin(QObject):
         self._thread.wait()
     
     def _isEnabled(self):
-        return core.config()['Ctags']['Enabled']
+        return core.config()['Navigator']['Enabled']
     
     def _isSupported(self, document):
         return document is not None and \
@@ -436,13 +455,13 @@ class Plugin(QObject):
     def _onDockClosed(self):
         """Dock has been closed by a user. Change Enabled option
         """
-        core.config()['Ctags']['Enabled'] = False
+        core.config()['Navigator']['Enabled'] = False
         core.config().flush()
     
     def _onDockShown(self):
         """Dock has been shown by a user. Change Enabled option
         """
-        core.config()['Ctags']['Enabled'] = True
+        core.config()['Navigator']['Enabled'] = True
         core.config().flush()
         self._scheduleDocumentProcessing()
     
@@ -482,3 +501,15 @@ class Plugin(QObject):
            document.qutepart.language() in _QUTEPART_TO_CTAGS_LANG_MAP:
             ctagsLang = _QUTEPART_TO_CTAGS_LANG_MAP[document.qutepart.language()]
             self._thread.process(ctagsLang, document.qutepart.text)
+    
+    def _onSettingsDialogAboutToExecute(self, dialog):
+        """UI settings dialogue is about to execute.
+        Add own options
+        """
+        widget = SettingsWidget(dialog)
+
+        dialog.appendPage(u"Navigator", widget, self._dock.windowIcon())
+
+        # Options
+        dialog.appendOption(TextOption(dialog, core.config(),
+                                       "Navigator/CtagsPath", widget.leCtagsPath))

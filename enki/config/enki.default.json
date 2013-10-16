@@ -54,7 +54,8 @@
         "JavaScriptEnabled": true,
         "Template": "Default"
     },
-    "Ctags": {
-        "Enabled": true
+    "Navigator": {
+        "Enabled": true,
+        "CtagsPath": "ctags"
     }
 }

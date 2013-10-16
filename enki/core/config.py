@@ -97,7 +97,7 @@ class Config():
             self._data['_version'] = 8
         
         if self._data['_version'] == 8:
-            self._data['Ctags'] = {'Enabled': True}
+            self._data['Navigator'] = {'Enabled': True, 'CtagsPath': 'ctags'}
             self._data['_version'] = 9
             
 
