@@ -8,7 +8,7 @@ import os.path
 import threading
 
 from PyQt4.QtCore import pyqtSignal, QObject, Qt, QThread, QTimer, QVariant, QAbstractItemModel, QModelIndex
-from PyQt4.QtGui import QIcon, QTreeView
+from PyQt4.QtGui import QLabel, QIcon, QTreeView
 
 from enki.widgets.dockwidget import DockWidget
 
@@ -141,9 +141,13 @@ def processText(ctagsLang, text):
     tempFile.flush()
     langArg = '--language-force={}'.format(ctagsLang)
     
-    popen = subprocess.Popen(
-            ['ctags', '-f', '-', '-u', '--fields=nKs', langArg, tempFile.name],
-            stdout=subprocess.PIPE)
+    try:
+        popen = subprocess.Popen(
+                ['ctags', '-f', '-', '-u', '--fields=nKs', langArg, tempFile.name],
+                stdout=subprocess.PIPE)
+    except OSError as ex:
+        return 'Failed to execute ctags console utility: {}\n'.format(str(ex)) + \
+               'Go to Settings -> Settings -> Navigator to set path to ctags'
     
     stdout, stderr = popen.communicate()
     
@@ -269,6 +273,7 @@ class ProcessorThread(QThread):
     """Thread processes text with ctags and returns tags
     """
     tagsReady = pyqtSignal(list)
+    error = pyqtSignal(str)
 
     def __init__(self):
         QThread.__init__(self)
@@ -296,13 +301,19 @@ class ProcessorThread(QThread):
                 text = self._text
                 self._haveData = False
             
-            tags = processText(ctagsLang, text)
+            result = processText(ctagsLang, text)
             
-            with self._lock:
-                if not self._haveData:
-                    self.tagsReady.emit(tags)
-                    break
-                # else - next iteration
+            if isinstance(result, basestring):
+                self.error.emit(result)
+                break
+            else:
+                tags = result
+            
+                with self._lock:
+                    if not self._haveData:
+                        self.tagsReady.emit(tags)
+                        break
+                    # else - next iteration
 
 
 class NavigatorDock(DockWidget):
@@ -325,6 +336,8 @@ class NavigatorDock(DockWidget):
         self._model.modelReset.connect(self._onModelReset)
         self._currentTagPath = None
         
+        self._errorLabel = None
+        
         self._installed = False
     
     def install(self):
@@ -342,6 +355,24 @@ class NavigatorDock(DockWidget):
     
     def setTags(self, tags):
         self._model.setTags(tags)
+        if self.widget() is not self._tree:
+            self.setWidget(self._tree)
+            self._tree.show()
+        if self._errorLabel is not None:
+            self._errorLabel.hide()
+    
+    def onError(self, error):
+        self._tree.hide()
+        if self._errorLabel is None:
+            self._errorLabel = QLabel(self)
+            self._errorLabel.setWordWrap(True)
+        
+        self._errorLabel.setText(error)
+        
+        if not self.widget() is self._errorLabel:
+            self.setWidget(self._errorLabel)
+            self._errorLabel.show()
+            self._tree.hide()
 
     def closeEvent(self, event):
         """Widget is closed.
@@ -386,6 +417,7 @@ class Plugin(QObject):
 
         self._thread = ProcessorThread()
         self._thread.tagsReady.connect(self._dock.setTags)
+        self._thread.error.connect(self._dock.onError)
 
     def del_(self):
         """Uninstall the plugin
