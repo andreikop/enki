@@ -495,6 +495,7 @@ class Plugin(QObject):
         # This timer is used for drawing Preview 1000 ms After user has stopped typing text
         self._typingTimer = QTimer()
         self._typingTimer.setInterval(1000)
+        self._typingTimer.setSingleShot(True)
         self._typingTimer.timeout.connect(self._scheduleDocumentProcessing)
 
         self._thread = ProcessorThread()
