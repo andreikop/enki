@@ -321,10 +321,16 @@ class TagModel(QAbstractItemModel):
             if tag.lineNumber == number:
                 return self.createIndex(row, 0, tag)
             elif tag.lineNumber > number and \
-                 prevTag is not None:
+                 prevTag is not None and \
+                 prevTag.lineNumber <= number:
                 return self.createIndex(prevRow, 0, prevTag)
             else:
                 prevRow, prevTag = row, tag
+        else:
+            if prevTag is not None and \
+               prevTag.lineNumber <= number: # the last tag is current
+                return self.createIndex(prevRow, 0, prevTag)
+        
         return QModelIndex()
 
 
