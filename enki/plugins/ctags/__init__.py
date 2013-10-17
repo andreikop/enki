@@ -8,7 +8,7 @@ import os.path
 import threading
 
 from PyQt4.QtCore import pyqtSignal, QObject, Qt, QThread, QTimer, QVariant, QAbstractItemModel, QModelIndex
-from PyQt4.QtGui import QBrush, QFileDialog, QLabel, QIcon, QTreeView, QWidget
+from PyQt4.QtGui import QApplication, QBrush, QColor, QFileDialog, QLabel, QIcon, QTreeView, QWidget
 
 from enki.widgets.dockwidget import DockWidget
 
@@ -163,7 +163,12 @@ class TagModel(QAbstractItemModel):
         self._tags = []
         
         self._currentTagIndex = QModelIndex()
-        self._currentTagBrush = QVariant(QBrush(Qt.yellow))
+        
+        defBaseColor = QApplication.instance().palette().base().color()
+        # yellow or maroon
+        brightBg = Qt.yellow if defBaseColor.lightnessF() > 0.5 else QColor('#800000')
+        self._currentTagBrush = QVariant(QBrush(brightBg))
+        
         core.workspace().cursorPositionChanged.connect(self._onCursorPositionChanged)
         self._updateCurrentTagTimer = QTimer()
         self._updateCurrentTagTimer.setInterval(300)
