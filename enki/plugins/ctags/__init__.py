@@ -166,7 +166,7 @@ class TagModel(QAbstractItemModel):
         
         defBaseColor = QApplication.instance().palette().base().color()
         # yellow or maroon
-        brightBg = Qt.yellow if defBaseColor.lightnessF() > 0.5 else QColor('#800000')
+        brightBg = QColor('#ffff80') if defBaseColor.lightnessF() > 0.5 else QColor('#800000')
         self._currentTagBrush = QVariant(QBrush(brightBg))
         
         core.workspace().cursorPositionChanged.connect(self._onCursorPositionChanged)
