@@ -8,7 +8,7 @@ import os.path
 import threading
 
 from PyQt4.QtCore import pyqtSignal, QObject, Qt, QThread, QTimer, QVariant, QAbstractItemModel, QModelIndex
-from PyQt4.QtGui import QFileDialog, QLabel, QIcon, QTreeView, QWidget
+from PyQt4.QtGui import QBrush, QFileDialog, QLabel, QIcon, QTreeView, QWidget
 
 from enki.widgets.dockwidget import DockWidget
 
@@ -99,7 +99,8 @@ def parseTags(text):
             lineText = items[-2]
             scopeText = items[-1]
         
-        lineNumber = int(lineText.split(':')[-1])
+        # -1 to convert from human readable to machine numeration
+        lineNumber = int(lineText.split(':')[-1]) - 1
         
         scope = scopeText.split(':')[-1].split('.')[-1] if scopeText else None
         return name, lineNumber, type_, scope
@@ -160,11 +161,41 @@ class TagModel(QAbstractItemModel):
     def __init__(self, *args):
         QAbstractItemModel.__init__(self, *args)
         self._tags = []
+        
+        self._currentTagIndex = QModelIndex()
+        self._currentTagBrush = QVariant(QBrush(Qt.yellow))
+        core.workspace().cursorPositionChanged.connect(self._onCursorPositionChanged)
+        self._updateCurrentTagTimer = QTimer()
+        self._updateCurrentTagTimer.setInterval(300)
+        self._updateCurrentTagTimer.timeout.connect(lambda: self._updateCurrentTag(True))
     
     def setTags(self, tags):
         self.beginResetModel()
         self._tags = tags
+        self._updateCurrentTag(False)
         self.endResetModel()
+    
+    def _onCursorPositionChanged(self):
+        """If position is updated on every key pressing - cursor movement might be slow
+        Update position, when movement finished
+        """
+        self._updateCurrentTagTimer.stop()
+        self._updateCurrentTagTimer.start()
+    
+    def _updateCurrentTag(self, emitChanged):
+        old = self._currentTagIndex
+        if core.workspace().currentDocument() is not None:
+            lineNumber = core.workspace().currentDocument().qutepart.cursorPosition[0]
+            self._currentTagIndex = self._indexForLineNumber(lineNumber)
+        else:
+            self._currentTagIndex = QModelIndex()
+        
+        if emitChanged:
+            if old != self._currentTagIndex and \
+               old.isValid():
+               self.dataChanged.emit(old, old)
+            if self._currentTagIndex.isValid():
+                self.dataChanged.emit(self._currentTagIndex, self._currentTagIndex)
     
     def index(self, row, column, parent):
         if row < 0 or column != 0:
@@ -218,9 +249,11 @@ class TagModel(QAbstractItemModel):
         if not index.isValid():
             return QVariant()
         
-        tag = index.internalPointer()
         if role == Qt.DisplayRole:
+            tag = index.internalPointer()
             return tag.name
+        elif role == Qt.BackgroundRole:
+            return self._currentTagBrush if index == self._currentTagIndex else QVariant()
         else:
             return QVariant()
     
@@ -229,7 +262,7 @@ class TagModel(QAbstractItemModel):
         
         document = core.workspace().currentDocument()
         if document is not None:
-            document.qutepart.cursorPosition = (tag.lineNumber - 1, 0)
+            document.qutepart.cursorPosition = (tag.lineNumber, 0)
             document.qutepart.centerCursor()
             document.qutepart.setFocus()
     
@@ -269,6 +302,25 @@ class TagModel(QAbstractItemModel):
             return self.createIndex(row, 0, tag)
         else:
             return QModelIndex()
+    
+    def _indexForLineNumber(self, number):
+        
+        def recursiveTagGenerator(tags):
+            for childRow, childTag in enumerate(tags):
+                yield childRow, childTag
+                for gcRow, grandChild in recursiveTagGenerator(childTag.children):
+                    yield gcRow, grandChild
+        
+        prevRow, prevTag = None, None
+        for row, tag in recursiveTagGenerator(self._tags):
+            if tag.lineNumber == number:
+                return self.createIndex(row, 0, tag)
+            elif tag.lineNumber > number and \
+                 prevTag is not None:
+                return self.createIndex(prevRow, 0, prevTag)
+            else:
+                prevRow, prevTag = row, tag
+        return QModelIndex()
 
 
 class ProcessorThread(QThread):
