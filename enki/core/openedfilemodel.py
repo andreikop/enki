@@ -150,19 +150,20 @@ class _OpenedFileModel(QAbstractItemModel):
 
     def flags(self, index ):
         """See QAbstractItemModel documentation"""
-        document = self.document( index )
-        
-        if document is None:  # Hmm, strange
-            return Qt.ItemIsEnabled
-        
-        if document.filePath() is None or \
-           document.qutepart.document().isModified() or \
-           document.isExternallyModified() or \
-           document.isExternallyRemoved() or \
-           document.isNeverSaved():
-            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDragEnabled
+        if index.isValid():
+            document = self.document( index )
+            if document.filePath() is None or \
+               document.qutepart.document().isModified() or \
+               document.isExternallyModified() or \
+               document.isExternallyRemoved() or \
+               document.isNeverSaved():
+                # if path editing is not allowed now
+                return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDragEnabled
+            else:
+                return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDragEnabled | Qt.ItemIsEditable
         else:
-            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDragEnabled | Qt.ItemIsEditable
+            # invalid index, probably root
+            return Qt.ItemIsEnabled | Qt.ItemIsDropEnabled
     
     def index(self, row, column, parent=QModelIndex()):
         """See QAbstractItemModel documentation"""
