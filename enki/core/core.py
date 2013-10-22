@@ -11,7 +11,7 @@ import shutil
 import signal
 import pkgutil
 
-from PyQt4.QtGui import QApplication, QIcon
+from PyQt4.QtGui import QApplication, QIcon, QMessageBox
 from PyQt4.QtCore import pyqtSignal, QObject, QTimer
 
 import enki.core.defines
@@ -83,6 +83,8 @@ class Core(QObject):
         qInitResources()
 
         QApplication.instance().setWindowIcon(QIcon(':/enkiicons/logo/32x32/enki.png') )
+
+        self._initConfigDir()
 
         import enki.core.actionmanager
         self._actionManager = enki.core.actionmanager.ActionManager(self)
@@ -196,6 +198,24 @@ class Core(QObject):
         """
         exec("import enki.plugins.%s as module" % name)  # pylint: disable=W0122
         self._loadedPlugins.append(module.Plugin())  # pylint: disable=E0602
+
+    def _initConfigDir(self):
+        """Enki on Linux used to store configs in ~/.enki on Linux.
+        Now it stores configs in ~/.config/.enki/.
+        Move old configs
+        """
+        old_path = os.path.expanduser('~/.enki')
+        new_path = enki.core.defines.CONFIG_DIR
+        
+        if new_path != old_path and \
+           os.path.isdir(old_path) and \
+           not os.path.isdir(new_path):
+            try:
+                shutil.move(old_path, new_path)
+            except Exception as ex:
+                text = 'Failed to move config directory from {} to {}: {}' \
+                    .format(old_path, new_path, unicode(ex))
+                QMessageBox.warning(None, 'Failed to move configs', text)
 
     def _createDefaultConfigFile(self):
         """Create default configuration file, if it is not present

@@ -8,6 +8,7 @@ import enki.core.json_wrapper
 
 from PyQt4.QtGui import QApplication, QFont, QFontDatabase
 
+
 class Config():
     """Settings storage.
         
