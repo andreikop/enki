@@ -349,7 +349,7 @@ class MainWindow(QMainWindow):
             error = unicode(str(ex), 'utf8')
             QMessageBox.critical(None,
                                 self.tr("Cannot save main window state"),
-                                self.tr( "Cannot create file '%s'\nError: %s" % (path, error)))
+                                self.tr( "Cannot create file '%s'\nError: %s" % (self._STATE_FILE, error)))
             return
     
     def loadState(self):
