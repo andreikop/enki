@@ -481,6 +481,7 @@ class Plugin(QObject):
     def __init__(self):
         QObject.__init__(self)
         self._dock = NavigatorDock()
+        self._dock.hide()
         self._dock.closed.connect(self._onDockClosed)
         
         self._dock.showAction().triggered.connect(self._onDockShown)
@@ -533,8 +534,8 @@ class Plugin(QObject):
         """When main window state is restored - dock is made visible, even if should not. Qt bug?
         Hide dock, if can't view current document
         """
-        if not (self._isEnabled() and \
-                self._isSupported(core.workspace().currentDocument())):
+        if not self._isEnabled() or \
+           not self._isSupported(core.workspace().currentDocument()):
             self._dock.hide()
     
     def _onDocumentChanged(self, old, new):
