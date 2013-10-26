@@ -172,7 +172,7 @@ class TagModel(QAbstractItemModel):
         core.workspace().cursorPositionChanged.connect(self._onCursorPositionChanged)
         self._updateCurrentTagTimer = QTimer()
         self._updateCurrentTagTimer.setInterval(300)
-        self._updateCurrentTagTimer.timeout.connect(lambda: self._updateCurrentTag(True))
+        self._updateCurrentTagTimer.timeout.connect(self._updateCurrentTagAndEmitSignal)
     
     def setTags(self, tags):
         self.beginResetModel()
@@ -186,6 +186,9 @@ class TagModel(QAbstractItemModel):
         """
         self._updateCurrentTagTimer.stop()
         self._updateCurrentTagTimer.start()
+    
+    def _updateCurrentTagAndEmitSignal(self):
+        self._updateCurrentTag(True)
     
     def _updateCurrentTag(self, emitChanged):
         old = self._currentTagIndex
