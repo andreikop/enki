@@ -508,6 +508,7 @@ class Plugin(QObject):
         """
         self._dock.remove()
         self._typingTimer.stop()
+        self._thread.tagsReady.disconnect(self._dock.setTags)
         self._thread.wait()
     
     def _isEnabled(self):

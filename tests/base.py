@@ -4,6 +4,7 @@ import os
 import sys
 import threading
 import shutil
+import time
 
 import sip
 sip.setapi('QString', 2)
@@ -12,10 +13,12 @@ from PyQt4.QtCore import Qt, QTimer
 from PyQt4.QtGui import QApplication, QDialog
 from PyQt4.QtTest import QTest
 
+
 import qutepart
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
+from enki.widgets.dockwidget import DockWidget
 import enki.core.defines
 enki.core.defines.CONFIG_DIR = '/tmp'
 from enki.core.core import core
@@ -43,6 +46,7 @@ def in_main_loop(func, *args):
             finally:
                 while self.app.hasPendingEvents():
                     self.app.processEvents()
+                
                 self.app.quit()
         
         QTimer.singleShot(0, execWithArgs)
@@ -144,6 +148,12 @@ class TestCase(unittest.TestCase):
         """
         return self.openDialog(core.actionManager().action("mSettings/aSettings").trigger,
                                runInDialogFunc)
+    
+    def sleepProcessEvents(self, delay):
+        end = time.time() + delay
+        while time.time() < end:
+            QApplication.instance().processEvents()
+            time.sleep(0.01)
     
     def findDock(self, windowTitle):
         for dock in core.mainWindow().findChildren(DockWidget):
