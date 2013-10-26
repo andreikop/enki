@@ -29,7 +29,7 @@ class Rename(base.TestCase):
         document = core.workspace().createEmptyNotSavedDocument()
         self.assertFalse(action.isEnabled())
         
-        document.setFilePath(self.TEST_FILES_DIR + 'file')
+        document.setFilePath(self.TEST_FILE_DIR + 'file')
         self.assertTrue(action.isEnabled())
         
         core.workspace().closeAllDocuments()
@@ -37,8 +37,8 @@ class Rename(base.TestCase):
     
     @base.in_main_loop
     def test_success(self):
-        OLD_PATH = self.TEST_FILES_DIR + 'oldname'
-        NEW_PATH = self.TEST_FILES_DIR + 'newname'
+        OLD_PATH = self.TEST_FILE_DIR + 'oldname'
+        NEW_PATH = self.TEST_FILE_DIR + 'newname'
         
         document = core.workspace().currentDocument()
         action = core.actionManager().action("mFile/mFileSystem/aRename")

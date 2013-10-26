@@ -22,6 +22,8 @@ DATA_FILES_PATH = os.path.join(os.path.dirname(__file__), '..')
 _DEFAULT_CONFIG_PATH = os.path.join(DATA_FILES_PATH, 'config/enki.default.json')
 _CONFIG_PATH = os.path.join(enki.core.defines.CONFIG_DIR, 'enki.json')
 
+_OLD_CONFIG_DIR = os.path.expanduser('~/.enki')
+
 
 class Core(QObject):
     """Core object initializes system at startup and terminates when closing.
@@ -204,17 +206,16 @@ class Core(QObject):
         Now it stores configs in ~/.config/.enki/.
         Move old configs
         """
-        old_path = os.path.expanduser('~/.enki')
         new_path = enki.core.defines.CONFIG_DIR
         
-        if new_path != old_path and \
-           os.path.isdir(old_path) and \
+        if new_path != _OLD_CONFIG_DIR and \
+           os.path.isdir(_OLD_CONFIG_DIR) and \
            not os.path.isdir(new_path):
             try:
-                shutil.move(old_path, new_path)
+                shutil.move(_OLD_CONFIG_DIR, new_path)
             except Exception as ex:
                 text = 'Failed to move config directory from {} to {}: {}' \
-                    .format(old_path, new_path, unicode(ex))
+                    .format(_OLD_CONFIG_DIR, new_path, unicode(ex))
                 QMessageBox.warning(None, 'Failed to move configs', text)
 
     def _createDefaultConfigFile(self):

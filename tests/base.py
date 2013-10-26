@@ -54,36 +54,38 @@ def in_main_loop(func, *args):
 
 
 class TestCase(unittest.TestCase):
+    INIT_CORE = True
     CREATE_NOT_SAVED_DOCUMENT = True
     NOT_SAVED_DOCUMENT_TEXT = None
     
     app = QApplication( sys.argv )
     
-    TEST_FILES_DIR = '/tmp/enki-tests/'
+    TEST_FILE_DIR = '/tmp/enki-tests/'
     
-    EXISTING_FILE = TEST_FILES_DIR + 'existing_file.txt'
+    EXISTING_FILE = TEST_FILE_DIR + 'existing_file.txt'
     EXISTING_FILE_TEXT = 'hi\n'
     
     def _cleanUpFs(self):
         if os.path.isfile('/tmp/enki.json'):
             os.unlink('/tmp/enki.json')
         
-        if os.path.isdir(self.TEST_FILES_DIR):
-            shutil.rmtree(self.TEST_FILES_DIR)
+        if os.path.isdir(self.TEST_FILE_DIR):
+            shutil.rmtree(self.TEST_FILE_DIR)
         
     
     def setUp(self):
         self._cleanUpFs()
-        os.mkdir(self.TEST_FILES_DIR)
+        os.mkdir(self.TEST_FILE_DIR)
         with open(self.EXISTING_FILE, 'w') as f:
             f.write(self.EXISTING_FILE_TEXT)
         
-        core.init(None)
-        
-        if self.CREATE_NOT_SAVED_DOCUMENT:
-            core.workspace().createEmptyNotSavedDocument()
-            if self.NOT_SAVED_DOCUMENT_TEXT is not None:
-                core.workspace().currentDocument().qutepart.text = self.NOT_SAVED_DOCUMENT_TEXT
+        if self.INIT_CORE:
+            core.init(None)
+            
+            if self.CREATE_NOT_SAVED_DOCUMENT:
+                core.workspace().createEmptyNotSavedDocument()
+                if self.NOT_SAVED_DOCUMENT_TEXT is not None:
+                    core.workspace().currentDocument().qutepart.text = self.NOT_SAVED_DOCUMENT_TEXT
     
     def tearDown(self):
         for document in core.workspace().documents():
@@ -112,11 +114,11 @@ class TestCase(unittest.TestCase):
             QTest.keyClicks(self.app.focusWidget(), text, modifiers)
     
     def createFile(self, name, text):
-        """Create file in TEST_FILES_DIR.
+        """Create file in TEST_FILE_DIR.
         
         File is opened
         """
-        path = self.TEST_FILES_DIR + name
+        path = self.TEST_FILE_DIR + name
         with open(path, 'w') as file_:
             file_.write(text)
         

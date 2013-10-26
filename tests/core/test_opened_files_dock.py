@@ -44,7 +44,7 @@ class Rename(base.TestCase):
     def test_success(self):
         core.workspace().openFile(self.EXISTING_FILE)
         
-        NEW_PATH = self.TEST_FILES_DIR + 'newname'
+        NEW_PATH = self.TEST_FILE_DIR + 'newname'
         _startEditCurrentFilePath()
         
         self.keyClicks(NEW_PATH)
