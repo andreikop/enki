@@ -8,12 +8,13 @@ baseurl: .
 ##Enki is a text editor for programmers. It is:
 
 * **User friendly.** Intuitive interface. Works out of the box. You don't have to read a lot of docs
-* **Hacker friendly.** Code as quickly as possible. Without mouse.
-* **Lighweight.** Some IDEs show splashscreen. enki will never do it. It just starts quickly.
+* **Hacker friendly.** Work as quickly as possible. You dont need your mouse for coding.
+* **Lighweight.** Some IDEs show splashscreen. Enki will never do it. It just starts quickly.
+* **Advanced.** You invent software. An editor helps you to do a routine job.
 * **Extensible.** Operating systems are designed for running applications. Enki is designed for running plugins.
 * **Cross platform.** Use your habitual editor on any OS. Currently has beeen tested on Linux, MacOS X, Windows.
 * **High quality.** No long list of fancy features. But, what is done, is done well.
-* **Open source.** This is our religion.
+* **Open source.** In GitHub we trust.
 
     <div id="social-buttons">
         <div id="twitter">
