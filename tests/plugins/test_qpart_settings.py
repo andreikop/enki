@@ -31,7 +31,8 @@ class Font(base.TestCase):
         self.assertEqual(core.config()['Qutepart']['Font']['Family'], font.family())
         self.assertEqual(core.config()['Qutepart']['Font']['Size'], font.pointSize())
         
-        self.assertEqual(core.workspace().currentDocument().qutepart.font(), font)
+        self.assertEqual(core.workspace().currentDocument().qutepart.font().family(), font.family())
+        self.assertEqual(core.workspace().currentDocument().qutepart.font().pointSize(), font.pointSize())
 
 
 class Indent(base.TestCase):

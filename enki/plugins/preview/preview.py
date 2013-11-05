@@ -167,6 +167,7 @@ class PreviewDock(DockWidget):
         """Uninstall themselves
         """
         self._typingTimer.stop()
+        self._thread.htmlReady.disconnect(self._setHtml)
         self._thread.wait()
     
     def closeEvent(self, event):
