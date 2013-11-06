@@ -8,7 +8,7 @@ ENV=DEBFULLNAME="$(AUTHOR)" DEBEMAIL=$(AUTHOR_EMAIL) EDITOR=enki
 
 DEBIGAN_ORIG_ARCHIVE=${PACKAGE_NAME}_${VERSION}.orig.tar.gz
 
-ALL_SERIES = precise quantal raring
+ALL_SERIES = precise quantal raring saucy
 
 CURRENT_SERIES = $(shell lsb_release -cs)
 
@@ -44,6 +44,14 @@ dput-all: $(foreach series, $(ALL_SERIES), dput-$(series))
 deb-$(CURRENT_SERIES): dsc-$(CURRENT_SERIES)
 	cd build-$(CURRENT_SERIES)/$(PACKAGE_NAME)-$(VERSION) && debuild
 
+obs: dist/${ARCHIVE}
+	rm -rf build-obs
+	mkdir build-obs
+	cp dist/${ARCHIVE} build-obs/${DEBIGAN_ORIG_ARCHIVE}
+	cd build-obs && tar -xf ${DEBIGAN_ORIG_ARCHIVE}
+	cp -r debian build-obs/${PACKAGE_NAME}-${VERSION}
+	sed -i s/ubuntuseries/obs/g build-obs/${PACKAGE_NAME}-${VERSION}/debian/changelog
+	cd build-obs/${PACKAGE_NAME}-${VERSION} && $(ENV) debuild -us -uc -S
 
 sdist:
 	./setup.py sdist --formats=gztar,zip
