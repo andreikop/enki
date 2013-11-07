@@ -1,5 +1,16 @@
 FIXME
   instantly update current item in Navigator, if clicked
+  
+  CRITICAL:root:Traceback (most recent call last):
+    File "/usr/local/lib/python2.7/dist-packages/enki/plugins/ctags/__init__.py", line 369, in run
+      result = processText(ctagsLang, text)
+    File "/usr/local/lib/python2.7/dist-packages/enki/plugins/ctags/__init__.py", line 141, in processText
+      tempFile.file.write(text)
+  UnicodeEncodeError: 'ascii' codec can't encode character u'\u2265' in position 4970: ordinal not in range(128)
+  QObject::setParent: Cannot set parent, new parent is in a different thread
+  QPixmap: It is not safe to use pixmaps outside the GUI thread
+  QPixmap: It is not safe to use pixmaps outside the GUI thread
+
 
 TODO
   minor improvements
