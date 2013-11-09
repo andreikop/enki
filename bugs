@@ -11,6 +11,9 @@ FIXME
   QPixmap: It is not safe to use pixmaps outside the GUI thread
   QPixmap: It is not safe to use pixmaps outside the GUI thread
 
+  document ctags dependency and usage
+  document python-docutils dependency
+  
 
 TODO
   minor improvements
