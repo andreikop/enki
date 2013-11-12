@@ -270,7 +270,11 @@ class TagModel(QAbstractItemModel):
         
         document = core.workspace().currentDocument()
         if document is not None:
+            core.workspace().cursorPositionChanged.disconnect(self._onCursorPositionChanged)
             document.qutepart.cursorPosition = (tag.lineNumber, 0)
+            core.workspace().cursorPositionChanged.connect(self._onCursorPositionChanged)
+            self._updateCurrentTagAndEmitSignal()
+            
             document.qutepart.centerCursor()
             document.qutepart.setFocus()
     

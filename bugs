@@ -1,6 +1,4 @@
 FIXME
-  instantly update current item in Navigator, if clicked
-  
   CRITICAL:root:Traceback (most recent call last):
     File "/usr/local/lib/python2.7/dist-packages/enki/plugins/ctags/__init__.py", line 369, in run
       result = processText(ctagsLang, text)
