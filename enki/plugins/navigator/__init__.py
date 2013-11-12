@@ -137,9 +137,11 @@ def parseTags(text):
 
 
 def processText(ctagsLang, text):
+    data = text.encode('utf8')
     tempFile = tempfile.NamedTemporaryFile()
-    tempFile.file.write(text)
+    tempFile.file.write(data)
     tempFile.flush()
+    
     langArg = '--language-force={}'.format(ctagsLang)
     
     ctagsPath = core.config()['Navigator']['CtagsPath']
