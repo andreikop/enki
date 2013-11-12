@@ -137,24 +137,24 @@ def parseTags(text):
 
 
 def processText(ctagsLang, text):
-    data = text.encode('utf8')
-    tempFile = tempfile.NamedTemporaryFile()
-    tempFile.file.write(data)
-    tempFile.flush()
-    
-    langArg = '--language-force={}'.format(ctagsLang)
-    
     ctagsPath = core.config()['Navigator']['CtagsPath']
-    try:
-        popen = subprocess.Popen(
-                [ctagsPath, '-f', '-', '-u', '--fields=nKs', langArg, tempFile.name],
-                stdout=subprocess.PIPE)
-    except OSError as ex:
-        return 'Failed to execute ctags console utility "{}": {}\n'\
-                    .format(ctagsPath, str(ex)) + \
-               'Go to Settings -> Settings -> Navigator to set path to ctags'
+    langArg = '--language-force={}'.format(ctagsLang)
+    data = text.encode('utf8')
     
-    stdout, stderr = popen.communicate()
+    with tempfile.NamedTemporaryFile() as tempFile:
+        tempFile.file.write(data)
+        tempFile.flush()
+        
+        try:
+            popen = subprocess.Popen(
+                    [ctagsPath, '-f', '-', '-u', '--fields=nKs', langArg, tempFile.name],
+                    stdout=subprocess.PIPE)
+        except OSError as ex:
+            return 'Failed to execute ctags console utility "{}": {}\n'\
+                        .format(ctagsPath, str(ex)) + \
+                   'Go to Settings -> Settings -> Navigator to set path to ctags'
+        
+        stdout, stderr = popen.communicate()
     
     return parseTags(stdout)
 
