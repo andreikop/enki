@@ -35,7 +35,7 @@ Install Qutepart from [sources](https://github.com/hlamer/qutepart).
 
 ## 2. Get the sources
 
-[Download](https://github.com/hlamer/enki/tags) source archive
+[Download](https://github.com/hlamer/enki/releases) source archive
 
 ## 3. Setup
     
