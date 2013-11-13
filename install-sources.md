@@ -9,12 +9,12 @@ baseurl: .
 On **Windows**, [this link](https://github.com/hlamer/enki/issues/19) might be helpful.
 
 ## 1. Install dependencies
-* Python 2.7
-* PyQt4
-* [pyparsing](http://sourceforge.net/projects/pyparsing/)
+* [Python 2.7](http://python.org/download)
+* [PyQt4](http://www.riverbankcomputing.co.uk/software/pyqt/download)
+* [pyparsing](http://pyparsing.wikispaces.com/Download+and+Installation)
 * [Qutepart](https://github.com/hlamer/qutepart)
-* [markdown](http://daringfireball.net/projects/markdown/). (Optional, for Markdown preview)
-* python-docutils. (Optional, for reStructuredText preview)
+* [Python-Markdown](http://packages.python.org/Markdown/install.html). (Optional, for Markdown preview)
+* [python-docutils](http://docutils.sourceforge.net/). (Optional, for reStructuredText preview)
 * [ctags](http://ctags.sourceforge.net/). (Optional, for navigation in file)
 
 #### Debian and Debian based
@@ -27,12 +27,7 @@ Find and install listed packages with your package manager.
 Install Qutepart from [sources](https://github.com/hlamer/qutepart).
 #### Other systems
 
-* [http://python.org/download](http://python.org/download)
-* [http://www.riverbankcomputing.co.uk/software/pyqt/download](http://www.riverbankcomputing.co.uk/software/pyqt/download)
-* [https://github.com/hlamer/qutepart](https://github.com/hlamer/qutepart)
-* [http://pyparsing.wikispaces.com/Download+and+Installation](http://pyparsing.wikispaces.com/Download+and+Installation)
-* [http://packages.python.org/Markdown/install.html](http://packages.python.org/Markdown/install.html) (Optional, for Markdown preview)
-
+Go to official pages of the projects, download packages and install according to instructions.
 ## 2. Get the sources
 
 [Download](https://github.com/hlamer/enki/releases) source archive
