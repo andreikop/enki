@@ -9,9 +9,11 @@
 #### Install dependencies
 * Python 2.7
 * PyQt4
-* pyparsing
-* Qutepart. https://github.com/hlamer/qutepart
-* markdown. (Optional, for Markdown preview)
+* [pyparsing](http://sourceforge.net/projects/pyparsing/)
+* [Qutepart](https://github.com/hlamer/qutepart)
+* [markdown](http://daringfireball.net/projects/markdown/). (Optional, for Markdown preview)
+* python-docutils. (Optional, for reStructuredText preview)
+* [ctags](http://ctags.sourceforge.net/). (Optional, for navigation in file)
 
 
 #### Install Enki

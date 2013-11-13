@@ -11,8 +11,8 @@ Vcs-Browser: https://github.com/hlamer/enki
 
 Package: enki
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}, python-qt4, python-pyparsing, python-qutepart (>= 1.1), ctags
-Suggests: mit-scheme, python-markdown
+Depends: ${misc:Depends}, ${python:Depends}, python-qt4, python-pyparsing, python-qutepart (>= 1.1)
+Suggests: mit-scheme, python-markdown, python-docutils, ctags
 Description: A text editor for programmers
  Some of the features:
   * Syntax highlighting for 196 languages
