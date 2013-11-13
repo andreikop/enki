@@ -11,13 +11,15 @@ On **Windows**, [this link](https://github.com/hlamer/enki/issues/19) might be h
 ## 1. Install dependencies
 * Python 2.7
 * PyQt4
+* [pyparsing](http://sourceforge.net/projects/pyparsing/)
 * [Qutepart](https://github.com/hlamer/qutepart)
-* pyparsing
-* markdown. (Optional, for Markdown preview)
+* [markdown](http://daringfireball.net/projects/markdown/). (Optional, for Markdown preview)
+* python-docutils. (Optional, for reStructuredText preview)
+* [ctags](http://ctags.sourceforge.net/). (Optional, for navigation in file)
 
 #### Debian and Debian based
 
-   `apt-get install python python-qt4 python-pyparsing python-markdown`
+   `apt-get install python python-qt4 python-pyparsing python-markdown python-docutils ctags`
 
 Install Qutepart from [sources](https://github.com/hlamer/qutepart).
 #### Other Unixes
