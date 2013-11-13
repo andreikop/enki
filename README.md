@@ -30,7 +30,6 @@ GPL v2
 
 * **Andrei Kopats** (aka **hlamer**) ported core and some plugins to Python, reworked it and released the result as *Enki*
 * **Filipe Azevedo**, **Andrei Kopats** and [Monkey Studio v2 team](http://monkeystudio.org/team) developed *Monkey Studio v2*
-* **Filipe Azevedo** (aka **P@sNox**) and [Monkey Studio v1 team](http://monkeystudio.org/node/17) developed *Monkey Studio v1*
 
 [The Team](http://enki-editor.org/team.html)
 
