@@ -63,7 +63,10 @@ class _FileWatcher(QObject):
         """
         self._contents = contents
         # Qt File watcher may work incorrectly, if file was not existing, when it started
-        self.setPath(self._path)
+        if not self._watcher.files():
+            self.setPath(self._path)
+        self._lastEmittedModifiedStatus = None
+        self._lastEmittedRemovedStatus = None
 
     def setPath(self, path):
         """Path had been changed or file had been created. Set new path
@@ -73,6 +76,8 @@ class _FileWatcher(QObject):
         if path is not None and os.path.isfile(path):
             self._watcher.addPath(path)
         self._path = path
+        self._lastEmittedModifiedStatus = None
+        self._lastEmittedRemovedStatus = None
 
     def _emitModifiedStatus(self):
         """Emit self.modified signal with right status
@@ -95,10 +100,7 @@ class _FileWatcher(QObject):
             self._emitModifiedStatus()
         else:
             self._emitRemovedStatus(True)
-        
-        """When git does many changes on file with minimal delays, sometimes modification
-        is missing by QFileSystemWatcher. Check the file .5 sec later"""
-        self._startTimer()
+            self._startTimer()
     
     def _startTimer(self):
         """Init a timer.
