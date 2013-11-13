@@ -7,12 +7,12 @@
 [Full instructions](http://enki-editor.org/install-sources.html)
 
 #### Install dependencies
-* Python 2.7
-* PyQt4
-* [pyparsing](http://sourceforge.net/projects/pyparsing/)
+* [Python 2.7](http://python.org/download)
+* [PyQt4](http://www.riverbankcomputing.co.uk/software/pyqt/download)
+* [pyparsing](http://pyparsing.wikispaces.com/Download+and+Installation)
 * [Qutepart](https://github.com/hlamer/qutepart)
-* [markdown](http://daringfireball.net/projects/markdown/). (Optional, for Markdown preview)
-* python-docutils. (Optional, for reStructuredText preview)
+* [Python-Markdown](http://packages.python.org/Markdown/install.html). (Optional, for Markdown preview)
+* [python-docutils](http://docutils.sourceforge.net/). (Optional, for reStructuredText preview)
 * [ctags](http://ctags.sourceforge.net/). (Optional, for navigation in file)
 
 
