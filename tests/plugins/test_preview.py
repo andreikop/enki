@@ -35,7 +35,7 @@ class Test(base.TestCase):
         document = self.createFile('file.' + extension, text)
         
         self._showDock()
-        QTest.qWait(500)
+        QTest.qWait(1000)
         self.assertTrue(text in self._visibleText())
 
     def test_html(self):
@@ -59,18 +59,18 @@ class Test(base.TestCase):
         self.assertFalse('body {color: white; background: black;}' in self._visibleText())
         self.assertTrue('body {color: white; background: black;}' in self._html())
         
-        combo.setCurrentIndex(combo.findText('MathJax'))
-        QTest.qWait(500)
-        self.assertFalse('http://cdn.mathjax.org/mathjax/latest/MathJax.js' in self._visibleText())
-        self.assertTrue('http://cdn.mathjax.org/mathjax/latest/MathJax.js' in self._html())
-        self.assertEqual(core.config()['Preview']['Template'], 'MathJax')
-
         combo = self._widget().cbTemplate
         combo.setCurrentIndex(combo.findText('Default'))
         QTest.qWait(500)
-        self.assertFalse('http://cdn.mathjax.org/mathjax/latest/MathJax.js' in self._visibleText())
-        self.assertFalse('http://cdn.mathjax.org/mathjax/latest/MathJax.js' in self._html())
+        self.assertFalse('body {color: white; background: black;}' in self._visibleText())
+        self.assertFalse('body {color: white; background: black;}' in self._html())
         self.assertEqual(core.config()['Preview']['Template'], 'Default')
+
+        combo.setCurrentIndex(combo.findText('WhiteOnBlack'))
+        QTest.qWait(500)
+        self.assertEqual(combo.currentText(), 'WhiteOnBlack')
+        self.assertFalse('body {color: white; background: black;}' in self._visibleText())
+        self.assertTrue('body {color: white; background: black;}' in self._html())
 
     def test_markdown_templates_help(self):
         core.config()['Preview']['Template'] = 'WhiteOnBlack'

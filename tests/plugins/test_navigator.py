@@ -130,7 +130,7 @@ class Test(base.TestCase):
         
         dock = self.findDock('&Navigator')
         
-        self.sleepProcessEvents(0.05)
+        self.sleepProcessEvents(0.5)
         self.assertTrue(dock._tree.isHidden())
         self.assertFalse(dock._errorLabel.isHidden())
         
