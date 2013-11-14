@@ -100,7 +100,10 @@ class _FileWatcher(QObject):
             self._emitModifiedStatus()
         else:
             self._emitRemovedStatus(True)
-            self._startTimer()
+        
+        # Sometimes QFileSystemWatcher emits only 1 signal for 2 modifications
+        # Check once more later
+        self._startTimer()
     
     def _startTimer(self):
         """Init a timer.
