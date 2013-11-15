@@ -36,25 +36,38 @@ baseurl: .
 
         <div id="download">
             
-            <h2>Download</h2>
-            
-            <div><a id="source-button" href="install-sources.html"> </a></div>
-            
-            <div><a id="ubuntu-button" href="install-ubuntu.html"> </a></div>
+            <div>
+                <a href="install-sources.html" class="download-button">
+                    <img src="../img/tgz.png"/>
+                    <br/>
+                    Sources
+                </a>
+                
+                <a href="http://software.opensuse.org/download.html?project=home%3Ahlamer%3Aenki&amp;package=enki" class="download-button">
+                    <table>
+                        <tr>
+                            <td>
+                                <img src="../img/debian.png"/>
+                            </td>
+                            <td>
+                                <img src="../img/fedora.png"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <img src="../img/suse.png"/>
+                            </td>
+                            <td>
+                                <img src="../img/ubuntu.png"/>
+                            </td>
+                        </tr>
+                    </table>
+                    <br/>
+                    Installer
+                </a>
+            </div>
 
-            <div><a id="debian-button" href="install-debian.html"> </a></div>
-
-       
-    <!-- Hiding unused download buttons
-
-    <div><a id="macos-button" href="install-macos.html"> </a></div>
-
-    <div><a id="windows-button" href="install-windows.html"> </a></div>
-
-    <div id="more-downloads"><a href="#">More downloads ...</a></div>
-    -->
-
-        <a href="./packaging.html">Where is package for my OS?</a>
+        <a href="./packaging.html" id="where-is">Where is package for my OS?</a>
         </div>
           
 

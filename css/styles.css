@@ -230,79 +230,26 @@ min-height: 460px;
 width: 340px;
 }
 
-#source-button {
+.download-button {
 	display: inline-block;
 	position: relative;
-	background: url('../img/source-button.gif') bottom;
-	background-position-y:  bottom;
-	width: 341px;
-	height: 46px;
-	color: transparent;
+	color: white;
+	text-align: center;
+	font-size: 24px;
+	margin-left: 10px;
+	margin: 15px;
 }
 
-#source-button:hover {
-	background-position-y:  top;
-	background-position:  top;
+.download-button:visited {
+	color: white;
 }
 
-#ubuntu-button {
-	display: inline-block;
-	position: relative;
-	background: url('../img/ubuntu-button.gif') bottom;
-	background-position-y:  bottom;
-	width: 341px;
-	height: 46px;
-	color: transparent;
+.download-button:hover {
+	color: #FF6000;
 }
 
-#ubuntu-button:hover {
-	background-position-y:  top;
-	background-position:  top;
-}
-
-#debian-button {
-	display: inline-block;
-	position: relative;
-	background: url('../img/debian-button.gif') bottom;
-	background-position-y:  bottom;
-	width: 341px;
-	height: 46px;
-	color: transparent;
-}
-
-#debian-button:hover {
-	background-position-y:  top;
-	background-position:  top;
-}
-
-#macos-button {
-	display: inline-block;
-	position: relative;
-	background: url('../img/macos-button.gif') bottom;
-	background-position-y:  bottom;
-	width: 341px;
-	height: 46px;
-	color: transparent;
-}
-
-#macos-button:hover {
-	background-position-y:  top;
-	background-position:  top;
-}
-
-#windows-button {
-	display: inline-block;
-	position: relative;
-	background: url('../img/windows-button.gif') bottom;
-	background-position-y:  bottom;
-	width: 341px;
-	height: 46px;
-	color: transparent;
-}
-
-#windows-button:hover {
-	background-position-y:  top;
-	background-position:  top;
+#where-is {
+	font-size: 13px;
 }
 
 #more-downloads {
