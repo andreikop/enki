@@ -41,7 +41,7 @@
      <item>
       <widget class="QCheckBox" name="cbEnableJavascript">
        <property name="text">
-        <string>Enable JavaScript</string>
+        <string>Enable JS</string>
        </property>
       </widget>
      </item>
