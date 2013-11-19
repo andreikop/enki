@@ -18,10 +18,12 @@ def isMarkdownFile(document):
            (document.fileName().endswith('.md') or \
             document.fileName().endswith('.markdown'))
 
+
 def isHtmlFile(document):
     return document is not None and  \
            document.qutepart.language() is not None and \
            'html' in document.qutepart.language().lower()  # 'Django HTML Template'    
+
 
 class Plugin(QObject):
     """Plugin interface implementation

@@ -371,11 +371,11 @@ class MainWindow(QMainWindow):
         
         if state is not None:
             self.restoreState(state)
-            self.stateRestored.emit()
         else:  # not state, first start
             self.showMaximized()
             for dock in self.findChildren(DockWidget):
                 dock.show()
+        self.stateRestored.emit()
         
     def _saveGeometry(self):
         """Save window geometry to the config file

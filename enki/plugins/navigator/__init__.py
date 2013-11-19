@@ -397,6 +397,7 @@ class NavigatorDock(DockWidget):
     def __init__(self):
         DockWidget.__init__(self, core.mainWindow(), '&Navigator', QIcon(':/enkiicons/goto.png'), "Alt+N")
         
+        core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self)  # Dock appears over gui, if not added
         self._tree = QTreeView(self)
         self._tree.setHeaderHidden(True)
         self.setWidget(self._tree)
@@ -416,7 +417,6 @@ class NavigatorDock(DockWidget):
     
     def install(self):
         if not self._installed:
-            core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self)
             core.actionManager().addAction("mView/aNavigator", self.showAction())
             self._installed = True
 
