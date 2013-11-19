@@ -21,7 +21,7 @@ BuildArch:      noarch
 BuildRequires:  desktop-file-utils
 BuildRequires:  python-setuptools
 BuildRequires:  python-qutepart >= 1.1
-Requires:       python == 2.7
+Requires:       python >= 2.7
 Requires:       python-markdown
 Requires:       python-qutepart >= 1.1
 Requires:       python-docutils
