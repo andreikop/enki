@@ -79,8 +79,7 @@ class Core(QObject):
         """
         self._prepareToCatchSigInt()
 
-        if profiler is not None:
-            profiler.stepDone('Catch SIGINT')
+        profiler.stepDone('Catch SIGINT')
 
         qInitResources()
 
@@ -95,50 +94,41 @@ class Core(QObject):
         import enki.core.mainwindow  # pylint: disable=W0621,W0404
         self._mainWindow = enki.core.mainwindow.MainWindow()
         
-        if profiler is not None:
-            profiler.stepDone('create main window')
+        profiler.stepDone('create main window')
 
         self._config = self._createConfig()
 
-        if profiler is not None:
-            profiler.stepDone('create config')
+        profiler.stepDone('create config')
 
         import enki.core.uisettings  # pylint: disable=W0404
         self._uiSettingsManager = enki.core.uisettings.UISettingsManager()
-        if profiler is not None:
-            profiler.stepDone('Create UISettings')
+        profiler.stepDone('Create UISettings')
         
         import enki.core.workspace
-        if profiler is not None:
-            profiler.stepDone('import workspace')
+        profiler.stepDone('import workspace')
 
         self._workspace = enki.core.workspace.Workspace(self._mainWindow)
         self._mainWindow.setWorkspace(self._workspace)
-        if profiler is not None:
-            profiler.stepDone('create workspace')
+        profiler.stepDone('create workspace')
 
         import enki.core.filefilter
         self._fileFilter = enki.core.filefilter.FileFilter()
-        if profiler is not None:
-            profiler.stepDone('Create FileFilter')
+        profiler.stepDone('Create FileFilter')
         
         import enki.core.locator
         self._locator = enki.core.locator.Locator(self._mainWindow)
-        if profiler is not None:
-            profiler.stepDone('Create Locator')
+        profiler.stepDone('Create Locator')
         
         # Create plugins
-        if profiler is not None:
-            firstPlugin = True
+        firstPlugin = True
         pluginsPath = os.path.join(os.path.dirname(__file__), '../plugins')
         for loader, name, isPackage in pkgutil.iter_modules([pluginsPath]):
-            if profiler is not None and firstPlugin:
+            if firstPlugin:
                 firstPlugin = False
                 profiler.stepDone('Search plugins')
             self._loadPlugin(name)
             
-            if profiler is not None:
-                profiler.stepDone('  Load %s' % name)
+            profiler.stepDone('  Load %s' % name)
 
     def term(self):
         """Terminate plugins and core modules

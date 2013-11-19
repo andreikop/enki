@@ -22,16 +22,25 @@ sys.path.insert(0, os.path.join(sys.path[0], '..'))
 import enki.core.defines
 
 class _StartProfiler:
-    def __init__(self):
-        self._steps = []
-        from datetime import datetime
-        self._importedDateTime = datetime
-        self._startTime = datetime.now()
+    def __init__(self, enabled):
+        self._enabled = enabled
+        
+        if enabled:
+            self._steps = []
+            from datetime import datetime
+            self._importedDateTime = datetime
+            self._startTime = datetime.now()
 
     def stepDone(self, description):
+        if not self._enabled:
+            return
+        
         self._steps.append((description, self._importedDateTime.now()))
 
     def printInfo(self):
+        if not self._enabled:
+            return
+        
         prev = self._startTime
         totalMs = 0
         for description, time in self._steps:
@@ -102,8 +111,7 @@ def _checkDependencies(profiler):
     import sip
     sip.setapi('QString', 2)
 
-    if profiler is not None:
-        profiler.stepDone('Import PyQt4')
+    profiler.stepDone('Import PyQt4')
     
     try:
         import qutepart
@@ -121,6 +129,8 @@ def _checkDependencies(profiler):
                 _SEE_SITE_PLAIN
         _showErrorMessage(True, "Qutepart not found", html, plain)
         raise ex
+    
+    profiler.stepDone('Import Qutepart')
 
     if qutepart.VERSION[0] != enki.core.defines.QUTEPART_SUPPORTED_MAJOR or \
        qutepart.VERSION[1] < enki.core.defines.QUTEPART_SUPPORTED_MINOR:
@@ -187,10 +197,7 @@ def main():
     
     cmdLine = _parseCommandLine()
     
-    if cmdLine["profiling"]:
-        profiler = _StartProfiler()
-    else:
-        profiler = None
+    profiler = _StartProfiler(cmdLine["profiling"])
 
     try:
         _checkDependencies(profiler)
@@ -199,11 +206,8 @@ def main():
     
     # Imports only here. Hack for ability to get help and version info even on system without PyQt.
     import PyQt4.QtGui
-    
-    if profiler is not None:
-        profiler.stepDone('Import modules')
-    
     import qutepart
+    
     logging.basicConfig(level=logging.ERROR)
     logging.getLogger('qutepart').removeHandler(qutepart.consoleHandler)
     
@@ -215,8 +219,7 @@ def main():
     app.setOrganizationDomain( enki.core.defines.PACKAGE_URL )
     app.lastWindowClosed.connect(app.quit)
 
-    if profiler is not None:
-        profiler.stepDone('Construct application')
+    profiler.stepDone('Construct application')
 
     # init the core
     from enki.core.core import core
@@ -241,8 +244,7 @@ def main():
         for filePath in notExisting:
             core.workspace().createEmptyNotSavedDocument(filePath)
     
-    if profiler is not None:
-        profiler.stepDone('Open files')
+    profiler.stepDone('Open files')
 
     if not cmdLine["no-session"]:
         core.restoreSession.emit()
@@ -250,20 +252,17 @@ def main():
     if core.workspace().currentDocument() is None:
         core.workspace().createEmptyNotSavedDocument()
 
-    if profiler is not None:
-        profiler.stepDone('Restore session')
+    profiler.stepDone('Restore session')
 
     if core.workspace().currentDocument():
         core.workspace().currentDocument().setFocus()
     
     core.mainWindow().loadState()
-    if profiler is not None:
-        profiler.stepDone('Load state')
+    profiler.stepDone('Load state')
 
     core.mainWindow().show()
     
-    if profiler is not None:
-        profiler.stepDone('Show main window')
+    profiler.stepDone('Show main window')
 
     # execute application
     if profiler is None:
@@ -274,11 +273,9 @@ def main():
 
     core.term()
 
-    if profiler is not None:
-        profiler.printInfo()
+    profiler.printInfo()
 
-    if profiler is not None:
-        profiler.stepDone('Terminate core')
+    profiler.stepDone('Terminate core')
 
     return result
 
