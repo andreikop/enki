@@ -12,6 +12,7 @@ baseurl: .
  * Bookmarks
  * Best in class search and replace functionality
  * File system tree browser
+ * Class tree and Navigation in a file based on ctags
  * Locator. File open dialog with bash-like Tab completion and globs support. Even better, than bash.
  * Autocompletion, based on document contents
  * MIT Scheme and Standard ML (SML) [REPL integration]({{ page.baseurl }}/scheme.html)

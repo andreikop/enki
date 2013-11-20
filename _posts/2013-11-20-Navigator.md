@@ -6,7 +6,7 @@ baseurl: ../../../
 
 # Navigator
 
-Today I released v13.10.0. Now Enki supports navigation in a file, based on ctags.
+Today I released v13.11.0. Now Enki supports navigation in a file, based on ctags.
 
 <img src="../../../blog-screens/navigator.png"/>
 
