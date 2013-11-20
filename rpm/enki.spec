@@ -8,7 +8,6 @@ Name:           enki
 Version:        13.11.0
 Release:        5%{?dist}
 Summary:        Advanced text editor for programmers
-Summary(es):    Editor de texto para programadores
 Group:          Productivity/Text/Editors
 
 License:        GPL-2.0
@@ -54,21 +53,6 @@ Enki is an advanced text editor for programmers. It is:
     - High quality. No long list of fancy features.
       But, what is done, is done well.
     - Open source. In GitHub we trust.
-
-%description -l es
-Enki es:
-    - Fácil para el usuario. Interfaz intuitiva. Funciona bien sin configurar
-      nada. No necesita leer toneladas de documentación.
-    - Fácil para programadores. Programe lo más rápido que pueda. Sin ratón.
-    - Ligero. Algunos IDE muestran una pantalla de bienvenida. Enki nunca lo
-      hará. Simplemente arranca rápido.
-    - Extensible. Los sistemas operativos están diseñados para ejecutar
-      aplicaciones. Enki está diseñado para ejecutar extensiones.
-    - Multiplataforma. Usa tu editor habitual en cualquier sistema operativo.
-      Actualmente se ha probado en Linux, MacOS X y Windows.
-    - De alta calidad. No tiene una larga lista de características
-      maravillosas, pero lo que hace, lo hace bien.
-    - De código libre. Esta es nuestra religión.
 
 
 %prep
