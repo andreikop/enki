@@ -107,9 +107,9 @@ baseurl: .
     </div>
     <div class="screenshot-row">
         <div class="screenshot">
-            <a href="screenshots/search-replace.png" rel="lightbox[screenshots]" title="Good bye sed">
-                <img src="screenshots/preview/search-replace.png" class="fancy-border" /></a><br />
-            Good bye sed
+            <a href="screenshots/navigator.png" rel="lightbox[screenshots]" title="Navigator">
+                <img src="screenshots/preview/navigator.png" class="fancy-border" /></a><br />
+            Navigator
         </div>
         <div class="screenshot">
             <a href="screenshots/markdown-preview.png" rel="lightbox[screenshots]" title="Markdown live preview">
