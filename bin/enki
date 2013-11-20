@@ -23,7 +23,7 @@ import enki.core.defines
 
 class _StartProfiler:
     def __init__(self, enabled):
-        self._enabled = enabled
+        self.enabled = enabled
         
         if enabled:
             self._steps = []
@@ -32,13 +32,13 @@ class _StartProfiler:
             self._startTime = datetime.now()
 
     def stepDone(self, description):
-        if not self._enabled:
+        if not self.enabled:
             return
         
         self._steps.append((description, self._importedDateTime.now()))
 
     def printInfo(self):
-        if not self._enabled:
+        if not self.enabled:
             return
         
         prev = self._startTime
@@ -265,11 +265,11 @@ def main():
     profiler.stepDone('Show main window')
 
     # execute application
-    if profiler is None:
-        result = app.exec_()
-    else:
+    if profiler.enabled:
         core.workspace().forceCloseAllDocuments()
         result = 0
+    else:
+        result = app.exec_()
 
     core.term()
 
