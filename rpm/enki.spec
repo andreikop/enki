@@ -105,6 +105,10 @@ fi
 
 
 %changelog
+* Wed Nov 20 2013 Andrei Kopats <hlamer@tut.by> 13.11.0-5
+- RPM release for Suse
+- Navigation, based on ctags
+
 * Sun Oct 6 2013 Jairo Llopis <yajo.sk8@gmail.com> 13.09.2-5
 - Add dependency to python-docutils.
 
