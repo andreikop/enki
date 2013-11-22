@@ -60,16 +60,32 @@ def excepthook(excepttype, exceptvalue, tracebackobj):
     logging.critical(text)
     
     from PyQt4 import uic
-    from PyQt4.QtGui import QDialog
+    from PyQt4.QtCore import pyqtSignal, QObject, QTimer
+    from PyQt4.QtGui import QApplication, QDialog
     
     from enki.core.core import core, DATA_FILES_PATH
     
-    dialog = QDialog(core.mainWindow())
-    uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/Exception.ui'), dialog)
+    class InGuiThread(QObject):
+        """QMessageBox can be shown only from GUI thread,
+        Move to GUI thread via signal-slot
+        """
+        showMessageSignal = pyqtSignal()
+        
+        def __init__(self):
+            QObject.__init__(self)
+            self.moveToThread(QApplication.instance().thread())
+            self.showMessageSignal.connect(self.showMessageSlot)
+            self.showMessageSignal.emit()
+        
+        def showMessageSlot(self):
+            dialog = QDialog(core.mainWindow())
+            uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/Exception.ui'), dialog)
+            
+            dialog.textBrowser.setText(text)
+            
+            dialog.exec_()
     
-    dialog.textBrowser.setText(text)
-    
-    dialog.exec_()
+    core._do_not_gargadge_collect_this_objects.append(InGuiThread())
 
 
 def _showErrorMessage(haveQt, header, html, plain):

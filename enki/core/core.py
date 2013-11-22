@@ -55,6 +55,9 @@ class Core(QObject):
     **Signal** emitted, when settings dialog had been accepted
     """  # pylint: disable=W0105
 
+    # Add object here to avoid gardadge-collecting it. NOT FOR PLUGINS USE!!!
+    _do_not_gargadge_collect_this_objects = []
+
     def __init__(self):
         QObject.__init__(self)
         self._mainWindow = None
