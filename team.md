@@ -19,7 +19,8 @@ Enki developer
 ## Filipe Azevedo
 **PasNox**
 
-![Photo](photo/PasNox.jpg)  
+![Photo](photo/PasNox.jpg)
+
 [Monkey Studio](http://monkeystudio.org) founder, maintainer and the most active developer.
 Guy, who knows Qt better, than its developers do.
 <hr/>
@@ -28,6 +29,7 @@ Guy, who knows Qt better, than its developers do.
 **Zhenech**
 
 ![Photo](photo/EvgenyGolov.jpg)  
+
 Monkey Studio Debian packager.  
 Our Debian guru.
 <hr/>
@@ -36,6 +38,7 @@ Our Debian guru.
 **Yajo**
 
 ![Photo](http://gravatar.com/avatar/76340b30482bc6dc546d6a47e724c3d1?s=120)
+
 RPM spec author.
 Fedora packager.
 <hr/>
