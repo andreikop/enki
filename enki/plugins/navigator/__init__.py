@@ -89,11 +89,6 @@ class Tag:
 def parseTags(text):
     def parseTag(line):
         items = line.split('\t')
-        
-        while not items[2].endswith('$/;"'):  # incorrectly split line, because tag text contains \t
-            items[2] = items[2] + items[3]
-            del items[3]
-        
         name = items[0]
         if len(items) == 5:
             type_ = items[-2]
@@ -144,7 +139,10 @@ def parseTags(text):
 def processText(ctagsLang, text):
     ctagsPath = core.config()['Navigator']['CtagsPath']
     langArg = '--language-force={}'.format(ctagsLang)
-    data = text.encode('utf8')
+    
+    # \t is used as separator in ctags output. Avoid \t in tags text to simplify parsing
+    # encode to utf8
+    data = text.encode('utf8').replace('\t', '    ')
     
     with tempfile.NamedTemporaryFile() as tempFile:
         tempFile.file.write(data)
