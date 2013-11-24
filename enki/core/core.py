@@ -125,7 +125,29 @@ class Core(QObject):
         # Create plugins
         firstPlugin = True
         pluginsPath = os.path.join(os.path.dirname(__file__), '../plugins')
-        for loader, name, isPackage in pkgutil.iter_modules([pluginsPath]):
+        if True or getattr(sys, 'frozen', False):
+            # Horrible kludge: when frozen, hard-code the plugins to import since pkgutil.iter_modules doesn't work in this case.
+            pluginsIterator = ((0, 'appshortcuts', 0),
+                                       (0, 'cppfileswitch', 0),
+                                       (0, 'detectindent', 0),
+                                       (0, 'editortoolbar', 0),
+                                       (0, 'filebrowser', 0),
+                                       (0, 'helpmenu', 0),
+                                       (0, 'hideall', 0),
+                                       (0, 'navigator', 0),
+                                       (0, 'openterm', 0),
+                                       (0, 'preview', 0),
+                                       (0, 'qpartsettings', 0),
+                                       (0, 'recentfiles', 0),
+                                       (0, 'repl', 0),
+                                       (0, 'restorepos', 0),
+                                       (0, 'searchreplace', 0),
+                                       (0, 'session', 0),
+                                       (0, 'workspace_actions', 0),
+                                       (0, 'workspace_commands', 0),)
+        else:
+            pluginsIterator = pkgutil.iter_modules([pluginsPath])
+        for loader, name, isPackage in pluginsIterator:
             if firstPlugin:
                 firstPlugin = False
                 profiler.stepDone('Search plugins')
