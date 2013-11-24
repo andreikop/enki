@@ -128,7 +128,14 @@ class PreviewDock(DockWidget):
         self._widget = QWidget(self)
         
         from PyQt4 import uic  # lazy import for better startup performance
-        uic.loadUi(os.path.join(os.path.dirname(__file__), 'Preview.ui'), self._widget)
+        try:
+            uic.loadUi(os.path.join(os.path.dirname(__file__), 'Preview.ui'), self._widget)
+        except (IOError, ImportError):
+            from Preview_ui import Ui_Form
+            class QWidgetUi(QWidget, Ui_Form):
+                pass
+            self._widget = QWidgetUi(self)
+            self._widget.setupUi(self._widget)
 
         self._loadTemplates()
 
