@@ -5,7 +5,7 @@
 %global icon_cache_gtk_update /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 Name:           enki
-Version:        13.11.0
+Version:        13.11.1
 Release:        5%{?dist}
 Summary:        Advanced text editor for programmers
 Group:          Productivity/Text/Editors
@@ -105,6 +105,10 @@ fi
 
 
 %changelog
+* Mon Nov 25 2013 Andrei Kopats <hlamer@tut.by> 13.11.1-7
+- Fix crash in Navigation
+- Recursively create directories on file save
+
 * Wed Nov 20 2013 Andrei Kopats <hlamer@tut.by> 13.11.0-6
 - RPM release for Suse
 - Navigation, based on ctags
