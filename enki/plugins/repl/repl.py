@@ -9,6 +9,7 @@ import os.path
 
 from PyQt4.QtCore import pyqtSignal, QEvent, QObject, Qt, QTimer
 from PyQt4.QtGui import QFileDialog, QFont, QIcon, QMessageBox, QWidget
+from PyQt4 import uic
 
 from enki.core.core import core
 
@@ -26,7 +27,6 @@ class SettingsWidget(QWidget):
     """
     def __init__(self, *args):
         QWidget.__init__(self, *args)
-        from PyQt4 import uic  # lazy import for better startup performance
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Settings.ui'), self)
         self.pbInterpreterPath.clicked.connect(self._onPbInterpreterPathClicked)
     

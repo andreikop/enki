@@ -28,6 +28,8 @@ from enki.core.core import core
 import enki.core.defines
 import enki.core.json_wrapper
 
+from ActionShortcutEditor import ActionShortcutEditor
+
 def tr(text):  # pylint: disable=C0103
     """ Stub for translation procedure
     """
@@ -104,7 +106,6 @@ class Plugin:
     def _onEditShortcuts(self):
         """Handler of *Edit->Shortcuts...* action. Shows dialog, than saves shortcuts to file
         """
-        from ActionShortcutEditor import ActionShortcutEditor  # lazy import for quicker app startup
         ActionShortcutEditor (self._actionManager, core.mainWindow()).exec_()
         self._saveShortcuts()
 

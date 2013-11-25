@@ -78,6 +78,7 @@ from PyQt4.QtGui import QColor, \
                         QFontDialog, \
                         QIcon, \
                         QTreeWidgetItem
+from PyQt4 import uic
 
 from enki.core.core import core, DATA_FILES_PATH
 
@@ -272,8 +273,7 @@ class UISettings(QDialog):
     def __init__(self, parent):
         QDialog.__init__(self, parent)
         self._createdObjects = []
-
-        from PyQt4 import uic  # lazy import for better startup performance
+        
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/UISettings.ui'), self)
         self.swPages.setCurrentIndex(0)
         

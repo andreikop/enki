@@ -9,6 +9,7 @@ import threading
 
 from PyQt4.QtCore import pyqtSignal, QObject, Qt, QThread, QTimer, QVariant, QAbstractItemModel, QModelIndex
 from PyQt4.QtGui import QApplication, QBrush, QColor, QFileDialog, QLabel, QIcon, QTreeView, QWidget
+from PyQt4 import uic
 
 from enki.widgets.dockwidget import DockWidget
 
@@ -477,7 +478,6 @@ class SettingsWidget(QWidget):
     """
     def __init__(self, *args):
         QWidget.__init__(self, *args)
-        from PyQt4 import uic  # lazy import for better startup performance
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Settings.ui'), self)
         self.pbCtagsPath.clicked.connect(self._onPbCtagsPathClicked)
     

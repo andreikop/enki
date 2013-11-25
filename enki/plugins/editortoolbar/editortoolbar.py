@@ -12,6 +12,7 @@ import os.path
 
 from PyQt4.QtCore import QSize, QTimer
 from PyQt4.QtGui import QDialog, QFontMetrics, QIcon, QMenu, QToolButton
+from PyQt4 import uic
 
 from enki.core.core import core
 
@@ -101,7 +102,6 @@ class _IndentationDialog(QDialog):
         QDialog.__init__(self, parent)
         self._document = document
         
-        from PyQt4 import uic  # lazy import for better startup performance
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'IndentationDialog.ui'), self)
         self._widthSlider.setValue(document.qutepart.indentWidth)
         self._updateWidthLabel()

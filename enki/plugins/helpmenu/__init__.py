@@ -10,6 +10,7 @@ import os.path
 
 from PyQt4.QtCore import QObject
 from PyQt4.QtGui import QApplication, QDialog, QIcon
+from PyQt4 import uic
 
 from enki.core.defines import PACKAGE_NAME, PACKAGE_VERSION
 from enki.core.core import core
@@ -51,7 +52,6 @@ class UIAbout(QDialog):
     """
     def __init__(self, parentWindow, tab):
         QDialog.__init__(self, parentWindow)
-        from PyQt4 import uic  # lazy import for better startup performance
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'UIAbout.ui'), self)
         self.setWindowTitle( self.tr( "About : %s" % PACKAGE_NAME ) )
         

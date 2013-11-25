@@ -12,6 +12,7 @@ from the core for make it smaller.
 import os
 
 from PyQt4.QtGui import QWidget
+from PyQt4 import uic
 
 from enki.core.core import core
 
@@ -23,7 +24,6 @@ class _SettingsPageWidget(QWidget):
     """
     def __init__(self, formName, *args):
         QWidget.__init__(self, *args)
-        from PyQt4 import uic  # lazy import for better startup performance
         uic.loadUi(os.path.join(os.path.dirname(__file__), formName), self)
 
 class _FontSettingsWidget(QWidget):
@@ -31,7 +31,6 @@ class _FontSettingsWidget(QWidget):
     """
     def __init__(self, *args):
         QWidget.__init__(self, *args)
-        from PyQt4 import uic  # lazy import for better startup performance
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Font.ui'), self)
 
 
@@ -40,7 +39,6 @@ class _IndentationSettingsWidget(QWidget):
     """
     def __init__(self, *args):
         QWidget.__init__(self, *args)
-        from PyQt4 import uic  # lazy import for better startup performance
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Indentation.ui'), self)
 
 
@@ -49,7 +47,6 @@ class _AutocompletionSettingsWidget(QWidget):
     """
     def __init__(self, *args):
         QWidget.__init__(self, *args)
-        from PyQt4 import uic  # lazy import for better startup performance
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Autocompletion.ui'), self)
 
 
@@ -58,7 +55,6 @@ class _EolSettingsWidget(QWidget):
     """
     def __init__(self, *args):
         QWidget.__init__(self, *args)
-        from PyQt4 import uic  # lazy import for better startup performance
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Eol.ui'), self)
 
 

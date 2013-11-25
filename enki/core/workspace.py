@@ -24,6 +24,7 @@ from PyQt4.QtGui import QAction, \
                         QStackedWidget, \
                         QShortcut
 from PyQt4.QtCore import pyqtSignal, QEvent, Qt  # pylint: disable=E0611
+from PyQt4 import uic
 
 from enki.core.core import core, DATA_FILES_PATH
 import enki.core.openedfilemodel
@@ -37,7 +38,6 @@ class _UISaveFiles(QDialog):
     def __init__(self, workspace, documents):
         super(_UISaveFiles, self).__init__(workspace)
         self.cancelled = False
-        from PyQt4 import uic  # lazy import for better startup performance
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/SaveFiles.ui'), self)
         self.buttonBox.clicked.connect(self._onButtonClicked)
         

@@ -6,6 +6,7 @@ import os.path
 
 from PyQt4.QtCore import pyqtSignal, QSize, Qt, QThread, QTimer, QUrl
 from PyQt4.QtGui import QFileDialog, QIcon, QMessageBox, QWidget
+from PyQt4 import uic
 
 from enki.core.core import core
 
@@ -127,7 +128,6 @@ class PreviewDock(DockWidget):
         DockWidget.__init__(self, core.mainWindow(), "&Preview", QIcon(':/enkiicons/internet.png'), "Alt+P")
         self._widget = QWidget(self)
         
-        from PyQt4 import uic  # lazy import for better startup performance
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Preview.ui'), self._widget)
 
         self._loadTemplates()

@@ -22,6 +22,7 @@ from PyQt4.QtGui import QApplication, QCompleter, QColor, QDirModel, QFileDialog
                         QProgressBar, \
                         QShortcut, \
                         QToolButton, QWidget
+from PyQt4 import uic
 
 from enki.core.core import core
 
@@ -114,7 +115,6 @@ class SearchWidget(QFrame):
         QFrame.__init__(self, core.workspace())
         self._mode = None
         self.plugin = plugin
-        from PyQt4 import uic  # lazy import for better startup performance
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'SearchWidget.ui'), self)
         
         self.cbSearch.setCompleter(None)
