@@ -309,7 +309,7 @@ class Document(QWidget):
         dirPath = os.path.dirname(filePath)
         if  not os.path.exists(dirPath):
             try:
-                os.mkdir(dirPath)
+                os.makedirs(dirPath)
             except OSError, ex:
                 error = unicode(str(ex), 'utf8')
                 QMessageBox.critical(None,
