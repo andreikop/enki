@@ -47,6 +47,7 @@ class Plugin(QObject):
         for action in self._createdActions:
             core.actionManager().removeAction(action)
 
+
 class UIAbout(QDialog):
     """About dialogue
     """
@@ -56,9 +57,11 @@ class UIAbout(QDialog):
         self.setWindowTitle( self.tr( "About : %s" % PACKAGE_NAME ) )
         
         self.lTitle.setText( PACKAGE_NAME )
-        qutepartVersion = '.'.join( [str(item) for item in qutepart.VERSION] )
+        qpartNumbers = '.'.join( [str(item) for item in qutepart.VERSION] )
+        qpartParser = 'binary' if qutepart.binaryParserAvailable else 'Python'
+        qpartVersion = '{} (with {} parser)'.format(qpartNumbers, qpartParser)
         self.lVersion.setText( self.tr( "Version %s\nUses Qutepart %s") % \
-                                        (PACKAGE_VERSION, qutepartVersion))
+                                        (PACKAGE_VERSION, qpartVersion))
         
         tabs = {'about': self.wLogo,
                 'help': self.tbHelp,
