@@ -556,7 +556,7 @@ class Workspace(QStackedWidget):
         self.documentClosed.emit( document )
         # close document
         self._unhandleDocument( document )
-        document.del_()        
+        document.del_()
 
     def closeDocument( self, document):
         """Close opened file, remove document from workspace and delete the widget.

@@ -214,6 +214,10 @@ class Document(QWidget):
         """Explicytly called destructor
         """
         self._fileWatcher.disable()
+        
+        # avoid emit on text change, document shall behave like it is already dead
+        self.qutepart.document().modificationChanged.disconnect()
+        self.qutepart.text = ''  # stop background highlighting, free memory
 
     def _onWatcherFileModified(self, modified):
         """File has been modified
