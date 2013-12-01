@@ -6,6 +6,7 @@ import subprocess
 import shutil
 import os.path
 import threading
+from contextlib import contextmanager
 
 from PyQt4.QtCore import pyqtSignal, QObject, Qt, QThread, QTimer, QVariant, QAbstractItemModel, QModelIndex
 from PyQt4.QtGui import QApplication, QBrush, QColor, QFileDialog, QLabel, QIcon, QTreeView, QWidget
@@ -136,6 +137,17 @@ def parseTags(text):
     
     return tags
 
+# Workaround for tempfile.NamedTemporaryFile's behavior, which prevents Windows processes from accessing the file until it's deleted. Adapted from http://bugs.python.org/issue14243.
+@contextmanager
+def named_temp():
+    f = tempfile.NamedTemporaryFile(delete=False)
+    try:
+        yield f
+    finally:
+        try:
+            os.unlink(f.name)
+        except OSError:
+            pass
 
 def processText(ctagsLang, text):
     ctagsPath = core.config()['Navigator']['CtagsPath']
@@ -144,11 +156,11 @@ def processText(ctagsLang, text):
     # \t is used as separator in ctags output. Avoid \t in tags text to simplify parsing
     # encode to utf8
     data = text.encode('utf8').replace('\t', '    ')
-    
-    with tempfile.NamedTemporaryFile() as tempFile:
-        tempFile.file.write(data)
-        tempFile.flush()
-        
+
+    with named_temp() as tempFile:
+        tempFile.write(data)
+        tempFile.close() # Windows compatibility
+
         try:
             popen = subprocess.Popen(
                     [ctagsPath, '-f', '-', '-u', '--fields=nKs', langArg, tempFile.name],
