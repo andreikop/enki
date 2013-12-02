@@ -5,6 +5,7 @@ import sys
 import threading
 import shutil
 import time
+import tempfile
 
 import sip
 sip.setapi('QString', 2)
@@ -73,18 +74,23 @@ class TestCase(unittest.TestCase):
     
     app = QApplication( sys.argv )
     
-    TEST_FILE_DIR = '/tmp/enki-tests/'
+    TEST_FILE_DIR = tempfile.gettempdir() + '/enki-tests/'
     
     EXISTING_FILE = TEST_FILE_DIR + 'existing_file.txt'
     EXISTING_FILE_TEXT = 'hi\n'
     
     def _cleanUpFs(self):
-        if os.path.isfile('/tmp/enki.json'):
-            os.unlink('/tmp/enki.json')
+        json_tmp = tempfile.gettempdir() + '/enki.json'
+        try:
+            os.unlink(json_tmp)
+        except OSError as e:
+            pass
         
-        if os.path.isdir(self.TEST_FILE_DIR):
+        try:
             shutil.rmtree(self.TEST_FILE_DIR)
-        
+        except OSError as e:
+            pass
+
     
     def setUp(self):
         self._cleanUpFs()
