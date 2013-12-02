@@ -74,9 +74,9 @@ class TestCase(unittest.TestCase):
     
     app = QApplication( sys.argv )
     
-    TEST_FILE_DIR = tempfile.gettempdir() + '/enki-tests/'
+    TEST_FILE_DIR = tempfile.gettempdir() + '/enki-tests'
     
-    EXISTING_FILE = TEST_FILE_DIR + 'existing_file.txt'
+    EXISTING_FILE = TEST_FILE_DIR + '/existing_file.txt'
     EXISTING_FILE_TEXT = 'hi\n'
     
     def _cleanUpFs(self):
