@@ -27,6 +27,15 @@ logging.basicConfig(level=logging.ERROR)
 logging.getLogger('qutepart').removeHandler(qutepart.consoleHandler)
 
 
+class DummyProfiler:
+    """Dummy profiler is used to run core without profiling"""
+    def stepDone(self, description):
+        pass
+
+    def printInfo(self):
+        pass
+
+
 def in_main_loop(func, *args):
     """Decorator executes test method in the QApplication main loop.
     QAction shortcuts doesn't work, if main loop is not running.
@@ -84,7 +93,7 @@ class TestCase(unittest.TestCase):
             f.write(self.EXISTING_FILE_TEXT)
         
         if self.INIT_CORE:
-            core.init(None)
+            core.init(DummyProfiler())
             
             if self.CREATE_NOT_SAVED_DOCUMENT:
                 core.workspace().createEmptyNotSavedDocument()

@@ -25,7 +25,7 @@ class RestoreOldConfigs(base.TestCase):
         enki.core.defines.CONFIG_DIR = self.TEST_FILE_DIR + '/new'
         try:
             os.mkdir(enki.core.core._OLD_CONFIG_DIR)
-            core.init(None)
+            core.init(base.DummyProfiler())
             self.assertTrue(os.path.isdir(enki.core.defines.CONFIG_DIR))
             self.assertFalse(os.path.isdir(enki.core.core._OLD_CONFIG_DIR))
         finally:
@@ -46,7 +46,7 @@ class RestoreOldConfigs(base.TestCase):
                 self.assertTrue(dialog.windowTitle().startswith('Failed to move configs'))
                 dialog.accept()
         
-            self.openDialog(lambda: core.init(None), inDialog)
+            self.openDialog(lambda: core.init(base.DummyProfiler()), inDialog)
         finally:
             enki.core.core._OLD_CONFIG_DIR = old_cfg
             enki.core.defines.CONFIG_DIR = curr_cfg
