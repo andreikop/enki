@@ -48,13 +48,23 @@ def in_main_loop(func, *args):
         def execWithArgs():
             core.mainWindow().show()
             QTest.qWaitForWindowShown(core.mainWindow())
-            while self.app.hasPendingEvents():
+# This doesn't work.
+#            while self.app.hasPendingEvents():
+#                self.app.sendPostedEvents()
+            count = 0
+            while self.app.hasPendingEvents() and (count <1000):
+                count += 1
                 self.app.processEvents()
             
             try:
                 func(*args)
             finally:
-                while self.app.hasPendingEvents():
+# This doesn't work.
+#                while self.app.hasPendingEvents():
+#                    self.app.sendPostedEvents()
+                count = 0
+                while self.app.hasPendingEvents() and (count < 1000):
+                    count += 1
                     self.app.processEvents()
                 
                 self.app.quit()
