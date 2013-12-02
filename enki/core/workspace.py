@@ -190,6 +190,8 @@ class Workspace(QStackedWidget):
         ('mEdit/aSeparatorBeforeIndent', None),
         ('mEdit/aDecreaseIndent', 'decreaseIndentAction'),
         ('mEdit/aAutoIndent', 'autoIndentLineAction'),
+        ('mEdit/aIndentWithSpace', 'indentWithSpaceAction'),
+        ('mEdit/aUnIndentWithSpace', 'unIndentWithSpaceAction'),
         ('mEdit/aInvokeCompletion', 'invokeCompletionAction'),
         
         ('mNavigation/mScroll/aUp', 'scrollUpAction'),
