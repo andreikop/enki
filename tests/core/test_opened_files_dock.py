@@ -3,6 +3,7 @@
 import unittest
 import os.path
 import sys
+import tempfile
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
@@ -56,7 +57,6 @@ class Rename(base.TestCase):
             text = f.read()
             self.assertEqual(text, self.EXISTING_FILE_TEXT)
 
-    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     @base.in_main_loop
     def test_os_fail(self):
         core.workspace().openFile(self.EXISTING_FILE)
@@ -98,19 +98,26 @@ class Rename(base.TestCase):
         self.assertFalse(os.path.isfile(self.EXISTING_FILE))
         self.assertIsNone(core.workspace().currentDocument())
 
+    # This test reports a permission denied dailog box failure in Windows, but then crashes. Not sure how to work around this.
+#    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     @base.in_main_loop
     def test_dev_null_os_fail(self):
-        # TODO choose path for Windows
-        existing_not_deletable_file = '/etc/passwd'
-        
-        core.workspace().openFile(existing_not_deletable_file)
-        
-        NEW_PATH = '/dev/null'
-        
-        _startEditCurrentFilePath()
-                
-        self.keyClicks(NEW_PATH)
-        
+        # On Windows, a file in use cannot be deleted. Create one.
+        with tempfile.NamedTemporaryFile() as tempFile:
+            # In Linux, pick and undeleteable file (don't run this as root!)
+            if sys.platform.startswith("linux"):
+                existing_not_deletable_file = '/etc/passwd'
+            else:
+                existing_not_deletable_file = tempFile.name
+            
+            core.workspace().openFile(existing_not_deletable_file)
+            
+            NEW_PATH = '/dev/null'
+            
+            _startEditCurrentFilePath()
+                    
+            self.keyClicks(NEW_PATH)
+            
         def runInDialog(dialog):
             self.assertTrue(dialog.windowTitle(), 'Not this time')
             self.keyClick(Qt.Key_Return)
