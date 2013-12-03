@@ -7,8 +7,4 @@ Converting Enki to a binary
 
 Packaging
 ------------
-To do.
-
-Bugs
------
-Still trying to get navigator to work.
+- Execute `win\build_installer.bat` from the root Enki directory.

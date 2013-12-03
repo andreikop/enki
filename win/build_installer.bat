@@ -57,6 +57,9 @@ rmdir /q /s src\.git
 : Copy over the executable
 xcopy /E /I ..\enki bin
 :
+: Copy over ctags
+copy ..\..\..\ctags58\ctags.exe bin
+:
 : Package
 : -------
 : The :doc:`Enki.iss <Enki.iss>` script then packages everything in ``dist/all`` into a single installer.
