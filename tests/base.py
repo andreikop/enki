@@ -104,7 +104,11 @@ class TestCase(unittest.TestCase):
     
     def setUp(self):
         self._cleanUpFs()
-        os.mkdir(self.TEST_FILE_DIR)
+        try:
+            os.mkdir(self.TEST_FILE_DIR)
+        except OSError as e:
+            pass
+        
         with open(self.EXISTING_FILE, 'w') as f:
             f.write(self.EXISTING_FILE_TEXT)
         
