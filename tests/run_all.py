@@ -1,7 +1,7 @@
-#bin/sh
+#!/usr/bin/env python
 
 import os
-from os.path import join, getsize
+from os.path import join
 import subprocess
 
 for root, dirs, files in os.walk('.'):

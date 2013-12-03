@@ -37,6 +37,15 @@ class DummyProfiler:
         pass
 
 
+def _processPendingEvents(app):
+    """Process pending application events.
+    Timeout is used, because on Windows hasPendingEvents() always returns True
+    """
+    t = time.time()
+    while app.hasPendingEvents() and (time.time() - t < 0.1):
+        app.processEvents()
+
+
 def in_main_loop(func, *args):
     """Decorator executes test method in the QApplication main loop.
     QAction shortcuts doesn't work, if main loop is not running.
@@ -48,23 +57,12 @@ def in_main_loop(func, *args):
         def execWithArgs():
             core.mainWindow().show()
             QTest.qWaitForWindowShown(core.mainWindow())
-# This doesn't work.
-#            while self.app.hasPendingEvents():
-#                self.app.sendPostedEvents()
-            t = time.time()
-            while self.app.hasPendingEvents() and (time.time() - t < 0.1):
-                self.app.processEvents()
+            _processPendingEvents(self.app)
             
             try:
                 func(*args)
             finally:
-# This doesn't work.
-#                while self.app.hasPendingEvents():
-#                    self.app.sendPostedEvents()
-                t = time.time()
-                while self.app.hasPendingEvents() and (time.time() - t < 0.1):
-                    self.app.processEvents()
-                
+                _processPendingEvents(self.app)
                 self.app.quit()
         
         QTimer.singleShot(0, execWithArgs)

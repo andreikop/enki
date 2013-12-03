@@ -23,7 +23,6 @@ def _startEditCurrentFilePath():
 
 
 class Rename(base.TestCase):
-    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     def test_flags(self):
         workspace = core.workspace()
         tree = core.workspace().openedFileExplorer.tvFiles
@@ -35,7 +34,7 @@ class Rename(base.TestCase):
         
         self.assertFalse(editable())  # empty not saved document
         
-        workspace.openFile('/etc/passwd')
+        workspace.openFile(self.EXISTING_FILE)
         self.assertTrue(editable())  # normal document
         
         self.keyClicks('adsf', widget=workspace.currentDocument().qutepart)
@@ -62,7 +61,8 @@ class Rename(base.TestCase):
     def test_os_fail(self):
         core.workspace().openFile(self.EXISTING_FILE)
         
-        NEW_PATH = '/root/newname'
+        # The path shall be invalid on both Unix and Windows
+        NEW_PATH = '/root/newname:::'
         
         _startEditCurrentFilePath()
         self.keyClicks(NEW_PATH)
@@ -74,19 +74,16 @@ class Rename(base.TestCase):
         self.openDialog(lambda: self.keyClick(Qt.Key_Return),
                         runInDialog)
 
-    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     @base.in_main_loop
     def test_same_path(self):
-        FILE_PATH = '/etc/passwd'
-        core.workspace().openFile(FILE_PATH)
+        core.workspace().openFile(self.EXISTING_FILE)
         
         _startEditCurrentFilePath()
-        self.keyClicks(FILE_PATH)
+        self.keyClicks(self.EXISTING_FILE)
         self.keyClick(Qt.Key_Return)
         
         self.assertEqual(self.app.activeWindow(), core.mainWindow())  # not messagebox with error
 
-    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     @base.in_main_loop
     def test_dev_null(self):
         core.workspace().openFile(self.EXISTING_FILE)
@@ -101,10 +98,13 @@ class Rename(base.TestCase):
         self.assertFalse(os.path.isfile(self.EXISTING_FILE))
         self.assertIsNone(core.workspace().currentDocument())
 
-    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     @base.in_main_loop
     def test_dev_null_os_fail(self):
-        core.workspace().openFile('/etc/passwd')
+        # TODO choose path for Windows
+        existing_not_deletable_file = '/etc/passwd'
+        
+        core.workspace().openFile(existing_not_deletable_file)
+        
         NEW_PATH = '/dev/null'
         
         _startEditCurrentFilePath()
