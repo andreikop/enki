@@ -51,9 +51,8 @@ def in_main_loop(func, *args):
 # This doesn't work.
 #            while self.app.hasPendingEvents():
 #                self.app.sendPostedEvents()
-            count = 0
-            while self.app.hasPendingEvents() and (count <1000):
-                count += 1
+            t = time.time()
+            while self.app.hasPendingEvents() and (time.time() - t < 0.1):
                 self.app.processEvents()
             
             try:
@@ -62,9 +61,8 @@ def in_main_loop(func, *args):
 # This doesn't work.
 #                while self.app.hasPendingEvents():
 #                    self.app.sendPostedEvents()
-                count = 0
-                while self.app.hasPendingEvents() and (count < 1000):
-                    count += 1
+                t = time.time()
+                while self.app.hasPendingEvents() and (time.time() - t < 0.1):
                     self.app.processEvents()
                 
                 self.app.quit()
