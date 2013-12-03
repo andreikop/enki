@@ -23,6 +23,7 @@ def _startEditCurrentFilePath():
 
 
 class Rename(base.TestCase):
+    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     def test_flags(self):
         workspace = core.workspace()
         tree = core.workspace().openedFileExplorer.tvFiles
@@ -44,7 +45,7 @@ class Rename(base.TestCase):
     def test_success(self):
         core.workspace().openFile(self.EXISTING_FILE)
         
-        NEW_PATH = self.TEST_FILE_DIR + 'newname'
+        NEW_PATH = self.TEST_FILE_DIR + '/newname'
         _startEditCurrentFilePath()
         
         self.keyClicks(NEW_PATH)
@@ -56,6 +57,7 @@ class Rename(base.TestCase):
             text = f.read()
             self.assertEqual(text, self.EXISTING_FILE_TEXT)
 
+    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     @base.in_main_loop
     def test_os_fail(self):
         core.workspace().openFile(self.EXISTING_FILE)
@@ -72,6 +74,7 @@ class Rename(base.TestCase):
         self.openDialog(lambda: self.keyClick(Qt.Key_Return),
                         runInDialog)
 
+    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     @base.in_main_loop
     def test_same_path(self):
         FILE_PATH = '/etc/passwd'
@@ -83,6 +86,7 @@ class Rename(base.TestCase):
         
         self.assertEqual(self.app.activeWindow(), core.mainWindow())  # not messagebox with error
 
+    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     @base.in_main_loop
     def test_dev_null(self):
         core.workspace().openFile(self.EXISTING_FILE)
@@ -97,6 +101,7 @@ class Rename(base.TestCase):
         self.assertFalse(os.path.isfile(self.EXISTING_FILE))
         self.assertIsNone(core.workspace().currentDocument())
 
+    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     @base.in_main_loop
     def test_dev_null_os_fail(self):
         core.workspace().openFile('/etc/passwd')
@@ -115,4 +120,4 @@ class Rename(base.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+        unittest.main()

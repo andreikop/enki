@@ -37,8 +37,8 @@ class Rename(base.TestCase):
     
     @base.in_main_loop
     def test_success(self):
-        OLD_PATH = self.TEST_FILE_DIR + 'oldname'
-        NEW_PATH = self.TEST_FILE_DIR + 'newname'
+        OLD_PATH = self.TEST_FILE_DIR + '/oldname'
+        NEW_PATH = self.TEST_FILE_DIR + '/newname'
         
         document = core.workspace().currentDocument()
         action = core.actionManager().action("mFile/mFileSystem/aRename")
@@ -67,6 +67,7 @@ class Rename(base.TestCase):
             text = f.read()
             self.assertEqual(text, 'hi\n')
 
+    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     def test_os_fail(self):
         NEW_PATH = '/root/newname'
 
@@ -86,6 +87,7 @@ class Rename(base.TestCase):
         
         self.openDialog(action.trigger, runInDialog)
 
+    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     def test_same_path(self):
         FILE_PATH = '/etc/passwd'
 
@@ -100,6 +102,7 @@ class Rename(base.TestCase):
         self.openDialog(action.trigger, runInDialog)
         # will freeze, if error happened
 
+    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     @base.in_main_loop
     def test_dev_null(self):
         action = core.actionManager().action("mFile/mFileSystem/aRename")
@@ -117,6 +120,7 @@ class Rename(base.TestCase):
         self.assertFalse(os.path.isfile(self.EXISTING_FILE))
         self.assertIsNone(core.workspace().currentDocument())
 
+    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     @base.in_main_loop
     def test_dev_null_os_fail(self):
         action = core.actionManager().action("mFile/mFileSystem/aRename")
@@ -153,6 +157,7 @@ class ToggleExecutable(base.TestCase):
         core.workspace().closeAllDocuments()
         self.assertFalse(action.isEnabled())
     
+    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     def test_action_text(self):
         document = core.workspace().openFile(self.EXISTING_FILE)
         menu = core.actionManager().action("mFile/mFileSystem").menu()
@@ -171,6 +176,7 @@ class ToggleExecutable(base.TestCase):
         menu.aboutToShow.emit()
         self.assertEqual(action.text(), 'Make executable')
     
+    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     def test_modify_flags(self):
         action = core.actionManager().action("mFile/mFileSystem/aToggleExecutable")
         
@@ -182,6 +188,7 @@ class ToggleExecutable(base.TestCase):
         action.trigger()
         self.assertFalse(os.access(self.EXISTING_FILE, os.X_OK))
 
+    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     @base.in_main_loop
     def test_os_fail(self):
         action = core.actionManager().action("mFile/mFileSystem/aToggleExecutable")

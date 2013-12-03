@@ -5,6 +5,7 @@ import sys
 import threading
 import shutil
 import time
+import tempfile
 
 import sip
 sip.setapi('QString', 2)
@@ -47,13 +48,21 @@ def in_main_loop(func, *args):
         def execWithArgs():
             core.mainWindow().show()
             QTest.qWaitForWindowShown(core.mainWindow())
-            while self.app.hasPendingEvents():
+# This doesn't work.
+#            while self.app.hasPendingEvents():
+#                self.app.sendPostedEvents()
+            t = time.time()
+            while self.app.hasPendingEvents() and (time.time() - t < 0.1):
                 self.app.processEvents()
             
             try:
                 func(*args)
             finally:
-                while self.app.hasPendingEvents():
+# This doesn't work.
+#                while self.app.hasPendingEvents():
+#                    self.app.sendPostedEvents()
+                t = time.time()
+                while self.app.hasPendingEvents() and (time.time() - t < 0.1):
                     self.app.processEvents()
                 
                 self.app.quit()
@@ -73,22 +82,31 @@ class TestCase(unittest.TestCase):
     
     app = QApplication( sys.argv )
     
-    TEST_FILE_DIR = '/tmp/enki-tests/'
+    TEST_FILE_DIR = tempfile.gettempdir() + '/enki-tests'
     
-    EXISTING_FILE = TEST_FILE_DIR + 'existing_file.txt'
+    EXISTING_FILE = TEST_FILE_DIR + '/existing_file.txt'
     EXISTING_FILE_TEXT = 'hi\n'
     
     def _cleanUpFs(self):
-        if os.path.isfile('/tmp/enki.json'):
-            os.unlink('/tmp/enki.json')
+        json_tmp = tempfile.gettempdir() + '/enki.json'
+        try:
+            os.unlink(json_tmp)
+        except OSError as e:
+            pass
         
-        if os.path.isdir(self.TEST_FILE_DIR):
+        try:
             shutil.rmtree(self.TEST_FILE_DIR)
-        
+        except OSError as e:
+            pass
+
     
     def setUp(self):
         self._cleanUpFs()
-        os.mkdir(self.TEST_FILE_DIR)
+        try:
+            os.mkdir(self.TEST_FILE_DIR)
+        except OSError as e:
+            pass
+        
         with open(self.EXISTING_FILE, 'w') as f:
             f.write(self.EXISTING_FILE_TEXT)
         
