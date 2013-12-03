@@ -23,7 +23,7 @@
 :  Additional path to search for hook files.
 :
 : --runtime-hook=path-to-hook-file
- 	Specify a file with a custom runtime hook.
+: 	Specify a file with a custom runtime hook.
 :
 : ``bin\enki``
 :   Enki entry point, from which Pyinstaller builds the application.
