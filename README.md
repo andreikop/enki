@@ -6,7 +6,7 @@
 ## Installation
 [Full instructions](http://enki-editor.org/install-sources.html)
 
-#### Install dependencies
+#### <a name="dependencies"></a>Install dependencies
 * [Python 2.7](http://python.org/download)
 * [PyQt4](http://www.riverbankcomputing.co.uk/software/pyqt/download)
 * [pyparsing](http://pyparsing.wikispaces.com/Download+and+Installation)
@@ -24,7 +24,7 @@
     ./bin/enki
 
 ## License
-GPL v2
+[GPL v2](LICENSE.GPL2.html)
 
 ## Authors
 
