@@ -99,7 +99,7 @@ class Rename(base.TestCase):
         self.assertIsNone(core.workspace().currentDocument())
 
     # This test reports a permission denied dailog box failure in Windows, but then crashes. Not sure how to work around this.
-#    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
+    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     @base.in_main_loop
     def test_dev_null_os_fail(self):
         # On Windows, a file in use cannot be deleted. Create one.
