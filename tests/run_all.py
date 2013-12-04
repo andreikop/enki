@@ -1,14 +1,8 @@
 #!/usr/bin/env python
 
-import os
-from os.path import join
-import subprocess
+import unittest
 
-for root, dirs, files in os.walk('.'):
-    for name in files:
-        full_path = join(root, name)
-        # See if the given file is executable.
-        if full_path.endswith('.py') and os.access(full_path, os.X_OK) and (not full_path.endswith('run_all.py')):
-            print('Running ' + full_path)
-            subprocess.call(['python', full_path])
-
+if __name__ == "__main__":
+    # Look for all tests. Using test_* instead of test_*.py finds modules (test_syntax and test_indenter).
+    suite = unittest.TestLoader().discover('.', pattern = "test_*")
+    unittest.TextTestRunner(verbosity=2).run(suite)
