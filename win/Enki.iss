@@ -11,7 +11,7 @@
 ; *********************************************************************************************************
 ; Enki.iss - `Inno Setup <http://www.jrsoftware.org/isinfo.php>`_ Script to package the Enki binary
 ; *********************************************************************************************************
-; This produces a setup .exe to install Enki. It was created from Example1.iss which comes with Inno setup plus info from
+; This produces a setup .exe to install Enki. It was created from ``Example1.iss`` which comes with Inno setup plus info from
 ; http://opencandy.com/2011/06/09/installer-platform-comparison-making-the-right-choice/.
 ;
 ; Provide a few handy definitions to avoid repetition.

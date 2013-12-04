@@ -1,4 +1,5 @@
 *.pyc
+*.pyo
 fresh/Makefile
 fresh/build
 build
@@ -8,3 +9,15 @@ dist/
 a.out
 tmp
 MANIFEST
+
+# CodeChat files
+_build
+*.py.rst
+*.iss.rst
+*.bat.rst
+
+# Installer
+win/Install_Enki.exe
+
+# PyInstaller files
+enki.spec

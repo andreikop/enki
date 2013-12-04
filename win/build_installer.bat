@@ -11,24 +11,10 @@
 :
 : .. highlight:: BatchLexer
 :
-: ****************************************************************
-: build_dist.bat - Package the executable then publish to the web.
-: ****************************************************************
-: This is the second phase of the build system. It packages a binary executable version of the program, together with its source code, into a single installer.
-:
-: Package creation
-: ================
-: This script makes use of several DOS commands with flags. A quick reference:
-:
-: For ``rmdir``:
-:
-: /S      Removes all directories and files in the specified directory in addition to the directory itself.  Used to remove a directory tree.
-: /Q      Quiet mode, do not ask if ok to remove a directory tree with /S
-:
-: For ``xcopy``:
-:
-: /E           Copies directories and subdirectories, including empty ones.
-: /I           If destination does not exist and copying more than one file, assumes that destination must be a directory.
+: *****************************************************************
+: build_installer.bat - Package the bundle into a Windows installer
+: *****************************************************************
+: This is the second phase of the :doc:`build system <build>`. It packages a bundled executable version of the program, together with its source code, into a single installer.
 :
 : Gather files
 : ------------
@@ -40,8 +26,20 @@
 : Component        Source                     Dest
 : ==============   ========================   ======================
 : The executable   ``dist/code_chat``         ``dist/all/bin``
-: Source code      Git repo in ``./``            ``dist/all/src``
+: Source code      Git repo in ``./``         ``dist/all/src``
 : ==============   ========================   ======================
+:
+: This script makes use of several DOS commands with flags. A quick reference:
+:
+: For ``rmdir``:
+:
+: /S      Removes all directories and files in the specified directory in addition to the directory itself.  Used to remove a directory tree.
+: /Q      Quiet mode, do not ask if ok to remove a directory tree with /S
+:
+: For ``xcopy``:
+:
+: /E           Copies directories and subdirectories, including empty ones.
+: /I           If destination does not exist and copying more than one file, assumes that destination must be a directory.
 :
 : Create a clean ``dist/all`` directory and enter it.
 mkdir dist
@@ -57,11 +55,16 @@ rmdir /q /s src\.git
 : Copy over the executable
 xcopy /E /I ..\enki bin
 :
-: Copy over ctags
+: Copy over the ctags executable.
 copy ..\..\..\ctags58\ctags.exe bin
 :
 : Package
 : -------
+: .. toctree::
+:    :hidden:
+:
+:    Enki.iss
+:
 : The :doc:`Enki.iss <Enki.iss>` script then packages everything in ``dist/all`` into a single installer.
 cd ..\..
 "\Program Files (x86)\Inno Setup 5\ISCC.exe" win\Enki.iss
