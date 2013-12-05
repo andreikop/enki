@@ -109,7 +109,7 @@ class Config():
         Menlo - modern Mac font,
         Monospace - default for other platforms
         """
-        fontFamilies = ("Menlo", "Monaco", "Monospace")
+        fontFamilies = ("Menlo", "Monaco", "Monospace", "Courier New")
         availableFontFamilies = QFontDatabase().families()
         for fontFamily in fontFamilies:
             if fontFamily in availableFontFamilies:
