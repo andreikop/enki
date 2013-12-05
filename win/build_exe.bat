@@ -9,7 +9,7 @@
 :    You should have received a copy of the GNU General Public License along with Enki.  If not, see <http://www.gnu.org/licenses/>.
 :
 :
-: .. highlight:: BatchLexer
+: .. highlight:: bat
 :
 : ****************************************************************************************
 : build_exe.bat - Build a self-contained executable bundle for the Enki application
