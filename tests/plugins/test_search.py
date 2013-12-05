@@ -224,9 +224,9 @@ class ReplaceInDirectory(base.TestCase):
         self.keyClick(Qt.Key_Tab)
         self.keyClicks('UUHHH')
         self.keyClick(Qt.Key_Enter)
-        QTest.qWait(200)  # searching
+        QTest.qWait(500)  # searching
         self.keyClick(Qt.Key_A, Qt.AltModifier)
-        QTest.qWait(200)  # replacing
+        QTest.qWait(500)  # replacing
         
         self.assertEqual(opened_file.qutepart.text, 'the text contains UUHHH bar\nand\nfew\nmore lines')
         self.assertEqual(opened_file.qutepart.cursorPosition, (3, 2))
