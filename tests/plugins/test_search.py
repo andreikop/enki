@@ -215,7 +215,7 @@ class ReplaceInDirectory(base.TestCase):
         opened_file = self.createFile('opened_file.txt', 'the text contains foo bar\nand\nfew\nmore lines')
         opened_file.qutepart.cursorPosition = (3, 2)
         
-        not_opened_file_path = self.TEST_FILE_DIR + 'not_opened_file.txt'
+        not_opened_file_path = os.path.join(self.TEST_FILE_DIR, 'not_opened_file.txt')
         with open(not_opened_file_path, 'w') as file_:
             file_.write('this file also contains foo bar')
             

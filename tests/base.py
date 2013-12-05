@@ -80,13 +80,13 @@ class TestCase(unittest.TestCase):
     
     app = QApplication( sys.argv )
     
-    TEST_FILE_DIR = tempfile.gettempdir() + '/enki-tests'
+    TEST_FILE_DIR = os.path.join(tempfile.gettempdir(), 'enki-tests')
     
-    EXISTING_FILE = TEST_FILE_DIR + '/existing_file.txt'
+    EXISTING_FILE = os.path.join(TEST_FILE_DIR, 'existing_file.txt')
     EXISTING_FILE_TEXT = 'hi\n'
     
     def _cleanUpFs(self):
-        json_tmp = tempfile.gettempdir() + '/enki.json'
+        json_tmp = os.path.join(tempfile.gettempdir(), 'enki.json')
         try:
             os.unlink(json_tmp)
         except OSError as e:
@@ -147,7 +147,7 @@ class TestCase(unittest.TestCase):
         
         File is opened
         """
-        path = self.TEST_FILE_DIR + name
+        path = os.path.join(self.TEST_FILE_DIR, name)
         with open(path, 'w') as file_:
             file_.write(text)
         
