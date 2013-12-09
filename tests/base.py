@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."
 
 from enki.widgets.dockwidget import DockWidget
 import enki.core.defines
-enki.core.defines.CONFIG_DIR = '/tmp'
+enki.core.defines.CONFIG_DIR = tempfile.gettempdir()
 from enki.core.core import core
 
 logging.basicConfig(level=logging.ERROR)
