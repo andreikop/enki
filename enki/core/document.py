@@ -207,6 +207,14 @@ class Document(QWidget):
         self._tryDetectSyntax()
     
     def _tryDetectSyntax(self):
+        if len(self.qutepart.lines) > (100 * 1000) and \
+           self.qutepart.language() is None:
+            """Qutepart uses too lot of memory when highlighting really big files
+            It may crash the editor, so, do not highlight really big files.
+            But, do not disable highlighting for files, which already was highlighted
+            """
+            return
+        
         self.qutepart.detectSyntax(sourceFilePath=self.filePath(),
                                    firstLine=self.qutepart.lines[0])
 
