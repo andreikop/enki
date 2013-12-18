@@ -12,6 +12,7 @@ from PyQt4.QtGui import QApplication
 
 from enki.lib.htmldelegate import htmlEscape
 
+
 class Result:  # pylint: disable=R0902
     """One found by search thread item. Consists coordinates and capture. Used by SearchResultsModel
     """
@@ -51,11 +52,12 @@ class Result:  # pylint: disable=R0902
     
     def tooltip(self):
         """Tooltip of the search result"""
-        return self.wholeLine
+        return self.wholeLine.strip()
     
     def hasChildren(self):
         """Check if QAbstractItem has children"""
         return False
+
 
 class FileResults:
     """Object stores all items, found in the file
@@ -97,6 +99,7 @@ class FileResults:
         """Check if item has children
         """
         return 0 != len(self.results)
+
 
 class SearchResultsModel(QAbstractItemModel):
     """AbstractItemodel used for display search results in 'Search in directory' and 'Replace in directory' mode
