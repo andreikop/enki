@@ -75,8 +75,6 @@ def in_main_loop(func, *args):
 
 class TestCase(unittest.TestCase):
     INIT_CORE = True
-    CREATE_NOT_SAVED_DOCUMENT = True
-    NOT_SAVED_DOCUMENT_TEXT = None
     
     app = QApplication( sys.argv )
     
@@ -110,11 +108,6 @@ class TestCase(unittest.TestCase):
         
         if self.INIT_CORE:
             core.init(DummyProfiler())
-            
-            if self.CREATE_NOT_SAVED_DOCUMENT:
-                core.workspace().createEmptyNotSavedDocument()
-                if self.NOT_SAVED_DOCUMENT_TEXT is not None:
-                    core.workspace().currentDocument().qutepart.text = self.NOT_SAVED_DOCUMENT_TEXT
     
     def tearDown(self):
         for document in core.workspace().documents():

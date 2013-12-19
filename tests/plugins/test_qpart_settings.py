@@ -15,7 +15,13 @@ from PyQt4.QtGui import QColor, QFont, QPlainTextEdit, QTextOption
 from enki.core.core import core
 
 
-class Font(base.TestCase):
+class _BaseTestCase(base.TestCase):
+    def setUp(self):
+        base.TestCase.setUp(self)
+        core.workspace().createEmptyNotSavedDocument()
+
+
+class Font(_BaseTestCase):
     def test_1(self):
         font = QFont("Arial", 88)
         
@@ -35,7 +41,7 @@ class Font(base.TestCase):
         self.assertEqual(core.workspace().currentDocument().qutepart.font().pointSize(), font.pointSize())
 
 
-class Indent(base.TestCase):
+class Indent(_BaseTestCase):
     def _do_test(self, useTabs, width, autoDetect):
         def continueFunc(dialog):
             page = dialog._pageForItem["Editor/Indentation"]
@@ -66,7 +72,7 @@ class Indent(base.TestCase):
         self._do_test(False, 8, True)
 
 
-class AutoCompletion(base.TestCase):
+class AutoCompletion(_BaseTestCase):
     def _do_test(self, enabled, threshold):
         def continueFunc(dialog):
             page = dialog._pageForItem["Editor/Autocompletion"]
@@ -93,7 +99,7 @@ class AutoCompletion(base.TestCase):
         self._do_test(True, 6)
 
 
-class Edge(base.TestCase):
+class Edge(_BaseTestCase):
     def _do_test(self, enabled, width, colorName):
         def continueFunc(dialog):
             page = dialog._pageForItem["Editor/Edge"]
@@ -127,7 +133,7 @@ class Edge(base.TestCase):
         self._do_test(True, 120, '#00ff00')
 
 
-class Eol(base.TestCase):
+class Eol(_BaseTestCase):
     def _do_test(self, mode, autoDetect):
         def continueFunc(dialog):
             page = dialog._pageForItem["Editor/EOL"]
@@ -173,7 +179,7 @@ class Eol(base.TestCase):
         self._do_test(r'\n', True)
 
 
-class Wrap(base.TestCase):
+class Wrap(_BaseTestCase):
     def _do_test(self, enabled, atWord, lineWrapMode, wordWrapMode, wordWrapText):
         def continueFunc(dialog):
             page = dialog._pageForItem["Editor/Wrap"]
@@ -207,7 +213,7 @@ class Wrap(base.TestCase):
         self._do_test(False, False, QPlainTextEdit.NoWrap, QTextOption.WrapAnywhere, "WrapAnywhere")
 
 
-class WhiteSpaceVisibility(base.TestCase):
+class WhiteSpaceVisibility(_BaseTestCase):
     def _do_test(self, trailing, anyIndent):
         trailingAction = core.actionManager().action('mView/aShowTrailingWhitespaces')
         anyIndentAction = core.actionManager().action('mView/aShowAnyIndentWhitespaces')

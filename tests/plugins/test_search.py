@@ -50,7 +50,10 @@ def _findSearchController():
 
 
 class InFile(base.TestCase):
-    NOT_SAVED_DOCUMENT_TEXT = _TEXT
+    def setUp(self):
+        base.TestCase.setUp(self)
+        doc = core.workspace().createEmptyNotSavedDocument()
+        doc.qutepart.text = _TEXT
     
     @base.in_main_loop
     def test_type_and_search(self):

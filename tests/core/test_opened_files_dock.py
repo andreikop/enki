@@ -28,6 +28,7 @@ class Rename(base.TestCase):
         workspace = core.workspace()
         tree = core.workspace().openedFileExplorer.tvFiles
         model = core.workspace().openedFileExplorer.model
+        core.workspace().createEmptyNotSavedDocument()
         
         def editable():
             index = model.documentIndex(workspace.currentDocument())

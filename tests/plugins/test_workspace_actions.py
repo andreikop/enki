@@ -40,7 +40,7 @@ class Rename(base.TestCase):
         OLD_PATH = self.TEST_FILE_DIR + '/oldname'
         NEW_PATH = self.TEST_FILE_DIR + '/newname'
         
-        document = core.workspace().currentDocument()
+        document = core.workspace().createEmptyNotSavedDocument()
         action = core.actionManager().action("mFile/mFileSystem/aRename")
         
         document.setFilePath(OLD_PATH)
