@@ -50,7 +50,7 @@ class Settings(base.TestCase):
 
 
 class Test(base.TestCase):
-    @base.in_main_loop
+    @base.inMainLoop
     def test_1(self):
         # Tags are parsed and shown
         self.createFile('source.rb', RUBY_SOURCE)
@@ -92,7 +92,7 @@ class Test(base.TestCase):
         core.workspace().setCurrentDocument(ruby)
         self.assertFalse(dock.isHidden())
     
-    @base.in_main_loop
+    @base.inMainLoop
     def test_4(self):
         # dock remembers its Enabled/Disabled state
         ruby = self.createFile('source.rb', RUBY_SOURCE)

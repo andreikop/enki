@@ -35,7 +35,7 @@ class Rename(base.TestCase):
         core.workspace().closeAllDocuments()
         self.assertFalse(action.isEnabled())
     
-    @base.in_main_loop
+    @base.inMainLoop
     def test_success(self):
         OLD_PATH = self.TEST_FILE_DIR + '/oldname'
         NEW_PATH = self.TEST_FILE_DIR + '/newname'
@@ -103,7 +103,7 @@ class Rename(base.TestCase):
         # will freeze, if error happened
 
     @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
-    @base.in_main_loop
+    @base.inMainLoop
     def test_dev_null(self):
         action = core.actionManager().action("mFile/mFileSystem/aRename")
         
@@ -121,7 +121,7 @@ class Rename(base.TestCase):
         self.assertIsNone(core.workspace().currentDocument())
 
     @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
-    @base.in_main_loop
+    @base.inMainLoop
     def test_dev_null_os_fail(self):
         action = core.actionManager().action("mFile/mFileSystem/aRename")
         
@@ -189,7 +189,7 @@ class ToggleExecutable(base.TestCase):
         self.assertFalse(os.access(self.EXISTING_FILE, os.X_OK))
 
     @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
-    @base.in_main_loop
+    @base.inMainLoop
     def test_os_fail(self):
         action = core.actionManager().action("mFile/mFileSystem/aToggleExecutable")
         

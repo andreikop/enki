@@ -46,7 +46,7 @@ def _processPendingEvents(app):
         app.processEvents()
 
 
-def in_main_loop(func, *args):
+def inMainLoop(func, *args):
     """Decorator executes test method in the QApplication main loop.
     QAction shortcuts doesn't work, if main loop is not running.
     Do not use for tests, which doesn't use main loop, because it slows down execution.

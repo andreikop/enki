@@ -55,7 +55,7 @@ class InFile(base.TestCase):
         doc = core.workspace().createEmptyNotSavedDocument()
         doc.qutepart.text = _TEXT
     
-    @base.in_main_loop
+    @base.inMainLoop
     def test_type_and_search(self):
         QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
         
@@ -66,7 +66,7 @@ class InFile(base.TestCase):
         self.assertEqual(qpart.cursorPosition, (6, 18))
         self.assertEqual(qpart.selectedText, "string")
    
-    @base.in_main_loop
+    @base.inMainLoop
     def test_search_next(self):
         QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
         
@@ -90,7 +90,7 @@ class InFile(base.TestCase):
         self.assertEqual(qpart.cursorPosition, (6, 18))
         self.assertEqual(qpart.selectedText, "string")
    
-    @base.in_main_loop
+    @base.inMainLoop
     def test_search_previous(self):
         QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
         
@@ -114,7 +114,7 @@ class InFile(base.TestCase):
         self.assertEqual(qpart.cursorPosition, (6, 18))
         self.assertEqual(qpart.selectedText, "string")
 
-    @base.in_main_loop
+    @base.inMainLoop
     def test_select_and_search(self):
         qpart = core.workspace().currentDocument().qutepart
         
@@ -126,7 +126,7 @@ class InFile(base.TestCase):
         self.assertEqual(qpart.cursorPosition, (7, 9))
         self.assertEqual(qpart.selectedText, "string")
    
-    @base.in_main_loop
+    @base.inMainLoop
     def test_select_and_search_multiline(self):
         qpart = core.workspace().currentDocument().qutepart
         
@@ -141,7 +141,7 @@ class InFile(base.TestCase):
         self.assertEqual(qpart.selectedPosition, ((3, 0), (4, 1)))
         self.assertEqual(qpart.selectedText, "a\nb")
 
-    @base.in_main_loop
+    @base.inMainLoop
     def test_whole_word(self):
         qpart = core.workspace().currentDocument().qutepart
         
@@ -172,7 +172,7 @@ class InFile(base.TestCase):
         self.keyClick(Qt.Key_F3)
         self.assertEqual(qpart.cursorPosition[0], 2)  # not moved, only line 2
 
-    @base.in_main_loop
+    @base.inMainLoop
     def test_highlight_found_items(self):
         qpart = core.workspace().currentDocument().qutepart
         
@@ -212,7 +212,7 @@ class InFile(base.TestCase):
 
 
 class ReplaceInDirectory(base.TestCase):
-    @base.in_main_loop
+    @base.inMainLoop
     def test_1(self):
         # replace 'foo' with 'UUH' in opened and not opened file
         opened_file = self.createFile('opened_file.txt', 'the text contains foo bar\nand\nfew\nmore lines')
@@ -238,7 +238,7 @@ class ReplaceInDirectory(base.TestCase):
 
 
 class Gui(base.TestCase):
-    @base.in_main_loop
+    @base.inMainLoop
     def test_esc_on_widget_closes(self):
         QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
         widget = _findSearchController()._widget
@@ -247,7 +247,7 @@ class Gui(base.TestCase):
         QTest.keyClick(widget, Qt.Key_Escape)
         self.assertTrue(widget.isHidden())
     
-    @base.in_main_loop
+    @base.inMainLoop
     def test_esc_on_editor_closes(self):
         QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
         widget = _findSearchController()._widget

@@ -42,7 +42,7 @@ class Rename(base.TestCase):
         self.keyClicks('adsf', widget=workspace.currentDocument().qutepart)
         self.assertFalse(editable())  # modified document
     
-    @base.in_main_loop
+    @base.inMainLoop
     def test_success(self):
         core.workspace().openFile(self.EXISTING_FILE)
         
@@ -58,7 +58,7 @@ class Rename(base.TestCase):
             text = f.read()
             self.assertEqual(text, self.EXISTING_FILE_TEXT)
 
-    @base.in_main_loop
+    @base.inMainLoop
     def test_os_fail(self):
         core.workspace().openFile(self.EXISTING_FILE)
         
@@ -75,7 +75,7 @@ class Rename(base.TestCase):
         self.openDialog(lambda: self.keyClick(Qt.Key_Return),
                         runInDialog)
 
-    @base.in_main_loop
+    @base.inMainLoop
     def test_same_path(self):
         core.workspace().openFile(self.EXISTING_FILE)
         
@@ -85,7 +85,7 @@ class Rename(base.TestCase):
         
         self.assertEqual(self.app.activeWindow(), core.mainWindow())  # not messagebox with error
 
-    @base.in_main_loop
+    @base.inMainLoop
     def test_dev_null(self):
         core.workspace().openFile(self.EXISTING_FILE)
         NEW_PATH = '/dev/null'
@@ -101,7 +101,7 @@ class Rename(base.TestCase):
 
     # This test reports a permission denied dailog box failure in Windows, but then crashes. Not sure how to work around this.
     @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
-    @base.in_main_loop
+    @base.inMainLoop
     def test_dev_null_os_fail(self):
         # On Windows, a file in use cannot be deleted. Create one.
         with tempfile.NamedTemporaryFile() as tempFile:

@@ -26,7 +26,7 @@ class Test(base.TestCase):
         self.assertEqual(self._doc2._externallyModified, doc2_modified)
         self.assertEqual(self._doc2._externallyRemoved, doc2_removed)
         
-    @base.in_main_loop
+    @base.inMainLoop
     def test_1(self):
         # Modify file, than restore, than modify again
         with open(self._doc1.filePath(), 'w') as file_:
@@ -42,7 +42,7 @@ class Test(base.TestCase):
             file_.write('new text')
         self._sleep_and_check(0.1, True, False, False, False)
 
-    @base.in_main_loop
+    @base.inMainLoop
     def test_2(self):
         # Modify file, than restore, than modify again
         os.unlink(self._doc2.filePath())
@@ -62,7 +62,7 @@ class Test(base.TestCase):
             file_.write('fdsaA')
         self._sleep_and_check(1, False, False, True, False)
 
-    @base.in_main_loop
+    @base.inMainLoop
     def test_3(self):
         # valid state after normal save
         self._doc2.qutepart.text = 'new text'
@@ -76,7 +76,7 @@ class Test(base.TestCase):
         self._doc2.saveFile()
         self._sleep_and_check(0, False, False, False, False)
 
-    @base.in_main_loop
+    @base.inMainLoop
     def test_4(self):
         # save instead of removed
         os.unlink(self._doc1.filePath())
