@@ -258,7 +258,10 @@ class ReplaceThread(StopableThread):
         """Do replacements in opened document
         """
         pos = document.qutepart.cursorPosition
+        oldText = document.qutepart.text
         document.qutepart.text = self._doReplacements(document.qutepart.text, matches)
+        if oldText != document.qutepart.text:
+            document.qutepart.document().setModified(True)
         document.qutepart.cursorPosition = pos
 
     def _saveContent(self, fileName, content):

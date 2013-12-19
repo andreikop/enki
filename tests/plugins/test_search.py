@@ -215,11 +215,11 @@ class ReplaceInDirectory(base.TestCase):
     @base.inMainLoop
     def test_1(self):
         # replace 'foo' with 'UUH' in opened and not opened file
-        opened_file = self.createFile('opened_file.txt', 'the text contains foo bar\nand\nfew\nmore lines')
-        opened_file.qutepart.cursorPosition = (3, 2)
+        openedFile = self.createFile('openedFile.txt', 'the text contains foo bar\nand\nfew\nmore lines')
+        openedFile.qutepart.cursorPosition = (3, 2)
         
-        not_opened_file_path = os.path.join(self.TEST_FILE_DIR, 'not_opened_file.txt')
-        with open(not_opened_file_path, 'w') as file_:
+        notOpenedFilePath = os.path.join(self.TEST_FILE_DIR, 'not_openedFile.txt')
+        with open(notOpenedFilePath, 'w') as file_:
             file_.write('this file also contains foo bar')
             
         self.keyClick(Qt.Key_R, Qt.ShiftModifier | Qt.ControlModifier)
@@ -231,10 +231,19 @@ class ReplaceInDirectory(base.TestCase):
         self.keyClick(Qt.Key_A, Qt.AltModifier)
         QTest.qWait(500)  # replacing
         
-        self.assertEqual(opened_file.qutepart.text, 'the text contains UUHHH bar\nand\nfew\nmore lines')
-        self.assertEqual(opened_file.qutepart.cursorPosition, (3, 2))
-        with open(not_opened_file_path) as file_:
+        with open(notOpenedFilePath) as file_:
             self.assertEqual(file_.read(), 'this file also contains UUHHH bar')
+        
+        self.assertEqual(openedFile.qutepart.text, 'the text contains UUHHH bar\nand\nfew\nmore lines')
+        self.assertEqual(openedFile.qutepart.cursorPosition, (3, 2))
+        
+        self.assertTrue(openedFile.qutepart.document().isModified())
+        with open(openedFile.filePath()) as file_:
+            self.assertEqual(file_.read(), 'the text contains foo bar\nand\nfew\nmore lines')
+        
+        openedFile.saveFile()
+        with open(openedFile.filePath()) as file_:
+            self.assertEqual(file_.read(), 'the text contains UUHHH bar\nand\nfew\nmore lines\n')
 
 
 class Gui(base.TestCase):
