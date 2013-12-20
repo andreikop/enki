@@ -28,7 +28,7 @@ def _getCurDir():
     """
     try:
         return os.path.abspath(unicode(os.curdir))
-    except OSError:
+    except OSError:  # current directory might have been deleted
         return ''
 
 class Plugin(QObject):

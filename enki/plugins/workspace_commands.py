@@ -195,7 +195,11 @@ class CommandOpen(AbstractCommand):
         else:  # file may be not existing
             path = os.path.expanduser(self._path)
             if os.path.isfile(path):
-                path = os.path.abspath(path)
+                try:
+                    path = os.path.abspath(path)
+                except OSError:  # current dir deleted
+                    return
+                
                 if self._line is None:
                     core.workspace().goTo(path)
                 else:
@@ -282,7 +286,11 @@ class CommandSaveAs(AbstractCommand):
     def execute(self):
         """Execute command
         """
-        path = os.path.abspath(os.path.expanduser(self._path))
+        try:
+            path = os.path.abspath(os.path.expanduser(self._path))
+        except OSError:  # directory deleted
+            return
+        
         core.workspace().currentDocument().setFilePath(path)
         core.workspace().currentDocument().saveFile()
 

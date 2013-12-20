@@ -175,7 +175,11 @@ class PathCompleter(AbstractPathCompleter):
         elif text.startswith('~'):
             enterredDir = os.path.expanduser(enterredDir)
         else:  # relative path
-            enterredDir = os.path.abspath(os.path.join(os.path.curdir, enterredDir))
+            relPath = os.path.join(os.path.curdir, enterredDir)
+            try:
+                enterredDir = os.path.abspath(relPath)
+            except OSError:  # current directory have been deleted
+                enterredDir = relPath
         
         self._path = os.path.normpath(enterredDir)
         if self._path != '/':

@@ -479,6 +479,9 @@ class Locator(QDialog):
         """
         core.actionManager().removeAction(self._action)
         core.actionManager().menu("mNavigation").removeAction(self._separator)
+        
+        if self._completerConstructorThread is not None:
+            self._completerConstructorThread.terminate()
     
     def _checkPyParsing(self):
         """Check if pyparsing is available.

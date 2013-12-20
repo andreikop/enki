@@ -84,7 +84,11 @@ class SearchThread(StopableThread):
         """
         retFiles = []
         
-        absPath = os.path.abspath(path)
+        try:
+            absPath = os.path.abspath(path)
+        except OSError:  # current dir deleted
+            return []
+        
         try:
             for root, dirs, files in os.walk(absPath, followlinks=True):  # pylint: disable=W0612
                 if root.startswith('.') or (os.path.sep + '.') in root:

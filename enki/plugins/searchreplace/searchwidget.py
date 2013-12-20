@@ -261,9 +261,10 @@ class SearchWidget(QFrame):
            not (self.isVisible() and self.cbPath.isVisible()):
             try:
                 searchPath = os.path.abspath(unicode(os.path.curdir))
-                self.cbPath.setEditText( searchPath )
             except OSError:  # current directory might have been deleted
                 pass 
+            else:
+                self.cbPath.setEditText( searchPath )
 
         # Set widgets visibility flag according to state
         widgets = (self.wSearch, self.pbPrevious, self.pbNext, self.pbSearch, self.wReplace, self.wPath, \
@@ -532,7 +533,7 @@ class SearchWidget(QFrame):
         if not os.path.exists(text):
             return
         
-        editText = os.path.abspath(os.path.join(text, os.path.pardir))
+        editText = os.path.normpath(os.path.join(text, os.path.pardir))
         self.cbPath.setEditText(editText)
 
     def on_pbSearch_pressed(self):

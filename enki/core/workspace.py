@@ -529,9 +529,10 @@ class Workspace(QStackedWidget):
            not os.path.isabs(filePath):
             try:
                 current = os.path.abspath(os.path.curdir)
-                filePath = os.path.join(current, filePath)
             except OSError:  # current directory might have been deleted
                 pass  # leave as is
+            else:
+                filePath = os.path.join(current, filePath)
         
         document = Document(self, filePath, createNew=True)
         self._handleDocument(document)

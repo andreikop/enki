@@ -1,11 +1,9 @@
 FIXME
-  tests for locator
 
 TODO
   minor improvements
     Zoom with Ctrl+Wheel
   medium functionality
-    indent all selected lines on Space
     Shift+Enter opens new line and inserts comment start
   big functionality
     what is sublime command palette?
