@@ -314,7 +314,13 @@ class Document(QWidget):
         core.workspace().documentOpened.emit(self)
         core.workspace().currentDocumentChanged.emit(self, self)
     
-    def _saveFile(self, filePath):
+    def _removeTrailingWhiteSpace(self):
+        with self.qutepart:
+            for lineNo, line in enumerate(self.qutepart.lines):
+                if line and line[-1].isspace():
+                    self.qutepart.lines[lineNo] = line.rstrip()
+    
+    def _saveToFs(self, filePath):
         """Low level method. Always saves file, even if not modified
         """
         # Create directory
@@ -371,7 +377,9 @@ class Document(QWidget):
                 self.setFilePath(path)
             else:
                 return
-        self._saveFile(self.filePath())
+        
+        self._removeTrailingWhiteSpace()
+        self._saveToFs(self.filePath())
         
     def saveFileAs(self):
         """Ask for new file name with dialog. Save file
@@ -381,7 +389,7 @@ class Document(QWidget):
             return
         
         self.setFilePath(path)
-        self._saveFile(path)
+        self._saveToFs(path)
         
     def reload(self):
         """Reload the file from the disk
