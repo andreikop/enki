@@ -13,7 +13,7 @@ from enki.core.core import core
 
 class Test(base.TestCase):
     CREATE_NOT_SAVED_DOCUMENT = False
-    
+
     def test_1(self):
         # By name
         doc = self.createFile('file1.rb', 'asdf')

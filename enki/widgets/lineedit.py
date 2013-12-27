@@ -20,11 +20,11 @@ class LineEdit(QLineEdit):
     """Extended QLineEdit.
     Supports prompt and Clear button
     """
-    
+
     clearButtonClicked = pyqtSignal()
     """
     clearButtonClicked()
-    
+
     **Signal** emitted, when Clear button has been clicked
     """
 
@@ -33,16 +33,16 @@ class LineEdit(QLineEdit):
 
         self._margin = self.sizeHint().height() -2
         self._spacing = 0
-        
+
         self._tbClear = QToolButton( self )
         self._tbClear.setIcon( QIcon(":enkiicons/edit-clear-rtl.png"))
         self._tbClear.setToolTip( tr( "Clear" ) )
         self._tbClear.setStyleSheet( "QToolButton { border: none; padding: 0px; }" )
         self._tbClear.setCursor( Qt.ArrowCursor )
         self._tbClear.setFocusPolicy( Qt.NoFocus )
-        
+
         self.setClearButtonVisible( False )
-        
+
         self.textChanged.connect(self._onTextChanged)
         self._tbClear.clicked.connect(self.clear)
         self._tbClear.clicked.connect(self.clearButtonClicked)
@@ -63,20 +63,20 @@ class LineEdit(QLineEdit):
         Draws prompt
         """
         QLineEdit.paintEvent( self, event )
-        
+
         if self._promptText and not self.text() and self.isEnabled() :
             option = QStyleOptionFrameV3()
             self.initStyleOption( option )
-            
+
             left, top, right, bottom = self.getTextMargins()
-            
+
             va = self.style().visualAlignment( self.layoutDirection(), self.alignment() )
-            rect = self.style().subElementRect( 
+            rect = self.style().subElementRect(
                 QStyle.SE_LineEditContents, option, self ).adjusted( 2, 0, 0, 0 ).adjusted( left, top, -right, -bottom )
             fm = QFontMetrics ( self.font() )
             text = fm.elidedText( self._promptText, Qt.ElideRight, rect.width() )
             painter = QPainter ( self )
-            
+
             painter.setPen( self.palette().color( QPalette.Disabled, QPalette.Text ) )
             painter.drawText( rect, va, text )
 
@@ -85,7 +85,7 @@ class LineEdit(QLineEdit):
         Adjusts Clear button position
         """
         QLineEdit.resizeEvent( self, event )
-        
+
         self._tbClear.resize( QSize( self._margin, self.height() -2 ) )
         self._tbClear.move( self.width() -self._margin -3, 0 )
 
@@ -93,9 +93,9 @@ class LineEdit(QLineEdit):
         """Set Clear button visible
         """
         self._tbClear.setVisible( visible )
-        
+
         left, top, right, bottom = self.getTextMargins()
-        
+
         if  visible :
             right = self._margin +self._spacing
         else:

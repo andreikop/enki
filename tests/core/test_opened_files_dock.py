@@ -29,26 +29,26 @@ class Rename(base.TestCase):
         tree = core.workspace().openedFileExplorer.tvFiles
         model = core.workspace().openedFileExplorer.model
         core.workspace().createEmptyNotSavedDocument()
-        
+
         def editable():
             index = model.documentIndex(workspace.currentDocument())
             return bool(int(model.flags(index)) & Qt.ItemIsEditable)
-        
+
         self.assertFalse(editable())  # empty not saved document
-        
+
         workspace.openFile(self.EXISTING_FILE)
         self.assertTrue(editable())  # normal document
-        
+
         self.keyClicks('adsf', widget=workspace.currentDocument().qutepart)
         self.assertFalse(editable())  # modified document
-    
+
     @base.inMainLoop
     def test_success(self):
         core.workspace().openFile(self.EXISTING_FILE)
-        
+
         NEW_PATH = self.TEST_FILE_DIR + '/newname'
         _startEditCurrentFilePath()
-        
+
         self.keyClicks(NEW_PATH)
         self.keyClick(Qt.Key_Return)
         QTest.qWait(100)  # Test fails without a sleep. Threads inside Qt???
@@ -61,37 +61,37 @@ class Rename(base.TestCase):
     @base.inMainLoop
     def test_os_fail(self):
         core.workspace().openFile(self.EXISTING_FILE)
-        
+
         # The path shall be invalid on both Unix and Windows
         NEW_PATH = '/root/newname:::'
-        
+
         _startEditCurrentFilePath()
         self.keyClicks(NEW_PATH)
 
         def runInDialog(dialog):
             self.assertEqual(dialog.windowTitle(), 'Failed to rename file')
             self.keyClick(Qt.Key_Return)
-        
+
         self.openDialog(lambda: self.keyClick(Qt.Key_Return),
                         runInDialog)
 
     @base.inMainLoop
     def test_same_path(self):
         core.workspace().openFile(self.EXISTING_FILE)
-        
+
         _startEditCurrentFilePath()
         self.keyClicks(self.EXISTING_FILE)
         self.keyClick(Qt.Key_Return)
-        
+
         self.assertEqual(self.app.activeWindow(), core.mainWindow())  # not messagebox with error
 
     @base.inMainLoop
     def test_dev_null(self):
         core.workspace().openFile(self.EXISTING_FILE)
         NEW_PATH = '/dev/null'
-        
+
         _startEditCurrentFilePath()
-        
+
         self.keyClicks(NEW_PATH)
         self.keyClick(Qt.Key_Return)
         QTest.qWait(100)  # Test fails without a sleep. Threads inside Qt???
@@ -110,19 +110,19 @@ class Rename(base.TestCase):
                 existing_not_deletable_file = '/etc/passwd'
             else:
                 existing_not_deletable_file = tempFile.name
-            
+
             core.workspace().openFile(existing_not_deletable_file)
-            
+
             NEW_PATH = '/dev/null'
-            
+
             _startEditCurrentFilePath()
-                    
+
             self.keyClicks(NEW_PATH)
-            
+
         def runInDialog(dialog):
             self.assertTrue(dialog.windowTitle(), 'Not this time')
             self.keyClick(Qt.Key_Return)
-        
+
         self.openDialog(lambda: self.keyClick(Qt.Key_Return),
                         runInDialog)
 

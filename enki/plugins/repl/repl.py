@@ -29,7 +29,7 @@ class SettingsWidget(QWidget):
         QWidget.__init__(self, *args)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Settings.ui'), self)
         self.pbInterpreterPath.clicked.connect(self._onPbInterpreterPathClicked)
-    
+
     def _onPbInterpreterPathClicked(self):
         path = QFileDialog.getOpenFileName(core.mainWindow(), 'Interpreter path')
         if path:
@@ -43,13 +43,13 @@ class ReplDock(DockWidget):
         DockWidget.__init__(self, core.mainWindow(), title, icon, "Alt+M")
 
         self.setAllowedAreas( Qt.BottomDockWidgetArea | Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
-        
+
         self._action = core.actionManager().addAction("mView/a%s" % replName, self.showAction())
 
         self.setWidget(widget)
         self.setFocusProxy(widget)
         widget.installEventFilter(self)
-    
+
     def del_(self):
         core.actionManager().removeAction(self._action)
 
@@ -84,7 +84,7 @@ class MitSchemeTermWidget(_AbstractReplTermWidget):
                 index = text.index('"', index)
             except ValueError:
                 break;
-            
+
             try:
                 endIndex = text.index('"', index + 1)
             except ValueError:
@@ -95,12 +95,12 @@ class MitSchemeTermWidget(_AbstractReplTermWidget):
 
         for foundString in foundStrings[::-1]:  # from the last found string
             text = text[:foundString[0]] + text[foundString[1] + 1:]  # remove found string
-        
+
         # Stage 2: calculate braces
         # Let's MIT scheme check if braces are placed correctly. We just check count
         if text.count('(') != text.count(')'):
             return False
-        
+
         return True
 
 
@@ -116,11 +116,11 @@ class SmlTermWidget(_AbstractReplTermWidget):
 class _AbstractInterpreter(QObject):
     """MIT scheme shell. Implements REPL. Graphical frontend for original terminal version.
     """
-    
+
     processIsRunningChanged = pyqtSignal(bool)
     """
     processStopped(isRunning)
-    
+
     **Signal** emitted, when MIT Scheme process starts and stops
     """  # pylint: disable=W0105
 
@@ -130,24 +130,24 @@ class _AbstractInterpreter(QObject):
         self._term = self._createTermWidget()
         self._term.setLanguage(language)
         self._interpreterPath = interpreterPath
-        
+
         self._processOutputTimer = QTimer()  # I use Qt timer, because we must append data to GUI in the GUI thread
         self._processOutputTimer.timeout.connect(self._processOutput)
         self._processOutputTimer.setInterval(100)
 
         self._buffPopen = enki.lib.buffpopen.BufferedPopen(interpreterPath)
         self._processIsRunning = False
-        
+
         self._term.appendHint("Execute any command to run the interpreter\n")
 
     def __del__(self):
         self.stop()
-    
+
     def loadFile(self, filePath):
         """Load (interpret) the file
         """
         raise NotImplementedError()
-    
+
     def _createTermWidget(self):
         """Create terminal emulator widget instance
         """
@@ -174,7 +174,7 @@ class _AbstractInterpreter(QObject):
                     '<b>Settings -> Settings -> Modes -> %s</b> to correct the path</p>' % fullName
             text = '<html>%s</html' % text
             QMessageBox.critical (core.mainWindow(),
-                                  "Failed to run the interpreter", 
+                                  "Failed to run the interpreter",
                                   text)
             raise UserWarning("Failed to run the interpreter")
 
@@ -205,7 +205,7 @@ class _AbstractInterpreter(QObject):
 
         self._processOutput() # write old output to the log, and only then write fresh input
         self._buffPopen.write(text)
-    
+
     def _processOutput(self):
         """Append output from Popen to widget, if available
         """
@@ -226,7 +226,7 @@ class MitSchemeInterpreter(_AbstractInterpreter):
     """
     def _createTermWidget(self):
         return MitSchemeTermWidget(self, self._termWidgetFont())
-    
+
     def loadFile(self, filePath):
         """Load file using MIT Scheme load function
         """
@@ -244,10 +244,10 @@ class SmlInterpreter(_AbstractInterpreter):
     def __init__(self, *args):
         super(SmlInterpreter, self).__init__(*args)
         self._term.appendHint("Commands are ended with ';'\n")
-    
+
     def _createTermWidget(self):
         return SmlTermWidget(self, self._termWidgetFont())
-    
+
     def loadFile(self, filePath):
         """Load file with 'use foo.sml;'
         """

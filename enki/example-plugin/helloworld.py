@@ -39,7 +39,7 @@ class Plugin:
         self._addAction()
         self._createDock()
         self._readSettings()
-        
+
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
 
         core.uiSettingsManager().dialogAccepted.connect(self._applySettings)
@@ -57,7 +57,7 @@ class Plugin:
         action = core.actionManager().addAction( "mHelp/aSayHello", 'Say Hello...', QIcon(':/enkiicons/logo/32x32/enki.png'))
         core.actionManager().setDefaultShortcut(action, "Ctrl+Alt+Shift+H")
         action.triggered.connect(self._sayHello)
-        
+
     def _sayHello(self):
         """Handler for main menu action
         """
@@ -96,7 +96,7 @@ class Plugin:
         """Apply settings. Called by configurator class
         """
         self._dock.label.setText('Option value: %s' % core.config()["HelloWorld"]["VeryImportantOption"])
-    
+
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.
         Add own options

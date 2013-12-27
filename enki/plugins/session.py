@@ -32,17 +32,17 @@ class Plugin:
         # if have documents except 'untitled' new doc, don't restore session
         if core.workspace().currentDocument() is not None:
             return
-        
+
         if not os.path.exists(_SESSION_FILE_PATH):
             return
 
         session = enki.core.json_wrapper.load(_SESSION_FILE_PATH, 'session', None)
-        
+
         if session is not None:
             for filePath in session['opened']:
                 if os.path.exists(filePath):
                     core.workspace().openFile(filePath)
-            
+
             if session['current'] is not None:
                 document = self._documentForPath(session['current'])
                 if document is not None: # document might be already deleted
@@ -56,7 +56,7 @@ class Plugin:
             if document.filePath() is not None and \
                document.filePath() == filePath:
                 return document
-        
+
         return None
 
     def _onAboutToTerminate(self):
@@ -70,15 +70,15 @@ class Plugin:
                                 not '/.git/' in document.filePath() and \
                                 not (document.fileName().startswith('svn-commit') and \
                                      document.fileName().endswith('.tmp'))]
-        
+
         if not fileList:
             return
 
         currentPath = None
         if core.workspace().currentDocument() is not None:
             currentPath = core.workspace().currentDocument().filePath()
-        
+
         session = {'current' : currentPath,
                    'opened' : fileList}
-        
+
         enki.core.json_wrapper.dump(_SESSION_FILE_PATH, 'session', session)

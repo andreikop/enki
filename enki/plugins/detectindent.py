@@ -39,7 +39,7 @@ class Plugin:
         Handler for signal from the workspace
         """
         #TODO improve algorighm sometimes to skip comments
-        
+
         if not core.config()["Qutepart"]["Indentation"]["AutoDetect"]:
             return
 
@@ -52,7 +52,7 @@ class Plugin:
             Returns whitespaces from the start of the line
             """
             return line[:len(line) - len(line.lstrip())]
-        
+
         def _diffIndents(a, b):
             """Compare two indentations and return its difference or None
             """
@@ -64,7 +64,7 @@ class Plugin:
                 return b[len(a):]  # rest of b
             else:  # indents are totally not equal
                 return None
-        
+
         # non-empty lines. Empty (without trailing whitespaces) lines between code blocks break detection algorighm
         lines = [l for l in document.qutepart.lines if l]
         lastIndent = ''
@@ -80,18 +80,18 @@ class Plugin:
                 else:
                     popularityTable[diff] = 1
             lastIndent = currentIndent
-        
+
         if not popularityTable:  # no indents. Empty file?
             return  # give up
-        
+
         sortedIndents = sorted(popularityTable.iteritems(), key = lambda item: item[1], reverse = True)
         theMostPopular = sortedIndents[0]
-        
+
         if len(sortedIndents) >= 2:
             secondPopular = sortedIndents[1]
             if theMostPopular[1] == secondPopular[1]:  # if equal results - give up
                 return
-        
+
         indent, count = theMostPopular
         if count > 2:  # if more than 2 indents
             if indent == '\t':

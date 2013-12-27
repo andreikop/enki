@@ -75,7 +75,7 @@ class Tag:
         self.lineNumber = lineNumber
         self.parent = parent
         self.children = []
-    
+
     def format(self, indentLevel=0):
         indent = '\t' * indentLevel
         formattedChildren = [child.format(indentLevel + 1) \
@@ -84,7 +84,7 @@ class Tag:
         if formattedChildren:
             result += '\n'
             result += '\n'.join(formattedChildren)
-        
+
         return result
 
 
@@ -100,13 +100,13 @@ def parseTags(text):
             type_ = items[-3]
             lineText = items[-2]
             scopeText = items[-1]
-        
+
         # -1 to convert from human readable to machine numeration
         lineNumber = int(lineText.split(':')[-1]) - 1
-        
+
         scope = scopeText.split(':')[-1].split('.')[-1] if scopeText else None
         return name, lineNumber, type_, scope
-    
+
     def findScope(tag, scopeName):
         """Check tag and its parents, it theirs name is scopeName.
         Return tag or None
@@ -119,9 +119,9 @@ def parseTags(text):
             return findScope(tag.parent, scopeName)
         else:
             return None
-    
+
     ignoredTypes = ('variable')
-    
+
     tags = []
     lastTag = None
     for line in text.splitlines():
@@ -134,7 +134,7 @@ def parseTags(text):
             else:
                 tags.append(tag)
             lastTag = tag
-    
+
     return tags
 
 # Workaround for tempfile.NamedTemporaryFile's behavior, which prevents Windows processes from accessing the file until it's deleted. Adapted from http://bugs.python.org/issue14243.
@@ -152,7 +152,7 @@ def named_temp():
 def processText(ctagsLang, text):
     ctagsPath = core.config()['Navigator']['CtagsPath']
     langArg = '--language-force={}'.format(ctagsLang)
-    
+
     # \t is used as separator in ctags output. Avoid \t in tags text to simplify parsing
     # encode to utf8
     data = text.encode('utf8').replace('\t', '    ')
@@ -169,9 +169,9 @@ def processText(ctagsLang, text):
             return 'Failed to execute ctags console utility "{}": {}\n'\
                         .format(ctagsPath, str(ex)) + \
                    'Go to Settings -> Settings -> Navigator to set path to ctags'
-        
+
         stdout, stderr = popen.communicate()
-    
+
     return parseTags(stdout)
 
 
@@ -179,35 +179,35 @@ class TagModel(QAbstractItemModel):
     def __init__(self, *args):
         QAbstractItemModel.__init__(self, *args)
         self._tags = []
-        
+
         self._currentTagIndex = QModelIndex()
-        
+
         defBaseColor = QApplication.instance().palette().base().color()
         # yellow or maroon
         brightBg = QColor('#ffff80') if defBaseColor.lightnessF() > 0.5 else QColor('#800000')
         self._currentTagBrush = QVariant(QBrush(brightBg))
-        
+
         core.workspace().cursorPositionChanged.connect(self._onCursorPositionChanged)
         self._updateCurrentTagTimer = QTimer()
         self._updateCurrentTagTimer.setInterval(300)
         self._updateCurrentTagTimer.timeout.connect(self._updateCurrentTagAndEmitSignal)
-    
+
     def setTags(self, tags):
         self.beginResetModel()
         self._tags = tags
         self._updateCurrentTag(False)
         self.endResetModel()
-    
+
     def _onCursorPositionChanged(self):
         """If position is updated on every key pressing - cursor movement might be slow
         Update position, when movement finished
         """
         self._updateCurrentTagTimer.stop()
         self._updateCurrentTagTimer.start()
-    
+
     def _updateCurrentTagAndEmitSignal(self):
         self._updateCurrentTag(True)
-    
+
     def _updateCurrentTag(self, emitChanged):
         old = self._currentTagIndex
         if core.workspace().currentDocument() is not None:
@@ -215,18 +215,18 @@ class TagModel(QAbstractItemModel):
             self._currentTagIndex = self._indexForLineNumber(lineNumber)
         else:
             self._currentTagIndex = QModelIndex()
-        
+
         if emitChanged:
             if old != self._currentTagIndex and \
                old.isValid():
                self.dataChanged.emit(old, old)
             if self._currentTagIndex.isValid():
                 self.dataChanged.emit(self._currentTagIndex, self._currentTagIndex)
-    
+
     def index(self, row, column, parent):
         if row < 0 or column != 0:
             return QModelIndex()
-        
+
         if not parent.isValid():  # top level
             if row < len(self._tags):
                 return self.createIndex(row, column, self._tags[row])
@@ -238,11 +238,11 @@ class TagModel(QAbstractItemModel):
                 return self.createIndex(row, column, parentTag.children[row])
             else:
                 return QModelIndex()
-    
+
     def parent(self, index):
         if not index.isValid():
             return QModelIndex()
-        
+
         tag = index.internalPointer()
         if tag.parent is not None:
             parent = tag.parent
@@ -256,25 +256,25 @@ class TagModel(QAbstractItemModel):
                     row = self._tags.index(parent)
                 except ValueError:
                     return QModelIndex()
-            
+
             return self.createIndex(row, 0, parent)
         else:
             return QModelIndex()
-    
+
     def rowCount(self, index):
         if index.isValid():
             tag = index.internalPointer()
             return len(tag.children)
         else:
             return len(self._tags)
-    
+
     def columnCount(self, index):
         return 1
-    
+
     def data(self, index, role):
         if not index.isValid():
             return QVariant()
-        
+
         if role == Qt.DisplayRole:
             tag = index.internalPointer()
             return tag.name
@@ -282,30 +282,30 @@ class TagModel(QAbstractItemModel):
             return self._currentTagBrush if index == self._currentTagIndex else QVariant()
         else:
             return QVariant()
-    
+
     def onActivated(self, index):
         tag = index.internalPointer()
-        
+
         document = core.workspace().currentDocument()
         if document is not None:
             core.workspace().cursorPositionChanged.disconnect(self._onCursorPositionChanged)
             document.qutepart.cursorPosition = (tag.lineNumber, 0)
             core.workspace().cursorPositionChanged.connect(self._onCursorPositionChanged)
             self._updateCurrentTagAndEmitSignal()
-            
+
             document.qutepart.centerCursor()
             document.qutepart.setFocus()
-    
+
     def tagPathForIndex(self, index):
         def tagPath(tag):
             if tag is None:
                 return []
             else:
                 return tagPath(tag.parent) + [tag.name]
-        
+
         tag = index.internalPointer()
         return '.'.join(tagPath(tag))
-    
+
     def indexForTagPath(self, tagPath):
         def findTag(tagList, name):
             for tag in tagList:
@@ -313,18 +313,18 @@ class TagModel(QAbstractItemModel):
                     return tag
             else:
                 return None
-        
+
         def findPath(currentTag, childTags, parts):
             if not parts:
                 return currentTag
-            
+
             part = parts[0]
             tag = findTag(childTags, part)
             if tag is not None:
                 return findPath(tag, tag.children, parts[1:])
             else:
                 return currentTag
-        
+
         parts = tagPath.split('.')
         tag = findPath(None, self._tags, parts)
         if tag is not None:
@@ -332,15 +332,15 @@ class TagModel(QAbstractItemModel):
             return self.createIndex(row, 0, tag)
         else:
             return QModelIndex()
-    
+
     def _indexForLineNumber(self, number):
-        
+
         def recursiveTagGenerator(tags):
             for childRow, childTag in enumerate(tags):
                 yield childRow, childTag
                 for gcRow, grandChild in recursiveTagGenerator(childTag.children):
                     yield gcRow, grandChild
-        
+
         prevRow, prevTag = None, None
         for row, tag in recursiveTagGenerator(self._tags):
             if tag.lineNumber == number:
@@ -355,7 +355,7 @@ class TagModel(QAbstractItemModel):
             if prevTag is not None and \
                prevTag.lineNumber <= number: # the last tag is current
                 return self.createIndex(prevRow, 0, prevTag)
-        
+
         return QModelIndex()
 
 
@@ -390,15 +390,15 @@ class ProcessorThread(QThread):
                 ctagsLang = self._ctagsLang
                 text = self._text
                 self._haveData = False
-            
+
             result = processText(ctagsLang, text)
-            
+
             if isinstance(result, basestring):
                 self.error.emit(result)
                 break
             else:
                 tags = result
-            
+
                 with self._lock:
                     if not self._haveData:
                         self.tagsReady.emit(tags)
@@ -407,12 +407,12 @@ class ProcessorThread(QThread):
 
 
 class NavigatorDock(DockWidget):
-    
+
     closed = pyqtSignal()
-    
+
     def __init__(self):
         DockWidget.__init__(self, core.mainWindow(), '&Navigator', QIcon(':/enkiicons/goto.png'), "Alt+N")
-        
+
         self._tree = QTreeView(self)
         self._tree.setHeaderHidden(True)
         self.setWidget(self._tree)
@@ -425,11 +425,11 @@ class NavigatorDock(DockWidget):
         self._model.modelAboutToBeReset.connect(self._onModelAboutToBeReset)
         self._model.modelReset.connect(self._onModelReset)
         self._currentTagPath = None
-        
+
         self._errorLabel = None
-        
+
         self._installed = False
-    
+
     def install(self):
         if not self._installed:
             core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self)
@@ -442,7 +442,7 @@ class NavigatorDock(DockWidget):
             core.actionManager().removeAction("mView/aNavigator")
             self.hide()
             self._installed = False
-    
+
     def setTags(self, tags):
         self._model.setTags(tags)
         if self.widget() is not self._tree:
@@ -450,15 +450,15 @@ class NavigatorDock(DockWidget):
             self._tree.show()
         if self._errorLabel is not None:
             self._errorLabel.hide()
-    
+
     def onError(self, error):
         self._tree.hide()
         if self._errorLabel is None:
             self._errorLabel = QLabel(self)
             self._errorLabel.setWordWrap(True)
-        
+
         self._errorLabel.setText(error)
-        
+
         if not self.widget() is self._errorLabel:
             self.setWidget(self._errorLabel)
             self._errorLabel.show()
@@ -470,14 +470,14 @@ class NavigatorDock(DockWidget):
         """
         self.closed.emit()
         self.setTags([])
-    
+
     def _onModelAboutToBeReset(self):
         currIndex = self._tree.currentIndex()
         self._currentTagPath = self._model.tagPathForIndex(currIndex) if currIndex.isValid() else None
-    
+
     def _onModelReset(self):
         self._tree.expandAll()
-        
+
         # restore current item
         if self._currentTagPath is not None:
             index = self._model.indexForTagPath(self._currentTagPath)
@@ -492,7 +492,7 @@ class SettingsWidget(QWidget):
         QWidget.__init__(self, *args)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Settings.ui'), self)
         self.pbCtagsPath.clicked.connect(self._onPbCtagsPathClicked)
-    
+
     def _onPbCtagsPathClicked(self):
         path = QFileDialog.getOpenFileName(core.mainWindow(), 'Ctags path')
         if path:
@@ -507,15 +507,15 @@ class Plugin(QObject):
         self._dock = NavigatorDock()
         self._dock.hide()
         self._dock.closed.connect(self._onDockClosed)
-        
+
         self._dock.showAction().triggered.connect(self._onDockShown)
         core.mainWindow().stateRestored.connect(self._onMainWindowStateRestored)
 
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         core.workspace().textChanged.connect(self._onTextChanged)
-        
+
         core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
-        
+
         # If we update Tree on every key pressing, freezes are sensible (GUI thread draws tree too slowly
         # This timer is used for drawing Preview 1000 ms After user has stopped typing text
         self._typingTimer = QTimer()
@@ -534,27 +534,27 @@ class Plugin(QObject):
         self._typingTimer.stop()
         self._thread.tagsReady.disconnect(self._dock.setTags)
         self._thread.wait()
-    
+
     def _isEnabled(self):
         return core.config()['Navigator']['Enabled']
-    
+
     def _isSupported(self, document):
         return document is not None and \
                document.qutepart.language() in _QUTEPART_TO_CTAGS_LANG_MAP
-    
+
     def _onDockClosed(self):
         """Dock has been closed by a user. Change Enabled option
         """
         core.config()['Navigator']['Enabled'] = False
         core.config().flush()
-    
+
     def _onDockShown(self):
         """Dock has been shown by a user. Change Enabled option
         """
         core.config()['Navigator']['Enabled'] = True
         core.config().flush()
         self._scheduleDocumentProcessing()
-    
+
     def _onMainWindowStateRestored(self):
         """When main window state is restored - dock is made visible, even if should not. Qt bug?
         Hide dock, if can't view current document
@@ -562,7 +562,7 @@ class Plugin(QObject):
         if not self._isEnabled() or \
            not self._isSupported(core.workspace().currentDocument()):
             self._dock.hide()
-    
+
     def _onDocumentChanged(self, old, new):
         if self._isSupported(new):
             self._dock.install()
@@ -577,21 +577,21 @@ class Plugin(QObject):
         if self._isEnabled():
             self._typingTimer.stop()
             self._typingTimer.start()
-    
+
     def _clear(self):
         self._dock.setTags([])
-    
+
     def _scheduleDocumentProcessing(self):
         """Start document processing with the thread.
         """
         self._typingTimer.stop()
-        
+
         document = core.workspace().currentDocument()
         if document is not None and \
            document.qutepart.language() in _QUTEPART_TO_CTAGS_LANG_MAP:
             ctagsLang = _QUTEPART_TO_CTAGS_LANG_MAP[document.qutepart.language()]
             self._thread.process(ctagsLang, document.qutepart.text)
-    
+
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.
         Add own options

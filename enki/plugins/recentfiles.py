@@ -41,17 +41,17 @@ class Plugin(QObject):
         """Document has been closed, remember it
         """
         path = document.filePath()
-        
+
         if path is None:
             return
-        
+
         if path in self._recent:
             self._recent.remove(path)
         self._recent.insert(0, path)
         if len(self._recent) > _MAX_SIZE:
             self._recent.remove(self._recent[-1])
         self._updateUndoCloseAction()
-        
+
     def _existingNotOpenedRecents(self):
         """List of existing recent files
         """
@@ -76,31 +76,31 @@ class Plugin(QObject):
         """Undo Close triggered. Open file
         """
         existing = self._existingNotOpenedRecents()
-        
+
         if not existing:
             core.mainWindow().statusBar().showMessage("No existing recent files")
             return
-        
+
         doc = core.workspace().openFile(existing[0])
         if doc is not None:  # sucessfully opened
             self._recent.remove(existing[0])
-    
+
     def _onMenuItemTriggered(self):
         """One of recents, but not first, triggered
         """
         action = self.sender()
         path = action.data().toString()
         core.workspace().openFile(path)
-    
+
     def _onMenuAboutToShow(self):
         """Menu is going to be shown. Fill it
         """
         self._updateUndoCloseAction()
-        
+
         existing = self._existingNotOpenedRecents()
         if len(existing) <= 1:
             return
-        
+
         recents = self._existingNotOpenedRecents()
         count = min(len(recents), 10)
         for path in recents[1:count]:  # first already available as Undo Close action

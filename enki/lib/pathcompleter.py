@@ -26,7 +26,7 @@ def makeSuitableCompleter(text, pos):
 class AbstractPathCompleter(AbstractCompleter):
     """Base class for PathCompleter and GlobCompleter
     """
-    
+
     # global object. Reused by all completers
     _fsModel = QFileSystemModel()
 
@@ -35,20 +35,20 @@ class AbstractPathCompleter(AbstractCompleter):
     _STATUS = 'status'
     _DIRECTORY = 'directory'
     _FILE = 'file'
-    
+
     def __init__(self, text):
         self._originalText = text
         self._dirs = []
         self._files = []
         self._error = None
         self._status = None
-        
-        """hlamer: my first approach is making self._model static member of class. But, sometimes it 
+
+        """hlamer: my first approach is making self._model static member of class. But, sometimes it
         returns incorrect icons. I really can't understand when and why.
         When it is private member of instance, it seems it works
         """
         self._model = None # can't construct in the construtor, must be constructed in GUI thread
-    
+
     @staticmethod
     def _filterHidden(paths):
         """Remove hidden and ignored files from the list
@@ -64,23 +64,23 @@ class AbstractPathCompleter(AbstractCompleter):
         if self._error:
             assert row == 0
             return (self._ERROR, 0)
-        
+
         if row == 0:
             return (self._HEADER, 0)
-        
+
         row -= 1
         if self._status:
             if row == 0:
                 return (self._STATUS, 0)
             row -= 1
-        
+
         if row in range(len(self._dirs)):
             return (self._DIRECTORY, row)
         row -= len(self._dirs)
-        
+
         if row in range(len(self._files)):
             return (self._FILE, row)
-        
+
         assert False
 
     def _formatHeader(self, text):
@@ -109,7 +109,7 @@ class AbstractPathCompleter(AbstractCompleter):
         """
         if self._model is None:
             self._model = QFileSystemModel()
-        
+
         index = self._model.index(path)
         return self._model.data(index, Qt.DecorationRole)
 
@@ -154,22 +154,22 @@ class AbstractPathCompleter(AbstractCompleter):
             row -= len(self._dirs)  # skip dirs
             if row in range(len(self._files)):
                 return self._files[row]
-        
+
         return None
 
 
 class PathCompleter(AbstractPathCompleter):
     """Path completer for Locator. Supports globs
-    
+
     Used by Open command
     """
-    
+
     def __init__(self, text, pos):
         AbstractPathCompleter.__init__(self, text)
-        
+
         enterredDir = os.path.dirname(text)
         enterredFile = os.path.basename(text)
-        
+
         if enterredDir.startswith('/'):
             pass
         elif text.startswith('~'):
@@ -180,7 +180,7 @@ class PathCompleter(AbstractPathCompleter):
                 enterredDir = os.path.abspath(relPath)
             except OSError:  # current directory have been deleted
                 enterredDir = relPath
-        
+
         self._path = os.path.normpath(enterredDir)
         if self._path != '/':
             self._path += '/'
@@ -194,15 +194,15 @@ class PathCompleter(AbstractPathCompleter):
         except OSError, ex:
             self._error = unicode(str(ex), 'utf8')
             return
-        
+
         if not filesAndDirs:
             self._status = 'Empty directory'
             return
-            
+
         # filter matching
         variants = [path for path in filesAndDirs\
                         if path.startswith(enterredFile)]
-        
+
         notHiddenVariants = self._filterHidden(variants)
         """If list if not ignored (not hidden) variants is empty, we use list of
         hidden variants.
@@ -210,9 +210,9 @@ class PathCompleter(AbstractPathCompleter):
         """
         if notHiddenVariants:
             variants = notHiddenVariants
-        
+
         variants.sort()
-        
+
         for variant in variants:
             absPath = os.path.join(self._path, variant)
             if os.path.isdir(absPath):
@@ -227,7 +227,7 @@ class PathCompleter(AbstractPathCompleter):
         """Get text, which shall be displayed on the header
         """
         return self._path
-    
+
     def _formatPath(self, path, isDir):
         """Format file or directory for show it in the list of completions
         """
@@ -245,11 +245,11 @@ class PathCompleter(AbstractPathCompleter):
 
     def _lastTypedSegmentLength(self):
         """Length of path segment, typed by a user
-        
+
         For /home/a/Docu _lastTypedSegmentLength() is len("Docu")
         """
         return len(os.path.split(self._originalText)[1])
-    
+
     def _commonStart(self, a, b):
         """The longest common start of 2 string
         """
@@ -275,7 +275,7 @@ class PathCompleter(AbstractPathCompleter):
 
 class GlobCompleter(AbstractPathCompleter):
     """Path completer for Locator. Supports globs, does not support inline completion
-    
+
     Used by Open command
     """
     def __init__(self, text):
@@ -283,13 +283,13 @@ class GlobCompleter(AbstractPathCompleter):
         variants = glob.iglob(os.path.expanduser(text) + '*')
         variants = self._filterHidden(variants)
         variants.sort()
-        
+
         for path in sorted(variants):
             if os.path.isdir(path):
                 self._dirs.append(path)
             else:
                 self._files.append(path)
-        
+
         if not self._dirs and not self._files:
             self._status = 'No matching files'
 

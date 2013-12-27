@@ -15,11 +15,11 @@ def tr(text):
 class ColorButton(QToolButton):
     """Button, which is used for configuring colors
     """
-    
+
     colorChanged = pyqtSignal(QColor)
     """
     colorChanged(color)
-    
+
     **Signal** emitted, after current color has changed
     """
 
@@ -30,7 +30,7 @@ class ColorButton(QToolButton):
         else:
             QToolButton.__init__(self, colorOrParent, *args)
             self.setColor(QColor())
-        
+
         self.clicked.connect(self._onClicked)
         self.setIconSize( QSize( 16, 16 ) )
 
@@ -43,19 +43,19 @@ class ColorButton(QToolButton):
         """Set color. Update button icon
         """
         self._color = color
-        
+
         c = self._color
         texts = ["RGBA #%02x%02x%02x%02x" % (c.red(), c.green(), c.blue(), c.alpha()),
                  "RGBA %d, %d, %d, %d" % (c.red(), c.green(), c.blue(), c.alpha())]
-            
+
         self.setText( texts[0] )
         self.setToolTip( '\n'.join(texts))
-        
+
         pixmap = QPixmap(self.iconSize())
         pixmap.fill(self._color)
 
         self.setIcon( QIcon(pixmap) )
-        
+
         self.colorChanged.emit( self._color )
 
     def _onClicked(self):
@@ -66,6 +66,6 @@ class ColorButton(QToolButton):
                                        self.window(),
                                        tr( "Choose a color" ),
                                        QColorDialog.ShowAlphaChannel)
-        
+
         if  color.isValid():
             self.setColor( color )

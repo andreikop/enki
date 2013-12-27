@@ -43,42 +43,42 @@ class SearchWidget(QFrame):
     visibilityChanged = pyqtSignal(bool)
     """
     visibilityChanged(visible)
-    
+
     **Signal** emitted, when widget has been shown or hidden
     """  # pylint: disable=W0105
 
     searchInDirectoryStartPressed = pyqtSignal(type(re.compile('')), list, unicode)
     """
     searchInDirectoryStartPressed(regEx, mask, path)
-    
+
     **Signal** emitted, when 'search in directory' button had been pressed
     """  # pylint: disable=W0105
 
     searchInDirectoryStopPressed = pyqtSignal()
     """
     searchInDirectoryStopPressed()
-    
+
     **Signal** emitted, when 'stop search in directory' button had been pressed
     """  # pylint: disable=W0105
 
     replaceCheckedStartPressed = pyqtSignal(unicode)
     """
     replaceCheckedStartPressed(replText)
-    
+
     **Signal** emitted, when 'replace checked' button had been pressed
     """  # pylint: disable=W0105
 
     replaceCheckedStopPressed = pyqtSignal()
     """
     replaceCheckedStartPressed()
-    
+
     **Signal** emitted, when 'stop replacing checked' button had been pressed
     """  # pylint: disable=W0105
 
     searchRegExpChanged = pyqtSignal(type(re.compile('')))
     """
     searchRegExpValidStateChanged(regEx)
-    
+
     **Signal** emitted, when search regexp has been changed.
     If reg exp is invalid - regEx object contains empty pattern
     """  # pylint: disable=W0105
@@ -86,28 +86,28 @@ class SearchWidget(QFrame):
     searchNext = pyqtSignal()
     """
     searchNext()
-    
+
     **Signal** emitted, when 'Search Next' had been pressed
     """  # pylint: disable=W0105
 
     searchPrevious = pyqtSignal()
     """
     searchPrevious()
-    
+
     **Signal** emitted, when 'Search Previous' had been pressed
     """  # pylint: disable=W0105
 
     replaceFileOne = pyqtSignal(unicode)
     """
     replaceFileOne(replText)
-    
+
     **Signal** emitted, when 'Replace' had been pressed
     """  # pylint: disable=W0105
 
     replaceFileAll = pyqtSignal(unicode)
     """
     replaceFileAll(replText)
-    
+
     **Signal** emitted, when 'Replace All' had been pressed
     """  # pylint: disable=W0105
 
@@ -116,11 +116,11 @@ class SearchWidget(QFrame):
         self._mode = None
         self.plugin = plugin
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'SearchWidget.ui'), self)
-        
+
         self.cbSearch.setCompleter(None)
         self.cbReplace.setCompleter(None)
         self.cbMask.setCompleter(None)
-        
+
         self.fsModel = QDirModel(self.cbPath.lineEdit())
         self.fsModel.setFilter( QDir.AllDirs | QDir.NoDotAndDotDot )
         self.cbPath.lineEdit().setCompleter(QCompleter(self.fsModel,
@@ -130,7 +130,7 @@ class SearchWidget(QFrame):
         self.cbSearch.setCompleter(None)
         self.pbSearchStop.setVisible( False )
         self.pbReplaceCheckedStop.setVisible( False )
-        
+
         self._progress = QProgressBar( self )
         self._progress.setAlignment( Qt.AlignCenter )
         self._progress.setToolTip( self.tr( "Search in progress..." ) )
@@ -143,38 +143,38 @@ class SearchWidget(QFrame):
         self.tbCdUp.setIcon( QIcon( ":/enkiicons/go-up.png" ) )
         self.tbCdUp.setCursor( Qt.ArrowCursor )
         self.tbCdUp.installEventFilter( self )  # for drawing button
-        
+
         self.cbSearch.installEventFilter(self)  # for catching Tab and Shift+Tab
         self.cbReplace.installEventFilter(self)  # for catching Tab and Shift+Tab
         self.cbPath.installEventFilter(self)  # for catching Tab and Shift+Tab
         self.cbMask.installEventFilter(self)  # for catching Tab and Shift+Tab
-        
+
         self._closeShortcut = QShortcut( QKeySequence( "Esc" ), self )
         self._closeShortcut.setContext( Qt.WidgetWithChildrenShortcut )
         self._closeShortcut.activated.connect(self.hide)
 
-        # connections        
+        # connections
         self.cbSearch.lineEdit().textChanged.connect(self._onSearchRegExpChanged)
-        
+
         self.cbSearch.lineEdit().returnPressed.connect(self._onReturnPressed)
         self.cbReplace.lineEdit().returnPressed.connect(self._onReturnPressed)
         self.cbPath.lineEdit().returnPressed.connect(self._onReturnPressed)
         self.cbMask.lineEdit().returnPressed.connect(self._onReturnPressed)
-        
+
         self.cbRegularExpression.stateChanged.connect(self._onSearchRegExpChanged)
         self.cbCaseSensitive.stateChanged.connect(self._onSearchRegExpChanged)
         self.cbWholeWord.stateChanged.connect(self._onSearchRegExpChanged)
-        
+
         self.tbCdUp.clicked.connect(self._onCdUpPressed)
-        
+
         self.pbNext.pressed.connect(self.searchNext)
         self.pbPrevious.pressed.connect(self.searchPrevious)
         self.pbSearchStop.pressed.connect(self.searchInDirectoryStopPressed)
         self.pbReplaceCheckedStop.pressed.connect(self.replaceCheckedStopPressed)
-        
+
         core.mainWindow().hideAllWindows.connect(self.hide)
         core.workspace().escPressed.connect(self.hide)
-        
+
         core.workspace().currentDocumentChanged.connect( \
                     lambda old, new: self.setVisible(self.isVisible() and new is not None))
 
@@ -191,13 +191,13 @@ class SearchWidget(QFrame):
         super(SearchWidget, self).hide()
         core.workspace().focusCurrentDocument()
         self.visibilityChanged.emit(self.isVisible())
-    
+
     def setVisible(self, visible):
         """Reimplemented function. Sends signal
         """
         super(SearchWidget, self).setVisible(visible)
         self.visibilityChanged.emit(self.isVisible())
-    
+
     def _regExEscape(self, text):
         """Improved version of re.escape()
         Doesn't escape space, comma, underscore.
@@ -207,12 +207,12 @@ class SearchWidget(QFrame):
         # re.escape escapes space, comma, underscore, but, it is not necessary and makes text not readable
         for symbol in (' ,_=\'"/:@#%&'):
             text = text.replace('\\' + symbol, symbol)
-        
+
         text = text.replace('\\\n', '\\n')
         text = text.replace('\\\t', '\\t')
 
         return text
-    
+
     def _makeEscapeSeqsVisible(self, text):
         """Replace invisible \n and \t with escape sequences
         """
@@ -220,7 +220,7 @@ class SearchWidget(QFrame):
         text = text.replace('\t', '\\t')
         text = text.replace('\n', '\\n')
         return text
-    
+
     def setMode(self, mode ):
         """Change search mode.
         i.e. from "Search file" to "Replace directory"
@@ -245,7 +245,7 @@ class SearchWidget(QFrame):
             if self.cbRegularExpression.checkState() == Qt.Checked:
                 searchText = self._regExEscape(searchText)
             self.cbSearch.setEditText( searchText )
-        
+
         if not self.cbReplace.lineEdit().text() and \
             self.cbSearch.lineEdit().text() and \
             not self.cbRegularExpression.checkState() == Qt.Checked:
@@ -255,21 +255,21 @@ class SearchWidget(QFrame):
         # Move focus to Search edit
         self.cbSearch.setFocus()
         self.cbSearch.lineEdit().selectAll()
-        
+
         # Set search path
         if mode & MODE_FLAG_DIRECTORY and \
            not (self.isVisible() and self.cbPath.isVisible()):
             try:
                 searchPath = os.path.abspath(unicode(os.path.curdir))
             except OSError:  # current directory might have been deleted
-                pass 
+                pass
             else:
                 self.cbPath.setEditText( searchPath )
 
         # Set widgets visibility flag according to state
         widgets = (self.wSearch, self.pbPrevious, self.pbNext, self.pbSearch, self.wReplace, self.wPath, \
                    self.pbReplace, self.pbReplaceAll, self.pbReplaceChecked, self.wOptions, self.wMask)
-        #                         wSear  pbPrev pbNext pbSear wRepl  wPath  pbRep  pbRAll pbRCHK wOpti wMask 
+        #                         wSear  pbPrev pbNext pbSear wRepl  wPath  pbRep  pbRAll pbRCHK wOpti wMask
         visible = \
         {MODE_SEARCH :               (1,     1,     1,     0,     0,     0,     0,     1,     1,    1,    0,),
          MODE_REPLACE:               (1,     1,     1,     0,     1,     0,     1,     1,     0,    1,    0,),
@@ -277,7 +277,7 @@ class SearchWidget(QFrame):
          MODE_REPLACE_DIRECTORY:     (1,     0,     0,     1,     1,     1,     0,     0,     1,    1,    1,),
          MODE_SEARCH_OPENED_FILES:   (1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,),
          MODE_REPLACE_OPENED_FILES:  (1,     0,     0,     1,     1,     0,     0,     0,     1,    1,    1,)}
-        
+
         for i, widget in enumerate(widgets):
             widget.setVisible(visible[mode][i])
 
@@ -300,20 +300,20 @@ class SearchWidget(QFrame):
             toolButton = object_
             lineEdit = self.cbPath.lineEdit()
             lineEdit.setContentsMargins( lineEdit.height(), 0, 0, 0 )
-            
+
             height = lineEdit.height()
             availableRect = QRect( 0, 0, height, height )
-            
+
             if  toolButton.rect() != availableRect :
                 toolButton.setGeometry( availableRect )
-            
+
             painter = QPainter ( toolButton )
             toolButton.icon().paint( painter, availableRect )
-            
+
             return True
-        
+
         elif event.type() == QEvent.KeyPress:  # Tab and Shift+Tab in QLineEdits
-            
+
             if event.key() == Qt.Key_Tab:
                 self._moveFocus(1)
                 return True
@@ -335,7 +335,7 @@ class SearchWidget(QFrame):
             self.pbSearch.click()
         elif self.pbSearchStop.isVisible():
             self.pbSearchStop.click()
-    
+
     def _moveFocus(self, step):
         """Move focus forward or backward according to step.
         Standard Qt Keyboard focus algorithm doesn't allow circular navigation
@@ -343,15 +343,15 @@ class SearchWidget(QFrame):
         allFocusableWidgets = (self.cbSearch, self.cbReplace, self.cbPath, self.cbMask)
         visibleWidgets = [widget for widget in allFocusableWidgets \
                                     if widget.isVisible()]
-        
+
         try:
             focusedIndex = visibleWidgets.index(QApplication.focusWidget())
         except ValueError:
             print >> sys.stderr, 'Invalid focused widget in Search Widget'
             return
-        
+
         nextFocusedIndex = (focusedIndex + step) % len(visibleWidgets)
-        
+
         visibleWidgets[nextFocusedIndex].setFocus()
         visibleWidgets[nextFocusedIndex].lineEdit().selectAll()
 
@@ -398,41 +398,41 @@ class SearchWidget(QFrame):
         searchText = self.cbSearch.currentText()
         replaceText = self.cbReplace.currentText()
         maskText = self.cbMask.currentText()
-        
+
         # search
         if searchText:
             index = self.cbSearch.findText( searchText )
-            
+
             if  index == -1 :
                 self.cbSearch.addItem( searchText )
-        
+
         # replace
         if replaceText:
             index = self.cbReplace.findText( replaceText )
-            
+
             if  index == -1 :
                 self.cbReplace.addItem( replaceText )
 
         # mask
         if maskText:
             index = self.cbMask.findText( maskText )
-            
+
             if  index == -1 :
                 self.cbMask.addItem( maskText )
-    
+
     def _searchPatternTextAndFlags(self):
         """Get search pattern and flags
         """
         pattern = self.cbSearch.currentText()
-        
+
         pattern = pattern.replace(u'\u2029', '\n')  # replace unicode paragraph separator with habitual \n
-        
+
         if not self.cbRegularExpression.checkState() == Qt.Checked:
             pattern = re.escape(pattern)
-        
+
         if self.cbWholeWord.checkState() == Qt.Checked:
             pattern = r'\b' + pattern + r'\b'
-        
+
         flags = 0
         if not self.cbCaseSensitive.checkState() == Qt.Checked:
             flags = re.IGNORECASE
@@ -443,7 +443,7 @@ class SearchWidget(QFrame):
         """
         pattern, flags = self._searchPatternTextAndFlags()
         return re.compile(pattern, flags)
-    
+
     def isSearchRegExpValid(self):
         """Try to compile search pattern to check if it is valid
         Returns bool result and text error
@@ -453,7 +453,7 @@ class SearchWidget(QFrame):
             re.compile(pattern, flags)
         except re.error, ex:
             return False, unicode(ex)
-        
+
         return True, None
 
     def _getSearchMask(self):
@@ -473,15 +473,15 @@ class SearchWidget(QFrame):
                  SearchWidget.Good: QColor(Qt.green), \
                  SearchWidget.Bad: QColor(Qt.red),
                  SearchWidget.Incorrect: QColor(Qt.darkYellow)}
-        
+
         stateColor = color[state]
         if state != SearchWidget.Normal:
             stateColor.setAlpha(100)
-        
+
         pal = widget.palette()
         pal.setColor( widget.backgroundRole(), stateColor )
         widget.setPalette( pal )
-    
+
     def setSearchInProgress(self, inProgress):
         """Search thread started or stopped
         """
@@ -502,13 +502,13 @@ class SearchWidget(QFrame):
         self.pbReplaceCheckedStop.setVisible( inProgress )
         self.pbReplaceChecked.setVisible( not inProgress )
         self._updateWidgets()
-    
+
     def setSearchInFileActionsEnabled(self, enabled):
         """Set enabled state for Next, Prev, Replace, ReplaceAll
         """
         for button in (self.pbNext, self.pbPrevious, self.pbReplace, self.pbReplaceAll):
             button.setEnabled(enabled)
-    
+
     def _onSearchRegExpChanged(self):
         """User edited search text or checked/unchecked checkboxes
         """
@@ -532,7 +532,7 @@ class SearchWidget(QFrame):
         text = self.cbPath.currentText()
         if not os.path.exists(text):
             return
-        
+
         editText = os.path.normpath(os.path.join(text, os.path.pardir))
         self.cbPath.setEditText(editText)
 

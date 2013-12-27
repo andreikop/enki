@@ -30,10 +30,10 @@ class StopableThread(QThread):
     """Stoppable thread class. Used as base for search and replace thread.
     """
     _exit = False
-    
+
     def __init__(self):
         QThread.__init__(self)
-    
+
     def __del__(self):
         self.stop()
 
@@ -42,7 +42,7 @@ class StopableThread(QThread):
         """
         self._exit = True
         self.wait()
-    
+
     def start(self):
         """Ensure thread is stopped, and start it
         """
@@ -65,12 +65,12 @@ class SearchThread(StopableThread):
         context stores search text, directory and other parameters
         """
         self.stop()
-        
+
         self._regExp = regExp
         self._mask = mask
         self._inOpenedFiles = inOpenedFiles
         self._searchPath = searchPath
-        
+
         self._openedFiles = {}
         for document in core.workspace().documents():
             if document.filePath() is not None:
@@ -83,12 +83,12 @@ class SearchThread(StopableThread):
         maskRegExp is regExp object for check if file matches mask
         """
         retFiles = []
-        
+
         try:
             absPath = os.path.abspath(path)
         except OSError:  # current dir deleted
             return []
-        
+
         try:
             for root, dirs, files in os.walk(absPath, followlinks=True):  # pylint: disable=W0612
                 if root.startswith('.') or (os.path.sep + '.') in root:
@@ -98,24 +98,24 @@ class SearchThread(StopableThread):
                         continue
                     if maskRegExp and not maskRegExp.match(fileName):
                         continue
-                    
+
                     if filterRegExp.match(fileName):
                         continue
-                    
+
                     fullPath = os.path.join(root, fileName)
                     if not os.path.isfile(fullPath):
                         continue
                     retFiles.append(root + os.path.sep + fileName)
-    
+
                 if self._exit :
                     break
         except UnicodeDecodeError:  # from os.walk()
             self.error.emit('Failed to build list of files. Unicode decode error. Is correct locale set?')
             return []
-        
+
         return retFiles
 
-    
+
     def _getFilesToScan(self):
         """Get list of files for search.
         """
@@ -164,10 +164,10 @@ class SearchThread(StopableThread):
 
         if  self._exit :
             return
-        
+
         self.progressChanged.emit( 0, len(files))
-        
-        # Prepare data for search process        
+
+        # Prepare data for search process
         lastResultsEmitTime = time.clock()
         notEmittedFileResults = []
         # Search for all files
@@ -189,7 +189,7 @@ class SearchThread(StopableThread):
             if  self._exit :
                 self.progressChanged.emit( fileIndex, len(files))
                 break
-        
+
         if notEmittedFileResults:
             self.resultsAvailable.emit(notEmittedFileResults)
 
@@ -200,23 +200,23 @@ class SearchThread(StopableThread):
         eolCount = 0
         results = []
         eol = "\n"
-        
+
         content = self._fileContent( fileName )
-        
+
         # Process result for all occurrences
         for match in self._regExp.finditer(content):
             start = match.start()
-            
+
             eolStart = content.rfind( eol, 0, start)
             eolEnd = content.find( eol, start + len(match.group(0)))
             eolCount += content[lastPos:start].count( eol )
             lastPos = start
-            
+
             wholeLine = content[eolStart+1 : eolEnd]
             column = start - eolStart
             if eolStart != 0:
                 column -= 1
-            
+
             result = searchresultsmodel.Result( fileName = fileName, \
                              wholeLine = wholeLine, \
                              line = eolCount, \
@@ -231,7 +231,7 @@ class SearchThread(StopableThread):
 
 class ReplaceThread(StopableThread):
     """Thread does replacements in the directory according to checked items
-    
+
     Replacements in opened documents are done by GUI thread, in other - by new thread
     """
     resultsHandled = pyqtSignal(unicode, list)
@@ -242,10 +242,10 @@ class ReplaceThread(StopableThread):
         """Run replace process
         """
         self.stop()
-        
+
         self._replaceText = replaceText
         self._totalCount = sum([len(v) for v in results.itervalues()])
-        
+
         # do replacements in opened files, prepare for replacing in not opened
         self._results = {}
         for filePath, matches in results.iteritems():
@@ -255,7 +255,7 @@ class ReplaceThread(StopableThread):
                 self.resultsHandled.emit( filePath, matches)
             else:
                 self._results[filePath] = matches
-        
+
         self.start()
 
     def _replaceInOpenedDocument(self, document, matches):
@@ -278,7 +278,7 @@ class ReplaceThread(StopableThread):
             text = unicode(str(ex), 'utf8')
             self.error.emit(pattern % text)
             return
-        
+
         try:
             with open(fileName, 'wb') as openFile:
                 openFile.write(content)
@@ -296,7 +296,7 @@ class ReplaceThread(StopableThread):
         except IOError as ex:
             self.error.emit( self.tr( "Error opening file: %s" % str(ex) ) )
             return ''
-        
+
         try:
             return unicode(content, 'utf8')
         except UnicodeDecodeError as ex:
@@ -309,18 +309,18 @@ class ReplaceThread(StopableThread):
         Does thread job
         """
         startTime = time.clock()
-        
+
         for fileName in self._results.keys():
             content = self._fileContent(fileName)
             if content is None:  # if failed to read file
                 continue
-            
+
             matches = self._results[ fileName ]
-            
+
             content = self._doReplacements(content, matches)
-            
+
             self._saveContent(fileName, content)
-            
+
             self.resultsHandled.emit( fileName, matches)
 
             if  self._exit :
@@ -337,5 +337,5 @@ class ReplaceThread(StopableThread):
             replaceTextWithMatches = substitutions.makeSubstitutions(self._replaceText,
                                                                      result.match)
             content = content[:result.match.start()] + replaceTextWithMatches + content[result.match.end():]
-        
+
         return content

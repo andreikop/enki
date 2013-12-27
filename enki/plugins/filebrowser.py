@@ -33,7 +33,7 @@ def _getCurDir():
 
 class Plugin(QObject):
     """File system tree.
-    
+
     Allows to open files quickly
     """
 
@@ -46,7 +46,7 @@ class Plugin(QObject):
         self.dock.hide()
         # add dock to dock toolbar entry
         core.mainWindow().addDockWidget(Qt.LeftDockWidgetArea, self.dock)
-    
+
     def del_(self):
         """Uninstall the plugin
         """
@@ -60,17 +60,17 @@ class FileBrowserFilteredModel(QSortFilterProxyModel):
     def __init__(self, parent):
         QSortFilterProxyModel.__init__(self, parent)
         core.fileFilter().regExpChanged.connect(self.invalidate)
-    
+
     def columnCount(self, parent = QModelIndex()):  # pylint: disable=W0613
         """Column count for the model
         """
         return 1
-    
+
     def hasChildren(self, parent = QModelIndex()):
         """Check if node has children. QAbstractItemModel standard method
         """
         return self.sourceModel().hasChildren( self.mapToSource( parent ) )
-        
+
     def filterAcceptsRow(self, source_row, source_parent):
         """ Main method. Check if file matches filter
         """
@@ -81,16 +81,16 @@ class FileBrowserFilteredModel(QSortFilterProxyModel):
 
 class SmartRecents(QObject):
     """Class stores File Browser recent directories and provides variants for combo box.
-    
+
     "Active directory" in this class means the last directory, where one or more files has been opened
     """
     MAX_RECENTS_SIZE = 5
     FILE_PATH = os.path.join(CONFIG_DIR, 'file_browser_popular_dirs.json')
-    
+
     STATISTICS_SIZE = 50.
     BONUS_FOR_OPENING = 1.
     MAX_POINTS_COUNT = 100.
-    
+
     _recentsChanged = pyqtSignal(list)
 
     def __init__(self, fileBrowser):
@@ -100,7 +100,7 @@ class SmartRecents(QObject):
         self._popularDirs = None
         self._loadPopularDirs()
         core.workspace().currentDocumentChanged.connect(self._updateRecents)
-        
+
         # incoming connections
         fileBrowser.rootChanged.connect(self._onRootChanged)
         fileBrowser.fileActivated.connect(self._onFileActivated)
@@ -118,7 +118,7 @@ class SmartRecents(QObject):
             except ValueError as ex:
                 logging.error('Invalid PopularDirs value: ' + unicode(ex))
                 self._popularDirs[k] = 0.0
-    
+
     def _savePopularDirs(self):
         """Save dirs to file
         """
@@ -129,17 +129,17 @@ class SmartRecents(QObject):
         """
         if not self._popularDirs:
             return ()
-        
+
         dirAndPopularity = sorted(self._popularDirs.iteritems(), key=operator.itemgetter(1), reverse=True)
         dirs = [dp[0] for dp in dirAndPopularity]  # take only first elements
         return dirs
-    
+
     def _onFileActivated(self):
         """FileBrowserDock notifies SmartRecents that file has been activated
         """
         if self._currIsActive:  # statistics already has been updated
             return
-        
+
         self._currIsActive = True
 
         # Replace the least popular
@@ -157,9 +157,9 @@ class SmartRecents(QObject):
         if multiplier < 1:
             for k in self._popularDirs.iterkeys():
                 self._popularDirs[k] *= multiplier
-        
+
         self._savePopularDirs()
-        
+
         # History update is not scheduled here, because it will be scheduled when workspace changes current file
 
     def _onRootChanged(self, newCurrDir):
@@ -172,7 +172,7 @@ class SmartRecents(QObject):
     def _updateRecents(self):
         """Generate new list of directories, which will be shown in the combo box.
         Emit this list
-        """        
+        """
         # Popular directories
         history = [path for path in self._dirsByPopularity() \
                         if os.path.isdir(path) and \
@@ -180,10 +180,10 @@ class SmartRecents(QObject):
         # leave not more than MAX_RECENTS_SIZE
         if len(history) > self.MAX_RECENTS_SIZE:
             history = history[:self.MAX_RECENTS_SIZE]
-        
+
         # now sort by path
         history = sorted(history)
-        
+
         self._recentsChanged.emit(history)
 
 
@@ -214,13 +214,13 @@ class SmartHistory(QObject):
         fileBrowser.titleBarWidget().addAction(self._aForward)
         core.actionManager().addAction("mNavigation/mFileBrowser/aForward", self._aForward)
         self._aForward.triggered.connect(self._onTbForwardTriggered)
-        
+
         fileBrowser.titleBarWidget().addSeparator()
-        
+
         # incoming connections
         fileBrowser.rootChanged.connect(self._onRootChanged)
         fileBrowser.fileActivated.connect(self._onFileActivated)
-    
+
     def del_(self):
         """Explicitly called destructor
         """
@@ -252,22 +252,22 @@ class SmartHistory(QObject):
         if (self._historyIndex + 1) < len(self._history):  # not on the top of the stack
             # Cut history
             self._history = self._history[:self._historyIndex + 1]
-        
+
         # Append new root to the history
         self._history.append(self._currDir)
         self._historyIndex += 1
-        
+
         self._updateActions()
-        
+
     def _onTbBackTriggered(self):
         """Back action handler
         """
         if not self._currIsActive:
             self._updateHistory()
-        
+
         self._historyIndex -= 1
         self._fileBrowser.setCurrentPath(self._history[self._historyIndex])
-    
+
     def _onTbForwardTriggered(self):
         """Forward action handler
         """
@@ -289,7 +289,7 @@ class SmartHistory(QObject):
             self._aBack.setEnabled(False)
             self._aBack.setStatusTip(self.tr("Back"))
             self._aBack.setToolTip(self.tr("Back"))
-        
+
         if (self._historyIndex + 1) < len(self._history):
             self._aForward.setEnabled(True)
             self._aForward.setStatusTip(self._history[self._historyIndex + 1])
@@ -306,7 +306,7 @@ class _FileSystemModel(QFileSystemModel):
     """
     def __init__(self, *args):
         QFileSystemModel.__init__(self, *args)
-    
+
     def data(self, index, role):
         if role == Qt.ToolTipRole:
             return self.filePath(index)
@@ -316,56 +316,56 @@ class _FileSystemModel(QFileSystemModel):
 class Tree(QTreeView):
     """File system tree
     """
-    
+
     _fileActivated = pyqtSignal()
-    
+
     def __init__(self, fileBrowser):
         QTreeView.__init__(self, fileBrowser)
-        
+
         self._fileBrowser = fileBrowser
-        
+
         self.setAttribute( Qt.WA_MacShowFocusRect, False )
         self.setAttribute( Qt.WA_MacSmallSize )
         self.setContextMenuPolicy( Qt.ActionsContextMenu )
         self.setHeaderHidden( True )
         self.setUniformRowHeights( True )
         self.setTextElideMode(Qt.ElideMiddle)
-        
+
         # dir model
         self._dirsModel = _FileSystemModel( self )
         self._dirsModel.setNameFilterDisables( False )
         self._dirsModel.setFilter( QDir.AllDirs | QDir.AllEntries | QDir.CaseSensitive | QDir.NoDotAndDotDot )
         # self._dirsModel.directoryLoaded.connect(self.setFocus)  TODO don't have this signal in my Qt version
-        
+
         # create proxy model
         self._filteredModel = FileBrowserFilteredModel( self )
         self._filteredModel.setSourceModel( self._dirsModel )
 
         self.setModel( self._filteredModel)
-        
+
         if not sys.platform.startswith('win'):
             self._dirsModel.setRootPath( "/" )
         else:
             self._dirsModel.setRootPath('')
-        
+
         # shortcut accessible only when self._tree has focus
         self._upShortcut = QShortcut( QKeySequence( "BackSpace" ), self )
         self._upShortcut.setContext( Qt.WidgetShortcut )
         self._upShortcut.activated.connect(self.moveUp)
-        
+
         # shortcut accessible only when self._tree has focus
         self._homeShortcut = QShortcut( QKeySequence( "`" ), self )
         self._homeShortcut.setContext( Qt.WidgetShortcut )
         self._homeShortcut.activated.connect(self._goUserHomeDir)
-        
+
         # shortcut accessible only when self._tree has focus
         self._homeShortcut = QShortcut( QKeySequence( "." ), self )
         self._homeShortcut.setContext( Qt.WidgetShortcut )
         self._homeShortcut.activated.connect(self._goCurrentDir)
-        
+
         self.activated.connect(self._onActivated)
         self._fileActivated.connect(fileBrowser.fileActivated)
-        
+
         # QDirModel loads item asynchronously, therefore we need timer for setting focus to the first item
         self._setFocusTimer = QTimer()
         self._setFocusTimer.timeout.connect(self._setFirstItemAsCurrent)
@@ -377,13 +377,13 @@ class Tree(QTreeView):
         """
         index = self._filteredModel.mapToSource( idx )
         path = self._dirsModel.filePath( index )
-        
+
         if  os.path.isdir( path ) :
             self._fileBrowser.setCurrentPath(path)
         else:
             self._fileActivated.emit()
             core.workspace().openFile(path)
-    
+
     def moveUp(self):
         """User pressed Up key or button. Move focus and root up
         """
@@ -391,7 +391,7 @@ class Tree(QTreeView):
         if not current.isValid():
             current = self.rootIndex().child(0, 0)
             self.setCurrentIndex(current)
-        
+
         if current.parent() == self.rootIndex() or \
            current == self.rootIndex():  # need to move root up
             if self.rootIndex().parent().isValid():  # not reached root of the FS tree
@@ -410,13 +410,13 @@ class Tree(QTreeView):
         """
         self._fileBrowser.setCurrentPath(os.path.expanduser("~"))
         self.collapseAll()
-    
+
     def _goCurrentDir(self):
         """Go to current directory
         """
         self._fileBrowser.setCurrentPath(_getCurDir())
         self.collapseAll()
-    
+
     def _filteredModelIndexToPath(self, index):
         """Map index to file path
         """
@@ -438,7 +438,7 @@ class Tree(QTreeView):
                 return True
             child = child.parent()
         return False
-    
+
     def _setFirstItemAsCurrent(self):
         """QDirModel loads items asynchronously.
         Therefore we select current item by timer
@@ -461,15 +461,15 @@ class Tree(QTreeView):
         """
         # get index
         index = self._dirsModel.index(path)
-        
+
         # set current path
         self._filteredModel.invalidate()
         newRoot = self._filteredModel.mapFromSource( index )
         self.setRootIndex(newRoot)
-        
+
         self._timerAttempts = 10
         self._setFocusTimer.start()
-    
+
     def _setCurrentItem(self, index):
         """Make the item current and select it
         """
@@ -482,7 +482,7 @@ class ComboBox(QComboBox):
     """
     def __init__(self, fileBrowser):
         QComboBox.__init__(self, fileBrowser)
-        
+
         self._fileBrowser = fileBrowser
 
         self.setAttribute( Qt.WA_MacShowFocusRect, False )
@@ -504,7 +504,7 @@ class ComboBox(QComboBox):
         self._showPopupAction.setShortcut('Ctrl+H')
         core.actionManager().addAction("mNavigation/mFileBrowser/aMenuShow", self._showPopupAction)
         self._showPopupAction.triggered.connect(self._onShowPopup)
-        
+
         # reconnected in self.updateComboItems()
         self.currentIndexChanged[int].connect(self._onItemSelected)
 
@@ -517,7 +517,7 @@ class ComboBox(QComboBox):
         """Handler for self._showPopupAction
         """
         self.showPopup()
-        
+
     @pyqtSlot(int)
     def _onItemSelected(self, index):
         """Handler of item selection in the combo box
@@ -539,7 +539,7 @@ class ComboBox(QComboBox):
         self.addItem(self._fileBrowser.currentPath())
         self.setItemData(0, self._fileBrowser.currentPath())
         self.insertSeparator(self.count())
-        
+
         for index, path in enumerate(items):
             self.addItem(path)
             self.setItemData(index + 2, path)
@@ -548,8 +548,8 @@ class ComboBox(QComboBox):
 
 
 class DockFileBrowser(DockWidget):
-    """UI interface of FileBrowser plugin. 
-        
+    """UI interface of FileBrowser plugin.
+
     Dock with file system tree, Box, navigation in a file system
     tree, for moving root of tree to currently selected directory and
     up (relatively for current directory)
@@ -557,34 +557,34 @@ class DockFileBrowser(DockWidget):
     rootChanged = pyqtSignal(unicode)
     """
     rootChanged(path)
-    
+
     **Signal** emitted, when tree root has been changed
     """  # pylint: disable=W0105
-    
+
     fileActivated = pyqtSignal()
     """
     rootChanged(path)
-    
+
     **Signal** emitted, when file has been activated
     """  # pylint: disable=W0105
-    
+
     def __init__(self, parent):
         DockWidget.__init__(self, parent, "&File Browser", QIcon(':/enkiicons/open.png'), "Alt+F")
-        
+
         self._comboBox = None
         self._tree = None
         self._smartRecents = None
         self._smartHistory = None
-        
+
         # restrict areas
         self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
-        
+
         core.actionManager().addAction("mView/aFileBrowser", self.showAction())
-        
+
         core.mainWindow().directoryDropt.connect(self._onDirectoryDropt)
-        
+
         self.visibilityChanged.connect(self._onVisibilityChanged)
-    
+
     def del_(self):
         """Explicitly called destructor
         """
@@ -601,28 +601,28 @@ class DockFileBrowser(DockWidget):
         if visible:
             self._initialize()
             self.visibilityChanged.disconnect(self._onVisibilityChanged)
-    
+
     def _initialize(self):
         """Delayed initialization of the widget for quicker start of application
         """
         # central widget
         wdg = QWidget( self )
         self.setWidget( wdg )
-        
+
         # vertical layout
         vertLayout = QVBoxLayout( wdg )
         vertLayout.setMargin( 0 )
         vertLayout.setSpacing( 3 )
-        
+
         # combo
         self._comboBox = ComboBox(self)
         vertLayout.addWidget( self._comboBox )
-        
+
         # hline
         hline = QFrame( self )
         hline.setFrameStyle( QFrame.HLine | QFrame.Sunken )
         vertLayout.addWidget( hline )
-        
+
         # files view
         self._tree = Tree(self)
         vertLayout.addWidget( self._tree )
@@ -636,25 +636,25 @@ class DockFileBrowser(DockWidget):
 
         # redirirect focus proxy
         self.setFocusProxy( self._tree )
-        
+
         self._smartRecents = SmartRecents(self)
         self._smartHistory = SmartHistory(self)
-        
+
         self.setCurrentPath(_getCurDir())
 
-    
+
     def _onDirectoryDropt(self, path):
         """Directory drag-n-dropt to main window. Show it
         """
         self.setCurrentPath(path)
         self.show()
-    
+
     @pyqtSlot(list)
     def updateComboItems(self, items):
         """Update items in the combo box according to current history
         """
         self._comboBox.updateItems(items)
-    
+
     def currentPath(self):
         """Get current path (root of the tree)
         """
@@ -666,13 +666,13 @@ class DockFileBrowser(DockWidget):
         """
         self._tree.setCurrentPath(path)
         self._tree.setFocus()
-        
+
         # set lineedit path
         self._comboBox.setToolTip(path)
-        
+
         # notify SmartRecents and own slots
         self.rootChanged.emit(path)
-        
+
         # cd if no files with known path
         if not any([doc for doc in core.workspace().documents() \
                         if doc.filePath() is not None]):

@@ -22,7 +22,7 @@ def isMarkdownFile(document):
 def isHtmlFile(document):
     return document is not None and  \
            document.qutepart.language() is not None and \
-           'html' in document.qutepart.language().lower()  # 'Django HTML Template'    
+           'html' in document.qutepart.language().lower()  # 'Django HTML Template'
 
 
 class Plugin(QObject):
@@ -32,23 +32,23 @@ class Plugin(QObject):
         """Create and install the plugin
         """
         QObject.__init__(self)
-        
+
         self._dock = None
         self._saveAction = None
         self._dockInstalled = False
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         core.workspace().languageChanged.connect(self._onDocumentChanged)
         core.mainWindow().stateRestored.connect(self._onMainWindowStateRestored)
-    
+
     def del_(self):
         """Uninstall the plugin
         """
         if self._dockInstalled:
             self._removeDock()
-        
+
         if self._dock is not None:
             self._dock.del_()
-    
+
     def _onDocumentChanged(self):
         """Document or Language changed.
         Create dock, if necessary
@@ -59,7 +59,7 @@ class Plugin(QObject):
         else:
             if self._dockInstalled:
                 self._removeDock()
-    
+
     def _onMainWindowStateRestored(self):
         """When main window state is restored - dock is made visible, even if should not. Qt bug?
         Hide dock, if can't view current document
@@ -67,20 +67,20 @@ class Plugin(QObject):
         if (not self._canHighlight(core.workspace().currentDocument())) and \
            self._dock is not None:
                self._dock.hide()
-    
+
     def _canHighlight(self, document):
         """Check if can highlight document
         """
         if document is None:
             return False
-        
+
         if document.qutepart.language() == 'reStructuredText' or \
            isHtmlFile(document):
             return True
-        
+
         if isMarkdownFile(document):
             return True
-        
+
         return False
 
     def _createDock(self):
@@ -95,29 +95,29 @@ class Plugin(QObject):
             self._saveAction = QAction(QIcon(':enkiicons/save.png'), 'Save Preview as HTML', self._dock)
             self._saveAction.setShortcut(QKeySequence("Alt+Shift+P"))
             self._saveAction.triggered.connect(self._dock.onSave)
-        
+
         restored = core.mainWindow().restoreDockWidget(self._dock)
         if not restored:
             core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
-        
+
         core.actionManager().addAction("mView/aPreview", self._dock.showAction())
         core.actionManager().addAction("mFile/aSavePreview", self._saveAction)
         self._dockInstalled = True
         if core.config()['Preview']['Enabled']:
             self._dock.show()
-    
+
     def _onDockClosed(self):
         """Dock has been closed by user. Change Enabled option
         """
         core.config()['Preview']['Enabled'] = False
         core.config().flush()
-    
+
     def _onDockShown(self):
         """Dock has been shown by user. Change Enabled option
         """
         core.config()['Preview']['Enabled'] = True
         core.config().flush()
-    
+
     def _removeDock(self):
         """Remove dock from GUI
         """

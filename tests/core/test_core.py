@@ -20,7 +20,7 @@ class RestoreOldConfigs(base.TestCase):
         # Enki restores configs from old directory ~/.enki to new ~/.config/enki
         old_cfg = enki.core.core._OLD_CONFIG_DIR
         curr_cfg = enki.core.defines.CONFIG_DIR
-        
+
         enki.core.core._OLD_CONFIG_DIR = self.TEST_FILE_DIR + '/old'
         enki.core.defines.CONFIG_DIR = self.TEST_FILE_DIR + '/new'
         try:
@@ -36,16 +36,16 @@ class RestoreOldConfigs(base.TestCase):
         # Enki shows QMessageBox if failed to move config dir
         old_cfg = enki.core.core._OLD_CONFIG_DIR
         curr_cfg = enki.core.defines.CONFIG_DIR
-        
+
         enki.core.core._OLD_CONFIG_DIR = self.TEST_FILE_DIR + '/old'
         enki.core.defines.CONFIG_DIR = '/new'
         try:
             os.mkdir(enki.core.core._OLD_CONFIG_DIR)
-            
+
             def inDialog(dialog):
                 self.assertTrue(dialog.windowTitle().startswith('Failed to move configs'))
                 dialog.accept()
-        
+
             self.openDialog(lambda: core.init(base.DummyProfiler()), inDialog)
         finally:
             enki.core.core._OLD_CONFIG_DIR = old_cfg

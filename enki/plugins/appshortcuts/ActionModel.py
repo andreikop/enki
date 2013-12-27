@@ -1,6 +1,6 @@
 """This file has been ported from fresh library by Azevedo Filippe aka PasNox
 
-See information at https://github.com/pasnox/fresh and 
+See information at https://github.com/pasnox/fresh and
 API docks at http://api.monkeystudio.org/fresh/
 """
 
@@ -12,17 +12,17 @@ def tr(text):
 
 class ActionModel(QAbstractItemModel):
     _COLUMN_COUNT = 3
-    
+
     Action = 0
     Shortcut = 1
     DefaultShortcut = 2
-    
+
 
     def __init__(self, manager):
         QAbstractItemModel.__init__(self, manager)
         self._manager = manager
         self._indexCache = {}
-    
+
     def actionByIndex(self, index):
         if index.isValid():
             return index.internalPointer()
@@ -35,7 +35,7 @@ class ActionModel(QAbstractItemModel):
     def data(self, index, role):
         if not index.isValid():
             return QVariant()
-        
+
         action = index.internalPointer()
 
         if role == Qt.DecorationRole:
@@ -66,7 +66,7 @@ class ActionModel(QAbstractItemModel):
             return self._indexCache[(parentAction, row, column)]
         except KeyError:
             actions = self._manager.children(parent.internalPointer())
-            
+
             if  row < 0 or row >= len(actions) or \
                 column < 0 or column >= ActionModel._COLUMN_COUNT or \
                 ( parent.column() != 0 and parent.isValid() ):
@@ -79,13 +79,13 @@ class ActionModel(QAbstractItemModel):
     def _index(self, action, column = 0):
         if action is None:
             return QModelIndex()
-        
+
         parentAction = self._manager.parentAction( action )
         try:
             row = self._manager.children( parentAction ).index( action )
         except ValueError:
             return QModelIndex()
-        
+
         assert isinstance(action, QAction)
         return self.createIndex( row, column, action )
 
@@ -119,9 +119,9 @@ class ActionModel(QAbstractItemModel):
                     return tr( "Shortcut" )
                 elif section == ActionModel.DefaultShortcut:
                     return tr( "Default Shortcut" )
-        
+
         return QAbstractItemModel.headerData(self,  section, orientation, role )
-    
+
     def isValid(self, index ):
         if  not index.isValid() or \
             index.row() < 0 or \
@@ -152,7 +152,7 @@ class ActionModel(QAbstractItemModel):
         action.setShortcut( shortcut )
         index = self._index(action, 1)
         self.dataChanged.emit(index, index)
-    
+
     def _cleanText(self, text ):
         sep = "\001"
         return text.replace( "and", sep ).replace( "&", "" ).replace( sep, "and" )

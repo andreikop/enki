@@ -11,7 +11,7 @@ from PyQt4.QtGui import QApplication, QFont, QFontDatabase
 
 class Config():
     """Settings storage.
-        
+
     This class stores core settings. Plugins are also allowed to store its settings here.
 
     Instance is accessible as: ::
@@ -20,49 +20,49 @@ class Config():
         core.config()
 
     Created by :class:`enki.core.core.Core`
-    
+
     Use this object as a dictionary for read and write options.
     Example: ::
         font = core.config()["Qutepart"]["DefaultFont"]  # read option
         core.config()["Qutepart"]["DefaultFont"] = font  # write option
     See also get() and set() methods
-    
+
     You SHOULD flush config, when writing changed settings is finished.
     Example: ::
         core.config().flush()
     Usually flushing is done by :class:`enki.core.uisettings.UISettingsManager`
     """
-    
+
     def __init__(self, enableWriting, filePath):
         """If enableWriting is False - flush() does nothing
         """
         self._enableWriting = enableWriting
         self._filePath = filePath
         self.reload()  # exceptions are ok, raise it to upper level
-    
+
     def _updateVersion(self):
         """Update config version, if config is old
         """
         if not '_version' in self._data:
             self._data['_version'] = 1
             self._data['NegativeFileFilter'] = self._data['FileBrowser']['NegativeFilter']
-        
+
         if self._data['_version'] == 1:
             self._data['Associations']['Markdown'] = { "FileName": [ "*.md", "*.markdown"], \
                                                        "FirstLine": [] }
             self._data['_version'] = 2
-        
+
         if self._data['_version'] == 2:
             self._data["Editor"]["MonochromeSelectionForeground"] = True
             self._data['_version'] = 3
-        
+
         if self._data['_version'] == 3:
             self._data['PlatformDefaultsHaveBeenSet'] = False
             self._data["Preview"] = {"Enabled": True,
                                      "JavaScriptEnabled": True}
 
             self._data['_version'] = 4
-        
+
         if self._data['_version'] == 4:
             editor = self._data['Editor']
             self._data['Qutepart'] = {
@@ -84,7 +84,7 @@ class Config():
                 "EOL": editor["EOL"]
             }
             self._data['_version'] = 5
-        
+
         if self._data['_version'] in (5, 6):
             self._data['Qutepart']['WhiteSpaceVisibility'] = {'Trailing': True, 'AnyIndentation': False}
             self._data['_version'] = 7
@@ -95,16 +95,16 @@ class Config():
                                          "JavaScriptEnabled": True}
             self._data['Preview']['Template'] = 'Default'
             self._data['_version'] = 8
-        
+
         if self._data['_version'] == 8:
             self._data['Navigator'] = {'Enabled': True, 'CtagsPath': 'ctags'}
             self._data['_version'] = 9
-            
+
 
     def _setPlatformDefaults(self):
         """Set default values, which depend on platform
         """
-        
+
         """Monaco - old Mac font,
         Menlo - modern Mac font,
         Monospace - default for other platforms
@@ -117,10 +117,10 @@ class Config():
                 break
         else:
             self._data['Qutepart']['Font']['Family'] = 'Monospace'
-        
+
         self._data['Qutepart']['Font']['Size'] = QApplication.instance().font().pointSize()
         self._data['PlatformDefaultsHaveBeenSet'] = True
-    
+
     def reload(self):
         """Reload config from the disk
         """
@@ -132,9 +132,9 @@ class Config():
     def get(self, name):  # pylint: disable=W0221
         """
         Get option by slash-separated path. i.e. ::
-        
+
             font = core.config().get("Editor/DefaultFont")
-        
+
         Raises KeyError if not found
         """
         object_ = self._data
@@ -142,11 +142,11 @@ class Config():
         while len(path):
             object_ = object_[path.pop(0)]
         return object_
-    
+
     def set(self, name, value):
         """
         Set option by slash-separated path. i.e. ::
-        
+
             core.config().get("Editor/DefaultFont") = font
         """
         section = self._data
@@ -156,14 +156,14 @@ class Config():
                 section[sectionName] = {}
             section = section[sectionName]
         section[path[-1]] = value
-    
+
     def clear(self):
         """Clear the config
         """
         self._data = {}
 
     def flush(self):
-        """Flush config to the disk. 
+        """Flush config to the disk.
         Does nothing, if *enableWriting* is *False* (probably default config is opened)
         """
         if self._enableWriting:
@@ -182,7 +182,7 @@ class Config():
         """Python dictionary interface implementation
         """
         return self._data[key]
-    
+
     def __setitem__(self, key, value):
         """Python dictionary interface implementation
         """

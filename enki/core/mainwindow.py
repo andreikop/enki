@@ -38,7 +38,7 @@ class _StatusBar(QStatusBar):
         self._timer = QTimer()
         self._timer.setSingleShot(True)
         self._timer.timeout.connect(self.clearMessage)
-    
+
     def showMessage(self, text, timeout=0):
         """QStatusBar.showMessage()
         """
@@ -46,7 +46,7 @@ class _StatusBar(QStatusBar):
         self._timer.stop()
         if timeout > 0:
             self._timer.start(timeout)
-    
+
     def clearMessage(self):
         """QStatusBar.clearMessage()
         """
@@ -55,54 +55,54 @@ class _StatusBar(QStatusBar):
 class MainWindow(QMainWindow):
     """
     Main UI window
-    
+
     Class creates window elements, fills main menu with items.
-    
-    If you need to access to some existing menu items - check action path 
+
+    If you need to access to some existing menu items - check action path
     in the class constructor, than use next code: ::
-        
+
         core.actionManager().action( "mFile/aOpen" ).setEnabled(True)
         core.actionManager().action( "mFile/aOpen" ).triggered.connect(self.myCoolMethod)
-    
+
     MainWindow instance is accessible as: ::
-    
+
         from enki.core.core import core
         core.mainwindow()
-    
+
     Created by the core
     """
-    
+
     hideAllWindows = pyqtSignal()
     """
     hideAllWindows()
-    
+
     **Signal** emitted, when user toggled "Hide all" .
     Dock widgets are closed automatically, but other widgets, i.e. search widget, must catch this signal and close
     themselves.
     """  # pylint: disable=W0105
-    
+
     directoryDropt = pyqtSignal(unicode)
     """
     directoryDropt()
-    
+
     **Signal** emitted, when user drag-n-dropt directory to main windowd.
     FileBrowser shows directory
     """  # pylint: disable=W0105
-    
+
     stateRestored = pyqtSignal()
     """
     stateRestored()
-    
+
     **Signal** emitted, after state has been restored
     Plugin might want to change docks visibility. Do not do it, unless necessary.
     """  # pylint: disable=W0105
-    
+
     _STATE_FILE = os.path.join(enki.core.defines.CONFIG_DIR, "main_window_state.bin")
     _GEOMETRY_FILE = os.path.join(enki.core.defines.CONFIG_DIR, "main_window_geometry.json")
-    
+
     def __init__(self):
         QMainWindow.__init__(self)
-        
+
         self._queuedMessageToolBar = None
         self._createdMenuPathes = []
         self._createdActions = []
@@ -110,13 +110,13 @@ class MainWindow(QMainWindow):
         self.setUnifiedTitleAndToolBarOnMac( True )
         self.setIconSize( QSize( 16, 16 ) )
         self.setAcceptDrops( True )
-        
+
         # Set corner settings for dock widgets
         self.setCorner( Qt.TopLeftCorner, Qt.LeftDockWidgetArea )
         self.setCorner( Qt.TopRightCorner, Qt.RightDockWidgetArea )
         self.setCorner( Qt.BottomLeftCorner, Qt.LeftDockWidgetArea )
         self.setCorner( Qt.BottomRightCorner, Qt.RightDockWidgetArea )
-        
+
         self.setWindowTitle(self.defaultTitle())  # overwriten by workspace when file or it's modified state changes
         self.setWindowIcon( QIcon(':/enkiicons/logo/32x32/enki.png') )
 
@@ -130,15 +130,15 @@ class MainWindow(QMainWindow):
         self._menuBar = ActionMenuBar(self, core.actionManager())
 
         self._initMenubarAndStatusBarLayout()
-        
+
         self._createMenuStructure()
-        
+
         # create central layout
         widget = QWidget(self)
         self._centralLayout = QVBoxLayout(widget)
         self._centralLayout.setMargin(0)
         self.setCentralWidget(widget)
-        
+
     def del_(self):
         """Explicitly called destructor
         """
@@ -150,14 +150,14 @@ class MainWindow(QMainWindow):
             core.actionManager().removeAction(act, False)
         for menuPath in self._createdMenuPathes[::-1]:
             core.actionManager().removeMenu(menuPath)
-    
+
     @staticmethod
     def _isMenuEmbeddedToTaskBar():
         """On Unity (Ubuntu) and MacOS menu bar is embedded to task bar
         """
         return 'UBUNTU_MENUPROXY' in os.environ or \
                'darwin' == sys.platform
-    
+
     def _initMenubarAndStatusBarLayout(self):
         """Create top widget and put it on its place
         """
@@ -183,25 +183,25 @@ class MainWindow(QMainWindow):
 
             self.addToolBar(self._topToolBar)
             self._topToolBar.addWidget(self._menuBar)
-            
+
         # Create status bar
         self._statusBar = _StatusBar(self)
         self._topToolBar.addWidget(self._statusBar)
-        
+
     def _createMenuStructure(self):
         """Fill menu bar with items. The majority of items are not connected to the slots,
         Connections made by module, which implements menu item functionality, but, all items are in one place,
         because it's easier to create clear menu layout
         """
         # create menubar menus and actions
-        
+
         def menu(path, name, icon):
             """Subfunction for create a menu in the main menu"""
             menuObject = core.actionManager().addMenu(path, name)
             if icon:
                 menuObject.setIcon(QIcon(':/enkiicons/' + icon))
             self._createdMenuPathes.append(path)
-            
+
         def action(path, name, icon, shortcut, tooltip, enabled, checkable=False):  # pylint: disable=R0913
             """Subfunction for create an action in the main menu"""
             if icon:  # has icon
@@ -213,12 +213,12 @@ class MainWindow(QMainWindow):
             actObject.setEnabled(enabled)
             actObject.setCheckable(checkable)
             self._createdActions.append(actObject)
-        
+
         def separator(menu):
             """Subfunction for insert separator to the menu"""
             core.actionManager().action(menu).menu().addSeparator()
-        
-        # pylint: disable=C0301  
+
+        # pylint: disable=C0301
         # enable long lines for menu items
         # Menu or action path                          Name                     Icon            Shortcut        Hint                     enabled  checkable
         tr = self.tr  # pylint: disable=C0103
@@ -251,7 +251,7 @@ class MainWindow(QMainWindow):
         menu  ("mEdit",                               "Edit"                  , ""            )
         menu  ("mEdit/mCopyPasteLines",               "Copy-paste lines"      , ""            )
 
-        menu  ("mNavigation",                          "Navigation"            , ""           ) 
+        menu  ("mNavigation",                          "Navigation"            , ""           )
         action("mNavigation/aFocusCurrentDocument",   "Focus to editor"       , "text.png",     "Ctrl+Return",  "Focus current document" , False)
 
         menu  ("mNavigation/mSearchReplace",           "&Search && Replace"    , "search-replace-directory.png")
@@ -268,7 +268,7 @@ class MainWindow(QMainWindow):
         menu  ("mSettings",                           "Settings"              , ""            )
 
         menu  ("mHelp",                               "Help"                  , ""            )
-    
+
     def menuBar(self):
         """Reference to menuBar
         """
@@ -278,7 +278,7 @@ class MainWindow(QMainWindow):
         """Top tool bar. Contains main menu, position indicator, etc
         """
         return self._topToolBar
-    
+
     def statusBar(self):
         """Return main window status bar.
         It is located on the top tool bar
@@ -291,17 +291,17 @@ class MainWindow(QMainWindow):
         """
         self._centralLayout.addWidget(workspace)
         self.setFocusProxy(workspace)
-    
+
     def defaultTitle(self):
         """Default title. Contains  name and version
         """
         return "%s v.%s" % (enki.core.defines.PACKAGE_NAME, enki.core.defines.PACKAGE_VERSION)
-    
+
     def centralLayout(self):
         """Layout of the central widget. Contains Workspace and search widget
         """
         return self._centralLayout
-    
+
     def appendMessage(self, text, timeoutMs=10000):
         """Append message to the queue. It will be shown as non-modal at the bottom of the window.
         Use such notifications, which are too long or too important for status bar
@@ -309,19 +309,19 @@ class MainWindow(QMainWindow):
         """
         if self._queuedMessageToolBar is None:
             from enki.core.QueuedMessageToolBar import QueuedMessageToolBar
-            
+
             self._queuedMessageToolBar = QueuedMessageToolBar(self)
             self.addToolBar(Qt.BottomToolBarArea, self._queuedMessageToolBar)
             self._queuedMessageToolBar.setVisible( False )
-        
+
         self._queuedMessageToolBar.appendMessage(text, timeoutMs)
-    
+
     def closeEvent( self, event ):
         """NOT A PUBLIC API
         Close event handler.
         Shows save files dialog. Cancels close, if dialog was rejected
         """
-        
+
         # saving geometry BEFORE closing widgets, because state might be changed, when docks are closed
         self._saveState()
         self._saveGeometry()
@@ -337,7 +337,7 @@ class MainWindow(QMainWindow):
         core.workspace().forceCloseAllDocuments()
 
         return QMainWindow.closeEvent(self, event)
-    
+
     def _saveState(self):
         """Save window state to main_window_state.bin file in the config directory
         """
@@ -351,7 +351,7 @@ class MainWindow(QMainWindow):
                                 self.tr("Cannot save main window state"),
                                 self.tr( "Cannot create file '%s'\nError: %s" % (self._STATE_FILE, error)))
             return
-    
+
     def loadState(self):
         """Restore window state from main_window_state.bin and config.
         Called by the core after all plugins had been initialized
@@ -368,7 +368,7 @@ class MainWindow(QMainWindow):
                 QMessageBox.critical(None,
                                     self.tr("Cannot restore main window state"),
                                     self.tr( "Cannot read file '%s'\nError: %s" % (path, error)))
-        
+
         if state is not None:
             self.restoreState(state)
         else:  # not state, first start
@@ -376,14 +376,14 @@ class MainWindow(QMainWindow):
             for dock in self.findChildren(DockWidget):
                 dock.show()
         self.stateRestored.emit()
-        
+
     def _saveGeometry(self):
         """Save window geometry to the config file
         """
         geometry = {}
         geometry["X"], geometry["Y"], geometry["Width"], geometry["Height"] = self.geometry().getRect()
         geometry["Maximized"] = self.isMaximized()
-        
+
         enki.core.json_wrapper.dump(self._GEOMETRY_FILE, 'main window geometry', geometry)
 
     def _restoreGeometry(self):
@@ -402,10 +402,10 @@ class MainWindow(QMainWindow):
         if  event.mimeData().hasUrls() :
             # accept drag
             event.acceptProposedAction()
-        
+
         # default handler
         QMainWindow.dragEnterEvent(self, event)
-    
+
     def dropEvent( self, event ):
         """QMainWindow method reimplementation.
         Open dropt files
@@ -417,6 +417,6 @@ class MainWindow(QMainWindow):
                     core.workspace().openFile(localFile)
                 elif os.path.isdir(localFile):
                     self.directoryDropt.emit(localFile)
-        
+
         # default handler
         QMainWindow.dropEvent(self, event)

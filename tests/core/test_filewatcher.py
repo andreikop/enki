@@ -11,12 +11,12 @@ import base
 
 class Test(base.TestCase):
     CREATE_NOT_SAVED_DOCUMENT = False
-    
+
     def setUp(self):
         base.TestCase.setUp(self)
         self._doc1 = self.createFile('file1.txt', 'asdf')
         self._doc2 = self.createFile('file2.txt', 'fdsa')
-    
+
     def _sleep_and_check(self, sleep,
                         doc1_modified, doc1_removed,
                         doc2_modified, doc2_removed):
@@ -25,7 +25,7 @@ class Test(base.TestCase):
         self.assertEqual(self._doc1._externallyRemoved, doc1_removed)
         self.assertEqual(self._doc2._externallyModified, doc2_modified)
         self.assertEqual(self._doc2._externallyRemoved, doc2_removed)
-        
+
     @base.inMainLoop
     def test_1(self):
         # Modify file, than restore, than modify again
@@ -72,7 +72,7 @@ class Test(base.TestCase):
         with open(self._doc2.filePath(), 'w') as file_:
             file_.write('another new text')
         self._sleep_and_check(0.1, False, False, True, False)
-        
+
         self._doc2.saveFile()
         self._sleep_and_check(0, False, False, False, False)
 
@@ -84,7 +84,7 @@ class Test(base.TestCase):
 
         self._doc1.saveFile()
         self._sleep_and_check(0, False, False, False, False)
-        
+
         os.unlink(self._doc1.filePath())
         self._sleep_and_check(0.1, False, True, False, False)
 

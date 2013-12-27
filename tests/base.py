@@ -53,99 +53,99 @@ def inMainLoop(func, *args):
     """
     def wrapper(*args):
         self = args[0]
-        
+
         def execWithArgs():
             core.mainWindow().show()
             QTest.qWaitForWindowShown(core.mainWindow())
             _processPendingEvents(self.app)
-            
+
             try:
                 func(*args)
             finally:
                 _processPendingEvents(self.app)
                 self.app.quit()
-        
+
         QTimer.singleShot(0, execWithArgs)
-        
+
         self.app.exec_()
-    
+
     wrapper.__name__ = func.__name__  # for unittest test runner
     return wrapper
 
 
 class TestCase(unittest.TestCase):
     INIT_CORE = True
-    
+
     app = QApplication( sys.argv )
-    
+
     TEST_FILE_DIR = os.path.join(tempfile.gettempdir(), 'enki-tests')
-    
+
     EXISTING_FILE = os.path.join(TEST_FILE_DIR, 'existing_file.txt')
     EXISTING_FILE_TEXT = 'hi\n'
-    
+
     def _cleanUpFs(self):
         json_tmp = os.path.join(tempfile.gettempdir(), 'enki.json')
         try:
             os.unlink(json_tmp)
         except OSError as e:
             pass
-        
+
         try:
             shutil.rmtree(self.TEST_FILE_DIR)
         except OSError as e:
             pass
 
-    
+
     def setUp(self):
         self._cleanUpFs()
         try:
             os.mkdir(self.TEST_FILE_DIR)
         except OSError as e:
             pass
-        
+
         with open(self.EXISTING_FILE, 'w') as f:
             f.write(self.EXISTING_FILE_TEXT)
-        
+
         if self.INIT_CORE:
             core.init(DummyProfiler())
-    
+
     def tearDown(self):
         for document in core.workspace().documents():
             document.qutepart.text = ''  # clear modified flag, avoid Save Files dialog
-        
+
         core.workspace().closeAllDocuments()
         core.term()
         self._cleanUpFs()
 
     def keyClick(self, key, modifiers=Qt.NoModifier, widget=None):
         """Alias for ``QTest.keyClick``.
-        
+
         If widget is none - focused widget will be keyclicked"""
         if widget is not None:
             QTest.keyClick(widget, key, modifiers)
         else:
             QTest.keyClick(self.app.focusWidget(), key, modifiers)
-    
+
     def keyClicks(self, text, modifiers=Qt.NoModifier, widget=None):
         """Alias for ``QTest.keyClicks``.
-        
+
         If widget is none - focused widget will be keyclicked"""
         if widget is not None:
             QTest.keyClicks(widget, text, modifiers)
         else:
             QTest.keyClicks(self.app.focusWidget(), text, modifiers)
-    
+
     def createFile(self, name, text):
         """Create file in TEST_FILE_DIR.
-        
+
         File is opened
         """
         path = os.path.join(self.TEST_FILE_DIR, name)
         with open(path, 'w') as file_:
             file_.write(text)
-        
+
         return core.workspace().openFile(path)
-    
+
     def _findDialog(self):
         for widget in self.app.topLevelWidgets():
             if widget.isVisible() and isinstance(widget, QDialog):
@@ -166,13 +166,13 @@ class TestCase(unittest.TestCase):
         """
         return self.openDialog(core.actionManager().action("mSettings/aSettings").trigger,
                                runInDialogFunc)
-    
+
     def sleepProcessEvents(self, delay):
         end = time.time() + delay
         while time.time() < end:
             QApplication.instance().processEvents()
             time.sleep(0.01)
-    
+
     def findDock(self, windowTitle):
         for dock in core.mainWindow().findChildren(DockWidget):
             if dock.windowTitle() == windowTitle:

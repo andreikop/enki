@@ -25,19 +25,19 @@ class _TextEdit(Qutepart):
         Qutepart.__init__(self, parent)
         self._sizeHintLabel = QLabel("asdf")
         self._sizeHintLabel.setFont(font)
-    
+
     def minimumSizeHint(self):
         """QWidget.minimumSizeHint implementation
         """
         lineHeight = self._calculateLineHeight()
         return QSize(lineHeight * 2, lineHeight * 2)
-    
+
     def sizeHint(self):
         """QWidget.sizeHint implementation
         """
         lineHeight = self._calculateLineHeight()
         return QSize(lineHeight * 6, lineHeight * 6)
-    
+
     def _calculateLineHeight(self):
         """Calculate height of one line of text
         """
@@ -53,16 +53,16 @@ class TermWidget(QWidget):
         QWidget.__init__(self, *args)
         self._browser = QTextEdit(self)
         self._browser.setReadOnly(True)
-        self._browser.document().setDefaultStyleSheet(self._browser.document().defaultStyleSheet() + 
+        self._browser.document().setDefaultStyleSheet(self._browser.document().defaultStyleSheet() +
                                                       "span {white-space:pre;}")
 
         self._edit = _TextEdit(self, font)
-        
+
         lowLevelWidget = self._edit.focusProxy()
         if lowLevelWidget is None:
             lowLevelWidget = self._edit
         lowLevelWidget.installEventFilter(self)
-        
+
         self._edit.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
         self.setFocusProxy(self._edit)
 
@@ -71,12 +71,12 @@ class TermWidget(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self._browser)
         layout.addWidget(self._edit)
-        
+
         self._history = ['']  # current empty line
         self._historyIndex = 0
-        
+
         self._edit.setFocus()
-    
+
     def eventFilter(self, obj, event):
         pass # suppress docsting for non-public method
         """QWidget.eventFilter implementation. Catches _edit key pressings. Processes some of them
@@ -96,16 +96,16 @@ class TermWidget(QWidget):
                 return True
             elif event.matches(QKeySequence.InsertParagraphSeparator):
                  return self._editNewLineEvent()
-        
+
         return QWidget.eventFilter(self, obj, event)
 
     def _appendToBrowser(self, style, text):
         """Convert text to HTML for inserting it to browser. Insert the HTML
         """
         text = cgi.escape(text)
-        
+
         text = text.replace('\n', '<br/>')
-        
+
         defBg = self._browser.palette().color(QPalette.Base)
 
         h, s, v, a = defBg.getHsvF()
@@ -120,38 +120,38 @@ class TermWidget(QWidget):
         elif style == 'err':
             if v < 0.5:  # dark background
                 v = v + ((1 - v) / 4)  # make ligher
-            
+
             h = 0
             s = .4
         elif style == 'hint':
             if v < 0.5:  # dark background
                 v = v + ((1 - v) / 4)  # make ligher
-            
+
             h = 0.33
             s = .4
         else:
             assert 0
-        
+
         bg = QColor.fromHsvF(h, s, v)
         text = '<span style="background-color: %s;">%s</span>' % (bg.name(), text)
-        
+
         scrollBar = self._browser.verticalScrollBar()
         oldValue = scrollBar.value()
-        
+
         if False:
             # hlamer: It seems, it is more comfortant, if text is always scrolled
             scrollAtTheEnd = oldValue == scrollBar.maximum()
         else:
             scrollAtTheEnd = True
-        
+
         self._browser.moveCursor(QTextCursor.End)
         self._browser.insertHtml(text)
-        
+
         if scrollAtTheEnd:
             scrollBar.setValue(scrollBar.maximum())
         else:
             scrollBar.setValue(oldValue)
-        
+
         while self._browser.document().characterCount() > 1024 * 1024:
             cursor = self._browser.cursorForPosition(QPoint(0, 0))
             cursor.select(cursor.LineUnderCursor)
@@ -175,15 +175,15 @@ class TermWidget(QWidget):
             self._history.insert(-1, text)
 
         self._historyIndex = len(self._history) - 1
-        
+
         self._history[-1] = ''
         self._edit.text = ''
-        
+
         if not text.endswith('\n'):
             text += '\n'
 
         self.childExecCommand(text)
-    
+
     def childExecCommand(self, text):
         """Reimplement in the child classes to execute enterred commands
         """
@@ -206,16 +206,16 @@ class TermWidget(QWidget):
 
     def isCommandComplete(self, text):
         """Executed when Enter is pressed to check if widget should execute the command, or insert newline.
-        
+
         Implement this function in the child classes.
         """
         return True
-    
+
     def _editNewLineEvent(self):
         """Handler of Enter pressing in the edit
         """
         text = self._edit.text
-        
+
         if self.isCommandComplete(text):
             self.execCommand(text)
             return True # processing finished

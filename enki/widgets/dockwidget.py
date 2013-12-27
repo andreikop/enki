@@ -23,17 +23,17 @@ class _TitleBar(QToolBar):
 
         self.setSizePolicy( QSizePolicy( QSizePolicy.Expanding, QSizePolicy.Maximum ) )
         self._dock = parent
-                
+
         self.aClose = QToolBar.addAction(self, self.style().standardIcon( QStyle.SP_TitleBarCloseButton ), "")
-                
+
         self.setMovable( False )
         self.setFloatable( False )
-        
+
         self.aClose.triggered.connect(self._dock.close)
-        
+
         textHeight = QFontMetrics(self.font()).height()
         self.setIconSize(QSize(textHeight, textHeight))
-        
+
         # a fake spacer widget
         self._spacer = QWidget( self )
         self._spacer.setSizePolicy( QSizePolicy( QSizePolicy.Expanding, QSizePolicy.MinimumExpanding ) )
@@ -46,19 +46,19 @@ class _TitleBar(QToolBar):
         rect = self._spacer.rect()
 
         painter = QPainter( self )
-        
+
         transform = QTransform()
         transform.translate(self._spacer.pos().x(), self._spacer.pos().y())
         painter.setTransform( transform )
-        
+
         """ Not supported currently
         if  self._dock.features() & QDockWidget.DockWidgetVerticalTitleBar :
             transform = QTransform()
-            
+
             rect.setSize( QSize( rect.height(), rect.width() ) )
             transform.rotate( -90 )
             transform.translate( -rect.width(), 0 )
-            
+
             painter.setTransform( transform )
         """
 
@@ -69,7 +69,7 @@ class _TitleBar(QToolBar):
         optionB.text = self._dock.windowTitle()
         optionB.iconSize = self.iconSize()
         optionB.icon = self._dock.windowIcon()
-        
+
         self.style().drawControl( QStyle.CE_PushButtonLabel, optionB, painter, self._dock )
 
     def minimumSizeHint(self):
@@ -119,12 +119,12 @@ class DockWidget(QDockWidget):
 
         self.setObjectName(str(self.__class__))
         self.setWindowTitle(windowTitle)
-        
+
         if not windowIcon.isNull():
             self.setWindowIcon(windowIcon)
         if shortcut is not None:
             self.showAction().setShortcut(shortcut)
-        
+
         self._titleBar = _TitleBar( self )
         self.setTitleBarWidget( self._titleBar )
 
@@ -147,10 +147,10 @@ class DockWidget(QDockWidget):
             self._hide()
         else:
             QDockWidget.keyPressEvent(self, event)
-    
+
     def showAction(self):
         """Action shows the widget and set focus on it.
-        
+
         Add this action to the main menu
         """
         if  not self._showAction :
@@ -162,12 +162,12 @@ class DockWidget(QDockWidget):
 
     def titleBarWidget(self):
         """QToolBar on the title.
-        
+
         You may add own actions to this tool bar
         """
         # method was added only for documenting
         return QDockWidget.titleBarWidget(self)
-    
+
     def _handleFocusProxy(self):
         """Set focus to focus proxy.
         Called after widget has been shown

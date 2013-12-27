@@ -21,7 +21,7 @@ class Plugin(QObject):
         self._action = None
         core.workspace().currentDocumentChanged.connect(self._updateAction)
         core.workspace().languageChanged.connect(self._updateAction)
-    
+
     def del_(self):
         """Uninstall the plugin
         """
@@ -48,13 +48,13 @@ class Plugin(QObject):
         else:
             if self._action is not None:
                 self._action.setVisible(False)
-    
+
     def _isHeader(self, filePath):
         """Check if file is a header
         """
         return any([filePath.endswith(suffix)
                             for suffix in _HEADER_SUFFIXES])
-    
+
     def _isImplementation(self, filePath):
         """Check if file is a header
         """
@@ -75,7 +75,7 @@ class Plugin(QObject):
                             for suffix in _HEADER_SUFFIXES]
         else:  # oops, unknown file. Suffixes DB is not up to date
             variants = []
-        
+
         existing = [path
                         for path in variants \
                             if os.path.isfile(path)]
@@ -83,7 +83,7 @@ class Plugin(QObject):
             return existing[0]
         else:
             return None
-        
+
     def _tryFindFileAmongOpened(self):
         """Try to find file with the same name but different suffix among opened files
         Works, when header and implementation are in different directories, but both opened
@@ -99,7 +99,7 @@ class Plugin(QObject):
                             for suffix in _HEADER_SUFFIXES]
         else:  # oops, unknown file. Suffixes DB is not up to date
             variants = []
-        
+
         matchingDocuments = [document.filePath() \
                                 for document in core.workspace().documents() \
                                     if document.fileName() in variants]
@@ -107,7 +107,7 @@ class Plugin(QObject):
             return matchingDocuments[0]
         else:
             return None
-    
+
     def _getFileToSwitch(self):
         """Try to find implementation for header, header for implementation
         """

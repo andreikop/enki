@@ -20,7 +20,7 @@ abc ab4d a@cd8 a@
 % variables (begin with capital letter or underscore, contain numbers, letters and @)
 _leadingUnderscore AbdD@ B45@c
 
-% this is a string 
+% this is a string
 "a string sits between \" double quotes" atom "more string"
 
 % and finally some real code, so we can see what it looks like...
@@ -54,61 +54,61 @@ class InFile(base.TestCase):
         base.TestCase.setUp(self)
         doc = core.workspace().createEmptyNotSavedDocument()
         doc.qutepart.text = _TEXT
-    
+
     @base.inMainLoop
     def test_type_and_search(self):
         QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
-        
+
         qpart = core.workspace().currentDocument().qutepart
-        
+
         self.keyClicks("string")
-        
+
         self.assertEqual(qpart.cursorPosition, (6, 18))
         self.assertEqual(qpart.selectedText, "string")
-   
+
     @base.inMainLoop
     def test_search_next(self):
         QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
-        
+
         qpart = core.workspace().currentDocument().qutepart
-        
+
         self.keyClicks("string")
-        
+
         self.assertEqual(qpart.cursorPosition, (6, 18))
         self.assertEqual(qpart.selectedText, "string")
-        
+
         self.keyClick(Qt.Key_F3)
         self.assertEqual(qpart.cursorPosition, (7, 9))
         self.assertEqual(qpart.selectedText, "string")
-   
+
         self.keyClick(Qt.Key_F3)
         self.assertEqual(qpart.cursorPosition, (7, 57))
         self.assertEqual(qpart.selectedText, "string")
-   
+
         # wrap
         self.keyClick(Qt.Key_F3)
         self.assertEqual(qpart.cursorPosition, (6, 18))
         self.assertEqual(qpart.selectedText, "string")
-   
+
     @base.inMainLoop
     def test_search_previous(self):
         QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
-        
+
         qpart = core.workspace().currentDocument().qutepart
-        
+
         self.keyClicks("string")
-        
+
         self.assertEqual(qpart.cursorPosition, (6, 18))
         self.assertEqual(qpart.selectedText, "string")
-        
+
         self.keyClick(Qt.Key_F3, Qt.ShiftModifier)
         self.assertEqual(qpart.cursorPosition, (7, 57))
         self.assertEqual(qpart.selectedText, "string")
-   
+
         self.keyClick(Qt.Key_F3, Qt.ShiftModifier)
         self.assertEqual(qpart.cursorPosition, (7, 9))
         self.assertEqual(qpart.selectedText, "string")
-   
+
         # wrap
         self.keyClick(Qt.Key_F3, Qt.ShiftModifier)
         self.assertEqual(qpart.cursorPosition, (6, 18))
@@ -117,48 +117,48 @@ class InFile(base.TestCase):
     @base.inMainLoop
     def test_select_and_search(self):
         qpart = core.workspace().currentDocument().qutepart
-        
+
         # select first 'string'
         qpart.selectedPosition = ((6, 12), (6, 18))
         QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
-        
+
         self.keyClick(Qt.Key_F3)
         self.assertEqual(qpart.cursorPosition, (7, 9))
         self.assertEqual(qpart.selectedText, "string")
-   
+
     @base.inMainLoop
     def test_select_and_search_multiline(self):
         qpart = core.workspace().currentDocument().qutepart
-        
+
         qpart.text = _TEXT_MULTILINE_SEARCH
-        
+
         # select first 'string'
         qpart.selectedPosition = ((0, 0), (1, 1))
         QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
-        
+
         self.keyClick(Qt.Key_F3)
-        
+
         self.assertEqual(qpart.selectedPosition, ((3, 0), (4, 1)))
         self.assertEqual(qpart.selectedText, "a\nb")
 
     @base.inMainLoop
     def test_whole_word(self):
         qpart = core.workspace().currentDocument().qutepart
-        
+
         qpart.text = _TEXT_WHOLE_WORD
-        
+
         # select first 'string'
         QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
-        
+
         self.keyClicks("bar")
         self.assertEqual(qpart.cursorPosition[0], 1)
-        
+
         # 2 items found
         self.keyClick(Qt.Key_F3)
         self.assertEqual(qpart.cursorPosition[0], 2)
         self.keyClick(Qt.Key_F3)
         self.assertEqual(qpart.cursorPosition[0], 1)
-        
+
         # only 1 item found
         QTest.mouseClick(_findSearchController()._widget.cbWholeWord, Qt.LeftButton)
         self.assertEqual(qpart.cursorPosition[0], 2)
@@ -175,16 +175,16 @@ class InFile(base.TestCase):
     @base.inMainLoop
     def test_highlight_found_items(self):
         qpart = core.workspace().currentDocument().qutepart
-        
+
         qpart.text = "one two two three three three"
-        
+
         def highlightedWordsCount():
             return len(qpart.extraSelections()) - 1  # 1 for cursor
-        
+
         # select first 'string'
         QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
         self.assertEqual(highlightedWordsCount(), 0)
-        
+
         # search results are highlighted
         self.keyClicks("one")
         self.assertEqual(highlightedWordsCount(), 1)
@@ -192,20 +192,20 @@ class InFile(base.TestCase):
             self.keyClick(Qt.Key_Backspace)
         self.keyClicks("three")
         self.assertEqual(highlightedWordsCount(), 3)
-        
+
         # widget search highlighting updated on text chagne
         qpart.text = qpart.text + ' '
         self.assertEqual(highlightedWordsCount(), 3)
-        
+
         # Escape hides search widget and items
         self.keyClick(Qt.Key_Escape)
         self.assertEqual(highlightedWordsCount(), 0)
-        
+
         # 'two' is highlighted during word search
         qpart.cursorPosition = (0, 5)
         self.keyClick(Qt.Key_Period, Qt.ControlModifier)
         self.assertEqual(highlightedWordsCount(), 2)
-        
+
         # word search highlighting cleared on text chagne
         qpart.text = qpart.text + ' '
         self.assertEqual(highlightedWordsCount(), 0)
@@ -217,11 +217,11 @@ class ReplaceInDirectory(base.TestCase):
         # replace 'foo' with 'UUH' in opened and not opened file
         openedFile = self.createFile('openedFile.txt', 'the text contains foo bar\nand\nfew\nmore lines')
         openedFile.qutepart.cursorPosition = (3, 2)
-        
+
         notOpenedFilePath = os.path.join(self.TEST_FILE_DIR, 'not_openedFile.txt')
         with open(notOpenedFilePath, 'w') as file_:
             file_.write('this file also contains foo bar')
-            
+
         self.keyClick(Qt.Key_R, Qt.ShiftModifier | Qt.ControlModifier)
         self.keyClicks('foo')
         self.keyClick(Qt.Key_Tab)
@@ -230,17 +230,17 @@ class ReplaceInDirectory(base.TestCase):
         QTest.qWait(500)  # searching
         self.keyClick(Qt.Key_A, Qt.AltModifier)
         QTest.qWait(500)  # replacing
-        
+
         with open(notOpenedFilePath) as file_:
             self.assertEqual(file_.read(), 'this file also contains UUHHH bar')
-        
+
         self.assertEqual(openedFile.qutepart.text, 'the text contains UUHHH bar\nand\nfew\nmore lines')
         self.assertEqual(openedFile.qutepart.cursorPosition, (3, 2))
-        
+
         self.assertTrue(openedFile.qutepart.document().isModified())
         with open(openedFile.filePath()) as file_:
             self.assertEqual(file_.read(), 'the text contains foo bar\nand\nfew\nmore lines')
-        
+
         openedFile.saveFile()
         with open(openedFile.filePath()) as file_:
             self.assertEqual(file_.read(), 'the text contains UUHHH bar\nand\nfew\nmore lines\n')
@@ -252,20 +252,20 @@ class Gui(base.TestCase):
         QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
         widget = _findSearchController()._widget
         self.assertFalse(widget.isHidden())
-        
+
         QTest.keyClick(widget, Qt.Key_Escape)
         self.assertTrue(widget.isHidden())
-    
+
     @base.inMainLoop
     def test_esc_on_editor_closes(self):
         QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)
         widget = _findSearchController()._widget
         self.assertFalse(widget.isHidden())
-        
+
         QTest.keyClick(core.mainWindow(), Qt.Key_Return, Qt.ControlModifier)  # focus to editor
         QTest.keyClick(core.workspace().currentDocument(), Qt.Key_Escape)
         self.assertTrue(widget.isHidden())
-    
+
 
 if __name__ == '__main__':
     unittest.main()

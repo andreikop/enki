@@ -27,7 +27,7 @@ def makeSubstitutions(replaceText, matchObject):
                 return matchObject.group(index)
             except IndexError:
                 return escapeMatchObject.group(0)
-        
+
         return escapeMatchObject.group(0)  # no any replacements, return original value
 
     return _seqReplacer.sub(_replaceFunc, replaceText)

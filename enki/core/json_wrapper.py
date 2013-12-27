@@ -22,7 +22,7 @@ def load(filePath, dataName, defaultValue):
     """
     if not os.path.exists(filePath):
         return defaultValue
-    
+
     try:
         with open(filePath, 'r') as openedFile:
             try:

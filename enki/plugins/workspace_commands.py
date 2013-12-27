@@ -20,7 +20,7 @@ class CommandGotoLine(AbstractCommand):
         """Command signature. For Help
         """
         return '[l] [LINE]'
-    
+
     @staticmethod
     def description():
         """Command description. For Help
@@ -38,7 +38,7 @@ class CommandGotoLine(AbstractCommand):
         pat.leaveWhitespace()
         pat.setParseAction(CommandGotoLine.create)
         return pat
-    
+
     @staticmethod
     def create(str, loc, tocs):
         """Callback for pyparsing. Creates an instance of command
@@ -57,7 +57,7 @@ class CommandGotoLine(AbstractCommand):
 
     def __init__(self, line):
         self._line = line
-    
+
     def isReadyToExecute(self):
         """Check if command is complete and ready to execute
         """
@@ -70,24 +70,24 @@ class CommandGotoLine(AbstractCommand):
 
 
 class CommandOpen(AbstractCommand):
-    
+
     @staticmethod
     def signature():
         """Command signature. For Help
         """
         return '[f] PATH [LINE]'
-    
+
     @staticmethod
     def description():
         """Command description. For Help
         """
         return 'Open file. Globs are supported'
-    
+
     @staticmethod
     def pattern():
         """pyparsing pattern
         """
-        
+
         def attachLocation(s, loc, tocs):
             """pyparsing callback. Saves path position in the original string
             """
@@ -116,22 +116,22 @@ class CommandOpen(AbstractCommand):
             pathLocation, path = tocs.path
         else:
             pathLocation, path = 0, ''
-        
+
         if tocs.line:
             line = int(tocs.line)
         else:
             line = None
-        
+
         return [CommandOpen(pathLocation, path, line)]
 
     def __init__(self, pathLocation, path, line):
         self._path = path
         self._pathLocation = pathLocation
         self._line = line
-    
+
     def completer(self, text, pos):
         """Command completer.
-        If cursor is after path, returns PathCompleter or GlobCompleter 
+        If cursor is after path, returns PathCompleter or GlobCompleter
         """
         if pos == self._pathLocation + len(self._path) or \
            (not self._path and pos == len(text)):
@@ -152,7 +152,7 @@ class CommandOpen(AbstractCommand):
         return '*' in text or \
                '?' in text or \
                '[' in text
-    
+
     def isReadyToExecute(self):
         """Check if command is complete and ready to execute
         """
@@ -163,14 +163,14 @@ class CommandOpen(AbstractCommand):
         else:
             if not self._path:
                 return False
-            
+
             if os.path.exists(self._path) and \
                not os.path.isfile(self._path):  # a directory
                 return False
-            
+
             if self._path.endswith('/'):  # going to create a directory
                 return False
-            
+
             return True
 
     def execute(self):
@@ -184,7 +184,7 @@ class CommandOpen(AbstractCommand):
                 except OSError:
                     pass
                 expandedPathes.append(path)
-        
+
             # 2 loops, because we should open absolute pathes. When opening files, enki changes its current directory
             for path in expandedPathes:
                 if self._line is None:
@@ -199,7 +199,7 @@ class CommandOpen(AbstractCommand):
                     path = os.path.abspath(path)
                 except OSError:  # current dir deleted
                     return
-                
+
                 if self._line is None:
                     core.workspace().goTo(path)
                 else:
@@ -211,19 +211,19 @@ class CommandOpen(AbstractCommand):
 class CommandSaveAs(AbstractCommand):
     """Save As Locator command
     """
-    
+
     @staticmethod
     def signature():
         """Command signature. For Help
         """
         return 's PATH'
-    
+
     @staticmethod
     def description():
         """Command description. For Help
         """
         return 'Save file As'
-    
+
     @staticmethod
     def pattern():
         """pyparsing pattern of the command
@@ -249,7 +249,7 @@ class CommandSaveAs(AbstractCommand):
             pathLocation, path = tocs.path
         else:
             pathLocation, path = 0, ''
-        
+
         return [CommandSaveAs(pathLocation, path)]
 
     @staticmethod
@@ -258,11 +258,11 @@ class CommandSaveAs(AbstractCommand):
         It is available, if at least one document is opened
         """
         return core.workspace().currentDocument() is not None
-    
+
     def __init__(self, pathLocation, path):
         self._path = path
         self._pathLocation = pathLocation
-    
+
     def completer(self, text, pos):
         """Command Completer.
         Returns PathCompleter, if cursor stays after path
@@ -290,7 +290,7 @@ class CommandSaveAs(AbstractCommand):
             path = os.path.abspath(os.path.expanduser(self._path))
         except OSError:  # directory deleted
             return
-        
+
         core.workspace().currentDocument().setFilePath(path)
         core.workspace().currentDocument().saveFile()
 

@@ -817,7 +817,7 @@ div.viewcode-block:target {
    --------
    Qt's QTextEdit widget doesn't support @import directives in CSS, so I've
    manually performed the necessary includes, placing them all here. What
-   follows are my additions. See 
+   follows are my additions. See
    http://qt-project.org/doc/qt-4.8/richtext-html-subset.html
    for what's supported.
 
@@ -833,7 +833,7 @@ blockquote {
   margin-right: 0em;
 }
 
-/* 2. Remove all top and bottom space around <pre>, making it single-spaced. 
+/* 2. Remove all top and bottom space around <pre>, making it single-spaced.
       Also, remove the border so that code and comments mix more
       naturally. */
 pre {
@@ -860,10 +860,10 @@ p, blockquote, div.body h1, div.body h2, div.body h3, div.body h4, div.body h5, 
 }
 
 /* 4. Remove the top margin of all comments which follow code, placing them
-      next to code. Note that Sphinx encloses code in a 
+      next to code. Note that Sphinx encloses code in a
       <div class="highlight-language_name"> element.
 
-      Also, note that this will need to be duplicated for all highlighted 
+      Also, note that this will need to be duplicated for all highlighted
       languages (yuck). I can't find a CSS rule to select class named using a
       regular expression. */
 div.highlight-none + *,

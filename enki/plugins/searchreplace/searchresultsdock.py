@@ -32,7 +32,7 @@ class ExpandCollapseAllButton(QPushButton):
         self._model.rowsInserted.connect(self._update)
         self._model.rowsRemoved.connect(self._update)
         self._update()
-    
+
     def _update(self):
         """Update action text according to expanded state of the first item
         """
@@ -44,7 +44,7 @@ class ExpandCollapseAllButton(QPushButton):
                 self.setText("Colla&pse all")
             else:
                 self.setText("Ex&pand all")
-            
+
     def _onTriggered(self):
         """Expand or colapse all search results
         """
@@ -57,7 +57,7 @@ class ExpandCollapseAllButton(QPushButton):
             self._view.expandAll()
         self._update()
         self._view.setFocus()
-        
+
         self._view.expanded.connect(self._update)
         self._view.collapsed.connect(self._update)
 
@@ -83,7 +83,7 @@ class CheckUncheckAllButton(QPushButton):
         self._model.rowsInserted.connect(self._update)
         self._model.rowsRemoved.connect(self._update)
         self._update()
-    
+
     def _update(self):
         """Update action text according to expanded state of the first item
         """
@@ -95,7 +95,7 @@ class CheckUncheckAllButton(QPushButton):
                 self.setText("Unc&heck all")
             else:
                 self.setText("C&heck all")
-    
+
     def _onTriggered(self):
         """Expand or colapse all search results
         """
@@ -107,7 +107,7 @@ class CheckUncheckAllButton(QPushButton):
         self._update()
         self._view.setFocus()
         self._model.dataChanged.connect(self._update)
-    
+
     def show(self):
         """Show on tool bar
         """
@@ -122,7 +122,7 @@ class CheckUncheckAllButton(QPushButton):
 class SearchResultsDock(DockWidget):
     """Dock with search results
     """
-    
+
     onResultsHandledByReplaceThread = pyqtSignal(str, list)
 
     def __init__(self, parent):
@@ -130,7 +130,7 @@ class SearchResultsDock(DockWidget):
 
         # actions
         widget = QWidget( self )
-        
+
         self._model = searchresultsmodel.SearchResultsModel(self)
         self.onResultsHandledByReplaceThread.connect(self._model.onResultsHandledByReplaceThread)
 
@@ -140,7 +140,7 @@ class SearchResultsDock(DockWidget):
         self._view.setModel( self._model )
         self._delegate = HTMLDelegate()
         self._view.setItemDelegate(self._delegate)
-        
+
         self._layout = QHBoxLayout( widget )
         self._layout.setMargin( 5 )
         self._layout.setSpacing( 5 )
@@ -148,13 +148,13 @@ class SearchResultsDock(DockWidget):
 
         self.setWidget( widget )
         self.setFocusProxy(self._view)
-        
+
         # connections
         self._model.firstResultsAvailable.connect(self.show)
         self._view.activated.connect(self._onResultActivated)
-        
+
         core.actionManager().addAction("mView/aSearchResults", self.showAction())
-        
+
         self._expandCollapseAll = ExpandCollapseAllButton(self.titleBarWidget(), self._view, self._model)
         self._checkUncheckAll = None
 
@@ -180,7 +180,7 @@ class SearchResultsDock(DockWidget):
         """Clear themselves
         """
         self._model.clear()
-    
+
     def appendResults(self, fileResultList):
         """Append results. Handler for signal from the search thread
         """
@@ -194,7 +194,7 @@ class SearchResultsDock(DockWidget):
         for fileRes in self._model.fileResults:
             for row, result in enumerate(fileRes.results):
                 if result.checkState == Qt.Checked :
-                    if not result.fileName in items: 
+                    if not result.fileName in items:
                         items[result.fileName] = []
                     items[ result.fileName ].append(result)
         return items
@@ -210,7 +210,7 @@ class SearchResultsDock(DockWidget):
         else:
             if self._checkUncheckAll is not None:
                 self._checkUncheckAll.hide()
-    
+
     def matchesCount(self):
         """Get count of matches, stored by the model
         """

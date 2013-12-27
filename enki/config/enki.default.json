@@ -2,7 +2,7 @@
     "_version" : 9,
     "PlatformDefaultsHaveBeenSet" : false,
 
-    "NegativeFileFilter": [ "*~", "*.o", "*.pyc", "*.bak" ], 
+    "NegativeFileFilter": [ "*~", "*.o", "*.pyc", "*.bak" ],
 
     "Workspace": {
         "FileSortMode": "URL"
@@ -13,21 +13,21 @@
             "Size": 9
         },
         "Indentation": {
-            "UseTabs": false, 
+            "UseTabs": false,
             "Width": 4,
             "AutoDetect": true
         },
         "EOL": {
-            "AutoDetect": true, 
+            "AutoDetect": true,
             "Mode": "\\n"
-        }, 
+        },
         "Edge": {
             "Enabled": false,
             "Column": 80,
             "Color": "#ff0000"
         },
         "AutoCompletion": {
-            "Enabled": true, 
+            "Enabled": true,
             "Threshold": 3
         },
         "Wrap": {
@@ -48,7 +48,7 @@
             "Enabled": "whenOpened",
             "InterpreterPath": "sml"
         }
-    }, 
+    },
     "Preview": {
         "Enabled": true,
         "JavaScriptEnabled": true,

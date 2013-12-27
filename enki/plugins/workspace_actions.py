@@ -14,7 +14,7 @@ from enki.core.core import core
 class Plugin(QObject):
     def __init__(self):
         QObject.__init__(self)
-        
+
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
         core.workspace().documentOpened.connect(self._onDocumentOpenedOrClosed)
         core.workspace().documentClosed.connect(self._onDocumentOpenedOrClosed)
@@ -25,22 +25,22 @@ class Plugin(QObject):
         core.actionManager().action( "mFile/aNew" ).triggered.connect(lambda : core.workspace().createEmptyNotSavedDocument(None))
         core.actionManager().action( "mFile/mClose/aCurrent" ).triggered.connect(self._onCloseCurrentDocument)
         core.actionManager().action( "mFile/mClose/aAll" ).triggered.connect(core.workspace().closeAllDocuments)
-    
+
         core.actionManager().action( "mFile/mSave/aCurrent" ).triggered.connect(self._onFileSaveCurrentTriggered)
         core.actionManager().action( "mFile/mSave/aAll" ).triggered.connect(self._onFileSaveAllTriggered)
         core.actionManager().action( "mFile/mSave/aSaveAs" ).triggered.connect(self._onFileSaveAsTriggered)
-        
+
         core.actionManager().action('mFile/mFileSystem').menu().aboutToShow.connect(self._onFsMenuAboutToShow)
         core.actionManager().action( "mFile/mFileSystem/aRename" ).triggered.connect(self._onRename)
         core.actionManager().action( "mFile/mFileSystem/aToggleExecutable" ).triggered.connect(self._onToggleExecutable)
-        
+
         core.actionManager().action( "mNavigation/aNext" ).triggered.connect(core.workspace().activateNextDocument)
         core.actionManager().action( "mNavigation/aPrevious" ).triggered.connect(core.workspace().activatePreviousDocument)
-        
+
         core.actionManager().action( "mNavigation/aFocusCurrentDocument" ).triggered.connect(core.workspace().focusCurrentDocument)
         core.actionManager().action( "mNavigation/aGoto" ).triggered.connect(lambda: core.workspace().currentDocument().invokeGoTo())
 
-    
+
     def del_(self):
         pass
 
@@ -48,10 +48,10 @@ class Plugin(QObject):
         """Update actions enabled state
         """
         # update file menu
-        
+
         # enabled, even if not modified. Filewatcher doesn't work on Ssh-FS
         core.actionManager().action( "mFile/mSave/aCurrent" ).setEnabled( newDocument is not None )
-        
+
         core.actionManager().action( "mFile/mSave/aAll" ).setEnabled( newDocument is not None)
         core.actionManager().action( "mFile/mSave/aSaveAs" ).setEnabled( newDocument is not None)
         core.actionManager().action( "mFile/mClose/aCurrent" ).setEnabled( newDocument is not None)
@@ -76,17 +76,17 @@ class Plugin(QObject):
         """
         fileNames = QFileDialog.getOpenFileNames( core.mainWindow(),
                                                   self.tr( "Classic open dialog. Main menu -> Navigation -> Locator is better" ))
-                
+
         for path in fileNames:
             core.workspace().openFile(path)
-    
+
     def _onFileReloadTriggered(self):
         """Handler of File->Reload->Current
         """
         document = core.workspace().currentDocument()
         if  document is not None:
             self._reloadDocument(document)
-    
+
     def _onFileReloadAllTriggered(self):
         """Handler of File->Reload->All
         """
@@ -94,7 +94,7 @@ class Plugin(QObject):
             if document.filePath() is not None and \
                os.path.isfile(document.filePath()):
                 self._reloadDocument(document)
-    
+
     def _reloadDocument(self, document):
         """Reload the document contents
         """
@@ -118,7 +118,7 @@ class Plugin(QObject):
             return None
         finally:
             QApplication.restoreOverrideCursor()
-    
+
     def _onCloseCurrentDocument(self):
         """Handler of File->Close->Current triggered
         """
@@ -130,19 +130,19 @@ class Plugin(QObject):
         """Handler of File->Save->Current
         """
         return core.workspace().currentDocument().saveFile()
-    
+
     def _onFileSaveAllTriggered(self):
         """Handler of File->Save->All
         """
         for document in core.workspace().documents():
             if document.qutepart.document().isModified():
                 document.saveFile()
-    
+
     def _onFileSaveAsTriggered(self):
         """Handler for File->Save->Save as
         """
         core.workspace().currentDocument().saveFileAs();
-    
+
     def _onRename(self):
         """Handler for File->File System->Rename"""
         document = core.workspace().currentDocument()
@@ -152,14 +152,14 @@ class Plugin(QObject):
            document.isNeverSaved():
             QMessageBox.warning(core.mainWindow(), 'Rename file', 'Save the file before renaming')
             return
-        
+
         newPath, ok = QInputDialog.getText(core.mainWindow(), 'Rename file', 'New file name', text=document.filePath())
         if not ok:
             return
-        
+
         if newPath == document.filePath():
             return
-        
+
         if newPath == '/dev/null':
             try:
                 os.remove(document.filePath())
@@ -176,9 +176,9 @@ class Plugin(QObject):
                 document.setFilePath(newPath)
                 document.saveFile()
 
-        
+
     EXECUTABLE_FLAGS = stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
-    
+
     def _isCurrentFileExecutable(self):
         """True if executable, False if not, None if no file or not saved"""
         document = core.workspace().currentDocument()
@@ -187,7 +187,7 @@ class Plugin(QObject):
         filePath = core.workspace().currentDocument().filePath()
         if filePath is None:
             return None
-        
+
         if not os.path.isfile(filePath):
             return None
 
@@ -195,36 +195,36 @@ class Plugin(QObject):
             st = os.stat(filePath)
         except:
             return None
-        
+
         return st.st_mode & self.EXECUTABLE_FLAGS
-    
+
     def _onFsMenuAboutToShow(self):
         action = core.actionManager().action('mFile/mFileSystem/aToggleExecutable')
         executable = self._isCurrentFileExecutable()
         action.setEnabled(executable is not None)
-        
+
         if executable:
             action.setText('Make Not executable')
         else:
             action.setText('Make executable')
-    
+
     def _onToggleExecutable(self):
         executable = self._isCurrentFileExecutable()
         assert executable is not None, 'aToggleExecutable must have been disabled'
         filePath = core.workspace().currentDocument().filePath()
-        
+
         try:
             st = os.stat(filePath)
         except (IOError, OSError) as ex:
             QMessageBox.critical(core.mainWindow(), 'Failed to change executable mode',
                                  'Failed to get current file mode: %s' % str(ex))
             return
-        
+
         if executable:
             newMode = st.st_mode & (~ self.EXECUTABLE_FLAGS)
         else:
             newMode = st.st_mode | self.EXECUTABLE_FLAGS
-        
+
         try:
             os.chmod(filePath, newMode)
         except (IOError, OSError) as ex:

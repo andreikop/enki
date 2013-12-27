@@ -41,7 +41,7 @@ class Plugin:
             positions = {}
             for item in positionsAsList:
                 positions[item[0]] = (item[1], item[2])
-        
+
         enki.core.json_wrapper.dump(_FILE_PATH, 'cursor positions', positions)
 
     def _onDocumentOpened(self, document):
@@ -49,12 +49,12 @@ class Plugin:
         """
         if document.filePath() is None:
             return
-        
+
         if document.filePath() in self._positions:
             time, pos = self._positions[document.filePath()]
             if pos <= len(document.qutepart.text):
                 document.qutepart.absCursorPosition = pos
-        
+
     def _onDocumentClosed(self, document):
         """Document has been closed. Save position
         """

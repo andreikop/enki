@@ -15,7 +15,7 @@ class _QueuedMessage:
         self.buttons = {}
 
 class _QueuedMessageWidget(QWidget):
-    
+
     cleared = pyqtSignal()
     finished = pyqtSignal()
     shown = pyqtSignal()
@@ -23,7 +23,7 @@ class _QueuedMessageWidget(QWidget):
     linkActivated = pyqtSignal(unicode)
     linkHovered= pyqtSignal(unicode)
     buttonClicked = pyqtSignal(QAbstractButton)
-    
+
     def __init__(self, *args):
         QWidget.__init__(self, *args)
         self._messages = []
@@ -31,12 +31,12 @@ class _QueuedMessageWidget(QWidget):
         self._defaultPixmap = QPixmap(":/enkiicons/infos.png" )
         self._defaultBackground = QBrush( QColor( 250, 230, 147 ) )
         self._defaultForeground = QBrush( QColor( 0, 0, 0 ) )
-        
+
         # pixmap
         self.lPixmap = QLabel( self )
         self.lPixmap.setAlignment( Qt.AlignCenter )
         self.lPixmap.setSizePolicy( QSizePolicy( QSizePolicy.Maximum, QSizePolicy.Preferred ) )
-        
+
         # message
         self.lMessage = QLabel( self )
         self.lMessage.setAlignment( Qt.AlignVCenter | Qt.AlignLeft )
@@ -44,24 +44,24 @@ class _QueuedMessageWidget(QWidget):
         self.lMessage.setWordWrap( True )
         self.lMessage.setOpenExternalLinks( True )
         self.lMessage.setTextInteractionFlags( Qt.TextBrowserInteraction )
-        
+
         # button
         self.dbbButtons = QDialogButtonBox( self )
-        
+
         # if false - buttons don't have neither text nor icons
         self.dbbButtons.setStyleSheet("dialogbuttonbox-buttons-have-icons: true;")
 
         self.dbbButtons.setSizePolicy( QSizePolicy( QSizePolicy.Maximum, QSizePolicy.Preferred ) )
-        
+
         self.setSizePolicy( QSizePolicy( QSizePolicy.Expanding, QSizePolicy.Maximum ) )
-        
+
         # layout
         self.hbl = QHBoxLayout( self )
         self.hbl.setMargin( 0 )
         self.hbl.addWidget( self.lPixmap, 0, Qt.AlignCenter )
         self.hbl.addWidget( self.lMessage )
         self.hbl.addWidget( self.dbbButtons, 0, Qt.AlignCenter )
-        
+
         # connections
         self.lMessage.linkActivated.connect(self.linkActivated)
         self.lMessage.linkHovered.connect(self.linkHovered)
@@ -104,9 +104,9 @@ class _QueuedMessageWidget(QWidget):
         msg.pixmap = self._defaultPixmap
         msg.background = self._defaultBackground
         msg.foreground = self._defaultForeground
-        
+
         self._messages.append(msg)
-            
+
         if  len(self._messages) == 1 :
             QTimer.singleShot( 0, self.showMessage)
 
@@ -164,7 +164,7 @@ class _QueuedMessageWidget(QWidget):
         if  self.pendingMessageCount() == 0 :
             QWidget.paintEvent(self, event )
             return
-        
+
         painter = QPainter( self )
         painter.setPen( Qt.NoPen )
         painter.setBrush( self.currentMessageBackground() )
@@ -173,64 +173,64 @@ class _QueuedMessageWidget(QWidget):
     def buttonClicked(self, button ):
         msg = self.currentMessage()
         standardButton = self.dbbButtons.standardButton( button )
-        
+
         if msg.slot is not None:
             msg.slot(standardButton, msg)
-        
+
         self.closeMessage()
 
     def showMessage(self):
         # get message
         msg = self.currentMessage()
-        
+
         # update palette
         pal = self.lMessage.palette()
         pal.setBrush( self.lMessage.foregroundRole(), self.currentMessageForeground() )
         self.lMessage.setPalette( pal )
-        
+
         # format widget
         self.lPixmap.setPixmap( self.currentMessagePixmap() )
         self.lMessage.setText( msg.message )
         self.lMessage.setToolTip( msg.message )
         self.lMessage.setWhatsThis( msg.message )
-        
+
         # set buttons
         if not msg.buttons:
             msg.buttons[ QDialogButtonBox.Close ] = None
 
         self.dbbButtons.clear()
-        
+
         for button in msg.buttons.keys():
             pb = self.dbbButtons.addButton( button )
-            
+
             if button in msg.buttons:
                 pb.setText( msg.buttons[ button ] )
-        
+
         # auto close if needed
         if msg.milliSeconds == -1:
             timeout = self._defaultTimeout
         else:
             timeout =  msg.milliSeconds
-        
+
         if  timeout > 0:
             QTimer.singleShot( timeout, self.closeMessage )
-        
+
         # signal.emit
         self.shown.emit()
 
     def closeMessage(self):
         # message.emit
         self.closed.emit()
-        
+
         # remove remove current message from hash
         self._messages = self._messages[1:]
-        
+
         # process next if possible, clear gui
         if self._messages:
             QTimer.singleShot( 0, self.showMessage)
         else:
             QTimer.singleShot( 0, self.clearMessage)
-        
+
         # finished.emit message if needed
         if not self._messages:
             self.finished.emit()
@@ -245,17 +245,17 @@ class QueuedMessageToolBar(QToolBar):
     def __init__(self, *args):
         QToolBar.__init__(self, *args)
         self._queuedWidget = _QueuedMessageWidget( self )
-        
+
         self.setObjectName( self.metaObject().className() )
         self.setMovable( False )
         self.setFloatable( False )
         self.setAllowedAreas( Qt.TopToolBarArea )
         self.toggleViewAction().setEnabled( False )
         self.toggleViewAction().setVisible( False )
-        
+
         self.addWidget( self._queuedWidget )
         self.layout().setMargin( 3 )
-        
+
         # connections
         self._queuedWidget.shown.connect(self.messageShown)
         self._queuedWidget.finished.connect(self.messageFinished)

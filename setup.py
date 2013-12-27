@@ -36,21 +36,21 @@ def _checkDependencies():
         print "Failed to import pyparsing:"
         print '\t' + str(ex)
         ok = False
-    
+
     try:
         import qutepart
     except ImportError, ex:
         print "Failed to import qutepart:"
         print '\t' + str(ex)
         ok = False
-    
+
     if not ok:
         print 'See http://enki-editor.org/install-sources.html'
 
     return ok
 
 
-"""Install .desktop and .xpm and .desktop only on linux. (Shall we do it on 
+"""Install .desktop and .xpm and .desktop only on linux. (Shall we do it on
 hlamer: We should use relative pathes here, without /usr/, so it will be installed to
 /usr/local/share with setup.py and to /usr/share with Debian packages.
 BUT KDE4 on Suse 12.02 ignores data in /usr/local/share, and, probably, some other systems do

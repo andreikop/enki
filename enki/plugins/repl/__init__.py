@@ -18,10 +18,10 @@ class _AbstractReplPlugin(QObject):
     _FULL_NAME = None
     _MENU_PATH = None
     _DOCK_TITLE = None
-    
+
     def __init__(self):
         QObject.__init__(self)
-        
+
         self._installed = False
         self._evalAction = None
         self._activeInterpreterPath = None
@@ -35,7 +35,7 @@ class _AbstractReplPlugin(QObject):
         core.workspace().languageChanged.connect(self._updateEvalActionEnabledState)
         core.uiSettingsManager().dialogAccepted.connect(self._applySettings)
         core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
-        
+
         self._installOrUninstallIfNecessary()
 
     def _icon(self):
@@ -50,7 +50,7 @@ class _AbstractReplPlugin(QObject):
 
     def __del__(self):
         self.del_()
-    
+
     def del_(self):
         """Terminate the plugin. Method called by core, when closing Enki, and sometimes by plugin itself
         """
@@ -80,9 +80,9 @@ class _AbstractReplPlugin(QObject):
         if self._installed and \
            self._activeInterpreterPath != self._settingsGroup()["InterpreterPath"]:
             self.del_()
-        
+
         self._installOrUninstallIfNecessary()
-    
+
     def _supportedDocumentIsOpened(self):
         """Check if at least one Scheme document is opened
         """
@@ -126,7 +126,7 @@ class _AbstractReplPlugin(QObject):
         document = core.workspace().currentDocument()
         if document is None:
             return
-        
+
         selection = document.qutepart.selectedText
         if selection:
             self._interpreter.execCommand(selection)
@@ -137,7 +137,7 @@ class _AbstractReplPlugin(QObject):
             if document.filePath():  # user may cancel saving document
                 self._interpreter.loadFile(document.filePath())
                 self._dock.show()
-    
+
     def _onBreakTriggered(self):
         """Break has been triggered. Stop the interpreter
         """
@@ -179,11 +179,11 @@ class _AbstractReplPlugin(QObject):
         self._breakAction.setEnabled(False)
 
         self._activeInterpreterPath = self._settingsGroup()["InterpreterPath"]
-        
+
         self._interpreter = self._createInterpreter()
-        
+
         self._interpreter.processIsRunningChanged.connect(lambda isRunning: self._breakAction.setEnabled(isRunning))
-        
+
         from repl import ReplDock
         self._dock = ReplDock(self._interpreter.widget(), self._LANGUAGE, self._DOCK_TITLE, self._icon())
 
@@ -202,7 +202,7 @@ class _SchemeReplPlugin(_AbstractReplPlugin):
     _FULL_NAME = "MIT Scheme"
     _MENU_PATH = "mScheme"
     _DOCK_TITLE = "&MIT Scheme"
-    
+
     def _icon(self):
         """Settings widget icon
         """
@@ -228,7 +228,7 @@ class _SmlReplPlugin(_AbstractReplPlugin):
     def __init__(self):
         if not 'SML' in core.config()['Modes']: # if config file is old, add own settings
             core.config()['Modes']['SML'] = {'Enabled': 'whenOpened', 'InterpreterPath': 'sml'}
-        
+
         _AbstractReplPlugin.__init__(self)
 
     def _createInterpreter(self):

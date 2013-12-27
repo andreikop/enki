@@ -19,11 +19,11 @@ class ConverterThread(QThread):
     """Thread converts markdown to HTML
     """
     htmlReady = pyqtSignal(unicode, unicode)
-    
+
     def __init__(self):
         QThread.__init__(self)
         self._lock = threading.Lock()
-    
+
     def process(self, filePath, language, text):
         """Convert data and emit result
         """
@@ -34,7 +34,7 @@ class ConverterThread(QThread):
             self._text = text
             if not self.isRunning():
                 self.start(QThread.LowPriority)
-    
+
     def _getHtml(self, language, text):
         """Get HTML for document
         """
@@ -63,11 +63,11 @@ class ConverterThread(QThread):
             pass  #mathjax doesn't require import statement if installed as extension
 
         extensions = ['fenced_code', 'nl2br']
-        
+
         # version 2.0 supports only extension names, not instances
         if markdown.version_info[0] > 2 or \
            (markdown.version_info[0] == 2 and markdown.version_info[1] > 0):
-           
+
             class _StrikeThroughExtension(markdown.Extension):
                 """http://achinghead.com/python-markdown-adding-insert-delete.html
                 Class is placed here, because depends on imported markdown, and markdown import is lazy
@@ -78,7 +78,7 @@ class ConverterThread(QThread):
                     del_tag = markdown.inlinepatterns.SimpleTagPattern(self.DEL_RE, 'del')
                     # Insert del pattern into markdown parser
                     md.inlinePatterns.add('del', del_tag, '>not_strong')
-            
+
             extensions.append(_StrikeThroughExtension())
 
         try:
@@ -86,7 +86,7 @@ class ConverterThread(QThread):
         except (ImportError, ValueError):  # markdown raises ValueError or ImportError, depends on version
                                            # it is not clear, how to distinguish missing mathjax from other errors
             return markdown.markdown(text, extensions) #keep going without mathjax
-    
+
     def _convertReST(self, text):
         """Convert ReST
         """
@@ -109,9 +109,9 @@ class ConverterThread(QThread):
                 language = self._language
                 text = self._text
                 self._haveData = False
-            
+
             html = self._getHtml(self._language, self._text)
-            
+
             with self._lock:
                 if not self._haveData:
                     self.htmlReady.emit(filePath, html)
@@ -127,7 +127,7 @@ class PreviewDock(DockWidget):
     def __init__(self):
         DockWidget.__init__(self, core.mainWindow(), "&Preview", QIcon(':/enkiicons/internet.png'), "Alt+P")
         self._widget = QWidget(self)
-        
+
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Preview.ui'), self._widget)
 
         self._loadTemplates()
@@ -135,32 +135,32 @@ class PreviewDock(DockWidget):
         self._widget.webView.page().mainFrame().titleChanged.connect(self._updateTitle)
         self.setWidget(self._widget)
         self.setFocusProxy(self._widget.webView )
-        
+
         self._widget.cbEnableJavascript.clicked.connect(self._onJavaScriptEnabledCheckbox)
-        
+
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         core.workspace().textChanged.connect(self._onTextChanged)
-        
+
         self._scrollPos = {}
         self._vAtEnd = {}
         self._hAtEnd = {}
-        
+
         self._thread = ConverterThread()
         self._thread.htmlReady.connect(self._setHtml)
 
         self._visiblePath = None
-        
+
         # If we update Preview on every key pressing, freezes are sensible (GUI thread draws preview too slowly
         # This timer is used for drawing Preview 300 ms After user has stopped typing text
         self._typingTimer = QTimer()
         self._typingTimer.setInterval(300)
         self._typingTimer.timeout.connect(self._scheduleDocumentProcessing)
-        
+
         self._widget.cbTemplate.currentIndexChanged.connect(self._onCurrentTemplateChanged)
 
         self._scheduleDocumentProcessing()
         self._applyJavaScriptEnabled(self._isJavaScriptEnabled())
-        
+
         self._widget.tbSave.clicked.connect(self.onSave)
 
     def del_(self):
@@ -169,7 +169,7 @@ class PreviewDock(DockWidget):
         self._typingTimer.stop()
         self._thread.htmlReady.disconnect(self._setHtml)
         self._thread.wait()
-    
+
     def closeEvent(self, event):
         """Widget is closed.
         Probably should update enabled state
@@ -184,14 +184,14 @@ class PreviewDock(DockWidget):
             self.setWindowTitle("&Preview - " + pageTitle)
         else:
             self.setWindowTitle("&Preview")
-    
+
     def _saveScrollPos(self):
         """Save scroll bar position for document
         """
         frame = self._widget.webView .page().mainFrame()
         if frame.contentsSize() == QSize(0, 0):
             return # no valida data, nothing to save
-        
+
         pos = frame.scrollPosition()
         self._scrollPos[self._visiblePath] = pos
         self._hAtEnd[self._visiblePath] = frame.scrollBarMaximum(Qt.Horizontal) == pos.x()
@@ -204,17 +204,17 @@ class PreviewDock(DockWidget):
             self._widget.webView .page().mainFrame().contentsSizeChanged.disconnect(self._restoreScrollPos)
         except TypeError:  # already has been disconnected
             pass
-        
+
         if not self._visiblePath in self._scrollPos:
             return  # no data for this document
-        
+
         frame = self._widget.webView .page().mainFrame()
 
         frame.setScrollPosition(self._scrollPos[self._visiblePath])
-        
+
         if self._hAtEnd[self._visiblePath]:
             frame.setScrollBarValue(Qt.Horizontal, frame.scrollBarMaximum(Qt.Horizontal))
-        
+
         if self._vAtEnd[self._visiblePath]:
             frame.setScrollBarValue(Qt.Vertical, frame.scrollBarMaximum(Qt.Vertical))
 
@@ -228,12 +228,12 @@ class PreviewDock(DockWidget):
             else:
                 self._widget.cbTemplate.hide()
                 self._widget.lTemplate.hide()
-        
+
         if new is not None and core.config()['Preview']['Enabled']:
             self._scheduleDocumentProcessing()
         else:
             self._clear()
-    
+
     _CUSTOM_TEMPLATE_PATH = '<custom template>'
     def _loadTemplates(self):
         for path in [os.path.join(os.path.dirname(__file__), 'templates'),
@@ -243,11 +243,11 @@ class PreviewDock(DockWidget):
                     fullPath = os.path.join(path, fileName)
                     if os.path.isfile(fullPath):
                         self._widget.cbTemplate.addItem(fileName, fullPath)
-        
+
         self._widget.cbTemplate.addItem('Custom templates...', self._CUSTOM_TEMPLATE_PATH)
-        
+
         self._restorePreviousTemplate()
-    
+
     def _restorePreviousTemplate(self):
         # restore previous template
         index = self._widget.cbTemplate.findText(core.config()['Preview']['Template'])
@@ -260,12 +260,12 @@ class PreviewDock(DockWidget):
             return ''
 
         return self._widget.cbTemplate.itemData(index).toString()
-    
+
     def _getCurrentTemplate(self):
         path = self._getCurrentTemplatePath()
         if not path:
             return ''
-        
+
         try:
             with open(path) as file:
                 text = file.read()
@@ -284,11 +284,11 @@ class PreviewDock(DockWidget):
                                    '<html>See <a href="https://github.com/hlamer/enki/wiki/Markdown-preview-templates">'
                                    'this</a> wiki page for information about custom templates')
             self._restorePreviousTemplate()
-            
+
         core.config()['Preview']['Template'] = self._widget.cbTemplate.currentText()
         core.config().flush()
         self._scheduleDocumentProcessing()
-    
+
     def _onTextChanged(self, document):
         """Text changed, update preview
         """
@@ -301,12 +301,12 @@ class PreviewDock(DockWidget):
         """
         DockWidget.show(self)
         self._scheduleDocumentProcessing()
-    
+
     def _scheduleDocumentProcessing(self):
         """Start document processing with the thread.
         """
         self._typingTimer.stop()
-        
+
         document = core.workspace().currentDocument()
         if document is not None:
             language = document.qutepart.language()
@@ -349,14 +349,14 @@ class PreviewDock(DockWidget):
 
     def _applyJavaScriptEnabled(self, enabled):
         """Update QWebView settings and QCheckBox state
-        """        
+        """
         self._widget.cbEnableJavascript.setChecked(enabled)
-        
+
         settings = self._widget.webView.settings()
         settings.setAttribute(settings.JavascriptEnabled, enabled)
-        
+
         self._scheduleDocumentProcessing()
-    
+
     def onSave(self):
         """Save contents of the preview"""
         path = QFileDialog.getSaveFileName(self, 'Save Preview as HTML', filter='HTML (*.html)')

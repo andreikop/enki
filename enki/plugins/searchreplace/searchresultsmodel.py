@@ -23,20 +23,20 @@ class Result:  # pylint: disable=R0902
         self.column = column
         self.match = match
         self.checkState = Qt.Checked
-    
+
     def text(self):  # pylint: disable=W0613
         """Displayable text of search result. Shown as line in the search results dock
         """
         beforeMatch = self.wholeLine[:self.column].lstrip()
         afterMatch = self.wholeLine[self.column + len(self.match.group(0)):].rstrip()
-        
+
         if QApplication.instance().palette().base().color().lightnessF() > 0.5:
             backgroundColor = 'yellow'
             foregroundColor = 'black'
         else:
             backgroundColor = 'maroon'
             foregroundColor = 'white'
-        
+
         return '<html>' \
                     'Line: %d, Column: %d: %s' \
                     '<font style=\'background-color: %s; color: %s\'>%s</font>' \
@@ -49,11 +49,11 @@ class Result:  # pylint: disable=R0902
                   foregroundColor,
                   htmlEscape(self.match.group(0)),
                   htmlEscape(afterMatch))
-    
+
     def tooltip(self):
         """Tooltip of the search result"""
         return self.wholeLine.strip()
-    
+
     def hasChildren(self):
         """Check if QAbstractItem has children"""
         return False
@@ -67,12 +67,12 @@ class FileResults:
         self.fileName = fileName
         self.results = results
         self.checkState = Qt.Checked
-    
+
     def __str__(self):
         """Convertor to string. Used for debugging
         """
         return '%s (%d)' % (self.fileName, len(self.results))
-    
+
     def updateCheckState(self):
         """Update own checked state after checked state of child result changed or
         child result removed
@@ -83,18 +83,18 @@ class FileResults:
             self.checkState = Qt.PartiallyChecked
         else:
             self.checkState = Qt.Unchecked
-    
+
     def text(self):
         """Displayable text of the file results. Shown as line in the search results dock
         baseDir is base directory of current search operation
         """
         return '%s (%d)' % (QDir(self.baseDir).relativeFilePath(self.fileName), len(self.results))
-    
+
     def tooltip(self):
         """Tooltip of the item in the results dock
         """
         return self.fileName
-    
+
     def hasChildren(self):
         """Check if item has children
         """
@@ -105,13 +105,13 @@ class SearchResultsModel(QAbstractItemModel):
     """AbstractItemodel used for display search results in 'Search in directory' and 'Replace in directory' mode
     """
     firstResultsAvailable = pyqtSignal()
-    
+
     def __init__(self, parent ):
         """Constructor of SearchResultsModel class
         """
         QAbstractItemModel.__init__(self, parent )
         self._replaceMode = False
-        
+
         self.fileResults = []  # list of FileResults
 
     def setReplaceMode(self, enabled):
@@ -129,7 +129,7 @@ class SearchResultsModel(QAbstractItemModel):
         """
         if  row >= self.rowCount( parent ) or column > self.columnCount(parent):
             return QModelIndex()
-        
+
         if parent.isValid():  # index for result
             result = parent.internalPointer().results[row]
             return self.createIndex( row, column, result )
@@ -141,10 +141,10 @@ class SearchResultsModel(QAbstractItemModel):
         """
         if not index.isValid() :
             return QModelIndex()
-        
+
         if not isinstance(index.internalPointer(), Result):  # it is an top level item
             return QModelIndex()
-        
+
         result = index.internalPointer()
         for row, fileRes in enumerate(self.fileResults):
             if fileRes.fileName == result.fileName:
@@ -165,7 +165,7 @@ class SearchResultsModel(QAbstractItemModel):
         """See QAbstractItemModel docs
         """
         return 1
-    
+
     def rowCount(self, parent):
         """See QAbstractItemModel docs
         """
@@ -177,23 +177,23 @@ class SearchResultsModel(QAbstractItemModel):
             return len(parent.internalPointer().results)
         else:
             assert(0)
-    
+
     def flags(self, index ):
         """See QAbstractItemModel docs
         """
         flags = QAbstractItemModel.flags( self, index )
-        
+
         if self._replaceMode:
             flags |= Qt.ItemIsUserCheckable
-        
+
         return flags
-    
+
     def data(self, index, role ):
         """See QAbstractItemModel docs
         """
         if not index.isValid() :
             return QVariant()
-        
+
         # Common code for file and result
         result = index.internalPointer()
         if role == Qt.DisplayRole:
@@ -203,9 +203,9 @@ class SearchResultsModel(QAbstractItemModel):
         elif role == Qt.CheckStateRole:
             if  self.flags( index ) & Qt.ItemIsUserCheckable:
                 return result.checkState
-        
+
         return QVariant()
-    
+
     def setData(self, index, value, role ):
         """See QAbstractItemModel docs
         This method changes checked state of the item.
@@ -234,7 +234,7 @@ class SearchResultsModel(QAbstractItemModel):
         else:
             assert(0)
         return True
-    
+
     def setCheckStateForAll(self, state):
         """Check all items
         """
@@ -244,7 +244,7 @@ class SearchResultsModel(QAbstractItemModel):
                 match.checkState = state
         self.dataChanged.emit(self.createIndex(0, 0, self.fileResults[0]),
                               self.createIndex(len(self.fileResults) - 1, 0, self.fileResults[-1]))
-    
+
     def isFirstMatchChecked(self):
         """Check if first file in the search results is expanded
         """
@@ -270,7 +270,7 @@ class SearchResultsModel(QAbstractItemModel):
                               len(self.fileResults) + len(fileResultList) - 1)
         self.fileResults.extend(fileResultList)
         self.endInsertRows()
-    
+
     def onResultsHandledByReplaceThread(self, fileName, results):
         """Replace thread has processed result, need to it from the model
         """
@@ -280,7 +280,7 @@ class SearchResultsModel(QAbstractItemModel):
                 if len(results) == len(fileRes.results):  # removing all
                     self.beginRemoveRows(QModelIndex(), index, index)
                     self.fileResults.pop(index)
-                    self.endRemoveRows()                    
+                    self.endRemoveRows()
                 else:
                     for res in results:
                         resIndex = fileRes.results.index(res)

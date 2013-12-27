@@ -13,7 +13,7 @@ Settings dialogue subsystem consists of 3 major entities:
 
   Every object of the class links together control on GUI and option in the config file.
   It loads its option from config to GUI, and saves from GUI to config.
-  
+
   config may be either :class:`enki.core.config.Config` or python dictionary
 * :class:`enki.core.uisettings.UISettingsManager`. Invokes the dialogue.
   Emits signals when Plugins shall add own settings to the dialogue and when Plugins shall apply settings
@@ -99,7 +99,7 @@ def _set(config, key, value):
 class Option:
     """Base class for all Options. Every class knows control on UISettings form, configuration option name,
     and can load/save the option
-    
+
     Do not create dirrectly, use *Option classes
     """
     def __init__(self, dialog, config, optionName, control):
@@ -109,7 +109,7 @@ class Option:
         self.dialog = dialog
         dialog.accepted.connect(self.save)
         self.load()
-    
+
     def load(self):
         """Load the value from config to GUI. To be implemented by child classes
         """
@@ -122,14 +122,14 @@ class Option:
 
 class CheckableOption(Option):
     """Bool option.
-    
+
     Control may be QCheckBox, QGroupBox or other control, which has .isChecked() and .setChecked()
     """
     def load(self):
         """Load the value from config to GUI
         """
         self.control.setChecked(self.config.get(self.optionName))
-    
+
     def save(self):
         """Save the value from GUI to config
         """
@@ -137,14 +137,14 @@ class CheckableOption(Option):
 
 class TextOption(Option):
     """Text option
-    
+
     Control may be QLineEdit
     """
     def load(self):
         """Load the value from config to GUI
         """
         self.control.setText(self.config.get(self.optionName))
-    
+
     def save(self):
         """Save the value from GUI to config
         """
@@ -152,14 +152,14 @@ class TextOption(Option):
 
 class ListOnePerLineOption(Option):
     """List of strings. One item per line.
-    
+
     Control may be QPlainTextEdit
     """
     def load(self):
         """Load the value from config to GUI
         """
         self.control.setPlainText('\n'.join(self.config.get(self.optionName)))
-    
+
     def save(self):
         """Save the value from GUI to config
         """
@@ -168,14 +168,14 @@ class ListOnePerLineOption(Option):
 
 class NumericOption(Option):
     """Numeric option.
-    
+
     Control may be QSlider or other control, which has .value() and .setValue() methods
     """
     def load(self):
         """Load the value from config to GUI
         """
         self.control.setValue(self.config.get(self.optionName))
-    
+
     def save(self):
         """Save the value from GUI to config
         """
@@ -183,14 +183,14 @@ class NumericOption(Option):
 
 class ColorOption(Option):
     """Color option
-    
+
     Control must be enki.widgets.ColorButton
     """
     def load(self):
         """Load the value from config to GUI
         """
         self.control.setColor(QColor(self.config.get(self.optionName)))
-    
+
     def save(self):
         """Save the value from GUI to config
         """
@@ -198,12 +198,12 @@ class ColorOption(Option):
 
 class FontOption(Option):
     """Font option.
-    
+
     Option has 2 controls:
 
     * QLineEdit is an example of font
     * Button is used for open font dialogue.
-    
+
     This option opens Font dialogue automatically, when button has been clicked
     """
     def __init__(self, dialog, config, familyOption, sizeOption, editControl, buttonControl):  # pylint: disable=R0913
@@ -213,21 +213,21 @@ class FontOption(Option):
         self.buttonControl = buttonControl
         self.buttonControl.clicked.connect(self._onClicked)
         Option.__init__(self, dialog, config, None, None)
-    
+
     def load(self):
         """Load the value from config to GUI
         """
         font = QFont(self.config.get(self.familyOptionName), self.config.get(self.sizeOptionName))
         self.editControl.setFont( font )
         self.editControl.setToolTip( font.toString() )
-    
+
     def save(self):
         """Save the value from GUI to config
         """
         font = self.editControl.font()
         _set(self.config, self.familyOptionName, font.family())
         _set(self.config, self.sizeOptionName, font.pointSize())
-    
+
     def _onClicked(self):
         """Button click handler. Open font dialog
         """
@@ -238,15 +238,15 @@ class FontOption(Option):
 
 class ChoiseOption(Option):
     """This option allows to choose value from few possible.
-    
+
     It is presented as set of QRadioButton's
-    
+
     *controlToValue* dictionary contains mapping *checked radio button name: option value*
     """
     def __init__(self, dialog, config, optionName, controlToValue):
         self.cotrolToValue = controlToValue
         Option.__init__(self, dialog, config, optionName, None)
-        
+
     def load(self):
         """Load the value from config to GUI
         """
@@ -257,7 +257,7 @@ class ChoiseOption(Option):
                 break
         else:
             print >> sys.stderr, 'Button not found for option %s value' % self.optionName, value
-    
+
     def save(self):
         """Save the value from GUI to config
         """
@@ -269,25 +269,25 @@ class ChoiseOption(Option):
 class UISettings(QDialog):
     """Settings dialog widget
     """
-    
+
     def __init__(self, parent):
         QDialog.__init__(self, parent)
         self._createdObjects = []
-        
+
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/UISettings.ui'), self)
         self.swPages.setCurrentIndex(0)
-        
+
         self.setAttribute( Qt.WA_DeleteOnClose )
 
         # Expand all tree widget items
         self._pageForItem = {u"General": self.pGeneral,
                              u"Modes": self.pModes,
                              u"Editor": self.pEditor}
-        
+
         # resize to minimum size
         hint = self.sizeHint()
         self.resize(max(hint.width(), hint.height() * 1.61), hint.height())
-    
+
     def _itemByPath(self, pathParts):
         """Find item by it's path. Path is list of parts. I.e. ['Editor', 'General']
         """
@@ -313,27 +313,27 @@ class UISettings(QDialog):
     def appendPage(self, path, widget, icon=None):
         """Append page to the tree. Called by a plugin for creating own page. Example:
         ::
-        
+
             widget = MitSchemeSettings(dialog)
             dialog.appendPage(u"Modes/MIT Scheme", widget, QIcon(':/enkiicons/languages/scheme.png'))
-        
+
         """
         pathParts = path.split('/')
         if len(pathParts) == 1:
             parentItem = None
         else:
             parentItem = self._itemByPath(pathParts[:-1])
-        
+
         twItem = QTreeWidgetItem([pathParts[-1]])
         if icon is not None:
             twItem.setIcon(0, icon)
-        
+
         if parentItem is not None:
             parentItem.addChild(twItem)
             self.twMenu.expandAll()
         else:
             self.twMenu.addTopLevelItem(twItem)
-        
+
         self.swPages.addWidget(widget)
         self._pageForItem[path] = widget
 
@@ -347,7 +347,7 @@ class UISettings(QDialog):
         """Qt slot. Switch current page, after item in the pages tree has been selected
         """
         selectedItem = self.twMenu.selectedItems()[0]
-        
+
         itemPath = self._itemPath(selectedItem)
         page = self._pageForItem[itemPath]
         self.swPages.setCurrentWidget(page)
@@ -356,29 +356,29 @@ class UISettings(QDialog):
 class UISettingsManager(QObject):  # pylint: disable=R0903
     """Add to the main menu *Settings->Settings* action and execute settings dialogue
     """
-    
+
     aboutToExecute = pyqtSignal(UISettings)
     """
     aboutToExecute(:class:`enki.core.uisettings.UISettings`)
-    
+
     **Signal** emitted, when dialog is about to be executed. Plugins shall add own settings to the dialogue
     """  # pylint: disable=W0105
-    
+
     dialogAccepted = pyqtSignal()
     """
     accepted()
-    
+
     **Signal** emitted, when dialog has been accepted. Plugins shall save and apply settings
     """  # pylint: disable=W0105
-    
+
     def __init__(self):
         QObject.__init__(self)
         self._action = core.actionManager().addAction("mSettings/aSettings",
-                                                    _tr( "Settings.."), 
+                                                    _tr( "Settings.."),
                                                     QIcon(':/enkiicons/settings.png'))
         self._action.setStatusTip(_tr( "Edit settigns.."))
         self._action.triggered.connect(self._onEditSettings)
-    
+
     def __del__(self):
         core.actionManager().removeAction(self._action)
 

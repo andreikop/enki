@@ -60,7 +60,7 @@ class _EolSettingsWidget(QWidget):
 
 class Plugin:
     """Plugin interface implementation
-    
+
     Waits for GUI dialogue invocation.
     Adds options to the dialogue.
     Applies settings.
@@ -68,46 +68,46 @@ class Plugin:
     def __init__(self):
         Plugin.instance = self
         core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
-        
+
         trailingAction = core.actionManager().action('mView/aShowTrailingWhitespaces')
         trailingAction.triggered.connect(self._onShowTrailingTriggered)
         trailingAction.setChecked(self._confShowTrailing())
         trailingAction.setEnabled(not self._confShowAnyIndentation())
-        
+
         anyIndentAction = core.actionManager().action('mView/aShowAnyIndentWhitespaces')
         anyIndentAction.triggered.connect(self._onShowIndentationTriggered)
         anyIndentAction.setChecked(self._confShowAnyIndentation())
         anyIndentAction.setEnabled(True)
-        
+
         core.workspace().documentOpened.connect(self._onDocumentOpened)
-    
+
     def del_(self):
         pass
-    
+
     @staticmethod
     def _confShowTrailing():
         return core.config()['Qutepart']['WhiteSpaceVisibility']['Trailing']
-    
+
     @staticmethod
     def _confShowAnyIndentation():
         return core.config()['Qutepart']['WhiteSpaceVisibility']['AnyIndentation']
-    
+
     def _onDocumentOpened(self, document):
         document.qutepart.drawWhiteSpaceTrailing = self._confShowTrailing()
         document.qutepart.drawWhiteSpaceAnyIndentation = self._confShowAnyIndentation()
-    
+
     def _onShowTrailingTriggered(self, checked):
         for document in core.workspace().documents():
             document.qutepart.drawWhiteSpaceTrailing = checked
         core.config()['Qutepart']['WhiteSpaceVisibility']['Trailing'] = checked
         core.config().flush()
-        
+
     def _onShowIndentationTriggered(self, checked):
         for document in core.workspace().documents():
             document.qutepart.drawWhiteSpaceAnyIndentation = checked
         core.config()['Qutepart']['WhiteSpaceVisibility']['AnyIndentation'] = checked
         core.config().flush()
-        
+
         core.actionManager().action('mView/aShowTrailingWhitespaces').setEnabled(not checked)
 
     def _onSettingsDialogAboutToExecute(self, dialog):
@@ -120,7 +120,7 @@ class Plugin:
         eolWidget = _SettingsPageWidget('Eol.ui', dialog)
         edgeWidget = _SettingsPageWidget('Edge.ui', dialog)
         wrapWidget = _SettingsPageWidget('Wrap.ui', dialog)
-        
+
         dialog.appendPage(u"Editor/Font", fontWidget)
         dialog.appendPage(u"Editor/Indentation", indentWidget)
         dialog.appendPage(u"Editor/Autocompletion", complWidget)
@@ -133,32 +133,32 @@ class Plugin:
         (
             FontOption(dialog, cfg, "Qutepart/Font/Family", "Qutepart/Font/Size",
                        fontWidget.lFont, fontWidget.pbFont),
-            
+
             ChoiseOption(dialog, cfg, "Qutepart/Indentation/UseTabs",
                          {indentWidget.rbIndentationSpaces : False,
                           indentWidget.rbIndentationTabs: True}),
             NumericOption(dialog, cfg, "Qutepart/Indentation/Width", indentWidget.sIndentationWidth),
             CheckableOption(dialog, cfg, "Qutepart/Indentation/AutoDetect", indentWidget.cbAutodetectIndent),
-            
+
             ChoiseOption(dialog, cfg, "Qutepart/EOL/Mode",
                          {eolWidget.rbEolUnix: r'\n',
                           eolWidget.rbEolWindows: r'\r\n',
-                          eolWidget.rbEolMac: r'\r'}),            
+                          eolWidget.rbEolMac: r'\r'}),
             CheckableOption(dialog, cfg, "Qutepart/EOL/AutoDetect", eolWidget.cbAutoDetectEol),
-            
+
             CheckableOption(dialog, cfg, "Qutepart/Edge/Enabled", edgeWidget.gbEdgeEnabled),
             NumericOption(dialog, cfg, "Qutepart/Edge/Column", edgeWidget.sEdgeColumnNumber),
             ColorOption(dialog, cfg, "Qutepart/Edge/Color", edgeWidget.tbEdgeColor),
-            
+
             CheckableOption(dialog, cfg, "Qutepart/AutoCompletion/Enabled", complWidget.gbAutoCompletion),
             NumericOption(dialog, cfg, "Qutepart/AutoCompletion/Threshold", complWidget.sThreshold),
-            
+
             CheckableOption(dialog, cfg, "Qutepart/Wrap/Enabled", wrapWidget.gbWrapEnabled),
             ChoiseOption(dialog, cfg, "Qutepart/Wrap/Mode",
                          {wrapWidget.rbWrapAtWord : "WrapAtWord",
                           wrapWidget.rbWrapAnywhere: "WrapAnywhere"}),
         )
-        
+
         for option in options:
             dialog.appendOption(option)
 
@@ -166,7 +166,7 @@ class Plugin:
 
 """ Old options. TODO Uncomment or delete
             CheckableOption(dialog, cfg, "Editor/Indentation/ConvertUponOpen", dialog.cbConvertIndentationUponOpen),
-            
+
             CheckableOption(dialog, cfg, "Editor/ShowLineNumbers", dialog.cbShowLineNumbers),
             CheckableOption(dialog, cfg, "Editor/EnableCodeFolding", dialog.cbEnableCodeFolding),
             ColorOption(dialog, cfg, "Editor/SelectionBackgroundColor", dialog.tbSelectionBackground),
@@ -175,7 +175,7 @@ class Plugin:
             CheckableOption(dialog, cfg, "Editor/DefaultDocumentColours", dialog.gbDefaultDocumentColours),
             ColorOption(dialog, cfg, "Editor/DefaultDocumentPen", dialog.tbDefaultDocumentPen),
             ColorOption(dialog, cfg, "Editor/DefaultDocumentPaper", dialog.tbDefaultDocumentPaper),
-        
+
             ChoiseOption(dialog, cfg, "Editor/AutoCompletion/Source",
                          { dialog.rbDocument: "Document",
                            dialog.rbApi: "APIs",
@@ -184,7 +184,7 @@ class Plugin:
                             dialog.cbAutoCompletionCaseSensitivity),
             CheckableOption(dialog, cfg, "Editor/AutoCompletion/ReplaceWord", dialog.cbAutoCompletionReplaceWord),
             CheckableOption(dialog, cfg, "Editor/AutoCompletion/ShowSingle", dialog.cbAutoCompletionShowSingle),
-        
+
             # TODO restore or remove
             #CheckableOption(dialog, cfg, "Editor/CallTips/Enabled", dialog.gbCalltips),
             #NumericOption(dialog, cfg, "Editor/CallTips/VisibleCount", dialog.sCallTipsVisible),
@@ -195,11 +195,11 @@ class Plugin:
             #ColorOption(dialog, cfg, "Editor/CallTips/BackgroundColor", dialog.tbCalltipsBackground),
             #ColorOption(dialog, cfg, "Editor/CallTips/ForegroundColor", dialog.tbCalltipsForeground),
             #ColorOption(dialog, cfg, "Editor/CallTips/HighlightColor", dialog.tbCalltipsHighlight),
-        
+
             CheckableOption(dialog, cfg, "Editor/Indentation/Guides", dialog.gbIndentationGuides),
             ColorOption(dialog, cfg, "Editor/Indentation/GuidesBackgroundColor", dialog.tbIndentationGuidesBackground),
             ColorOption(dialog, cfg, "Editor/Indentation/GuidesForegroundColor", dialog.tbIndentationGuidesForeground),
-        
+
             CheckableOption(dialog, cfg, "Editor/BraceMatching/Enabled", dialog.gbBraceMatchingEnabled),
             ColorOption(dialog, cfg, "Editor/BraceMatching/MatchedForegroundColor", dialog.tbMatchedBraceForeground),
             ColorOption(dialog, cfg, "Editor/BraceMatching/MatchedBackgroundColor", dialog.tbMatchedBraceBackground),
@@ -207,7 +207,7 @@ class Plugin:
                         dialog.tbUnmatchedBraceBackground),
             ColorOption(dialog, cfg, "Editor/BraceMatching/UnmatchedForegroundColor",
                         dialog.tbUnmatchedBraceForeground),
-        
+
             CheckableOption(dialog, cfg, "Editor/Caret/LineVisible", dialog.gbCaretLineVisible),
             ColorOption(dialog, cfg, "Editor/Caret/LineBackgroundColor", dialog.tbCaretLineBackground),
             ColorOption(dialog, cfg, "Editor/Caret/ForegroundColor", dialog.tbCaretForeground),

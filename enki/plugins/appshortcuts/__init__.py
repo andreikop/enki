@@ -12,7 +12,7 @@ Here is example of global action creation: ::
 
 This code adds *Shortcuts...* action to *Edit* menu.
 
-After action has been crated, Application shortcuts module will change its shortcut from default to defined by user 
+After action has been crated, Application shortcuts module will change its shortcut from default to defined by user
 (if defined).
 
 Module also **loads and saves** shortcuts configuration to file and provides **shortcuts editor dialog**.
@@ -45,17 +45,17 @@ class Plugin:
         self._config = enki.core.json_wrapper.load(_CONFIG_PATH, 'shortcuts', None)
 
         self._actionManager = core.actionManager()
-        
+
         self._action = self._actionManager.addAction("mSettings/aApplicationShortcuts",
-                                       tr( "Application shortcuts..."), 
+                                       tr( "Application shortcuts..."),
                                        QIcon(':/enkiicons/shortcuts.png'))
         self._action.setStatusTip(tr( "Edit application shortcuts..."))
         self._action.triggered.connect(self._onEditShortcuts)
-        
+
         for action in self._actionManager.allActions():
             if not action.menu():
                 self._applyShortcut(action)
-        
+
         self._actionManager.actionInserted.connect(self._onActionInserted)
 
     def del_(self):
@@ -68,14 +68,14 @@ class Plugin:
 
         if self._config is None:  # No file, use default settings
             return
-        
+
         path = self._actionManager.path(action)
 
         try:
             shortcut = self._config[path]
         except KeyError:
             return
-        
+
         action.setShortcut(shortcut)
 
     def _onActionInserted(self, action):
@@ -89,7 +89,7 @@ class Plugin:
         """
         if self._config is None:
             self._config = {}
-        
+
         for action in self._actionManager.allActions():
             if not action.menu():
                 path = self._actionManager.path(action)

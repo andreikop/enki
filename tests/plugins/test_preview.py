@@ -33,7 +33,7 @@ class Test(base.TestCase):
     def _do_basic_test(self, extension):
         text = 'The preview text'
         document = self.createFile('file.' + extension, text)
-        
+
         self._showDock()
         QTest.qWait(1000)
         self.assertTrue(text in self._visibleText())
@@ -46,19 +46,19 @@ class Test(base.TestCase):
 
     def test_markdown(self):
         self._do_basic_test('md')
-    
+
     def test_markdown_templates(self):
         core.config()['Preview']['Template'] = 'WhiteOnBlack'
         document = self.createFile('test.md', 'foo')
         self._showDock()
-        
+
         combo = self._widget().cbTemplate
-        
+
         QTest.qWait(500)
         self.assertEqual(combo.currentText(), 'WhiteOnBlack')
         self.assertFalse('body {color: white; background: black;}' in self._visibleText())
         self.assertTrue('body {color: white; background: black;}' in self._html())
-        
+
         combo = self._widget().cbTemplate
         combo.setCurrentIndex(combo.findText('Default'))
         QTest.qWait(500)
@@ -76,13 +76,13 @@ class Test(base.TestCase):
         core.config()['Preview']['Template'] = 'WhiteOnBlack'
         document = self.createFile('test.md', 'foo')
         self._showDock()
-        
+
         combo = self._widget().cbTemplate
 
         def inDialog(dialog):
             self.assertEqual(dialog.windowTitle(), 'Custom templaes help')
             dialog.accept()
-        
+
         self.openDialog(lambda: combo.setCurrentIndex(combo.count() - 1), inDialog)
 
 if __name__ == '__main__':

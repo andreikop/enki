@@ -24,7 +24,7 @@ class _BaseTest(unittest.TestCase):
 
      def setUp(self):
           self.term = TermWidget(self.app.font())
-     
+
      def tearDown(self):
           del self.term
 
@@ -43,7 +43,7 @@ class Formatting(_BaseTest):
           text = text[pEnd+1:]
           bodyEnd = text.index('</p>')
           return text[:bodyEnd]
-     
+
      def test_light_cmd(self):
           self.setupPalette('#ffffff', '#000000')
           self.term.execCommand('foo')
@@ -91,11 +91,11 @@ class History(_BaseTest):
           self.term.execCommand('bar')
           self.term.execCommand('bar')  # duplicating
           self.term.execCommand('baz')
-     
+
           def clickAndCheck(key, text):
                QTest.keyClick(self.term._edit, key)
                self.assertEqual(self.term._edit.toPlainText(), text)
-          
+
           clickAndCheck(Qt.Key_Up, 'baz')
           clickAndCheck(Qt.Key_Up, 'bar')
           clickAndCheck(Qt.Key_Up, 'foo')

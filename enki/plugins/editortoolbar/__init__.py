@@ -12,7 +12,7 @@ import editortoolbar
 
 class Plugin:
     """Plugin interface implementation
-    
+
     Installs and removes editor from the system
     """
     def __init__(self):
@@ -20,13 +20,13 @@ class Plugin:
         # EOL indicator and switcher
         self._eol = editortoolbar.EolIndicatorAndSwitcher(tb)
         self._eolAct = tb.addWidget(self._eol)
-        # Indentation indicator and switcher        
+        # Indentation indicator and switcher
         self._indent = editortoolbar.IndentIndicatorAndSwitcher(tb)
         self._indentAct = tb.addWidget(self._indent)
         # Position indicator
         self._pos = editortoolbar.PositionIndicator(tb)
         self._posAct = tb.addWidget(self._pos)
-    
+
     def del_(self):
         tb = core.mainWindow().topToolBar()
         tb.removeAction(self._eolAct)

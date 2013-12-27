@@ -23,19 +23,19 @@ class ActionMenuBar(QMenuBar):
 
         for action in self._manager.allActions():
             self._onActionInserted( action )
-            
+
         self._manager.actionInserted.connect(self._onActionInserted)
         self._manager.actionRemoved.connect(self._onActionRemoved)
 
     def _onActionInserted(self, action ):
         parent = self._manager.parentAction( action )
-        
+
         if parent is None and action.menu():
             self.addMenu( action.menu() )
 
     def _onActionRemoved(self, action):
         parent = self._manager.parentAction( action )
-        
+
         if parent is None and action.menu():
             self.removeAction( action )
 
@@ -43,32 +43,32 @@ class ActionMenuBar(QMenuBar):
 class ActionManager(QObject):
     """Class provides text path based access to main menu actions
     """
-    
+
     actionInserted = pyqtSignal(QAction)
     """
     actionInserted(action)
-    
+
     **Signal** emitted, when new action has been inserted to the menu
     """  # pylint: disable=W0105
 
     actionChanged = pyqtSignal(QAction)
     """
     actionChanged(action)
-    
+
     **Signal** emitted, when some action datahas been changed
     """  # pylint: disable=W0105
-    
+
     actionRemoved = pyqtSignal(QAction)
     """
     actionRemoved(action)
-    
+
     **Signal** emitted, when action has been removed from the menu
     """  # pylint: disable=W0105
 
     def __init__(self, parent=None):
         QObject.__init__(self,  parent )
         self._pathToAction = {}
-    
+
     def del_(self):
         if self._pathToAction:
             assert 0, 'ActionManager: you have to delete all actions before destroying actions model. ' + \
@@ -79,7 +79,7 @@ class ActionManager(QObject):
             actionManager.action("mFile/mClose/aAll")
         """
         return self._pathToAction.get(path, None)
-    
+
     def menu(self, path ):
         """Get action by its path. i.e.
             actionManager.action("mFile/mClose/aAll")
@@ -89,12 +89,12 @@ class ActionManager(QObject):
             return None
         else:
             return action.menu()
-    
+
     def path(self, action):
         """Get action path by reference to action
         """
         return action.path
-    
+
     def allActions(self):
         """Reqursive list of existing actions
         """
@@ -103,7 +103,7 @@ class ActionManager(QObject):
     @staticmethod
     def _parentPath(path):
         return '/'.join(path.split('/')[0: -1])
-    
+
     def addAction(self, path, action, icon=QIcon(), shortcut=None):
         """Add new action to the menu.
         Returns created QAction object.
@@ -113,7 +113,7 @@ class ActionManager(QObject):
         parentAction = self.action(subPath)
         if parentAction is None:
             assert False, "Menu path not found: " + subPath
-        
+
         if isinstance(action, basestring):
             action = QAction( icon, action, parentAction )
         else:
@@ -123,14 +123,14 @@ class ActionManager(QObject):
             action.setShortcut(shortcut)
 
         parentAction.menu().addAction( action )
-        
+
         self._pathToAction[ path ] = action
         action.path = path
-        
+
         action.changed.connect(self._onActionChanged)
 
         self.actionInserted.emit( action )
-        
+
         return action
 
     def removeAction(self, pathOrAction, removeEmptyPath=False):
@@ -153,10 +153,10 @@ class ActionManager(QObject):
             parentAction = self.action(parentMenuPath)
         else:
             parentAction = None
-        
+
         menu = QMenu()
         action = menu.menuAction()
-        action._menu = menu  # avoid deleting menu by the garbadge collectors        
+        action._menu = menu  # avoid deleting menu by the garbadge collectors
         action.setIcon( icon )
         action.setText( text )
 
@@ -168,11 +168,11 @@ class ActionManager(QObject):
 
         self._pathToAction[ path ] = action
         action.path = path
-        
+
         action.changed.connect(self._onActionChanged)
-                
+
         self.actionInserted.emit( action )
-        
+
         return action
 
     def removeMenu(self, action, removeEmptyPath=False ):
@@ -182,9 +182,9 @@ class ActionManager(QObject):
         if isinstance(action, basestring):
             action = self.action( action )
         assert action is not None
-        
+
         self._removeAction( action)
-        
+
         if  removeEmptyPath :
             self._removeCompleteEmptyPathNode( parentAction )
 
@@ -202,7 +202,7 @@ class ActionManager(QObject):
 
         self.actionRemoved.emit( action )
 
-    def _removeCompleteEmptyPathNode(self, action ):        
+    def _removeCompleteEmptyPathNode(self, action ):
         """Remove empty menu and empty parent menus
         """
         if not self.children( action ) :
@@ -215,7 +215,7 @@ class ActionManager(QObject):
         """
         if action is None:
             return None
-        
+
         parentObject = action.parent()
         if parentObject != self:
             return parentObject
@@ -244,7 +244,7 @@ class ActionManager(QObject):
         if action is not None:
             if hasattr(action, 'defaultShortcut'):
                 return action.defaultShortcut
-        
+
         return QKeySequence()
 
     def setDefaultShortcut(self, action, shortcut ):
@@ -252,12 +252,12 @@ class ActionManager(QObject):
         """
         if isinstance(action, basestring):
             action = self.action( action )
-        
+
         if isinstance(shortcut, basestring):
             shortcut = QKeySequence(shortcut)
 
         action.defaultShortcut = shortcut
-        
+
         if not action.shortcut():
             action.setShortcut( shortcut )
 

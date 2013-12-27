@@ -13,13 +13,13 @@ class SettingsPage(QWidget):
     """
     def __init__(self, parent):
         QWidget.__init__(self, parent)
-        
+
         self._hLayout = QHBoxLayout()
         self._label = QLabel("Default Terminal", self)
         self._hLayout.addWidget(self._label)
         self.edit = QLineEdit(self)
         self._hLayout.addWidget(self.edit)
-        
+
         self._vLayout = QVBoxLayout(self)
         self._vLayout.addLayout(self._hLayout)
         self._vLayout.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding))
@@ -39,7 +39,7 @@ class Plugin:
         """
         page = SettingsPage(dialog)
         dialog.appendPage(u"Terminal", page, QIcon(':enkiicons/console.png'))
-        
+
         # Options
         dialog.appendOption(TextOption(dialog, core.config(), "OpenTerm/DefaultTerm", page.edit))
 

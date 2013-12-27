@@ -26,15 +26,15 @@ def htmlEscape(text):
 
 class HTMLDelegate(QStyledItemDelegate):
     """QStyledItemDelegate implementation. Draws HTML
-    
+
     http://stackoverflow.com/questions/1956542/how-to-make-item-view-render-rich-html-text-in-qt/1956781#1956781
     """
-    
+
     def paint(self, painter, option, index):
         """QStyledItemDelegate.paint implementation
         """
         option.state &= ~QStyle.State_HasFocus  # never draw focus rect
-        
+
         options = QStyleOptionViewItemV4(option)
         self.initStyleOption(options,index)
 

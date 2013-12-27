@@ -33,7 +33,7 @@ load-plugins=
 # can either give multiple identifier separated by comma (,) or put this option
 # multiple time.
 #
-# E0611 is disabled, because pylint says "No name 'QtCore' in module 'PyQt4'" 
+# E0611 is disabled, because pylint says "No name 'QtCore' in module 'PyQt4'"
 #for all core imports
 disable=R0201,E0611,W0201
 

@@ -20,17 +20,17 @@ class BufferedPopen:
     """Bufferred version of Popen.
     Never locks, but uses unlimited buffers. May eat all the system memory, if something goes wrong.
     """
-    
+
     def __init__(self, command):
         self._command = command
-        
+
         self._inQueue = Queue(8192)
         self._outQueue = Queue(8192)
 
         self._inThread = None
         self._outThread = None
         self._popen = None
-    
+
     def start(self):
         """Start the process
         """
@@ -55,13 +55,13 @@ class BufferedPopen:
         """Stop the process
         """
         self._mustDie = True
-        
+
         if self._popen is not None:
             try:
                 self._popen.terminate()
             except OSError:  # OK, it is already dead
                 pass
-                
+
             for i in range(5):
                 if self._popen.poll() is None:
                     time.sleep(0.04)
@@ -76,7 +76,7 @@ class BufferedPopen:
             self._inThread.join()
         if self._inThread is not None and self._outThread.is_alive():
             self._outThread.join()
-    
+
     def isAlive(self):
         """Check if process is alive
         """
@@ -85,7 +85,7 @@ class BufferedPopen:
     def _readOutputThread(self):
         """Reader thread function. Reads output from process to queue
         """
-        # hlamer: Reading output by one character is not effective, but, I don't know 
+        # hlamer: Reading output by one character is not effective, but, I don't know
         # how to implement non-blocking reading of not full lines better
         char = self._popen.stdout.read(1)
         while char and not self._mustDie:
@@ -96,7 +96,7 @@ class BufferedPopen:
                 continue
 
             char = self._popen.stdout.read(1)
-            
+
 
     def _writeInputThread(self):
         """Writer thread function. Writes data from input queue to process
