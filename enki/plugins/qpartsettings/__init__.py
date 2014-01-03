@@ -69,15 +69,20 @@ class Plugin:
         Plugin.instance = self
         core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
 
-        trailingAction = core.actionManager().action('mView/aShowTrailingWhitespaces')
-        trailingAction.triggered.connect(self._onShowTrailingTriggered)
-        trailingAction.setChecked(self._confShowTrailing())
-        trailingAction.setEnabled(not self._confShowAnyIndentation())
+        showTrailingAction = core.actionManager().action('mView/aShowTrailingWhitespaces')
+        showTrailingAction.triggered.connect(self._onShowTrailingTriggered)
+        showTrailingAction.setChecked(self._confShowTrailing())
+        showTrailingAction.setEnabled(not self._confShowAnyIndentation())
 
-        anyIndentAction = core.actionManager().action('mView/aShowAnyIndentWhitespaces')
-        anyIndentAction.triggered.connect(self._onShowIndentationTriggered)
-        anyIndentAction.setChecked(self._confShowAnyIndentation())
-        anyIndentAction.setEnabled(True)
+        showAnyIndentAction = core.actionManager().action('mView/aShowAnyIndentWhitespaces')
+        showAnyIndentAction.triggered.connect(self._onShowIndentationTriggered)
+        showAnyIndentAction.setChecked(self._confShowAnyIndentation())
+        showAnyIndentAction.setEnabled(True)
+
+        stripTrailingWhitespaceAction = core.actionManager().action('mEdit/aStripTrailingWhitespace')
+        stripTrailingWhitespaceAction.triggered.connect(self._onStripTrailingTriggered)
+        stripTrailingWhitespaceAction.setChecked(self._confStripTrailing())
+        stripTrailingWhitespaceAction.setEnabled(True)
 
         core.workspace().documentOpened.connect(self._onDocumentOpened)
 
@@ -91,6 +96,10 @@ class Plugin:
     @staticmethod
     def _confShowAnyIndentation():
         return core.config()['Qutepart']['WhiteSpaceVisibility']['AnyIndentation']
+
+    @staticmethod
+    def _confStripTrailing():
+        return core.config()['Qutepart']['StripTrailingWhitespace']
 
     def _onDocumentOpened(self, document):
         document.qutepart.drawWhiteSpaceTrailing = self._confShowTrailing()
@@ -109,6 +118,10 @@ class Plugin:
         core.config().flush()
 
         core.actionManager().action('mView/aShowTrailingWhitespaces').setEnabled(not checked)
+
+    def _onStripTrailingTriggered(self, checked):
+        core.config()['Qutepart']['StripTrailingWhitespace'] = checked
+        core.config().flush()
 
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.

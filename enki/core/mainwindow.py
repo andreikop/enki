@@ -249,6 +249,8 @@ class MainWindow(QMainWindow):
         action("mView/aHideAll",                      "Hide all / Restore"   , "",             "Shift+Esc",   "Hide all widgets"       , True)
 
         menu  ("mEdit",                               "Edit"                  , ""            )
+        action("mEdit/aStripTrailingWhitespace",      "Strip trailing whitespace when saving", "", "",            ""                   , True, True)
+        separator("mEdit")
         menu  ("mEdit/mCopyPasteLines",               "Copy-paste lines"      , ""            )
 
         menu  ("mNavigation",                          "Navigation"            , ""           )

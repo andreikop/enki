@@ -314,7 +314,7 @@ class Document(QWidget):
         core.workspace().documentOpened.emit(self)
         core.workspace().currentDocumentChanged.emit(self, self)
 
-    def _removeTrailingWhiteSpace(self):
+    def _stripTrailingWhiteSpace(self):
         with self.qutepart:
             for lineNo, line in enumerate(self.qutepart.lines):
                 if line and line[-1].isspace():
@@ -378,7 +378,9 @@ class Document(QWidget):
             else:
                 return
 
-        self._removeTrailingWhiteSpace()
+        if core.config()['Qutepart']['StripTrailingWhitespace']:
+            self._stripTrailingWhiteSpace()
+
         self._saveToFs(self.filePath())
 
     def saveFileAs(self):

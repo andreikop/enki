@@ -100,6 +100,10 @@ class Config():
             self._data['Navigator'] = {'Enabled': True, 'CtagsPath': 'ctags'}
             self._data['_version'] = 9
 
+        if self._data['_version'] == 9:
+            self._data['Qutepart']['StripTrailingWhitespace'] = False
+            self._data['_version'] = 10
+
 
     def _setPlatformDefaults(self):
         """Set default values, which depend on platform

@@ -18,7 +18,7 @@ from enki.core.core import core
 class _BaseTestCase(base.TestCase):
     def setUp(self):
         base.TestCase.setUp(self)
-        core.workspace().createEmptyNotSavedDocument()
+        self.createFile("asdf.txt", "")
 
 
 class Font(_BaseTestCase):
@@ -251,6 +251,34 @@ class WhiteSpaceVisibility(_BaseTestCase):
         for a, b in combinationsOfCombinations:
             self._do_test(*a)
             self._do_test(*b)
+
+
+class WhitespaceStrip(_BaseTestCase):
+    def _do_test(self, checked):
+        action = core.actionManager().action('mEdit/aStripTrailingWhitespace')
+
+        if action.isChecked() != checked:
+            action.trigger()
+
+        self.assertEqual(core.config()['Qutepart']['StripTrailingWhitespace'], checked)
+
+        document = core.workspace().currentDocument()
+        document.qutepart.text = 'asdf   '
+        document.saveFile()
+
+        expectedText = 'asdf' if checked else 'asdf   '
+        self.assertEqual(document.qutepart.text, expectedText)
+
+    def test_1(self):
+        combinations = []
+        for first in (True, False):
+            for second in (True, False):
+                combinations.append((first, second))
+
+        # test transition from any state to any
+        for first, second in combinations:
+            self._do_test(first)
+            self._do_test(second)
 
 
 if __name__ == '__main__':
