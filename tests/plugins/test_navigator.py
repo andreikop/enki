@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
 import unittest
+import os
 import os.path
 import sys
+import subprocess
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
@@ -50,6 +52,15 @@ class Settings(base.TestCase):
 
 
 class Test(base.TestCase):
+    def setUp(self):
+        base.TestCase.setUp(self)
+
+        try:
+            subprocess.call(["ctags", "--version"], stdout=subprocess.PIPE)
+        except OSError as e:
+            if e.errno == os.errno.ENOENT:
+                assert 0, "ctags executable must be in the system PATH to run the tests. User settings are ignored"
+
     @base.inMainLoop
     def test_1(self):
         # Tags are parsed and shown
