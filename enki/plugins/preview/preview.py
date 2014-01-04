@@ -43,7 +43,8 @@ class ConverterThread(QThread):
         elif language == 'Markdown':
             return self._convertMarkdown(text)
         elif language == 'reStructuredText':
-            return self._convertReST(text)
+            htmlAscii = self._convertReST(text)
+            return unicode(htmlAscii, 'utf8')
         else:
             return 'No preview for this type of file'
 
@@ -96,7 +97,6 @@ class ConverterThread(QThread):
             return 'ReStructuredText preview requires <i>python-docutils</i> package<br/>' \
                    'Install it with your package manager or see ' \
                    '<a href="http://pypi.python.org/pypi/docutils"/>this page</a>'
-
 
         return docutils.core.publish_string(text, writer_name='html')
 
