@@ -66,7 +66,7 @@ class Test(base.TestCase):
         # Tags are parsed and shown
         self.createFile('source.rb', RUBY_SOURCE)
         dock = self.findDock('&Navigator')
-        model = dock._model
+        model = dock._tagModel
         self.assertEqual(model.rowCount(QModelIndex()), 0)
 
         self.sleepProcessEvents(0.1)
@@ -76,7 +76,7 @@ class Test(base.TestCase):
         # Tags are updated on timer
         document = self.createFile('source.rb', RUBY_SOURCE)
         dock = self.findDock('&Navigator')
-        model = dock._model
+        model = dock._tagModel
         self.assertEqual(model.rowCount(QModelIndex()), 0)
 
         self.sleepProcessEvents(0.1)
@@ -142,14 +142,68 @@ class Test(base.TestCase):
         dock = self.findDock('&Navigator')
 
         self.sleepProcessEvents(0.5)
-        self.assertTrue(dock._tree.isHidden())
+        self.assertTrue(dock._displayWidget.isHidden())
         self.assertFalse(dock._errorLabel.isHidden())
 
         core.config()['Navigator']['CtagsPath'] = 'ctags'
         ruby.qutepart.text = RUBY_SOURCE + '\n'
         self.sleepProcessEvents(1.1)
-        self.assertFalse(dock._tree.isHidden())
+        self.assertFalse(dock._displayWidget.isHidden())
         self.assertTrue(dock._errorLabel.isHidden())
+
+    def _currentItemText(self):
+        dock = self.findDock('&Navigator')
+        model = dock._tagModel
+        curr = dock._tree.currentIndex()
+        return model.data(curr, Qt.DisplayRole)
+
+    @base.inMainLoop
+    def test_6(self):
+        # Tags are filtered
+        document = self.createFile('source.rb', RUBY_SOURCE)
+        dock = self.findDock('&Navigator')
+        model = dock._tagModel
+        self.assertEqual(model.rowCount(QModelIndex()), 0)
+
+        self.sleepProcessEvents(0.1)
+        self.assertEqual(model.rowCount(QModelIndex()), 2)
+
+        self.keyClick(Qt.Key_N, Qt.AltModifier)
+        self.keyClicks('_s')
+
+        self.assertEqual(model.rowCount(QModelIndex()), 1)
+        curr = dock._tree.currentIndex()
+        self.assertEqual(model.data(curr, Qt.DisplayRole), 'to_s')
+
+        self.keyClick(Qt.Key_Enter)
+        self.assertEqual(document.qutepart.cursorPosition, (8, 0))
+        self.assertEqual(model.rowCount(QModelIndex()), 2)
+
+    @base.inMainLoop
+    def test_7(self):
+        # Up, down, backspace on tree
+        document = self.createFile('source.rb', RUBY_SOURCE)
+        dock = self.findDock('&Navigator')
+        model = dock._tagModel
+        self.assertEqual(model.rowCount(QModelIndex()), 0)
+
+        self.sleepProcessEvents(0.1)
+        self.assertEqual(model.rowCount(QModelIndex()), 2)
+
+        self.keyClick(Qt.Key_N, Qt.AltModifier)
+        self.keyClicks('t')
+
+        self.assertEqual(model.rowCount(QModelIndex()), 1)
+        self.assertEqual(self._currentItemText(), 'initialize')
+
+        self.keyClick(Qt.Key_Down)
+        self.assertEqual(self._currentItemText(), 'to_s')
+
+        self.keyClick(Qt.Key_Up)
+        self.assertEqual(self._currentItemText(), 'initialize')
+
+        self.keyClick(Qt.Key_Backspace)
+        self.assertEqual(model.rowCount(QModelIndex()), 2)
 
 
 if __name__ == '__main__':

@@ -33,6 +33,7 @@ class LineEdit(QLineEdit):
 
         self._margin = self.sizeHint().height() -2
         self._spacing = 0
+        self._promptText = ''
 
         self._tbClear = QToolButton( self )
         self._tbClear.setIcon( QIcon(":enkiicons/edit-clear-rtl.png"))
