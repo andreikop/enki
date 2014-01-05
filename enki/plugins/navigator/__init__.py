@@ -1,12 +1,8 @@
 """Navigator dock widget and functionality
 """
 
-import tempfile
-import subprocess
-import shutil
 import os.path
 import threading
-from contextlib import contextmanager
 
 from PyQt4.QtCore import pyqtSignal, QObject, Qt, QThread, QTimer, QVariant, QAbstractItemModel, QModelIndex
 from PyQt4.QtGui import QApplication, QBrush, QColor, QFileDialog, QLabel, QIcon, QTreeView, QWidget
@@ -16,6 +12,8 @@ from enki.widgets.dockwidget import DockWidget
 
 from enki.core.core import core
 from enki.core.uisettings import TextOption
+
+import ctags
 
 # source map. 1 ctags language is mapped to multiply Qutepart languages
 # NOTE this map must be updated after new languages has been added to ctags or Qutepart
@@ -69,110 +67,6 @@ for ctagsLang, qutepartLangs in _CTAGS_TO_QUTEPART_LANG_MAP.iteritems():
         _QUTEPART_TO_CTAGS_LANG_MAP[qutepartLang] = ctagsLang
 
 
-class Tag:
-    def __init__(self, name, lineNumber, parent):
-        self.name = name
-        self.lineNumber = lineNumber
-        self.parent = parent
-        self.children = []
-
-    def format(self, indentLevel=0):
-        indent = '\t' * indentLevel
-        formattedChildren = [child.format(indentLevel + 1) \
-                                for child in self.children]
-        result = '{}{} {}'.format(indent, self.lineNumber, self.name)
-        if formattedChildren:
-            result += '\n'
-            result += '\n'.join(formattedChildren)
-
-        return result
-
-
-def parseTags(text):
-    def parseTag(line):
-        items = line.split('\t')
-        name = items[0]
-        if len(items) == 5:
-            type_ = items[-2]
-            lineText = items[-1]
-            scopeText = None
-        else:
-            type_ = items[-3]
-            lineText = items[-2]
-            scopeText = items[-1]
-
-        # -1 to convert from human readable to machine numeration
-        lineNumber = int(lineText.split(':')[-1]) - 1
-
-        scope = scopeText.split(':')[-1].split('.')[-1] if scopeText else None
-        return name, lineNumber, type_, scope
-
-    def findScope(tag, scopeName):
-        """Check tag and its parents, it theirs name is scopeName.
-        Return tag or None
-        """
-        if tag is None:
-            return None
-        if tag.name == scopeName:
-            return tag
-        elif tag.parent is not None:
-            return findScope(tag.parent, scopeName)
-        else:
-            return None
-
-    ignoredTypes = ('variable')
-
-    tags = []
-    lastTag = None
-    for line in text.splitlines():
-        name, lineNumber, type_, scope = parseTag(line)
-        if type_ not in ignoredTypes:
-            parent = findScope(lastTag, scope)
-            tag = Tag(name, lineNumber, parent)
-            if parent is not None:
-                parent.children.append(tag)
-            else:
-                tags.append(tag)
-            lastTag = tag
-
-    return tags
-
-# Workaround for tempfile.NamedTemporaryFile's behavior, which prevents Windows processes from accessing the file until it's deleted. Adapted from http://bugs.python.org/issue14243.
-@contextmanager
-def named_temp():
-    f = tempfile.NamedTemporaryFile(delete=False)
-    try:
-        yield f
-    finally:
-        try:
-            os.unlink(f.name)
-        except OSError:
-            pass
-
-def processText(ctagsLang, text):
-    ctagsPath = core.config()['Navigator']['CtagsPath']
-    langArg = '--language-force={}'.format(ctagsLang)
-
-    # \t is used as separator in ctags output. Avoid \t in tags text to simplify parsing
-    # encode to utf8
-    data = text.encode('utf8').replace('\t', '    ')
-
-    with named_temp() as tempFile:
-        tempFile.write(data)
-        tempFile.close() # Windows compatibility
-
-        try:
-            popen = subprocess.Popen(
-                    [ctagsPath, '-f', '-', '-u', '--fields=nKs', langArg, tempFile.name],
-                    stdout=subprocess.PIPE)
-        except OSError as ex:
-            return 'Failed to execute ctags console utility "{}": {}\n'\
-                        .format(ctagsPath, str(ex)) + \
-                   'Go to Settings -> Settings -> Navigator to set path to ctags'
-
-        stdout, stderr = popen.communicate()
-
-    return parseTags(stdout)
 
 
 class TagModel(QAbstractItemModel):
@@ -391,7 +285,7 @@ class ProcessorThread(QThread):
                 text = self._text
                 self._haveData = False
 
-            result = processText(ctagsLang, text)
+            result = ctags.processText(ctagsLang, text)
 
             if isinstance(result, basestring):
                 self.error.emit(result)
