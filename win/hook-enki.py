@@ -17,6 +17,10 @@ from hookutils import collect_submodules, collect_data_files
 hiddenimports = (
     # The plugins are dynamically loaded, making them a hidden import.
     collect_submodules('enki.plugins') +
+    # The colorbutton widget is loaded from a .ui file,
+    # making it a hidden import. Not sure if others there
+    # are or not, but they're certainly all needed.
+    collect_submodules('enki.widgets') +
     # The preview plugin's .ui file needs QtWebKit, making it hidden as well.
     ['PyQt4.QtWebKit'])
 
