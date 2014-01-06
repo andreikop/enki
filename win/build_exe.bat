@@ -29,7 +29,7 @@
 :
 : PyInstaller is invoked with the following `options <http://htmlpreview.github.io/?https://github.com/pyinstaller/pyinstaller/blob/develop/doc/Manual.html#options>`_:
 :
-: -y
+: --noconfirm
 :   Replace an existing executable folder or file without warning.
 :
 : --additional-hooks-dir=hook-path
@@ -38,10 +38,13 @@
 : --runtime-hook=path-to-hook-file
 :   Specify a file with a custom runtime hook.
 :
+: --noconsole
+:   On Windows and Mac OS X, do not create a console window at run time for standard input/output.
+:
 : ``bin\enki``
 :   Enki entry point, from which Pyinstaller builds the application.
 :
-..\..\pyinstaller-git\pyinstaller.py --additional-hooks-dir=win --runtime-hook=win\rthook_pyqt4.py -y bin\enki
+pyinstaller --noconfirm --additional-hooks-dir=win --runtime-hook=win\rthook_pyqt4.py --noconsole bin\enki
 :
 : Testing
 : =======
