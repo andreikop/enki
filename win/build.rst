@@ -14,7 +14,7 @@ Converting Enki to a self-contained executable bundle
 - Obtain the latest sources from ``git clone https://github.com/hlamer/enki``.
 - Install `Enki dependencies <../README.html#dependencies>`_. (See the next step for ctags)
 - Download ctags and unpack to ``enki/../../ctags58``
-- Obtain the latest PyInstaller sources from ``git clone https://github.com/pyinstaller/pyinstaller.git`` to ``enki/../../pyinstaller-git``
+- Obtain the latest PyInstaller sources using ``git clone https://github.com/pyinstaller/pyinstaller.git``. Change to the resulting pyinstaller directory then run ``python setup.py install`` to install PyInstaller.
 - Install pywin32 from http://sourceforge.net/projects/pywin32/files/pywin32/
 - Execute ``win\build_exe.bat`` from the root Enki directory.
 
