@@ -27,8 +27,6 @@ class _AbstractReplPlugin(QObject):
         self._activeInterpreterPath = None
 
         # TODO handle situation, when lexer changed for current document
-        core.workspace().documentOpened.connect(self._installOrUninstallIfNecessary)
-        core.workspace().documentClosed.connect(self._installOrUninstallIfNecessary)
         core.workspace().currentDocumentChanged.connect(self._installOrUninstallIfNecessary)
         core.workspace().currentDocumentChanged.connect(self._updateEvalActionEnabledState)
         core.workspace().languageChanged.connect(self._installOrUninstallIfNecessary)
@@ -83,12 +81,6 @@ class _AbstractReplPlugin(QObject):
 
         self._installOrUninstallIfNecessary()
 
-    def _supportedDocumentIsOpened(self):
-        """Check if at least one Scheme document is opened
-        """
-        schemeDocs = filter(self._isSupportedFile, core.workspace().documents())
-        return len(schemeDocs) > 0
-
     def _updateEvalActionEnabledState(self):
         """Update action enabled state
         """
@@ -115,7 +107,9 @@ class _AbstractReplPlugin(QObject):
                 self.del_()
         else:
             assert enabled == 'whenOpened'
-            if self._supportedDocumentIsOpened():
+            document = core.workspace().currentDocument()
+            if document is not None and \
+               self._isSupportedFile(document):
                 self._install()
             else:
                 self.del_()
@@ -188,7 +182,6 @@ class _AbstractReplPlugin(QObject):
         self._dock = ReplDock(self._interpreter.widget(), self._LANGUAGE, self._DOCK_TITLE, self._icon())
 
         core.mainWindow().addDockWidget(Qt.BottomDockWidgetArea, self._dock)
-        self._dock.hide()
 
         self._installed = True
 

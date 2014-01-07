@@ -42,6 +42,8 @@ class ReplDock(DockWidget):
     def __init__(self, widget, replName, title, icon):
         DockWidget.__init__(self, core.mainWindow(), title, icon, "Alt+M")
 
+        self.setObjectName(title)
+
         self.setAllowedAreas( Qt.BottomDockWidgetArea | Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
 
         self._action = core.actionManager().addAction("mView/a%s" % replName, self.showAction())

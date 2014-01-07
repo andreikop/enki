@@ -33,7 +33,7 @@
       <item>
        <widget class="QRadioButton" name="rbWhenOpened">
         <property name="text">
-         <string>When supported file is opened</string>
+         <string>When current file is supported</string>
         </property>
        </widget>
       </item>
