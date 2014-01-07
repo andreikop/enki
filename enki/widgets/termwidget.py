@@ -53,9 +53,11 @@ class TermWidget(QWidget):
         QWidget.__init__(self, *args)
         self._browser = QTextEdit(self)
         self._browser.setReadOnly(True)
-        self._browser.document().setDefaultStyleSheet(self._browser.document().defaultStyleSheet() +
-                                                      "span {white-space:pre;}")
+        document = self._browser.document()
+        document.setDefaultStyleSheet(document.defaultStyleSheet() +
+                                      "span {white-space:pre;}")
 
+        self._browser.setFont(font)
         self._edit = _TextEdit(self, font)
 
         lowLevelWidget = self._edit.focusProxy()
@@ -203,6 +205,10 @@ class TermWidget(QWidget):
         """Appent error text to output widget. Text is drawn with red background
         """
         self._appendToBrowser('hint', text)
+
+    def clear(self):
+        """Clear the widget"""
+        self._browser.clear()
 
     def isCommandComplete(self, text):
         """Executed when Enter is pressed to check if widget should execute the command, or insert newline.

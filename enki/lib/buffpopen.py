@@ -16,6 +16,7 @@ try:
 except ImportError:
     from queue import Queue, Empty, Full  # python 3.x
 
+
 class BufferedPopen:
     """Bufferred version of Popen.
     Never locks, but uses unlimited buffers. May eat all the system memory, if something goes wrong.
@@ -26,30 +27,37 @@ class BufferedPopen:
 
         self._inQueue = Queue(8192)
         self._outQueue = Queue(8192)
+        self._errQueue = Queue(8192)
 
         self._inThread = None
         self._outThread = None
+        self._errThread = None
         self._popen = None
 
-    def start(self):
+    def start(self, args):
         """Start the process
         """
         env = copy.copy(os.environ)
         env['COLUMNS'] = str(2**16)  # Don't need to break lines in the mit scheme. It will be done by text edit
         env['LINES'] = '25'
-        self._popen = subprocess.Popen(self._command,
+        self._popen = subprocess.Popen(self._command.split() + args,
                                        stdin=subprocess.PIPE,
                                        stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)
+                                       stderr=subprocess.STDOUT)
 
-        self._inThread = threading.Thread(target=self._writeInputThread)
-        self._inThread.setName('enki.lib.buffpopen.input')
-        self._outThread = threading.Thread(target=self._readOutputThread)
-        self._outThread.setName('enki.lib.buffpopen.output')
+        self._inThread = threading.Thread(target=self._writeInputThread,
+                                          name='enki.lib.buffpopen.input')
+        self._outThread = threading.Thread(target=self._readOutputThread,
+                                           kwargs={'pipe': self._popen.stdout},
+                                           name='enki.lib.buffpopen.stdout')
+        self._errThread = threading.Thread(target=self._readOutputThread,
+                                           kwargs={'pipe': self._popen.stderr},
+                                           name='enki.lib.buffpopen.stderr')
 
         self._mustDie = False
         self._inThread.start()
         self._outThread.start()
+        #self._errThread.start()
 
     def stop(self):
         """Stop the process
@@ -74,29 +82,36 @@ class BufferedPopen:
 
         if self._inThread is not None and self._inThread.is_alive():
             self._inThread.join()
-        if self._inThread is not None and self._outThread.is_alive():
+        if self._outThread is not None and self._outThread.is_alive():
             self._outThread.join()
+        if self._errThread is not None and self._errThread.is_alive():
+            self._errThread.join()
 
     def isAlive(self):
         """Check if process is alive
         """
         return self._popen.poll() is None
 
-    def _readOutputThread(self):
+    def _readOutputThread(self, pipe):
         """Reader thread function. Reads output from process to queue
         """
         # hlamer: Reading output by one character is not effective, but, I don't know
         # how to implement non-blocking reading of not full lines better
-        char = self._popen.stdout.read(1)
-        while char and not self._mustDie:
+        def read():
+            if self.isAlive():
+                return pipe.read(1)
+            else:
+                return pipe.read()
+
+        text = read()
+        while text and not self._mustDie:
             try:
-                self._outQueue.put(char, False)
+                self._outQueue.put(text, False)
             except Full:
                 time.sleep(0.01)
                 continue
 
-            char = self._popen.stdout.read(1)
-
+            text = read()
 
     def _writeInputThread(self):
         """Writer thread function. Writes data from input queue to process
@@ -112,8 +127,9 @@ class BufferedPopen:
     def write(self, text):
         """Write data to the subprocess
         """
-        if not self.isAlive():  # Ooops, the process is dead
-            raise RuntimeWarning("Process is not running")
+        if not self.isAlive():
+            return  # Ooops, the process is dead. It doesn't need any output
+
         self._inQueue.put(text)  # TODO test on big blocks of text. Make nonblocking even if queue is full
 
     def readOutput(self):

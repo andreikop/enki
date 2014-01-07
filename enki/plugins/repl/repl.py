@@ -39,21 +39,15 @@ class SettingsWidget(QWidget):
 class ReplDock(DockWidget):
     """Dock widget with terminal emulator
     """
-    def __init__(self, widget, replName, title, icon):
-        DockWidget.__init__(self, core.mainWindow(), title, icon, "Alt+M")
-
+    def __init__(self, widget, title, icon):
+        DockWidget.__init__(self, core.mainWindow(), title, icon, "Alt+I")
         self.setObjectName(title)
 
         self.setAllowedAreas( Qt.BottomDockWidgetArea | Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
 
-        self._action = core.actionManager().addAction("mView/a%s" % replName, self.showAction())
-
         self.setWidget(widget)
         self.setFocusProxy(widget)
-        widget.installEventFilter(self)
 
-    def del_(self):
-        core.actionManager().removeAction(self._action)
 
 #
 # Plugin functionality
@@ -115,6 +109,22 @@ class SmlTermWidget(_AbstractReplTermWidget):
         return text.rstrip().endswith(';')
 
 
+class PythonTermWidget(_AbstractReplTermWidget):
+    """Standard ML terminal emulator widget
+    """
+    def isCommandComplete(self, text):
+        """TODO support comments and strings
+        """
+        if text.endswith(':'):
+            return False
+
+        lines = text.splitlines()
+        if len(lines) == 1:
+            return True
+
+        return not lines[-1][0].isspace()
+
+
 class _AbstractInterpreter(QObject):
     """MIT scheme shell. Implements REPL. Graphical frontend for original terminal version.
     """
@@ -160,14 +170,14 @@ class _AbstractInterpreter(QObject):
         """
         return self._term
 
-    def start(self):
+    def start(self, args=[]):
         """Start scheme process
         """
         if self._processIsRunning:
             return
 
         try:
-            self._buffPopen.start()
+            self._buffPopen.start(args)
         except OSError, ex:
             fullName = self._fullName.replace(' ', '&nbsp;')
             text = '<p>Interpreter path: %s</p>' % self._interpreterPath
@@ -199,6 +209,9 @@ class _AbstractInterpreter(QObject):
     def execCommand(self, text):
         """Execute text
         """
+        if not text.endswith('\n'):
+            text += '\n'
+
         if not self._processIsRunning:
             try:
                 self.start()
@@ -259,3 +272,23 @@ class SmlInterpreter(_AbstractInterpreter):
             except UserWarning:
                 return
         self._buffPopen.write('use "%s";\n' % filePath)
+
+
+class PythonInterpreter(_AbstractInterpreter):
+    """MIT scheme interpreter
+    """
+    def _createTermWidget(self):
+        return PythonTermWidget(self, self._termWidgetFont())
+
+    def loadFile(self, filePath):
+        """Load file using MIT Scheme load function
+        """
+        self.stop()
+        self._term.clear()
+
+        self._term.appendHint('{} {}\n'.format(self._interpreterPath, filePath))
+
+        try:
+            self.start([filePath])
+        except UserWarning:
+            return

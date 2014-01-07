@@ -25,6 +25,7 @@ class _AbstractReplPlugin(QObject):
         self._installed = False
         self._evalAction = None
         self._activeInterpreterPath = None
+        self._dock = None
 
         # TODO handle situation, when lexer changed for current document
         core.workspace().currentDocumentChanged.connect(self._installOrUninstallIfNecessary)
@@ -46,25 +47,6 @@ class _AbstractReplPlugin(QObject):
         """
         raise NotImplementedError()
 
-    def __del__(self):
-        self.del_()
-
-    def del_(self):
-        """Terminate the plugin. Method called by core, when closing Enki, and sometimes by plugin itself
-        """
-        if not self._installed:
-            return
-        self._interpreter.stop()
-        core.actionManager().removeAction(self._evalAction)
-        self._evalAction = None
-        core.actionManager().removeAction(self._breakAction)
-        self._breakAction = None
-        core.actionManager().removeMenu(self._MENU_PATH)
-        core.mainWindow().removeDockWidget(self._dock)
-        self._dock.del_()
-        del self._dock
-        self._installed = False
-
     def _isSupportedFile(self, document):
         """Check if document is highlighted as Scheme
         """
@@ -77,7 +59,7 @@ class _AbstractReplPlugin(QObject):
         # if path has been changed - restart the interpreter
         if self._installed and \
            self._activeInterpreterPath != self._settingsGroup()["InterpreterPath"]:
-            self.del_()
+            self.uninstall()
 
         self._installOrUninstallIfNecessary()
 
@@ -104,7 +86,7 @@ class _AbstractReplPlugin(QObject):
                 self._install()
         elif enabled == 'never':
             if self._installed:
-                self.del_()
+                self.uninstall()
         else:
             assert enabled == 'whenOpened'
             document = core.workspace().currentDocument()
@@ -112,7 +94,7 @@ class _AbstractReplPlugin(QObject):
                self._isSupportedFile(document):
                 self._install()
             else:
-                self.del_()
+                self.uninstall()
 
     def _onEvalTriggered(self):
         """Eval action triggered. Evaluate file or expression
@@ -178,12 +160,33 @@ class _AbstractReplPlugin(QObject):
 
         self._interpreter.processIsRunningChanged.connect(lambda isRunning: self._breakAction.setEnabled(isRunning))
 
-        from repl import ReplDock
-        self._dock = ReplDock(self._interpreter.widget(), self._LANGUAGE, self._DOCK_TITLE, self._icon())
+        if self._dock is None:
+            from repl import ReplDock
+            self._dock = ReplDock(self._interpreter.widget(),
+                                  self._DOCK_TITLE,
+                                  self._icon())
 
+        core.actionManager().addAction("mView/a%s" % self._LANGUAGE, self._dock.showAction())
         core.mainWindow().addDockWidget(Qt.BottomDockWidgetArea, self._dock)
 
         self._installed = True
+
+    def uninstall(self):
+        """Terminate the plugin. Method called by core, when closing Enki, and sometimes by plugin itself
+        """
+        if not self._installed:
+            return
+        self._interpreter.stop()
+        core.actionManager().removeAction(self._evalAction)
+        self._evalAction = None
+        core.actionManager().removeAction(self._breakAction)
+        self._breakAction = None
+        core.actionManager().removeMenu(self._MENU_PATH)
+
+        core.actionManager().removeAction("mView/a%s" % self._LANGUAGE)
+        core.mainWindow().removeDockWidget(self._dock)
+
+        self._installed = False
 
 
 class _SchemeReplPlugin(_AbstractReplPlugin):
@@ -194,7 +197,7 @@ class _SchemeReplPlugin(_AbstractReplPlugin):
     _LANGUAGE = "Scheme"
     _FULL_NAME = "MIT Scheme"
     _MENU_PATH = "mScheme"
-    _DOCK_TITLE = "&MIT Scheme"
+    _DOCK_TITLE = "MIT Scheme &Interpreter"
 
     def _icon(self):
         """Settings widget icon
@@ -216,7 +219,7 @@ class _SmlReplPlugin(_AbstractReplPlugin):
     _LANGUAGE = "SML"
     _FULL_NAME = "Standard ML"
     _MENU_PATH = "mSml"
-    _DOCK_TITLE = "Standard &ML"
+    _DOCK_TITLE = "Standard ML &Interpreter"
 
     def __init__(self):
         if not 'SML' in core.config()['Modes']: # if config file is old, add own settings
@@ -231,13 +234,40 @@ class _SmlReplPlugin(_AbstractReplPlugin):
         return SmlInterpreter(self._LANGUAGE, self._FULL_NAME, self._activeInterpreterPath)
 
 
+class _PythonReplPlugin(_AbstractReplPlugin):
+    """Standard ML REPL sub-plugin
+    """
+    instance = None
+
+    _LANGUAGE = "Python"
+    _FULL_NAME = "Python"
+    _MENU_PATH = "mPython"
+    _DOCK_TITLE = "Python &Interpreter"
+
+    def __init__(self):
+        # if config file is old, add own settings
+        if not 'Python' in core.config()['Modes']:
+            core.config()['Modes']['Python'] = {'Enabled': 'whenOpened',
+                                                'InterpreterPath': 'python -i'}
+
+        _AbstractReplPlugin.__init__(self)
+
+    def _createInterpreter(self):
+        """Create interpreter instance
+        """
+        from repl import PythonInterpreter
+        return PythonInterpreter(self._LANGUAGE, self._FULL_NAME, self._activeInterpreterPath)
+
+
 class Plugin:
     """Module implementation
     """
     def __init__(self):
         self._schemeSubPlugin = _SchemeReplPlugin()
         self._smlSubPlugin = _SmlReplPlugin()
+        self._pythonSubPlugin = _PythonReplPlugin()
 
     def del_(self):
-        self._schemeSubPlugin.del_()
-        self._smlSubPlugin.del_()
+        self._schemeSubPlugin.uninstall()
+        self._smlSubPlugin.uninstall()
+        self._pythonSubPlugin.uninstall()
