@@ -89,14 +89,6 @@ class MainWindow(QMainWindow):
     FileBrowser shows directory
     """  # pylint: disable=W0105
 
-    stateRestored = pyqtSignal()
-    """
-    stateRestored()
-
-    **Signal** emitted, after state has been restored
-    Plugin might want to change docks visibility. Do not do it, unless necessary.
-    """  # pylint: disable=W0105
-
     _STATE_FILE = os.path.join(enki.core.defines.CONFIG_DIR, "main_window_state.bin")
     _GEOMETRY_FILE = os.path.join(enki.core.defines.CONFIG_DIR, "main_window_geometry.json")
 
@@ -106,6 +98,8 @@ class MainWindow(QMainWindow):
         self._queuedMessageToolBar = None
         self._createdMenuPathes = []
         self._createdActions = []
+
+        self._addedDockWidgets = []
 
         self.setUnifiedTitleAndToolBarOnMac( True )
         self.setIconSize( QSize( 16, 16 ) )
@@ -377,7 +371,6 @@ class MainWindow(QMainWindow):
             self.showMaximized()
             for dock in self.findChildren(DockWidget):
                 dock.show()
-        self.stateRestored.emit()
 
     def _saveGeometry(self):
         """Save window geometry to the config file
@@ -422,3 +415,33 @@ class MainWindow(QMainWindow):
 
         # default handler
         QMainWindow.dropEvent(self, event)
+
+    def addDockWidget(self, area, dock):
+        pass  # not a plugin API method
+        """Add dock widget to previous position, if known.
+        Otherwise add to specified area
+        """
+        assert not dock in self._addedDockWidgets
+        self._addedDockWidgets.append(dock)
+
+        if self.restoreDockWidget(dock):
+            return
+        else:
+            QMainWindow.addDockWidget(self, area, dock)
+
+    def removeDockWidget(self, dock):
+        pass  # not a plugin API method
+        """Remove dock widget"""
+        assert dock in self._addedDockWidgets
+        self._addedDockWidgets.remove(dock)
+        QMainWindow.removeDockWidget(self, dock)
+
+    def restoreState(self, state):
+        pass  # not a plugin API method
+        """Restore state shows widgets, which exist
+        but shall not be installed on main window
+        """
+        QMainWindow.restoreState(self, state)
+        for dock in self.findChildren(DockWidget):
+            if not dock in self._addedDockWidgets:
+                dock.hide()
