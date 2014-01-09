@@ -1,10 +1,4 @@
 FIXME
-  Traceback (most recent call last):
-    File "/usr/local/lib/python2.7/dist-packages/qutepart/syntaxhlighter.py", line 69, in _onTimer
-      callback()
-    File "/usr/local/lib/python2.7/dist-packages/qutepart/syntaxhlighter.py", line 208, in _onContinueHighlighting
-      self._highlighBlocks(self._document.findBlockByNumber(self._pendingBlockNumber),
-  RuntimeError: wrapped C/C++ object of type QTextDocument has been deleted
 
 TODO
   minor improvements

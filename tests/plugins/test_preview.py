@@ -20,7 +20,7 @@ def requires_module(module):
             try:
                 imp.find_module(module)
             except ImportError:
-                self.fail("This test requires python-markdown")
+                self.fail("This test requires python-{}".format(module))
             else:
                 func(self)
         return wrapped
