@@ -3,6 +3,7 @@
 import unittest
 import os.path
 import sys
+import imp
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 import base
@@ -11,6 +12,19 @@ from PyQt4.QtTest import QTest
 from PyQt4.QtGui import QDockWidget
 
 from enki.core.core import core
+
+
+def requires_module(module):
+    def real_decorator(func):
+        def wrapped(self):
+            try:
+                imp.find_module(module)
+            except ImportError:
+                self.fail("This test requires python-markdown")
+            else:
+                func(self)
+        return wrapped
+    return real_decorator
 
 
 class Test(base.TestCase):
@@ -41,12 +55,15 @@ class Test(base.TestCase):
     def test_html(self):
         self._do_basic_test('html')
 
+    @requires_module('docutils')
     def test_rst(self):
         self._do_basic_test('rst')
 
+    @requires_module('markdown')
     def test_markdown(self):
         self._do_basic_test('md')
 
+    @requires_module('markdown')
     def test_markdown_templates(self):
         core.config()['Preview']['Template'] = 'WhiteOnBlack'
         document = self.createFile('test.md', 'foo')
@@ -72,6 +89,7 @@ class Test(base.TestCase):
         self.assertFalse('body {color: white; background: black;}' in self._visibleText())
         self.assertTrue('body {color: white; background: black;}' in self._html())
 
+    @requires_module('markdown')
     def test_markdown_templates_help(self):
         core.config()['Preview']['Template'] = 'WhiteOnBlack'
         document = self.createFile('test.md', 'foo')
