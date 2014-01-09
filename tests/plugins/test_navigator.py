@@ -59,7 +59,7 @@ class Test(base.TestCase):
             subprocess.call(["ctags", "--version"], stdout=subprocess.PIPE)
         except OSError as e:
             if e.errno == os.errno.ENOENT:
-                assert 0, "ctags executable must be in the system PATH to run the tests. User settings are ignored"
+                self.fail("ctags executable must be in the system PATH to run the tests. User settings are ignored")
 
     @base.inMainLoop
     def test_1(self):
