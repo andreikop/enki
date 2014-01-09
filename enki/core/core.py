@@ -148,6 +148,7 @@ class Core(QObject):
         if self._fileFilter is not None:
             del self._fileFilter
         if self._uiSettingsManager is not None:
+            self._uiSettingsManager.del_()
             del self._uiSettingsManager
         if self._workspace is not None:
             self._workspace.del_()

@@ -379,7 +379,7 @@ class UISettingsManager(QObject):  # pylint: disable=R0903
         self._action.setStatusTip(_tr( "Edit settigns.."))
         self._action.triggered.connect(self._onEditSettings)
 
-    def __del__(self):
+    def del_(self):
         core.actionManager().removeAction(self._action)
 
     def _onEditSettings(self):
