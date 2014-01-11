@@ -93,4 +93,4 @@ copy ..\..\..\ctags58\ctags.exe bin
 : The :doc:`Enki.iss <Enki.iss>` script then packages
 : everything in ``dist/all`` into a single installer.
 
-"C:\Program Files\Inno Setup 5\ISCC.exe" win\Enki.iss
+"C:\Program Files\Inno Setup 5\ISCC.exe" ..\..\win\Enki.iss
