@@ -99,6 +99,9 @@ def processText(ctagsLang, text):
     # encode to utf8
     data = text.encode('utf8').replace('\t', '    ')
 
+    si = subprocess.STARTUPINFO()
+    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    
     with _namedTemp() as tempFile:
         tempFile.write(data)
         tempFile.close() # Windows compatibility
@@ -106,7 +109,8 @@ def processText(ctagsLang, text):
         try:
             popen = subprocess.Popen(
                     [ctagsPath, '-f', '-', '-u', '--fields=nKs', langArg, tempFile.name],
-                    stdout=subprocess.PIPE)
+                    stdout=subprocess.PIPE,
+                    startupinfo=si)
         except OSError as ex:
             return 'Failed to execute ctags console utility "{}": {}\n'\
                         .format(ctagsPath, str(ex)) + \
