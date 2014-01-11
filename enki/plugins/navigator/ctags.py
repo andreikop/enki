@@ -109,6 +109,8 @@ def processText(ctagsLang, text):
         try:
             popen = subprocess.Popen(
                     [ctagsPath, '-f', '-', '-u', '--fields=nKs', langArg, tempFile.name],
+                    stdin=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
                     stdout=subprocess.PIPE,
                     startupinfo=si)
         except OSError as ex:
