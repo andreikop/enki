@@ -59,11 +59,12 @@
 :
 : For ``xcopy``:
 :
-: /E           Copies directories and subdirectories,
-:              including empty ones.
-: /I           If destination does not exist and copying
-:              more than one file, assumes that destination
-:              must be a directory.
+: /E      Copies directories and subdirectories,
+:         including empty ones.
+: /I      If destination does not exist and copying
+:         more than one file, assumes that destination
+:         must be a directory.
+: /Q      Does not display file names while copying.
 :
 : Create a clean ``dist/all`` directory and enter it.
 mkdir dist
@@ -78,7 +79,7 @@ git clone ..\.. src
 rmdir /q /s src\.git
 :
 : Copy over the executable
-xcopy /E /I ..\enki bin
+xcopy /E /I /Q ..\enki bin
 :
 : Copy over the ctags executable.
 copy ..\..\..\ctags58\ctags.exe bin
@@ -92,5 +93,10 @@ copy ..\..\..\ctags58\ctags.exe bin
 :
 : The :doc:`Enki.iss <Enki.iss>` script then packages
 : everything in ``dist/all`` into a single installer.
-
-"C:\Program Files\Inno Setup 5\ISCC.exe" ..\..\win\Enki.iss
+: Command-line options:
+:
+: /Q      Quiet compile (print error messages only)
+"C:\Program Files (x86)\Inno Setup 5\ISCC.exe" /Q ..\..\win\Enki.iss
+:
+: Return to the directory this batch file was run from.
+cd ..\..

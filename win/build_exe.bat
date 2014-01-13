@@ -50,10 +50,13 @@
 : --noconsole
 :   On Windows and Mac OS X, do not create a console window at run time for standard input/output.
 :
+: --icon=<FILE.ico>
+:   Add an icon to the output executable. Specify an icon FILE.ico to use that icon.
+:
 : ``bin\enki``
 :   Enki entry point, from which Pyinstaller builds the application.
 :
-pyinstaller --noconfirm --additional-hooks-dir=win --runtime-hook=win\rthook_pyqt4.py --noconsole bin\enki
+pyinstaller --noconfirm --additional-hooks-dir=win --runtime-hook=win\rthook_pyqt4.py --noconsole --icon=icons\logo\enki.ico bin\enki
 :
 : Testing
 : =======
