@@ -15,5 +15,11 @@ baseurl: .
  * Class tree and Navigation in a file based on ctags
  * Locator. File open dialog with bash-like Tab completion and globs support. Even better, than bash.
  * Autocompletion, based on document contents
- * MIT Scheme and Standard ML (SML) [REPL integration]({{ page.baseurl }}/scheme.html)
- * Markdown, HTML and reStructuredText live preview
+ * [REPL ]({{ page.baseurl }}/scheme.html) (interactive interpreter session) for:
+   - MIT Scheme
+   - Standard ML
+   - Python
+ * Live preview for:
+  - Markdown
+  - reStructuredText
+  - HTML
