@@ -6,12 +6,13 @@ import threading
 import shutil
 import time
 import tempfile
+import subprocess
 
 import sip
 sip.setapi('QString', 2)
 
 from PyQt4.QtCore import Qt, QTimer
-from PyQt4.QtGui import QApplication, QDialog
+from PyQt4.QtGui import QApplication, QDialog, QKeySequence
 from PyQt4.QtTest import QTest
 
 
@@ -73,6 +74,32 @@ def inMainLoop(func, *args):
     return wrapper
 
 
+def _cmdlineUtilityExists(cmdlineArgs):
+    try:
+        subprocess.call(cmdlineArgs, stdout=subprocess.PIPE)
+    except OSError as e:
+        if e.errno == os.errno.ENOENT:
+            return False
+
+    return True
+
+
+def requiresCmdlineUtility(command):
+    """A decorator: a test requires a command.
+    The command will be splitted if contains spaces
+    """
+    def inner(func):
+        def wrapper(*args, **kwargs):
+            cmdlineArgs = command.split()
+            if not _cmdlineUtilityExists(cmdlineArgs):
+                self = args[0]
+                self.fail('{} command not found. Can not run the test without it'.format(cmdlineArgs[0]))
+            return func(*args, **kwargs)
+        return wrapper
+    return inner
+
+
+
 class TestCase(unittest.TestCase):
     INIT_CORE = True
 
@@ -122,9 +149,15 @@ class TestCase(unittest.TestCase):
 
         If widget is none - focused widget will be keyclicked"""
         if widget is not None:
-            QTest.keyClick(widget, key, modifiers)
-        else:
-            QTest.keyClick(self.app.focusWidget(), key, modifiers)
+            widget = self.app.focusWidget()
+
+        if isinstance(key, basestring):
+            assert modifiers == Qt.NoModifier, 'Do not set modifiers, if using text key'
+            code = QKeySequence(key)[0]
+            key = Qt.Key(code & 0x00ffffff)
+            modifiers = Qt.KeyboardModifiers(code & 0xff000000)
+
+        QTest.keyClick(widget, key, modifiers)
 
     def keyClicks(self, text, modifiers=Qt.NoModifier, widget=None):
         """Alias for ``QTest.keyClicks``.

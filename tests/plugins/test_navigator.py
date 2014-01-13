@@ -55,12 +55,7 @@ class Test(base.TestCase):
     def setUp(self):
         base.TestCase.setUp(self)
 
-        try:
-            subprocess.call(["ctags", "--version"], stdout=subprocess.PIPE)
-        except OSError as e:
-            if e.errno == os.errno.ENOENT:
-                self.fail("ctags executable must be in the system PATH to run the tests. User settings are ignored")
-
+    @base.requiresCmdlineUtility('ctags --version')
     @base.inMainLoop
     def test_1(self):
         # Tags are parsed and shown
@@ -72,6 +67,7 @@ class Test(base.TestCase):
         self.sleepProcessEvents(0.1)
         self.assertEqual(model.rowCount(QModelIndex()), 2)
 
+    @base.requiresCmdlineUtility('ctags --version')
     def test_2(self):
         # Tags are updated on timer
         document = self.createFile('source.rb', RUBY_SOURCE)
@@ -133,6 +129,7 @@ class Test(base.TestCase):
         core.workspace().setCurrentDocument(ruby)
         self.assertTrue(dock.isVisible())
 
+    @base.requiresCmdlineUtility('ctags --version')
     def test_5(self):
         # error message shown if ctags not found
         core.config()['Navigator']['CtagsPath'] = 'notexisiting'
@@ -157,6 +154,7 @@ class Test(base.TestCase):
         curr = dock._tree.currentIndex()
         return model.data(curr, Qt.DisplayRole)
 
+    @base.requiresCmdlineUtility('ctags --version')
     @base.inMainLoop
     def test_6(self):
         # Tags are filtered
@@ -179,6 +177,7 @@ class Test(base.TestCase):
         self.assertEqual(document.qutepart.cursorPosition, (8, 0))
         self.assertEqual(model.rowCount(QModelIndex()), 2)
 
+    @base.requiresCmdlineUtility('ctags --version')
     @base.inMainLoop
     def test_7(self):
         # Up, down, backspace on tree
