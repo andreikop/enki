@@ -99,9 +99,12 @@ def processText(ctagsLang, text):
     # encode to utf8
     data = text.encode('utf8').replace('\t', '    ')
 
-    si = subprocess.STARTUPINFO()
-    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-    
+    if hasattr(subprocess, 'STARTUPINFO'):  # windows only
+        si = subprocess.STARTUPINFO()
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    else:
+        si = None
+
     with _namedTemp() as tempFile:
         tempFile.write(data)
         tempFile.close() # Windows compatibility
