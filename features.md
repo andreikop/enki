@@ -16,9 +16,11 @@ baseurl: .
  * Locator. File open dialog with bash-like Tab completion and globs support. Even better, than bash.
  * Autocompletion, based on document contents
  * [REPL ]({{ page.baseurl }}/scheme.html) (interactive interpreter session) for:
+
     *  MIT Scheme
     * Standard ML
     * Python
+
  * Live preview for:
     * Markdown
     * reStructuredText
