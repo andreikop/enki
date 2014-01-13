@@ -9,10 +9,12 @@ baseurl: .
 
 ###Editing
  * Syntax highlighting for more than 200 languages
+ * Smart indentation for many popular languages
  * Advanced text edit operations
  * Rectangular selection
  * Best in class search and replace functionality
  * Autocompletion, based on document contents
+ * Trailing whitespace stripping
 
 ### Navigation
  * Bookmarks
