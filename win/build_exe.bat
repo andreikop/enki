@@ -20,14 +20,18 @@
 :
 : .. highlight:: bat
 :
-: ****************************************************************************************
+: *********************************************************************************
 : build_exe.bat - Build a self-contained executable bundle for the Enki application
-: ****************************************************************************************
+: *********************************************************************************
 : This is the first phase of the :doc:`build system <build>`.
 :
 : Bundling
 : ========
-: This batch file creates a self-contained executable bundle of Enki using `PyInstaller <http://www.pyinstaller.org/>`_. PyInstaller transforms the Enki Python application into a standalone bundle. To do so, it needs hooks, which specify data files and hidden imports PyInstaller can't find. They are:
+: This batch file creates a self-contained executable bundle
+: of Enki using `PyInstaller <http://www.pyinstaller.org/>`_.
+: PyInstaller transforms the Enki Python application into a
+: standalone bundle. To do so, it needs hooks, which specify
+: data files and hidden imports PyInstaller can't find. They are:
 :
 : .. toctree::
 :    :maxdepth: 2
@@ -48,10 +52,12 @@
 :   Specify a file with a custom runtime hook.
 :
 : --noconsole
-:   On Windows and Mac OS X, do not create a console window at run time for standard input/output.
+:   On Windows and Mac OS X, do not create a console window
+:   at run time for standard input/output.
 :
 : --icon=<FILE.ico>
-:   Add an icon to the output executable. Specify an icon FILE.ico to use that icon.
+:   Add an icon to the output executable. Specify an icon
+:   FILE.ico to use that icon.
 :
 : ``bin\enki``
 :   Enki entry point, from which Pyinstaller builds the application.

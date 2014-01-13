@@ -18,9 +18,9 @@
 ;    Public License along with Enki.  If not, see
 ;    <http://www.gnu.org/licenses/>.
 ;
-; *********************************************************************************************************
+; *************************************************************************************************
 ; Enki.iss - `Inno Setup <http://www.jrsoftware.org/isinfo.php>`_ Script to package the Enki binary
-; *********************************************************************************************************
+; *************************************************************************************************
 ; This produces a setup .exe to install Enki. It was created
 ; from ``Example1.iss`` which comes with Inno setup plus
 ; info from
