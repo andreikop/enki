@@ -5,7 +5,7 @@ import os.path
 import threading
 
 from PyQt4.QtCore import pyqtSignal, QObject, Qt, QThread, QTimer
-from PyQt4.QtGui import QFileDialog, QWidget
+from PyQt4.QtGui import QFileDialog, QIcon, QWidget
 from PyQt4 import uic
 
 
@@ -137,12 +137,7 @@ class Plugin(QObject):
     """
     def __init__(self):
         QObject.__init__(self)
-        self._dock = NavigatorDock()
-        self._dock.hide()
-        self._dock.closed.connect(self._onDockClosed)
-
-        self._dock.showAction().triggered.connect(self._onDockShown)
-
+        self._dock = None
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         core.workspace().textChanged.connect(self._onTextChanged)
 
@@ -156,16 +151,24 @@ class Plugin(QObject):
         self._typingTimer.timeout.connect(self._scheduleDocumentProcessing)
 
         self._thread = ProcessorThread()
-        self._thread.tagsReady.connect(self._dock.setTags)
-        self._thread.error.connect(self._dock.onError)
 
     def del_(self):
         """Uninstall the plugin
         """
-        self._dock.remove()
+        if self._dock is not None:
+            self._thread.tagsReady.disconnect(self._dock.setTags)
+            self._dock.remove()
         self._typingTimer.stop()
-        self._thread.tagsReady.disconnect(self._dock.setTags)
         self._thread.wait()
+
+    def _createDock(self):
+        self._dock = NavigatorDock()
+        self._dock.setVisible(False)
+        self._dock.closed.connect(self._onDockClosed)
+
+        self._dock.showAction().triggered.connect(self._onDockShown)
+        self._thread.tagsReady.connect(self._dock.setTags)
+        self._thread.error.connect(self._dock.onError)
 
     def _isEnabled(self):
         return core.config()['Navigator']['Enabled']
@@ -189,13 +192,16 @@ class Plugin(QObject):
 
     def _onDocumentChanged(self, old, new):
         if self._isSupported(new):
+            if self._dock is None:
+                self._createDock()
             self._dock.install()
             if self._isEnabled():
                 self._dock.show()
                 self._scheduleDocumentProcessing()
         else:
             self._clear()
-            self._dock.remove()
+            if self._dock is not None:
+                self._dock.remove()
 
     def _onTextChanged(self):
         if self._isEnabled():
@@ -203,7 +209,8 @@ class Plugin(QObject):
             self._typingTimer.start()
 
     def _clear(self):
-        self._dock.setTags([])
+        if self._dock is not None:
+            self._dock.setTags([])
 
     def _scheduleDocumentProcessing(self):
         """Start document processing with the thread.
@@ -222,7 +229,7 @@ class Plugin(QObject):
         """
         widget = SettingsWidget(dialog)
 
-        dialog.appendPage(u"Navigator", widget, self._dock.windowIcon())
+        dialog.appendPage(u"Navigator", widget, QIcon(':/enkiicons/goto.png'))
 
         # Options
         dialog.appendOption(TextOption(dialog, core.config(),
