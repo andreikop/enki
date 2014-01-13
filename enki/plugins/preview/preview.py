@@ -244,7 +244,7 @@ class PreviewDock(DockWidget):
                     if os.path.isfile(fullPath):
                         self._widget.cbTemplate.addItem(fileName, fullPath)
 
-        self._widget.cbTemplate.addItem('Custom templates...', self._CUSTOM_TEMPLATE_PATH)
+        self._widget.cbTemplate.addItem('Custom...', self._CUSTOM_TEMPLATE_PATH)
 
         self._restorePreviousTemplate()
 
