@@ -157,6 +157,7 @@ class Plugin(QObject):
         """
         if self._dock is not None:
             self._thread.tagsReady.disconnect(self._dock.setTags)
+            self._thread.error.disconnect(self._dock.onError)
             self._dock.remove()
         self._typingTimer.stop()
         self._thread.wait()
