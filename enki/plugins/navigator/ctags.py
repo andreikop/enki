@@ -100,22 +100,31 @@ def processText(ctagsLang, text):
     data = text.encode('utf8').replace('\t', '    ')
 
     if hasattr(subprocess, 'STARTUPINFO'):  # windows only
+        # On Windows, subprocess will pop up a command window by default when run from
+        # Pyinstaller with the --noconsole option. Avoid this distraction.
         si = subprocess.STARTUPINFO()
         si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        # Windows doesn't search the path by default. Pass it an environment so it will.
+        env = os.environ
     else:
         si = None
+        env = None
 
     with _namedTemp() as tempFile:
         tempFile.write(data)
         tempFile.close() # Windows compatibility
 
         try:
+            # On Windows, running this from the binary produced by Pyinstller
+            # with the --noconsole option requires redirecting everything
+            # (stdin, stdout, stderr) to avoid a OSError exception
+            # "[Error 6] the handle is invalid."
             popen = subprocess.Popen(
                     [ctagsPath, '-f', '-', '-u', '--fields=nKs', langArg, tempFile.name],
                     stdin=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
                     stdout=subprocess.PIPE,
-                    startupinfo=si)
+                    startupinfo=si, env=env)
         except OSError as ex:
             return 'Failed to execute ctags console utility "{}": {}\n'\
                         .format(ctagsPath, str(ex)) + \
