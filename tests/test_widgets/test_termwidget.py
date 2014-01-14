@@ -10,7 +10,7 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
-import base  # configures sys.path ans sip
+import base  # configures sys.path and sip
 
 
 from PyQt4.QtCore import Qt
@@ -19,8 +19,7 @@ from PyQt4.QtTest import QTest
 
 from enki.widgets.termwidget import TermWidget
 
-class _BaseTest(unittest.TestCase):
-     app = QApplication([])
+class _BaseTest(base.TestCase):
 
      def setUp(self):
           self.term = TermWidget(self.app.font())
