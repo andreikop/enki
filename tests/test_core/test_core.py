@@ -16,6 +16,7 @@ import enki.core.defines
 
 class RestoreOldConfigs(base.TestCase):
     INIT_CORE = False
+    @unittest.skip("This test makes all others print lots of junk.")
     def test_1(self):
         # Enki restores configs from old directory ~/.enki to new ~/.config/enki
         old_cfg = enki.core.core._OLD_CONFIG_DIR
