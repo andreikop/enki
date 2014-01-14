@@ -17,6 +17,8 @@ from PyQt4.QtTest import QTest
 
 
 import qutepart
+import persistent_qapplication
+
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
@@ -99,11 +101,10 @@ def requiresCmdlineUtility(command):
     return inner
 
 
-
 class TestCase(unittest.TestCase):
     INIT_CORE = True
 
-    app = QApplication( sys.argv )
+    app = persistent_qapplication.app
 
     TEST_FILE_DIR = os.path.join(tempfile.gettempdir(), 'enki-tests')
 
