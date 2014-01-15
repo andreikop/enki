@@ -209,8 +209,44 @@ def _parseCommandLine():
 
     return cmdLine
 
-def main():
 
+def _openFiles(core, cmdLine, profiler):
+    existingFiles = []
+    notExistingFiles = []
+    dirs = []
+    for filePath in cmdLine["files"]:
+        if os.path.exists(filePath):
+            if os.path.isdir(filePath):
+                dirs.append(filePath)
+            else:
+                existingFiles.append(filePath)
+        else:
+            notExistingFiles.append(filePath)
+
+    # open file by path and line number
+    if "firstFileLineToGo" in cmdLine and \
+       len(existingFiles) == 1:
+        line = cmdLine["firstFileLineToGo"] - 1  # convert from users to internal indexing
+        core.workspace().goTo(existingFiles[0], line=line)
+    elif existingFiles or notExistingFiles:
+        core.workspace().openFiles(existingFiles)
+        for filePath in notExistingFiles:
+            core.workspace().createEmptyNotSavedDocument(filePath)
+    elif dirs:
+        try:
+            os.chdir(dirs[0])
+        except:
+            pass
+    else:
+        if not cmdLine["no-session"]:
+            core.restoreSession.emit()
+        profiler.stepDone('Restore session')
+
+        if core.workspace().currentDocument() is None:
+            core.workspace().createEmptyNotSavedDocument()
+
+
+def main():
     cmdLine = _parseCommandLine()
 
     profiler = _StartProfiler(cmdLine["profiling"])
@@ -241,34 +277,9 @@ def main():
     from enki.core.core import core
     core.init(profiler)
 
-    # open file by path and line number
-    if len(cmdLine["files"]) == 1 and \
-       "firstFileLineToGo" in cmdLine:
-        firstFilePath = cmdLine["files"].pop(0)
-        line = cmdLine["firstFileLineToGo"] - 1  # convert from users to internal indexing
-        core.workspace().goTo(firstFilePath, line=line)
-    else:
-        existing = [filePath \
-                        for filePath in cmdLine["files"] \
-                            if os.path.exists(filePath)]
-        notExisting = [filePath \
-                        for filePath in cmdLine["files"] \
-                            if not os.path.exists(filePath)]
-
-        # open all other files
-        core.workspace().openFiles(existing)
-        for filePath in notExisting:
-            core.workspace().createEmptyNotSavedDocument(filePath)
+    _openFiles(core, cmdLine, profiler)
 
     profiler.stepDone('Open files')
-
-    if not cmdLine["no-session"]:
-        core.restoreSession.emit()
-
-    if core.workspace().currentDocument() is None:
-        core.workspace().createEmptyNotSavedDocument()
-
-    profiler.stepDone('Restore session')
 
     if core.workspace().currentDocument():
         core.workspace().currentDocument().setFocus()
