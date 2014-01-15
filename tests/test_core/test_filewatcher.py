@@ -27,11 +27,11 @@ class Test(base.TestCase):
         self.assertEqual(self._doc2._externallyRemoved, doc2_removed)
 
     @base.inMainLoop
-    def xtest_1(self):
+    def test_1(self):
         # Modify file, than restore, than modify again
         with open(self._doc1.filePath(), 'w') as file_:
             file_.write('new text')
-        self._sleep_and_check(1, True, False, False, False)
+        self._sleep_and_check(0.1, True, False, False, False)
 
         with open(self._doc1.filePath(), 'w') as file_:
             file_.write('asdf')
@@ -40,7 +40,7 @@ class Test(base.TestCase):
         # modify again
         with open(self._doc1.filePath(), 'w') as file_:
             file_.write('new text')
-        self._sleep_and_check(1, True, False, False, False)
+        self._sleep_and_check(0.1, True, False, False, False)
 
     @base.inMainLoop
     def xtest_2(self):
