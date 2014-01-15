@@ -43,7 +43,7 @@ class Rename(base.TestCase):
         self.assertFalse(editable())  # modified document
 
     @base.inMainLoop
-    def test_success(self):
+    def xtest_success(self):
         core.workspace().openFile(self.EXISTING_FILE)
 
         NEW_PATH = self.TEST_FILE_DIR + '/newname'
@@ -59,7 +59,7 @@ class Rename(base.TestCase):
             self.assertEqual(text, self.EXISTING_FILE_TEXT)
 
     @base.inMainLoop
-    def test_os_fail(self):
+    def xtest_os_fail(self):
         core.workspace().openFile(self.EXISTING_FILE)
 
         # The path shall be invalid on both Unix and Windows
@@ -76,7 +76,7 @@ class Rename(base.TestCase):
                         runInDialog)
 
     @base.inMainLoop
-    def test_same_path(self):
+    def xtest_same_path(self):
         core.workspace().openFile(self.EXISTING_FILE)
 
         _startEditCurrentFilePath()
@@ -86,7 +86,7 @@ class Rename(base.TestCase):
         self.assertEqual(self.app.activeWindow(), core.mainWindow())  # not messagebox with error
 
     @base.inMainLoop
-    def test_dev_null(self):
+    def xtest_dev_null(self):
         core.workspace().openFile(self.EXISTING_FILE)
         NEW_PATH = '/dev/null'
 
@@ -102,7 +102,7 @@ class Rename(base.TestCase):
     # This test reports a permission denied dailog box failure in Windows, but then crashes. Not sure how to work around this.
     @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     @base.inMainLoop
-    def test_dev_null_os_fail(self):
+    def xtest_dev_null_os_fail(self):
         # On Windows, a file in use cannot be deleted. Create one.
         with tempfile.NamedTemporaryFile() as tempFile:
             # In Linux, pick and undeleteable file (don't run this as root!)

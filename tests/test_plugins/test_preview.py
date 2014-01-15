@@ -64,7 +64,7 @@ class Test(base.TestCase):
         self._do_basic_test('md')
 
     @requires_module('markdown')
-    def test_markdown_templates(self):
+    def xtest_markdown_templates(self):
         core.config()['Preview']['Template'] = 'WhiteOnBlack'
         document = self.createFile('test.md', 'foo')
         self._showDock()

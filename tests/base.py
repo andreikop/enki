@@ -99,11 +99,11 @@ def requiresCmdlineUtility(command):
     return inner
 
 
-
+papp = QApplication(sys.argv)
 class TestCase(unittest.TestCase):
     INIT_CORE = True
 
-    app = QApplication( sys.argv )
+    app = papp
 
     TEST_FILE_DIR = os.path.join(tempfile.gettempdir(), 'enki-tests')
 
@@ -203,7 +203,7 @@ class TestCase(unittest.TestCase):
     def sleepProcessEvents(self, delay):
         end = time.time() + delay
         while time.time() < end:
-            QApplication.instance().processEvents()
+            self.app.processEvents()
             time.sleep(0.01)
 
     def findDock(self, windowTitle):

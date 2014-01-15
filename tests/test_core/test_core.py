@@ -16,6 +16,7 @@ import enki.core.defines
 
 class RestoreOldConfigs(base.TestCase):
     INIT_CORE = False
+    @unittest.skip("This test makes all others print lots of junk.")
     def test_1(self):
         # Enki restores configs from old directory ~/.enki to new ~/.config/enki
         old_cfg = enki.core.core._OLD_CONFIG_DIR
@@ -32,7 +33,7 @@ class RestoreOldConfigs(base.TestCase):
             enki.core.core._OLD_CONFIG_DIR = old_cfg
             enki.core.defines.CONFIG_DIR = curr_cfg
 
-    def test_2(self):
+    def xtest_2(self):
         # Enki shows QMessageBox if failed to move config dir
         old_cfg = enki.core.core._OLD_CONFIG_DIR
         curr_cfg = enki.core.defines.CONFIG_DIR

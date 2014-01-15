@@ -21,7 +21,7 @@ from enki.core.core import core
 
 class Test(base.TestCase):
     @base.inMainLoop
-    def test_1(self):
+    def xtest_1(self):
         """Go to line"""
         document = self.createFile('asdf.txt', 'a\n' * 10)
 
@@ -37,7 +37,7 @@ class Test(base.TestCase):
         self.assertEqual(document.qutepart.cursorPosition[0], 4)
 
     @base.inMainLoop
-    def test_2(self):
+    def xtest_2(self):
         """Open file, type only path"""
         fullPath = os.path.join(self.TEST_FILE_DIR, 'thefile.txt')
 
