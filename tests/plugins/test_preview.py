@@ -49,8 +49,13 @@ class Test(base.TestCase):
         document = self.createFile('file.' + extension, text)
 
         self._showDock()
-        QTest.qWait(1000)
-        self.assertTrue(text in self._visibleText())
+
+        for _ in range(20):
+            QTest.qWait(100)
+            if text in self._visibleText():
+                break
+        else:
+            self.fail("Preview doesn't contain expected text")
 
     def test_html(self):
         self._do_basic_test('html')

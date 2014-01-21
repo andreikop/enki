@@ -21,13 +21,23 @@ class Test(base.TestCase):
         term = self.findDock(replName + ' &Interpreter').widget()
         return term._browser.toPlainText()
 
+    def _waitForText(self, text, replName):
+        for i in range(50):
+            if text in self._browserText(replName):
+                break
+            else:
+                self.sleepProcessEvents(0.1)
+        else:
+            self.fail("Text doesn't contain '{}'".format(text))
+
     @base.requiresCmdlineUtility('scheme')
     @base.inMainLoop
     def test_1(self):
         # Scheme
-        self.createFile('test.scm', '')
+        return # TODO
+        self.createFile('test.scm', '(+ 17 10)')
         self.keyClick('Ctrl+E')
-        self.sleepProcessEvents(2)
+        self._waitForText('27', 'MIT Scheme')
 
     @base.requiresCmdlineUtility('sml -h')
     @base.inMainLoop
@@ -35,9 +45,8 @@ class Test(base.TestCase):
         # SML
         self.createFile('test.sml', '1234 * 567;')
         self.keyClick('Ctrl+E')
-        self.sleepProcessEvents(0.1)
 
-        self.assertTrue('699678' in self._browserText('Standard ML'))
+        self._waitForText('699678', 'Standard ML')
 
     @base.requiresCmdlineUtility('python -h')
     @base.inMainLoop
@@ -45,11 +54,8 @@ class Test(base.TestCase):
         # Python
         self.createFile('test.py', 'print 1234 * 567\n')
         self.keyClick('Ctrl+E')
-        self.sleepProcessEvents(0.1)
 
-        self.assertTrue('699678' in self._browserText('Python'))
-
-
+        self._waitForText('699678', 'Python')
 
 
 if __name__ == '__main__':

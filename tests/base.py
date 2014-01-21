@@ -184,13 +184,35 @@ class TestCase(unittest.TestCase):
             if widget.isVisible() and isinstance(widget, QDialog):
                 return widget
         else:
-            self.fail("Dialog not found")
+            return None
 
     def openDialog(self, openDialogFunc, runInDialogFunc):
         """Open dialog by executing ``openDialogFunc`` and run ``runInDialogFunc``.
         Dialog is passed as a parameter to ``runInDialogFunc``
         """
-        QTimer.singleShot(100, lambda: runInDialogFunc(self._findDialog()))
+        DELAY = 20
+        ATTEMPTS = 50
+
+        def isDialogsChild(dialog, widget):
+            if widget is None:
+                return False
+
+            return widget is dialog or \
+                   isDialogsChild(dialog, widget.parentWidget())
+
+        def timerCallback(attempt):
+            dialog = self._findDialog()
+
+            if dialog is not None and \
+               isDialogsChild(dialog, self.app.focusWidget()):
+                runInDialogFunc(dialog)
+            else:
+                if attempt < ATTEMPTS:
+                    QTimer.singleShot(20, lambda: timerCallback(attempt + 1))
+                else:
+                    self.fail("Dialog not found")
+
+        QTimer.singleShot(20, lambda: timerCallback(1))
         openDialogFunc()
 
     def openSettings(self, runInDialogFunc):
