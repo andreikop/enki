@@ -240,21 +240,25 @@ class TestCase(unittest.TestCase):
         else:
             self.fail('Dock {} not found'.format(windowTitle))
             
-# This function waits up to timeout_ms for sender_signal to be emitted.
+# This function waits up to timeout_ms after calling sender for sender_signal to be emitted.
 # It returns True if the sender_signal was emitted; otherwise, it returns False.
 # This function was inspired by http://stackoverflow.com/questions/2629055/qtestlib-qnetworkrequest-not-executed/2630114#2630114.
-def waitForSignal(sender_signal, timeout_ms = 1000):
+def waitForSignal(sender, sender_signal, timeout_ms = 1000):
     # Create a single-shot timer. Could use QTimer.singleShot(),
     # but don't know how to cancel this / disconnect it.
     timer = QTimer()
     timer.setSingleShot(True)
 
-    # Run an event loop to wait for either the sender_signal
+    # Create an event loop to wait for either the sender_signal
     # or the timer's timeout signal.
     loop = QEventLoop()
     sender_signal.connect(loop.quit)
     timer.timeout.connect(loop.quit)
     timer.start(timeout_ms)
+    
+    # Start the sender, then run the event loop to receive the
+    # emitted signal.
+    sender()
     loop.exec_()
 
     # Clean up: don't allow the timer to call loop after this

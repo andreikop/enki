@@ -35,7 +35,6 @@ import base
 # the started signal just after this thread starts, then waits
 # timeout_ms before emitting the done signal.
 class BackgroundThread(QThread):
-    started = pyqtSignal()
     done = pyqtSignal()
     
     def __init__(self, timeout_ms):
@@ -43,7 +42,6 @@ class BackgroundThread(QThread):
         self.timeout_ms = timeout_ms
     
     def run(self):
-        self.started.emit()
         QTest.qWait(self.timeout_ms)
         self.done.emit()
 
@@ -55,33 +53,28 @@ class TestWaitForSignal(unittest.TestCase):
         t = QTimer()
         t.setInterval(50)
         t.setSingleShot(True)
-        t.start()
-        self.assertTrue(base.waitForSignal(t.timeout, 100))
+        self.assertTrue(base.waitForSignal(t.start, t.timeout, 100))
         
     # Create a timer to send a timeout signal after the timeout.
     def test_2(self):
         t = QTimer()
         t.setInterval(100)
         t.setSingleShot(True)
-        t.start()
-        self.assertFalse(base.waitForSignal(t.timeout, 50))
+        self.assertFalse(base.waitForSignal(t.start, t.timeout, 50))
         
     # Test operation from another thread: the other thread emits a signal before the timeout.
     def test_3(self):
         bt = BackgroundThread(50)
         # Run the assertion after the other thread starts.
-        bt.started.connect(lambda: self.assertTrue(base.waitForSignal(bt.done, 100)))
-        # Start the background thread, then wait for it to finish before leaving this test.
-        bt.start()
+        self.assertTrue(base.waitForSignal(bt.start, bt.done, 100))
+        # Wait for the background thread to finish before leaving this test.
         bt.wait()
         
     # Test operation from another thread: the other thread emits a signal after the timeout.
     def test_4(self):
         bt = BackgroundThread(100)
-        # Run the assertion after the other thread starts.
-        bt.started.connect(lambda: self.assertFalse(base.waitForSignal(bt.done, 50)))
-        # Start the background thread, then wait for it to finish before leaving this test.
-        bt.start()
+        self.assertFalse(base.waitForSignal(bt.start, bt.done, 50))
+        # Wait for the background thread to finish before leaving this test.
         bt.wait()
         
 
