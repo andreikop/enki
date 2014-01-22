@@ -133,6 +133,8 @@ class TestCase(unittest.TestCase):
         with open(self.EXISTING_FILE, 'w') as f:
             f.write(self.EXISTING_FILE_TEXT)
 
+        os.chdir(self.TEST_FILE_DIR)
+
         if self.INIT_CORE:
             core.init(DummyProfiler())
 
