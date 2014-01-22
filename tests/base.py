@@ -54,21 +54,29 @@ def inMainLoop(func, *args):
     """
     def wrapper(*args):
         self = args[0]
+        # Exceptions get silenced inside execWithArgs. Use e to store then re-raise them.
+        eList = []
 
-        def execWithArgs():
+        def execWithArgs(eList_local):
             core.mainWindow().show()
             QTest.qWaitForWindowShown(core.mainWindow())
             _processPendingEvents(self.app)
 
             try:
                 func(*args)
+            except Exception as e:
+                eList_local.append(e)
             finally:
                 _processPendingEvents(self.app)
                 self.app.quit()
 
-        QTimer.singleShot(0, execWithArgs)
+        QTimer.singleShot(0, lambda: execWithArgs(eList))
 
         self.app.exec_()
+        # Re-raise any exceptions (such as unit test failed assertions)
+        # that happened while executing func.
+        if eList:
+            raise eList[0]
 
     wrapper.__name__ = func.__name__  # for unittest test runner
     return wrapper
