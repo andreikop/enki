@@ -28,12 +28,19 @@ def requiresModule(module):
 
 
 class Test(base.TestCase):
-    def _widget(self):
+    # Find then return the PreviewDock object. Fail if
+    # it is not found.
+    def _dock(self):
         for dock in core.mainWindow().findChildren(QDockWidget):
             if dock.windowTitle().startswith('&Preview'):
-                return dock.widget()
+                return dock
         else:
             self.fail('Preview dock not found')
+
+    # Find then return the PreviewDock widget. Fail if it is
+    # not found.
+    def _widget(self):
+        return self._dock().widget()
 
     def _showDock(self):
         core.actionManager().action('mView/aPreview').trigger()
@@ -43,19 +50,20 @@ class Test(base.TestCase):
 
     def _html(self):
         return self._widget().webView.page().mainFrame().toHtml()
+    
+    # Wait for the PreviewDock to emit the htmlReady signal,
+    # which is produced by calling to start function. Assert
+    # if the signal isn't emitted within a timeout.
+    def _htmlReady(self, start):
+        self.assertTrue(base.waitForSignal(start,
+          self._dock()._thread.htmlReady))
 
     def _doBasicTest(self, extension):
         text = 'The preview text'
         document = self.createFile('file.' + extension, text)
 
-        self._showDock()
-
-        for _ in range(20):
-            QTest.qWait(100)
-            if text in self._visibleText():
-                break
-        else:
-            self.fail("Preview doesn't contain expected text")
+        self._htmlReady(self._showDock)
+        self.assertTrue(text in self._visibleText())
 
     def test_html(self):
         self._doBasicTest('html')
@@ -72,24 +80,19 @@ class Test(base.TestCase):
     def test_markdown_templates(self):
         core.config()['Preview']['Template'] = 'WhiteOnBlack'
         document = self.createFile('test.md', 'foo')
-        self._showDock()
 
+        self._htmlReady(self._showDock)
         combo = self._widget().cbTemplate
-
-        QTest.qWait(500)
         self.assertEqual(combo.currentText(), 'WhiteOnBlack')
         self.assertFalse('body {color: white; background: black;}' in self._visibleText())
         self.assertTrue('body {color: white; background: black;}' in self._html())
 
-        combo = self._widget().cbTemplate
-        combo.setCurrentIndex(combo.findText('Default'))
-        QTest.qWait(500)
+        self._htmlReady(lambda: combo.setCurrentIndex(combo.findText('Default')))
         self.assertFalse('body {color: white; background: black;}' in self._visibleText())
         self.assertFalse('body {color: white; background: black;}' in self._html())
         self.assertEqual(core.config()['Preview']['Template'], 'Default')
 
-        combo.setCurrentIndex(combo.findText('WhiteOnBlack'))
-        QTest.qWait(500)
+        self._htmlReady(lambda: combo.setCurrentIndex(combo.findText('WhiteOnBlack')))
         self.assertEqual(combo.currentText(), 'WhiteOnBlack')
         self.assertFalse('body {color: white; background: black;}' in self._visibleText())
         self.assertTrue('body {color: white; background: black;}' in self._html())
