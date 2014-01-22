@@ -144,23 +144,23 @@ class Core(QObject):
 
         if self._locator is not None:
             self._locator.del_()
-            del self._locator
+            self._locator = None
         if self._fileFilter is not None:
-            del self._fileFilter
+            self._fileFilter = None
         if self._uiSettingsManager is not None:
             self._uiSettingsManager.del_()
-            del self._uiSettingsManager
+            self._uiSettingsManager = None
         if self._workspace is not None:
             self._workspace.del_()
-            del self._workspace
+            self._workspace = None
         if self._mainWindow is not None:
             self._mainWindow.del_()
-            del self._mainWindow
+            self._mainWindow = None
         if self._config is not None:
-            del self._config
+            self._config = None
         if self._actionManager is not None:
             self._actionManager.del_()
-            del self._actionManager
+            self._actionManager = None
 
         qCleanupResources()
 

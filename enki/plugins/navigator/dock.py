@@ -62,7 +62,10 @@ class _TagModel(QAbstractItemModel):
 
     def _updateCurrentTag(self, emitChanged):
         old = self._currentTagIndex
-        if core.workspace().currentDocument() is not None:
+
+        # Workspace might be None, if core terminated
+        if core.workspace() is not None and \
+           core.workspace().currentDocument() is not None:
             lineNumber = core.workspace().currentDocument().qutepart.cursorPosition[0]
             self._currentTagIndex = self._indexForLineNumber(lineNumber)
         else:

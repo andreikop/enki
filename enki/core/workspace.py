@@ -57,7 +57,6 @@ class _UISaveFiles(QDialog):
 
         self.buttonBox.button(QDialogButtonBox.Cancel).setFocus()
 
-
     def _onButtonClicked(self, button):
         """Button click handler.
         Saves files, if necessary, accepts or rejects dialog
@@ -74,6 +73,7 @@ class _UISaveFiles(QDialog):
             self.accept()
         else:
             assert 0
+
 
 class Workspace(QStackedWidget):
     """
