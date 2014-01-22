@@ -31,11 +31,7 @@ class Test(base.TestCase):
     # Find then return the PreviewDock object. Fail if
     # it is not found.
     def _dock(self):
-        for dock in core.mainWindow().findChildren(QDockWidget):
-            if dock.windowTitle().startswith('&Preview'):
-                return dock
-        else:
-            self.fail('Preview dock not found')
+        return self.findDock('&Preview')
 
     # Find then return the PreviewDock widget. Fail if it is
     # not found.
