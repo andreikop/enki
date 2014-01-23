@@ -18,7 +18,7 @@ import sys
 import sip
 sip.setapi('QString', 2)
 
-from PyQt4.QtCore import Qt, QTimer, QEventLoop, QThread, pyqtSignal
+from PyQt4.QtCore import Qt, QTimer, QEventLoop, QThread, QObject, pyqtSignal
 from PyQt4.QtTest import QTest
 
 # Local application imports
@@ -31,9 +31,8 @@ import base
 # =====
 # waitForSignal
 # -------------
-# This is a helper class used for multi-threaded testing. It emits
-# the started signal just after this thread starts, then waits
-# timeout_ms before emitting the done signal.
+# This is a helper class used for multi-threaded testing. It
+# waits timeout_ms before emitting the done signal.
 class BackgroundThread(QThread):
     done = pyqtSignal()
     
@@ -45,9 +44,16 @@ class BackgroundThread(QThread):
         QTest.qWait(self.timeout_ms)
         self.done.emit()
 
+# TestSignal
+# ----------
+# This is a dummy class which contains a single test_signal.
+class TestSignal(QObject):
+    # Create a test signal with one argument.
+    test_signal = pyqtSignal(int)
 
 # Unit tests.
 class TestWaitForSignal(unittest.TestCase):
+    
     # Create a timer to send a timeout signal before the timeout.
     def test_1(self):
         t = QTimer()
@@ -76,6 +82,11 @@ class TestWaitForSignal(unittest.TestCase):
         self.assertFalse(base.waitForSignal(bt.start, bt.done, 50))
         # Wait for the background thread to finish before leaving this test.
         bt.wait()
+        
+    # Test that signals with multiple arguments work.
+    def test_5(self):
+        ts = TestSignal()
+        self.assertTrue(base.waitForSignal(lambda: ts.test_signal.emit(1), ts.test_signal, 100))
         
 
 # Main
