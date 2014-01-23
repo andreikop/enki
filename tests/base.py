@@ -11,7 +11,7 @@ import subprocess
 import sip
 sip.setapi('QString', 2)
 
-from PyQt4.QtCore import Qt, QTimer, QEventLoop
+from PyQt4.QtCore import Qt, QTimer, QEventLoop, pyqtSlot
 from PyQt4.QtGui import QApplication, QDialog, QKeySequence
 from PyQt4.QtTest import QTest
 
@@ -262,31 +262,53 @@ class TestCase(unittest.TestCase):
 # This function was inspired by http://stackoverflow.com/questions/2629055/qtestlib-qnetworkrequest-not-executed/2630114#2630114.
 def waitForSignal(sender, sender_signal, timeout_ms = 1000):
     # Create a single-shot timer. Could use QTimer.singleShot(),
-    # but don't know how to cancel this / disconnect it.
+    # but can't cancel this / disconnect it.
     timer = QTimer()
     timer.setSingleShot(True)
-
     # Create an event loop to wait for either the sender_signal
     # or the timer's timeout signal.
     loop = QEventLoop()
-    sender_signal.connect(loop.quit)
+
+    # Create a slot which receives a sender_signal with any number of arguments.
+    def sender_signal_slot(*args):
+        loop.quit()
+
+    # Connect both signals to a slot which quits the event loop.
+    sender_signal.connect(sender_signal_slot)
     timer.timeout.connect(loop.quit)
+    
+    # Exceptions in sender(), which is run in loop.exec_(), are
+    # caught. Catch then re-raise them; see inMainLoop for
+    # a full explanation.
+    def sender_with_exceptions(sender, e_list_local):
+        try:
+            sender()
+        except Exception as e:
+            e_list_local.append(e)
+            raise
+    
+    # Start the sender and the timer and at the beginning of the event loop.
+    # Just calling sender() may cause signals emitted in sender
+    # not to reach their connected slots.
+    e_list = []
+    QTimer.singleShot(0, lambda: sender_with_exceptions(sender, e_list))
     timer.start(timeout_ms)
     
-    # Start the sender, then run the event loop to receive the
-    # emitted signal.
-    sender()
-    loop.exec_()
-
-    # Clean up: don't allow the timer to call loop after this
-    # function exits, which would produce "interesting" behavior.
-    ret = timer.isActive()
-    timer.stop()
-    # Stopping the timer may not cancel timeout signals in the
-    # event queue. Disconnect the signal to be sure that loop
-    # will never receive a timeout after the function exits.
-    # Likewise, disconnect the sender_signal for the same reason.
-    sender_signal.disconnect(loop.quit)
-    timer.timeout.disconnect(loop.quit)
-    
+    # Wait for an emitted signal. Make sure to do cleanup even on an exception.
+    try:
+        loop.exec_()
+        if e_list:
+            raise e_list[0]
+    finally:
+        # Clean up: don't allow the timer to call loop after this
+        # function exits, which would produce "interesting" behavior.
+        ret = timer.isActive()
+        timer.stop()
+        # Stopping the timer may not cancel timeout signals in the
+        # event queue. Disconnect the signal to be sure that loop
+        # will never receive a timeout after the function exits.
+        # Likewise, disconnect the sender_signal for the same reason.
+        sender_signal.disconnect(sender_signal_slot)
+        timer.timeout.disconnect(loop.quit)
+        
     return ret

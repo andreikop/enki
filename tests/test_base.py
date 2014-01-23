@@ -88,6 +88,12 @@ class TestWaitForSignal(unittest.TestCase):
         ts = TestSignal()
         self.assertTrue(base.waitForSignal(lambda: ts.test_signal.emit(1), ts.test_signal, 100))
         
+    # Make sure exceptions in sender() are raised properly.
+    def test_6(self):
+        ts = TestSignal()
+        with self.assertRaises(AssertionError):
+            base.waitForSignal(lambda: self.fail(), ts.test_signal, 100)
+        
 
 # Main
 # ====
