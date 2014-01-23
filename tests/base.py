@@ -54,7 +54,11 @@ def inMainLoop(func, *args):
     """
     def wrapper(*args):
         self = args[0]
-        # Exceptions get silenced inside execWithArgs. Use e to store then re-raise them.
+        # Exceptions get silenced inside execWithArgs. Use
+        # eList to store then re-raise them. Note that a list
+        # must be used, since this is passed to a function and
+        # any changes to a non-mutable object will be lost when
+        # the function exits.
         eList = []
 
         def execWithArgs(eList_local):
@@ -65,7 +69,10 @@ def inMainLoop(func, *args):
             try:
                 func(*args)
             except Exception as e:
+                # Save the exception so we can re-raise it; exceptions here
+                # get caught and reported (I think by PyQt).
                 eList_local.append(e)
+                raise
             finally:
                 _processPendingEvents(self.app)
                 self.app.quit()
@@ -74,7 +81,9 @@ def inMainLoop(func, *args):
 
         self.app.exec_()
         # Re-raise any exceptions (such as unit test failed assertions)
-        # that happened while executing func.
+        # that happened while executing func. Unfortunately, this
+        # reports a traceback from here, instead of from the except
+        # clause above. I don't know how to easily fix this.
         if eList:
             raise eList[0]
 
