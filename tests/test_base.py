@@ -44,8 +44,6 @@ class BackgroundThread(QThread):
         QTest.qWait(self.timeout_ms)
         self.done.emit()
 
-# TestSignal
-# ----------
 # This is a dummy class which contains a single test_signal.
 class TestSignal(QObject):
     # Create a test signal with one argument.
@@ -94,6 +92,14 @@ class TestWaitForSignal(unittest.TestCase):
         with self.assertRaises(AssertionError):
             base.waitForSignal(lambda: self.fail(), ts.test_signal, 100)
         
+
+# inMainLoop
+# ----------
+class TestInMainLoop(unittest.TestCase):
+    # Make sure exceptions get propagated.
+    def test_1(self):
+        with self.assertRaises(AssertionError):
+            base.inMainLoop(self.fail())
 
 # Main
 # ====
