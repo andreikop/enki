@@ -101,8 +101,6 @@ def requiresCmdlineUtility(command):
 
 papp = QApplication(sys.argv)
 class TestCase(unittest.TestCase):
-    INIT_CORE = True
-
     app = papp
 
     TEST_FILE_DIR = os.path.join(tempfile.gettempdir(), 'enki-tests')
@@ -135,8 +133,7 @@ class TestCase(unittest.TestCase):
 
         os.chdir(self.TEST_FILE_DIR)
 
-        if self.INIT_CORE:
-            core.init(DummyProfiler())
+        core.init(DummyProfiler())
 
     def tearDown(self):
         for document in core.workspace().documents():

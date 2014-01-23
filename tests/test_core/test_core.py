@@ -15,7 +15,10 @@ import enki.core.defines
 
 
 class RestoreOldConfigs(base.TestCase):
-    INIT_CORE = False
+    def setUp(self):
+        base.TestCase.setUp(self)
+        core.term()
+
     def test_1(self):
         # Enki restores configs from old directory ~/.enki to new ~/.config/enki
         old_cfg = enki.core.core._OLD_CONFIG_DIR
@@ -23,6 +26,7 @@ class RestoreOldConfigs(base.TestCase):
 
         enki.core.core._OLD_CONFIG_DIR = self.TEST_FILE_DIR + '/old'
         enki.core.defines.CONFIG_DIR = self.TEST_FILE_DIR + '/new'
+
         try:
             os.mkdir(enki.core.core._OLD_CONFIG_DIR)
             core.init(base.DummyProfiler())
