@@ -46,6 +46,9 @@ def _processPendingEvents(app):
     while app.hasPendingEvents() and (time.time() - t < 0.1):
         app.processEvents()
 
+# By default, the traceback for excpetions occurring inside
+# an exec_ loop will be printed.
+PRINT_EXEC_TRACKBACK = True
 
 def inMainLoop(func, *args):
     """Decorator executes test method in the QApplication main loop.
@@ -72,7 +75,8 @@ def inMainLoop(func, *args):
                 # Save the exception so we can re-raise it; exceptions here
                 # get caught and reported (I think by PyQt).
                 eList_local.append(e)
-                raise
+                if PRINT_EXEC_TRACKBACK:
+                    raise
             finally:
                 _processPendingEvents(self.app)
                 self.app.quit()
@@ -285,8 +289,9 @@ def waitForSignal(sender, sender_signal, timeout_ms = 1000):
             sender()
         except Exception as e:
             e_list_local.append(e)
-            raise
-    
+            if PRINT_EXEC_TRACKBACK:
+                raise
+
     # Start the sender and the timer and at the beginning of the event loop.
     # Just calling sender() may cause signals emitted in sender
     # not to reach their connected slots.

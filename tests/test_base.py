@@ -90,6 +90,7 @@ class TestWaitForSignal(unittest.TestCase):
     def test_6(self):
         ts = TestSignal()
         with self.assertRaises(AssertionError):
+            base.PRINT_EXEC_TRACKBACK = False
             base.waitForSignal(lambda: self.fail(), ts.test_signal, 100)
         
 
@@ -99,6 +100,7 @@ class TestInMainLoop(unittest.TestCase):
     # Make sure exceptions get propagated.
     def test_1(self):
         with self.assertRaises(AssertionError):
+            base.PRINT_EXEC_TRACKBACK = False
             base.inMainLoop(self.fail())
 
 # Main
