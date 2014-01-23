@@ -122,6 +122,7 @@ class TestCase(unittest.TestCase):
 
 
     def setUp(self):
+        self._finished = False
         self._cleanUpFs()
         try:
             os.mkdir(self.TEST_FILE_DIR)
@@ -136,6 +137,8 @@ class TestCase(unittest.TestCase):
         core.init(DummyProfiler())
 
     def tearDown(self):
+        self._finished = True
+        
         for document in core.workspace().documents():
             document.qutepart.text = ''  # clear modified flag, avoid Save Files dialog
 
@@ -200,6 +203,9 @@ class TestCase(unittest.TestCase):
                    isDialogsChild(dialog, widget.parentWidget())
 
         def timerCallback(attempt):
+            if self._finished:
+                return
+            
             dialog = self._findDialog()
 
             if dialog is not None and \
