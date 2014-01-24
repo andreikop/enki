@@ -47,10 +47,13 @@ class Test(base.TestCase):
     def _html(self):
         return self._widget().webView.page().mainFrame().toHtml()
     
-    # Wait for the PreviewDock to emit the htmlReady signal,
-    # which is produced by calling to start function. Assert
-    # if the signal isn't emitted within a timeout.
     def _assertHtmlReady(self, start):
+        """ Wait for the PreviewDock to emit the htmlReady signal.
+        
+        This signal is produced by calling to start function. Assert
+        if the signal isn't emitted within a timeout.
+        
+        """
         self.assertEmits(start, self._dock()._thread.htmlReady, 1000)
 
     def _doBasicTest(self, extension):
