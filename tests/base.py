@@ -261,10 +261,19 @@ class TestCase(unittest.TestCase):
         else:
             self.fail('Dock {} not found'.format(windowTitle))
             
+     # A unit testing convenience routine: assert that calling
+     # the sender function emits the sender_signal within timeout_ms.
+     # The default timeout_ms of 1 works for all senders that
+     # run in the current thread, since the timeout will be
+     # scheduled after all current thread signals are emitted
+     # at a timeout of 0 ms.
+    def assertEmits(self, sender, sender_signal, timeout_ms=1):
+        self.assertTrue(waitForSignal(sender, sender_signal, timeout_ms))
+            
 # This function waits up to timeout_ms after calling sender for sender_signal to be emitted.
 # It returns True if the sender_signal was emitted; otherwise, it returns False.
 # This function was inspired by http://stackoverflow.com/questions/2629055/qtestlib-qnetworkrequest-not-executed/2630114#2630114.
-def waitForSignal(sender, sender_signal, timeout_ms = 1000):
+def waitForSignal(sender, sender_signal, timeout_ms):
     # Create a single-shot timer. Could use QTimer.singleShot(),
     # but can't cancel this / disconnect it.
     timer = QTimer()

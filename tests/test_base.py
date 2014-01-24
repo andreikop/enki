@@ -81,7 +81,7 @@ class TestWaitForSignal(unittest.TestCase):
         # Wait for the background thread to finish before leaving this test.
         bt.wait()
         
-    # Test that signals with multiple arguments work.
+    # Test that signals with arguments work.
     def test_5(self):
         ts = TestSignal()
         self.assertTrue(base.waitForSignal(lambda: ts.test_signal.emit(1), ts.test_signal, 100))

@@ -50,15 +50,14 @@ class Test(base.TestCase):
     # Wait for the PreviewDock to emit the htmlReady signal,
     # which is produced by calling to start function. Assert
     # if the signal isn't emitted within a timeout.
-    def _htmlReady(self, start):
-        self.assertTrue(base.waitForSignal(start,
-          self._dock()._thread.htmlReady))
+    def _assertHtmlReady(self, start):
+        self.assertEmits(start, self._dock()._thread.htmlReady, 1000)
 
     def _doBasicTest(self, extension):
         text = 'The preview text'
         document = self.createFile('file.' + extension, text)
 
-        self._htmlReady(self._showDock)
+        self._assertHtmlReady(self._showDock)
         self.assertTrue(text in self._visibleText())
 
     def test_html(self):
@@ -77,18 +76,18 @@ class Test(base.TestCase):
         core.config()['Preview']['Template'] = 'WhiteOnBlack'
         document = self.createFile('test.md', 'foo')
 
-        self._htmlReady(self._showDock)
+        self._assertHtmlReady(self._showDock)
         combo = self._widget().cbTemplate
         self.assertEqual(combo.currentText(), 'WhiteOnBlack')
         self.assertFalse('body {color: white; background: black;}' in self._visibleText())
         self.assertTrue('body {color: white; background: black;}' in self._html())
 
-        self._htmlReady(lambda: combo.setCurrentIndex(combo.findText('Default')))
+        self._assertHtmlReady(lambda: combo.setCurrentIndex(combo.findText('Default')))
         self.assertFalse('body {color: white; background: black;}' in self._visibleText())
         self.assertFalse('body {color: white; background: black;}' in self._html())
         self.assertEqual(core.config()['Preview']['Template'], 'Default')
 
-        self._htmlReady(lambda: combo.setCurrentIndex(combo.findText('WhiteOnBlack')))
+        self._assertHtmlReady(lambda: combo.setCurrentIndex(combo.findText('WhiteOnBlack')))
         self.assertEqual(combo.currentText(), 'WhiteOnBlack')
         self.assertFalse('body {color: white; background: black;}' in self._visibleText())
         self.assertTrue('body {color: white; background: black;}' in self._html())
