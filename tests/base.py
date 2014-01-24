@@ -120,7 +120,24 @@ def requiresCmdlineUtility(command):
     return inner
 
 
-papp = QApplication(sys.argv)
+class NotifyApplication(QApplication):
+    """ This class can assert if any events are emitted.
+    
+    Its purpose is to check that, after a PyQt class is closed, there are no timer/other callback leaks.
+    
+    """
+    def __init__(self, *args):
+        QApplication.__init__(self, *args)
+        self.assertOnEvents = False
+        
+    def notify(self, receiver, event):
+        """ Pass the event on, printing diagnostics if enabled. """
+        
+        if self.assertOnEvents:
+            print('Post-termination event: receiver = %s, event = %s' % (receiver, event))
+        return QApplication.notify(self, receiver, event)
+        
+papp = NotifyApplication(sys.argv)
 class TestCase(unittest.TestCase):
     app = papp
 
@@ -165,6 +182,19 @@ class TestCase(unittest.TestCase):
 
         core.workspace().closeAllDocuments()
         core.term()
+        
+        # Find orphaned objects
+        # ---------------------
+        # Look for any objects that are still generating signals after
+        # core.term().
+        #
+        # 1. Process all termination-related events.
+        _processPendingEvents(self.app)
+        # 2. Now, print a diagnostic on any events that are still occurring.
+        self.app.assertOnEvents = True
+        _processPendingEvents(self.app)
+        self.app.assertOnEvents = False
+        
         self._cleanUpFs()
 
     def keyClick(self, key, modifiers=Qt.NoModifier, widget=None):
