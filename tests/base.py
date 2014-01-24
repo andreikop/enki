@@ -11,7 +11,7 @@ import subprocess
 import sip
 sip.setapi('QString', 2)
 
-from PyQt4.QtCore import Qt, QTimer
+from PyQt4.QtCore import Qt, QTimer, QEventLoop, pyqtSlot
 from PyQt4.QtGui import QApplication, QDialog, QKeySequence
 from PyQt4.QtTest import QTest
 
@@ -46,6 +46,9 @@ def _processPendingEvents(app):
     while app.hasPendingEvents() and (time.time() - t < 0.1):
         app.processEvents()
 
+# By default, the traceback for excpetions occurring inside
+# an exec_ loop will be printed.
+PRINT_EXEC_TRACKBACK = True
 
 def inMainLoop(func, *args):
     """Decorator executes test method in the QApplication main loop.
@@ -54,21 +57,39 @@ def inMainLoop(func, *args):
     """
     def wrapper(*args):
         self = args[0]
+        # Exceptions get silenced inside execWithArgs. Use
+        # eList to store then re-raise them. Note that a list
+        # must be used, since this is passed to a function and
+        # any changes to a non-mutable object will be lost when
+        # the function exits.
+        eList = []
 
-        def execWithArgs():
+        def execWithArgs(eListLocal):
             core.mainWindow().show()
             QTest.qWaitForWindowShown(core.mainWindow())
             _processPendingEvents(self.app)
 
             try:
                 func(*args)
+            except Exception as e:
+                # Save the exception so we can re-raise it; exceptions here
+                # get caught and reported (I think by PyQt).
+                eListLocal.append(e)
+                if PRINT_EXEC_TRACKBACK:
+                    raise
             finally:
                 _processPendingEvents(self.app)
                 self.app.quit()
 
-        QTimer.singleShot(0, execWithArgs)
+        QTimer.singleShot(0, lambda: execWithArgs(eList))
 
         self.app.exec_()
+        # Re-raise any exceptions (such as unit test failed assertions)
+        # that happened while executing func. Unfortunately, this
+        # reports a traceback from here, instead of from the except
+        # clause above. I don't know how to easily fix this.
+        if eList:
+            raise eList[0]
 
     wrapper.__name__ = func.__name__  # for unittest test runner
     return wrapper
@@ -99,7 +120,24 @@ def requiresCmdlineUtility(command):
     return inner
 
 
-papp = QApplication(sys.argv)
+class NotifyApplication(QApplication):
+    """ This class can assert if any events are emitted.
+    
+    Its purpose is to check that, after a PyQt class is closed, there are no timer/other callback leaks.
+    
+    """
+    def __init__(self, *args):
+        QApplication.__init__(self, *args)
+        self.assertOnEvents = False
+        
+    def notify(self, receiver, event):
+        """ Pass the event on, printing diagnostics if enabled. """
+        
+        if self.assertOnEvents:
+            print('Post-termination event: receiver = %s, event = %s' % (receiver, event))
+        return QApplication.notify(self, receiver, event)
+        
+papp = NotifyApplication(sys.argv)
 class TestCase(unittest.TestCase):
     app = papp
 
@@ -144,6 +182,19 @@ class TestCase(unittest.TestCase):
 
         core.workspace().closeAllDocuments()
         core.term()
+        
+        # Find orphaned objects
+        # ---------------------
+        # Look for any objects that are still generating signals after
+        # core.term().
+        #
+        # 1. Process all termination-related events.
+        _processPendingEvents(self.app)
+        # 2. Now, print a diagnostic on any events that are still occurring.
+        self.app.assertOnEvents = True
+        _processPendingEvents(self.app)
+        self.app.assertOnEvents = False
+        
         self._cleanUpFs()
 
     def keyClick(self, key, modifiers=Qt.NoModifier, widget=None):
@@ -239,3 +290,75 @@ class TestCase(unittest.TestCase):
                 return dock
         else:
             self.fail('Dock {} not found'.format(windowTitle))
+            
+    def assertEmits(self, sender, senderSignal, timeoutMs=1):
+        """ A unit testing convenience routine.
+        
+        Assert that calling the sender function emits the senderSignal within timeoutMs.
+        The default timeoutMs of 1 works for all senders that
+        run in the current thread, since the timeout will be
+        scheduled after all current thread signals are emitted
+        at a timeout of 0 ms.
+        
+        """
+        self.assertTrue(waitForSignal(sender, senderSignal, timeoutMs))
+            
+def waitForSignal(sender, senderSignal, timeoutMs):
+    """ Wait up to timeoutMs after calling sender for senderSignal to be emitted.
+    
+    It returns True if the senderSignal was emitted; otherwise, it returns False.
+    This function was inspired by http://stackoverflow.com/questions/2629055/qtestlib-qnetworkrequest-not-executed/2630114#2630114.
+    
+    """
+    # Create a single-shot timer. Could use QTimer.singleShot(),
+    # but can't cancel this / disconnect it.
+    timer = QTimer()
+    timer.setSingleShot(True)
+    # Create an event loop to wait for either the senderSignal
+    # or the timer's timeout signal.
+    loop = QEventLoop()
+
+    # Create a slot which receives a senderSignal with any number of arguments.
+    def senderSignalSlot(*args):
+        loop.quit()
+
+    # Connect both signals to a slot which quits the event loop.
+    senderSignal.connect(senderSignalSlot)
+    timer.timeout.connect(loop.quit)
+    
+    # Exceptions in sender(), which is run in loop.exec_(), are
+    # caught. Catch then re-raise them; see inMainLoop for
+    # a full explanation.
+    def senderWithExceptions(sender, eListLocal):
+        try:
+            sender()
+        except Exception as e:
+            eListLocal.append(e)
+            if PRINT_EXEC_TRACKBACK:
+                raise
+
+    # Start the sender and the timer and at the beginning of the event loop.
+    # Just calling sender() may cause signals emitted in sender
+    # not to reach their connected slots.
+    eList = []
+    QTimer.singleShot(0, lambda: senderWithExceptions(sender, eList))
+    timer.start(timeoutMs)
+    
+    # Wait for an emitted signal. Make sure to do cleanup even on an exception.
+    try:
+        loop.exec_()
+        if eList:
+            raise eList[0]
+    finally:
+        # Clean up: don't allow the timer to call loop after this
+        # function exits, which would produce "interesting" behavior.
+        ret = timer.isActive()
+        timer.stop()
+        # Stopping the timer may not cancel timeout signals in the
+        # event queue. Disconnect the signal to be sure that loop
+        # will never receive a timeout after the function exits.
+        # Likewise, disconnect the senderSignal for the same reason.
+        senderSignal.disconnect(senderSignalSlot)
+        timer.timeout.disconnect(loop.quit)
+        
+    return ret
