@@ -31,23 +31,26 @@ import base
 # =====
 # waitForSignal
 # -------------
-# This is a helper class used for multi-threaded testing. It
-# waits timeout_ms before emitting the done signal.
 class BackgroundThread(QThread):
+    """ This is a helper class used for multi-threaded testing.
+    
+    It waits timeoutMs before emitting the done signal.
+    
+    """
     done = pyqtSignal()
     
-    def __init__(self, timeout_ms):
+    def __init__(self, timeoutMs):
         QThread.__init__(self)
-        self.timeout_ms = timeout_ms
+        self.timeoutMs = timeoutMs
     
     def run(self):
-        QTest.qWait(self.timeout_ms)
+        QTest.qWait(self.timeoutMs)
         self.done.emit()
 
-# This is a dummy class which contains a single test_signal.
 class TestSignal(QObject):
+    """ This is a dummy class which contains a single testSignal."""
     # Create a test signal with one argument.
-    test_signal = pyqtSignal(int)
+    testSignal = pyqtSignal(int)
 
 # Unit tests.
 class TestWaitForSignal(unittest.TestCase):
@@ -84,14 +87,14 @@ class TestWaitForSignal(unittest.TestCase):
     # Test that signals with arguments work.
     def test_5(self):
         ts = TestSignal()
-        self.assertTrue(base.waitForSignal(lambda: ts.test_signal.emit(1), ts.test_signal, 100))
+        self.assertTrue(base.waitForSignal(lambda: ts.testSignal.emit(1), ts.testSignal, 100))
         
     # Make sure exceptions in sender() are raised properly.
     def test_6(self):
         ts = TestSignal()
         with self.assertRaises(AssertionError):
             base.PRINT_EXEC_TRACKBACK = False
-            base.waitForSignal(lambda: self.fail(), ts.test_signal, 100)
+            base.waitForSignal(lambda: self.fail(), ts.testSignal, 100)
         
 
 # inMainLoop

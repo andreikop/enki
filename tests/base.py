@@ -64,7 +64,7 @@ def inMainLoop(func, *args):
         # the function exits.
         eList = []
 
-        def execWithArgs(eList_local):
+        def execWithArgs(eListLocal):
             core.mainWindow().show()
             QTest.qWaitForWindowShown(core.mainWindow())
             _processPendingEvents(self.app)
@@ -74,7 +74,7 @@ def inMainLoop(func, *args):
             except Exception as e:
                 # Save the exception so we can re-raise it; exceptions here
                 # get caught and reported (I think by PyQt).
-                eList_local.append(e)
+                eListLocal.append(e)
                 if PRINT_EXEC_TRACKBACK:
                     raise
             finally:
@@ -261,58 +261,64 @@ class TestCase(unittest.TestCase):
         else:
             self.fail('Dock {} not found'.format(windowTitle))
             
-     # A unit testing convenience routine: assert that calling
-     # the sender function emits the sender_signal within timeout_ms.
-     # The default timeout_ms of 1 works for all senders that
-     # run in the current thread, since the timeout will be
-     # scheduled after all current thread signals are emitted
-     # at a timeout of 0 ms.
-    def assertEmits(self, sender, sender_signal, timeout_ms=1):
-        self.assertTrue(waitForSignal(sender, sender_signal, timeout_ms))
+    def assertEmits(self, sender, senderSignal, timeoutMs=1):
+        """ A unit testing convenience routine.
+        
+        Assert that calling the sender function emits the senderSignal within timeoutMs.
+        The default timeoutMs of 1 works for all senders that
+        run in the current thread, since the timeout will be
+        scheduled after all current thread signals are emitted
+        at a timeout of 0 ms.
+        
+        """
+        self.assertTrue(waitForSignal(sender, senderSignal, timeoutMs))
             
-# This function waits up to timeout_ms after calling sender for sender_signal to be emitted.
-# It returns True if the sender_signal was emitted; otherwise, it returns False.
-# This function was inspired by http://stackoverflow.com/questions/2629055/qtestlib-qnetworkrequest-not-executed/2630114#2630114.
-def waitForSignal(sender, sender_signal, timeout_ms):
+def waitForSignal(sender, senderSignal, timeoutMs):
+    """ Wait up to timeoutMs after calling sender for senderSignal to be emitted.
+    
+    It returns True if the senderSignal was emitted; otherwise, it returns False.
+    This function was inspired by http://stackoverflow.com/questions/2629055/qtestlib-qnetworkrequest-not-executed/2630114#2630114.
+    
+    """
     # Create a single-shot timer. Could use QTimer.singleShot(),
     # but can't cancel this / disconnect it.
     timer = QTimer()
     timer.setSingleShot(True)
-    # Create an event loop to wait for either the sender_signal
+    # Create an event loop to wait for either the senderSignal
     # or the timer's timeout signal.
     loop = QEventLoop()
 
-    # Create a slot which receives a sender_signal with any number of arguments.
-    def sender_signal_slot(*args):
+    # Create a slot which receives a senderSignal with any number of arguments.
+    def senderSignalSlot(*args):
         loop.quit()
 
     # Connect both signals to a slot which quits the event loop.
-    sender_signal.connect(sender_signal_slot)
+    senderSignal.connect(senderSignalSlot)
     timer.timeout.connect(loop.quit)
     
     # Exceptions in sender(), which is run in loop.exec_(), are
     # caught. Catch then re-raise them; see inMainLoop for
     # a full explanation.
-    def sender_with_exceptions(sender, e_list_local):
+    def senderWithExceptions(sender, eListLocal):
         try:
             sender()
         except Exception as e:
-            e_list_local.append(e)
+            eListLocal.append(e)
             if PRINT_EXEC_TRACKBACK:
                 raise
 
     # Start the sender and the timer and at the beginning of the event loop.
     # Just calling sender() may cause signals emitted in sender
     # not to reach their connected slots.
-    e_list = []
-    QTimer.singleShot(0, lambda: sender_with_exceptions(sender, e_list))
-    timer.start(timeout_ms)
+    eList = []
+    QTimer.singleShot(0, lambda: senderWithExceptions(sender, eList))
+    timer.start(timeoutMs)
     
     # Wait for an emitted signal. Make sure to do cleanup even on an exception.
     try:
         loop.exec_()
-        if e_list:
-            raise e_list[0]
+        if eList:
+            raise eList[0]
     finally:
         # Clean up: don't allow the timer to call loop after this
         # function exits, which would produce "interesting" behavior.
@@ -321,8 +327,8 @@ def waitForSignal(sender, sender_signal, timeout_ms):
         # Stopping the timer may not cancel timeout signals in the
         # event queue. Disconnect the signal to be sure that loop
         # will never receive a timeout after the function exits.
-        # Likewise, disconnect the sender_signal for the same reason.
-        sender_signal.disconnect(sender_signal_slot)
+        # Likewise, disconnect the senderSignal for the same reason.
+        senderSignal.disconnect(senderSignalSlot)
         timer.timeout.disconnect(loop.quit)
         
     return ret
