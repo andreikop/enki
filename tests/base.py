@@ -109,9 +109,9 @@ class TestCase(unittest.TestCase):
     EXISTING_FILE_TEXT = 'hi\n'
 
     def _cleanUpFs(self):
-        json_tmp = os.path.join(tempfile.gettempdir(), 'enki.json')
+        jsonTmp = os.path.join(tempfile.gettempdir(), 'enki.json')
         try:
-            os.unlink(json_tmp)
+            os.unlink(jsonTmp)
         except OSError as e:
             pass
 
@@ -138,7 +138,7 @@ class TestCase(unittest.TestCase):
 
     def tearDown(self):
         self._finished = True
-        
+
         for document in core.workspace().documents():
             document.qutepart.text = ''  # clear modified flag, avoid Save Files dialog
 
@@ -205,7 +205,7 @@ class TestCase(unittest.TestCase):
         def timerCallback(attempt):
             if self._finished:
                 return
-            
+
             dialog = self._findDialog()
 
             if dialog is not None and \

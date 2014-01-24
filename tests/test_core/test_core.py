@@ -21,8 +21,8 @@ class RestoreOldConfigs(base.TestCase):
 
     def test_1(self):
         # Enki restores configs from old directory ~/.enki to new ~/.config/enki
-        old_cfg = enki.core.core._OLD_CONFIG_DIR
-        curr_cfg = enki.core.defines.CONFIG_DIR
+        oldCfg = enki.core.core._OLD_CONFIG_DIR
+        currCfg = enki.core.defines.CONFIG_DIR
 
         enki.core.core._OLD_CONFIG_DIR = self.TEST_FILE_DIR + '/old'
         enki.core.defines.CONFIG_DIR = self.TEST_FILE_DIR + '/new'
@@ -33,13 +33,13 @@ class RestoreOldConfigs(base.TestCase):
             self.assertTrue(os.path.isdir(enki.core.defines.CONFIG_DIR))
             self.assertFalse(os.path.isdir(enki.core.core._OLD_CONFIG_DIR))
         finally:
-            enki.core.core._OLD_CONFIG_DIR = old_cfg
-            enki.core.defines.CONFIG_DIR = curr_cfg
+            enki.core.core._OLD_CONFIG_DIR = oldCfg
+            enki.core.defines.CONFIG_DIR = currCfg
 
     def test_2(self):
         # Enki shows QMessageBox if failed to move config dir
-        old_cfg = enki.core.core._OLD_CONFIG_DIR
-        curr_cfg = enki.core.defines.CONFIG_DIR
+        oldCfg = enki.core.core._OLD_CONFIG_DIR
+        currCfg = enki.core.defines.CONFIG_DIR
 
         enki.core.core._OLD_CONFIG_DIR = self.TEST_FILE_DIR + '/old'
         enki.core.defines.CONFIG_DIR = '/new'
@@ -52,8 +52,8 @@ class RestoreOldConfigs(base.TestCase):
 
             self.openDialog(lambda: core.init(base.DummyProfiler()), inDialog)
         finally:
-            enki.core.core._OLD_CONFIG_DIR = old_cfg
-            enki.core.defines.CONFIG_DIR = curr_cfg
+            enki.core.core._OLD_CONFIG_DIR = oldCfg
+            enki.core.defines.CONFIG_DIR = currCfg
 
 
 if __name__ == '__main__':

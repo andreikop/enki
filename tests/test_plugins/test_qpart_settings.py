@@ -42,7 +42,7 @@ class Font(_BaseTestCase):
 
 
 class Indent(_BaseTestCase):
-    def _do_test(self, useTabs, width, autoDetect):
+    def _doTest(self, useTabs, width, autoDetect):
         def continueFunc(dialog):
             page = dialog._pageForItem["Editor/Indentation"]
 
@@ -66,14 +66,14 @@ class Indent(_BaseTestCase):
         self.assertEqual(core.workspace().currentDocument().qutepart.indentWidth, width)
 
     def test_1(self):
-        self._do_test(True, 4, False)
+        self._doTest(True, 4, False)
 
     def test_2(self):
-        self._do_test(False, 8, True)
+        self._doTest(False, 8, True)
 
 
 class AutoCompletion(_BaseTestCase):
-    def _do_test(self, enabled, threshold):
+    def _doTest(self, enabled, threshold):
         def continueFunc(dialog):
             page = dialog._pageForItem["Editor/Autocompletion"]
 
@@ -93,14 +93,14 @@ class AutoCompletion(_BaseTestCase):
         self.assertEqual(core.workspace().currentDocument().qutepart.completionThreshold, threshold)
 
     def test_1(self):
-        self._do_test(False, 2)
+        self._doTest(False, 2)
 
     def test_2(self):
-        self._do_test(True, 6)
+        self._doTest(True, 6)
 
 
 class Edge(_BaseTestCase):
-    def _do_test(self, enabled, width, colorName):
+    def _doTest(self, enabled, width, colorName):
         def continueFunc(dialog):
             page = dialog._pageForItem["Editor/Edge"]
 
@@ -121,20 +121,20 @@ class Edge(_BaseTestCase):
         self.assertEqual(core.workspace().currentDocument().qutepart.lineLengthEdgeColor.name(), colorName)
 
     def test_1(self):
-        self._do_test(True, 80, '#ff0000')
+        self._doTest(True, 80, '#ff0000')
 
     def test_2(self):
-        self._do_test(False, 80, '#ff0000')
+        self._doTest(False, 80, '#ff0000')
 
     def test_3(self):
-        self._do_test(True, 120, '#ff0000')
+        self._doTest(True, 120, '#ff0000')
 
     def test_4(self):
-        self._do_test(True, 120, '#00ff00')
+        self._doTest(True, 120, '#00ff00')
 
 
 class Eol(_BaseTestCase):
-    def _do_test(self, mode, autoDetect):
+    def _doTest(self, mode, autoDetect):
         def continueFunc(dialog):
             page = dialog._pageForItem["Editor/EOL"]
 
@@ -167,20 +167,20 @@ class Eol(_BaseTestCase):
             self.assertEqual(core.workspace().currentDocument().qutepart.eol, conv[mode])
 
     def test_1(self):
-        self._do_test(r'\n', False)
+        self._doTest(r'\n', False)
 
     def test_2(self):
-        self._do_test(r'\r\n', False)
+        self._doTest(r'\r\n', False)
 
     def test_3(self):
-        self._do_test(r'\r', False)
+        self._doTest(r'\r', False)
 
     def test_4(self):
-        self._do_test(r'\n', True)
+        self._doTest(r'\n', True)
 
 
 class Wrap(_BaseTestCase):
-    def _do_test(self, enabled, atWord, lineWrapMode, wordWrapMode, wordWrapText):
+    def _doTest(self, enabled, atWord, lineWrapMode, wordWrapMode, wordWrapText):
         def continueFunc(dialog):
             page = dialog._pageForItem["Editor/Wrap"]
 
@@ -204,17 +204,17 @@ class Wrap(_BaseTestCase):
 
 
     def test_1(self):
-        self._do_test(True, True, QPlainTextEdit.WidgetWidth, QTextOption.WrapAtWordBoundaryOrAnywhere, "WrapAtWord")
+        self._doTest(True, True, QPlainTextEdit.WidgetWidth, QTextOption.WrapAtWordBoundaryOrAnywhere, "WrapAtWord")
 
     def test_2(self):
-        self._do_test(True, False, QPlainTextEdit.WidgetWidth, QTextOption.WrapAnywhere, "WrapAnywhere")
+        self._doTest(True, False, QPlainTextEdit.WidgetWidth, QTextOption.WrapAnywhere, "WrapAnywhere")
 
     def test_3(self):
-        self._do_test(False, False, QPlainTextEdit.NoWrap, QTextOption.WrapAnywhere, "WrapAnywhere")
+        self._doTest(False, False, QPlainTextEdit.NoWrap, QTextOption.WrapAnywhere, "WrapAnywhere")
 
 
 class WhiteSpaceVisibility(_BaseTestCase):
-    def _do_test(self, trailing, anyIndent):
+    def _doTest(self, trailing, anyIndent):
         trailingAction = core.actionManager().action('mView/aShowTrailingWhitespaces')
         anyIndentAction = core.actionManager().action('mView/aShowAnyIndentWhitespaces')
 
@@ -249,12 +249,12 @@ class WhiteSpaceVisibility(_BaseTestCase):
 
         # test transition from any state to any
         for a, b in combinationsOfCombinations:
-            self._do_test(*a)
-            self._do_test(*b)
+            self._doTest(*a)
+            self._doTest(*b)
 
 
 class WhitespaceStrip(_BaseTestCase):
-    def _do_test(self, checked):
+    def _doTest(self, checked):
         action = core.actionManager().action('mEdit/aStripTrailingWhitespace')
 
         if action.isChecked() != checked:
@@ -277,8 +277,8 @@ class WhitespaceStrip(_BaseTestCase):
 
         # test transition from any state to any
         for first, second in combinations:
-            self._do_test(first)
-            self._do_test(second)
+            self._doTest(first)
+            self._doTest(second)
 
 
 if __name__ == '__main__':

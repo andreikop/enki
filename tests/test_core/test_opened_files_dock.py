@@ -107,11 +107,11 @@ class Rename(base.TestCase):
         with tempfile.NamedTemporaryFile() as tempFile:
             # In Linux, pick and undeleteable file (don't run this as root!)
             if sys.platform.startswith("linux"):
-                existing_not_deletable_file = '/etc/passwd'
+                existingNotDeletableFile = '/etc/passwd'
             else:
-                existing_not_deletable_file = tempFile.name
+                existingNotDeletableFile = tempFile.name
 
-            core.workspace().openFile(existing_not_deletable_file)
+            core.workspace().openFile(existingNotDeletableFile)
 
             NEW_PATH = '/dev/null'
 

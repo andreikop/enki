@@ -14,8 +14,8 @@ from PyQt4.QtGui import QDockWidget
 from enki.core.core import core
 
 
-def requires_module(module):
-    def real_decorator(func):
+def requiresModule(module):
+    def realDecorator(func):
         def wrapped(self):
             try:
                 imp.find_module(module)
@@ -24,7 +24,7 @@ def requires_module(module):
             else:
                 func(self)
         return wrapped
-    return real_decorator
+    return realDecorator
 
 
 class Test(base.TestCase):
@@ -44,7 +44,7 @@ class Test(base.TestCase):
     def _html(self):
         return self._widget().webView.page().mainFrame().toHtml()
 
-    def _do_basic_test(self, extension):
+    def _doBasicTest(self, extension):
         text = 'The preview text'
         document = self.createFile('file.' + extension, text)
 
@@ -58,17 +58,17 @@ class Test(base.TestCase):
             self.fail("Preview doesn't contain expected text")
 
     def test_html(self):
-        self._do_basic_test('html')
+        self._doBasicTest('html')
 
-    @requires_module('docutils')
+    @requiresModule('docutils')
     def test_rst(self):
-        self._do_basic_test('rst')
+        self._doBasicTest('rst')
 
-    @requires_module('markdown')
+    @requiresModule('markdown')
     def test_markdown(self):
-        self._do_basic_test('md')
+        self._doBasicTest('md')
 
-    @requires_module('markdown')
+    @requiresModule('markdown')
     def test_markdown_templates(self):
         core.config()['Preview']['Template'] = 'WhiteOnBlack'
         document = self.createFile('test.md', 'foo')
@@ -94,7 +94,7 @@ class Test(base.TestCase):
         self.assertFalse('body {color: white; background: black;}' in self._visibleText())
         self.assertTrue('body {color: white; background: black;}' in self._html())
 
-    @requires_module('markdown')
+    @requiresModule('markdown')
     def test_markdown_templates_help(self):
         core.config()['Preview']['Template'] = 'WhiteOnBlack'
         document = self.createFile('test.md', 'foo')
