@@ -82,7 +82,7 @@ class EolIndicatorAndSwitcher(QToolButton):
     def _onEolActionTriggered(self, action):
         """EOL mode selected
         """
-        newEol = str(action.data().toString())
+        newEol = action.data()
         document = core.workspace().currentDocument()
         document.qutepart.eol = newEol
         document.qutepart.document().setModified(True)

@@ -13,19 +13,17 @@ import unittest
 import os.path
 import sys
 
-# Third-party library imports
-# ---------------------------
-import sip
-sip.setapi('QString', 2)
-
-from PyQt4.QtCore import Qt, QTimer, QEventLoop, QThread, QObject, pyqtSignal
-from PyQt4.QtTest import QTest
-
 # Local application imports
 # -------------------------
+# Do this before PyQt imports so that base will set up sip API correctly.
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
 import base
+
+# Third-party library imports
+# ---------------------------
+from PyQt4.QtCore import Qt, QTimer, QEventLoop, QThread, QObject, pyqtSignal
+from PyQt4.QtTest import QTest
 
 # Tests
 # =====

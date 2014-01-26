@@ -126,6 +126,7 @@ def _checkDependencies(profiler):
 
     import sip
     sip.setapi('QString', 2)
+    sip.setapi('QVariant', 2)
 
     profiler.stepDone('Import PyQt4')
 

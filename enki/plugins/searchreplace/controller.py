@@ -201,7 +201,7 @@ class Controller(QObject):
         if not self._widget:
             self._createSearchWidget()
 
-        newMode = self.sender().data().toInt()[0]
+        newMode = self.sender().data()
 
         if newMode & MODE_FLAG_FILES and \
            not core.workspace().documents():

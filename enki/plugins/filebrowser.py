@@ -76,7 +76,7 @@ class FileBrowserFilteredModel(QSortFilterProxyModel):
         """
         if  source_parent == QModelIndex():
             return True
-        return not core.fileFilter().regExp().match(source_parent.child( source_row, 0 ).data().toString() )
+        return not core.fileFilter().regExp().match(source_parent.child( source_row, 0 ).data() )
 
 
 class SmartRecents(QObject):
@@ -527,7 +527,7 @@ class ComboBox(QComboBox):
             if os.path.isdir(path):
                 self._fileBrowser.setCurrentPath(path)
         else:
-            path = self.itemData(index).toString()
+            path = self.itemData(index)
             self._fileBrowser.setCurrentPath(path)
 
     def updateItems(self, items):

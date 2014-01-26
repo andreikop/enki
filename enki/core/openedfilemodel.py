@@ -16,8 +16,7 @@ from PyQt4.QtCore import QAbstractItemModel, \
                          QMimeData, \
                          QModelIndex, \
                          QObject, \
-                         Qt, \
-                         QVariant
+                         Qt
 from PyQt4.QtGui import QAbstractItemView, QAction, QActionGroup, \
                         QIcon, \
                         QMenu, \
@@ -75,7 +74,7 @@ class _OpenedFileModel(QAbstractItemModel):
             role == Qt.DecorationRole:
             return self.tr( "Opened Files" )
         else:
-            return QVariant()
+            return None
 
     def _uniqueDocumentPath(self, document):
         """ Get unique file path, which will be displayed in the list.
@@ -105,7 +104,7 @@ class _OpenedFileModel(QAbstractItemModel):
     def data(self, index, role ):
         """See QAbstractItemModel documentation"""
         if  not index.isValid() :
-            return QVariant()
+            return None
 
         document = self.document( index )
         assert(document)
@@ -119,11 +118,11 @@ class _OpenedFileModel(QAbstractItemModel):
         elif role == Qt.ToolTipRole:
             return document.modelToolTip()
         else:
-            return QVariant()
+            return None
 
     def setData(self, index, value, role=Qt.EditRole):
         document = self.document(index)
-        newPath = value.toString()
+        newPath = value
 
         if newPath == document.filePath():
             return False
@@ -434,7 +433,7 @@ class OpenedFileExplorer(DockWidget):
     def _onSortTriggered(self, action ):
         """ One of sort actions has been triggered in the opened file list context menu
         """
-        mode = action.data().toString()
+        mode = action.data()
         self.model.setSortMode( mode )
 
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument ):  # pylint: disable=W0613

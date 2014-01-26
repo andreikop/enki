@@ -5,8 +5,7 @@ searchresultsmodel --- Model for search results
 
 from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, \
                          QDir, \
-                         QModelIndex, Qt, \
-                         QVariant
+                         QModelIndex, Qt
 
 from PyQt4.QtGui import QApplication
 
@@ -192,7 +191,7 @@ class SearchResultsModel(QAbstractItemModel):
         """See QAbstractItemModel docs
         """
         if not index.isValid() :
-            return QVariant()
+            return None
 
         # Common code for file and result
         result = index.internalPointer()
@@ -204,7 +203,7 @@ class SearchResultsModel(QAbstractItemModel):
             if  self.flags( index ) & Qt.ItemIsUserCheckable:
                 return result.checkState
 
-        return QVariant()
+        return None
 
     def setData(self, index, value, role ):
         """See QAbstractItemModel docs
@@ -215,7 +214,7 @@ class SearchResultsModel(QAbstractItemModel):
         if isinstance(index.internalPointer(), Result):  # it is a Result
             if role == Qt.CheckStateRole:
                 # update own state
-                index.internalPointer().checkState = value.toInt()[0]
+                index.internalPointer().checkState = value
                 self.dataChanged.emit( index, index )  # own checked state changed
                 # update parent state
                 fileRes = index.parent().internalPointer()
@@ -225,9 +224,9 @@ class SearchResultsModel(QAbstractItemModel):
         elif isinstance(index.internalPointer(), FileResults):  # it is a FileResults
             if role == Qt.CheckStateRole:
                 fileRes = index.internalPointer()
-                fileRes.checkState = value.toInt()[0]
+                fileRes.checkState = value
                 for res in fileRes.results:
-                    res.checkState = value.toInt()[0]
+                    res.checkState = value
                 firstChildIndex = self.index(0, 0, index)
                 lastChildIndex = self.index(len(fileRes.results) - 1, 0, index)
                 self.dataChanged.emit(firstChildIndex, lastChildIndex)
@@ -250,7 +249,7 @@ class SearchResultsModel(QAbstractItemModel):
         """
         file = self.index(0, 0, QModelIndex())
         match = file.child(0, 0)
-        return match.data(Qt.CheckStateRole).toInt()[0] == Qt.Checked
+        return match.data(Qt.CheckStateRole) == Qt.Checked
 
     def clear(self):
         """Clear all results

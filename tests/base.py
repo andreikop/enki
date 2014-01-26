@@ -10,6 +10,7 @@ import subprocess
 
 import sip
 sip.setapi('QString', 2)
+sip.setapi('QVariant', 2)
 
 from PyQt4.QtCore import Qt, QTimer, QEventLoop, pyqtSlot
 from PyQt4.QtGui import QApplication, QDialog, QKeySequence
