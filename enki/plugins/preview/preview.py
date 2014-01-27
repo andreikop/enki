@@ -18,6 +18,8 @@ from enki.widgets.dockwidget import DockWidget
 
 from enki.plugins.preview import isMarkdownFile, isHtmlFile
 
+from FindLongestMatchingString import find_approx_text_in_target
+
 
 
 
@@ -224,8 +226,11 @@ class PreviewDock(DockWidget):
         assert not res.toString()
     
     # Per item 3 above, this is called when the user clicks in the web view. It finds the matching location in the text pane then moves the text pane cursor.
-    def onWebviewClick(self, index):
-        print("Click with: " + str(index))
+    def onWebviewClick(self, web_index):
+        # Perform an approximate match between the clicked webpage text and the text pane text.
+        text_index = find_approx_text_in_target(self._widget.webView.page().mainFrame().toPlainText(), web_index, core.workspace().currentDocument().qutepart.text)
+        print("Click at web index %d corresponds to text index %d." % (web_index, text_index))
+        
 
 # Other handlers
 # ==============
