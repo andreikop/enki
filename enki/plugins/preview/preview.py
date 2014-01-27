@@ -183,8 +183,28 @@ class PreviewDock(DockWidget):
 # ========================================================
 # A single click in the preview pane should move the text pane's cursor to the corresponding location. Likewise, movement of the text pane's cursor should select the corresponding text in the preview pane. To do so, an approximate search for text surrounding the current cursor or click location perfomed on text in the other pane provides the corresponding location in the other pane to highlight.
 #
+# Bugs / to-do items
+# ------------------
+# #. If tre isn't installed, then disable sync, rather than failing.
+# #. Follow `coding conventions <https://github.com/hlamer/enki/wiki/Hacking-guide>`_.
+# #. Provide good test coverage for this feature.
+# #. Investigate and fix poor sync. Create a log option to produce HTML showing the matching process. Try searching from the anchor for the minimum-length, lowest-cost string with a unique match in the target text.
+# #. Better selection in the web pane. Ideas:
+#
+#    #. Don't select newlines, which are just plain ugly. A quick and easy fix.
+#    #. Make the entire body editable, then use home and end to select a line, then make it uneditable. Playing with this in Javascript produced a set of failures -- in a ``conteneditable`` area, I couldn't perform any edits by sending keypresses. The best reference I found for injecting keypresses was `this jsbin demo <http://stackoverflow.com/questions/10455626/keydown-simulation-in-chrome-fires-normally-but-not-the-correct-key/12522769#12522769>`_. Another approach: use the Qt test mechanicsm to send keypresses instead.
+#    #. Insert an animated GIF of a large, obnoxious blinking cursor at the selection, preferably something in the background that doesn't re-wrap the text (maybe `this <http://stackoverflow.com/questions/18447263/image-behind-text>`_ or `that <http://www.the-art-of-web.com/css/textoverimage/>`_).
+#    #. Write Javascript to look at the bounding box at the selection, then grow it a character at a time until the y coordinates change "too much" (?).
+# #. Should I disconnect the cursorPositionChanged() signal when the preview window is closed? Just connect it when it opens?
+# #. I call toPlainText() several times. In the past, this was quite slow in a QTextEdit. Check performance and possibly cache this value; it should be easy to update by adding a few lines to _setHtml().
+#
 # Preview-to-text sync
 # --------------------
+# This functionaliy relies heavily on the Web to Qt bridge. Some helpful references:
+#
+# * `The QtWebKit Bridge <http://qt-project.org/doc/qt-4.8/qtwebkit-bridge.html>`_ gives a helpful overview.
+# * `QWebView <http://qt-project.org/doc/qt-4.8/qwebview.html>`_ is the top-level widget used to embed a Web page in a Qt application.
+#
 # For this sync, the first step is to find the single click's location in a plain text rendering of the preview's web content. This is implemented in JavaScript, which emits a Qt signal with the location on a click. A slot connected to this signal then performs the approximate match and updates the text pane's cursor. To do this:
 #
 # #. ``js_click``, a PyQt signal with a single numeric argument (the index into a string containing the plain text rendering of the web page) is defined. This signal is :ref:`connected <onJavaScriptCleared.connect>` to the ``onWebviewClick`` slot.
@@ -194,7 +214,7 @@ class PreviewDock(DockWidget):
 
     # A signal emitted by clicks in the web view, per 1 above.
     js_click = pyqtSignal(int)
-                          # int: The index of the click character in a text rendering of the web page.
+                          # The index of the click character in a text rendering of the web page.
 
     # Initialize the system per items 1, 2, and 4 above.
     def _initPreviewToTextSync(self):
