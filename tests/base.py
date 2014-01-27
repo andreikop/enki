@@ -58,12 +58,6 @@ def inMainLoop(func, *args):
     """
     def wrapper(*args):
         self = args[0]
-        # Exceptions get silenced inside execWithArgs. Use
-        # eList to store then re-raise them. Note that a list
-        # must be used, since this is passed to a function and
-        # any changes to a non-mutable object will be lost when
-        # the function exits.
-        eList = []
 
         def execWithArgs(eListLocal):
             core.mainWindow().show()
@@ -72,26 +66,30 @@ def inMainLoop(func, *args):
 
             try:
                 func(*args)
-            except Exception as e:
-                # Save the exception so we can re-raise it; exceptions here
-                # get caught and reported (I think by PyQt).
-                eListLocal.append(e)
-                if PRINT_EXEC_TRACKBACK:
-                    raise
             finally:
                 _processPendingEvents(self.app)
                 self.app.quit()
 
         QTimer.singleShot(0, lambda: execWithArgs(eList))
 
+        # Catch any exceptions which the EventLoop would otherwise catch
+        # and not re-raise.
+        ex = []
+        def excepthook(type_, value, traceback):
+            ex.append(value)
+            if PRINT_EXEC_TRACKBACK:
+                oeh(type_, value, traceback)
+        oeh = sys.excepthook
+        sys.excepthook = excepthook
+        
+        # Wait for an emitted signal.
         self.app.exec_()
-        # Re-raise any exceptions (such as unit test failed assertions)
-        # that happened while executing func. Unfortunately, this
-        # reports a traceback from here, instead of from the except
-        # clause above. I don't know how to easily fix this.
-        if eList:
-            raise eList[0]
-
+        # If an exception occurred in the event loop, re-raise it.
+        if ex:
+            raise ex[0]
+        # Restore the old exception hook
+        sys.excepthook = oeh
+    
     wrapper.__name__ = func.__name__  # for unittest test runner
     return wrapper
 
@@ -324,7 +322,11 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     # or the timer's timeout signal.
     loop = QEventLoop()
 
-    # Create a slot which receives a senderSignal with any number of arguments.
+    # Create a slot which receives a senderSignal with any number
+    # of arguments. Check the arguments against their expected
+    # values, if requested, storing the result in senderSignalArgsWrong[0].
+    # (I can't use senderSignalArgsWrong = True/False, since
+    # non-local variables cannot be assigned in another scope).
     senderSignalArgsWrong = []
     def senderSignalSlot(*args):
         # If the senderSignal args should be checked and they
@@ -339,39 +341,38 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     senderSignal.connect(senderSignalSlot)
     timer.timeout.connect(loop.quit)
     
-    # Exceptions in sender(), which is run in loop.exec_(), are
-    # caught. Catch then re-raise them; see inMainLoop for
-    # a full explanation.
-    def senderWithExceptions(sender, eListLocal):
-        try:
-            sender()
-        except Exception as e:
-            eListLocal.append(e)
-            if PRINT_EXEC_TRACKBACK:
-                raise
-
     # Start the sender and the timer and at the beginning of the event loop.
     # Just calling sender() may cause signals emitted in sender
     # not to reach their connected slots.
-    eList = []
-    QTimer.singleShot(0, lambda: senderWithExceptions(sender, eList))
+    QTimer.singleShot(0, sender)
     timer.start(timeoutMs)
     
-    # Wait for an emitted signal. Make sure to do cleanup even on an exception.
-    try:
-        loop.exec_()
-        if eList:
-            raise eList[0]
-    finally:
-        # Clean up: don't allow the timer to call loop after this
-        # function exits, which would produce "interesting" behavior.
-        ret = timer.isActive()
-        timer.stop()
-        # Stopping the timer may not cancel timeout signals in the
-        # event queue. Disconnect the signal to be sure that loop
-        # will never receive a timeout after the function exits.
-        # Likewise, disconnect the senderSignal for the same reason.
-        senderSignal.disconnect(senderSignalSlot)
-        timer.timeout.disconnect(loop.quit)
-        
+    # Catch any exceptions which the EventLoop would otherwise catch
+    # and not re-raise.
+    ex = []
+    def excepthook(type_, value, traceback):
+        ex.append(value)
+        if PRINT_EXEC_TRACKBACK:
+            oeh(type_, value, traceback)
+    oeh = sys.excepthook
+    sys.excepthook = excepthook
+    
+    # Wait for an emitted signal.
+    loop.exec_()
+    # If an exception occurred in the event loop, re-raise it.
+    if ex:
+        raise ex[0]
+    # Clean up: don't allow the timer to call loop after this
+    # function exits, which would produce "interesting" behavior.
+    ret = timer.isActive()
+    timer.stop()
+    # Stopping the timer may not cancel timeout signals in the
+    # event queue. Disconnect the signal to be sure that loop
+    # will never receive a timeout after the function exits.
+    # Likewise, disconnect the senderSignal for the same reason.
+    senderSignal.disconnect(senderSignalSlot)
+    timer.timeout.disconnect(loop.quit)
+    # Restore the old exception hook
+    sys.excepthook = oeh
+    
     return ret and not senderSignalArgsWrong[0]
