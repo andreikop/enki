@@ -1,3 +1,6 @@
+# ***************************
+# base.py - Unit test helpers
+# ***************************
 import unittest
 import logging
 import os
@@ -154,15 +157,14 @@ class TestCase(unittest.TestCase):
 
         core.workspace().closeAllDocuments()
         core.term()
-
-        # Find orphaned objects
-        # ---------------------
-        # Look for any objects that are still generating signals after
+        
+        # | **Find orphaned objects**
+        # | Look for any objects that are still generating signals after
         # core.term().
         #
-        # 1. Process all termination-related events.
+        # \1. Process all termination-related events.
         _processPendingEvents(self.app)
-        # 2. Now, print a diagnostic on any events that are still occurring.
+        # \2. Now, print a diagnostic on any events that are still occurring.
         self.app.assertOnEvents = True
         _processPendingEvents(self.app)
         self.app.assertOnEvents = False

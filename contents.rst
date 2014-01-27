@@ -12,6 +12,9 @@ Table of contents
    win/build
    conf.py
    enki/plugins/preview/__init__.py
+   tests/base.py
+   tests/test_base.py
+   tests/test_plugins/test_preview.py
 
 Indices and tables
 ------------------
