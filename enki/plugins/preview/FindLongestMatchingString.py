@@ -21,26 +21,15 @@
 #
 # Third-party imports
 # -------------------
-# For approximate pattern matching, this module uses the Python port of TRE. See  http://hackerboss.com/approximate-regex-matching-in-python/ for more details. I modified the Python wrapper code to allow Unicode strings.
+# For approximate pattern matching, this module uses the Python port of `TRE <http://hackerboss.com/approximate-regex-matching-in-python>`_.
 import tre
-
+#
 # For debug
 #import codecs
-
-# .. _find_approx_text:
 #
 # find_approx_text
 # ================
-# The find_approx_text function performs a single approximate match; find_approx_text_in_target_ calls this repeatedly. Its parameters:
-#
-# search_text
-#   Text to search for
-#
-# target_text
-#   Text in which to find the search_text
-#
-# cost
-#   Maximum allowable cost for an approximate match.
+# The find_approx_text function performs a single approximate match using TRE. TRE stop at the first match it find; this routine makes sure the match found is at least 10% better than the next best approximate match.
 #
 # Return value:
 #   - If there is no unique value, (None, 0, 0)
@@ -54,7 +43,12 @@ import tre
 #
 #     end_in_target
 #       The index into the target string at which the approximate match ends.
-def find_approx_text(search_text, target_text, cost = None):
+def find_approx_text(search_text,
+                     #   Text to search for
+                     target_text,
+                     #   Text in which to find the search_text
+                     cost = None):
+                     #   Maximum allowable cost for an approximate match.
     # tre.LITERAL specifies that search_str is a literal search string, not
     # a regex.
     pat = tre.compile(search_text, tre.LITERAL)
@@ -73,19 +67,18 @@ def find_approx_text(search_text, target_text, cost = None):
 ##        print(search_text + '\n' + target_text[begin_in_target:end_in_target])
         return match, begin_in_target, end_in_target
 
-# .. _find_approx_text_in_target:
-#
 # find_approx_text_in_target
 # ==========================
-# This routine finds the a substring in the target document which contains an exact, unique match for a substring taken from the source document, anchored at the search location in the source document.
+# This routine finds a substring in the target document which contains an exact, unique match for a substring taken from the source document, anchored at the search location in the source document.
+#
+# Return value: An exactly matching location in the target document, or -1 if not found.
 def find_approx_text_in_target(
-    # Return value: An exactly matching location in the target document, or -1 if not found.
-    search_text,
-    # The text composing the entire source document in which the search string resides.
-    search_anchor,
-    # A location in the source document which should be found in the target document.
-    target_text):
-    # The target document.
+      search_text,
+      # The text composing the entire source document in which the search string resides.
+      search_anchor,
+      # A location in the source document which should be found in the target document.
+      target_text):
+      # The target document.
     #
     # Range of characters about the search_anchor in which to search.
     search_range = 40
@@ -124,9 +117,7 @@ def find_approx_text_in_target(
 
         # **Decrease the left search radius by half and approximate search again.**
         #
-        # Note that when (end - search_anchor)/2 == 0 when
-        # end = search_anchor + 1, causing infinite looping. The max fixes
-        # this case.
+        # Note that (end - search_anchor)/2 == 0 when end = search_anchor + 1, causing infinite looping. The max fixes this case.
         end -= max((end - search_anchor) - step_size, 1)
         match, begin_in_target_substr, end_in_target_substr = \
             find_approx_text(search_text[begin:end],
