@@ -176,8 +176,8 @@ class PreviewDock(DockWidget):
 
         self._widget.tbSave.clicked.connect(self.onSave)
 
-        self.initPreviewToTextSync()
-        self.initTextToPreviewSync()
+        self._initPreviewToTextSync()
+        self._initTextToPreviewSync()
 
 # Synchronizing between the text pane and the preview pane
 # ========================================================
@@ -197,16 +197,16 @@ class PreviewDock(DockWidget):
                           # int: The index of the click character in a text rendering of the web page.
 
     # Initialize the system per items 1, 2, and 4 above.
-    def initPreviewToTextSync(self):
+    def _initPreviewToTextSync(self):
         # Insert our onClick JavaScript.
-        self.onJavaScriptCleared()
+        self._onJavaScriptCleared()
         # Connect the signal emitted by the JavaScript onClick handler to onWebviewClick.
-        self.js_click.connect(self.onWebviewClick)
+        self.js_click.connect(self._onWebviewClick)
         # Qt emits the `javaScriptWindowObjectCleared <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#javaScriptWindowObjectCleared.>`_ signal when a web page is loaded. When this happens, reinsert our onClick JavaScript. 
-        self._widget.webView.page().mainFrame().javaScriptWindowObjectCleared.connect(self.onJavaScriptCleared)
+        self._widget.webView.page().mainFrame().javaScriptWindowObjectCleared.connect(self._onJavaScriptCleared)
 
     # This is called before starting a new load of a web page, per item 2 above.
-    def onJavaScriptCleared(self):
+    def _onJavaScriptCleared(self):
         mf = self._widget.webView.page().mainFrame()
         # Use `addToJavaScriptWindowObject <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#addToJavaScriptWindowObject>`_ to make this PreviewDock object known to JavaScript, so that JavaScript can emit the ``js_click`` signal defined by PreviewDock.
         mf.addToJavaScriptWindowObject("PyPreviewDock", self)
@@ -244,7 +244,7 @@ class PreviewDock(DockWidget):
         assert not res.toString()
     
     # Per item 3 above, this is called when the user clicks in the web view. It finds the matching location in the text pane then moves the text pane cursor.
-    def onWebviewClick(self,
+    def _onWebviewClick(self,
                        web_index):
                        # The index of the click character in a text rendering of the web page.
         # Perform an approximate match between the clicked webpage text and the text pane text.
@@ -253,10 +253,10 @@ class PreviewDock(DockWidget):
         text_index = find_approx_text_in_target(mf.toPlainText(), web_index, qp.text)
         # Move the cursor to text_index in qutepart, assuming corresponding text was found.
         if text_index >= 0:
-            self.moveTextPaneToIndex(text_index)
+            self._moveTextPaneToIndex(text_index)
 
     # Given an index into the text pane, move the cursor to that index.
-    def moveTextPaneToIndex(self,
+    def _moveTextPaneToIndex(self,
                             text_index):
                             # The index into the text pane at which to place the cursor.
         # Move the cursor to text_index.
@@ -282,7 +282,7 @@ class PreviewDock(DockWidget):
 # #. moveWebToPane uses QWebFrame.find to search for the text under the anchor then select (or highlight) it.
 #
     # Called when constructing the PreviewDoc. It performs item 1 above.
-    def initTextToPreviewSync(self):
+    def _initTextToPreviewSync(self):
         # Create a timer which will sync the preview with the text cursor a short time after cursor movement stops.
         self._cursorMovementTimer = QTimer()
         self._cursorMovementTimer.setInterval(300)
@@ -309,10 +309,10 @@ class PreviewDock(DockWidget):
         web_index = find_approx_text_in_target(qp.text, qp.textCursor().position(), mf.toPlainText())
         # Move the cursor to web_index in the preview pane, assuming corresponding text was found.
         if web_index >= 0:
-            self.movePreviewPaneToIndex(web_index)
+            self._movePreviewPaneToIndex(web_index)
     
     # Highlights web_index in the preview pane, per item 4 above.
-    def movePreviewPaneToIndex(self,
+    def _movePreviewPaneToIndex(self,
             web_index,
             # The index to move the cursor / highlight to in the preview pane.
             select_radius=5):
@@ -342,6 +342,8 @@ class PreviewDock(DockWidget):
         """Uninstall themselves
         """
         self._typingTimer.stop()
+        self._cursorMovementTimer.stop()
+         # TODO: disconnect the cursorPositionChanged() slot? I would think so.
         self._thread.htmlReady.disconnect(self._setHtml)
         self._thread.stop_async()
         self._thread.wait()
