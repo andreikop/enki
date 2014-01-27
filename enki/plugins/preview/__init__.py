@@ -1,12 +1,13 @@
 # **********************************************************
 # __init__.py - The HTML, Markdown, and reST preview package
 # **********************************************************
-# The Preview plugin provides an HTML-based rendering of the file currently being edited. This file implements the Plugin interface; :doc:`preview.py` performs the rendering.
+# The Preview plugin provides an HTML-based rendering of the file currently being edited. This file implements the Plugin interface; other modules are given below.
 #
 # .. toctree::
-#   :hidden:
+#   :maxdepth: 2
 #
 #   preview.py
+#   FindLongestMatchingString.py
 
 from PyQt4.QtCore import QObject, Qt
 from PyQt4.QtGui import QAction, QIcon, QKeySequence
