@@ -13,6 +13,7 @@ from PyQt4.QtWebKit import QWebPage
 from PyQt4 import QtGui
 from PyQt4 import uic
 from PyQt4.QtWebKit import QWebPage
+from PyQt4.QtTest import QTest
 
 from enki.core.core import core
 
@@ -189,12 +190,6 @@ class PreviewDock(DockWidget):
 # #. Follow `coding conventions <https://github.com/hlamer/enki/wiki/Hacking-guide>`_.
 # #. Provide good test coverage for this feature.
 # #. Investigate and fix poor sync. Create a log option to produce HTML showing the matching process. Try searching from the anchor for the minimum-length, lowest-cost string with a unique match in the target text.
-# #. Better selection in the web pane. Ideas:
-#
-#    #. Don't select newlines, which are just plain ugly. A quick and easy fix.
-#    #. Make the entire body editable, then use home and end to select a line, then make it uneditable. Playing with this in Javascript produced a set of failures -- in a ``conteneditable`` area, I couldn't perform any edits by sending keypresses. The best reference I found for injecting keypresses was `this jsbin demo <http://stackoverflow.com/questions/10455626/keydown-simulation-in-chrome-fires-normally-but-not-the-correct-key/12522769#12522769>`_. Another approach: use the Qt test mechanicsm to send keypresses instead.
-#    #. Insert an animated GIF of a large, obnoxious blinking cursor at the selection, preferably something in the background that doesn't re-wrap the text (maybe `this <http://stackoverflow.com/questions/18447263/image-behind-text>`_ or `that <http://www.the-art-of-web.com/css/textoverimage/>`_).
-#    #. Write Javascript to look at the bounding box at the selection, then grow it a character at a time until the y coordinates change "too much" (?).
 # #. Should I disconnect the cursorPositionChanged() signal when the preview window is closed? Just connect it when it opens?
 # #. I call toPlainText() several times. In the past, this was quite slow in a QTextEdit. Check performance and possibly cache this value; it should be easy to update by adding a few lines to _setHtml().
 #
@@ -311,6 +306,8 @@ class PreviewDock(DockWidget):
         core.workspace().currentDocument().qutepart.cursorPositionChanged.connect(self._onCursorPositionChanged)
         # Set up a variable to tell us when the preview to text sync just fired, disabling this sync. Otherwise, that sync would trigger this sync, which is unnecessary.
         self._previewToTextSyncRunning = False
+        # Make the page's content editable, to provide for single-line selection performed in _movePreviewPaneToIndex(). The other option: make it editable for just a moment, perform the action, then make it uneditable. Since this *might* be slower, and since clicks to the web page move the focus immediately back to the text editor, I don't think it's possible for a user to edit the page, so I put it here.
+        self._widget.webView.page().setContentEditable(True)
     
     # Called when the cursor position in the text pane changes. It (re)schedules a text to web sync per item 2 above.
     def _onCursorPositionChanged(self):
@@ -338,23 +335,23 @@ class PreviewDock(DockWidget):
             select_radius=5):
             # The number of characters to highlight before and after web_index.
         #
-        # Implementation: there's no direct way I know of to move the cursor in a web page. However, the find operation is fairly common. So, simply search from the beginning of the page for a substring of the web page's text rendering  from the beginning to a few characters before web_index. Then do a second search, starting at the character following the first search (a few characters before the web_index) to a few characters after the web_index.
+        # Implementation: there's no direct way I know of to move the cursor in a web page. However, the find operation is fairly common. So, simply search from the beginning of the page for a substring of the web page's text rendering from the beginning to web_index. Then press home followed by shift+end to select the line the cursor is on. (This relies on the page being editable, which is set in _initTextToPreviewSync).
         pg = self._widget.webView.page()
         mf = pg.mainFrame()
         txt = mf.toPlainText()
         # Hopefully, start the search location at the beginning of the document by clearing the previous selection using `removeAllRanges <https://developer.mozilla.org/en-US/docs/Web/API/Selection.removeAllRanges>`_.
         res = mf.evaluateJavaScript('window.getSelection().removeAllRanges();')
         assert not res.toString()
-        # Determine the index a few characters before web_index then find it using `findText <http://qt-project.org/doc/qt-4.8/qwebpage.html#findText>`_, assuming the string isn't empty.
-        before_web_index = max(0, web_index - select_radius)
-        if before_web_index > 0:
-            found = pg.findText(txt[:before_web_index], QWebPage.FindCaseSensitively)
-            assert found
-        # Determine the index a few characters after web_index and find it, highlighting this text.
-        after_web_index = min(len(txt) - 1, web_index + select_radius)
-        assert after_web_index > before_web_index
-        found = pg.findText(txt[before_web_index:after_web_index], QWebPage.FindCaseSensitively)
+        # Find the index with `findText <http://qt-project.org/doc/qt-4.8/qwebpage.html#findText>`_.
+        found = pg.findText(txt[:web_index], QWebPage.FindCaseSensitively)
         assert found
+
+        # Select the entire line containing the anchor: press home then shift+end using `keyClick <http://qt-project.org/doc/qt-4.8/qtest.html#keyClick>`_. Other ideas on how to do this:
+        #  #. The same idea, but done in Javascript. Playing with this produced a set of failures -- in a ``conteneditable`` area, I couldn't perform any edits by sending keypresses. The best reference I found for injecting keypresses was `this jsbin demo <http://stackoverflow.com/questions/10455626/keydown-simulation-in-chrome-fires-normally-but-not-the-correct-key/12522769#12522769>`_. Another approach: use the Qt test mechanicsm to send keypresses instead.
+        #  #. Insert an animated GIF of a large, obnoxious blinking cursor at the selection, preferably something in the background that doesn't re-wrap the text (maybe `this <http://stackoverflow.com/questions/18447263/image-behind-text>`_ or `that <http://www.the-art-of-web.com/css/textoverimage/>`_).
+        #  #. Write Javascript to look at the bounding box at the selection, then grow it a character at a time until the y coordinates change "too much" (?).
+        QTest.keyClick(self._widget.webView, Qt.Key_Home)
+        QTest.keyClick(self._widget.webView, Qt.Key_End, Qt.ShiftModifier)
     
 # Other handlers
 # ==============
