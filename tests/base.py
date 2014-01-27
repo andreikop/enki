@@ -292,7 +292,8 @@ class TestCase(unittest.TestCase):
         else:
             self.fail('Dock {} not found'.format(windowTitle))
             
-    def assertEmits(self, sender, senderSignal, timeoutMs=1):
+    def assertEmits(self, sender, senderSignal, timeoutMs=1,
+      expectedSignalParams=None):
         """ A unit testing convenience routine.
         
         Assert that calling the sender function emits the senderSignal within timeoutMs.
@@ -302,12 +303,16 @@ class TestCase(unittest.TestCase):
         at a timeout of 0 ms.
         
         """
-        self.assertTrue(waitForSignal(sender, senderSignal, timeoutMs))
+        self.assertTrue(waitForSignal(sender, senderSignal, 
+          timeoutMs, expectedSignalParams))
             
-def waitForSignal(sender, senderSignal, timeoutMs):
-    """ Wait up to timeoutMs after calling sender for senderSignal to be emitted.
+def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
+    """ Wait up to timeoutMs after calling sender() for senderSignal
+    to be emitted.
     
-    It returns True if the senderSignal was emitted; otherwise, it returns False.
+    It returns True if the senderSignal was emitted; otherwise, 
+    it returns False. If expectedSignalParams is not None, it
+    is compared against the parameters emitted by the senderSignal.
     This function was inspired by http://stackoverflow.com/questions/2629055/qtestlib-qnetworkrequest-not-executed/2630114#2630114.
     
     """
@@ -320,7 +325,14 @@ def waitForSignal(sender, senderSignal, timeoutMs):
     loop = QEventLoop()
 
     # Create a slot which receives a senderSignal with any number of arguments.
+    senderSignalArgsWrong = []
     def senderSignalSlot(*args):
+        # If the senderSignal args should be checked and they
+        # don't match, then they're wrong. In all other cases,
+        # they're right.
+        senderSignalArgsWrong.append( (expectedSignalParams is not None) and
+          (expectedSignalParams != args) )
+        # We received the requested signal, so exit the event loop.
         loop.quit()
 
     # Connect both signals to a slot which quits the event loop.
@@ -362,4 +374,4 @@ def waitForSignal(sender, senderSignal, timeoutMs):
         senderSignal.disconnect(senderSignalSlot)
         timer.timeout.disconnect(loop.quit)
         
-    return ret
+    return ret and not senderSignalArgsWrong[0]
