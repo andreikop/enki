@@ -5,7 +5,7 @@ recentfiles --- Recent files menu and Undo Close action
 import os.path
 import json
 
-from PyQt4.QtCore import QObject, QVariant
+from PyQt4.QtCore import QObject
 
 from enki.core.core import core
 from enki.core.defines import CONFIG_DIR
@@ -89,7 +89,7 @@ class Plugin(QObject):
         """One of recents, but not first, triggered
         """
         action = self.sender()
-        path = action.data().toString()
+        path = action.data()
         core.workspace().openFile(path)
 
     def _onMenuAboutToShow(self):
@@ -106,7 +106,7 @@ class Plugin(QObject):
         for path in recents[1:count]:  # first already available as Undo Close action
             actionId = "mFile/mUndoClose/a%s" % path.replace('/', ':')
             action = core.actionManager().addAction(actionId, path)
-            action.setData(QVariant(path))
+            action.setData(path)
             action.triggered.connect(self._onMenuItemTriggered)
             self._recentFileActions.append(action)
 

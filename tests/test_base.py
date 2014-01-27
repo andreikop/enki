@@ -13,19 +13,17 @@ import unittest
 import os.path
 import sys
 
-# Third-party library imports
-# ---------------------------
-import sip
-sip.setapi('QString', 2)
-
-from PyQt4.QtCore import Qt, QTimer, QEventLoop, QThread, QObject, pyqtSignal
-from PyQt4.QtTest import QTest
-
 # Local application imports
 # -------------------------
+# Do this before PyQt imports so that base will set up sip API correctly.
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
 import base
+
+# Third-party library imports
+# ---------------------------
+from PyQt4.QtCore import Qt, QTimer, QEventLoop, QThread, QObject, pyqtSignal
+from PyQt4.QtTest import QTest
 
 # Tests
 # =====
@@ -51,6 +49,8 @@ class TestSignal(QObject):
     """ This is a dummy class which contains a single testSignal."""
     # Create a test signal with one argument.
     testSignal = pyqtSignal(int)
+    # Create a test signal with several arguments.
+    testSignalArgs = pyqtSignal(unicode, int, float)
 
 # Unit tests.
 class TestWaitForSignal(unittest.TestCase):
@@ -87,10 +87,41 @@ class TestWaitForSignal(unittest.TestCase):
     # Test that signals with arguments work.
     def test_5(self):
         ts = TestSignal()
-        self.assertTrue(base.waitForSignal(lambda: ts.testSignal.emit(1), ts.testSignal, 100))
+        self.assertTrue(base.waitForSignal(lambda: ts.testSignal.emit(1), 
+          ts.testSignal, 100))
+        
+    # Check the arguements emitted by the requested signal.
+    def test_7(self):
+        ts = TestSignal()
+        self.assertFalse(base.waitForSignal(lambda: ts.testSignal.emit(1), 
+          ts.testSignal, 100, (2,) ))
+        
+    # Check the arguements emitted by the requested signal.
+    def test_8(self):
+        ts = TestSignal()
+        self.assertTrue(base.waitForSignal(lambda: ts.testSignal.emit(1), 
+          ts.testSignal, 100, (1,) ))
+        
+    # Check several arguements emitted by the requested signal.
+    def test_9(self):
+        ts = TestSignal()
+        self.assertFalse(base.waitForSignal(lambda: ts.testSignalArgs.emit('hello', 3, 3.14),
+          ts.testSignalArgs, 100, (2,) ))
+        
+    # Check several arguements emitted by the requested signal.
+    def test_10(self):
+        ts = TestSignal()
+        self.assertFalse(base.waitForSignal(lambda: ts.testSignalArgs.emit('hello', 3, 3.14),
+          ts.testSignalArgs, 100, ('Hello', 3, 3.14) ))
+        
+    # Check several arguements emitted by the requested signal.
+    def test_11(self):
+        ts = TestSignal()
+        self.assertTrue(base.waitForSignal(lambda: ts.testSignalArgs.emit('hello', 3, 3.14),
+          ts.testSignalArgs, 100, ('hello', 3, 3.14) ))
         
     # Make sure exceptions in sender() are raised properly.
-    def test_6(self):
+    def test_11(self):
         ts = TestSignal()
         with self.assertRaises(AssertionError):
             base.PRINT_EXEC_TRACKBACK = False

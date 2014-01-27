@@ -259,7 +259,7 @@ class PreviewDock(DockWidget):
         if index == -1:  # empty combo
             return ''
 
-        return self._widget.cbTemplate.itemData(index).toString()
+        return unicode(self._widget.cbTemplate.itemData(index))
 
     def _getCurrentTemplate(self):
         path = self._getCurrentTemplatePath()

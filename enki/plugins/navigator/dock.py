@@ -4,7 +4,7 @@ Contains tag model class
 
 import fnmatch
 
-from PyQt4.QtCore import pyqtSignal, Qt, QEvent, QTimer, QVariant, QAbstractItemModel, QModelIndex
+from PyQt4.QtCore import pyqtSignal, Qt, QEvent, QTimer,  QAbstractItemModel, QModelIndex
 from PyQt4.QtGui import QApplication, QBrush, QColor, QVBoxLayout, QIcon, QLabel, QLineEdit, \
                         QTreeView, QWidget
 
@@ -37,7 +37,7 @@ class _TagModel(QAbstractItemModel):
         defBaseColor = QApplication.instance().palette().base().color()
         # yellow or maroon
         brightBg = QColor('#ffff80') if defBaseColor.lightnessF() > 0.5 else QColor('#800000')
-        self._currentTagBrush = QVariant(QBrush(brightBg))
+        self._currentTagBrush = QBrush(brightBg)
 
         core.workspace().cursorPositionChanged.connect(self._onCursorPositionChanged)
         self._updateCurrentTagTimer = QTimer()
@@ -128,15 +128,15 @@ class _TagModel(QAbstractItemModel):
 
     def data(self, index, role):
         if not index.isValid():
-            return QVariant()
+            return None
 
         if role == Qt.DisplayRole:
             tag = index.internalPointer()
             return tag.name
         elif role == Qt.BackgroundRole:
-            return self._currentTagBrush if index == self._currentTagIndex else QVariant()
+            return self._currentTagBrush if index == self._currentTagIndex else None
         else:
-            return QVariant()
+            return None
 
     def onActivated(self, index):
         tag = index.internalPointer()

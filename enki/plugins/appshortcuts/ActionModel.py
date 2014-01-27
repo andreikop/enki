@@ -4,7 +4,7 @@ See information at https://github.com/pasnox/fresh and
 API docks at http://api.monkeystudio.org/fresh/
 """
 
-from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt, QVariant
+from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt
 from PyQt4.QtGui import QAction, QKeySequence
 
 def tr(text):
@@ -34,7 +34,7 @@ class ActionModel(QAbstractItemModel):
 
     def data(self, index, role):
         if not index.isValid():
-            return QVariant()
+            return None
 
         action = index.internalPointer()
 
@@ -56,9 +56,9 @@ class ActionModel(QAbstractItemModel):
                 font.setBold( True )
             return font
             '''case Qt.BackgroundRole:
-                return action.menu() ? QBrush( QColor( 0, 0, 255, 20 ) ) : QVariant();'''
+                return action.menu() ? QBrush( QColor( 0, 0, 255, 20 ) ) : None;'''
 
-        return QVariant()
+        return None
 
     def index(self, row, column, parent = QModelIndex()):
         parentAction = parent.internalPointer()
