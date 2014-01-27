@@ -11,6 +11,7 @@ Table of contents
    doc/index
    win/build
    conf.py
+   enki/plugins/preview/__init__.py
 
 Indices and tables
 ------------------
