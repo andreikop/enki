@@ -116,10 +116,9 @@ class Test(base.TestCase):
     @requires_module('docutils')
     def test_1(self):
         self._do_basic_test('rst')
-        self.assertTrue(
-          base.waitForSignal(lambda:
-            QTest.mouseClick(self._widget().webView, Qt.LeftButton, Qt.NoModifier),
-          self._dock().js_click) )
+        self.assertEmits(
+          lambda: QTest.mouseClick(self._widget().webView, Qt.LeftButton, Qt.NoModifier),
+          self._dock().js_click)
 
 if __name__ == '__main__':
     unittest.main()
