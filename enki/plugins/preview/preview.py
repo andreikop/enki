@@ -21,7 +21,11 @@ from enki.widgets.dockwidget import DockWidget
 
 from enki.plugins.preview import isMarkdownFile, isHtmlFile
 
-from ApproxMatch import find_approx_text_in_target
+# If TRE isn't installed, this import will fail. In this case, disable the sync feature.
+try:
+    from ApproxMatch import find_approx_text_in_target
+except ImportError as e:
+    find_approx_text_in_target = None
 
 
 
@@ -177,16 +181,18 @@ class PreviewDock(DockWidget):
 
         self._widget.tbSave.clicked.connect(self.onSave)
 
-        self._initPreviewToTextSync()
-        self._initTextToPreviewSync()
-
+        # Only set up sync if TRE is installed.
+        if find_approx_text_in_target:
+            self._initPreviewToTextSync()
+            self._initTextToPreviewSync()
+    
 # Synchronizing between the text pane and the preview pane
 # ========================================================
 # A single click in the preview pane should move the text pane's cursor to the corresponding location. Likewise, movement of the text pane's cursor should select the corresponding text in the preview pane. To do so, an approximate search for text surrounding the current cursor or click location perfomed on text in the other pane provides the corresponding location in the other pane to highlight.
 #
 # Bugs / to-do items
 # ------------------
-# #. If tre isn't installed, then disable sync, rather than failing.
+# #. If JavaScript is disabled, this doesn't work (I think). Need to test / work around.
 # #. Follow `coding conventions <https://github.com/hlamer/enki/wiki/Hacking-guide>`_.
 # #. Provide good test coverage for this feature.
 # #. Investigate and fix poor sync. Create a log option to produce HTML showing the matching process. Try searching from the anchor for the minimum-length, lowest-cost string with a unique match in the target text.
@@ -360,8 +366,10 @@ class PreviewDock(DockWidget):
         """Uninstall themselves
         """
         self._typingTimer.stop()
-        self._cursorMovementTimer.stop()
-         # TODO: disconnect the cursorPositionChanged() slot? I would think so.
+        # Uninstall the text-to-web sync only if it was installed in the first place (it depends on TRE).
+        if find_approx_text_in_target:
+            self._cursorMovementTimer.stop()
+            # TODO: disconnect the cursorPositionChanged() slot? I would think so.
         self._thread.htmlReady.disconnect(self._setHtml)
         self._thread.stop_async()
         self._thread.wait()
