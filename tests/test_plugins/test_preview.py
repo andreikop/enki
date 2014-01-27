@@ -8,6 +8,7 @@ import imp
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 import base
 
+from PyQt4.QtCore import Qt, QPoint
 from PyQt4.QtTest import QTest
 from PyQt4.QtGui import QDockWidget
 
@@ -108,6 +109,17 @@ class Test(base.TestCase):
             dialog.accept()
 
         self.openDialog(lambda: combo.setCurrentIndex(combo.count() - 1), inDialog)
+
+# Preview sync tests
+# ^^^^^^^^^^^^^^^^^^
+    # Test that web-to-code sync occurs on clicks to the web pane.
+    @requires_module('docutils')
+    def test_1(self):
+        self._do_basic_test('rst')
+        self.assertTrue(
+          base.waitForSignal(lambda:
+            QTest.mouseClick(self._widget().webView, Qt.LeftButton, Qt.NoModifier),
+          self._dock().js_click) )
 
 if __name__ == '__main__':
     unittest.main()
