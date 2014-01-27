@@ -314,9 +314,6 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     # but can't cancel this / disconnect it.
     timer = QTimer()
     timer.setSingleShot(True)
-    # Create an event loop to wait for either the senderSignal
-    # or the timer's timeout signal.
-    loop = QEventLoop()
 
     # Create a slot which receives a senderSignal with any number
     # of arguments. Check the arguments against their expected
@@ -328,14 +325,15 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
         # If the senderSignal args should be checked and they
         # don't match, then they're wrong. In all other cases,
         # they're right.
-        senderSignalArgsWrong.append( (expectedSignalParams is not None) and
+        senderSignalArgsWrong.append(
+          (expectedSignalParams is not None) and
           (expectedSignalParams != args) )
         # We received the requested signal, so exit the event loop.
-        loop.quit()
+        papp.quit()
 
     # Connect both signals to a slot which quits the event loop.
     senderSignal.connect(senderSignalSlot)
-    timer.timeout.connect(loop.quit)
+    timer.timeout.connect(papp.quit)
     
     # Start the sender and the timer and at the beginning of the event loop.
     # Just calling sender() may cause signals emitted in sender
@@ -354,7 +352,7 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     sys.excepthook = excepthook
     
     # Wait for an emitted signal.
-    loop.exec_()
+    papp.exec_()
     # If an exception occurred in the event loop, re-raise it.
     if ex:
         raise ex[0]
@@ -367,7 +365,7 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     # will never receive a timeout after the function exits.
     # Likewise, disconnect the senderSignal for the same reason.
     senderSignal.disconnect(senderSignalSlot)
-    timer.timeout.disconnect(loop.quit)
+    timer.timeout.disconnect(papp.quit)
     # Restore the old exception hook
     sys.excepthook = oeh
     
