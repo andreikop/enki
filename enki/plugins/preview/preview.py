@@ -344,7 +344,8 @@ class PreviewDock(DockWidget):
         assert not res.toString()
         # Find the index with `findText <http://qt-project.org/doc/qt-4.8/qwebpage.html#findText>`_.
         found = pg.findText(txt[:web_index], QWebPage.FindCaseSensitively)
-        assert found
+        # Make sure the text was found, unless the search string was empty.
+        assert found or (web_index == 0)
 
         # Select the entire line containing the anchor: press home then shift+end using `keyClick <http://qt-project.org/doc/qt-4.8/qtest.html#keyClick>`_. Other ideas on how to do this:
         #  #. The same idea, but done in Javascript. Playing with this produced a set of failures -- in a ``conteneditable`` area, I couldn't perform any edits by sending keypresses. The best reference I found for injecting keypresses was `this jsbin demo <http://stackoverflow.com/questions/10455626/keydown-simulation-in-chrome-fires-normally-but-not-the-correct-key/12522769#12522769>`_. Another approach: use the Qt test mechanicsm to send keypresses instead.
