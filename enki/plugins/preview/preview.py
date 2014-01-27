@@ -12,6 +12,7 @@ from PyQt4.QtGui import QDesktopServices, QFileDialog, QIcon, QMessageBox, QWidg
 from PyQt4.QtWebKit import QWebPage
 from PyQt4 import QtGui
 from PyQt4 import uic
+from PyQt4.QtWebKit import QWebPage
 
 from enki.core.core import core
 
@@ -176,6 +177,7 @@ class PreviewDock(DockWidget):
         self._widget.tbSave.clicked.connect(self.onSave)
 
         self.initPreviewToTextSync()
+        self.initTextToPreviewSync()
 
 # Synchronizing between the text pane and the preview pane
 # ========================================================
@@ -260,14 +262,80 @@ class PreviewDock(DockWidget):
         # Move the cursor to text_index.
         qp = core.workspace().currentDocument().qutepart
         cursor = qp.textCursor()
+        # Tell the text to preview sync to ignore this cursor position change.
         cursor.setPosition(text_index, QtGui.QTextCursor.MoveAnchor)
+        self._previewToTextSyncRunning = True
         qp.setTextCursor(cursor)
+        self._previewToTextSyncRunning = False
         # Scroll the document to make sure the cursor is visible.
         qp.ensureCursorVisible()
         # Focus on the editor so the cursor will be shown and ready for typing.
         core.workspace().focusCurrentDocument()
 #
+# Text-to-preview sync
+# --------------------
+# The opposite direction is easier, since all the work can be done in Python. When the cursor moves in the text pane, find its matching location in the preview pane using an approximate match. Select several characters before and after the matching point to make the location more visible, since the preview pane lacks a cursor. Specifically:
 #
+# #. initTextToPreviewSync sets up a timer and connects the _onCursorPositionChanged  method.
+# #. _onCursorPositionChanged is called each time the cursor moves. It starts or resets a short timer. The timer's expiration calls:
+# #. syncTextToWeb performs the approximate match, then calls moveWebPaneToIndex to sync the web pane with the text pane.
+# #. moveWebToPane uses QWebFrame.find to search for the text under the anchor then select (or highlight) it.
+#
+    # Called when constructing the PreviewDoc. It performs item 1 above.
+    def initTextToPreviewSync(self):
+        # Create a timer which will sync the preview with the text cursor a short time after cursor movement stops.
+        self._cursorMovementTimer = QTimer()
+        self._cursorMovementTimer.setInterval(300)
+        self._cursorMovementTimer.timeout.connect(self._syncTextToPreview)
+        # Restart this timer every time the cursor moves.
+        core.workspace().currentDocument().qutepart.cursorPositionChanged.connect(self._onCursorPositionChanged)
+        # Set up a variable to tell us when the preview to text sync just fired, disabling this sync. Otherwise, that sync would trigger this sync, which is unnecessary.
+        self._previewToTextSyncRunning = False
+    
+    # Called when the cursor position in the text pane changes. It (re)schedules a text to web sync per item 2 above.
+    def _onCursorPositionChanged(self):
+        # Ignore this callback if a preview to text sync caused it.
+        if not self._previewToTextSyncRunning:
+            self._cursorMovementTimer.stop()
+            self._cursorMovementTimer.start()
+        
+    # When the timer above expires, this is called to sync text to preview per item 3 above.
+    def _syncTextToPreview(self):
+        # Stop the timer; the next cursor movement will restart it.
+        self._cursorMovementTimer.stop()
+        # Perform an approximate match.
+        mf = self._widget.webView.page().mainFrame()
+        qp = core.workspace().currentDocument().qutepart
+        web_index = find_approx_text_in_target(qp.text, qp.textCursor().position(), mf.toPlainText())
+        # Move the cursor to web_index in the preview pane, assuming corresponding text was found.
+        if web_index >= 0:
+            self.movePreviewPaneToIndex(web_index)
+    
+    # Highlights web_index in the preview pane, per item 4 above.
+    def movePreviewPaneToIndex(self,
+            web_index,
+            # The index to move the cursor / highlight to in the preview pane.
+            select_radius=5):
+            # The number of characters to highlight before and after web_index.
+        #
+        # Implementation: there's no direct way I know of to move the cursor in a web page. However, the find operation is fairly common. So, simply search from the beginning of the page for a substring of the web page's text rendering  from the beginning to a few characters before web_index. Then do a second search, starting at the character following the first search (a few characters before the web_index) to a few characters after the web_index.
+        pg = self._widget.webView.page()
+        mf = pg.mainFrame()
+        txt = mf.toPlainText()
+        # Hopefully, start the search location at the beginning of the document by clearing the previous selection using `removeAllRanges <https://developer.mozilla.org/en-US/docs/Web/API/Selection.removeAllRanges>`_.
+        res = mf.evaluateJavaScript('window.getSelection().removeAllRanges();')
+        assert not res.toString()
+        # Determine the index a few characters before web_index then find it using `findText <http://qt-project.org/doc/qt-4.8/qwebpage.html#findText>`_, assuming the string isn't empty.
+        before_web_index = max(0, web_index - select_radius)
+        if before_web_index > 0:
+            found = pg.findText(txt[:before_web_index], QWebPage.FindCaseSensitively)
+            assert found
+        # Determine the index a few characters after web_index and find it, highlighting this text.
+        after_web_index = min(len(txt) - 1, web_index + select_radius)
+        assert after_web_index > before_web_index
+        found = pg.findText(txt[before_web_index:after_web_index], QWebPage.FindCaseSensitively)
+        assert found
+    
 # Other handlers
 # ==============
     def del_(self):
