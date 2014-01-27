@@ -255,7 +255,7 @@ class PreviewDock(DockWidget):
                  # Step 3:
                  #
                  # - `cloneContents <https://developer.mozilla.org/en-US/docs/Web/API/Range.cloneContents>`_ "Returns a `DocumentFragment <https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment>`_ copying the nodes of a Range."
-                 # - DocumentFragment's parent `Node <a DOMString representing the textual content of an element and all its descendants.>`_ provides a `textContent <https://developer.mozilla.org/en-US/docs/Web/API/Node.textContent>`_ property which gives "a DOMString representing the textual content of an element and all its descendants." This therefore contains a text rendering of the webpage from the beginning of the page to the point where the user clicked.
+                 # - DocumentFragment's parent `Node <https://developer.mozilla.org/en-US/docs/Web/API/Node>`_ provides a `textContent <https://developer.mozilla.org/en-US/docs/Web/API/Node.textContent>`_ property which gives "a DOMString representing the textual content of an element and all its descendants." This therefore contains a text rendering of the webpage from the beginning of the page to the point where the user clicked.
 
             '    PyPreviewDock.js_click(r_str.length);' +
                  # Step 4: the length of the string gives the index of the click into a string containinga text rendering of the webpage. Emit a signal with that information.
@@ -266,12 +266,16 @@ class PreviewDock(DockWidget):
     
     # Per item 3 above, this is called when the user clicks in the web view. It finds the matching location in the text pane then moves the text pane cursor.
     def _onWebviewClick(self,
-                       web_index):
-                       # The index of the click character in a text rendering of the web page.
-        # Perform an approximate match between the clicked webpage text and the text pane text.
+                        web_index):
+                        # The index of the clicked character in a text rendering of the web page.
+        #
+        # Retrieve the web page text and the qutepart text.
         mf = self._widget.webView.page().mainFrame()
+        # Get the textContent of the entire web page. This differs from mf.toPlainText(), which uses innerText and therefore produces a slightly differnt result. Since web_index is computed based on textContent, that must be used for the search.
+        tc = mf.evaluateJavaScript('document.body.textContent.toString()').toString()
         qp = core.workspace().currentDocument().qutepart
-        text_index = find_approx_text_in_target(mf.toPlainText(), web_index, qp.text)
+        # Perform an approximate match between the clicked webpage text and the qutepart text.
+        text_index = find_approx_text_in_target(tc, web_index, qp.text)
         # Move the cursor to text_index in qutepart, assuming corresponding text was found.
         if text_index >= 0:
             self._moveTextPaneToIndex(text_index)
