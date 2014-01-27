@@ -195,7 +195,6 @@ class PreviewDock(DockWidget):
 # #. If JavaScript is disabled, this doesn't work (I think). Need to test / work around.
 # #. Follow `coding conventions <https://github.com/hlamer/enki/wiki/Hacking-guide>`_.
 # #. Provide good test coverage for this feature.
-# #. Investigate and fix poor sync. Create a log option to produce HTML showing the matching process. Try searching from the anchor for the minimum-length, lowest-cost string with a unique match in the target text.
 # #. Should I disconnect the cursorPositionChanged() signal when the preview window is closed? Just connect it when it opens?
 # #. I call toPlainText() several times. In the past, this was quite slow in a QTextEdit. Check performance and possibly cache this value; it should be easy to update by adding a few lines to _setHtml().
 #

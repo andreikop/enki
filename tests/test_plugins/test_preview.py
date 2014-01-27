@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+# ***************************************************
+# test_preview.py - Unit tests for the Preview module
+# ***************************************************
 
 import unittest
 import os.path
@@ -112,6 +115,17 @@ class Test(base.TestCase):
 
 # Preview sync tests
 # ^^^^^^^^^^^^^^^^^^
+# To do:
+#
+# #. ``js_click.emit(0)`` and verify that the cursor is at the beginning of doc.
+# #. Same as above, but emit(preview_text_mid_index) for middle of doc.
+# #. Same as above, but emit(preview_text.len) for end of doc.
+# #. Test all three above on an empty doc.
+# #. Repeat above tests for code to web sync.
+# #. Test that when javascript is disabled, web-to-code doesn't produce an exception.
+# #. Same as above, but for code to web.
+# #. Test that when the preview window is hidden, code-to-web sync stops working.
+#
     # Test that web-to-code sync occurs on clicks to the web pane.
     @requires_module('docutils')
     def test_1(self):
