@@ -35,12 +35,11 @@ class DummyProfiler:
 
 
 def _processPendingEvents(app):
-    """Process pending application events.
-    Timeout is used, because on Windows hasPendingEvents() always returns True
-    """
-    t = time.time()
-    while app.hasPendingEvents() and (time.time() - t < 0.1):
-        app.processEvents()
+    """Process pending application events."""
+    
+    # Quit the event loop when it becomes idle.
+    QTimer.singleShot(0, papp.quit)
+    papp.exec_()
 
 # By default, the traceback for excpetions occurring inside
 # an exec_ loop will be printed.
