@@ -19,13 +19,93 @@
 # =======
 # These are listed in the order prescribed by `PEP 8 <http://www.python.org/dev/peps/pep-0008/#imports>`_.
 #
+# Library imports
+# ---------------
+# Both used for debugging.
+import codecs
+import cgi
+#
 # Third-party imports
 # -------------------
 # For approximate pattern matching, this module uses the Python port of `TRE <http://hackerboss.com/approximate-regex-matching-in-python>`_.
 import tre
 #
 # For debug
-#import codecs
+# =========
+# Write the results of a match to an HTML file if enabled.
+ENABLE_LOG = False
+#
+# Given a search result, format it in HTML: create a <pre> entry with the text, hilighting from the left_anchor to the search_anchor in one color and from search_anchor to right_anchor in another color. Show the anchor with a big yellow X marks the spot.
+def html_format_search_input(search_text, left_anchor, search_anchor, right_anchor):
+    # Divide the text into four pieces based on the three anchors. Escape them for use in HTML.
+    before_left = cgi.escape(search_text[:left_anchor])
+    left_to_anchor = cgi.escape(search_text[left_anchor:search_anchor])
+    anchor_to_right = cgi.escape(search_text[search_anchor:right_anchor])
+    after_right = cgi.escape(search_text[right_anchor:])
+
+    return ( (
+      # Use preformatted text so spaces, newlines get interpreted correctly. Include all text up to the left anchor.
+      '<pre>%s' +
+      # Format text between the left anchor and the search anchor with a red background.
+      '<span style="background-color:red;">%s</span>' +
+      # Place a huge X marks the spot at the anchor
+      '<span style="color:yellow; font-size:xx-large;">X</span>' +
+      # Format text between the search anchor and the right anchor with a blue background.
+      '<span style="background-color:blue;">%s</span>' +
+      # Include the text between the right anchor and end of text with no special formatting.
+      '%s</pre>') % (before_left, left_to_anchor, anchor_to_right, after_right) )
+
+# Show the results from a search: create a <pre> entry with the text, highlighting the matched portion of the text.
+def html_format_search_results(searched_text, left_anchor, right_anchor):
+    # Divide the text into three pieces based on the two anchors. Escape them for use in HTML.
+    before_left = cgi.escape(search_text[:left_anchor])
+    left_to_right = cgi.escape(search_text[left_anchor:right_anchor])
+    after_right = cgi.escape(search_text[right_anchor:])
+
+    return ( (
+      # Use preformatted text so spaces, newlines get interpreted correctly. Include all text up to the left anchor.
+      '<pre>%s' +
+      # Format text between the left anchor and the right anchor with a green background.
+      '<span style="background-color:green;">%s</span>' +
+      # Include the text between the right anchor and end of text with no special formatting.
+      '%s</pre>') % (before_left, left_to_right, after_right) )
+
+# Take these two results and put them side by side in a table.
+def html_format_search(html_search_input, html_search_results, match_cost):
+    return ( (
+      '<table><tr><th>Search input</th><th>Search results</th></tr>\n'
+      '<tr><td>%s</td>\n' +
+      '<td>%s</td></tr></table>\n' +
+      'Match cost: %s<br />\n\n') % 
+     (html_search_input, html_search_results, unicode(match_cost)) )
+
+# Create text for a simple web page.
+LOG_COUNTER = 0
+def html_template(body):
+    global LOG_COUNTER
+    
+    LOG_COUNTER += 1
+    return ( (
+"""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>ApproxMatch log #%d</title>
+    <meta http-equiv="content-type" 
+		content="text/html;charset=utf-8" />
+  </head>
+
+  <body>
+%s
+  </body>
+
+</html>
+""") % (LOG_COUNTER, body) )
+
+# Given HTML, write it to a file.
+def write_html_log(html_text):
+    with codecs.open('ApproxMatch_log.html', 'w', encoding = 'utf-8') as f:
+        f.write(html_text)
 #
 # find_approx_text
 # ================
@@ -99,9 +179,12 @@ def find_approx_text_in_target(
     match, begin_in_target, end_in_target = find_approx_text(search_text[begin:end], target_text)
     # If no unique match is found, give up (for now -- this could be improved).
     if not match:
-##        print("No unique match found.")
-##        with codecs.open('search_log.txt', 'w', encoding = 'utf-8') as f:
-##            f.write("No unique match found.\n" + search_text[begin:end] + '\n\n\n\n' + target_text)
+        if ENABLE_LOG:
+            si = html_format_search_input(search_text, begin, search_anchor, end)
+            sr = html_format_search_results(target_text, 0, 0)
+            fs = html_format_search(si, sr, "No unique match found.")
+            ht = html_template(fs)
+            write_html_log(ht)
         return -1
 #
 # Search for an exact match between the search_anchor substring and the target_text approximate match
@@ -177,4 +260,13 @@ def find_approx_text_in_target(
 ##              target_text)
     offset = begin_in_target + begin_in_target_substr + (search_anchor - min_cost_begin)
     # Make sure the result lies within the bounds of target_text. Since we return a cursor position, an offset of len(target_text), meaning the end of target_text, is valid.
-    return min(len(target_text), max(0, offset))
+    offset = min(len(target_text), max(0, offset))
+
+    if ENABLE_LOG:
+        si = html_format_search_input(search_text, begin, search_anchor, end)
+        sr = html_format_search_input(target_text, begin_in_target, offset, end_in_target)
+        fs = html_format_search(si, sr, min_cost)
+        ht = html_template(fs)
+        write_html_log(ht)
+
+    return offset
