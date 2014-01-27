@@ -19,7 +19,7 @@ from enki.widgets.dockwidget import DockWidget
 
 from enki.plugins.preview import isMarkdownFile, isHtmlFile
 
-from FindLongestMatchingString import find_approx_text_in_target
+from ApproxMatch import find_approx_text_in_target
 
 
 

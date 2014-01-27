@@ -7,7 +7,7 @@
 #   :maxdepth: 2
 #
 #   preview.py
-#   FindLongestMatchingString.py
+#   ApproxMatch.py
 
 from PyQt4.QtCore import QObject, Qt
 from PyQt4.QtGui import QAction, QIcon, QKeySequence
