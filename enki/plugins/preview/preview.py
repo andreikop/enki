@@ -10,6 +10,7 @@ import Queue
 from PyQt4.QtCore import pyqtSignal, QSize, Qt, QThread, QTimer, QUrl
 from PyQt4.QtGui import QDesktopServices, QFileDialog, QIcon, QMessageBox, QWidget
 from PyQt4.QtWebKit import QWebPage
+from PyQt4 import QtGui
 from PyQt4 import uic
 
 from enki.core.core import core
@@ -185,12 +186,13 @@ class PreviewDock(DockWidget):
 # For this sync, the first step is to find the single click's location in a plain text rendering of the preview's web content. This is implemented in JavaScript, which emits a Qt signal with the location on a click. A slot connected to this signal then performs the approximate match and updates the text pane's cursor. To do this:
 #
 # #. ``js_click``, a PyQt signal with a single numeric argument (the index into a string containing the plain text rendering of the web page) is defined. This signal is :ref:`connected <onJavaScriptCleared.connect>` to the ``onWebviewClick`` slot.
-# #. The ``onJavaScriptCleared`` method inserts the JavaScript to listen for a click and then emit a signal giving the click's location as this index.
+# #. The ``onJavaScriptCleared`` method inserts the JavaScript to listen for a click and then emit a signal giving the click's location.
 # #. The ``onWebviewClick`` method then performs the approximate match and updates the text pane's cursor location.
 # #. When a new web page is loaded, all JavaScript is lost and must be reinserted. The ``onJavaScriptCleared`` slot, connected to the ``javaScriptWindowObjectCleared`` signal, does this.
 
     # A signal emitted by clicks in the web view, per 1 above.
     js_click = pyqtSignal(int)
+                          # int: The index of the click character in a text rendering of the web page.
 
     # Initialize the system per items 1, 2, and 4 above.
     def initPreviewToTextSync(self):
@@ -206,32 +208,66 @@ class PreviewDock(DockWidget):
         mf = self._widget.webView.page().mainFrame()
         # Use `addToJavaScriptWindowObject <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#addToJavaScriptWindowObject>`_ to make this PreviewDock object known to JavaScript, so that JavaScript can emit the ``js_click`` signal defined by PreviewDock.
         mf.addToJavaScriptWindowObject("PyPreviewDock", self)
-        # Use `evaluateJavaScript <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#evaluateJavaScript>`_ to insert our ``onclick()`` handler.
+        # Use `evaluateJavaScript <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#evaluateJavaScript>`_ to insert our ``onclick()`` handler. The job of this handler is to translate a mouse click into an index into the text rendering of the webpage. To do this, we must:
+        #
+        # #. Get the current selection made by the mouse click, which is typically an empty range. (I assume a click and drag will produce a non-empty range).
+        # #. Extend a copy of this range so that it begins at the start of the webpage and, of course, ends at the character nearest the latest mouse click.
+        # #. Get a string rendering of this range.
+        # #. Emit a signal with the length of this string.
         res = mf.evaluateJavaScript(
             'window.onclick = function () {' +
-            # The `window.onclick <https://developer.mozilla.org/en-US/docs/Web/API/Window.onclick>`_ event is "called when the user clicks the mouse button while the cursor is in the window. This event is fired for any mouse button pressed; you can look at the event properties to find out which button was pressed and where." This code doesn't filter out the click, so it responds on any click, not just a left click.
+            # The `window.onclick <https://developer.mozilla.org/en-US/docs/Web/API/Window.onclick>`_ event is "called when the user clicks the mouse button while the cursor is in the window." Although the docs claim that "this event is fired for any mouse button pressed", I found experimentally that it on fires on a left-click release; middle and right clicks had no effect.
+
             '    var r = window.getSelection().getRangeAt(0).cloneRange();' +
-                 # - `window.getSelection <https://developer.mozilla.org/en-US/docs/Web/API/Window.getSelection>`_ "returns a `Selection <https://developer.mozilla.org/en-US/docs/Web/API/Selection>`_ object representing the range of text selected by the user." Since this is only called after a click, I assume the Selection object is non-null. TODO: Is this true for middle and left clicks?
+                 # This performs step 1 above. In particular:
+                 #
+                 # - `window.getSelection <https://developer.mozilla.org/en-US/docs/Web/API/Window.getSelection>`_ "returns a `Selection <https://developer.mozilla.org/en-US/docs/Web/API/Selection>`_ object representing the range of text selected by the user." Since this is only called after a click, I assume the Selection object is non-null.
                  # - The Selection.\ `getRangeAt <https://developer.mozilla.org/en-US/docs/Web/API/Selection.getRangeAt>`_ method "returns a range object representing one of the ranges currently selected." Per the Selection `glossary <https://developer.mozilla.org/en-US/docs/Web/API/Selection#Glossary>`_, "A user will normally only select a single range at a time..." The index for retrieving a single-selection range is of course 0.
                  # - "The `Range <https://developer.mozilla.org/en-US/docs/Web/API/range>`_ interface represents a fragment of a document that can contain nodes and parts of text nodes in a given document." We clone it to avoid modifying the user's existing selection using `cloneRange <https://developer.mozilla.org/en-US/docs/Web/API/Range.cloneRange>`_.
+
             '    r.setStartBefore(document.body);' +
-                 # This cloned range is now changed to contain the web page from its beginning to the point where the user click by calling `setStartBefore <https://developer.mozilla.org/en-US/docs/Web/API/Range.setStartBefore>`_ on `document.body <https://developer.mozilla.org/en-US/docs/Web/API/document.body>`_.
+                 # This performs step 2 above: the cloned range is now changed to contain the web page from its beginning to the point where the user click by calling `setStartBefore <https://developer.mozilla.org/en-US/docs/Web/API/Range.setStartBefore>`_ on `document.body <https://developer.mozilla.org/en-US/docs/Web/API/document.body>`_.
+
             '    var r_str = r.cloneContents().textContent.toString();' +
+                 # Step 3:
+                 #
                  # - `cloneContents <https://developer.mozilla.org/en-US/docs/Web/API/Range.cloneContents>`_ "Returns a `DocumentFragment <https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment>`_ copying the nodes of a Range."
                  # - DocumentFragment's parent `Node <a DOMString representing the textual content of an element and all its descendants.>`_ provides a `textContent <https://developer.mozilla.org/en-US/docs/Web/API/Node.textContent>`_ property which gives "a DOMString representing the textual content of an element and all its descendants." This therefore contains a text rendering of the webpage from the beginning of the page to the point where the user clicked.
+
             '    PyPreviewDock.js_click(r_str.length);' +
-                 # The length of the string gives the index of the click into a string containinga text rendering of the webpage. Emit a signal with that information.
+                 # Step 4: the length of the string gives the index of the click into a string containinga text rendering of the webpage. Emit a signal with that information.
             '};')
+
         # Make sure no errors were returned; the result should be empty.
         assert not res.toString()
     
     # Per item 3 above, this is called when the user clicks in the web view. It finds the matching location in the text pane then moves the text pane cursor.
-    def onWebviewClick(self, web_index):
+    def onWebviewClick(self,
+                       web_index):
+                       # The index of the click character in a text rendering of the web page.
         # Perform an approximate match between the clicked webpage text and the text pane text.
-        text_index = find_approx_text_in_target(self._widget.webView.page().mainFrame().toPlainText(), web_index, core.workspace().currentDocument().qutepart.text)
-        print("Click at web index %d corresponds to text index %d." % (web_index, text_index))
-        
+        mf = self._widget.webView.page().mainFrame()
+        qp = core.workspace().currentDocument().qutepart
+        text_index = find_approx_text_in_target(mf.toPlainText(), web_index, qp.text)
+        # Move the cursor to text_index in qutepart, assuming corresponding text was found.
+        if text_index >= 0:
+            self.moveTextPaneToIndex(text_index)
 
+    # Given an index into the text pane, move the cursor to that index.
+    def moveTextPaneToIndex(self,
+                            text_index):
+                            # The index into the text pane at which to place the cursor.
+        # Move the cursor to text_index.
+        qp = core.workspace().currentDocument().qutepart
+        cursor = qp.textCursor()
+        cursor.setPosition(text_index, QtGui.QTextCursor.MoveAnchor)
+        qp.setTextCursor(cursor)
+        # Scroll the document to make sure the cursor is visible.
+        qp.ensureCursorVisible()
+        # Focus on the editor so the cursor will be shown and ready for typing.
+        core.workspace().focusCurrentDocument()
+#
+#
 # Other handlers
 # ==============
     def del_(self):
