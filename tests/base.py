@@ -59,18 +59,14 @@ def inMainLoop(func, *args):
     def wrapper(*args):
         self = args[0]
 
-        def execWithArgs(eListLocal):
+        def execWithArgs():
             core.mainWindow().show()
             QTest.qWaitForWindowShown(core.mainWindow())
-            _processPendingEvents(self.app)
-
-            try:
-                func(*args)
-            finally:
-                _processPendingEvents(self.app)
-                self.app.quit()
-
-        QTimer.singleShot(0, lambda: execWithArgs(eList))
+            func(*args)
+            # When done processing these events, exit the event loop.
+            QTimer.singleShot(0, self.app.quit)
+                
+        QTimer.singleShot(0, execWithArgs)
 
         # Catch any exceptions which the EventLoop would otherwise catch
         # and not re-raise.
@@ -82,7 +78,7 @@ def inMainLoop(func, *args):
         oeh = sys.excepthook
         sys.excepthook = excepthook
         
-        # Wait for an emitted signal.
+        # Run the requested function in the application's main loop.
         self.app.exec_()
         # If an exception occurred in the event loop, re-raise it.
         if ex:
