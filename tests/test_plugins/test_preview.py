@@ -117,6 +117,8 @@ class Test(base.TestCase):
 # ^^^^^^^^^^^^^^^^^^
 # To do:
 #
+# #. Programmatically place caret at beginning, middle, end, 
+#    then check resulting js_click value.
 # #. ``js_click.emit(0)`` and verify that the cursor is at the beginning of doc.
 # #. Same as above, but emit(preview_text_mid_index) for middle of doc.
 # #. Same as above, but emit(preview_text.len) for end of doc.
@@ -127,9 +129,9 @@ class Test(base.TestCase):
 # #. Test that when the preview window is hidden, code-to-web sync stops working.
 #
     # Test that web-to-code sync occurs on clicks to the web pane.
-    @requires_module('docutils')
+    @requiresModule('docutils')
     def test_1(self):
-        self._do_basic_test('rst')
+        self._doBasicTest('rst')
         self.assertEmits(
           lambda: QTest.mouseClick(self._widget().webView, Qt.LeftButton, Qt.NoModifier),
           self._dock().js_click)

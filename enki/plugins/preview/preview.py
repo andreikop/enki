@@ -261,7 +261,7 @@ class PreviewDock(DockWidget):
             '};')
 
         # Make sure no errors were returned; the result should be empty.
-        assert not res.toString()
+        assert not res
     
     # Per item 3 above, this is called when the user clicks in the web view. It finds the matching location in the text pane then moves the text pane cursor.
     def _onWebviewClick(self,
@@ -271,7 +271,7 @@ class PreviewDock(DockWidget):
         # Retrieve the web page text and the qutepart text.
         mf = self._widget.webView.page().mainFrame()
         # Get the textContent of the entire web page. This differs from mf.toPlainText(), which uses innerText and therefore produces a slightly differnt result. Since web_index is computed based on textContent, that must be used for the search.
-        tc = mf.evaluateJavaScript('document.body.textContent.toString()').toString()
+        tc = mf.evaluateJavaScript('document.body.textContent.toString()')
         qp = core.workspace().currentDocument().qutepart
         # Perform an approximate match between the clicked webpage text and the qutepart text.
         text_index = find_approx_text_in_target(tc, web_index, qp.text)
@@ -350,7 +350,7 @@ class PreviewDock(DockWidget):
         txt = mf.toPlainText()
         # Hopefully, start the search location at the beginning of the document by clearing the previous selection using `removeAllRanges <https://developer.mozilla.org/en-US/docs/Web/API/Selection.removeAllRanges>`_.
         res = mf.evaluateJavaScript('window.getSelection().removeAllRanges();')
-        assert not res.toString()
+        assert not res
         # Find the index with `findText <http://qt-project.org/doc/qt-4.8/qwebpage.html#findText>`_.
         found = pg.findText(txt[:web_index], QWebPage.FindCaseSensitively)
         # Make sure the text was found, unless the search string was empty.
