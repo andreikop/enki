@@ -127,12 +127,20 @@ class ConverterThread(QThread):
 class PreviewDock(DockWidget):
     """GUI and implementation
     """
+    closed = pyqtSignal()
+    js_click = pyqtSignal(unicode)
+
     def __init__(self):
         DockWidget.__init__(self, core.mainWindow(), "&Preview", QIcon(':/enkiicons/internet.png'), "Alt+P")
         self._widget = QWidget(self)
 
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Preview.ui'), self._widget)
 
+        # Before a web page is loaded, do some Qt setup.
+        self._widget.webView.page().mainFrame().javaScriptWindowObjectCleared.connect(self.onLoad)
+        # JavaScipt code will emit the js_click signal. Connect it to a handler.
+        self.js_click.connect(self.js_onclick)
+        
         self._loadTemplates()
 
         self._widget.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
@@ -168,6 +176,30 @@ class PreviewDock(DockWidget):
         self._applyJavaScriptEnabled(self._isJavaScriptEnabled())
 
         self._widget.tbSave.clicked.connect(self.onSave)
+        
+        # The onLoad handler won't be called unless there's some JavaScript activity. Do something to make it happen.
+        self._widget.webView.page().mainFrame().evaluateJavaScript('')
+        
+    # This is called before starting a new load of a web page. See  http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#javaScriptWindowObjectCleared.
+    def onLoad(self):
+        # Make this DockWidget available to receive JavaScript signals. See http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#addToJavaScriptWindowObject.
+        self._widget.webView.page().mainFrame().addToJavaScriptWindowObject("dock_widget", self)
+        # Test code: see if we can cause onClick() to invoke a PyQt slot. See http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#evaluateJavaScript.
+        res = self._widget.webView.page().mainFrame().evaluateJavaScript(
+            """window.onclick = function () {
+                    var currentSelection = window.getSelection();
+                    var r = currentSelection.getRangeAt(0).cloneRange();
+                    r.setStartBefore(document.body);
+                    var clone_r = r.cloneContents();
+                    var r_text = clone_r.textContent;
+                    var r_str = r_text.toString();
+                    dock_widget.js_click(r_str);
+                                };
+            """)
+        assert not res.toString()
+    
+    def js_onclick(self, s):
+        print("Click with: " + s)
 
     def del_(self):
         """Uninstall themselves
