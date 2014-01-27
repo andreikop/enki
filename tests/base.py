@@ -8,19 +8,14 @@ import time
 import tempfile
 import subprocess
 
-import sip
-sip.setapi('QString', 2)
-sip.setapi('QVariant', 2)
+sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
+from persistent_qapplication import papp
 
 from PyQt4.QtCore import Qt, QTimer, QEventLoop, pyqtSlot
 from PyQt4.QtGui import QApplication, QDialog, QKeySequence
 from PyQt4.QtTest import QTest
 
-
 import qutepart
-
-sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
-
 from enki.widgets.dockwidget import DockWidget
 import enki.core.defines
 enki.core.defines.CONFIG_DIR = tempfile.gettempdir()
@@ -115,24 +110,6 @@ def requiresCmdlineUtility(command):
     return inner
 
 
-class NotifyApplication(QApplication):
-    """ This class can assert if any events are emitted.
-    
-    Its purpose is to check that, after a PyQt class is closed, there are no timer/other callback leaks.
-    
-    """
-    def __init__(self, *args):
-        QApplication.__init__(self, *args)
-        self.assertOnEvents = False
-        
-    def notify(self, receiver, event):
-        """ Pass the event on, printing diagnostics if enabled. """
-        
-        if self.assertOnEvents:
-            print('Post-termination event: receiver = %s, event = %s' % (receiver, event))
-        return QApplication.notify(self, receiver, event)
-        
-papp = NotifyApplication(sys.argv)
 class TestCase(unittest.TestCase):
     app = papp
 
