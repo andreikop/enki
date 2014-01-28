@@ -262,32 +262,34 @@ class PreviewDock(DockWidget):
 
         # Make sure no errors were returned; the result should be empty.
         assert not res
+        
+    # Return the textContent of the entire web page. This differs from mf.toPlainText(), which uses innerText and therefore produces a slightly differnt result. Since web_index is computed based on textContent, that must be used for the search.
+    def _webTextContent(self):
+        return self._widget.webView.page().mainFrame().evaluateJavaScript('document.body.textContent.toString()')
     
     # Per item 3 above, this is called when the user clicks in the web view. It finds the matching location in the text pane then moves the text pane cursor.
     def _onWebviewClick(self,
-                        web_index):
+                        webIndex):
                         # The index of the clicked character in a text rendering of the web page.
         #
         # Retrieve the web page text and the qutepart text.
-        mf = self._widget.webView.page().mainFrame()
-        # Get the textContent of the entire web page. This differs from mf.toPlainText(), which uses innerText and therefore produces a slightly differnt result. Since web_index is computed based on textContent, that must be used for the search.
-        tc = mf.evaluateJavaScript('document.body.textContent.toString()')
+        tc = self._webTextContent()
         qp = core.workspace().currentDocument().qutepart
         # Perform an approximate match between the clicked webpage text and the qutepart text.
-        text_index = find_approx_text_in_target(tc, web_index, qp.text)
+        text_index = find_approx_text_in_target(tc, webIndex, qp.text)
         # Move the cursor to text_index in qutepart, assuming corresponding text was found.
         if text_index >= 0:
             self._moveTextPaneToIndex(text_index)
 
     # Given an index into the text pane, move the cursor to that index.
     def _moveTextPaneToIndex(self,
-                            text_index):
+                            textIndex):
                             # The index into the text pane at which to place the cursor.
         # Move the cursor to text_index.
         qp = core.workspace().currentDocument().qutepart
         cursor = qp.textCursor()
         # Tell the text to preview sync to ignore this cursor position change.
-        cursor.setPosition(text_index, QtGui.QTextCursor.MoveAnchor)
+        cursor.setPosition(textIndex, QtGui.QTextCursor.MoveAnchor)
         self._previewToTextSyncRunning = True
         qp.setTextCursor(cursor)
         self._previewToTextSyncRunning = False
