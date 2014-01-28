@@ -129,12 +129,46 @@ class Test(base.TestCase):
 # #. Test that when the preview window is hidden, code-to-web sync stops working.
 #
     # Test that web-to-code sync occurs on clicks to the web pane.
+    # A click at 0, height (top left corner) should produce
+    # an index of 0.
     @requiresModule('docutils')
-    def test_1(self):
+    def test_sync1(self):
         self._doBasicTest('rst')
         self.assertEmits(
-          lambda: QTest.mouseClick(self._widget().webView, Qt.LeftButton, Qt.NoModifier),
-          self._dock().js_click)
+          lambda: QTest.mouseClick(self._widget().webView,
+            Qt.LeftButton, Qt.NoModifier, QPoint(0, self._widget().webView.height())),
+          self._dock().js_click, expectedSignalParams=(0,))
+        
+        
+    # Simulate a mouse click by calling window.onclick() in Javascript.
+    def _jsOnClick(self):
+        ret = self._widget().webView.page().mainFrame().evaluateJavaScript('window.onclick()')
+        assert not ret
+        
+    # Given a string s, place the cursor after it and simulate a click
+    # in the web view. Verify that the index produced by js_click
+    # is correct.
+    def _testSyncString(self, s):
+        self._doBasicTest('rst')
+        # The web text will have extra whitespace in it. But findText operates on a space-less version of the text. Determine how many whitespace characters preceed the text.
+        wtc = self._dock()._webTextContent()
+        wsLen = len(wtc) - len(wtc.lstrip())
+        # Choose text to find.
+        ret = self._widget().webView.page().findText(s)
+        assert ret
+        # Now run the Javascript and see if the index with whitespace added matches.
+        self.assertEmits(self._jsOnClick, 
+          self._dock().js_click, expectedSignalParams=(len(s) + wsLen,) )
+        
+    # Simulate a click after 'The pre' and check the resulting js_click result.
+    @requiresModule('docutils')
+    def test_sync2(self):
+        self._testSyncString('The pre')
+
+    # Same as above, but with the entire string.
+    @requiresModule('docutils')
+    def test_sync3(self):
+        self._testSyncString('The preview text')
 
 if __name__ == '__main__':
     unittest.main()
