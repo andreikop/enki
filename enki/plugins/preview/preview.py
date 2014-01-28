@@ -348,10 +348,9 @@ class PreviewDock(DockWidget):
         pg = self._widget.webView.page()
         mf = pg.mainFrame()
         txt = mf.toPlainText()
-        # Hopefully, start the search location at the beginning of the document by clearing the previous selection using `removeAllRanges <https://developer.mozilla.org/en-US/docs/Web/API/Selection.removeAllRanges>`_.
-        res = mf.evaluateJavaScript('window.getSelection().removeAllRanges();')
-        assert not res
-        # Find the index with `findText <http://qt-project.org/doc/qt-4.8/qwebpage.html#findText>`_.
+        # Start the search location at the beginning of the document by clearing the previous selection using `findText <http://qt-project.org/doc/qt-4.8/qwebpage.html#findText>`_ with an empty search string.
+        pg.findText('')
+        # Find the index with findText_.
         found = pg.findText(txt[:web_index], QWebPage.FindCaseSensitively)
         # Make sure the text was found, unless the search string was empty.
         assert found or (web_index == 0)
