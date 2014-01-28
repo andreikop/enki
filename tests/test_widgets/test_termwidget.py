@@ -22,10 +22,12 @@ from enki.widgets.termwidget import TermWidget
 class _BaseTest(base.TestCase):
 
      def setUp(self):
+          base.TestCase.setUp(self)
           self.term = TermWidget(self.app.font())
 
      def tearDown(self):
           del self.term
+          base.TestCase.tearDown(self)
 
 
 class Formatting(_BaseTest):
