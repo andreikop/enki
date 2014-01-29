@@ -335,7 +335,7 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     # If an exception occurred in the event loop, re-raise it.
     if ex:
         raise ex[0]
-    # Clean up: don't allow the timer to call loop after this
+    # Clean up: don't allow the timer to call app.quit after this
     # function exits, which would produce "interesting" behavior.
     ret = timer.isActive()
     timer.stop()
@@ -347,5 +347,5 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     timer.timeout.disconnect(papp.quit)
     # Restore the old exception hook
     sys.excepthook = oeh
-
-    return ret and not senderSignalArgsWrong[0]
+    
+    return ret and senderSignalArgsWrong and (not senderSignalArgsWrong[0])
