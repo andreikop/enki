@@ -303,7 +303,7 @@ class PreviewDock(DockWidget):
 # The opposite direction is easier, since all the work can be done in Python. When the cursor moves in the text pane, find its matching location in the preview pane using an approximate match. Select several characters before and after the matching point to make the location more visible, since the preview pane lacks a cursor. Specifically:
 #
 # #. initTextToPreviewSync sets up a timer and connects the _onCursorPositionChanged  method.
-# #. _onCursorPositionChanged is called each time the cursor moves. It starts or resets a short timer. The timer's expiration calls:
+# #. _onCursorPositionChanged is called each time the cursor moves. It starts or resets a short timer. The timer's expiration calls syncTextToWeb.
 # #. syncTextToWeb performs the approximate match, then calls moveWebPaneToIndex to sync the web pane with the text pane.
 # #. moveWebToPane uses QWebFrame.find to search for the text under the anchor then select (or highlight) it.
 #
@@ -314,13 +314,14 @@ class PreviewDock(DockWidget):
         self._cursorMovementTimer.setInterval(300)
         self._cursorMovementTimer.timeout.connect(self._syncTextToPreview)
         # Restart this timer every time the cursor moves.
-        core.workspace().currentDocument().qutepart.cursorPositionChanged.connect(self._onCursorPositionChanged)
+        self.currentCursorPositionChanged = core.workspace().currentDocument().qutepart.cursorPositionChanged
+        self.currentCursorPositionChanged.connect(self._onCursorPositionChanged)
         # Set up a variable to tell us when the preview to text sync just fired, disabling this sync. Otherwise, that sync would trigger this sync, which is unnecessary.
         self._previewToTextSyncRunning = False
         # Make the page's content editable, to provide for single-line selection performed in _movePreviewPaneToIndex(). The other option: make it editable for just a moment, perform the action, then make it uneditable. Since this *might* be slower, and since clicks to the web page move the focus immediately back to the text editor, I don't think it's possible for a user to edit the page, so I put it here.
         self._widget.webView.page().setContentEditable(True)
     
-    # Called when the cursor position in the text pane changes. It (re)schedules a text to web sync per item 2 above.
+    # Called when the cursor position in the text pane changes. It (re)schedules a text to web sync per item 2 above. Note that the signal connected to this slot must be updated when the current document changes, since we only want cursor movement notification from the active text document. This is handled in _onDocumentChanged.
     def _onCursorPositionChanged(self):
         # Ignore this callback if a preview to text sync caused it.
         if not self._previewToTextSyncRunning:
@@ -369,11 +370,10 @@ class PreviewDock(DockWidget):
     def del_(self):
         """Uninstall themselves
         """
-        self._typingTimer.stop()
         # Uninstall the text-to-web sync only if it was installed in the first place (it depends on TRE).
         if find_approx_text_in_target:
             self._cursorMovementTimer.stop()
-            # TODO: disconnect the cursorPositionChanged() slot? I would think so.
+        self._typingTimer.stop()
         self._thread.htmlReady.disconnect(self._setHtml)
         self._thread.stop_async()
         self._thread.wait()
@@ -381,6 +381,8 @@ class PreviewDock(DockWidget):
     def closeEvent(self, event):
         """Widget is closed. Clear it
         """
+        # Uninstall the text-to-web sync only if it was installed in the first place (it depends on TRE).
+        self.closed.emit()
         self._clear()
         return DockWidget.closeEvent(self, event)
 
@@ -435,6 +437,14 @@ class PreviewDock(DockWidget):
     def _onDocumentChanged(self, old, new):
         """Current document changed, update preview
         """
+        if find_approx_text_in_target:
+            # Switch connections to the current document.
+            if old is not None:
+                self.currentCursorPositionChanged.disconnect(self._onCursorPositionChanged)
+            if new is not None:
+                self.currentCursorPositionChanged = core.workspace().currentDocument().qutepart.cursorPositionChanged
+                self.currentCursorPositionChanged.connect(self._onCursorPositionChanged)
+        
         if new is not None:
             if isMarkdownFile(new):
                 self._widget.cbTemplate.show()
