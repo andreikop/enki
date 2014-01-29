@@ -2,22 +2,40 @@
 # ***************************************************
 # test_preview.py - Unit tests for the Preview module
 # ***************************************************
-
+#
+# Imports
+# =======
+# Library imports
+# ---------------
 import unittest
 import os.path
 import sys
 import imp
 
+# Local application imports
+# -------------------------
+# Do this before PyQt imports so that base will set up sip API correctly.
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
+
 import base
 
+# Third-party library imports
+# ---------------------------
 from PyQt4.QtCore import Qt, QPoint
 from PyQt4.QtTest import QTest
 from PyQt4.QtGui import QDockWidget
 
+# Local application imports
+# -------------------------
 from enki.core.core import core
 
 
+# Tests
+# =====
+# preview module
+# --------------
+# This decorator checks that the given python module, which is
+# required for a unit test, is present.
 def requiresModule(module):
     def realDecorator(func):
         def wrapped(self):
@@ -116,19 +134,8 @@ class Test(base.TestCase):
 
         self.openDialog(lambda: combo.setCurrentIndex(combo.count() - 1), inDialog)
 
-# Preview sync tests
-# ^^^^^^^^^^^^^^^^^^
-# To do:
-#
-# #. ``js_click.emit(0)`` and verify that the cursor is at the beginning of doc.
-# #. Same as above, but emit(preview_text_mid_index) for middle of doc.
-# #. Same as above, but emit(preview_text.len) for end of doc.
-# #. Test all three above on an empty doc.
-# #. Repeat above tests for code to web sync.
-# #. Test that when javascript is disabled, web-to-code doesn't produce an exception.
-# #. Same as above, but for code to web.
-# #. Test that when the preview window is hidden, code-to-web sync stops working.
-#
+# Web to code sync tests
+# ^^^^^^^^^^^^^^^^^^^^^^
 # Test that mouse clicks get turned into a js_click signal
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""
     # Test that web-to-code sync occurs on clicks to the web pane.
@@ -164,7 +171,9 @@ class Test(base.TestCase):
     # Given a string s, place the cursor after it and simulate a click
     # in the web view. Verify that the index produced by js_click
     # is correct.
-    def _testSyncString(self, s):
+    def _testSyncString(self, 
+                        s):
+                        # String after which cursor will be placed.
         self._doBasicTest('rst')
         wsLen = self._wsLen()
         # Choose text to find.
@@ -176,6 +185,10 @@ class Test(base.TestCase):
         
     # To do: simulate a click before the first letter. Select T, then move backwards?
     # I seem to remember some sort of move command in Javascript, but can't find it now.`
+    # For now, test after the letter T (the first letter).
+    @requiresModule('docutils')
+    def test_sync2a(self):
+        self._testSyncString('T')
         
     # Simulate a click after 'The pre' and check the resulting js_click result.
     @requiresModule('docutils')
@@ -198,6 +211,7 @@ class Test(base.TestCase):
         # Move the code cursor somewhere else, rather than index 0,
         # so working code must change its value.
         self._dock()._moveTextPaneToIndex(5)
+        assert index != 5
         # Now, emit the signal for a click at the beginning of 'The preview text'.
         self._dock().js_click.emit(wsLen + index)
         # Check the new index, which should be 0.
@@ -219,6 +233,35 @@ class Test(base.TestCase):
     def test_sync6(self):
         self._sendJsClick(len(self.testText))
         
+# Test on an empty document
+# """""""""""""""""""""""""
+    @requiresModule('docutils')
+    def test_sync7(self):
+        self.testText = ''
+        self.test_sync1()
 
+# Test with javascript disabled
+# """""""""""""""""""""""""""""
+    @requiresModule('docutils')
+    def test_sync8(self):
+        # The _dock() method only works after the dock exists.
+        # The method below creates it.
+        self._doBasicTest('rst')
+        self._dock()._onJavaScriptEnabledCheckbox(False)
+        # Click. Nothing will happen, but make sure there's no assertion
+        # or internel error.
+        QTest.mouseClick(self._widget().webView, Qt.LeftButton)
+
+# Code to web sync tests
+# ^^^^^^^^^^^^^^^^^^^^^^
+# To do:
+#
+# #. Repeat above tests for code to web sync.
+# #. Test that when the preview window is hidden, code-to-web sync stops working.
+
+
+# Main
+# ====
+# Run the unit tests in this file.
 if __name__ == '__main__':
     unittest.main()
