@@ -111,9 +111,10 @@ class Config():
 
         """Monaco - old Mac font,
         Menlo - modern Mac font,
+        Consolas - default font for Windows
         Monospace - default for other platforms
         """
-        fontFamilies = ("Menlo", "Monaco", "Monospace", "Courier New")
+        fontFamilies = ("Menlo", "Monaco", "Monospace", "Consolas")
         availableFontFamilies = QFontDatabase().families()
         for fontFamily in fontFamilies:
             if fontFamily in availableFontFamilies:
