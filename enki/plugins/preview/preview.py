@@ -192,11 +192,9 @@ class PreviewDock(DockWidget):
 #
 # Bugs / to-do items
 # ------------------
-# #. If JavaScript is disabled, this doesn't work (I think). Need to test / work around.
-# #. Follow `coding conventions <https://github.com/hlamer/enki/wiki/Hacking-guide>`_.
+# #. Follow `coding conventions <https://github.com/hlamer/enki/wiki/Hacking-guide>`_: wrap long lines.
 # #. Provide good test coverage for this feature.
-# #. Should I disconnect the cursorPositionChanged() signal when the preview window is closed? Just connect it when it opens?
-# #. I call toPlainText() several times. In the past, this was quite slow in a QTextEdit. Check performance and possibly cache this value; it should be easy to update by adding a few lines to _setHtml().
+# #. I call ``toPlainText()`` several times. In the past, this was quite slow in a ``QTextEdit``. Check performance and possibly cache this value; it should be easy to update by adding a few lines to _setHtml().
 #
 # Preview-to-text sync
 # --------------------
@@ -218,11 +216,13 @@ class PreviewDock(DockWidget):
 
     # Initialize the system per items 1, 2, and 4 above.
     def _initPreviewToTextSync(self):
-        # Insert our onClick JavaScript.
+        # Insert our on-click JavaScript.
         self._onJavaScriptCleared()
-        # Connect the signal emitted by the JavaScript onClick handler to onWebviewClick.
+        # .. _onJavaScriptCleared.connect:
+        #
+        # Connect the signal emitted by the JavaScript onclick handler to ``onWebviewClick``.
         self.js_click.connect(self._onWebviewClick)
-        # Qt emits the `javaScriptWindowObjectCleared <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#javaScriptWindowObjectCleared.>`_ signal when a web page is loaded. When this happens, reinsert our onClick JavaScript. 
+        # Qt emits the `javaScriptWindowObjectCleared <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#javaScriptWindowObjectCleared.>`_ signal when a web page is loaded. When this happens, reinsert our onclick JavaScript. 
         self._widget.webView.page().mainFrame().javaScriptWindowObjectCleared.connect(self._onJavaScriptCleared)
 
     # This is called before starting a new load of a web page, per item 2 above.
@@ -232,40 +232,41 @@ class PreviewDock(DockWidget):
         mf.addToJavaScriptWindowObject("PyPreviewDock", self)
         # Use `evaluateJavaScript <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#evaluateJavaScript>`_ to insert our ``onclick()`` handler. The job of this handler is to translate a mouse click into an index into the text rendering of the webpage. To do this, we must:
         #
-        # #. Get the current selection made by the mouse click, which is typically an empty range. (I assume a click and drag will produce a non-empty range).
-        # #. Extend a copy of this range so that it begins at the start of the webpage and, of course, ends at the character nearest the latest mouse click.
+        # #. Get the current selection made by the mouse click, which is typically an empty range. (I assume a click and drag will produce a non-empty range; however this code still works).
+        # #. Extend a copy of this range so that it begins at the start of the webpage and, of course, ends at the character nearest the mouse click.
         # #. Get a string rendering of this range.
         # #. Emit a signal with the length of this string.
         res = mf.evaluateJavaScript(
-            'window.onclick = function () {' +
             # The `window.onclick <https://developer.mozilla.org/en-US/docs/Web/API/Window.onclick>`_ event is "called when the user clicks the mouse button while the cursor is in the window." Although the docs claim that "this event is fired for any mouse button pressed", I found experimentally that it on fires on a left-click release; middle and right clicks had no effect.
+            'window.onclick = function () {' +
 
-            '    var r = window.getSelection().getRangeAt(0).cloneRange();' +
                  # This performs step 1 above. In particular:
                  #
                  # - `window.getSelection <https://developer.mozilla.org/en-US/docs/Web/API/Window.getSelection>`_ "returns a `Selection <https://developer.mozilla.org/en-US/docs/Web/API/Selection>`_ object representing the range of text selected by the user." Since this is only called after a click, I assume the Selection object is non-null.
                  # - The Selection.\ `getRangeAt <https://developer.mozilla.org/en-US/docs/Web/API/Selection.getRangeAt>`_ method "returns a range object representing one of the ranges currently selected." Per the Selection `glossary <https://developer.mozilla.org/en-US/docs/Web/API/Selection#Glossary>`_, "A user will normally only select a single range at a time..." The index for retrieving a single-selection range is of course 0.
                  # - "The `Range <https://developer.mozilla.org/en-US/docs/Web/API/range>`_ interface represents a fragment of a document that can contain nodes and parts of text nodes in a given document." We clone it to avoid modifying the user's existing selection using `cloneRange <https://developer.mozilla.org/en-US/docs/Web/API/Range.cloneRange>`_.
+            '    var r = window.getSelection().getRangeAt(0).cloneRange();' +
 
+                 # This performs step 2 above: the cloned range is now changed to contain the web page from its beginning to the point where the user clicked by calling `setStartBefore <https://developer.mozilla.org/en-US/docs/Web/API/Range.setStartBefore>`_ on `document.body <https://developer.mozilla.org/en-US/docs/Web/API/document.body>`_.
             '    r.setStartBefore(document.body);' +
-                 # This performs step 2 above: the cloned range is now changed to contain the web page from its beginning to the point where the user click by calling `setStartBefore <https://developer.mozilla.org/en-US/docs/Web/API/Range.setStartBefore>`_ on `document.body <https://developer.mozilla.org/en-US/docs/Web/API/document.body>`_.
 
-            '    var r_str = r.cloneContents().textContent.toString();' +
                  # Step 3:
                  #
                  # - `cloneContents <https://developer.mozilla.org/en-US/docs/Web/API/Range.cloneContents>`_ "Returns a `DocumentFragment <https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment>`_ copying the nodes of a Range."
                  # - DocumentFragment's parent `Node <https://developer.mozilla.org/en-US/docs/Web/API/Node>`_ provides a `textContent <https://developer.mozilla.org/en-US/docs/Web/API/Node.textContent>`_ property which gives "a DOMString representing the textual content of an element and all its descendants." This therefore contains a text rendering of the webpage from the beginning of the page to the point where the user clicked.
+            '    var r_str = r.cloneContents().textContent.toString();' +
 
+                 # Step 4: the length of the string gives the index of the click into a string containing a text rendering of the webpage. Emit a signal with that information.
             '    PyPreviewDock.js_click(r_str.length);' +
-                 # Step 4: the length of the string gives the index of the click into a string containinga text rendering of the webpage. Emit a signal with that information.
             '};')
 
         # Make sure no errors were returned; the result should be empty.
         assert not res
         
-    # Return the textContent of the entire web page. This differs from mf.toPlainText(), which uses innerText and therefore produces a slightly differnt result. Since web_index is computed based on textContent, that must be used for the search.
+    # Return the ``textContent`` of the entire web page. This differs from ``mainFrame().toPlainText()``, which uses ``innerText`` and therefore produces a slightly differnt result. Since the JavaScript signal's index is computed based on textContent, that must be used for all web to text sync operations.
     def _webTextContent(self):
-        return self._widget.webView.page().mainFrame().evaluateJavaScript('document.body.textContent.toString()')
+        return (self._widget.webView.page().mainFrame().
+         evaluateJavaScript('document.body.textContent.toString()'))
     
     # Per item 3 above, this is called when the user clicks in the web view. It finds the matching location in the text pane then moves the text pane cursor.
     def _onWebviewClick(self,
