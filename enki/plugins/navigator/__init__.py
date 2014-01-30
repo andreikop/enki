@@ -3,6 +3,8 @@
 
 import os.path
 import threading
+import collections
+import Queue
 
 from PyQt4.QtCore import pyqtSignal, QObject, Qt, QThread, QTimer
 from PyQt4.QtGui import QFileDialog, QIcon, QWidget
@@ -75,47 +77,42 @@ class ProcessorThread(QThread):
     tagsReady = pyqtSignal(list)
     error = pyqtSignal(str)
 
+    _Task = collections.namedtuple("Task", ["ctagsLang", "text"])
+
     def __init__(self):
         QThread.__init__(self)
-        self._ctagsLang = None
-        self._text = None
-        self._haveData = False
-        self._lock = threading.Lock()
+        self._queue = Queue.Queue()
+        self.start(QThread.LowPriority)
 
     def process(self, ctagsLang, text):
         """Parse text and emit tags
         """
-        with self._lock:
-            self._ctagsLang = ctagsLang
-            self._haveData = True
-            self._text = text
-            if not self.isRunning():
-                self.start(QThread.LowPriority)
+        self._queue.put(self._Task(ctagsLang, text))
+
+    def stop_async(self):
+        self._queue.put(None)
 
     def run(self):
         """Thread function
         """
         while True:  # exits with break
-            with self._lock:
-                ctagsLang = self._ctagsLang
-                text = self._text
-                self._haveData = False
+            # wait task
+            task = self._queue.get()
+            # take the last task
+            while self._queue.qsize():
+                task = self._queue.get()
 
-            result = ctags.processText(ctagsLang, text)
+            if task is None:  # None is a quit command
+                break
+
+            result = ctags.processText(task.ctagsLang, task.text)
 
             if isinstance(result, basestring):
                 self.error.emit(result)
-                break
             else:
                 tags = result
-
-                with self._lock:
-                    if not self._haveData:
-                        self.tagsReady.emit(tags)
-                        break
-                    # else - next iteration
-
-
+                if not self._queue.qsize():  # Do not emit results, if having new task
+                    self.tagsReady.emit(tags)
 
 
 class SettingsWidget(QWidget):
@@ -160,6 +157,7 @@ class Plugin(QObject):
             self._thread.error.disconnect(self._dock.onError)
             self._dock.remove()
         self._typingTimer.stop()
+        self._thread.stop_async()
         self._thread.wait()
 
     def _createDock(self):
