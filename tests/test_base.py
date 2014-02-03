@@ -130,13 +130,18 @@ class TestWaitForSignal(unittest.TestCase):
 
 # inMainLoop
 # ----------
-class TestInMainLoop(unittest.TestCase):
-    # Make sure exceptions get propagated.
+class TestInMainLoop(base.TestCase):
+    # A helper function to raise an exception in the main loop.
+    @base.inMainLoop
+    def _failInMainLoop(self):
+        self.fail()
+
+    # Make sure exceptions inMainLoop get propagated.
     def test_1(self):
         with self.assertRaises(AssertionError):
             base.PRINT_EXEC_TRACKBACK = False
-            base.inMainLoop(self.fail())
-
+            self._failInMainLoop()
+            
 # Main
 # ====
 # Run the unit tests in this file.
