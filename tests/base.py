@@ -69,6 +69,7 @@ def inMainLoop(func, *args):
             ex.append(value)
             if PRINT_EXEC_TRACKBACK:
                 oeh(type_, value, traceback)
+            self.app.quit()
         oeh = sys.excepthook
         sys.excepthook = excepthook
 
