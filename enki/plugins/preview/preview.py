@@ -285,14 +285,17 @@ class PreviewDock(DockWidget):
 
     # Given an index into the text pane, move the cursor to that index.
     def _moveTextPaneToIndex(self,
-                            textIndex):
                             # The index into the text pane at which to place the cursor.
+                            textIndex,
+                            # True to prevent the web-to-text sync from running as a
+                            # result of calling this routine.
+                            noWebSync=True):
         # Move the cursor to text_index.
         qp = core.workspace().currentDocument().qutepart
         cursor = qp.textCursor()
         # Tell the text to preview sync to ignore this cursor position change.
         cursor.setPosition(textIndex, QtGui.QTextCursor.MoveAnchor)
-        self._previewToTextSyncRunning = True
+        self._previewToTextSyncRunning = noWebSync
         qp.setTextCursor(cursor)
         self._previewToTextSyncRunning = False
         # Scroll the document to make sure the cursor is visible.
@@ -383,7 +386,6 @@ class PreviewDock(DockWidget):
     def closeEvent(self, event):
         """Widget is closed. Clear it
         """
-        # Uninstall the text-to-web sync only if it was installed in the first place (it depends on TRE).
         self.closed.emit()
         self._clear()
         return DockWidget.closeEvent(self, event)
