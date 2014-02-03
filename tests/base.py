@@ -36,7 +36,7 @@ class DummyProfiler:
 
 def _processPendingEvents(app):
     """Process pending application events."""
-    
+
     # Quit the event loop when it becomes idle.
     QTimer.singleShot(0, papp.quit)
     papp.exec_()
@@ -59,7 +59,7 @@ def inMainLoop(func, *args):
             func(*args)
             # When done processing these events, exit the event loop.
             QTimer.singleShot(0, self.app.quit)
-                
+
         QTimer.singleShot(0, execWithArgs)
 
         # Catch any exceptions which the EventLoop would otherwise catch
@@ -71,7 +71,7 @@ def inMainLoop(func, *args):
                 oeh(type_, value, traceback)
         oeh = sys.excepthook
         sys.excepthook = excepthook
-        
+
         # Run the requested function in the application's main loop.
         self.app.exec_()
         # If an exception occurred in the event loop, re-raise it.
@@ -79,7 +79,7 @@ def inMainLoop(func, *args):
             raise ex[0]
         # Restore the old exception hook
         sys.excepthook = oeh
-    
+
     wrapper.__name__ = func.__name__  # for unittest test runner
     return wrapper
 
@@ -153,7 +153,7 @@ class TestCase(unittest.TestCase):
 
         core.workspace().closeAllDocuments()
         core.term()
-        
+
         # Find orphaned objects
         # ---------------------
         # Look for any objects that are still generating signals after
@@ -165,7 +165,7 @@ class TestCase(unittest.TestCase):
         self.app.assertOnEvents = True
         _processPendingEvents(self.app)
         self.app.assertOnEvents = False
-        
+
         self._cleanUpFs()
 
     def keyClick(self, key, modifiers=Qt.NoModifier, widget=None):
@@ -198,7 +198,7 @@ class TestCase(unittest.TestCase):
         File is opened
         """
         path = os.path.join(self.TEST_FILE_DIR, name)
-        with open(path, 'w') as file_:
+        with open(path, 'wb') as file_:
             file_.write(text)
 
         return core.workspace().openFile(path)
@@ -261,30 +261,30 @@ class TestCase(unittest.TestCase):
                 return dock
         else:
             self.fail('Dock {} not found'.format(windowTitle))
-            
+
     def assertEmits(self, sender, senderSignal, timeoutMs=1,
       expectedSignalParams=None):
         """ A unit testing convenience routine.
-        
+
         Assert that calling the sender function emits the senderSignal within timeoutMs.
         The default timeoutMs of 1 works for all senders that
         run in the current thread, since the timeout will be
         scheduled after all current thread signals are emitted
         at a timeout of 0 ms.
-        
+
         """
-        self.assertTrue(waitForSignal(sender, senderSignal, 
+        self.assertTrue(waitForSignal(sender, senderSignal,
           timeoutMs, expectedSignalParams))
-            
+
 def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     """ Wait up to timeoutMs after calling sender() for senderSignal
     to be emitted.
-    
-    It returns True if the senderSignal was emitted; otherwise, 
+
+    It returns True if the senderSignal was emitted; otherwise,
     it returns False. If expectedSignalParams is not None, it
     is compared against the parameters emitted by the senderSignal.
     This function was inspired by http://stackoverflow.com/questions/2629055/qtestlib-qnetworkrequest-not-executed/2630114#2630114.
-    
+
     """
     # Create a single-shot timer. Could use QTimer.singleShot(),
     # but can't cancel this / disconnect it.
@@ -310,13 +310,13 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     # Connect both signals to a slot which quits the event loop.
     senderSignal.connect(senderSignalSlot)
     timer.timeout.connect(papp.quit)
-    
+
     # Start the sender and the timer and at the beginning of the event loop.
     # Just calling sender() may cause signals emitted in sender
     # not to reach their connected slots.
     QTimer.singleShot(0, sender)
     timer.start(timeoutMs)
-    
+
     # Catch any exceptions which the EventLoop would otherwise catch
     # and not re-raise.
     ex = []
@@ -326,7 +326,7 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
             oeh(type_, value, traceback)
     oeh = sys.excepthook
     sys.excepthook = excepthook
-    
+
     # Wait for an emitted signal.
     papp.exec_()
     # If an exception occurred in the event loop, re-raise it.
@@ -344,5 +344,5 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     timer.timeout.disconnect(papp.quit)
     # Restore the old exception hook
     sys.excepthook = oeh
-    
+
     return ret and not senderSignalArgsWrong[0]
