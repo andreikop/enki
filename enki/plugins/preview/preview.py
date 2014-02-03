@@ -1,8 +1,10 @@
 """HTML, Markdown and ReST preview
 """
 
-import threading
 import os.path
+import collections
+import Queue
+
 
 from PyQt4.QtCore import pyqtSignal, QSize, Qt, QThread, QTimer, QUrl
 from PyQt4.QtGui import QFileDialog, QIcon, QMessageBox, QWidget
@@ -15,25 +17,27 @@ from enki.widgets.dockwidget import DockWidget
 from enki.plugins.preview import isMarkdownFile, isHtmlFile
 
 
+
+
 class ConverterThread(QThread):
     """Thread converts markdown to HTML
     """
     htmlReady = pyqtSignal(unicode, unicode)
 
+    _Task = collections.namedtuple("Task", ["filePath", "language", "text"])
+
     def __init__(self):
         QThread.__init__(self)
-        self._lock = threading.Lock()
+        self._queue = Queue.Queue()
+        self.start(QThread.LowPriority)
 
     def process(self, filePath, language, text):
         """Convert data and emit result
         """
-        with self._lock:
-            self._filePath = filePath
-            self._haveData = True
-            self._language = language
-            self._text = text
-            if not self.isRunning():
-                self.start(QThread.LowPriority)
+        self._queue.put(self._Task(filePath, language, text))
+
+    def stop_async(self):
+        self._queue.put(None)
 
     def _getHtml(self, language, text):
         """Get HTML for document
@@ -104,19 +108,19 @@ class ConverterThread(QThread):
         """Thread function
         """
         while True:  # exits with break
-            with self._lock:
-                filePath = self._filePath
-                language = self._language
-                text = self._text
-                self._haveData = False
+            # wait task
+            task = self._queue.get()
+            # take the last task
+            while self._queue.qsize():
+                task = self._queue.get()
 
-            html = self._getHtml(self._language, self._text)
+            if task is None:  # None is a quit command
+                break
 
-            with self._lock:
-                if not self._haveData:
-                    self.htmlReady.emit(filePath, html)
-                    break
-                # else - next iteration
+            html = self._getHtml(task.language, task.text)
+
+            if not self._queue.qsize():  # Do not emit results, if having new task
+                self.htmlReady.emit(task.filePath, html)
 
 
 class PreviewDock(DockWidget):
@@ -168,6 +172,7 @@ class PreviewDock(DockWidget):
         """
         self._typingTimer.stop()
         self._thread.htmlReady.disconnect(self._setHtml)
+        self._thread.stop_async()
         self._thread.wait()
 
     def closeEvent(self, event):
