@@ -23,7 +23,7 @@ import base
 # ---------------------------
 from PyQt4.QtCore import Qt, QPoint
 from PyQt4.QtTest import QTest
-from PyQt4.QtGui import QDockWidget
+from PyQt4.QtGui import QDockWidget, QTextCursor
 
 # Local application imports
 # -------------------------
@@ -86,7 +86,10 @@ class Test(base.TestCase):
         document = self.createFile('file.' + extension, self.testText)
 
         self._assertHtmlReady(self._showDock)
-        self.assertTrue(self.testText in self._visibleText())
+        # See if the testText is visible, or vice versa, depending on which
+        # is shorter.
+        self.assertTrue( (self.testText in self._visibleText()) or
+          (self._visibleText() in self.testText) )
 
     def test_html(self):
         self._doBasicTest('html')
@@ -136,9 +139,9 @@ class Test(base.TestCase):
 
 # Web to code sync tests
 # ^^^^^^^^^^^^^^^^^^^^^^
-# Test that mouse clicks get turned into a js_click signal
-# """"""""""""""""""""""""""""""""""""""""""""""""""""""""
-    # Test that web-to-code sync occurs on clicks to the web pane.
+# Test that mouse clicks get turned into a ``js_click`` signal
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    # Test that web-to-text sync occurs on clicks to the web pane.
     # A click at 0, height (top left corner) should produce
     # an index of 0. It doesn't; I'm not sure I understand how
     # the WebView x, y coordinate system works. For now, skip
@@ -159,8 +162,8 @@ class Test(base.TestCase):
         ret = self._widget().webView.page().mainFrame().evaluateJavaScript('window.onclick()')
         assert not ret
         
-    # The web text for web-to-code sync will have extra
-    # whitespace in it. But findText operates on a space-less
+    # The web text for web-to-text sync will have extra
+    # whitespace in it. But ``findText`` operates on a space-less
     # version of the text. Determine how many whitespace characters
     # preceed the text.
     def _wsLen(self):
@@ -183,8 +186,7 @@ class Test(base.TestCase):
         self.assertEmits(self._jsOnClick, 
           self._dock().js_click, expectedSignalParams=(len(s) + wsLen,) )
         
-    # TODO: simulate a click before the first letter. Select T, then move backwards?
-    # I seem to remember some sort of move command in Javascript, but can't find it now.
+    # TODO: simulate a click before the first letter. Select T, then move backwards using https://developer.mozilla.org/en-US/docs/Web/API/Selection.modify.
     # For now, test after the letter T (the first letter).
     @requiresModule('docutils')
     def test_sync2a(self):
@@ -235,13 +237,21 @@ class Test(base.TestCase):
         
 # Misc tests
 # """"""""""
-    # Test on an empty document
+    # Test on an empty document.
     @requiresModule('docutils')
     def test_sync7(self):
         self.testText = ''
         self.test_sync1()
+        
+    # Test after the web page was changed and therefore reloaded,
+    # which might remove the JavaScript to respond to clicks.
+    # No test is needed: the previous tests already check this,
+    # since disabling the following lines causes lots of failures::
+    #
+    #   self._widget.webView.page().mainFrame(). \
+    #     javaScriptWindowObjectCleared.connect(self._onJavaScriptCleared)
 
-    # Test with javascript disabled
+    # Test with javascript disabled.
     @requiresModule('docutils')
     def test_sync8(self):
         # The ``_dock()`` method only works after the dock exists.
@@ -256,9 +266,55 @@ class Test(base.TestCase):
 # ^^^^^^^^^^^^^^^^^^^^^^
 # To do:
 #
-# #. Repeat above tests for code to web sync.
-# #. Test that when the preview window is hidden, code-to-web sync stops working.
+# #. Test that when the preview window is hidden, text-to-web sync stops working.
+#
+# Test text to web sync
+# """""""""""""""""""""
+    # Move the cursor in the text pane. Make sure it moves
+    # to the matching location in the web pane.
+    def _textToWeb(self,
+                   # The string in the text pane to click before.
+                   s):
+        # Create multi-line text.
+        self.testText = u'One\n\nTwo\n\nThree'
+        self._doBasicTest('rst')
+        # Find the desired string.
+        index = self.testText.index(s)
+        # The cursor is already at index 0. Moving here
+        # produces no cursorPositionChanged signal.
+        assert index != 0
+        # Move to a location in the first line of the text.
+        # The sync won't happen until the timer expires; wait
+        # for that.
+        self.assertEmits(lambda: self._dock()._moveTextPaneToIndex(index, False),
+          self._dock()._cursorMovementTimer.timeout, 350)
+        # The web view should have the first line selected now.
+        self.assertTrue(self._widget().webView.selectedText(), 'One')
 
+    @requiresModule('docutils')
+    def test_sync9(self):
+        # Don't use One, which is an index of 0, which causes no
+        # cursor movement and therefore no text to web sync.
+        self._textToWeb('ne')
+
+    @requiresModule('docutils')
+    def test_sync10(self):
+        self._textToWeb('Two')
+
+    @requiresModule('docutils')
+    def test_sync10(self):
+        self._textToWeb('Three')
+        
+# Test no sync on closed preview window
+# """""""""""""""""""""""""""""""""""""
+    def test_sync11(self):
+        self._doBasicTest('rst')
+        self._dock().close()
+        # Move the cursor. If there's no crash, we're OK.
+        qp = core.workspace().currentDocument().qutepart
+        cursor = qp.textCursor()
+        cursor.setPosition(1, QTextCursor.MoveAnchor)
+        qp.setTextCursor(cursor)
 
 # Main
 # ====
