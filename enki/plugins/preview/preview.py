@@ -223,7 +223,8 @@ class PreviewDock(DockWidget):
         # Connect the signal emitted by the JavaScript onclick handler to ``onWebviewClick``.
         self.js_click.connect(self._onWebviewClick)
         # Qt emits the `javaScriptWindowObjectCleared <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#javaScriptWindowObjectCleared.>`_ signal when a web page is loaded. When this happens, reinsert our onclick JavaScript. 
-        self._widget.webView.page().mainFrame().javaScriptWindowObjectCleared.connect(self._onJavaScriptCleared)
+        self._widget.webView.page().mainFrame(). \
+          javaScriptWindowObjectCleared.connect(self._onJavaScriptCleared)
 
     # This is called before starting a new load of a web page, per item 2 above.
     def _onJavaScriptCleared(self):
