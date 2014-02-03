@@ -152,9 +152,9 @@ class Test(base.TestCase):
           self._dock().js_click)
         
         
-# Test that simulated mouse clicks at beginning/middle/end produce correct js_click values
-# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    # Simulate a mouse click by calling window.onclick() in Javascript.
+# Test that simulated mouse clicks at beginning/middle/end produce correct ``js_click`` values
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    # Simulate a mouse click by calling ``window.onclick()`` in Javascript.
     def _jsOnClick(self):
         ret = self._widget().webView.page().mainFrame().evaluateJavaScript('window.onclick()')
         assert not ret
@@ -168,8 +168,8 @@ class Test(base.TestCase):
         return len(wtc) - len(wtc.lstrip())
         
         
-    # Given a string s, place the cursor after it and simulate a click
-    # in the web view. Verify that the index produced by js_click
+    # Given a string ``s``, place the cursor after it and simulate a click
+    # in the web view. Verify that the index produced by ``js_click``
     # is correct.
     def _testSyncString(self, 
                         s):
@@ -183,14 +183,14 @@ class Test(base.TestCase):
         self.assertEmits(self._jsOnClick, 
           self._dock().js_click, expectedSignalParams=(len(s) + wsLen,) )
         
-    # To do: simulate a click before the first letter. Select T, then move backwards?
-    # I seem to remember some sort of move command in Javascript, but can't find it now.`
+    # TODO: simulate a click before the first letter. Select T, then move backwards?
+    # I seem to remember some sort of move command in Javascript, but can't find it now.
     # For now, test after the letter T (the first letter).
     @requiresModule('docutils')
     def test_sync2a(self):
         self._testSyncString('T')
         
-    # Simulate a click after 'The pre' and check the resulting js_click result.
+    # Simulate a click after 'The pre' and check the resulting ``js_click`` result.
     @requiresModule('docutils')
     def test_sync2(self):
         self._testSyncString('The pre')
@@ -200,9 +200,9 @@ class Test(base.TestCase):
     def test_sync3(self):
         self._testSyncString(self.testText)
 
-# Test that sending a js_click signal at beginning/middle/end moves cursor in code pane correctly
-# """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    # Send a js_click signal then see if the code view gets sycned correctly.
+# Test that sending a ``js_click`` signal at beginning/middle/end moves cursor in code pane correctly
+# """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    # Send a ``js_click`` signal then see if the code view gets sycned correctly.
     def _sendJsClick(self,
                      index):
                      # The index into 'The preview text' string to send and check.
@@ -233,23 +233,23 @@ class Test(base.TestCase):
     def test_sync6(self):
         self._sendJsClick(len(self.testText))
         
-# Test on an empty document
-# """""""""""""""""""""""""
+# Misc tests
+# """"""""""
+    # Test on an empty document
     @requiresModule('docutils')
     def test_sync7(self):
         self.testText = ''
         self.test_sync1()
 
-# Test with javascript disabled
-# """""""""""""""""""""""""""""
+    # Test with javascript disabled
     @requiresModule('docutils')
     def test_sync8(self):
-        # The _dock() method only works after the dock exists.
+        # The ``_dock()`` method only works after the dock exists.
         # The method below creates it.
         self._doBasicTest('rst')
         self._dock()._onJavaScriptEnabledCheckbox(False)
         # Click. Nothing will happen, but make sure there's no assertion
-        # or internel error.
+        # or internal error.
         QTest.mouseClick(self._widget().webView, Qt.LeftButton)
 
 # Code to web sync tests
