@@ -363,12 +363,15 @@ class PreviewDock(DockWidget):
         # Make sure the text was found, unless the search string was empty.
         assert found or (web_index == 0)
 
-        # Select the entire line containing the anchor: press home then shift+end using `keyClick <http://qt-project.org/doc/qt-4.8/qtest.html#keyClick>`_. Other ideas on how to do this:
+        # Select the entire line containing the anchor: make the page temporarily editable, then press home then shift+end using `keyClick <http://qt-project.org/doc/qt-4.8/qtest.html#keyClick>`_. Other ideas on how to do this:
         #  #. The same idea, but done in Javascript. Playing with this produced a set of failures -- in a ``conteneditable`` area, I couldn't perform any edits by sending keypresses. The best reference I found for injecting keypresses was `this jsbin demo <http://stackoverflow.com/questions/10455626/keydown-simulation-in-chrome-fires-normally-but-not-the-correct-key/12522769#12522769>`_. Another approach: use the Qt test mechanicsm to send keypresses instead.
         #  #. Insert an animated GIF of a large, obnoxious blinking cursor at the selection, preferably something in the background that doesn't re-wrap the text (maybe `this <http://stackoverflow.com/questions/18447263/image-behind-text>`_ or `that <http://www.the-art-of-web.com/css/textoverimage/>`_).
         #  #. Write Javascript to look at the bounding box at the selection, then grow it a character at a time until the y coordinates change "too much" (?).
+        oce = self._widget.webView.page().isContentEditable()
+        self._widget.webView.page().setContentEditable(True)
         QTest.keyClick(self._widget.webView, Qt.Key_Home)
         QTest.keyClick(self._widget.webView, Qt.Key_End, Qt.ShiftModifier)
+        self._widget.webView.page().setContentEditable(oce)
     
 # Other handlers
 # ==============
