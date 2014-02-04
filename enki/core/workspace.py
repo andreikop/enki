@@ -438,7 +438,7 @@ class Workspace(QStackedWidget):
                    os.path.isfile(pathB) and \
                    os.path.samefile(pathA, pathB)
         else:  # os.path.samefile not available
-            return pathA == pathB
+            return os.path.normpath(pathA) == os.path.normpath(pathB)
 
     def _openSingleFile(self, filePath):
         """Open 1 file.
