@@ -1,4 +1,5 @@
 import subprocess
+import platform
 
 import os.path
 from PyQt4.QtGui import QMessageBox, QIcon, QWidget, QHBoxLayout, \
@@ -43,15 +44,19 @@ class Plugin:
         # Options
         dialog.appendOption(TextOption(dialog, core.config(), "OpenTerm/DefaultTerm", page.edit))
 
+    def _chooseDefaultTerminal(self):
+        if platform.system() == 'Windows':
+            return 'powershell'
+        elif os.path.isfile('/usr/bin/x-terminal-emulator'):
+            return '/usr/bin/x-terminal-emulator'
+        else:
+            return 'xterm'
+
     def _initSettings(self):
         """Init setting for the plugin
         """
         if not "OpenTerm" in core.config():  # first start
-            core.config()["OpenTerm"] = {}
-            if os.path.isfile('/usr/bin/x-terminal-emulator'):
-                core.config()["OpenTerm"]["DefaultTerm"] = '/usr/bin/x-terminal-emulator'
-            else:
-                core.config()["OpenTerm"]["DefaultTerm"] = 'xterm'
+            core.config()["OpenTerm"] = {"DefaultTerm": self._chooseDefaultTerminal()}
 
     def _addAction(self):
         """Add action to main menu
