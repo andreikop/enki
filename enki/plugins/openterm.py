@@ -33,7 +33,7 @@ class Plugin:
         core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
 
     def del_(self):
-        core.actionManager().removeAction('mView/aOpenTerm')
+        core.actionManager().removeAction('mTools/aOpenTerm')
 
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.
@@ -61,7 +61,7 @@ class Plugin:
     def _addAction(self):
         """Add action to main menu
         """
-        action = core.actionManager().addAction( "mView/aOpenTerm",
+        action = core.actionManager().addAction( "mTools/aOpenTerm",
                                                  "Open Terminal",
                                                  QIcon(':enkiicons/console.png'))
         core.actionManager().setDefaultShortcut(action, "Ctrl+T")

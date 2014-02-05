@@ -263,6 +263,7 @@ class MainWindow(QMainWindow):
 
         menu  ("mSettings",                           "Settings"              , ""            )
 
+        menu  ("mTools",                              "Tools"                 , ""            )
         menu  ("mHelp",                               "Help"                  , ""            )
 
     def menuBar(self):
