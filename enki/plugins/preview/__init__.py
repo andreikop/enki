@@ -1,7 +1,9 @@
 # **********************************************************
 # __init__.py - The HTML, Markdown, and reST preview package
 # **********************************************************
-# The Preview plugin provides an HTML-based rendering of the file currently being edited. This file implements the Plugin interface; other modules are given below.
+# The Preview plugin provides an HTML-based rendering of the
+# file currently being edited. This file implements the
+# Plugin interface; other modules are given below.
 #
 # .. toctree::
 #   :maxdepth: 2
