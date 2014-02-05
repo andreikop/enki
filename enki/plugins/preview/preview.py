@@ -198,9 +198,6 @@ class PreviewDock(DockWidget):
 #
 # Bugs / to-do items
 # ------------------
-# #. Follow `coding conventions
-#    <https://github.com/hlamer/enki/wiki/Hacking-guide>`_: wrap long lines.
-# #. Provide good test coverage for this feature.
 # #. I call ``toPlainText()`` several times. In the past, this was quite slow
 #    in a ``QTextEdit``. Check performance and possibly cache this value; it
 #    should be easy to update by adding a few lines to _setHtml().
@@ -488,8 +485,6 @@ class PreviewDock(DockWidget):
         #     perform any edits by sending keypresses. The best reference I
         #     found for injecting keypresses was `this jsbin demo
         #     <http://stackoverflow.com/questions/10455626/keydown-simulation-in-chrome-fires-normally-but-not-the-correct-key/12522769#12522769>`_.
-        #     Another approach: use the Qt test mechanism to send keypresses
-        #     instead.
         #  #. Insert an animated GIF of a large, obnoxious blinking cursor at
         #     the selection, preferably something in the background that doesn't
         #     re-wrap the text (maybe `this
