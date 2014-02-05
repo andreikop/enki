@@ -40,10 +40,23 @@ class BufferedPopen:
         env = copy.copy(os.environ)
         env['COLUMNS'] = str(2**16)  # Don't need to break lines in the mit scheme. It will be done by text edit
         env['LINES'] = '25'
+
+        if hasattr(subprocess, 'STARTUPINFO'):  # windows only
+            # On Windows, subprocess will pop up a command window by default when run from
+            # Pyinstaller with the --noconsole option. Avoid this distraction.
+            si = subprocess.STARTUPINFO()
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            # Windows doesn't search the path by default. Pass it an environment so it will.
+            env = os.environ
+        else:
+            si = None
+            env = None
+
         self._popen = subprocess.Popen(self._command.split() + args,
                                        stdin=subprocess.PIPE,
                                        stdout=subprocess.PIPE,
-                                       stderr=subprocess.STDOUT)
+                                       stderr=subprocess.STDOUT,
+                                       startupinfo=si, env=env)
 
         self._inThread = threading.Thread(target=self._writeInputThread,
                                           name='enki.lib.buffpopen.input')
