@@ -21,7 +21,8 @@
 # *****************************************************
 # hook-qutepart.py - PyInstaller hook file for qutepart
 # *****************************************************
-# PyInstaller can't know about data files used by qutepart. This hook informs PyInstaller that these files must be included in the Enki bundle.
+# Pyinstaller can't know about data files used by qutepart. This hook informs
+# Pyinstaller that these files must be included in the Enki bundle.
 from hookutils import collect_data_files
 
 # Gather all non-Python files in the qutepart package.

@@ -186,7 +186,8 @@ class Test(base.TestCase):
         self.assertEmits(self._jsOnClick, 
           self._dock().js_click, expectedSignalParams=(len(s) + wsLen,) )
         
-    # TODO: simulate a click before the first letter. Select T, then move backwards using https://developer.mozilla.org/en-US/docs/Web/API/Selection.modify.
+    # TODO: simulate a click before the first letter. Select T, then move backwards using
+    # https://developer.mozilla.org/en-US/docs/Web/API/Selection.modify.
     # For now, test after the letter T (the first letter).
     @requiresModule('docutils')
     def test_sync2a(self):
