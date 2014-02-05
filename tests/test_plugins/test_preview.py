@@ -80,7 +80,7 @@ class Test(base.TestCase):
         if the signal isn't emitted within a timeout.
 
         """
-        self.assertEmits(start, self._dock()._thread.htmlReady, 1000)
+        self.assertEmits(start, self._dock()._thread.htmlReady, 2000)
 
     def _doBasicTest(self, extension):
         document = self.createFile('file.' + extension, self.testText)
