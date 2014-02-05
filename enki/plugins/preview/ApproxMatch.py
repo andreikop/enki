@@ -113,14 +113,14 @@ def html_format_search(html_search_input, html_search_results, match_cost):
       '<table><tr><th>Search input</th><th>Search results</th></tr>\n'
       '<tr><td>%s</td>\n' +
       '<td>%s</td></tr></table>\n' +
-      'Match cost: %s<br />\n\n') % 
+      'Match cost: %s<br />\n\n') %
      (html_search_input, html_search_results, unicode(match_cost)) )
 
 # Create text for a simple web page.
 LOG_COUNTER = 0
 def html_template(body):
     global LOG_COUNTER
-    
+
     LOG_COUNTER += 1
     return ( (
 """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
@@ -128,7 +128,7 @@ def html_template(body):
 <html>
   <head>
     <title>ApproxMatch log #%d</title>
-    <meta http-equiv="content-type" 
+    <meta http-equiv="content-type"
         content="text/html;charset=utf-8" />
   </head>
 
@@ -153,7 +153,7 @@ def write_html_log(html_text):
 #
 # Return value:
 #   - If there is no unique value, (None, 0, 0)
-#   - Otherwise, it returns (match, begin_in_target, 
+#   - Otherwise, it returns (match, begin_in_target,
 #     end_in_target) where:
 #
 #     match
@@ -225,7 +225,7 @@ def find_approx_text_in_target(
   # that will be approximately matched in the
   # target_text: a value of 10 produces a length-20
   # substring (10 characters before the anchor, and 10
-  # after). 
+  # after).
   search_range=40,
   # When searching for a best possible match, this
   # specifies the number of characters to remove from

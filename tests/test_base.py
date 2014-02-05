@@ -31,16 +31,16 @@ from PyQt4.QtTest import QTest
 # -------------
 class BackgroundThread(QThread):
     """ This is a helper class used for multi-threaded testing.
-    
+
     It waits timeoutMs before emitting the done signal.
-    
+
     """
     done = pyqtSignal()
-    
+
     def __init__(self, timeoutMs):
         QThread.__init__(self)
         self.timeoutMs = timeoutMs
-    
+
     def run(self):
         QTest.qWait(self.timeoutMs)
         self.done.emit()
@@ -54,21 +54,21 @@ class TestSignal(QObject):
 
 # Unit tests.
 class TestWaitForSignal(unittest.TestCase):
-    
+
     # Create a timer to send a timeout signal before the timeout.
     def test_1(self):
         t = QTimer()
         t.setInterval(50)
         t.setSingleShot(True)
         self.assertTrue(base.waitForSignal(t.start, t.timeout, 100))
-        
+
     # Create a timer to send a timeout signal after the timeout.
     def test_2(self):
         t = QTimer()
         t.setInterval(100)
         t.setSingleShot(True)
         self.assertFalse(base.waitForSignal(t.start, t.timeout, 50))
-        
+
     # Test operation from another thread: the other thread emits a signal before the timeout.
     def test_3(self):
         bt = BackgroundThread(50)
@@ -76,57 +76,57 @@ class TestWaitForSignal(unittest.TestCase):
         self.assertTrue(base.waitForSignal(bt.start, bt.done, 100))
         # Wait for the background thread to finish before leaving this test.
         bt.wait()
-        
+
     # Test operation from another thread: the other thread emits a signal after the timeout.
     def test_4(self):
         bt = BackgroundThread(100)
         self.assertFalse(base.waitForSignal(bt.start, bt.done, 50))
         # Wait for the background thread to finish before leaving this test.
         bt.wait()
-        
+
     # Test that signals with arguments work.
     def test_5(self):
         ts = TestSignal()
-        self.assertTrue(base.waitForSignal(lambda: ts.testSignal.emit(1), 
+        self.assertTrue(base.waitForSignal(lambda: ts.testSignal.emit(1),
           ts.testSignal, 100))
-        
+
     # Check the arguements emitted by the requested signal.
     def test_7(self):
         ts = TestSignal()
-        self.assertFalse(base.waitForSignal(lambda: ts.testSignal.emit(1), 
+        self.assertFalse(base.waitForSignal(lambda: ts.testSignal.emit(1),
           ts.testSignal, 100, (2,) ))
-        
+
     # Check the arguements emitted by the requested signal.
     def test_8(self):
         ts = TestSignal()
-        self.assertTrue(base.waitForSignal(lambda: ts.testSignal.emit(1), 
+        self.assertTrue(base.waitForSignal(lambda: ts.testSignal.emit(1),
           ts.testSignal, 100, (1,) ))
-        
+
     # Check several arguements emitted by the requested signal.
     def test_9(self):
         ts = TestSignal()
         self.assertFalse(base.waitForSignal(lambda: ts.testSignalArgs.emit('hello', 3, 3.14),
           ts.testSignalArgs, 100, (2,) ))
-        
+
     # Check several arguements emitted by the requested signal.
     def test_10(self):
         ts = TestSignal()
         self.assertFalse(base.waitForSignal(lambda: ts.testSignalArgs.emit('hello', 3, 3.14),
           ts.testSignalArgs, 100, ('Hello', 3, 3.14) ))
-        
+
     # Check several arguements emitted by the requested signal.
     def test_11(self):
         ts = TestSignal()
         self.assertTrue(base.waitForSignal(lambda: ts.testSignalArgs.emit('hello', 3, 3.14),
           ts.testSignalArgs, 100, ('hello', 3, 3.14) ))
-        
+
     # Make sure exceptions in sender() are raised properly.
     def test_11(self):
         ts = TestSignal()
         with self.assertRaises(AssertionError):
             base.PRINT_EXEC_TRACKBACK = False
             base.waitForSignal(lambda: self.fail(), ts.testSignal, 100)
-        
+
 
 # inMainLoop
 # ----------
@@ -141,7 +141,7 @@ class TestInMainLoop(base.TestCase):
         with self.assertRaises(AssertionError):
             base.PRINT_EXEC_TRACKBACK = False
             self._failInMainLoop()
-            
+
 # Main
 # ====
 # Run the unit tests in this file.

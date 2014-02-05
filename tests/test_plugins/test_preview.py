@@ -153,15 +153,15 @@ class Test(base.TestCase):
           lambda: QTest.mouseClick(self._widget().webView,
             Qt.LeftButton, Qt.NoModifier, QPoint(0, self._widget().webView.height())),
           self._dock().js_click)
-        
-        
+
+
 # Test that simulated mouse clicks at beginning/middle/end produce correct ``js_click`` values
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     # Simulate a mouse click by calling ``window.onclick()`` in Javascript.
     def _jsOnClick(self):
         ret = self._widget().webView.page().mainFrame().evaluateJavaScript('window.onclick()')
         assert not ret
-        
+
     # The web text for web-to-text sync will have extra
     # whitespace in it. But ``findText`` operates on a space-less
     # version of the text. Determine how many whitespace characters
@@ -169,12 +169,12 @@ class Test(base.TestCase):
     def _wsLen(self):
         wtc = self._dock()._webTextContent()
         return len(wtc) - len(wtc.lstrip())
-        
-        
+
+
     # Given a string ``s``, place the cursor after it and simulate a click
     # in the web view. Verify that the index produced by ``js_click``
     # is correct.
-    def _testSyncString(self, 
+    def _testSyncString(self,
                         s):
                         # String after which cursor will be placed.
         self._doBasicTest('rst')
@@ -183,16 +183,16 @@ class Test(base.TestCase):
         ret = self._widget().webView.page().findText(s)
         assert ret
         # Now run the Javascript and see if the index with whitespace added matches.
-        self.assertEmits(self._jsOnClick, 
+        self.assertEmits(self._jsOnClick,
           self._dock().js_click, expectedSignalParams=(len(s) + wsLen,) )
-        
+
     # TODO: simulate a click before the first letter. Select T, then move backwards using
     # https://developer.mozilla.org/en-US/docs/Web/API/Selection.modify.
     # For now, test after the letter T (the first letter).
     @requiresModule('docutils')
     def test_sync2a(self):
         self._testSyncString('T')
-        
+
     # Simulate a click after 'The pre' and check the resulting ``js_click`` result.
     @requiresModule('docutils')
     def test_sync2(self):
@@ -220,22 +220,22 @@ class Test(base.TestCase):
         # Check the new index, which should be 0.
         p = core.workspace().currentDocument().qutepart.textCursor().position()
         self.assertEqual(p, index)
-    
+
     # Test a click at the beginning of the string.
     @requiresModule('docutils')
     def test_sync4(self):
         self._sendJsClick(0)
-        
+
     # Test a click at the middle of the string.
     @requiresModule('docutils')
     def test_sync5(self):
         self._sendJsClick(8)
-        
+
     # Test a click at the end of the string.
     @requiresModule('docutils')
     def test_sync6(self):
         self._sendJsClick(len(self.testText))
-        
+
 # Misc tests
 # """"""""""
     # Test on an empty document.
@@ -243,7 +243,7 @@ class Test(base.TestCase):
     def test_sync7(self):
         self.testText = ''
         self.test_sync1()
-        
+
     # Test after the web page was changed and therefore reloaded,
     # which might remove the JavaScript to respond to clicks.
     # No test is needed: the previous tests already check this,
@@ -305,7 +305,7 @@ class Test(base.TestCase):
     @requiresModule('docutils')
     def test_sync10(self):
         self._textToWeb('Three')
-        
+
 # Test no sync on closed preview window
 # """""""""""""""""""""""""""""""""""""
     def test_sync11(self):

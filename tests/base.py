@@ -157,7 +157,7 @@ class TestCase(unittest.TestCase):
 
         core.workspace().closeAllDocuments()
         core.term()
-        
+
         # | **Find orphaned objects**
         # | Look for any objects that are still generating signals after
         # core.term().
@@ -347,5 +347,5 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     timer.timeout.disconnect(papp.quit)
     # Restore the old exception hook
     sys.excepthook = oeh
-    
+
     return ret and senderSignalArgsWrong and (not senderSignalArgsWrong[0])

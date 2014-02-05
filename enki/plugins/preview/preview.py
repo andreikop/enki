@@ -186,7 +186,7 @@ class PreviewDock(DockWidget):
         if find_approx_text_in_target:
             self._initPreviewToTextSync()
             self._initTextToPreviewSync()
-    
+
 # Synchronizing between the text pane and the preview pane
 # ========================================================
 # A single click in the preview pane should move the text pane's cursor to the
@@ -340,7 +340,7 @@ class PreviewDock(DockWidget):
 
         # Make sure no errors were returned; the result should be empty.
         assert not res
-        
+
     # Return the ``textContent`` of the entire web page. This differs from
     # ``mainFrame().toPlainText()``, which uses ``innerText`` and therefore
     # produces a slightly differnt result. Since the JavaScript signal's index
@@ -349,7 +349,7 @@ class PreviewDock(DockWidget):
     def _webTextContent(self):
         return (self._widget.webView.page().mainFrame().
          evaluateJavaScript('document.body.textContent.toString()'))
-    
+
     # Per item 3 above, this is called when the user clicks in the web view. It
     # finds the matching location in the text pane then moves the text pane
     # cursor.
@@ -426,7 +426,7 @@ class PreviewDock(DockWidget):
         # page move the focus immediately back to the text editor, I don't think
         # it's possible for a user to edit the page, so I put it here.
         self._widget.webView.page().setContentEditable(True)
-    
+
     # Called when the cursor position in the text pane changes. It (re)schedules
     # a text to web sync per item 2 above. Note that the signal connected to
     # this slot must be updated when the current document changes, since we only
@@ -437,7 +437,7 @@ class PreviewDock(DockWidget):
         if not self._previewToTextSyncRunning:
             self._cursorMovementTimer.stop()
             self._cursorMovementTimer.start()
-        
+
     # When the timer above expires, this is called to sync text to preview per
     # item 3 above.
     def _syncTextToPreview(self):
@@ -451,7 +451,7 @@ class PreviewDock(DockWidget):
         # corresponding text was found.
         if web_index >= 0:
             self._movePreviewPaneToIndex(web_index)
-    
+
     # Highlights web_index in the preview pane, per item 4 above.
     def _movePreviewPaneToIndex(self,
             web_index,
@@ -503,7 +503,7 @@ class PreviewDock(DockWidget):
         QTest.keyClick(self._widget.webView, Qt.Key_Home)
         QTest.keyClick(self._widget.webView, Qt.Key_End, Qt.ShiftModifier)
         self._widget.webView.page().setContentEditable(oce)
-    
+
 # Other handlers
 # ==============
     def del_(self):
@@ -583,7 +583,7 @@ class PreviewDock(DockWidget):
             if new is not None:
                 self.currentCursorPositionChanged = core.workspace().currentDocument().qutepart.cursorPositionChanged
                 self.currentCursorPositionChanged.connect(self._onCursorPositionChanged)
-        
+
         if new is not None:
             if isMarkdownFile(new):
                 self._widget.cbTemplate.show()
