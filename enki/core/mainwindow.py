@@ -8,6 +8,7 @@ Module contains :class:`enki.core.mainwindow.MainWindow` implementation
 
 import sys
 import os.path
+import platform
 
 from PyQt4.QtCore import pyqtSignal, QSize, Qt, QTimer
 from PyQt4.QtGui import QHBoxLayout, QIcon, QLabel, QMessageBox, \
@@ -233,7 +234,8 @@ class MainWindow(QMainWindow):
         action("mFile/mClose/aAll",                   "Close &All"            , "closeall.png", 'Shift+Ctrl+W', "Close all files"        , False)
         menu  ("mFile/mFileSystem",                   "File System"           , "filesystem.png")
         action("mFile/mFileSystem/aRename",           "Rename"                , "edit.png",     '',             "Rename current file"    , False)
-        action("mFile/mFileSystem/aToggleExecutable", "Make executable"        , "",            '',             "Toggle executable mode" , False)
+        if platform.system() != 'Windows':
+            action("mFile/mFileSystem/aToggleExecutable", "Make executable"   , "",            '',             "Toggle executable mode" , False)
         separator("mFile")
 
         menu  ("mView",                               "View"                  , ""            )

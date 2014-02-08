@@ -5,6 +5,7 @@ workspace_actions --- Workspace actons, such as "Open file", "Next document", ..
 
 import os.path
 import stat
+import platform
 
 from PyQt4.QtCore import QObject, Qt
 from PyQt4.QtGui import QApplication, QFileDialog, QInputDialog, QMessageBox
@@ -32,7 +33,8 @@ class Plugin(QObject):
 
         core.actionManager().action('mFile/mFileSystem').menu().aboutToShow.connect(self._onFsMenuAboutToShow)
         core.actionManager().action( "mFile/mFileSystem/aRename" ).triggered.connect(self._onRename)
-        core.actionManager().action( "mFile/mFileSystem/aToggleExecutable" ).triggered.connect(self._onToggleExecutable)
+        if platform.system() != 'Windows':
+            core.actionManager().action( "mFile/mFileSystem/aToggleExecutable" ).triggered.connect(self._onToggleExecutable)
 
         core.actionManager().action( "mNavigation/aNext" ).triggered.connect(core.workspace().activateNextDocument)
         core.actionManager().action( "mNavigation/aPrevious" ).triggered.connect(core.workspace().activatePreviousDocument)
@@ -199,14 +201,15 @@ class Plugin(QObject):
         return st.st_mode & self.EXECUTABLE_FLAGS
 
     def _onFsMenuAboutToShow(self):
-        action = core.actionManager().action('mFile/mFileSystem/aToggleExecutable')
-        executable = self._isCurrentFileExecutable()
-        action.setEnabled(executable is not None)
+        if platform.system() != 'Windows':
+            action = core.actionManager().action('mFile/mFileSystem/aToggleExecutable')
+            executable = self._isCurrentFileExecutable()
+            action.setEnabled(executable is not None)
 
-        if executable:
-            action.setText('Make Not executable')
-        else:
-            action.setText('Make executable')
+            if executable:
+                action.setText('Make Not executable')
+            else:
+                action.setText('Make executable')
 
     def _onToggleExecutable(self):
         executable = self._isCurrentFileExecutable()
