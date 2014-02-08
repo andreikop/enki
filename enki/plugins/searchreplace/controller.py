@@ -137,10 +137,10 @@ class Controller(QObject):
                       self._onModeSwitchTriggered, MODE_REPLACE_DIRECTORY)
         createAction("aSearchOpenedFiles", "Search in &Opened Files...",
                       "search-replace-opened-files.png",
-                      "Ctrl+Alt+Meta+F", "Search in opened files...",
+                      "Ctrl+Alt+F", "Search in opened files...",
                       self._onModeSwitchTriggered, MODE_SEARCH_OPENED_FILES)
         createAction("aReplaceOpenedFiles", "Replace in Open&ed Files...",
-                      "search-replace-opened-files.png", "Ctrl+Alt+Meta+R",
+                      "search-replace-opened-files.png", "Ctrl+Alt+R",
                       "Replace in opened files...",
                       self._onModeSwitchTriggered, MODE_REPLACE_OPENED_FILES)
 
