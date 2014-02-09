@@ -213,7 +213,7 @@ def _filterTag(wildcard, tag, parent):
     """Filter tag by returning NEW tag, which matches the filter.
     Original tag is not modified
     """
-    newTag = ctags.Tag(tag.name, tag.lineNumber, parent)
+    newTag = ctags.Tag(tag.type, tag.name, tag.lineNumber, parent)
 
     children = _filterTags(wildcard, tag.children, newTag)
 

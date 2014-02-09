@@ -10,7 +10,8 @@ from enki.core.core import core
 
 
 class Tag:
-    def __init__(self, name, lineNumber, parent):
+    def __init__(self, type_, name, lineNumber, parent):
+        self.type = type_
         self.name = name
         self.lineNumber = lineNumber
         self.parent = parent
@@ -43,19 +44,27 @@ def _parseTag(line):
     # -1 to convert from human readable to machine numeration
     lineNumber = int(lineText.split(':')[-1]) - 1
 
-    scope = scopeText.split(':')[-1].split('.')[-1] if scopeText else None
-    return name, lineNumber, type_, scope
+    if scopeText:
+        scopeParts = scopeText.split(':')
+        scopeType = scopeParts[0]
+        scopeName = scopeParts[-1].split('.')[-1]
+    else:
+        scopeType = None
+        scopeName = None
 
-def _findScope(tag, scopeName):
-    """Check tag and its parents, it theirs name is scopeName.
+    return name, lineNumber, type_, scopeType, scopeName
+
+def _findScope(tag, scopeType, scopeName):
+    """Check tag and its parents, if theirs name is scopeName.
     Return tag or None
     """
     if tag is None:
         return None
-    if tag.name == scopeName:
+    if tag.name == scopeName and \
+       tag.type == scopeType:
         return tag
     elif tag.parent is not None:
-        return _findScope(tag.parent, scopeName)
+        return _findScope(tag.parent, scopeType, scopeName)
     else:
         return None
 
@@ -65,10 +74,10 @@ def _parseTags(text):
     tags = []
     lastTag = None
     for line in text.splitlines():
-        name, lineNumber, type_, scope = _parseTag(line)
+        name, lineNumber, type_, scopeType, scopeName = _parseTag(line)
         if type_ not in ignoredTypes:
-            parent = _findScope(lastTag, scope)
-            tag = Tag(name, lineNumber, parent)
+            parent = _findScope(lastTag, scopeType, scopeName)
+            tag = Tag(type_, name, lineNumber, parent)
             if parent is not None:
                 parent.children.append(tag)
             else:
