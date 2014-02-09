@@ -80,9 +80,9 @@ class ConverterThread(QThread):
                 DEL_RE = r'(~~)(.*?)~~'
                 def extendMarkdown(self, md, md_globals):
                     # Create the del pattern
-                    del_tag = markdown.inlinepatterns.SimpleTagPattern(self.DEL_RE, 'del')
+                    delTag = markdown.inlinepatterns.SimpleTagPattern(self.DEL_RE, 'del')
                     # Insert del pattern into markdown parser
-                    md.inlinePatterns.add('del', del_tag, '>not_strong')
+                    md.inlinePatterns.add('del', delTag, '>not_strong')
 
             extensions.append(_StrikeThroughExtension())
 

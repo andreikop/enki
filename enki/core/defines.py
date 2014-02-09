@@ -15,11 +15,11 @@ QUTEPART_SUPPORTED_MINOR = 3
 
 # Choose base config dir according to http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
 if os.environ.get('XDG_CONFIG_HOME', ''):  # if set and not empty
-    xdg_config_home = os.environ['XDG_CONFIG_HOME']
+    xdgConfigHome = os.environ['XDG_CONFIG_HOME']
 else:
-    xdg_config_home = os.path.expanduser('~/.config/')
+    xdgConfigHome = os.path.expanduser('~/.config/')
 
-if os.path.isdir(xdg_config_home):
-    CONFIG_DIR = os.path.join(xdg_config_home, 'enki')
+if os.path.isdir(xdgConfigHome):
+    CONFIG_DIR = os.path.join(xdgConfigHome, 'enki')
 else:
     CONFIG_DIR = os.path.expanduser('~/.enki/')

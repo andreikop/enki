@@ -89,7 +89,7 @@ class ProcessorThread(QThread):
         """
         self._queue.put(self._Task(ctagsLang, text))
 
-    def stop_async(self):
+    def stopAsync(self):
         self._queue.put(None)
 
     def run(self):
@@ -157,7 +157,7 @@ class Plugin(QObject):
             self._thread.error.disconnect(self._dock.onError)
             self._dock.remove()
         self._typingTimer.stop()
-        self._thread.stop_async()
+        self._thread.stopAsync()
         self._thread.wait()
 
     def _createDock(self):

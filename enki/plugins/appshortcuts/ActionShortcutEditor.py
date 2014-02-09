@@ -92,10 +92,10 @@ class _KeySequenceEdit(LineEdit):
         return QKeySequence( keys ).toString()
 
 class _RecursiveSortFilterProxyModel(QSortFilterProxyModel):
-    def filterAcceptsRow(self, source_row, source_parent):
-        index = self.sourceModel().index( source_row, 0, source_parent )
+    def filterAcceptsRow(self, sourceRow, sourceParent):
+        index = self.sourceModel().index( sourceRow, 0, sourceParent )
         rowCount = self.sourceModel().rowCount( index )
-        accepted = QSortFilterProxyModel.filterAcceptsRow( self, source_row, source_parent )
+        accepted = QSortFilterProxyModel.filterAcceptsRow( self, sourceRow, sourceParent )
 
         if rowCount > 0 and not accepted :
             for row in range(rowCount):

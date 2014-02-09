@@ -55,9 +55,6 @@ class Core(QObject):
     **Signal** emitted, when settings dialog had been accepted
     """  # pylint: disable=W0105
 
-    # Add object here to avoid gardadge-collecting it. NOT FOR PLUGINS USE!!!
-    _do_not_gargadge_collect_this_objects = []
-
     def __init__(self):
         QObject.__init__(self)
         self._mainWindow = None
@@ -200,16 +197,16 @@ class Core(QObject):
         Now it stores configs in ~/.config/.enki/.
         Move old configs
         """
-        new_path = enki.core.defines.CONFIG_DIR
+        newPath = enki.core.defines.CONFIG_DIR
 
-        if new_path != _OLD_CONFIG_DIR and \
+        if newPath != _OLD_CONFIG_DIR and \
            os.path.isdir(_OLD_CONFIG_DIR) and \
-           not os.path.isdir(new_path):
+           not os.path.isdir(newPath):
             try:
-                shutil.move(_OLD_CONFIG_DIR, new_path)
+                shutil.move(_OLD_CONFIG_DIR, newPath)
             except Exception as ex:
                 text = 'Failed to move config directory from {} to {}: {}' \
-                    .format(_OLD_CONFIG_DIR, new_path, unicode(ex))
+                    .format(_OLD_CONFIG_DIR, newPath, unicode(ex))
                 QMessageBox.warning(None, 'Failed to move configs', text)
 
     def _createDefaultConfigFile(self):

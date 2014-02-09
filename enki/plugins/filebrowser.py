@@ -71,12 +71,12 @@ class FileBrowserFilteredModel(QSortFilterProxyModel):
         """
         return self.sourceModel().hasChildren( self.mapToSource( parent ) )
 
-    def filterAcceptsRow(self, source_row, source_parent):
+    def filterAcceptsRow(self, sourceRow, sourceParent):
         """ Main method. Check if file matches filter
         """
-        if  source_parent == QModelIndex():
+        if  sourceParent == QModelIndex():
             return True
-        return not core.fileFilter().regExp().match(source_parent.child( source_row, 0 ).data() )
+        return not core.fileFilter().regExp().match(sourceParent.child( sourceRow, 0 ).data() )
 
 
 class SmartRecents(QObject):
