@@ -307,7 +307,7 @@ class MainWindow(QMainWindow):
         but, not so important, to interrupt an user with QMessageBox
         """
         if self._queuedMessageToolBar is None:
-            from enki.core.QueuedMessageToolBar import QueuedMessageToolBar
+            from enki.core.queued_msg_tool_bar import QueuedMessageToolBar
 
             self._queuedMessageToolBar = QueuedMessageToolBar(self)
             self.addToolBar(Qt.BottomToolBarArea, self._queuedMessageToolBar)

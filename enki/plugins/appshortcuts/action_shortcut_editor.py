@@ -10,18 +10,16 @@ from PyQt4 import uic
 from PyQt4.QtCore import QEvent, Qt
 from PyQt4.QtGui import QDialog, QDialogButtonBox, QHeaderView, QKeySequence, QMessageBox, QSortFilterProxyModel
 
-from ActionModel import ActionModel
+from actionmodel import ActionModel
 from enki.widgets.lineedit import LineEdit
 
-def tr(text):
-    return text
 
 class _KeySequenceEdit(LineEdit):
     def __init__(self, parent):
         LineEdit.__init__(self, parent )
         self._finished = True
 
-        self.setPromptText( tr( "Press a keybord shortcut..." ) )
+        self.setPromptText("Press a keybord shortcut...")
 
     def shortcut(self):
         return QKeySequence.fromString(self.text())
@@ -118,7 +116,7 @@ class ActionShortcutEditor(QDialog):
         self._proxy.setSortCaseSensitivity( Qt.CaseInsensitive )
 
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'ActionShortcutEditor.ui'), self)
-        self.leFilter.setPromptText( tr( "Text filter..." ) )
+        self.leFilter.setPromptText("Text filter...")
         self.tvActions.setModel( self._proxy )
         self.tvActions.header().setResizeMode( 0, QHeaderView.Stretch )
         self.tvActions.header().setResizeMode( 1, QHeaderView.ResizeToContents )
