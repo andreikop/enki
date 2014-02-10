@@ -142,6 +142,7 @@ class Rename(base.TestCase):
 
 
 class ToggleExecutable(base.TestCase):
+    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     def test_action_enabled(self):
         action = core.actionManager().action("mFile/mFileSystem/aToggleExecutable")
         core.workspace().closeAllDocuments()
