@@ -1,12 +1,32 @@
 import subprocess
 import platform
-
 import os.path
+import os
+
 from PyQt4.QtGui import QMessageBox, QIcon, QWidget, QHBoxLayout, \
                         QVBoxLayout, QLabel, QLineEdit, QSpacerItem, QSizePolicy
 
 from enki.core.core import core
 from enki.core.uisettings import TextOption
+
+
+if platform.system() == 'Windows':
+    ACTION_TEXT = "Command Prompt"
+else:
+    ACTION_TEXT = "Terminal"
+
+
+def _commandExists(program):
+    def _isExe(filePath):
+        return os.path.isfile(filePath) and os.access(filePath, os.X_OK)
+
+    for path in os.environ["PATH"].split(os.pathsep):
+        path = path.strip('"')
+        exeFile = os.path.join(path, program)
+        if _isExe(exeFile):
+            return True
+
+    return False
 
 
 class SettingsPage(QWidget):
@@ -39,14 +59,17 @@ class Plugin:
         """UI settings dialogue is about to execute.
         """
         page = SettingsPage(dialog)
-        dialog.appendPage(u"Terminal", page, QIcon(':enkiicons/console.png'))
+        dialog.appendPage(ACTION_TEXT, page, QIcon(':enkiicons/console.png'))
 
         # Options
         dialog.appendOption(TextOption(dialog, core.config(), "OpenTerm/DefaultTerm", page.edit))
 
     def _chooseDefaultTerminal(self):
         if platform.system() == 'Windows':
-            return 'powershell'
+            if _commandExists('powershell.exe'):
+                return 'powershell.exe'
+            else:
+                return 'cmd.exe'
         elif os.path.isfile('/usr/bin/x-terminal-emulator'):
             return '/usr/bin/x-terminal-emulator'
         else:
@@ -62,7 +85,7 @@ class Plugin:
         """Add action to main menu
         """
         action = core.actionManager().addAction( "mTools/aOpenTerm",
-                                                 "Open Terminal",
+                                                 ACTION_TEXT,
                                                  QIcon(':enkiicons/console.png'))
         core.actionManager().setDefaultShortcut(action, "Ctrl+T")
         action.triggered.connect(self._openTerm)
