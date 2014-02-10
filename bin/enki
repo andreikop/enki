@@ -85,7 +85,7 @@ def excepthook(excepttype, exceptvalue, tracebackobj):
 
             dialog.exec_()
 
-    core._do_not_gargadge_collect_this_objects.append(InGuiThread())
+    core._doNotGargadgeCollectThisObjects.append(InGuiThread())
 
 
 def _showErrorMessage(haveQt, header, html, plain):

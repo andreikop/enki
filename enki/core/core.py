@@ -54,6 +54,9 @@ class Core(QObject):
 
     **Signal** emitted, when settings dialog had been accepted
     """  # pylint: disable=W0105
+    
+    # internal, don't use it. Used only by bin/enki
+    _doNotGargadgeCollectThisObjects = []
 
     def __init__(self):
         QObject.__init__(self)
