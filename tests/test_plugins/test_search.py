@@ -266,6 +266,23 @@ class Gui(base.TestCase):
         QTest.keyClick(core.workspace().currentDocument(), Qt.Key_Escape)
         self.assertTrue(widget.isHidden())
 
+    @base.inMainLoop
+    def test_ctrl_backspace_path(self):
+        """Ctrl+Backspace on path edit removes one path level"""
+        QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier | Qt.ShiftModifier)
+        self.keyClick(Qt.Key_Tab)
+        self.keyClick(Qt.Key_Right)
+        cbPath = _findSearchController()._widget.cbPath
+        cbPath.lineEdit().setText('c:\\users/appdata/config')
+        self.keyClick(Qt.Key_Backspace, Qt.ControlModifier)
+        self.assertEqual(cbPath.currentText(), 'c:\\users/appdata')
+        self.keyClick(Qt.Key_Backspace, Qt.ControlModifier)
+        self.assertEqual(cbPath.currentText(), 'c:\\users')
+        self.keyClick(Qt.Key_Backspace, Qt.ControlModifier)
+        self.assertEqual(cbPath.currentText(), 'c:\\')
+        self.keyClick(Qt.Key_Backspace, Qt.ControlModifier)
+        self.assertEqual(cbPath.currentText(), 'c:\\')
+
 
 if __name__ == '__main__':
     unittest.main()
