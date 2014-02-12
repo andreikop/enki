@@ -253,8 +253,6 @@ def _findFirstMatching(wildcard, filteredTags):
 
 class NavigatorDock(DockWidget):
 
-    closed = pyqtSignal()
-
     def __init__(self):
         DockWidget.__init__(self, core.mainWindow(), '&Navigator', QIcon(':/enkiicons/goto.png'), "Alt+N")
 
@@ -334,13 +332,6 @@ class NavigatorDock(DockWidget):
             self.setWidget(self._errorLabel)
             self._errorLabel.show()
             self._displayWidget.hide()
-
-    def closeEvent(self, event):
-        """Widget is closed.
-        Probably should update enabled state
-        """
-        self.closed.emit()
-        self.setTags([])
 
     def _onModelAboutToBeReset(self):
         currIndex = self._tree.currentIndex()

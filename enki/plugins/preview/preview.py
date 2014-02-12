@@ -126,8 +126,6 @@ class ConverterThread(QThread):
 class PreviewDock(DockWidget):
     """GUI and implementation
     """
-    closed = pyqtSignal()
-
     def __init__(self):
         DockWidget.__init__(self, core.mainWindow(), "&Preview", QIcon(':/enkiicons/internet.png'), "Alt+P")
         self._widget = QWidget(self)
@@ -176,11 +174,10 @@ class PreviewDock(DockWidget):
         self._thread.wait()
 
     def closeEvent(self, event):
-        """Widget is closed.
-        Probably should update enabled state
+        """Widget is closed. Clear it
         """
-        self.closed.emit()
         self._clear()
+        return DockWidget.closeEvent(self, event)
 
     def _updateTitle(self, pageTitle):
         """Web page title changed. Update own title

@@ -163,9 +163,9 @@ class Plugin(QObject):
     def _createDock(self):
         self._dock = NavigatorDock()
         self._dock.setVisible(False)
+        self._dock.shown.connect(self._onDockShown)
         self._dock.closed.connect(self._onDockClosed)
 
-        self._dock.showAction().triggered.connect(self._onDockShown)
         self._thread.tagsReady.connect(self._dock.setTags)
         self._thread.error.connect(self._dock.onError)
 
@@ -179,15 +179,18 @@ class Plugin(QObject):
     def _onDockClosed(self):
         """Dock has been closed by a user. Change Enabled option
         """
-        core.config()['Navigator']['Enabled'] = False
-        core.config().flush()
+        if core.config()['Navigator']['Enabled']:
+            core.config()['Navigator']['Enabled'] = False
+            core.config().flush()
+            self._dock.setTags([])
 
     def _onDockShown(self):
         """Dock has been shown by a user. Change Enabled option
         """
-        core.config()['Navigator']['Enabled'] = True
-        core.config().flush()
-        self._scheduleDocumentProcessing()
+        if not core.config()['Navigator']['Enabled']:
+            core.config()['Navigator']['Enabled'] = True
+            core.config().flush()
+            self._scheduleDocumentProcessing()
 
     def _onDocumentChanged(self, old, new):
         if self._isSupported(new):

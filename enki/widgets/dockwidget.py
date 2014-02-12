@@ -113,6 +113,21 @@ class _TitleBar(QToolBar):
 class DockWidget(QDockWidget):
     """Extended QDockWidget for Enki main window
     """
+
+    closed = pyqtSignal()
+    """
+    closed()
+
+    **Signal** emitted, when dock is closed
+    """
+
+    shown = pyqtSignal()
+    """
+    shown()
+
+    **Signal** emitted, when dock is shown
+    """
+
     def __init__(self, parentObject, windowTitle, windowIcon = QIcon(), shortcut = None):
         QDockWidget.__init__(self, parentObject)
         self._showAction = None
@@ -182,3 +197,11 @@ class DockWidget(QDockWidget):
         if self.parent() is not None and \
            self.parent().focusProxy() is not None:
             self.parent().focusProxy().setFocus()
+
+    def closeEvent(self, event):
+        """Widget was closed"""
+        self.closed.emit()
+
+    def showEvent(self, event):
+        """Widget was shown"""
+        self.shown.emit()

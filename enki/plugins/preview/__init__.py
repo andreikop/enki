@@ -82,7 +82,7 @@ class Plugin(QObject):
             from enki.plugins.preview.preview import PreviewDock
             self._dock = PreviewDock()
             self._dock.closed.connect(self._onDockClosed)
-            self._dock.showAction().triggered.connect(self._onDockShown)
+            self._dock.shown.connect(self._onDockShown)
             self._saveAction = QAction(QIcon(':enkiicons/save.png'), 'Save Preview as HTML', self._dock)
             self._saveAction.setShortcut(QKeySequence("Alt+Shift+P"))
             self._saveAction.triggered.connect(self._dock.onSave)
@@ -98,14 +98,16 @@ class Plugin(QObject):
     def _onDockClosed(self):
         """Dock has been closed by user. Change Enabled option
         """
-        core.config()['Preview']['Enabled'] = False
-        core.config().flush()
+        if core.config()['Preview']['Enabled']:
+            core.config()['Preview']['Enabled'] = False
+            core.config().flush()
 
     def _onDockShown(self):
         """Dock has been shown by user. Change Enabled option
         """
-        core.config()['Preview']['Enabled'] = True
-        core.config().flush()
+        if not core.config()['Preview']['Enabled']:
+            core.config()['Preview']['Enabled'] = True
+            core.config().flush()
 
     def _removeDock(self):
         """Remove dock from GUI
