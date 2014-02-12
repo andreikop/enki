@@ -123,9 +123,12 @@ class SearchWidget(QFrame):
 
         self.fsModel = QDirModel(self.cbPath.lineEdit())
         self.fsModel.setFilter( QDir.AllDirs | QDir.NoDotAndDotDot )
+
         self.cbPath.lineEdit().setCompleter(QCompleter(self.fsModel,
                                                        self.cbPath.lineEdit() ))
         self._pathBackspaceShortcut = QShortcut(QKeySequence("Ctrl+Backspace"), self.cbPath, self._onPathBackspace)
+        self._pathBackspaceShortcut.setContext(Qt.WidgetWithChildrenShortcut)
+
         # TODO QDirModel is deprecated but QCompleter does not yet handle
         # QFileSystemodel - please update when possible."""
         self.cbSearch.setCompleter(None)
@@ -336,7 +339,7 @@ class SearchWidget(QFrame):
             self.pbSearch.click()
         elif self.pbSearchStop.isVisible():
             self.pbSearchStop.click()
-    
+
     def _onPathBackspace(self):
         """Ctrl+Backspace pressed on path.
         Remove 1 path level.
@@ -346,7 +349,7 @@ class SearchWidget(QFrame):
         if path.endswith('/') or \
            path.endswith('\\'):
             path = path[:-1]
-        
+
         head, tail = os.path.split(path)
         if head and \
            head != path:
