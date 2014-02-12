@@ -5,6 +5,7 @@ repl --- MIT Scheme and Standard ML REPL
 File contains plugin functionality implementation
 """
 
+import os
 import os.path
 
 from PyQt4.QtCore import pyqtSignal, QEvent, QObject, Qt, QTimer
@@ -115,12 +116,16 @@ class PythonTermWidget(_AbstractReplTermWidget):
     def isCommandComplete(self, text):
         """TODO support comments and strings
         """
-        if text.endswith(':'):
+        # Filter non-empty lines, strip trailing whitespace
+        lines = [line.rstrip() \
+                    for line in text.splitlines() \
+                        if line.strip()]
+
+        if not lines:
             return False
 
-        lines = text.splitlines()
-        if len(lines) == 1:
-            return True
+        if lines[-1].endswith(':'):
+            return False
 
         return not lines[-1][0].isspace()
 
@@ -209,8 +214,8 @@ class _AbstractInterpreter(QObject):
     def execCommand(self, text):
         """Execute text
         """
-        if not text.endswith('\n'):
-            text += '\n'
+        if not text.endswith(os.linesep):
+            text += os.linesep
 
         if not self._processIsRunning:
             try:
@@ -292,3 +297,18 @@ class PythonInterpreter(_AbstractInterpreter):
             self.start([filePath])
         except UserWarning:
             return
+
+    def execCommand(self, text):
+        """Execute text
+        """
+        # Filter non-empty lines, strip trailing whitespace
+        lines = [line.rstrip()
+                    for line in text.splitlines()
+                        if line.strip()]
+
+        if lines[-1][0].isspace():  # function declaration, etc. Add extra newline
+            lines.append('')
+
+        textToExec = os.linesep.join(lines) + os.linesep
+
+        return _AbstractInterpreter.execCommand(self, textToExec)

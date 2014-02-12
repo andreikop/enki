@@ -179,8 +179,8 @@ class TestCase(unittest.TestCase):
         if isinstance(key, basestring):
             assert modifiers == Qt.NoModifier, 'Do not set modifiers, if using text key'
             code = QKeySequence(key)[0]
-            key = Qt.Key(code & 0x00ffffff)
-            modifiers = Qt.KeyboardModifiers(code & 0xff000000)
+            key = Qt.Key(code & 0x01ffffff)
+            modifiers = Qt.KeyboardModifiers(code & 0xfe000000)
 
         QTest.keyClick(widget, key, modifiers)
 

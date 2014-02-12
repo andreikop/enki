@@ -57,6 +57,18 @@ class Test(base.TestCase):
 
         self._waitForText('699678', 'Python')
 
+    @base.requiresCmdlineUtility('python -h')
+    @base.inMainLoop
+    def test_4(self):
+        # Python, execute a function
+        self.createFile('test.py', 'def mysum(a, b):\n\n  return a + b')
+        self.keyClick('Ctrl+E')
+        self.keyClick('Alt+I')
+        self.keyClicks('mysum(77000, 13)')
+        self.keyClick('Enter')
+
+        self._waitForText('77013', 'Python')
+
 
 if __name__ == '__main__':
     unittest.main()
