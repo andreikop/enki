@@ -3,6 +3,7 @@
 import unittest
 import os.path
 import sys
+import platform
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
@@ -273,15 +274,18 @@ class Gui(base.TestCase):
         self.keyClick(Qt.Key_Tab)
         self.keyClick(Qt.Key_Right)
         cbPath = _findSearchController()._widget.cbPath
-        cbPath.lineEdit().setText('c:\\users/appdata/config')
-        self.keyClick(Qt.Key_Backspace, Qt.ControlModifier)
-        self.assertEqual(cbPath.currentText(), 'c:\\users/appdata')
-        self.keyClick(Qt.Key_Backspace, Qt.ControlModifier)
-        self.assertEqual(cbPath.currentText(), 'c:\\users')
-        self.keyClick(Qt.Key_Backspace, Qt.ControlModifier)
-        self.assertEqual(cbPath.currentText(), 'c:\\')
-        self.keyClick(Qt.Key_Backspace, Qt.ControlModifier)
-        self.assertEqual(cbPath.currentText(), 'c:\\')
+
+        if platform.system() == 'Windows':
+            text = 'c:\\users/appdata/config'
+            expectedItems = ['c:\\users/appdata', 'c:\\users', 'c:\\', 'c:\\']
+        else:
+            text = '/home/a/code/enki'
+            expectedItems = ['/home/a/code', '/home/a', '/home', '/', '/']
+
+        cbPath.lineEdit().setText(text)
+        for expected in expectedItems:
+            self.keyClick(Qt.Key_Backspace, Qt.ControlModifier)
+            self.assertEqual(cbPath.currentText(), expected)
 
 
 if __name__ == '__main__':
