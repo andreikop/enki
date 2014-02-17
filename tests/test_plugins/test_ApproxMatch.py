@@ -68,5 +68,43 @@ class TestApproxMatch(base.TestCase):
                   target_text = 'The CodeChat user manual gives a broad overview of this system. In contrast, this document discusses the implementation specifics of the CodeChat system.')
         self.assertEqual(index, 66-34)
 
+    def test_7(self):
+        index = f(search_anchor = 9,
+                  search_text = 'bqwc?xyzaad',
+                  target_text = 'bwxyzcd')
+        self.assertEqual(index, 6)
+        
+    def test_8(self):
+        index = f(search_anchor = 6,
+                  search_text = 'bwxyzcd',
+                  target_text = 'bqwc?xyzaad')
+        self.assertIn(index, (9,10))
+        
+    def test_9(self):
+        index = f(search_anchor = 2,
+                  search_text = 'abcd',
+                  target_text = 'xxabcdabcdabcdxxx')
+        # This is a typical multiple match case. will return a -1        
+        ##self.assertIn(index, (4,8,12))
+        self.assertEqual(index, -1)
+  
+    def test_10(self):
+        index = f(search_anchor = 4,
+                  search_text = 'xxabcdabcdabcdxxx',
+                  target_text = 'abcd')
+        # this is a bug i cannot handle using lcs. lcs will find the last abcd, 4 is before the start of the last abcd, so it maps to index 0 rather than 2.
+        # the problem happens when map lcs index back to original string. it has multiple matches. the one i choose is not the 'closet' one.
+        self.assertEqual(index, 2)
+        
+    def test_11(self):
+        index = f(search_anchor = 57,
+                  search_text = 'age = None# `exclude_patterns# <http://sphinx-doc.org/config.html#confval-exclude_patterns>`_: List of# patterns, re',
+                  target_text = 'for a list of supported languages.##language = None exclude_patterns: List of patterns, re')
+        # ok, this is the second bug i encountered. explaination? check my test. (to put it simple, tre did a bad job)
+        # work around: remove all docutils markup part from search text. remap it back to original text. then use the refined version to do 
+        # comparison. get the second mapping. combine these two mapping to get an exact pinpoint location
+        self.assertIn(index, range(68,72))
+        
+
 if __name__ == '__main__':
     unittest.main()
