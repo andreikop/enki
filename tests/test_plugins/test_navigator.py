@@ -15,6 +15,7 @@ from PyQt4.QtTest import QTest
 from PyQt4.QtGui import QColor, QFont, QPlainTextEdit, QTextOption
 
 from enki.core.core import core
+from enki.plugins.navigator.ctags import processText
 
 
 RUBY_SOURCE = '''class Person
@@ -51,10 +52,7 @@ class Settings(base.TestCase):
         self.assertEqual(core.config()['Navigator']['CtagsPath'], 'new ctags path')
 
 
-class Test(base.TestCase):
-    def setUp(self):
-        base.TestCase.setUp(self)
-
+class Gui(base.TestCase):
     @base.requiresCmdlineUtility('ctags --version')
     @base.inMainLoop
     def test_1(self):
@@ -203,6 +201,36 @@ class Test(base.TestCase):
 
         self.keyClick(Qt.Key_Backspace)
         self.assertEqual(model.rowCount(QModelIndex()), 2)
+
+
+CPP_CODE = """
+
+void Func()
+{
+    int foo;
+}
+
+int Cls::FirstMethod()
+{
+    return 0
+}
+
+int Cls::SecondMethod()
+{
+    return 0
+}"""
+
+def asDicts(tags):
+    return {(tag.name, tag.lineNumber): asDicts(tag.children) \
+                for tag in tags}
+
+class Parser(base.TestCase):
+
+    def test_1(self):
+        tags = processText('C++', CPP_CODE)
+        ref = {('Func', 2): {}, ('Cls', 7): {('FirstMethod', 7): {}, ('SecondMethod', 12): {}}}
+        self.assertEqual(asDicts(tags), ref)
+
 
 
 if __name__ == '__main__':

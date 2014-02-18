@@ -68,7 +68,7 @@ def _findScope(tag, scopeType, scopeName):
     else:
         return None
 
-def _parseTags(text):
+def _parseTags(ctagsLang, text):
     ignoredTypes = ('variable')
 
     tags = []
@@ -77,6 +77,15 @@ def _parseTags(text):
         name, lineNumber, type_, scopeType, scopeName = _parseTag(line)
         if type_ not in ignoredTypes:
             parent = _findScope(lastTag, scopeType, scopeName)
+
+            # For C++ automaticaly create class tag.
+            # TODO now class is created as top-level item. Find scope for class
+            if parent is None and \
+               scopeName and \
+               ctagsLang == 'C++':
+                parent = Tag(scopeType, scopeName, lineNumber, None)
+                tags.append(parent)
+
             tag = Tag(type_, name, lineNumber, parent)
             if parent is not None:
                 parent.children.append(tag)
@@ -141,4 +150,4 @@ def processText(ctagsLang, text):
 
         stdout, stderr = popen.communicate()
 
-    return _parseTags(stdout)
+    return _parseTags(ctagsLang, stdout)
