@@ -353,6 +353,8 @@ class SearchWidget(QFrame):
         head, tail = os.path.split(path)
         if head and \
            head != path:
+            if not head.endswith(os.sep):
+                head += os.sep
             self.cbPath.lineEdit().setText(head)
 
     def _moveFocus(self, step):

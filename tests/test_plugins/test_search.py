@@ -276,11 +276,11 @@ class Gui(base.TestCase):
         cbPath = _findSearchController()._widget.cbPath
 
         if platform.system() == 'Windows':
-            text = 'c:\\users/appdata/config'
-            expectedItems = ['c:\\users/appdata', 'c:\\users', 'c:\\', 'c:\\']
+            text = 'c:\\users\\appdata\\config'
+            expectedItems = ['c:\\users\\appdata\\', 'c:\\users\\', 'c:\\', 'c:\\']
         else:
             text = '/home/a/code/enki'
-            expectedItems = ['/home/a/code', '/home/a', '/home', '/', '/']
+            expectedItems = ['/home/a/code/', '/home/a/', '/home/', '/', '/']
 
         cbPath.lineEdit().setText(text)
         for expected in expectedItems:
