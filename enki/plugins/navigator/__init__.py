@@ -12,7 +12,7 @@ from PyQt4 import uic
 
 
 from enki.core.core import core
-from enki.core.uisettings import TextOption
+from enki.core.uisettings import TextOption, CheckableOption
 
 import ctags
 from dock import NavigatorDock
@@ -63,12 +63,12 @@ _CTAGS_TO_QUTEPART_LANG_MAP = {
     "YACC": ("Yacc/Bison",)
 }
 
+
 # build reverse map
 _QUTEPART_TO_CTAGS_LANG_MAP = {}
 for ctagsLang, qutepartLangs in _CTAGS_TO_QUTEPART_LANG_MAP.iteritems():
     for qutepartLang in qutepartLangs:
         _QUTEPART_TO_CTAGS_LANG_MAP[qutepartLang] = ctagsLang
-
 
 
 class ProcessorThread(QThread):
@@ -77,17 +77,17 @@ class ProcessorThread(QThread):
     tagsReady = pyqtSignal(list)
     error = pyqtSignal(str)
 
-    _Task = collections.namedtuple("Task", ["ctagsLang", "text"])
+    _Task = collections.namedtuple("Task", ["ctagsLang", "text", "sortAlphabetically"])
 
     def __init__(self):
         QThread.__init__(self)
         self._queue = Queue.Queue()
         self.start(QThread.LowPriority)
 
-    def process(self, ctagsLang, text):
+    def process(self, ctagsLang, text, sortAlphabetically):
         """Parse text and emit tags
         """
-        self._queue.put(self._Task(ctagsLang, text))
+        self._queue.put(self._Task(ctagsLang, text, sortAlphabetically))
 
     def stopAsync(self):
         self._queue.put(None)
@@ -105,7 +105,7 @@ class ProcessorThread(QThread):
             if task is None:  # None is a quit command
                 break
 
-            result = ctags.processText(task.ctagsLang, task.text)
+            result = ctags.processText(task.ctagsLang, task.text, task.sortAlphabetically)
 
             if isinstance(result, basestring):
                 self.error.emit(result)
@@ -139,6 +139,7 @@ class Plugin(QObject):
         core.workspace().textChanged.connect(self._onTextChanged)
 
         core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
+        core.uiSettingsManager().dialogAccepted.connect(self._scheduleDocumentProcessing)
 
         # If we update Tree on every key pressing, freezes are sensible (GUI thread draws tree too slowly
         # This timer is used for drawing Preview 1000 ms After user has stopped typing text
@@ -223,7 +224,8 @@ class Plugin(QObject):
         if document is not None and \
            document.qutepart.language() in _QUTEPART_TO_CTAGS_LANG_MAP:
             ctagsLang = _QUTEPART_TO_CTAGS_LANG_MAP[document.qutepart.language()]
-            self._thread.process(ctagsLang, document.qutepart.text)
+            self._thread.process(ctagsLang, document.qutepart.text,
+                                 core.config()['Navigator']['SortAlphabetically'])
 
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.
@@ -236,3 +238,6 @@ class Plugin(QObject):
         # Options
         dialog.appendOption(TextOption(dialog, core.config(),
                                        "Navigator/CtagsPath", widget.leCtagsPath))
+        dialog.appendOption(CheckableOption(dialog, core.config(),
+                                            "Navigator/SortAlphabetically",
+                                            widget.cbSortTagsAlphabetically))

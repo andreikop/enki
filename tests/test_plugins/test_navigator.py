@@ -51,6 +51,31 @@ class Settings(base.TestCase):
 
         self.assertEqual(core.config()['Navigator']['CtagsPath'], 'new ctags path')
 
+    @base.requiresCmdlineUtility('ctags --version')
+    @base.inMainLoop
+    def test_2(self):
+        # Sort order is configurable
+        self.createFile('source.rb', RUBY_SOURCE)
+        dock = self.findDock('&Navigator')
+        model = dock._tagModel
+        self.sleepProcessEvents(0.1)
+        self.assertEqual([tag.name for tag in model._tags[0].children],
+                         ['initialize', '<=>', 'to_s'])
+
+        def continueFunc(dialog):
+            page = dialog._pageForItem["Navigator"]
+
+            page.cbSortTagsAlphabetically.setChecked(True)
+            QTest.keyClick(dialog, Qt.Key_Enter)
+
+        self.openSettings(continueFunc)
+        self.assertEqual(core.config()['Navigator']['SortAlphabetically'], True)
+
+        self.sleepProcessEvents(0.1)
+        self.assertEqual([tag.name for tag in model._tags[0].children],
+                         ['<=>', 'initialize', 'to_s'])
+
+
 
 class Gui(base.TestCase):
     @base.requiresCmdlineUtility('ctags --version')
@@ -227,7 +252,7 @@ def asDicts(tags):
 class Parser(base.TestCase):
 
     def test_1(self):
-        tags = processText('C++', CPP_CODE)
+        tags = processText('C++', CPP_CODE, False)
         ref = {('Func', 2): {}, ('Cls', 7): {('FirstMethod', 7): {}, ('SecondMethod', 12): {}}}
         self.assertEqual(asDicts(tags), ref)
 

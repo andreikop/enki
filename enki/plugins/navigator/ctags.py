@@ -109,7 +109,14 @@ def _namedTemp():
             pass
 
 
-def processText(ctagsLang, text):
+def _sortTagsAlphabetically(tags):
+    for tag in tags:
+        tag.children = _sortTagsAlphabetically(tag.children)
+
+    return sorted(tags, key = lambda tag: tag.name)
+
+
+def processText(ctagsLang, text, sortAlphabetically):
     ctagsPath = core.config()['Navigator']['CtagsPath']
     langArg = '--language-force={}'.format(ctagsLang)
 
@@ -150,4 +157,9 @@ def processText(ctagsLang, text):
 
         stdout, stderr = popen.communicate()
 
-    return _parseTags(ctagsLang, stdout)
+    tags = _parseTags(ctagsLang, stdout)
+
+    if sortAlphabetically:
+        return _sortTagsAlphabetically(tags)
+    else:
+        return tags

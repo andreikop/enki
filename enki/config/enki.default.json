@@ -1,5 +1,5 @@
 {
-    "_version" : 10,
+    "_version" : 11,
     "PlatformDefaultsHaveBeenSet" : false,
 
     "NegativeFileFilter": [ "*~", "*.o", "*.pyc", "*.bak" ],
@@ -57,6 +57,7 @@
     },
     "Navigator": {
         "Enabled": true,
-        "CtagsPath": "ctags"
+        "CtagsPath": "ctags",
+        "SortAlphabetically": false
     }
 }

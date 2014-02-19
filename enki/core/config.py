@@ -104,6 +104,10 @@ class Config():
             self._data['Qutepart']['StripTrailingWhitespace'] = False
             self._data['_version'] = 10
 
+        if self._data['_version'] == 10:
+            self._data['Navigator']['SortAlphabetically'] = False
+            self._data['_version'] = 11
+
 
     def _setPlatformDefaults(self):
         """Set default values, which depend on platform

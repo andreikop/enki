@@ -19,14 +19,33 @@
      <property name="title">
       <string>Ctags path</string>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QLineEdit" name="leCtagsPath"/>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLineEdit" name="leCtagsPath"/>
+        </item>
+        <item>
+         <widget class="QToolButton" name="pbCtagsPath">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
-       <widget class="QToolButton" name="pbCtagsPath">
+       <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <italic>true</italic>
+         </font>
+        </property>
         <property name="text">
-         <string>...</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ctags console utility allows to parse source files and get list of functions, classes, etc.&lt;/p&gt;&lt;p&gt;See &lt;a href=&quot;http://ctags.sourceforge.net/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;official site&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -34,17 +53,9 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="label">
-     <property name="font">
-      <font>
-       <italic>true</italic>
-      </font>
-     </property>
+    <widget class="QCheckBox" name="cbSortTagsAlphabetically">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ctags console utility allows to parse source files and get list of functions, classes, etc. in a file.&lt;/p&gt;&lt;p&gt;See &lt;a href=&quot;http://ctags.sourceforge.net/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;official site&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
+      <string>Sort tags alphabetically</string>
      </property>
     </widget>
    </item>
