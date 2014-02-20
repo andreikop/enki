@@ -324,9 +324,9 @@ class PreviewDock(DockWidget):
                  #   provides a `textContent
                  #   <https://developer.mozilla.org/en-US/docs/Web/API/Node.textContent>`_
                  #   property which gives "a DOMString representing the textual
-                 # content of an element and all its descendants." This therefore
-                 # contains a text rendering of the webpage from the beginning of the
-                 # page to the point where the user clicked.
+                 #   content of an element and all its descendants." This therefore
+                 #   contains a text rendering of the webpage from the beginning of the
+                 #   page to the point where the user clicked.
             '    var r_str = r.cloneContents().textContent.toString();' +
 
                  # Step 4: the length of the string gives the index of the click
