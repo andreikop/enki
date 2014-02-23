@@ -128,6 +128,8 @@ class MainWindow(QMainWindow):
 
         self._createMenuStructure()
 
+        core.actionManager().action('mView/aOpenMainMenu').triggered.connect(self._openMainMenu)
+
         # create central layout
         widget = QWidget(self)
         self._centralLayout = QVBoxLayout(widget)
@@ -242,7 +244,9 @@ class MainWindow(QMainWindow):
         action("mView/aShowTrailingWhitespaces",      "Show trailing whitespaces", "",          "",              ""                       , False, True)
         action("mView/aShowAnyIndentWhitespaces",     "Show indentation",      "",              "",              ""                       , False, True)
         separator("mView")
-        action("mView/aHideAll",                      "Hide all / Restore"   , "",             "Shift+Esc",   "Hide all widgets"       , True)
+        action("mView/aHideAll",                      "Hide all / Restore"   , "",             "Shift+Esc",   "Hide all widgets"          , True)
+        action("mView/aOpenMainMenu",                 "Open main menu"       , "",             "F10",         ""                          , True)
+        separator("mView")
 
         menu  ("mEdit",                               "Edit"                  , ""            )
         action("mEdit/aStripTrailingWhitespace",      "Strip trailing whitespace when saving", "", "",            ""                   , True, True)
@@ -267,6 +271,10 @@ class MainWindow(QMainWindow):
 
         menu  ("mTools",                              "Tools"                 , ""            )
         menu  ("mHelp",                               "Help"                  , ""            )
+
+    def _openMainMenu(self):
+        fileMenu = core.actionManager().menu('mFile')
+        self._menuBar.setActiveAction(fileMenu.menuAction())
 
     def menuBar(self):
         """Reference to menuBar
