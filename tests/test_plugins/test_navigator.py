@@ -245,6 +245,13 @@ int Cls::SecondMethod()
     return 0
 }"""
 
+PY_CODE = """
+class Cls:
+    def foobar(a, b):
+        def func():
+            pass
+"""
+
 def asDicts(tags):
     return {(tag.name, tag.lineNumber): asDicts(tag.children) \
                 for tag in tags}
@@ -254,6 +261,12 @@ class Parser(base.TestCase):
     def test_1(self):
         tags = processText('C++', CPP_CODE, False)
         ref = {('Func', 2): {}, ('Cls', 7): {('FirstMethod', 7): {}, ('SecondMethod', 12): {}}}
+        self.assertEqual(asDicts(tags), ref)
+
+    def test_2(self):
+        tags = processText('Python', PY_CODE, False)
+        print asDicts(tags)
+        ref = {('Cls', 1): {('foobar', 2): {('func', 3): {}}}}
         self.assertEqual(asDicts(tags), ref)
 
 

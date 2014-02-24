@@ -60,7 +60,7 @@ def _findScope(tag, scopeType, scopeName):
     """
     if tag is None:
         return None
-    if tag.name == scopeName and \
+    elif tag.name == scopeName and \
        tag.type == scopeType:
         return tag
     elif tag.parent is not None:
@@ -76,6 +76,12 @@ def _parseTags(ctagsLang, text):
     for line in text.splitlines():
         name, lineNumber, type_, scopeType, scopeName = _parseTag(line)
         if type_ not in ignoredTypes:
+            if type_ == 'member':
+                """ctags returns parent scope type 'function' for members'.
+                Workaround this issue - use one term for functions and members
+                """
+                type_ = 'function'
+
             parent = _findScope(lastTag, scopeType, scopeName)
 
             # For C++ automaticaly create class tag.
