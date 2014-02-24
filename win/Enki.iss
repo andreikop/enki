@@ -41,7 +41,7 @@ Compression=lzma2
 SolidCompression=yes
 OutputBaseFilename="Install_{#PRODUCT_NAME}"
 OutputDir=.
-;WizardImageFile=icons\logo\enki_setup.bmp
+WizardImageFile=portrait-logo.bmp
 
 [Files]
 Source: "..\dist\all\*"; DestDir: "{app}"; Flags: recursesubdirs
