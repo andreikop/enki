@@ -3,18 +3,13 @@
 import os
 import sys
 import pkgutil
+import platform
+from distutils.core import setup
 
-""" setuptools ignores my .desktop and .cfg files
-try:
-  from setuptools import setup
-except ImportError:
-  from distutils.core import setup
-"""
-
-import distutils.ccompiler
-from distutils.core import setup, Extension
 
 from enki.core.defines import PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_URL
+
+# NOTE setuptools ignores Enki .desktop and .cfg files
 
 
 def _checkDependencies():
