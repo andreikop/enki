@@ -7,7 +7,8 @@ import Queue
 
 
 from PyQt4.QtCore import pyqtSignal, QSize, Qt, QThread, QTimer, QUrl
-from PyQt4.QtGui import QFileDialog, QIcon, QMessageBox, QWidget
+from PyQt4.QtGui import QDesktopServices, QFileDialog, QIcon, QMessageBox, QWidget
+from PyQt4.QtWebKit import QWebPage
 from PyQt4 import uic
 
 from enki.core.core import core
@@ -134,6 +135,9 @@ class PreviewDock(DockWidget):
 
         self._loadTemplates()
 
+        self._widget.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
+        self._widget.webView.page().linkClicked.connect(self._onLinkClicked)
+
         self._widget.webView.page().mainFrame().titleChanged.connect(self._updateTitle)
         self.setWidget(self._widget)
         self.setFocusProxy(self._widget.webView )
@@ -178,6 +182,13 @@ class PreviewDock(DockWidget):
         """
         self._clear()
         return DockWidget.closeEvent(self, event)
+
+    def _onLinkClicked(self, url):
+        res = QDesktopServices.openUrl(url)
+        if res:
+            core.mainWindow().statusBar().showMessage("{} opened in a browser".format(url.toString()), 2000)
+        else:
+            core.mainWindow().statusBar().showMessage("Failed to open {}".format(url.toString()), 2000)
 
     def _updateTitle(self, pageTitle):
         """Web page title changed. Update own title
