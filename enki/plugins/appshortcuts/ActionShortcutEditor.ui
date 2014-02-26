@@ -74,7 +74,7 @@
   <customwidget>
    <class>_KeySequenceEdit</class>
    <extends>QLineEdit</extends>
-   <header>enki/plugins/appshortcuts/ActionShortcutEditor.h</header>
+   <header>enki/plugins/appshortcuts/action_shortcut_editor.h</header>
   </customwidget>
   <customwidget>
    <class>LineEdit</class>
