@@ -52,7 +52,13 @@ class ConverterThread(QThread):
         self._queue = Queue.Queue()
         self.start(QThread.LowPriority)
         # Executable to run the HTML builder.
-        self.htmlBuilderExecutable = u'sphinx-build'
+        self.htmlBuilderCommandLine = (u'sphinx-build ' +
+          # Place doctrees in the ``_build`` directory; by default, Sphinx places this in _build/html/.doctrees.
+          u'-d _build\\doctrees ' +
+          # Source directory
+          u'. ' +
+          # Build directory
+          u'_build\\html')
         # Path to the root directory of an HTML builder.
         self.htmlBuilderRootPath = u'D:\\tp'
         # Path to the output produced by the HTML builder.
@@ -200,22 +206,12 @@ class ConverterThread(QThread):
             # with the ``--noconsole`` option requires redirecting everything
             # (stdin, stdout, stderr) to avoid a OSError exception
             # "[Error 6] the handle is invalid."
-            popen = subprocess.Popen(
-                    [self.htmlBuilderExecutable,
-                      '-b', 'html',
-                      # Select the HTML builder.
-                      '-d', '_build/doctrees',
-                      # Place doctrees in the ``_build`` directory; by default, Sphinx places this in _build/html/.doctrees.
-                      '.',
-                      # Source directory
-                      self.htmlBuilderOutputPath],
-                      # Build directory
-                    cwd=self.htmlBuilderRootPath,
-                    # Sphinx-build breaks without this
-                    stdin=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    stdout=subprocess.PIPE,
-                    startupinfo=si, env=env)
+            popen = subprocess.Popen(self.htmlBuilderCommandLine,
+                      cwd=self.htmlBuilderRootPath,
+                      stdin=subprocess.PIPE,
+                      stderr=subprocess.PIPE,
+                      stdout=subprocess.PIPE,
+                      startupinfo=si, env=env)
         except Exception as ex:
             print 'Failed to execute HTML builder console utility "{}": {}\n'\
                         .format(self.htmlBuilderExecutable, str(ex)) + \
