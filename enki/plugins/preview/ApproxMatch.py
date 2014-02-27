@@ -224,13 +224,18 @@ def find_approx_text_in_target(search_text,
     target_substring = target_text[begin_in_target:end_in_target]
     # find where the anchor is in search_pattern
     relative_search_anchor = search_anchor - begin
-    offset, editing_dist = refine_search_result(relative_search_anchor, search_pattern, target_substring)
-    offset = offset + begin_in_target
+    offset, editing_dist, lcs_string = refine_search_result(relative_search_anchor, search_pattern, target_substring)
+    if offset is not -1:
+        offset = offset + begin_in_target
 
     if ENABLE_LOG:
         si = html_format_search_input(search_text, begin, search_anchor, end)
-        sr = html_format_search_input(target_text, begin_in_target, offset, end_in_target)
-        fs = html_format_search(si, sr, editing_dist)
+        if offset is not -1:
+            sr = html_format_search_input(target_text, begin_in_target, offset, end_in_target)
+            fs = html_format_search(si, sr, editing_dist)
+        else:
+            sr = html_format_search_input(target_text, 0, 0, 0)
+            fs = html_format_search(si, sr, "No unique match found.")
         ht = html_template(fs)
         write_html_log(ht)
 
@@ -267,6 +272,10 @@ def refine_search_result(search_anchor, search_pattern, target_substring):
             x -= 1
             y -= 1
     
+    # if LCS fails to find common subsequence, then set offset to -1 and inform ``find_approx_text_in_target`` that no match is found. This rarely happens since TRE has preprocessed input string.
+    if len(lcs_string) is 0:
+        return -1, -1, ''
+    
     # map search result back to both search_pattern and target_substring. get the relative index in both search pattern and target substring
     ind = [[len(search_pattern)+1, len(target_substring)+1] for i in range(1+len(lcs_string))]
     for i in range(len(lcs_string)-1, -1, -1):
@@ -282,4 +291,4 @@ def refine_search_result(search_anchor, search_pattern, target_substring):
     if lcs_closest_ind_in_target_text == len(ind):
         lcs_closest_ind_in_target_text = len(ind)-1
     anchor_in_target_text = ind[lcs_closest_ind_in_target_text][1]
-    return anchor_in_target_text, min_cost
+    return anchor_in_target_text, min_cost, lcs_string
