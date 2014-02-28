@@ -1,6 +1,8 @@
+#!/usr/bin/env python
+
 """
-Enki. A text editor for programmers
-Windows entry point. See also enki.py.
+Enki: a text editor for programmers.
+This is the Unix entry point. See also enki.py.
 """
 
 import sys

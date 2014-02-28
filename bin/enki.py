@@ -1,6 +1,6 @@
 """
-Enki. A text editor for programmers
-Windows entry point. See also enki.
+Enki: a text editor for programmers.
+This is the Windows entry point. See also enki.
 """
 
 import sys
