@@ -231,9 +231,10 @@ class PreviewDock(DockWidget):
 #    ``javaScriptWindowObjectCleared`` signal, does this.
 
     # A signal emitted by clicks in the web view, per 1 above.
-                          # The index of the click character in a text rendering
-                          # of the web page.
-    jsClick = pyqtSignal(int)
+    jsClick = pyqtSignal(
+      # The index of the clicked character in a text rendering
+      # of the web page.
+      int)
 
     # Initialize the system per items 1, 2, and 4 above.
     def _initPreviewToTextSync(self):
@@ -351,9 +352,9 @@ class PreviewDock(DockWidget):
     # finds the matching location in the text pane then moves the text pane
     # cursor.
     def _onWebviewClick(self,
-                        # The index of the clicked character in a text rendering
-                        # of the web page.
-                        webIndex):
+      # The index of the clicked character in a text rendering
+      # of the web page.
+      webIndex):
         #
         # Retrieve the web page text and the qutepart text.
         tc = self._webTextContent()
@@ -368,11 +369,11 @@ class PreviewDock(DockWidget):
 
     # Given an index into the text pane, move the cursor to that index.
     def _moveTextPaneToIndex(self,
-                            # The index into the text pane at which to place the cursor.
-                            textIndex,
-                            # True to prevent the web-to-text sync from running as a
-                            # result of calling this routine.
-                            noWebSync=True):
+      # The index into the text pane at which to place the cursor.
+      textIndex,
+      # True to prevent the web-to-text sync from running as a
+      # result of calling this routine.
+      noWebSync=True):
         # Move the cursor to textIndex.
         qp = core.workspace().currentDocument().qutepart
         cursor = qp.textCursor()
@@ -451,8 +452,8 @@ class PreviewDock(DockWidget):
 
     # Highlights webIndex in the preview pane, per item 4 above.
     def _movePreviewPaneToIndex(self,
-            webIndex):
             # The index to move the cursor / highlight to in the preview pane.
+            webIndex):
         #
         # Implementation: there's no direct way I know of to move the cursor in
         # a web page. However, the find operation is fairly common. So, simply
@@ -483,14 +484,6 @@ class PreviewDock(DockWidget):
         #     perform any edits by sending keypresses. The best reference I
         #     found for injecting keypresses was `this jsbin demo
         #     <http://stackoverflow.com/questions/10455626/keydown-simulation-in-chrome-fires-normally-but-not-the-correct-key/12522769#12522769>`_.
-        #  #. Insert an animated GIF of a large, obnoxious blinking cursor at
-        #     the selection, preferably something in the background that doesn't
-        #     re-wrap the text (maybe `this
-        #     <http://stackoverflow.com/questions/18447263/image-behind-text>`_
-        #     or `that <http://www.the-art-of-web.com/css/textoverimage/>`_).
-        #  #. Write Javascript to look at the bounding box at the selection,
-        #     then grow it a character at a time until the y coordinates change
-        #     "too much" (?).
         oce = self._widget.webView.page().isContentEditable()
         self._widget.webView.page().setContentEditable(True)
         QTest.keyClick(self._widget.webView, Qt.Key_Home)
