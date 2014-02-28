@@ -24,7 +24,11 @@ except (ImportError, ValueError):
     # main, rather than the enki package. To do this, drop the first entry of
     # the system path, which is '', telling python to first look in the current
     # directory when doing an import.
-    sys.path.pop(0)
+    #
+    # Special case: when run as a PyInstaller app, sys.path is empty. Handle
+    # this special case.
+    if len(sys.path):
+        sys.path.pop(0)
     from enki.main import main
 
 if __name__ == '__main__':
