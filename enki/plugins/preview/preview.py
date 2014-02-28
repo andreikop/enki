@@ -471,7 +471,8 @@ class PreviewDock(DockWidget):
         # empty search string.
         pg.findText('')
         # Find the index with findText_.
-        found = pg.findText(txt[:webIndex], QWebPage.FindCaseSensitively)
+        ft = txt[:webIndex]
+        found = pg.findText(ft, QWebPage.FindCaseSensitively)
         # Make sure the text was found, unless the search string was empty.
         assert found or (webIndex == 0)
 
@@ -486,6 +487,10 @@ class PreviewDock(DockWidget):
         #     <http://stackoverflow.com/questions/10455626/keydown-simulation-in-chrome-fires-normally-but-not-the-correct-key/12522769#12522769>`_.
         oce = self._widget.webView.page().isContentEditable()
         self._widget.webView.page().setContentEditable(True)
+        # If the find text ends with a newline, findText doesn't include
+        # the newline. Manaully move one char forward in this case to get it.
+        if ft and ft[-1] == '\n':
+            QTest.keyClick(self._widget.webView, Qt.Key_Right, Qt.ShiftModifier)
         QTest.keyClick(self._widget.webView, Qt.Key_Home)
         QTest.keyClick(self._widget.webView, Qt.Key_End, Qt.ShiftModifier)
         self._widget.webView.page().setContentEditable(oce)
