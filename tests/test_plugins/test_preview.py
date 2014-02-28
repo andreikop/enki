@@ -215,7 +215,7 @@ class Test(base.TestCase):
         # so working code must change its value.
         self._dock()._moveTextPaneToIndex(5)
         assert index != 5
-        # Now, emit the signal for a click at the beginning of 'The preview text'.
+        # Now, emit the signal for a click a given index into 'The preview text'.
         self._dock().js_click.emit(wsLen + index)
         # Check the new index, which should be 0.
         p = core.workspace().currentDocument().qutepart.textCursor().position()
