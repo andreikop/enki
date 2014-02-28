@@ -48,7 +48,7 @@ import tre
 # For debug
 # =========
 # Write the results of a match to an HTML file if enabled.
-ENABLE_LOG = True
+ENABLE_LOG = False
 #
 # Given a search result, format it in HTML: create a <pre> entry with the text,
 # hilighting from the leftAnchor to the searchAnchor in one color and from
