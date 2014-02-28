@@ -139,7 +139,7 @@ class Test(base.TestCase):
 
 # Web to code sync tests
 # ^^^^^^^^^^^^^^^^^^^^^^
-# Test that mouse clicks get turned into a ``js_click`` signal
+# Test that mouse clicks get turned into a ``jsClick`` signal
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     # Test that web-to-text sync occurs on clicks to the web pane.
     # A click at 0, height (top left corner) should produce
@@ -152,10 +152,10 @@ class Test(base.TestCase):
         self.assertEmits(
           lambda: QTest.mouseClick(self._widget().webView,
             Qt.LeftButton, Qt.NoModifier, QPoint(0, self._widget().webView.height())),
-          self._dock().js_click)
+          self._dock().jsClick)
 
 
-# Test that simulated mouse clicks at beginning/middle/end produce correct ``js_click`` values
+# Test that simulated mouse clicks at beginning/middle/end produce correct ``jsClick`` values
 # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     # Simulate a mouse click by calling ``window.onclick()`` in Javascript.
     def _jsOnClick(self):
@@ -172,7 +172,7 @@ class Test(base.TestCase):
 
 
     # Given a string ``s``, place the cursor after it and simulate a click
-    # in the web view. Verify that the index produced by ``js_click``
+    # in the web view. Verify that the index produced by ``jsClick``
     # is correct.
     def _testSyncString(self,
                         s):
@@ -184,7 +184,7 @@ class Test(base.TestCase):
         assert ret
         # Now run the Javascript and see if the index with whitespace added matches.
         self.assertEmits(self._jsOnClick,
-          self._dock().js_click, expectedSignalParams=(len(s) + wsLen,) )
+          self._dock().jsClick, expectedSignalParams=(len(s) + wsLen,) )
 
     # TODO: simulate a click before the first letter. Select T, then move backwards using
     # https://developer.mozilla.org/en-US/docs/Web/API/Selection.modify.
@@ -193,7 +193,7 @@ class Test(base.TestCase):
     def test_sync2a(self):
         self._testSyncString('T')
 
-    # Simulate a click after 'The pre' and check the resulting ``js_click`` result.
+    # Simulate a click after 'The pre' and check the resulting ``jsClick`` result.
     @requiresModule('docutils')
     def test_sync2(self):
         self._testSyncString('The pre')
@@ -203,9 +203,9 @@ class Test(base.TestCase):
     def test_sync3(self):
         self._testSyncString(self.testText)
 
-# Test that sending a ``js_click`` signal at beginning/middle/end moves cursor in code pane correctly
+# Test that sending a ``jsClick`` signal at beginning/middle/end moves cursor in code pane correctly
 # """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    # Send a ``js_click`` signal then see if the code view gets sycned correctly.
+    # Send a ``jsClick`` signal then see if the code view gets sycned correctly.
     def _sendJsClick(self,
                      index):
                      # The index into 'The preview text' string to send and check.
@@ -216,7 +216,7 @@ class Test(base.TestCase):
         self._dock()._moveTextPaneToIndex(5)
         assert index != 5
         # Now, emit the signal for a click a given index into 'The preview text'.
-        self._dock().js_click.emit(wsLen + index)
+        self._dock().jsClick.emit(wsLen + index)
         # Check the new index, which should be 0.
         p = core.workspace().currentDocument().qutepart.textCursor().position()
         self.assertEqual(p, index)
