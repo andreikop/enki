@@ -16,9 +16,9 @@
 #    You should have received a copy of the GNU General Public License along with
 #    Enki.  If not, see <http://www.gnu.org/licenses/>.
 #
-# ***************************************************************************************************
-# ApproxMatch.py - provide approximate matching to support code and web synchronization
-# ***************************************************************************************************
+# **************************************************************************************
+# approx_match.py - provide approximate matching to support code and web synchronization
+# **************************************************************************************
 # The find_approx_text_in_target_ function in this module searches a target string
 # for the best match to characters about an anchor point in a source string. In
 # particular, it first locates a block of target text which forms the closest
@@ -32,9 +32,12 @@
 #
 # Library imports
 # ---------------
-# Both used for debugging.
+# For debugging.
 import codecs
 import cgi
+import os
+# For LCS.
+import bisect
 #
 # Third-party imports
 # -------------------
@@ -107,7 +110,6 @@ def html_template(body):
       """) % (LOG_COUNTER, body) )
 
 # Given HTML, write it to a file.
-import os
 def write_html_log(html_text):
     print "Write Log file to : " + os.getcwd()
     with codecs.open('ApproxMatch_log.html', 'w', encoding = 'utf-8') as f:
@@ -243,7 +245,6 @@ def find_approx_text_in_target(search_text,
 
 # A moded way of refining search result
 # --------------------------------------------------------------------------------------------------------
-import bisect
 def refine_search_result(search_anchor, search_pattern, target_substring):
     # perform a `lcs <http://en.wikipedia.org/wiki/Longest_common_subsequence_problem>`_ search. Code adopt from `Rosettacode <http://rosettacode.org/wiki/Longest_common_subsequence#Dynamic_Programming_6>`_.
     lengths = [[0 for j in range(len(target_substring)+1)] for i in range(len(search_pattern)+1)]
@@ -287,7 +288,8 @@ def refine_search_result(search_anchor, search_pattern, target_substring):
     lcs_search_pattern_ind = [ ind[i][0] for i in xrange(len(ind)) ]
     # find the corresponding index in target_text
     lcs_closest_ind_in_target_text = bisect.bisect_left(lcs_search_pattern_ind, search_anchor)
-    # BUG: if anchor is at the end of search_text (this won't happen until user select the last char. of the whole page)
+    # BUG: if anchor is at the end of search_text (this won't happen until user
+    # select the last char. of the whole page)
     if lcs_closest_ind_in_target_text == len(ind):
         lcs_closest_ind_in_target_text = len(ind)-1
     anchor_in_target_text = ind[lcs_closest_ind_in_target_text][1]

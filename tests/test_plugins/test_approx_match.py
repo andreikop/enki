@@ -10,9 +10,9 @@
 #
 #    You should have received a copy of the GNU General Public License along with Enki.  If not, see <http://www.gnu.org/licenses/>.
 #
-# *******************************************
-# test_ApproxMatch.py - Unit testing
-# *******************************************
+# ***********************************
+# test_approx_match.py - Unit testing
+# ***********************************
 
 import unittest
 import os.path
@@ -23,7 +23,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 import base
 # Base will insert path to enki, so its modules that we want to test can now be imported.
-from enki.plugins.preview.ApproxMatch import find_approx_text_in_target as f
+from enki.plugins.preview.approx_match import find_approx_text_in_target as f
 
 # Find a location in a source file based on a given location in the resulting html.
 class TestApproxMatch(base.TestCase):
@@ -106,7 +106,7 @@ class TestApproxMatch(base.TestCase):
         # comparison. get the second mapping. combine these two mapping to get an exact pinpoint location
 ##        self.assertIn(index, range(68,72))
         
-from enki.plugins.preview.ApproxMatch import refine_search_result as lcs
+from enki.plugins.preview.approx_match import refine_search_result as lcs
 import copy
 # Given two strings, find their `longest common subsequence <http://en.wikipedia.org/wiki/Longest_common_subsequence_problem>`_. Notice this is different from `longest common substring <http://en.wikipedia.org/wiki/Longest_common_substring_problem>`_.
 class TestLCS(base.TestCase):

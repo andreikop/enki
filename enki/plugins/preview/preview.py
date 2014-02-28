@@ -24,7 +24,7 @@ from enki.plugins.preview import isMarkdownFile, isHtmlFile
 # If TRE isn't installed, this import will fail. In this case, disable the sync
 # feature.
 try:
-    from ApproxMatch import find_approx_text_in_target
+    from approx_match import find_approx_text_in_target
 except ImportError as e:
     find_approx_text_in_target = None
 
