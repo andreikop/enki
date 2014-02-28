@@ -61,7 +61,13 @@
 :
 : ``bin\enki``
 :   Enki entry point, from which Pyinstaller builds the application.
-:
+:   Note: We **cannot** use ``bin\enki.py``, because PyInstaller will try to
+:   import ``enki.py`` instead of the enki package, causing failure.
+:   In fact, we must exclude bin\enki.py from the build by deleting it below
+:   for this reason. TODO: In the future, use a PyInstaller option to do this
+:   without deleting things.
+del bin\enki.py
+
 pyinstaller --noconfirm --additional-hooks-dir=win --runtime-hook=win\rthook_pyqt4.py --noconsole --icon=icons\logo\enki.ico bin\enki
 :
 : Testing
