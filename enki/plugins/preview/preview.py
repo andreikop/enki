@@ -24,9 +24,9 @@ from enki.plugins.preview import isMarkdownFile, isHtmlFile
 # If TRE isn't installed, this import will fail. In this case, disable the sync
 # feature.
 try:
-    from approx_match import find_approx_text_in_target
+    from approx_match import findApproxTextInTarget
 except ImportError as e:
-    find_approx_text_in_target = None
+    findApproxTextInTarget = None
 
 
 
@@ -183,7 +183,7 @@ class PreviewDock(DockWidget):
         self._widget.tbSave.clicked.connect(self.onSave)
 
         # Only set up sync if TRE is installed.
-        if find_approx_text_in_target:
+        if findApproxTextInTarget:
             self._initPreviewToTextSync()
             self._initTextToPreviewSync()
 
@@ -218,7 +218,7 @@ class PreviewDock(DockWidget):
 # connected to this signal then performs the approximate match and updates the
 # text pane's cursor. To do this:
 #
-# #. ``js_click``, a PyQt signal with a single numeric argument (the index into
+# #. ``jsClick``, a PyQt signal with a single numeric argument (the index into
 #    a string containing the plain text rendering of the web page) is defined.
 #    This signal is :ref:`connected <onJavaScriptCleared.connect>` to the
 #    ``onWebviewClick`` slot.
@@ -233,7 +233,7 @@ class PreviewDock(DockWidget):
     # A signal emitted by clicks in the web view, per 1 above.
                           # The index of the click character in a text rendering
                           # of the web page.
-    js_click = pyqtSignal(int)
+    jsClick = pyqtSignal(int)
 
     # Initialize the system per items 1, 2, and 4 above.
     def _initPreviewToTextSync(self):
@@ -243,7 +243,7 @@ class PreviewDock(DockWidget):
         #
         # Connect the signal emitted by the JavaScript onclick handler to
         # ``onWebviewClick``.
-        self.js_click.connect(self._onWebviewClick)
+        self.jsClick.connect(self._onWebviewClick)
         # Qt emits the `javaScriptWindowObjectCleared
         # <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#javaScriptWindowObjectCleared.>`_
         # signal when a web page is loaded. When this happens, reinsert our
@@ -257,7 +257,7 @@ class PreviewDock(DockWidget):
         # Use `addToJavaScriptWindowObject
         # <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#addToJavaScriptWindowObject>`_
         # to make this PreviewDock object known to JavaScript, so that
-        # JavaScript can emit the ``js_click`` signal defined by PreviewDock.
+        # JavaScript can emit the ``jsClick`` signal defined by PreviewDock.
         mf.addToJavaScriptWindowObject("PyPreviewDock", self)
         # Use `evaluateJavaScript
         # <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#evaluateJavaScript>`_
@@ -327,12 +327,12 @@ class PreviewDock(DockWidget):
                  #   content of an element and all its descendants." This therefore
                  #   contains a text rendering of the webpage from the beginning of the
                  #   page to the point where the user clicked.
-            '    var r_str = r.cloneContents().textContent.toString();' +
+            '    var rStr = r.cloneContents().textContent.toString();' +
 
                  # Step 4: the length of the string gives the index of the click
                  # into a string containing a text rendering of the webpage.
                  # Emit a signal with that information.
-            '    PyPreviewDock.js_click(r_str.length);' +
+            '    PyPreviewDock.jsClick(rStr.length);' +
             '};')
 
         # Make sure no errors were returned; the result should be empty.
@@ -360,11 +360,11 @@ class PreviewDock(DockWidget):
         qp = core.workspace().currentDocument().qutepart
         # Perform an approximate match between the clicked webpage text and the
         # qutepart text.
-        text_index = find_approx_text_in_target(tc, webIndex, qp.text)
-        # Move the cursor to text_index in qutepart, assuming corresponding text
+        textIndex = findApproxTextInTarget(tc, webIndex, qp.text)
+        # Move the cursor to textIndex in qutepart, assuming corresponding text
         # was found.
-        if text_index >= 0:
-            self._moveTextPaneToIndex(text_index)
+        if textIndex >= 0:
+            self._moveTextPaneToIndex(textIndex)
 
     # Given an index into the text pane, move the cursor to that index.
     def _moveTextPaneToIndex(self,
@@ -373,7 +373,7 @@ class PreviewDock(DockWidget):
                             # True to prevent the web-to-text sync from running as a
                             # result of calling this routine.
                             noWebSync=True):
-        # Move the cursor to text_index.
+        # Move the cursor to textIndex.
         qp = core.workspace().currentDocument().qutepart
         cursor = qp.textCursor()
         # Tell the text to preview sync to ignore this cursor position change.
@@ -443,23 +443,21 @@ class PreviewDock(DockWidget):
         # Perform an approximate match.
         mf = self._widget.webView.page().mainFrame()
         qp = core.workspace().currentDocument().qutepart
-        web_index = find_approx_text_in_target(qp.text, qp.textCursor().position(), mf.toPlainText())
-        # Move the cursor to web_index in the preview pane, assuming
+        webIndex = findApproxTextInTarget(qp.text, qp.textCursor().position(), mf.toPlainText())
+        # Move the cursor to webIndex in the preview pane, assuming
         # corresponding text was found.
-        if web_index >= 0:
-            self._movePreviewPaneToIndex(web_index)
+        if webIndex >= 0:
+            self._movePreviewPaneToIndex(webIndex)
 
-    # Highlights web_index in the preview pane, per item 4 above.
+    # Highlights webIndex in the preview pane, per item 4 above.
     def _movePreviewPaneToIndex(self,
-            web_index,
+            webIndex):
             # The index to move the cursor / highlight to in the preview pane.
-            select_radius=5):
-            # The number of characters to highlight before and after web_index.
         #
         # Implementation: there's no direct way I know of to move the cursor in
         # a web page. However, the find operation is fairly common. So, simply
         # search from the beginning of the page for a substring of the web
-        # page's text rendering from the beginning to web_index. Then press home
+        # page's text rendering from the beginning to webIndex. Then press home
         # followed by shift+end to select the line the cursor is on. (This
         # relies on the page being editable, which is set in
         # _initTextToPreviewSync).
@@ -472,9 +470,9 @@ class PreviewDock(DockWidget):
         # empty search string.
         pg.findText('')
         # Find the index with findText_.
-        found = pg.findText(txt[:web_index], QWebPage.FindCaseSensitively)
+        found = pg.findText(txt[:webIndex], QWebPage.FindCaseSensitively)
         # Make sure the text was found, unless the search string was empty.
-        assert found or (web_index == 0)
+        assert found or (webIndex == 0)
 
         # Select the entire line containing the anchor: make the page
         # temporarily editable, then press home then shift+end using `keyClick
@@ -506,7 +504,7 @@ class PreviewDock(DockWidget):
         """
         # Uninstall the text-to-web sync only if it was installed in the first
         # place (it depends on TRE).
-        if find_approx_text_in_target:
+        if findApproxTextInTarget:
             self._cursorMovementTimer.stop()
         self._typingTimer.stop()
         self._thread.htmlReady.disconnect(self._setHtml)
@@ -571,7 +569,7 @@ class PreviewDock(DockWidget):
     def _onDocumentChanged(self, old, new):
         """Current document changed, update preview
         """
-        if find_approx_text_in_target:
+        if findApproxTextInTarget:
             # Switch connections to the current document.
             if old is not None:
                 self.currentCursorPositionChanged.disconnect(self._onCursorPositionChanged)

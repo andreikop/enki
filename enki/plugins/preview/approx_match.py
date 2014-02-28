@@ -19,7 +19,7 @@
 # **************************************************************************************
 # approx_match.py - provide approximate matching to support code and web synchronization
 # **************************************************************************************
-# The find_approx_text_in_target_ function in this module searches a target string
+# The findApproxTextInTarget_ function in this module searches a target string
 # for the best match to characters about an anchor point in a source string. In
 # particular, it first locates a block of target text which forms the closest
 # approximate match for source characters about the anchor. Then, it looks for
@@ -51,15 +51,15 @@ import tre
 ENABLE_LOG = True
 #
 # Given a search result, format it in HTML: create a <pre> entry with the text,
-# hilighting from the left_anchor to the search_anchor in one color and from
-# search_anchor to right_anchor in another color. Show the anchor with a big
+# hilighting from the leftAnchor to the searchAnchor in one color and from
+# searchAnchor to rightAnchor in another color. Show the anchor with a big
 # yellow X marks the spot.
-def html_format_search_input(search_text, left_anchor, search_anchor, right_anchor):
+def htmlFormatSearchInput(searchText, leftAnchor, searchAnchor, rightAnchor):
     # Divide the text into four pieces based on the three anchors. Escape them for use in HTML.
-    before_left = cgi.escape(search_text[:left_anchor])
-    left_to_anchor = cgi.escape(search_text[left_anchor:search_anchor])
-    anchor_to_right = cgi.escape(search_text[search_anchor:right_anchor])
-    after_right = cgi.escape(search_text[right_anchor:])
+    beforeLeft = cgi.escape(searchText[:leftAnchor])
+    leftToAnchor = cgi.escape(searchText[leftAnchor:searchAnchor])
+    anchorToRight = cgi.escape(searchText[searchAnchor:rightAnchor])
+    afterRight = cgi.escape(searchText[rightAnchor:])
 
     return ( (
       # Use preformatted text so spaces, newlines get
@@ -76,10 +76,10 @@ def html_format_search_input(search_text, left_anchor, search_anchor, right_anch
       '<span style="background-color:yellow;">%s</span>' +
       # Include the text between the right anchor and end of
       # text with no special formatting.
-      '%s</pre>') % (before_left, left_to_anchor, anchor_to_right, after_right) )
+      '%s</pre>') % (beforeLeft, leftToAnchor, anchorToRight, afterRight) )
 
 # Take these two results and put them side by side in a table.
-def html_format_search(html_search_input, html_search_results, match_cost):
+def htmlFormatSearch(htmlSearchInput, htmlSearchResults, matchCost):
     return ( (
       'Editing distance: %s<br />\n\n' +
       '<table id="outerTable"><tr><th>Search input</th><th>Search results</th></tr>\n'
@@ -88,12 +88,12 @@ def html_format_search(html_search_input, html_search_results, match_cost):
       'document.getElementById("outerTable").width = window.innerWidth/1.1;' +
       '</script>'
       ) %
-      (unicode(match_cost), html_search_input, html_search_results) )
+      (unicode(matchCost), htmlSearchInput, htmlSearchResults) )
 
 
 # Create text for a simple web page.
 LOG_COUNTER = 0
-def html_template(body):
+def htmlTemplate(body):
     global LOG_COUNTER
 
     LOG_COUNTER += 1
@@ -110,195 +110,191 @@ def html_template(body):
       """) % (LOG_COUNTER, body) )
 
 # Given HTML, write it to a file.
-def write_html_log(html_text):
-    print "Write Log file to : " + os.getcwd()
-    with codecs.open('ApproxMatch_log.html', 'w', encoding = 'utf-8') as f:
-        f.write(html_text)
+def writeHtmlLog(htmlText):
+    print("Writing log file to " + os.getcwd())
+    with codecs.open('approx_match_log.html', 'w', encoding = 'utf-8') as f:
+        f.write(htmlText)
 #
-# find_approx_text
+# findApproxText
 # ================
-# The find_approx_text function performs a single approximate match using TRE.
-# TRE stop at the first match it find; this routine makes sure the match found
+# The findApproxText function performs a single approximate match using TRE.
+# TRE stops at the first match it find; this routine makes sure the match found
 # is at least 10% better than the next best approximate match.
 #
 # Return value:
 #   - If there is no unique value, (None, 0, 0)
-#   - Otherwise, it returns (match, begin_in_target, end_in_target) where:
+#   - Otherwise, it returns (match, beginInTarget, endInTarget) where:
 #
 #     match
 #       A TRE match object.
 #
-#     begin_in_target
+#     beginInTarget
 #       The index into the target string at which the approximate match begins.
 #
-#     end_in_target
+#     endInTarget
 #       The index into the target string at which the approximate match ends.
-def find_approx_text(
+def findApproxText(
   # Text to search for
-  search_text,
-  # Text in which to find the search_text
-  target_text,
+  searchText,
+  # Text in which to find the searchText
+  targetText,
   # Maximum allowable cost for an approximate match. None indicates no maximum cost.
   cost = None):
-    # tre.LITERAL specifies that search_str is a literal search string, not
+
+    # tre.LITERAL specifies that searchText is a literal search string, not
     # a regex.
-    pat = tre.compile(search_text, tre.LITERAL)
+    pat = tre.compile(searchText, tre.LITERAL)
     fz = tre.Fuzzyness(maxerr = cost) if cost else tre.Fuzzyness()
-    match = pat.search(target_text, fz)
+    match = pat.search(targetText, fz)
     # Store the index into the target string of the first and last matched chars.
-    begin_in_target, end_in_target = match.groups()[0]
+    beginInTarget, endInTarget = match.groups()[0]
 
     # TRE picks the first match it finds, even if there is
     # more than one match with identical error. So, manually
-    # call it again with a substring to check. In addition,
+    # call it again excluding the found text to check. In addition,
     # make sure this match is unique: it should be 10%
     # better than the next best match.
-    match_again = pat.search(target_text[:begin_in_target] + target_text[end_in_target:], fz)
+    matchAgain = pat.search(targetText[:beginInTarget] + targetText[endInTarget:], fz)
 
-    if match_again and (match_again.cost <= match.cost*1.1):
-        ## print('Multiple matches ' + str(match_again.groups()))
+    if matchAgain and (matchAgain.cost <= match.cost*1.1):
+        ## print('Multiple matches ' + str(matchAgain.groups()))
         return None, 0, 0
     else:
-        ## print(search_text + '\n' + target_text[begin_in_target:end_in_target])
-        return match, begin_in_target, end_in_target
+        ## print(searchText + '\n' + targetText[beginInTarget:endInTarget])
+        return match, beginInTarget, endInTarget
 #
-# find_approx_text_in_target
+# findApproxTextInTarget
 # ==========================
 # This routine first finds the closest approximate match of a substring centered
-# around the search_anchor in the target_text. Given this search substring and
+# around the searchAnchor in the targetText. Given this search substring and
 # the approximately matched target substring, it looks for the best possible
-# (hopefully exact) match containing the search_anchor between the search substring
+# (hopefully exact) match containing the searchAnchor between the search substring
 # and the target substring by steadily reducing the size of the substrings. With
-# this best possible (hopefully exact) match, it can then locate the search_anchor
-# in this target substring; it retuns this target_anchor, which is the index of
-# the search_anchor in the target_text.
-#step_size
+# this best possible (hopefully exact) match, it can then locate the searchAnchor
+# in this target substring; it retuns this targetAnchor, which is the index of
+# the searchAnchor in the targetText.
+#
 # Return value: An (almost) exactly-matching location in the target document, or
 # -1 if not found.
-def find_approx_text_in_target(
+def findApproxTextInTarget(
   # The text composing the entire source document in
   # which the search string resides.
-  search_text,
+  searchText,
   # A location in the source document which should be
   # found in the target document.
-  search_anchor,
+  searchAnchor,
   # The target text in which the search will be performed.
-  target_text,
-  # The radius of the substring around the search_anchor
+  targetText,
+  # The radius of the substring around the searchAnchor
   # that will be approximately matched in the
-  # target_text: a value of 10 produces a length-20
+  # targetText: a value of 10 produces a length-20
   # substring (10 characters before the anchor, and 10
   # after).
-  search_range=30,
-  # When searching for a best possible mD:\\enki\\enkiatch, this
-  # specifies the number of characters to remove from
-  # the substrings. It must be a minimum of 1.
-  step_size=1):
+  searchRange=30):
 
-    assert step_size > 0
 #
-# Approximate match of search_anchor within target_text
+# Approximate match of searchAnchor within targetText
 # -----------------------------------------------------
-# Look for the best approximate match within the target_text of the source
+# Look for the best approximate match within the targetText of the source
 # substring composed of characters within a radius of the anchor.
     #
     # First, choose a radius of chars about the anchor to search in.
-    begin = max(0, search_anchor - search_range)
-    end = min(len(search_text), search_anchor + search_range)
+    begin = max(0, searchAnchor - searchRange)
+    end = min(len(searchText), searchAnchor + searchRange)
     # Empty documents are easy to search.
     if end <= begin:
         return 0
     # Look for a match; record left and right search radii.
-    match, begin_in_target, end_in_target = find_approx_text(search_text[begin:end], target_text)
+    match, beginInTarget, endInTarget = findApproxText(searchText[begin:end], targetText)
     # If no unique match is found, give up (for now -- this could be improved).
     if not match:
         # how about we try it again by increasing search region?
-        begin = max(0, search_anchor - int(search_range*1.5))
-        end = min(len(search_text), search_anchor + int(search_range*1.5))
-        match, begin_in_target, end_in_target = find_approx_text(search_text[begin:end], target_text)
+        begin = max(0, searchAnchor - int(searchRange*1.5))
+        end = min(len(searchText), searchAnchor + int(searchRange*1.5))
+        match, beginInTarget, endInTarget = findApproxText(searchText[begin:end], targetText)
         if not match:
             if ENABLE_LOG:
-                si = html_format_search_input(search_text, begin, search_anchor, end)
-                sr = html_format_search_input(target_text, 0, 0, 0)
-                fs = html_format_search(si, sr, "No unique match found.")
-                ht = html_template(fs)
-                write_html_log(ht)
+                si = htmlFormatSearchInput(searchText, begin, searchAnchor, end)
+                sr = htmlFormatSearchInput(targetText, 0, 0, 0)
+                fs = htmlFormatSearch(si, sr, "No unique match found.")
+                ht = htmlTemplate(fs)
+                writeHtmlLog(ht)
             return -1
 
     # acquire search string and target string
-    search_pattern = search_text[begin:end]
-    target_substring = target_text[begin_in_target:end_in_target]
-    # find where the anchor is in search_pattern
-    relative_search_anchor = search_anchor - begin
-    offset, editing_dist, lcs_string = refine_search_result(relative_search_anchor,
-      search_pattern, target_substring)
+    searchPattern = searchText[begin:end]
+    targetSubstring = targetText[beginInTarget:endInTarget]
+    # find where the anchor is in searchPattern
+    relativeSearchAnchor = searchAnchor - begin
+    offset, editingDist, lcsString = refineSearchResult(relativeSearchAnchor,
+      searchPattern, targetSubstring)
     if offset is not -1:
-        offset = offset + begin_in_target
+        offset = offset + beginInTarget
 
     if ENABLE_LOG:
-        si = html_format_search_input(search_text, begin, search_anchor, end)
+        si = htmlFormatSearchInput(searchText, begin, searchAnchor, end)
         if offset is not -1:
-            sr = html_format_search_input(target_text, begin_in_target, offset, end_in_target)
-            fs = html_format_search(si, sr, editing_dist)
+            sr = htmlFormatSearchInput(targetText, beginInTarget, offset, endInTarget)
+            fs = htmlFormatSearch(si, sr, editingDist)
         else:
-            sr = html_format_search_input(target_text, 0, 0, 0)
-            fs = html_format_search(si, sr, "No unique match found.")
-        ht = html_template(fs)
-        write_html_log(ht)
+            sr = htmlFormatSearchInput(targetText, 0, 0, 0)
+            fs = htmlFormatSearch(si, sr, "No unique match found.")
+        ht = htmlTemplate(fs)
+        writeHtmlLog(ht)
 
     return offset
 #
 # A moded way of refining search result
 # -------------------------------------
-def refine_search_result(search_anchor, search_pattern, target_substring):
+def refineSearchResult(searchAnchor, searchPattern, targetSubstring):
     # perform a `lcs <http://en.wikipedia.org/wiki/Longest_common_subsequence_problem>`_ search. Code adopt from `Rosettacode <http://rosettacode.org/wiki/Longest_common_subsequence#Dynamic_Programming_6>`_.
-    lengths = [[0 for j in range(len(target_substring)+1)] for i in range(len(search_pattern)+1)]
+    lengths = [[0 for j in range(len(targetSubstring)+1)] for i in range(len(searchPattern)+1)]
     # row 0 and column 0 are initialized to 0 already
-    for i, x in enumerate(search_pattern):
-        for j, y in enumerate(target_substring):
+    for i, x in enumerate(searchPattern):
+        for j, y in enumerate(targetSubstring):
             if x == y:
                 lengths[i+1][j+1] = lengths[i][j] + 1
             else:
                 lengths[i+1][j+1] = max(lengths[i+1][j], lengths[i][j+1])
     # read the subsequence out from the table
-    lcs_string = ""
-    x, y = len(search_pattern), len(target_substring)
+    lcsString = ""
+    x, y = len(searchPattern), len(targetSubstring)
     # define the editing distance
-    min_cost = 0
+    minCost = 0
     while x != 0 and y != 0:
         if lengths[x][y] == lengths[x-1][y]:
             x -= 1
-            min_cost = min_cost+1
+            minCost = minCost+1
         elif lengths[x][y] == lengths[x][y-1]:
             y -= 1
-            min_cost = min_cost+1
+            minCost = minCost+1
         else:
-            assert search_pattern[x-1] == target_substring[y-1]
-            lcs_string = search_pattern[x-1] + lcs_string
+            assert searchPattern[x-1] == targetSubstring[y-1]
+            lcsString = searchPattern[x-1] + lcsString
             x -= 1
             y -= 1
 
     # if LCS fails to find common subsequence, then set offset to -1 and inform
-    # ``find_approx_text_in_target`` that no match is found. This rarely happens
+    # ``findApproxTextInTarget`` that no match is found. This rarely happens
     # since TRE has preprocessed input string.
-    if len(lcs_string) is 0:
+    if len(lcsString) is 0:
         return -1, -1, ''
 
-    # map search result back to both search_pattern and target_substring. get
+    # map search result back to both searchPattern and targetSubstring. get
     # the relative index in both search pattern and target substring.
-    ind = [[len(search_pattern)+1, len(target_substring)+1] for i in range(1+len(lcs_string))]
-    for i in range(len(lcs_string)-1, -1, -1):
-        ind[i][0] = search_pattern[:ind[i+1][0]].rindex(lcs_string[i])
-        ind[i][1] = target_substring[:ind[i+1][1]].rindex(lcs_string[i])
-    ind = ind[:len(lcs_string)][:]
+    ind = [[len(searchPattern)+1, len(targetSubstring)+1] for i in range(1+len(lcsString))]
+    for i in range(len(lcsString)-1, -1, -1):
+        ind[i][0] = searchPattern[:ind[i+1][0]].rindex(lcsString[i])
+        ind[i][1] = targetSubstring[:ind[i+1][1]].rindex(lcsString[i])
+    ind = ind[:len(lcsString)][:]
 
-    # lcs map back to search pattern will get ``lcs_search_pattern_ind``
-    lcs_search_pattern_ind = [ ind[i][0] for i in xrange(len(ind)) ]
-    # find the corresponding index in target_text
-    lcs_closest_ind_in_target_text = bisect.bisect_left(lcs_search_pattern_ind, search_anchor)
-    # BUG: if anchor is at the end of search_text (this won't happen until user
+    # lcs map back to search pattern will get ``lcsSearchPatternInd``
+    lcsSearchPatternInd = [ ind[i][0] for i in xrange(len(ind)) ]
+    # find the corresponding index in targetText
+    lcsClosestIndInTargetText = bisect.bisect_left(lcsSearchPatternInd, searchAnchor)
+    # BUG: if anchor is at the end of searchText (this won't happen until user
     # select the last char. of the whole page)
-    if lcs_closest_ind_in_target_text == len(ind):
-        lcs_closest_ind_in_target_text = len(ind)-1
-    anchor_in_target_text = ind[lcs_closest_ind_in_target_text][1]
-    return anchor_in_target_text, min_cost, lcs_string
+    if lcsClosestIndInTargetText == len(ind):
+        lcsClosestIndInTargetText = len(ind)-1
+    anchor_in_targetText = ind[lcsClosestIndInTargetText][1]
+    return anchor_in_targetText, minCost, lcsString
