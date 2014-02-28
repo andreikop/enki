@@ -133,12 +133,13 @@ def write_html_log(html_text):
 #
 #     end_in_target
 #       The index into the target string at which the approximate match ends.
-def find_approx_text(search_text,
-                     #   Text to search for
-                     target_text,
-                     #   Text in which to find the search_text
-                     cost = None):
-                     #   Maximum allowable cost for an approximate match. None indicates no maximum cost.
+def find_approx_text(
+  # Text to search for
+  search_text,
+  # Text in which to find the search_text
+  target_text,
+  # Maximum allowable cost for an approximate match. None indicates no maximum cost.
+  cost = None):
     # tre.LITERAL specifies that search_str is a literal search string, not
     # a regex.
     pat = tre.compile(search_text, tre.LITERAL)
@@ -160,7 +161,7 @@ def find_approx_text(search_text,
     else:
         ## print(search_text + '\n' + target_text[begin_in_target:end_in_target])
         return match, begin_in_target, end_in_target
-
+#
 # find_approx_text_in_target
 # ==========================
 # This routine first finds the closest approximate match of a substring centered
@@ -174,29 +175,32 @@ def find_approx_text(search_text,
 #step_size
 # Return value: An (almost) exactly-matching location in the target document, or
 # -1 if not found.
-def find_approx_text_in_target(search_text,
-                               # The text composing the entire source document in
-                               # which the search string resides.
-                               search_anchor,
-                               # A location in the source document which should be
-                               # found in the target document.
-                               target_text,
-                               # The target text in which the search will be performed.
-                               search_range=30,
-                               # The radius of the substring around the search_anchor
-                               # that will be approximately matched in the
-                               # target_text: a value of 10 produces a length-20
-                               # substring (10 characters before the anchor, and 10
-                               # after).
-                               step_size=1):
-                               # When searching for a best possible mD:\\enki\\enkiatch, this
-                               # specifies the number of characters to remove from
-                               # the substrings. It must be a minimum of 1.
+def find_approx_text_in_target(
+  # The text composing the entire source document in
+  # which the search string resides.
+  search_text,
+  # A location in the source document which should be
+  # found in the target document.
+  search_anchor,
+  # The target text in which the search will be performed.
+  target_text,
+  # The radius of the substring around the search_anchor
+  # that will be approximately matched in the
+  # target_text: a value of 10 produces a length-20
+  # substring (10 characters before the anchor, and 10
+  # after).
+  search_range=30,
+  # When searching for a best possible mD:\\enki\\enkiatch, this
+  # specifies the number of characters to remove from
+  # the substrings. It must be a minimum of 1.
+  step_size=1):
+
     assert step_size > 0
 #
 # Approximate match of search_anchor within target_text
 # -----------------------------------------------------
-# Look for the best approximate match within the target_text of the source substring composed of characters within a radius of the anchor.
+# Look for the best approximate match within the target_text of the source
+# substring composed of characters within a radius of the anchor.
     #
     # First, choose a radius of chars about the anchor to search in.
     begin = max(0, search_anchor - search_range)
@@ -226,7 +230,8 @@ def find_approx_text_in_target(search_text,
     target_substring = target_text[begin_in_target:end_in_target]
     # find where the anchor is in search_pattern
     relative_search_anchor = search_anchor - begin
-    offset, editing_dist, lcs_string = refine_search_result(relative_search_anchor, search_pattern, target_substring)
+    offset, editing_dist, lcs_string = refine_search_result(relative_search_anchor,
+      search_pattern, target_substring)
     if offset is not -1:
         offset = offset + begin_in_target
 
@@ -242,9 +247,9 @@ def find_approx_text_in_target(search_text,
         write_html_log(ht)
 
     return offset
-
+#
 # A moded way of refining search result
-# --------------------------------------------------------------------------------------------------------
+# -------------------------------------
 def refine_search_result(search_anchor, search_pattern, target_substring):
     # perform a `lcs <http://en.wikipedia.org/wiki/Longest_common_subsequence_problem>`_ search. Code adopt from `Rosettacode <http://rosettacode.org/wiki/Longest_common_subsequence#Dynamic_Programming_6>`_.
     lengths = [[0 for j in range(len(target_substring)+1)] for i in range(len(search_pattern)+1)]
@@ -273,11 +278,14 @@ def refine_search_result(search_anchor, search_pattern, target_substring):
             x -= 1
             y -= 1
 
-    # if LCS fails to find common subsequence, then set offset to -1 and inform ``find_approx_text_in_target`` that no match is found. This rarely happens since TRE has preprocessed input string.
+    # if LCS fails to find common subsequence, then set offset to -1 and inform
+    # ``find_approx_text_in_target`` that no match is found. This rarely happens
+    # since TRE has preprocessed input string.
     if len(lcs_string) is 0:
         return -1, -1, ''
 
-    # map search result back to both search_pattern and target_substring. get the relative index in both search pattern and target substring
+    # map search result back to both search_pattern and target_substring. get
+    # the relative index in both search pattern and target substring.
     ind = [[len(search_pattern)+1, len(target_substring)+1] for i in range(1+len(lcs_string))]
     for i in range(len(lcs_string)-1, -1, -1):
         ind[i][0] = search_pattern[:ind[i+1][0]].rindex(lcs_string[i])
