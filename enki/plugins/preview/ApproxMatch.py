@@ -4,13 +4,13 @@
 #
 #    This file is part of Enki.
 #
-#    Enki is free software: you can redistribute it and/or modify it under the 
-#    terms of the GNU General Public License as published by the Free Software 
+#    Enki is free software: you can redistribute it and/or modify it under the
+#    terms of the GNU General Public License as published by the Free Software
 #    Foundation, either version 3 of the License, or (at your option) any later
 #    version.
 #
-#    Enki is distributed in the hope that it will be useful, but WITHOUT ANY 
-#    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
+#    Enki is distributed in the hope that it will be useful, but WITHOUT ANY
+#    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 #    FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 #
 #    You should have received a copy of the GNU General Public License along with
@@ -38,7 +38,7 @@ import cgi
 #
 # Third-party imports
 # -------------------
-# For approximate pattern matching, this module uses the Python port of `TRE 
+# For approximate pattern matching, this module uses the Python port of `TRE
 # <http://hackerboss.com/approximate-regex-matching-in-python>`_.
 import tre
 #
@@ -92,7 +92,7 @@ def html_format_search(html_search_input, html_search_results, match_cost):
 LOG_COUNTER = 0
 def html_template(body):
     global LOG_COUNTER
-    
+
     LOG_COUNTER += 1
     return ( (
       """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
@@ -115,8 +115,8 @@ def write_html_log(html_text):
 #
 # find_approx_text
 # ================
-# The find_approx_text function performs a single approximate match using TRE. 
-# TRE stop at the first match it find; this routine makes sure the match found 
+# The find_approx_text function performs a single approximate match using TRE.
+# TRE stop at the first match it find; this routine makes sure the match found
 # is at least 10% better than the next best approximate match.
 #
 # Return value:
@@ -162,8 +162,8 @@ def find_approx_text(search_text,
 # find_approx_text_in_target
 # ==========================
 # This routine first finds the closest approximate match of a substring centered
-# around the search_anchor in the target_text. Given this search substring and 
-# the approximately matched target substring, it looks for the best possible 
+# around the search_anchor in the target_text. Given this search substring and
+# the approximately matched target substring, it looks for the best possible
 # (hopefully exact) match containing the search_anchor between the search substring
 # and the target substring by steadily reducing the size of the substrings. With
 # this best possible (hopefully exact) match, it can then locate the search_anchor
@@ -244,7 +244,7 @@ def find_approx_text_in_target(search_text,
 # A moded way of refining search result
 # --------------------------------------------------------------------------------------------------------
 import bisect
-def refine_search_result(search_anchor, search_pattern, target_substring):    
+def refine_search_result(search_anchor, search_pattern, target_substring):
     # perform a `lcs <http://en.wikipedia.org/wiki/Longest_common_subsequence_problem>`_ search. Code adopt from `Rosettacode <http://rosettacode.org/wiki/Longest_common_subsequence#Dynamic_Programming_6>`_.
     lengths = [[0 for j in range(len(target_substring)+1)] for i in range(len(search_pattern)+1)]
     # row 0 and column 0 are initialized to 0 already
@@ -271,18 +271,18 @@ def refine_search_result(search_anchor, search_pattern, target_substring):
             lcs_string = search_pattern[x-1] + lcs_string
             x -= 1
             y -= 1
-    
+
     # if LCS fails to find common subsequence, then set offset to -1 and inform ``find_approx_text_in_target`` that no match is found. This rarely happens since TRE has preprocessed input string.
     if len(lcs_string) is 0:
         return -1, -1, ''
-    
+
     # map search result back to both search_pattern and target_substring. get the relative index in both search pattern and target substring
     ind = [[len(search_pattern)+1, len(target_substring)+1] for i in range(1+len(lcs_string))]
     for i in range(len(lcs_string)-1, -1, -1):
         ind[i][0] = search_pattern[:ind[i+1][0]].rindex(lcs_string[i])
         ind[i][1] = target_substring[:ind[i+1][1]].rindex(lcs_string[i])
     ind = ind[:len(lcs_string)][:]
-    
+
     # lcs map back to search pattern will get ``lcs_search_pattern_ind``
     lcs_search_pattern_ind = [ ind[i][0] for i in xrange(len(ind)) ]
     # find the corresponding index in target_text
