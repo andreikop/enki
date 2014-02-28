@@ -4,7 +4,6 @@ This is the Windows entry point. See also enki.
 """
 
 import sys
-import os.path
 
 """
 When this script is executed from the source tree, it should first
