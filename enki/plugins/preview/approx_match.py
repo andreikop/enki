@@ -295,6 +295,7 @@ def refineSearchResult(searchAnchor, searchPattern, targetSubstring):
     # BUG: if anchor is at the end of searchText (this won't happen until user
     # select the last char. of the whole page)
     if lcsClosestIndInTargetText == len(ind):
-        lcsClosestIndInTargetText = len(ind)-1
-    anchor_in_targetText = ind[lcsClosestIndInTargetText][1]
+        anchor_in_targetText = len(targetSubstring)
+    else:
+        anchor_in_targetText = ind[lcsClosestIndInTargetText][1]
     return anchor_in_targetText, minCost, lcsString
