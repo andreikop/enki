@@ -188,7 +188,7 @@ class PreviewDock(DockWidget):
             self._initTextToPreviewSync()
 
     # Synchronizing between the text pane and the preview pane
-    # ========================================================
+    ##========================================================
     # A single click in the preview pane should move the text pane's cursor to the
     # corresponding location. Likewise, movement of the text pane's cursor should
     # select the corresponding text in the preview pane. To do so, an approximate
@@ -197,18 +197,18 @@ class PreviewDock(DockWidget):
     # to highlight.
     #
     # Bugs / to-do items
-    # ------------------
+    ##------------------
     # #. I call ``toPlainText()`` several times. In the past, this was quite slow
     #    in a ``QTextEdit``. Check performance and possibly cache this value; it
     #    should be easy to update by adding a few lines to _setHtml().
     #
     # Preview-to-text sync
-    # --------------------
+    ##--------------------
     # This functionaliy relies heavily on the Web to Qt bridge. Some helpful
     # references:
     #
     # * `The QtWebKit Bridge <http://qt-project.org/doc/qt-4.8/qtwebkit-bridge.html>`_
-    #    gives a helpful overview.
+    #   gives a helpful overview.
     # * `QWebView <http://qt-project.org/doc/qt-4.8/qwebview.html>`_ is the top-level
     #   widget used to embed a Web page in a Qt application.
     #
@@ -391,7 +391,7 @@ class PreviewDock(DockWidget):
         core.workspace().focusCurrentDocument()
 
     # Text-to-preview sync
-    # --------------------
+    ##--------------------
     # The opposite direction is easier, since all the work can be done in Python.
     # When the cursor moves in the text pane, find its matching location in the
     # preview pane using an approximate match. Select several characters before and
@@ -488,11 +488,12 @@ class PreviewDock(DockWidget):
             # temporarily editable, then press home then shift+end using `keyClick
             # <http://qt-project.org/doc/qt-4.8/qtest.html#keyClick>`_. Other ideas
             # on how to do this:
-            #  #. The same idea, but done in Javascript. Playing with this produced
-            #     a set of failures -- in a ``conteneditable`` area, I couldn't
-            #     perform any edits by sending keypresses. The best reference I
-            #     found for injecting keypresses was `this jsbin demo
-            #     <http://stackoverflow.com/questions/10455626/keydown-simulation-in-chrome-fires-normally-but-not-the-correct-key/12522769#12522769>`_.
+            #
+            # #. The same idea, but done in Javascript. Playing with this produced
+            #    a set of failures -- in a ``conteneditable`` area, I couldn't
+            #    perform any edits by sending keypresses. The best reference I
+            #    found for injecting keypresses was `this jsbin demo
+            #    <http://stackoverflow.com/questions/10455626/keydown-simulation-in-chrome-fires-normally-but-not-the-correct-key/12522769#12522769>`_.
             oce = self._widget.webView.page().isContentEditable()
             self._widget.webView.page().setContentEditable(True)
             # If the find text ends with a newline, findText doesn't include
@@ -505,7 +506,7 @@ class PreviewDock(DockWidget):
             self._widget.webView.page().setContentEditable(oce)
 
     # Other handlers
-    # ==============
+    ##==============
     def del_(self):
         """Uninstall themselves
         """
