@@ -272,13 +272,15 @@ class Test(base.TestCase):
     # ^^^^^^^^^^^^^^^^^^^^^^
     # Test text to web sync
     # """""""""""""""""""""
-    def _textToWeb(self, s, testText=u'One\n\nTwo\n\nThree'):
+    def _textToWeb(self, s, testText=u'One\n\nTwo\n\nThree', checkText=True):
         """Move the cursor in the text pane. Make sure it moves
         to the matching location in the web pane.
 
         Params:
         s -  The string in the text pane to click before.
         testText - The ReST string to use.
+        checkText - True if the text hilighted in the web dock should be
+            compared to the text in s.
         """
         # Create multi-line text.
         self.testText = testText
@@ -293,8 +295,9 @@ class Test(base.TestCase):
         # for that.
         self.assertEmits(lambda: self._dock()._moveTextPaneToIndex(index, False),
           self._dock()._cursorMovementTimer.timeout, 350)
-        # The web view should have the first line selected now.
-        self.assertTrue(self._widget().webView.selectedText(), 'One')
+        # The web view should have the line containing s selected now.
+        if checkText:
+            self.assertTrue(s in self._widget().webView.selectedText())
 
     @requiresModule('docutils')
     def test_sync9(self):
@@ -307,7 +310,7 @@ class Test(base.TestCase):
         self._textToWeb('Two')
 
     @requiresModule('docutils')
-    def test_sync10(self):
+    def test_sync11(self):
         self._textToWeb('Three')
 
     @requiresModule('docutils')
@@ -323,11 +326,11 @@ img               .. image:: img.png
 text after img    text after img
 ================  ========================
 
-text after table""")
+text after table""", False)
 
     # Test no sync on closed preview window
     # """""""""""""""""""""""""""""""""""""
-    def test_sync11(self):
+    def test_sync13(self):
         self._doBasicTest('rst')
         self._dock().close()
         # Move the cursor. If there's no crash, we're OK.
