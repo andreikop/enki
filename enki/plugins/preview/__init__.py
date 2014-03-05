@@ -1,7 +1,15 @@
-"""
-preview --- HTML, Markdown preview
-==================================
-"""
+# **********************************************************
+# __init__.py - The HTML, Markdown, and reST preview package
+# **********************************************************
+# The Preview plugin provides an HTML-based rendering of the
+# file currently being edited. This file implements the
+# Plugin interface; other modules are given below.
+#
+# .. toctree::
+#   :maxdepth: 2
+#
+#   preview.py
+#   ApproxMatch.py
 
 from PyQt4.QtCore import QObject, Qt
 from PyQt4.QtGui import QAction, QIcon, QKeySequence

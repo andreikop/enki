@@ -1,4 +1,4 @@
-# Enki. A text editor for programmers
+# Enki: A text editor for programmers
 
 [Official site](http://enki-editor.org/)
 
@@ -12,16 +12,16 @@
 * [pyparsing](http://pyparsing.wikispaces.com/Download+and+Installation)
 * [Qutepart](https://github.com/hlamer/qutepart)
 * [Python-Markdown](http://packages.python.org/Markdown/install.html). (Optional, for Markdown preview)
-* [python-docutils](http://docutils.sourceforge.net/). (Optional, for reStructuredText preview)
-* [ctags](http://ctags.sourceforge.net/). (Optional, for navigation in file)
-
+* [python-docutils](http://docutils.sourceforge.net/) (Optional, for reStructuredText preview)
+* [ctags](http://ctags.sourceforge.net/) (Optional, for navigation in file)
+* [tre](http://hackerboss.com/approximate-regex-matching-in-python/) (Optional, for preview synchronization; see [readme.git](https://github.com/bjones1/tre/blob/master/README.git) for build instructions)
 
 #### Install Enki
     ./setup.py install
 
 
 ## Running from the source tree
-    ./bin/enki
+    python bin/enki
 
 ## License
 [GPL v2](LICENSE.GPL2.html)

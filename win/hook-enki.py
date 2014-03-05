@@ -9,7 +9,7 @@
 #    any later version.
 #
 #    Enki is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied 
+#    but WITHOUT ANY WARRANTY; without even the implied
 #    warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 #    PURPOSE.  See the GNU General Public License for more
 #    details.
@@ -35,10 +35,7 @@ hiddenimports = (
     # The colorbutton widget is loaded from a .ui file,
     # making it a hidden import. Not sure if others there
     # are or not, but they're certainly all needed.
-    collect_submodules('enki.widgets') +
-    # The preview plugin's .ui file needs QtWebKit, making
-    # it hidden as well.
-    ['PyQt4.QtWebKit'])
+    collect_submodules('enki.widgets'))
 
 datas = (
     # Enki relies on a number of .ui files and some .json

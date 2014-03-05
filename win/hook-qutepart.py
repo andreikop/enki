@@ -9,7 +9,7 @@
 #    any later version.
 #
 #    Enki is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied 
+#    but WITHOUT ANY WARRANTY; without even the implied
 #    warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 #    PURPOSE.  See the GNU General Public License for more
 #    details.
@@ -21,7 +21,8 @@
 # *****************************************************
 # hook-qutepart.py - PyInstaller hook file for qutepart
 # *****************************************************
-# PyInstaller can't know about data files used by qutepart. This hook informs PyInstaller that these files must be included in the Enki bundle.
+# Pyinstaller can't know about data files used by qutepart. This hook informs
+# Pyinstaller that these files must be included in the Enki bundle.
 from hookutils import collect_data_files
 
 # Gather all non-Python files in the qutepart package.
