@@ -270,8 +270,8 @@ class Test(base.TestCase):
 
     # Code to web sync tests
     # ^^^^^^^^^^^^^^^^^^^^^^
-    # Test text to web sync
-    # """""""""""""""""""""
+    # Basic text to web sync
+    # """"""""""""""""""""""
     def _textToWeb(self, s, testText=u'One\n\nTwo\n\nThree', checkText=True):
         """Move the cursor in the text pane. Make sure it moves
         to the matching location in the web pane.
@@ -313,10 +313,15 @@ class Test(base.TestCase):
     def test_sync11(self):
         self._textToWeb('Three')
 
+    # More complex test to web sync
+    # -----------------------------
     @requiresModule('docutils')
     def test_sync12(self):
-        """Tables with an embedded image cause findtext to fail. Make sure no
+        """Tables with an embedded image cause findText to fail. Make sure no
         exceptions are raised.
+
+        I can't seem to find a workaround to this: what search text does findText
+        expect when a table + embedded image are involved?
         """
         self._textToWeb('table', """
 ================  ========================
@@ -327,6 +332,70 @@ text after img    text after img
 ================  ========================
 
 text after table""", False)
+
+    @requiresModule('docutils')
+    def test_sync14(self):
+        """Tables without an embedded image work just fine.
+        """
+        self._textToWeb('table', """
+================  ========================
+header1           header2
+================  ========================
+img               image:: img.png
+text after img    text after img
+================  ========================
+
+text after table""", True)
+
+    def _row_span_rest(self):
+        return """
++--------------------------------+-------------+
+| Apple 1                        | Banana 2    |
++--------------------------------+             |
+| Coco 3                         |             |
+| Cherry 3                       | Bael 2      |
++--------------------------------+-------------+
+| Text after block 1,2, and 3                  |
++----------------------------------------------+
+"""
+
+    @requiresModule('docutils')
+    def test_sync15(self):
+        """Text after an image works just fine.
+        """
+        self._textToWeb('table', """
+.. image:: img.png
+
+text after table""", True)
+
+    @requiresModule('docutils')
+    def test_sync16(self):
+        """Tables with column spans produce out-of-order text, so sync in some rows
+        containing a column span fails. The ReST below, copied as text after
+        being redered to HTML, is:
+
+        Apple 1
+        Banana 2
+
+        Bael 2
+        Coco 3 Cherry 3
+        Text after block 1,2, and 3
+
+        Note the reordering: Bael 2 comes before Coco 3 in the plain text, but
+        before it in the ReST. There's not much the approximate match can do to
+        fix this.
+        """
+        self._textToWeb('Banana', self._row_span_rest(), True)
+
+    @requiresModule('docutils')
+    def test_sync17(self):
+        """A failing case of the above test series."""
+        self._textToWeb('Bael', self._row_span_rest(), False)
+
+    @requiresModule('docutils')
+    def test_sync18(self):
+        """Verify that sync after the column span works."""
+        self._textToWeb('Text', self._row_span_rest(), True)
 
     # Test no sync on closed preview window
     # """""""""""""""""""""""""""""""""""""

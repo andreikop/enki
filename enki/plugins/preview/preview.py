@@ -497,6 +497,7 @@ class PreviewDock(DockWidget):
             self._widget.webView.page().setContentEditable(True)
             # If the find text ends with a newline, findText doesn't include
             # the newline. Manaully move one char forward in this case to get it.
+            # This is tested in test_preview.py:test_sync10, test_sync11.
             if ft and ft[-1] == '\n':
                 QTest.keyClick(self._widget.webView, Qt.Key_Right, Qt.ShiftModifier)
             QTest.keyClick(self._widget.webView, Qt.Key_Home)
