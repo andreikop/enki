@@ -479,27 +479,29 @@ class PreviewDock(DockWidget):
         # Find the index with findText_.
         ft = txt[:webIndex]
         found = pg.findText(ft, QWebPage.FindCaseSensitively)
-        # Make sure the text was found, unless the search string was empty.
-        assert found or (webIndex == 0)
 
-        # Select the entire line containing the anchor: make the page
-        # temporarily editable, then press home then shift+end using `keyClick
-        # <http://qt-project.org/doc/qt-4.8/qtest.html#keyClick>`_. Other ideas
-        # on how to do this:
-        #  #. The same idea, but done in Javascript. Playing with this produced
-        #     a set of failures -- in a ``conteneditable`` area, I couldn't
-        #     perform any edits by sending keypresses. The best reference I
-        #     found for injecting keypresses was `this jsbin demo
-        #     <http://stackoverflow.com/questions/10455626/keydown-simulation-in-chrome-fires-normally-but-not-the-correct-key/12522769#12522769>`_.
-        oce = self._widget.webView.page().isContentEditable()
-        self._widget.webView.page().setContentEditable(True)
-        # If the find text ends with a newline, findText doesn't include
-        # the newline. Manaully move one char forward in this case to get it.
-        if ft and ft[-1] == '\n':
-            QTest.keyClick(self._widget.webView, Qt.Key_Right, Qt.ShiftModifier)
-        QTest.keyClick(self._widget.webView, Qt.Key_Home)
-        QTest.keyClick(self._widget.webView, Qt.Key_End, Qt.ShiftModifier)
-        self._widget.webView.page().setContentEditable(oce)
+        # Before highlighting a line, make sure the text was found. If the
+        # search string was empty, it still counts (found is false, but
+        # highlighting will still work).
+        if found or (webIndex == 0):
+            # Select the entire line containing the anchor: make the page
+            # temporarily editable, then press home then shift+end using `keyClick
+            # <http://qt-project.org/doc/qt-4.8/qtest.html#keyClick>`_. Other ideas
+            # on how to do this:
+            #  #. The same idea, but done in Javascript. Playing with this produced
+            #     a set of failures -- in a ``conteneditable`` area, I couldn't
+            #     perform any edits by sending keypresses. The best reference I
+            #     found for injecting keypresses was `this jsbin demo
+            #     <http://stackoverflow.com/questions/10455626/keydown-simulation-in-chrome-fires-normally-but-not-the-correct-key/12522769#12522769>`_.
+            oce = self._widget.webView.page().isContentEditable()
+            self._widget.webView.page().setContentEditable(True)
+            # If the find text ends with a newline, findText doesn't include
+            # the newline. Manaully move one char forward in this case to get it.
+            if ft and ft[-1] == '\n':
+                QTest.keyClick(self._widget.webView, Qt.Key_Right, Qt.ShiftModifier)
+            QTest.keyClick(self._widget.webView, Qt.Key_Home)
+            QTest.keyClick(self._widget.webView, Qt.Key_End, Qt.ShiftModifier)
+            self._widget.webView.page().setContentEditable(oce)
 
     # Other handlers
     # ==============
