@@ -247,7 +247,8 @@ def findApproxTextInTarget(
 # A moded way of refining search result
 # -------------------------------------
 def refineSearchResult(searchAnchor, searchPattern, targetSubstring):
-    # perform a `lcs <http://en.wikipedia.org/wiki/Longest_common_subsequence_problem>`_ search. Code adopt from `Rosettacode <http://rosettacode.org/wiki/Longest_common_subsequence#Dynamic_Programming_6>`_.
+    # perform a `lcs <http://en.wikipedia.org/wiki/Longest_common_subsequence_problem>`_ search.
+    # Code adopt from `Rosettacode <http://rosettacode.org/wiki/Longest_common_subsequence#Dynamic_Programming_6>`_.
     lengths = [[0 for j in range(len(targetSubstring)+1)] for i in range(len(searchPattern)+1)]
     # row 0 and column 0 are initialized to 0 already
     for i, x in enumerate(searchPattern):
@@ -295,7 +296,7 @@ def refineSearchResult(searchAnchor, searchPattern, targetSubstring):
     # BUG: if anchor is at the end of searchText (this won't happen until user
     # select the last char. of the whole page)
     if lcsClosestIndInTargetText == len(ind):
-        anchor_in_targetText = len(targetSubstring)
+        anchorInTargetText = len(targetSubstring)
     else:
-        anchor_in_targetText = ind[lcsClosestIndInTargetText][1]
-    return anchor_in_targetText, minCost, lcsString
+        anchorInTargetText = ind[lcsClosestIndInTargetText][1]
+    return anchorInTargetText, minCost, lcsString
