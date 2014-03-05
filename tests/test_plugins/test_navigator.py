@@ -265,8 +265,15 @@ class Parser(base.TestCase):
 
     def test_2(self):
         tags = processText('Python', PY_CODE, False)
-        print asDicts(tags)
         ref = {('Cls', 1): {('foobar', 2): {('func', 3): {}}}}
+        self.assertEqual(asDicts(tags), ref)
+
+    def test_3(self):
+        """Ignore warning from ctags"""
+        tags = processText('Python',
+                           'ctags: Warning: something happened\n' + PY_CODE,
+                           False)
+        ref = {('Cls', 2): {('foobar', 3): {('func', 4): {}}}}
         self.assertEqual(asDicts(tags), ref)
 
 

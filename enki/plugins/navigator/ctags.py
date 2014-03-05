@@ -74,6 +74,9 @@ def _parseTags(ctagsLang, text):
     tags = []
     lastTag = None
     for line in text.splitlines():
+        if line.startswith('ctags:'):  # warnings from the utility
+            continue
+
         name, lineNumber, type_, scopeType, scopeName = _parseTag(line)
         if type_ not in ignoredTypes:
             if type_ == 'member':
