@@ -130,55 +130,55 @@ class TestLCS(base.TestCase):
         self.assertEqual(string, '')
 
     # identical string match
-    def test3(self):
+    def test_3(self):
         string = lcs(searchAnchor = 0,
                      searchPattern = 'abc',
                      targetSubstring = 'abc')[2]
         self.assertEqual(string, 'abc')
 
     # no match
-    def test4(self):
+    def test_4(self):
         string = lcs(searchAnchor = 0,
                      searchPattern = 'Fox',
                      targetSubstring = 'Bear')[2]
         self.assertEqual(string, '')
 
     # unicode test
-    def test5(self):
+    def test_5(self):
         string = lcs(searchAnchor = 0,
                      searchPattern = 'Fußball',
                      targetSubstring = 'Football')[2]
         self.assertEqual(string, 'Fball')
 
-    def test6(self):
+    def test_6(self):
         string = lcs(searchAnchor = 0,
                      searchPattern = 'Niederösterreich',
                      targetSubstring = 'Oberösterreich')[2]
         self.assertEqual(string, 'erösterreich')
 
     # control charater test
-    def test7(self):
+    def test_7(self):
         string = lcs(searchAnchor = 0,
                      searchPattern = 'abc\ndef',
                      targetSubstring = 'gh\nijkl')[2]
         self.assertEqual(string, '\n')
 
     # real test cases. test8 contains long common substring
-    def test8(self):
+    def test_8(self):
         string = lcs(searchAnchor = 0,
                      searchPattern = '# The :doc:`README` user manual gives a broad overview of this system. In contrast, this document discusses the implementation specifics of the CodeChat system.',
                      targetSubstring = 'The CodeChat user manual gives a broad overview of this system. In contrast, this document discusses the implementation specifics of the CodeChat system.')[2]
         self.assertEqual(string, 'The d user manual gives a broad overview of this system. In contrast, this document discusses the implementation specifics of the CodeChat system.')
 
-    # test9 contains mostly short common subseqence fragments. This will cause long editing distance
-    def test9(self):
+    # This test contains mostly short common subseqence fragments. This will cause long editing distance
+    def test_9(self):
         string = lcs(searchAnchor = 0,
                      searchPattern = 'age = None# `exclude_patterns# <http://sphinx-doc.org/config.html#confval-exclude_patterns>`_: List of# patterns, re',
                      targetSubstring = 'for a list of supported languages.##language = None exclude_patterns: List of patterns, re')[2]
         self.assertEqual(string, 'a  o upte ngg.lnaexclude_patterns: List of patterns, re')
 
-#    # test10 test the performance when comparing two files. this will take about 1min
-#    def test10(self):
+#    # test_10 test the performance when comparing two files. this will take about 1min
+#    def test_10(self):
 #        print os.getcwd()
 #        with open("D:\\enki\\tests\\test_plugins\\test_ApproxMatch.py", 'r') as file:
 #            searchPattern = file.read()
