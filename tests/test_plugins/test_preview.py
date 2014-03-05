@@ -34,9 +34,10 @@ from enki.core.core import core
 # =====
 # preview module
 # --------------
-# This decorator checks that the given python module, which is
-# required for a unit test, is present.
 def requiresModule(module):
+    """This decorator checks that the given python module, which is
+    required for a unit test, is present.
+    """
     def realDecorator(func):
         def wrapped(self):
             try:
@@ -54,14 +55,15 @@ class Test(base.TestCase):
         base.TestCase.setUp(self)
         self.testText = 'The preview text'
 
-    # Find then return the PreviewDock object. Fail if
-    # it is not found.
     def _dock(self):
+        """Find then return the PreviewDock object. Fail if
+        it is not found."""
         return self.findDock('&Preview')
 
-    # Find then return the PreviewDock widget. Fail if it is
-    # not found.
+
     def _widget(self):
+        """Find then return the PreviewDock widget. Fail if it is
+        not found."""
         return self._dock().widget()
 
     def _showDock(self):
@@ -137,17 +139,18 @@ class Test(base.TestCase):
 
         self.openDialog(lambda: combo.setCurrentIndex(combo.count() - 1), inDialog)
 
-# Web to code sync tests
-# ^^^^^^^^^^^^^^^^^^^^^^
-# Test that mouse clicks get turned into a ``jsClick`` signal
-# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    # Test that web-to-text sync occurs on clicks to the web pane.
-    # A click at 0, height (top left corner) should produce
-    # an index of 0. It doesn't; I'm not sure I understand how
-    # the WebView x, y coordinate system works. For now, skip
-    # checking the resulting index.
+    # Web to code sync tests
+    # ^^^^^^^^^^^^^^^^^^^^^^
+    # Test that mouse clicks get turned into a ``jsClick`` signal
+    # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     @requiresModule('docutils')
     def test_sync1(self):
+        """Test that web-to-text sync occurs on clicks to the web pane.
+        A click at 0, height (top left corner) should produce
+        an index of 0. It doesn't; I'm not sure I understand how
+        the WebView x, y coordinate system works. For now, skip
+        checking the resulting index.
+        """
         self._doBasicTest('rst')
         self.assertEmits(
           lambda: QTest.mouseClick(self._widget().webView,
@@ -155,28 +158,31 @@ class Test(base.TestCase):
           self._dock().jsClick)
 
 
-# Test that simulated mouse clicks at beginning/middle/end produce correct ``jsClick`` values
-# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    # Simulate a mouse click by calling ``window.onclick()`` in Javascript.
+    # Test that simulated mouse clicks at beginning/middle/end produce correct ``jsClick`` values
+    # """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def _jsOnClick(self):
+        """Simulate a mouse click by calling ``window.onclick()`` in Javascript."""
         ret = self._widget().webView.page().mainFrame().evaluateJavaScript('window.onclick()')
         assert not ret
 
-    # The web text for web-to-text sync will have extra
-    # whitespace in it. But ``findText`` operates on a space-less
-    # version of the text. Determine how many whitespace characters
-    # preceed the text.
     def _wsLen(self):
+        """The web text for web-to-text sync will have extra
+        whitespace in it. But ``findText`` operates on a space-less
+        version of the text. Determine how many whitespace characters
+        preceed the text.
+        """
         wtc = self._dock()._webTextContent()
         return len(wtc) - len(wtc.lstrip())
 
 
-    # Given a string ``s``, place the cursor after it and simulate a click
-    # in the web view. Verify that the index produced by ``jsClick``
-    # is correct.
-    def _testSyncString(self,
-                        s):
-                        # String after which cursor will be placed.
+    def _testSyncString(self, s):
+        """Given a string ``s``, place the cursor after it and simulate a click
+        in the web view. Verify that the index produced by ``jsClick``
+        is correct.
+
+        Params:
+        s - String after which cursor will be placed.
+        """
         self._doBasicTest('rst')
         wsLen = self._wsLen()
         # Choose text to find.
@@ -186,29 +192,32 @@ class Test(base.TestCase):
         self.assertEmits(self._jsOnClick,
           self._dock().jsClick, expectedSignalParams=(len(s) + wsLen,) )
 
-    # TODO: simulate a click before the first letter. Select T, then move backwards using
-    # https://developer.mozilla.org/en-US/docs/Web/API/Selection.modify.
-    # For now, test after the letter T (the first letter).
     @requiresModule('docutils')
     def test_sync2a(self):
+        """TODO: simulate a click before the first letter. Select T, then move backwards using
+        https://developer.mozilla.org/en-US/docs/Web/API/Selection.modify.
+        For now, test after the letter T (the first letter).
+        """
         self._testSyncString('T')
 
-    # Simulate a click after 'The pre' and check the resulting ``jsClick`` result.
     @requiresModule('docutils')
     def test_sync2(self):
+        """Simulate a click after 'The pre' and check the resulting ``jsClick`` result."""
         self._testSyncString('The pre')
 
-    # Same as above, but with the entire string.
     @requiresModule('docutils')
     def test_sync3(self):
+        """Same as above, but with the entire string."""
         self._testSyncString(self.testText)
 
-# Test that sending a ``jsClick`` signal at beginning/middle/end moves cursor in code pane correctly
-# """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    # Send a ``jsClick`` signal then see if the code view gets sycned correctly.
-    def _sendJsClick(self,
-                     index):
-                     # The index into 'The preview text' string to send and check.
+    # Test that sending a ``jsClick`` signal at beginning/middle/end moves cursor in code pane correctly
+    # """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def _sendJsClick(self, index):
+        """Send a ``jsClick`` signal then see if the code view gets sycned correctly.
+
+        Params:
+        index - The index into 'The preview text' string to send and check.
+        """
         self._doBasicTest('rst')
         wsLen = self._wsLen()
         # Move the code cursor somewhere else, rather than index 0,
@@ -221,26 +230,26 @@ class Test(base.TestCase):
         p = core.workspace().currentDocument().qutepart.textCursor().position()
         self.assertEqual(p, index)
 
-    # Test a click at the beginning of the string.
     @requiresModule('docutils')
     def test_sync4(self):
+        """Test a click at the beginning of the string."""
         self._sendJsClick(0)
 
-    # Test a click at the middle of the string.
     @requiresModule('docutils')
     def test_sync5(self):
+        """Test a click at the middle of the string."""
         self._sendJsClick(8)
 
-    # Test a click at the end of the string.
     @requiresModule('docutils')
     def test_sync6(self):
+        """Test a click at the end of the string."""
         self._sendJsClick(len(self.testText))
 
-# Misc tests
-# """"""""""
-    # Test on an empty document.
+    # Misc tests
+    # """"""""""
     @requiresModule('docutils')
     def test_sync7(self):
+        """Test on an empty document."""
         self.testText = ''
         self.test_sync1()
 
@@ -252,9 +261,9 @@ class Test(base.TestCase):
     #   self._widget.webView.page().mainFrame(). \
     #     javaScriptWindowObjectCleared.connect(self._onJavaScriptCleared)
 
-    # Test with javascript disabled.
     @requiresModule('docutils')
     def test_sync8(self):
+        """Test with javascript disabled."""
         # The ``_dock()`` method only works after the dock exists.
         # The method below creates it.
         self._doBasicTest('rst')
@@ -263,19 +272,17 @@ class Test(base.TestCase):
         # or internal error.
         QTest.mouseClick(self._widget().webView, Qt.LeftButton)
 
-# Code to web sync tests
-# ^^^^^^^^^^^^^^^^^^^^^^
-# To do:
-#
-# #. Test that when the preview window is hidden, text-to-web sync stops working.
-#
-# Test text to web sync
-# """""""""""""""""""""
-    # Move the cursor in the text pane. Make sure it moves
-    # to the matching location in the web pane.
-    def _textToWeb(self,
-                   # The string in the text pane to click before.
-                   s):
+    # Code to web sync tests
+    # ^^^^^^^^^^^^^^^^^^^^^^
+    # Test text to web sync
+    # """""""""""""""""""""
+    def _textToWeb(self, s):
+        """Move the cursor in the text pane. Make sure it moves
+        to the matching location in the web pane.
+
+        Params:
+        s -  The string in the text pane to click before.
+        """
         # Create multi-line text.
         self.testText = u'One\n\nTwo\n\nThree'
         self._doBasicTest('rst')
@@ -306,8 +313,8 @@ class Test(base.TestCase):
     def test_sync10(self):
         self._textToWeb('Three')
 
-# Test no sync on closed preview window
-# """""""""""""""""""""""""""""""""""""
+    # Test no sync on closed preview window
+    # """""""""""""""""""""""""""""""""""""
     def test_sync11(self):
         self._doBasicTest('rst')
         self._dock().close()
