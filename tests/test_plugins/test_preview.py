@@ -88,10 +88,6 @@ class Test(base.TestCase):
         document = self.createFile('file.' + extension, self.testText)
 
         self._assertHtmlReady(self._showDock)
-        # See if the testText is visible, or vice versa, depending on which
-        # is shorter.
-        self.assertTrue( (self.testText in self._visibleText()) or
-          (self._visibleText() in self.testText) )
 
     def test_html(self):
         self._doBasicTest('html')
@@ -276,15 +272,16 @@ class Test(base.TestCase):
     # ^^^^^^^^^^^^^^^^^^^^^^
     # Test text to web sync
     # """""""""""""""""""""
-    def _textToWeb(self, s):
+    def _textToWeb(self, s, testText=u'One\n\nTwo\n\nThree'):
         """Move the cursor in the text pane. Make sure it moves
         to the matching location in the web pane.
 
         Params:
         s -  The string in the text pane to click before.
+        testText - The ReST string to use.
         """
         # Create multi-line text.
-        self.testText = u'One\n\nTwo\n\nThree'
+        self.testText = testText
         self._doBasicTest('rst')
         # Find the desired string.
         index = self.testText.index(s)
@@ -312,6 +309,21 @@ class Test(base.TestCase):
     @requiresModule('docutils')
     def test_sync10(self):
         self._textToWeb('Three')
+
+    @requiresModule('docutils')
+    def test_sync12(self):
+        """Tables with an embedded image cause findtext to fail. Make sure no
+        exceptions are raised.
+        """
+        self._textToWeb('table', """
+================  ========================
+header1           header2
+================  ========================
+img               .. image:: img.png
+text after img    text after img
+================  ========================
+
+text after table""")
 
     # Test no sync on closed preview window
     # """""""""""""""""""""""""""""""""""""
