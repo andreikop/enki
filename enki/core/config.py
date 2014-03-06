@@ -108,6 +108,10 @@ class Config():
             self._data['Navigator']['SortAlphabetically'] = False
             self._data['_version'] = 11
 
+        if self._data['_version'] == 11:
+            self._data['OpenTerm'] = {'Term': ''}
+            self._data['_version'] = 12
+
 
     def _setPlatformDefaults(self):
         """Set default values, which depend on platform

@@ -3,8 +3,8 @@ import platform
 import os.path
 import os
 
-from PyQt4.QtGui import QMessageBox, QIcon, QWidget, QHBoxLayout, \
-                        QVBoxLayout, QLabel, QLineEdit, QSpacerItem, QSizePolicy
+from PyQt4.QtGui import QMessageBox, QIcon, QWidget, QVBoxLayout, \
+                        QLabel, QLineEdit, QSpacerItem, QSizePolicy
 
 from enki.core.core import core
 from enki.core.uisettings import TextOption
@@ -34,23 +34,23 @@ def _commandExists(program):
 class SettingsPage(QWidget):
     """Settings page for OpenTerm plugin
     """
-    def __init__(self, parent):
+    def __init__(self, parent, autodetectedCommand):
         QWidget.__init__(self, parent)
 
-        self._hLayout = QHBoxLayout()
-        self._label = QLabel("Default Terminal", self)
-        self._hLayout.addWidget(self._label)
+        text = "<html>Terminal emulator command.<br/>" + \
+               "Leave empty to autodetect.<br/>" + \
+               "Autodetected value is <i>{}</i></html>".format(autodetectedCommand)
+        self._label = QLabel(text, self)
         self.edit = QLineEdit(self)
-        self._hLayout.addWidget(self.edit)
 
         self._vLayout = QVBoxLayout(self)
-        self._vLayout.addLayout(self._hLayout)
+        self._vLayout.addWidget(self._label)
+        self._vLayout.addWidget(self.edit)
         self._vLayout.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding))
 
 
 class Plugin:
     def __init__(self):
-        self._initSettings()
         self._addAction()
         core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
 
@@ -60,11 +60,11 @@ class Plugin:
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.
         """
-        page = SettingsPage(dialog)
+        page = SettingsPage(dialog, self._chooseDefaultTerminal())
         dialog.appendPage(ACTION_TEXT, page, QIcon(':enkiicons/console.png'))
 
         # Options
-        dialog.appendOption(TextOption(dialog, core.config(), "OpenTerm/DefaultTerm", page.edit))
+        dialog.appendOption(TextOption(dialog, core.config(), "OpenTerm/Term", page.edit))
 
     def _chooseDefaultTerminal(self):
         if platform.system() == 'Windows':
@@ -76,12 +76,6 @@ class Plugin:
             return '/usr/bin/x-terminal-emulator'
         else:
             return 'xterm'
-
-    def _initSettings(self):
-        """Init setting for the plugin
-        """
-        if not "OpenTerm" in core.config():  # first start
-            core.config()["OpenTerm"] = {"DefaultTerm": self._chooseDefaultTerminal()}
 
     def _addAction(self):
         """Add action to main menu
@@ -95,7 +89,10 @@ class Plugin:
     def _openTerm(self):
         """Handler for main menu action
         """
-        term = core.config()["OpenTerm"]["DefaultTerm"]
+        term = core.config()["OpenTerm"]["Term"]
+        if not term:
+            term = self._chooseDefaultTerminal()
+
         cwd = os.getcwd()
         try:
             subprocess.Popen(term, cwd=os.getcwd())
