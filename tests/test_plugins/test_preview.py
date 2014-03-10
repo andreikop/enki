@@ -151,7 +151,8 @@ class Test(base.TestCase):
         self.assertEmits(
           lambda: QTest.mouseClick(self._widget().webView,
             Qt.LeftButton, Qt.NoModifier, QPoint(0, self._widget().webView.height())),
-          self._dock().jsClick)
+          self._dock().jsClick,
+          200)
 
 
     # Test that simulated mouse clicks at beginning/middle/end produce correct ``jsClick`` values
@@ -186,7 +187,9 @@ class Test(base.TestCase):
         assert ret
         # Now run the Javascript and see if the index with whitespace added matches.
         self.assertEmits(self._jsOnClick,
-          self._dock().jsClick, expectedSignalParams=(len(s) + wsLen,) )
+                         self._dock().jsClick,
+                         100,
+                         expectedSignalParams=(len(s) + wsLen,))
 
     @requiresModule('docutils')
     def test_sync2a(self):
