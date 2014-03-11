@@ -96,21 +96,86 @@ class TestApproxMatch(base.TestCase):
 
     # failed test case:
     def test_10(self):
-        index = f(searchAnchor = 4,
-                  searchText = 'xxabcdabcdabcdxxx',
-                  targetText = 'abcd')
-        # this is a bug i cannot handle using lcs. lcs will find the last abcd, 4 is before the start of the last abcd, so it maps to index 0 rather than 2.
-        # the problem happens when map lcs index back to original string. it has multiple matches. the one i choose is not the 'closet' one.
-##        self.assertEqual(index, 2)
+        index = f(searchAnchor = 35,
+                  searchText = '`head <http://---------------------head>`_ tail',
+                  targetText = 'head tail')
+        # Scenario: 
+        #
+        #   Click before the second `head` will bring target anchor to the start of target text.
+        #
+        # Bug: 
+        #
+        #   Since in search text, the chars inside bracket denote a hyperlink, they will get deleted in target text. 
+        #   Click right before the second `head` should bring target anchor to anywhere between `head` and `tail`.
+        #
+        # Explaination:
+        #
+        #   This synthesis test case demonstrate the importance of `searchRange` in `approx_match.py`. A `searchRange` of 30 is 
+        #   applied before TRE is used. TRE returned with ``searchPattern = ' <http://---------------------head>`_ tail'`` and 
+        #   ``targetSubstring = 'head tail'``. Since `searchPattern` is not complete, LCS algorithm cannot find a correct index.
+        #
+        # Note:
+        #
+        #   This problem cannot get bypassed simply by setting a larger ``searchRange``. Please refer to the next test case.
+        ## self.assertIn(index, (4, 5))
 
     def test_11(self):
-        index = f(searchAnchor = 57,
-                  searchText = 'age = None# `exclude_patterns# <http://sphinx-doc.org/config.html#confval-exclude_patterns>`_: List of# patterns, re',
-                  targetText = 'for a list of supported languages.##language = None exclude_patterns: List of patterns, re')
-        # ok, this is the second bug i encountered. explaination? check my test. (to put it simple, tre did a bad job)
-        # work around: remove all docutils markup part from search text. remap it back to original text. then use the refined version to do
-        # comparison. get the second mapping. combine these two mapping to get an exact pinpoint location
-##        self.assertIn(index, range(68,72))
+        index = f(searchAnchor = 14,
+                  searchText = '`head <http://head>`_ tail',
+                  targetText = 'head tail')
+        # Scenario:
+        #
+        #   This scenario is the same as the previous one.
+        #
+        # Bug:
+        #
+        #   What should happen is same as the previous scenario.
+        #
+        # Explaination:
+        #
+        #   LCS algorithm input strings are: ``searchPattern = '`head <http://head>`_ tail'``, ``targetSubstring = 'head tail'``. Their longest common substring is ``'head tail'``. The next table demonstrate the mapping of LCS string back to search pattern and target substring::
+        #     
+        #     searchPattern  : `head <http://head>`_ tail
+        #     anchor         :               ^
+        #     targetSubstring:               head    tail
+        #
+        #     LCSString      :               head    tail
+        #
+        #   LCS algorithm uses backward matching method. Thus word `head` in LCS string is matched to the second `head` word in search pattern. Thus when match LCS string back to target string, it is matched to the wrong place and generated an index of 0 instead of 4 or 5. 
+        #
+        # Note:
+        #
+        #   One may debate that backward searching should be replaced by forward searching in this case, but the lack of context cannot justify which searching direction can generate better result. The next test case will demonstrate this:
+        ## self.assertIn(index, (4, 5))
+
+
+    def test_12(self):
+        index = f(searchAnchor = 6,
+                  searchText = 'abcdabcdabcd',
+                  targetText = 'abcd')
+        # Scenario:
+        #
+        #   Click between the second 'b' and second 'c' will bring target anchor to the start of targetText.
+        #
+        # Bug:
+        #
+        #   Lack of context will cause ambiguity. We cannot determine how the matching is performed and thus cannot decide which matching is the optimal one. If the targetText is matched to the first 'abcd' in the searchText, then if searchAnchor is at index 6 it should map to index 4 in target string. If targetText is matched to the last 'abcd' in the searchText, then the searchAnchor should map to index in target string. If targetText is matched to the middle 'abcd', then it should map to index 2.
+        #
+        # Explaination:
+        #
+        #   We use backward LCS matching, so the output should be 2, not 0, not 4.
+        #
+        # TODO:
+        #
+        #   Since in the conversion, forward conversion is more natural than backward conversion. LCS mapping algorithm should provide search direction parameter.
+        self.assertEqual(index, 2)
+
+
+    def test_13(self):
+        index = f(searchAnchor = 20,
+                  searchText = '\n\n\n\nThe Preview Text\n\n\n\n',
+                  targetText = 'The Preview Text')
+        self.assertEqual(index, 16)
 
 from enki.plugins.preview.approx_match import refineSearchResult as lcs
 import copy
