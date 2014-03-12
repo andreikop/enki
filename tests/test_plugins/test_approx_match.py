@@ -119,6 +119,7 @@ class TestApproxMatch(base.TestCase):
         #   This problem cannot get bypassed simply by setting a larger ``searchRange``. Please refer to the next test case.
         ## self.assertIn(index, (4, 5))
 
+    @unittest.expectedFailure
     def test_11(self):
         index = f(searchAnchor = 14,
                   searchText = '`head <http://head>`_ tail',
@@ -146,9 +147,9 @@ class TestApproxMatch(base.TestCase):
         # Note:
         #
         #   One may debate that backward searching should be replaced by forward searching in this case, but the lack of context cannot justify which searching direction can generate better result. The next test case will demonstrate this:
-        ## self.assertIn(index, (4, 5))
+        self.assertIn(index, (4, 5))
 
-
+    @unittest.expectedFailure
     def test_12(self):
         index = f(searchAnchor = 6,
                   searchText = 'abcdabcdabcd',
@@ -172,11 +173,31 @@ class TestApproxMatch(base.TestCase):
 
 
     def test_13(self):
-        index = f(searchAnchor = 20,
-                  searchText = '\n\n\n\nThe Preview Text\n\n\n\n',
-                  targetText = 'The Preview Text')
-        self.assertEqual(index, 16)
-
+        index = f(searchAnchor = 8,
+                  searchText = '\n\n\n\ntest\n\n\n\n',
+                  targetText = ' test    ')
+        # This test case is designed to test such a scenario:
+        # 
+        # Anchor is placed after the lcs string, the mapping process is tested so that a correct target index can be found.
+        self.assertEqual(index, 5)
+        
+    def test_14(self):
+        index = f(searchAnchor = 8,
+                  searchText = '\n\n\n\ntest\n\n\n\n',
+                  targetText = 'test')
+        # This test case is similar to previous one. But the anchor position in the target text is 4 while targetText[4] is invalid.
+        # 
+        # A reverse case is tested in the next test case
+        self.assertEqual(index, 4)
+        
+    def test_15(self):
+        index = f(searchAnchor = 4,
+                  searchText = 'test',
+                  targetText = '\n\n\n\ntest\n\n\n\n')
+        # With this test case, all boundary conditions have been tested.
+        self.assertEqual(index, 8)
+        
+        
 from enki.plugins.preview.approx_match import refineSearchResult as lcs
 import copy
 # Given two strings, find their `longest common subsequence <http://en.wikipedia.org/wiki/Longest_common_subsequence_problem>`_. Notice this is different from `longest common substring <http://en.wikipedia.org/wiki/Longest_common_substring_problem>`_.

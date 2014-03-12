@@ -230,7 +230,7 @@ def findApproxTextInTarget(
       searchPattern, targetSubstring)
     if offset is not -1:
         offset = offset + beginInTarget
-
+    
     if ENABLE_LOG:
         si = htmlFormatSearchInput(searchText, begin, searchAnchor, end)
         if offset is not -1:
@@ -296,7 +296,7 @@ def refineSearchResult(searchAnchor, searchPattern, targetSubstring):
     # BUG: if anchor is at the end of searchText (this won't happen until user
     # select the last char. of the whole page)
     if lcsClosestIndInTargetText == len(ind):
-        anchorInTargetText = len(targetSubstring)
+        anchorInTargetText = ind[-1][1]+1
     else:
         anchorInTargetText = ind[lcsClosestIndInTargetText][1]
     return anchorInTargetText, minCost, lcsString
