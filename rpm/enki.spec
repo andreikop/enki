@@ -5,7 +5,7 @@
 %global icon_cache_gtk_update /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 Name:           enki
-Version:        13.11.1
+Version:        14.03.0
 Release:        5%{?dist}
 Summary:        Advanced text editor for programmers
 Group:          Productivity/Text/Editors
@@ -105,6 +105,13 @@ fi
 
 
 %changelog
+* Thu Mar 13 2014 Andrei Kopats <hlamer@tut.by> 14.03.0-8
+ - Open main menu with F10
+ - Sort tags in the Navigator
+ - Python REPL
+ - Navigator tree filtering
+ - Strip trailing whitespaces
+
 * Mon Nov 25 2013 Andrei Kopats <hlamer@tut.by> 13.11.1-7
 - Fix crash in Navigation
 - Recursively create directories on file save
