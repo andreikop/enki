@@ -21,4 +21,5 @@ Converting Enki to a self-contained executable bundle
 Packaging the bundle into a Windows installer
 =============================================
 - Install `Inno setup <http://www.jrsoftware.org/isdl.php>`_ v. 5.x. to ``C:\Program Files\Inno Setup 5``
+- Update package version in ``win/Enki.iss``
 - Execute ``win\build_installer.bat`` from the root Enki directory.

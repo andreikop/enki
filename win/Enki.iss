@@ -28,7 +28,7 @@
 ;
 ; Provide a few handy definitions to avoid repetition.
 #define PRODUCT_NAME 'Enki'
-#define PRODUCT_VERSION GetDateTimeString('ddddd', '', '');
+#define PRODUCT_VERSION '14.03.0'
 
 [Setup]
 AppName={#PRODUCT_NAME}
