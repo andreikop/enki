@@ -40,7 +40,7 @@ baseurl: .
                 <a href="install-sources.html" class="download-button">
                     <img src="../img/tgz.png"/>
                     <br/>
-                    Sources
+                    Source<br/>package
                 </a>
 
                 <a href="http://software.opensuse.org/download.html?project=home%3Ahlamer%3Aenki&amp;package=enki" class="download-button">
