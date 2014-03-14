@@ -227,7 +227,8 @@ min-height: 460px;
 
 #download {
 	margin: 0 auto;
-width: 420px;
+	padding: 20px;
+	width: 420px;
 }
 
 .download-button {
@@ -349,6 +350,7 @@ width: 490px;
 
 #allnews {
 	margin-right: 60px;
+	margin-bottom: 20px;
 	text-align: right;
 }
 
