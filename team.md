@@ -7,7 +7,7 @@ baseurl: .
 
 ## Andrei Kopats
 
-**hlamer**
+[**hlamer**](https://github.com/hlamer)
 
 ![Photo](photo/andrei.kopats.png)
 
@@ -17,7 +17,7 @@ Enki developer
 <hr/>
 
 ## Filipe Azevedo
-**PasNox**
+[**PasNox**](https://github.com/pasnox)
 
 ![Photo](photo/PasNox.jpg)
 
@@ -25,17 +25,19 @@ Enki developer
 Guy, who knows Qt better, than its developers do.
 <hr/>
 
-## Evgeni Golov
-**Zhenech**
+## Bryan A. Jones
+[**bjones1**](https://github.com/bjones1)
 
-![Photo](photo/EvgenyGolov.jpg)  
+![Photo](photo/BryanAJones.jpg)
 
-Monkey Studio Debian packager.  
-Our Debian guru.
+Windows packager.
+
+Assistant Professor at Department of Electrical and Computer Engineering. Mississippi State University.
 <hr/>
 
 ## Jairo Llopis
-**Yajo**
+[**Yajo**](https://github.com/yajo)
+
 
 ![Photo](http://gravatar.com/avatar/76340b30482bc6dc546d6a47e724c3d1?s=120)
 
@@ -44,6 +46,9 @@ Fedora packager.
 <hr/>
 
 ## Vitaly Shukela
+[**vi**](https://github.com/vi)
+
+
 Early adopter. The most active user.
 
 Generaged huge amount of useful bug reports and feature ideas.
