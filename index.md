@@ -26,7 +26,7 @@ baseurl: .
             <a href="http://www.facebook.com/sharer.php?u=http://enki-editor.org/"><img src="./img/facebook.png" title="Share enki editor on Facebook" alt="Share enki editor on Facebook"></a>
         </div>
         -->
-    
+
     </div>
 </div>
 
@@ -35,14 +35,14 @@ baseurl: .
 
 
         <div id="download">
-            
+
             <div>
                 <a href="install-sources.html" class="download-button">
                     <img src="../img/tgz.png"/>
                     <br/>
                     Sources
                 </a>
-                
+
                 <a href="http://software.opensuse.org/download.html?project=home%3Ahlamer%3Aenki&amp;package=enki" class="download-button">
                     <table>
                         <tr>
@@ -63,13 +63,20 @@ baseurl: .
                         </tr>
                     </table>
                     <br/>
-                    Installer
+                    Linux<br/>installer
                 </a>
+
+                <a href="http://github.com/hlamer/enki/releases" class="download-button">
+                    <img src="../img/win.svg" width="120" height="106" align="midle"/>
+                    <br/>
+                    Windows<br/>installer
+                </a>
+
             </div>
 
         <a href="./packaging.html" id="where-is">Where is package for my OS?</a>
         </div>
-          
+
 
         <div id="news">
             <h2>News</h2>
@@ -117,11 +124,11 @@ baseurl: .
             Markdown live preview
         </div>
     </div>
-    
+
     <!-- Hiding More Screenshots link
     <div id="more-screenshots"><a href="#">More screenshots ...</a></div>
     -->
-    
+
     </div>
 
     <div id="seperator">

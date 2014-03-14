@@ -10,7 +10,7 @@ html, body {
 }
 
 #container {
-	  
+
     height: 100%;
 }
 
@@ -74,7 +74,7 @@ h1, h2 {
 
 .main {
 	height: 100%;
-	
+
 }
 
 #menu #logo {
@@ -227,7 +227,7 @@ min-height: 460px;
 
 #download {
 	margin: 0 auto;
-width: 340px;
+width: 420px;
 }
 
 .download-button {
@@ -236,8 +236,7 @@ width: 340px;
 	color: white;
 	text-align: center;
 	font-size: 24px;
-	margin-left: 10px;
-	margin: 15px;
+	margin: 5px;
 }
 
 .download-button:visited {
