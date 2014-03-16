@@ -11,7 +11,7 @@ PACKAGE_VERSION = "14.03.0"
 PACKAGE_COPYRIGHTS = "(C) 2014 Andrei KOPATS"
 
 QUTEPART_SUPPORTED_MAJOR = 1
-QUTEPART_SUPPORTED_MINOR = 3
+QUTEPART_SUPPORTED_MINOR = 4
 
 # Choose base config dir according to http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
 if os.environ.get('XDG_CONFIG_HOME', ''):  # if set and not empty

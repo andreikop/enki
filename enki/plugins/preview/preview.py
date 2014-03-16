@@ -19,7 +19,7 @@ from enki.core.core import core
 
 from enki.widgets.dockwidget import DockWidget
 
-from enki.plugins.preview import isMarkdownFile, isHtmlFile
+from enki.plugins.preview import isHtmlFile
 
 # If TRE isn't installed, this import will fail. In this case, disable the sync
 # feature.
@@ -58,7 +58,7 @@ class ConverterThread(QThread):
             return text
         elif language == 'Markdown':
             return self._convertMarkdown(text)
-        elif language == 'reStructuredText':
+        elif language == 'Restructured Text':
             htmlAscii = self._convertReST(text)
             return unicode(htmlAscii, 'utf8')
         else:
@@ -110,7 +110,7 @@ class ConverterThread(QThread):
         try:
             import docutils.core
         except ImportError:
-            return 'ReStructuredText preview requires <i>python-docutils</i> package<br/>' \
+            return 'Restructured Text preview requires <i>python-docutils</i> package<br/>' \
                    'Install it with your package manager or see ' \
                    '<a href="http://pypi.python.org/pypi/docutils"/>this page</a>'
 
@@ -586,7 +586,7 @@ class PreviewDock(DockWidget):
                 self.currentCursorPositionChanged.connect(self._onCursorPositionChanged)
 
         if new is not None:
-            if isMarkdownFile(new):
+            if new.qutepart.language() == 'Markdown':
                 self._widget.cbTemplate.show()
                 self._widget.lTemplate.show()
             else:
@@ -675,8 +675,7 @@ class PreviewDock(DockWidget):
         if document is not None:
             language = document.qutepart.language()
             text = document.qutepart.text
-            if isMarkdownFile(document):
-                language = 'Markdown'
+            if language == 'Markdown':
                 text = self._getCurrentTemplate() + text
             elif isHtmlFile(document):
                 language = 'HTML'

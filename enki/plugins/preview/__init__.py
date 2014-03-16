@@ -17,16 +17,6 @@ from PyQt4.QtGui import QAction, QIcon, QKeySequence
 from enki.core.core import core
 
 
-def isMarkdownFile(document):
-    """Check if document is a ReST file
-    Currently, there are no highlighting language for ReST
-    """
-    return document is not None and \
-           document.fileName() is not None and \
-           (document.fileName().endswith('.md') or \
-            document.fileName().endswith('.markdown'))
-
-
 def isHtmlFile(document):
     return document is not None and  \
            document.qutepart.language() is not None and \
@@ -73,11 +63,8 @@ class Plugin(QObject):
         if document is None:
             return False
 
-        if document.qutepart.language() == 'reStructuredText' or \
+        if document.qutepart.language() in ('Markdown', 'Restructured Text') or \
            isHtmlFile(document):
-            return True
-
-        if isMarkdownFile(document):
             return True
 
         return False
