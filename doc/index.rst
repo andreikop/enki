@@ -4,8 +4,9 @@ Plugin API documentation
 ========================
 This is API documentation. It lists all modules, which may be used by Enki plugins.
 
-To create your own plugins, at first read tutorial at the `wiki <https://github.com/hlamer/enki/wiki/Plugins-tutorial>`_.
+To create your own plugins, at first read **tutorial** at the `wiki <https://github.com/hlamer/enki/wiki/Plugins-tutorial>`_.
 
+**Qutepart** documentation is hosted `here <http://qutepart.rtfd.org>`_
 
 enki.core
 -----------
