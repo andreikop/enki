@@ -69,7 +69,7 @@ def _findScope(tag, scopeType, scopeName):
         return None
 
 def _parseTags(ctagsLang, text):
-    ignoredTypes = ('variable')
+    ignoredTypes = ('variable', 'member')
 
     tags = []
     lastTag = None
