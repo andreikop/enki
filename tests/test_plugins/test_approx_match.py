@@ -177,8 +177,8 @@ class TestApproxMatch(unittest.TestCase):
     #   This synthesis test case demonstrate the importance of ``searchRange``
     #   in ``approx_match.py``. A ``searchRange`` of 30 is applied before
     #   TRE is used. TRE returns with the string
-    #   ``searchPattern = ' <http://---------------------head>`_ tail'`` and
-    #   ``targetSubstring = 'head tail'``. Since ``searchPattern`` is not
+    #   ``searchText = ' <http://---------------------head>`_ tail'`` and
+    #   ``targetText = 'head tail'``. Since ``searchText`` is not
     #   complete, the LCS algorithm cannot find the correct index.
     #
     # Note:
@@ -206,14 +206,14 @@ class TestApproxMatch(unittest.TestCase):
     # Explanation:
     #
     #   The LCS algorithm input strings are:
-    #   ``searchPattern = '`head <http://head>`_ tail'``,
-    #   ``targetSubstring = 'head tail'``. Their longest common substring is
+    #   ``searchText = '`head <http://head>`_ tail'``,
+    #   ``targetText = 'head tail'``. Their longest common substring is
     #   ``'head tail'``. The next table demonstrate the mapping of the string
     #   produced by the LCS algorithm back to search pattern and target substring::
     #
-    #     searchPattern  : `head <http://head>`_ tail
+    #     searchText  : `head <http://head>`_ tail
     #     anchor         :               ^
-    #     targetSubstring:               head    tail
+    #     targetText:               head    tail
     #
     #     LCSString      :               head    tail
     #
@@ -279,74 +279,74 @@ class TestRefineSearchResult(unittest.TestCase):
     # Boundary conditions: empty search and target strings.
     def test_1(self):
         string = lcs(searchAnchor = 0,
-                     searchPattern = '',
-                     targetSubstring = '')[1]
+                     searchText = '',
+                     targetText = '')[1]
         self.assertEqual(string, '')
 
     # Boundary conditions: empty target string.
     def test_2(self):
         string = lcs(searchAnchor = 0,
-                     searchPattern = 'abc',
-                     targetSubstring = '')[1]
+                     searchText = 'abc',
+                     targetText = '')[1]
         self.assertEqual(string, '')
 
     # Identical string match.
     def test_3(self):
         string = lcs(searchAnchor = 0,
-                     searchPattern = 'abc',
-                     targetSubstring = 'abc')[1]
+                     searchText = 'abc',
+                     targetText = 'abc')[1]
         self.assertEqual(string, 'abc')
 
     # No match.
     def test_4(self):
         string = lcs(searchAnchor = 0,
-                     searchPattern = 'Fox',
-                     targetSubstring = 'Bear')[1]
+                     searchText = 'Fox',
+                     targetText = 'Bear')[1]
         self.assertEqual(string, '')
 
     # Unicode test.
     def test_5(self):
         string = lcs(searchAnchor = 0,
-                     searchPattern = 'Fußball',
-                     targetSubstring = 'Football')[1]
+                     searchText = 'Fußball',
+                     targetText = 'Football')[1]
         self.assertEqual(string, 'Fball')
 
     # Unicode test.
     def test_6(self):
         string = lcs(searchAnchor = 0,
-                     searchPattern = 'Niederösterreich',
-                     targetSubstring = 'Oberösterreich')[1]
+                     searchText = 'Niederösterreich',
+                     targetText = 'Oberösterreich')[1]
         self.assertEqual(string, 'erösterreich')
 
     # Control charater test.
     def test_7(self):
         string = lcs(searchAnchor = 0,
-                     searchPattern = 'abc\ndef',
-                     targetSubstring = 'gh\nijkl')[1]
+                     searchText = 'abc\ndef',
+                     targetText = 'gh\nijkl')[1]
         self.assertEqual(string, '\n')
 
     # Real test cases. test_8 contains a long common substring.
     def test_8(self):
         string = lcs(searchAnchor = 0,
-                     searchPattern = '# The :doc:`README` user manual gives a broad overview of this system. In contrast, this document discusses the implementation specifics of the CodeChat system.',
-                     targetSubstring = 'The CodeChat user manual gives a broad overview of this system. In contrast, this document discusses the implementation specifics of the CodeChat system.')[1]
+                     searchText = '# The :doc:`README` user manual gives a broad overview of this system. In contrast, this document discusses the implementation specifics of the CodeChat system.',
+                     targetText = 'The CodeChat user manual gives a broad overview of this system. In contrast, this document discusses the implementation specifics of the CodeChat system.')[1]
         self.assertEqual(string, 'The d user manual gives a broad overview of this system. In contrast, this document discusses the implementation specifics of the CodeChat system.')
 
     # This test contains mostly short common subseqence fragments. This will
     # cause long editing distance.
     def test_9(self):
         string = lcs(searchAnchor = 0,
-                     searchPattern = 'age = None# `exclude_patterns# <http://sphinx-doc.org/config.html#confval-exclude_patterns>`_: List of# patterns, re',
-                     targetSubstring = 'for a list of supported languages.##language = None exclude_patterns: List of patterns, re')[1]
+                     searchText = 'age = None# `exclude_patterns# <http://sphinx-doc.org/config.html#confval-exclude_patterns>`_: List of# patterns, re',
+                     targetText = 'for a list of supported languages.##language = None exclude_patterns: List of patterns, re')[1]
         self.assertEqual(string, 'a  o upte ngg.lnaexclude_patterns: List of patterns, re')
 
     # Test LCS ability when the characters at the searchAnchor don't exist in
-    # the targetSubstring.
+    # the targetText.
     def test_11(self):
         index = lcs(searchAnchor = 9,
                 # Place searchAnchor between ``bqwc?xyza`` and ``ad``.
-                searchPattern = 'bqwc?xyzaad',
-                targetSubstring = 'bwxyzcd')[0]
+                searchText = 'bqwc?xyzaad',
+                targetText = 'bwxyzcd')[0]
                 # The expected targetText index is between ``bwxyzc`` and ``d``.
         self.assertIn(index, (5, 6))
 
@@ -354,8 +354,8 @@ class TestRefineSearchResult(unittest.TestCase):
     def test_12(self):
         index = lcs(searchAnchor = 6,
                 # Place searchAnchor between ``bwxyzc`` and ``d``.
-                searchPattern = 'bwxyzcd',
-                targetSubstring = 'bqwc?xyzaad')[0]
+                searchText = 'bwxyzcd',
+                targetText = 'bqwc?xyzaad')[0]
                 # The expected targetText index is between ``bqwc?xyza`` and ``d``.
         self.assertIn(index, (8, 9, 10))
 
@@ -365,10 +365,10 @@ class TestRefineSearchResult(unittest.TestCase):
     def test_10(self):
         print os.getcwd()
         with open("D:\\enki\\tests\\test_plugins\\test_ApproxMatch.py", 'r') as file:
-            searchPattern = file.read()
-        targetSubstring = copy.deepcopy(searchPattern)
-        string = lcs(0, searchPattern, targetSubstring)[1]
-        self.assertEqual(string, searchPattern)
+            searchText = file.read()
+        targetText = copy.deepcopy(searchText)
+        string = lcs(0, searchText, targetText)[1]
+        self.assertEqual(string, searchText)
 
 
 # Main

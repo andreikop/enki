@@ -219,7 +219,7 @@ def findApproxTextInTarget(
     # N = len(searchText) and M = len(largetText). Therefore, let TRE_ do an
     # initial, faster search then do a more exact refine using LCS_.
     relativeSearchAnchor = searchAnchor - begin
-    offset, lcsString = refineSearchResult(relativeSearchAnchor, searchPattern,
+    offset, lcsString = refineSearchResult(searchPattern, relativeSearchAnchor,
       targetSubstring)
     if offset != -1:
         offset = offset + beginInTarget
@@ -242,26 +242,35 @@ def findApproxTextInTarget(
 # ==================
 # This function performs identically to findApproxTextInTarget_, but uses a more
 # expensive and expact algorithm to compute the result.
-def refineSearchResult(searchAnchor, searchPattern, targetSubstring):
+def refineSearchResult(
+  # The text composing the entire source document in
+  # which the search string resides.
+  searchText,
+  # A location in the source document which should be
+  # found in the target document.
+  searchAnchor,
+  # The target text in which the search will be performed.
+  targetText):
+  #
     # Find the longest common substring (`LCS
     # <http://en.wikipedia.org/wiki/Longest_common_subsequence_problem>`_
     # between the source and target strings. The code was adopted from
     # `Rosettacode <http://rosettacode.org/wiki/Longest_common_subsequence#Dynamic_Programming_6>`_.
     #
     # Initialize the substring length table entries to 0.
-    lengths = [[0 for j in range(len(targetSubstring)+1)]
-                    for i in range(len(searchPattern)+1)]
+    lengths = [[0 for j in range(len(targetText) + 1)]
+                    for i in range(len(searchText) + 1)]
 
     # Determine the length of the longest common subsequence and store this in
     # the table.
-    for i, x in enumerate(searchPattern):
-        for j, y in enumerate(targetSubstring):
+    for i, x in enumerate(searchText):
+        for j, y in enumerate(targetText):
             # When characters match, increase the substring length. Otherwise,
             # the use maximum substring length found thus far.
             if x == y:
-                lengths[i+1][j+1] = lengths[i][j] + 1
+                lengths[i + 1][j + 1] = lengths[i][j] + 1
             else:
-                lengths[i+1][j+1] = max(lengths[i+1][j], lengths[i][j+1])
+                lengths[i + 1][j + 1] = max(lengths[i + 1][j], lengths[i][j + 1])
 
     # If LCS fails to find a common subsequence, then set the offset to -1 and
     # inform ``findApproxTextInTarget`` that no match is found. This rarely
@@ -271,7 +280,7 @@ def refineSearchResult(searchAnchor, searchPattern, targetSubstring):
 
     # Read the LCS string out from the table.
     lcsString = ""
-    x, y = len(searchPattern), len(targetSubstring)
+    x, y = len(searchText), len(targetText)
     # Initialize the editing distance.
     while x != 0 and y != 0:
         if lengths[x][y] == lengths[x - 1][y]:
@@ -279,33 +288,33 @@ def refineSearchResult(searchAnchor, searchPattern, targetSubstring):
         elif lengths[x][y] == lengths[x][y - 1]:
             y -= 1
         else:
-            assert searchPattern[x - 1] == targetSubstring[y - 1]
-            # The first matching targetSubstring index corresponding to the
-            # searchPattern index is the goal of this function.
+            assert searchText[x - 1] == targetText[y - 1]
+            # The first matching targetText index corresponding to the
+            # searchText index is the goal of this function.
             if x <= searchAnchor:
                 return y, lcsString
-            lcsString = searchPattern[x - 1] + lcsString
+            lcsString = searchText[x - 1] + lcsString
             x -= 1
             y -= 1
 
     # At this point, we traced the LCS to the beginning of either the
-    # searchPattern or the targetSubstring, but haven't moved through
+    # searchText or the targetText, but haven't moved through
     # the desired searchAnchor. There are two cases:
     #
     # 1. x == 0: when searchAnchor == 0 and the index in y gives the
-    #    corresponding targetSubstring index.
-    # 2. y == 0: the searchAnchor in the searchPattern lies before the
-    #    corresponding targetSubstring index. Return y == 0 as the best
+    #    corresponding targetText index.
+    # 2. y == 0: the searchAnchor in the searchText lies before the
+    #    corresponding targetText index. Return y == 0 as the best
     #    possible corresponding index.
     #
     # Therefore, return y.
     #
     # Some examples:
-    # 
-    # * searchPattern = 'abcd', searchAnchor = 0 (before 'abcd'),
-    #   targetSubstring = '_abc', then y == 1 when x == 0, which lies between
-    #   the characters '_' and 'abc' in the targetSubstring.
-    # * searchPattern = '__ab', searchAnchor = 1 (between '_' and '_ab'),
-    #   targetSubstring = 'ab', then x == 1 when y == 0, which is the beginning
-    #   of the targetSubstring.
+    #
+    # * searchText = 'abcd', searchAnchor = 0 (before 'abcd'),
+    #   targetText = '_abc', then y == 1 when x == 0, which lies between
+    #   the characters '_' and 'abc' in the targetText.
+    # * searchText = '__ab', searchAnchor = 1 (between '_' and '_ab'),
+    #   targetText = 'ab', then x == 1 when y == 0, which is the beginning
+    #   of the targetText.
     return y, lcsString
