@@ -46,46 +46,46 @@ class TestApproxMatch(unittest.TestCase):
     # Show that we can match identical text.
     def test_1(self):
         index = f(searchAnchor = 2,
-                  # Place searchAnchor between 'te' and 'st'.
+                  # Place searchAnchor between ``te`` and ``st``.
                   searchText = 'test',
                   targetText = 'test')
-                  # The expected index is between 'te' and 'st'.
+                  # The expected index is between ``te`` and ``st``.
         self.assertEqual(index, 2)
 
     # Show that we can match with a initial Python comment.
     def test_2(self):
         index = f(searchAnchor = 4,
-                  # Place searchAnchor between '# te' and 'st'.
+                  # Place searchAnchor between ``# te`` and ``st``.
                   searchText = '# test',
                   targetText = 'test')
-                  # The expected targetText index is between 'te' and 'st'.
+                  # The expected targetText index is between ``te`` and ``st``.
         self.assertEqual(index, 2)
 
     # Show that we can match with a initial C/C++ comment.
     def test_3(self):
         index = f(searchAnchor = 5,
-                  # Place searchAnchor between '// te' and 'st'.
+                  # Place searchAnchor between ``// te`` and ``st``.
                   searchText = '// test',
                   targetText = 'test')
-                  # The expected targetText index is between 'te' and 'st'.
+                  # The expected targetText index is between ``te`` and ``st``.
         self.assertEqual(index, 2)
 
     # Show that we can match at the end of a line.
     def test_4(self):
         index = f(searchAnchor = 4,
-                  # Place searchAnchor between 'test' and '\ntest'.
+                  # Place searchAnchor between ``test`` and ``\ntest``.
                   searchText = 'test\ntest',
                   targetText = 'test\ntest')
-                  # The expected targetText index is between 'test' and '\ntest'.
+                  # The expected targetText index is between ``test`` and ``\ntest``.
         self.assertEqual(index, 4)
 
     # Show that we can match at the end of a line with a Python comment.
     def test_5(self):
         index = f(searchAnchor = 6,
-                  # Place searchAnchor between '# test' and '\n# test'.
+                  # Place searchAnchor between ``# test`` and ``\n# test``.
                   searchText = '# test\n# test',
                   targetText = 'test\ntest')
-                  # The expected targetText index is between 'test' and '\ntest'.
+                  # The expected targetText index is between ``test`` and ``\ntest``.
         self.assertEqual(index, 4)
 
     # Test a specific failing case found during development.
@@ -99,37 +99,41 @@ class TestApproxMatch(unittest.TestCase):
     # characters.
     def test_7(self):
         index = f(searchAnchor = 9,
-                  # Place searchAnchor between 'bqwc?xyza' and 'ad'.
+                  # Place searchAnchor between ``bqwc?xyza`` and ``ad``.
                   searchText = 'bqwc?xyzaad',
                   targetText = 'bwxyzcd')
-                  # The expected targetText index is between 'bwxyzc' and 'd'.
+                  # The expected targetText index is between ``bwxyzc`` and ``d``.
         self.assertEqual(index, 6)
 
     # A swap of searchText and targetText from the previous test.
     def test_8(self):
         index = f(searchAnchor = 6,
-                  # Place searchAnchor between 'bwxyzc' and 'd'.
+                  # Place searchAnchor between ``bwxyzc`` and ``d``.
                   searchText = 'bwxyzcd',
                   targetText = 'bqwc?xyzaad')
-                  # The expected targetText index is between 'bqwc?xyza' and 'd'.
+                  # The expected targetText index is between ``bqwc?xyza`` and ``d``.
         self.assertIn(index, (9, 10))
 
     # This is a typical multiple match case. It should therefore return a -1.
     def test_9(self):
         index = f(searchAnchor = 2,
-                  # Place searchAnchor between 'abc' and 'd'.
+                  # Place searchAnchor between ``abc`` and ``d``.
                   searchText = 'abcd',
                   targetText = 'xxabcdabcdabcdxxx')
         self.assertEqual(index, -1)
 
-    # If the anchor is placed after the search string, test the to see if a
+    # If the anchor is placed after the search string, test to see if a
     # correct target index can be found.
     def test_13(self):
         index = f(searchAnchor = 8,
-                  # Place searchAnchor between '\n\n\n\ntest' and '\n\n\n\n'.
+                  # Place searchAnchor between ``\n\n\n\ntest`` and ``\n\n\n\n``.
                   searchText = '\n\n\n\ntest\n\n\n\n',
                   targetText = ' test    ')
                   # The expected targetText index is between ' test' and '    '.
+                  #
+                  # .. Note: ReST doesn't like whitespace after a literal block
+                  #    start string. Instead of working around it, I've just
+                  #    escaped it with a backslash.
         self.assertEqual(index, 5)
 
     # This test case is similar to previous one. But the correct targetText
@@ -137,24 +141,25 @@ class TestApproxMatch(unittest.TestCase):
     # correct search result (at the end of the targetText string).
     def test_14(self):
         index = f(searchAnchor = 8,
-                  # Place searchAnchor between '\n\n\n\ntest' and '\n\n\n\n'.
+                  # Place searchAnchor between ``\n\n\n\ntest`` and ``\n\n\n\n``.
                   searchText = '\n\n\n\ntest\n\n\n\n',
                   targetText = 'test')
-                  # The expected targetText index is between 'test' and ''.
+                  # The expected targetText index is between ``test`` and \``
+                  # (an empty string).
         self.assertEqual(index, 4)
 
     # With this test case, all boundary conditions have been tested.
     def test_15(self):
         index = f(searchAnchor = 4,
-                  # Place searchAnchor between 'test' and ''.
+                  # Place searchAnchor between ``test`` and \`` (an empty string).
                   searchText = 'test',
                   targetText = '\n\n\n\ntest\n\n\n\n')
-                  # The expected targetText index is between '\n\n\n\ntest' and
-                  # '\n\n\n\n'.
+                  # The expected targetText index is between ``\n\n\n\ntest`` and
+                  # ``\n\n\n\n``.
         self.assertEqual(index, 8)
 
 # Failing test casess
-# ^^^^^^^^^^^^^^^^^^^
+# -------------------
     # Scenario:
     #
     #   A click before the second ``head`` will bring the target anchor to
@@ -183,11 +188,11 @@ class TestApproxMatch(unittest.TestCase):
     @unittest.expectedFailure
     def test_10(self):
         index = f(searchAnchor = 35,
-                  # Place searchAnchor between '`head <http://---------------------'
-                  # and 'head>`_ tail'.
+                  # Place searchAnchor between ```head <http://---------------------'
+                  # and 'head>`_ tail``.
                   searchText = '`head <http://---------------------head>`_ tail',
                   targetText = 'head tail')
-                  # The expected targetText index is between 'head' and 'tail'.
+                  # The expected targetText index is between ``head`` and ``tail``.
         self.assertIn(index, (4, 5))
 
     # Scenario:
@@ -227,10 +232,10 @@ class TestApproxMatch(unittest.TestCase):
     @unittest.expectedFailure
     def test_11(self):
         index = f(searchAnchor = 14,
-                  # Place searchAnchor between '`head <http://' and 'head>`_ tail'.
+                  # Place searchAnchor between ```head <http://`` and ``head>`_ tail``.
                   searchText = '`head <http://head>`_ tail',
                   targetText = 'head tail')
-                  # The expected targetText index is between 'head' and 'tail'.
+                  # The expected targetText index is between ``head`` and ``tail``.
         self.assertIn(index, (4, 5))
 
     # Scenario:
@@ -261,10 +266,10 @@ class TestApproxMatch(unittest.TestCase):
     @unittest.expectedFailure
     def test_12(self):
         index = f(searchAnchor = 6,
-                  # Place searchAnchor between 'abcdab' and 'cdabcd'.
+                  # Place searchAnchor between ``abcdab`` and ``cdabcd``.
                   searchText = 'abcdabcdabcd',
                   targetText = 'abcd')
-                  # The expected targetText index is between 'abc' and 'd'.
+                  # The expected targetText index is between ``abc`` and ``d``.
         self.assertEqual(index, 2)
 
 
