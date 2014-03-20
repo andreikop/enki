@@ -283,23 +283,20 @@ class PreviewDock(DockWidget):
         qp = core.workspace().currentDocument().qutepart
         qpGlobalTop = qp.mapToGlobal(qp.geometry().topLeft()).y()
         wvGlobalTop = wv.mapToGlobal(wv.geometry().topLeft()).y() - 10
-        
+
         # `qutepart.cursorRect()
         # <http://qt-project.org/doc/qt-4.8/qplaintextedit.html#cursorRect-2>`_
-        # gives a value in viewport, not widget coordinates. So, subtract off the
-        # vertical scroll amount.
+        # gives a value in viewport == widget coordinates. Use that directly.
         cr = qp.cursorRect()
-        vsb = qp.verticalScrollBar()
-        qpCursorTop = cr.top() - vsb.value()
+        qpCursorTop = cr.top()
         qpCursorHeight = cr.height()
-        
+
         # Widget height includes the scrollbars. Subtract that off to get a
         # viewable height for qutepart.
         qpHeight = qp.geometry().height()
         hsb = qp.horizontalScrollBar()
-        
-        # The scrollbar height is a constant, even if its' hidden. So, only include
-        # it in calculations if it's visible.
+        # The scrollbar height is a constant, even if it's hidden. So, only
+        # include it in calculations if it's visible.
         if hsb.isVisible():
             qpHeight -= qp.horizontalScrollBar().height()
         mf = wv.page().mainFrame()
@@ -307,17 +304,21 @@ class PreviewDock(DockWidget):
         # returns an empty rect if the scroll bar doesn't exist, just subtract
         # its height.
         wvHeight = wv.geometry().height() - mf.scrollBarGeometry(Qt.Horizontal).height()
-        
-        # Use JavaScript to determine this.
+
+        # Use JavaScript to determine web view cursor height top and height.
+        # There's no nice Qt way that I'm aware of, since Qt doesn't know about
+        # these details inside a web view.
         wvCursorTop, wvCursorHeight = self._webCursorCoords()
 
         if doTextToWebSync:
             deltaY = self._alignScrollAmount(qpGlobalTop, qpCursorTop, qpHeight,
               wvGlobalTop, wvCursorTop, wvHeight, wvCursorHeight)
-            print(("qpGlobalTop = %d, qpCursorTop = %d, qpHeight = %d, deltaY = %d\n" +
-              "  wvGlobalTop = %d, wvCursorTop = %d, wvHeight = %d, wvCursorHeight = %d)") %
-              (qpGlobalTop, qpCursorTop, qpHeight, deltaY,
-              wvGlobalTop, wvCursorTop, wvHeight, wvCursorHeight))
+            # Uncomment for helpful debug info.
+            ##print(("qpGlobalTop = %d, qpCursorTop = %d, qpHeight = %d, deltaY = %d\n" +
+            ##  "  wvGlobalTop = %d, wvCursorTop = %d, wvHeight = %d, wvCursorHeight = %d)") %
+            ##  (qpGlobalTop, qpCursorTop, qpHeight, deltaY,
+            ##  wvGlobalTop, wvCursorTop, wvHeight, wvCursorHeight))
+
             # Scroll based on this info using `setScrollPosition
             # <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#scrollPosition-prop>`_.
             #
