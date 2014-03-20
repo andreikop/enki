@@ -37,8 +37,6 @@
 import codecs
 import cgi
 import os
-# For LCS.
-import bisect
 #
 # Third-party imports
 # -------------------
@@ -189,13 +187,8 @@ def findApproxTextInTarget(
   # after).
   searchRange=30):
 
-#
-# Approximate match of searchAnchor within targetText
-# ---------------------------------------------------
-# Look for the best approximate match within the targetText of the source
-# substring composed of characters within a radius of the anchor.
-    #
-    # First, choose a radius of chars about the anchor to search in.
+    # Look for the best approximate match within the targetText of the source
+    # substring composed of characters within a radius of the anchor.
     begin = max(0, searchAnchor - searchRange)
     end = min(len(searchText), searchAnchor + searchRange)
     # Empty documents are easy to search.
@@ -226,16 +219,17 @@ def findApproxTextInTarget(
     # N = len(searchText) and M = len(largetText). Therefore, let TRE_ do an
     # initial, faster search then do a more exact refine using LCS_.
     relativeSearchAnchor = searchAnchor - begin
-    offset, editingDist, lcsString = refineSearchResult(relativeSearchAnchor,
-      searchPattern, targetSubstring)
-    if offset is not -1:
+    offset, lcsString = refineSearchResult(relativeSearchAnchor, searchPattern,
+      targetSubstring)
+    if offset != -1:
         offset = offset + beginInTarget
 
     if ENABLE_LOG:
         si = htmlFormatSearchInput(searchText, begin, searchAnchor, end)
         if offset is not -1:
-            sr = htmlFormatSearchInput(targetText, beginInTarget, offset, endInTarget)
-            fs = htmlFormatSearch(si, sr, editingDist)
+            sr = htmlFormatSearchInput(targetText, beginInTarget, offset,
+              endInTarget)
+            fs = htmlFormatSearch(si, sr, "Match found")
         else:
             sr = htmlFormatSearchInput(targetText, 0, 0, 0)
             fs = htmlFormatSearch(si, sr, "No unique match found.")
@@ -269,46 +263,49 @@ def refineSearchResult(searchAnchor, searchPattern, targetSubstring):
             else:
                 lengths[i+1][j+1] = max(lengths[i+1][j], lengths[i][j+1])
 
+    # If LCS fails to find a common subsequence, then set the offset to -1 and
+    # inform ``findApproxTextInTarget`` that no match is found. This rarely
+    # happens since TRE has preprocessed input string.
+    if lengths[-1][-1] == 0:
+        return -1, ''
+
     # Read the LCS string out from the table.
     lcsString = ""
     x, y = len(searchPattern), len(targetSubstring)
     # Initialize the editing distance.
-    minCost = 0
     while x != 0 and y != 0:
         if lengths[x][y] == lengths[x - 1][y]:
             x -= 1
-            minCost = minCost + 1
         elif lengths[x][y] == lengths[x][y - 1]:
             y -= 1
-            minCost = minCost + 1
         else:
-            assert searchPattern[x-1] == targetSubstring[y - 1]
+            assert searchPattern[x - 1] == targetSubstring[y - 1]
+            # The first matching targetSubstring index corresponding to the
+            # searchPattern index is the goal of this function.
+            if x <= searchAnchor:
+                return y, lcsString
             lcsString = searchPattern[x - 1] + lcsString
             x -= 1
             y -= 1
 
-    # if LCS fails to find common subsequence, then set the offset to -1 and
-    # inform ``findApproxTextInTarget`` that no match is found. This rarely
-    # happens since TRE has preprocessed input string.
-    if len(lcsString) is 0:
-        return -1, -1, ''
-
-    # Map the search result back to both searchPattern and targetSubstring. Get
-    # the relative index in both search pattern and target substring.
-    ind = [[len(searchPattern)+1, len(targetSubstring)+1] for i in range(1+len(lcsString))]
-    for i in range(len(lcsString)-1, -1, -1):
-        ind[i][0] = searchPattern[:ind[i+1][0]].rindex(lcsString[i])
-        ind[i][1] = targetSubstring[:ind[i+1][1]].rindex(lcsString[i])
-    ind = ind[:len(lcsString)][:]
-
-    # lcs map back to search pattern will get ``lcsSearchPatternInd``
-    lcsSearchPatternInd = [ ind[i][0] for i in xrange(len(ind)) ]
-    # find the corresponding index in targetText
-    lcsClosestIndInTargetText = bisect.bisect_left(lcsSearchPatternInd, searchAnchor)
-    # BUG: if anchor is at the end of searchText (this won't happen until user
-    # select the last char. of the whole page)
-    if lcsClosestIndInTargetText == len(ind):
-        anchorInTargetText = ind[-1][1]+1
-    else:
-        anchorInTargetText = ind[lcsClosestIndInTargetText][1]
-    return anchorInTargetText, minCost, lcsString
+    # At this point, we traced the LCS to the beginning of either the
+    # searchPattern or the targetSubstring, but haven't moved through
+    # the desired searchAnchor. There are two cases:
+    #
+    # 1. x == 0: when searchAnchor == 0 and the index in y gives the
+    #    corresponding targetSubstring index.
+    # 2. y == 0: the searchAnchor in the searchPattern lies before the
+    #    corresponding targetSubstring index. Return y == 0 as the best
+    #    possible corresponding index.
+    #
+    # Therefore, return y.
+    #
+    # Some examples:
+    # 
+    # * searchPattern = 'abcd', searchAnchor = 0 (before 'abcd'),
+    #   targetSubstring = '_abc', then y == 1 when x == 0, which lies between
+    #   the characters '_' and 'abc' in the targetSubstring.
+    # * searchPattern = '__ab', searchAnchor = 1 (between '_' and '_ab'),
+    #   targetSubstring = 'ab', then x == 1 when y == 0, which is the beginning
+    #   of the targetSubstring.
+    return y, lcsString
