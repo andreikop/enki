@@ -42,7 +42,7 @@ from enki.plugins.preview.approx_match import refineSearchResult as lcs
 # Tests for findApproxTextInTarget
 # ================================
 # Find a location in a source file based on a given location in the resulting html.
-class TestApproxMatch(base.TestCase):
+class TestApproxMatch(unittest.TestCase):
     # Show that we can match identical text.
     def test_1(self):
         index = f(searchAnchor = 2,
@@ -270,7 +270,7 @@ class TestApproxMatch(base.TestCase):
 
 # Tests for refineSearchResult
 # ============================
-class TestRefineSearchResult(base.TestCase):
+class TestRefineSearchResult(unittest.TestCase):
     # Boundary conditions: empty search and target strings.
     def test_1(self):
         string = lcs(searchAnchor = 0,
