@@ -298,7 +298,9 @@ def refineSearchResult(
             if x == searchAnchor:
                 return y, lcsString
             # The searchAnchor might be positioned in a non-matching portion of
-            # the searchText. Cover this case as well.
+            # the searchText. Cover this case as well. TODO: consider whether
+            # interpolating between the last y match and the difference between
+            # x and searchAnchor would be better or not.
             if x < searchAnchor:
                 return y, lcsString
             # Don't both computing the LCS string unless it's actually needed.
