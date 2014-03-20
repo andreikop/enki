@@ -250,7 +250,11 @@ def refineSearchResult(
   # found in the target document.
   searchAnchor,
   # The target text in which the search will be performed.
-  targetText):
+  targetText,
+  # True to return part of the resulting string as well; otherwise, the returned
+  # lcsString will be empty. To get the full LCS string returned, pass
+  # searchAnchor = 0. Used for testing.
+  returnLcsString=False):
   #
     # Find the longest common substring (`LCS
     # <http://en.wikipedia.org/wiki/Longest_common_subsequence_problem>`_
@@ -279,7 +283,7 @@ def refineSearchResult(
         return -1, ''
 
     # Read the LCS string out from the table.
-    lcsString = ""
+    lcsString = ''
     x, y = len(searchText), len(targetText)
     # Initialize the editing distance.
     while x != 0 and y != 0:
@@ -289,11 +293,17 @@ def refineSearchResult(
             y -= 1
         else:
             assert searchText[x - 1] == targetText[y - 1]
-            # The first matching targetText index corresponding to the
+            # A matching targetText index corresponding to the
             # searchText index is the goal of this function.
-            if x <= searchAnchor:
+            if x == searchAnchor:
                 return y, lcsString
-            lcsString = searchText[x - 1] + lcsString
+            # The searchAnchor might be positioned in a non-matching portion of
+            # the searchText. Cover this case as well.
+            if x < searchAnchor:
+                return y, lcsString
+            # Don't both computing the LCS string unless it's actually needed.
+            if returnLcsString:
+                lcsString = searchText[x - 1] + lcsString
             x -= 1
             y -= 1
 

@@ -27,7 +27,6 @@
 import unittest
 import os.path
 import sys
-import copy
 
 # Local application imports
 # -------------------------
@@ -279,6 +278,7 @@ class TestRefineSearchResult(unittest.TestCase):
     # Boundary conditions: empty search and target strings.
     def test_1(self):
         string = lcs(searchAnchor = 0,
+                     returnLcsString = True,
                      searchText = '',
                      targetText = '')[1]
         self.assertEqual(string, '')
@@ -286,6 +286,7 @@ class TestRefineSearchResult(unittest.TestCase):
     # Boundary conditions: empty target string.
     def test_2(self):
         string = lcs(searchAnchor = 0,
+                     returnLcsString = True,
                      searchText = 'abc',
                      targetText = '')[1]
         self.assertEqual(string, '')
@@ -293,6 +294,7 @@ class TestRefineSearchResult(unittest.TestCase):
     # Identical string match.
     def test_3(self):
         string = lcs(searchAnchor = 0,
+                     returnLcsString = True,
                      searchText = 'abc',
                      targetText = 'abc')[1]
         self.assertEqual(string, 'abc')
@@ -300,6 +302,7 @@ class TestRefineSearchResult(unittest.TestCase):
     # No match.
     def test_4(self):
         string = lcs(searchAnchor = 0,
+                     returnLcsString = True,
                      searchText = 'Fox',
                      targetText = 'Bear')[1]
         self.assertEqual(string, '')
@@ -307,6 +310,7 @@ class TestRefineSearchResult(unittest.TestCase):
     # Unicode test.
     def test_5(self):
         string = lcs(searchAnchor = 0,
+                     returnLcsString = True,
                      searchText = 'Fußball',
                      targetText = 'Football')[1]
         self.assertEqual(string, 'Fball')
@@ -314,6 +318,7 @@ class TestRefineSearchResult(unittest.TestCase):
     # Unicode test.
     def test_6(self):
         string = lcs(searchAnchor = 0,
+                     returnLcsString = True,
                      searchText = 'Niederösterreich',
                      targetText = 'Oberösterreich')[1]
         self.assertEqual(string, 'erösterreich')
@@ -321,6 +326,7 @@ class TestRefineSearchResult(unittest.TestCase):
     # Control charater test.
     def test_7(self):
         string = lcs(searchAnchor = 0,
+                     returnLcsString = True,
                      searchText = 'abc\ndef',
                      targetText = 'gh\nijkl')[1]
         self.assertEqual(string, '\n')
@@ -328,6 +334,7 @@ class TestRefineSearchResult(unittest.TestCase):
     # Real test cases. test_8 contains a long common substring.
     def test_8(self):
         string = lcs(searchAnchor = 0,
+                     returnLcsString = True,
                      searchText = '# The :doc:`README` user manual gives a broad overview of this system. In contrast, this document discusses the implementation specifics of the CodeChat system.',
                      targetText = 'The CodeChat user manual gives a broad overview of this system. In contrast, this document discusses the implementation specifics of the CodeChat system.')[1]
         self.assertEqual(string, 'The d user manual gives a broad overview of this system. In contrast, this document discusses the implementation specifics of the CodeChat system.')
@@ -336,6 +343,7 @@ class TestRefineSearchResult(unittest.TestCase):
     # cause long editing distance.
     def test_9(self):
         string = lcs(searchAnchor = 0,
+                     returnLcsString = True,
                      searchText = 'age = None# `exclude_patterns# <http://sphinx-doc.org/config.html#confval-exclude_patterns>`_: List of# patterns, re',
                      targetText = 'for a list of supported languages.##language = None exclude_patterns: List of patterns, re')[1]
         self.assertEqual(string, 'a  o upte ngg.lnaexclude_patterns: List of patterns, re')
@@ -366,8 +374,11 @@ class TestRefineSearchResult(unittest.TestCase):
         print os.getcwd()
         with open("D:\\enki\\tests\\test_plugins\\test_ApproxMatch.py", 'r') as file:
             searchText = file.read()
-        targetText = copy.deepcopy(searchText)
-        string = lcs(0, searchText, targetText)[1]
+        targetText = searchText
+        string = lcs(searchAnchor = 0,
+                     returnLcsString = True,
+                     searchText = searchText,
+                     targetText = targetText)[1]
         self.assertEqual(string, searchText)
 
 
