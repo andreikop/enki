@@ -28,7 +28,8 @@
 #
 # Imports
 # =======
-# These are listed in the order prescribed by `PEP 8 <http://www.python.org/dev/peps/pep-0008/#imports>`_.
+# These are listed in the order prescribed by `PEP 8
+# <http://www.python.org/dev/peps/pep-0008/#imports>`_.
 #
 # Library imports
 # ---------------
@@ -55,7 +56,8 @@ ENABLE_LOG = False
 # searchAnchor to rightAnchor in another color. Show the anchor with a big
 # yellow X marks the spot.
 def htmlFormatSearchInput(searchText, leftAnchor, searchAnchor, rightAnchor):
-    # Divide the text into four pieces based on the three anchors. Escape them for use in HTML.
+    # Divide the text into four pieces based on the three anchors. Escape them
+    # for use in HTML.
     beforeLeft = cgi.escape(searchText[:leftAnchor])
     leftToAnchor = cgi.escape(searchText[leftAnchor:searchAnchor])
     anchorToRight = cgi.escape(searchText[searchAnchor:rightAnchor])
@@ -117,9 +119,10 @@ def writeHtmlLog(htmlText):
 #
 # findApproxText
 # ================
-# The findApproxText function performs a single approximate match using TRE.
-# TRE stops at the first match it find; this routine makes sure the match found
-# is at least 10% better than the next best approximate match.
+# This function performs a single approximate match using TRE_. TRE_ stops at
+# the best match it finds; this routine makes sure the match found is at least
+# 10% better than the next best approximate match, thus checking that the
+# resulting match is reasonable unique.
 #
 # Return value:
 #   - If there is no unique value, (None, 0, 0)
@@ -166,13 +169,7 @@ def findApproxText(
 # findApproxTextInTarget
 # ==========================
 # This routine first finds the closest approximate match of a substring centered
-# around the searchAnchor in the targetText. Given this search substring and
-# the approximately matched target substring, it looks for the best possible
-# (hopefully exact) match containing the searchAnchor between the search substring
-# and the target substring by steadily reducing the size of the substrings. With
-# this best possible (hopefully exact) match, it can then locate the searchAnchor
-# in this target substring; it retuns this targetAnchor, which is the index of
-# the searchAnchor in the targetText.
+# around the searchAnchor in the targetText.
 #
 # Return value: An (almost) exactly-matching location in the target document, or
 # -1 if not found.
@@ -194,7 +191,7 @@ def findApproxTextInTarget(
 
 #
 # Approximate match of searchAnchor within targetText
-# -----------------------------------------------------
+# ---------------------------------------------------
 # Look for the best approximate match within the targetText of the source
 # substring composed of characters within a radius of the anchor.
     #
@@ -206,9 +203,8 @@ def findApproxTextInTarget(
         return 0
     # Look for a match; record left and right search radii.
     match, beginInTarget, endInTarget = findApproxText(searchText[begin:end], targetText)
-    # If no unique match is found, give up (for now -- this could be improved).
+    # If no unique match is found, try again with an increased search radius.
     if not match:
-        # how about we try it again by increasing search region?
         begin = max(0, searchAnchor - int(searchRange*1.5))
         end = min(len(searchText), searchAnchor + int(searchRange*1.5))
         match, beginInTarget, endInTarget = findApproxText(searchText[begin:end], targetText)
@@ -221,16 +217,20 @@ def findApproxTextInTarget(
                 writeHtmlLog(ht)
             return -1
 
-    # acquire search string and target string
+    # Get a search and target substring from the TRE_ match.
     searchPattern = searchText[begin:end]
     targetSubstring = targetText[beginInTarget:endInTarget]
-    # find where the anchor is in searchPattern
+    # Use the LCS_ algorithm to perform a more exact match. This algorithm
+    # runs in O(NM) time, compared to TRE_'s O(N) for most cases (it *can* be
+    # O(M^2N) for rare cases -- see TRE_'s README file), where
+    # N = len(searchText) and M = len(largetText). Therefore, let TRE_ do an
+    # initial, faster search then do a more exact refine using LCS_.
     relativeSearchAnchor = searchAnchor - begin
     offset, editingDist, lcsString = refineSearchResult(relativeSearchAnchor,
       searchPattern, targetSubstring)
     if offset is not -1:
         offset = offset + beginInTarget
-    
+
     if ENABLE_LOG:
         si = htmlFormatSearchInput(searchText, begin, searchAnchor, end)
         if offset is not -1:
@@ -244,44 +244,56 @@ def findApproxTextInTarget(
 
     return offset
 #
-# A moded way of refining search result
-# -------------------------------------
+# refineSearchResult
+# ==================
+# This function performs identically to findApproxTextInTarget_, but uses a more
+# expensive and expact algorithm to compute the result.
 def refineSearchResult(searchAnchor, searchPattern, targetSubstring):
-    # perform a `lcs <http://en.wikipedia.org/wiki/Longest_common_subsequence_problem>`_ search.
-    # Code adopt from `Rosettacode <http://rosettacode.org/wiki/Longest_common_subsequence#Dynamic_Programming_6>`_.
-    lengths = [[0 for j in range(len(targetSubstring)+1)] for i in range(len(searchPattern)+1)]
-    # row 0 and column 0 are initialized to 0 already
+    # Find the longest common substring (`LCS
+    # <http://en.wikipedia.org/wiki/Longest_common_subsequence_problem>`_
+    # between the source and target strings. The code was adopted from
+    # `Rosettacode <http://rosettacode.org/wiki/Longest_common_subsequence#Dynamic_Programming_6>`_.
+    #
+    # Initialize the substring length table entries to 0.
+    lengths = [[0 for j in range(len(targetSubstring)+1)]
+                    for i in range(len(searchPattern)+1)]
+
+    # Determine the length of the longest common subsequence and store this in
+    # the table.
     for i, x in enumerate(searchPattern):
         for j, y in enumerate(targetSubstring):
+            # When characters match, increase the substring length. Otherwise,
+            # the use maximum substring length found thus far.
             if x == y:
                 lengths[i+1][j+1] = lengths[i][j] + 1
             else:
                 lengths[i+1][j+1] = max(lengths[i+1][j], lengths[i][j+1])
-    # read the subsequence out from the table
+
+    # Read the LCS string out from the table.
     lcsString = ""
     x, y = len(searchPattern), len(targetSubstring)
-    # define the editing distance
+    # Initialize the editing distance.
     minCost = 0
     while x != 0 and y != 0:
-        if lengths[x][y] == lengths[x-1][y]:
+        if lengths[x][y] == lengths[x - 1][y]:
             x -= 1
-            minCost = minCost+1
-        elif lengths[x][y] == lengths[x][y-1]:
+            minCost = minCost + 1
+        elif lengths[x][y] == lengths[x][y - 1]:
             y -= 1
-            minCost = minCost+1
+            minCost = minCost + 1
         else:
-            assert searchPattern[x-1] == targetSubstring[y-1]
-            lcsString = searchPattern[x-1] + lcsString
+            assert searchPattern[x-1] == targetSubstring[y - 1]
+            lcsString = searchPattern[x - 1] + lcsString
             x -= 1
             y -= 1
 
-    # if LCS fails to find common subsequence, then set offset to -1 and inform
-    # ``findApproxTextInTarget`` that no match is found. This rarely happens
-    # since TRE has preprocessed input string.
+    # if LCS fails to find common subsequence, then set the offset to -1 and
+    # inform ``findApproxTextInTarget`` that no match is found. This rarely
+    # happens since TRE has preprocessed input string.
     if len(lcsString) is 0:
         return -1, -1, ''
 
-    # map search result back to both searchPattern and targetSubstring. get
+    # Map the search result back to both searchPattern and targetSubstring. Get
     # the relative index in both search pattern and target substring.
     ind = [[len(searchPattern)+1, len(targetSubstring)+1] for i in range(1+len(lcsString))]
     for i in range(len(lcsString)-1, -1, -1):
