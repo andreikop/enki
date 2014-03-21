@@ -53,7 +53,8 @@ ENABLE_LOG = False
 # hilighting from the leftAnchor to the searchAnchor in one color and from
 # searchAnchor to rightAnchor in another color. Show the anchor with a big
 # yellow X marks the spot.
-def htmlFormatSearchInput(searchText, leftAnchor, searchAnchor, rightAnchor):
+def htmlFormatSearchInput(searchText, leftAnchor, searchAnchor, rightAnchor,
+  showX=True):
     # Divide the text into four pieces based on the three anchors. Escape them
     # for use in HTML.
     beforeLeft = cgi.escape(searchText[:leftAnchor])
@@ -65,12 +66,12 @@ def htmlFormatSearchInput(searchText, leftAnchor, searchAnchor, rightAnchor):
       # Use preformatted text so spaces, newlines get
       # interpreted correctly. Include all text up to the
       # left anchor.
-      '<pre style="word-wrap: break-word;white-space: pre-wrap;">%s' +
+      '<pre style="word-wrap:break-word; white-space:pre-wrap;">%s' +
       # Format text between the left anchor and the search
       # anchor with a red background.
       '<span style="background-color:red;">%s</span>' +
       # Place a huge X marks the spot at the anchor
-      '<span style="color:blue; font-size:xx-large;">X</span>' +
+      ('<span style="color:blue; font-size:xx-large;">X</span>' if showX else '') +
       # Format text between the search anchor and the right
       # anchor with a yellow background.
       '<span style="background-color:yellow;">%s</span>' +
@@ -79,16 +80,16 @@ def htmlFormatSearchInput(searchText, leftAnchor, searchAnchor, rightAnchor):
       '%s</pre>') % (beforeLeft, leftToAnchor, anchorToRight, afterRight) )
 
 # Take these two results and put them side by side in a table.
-def htmlFormatSearch(htmlSearchInput, htmlSearchResults, matchCost):
+def htmlFormatSearch(htmlSearchInput, htmlSearchResults, resultText):
     return ( (
-      'Editing distance: %s<br />\n\n' +
+      # Preserve white space in the resultText string.
+      '<span style="white-space:pre;">%s</span><br />\n\n' +
       '<table id="outerTable"><tr><th>Search input</th><th>Search results</th></tr>\n'
       '<tr><td>%s</td>\n' +
-      '<td>%s</td></tr></table>\n    <script language="Javascript">' +
-      'document.getElementById("outerTable").width = window.innerWidth/1.1;' +
-      '</script>'
+      '<td>%s</td></tr></table>\n' +
+      '<br /><br /><br />'
       ) %
-      (unicode(matchCost), htmlSearchInput, htmlSearchResults) )
+      (resultText, htmlSearchInput, htmlSearchResults) )
 
 
 # Create text for a simple web page.
@@ -209,6 +210,12 @@ def findApproxTextInTarget(
                 ht = htmlTemplate(fs)
                 writeHtmlLog(ht)
             return -1
+    if ENABLE_LOG:
+        # Log the initial match results
+        si = htmlFormatSearchInput(searchText, begin, searchAnchor, end)
+        sr = htmlFormatSearchInput(targetText, beginInTarget, beginInTarget,
+          endInTarget, False)
+        fs = htmlFormatSearch(si, sr, "Initial TRE results")
 
     # Get a search and target substring from the TRE_ match.
     searchPattern = searchText[begin:end]
@@ -220,7 +227,8 @@ def findApproxTextInTarget(
     # initial, faster search then do a more exact refine using LCS_.
     relativeSearchAnchor = searchAnchor - begin
     offset, lcsString = refineSearchResult(searchPattern, relativeSearchAnchor,
-      targetSubstring)
+      targetSubstring, ENABLE_LOG)
+    print(offset)
     if offset != -1:
         offset = offset + beginInTarget
 
@@ -229,10 +237,10 @@ def findApproxTextInTarget(
         if offset is not -1:
             sr = htmlFormatSearchInput(targetText, beginInTarget, offset,
               endInTarget)
-            fs = htmlFormatSearch(si, sr, "Match found")
+            fs += htmlFormatSearch(si, sr, "Match was '%s'" % lcsString)
         else:
             sr = htmlFormatSearchInput(targetText, 0, 0, 0)
-            fs = htmlFormatSearch(si, sr, "No unique match found.")
+            fs += htmlFormatSearch(si, sr, "No unique match found.")
         ht = htmlTemplate(fs)
         writeHtmlLog(ht)
 
@@ -293,6 +301,8 @@ def refineSearchResult(
             y -= 1
         else:
             assert searchText[x - 1] == targetText[y - 1]
+            # For debug purposes, uncomment the line below.
+            ##print('x = %d, y = %d, searchText[x - 1] = %s, targetText[y - 1] = %s' % (x, y, searchText[x - 1], targetText[y - 1]))
             # A matching targetText index corresponding to the
             # searchText index is the goal of this function.
             if x == searchAnchor:
