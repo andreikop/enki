@@ -300,7 +300,7 @@ class TestRefineSearchResult(unittest.TestCase):
     def test_13(self):
         index = lcs(searchAnchor = 30,
                     returnLcsString = True,
-                    # Place searchAnchor between ``| '`` and ``Text after block 1,2, and 3   ``.
+                    # Place searchAnchor between ``| '`` and ``Text after block 1,2, and 3``.
                     searchText = '------------+-------------+\n' +
                                  '| Text after block 1,2, and 3   ',
                     targetText = """a 2
@@ -367,7 +367,7 @@ Text after block 1,2, and 3""")[0]
                 # The expected targetText index is between ``bqwc?xyza`` and ``d``.
         self.assertIn(index, (8, 9, 10))
 
-    # test_10 tests the performance when comparing two files. It takes about
+    # Test the performance when comparing two files. It takes about
     # 1 minute to run.
     @unittest.skip('Long-running performance test')
     def test_10(self):

@@ -302,29 +302,29 @@ def refineSearchResult(
     # Walk through the table, read the LCS string out from the table and
     # finding the requested targetAnchor. This is a bit tricky:
     #
-    # |Interesting case 1:
-    # | searchText = ab
-    # | searchAnchor: between ``a`` and ``b``.
-    # | targetText = a--b
-    # There's no clear correct answer for the returned cursor anchor. The most
-    # natural answer would be between ``a-`` and ``-b``. Therefore, we want to
-    # interpolate between the two target cursor anchors in this case.
+    # | Interesting case 1:
+    # |  searchText = ab
+    # |  searchAnchor: between ``a`` and ``b``.
+    # |  targetText = a--b
+    # | There's no clear correct answer for the returned cursor anchor. The most
+    #   natural answer would be between ``a-`` and ``-b``. Therefore, we want to
+    #   interpolate between the two target cursor anchors in this case.
     #
-    # |Interesting case 2a:
-    # | searchText = Chapter 1:Once upon a time
-    # | targetText = :---------Once upon a time
-    # | searchAnchor: between ``Chapter 1:`` and ``Once upon a time``.
-    # The LCS in this case is ``:Once upon a time``. There are two mechanically
-    # valie answers: an anchor to the right of the colon, or to the left of the
-    # O. We obviously want the anchor to the left of the O.
+    # | Interesting case 2a:
+    # |  searchText = Chapter 1:Once upon a time
+    # |  targetText = :---------Once upon a time
+    # |  searchAnchor: between ``Chapter 1:`` and ``Once upon a time``.
+    # | The LCS in this case is ``:Once upon a time``. There are two mechanically
+    #   value answers: an anchor to the right of the colon, or to the left of the
+    #   O. We obviously want the anchor to the left of the O.
     #
-    # |Interesting case 2b:
-    # | searchText = Once upon a time, there lived
-    # | targetText = Once upon a time------------,
-    # | searchAnchor: between ``Once upon a time`` and ``, there lived``.
-    # The LCS in this case is ``Once upon a time,``. There are two mechanically
-    # valid answers: an anchor to the right of the e, or to the left of the
-    # comma. We obviously want the anchor to the right of the e.
+    # | Interesting case 2b:
+    # |  searchText = Once upon a time, there lived
+    # |  targetText = Once upon a time------------,
+    # |  searchAnchor: between ``Once upon a time`` and ``, there lived``.
+    # | The LCS in this case is ``Once upon a time,``. There are two mechanically
+    #   valid answers: an anchor to the right of the e, or to the left of the
+    #   comma. We obviously want the anchor to the right of the e.
     #
     # So, in these cases, prefer the side with the longest consectuive match.
     # Given the type of text we're matching (some ignorable markup mixed with
@@ -337,12 +337,12 @@ def refineSearchResult(
     # anchor based on which side has more characters in their portion of the lcs
     # string.
     #
-    # |Interesting case 3:
-    # | searchText = a--b
-    # | targetText = ab
-    # | searchAnchor: between ``a-`` and ``-b``.
-    # The characters near searchAnchor don't appear in targetText. So, pick the
-    # nearest targetText matches (a and b).
+    # | Interesting case 3:
+    # |  searchText = a--b
+    # |  targetText = ab
+    # |  searchAnchor: between ``a-`` and ``-b``.
+    # | The characters near searchAnchor don't appear in targetText. So, pick the
+    #   nearest targetText matches (a and b).
     #
     # So, walk backwards through the table.
     #
