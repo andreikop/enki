@@ -30,10 +30,8 @@ from PyQt4.QtGui import QDockWidget, QTextCursor
 from enki.core.core import core
 
 
-# Tests
-# =====
-# preview module
-# --------------
+# Preview module tests
+# ====================
 def requiresModule(module):
     """This decorator checks that the given python module, which is
     required for a unit test, is present.
@@ -136,9 +134,9 @@ class Test(base.TestCase):
         self.openDialog(lambda: combo.setCurrentIndex(combo.count() - 1), inDialog)
 
     # Web to code sync tests
-    ##^^^^^^^^^^^^^^^^^^^^^^
+    ##----------------------
     # Test that mouse clicks get turned into a ``jsClick`` signal
-    ##""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     @requiresModule('docutils')
     def test_sync1(self):
         """Test that web-to-text sync occurs on clicks to the web pane.
@@ -156,7 +154,7 @@ class Test(base.TestCase):
 
 
     # Test that simulated mouse clicks at beginning/middle/end produce correct ``jsClick`` values
-    ##""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     def _jsOnClick(self):
         """Simulate a mouse click by calling ``window.onclick()`` in Javascript."""
         ret = self._widget().webView.page().mainFrame().evaluateJavaScript('window.onclick()')
@@ -210,7 +208,7 @@ class Test(base.TestCase):
         self._testSyncString(self.testText)
 
     # Test that sending a ``jsClick`` signal at beginning/middle/end moves cursor in code pane correctly
-    ##"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     def _sendJsClick(self, index):
         """Send a ``jsClick`` signal then see if the code view gets sycned correctly.
 
@@ -245,7 +243,7 @@ class Test(base.TestCase):
         self._sendJsClick(len(self.testText))
 
     # Misc tests
-    ##""""""""""
+    ##^^^^^^^^^^
     @requiresModule('docutils')
     def test_sync7(self):
         """Test on an empty document."""
@@ -272,9 +270,9 @@ class Test(base.TestCase):
         QTest.mouseClick(self._widget().webView, Qt.LeftButton)
 
     # Code to web sync tests
-    ##^^^^^^^^^^^^^^^^^^^^^^
+    ##----------------------
     # Basic text to web sync
-    ##""""""""""""""""""""""
+    ##^^^^^^^^^^^^^^^^^^^^^^
     def _textToWeb(self, s, testText=u'One\n\nTwo\n\nThree', checkText=True):
         """Move the cursor in the text pane. Make sure it moves
         to the matching location in the web pane.
@@ -317,7 +315,7 @@ class Test(base.TestCase):
         self._textToWeb('Three')
 
     # More complex test to web sync
-    ##-----------------------------
+    ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     @requiresModule('docutils')
     def test_sync12(self):
         """Tables with an embedded image cause findText to fail. Make sure no
@@ -401,7 +399,7 @@ text after table""", True)
         self._textToWeb('Text', self._row_span_rest(), True)
 
     # Test no sync on closed preview window
-    ##"""""""""""""""""""""""""""""""""""""
+    ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     def test_sync13(self):
         self._doBasicTest('rst')
         self._dock().close()
