@@ -256,15 +256,18 @@ class PreviewDock(DockWidget):
     #
     # Return values:
     #
-    # top - Top of the selection, measured from the web page's origin. In pixels.
+    # None if the selection is empty, or (top, left) where:
     #
-    # left - Left of the selection, measured from the web page's origin. In pixels.
+    #   top - Top of the selection, measured from the web page's origin. In pixels.
+    #
+    #   left - Left of the selection, measured from the web page's origin. In pixels.
     def _webCursorCoords(self):
         res = self._widget.webView.page().mainFrame(). \
           evaluateJavaScript('selectionAnchorCoords();')
-        # Make sure a 3-element tuple is returned. Null is returned if the
+        # See if a 3-element tuple is returned. Null is returned if the
         # selection is empty.
-        assert res and len(res) == 3
+        if not res:
+            return None
         left, top, height = res
         return top, height
 
@@ -307,8 +310,12 @@ class PreviewDock(DockWidget):
 
         # Use JavaScript to determine web view cursor height top and height.
         # There's no nice Qt way that I'm aware of, since Qt doesn't know about
-        # these details inside a web view.
-        wvCursorTop, wvCursorHeight = self._webCursorCoords()
+        # these details inside a web view. If JavaScript can't determine this, then
+        # silently abort the sync.
+        ret = self._webCursorCoords()
+        if not ret:
+            return
+        wvCursorTop, wvCursorHeight = ret
 
         if doTextToWebSync:
             deltaY = self._alignScrollAmount(qpGlobalTop, qpCursorTop, qpHeight,
@@ -329,6 +336,7 @@ class PreviewDock(DockWidget):
         else:
             deltaY = self._alignScrollAmount(wvGlobalTop, wvCursorTop, wvHeight,
               qpGlobalTop, qpCursorTop, qpHeight, qpCursorHeight)
+            vsb = qp.verticalScrollBar()
             vsb.setValue(vsb.value() - deltaY)
     #
     #
