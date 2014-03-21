@@ -164,7 +164,7 @@ class TestApproxMatch(unittest.TestCase):
     #   A click before the second ``head`` will bring the target anchor to
     #   the start of target text.
     #
-    # Bug:
+    # Problem:
     #
     #   Since in search text, the chars inside ``<>`` denote a hyperlink,
     #   they will get deleted in target text. Clicking right before the
@@ -173,102 +173,50 @@ class TestApproxMatch(unittest.TestCase):
     #
     # Explanation:
     #
-    #   This synthesis test case demonstrate the importance of ``searchRange``
-    #   in ``approx_match.py``. A ``searchRange`` of 30 is applied before
-    #   TRE is used. TRE returns with the string
-    #   ``searchText = ' <http://---------------------head>`_ tail'`` and
-    #   ``targetText = 'head tail'``. Since ``searchText`` is not
-    #   complete, the LCS algorithm cannot find the correct index.
+    #   The LCS algorithm find letters as close to the beginning of the string
+    #   as possible. The X marks characters it chooses::
     #
-    # Note:
+    #     `head <http://head>`_ tail
+    #              X      X       XX
     #
-    #   This problem cannot get bypassed simply by setting a larger
-    #   ``searchRange``, as shown by the next test case.
-    @unittest.expectedFailure
-    def test_10(self):
-        index = f(searchAnchor = 35,
-                  # Place searchAnchor between ```head <http://---------------------'
-                  # and 'head>`_ tail``.
-                  searchText = '`head <http://---------------------head>`_ tail',
-                  targetText = 'head tail')
-                  # The expected targetText index is between ``head`` and ``tail``.
-        self.assertIn(index, (4, 5))
-
-    # Scenario:
-    #
-    #   This scenario is the same as the previous test case.
-    #
-    # Bug:
-    #
-    #   What should happen is same as the previous test case.
-    #
-    # Explanation:
-    #
-    #   The LCS algorithm input strings are:
-    #   ``searchText = '`head <http://head>`_ tail'``,
-    #   ``targetText = 'head tail'``. Their longest common substring is
-    #   ``'head tail'``. The next table demonstrate the mapping of the string
-    #   produced by the LCS algorithm back to search pattern and target substring::
-    #
-    #     searchText  : `head <http://head>`_ tail
-    #     anchor         :               ^
-    #     targetText:               head    tail
-    #
-    #     LCSString      :               head    tail
-    #
-    #   The LCS algorithm uses a backward matching method. Thus the word
-    #   `head` in the LCS string result is matched to the second `head` word
-    #   in the search pattern. Thus when matching the LCS string back to the
-    #   target string, it is matched to the wrong place and generates an
-    #   index of 0 instead of 4 or 5.
-    #
-    # Note:
-    #
-    #   One may debate that the backward searching approach should be
-    #   replaced by a forward search in this case, but the lack of context
-    #   cannot justify which searching direction can generate better result.
-    #   The next test case demonstrates this.
+    #   It's found ``tail`` in parts of the hyperlink, so it places the target
+    #   anchor between the found t and a at index 6.
     @unittest.expectedFailure
     def test_11(self):
         index = f(searchAnchor = 14,
                   # Place searchAnchor between ```head <http://`` and ``head>`_ tail``.
                   searchText = '`head <http://head>`_ tail',
                   targetText = 'head tail')
-                  # The expected targetText index is between ``head`` and ``tail``.
-        self.assertIn(index, (4, 5))
+                  # The expected targetText index is between ``head t`` and ``ail``.
+        self.assertEqual(index, 5)
 
     # Scenario:
     #
     #   A click between the second 'b' and second 'c' will bring the target
     #   anchor to the start of targetText.
     #
-    # Bug:
+    # Problem:
     #
-    #   A lack of context causes ambiguity. We cannot determine how the
-    #   matching is performed and thus cannot decide which matching is the
-    #   optimal one. If the targetText is matched to the first 'abcd' in the
-    #   searchText, then if searchAnchor is at index 6 it should map to
-    #   index 4 in target string. If targetText is matched to the last
-    #   'abcd' in the searchText, then the searchAnchor should map to index
-    #   0 in target string. If targetText is matched to the middle 'abcd',
-    #   then it should map to index 2.
+    #   More intuitive behavior would be placing the target anchor between
+    #   ``ab`` and ``cd``.
     #
-    # Explaination:
+    # Explanation:
     #
-    #   We use backward LCS matching, so the output should be 2, not 0, not 4.
+    #   LCS again finds characters as close as possible to the beginning of the
+    #   string. Again, X marks matched characters::
     #
-    # TODO:
+    #     abcdabcdabcd
+    #     XXXX
     #
-    #   Since in the conversion, forward conversion is more natural than
-    #   backward conversion. The LCS mapping algorithm should provide a
-    #   search direction parameter.
+    #   Therefore, the requested anchor is past the found characters, so LCS
+    #   places the found target anchor at the end of the string at index 4.
     @unittest.expectedFailure
     def test_12(self):
         index = f(searchAnchor = 6,
                   # Place searchAnchor between ``abcdab`` and ``cdabcd``.
                   searchText = 'abcdabcdabcd',
                   targetText = 'abcd')
-                  # The expected targetText index is between ``abc`` and ``d``.
+                  # The expected targetText index is between ``ab`` and ``cd``.
         self.assertEqual(index, 2)
 
 
@@ -347,6 +295,58 @@ class TestRefineSearchResult(unittest.TestCase):
                      searchText = 'age = None# `exclude_patterns# <http://sphinx-doc.org/config.html#confval-exclude_patterns>`_: List of# patterns, re',
                      targetText = 'for a list of supported languages.##language = None exclude_patterns: List of patterns, re')[1]
         self.assertEqual(string, 'a  o upte ngg.lnaexclude_patterns: List of patterns, re')
+
+    # Bug during testing.
+    def test_13(self):
+        index = lcs(searchAnchor = 30,
+                    returnLcsString = True,
+                    # Place searchAnchor between ``| '`` and ``Text after block 1,2, and 3   ``.
+                    searchText = '------------+-------------+\n' +
+                                 '| Text after block 1,2, and 3   ',
+                    targetText = """a 2
+
+Bael 2
+Coco 3 Cherry 3
+Text after block 1,2, and 3""")[0]
+                    # The expected targetText index is at the beginning of the
+                    # line ``Text after block 1,2, and 3``.
+        self.assertEqual(index, 28)
+
+# Cases from comments in refineSearchResult
+# -----------------------------------------
+    # Case 1.
+    def test_14(self):
+        index = lcs(searchAnchor = 1,
+                    returnLcsString = True,
+                    # Place searchAnchor between ``a`` and ``b``.
+                    searchText = 'ab',
+                    targetText = 'a--b')[0]
+                    # The expected targetText index is between ``a`` and ``b``.
+        self.assertIn(index, (1, 2, 3))
+
+    # Case 2a.
+    def test_15(self):
+        index = lcs(searchAnchor = 10,
+                    returnLcsString = True,
+                    # Place searchAnchor between ``Chapter 1:`` and
+                    # ``Once upon a time``.
+                    searchText = 'Chapter 1:Once upon a time',
+                    targetText = ':---------Once upon a time')[0]
+                    # The expected targetText index is between ``:---------``
+                    # and ``Once upon a time``.
+        self.assertEqual(index, 10)
+
+    # Case 2b.
+    def test_16(self):
+        index = lcs(searchAnchor = 16,
+                    returnLcsString = True,
+                    # Place searchAnchor between ``Once upon a time`` and
+                    # ``, there lived``.
+                    searchText = 'Once upon a time, there lived',
+                    targetText = 'Once upon a time------------,')[0]
+                    # The expected targetText index is between
+                    # ``Once upon a time`` and ``------------,``.
+        self.assertEqual(index, 16)
 
     # Test LCS ability when the characters at the searchAnchor don't exist in
     # the targetText.

@@ -228,7 +228,6 @@ def findApproxTextInTarget(
     relativeSearchAnchor = searchAnchor - begin
     offset, lcsString = refineSearchResult(searchPattern, relativeSearchAnchor,
       targetSubstring, ENABLE_LOG)
-    print(offset)
     if offset != -1:
         offset = offset + beginInTarget
 
@@ -269,6 +268,16 @@ def refineSearchResult(
     # between the source and target strings. The code was adopted from
     # `Rosettacode <http://rosettacode.org/wiki/Longest_common_subsequence#Dynamic_Programming_6>`_.
     #
+    # A note on indices used in this algorithm::
+    #
+    #   The string s = abc:                        a b c
+    #   Python string index (e.g. s[n]):           0 1 2
+    #   LCS table index (e.g. x or y = n):         1 2 3
+    #   Qt cursor anchor (e.g. searchAnchor = n): 0 1 2 3
+    #
+    # So, a given x or y value refers to a table index or, equivalently, an
+    # anchor to their right.
+    #
     # Initialize the substring length table entries to 0.
     lengths = [[0 for j in range(len(targetText) + 1)]
                     for i in range(len(searchText) + 1)]
@@ -290,10 +299,65 @@ def refineSearchResult(
     if lengths[-1][-1] == 0:
         return -1, ''
 
-    # Read the LCS string out from the table.
+    # Walk through the table, read the LCS string out from the table and
+    # finding the requested targetAnchor. This is a bit tricky:
+    #
+    # |Interesting case 1:
+    # | searchText = ab
+    # | searchAnchor: between ``a`` and ``b``.
+    # | targetText = a--b
+    # There's no clear correct answer for the returned cursor anchor. The most
+    # natural answer would be between ``a-`` and ``-b``. Therefore, we want to
+    # interpolate between the two target cursor anchors in this case.
+    #
+    # |Interesting case 2a:
+    # | searchText = Chapter 1:Once upon a time
+    # | targetText = :---------Once upon a time
+    # | searchAnchor: between ``Chapter 1:`` and ``Once upon a time``.
+    # The LCS in this case is ``:Once upon a time``. There are two mechanically
+    # valie answers: an anchor to the right of the colon, or to the left of the
+    # O. We obviously want the anchor to the left of the O.
+    #
+    # |Interesting case 2b:
+    # | searchText = Once upon a time, there lived
+    # | targetText = Once upon a time------------,
+    # | searchAnchor: between ``Once upon a time`` and ``, there lived``.
+    # The LCS in this case is ``Once upon a time,``. There are two mechanically
+    # valid answers: an anchor to the right of the e, or to the left of the
+    # comma. We obviously want the anchor to the right of the e.
+    #
+    # So, in these cases, prefer the side with the longest consectuive match.
+    # Given the type of text we're matching (some ignorable markup mixed with
+    # valid text), picking the valid text instead of interpolating seems best.
+    #
+    # Therefore, we need to find the targetText index of both sides of the match
+    # (unless the match occurs at the beginning or end of the string). If both
+    # sides of the match refer to the same anchor (i.e. rightIndex == leftIndex + 1),
+    # then return the anchor between these to characters. Otherwise, return an
+    # anchor based on which side has more characters in their portion of the lcs
+    # string.
+    #
+    # |Interesting case 3:
+    # | searchText = a--b
+    # | targetText = ab
+    # | searchAnchor: between ``a-`` and ``-b``.
+    # The characters near searchAnchor don't appear in targetText. So, pick the
+    # nearest targetText matches (a and b).
+    #
+    # So, walk backwards through the table.
+    #
+    # For debug, compute the lcs string.
     lcsString = ''
+    # | x gives the searchText table index;
+    # | y gives the targetText table index.
+    # | Start at the end of the table.
     x, y = len(searchText), len(targetText)
-    # Initialize the editing distance.
+    # Save the table index of the last matching character found.
+    lastMatchIndex = y + 1
+    # Record the length of the lcs match.
+    lcsLen = 0
+    # No anchor placement ambiguioty yet exists.
+    matchIndices = None
     while x != 0 and y != 0:
         if lengths[x][y] == lengths[x - 1][y]:
             x -= 1
@@ -303,21 +367,60 @@ def refineSearchResult(
             assert searchText[x - 1] == targetText[y - 1]
             # For debug purposes, uncomment the line below.
             ##print('x = %d, y = %d, searchText[x - 1] = %s, targetText[y - 1] = %s' % (x, y, searchText[x - 1], targetText[y - 1]))
-            # A matching targetText index corresponding to the
-            # searchText index is the goal of this function.
-            if x == searchAnchor:
-                return y, lcsString
-            # The searchAnchor might be positioned in a non-matching portion of
-            # the searchText. Cover this case as well. TODO: consider whether
-            # interpolating between the last y match and the difference between
-            # x and searchAnchor would be better or not.
-            if x < searchAnchor:
-                return y, lcsString
-            # Don't both computing the LCS string unless it's actually needed.
+
+            # On a match at or after the anchor (case 3 above -- the anchor
+            # may lie between non-matching characters)...
+            if x <= searchAnchor:
+                # ...we now have a matched character index to the left of the
+                # anchor. lastMatchIndex holds the matched character index to
+                # the right of the anchor.
+                #
+                # In the simple case either:
+                #
+                # * These refer to adjacent characters, making the resulting
+                #   anchor position unambiguous: place it between these two
+                #   characters (to the left of lastMatchIndex == to the right of
+                #   y).
+                # * Or, this refers to the last matching character in the
+                #   targetText (implying lastMatchIndex == y + 1), again making
+                #   anchor placement unambiguous: to the right of y.
+                #
+                # In either case, return y, which refers to the desired anchor.
+                if y == lastMatchIndex - 1:
+                    return y, lcsString
+                # Otherwise, we're have to distinguish between case 2a and 2b
+                # above by comparing the lcs length before after this point.
+                else:
+                    # Save right LCS length and reset length to record left
+                    # LCS length.
+                    rightLcsLen = lcsLen + 1
+                    lcsLen = -1
+                    # Store these two indices, for use when the right LCS length
+                    # is known and a decision about which to use can be made.
+                    matchIndices = (y, lastMatchIndex - 1)
+                    # Keep the if x <= searchAnchor from being true, so that the
+                    # LCS algorithm will run to completion to compute the right
+                    # LCS length.
+                    searchAnchor = -1
+
+            # Keep track of the last matched character's table index.
+            lastMatchIndex = y
+
+            # Don't compute the LCS string unless it's actually needed.
             if returnLcsString:
                 lcsString = searchText[x - 1] + lcsString
+            lcsLen += 1
             x -= 1
             y -= 1
+
+    # Resolve an ambiguius anchor if necessary.
+    if matchIndices:
+        l, r = matchIndices
+        # lcsLen holds the left LCS length.
+        if lcsLen >= rightLcsLen:
+            return l, lcsString
+        else:
+            return r, lcsString
 
     # At this point, we traced the LCS to the beginning of either the
     # searchText or the targetText, but haven't moved through
