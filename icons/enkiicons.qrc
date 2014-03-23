@@ -111,7 +111,6 @@
 		<file>qwidget.png</file>
 		<file>rebuild.png</file>
 		<file>recents.png</file>
-		<file>redo.png</file>
 		<file>reload.png</file>
 		<file>remove.png</file>
 		<file>replace.png</file>
@@ -135,7 +134,6 @@
 		<file>translation.png</file>
 		<file>translations.png</file>
 		<file>transparent.png</file>
-		<file>undo.png</file>
 		<file>unixEol.png</file>
 		<file>up_arrow.png</file>
 		<file>update.png</file>
