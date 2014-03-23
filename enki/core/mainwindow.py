@@ -252,6 +252,7 @@ class MainWindow(QMainWindow):
         action("mEdit/aStripTrailingWhitespace",      "Strip trailing whitespace when saving", "", "",            ""                   , True, True)
         separator("mEdit")
         menu  ("mEdit/mCopyPasteLines",               "Copy-paste lines"      , ""            )
+        menu  ("mEdit/mIndentation",                  "Indentation"           , ""            )
 
         menu  ("mNavigation",                          "Navigation"            , ""           )
         action("mNavigation/aFocusCurrentDocument",   "Focus to editor"       , "text.png",     "Ctrl+Return",  "Focus current document" , False)

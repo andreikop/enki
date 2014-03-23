@@ -183,15 +183,23 @@ class Workspace(QStackedWidget):
         ('mEdit/mCopyPasteLines/aCut', 'cutLineAction'),
         ('mEdit/mCopyPasteLines/aDuplicate', 'duplicateLineAction'),
 
+        ('mEdit/mIndentation/aIncreaseIndent', 'increaseIndentAction'),
+        ('mEdit/mIndentation/aDecreaseIndent', 'decreaseIndentAction'),
+        ('mEdit/mIndentation/aAutoIndent', 'autoIndentLineAction'),
+        ('mEdit/mIndentation/aIndentWithSpace', 'indentWithSpaceAction'),
+        ('mEdit/mIndentation/aUnIndentWithSpace', 'unIndentWithSpaceAction'),
+
+        ('mEdit/aSeparatorAfterSubmenus', None),
+
+        ('mEdit/aUndo', 'undoAction'),
+        ('mEdit/aRedo', 'redoAction'),
+
         ('mEdit/aMoveLineUp', 'moveLineUpAction'),
         ('mEdit/aMoveLineDown', 'moveLineDownAction'),
         ('mEdit/aDeleteLine', 'deleteLineAction'),
 
-        ('mEdit/aSeparatorBeforeIndent', None),
-        ('mEdit/aDecreaseIndent', 'decreaseIndentAction'),
-        ('mEdit/aAutoIndent', 'autoIndentLineAction'),
-        ('mEdit/aIndentWithSpace', 'indentWithSpaceAction'),
-        ('mEdit/aUnIndentWithSpace', 'unIndentWithSpaceAction'),
+        ('mEdit/aSeparatorBeforeCompletion', None),
+
         ('mEdit/aInvokeCompletion', 'invokeCompletionAction'),
 
         ('mNavigation/mScroll/aUp', 'scrollUpAction'),
