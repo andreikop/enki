@@ -223,8 +223,6 @@ class PreviewDock(DockWidget):
       # The top coordinate of the cursor in the source widget, measured from the
       # top of the widget, NOT the top of the viewport. In pixels.
       sourceCursorTop,
-      # The height of the source widget. In pixels.
-      sourceHeight,
 
       # The top (y) coordinate of the target widget in a global coordinate frame,
       # such as screen coordinates. In pixels.
@@ -303,7 +301,7 @@ class PreviewDock(DockWidget):
         if hsb.isVisible():
             qpHeight -= qp.horizontalScrollBar().height()
         mf = wv.page().mainFrame()
-        # Since `scrollBarGeometry <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#scrollBarGeometry>`+
+        # Since `scrollBarGeometry <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#scrollBarGeometry>`_
         # returns an empty rect if the scroll bar doesn't exist, just subtract
         # its height.
         wvHeight = wv.geometry().height() - mf.scrollBarGeometry(Qt.Horizontal).height()
@@ -318,7 +316,7 @@ class PreviewDock(DockWidget):
         wvCursorTop, wvCursorHeight = ret
 
         if doTextToWebSync:
-            deltaY = self._alignScrollAmount(qpGlobalTop, qpCursorTop, qpHeight,
+            deltaY = self._alignScrollAmount(qpGlobalTop, qpCursorTop,
               wvGlobalTop, wvCursorTop, wvHeight, wvCursorHeight)
             # Uncomment for helpful debug info.
             ##print(("qpGlobalTop = %d, qpCursorTop = %d, qpHeight = %d, deltaY = %d\n" +
@@ -334,10 +332,13 @@ class PreviewDock(DockWidget):
             # subtration, rather than addition, below.
             mf.setScrollPosition(mf.scrollPosition() - QPoint(0, deltaY))
         else:
-            deltaY = self._alignScrollAmount(wvGlobalTop, wvCursorTop, wvHeight,
+            deltaY = self._alignScrollAmount(wvGlobalTop, wvCursorTop,
               qpGlobalTop, qpCursorTop, qpHeight, qpCursorHeight)
             vsb = qp.verticalScrollBar()
-            vsb.setValue(vsb.value() - deltaY)
+            # The units for the vertical scroll bar is pixels not lines. So, do
+            # a kludgy conversion by assuming that all line heights are the
+            # same.
+            vsb.setValue(vsb.value() - round(deltaY/qpCursorHeight))
     #
     #
     # Preview-to-text sync
