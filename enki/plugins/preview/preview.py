@@ -796,6 +796,10 @@ class PreviewDock(DockWidget):
 
         if self._vAtEnd[self._visiblePath]:
             frame.setScrollBarValue(Qt.Vertical, frame.scrollBarMaximum(Qt.Vertical))
+            
+        # Re-sync the re-loaded text.
+        if findApproxTextInTarget:
+            self._syncTextToPreview()
 
     def _onDocumentChanged(self, old, new):
         """Current document changed, update preview
