@@ -28,7 +28,8 @@
 #
 # Imports
 # =======
-# These are listed in the order prescribed by `PEP 8 <http://www.python.org/dev/peps/pep-0008/#imports>`_.
+# These are listed in the order prescribed by `PEP 8
+# <http://www.python.org/dev/peps/pep-0008/#imports>`_.
 #
 # Library imports
 # ---------------
@@ -36,8 +37,6 @@
 import codecs
 import cgi
 import os
-# For LCS.
-import bisect
 #
 # Third-party imports
 # -------------------
@@ -54,8 +53,10 @@ ENABLE_LOG = False
 # hilighting from the leftAnchor to the searchAnchor in one color and from
 # searchAnchor to rightAnchor in another color. Show the anchor with a big
 # yellow X marks the spot.
-def htmlFormatSearchInput(searchText, leftAnchor, searchAnchor, rightAnchor):
-    # Divide the text into four pieces based on the three anchors. Escape them for use in HTML.
+def htmlFormatSearchInput(searchText, leftAnchor, searchAnchor, rightAnchor,
+  showX=True):
+    # Divide the text into four pieces based on the three anchors. Escape them
+    # for use in HTML.
     beforeLeft = cgi.escape(searchText[:leftAnchor])
     leftToAnchor = cgi.escape(searchText[leftAnchor:searchAnchor])
     anchorToRight = cgi.escape(searchText[searchAnchor:rightAnchor])
@@ -65,12 +66,12 @@ def htmlFormatSearchInput(searchText, leftAnchor, searchAnchor, rightAnchor):
       # Use preformatted text so spaces, newlines get
       # interpreted correctly. Include all text up to the
       # left anchor.
-      '<pre style="word-wrap: break-word;white-space: pre-wrap;">%s' +
+      '<pre style="word-wrap:break-word; white-space:pre-wrap;">%s' +
       # Format text between the left anchor and the search
       # anchor with a red background.
       '<span style="background-color:red;">%s</span>' +
       # Place a huge X marks the spot at the anchor
-      '<span style="color:blue; font-size:xx-large;">X</span>' +
+      ('<span style="color:blue; font-size:xx-large;">X</span>' if showX else '') +
       # Format text between the search anchor and the right
       # anchor with a yellow background.
       '<span style="background-color:yellow;">%s</span>' +
@@ -79,16 +80,16 @@ def htmlFormatSearchInput(searchText, leftAnchor, searchAnchor, rightAnchor):
       '%s</pre>') % (beforeLeft, leftToAnchor, anchorToRight, afterRight) )
 
 # Take these two results and put them side by side in a table.
-def htmlFormatSearch(htmlSearchInput, htmlSearchResults, matchCost):
+def htmlFormatSearch(htmlSearchInput, htmlSearchResults, resultText):
     return ( (
-      'Editing distance: %s<br />\n\n' +
+      # Preserve white space in the resultText string.
+      '<span style="white-space:pre;">%s</span><br />\n\n' +
       '<table id="outerTable"><tr><th>Search input</th><th>Search results</th></tr>\n'
       '<tr><td>%s</td>\n' +
-      '<td>%s</td></tr></table>\n    <script language="Javascript">' +
-      'document.getElementById("outerTable").width = window.innerWidth/1.1;' +
-      '</script>'
+      '<td>%s</td></tr></table>\n' +
+      '<br /><br /><br />'
       ) %
-      (unicode(matchCost), htmlSearchInput, htmlSearchResults) )
+      (resultText, htmlSearchInput, htmlSearchResults) )
 
 
 # Create text for a simple web page.
@@ -117,9 +118,10 @@ def writeHtmlLog(htmlText):
 #
 # findApproxText
 # ================
-# The findApproxText function performs a single approximate match using TRE.
-# TRE stops at the first match it find; this routine makes sure the match found
-# is at least 10% better than the next best approximate match.
+# This function performs a single approximate match using TRE_. TRE_ stops at
+# the best match it finds; this routine makes sure the match found is at least
+# 10% better than the next best approximate match, thus checking that the
+# resulting match is reasonable unique.
 #
 # Return value:
 #   - If there is no unique value, (None, 0, 0)
@@ -166,13 +168,7 @@ def findApproxText(
 # findApproxTextInTarget
 # ==========================
 # This routine first finds the closest approximate match of a substring centered
-# around the searchAnchor in the targetText. Given this search substring and
-# the approximately matched target substring, it looks for the best possible
-# (hopefully exact) match containing the searchAnchor between the search substring
-# and the target substring by steadily reducing the size of the substrings. With
-# this best possible (hopefully exact) match, it can then locate the searchAnchor
-# in this target substring; it retuns this targetAnchor, which is the index of
-# the searchAnchor in the targetText.
+# around the searchAnchor in the targetText.
 #
 # Return value: An (almost) exactly-matching location in the target document, or
 # -1 if not found.
@@ -192,13 +188,8 @@ def findApproxTextInTarget(
   # after).
   searchRange=30):
 
-#
-# Approximate match of searchAnchor within targetText
-# -----------------------------------------------------
-# Look for the best approximate match within the targetText of the source
-# substring composed of characters within a radius of the anchor.
-    #
-    # First, choose a radius of chars about the anchor to search in.
+    # Look for the best approximate match within the targetText of the source
+    # substring composed of characters within a radius of the anchor.
     begin = max(0, searchAnchor - searchRange)
     end = min(len(searchText), searchAnchor + searchRange)
     # Empty documents are easy to search.
@@ -206,9 +197,8 @@ def findApproxTextInTarget(
         return 0
     # Look for a match; record left and right search radii.
     match, beginInTarget, endInTarget = findApproxText(searchText[begin:end], targetText)
-    # If no unique match is found, give up (for now -- this could be improved).
+    # If no unique match is found, try again with an increased search radius.
     if not match:
-        # how about we try it again by increasing search region?
         begin = max(0, searchAnchor - int(searchRange*1.5))
         end = min(len(searchText), searchAnchor + int(searchRange*1.5))
         match, beginInTarget, endInTarget = findApproxText(searchText[begin:end], targetText)
@@ -220,83 +210,236 @@ def findApproxTextInTarget(
                 ht = htmlTemplate(fs)
                 writeHtmlLog(ht)
             return -1
+    if ENABLE_LOG:
+        # Log the initial match results
+        si = htmlFormatSearchInput(searchText, begin, searchAnchor, end)
+        sr = htmlFormatSearchInput(targetText, beginInTarget, beginInTarget,
+          endInTarget, False)
+        fs = htmlFormatSearch(si, sr, "Initial TRE results")
 
-    # acquire search string and target string
+    # Get a search and target substring from the TRE_ match.
     searchPattern = searchText[begin:end]
     targetSubstring = targetText[beginInTarget:endInTarget]
-    # find where the anchor is in searchPattern
+    # Use the LCS_ algorithm to perform a more exact match. This algorithm
+    # runs in O(NM) time, compared to TRE_'s O(N) for most cases (it *can* be
+    # O(M^2N) for rare cases -- see TRE_'s README file), where
+    # N = len(searchText) and M = len(largetText). Therefore, let TRE_ do an
+    # initial, faster search then do a more exact refine using LCS_.
     relativeSearchAnchor = searchAnchor - begin
-    offset, editingDist, lcsString = refineSearchResult(relativeSearchAnchor,
-      searchPattern, targetSubstring)
-    if offset is not -1:
+    offset, lcsString = refineSearchResult(searchPattern, relativeSearchAnchor,
+      targetSubstring, ENABLE_LOG)
+    if offset != -1:
         offset = offset + beginInTarget
 
     if ENABLE_LOG:
         si = htmlFormatSearchInput(searchText, begin, searchAnchor, end)
         if offset is not -1:
-            sr = htmlFormatSearchInput(targetText, beginInTarget, offset, endInTarget)
-            fs = htmlFormatSearch(si, sr, editingDist)
+            sr = htmlFormatSearchInput(targetText, beginInTarget, offset,
+              endInTarget)
+            fs += htmlFormatSearch(si, sr, "Match was '%s'" % lcsString)
         else:
             sr = htmlFormatSearchInput(targetText, 0, 0, 0)
-            fs = htmlFormatSearch(si, sr, "No unique match found.")
+            fs += htmlFormatSearch(si, sr, "No unique match found.")
         ht = htmlTemplate(fs)
         writeHtmlLog(ht)
 
     return offset
 #
-# A moded way of refining search result
-# -------------------------------------
-def refineSearchResult(searchAnchor, searchPattern, targetSubstring):
-    # perform a `lcs <http://en.wikipedia.org/wiki/Longest_common_subsequence_problem>`_ search.
-    # Code adopt from `Rosettacode <http://rosettacode.org/wiki/Longest_common_subsequence#Dynamic_Programming_6>`_.
-    lengths = [[0 for j in range(len(targetSubstring)+1)] for i in range(len(searchPattern)+1)]
-    # row 0 and column 0 are initialized to 0 already
-    for i, x in enumerate(searchPattern):
-        for j, y in enumerate(targetSubstring):
+# refineSearchResult
+# ==================
+# This function performs identically to findApproxTextInTarget_, but uses a more
+# expensive and expact algorithm to compute the result.
+def refineSearchResult(
+  # The text composing the entire source document in
+  # which the search string resides.
+  searchText,
+  # A location in the source document which should be
+  # found in the target document.
+  searchAnchor,
+  # The target text in which the search will be performed.
+  targetText,
+  # True to return part of the resulting string as well; otherwise, the returned
+  # lcsString will be empty. To get the full LCS string returned, pass
+  # searchAnchor = 0. Used for testing.
+  returnLcsString=False):
+  #
+    # Find the longest common substring (`LCS
+    # <http://en.wikipedia.org/wiki/Longest_common_subsequence_problem>`_
+    # between the source and target strings. The code was adopted from
+    # `Rosettacode <http://rosettacode.org/wiki/Longest_common_subsequence#Dynamic_Programming_6>`_.
+    #
+    # A note on indices used in this algorithm::
+    #
+    #   The string s = abc:                        a b c
+    #   Python string index (e.g. s[n]):           0 1 2
+    #   LCS table index (e.g. x or y = n):         1 2 3
+    #   Qt cursor anchor (e.g. searchAnchor = n): 0 1 2 3
+    #
+    # So, a given x or y value refers to a table index or, equivalently, an
+    # anchor to their right.
+    #
+    # Initialize the substring length table entries to 0.
+    lengths = [[0 for j in range(len(targetText) + 1)]
+                    for i in range(len(searchText) + 1)]
+
+    # Determine the length of the longest common subsequence and store this in
+    # the table.
+    for i, x in enumerate(searchText):
+        for j, y in enumerate(targetText):
+            # When characters match, increase the substring length. Otherwise,
+            # the use maximum substring length found thus far.
             if x == y:
-                lengths[i+1][j+1] = lengths[i][j] + 1
+                lengths[i + 1][j + 1] = lengths[i][j] + 1
             else:
-                lengths[i+1][j+1] = max(lengths[i+1][j], lengths[i][j+1])
-    # read the subsequence out from the table
-    lcsString = ""
-    x, y = len(searchPattern), len(targetSubstring)
-    # define the editing distance
-    minCost = 0
+                lengths[i + 1][j + 1] = max(lengths[i + 1][j], lengths[i][j + 1])
+
+    # If LCS fails to find a common subsequence, then set the offset to -1 and
+    # inform ``findApproxTextInTarget`` that no match is found. This rarely
+    # happens since TRE has preprocessed input string.
+    if lengths[-1][-1] == 0:
+        return -1, ''
+
+    # Walk through the table, read the LCS string out from the table and
+    # finding the requested targetAnchor. This is a bit tricky:
+    #
+    # | Interesting case 1:
+    # |  searchText = ab
+    # |  searchAnchor: between ``a`` and ``b``.
+    # |  targetText = a--b
+    # | There's no clear correct answer for the returned cursor anchor. The most
+    #   natural answer would be between ``a-`` and ``-b``. Therefore, we want to
+    #   interpolate between the two target cursor anchors in this case.
+    #
+    # | Interesting case 2a:
+    # |  searchText = Chapter 1:Once upon a time
+    # |  targetText = :---------Once upon a time
+    # |  searchAnchor: between ``Chapter 1:`` and ``Once upon a time``.
+    # | The LCS in this case is ``:Once upon a time``. There are two mechanically
+    #   value answers: an anchor to the right of the colon, or to the left of the
+    #   O. We obviously want the anchor to the left of the O.
+    #
+    # | Interesting case 2b:
+    # |  searchText = Once upon a time, there lived
+    # |  targetText = Once upon a time------------,
+    # |  searchAnchor: between ``Once upon a time`` and ``, there lived``.
+    # | The LCS in this case is ``Once upon a time,``. There are two mechanically
+    #   valid answers: an anchor to the right of the e, or to the left of the
+    #   comma. We obviously want the anchor to the right of the e.
+    #
+    # So, in these cases, prefer the side with the longest consectuive match.
+    # Given the type of text we're matching (some ignorable markup mixed with
+    # valid text), picking the valid text instead of interpolating seems best.
+    #
+    # Therefore, we need to find the targetText index of both sides of the match
+    # (unless the match occurs at the beginning or end of the string). If both
+    # sides of the match refer to the same anchor (i.e. rightIndex == leftIndex + 1),
+    # then return the anchor between these to characters. Otherwise, return an
+    # anchor based on which side has more characters in their portion of the lcs
+    # string.
+    #
+    # | Interesting case 3:
+    # |  searchText = a--b
+    # |  targetText = ab
+    # |  searchAnchor: between ``a-`` and ``-b``.
+    # | The characters near searchAnchor don't appear in targetText. So, pick the
+    #   nearest targetText matches (a and b).
+    #
+    # So, walk backwards through the table.
+    #
+    # For debug, compute the lcs string.
+    lcsString = ''
+    # | x gives the searchText table index;
+    # | y gives the targetText table index.
+    # | Start at the end of the table.
+    x, y = len(searchText), len(targetText)
+    # Save the table index of the last matching character found.
+    lastMatchIndex = y + 1
+    # Record the length of the lcs match.
+    lcsLen = 0
+    # No anchor placement ambiguioty yet exists.
+    matchIndices = None
     while x != 0 and y != 0:
-        if lengths[x][y] == lengths[x-1][y]:
+        if lengths[x][y] == lengths[x - 1][y]:
             x -= 1
-            minCost = minCost+1
-        elif lengths[x][y] == lengths[x][y-1]:
+        elif lengths[x][y] == lengths[x][y - 1]:
             y -= 1
-            minCost = minCost+1
         else:
-            assert searchPattern[x-1] == targetSubstring[y-1]
-            lcsString = searchPattern[x-1] + lcsString
+            assert searchText[x - 1] == targetText[y - 1]
+            # For debug purposes, uncomment the line below.
+            ##print('x = %d, y = %d, searchText[x - 1] = %s, targetText[y - 1] = %s' % (x, y, searchText[x - 1], targetText[y - 1]))
+
+            # On a match at or after the anchor (case 3 above -- the anchor
+            # may lie between non-matching characters)...
+            if x <= searchAnchor:
+                # ...we now have a matched character index to the left of the
+                # anchor. lastMatchIndex holds the matched character index to
+                # the right of the anchor.
+                #
+                # In the simple case either:
+                #
+                # * These refer to adjacent characters, making the resulting
+                #   anchor position unambiguous: place it between these two
+                #   characters (to the left of lastMatchIndex == to the right of
+                #   y).
+                # * Or, this refers to the last matching character in the
+                #   targetText (implying lastMatchIndex == y + 1), again making
+                #   anchor placement unambiguous: to the right of y.
+                #
+                # In either case, return y, which refers to the desired anchor.
+                if y == lastMatchIndex - 1:
+                    return y, lcsString
+                # Otherwise, we're have to distinguish between case 2a and 2b
+                # above by comparing the lcs length before after this point.
+                else:
+                    # Save right LCS length and reset length to record left
+                    # LCS length.
+                    rightLcsLen = lcsLen + 1
+                    lcsLen = -1
+                    # Store these two indices, for use when the right LCS length
+                    # is known and a decision about which to use can be made.
+                    matchIndices = (y, lastMatchIndex - 1)
+                    # Keep the if x <= searchAnchor from being true, so that the
+                    # LCS algorithm will run to completion to compute the right
+                    # LCS length.
+                    searchAnchor = -1
+
+            # Keep track of the last matched character's table index.
+            lastMatchIndex = y
+
+            # Don't compute the LCS string unless it's actually needed.
+            if returnLcsString:
+                lcsString = searchText[x - 1] + lcsString
+            lcsLen += 1
             x -= 1
             y -= 1
 
-    # if LCS fails to find common subsequence, then set offset to -1 and inform
-    # ``findApproxTextInTarget`` that no match is found. This rarely happens
-    # since TRE has preprocessed input string.
-    if len(lcsString) is 0:
-        return -1, -1, ''
+    # Resolve an ambiguius anchor if necessary.
+    if matchIndices:
+        l, r = matchIndices
+        # lcsLen holds the left LCS length.
+        if lcsLen >= rightLcsLen:
+            return l, lcsString
+        else:
+            return r, lcsString
 
-    # map search result back to both searchPattern and targetSubstring. get
-    # the relative index in both search pattern and target substring.
-    ind = [[len(searchPattern)+1, len(targetSubstring)+1] for i in range(1+len(lcsString))]
-    for i in range(len(lcsString)-1, -1, -1):
-        ind[i][0] = searchPattern[:ind[i+1][0]].rindex(lcsString[i])
-        ind[i][1] = targetSubstring[:ind[i+1][1]].rindex(lcsString[i])
-    ind = ind[:len(lcsString)][:]
-
-    # lcs map back to search pattern will get ``lcsSearchPatternInd``
-    lcsSearchPatternInd = [ ind[i][0] for i in xrange(len(ind)) ]
-    # find the corresponding index in targetText
-    lcsClosestIndInTargetText = bisect.bisect_left(lcsSearchPatternInd, searchAnchor)
-    # BUG: if anchor is at the end of searchText (this won't happen until user
-    # select the last char. of the whole page)
-    if lcsClosestIndInTargetText == len(ind):
-        anchorInTargetText = len(targetSubstring)
-    else:
-        anchorInTargetText = ind[lcsClosestIndInTargetText][1]
-    return anchorInTargetText, minCost, lcsString
+    # At this point, we traced the LCS to the beginning of either the
+    # searchText or the targetText, but haven't moved through
+    # the desired searchAnchor. There are two cases:
+    #
+    # 1. x == 0: when searchAnchor == 0 and the index in y gives the
+    #    corresponding targetText index.
+    # 2. y == 0: the searchAnchor in the searchText lies before the
+    #    corresponding targetText index. Return y == 0 as the best
+    #    possible corresponding index.
+    #
+    # Therefore, return y.
+    #
+    # Some examples:
+    #
+    # * searchText = 'abcd', searchAnchor = 0 (before 'abcd'),
+    #   targetText = '_abc', then y == 1 when x == 0, which lies between
+    #   the characters '_' and 'abc' in the targetText.
+    # * searchText = '__ab', searchAnchor = 1 (between '_' and '_ab'),
+    #   targetText = 'ab', then x == 1 when y == 0, which is the beginning
+    #   of the targetText.
+    return y, lcsString

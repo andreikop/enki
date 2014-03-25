@@ -7,7 +7,7 @@ import collections
 import Queue
 
 
-from PyQt4.QtCore import pyqtSignal, QSize, Qt, QThread, QTimer, QUrl
+from PyQt4.QtCore import pyqtSignal, QSize, Qt, QThread, QTimer, QUrl, QPoint
 from PyQt4.QtGui import QDesktopServices, QFileDialog, QIcon, QMessageBox, QWidget
 from PyQt4.QtWebKit import QWebPage
 from PyQt4 import QtGui
@@ -202,6 +202,145 @@ class PreviewDock(DockWidget):
     #    in a ``QTextEdit``. Check performance and possibly cache this value; it
     #    should be easy to update by adding a few lines to _setHtml().
     #
+    # This function returns a delta vertical scroll amount, in pixels, in order to
+    # align the top (y) coordinate of the cursor in the target widget with the cursor
+    # in the source widget. If the the two widgets don't intersect vertically,
+    # then the target cursor is scrolled to be as close to the source
+    # widget as possible: if the source widget is above the target, the target
+    # widget will scroll to place the cursor at the top of the widget; if the
+    # source widget is below the target, the target widget will scroll to place
+    # the cursor at the bottom of the widget.
+    #
+    # Ideally, this would instead operate on the baseline of the text, rather
+    # than the top (or bottom), but getting this is much harder.
+    #
+    # TODO: diagram.
+    #
+    def _alignScrollAmount(self,
+      # The top (y) coordinate of the source widget in a global coordinate frame,
+      # such as screen coordinates. In pixels.
+      sourceGlobalTop,
+      # The top coordinate of the cursor in the source widget, measured from the
+      # top of the widget, NOT the top of the viewport. In pixels.
+      sourceCursorTop,
+
+      # The top (y) coordinate of the target widget in a global coordinate frame,
+      # such as screen coordinates. In pixels.
+      targetGlobalTop,
+      # The top coordinate of the cursor in the target widget, measured from the
+      # top of the widget, NOT the top of the viewport. In pixels.
+      targetCursorTop,
+      # The height of the target widget. In pixels.
+      targetHeight,
+      # The height of the cursor in the target widget. In pixels.
+      targetCursorHeight):
+
+        # Compute the raw delta between the source and target widgets.
+        dTop = (
+          # Global coords of the source cursor top.
+          (sourceGlobalTop + sourceCursorTop) -
+          # Global coords of the target cursor top. The difference
+          # gives the number of pixels separating them.
+          (targetGlobalTop + targetCursorTop) );
+
+        # Clip the resulting delta so that the target cursor remains visible.
+        dTop = min(max(-targetCursorTop, dTop),
+          targetHeight - targetCursorHeight - targetCursorTop)
+
+        return dTop
+
+    # Run JavaScript to determine the coordinates and height of the
+    # anchor of the selection in the web view.
+    #
+    # Return values:
+    #
+    # None if the selection is empty, or (top, left) where:
+    #
+    #   top - Top of the selection, measured from the web page's origin. In pixels.
+    #
+    #   left - Left of the selection, measured from the web page's origin. In pixels.
+    def _webCursorCoords(self):
+        res = self._widget.webView.page().mainFrame(). \
+          evaluateJavaScript('selectionAnchorCoords();')
+        # See if a 3-element tuple is returned. Null is returned if the
+        # selection is empty.
+        if not res:
+            return None
+        left, top, height = res
+        return top, height
+
+    # Scroll the web view to align its cursor with the qutepart cursor or vice
+    # versa.
+    def _scrollSync(self, doTextToWebSync):
+        # Per the `window geometry
+        # <http://qt-project.org/doc/qt-4.8/application-windows.html#window-geometry>`_,
+        # `geometry() <http://qt-project.org/doc/qt-4.8/qwidget.html#geometry-prop>`_
+        # is relative to the parent frame. Then, use `mapToGlobal
+        # <http://qt-project.org/doc/qt-4.8/qwidget.html#mapToGlobal>`_ to
+        # put this in global coordinates. This works for `QWebView
+        # <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebview.html>`_, since it
+        # inherits from QWidget.
+        wv = self._widget.webView
+        qp = core.workspace().currentDocument().qutepart
+        qpGlobalTop = qp.mapToGlobal(qp.geometry().topLeft()).y()
+        wvGlobalTop = wv.mapToGlobal(wv.geometry().topLeft()).y() - 10
+
+        # `qutepart.cursorRect()
+        # <http://qt-project.org/doc/qt-4.8/qplaintextedit.html#cursorRect-2>`_
+        # gives a value in viewport == widget coordinates. Use that directly.
+        cr = qp.cursorRect()
+        qpCursorTop = cr.top()
+        qpCursorHeight = cr.height()
+
+        # Widget height includes the scrollbars. Subtract that off to get a
+        # viewable height for qutepart.
+        qpHeight = qp.geometry().height()
+        hsb = qp.horizontalScrollBar()
+        # The scrollbar height is a constant, even if it's hidden. So, only
+        # include it in calculations if it's visible.
+        if hsb.isVisible():
+            qpHeight -= qp.horizontalScrollBar().height()
+        mf = wv.page().mainFrame()
+        # Since `scrollBarGeometry <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#scrollBarGeometry>`_
+        # returns an empty rect if the scroll bar doesn't exist, just subtract
+        # its height.
+        wvHeight = wv.geometry().height() - mf.scrollBarGeometry(Qt.Horizontal).height()
+
+        # Use JavaScript to determine web view cursor height top and height.
+        # There's no nice Qt way that I'm aware of, since Qt doesn't know about
+        # these details inside a web view. If JavaScript can't determine this, then
+        # silently abort the sync.
+        ret = self._webCursorCoords()
+        if not ret:
+            return
+        wvCursorTop, wvCursorHeight = ret
+
+        if doTextToWebSync:
+            deltaY = self._alignScrollAmount(qpGlobalTop, qpCursorTop,
+              wvGlobalTop, wvCursorTop, wvHeight, wvCursorHeight)
+            # Uncomment for helpful debug info.
+            ##print(("qpGlobalTop = %d, qpCursorTop = %d, qpHeight = %d, deltaY = %d\n" +
+            ##  "  wvGlobalTop = %d, wvCursorTop = %d, wvHeight = %d, wvCursorHeight = %d)") %
+            ##  (qpGlobalTop, qpCursorTop, qpHeight, deltaY,
+            ##  wvGlobalTop, wvCursorTop, wvHeight, wvCursorHeight))
+
+            # Scroll based on this info using `setScrollPosition
+            # <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#scrollPosition-prop>`_.
+            #
+            # Note that scroll bars are backwards: to make the text go up, you must
+            # move the bars down (a positive delta) and vice versa. Hence, the
+            # subtration, rather than addition, below.
+            mf.setScrollPosition(mf.scrollPosition() - QPoint(0, deltaY))
+        else:
+            deltaY = self._alignScrollAmount(wvGlobalTop, wvCursorTop,
+              qpGlobalTop, qpCursorTop, qpHeight, qpCursorHeight)
+            vsb = qp.verticalScrollBar()
+            # The units for the vertical scroll bar is pixels not lines. So, do
+            # a kludgy conversion by assuming that all line heights are the
+            # same.
+            vsb.setValue(vsb.value() - round(deltaY/qpCursorHeight))
+    #
+    #
     # Preview-to-text sync
     ##--------------------
     # This functionaliy relies heavily on the Web to Qt bridge. Some helpful
@@ -209,8 +348,8 @@ class PreviewDock(DockWidget):
     #
     # * `The QtWebKit Bridge <http://qt-project.org/doc/qt-4.8/qtwebkit-bridge.html>`_
     #   gives a helpful overview.
-    # * `QWebView <http://qt-project.org/doc/qt-4.8/qwebview.html>`_ is the top-level
-    #   widget used to embed a Web page in a Qt application.
+    # * `QWebView`_ is the top-level widget used to embed a Web page in a Qt
+    #   application.
     #
     # For this sync, the first step is to find the single click's location in a
     # plain text rendering of the preview's web content. This is implemented in
@@ -274,6 +413,9 @@ class PreviewDock(DockWidget):
         #    click.
         # #. Get a string rendering of this range.
         # #. Emit a signal with the length of this string.
+        #
+        # Note: A JavaScript development environment with this code is available
+        # at http://jsfiddle.net/hgDwx/110/.
         res = mf.evaluateJavaScript(
             # The `window.onclick
             # <https://developer.mozilla.org/en-US/docs/Web/API/Window.onclick>`_
@@ -305,7 +447,7 @@ class PreviewDock(DockWidget):
                  #   We clone it to avoid modifying the user's existing
                  #   selection using `cloneRange
                  #   <https://developer.mozilla.org/en-US/docs/Web/API/Range.cloneRange>`_.
-            '    var r = window.getSelection().getRangeAt(0).cloneRange();' +
+                'var r = window.getSelection().getRangeAt(0).cloneRange();' +
 
                  # This performs step 2 above: the cloned range is now changed
                  # to contain the web page from its beginning to the point where
@@ -313,7 +455,7 @@ class PreviewDock(DockWidget):
                  # <https://developer.mozilla.org/en-US/docs/Web/API/Range.setStartBefore>`_
                  # on `document.body
                  # <https://developer.mozilla.org/en-US/docs/Web/API/document.body>`_.
-            '    r.setStartBefore(document.body);' +
+                'r.setStartBefore(document.body);' +
 
                  # Step 3:
                  #
@@ -328,13 +470,89 @@ class PreviewDock(DockWidget):
                  #   content of an element and all its descendants." This therefore
                  #   contains a text rendering of the webpage from the beginning of the
                  #   page to the point where the user clicked.
-            '    var rStr = r.cloneContents().textContent.toString();' +
+                 'var rStr = r.cloneContents().textContent.toString();' +
 
                  # Step 4: the length of the string gives the index of the click
                  # into a string containing a text rendering of the webpage.
                  # Emit a signal with that information.
-            '    PyPreviewDock.jsClick(rStr.length);' +
-            '};')
+                'PyPreviewDock.jsClick(rStr.length);' +
+            '};' +
+
+            # This function returns the [top, left] position in pixels of ``obj``
+            # relative to the screen, not to the viewport. This introduces one
+            # potential problem: if obj is not visible when this is called, it
+            # returns coordinates outside the screen (such that top or left is
+            # negative or greater than the screen's height or width.
+            #
+            # It was slightly modified from http://www.quirksmode.org/js/findpos.html,
+            #  which reproduces jQuery's offset method (https://api.jquery.com/offset/).
+            'function findPos(obj) {' +
+                'var curLeft = 0;' +
+                'var curTop = 0;' +
+                 # element.offsetLeft and element.offsetTop measure relative to
+                 # the object's parent. Walk the tree of parents, summing each
+                 # offset to determine the offset from the origin of the web page.
+                'do {' +
+                    'curLeft += obj.offsetLeft;' +
+                    'curTop += obj.offsetTop;' +
+                '} while (obj = obj.offsetParent);' +
+                # See `element.getBoundingClientRect
+                # <https://developer.mozilla.org/en-US/docs/Web/API/element.getBoundingClientRect>`_
+                # for converting viewport coords to screen coords.
+                'return [curLeft - window.scrollX, curTop - window.scrollY];' +
+            '}' +
+
+            # This function returns [top, left, width], of the current
+            # selection, where:
+            #
+            #   top, left - coordinates of the anchor of the
+            #     selection relative to the screen, in pixels.
+            #
+            #   height - height at the beginning of the selection, in pixels.
+            #
+            # Adapted from http://stackoverflow.com/questions/2031518/javascript-selection-range-coordinates.
+            # Changes:
+            #
+            # - jQuery usage eliminated for all but debug prints.
+            # - The original code used ``range.endOffset`` instead of
+            #   ``selection.focusOffset``. This caused occasional errors when
+            #   dragging selections.
+            'function selectionAnchorCoords() {' +
+                # Using ``window.getSelection()``
+                # Make sure a `selection <https://developer.mozilla.org/en-US/docs/Web/API/Selection>`_ exists.
+                'var selection = window.getSelection();' +
+                'if (selection.rangeCount == 0) return 0;' +
+
+                # The selection can contain not just a point (from a
+                # single mouse click) but a range (from a mouse drag or
+                # shift+arrow keys).
+                # We're looking for the coordinates of the focus node
+                # (the place where the mouse ends up after making the selection).
+                # However, the range returned by ``selection.getRangeAt(0)``
+                # begins earlier in the document and ends later, regardless
+                # how the mouse was dragged. So, create a new range containing
+                # just the point at the focus node, so we actually get
+                # a range pointing to where the mouse is.
+                # Ref: `focus <https://developer.mozilla.org/en-US/docs/Web/API/Selection.focusNode>`_ of the selection.
+                # `Range <https://developer.mozilla.org/en-US/docs/Web/API/range>`_
+                'rangeAtFocus = document.createRange();' +
+                'rangeAtFocus.setStart(selection.focusNode, selection.focusOffset);' +
+
+                # Insert a measurable element (a span) at the selection's
+                # focus.
+                'var span = document.createElement("span");' +
+                'rangeAtFocus.insertNode(span);' +
+
+                # Measure coordinates at this span, then remove it. Note:
+                # span.remove() isn't supported in the PyQt 4 I'm running, hence
+                # the longer syntax below.
+                'ret = findPos(span);' +
+                'height = span.offsetHeight;' +
+                'span.parentNode.removeChild(span);' +
+
+                ## Return      top,   left, height.
+                'return    [ret[0], ret[1], height];'
+            '}')
 
         # Make sure no errors were returned; the result should be empty.
         assert not res
@@ -347,7 +565,7 @@ class PreviewDock(DockWidget):
         sync operations.
         """
         return (self._widget.webView.page().mainFrame().
-         evaluateJavaScript('document.body.textContent.toString()'))
+          evaluateJavaScript('document.body.textContent.toString()'))
 
     def _onWebviewClick(self, webIndex):
         """Per item 3 above, this is called when the user clicks in the web view. It
@@ -387,6 +605,8 @@ class PreviewDock(DockWidget):
         self._previewToTextSyncRunning = False
         # Scroll the document to make sure the cursor is visible.
         qp.ensureCursorVisible()
+        # Sync the cursors.
+        self._scrollSync(False)
         # Focus on the editor so the cursor will be shown and ready for typing.
         core.workspace().focusCurrentDocument()
 
@@ -505,6 +725,9 @@ class PreviewDock(DockWidget):
             QTest.keyClick(self._widget.webView, Qt.Key_End, Qt.ShiftModifier)
             self._widget.webView.page().setContentEditable(oce)
 
+            # Sync the cursors.
+            self._scrollSync(True)
+
     # Other handlers
     ##==============
     def del_(self):
@@ -573,6 +796,10 @@ class PreviewDock(DockWidget):
 
         if self._vAtEnd[self._visiblePath]:
             frame.setScrollBarValue(Qt.Vertical, frame.scrollBarMaximum(Qt.Vertical))
+            
+        # Re-sync the re-loaded text.
+        if findApproxTextInTarget:
+            self._syncTextToPreview()
 
     def _onDocumentChanged(self, old, new):
         """Current document changed, update preview
