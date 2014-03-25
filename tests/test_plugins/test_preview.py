@@ -409,6 +409,48 @@ text after table""", True)
         cursor.setPosition(1, QTextCursor.MoveAnchor)
         qp.setTextCursor(cursor)
 
+    # Cases for _alignScrollAmount
+    ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    # Case 1: when the source y (in global coordinates) is above the target
+    # window.
+    def test_sync19(self):
+        self._doBasicTest('rst')
+        offset = self._dock()._alignScrollAmount(
+          sourceGlobalTop = 0,
+          sourceCursorTop = 1,
+          targetGlobalTop = 2,
+          targetCursorTop = 1,
+          targetHeight = 4,
+          targetCursorHeight = 1)
+        self.assertEqual(offset, -1)
+
+    # Case 2: when the source y (in global coordinates) is within the target
+    # window.
+    def test_sync20(self):
+        self._doBasicTest('rst')
+        offset = self._dock()._alignScrollAmount(
+          sourceGlobalTop = 0,
+          sourceCursorTop = 2,
+          targetGlobalTop = 0,
+          targetCursorTop = 1,
+          targetHeight = 4,
+          targetCursorHeight = 1)
+        self.assertEqual(offset, 1)
+
+    # Case 3: when the source y (in global coordinates) is belowthe target
+    # window.
+    def test_sync21(self):
+        self._doBasicTest('rst')
+        offset = self._dock()._alignScrollAmount(
+          sourceGlobalTop = 5,
+          sourceCursorTop = 2,
+          targetGlobalTop = 0,
+          targetCursorTop = 1,
+          targetHeight = 4,
+          targetCursorHeight = 1)
+        self.assertEqual(offset, 2)
+
+
 # Main
 # ====
 # Run the unit tests in this file.
