@@ -779,6 +779,9 @@ class PreviewDock(DockWidget):
     def _restoreScrollPos(self):
         """Restore scroll bar position for document
         """
+        if core.workspace().currentDocument() is None:
+            return  # nothing to restore if don't have document
+
         try:
             self._widget.webView .page().mainFrame().contentsSizeChanged.disconnect(self._restoreScrollPos)
         except TypeError:  # already has been disconnected
@@ -796,7 +799,7 @@ class PreviewDock(DockWidget):
 
         if self._vAtEnd[self._visiblePath]:
             frame.setScrollBarValue(Qt.Vertical, frame.scrollBarMaximum(Qt.Vertical))
-            
+
         # Re-sync the re-loaded text.
         if findApproxTextInTarget:
             self._syncTextToPreview()
@@ -805,6 +808,7 @@ class PreviewDock(DockWidget):
         """Current document changed, update preview
         """
         if findApproxTextInTarget:
+            self._cursorMovementTimer.stop()
             # Switch connections to the current document.
             if old is not None:
                 self.currentCursorPositionChanged.disconnect(self._onCursorPositionChanged)
@@ -812,6 +816,7 @@ class PreviewDock(DockWidget):
                 self.currentCursorPositionChanged = core.workspace().currentDocument().qutepart.cursorPositionChanged
                 self.currentCursorPositionChanged.connect(self._onCursorPositionChanged)
 
+        self._typingTimer.stop()
         if new is not None:
             if new.qutepart.language() == 'Markdown':
                 self._widget.cbTemplate.show()
