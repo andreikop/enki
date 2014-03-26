@@ -40,10 +40,6 @@ class _UISaveFiles(QDialog):
         self.cancelled = False
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/SaveFiles.ui'), self)
         self.buttonBox.clicked.connect(self._onButtonClicked)
-        # Install an event filter to handle keypresses, as a shortcut to
-        # Alt+keypress. The idea was taken from
-        # http://stackoverflow.com/questions/10924079/directing-keyboard-input-to-a-widget-when-using-qt.
-        self.installEventFilter(self)
 
         self._itemToDocument = {}
         for document in documents:
@@ -58,44 +54,17 @@ class _UISaveFiles(QDialog):
         self.buttonBox.button(self.buttonBox.Discard).setText(self.tr('close &Without saving'))
         self.buttonBox.button(self.buttonBox.Cancel).setText(self.tr('&Cancel close'))
         self.buttonBox.button(self.buttonBox.Save).setText(self.tr('&Save checked'))
+        # Provide first-letter only shortcuts (not Alt+first letter which is
+        # already present because of the & before letters) for each button.
+        self.shortcut = []
+        for letter, button in (("W", self.buttonBox.Discard),
+                               ("C", self.buttonBox.Cancel),
+                               ("S", self.buttonBox.Save)):
+            shortcut = QShortcut(QKeySequence(letter), self)
+            shortcut.activated.connect(self.buttonBox.button(button).click)
+            self.shortcut.append(shortcut)
 
         self.buttonBox.button(QDialogButtonBox.Cancel).setFocus()
-
-    # This code adapted from http://qt-project.org/doc/qt-4.8/qobject.html#eventFilter.
-    def eventFilter(self, obj, event):
-        # Process only events intended for this dialog box.
-        if obj is self:
-            if event.type() == QEvent.KeyPress:
-                # Note: the use of key() means that any press of w (W, w, Ctrl+W,
-                # Alt+W, etc) will trigger this. This seems reasonable; the
-                # alternative of using text() means testing for at least the
-                # captial and lowercase versions of each letter.
-                #
-                # w (close without saving)?
-                if event.key() == Qt.Key_W:
-                    # Click the button, rather than duplicating code in
-                    # _onButtonClicked below. That way, changes made there
-                    # will be called by this code; otherwise, both must
-                    # be kept in sync.
-                    self.buttonBox.button(self.buttonBox.Discard).click()
-                    return True
-                # c (cancel close)?
-                elif event.key() == Qt.Key_C:
-                    self.buttonBox.button(self.buttonBox.Cancel).click()
-                    return True
-                # s (save checked)?
-                elif event.key() == Qt.Key_S:
-                    self.buttonBox.button(self.buttonBox.Save).click()
-                    return True
-                # Unrecognized key. Pass it on.
-                else:
-                    return False
-            else:
-                # We didn't handle this event.
-                return False
-        else:
-            # Pass this event on to the parent class.
-            return workspace.eventFilter(obj, event)
 
     def _onButtonClicked(self, button):
         """Button click handler.
