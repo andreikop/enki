@@ -148,6 +148,12 @@ class Plugin(QObject):
         core.workspace().currentDocument().saveFileAs();
 
     def _onRename(self):
+        self.renameImpl(False)
+
+    def _onRenameShort(self):
+        self.renameImpl(True)
+
+    def renameImpl(self, short_rename):
         """Handler for File->File System->Rename"""
         document = core.workspace().currentDocument()
         if document.qutepart.document().isModified() or \
@@ -157,14 +163,31 @@ class Plugin(QObject):
             QMessageBox.warning(core.mainWindow(), 'Rename file', 'Save the file before renaming')
             return
 
-        newPath, ok = QInputDialog.getText(core.mainWindow(), 'Rename file', 'New file name', text=document.filePath())
+        oldPath = document.filePath()
+        (pathToAsk, pathPrefix, pathPostfix) = (None, None, None)
+        windowMessage = None
+        if short_rename:
+            (pathPrefix, tmp) = os.path.split(oldPath)
+            (pathToAsk, pathPostfix) = os.path.splitext(tmp)
+            if pathPrefix:
+                pathPrefix += os.path.sep
+            windowMessage = 'New file name'
+        else:
+            pathToAsk = oldPath
+            pathPrefix = ""
+            pathPostfix = ""
+            windowMessage = 'New file path'
+
+        userReply, ok = QInputDialog.getText(core.mainWindow(), 'Rename file', windowMessage, text=pathToAsk)
         if not ok:
             return
+
+        newPath = pathPrefix + userReply + pathPostfix 
 
         if newPath == document.filePath():
             return
 
-        if newPath == '/dev/null':
+        if userReply == '/dev/null':
             try:
                 os.remove(document.filePath())
             except (OSError, IOError) as ex:
