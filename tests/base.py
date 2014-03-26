@@ -174,7 +174,10 @@ class TestCase(unittest.TestCase):
     def keyClick(self, key, modifiers=Qt.NoModifier, widget=None):
         """Alias for ``QTest.keyClick``.
 
-        If widget is none - focused widget will be keyclicked"""
+        If widget is none - focused widget will be keyclicked
+
+        key may be QKeySequence or string
+        """
         if widget is not None:
             widget = self.app.focusWidget()
 

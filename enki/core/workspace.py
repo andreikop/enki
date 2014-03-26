@@ -74,8 +74,12 @@ class _UISaveFiles(QDialog):
         if stButtton == QDialogButtonBox.Save:
             for i in range(self.listWidget.count()):
                 if  self.listWidget.item( i ).checkState() != Qt.Unchecked:
-                    self._itemToDocument[self.listWidget.item(i)].saveFile()
-            self.accept()
+                    saved = self._itemToDocument[self.listWidget.item(i)].saveFile()
+                    if not saved:
+                        self.reject()
+                        break
+            else:
+                self.accept()
         elif stButtton == QDialogButtonBox.Cancel:
             self.reject()
         elif stButtton == QDialogButtonBox.Discard:

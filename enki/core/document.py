@@ -366,9 +366,10 @@ class Document(QWidget):
             self._tryDetectSyntax()
 
     def saveFile(self):
-        """Save the file to file system
+        """Save the file to file system.
 
-        Shows QFileDialog if necessary
+        Show QFileDialog if file name is not known.
+        Return False, if user cancelled QFileDialog, True otherwise
         """
         # Get path
         if not self._filePath:
@@ -376,12 +377,13 @@ class Document(QWidget):
             if path:
                 self.setFilePath(path)
             else:
-                return
+                return False
 
         if core.config()['Qutepart']['StripTrailingWhitespace']:
             self._stripTrailingWhiteSpace()
 
         self._saveToFs(self.filePath())
+        return True
 
     def saveFileAs(self):
         """Ask for new file name with dialog. Save file
