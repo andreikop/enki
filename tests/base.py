@@ -37,7 +37,7 @@ class DummyProfiler:
         pass
 
 
-def _processPendingEvents(app):
+def _processPendingEvents():
     """Process pending application events."""
 
     # Quit the event loop when it becomes idle.
@@ -163,10 +163,10 @@ class TestCase(unittest.TestCase):
         # core.term().
         #
         # \1. Process all termination-related events.
-        _processPendingEvents(self.app)
+        _processPendingEvents()
         # \2. Now, print a diagnostic on any events that are still occurring.
         self.app.assertOnEvents = True
-        _processPendingEvents(self.app)
+        _processPendingEvents()
         self.app.assertOnEvents = False
 
         self._cleanUpFs()

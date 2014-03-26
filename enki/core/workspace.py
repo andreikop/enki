@@ -51,20 +51,41 @@ class _UISaveFiles(QDialog):
                 item.setToolTip( document.filePath() )
             item.setCheckState( Qt.Checked )
             self._itemToDocument[item] = document
-        self.buttonBox.button(self.buttonBox.Discard).setText(self.tr('close &Without saving'))
-        self.buttonBox.button(self.buttonBox.Cancel).setText(self.tr('&Cancel close'))
-        self.buttonBox.button(self.buttonBox.Save).setText(self.tr('&Save checked'))
-        # Provide first-letter only shortcuts (not Alt+first letter which is
-        # already present because of the & before letters) for each button.
-        self.shortcut = []
-        for letter, button in (("W", self.buttonBox.Discard),
-                               ("C", self.buttonBox.Cancel),
-                               ("S", self.buttonBox.Save)):
-            shortcut = QShortcut(QKeySequence(letter), self)
-            shortcut.activated.connect(self.buttonBox.button(button).click)
-            self.shortcut.append(shortcut)
+
+        # Retitle buttons, add first letter shortcuts for them.
+        bb = self.buttonBox
+        self.shortcut = (
+          self._firstLetterShortcut(bb.Discard, 'close &Without saving'),
+          self._firstLetterShortcut(bb.Cancel, '&Cancel close'),
+          self._firstLetterShortcut(bb.Save, '&Save checked') )
 
         self.buttonBox.button(QDialogButtonBox.Cancel).setFocus()
+
+    def _firstLetterShortcut(self, button, text):
+        """ Provide first-letter only shortcuts (not Alt+first letter which is
+            already present because of the & before letters) for a button.
+
+            button - One of self.buttonBox.[Discard/Cancel/Save]
+            text - Text for this button's label. The letter following the &
+                   will have a shortcut created for it.
+
+            Return value: the shortcut for the given button.
+        """
+        # Set the text of the button, which automatically provides an Alt+letter
+        # shortcut.
+        self.buttonBox.button(button).setText(self.tr(text))
+
+        # Get the letter after the ampersand (there should be exactly one
+        # ampersand in the string).
+        assert text.count('&') == 1
+        letter = text[text.index('&') + 1]
+
+        # Create a first-letter only shortcut, which clicks the button when
+        # the letter is typed.
+        shortcut = QShortcut(QKeySequence(letter), self)
+        shortcut.activated.connect(self.buttonBox.button(button).click)
+
+        return shortcut
 
     def _onButtonClicked(self, button):
         """Button click handler.
