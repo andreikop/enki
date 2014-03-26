@@ -51,9 +51,18 @@ class _UISaveFiles(QDialog):
                 item.setToolTip( document.filePath() )
             item.setCheckState( Qt.Checked )
             self._itemToDocument[item] = document
-        self.buttonBox.button(self.buttonBox.Discard).setText(self.tr('Close &without Saving'))
-        self.buttonBox.button(self.buttonBox.Cancel).setText(self.tr('&Cancel Close'))
+        self.buttonBox.button(self.buttonBox.Discard).setText(self.tr('close &Without saving'))
+        self.buttonBox.button(self.buttonBox.Cancel).setText(self.tr('&Cancel close'))
         self.buttonBox.button(self.buttonBox.Save).setText(self.tr('&Save checked'))
+        # Provide first-letter only shortcuts (not Alt+first letter which is
+        # already present because of the & before letters) for each button.
+        self.shortcut = []
+        for letter, button in (("W", self.buttonBox.Discard),
+                               ("C", self.buttonBox.Cancel),
+                               ("S", self.buttonBox.Save)):
+            shortcut = QShortcut(QKeySequence(letter), self)
+            shortcut.activated.connect(self.buttonBox.button(button).click)
+            self.shortcut.append(shortcut)
 
         self.buttonBox.button(QDialogButtonBox.Cancel).setFocus()
 
