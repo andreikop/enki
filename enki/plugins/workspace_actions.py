@@ -33,6 +33,7 @@ class Plugin(QObject):
 
         core.actionManager().action('mFile/mFileSystem').menu().aboutToShow.connect(self._onFsMenuAboutToShow)
         core.actionManager().action( "mFile/mFileSystem/aRename" ).triggered.connect(self._onRename)
+        core.actionManager().action( "mFile/mFileSystem/aRenameShort" ).triggered.connect(self._onRenameShort)
         if platform.system() != 'Windows':
             core.actionManager().action( "mFile/mFileSystem/aToggleExecutable" ).triggered.connect(self._onToggleExecutable)
 
@@ -62,8 +63,9 @@ class Plugin(QObject):
         core.actionManager().action( "mNavigation/aGoto" ).setEnabled( newDocument is not None)
         core.actionManager().action( "mFile/mReload/aCurrent" ).setEnabled( newDocument is not None )
         core.actionManager().action( "mFile/mReload/aAll" ).setEnabled( newDocument is not None )
-        core.actionManager().action( "mFile/mFileSystem/aRename" ).setEnabled(
-                                        newDocument is not None and newDocument.filePath() is not None)
+        renameShouldBeEnabled = newDocument is not None and newDocument.filePath() is not None
+        core.actionManager().action( "mFile/mFileSystem/aRename" ).setEnabled(renameShouldBeEnabled)
+        core.actionManager().action( "mFile/mFileSystem/aRenameShort" ).setEnabled(renameShouldBeEnabled)
         
         toggleExecAction = core.actionManager().action( "mFile/mFileSystem/aToggleExecutable" )
         if toggleExecAction:  # not supported on Windows

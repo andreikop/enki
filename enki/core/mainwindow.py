@@ -236,6 +236,7 @@ class MainWindow(QMainWindow):
         action("mFile/mClose/aAll",                   "Close &All"            , "closeall.png", 'Shift+Ctrl+W', "Close all files"        , False)
         menu  ("mFile/mFileSystem",                   "File System"           , "filesystem.png")
         action("mFile/mFileSystem/aRename",           "Rename"                , "edit.png",     '',             "Rename current file"    , False)
+        action("mFile/mFileSystem/aRenameShort",      "Rename (short)"        , "edit.png",     '',             "Rename current file (short)", False)
         if platform.system() != 'Windows':
             action("mFile/mFileSystem/aToggleExecutable", "Make executable"   , "",            '',             "Toggle executable mode" , False)
         separator("mFile")
