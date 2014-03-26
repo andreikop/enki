@@ -10,8 +10,10 @@ sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."
 import base
 
 from PyQt4.QtTest import QTest
+from PyQt4.QtGui import QKeySequence
 
 from enki.core.core import core
+from enki.core.workspace import _UISaveFiles
 
 class Test(base.TestCase):
 
@@ -99,6 +101,17 @@ class Test(base.TestCase):
 
         self.assertIsNotNone(core.workspace().currentDocument())
 
+    @base.inMainLoop
+    def test_6(self):
+        """Test _firstLetterShortcut."""
+        # To access this function, create a dummy document so we can pull
+        # up its containing dialog.
+        self.createFile('file1.rb', 'asdf\nfdsa')
+        uis = _UISaveFiles(core.workspace(), core.workspace().documents())
+        # Label one of the dialog buttons.
+        s = uis._firstLetterShortcut(uis.buttonBox.Discard, 'Does &This work')
+
+        self.assertEquals(s.key(), QKeySequence("T"))
 
 if __name__ == '__main__':
     unittest.main()
