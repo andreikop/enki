@@ -21,6 +21,7 @@ class Test(base.TestCase):
 
         self.assertEqual(text, actualText)
 
+    @base.inMainLoop
     def test_1(self):
         # Close all, no modified files
         self.createFile('file1.rb', 'asdf\nfdsa')
