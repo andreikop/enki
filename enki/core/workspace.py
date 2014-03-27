@@ -54,7 +54,7 @@ class _UISaveFiles(QDialog):
 
         # Retitle buttons, add first letter shortcuts for them.
         bb = self.buttonBox
-        self.shortcut = (
+        self._shortcut = (
           self._firstLetterShortcut(bb.Discard, 'close &Without saving'),
           self._firstLetterShortcut(bb.Cancel, '&Cancel close'),
           self._firstLetterShortcut(bb.Save, '&Save checked') )
