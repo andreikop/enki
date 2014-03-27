@@ -10,7 +10,8 @@ sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."
 import base
 
 from PyQt4.QtTest import QTest
-from PyQt4.QtGui import QKeySequence
+from PyQt4.QtGui import QFileDialog, QKeySequence
+
 
 from enki.core.core import core
 from enki.core.workspace import _UISaveFiles
@@ -87,19 +88,29 @@ class Test(base.TestCase):
         self.keyClick('Ctrl+N')  # file without name
         self.keyClicks('new text')  # but modified
 
-        def inUiSaveFilesDialog(dialog):
-            # open and reject save dialog for file without name
-            def inSaveFileDialog(saveDialog):
-                QTest.qWait(4000)
-                self.keyClick('Esc')
+        @classmethod
+        def fakeSaveFile(*args):
+            return None
 
-            self.openDialog(lambda: self.keyClick('s'),
-                            inSaveFileDialog)
+        # Native file dialog hangs the test. Mock it
+        oldSaveFileName, QFileDialog.getSaveFileName = QFileDialog.getSaveFileName, fakeSaveFile
 
-        self.openDialog(lambda: self.keyClick('Ctrl+Shift+W'),
-                        inUiSaveFilesDialog)
+        try:
+            def inUiSaveFilesDialog(dialog):
+                # open and reject save dialog for file without name
+                def inSaveFileDialog(saveDialog):
+                    QTest.qWait(4000)
+                    self.keyClick('Esc')
 
-        self.assertIsNotNone(core.workspace().currentDocument())
+                self.openDialog(lambda: self.keyClick('s'),
+                                inSaveFileDialog)
+
+            self.openDialog(lambda: self.keyClick('Ctrl+Shift+W'),
+                            inUiSaveFilesDialog)
+
+            self.assertIsNotNone(core.workspace().currentDocument())
+        finally:
+            QFileDialog.getSaveFileName = oldSaveFileName
 
     @base.inMainLoop
     def test_6(self):
