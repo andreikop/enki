@@ -157,9 +157,16 @@ class Plugin(QObject):
             QMessageBox.warning(core.mainWindow(), 'Rename file', 'Save the file before renaming')
             return
 
-        newPath, ok = QInputDialog.getText(core.mainWindow(), 'Rename file', 'New file name', text=document.filePath())
+        dialog = QInputDialog()
+        dialog.setLabelText('New file name')
+        dialog.setWindowTitle('Rename file')
+        dialog.setTextValue(document.filePath())
+        dialog.show()
+        ok = dialog.exec_()
         if not ok:
             return
+        else:
+            newPath = dialog.textValue()
 
         if newPath == document.filePath():
             return
