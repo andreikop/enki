@@ -67,7 +67,7 @@ class Plugin(QObject):
            isHtmlFile(document):
             return True
 
-        return False
+        return True
 
     def _createDock(self):
         """Install dock
