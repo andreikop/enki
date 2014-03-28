@@ -14,12 +14,16 @@ from PyQt4 import QtGui
 from PyQt4 import uic
 from PyQt4.QtWebKit import QWebPage
 from PyQt4.QtTest import QTest
+import traceback
 
 from enki.core.core import core
 
 from enki.widgets.dockwidget import DockWidget
 
 from enki.plugins.preview import isHtmlFile
+
+from CodeToRest import code_to_rest
+from LanguageSpecificOptions import LanguageSpecificOptions
 
 # If TRE isn't installed, this import will fail. In this case, disable the sync
 # feature.
@@ -51,7 +55,7 @@ class ConverterThread(QThread):
     def stop_async(self):
         self._queue.put(None)
 
-    def _getHtml(self, language, text):
+    def _getHtml(self, language, text, filePath):
         """Get HTML for document
         """
         if language == 'HTML':
@@ -62,7 +66,40 @@ class ConverterThread(QThread):
             htmlAscii = self._convertReST(text)
             return unicode(htmlAscii, 'utf8')
         else:
-            return 'No preview for this type of file'
+            # Look for HTML builder output. First, see if the current file is
+            # within the subtree of self.htmlBuilderRootPath. See
+            # http://stackoverflow.com/questions/7287996/python-get-relative-path-from-comparing-two-absolute-paths for more discussion.
+            #
+            # Note that _filePath may be None -- in this case, give up.
+            htmlFile = '<none>'
+            if filePath:
+                lso = LanguageSpecificOptions()
+                fileName, fileExtension = os.path.splitext(filePath)
+                # File extension not supported by code to rst
+                if fileExtension not in lso.extension_to_options.keys():
+                    return 'No preview for this type of file in ' + htmlFile
+
+                # else code to rst can render this file.
+                lso.set_language(fileExtension)
+                print('Processing ' + filePath + ' to rst.')
+                rawRstText = code_to_rest(lso, text, '')
+
+                # pass it to docutils, convert it to raw html
+                rawHtml = self._convertReST(rawRstText)
+
+                # cleanup resulting html string
+                import re
+                rawHtml = re.sub('<pre>[^\n]*' + LanguageSpecificOptions.unique_remove_str + '[^\n]*\n', '<pre>\n', rawHtml)
+                rawHtml = re.sub('<span class="\w+">[^<]*' + LanguageSpecificOptions.unique_remove_str + '</span>\n', '', rawHtml)
+                rawHtml = re.sub('<p>[^<]*' + LanguageSpecificOptions.unique_remove_str + '</p>', '', rawHtml)
+                rawHtml = re.sub('\n[^\n]*' + LanguageSpecificOptions.unique_remove_str + '</pre>', '\n</pre>', rawHtml)
+                rawHtml = re.sub('<div>[^<]*' + LanguageSpecificOptions.unique_remove_str + '</div>', '', rawHtml)
+                rawHtml = re.sub('\n[^\n]*' + LanguageSpecificOptions.unique_remove_str + '\n', '\n', rawHtml)
+
+                return rawHtml
+
+            # Can't find it.
+            return 'No preview for this type of file in ' + htmlFile
 
     def _convertMarkdown(self, text):
         """Convert Markdown to HTML
@@ -129,7 +166,10 @@ class ConverterThread(QThread):
             if task is None:  # None is a quit command
                 break
 
-            html = self._getHtml(task.language, task.text)
+            try:
+                html = self._getHtml(task.language, task.text, task.filePath)
+            except Exception:
+                traceback.print_exc()
 
             if not self._queue.qsize():  # Do not emit results, if having new task
                 self.htmlReady.emit(task.filePath, html)
