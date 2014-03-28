@@ -956,8 +956,10 @@ class PreviewDock(DockWidget):
         """Save contents of the preview"""
         path = QFileDialog.getSaveFileName(self, 'Save Preview as HTML', filter='HTML (*.html)')
         if path:
+            text = self._widget.webView.page().mainFrame().toHtml()
+            data = text.encode('utf8')
             try:
                 with open(path, 'w') as openedFile:
-                    openedFile.write(self._widget.webView.page().mainFrame().toHtml())
+                    openedFile.write(data)
             except (OSError, IOError) as ex:
                     QMessageBox.critical(self, "Failed to save HTML", unicode(str(ex), 'utf8'))
