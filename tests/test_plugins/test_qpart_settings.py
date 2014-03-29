@@ -214,33 +214,33 @@ class Wrap(_BaseTestCase):
 
 
 class WhiteSpaceVisibility(_BaseTestCase):
-    def _doTest(self, trailing, anyIndent):
-        trailingAction = core.actionManager().action('mView/aShowTrailingWhitespaces')
-        anyIndentAction = core.actionManager().action('mView/aShowAnyIndentWhitespaces')
+    def _doTest(self, incorrect, anyIndent):
+        incorrectAction = core.actionManager().action('mView/aShowIncorrectIndentation')
+        anyIndentAction = core.actionManager().action('mView/aShowAnyWhitespaces')
 
         if anyIndentAction.isChecked() != anyIndent:
             anyIndentAction.trigger()
 
         if not anyIndent:
-            if trailingAction.isChecked() != trailing:
-                trailingAction.trigger()
+            if incorrectAction.isChecked() != incorrect:
+                incorrectAction.trigger()
 
-        self.assertEqual(core.config()['Qutepart']['WhiteSpaceVisibility']['AnyIndentation'], anyIndent)
-        self.assertEqual(core.workspace().currentDocument().qutepart.drawWhiteSpaceAnyIndentation,
+        self.assertEqual(core.config()['Qutepart']['WhiteSpaceVisibility']['Any'], anyIndent)
+        self.assertEqual(core.workspace().currentDocument().qutepart.drawAnyWhitespace,
                          anyIndent)
 
         if not anyIndent:
-            self.assertEqual(core.config()['Qutepart']['WhiteSpaceVisibility']['Trailing'], trailing)
-            self.assertEqual(core.workspace().currentDocument().qutepart.drawWhiteSpaceTrailing,
-                             trailing)
+            self.assertEqual(core.config()['Qutepart']['WhiteSpaceVisibility']['Incorrect'], incorrect)
+            self.assertEqual(core.workspace().currentDocument().qutepart.drawIncorrectIndentation,
+                             incorrect)
 
-        self.assertEqual(trailingAction.isEnabled(), not anyIndent)
+        self.assertEqual(incorrectAction.isEnabled(), not anyIndent)
 
     def test_1(self):
         combinations = []
-        for trailing in (True, False):
+        for incorrect in (True, False):
             for anyIndent in (True, False):
-                combinations.append((trailing, anyIndent))
+                combinations.append((incorrect, anyIndent))
 
         combinationsOfCombinations = []
         for a in combinations:

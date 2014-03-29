@@ -1,5 +1,5 @@
 {
-    "_version" : 12,
+    "_version" : 13,
     "PlatformDefaultsHaveBeenSet" : false,
 
     "NegativeFileFilter": [ "*~", "*.o", "*.pyc", "*.bak" ],
@@ -35,8 +35,8 @@
             "Mode": "WrapAtWord"
         },
         "WhiteSpaceVisibility": {
-            "Trailing": true,
-            "AnyIndentation": false
+            "Incorrect": true,
+            "Any": false
         },
         "StripTrailingWhitespace": false
     },

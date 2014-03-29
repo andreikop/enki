@@ -64,7 +64,7 @@ class Plugin(QObject):
         core.actionManager().action( "mFile/mReload/aAll" ).setEnabled( newDocument is not None )
         core.actionManager().action( "mFile/mFileSystem/aRename" ).setEnabled(
                                         newDocument is not None and newDocument.filePath() is not None)
-        
+
         toggleExecAction = core.actionManager().action( "mFile/mFileSystem/aToggleExecutable" )
         if toggleExecAction:  # not supported on Windows
             toggleExecAction.setEnabled(newDocument is not None and newDocument.filePath() is not None)

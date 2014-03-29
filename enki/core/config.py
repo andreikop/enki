@@ -112,6 +112,13 @@ class Config():
             self._data['OpenTerm'] = {'Term': ''}
             self._data['_version'] = 12
 
+        if self._data['_version'] == 12:
+            ws = self._data['Qutepart']['WhiteSpaceVisibility']
+            ws['Incorrect'] = ws['Trailing']
+            del ws['Trailing']
+            ws['Any'] = ws['AnyIndentation']
+            del ws['AnyIndentation']
+            self._data['_version'] = 13
 
     def _setPlatformDefaults(self):
         """Set default values, which depend on platform

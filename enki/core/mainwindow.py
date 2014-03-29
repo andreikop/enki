@@ -241,8 +241,8 @@ class MainWindow(QMainWindow):
         separator("mFile")
 
         menu  ("mView",                               "View"                  , ""            )
-        action("mView/aShowTrailingWhitespaces",      "Show trailing whitespaces", "",          "",              ""                       , False, True)
-        action("mView/aShowAnyIndentWhitespaces",     "Show indentation",      "",              "",              ""                       , False, True)
+        action("mView/aShowIncorrectIndentation",      "Show incorrect indentation", "",       "",              ""                       , False, True)
+        action("mView/aShowAnyWhitespaces",     "Show any whitespace",        "",              "",              ""                       , False, True)
         separator("mView")
         action("mView/aHideAll",                      "Hide all / Restore"   , "",             "Shift+Esc",   "Hide all widgets"          , True)
         action("mView/aOpenMainMenu",                 "Open main menu"       , "",             "F10",         ""                          , True)

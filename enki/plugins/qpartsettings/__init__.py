@@ -69,14 +69,14 @@ class Plugin:
         Plugin.instance = self
         core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
 
-        showTrailingAction = core.actionManager().action('mView/aShowTrailingWhitespaces')
-        showTrailingAction.triggered.connect(self._onShowTrailingTriggered)
-        showTrailingAction.setChecked(self._confShowTrailing())
-        showTrailingAction.setEnabled(not self._confShowAnyIndentation())
+        showTrailingAction = core.actionManager().action('mView/aShowIncorrectIndentation')
+        showTrailingAction.triggered.connect(self._onShowIncorrectTriggered)
+        showTrailingAction.setChecked(self._confShowIncorrect())
+        showTrailingAction.setEnabled(not self._confShowAnyWhitespace())
 
-        showAnyIndentAction = core.actionManager().action('mView/aShowAnyIndentWhitespaces')
-        showAnyIndentAction.triggered.connect(self._onShowIndentationTriggered)
-        showAnyIndentAction.setChecked(self._confShowAnyIndentation())
+        showAnyIndentAction = core.actionManager().action('mView/aShowAnyWhitespaces')
+        showAnyIndentAction.triggered.connect(self._onShowAnyWhitespaceTriggered)
+        showAnyIndentAction.setChecked(self._confShowAnyWhitespace())
         showAnyIndentAction.setEnabled(True)
 
         stripTrailingWhitespaceAction = core.actionManager().action('mEdit/aStripTrailingWhitespace')
@@ -90,34 +90,34 @@ class Plugin:
         pass
 
     @staticmethod
-    def _confShowTrailing():
-        return core.config()['Qutepart']['WhiteSpaceVisibility']['Trailing']
+    def _confShowIncorrect():
+        return core.config()['Qutepart']['WhiteSpaceVisibility']['Incorrect']
 
     @staticmethod
-    def _confShowAnyIndentation():
-        return core.config()['Qutepart']['WhiteSpaceVisibility']['AnyIndentation']
+    def _confShowAnyWhitespace():
+        return core.config()['Qutepart']['WhiteSpaceVisibility']['Any']
 
     @staticmethod
     def _confStripTrailing():
         return core.config()['Qutepart']['StripTrailingWhitespace']
 
     def _onDocumentOpened(self, document):
-        document.qutepart.drawWhiteSpaceTrailing = self._confShowTrailing()
-        document.qutepart.drawWhiteSpaceAnyIndentation = self._confShowAnyIndentation()
+        document.qutepart.drawIncorrectIndentation = self._confShowIncorrect()
+        document.qutepart.drawAnyWhitespace = self._confShowAnyWhitespace()
 
-    def _onShowTrailingTriggered(self, checked):
+    def _onShowIncorrectTriggered(self, checked):
         for document in core.workspace().documents():
-            document.qutepart.drawWhiteSpaceTrailing = checked
-        core.config()['Qutepart']['WhiteSpaceVisibility']['Trailing'] = checked
+            document.qutepart.drawIncorrectIndentation = checked
+        core.config()['Qutepart']['WhiteSpaceVisibility']['Incorrect'] = checked
         core.config().flush()
 
-    def _onShowIndentationTriggered(self, checked):
+    def _onShowAnyWhitespaceTriggered(self, checked):
         for document in core.workspace().documents():
-            document.qutepart.drawWhiteSpaceAnyIndentation = checked
-        core.config()['Qutepart']['WhiteSpaceVisibility']['AnyIndentation'] = checked
+            document.qutepart.drawAnyWhitespace = checked
+        core.config()['Qutepart']['WhiteSpaceVisibility']['Any'] = checked
         core.config().flush()
 
-        core.actionManager().action('mView/aShowTrailingWhitespaces').setEnabled(not checked)
+        core.actionManager().action('mView/aShowIncorrectIndentation').setEnabled(not checked)
 
     def _onStripTrailingTriggered(self, checked):
         core.config()['Qutepart']['StripTrailingWhitespace'] = checked
