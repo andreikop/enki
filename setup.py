@@ -55,7 +55,7 @@ Therefore Enki always installs its .desktop and icons to /usr/share
 if sys.platform.startswith('linux2') or \
    'sdist' in sys.argv or \
    'upload' in sys.argv:
-    data_files=[('/usr/share/applications/', ['enki.desktop']),
+    data_files=[('/usr/share/applications/', ['install/enki.desktop']),
                 ('/usr/share/pixmaps/', ['icons/logo/48x48/enki.png']),
                 ('/usr/share/icons/hicolor/32x32/apps', ['icons/logo/32x32/enki.png']),
                 ('/usr/share/icons/hicolor/48x48/apps', ['icons/logo/48x48/enki.png']),

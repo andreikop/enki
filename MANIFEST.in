@@ -4,4 +4,4 @@ include ChangeLog
 include README.md
 recursive-include enki *.ui *.json
 
-include enki.desktop
+include install/enki.desktop
