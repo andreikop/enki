@@ -3,24 +3,16 @@ FIXME
 TODO
   minor improvements
     Zoom with Ctrl+Wheel
-  medium functionality
-    Shift+Enter opens new line and inserts comment start
   big functionality
     what is sublime command palette?
-    Terminal emulator. http://readthedocs.org/docs/pyqtermwidget
-    Indent text when pasting
     Comment/Uncomment code functionality
     Highlight search results in the editor and on the scroll bar (See google-chrome)
-    Support non-utf8 encodings. Detect with chardet
     Show tips of the day and news from the team.
     http://cx4a.org/software/gccsense/ - autocompletion for C++
-    tab completion
     vim mode
-    Clever navigation in the code
     Split editor window
     Code syntax checker
     Inexact search of tags and files
-    Search when selecting
 
 
 NOT PORTED from MkS
@@ -31,7 +23,4 @@ NOT PORTED from MkS
     Qt Project
 
 ON new editor
-    Ignore comments when autodetecting indentation
-    Select 2 peaces of text and swap
-    Can't highlight more than 1000 search results
     color schemes
