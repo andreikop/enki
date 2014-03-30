@@ -16,6 +16,10 @@ from PyQt4.QtGui import QAction, QIcon, QKeySequence
 
 from enki.core.core import core
 
+try:
+    import CodeChat
+except ImportError:
+    CodeChat = None
 
 def isHtmlFile(document):
     return document is not None and  \
@@ -66,8 +70,10 @@ class Plugin(QObject):
         if document.qutepart.language() in ('Markdown', 'Restructured Text') or \
            isHtmlFile(document):
             return True
+        if CodeChat is not None:
+            return True
 
-        return True
+        return False
 
     def _createDock(self):
         """Install dock

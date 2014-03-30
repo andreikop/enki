@@ -22,9 +22,6 @@ from enki.widgets.dockwidget import DockWidget
 
 from enki.plugins.preview import isHtmlFile
 
-from CodeToRest import code_to_rest
-from LanguageSpecificOptions import LanguageSpecificOptions
-
 # If TRE isn't installed, this import will fail. In this case, disable the sync
 # feature.
 try:
@@ -32,7 +29,12 @@ try:
 except ImportError as e:
     findApproxTextInTarget = None
 
-
+try:
+    import CodeChat.CodeToRest as CodeToRest
+    import CodeChat.LanguageSpecificOptions as LSO
+except ImportError:
+    CodeToRest = None
+    LSO = None
 
 
 class ConverterThread(QThread):
@@ -72,8 +74,8 @@ class ConverterThread(QThread):
             #
             # Note that _filePath may be None -- in this case, give up.
             htmlFile = '<none>'
-            if filePath:
-                lso = LanguageSpecificOptions()
+            if filePath and LSO:
+                lso = LSO.LanguageSpecificOptions()
                 fileName, fileExtension = os.path.splitext(filePath)
                 # File extension not supported by code to rst
                 if fileExtension not in lso.extension_to_options.keys():
@@ -82,21 +84,9 @@ class ConverterThread(QThread):
                 # else code to rst can render this file.
                 lso.set_language(fileExtension)
                 print('Processing ' + filePath + ' to rst.')
-                rawRstText = code_to_rest(lso, text, '')
+                Html = CodeToRest.code_to_html_string(lso, text)
 
-                # pass it to docutils, convert it to raw html
-                rawHtml = self._convertReST(rawRstText)
-
-                # cleanup resulting html string
-                import re
-                rawHtml = re.sub('<pre>[^\n]*' + LanguageSpecificOptions.unique_remove_str + '[^\n]*\n', '<pre>\n', rawHtml)
-                rawHtml = re.sub('<span class="\w+">[^<]*' + LanguageSpecificOptions.unique_remove_str + '</span>\n', '', rawHtml)
-                rawHtml = re.sub('<p>[^<]*' + LanguageSpecificOptions.unique_remove_str + '</p>', '', rawHtml)
-                rawHtml = re.sub('\n[^\n]*' + LanguageSpecificOptions.unique_remove_str + '</pre>', '\n</pre>', rawHtml)
-                rawHtml = re.sub('<div>[^<]*' + LanguageSpecificOptions.unique_remove_str + '</div>', '', rawHtml)
-                rawHtml = re.sub('\n[^\n]*' + LanguageSpecificOptions.unique_remove_str + '\n', '\n', rawHtml)
-
-                return rawHtml
+                return Html
 
             # Can't find it.
             return 'No preview for this type of file in ' + htmlFile
