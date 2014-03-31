@@ -83,9 +83,9 @@ h1, h2 {
 
 #menu ul {
 	font-weight: normal;
-	margin: 10px 0px 10px 0px;
-	font-size: 18px;
-	line-height: 1em;
+	margin: 10px 5px 10px 0px;
+	font-size: 17px;
+	line-height: 1.4em;
 }
 
 #menu a {
@@ -227,7 +227,7 @@ min-height: 460px;
 
 #download {
 	margin: 0 auto;
-	padding: 20px;
+	padding: 5px;
 	width: 420px;
 }
 
@@ -363,7 +363,12 @@ width: 490px;
 	font-size: 45px;
 }
 
-.md-content {padding: 0px 0px 30px 30px; margin: -30px 0px 0px 0px; min-height: 446px;}
+.md-content {
+	padding: 0px 0px 30px 30px;
+	margin: -30px 0px 0px 0px;
+	min-height: 446px;
+	line-height: 1.4em;
+}
 
 .md-content p, .md-content ol li {
 	padding-right: 100px;
