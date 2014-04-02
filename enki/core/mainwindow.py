@@ -91,7 +91,7 @@ class MainWindow(QMainWindow):
     """  # pylint: disable=W0105
 
     _STATE_FILE = os.path.join(enki.core.defines.CONFIG_DIR, "main_window_state.bin")
-    _GEOMETRY_FILE = os.path.join(enki.core.defines.CONFIG_DIR, "main_window_geometry.json")
+    _GEOMETRY_FILE = os.path.join(enki.core.defines.CONFIG_DIR, "main_window_geometry.bin")
 
     def __init__(self):
         QMainWindow.__init__(self)
@@ -346,19 +346,36 @@ class MainWindow(QMainWindow):
 
         return QMainWindow.closeEvent(self, event)
 
-    def _saveState(self):
-        """Save window state to main_window_state.bin file in the config directory
-        """
-        state = self.saveState()
+    def _saveByteArray(self, path, title, data):
+        """Load data, show error and return None if failed"""
         try:
-            with open(self._STATE_FILE, 'wb') as f:
-                f.write(state)
+            with open(path, 'wb') as f:
+                f.write(data)
         except (OSError, IOError), ex:
             error = unicode(str(ex), 'utf8')
             QMessageBox.critical(None,
-                                self.tr("Cannot save main window state"),
-                                self.tr( "Cannot create file '%s'\nError: %s" % (self._STATE_FILE, error)))
+                                self.tr("Cannot save {}".format(title)),
+                                self.tr( "Cannot create file '%s'\nError: %s" % (path, error)))
             return
+
+    def _loadByteArray(self, path, title):
+        """Load data, show error and return None if failed"""
+        if os.path.exists(path):
+            try:
+                with open(path, 'rb') as f:
+                    return f.read()
+            except (OSError, IOError), ex:
+                error = unicode(str(ex), 'utf8')
+                QMessageBox.critical(None,
+                                    self.tr("Cannot restore {}".format(title)),
+                                    self.tr( "Cannot read file '%s'\nError: %s" % (path, error)))
+
+        return None
+
+    def _saveState(self):
+        """Save window state to main_window_state.bin file in the config directory
+        """
+        self._saveByteArray(self._STATE_FILE, "main window state", self.saveState())
 
     def loadState(self):
         """Restore window state from main_window_state.bin and config.
@@ -366,20 +383,11 @@ class MainWindow(QMainWindow):
         """
         self._restoreGeometry()
 
-        state = None
-        if os.path.exists(self._STATE_FILE):
-            try:
-                with open(self._STATE_FILE, 'rb') as f:
-                    state = f.read()
-            except (OSError, IOError), ex:
-                error = unicode(str(ex), 'utf8')
-                QMessageBox.critical(None,
-                                    self.tr("Cannot restore main window state"),
-                                    self.tr( "Cannot read file '%s'\nError: %s" % (path, error)))
+        state = self._loadByteArray(self._STATE_FILE, "main window state")
 
         if state is not None:
             self.restoreState(state)
-        else:  # not state, first start
+        else:  # no state, first start
             self.showMaximized()
             for dock in self.findChildren(DockWidget):
                 dock.show()
@@ -387,20 +395,17 @@ class MainWindow(QMainWindow):
     def _saveGeometry(self):
         """Save window geometry to the config file
         """
-        geometry = {}
-        geometry["X"], geometry["Y"], geometry["Width"], geometry["Height"] = self.geometry().getRect()
-        geometry["Maximized"] = self.isMaximized()
-
-        enki.core.json_wrapper.dump(self._GEOMETRY_FILE, 'main window geometry', geometry)
+        self._saveByteArray(self._GEOMETRY_FILE, "main window geometry", self.saveGeometry())
 
     def _restoreGeometry(self):
         """Restore window geometry to the config file
         """
-        geometry = enki.core.json_wrapper.load(self._GEOMETRY_FILE, 'main window geometry', None)
+        geometry = self._loadByteArray(self._GEOMETRY_FILE, "main window geometry")
         if geometry is not None:
-            self.setGeometry(geometry["X"], geometry["Y"], geometry["Width"], geometry["Height"])
-            if geometry["Maximized"]:
-               self.showMaximized()
+            self.restoreGeometry(geometry)
+
+    def sizeHint(self):
+        return QSize(900, 560)
 
     def dragEnterEvent( self, event):
         """QMainWindow method reimplementation.
