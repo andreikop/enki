@@ -220,8 +220,11 @@ class Document(QWidget):
         """
         self._fileWatcher.disable()
 
-        # avoid emit on text change, document shall behave like it is already dead
+        # avoid emitting signals, document shall behave like it is already dead
         self.qutepart.document().modificationChanged.disconnect()
+        self.qutepart.cursorPositionChanged.disconnect()  #
+        self.qutepart.textChanged.disconnect()
+
         self.qutepart.text = ''  # stop background highlighting, free memory
 
     def _onWatcherFileModified(self, modified):

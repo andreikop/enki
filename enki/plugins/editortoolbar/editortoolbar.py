@@ -188,6 +188,7 @@ class IndentIndicatorAndSwitcher(QToolButton):
         """
         self.setEnabled(False)
 
+
 class PositionIndicator(QToolButton):
     """Indicator, which shows text "Line: yy Column: xx"
     """
