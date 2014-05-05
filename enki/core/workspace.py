@@ -576,6 +576,8 @@ class Workspace(QStackedWidget):
             else:
                 filePath = os.path.join(current, filePath)
 
+        self._mainWindow().appendMessage('New file "%s" is going to be created' % filePath, 5000)
+
         document = Document(self, filePath, createNew=True)
         self._handleDocument(document)
         self.setCurrentWidget(document)

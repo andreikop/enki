@@ -178,9 +178,6 @@ class Document(QWidget):
         self._fileWatcher.modified.connect(self._onWatcherFileModified)
         self._fileWatcher.removed.connect(self._onWatcherFileRemoved)
 
-        if filePath and self._neverSaved:
-            core.mainWindow().appendMessage('New file "%s" is going to be created' % filePath, 5000)
-
         self.qutepart = Qutepart(self)
 
         self.qutepart.setStyleSheet('QPlainTextEdit {border: 0}')
