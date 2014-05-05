@@ -238,7 +238,7 @@ class Document(QWidget):
 
     def _readFile(self, filePath):
         """Read the file contents.
-        Shows QMessageBox for UnicodeDecodeError, but raises IOError, if failed to read file
+        Shows QMessageBox for UnicodeDecodeError
         """
         with open(filePath, 'rb') as openedFile:  # Exception is ok, raise it up
             self._filePath = os.path.abspath(filePath)  # abspath won't fail, if file exists

@@ -11,7 +11,9 @@ Document - opened file, widget on workspace. :class:`enki.core.document.Document
 :class:`enki.core.workspace.Workspace`
 """
 
+import os
 import os.path
+import stat
 import sys
 
 from PyQt4.QtGui import QAction, \
@@ -29,6 +31,9 @@ from PyQt4 import uic
 from enki.core.core import core, DATA_FILES_PATH
 import enki.core.openedfilemodel
 from enki.core.document import Document
+
+
+_MAX_SUPPORTED_FILE_SIZE = 50 * 1000 * 1000  # Enki may freeze or crash if file is too big
 
 
 class _UISaveFiles(QDialog):
@@ -500,15 +505,41 @@ class Workspace(QStackedWidget):
             self.setCurrentDocument( alreadyOpenedDocument )
             return alreadyOpenedDocument
 
-        # open file
+        # Check if exists, get stat
         try:
-            document = Document(self, filePath)
-        except IOError as ex:
-            QMessageBox.critical(None,
-                                 self.tr("Failed to open file"),
+            statInfo = os.stat(filePath)
+        except (OSError, IOError) as ex:
+            QMessageBox.critical(self._mainWindow(),
+                                 "Failed to stat the file",
                                  unicode(str(ex), 'utf8'))
             return None
 
+        # Check if is a file
+        if not stat.S_ISREG(statInfo.st_mode):
+            QMessageBox.critical(self._mainWindow(),
+                                 "Not a regular file",
+                                 "{} is not a regular file".format(filePath))
+            return None
+
+        # Check if too big
+        if statInfo.st_size > _MAX_SUPPORTED_FILE_SIZE:
+            msg = ("<html>" + \
+                   "{} file size is {}.<br/>" + \
+                   "I am a text editor, but not a data dump editor. I don't know how to open such a big files" +
+                   "</html>")\
+                  .format(filePath, statInfo.st_size)
+            QMessageBox.critical(self._mainWindow(), "Too big file", msg)
+            return None
+
+        # Check if have access to read
+        if not os.access(filePath, os.R_OK):
+            QMessageBox.critical(self._mainWindow(),
+                                 "Don't have the access",
+                                 "You don't have the read permission for {}".format(filePath))
+            return None
+
+        # open the file
+        document = Document(self, filePath)
         self._handleDocument( document )
 
         if not os.access(filePath, os.W_OK):
