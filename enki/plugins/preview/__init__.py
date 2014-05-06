@@ -11,10 +11,13 @@
 #   preview.py
 #   ApproxMatch.py
 
+import os.path
 from PyQt4.QtCore import QObject, Qt
-from PyQt4.QtGui import QAction, QIcon, QKeySequence
+from PyQt4.QtGui import QAction, QIcon, QKeySequence, QWidget
+from PyQt4 import uic
 
 from enki.core.core import core
+from enki.core.uisettings import CheckableOption
 
 try:
     import CodeChat
@@ -25,6 +28,33 @@ def isHtmlFile(document):
     return document is not None and  \
            document.qutepart.language() is not None and \
            'html' in document.qutepart.language().lower()  # 'Django HTML Template'
+
+class SettingsWidget(QWidget):
+    """Insert preview plugin as a page to UISetting
+    """
+    def __init__(self, *args):
+        QWidget.__init__(self, *args)
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'Settings.ui'), self)
+        self.rbEnable.setCheckable(False)
+        if CodeChat is None:
+            self.rbEnable.setCheckable(False)
+            self.rbEnable.setChecked(False)
+            return
+        else:
+            self.rbEnable.setCheckable(True)
+            self.rbEnable.setChecked(True)
+            self.rbEnable.clicked.connect(self._onRbEnableCodeChatClicked)
+            if not 'CodeChat' in core.config():
+                core.config()['CodeChat'] = {}
+                core.config()['CodeChat']['Enabled'] = True
+                core.config().flush()
+
+    def _onRbEnableCodeChatClicked(self):
+        if self.rbEnable.isChecked():
+            core.config()['CodeChat']['Enabled'] = True
+        else:
+            core.config()['CodeChat']['Enabled'] = False
+        core.config().flush()
 
 
 class Plugin(QObject):
@@ -40,6 +70,9 @@ class Plugin(QObject):
         self._dockInstalled = False
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         core.workspace().languageChanged.connect(self._onDocumentChanged)
+
+        core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
+
 
     def del_(self):
         """Uninstall the plugin
@@ -64,15 +97,16 @@ class Plugin(QObject):
     def _canHighlight(self, document):
         """Check if can highlight document
         """
+        if core.config()['Preview']['Enabled'] is False:
+            return False
         if document is None:
             return False
 
         if document.qutepart.language() in ('Markdown', 'Restructured Text') or \
            isHtmlFile(document):
             return True
-        if CodeChat is not None:
+        if CodeChat is not None and core.config()['CodeChat']['Enabled'] is True:
             return True
-
         return False
 
     def _createDock(self):
@@ -117,3 +151,16 @@ class Plugin(QObject):
         core.actionManager().removeAction("mFile/aSavePreview")
         core.mainWindow().removeDockWidget(self._dock)
         self._dockInstalled = False
+
+    def _onSettingsDialogAboutToExecute(self, dialog):
+        """UI settings dialogue is about to execute.
+        Add own options
+        """
+        widget = SettingsWidget(dialog)
+
+        dialog.appendPage(u"CodeChat", widget, QIcon(':/enkiicons/codechat.png'))
+
+        # Options
+        dialog.appendOption(CheckableOption(dialog, core.config(),
+                                            "CodeChat/Enabled",
+                                            widget.rbEnable))
