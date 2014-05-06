@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+#
+# .. -*- coding: utf-8 -*-
+#
 # ***************************************************
 # test_preview.py - Unit tests for the Preview module
 # ***************************************************
@@ -29,6 +32,12 @@ from PyQt4.QtGui import QDockWidget, QTextCursor
 # -------------------------
 from enki.core.core import core
 from enki.widgets.dockwidget import DockWidget
+# Both of the two following lines are needed: the first, so we can later
+# ``reload(enki.plugins.preview)``; the last, to instiantate ``SettingsWidget``.
+import enki.plugins.preview
+from enki.plugins.preview import SettingsWidget
+from import_fail import ImportFail
+
 
 # Preview module tests
 # ====================
@@ -451,24 +460,47 @@ text after table""", True)
         self.assertEqual(offset, 2)
 
     # Cases for CodeChat setting ui
-    ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    # Case 1: when Enki runs for the first time, CodeChat module is disabled by
-    # default.
+    ##-----------------------------
+    # 
     @requiresModule('CodeChat')
     def test_uiCheck1(self):
+        """Case 1: when Enki runs for the first time, the CodeChat module should be disabled by
+           default."""
         from enki.plugins.preview import SettingsWidget
         sw = SettingsWidget()
         self.assertFalse(sw.cbEnable.isChecked())
         self.assertTrue(sw.cbEnable.isEnabled())
 
-    # Case 2: If json file records CodeChat enabled, then Enki setting widget
-    # is created with CodeChat enabled.
     @requiresModule('CodeChat')
     def test_uiCheck2(self):
+        """Case 2: If json file records that CodeChat is enabled, then the Enki settings widget
+           should be created with CodeChat enabled."""
         from enki.plugins.preview import SettingsWidget
         core.config()['CodeChat']['Enabled'] = True
         sw = SettingsWidget()
         self.assertTrue(sw.cbEnable.isChecked())
+
+    def test_uiCheck3(self):
+        """ The Enable CodeChat checkbox should only be enabled if CodeChat can
+            be imported; otherwise, it should be disabled."""
+        # Trick Python into thinking that the CodeChat module doesn't exist.
+        # Verify that the CodeChat checkbox is disabled.
+        with ImportFail('CodeChat'):
+            reload(enki.plugins.preview)
+            sw = SettingsWidget()
+            enabled = sw.cbEnable.isEnabled()
+        # When done with this test first restore the state of the preview module
+        # by reloaded with the CodeChat module available, so that other tests
+        # won't be affected. Therefore, only do an assertFalse **after** the
+        # reload, since statements after the assert might not run (if the assert
+        # fails).
+        reload(enki.plugins.preview)
+        self.assertFalse(enabled)
+
+        # Now, prove that the reload worked: CodeChat should now be enabled.
+        sw = SettingsWidget()
+        self.assertTrue(sw.cbEnable.isEnabled())
+
 
     # Case 4: If Enki is opened with CodeChat enabled, preview dock can be
     # found.
