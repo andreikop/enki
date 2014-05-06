@@ -29,6 +29,8 @@ from PyQt4.QtGui import QDockWidget, QTextCursor
 # -------------------------
 from enki.core.core import core
 
+from import_fail import ImportFail
+
 
 # Preview module tests
 # ====================
@@ -450,6 +452,19 @@ text after table""", True)
           targetCursorHeight = 1)
         self.assertEqual(offset, 2)
 
+    # by default, codechat should be disabled
+    def test_uiCheck1(self):
+        from enki.plugins.preview import SettingsWidget
+        sw = SettingsWidget()
+        self.assertFalse(sw.cbEnable.isChecked())
+        self.assertTrue(sw.cbEnable.isEnabled())
+
+    # but if actively set to true. should assert true
+    def test_uiCheck2(self):
+        from enki.plugins.preview import SettingsWidget
+        core.config()['CodeChat']['Enabled'] = True
+        sw = SettingsWidget()
+        self.assertTrue(sw.cbEnable.isChecked())
 
 # Main
 # ====
