@@ -84,11 +84,10 @@ class ActionManager(QObject):
         """Get action by its path. i.e.
             actionManager.action("mFile/mClose/aAll")
         """
-        action = self._pathToAction.get(path, None)
-        if action is None:
-            return None
+        if path in self._pathToAction:
+            return self._pathToAction[path].menu()
         else:
-            return action.menu()
+            return None
 
     def path(self, action):
         """Get action path by reference to action
@@ -199,6 +198,8 @@ class ActionManager(QObject):
 
         path = action.path
         del self._pathToAction[path]
+        action.changed.disconnect(self._onActionChanged)
+        action.setParent(None)
 
         self.actionRemoved.emit( action )
 

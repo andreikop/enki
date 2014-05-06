@@ -7,6 +7,10 @@ import sys
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 import base
 
+from PyQt4.QtCore import QTimer
+from PyQt4.QtGui import QAction
+from PyQt4.QtTest import QTest
+
 import enki.core.workspace
 from enki.core.core import core
 
@@ -59,6 +63,31 @@ class OpenFail(base.TestCase):
 
         self._runTest('x', "Don't have the access")
 
+
+class Loop(base.TestCase):
+    #@base.inMainLoop
+    def test_1(self):
+        def func():
+            a = QAction(core.workspace())
+            core.actionManager().addAction('mFile/aAction', a)
+            core.actionManager().removeAction('mFile/aAction')
+            a.setParent(None)
+            QTimer.singleShot(0, func)
+
+        func()
+        QTest.qWait(20 * 1000)
+
+    def test_2(self):
+        a = self.createFile('x', 'y')
+        b = self.createFile('w', 'z')
+
+        def func():
+            core.workspace().setCurrentDocument(a)
+            core.workspace().setCurrentDocument(b)
+            QTimer.singleShot(0, func)
+
+        func()
+        QTest.qWait(20 * 1000)
 
 
 if __name__ == '__main__':
