@@ -27,28 +27,14 @@ class SettingsWidget(QWidget):
     """Insert the preview plugin as a page of the UISettings dialog.
     """
     def __init__(self, *args):
-        # Initialize the dialog.
+        # Initialize the dialog, loading in our GUI.
         QWidget.__init__(self, *args)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Settings.ui'), self)
 
         if CodeChat is None:
-            # If the CodeChat module can't be loaded, then uncheck and disable the
+            # If the CodeChat module can't be loaded, then disable the
             # associated checkbox.
             self.cbEnable.setEnabled(False)
-            self.cbEnable.setChecked(False)
-        else:
-            # Otherwise, update the dialog from stored settings.
-            self.cbEnable.clicked.connect(self._oncbEnableCodeChatClicked)
-            self.cbEnable.setChecked(core.config()['CodeChat']['Enabled'])
-
-    def _oncbEnableCodeChatClicked(self):
-        """This is called when the 'Enable CodeChat' checkbox is clicked.
-        """
-        if self.cbEnable.isChecked():
-            core.config()['CodeChat']['Enabled'] = True
-        else:
-            core.config()['CodeChat']['Enabled'] = False
-        core.config().flush()
 
 
 class Plugin(QObject):
@@ -75,6 +61,10 @@ class Plugin(QObject):
         # config key.
         if not 'CodeChat' in core.config():
             core.config()['CodeChat'] = {}
+            core.config()['CodeChat']['Enabled'] = False
+            core.config().flush()
+        # If the CodeChat module isn't available, disable it.
+        if not CodeChat:
             core.config()['CodeChat']['Enabled'] = False
             core.config().flush()
 
@@ -155,8 +145,8 @@ class Plugin(QObject):
         self._dockInstalled = False
 
     def _onSettingsDialogAboutToExecute(self, dialog):
-        """The UI settings dialog is about to execute. Add our own options.
-        """
+        """The UI settings dialog is about to execute. Install CodeChat-related
+           settings."""
         # First, append the CodeChat settings page to the settings dialog.
         widget = SettingsWidget(dialog)
         dialog.appendPage(u"CodeChat", widget)
