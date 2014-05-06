@@ -461,11 +461,11 @@ text after table""", True)
 
     # Cases for CodeChat setting ui
     ##-----------------------------
-    # 
+    #
     @requiresModule('CodeChat')
     def test_uiCheck1(self):
-        """Case 1: when Enki runs for the first time, the CodeChat module should be disabled by
-           default."""
+        """When Enki runs for the first time, the CodeChat module should be
+           disabled by default."""
         from enki.plugins.preview import SettingsWidget
         sw = SettingsWidget()
         self.assertFalse(sw.cbEnable.isChecked())
@@ -473,8 +473,8 @@ text after table""", True)
 
     @requiresModule('CodeChat')
     def test_uiCheck2(self):
-        """Case 2: If json file records that CodeChat is enabled, then the Enki settings widget
-           should be created with CodeChat enabled."""
+        """If json file records that CodeChat is enabled, then the Enki
+           settings widget should be created with CodeChat enabled."""
         from enki.plugins.preview import SettingsWidget
         core.config()['CodeChat']['Enabled'] = True
         sw = SettingsWidget()
@@ -502,49 +502,50 @@ text after table""", True)
         self.assertTrue(sw.cbEnable.isEnabled())
 
 
-    # Case 4: If Enki is opened with CodeChat enabled, preview dock can be
-    # found.
     @requiresModule('CodeChat')
     def test_uiCheck4(self):
+        """If Enki is opened with CodeChat enabled, the preview dock should be
+           found."""
         core.config()['CodeChat']['Enabled'] = True
         self._doBasicTest('py')
         # The next line of code is unnecessary since self._doBasicTest() will
         # call self._dock()
-#        self._dock()
+        #self._dock()
 
-    # Case 5: If Enki is opened without any configuration, preview dock cannot
-    # be found if the opened file is a code file. This will not affect rsT file
-    # or html file.
+
     @requiresModule('CodeChat')
     def test_uiCheck5(self):
+        """If Enki is opened without any configuration, the preview dock cannot
+           be found if the opened file is a code file. This will not affect rsT
+           files or html files."""
         with self.assertRaises(AssertionError):
             self._doBasicTest('py')
-#            self._dock()
+            #self._dock()
 
-    # Case 6: If an empty code file is passed to Enki, codechat preview panel
-    # should be empty if preview panel is enabled.
     @requiresModule('CodeChat')
     def test_uiCheck6(self):
+        """If an empty code file is passed to Enki, the CodeChat preview panel
+           should be empty."""
         core.config()['CodeChat']['Enabled'] = True
         self.testText = u''
         self._doBasicTest('py')
         self.assertEqual(self._visibleText(), self.testText)
 
-    # Case 7: CodeToRst module has problem converting unicode to ascii. This
-    # will generate an UnicodeEncodeError
     @requiresModule('CodeChat')
     def test_uiCheck7(self):
+        """Test that Unicode characters are handled properly.
+        """
         core.config()['CodeChat']['Enabled'] = True
         self.testText = u'Niederösterreich'
         with self.assertRaises(UnicodeEncodeError):
             self._doBasicTest('py')
             self.assertEqual(self._visibleText(), self.testText)
 
-    # Case 8: Start with a short code file, make sure no preview window, then
-    # enable CodeChat module, refresh Enki, make sure preview window gets
-    # created.
     @requiresModule('CodeChat')
     def test_uiCheck8(self):
+        """Start with a short code file, make sure the preview window isn't
+           opened, then enable the CodeChat module and refresh Enki.
+           The preview winndow should be be opened."""
         self.testText = u'test'
         with self.assertRaises(AssertionError):
             self._doBasicTest('py')
