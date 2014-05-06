@@ -41,12 +41,6 @@ class SettingsWidget(QWidget):
             return
         else:
             self.rbEnable.clicked.connect(self._onRbEnableCodeChatClicked)
-            # If user's config .json file is older then populate the new codechat
-            # default config key.
-            if not 'CodeChat' in core.config():
-                core.config()['CodeChat'] = {}
-                core.config()['CodeChat']['Enabled'] = False
-                core.config().flush()
             self.rbEnable.setChecked(core.config()['CodeChat']['Enabled'])
 
     def _onRbEnableCodeChatClicked(self):
@@ -75,6 +69,12 @@ class Plugin(QObject):
         # Toggle preview dock when codechat enable checkbox toggles
         core.uiSettingsManager().dialogAccepted.connect(self._onDocumentChanged)
 
+        # If user's config .json file is older then populate the new codechat
+        # default config key.
+        if not 'CodeChat' in core.config():
+            core.config()['CodeChat'] = {}
+            core.config()['CodeChat']['Enabled'] = False
+            core.config().flush()
 
     def del_(self):
         """Uninstall the plugin
