@@ -29,6 +29,7 @@ try:
 except ImportError as e:
     findApproxTextInTarget = None
 
+# Likewise, attempt importing CodeChat; failing that, disable the CodeChat feature.
 try:
     import CodeChat.CodeToRest as CodeToRest
     import CodeChat.LanguageSpecificOptions as LSO
@@ -68,21 +69,20 @@ class ConverterThread(QThread):
             htmlAscii = self._convertReST(text)
             return unicode(htmlAscii, 'utf8')
         else:
-            # Use CodeToRest module to perform code to rst to html conversion.
-            # Code type must be supported by CodeToRest module.
-            if filePath and LSO:
+            # Use CodeToRest module to perform code to rst to html conversion,
+            # if CodeToRest is installed.
+            if filePath and LSO and CodeToRest:
                 lso = LSO.LanguageSpecificOptions()
                 fileName, fileExtension = os.path.splitext(filePath)
-                # File extension not supported by code to rst
+                # Check to seee if CodeToRest supportgs this file's extension.
                 if fileExtension not in lso.extension_to_options.keys():
                     return 'No preview for this type of file'
-
-                # else code to rst can render this file.
+                # CodeToRest can render this file. Do so.
                 lso.set_language(fileExtension)
                 return CodeToRest.code_to_html_string(text, lso)
 
             # Can't find it.
-            return 'No preview for this type of file'
+            return 'No preview for this type of file.'
 
     def _convertMarkdown(self, text):
         """Convert Markdown to HTML
