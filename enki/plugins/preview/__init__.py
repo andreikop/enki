@@ -35,19 +35,19 @@ class SettingsWidget(QWidget):
     def __init__(self, *args):
         QWidget.__init__(self, *args)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Settings.ui'), self)
-        self.rbEnable.setCheckable(False)
         if CodeChat is None:
-            self.rbEnable.setCheckable(False)
+            self.rbEnable.setEnabled(False)
             self.rbEnable.setChecked(False)
             return
         else:
-            self.rbEnable.setCheckable(True)
-            self.rbEnable.setChecked(True)
             self.rbEnable.clicked.connect(self._onRbEnableCodeChatClicked)
+            # If user's config .json file is older then populate the new codechat
+            # default config key.
             if not 'CodeChat' in core.config():
                 core.config()['CodeChat'] = {}
-                core.config()['CodeChat']['Enabled'] = True
+                core.config()['CodeChat']['Enabled'] = False
                 core.config().flush()
+            self.rbEnable.setChecked(core.config()['CodeChat']['Enabled'])
 
     def _onRbEnableCodeChatClicked(self):
         if self.rbEnable.isChecked():
@@ -72,6 +72,8 @@ class Plugin(QObject):
         core.workspace().languageChanged.connect(self._onDocumentChanged)
 
         core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
+        # Toggle preview dock when codechat enable checkbox toggles
+        core.uiSettingsManager().dialogAccepted.connect(self._onDocumentChanged)
 
 
     def del_(self):
