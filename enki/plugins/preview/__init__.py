@@ -4,12 +4,6 @@
 # The Preview plugin provides an HTML-based rendering of the
 # file currently being edited. This file implements the
 # Plugin interface; other modules are given below.
-#
-# .. toctree::
-#   :maxdepth: 2
-#
-#   preview.py
-#   ApproxMatch.py
 
 import os.path
 from PyQt4.QtCore import QObject, Qt
@@ -30,20 +24,26 @@ def isHtmlFile(document):
            'html' in document.qutepart.language().lower()  # 'Django HTML Template'
 
 class SettingsWidget(QWidget):
-    """Insert preview plugin as a page to UISetting
+    """Insert the preview plugin as a page of the UISettings dialog.
     """
     def __init__(self, *args):
+        # Initialize the dialog.
         QWidget.__init__(self, *args)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Settings.ui'), self)
+
         if CodeChat is None:
+            # If the CodeChat module can't be loaded, then uncheck and disable the
+            # associated checkbox.
             self.cbEnable.setEnabled(False)
             self.cbEnable.setChecked(False)
-            return
         else:
+            # Otherwise, update the dialog from stored settings.
             self.cbEnable.clicked.connect(self._oncbEnableCodeChatClicked)
             self.cbEnable.setChecked(core.config()['CodeChat']['Enabled'])
 
     def _oncbEnableCodeChatClicked(self):
+        """This is called when the 'Enable CodeChat' checkbox is clicked.
+        """
         if self.cbEnable.isChecked():
             core.config()['CodeChat']['Enabled'] = True
         else:
@@ -65,12 +65,14 @@ class Plugin(QObject):
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         core.workspace().languageChanged.connect(self._onDocumentChanged)
 
+        # Install our CodeChat page into the settings dialog.
         core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
-        # Toggle preview dock when codechat enable checkbox toggles
+        # Update preview dock when the settings dialog (which contains the CodeChat
+        # enable checkbox) is changed.
         core.uiSettingsManager().dialogAccepted.connect(self._onDocumentChanged)
 
-        # If user's config .json file is older then populate the new codechat
-        # default config key.
+        # If user's config .json file lacks it, populate CodeChat's default
+        # config key.
         if not 'CodeChat' in core.config():
             core.config()['CodeChat'] = {}
             core.config()['CodeChat']['Enabled'] = False
@@ -153,14 +155,13 @@ class Plugin(QObject):
         self._dockInstalled = False
 
     def _onSettingsDialogAboutToExecute(self, dialog):
-        """UI settings dialogue is about to execute.
-        Add own options
+        """The UI settings dialog is about to execute. Add our own options.
         """
+        # First, append the CodeChat settings page to the settings dialog.
         widget = SettingsWidget(dialog)
-
         dialog.appendPage(u"CodeChat", widget)
-
-        # Options
+        # Next, have the CodeChat Enabled checkbox auto-update the corresponding
+        # CodeChat config entry.
         dialog.appendOption(CheckableOption(dialog, core.config(),
                                             "CodeChat/Enabled",
                                             widget.cbEnable))
