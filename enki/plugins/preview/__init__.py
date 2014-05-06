@@ -99,8 +99,6 @@ class Plugin(QObject):
     def _canHighlight(self, document):
         """Check if can highlight document
         """
-        if core.config()['Preview']['Enabled'] is False:
-            return False
         if document is None:
             return False
 
