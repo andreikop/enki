@@ -10,6 +10,7 @@ import shutil
 import time
 import tempfile
 import subprocess
+import codecs
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 from persistent_qapplication import papp
@@ -204,7 +205,7 @@ class TestCase(unittest.TestCase):
         File is opened
         """
         path = os.path.join(self.TEST_FILE_DIR, name)
-        with open(path, 'wb') as file_:
+        with codecs.open(path, 'wb', encoding='utf8') as file_:
             file_.write(text)
 
         return core.workspace().openFile(path)

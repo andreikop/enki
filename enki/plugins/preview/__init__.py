@@ -160,7 +160,7 @@ class Plugin(QObject):
         """
         widget = SettingsWidget(dialog)
 
-        dialog.appendPage(u"CodeChat", widget, QIcon(':/enkiicons/codechat.png'))
+        dialog.appendPage(u"CodeChat", widget)
 
         # Options
         dialog.appendOption(CheckableOption(dialog, core.config(),

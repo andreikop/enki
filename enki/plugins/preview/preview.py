@@ -70,22 +70,19 @@ class ConverterThread(QThread):
         else:
             # Use CodeToRest module to perform code to rst to html conversion.
             # Code type must be supported by CodeToRest module.
-            htmlFile = '<none>'
             if filePath and LSO:
                 lso = LSO.LanguageSpecificOptions()
                 fileName, fileExtension = os.path.splitext(filePath)
                 # File extension not supported by code to rst
                 if fileExtension not in lso.extension_to_options.keys():
-                    return 'No preview for this type of file in ' + htmlFile
+                    return 'No preview for this type of file'
 
                 # else code to rst can render this file.
                 lso.set_language(fileExtension)
-                Html = CodeToRest.code_to_html_string(lso, text)
-
-                return Html
+                return CodeToRest.code_to_html_string(text, lso)
 
             # Can't find it.
-            return 'No preview for this type of file in ' + htmlFile
+            return 'No preview for this type of file'
 
     def _convertMarkdown(self, text):
         """Convert Markdown to HTML

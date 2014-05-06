@@ -536,9 +536,10 @@ text after table""", True)
         """
         core.config()['CodeChat']['Enabled'] = True
         self.testText = u'Niederösterreich'
-        with self.assertRaises(UnicodeEncodeError):
-            self._doBasicTest('py')
-            self.assertEqual(self._visibleText(), self.testText)
+        self._doBasicTest('py')
+        # Plaintext captured from the preview dock will append a newline if
+        # preview dock is not empty. A '\n' is added accordingly.
+        self.assertEqual(self._visibleText(), self.testText+'\n')
 
     @requiresModule('CodeChat')
     def test_uiCheck8(self):
