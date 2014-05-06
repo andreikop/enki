@@ -83,7 +83,6 @@ class ConverterThread(QThread):
 
                 # else code to rst can render this file.
                 lso.set_language(fileExtension)
-                print('Processing ' + filePath + ' to rst.')
                 Html = CodeToRest.code_to_html_string(lso, text)
 
                 return Html
