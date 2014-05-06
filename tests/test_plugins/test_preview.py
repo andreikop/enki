@@ -470,15 +470,6 @@ text after table""", True)
         self.assertFalse(sw.cbEnable.isChecked())
         self.assertTrue(sw.cbEnable.isEnabled())
 
-    @requiresModule('CodeChat')
-    def test_uiCheck2(self):
-        """If json file records that CodeChat is enabled, then the Enki
-           settings widget should be created with CodeChat enabled."""
-        from enki.plugins.preview import SettingsWidget
-        core.config()['CodeChat']['Enabled'] = True
-        sw = SettingsWidget()
-        self.assertTrue(sw.cbEnable.isChecked())
-
     def test_uiCheck3(self):
         """ The Enable CodeChat checkbox should only be enabled if CodeChat can
             be imported; otherwise, it should be disabled."""
