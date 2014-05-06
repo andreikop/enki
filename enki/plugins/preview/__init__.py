@@ -36,15 +36,15 @@ class SettingsWidget(QWidget):
         QWidget.__init__(self, *args)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Settings.ui'), self)
         if CodeChat is None:
-            self.rbEnable.setEnabled(False)
-            self.rbEnable.setChecked(False)
+            self.cbEnable.setEnabled(False)
+            self.cbEnable.setChecked(False)
             return
         else:
-            self.rbEnable.clicked.connect(self._onRbEnableCodeChatClicked)
-            self.rbEnable.setChecked(core.config()['CodeChat']['Enabled'])
+            self.cbEnable.clicked.connect(self._oncbEnableCodeChatClicked)
+            self.cbEnable.setChecked(core.config()['CodeChat']['Enabled'])
 
-    def _onRbEnableCodeChatClicked(self):
-        if self.rbEnable.isChecked():
+    def _oncbEnableCodeChatClicked(self):
+        if self.cbEnable.isChecked():
             core.config()['CodeChat']['Enabled'] = True
         else:
             core.config()['CodeChat']['Enabled'] = False
@@ -165,4 +165,4 @@ class Plugin(QObject):
         # Options
         dialog.appendOption(CheckableOption(dialog, core.config(),
                                             "CodeChat/Enabled",
-                                            widget.rbEnable))
+                                            widget.cbEnable))

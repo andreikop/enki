@@ -68,11 +68,8 @@ class ConverterThread(QThread):
             htmlAscii = self._convertReST(text)
             return unicode(htmlAscii, 'utf8')
         else:
-            # Look for HTML builder output. First, see if the current file is
-            # within the subtree of self.htmlBuilderRootPath. See
-            # http://stackoverflow.com/questions/7287996/python-get-relative-path-from-comparing-two-absolute-paths for more discussion.
-            #
-            # Note that _filePath may be None -- in this case, give up.
+            # Use CodeToRest module to perform code to rst to html conversion.
+            # Code type must be supported by CodeToRest module.
             htmlFile = '<none>'
             if filePath and LSO:
                 lso = LSO.LanguageSpecificOptions()
