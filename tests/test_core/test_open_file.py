@@ -59,9 +59,19 @@ class OpenFail(base.TestCase):
         document = self.createFile('x', 'the text')
         core.workspace().closeDocument(document)
 
-        os.chmod('x', 0)
-
-        self._runTest('x', "Don't have the access")
+        # On Windows (possibly Unix -- not tested), the file x below cannot be
+        # erased after the chmod, making future tests using x fail. So, be sure
+        # to chmod it back to the old permissions after the test runs. Note that,
+        # per the `stat docs <https://docs.python.org/2/library/os.html#os.stat>`_,
+        # stat returns lots of info; the only thing we care about is the file
+        # permissions in st_mode, which `chmod
+        # <https://docs.python.org/2/library/os.html#os.chmod>`_ uses.
+        s = os.stat('x').st_mode
+        try:
+            os.chmod('x', 0)
+            self._runTest('x', "Don't have the access")
+        finally:
+            os.chmod('x', s)
 
 
 class Loop(base.TestCase):
