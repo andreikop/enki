@@ -514,11 +514,11 @@ class Workspace(QStackedWidget):
                                  unicode(str(ex), 'utf8'))
             return None
 
-        # Check if is a file
-        if not stat.S_ISREG(statInfo.st_mode):
+        # Check if is a directory
+        if stat.S_ISDIR(statInfo.st_mode):
             QMessageBox.critical(self._mainWindow(),
-                                 "Not a regular file",
-                                 "{} is not a regular file".format(filePath))
+                                 "Can not open a directory",
+                                 "{} is a directory".format(filePath))
             return None
 
         # Check if too big

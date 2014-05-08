@@ -40,7 +40,7 @@ class OpenFail(base.TestCase):
 
     def test_2(self):
         # Not a file
-        self._runTest('.', "Not a regular file")
+        self._runTest('.', "Can not open a directory")
 
     def test_3(self):
         # Too big
