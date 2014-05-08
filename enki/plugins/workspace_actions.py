@@ -8,7 +8,7 @@ import stat
 import platform
 
 from PyQt4.QtCore import QObject, Qt
-from PyQt4.QtGui import QApplication, QFileDialog, QInputDialog, QMessageBox
+from PyQt4.QtGui import QApplication, QFileDialog, QInputDialog, QMessageBox, QLineEdit
 
 from enki.core.core import core
 
@@ -157,9 +157,35 @@ class Plugin(QObject):
             QMessageBox.warning(core.mainWindow(), 'Rename file', 'Save the file before renaming')
             return
 
-        newPath, ok = QInputDialog.getText(core.mainWindow(), 'Rename file', 'New file name', text=document.filePath())
+        dialog = QInputDialog()
+        dialog.setLabelText('New file name')
+        dialog.setWindowTitle('Rename file')
+        dialog.setTextValue(document.filePath())
+        dialog.show()
+
+        def fixupSelection(dialog, from_, to_):
+            def fixupSelectionImpl():
+                # Failure in this code is not visible to user (apart from stderr)
+                for i in dialog.children():
+                    if type(i) is QLineEdit:
+                        # Hack: set our selection after Qt already selected everything
+                        import time; time.sleep(0.001)
+                        i.setCursorPosition(to_)
+                        i.setSelection(from_,to_)
+            import threading; threading.Thread(target=fixupSelectionImpl).start()
+        def selectFilenameInInputDialog(dialog):
+            path = dialog.textValue()
+            fn = os.path.split(path)[1];
+            filenameStart = len(path)-len(fn)
+            filenameEnd = len(os.path.splitext(fn)[0])
+            fixupSelection(dialog, filenameStart, filenameEnd)
+        selectFilenameInInputDialog(dialog)
+
+        ok = dialog.exec_()
         if not ok:
             return
+        else:
+            newPath = dialog.textValue()
 
         if newPath == document.filePath():
             return
