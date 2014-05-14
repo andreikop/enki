@@ -40,7 +40,7 @@ except ImportError:
 class ConverterThread(QThread):
     """Thread converts markdown to HTML
     """
-    htmlReady = pyqtSignal(unicode, unicode)
+    htmlReady = pyqtSignal(unicode, unicode, unicode)
 
     _Task = collections.namedtuple("Task", ["filePath", "language", "text"])
 
@@ -61,27 +61,32 @@ class ConverterThread(QThread):
         """Get HTML for document
         """
         if language == 'HTML':
-            return text
+            return text, None
         elif language == 'Markdown':
-            return self._convertMarkdown(text)
+            return self._convertMarkdown(text), None
         elif language == 'Restructured Text':
             htmlAscii = self._convertReST(text)
-            return unicode(htmlAscii, 'utf8')
+            return unicode(htmlAscii, 'utf8'), None
         else:
             # Use CodeToRest module to perform code to rst to html conversion,
             # if CodeToRest is installed.
             if filePath and LSO and CodeToRest:
+                # Use StringIO to pass codechat compilation information to UI.
+                errStream = StringIO.StringIO()
                 lso = LSO.LanguageSpecificOptions()
                 fileName, fileExtension = os.path.splitext(filePath)
                 # Check to seee if CodeToRest supportgs this file's extension.
                 if fileExtension not in lso.extension_to_options.keys():
-                    return 'No preview for this type of file'
+                    return 'No preview for this type of file', None
                 # CodeToRest can render this file. Do so.
                 lso.set_language(fileExtension)
-                return CodeToRest.code_to_html_string(text, lso)
+                htmlString = CodeToRest.code_to_html_string(text, lso, errStream)
+                errString = errStream.getvalue()
+                errStream.close()
+                return htmlString, errString
 
             # Can't find it.
-            return 'No preview for this type of file.'
+            return 'No preview for this type of file.', None
 
     def _convertMarkdown(self, text):
         """Convert Markdown to HTML
@@ -149,12 +154,12 @@ class ConverterThread(QThread):
                 break
 
             try:
-                html = self._getHtml(task.language, task.text, task.filePath)
+                html, errString = self._getHtml(task.language, task.text, task.filePath)
             except Exception:
                 traceback.print_exc()
 
             if not self._queue.qsize():  # Do not emit results, if having new task
-                self.htmlReady.emit(task.filePath, html)
+                self.htmlReady.emit(task.filePath, html, errString)
 
 
 class PreviewDock(DockWidget):
@@ -374,10 +379,12 @@ class PreviewDock(DockWidget):
                 text = self._getCurrentTemplate() + text
             elif isHtmlFile(document):
                 language = 'HTML'
+            # update log window
+            self._setHtmlProgress("Building", -1)
             # for rest language is already correct
             self._thread.process(document.filePath(), language, text)
 
-    def _setHtml(self, filePath, html):
+    def _setHtml(self, filePath, html, errString=None):
         """Set HTML to the view and restore scroll bars position.
         Called by the thread
         """
@@ -385,6 +392,26 @@ class PreviewDock(DockWidget):
         self._visiblePath = filePath
         self._widget.webView.page().mainFrame().contentsSizeChanged.connect(self._restoreScrollPos)
         self._widget.webView.setHtml(html,baseUrl=QUrl.fromLocalFile(filePath))
+        self._widget.teLog.clear()
+        if errString:
+            self._widget.teLog.appendPlainText(errString)
+        self._setHtmlProgress('Complete!', 100)  # stop the progress bar
+
+    def _setHtmlProgress(self, status=None, progress=None):
+        """Set progress bar and status label.
+        if progress is -1: use an indefinite progress bar
+        if progress is 0: stop progress bar
+        if progress is anyvalue between 0 and 100: display progress bar
+        """
+        if status:
+            self._widget.lStatus.setText(status)
+        if progress == -1:
+            self._widget.prgStatus.setRange(0, 0)
+        elif progress == 0:
+            self._widget.prgStatus.reset()
+        else:
+            self._widget.prgStatus.setRange(0, 100)
+            self._widget.prgStatus.setValue(progress)
 
     def _clear(self):
         """Clear themselves.
