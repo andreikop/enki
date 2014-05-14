@@ -65,8 +65,8 @@ class ConverterThread(QThread):
         elif language == 'Markdown':
             return self._convertMarkdown(text), None
         elif language == 'Restructured Text':
-            htmlAscii = self._convertReST(text)
-            return unicode(htmlAscii, 'utf8'), None
+            htmlUnicode, errString = self._convertReST(text)
+            return htmlUnicode, errString
         else:
             # Use CodeToRest module to perform code to rst to html conversion,
             # if CodeToRest is installed.
@@ -136,9 +136,20 @@ class ConverterThread(QThread):
         except ImportError:
             return 'Restructured Text preview requires <i>python-docutils</i> package<br/>' \
                    'Install it with your package manager or see ' \
-                   '<a href="http://pypi.python.org/pypi/docutils"/>this page</a>'
+                   '<a href="http://pypi.python.org/pypi/docutils"/>this page</a>', None
 
-        return docutils.core.publish_string(text, writer_name='html')
+        errStream = StringIO.StringIO()
+        htmlString = docutils.core.publish_string(text, writer_name='html', settings_overrides={
+                     # Make sure to use Unicode everywhere.
+                     'output_encoding': 'unicode',
+                     'input_encoding' : 'unicode',
+                     # Don't stop processing, no matter what.
+                     'halt_level'     : 5,
+                     # Capture errors to a string and return it.
+                     'warning_stream' : errStream})
+        errString = errStream.getvalue()
+        errStream.close()
+        return htmlString, errString
 
     def run(self):
         """Thread function
