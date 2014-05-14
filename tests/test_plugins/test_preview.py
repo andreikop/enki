@@ -552,6 +552,11 @@ text after table""", True)
         self.testText = u'# .. wrong::'
         self._doBasicTest('py')
         self.assertTrue("""Unknown directive type "wrong".""" in self._logText())
+        # do the same test for restructuredText
+        self.testText = u'.. wrong::'
+        self._doBasicTest('rst')
+        self.assertTrue("""Unknown directive type "wrong".""" in self._logText())
+
 
     @requiresModule('CodeChat')
     def test_uiCheck10(self):
@@ -561,6 +566,10 @@ text after table""", True)
         self.testText = u''
         self._doBasicTest('py')
         self.assertEqual(self._logText(), '')
+        # do the same test for restructuredText
+        self._doBasicTest('rst')
+        self.assertEqual(self._logText(), '')
+
 
     @requiresModule('CodeChat')
     def test_uiCheck11(self):
@@ -570,7 +579,10 @@ text after table""", True)
         self.testText = u'# .. Niederösterreich::'
         self._doBasicTest('py')
         self.assertTrue(u'Niederösterreich' in self._logText())
-
+        # do the same test for restructuredText
+        self.testText = u'.. Niederösterreich::'
+        self._doBasicTest('rst')
+        self.assertTrue(u'Niederösterreich' in self._logText())
 
 # Main
 # ====
