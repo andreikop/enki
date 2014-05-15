@@ -11,6 +11,7 @@
 import os.path
 import collections
 import Queue
+import re
 
 # Third-party imports
 # -------------------
@@ -404,9 +405,19 @@ class PreviewDock(DockWidget):
         self._widget.webView.page().mainFrame().contentsSizeChanged.connect(self._restoreScrollPos)
         self._widget.webView.setHtml(html,baseUrl=QUrl.fromLocalFile(filePath))
         self._widget.teLog.clear()
+        status = 'Complete!'
         if errString:
+            # Parsing the error string. get number of warnings and errors.
+            regex = re.compile("^<\w+>:(?P<line>\d+):\s\((?P<type>\w+)/\d+\)",
+                               re.MULTILINE)
+            result = regex.findall(errString)
+            errNum = len(filter(lambda x: 'ERROR' in x[1], result))
+            warningNum = len(filter(lambda x: 'WARNING' in x[1], result))
+            if (errNum + warningNum):
+                status = 'Warning(s): ' + str(warningNum) + ' Error(s): ' + str(errNum)
             self._widget.teLog.appendPlainText(errString)
-        self._setHtmlProgress('Complete!', 100)  # stop the progress bar
+            self._widget.teLog.appendPlainText('\n'+status)
+        self._setHtmlProgress(status, 100)  # stop the progress bar
 
     def _setHtmlProgress(self, status=None, progress=None):
         """Set progress bar and status label.
