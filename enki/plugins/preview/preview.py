@@ -392,7 +392,7 @@ class PreviewDock(DockWidget):
             elif isHtmlFile(document):
                 language = 'HTML'
             # update log window
-            self._setHtmlProgress("Building", -1)
+            self._setHtmlProgress(-1)
             # for rest language is already correct
             self._thread.process(document.filePath(), language, text)
 
@@ -405,7 +405,7 @@ class PreviewDock(DockWidget):
         self._widget.webView.page().mainFrame().contentsSizeChanged.connect(self._restoreScrollPos)
         self._widget.webView.setHtml(html,baseUrl=QUrl.fromLocalFile(filePath))
         self._widget.teLog.clear()
-        self._setHtmlProgress('Complete!', 100)
+        self._setHtmlProgress(100)
         if errString:
             # Parsing the error string. get number of warnings and errors.
             regex = re.compile("^<\w+>:(?P<line>\d+):\s\((?P<type>\w+)/\d+\)",
@@ -417,9 +417,9 @@ class PreviewDock(DockWidget):
             self._widget.teLog.appendPlainText(errString)
             self._widget.teLog.appendPlainText('\n'+status)
             color = 'red' if errNum else 'yellow'
-            self._setHtmlProgress(status, 100, color)  # stop the progress bar
+            self._setHtmlProgress(100, color)  # stop the progress bar
 
-    def _setHtmlProgress(self, status=None, progress=None, color=None):
+    def _setHtmlProgress(self, progress=None, color=None):
         """Set progress bar and status label.
         if progress is -1: use an indefinite progress bar
         if progress is 0: stop progress bar
@@ -430,8 +430,6 @@ class PreviewDock(DockWidget):
         else:
             style = 'QProgressBar::chunk {}'
         self._widget.prgStatus.setStyleSheet(style)
-        if status:
-            self._widget.lStatus.setText(status)
         if progress == -1:
             self._widget.prgStatus.setRange(0, 0)
         elif progress == 0 or progress is None:
