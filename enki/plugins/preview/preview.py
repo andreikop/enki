@@ -405,7 +405,7 @@ class PreviewDock(DockWidget):
         self._widget.webView.page().mainFrame().contentsSizeChanged.connect(self._restoreScrollPos)
         self._widget.webView.setHtml(html,baseUrl=QUrl.fromLocalFile(filePath))
         self._widget.teLog.clear()
-        status = 'Complete!'
+        self._setHtmlProgress('Complete!', 100)
         if errString:
             # Parsing the error string. get number of warnings and errors.
             regex = re.compile("^<\w+>:(?P<line>\d+):\s\((?P<type>\w+)/\d+\)",
@@ -413,23 +413,28 @@ class PreviewDock(DockWidget):
             result = regex.findall(errString)
             errNum = len(filter(lambda x: 'ERROR' in x[1], result))
             warningNum = len(filter(lambda x: 'WARNING' in x[1], result))
-            if (errNum + warningNum):
-                status = 'Warning(s): ' + str(warningNum) + ' Error(s): ' + str(errNum)
+            status = 'Warning(s): ' + str(warningNum) + ' Error(s): ' + str(errNum)
             self._widget.teLog.appendPlainText(errString)
             self._widget.teLog.appendPlainText('\n'+status)
-        self._setHtmlProgress(status, 100)  # stop the progress bar
+            color = 'red' if errNum else 'yellow'
+            self._setHtmlProgress(status, 100, color)  # stop the progress bar
 
-    def _setHtmlProgress(self, status=None, progress=None):
+    def _setHtmlProgress(self, status=None, progress=None, color=None):
         """Set progress bar and status label.
         if progress is -1: use an indefinite progress bar
         if progress is 0: stop progress bar
         if progress is anyvalue between 0 and 100: display progress bar
         """
+        if color:
+            style = 'QProgressBar::chunk {\nbackground-color: '+color+'\n}'
+        else:
+            style = 'QProgressBar::chunk {}'
+        self._widget.prgStatus.setStyleSheet(style)
         if status:
             self._widget.lStatus.setText(status)
         if progress == -1:
             self._widget.prgStatus.setRange(0, 0)
-        elif progress == 0:
+        elif progress == 0 or progress is None:
             self._widget.prgStatus.reset()
         else:
             self._widget.prgStatus.setRange(0, 100)
