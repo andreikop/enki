@@ -557,7 +557,6 @@ text after table""", True)
         self._doBasicTest('rst')
         self.assertTrue("""Unknown directive type "wrong".""" in self._logText())
 
-
     @requiresModule('CodeChat')
     def test_uiCheck10(self):
         """Empty input should generate empty log
@@ -569,7 +568,6 @@ text after table""", True)
         # do the same test for restructuredText
         self._doBasicTest('rst')
         self.assertEqual(self._logText(), '')
-
 
     @requiresModule('CodeChat')
     def test_uiCheck11(self):
@@ -583,6 +581,52 @@ text after table""", True)
         self.testText = u'.. Niederösterreich::'
         self._doBasicTest('rst')
         self.assertTrue(u'Niederösterreich' in self._logText())
+
+    @requiresModule('CodeChat')
+    def test_uiCheck12(self):
+        """Test progress bar scrolling(indefinitely) when building
+        """
+        core.config()['CodeChat']['Enabled'] = True
+        self.createFile('file.py', self.testText)
+        self.assertEqual(self._widget().prgStatus.maximum(), 0)
+        self.assertEqual(self._widget().prgStatus.minimum(), 0)
+
+    @requiresModule('CodeChat')
+    def test_uiCheck13(self):
+        """Check different progressbar color given different scenario.
+        """
+        core.config()['CodeChat']['Enabled'] = True
+        # First, a working code with no errors nor warnings
+        self.testText = u'abc'
+        self._doBasicTest('rst')
+        self.assertEqual(self._widget().prgStatus.styleSheet(), 'QProgressBar::chunk {}')
+
+    @requiresModule('CodeChat')
+    def test_uiCheck14(self):
+        core.config()['CodeChat']['Enabled'] = True
+        # Next, test code piece with only warnings
+        self.testText = u'`abc'
+        self._doBasicTest('rst')
+        self.assertTrue('yellow' in self._widget().prgStatus.styleSheet())
+
+    @requiresModule('CodeChat')
+    def test_uiCheck15(self):
+        core.config()['CodeChat']['Enabled'] = True
+        # Next, test code piece with only errors
+        self.testText = u'# .. ERROR::'
+        self._doBasicTest('py')
+        self.assertTrue('red' in self._widget().prgStatus.styleSheet())
+
+    @requiresModule('CodeChat')
+    def test_uiCheck16(self):
+        """A complex test case that test both log parser(regexp) and progress
+        bar color when both warnings and errors are present.
+        """
+        core.config()['CodeChat']['Enabled'] = True
+        self.testText = u'# .. ERROR::\n# `WARNING_'
+        self._doBasicTest('py')
+        self.assertTrue('red' in self._widget().prgStatus.styleSheet())
+        self.assertTrue('Warning(s): 2 Error(s): 2' in self._logText())
 
 # Main
 # ====

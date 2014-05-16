@@ -405,7 +405,7 @@ class PreviewDock(DockWidget):
         self._widget.webView.page().mainFrame().contentsSizeChanged.connect(self._restoreScrollPos)
         self._widget.webView.setHtml(html,baseUrl=QUrl.fromLocalFile(filePath))
         self._widget.teLog.clear()
-        self._setHtmlProgress(100)
+        self._setHtmlProgress(-1)
         if errString:
             # Parsing the error string. get number of warnings and errors.
             regex = re.compile("^<\w+>:(?P<line>\d+):\s\((?P<type>\w+)/\d+\)",
@@ -418,6 +418,8 @@ class PreviewDock(DockWidget):
             self._widget.teLog.appendPlainText('\n'+status)
             color = 'red' if errNum else 'yellow'
             self._setHtmlProgress(100, color)  # stop the progress bar
+        else:
+            self._setHtmlProgress(100)
 
     def _setHtmlProgress(self, progress=None, color=None):
         """Set progress bar and status label.
