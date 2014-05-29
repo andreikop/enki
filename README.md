@@ -15,6 +15,7 @@
 * [python-docutils](http://docutils.sourceforge.net/) (Optional, for reStructuredText preview)
 * [ctags](http://ctags.sourceforge.net/) (Optional, for navigation in file)
 * [tre](http://hackerboss.com/approximate-regex-matching-in-python/) (Optional, for preview synchronization; see [README](https://github.com/bjones1/tre/blob/master/README) for build instructions)
+* [CodeChat](https://bitbucket.org/bjones/documentation/overview) (Optinal, for source code to HTML translation)
 
 #### Install Enki
     ./setup.py install
