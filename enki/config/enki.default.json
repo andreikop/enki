@@ -1,5 +1,5 @@
 {
-    "_version" : 13,
+    "_version" : 14,
     "PlatformDefaultsHaveBeenSet" : false,
 
     "NegativeFileFilter": [ "*~", "*.o", "*.pyc", "*.bak" ],
@@ -62,5 +62,12 @@
     },
     "OpenTerm": {
         "Term": ""
+    },
+    "Lint": {
+        "Python": {
+            "Enabled": true,
+            "Show": "all",
+            "Path": "pylint"
+        }
     }
 }

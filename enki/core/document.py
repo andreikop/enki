@@ -315,10 +315,15 @@ class Document(QWidget):
         core.workspace().currentDocumentChanged.emit(self, self)
 
     def _stripTrailingWhiteSpace(self):
-        with self.qutepart:
-            for lineNo, line in enumerate(self.qutepart.lines):
-                if line and line[-1].isspace():
-                    self.qutepart.lines[lineNo] = line.rstrip()
+        lineHasTrailingSpace = ((line and line[-1].isspace()) \
+                                    for line in self.qutepart.lines)
+        if any(lineHasTrailingSpace):
+            with self.qutepart:
+                for lineNo, line in enumerate(self.qutepart.lines):
+                    if line and line[-1].isspace():
+                        self.qutepart.lines[lineNo] = line.rstrip()
+        else:
+            pass # Do not enter with statement, because it causes wrong textChanged signal
 
     def _saveToFs(self, filePath):
         """Low level method. Always saves file, even if not modified

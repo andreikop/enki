@@ -120,6 +120,13 @@ class Config():
             del ws['AnyIndentation']
             self._data['_version'] = 13
 
+        if self._data['_version'] == 13:
+            self._data['Lint'] = {'Python': {'Enabled': True,
+                                             'Show': "all",
+                                             'Path': "pylint"}
+                                 }
+            self._data['_version'] = 14
+
     def _setPlatformDefaults(self):
         """Set default values, which depend on platform
         """

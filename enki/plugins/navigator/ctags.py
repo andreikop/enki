@@ -2,11 +2,11 @@
 """
 
 import os
-import subprocess
 import tempfile
 from contextlib import contextmanager
 
 from enki.core.core import core
+from enki.lib.get_console_output import get_console_output
 
 
 class Tag:
@@ -136,38 +136,18 @@ def processText(ctagsLang, text, sortAlphabetically):
     # encode to utf8
     data = text.encode('utf8').replace('\t', '    ')
 
-    if hasattr(subprocess, 'STARTUPINFO'):  # windows only
-        # On Windows, subprocess will pop up a command window by default when run from
-        # Pyinstaller with the --noconsole option. Avoid this distraction.
-        si = subprocess.STARTUPINFO()
-        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        # Windows doesn't search the path by default. Pass it an environment so it will.
-        env = os.environ
-    else:
-        si = None
-        env = None
 
     with _namedTemp() as tempFile:
         tempFile.write(data)
         tempFile.close() # Windows compatibility
 
         try:
-            # On Windows, running this from the binary produced by Pyinstller
-            # with the --noconsole option requires redirecting everything
-            # (stdin, stdout, stderr) to avoid a OSError exception
-            # "[Error 6] the handle is invalid."
-            popen = subprocess.Popen(
-                    [ctagsPath, '-f', '-', '-u', '--fields=nKs', langArg, tempFile.name],
-                    stdin=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    stdout=subprocess.PIPE,
-                    startupinfo=si, env=env)
+            stdout, stderr = get_console_output(ctagsPath,
+                                                ['-f', '-', '-u', '--fields=nKs', langArg, tempFile.name])
         except OSError as ex:
             return 'Failed to execute ctags console utility "{}": {}\n'\
                         .format(ctagsPath, str(ex)) + \
                    'Go to Settings -> Settings -> Navigator to set path to ctags'
-
-        stdout, stderr = popen.communicate()
 
     tags = _parseTags(ctagsLang, stdout)
 

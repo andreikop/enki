@@ -281,7 +281,8 @@ class UISettings(QDialog):
 
         # Expand all tree widget items
         self._pageForItem = {u"General": self.pGeneral,
-                             u"Modes": self.pModes,
+                             u"REPL": self.pRepl,
+                             u"Lint": self.pLint,
                              u"Editor": self.pEditor}
 
         # resize to minimum size

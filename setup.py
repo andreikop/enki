@@ -104,6 +104,7 @@ for loader, name, ispkg in pkgutil.iter_modules(['enki/plugins']):
     if ispkg:
         packages.append('enki/plugins/' + name)
         package_data['enki'].append('plugins/%s/*.ui' % name)
+        package_data['enki'].append('plugins/%s/*.png' % name)
         package_data['enki'].append('plugins/%s/templates/*' % name)
 
 script = 'bin/enki.py' if platform.system() == 'Windows' else 'bin/enki'

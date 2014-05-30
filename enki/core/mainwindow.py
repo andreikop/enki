@@ -53,6 +53,10 @@ class _StatusBar(QStatusBar):
         """
         self._label.clear()
 
+    def currentMessage(self):
+        return self._label.text()
+
+
 class MainWindow(QMainWindow):
     """
     Main UI window

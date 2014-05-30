@@ -43,12 +43,17 @@
      </item>
      <item>
       <property name="text">
-       <string>Modes</string>
+       <string>Editor</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Editor</string>
+       <string>REPL</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Lint</string>
       </property>
      </item>
     </widget>
@@ -61,7 +66,7 @@
         <bool>true</bool>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="pGeneral">
         <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -172,12 +177,42 @@
          </property>
         </widget>
        </widget>
-       <widget class="QWidget" name="pModes">
+       <widget class="QWidget" name="pLint">
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Linters check your code for common mistakes.&lt;br/&gt;Linting results are shown near line numbers after the file was opened or saved. Clear it with &lt;span style=&quot; font-style:italic;&quot;&gt;Esc&lt;/span&gt;.&lt;br/&gt;You can easily extend Enki with linter for your language, if it is not supported yet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>435</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="pRepl">
         <layout class="QVBoxLayout" name="verticalLayout_14">
          <item>
           <widget class="QLabel" name="label_6">
            <property name="text">
-            <string>Select a mode in the tree to configure it</string>
+            <string>REPL means Read-Eval-Print loop - interactive console which allows you to execute current file and type additional commands</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
            </property>
           </widget>
          </item>

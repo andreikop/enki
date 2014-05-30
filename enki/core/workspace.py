@@ -156,6 +156,7 @@ class Workspace(QStackedWidget):
 
     **Signal** emitted, when modified state of a document had been changed (file edited, or saved)
     Bool parameter contains new value
+
     Convenience signal, which retransmits original signal, sent by the document
     """  # pylint: disable=W0105
 
@@ -164,6 +165,7 @@ class Workspace(QStackedWidget):
     cursorPositionChanged(document)
 
     **Signal** emitted, when cursor position has been changed
+
     Convenience signal, which retransmits original signal, sent by the document
     """  # pylint: disable=W0105
 
@@ -172,6 +174,7 @@ class Workspace(QStackedWidget):
     textChanged(document)
 
     **Signal** emitted, when text has been chagned
+
     Convenience signal, which retransmits original signal, sent by the document
     """  # pylint: disable=W0105
 
@@ -180,7 +183,8 @@ class Workspace(QStackedWidget):
     languageChanged(document, language)
 
     **Signal** emitted, when highlighting (programming) language of a file has been changed
-    Convenience signal, which retransmits original signal, sent by Qutepart
+
+    Convenience signal, which retransmits original signal, sent by `Qutepart<qutepart.rtfd.org>`_
     """  # pylint: disable=W0105
 
     indentWidthChanged = pyqtSignal(Document, int)
@@ -188,6 +192,7 @@ class Workspace(QStackedWidget):
     indentWidthChanged(document, width)
 
     **Signal** emitted, when indentation with has been changed
+
     Convenience signal, which retransmits original signal, sent by the document
     """  # pylint: disable=W0105
 
@@ -196,6 +201,7 @@ class Workspace(QStackedWidget):
     indentUseTabsChanged(document, use)
 
     **Signal** emitted, when indentation mode has been changed
+
     Convenience signal, which retransmits original signal, sent by the document
     """  # pylint: disable=W0105
 
@@ -204,6 +210,7 @@ class Workspace(QStackedWidget):
     eolChanged(document, eol)
 
     **Signal** emitted, when EOL mode has been changed
+
     Convenience signal, which retransmits original signal, sent by the document
     """  # pylint: disable=W0105
 

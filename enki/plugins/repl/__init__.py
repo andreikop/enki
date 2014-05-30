@@ -126,7 +126,7 @@ class _AbstractReplPlugin(QObject):
         from repl import SettingsWidget
         widget = SettingsWidget(dialog)
 
-        dialog.appendPage(u"Modes/%s" % self._FULL_NAME, widget, self._icon())
+        dialog.appendPage(u"REPL/%s" % self._FULL_NAME, widget, self._icon())
 
         # Options
         dialog.appendOption(ChoiseOption(dialog, core.config(), "Modes/%s/Enabled" % self._LANGUAGE,
