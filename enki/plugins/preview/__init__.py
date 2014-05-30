@@ -33,8 +33,12 @@ class SettingsWidget(QWidget):
 
         if CodeChat is None:
             # If the CodeChat module can't be loaded, then disable the
-            # associated checkbox.
+            # associated checkbox and show the "not installed" message.
             self.cbEnable.setEnabled(False)
+            self.labelNotInstalled.setVisible(True)
+        else:
+            # Hide the "not installed" message.
+            self.labelNotInstalled.setVisible(False)
 
 
 class Plugin(QObject):
