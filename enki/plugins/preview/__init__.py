@@ -67,10 +67,6 @@ class Plugin(QObject):
             core.config()['CodeChat'] = {}
             core.config()['CodeChat']['Enabled'] = False
             core.config().flush()
-        # If the CodeChat module isn't available, disable it.
-        if not CodeChat:
-            core.config()['CodeChat']['Enabled'] = False
-            core.config().flush()
 
     def del_(self):
         """Uninstall the plugin
