@@ -544,8 +544,8 @@ text after table""", True)
 
     @requiresModule('CodeChat')
     def test_uiCheck9(self):
-        """Uninterpretable markdown syntex will generate errors which will be
-           displayed in the output log window."""
+        """Uninterpretable restructuredText syntax in source code will generate 
+           errors and get displayed in the output log window."""
         core.config()['CodeChat']['Enabled'] = True
         self.testText = u'# .. wrong::'
         self._doBasicTest('py')

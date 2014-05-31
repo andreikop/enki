@@ -408,9 +408,45 @@ class PreviewDock(DockWidget):
         self._setHtmlProgress(-1)
         if errString:
             # Parsing the error string. get number of warnings and errors.
+            # A common error message reads::
+            #
+            #  <string>:1589: (ERROR/3) Unknown interpreted text role "ref".
+            #
+            # Each error/warning occupies one line. The following regular
+            # expression is designed to find,  error position (1589) and message
+            # type(ERROR).
+            #
+            # The regular expression::
+            #
+            #  ^<\w+>:(?P<line>\d+):\s\((?P<type>\w+)/\d+\)
+            #
+            # translates to:
+            #
+            # **^<\w+>**: From line start, match a pair of angle brackets similar
+            # to <string>.
+            #
+            # **:(?P<line>\d+):\s**: next match a pair of colons with number in
+            # it. Group this part as `line`. Example is :1589:. \s means a trailing
+            # space.
+            #
+            # **\((?P<type>\w+)/\d+\)**: next match a pair of parentheses. It should
+            # include two parts seperated by forward slash '/'. Characters before
+            # '/' is groupped as `type`. After the slash there should have some
+            # numbers. Example is (ERROR/3).
+            #
+            # For more details about python regex, refer to `re docs
+            # <https://docs.python.org/2/library/re.html>`_.
             regex = re.compile("^<\w+>:(?P<line>\d+):\s\((?P<type>\w+)/\d+\)",
                                re.MULTILINE)
             result = regex.findall(errString)
+            # If multiple search results are returned and stored in ``result``,
+            # a list of tuples will be generated, such as: ::
+            #
+            #  [(u'101', u'ERROR'), (u'102', u'WARNING')]
+            #
+            # the second element of each tuple, represented as x[1], is the
+            # error type. The next two lines of code will collect all ERRORs and
+            # WARNINGs separately.
             errNum = len(filter(lambda x: 'ERROR' in x[1], result))
             warningNum = len(filter(lambda x: 'WARNING' in x[1], result))
             status = 'Warning(s): ' + str(warningNum) + ' Error(s): ' + str(errNum)
@@ -434,9 +470,10 @@ class PreviewDock(DockWidget):
         self._widget.prgStatus.setStyleSheet(style)
         if progress == -1:
             self._widget.prgStatus.setRange(0, 0)
-        elif progress == 0 or progress is None:
+        elif progress == 0 or not progress:
             self._widget.prgStatus.reset()
         else:
+            assert progress >= 0 and progress <= 100
             self._widget.prgStatus.setRange(0, 100)
             self._widget.prgStatus.setValue(progress)
 
