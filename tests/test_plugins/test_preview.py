@@ -491,7 +491,6 @@ text after table""", True)
         sw = SettingsWidget()
         self.assertTrue(sw.cbEnable.isEnabled())
 
-
     @requiresModule('CodeChat')
     def test_uiCheck4(self):
         """If Enki is opened with CodeChat enabled, the preview dock should be
@@ -501,7 +500,6 @@ text after table""", True)
         # The next line of code is unnecessary since self._doBasicTest() will
         # call self._dock()
         #self._dock()
-
 
     @requiresModule('CodeChat')
     def test_uiCheck5(self):
@@ -627,6 +625,34 @@ text after table""", True)
         self._doBasicTest('py')
         self.assertTrue('red' in self._widget().prgStatus.styleSheet())
         self.assertTrue('Warning(s): 2 Error(s): 2' in self._logText())
+
+    @requiresModule('CodeChat')
+    def test_uiCheck17(self):
+        """Switching between different files should be able to update log
+        window accordingly
+        """
+        core.config()['CodeChat']['Enabled'] = True
+        # First creat a warning only test case
+        document1 = self.createFile('file1.py', '# `<>_')
+        # then an error only case
+        document2 = self.createFile('file2.py', '# .. h::')
+        # then a error free case
+        document3 = self.createFile('file3.py', '# <>_')
+        # switch to document 1
+        core.workspace().setCurrentDocument(document1)
+        self._assertHtmlReady(self._showDock)
+        self.assertTrue('yellow' in self._widget().prgStatus.styleSheet())
+        self.assertTrue('Warning(s): 1 Error(s): 0' in self._logText())
+        # switch to document 2
+        core.workspace().setCurrentDocument(document2)
+        self._assertHtmlReady(self._showDock)
+        self.assertTrue('red' in self._widget().prgStatus.styleSheet())
+        self.assertTrue('Warning(s): 0 Error(s): 1' in self._logText())
+        # switch to document 3
+        core.workspace().setCurrentDocument(document3)
+        self._assertHtmlReady(self._showDock)
+        self.assertEqual(self._widget().prgStatus.styleSheet(), 'QProgressBar::chunk {}')
+        self.assertEqual(self._logText(), '')
 
 # Main
 # ====
