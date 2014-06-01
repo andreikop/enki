@@ -327,6 +327,8 @@ class UISettings(QDialog):
         twItem = QTreeWidgetItem([pathParts[-1]])
         if icon is not None:
             twItem.setIcon(0, icon)
+        else:
+            twItem.setIcon(0, QIcon(':/enkiicons/transparent.png'))
 
         if parentItem is not None:
             parentItem.addChild(twItem)

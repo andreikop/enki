@@ -14,6 +14,7 @@ from PyQt4 import QtGui
 from PyQt4 import uic
 from PyQt4.QtWebKit import QWebPage
 from PyQt4.QtTest import QTest
+import traceback
 
 from enki.core.core import core
 
@@ -28,7 +29,13 @@ try:
 except ImportError as e:
     findApproxTextInTarget = None
 
-
+# Likewise, attempt importing CodeChat; failing that, disable the CodeChat feature.
+try:
+    import CodeChat.CodeToRest as CodeToRest
+    import CodeChat.LanguageSpecificOptions as LSO
+except ImportError:
+    CodeToRest = None
+    LSO = None
 
 
 class ConverterThread(QThread):
@@ -51,7 +58,7 @@ class ConverterThread(QThread):
     def stop_async(self):
         self._queue.put(None)
 
-    def _getHtml(self, language, text):
+    def _getHtml(self, language, text, filePath):
         """Get HTML for document
         """
         if language == 'HTML':
@@ -62,7 +69,20 @@ class ConverterThread(QThread):
             htmlAscii = self._convertReST(text)
             return unicode(htmlAscii, 'utf8')
         else:
-            return 'No preview for this type of file'
+            # Use CodeToRest module to perform code to rst to html conversion,
+            # if CodeToRest is installed.
+            if filePath and LSO and CodeToRest:
+                lso = LSO.LanguageSpecificOptions()
+                fileName, fileExtension = os.path.splitext(filePath)
+                # Check to seee if CodeToRest supportgs this file's extension.
+                if fileExtension not in lso.extension_to_options.keys():
+                    return 'No preview for this type of file'
+                # CodeToRest can render this file. Do so.
+                lso.set_language(fileExtension)
+                return CodeToRest.code_to_html_string(text, lso)
+
+            # Can't find it.
+            return 'No preview for this type of file.'
 
     def _convertMarkdown(self, text):
         """Convert Markdown to HTML
@@ -129,7 +149,10 @@ class ConverterThread(QThread):
             if task is None:  # None is a quit command
                 break
 
-            html = self._getHtml(task.language, task.text)
+            try:
+                html = self._getHtml(task.language, task.text, task.filePath)
+            except Exception:
+                traceback.print_exc()
 
             if not self._queue.qsize():  # Do not emit results, if having new task
                 self.htmlReady.emit(task.filePath, html)
