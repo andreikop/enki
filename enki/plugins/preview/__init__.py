@@ -149,7 +149,7 @@ class Plugin(QObject):
            settings."""
         # First, append the CodeChat settings page to the settings dialog.
         widget = SettingsWidget(dialog)
-        dialog.appendPage(u"CodeChat", widget)
+        dialog.appendPage(u"CodeChat", widget, QIcon(':/enkiicons/codechat.png'))
         # Next, have the CodeChat Enabled checkbox auto-update the corresponding
         # CodeChat config entry.
         dialog.appendOption(CheckableOption(dialog, core.config(),
