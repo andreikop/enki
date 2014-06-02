@@ -7,15 +7,20 @@
 [Full instructions](http://enki-editor.org/install-sources.html)
 
 #### Install dependencies
+Mandatory:
+
 * [Python 2.7](http://python.org/download)
 * [PyQt4](http://www.riverbankcomputing.co.uk/software/pyqt/download)
 * [pyparsing](http://pyparsing.wikispaces.com/Download+and+Installation)
 * [Qutepart](https://github.com/hlamer/qutepart)
-* [Python-Markdown](http://packages.python.org/Markdown/install.html). (Optional, for Markdown preview)
-* [python-docutils](http://docutils.sourceforge.net/) (Optional, for reStructuredText preview)
-* [ctags](http://ctags.sourceforge.net/) (Optional, for navigation in file)
-* [tre](http://hackerboss.com/approximate-regex-matching-in-python/) (Optional, for preview synchronization; see [README](https://github.com/bjones1/tre/blob/master/README) for build instructions)
-* [CodeChat](https://bitbucket.org/bjones/documentation/overview) (Optinal, for source code to HTML translation)
+
+Optional:
+
+* [Python-Markdown](http://packages.python.org/Markdown/install.html). For Markdown preview
+* [python-docutils](http://docutils.sourceforge.net/). For reStructuredText preview
+* [ctags](http://ctags.sourceforge.net/). For navigation in file
+* [tre](http://hackerboss.com/approximate-regex-matching-in-python/). For preview synchronization; see [tre README](https://github.com/bjones1/tre/blob/master/README) for build instructions
+* [CodeChat](https://bitbucket.org/bjones/documentation/overview). For source code to HTML translation (literate programming)
 
 #### Install Enki
     ./setup.py install
