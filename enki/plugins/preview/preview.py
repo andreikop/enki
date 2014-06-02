@@ -407,53 +407,57 @@ class PreviewDock(DockWidget):
         self._widget.teLog.clear()
         self._setHtmlProgress(-1)
         if errString:
-            # Parsing the error string. get number of warnings and errors.
-            # A common error message reads::
+            # This code parses the error string to determine get the number of
+            # warnings and errors. A common error message reads::
             #
             #  <string>:1589: (ERROR/3) Unknown interpreted text role "ref".
             #
-            # Each error/warning occupies one line. The following regular
-            # expression is designed to find,  error position (1589) and message
-            # type(ERROR).
+            # Each error/warning occupies one line. The following `regular
+            # expression
+            # <https://docs.python.org/2/library/re.html#regular-expression-syntax>`_
+            # is designed to find the error position (1589) and message
+            # type (ERROR). Extra spaces are added to show which parts of the
+            # example string it matches::
             #
-            # The regular expression::
+            #  ^<\w+>  :(\d+): \s\((\w+)/\d+\)
+            #  <string>:1589: (ERROR/3)         Unknown interpreted text role "ref".
             #
-            #  ^<\w+>:(?P<line>\d+):\s\((?P<type>\w+)/\d+\)
+            # Examining this expression one element at a time:
             #
-            # translates to:
+            # ``^<\w+>``: From the start of a line, match a pair of angle
+            # brackets similar to <string>.
             #
-            # **^<\w+>**: From line start, match a pair of angle brackets similar
-            # to <string>.
+            # ``:(\d+):\s``: next match a pair of colons with number in
+            # it, follwed by a single space. Place the number in a group. For
+            # example, this pattern matches the stirng ":1589: ". The syntax
+            # ``\s`` denotes a trailing space.
             #
-            # **:(?P<line>\d+):\s**: next match a pair of colons with number in
-            # it. Group this part as `line`. Example is :1589:. \s means a trailing
-            # space.
+            # ``\((\w+)/\d+\)``: next match a pair of parentheses which contain
+            # a word followed by a forward slash ``/`` followed by a number.
+            # For example, this expression matches the string "(ERROR/3)".
             #
-            # **\((?P<type>\w+)/\d+\)**: next match a pair of parentheses. It should
-            # include two parts seperated by forward slash '/'. Characters before
-            # '/' is groupped as `type`. After the slash there should have some
-            # numbers. Example is (ERROR/3).
-            #
-            # For more details about python regex, refer to `re docs
-            # <https://docs.python.org/2/library/re.html>`_.
-            regex = re.compile("^<\w+>:(?P<line>\d+):\s\((?P<type>\w+)/\d+\)",
+            # For more details about python regular expressions, refer to the
+            # `re docs <https://docs.python.org/2/library/re.html>`_.
+            regex = re.compile("^<\w+>:(\d+):\s\((\w+)/\d+\)",
                                re.MULTILINE)
             result = regex.findall(errString)
-            # If multiple search results are returned and stored in ``result``,
-            # a list of tuples will be generated, such as: ::
+            # The variable ``result`` now contains a list of tuples, where each
+            # tuples contains the two matches groups (line number, error_string).
+            # For example::
             #
-            #  [(u'101', u'ERROR'), (u'102', u'WARNING')]
+            #  [('1589', 'ERROR')]
             #
-            # the second element of each tuple, represented as x[1], is the
-            # error type. The next two lines of code will collect all ERRORs and
-            # WARNINGs separately.
+            # Therefeore, the second element of each tuple, represented as x[1],
+            # is the error_string. The next two lines of code will collect all
+            # ERRORs and WARNINGs found in the error_string separately.
             errNum = len(filter(lambda x: 'ERROR' in x[1], result))
             warningNum = len(filter(lambda x: 'WARNING' in x[1], result))
+            # Report these results this to the user.
             status = 'Warning(s): ' + str(warningNum) + ' Error(s): ' + str(errNum)
-            self._widget.teLog.appendPlainText(errString)
-            self._widget.teLog.appendPlainText('\n'+status)
+            self._widget.teLog.appendPlainText(errString + '\n' + status)
+            # Update the progress bar.
             color = 'red' if errNum else 'yellow'
-            self._setHtmlProgress(100, color)  # stop the progress bar
+            self._setHtmlProgress(100, color)
         else:
             self._setHtmlProgress(100)
 
