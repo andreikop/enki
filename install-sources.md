@@ -9,13 +9,20 @@ baseurl: .
 On **Windows**, [this link](https://github.com/hlamer/enki/issues/19) might be helpful.
 
 ## 1. Install dependencies
+Mandatory:
+
 * [Python 2.7](http://python.org/download)
 * [PyQt4](http://www.riverbankcomputing.co.uk/software/pyqt/download)
 * [pyparsing](http://pyparsing.wikispaces.com/Download+and+Installation)
 * [Qutepart](https://github.com/hlamer/qutepart)
-* [Python-Markdown](http://packages.python.org/Markdown/install.html). (Optional, for Markdown preview)
-* [python-docutils](http://docutils.sourceforge.net/). (Optional, for reStructuredText preview)
-* [ctags](http://ctags.sourceforge.net/). (Optional, for navigation in file)
+
+Optional:
+
+* [Python-Markdown](http://packages.python.org/Markdown/install.html). For Markdown preview
+* [python-docutils](http://docutils.sourceforge.net/). For reStructuredText preview
+* [ctags](http://ctags.sourceforge.net/). For navigation in file
+* [tre](http://hackerboss.com/approximate-regex-matching-in-python/). For preview synchronization; see [tre README](https://github.com/bjones1/tre/blob/master/README) for build instructions
+* [CodeChat](https://bitbucket.org/bjones/documentation/overview). For source code to HTML translation (literate programming)
 
 #### Debian and Debian based
 
@@ -33,7 +40,7 @@ Go to official pages of the projects, download packages and install according to
 [Download](https://github.com/hlamer/enki/releases) source archive
 
 ## 3. Setup
-    
+
 `./setup.py install`
 
 ## 4. Fix python interpreter version
