@@ -49,7 +49,7 @@
       <item>
        <widget class="QLabel" name="labelNotInstalled">
         <property name="text">
-         <string>The CodeChat package is not installed. Refer to the link above for installation instructions.</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#ff0000;&quot;&gt;The CodeChat package is not installed or not found&lt;/span&gt;. Refer to the link above for installation instructions.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>
