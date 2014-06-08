@@ -13,6 +13,7 @@ import collections
 import Queue
 import re
 import subprocess
+import traceback
 
 # Third-party imports
 # -------------------
@@ -101,9 +102,9 @@ class ConverterThread(QThread):
             # within the subtree of self.htmlBuilderRootPath. See
             # http://stackoverflow.com/questions/7287996/python-get-relative-path-from-comparing-two-absolute-paths for more discussion.
             elif self.hasContentsRst():
-                prefix = os.path.commonprefix([self.htmlBuilderRootPath, self._filePath])
+                prefix = os.path.commonprefix([self.htmlBuilderRootPath, filePath])
                 htmlFile = '<none>'
-                if len(prefix) == len(self.htmlBuilderRootPath):            
+                if filePath.startswith(self.htmlBuilderRootPath):
                 # Run the builder.
                 self._runHtmlBuilder()
             
@@ -113,13 +114,13 @@ class ConverterThread(QThread):
                     # See if htmlPath + self.htmlBuilderExtension exists. If so, use that.
                     htmlFile = htmlPath + self.htmlBuilderExtension
                     if os.path.exists(htmlFile):
-                        url = QUrl.fromLocalFile(htmlFile)
-                        return u'url', errString, url
+                        return u'', errString, QUrl.fromLocalFile(htmlFile)
                 
             # Otherwise, try replacing the extension with self.htmlBuilderExtension.
-            #
+            # TODO
+                
             # Can't find it.
-            return 'No preview for this type of file.', None, QUrl()
+            return 'No preview for this type of file in ' + htmlFile, None, QUrl()
 
     def _convertMarkdown(self, text):
         """Convert Markdown to HTML
@@ -206,7 +207,7 @@ class ConverterThread(QThread):
                       '-b', 'html',
                       # Select the HTML builder.
                       '-d', '_build/doctrees',
-                      # Place doctrees in the _build directory; by default, Sphinx places this in _build/html/.doctrees.
+                      # Place doctrees in the ``_build`` directory; by default, Sphinx places this in _build/html/.doctrees.
                       '.',
                       # Source directory
                       self.htmlBuilderOutputPath],
@@ -340,14 +341,14 @@ class PreviewDock(DockWidget):
         self._hAtEnd[self._visiblePath] = frame.scrollBarMaximum(Qt.Horizontal) == pos.x()
         self._vAtEnd[self._visiblePath] = frame.scrollBarMaximum(Qt.Vertical) == pos.y()
 
-    def _restoreScrollPos(self):
+    def _restoreScrollPos(self, ok):
         """Restore scroll bar position for document
         """
         if core.workspace().currentDocument() is None:
             return  # nothing to restore if don't have document
 
         try:
-            self._widget.webView .page().mainFrame().contentsSizeChanged.disconnect(self._restoreScrollPos)
+            self._widget.webView .page().mainFrame().loadFinished.disconnect(self._restoreScrollPos)
         except TypeError:  # already has been disconnected
             pass
 
@@ -481,9 +482,8 @@ class PreviewDock(DockWidget):
         """
         self._saveScrollPos()
         self._visiblePath = filePath
-        self._widget.webView.page().mainFrame().contentsSizeChanged.connect(self._restoreScrollPos)
-        if html == u'url':
-            pass
+        self._widget.webView.page().mainFrame().loadFinished.connect(self._restoreScrollPos)
+        if not baseUrl.isEmpty():
             self._widget.webView.setUrl(baseUrl)
         else:
             self._widget.webView.setHtml(html, baseUrl=QUrl.fromLocalFile(filePath))
