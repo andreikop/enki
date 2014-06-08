@@ -457,12 +457,12 @@ class PreviewDock(DockWidget):
             qp = document.qutepart
             language = qp.language()
             text = qp.text
-            if isMarkdownFile(document):
+            if document.qutepart.language() == 'Markdown':
                 language = 'Markdown'
                 text = self._getCurrentTemplate() + text
             elif isHtmlFile(document):
                 language = 'HTML'
-            elif language == 'reStructuredText':
+            elif language == 'Restructured Text':
                 pass
             else:
                 # Save any changes before HTML builder processing.
