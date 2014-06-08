@@ -55,7 +55,7 @@ class ConverterThread(QThread):
         self.htmlBuilderExecutable = u'sphinx-build'
         # Path to the root directory of an HTML builder.
         self.htmlBuilderRootPath = u'D:\\tp'
-        # Path to the HTML output produced by the HTML builder.
+        # Path to the output produced by the HTML builder.
         self.htmlBuilderOutputPath = self.htmlBuilderRootPath + u'\\_build\\html'
         # Extension for resluting HTML files
         self.htmlBuilderExtension = u'.html'
@@ -106,7 +106,7 @@ class ConverterThread(QThread):
                 # Run the builder.
                 self._runHtmlBuilder()
             
-                    # Next, create an htmlPath as self.htmlBuilderOutputPath + htmlRelPath
+                    # Next, create an htmlPath as self.htmlBuilderOutputPath + remainder of htmlRelPath
                     htmlPath = os.path.join(self.htmlBuilderOutputPath + self._filePath[len(self.htmlBuilderRootPath):])
                 
                     # See if htmlPath + self.htmlBuilderExtension exists. If so, use that.
@@ -197,7 +197,7 @@ class ConverterThread(QThread):
     
         try:
             # On Windows, running this from the binary produced by Pyinstller
-            # with the --noconsole option requires redirecting everything
+            # with the ``--noconsole`` option requires redirecting everything
             # (stdin, stdout, stderr) to avoid a OSError exception
             # "[Error 6] the handle is invalid."
             popen = subprocess.Popen(
