@@ -100,7 +100,8 @@ class Plugin(QObject):
             return True
         if CodeChat is not None and core.config()['CodeChat']['Enabled'] is True:
             return True
-        # Hack enki setting.
+
+        # TODO: Only if using an HTML builder should this be true; otherwise, false.
         return True
 
     def _createDock(self):
