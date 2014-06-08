@@ -454,18 +454,20 @@ class PreviewDock(DockWidget):
 
         document = core.workspace().currentDocument()
         if document is not None:
-            language = document.qutepart.language()
-            text = document.qutepart.text
-            if language == 'Markdown':
+            qp = document.qutepart
+            language = qp.language()
+            text = qp.text
+            if isMarkdownFile(document):
+                language = 'Markdown'
                 text = self._getCurrentTemplate() + text
             elif isHtmlFile(document):
                 language = 'HTML'
             elif language == 'reStructuredText':
                 pass
             else:
-                # Save changes before HTML builder processing.
-                core.workspace().currentDocument().saveFile()
-            # update log window
+                # Save any changes before HTML builder processing.
+                if qp.document().isModified():
+                    document.saveFile()
             self._setHtmlProgress(-1)
             # for rest language is already correct
             self._thread.process(document.filePath(), language, text)
@@ -477,10 +479,10 @@ class PreviewDock(DockWidget):
         self._saveScrollPos()
         self._visiblePath = filePath
         self._widget.webView.page().mainFrame().loadFinished.connect(self._restoreScrollPos)
-        if not baseUrl.isEmpty():
-            self._widget.webView.setUrl(baseUrl)
-        else:
+        if baseUrl.isEmpty():
             self._widget.webView.setHtml(html, baseUrl=QUrl.fromLocalFile(filePath))
+        else:
+            self._widget.webView.setUrl(baseUrl)
         self._widget.teLog.clear()
         self._setHtmlProgress(-1)
         if errString:
