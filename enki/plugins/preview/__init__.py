@@ -100,7 +100,8 @@ class Plugin(QObject):
             return True
         if CodeChat is not None and core.config()['CodeChat']['Enabled'] is True:
             return True
-        return False
+        # Hack enki setting.
+        return True
 
     def _createDock(self):
         """Install dock

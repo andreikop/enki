@@ -41,7 +41,7 @@ except ImportError:
 class ConverterThread(QThread):
     """Thread converts markdown to HTML
     """
-    htmlReady = pyqtSignal(unicode, unicode, unicode)
+    htmlReady = pyqtSignal(unicode, unicode, unicode, QUrl)
 
     _Task = collections.namedtuple("Task", ["filePath", "language", "text"])
 
@@ -49,6 +49,12 @@ class ConverterThread(QThread):
         QThread.__init__(self)
         self._queue = Queue.Queue()
         self.start(QThread.LowPriority)
+        # Path to the root directory of an HTML builder.
+        self.htmlBuilderRootPath = u'D:\\tp'
+        # Path to the HTML output produced by the HTML builder.
+        self.htmlBuilderOutputPath = self.htmlBuilderRootPath + u'\\_build\\html'
+        # Extension for resluting HTML files
+        self.htmlBuilderExtension = u'.html'
 
     def process(self, filePath, language, text):
         """Convert data and emit result
@@ -58,20 +64,23 @@ class ConverterThread(QThread):
     def stop_async(self):
         self._queue.put(None)
 
+    def hasContentsRst(self):
+    	return 'contents.rst' in os.listdir(self.htmlBuilderRootPath)
+    	
     def _getHtml(self, language, text, filePath):
         """Get HTML for document
         """
         if language == 'HTML':
-            return text, None
+            return text, None, QUrl()
         elif language == 'Markdown':
-            return self._convertMarkdown(text), None
+            return self._convertMarkdown(text), None, QUrl()
         elif language == 'Restructured Text':
             htmlUnicode, errString = self._convertReST(text)
-            return htmlUnicode, errString
+            return htmlUnicode, errString, QUrl()
         else:
             # Use CodeToRest module to perform code to rst to html conversion,
             # if CodeToRest is installed.
-            if filePath and LSO and CodeToRest:
+            if filePath and LSO and CodeToRest and not self.hasContentsRst():
                 # Use StringIO to pass codechat compilation information to UI.
                 errStream = StringIO.StringIO()
                 lso = LSO.LanguageSpecificOptions()
@@ -84,10 +93,28 @@ class ConverterThread(QThread):
                 htmlString = CodeToRest.code_to_html_string(text, lso, errStream)
                 errString = errStream.getvalue()
                 errStream.close()
-                return htmlString, errString
-
+                return htmlString, errString, QUrl()
+            # Look for HTML builder output. First, see if the current file is
+            # within the subtree of self.htmlBuilderRootPath. See
+            # http://stackoverflow.com/questions/7287996/python-get-relative-path-from-comparing-two-absolute-paths for more discussion.
+            elif self.hasContentsRst():
+                prefix = os.path.commonprefix([self.htmlBuilderRootPath, self._filePath])
+                htmlFile = '<none>'
+                if len(prefix) == len(self.htmlBuilderRootPath):            
+            
+                    # Next, create an htmlPath as self.htmlBuilderOutputPath + htmlRelPath
+                    htmlPath = os.path.join(self.htmlBuilderOutputPath + self._filePath[len(prefix):])
+                
+                    # See if htmlPath + self.htmlBuilderExtension exists. If so, use that.
+                    htmlFile = htmlPath + self.htmlBuilderExtension
+                    if os.path.exists(htmlFile):
+                        url = QUrl.fromLocalFile(htmlFile)
+                        return u'url', errString, url
+                
+            # Otherwise, try replacing the extension with self.htmlBuilderExtension.
+            #
             # Can't find it.
-            return 'No preview for this type of file.', None
+            return 'No preview for this type of file.', None, QUrl()
 
     def _convertMarkdown(self, text):
         """Convert Markdown to HTML
@@ -171,7 +198,7 @@ class ConverterThread(QThread):
                 traceback.print_exc()
 
             if not self._queue.qsize():  # Do not emit results, if having new task
-                self.htmlReady.emit(task.filePath, html, errString)
+                self.htmlReady.emit(task.filePath, html, errString, url)
 
 
 class PreviewDock(DockWidget):
@@ -396,14 +423,18 @@ class PreviewDock(DockWidget):
             # for rest language is already correct
             self._thread.process(document.filePath(), language, text)
 
-    def _setHtml(self, filePath, html, errString=None):
+    def _setHtml(self, filePath, html, errString=None, baseUrl):
         """Set HTML to the view and restore scroll bars position.
         Called by the thread
         """
         self._saveScrollPos()
         self._visiblePath = filePath
         self._widget.webView.page().mainFrame().contentsSizeChanged.connect(self._restoreScrollPos)
-        self._widget.webView.setHtml(html,baseUrl=QUrl.fromLocalFile(filePath))
+        if html == u'url':
+            pass
+            self._widget.webView.setUrl(baseUrl)
+        else:
+            self._widget.webView.setHtml(html, baseUrl=QUrl.fromLocalFile(filePath))
         self._widget.teLog.clear()
         self._setHtmlProgress(-1)
         if errString:
@@ -485,7 +516,7 @@ class PreviewDock(DockWidget):
         """Clear themselves.
         Might be necesssary for stop executing JS and loading data
         """
-        self._setHtml('', '')
+        self._setHtml('', '', QUrl())
 
     def _isJavaScriptEnabled(self):
         """Check if JS is enabled in the settings
