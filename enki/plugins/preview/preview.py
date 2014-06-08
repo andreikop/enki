@@ -12,6 +12,7 @@ import os.path
 import collections
 import Queue
 import re
+import subprocess
 
 # Third-party imports
 # -------------------
@@ -49,6 +50,8 @@ class ConverterThread(QThread):
         QThread.__init__(self)
         self._queue = Queue.Queue()
         self.start(QThread.LowPriority)
+        # Executable to run the HTML builder.
+        self.htmlBuilderExecutable = u'sphinx-build'
         # Path to the root directory of an HTML builder.
         self.htmlBuilderRootPath = u'D:\\tp'
         # Path to the HTML output produced by the HTML builder.
@@ -101,6 +104,8 @@ class ConverterThread(QThread):
                 prefix = os.path.commonprefix([self.htmlBuilderRootPath, self._filePath])
                 htmlFile = '<none>'
                 if len(prefix) == len(self.htmlBuilderRootPath):            
+                # Run the builder.
+                self._runHtmlBuilder()
             
                     # Next, create an htmlPath as self.htmlBuilderOutputPath + htmlRelPath
                     htmlPath = os.path.join(self.htmlBuilderOutputPath + self._filePath[len(prefix):])
@@ -179,6 +184,48 @@ class ConverterThread(QThread):
         errStream.close()
         return htmlString, errString
 
+    def _runHtmlBuilder(self):
+        if hasattr(subprocess, 'STARTUPINFO'):  # windows only
+            # On Windows, subprocess will pop up a command window by default when run from
+            # Pyinstaller with the --noconsole option. Avoid this distraction.
+            si = subprocess.STARTUPINFO()
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            # Windows doesn't search the path by default. Pass it an environment so it will.
+            env = os.environ
+        else:
+            si = None
+            env = None
+    
+        try:
+            # On Windows, running this from the binary produced by Pyinstller
+            # with the --noconsole option requires redirecting everything
+            # (stdin, stdout, stderr) to avoid a OSError exception
+            # "[Error 6] the handle is invalid."
+            popen = subprocess.Popen(
+                    [self.htmlBuilderExecutable,
+                      '-b', 'html',
+                      # Select the HTML builder.
+                      '-d', '_build/doctrees',
+                      # Place doctrees in the _build directory; by default, Sphinx places this in _build/html/.doctrees.
+                      '.',
+                      # Source directory
+                      self.htmlBuilderOutputPath],
+                      # Build directory
+                    cwd=self.htmlBuilderRootPath,
+                    # Sphinx-build breaks without this
+                    stdin=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    startupinfo=si, env=env)
+        except Exception as ex:
+            print 'Failed to execute HTML builder console utility "{}": {}\n'\
+                        .format(self.htmlBuilderExecutable, str(ex)) + \
+                   'Go to Settings -> Settings -> Navigator to set path to HTML builder'
+
+        stdout, stderr = popen.communicate()
+        print(stdout)
+        print(stderr)
+
     def run(self):
         """Thread function
         """
@@ -193,7 +240,7 @@ class ConverterThread(QThread):
                 break
 
             try:
-                html, errString = self._getHtml(task.language, task.text, task.filePath)
+                html, errString, url = self._getHtml(task.language, task.text, task.filePath)
             except Exception:
                 traceback.print_exc()
 
@@ -418,6 +465,11 @@ class PreviewDock(DockWidget):
                 text = self._getCurrentTemplate() + text
             elif isHtmlFile(document):
                 language = 'HTML'
+            elif language == 'reStructuredText':
+                pass
+            else:
+                # Save changes before HTML builder processing.
+                core.workspace().currentDocument().saveFile()
             # update log window
             self._setHtmlProgress(-1)
             # for rest language is already correct
