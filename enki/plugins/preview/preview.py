@@ -102,22 +102,20 @@ class ConverterThread(QThread):
             # within the subtree of self.htmlBuilderRootPath. See
             # http://stackoverflow.com/questions/7287996/python-get-relative-path-from-comparing-two-absolute-paths for more discussion.
             elif self.hasContentsRst():
-                prefix = os.path.commonprefix([self.htmlBuilderRootPath, filePath])
-                htmlFile = '<none>'
-                if filePath.startswith(self.htmlBuilderRootPath):
+				if filePath and  filePath.startswith(self.htmlBuilderRootPath):
                 # Run the builder.
                 self._runHtmlBuilder()
             
                     # Next, create an htmlPath as self.htmlBuilderOutputPath + htmlRelPath
-                    htmlPath = os.path.join(self.htmlBuilderOutputPath + self._filePath[len(prefix):])
+                    htmlPath = os.path.join(self.htmlBuilderOutputPath + self._filePath[len(self.htmlBuilderRootPath):])
                 
                     # See if htmlPath + self.htmlBuilderExtension exists. If so, use that.
                     htmlFile = htmlPath + self.htmlBuilderExtension
                     if os.path.exists(htmlFile):
                         return u'', errString, QUrl.fromLocalFile(htmlFile)
                 
-            # Otherwise, try replacing the extension with self.htmlBuilderExtension.
-            # TODO
+                # Otherwise, try replacing the extension with self.htmlBuilderExtension.
+                # TODO
                 
             # Can't find it.
             return 'No preview for this type of file in ' + htmlFile, None, QUrl()
