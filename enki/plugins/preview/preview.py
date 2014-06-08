@@ -109,11 +109,11 @@ class ConverterThread(QThread):
             # http://stackoverflow.com/questions/7287996/python-get-relative-path-from-comparing-two-absolute-paths for more discussion.
             elif self.hasContentsRst():
 				if filePath and  filePath.startswith(self.htmlBuilderRootPath):
-                # Run the builder.
-                self._runHtmlBuilder()
+                    # Run the builder.
+                    self._runHtmlBuilder()
             
                     # Next, create an htmlPath as self.htmlBuilderOutputPath + remainder of htmlRelPath
-                    htmlPath = os.path.join(self.htmlBuilderOutputPath + self._filePath[len(self.htmlBuilderRootPath):])
+                    htmlPath = os.path.join(self.htmlBuilderOutputPath + filePath[len(self.htmlBuilderRootPath):])
                 
                     # See if htmlPath + self.htmlBuilderExtension exists. If so, use that.
                     htmlFile = htmlPath + self.htmlBuilderExtension
@@ -122,7 +122,7 @@ class ConverterThread(QThread):
                 
                 # Otherwise, try replacing the extension with self.htmlBuilderExtension.
                 # TODO
-                
+
             # Can't find it.
             return 'No preview for this type of file in ' + htmlFile, None, QUrl()
 
@@ -200,7 +200,7 @@ class ConverterThread(QThread):
         else:
             si = None
             env = None
-    
+
         try:
             # On Windows, running this from the binary produced by Pyinstller
             # with the ``--noconsole`` option requires redirecting everything
