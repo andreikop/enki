@@ -74,9 +74,6 @@ class ConverterThread(QThread):
     def stop_async(self):
         self._queue.put(None)
 
-    def hasContentsRst(self):
-    	return 'contents.rst' in os.listdir(self.htmlBuilderRootPath)
-    	
     def _getHtml(self, language, text, filePath):
         """Get HTML for document
         """
@@ -90,14 +87,14 @@ class ConverterThread(QThread):
         else:
             # Use CodeToRest module to perform code to rst to html conversion,
             # if CodeToRest is installed.
-            if filePath and LSO and CodeToRest and not self.hasContentsRst():
+            if filePath and LSO and CodeToRest and not filePath.startswith(self.htmlBuilderRootPath):
                 # Use StringIO to pass codechat compilation information to UI.
                 errStream = StringIO.StringIO()
                 lso = LSO.LanguageSpecificOptions()
                 fileName, fileExtension = os.path.splitext(filePath)
                 # Check to seee if CodeToRest supportgs this file's extension.
                 if fileExtension not in lso.extension_to_options.keys():
-                    return 'No preview for this type of file', None
+                    return 'No preview for this type of file', None, QUrl()
                 # CodeToRest can render this file. Do so.
                 lso.set_language(fileExtension)
                 htmlString = CodeToRest.code_to_html_string(text, lso, errStream)
@@ -107,24 +104,23 @@ class ConverterThread(QThread):
             # Look for HTML builder output. First, see if the current file is
             # within the subtree of self.htmlBuilderRootPath. See
             # http://stackoverflow.com/questions/7287996/python-get-relative-path-from-comparing-two-absolute-paths for more discussion.
-            elif self.hasContentsRst():
-				if filePath and  filePath.startswith(self.htmlBuilderRootPath):
-                    # Run the builder.
-                    self._runHtmlBuilder()
-            
-                    # Next, create an htmlPath as self.htmlBuilderOutputPath + remainder of htmlRelPath
-                    htmlPath = os.path.join(self.htmlBuilderOutputPath + filePath[len(self.htmlBuilderRootPath):])
-                
-                    # See if htmlPath + self.htmlBuilderExtension exists. If so, use that.
-                    htmlFile = htmlPath + self.htmlBuilderExtension
-                    if os.path.exists(htmlFile):
-                        return u'', errString, QUrl.fromLocalFile(htmlFile)
-                
+            elif filePath and filePath.startswith(self.htmlBuilderRootPath):
+                # Run the builder.
+                errString = self._runHtmlBuilder()
+                # Next, create an htmlPath as self.htmlBuilderOutputPath + remainder of htmlRelPath
+                htmlPath = os.path.join(self.htmlBuilderOutputPath + filePath[len(self.htmlBuilderRootPath):])
+                # See if htmlPath + self.htmlBuilderExtension exists. If so, use that.
+                htmlFile = htmlPath + self.htmlBuilderExtension
+                if os.path.exists(htmlFile):
+                    return u'', errString, QUrl.fromLocalFile(htmlFile)
+
                 # Otherwise, try replacing the extension with self.htmlBuilderExtension.
                 # TODO
 
-            # Can't find it.
-            return 'No preview for this type of file in ' + htmlFile, None, QUrl()
+                # Can't find it.
+                return 'No preview for this type of file in ' + htmlFile, None, QUrl()
+
+            return 'No preview for this type of file', None, QUrl()
 
     def _convertMarkdown(self, text):
         """Convert Markdown to HTML
@@ -213,13 +209,12 @@ class ConverterThread(QThread):
                       stdout=subprocess.PIPE,
                       startupinfo=si, env=env)
         except Exception as ex:
-            print 'Failed to execute HTML builder console utility "{}": {}\n'\
-                        .format(self.htmlBuilderExecutable, str(ex)) + \
-                   'Go to Settings -> Settings -> Navigator to set path to HTML builder'
+            return None, 'Failed to execute HTML builder console utility "{}": {}\n'\
+                         .format(self.htmlBuilderExecutable, str(ex)) + \
+                         'Go to Settings -> Settings -> Navigator to set path to HTML builder'
 
         stdout, stderr = popen.communicate()
-        print(stdout)
-        print(stderr)
+        return stdout + '</pre><br><pre><font color=red>' + stderr + '</font>'
 
     def run(self):
         """Thread function
@@ -472,7 +467,7 @@ class PreviewDock(DockWidget):
             # for rest language is already correct
             self._thread.process(document.filePath(), language, text)
 
-    def _setHtml(self, filePath, html, errString=None, baseUrl):
+    def _setHtml(self, filePath, html, errString=None, baseUrl=QUrl()):
         """Set HTML to the view and restore scroll bars position.
         Called by the thread
         """
@@ -487,37 +482,46 @@ class PreviewDock(DockWidget):
         self._setHtmlProgress(-1)
         if errString:
             # This code parses the error string to determine get the number of
-            # warnings and errors. A common error message reads::
+            # warnings and errors. A common docutils error message reads::
             #
             #  <string>:1589: (ERROR/3) Unknown interpreted text role "ref".
+            #
+            #  X:\ode.py:docstring of sympy:5: (ERROR/3) Unexpected indentation.
+            #
+            # and common sphinx errors read::
+            #
+            #  X:\SVM_train.m.rst:2: SEVERE: Title overline & underline mismatch.
+            #
+            #  X:\contents.rst:None: WARNING: image file not readable: a.jpg
             #
             # Each error/warning occupies one line. The following `regular
             # expression
             # <https://docs.python.org/2/library/re.html#regular-expression-syntax>`_
-            # is designed to find the error position (1589) and message
-            # type (ERROR). Extra spaces are added to show which parts of the
-            # example string it matches::
+            # is designed to find the error position (1589/None) and message
+            # type (ERROR/WARNING/SEVERE). Extra spaces are added to show which
+            # parts of the example string it matches::
             #
-            #  ^<\w+>  :(\d+): \s\((\w+)/\d+\)
-            #  <string>:1589: (ERROR/3)         Unknown interpreted text role "ref".
+            #          :(\d+|None):\s\(?(WARNING|ERROR|SEVERE).*
+            #  <string>:1589:        (ERROR/3)Unknown interpreted text role "ref".
             #
             # Examining this expression one element at a time:
             #
-            # ``^<\w+>``: From the start of a line, match a pair of angle
-            # brackets similar to <string>.
+            # ``:(\d+|None):\s``: Find the first occurence of a pair of colons.
+            # Between them one should only have numbers or "None". For example,
+            # this expression matches the string ":1589:" or string ":None:".
+            # The syntax ``\s`` denotes a trailing space.
             #
-            # ``:(\d+):\s``: next match a pair of colons with number in
-            # it, follwed by a single space. Place the number in a group. For
-            # example, this pattern matches the stirng ":1589: ". The syntax
-            # ``\s`` denotes a trailing space.
+            # ``\(?(WARNING|ERROR|SEVERE)``: next match error type, which can
+            # only be "WARNING", "ERROR" or "SEVERE". Before error type it is
+            # allowed to have one left parenthesis.
             #
-            # ``\((\w+)/\d+\)``: next match a pair of parentheses which contain
-            # a word followed by a forward slash ``/`` followed by a number.
-            # For example, this expression matches the string "(ERROR/3)".
+            # ``.*$``: Since one error message occupies one line, a ``*``
+            # quantifier is used along with end-of-line ``$`` to make sure only
+            # the first match is used in each line.
             #
             # For more details about python regular expressions, refer to the
             # `re docs <https://docs.python.org/2/library/re.html>`_.
-            regex = re.compile("^<\w+>:(\d+):\s\((\w+)/\d+\)",
+            regex = re.compile(":(\d+|None): \(?(WARNING|ERROR|SEVERE).*$",
                                re.MULTILINE)
             result = regex.findall(errString)
             # The variable ``result`` now contains a list of tuples, where each
@@ -528,14 +532,15 @@ class PreviewDock(DockWidget):
             #
             # Therefeore, the second element of each tuple, represented as x[1],
             # is the error_string. The next two lines of code will collect all
-            # ERRORs and WARNINGs found in the error_string separately.
-            errNum = len(filter(lambda x: 'ERROR' in x[1], result))
-            warningNum = len(filter(lambda x: 'WARNING' in x[1], result))
+            # ERRORs/SEVEREs and WARNINGs found in the error_string separately.
+            errNum = sum([x[1]==u'ERROR' or x[1]==u'SEVERE' for x in result])
+            warningNum = [x[1] for x in result].count('WARNING')
             # Report these results this to the user.
             status = 'Warning(s): ' + str(warningNum) + ' Error(s): ' + str(errNum)
-            self._widget.teLog.appendPlainText(errString + '\n' + status)
+            self._widget.teLog.appendHtml('<pre>' + errString + '</pre><pre><font color=red>' \
+                                          + status + '</font></pre>')
             # Update the progress bar.
-            color = 'red' if errNum else 'yellow'
+            color = 'red' if errNum else 'yellow' if warningNum else None
             self._setHtmlProgress(100, color)
         else:
             self._setHtmlProgress(100)
@@ -564,7 +569,7 @@ class PreviewDock(DockWidget):
         """Clear themselves.
         Might be necesssary for stop executing JS and loading data
         """
-        self._setHtml('', '', QUrl())
+        self._setHtml('', '', None, QUrl())
 
     def _isJavaScriptEnabled(self):
         """Check if JS is enabled in the settings
