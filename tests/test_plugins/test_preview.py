@@ -157,7 +157,7 @@ class Test(base.TestCase):
         self.assertEmits(
           lambda: QTest.mouseClick(self._widget().webView,
             Qt.LeftButton, Qt.NoModifier, QPoint(0, self._widget().webView.height())),
-          self._dock().jsClick,
+          self._dock().previewSync.jsClick,
           200)
 
 
@@ -174,7 +174,7 @@ class Test(base.TestCase):
         version of the text. Determine how many whitespace characters
         preceed the text.
         """
-        wtc = self._dock()._webTextContent()
+        wtc = self._dock().previewSync._webTextContent()
         return len(wtc) - len(wtc.lstrip())
 
 
@@ -193,7 +193,7 @@ class Test(base.TestCase):
         assert ret
         # Now run the Javascript and see if the index with whitespace added matches.
         self.assertEmits(self._jsOnClick,
-                         self._dock().jsClick,
+                         self._dock().previewSync.jsClick,
                          100,
                          expectedSignalParams=(len(s) + wsLen,))
 
@@ -227,10 +227,10 @@ class Test(base.TestCase):
         wsLen = self._wsLen()
         # Move the code cursor somewhere else, rather than index 0,
         # so working code must change its value.
-        self._dock()._moveTextPaneToIndex(5)
+        self._dock().previewSync._moveTextPaneToIndex(5)
         assert index != 5
         # Now, emit the signal for a click a given index into 'The preview text'.
-        self._dock().jsClick.emit(wsLen + index)
+        self._dock().previewSync.jsClick.emit(wsLen + index)
         # Check the new index, which should be 0.
         p = core.workspace().currentDocument().qutepart.textCursor().position()
         self.assertEqual(p, index)
@@ -302,8 +302,8 @@ class Test(base.TestCase):
         # Move to a location in the first line of the text.
         # The sync won't happen until the timer expires; wait
         # for that.
-        self.assertEmits(lambda: self._dock()._moveTextPaneToIndex(index, False),
-          self._dock()._cursorMovementTimer.timeout, 350)
+        self.assertEmits(lambda: self._dock().previewSync._moveTextPaneToIndex(index, False),
+          self._dock().previewSync._cursorMovementTimer.timeout, 350)
         # The web view should have the line containing s selected now.
         if checkText:
             self.assertTrue(s in self._widget().webView.selectedText())
@@ -423,7 +423,7 @@ text after table""", True)
     # window.
     def test_sync19(self):
         self._doBasicTest('rst')
-        offset = self._dock()._alignScrollAmount(
+        offset = self._dock().previewSync._alignScrollAmount(
           sourceGlobalTop = 0,
           sourceCursorTop = 1,
           targetGlobalTop = 2,
@@ -436,7 +436,7 @@ text after table""", True)
     # window.
     def test_sync20(self):
         self._doBasicTest('rst')
-        offset = self._dock()._alignScrollAmount(
+        offset = self._dock().previewSync._alignScrollAmount(
           sourceGlobalTop = 0,
           sourceCursorTop = 2,
           targetGlobalTop = 0,
@@ -449,7 +449,7 @@ text after table""", True)
     # window.
     def test_sync21(self):
         self._doBasicTest('rst')
-        offset = self._dock()._alignScrollAmount(
+        offset = self._dock().previewSync._alignScrollAmount(
           sourceGlobalTop = 5,
           sourceCursorTop = 2,
           targetGlobalTop = 0,
