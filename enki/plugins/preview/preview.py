@@ -279,8 +279,6 @@ class PreviewDock(DockWidget):
     def _onDocumentChanged(self, old, new):
         """Current document changed, update preview
         """
-        self.previewSync.onDocumentChanged(old, new)
-
         self._typingTimer.stop()
         if new is not None:
             if new.qutepart.language() == 'Markdown':

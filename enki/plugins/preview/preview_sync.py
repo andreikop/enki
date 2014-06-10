@@ -51,6 +51,7 @@ class PreviewSync(QObject):
         self.webView = webView
         self._initPreviewToTextSync()
         self._initTextToPreviewSync()
+        core.workspace().cursorPositionChanged.connect(self._onCursorPositionChanged)
 
     def _onJavaScriptCleared(self):
         """This is called before starting a new load of a web page, to inject the
@@ -613,13 +614,3 @@ class PreviewSync(QObject):
 
             # Sync the cursors.
             self._scrollSync(True)
-
-    def onDocumentChanged(self, old, new):
-        """Called by preview when the document changes."""
-        self._cursorMovementTimer.stop()
-        # Switch connections to the current document.
-        if old is not None:
-            self.currentCursorPositionChanged.disconnect(self._onCursorPositionChanged)
-        if new is not None:
-            self.currentCursorPositionChanged = core.workspace().currentDocument().qutepart.cursorPositionChanged
-            self.currentCursorPositionChanged.connect(self._onCursorPositionChanged)
