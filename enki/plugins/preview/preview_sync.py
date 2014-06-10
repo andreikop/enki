@@ -550,10 +550,6 @@ class PreviewSync(QObject):
         """When the timer above expires, this is called to sync text to preview
         per item 3 above.
         """
-        # Only run this if we can
-        if not findApproxTextInTarget:
-            return
-
         # Stop the timer; the next cursor movement will restart it.
         self._cursorMovementTimer.stop()
         # Perform an approximate match.
@@ -620,11 +616,10 @@ class PreviewSync(QObject):
 
     def onDocumentChanged(self, old, new):
         """Called by preview when the document changes."""
-        if findApproxTextInTarget:
-            self._cursorMovementTimer.stop()
-            # Switch connections to the current document.
-            if old is not None:
-                self.currentCursorPositionChanged.disconnect(self._onCursorPositionChanged)
-            if new is not None:
-                self.currentCursorPositionChanged = core.workspace().currentDocument().qutepart.cursorPositionChanged
-                self.currentCursorPositionChanged.connect(self._onCursorPositionChanged)
+        self._cursorMovementTimer.stop()
+        # Switch connections to the current document.
+        if old is not None:
+            self.currentCursorPositionChanged.disconnect(self._onCursorPositionChanged)
+        if new is not None:
+            self.currentCursorPositionChanged = core.workspace().currentDocument().qutepart.cursorPositionChanged
+            self.currentCursorPositionChanged.connect(self._onCursorPositionChanged)
