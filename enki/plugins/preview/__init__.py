@@ -102,7 +102,7 @@ class Plugin(QObject):
             return True
 
         # TODO: Only if using an HTML builder should this be true; otherwise, false.
-        return True
+        return False
 
     def _createDock(self):
         """Install dock
