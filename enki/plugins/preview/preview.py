@@ -81,9 +81,11 @@ class ConverterThread(QThread):
             return text, None, QUrl()
         elif language == 'Markdown':
             return self._convertMarkdown(text), None, QUrl()
-        elif language == 'Restructured Text' and not filePath.startswith(self.htmlBuilderRootPath):
-            htmlUnicode, errString = self._convertReST(text)
-            return htmlUnicode, errString, QUrl()
+        elif language == 'Restructured Text' and \
+            (not filePath.startswith(self.htmlBuilderRootPath) or \
+            core.config()['CodeChat']['Enabled'] is False):
+              htmlUnicode, errString = self._convertReST(text)
+              return htmlUnicode, errString, QUrl()
         else:
             # Use CodeToRest module to perform code to rst to html conversion,
             # if CodeToRest is installed.

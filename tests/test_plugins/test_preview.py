@@ -467,8 +467,8 @@ text after table""", True)
            disabled by default."""
         from enki.plugins.preview import SettingsWidget
         sw = SettingsWidget()
-        self.assertFalse(sw.cbEnable.isChecked())
-        self.assertTrue(sw.cbEnable.isEnabled())
+        self.assertFalse(sw.cbCodeChatEnable.isChecked())
+        self.assertTrue(sw.cbCodeChatEnable.isEnabled())
 
     def test_uiCheck3(self):
         """ The Enable CodeChat checkbox should only be enabled if CodeChat can
@@ -478,7 +478,7 @@ text after table""", True)
         with ImportFail('CodeChat'):
             reload(enki.plugins.preview)
             sw = SettingsWidget()
-            enabled = sw.cbEnable.isEnabled()
+            enabled = sw.cbCodeChatEnable.isEnabled()
         # When done with this test first restore the state of the preview module
         # by reloaded with the CodeChat module available, so that other tests
         # won't be affected. Therefore, only do an assertFalse **after** the
@@ -489,7 +489,7 @@ text after table""", True)
 
         # Now, prove that the reload worked: CodeChat should now be enabled.
         sw = SettingsWidget()
-        self.assertTrue(sw.cbEnable.isEnabled())
+        self.assertTrue(sw.cbCodeChatEnable.isEnabled())
 
     @requiresModule('CodeChat')
     def test_uiCheck4(self):
