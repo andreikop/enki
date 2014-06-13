@@ -66,7 +66,7 @@ class PreviewSync(QObject):
         # Use `evaluateJavaScript
         # <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#evaluateJavaScript>`_
         # to insert JavaScript needed by PreviewSync.
-        res = mf.evaluateJavaScript(self.jsPreviewSync)
+        res = mf.evaluateJavaScript(self._jsPreviewSync)
         # Make sure no errors were returned; the result should be empty.
         assert not res
 

@@ -43,16 +43,11 @@ from import_fail import ImportFail
 def requiresModule(module):
     """This decorator checks that the given python module, which is
        required for a unit test, is present. If not, it skips the test."""
-    def realDecorator(func):
-        def wrapped(self):
-            try:
-                imp.find_module(module)
-            except ImportError:
-                self.skipTest("This test requires python-{}".format(module))
-            else:
-                func(self)
-        return wrapped
-    return realDecorator
+    try:
+        imp.find_module(module)
+    except ImportError:
+        return unittest.skip("This test requires python-{}".format(module))
+    return lambda func: func
 
 
 class PreviewTestCase(base.TestCase):

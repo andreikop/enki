@@ -38,6 +38,7 @@ from enki.plugins.preview import SettingsWidget
 from import_fail import ImportFail
 
 
+@requiresModule('tre')
 class Test(PreviewTestCase):
     # Web to code sync tests
     ##----------------------
