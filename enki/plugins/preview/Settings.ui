@@ -36,7 +36,7 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;CodeChat is a conversational coding system that encourages literate programming by transforming source code to HTML including hyperlinks, images, and much more. This web page is viewable in the Previw dock. Refer to the CodeChat &lt;a href=&quot;http://bitbucket.org/bjones/documentation/overview&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;documentation&lt;/span&gt;&lt;/a&gt; for more details.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;CodeChat is a conversational coding system that encourages literate programming by transforming source code to HTML including hyperlinks, images, and much more. Refer to the CodeChat &lt;a href=&quot;http://bitbucket.org/bjones/documentation/overview&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;documentation&lt;/span&gt;&lt;/a&gt; for more details.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
