@@ -50,6 +50,8 @@ class Plugin(QObject):
     def del_(self):
         """Uninstall the plugin
         """
+        core.config()['FileBrowser']['LastPath'] = self.dock.currentPath()
+        core.config().flush()
         self.dock.del_()
 
 
@@ -640,7 +642,10 @@ class DockFileBrowser(DockWidget):
         self._smartRecents = SmartRecents(self)
         self._smartHistory = SmartHistory(self)
 
-        self.setCurrentPath(_getCurDir())
+        if os.path.isdir(core.config()['FileBrowser']['LastPath']):
+            self.setCurrentPath(core.config()['FileBrowser']['LastPath'])
+        else:
+            self.setCurrentPath(_getCurDir())
 
 
     def _onDirectoryDropt(self, path):

@@ -1,5 +1,5 @@
 {
-    "_version" : 14,
+    "_version" : 15,
     "PlatformDefaultsHaveBeenSet" : false,
 
     "NegativeFileFilter": [ "*~", "*.o", "*.pyc", "*.bak" ],
@@ -69,5 +69,8 @@
             "Show": "all",
             "Path": "pylint"
         }
+    },
+    "FileBrowser": {
+        "LastPath": ""
     }
 }

@@ -127,6 +127,10 @@ class Config():
                                  }
             self._data['_version'] = 14
 
+        if self._data['_version'] == 14:
+            self._data['FileBrowser'] = {'LastPath': ''}
+            self._data['_version'] = 15
+
     def _setPlatformDefaults(self):
         """Set default values, which depend on platform
         """
