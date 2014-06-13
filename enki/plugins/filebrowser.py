@@ -50,8 +50,11 @@ class Plugin(QObject):
     def del_(self):
         """Uninstall the plugin
         """
-        core.config()['FileBrowser']['LastPath'] = self.dock.currentPath()
-        core.config().flush()
+        curPath = self.dock.currentPath()
+        if curPath is not None:
+            core.config()['FileBrowser']['LastPath'] = curPath
+            core.config().flush()
+
         self.dock.del_()
 
 
@@ -662,8 +665,14 @@ class DockFileBrowser(DockWidget):
 
     def currentPath(self):
         """Get current path (root of the tree)
+
+        None, if tree wasn't created
         """
-        return self._tree.currentPath()
+
+        if self._tree is not None:
+            return self._tree.currentPath()
+        else:
+            return None
 
     def setCurrentPath(self, path):
         """Set current path (root of the tree)
