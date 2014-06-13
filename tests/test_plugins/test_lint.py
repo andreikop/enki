@@ -14,7 +14,8 @@ from PyQt4.QtTest import QTest
 from enki.core.core import core
 from enki.plugins.lint.settings_widget import _getPylintVersion
 
-err = os.system('pylint --version > /dev/null 2>&1')
+nullFile = '/dev/null' if os.name == 'posix' else 'nul'
+err = os.system('pylint --version > {} 2>&1'.format(nullFile))
 havePylint = (0 == err)
 
 class Test(base.TestCase):
@@ -22,7 +23,7 @@ class Test(base.TestCase):
     def test_1(self):
         """ File is checked after opened """
         doc = self.createFile('test.py', 'asdf\n\n')
-        QTest.qWait(200)
+        QTest.qWait(500)
         self.assertEqual(doc.qutepart.lintMarks, {0: ('e', "Undefined variable 'asdf'")})
         self.assertEqual(core.mainWindow().statusBar().currentMessage(), "Undefined variable 'asdf'")
 
@@ -37,7 +38,7 @@ class Test(base.TestCase):
         self.assertEqual(core.mainWindow().statusBar().currentMessage(), "")
 
         doc.saveFile()
-        QTest.qWait(200)
+        QTest.qWait(500)
         self.assertEqual(doc.qutepart.lintMarks, {0: ('n', 'Missing function docstring')})
 
     @unittest.skipUnless(havePylint, 'Pylint not found')
