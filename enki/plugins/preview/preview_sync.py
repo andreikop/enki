@@ -46,12 +46,13 @@ class PreviewSync(QObject):
             return
 
         # Gather into one variable all the JavaScript needed for PreviewSync.
-        self.jsPreviewSync = self.jsOnClick + self.jsWebCursorCoords
+        self._jsPreviewSync = self._jsOnClick + self._jsWebCursorCoords
 
         self.webView = webView
         self._initPreviewToTextSync()
         self._initTextToPreviewSync()
         core.workspace().cursorPositionChanged.connect(self._onCursorPositionChanged)
+        core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
 
     def _onJavaScriptCleared(self):
         """This is called before starting a new load of a web page, to inject the
@@ -128,7 +129,7 @@ class PreviewSync(QObject):
 
     # This string contains JavaScript code to determine the coordinates and height of the
     # anchor of the selection in the web view.
-    jsWebCursorCoords = (
+    _jsWebCursorCoords = (
         # This function returns the [top, left] position in pixels of ``obj``
         # relative to the screen, not to the viewport. This introduces one
         # potential problem: if obj is not visible when this is called, it
@@ -360,7 +361,7 @@ class PreviewSync(QObject):
     #
     # Note: A JavaScript development environment with this code is available
     # at http://jsfiddle.net/hgDwx/110/.
-    jsOnClick = (
+    _jsOnClick = (
         # The `window.onclick
         # <https://developer.mozilla.org/en-US/docs/Web/API/Window.onclick>`_
         # event is "called when the user clicks the mouse button while the
@@ -549,8 +550,12 @@ class PreviewSync(QObject):
 
     def syncTextToPreview(self):
         """When the timer above expires, this is called to sync text to preview
-        per item 3 above.
+        per item 3 above. It can also be called when a sync is needed (when
+        switching windows, for example).
         """
+        # Only run this if we TRE is installed.
+        if not findApproxTextInTarget:
+            return
         # Stop the timer; the next cursor movement will restart it.
         self._cursorMovementTimer.stop()
         # Perform an approximate match.
@@ -614,3 +619,14 @@ class PreviewSync(QObject):
 
             # Sync the cursors.
             self._scrollSync(True)
+
+    def _onDocumentChanged(self, old, new):
+        """When the document changes, ask for cursor position updates from the
+           new document."""
+        self._cursorMovementTimer.stop()
+        # Switch connections to the current document.
+        if old is not None:
+            self.currentCursorPositionChanged.disconnect(self._onCursorPositionChanged)
+        if new is not None:
+            self.currentCursorPositionChanged = core.workspace().currentDocument().qutepart.cursorPositionChanged
+            self.currentCursorPositionChanged.connect(self._onCursorPositionChanged)
