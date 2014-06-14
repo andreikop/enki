@@ -26,7 +26,7 @@ class Test(base.TestCase):
             if text in self._browserText(replName):
                 break
             else:
-                self.sleepProcessEvents(0.1)
+                QTest.qWait(100)
         else:
             self.fail("Text doesn't contain '{}'".format(text))
 

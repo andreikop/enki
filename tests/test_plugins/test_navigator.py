@@ -58,9 +58,9 @@ class Settings(base.TestCase):
         self.createFile('source.rb', RUBY_SOURCE)
         dock = self.findDock('&Navigator')
         model = dock._tagModel
-        self.sleepProcessEvents(0.1)
-        self.assertEqual([tag.name for tag in model._tags[0].children],
-                         ['initialize', '<=>', 'to_s'])
+        self.retryUntilPassed(200,
+                              lambda: self.assertEqual([tag.name for tag in model._tags[0].children],
+                                                       ['initialize', '<=>', 'to_s']))
 
         def continueFunc(dialog):
             page = dialog._pageForItem["Navigator"]
@@ -71,9 +71,9 @@ class Settings(base.TestCase):
         self.openSettings(continueFunc)
         self.assertEqual(core.config()['Navigator']['SortAlphabetically'], True)
 
-        self.sleepProcessEvents(0.1)
-        self.assertEqual([tag.name for tag in model._tags[0].children],
-                         ['<=>', 'initialize', 'to_s'])
+        self.retryUntilPassed(200,
+                              lambda: self.assertEqual([tag.name for tag in model._tags[0].children],
+                                                       ['<=>', 'initialize', 'to_s']))
 
 
 
@@ -87,8 +87,8 @@ class Gui(base.TestCase):
         model = dock._tagModel
         self.assertEqual(model.rowCount(QModelIndex()), 0)
 
-        self.sleepProcessEvents(0.1)
-        self.assertEqual(model.rowCount(QModelIndex()), 2)
+        self.retryUntilPassed(200,
+                              lambda: self.assertEqual(model.rowCount(QModelIndex()), 2))
 
     @base.requiresCmdlineUtility('ctags --version')
     def test_2(self):
@@ -98,13 +98,14 @@ class Gui(base.TestCase):
         model = dock._tagModel
         self.assertEqual(model.rowCount(QModelIndex()), 0)
 
-        self.sleepProcessEvents(0.1)
-        self.assertEqual(model.rowCount(QModelIndex()), 2)
+        self.retryUntilPassed(200,
+                              lambda: self.assertEqual(model.rowCount(QModelIndex()), 2))
 
         document.qutepart.text = RUBY_SOURCE + '\n' + RUBY_SOURCE
         self.assertEqual(model.rowCount(QModelIndex()), 2)
-        self.sleepProcessEvents(1.1)
-        self.assertEqual(model.rowCount(QModelIndex()), 4)
+
+        self.retryUntilPassed(2000,
+                              lambda: self.assertEqual(model.rowCount(QModelIndex()), 4))
 
     def test_3(self):
         # Dock is visible when file is supported, and hidden otherwise
@@ -131,9 +132,9 @@ class Gui(base.TestCase):
         dock = self.findDock('&Navigator')
 
         core.workspace().setCurrentDocument(ruby)
-        self.sleepProcessEvents(0.1)
 
-        self.assertTrue(dock.isVisible())
+        self.retryUntilPassed(200,
+                              lambda: self.assertTrue(dock.isVisible()))
 
         self.keyClicks('N', Qt.AltModifier)
         self.keyClick(Qt.Key_Escape)
@@ -161,14 +162,15 @@ class Gui(base.TestCase):
 
         dock = self.findDock('&Navigator')
 
-        self.sleepProcessEvents(0.5)
-        self.assertTrue(dock._displayWidget.isHidden())
+        self.retryUntilPassed(200,
+                              lambda: self.assertTrue(dock._displayWidget.isHidden()))
         self.assertFalse(dock._errorLabel.isHidden())
 
         core.config()['Navigator']['CtagsPath'] = 'ctags'
         ruby.qutepart.text = RUBY_SOURCE + '\n'
-        self.sleepProcessEvents(1.1)
-        self.assertFalse(dock._displayWidget.isHidden())
+
+        self.retryUntilPassed(2000,
+                              lambda: self.assertFalse(dock._displayWidget.isHidden()))
         self.assertTrue(dock._errorLabel.isHidden())
 
     def _currentItemText(self):
@@ -186,8 +188,8 @@ class Gui(base.TestCase):
         model = dock._tagModel
         self.assertEqual(model.rowCount(QModelIndex()), 0)
 
-        self.sleepProcessEvents(0.1)
-        self.assertEqual(model.rowCount(QModelIndex()), 2)
+        self.retryUntilPassed(200,
+                              lambda: self.assertEqual(model.rowCount(QModelIndex()), 2))
 
         self.keyClick(Qt.Key_N, Qt.AltModifier)
         self.keyClicks('_s')
@@ -209,8 +211,8 @@ class Gui(base.TestCase):
         model = dock._tagModel
         self.assertEqual(model.rowCount(QModelIndex()), 0)
 
-        self.sleepProcessEvents(0.1)
-        self.assertEqual(model.rowCount(QModelIndex()), 2)
+        self.retryUntilPassed(200,
+                              lambda: self.assertEqual(model.rowCount(QModelIndex()), 2))
 
         self.keyClick(Qt.Key_N, Qt.AltModifier)
         self.keyClicks('t')

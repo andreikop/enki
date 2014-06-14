@@ -49,6 +49,7 @@ def _processPendingEvents():
 # an exec_ loop will be printed.
 PRINT_EXEC_TRACKBACK = True
 
+
 def inMainLoop(func, *args):
     """Decorator executes test method in the QApplication main loop.
     QAction shortcuts doesn't work, if main loop is not running.
@@ -256,11 +257,21 @@ class TestCase(unittest.TestCase):
         return self.openDialog(core.actionManager().action("mSettings/aSettings").trigger,
                                runInDialogFunc)
 
-    def sleepProcessEvents(self, delay):
-        end = time.time() + delay
-        while time.time() < end:
-            self.app.processEvents()
-            time.sleep(0.01)
+    def retryUntilPassed(self, timeoutMs, function):
+        """ Try to execute a function until it doesn't generate any exception
+        but not more than for timeoutSec
+        Raise exception, if timeout passed
+        """
+        for _ in range(20):
+            QTest.qWait(timeoutMs / 20.)
+            try:
+                function()
+            except:
+                continue
+            else:
+                return
+        else:
+            function()
 
     def findDock(self, windowTitle):
         for dock in core.mainWindow().findChildren(DockWidget):
@@ -282,6 +293,7 @@ class TestCase(unittest.TestCase):
         """
         self.assertTrue(waitForSignal(sender, senderSignal,
           timeoutMs, expectedSignalParams))
+
 
 def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     """ Wait up to timeoutMs after calling sender() for senderSignal

@@ -6,8 +6,10 @@ import sys
 import time
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
-
 import base
+
+from PyQt4.QtTest import QTest
+
 
 class Test(base.TestCase):
     CREATE_NOT_SAVED_DOCUMENT = False
@@ -20,7 +22,7 @@ class Test(base.TestCase):
     def _sleepAndCheck(self, sleep,
                         doc1_modified, doc1_removed,
                         doc2_modified, doc2_removed):
-        self.sleepProcessEvents(sleep)
+        QTest.qWait(sleep * 1000)
         self.assertEqual(self._doc1._externallyModified, doc1_modified)
         self.assertEqual(self._doc1._externallyRemoved, doc1_removed)
         self.assertEqual(self._doc2._externallyModified, doc2_modified)
