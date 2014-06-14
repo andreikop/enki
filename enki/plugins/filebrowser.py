@@ -23,6 +23,7 @@ from enki.core.defines import CONFIG_DIR
 from enki.core.core import core
 import enki.core.json_wrapper
 
+
 def _getCurDir():
     """Get process current directory
     """
@@ -30,6 +31,7 @@ def _getCurDir():
         return os.path.abspath(unicode(os.curdir))
     except OSError:  # current directory might have been deleted
         return ''
+
 
 class Plugin(QObject):
     """File system tree.
@@ -318,6 +320,7 @@ class _FileSystemModel(QFileSystemModel):
         else:
             return QFileSystemModel.data(self, index, role)
 
+
 class Tree(QTreeView):
     """File system tree
     """
@@ -375,6 +378,7 @@ class Tree(QTreeView):
         self._setFocusTimer = QTimer()
         self._setFocusTimer.timeout.connect(self._setFirstItemAsCurrent)
         self._setFocusTimer.setInterval(50)
+        self.destroyed.connect(self._setFocusTimer.stop)
         self._timerAttempts = 0
 
     def _onActivated(self, idx ):
@@ -480,6 +484,7 @@ class Tree(QTreeView):
         """
         self.setCurrentIndex(index)
         self.selectionModel().select(index, QItemSelectionModel.SelectCurrent)
+
 
 class ComboBox(QComboBox):
     """File browser combo box.
