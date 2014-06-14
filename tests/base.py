@@ -69,22 +69,25 @@ def inMainLoop(func, *args):
 
         # Catch any exceptions which the EventLoop would otherwise catch
         # and not re-raise.
-        ex = []
-        def excepthook(type_, value, traceback):
-            ex.append(value)
+        exceptions = []
+        def excepthook(type_, value, tracebackObj):
+            exceptions.append((value, tracebackObj))
             if PRINT_EXEC_TRACKBACK:
-                oeh(type_, value, traceback)
+                oldExcHook(type_, value, tracebackObj)
             self.app.quit()
-        oeh = sys.excepthook
+        oldExcHook = sys.excepthook
         sys.excepthook = excepthook
 
-        # Run the requested function in the application's main loop.
-        self.app.exec_()
-        # If an exception occurred in the event loop, re-raise it.
-        if ex:
-            raise ex[0]
-        # Restore the old exception hook
-        sys.excepthook = oeh
+        try:
+            # Run the requested function in the application's main loop.
+            self.app.exec_()
+            # If an exception occurred in the event loop, re-raise it.
+            if exceptions:
+                value, tracebackObj = exceptions[0]
+                raise value, None, tracebackObj
+        finally:
+            # Restore the old exception hook
+            sys.excepthook = oldExcHook
 
     wrapper.__name__ = func.__name__  # for unittest test runner
     return wrapper
@@ -338,19 +341,20 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
 
     # Catch any exceptions which the EventLoop would otherwise catch
     # and not re-raise.
-    ex = []
-    def excepthook(type_, value, traceback):
-        ex.append(value)
+    exceptions = []
+    def excepthook(type_, value, tracebackObj):
+        exceptions.append((value, tracebackObj))
         if PRINT_EXEC_TRACKBACK:
-            oeh(type_, value, traceback)
-    oeh = sys.excepthook
+            oldExcHook(type_, value, tracebackObj)
+    oldExcHook = sys.excepthook
     sys.excepthook = excepthook
 
     # Wait for an emitted signal.
     papp.exec_()
     # If an exception occurred in the event loop, re-raise it.
-    if ex:
-        raise ex[0]
+    if exceptions:
+        value, tracebackObj = exceptions[0]
+        raise value, None, tracebackObj
     # Clean up: don't allow the timer to call app.quit after this
     # function exits, which would produce "interesting" behavior.
     ret = timer.isActive()
@@ -362,6 +366,6 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     senderSignal.disconnect(senderSignalSlot)
     timer.timeout.disconnect(papp.quit)
     # Restore the old exception hook
-    sys.excepthook = oeh
+    sys.excepthook = oldExcHook
 
     return ret and senderSignalArgsWrong and (not senderSignalArgsWrong[0])
