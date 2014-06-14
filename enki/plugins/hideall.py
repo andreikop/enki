@@ -8,6 +8,7 @@ from PyQt4.QtCore import QObject
 from enki.core.core import core
 from enki.widgets.dockwidget import DockWidget
 
+
 class Plugin(QObject):
     """Plugin interface
     """

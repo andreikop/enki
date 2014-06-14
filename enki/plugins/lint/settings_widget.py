@@ -11,13 +11,19 @@ from enki.lib.get_console_output import get_console_output
 
 
 def _getPylintVersion(path):
-    """Get pylint version as tuple of integer items or raise OSError if not found
+    """Get pylint version as tuple of integer items.
+
+    Raise OSError if not found
+          ValueError if failed to parse
     """
     stdout, stderr = get_console_output(path, ['--version'])
-    versionLine = [line \
-                        for line in stdout.splitlines() \
-                            if line.startswith('pylint')][0]
-    version = versionLine.split()[1].rstrip(',')
+    try:
+        versionLine = [line \
+                            for line in stdout.splitlines() \
+                                if line.startswith('pylint')][0]
+        version = versionLine.split()[1].rstrip(',')
+    except IndexError:  # incorrect version string
+        raise ValueError()
     return [int(num) \
                 for num in version.split('.')]
 
@@ -46,6 +52,8 @@ class SettingsWidget(QWidget):
             version = _getPylintVersion(path)
         except OSError as ex:
             self.lExecuteError.setText('Failed to execute pylint: {}'.format(ex))
+        except ValueError:
+            self.lExecuteError.setText('Failed to parse pyling version. Does pyling work?')
         else:
             if version[0] >= 1:
                 self.lExecuteError.setText('Pylint is found!')
