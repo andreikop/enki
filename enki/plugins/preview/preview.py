@@ -163,7 +163,7 @@ class PreviewDock(DockWidget):
     closed = pyqtSignal()
 
     def __init__(self):
-        DockWidget.__init__(self, core.mainWindow(), "&Preview", QIcon(':/enkiicons/internet.png'), "Alt+P")
+        DockWidget.__init__(self, core.mainWindow(), "&Preview", QIcon(':/enkiicons/internet.png'), "Alt+W")
         self._widget = QWidget(self)
 
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Preview.ui'), self._widget)
