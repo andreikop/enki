@@ -20,21 +20,21 @@ def _checkDependencies():
     ok = True
     try:
         import PyQt4
-    except ImportError, ex:
+    except ImportError as ex:
         print 'Failed to import Qt4 python bindings:'
         print '\t' + str(ex)
         ok = False
 
     try:
         import pyparsing
-    except ImportError, ex:
+    except ImportError as ex:
         print "Failed to import pyparsing:"
         print '\t' + str(ex)
         ok = False
 
     try:
         import qutepart
-    except ImportError, ex:
+    except ImportError as ex:
         print "Failed to import qutepart:"
         print '\t' + str(ex)
         ok = False

@@ -143,11 +143,10 @@ class _FileWatcher(QObject):
 
 class Document(QWidget):
     """
-    Base class for documents on workspace, such as opened source file, Qt Designer and Qt Assistant, ...
-    Inherit this class, if you want to create new document type
+    Document is a opened file representation.
 
-    This class may requre redesign, if we need to add support for non-textual or non-unicode editor.
-    DO redesign instead of doing dirty hacks
+    It contains file management methods and uses `Qutepart <http://qutepart.rtfd.org/>`_ as an editor widget.
+    Qutepart is available as ``qutepart`` attribute.
     """
 
     documentDataChanged = pyqtSignal()
