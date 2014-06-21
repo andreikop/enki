@@ -27,7 +27,7 @@ class Test(base.TestCase):
         dock = self.findDock('&File Browser')
         dock._onVisibilityChanged(True)
 
-        self.assertEqual(dock.currentPath(), path)
+        self.assertTrue(os.path.samefile(dock.currentPath(), path))
 
 
 if __name__ == '__main__':
