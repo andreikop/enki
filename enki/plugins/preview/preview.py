@@ -60,7 +60,7 @@ class ConverterThread(QThread):
           # Build directory
           u'_build\\html')
         # Path to the root directory of an HTML builder.
-        self.htmlBuilderRootPath = u'D:\\tp'
+        self.htmlBuilderRootPath = core.config()['sphinx']['ProjectPath']
         # Path to the output produced by the HTML builder.
         self.htmlBuilderOutputPath = self.htmlBuilderRootPath + u'\\_build\\html'
         # Extension for resluting HTML files
@@ -74,6 +74,23 @@ class ConverterThread(QThread):
     def stop_async(self):
         self._queue.put(None)
 
+    def _canUseCodeChat(self):
+        return core.config()['CodeChat']['Enabled'] and LSO and CodeToRest
+
+    def _canUseSphinx(self, filePath=None):
+        self._updateSphinxConfig()
+        return core.config()['sphinx']['Enabled'] and filePath.startswith(self.htmlBuilderRootPath)
+
+    def _updateSphinxConfig(self):
+        # Path to the root directory of an HTML builder.
+        if self.htmlBuilderRootPath != core.config()['sphinx']['ProjectPath']:
+            self.htmlBuilderRootPath = core.config()['sphinx']['ProjectPath']
+        # Path to the output produced by the HTML builder.
+        if self.htmlBuilderOutputPath != self.htmlBuilderRootPath + u'\\_build\\html':
+            self.htmlBuilderOutputPath = self.htmlBuilderRootPath + u'\\_build\\html'
+        # Extension for resluting HTML files
+        self.htmlBuilderExtension = u'.html'
+
     def _getHtml(self, language, text, filePath):
         """Get HTML for document
         """
@@ -81,32 +98,21 @@ class ConverterThread(QThread):
             return text, None, QUrl()
         elif language == 'Markdown':
             return self._convertMarkdown(text), None, QUrl()
-        elif language == 'Restructured Text' and \
-            (not filePath.startswith(self.htmlBuilderRootPath) or \
-            core.config()['CodeChat']['Enabled'] is False):
-              htmlUnicode, errString = self._convertReST(text)
-              return htmlUnicode, errString, QUrl()
-        else:
-            # Use CodeToRest module to perform code to rst to html conversion,
-            # if CodeToRest is installed.
-            if filePath and LSO and CodeToRest and not filePath.startswith(self.htmlBuilderRootPath):
-                # Use StringIO to pass codechat compilation information to UI.
-                errStream = StringIO.StringIO()
-                lso = LSO.LanguageSpecificOptions()
-                fileName, fileExtension = os.path.splitext(filePath)
-                # Check to seee if CodeToRest supportgs this file's extension.
-                if fileExtension not in lso.extension_to_options.keys():
-                    return 'No preview for this type of file', None, QUrl()
-                # CodeToRest can render this file. Do so.
-                lso.set_language(fileExtension)
-                htmlString = CodeToRest.code_to_html_string(text, lso, errStream)
-                errString = errStream.getvalue()
-                errStream.close()
-                return htmlString, errString, QUrl()
+        elif language == 'Restructured Text' and\
+            (not filePath.startswith(self.htmlBuilderRootPath) or\
+            core.config()['CodeChat']['Enabled'] is False or\
+            core.config()['sphinx']['Enabled'] is False):
+            # Render rst using docutils if:
+            # Not part of current sphinx project
+            # codechat not enabled
+            # sphinx not enabled
+            htmlUnicode, errString = self._convertReST(text)
+            return htmlUnicode, errString, QUrl()
+        elif filePath:
             # Look for HTML builder output. First, see if the current file is
             # within the subtree of self.htmlBuilderRootPath. See
             # http://stackoverflow.com/questions/7287996/python-get-relative-path-from-comparing-two-absolute-paths for more discussion.
-            elif filePath and filePath.startswith(self.htmlBuilderRootPath):
+            if self._canUseSphinx(filePath):
                 # Run the builder.
                 errString = self._runHtmlBuilder()
                 # Next, create an htmlPath as self.htmlBuilderOutputPath + remainder of htmlRelPath
@@ -123,9 +129,26 @@ class ConverterThread(QThread):
                     return u'', errString, QUrl.fromLocalFile(htmlFileAlter)
 
                 # Can't find it.
-                return 'No preview for this type of file in ' + htmlFile, None, QUrl()
+                return 'No preview for this type of file in ' + htmlFile + " or " + htmlFileAlter,\
+                       None, QUrl()
+            # Use CodeToRest module to perform code to rst to html conversion,
+            # if CodeToRest is installed.
+            elif self._canUseCodeChat():
+                # Use StringIO to pass codechat compilation information to UI.
+                errStream = StringIO.StringIO()
+                lso = LSO.LanguageSpecificOptions()
+                fileName, fileExtension = os.path.splitext(filePath)
+                # Check to seee if CodeToRest supportgs this file's extension.
+                if fileExtension not in lso.extension_to_options.keys():
+                    return 'No preview for this type of file', None, QUrl()
+                # CodeToRest can render this file. Do so.
+                lso.set_language(fileExtension)
+                htmlString = CodeToRest.code_to_html_string(text, lso, errStream)
+                errString = errStream.getvalue()
+                errStream.close()
+                return htmlString, errString, QUrl()
 
-            return 'No preview for this type of file', None, QUrl()
+        return 'No preview for this type of file', None, QUrl()
 
     def _convertMarkdown(self, text):
         """Convert Markdown to HTML
@@ -267,6 +290,9 @@ class PreviewDock(DockWidget):
 
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         core.workspace().textChanged.connect(self._onTextChanged)
+        core.actionManager().action( "mFile/mSave/aCurrent" ).triggered.connect(self.onFileSave)
+        core.actionManager().action( "mFile/mSave/aAll" ).triggered.connect(self.onFileSave)
+        core.actionManager().action( "mFile/mSave/aSaveAs" ).triggered.connect(self.onFileSave)
 
         self._scrollPos = {}
         self._vAtEnd = {}
@@ -288,7 +314,7 @@ class PreviewDock(DockWidget):
         self._scheduleDocumentProcessing()
         self._applyJavaScriptEnabled(self._isJavaScriptEnabled())
 
-        self._widget.tbSave.clicked.connect(self.onSave)
+        self._widget.tbSave.clicked.connect(self.onPreviewSave)
 
         self.previewSync = PreviewSync(self._widget.webView)
 
@@ -437,7 +463,8 @@ class PreviewDock(DockWidget):
     def _onTextChanged(self, document):
         """Text changed, update preview
         """
-        if core.config()['Preview']['Enabled']:
+        if core.config()['Preview']['Enabled'] and \
+           not core.config()['sphinx']['AutoBuild']:
             self._typingTimer.stop()
             self._typingTimer.start()
 
@@ -599,7 +626,7 @@ class PreviewDock(DockWidget):
 
         self._scheduleDocumentProcessing()
 
-    def onSave(self):
+    def onPreviewSave(self):
         """Save contents of the preview"""
         path = QFileDialog.getSaveFileName(self, 'Save Preview as HTML', filter='HTML (*.html)')
         if path:
@@ -610,3 +637,9 @@ class PreviewDock(DockWidget):
                     openedFile.write(data)
             except (OSError, IOError) as ex:
                     QMessageBox.critical(self, "Failed to save HTML", unicode(str(ex), 'utf8'))
+
+    def onFileSave(self):
+        """Sphinx build on save"""
+        if core.config()['Preview']['Enabled']:
+            self._typingTimer.stop()
+            self._typingTimer.start()
