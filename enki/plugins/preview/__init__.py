@@ -48,24 +48,41 @@ class SettingsWidget(QWidget):
 
         if sphinx is None:
             # If the sphinx module can't be loaded, then disable the
-            # associated checkbox and path selection line edit.
+            # associated checkboxes, path selection line edits and output
+            # extension line edits
             self.cbSphinxEnable.setEnabled(False)
             self.leSphinxProjectPath.setEnable(False)
             self.pbSphinxProjectPath.setEnable(False)
-            self.cbAutoBuildEnable.setEnabled(False)
+            self.leSphinxOutputPath.setEnable(False)
+            self.pbSphinxOutputPath.setEnable(False)
+            self.leSphinxOutputExtension.setEnable(False)
+            # disable build on save checkbox
+            self.cbBuildOnSaveEnable.setEnabled(False)
+            # show the "not installed" message
             self.labelSphinxNotInstalled.setVisible(True)
         else:
             # Hide the "not installed" message.
             self.labelSphinxNotInstalled.setVisible(False)
+            # initialize path select pushbuttons
             self.pbSphinxProjectPath.clicked.connect(self._onPbSphinxProjectPathClicked)
+            self.pbSphinxOutputPath.clicked.connect(self._onPbSphinxOutputPathClicked)
+            # set default output format to html
+            self.leSphinxOutputExtension.setText('html')
+            # Use sphinx if sphinx installed
             self.cbSphinxEnable.setChecked(True)
-            self.cbAutoBuildEnable.setChecked(False)
+            # disable build only on save function
+            self.cbBuildOnSaveEnable.setChecked(False)
+
 
     def _onPbSphinxProjectPathClicked(self):
         path = QFileDialog.getExistingDirectory(core.mainWindow(), 'Project path')
         if path:
             self.leSphinxProjectPath.setText(path)
 
+    def _onPbSphinxOutputPathClicked(self):
+        path = QFileDialog.getExistingDirectory(core.mainWindow(), 'Output path')
+        if path:
+            self.leSphinxOutputPath.setText(path)
 
 class Plugin(QObject):
     """Plugin interface implementation
@@ -96,8 +113,10 @@ class Plugin(QObject):
         if not 'sphinx' in core.config():
             core.config()['sphinx'] = {}
             core.config()['sphinx']['Enabled'] = False
-            core.config()['sphinx']['ProjectPath'] = ''
-            core.config()['sphinx']['AutoBuild'] = False
+            core.config()['sphinx']['ProjectPath'] = u''
+            core.config()['sphinx']['BuildOnSave'] = False
+            core.config()['sphinx']['OutputPath'] = u''
+            core.config()['sphinx']['OutputExtension'] = u'html'
             core.config().flush()
 
     def del_(self):
@@ -187,8 +206,8 @@ class Plugin(QObject):
         # First, append the CodeChat settings page to the settings dialog.
         widget = SettingsWidget(dialog)
         dialog.appendPage(u"CodeChat", widget)
-        # Next, have the CodeChat Enabled checkbox auto-update the corresponding
-        # CodeChat config entry.
+        # Next, have the setting UI auto-update the corresponding CodeChat and
+        # config entries.
         dialog.appendOption(CheckableOption(dialog, core.config(),
                                             "CodeChat/Enabled",
                                             widget.cbCodeChatEnable))
@@ -196,7 +215,14 @@ class Plugin(QObject):
                                             "sphinx/Enabled",
                                             widget.cbSphinxEnable))
         dialog.appendOption(TextOption(dialog, core.config(),
-                                       "sphinx/ProjectPath", widget.leSphinxProjectPath))
+                                       "sphinx/ProjectPath",
+                                       widget.leSphinxProjectPath))
+        dialog.appendOption(TextOption(dialog, core.config(),
+                                       "sphinx/OutputPath",
+                                       widget.leSphinxOutputPath))
+        dialog.appendOption(TextOption(dialog, core.config(),
+                                       "sphinx/OutputExtension",
+                                       widget.leSphinxOutputExtension))
         dialog.appendOption(CheckableOption(dialog, core.config(),
-                                            "sphinx/AutoBuild",
-                                            widget.cbAutoBuildEnable))
+                                            "sphinx/BuildOnSave",
+                                            widget.cbBuildOnSaveEnable))
