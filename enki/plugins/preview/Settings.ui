@@ -96,7 +96,7 @@
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="blPath">
+       <layout class="QHBoxLayout" name="blProjectPath">
         <item>
          <widget class="QLabel" name="label_2">
           <property name="text">
@@ -117,22 +117,70 @@
        </layout>
       </item>
       <item>
-       <widget class="QCheckBox" name="cbAutoBuildEnable">
-        <property name="text">
-         <string>Autobuild current project</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="blOutputPath">
+        <item>
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Output path</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="leSphinxOutputPath"/>
+        </item>
+        <item>
+         <widget class="QToolButton" name="pbSphinxOutputPath">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QCheckBox" name="cbBuildOnSaveEnable">
+          <property name="text">
+           <string>Build on save</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Output format</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="leSphinxOutputExtension"/>
+        </item>
+       </layout>
       </item>
       <item>
        <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, Enki will watch current Sphinx directory and rebuild the project when a change is detected. Else Enki will rebuild project on save.&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Build on save lets Enki build current project only on save actions. If not checked, Enki will watch current Sphinx directory and rebuild the project when a change is detected.&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>

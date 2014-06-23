@@ -22,7 +22,6 @@ from PyQt4.QtGui import QDesktopServices, QFileDialog, QIcon, QMessageBox, QWidg
 from PyQt4.QtWebKit import QWebPage
 from PyQt4 import uic
 import StringIO
-import traceback
 
 # Local imports
 # -------------
@@ -62,9 +61,9 @@ class ConverterThread(QThread):
         # Path to the root directory of an HTML builder.
         self.htmlBuilderRootPath = core.config()['sphinx']['ProjectPath']
         # Path to the output produced by the HTML builder.
-        self.htmlBuilderOutputPath = self.htmlBuilderRootPath + u'\\_build\\html'
+        self.htmlBuilderOutputPath = core.config()['sphinx']['OutputPath']
         # Extension for resluting HTML files
-        self.htmlBuilderExtension = u'.html'
+        self.htmlBuilderExtension = u'.' + core.config()['sphinx']['OutputExtension']
 
     def process(self, filePath, language, text):
         """Convert data and emit result
@@ -86,10 +85,11 @@ class ConverterThread(QThread):
         if self.htmlBuilderRootPath != core.config()['sphinx']['ProjectPath']:
             self.htmlBuilderRootPath = core.config()['sphinx']['ProjectPath']
         # Path to the output produced by the HTML builder.
-        if self.htmlBuilderOutputPath != self.htmlBuilderRootPath + u'\\_build\\html':
-            self.htmlBuilderOutputPath = self.htmlBuilderRootPath + u'\\_build\\html'
+        if self.htmlBuilderOutputPath != core.config()['sphinx']['OutputPath']:
+            self.htmlBuilderOutputPath = core.config()['sphinx']['OutputPath']
         # Extension for resluting HTML files
-        self.htmlBuilderExtension = u'.html'
+        if self.htmlBuilderExtension != u'.' + core.config()['sphinx']['OutputExtension']:
+            self.htmlBuilderExtension = u'.' + core.config()['sphinx']['OutputExtension']
 
     def _getHtml(self, language, text, filePath):
         """Get HTML for document
@@ -290,6 +290,8 @@ class PreviewDock(DockWidget):
 
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         core.workspace().textChanged.connect(self._onTextChanged)
+
+        # File save triggers self.onFileSave function
         core.actionManager().action( "mFile/mSave/aCurrent" ).triggered.connect(self.onFileSave)
         core.actionManager().action( "mFile/mSave/aAll" ).triggered.connect(self.onFileSave)
         core.actionManager().action( "mFile/mSave/aSaveAs" ).triggered.connect(self.onFileSave)
@@ -464,7 +466,7 @@ class PreviewDock(DockWidget):
         """Text changed, update preview
         """
         if core.config()['Preview']['Enabled'] and \
-           not core.config()['sphinx']['AutoBuild']:
+           not core.config()['sphinx']['BuildOnSave']:
             self._typingTimer.stop()
             self._typingTimer.start()
 
