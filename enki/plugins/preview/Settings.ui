@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>505</width>
-    <height>323</height>
+    <height>376</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -47,7 +47,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="labelNotInstalled">
+       <widget class="QLabel" name="labelCodeChatNotInstalled">
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#ff0000;&quot;&gt;The CodeChat package is not installed or not found&lt;/span&gt;. Refer to the link above for installation instructions.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -89,7 +89,14 @@
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
+       <widget class="QLabel" name="labelSphinxNotInstalled">
+        <property name="text">
+         <string>Sphinx is not installed. Refer to the link above for installation instructions.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="blPath">
         <item>
          <widget class="QLabel" name="label_2">
           <property name="text">
@@ -98,10 +105,10 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="leSProjectPath"/>
+         <widget class="QLineEdit" name="leSphinxProjectPath"/>
         </item>
         <item>
-         <widget class="QToolButton" name="pbSProjectPath">
+         <widget class="QToolButton" name="pbSphinxProjectPath">
           <property name="text">
            <string>...</string>
           </property>

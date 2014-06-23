@@ -7,16 +7,21 @@
 
 import os.path
 from PyQt4.QtCore import QObject, Qt
-from PyQt4.QtGui import QAction, QIcon, QKeySequence, QWidget
+from PyQt4.QtGui import QAction, QIcon, QKeySequence, QWidget, QFileDialog
 from PyQt4 import uic
 
 from enki.core.core import core
-from enki.core.uisettings import CheckableOption
+from enki.core.uisettings import CheckableOption, TextOption
 
 try:
     import CodeChat
 except ImportError:
     CodeChat = None
+
+try:
+    import sphinx
+except ImportError:
+    sphinx = None
 
 def isHtmlFile(document):
     return document is not None and  \
@@ -36,10 +41,30 @@ class SettingsWidget(QWidget):
             # If the CodeChat module can't be loaded, then disable the
             # associated checkbox and show the "not installed" message.
             self.cbCodeChatEnable.setEnabled(False)
-            self.labelNotInstalled.setVisible(True)
+            self.labelCodeChatNotInstalled.setVisible(True)
         else:
             # Hide the "not installed" message.
-            self.labelNotInstalled.setVisible(False)
+            self.labelCodeChatNotInstalled.setVisible(False)
+
+        if sphinx is None:
+            # If the sphinx module can't be loaded, then disable the
+            # associated checkbox and path selection line edit.
+            self.cbSphinxEnable.setEnabled(False)
+            self.leSphinxProjectPath.setEnable(False)
+            self.pbSphinxProjectPath.setEnable(False)
+            self.cbAutoBuildEnable.setEnabled(False)
+            self.labelSphinxNotInstalled.setVisible(True)
+        else:
+            # Hide the "not installed" message.
+            self.labelSphinxNotInstalled.setVisible(False)
+            self.pbSphinxProjectPath.clicked.connect(self._onPbSphinxProjectPathClicked)
+            self.cbSphinxEnable.setChecked(True)
+            self.cbAutoBuildEnable.setChecked(False)
+
+    def _onPbSphinxProjectPathClicked(self):
+        path = QFileDialog.getExistingDirectory(core.mainWindow(), 'Project path')
+        if path:
+            self.leSphinxProjectPath.setText(path)
 
 
 class Plugin(QObject):
@@ -63,10 +88,16 @@ class Plugin(QObject):
         core.uiSettingsManager().dialogAccepted.connect(self._onDocumentChanged)
 
         # If user's config .json file lacks it, populate CodeChat's default
-        # config key.
+        # config key and sphinx' default config key.
         if not 'CodeChat' in core.config():
             core.config()['CodeChat'] = {}
             core.config()['CodeChat']['Enabled'] = False
+            core.config().flush()
+        if not 'sphinx' in core.config():
+            core.config()['sphinx'] = {}
+            core.config()['sphinx']['Enabled'] = False
+            core.config()['sphinx']['ProjectPath'] = ''
+            core.config()['sphinx']['AutoBuild'] = False
             core.config().flush()
 
     def del_(self):
@@ -100,6 +131,9 @@ class Plugin(QObject):
             return True
         if CodeChat is not None and core.config()['CodeChat']['Enabled'] is True:
             return True
+        # Sphinx does not depend on codechat
+        if sphinx is not None and core.config()['sphinx']['Enabled'] is True:
+            return True
 
         # TODO: Only if using an HTML builder should this be true; otherwise, false.
         return False
@@ -115,7 +149,7 @@ class Plugin(QObject):
             self._dock.shown.connect(self._onDockShown)
             self._saveAction = QAction(QIcon(':enkiicons/save.png'), 'Save Preview as HTML', self._dock)
             self._saveAction.setShortcut(QKeySequence("Alt+Shift+P"))
-            self._saveAction.triggered.connect(self._dock.onSave)
+            self._saveAction.triggered.connect(self._dock.onPreviewSave)
 
         core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
 
@@ -158,3 +192,11 @@ class Plugin(QObject):
         dialog.appendOption(CheckableOption(dialog, core.config(),
                                             "CodeChat/Enabled",
                                             widget.cbCodeChatEnable))
+        dialog.appendOption(CheckableOption(dialog, core.config(),
+                                            "sphinx/Enabled",
+                                            widget.cbSphinxEnable))
+        dialog.appendOption(TextOption(dialog, core.config(),
+                                       "sphinx/ProjectPath", widget.leSphinxProjectPath))
+        dialog.appendOption(CheckableOption(dialog, core.config(),
+                                            "sphinx/AutoBuild",
+                                            widget.cbAutoBuildEnable))
