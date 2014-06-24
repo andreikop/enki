@@ -33,7 +33,7 @@ class SettingsWidget(QWidget):
     """Insert the preview plugin as a page of the UISettings dialog.
     """
     def __init__(self, *args):
-        # Initialize the dialog, loading in our GUI.
+        # Initialize the dialog, loading in Literate programming setting GUI.
         QWidget.__init__(self, *args)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Settings.ui'), self)
 
@@ -49,21 +49,21 @@ class SettingsWidget(QWidget):
         if sphinx is None:
             # If the sphinx module can't be loaded, then disable the
             # associated checkboxes, path selection line edits and output
-            # extension line edits
+            # extension line edits.
+            self.cbSphinxEnable.setChecked(False)
             self.cbSphinxEnable.setEnabled(False)
-            self.leSphinxProjectPath.setEnable(False)
-            self.pbSphinxProjectPath.setEnable(False)
-            self.leSphinxOutputPath.setEnable(False)
-            self.pbSphinxOutputPath.setEnable(False)
-            self.leSphinxOutputExtension.setEnable(False)
+            self.leSphinxProjectPath.setEnabled(False)
+            self.pbSphinxProjectPath.setEnabled(False)
+            self.leSphinxOutputPath.setEnabled(False)
+            self.pbSphinxOutputPath.setEnabled(False)
+            self.leSphinxOutputExtension.setEnabled(False)
             # disable build on save checkbox
             self.cbBuildOnSaveEnable.setEnabled(False)
             # show the "not installed" message
             self.labelSphinxNotInstalled.setVisible(True)
         else:
-            # Hide the "not installed" message.
-            self.labelSphinxNotInstalled.setVisible(False)
-            # initialize path select pushbuttons
+            # If sphinx is available, then set all path selection buttons to
+            # work, along with build on save pushbutton.
             self.pbSphinxProjectPath.clicked.connect(self._onPbSphinxProjectPathClicked)
             self.pbSphinxOutputPath.clicked.connect(self._onPbSphinxOutputPathClicked)
             # set default output format to html
@@ -72,7 +72,8 @@ class SettingsWidget(QWidget):
             self.cbSphinxEnable.setChecked(True)
             # disable build only on save function
             self.cbBuildOnSaveEnable.setChecked(False)
-
+            # Hide the "not installed" message.
+            self.labelSphinxNotInstalled.setVisible(False)
 
     def _onPbSphinxProjectPathClicked(self):
         path = QFileDialog.getExistingDirectory(core.mainWindow(), 'Project path')
@@ -111,6 +112,9 @@ class Plugin(QObject):
             core.config()['CodeChat']['Enabled'] = False
             core.config().flush()
         if not 'sphinx' in core.config():
+        # TODO: if user updates from an old Enki version, certain entries might
+        # not be available, while core.config()['sphinx'] is available, causing
+        # the newly added settings fail to get initialized correctly.
             core.config()['sphinx'] = {}
             core.config()['sphinx']['Enabled'] = False
             core.config()['sphinx']['ProjectPath'] = u''
