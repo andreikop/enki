@@ -112,7 +112,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="leSphinxProjectPath">
+         <widget class="QLineEdit" name="leSphinxProjectPath"/>
         </item>
         <item>
          <widget class="QToolButton" name="pbSphinxProjectPath">
