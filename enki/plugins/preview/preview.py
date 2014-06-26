@@ -109,8 +109,8 @@ class ConverterThread(QThread):
         elif language == 'Markdown':
             return self._convertMarkdown(text), None, QUrl()
         elif language == 'Restructured Text' and\
-            (not filePath.startswith(self.htmlBuilderRootPath) or\
-            core.config()['CodeChat']['Enabled'] is False or\
+            (not filePath.startswith(self.htmlBuilderRootPath) and\
+            core.config()['CodeChat']['Enabled'] is False and\
             core.config()['sphinx']['Enabled'] is False):
             # Render rst using docutils if:
             #   Not part of current sphinx project

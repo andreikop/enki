@@ -69,7 +69,7 @@ class SettingsWidget(QWidget):
             # set default output format to html
             self.leSphinxOutputExtension.setText('html')
             # Use sphinx if sphinx installed
-            self.cbSphinxEnable.setChecked(True)
+            self.cbSphinxEnable.setChecked(False)
             # disable build only on save function
             self.cbBuildOnSaveEnable.setChecked(False)
             # Hide the "not installed" message.
