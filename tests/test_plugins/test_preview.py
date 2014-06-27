@@ -469,16 +469,52 @@ text after table""", True)
         sw = SettingsWidget()
         self.assertFalse(sw.cbCodeChatEnable.isChecked())
         self.assertTrue(sw.cbCodeChatEnable.isEnabled())
+        # If CodeChat module is present, user should not be able to see
+        # 'CodeChat not installed' notification.
+        sw.show()
+        # Widgets that are not on top level will be visible only when all its
+        # ancesters are visible. Check `here <http://qt-project.org/doc/qt-5/qwidget.html#visible-prop>`_
+        # for more details. Calling show() function will force update on
+        # setting ui.
+        self.assertFalse(sw.labelCodeChatNotInstalled.isVisible())
 
+    @requiresModule('sphinx')
+    def test_uiCheck1a(self):
+        """By default, when sphinx is available, it is set to be disabled. So
+           does 'buildOnSave' function"""
+        from enki.plugins.preview import SettingsWidget
+        sw = SettingsWidget()
+        # sphinx is enabled but unchecked.
+        self.assertTrue(sw.cbSphinxEnable.isEnabled())
+        self.assertFalse(sw.cbSphinxEnable.isChecked())
+        # buildOnSave is also enabled but unchecked.
+        self.assertTrue(sw.cbBuildOnSaveEnable.isEnabled())
+        self.assertFalse(sw.cbBuildOnSaveEnable.isChecked())
+        # all setting directory are enabled but empty.
+        self.assertTrue(sw.leSphinxProjectPath.isEnabled())
+        self.assertEqual(sw.leSphinxProjectPath.text(), '')
+        self.assertTrue(sw.leSphinxOutputPath.isEnabled())
+        self.assertEqual(sw.leSphinxOutputPath.text(), '')
+        # builder extension is enabled and set to default 'html'
+        self.assertTrue(sw.leSphinxOutputExtension.isEnabled())
+        self.assertEqual(sw.leSphinxOutputExtension.text(), 'html')
+        # Assert user cannot see 'sphinx not installed notification'
+        sw.show()
+        self.assertFalse(sw.labelSphinxNotInstalled.isVisible())
+
+    @requiresModule('CodeChat')
     def test_uiCheck3(self):
         """ The Enable CodeChat checkbox should only be enabled if CodeChat can
             be imported; otherwise, it should be disabled."""
         # Trick Python into thinking that the CodeChat module doesn't exist.
-        # Verify that the CodeChat checkbox is disabled.
+        # Verify that the CodeChat checkbox is disabled, and 'not installed'
+        # notification is visible.
         with ImportFail('CodeChat'):
             reload(enki.plugins.preview)
             sw = SettingsWidget()
             enabled = sw.cbCodeChatEnable.isEnabled()
+            sw.show()
+            notice = sw.labelCodeChatNotInstalled.isVisible()
         # When done with this test first restore the state of the preview module
         # by reloaded with the CodeChat module available, so that other tests
         # won't be affected. Therefore, only do an assertFalse **after** the
@@ -486,10 +522,62 @@ text after table""", True)
         # fails).
         reload(enki.plugins.preview)
         self.assertFalse(enabled)
+        self.assertTrue(notice)
 
-        # Now, prove that the reload worked: CodeChat should now be enabled.
+        # Now, prove that the reload worked: CodeChat should now be enabled,
+        # and 'not installed' notification should be invisible.
         sw = SettingsWidget()
         self.assertTrue(sw.cbCodeChatEnable.isEnabled())
+        sw.show()
+        self.assertFalse(sw.labelCodeChatNotInstalled.isVisible())
+
+    @requiresModule('sphinx')
+    def test_uiCheck3a(self):
+        """Check sphinx setting GUI behavior if sphinx is not available."""
+        with ImportFail('sphinx'):
+            reload(enki.plugins.preview)
+            sw = SettingsWidget()
+            # Store current checkboxes' states, lineedits' states and
+            # label visibility.
+            sphinxEnabled = sw.cbSphinxEnable.isEnabled()
+            sphinxChecked = sw.cbSphinxEnable.isChecked()
+            buildOnSaveEnabled = sw.cbBuildOnSaveEnable.isEnabled()
+            buildOnSaveChecked = sw.cbBuildOnSaveEnable.isChecked()
+            projectPathEnabled = sw.leSphinxProjectPath.isEnabled()
+            projectPathContent = sw.leSphinxProjectPath.text()
+            outputPathEnabled = sw.leSphinxOutputPath.isEnabled()
+            outputPathContent = sw.leSphinxOutputPath.text()
+            extensionEnabled = sw.leSphinxOutputExtension.isEnabled()
+            extensionContent = sw.leSphinxOutputExtension.text()
+            sw.show()
+            noticeVisible = sw.labelSphinxNotInstalled.isVisible()
+        # When all states have been stored, reenable sphinx module, reload
+        # setting ui before checking previous states in case assersion fail
+        # will effect other test cases.
+        reload(enki.plugins.preview)
+        self.assertTrue(not sphinxEnabled and not sphinxChecked)
+        self.assertTrue(not buildOnSaveEnabled and not buildOnSaveChecked)
+        self.assertFalse(projectPathEnabled)
+        self.assertEqual(projectPathContent, '')
+        self.assertFalse(outputPathEnabled)
+        self.assertEqual(outputPathContent, '')
+        self.assertFalse(extensionEnabled)
+        self.assertEqual(extensionContent, '')
+        self.assertTrue(noticeVisible)
+
+        # After reload, as in test_uiCheck1a, make sure everything works again.
+        sw = SettingsWidget()
+        self.assertTrue(sw.cbSphinxEnable.isEnabled() and not sw.cbSphinxEnable.isChecked())
+        self.assertTrue(sw.cbBuildOnSaveEnable.isEnabled() and not \
+                        sw.cbBuildOnSaveEnable.isChecked())
+        self.assertTrue(sw.leSphinxProjectPath.isEnabled())
+        self.assertEqual(sw.leSphinxProjectPath.text(), '')
+        self.assertTrue(sw.leSphinxOutputPath.isEnabled())
+        self.assertEqual(sw.leSphinxOutputPath.text(), '')
+        self.assertTrue(sw.leSphinxOutputExtension.isEnabled())
+        self.assertEqual(sw.leSphinxOutputExtension.text(), 'html')
+        sw.show()
+        self.assertFalse(sw.labelSphinxNotInstalled.isVisible())
 
     @requiresModule('CodeChat')
     def test_uiCheck4(self):
