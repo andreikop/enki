@@ -109,19 +109,43 @@ class ConverterThread(QThread):
         elif language == 'Markdown':
             return self._convertMarkdown(text), None, QUrl()
         elif language == 'Restructured Text' and\
-            (not filePath.startswith(self.htmlBuilderRootPath) and\
-            core.config()['CodeChat']['Enabled'] is False and\
-            core.config()['sphinx']['Enabled'] is False):
-            # Render rst using docutils if:
-            #   Not part of current sphinx project
-            #   codechat not enabled
-            #   sphinx not enabled
+            not (core.config()['sphinx']['Enabled'] is True and \
+            filePath.startswith(self.htmlBuilderRootPath)):
+            # Render tool for rsT file:
+            #
+            # ========  ========  ===================  ============
+            # CodeChat  Sphinx    In sphinx directory  Tool
+            # ========  ========  ===================  ============
+            # Disabled  Disabled  No                   Docutils
+            # Disabled  Disabled  Yes                  Docutils
+            # Disabled  Enabled   No                   Docutils
+            # Disabled  Enabled   Yes                  Sphinx
+            # Enabled   Disabled  No                   Docutils
+            # Enabled   Disabled  Yes                  Docutils
+            # Enabled   Enabled   No                   Docutils
+            # Enabled   Enabled   Yes                  Sphinx
+            # ========  ========  ===================  ============
             htmlUnicode, errString = self._convertReST(text)
             return htmlUnicode, errString, QUrl()
         elif filePath:
             # Sphinx is designed to have higher priority than CodeChat because
             # of the settings required to config sphinx, and CodeChat can be
             # used as a sphinx module.
+            #
+            # Rendering tool for code file:
+            #
+            # ========  ========  ===================  ============
+            # CodeChat  Sphinx    In sphinx directory  Tool
+            # ========  ========  ===================  ============
+            # Disabled  Disabled  No                   N/A
+            # Disabled  Disabled  Yes                  N/A
+            # Disabled  Enabled   No                   N/A
+            # Disabled  Enabled   Yes                  Sphinx
+            # Enabled   Disabled  No                   CodeChat
+            # Enabled   Disabled  Yes                  CodeChat
+            # Enabled   Enabled   No                   CodeChat
+            # Enabled   Enabled   Yes                  Sphinx
+            # ========  ========  ===================  ============
             #
             # Look for HTML builder output. First, see if the current file is
             # within the subtree of self.htmlBuilderRootPath. See
