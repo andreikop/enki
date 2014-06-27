@@ -82,7 +82,7 @@ class SettingsWidget(QWidget):
             self.leSphinxProjectPath.setText(path)
             # Automatically set the builder output path to '_build\\html' under
             # builder root path
-            self.leSphinxOutputPath.setText(os.path.join(path, '_builder\\html'))
+            self.leSphinxOutputPath.setText(os.path.join(path, '_build\\html'))
 
     def _onPbSphinxOutputPathClicked(self):
         path = QFileDialog.getExistingDirectory(core.mainWindow(), 'Output path')
