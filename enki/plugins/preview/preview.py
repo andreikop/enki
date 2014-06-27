@@ -571,6 +571,8 @@ class PreviewDock(DockWidget):
             #
             #  X:\contents.rst:None: WARNING: image file not readable: a.jpg
             #
+            #  X:\conf.py.rst:: WARNING: document isn't included in any toctree
+            #
             # Each error/warning occupies one line. The following `regular
             # expression
             # <https://docs.python.org/2/library/re.html#regular-expression-syntax>`_
@@ -583,10 +585,10 @@ class PreviewDock(DockWidget):
             #
             # Examining this expression one element at a time:
             #
-            # ``:(\d+|None):\s``: Find the first occurence of a pair of colons.
-            # Between them one should only have numbers or "None". For example,
-            # this expression matches the string ":1589:" or string ":None:".
-            # The syntax ``\s`` denotes a trailing space.
+            # ``:(\d*|None):\s``: Find the first occurence of a pair of colons.
+            # Between them there can be numbers or "None" or nothing. For example,
+            # this expression matches the string ":1589:" or string ":None:" or
+            # string "::". The syntax ``\s`` denotes a trailing space.
             #
             # ``\(?(WARNING|ERROR|SEVERE)``: next match error type, which can
             # only be "WARNING", "ERROR" or "SEVERE". Before error type it is
@@ -598,7 +600,7 @@ class PreviewDock(DockWidget):
             #
             # For more details about python regular expressions, refer to the
             # `re docs <https://docs.python.org/2/library/re.html>`_.
-            regex = re.compile(":(\d+|None): \(?(WARNING|ERROR|SEVERE).*$",
+            regex = re.compile(":(\d*|None): \(?(WARNING|ERROR|SEVERE).*$",
                                re.MULTILINE)
             result = regex.findall(errString)
             # The variable ``result`` now contains a list of tuples, where each
