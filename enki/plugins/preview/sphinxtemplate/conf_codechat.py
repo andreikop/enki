@@ -29,8 +29,8 @@ import sys, os
 # `Project information <http://sphinx-doc.org/config.html#project-information>`_
 # -------------------------------------------------------------------------------
 # `project <http://sphinx-doc.org/config.html#confval-project>`_  and `copyright <http://sphinx-doc.org/config.html#confval-copyright>`_: General information about the project. **Change this** for your project.
-project = u'ECE 8443 Pattern Recognition Spring 2014 Project 2'
-copyright = u'2014, Hejia Pan'
+project = u'Project Name'
+copyright = u'2014, Enki'
 
 # The version info for the project you're documenting, acts as replacement for |version| and |release|, also used in various other places throughout the built documents. **Change these** for your project.
 #

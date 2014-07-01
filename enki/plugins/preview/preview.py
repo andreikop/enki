@@ -51,7 +51,8 @@ class ConverterThread(QThread):
         self._queue = Queue.Queue()
         self.start(QThread.LowPriority)
         # Executable to run the HTML builder.
-        self.htmlBuilderCommandLine = (u'sphinx-build ' +
+        self.htmlBuilderExecutable = 'sphinx-build'
+        self.htmlBuilderCommandLine = (self.htmlBuilderExecutable +
           # Place doctrees in the ``_build`` directory; by default, Sphinx places this in _build/html/.doctrees.
           u'-d _build\\doctrees ' +
           # Source directory
@@ -151,6 +152,8 @@ class ConverterThread(QThread):
             # within the subtree of self.htmlBuilderRootPath. See
             # http://stackoverflow.com/questions/7287996/python-get-relative-path-from-comparing-two-absolute-paths for more discussion.
             if self._canUseSphinx(filePath):
+                # Save current file only
+                core.workspace().currentDocument()._saveToFs(filePath)
                 # Run the builder.
                 errString = self._runHtmlBuilder()
                 # Next, create an htmlPath as self.htmlBuilderOutputPath + remainder of htmlRelPath
@@ -280,7 +283,7 @@ class ConverterThread(QThread):
         except Exception as ex:
             return None, 'Failed to execute HTML builder console utility "{}": {}\n'\
                          .format(self.htmlBuilderExecutable, str(ex)) + \
-                         'Go to Settings -> Settings -> Navigator to set path to HTML builder'
+                         'Go to Settings -> Settings -> CodeChat to set path to HTML builder'
 
         stdout, stderr = popen.communicate()
         return stdout + '</pre><br><pre><font color=red>' + stderr + '</font>'
