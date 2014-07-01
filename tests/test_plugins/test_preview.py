@@ -106,16 +106,14 @@ class PreviewTestCase(base.TestCase):
         with codecs.open(master, 'wb', encoding='utf8') as file_:
             file_.write(""".. toctree::
 
-   code2.""")
+   code.""" + extension)
         # Create code file
         code = os.path.join(self.TEST_FILE_DIR, 'code.' + extension)
         with codecs.open(code, 'wb', encoding='utf8') as file_:
             file_.write(self.testText)
 
         # Open the code file. Wait for Html ready signal
-        masterFile = core.workspace().openFile(master)
         codeFile = core.workspace().openFile(code)
-        print '=============LISTING DIRECTORY================\n', os.listdir('C:\Users\Pan\AppData\Local\Temp\enki-tests')
         self._assertHtmlReady(self._showDock, timeout = 5000)
 
 class Test(PreviewTestCase):

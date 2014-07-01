@@ -54,7 +54,7 @@ class ConverterThread(QThread):
         self.htmlBuilderExecutable = 'sphinx-build'
         self.htmlBuilderCommandLine = (self.htmlBuilderExecutable +
           # Place doctrees in the ``_build`` directory; by default, Sphinx places this in _build/html/.doctrees.
-          u'-d _build\\doctrees ' +
+          u' -d _build\\doctrees ' +
           # Source directory
           u'. ' +
           # Build directory
