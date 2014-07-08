@@ -114,7 +114,46 @@ class PreviewTestCase(base.TestCase):
 
         # Open the code file. Wait for Html ready signal
         codeFile = core.workspace().openFile(code)
-        self._assertHtmlReady(self._showDock, timeout = 5000)
+        self.hellyeah = []
+        def senderSignalSlot(*args):
+            # If the senderSignal args should be checked and they
+            # don't match, then they're wrong. In all other cases,
+            # they're right.
+            print '++++++++load finished received+++++++++'
+            self.hellyeah.append(args)
+
+        self._dock().webViewLoadFinishedWithContent.connect(senderSignalSlot)
+#        print '>>> asserting html ready <<<'
+#        self._assertHtmlReady(self._showDock, timeout=2000)
+        noneFunc = lambda *args, **kwargs: None
+#        print '>>> asserting webview load finished <<<'
+        self._showDock()
+        self.assertEmits(noneFunc, self._dock().webViewLoadFinishedWithContent, 2000)
+
+        print "I hope you can see me (*@$&*!@$^&*!@$^&*!@$^!&*@$^&*!@^"
+        print self.hellyeah
+        print "and the content between us *!$&^!@&*^&*@^#*&!@^#&*"
+#        print "---checkoff 1---"
+#        masterFile = core.workspace().openFile(master)
+#        self._assertHtmlReady(self._showDock)
+#        print "---checkoff 2---"
+#        core.workspace().setCurrentDocument(codeFile)
+#        self._assertHtmlReady(self._showDock)
+#        core.workspace().setCurrentDocument(masterFile)
+#        self._assertHtmlReady(self._showDock)
+
+#        import time
+#        time.sleep(10)
+#        print '=============LISTING TEST DIRECTORY================\n', os.listdir(r'C:\Users\Pan\AppData\Local\Temp\enki-tests')
+#        print "================CURRENT HTML==================\nhtml:"
+#        print self._widget().webView.page().mainFrame().baseUrl()
+#        print self._widget().webView.page().mainFrame().toHtml()
+#        import shutil
+#        shutil.copy('c:/users/pan/appdata/local/temp/enki-tests/_build/html/code.html', 'd:/')
+#        print "================CURRENT LOG===================\n\nLog text:"
+#        print self._logText()
+
+        return codeFile
 
 class Test(PreviewTestCase):
     def test_html(self):
@@ -1033,17 +1072,12 @@ text after img    text after img
         sw = SettingsWidget()
         sw._buildSphinxProject()
         self.testText = """****
-head1
-****"""
-        self._doBasicSphinxTest('rst')
-        print '=============LISTING DIRECTORY================\n', os.listdir('C:\Users\Pan\AppData\Local\Temp\enki-tests')
-#        import time
-#        time.sleep(550)
+head
+****
 
-        print "================CURRENT HTML==================\nhtml:"
-        print self._html()
-        print "================CURRENT LOG===================\n\nLog text:"
-        print self._logText()
+Come and talk"""
+        self._doBasicSphinxTest('rst')
+
 
 # Main
 # ====
