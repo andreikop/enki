@@ -19,6 +19,13 @@ try:
 except ImportError:
     CodeChat = None
 
+import subprocess
+sphinx = []
+try:
+    subprocess.call('sphinx-build --version', stdout=subprocess.PIPE)
+except OSError as e:
+    if e.errno == os.errno.ENOENT:
+        sphinx = None
 try:
     import sphinx
 except ImportError:
