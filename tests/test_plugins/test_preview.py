@@ -1092,27 +1092,27 @@ text after img    text after img
 #        # switch to document 3
 #        core.workspace().setCurrentDocument(document3)
 #        self._assertHtmlReady(self._showDock)
-#        self.assertEqual(self._widget().prgStatus.styleSheet(), 'QProgressBar::chunk {}')
-#        self.assertEqual(self._logText(), '')
+
 
     @requiresModule('sphinx')
-    def test_uiCheck18(self):
-        """Basic sphinx test"""
+    @requiresModule('CodeChat')
+    def test_uiCheck19(self):
+        """Sphinx with CodeChat test: create a sphinx project with codechat
+        enabled."""
+        core.config()['CodeChat']['Enabled'] = True
         core.config()['sphinx']['Enabled'] = True
         core.config()['sphinx']['ProjectPath'] = self.TEST_FILE_DIR
         core.config()['sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build\\html')
         core.config()['sphinx']['OutputExtension'] = 'html'
-        core.config().flush()
 
-        self.testText = """****
-head3
-****
-
-Come and talk"""
-        webViewContent, logContent = self._doBasicSphinxTest('rst')
-        print webViewContent.encode('utf-8')
-        print logContent
-
+        self.testText = """# ****
+# head
+# ****
+#
+# content"""
+        webViewContent, logContent = self._doBasicSphinxTest('py')
+        self.assertTrue(u'<p>content</p>' in webViewContent)
+        self.assertTrue(u'writing output... [ 50%] code.py' in logContent)
 
 # Main
 # ====
