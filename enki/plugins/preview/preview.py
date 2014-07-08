@@ -89,7 +89,8 @@ class ConverterThread(QThread):
         # Sphinx is enabled by Enki: config()['sphinx']['Enabled'] and
         # Current file is in the htmlBuilderRootPath directory: filePath.
         # startswith(self.htmlBuilderRootPath)
-        return core.config()['sphinx']['Enabled'] and filePath.startswith(self.htmlBuilderRootPath)
+        return core.config()['sphinx']['Enabled'] and \
+        self.htmlBuilderRootPath is os.path.commonprefix([self.htmlBuilderRootPath, filePath])
 
     def _updateSphinxConfig(self):
         # Path to the root directory of an HTML builder.
@@ -314,6 +315,7 @@ class PreviewDock(DockWidget):
     """GUI and implementation
     """
     closed = pyqtSignal()
+    webViewLoadFinishedWithContent = pyqtSignal(unicode)
 
     def __init__(self):
         DockWidget.__init__(self, core.mainWindow(), "Previe&w", QIcon(':/enkiicons/internet.png'), "Alt+W")
@@ -408,6 +410,14 @@ class PreviewDock(DockWidget):
         self._vAtEnd[self._visiblePath] = frame.scrollBarMaximum(Qt.Vertical) == pos.y()
 
     def _restoreScrollPos(self, ok):
+        """Store webView content after webView load finished"""
+        print "line 965: Calling _restoreScrollPos"
+        print "line 966: loadFinishedWebViewContent is "
+        self.loadFinishedWebViewContent = self._widget.webView.page().mainFrame().toHtml().encode('utf-8')
+        print self.loadFinishedWebViewContent
+        print "971: emit content"
+        self.webViewLoadFinishedWithContent.emit(self.loadFinishedWebViewContent)
+
         """Restore scroll bar position for document
         """
         if core.workspace().currentDocument() is None:
@@ -553,9 +563,16 @@ class PreviewDock(DockWidget):
         self._visiblePath = filePath
         self._widget.webView.page().mainFrame().loadFinished.connect(self._restoreScrollPos)
         if baseUrl.isEmpty():
+            print 'setting html file with no baseUrl'
+            print 'html is', html
+            print 'filePath is', filePath
             self._widget.webView.setHtml(html, baseUrl=QUrl.fromLocalFile(filePath))
         else:
+            print 'setting html file with good baseUrl: ', baseUrl.toString()
+            print 'this url', 'is' if baseUrl.isValid() else 'is not', 'valid'
+            print 'and its path is: ', baseUrl.toLocalFile()
             self._widget.webView.setUrl(baseUrl)
+
         self._widget.teLog.clear()
         self._setHtmlProgress(-1)
         if errString:
