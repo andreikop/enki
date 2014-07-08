@@ -79,6 +79,7 @@ class PreviewTestCase(base.TestCase):
         return self._widget().webView.page().mainFrame().toHtml()
 
     def _logText(self):
+        """Return log window text"""
         return self._widget().teLog.toPlainText()
 
     def _assertHtmlReady(self, start, timeout=2000):
@@ -154,6 +155,38 @@ class PreviewTestCase(base.TestCase):
 #        print self._logText()
 
         return codeFile
+
+    def test_html(self):
+        self._doBasicTest('html')
+
+    @requiresModule('docutils')
+    def test_rst(self):
+        self._doBasicTest('rst')
+
+    @requiresModule('markdown')
+    def test_markdown(self):
+        self._doBasicTest('md')
+
+    @requiresModule('markdown')
+    def test_markdown_templates(self):
+        core.config()['Preview']['Template'] = 'WhiteOnBlack'
+        document = self.createFile('test.md', 'foo')
+
+        self._assertHtmlReady(self._showDock)
+        combo = self._widget().cbTemplate
+        self.assertEqual(combo.currentText(), 'WhiteOnBlack')
+        self.assertFalse('body {color: white; background: black;}' in self._visibleText())
+        self.assertTrue('body {color: white; background: black;}' in self._html())
+
+        self._assertHtmlReady(lambda: combo.setCurrentIndex(combo.findText('Default')))
+        self.assertFalse('body {color: white; background: black;}' in self._visibleText())
+        self.assertFalse('body {color: white; background: black;}' in self._html())
+        self.assertEqual(core.config()['Preview']['Template'], 'Default')
+
+        self._assertHtmlReady(lambda: combo.setCurrentIndex(combo.findText('WhiteOnBlack')))
+        self.assertEqual(combo.currentText(), 'WhiteOnBlack')
+        self.assertFalse('body {color: white; background: black;}' in self._visibleText())
+        self.assertTrue('body {color: white; background: black;}' in self._html())
 
 class Test(PreviewTestCase):
     def test_html(self):
@@ -1069,14 +1102,16 @@ text after img    text after img
         core.config()['sphinx']['ProjectPath'] = self.TEST_FILE_DIR
         core.config()['sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build\\html')
         core.config()['sphinx']['OutputExtension'] = 'html'
-        sw = SettingsWidget()
-        sw._buildSphinxProject()
+        core.config().flush()
+
         self.testText = """****
-head
+head3
 ****
 
 Come and talk"""
-        self._doBasicSphinxTest('rst')
+        webViewContent, logContent = self._doBasicSphinxTest('rst')
+        print webViewContent.encode('utf-8')
+        print logContent
 
 
 # Main
