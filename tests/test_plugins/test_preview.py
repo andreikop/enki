@@ -571,6 +571,9 @@ text after table""", True)
         self.assertEqual(sw.leSphinxProjectPath.text(), '')
         self.assertTrue(sw.leSphinxOutputPath.isEnabled())
         self.assertEqual(sw.leSphinxOutputPath.text(), '')
+        # executable is enabled and set to default 'sphinx-build'
+        self.assertTrue(sw.leSphinxExecutable.isEnabled())
+        self.assertEqual(sw.leSphinxExecutable.text(), 'sphinx-build')
         # builder extension is enabled and set to default 'html'
         self.assertTrue(sw.leSphinxOutputExtension.isEnabled())
         self.assertEqual(sw.leSphinxOutputExtension.text(), 'html')
