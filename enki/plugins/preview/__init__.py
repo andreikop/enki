@@ -60,6 +60,7 @@ class SettingsWidget(QWidget):
             # extension line edits.
             self.cbSphinxEnable.setChecked(False)
             self.cbSphinxEnable.setEnabled(False)
+            self.leSphinxExecutable.setEnabled(False)
             self.leSphinxProjectPath.setEnabled(False)
             self.pbSphinxProjectPath.setEnabled(False)
             self.leSphinxOutputPath.setEnabled(False)
@@ -74,6 +75,8 @@ class SettingsWidget(QWidget):
             # work, along with build on save pushbutton.
             self.pbSphinxProjectPath.clicked.connect(self._onPbSphinxProjectPathClicked)
             self.pbSphinxOutputPath.clicked.connect(self._onPbSphinxOutputPathClicked)
+            # set default executable to sphinx-build
+            self.leSphinxExecutable.setText("sphinx-build")
             # set default output format to html
             self.leSphinxOutputExtension.setText('html')
             # Use sphinx if sphinx installed
@@ -149,6 +152,7 @@ class Plugin(QObject):
         # the newly added settings fail to get initialized correctly.
             core.config()['sphinx'] = {}
             core.config()['sphinx']['Enabled'] = False
+            core.config()['sphinx']['Executable'] = u'sphinx-build'
             core.config()['sphinx']['ProjectPath'] = u''
             core.config()['sphinx']['BuildOnSave'] = False
             core.config()['sphinx']['OutputPath'] = u''
@@ -262,6 +266,9 @@ class Plugin(QObject):
         dialog.appendOption(CheckableOption(dialog, core.config(),
                                             "sphinx/BuildOnSave",
                                             widget.cbBuildOnSaveEnable))
+        dialog.appendOption(TextOption(dialog, core.config(),
+                                       "sphinx/Executable",
+                                       widget.leSphinxExecutable))
         # TODO: Should we leave _buildSphinxProject in SettingWidget or here in
         # Plugin class?
         widget._buildSphinxProject()
