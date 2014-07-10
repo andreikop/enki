@@ -313,6 +313,11 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     timer = QTimer()
     timer.setSingleShot(True)
 
+    # Create an event loop to run in. Otherwise, we need to use the papp
+    # (QApplication) main loop, which may already be running and therefore
+    # unusable.
+    qe = QEventLoop()
+
     # Create a slot which receives a senderSignal with any number
     # of arguments. Check the arguments against their expected
     # values, if requested, storing the result in senderSignalArgsWrong[0].
@@ -327,11 +332,11 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
           (expectedSignalParams is not None) and
           (expectedSignalParams != args) )
         # We received the requested signal, so exit the event loop.
-        papp.quit()
+        qe.quit()
 
     # Connect both signals to a slot which quits the event loop.
     senderSignal.connect(senderSignalSlot)
-    timer.timeout.connect(papp.quit)
+    timer.timeout.connect(qe.quit)
 
     # Start the sender and the timer and at the beginning of the event loop.
     # Just calling sender() may cause signals emitted in sender
@@ -350,7 +355,7 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     sys.excepthook = excepthook
 
     # Wait for an emitted signal.
-    papp.exec_()
+    qe.exec_()
     # If an exception occurred in the event loop, re-raise it.
     if exceptions:
         value, tracebackObj = exceptions[0]
@@ -364,7 +369,7 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     # will never receive a timeout after the function exits.
     # Likewise, disconnect the senderSignal for the same reason.
     senderSignal.disconnect(senderSignalSlot)
-    timer.timeout.disconnect(papp.quit)
+    timer.timeout.disconnect(qe.quit)
     # Restore the old exception hook
     sys.excepthook = oldExcHook
 
