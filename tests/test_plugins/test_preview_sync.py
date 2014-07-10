@@ -242,9 +242,12 @@ text after img    text after img
 text after table""", False)
 
     @requiresModule('docutils')
+    @base.inMainLoop
     def test_sync14(self):
         """Tables without an embedded image work just fine.
         """
+
+        # This test fails when not run in the main loop. I'm not sure why.
         self._textToWeb('table', """
 ================  ========================
 header1           header2
@@ -268,9 +271,12 @@ text after table""", True)
 """
 
     @requiresModule('docutils')
+    @base.inMainLoop
     def test_sync15(self):
         """Text after an image works just fine.
         """
+
+        # Like test_sync14, this test fails when not run in the main loop. ???
         self._textToWeb('table', """
 .. image:: img.png
 
