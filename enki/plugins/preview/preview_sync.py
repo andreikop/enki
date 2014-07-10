@@ -528,13 +528,6 @@ class PreviewSync(QObject):
         # disabling this sync. Otherwise, that sync would trigger this sync,
         # which is unnecessary.
         self._previewToTextSyncRunning = False
-        # Make the page's content editable, to provide for single-line selection
-        # performed in _movePreviewPaneToIndex(). The other option: make it
-        # editable for just a moment, perform the action, then make it
-        # uneditable. Since this *might* be slower, and since clicks to the web
-        # page move the focus immediately back to the text editor, I don't think
-        # it's possible for a user to edit the page, so I put it here.
-        self.webView.page().setContentEditable(True)
 
     def _onCursorPositionChanged(self):
         """Called when the cursor position in the text pane changes. It (re)schedules
