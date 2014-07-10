@@ -198,6 +198,8 @@ class Test(PreviewTestCase):
         # The cursor is already at index 0. Moving here
         # produces no cursorPositionChanged signal.
         assert index != 0
+        # Make the cursor movement timer expire ASAP to reduce testing time.
+        self._dock().previewSync._cursorMovementTimer.setInterval(0)
         # Move to a location in the first line of the text.
         # The sync won't happen until the timer expires; wait
         # for that.
