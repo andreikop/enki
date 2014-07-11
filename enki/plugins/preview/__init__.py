@@ -70,11 +70,18 @@ class SettingsWidget(QWidget):
             self.cbBuildOnSaveEnable.setEnabled(False)
             # show the "not installed" message
             self.labelSphinxNotInstalled.setVisible(True)
+            # hide advanced setting label.
+            self.lbSphinxEnableAdvMode.setVisible(False)
         else:
             # If sphinx is available, then set all path selection buttons to
             # work, along with build on save pushbutton.
             self.pbSphinxProjectPath.clicked.connect(self._onPbSphinxProjectPathClicked)
             self.pbSphinxOutputPath.clicked.connect(self._onPbSphinxOutputPathClicked)
+            # click on advanced mode label triggers either advanced mode or
+            # normal mode
+#            self.connect(self.lbSphinxEnableAdvMode, SIGNAL('clicked()'), \
+#                         self._onToggleSphinxSettingModeClicked)
+            self.lbSphinxEnableAdvMode.mousePressEvent = self._onToggleSphinxSettingModeClicked
             # set default executable to sphinx-build
             self.leSphinxExecutable.setText("sphinx-build")
             # set default output format to html
@@ -85,6 +92,15 @@ class SettingsWidget(QWidget):
             self.cbBuildOnSaveEnable.setChecked(False)
             # Hide the "not installed" message.
             self.labelSphinxNotInstalled.setVisible(False)
+
+        # Default setting mode is normal mode. Hide all advanced mode entries
+        self.lbSphinxCmdline.setVisible(False)
+        self.leSphinxCmdline.setVisible(False)
+        self.lbSphinxReference.setVisible(False)
+        # if advanced mode has been enabled by the user, then sphinx setting
+        # window will be minimal.
+        if core.config()['sphinx']['AdvanceMode']:
+            self._setSphinxAdvanceSettingMode()
 
     def _onPbSphinxProjectPathClicked(self):
         path = QFileDialog.getExistingDirectory(core.mainWindow(), 'Project path')
@@ -99,9 +115,46 @@ class SettingsWidget(QWidget):
         if path:
             self.leSphinxOutputPath.setText(path)
 
+    def _setSphinxAdvanceSettingMode(self):
+        # hide all path setting line edit boxes and buttons
+        for i in range(self.gridLayout.count()):
+            self.gridLayout.itemAt(i).widget().setVisible(False)
+        # Enable advance setting mode items
+        self.lbSphinxEnableAdvMode.setText("""<html><head/><body><p>
+        <span style=" text-decoration: underline; color:#0000ff;">Normal Mode
+        </span></p></body></html>""")
+        self.lbSphinxEnableAdvMode.setTextFormat(Qt.RichText)
+        self.lbSphinxCmdline.setVisible(True)
+        self.leSphinxCmdline.setVisible(True)
+        self.lbSphinxReference.setVisible(True)
+
+    def _onToggleSphinxSettingModeClicked(self, *args):
+        if core.config()['sphinx']['AdvanceMode']:
+            # if already in advanced mode, click on toggle label switches to
+            # normal mode.
+            core.config()['sphinx']['AdvanceMode'] = False
+            core.config().flush()
+            # Reenable all path setting line edit boxes and buttons
+            for i in range(self.gridLayout.count()):
+                self.gridLayout.itemAt(i).widget().setVisible(True)
+            # Hide all advanced mode entries.
+            self.lbSphinxEnableAdvMode.setText("""<html><head/><body><p>
+            <span style=" text-decoration: underline; color:#0000ff;">Advance Mode
+            </span></p></body></html>""")
+            self.lbSphinxEnableAdvMode.setTextFormat(Qt.RichText)
+            self.lbSphinxCmdline.setVisible(False)
+            self.leSphinxCmdline.setVisible(False)
+            self.lbSphinxReference.setVisible(False)
+        else:
+            # if in normal mode, click on toggle label switches to advanced mode
+            core.config()['sphinx']['AdvanceMode'] = True
+            core.config().flush()
+            # Switch to advance setting mode
+            self._setSphinxAdvanceSettingMode()
+
     def _buildSphinxProject(self):
-        """If Sphinx directory valid and sphinx enabled, add conf.py and
-           default.css to project directory."""
+        """If Sphinx directory is valid and sphinx is enabled, then add conf.py
+           and default.css to project directory."""
         if os.path.exists(core.config()['sphinx']['ProjectPath']) and core.config()['sphinx']['Enabled']:
             # Check whether conf.py or default.css already exist, if so,
             # conf.py template and default.css do not need to be copied
@@ -157,6 +210,7 @@ class Plugin(QObject):
             core.config()['sphinx']['BuildOnSave'] = False
             core.config()['sphinx']['OutputPath'] = u''
             core.config()['sphinx']['OutputExtension'] = u'html'
+            core.config()['sphinx']['AdvanceMode'] = False
             core.config().flush()
 
     def del_(self):
