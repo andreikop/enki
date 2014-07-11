@@ -52,14 +52,6 @@ class ConverterThread(QThread):
         self.start(QThread.LowPriority)
         # Executable to run the HTML builder.
         self.htmlBuilderExecutable = core.config()['sphinx']['Executable']
-        self.htmlBuilderCommandLine = (self.htmlBuilderExecutable +
-          # Place doctrees in the ``_build`` directory; by default, Sphinx places this in _build/html/.doctrees.
-          u' -d _build\\doctrees ' +
-          # Source directory
-          u'. ' +
-          # Build directory
-          # TODO: should we change this part to reflect htmlBuilderOutputPath?
-          u'_build\\html')
         # Path to the root directory of an HTML builder.
         self.htmlBuilderRootPath = core.config()['sphinx']['ProjectPath']
         # Path to the output produced by the HTML builder.
@@ -67,6 +59,16 @@ class ConverterThread(QThread):
         # Extension for resluting HTML files
         # For available builder options, refer to: http://sphinx-doc.org/builders.html
         self.htmlBuilderExtension = u'.' + core.config()['sphinx']['OutputExtension']
+        if core.config()['sphinx']['AdvancedMode']:
+            self.htmlBuilderCommandLine = core.config()['sphinx']['Cmdline']
+        else:
+            self.htmlBuilderCommandLine = (self.htmlBuilderExecutable +
+              # Place doctrees in the ``_build`` directory; by default, Sphinx places this in _build/html/.doctrees.
+              u' -d _build\\doctrees ' +
+              # Source directory
+              self.htmlBuilderRootPath + ' ' +
+              # Build directory
+              self.htmlBuilderOutputPath)
 
     def process(self, filePath, language, text):
         """Convert data and emit result
@@ -93,19 +95,6 @@ class ConverterThread(QThread):
         self.htmlBuilderRootPath is os.path.commonprefix([self.htmlBuilderRootPath, filePath])
 
     def _updateSphinxConfig(self):
-        # Name of command line command.
-        if self.htmlBuilderExecutable != core.config()['sphinx']['Executable']:
-#            print 'update executable and cmdline'
-            self.htmlBuilderExecutable = core.config()['sphinx']['Executable']
-            # Update htmlBuilderCommandLine.
-            self.htmlBuilderCommandLine = (self.htmlBuilderExecutable +
-              # Place doctrees in the ``_build`` directory; by default, Sphinx places this in _build/html/.doctrees.
-              u' -d _build\\doctrees ' +
-              # Source directory
-              u'. ' +
-              # Build directory
-              # TODO: should we change this part to reflect htmlBuilderOutputPath?
-              u'_build\\html')
         # Path to the root directory of an HTML builder.
         if self.htmlBuilderRootPath != core.config()['sphinx']['ProjectPath']:
             self.htmlBuilderRootPath = core.config()['sphinx']['ProjectPath']
@@ -115,6 +104,20 @@ class ConverterThread(QThread):
         # Extension for resluting HTML files
         if self.htmlBuilderExtension != u'.' + core.config()['sphinx']['OutputExtension']:
             self.htmlBuilderExtension = u'.' + core.config()['sphinx']['OutputExtension']
+        # Command line command.
+        if self.htmlBuilderExecutable != core.config()['sphinx']['Executable']:
+            self.htmlBuilderExecutable = core.config()['sphinx']['Executable']
+        if not core.config()['sphinx']['AdvancedMode']:
+            # Update htmlBuilderCommandLine.
+            self.htmlBuilderCommandLine = (self.htmlBuilderExecutable +
+              # Place doctrees in the ``_build`` directory; by default, Sphinx places this in _build/html/.doctrees.
+              u' -d _build\\doctrees ' +
+              # Source directory
+              self.htmlBuilderRootPath + ' ' +
+              # Build directory
+              self.htmlBuilderOutputPath)
+        elif self.htmlBuilderCommandLine != core.config()['sphinx']['Cmdline']:
+            self.htmlBuilderCommandLine = core.config()['sphinx']['Cmdline']
 
     def _getHtml(self, language, text, filePath):
         """Get HTML for document
