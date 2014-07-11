@@ -78,29 +78,29 @@ class SettingsWidget(QWidget):
             self.pbSphinxProjectPath.clicked.connect(self._onPbSphinxProjectPathClicked)
             self.pbSphinxOutputPath.clicked.connect(self._onPbSphinxOutputPathClicked)
             # click on advanced mode label triggers either advanced mode or
-            # normal mode
-#            self.connect(self.lbSphinxEnableAdvMode, SIGNAL('clicked()'), \
-#                         self._onToggleSphinxSettingModeClicked)
+            # normal mode.
             self.lbSphinxEnableAdvMode.mousePressEvent = self._onToggleSphinxSettingModeClicked
             # set default executable to sphinx-build
-            self.leSphinxExecutable.setText("sphinx-build")
+            self.leSphinxExecutable.setText(r'sphinx-build')
             # set default output format to html
-            self.leSphinxOutputExtension.setText('html')
+            self.leSphinxOutputExtension.setText(r'html')
             # Use sphinx if sphinx installed
             self.cbSphinxEnable.setChecked(False)
             # disable build only on save function
             self.cbBuildOnSaveEnable.setChecked(False)
             # Hide the "not installed" message.
             self.labelSphinxNotInstalled.setVisible(False)
+            # Set default commandline even though it is invisible for now
+            self.leSphinxCmdline.setText(u'')
 
-        # Default setting mode is normal mode. Hide all advanced mode entries
+        # Default setting mode is normal mode. Hide all advanced mode items
         self.lbSphinxCmdline.setVisible(False)
         self.leSphinxCmdline.setVisible(False)
         self.lbSphinxReference.setVisible(False)
         # if advanced mode has been enabled by the user, then sphinx setting
         # window will be minimal.
-        if core.config()['sphinx']['AdvanceMode']:
-            self._setSphinxAdvanceSettingMode()
+        if core.config()['sphinx']['AdvancedMode']:
+            self._setSphinxAdvancedSettingMode()
 
     def _onPbSphinxProjectPathClicked(self):
         path = QFileDialog.getExistingDirectory(core.mainWindow(), 'Project path')
@@ -115,11 +115,11 @@ class SettingsWidget(QWidget):
         if path:
             self.leSphinxOutputPath.setText(path)
 
-    def _setSphinxAdvanceSettingMode(self):
+    def _setSphinxAdvancedSettingMode(self):
         # hide all path setting line edit boxes and buttons
         for i in range(self.gridLayout.count()):
             self.gridLayout.itemAt(i).widget().setVisible(False)
-        # Enable advance setting mode items
+        # Enable advanced setting mode items
         self.lbSphinxEnableAdvMode.setText("""<html><head/><body><p>
         <span style=" text-decoration: underline; color:#0000ff;">Normal Mode
         </span></p></body></html>""")
@@ -129,17 +129,17 @@ class SettingsWidget(QWidget):
         self.lbSphinxReference.setVisible(True)
 
     def _onToggleSphinxSettingModeClicked(self, *args):
-        if core.config()['sphinx']['AdvanceMode']:
+        if core.config()['sphinx']['AdvancedMode']:
             # if already in advanced mode, click on toggle label switches to
             # normal mode.
-            core.config()['sphinx']['AdvanceMode'] = False
+            core.config()['sphinx']['AdvancedMode'] = False
             core.config().flush()
             # Reenable all path setting line edit boxes and buttons
             for i in range(self.gridLayout.count()):
                 self.gridLayout.itemAt(i).widget().setVisible(True)
             # Hide all advanced mode entries.
             self.lbSphinxEnableAdvMode.setText("""<html><head/><body><p>
-            <span style=" text-decoration: underline; color:#0000ff;">Advance Mode
+            <span style=" text-decoration: underline; color:#0000ff;">Advanced Mode
             </span></p></body></html>""")
             self.lbSphinxEnableAdvMode.setTextFormat(Qt.RichText)
             self.lbSphinxCmdline.setVisible(False)
@@ -147,10 +147,10 @@ class SettingsWidget(QWidget):
             self.lbSphinxReference.setVisible(False)
         else:
             # if in normal mode, click on toggle label switches to advanced mode
-            core.config()['sphinx']['AdvanceMode'] = True
+            core.config()['sphinx']['AdvancedMode'] = True
             core.config().flush()
-            # Switch to advance setting mode
-            self._setSphinxAdvanceSettingMode()
+            # Switch to advanced setting mode
+            self._setSphinxAdvancedSettingMode()
 
     def _buildSphinxProject(self):
         """If Sphinx directory is valid and sphinx is enabled, then add conf.py
@@ -210,7 +210,8 @@ class Plugin(QObject):
             core.config()['sphinx']['BuildOnSave'] = False
             core.config()['sphinx']['OutputPath'] = u''
             core.config()['sphinx']['OutputExtension'] = u'html'
-            core.config()['sphinx']['AdvanceMode'] = False
+            core.config()['sphinx']['AdvancedMode'] = False
+            core.config()['sphinx']['Cmdline'] = u'sphinx-build -d _build\\doctrees . _build\\html'
             core.config().flush()
 
     def del_(self):
@@ -323,6 +324,9 @@ class Plugin(QObject):
         dialog.appendOption(TextOption(dialog, core.config(),
                                        "sphinx/Executable",
                                        widget.leSphinxExecutable))
+        dialog.appendOption(TextOption(dialog, core.config(),
+                                       "sphinx/Cmdline",
+                                       widget.leSphinxCmdline))
         # TODO: Should we leave _buildSphinxProject in SettingWidget or here in
         # Plugin class?
         widget._buildSphinxProject()
