@@ -60,7 +60,7 @@ class PreviewTestCase(base.TestCase):
     def _dock(self):
         """Find then return the PreviewDock object. Fail if
         it is not found."""
-        return self.findDock('&Preview')
+        return self.findDock('Previe&w')
 
 
     def _widget(self):
