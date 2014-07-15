@@ -91,7 +91,7 @@ class SettingsWidget(QWidget):
             # Hide the "not installed" message.
             self.labelSphinxNotInstalled.setVisible(False)
             # Set default commandline even though it is invisible for now
-            self.leSphinxCmdline.setText(u'')
+            self.leSphinxCmdline.setText(u'sphinx-build -d _build\\doctrees . _build\\html')
 
         # Default setting mode is normal mode. Hide all advanced mode items
         self.lbSphinxCmdline.setVisible(False)

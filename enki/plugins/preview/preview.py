@@ -560,6 +560,7 @@ class PreviewDock(DockWidget):
             elif language == 'Restructured Text':
                 pass
             else:
+                # TODO: Is it necessary to save if file is not html or markdown
                 # Save any changes before HTML builder processing.
                 if qp.document().isModified():
                     document.saveFile()

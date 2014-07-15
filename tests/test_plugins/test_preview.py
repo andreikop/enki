@@ -553,6 +553,7 @@ text after table""", True)
         # for more details. Calling show() function will force update on
         # setting ui.
         self.assertFalse(sw.labelCodeChatNotInstalled.isVisible())
+        sw.close()
 
     @base.requiresCmdlineUtility('sphinx-build --version')
     def test_uiCheck1a(self):
@@ -577,9 +578,31 @@ text after table""", True)
         # builder extension is enabled and set to default 'html'
         self.assertTrue(sw.leSphinxOutputExtension.isEnabled())
         self.assertEqual(sw.leSphinxOutputExtension.text(), 'html')
-        # Assert user cannot see 'sphinx not installed notification'
+        # Assert advanced mode toggle label reads 'Advanced Mode'
+        self.assertTrue('Advanced Mode' in sw.lbSphinxEnableAdvMode.text())
         sw.show()
+        # Assert user cannot see 'sphinx not installed notification'
         self.assertFalse(sw.labelSphinxNotInstalled.isVisible())
+        # Assert user cannot see any advanced setting items.
+        self.assertFalse(sw.lbSphinxCmdline.isVisible())
+        self.assertFalse(sw.leSphinxCmdline.isVisible())
+        self.assertFalse(sw.lbSphinxReference.isVisible())
+        sw.close()
+        # Now simulate a keypress event on advanced setting toggle label
+        sw.lbSphinxEnableAdvMode.mousePressEvent()
+        # Verify that in advanced setting mode, default command line commands are used.
+        self.assertTrue(sw.leSphinxCmdline.text(), u'sphinx-build -d _build\\doctrees . _build\\html')
+        # Assert advanced model toggle label now reads 'Normal Mode'
+        self.assertTrue('Normal Mode' in sw.lbSphinxEnableAdvMode.text())
+        sw.show()
+        # Verify that normal mode setting line edits and pushbuttons are all gone
+        for i in range(sw.gridLayout.count()):
+            self.assertFalse(sw.gridLayout.itemAt(i).widget().isVisible())
+        # Verify advanced mode setting line edits and labels are visible
+        self.assertTrue(sw.lbSphinxCmdline.isVisible())
+        self.assertTrue(sw.leSphinxCmdline.isVisible())
+        self.assertTrue(sw.lbSphinxReference.isVisible())
+        sw.close()
 
     @requiresModule('CodeChat')
     def test_uiCheck3(self):
@@ -594,6 +617,7 @@ text after table""", True)
             enabled = sw.cbCodeChatEnable.isEnabled()
             sw.show()
             notice = sw.labelCodeChatNotInstalled.isVisible()
+            sw.close()
         # When done with this test first restore the state of the preview module
         # by reloaded with the CodeChat module available, so that other tests
         # won't be affected. Therefore, only do an assertFalse **after** the
@@ -609,6 +633,7 @@ text after table""", True)
         self.assertTrue(sw.cbCodeChatEnable.isEnabled())
         sw.show()
         self.assertFalse(sw.labelCodeChatNotInstalled.isVisible())
+        sw.close()
 
     @base.requiresCmdlineUtility('sphinx-build --version')
     def test_uiCheck3a(self):
@@ -630,6 +655,7 @@ text after table""", True)
             extensionContent = sw.leSphinxOutputExtension.text()
             sw.show()
             noticeVisible = sw.labelSphinxNotInstalled.isVisible()
+            sw.close()
         # When all states have been stored, reenable sphinx module, reload
         # setting ui before checking previous states in case assersion fail
         # will effect other test cases.
@@ -657,6 +683,7 @@ text after table""", True)
         self.assertEqual(sw.leSphinxOutputExtension.text(), 'html')
         sw.show()
         self.assertFalse(sw.labelSphinxNotInstalled.isVisible())
+        sw.close()
 
     @requiresModule('CodeChat')
     def test_uiCheck4(self):
@@ -837,7 +864,7 @@ content"""
         core.config()['sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build\\html')
         core.config()['sphinx']['OutputExtension'] = 'html'
 
-        self.testText = """****
+        self.testText = u"""****
 head
 ****
 
