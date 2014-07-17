@@ -33,13 +33,13 @@ class Test(base.TestCase):
         doc.qutepart.cursorPosition = ((0, 1))
         self.assertEqual(core.mainWindow().statusBar().currentMessage(), "Undefined variable 'asdf'")
 
-        doc.qutepart.text = 'def main():\n    return 7'
+        doc.qutepart.text = 'def main()\n    return 7'
         self.assertEqual(doc.qutepart.lintMarks, {})
         self.assertEqual(core.mainWindow().statusBar().currentMessage(), "")
 
         doc.saveFile()
         QTest.qWait(500)
-        self.assertEqual(doc.qutepart.lintMarks, {0: ('n', 'Missing function docstring')})
+        self.assertEqual(doc.qutepart.lintMarks, {0: ('e', 'invalid syntax')})
 
     @unittest.skipUnless(havePylint, 'Pylint not found')
     def test_2(self):
