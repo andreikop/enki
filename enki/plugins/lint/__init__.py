@@ -19,7 +19,7 @@ from qutepart import Qutepart
 class ProcessorThread(QThread):
     """Thread processes text with ctags and returns tags
     """
-    resultsReady = pyqtSignal(Document, dict)
+    resultsReady = pyqtSignal(tuple)  # Document, dict
 
     _Task = collections.namedtuple("Task", ["document", "language", "filePath"])
 
@@ -64,7 +64,7 @@ class ProcessorThread(QThread):
             results = self._processSync(task.language, task.filePath)
 
             if results is not None:
-                self.resultsReady.emit(task.document, results)
+                self.resultsReady.emit((task.document, results,))
 
     def _processSync(self, language, filePath):
         try:
@@ -231,7 +231,8 @@ class Plugin(QObject):
             document.qutepart.lintMarks = {}
         self._clearMessage()
 
-    def _onResultsReady(self, document, results):
+    def _onResultsReady(self, params):
+        document, results = params
         errors = 0
         warnings = 0
 
