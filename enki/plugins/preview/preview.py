@@ -11,9 +11,10 @@
 import os.path
 import collections
 import Queue
+import StringIO
+import traceback
 import re
 import subprocess
-import traceback
 
 # Third-party imports
 # -------------------
@@ -21,7 +22,6 @@ from PyQt4.QtCore import pyqtSignal, QSize, Qt, QThread, QTimer, QUrl
 from PyQt4.QtGui import QDesktopServices, QFileDialog, QIcon, QMessageBox, QWidget
 from PyQt4.QtWebKit import QWebPage
 from PyQt4 import uic
-import StringIO
 
 # Local imports
 # -------------
@@ -92,7 +92,7 @@ class ConverterThread(QThread):
         # Current file is in the htmlBuilderRootPath directory: filePath.
         # startswith(self.htmlBuilderRootPath)
         return core.config()['sphinx']['Enabled'] and \
-        self.htmlBuilderRootPath is os.path.commonprefix([self.htmlBuilderRootPath, filePath])
+        self.htmlBuilderRootPath == os.path.commonprefix([self.htmlBuilderRootPath, filePath])
 
     def _updateSphinxConfig(self):
         # Path to the root directory of an HTML builder.
@@ -425,7 +425,7 @@ class PreviewDock(DockWidget):
         self._hAtEnd[self._visiblePath] = frame.scrollBarMaximum(Qt.Horizontal) == pos.x()
         self._vAtEnd[self._visiblePath] = frame.scrollBarMaximum(Qt.Vertical) == pos.y()
 
-    def _emitLoadFinishedWithCotent(self):
+    def _emitLoadFinishedWithContent(self):
         """Store webView content after webView load finished"""
         self.webViewLoadFinishedWithContent.emit(self._widget.webView.page().mainFrame().toHtml())
 
@@ -575,7 +575,7 @@ class PreviewDock(DockWidget):
         self._saveScrollPos()
         self._visiblePath = filePath
         self._widget.webView.page().mainFrame().loadFinished.connect(self._restoreScrollPos)
-        self._widget.webView.page().mainFrame().loadFinished.connect(self._emitLoadFinishedWithCotent)
+        self._widget.webView.page().mainFrame().loadFinished.connect(self._emitLoadFinishedWithContent)
 
         if baseUrl.isEmpty():
             self._widget.webView.setHtml(html, baseUrl=QUrl.fromLocalFile(filePath))
@@ -719,6 +719,11 @@ class PreviewDock(DockWidget):
 
     def onFileSave(self):
         """Sphinx build on save"""
-        if core.config()['Preview']['Enabled']:
+        currentDocumentPath = os.path.abspath(core.workspace().currentDocument().filePath())
+        sphinxProjectPath = os.path.abspath(core.config()['sphinx']['ProjectPath'])
+        # Sphinx build on save will only be performed to the current file if
+        # sphinx is enabled, and current document is in the sphinx root path.
+        if core.config()['sphinx']['Enabled'] and \
+        sphinxProjectPath == os.path.commonprefix([currentDocumentPath, sphinxProjectPath]):
             self._typingTimer.stop()
             self._typingTimer.start()
