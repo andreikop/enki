@@ -99,7 +99,7 @@ class SettingsWidget(QWidget):
         self.lbSphinxReference.setVisible(False)
         # if advanced mode has been enabled by the user, then sphinx setting
         # window will be minimal.
-        if core.config()['sphinx']['AdvancedMode']:
+        if core.config()['Sphinx']['AdvancedMode']:
             self._setSphinxAdvancedSettingMode()
 
     def _onPbSphinxProjectPathClicked(self):
@@ -129,10 +129,10 @@ class SettingsWidget(QWidget):
         self.lbSphinxReference.setVisible(True)
 
     def _onToggleSphinxSettingModeClicked(self, *args):
-        if core.config()['sphinx']['AdvancedMode']:
+        if core.config()['Sphinx']['AdvancedMode']:
             # if already in advanced mode, click on toggle label switches to
             # normal mode.
-            core.config()['sphinx']['AdvancedMode'] = False
+            core.config()['Sphinx']['AdvancedMode'] = False
             core.config().flush()
             # Reenable all path setting line edit boxes and buttons
             for i in range(self.gridLayout.count()):
@@ -147,7 +147,7 @@ class SettingsWidget(QWidget):
             self.lbSphinxReference.setVisible(False)
         else:
             # if in normal mode, click on toggle label switches to advanced mode
-            core.config()['sphinx']['AdvancedMode'] = True
+            core.config()['Sphinx']['AdvancedMode'] = True
             core.config().flush()
             # Switch to advanced setting mode
             self._setSphinxAdvancedSettingMode()
@@ -155,11 +155,11 @@ class SettingsWidget(QWidget):
     def _buildSphinxProject(self):
         """If Sphinx directory is valid and sphinx is enabled, then add conf.py
            and default.css to project directory."""
-        if os.path.exists(core.config()['sphinx']['ProjectPath']) and core.config()['sphinx']['Enabled']:
+        if os.path.exists(core.config()['Sphinx']['ProjectPath']) and core.config()['Sphinx']['Enabled']:
             # Check whether conf.py or default.css already exist, if so,
             # conf.py template and default.css do not need to be copied
-            if os.path.exists(os.path.join(core.config()['sphinx']['ProjectPath'], 'conf.py')) or\
-            os.path.exists(os.path.join(core.config()['sphinx']['ProjectPath'], 'default.css')):
+            if os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py')) or\
+            os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'default.css')):
                 return
             # Copy template files to sphinx project directory
             confPath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sphinxtemplate\\conf.py')
@@ -167,11 +167,11 @@ class SettingsWidget(QWidget):
             cssPath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sphinxtemplate\\default.css')
             if core.config()['CodeChat']['Enabled']:
                 # If CodeChat is also enabled, enable this in conf.py too.
-                shutil.copy(confCodeChatPath, os.path.join(core.config()['sphinx']['ProjectPath'], 'conf.py'))
+                shutil.copy(confCodeChatPath, os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py'))
             else:
                 # else simple copy the default conf.py to sphinx target directory
-                shutil.copy(confPath, core.config()['sphinx']['ProjectPath'])
-            shutil.copy(cssPath, core.config()['sphinx']['ProjectPath'])
+                shutil.copy(confPath, core.config()['Sphinx']['ProjectPath'])
+            shutil.copy(cssPath, core.config()['Sphinx']['ProjectPath'])
 
 class Plugin(QObject):
     """Plugin interface implementation
@@ -199,19 +199,19 @@ class Plugin(QObject):
             core.config()['CodeChat'] = {}
             core.config()['CodeChat']['Enabled'] = False
             core.config().flush()
-        if not 'sphinx' in core.config():
+        if not 'Sphinx' in core.config():
         # TODO: if user updates from an old Enki version, certain entries might
-        # not be available, while core.config()['sphinx'] is available, causing
+        # not be available, while core.config()['Sphinx'] is available, causing
         # the newly added settings fail to get initialized correctly.
-            core.config()['sphinx'] = {}
-            core.config()['sphinx']['Enabled'] = False
-            core.config()['sphinx']['Executable'] = u'sphinx-build'
-            core.config()['sphinx']['ProjectPath'] = u''
-            core.config()['sphinx']['BuildOnSave'] = False
-            core.config()['sphinx']['OutputPath'] = u''
-            core.config()['sphinx']['OutputExtension'] = u'html'
-            core.config()['sphinx']['AdvancedMode'] = False
-            core.config()['sphinx']['Cmdline'] = u'sphinx-build -d _build\\doctrees . _build\\html'
+            core.config()['Sphinx'] = {}
+            core.config()['Sphinx']['Enabled'] = False
+            core.config()['Sphinx']['Executable'] = u'sphinx-build'
+            core.config()['Sphinx']['ProjectPath'] = u''
+            core.config()['Sphinx']['BuildOnSave'] = False
+            core.config()['Sphinx']['OutputPath'] = u''
+            core.config()['Sphinx']['OutputExtension'] = u'html'
+            core.config()['Sphinx']['AdvancedMode'] = False
+            core.config()['Sphinx']['Cmdline'] = u'sphinx-build -d _build\\doctrees . _build\\html'
             core.config().flush()
 
     def del_(self):
@@ -246,7 +246,7 @@ class Plugin(QObject):
         if CodeChat is not None and core.config()['CodeChat']['Enabled'] is True:
             return True
         # Sphinx does not depend on codechat
-        if sphinx is not None and core.config()['sphinx']['Enabled'] is True:
+        if sphinx is not None and core.config()['Sphinx']['Enabled'] is True:
             return True
 
         # TODO: Only if using an HTML builder should this be true; otherwise, false.
@@ -307,25 +307,25 @@ class Plugin(QObject):
                                             "CodeChat/Enabled",
                                             widget.cbCodeChatEnable))
         dialog.appendOption(CheckableOption(dialog, core.config(),
-                                            "sphinx/Enabled",
+                                            "Sphinx/Enabled",
                                             widget.cbSphinxEnable))
         dialog.appendOption(TextOption(dialog, core.config(),
-                                       "sphinx/ProjectPath",
+                                       "Sphinx/ProjectPath",
                                        widget.leSphinxProjectPath))
         dialog.appendOption(TextOption(dialog, core.config(),
-                                       "sphinx/OutputPath",
+                                       "Sphinx/OutputPath",
                                        widget.leSphinxOutputPath))
         dialog.appendOption(TextOption(dialog, core.config(),
-                                       "sphinx/OutputExtension",
+                                       "Sphinx/OutputExtension",
                                        widget.leSphinxOutputExtension))
         dialog.appendOption(CheckableOption(dialog, core.config(),
-                                            "sphinx/BuildOnSave",
+                                            "Sphinx/BuildOnSave",
                                             widget.cbBuildOnSaveEnable))
         dialog.appendOption(TextOption(dialog, core.config(),
-                                       "sphinx/Executable",
+                                       "Sphinx/Executable",
                                        widget.leSphinxExecutable))
         dialog.appendOption(TextOption(dialog, core.config(),
-                                       "sphinx/Cmdline",
+                                       "Sphinx/Cmdline",
                                        widget.leSphinxCmdline))
         # TODO: Should we leave _buildSphinxProject in SettingWidget or here in
         # Plugin class?

@@ -51,16 +51,16 @@ class ConverterThread(QThread):
         self._queue = Queue.Queue()
         self.start(QThread.LowPriority)
         # Executable to run the HTML builder.
-        self.htmlBuilderExecutable = core.config()['sphinx']['Executable']
+        self.htmlBuilderExecutable = core.config()['Sphinx']['Executable']
         # Path to the root directory of an HTML builder.
-        self.htmlBuilderRootPath = core.config()['sphinx']['ProjectPath']
+        self.htmlBuilderRootPath = core.config()['Sphinx']['ProjectPath']
         # Path to the output produced by the HTML builder.
-        self.htmlBuilderOutputPath = core.config()['sphinx']['OutputPath']
+        self.htmlBuilderOutputPath = core.config()['Sphinx']['OutputPath']
         # Extension for resluting HTML files
         # For available builder options, refer to: http://sphinx-doc.org/builders.html
-        self.htmlBuilderExtension = u'.' + core.config()['sphinx']['OutputExtension']
-        if core.config()['sphinx']['AdvancedMode']:
-            self.htmlBuilderCommandLine = core.config()['sphinx']['Cmdline']
+        self.htmlBuilderExtension = u'.' + core.config()['Sphinx']['OutputExtension']
+        if core.config()['Sphinx']['AdvancedMode']:
+            self.htmlBuilderCommandLine = core.config()['Sphinx']['Cmdline']
         else:
             self.htmlBuilderCommandLine = (self.htmlBuilderExecutable +
               # Place doctrees in the ``_build`` directory; by default, Sphinx places this in _build/html/.doctrees.
@@ -91,23 +91,23 @@ class ConverterThread(QThread):
         # Sphinx is enabled by Enki: config()['sphinx']['Enabled'] and
         # Current file is in the htmlBuilderRootPath directory: filePath.
         # startswith(self.htmlBuilderRootPath)
-        return core.config()['sphinx']['Enabled'] and \
+        return core.config()['Sphinx']['Enabled'] and \
         self.htmlBuilderRootPath == os.path.commonprefix([self.htmlBuilderRootPath, filePath])
 
     def _updateSphinxConfig(self):
         # Path to the root directory of an HTML builder.
-        if self.htmlBuilderRootPath != core.config()['sphinx']['ProjectPath']:
-            self.htmlBuilderRootPath = core.config()['sphinx']['ProjectPath']
+        if self.htmlBuilderRootPath != core.config()['Sphinx']['ProjectPath']:
+            self.htmlBuilderRootPath = core.config()['Sphinx']['ProjectPath']
         # Path to the output produced by the HTML builder.
-        if self.htmlBuilderOutputPath != core.config()['sphinx']['OutputPath']:
-            self.htmlBuilderOutputPath = core.config()['sphinx']['OutputPath']
+        if self.htmlBuilderOutputPath != core.config()['Sphinx']['OutputPath']:
+            self.htmlBuilderOutputPath = core.config()['Sphinx']['OutputPath']
         # Extension for resluting HTML files
-        if self.htmlBuilderExtension != u'.' + core.config()['sphinx']['OutputExtension']:
-            self.htmlBuilderExtension = u'.' + core.config()['sphinx']['OutputExtension']
+        if self.htmlBuilderExtension != u'.' + core.config()['Sphinx']['OutputExtension']:
+            self.htmlBuilderExtension = u'.' + core.config()['Sphinx']['OutputExtension']
         # Command line command.
-        if self.htmlBuilderExecutable != core.config()['sphinx']['Executable']:
-            self.htmlBuilderExecutable = core.config()['sphinx']['Executable']
-        if not core.config()['sphinx']['AdvancedMode']:
+        if self.htmlBuilderExecutable != core.config()['Sphinx']['Executable']:
+            self.htmlBuilderExecutable = core.config()['Sphinx']['Executable']
+        if not core.config()['Sphinx']['AdvancedMode']:
             # Update htmlBuilderCommandLine.
             self.htmlBuilderCommandLine = (self.htmlBuilderExecutable +
               # Place doctrees in the ``_build`` directory; by default, Sphinx places this in _build/html/.doctrees.
@@ -116,8 +116,8 @@ class ConverterThread(QThread):
               self.htmlBuilderRootPath + ' ' +
               # Build directory
               self.htmlBuilderOutputPath)
-        elif self.htmlBuilderCommandLine != core.config()['sphinx']['Cmdline']:
-            self.htmlBuilderCommandLine = core.config()['sphinx']['Cmdline']
+        elif self.htmlBuilderCommandLine != core.config()['Sphinx']['Cmdline']:
+            self.htmlBuilderCommandLine = core.config()['Sphinx']['Cmdline']
 
     def _getHtml(self, language, text, filePath):
         """Get HTML for document
@@ -127,7 +127,7 @@ class ConverterThread(QThread):
         elif language == 'Markdown':
             return self._convertMarkdown(text), None, QUrl()
         elif language == 'Restructured Text' and\
-            not (core.config()['sphinx']['Enabled'] is True and \
+            not (core.config()['Sphinx']['Enabled'] is True and \
             filePath.startswith(self.htmlBuilderRootPath)):
             # Render tool for rsT file:
             #
@@ -532,7 +532,7 @@ class PreviewDock(DockWidget):
         """Text changed, update preview
         """
         if core.config()['Preview']['Enabled'] and \
-           not core.config()['sphinx']['BuildOnSave']:
+           not core.config()['Sphinx']['BuildOnSave']:
             self._typingTimer.stop()
             self._typingTimer.start()
 
@@ -720,10 +720,10 @@ class PreviewDock(DockWidget):
     def onFileSave(self):
         """Sphinx build on save"""
         currentDocumentPath = os.path.abspath(core.workspace().currentDocument().filePath())
-        sphinxProjectPath = os.path.abspath(core.config()['sphinx']['ProjectPath'])
+        sphinxProjectPath = os.path.abspath(core.config()['Sphinx']['ProjectPath'])
         # Sphinx build on save will only be performed to the current file if
         # sphinx is enabled, and current document is in the sphinx root path.
-        if core.config()['sphinx']['Enabled'] and \
+        if core.config()['Sphinx']['Enabled'] and \
         sphinxProjectPath == os.path.commonprefix([currentDocumentPath, sphinxProjectPath]):
             self._typingTimer.stop()
             self._typingTimer.start()
