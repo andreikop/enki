@@ -349,10 +349,10 @@ class Test(PreviewTestCase):
     def test_uiCheck4a(self):
         """Basic sphinx test: create a sphinx project in temp folder, returns
            webView content and log content after sphinx builds the project."""
-        core.config()['sphinx']['Enabled'] = True
-        core.config()['sphinx']['ProjectPath'] = self.TEST_FILE_DIR
-        core.config()['sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build\\html')
-        core.config()['sphinx']['OutputExtension'] = 'html'
+        core.config()['Sphinx']['Enabled'] = True
+        core.config()['Sphinx']['ProjectPath'] = self.TEST_FILE_DIR
+        core.config()['Sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build\\html')
+        core.config()['Sphinx']['OutputExtension'] = 'html'
 
         self.testText = """****
 head
@@ -374,10 +374,10 @@ content"""
     def test_uiCheck5a(self):
         """Basic sphinx test: with sphinx and codechat disabled, no preview
            window can be found."""
-        core.config()['sphinx']['Enabled'] = False
-        core.config()['sphinx']['ProjectPath'] = self.TEST_FILE_DIR
-        core.config()['sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build\\html')
-        core.config()['sphinx']['OutputExtension'] = 'html'
+        core.config()['Sphinx']['Enabled'] = False
+        core.config()['Sphinx']['ProjectPath'] = self.TEST_FILE_DIR
+        core.config()['Sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build\\html')
+        core.config()['Sphinx']['OutputExtension'] = 'html'
 
         self.testText = """****
 head
@@ -400,10 +400,10 @@ content"""
     def test_uiCheck6a(self):
         """Empty code file produces a sphinx failure since file in toctree should
            always have a header."""
-        core.config()['sphinx']['Enabled'] = True
-        core.config()['sphinx']['ProjectPath'] = self.TEST_FILE_DIR
-        core.config()['sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build\\html')
-        core.config()['sphinx']['OutputExtension'] = 'html'
+        core.config()['Sphinx']['Enabled'] = True
+        core.config()['Sphinx']['ProjectPath'] = self.TEST_FILE_DIR
+        core.config()['Sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build\\html')
+        core.config()['Sphinx']['OutputExtension'] = 'html'
 
         self.testText = u''
         webViewContent, logContent = self._doBasicSphinxTest('rst')
@@ -424,10 +424,10 @@ content"""
     def test_uiCheck7a(self):
         """Unicode string passed to sphinx should be handled properly.
         """
-        core.config()['sphinx']['Enabled'] = True
-        core.config()['sphinx']['ProjectPath'] = self.TEST_FILE_DIR
-        core.config()['sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build\\html')
-        core.config()['sphinx']['OutputExtension'] = 'html'
+        core.config()['Sphinx']['Enabled'] = True
+        core.config()['Sphinx']['ProjectPath'] = self.TEST_FILE_DIR
+        core.config()['Sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build\\html')
+        core.config()['Sphinx']['OutputExtension'] = 'html'
 
         self.testText = u"""**********
 Енки
@@ -465,10 +465,10 @@ content"""
     @requiresModule('sphinx')
     def test_uiCheck9a(self):
         """Test sphinx error can be captured correctly"""
-        core.config()['sphinx']['Enabled'] = True
-        core.config()['sphinx']['ProjectPath'] = self.TEST_FILE_DIR
-        core.config()['sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build\\html')
-        core.config()['sphinx']['OutputExtension'] = 'html'
+        core.config()['Sphinx']['Enabled'] = True
+        core.config()['Sphinx']['ProjectPath'] = self.TEST_FILE_DIR
+        core.config()['Sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build\\html')
+        core.config()['Sphinx']['OutputExtension'] = 'html'
 
         self.testText = u"""****
 head3
@@ -508,10 +508,10 @@ content"""
         """Unicode in log window while in sphinx mode does not work since sphinx
            error output is not in unicode.
         """
-        core.config()['sphinx']['Enabled'] = True
-        core.config()['sphinx']['ProjectPath'] = self.TEST_FILE_DIR
-        core.config()['sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build\\html')
-        core.config()['sphinx']['OutputExtension'] = 'html'
+        core.config()['Sphinx']['Enabled'] = True
+        core.config()['Sphinx']['ProjectPath'] = self.TEST_FILE_DIR
+        core.config()['Sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build\\html')
+        core.config()['Sphinx']['OutputExtension'] = 'html'
 
         self.testText = u"""****
 head
@@ -599,10 +599,10 @@ head
     @requiresModule('sphinx')
     def test_uiCheck18(self):
         """Basic sphinx test"""
-        core.config()['sphinx']['Enabled'] = True
-        core.config()['sphinx']['ProjectPath'] = self.TEST_FILE_DIR
-        core.config()['sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build\\html')
-        core.config()['sphinx']['OutputExtension'] = 'html'
+        core.config()['Sphinx']['Enabled'] = True
+        core.config()['Sphinx']['ProjectPath'] = self.TEST_FILE_DIR
+        core.config()['Sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build\\html')
+        core.config()['Sphinx']['OutputExtension'] = 'html'
         core.config().flush()
 
         self.testText = u"""****
@@ -618,10 +618,10 @@ Come and talk"""
         """Sphinx with CodeChat test: create a sphinx project with codechat
         enabled."""
         core.config()['CodeChat']['Enabled'] = True
-        core.config()['sphinx']['Enabled'] = True
-        core.config()['sphinx']['ProjectPath'] = self.TEST_FILE_DIR
-        core.config()['sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build\\html')
-        core.config()['sphinx']['OutputExtension'] = 'html'
+        core.config()['Sphinx']['Enabled'] = True
+        core.config()['Sphinx']['ProjectPath'] = self.TEST_FILE_DIR
+        core.config()['Sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build\\html')
+        core.config()['Sphinx']['OutputExtension'] = 'html'
 
         self.testText = u"""# ****
 # head
