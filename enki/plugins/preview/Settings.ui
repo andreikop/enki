@@ -61,14 +61,7 @@
      <property name="title">
       <string>Sphinx Project</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <item>
-       <widget class="QLabel" name="labelSphinxNotInstalled">
-        <property name="text">
-         <string>Sphinx is not installed. Refer to the link below for installation instructions.</string>
-        </property>
-       </widget>
-      </item>
+     <layout class="QVBoxLayout" name="loSphinxProject">
       <item>
        <widget class="QCheckBox" name="cbSphinxEnable">
         <property name="text">
@@ -83,7 +76,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_4">
+       <widget class="QLabel" name="labelSphinxIntro">
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sphinx is a tool that makes it easy to create intelligent and beautiful documentation, written by Georg Brandl and available &lt;a href=&quot;http://sphinx-doc.org/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;here&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>

@@ -13,8 +13,8 @@ import codecs
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 from persistent_qapplication import papp
 
-from PyQt4.QtCore import Qt, QTimer, QEventLoop, pyqtSlot
-from PyQt4.QtGui import QApplication, QDialog, QKeySequence
+from PyQt4.QtCore import Qt, QTimer, QEventLoop
+from PyQt4.QtGui import QDialog, QKeySequence
 from PyQt4.QtTest import QTest
 
 import qutepart

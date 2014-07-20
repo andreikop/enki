@@ -462,7 +462,7 @@ content"""
         self._doBasicTest('rst')
         self.assertTrue("""Unknown directive type "wrong".""" in self._logText())
 
-    @requiresModule('sphinx')
+    @base.requiresCmdlineUtility('sphinx-build --version')
     def test_uiCheck9a(self):
         """Test sphinx error can be captured correctly"""
         core.config()['Sphinx']['Enabled'] = True
@@ -596,7 +596,7 @@ head
         self.assertEqual(self._widget().prgStatus.styleSheet(), 'QProgressBar::chunk {}')
         self.assertEqual(self._logText(), '')
 
-    @requiresModule('sphinx')
+    @base.requiresCmdlineUtility('sphinx-build --version')
     def test_uiCheck18(self):
         """Basic sphinx test"""
         core.config()['Sphinx']['Enabled'] = True
