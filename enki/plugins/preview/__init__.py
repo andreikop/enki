@@ -20,16 +20,21 @@ except ImportError:
     CodeChat = None
 
 import subprocess
-sphinx = []
+# TODO: how to import this function from enki.tests.base?
+def _cmdlineUtilityExists(cmdlineArgs):
+    try:
+        subprocess.call(cmdlineArgs, stdout=subprocess.PIPE)
+    except OSError as e:
+        if e.errno == os.errno.ENOENT:
+            return False
+
+    return True
+
 try:
     subprocess.call('sphinx-build --version', stdout=subprocess.PIPE)
 except OSError as e:
     if e.errno == os.errno.ENOENT:
         sphinx = None
-try:
-    import sphinx
-except ImportError:
-    sphinx = None
 
 def isHtmlFile(document):
     return document is not None and  \
@@ -54,44 +59,30 @@ class SettingsWidget(QWidget):
             # Hide the "not installed" message.
             self.labelCodeChatNotInstalled.setVisible(False)
 
-        if sphinx is None:
-            # If the sphinx module can't be loaded, then disable the
-            # associated checkboxes, path selection line edits and output
-            # extension line edits.
+        self.cbSphinxEnable.stateChanged.connect(self._toggleSphinx)
+        if not core.config()['Sphinx']['Enabled']:
+            # Enki does not check the availability of sphinx anymore. By default
+            # sphinx will be disabled. When enabled, user has to set the
+            # path to sphinx-build.exe, or else the fault sphinx-build command
+            # line command will be used. As a result, all path settings, normal
+            # mode and advanced mode will be always available.
             self.cbSphinxEnable.setChecked(False)
-            self.cbSphinxEnable.setEnabled(False)
-            self.leSphinxExecutable.setEnabled(False)
-            self.leSphinxProjectPath.setEnabled(False)
-            self.pbSphinxProjectPath.setEnabled(False)
-            self.leSphinxOutputPath.setEnabled(False)
-            self.pbSphinxOutputPath.setEnabled(False)
-            self.leSphinxOutputExtension.setEnabled(False)
-            # disable build on save checkbox
-            self.cbBuildOnSaveEnable.setEnabled(False)
-            # show the "not installed" message
-            self.labelSphinxNotInstalled.setVisible(True)
-            # hide advanced setting label.
-            self.lbSphinxEnableAdvMode.setVisible(False)
-        else:
-            # If sphinx is available, then set all path selection buttons to
-            # work, along with build on save pushbutton.
-            self.pbSphinxProjectPath.clicked.connect(self._onPbSphinxProjectPathClicked)
-            self.pbSphinxOutputPath.clicked.connect(self._onPbSphinxOutputPathClicked)
-            # click on advanced mode label triggers either advanced mode or
-            # normal mode.
-            self.lbSphinxEnableAdvMode.mousePressEvent = self._onToggleSphinxSettingModeClicked
-            # set default executable to sphinx-build
+
+        # Path configurations are always enabled.
+        self.pbSphinxProjectPath.clicked.connect(self._onPbSphinxProjectPathClicked)
+        self.pbSphinxOutputPath.clicked.connect(self._onPbSphinxOutputPathClicked)
+        # Click on advanced mode label triggers either advanced mode or normal mode.
+        self.lbSphinxEnableAdvMode.mousePressEvent = self._onToggleSphinxSettingModeClicked
+        # Test the availability of default sphinx commandline, if not available,
+        # leave sphinx executable as blank.
+        if _cmdlineUtilityExists('sphinx-build --version'):
             self.leSphinxExecutable.setText(r'sphinx-build')
-            # set default output format to html
+            # set default output format to html if sphinx has been found
             self.leSphinxOutputExtension.setText(r'html')
-            # Use sphinx if sphinx installed
-            self.cbSphinxEnable.setChecked(False)
-            # disable build only on save function
-            self.cbBuildOnSaveEnable.setChecked(False)
-            # Hide the "not installed" message.
-            self.labelSphinxNotInstalled.setVisible(False)
             # Set default commandline even though it is invisible for now
             self.leSphinxCmdline.setText(u'sphinx-build -d _build\\doctrees . _build\\html')
+        # disable build only on save function
+        self.cbBuildOnSaveEnable.setChecked(False)
 
         # Default setting mode is normal mode. Hide all advanced mode items
         self.lbSphinxCmdline.setVisible(False)
@@ -101,6 +92,26 @@ class SettingsWidget(QWidget):
         # window will be minimal.
         if core.config()['Sphinx']['AdvancedMode']:
             self._setSphinxAdvancedSettingMode()
+
+    def _toggleSphinx(self, layout=None):
+        """Recursively set everything in the layout argument to disabled.
+        Including the children layout(s).
+        """
+        if layout.__class__ is int:
+            # _toggleSphinx is called by cbSphinxEnable.stateChanged, which will
+            # pass an unnecessary integer argument. This will be replaced by
+            # the default layout.
+            layout = self.loSphinxProject
+        for i in range(layout.count()):
+            item = layout.itemAt(i)
+            if item.layout():
+                self._toggleSphinx(item.layout())
+            if item.widget() and \
+            (not item.widget() is self.cbSphinxEnable) and \
+            (not item.widget() is self.labelSphinxIntro):
+                # Here sphinx enable checkbox will not be hiden, sphinx intro
+                # label will not be hidden.
+                item.widget().setEnabled(self.cbSphinxEnable.isChecked())
 
     def _onPbSphinxProjectPathClicked(self):
         path = QFileDialog.getExistingDirectory(core.mainWindow(), 'Project path')
@@ -205,7 +216,7 @@ class Plugin(QObject):
         # the newly added settings fail to get initialized correctly.
             core.config()['Sphinx'] = {}
             core.config()['Sphinx']['Enabled'] = False
-            core.config()['Sphinx']['Executable'] = u'sphinx-build'
+            core.config()['Sphinx']['Executable'] = u''
             core.config()['Sphinx']['ProjectPath'] = u''
             core.config()['Sphinx']['BuildOnSave'] = False
             core.config()['Sphinx']['OutputPath'] = u''
