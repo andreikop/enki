@@ -90,6 +90,9 @@
       </item>
       <item>
        <widget class="QCheckBox" name="cbBuildOnSaveEnable">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Build on save</string>
         </property>
@@ -103,6 +106,9 @@
       </item>
       <item>
        <widget class="QLabel" name="label_3">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Build on save lets Enki build current project only on save actions. If not checked, Enki will watch current Sphinx directory and rebuild the project when a change is detected.&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -118,16 +124,26 @@
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QLabel" name="lbSphinxProjectPath">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Project path   </string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="leSphinxProjectPath"/>
+         <widget class="QLineEdit" name="leSphinxProjectPath">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QToolButton" name="pbSphinxProjectPath">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>...</string>
           </property>
@@ -139,16 +155,26 @@
        <layout class="QGridLayout" name="gridLayout">
         <item row="0" column="0">
          <widget class="QLabel" name="lbSphinxOutputPath">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Output path</string>
           </property>
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QLineEdit" name="leSphinxOutputPath"/>
+         <widget class="QLineEdit" name="leSphinxOutputPath">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
         </item>
         <item row="0" column="2">
          <widget class="QToolButton" name="pbSphinxOutputPath">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>...</string>
           </property>
@@ -156,23 +182,37 @@
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="lbSphinxExecutable">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Executable</string>
           </property>
          </widget>
         </item>
         <item row="1" column="1" colspan="2">
-         <widget class="QLineEdit" name="leSphinxExecutable"/>
+         <widget class="QLineEdit" name="leSphinxExecutable">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="lbSphinxOutputExtension">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Output format</string>
           </property>
          </widget>
         </item>
         <item row="2" column="1" colspan="2">
-         <widget class="QLineEdit" name="leSphinxOutputExtension"/>
+         <widget class="QLineEdit" name="leSphinxOutputExtension">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -181,7 +221,7 @@
         <item>
          <widget class="QLabel" name="lbSphinxCmdline">
           <property name="enabled">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="text">
            <string>Command line </string>
@@ -190,8 +230,11 @@
         </item>
         <item>
          <widget class="QLineEdit" name="leSphinxCmdline">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
-           <string>sphinx-build -d _build\\doctrees . _build\\html</string>
+           <string/>
           </property>
          </widget>
         </item>
@@ -201,6 +244,9 @@
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QLabel" name="lbSphinxEnableAdvMode">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="cursor">
            <cursorShape>PointingHandCursor</cursorShape>
           </property>
@@ -224,6 +270,9 @@
         </item>
         <item>
          <widget class="QLabel" name="lbSphinxReference">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>&lt;a href=&quot;http://sphinx-doc.org/invocation.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Reference&lt;/span&gt;&lt;/a&gt;</string>
           </property>
