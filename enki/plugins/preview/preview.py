@@ -298,9 +298,10 @@ class ConverterThread(QThread):
                       stdout=subprocess.PIPE,
                       startupinfo=si, env=env)
         except Exception as ex:
-            return 'Failed to execute HTML builder console utility "{}": {}\n'\
+            return '<pre><font color=red>Failed to execute HTML builder' + \
+                   'console utility "{}":\n{}</font>\n'\
                    .format(self.htmlBuilderExecutable, str(ex)) + \
-                   'Go to Settings -> Settings -> CodeChat to set path to HTML builder'
+                   '\nGo to Settings -> Settings -> CodeChat to set HTML builder configurations.'
 
         stdout, stderr = popen.communicate()
         return stdout + '</pre><br><pre><font color=red>' + stderr + '</font>'

@@ -30,12 +30,6 @@ def _cmdlineUtilityExists(cmdlineArgs):
 
     return True
 
-try:
-    subprocess.call('sphinx-build --version', stdout=subprocess.PIPE)
-except OSError as e:
-    if e.errno == os.errno.ENOENT:
-        sphinx = None
-
 def isHtmlFile(document):
     return document is not None and  \
            document.qutepart.language() is not None and \
@@ -73,14 +67,12 @@ class SettingsWidget(QWidget):
         self.pbSphinxOutputPath.clicked.connect(self._onPbSphinxOutputPathClicked)
         # Click on advanced mode label triggers either advanced mode or normal mode.
         self.lbSphinxEnableAdvMode.mousePressEvent = self._onToggleSphinxSettingModeClicked
-        # Test the availability of default sphinx commandline, if not available,
-        # leave sphinx executable as blank.
-        if _cmdlineUtilityExists('sphinx-build --version'):
-            self.leSphinxExecutable.setText(r'sphinx-build')
-            # set default output format to html if sphinx has been found
-            self.leSphinxOutputExtension.setText(r'html')
-            # Set default commandline even though it is invisible for now
-            self.leSphinxCmdline.setText(u'sphinx-build -d _build\\doctrees . _build\\html')
+        # Initialize sphinx config based on setting
+        self.leSphinxExecutable.setText(core.config()['Sphinx']['Executable'])
+        # set default output format to html if sphinx has been found
+        self.leSphinxOutputExtension.setText(core.config()['Sphinx']['OutputExtension'])
+        # Set default commandline even though it is invisible for now
+        self.leSphinxCmdline.setText(core.config()['Sphinx']['Cmdline'])
         # disable build only on save function
         self.cbBuildOnSaveEnable.setChecked(False)
 
@@ -220,9 +212,9 @@ class Plugin(QObject):
             core.config()['Sphinx']['ProjectPath'] = u''
             core.config()['Sphinx']['BuildOnSave'] = False
             core.config()['Sphinx']['OutputPath'] = u''
-            core.config()['Sphinx']['OutputExtension'] = u'html'
+            core.config()['Sphinx']['OutputExtension'] = u''
             core.config()['Sphinx']['AdvancedMode'] = False
-            core.config()['Sphinx']['Cmdline'] = u'sphinx-build -d _build\\doctrees . _build\\html'
+            core.config()['Sphinx']['Cmdline'] = u''
             core.config().flush()
 
     def del_(self):
@@ -257,7 +249,7 @@ class Plugin(QObject):
         if CodeChat is not None and core.config()['CodeChat']['Enabled'] is True:
             return True
         # Sphinx does not depend on codechat
-        if sphinx is not None and core.config()['Sphinx']['Enabled'] is True:
+        if core.config()['Sphinx']['Enabled'] is True:
             return True
 
         # TODO: Only if using an HTML builder should this be true; otherwise, false.
