@@ -8,7 +8,7 @@
 import os.path
 import shutil
 from PyQt4.QtCore import QObject, Qt
-from PyQt4.QtGui import QAction, QIcon, QKeySequence, QWidget, QFileDialog
+from PyQt4.QtGui import QAction, QIcon, QKeySequence, QWidget, QFileDialog, QMessageBox
 from PyQt4 import uic
 
 from enki.core.core import core
@@ -23,7 +23,8 @@ import subprocess
 # TODO: how to import this function from enki.tests.base?
 def _cmdlineUtilityExists(cmdlineArgs):
     try:
-        subprocess.call(cmdlineArgs, stdout=subprocess.PIPE)
+        FNULL = open(os.devnull, 'w')
+        subprocess.call(cmdlineArgs, stdout=FNULL, stderr=subprocess.STDOUT)
     except OSError as e:
         if e.errno == os.errno.ENOENT:
             return False
@@ -65,12 +66,20 @@ class SettingsWidget(QWidget):
         # Path configurations are always enabled.
         self.pbSphinxProjectPath.clicked.connect(self._onPbSphinxProjectPathClicked)
         self.pbSphinxOutputPath.clicked.connect(self._onPbSphinxOutputPathClicked)
+        # sphinx executable can be selected by the user. A filter is needed
+        # such that non-executable files will not be selected by the user.
+        self.pbSphinxExecutable.clicked.connect(self._onPbSphinxExecutableClicked)
+        # Correctness of user selected executable will be checked after editing
+        # finished.
+        self.leSphinxExecutable.editingFinished.connect(self._onleSphinxExecutableChanged)
         # Click on advanced mode label triggers either advanced mode or normal mode.
         self.lbSphinxEnableAdvMode.mousePressEvent = self._onToggleSphinxSettingModeClicked
         # Initialize sphinx config based on setting
         self.leSphinxExecutable.setText(core.config()['Sphinx']['Executable'])
-        # set default output format to html if sphinx has been found
-        self.leSphinxOutputExtension.setText(core.config()['Sphinx']['OutputExtension'])
+        # set default output format to blank if sphinx has been found
+        self.cmbSphinxOutputExtension.addItem("html")
+        self.cmbSphinxOutputExtension.addItem("htm")
+        self.cmbSphinxOutputExtension.lineEdit().setText(core.config()['Sphinx']['OutputExtension'])
         # Set default commandline even though it is invisible for now
         self.leSphinxCmdline.setText(core.config()['Sphinx']['Cmdline'])
         # disable build only on save function
@@ -154,6 +163,24 @@ class SettingsWidget(QWidget):
             core.config().flush()
             # Switch to advanced setting mode
             self._setSphinxAdvancedSettingMode()
+
+    def _onPbSphinxExecutableClicked(self):
+        path = QFileDialog.getOpenFileName(self,
+                                           "Select Sphinx executable",
+                                           "/home",
+                                           "sphinx-build.exe;; All Files (*.*)");
+        self.leSphinxExecutable.setText(path)
+
+    def _onleSphinxExecutableChanged(self):
+        """Check the correctness of user selected/defined sphinx executable. If
+        subprocess cannot call user defined sphinx executable, visual feedback
+        will be provided by showing a warning message box.
+        """
+        if not _cmdlineUtilityExists(self.leSphinxExecutable.text()):
+            QMessageBox.warning(self, "Invalid executable",
+                                "Sphinx executable is invalid.",
+                                QMessageBox.Ok, QMessageBox.NoButton,
+                                QMessageBox.NoButton)
 
     def _buildSphinxProject(self):
         """If Sphinx directory is valid and sphinx is enabled, then add conf.py
@@ -320,7 +347,7 @@ class Plugin(QObject):
                                        widget.leSphinxOutputPath))
         dialog.appendOption(TextOption(dialog, core.config(),
                                        "Sphinx/OutputExtension",
-                                       widget.leSphinxOutputExtension))
+                                       widget.cmbSphinxOutputExtension.lineEdit()))
         dialog.appendOption(CheckableOption(dialog, core.config(),
                                             "Sphinx/BuildOnSave",
                                             widget.cbBuildOnSaveEnable))
