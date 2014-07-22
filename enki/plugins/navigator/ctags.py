@@ -2,6 +2,7 @@
 """
 
 import os
+import sys
 import tempfile
 from contextlib import contextmanager
 
@@ -29,6 +30,10 @@ class Tag:
         return result
 
 
+class _ParseFailed(UserWarning):
+    pass
+
+
 def _parseTag(line):
     items = line.split('\t')
     name = items[0]
@@ -36,10 +41,12 @@ def _parseTag(line):
         type_ = items[-2]
         lineText = items[-1]
         scopeText = None
-    else:
+    elif len(items) == 6:
         type_ = items[-3]
         lineText = items[-2]
         scopeText = items[-1]
+    else:
+        raise _ParseFailed()
 
     # -1 to convert from human readable to machine numeration
     lineNumber = int(lineText.split(':')[-1]) - 1
@@ -80,7 +87,12 @@ def _parseTags(ctagsLang, text):
         if line.startswith('ctags:'):  # warnings from the utility
             continue
 
-        name, lineNumber, type_, scopeType, scopeName = _parseTag(line)
+        try:
+            name, lineNumber, type_, scopeType, scopeName = _parseTag(line)
+        except _ParseFailed:
+            print >> sys.stderr, 'navigator: failed to parse ctags output line "{}"'.format(line)
+            continue
+
         if type_ not in ignoredTypes:
             if type_ == 'member':
                 """ctags returns parent scope type 'function' for members'.
