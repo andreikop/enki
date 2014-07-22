@@ -5,7 +5,7 @@
 %global icon_cache_gtk_update /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 Name:           enki
-Version:        14.03.0
+Version:        14.07.0
 Release:        5%{?dist}
 Summary:        Advanced text editor for programmers
 Group:          Productivity/Text/Editors
@@ -19,10 +19,10 @@ BuildArch:      noarch
 
 BuildRequires:  desktop-file-utils
 BuildRequires:  python-setuptools
-BuildRequires:  python-qutepart >= 1.1
+BuildRequires:  python-qutepart >= 2.1
 Requires:       python >= 2.7
 Requires:       python-markdown
-Requires:       python-qutepart >= 1.1
+Requires:       python-qutepart >= 2.1
 Requires:       python-docutils
 Requires:       ctags
 
@@ -105,6 +105,11 @@ fi
 
 
 %changelog
+* Tue Jul 22 2014 Andrei Kopats <hlamer@tut.by> 14.07.0-9
+ - Draw incorrect indentation
+ - Source code to HTML conversion support (literate programming) by Bryan Jones
+ - Pylint support
+
 * Thu Mar 13 2014 Andrei Kopats <hlamer@tut.by> 14.03.0-8
  - Open main menu with F10
  - Sort tags in the Navigator
