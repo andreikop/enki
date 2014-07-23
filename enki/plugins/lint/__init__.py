@@ -116,6 +116,10 @@ class Plugin(QObject):
     def del_(self):
         """Uninstall the plugin
         """
+        if self._thread is not None:
+            self._thread.stopAsync()
+            self._thread.wait()
+
         self._uninstall()
 
     def _install(self):
