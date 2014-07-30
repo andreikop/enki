@@ -47,7 +47,7 @@ _CTAGS_TO_QUTEPART_LANG_MAP = {
     "OCaml": ("Objective Caml",),
     "Pascal": ("Pascal",),
     "Perl": ("Perl",),
-    "PHP": "PHP/PHP",
+    "PHP": ("PHP/PHP", "PHP (HTML)"),
     "Python": ("Python",),
     "REXX": ("REXX",),
     "Ruby": ("Ruby",),
