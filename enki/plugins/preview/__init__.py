@@ -21,7 +21,8 @@ except ImportError:
 def isHtmlFile(document):
     return document is not None and  \
            document.qutepart.language() is not None and \
-           'html' in document.qutepart.language().lower()  # 'Django HTML Template'
+           'html' in document.qutepart.language().lower()  and \
+           (not 'php' in document.qutepart.language().lower())  # Django HTML template but not HTML (PHP)
 
 class SettingsWidget(QWidget):
     """Insert the preview plugin as a page of the UISettings dialog.
