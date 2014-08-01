@@ -28,7 +28,7 @@
 ;
 ; Provide a few handy definitions to avoid repetition.
 #define PRODUCT_NAME 'Enki'
-#define PRODUCT_VERSION '14.03.0'
+#define PRODUCT_VERSION '14.07.1'
 
 [Setup]
 AppName={#PRODUCT_NAME}
