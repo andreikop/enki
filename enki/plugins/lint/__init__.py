@@ -177,7 +177,7 @@ class Plugin(QObject):
     def _applySettings(self):
         if core.config()['Lint']['Python']['Enabled']:
             self._install()
-            if core.workspace().currentDocument() is not None:
+            if self._isSupported(core.workspace().currentDocument()):
                 self._processDocument(core.workspace().currentDocument())
         else:
             self._uninstall()
