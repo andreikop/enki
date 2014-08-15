@@ -2,7 +2,7 @@
     "_version" : 15,
     "PlatformDefaultsHaveBeenSet" : false,
 
-    "NegativeFileFilter": [ "*~", "*.o", "*.pyc", "*.bak" ],
+    "NegativeFileFilter": [ "*~", "*.o", "*.pyc", "*.bak", "__pycache__" ],
 
     "Workspace": {
         "FileSortMode": "URL"
