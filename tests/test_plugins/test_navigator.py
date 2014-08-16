@@ -6,6 +6,8 @@ import os.path
 import sys
 import subprocess
 
+from mock import MagicMock, patch
+
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
 import base
@@ -51,9 +53,28 @@ class Settings(base.TestCase):
 
         self.assertEqual(core.config()['Navigator']['CtagsPath'], 'new ctags path')
 
+    def test_2(self):
+        """Warning about etags
+        """
+        stdout = ("etags (GNU Emacs 23.4)\n"
+                  "Copyright (C) 2012 Free Software Foundation, Inc.\n"
+                  "This program is distributed under the terms in ETAGS.README")
+
+        def continueFunc(dialog):
+            page = dialog._pageForItem["Navigator"]
+            self.assertEqual(page.lExecuteError.text(),
+                             ('You are trying to use etags from the Emacs package, but it is not supported. '
+                             'Use Exuberant Ctags.'))
+
+            QTest.keyClick(dialog, Qt.Key_Enter)
+
+        with patch('enki.lib.get_console_output.get_console_output', return_value=(stdout, None)):
+            self.openSettings(continueFunc)
+
+
     @base.requiresCmdlineUtility('ctags --version')
     @base.inMainLoop
-    def test_2(self):
+    def test_3(self):
         # Sort order is configurable
         self.createFile('source.rb', RUBY_SOURCE)
         dock = self.findDock('&Navigator')
@@ -74,7 +95,6 @@ class Settings(base.TestCase):
         self.retryUntilPassed(200,
                               lambda: self.assertEqual([tag.name for tag in model._tags[0].children],
                                                        ['<=>', 'initialize', 'to_s']))
-
 
 
 class Gui(base.TestCase):
@@ -229,6 +249,23 @@ class Gui(base.TestCase):
         self.keyClick(Qt.Key_Backspace)
         self.assertEqual(model.rowCount(QModelIndex()), 2)
 
+    @base.requiresCmdlineUtility('ctags --version')
+    @base.inMainLoop
+    def test_8(self):
+        stdout = "ctags: unrecognized option '--fields=nKs'\n	Try `ctags --help' for a complete list of options."
+
+        with patch('enki.lib.get_console_output.get_console_output', return_value=(stdout, None)):
+            # Up, down, backspace on tree
+            document = self.createFile('source.rb', RUBY_SOURCE)
+            dock = self.findDock('&Navigator')
+
+            self.retryUntilPassed(2000,
+                                  lambda: self.assertTrue(dock._errorLabel is not None and \
+                                                          dock._errorLabel.isVisible()))
+
+            self.assertTrue('ctags from Emacs package is used' in dock._errorLabel.text())
+
+
 
 CPP_CODE = """
 
@@ -277,7 +314,6 @@ class Parser(base.TestCase):
                            False)
         ref = {('Cls', 2): {('foobar', 3): {('func', 4): {}}}}
         self.assertEqual(asDicts(tags), ref)
-
 
 
 if __name__ == '__main__':

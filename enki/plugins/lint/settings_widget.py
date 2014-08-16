@@ -53,7 +53,7 @@ class SettingsWidget(QWidget):
         except OSError as ex:
             self.lExecuteError.setText('Failed to execute pylint: {}'.format(ex))
         except ValueError:
-            self.lExecuteError.setText('Failed to parse pyling version. Does pyling work?')
+            self.lExecuteError.setText('Failed to parse pylint version. Does pylint work?')
         else:
             if version[0] >= 1:
                 self.lExecuteError.setText('Pylint is found!')

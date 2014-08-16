@@ -13,9 +13,12 @@ from PyQt4 import uic
 
 from enki.core.core import core
 from enki.core.uisettings import TextOption, CheckableOption
+import enki.lib.get_console_output as gco
 
 import ctags
 from dock import NavigatorDock
+
+
 
 
 # source map. 1 ctags language is mapped to multiply Qutepart languages
@@ -105,12 +108,11 @@ class ProcessorThread(QThread):
             if task is None:  # None is a quit command
                 break
 
-            result = ctags.processText(task.ctagsLang, task.text, task.sortAlphabetically)
-
-            if isinstance(result, basestring):
-                self.error.emit(result)
+            try:
+                tags = ctags.processText(task.ctagsLang, task.text, task.sortAlphabetically)
+            except ctags.FailedException as ex:
+                self.error.emit(ex.args[0])
             else:
-                tags = result
                 if not self._queue.qsize():  # Do not emit results, if having new task
                     self.tagsReady.emit(tags)
 
@@ -122,11 +124,27 @@ class SettingsWidget(QWidget):
         QWidget.__init__(self, *args)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Settings.ui'), self)
         self.pbCtagsPath.clicked.connect(self._onPbCtagsPathClicked)
+        self.leCtagsPath.textChanged.connect(self._updateExecuteError)
 
     def _onPbCtagsPathClicked(self):
         path = QFileDialog.getOpenFileName(core.mainWindow(), 'Ctags path')
         if path:
             self.leCtagsPath.setText(path)
+
+    def _updateExecuteError(self, path):
+        """ Check if pylint is installed.
+
+        Return None if OK or textual error
+        """
+        try:
+            stdout, stderr = gco.get_console_output(path, ['--version'])
+        except OSError as ex:
+            self.lExecuteError.setText('Failed to execute ctags: {}'.format(ex))
+        else:
+            if 'Exuberant Ctags' in stdout:
+                self.lExecuteError.setText('ctags is found!')
+            elif 'GNU Emacs' in stdout:
+                self.lExecuteError.setText('You are trying to use etags from the Emacs package, but it is not supported. Use Exuberant Ctags.')
 
 
 class Plugin(QObject):

@@ -7,7 +7,20 @@ import tempfile
 from contextlib import contextmanager
 
 from enki.core.core import core
-from enki.lib.get_console_output import get_console_output
+import enki.lib.get_console_output as gco
+
+
+class FailedException(UserWarning):
+    """Tags generation failed.
+
+    Module API exception
+    """
+    pass
+
+
+class _ParseFailed(UserWarning):
+    """Exception for internal usage"""
+    pass
 
 
 class Tag:
@@ -28,10 +41,6 @@ class Tag:
             result += '\n'.join(formattedChildren)
 
         return result
-
-
-class _ParseFailed(UserWarning):
-    pass
 
 
 def _parseTag(line):
@@ -76,6 +85,9 @@ def _findScope(tag, scopeType, scopeName):
         return None
 
 def _parseTags(ctagsLang, text):
+    if "Try `ctags --help' for a complete list of options." in text:
+        raise FailedException("ctags from Emacs package is used. Use Exuberant Ctags")
+
     ignoredTypes = ['variable']
 
     if ctagsLang in ('C', 'C++',):
@@ -154,12 +166,12 @@ def processText(ctagsLang, text, sortAlphabetically):
         tempFile.close() # Windows compatibility
 
         try:
-            stdout, stderr = get_console_output(ctagsPath,
-                                                ['-f', '-', '-u', '--fields=nKs', langArg, tempFile.name])
+            stdout, stderr = gco.get_console_output(ctagsPath,
+                                                    ['-f', '-', '-u', '--fields=nKs', langArg, tempFile.name])
         except OSError as ex:
-            return 'Failed to execute ctags console utility "{}": {}\n'\
-                        .format(ctagsPath, str(ex)) + \
-                   'Go to Settings -> Settings -> Navigator to set path to ctags'
+            raise FailedException('Failed to execute ctags console utility "{}": {}\n'\
+                                        .format(ctagsPath, str(ex)) + \
+                                  'Go to Settings -> Settings -> Navigator to set path to ctags')
 
     tags = _parseTags(ctagsLang, stdout)
 
