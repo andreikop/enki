@@ -341,6 +341,7 @@ class Test(PreviewTestCase):
         #self._dock()
 
     @base.requiresCmdlineUtility('sphinx-build --version')
+    @base.inMainLoop
     def test_uiCheck4a(self):
         """Basic sphinx test: create a sphinx project in temp folder, returns
            webView content and log content after sphinx builds the project."""
@@ -355,6 +356,7 @@ content"""
 
     @base.requiresCmdlineUtility('sphinx-build --version')
     @requiresModule('CodeChat')
+    @base.inMainLoop
     def test_uiCheck4b(self):
         """Basic Sphinx with CodeChat test: create a sphinx project with codechat
         enabled."""
@@ -380,6 +382,7 @@ content"""
             #self._dock()
 
     @base.requiresCmdlineUtility('sphinx-build --version')
+    @base.inMainLoop
     def test_uiCheck5a(self):
         """Basic sphinx test: with sphinx and codechat disabled, no preview
            window can be found."""
@@ -403,6 +406,7 @@ content"""
         self.assertEqual(self._visibleText(), self.testText)
 
     @base.requiresCmdlineUtility('sphinx-build --version')
+    @base.inMainLoop
     def test_uiCheck6a(self):
         """Empty code file produces a sphinx failure since file in toctree should
            always have a header."""
@@ -423,6 +427,7 @@ content"""
         self.assertEqual(self._visibleText(), self.testText+'\n')
 
     @base.requiresCmdlineUtility('sphinx-build --version')
+    @base.inMainLoop
     def test_uiCheck7a(self):
         """Unicode string passed to sphinx should be handled properly.
         """
@@ -448,6 +453,7 @@ content"""
         self._doBasicTest('py')
 
     @base.requiresCmdlineUtility('sphinx-build --version')
+    @base.inMainLoop
     def test_uiCheck8a(self):
         """Start with sphinx disabled, make sure rst file will be rendered by
         docutils.core.publish_string. Then enable sphinx, force document refresh
@@ -483,6 +489,7 @@ content"""
         self.assertTrue("""Unknown directive type "wrong".""" in self._logText())
 
     @base.requiresCmdlineUtility('sphinx-build --version')
+    @base.inMainLoop
     def test_uiCheck9a(self):
         """Test sphinx error can be captured correctly"""
         self._doBasicSphinxConfig()
@@ -520,6 +527,7 @@ content"""
 
     @unittest.expectedFailure
     @base.requiresCmdlineUtility('sphinx-build --version')
+    @base.inMainLoop
     def test_uiCheck11a(self):
         """Unicode in log window while in sphinx mode does not work since sphinx
            error output is not in unicode.
@@ -616,4 +624,4 @@ head
 # ====
 # Run the unit tests in this file.
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(verbosity=2)
