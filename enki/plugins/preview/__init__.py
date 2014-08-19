@@ -14,22 +14,11 @@ from PyQt4 import uic
 from enki.core.core import core
 from enki.core.uisettings import CheckableOption, TextOption
 
+# Import CodeChat if possible; otherwise, indicate it wasn't available.
 try:
     import CodeChat
 except ImportError:
     CodeChat = None
-
-import subprocess
-# TODO: how to import this function from enki.tests.base?
-def _cmdlineUtilityExists(cmdlineArgs):
-    try:
-        FNULL = open(os.devnull, 'w')
-        subprocess.call(cmdlineArgs, stdout=FNULL, stderr=subprocess.STDOUT)
-    except OSError as e:
-        if e.errno == os.errno.ENOENT:
-            return False
-
-    return True
 
 def isHtmlFile(document):
     return document is not None and  \
@@ -41,7 +30,7 @@ class SettingsWidget(QWidget):
     """Insert the preview plugin as a page of the UISettings dialog.
     """
     def __init__(self, *args):
-        # Initialize the dialog, loading in Literate programming setting GUI.
+        # Initialize the dialog, loading in the literate programming settings GUI.
         QWidget.__init__(self, *args)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Settings.ui'), self)
 
@@ -54,67 +43,48 @@ class SettingsWidget(QWidget):
             # Hide the "not installed" message.
             self.labelCodeChatNotInstalled.setVisible(False)
 
+        # When the Sphinx enable checkbox is toggled, enable/disable all Sphinx
+        # UI elements.
         self.cbSphinxEnable.stateChanged.connect(self._toggleSphinx)
-        if not core.config()['Sphinx']['Enabled']:
-            # Enki does not check the availability of sphinx anymore. By default
-            # sphinx will be disabled. When enabled, user has to set the
-            # path to sphinx-build.exe, or else the fault sphinx-build command
-            # line command will be used. As a result, all path settings, normal
-            # mode and advanced mode will be always available.
-            self.cbSphinxEnable.setChecked(False)
-
-        # Path configurations are always enabled.
+        # Provide file choosers for the Sphinx UI.
         self.pbSphinxProjectPath.clicked.connect(self._onPbSphinxProjectPathClicked)
+        # Pan: for the output path, how about defaulting to "_build\html" (a relative
+        # path), instead of using an absolute path by default?
         self.pbSphinxOutputPath.clicked.connect(self._onPbSphinxOutputPathClicked)
-        # sphinx executable can be selected by the user. A filter is needed
-        # such that non-executable files will not be selected by the user.
+        # The Sphinx executable can be selected by the user. A filter is needed
+        # such that non-executable files will not be selected by the user. 
         self.pbSphinxExecutable.clicked.connect(self._onPbSphinxExecutableClicked)
-        # Correctness of user selected executable will be checked after editing
-        # finished.
-        self.leSphinxExecutable.editingFinished.connect(self._onleSphinxExecutableChanged)
+       
         # Click on advanced mode label triggers either advanced mode or normal mode.
         self.lbSphinxEnableAdvMode.mousePressEvent = self._onToggleSphinxSettingModeClicked
-        # Initialize sphinx config based on setting
-        self.leSphinxExecutable.setText(core.config()['Sphinx']['Executable'])
-        # set default output format to blank if sphinx has been found
         self.cmbSphinxOutputExtension.addItem("html")
         self.cmbSphinxOutputExtension.addItem("htm")
-        self.cmbSphinxOutputExtension.lineEdit().setText(core.config()['Sphinx']['OutputExtension'])
-        # Set default commandline even though it is invisible for now
-        self.leSphinxCmdline.setText(core.config()['Sphinx']['Cmdline'])
-        # disable build only on save function
+        # Disable build only on save function. Pan: why? is this broken?
         self.cbBuildOnSaveEnable.setChecked(False)
-
-        # Default setting mode is normal mode. Hide all advanced mode items
-        self.lbSphinxCmdline.setVisible(False)
-        self.leSphinxCmdline.setVisible(False)
-        self.lbSphinxReference.setVisible(False)
-        # if advanced mode has been enabled by the user, then sphinx setting
-        # window will be minimal.
-        if core.config()['Sphinx']['AdvancedMode']:
-            self._setSphinxAdvancedSettingMode()
+        self._updateSphinxSettingMode()
 
     def _toggleSphinx(self, layout=None):
-        """Recursively set everything in the layout argument to disabled.
-        Including the children layout(s).
+        """Recursively set everything in the layout argument to enabled/disabled
+        based on the state of the Sphinx enable checkbox, including any children
+        of ``layout``.
         """
         if layout.__class__ is int:
             # _toggleSphinx is called by cbSphinxEnable.stateChanged, which will
-            # pass an unnecessary integer argument. This will be replaced by
+            # pass an unnecessary integer argument. Replaced it with
             # the default layout.
             layout = self.loSphinxProject
         for i in range(layout.count()):
             item = layout.itemAt(i)
             if item.layout():
                 self._toggleSphinx(item.layout())
-            if item.widget() and \
-            (not item.widget() is self.cbSphinxEnable) and \
-            (not item.widget() is self.labelSphinxIntro):
-                # Here sphinx enable checkbox will not be hiden, sphinx intro
-                # label will not be hidden.
+            # Don't hide the Sphinx enable or Sphinx description text.
+            if (item.widget() and 
+              (item.widget() not in (self.cbSphinxEnable, self.labelSphinxIntro)) ):
                 item.widget().setEnabled(self.cbSphinxEnable.isChecked())
 
     def _onPbSphinxProjectPathClicked(self):
+        """Provide a directory chooser for the user to select a project path.
+        """
         path = QFileDialog.getExistingDirectory(core.mainWindow(), 'Project path')
         if path:
             self.leSphinxProjectPath.setText(path)
@@ -123,65 +93,56 @@ class SettingsWidget(QWidget):
             self.leSphinxOutputPath.setText(os.path.join(path, '_build\\html'))
 
     def _onPbSphinxOutputPathClicked(self):
+        """Proivde a directory chooser for the user to select an output path.
+        """
         path = QFileDialog.getExistingDirectory(core.mainWindow(), 'Output path')
         if path:
             self.leSphinxOutputPath.setText(path)
 
-    def _setSphinxAdvancedSettingMode(self):
-        # hide all path setting line edit boxes and buttons
-        for i in range(self.gridLayout.count()):
-            self.gridLayout.itemAt(i).widget().setVisible(False)
-        # Enable advanced setting mode items
-        self.lbSphinxEnableAdvMode.setText("""<html><head/><body><p>
-        <span style=" text-decoration: underline; color:#0000ff;">Normal Mode
-        </span></p></body></html>""")
-        self.lbSphinxEnableAdvMode.setTextFormat(Qt.RichText)
-        self.lbSphinxCmdline.setVisible(True)
-        self.leSphinxCmdline.setVisible(True)
-        self.lbSphinxReference.setVisible(True)
+    def _onPbSphinxExecutableClicked(self):
+        path = QFileDialog.getOpenFileName(self,
+                                           "Select Sphinx executable",
+                                           filter="sphinx-build.exe;; All Files (*.*)");
+        if path:
+            self.leSphinxExecutable.setText(path)
 
-    def _onToggleSphinxSettingModeClicked(self, *args):
+    def _onToggleSphinxSettingModeClicked(self, mouseEvent):
+        core.config()['Sphinx']['AdvancedMode'] = not core.config()['Sphinx']['AdvancedMode']
+        core.config().flush()
+        self._updateSphinxSettingMode()
+
+        
+    def _updateSphinxSettingMode(self):
+        """Update the Sphinx settings mode by hiding/revealing the appropriate 
+        controls.
+        """
         if core.config()['Sphinx']['AdvancedMode']:
-            # if already in advanced mode, click on toggle label switches to
-            # normal mode.
-            core.config()['Sphinx']['AdvancedMode'] = False
-            core.config().flush()
+            # Switch to advanced setting mode:
+            # hide all path setting line edit boxes and buttons.
+            for i in range(self.gridLayout.count()):
+                self.gridLayout.itemAt(i).widget().setVisible(False)
+            # Enable advanced setting mode items
+            self.lbSphinxEnableAdvMode.setText('<html><head/><body><p>' +
+            '<span style="text-decoration: underline; color:#0000ff;">Switch to Normal Mode' +
+            '</span></p></body></html>')
+            self.lbSphinxCmdline.setVisible(True)
+            self.leSphinxCmdline.setVisible(True)
+            self.lbSphinxReference.setVisible(True)
+        else:
             # Reenable all path setting line edit boxes and buttons
             for i in range(self.gridLayout.count()):
                 self.gridLayout.itemAt(i).widget().setVisible(True)
             # Hide all advanced mode entries.
-            self.lbSphinxEnableAdvMode.setText("""<html><head/><body><p>
-            <span style=" text-decoration: underline; color:#0000ff;">Advanced Mode
-            </span></p></body></html>""")
-            self.lbSphinxEnableAdvMode.setTextFormat(Qt.RichText)
+            self.lbSphinxEnableAdvMode.setText('<html><head/><body><p>' +
+              '<span style="text-decoration: underline; color:#0000ff;">Switch to advanced Mode' +
+              '</span></p></body></html>')
             self.lbSphinxCmdline.setVisible(False)
             self.leSphinxCmdline.setVisible(False)
             self.lbSphinxReference.setVisible(False)
-        else:
-            # if in normal mode, click on toggle label switches to advanced mode
-            core.config()['Sphinx']['AdvancedMode'] = True
-            core.config().flush()
-            # Switch to advanced setting mode
-            self._setSphinxAdvancedSettingMode()
 
-    def _onPbSphinxExecutableClicked(self):
-        path = QFileDialog.getOpenFileName(self,
-                                           "Select Sphinx executable",
-                                           "/home",
-                                           "sphinx-build.exe;; All Files (*.*)");
-        self.leSphinxExecutable.setText(path)
-
-    def _onleSphinxExecutableChanged(self):
-        """Check the correctness of user selected/defined sphinx executable. If
-        subprocess cannot call user defined sphinx executable, visual feedback
-        will be provided by showing a warning message box.
-        """
-        if not _cmdlineUtilityExists(self.leSphinxExecutable.text()):
-            QMessageBox.warning(self, "Invalid executable",
-                                "Sphinx executable is invalid.",
-                                QMessageBox.Ok, QMessageBox.NoButton,
-                                QMessageBox.NoButton)
-
+    # Pan: I think we should offer to do this when only when the project
+    # directory changes -- pop up a "missing project files, copy now" sort of
+    # dialog rather than doing it silently.
     def _buildSphinxProject(self):
         """If Sphinx directory is valid and sphinx is enabled, then add conf.py
            and default.css to project directory."""
@@ -230,9 +191,6 @@ class Plugin(QObject):
             core.config()['CodeChat']['Enabled'] = False
             core.config().flush()
         if not 'Sphinx' in core.config():
-        # TODO: if user updates from an old Enki version, certain entries might
-        # not be available, while core.config()['Sphinx'] is available, causing
-        # the newly added settings fail to get initialized correctly.
             core.config()['Sphinx'] = {}
             core.config()['Sphinx']['Enabled'] = False
             core.config()['Sphinx']['Executable'] = u''
@@ -273,13 +231,19 @@ class Plugin(QObject):
         if document.qutepart.language() in ('Markdown', 'Restructured Text') or \
            isHtmlFile(document):
             return True
+        # TODO: Check to see if CodeChat supports the language inferred from the
+        # file extension; if so, return true.
         if CodeChat is not None and core.config()['CodeChat']['Enabled'] is True:
             return True
-        # Sphinx does not depend on codechat
+        # TODO: When to really show the preview dock with Sphinx? That is, how
+        # can we tell if Sphinx will produce a .html file based on the currently
+        # open file in the editor? Just checking for a .html file doesn't work;
+        # perhaps Sphinx hasn't been run or the output files were removed, but
+        # a run of Sphinx will generate them. Or perhaps Sphinx won't process
+        # this file (it's excluded, wrong extension, etc.)
         if core.config()['Sphinx']['Enabled'] is True:
             return True
 
-        # TODO: Only if using an HTML builder should this be true; otherwise, false.
         return False
 
     def _createDock(self):
@@ -359,5 +323,5 @@ class Plugin(QObject):
                                        widget.leSphinxCmdline))
         # TODO: Should we leave _buildSphinxProject in SettingWidget or here in
         # Plugin class?
+        # Pan: I think leave it where it is -- that makes the most sense to me.
         widget._buildSphinxProject()
-
