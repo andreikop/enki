@@ -52,9 +52,9 @@ class SettingsWidget(QWidget):
         # path), instead of using an absolute path by default?
         self.pbSphinxOutputPath.clicked.connect(self._onPbSphinxOutputPathClicked)
         # The Sphinx executable can be selected by the user. A filter is needed
-        # such that non-executable files will not be selected by the user. 
+        # such that non-executable files will not be selected by the user.
         self.pbSphinxExecutable.clicked.connect(self._onPbSphinxExecutableClicked)
-       
+
         # Click on advanced mode label triggers either advanced mode or normal mode.
         self.lbSphinxEnableAdvMode.mousePressEvent = self._onToggleSphinxSettingModeClicked
         self.cmbSphinxOutputExtension.addItem("html")
@@ -78,7 +78,7 @@ class SettingsWidget(QWidget):
             if item.layout():
                 self._toggleSphinx(item.layout())
             # Don't hide the Sphinx enable or Sphinx description text.
-            if (item.widget() and 
+            if (item.widget() and
               (item.widget() not in (self.cbSphinxEnable, self.labelSphinxIntro)) ):
                 item.widget().setEnabled(self.cbSphinxEnable.isChecked())
 
@@ -106,14 +106,14 @@ class SettingsWidget(QWidget):
         if path:
             self.leSphinxExecutable.setText(path)
 
-    def _onToggleSphinxSettingModeClicked(self, mouseEvent):
+    def _onToggleSphinxSettingModeClicked(self, *args):
         core.config()['Sphinx']['AdvancedMode'] = not core.config()['Sphinx']['AdvancedMode']
         core.config().flush()
         self._updateSphinxSettingMode()
 
-        
+
     def _updateSphinxSettingMode(self):
-        """Update the Sphinx settings mode by hiding/revealing the appropriate 
+        """Update the Sphinx settings mode by hiding/revealing the appropriate
         controls.
         """
         if core.config()['Sphinx']['AdvancedMode']:
@@ -134,7 +134,7 @@ class SettingsWidget(QWidget):
                 self.gridLayout.itemAt(i).widget().setVisible(True)
             # Hide all advanced mode entries.
             self.lbSphinxEnableAdvMode.setText('<html><head/><body><p>' +
-              '<span style="text-decoration: underline; color:#0000ff;">Switch to advanced Mode' +
+              '<span style="text-decoration: underline; color:#0000ff;">Switch to Advanced Mode' +
               '</span></p></body></html>')
             self.lbSphinxCmdline.setVisible(False)
             self.leSphinxCmdline.setVisible(False)
@@ -325,3 +325,4 @@ class Plugin(QObject):
         # Plugin class?
         # Pan: I think leave it where it is -- that makes the most sense to me.
         widget._buildSphinxProject()
+

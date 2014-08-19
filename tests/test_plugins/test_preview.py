@@ -235,8 +235,8 @@ class Test(PreviewTestCase):
         self.assertFalse(sw.leSphinxExecutable.isEnabled())
         self.assertEqual(sw.leSphinxExecutable.text(), '')
         # builder extension is disabled and set to default 'html'
-        self.assertFalse(sw.leSphinxOutputExtension.isEnabled())
-        self.assertEqual(sw.leSphinxOutputExtension.text(), '')
+        self.assertFalse(sw.cmbSphinxOutputExtension.isEnabled())
+        self.assertEqual(sw.cmbSphinxOutputExtension.lineEdit().text(), 'html')
         # Assert advanced mode toggle label disabled and reads 'Advanced Mode'
         self.assertFalse(sw.lbSphinxEnableAdvMode.isEnabled())
         self.assertTrue('Advanced Mode' in sw.lbSphinxEnableAdvMode.text())
@@ -302,8 +302,8 @@ class Test(PreviewTestCase):
         self.assertTrue(sw.leSphinxExecutable.isEnabled())
         self.assertEqual(sw.leSphinxExecutable.text(), '')
         # builder extension is enabled and set to default 'html'
-        self.assertTrue(sw.leSphinxOutputExtension.isEnabled())
-        self.assertEqual(sw.leSphinxOutputExtension.text(), '')
+        self.assertTrue(sw.cmbSphinxOutputExtension.isEnabled())
+        self.assertEqual(sw.cmbSphinxOutputExtension.lineEdit().text(), 'html')
         # Assert advanced mode toggle label enabled and reads 'Advanced Mode'
         self.assertTrue(sw.lbSphinxEnableAdvMode.isEnabled())
         self.assertTrue('Advanced Mode' in sw.lbSphinxEnableAdvMode.text())
