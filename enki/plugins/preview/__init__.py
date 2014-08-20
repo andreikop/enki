@@ -146,23 +146,27 @@ class SettingsWidget(QWidget):
     def _buildSphinxProject(self):
         """If Sphinx directory is valid and sphinx is enabled, then add conf.py
            and default.css to project directory."""
-        if os.path.exists(core.config()['Sphinx']['ProjectPath']) and core.config()['Sphinx']['Enabled']:
-            # Check whether conf.py or default.css already exist, if so,
-            # conf.py template and default.css do not need to be copied
-            if os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py')) or\
-            os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'default.css')):
+        if (core.config()['Sphinx']['Enabled'] and
+          os.path.exists(core.config()['Sphinx']['ProjectPath'])):
+            # Check whether conf.py or default.css already exist; if so,
+            # they do not need to be copied.
+            if (os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py')) or
+              os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'default.css'))):
                 return
-            # Copy template files to sphinx project directory
-            confPath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sphinxtemplate\\conf.py')
-            confCodeChatPath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sphinxtemplate\\conf_codechat.py')
-            cssPath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sphinxtemplate\\default.css')
+            
+            # Copy template files to sphinx project directory.
+            codeChatPath = os.path.dirname(os.path.realpath(CodeChat.__file__))
+            cssPath = os.path.join(codeChatPath, 'template/default.css')
+            shutil.copy(cssPath, core.config()['Sphinx']['ProjectPath'])
+            # Choose what conf.py file to copy based whether CodeChat is enabled.
             if core.config()['CodeChat']['Enabled']:
                 # If CodeChat is also enabled, enable this in conf.py too.
+                confCodeChatPath = os.path.join(codeChatPath, 'template/conf_codechat.py')
                 shutil.copy(confCodeChatPath, os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py'))
             else:
                 # else simple copy the default conf.py to sphinx target directory
+                confPath = os.path.join(codeChatPath, 'template/conf.py')
                 shutil.copy(confPath, core.config()['Sphinx']['ProjectPath'])
-            shutil.copy(cssPath, core.config()['Sphinx']['ProjectPath'])
 
 class Plugin(QObject):
     """Plugin interface implementation
@@ -325,4 +329,3 @@ class Plugin(QObject):
         # Plugin class?
         # Pan: I think leave it where it is -- that makes the most sense to me.
         widget._buildSphinxProject()
-
