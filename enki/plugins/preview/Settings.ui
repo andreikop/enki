@@ -78,7 +78,7 @@
       <item>
        <widget class="QLabel" name="labelSphinxIntro">
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sphinx is a tool that makes it easy to create intelligent and beautiful documentation, written by Georg Brandl and available &lt;a href=&quot;http://sphinx-doc.org/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;here&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;http://sphinx-doc.org&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Sphinx&lt;/span&gt;&lt;/a&gt; is a tool that makes it easy to create intelligent and beautiful documentation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -110,7 +110,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Build on save lets Enki build current project only on save actions. If not checked, Enki will watch current Sphinx directory and rebuild the project when a change is detected.&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Build on save lets Enki build the current project only when a file is saved. If not checked, Enki will watch rebuild the project whenever a file is changed..&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
