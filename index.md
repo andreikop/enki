@@ -16,7 +16,7 @@ baseurl: .
 * **High quality.** No long list of fancy features. But, what is done, is done well.
 * **Open source.** In GitHub we trust.
 
-    <div id="social-buttons">
+<div id="social-buttons">
         <div id="twitter">
             <a href="https://twitter.com/EnkiEditor" class="twitter-follow-button" data-show-count="false" data-size="large" data-show-screen-name="false">Follow @EnkiEditor</a>
         </div>
