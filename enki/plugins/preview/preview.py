@@ -122,10 +122,8 @@ class ConverterThread(QThread):
         elif filePath:
             # Use Sphinx to generate the HTML if possible.
             if self._canUseSphinx(filePath):
-                # Pan: This needs to be removed -- it's not thread-safe. However,
-                # doing so causes test failures. Would you investigate?
-                core.workspace().currentDocument()._saveToFs(filePath)
                 # Run the builder.
+                print("Sphinx running...")
                 errString = self._runHtmlBuilder()
 
                 # Look for the HTML output.
@@ -331,23 +329,25 @@ class PreviewDock(DockWidget):
 
         self._widget.cbTemplate.currentIndexChanged.connect(self._onCurrentTemplateChanged)
 
+        # Create the preview sync before scheduling document processing, since
+        # document processing when finished calls previewSync methods.
+        self.previewSync = PreviewSync(self._widget.webView)
         self._scheduleDocumentProcessing()
+
         self._applyJavaScriptEnabled(self._isJavaScriptEnabled())
 
         self._widget.tbSave.clicked.connect(self.onPreviewSave)
 
-        self.previewSync = PreviewSync(self._widget.webView)
-
     def del_(self):
         """Uninstall themselves
         """
-        self.previewSync.del_()
         self._typingTimer.stop()
         self._thread.htmlReady.disconnect(self._setHtml)
         try:
             self._widget.webView.page().mainFrame().loadFinished.disconnect(self._restoreScrollPos)
         except TypeError:  # already has been disconnected
             pass
+        self.previewSync.del_()
 
         self._thread.stop_async()
         self._thread.wait()
@@ -519,6 +519,7 @@ class PreviewDock(DockWidget):
             elif isHtmlFile(document):
                 # No processing needed -- just display it.
                 self._setHtml(document.filePath(), text)
+                return
             elif language == 'Restructured Text':
                 pass
             else:
