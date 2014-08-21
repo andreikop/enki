@@ -94,7 +94,9 @@ class PreviewTestCase(base.TestCase):
     def _doBasicTest(self, extension):
         document = self.createFile('file.' + extension, self.testText)
 
-        self._assertHtmlReady(self._showDock)
+        # HTML files don't need processing in the worker thread.
+        if extension != 'html':
+            self._assertHtmlReady(self._showDock)
 
     def _doBasicSphinxConfig(self):
         """This function will set basic sphinx configurations.
