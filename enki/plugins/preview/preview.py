@@ -3,7 +3,7 @@
 # ********************************************
 # preview.py - HTML, Markdown and ReST preview
 # ********************************************
-
+#
 # Imports
 # =======
 # Library imports
@@ -40,9 +40,22 @@ except ImportError:
 
 
 class ConverterThread(QThread):
-    """Thread converts markdown to HTML
+    """Thread converts markdown to HTML.
     """
-    htmlReady = pyqtSignal(unicode, unicode, unicode, QUrl)
+    
+    # This signal is emitted by the converter thread when a file has been
+    # converted to HTML.
+    htmlReady = pyqtSignal(
+      # Path to the file which should be converted to / displayed as HTML.
+      unicode,
+      # HTML rendering of the file; empty if the HTML is provided in a file
+      # specified by the URL below.
+      unicode,
+      # Error text resulting from the conversion process.
+      unicode,
+      # A reference to a file containing HTML rendering. Empty if the second
+      # parameter above contains the HTML instead.
+      QUrl)
 
     _Task = collections.namedtuple("Task", ["filePath", "language", "text"])
 
@@ -50,28 +63,9 @@ class ConverterThread(QThread):
         QThread.__init__(self)
         self._queue = Queue.Queue()
         self.start(QThread.LowPriority)
-        # Executable to run the HTML builder.
-        self.htmlBuilderExecutable = core.config()['Sphinx']['Executable']
-        # Path to the root directory of an HTML builder.
-        self.htmlBuilderRootPath = core.config()['Sphinx']['ProjectPath']
-        # Path to the output produced by the HTML builder.
-        self.htmlBuilderOutputPath = core.config()['Sphinx']['OutputPath']
-        # Extension for resluting HTML files
-        # For available builder options, refer to: http://sphinx-doc.org/builders.html
-        self.htmlBuilderExtension = u'.' + core.config()['Sphinx']['OutputExtension']
-        if core.config()['Sphinx']['AdvancedMode']:
-            self.htmlBuilderCommandLine = core.config()['Sphinx']['Cmdline']
-        else:
-            self.htmlBuilderCommandLine = (self.htmlBuilderExecutable +
-              # Place doctrees in the ``_build`` directory; by default, Sphinx places this in _build/html/.doctrees.
-              u' -d _build\\doctrees ' +
-              # Source directory
-              self.htmlBuilderRootPath + ' ' +
-              # Build directory
-              self.htmlBuilderOutputPath)
 
     def process(self, filePath, language, text):
-        """Convert data and emit result
+        """Convert data and emit result.
         """
         self._queue.put(self._Task(filePath, language, text))
 
@@ -79,123 +73,83 @@ class ConverterThread(QThread):
         self._queue.put(None)
 
     def _canUseCodeChat(self):
-        # Codechat is available when: LSO and CodeToRest can be found;
-        # and Enki enabled codechat: config()['CodeChat']['Enabled'],
+        # Codechat is available when LSO and CodeToRest can be found,
+        # and Enki settings enable codechat (config()['CodeChat']['Enabled'] is true).
         return core.config()['CodeChat']['Enabled'] and LSO and CodeToRest
 
     def _canUseSphinx(self, filePath=None):
-        # Sphinx config can be altered during program run, thus its configuration
-        # must be kept synced with latest settings
+        # Sphinx config can be altered during program execution, thus its
+        # configuration must be kept synced with latest settings.
         self._updateSphinxConfig()
         # Sphinx is available for the current file when:
-        # Sphinx is enabled by Enki: config()['sphinx']['Enabled'] and
-        # Current file is in the htmlBuilderRootPath directory: filePath.
-        # startswith(self.htmlBuilderRootPath)
-        return core.config()['Sphinx']['Enabled'] and \
-        self.htmlBuilderRootPath == os.path.commonprefix([self.htmlBuilderRootPath, filePath])
+        # Sphinx is enabled by Enki [config()['sphinx']['Enabled']] and
+        # the file to be rendered is in the htmlBuilderRootPath directory.
+        # See http://stackoverflow.com/questions/7287996/python-get-relative-path-from-comparing-two-absolute-paths 
+        # for discussion on the path comparison below.
+        return (core.config()['Sphinx']['Enabled'] and 
+          self.htmlBuilderRootPath == os.path.commonprefix([self.htmlBuilderRootPath, filePath]))
 
     def _updateSphinxConfig(self):
+        # Executable to run the HTML builder.
+        self.htmlBuilderExecutable = core.config()['Sphinx']['Executable']
         # Path to the root directory of an HTML builder.
-        if self.htmlBuilderRootPath != core.config()['Sphinx']['ProjectPath']:
-            self.htmlBuilderRootPath = core.config()['Sphinx']['ProjectPath']
+        self.htmlBuilderRootPath = core.config()['Sphinx']['ProjectPath']
         # Path to the output produced by the HTML builder.
-        if self.htmlBuilderOutputPath != core.config()['Sphinx']['OutputPath']:
-            self.htmlBuilderOutputPath = core.config()['Sphinx']['OutputPath']
-        # Extension for resluting HTML files
-        if self.htmlBuilderExtension != u'.' + core.config()['Sphinx']['OutputExtension']:
-            self.htmlBuilderExtension = u'.' + core.config()['Sphinx']['OutputExtension']
-        # Command line command.
-        if self.htmlBuilderExecutable != core.config()['Sphinx']['Executable']:
-            self.htmlBuilderExecutable = core.config()['Sphinx']['Executable']
-        if not core.config()['Sphinx']['AdvancedMode']:
-            # Update htmlBuilderCommandLine.
+        self.htmlBuilderOutputPath = core.config()['Sphinx']['OutputPath']
+        # Extension for the resluting HTML files.
+        self.htmlBuilderExtension = u'.' + core.config()['Sphinx']['OutputExtension']
+        if core.config()['Sphinx']['AdvancedMode']:
+            self.htmlBuilderCommandLine = core.config()['Sphinx']['Cmdline']
+        else:
+            # For available builder options, refer to: http://sphinx-doc.org/builders.html
             self.htmlBuilderCommandLine = (self.htmlBuilderExecutable +
               # Place doctrees in the ``_build`` directory; by default, Sphinx places this in _build/html/.doctrees.
-              u' -d _build\\doctrees ' +
+              u' -d _build/doctrees ' +
               # Source directory
               self.htmlBuilderRootPath + ' ' +
               # Build directory
               self.htmlBuilderOutputPath)
-        elif self.htmlBuilderCommandLine != core.config()['Sphinx']['Cmdline']:
-            self.htmlBuilderCommandLine = core.config()['Sphinx']['Cmdline']
 
     def _getHtml(self, language, text, filePath):
         """Get HTML for document
         """
-        if language == 'HTML':
-            return text, None, QUrl()
-        elif language == 'Markdown':
+        if language == 'Markdown':
             return self._convertMarkdown(text), None, QUrl()
-        elif language == 'Restructured Text' and\
-            not (core.config()['Sphinx']['Enabled'] is True and \
-            filePath.startswith(self.htmlBuilderRootPath)):
-            # Render tool for rsT file:
-            #
-            # ========  ========  ===================  ============
-            # CodeChat  Sphinx    In sphinx directory  Tool
-            # ========  ========  ===================  ============
-            # Disabled  Disabled  No                   Docutils
-            # Disabled  Disabled  Yes                  Docutils
-            # Disabled  Enabled   No                   Docutils
-            # Disabled  Enabled   Yes                  Sphinx
-            # Enabled   Disabled  No                   Docutils
-            # Enabled   Disabled  Yes                  Docutils
-            # Enabled   Enabled   No                   Docutils
-            # Enabled   Enabled   Yes                  Sphinx
-            # ========  ========  ===================  ============
+        # For ReST, use docutils only if Sphinx isn't available.
+        elif language == 'Restructured Text' and not self._canUseSphinx(filePath):
             htmlUnicode, errString = self._convertReST(text)
             return htmlUnicode, errString, QUrl()
         elif filePath:
-            # Sphinx is designed to have higher priority than CodeChat because
-            # of the settings required to config sphinx, and CodeChat can be
-            # used as a sphinx module.
-            #
-            # Rendering tool for code file:
-            #
-            # ========  ========  ===================  ============
-            # CodeChat  Sphinx    In sphinx directory  Tool
-            # ========  ========  ===================  ============
-            # Disabled  Disabled  No                   N/A
-            # Disabled  Disabled  Yes                  N/A
-            # Disabled  Enabled   No                   N/A
-            # Disabled  Enabled   Yes                  Sphinx
-            # Enabled   Disabled  No                   CodeChat
-            # Enabled   Disabled  Yes                  CodeChat
-            # Enabled   Enabled   No                   CodeChat
-            # Enabled   Enabled   Yes                  Sphinx
-            # ========  ========  ===================  ============
-            #
-            # Look for HTML builder output. First, see if the current file is
-            # within the subtree of self.htmlBuilderRootPath. See
-            # http://stackoverflow.com/questions/7287996/python-get-relative-path-from-comparing-two-absolute-paths for more discussion.
+            # Use Sphinx to generate the HTML if possible.
             if self._canUseSphinx(filePath):
-                # Save current file only
+                # Pan: This needs to be removed -- it's not thread-safe. However,
+                # doing so causes test failures. Would you investigate?
                 core.workspace().currentDocument()._saveToFs(filePath)
                 # Run the builder.
                 errString = self._runHtmlBuilder()
-                # Next, create an htmlPath as self.htmlBuilderOutputPath + remainder of htmlRelPath
+                
+                # Look for the HTML output.
+                #
+                # First, create an htmlPath as self.htmlBuilderOutputPath + remainder of htmlRelPath
                 htmlPath = os.path.join(self.htmlBuilderOutputPath + filePath[len(self.htmlBuilderRootPath):])
-                # See if htmlPath + self.htmlBuilderExtension exists. If so, use that.
+                # First place to look: file.html. For example, look for foo.py
+                # in foo.py.html.
                 htmlFile = htmlPath + self.htmlBuilderExtension
-                htmlPathNoExtension = os.path.splitext(htmlPath)[0]
-                htmlFileAlter = htmlPathNoExtension + self.htmlBuilderExtension
+                # Second place to look: file without extension.html. For
+                # example, look for foo.rst in foo.html.
+                htmlFileAlter = os.path.splitext(htmlPath)[0] + self.htmlBuilderExtension
                 if os.path.exists(htmlFile):
                     return u'', errString, QUrl.fromLocalFile(htmlFile)
-                # Otherwise, try replacing the extension with self.htmlBuilderExtension.
-                # This is useful in finding html generated by rsT.
-                # Example: Original file name: content.rst
-                # htmlFile: content.rst.html
-                # htmlFileAlter: content.html
                 elif os.path.exists(htmlFileAlter):
                     return u'', errString, QUrl.fromLocalFile(htmlFileAlter)
-
-                # Can't find it.
-                return 'No preview for this type of file in ' + htmlFile + " or " + htmlFileAlter,\
-                       None, QUrl()
-            # Use CodeToRest module to perform code to rst to html conversion,
-            # if CodeToRest is installed.
+                else:
+                    return ('No preview for this type of file in ' + htmlFile + 
+                            " or " + htmlFileAlter, None, QUrl())
+                    
+            # Otherwise, fall back to using CodeChat+docutils.
             elif self._canUseCodeChat():
-                # Use StringIO to pass codechat compilation information to UI.
+                # Use StringIO to pass CodeChat compilation information back to
+                # the UI.
                 errStream = StringIO.StringIO()
                 lso = LSO.LanguageSpecificOptions()
                 fileName, fileExtension = os.path.splitext(filePath)
@@ -246,7 +200,7 @@ class ConverterThread(QThread):
             extensions.append(_StrikeThroughExtension())
 
         try:
-            return markdown.markdown(text,  extensions + ['mathjax'])
+            return markdown.markdown(text, extensions + ['mathjax'])
         except (ImportError, ValueError):  # markdown raises ValueError or ImportError, depends on version
                                            # it is not clear, how to distinguish missing mathjax from other errors
             return markdown.markdown(text, extensions) #keep going without mathjax
@@ -257,9 +211,9 @@ class ConverterThread(QThread):
         try:
             import docutils.core
         except ImportError:
-            return 'Restructured Text preview requires <i>python-docutils</i> package<br/>' \
+            return 'Restructured Text preview requires the <i>python-docutils</i> package.<br/>' \
                    'Install it with your package manager or see ' \
-                   '<a href="http://pypi.python.org/pypi/docutils"/>this page</a>', None
+                   '<a href="http://pypi.python.org/pypi/docutils"/>this page.</a>', None
 
         errStream = StringIO.StringIO()
         htmlString = docutils.core.publish_string(text, writer_name='html', settings_overrides={
@@ -274,6 +228,7 @@ class ConverterThread(QThread):
         errStream.close()
         return htmlString, errString
 
+    # TODO: factors these changes back into enki.lib.get_console_output.
     def _runHtmlBuilder(self):
         if hasattr(subprocess, 'STARTUPINFO'):  # windows only
             # On Windows, subprocess will pop up a command window by default when run from
@@ -437,7 +392,7 @@ class PreviewDock(DockWidget):
             return  # nothing to restore if don't have document
 
         try:
-            self._widget.webView .page().mainFrame().loadFinished.disconnect(self._restoreScrollPos)
+            self._widget.webView.page().mainFrame().loadFinished.disconnect(self._restoreScrollPos)
         except TypeError:  # already has been disconnected
             pass
 
@@ -557,11 +512,16 @@ class PreviewDock(DockWidget):
                 language = 'Markdown'
                 text = self._getCurrentTemplate() + text
             elif isHtmlFile(document):
-                language = 'HTML'
+                # No processing needed -- just display it.
+                self._setHtml(document.filePath(), text)
             elif language == 'Restructured Text':
                 pass
             else:
-                # TODO: Is it necessary to save if file is not html or markdown
+                # TODO: Only save if Sphinx will be used.
+                # TODO:  temporarily disable the clear trailing
+                # whitespace option so spaces won't disappear when the
+                # build on save option is unchecked.
+
                 # Save any changes before HTML builder processing.
                 if qp.document().isModified():
                     document.saveFile()
