@@ -42,7 +42,7 @@ except ImportError:
 class ConverterThread(QThread):
     """Thread converts markdown to HTML.
     """
-    
+
     # This signal is emitted by the converter thread when a file has been
     # converted to HTML.
     htmlReady = pyqtSignal(
@@ -84,9 +84,9 @@ class ConverterThread(QThread):
         # Sphinx is available for the current file when:
         # Sphinx is enabled by Enki [config()['sphinx']['Enabled']] and
         # the file to be rendered is in the htmlBuilderRootPath directory.
-        # See http://stackoverflow.com/questions/7287996/python-get-relative-path-from-comparing-two-absolute-paths 
+        # See http://stackoverflow.com/questions/7287996/python-get-relative-path-from-comparing-two-absolute-paths
         # for discussion on the path comparison below.
-        return (core.config()['Sphinx']['Enabled'] and 
+        return (core.config()['Sphinx']['Enabled'] and
           self.htmlBuilderRootPath == os.path.commonprefix([self.htmlBuilderRootPath, filePath]))
 
     def _updateSphinxConfig(self):
@@ -127,7 +127,7 @@ class ConverterThread(QThread):
                 core.workspace().currentDocument()._saveToFs(filePath)
                 # Run the builder.
                 errString = self._runHtmlBuilder()
-                
+
                 # Look for the HTML output.
                 #
                 # First, create an htmlPath as self.htmlBuilderOutputPath + remainder of htmlRelPath
@@ -143,9 +143,9 @@ class ConverterThread(QThread):
                 elif os.path.exists(htmlFileAlter):
                     return u'', errString, QUrl.fromLocalFile(htmlFileAlter)
                 else:
-                    return ('No preview for this type of file in ' + htmlFile + 
+                    return ('No preview for this type of file in ' + htmlFile +
                             " or " + htmlFileAlter, None, QUrl())
-                    
+
             # Otherwise, fall back to using CodeChat+docutils.
             elif self._canUseCodeChat():
                 # Use StringIO to pass CodeChat compilation information back to
@@ -344,6 +344,11 @@ class PreviewDock(DockWidget):
         self.previewSync.del_()
         self._typingTimer.stop()
         self._thread.htmlReady.disconnect(self._setHtml)
+        try:
+            self._widget.webView.page().mainFrame().loadFinished.disconnect(self._restoreScrollPos)
+        except TypeError:  # already has been disconnected
+            pass
+
         self._thread.stop_async()
         self._thread.wait()
 
@@ -399,7 +404,7 @@ class PreviewDock(DockWidget):
         if not self._visiblePath in self._scrollPos:
             return  # no data for this document
 
-        frame = self._widget.webView .page().mainFrame()
+        frame = self._widget.webView.page().mainFrame()
 
         frame.setScrollPosition(self._scrollPos[self._visiblePath])
 
@@ -493,7 +498,7 @@ class PreviewDock(DockWidget):
             self._typingTimer.start()
 
     def show(self):
-        """When shown, update document, if posible
+        """When shown, update document, if possible.
         """
         DockWidget.show(self)
         self._scheduleDocumentProcessing()
