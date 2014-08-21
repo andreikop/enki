@@ -114,7 +114,7 @@ class PreviewTestCase(base.TestCase):
         """
         # Fill in conf.py and default.css file
         sw = SettingsWidget()
-        sw._buildSphinxProject()
+        sw._copySphinxProjectTemplate()
 
         # Create master document contents.rst
         master = os.path.join(self.TEST_FILE_DIR, 'contents.rst')

@@ -55,12 +55,18 @@ class SettingsWidget(QWidget):
         # such that non-executable files will not be selected by the user.
         self.pbSphinxExecutable.clicked.connect(self._onPbSphinxExecutableClicked)
 
-        # Click on advanced mode label triggers either advanced mode or normal mode.
+        # Clicking on advanced mode label triggers either advanced mode or
+        # normal mode.
         self.lbSphinxEnableAdvMode.mousePressEvent = self._onToggleSphinxSettingModeClicked
+
+        # Changes to the project path will check that the new path has the
+        # necessary project files.
+        self.leSphinxProjectPath.textEdited.connect(
+          lambda text : self._copySphinxProjectTemplate())
+
+        # Update misc pieces of the GUI that can't be stored in the .ui file.
         self.cmbSphinxOutputExtension.addItem("html")
         self.cmbSphinxOutputExtension.addItem("htm")
-        # Disable build only on save function. Pan: why? is this broken?
-        self.cbBuildOnSaveEnable.setChecked(False)
         self._updateSphinxSettingMode()
 
     def _toggleSphinx(self, layout=None):
@@ -143,9 +149,9 @@ class SettingsWidget(QWidget):
     # Pan: I think we should offer to do this when only when the project
     # directory changes -- pop up a "missing project files, copy now" sort of
     # dialog rather than doing it silently.
-    def _buildSphinxProject(self):
-        """If Sphinx directory is valid and sphinx is enabled, then add conf.py
-           and default.css to project directory."""
+    def _copySphinxProjectTemplate(self):
+        """If Sphinx directory is valid and Sphinx is enabled, then add conf.py
+           and default.css to the project directory."""
         if (core.config()['Sphinx']['Enabled'] and
           os.path.exists(core.config()['Sphinx']['ProjectPath'])):
             # Check whether conf.py or default.css already exist; if so,
@@ -153,7 +159,7 @@ class SettingsWidget(QWidget):
             if (os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py')) or
               os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'default.css'))):
                 return
-            
+
             # Copy template files to sphinx project directory.
             codeChatPath = os.path.dirname(os.path.realpath(CodeChat.__file__))
             cssPath = os.path.join(codeChatPath, 'template/default.css')
@@ -325,7 +331,5 @@ class Plugin(QObject):
         dialog.appendOption(TextOption(dialog, core.config(),
                                        "Sphinx/Cmdline",
                                        widget.leSphinxCmdline))
-        # TODO: Should we leave _buildSphinxProject in SettingWidget or here in
-        # Plugin class?
-        # Pan: I think leave it where it is -- that makes the most sense to me.
-        widget._buildSphinxProject()
+        # Ensure the Sphinx project has the necessary templates.
+        widget._copySphinxProjectTemplate()
