@@ -286,6 +286,8 @@ class PreviewDock(DockWidget):
     """
     closed = pyqtSignal()
     webViewLoadFinishedWithContent = pyqtSignal(unicode)
+    # Sent when the _setHtml methods completes.
+    setHtmlDone = pyqtSignal()
 
     def __init__(self):
         DockWidget.__init__(self, core.mainWindow(), "Previe&w", QIcon(':/enkiicons/internet.png'), "Alt+W")
@@ -335,6 +337,8 @@ class PreviewDock(DockWidget):
 
         self._widget.tbSave.clicked.connect(self.onPreviewSave)
 
+        self._widget.webView.page().mainFrame().loadFinished.connect(self._emitLoadFinishedWithContent)
+
         # Don't need to schedule document processing -- applyJavaScriptEnabled
         # does, a likely call to show() does.
 
@@ -348,6 +352,7 @@ class PreviewDock(DockWidget):
             self._widget.webView.page().mainFrame().loadFinished.disconnect(self._restoreScrollPos)
         except TypeError:  # already has been disconnected
             pass
+        self._widget.webView.page().mainFrame().loadFinished.disconnect(self._emitLoadFinishedWithContent)
         self.previewSync.del_()
 
         self._thread.stop_async()
@@ -545,7 +550,6 @@ class PreviewDock(DockWidget):
         self._saveScrollPos()
         self._visiblePath = filePath
         self._widget.webView.page().mainFrame().loadFinished.connect(self._restoreScrollPos)
-        self._widget.webView.page().mainFrame().loadFinished.connect(self._emitLoadFinishedWithContent)
 
         if baseUrl.isEmpty():
             self._widget.webView.setHtml(html, baseUrl=QUrl.fromLocalFile(filePath))
@@ -625,6 +629,7 @@ class PreviewDock(DockWidget):
             # expand it back to visible)
             self._widget.splitter.setSizes([1,0])
             self._setHtmlProgress(100)
+        self.setHtmlDone.emit()
 
     def _setHtmlProgress(self, progress=None, color=None):
         """Set progress bar and status label.
