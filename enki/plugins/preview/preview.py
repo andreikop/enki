@@ -284,7 +284,6 @@ class PreviewDock(DockWidget):
     """GUI and implementation
     """
     closed = pyqtSignal()
-    webViewLoadFinishedWithContent = pyqtSignal(unicode)
     # Sent when the _setHtml methods completes.
     setHtmlDone = pyqtSignal()
 
@@ -336,8 +335,6 @@ class PreviewDock(DockWidget):
 
         self._widget.tbSave.clicked.connect(self.onPreviewSave)
 
-        self._widget.webView.page().mainFrame().loadFinished.connect(self._emitLoadFinishedWithContent)
-
         # Don't need to schedule document processing -- applyJavaScriptEnabled
         # does, a likely call to show() does.
 
@@ -351,7 +348,6 @@ class PreviewDock(DockWidget):
             self._widget.webView.page().mainFrame().loadFinished.disconnect(self._restoreScrollPos)
         except TypeError:  # already has been disconnected
             pass
-        self._widget.webView.page().mainFrame().loadFinished.disconnect(self._emitLoadFinishedWithContent)
         self.previewSync.del_()
 
         self._thread.stop_async()
@@ -390,10 +386,6 @@ class PreviewDock(DockWidget):
         self._scrollPos[self._visiblePath] = pos
         self._hAtEnd[self._visiblePath] = frame.scrollBarMaximum(Qt.Horizontal) == pos.x()
         self._vAtEnd[self._visiblePath] = frame.scrollBarMaximum(Qt.Vertical) == pos.y()
-
-    def _emitLoadFinishedWithContent(self):
-        """Store webView content after webView load finished"""
-        self.webViewLoadFinishedWithContent.emit(self._widget.webView.page().mainFrame().toHtml())
 
     def _restoreScrollPos(self, ok):
         """Restore scroll bar position for document

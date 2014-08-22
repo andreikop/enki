@@ -123,26 +123,18 @@ class PreviewTestCase(base.TestCase):
 
    code.""" + extension)
 
-        webViewContent = []
-        def senderSignalSlot(*args):
-            webViewContent.append(args)
-
-        self._dock().webViewLoadFinishedWithContent.connect(senderSignalSlot)
-        def tmp():
-            self.createFile(os.path.join(self.TEST_FILE_DIR, 'code.' + extension), self.testText)
-
         # For some reason, self._dock() will sometimes fail to find the preview widget.
         d = self._dock()
         # First html ready will be checked such that log window content can be
         # get. After html ready we wait for loadFinished signal.
-        self._assertHtmlReady(tmp, timeout=10000)
+        self._assertHtmlReady(lambda : self.createFile(os.path.join(self.TEST_FILE_DIR,
+          'code.' + extension), self.testText), timeout=10000)
+        base.waitForSignal(lambda : None, d._widget.webView.page().mainFrame().loadFinished, 1000)
         logContent = d._widget.teLog.toPlainText()
-        base.waitForSignal(lambda : None, self._dock().webViewLoadFinishedWithContent, 1000)
-        d.webViewLoadFinishedWithContent.disconnect(senderSignalSlot)
 
         # return both webViewContent and log window content such that they can
         # be processed further
-        return [None if not webViewContent else webViewContent[0][0], logContent]
+        return [d._widget.webView.page().mainFrame().toHtml(), logContent]
 
 class Test(PreviewTestCase):
     def test_html(self):
@@ -374,11 +366,11 @@ content"""
         self._doBasicTest('py')
         assert 'test' not in self._html()
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+#    @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
     def test_uiCheck5a(self):
         """Basic sphinx test: with sphinx and codechat disabled, no preview
-           window can be found."""
+           window results are generated."""
         self._doBasicSphinxConfig()
         core.config()['Sphinx']['Enabled'] = False
         self.testText = """****
@@ -386,8 +378,11 @@ head
 ****
 
 content"""
-        with self.assertRaises(AssertionError):
-            self._doBasicSphinxTest('rst')
+        # After calling doBasicSphinxText, self._dock() can't be found.
+        # So, save it here.
+        d = self._dock()
+        self._doBasicSphinxTest('rst')
+        self.assertNotIn('<h1>head', d._widget.webView.page().mainFrame().toHtml())
 
     @requiresModule('CodeChat')
     def test_uiCheck6(self):
