@@ -329,14 +329,15 @@ class PreviewDock(DockWidget):
 
         self._widget.cbTemplate.currentIndexChanged.connect(self._onCurrentTemplateChanged)
 
-        # Create the preview sync before scheduling document processing, since
-        # document processing when finished calls previewSync methods.
         self.previewSync = PreviewSync(self._widget.webView)
-        self._scheduleDocumentProcessing()
 
         self._applyJavaScriptEnabled(self._isJavaScriptEnabled())
 
         self._widget.tbSave.clicked.connect(self.onPreviewSave)
+
+        # Don't need to schedule document processing -- applyJavaScriptEnabled
+        # does, a likely call to show() does.
+
 
     def del_(self):
         """Uninstall themselves
@@ -509,6 +510,8 @@ class PreviewDock(DockWidget):
         self._typingTimer.stop()
 
         document = core.workspace().currentDocument()
+#        traceback.print_stack()
+#        print('schedule ' + document.filePath() + '\n\n')
         if document is not None:
             qp = document.qutepart
             language = qp.language()
@@ -670,8 +673,6 @@ class PreviewDock(DockWidget):
         settings = self._widget.webView.settings()
         settings.setAttribute(settings.JavascriptEnabled, enabled)
 
-        self._scheduleDocumentProcessing()
-
     def onPreviewSave(self):
         """Save contents of the preview"""
         path = QFileDialog.getSaveFileName(self, 'Save Preview as HTML', filter='HTML (*.html)')
@@ -692,5 +693,4 @@ class PreviewDock(DockWidget):
         # sphinx is enabled, and current document is in the sphinx root path.
         if core.config()['Sphinx']['Enabled'] and \
         sphinxProjectPath == os.path.commonprefix([currentDocumentPath, sphinxProjectPath]):
-            self._typingTimer.stop()
-            self._typingTimer.start()
+            self._scheduleDocumentProcessing()

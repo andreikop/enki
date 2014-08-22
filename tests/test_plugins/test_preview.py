@@ -56,6 +56,7 @@ class PreviewTestCase(base.TestCase):
 
     def setUp(self):
         base.TestCase.setUp(self)
+        self._showDock()
         self.testText = 'The preview text'
 
     def _dock(self):
@@ -63,14 +64,21 @@ class PreviewTestCase(base.TestCase):
         it is not found."""
         return self.findDock('Previe&w')
 
-
     def _widget(self):
         """Find then return the PreviewDock widget. Fail if it is
         not found."""
         return self._dock().widget()
 
     def _showDock(self):
-        core.actionManager().action('mView/aPreview').trigger()
+        # See if the dock can be opened.
+        p = core.actionManager().action('mView/aPreview')
+        if p:
+            # Yes, so open it.
+            p.trigger()
+        else:
+            # No, so load a dummy HTML document so that it can be opened.
+            d = self.createFile('dummy.html', '')
+#            d.close()
 
     def _visibleText(self):
         return self._widget().webView.page().mainFrame().toPlainText()
@@ -92,21 +100,20 @@ class PreviewTestCase(base.TestCase):
         self.assertEmits(start, self._dock()._thread.htmlReady, timeout)
 
     def _doBasicTest(self, extension):
-        document = self.createFile('file.' + extension, self.testText)
-
         # HTML files don't need processing in the worker thread.
         if extension != 'html':
-            self._assertHtmlReady(self._showDock)
+            self._assertHtmlReady(lambda: self.createFile('file.' + extension, self.testText))
 
     def _doBasicSphinxConfig(self):
-        """This function will set basic sphinx configurations.
+        """This function will set basic sphinx configuration options
+        so that Sphinx can run in a test environment.
         """
         core.config()['Sphinx']['Enabled'] = True
         core.config()['Sphinx']['Executable'] = r'sphinx-build'
         core.config()['Sphinx']['ProjectPath'] = self.TEST_FILE_DIR
-        core.config()['Sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build\\html')
+        core.config()['Sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build/html')
         core.config()['Sphinx']['OutputExtension'] = r'html'
-        core.config()['Sphinx']['Cmdline'] = r'sphinx-build -d _build\\doctrees . _build\\html'
+        core.config()['Sphinx']['Cmdline'] = r'sphinx-build -d _build/doctrees . _build/html'
 
     def _doBasicSphinxTest(self, extension):
         """This function will build a basic sphinx project in the temporary
@@ -124,31 +131,24 @@ class PreviewTestCase(base.TestCase):
             file_.write(""".. toctree::
 
    code.""" + extension)
-        # Create code file
-        code = os.path.join(self.TEST_FILE_DIR, 'code.' + extension)
-        with codecs.open(code, 'wb', encoding='utf8') as file_:
-            file_.write(self.testText)
 
         webViewContent = []
         def senderSignalSlot(*args):
             webViewContent.append(args)
 
-        # Open the code file. Wait for Html ready signal and
-        # webViewLoadFinishedWithContent signal. Web view content is passed
-        # with this signal as argument. In function senderSignalSlot, web view
-        # content will be saved to local variable webViewContent
-        core.workspace().openFile(code)
         self._dock().webViewLoadFinishedWithContent.connect(senderSignalSlot)
+        def tmp():
+            self.createFile(os.path.join(self.TEST_FILE_DIR, 'code.' + extension), self.testText)
 
         # First html ready will be checked such that log window content can be
         # get. After html ready we wait for loadFinished signal.
-        self._assertHtmlReady(self._showDock, timeout=10000)
+        self._assertHtmlReady(tmp, timeout=10000)
         logContent = self._logText()
-        self.assertEmits(self._showDock, self._dock().webViewLoadFinishedWithContent, 10000)
+        self.assertEmits(lambda : None, self._dock().webViewLoadFinishedWithContent, 10000)
 
         # return both webViewContent and log window content such that they can
         # be processed further
-        return [None if not webViewContent else webViewContent[0][0], logContent]
+        return [self._html(), logContent]
 
 class Test(PreviewTestCase):
     def test_html(self):
@@ -356,7 +356,7 @@ content"""
         webViewContent, logContent = self._doBasicSphinxTest('rst')
 
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+#    @base.requiresCmdlineUtility('sphinx-build --version')
     @requiresModule('CodeChat')
     @base.inMainLoop
     def test_uiCheck4b(self):
@@ -372,16 +372,16 @@ content"""
 # content"""
         webViewContent, logContent = self._doBasicSphinxTest('py')
         self.assertTrue(u'<p>content</p>' in webViewContent)
-        self.assertTrue(u'writing output... [ 50%] code.py' in logContent)
+        self.assertTrue(u'writing output... [ 33%] code.py' in logContent)
 
     @requiresModule('CodeChat')
+    @base.inMainLoop
     def test_uiCheck5(self):
-        """If Enki is opened without any configuration, the preview dock cannot
-           be found if the opened file is a code file. This will not affect resT
-           files or html files."""
-        with self.assertRaises(AssertionError):
-            self._doBasicTest('py')
-            #self._dock()
+        """If Enki is opened without any configuration, the preview dock will
+           be empty. This will not affect resT files or html files."""
+        self.testText = u'test'
+        self._doBasicTest('py')
+        assert 'test' not in self._html()
 
     @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
@@ -426,9 +426,9 @@ content"""
         self._doBasicTest('py')
         # Plaintext captured from the preview dock will append a newline if
         # preview dock is not empty. A '\n' is added accordingly.
-        self.assertEqual(self._visibleText(), self.testText+'\n')
+        self.assertEqual(self._visibleText(), self.testText + '\n')
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+#    @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
     def test_uiCheck7a(self):
         """Unicode string passed to sphinx should be handled properly.
@@ -440,6 +440,7 @@ content"""
 
 content"""
         webViewContent, logContent = self._doBasicSphinxTest('rst')
+        print(webViewContent)
         self.assertTrue(u"<h1>Енки" in webViewContent)
 
     @requiresModule('CodeChat')
@@ -448,13 +449,16 @@ content"""
            opened, then enable the CodeChat module and refresh Enki.
            The preview window should now be opened."""
         self.testText = u'test'
-        with self.assertRaises(AssertionError):
-            self._doBasicTest('py')
+        self._doBasicTest('py')
+        assert 'test' not in self._html()
+
         core.config()['CodeChat']['Enabled'] = True
         core.uiSettingsManager().dialogAccepted.emit();
         self._doBasicTest('py')
+        assert 'test' in self._html()
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+
+#    @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
     def test_uiCheck8a(self):
         """Start with sphinx disabled, make sure rst file will be rendered by
@@ -467,13 +471,11 @@ content"""
         self._doBasicSphinxTest('rst')
         self.assertEqual(self._visibleText(), '')
         self.assertEqual(self._logText(), '')
-        # Now enable sphinx, force workspace refresh, sphinx should kicks in.
-        core.config()['Sphinx']['Enabled'] = True
-        core.workspace().keyPressEvent(QKeyEvent(QEvent.KeyPress, Qt.Key_F5, Qt.NoModifier))
-        # Both a key simulation and the following line of code will force
-        # workspace to refresh. But the following line of code does not require
-        # import of QEvent and QKeyEvent
-        ##core.workspace()._onCurrentDocumentChanged(core.workspace().currentDocument(), core.workspace().currentDocument())
+
+    @base.inMainLoop
+    def test_uiCheck9b(self):
+        self._doBasicSphinxConfig()
+        self.testText = u''
         webViewContent, logContent = self._doBasicSphinxTest('rst')
         self.assertTrue(u"""doesn't have a title""" in logContent)
 
@@ -490,7 +492,7 @@ content"""
         self._doBasicTest('rst')
         self.assertTrue("""Unknown directive type "wrong".""" in self._logText())
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+#    @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
     def test_uiCheck9a(self):
         """Test sphinx error can be captured correctly"""
@@ -536,7 +538,7 @@ content"""
         """
         core.config()['Sphinx']['Enabled'] = True
         core.config()['Sphinx']['ProjectPath'] = self.TEST_FILE_DIR
-        core.config()['Sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build\\html')
+        core.config()['Sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build/html')
         core.config()['Sphinx']['OutputExtension'] = 'html'
 
         self.testText = u"""****
