@@ -113,8 +113,7 @@ class PreviewTestCase(base.TestCase):
         file can be altered. For example, the extension can be set to .rst .
         """
         # Fill in conf.py and default.css file
-        sw = SettingsWidget()
-        sw._copySphinxProjectTemplate()
+        enki.plugins.preview.copySphinxProjectTemplate()
 
         # Create master document contents.rst
         master = os.path.join(self.TEST_FILE_DIR, 'contents.rst')
@@ -521,11 +520,7 @@ content"""
         """Unicode in log window while in sphinx mode does not work since sphinx
            error output is not in unicode.
         """
-        core.config()['Sphinx']['Enabled'] = True
-        core.config()['Sphinx']['ProjectPath'] = self.TEST_FILE_DIR
-        core.config()['Sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build/html')
-        core.config()['Sphinx']['OutputExtension'] = 'html'
-
+        self._doBasicSphinxConfig()
         self.testText = u"""****
 head
 ****
