@@ -62,9 +62,9 @@ The parser takes its state from the first modified line, and parses the file dow
 ### Performance comparison
 
 It is very difficult to compare the highlighting  speed of various editors. Their performance depends on hardware, software versions, programming languages, source file contents, the Moon phase and many other factors ...
-But this article would not be finished if I didn’t make some comparisons. So I will.
+But this article would not be finished if I didn't make some comparisons. So I will.
 *Disclaimer: the performance depends on many factors and may vary. The measurements are not precise, the facts are not proven and might be incorrect. Editors might have improved since August 2013.
-The information below can’t be used as evidence that one text editor is better than another.*
+The information below can't be used as evidence that one text editor is better than another.*
 
 I tried to open a big C++ file (364,121 lines) with a few text editors. The results are below:
 
@@ -82,7 +82,7 @@ I tried to open a big C++ file (364,121 lines) with a few text editors. The resu
 | emacs                  | Immediately                       | Never                                                | Does not parse a code  from the beginning. In some cases highlighting is incorrect. When scrolling up hangs for about a minute |
 
 The table shows that Qutepart is the slowest of the tested editors. This is predictable because an interpreted dynamically typed language is used and the syntax definitions are interpreted XML files. But Qutepart supports very many languages, it never blocks the GUI, it never shows incorrect highlighting. These features are more important for real cases.
-For the overwhelming majority of real files a user always sees a highlighted file and doesn't feel any lags. So, the current state is quite good and it isn’t worth it to continue Qutepart optimisation.
+For the overwhelming majority of real files a user always sees a highlighted file and doesn't feel any lags. So, the current state is quite good and it isn't worth it to continue Qutepart optimisation.
 
 ### The result
 <img src="http://habrastorage.org/storage2/d25/87a/120/d2587a1206357246e4172df4fb99121a.png"/>
