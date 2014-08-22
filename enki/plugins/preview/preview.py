@@ -123,7 +123,6 @@ class ConverterThread(QThread):
             # Use Sphinx to generate the HTML if possible.
             if self._canUseSphinx(filePath):
                 # Run the builder.
-                print("Sphinx running...")
                 errString = self._runHtmlBuilder()
 
                 # Look for the HTML output.

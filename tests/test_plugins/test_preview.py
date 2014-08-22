@@ -56,8 +56,10 @@ class PreviewTestCase(base.TestCase):
 
     def setUp(self):
         base.TestCase.setUp(self)
-        self._showDock()
         self.testText = 'The preview text'
+        # Open the preview dock by loading an html file.
+        d = self.createFile('dummy.html', '')
+
 
     def _dock(self):
         """Find then return the PreviewDock object. Fail if
@@ -68,17 +70,6 @@ class PreviewTestCase(base.TestCase):
         """Find then return the PreviewDock widget. Fail if it is
         not found."""
         return self._dock().widget()
-
-    def _showDock(self):
-        # See if the dock can be opened.
-        p = core.actionManager().action('mView/aPreview')
-        if p:
-            # Yes, so open it.
-            p.trigger()
-        else:
-            # No, so load a dummy HTML document so that it can be opened.
-            d = self.createFile('dummy.html', '')
-#            d.close()
 
     def _visibleText(self):
         return self._widget().webView.page().mainFrame().toPlainText()
@@ -188,7 +179,6 @@ class Test(PreviewTestCase):
     def test_markdown_templates_help(self):
         core.config()['Preview']['Template'] = 'WhiteOnBlack'
         document = self.createFile('test.md', 'foo')
-        self._showDock()
 
         combo = self._widget().cbTemplate
 
