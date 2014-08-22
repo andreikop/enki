@@ -140,15 +140,18 @@ class PreviewTestCase(base.TestCase):
         def tmp():
             self.createFile(os.path.join(self.TEST_FILE_DIR, 'code.' + extension), self.testText)
 
+        # For some reason, self._dock() will sometimes fail to find the preview widget.
+        d = self._dock()
         # First html ready will be checked such that log window content can be
         # get. After html ready we wait for loadFinished signal.
         self._assertHtmlReady(tmp, timeout=10000)
-        logContent = self._logText()
-        self.assertEmits(lambda : None, self._dock().webViewLoadFinishedWithContent, 10000)
+        logContent = d._widget.teLog.toPlainText()
+        base.waitForSignal(lambda : None, self._dock().webViewLoadFinishedWithContent, 1000)
+        d.webViewLoadFinishedWithContent.disconnect(senderSignalSlot)
 
         # return both webViewContent and log window content such that they can
         # be processed further
-        return [self._html(), logContent]
+        return [None if not webViewContent else webViewContent[0][0], logContent]
 
 class Test(PreviewTestCase):
     def test_html(self):
@@ -165,9 +168,7 @@ class Test(PreviewTestCase):
     @requiresModule('markdown')
     def test_markdown_templates(self):
         core.config()['Preview']['Template'] = 'WhiteOnBlack'
-        document = self.createFile('test.md', 'foo')
-
-        self._assertHtmlReady(self._showDock)
+        self._assertHtmlReady(lambda: self.createFile('test.md', 'foo'))
         combo = self._widget().cbTemplate
         self.assertEqual(combo.currentText(), 'WhiteOnBlack')
         self.assertFalse('body {color: white; background: black;}' in self._visibleText())
@@ -440,7 +441,6 @@ content"""
 
 content"""
         webViewContent, logContent = self._doBasicSphinxTest('rst')
-        print(webViewContent)
         self.assertTrue(u"<h1>Енки" in webViewContent)
 
     @requiresModule('CodeChat')
@@ -596,31 +596,33 @@ head
         self.assertTrue('red' in self._widget().prgStatus.styleSheet())
         self.assertTrue('Warning(s): 2 Error(s): 2' in self._logText())
 
+    @base.inMainLoop
     @requiresModule('CodeChat')
     def test_uiCheck17(self):
         """Switching between different files should update the log
         window accordingly.
         """
         core.config()['CodeChat']['Enabled'] = True
-        # First creat a warning only test case
+        # First create a warning only test case,
         document1 = self.createFile('file1.py', '# `<>_')
-        # then an error only case
+        # then an error only case,
         document2 = self.createFile('file2.py', '# .. h::')
-        # then a error free case
+        # then an error free case.
         document3 = self.createFile('file3.py', '# <>_')
+
         # switch to document 1
-        core.workspace().setCurrentDocument(document1)
-        self._assertHtmlReady(self._showDock)
-        self.assertTrue('yellow' in self._widget().prgStatus.styleSheet())
+        self.assertEmits(lambda: core.workspace().setCurrentDocument(document1), self._dock().setHtmlDone, 10000)
+        # Process messages (wait for something that won't happen). This seems to
+        # make all the tests happy. ???
+        base.waitForSignal(lambda: None, self._dock().closed, 1000)
+        self.assertIn('yellow', self._widget().prgStatus.styleSheet())
         self.assertTrue('Warning(s): 1 Error(s): 0' in self._logText())
         # switch to document 2
-        core.workspace().setCurrentDocument(document2)
-        self._assertHtmlReady(self._showDock)
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
         self.assertTrue('red' in self._widget().prgStatus.styleSheet())
         self.assertTrue('Warning(s): 0 Error(s): 1' in self._logText())
         # switch to document 3
-        core.workspace().setCurrentDocument(document3)
-        self._assertHtmlReady(self._showDock)
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
         self.assertEqual(self._widget().prgStatus.styleSheet(), 'QProgressBar::chunk {}')
         self.assertEqual(self._logText(), '')
 
