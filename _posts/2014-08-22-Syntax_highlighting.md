@@ -1,3 +1,10 @@
+---
+layout: post
+title: How syntax highlighting works
+baseurl: ../../../
+---
+
+
 ## How syntax highlighting works
 <img src="http://habrastorage.org/storage2/6bb/381/e8c/6bb381e8c73e13c35a2a536affdb8206.png"/>
 
