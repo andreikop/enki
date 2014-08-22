@@ -146,33 +146,33 @@ class SettingsWidget(QWidget):
             self.leSphinxCmdline.setVisible(False)
             self.lbSphinxReference.setVisible(False)
 
-    # Pan: I think we should offer to do this when only when the project
-    # directory changes -- pop up a "missing project files, copy now" sort of
-    # dialog rather than doing it silently.
-    def _copySphinxProjectTemplate(self):
-        """If Sphinx directory is valid and Sphinx is enabled, then add conf.py
-           and default.css to the project directory."""
-        if (core.config()['Sphinx']['Enabled'] and
-          os.path.exists(core.config()['Sphinx']['ProjectPath'])):
-            # Check whether conf.py or default.css already exist; if so,
-            # they do not need to be copied.
-            if (os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py')) or
-              os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'default.css'))):
-                return
+# Pan: Let's put this code in preview.py, in scheduleDocumentProcessing -- have
+# it pop us a dialog box saying something like "missing files needed for Sphinx,
+# copy now?"
+def copySphinxProjectTemplate():
+    """If Sphinx directory is valid and Sphinx is enabled, then add conf.py
+       and default.css to the project directory."""
+    if (core.config()['Sphinx']['Enabled'] and
+      os.path.exists(core.config()['Sphinx']['ProjectPath'])):
+        # Check whether conf.py or default.css already exist; if so,
+        # they do not need to be copied.
+        if (os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py')) or
+          os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'default.css'))):
+            return
 
-            # Copy template files to sphinx project directory.
-            codeChatPath = os.path.dirname(os.path.realpath(CodeChat.__file__))
-            cssPath = os.path.join(codeChatPath, 'template/default.css')
-            shutil.copy(cssPath, core.config()['Sphinx']['ProjectPath'])
-            # Choose what conf.py file to copy based whether CodeChat is enabled.
-            if core.config()['CodeChat']['Enabled']:
-                # If CodeChat is also enabled, enable this in conf.py too.
-                confCodeChatPath = os.path.join(codeChatPath, 'template/conf_codechat.py')
-                shutil.copy(confCodeChatPath, os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py'))
-            else:
-                # else simple copy the default conf.py to sphinx target directory
-                confPath = os.path.join(codeChatPath, 'template/conf.py')
-                shutil.copy(confPath, core.config()['Sphinx']['ProjectPath'])
+        # Copy template files to sphinx project directory.
+        codeChatPath = os.path.dirname(os.path.realpath(CodeChat.__file__))
+        cssPath = os.path.join(codeChatPath, 'template/default.css')
+        shutil.copy(cssPath, core.config()['Sphinx']['ProjectPath'])
+        # Choose what conf.py file to copy based whether CodeChat is enabled.
+        if core.config()['CodeChat']['Enabled']:
+            # If CodeChat is also enabled, enable this in conf.py too.
+            confCodeChatPath = os.path.join(codeChatPath, 'template/conf_codechat.py')
+            shutil.copy(confCodeChatPath, os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py'))
+        else:
+            # else simple copy the default conf.py to sphinx target directory
+            confPath = os.path.join(codeChatPath, 'template/conf.py')
+            shutil.copy(confPath, core.config()['Sphinx']['ProjectPath'])
 
 class Plugin(QObject):
     """Plugin interface implementation
@@ -332,4 +332,4 @@ class Plugin(QObject):
                                        "Sphinx/Cmdline",
                                        widget.leSphinxCmdline))
         # Ensure the Sphinx project has the necessary templates.
-        widget._copySphinxProjectTemplate()
+        copySphinxProjectTemplate()

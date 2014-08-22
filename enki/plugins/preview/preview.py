@@ -113,6 +113,22 @@ class ConverterThread(QThread):
     def _getHtml(self, language, text, filePath):
         """Get HTML for document
         """
+        # Pan: Calling core.config() in a non-GUI thread produces crashes. So,
+        # would you move all calls to core.config() to the scheduleDocumentProcessing
+        # method in the GUI thread? In particular, it looks like this code needs
+        # the following values computed in the GUI thread then passed to it:
+        #
+        # - canUseSphinx, canUseCodeChat
+        # - htmlFile, htmlFileAlter
+        # - htmlBuilderCommandLine, htmlBuilderRootPath
+        #
+        # One method: use _getHtml(self, task) and place all these extra vars
+        # in task.
+        #
+        # The following two lines show a crash by just accessing core.config()!
+        # Remove them!
+        core.config()['Sphinx']['Enabled']
+        return '', '', QUrl()
         if language == 'Markdown':
             return self._convertMarkdown(text), None, QUrl()
         # For ReST, use docutils only if Sphinx isn't available.
@@ -252,7 +268,7 @@ class ConverterThread(QThread):
         except Exception as ex:
             return '<pre><font color=red>Failed to execute HTML builder' + \
                    'console utility "{}":\n{}</font>\n'\
-                   .format(self.htmlBuilderExecutable, str(ex)) + \
+                   .format(self.htmlBuilderCommandLine, str(ex)) + \
                    '\nGo to Settings -> Settings -> CodeChat to set HTML builder configurations.'
 
         stdout, stderr = popen.communicate()
@@ -523,7 +539,7 @@ class PreviewDock(DockWidget):
                 pass
             else:
                 # TODO: Only save if Sphinx will be used.
-                # TODO:  temporarily disable the clear trailing
+                # TODO: temporarily disable the clear trailing
                 # whitespace option so spaces won't disappear when the
                 # build on save option is unchecked.
 
