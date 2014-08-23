@@ -7,15 +7,10 @@ baseurl: ../../../
 ## PyQt. How to shoot yourself in the foot.
 
 Once upon a time there was a programming language called C. And it had 2 memory management functions: `malloc()` and `free()`. But it was too complicated.
-
 Bjarne Stroustrup decided that C memory management should be easier. So he invented C++. In addition to`malloc()` and `free()`, C++ had `new`, `delete`, destructors, RAII, auto and shared pointers.
-
 Guido van Rossum found that C++ was also not simple enough. He chose another way and invented Python - a language which doesn't have even `malloc()` or `free()`.
-
 Meanwhile Norwegian trolls created the C++ GUI library Qt. It simplifies memory management by deleting objects automatically when it thinks the objects are not needed.
-
 A man called Phil Thompson was upset that a cool library like Qt doesn't exist in the excellent Python language. He combined them in the PyQt project. But it is not so easy to combine different memory management paradigms. Let's see what the pitfalls are.
-
 *(Text above is a fairy tale. Text below contains code and technical information)*
 
 PyQt works in the following way: every public C++ class has a wrapper class in Python. A Python programmer works with a wrapper and the wrapper calls a real C++ object internally.
@@ -143,6 +138,7 @@ I discovered that the result depends on the method's programming language. And t
 #### The solution
 
 It is especially difficult to solve problems connected to C++ object deletion. Such problems may be hidden for a long time. If an application crashes, it might not be clear why. But here are some tips:
+
 * When deleting an object which has Python-slots, disconnect the slots manually
 * To be notified about an object deletion use the `QObject.destroyed` signal but not the `__del__` method of a Python wrapper
 * Don't use `QTimer.singleShot` for an object which might be deleted. It is impossible to stop and disconnect such a timer
@@ -153,5 +149,3 @@ Does the silver bullet exist? Are there other ways to decrease probability of cr
 #### The conclusion
 
 I hope you are not scared of PyQt and PySide now? You shouldn't be. In real projects you don't often face problems when using the libraries. Every tool has strengths and weaknesses. You just need to know them and you will live happily ever after.
-
-If you have any questions or comments, you are welcome to [Enki editor blog](http://enki-editor.org).
