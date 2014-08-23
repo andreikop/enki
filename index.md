@@ -5,16 +5,18 @@ baseurl: .
 ---
 
 <div class="content-row-1" markdown="1">
-##Enki is a text editor for programmers. It is:
 
-* **User friendly.** Intuitive interface. Works out of the box. You don't have to read a lot of docs
-* **Hacker friendly.** Work as quickly as possible. You don't need your mouse for coding.
-* **Lighweight.** Some IDEs show splashscreen. Enki will never do it. It just starts quickly.
-* **Advanced.** You invent software. An editor helps you to do a routine job.
-* **Extensible.** Operating systems are designed for running applications. Enki is designed for running plugins.
-* **Cross platform.** Use your habitual editor on any OS. Currently has beeen tested on Linux, MacOS X, Windows.
-* **High quality.** No long list of fancy features. But, what is done, is done well.
-* **Open source.** In GitHub we trust.
+<h2>Enki is a text editor for programmers. It is:</h2>
+<ul>
+    <li><strong>User friendly.</strong> Intuitive interface. Works out of the box. You don&#8217;t have to read a lot of docs</li>
+    <li><strong>Hacker friendly.</strong> Work as quickly as possible. You don&#8217;t need your mouse for coding.</li>
+    <li><strong>Lighweight.</strong> Some IDEs show splashscreen. Enki will never do it. It just starts quickly.</li>
+    <li><strong>Advanced.</strong> You invent software. An editor helps you to do a routine job.</li>
+    <li><strong>Extensible.</strong> Operating systems are designed for running applications. Enki is designed for running plugins.</li>
+    <li><strong>Cross platform.</strong> Use your habitual editor on any OS. Currently has beeen tested on Linux, MacOS X, Windows.</li>
+    <li><strong>High quality.</strong> No long list of fancy features. But, what is done, is done well.</li>
+    <li><strong>Open source.</strong> In GitHub we trust.</li>
+</ul>
 
 <div id="social-buttons">
         <div id="twitter">
