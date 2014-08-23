@@ -7,10 +7,15 @@ baseurl: ../../../
 ## PyQt. How to shoot yourself in the foot.
 
 Once upon a time there was a programming language called C. And it had 2 memory management functions: `malloc()` and `free()`. But it was too complicated.
+
 Bjarne Stroustrup decided that C memory management should be easier. So he invented C++. In addition to`malloc()` and `free()`, C++ had `new`, `delete`, destructors, RAII, auto and shared pointers.
+
 Guido van Rossum found that C++ was also not simple enough. He chose another way and invented Python - a language which doesn't have even `malloc()` or `free()`.
+
 Meanwhile Norwegian trolls created the C++ GUI library Qt. It simplifies memory management by deleting objects automatically when it thinks the objects are not needed.
+
 A man called Phil Thompson was upset that a cool library like Qt doesn't exist in the excellent Python language. He combined them in the PyQt project. But it is not so easy to combine different memory management paradigms. Let's see what the pitfalls are.
+
 *(Text above is a fairy tale. Text below contains code and technical information)*
 
 PyQt works in the following way: every public C++ class has a wrapper class in Python. A Python programmer works with a wrapper and the wrapper calls a real C++ object internally.
