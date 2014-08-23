@@ -44,7 +44,7 @@ This and other code is available [here](https://github.com/hlamer/pyqt-memory-mg
 `MyObject` constructor doesn't call the constructor of the base class. MyObject is successfully created and can be used. But when the C++ method is called, a `RuntimeError` is issued. The exception explains what is wrong.
 
 Fixed code:
-```python
+```
     ...
     class MyObject(QObject):
         def __init__(self):
