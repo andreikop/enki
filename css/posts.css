@@ -16,5 +16,8 @@ table, th, td {
 
 body{
     font-size: 16px;
+}
+
+.md-content{
     text-align: justify
 }
