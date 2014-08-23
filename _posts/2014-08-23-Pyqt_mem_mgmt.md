@@ -1,10 +1,10 @@
 ---
 layout: post
-title: PyQt memory management. How to shoot yourself in the foot.
+title: PyQt. How to shoot yourself in the foot.
 baseurl: ../../../
 ---
 
-## PyQt memory management. How to shoot yourself in the foot.
+## PyQt. How to shoot yourself in the foot.
 
 Once upon a time there was a programming language called C. And it had 2 memory management functions: `malloc()` and `free()`. But it was too complicated.
 Bjarne Stroustrup decided that C memory management should be easier. So he invented C++. In addition to`malloc()` and `free()`, C++ had `new`, `delete`, destructors, RAII, auto and shared pointers.
