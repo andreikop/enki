@@ -1,4 +1,7 @@
-safe: true 
+safe: true
 lsi: false
 pygments: true
+markdown: redcarpet
 
+redcarpet:
+    extensions: [fenced_code_blocks, tables]
