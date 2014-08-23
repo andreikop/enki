@@ -4,7 +4,7 @@ title: PyQt. How to shoot yourself in the foot.
 baseurl: ../../../
 ---
 
-## PyQt. How to shoot yourself in the foot.
+## PyQtis. How to shoot yourself in the foot.
 
 Once upon a time there was a programming language called C. And it had 2 memory management functions: `malloc()` and `free()`. But it was too complicated.
 Bjarne Stroustrup decided that C memory management should be easier. So he invented C++. In addition to`malloc()` and `free()`, C++ had `new`, `delete`, destructors, RAII, auto and shared pointers.
@@ -22,7 +22,7 @@ All is well if an object and a wrapper are created and deleted simultaneously. B
 
 #### Python wrapper is created but C++ object isn’t
 
-```python
+```
 from PyQt4.QtCore import QObject
 
 class MyObject(QObject):
@@ -45,11 +45,11 @@ This and other code is available [here](https://github.com/hlamer/pyqt-memory-mg
 
 Fixed code:
 ```python
-...
-class MyObject(QObject):
-    def __init__(self):
-    QObject.__init__(self)
-...
+    ...
+    class MyObject(QObject):
+        def __init__(self):
+        QObject.__init__(self)
+    ...
 ```
 
 #### Python wrapper is deleted by the garbage collector
