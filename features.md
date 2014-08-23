@@ -7,7 +7,7 @@ baseurl: .
 
 ## Features
 
-###Editing
+### Editing
  * Syntax highlighting for more than 200 languages
  * Smart indentation for many popular languages
  * Advanced text edit operations
@@ -30,8 +30,10 @@ Current file execution + interactive interpreter session supported for:
  * Standard ML
  * Python
 
-
 [Help and Demo]({{ page.baseurl }}/scheme.html)
+
+### Linting
+Pyling is supported for Python
 
 ### Live preview of markup languages
  * Markdown
