@@ -127,7 +127,7 @@ Of course if a programmer has called `deleteLater()` and then uses an object, it
 
 In a C++ application, when object is deleted, all slots are disconnected automatically. But in some cases PyQt and PySide can't disconnect an object. I was curious to know what these cases are. During my experiments [this test](https://github.com/hlamer/pyqt-memory-mgmt/blob/master/5-disconnect.py) was created.
 
-I discovered that the result depends on the method's programming language. And the behaviour differs for PyQt and Pyside.
+I discovered that the result depends on the method's programming language. And the behaviour differs for PyQt and PySide.
 
 | Slot type | PyQt | PySide |
 | --------------------------------------- | ------------------ | ----------------|
@@ -135,17 +135,21 @@ I discovered that the result depends on the method's programming language. And t
 | Pure-Python method | crashes | is disconnected |
 | C++ method overridden by Python wrapper | crashes | crashes |
 
+**Update:** My test uses new style signals and slots. It was found during discussion that old style signals are always disconnected automatically.
+
 #### The solution
 
-It is especially difficult to solve problems connected to C++ object deletion. Such problems may be hidden for a long time. If an application crashes, it might not be clear why. But here are some tips:
+It is especially difficult to solve problems connected to C++ object deletion. Such problems may be hidden for a long time. If an application crashes, it might not be clear why. But here are some tips. If you use new style signals:
 
 * When deleting an object which has Python-slots, disconnect the slots manually
 * To be notified about an object deletion use the `QObject.destroyed` signal but not the `__del__` method of a Python wrapper
 * Don't use `QTimer.singleShot` for an object which might be deleted. It is impossible to stop and disconnect such a timer
+* Don't use lambda function as a slot. It is impossible to disconnect it.
 
-Does the silver bullet exist? Are there other ways to decrease probability of crashes? I'll be happy to read your comments.
+~~Does the silver bullet exist? Are there other ways to decrease probability of crashes? I'll be happy to read your comments.~~
+**Update:** Yuya Nishihara discovered that old style slots are always disconnected. It seems like it is the silver bullet.
 
 
-#### The conclusion
+### The conclusion
 
 I hope you are not scared of PyQt and PySide now? You shouldn't be. In real projects you don't often face problems when using the libraries. Every tool has strengths and weaknesses. You just need to know them and you will live happily ever after.
