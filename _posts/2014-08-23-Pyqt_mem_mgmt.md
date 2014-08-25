@@ -25,8 +25,8 @@ All is well if an object and a wrapper are created and deleted simultaneously. B
     from PyQt4.QtCore import QObject
 
     class MyObject(QObject):
-    def __init__(self):
-    self.field = 7
+        def __init__(self):
+        self.field = 7
 
     obj = MyObject()
     print(obj.field)
