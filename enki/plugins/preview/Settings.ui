@@ -110,7 +110,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Build on save lets Enki build the current project only when a file is saved. If not checked, Enki will watch rebuild the project whenever a file is changed..&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Build on save lets Enki build the current project only when a file is saved. If not checked, Enki will watch and rebuild the project whenever a file is changed..&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
