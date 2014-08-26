@@ -323,10 +323,10 @@ class PreviewDock(DockWidget):
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         core.workspace().textChanged.connect(self._onTextChanged)
 
-        # File save triggers self.onFileSave function
-        core.actionManager().action( "mFile/mSave/aCurrent" ).triggered.connect(self.onFileSave)
-        core.actionManager().action( "mFile/mSave/aAll" ).triggered.connect(self.onFileSave)
-        core.actionManager().action( "mFile/mSave/aSaveAs" ).triggered.connect(self.onFileSave)
+        # File save actions always trigger a rebuild
+        core.actionManager().action( "mFile/mSave/aCurrent" ).triggered.connect(self._scheduleDocumentProcessing)
+        core.actionManager().action( "mFile/mSave/aAll" ).triggered.connect(self._scheduleDocumentProcessing)
+        core.actionManager().action( "mFile/mSave/aSaveAs" ).triggered.connect(self._scheduleDocumentProcessing)
 
         self._scrollPos = {}
         self._vAtEnd = {}
@@ -505,10 +505,14 @@ class PreviewDock(DockWidget):
     def _onTextChanged(self, document):
         """Text changed, update preview
         """
-        if core.config()['Preview']['Enabled'] and \
-           not core.config()['Sphinx']['BuildOnSave']:
-            self._typingTimer.stop()
-            self._typingTimer.start()
+        currentDocumentPath = os.path.abspath(core.workspace().currentDocument().filePath())
+        sphinxProjectPath = os.path.abspath(core.config()['Sphinx']['ProjectPath'])
+        # Once checked, build on save will force enki to only build on saving
+        # actions. Text change will not trigger a rebuild.
+        if core.config()['Preview']['Enabled']:
+            if not (core.config()['Sphinx']['Enabled'] and core.config()['Sphinx']['BuildOnSave']
+            and sphinxProjectPath == os.path.commonprefix([currentDocumentPath, sphinxProjectPath])):
+                self._scheduleDocumentProcessing()
 
     def show(self):
         """When shown, update document, if possible.
@@ -696,13 +700,3 @@ class PreviewDock(DockWidget):
                     openedFile.write(data)
             except (OSError, IOError) as ex:
                     QMessageBox.critical(self, "Failed to save HTML", unicode(str(ex), 'utf8'))
-
-    def onFileSave(self):
-        """Sphinx build on save"""
-        currentDocumentPath = os.path.abspath(core.workspace().currentDocument().filePath())
-        sphinxProjectPath = os.path.abspath(core.config()['Sphinx']['ProjectPath'])
-        # Sphinx build on save will only be performed to the current file if
-        # sphinx is enabled, and current document is in the sphinx root path.
-        if core.config()['Sphinx']['Enabled'] and \
-        sphinxProjectPath == os.path.commonprefix([currentDocumentPath, sphinxProjectPath]):
-            self._scheduleDocumentProcessing()

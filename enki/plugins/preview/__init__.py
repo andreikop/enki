@@ -163,7 +163,9 @@ def copySphinxProjectTemplate():
         # Copy template files to sphinx project directory.
         codeChatPath = os.path.dirname(os.path.realpath(CodeChat.__file__))
         cssPath = os.path.join(codeChatPath, 'template/default.css')
+        contentsPath = os.path.join(codeChatPath, 'template/contents.rst')
         shutil.copy(cssPath, core.config()['Sphinx']['ProjectPath'])
+        shutil.copy(contentsPath, core.config()['Sphinx']['ProjectPath'])
         # Choose what conf.py file to copy based whether CodeChat is enabled.
         if core.config()['CodeChat']['Enabled']:
             # If CodeChat is also enabled, enable this in conf.py too.
