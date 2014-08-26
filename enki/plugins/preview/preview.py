@@ -127,8 +127,6 @@ class ConverterThread(QThread):
         #
         # The following two lines show a crash by just accessing core.config()!
         # Remove them!
-        core.config()['Sphinx']['Enabled']
-        return '', '', QUrl()
         if language == 'Markdown':
             return self._convertMarkdown(text), None, QUrl()
         # For ReST, use docutils only if Sphinx isn't available.
@@ -313,10 +311,11 @@ class PreviewDock(DockWidget):
 
         self._widget.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
         self._widget.webView.page().linkClicked.connect(self._onLinkClicked)
+        self._widget.webView.page().mainFrame().setZoomFactor(1.5)
 
         self._widget.webView.page().mainFrame().titleChanged.connect(self._updateTitle)
         self.setWidget(self._widget)
-        self.setFocusProxy(self._widget.webView )
+        self.setFocusProxy(self._widget.webView)
 
         self._widget.cbEnableJavascript.clicked.connect(self._onJavaScriptEnabledCheckbox)
 
@@ -365,6 +364,10 @@ class PreviewDock(DockWidget):
         except TypeError:  # already has been disconnected
             pass
         self.previewSync.del_()
+        core.actionManager().action( "mFile/mSave/aCurrent" ).triggered.disconnect(self.onFileSave)
+        core.actionManager().action( "mFile/mSave/aAll" ).triggered.disconnect(self.onFileSave)
+        core.actionManager().action( "mFile/mSave/aSaveAs" ).triggered.disconnect(self.onFileSave)
+
 
         self._thread.stop_async()
         self._thread.wait()
@@ -526,6 +529,7 @@ class PreviewDock(DockWidget):
         self._typingTimer.stop()
 
         document = core.workspace().currentDocument()
+        # Debug code, TODO: remove.
 #        traceback.print_stack()
 #        print('schedule ' + document.filePath() + '\n\n')
         if document is not None:
@@ -542,8 +546,8 @@ class PreviewDock(DockWidget):
             elif language == 'Restructured Text':
                 pass
             else:
-                # TODO: Only save if Sphinx will be used.
-                # TODO: temporarily disable the clear trailing
+                # Pan - TODO: Only save if Sphinx will be used.
+                # Pan - TODO: temporarily disable the clear trailing
                 # whitespace option so spaces won't disappear when the
                 # build on save option is unchecked.
 
@@ -568,12 +572,23 @@ class PreviewDock(DockWidget):
             self._widget.webView.setUrl(baseUrl)
 
         self._widget.teLog.clear()
+        # Pan: This seems unnecessary here -- the code below should run quickly
+        # enough to make this invisible to the user.
         self._setHtmlProgress(-1)
+
+        # If there were messages from the conversion process, extract a count of
+        # errors and warnings from these messages.
         if errString:
+            # Pan: Let's omit this or re-think it -- perhaps an auto-hide
+            # checkbox in the UI that hides the dock on no errors and shows
+            # it when errors occur. But, use the last user-dragged size, not
+            # an arbitrary constant below.
+            #
             # If there are errors/warnings, expand log window to make it visible
             self._widget.splitter.setSizes([180,60])
+
             # This code parses the error string to determine get the number of
-            # warnings and errors. A common docutils error message reads::
+            # warnings and errors. Common docutils error messages read::
             #
             #  <string>:1589: (ERROR/3) Unknown interpreted text role "ref".
             #
@@ -592,33 +607,43 @@ class PreviewDock(DockWidget):
             # <https://docs.python.org/2/library/re.html#regular-expression-syntax>`_
             # is designed to find the error position (1589/None) and message
             # type (ERROR/WARNING/SEVERE). Extra spaces are added to show which
-            # parts of the example string it matches::
+            # parts of the example string it matches. For more details about
+            # Python regular expressions, refer to the
+            # `re docs <https://docs.python.org/2/library/re.html>`_.
             #
-            #          :(\d+|None):\s\(?(WARNING|ERROR|SEVERE).*
-            #  <string>:1589:        (ERROR/3)Unknown interpreted text role "ref".
+            # Examining this expression one element at a time::
             #
-            # Examining this expression one element at a time:
-            #
-            # ``:(\d*|None):\s``: Find the first occurence of a pair of colons.
+            #   <string>:1589:        (ERROR/3)Unknown interpreted text role "ref".
+            errPosRe = ':(\d*|None): '
+            # Find the first occurence of a pair of colons.
             # Between them there can be numbers or "None" or nothing. For example,
             # this expression matches the string ":1589:" or string ":None:" or
-            # string "::". The syntax ``\s`` denotes a trailing space.
+            # string "::". Next::
             #
-            # ``\(?(WARNING|ERROR|SEVERE)``: next match error type, which can
-            # only be "WARNING", "ERROR" or "SEVERE". Before error type it is
-            # allowed to have one left parenthesis.
+            #   <string>:1589:        (ERROR/3)Unknown interpreted text role "ref".
+            errTypeRe =             '\(?(WARNING|ERROR|SEVERE)'
+            # Next match the error type, which can
+            # only be "WARNING", "ERROR" or "SEVERE". Before this error type the
+            # message may optionally contain one left parenthesis.
             #
-            # ``.*$``: Since one error message occupies one line, a ``*``
+            errEolRe = '.%$'
+            # Since one error message occupies one line, a ``*``
             # quantifier is used along with end-of-line ``$`` to make sure only
             # the first match is used in each line.
             #
-            # For more details about python regular expressions, refer to the
-            # `re docs <https://docs.python.org/2/library/re.html>`_.
-            regex = re.compile(":(\d*|None): \(?(WARNING|ERROR|SEVERE).*$",
-                               re.MULTILINE)
+            # Pan: Is this necesary? Is there any case where omitting this
+            # causes a failure?
+
+            regex = re.compile(errPosRe + errTypeRe + errEolRe,
+              # The message usually contain multiple lines; search each line
+              # for errors and warnings.
+              re.MULTILINE)
+            # Use findall to return all matches in the message, not just the
+            # first.
             result = regex.findall(errString)
+
             # The variable ``result`` now contains a list of tuples, where each
-            # tuples contains the two matches groups (line number, error_string).
+            # tuples contains the two matche groups (line number, error_string).
             # For example::
             #
             #  [('1589', 'ERROR')]
@@ -636,7 +661,9 @@ class PreviewDock(DockWidget):
             color = 'red' if errNum else 'yellow' if warningNum else None
             self._setHtmlProgress(100, color)
         else:
-            # If there is no errors/warnings, collapse log window (can mannually
+            # Pan: probably remove this behavior or change it per the notes above.
+            #
+            # If there are no errors/warnings, collapse the log window (can mannually
             # expand it back to visible)
             self._widget.splitter.setSizes([1,0])
             self._setHtmlProgress(100)
@@ -644,9 +671,10 @@ class PreviewDock(DockWidget):
 
     def _setHtmlProgress(self, progress=None, color=None):
         """Set progress bar and status label.
-        if progress is -1: use an indefinite progress bar
-        if progress is 0: stop progress bar
-        if progress is anyvalue between 0 and 100: display progress bar
+        if progress is -1: use an indefinite progress bar.
+        if progress is 0: reset the progress bar to 0.
+        if progress is any value between 0 and 100: display progress bar
+          with that percentage of completion.
         """
         if color:
             style = 'QProgressBar::chunk {\nbackground-color: '+color+'\n}'
@@ -663,13 +691,13 @@ class PreviewDock(DockWidget):
             self._widget.prgStatus.setValue(progress)
 
     def _clear(self):
-        """Clear themselves.
-        Might be necesssary for stop executing JS and loading data
+        """Clear the preview dock contents.
+        Might be necesssary for stop executing JS and loading data.
         """
         self._setHtml('', '', None, QUrl())
 
     def _isJavaScriptEnabled(self):
-        """Check if JS is enabled in the settings
+        """Check if JS is enabled in the settings.
         """
         return core.config()['Preview']['JavaScriptEnabled']
 
@@ -699,4 +727,3 @@ class PreviewDock(DockWidget):
                 with open(path, 'w') as openedFile:
                     openedFile.write(data)
             except (OSError, IOError) as ex:
-                    QMessageBox.critical(self, "Failed to save HTML", unicode(str(ex), 'utf8'))
