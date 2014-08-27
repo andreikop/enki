@@ -86,7 +86,7 @@
          </font>
         </property>
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ctags console utility allows to parse source files and get list of functions, classes, etc.&lt;/p&gt;&lt;p&gt;See &lt;a href=&quot;http://ctags.sourceforge.net/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;official site&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ctags console utility parses source files and gets list of functions, classes, etc.&lt;/p&gt;&lt;p&gt;On Linux install &lt;span style=&quot; font-weight:600;&quot;&gt;ctags&lt;/span&gt; or &lt;span style=&quot; font-weight:600;&quot;&gt;exuberant-ctags&lt;/span&gt; package. On other systems go to &lt;a href=&quot;http://ctags.sourceforge.net/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;official site&lt;/span&gt;&lt;/a&gt; to install ctags&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
