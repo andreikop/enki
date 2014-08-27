@@ -10,7 +10,7 @@
     "Qutepart": {
         "Font": {
             "Family": "Monospace",
-            "Size": 9
+            "Size": 12
         },
         "Indentation": {
             "UseTabs": false,
