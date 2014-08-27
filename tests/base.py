@@ -56,12 +56,18 @@ def inMainLoop(func, *args):
     def wrapper(*args):
         self = args[0]
 
+        # create a single-shot timer. Could use QTimer.singleShot(),
+        # but can't cancel this / disconnect it.
+        timer = QTimer()
+        timer.setSingleShot(True)
+        timer.timeout.connect(self.app.quit)
+
         def execWithArgs():
             core.mainWindow().show()
             QTest.qWaitForWindowShown(core.mainWindow())
             func(*args)
-            # When done processing these events, exit the event loop.
-            QTimer.singleShot(0, self.app.quit)
+            # When done processing these events, exit the event loop. To do so,
+            timer.start(0)
 
         QTimer.singleShot(0, execWithArgs)
 
@@ -72,7 +78,7 @@ def inMainLoop(func, *args):
             exceptions.append((value, tracebackObj))
             if PRINT_EXEC_TRACKBACK:
                 oldExcHook(type_, value, tracebackObj)
-            self.app.quit()
+            self.app.exit()
         oldExcHook = sys.excepthook
         sys.excepthook = excepthook
 
@@ -86,6 +92,10 @@ def inMainLoop(func, *args):
         finally:
             # Restore the old exception hook
             sys.excepthook = oldExcHook
+            # Stop the timer, in case an exception or an unexpected call to
+            # self.app.exit() brought us here.
+            timer.stop()
+            timer.timeout.disconnect(self.app.quit)
 
     wrapper.__name__ = func.__name__  # for unittest test runner
     return wrapper
@@ -330,7 +340,7 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
           (expectedSignalParams is not None) and
           (expectedSignalParams != args) )
         # We received the requested signal, so exit the event loop.
-        qe.quit()
+        qe.exit()
 
     # Connect both signals to a slot which quits the event loop.
     senderSignal.connect(senderSignalSlot)
