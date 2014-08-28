@@ -625,7 +625,7 @@ class PreviewDock(DockWidget):
             # only be "WARNING", "ERROR" or "SEVERE". Before this error type the
             # message may optionally contain one left parenthesis.
             #
-            errEolRe = '.%$'
+            errEolRe = '.*$'
             # Since one error message occupies one line, a ``*``
             # quantifier is used along with end-of-line ``$`` to make sure only
             # the first match is used in each line.
