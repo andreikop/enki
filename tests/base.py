@@ -309,8 +309,13 @@ class TestCase(unittest.TestCase):
             function()
 
     def findDock(self, windowTitle):
+        """Return a reference to the dock object whose name is windowTitle.
+        """
         for dock in core.mainWindow().findChildren(DockWidget):
-            if dock.windowTitle() == windowTitle:
+            # The preview dock's name will have the title of the web page it's
+            # it's displaying appended to the title (when a Sphinx document is
+            # loaded). Therefore, check for startswith instead of equality.
+            if dock.windowTitle().startswith(windowTitle):
                 return dock
         else:
             self.fail('Dock {} not found'.format(windowTitle))
