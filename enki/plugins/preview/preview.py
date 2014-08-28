@@ -364,10 +364,9 @@ class PreviewDock(DockWidget):
         except TypeError:  # already has been disconnected
             pass
         self.previewSync.del_()
-        core.actionManager().action( "mFile/mSave/aCurrent" ).triggered.disconnect(self.onFileSave)
-        core.actionManager().action( "mFile/mSave/aAll" ).triggered.disconnect(self.onFileSave)
-        core.actionManager().action( "mFile/mSave/aSaveAs" ).triggered.disconnect(self.onFileSave)
-
+        core.actionManager().action( "mFile/mSave/aCurrent" ).triggered.disconnect(self._scheduleDocumentProcessing)
+        core.actionManager().action( "mFile/mSave/aAll" ).triggered.disconnect(self._scheduleDocumentProcessing)
+        core.actionManager().action( "mFile/mSave/aSaveAs" ).triggered.disconnect(self._scheduleDocumentProcessing)
 
         self._thread.stop_async()
         self._thread.wait()
@@ -727,3 +726,4 @@ class PreviewDock(DockWidget):
                 with open(path, 'w') as openedFile:
                     openedFile.write(data)
             except (OSError, IOError) as ex:
+                QMessageBox.critical(self, "Failed to save HTML", unicode(str(ex), 'utf8'))
