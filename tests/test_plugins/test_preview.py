@@ -24,14 +24,11 @@ import base
 
 # Third-party library imports
 # ---------------------------
-from PyQt4.QtCore import Qt, QPoint, QEvent, QTimer
-from PyQt4.QtTest import QTest
-from PyQt4.QtGui import QDockWidget, QTextCursor, QKeyEvent
+from PyQt4.QtGui import QTextCursor
 
 # Local application imports
 # -------------------------
 from enki.core.core import core
-from enki.widgets.dockwidget import DockWidget
 # Both of the two following lines are needed: the first, so we can later
 # ``reload(enki.plugins.preview)``; the last, to instiantate ``SettingsWidget``.
 import enki.plugins.preview
@@ -58,7 +55,7 @@ class PreviewTestCase(base.TestCase):
         base.TestCase.setUp(self)
         self.testText = 'The preview text'
         # Open the preview dock by loading an html file.
-        d = self.createFile('dummy.html', '')
+        self.createFile('dummy.html', '')
 
 
     def _dock(self):
@@ -71,7 +68,7 @@ class PreviewTestCase(base.TestCase):
         not found."""
         return self._dock().widget()
 
-    def _visibleText(self):
+    def _plainText(self):
         return self._widget().webView.page().mainFrame().toPlainText()
 
     def _html(self):
@@ -85,13 +82,10 @@ class PreviewTestCase(base.TestCase):
         """Wait for the PreviewDock to load in updated HTML after the start 
         function is called. Assert if the signal isn't emitted within a timeout.
         """
-        # First, wait for the worker thread to signal that it's produced 
+        # Wait for the worker thread to signal that it's produced 
         # updated HTML.
         self.assertEmits(start, self._dock()._thread.htmlReady, timeout)
-        # Next, wait until the QWebPage finishes loading this updated HTML.
-#        self.assertEmits(start, self._widget().webView.page().
-#                         mainFrame().loadFinished, timeout)
-        # Finally, process any pending messages to make sure the GUI is up to 
+        # Process any pending messages to make sure the GUI is up to 
         # date. Omitting this causes failures in test_uiCheck17.
         base._processPendingEvents()
 
@@ -101,7 +95,7 @@ class PreviewTestCase(base.TestCase):
             self._assertHtmlReady(lambda: self.createFile('file.' + extension, self.testText))
 
     def _doBasicSphinxConfig(self):
-        """This function will set basic sphinx configuration options
+        """This function will set basic Sphinx configuration options
         so that Sphinx can run in a test environment.
         """
         core.config()['Sphinx']['Enabled'] = True
@@ -112,7 +106,7 @@ class PreviewTestCase(base.TestCase):
         core.config()['Sphinx']['Cmdline'] = r'sphinx-build -d _build/doctrees . _build/html'
 
     def _doBasicSphinxTest(self, extension):
-        """This function will build a basic sphinx project in the temporary
+        """This function will build a basic Sphinx project in the temporary
         directory. The project consists of master document content.rst and a
         simple code document code.extension. Here the extension to the code
         file can be altered. For example, the extension can be set to .rst .
@@ -130,8 +124,7 @@ class PreviewTestCase(base.TestCase):
         # Build the HTML, then return it and the log.
         self._assertHtmlReady(lambda : self.createFile(os.path.join(self.TEST_FILE_DIR,
           'code.' + extension), self.testText), timeout=10000)
-        logContent = self._widget().teLog.toPlainText()
-        return [self._widget().webView.page().mainFrame().toHtml(), logContent]
+        return [self._html(), self._logText()]
 
 class Test(PreviewTestCase):
     def test_html(self):
@@ -153,17 +146,17 @@ class Test(PreviewTestCase):
         self._assertHtmlReady(lambda: self.createFile('test.md', 'foo'))
         combo = self._widget().cbTemplate
         self.assertEqual(combo.currentText(), 'WhiteOnBlack')
-        self.assertNotIn('body {color: white; background: black;}', self._visibleText())
+        self.assertNotIn('body {color: white; background: black;}', self._plainText())
         self.assertIn('body {color: white; background: black;}', self._html())
 
         self._assertHtmlReady(lambda: combo.setCurrentIndex(combo.findText('Default')))
-        self.assertFalse('body {color: white; background: black;}' in self._visibleText())
+        self.assertFalse('body {color: white; background: black;}' in self._plainText())
         self.assertFalse('body {color: white; background: black;}' in self._html())
         self.assertEqual(core.config()['Preview']['Template'], 'Default')
 
         self._assertHtmlReady(lambda: combo.setCurrentIndex(combo.findText('WhiteOnBlack')))
         self.assertEqual(combo.currentText(), 'WhiteOnBlack')
-        self.assertFalse('body {color: white; background: black;}' in self._visibleText())
+        self.assertFalse('body {color: white; background: black;}' in self._plainText())
         self.assertTrue('body {color: white; background: black;}' in self._html())
 
     @requiresModule('markdown')
@@ -189,28 +182,29 @@ class Test(PreviewTestCase):
         sw = SettingsWidget()
         self.assertFalse(sw.cbCodeChatEnable.isChecked())
         self.assertTrue(sw.cbCodeChatEnable.isEnabled())
-        # If CodeChat module is present, user should not be able to see
-        # 'CodeChat not installed' notification.
-        sw.show()
-        # Widgets that are not on top level will be visible only when all its
+        # If the CodeChat module is present, the user should not be able to see
+        # the 'CodeChat not installed' notification.
+        #
+        # Widgets that are not on the top level will be visible only when all their
         # ancesters are visible. Check `here <http://qt-project.org/doc/qt-5/qwidget.html#visible-prop>`_
         # for more details. Calling show() function will force update on
         # setting ui.
+        sw.show()
         self.assertFalse(sw.labelCodeChatNotInstalled.isVisible())
         sw.close()
 
     @base.requiresCmdlineUtility('sphinx-build --version')
     def test_uiCheck1a(self):
-        """By default, when sphinx is available, it is set to be disabled. all
+        """By default, when Sphinx is available, it is set to be disabled. all
         path setting line edits and buttons are disabled."""
         sw = SettingsWidget()
-        # sphinx is enabled but unchecked.
+        # Sphinx is enabled but unchecked.
         self.assertTrue(sw.cbSphinxEnable.isEnabled())
         self.assertFalse(sw.cbSphinxEnable.isChecked())
         # buildOnSave is not enabled nor checked.
         self.assertFalse(sw.cbBuildOnSaveEnable.isEnabled())
         self.assertFalse(sw.cbBuildOnSaveEnable.isChecked())
-        # all setting directories are disabled and empty.
+        # All setting directories are disabled and empty.
         self.assertFalse(sw.leSphinxProjectPath.isEnabled())
         self.assertEqual(sw.leSphinxProjectPath.text(), '')
         self.assertFalse(sw.leSphinxOutputPath.isEnabled())
@@ -236,7 +230,7 @@ class Test(PreviewTestCase):
         """ The Enable CodeChat checkbox should only be enabled if CodeChat can
             be imported; otherwise, it should be disabled."""
         # Trick Python into thinking that the CodeChat module doesn't exist.
-        # Verify that the CodeChat checkbox is disabled, and 'not installed'
+        # Verify that the CodeChat checkbox is disabled, and the 'not installed'
         # notification is visible.
         with ImportFail('CodeChat'):
             reload(enki.plugins.preview)
@@ -246,7 +240,7 @@ class Test(PreviewTestCase):
             notice = sw.labelCodeChatNotInstalled.isVisible()
             sw.close()
         # When done with this test first restore the state of the preview module
-        # by reloaded with the CodeChat module available, so that other tests
+        # by reloading with the CodeChat module available, so that other tests
         # won't be affected. Therefore, only do an assertFalse **after** the
         # reload, since statements after the assert might not run (if the assert
         # fails).
@@ -264,28 +258,28 @@ class Test(PreviewTestCase):
 
     @base.requiresCmdlineUtility('sphinx-build --version')
     def test_uiCheck3a(self):
-        """test_uiCheck1a has tested the case when sphinx is disabled. This
-        unit test will test the case when sphinx is mannually enabled.
+        """test_uiCheck1a has tested the case when Sphinx is disabled. This
+        unit test will test the case when Sphinx is mannually enabled.
         """
         sw = SettingsWidget()
-        # Mannually enable sphinx.
+        # Mannually enable Sphinx.
         sw.cbSphinxEnable.setChecked(True)
-        # Since it is assumed the user have sphinx-build installed, sphinx
+        # Since it is assumed that the user has sphinx-build installed, the Sphinx
         # executable, output extension and default commandline will be initialize
         # to preset values.
         self.assertTrue(sw.cbSphinxEnable.isChecked())
         # buildOnSave is not enabled nor checked.
         self.assertTrue(sw.cbBuildOnSaveEnable.isEnabled())
         self.assertFalse(sw.cbBuildOnSaveEnable.isChecked())
-        # all setting directories are enabled and empty.
+        # All setting directories are enabled and empty.
         self.assertTrue(sw.leSphinxProjectPath.isEnabled())
         self.assertEqual(sw.leSphinxProjectPath.text(), '')
         self.assertTrue(sw.leSphinxOutputPath.isEnabled())
         self.assertEqual(sw.leSphinxOutputPath.text(), '')
-        # executable is enabled and set to default 'sphinx-build'
+        # Executable is enabled and set to default 'sphinx-build'
         self.assertTrue(sw.leSphinxExecutable.isEnabled())
         self.assertEqual(sw.leSphinxExecutable.text(), '')
-        # builder extension is enabled and set to default 'html'
+        # Builder extension is enabled and set to default 'html'
         self.assertTrue(sw.cmbSphinxOutputExtension.isEnabled())
         self.assertEqual(sw.cmbSphinxOutputExtension.lineEdit().text(), 'html')
         # Assert advanced mode toggle label enabled and reads 'Advanced Mode'
@@ -308,7 +302,7 @@ class Test(PreviewTestCase):
         # Verify that normal mode setting line edits and pushbuttons are all gone
         for i in range(sw.gridLayout.count()):
             self.assertFalse(sw.gridLayout.itemAt(i).widget().isVisible())
-        # Verify advanced mode setting line edits and labels are visible
+        # Verify advanced mode setting line edits and labels are visible.
         self.assertTrue(sw.lbSphinxCmdline.isVisible())
         self.assertTrue(sw.leSphinxCmdline.isVisible())
         self.assertTrue(sw.lbSphinxReference.isVisible())
@@ -327,8 +321,8 @@ class Test(PreviewTestCase):
     @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
     def test_uiCheck4a(self):
-        """Basic sphinx test: create a sphinx project in temp folder, returns
-           webView content and log content after sphinx builds the project."""
+        """Basic Sphinx test: create a Sphinx project in a temp folder, return
+           webView content and log content after Sphinx builds the project."""
         self._doBasicSphinxConfig()
         self.testText = """****
 head
@@ -338,11 +332,11 @@ content"""
         webViewContent, logContent = self._doBasicSphinxTest('rst')
 
 
-#    @base.requiresCmdlineUtility('sphinx-build --version')
+    @base.requiresCmdlineUtility('sphinx-build --version')
     @requiresModule('CodeChat')
     @base.inMainLoop
     def test_uiCheck4b(self):
-        """Basic Sphinx with CodeChat test: create a sphinx project with codechat
+        """Basic Sphinx with CodeChat test: create a Sphinx project with codechat
         enabled."""
         core.config()['CodeChat']['Enabled'] = True
         self._doBasicSphinxConfig()
@@ -364,11 +358,13 @@ content"""
         self.testText = u'test'
         self._doBasicTest('py')
         assert 'test' not in self._html()
+        import time
+        time.sleep(5)
 
-#    @base.requiresCmdlineUtility('sphinx-build --version')
+    @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
     def test_uiCheck5a(self):
-        """Basic sphinx test: with sphinx and codechat disabled, no preview
+        """Basic Sphinx test: with Sphinx and codechat disabled, no preview
            window results are generated."""
         self._doBasicSphinxConfig()
         core.config()['Sphinx']['Enabled'] = False
@@ -390,12 +386,12 @@ content"""
         core.config()['CodeChat']['Enabled'] = True
         self.testText = u''
         self._doBasicTest('py')
-        self.assertEqual(self._visibleText(), self.testText)
+        self.assertEqual(self._plainText(), self.testText)
 
     @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
     def test_uiCheck6a(self):
-        """Empty code file produces a sphinx failure since file in toctree should
+        """Empty code file produces a Sphinx failure since file in toctree should
            always have a header."""
         self._doBasicSphinxConfig()
         self.testText = u''
@@ -411,12 +407,12 @@ content"""
         self._doBasicTest('py')
         # Plaintext captured from the preview dock will append a newline if
         # preview dock is not empty. A '\n' is added accordingly.
-        self.assertEqual(self._visibleText(), self.testText + '\n')
+        self.assertEqual(self._plainText(), self.testText + '\n')
 
-#    @base.requiresCmdlineUtility('sphinx-build --version')
+    @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
     def test_uiCheck7a(self):
-        """Unicode string passed to sphinx should be handled properly.
+        """Unicode string passed to Sphinx should be handled properly.
         """
         self._doBasicSphinxConfig()
         self.testText = u"""**********
@@ -442,18 +438,18 @@ content"""
         assert 'test' in self._html()
 
 
-#    @base.requiresCmdlineUtility('sphinx-build --version')
+    @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
     def test_uiCheck8a(self):
-        """Start with sphinx disabled, make sure rst file will be rendered by
-        docutils.core.publish_string. Then enable sphinx, force document refresh
-        by calling scheduleDucomentProcessing. Make sure now sphinx kicks in.
+        """Start with Sphinx disabled, make sure rst file will be rendered by
+        docutils.core.publish_string. Then enable Sphinx, force document refresh
+        by calling scheduleDucomentProcessing. Make sure now Sphinx kicks in.
         """
         self._doBasicSphinxConfig()
         core.config()['Sphinx']['Enabled'] = False
         self.testText = u''
         self._doBasicSphinxTest('rst')
-        self.assertEqual(self._visibleText(), '')
+        self.assertEqual(self._plainText(), '')
         self.assertEqual(self._logText(), '')
 
     @base.inMainLoop
@@ -476,10 +472,10 @@ content"""
         self._doBasicTest('rst')
         self.assertTrue("""Unknown directive type "wrong".""" in self._logText())
 
-#    @base.requiresCmdlineUtility('sphinx-build --version')
+    @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
     def test_uiCheck9a(self):
-        """Test sphinx error can be captured correctly"""
+        """Test Sphinx error can be captured correctly"""
         self._doBasicSphinxConfig()
         self.testText = u"""****
 head3
@@ -517,7 +513,7 @@ content"""
     @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
     def test_uiCheck11a(self):
-        """Unicode in log window while in sphinx mode does not work since sphinx
+        """Unicode in log window while in Sphinx mode does not work since Sphinx
            error output is not in unicode.
         """
         self._doBasicSphinxConfig()
@@ -527,7 +523,7 @@ head
 
 .. Енки::"""
         webViewContent, logContent = self._doBasicSphinxTest('rst')
-        # Unicode cannot be found in sphinx error message output.
+        # Unicode cannot be found in Sphinx error message output.
         self.assertTrue(u'Енки' in logContent)
 
     @requiresModule('CodeChat')
