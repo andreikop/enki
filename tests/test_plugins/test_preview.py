@@ -146,13 +146,15 @@ class Test(PreviewTestCase):
         self._doBasicTest('md')
 
     @requiresModule('markdown')
+    @base.inMainLoop
     def test_markdown_templates(self):
         core.config()['Preview']['Template'] = 'WhiteOnBlack'
+        self._dock()._restorePreviousTemplate()
         self._assertHtmlReady(lambda: self.createFile('test.md', 'foo'))
         combo = self._widget().cbTemplate
         self.assertEqual(combo.currentText(), 'WhiteOnBlack')
-        self.assertFalse('body {color: white; background: black;}' in self._visibleText())
-        self.assertTrue('body {color: white; background: black;}' in self._html())
+        self.assertNotIn('body {color: white; background: black;}', self._visibleText())
+        self.assertIn('body {color: white; background: black;}', self._html())
 
         self._assertHtmlReady(lambda: combo.setCurrentIndex(combo.findText('Default')))
         self.assertFalse('body {color: white; background: black;}' in self._visibleText())
