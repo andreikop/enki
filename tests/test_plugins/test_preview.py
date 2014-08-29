@@ -24,7 +24,7 @@ import base
 
 # Third-party library imports
 # ---------------------------
-from PyQt4.QtCore import Qt, QPoint, QEvent
+from PyQt4.QtCore import Qt, QPoint, QEvent, QTimer
 from PyQt4.QtTest import QTest
 from PyQt4.QtGui import QDockWidget, QTextCursor, QKeyEvent
 
@@ -82,13 +82,18 @@ class PreviewTestCase(base.TestCase):
         return self._widget().teLog.toPlainText()
 
     def _assertHtmlReady(self, start, timeout=2000):
-        """ Wait for the PreviewDock to emit the htmlReady signal.
-
-        This signal is produced by calling to start function. Assert
-        if the signal isn't emitted within a timeout.
-
+        """Wait for the PreviewDock to load in updated HTML after the start 
+        function is called. Assert if the signal isn't emitted within a timeout.
         """
+        # First, wait for the worker thread to signal that it's produced 
+        # updated HTML.
         self.assertEmits(start, self._dock()._thread.htmlReady, timeout)
+        # Next, wait until the QWebPage finishes loading this updated HTML.
+#        self.assertEmits(start, self._widget().webView.page().
+#                         mainFrame().loadFinished, timeout)
+        # Finally, process any pending messages to make sure the GUI is up to 
+        # date. Omitting this causes failures in test_uiCheck17.
+        base._processPendingEvents()
 
     def _doBasicTest(self, extension):
         # HTML files don't need processing in the worker thread.
@@ -122,18 +127,11 @@ class PreviewTestCase(base.TestCase):
 
    code.""" + extension)
 
-        # For some reason, self._dock() will sometimes fail to find the preview widget.
-        d = self._dock()
-        # First html ready will be checked such that log window content can be
-        # get. After html ready we wait for loadFinished signal.
+        # Build the HTML, then return it and the log.
         self._assertHtmlReady(lambda : self.createFile(os.path.join(self.TEST_FILE_DIR,
           'code.' + extension), self.testText), timeout=10000)
-        base.waitForSignal(lambda : None, d._widget.webView.page().mainFrame().loadFinished, 1000)
-        logContent = d._widget.teLog.toPlainText()
-
-        # return both webViewContent and log window content such that they can
-        # be processed further
-        return [d._widget.webView.page().mainFrame().toHtml(), logContent]
+        logContent = self._widget().teLog.toPlainText()
+        return [self._widget().webView.page().mainFrame().toHtml(), logContent]
 
 class Test(PreviewTestCase):
     def test_html(self):
@@ -591,10 +589,7 @@ head
         document3 = self.createFile('file3.py', '# <>_')
 
         # switch to document 1
-        self.assertEmits(lambda: core.workspace().setCurrentDocument(document1), self._dock().setHtmlDone, 10000)
-        # Process messages (wait for something that won't happen). This seems to
-        # make all the tests happy. ???
-        base.waitForSignal(lambda: None, self._dock().closed, 1000)
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
         self.assertIn('yellow', self._widget().prgStatus.styleSheet())
         self.assertTrue('Warning(s): 1 Error(s): 0' in self._logText())
         # switch to document 2
