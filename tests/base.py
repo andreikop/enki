@@ -39,10 +39,31 @@ class DummyProfiler:
 def _processPendingEvents():
     """Process pending application events."""
 
-    # Quit the event loop when it becomes idle.
-    QTimer.singleShot(0, papp.quit)
-    papp.exec_()
 
+    # Create an event loop to run in. Otherwise, we need to use the papp
+    # (QApplication) main loop, which may already be running and therefore
+    # unusable.
+    qe = QEventLoop()
+
+# Create a single-shot timer. Could use QTimer.singleShot(),
+    # but can't cancel this / disconnect it.
+    timer = QTimer()
+    timer.setSingleShot(True)
+    timer.timeout.connect(qe.quit)
+    timer.start(0)
+
+    # Wait for an emitted signal.
+    qe.exec_()
+
+# Clean up: don't allow the timer to call app.quit after this
+    # function exits, which would produce "interesting" behavior.
+    timer.stop()
+    # Stopping the timer may not cancel timeout signals in the
+    # event queue. Disconnect the signal to be sure that loop
+    # will never receive a timeout after the function exits.
+    timer.timeout.disconnect(qe.quit)
+
+    
 # By default, the traceback for excpetions occurring inside
 # an exec_ loop will be printed.
 PRINT_EXEC_TRACKBACK = True
