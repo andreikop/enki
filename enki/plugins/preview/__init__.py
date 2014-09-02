@@ -17,6 +17,7 @@ from enki.core.uisettings import CheckableOption, TextOption
 # Import CodeChat if possible; otherwise, indicate it wasn't available.
 try:
     import CodeChat
+    import CodeChat.LanguageSpecificOptions as LSO
 except ImportError:
     CodeChat = None
 
@@ -59,10 +60,11 @@ class SettingsWidget(QWidget):
         # normal mode.
         self.lbSphinxEnableAdvMode.mousePressEvent = self._onToggleSphinxSettingModeClicked
 
-        # Changes to the project path will check that the new path has the
-        # necessary project files.
+        # TODO: Changes to the project path will check that the new path has the
+        # necessary project files. Notice copySphinxProjectTemplate() might return
+        # errors. Display warning window if error happens.
         self.leSphinxProjectPath.textEdited.connect(
-          lambda text : self._copySphinxProjectTemplate())
+          lambda text : copySphinxProjectTemplate())
 
         # Update misc pieces of the GUI that can't be stored in the .ui file.
         self.cmbSphinxOutputExtension.addItem("html")
@@ -71,7 +73,7 @@ class SettingsWidget(QWidget):
 
     def _toggleSphinx(self, layout=None):
         """Recursively set everything in the layout argument to enabled/disabled
-        based on the state of the Sphinx enable checkbox, including any children
+        based on the state of the Sphinx enable checkbox, including any child
         of ``layout``.
         """
         if layout.__class__ is int:
@@ -146,35 +148,50 @@ class SettingsWidget(QWidget):
             self.leSphinxCmdline.setVisible(False)
             self.lbSphinxReference.setVisible(False)
 
-# Pan: Let's put this code in preview.py, in scheduleDocumentProcessing -- have
-# it pop us a dialog box saying something like "missing files needed for Sphinx,
+# TODO: Pan: Let's put this code in preview.py, in scheduleDocumentProcessing -- have
+# it pop us a dialog box (a warning in the log window for now)
+# saying something like "missing files needed for Sphinx,
 # copy now?"
 def copySphinxProjectTemplate():
     """If Sphinx directory is valid and Sphinx is enabled, then add conf.py
        and default.css to the project directory."""
     if (core.config()['Sphinx']['Enabled'] and
       os.path.exists(core.config()['Sphinx']['ProjectPath'])):
-        # Check whether conf.py or default.css already exist; if so,
-        # they do not need to be copied.
+        # Check whether conf.py or default.css or contents.rst already exist;
+        # if so, they do not need to be copied.
         if (os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py')) or
-          os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'default.css'))):
+          os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'default.css')) or
+          os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'contents.rst'))):
             return
 
         # Copy template files to sphinx project directory.
         codeChatPath = os.path.dirname(os.path.realpath(CodeChat.__file__))
         cssPath = os.path.join(codeChatPath, 'template/default.css')
         contentsPath = os.path.join(codeChatPath, 'template/contents.rst')
-        shutil.copy(cssPath, core.config()['Sphinx']['ProjectPath'])
-        shutil.copy(contentsPath, core.config()['Sphinx']['ProjectPath'])
+        errors = []
+        try:
+            shutil.copy(cssPath, core.config()['Sphinx']['ProjectPath'])
+        # TODO: shutil.copy might trigger IOError and os.error. Here os.error
+        # is not catched.
+        except IOError as why:
+            errors.append((cssPath, core.config()['Sphinx']['ProjectPath'], str(why)))
+        try:
+            shutil.copy(contentsPath, core.config()['Sphinx']['ProjectPath'])
+        except IOError as why:
+            errors.append((cssPath, core.config()['Sphinx']['ProjectPath'], str(why)))
         # Choose what conf.py file to copy based whether CodeChat is enabled.
-        if core.config()['CodeChat']['Enabled']:
-            # If CodeChat is also enabled, enable this in conf.py too.
-            confCodeChatPath = os.path.join(codeChatPath, 'template/conf_codechat.py')
-            shutil.copy(confCodeChatPath, os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py'))
-        else:
-            # else simple copy the default conf.py to sphinx target directory
-            confPath = os.path.join(codeChatPath, 'template/conf.py')
-            shutil.copy(confPath, core.config()['Sphinx']['ProjectPath'])
+        try:
+            if core.config()['CodeChat']['Enabled']:
+                # If CodeChat is also enabled, enable this in conf.py too.
+                confCodeChatPath = os.path.join(codeChatPath, 'template/conf_codechat.py')
+                shutil.copy(confCodeChatPath, os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py'))
+            else:
+                # else simple copy the default conf.py to sphinx target directory
+                confPath = os.path.join(codeChatPath, 'template/conf.py')
+                shutil.copy(confPath, core.config()['Sphinx']['ProjectPath'])
+        except IOError as why:
+            errors.append((cssPath, core.config()['Sphinx']['ProjectPath'], str(why)))
+        return errors
 
 class Plugin(QObject):
     """Plugin interface implementation
@@ -243,10 +260,12 @@ class Plugin(QObject):
         if document.qutepart.language() in ('Markdown', 'Restructured Text') or \
            isHtmlFile(document):
             return True
-        # TODO: Check to see if CodeChat supports the language inferred from the
-        # file extension; if so, return true.
+
         if CodeChat is not None and core.config()['CodeChat']['Enabled'] is True:
-            return True
+            lso = LSO.LanguageSpecificOptions()
+            fileExtension = os.path.splitext(document.filePath())[1]
+            if fileExtension in lso.extension_to_options.keys():
+                return True
         # TODO: When to really show the preview dock with Sphinx? That is, how
         # can we tell if Sphinx will produce a .html file based on the currently
         # open file in the editor? Just checking for a .html file doesn't work;
@@ -315,6 +334,9 @@ class Plugin(QObject):
         dialog.appendOption(CheckableOption(dialog, core.config(),
                                             "Sphinx/Enabled",
                                             widget.cbSphinxEnable))
+        dialog.appendOption(CheckableOption(dialog, core.config(),
+                                            "Sphinx/BuildOnSave",
+                                            widget.cbBuildOnSaveEnable))
         dialog.appendOption(TextOption(dialog, core.config(),
                                        "Sphinx/ProjectPath",
                                        widget.leSphinxProjectPath))
@@ -324,9 +346,6 @@ class Plugin(QObject):
         dialog.appendOption(TextOption(dialog, core.config(),
                                        "Sphinx/OutputExtension",
                                        widget.cmbSphinxOutputExtension.lineEdit()))
-        dialog.appendOption(CheckableOption(dialog, core.config(),
-                                            "Sphinx/BuildOnSave",
-                                            widget.cbBuildOnSaveEnable))
         dialog.appendOption(TextOption(dialog, core.config(),
                                        "Sphinx/Executable",
                                        widget.leSphinxExecutable))
