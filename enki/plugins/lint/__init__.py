@@ -149,6 +149,7 @@ class Plugin(QObject):
         if self._thread is not None:
             self._thread.resultsReady.disconnect(self._onResultsReady)
             self._thread.stopAsync()
+            self._thread.wait()
             self._thread = None
 
         self._clearMessage()
