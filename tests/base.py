@@ -39,7 +39,6 @@ class DummyProfiler:
 def _processPendingEvents():
     """Process pending application events."""
 
-
     # Create an event loop to run in. Otherwise, we need to use the papp
     # (QApplication) main loop, which may already be running and therefore
     # unusable.
@@ -138,15 +137,11 @@ def requiresCmdlineUtility(command):
     """A decorator: a test requires a command.
        The command will be split if contains spaces.
     """
-    def inner(func):
-        def wrapper(*args, **kwargs):
-            cmdlineArgs = command.split()
-            if not _cmdlineUtilityExists(cmdlineArgs):
-                self = args[0]
-                self.skipTest('{} command not found. Cannot run the test without it'.format(cmdlineArgs[0]))
-            return func(*args, **kwargs)
-        return wrapper
-    return inner
+    cmdlineArgs = command.split()
+    if not _cmdlineUtilityExists(cmdlineArgs):
+        return unittest.skip('{} command not found. Cannot run the test without it'.format(cmdlineArgs[0]))
+    else:
+        return lambda func: func
 
 
 class TestCase(unittest.TestCase):
