@@ -113,7 +113,7 @@ class ConverterThread(QThread):
     def _getHtml(self, language, text, filePath):
         """Get HTML for document
         """
-        # Pan: Calling core.config() in a non-GUI thread produces crashes. So,
+        # TODO: Pan: Calling core.config() in a non-GUI thread produces crashes. So,
         # would you move all calls to core.config() to the scheduleDocumentProcessing
         # method in the GUI thread? In particular, it looks like this code needs
         # the following values computed in the GUI thread then passed to it:
@@ -124,9 +124,6 @@ class ConverterThread(QThread):
         #
         # One method: use _getHtml(self, task) and place all these extra vars
         # in task.
-        #
-        # The following two lines show a crash by just accessing core.config()!
-        # Remove them!
         if language == 'Markdown':
             return self._convertMarkdown(text), None, QUrl()
         # For ReST, use docutils only if Sphinx isn't available.
@@ -528,9 +525,6 @@ class PreviewDock(DockWidget):
         self._typingTimer.stop()
 
         document = core.workspace().currentDocument()
-        # Debug code, TODO: remove.
-#        traceback.print_stack()
-#        print('schedule ' + document.filePath() + '\n\n')
         if document is not None:
             qp = document.qutepart
             language = qp.language()
@@ -545,8 +539,8 @@ class PreviewDock(DockWidget):
             elif language == 'Restructured Text':
                 pass
             else:
-                # Pan - TODO: Only save if Sphinx will be used.
-                # Pan - TODO: temporarily disable the clear trailing
+                # TODO: Only save if Sphinx will be used.
+                # TODO: temporarily disable the clear trailing
                 # whitespace option so spaces won't disappear when the
                 # build on save option is unchecked.
 
@@ -578,7 +572,7 @@ class PreviewDock(DockWidget):
         # If there were messages from the conversion process, extract a count of
         # errors and warnings from these messages.
         if errString:
-            # Pan: Let's omit this or re-think it -- perhaps an auto-hide
+            # TODO: Let's omit this or re-think it -- perhaps an auto-hide
             # checkbox in the UI that hides the dock on no errors and shows
             # it when errors occur. But, use the last user-dragged size, not
             # an arbitrary constant below.
@@ -630,7 +624,7 @@ class PreviewDock(DockWidget):
             # quantifier is used along with end-of-line ``$`` to make sure only
             # the first match is used in each line.
             #
-            # Pan: Is this necesary? Is there any case where omitting this
+            # TODO: Is this necesary? Is there any case where omitting this
             # causes a failure?
 
             regex = re.compile(errPosRe + errTypeRe + errEolRe,
@@ -660,7 +654,7 @@ class PreviewDock(DockWidget):
             color = 'red' if errNum else 'yellow' if warningNum else None
             self._setHtmlProgress(100, color)
         else:
-            # Pan: probably remove this behavior or change it per the notes above.
+            # TODO: probably remove this behavior or change it per the notes above.
             #
             # If there are no errors/warnings, collapse the log window (can mannually
             # expand it back to visible)
