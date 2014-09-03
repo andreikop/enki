@@ -6,7 +6,6 @@
 # Plugin interface; other modules are given below.
 
 import os.path
-import shutil
 from PyQt4.QtCore import QObject, Qt
 from PyQt4.QtGui import QAction, QIcon, QKeySequence, QWidget, QFileDialog, QMessageBox
 from PyQt4 import uic
@@ -59,12 +58,6 @@ class SettingsWidget(QWidget):
         # Clicking on advanced mode label triggers either advanced mode or
         # normal mode.
         self.lbSphinxEnableAdvMode.mousePressEvent = self._onToggleSphinxSettingModeClicked
-
-        # TODO: Changes to the project path will check that the new path has the
-        # necessary project files. Notice copySphinxProjectTemplate() might return
-        # errors. Display warning window if error happens.
-        self.leSphinxProjectPath.textEdited.connect(
-          lambda text : copySphinxProjectTemplate())
 
         # Update misc pieces of the GUI that can't be stored in the .ui file.
         self.cmbSphinxOutputExtension.addItem("html")
@@ -147,51 +140,6 @@ class SettingsWidget(QWidget):
             self.lbSphinxCmdline.setVisible(False)
             self.leSphinxCmdline.setVisible(False)
             self.lbSphinxReference.setVisible(False)
-
-# TODO: Pan: Let's put this code in preview.py, in scheduleDocumentProcessing -- have
-# it pop us a dialog box (a warning in the log window for now)
-# saying something like "missing files needed for Sphinx,
-# copy now?"
-def copySphinxProjectTemplate():
-    """If Sphinx directory is valid and Sphinx is enabled, then add conf.py
-       and default.css to the project directory."""
-    if (core.config()['Sphinx']['Enabled'] and
-      os.path.exists(core.config()['Sphinx']['ProjectPath'])):
-        # Check whether conf.py or default.css or contents.rst already exist;
-        # if so, they do not need to be copied.
-        if (os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py')) or
-          os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'default.css')) or
-          os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'contents.rst'))):
-            return
-
-        # Copy template files to sphinx project directory.
-        codeChatPath = os.path.dirname(os.path.realpath(CodeChat.__file__))
-        cssPath = os.path.join(codeChatPath, 'template/default.css')
-        contentsPath = os.path.join(codeChatPath, 'template/contents.rst')
-        errors = []
-        try:
-            shutil.copy(cssPath, core.config()['Sphinx']['ProjectPath'])
-        # TODO: shutil.copy might trigger IOError and os.error. Here os.error
-        # is not catched.
-        except IOError as why:
-            errors.append((cssPath, core.config()['Sphinx']['ProjectPath'], str(why)))
-        try:
-            shutil.copy(contentsPath, core.config()['Sphinx']['ProjectPath'])
-        except IOError as why:
-            errors.append((cssPath, core.config()['Sphinx']['ProjectPath'], str(why)))
-        # Choose what conf.py file to copy based whether CodeChat is enabled.
-        try:
-            if core.config()['CodeChat']['Enabled']:
-                # If CodeChat is also enabled, enable this in conf.py too.
-                confCodeChatPath = os.path.join(codeChatPath, 'template/conf_codechat.py')
-                shutil.copy(confCodeChatPath, os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py'))
-            else:
-                # else simple copy the default conf.py to sphinx target directory
-                confPath = os.path.join(codeChatPath, 'template/conf.py')
-                shutil.copy(confPath, core.config()['Sphinx']['ProjectPath'])
-        except IOError as why:
-            errors.append((cssPath, core.config()['Sphinx']['ProjectPath'], str(why)))
-        return errors
 
 class Plugin(QObject):
     """Plugin interface implementation
@@ -351,6 +299,3 @@ class Plugin(QObject):
                                        widget.leSphinxExecutable))
         dialog.appendOption(TextOption(dialog, core.config(),
                                        "Sphinx/Cmdline",
-                                       widget.leSphinxCmdline))
-        # Ensure the Sphinx project has the necessary templates.
-        copySphinxProjectTemplate()

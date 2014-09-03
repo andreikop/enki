@@ -15,6 +15,7 @@ import StringIO
 import traceback
 import re
 import subprocess
+import shutil
 
 # Third-party imports
 # -------------------
@@ -32,6 +33,7 @@ from preview_sync import PreviewSync
 
 # Likewise, attempt importing CodeChat; failing that, disable the CodeChat feature.
 try:
+    import CodeChat # TODO: This seems redundant.
     import CodeChat.CodeToRest as CodeToRest
     import CodeChat.LanguageSpecificOptions as LSO
 except ImportError:
@@ -526,6 +528,7 @@ class PreviewDock(DockWidget):
 
         document = core.workspace().currentDocument()
         if document is not None:
+            self._copySphinxProjectTemplate(document.filePath())
             qp = document.qutepart
             language = qp.language()
             text = qp.text
@@ -550,6 +553,59 @@ class PreviewDock(DockWidget):
             self._setHtmlProgress(-1)
             # for rest language is already correct
             self._thread.process(document.filePath(), language, text)
+
+    def _copySphinxProjectTemplate(self, documentFilePath):
+        """For currrent sphinx document, if Sphinx directory is valid and
+           Sphinx is enabled, then add conf.py, default.css and contents.rst
+           to the project directory.
+           """
+        # TODO: Can we replace these conditions with _canUseSphinx() from
+        # converter thread?
+        if (core.config()['Sphinx']['Enabled'] and
+          os.path.exists(core.config()['Sphinx']['ProjectPath']) and
+          core.config()['Sphinx']['ProjectPath'] ==
+          os.path.commonprefix([documentFilePath, core.config()['Sphinx']['ProjectPath']])):
+            # Check the existance of conf.py, default.css, and contents.rst. If
+            # any of those files are missing, we will add a template file to it
+            # But before that a notification will pop out tellign the user we are
+            # about to copy some template files. If any system error (shutil
+            # exceptions)
+            codeChatPath = os.path.dirname(os.path.realpath(CodeChat.__file__))
+            errors = []
+
+            if not os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'default.css')):
+                cssPath = os.path.join(codeChatPath, 'template/default.css')
+                try:
+                    shutil.copy(cssPath, core.config()['Sphinx']['ProjectPath'])
+                except Exception as why:
+                    errors.append((cssPath, core.config()['Sphinx']['ProjectPath'], str(why)))
+            if not os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'contents.rst')):
+                contentsPath = os.path.join(codeChatPath, 'template/contents.rst')
+                try:
+                    shutil.copy(contentsPath, core.config()['Sphinx']['ProjectPath'])
+                except Exception as why:
+                    errors.append((contentsPath, core.config()['Sphinx']['ProjectPath'], str(why)))
+            if not os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py')):
+                # Choose which conf.py file to copy based on whether CodeChat is enabled.
+                try:
+                    if core.config()['CodeChat']['Enabled']:
+                        # If CodeChat is also enabled, enable this in conf.py too.
+                        confPath = os.path.join(codeChatPath, 'template/conf_codechat.py')
+                        shutil.copy(confPath, os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py'))
+                    else:
+                        # else simple copy the default conf.py to sphinx target directory
+                        confPath = os.path.join(codeChatPath, 'template/conf.py')
+                        shutil.copy(confPath, core.config()['Sphinx']['ProjectPath'])
+                except IOError as why:
+                    errors.append((confPath, core.config()['Sphinx']['ProjectPath'], str(why)))
+
+            errInfo = ""
+            for error in errors:
+                errInfo += "Copy from " + error[0] + " to " + error[1] + " caused error " + error[2] + ';\n'
+            if errInfo:
+                QMessageBox.warning(self, "File copy error",  errInfo)
+
+            return errors
 
     def _setHtml(self, filePath, html, errString=None, baseUrl=QUrl()):
         """Set HTML to the view and restore scroll bars position.
