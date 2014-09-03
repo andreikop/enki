@@ -79,13 +79,13 @@ class PreviewTestCase(base.TestCase):
         return self._widget().teLog.toPlainText()
 
     def _assertHtmlReady(self, start, timeout=2000):
-        """Wait for the PreviewDock to load in updated HTML after the start 
+        """Wait for the PreviewDock to load in updated HTML after the start
         function is called. Assert if the signal isn't emitted within a timeout.
         """
-        # Wait for the worker thread to signal that it's produced 
+        # Wait for the worker thread to signal that it's produced
         # updated HTML.
-        self.assertEmits(start, self._dock()._thread.htmlReady, timeout)
-        # Process any pending messages to make sure the GUI is up to 
+        self.assertEmits(start, self._widget().webView.page().mainFrame().loadFinished, timeout)
+        # Process any pending messages to make sure the GUI is up to
         # date. Omitting this causes failures in test_uiCheck17.
         base._processPendingEvents()
 
@@ -112,7 +112,7 @@ class PreviewTestCase(base.TestCase):
         file can be altered. For example, the extension can be set to .rst .
         """
         # Fill in conf.py and default.css file
-        enki.plugins.preview.copySphinxProjectTemplate()
+        #enki.plugins.preview.copySphinxProjectTemplate()
 
         # Create master document contents.rst
         master = os.path.join(self.TEST_FILE_DIR, 'contents.rst')
@@ -122,9 +122,8 @@ class PreviewTestCase(base.TestCase):
    code.""" + extension)
 
         # Build the HTML, then return it and the log.
-        self._assertHtmlReady(lambda : self.createFile(os.path.join(self.TEST_FILE_DIR,
-          'code.' + extension), self.testText), timeout=10000)
-        return [self._html(), self._logText()]
+        self._assertHtmlReady(lambda : self.createFile('code.' + extension, self.testText), timeout=10000)
+        return self._html(), self._logText()
 
 class Test(PreviewTestCase):
     def test_html(self):
@@ -348,7 +347,7 @@ content"""
 # content"""
         webViewContent, logContent = self._doBasicSphinxTest('py')
         self.assertTrue(u'<p>content</p>' in webViewContent)
-        self.assertTrue(u'writing output... [ 33%] code.py' in logContent)
+        self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     @requiresModule('CodeChat')
     @base.inMainLoop
@@ -588,14 +587,17 @@ head
 
         # switch to document 1
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
+        base.waitForSignal(lambda: None, self._widget().webView.page().mainFrame().loadFinished, 200)
         self.assertIn('yellow', self._widget().prgStatus.styleSheet())
         self.assertTrue('Warning(s): 1 Error(s): 0' in self._logText())
         # switch to document 2
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
+        base.waitForSignal(lambda: None, self._widget().webView.page().mainFrame().loadFinished, 200)
         self.assertTrue('red' in self._widget().prgStatus.styleSheet())
         self.assertTrue('Warning(s): 0 Error(s): 1' in self._logText())
         # switch to document 3
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
+        base.waitForSignal(lambda: None, self._widget().webView.page().mainFrame().loadFinished, 200)
         self.assertEqual(self._widget().prgStatus.styleSheet(), 'QProgressBar::chunk {}')
         self.assertEqual(self._logText(), '')
 
