@@ -114,8 +114,8 @@ class PreviewTestCase(base.TestCase):
         # Fill in conf.py and default.css file
         #enki.plugins.preview.copySphinxProjectTemplate()
 
-        # Create master document contents.rst
-        master = os.path.join(self.TEST_FILE_DIR, 'contents.rst')
+        # Create master document index.rst
+        master = os.path.join(self.TEST_FILE_DIR, 'index.rst')
         with codecs.open(master, 'wb', encoding='utf8') as file_:
             file_.write(""".. toctree::
 
@@ -357,8 +357,6 @@ content"""
         self.testText = u'test'
         self._doBasicTest('py')
         assert 'test' not in self._html()
-        import time
-        time.sleep(5)
 
     @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
@@ -387,7 +385,7 @@ content"""
         self._doBasicTest('py')
         self.assertEqual(self._plainText(), self.testText)
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+#    @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
     def test_uiCheck6a(self):
         """Empty code file produces a Sphinx failure since file in toctree should

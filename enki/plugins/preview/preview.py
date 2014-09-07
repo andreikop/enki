@@ -556,7 +556,7 @@ class PreviewDock(DockWidget):
 
     def _copySphinxProjectTemplate(self, documentFilePath):
         """For currrent sphinx document, if Sphinx directory is valid and
-           Sphinx is enabled, then add conf.py, default.css and contents.rst
+           Sphinx is enabled, then add conf.py, default.css and index.rst
            to the project directory.
            """
         # TODO: Can we replace these conditions with _canUseSphinx() from
@@ -565,7 +565,7 @@ class PreviewDock(DockWidget):
           os.path.exists(core.config()['Sphinx']['ProjectPath']) and
           core.config()['Sphinx']['ProjectPath'] ==
           os.path.commonprefix([documentFilePath, core.config()['Sphinx']['ProjectPath']])):
-            # Check the existance of conf.py, default.css, and contents.rst. If
+            # Check the existance of conf.py, default.css, and index.rst. If
             # any of those files are missing, we will add a template file to it
             # But before that a notification will pop out tellign the user we are
             # about to copy some template files. If any system error (shutil
@@ -579,12 +579,12 @@ class PreviewDock(DockWidget):
                     shutil.copy(cssPath, core.config()['Sphinx']['ProjectPath'])
                 except Exception as why:
                     errors.append((cssPath, core.config()['Sphinx']['ProjectPath'], str(why)))
-            if not os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'contents.rst')):
-                contentsPath = os.path.join(codeChatPath, 'template/contents.rst')
+            if not os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'index.rst')):
+                indexPath = os.path.join(codeChatPath, 'template/index.rst')
                 try:
-                    shutil.copy(contentsPath, core.config()['Sphinx']['ProjectPath'])
+                    shutil.copy(indexPath, core.config()['Sphinx']['ProjectPath'])
                 except Exception as why:
-                    errors.append((contentsPath, core.config()['Sphinx']['ProjectPath'], str(why)))
+                    errors.append((indexPath, core.config()['Sphinx']['ProjectPath'], str(why)))
             if not os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py')):
                 # Choose which conf.py file to copy based on whether CodeChat is enabled.
                 try:
@@ -603,6 +603,7 @@ class PreviewDock(DockWidget):
             for error in errors:
                 errInfo += "Copy from " + error[0] + " to " + error[1] + " caused error " + error[2] + ';\n'
             if errInfo:
+                # TODO: this never gets tested.
                 QMessageBox.warning(self, "File copy error",  errInfo)
 
             return errors
@@ -647,7 +648,7 @@ class PreviewDock(DockWidget):
             #
             #  X:\SVM_train.m.rst:2: SEVERE: Title overline & underline mismatch.
             #
-            #  X:\contents.rst:None: WARNING: image file not readable: a.jpg
+            #  X:\indexs.rst:None: WARNING: image file not readable: a.jpg
             #
             #  X:\conf.py.rst:: WARNING: document isn't included in any toctree
             #
