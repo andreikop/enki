@@ -34,12 +34,12 @@ from preview_sync import PreviewSync
 # Likewise, attempt importing CodeChat; failing that, disable the CodeChat feature.
 try:
     import CodeChat # TODO: This seems redundant.
-    import CodeChat.CodeToRest as CodeToRest
-    import CodeChat.LanguageSpecificOptions as LSO
 except ImportError:
     CodeToRest = None
     LSO = None
-
+else:
+    import CodeChat.CodeToRest as CodeToRest
+    import CodeChat.LanguageSpecificOptions as LSO
 
 class ConverterThread(QThread):
     """Thread converts markdown to HTML.
@@ -503,16 +503,20 @@ class PreviewDock(DockWidget):
         core.config().flush()
         self._scheduleDocumentProcessing()
 
-    def _onTextChanged(self, document):
-        """Text changed, update preview
-        """
+    def _sphinxEnabledForCurrentProject(self):
         currentDocumentPath = os.path.abspath(core.workspace().currentDocument().filePath())
         sphinxProjectPath = os.path.abspath(core.config()['Sphinx']['ProjectPath'])
+        return core.config()['Sphinx']['Enabled'] and \
+               sphinxProjectPath == os.path.commonprefix([currentDocumentPath, sphinxProjectPath])
+
+    def _onTextChanged(self, document):
+        # TODO: This 'document' parameter is never used.
+        """Text changed, update preview
+        """
         # Once checked, build on save will force enki to only build on saving
         # actions. Text change will not trigger a rebuild.
         if core.config()['Preview']['Enabled']:
-            if not (core.config()['Sphinx']['Enabled'] and core.config()['Sphinx']['BuildOnSave']
-            and sphinxProjectPath == os.path.commonprefix([currentDocumentPath, sphinxProjectPath])):
+            if not (self._sphinxEnabledForCurrentProject() and core.config()['Sphinx']['BuildOnSave']):
                 self._scheduleDocumentProcessing()
 
     def show(self):

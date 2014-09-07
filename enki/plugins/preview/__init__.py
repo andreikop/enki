@@ -202,7 +202,7 @@ class Plugin(QObject):
     def _canHighlight(self, document):
         """Check if can highlight document
         """
-        if document is None:
+        if document is None or document.filePath() is None:
             return False
 
         if document.qutepart.language() in ('Markdown', 'Restructured Text') or \
