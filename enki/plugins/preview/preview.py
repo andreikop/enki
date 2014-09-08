@@ -41,6 +41,23 @@ else:
     import CodeChat.CodeToRest as CodeToRest
     import CodeChat.LanguageSpecificOptions as LSO
 
+# platform independent path commonprefix. Check `this post
+# <http://stackoverflow.com/questions/21498939/how-to-circumvent-the-fallacy-of-pythons-os-path-commonprefix>`_
+# for more details.
+def commonprefix(dir1, dir2):
+    component = []
+    dir1List = dir1.split(os.path.sep)
+    dir2List = dir2.split(os.path.sep)
+    minList = len(dir1List) if len(dir1List) < len(dir2List) else len(dir2List)
+    for i in range(minList):
+        s = set([dir1List[i], dir2List[i]])
+        if len(s) != 1:
+            break
+        component.append(s.pop())
+    return os.path.sep.join(component)
+
+
+
 class ConverterThread(QThread):
     """Thread converts markdown to HTML.
     """
@@ -89,7 +106,7 @@ class ConverterThread(QThread):
         # See http://stackoverflow.com/questions/7287996/python-get-relative-path-from-comparing-two-absolute-paths
         # for discussion on the path comparison below.
         return (core.config()['Sphinx']['Enabled'] and
-          self.htmlBuilderRootPath == os.path.commonprefix([self.htmlBuilderRootPath, filePath]))
+          self.htmlBuilderRootPath == commonprefix(self.htmlBuilderRootPath, filePath))
 
     def _updateSphinxConfig(self):
         # Executable to run the HTML builder.
@@ -503,11 +520,11 @@ class PreviewDock(DockWidget):
         core.config().flush()
         self._scheduleDocumentProcessing()
 
-    def _sphinxEnabledForCurrentProject(self):
-        currentDocumentPath = os.path.abspath(core.workspace().currentDocument().filePath())
+    def _sphinxEnabledForFile(self, filePath):
         sphinxProjectPath = os.path.abspath(core.config()['Sphinx']['ProjectPath'])
         return core.config()['Sphinx']['Enabled'] and \
-               sphinxProjectPath == os.path.commonprefix([currentDocumentPath, sphinxProjectPath])
+               os.path.exists(core.config()['Sphinx']['ProjectPath']) and\
+               sphinxProjectPath == commonprefix(filePath, sphinxProjectPath)
 
     def _onTextChanged(self, document):
         # TODO: This 'document' parameter is never used.
@@ -516,7 +533,8 @@ class PreviewDock(DockWidget):
         # Once checked, build on save will force enki to only build on saving
         # actions. Text change will not trigger a rebuild.
         if core.config()['Preview']['Enabled']:
-            if not (self._sphinxEnabledForCurrentProject() and core.config()['Sphinx']['BuildOnSave']):
+            if not (self._sphinxEnabledForFile(document.filePath()) and
+            core.config()['Sphinx']['BuildOnSave']):
                 self._scheduleDocumentProcessing()
 
     def show(self):
@@ -546,14 +564,14 @@ class PreviewDock(DockWidget):
             elif language == 'Restructured Text':
                 pass
             else:
-                # TODO: Only save if Sphinx will be used.
-                # TODO: temporarily disable the clear trailing
-                # whitespace option so spaces won't disappear when the
-                # build on save option is unchecked.
-
-                # Save any changes before HTML builder processing.
-                if qp.document().isModified():
+                # Only save when sphinx is enabled for current document. Trailing
+                # whitespace is not stripped when autosaving. When saving actions
+                # are envoked manually, trailing whitespace will be stripped.
+                if qp.document().isModified() and self._sphinxEnabledForFile(document.filePath()):
+                    core.config()["Qutepart"]["StripTrailingWhitespace"] = False
+                    # TODO: Notice: Here core config has not been flushed.
                     document.saveFile()
+                    core.config()["Qutepart"]["StripTrailingWhitespace"] = True
             self._setHtmlProgress(-1)
             # for rest language is already correct
             self._thread.process(document.filePath(), language, text)
@@ -563,12 +581,7 @@ class PreviewDock(DockWidget):
            Sphinx is enabled, then add conf.py, default.css and index.rst
            to the project directory.
            """
-        # TODO: Can we replace these conditions with _canUseSphinx() from
-        # converter thread?
-        if (core.config()['Sphinx']['Enabled'] and
-          os.path.exists(core.config()['Sphinx']['ProjectPath']) and
-          core.config()['Sphinx']['ProjectPath'] ==
-          os.path.commonprefix([documentFilePath, core.config()['Sphinx']['ProjectPath']])):
+        if self._sphinxEnabledForFile(documentFilePath):
             # Check the existance of conf.py, default.css, and index.rst. If
             # any of those files are missing, we will add a template file to it
             # But before that a notification will pop out tellign the user we are
@@ -607,7 +620,7 @@ class PreviewDock(DockWidget):
             for error in errors:
                 errInfo += "Copy from " + error[0] + " to " + error[1] + " caused error " + error[2] + ';\n'
             if errInfo:
-                # TODO: this never gets tested.
+                # TODO: Test this
                 QMessageBox.warning(self, "File copy error",  errInfo)
 
             return errors
