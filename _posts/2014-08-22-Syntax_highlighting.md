@@ -71,7 +71,7 @@ I tried to open a big C++ file (364,121 lines) with a few text editors. The resu
 | Component or editor    | Whole file highlighting time      | When UI is blocked                                   | Problems                      |
 | ---------------------- | --------------------------------- | ---------------------------------------------------- | ----------------------------- |
 | Qutepart               | 44 seconds                        | Never                                                | File opening takes 3 seconds  |
-| katepart               | Was killed 6 minutes after launch | Until parsing of last visible line is completed      | None                          |
+| katepart               | 3 seconds                         | Until parsing of last visible line is completed      | None                          |
 | QScintilla             | 3 seconds                         | Never                                                | Lags when typing              |
 | Scintilla              | 3 seconds                         | Never                                                | Lags when typing              |
 | Sublime Text           | 23 seconds                        | Freezes when typing until rehighlighting is finished | None                          |
