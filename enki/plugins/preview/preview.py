@@ -43,11 +43,15 @@ else:
     import CodeChat.CodeToRest as CodeToRest
     import CodeChat.LanguageSpecificOptions as LSO
 
+# .. note::
+#    Pan: This fails several of the unit tests I wrote for it. Would you try out the
+#    other option at the website below instead? If that works, then write good
+#    docs explaining why.
 def commonPrefix(dir1, dir2):
-    """This function provides a platform-independent path commonprefix. See `this 
+    """This function provides a platform-independent path commonPrefix. See `this
     post <http://stackoverflow.com/questions/21498939/how-to-circumvent-the-fallacy-of-pythons-os-path-commonprefix>`_
     for more details.
-    
+
     Parameters: dir1, dir2 - Two paths to compare.
     Return value: the common path prefix shared by dir1 and dir2.
     """
@@ -105,6 +109,11 @@ class ConverterThread(QThread):
         # and Enki settings enable codechat (config()['CodeChat']['Enabled'] is true).
         return core.config()['CodeChat']['Enabled'] and LSO and CodeToRest
 
+    # .. note::
+    #    Pan: this is very similar to _SphinxEnabledForFile. I that that implementation
+    #    a bit better, since it checks to make sure the project path actually exists.
+    #    Would you remove this function, then make _SphinxEnabledForFile a function
+    #    instead of a class method, using that instead?
     def _canUseSphinx(self, filePath=None):
         # Sphinx config can be altered during program execution, thus its
         # configuration must be kept synced with latest settings.
@@ -112,8 +121,6 @@ class ConverterThread(QThread):
         # Sphinx is available for the current file when:
         # Sphinx is enabled by Enki [config()['sphinx']['Enabled']] and
         # the file to be rendered is in the htmlBuilderRootPath directory.
-        # See http://stackoverflow.com/questions/7287996/python-get-relative-path-from-comparing-two-absolute-paths
-        # for discussion on the path comparison below.
         return (core.config()['Sphinx']['Enabled'] and
           self.htmlBuilderRootPath == commonPrefix(self.htmlBuilderRootPath, filePath))
 
@@ -268,7 +275,8 @@ class ConverterThread(QThread):
         errStream.close()
         return htmlString, errString
 
-    # TODO: factors these changes back into enki.lib.get_console_output.
+    # .. note::
+    #    Pan: would you factor these changes back into enki.lib.get_console_output?
     def _runHtmlBuilder(self):
         if hasattr(subprocess, 'STARTUPINFO'):  # windows only
             # On Windows, subprocess will pop up a command window by default when run from
@@ -314,6 +322,9 @@ class ConverterThread(QThread):
             if task is None:  # None is a quit command
                 break
 
+            # TODO: This is ugly. Should pass this exception back to the main
+            # thread and re-raise it there, or use a QFuture like approach which
+            # does this automaticlaly.
             try:
                 html, errString, url = self._getHtml(task.language, task.text, task.filePath)
             except Exception:
@@ -379,8 +390,7 @@ class PreviewDock(DockWidget):
 
         self._widget.tbSave.clicked.connect(self.onPreviewSave)
 
-        # Don't need to schedule document processing -- applyJavaScriptEnabled
-        # does, a likely call to show() does.
+        # Don't need to schedule document processing; a call to show() does.
 
 
     def del_(self):
@@ -415,7 +425,7 @@ class PreviewDock(DockWidget):
             core.mainWindow().statusBar().showMessage("Failed to open {}".format(url.toString()), 2000)
 
     def _updateTitle(self, pageTitle):
-        """Web page title changed. Update own title
+        """Web page title changed. Update own title.
         """
         if pageTitle:
             self.setWindowTitle("Previe&w - " + pageTitle)
@@ -539,6 +549,10 @@ class PreviewDock(DockWidget):
                os.path.exists(core.config()['Sphinx']['ProjectPath']) and\
                sphinxProjectPath == commonPrefix(filePath, sphinxProjectPath)
 
+    # .. note::
+    #    Pan: this seems a bit broken. I think the self.typingTimer is already calling
+    #    _scheduleDocumentProcessing a fixed delay after the last keypress. Why not
+    #    simply include this code in _scheduleDocumentProcessing instead?
     def _onTextChanged(self, document):
         # TODO: This 'document' parameter is never used.
         """Text changed, update preview
@@ -563,7 +577,12 @@ class PreviewDock(DockWidget):
 
         document = core.workspace().currentDocument()
         if document is not None:
-            self._copySphinxProjectTemplate(document.filePath())
+            # .. note::
+            #    Pan: I think this is a bit clearer, code-wise. Another option
+            #    would be to rename the function to _copySphinxProjectTemplateIfNeeded
+            #    or something like that.
+            if self._sphinxEnabledForFile(document.filePath()):
+                self._copySphinxProjectTemplate(document.filePath())
             qp = document.qutepart
             language = qp.language()
             text = qp.text
@@ -577,9 +596,17 @@ class PreviewDock(DockWidget):
             elif language == 'Restructured Text':
                 pass
             else:
-                # Only save when sphinx is enabled for current document. Trailing
+                # .. note::
+                #    Pan -- this should save the old value of StripTrailingWhitespace,
+                #    save the file, then restore it. Otherwise, StripTrailingWhitespace
+                #    will be turned on? (I think -- the config isn't flushed, but
+                #    even if not, this is suspicious coding that will probably
+                #    fail later).
+                #
+                # Only save when Sphinx is enabled for current document. Trailing
                 # whitespace is not stripped when autosaving. When saving actions
-                # are envoked manually, trailing whitespace will be stripped.
+                # are invoked manually, trailing whitespace will be stripped if
+                # enabled.
                 if qp.document().isModified() and self._sphinxEnabledForFile(document.filePath()):
                     core.config()["Qutepart"]["StripTrailingWhitespace"] = False
                     # TODO: Notice: Here core config has not been flushed.
@@ -590,53 +617,54 @@ class PreviewDock(DockWidget):
             self._thread.process(document.filePath(), language, text)
 
     def _copySphinxProjectTemplate(self, documentFilePath):
-        """For currrent sphinx document, if Sphinx directory is valid and
-           Sphinx is enabled, then add conf.py, default.css and index.rst
-           to the project directory.
+        """Add conf.py, default.css and index.rst (if ther're missing)
+           to the Sphinx project directory.
            """
-        if self._sphinxEnabledForFile(documentFilePath):
-            # Check the existance of conf.py, default.css, and index.rst. If
-            # any of those files are missing, we will add a template file to it
-            # But before that a notification will pop out tellign the user we are
-            # about to copy some template files. If any system error (shutil
-            # exceptions)
-            codeChatPath = os.path.dirname(os.path.realpath(CodeChat.__file__))
-            errors = []
+        # Check the existance of conf.py, default.css, and index.rst. If
+        # any of those files are missing, we will add a template file to it
+        # But before that a notification will pop out tellign the user we are
+        # about to copy some template files. If any system error (shutil
+        # exceptions)
+        codeChatPath = os.path.dirname(os.path.realpath(CodeChat.__file__))
+        errors = []
 
-            if not os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'default.css')):
-                cssPath = os.path.join(codeChatPath, 'template/default.css')
-                try:
-                    shutil.copy(cssPath, core.config()['Sphinx']['ProjectPath'])
-                except Exception as why:
-                    errors.append((cssPath, core.config()['Sphinx']['ProjectPath'], str(why)))
-            if not os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'index.rst')):
-                indexPath = os.path.join(codeChatPath, 'template/index.rst')
-                try:
-                    shutil.copy(indexPath, core.config()['Sphinx']['ProjectPath'])
-                except Exception as why:
-                    errors.append((indexPath, core.config()['Sphinx']['ProjectPath'], str(why)))
-            if not os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py')):
-                # Choose which conf.py file to copy based on whether CodeChat is enabled.
-                try:
-                    if core.config()['CodeChat']['Enabled']:
-                        # If CodeChat is also enabled, enable this in conf.py too.
-                        confPath = os.path.join(codeChatPath, 'template/conf_codechat.py')
-                        shutil.copy(confPath, os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py'))
-                    else:
-                        # else simple copy the default conf.py to sphinx target directory
-                        confPath = os.path.join(codeChatPath, 'template/conf.py')
-                        shutil.copy(confPath, core.config()['Sphinx']['ProjectPath'])
-                except IOError as why:
-                    errors.append((confPath, core.config()['Sphinx']['ProjectPath'], str(why)))
+        # .. note::
+        #    Pan: This is repetitive code. DRY! (Don't Repeat Yourself). Make
+        #    a helper function for each copy, then call that 3 times.
+        if not os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'default.css')):
+            cssPath = os.path.join(codeChatPath, 'template/default.css')
+            try:
+                shutil.copy(cssPath, core.config()['Sphinx']['ProjectPath'])
+            except Exception as why:
+                errors.append((cssPath, core.config()['Sphinx']['ProjectPath'], str(why)))
+        if not os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'index.rst')):
+            indexPath = os.path.join(codeChatPath, 'template/index.rst')
+            try:
+                shutil.copy(indexPath, core.config()['Sphinx']['ProjectPath'])
+            except Exception as why:
+                errors.append((indexPath, core.config()['Sphinx']['ProjectPath'], str(why)))
+        if not os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py')):
+            # Choose which conf.py file to copy based on whether CodeChat is enabled.
+            try:
+                if core.config()['CodeChat']['Enabled']:
+                    # If CodeChat is also enabled, enable this in conf.py too.
+                    confPath = os.path.join(codeChatPath, 'template/conf_codechat.py')
+                    shutil.copy(confPath, os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py'))
+                else:
+                    # else simple copy the default conf.py to sphinx target directory
+                    confPath = os.path.join(codeChatPath, 'template/conf.py')
+                    shutil.copy(confPath, core.config()['Sphinx']['ProjectPath'])
+            except IOError as why:
+                errors.append((confPath, core.config()['Sphinx']['ProjectPath'], str(why)))
 
-            errInfo = ""
-            for error in errors:
-                errInfo += "Copy from " + error[0] + " to " + error[1] + " caused error " + error[2] + ';\n'
-            if errInfo:
-                # TODO: Test this
-                QMessageBox.warning(self, "File copy error",  errInfo)
+        errInfo = ""
+        for error in errors:
+            errInfo += "Copy from " + error[0] + " to " + error[1] + " caused error " + error[2] + ';\n'
+        if errInfo:
+            # TODO: Test this
+            QMessageBox.warning(self, "File copy error",  errInfo)
 
-            return errors
+        return errors
 
     def _setHtml(self, filePath, html, errString=None, baseUrl=QUrl()):
         """Set HTML to the view and restore scroll bars position.
@@ -659,10 +687,9 @@ class PreviewDock(DockWidget):
         # If there were messages from the conversion process, extract a count of
         # errors and warnings from these messages.
         if errString:
-            # TODO: Let's omit this or re-think it -- perhaps an auto-hide
-            # checkbox in the UI that hides the dock on no errors and shows
-            # it when errors occur. But, use the last user-dragged size, not
-            # an arbitrary constant below.
+            # .. note::
+            #    Pan: rather than hard-code the splitter size, save it when
+            #    it's auto-hidden then restore that saved value here.
             #
             # If there are errors/warnings, expand log window to make it visible
             self._widget.splitter.setSizes([180,60])
@@ -804,6 +831,8 @@ class PreviewDock(DockWidget):
             text = self._widget.webView.page().mainFrame().toHtml()
             data = text.encode('utf8')
             try:
+                # Andrei: Shouldn't this be wb, since utf8 can produce binary data
+                # where \n is different than \r\n?
                 with open(path, 'w') as openedFile:
                     openedFile.write(data)
             except (OSError, IOError) as ex:
