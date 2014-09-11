@@ -29,11 +29,13 @@ from PyQt4 import uic
 from enki.core.core import core
 from enki.widgets.dockwidget import DockWidget
 from enki.plugins.preview import isHtmlFile
-from preview_sync import PreviewSync
+from .preview_sync import PreviewSync
 
 # Likewise, attempt importing CodeChat; failing that, disable the CodeChat feature.
 try:
-    import CodeChat # TODO: This seems redundant.
+    # Needed to access CodeChat.__file__; not importing this, but using the
+    # other CodeChat.* imports below, doesn't define this.
+    import CodeChat
 except ImportError:
     CodeToRest = None
     LSO = None
@@ -41,14 +43,21 @@ else:
     import CodeChat.CodeToRest as CodeToRest
     import CodeChat.LanguageSpecificOptions as LSO
 
-# platform independent path commonprefix. Check `this post
-# <http://stackoverflow.com/questions/21498939/how-to-circumvent-the-fallacy-of-pythons-os-path-commonprefix>`_
-# for more details.
-def commonprefix(dir1, dir2):
+def commonPrefix(dir1, dir2):
+    """This function provides a platform-independent path commonprefix. See `this 
+    post <http://stackoverflow.com/questions/21498939/how-to-circumvent-the-fallacy-of-pythons-os-path-commonprefix>`_
+    for more details.
+    
+    Parameters: dir1, dir2 - Two paths to compare.
+    Return value: the common path prefix shared by dir1 and dir2.
+    """
+    # Split the two paths into components composed of subdirectories.
+    # Use normpath to guarantee that os.path.sep is the only separator;
+    # otherwise, there could be both / and \.
     component = []
     dir1List = dir1.split(os.path.sep)
     dir2List = dir2.split(os.path.sep)
-    minList = len(dir1List) if len(dir1List) < len(dir2List) else len(dir2List)
+    minList = min(len(dir1List), len(dir2List))
     for i in range(minList):
         s = set([dir1List[i], dir2List[i]])
         if len(s) != 1:
@@ -106,7 +115,7 @@ class ConverterThread(QThread):
         # See http://stackoverflow.com/questions/7287996/python-get-relative-path-from-comparing-two-absolute-paths
         # for discussion on the path comparison below.
         return (core.config()['Sphinx']['Enabled'] and
-          self.htmlBuilderRootPath == commonprefix(self.htmlBuilderRootPath, filePath))
+          self.htmlBuilderRootPath == commonPrefix(self.htmlBuilderRootPath, filePath))
 
     def _updateSphinxConfig(self):
         # Executable to run the HTML builder.
@@ -237,6 +246,7 @@ class ConverterThread(QThread):
         """
         try:
             import docutils.core
+            import docutils.writers.html4css1
         except ImportError:
             return 'Restructured Text preview requires the <i>python-docutils</i> package.<br/>' \
                    'Install it with your package manager or see ' \
@@ -247,6 +257,9 @@ class ConverterThread(QThread):
                      # Make sure to use Unicode everywhere.
                      'output_encoding': 'unicode',
                      'input_encoding' : 'unicode',
+                     # The default docutils stylesheet and template uses a relative path, which doesn't work when frozen ???.
+                     'template': os.path.join(os.path.dirname(docutils.writers.html4css1.__file__), docutils.writers.html4css1.Writer.default_template),
+                     'stylesheet_dirs': ['.', os.path.dirname(docutils.writers.html4css1.__file__)],
                      # Don't stop processing, no matter what.
                      'halt_level'     : 5,
                      # Capture errors to a string and return it.
@@ -524,7 +537,7 @@ class PreviewDock(DockWidget):
         sphinxProjectPath = os.path.abspath(core.config()['Sphinx']['ProjectPath'])
         return core.config()['Sphinx']['Enabled'] and \
                os.path.exists(core.config()['Sphinx']['ProjectPath']) and\
-               sphinxProjectPath == commonprefix(filePath, sphinxProjectPath)
+               sphinxProjectPath == commonPrefix(filePath, sphinxProjectPath)
 
     def _onTextChanged(self, document):
         # TODO: This 'document' parameter is never used.

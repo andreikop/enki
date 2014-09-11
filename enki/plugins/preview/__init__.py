@@ -7,7 +7,8 @@
 
 import os.path
 from PyQt4.QtCore import QObject, Qt
-from PyQt4.QtGui import QAction, QIcon, QKeySequence, QWidget, QFileDialog, QMessageBox
+from PyQt4.QtGui import QAction, QIcon, QKeySequence, QWidget, QFileDialog, \
+    QMessageBox
 from PyQt4 import uic
 
 from enki.core.core import core
@@ -162,7 +163,7 @@ class Plugin(QObject):
         core.uiSettingsManager().dialogAccepted.connect(self._onDocumentChanged)
 
         # If user's config .json file lacks it, populate CodeChat's default
-        # config key and sphinx' default config key.
+        # config key and Sphinx's default config key.
         if not 'CodeChat' in core.config():
             core.config()['CodeChat'] = {}
             core.config()['CodeChat']['Enabled'] = False
@@ -170,13 +171,13 @@ class Plugin(QObject):
         if not 'Sphinx' in core.config():
             core.config()['Sphinx'] = {}
             core.config()['Sphinx']['Enabled'] = False
-            core.config()['Sphinx']['Executable'] = u''
+            core.config()['Sphinx']['Executable'] = u'sphinx-build'
             core.config()['Sphinx']['ProjectPath'] = u''
             core.config()['Sphinx']['BuildOnSave'] = False
-            core.config()['Sphinx']['OutputPath'] = u''
-            core.config()['Sphinx']['OutputExtension'] = u''
+            core.config()['Sphinx']['OutputPath'] = u'_build/html'
+            core.config()['Sphinx']['OutputExtension'] = u'html'
             core.config()['Sphinx']['AdvancedMode'] = False
-            core.config()['Sphinx']['Cmdline'] = u''
+            core.config()['Sphinx']['Cmdline'] = u'sphinx-build -d _build/doctrees  project_path _build/html'
             core.config().flush()
 
     def del_(self):
@@ -192,16 +193,21 @@ class Plugin(QObject):
         """Document or Language changed.
         Create dock, if necessary
         """
-        if self._canHighlight(core.workspace().currentDocument()):
+        if self._canPreview(core.workspace().currentDocument()):
             if not self._dockInstalled:
                 self._createDock()
         else:
             if self._dockInstalled:
                 self._removeDock()
 
-    def _canHighlight(self, document):
-        """Check if can highlight document
+    def _canPreview(self, document):
+        """Check if the given document can be shown in the Preview dock.
         """
+        # Pan: Why the ``document.filePath() is None`` condition? I think
+        # this only matters for Sphinx, where the document must be save-able
+        # in order to preview it, correct? I.e. this condition should be
+        # in the last if statement:
+        # ``if core.config()['Sphinx']['Enabled'] and document.filePath()``?
         if document is None or document.filePath() is None:
             return False
 
@@ -209,6 +215,8 @@ class Plugin(QObject):
            isHtmlFile(document):
             return True
 
+        # CodeChat can preview a file if it's enabled and if that file's
+        # extension is supported.
         if CodeChat is not None and core.config()['CodeChat']['Enabled'] is True:
             lso = LSO.LanguageSpecificOptions()
             fileExtension = os.path.splitext(document.filePath())[1]
@@ -299,3 +307,4 @@ class Plugin(QObject):
                                        widget.leSphinxExecutable))
         dialog.appendOption(TextOption(dialog, core.config(),
                                        "Sphinx/Cmdline",
+                                       widget.leSphinxCmdline))
