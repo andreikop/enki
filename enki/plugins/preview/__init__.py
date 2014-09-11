@@ -44,6 +44,11 @@ class SettingsWidget(QWidget):
             # Hide the "not installed" message.
             self.labelCodeChatNotInstalled.setVisible(False)
 
+        # .. note::
+        #    Pan: aren't all these connects unnecessary? I think if we named
+        #    a method ``on_cbSphinxEnable_stateChanged()`` then the connect
+        #    below is unnecessary and so on. Would you check?
+        #
         # When the Sphinx enable checkbox is toggled, enable/disable all Sphinx
         # UI elements.
         self.cbSphinxEnable.stateChanged.connect(self._toggleSphinx)
@@ -70,9 +75,9 @@ class SettingsWidget(QWidget):
         based on the state of the Sphinx enable checkbox, including any child
         of ``layout``.
         """
-        if layout.__class__ is int:
+        if isinstance(layout, int):
             # _toggleSphinx is called by cbSphinxEnable.stateChanged, which will
-            # pass an unnecessary integer argument. Replaced it with
+            # pass an unnecessary integer argument. Replace it with
             # the default layout.
             layout = self.loSphinxProject
         for i in range(layout.count()):
@@ -84,6 +89,14 @@ class SettingsWidget(QWidget):
               (item.widget() not in (self.cbSphinxEnable, self.labelSphinxIntro)) ):
                 item.widget().setEnabled(self.cbSphinxEnable.isChecked())
 
+    # .. note::
+    #    Pan: Add a ``on_leSphinxProjectPath_editingFinished`` method which will
+    #    call os.path.normpath on the text entered by a user. I'm seeing some
+    #    paths with / and some with \ and would like a nicer result. Of course
+    #    start by adding unit tests. The same is true for an
+    #    ``on_leSphinxOutputPath_editingFinished`` and
+    #    ``on_leSphinxExecutable_editingFinished``.
+
     def _onPbSphinxProjectPathClicked(self):
         """Provide a directory chooser for the user to select a project path.
         """
@@ -91,7 +104,13 @@ class SettingsWidget(QWidget):
         if path:
             self.leSphinxProjectPath.setText(path)
             # Automatically set the builder output path to '_build\\html' under
-            # builder root path
+            # builder root path.
+            #
+            # .. note::
+            #    Pan: since we (I think) support relative paths, only set this
+            #    if the path was absolute (and therefore presumabely wrong). If
+            #    it's a relative path such as ``_build\html``, then it's probably
+            #    OK without changing. Would you add tests/code for this?
             self.leSphinxOutputPath.setText(os.path.join(path, '_build\\html'))
 
     def _onPbSphinxOutputPathClicked(self):
@@ -104,6 +123,9 @@ class SettingsWidget(QWidget):
     def _onPbSphinxExecutableClicked(self):
         path = QFileDialog.getOpenFileName(self,
                                            "Select Sphinx executable",
+                                           # .. note::
+                                           #    Pan: What's the Unix equivalent of sphinx-build.exe? Sphinx-build.py?
+                                           #    Would you add code to put that in depending on OS?
                                            filter="sphinx-build.exe;; All Files (*.*)");
         if path:
             self.leSphinxExecutable.setText(path)
