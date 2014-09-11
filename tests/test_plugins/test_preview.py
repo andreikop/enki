@@ -33,6 +33,7 @@ from enki.core.core import core
 # ``reload(enki.plugins.preview)``; the last, to instiantate ``SettingsWidget``.
 import enki.plugins.preview
 from enki.plugins.preview import SettingsWidget
+from enki.plugins.preview.preview import commonPrefix
 from import_fail import ImportFail
 
 
@@ -126,6 +127,7 @@ class PreviewTestCase(base.TestCase):
         return self._html(), self._logText()
 
 class Test(PreviewTestCase):
+    '''
     def test_html(self):
         self._doBasicTest('html')
 
@@ -173,7 +175,6 @@ class Test(PreviewTestCase):
 
     # Cases for literate programming setting ui
     ##-----------------------------------------
-    #
     @requiresModule('CodeChat')
     def test_uiCheck1(self):
         """When Enki runs for the first time, the CodeChat module should be
@@ -385,7 +386,7 @@ content"""
         self._doBasicTest('py')
         self.assertEqual(self._plainText(), self.testText)
 
-#    @base.requiresCmdlineUtility('sphinx-build --version')
+    @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
     def test_uiCheck6a(self):
         """Empty code file produces a Sphinx failure since file in toctree should
@@ -598,6 +599,57 @@ head
         base.waitForSignal(lambda: None, self._widget().webView.page().mainFrame().loadFinished, 200)
         self.assertEqual(self._widget().prgStatus.styleSheet(), 'QProgressBar::chunk {}')
         self.assertEqual(self._logText(), '')
+        
+'''
+    # Cases testing commonprefix
+    ##--------------------------
+    # Basic checks
+    def test_commonPrefix1(self):
+        self.assertEqual(commonPrefix('a', 'a'), 'a')
+
+    def test_commonPrefix2(self):
+        self.assertEqual(commonPrefix('a', 'b'), '')
+
+    def test_commonPrefix3(self):
+        self.assertEqual(commonPrefix('', 'a'), '')
+
+    def test_commonPrefix4(self):
+        self.assertEqual(commonPrefix('', 'a'), '')
+
+    # Test using various path separators.
+    def test_commonPrefix5(self):
+        self.assertEqual(commonPrefix('a\\b', 'a\\b'), 'a\\b')
+
+    def test_commonPrefix6(self):
+        self.assertEqual(commonPrefix('a/b', 'a/b'), 'a/b')
+
+    def test_commonPrefix7(self):
+        self.assertEqual(commonPrefix('a/b', 'a\\b'), 'a\\b')
+        
+    # Check for the bug in os.path.commonprefix.
+    def test_commonPrefix8(self):
+        self.assertEqual(commonPrefix('a\\bc', 'a\\b'), 'a')
+        
+    # Test for relative paths.
+    def test_commonPrefix9(self):
+        self.assertEqual(commonPrefix('a\\b\\..', 'a\\b'), 'a')
+
+    def test_commonPrefix10(self):
+        self.assertEqual(commonPrefix('a\\.\\b', 'a\\b'), 'a\\b')
+
+    def test_commonPrefix11(self):
+        # Get the name of the current directory
+        d = os.path.basename(os.getcwd())
+        self.assertEqual(commonPrefix('..\\d\\a\\b', 'a\\b'), 'a\\b')
+        
+    # Test for paths with spaces
+    def test_commonPrefix12(self):
+        self.assertEqual(commonPrefix('a a\\b b\\c c', 'a a\\b b'), 'a a\\b b')
+
+
+
+
+    
 
 # Main
 # ====
