@@ -230,7 +230,7 @@ class Plugin(QObject):
         # in order to preview it, correct? I.e. this condition should be
         # in the last if statement:
         # ``if core.config()['Sphinx']['Enabled'] and document.filePath()``?
-        if document is None or document.filePath() is None:
+        if document is None:
             return False
 
         if document.qutepart.language() in ('Markdown', 'Restructured Text') or \
@@ -239,7 +239,8 @@ class Plugin(QObject):
 
         # CodeChat can preview a file if it's enabled and if that file's
         # extension is supported.
-        if CodeChat is not None and core.config()['CodeChat']['Enabled'] is True:
+        if (CodeChat is not None and core.config()['CodeChat']['Enabled']
+                                 and document.filePath()):
             lso = LSO.LanguageSpecificOptions()
             fileExtension = os.path.splitext(document.filePath())[1]
             if fileExtension in lso.extension_to_options.keys():
@@ -250,7 +251,7 @@ class Plugin(QObject):
         # perhaps Sphinx hasn't been run or the output files were removed, but
         # a run of Sphinx will generate them. Or perhaps Sphinx won't process
         # this file (it's excluded, wrong extension, etc.)
-        if core.config()['Sphinx']['Enabled'] is True:
+        if core.config()['Sphinx']['Enabled'] and document.filePath():
             return True
 
         return False
@@ -330,3 +331,5 @@ class Plugin(QObject):
         dialog.appendOption(TextOption(dialog, core.config(),
                                        "Sphinx/Cmdline",
                                        widget.leSphinxCmdline))
+        # TODO: Emit a signal from here to the preview class. Force preview
+        # window to refresh on setting change.

@@ -545,7 +545,8 @@ class PreviewDock(DockWidget):
 
     def _sphinxEnabledForFile(self, filePath):
         sphinxProjectPath = os.path.abspath(core.config()['Sphinx']['ProjectPath'])
-        return core.config()['Sphinx']['Enabled'] and \
+        return filePath and \
+               core.config()['Sphinx']['Enabled'] and \
                os.path.exists(core.config()['Sphinx']['ProjectPath']) and\
                sphinxProjectPath == commonPrefix(filePath, sphinxProjectPath)
 
