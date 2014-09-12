@@ -127,7 +127,6 @@ class PreviewTestCase(base.TestCase):
         return self._html(), self._logText()
 
 class Test(PreviewTestCase):
-    '''
     def test_html(self):
         self._doBasicTest('html')
 
@@ -599,57 +598,57 @@ head
         base.waitForSignal(lambda: None, self._widget().webView.page().mainFrame().loadFinished, 200)
         self.assertEqual(self._widget().prgStatus.styleSheet(), 'QProgressBar::chunk {}')
         self.assertEqual(self._logText(), '')
-        
-'''
+
+
     # Cases testing commonprefix
     ##--------------------------
     # Basic checks
     def test_commonPrefix1(self):
-        self.assertEqual(commonPrefix('a', 'a'), 'a')
+        self.assertEqual(commonPrefix('a', 'a'), os.path.abspath('a'))
 
     def test_commonPrefix2(self):
-        self.assertEqual(commonPrefix('a', 'b'), '')
+        self.assertEqual(commonPrefix('a', 'b'), os.path.abspath(''))
 
     def test_commonPrefix3(self):
-        self.assertEqual(commonPrefix('', 'a'), '')
+        self.assertEqual(commonPrefix('', 'a'), os.path.abspath(''))
 
     def test_commonPrefix4(self):
-        self.assertEqual(commonPrefix('', 'a'), '')
+        self.assertEqual(commonPrefix('', 'a'), os.path.abspath(''))
 
     # Test using various path separators.
     def test_commonPrefix5(self):
-        self.assertEqual(commonPrefix('a\\b', 'a\\b'), 'a\\b')
+        self.assertEqual(commonPrefix('a\\b', 'a\\b'), os.path.abspath('a\\b'))
 
     def test_commonPrefix6(self):
-        self.assertEqual(commonPrefix('a/b', 'a/b'), 'a/b')
+        self.assertEqual(commonPrefix('a/b', 'a/b'), os.path.abspath('a/b'))
 
     def test_commonPrefix7(self):
-        self.assertEqual(commonPrefix('a/b', 'a\\b'), 'a\\b')
-        
+        self.assertEqual(commonPrefix('a/b', 'a\\b'), os.path.abspath('a\\b'))
+
     # Check for the bug in os.path.commonprefix.
     def test_commonPrefix8(self):
-        self.assertEqual(commonPrefix('a\\bc', 'a\\b'), 'a')
-        
+        self.assertEqual(commonPrefix('a\\bc', 'a\\b'), os.path.abspath('a'))
+
     # Test for relative paths.
     def test_commonPrefix9(self):
-        self.assertEqual(commonPrefix('a\\b\\..', 'a\\b'), 'a')
+        self.assertEqual(commonPrefix('a\\b\\..', 'a\\b'), os.path.abspath('a'))
 
     def test_commonPrefix10(self):
-        self.assertEqual(commonPrefix('a\\.\\b', 'a\\b'), 'a\\b')
+        self.assertEqual(commonPrefix('a\\.\\b', 'a\\b'), os.path.abspath('a\\b'))
 
     def test_commonPrefix11(self):
         # Get the name of the current directory
         d = os.path.basename(os.getcwd())
-        self.assertEqual(commonPrefix('..\\d\\a\\b', 'a\\b'), 'a\\b')
-        
+        self.assertEqual(commonPrefix('..\\' + d + '\\a\\b', 'a\\b'), os.path.abspath('a\\b'))
+
     # Test for paths with spaces
     def test_commonPrefix12(self):
-        self.assertEqual(commonPrefix('a a\\b b\\c c', 'a a\\b b'), 'a a\\b b')
+        self.assertEqual(commonPrefix('a a\\b b\\c c', 'a a\\b b'), os.path.abspath('a a\\b b'))
 
 
 
 
-    
+
 
 # Main
 # ====
