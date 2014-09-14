@@ -70,6 +70,16 @@ def commonPrefix(dir1, dir2):
     return os.path.sep.join(component)
 
 
+def sphinxEnabledForFile(filePath):
+    """Based on sphinx settings under core.config()['Sphinx'], this function
+    determines whether sphinx can be applied to *filePath*
+    """
+    sphinxProjectPath = os.path.abspath(core.config()['Sphinx']['ProjectPath'])
+    return ( filePath and
+           core.config()['Sphinx']['Enabled'] and
+           os.path.exists(core.config()['Sphinx']['ProjectPath']) and
+           sphinxProjectPath == commonPrefix(filePath, sphinxProjectPath))
+
 
 class ConverterThread(QThread):
     """Thread converts markdown to HTML.
@@ -109,21 +119,6 @@ class ConverterThread(QThread):
         # and Enki settings enable codechat (config()['CodeChat']['Enabled'] is true).
         return core.config()['CodeChat']['Enabled'] and LSO and CodeToRest
 
-    # .. note::
-    #    Pan: this is very similar to _SphinxEnabledForFile. I that that implementation
-    #    a bit better, since it checks to make sure the project path actually exists.
-    #    Would you remove this function, then make _SphinxEnabledForFile a function
-    #    instead of a class method, using that instead?
-    def _canUseSphinx(self, filePath=None):
-        # Sphinx config can be altered during program execution, thus its
-        # configuration must be kept synced with latest settings.
-        self._updateSphinxConfig()
-        # Sphinx is available for the current file when:
-        # Sphinx is enabled by Enki [config()['sphinx']['Enabled']] and
-        # the file to be rendered is in the htmlBuilderRootPath directory.
-        return (core.config()['Sphinx']['Enabled'] and
-          self.htmlBuilderRootPath == commonPrefix(self.htmlBuilderRootPath, filePath))
-
     def _updateSphinxConfig(self):
         # Executable to run the HTML builder.
         self.htmlBuilderExecutable = core.config()['Sphinx']['Executable']
@@ -139,11 +134,11 @@ class ConverterThread(QThread):
             # For available builder options, refer to: http://sphinx-doc.org/builders.html
             self.htmlBuilderCommandLine = (self.htmlBuilderExecutable +
               # Place doctrees in the ``_build`` directory; by default, Sphinx places this in _build/html/.doctrees.
-              u' -d _build/doctrees ' +
+              u' -d _build/doctrees "' +
               # Source directory
-              self.htmlBuilderRootPath + ' ' +
+              self.htmlBuilderRootPath + '" "' +
               # Build directory
-              self.htmlBuilderOutputPath)
+              self.htmlBuilderOutputPath + '"')
 
     def _getHtml(self, language, text, filePath):
         """Get HTML for document
@@ -159,15 +154,16 @@ class ConverterThread(QThread):
         #
         # One method: use _getHtml(self, task) and place all these extra vars
         # in task.
+        self._updateSphinxConfig()
         if language == 'Markdown':
             return self._convertMarkdown(text), None, QUrl()
         # For ReST, use docutils only if Sphinx isn't available.
-        elif language == 'Restructured Text' and not self._canUseSphinx(filePath):
+        elif language == 'Restructured Text' and not sphinxEnabledForFile(filePath):
             htmlUnicode, errString = self._convertReST(text)
             return htmlUnicode, errString, QUrl()
         elif filePath:
             # Use Sphinx to generate the HTML if possible.
-            if self._canUseSphinx(filePath):
+            if sphinxEnabledForFile(filePath):
                 # Run the builder.
                 errString = self._runHtmlBuilder()
 
@@ -186,7 +182,7 @@ class ConverterThread(QThread):
                 elif os.path.exists(htmlFileAlter):
                     return u'', errString, QUrl.fromLocalFile(htmlFileAlter)
                 else:
-                    return ('No preview for this type of file in ' + htmlFile +
+                    return ('No preview for this type of file.<br>Expect ' + htmlFile +
                             " or " + htmlFileAlter, None, QUrl())
 
             # Otherwise, fall back to using CodeChat+docutils.
@@ -543,13 +539,6 @@ class PreviewDock(DockWidget):
         core.config().flush()
         self._scheduleDocumentProcessing()
 
-    def _sphinxEnabledForFile(self, filePath):
-        sphinxProjectPath = os.path.abspath(core.config()['Sphinx']['ProjectPath'])
-        return filePath and \
-               core.config()['Sphinx']['Enabled'] and \
-               os.path.exists(core.config()['Sphinx']['ProjectPath']) and\
-               sphinxProjectPath == commonPrefix(filePath, sphinxProjectPath)
-
     # .. note::
     #    Pan: this seems a bit broken. I think the self.typingTimer is already calling
     #    _scheduleDocumentProcessing a fixed delay after the last keypress. Why not
@@ -561,8 +550,8 @@ class PreviewDock(DockWidget):
         # Once checked, build on save will force enki to only build on saving
         # actions. Text change will not trigger a rebuild.
         if core.config()['Preview']['Enabled']:
-            if not (self._sphinxEnabledForFile(document.filePath()) and
-            core.config()['Sphinx']['BuildOnSave']):
+            if not (sphinxEnabledForFile(document.filePath()) and
+                    core.config()['Sphinx']['BuildOnSave']):
                 self._scheduleDocumentProcessing()
 
     def show(self):
@@ -582,7 +571,7 @@ class PreviewDock(DockWidget):
             #    Pan: I think this is a bit clearer, code-wise. Another option
             #    would be to rename the function to _copySphinxProjectTemplateIfNeeded
             #    or something like that.
-            if self._sphinxEnabledForFile(document.filePath()):
+            if sphinxEnabledForFile(document.filePath()):
                 self._copySphinxProjectTemplate(document.filePath())
             qp = document.qutepart
             language = qp.language()
@@ -608,7 +597,7 @@ class PreviewDock(DockWidget):
                 # whitespace is not stripped when autosaving. When saving actions
                 # are invoked manually, trailing whitespace will be stripped if
                 # enabled.
-                if qp.document().isModified() and self._sphinxEnabledForFile(document.filePath()):
+                if qp.document().isModified() and sphinxEnabledForFile(document.filePath()):
                     core.config()["Qutepart"]["StripTrailingWhitespace"] = False
                     # TODO: Notice: Here core config has not been flushed.
                     document.saveFile()
