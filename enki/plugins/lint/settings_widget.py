@@ -16,7 +16,7 @@ def _getPylintVersion(path):
     Raise OSError if not found
           ValueError if failed to parse
     """
-    stdout, stderr = get_console_output(path, ['--version'])
+    stdout = get_console_output([path, '--version'])[0]
     try:
         versionLine = [line \
                             for line in stdout.splitlines() \
