@@ -102,9 +102,10 @@ class PreviewTestCase(base.TestCase):
         core.config()['Sphinx']['Enabled'] = True
         core.config()['Sphinx']['Executable'] = r'sphinx-build'
         core.config()['Sphinx']['ProjectPath'] = self.TEST_FILE_DIR
-        core.config()['Sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build/html')
+        core.config()['Sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build', 'html')
         core.config()['Sphinx']['OutputExtension'] = r'html'
-        core.config()['Sphinx']['Cmdline'] = r'sphinx-build -d _build/doctrees . _build/html'
+        core.config()['Sphinx']['Cmdline'] = r'sphinx-build -d ' + os.path.join('_build', 'doctrees') \
+                                             + ' . ' + os.path.join('_build', 'html')
 
     def _doBasicSphinxTest(self, extension):
         """This function will build a basic Sphinx project in the temporary
@@ -644,11 +645,6 @@ head
     # Test for paths with spaces
     def test_commonPrefix12(self):
         self.assertEqual(commonPrefix('a a\\b b\\c c', 'a a\\b b'), os.path.abspath('a a\\b b'))
-
-
-
-
-
 
 # Main
 # ====
