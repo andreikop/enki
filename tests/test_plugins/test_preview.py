@@ -104,8 +104,7 @@ class PreviewTestCase(base.TestCase):
         core.config()['Sphinx']['ProjectPath'] = self.TEST_FILE_DIR
         core.config()['Sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build', 'html')
         core.config()['Sphinx']['OutputExtension'] = r'html'
-        core.config()['Sphinx']['Cmdline'] = r'sphinx-build -d ' + os.path.join('_build', 'doctrees') \
-                                             + ' . ' + os.path.join('_build', 'html')
+        core.config()['Sphinx']['AdvancedMode'] = False
 
     def _doBasicSphinxTest(self, extension):
         """This function will build a basic Sphinx project in the temporary
@@ -600,6 +599,81 @@ head
         self.assertEqual(self._widget().prgStatus.styleSheet(), 'QProgressBar::chunk {}')
         self.assertEqual(self._logText(), '')
 
+    @base.requiresCmdlineUtility('sphinx-build --version')
+    @base.inMainLoop
+    @requiresModule('CodeChat')
+    def test_uiCheck18(self):
+        """Check Advance Mode. In this case Advanced Mode does not have
+        space in its path.
+        """
+        core.config()['CodeChat']['Enabled'] = True
+        self._doBasicSphinxConfig()
+        core.config()['Sphinx']['AdvancedMode'] = True
+        core.config()['Sphinx']['Cmdline'] = r'sphinx-build -d ' + os.path.join('_build', 'doctrees') \
+                                             + ' . ' + os.path.join('_build', 'html')
+
+        self.testText = u"""# ****
+# head
+# ****
+#
+# content"""
+        webViewContent, logContent = self._doBasicSphinxTest('py')
+        self.assertTrue(u'<p>content</p>' in webViewContent)
+        self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
+
+    @base.requiresCmdlineUtility('sphinx-build --version')
+    @base.inMainLoop
+    @requiresModule('CodeChat')
+    def test_uiCheck19(self):
+        """Check space in path name. Advanced mode is not enabled.
+        """
+        core.config()['CodeChat']['Enabled'] = True
+        testFileDir = self.TEST_FILE_DIR
+        self.TEST_FILE_DIR = os.path.join(self.TEST_FILE_DIR, 'a b')
+        if not os.path.exists(self.TEST_FILE_DIR):
+            os.makedirs(self.TEST_FILE_DIR)
+        self._doBasicSphinxConfig()
+
+        self.testText = u"""# ****
+# head
+# ****
+#
+# content"""
+        try:
+            webViewContent, logContent = self._doBasicSphinxTest('py')
+        finally:
+            self.TEST_FILE_DIR = testFileDir
+        self.assertTrue(u'<p>content</p>' in webViewContent)
+        self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
+
+    @base.requiresCmdlineUtility('sphinx-build --version')
+    @base.inMainLoop
+    @requiresModule('CodeChat')
+    def test_uiCheck19a(self):
+        """Check space in path name. Advanced mode is enabled.
+        """
+        core.config()['CodeChat']['Enabled'] = True
+        testFileDir = self.TEST_FILE_DIR
+        self.TEST_FILE_DIR = os.path.join(self.TEST_FILE_DIR, 'a b')
+        if not os.path.exists(self.TEST_FILE_DIR):
+            os.makedirs(self.TEST_FILE_DIR)
+        self._doBasicSphinxConfig()
+        core.config()['Sphinx']['AdvancedMode'] = True
+        core.config()['Sphinx']['Cmdline'] = r'sphinx-build -d ' + os.path.join('_build', 'doctrees') \
+                                             + ' "' + self.TEST_FILE_DIR \
+                                             + '" ' + os.path.join('_build', 'html')
+
+        self.testText = u"""# ****
+# head
+# ****
+#
+# content"""
+        try:
+            webViewContent, logContent = self._doBasicSphinxTest('py')
+        finally:
+            self.TEST_FILE_DIR = testFileDir
+        self.assertTrue(u'<p>content</p>' in webViewContent)
+        self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     # Cases testing commonprefix
     ##--------------------------
