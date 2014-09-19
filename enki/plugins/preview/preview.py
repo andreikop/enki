@@ -60,8 +60,8 @@ def commonPrefix(dir1, dir2):
     # Use normpath to guarantee that os.path.sep is the only separator;
     # otherwise, there could be both / and \.
     component = []
-    dir1List = os.path.abspath(os.path.realpath(dir1)).split(os.path.sep)
-    dir2List = os.path.abspath(os.path.realpath(dir2)).split(os.path.sep)
+    dir1List = os.path.abspath(os.path.realpath(os.path.normcase(dir1))).split(os.path.sep)
+    dir2List = os.path.abspath(os.path.realpath(os.path.normcase(dir2))).split(os.path.sep)
     minList = min(len(dir1List), len(dir2List))
     for i in range(minList):
         s = set([dir1List[i], dir2List[i]])
