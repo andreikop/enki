@@ -111,7 +111,7 @@ class SettingsWidget(QWidget):
             #    if the path was absolute (and therefore presumabely wrong). If
             #    it's a relative path such as ``_build\html``, then it's probably
             #    OK without changing. Would you add tests/code for this?
-            self.leSphinxOutputPath.setText(os.path.join(path, '_build\\html'))
+            self.leSphinxOutputPath.setText(os.path.join(path, '_build', 'html'))
 
     def _onPbSphinxOutputPathClicked(self):
         """Proivde a directory chooser for the user to select an output path.
@@ -196,10 +196,11 @@ class Plugin(QObject):
             core.config()['Sphinx']['Executable'] = u'sphinx-build'
             core.config()['Sphinx']['ProjectPath'] = u''
             core.config()['Sphinx']['BuildOnSave'] = False
-            core.config()['Sphinx']['OutputPath'] = u'_build/html'
+            core.config()['Sphinx']['OutputPath'] = os.path.join('_build', 'html')
             core.config()['Sphinx']['OutputExtension'] = u'html'
             core.config()['Sphinx']['AdvancedMode'] = False
-            core.config()['Sphinx']['Cmdline'] = u'sphinx-build -d _build/doctrees  project_path _build/html'
+            core.config()['Sphinx']['Cmdline'] = u'sphinx-build -d ' + os.path.join('_build','doctrees')  \
+                                                 + ' . ' + os.path.join('_build','html')
             core.config().flush()
 
     def del_(self):

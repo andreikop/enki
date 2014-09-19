@@ -29,7 +29,8 @@ from PyQt4 import uic
 from enki.core.core import core
 from enki.widgets.dockwidget import DockWidget
 from enki.plugins.preview import isHtmlFile
-from .preview_sync import PreviewSync
+from preview_sync import PreviewSync
+from enki.lib.get_console_output import get_console_output
 
 # Likewise, attempt importing CodeChat; failing that, disable the CodeChat feature.
 try:
@@ -132,28 +133,17 @@ class ConverterThread(QThread):
             self.htmlBuilderCommandLine = core.config()['Sphinx']['Cmdline']
         else:
             # For available builder options, refer to: http://sphinx-doc.org/builders.html
-            self.htmlBuilderCommandLine = (self.htmlBuilderExecutable +
+            self.htmlBuilderCommandLine = [self.htmlBuilderExecutable,
               # Place doctrees in the ``_build`` directory; by default, Sphinx places this in _build/html/.doctrees.
-              u' -d _build/doctrees "' +
+              '-d', os.path.join('_build','doctrees'),
               # Source directory
-              self.htmlBuilderRootPath + '" "' +
+              self.htmlBuilderRootPath,
               # Build directory
-              self.htmlBuilderOutputPath + '"')
+              self.htmlBuilderOutputPath]
 
     def _getHtml(self, language, text, filePath):
         """Get HTML for document
         """
-        # TODO: Pan: Calling core.config() in a non-GUI thread produces crashes. So,
-        # would you move all calls to core.config() to the scheduleDocumentProcessing
-        # method in the GUI thread? In particular, it looks like this code needs
-        # the following values computed in the GUI thread then passed to it:
-        #
-        # - canUseSphinx, canUseCodeChat
-        # - htmlFile, htmlFileAlter
-        # - htmlBuilderCommandLine, htmlBuilderRootPath
-        #
-        # One method: use _getHtml(self, task) and place all these extra vars
-        # in task.
         self._updateSphinxConfig()
         if language == 'Markdown':
             return self._convertMarkdown(text), None, QUrl()
@@ -274,35 +264,14 @@ class ConverterThread(QThread):
     # .. note::
     #    Pan: would you factor these changes back into enki.lib.get_console_output?
     def _runHtmlBuilder(self):
-        if hasattr(subprocess, 'STARTUPINFO'):  # windows only
-            # On Windows, subprocess will pop up a command window by default when run from
-            # Pyinstaller with the --noconsole option. Avoid this distraction.
-            si = subprocess.STARTUPINFO()
-            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            # Windows doesn't search the path by default. Pass it an environment so it will.
-            env = os.environ
-        else:
-            si = None
-            env = None
-
         try:
-            # On Windows, running this from the binary produced by Pyinstller
-            # with the ``--noconsole`` option requires redirecting everything
-            # (stdin, stdout, stderr) to avoid a OSError exception
-            # "[Error 6] the handle is invalid."
-            popen = subprocess.Popen(self.htmlBuilderCommandLine,
-                      cwd=self.htmlBuilderRootPath,
-                      stdin=subprocess.PIPE,
-                      stderr=subprocess.PIPE,
-                      stdout=subprocess.PIPE,
-                      startupinfo=si, env=env)
+            stdout, stderr = get_console_output(self.htmlBuilderCommandLine)
         except Exception as ex:
             return '<pre><font color=red>Failed to execute HTML builder' + \
                    'console utility "{}":\n{}</font>\n'\
                    .format(self.htmlBuilderCommandLine, str(ex)) + \
                    '\nGo to Settings -> Settings -> CodeChat to set HTML builder configurations.'
 
-        stdout, stderr = popen.communicate()
         return stdout + '</pre><br><pre><font color=red>' + stderr + '</font>'
 
     def run(self):
@@ -622,13 +591,13 @@ class PreviewDock(DockWidget):
         #    Pan: This is repetitive code. DRY! (Don't Repeat Yourself). Make
         #    a helper function for each copy, then call that 3 times.
         if not os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'default.css')):
-            cssPath = os.path.join(codeChatPath, 'template/default.css')
+            cssPath = os.path.join(codeChatPath, 'template', 'default.css')
             try:
                 shutil.copy(cssPath, core.config()['Sphinx']['ProjectPath'])
             except Exception as why:
                 errors.append((cssPath, core.config()['Sphinx']['ProjectPath'], str(why)))
         if not os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'index.rst')):
-            indexPath = os.path.join(codeChatPath, 'template/index.rst')
+            indexPath = os.path.join(codeChatPath, 'template', 'index.rst')
             try:
                 shutil.copy(indexPath, core.config()['Sphinx']['ProjectPath'])
             except Exception as why:
@@ -638,11 +607,11 @@ class PreviewDock(DockWidget):
             try:
                 if core.config()['CodeChat']['Enabled']:
                     # If CodeChat is also enabled, enable this in conf.py too.
-                    confPath = os.path.join(codeChatPath, 'template/conf_codechat.py')
+                    confPath = os.path.join(codeChatPath, 'template', 'conf_codechat.py')
                     shutil.copy(confPath, os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py'))
                 else:
                     # else simple copy the default conf.py to sphinx target directory
-                    confPath = os.path.join(codeChatPath, 'template/conf.py')
+                    confPath = os.path.join(codeChatPath, 'template', 'conf.py')
                     shutil.copy(confPath, core.config()['Sphinx']['ProjectPath'])
             except IOError as why:
                 errors.append((confPath, core.config()['Sphinx']['ProjectPath'], str(why)))
