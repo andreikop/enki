@@ -720,6 +720,10 @@ head
     def test_commonPrefix12(self):
         self.assertEqual(commonPrefix('a a\\b b\\c c', 'a a\\b b'), os.path.abspath('a a\\b b'))
 
+    # Test for paths with different cases (Windows only)
+    @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
+    def test_commonPrefix13(self):
+        self.assertEqual(commonPrefix('aa\\bb', 'Aa\\bB'), os.path.abspath('aa\\bb'))
 # Main
 # ====
 # Run the unit tests in this file.
