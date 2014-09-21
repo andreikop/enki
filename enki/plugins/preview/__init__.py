@@ -100,7 +100,7 @@ class SettingsWidget(QWidget):
     def _onPbSphinxProjectPathClicked(self):
         """Provide a directory chooser for the user to select a project path.
         """
-        path = QFileDialog.getExistingDirectory(core.mainWindow(), 'Project path')
+        path = os.path.normcase(QFileDialog.getExistingDirectory(core.mainWindow(), 'Project path'))
         if path:
             self.leSphinxProjectPath.setText(path)
             # Automatically set the builder output path to '_build\\html' under
@@ -116,7 +116,7 @@ class SettingsWidget(QWidget):
     def _onPbSphinxOutputPathClicked(self):
         """Proivde a directory chooser for the user to select an output path.
         """
-        path = QFileDialog.getExistingDirectory(core.mainWindow(), 'Output path')
+        path = os.path.normcase(QFileDialog.getExistingDirectory(core.mainWindow(), 'Output path'))
         if path:
             self.leSphinxOutputPath.setText(path)
 
