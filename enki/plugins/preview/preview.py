@@ -119,7 +119,7 @@ def sphinxEnabledForFile(filePath):
     return ( filePath and
            core.config()['Sphinx']['Enabled'] and
            os.path.exists(core.config()['Sphinx']['ProjectPath']) and
-           sphinxProjectPath == commonPrefix(filePath, sphinxProjectPath))
+           os.path.normcase(sphinxProjectPath) == commonPrefix(filePath, sphinxProjectPath))
 
 
 class ConverterThread(QThread):
@@ -546,20 +546,12 @@ class PreviewDock(DockWidget):
         core.config().flush()
         self._scheduleDocumentProcessing()
 
-    # .. note::
-    #    TODO: Pan: this seems a bit broken. I think the self.typingTimer is already calling
-    #    _scheduleDocumentProcessing a fixed delay after the last keypress. Why not
-    #    simply include this code in _scheduleDocumentProcessing instead?
     def _onTextChanged(self, document):
-        # TODO: This 'document' parameter is never used.
         """Text changed, update preview
         """
-        # Once checked, build on save will force enki to only build on saving
-        # actions. Text change will not trigger a rebuild.
         if core.config()['Preview']['Enabled']:
-            if not (sphinxEnabledForFile(document.filePath()) and
-                    core.config()['Sphinx']['BuildOnSave']):
-                self._scheduleDocumentProcessing()
+            self._typingTimer.stop()
+            self._typingTimer.start()
 
     def show(self):
         """When shown, update document, if possible.
@@ -592,26 +584,26 @@ class PreviewDock(DockWidget):
                 return
             elif language == 'Restructured Text':
                 pass
-            else:
-                # .. note::
-                #    TODO: Pan -- this should save the old value of StripTrailingWhitespace,
-                #    save the file, then restore it. Otherwise, StripTrailingWhitespace
-                #    will be turned on? (I think -- the config isn't flushed, but
-                #    even if not, this is suspicious coding that will probably
-                #    fail later).
-                #
+            # TODO: need documentation. Graphviz preferred.
+            if ( not core.config()['Sphinx']['Enabled'] or
+                 not sphinxEnabledForFile(document.filePath()) or
+                 sphinxEnabledForFile(document.filePath()) and not qp.document().isModified() ):
+                self._setHtmlProgress(-1)
+                # for rest language is already correct
+                self._thread.process(document.filePath(), language, text)
+            elif (sphinxEnabledForFile(document.filePath()) and qp.document().isModified()
+                  and not core.config()['Sphinx']['BuildOnSave']):
                 # Only save when Sphinx is enabled for current document. Trailing
                 # whitespace is not stripped when autosaving. When saving actions
                 # are invoked manually, trailing whitespace will be stripped if
                 # enabled.
-                if qp.document().isModified() and sphinxEnabledForFile(document.filePath()):
-                    core.config()["Qutepart"]["StripTrailingWhitespace"] = False
-                    # TODO: Notice: Here core config has not been flushed.
-                    document.saveFile()
-                    core.config()["Qutepart"]["StripTrailingWhitespace"] = True
-            self._setHtmlProgress(-1)
-            # for rest language is already correct
-            self._thread.process(document.filePath(), language, text)
+                whitespaceSetting = core.config()["Qutepart"]["StripTrailingWhitespace"]
+                core.config()["Qutepart"]["StripTrailingWhitespace"] = False
+                document.saveFile()
+                core.config()["Qutepart"]["StripTrailingWhitespace"] = whitespaceSetting
+                self._setHtmlProgress(-1)
+                # for rest language is already correct
+                self._thread.process(document.filePath(), language, text)
 
     def _copySphinxProjectTemplate(self, documentFilePath):
         """Add conf.py, default.css and index.rst (if ther're missing)
