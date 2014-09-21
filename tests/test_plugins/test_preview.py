@@ -679,51 +679,77 @@ head
     ##--------------------------
     # Basic checks
     def test_commonPrefix1(self):
-        self.assertEqual(commonPrefix('a', 'a'), os.path.abspath('a'))
+        self.assertEqual(commonPrefix('a', 'a'), 'a')
 
     def test_commonPrefix2(self):
-        self.assertEqual(commonPrefix('a', 'b'), os.path.abspath(''))
+        self.assertEqual(commonPrefix('a', 'b'), '')
 
     def test_commonPrefix3(self):
-        self.assertEqual(commonPrefix('', 'a'), os.path.abspath(''))
-
-    def test_commonPrefix4(self):
-        self.assertEqual(commonPrefix('', 'a'), os.path.abspath(''))
+        self.assertEqual(commonPrefix('', 'a'), '')
 
     # Test using various path separators.
+    # TODO: this case does not work on linux
     def test_commonPrefix5(self):
-        self.assertEqual(commonPrefix('a\\b', 'a\\b'), os.path.abspath('a\\b'))
+        self.assertEqual(commonPrefix('a\\b', 'a\\b'), os.path.join('a','b'))
 
     def test_commonPrefix6(self):
-        self.assertEqual(commonPrefix('a/b', 'a/b'), os.path.abspath('a/b'))
+        self.assertEqual(commonPrefix('a/b', 'a/b'), os.path.join('a','b'))
 
     def test_commonPrefix7(self):
-        self.assertEqual(commonPrefix('a/b', 'a\\b'), os.path.abspath('a\\b'))
+        # TODO: this case does not work on linux
+        self.assertEqual(commonPrefix('a/b', 'a\\b'), os.path.join('a','b'))
 
     # Check for the bug in os.path.commonprefix.
     def test_commonPrefix8(self):
-        self.assertEqual(commonPrefix('a\\bc', 'a\\b'), os.path.abspath('a'))
+        self.assertEqual(commonPrefix('a\\bc', 'a\\b'), 'a')
 
     # Test for relative paths.
     def test_commonPrefix9(self):
-        self.assertEqual(commonPrefix('a\\b\\..', 'a\\b'), os.path.abspath('a'))
+        # TODO: this case does not work on linux
+        self.assertEqual(commonPrefix('a\\b\\..', 'a\\b'), 'a')
+
+    def test_commonPrefix9a(self):
+        self.assertEqual(commonPrefix('a/b/..', 'a/b'), 'a')
 
     def test_commonPrefix10(self):
-        self.assertEqual(commonPrefix('a\\.\\b', 'a\\b'), os.path.abspath('a\\b'))
+        # TODO: this case does not work on linux
+        self.assertEqual(commonPrefix('a\\.\\b', 'a\\b'), os.path.join('a','b'))
+
+    def test_commonPrefix10a(self):
+        self.assertEqual(commonPrefix('a/./b', 'a/b'), os.path.join('a','b'))
 
     def test_commonPrefix11(self):
         # Get the name of the current directory
+        # TODO: this case does not work on linux (Is this test case testing unnecessary '..'?
+        # '..' + d + '/a/b' is not a valid path on linux)
         d = os.path.basename(os.getcwd())
-        self.assertEqual(commonPrefix('..\\' + d + '\\a\\b', 'a\\b'), os.path.abspath('a\\b'))
+        self.assertEqual(commonPrefix('..\\' + d + '\\a\\b', 'a\\b'), os.path.join('a','b'))
+
+    def test_commonPrefix11a(self):
+        # if any input directory is abs path, return abs commonprefix
+        d1 = os.path.join(os.getcwd(), 'a1')
+        self.assertEqual(commonPrefix(d1, 'a2'), os.path.normcase(os.getcwd()))
 
     # Test for paths with spaces
     def test_commonPrefix12(self):
-        self.assertEqual(commonPrefix('a a\\b b\\c c', 'a a\\b b'), os.path.abspath('a a\\b b'))
+        self.assertEqual(commonPrefix('a a\\b b\\c c', 'a a\\b b'), os.path.join('a a','b b'))
 
     # Test for paths with different cases (Windows only)
     @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
     def test_commonPrefix13(self):
-        self.assertEqual(commonPrefix('aa\\bb', 'Aa\\bB'), os.path.abspath('aa\\bb'))
+        self.assertEqual(commonPrefix('aa\\bb', 'Aa\\bB'), os.path.join('aa','bb'))
+
+    def test_commonPrefix14(self):
+        # Empty input list should generate empty result
+        self.assertEqual(commonPrefix(), '')
+
+    def test_commonPrefix15(self):
+        # if current working directory is 'a/b', for ".." and "", what part is
+        # the commonprefix? It should be an absolute path "a"
+        self.assertEqual(commonPrefix('..', ''), os.path.normcase(os.path.dirname(os.getcwd())))
+
+    # TODO: need symbolic link test case.
+
 # Main
 # ====
 # Run the unit tests in this file.
