@@ -48,27 +48,71 @@ else:
 #    Pan: This fails several of the unit tests I wrote for it. Would you try out the
 #    other option at the website below instead? If that works, then write good
 #    docs explaining why.
-def commonPrefix(dir1, dir2):
-    """This function provides a platform-independent path commonPrefix. See `this
-    post <http://stackoverflow.com/questions/21498939/how-to-circumvent-the-fallacy-of-pythons-os-path-commonprefix>`_
+def commonPrefix(*dirs):
+    """This function provides a platform-independent path commonPrefix. It
+    returns the common path between all directories in input list dirs, assuming
+    that any relative paths are rooted in the current directory. See `this post
+    <http://stackoverflow.com/questions/21498939/how-to-circumvent-the-fallacy-of-pythons-os-path-commonprefix>`_
     for more details.
 
-    Parameters: dir1, dir2 - Two paths to compare.
-    Return value: the common path prefix shared by dir1 and dir2.
+    Parameters: dirs - Directory list.
+    Return value: the common path prefix shared by all input directories.
     """
-    # Split the two paths into components composed of subdirectories.
-    # Use normpath to guarantee that os.path.sep is the only separator;
-    # otherwise, there could be both / and \.
-    component = []
-    dir1List = os.path.abspath(os.path.realpath(os.path.normcase(dir1))).split(os.path.sep)
-    dir2List = os.path.abspath(os.path.realpath(os.path.normcase(dir2))).split(os.path.sep)
-    minList = min(len(dir1List), len(dir2List))
-    for i in range(minList):
-        s = set([dir1List[i], dir2List[i]])
-        if len(s) != 1:
-            break
-        component.append(s.pop())
-    return os.path.sep.join(component)
+    # corner case (empty input list)
+    if not dirs:
+        return ''
+    # Path cleaning toolset:
+    #
+    # - **realpath** follows symbolic links, so they will be compared in
+    #   terms of what they refer to. realpath will also evaluate directory
+    #   traversals.
+    #
+    #   #. get Canonical path.
+    #   #. eliminate symbolic links.
+    # - **normcase** makes Windows filenames all lowercase, since the
+    #   following code uses case-sensitive string comparions. Windows
+    #   uses case-insensitive naming for its files.
+    #
+    #   #. converts path to lower case for case-insensitive filesystem.
+    #   #. converts forward slashes to backward slashes (Windows only)
+    # - **normpath** collapses redundant separators and up-level references.
+    #   may change the meaning of a path if symbolic links are present.
+    #
+    #   #. collapse redundant separators
+    #   #. collapse redundant up-level references.
+    #   #. converts forward slashes to backward slashes (Window only)
+    #   #. *Drawback*: may destroy symbolic links.
+    # - **abspath** collapses and evaluates directory traversals like
+    #   ``./../subdir``, to correctly compare absolute and relative paths,
+    #   and to normalize the os.path.sep for the current platform
+    #   (i.e. no `\a/b` paths). Similar to ``normpath(join(os.getcwd(), path))``
+    #
+    # Eliminate unecessary separators and up-level references.
+    # Potential bug: Might destroy symbolic links.
+    normPathList = [(os.path.normpath(d)) for d in dirs]
+    # ``os.path.normcase`` is used after ``abspath`` because ``abspath``
+    # might introduce different cases.
+    fullPathList = [os.path.normcase(os.path.abspath(d)) for d in normPathList]
+    # Now use ``commonprefix`` on absolute paths.
+    prefix = os.path.commonprefix(fullPathList)
+    # commonPrefix stops at the first dissimilar character, leaving an incomplete
+    # path name. For example, ``commonprefix(('aa', 'ab')) == 'a'``. Fix this
+    # by removing this ending incomplete path if necessary.
+    for d in fullPathList:
+        # ``commonPrefix`` contains a complete path if the character in
+        # ``d`` after its end is an os.path.sep or the end of the path name.
+        if len(d) > len(prefix) and d[len(prefix)] != os.path.sep:
+          # This is an incomplete path. Remove it.
+          prefix = os.path.dirname(prefix)
+          break
+
+    # If any input directory is absolute path, then commonprefix will return
+    # absolute path. If not, we will use the assumption that all relative pathes
+    # are rooted in the current directory, and remove current directory from
+    # ``prefix``: absolute common prefix path.
+    padding = len(os.getcwd())
+    return prefix if any((os.path.isabs(d)) for d in dirs) or len(prefix) < padding \
+           else prefix[padding+len(os.path.sep):]
 
 
 def sphinxEnabledForFile(filePath):
