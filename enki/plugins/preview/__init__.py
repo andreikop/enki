@@ -6,7 +6,7 @@
 # Plugin interface; other modules are given below.
 
 import os.path
-from PyQt4.QtCore import QObject, Qt
+from PyQt4.QtCore import QObject, Qt, pyqtSlot
 from PyQt4.QtGui import QAction, QIcon, QKeySequence, QWidget, QFileDialog, \
     QMessageBox
 from PyQt4 import uic
@@ -44,63 +44,39 @@ class SettingsWidget(QWidget):
             # Hide the "not installed" message.
             self.labelCodeChatNotInstalled.setVisible(False)
 
-        # .. note::
-        #    TODO: Pan: aren't all these connects unnecessary? I think if we named
-        #    a method ``on_cbSphinxEnable_stateChanged()`` then the connect
-        #    below is unnecessary and so on. Would you check?
-        #
-        # When the Sphinx enable checkbox is toggled, enable/disable all Sphinx
-        # UI elements.
-        self.cbSphinxEnable.stateChanged.connect(self._toggleSphinx)
-        # Provide file choosers for the Sphinx UI.
-        self.pbSphinxProjectPath.clicked.connect(self._onPbSphinxProjectPathClicked)
-        # TODO: Pan: for the output path, how about defaulting to "_build\html" (a relative
-        # path), instead of using an absolute path by default?
-        self.pbSphinxOutputPath.clicked.connect(self._onPbSphinxOutputPathClicked)
-        # The Sphinx executable can be selected by the user. A filter is needed
-        # such that non-executable files will not be selected by the user.
-        self.pbSphinxExecutable.clicked.connect(self._onPbSphinxExecutableClicked)
-
         # Clicking on advanced mode label triggers either advanced mode or
         # normal mode.
-        self.lbSphinxEnableAdvMode.mousePressEvent = self._onToggleSphinxSettingModeClicked
+        self.lbSphinxEnableAdvMode.mousePressEvent = self.on_ToggleSphinxSettingModeClicked
 
         # Update misc pieces of the GUI that can't be stored in the .ui file.
         self.cmbSphinxOutputExtension.addItem("html")
         self.cmbSphinxOutputExtension.addItem("htm")
         self._updateSphinxSettingMode()
 
-    def _toggleSphinx(self, layout=None):
+    def on_cbSphinxEnable_stateChanged(self, layout=None):
         """Recursively set everything in the layout argument to enabled/disabled
         based on the state of the Sphinx enable checkbox, including any child
         of ``layout``.
         """
         if isinstance(layout, int):
-            # _toggleSphinx is called by cbSphinxEnable.stateChanged, which will
-            # pass an unnecessary integer argument. Replace it with
+            # on_cbSphinxEnable_stateChanged is called by cbSphinxEnable.stateChanged,
+            # which will pass an unnecessary integer argument. Replace it with
             # the default layout.
             layout = self.loSphinxProject
         for i in range(layout.count()):
             item = layout.itemAt(i)
             if item.layout():
-                self._toggleSphinx(item.layout())
+                self.on_cbSphinxEnable_stateChanged(item.layout())
             # Don't hide the Sphinx enable or Sphinx description text.
             if (item.widget() and
               (item.widget() not in (self.cbSphinxEnable, self.labelSphinxIntro)) ):
                 item.widget().setEnabled(self.cbSphinxEnable.isChecked())
 
-    # .. note::
-    #    TODO: Pan: Add a ``on_leSphinxProjectPath_editingFinished`` method which will
-    #    call os.path.normpath on the text entered by a user. I'm seeing some
-    #    paths with / and some with \ and would like a nicer result. Of course
-    #    start by adding unit tests. The same is true for an
-    #    ``on_leSphinxOutputPath_editingFinished`` and
-    #    ``on_leSphinxExecutable_editingFinished``.
-
-    def _onPbSphinxProjectPathClicked(self):
+    @pyqtSlot()
+    def on_pbSphinxProjectPath_clicked(self):
         """Provide a directory chooser for the user to select a project path.
         """
-        path = os.path.normcase(QFileDialog.getExistingDirectory(core.mainWindow(), 'Project path'))
+        path = QFileDialog.getExistingDirectory(core.mainWindow(), 'Project path')
         if path:
             self.leSphinxProjectPath.setText(path)
             # Automatically set the builder output path to '_build\\html' under
@@ -113,14 +89,20 @@ class SettingsWidget(QWidget):
             #    OK without changing. Would you add tests/code for this?
             self.leSphinxOutputPath.setText(os.path.join(path, '_build', 'html'))
 
-    def _onPbSphinxOutputPathClicked(self):
+    # TODO: Pan: for the output path, how about defaulting to "_build\html" (a relative
+    # path), instead of using an absolute path by default?
+    @pyqtSlot()
+    def on_pbSphinxOutputPath_clicked(self):
         """Proivde a directory chooser for the user to select an output path.
         """
-        path = os.path.normcase(QFileDialog.getExistingDirectory(core.mainWindow(), 'Output path'))
+        path = QFileDialog.getExistingDirectory(core.mainWindow(), 'Output path')
         if path:
             self.leSphinxOutputPath.setText(path)
 
-    def _onPbSphinxExecutableClicked(self):
+    # The Sphinx executable can be selected by the user. A filter is needed
+    # such that non-executable files will not be selected by the user.
+    @pyqtSlot()
+    def on_pbSphinxExecutable_clicked(self):
         path = QFileDialog.getOpenFileName(self,
                                            "Select Sphinx executable",
                                            # .. note::
@@ -130,11 +112,22 @@ class SettingsWidget(QWidget):
         if path:
             self.leSphinxExecutable.setText(path)
 
-    def _onToggleSphinxSettingModeClicked(self, *args):
+    def on_ToggleSphinxSettingModeClicked(self, *args):
         core.config()['Sphinx']['AdvancedMode'] = not core.config()['Sphinx']['AdvancedMode']
         core.config().flush()
         self._updateSphinxSettingMode()
 
+    # Cleanup user input paths by calling os.path.normpath such that path
+    # separator is consistent, upper level references can be precalculated,
+    # unnecessary dots can be removed.
+    def on_leSphinxProjectPath_editingFinished(self):
+        self.leSphinxProjectPath.setText(os.path.normpath(self.leSphinxProjectPath.text()))
+
+    def on_leSphinxOutputPath_editingFinished(self):
+        self.leSphinxOutputPath.setText(os.path.normpath(self.leSphinxOutputPath.text()))
+
+    def on_leSphinxExecutable_editingFinished(self):
+        self.leSphinxExecutable.setText(os.path.normpath(self.leSphinxExecutable.text()))
 
     def _updateSphinxSettingMode(self):
         """Update the Sphinx settings mode by hiding/revealing the appropriate
