@@ -45,7 +45,7 @@ class SettingsWidget(QWidget):
             self.labelCodeChatNotInstalled.setVisible(False)
 
         # .. note::
-        #    Pan: aren't all these connects unnecessary? I think if we named
+        #    TODO: Pan: aren't all these connects unnecessary? I think if we named
         #    a method ``on_cbSphinxEnable_stateChanged()`` then the connect
         #    below is unnecessary and so on. Would you check?
         #
@@ -54,7 +54,7 @@ class SettingsWidget(QWidget):
         self.cbSphinxEnable.stateChanged.connect(self._toggleSphinx)
         # Provide file choosers for the Sphinx UI.
         self.pbSphinxProjectPath.clicked.connect(self._onPbSphinxProjectPathClicked)
-        # Pan: for the output path, how about defaulting to "_build\html" (a relative
+        # TODO: Pan: for the output path, how about defaulting to "_build\html" (a relative
         # path), instead of using an absolute path by default?
         self.pbSphinxOutputPath.clicked.connect(self._onPbSphinxOutputPathClicked)
         # The Sphinx executable can be selected by the user. A filter is needed
@@ -90,7 +90,7 @@ class SettingsWidget(QWidget):
                 item.widget().setEnabled(self.cbSphinxEnable.isChecked())
 
     # .. note::
-    #    Pan: Add a ``on_leSphinxProjectPath_editingFinished`` method which will
+    #    TODO: Pan: Add a ``on_leSphinxProjectPath_editingFinished`` method which will
     #    call os.path.normpath on the text entered by a user. I'm seeing some
     #    paths with / and some with \ and would like a nicer result. Of course
     #    start by adding unit tests. The same is true for an
@@ -107,7 +107,7 @@ class SettingsWidget(QWidget):
             # builder root path.
             #
             # .. note::
-            #    Pan: since we (I think) support relative paths, only set this
+            #    TODO: Pan: since we (I think) support relative paths, only set this
             #    if the path was absolute (and therefore presumabely wrong). If
             #    it's a relative path such as ``_build\html``, then it's probably
             #    OK without changing. Would you add tests/code for this?
@@ -124,7 +124,7 @@ class SettingsWidget(QWidget):
         path = QFileDialog.getOpenFileName(self,
                                            "Select Sphinx executable",
                                            # .. note::
-                                           #    Pan: What's the Unix equivalent of sphinx-build.exe? Sphinx-build.py?
+                                           #    TODO: Pan: What's the Unix equivalent of sphinx-build.exe? Sphinx-build.py?
                                            #    Would you add code to put that in depending on OS?
                                            filter="sphinx-build.exe;; All Files (*.*)");
         if path:
@@ -226,11 +226,6 @@ class Plugin(QObject):
     def _canPreview(self, document):
         """Check if the given document can be shown in the Preview dock.
         """
-        # Pan: Why the ``document.filePath() is None`` condition? I think
-        # this only matters for Sphinx, where the document must be save-able
-        # in order to preview it, correct? I.e. this condition should be
-        # in the last if statement:
-        # ``if core.config()['Sphinx']['Enabled'] and document.filePath()``?
         if document is None:
             return False
 
