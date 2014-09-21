@@ -584,7 +584,40 @@ class PreviewDock(DockWidget):
                 return
             elif language == 'Restructured Text':
                 pass
-            # TODO: need documentation. Graphviz preferred.
+            # The following flowchart will be used to illustrate when to call
+            # sphinx based on ``core.config()['Sphinx']['BuildOnSave']`` option,
+            # current document location, text modified conditions, and other
+            # conditions.
+            #
+            # .. digraph:: BuildOnSave_mechanism
+            #
+            #    label = "Should sphinx be called\nwhen document processing is needed"
+            #    graph[size="7,6"]
+            #    rankdir = LR
+            #
+            #    start[color = white, shape = record, label = "CodeChat\nenabled file"]
+            #    subgraph lvl1 {
+            #       rank = same
+            #       if_sphinx_enabled[shape = diamond, label = "Sphinx\nEnabled?"]
+            #       build1[color = none, shape = record, label = "Build", style = filled, fillcolor = green]
+            #    }
+            #    subgraph lvl2 {
+            #       rank = same
+            #       if_document_modified[shape = diamond, label = "Document\nModified?"]
+            #       build2[color = none, shape = record, label = "Build", style = filled, fillcolor = green]
+            #    }
+            #    subgraph lvl3 {
+            #       pass[color = none, shape = record, label = "Pass", style = filled, fillcolor = red]
+            #       if_buildOnSave[shape = diamond, label = "BuildOnSave\nEnabled?"]
+            #       build3[color = none, shape = record, label = "Build", style = filled, fillcolor = green]
+            #    }
+            #    start->if_sphinx_enabled
+            #    if_sphinx_enabled->build1[label = "No"]
+            #    if_sphinx_enabled->if_document_modified[label = "Yes"]
+            #    if_document_modified->build2[label = "No"]
+            #    if_document_modified->if_buildOnSave[label = "Yes"]
+            #    if_buildOnSave->build3[label = "No"]
+            #    if_buildOnSave->pass[label = "Yes"]
             if ( not core.config()['Sphinx']['Enabled'] or
                  not sphinxEnabledForFile(document.filePath()) or
                  sphinxEnabledForFile(document.filePath()) and not qp.document().isModified() ):
