@@ -44,10 +44,6 @@ else:
     import CodeChat.CodeToRest as CodeToRest
     import CodeChat.LanguageSpecificOptions as LSO
 
-# .. note::
-#    Pan: This fails several of the unit tests I wrote for it. Would you try out the
-#    other option at the website below instead? If that works, then write good
-#    docs explaining why.
 def commonPrefix(*dirs):
     """This function provides a platform-independent path commonPrefix. It
     returns the common path between all directories in input list dirs, assuming
@@ -107,7 +103,7 @@ def commonPrefix(*dirs):
           break
 
     # If any input directory is absolute path, then commonprefix will return
-    # absolute path. If not, we will use the assumption that all relative pathes
+    # absolute path. If not, we will use the assumption that all relative paths
     # are rooted in the current directory, and remove current directory from
     # ``prefix``: absolute common prefix path.
     padding = len(os.getcwd())
@@ -305,8 +301,6 @@ class ConverterThread(QThread):
         errStream.close()
         return htmlString, errString
 
-    # .. note::
-    #    Pan: would you factor these changes back into enki.lib.get_console_output?
     def _runHtmlBuilder(self):
         try:
             stdout, stderr = get_console_output(self.htmlBuilderCommandLine)
@@ -553,7 +547,7 @@ class PreviewDock(DockWidget):
         self._scheduleDocumentProcessing()
 
     # .. note::
-    #    Pan: this seems a bit broken. I think the self.typingTimer is already calling
+    #    TODO: Pan: this seems a bit broken. I think the self.typingTimer is already calling
     #    _scheduleDocumentProcessing a fixed delay after the last keypress. Why not
     #    simply include this code in _scheduleDocumentProcessing instead?
     def _onTextChanged(self, document):
@@ -581,7 +575,7 @@ class PreviewDock(DockWidget):
         document = core.workspace().currentDocument()
         if document is not None:
             # .. note::
-            #    Pan: I think this is a bit clearer, code-wise. Another option
+            #    TODO: Pan: I think this is a bit clearer, code-wise. Another option
             #    would be to rename the function to _copySphinxProjectTemplateIfNeeded
             #    or something like that.
             if sphinxEnabledForFile(document.filePath()):
@@ -600,7 +594,7 @@ class PreviewDock(DockWidget):
                 pass
             else:
                 # .. note::
-                #    Pan -- this should save the old value of StripTrailingWhitespace,
+                #    TODO: Pan -- this should save the old value of StripTrailingWhitespace,
                 #    save the file, then restore it. Otherwise, StripTrailingWhitespace
                 #    will be turned on? (I think -- the config isn't flushed, but
                 #    even if not, this is suspicious coding that will probably
@@ -632,7 +626,7 @@ class PreviewDock(DockWidget):
         errors = []
 
         # .. note::
-        #    Pan: This is repetitive code. DRY! (Don't Repeat Yourself). Make
+        #    TODO: Pan: This is repetitive code. DRY! (Don't Repeat Yourself). Make
         #    a helper function for each copy, then call that 3 times.
         if not os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'default.css')):
             cssPath = os.path.join(codeChatPath, 'template', 'default.css')
@@ -683,7 +677,7 @@ class PreviewDock(DockWidget):
             self._widget.webView.setUrl(baseUrl)
 
         self._widget.teLog.clear()
-        # Pan: This seems unnecessary here -- the code below should run quickly
+        # TODO: Pan: This seems unnecessary here -- the code below should run quickly
         # enough to make this invisible to the user.
         self._setHtmlProgress(-1)
 
@@ -691,7 +685,7 @@ class PreviewDock(DockWidget):
         # errors and warnings from these messages.
         if errString:
             # .. note::
-            #    Pan: rather than hard-code the splitter size, save it when
+            #    TODO: Pan: rather than hard-code the splitter size, save it when
             #    it's auto-hidden then restore that saved value here.
             #
             # If there are errors/warnings, expand log window to make it visible
