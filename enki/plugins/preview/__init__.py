@@ -228,7 +228,8 @@ class Plugin(QObject):
 
         # CodeChat can preview a file if it's enabled and if that file's
         # extension is supported.
-        if CodeChat is not None and core.config()['CodeChat']['Enabled']:
+        if ( CodeChat is not None and core.config()['CodeChat']['Enabled'] 
+             and document.filePath()):
             lso = LSO.LanguageSpecificOptions()
             fileExtension = os.path.splitext(document.filePath())[1]
             if fileExtension in lso.extension_to_options.keys():
