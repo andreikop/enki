@@ -84,11 +84,9 @@ def commonPrefix(*dirs):
     #   (i.e. no `\a/b` paths). Similar to ``normpath(join(os.getcwd(), path))``
     #
     # Eliminate unecessary separators and up-level references.
-    # Potential bug: Might destroy symbolic links.
-    normPathList = [(os.path.normpath(d)) for d in dirs]
     # ``os.path.normcase`` is used after ``abspath`` because ``abspath``
     # might introduce different cases.
-    fullPathList = [os.path.normcase(os.path.abspath(d)) for d in normPathList]
+    fullPathList = [os.path.normcase(os.path.normpath((os.path.abspath(d)))) for d in dirs]
     # Now use ``commonprefix`` on absolute paths.
     prefix = os.path.commonprefix(fullPathList)
     # commonPrefix stops at the first dissimilar character, leaving an incomplete
@@ -101,14 +99,17 @@ def commonPrefix(*dirs):
           # This is an incomplete path. Remove it.
           prefix = os.path.dirname(prefix)
           break
-
     # If any input directory is absolute path, then commonprefix will return
     # absolute path. If not, we will use the assumption that all relative paths
     # are rooted in the current directory, and remove current directory from
     # ``prefix``: absolute common prefix path.
-    padding = len(os.getcwd())
-    return prefix if any((os.path.isabs(d)) for d in dirs) or len(prefix) < padding \
-           else prefix[padding+len(os.path.sep):]
+    if any((os.path.isabs(d)) for d in dirs):
+        return prefix
+
+    # Test whether ``prefix`` starts with current working directory. If not,
+    # absolute path will be used.
+    padding = len(commonPrefix(prefix, os.getcwd()))
+    return prefix if not prefix.startswith(os.getcwd()) else prefix[padding+len(os.path.sep):]
 
 
 def sphinxEnabledForFile(filePath):

@@ -764,6 +764,13 @@ head
         # the commonprefix? It should be an absolute path "a"
         self.assertEqual(commonPrefix('..', ''), os.path.normcase(os.path.dirname(os.getcwd())))
 
+    def test_commonPrefix16(self):
+        # commonPrefix use the assumption that all relativepaths are based on
+        # current working directory. If the resulting common prefix does not
+        # have current workign directory as one of its parent directories, then
+        # absolute path will be used.
+        self.assertEqual(commonPrefix('..\\AVeryLongFileName', '..\\AVeryLongFileName'), os.path.normcase(os.path.abspath("../AVeryLongFileName")))
+
     # TODO: need symbolic link test case.
 
 # Main
