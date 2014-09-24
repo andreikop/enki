@@ -297,16 +297,19 @@ def asDicts(tags):
 
 class Parser(base.TestCase):
 
+    @base.requiresCmdlineUtility('ctags --version')
     def test_1(self):
         tags = processText('C++', CPP_CODE, False)
         ref = {('Func', 2): {}, ('Cls', 7): {('FirstMethod', 7): {}, ('SecondMethod', 12): {}}}
         self.assertEqual(asDicts(tags), ref)
 
+    @base.requiresCmdlineUtility('ctags --version')
     def test_2(self):
         tags = processText('Python', PY_CODE, False)
         ref = {('Cls', 1): {('foobar', 2): {('func', 3): {}}}}
         self.assertEqual(asDicts(tags), ref)
 
+    @base.requiresCmdlineUtility('ctags --version')
     def test_3(self):
         """Ignore warning from ctags"""
         tags = processText('Python',
