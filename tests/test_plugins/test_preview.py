@@ -127,6 +127,22 @@ class PreviewTestCase(base.TestCase):
         return self._html(), self._logText()
 
 class Test(PreviewTestCase):
+    @requiresModule('CodeChat')
+    def test_emptyCodeChatDocument(self):
+        core.config()['CodeChat']['Enabled'] = True
+        core.workspace().createEmptyNotSavedDocument()
+        self.assertFalse(self._dock() in core.mainWindow()._addedDockWidgets)
+
+    @base.requiresCmdlineUtility('sphinx-build --version')
+    def test_emptySphinxDocument(self):
+        core.config()['Sphinx']['Enabled'] = True
+        core.workspace().createEmptyNotSavedDocument()
+        self.assertFalse(self._dock() in core.mainWindow()._addedDockWidgets)
+
+    def test_emptyDocument(self):
+        core.workspace().createEmptyNotSavedDocument()
+        self.assertFalse(self._dock() in core.mainWindow()._addedDockWidgets)
+
     def test_html(self):
         self._doBasicTest('html')
 
