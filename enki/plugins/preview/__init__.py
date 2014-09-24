@@ -227,8 +227,9 @@ class Plugin(QObject):
             return True
 
         # CodeChat can preview a file if it's enabled and if that file's
-        # extension is supported.
-        if ( CodeChat is not None and core.config()['CodeChat']['Enabled'] 
+        # extension is supported. Since enki needs to check file extension,
+        # file path cannot be none.
+        if ( CodeChat is not None and core.config()['CodeChat']['Enabled']
              and document.filePath()):
             lso = LSO.LanguageSpecificOptions()
             fileExtension = os.path.splitext(document.filePath())[1]
