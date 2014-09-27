@@ -47,9 +47,9 @@ else:
 def commonPrefix(*dirs):
     """This function provides a platform-independent path commonPrefix. It
     returns the common path between all directories in input list dirs, assuming
-    that any relative paths are rooted in the current directory. See `this post
+    that any relative paths are rooted in the current directory. While`this post
     <http://stackoverflow.com/questions/21498939/how-to-circumvent-the-fallacy-of-pythons-os-path-commonprefix>`_
-    for more details.
+    has two solutions, neither are correct; hence, the following code.
 
     Parameters: dirs - Directory list.
     Return value: the common path prefix shared by all input directories.
@@ -65,58 +65,47 @@ def commonPrefix(*dirs):
     #
     #   #. get Canonical path.
     #   #. eliminate symbolic links.
+    #
     # - **normcase** makes Windows filenames all lowercase, since the
     #   following code uses case-sensitive string comparions. Windows
     #   uses case-insensitive naming for its files.
     #
     #   #. converts path to lower case for case-insensitive filesystem.
     #   #. converts forward slashes to backward slashes (Windows only)
-    # - **normpath** collapses redundant separators and up-level references.
-    #   may change the meaning of a path if symbolic links are present.
-    #
-    #   #. collapse redundant separators
-    #   #. collapse redundant up-level references.
-    #   #. converts forward slashes to backward slashes (Window only)
-    #   #. *Drawback*: may destroy symbolic links.
     # - **abspath** collapses and evaluates directory traversals like
     #   ``./../subdir``, to correctly compare absolute and relative paths,
-    #   and to normalize the os.path.sep for the current platform
-    #   (i.e. no `\a/b` paths). Similar to ``normpath(join(os.getcwd(), path))``
-    #
-    # Eliminate unecessary separators and up-level references.
-    # ``os.path.normcase`` is used after ``abspath`` because ``abspath``
-    # might introduce different cases.
-    fullPathList = [os.path.normcase(os.path.normpath((os.path.abspath(d)))) for d in dirs]
+    #   and normalizes the os.path.sep for the current platform
+    #   (i.e. no `\a/b` paths). Similar to ``normpath(join(os.getcwd(), path))``.
+    fullPathList = [os.path.normcase(os.path.abspath(os.path.realpath(d))) for d in dirs]
     # Now use ``commonprefix`` on absolute paths.
     prefix = os.path.commonprefix(fullPathList)
-    # commonPrefix stops at the first dissimilar character, leaving an incomplete
+    # commonprefix stops at the first dissimilar character, leaving an incomplete
     # path name. For example, ``commonprefix(('aa', 'ab')) == 'a'``. Fix this
     # by removing this ending incomplete path if necessary.
     for d in fullPathList:
         # ``commonPrefix`` contains a complete path if the character in
         # ``d`` after its end is an os.path.sep or the end of the path name.
         if len(d) > len(prefix) and d[len(prefix)] != os.path.sep:
-          # This is an incomplete path. Remove it.
-          prefix = os.path.dirname(prefix)
-          break
-    # If any input directory is absolute path, then commonprefix will return
-    # absolute path. If not, we will use the assumption that all relative paths
-    # are rooted in the current directory, and remove current directory from
-    # ``prefix``: absolute common prefix path.
+            # This is an incomplete path. Remove it.
+            prefix = os.path.dirname(prefix)
+            break
+    # If any input directory is absolute path, then commonPrefix will return
+    # an absolute path.
     if any((os.path.isabs(d)) for d in dirs):
         return prefix
 
-    # Test whether ``prefix`` starts with current working directory. If not,
-    # absolute path will be used.
-    padding = len(commonPrefix(prefix, os.getcwd()))
-    return prefix if not prefix.startswith(os.getcwd()) else prefix[padding+len(os.path.sep):]
+    # If not, we will use the assumption that all relative paths
+    # are rooted in the current directory. Test whether ``prefix`` starts with 
+    # the current working directory. If not, return an absolute path.
+    cwd = os.getcwd()
+    return prefix if not prefix.startswith(cwd) else prefix[len(cwd) + len(os.path.sep):]
 
 
 def sphinxEnabledForFile(filePath):
-    """Based on sphinx settings under core.config()['Sphinx'], this function
-    determines whether sphinx can be applied to *filePath*
+    """Based on Sphinx settings under core.config()['Sphinx'], this function
+    determines whether sphinx can be applied to *filePath*.
     """
-    sphinxProjectPath = os.path.abspath(core.config()['Sphinx']['ProjectPath'])
+    sphinxProjectPath = core.config()['Sphinx']['ProjectPath']
     return ( filePath and
            core.config()['Sphinx']['Enabled'] and
            os.path.exists(core.config()['Sphinx']['ProjectPath']) and
@@ -161,31 +150,9 @@ class ConverterThread(QThread):
         # and Enki settings enable codechat (config()['CodeChat']['Enabled'] is true).
         return core.config()['CodeChat']['Enabled'] and LSO and CodeToRest
 
-    def _updateSphinxConfig(self):
-        # Executable to run the HTML builder.
-        self.htmlBuilderExecutable = core.config()['Sphinx']['Executable']
-        # Path to the root directory of an HTML builder.
-        self.htmlBuilderRootPath = core.config()['Sphinx']['ProjectPath']
-        # Path to the output produced by the HTML builder.
-        self.htmlBuilderOutputPath = core.config()['Sphinx']['OutputPath']
-        # Extension for the resluting HTML files.
-        self.htmlBuilderExtension = u'.' + core.config()['Sphinx']['OutputExtension']
-        if core.config()['Sphinx']['AdvancedMode']:
-            self.htmlBuilderCommandLine = core.config()['Sphinx']['Cmdline']
-        else:
-            # For available builder options, refer to: http://sphinx-doc.org/builders.html
-            self.htmlBuilderCommandLine = [self.htmlBuilderExecutable,
-              # Place doctrees in the ``_build`` directory; by default, Sphinx places this in _build/html/.doctrees.
-              '-d', os.path.join('_build','doctrees'),
-              # Source directory
-              self.htmlBuilderRootPath,
-              # Build directory
-              self.htmlBuilderOutputPath]
-
     def _getHtml(self, language, text, filePath):
         """Get HTML for document
         """
-        self._updateSphinxConfig()
         if language == 'Markdown':
             return self._convertMarkdown(text), None, QUrl()
         # For ReST, use docutils only if Sphinx isn't available.
@@ -200,14 +167,20 @@ class ConverterThread(QThread):
 
                 # Look for the HTML output.
                 #
-                # First, create an htmlPath as self.htmlBuilderOutputPath + remainder of htmlRelPath
-                htmlPath = os.path.join(self.htmlBuilderOutputPath + filePath[len(self.htmlBuilderRootPath):])
+                # Get an absolute path to the output path, which could be relative.
+                outputPath = core.config()['Sphinx']['OutputPath']
+                projectPath = core.config()['Sphinx']['ProjectPath']
+                if not os.path.isabs(outputPath):
+                    outputPath = os.path.join(projectPath, outputPath)
+                # Create an htmlPath as OutputPath + remainder of filePath.
+                htmlPath = os.path.join(outputPath + filePath[len(projectPath):])
                 # First place to look: file.html. For example, look for foo.py
                 # in foo.py.html.
-                htmlFile = htmlPath + self.htmlBuilderExtension
+                ext =  u'.' + core.config()['Sphinx']['OutputExtension']
+                htmlFile = htmlPath + ext
                 # Second place to look: file without extension.html. For
                 # example, look for foo.rst in foo.html.
-                htmlFileAlter = os.path.splitext(htmlPath)[0] + self.htmlBuilderExtension
+                htmlFileAlter = os.path.splitext(htmlPath)[0] + ext
                 if os.path.exists(htmlFile):
                     return u'', errString, QUrl.fromLocalFile(htmlFile)
                 elif os.path.exists(htmlFileAlter):
@@ -303,12 +276,26 @@ class ConverterThread(QThread):
         return htmlString, errString
 
     def _runHtmlBuilder(self):
+        # Build the commond line for Sphinx.
+        if core.config()['Sphinx']['AdvancedMode']:
+            htmlBuilderCommandLine = core.config()['Sphinx']['Cmdline']
+        else:
+            # For available builder options, refer to: http://sphinx-doc.org/builders.html
+            htmlBuilderCommandLine = [core.config()['Sphinx']['Executable'],
+              # Place doctrees in the ``_build`` directory; by default, Sphinx places this in _build/html/.doctrees.
+              '-d', os.path.join('_build', 'doctrees'),
+              # Source directory
+              core.config()['Sphinx']['ProjectPath'],
+              # Build directory
+              core.config()['Sphinx']['OutputPath']]
+
+        # Invoke it.
         try:
-            stdout, stderr = get_console_output(self.htmlBuilderCommandLine)
+            stdout, stderr = get_console_output(htmlBuilderCommandLine)
         except Exception as ex:
             return '<pre><font color=red>Failed to execute HTML builder' + \
                    'console utility "{}":\n{}</font>\n'\
-                   .format(self.htmlBuilderCommandLine, str(ex)) + \
+                   .format(htmlBuilderCommandLine, str(ex)) + \
                    '\nGo to Settings -> Settings -> CodeChat to set HTML builder configurations.'
 
         return stdout + '</pre><br><pre><font color=red>' + stderr + '</font>'
@@ -567,10 +554,6 @@ class PreviewDock(DockWidget):
 
         document = core.workspace().currentDocument()
         if document is not None:
-            # .. note::
-            #    TODO: Pan: I think this is a bit clearer, code-wise. Another option
-            #    would be to rename the function to _copySphinxProjectTemplateIfNeeded
-            #    or something like that.
             if sphinxEnabledForFile(document.filePath()):
                 self._copySphinxProjectTemplate(document.filePath())
             qp = document.qutepart
@@ -586,7 +569,7 @@ class PreviewDock(DockWidget):
             elif language == 'Restructured Text':
                 pass
             # The following flowchart will be used to illustrate when to call
-            # sphinx based on ``core.config()['Sphinx']['BuildOnSave']`` option,
+            # Sphinx based on ``core.config()['Sphinx']['BuildOnSave']`` option,
             # current document location, text modified conditions, and other
             # conditions.
             #
@@ -703,9 +686,6 @@ class PreviewDock(DockWidget):
             self._widget.webView.setUrl(baseUrl)
 
         self._widget.teLog.clear()
-        # TODO: Pan: This seems unnecessary here -- the code below should run quickly
-        # enough to make this invisible to the user.
-        self._setHtmlProgress(-1)
 
         # If there were messages from the conversion process, extract a count of
         # errors and warnings from these messages.
