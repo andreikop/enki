@@ -619,7 +619,7 @@ head
     @base.inMainLoop
     @requiresModule('CodeChat')
     def test_uiCheck18(self):
-        """Check Advance Mode. In this case Advanced Mode does not have
+        """Check Advanced Mode. In this case Advanced Mode does not have
         space in its path.
         """
         core.config()['CodeChat']['Enabled'] = True
@@ -666,7 +666,7 @@ head
     @base.inMainLoop
     @requiresModule('CodeChat')
     def test_uiCheck19a(self):
-        """Check space in path name. Advanced mode is enabled.
+        """Check spaces in path name. Advanced mode is enabled.
         """
         core.config()['CodeChat']['Enabled'] = True
         testFileDir = self.TEST_FILE_DIR
@@ -735,11 +735,12 @@ head
         self.assertEqual(commonPrefix('a/./b', 'a/b'), os.path.join('a','b'))
 
     def test_commonPrefix11(self):
+        """Check that leading ../current_subdir will be removed after path
+           clearnup."""
         # Get the name of the current directory
-        # TODO: this case does not work on linux (Is this test case testing unnecessary '..'?
-        # '..' + d + '/a/b' is not a valid path on linux)
+        # Pan: Would you test this?
         d = os.path.basename(os.getcwd())
-        self.assertEqual(commonPrefix('..\\' + d + '\\a\\b', 'a\\b'), os.path.join('a','b'))
+        self.assertEqual(commonPrefix('../' + d + '/a/b', 'a/b'), os.path.join('a','b'))
 
     def test_commonPrefix11a(self):
         # if any input directory is abs path, return abs commonprefix
@@ -768,7 +769,7 @@ head
         # commonPrefix use the assumption that all relativepaths are based on
         # current working directory. If the resulting common prefix does not
         # have current workign directory as one of its parent directories, then
-        # absolute path will be used.
+        # the absolute path will be used.
         self.assertEqual(commonPrefix('..\\AVeryLongFileName', '..\\AVeryLongFileName'), os.path.normcase(os.path.abspath("../AVeryLongFileName")))
 
     # TODO: need symbolic link test case.

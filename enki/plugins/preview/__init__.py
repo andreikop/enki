@@ -89,8 +89,6 @@ class SettingsWidget(QWidget):
             #    OK without changing. Would you add tests/code for this?
             self.leSphinxOutputPath.setText(os.path.join(path, '_build', 'html'))
 
-    # TODO: Pan: for the output path, how about defaulting to "_build\html" (a relative
-    # path), instead of using an absolute path by default?
     @pyqtSlot()
     def on_pbSphinxOutputPath_clicked(self):
         """Proivde a directory chooser for the user to select an output path.
@@ -117,17 +115,17 @@ class SettingsWidget(QWidget):
         core.config().flush()
         self._updateSphinxSettingMode()
 
-    # Cleanup user input paths by calling os.path.normpath such that path
-    # separator is consistent, upper level references can be precalculated,
-    # unnecessary dots can be removed.
+    # The project path and Sphinx executable directory must be absolute;
+    # the output path may be relative to the project path or absolute.
+    # Use abspath or normpath as appropriate to guarantee this is true.
     def on_leSphinxProjectPath_editingFinished(self):
-        self.leSphinxProjectPath.setText(os.path.normpath(self.leSphinxProjectPath.text()))
+        self.leSphinxProjectPath.setText(os.path.abspath(self.leSphinxProjectPath.text()))
 
     def on_leSphinxOutputPath_editingFinished(self):
         self.leSphinxOutputPath.setText(os.path.normpath(self.leSphinxOutputPath.text()))
 
     def on_leSphinxExecutable_editingFinished(self):
-        self.leSphinxExecutable.setText(os.path.normpath(self.leSphinxExecutable.text()))
+        self.leSphinxExecutable.setText(os.path.abspath(self.leSphinxExecutable.text()))
 
     def _updateSphinxSettingMode(self):
         """Update the Sphinx settings mode by hiding/revealing the appropriate
