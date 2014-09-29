@@ -34,6 +34,7 @@ from enki.core.core import core
 import enki.plugins.preview
 from enki.plugins.preview import SettingsWidget
 from enki.plugins.preview.preview import commonPrefix
+from enki.plugins.preview.preview import copyTemplateFile
 from import_fail import ImportFail
 
 
@@ -773,6 +774,24 @@ head
         self.assertEqual(commonPrefix('..\\AVeryLongFileName', '..\\AVeryLongFileName'), os.path.normcase(os.path.abspath("../AVeryLongFileName")))
 
     # TODO: need symbolic link test case.
+
+    # Cases testing copyTemplateFile
+    ##------------------------------
+    # Basic checks
+    def test_copyTemplateFile1(self):
+        # copyTemplateFile has function header:
+        # ``copyTemplateFile(errors, source, templateFileName, dest, newName=None)``
+        # Basic test would be copy one ``file`` from one valid source directory
+        # to a valid ``dest`` directory with no ``newName`` or ``error``.
+        source = self.TEST_FILE_DIR
+        dest = os.path.join(source, 'sub');
+        os.makedirs(dest)
+        errors = []
+        copyTemplateFile(errors, source, 'dummy.html', dest)
+        self.assertEqual(errors, [])
+        self.assertTrue(os.path.isfile(os.path.join(source, 'dummy.html')))
+        self.assertTrue(os.path.isfile(os.path.join(dest, 'dummy.html')))
+
 
 # Main
 # ====

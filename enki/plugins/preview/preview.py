@@ -95,7 +95,7 @@ def commonPrefix(*dirs):
         return prefix
 
     # If not, we will use the assumption that all relative paths
-    # are rooted in the current directory. Test whether ``prefix`` starts with 
+    # are rooted in the current directory. Test whether ``prefix`` starts with
     # the current working directory. If not, return an absolute path.
     cwd = os.getcwd()
     return prefix if not prefix.startswith(cwd) else prefix[len(cwd) + len(os.path.sep):]
@@ -111,6 +111,25 @@ def sphinxEnabledForFile(filePath):
            os.path.exists(core.config()['Sphinx']['ProjectPath']) and
            os.path.normcase(sphinxProjectPath) == commonPrefix(filePath, sphinxProjectPath))
 
+# TODO: test cases
+def copyTemplateFile(errors, source, templateFileName, dest, newName=None):
+    """For each sphinx project, three files are needed: ``default.css`` as
+    html theming support file, ``index.rst``as master document, and ``conf.py``
+    as sphinx configuration file. Given a ``templateFileName`` among those
+    three files, it will be copied to destination directory ``dest``. If any
+    error occurs during copy operation, error information will be appended to
+    ``errors``.
+    """
+    if not source or not dest:
+        return
+    if not newName:
+        newName = templateFileName
+    if not os.path.exists(os.path.join(dest, newName)):
+        sourcePath = os.path.join(source, templateFileName)
+        try:
+            shutil.copy(sourcePath, os.path.join(dest, newName))
+        except Exception as why:
+            errors.append((sourcePath, dest, str(why)))
 
 class ConverterThread(QThread):
     """Thread converts markdown to HTML.
@@ -342,7 +361,7 @@ class PreviewDock(DockWidget):
 
         self._widget.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
         self._widget.webView.page().linkClicked.connect(self._onLinkClicked)
-        self._widget.webView.page().mainFrame().setZoomFactor(1.5)
+#        self._widget.webView.page().mainFrame().setZoomFactor(1.5)
 
         self._widget.webView.page().mainFrame().titleChanged.connect(self._updateTitle)
         self.setWidget(self._widget)
@@ -632,36 +651,16 @@ class PreviewDock(DockWidget):
         # about to copy some template files. If any system error (shutil
         # exceptions)
         codeChatPath = os.path.dirname(os.path.realpath(CodeChat.__file__))
+        templatePath = os.path.join(codeChatPath, 'template')
+        sphinxProjectPath = core.config()['Sphinx']['ProjectPath']
         errors = []
 
-        # .. note::
-        #    TODO: Pan: This is repetitive code. DRY! (Don't Repeat Yourself). Make
-        #    a helper function for each copy, then call that 3 times.
-        if not os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'default.css')):
-            cssPath = os.path.join(codeChatPath, 'template', 'default.css')
-            try:
-                shutil.copy(cssPath, core.config()['Sphinx']['ProjectPath'])
-            except Exception as why:
-                errors.append((cssPath, core.config()['Sphinx']['ProjectPath'], str(why)))
-        if not os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'index.rst')):
-            indexPath = os.path.join(codeChatPath, 'template', 'index.rst')
-            try:
-                shutil.copy(indexPath, core.config()['Sphinx']['ProjectPath'])
-            except Exception as why:
-                errors.append((indexPath, core.config()['Sphinx']['ProjectPath'], str(why)))
-        if not os.path.exists(os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py')):
-            # Choose which conf.py file to copy based on whether CodeChat is enabled.
-            try:
-                if core.config()['CodeChat']['Enabled']:
-                    # If CodeChat is also enabled, enable this in conf.py too.
-                    confPath = os.path.join(codeChatPath, 'template', 'conf_codechat.py')
-                    shutil.copy(confPath, os.path.join(core.config()['Sphinx']['ProjectPath'], 'conf.py'))
-                else:
-                    # else simple copy the default conf.py to sphinx target directory
-                    confPath = os.path.join(codeChatPath, 'template', 'conf.py')
-                    shutil.copy(confPath, core.config()['Sphinx']['ProjectPath'])
-            except IOError as why:
-                errors.append((confPath, core.config()['Sphinx']['ProjectPath'], str(why)))
+        copyTemplateFile(errors, templatePath, 'default.css', sphinxProjectPath)
+        copyTemplateFile(errors, templatePath, 'index.rst', sphinxProjectPath)
+        if core.config()['CodeChat']['Enabled']:
+            copyTemplateFile(errors, templatePath, 'conf_codechat.py', sphinxProjectPath, 'conf.py')
+        else:
+            copyTemplateFile(errors, templatePath, 'conf.py', sphinxProjectPath)
 
         errInfo = ""
         for error in errors:
