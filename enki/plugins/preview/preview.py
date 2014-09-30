@@ -415,7 +415,7 @@ class PreviewDock(DockWidget):
         self._widget.splitter.splitterMoved.connect(self.on_splitterMoved)
         # Don't need to schedule document processing; a call to show() does.
 
-    def on_splitterMoved(self, *args):
+    def on_splitterMoved(self, pos, index):
         self._widget.splitterSize = self._widget.splitter.sizes()
 
     def del_(self):
@@ -707,7 +707,7 @@ class PreviewDock(DockWidget):
         if errString:
             # If there are errors/warnings, expand log window to make it visible
             if not self._widget.splitterSize or self._widget.splitterSize[1] is 0:
-                self._widget.splitterSize = [180, 60]
+                self._widget.splitterSize = [199, 50]
             self._widget.splitter.setSizes(self._widget.splitterSize)
 
             # This code parses the error string to determine get the number of
