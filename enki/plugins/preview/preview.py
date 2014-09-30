@@ -705,12 +705,8 @@ class PreviewDock(DockWidget):
         # If there were messages from the conversion process, extract a count of
         # errors and warnings from these messages.
         if errString:
-            # .. note::
-            #    TODO: Pan: rather than hard-code the splitter size, save it when
-            #    it's auto-hidden then restore that saved value here.
-            #
             # If there are errors/warnings, expand log window to make it visible
-            if not self._widget.splitterSize:
+            if not self._widget.splitterSize or self._widget.splitterSize[1] is 0:
                 self._widget.splitterSize = [180, 60]
             self._widget.splitter.setSizes(self._widget.splitterSize)
 
