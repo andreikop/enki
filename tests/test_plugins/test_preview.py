@@ -814,7 +814,102 @@ head
         self.assertTrue(any(error.startswith("[Errno 2] No such file or directory")
                             for error in errors[0]))
 
-    #TODO: more testcases. Test other possible IOError situations.
+    # TODO: more testcases. Test other possible IOError situations.
+
+    # TODO: finish the following 5 test cases
+    #
+    # Cases testing logwindow splitter
+    ##--------------------------------
+    # Log splitter has three features:
+    #
+    # #. When created, different files will have same default splitter size
+    #
+    # #. Changing one file's splitter size will affect the other file's splitter
+    #    size.
+    #
+    # #. If three files are present, with one of them error-free, then the splitter
+    #    size will be the same only between those files with building errors.
+    #
+    # The following test cases will test all three features with two special cases:
+    #
+    # #. create rst file with error, change splitter size, save file,
+    #    delete all content, save file. Add new error. Will splitter size be
+    #    preserved?
+    #
+    # #. User hide splitter size. Then switch to another error-free document.
+    #    Switch back. Will log window keep hidden?
+
+    def test_logWindowSplitter1(self):
+        """Feature 1. Created files will have same default splitter size.
+        """
+        defaultSplitterSize = [199, 50]
+        document1 = self.createFile('file1.rst', '.. file1::')
+        document2 = self.createFile('file2.rst', '.. file2::')
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
+        # Check splitter size of document 2.
+        self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
+        # Switch to document 1. Splitter size should be the same.
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
+        # Make sure all documents have the same splitter size.
+        self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
+
+    def test_logWindowSplitter2(self):
+        """Feature 2. All build-with-error files' splitter size are connected.
+        """
+        document1 = self.createFile('file1.rst', '.. file1::')
+        document2 = self.createFile('file2.rst', '.. file2::')
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
+        # Change splitter location of document 2.
+        newSplitterSize = [125, 124]
+        self._widget().splitter.setSizes(newSplitterSize)
+        # Calling setSizes directly will not trigger splitter's ``splitterMoved``
+        # signal. We need to manually emit this signal with two arguments (not
+        # important here.)
+        self._widget().splitter.splitterMoved.emit(newSplitterSize[0], 1)
+        self.assertEqual(self._widget().splitter.sizes(), newSplitterSize)
+        # Switch to document 1, make sure its splitter size is changed, too.
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
+        self.assertEqual(self._widget().splitter.sizes(), newSplitterSize)
+
+    def test_logWindowSplitter3(self):
+        """Feature 3. Error free document will not affect other documents'
+        splitter size.
+        """
+        defaultSplitterSize = [199, 50]
+        document1 = self.createFile('file1.rst', '.. file1::')
+        document2 = self.createFile('file2.rst', '')
+        document3 = self.createFile('file3.rst', '.. file3::')
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
+        # Check splitter size of document 1.
+        self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
+        # Switch to document 2. Log window is hidden now.
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
+        self.assertFalse(self._widget().splitter.sizes()[1])
+        # Switch to document 3. Log window should be restore to original size.
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
+        self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
+
+    def test_logWindowSplitter3a(self):
+        """Feature 3. An combination of the above test cases.
+        """
+        document1 = self.createFile('file1.rst', '.. file1::')
+        document2 = self.createFile('file2.rst', '')
+        document3 = self.createFile('file3.rst', '.. file3::')
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
+        # Change splitter setting of document 1.
+        newSplitterSize = [125, 124]
+        self._widget().splitter.setSizes(newSplitterSize)
+        self._widget().splitter.splitterMoved.emit(newSplitterSize[0], 1)
+        self.assertEqual(self._widget().splitter.sizes(), newSplitterSize)
+        # Switch to an error-free document, assert log window hidden.
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
+        # TODO: The following line seems unnecessary but I just cannot delete it.
+        s = self._widget().splitter.sizes()
+        self.assertFalse(self._widget().splitter.sizes()[1])
+        # Switch to file3 which will cause build error, check splitter size.
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
+        self.assertEqual(self._widget().splitter.sizes(), newSplitterSize)
+
 
 # Main
 # ====
