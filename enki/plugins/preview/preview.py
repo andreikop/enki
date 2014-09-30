@@ -788,7 +788,8 @@ class PreviewDock(DockWidget):
             #
             # If there are no errors/warnings, collapse the log window (can mannually
             # expand it back to visible)
-            self._widget.splitterSize = self._widget.splitter.sizes()
+            if self._widget.splitter.sizes()[1] is not 0:
+                self._widget.splitterSize = self._widget.splitter.sizes()
             self._widget.splitter.setSizes([1,0])
             self._setHtmlProgress(100)
         self.setHtmlDone.emit()
