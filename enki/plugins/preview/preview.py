@@ -111,7 +111,6 @@ def sphinxEnabledForFile(filePath):
            os.path.exists(core.config()['Sphinx']['ProjectPath']) and
            os.path.normcase(sphinxProjectPath) == commonPrefix(filePath, sphinxProjectPath))
 
-# TODO: test cases
 def copyTemplateFile(errors, source, templateFileName, dest, newName=None):
     """For each sphinx project, three files are needed: ``default.css`` as
     html theming support file, ``index.rst``as master document, and ``conf.py``
@@ -361,7 +360,7 @@ class PreviewDock(DockWidget):
 
         self._widget.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
         self._widget.webView.page().linkClicked.connect(self._onLinkClicked)
-#        self._widget.webView.page().mainFrame().setZoomFactor(1.5)
+        self._widget.webView.page().mainFrame().setZoomFactor(1.5)
 
         self._widget.webView.page().mainFrame().titleChanged.connect(self._updateTitle)
         self.setWidget(self._widget)
@@ -410,8 +409,14 @@ class PreviewDock(DockWidget):
 
         self._widget.tbSave.clicked.connect(self.onPreviewSave)
 
+        # Add an attribute to ``self._widget`` denoting the splliter location.
+        # This value will be overwritten when the user changes splitter location.
+        self._widget.splitterSize = None
+        self._widget.splitter.splitterMoved.connect(self.on_splitterMoved)
         # Don't need to schedule document processing; a call to show() does.
 
+    def on_splitterMoved(self, *args):
+        self._widget.splitterSize = self._widget.splitter.sizes()
 
     def del_(self):
         """Uninstall themselves
@@ -676,8 +681,9 @@ class PreviewDock(DockWidget):
         for error in errors:
             errInfo += "Copy from " + error[0] + " to " + error[1] + " caused error " + error[2] + ';\n'
         if errInfo:
-            # TODO: Test this
-            QMessageBox.warning(self, "File copy error",  errInfo)
+            QMessageBox.warning(self, "Sphinx template file copy error",
+            "Copy template project files failed. The following errors are returned:<br>"
+            + errInfo)
 
         return errors
 
@@ -704,7 +710,9 @@ class PreviewDock(DockWidget):
             #    it's auto-hidden then restore that saved value here.
             #
             # If there are errors/warnings, expand log window to make it visible
-            self._widget.splitter.setSizes([180,60])
+            if not self._widget.splitterSize:
+                self._widget.splitterSize = [180, 60]
+            self._widget.splitter.setSizes(self._widget.splitterSize)
 
             # This code parses the error string to determine get the number of
             # warnings and errors. Common docutils error messages read::
@@ -784,6 +792,7 @@ class PreviewDock(DockWidget):
             #
             # If there are no errors/warnings, collapse the log window (can mannually
             # expand it back to visible)
+            self._widget.splitterSize = self._widget.splitter.sizes()
             self._widget.splitter.setSizes([1,0])
             self._setHtmlProgress(100)
         self.setHtmlDone.emit()
