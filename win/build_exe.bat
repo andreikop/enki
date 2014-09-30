@@ -23,13 +23,20 @@
 : *********************************************************************************
 : This is the first phase of the `build system <build.html>`_.
 :
-: **New**: Instead of running this file, simply execute ``pyinstaller
+: Combined Enki and Sphinx
+: ========================
+: Instead of running this file, simply execute ``pyinstaller
 : win\enki-sphinx.spec`` to create both Enki and Sphinx binaries. Use this
-: file to test Enki by itself, and produce an updated ``enki.spec`` file.
-: See ``enki-ephinx.spec`` for more details.
+: file to test Enki and Sphinx by themselves, and produce updated
+: ``enki.spec`` and ``sphinx-build.spec`` files. See ``enki-ephinx.spec``
+: for more details.
+:
+: Enki
+: ====
+: The following code builds and tests an Enki binary.
 :
 : Bundling
-: ========
+: --------
 : This batch file creates a self-contained executable bundle
 : of Enki using `PyInstaller <http://www.pyinstaller.org/>`_.
 : PyInstaller transforms the Enki Python application into a
@@ -49,6 +56,9 @@
 : --additional-hooks-dir=hook-path
 :   Additional path to search for hook files.
 :
+: --hidden-import=modulename
+:   Name an imported Python module that is not visible in your code.
+:
 : --runtime-hook=path-to-hook-file
 :   Specify a file with a custom runtime hook.
 :
@@ -63,9 +73,19 @@
 : ``bin\enki``
 :   Enki entry point, from which Pyinstaller builds the application.
 :
-pyinstaller --noconfirm --additional-hooks-dir=win --runtime-hook=win\rthook_pyqt4.py --noconsole --icon=icons\logo\enki.ico bin\enki
+:pyinstaller --noconfirm --additional-hooks-dir=win --runtime-hook=win\rthook_pyqt4.py --noconsole --icon=icons\logo\enki.ico bin\enki
 :
 : Testing
-: =======
+: -------
 : Run the bundled application to make sure it works.
-dist\enki\enki
+:dist\enki\enki
+pause Press Enter to build and test Sphinx.
+:
+: Sphinx
+: ======
+: The following code builds and tests a Sphinx binary. The sections follow the
+: same flow as Enki's process above.
+:
+: Specify CodeChat as an import, since it's dynamically loaded by Sphinx.
+pyinstaller --noconfirm --hidden-import=CodeChat win\sphinx-build.py
+dist\sphinx-build\sphinx-build
