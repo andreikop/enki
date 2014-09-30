@@ -18,12 +18,15 @@
 :    Public License along with Enki.  If not, see
 :    <http://www.gnu.org/licenses/>.
 :
-: .. highlight:: bat
-:
 : *********************************************************************************
 : build_exe.bat - Build a self-contained executable bundle for the Enki application
 : *********************************************************************************
-: This is the first phase of the :doc:`build system <build>`.
+: This is the first phase of the `build system <build.html>`_.
+:
+: **New**: Instead of running this file, simply execute ``pyinstaller
+: win\enki-sphinx.spec`` to create both Enki and Sphinx binaries. Use this
+: file to test Enki by itself, and produce an updated ``enki.spec`` file.
+: See ``enki-ephinx.spec`` for more details.
 :
 : Bundling
 : ========
@@ -33,14 +36,12 @@
 : standalone bundle. To do so, it needs hooks, which specify
 : data files and hidden imports PyInstaller can't find. They are:
 :
-: .. toctree::
-:    :maxdepth: 2
+: * ``hook-enki.py``
+: * ``hook-qutepart.py``
+: * ``rthook_pyqt4.py``
 :
-:    hook-enki.py
-:    hook-qutepart.py
-:    rthook_pyqt4.py
-:
-: PyInstaller is invoked with the following `options <http://htmlpreview.github.io/?https://github.com/pyinstaller/pyinstaller/blob/develop/doc/Manual.html#options>`_:
+: PyInstaller is invoked with the following `options
+: <http://htmlpreview.github.io/?https://github.com/pyinstaller/pyinstaller/blob/develop/doc/Manual.html#options>`_:
 :
 : --noconfirm
 :   Replace an existing executable folder or file without warning.
