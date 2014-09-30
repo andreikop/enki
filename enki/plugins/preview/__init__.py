@@ -5,6 +5,7 @@
 # file currently being edited. This file implements the
 # Plugin interface; other modules are given below.
 
+import sys
 import os.path
 from PyQt4.QtCore import QObject, Qt, pyqtSlot
 from PyQt4.QtGui import QAction, QIcon, QKeySequence, QWidget, QFileDialog, \
@@ -101,12 +102,11 @@ class SettingsWidget(QWidget):
     # such that non-executable files will not be selected by the user.
     @pyqtSlot()
     def on_pbSphinxExecutable_clicked(self):
+        fltr = "sphinx-build" + (".exe" if sys.platform.startswith("win") else "") \
+               + ";; All files (*.*)"
         path = QFileDialog.getOpenFileName(self,
                                            "Select Sphinx executable",
-                                           # .. note::
-                                           #    TODO: Pan: What's the Unix equivalent of sphinx-build.exe? Sphinx-build.py?
-                                           #    Would you add code to put that in depending on OS?
-                                           filter="sphinx-build.exe;; All Files (*.*)");
+                                           filter=fltr)
         if path:
             self.leSphinxExecutable.setText(path)
 
@@ -319,5 +319,3 @@ class Plugin(QObject):
         dialog.appendOption(TextOption(dialog, core.config(),
                                        "Sphinx/Cmdline",
                                        widget.leSphinxCmdline))
-        # TODO: Emit a signal from here to the preview class. Force preview
-        # window to refresh on setting change.
