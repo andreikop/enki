@@ -778,13 +778,15 @@ head
     # Cases testing copyTemplateFile
     ##------------------------------
     # Basic checks
+    # TODO: Do we need to modularize these test cases? It seems we have many
+    # tunable parameters, yet all testcases look alike.
     def test_copyTemplateFile1(self):
         # copyTemplateFile has function header:
         # ``copyTemplateFile(errors, source, templateFileName, dest, newName=None)``
         # Basic test would be copy one ``file`` from one valid source directory
         # to a valid ``dest`` directory with no ``newName`` or ``error``.
         source = self.TEST_FILE_DIR
-        dest = os.path.join(source, 'sub');
+        dest = os.path.join(source, 'sub')
         os.makedirs(dest)
         errors = []
         copyTemplateFile(errors, source, 'dummy.html', dest)
@@ -792,6 +794,27 @@ head
         self.assertTrue(os.path.isfile(os.path.join(source, 'dummy.html')))
         self.assertTrue(os.path.isfile(os.path.join(dest, 'dummy.html')))
 
+    def test_copyTemplateFile2(self):
+        # Test invalid source directory.
+        source = os.path.join(self.TEST_FILE_DIR, 'invalid')
+        dest = os.path.join(source, 'sub')
+        os.makedirs(dest)
+        errors = []
+        copyTemplateFile(errors, source, 'missing.file', dest)
+        # TODO: consider uusing filter keyword instead of any for
+        self.assertTrue(any(error.startswith("[Errno 2] No such file or directory")
+                            for error in errors[0]))
+
+    def test_copyTemplateFile3(self):
+        # Test invalid destination directory.
+        source = self.TEST_FILE_DIR
+        dest = os.path.join(source, 'sub')
+        errors = []
+        copyTemplateFile(errors, source, 'dummy.html', dest)
+        self.assertTrue(any(error.startswith("[Errno 2] No such file or directory")
+                            for error in errors[0]))
+
+    #TODO: more testcases. Test other possible IOError situations.
 
 # Main
 # ====
