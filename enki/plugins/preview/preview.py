@@ -372,6 +372,16 @@ class PreviewDock(DockWidget):
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         core.workspace().textChanged.connect(self._onTextChanged)
 
+        # If user hit accept button in setting dialog, Enki will force a rebuild of the
+        # whole project.
+        # TODO: should we only build if preview setting has been changed?
+        #
+        # In order to make this happen, let _onSettingsDialogAboutToExecute emit
+        # a signal indicating codechat setting dialog has been opened. Save
+        # core.config()['Sphinx'] and core.config()['CodeChat']. After dialogAccepted
+        # detected, compare current settings with the old one. Build if necessary.
+        core.uiSettingsManager().dialogAccepted.connect(self._scheduleDocumentProcessing)
+
         # File save actions always trigger a rebuild
         core.actionManager().action( "mFile/mSave/aCurrent" ).triggered.connect(self._scheduleDocumentProcessing)
         core.actionManager().action( "mFile/mSave/aAll" ).triggered.connect(self._scheduleDocumentProcessing)
