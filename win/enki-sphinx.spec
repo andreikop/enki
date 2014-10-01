@@ -27,12 +27,18 @@ enki_a = Analysis(['bin\\enki'],
              hiddenimports=[],
              hookspath=['win'],
              runtime_hooks=['win\\rthook_pyqt4.py'],
+             # Per  Hartmut on 24-Sep-2014 on the Pyinstaller e-mail list:
+             # "An optional list of module or package names (their Python names,
+             # not path names) that will be ignored (as though they were not
+             # found)."
+             excludes=['_tkinter'],
              cipher=block_cipher)
 sphinx_a = Analysis(['win\\sphinx-build.py'],
              pathex=['C:\\Users\\bjones\\Documents\\enki_all\\enki1'],
              hiddenimports=['CodeChat.CodeToRestSphinx', 'CodeChat.CodeToRest', 'CodeChat.LanguageSpecificOptions' ],
              hookspath=None,
              runtime_hooks=None,
+             excludes=['_tkinter'],
              cipher=block_cipher)
 
 # Next, eliminate duplicate libraries and modules. Listing Enki first seems to
