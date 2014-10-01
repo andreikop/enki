@@ -23,14 +23,6 @@
 : *********************************************************************************
 : This is the first phase of the `build system <build.html>`_.
 :
-: Combined Enki and Sphinx
-: ========================
-: Instead of running this file, simply execute ``pyinstaller
-: win\enki-sphinx.spec`` to create both Enki and Sphinx binaries. Use this
-: file to test Enki and Sphinx by themselves, and produce updated
-: ``enki.spec`` and ``sphinx-build.spec`` files. See ``enki-ephinx.spec``
-: for more details.
-:
 : Enki
 : ====
 : The following code builds and tests an Enki binary.
@@ -73,13 +65,12 @@
 : ``bin\enki``
 :   Enki entry point, from which Pyinstaller builds the application.
 :
-:pyinstaller --noconfirm --additional-hooks-dir=win --runtime-hook=win\rthook_pyqt4.py --noconsole --icon=icons\logo\enki.ico bin\enki
+pyinstaller --noconfirm --additional-hooks-dir=win --runtime-hook=win\rthook_pyqt4.py --noconsole --icon=icons\logo\enki.ico bin\enki
 :
 : Testing
 : -------
 : Run the bundled application to make sure it works.
-:dist\enki\enki
-pause Press Enter to build and test Sphinx.
+dist\enki\enki
 :
 : Sphinx
 : ======
@@ -87,5 +78,24 @@ pause Press Enter to build and test Sphinx.
 : same flow as Enki's process above.
 :
 : Specify CodeChat as an import, since it's dynamically loaded by Sphinx.
-pyinstaller --noconfirm --hidden-import=CodeChat win\sphinx-build.py
+: Confusion: just doing --hidden-import=CodeChat, or even
+: --hidden-import=CodeChat.CodeToRestSphinx doesn't work (CodeChat.LanguageSpecificOptions
+: won't be found). Why?
+pause Press Enter to build and test Sphinx.
+pyinstaller --noconfirm --hidden-import=CodeChat.CodeToRestSphinx --hidden-import=CodeChat.CodeToRest --hidden-import=CodeChat.LanguageSpecificOptions --log-level=DEBUG win\sphinx-build.py
 dist\sphinx-build\sphinx-build
+:
+: Combined Enki and Sphinx
+: ========================
+: This builds two binaries which can be placed in the same directory.
+: See ``enki-ephinx.spec`` for more details.
+:
+: Note: Existing build/ and dist/ directories from the standalone builds seem to
+: confuse Pyinstaller. Start clean.
+:pause Press Enter to build combined Enki and Sphinx binaries.
+rmdir /q /s build dist
+pyinstaller --noconfirm win\enki-sphinx.spec
+: Sphinx binaries depend on Enki files, since they're combined. Copy them over.
+xcopy /E /I /Q dist\sphinx-build dist\enki
+: Run to see if everything works.
+dist\enki\enki
