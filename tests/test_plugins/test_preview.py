@@ -850,6 +850,18 @@ head
         os.chmod(os.path.join(source, 'dummy.html'), mode)
         self.assertNotEqual(filter(lambda x: "Access denied" in x, errors[0]), ())
 
+    def test_copyTemplateFile5(self):
+        # Test the fifth argument of copyTemplateFile: newName, that will alter
+        # copied file's name.
+        source = self.TEST_FILE_DIR
+        dest = os.path.join(source, 'sub')
+        os.makedirs(dest)
+        errors = []
+        copyTemplateFile(errors, source, 'dummy.html', dest, 'newFile.name')
+        self.assertEqual(errors, [])
+        self.assertTrue(os.path.isfile(os.path.join(source, 'dummy.html')))
+        self.assertTrue(os.path.isfile(os.path.join(dest, 'newFile.name')))
+
     # TODO: finish the following 5 test cases
     #
     # Cases testing logwindow splitter
