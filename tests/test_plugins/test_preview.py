@@ -64,7 +64,7 @@ class PreviewTestCase(base.TestCase):
     def _dock(self):
         """Find then return the PreviewDock object. Fail if
         it is not found."""
-        return self.findDock('Previe&w')
+        return self.findVisibleDock('Previe&w')
 
     def _widget(self):
         """Find then return the PreviewDock widget. Fail if it is
@@ -133,17 +133,20 @@ class Test(PreviewTestCase):
     def test_emptyCodeChatDocument(self):
         core.config()['CodeChat']['Enabled'] = True
         core.workspace().createEmptyNotSavedDocument()
-        self.assertFalse(self._dock() in core.mainWindow()._addedDockWidgets)
+        with self.assertRaisesRegexp(AssertionError, 'Dock Previe&w not found'):
+            self._dock()
 
     @base.requiresCmdlineUtility('sphinx-build --version')
     def test_emptySphinxDocument(self):
         core.config()['Sphinx']['Enabled'] = True
         core.workspace().createEmptyNotSavedDocument()
-        self.assertFalse(self._dock() in core.mainWindow()._addedDockWidgets)
+        with self.assertRaisesRegexp(AssertionError, 'Dock Previe&w not found'):
+            self._dock()
 
     def test_emptyDocument(self):
         core.workspace().createEmptyNotSavedDocument()
-        self.assertFalse(self._dock() in core.mainWindow()._addedDockWidgets)
+        with self.assertRaisesRegexp(AssertionError, 'Dock Previe&w not found'):
+            self._dock()
 
     def test_html(self):
         self._doBasicTest('html')
@@ -368,13 +371,13 @@ content"""
         self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     @requiresModule('CodeChat')
-    @base.inMainLoop
     def test_uiCheck5(self):
         """If Enki is opened without any configuration, the preview dock will
-           be empty. This will not affect resT files or html files."""
+        not appear. This will not affect resT files or html files."""
         self.testText = u'test'
         self._doBasicTest('py')
-        assert 'test' not in self._html()
+        with self.assertRaisesRegexp(AssertionError, 'Dock Previe&w not found'):
+            self._dock()
 
     @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
@@ -445,8 +448,8 @@ content"""
            The preview window should now be opened."""
         self.testText = u'test'
         self._doBasicTest('py')
-        assert 'test' not in self._html()
-
+        with self.assertRaisesRegexp(AssertionError, 'Dock Previe&w not found'):
+            self._dock()
         core.config()['CodeChat']['Enabled'] = True
         core.uiSettingsManager().dialogAccepted.emit();
         self._doBasicTest('py')
@@ -921,7 +924,7 @@ head
         self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
 
     def test_logWindowSplitter3a(self):
-        """Feature 3. A combination of the above test cases.
+        """Feature 1,2,3. A combination of the above test cases.
         """
         document1 = self.createFile('file1.rst', '.. file1::')
         document2 = self.createFile('file2.rst', '')
