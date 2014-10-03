@@ -12,6 +12,7 @@
 import unittest
 import os.path
 import sys
+import stat
 import imp
 import codecs
 
@@ -801,9 +802,17 @@ head
         os.makedirs(dest)
         errors = []
         copyTemplateFile(errors, source, 'missing.file', dest)
-        # TODO: consider uusing filter keyword instead of any for
-        self.assertTrue(any(error.startswith("[Errno 2] No such file or directory")
-                            for error in errors[0]))
+        self.assertNotEqual(filter(lambda x: x.startswith("[Errno 2] No such file or directory"),
+                                   errors[0]), ())
+
+    def test_copyTemplateFile2a(self):
+        # Test empty source directory.
+        source = None
+        dest = os.path.join(self.TEST_FILE_DIR, 'sub')
+        os.makedirs(dest)
+        errors = []
+        copyTemplateFile(errors, source, 'missing.file', dest)
+        self.assertTrue(errors[0][2].startswith("Input or output directory cannot be None"))
 
     def test_copyTemplateFile3(self):
         # Test invalid destination directory.
@@ -811,10 +820,32 @@ head
         dest = os.path.join(source, 'sub')
         errors = []
         copyTemplateFile(errors, source, 'dummy.html', dest)
-        self.assertTrue(any(error.startswith("[Errno 2] No such file or directory")
-                            for error in errors[0]))
+        self.assertNotEqual(filter(lambda x: x.startswith("[Errno 2] No such file or directory"),
+                                   errors[0]), ())
 
-    # TODO: more testcases. Test other possible IOError situations.
+    def test_copyTemplateFile3a(self):
+        # Test empty destination directory.
+        source = self.TEST_FILE_DIR
+        dest = None
+        errors = []
+        copyTemplateFile(errors, source, 'dummy.html', dest)
+        self.assertTrue(errors[0][2].startswith("Input or output directory cannot be None"))
+
+    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
+    def test_copyTemplateFile4(self):
+        # Make target directory read only, causing access error (*nix only since
+        # NTFS does not have Write-only property)
+        source = self.TEST_FILE_DIR
+        dest= os.path.join(source, 'sub')
+        os.makedirs(dest)
+        errors = []
+        # Make the source file write only
+        mode = os.stat(os.path.join(source, 'dummy.html'))[0]
+        os.chmod(os.path.join(source, 'dummy.html'), stat.S_IREAD)
+        copyTemplateFile(errors, source, 'dummy.html', dest)
+        # Restore source file's attribute
+        os.chmod(os.path.join(source, 'dummy.html'), mode)
+        self.assertNotEqual(filter(lambda x: "Access denied" in x, errors[0]), ())
 
     # TODO: finish the following 5 test cases
     #
@@ -890,7 +921,7 @@ head
         self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
 
     def test_logWindowSplitter3a(self):
-        """Feature 3. An combination of the above test cases.
+        """Feature 3. A combination of the above test cases.
         """
         document1 = self.createFile('file1.rst', '.. file1::')
         document2 = self.createFile('file2.rst', '')
@@ -903,13 +934,10 @@ head
         self.assertEqual(self._widget().splitter.sizes(), newSplitterSize)
         # Switch to an error-free document, assert log window hidden.
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
-        # TODO: The following line seems unnecessary but I just cannot delete it.
-        s = self._widget().splitter.sizes()
         self.assertFalse(self._widget().splitter.sizes()[1])
         # Switch to file3 which will cause build error, check splitter size.
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
         self.assertEqual(self._widget().splitter.sizes(), newSplitterSize)
-
 
 # Main
 # ====
