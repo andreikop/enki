@@ -28,11 +28,11 @@ class Plugin(QObject):
         self._undoClose.triggered.connect(self._onUndoClose)
         menu = core.actionManager().action("mFile/mUndoClose").menu()
         menu.aboutToShow.connect(self._onMenuAboutToShow)
-        menu.aboutToHide.connect(self._onMenuAboutToHide)
 
     def del_(self):
         """Explicitly called destructor
         """
+        self._cleanupActions()
         core.workspace().documentClosed.disconnect(self._onDocumentClosed)
         core.actionManager().removeAction(self._undoClose)
         enki.core.json_wrapper.dump(_FILE_PATH, 'recent file', self._recent)
@@ -95,6 +95,8 @@ class Plugin(QObject):
     def _onMenuAboutToShow(self):
         """Menu is going to be shown. Fill it
         """
+
+        self._cleanupActions()
         self._updateUndoCloseAction()
 
         existing = self._existingNotOpenedRecents()
@@ -110,9 +112,7 @@ class Plugin(QObject):
             action.triggered.connect(self._onMenuItemTriggered)
             self._recentFileActions.append(action)
 
-    def _onMenuAboutToHide(self):
-        """Menu is going to be hidden. Clear it
-        """
+    def _cleanupActions(self):
         for action in self._recentFileActions:
             core.actionManager().removeAction(action)
         self._recentFileActions = []
