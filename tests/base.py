@@ -336,6 +336,32 @@ class TestCase(unittest.TestCase):
         else:
             self.fail('Dock {} not found'.format(windowTitle))
 
+    def findVisibleDock(self, windowTitle):
+        """Return a reference to the dock object which is both visible and
+        has "windowTitle" as its name.
+        """
+        # Per Andrei's explaination, Enki dock has the following 4 states:
+        #
+        # #. doesn't exist, not available. Search results dock is created only
+        #    when search in directory is used first time;
+        # #. exists, available, but not visible. Close "Opened Files" dock. It
+        #    still exists and can be opened again by Alt+O;
+        # #. exists, available, visible;
+        # #. exists, not available, not visible. Navigator is only shown for
+        #    languages which are supported by ctags. If current file is not
+        #    supported, Navigator is not available. But may exist because had
+        #    been created for another file.
+        #
+        # Dock can exist for another file even if it might not be visible. In
+        # our test case, there will always be one preview dock exisiting for
+        # *dummy.html* file. Thus instead of checking ``findChildren``, we use
+        # ``_addedDockWidigets`` that will only check available docks.
+        for dock in core.mainWindow()._addedDockWidgets:
+            if dock.windowTitle().startswith(windowTitle):
+                return dock
+        else:
+            self.fail('Dock {} not found'.format(windowTitle))
+
     def assertEmits(self, sender, senderSignal, timeoutMs=1,
       expectedSignalParams=None):
         """ A unit testing convenience routine.
