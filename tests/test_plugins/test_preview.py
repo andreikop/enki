@@ -696,6 +696,29 @@ head
         self.assertTrue(u'<p>content</p>' in webViewContent)
         self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
+    @base.requiresCmdlineUtility('sphinx-build --version')
+    @base.inMainLoop
+    @requiresModule('CodeChat')
+    def test_uiCheck20(self):
+        """When user hit ok button in setting window, the project will get
+        rebuild.
+        """
+        core.config()['CodeChat']['Enabled'] = True
+        self._doBasicSphinxConfig()
+
+        self.testText = u"""# ****
+# head
+# ****
+#
+# :doc:`missing.file`"""
+        webViewContent, logContent = self._doBasicSphinxTest('py')
+        self.assertTrue(u'<span class="pre">missing.file</span>' in webViewContent)
+        self.assertTrue(u'unknown document: missing.file' in logContent)
+        core.config()['Sphinx']['Enabled'] = False
+        core.uiSettingsManager().dialogAccepted.emit()
+        self._assertHtmlReady(lambda: None, timeout = 10000)
+        self.assertTrue(u'Unknown interpreted text role "doc"' in self._logText())
+
     # Cases testing commonprefix
     ##--------------------------
     # Basic checks
