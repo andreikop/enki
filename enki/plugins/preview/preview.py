@@ -120,6 +120,7 @@ def copyTemplateFile(errors, source, templateFileName, dest, newName=None):
     ``errors``.
     """
     if not source or not dest:
+        errors.append((source, dest, "Input or output directory cannot be None"))
         return
     if not newName:
         newName = templateFileName
@@ -127,7 +128,7 @@ def copyTemplateFile(errors, source, templateFileName, dest, newName=None):
         sourcePath = os.path.join(source, templateFileName)
         try:
             shutil.copy(sourcePath, os.path.join(dest, newName))
-        except Exception as why:
+        except (IOError, OSError) as why:
             errors.append((sourcePath, dest, str(why)))
 
 class ConverterThread(QThread):
@@ -197,7 +198,7 @@ class ConverterThread(QThread):
                 ext =  u'.' + core.config()['Sphinx']['OutputExtension']
                 htmlFile = htmlPath + ext
                 # Second place to look: file without extension.html. For
-                # example, look for foo.rst in foo.html.
+                # example, look for foo.html for foo.rst.
                 htmlFileAlter = os.path.splitext(htmlPath)[0] + ext
                 if os.path.exists(htmlFile):
                     return u'', errString, QUrl.fromLocalFile(htmlFile)
