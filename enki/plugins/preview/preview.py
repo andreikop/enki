@@ -764,7 +764,6 @@ class PreviewDock(DockWidget):
             #
             # TODO: Is this necesary? Is there any case where omitting this
             # causes a failure?
-
             regex = re.compile(errPosRe + errTypeRe + errEolRe,
               # The message usually contain multiple lines; search each line
               # for errors and warnings.
