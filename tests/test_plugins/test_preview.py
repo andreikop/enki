@@ -731,32 +731,31 @@ head
     def test_commonPrefix3(self):
         self.assertEqual(commonPrefix('', 'a'), '')
 
+    @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
     # Test using various path separators.
-    # TODO: this case does not work on linux
     def test_commonPrefix5(self):
         self.assertEqual(commonPrefix('a\\b', 'a\\b'), os.path.join('a','b'))
 
     def test_commonPrefix6(self):
         self.assertEqual(commonPrefix('a/b', 'a/b'), os.path.join('a','b'))
 
+    @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
     def test_commonPrefix7(self):
-        # TODO: this case does not work on linux
         self.assertEqual(commonPrefix('a/b', 'a\\b'), os.path.join('a','b'))
 
     # Check for the bug in os.path.commonprefix.
     def test_commonPrefix8(self):
         self.assertEqual(commonPrefix('a\\bc', 'a\\b'), 'a')
 
-    # Test for relative paths.
+    @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
     def test_commonPrefix9(self):
-        # TODO: this case does not work on linux
         self.assertEqual(commonPrefix('a\\b\\..', 'a\\b'), 'a')
 
     def test_commonPrefix9a(self):
         self.assertEqual(commonPrefix('a/b/..', 'a/b'), 'a')
 
+    @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
     def test_commonPrefix10(self):
-        # TODO: this case does not work on linux
         self.assertEqual(commonPrefix('a\\.\\b', 'a\\b'), os.path.join('a','b'))
 
     def test_commonPrefix10a(self):
@@ -885,8 +884,6 @@ head
         self.assertTrue(os.path.isfile(os.path.join(source, 'dummy.html')))
         self.assertTrue(os.path.isfile(os.path.join(dest, 'newFile.name')))
 
-    # TODO: finish the following 5 test cases
-    #
     # Cases testing logwindow splitter
     ##--------------------------------
     # Log splitter has three features:
