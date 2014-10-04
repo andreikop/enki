@@ -410,14 +410,20 @@ class PreviewDock(DockWidget):
 
         self._widget.tbSave.clicked.connect(self.onPreviewSave)
 
-        # Add an attribute to ``self._widget`` denoting the splliter location.
+        # Add an attribute to ``self._widget`` denoting the splitter location.
         # This value will be overwritten when the user changes splitter location.
-        self._widget.splitterSize = None
+        self._widget.splitterErrorStateSize = (199,50)
+        self._widget.splitterNormStateSize = (1,0)
+        self._widget.splitterNormState = True
+        self._widget.splitter.setSizes(self._widget.splitterNormStateSize)
         self._widget.splitter.splitterMoved.connect(self.on_splitterMoved)
         # Don't need to schedule document processing; a call to show() does.
 
     def on_splitterMoved(self, pos, index):
-        self._widget.splitterSize = self._widget.splitter.sizes()
+        if self._widget.splitterNormState:
+            self._widget.splitterNormStateSize = self._widget.splitter.sizes()
+        else:
+            self._widget.splitterErrorStateSize = self._widget.splitter.sizes()
 
     def del_(self):
         """Uninstall themselves
@@ -707,9 +713,10 @@ class PreviewDock(DockWidget):
         # errors and warnings from these messages.
         if errString:
             # If there are errors/warnings, expand log window to make it visible
-            if not self._widget.splitterSize or self._widget.splitterSize[1] is 0:
-                self._widget.splitterSize = [199, 50]
-            self._widget.splitter.setSizes(self._widget.splitterSize)
+            if self._widget.splitterNormState:
+                self._widget.splitterNormStateSize = self._widget.splitter.sizes()
+                self._widget.splitterNormState = False
+            self._widget.splitter.setSizes(self._widget.splitterErrorStateSize)
 
             # This code parses the error string to determine get the number of
             # warnings and errors. Common docutils error messages read::
@@ -778,20 +785,20 @@ class PreviewDock(DockWidget):
             errNum = sum([x[1]==u'ERROR' or x[1]==u'SEVERE' for x in result])
             warningNum = [x[1] for x in result].count('WARNING')
             # Report these results this to the user.
-            status = 'Warning(s): ' + str(warningNum) + ' Error(s): ' + str(errNum)
+            status = 'Sphinx warning(s): ' + str(warningNum) \
+                     + ', error(s): ' + str(errNum)
             self._widget.teLog.appendHtml('<pre>' + errString + '</pre><pre><font color=red>' \
                                           + status + '</font></pre>')
             # Update the progress bar.
             color = 'red' if errNum else 'yellow' if warningNum else None
             self._setHtmlProgress(100, color)
         else:
-            # TODO: probably remove this behavior or change it per the notes above.
-            #
             # If there are no errors/warnings, collapse the log window (can mannually
             # expand it back to visible)
-            if self._widget.splitter.sizes()[1] is not 0:
-                self._widget.splitterSize = self._widget.splitter.sizes()
-            self._widget.splitter.setSizes([1,0])
+            if not self._widget.splitterNormState:
+                self._widget.splitterErrorStateSize = self._widget.splitter.sizes()
+                self._widget.splitterNormState = True
+            self._widget.splitter.setSizes(self._widget.splitterNormStateSize)
             self._setHtmlProgress(100)
         self.setHtmlDone.emit()
 
