@@ -899,11 +899,7 @@ head
     # #. If three files are present, with one of them error-free, then the splitter
     #    size will be the same only between those files with building errors.
     #
-    # The following test cases will test all three features with two special cases:
-    #
-    # #. create rst file with error, change splitter size, save file,
-    #    delete all content, save file. Add new error. Will splitter size be
-    #    preserved?
+    # The following test cases will test all three features with one special cases:
     #
     # #. User hide splitter size. Then switch to another error-free document.
     #    Switch back. Will log window keep hidden?
@@ -976,6 +972,24 @@ head
         # Switch to file3 which will cause build error, check splitter size.
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
         self.assertEqual(self._widget().splitter.sizes(), newSplitterSize)
+
+    def test_logWindowSplitter4(self):
+        """User actively hide log window, Enki should be able to remember this.
+        """
+        document1 = self.createFile('file1.rst', '.. file1::')
+        document2 = self.createFile('file2.rst', '')
+        document3 = self.createFile('file3.rst', '.. file3::')
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
+        # User manually change error state splitter size such that log window
+        # is hidden.
+        self._widget().splitter.setSizes([1, 0])
+        self._widget().splitter.splitterMoved.emit(1, 1)
+        # Switch to document 2. Log window is hidden now.
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
+        self.assertFalse(self._widget().splitter.sizes()[1])
+        # Switch to document 3. Log window should keep hidden.
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
+        self.assertFalse(self._widget().splitter.sizes()[1])
 
 # Main
 # ====
