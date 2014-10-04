@@ -83,12 +83,12 @@ class SettingsWidget(QWidget):
             # Automatically set the builder output path to '_build\\html' under
             # builder root path.
             #
-            # .. note::
-            #    TODO: Pan: since we (I think) support relative paths, only set this
-            #    if the path was absolute (and therefore presumabely wrong). If
-            #    it's a relative path such as ``_build\html``, then it's probably
-            #    OK without changing. Would you add tests/code for this?
-            self.leSphinxOutputPath.setText(os.path.join(path, '_build', 'html'))
+            # Since relative paths are supported, we will only set
+            # leSphinxOutputPath if the path was none or was absolute (and
+            # therefore presumabely wrong). If it's a relative path such as
+            # ``_build\html``, then it's probably OK without changing.
+            if self.leSphinxOutputPath or os.path.isabs(self.leSphinxOutputPath):
+                self.leSphinxOutputPath.setText(os.path.join(path, '_build', 'html'))
 
     @pyqtSlot()
     def on_pbSphinxOutputPath_clicked(self):
