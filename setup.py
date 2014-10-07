@@ -45,21 +45,30 @@ def _checkDependencies():
     return ok
 
 
-"""Install .desktop and .xpm and .desktop only on linux. (Shall we do it on
-hlamer: We should use relative pathes here, without /usr/, so it will be installed to
-/usr/local/share with setup.py and to /usr/share with Debian packages.
-BUT KDE4 on Suse 12.02 ignores data in /usr/local/share, and, probably, some other systems do
-Therefore Enki always installs its .desktop and icons to /usr/share
-"""
+def _inVenv():
+    """Check if the installation is running inside a Virutalenv or Venv.
+
+    It is needed to know where to install icons and .desktop files on linux.
+
+    (Shall we do it on hlamer: We should use relative pathes here, without /usr/, so it will be installed to
+    /usr/local/share with setup.py and to /usr/share with Debian packages.
+    BUT KDE4 on Suse 12.02 ignores data in /usr/local/share, and, probably, some other systems do
+    Therefore Enki always installs its .desktop and icons to /usr/share
+    """
+
+    # See http://stackoverflow.com/q/1871549/1468388
+    return hasattr(sys, 'real_prefix') or getattr(sys, 'base_prefix') != sys.prefix
+
 
 if sys.platform.startswith('linux2') or \
    'sdist' in sys.argv or \
    'upload' in sys.argv:
-    data_files=[('/usr/share/applications/', ['install/enki.desktop']),
-                ('/usr/share/pixmaps/', ['icons/logo/48x48/enki.png']),
-                ('/usr/share/icons/hicolor/32x32/apps', ['icons/logo/32x32/enki.png']),
-                ('/usr/share/icons/hicolor/48x48/apps', ['icons/logo/48x48/enki.png']),
-                ('/usr/share/icons/hicolor/scalable/apps', ['icons/logo/enki.svg'])
+    prefix = sys.prefix if _inVenv() else '/usr/share'
+    data_files=[('%s/applications/' % prefix, ['install/enki.desktop']),
+                ('%s/pixmaps/' % prefix, ['icons/logo/48x48/enki.png']),
+                ('%s/icons/hicolor/32x32/apps' % prefix, ['icons/logo/32x32/enki.png']),
+                ('%s/icons/hicolor/48x48/apps' % prefix, ['icons/logo/48x48/enki.png']),
+                ('%s/icons/hicolor/scalable/apps' % prefix, ['icons/logo/enki.svg'])
                 ]
 else:
     data_files = []
