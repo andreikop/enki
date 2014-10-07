@@ -70,7 +70,7 @@ if (sys.platform.startswith('linux2') and not _inVenv()) or \
 else:
     data_files = []
 
-classifiers = ['Development Status :: 3 - Alpha',
+classifiers = ['Development Status :: 5 - Production/Stable',
                'Environment :: X11 Applications :: Qt',
                'Intended Audience :: Developers',
                'License :: OSI Approved :: GNU General Public License (GPL)',
