@@ -25,6 +25,7 @@ class _AbstractReplPlugin(QObject):
         self._installed = False
         self._evalAction = None
         self._activeInterpreterPath = None
+        self._interpreter = None
         self._dock = None
 
         # TODO handle situation, when lexer changed for current document
@@ -156,9 +157,9 @@ class _AbstractReplPlugin(QObject):
 
         self._activeInterpreterPath = self._settingsGroup()["InterpreterPath"]
 
-        self._interpreter = self._createInterpreter()
-
-        self._interpreter.processIsRunningChanged.connect(lambda isRunning: self._breakAction.setEnabled(isRunning))
+        if self._interpreter is None:
+            self._interpreter = self._createInterpreter()
+            self._interpreter.processIsRunningChanged.connect(lambda isRunning: self._breakAction.setEnabled(isRunning))
 
         if self._dock is None:
             from repl import ReplDock

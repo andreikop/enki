@@ -141,7 +141,7 @@ class TermWidget(QWidget):
         oldValue = scrollBar.value()
 
         if False:
-            # hlamer: It seems, it is more comfortant, if text is always scrolled
+            # hlamer: It seems, it is more comfortable, if text is always scrolled
             scrollAtTheEnd = oldValue == scrollBar.maximum()
         else:
             scrollAtTheEnd = True
