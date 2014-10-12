@@ -8,8 +8,7 @@
 import sys
 import os.path
 from PyQt4.QtCore import QObject, Qt, pyqtSlot
-from PyQt4.QtGui import QAction, QIcon, QKeySequence, QWidget, QFileDialog, \
-    QMessageBox
+from PyQt4.QtGui import QAction, QIcon, QKeySequence, QWidget, QFileDialog
 from PyQt4 import uic
 
 from enki.core.core import core
@@ -125,7 +124,7 @@ class SettingsWidget(QWidget):
         self.leSphinxOutputPath.setText(os.path.normpath(self.leSphinxOutputPath.text()))
 
     def on_leSphinxExecutable_editingFinished(self):
-        self.leSphinxExecutable.setText(os.path.abspath(self.leSphinxExecutable.text()))
+        self.leSphinxExecutable.setText(self.leSphinxExecutable.text())
 
     def _updateSphinxSettingMode(self):
         """Update the Sphinx settings mode by hiding/revealing the appropriate

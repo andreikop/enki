@@ -14,8 +14,8 @@ import Queue
 import StringIO
 import traceback
 import re
-import subprocess
 import shutil
+import cgi
 
 # Third-party imports
 # -------------------
@@ -206,7 +206,7 @@ class ConverterThread(QThread):
                     return u'', errString, QUrl.fromLocalFile(htmlFileAlter)
                 else:
                     return ('No preview for this type of file.<br>Expect ' + htmlFile +
-                            " or " + htmlFileAlter, None, QUrl())
+                            " or " + htmlFileAlter, errString, QUrl())
 
             # Otherwise, fall back to using CodeChat+docutils.
             elif self._canUseCodeChat():
@@ -221,7 +221,13 @@ class ConverterThread(QThread):
                 # CodeToRest can render this file. Do so.
                 lso.set_language(fileExtension)
                 htmlString = CodeToRest.code_to_html_string(text, lso, errStream)
+                # Error string might contain characters such as ">" and "<",
+                # they need to be converted to "&gt;" and "&lt;" such that
+                # they can be displayed correctly in the log window as html strings.
+                # This step is handled by ``cgi.escape``.
                 errString = errStream.getvalue()
+                if errString:
+                    errString = "<font color='red'>" + cgi.escape(errString) + '</font>'
                 errStream.close()
                 return htmlString, errString, QUrl()
 
@@ -291,6 +297,8 @@ class ConverterThread(QThread):
                      # Capture errors to a string and return it.
                      'warning_stream' : errStream})
         errString = errStream.getvalue()
+        if errString:
+            errString = "<font color='red'>" + cgi.escape(errString) + '</font>'
         errStream.close()
         return htmlString, errString
 
@@ -314,10 +322,10 @@ class ConverterThread(QThread):
         except Exception as ex:
             return '<pre><font color=red>Failed to execute HTML builder' + \
                    'console utility "{}":\n{}</font>\n'\
-                   .format(htmlBuilderCommandLine, str(ex)) + \
-                   '\nGo to Settings -> Settings -> CodeChat to set HTML builder configurations.'
+                   .format(' '.join(htmlBuilderCommandLine), str(ex)) + \
+                   '\nGo to Settings -> Settings -> CodeChat to set HTML builder configurations.</pre>'
 
-        return stdout + '</pre><br><pre><font color=red>' + stderr + '</font>'
+        return cgi.escape(stdout) + '<br><font color=red>' + cgi.escape(stderr) + '</font>'
 
     def run(self):
         """Thread function
@@ -784,9 +792,9 @@ class PreviewDock(DockWidget):
             errNum = sum([x[1]==u'ERROR' or x[1]==u'SEVERE' for x in result])
             warningNum = [x[1] for x in result].count('WARNING')
             # Report these results this to the user.
-            status = 'Sphinx warning(s): ' + str(warningNum) \
+            status = 'Warning(s): ' + str(warningNum) \
                      + ', error(s): ' + str(errNum)
-            self._widget.teLog.appendHtml('<pre>' + errString + '</pre><pre><font color=red>' \
+            self._widget.teLog.appendHtml('<pre>' + errString + '<font color=red>' \
                                           + status + '</font></pre>')
             # Update the progress bar.
             color = 'red' if errNum else 'yellow' if warningNum else None
