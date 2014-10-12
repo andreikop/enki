@@ -196,7 +196,7 @@ class Test(PreviewTestCase):
     # Cases for literate programming setting ui
     ##-----------------------------------------
     @requiresModule('CodeChat')
-    def test_uiCheck1(self):
+    def test_settingUiCheck1(self):
         """When Enki runs for the first time, the CodeChat module should be
            disabled by default."""
         sw = SettingsWidget()
@@ -214,7 +214,7 @@ class Test(PreviewTestCase):
         sw.close()
 
     @base.requiresCmdlineUtility('sphinx-build --version')
-    def test_uiCheck1a(self):
+    def test_settingUiCheck1a(self):
         """By default, when Sphinx is available, it is set to be disabled. all
         path setting line edits and buttons are disabled."""
         sw = SettingsWidget()
@@ -246,7 +246,7 @@ class Test(PreviewTestCase):
         sw.close()
 
     @requiresModule('CodeChat')
-    def test_uiCheck3(self):
+    def test_settingUiCheck3(self):
         """ The Enable CodeChat checkbox should only be enabled if CodeChat can
             be imported; otherwise, it should be disabled."""
         # Trick Python into thinking that the CodeChat module doesn't exist.
@@ -277,7 +277,7 @@ class Test(PreviewTestCase):
         sw.close()
 
     @base.requiresCmdlineUtility('sphinx-build --version')
-    def test_uiCheck3a(self):
+    def test_settingUiCheck3a(self):
         """test_uiCheck1a has tested the case when Sphinx is disabled. This
         unit test will test the case when Sphinx is mannually enabled.
         """
@@ -328,8 +328,10 @@ class Test(PreviewTestCase):
         self.assertTrue(sw.lbSphinxReference.isVisible())
         sw.close()
 
+    # Cases for code preview using Codechat or Sphinx
+    ##-----------------------------------------------
     @requiresModule('CodeChat')
-    def test_uiCheck4(self):
+    def test_previewCheck1(self):
         """If Enki is opened with CodeChat enabled, the preview dock should be
            found."""
         core.config()['CodeChat']['Enabled'] = True
@@ -340,7 +342,7 @@ class Test(PreviewTestCase):
 
     @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
-    def test_uiCheck4a(self):
+    def test_previewCheck2(self):
         """Basic Sphinx test: create a Sphinx project in a temp folder, return
            webView content and log content after Sphinx builds the project."""
         self._doBasicSphinxConfig()
@@ -355,7 +357,7 @@ content"""
     @base.requiresCmdlineUtility('sphinx-build --version')
     @requiresModule('CodeChat')
     @base.inMainLoop
-    def test_uiCheck4b(self):
+    def test_previewCheck3(self):
         """Basic Sphinx with CodeChat test: create a Sphinx project with codechat
         enabled."""
         core.config()['CodeChat']['Enabled'] = True
@@ -371,7 +373,7 @@ content"""
         self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     @requiresModule('CodeChat')
-    def test_uiCheck5(self):
+    def test_previewCheck4(self):
         """If Enki is opened without any configuration, the preview dock will
         not appear. This will not affect resT files or html files."""
         self.testText = u'test'
@@ -381,7 +383,7 @@ content"""
 
     @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
-    def test_uiCheck5a(self):
+    def test_previewCheck5(self):
         """Basic Sphinx test: with Sphinx and codechat disabled, no preview
            window results are generated."""
         self._doBasicSphinxConfig()
@@ -398,7 +400,7 @@ content"""
         self.assertNotIn('<h1>head', d._widget.webView.page().mainFrame().toHtml())
 
     @requiresModule('CodeChat')
-    def test_uiCheck6(self):
+    def test_previewCheck6(self):
         """If an empty code file is passed to Enki, the CodeChat preview panel
            should be empty."""
         core.config()['CodeChat']['Enabled'] = True
@@ -408,7 +410,7 @@ content"""
 
     @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
-    def test_uiCheck6a(self):
+    def test_previewCheck6a(self):
         """Empty code file produces a Sphinx failure since file in toctree should
            always have a header."""
         self._doBasicSphinxConfig()
@@ -417,7 +419,7 @@ content"""
         self.assertTrue(u"doesn't have a title" in logContent)
 
     @requiresModule('CodeChat')
-    def test_uiCheck7(self):
+    def test_previewCheck7(self):
         """Test that Unicode characters are handled properly.
         """
         core.config()['CodeChat']['Enabled'] = True
@@ -429,7 +431,7 @@ content"""
 
     @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
-    def test_uiCheck7a(self):
+    def test_previewCheck7a(self):
         """Unicode string passed to Sphinx should be handled properly.
         """
         self._doBasicSphinxConfig()
@@ -442,7 +444,7 @@ content"""
         self.assertTrue(u"<h1>Енки" in webViewContent)
 
     @requiresModule('CodeChat')
-    def test_uiCheck8(self):
+    def test_previewCheck8(self):
         """Start with a short code file, make sure the preview window isn't
            opened, then enable the CodeChat module and refresh Enki.
            The preview window should now be opened."""
@@ -458,7 +460,7 @@ content"""
 
     @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
-    def test_uiCheck8a(self):
+    def test_previewCheck8a(self):
         """Start with Sphinx disabled, make sure rst file will be rendered by
         docutils.core.publish_string. Then enable Sphinx, force document refresh
         by calling scheduleDucomentProcessing. Make sure now Sphinx kicks in.
@@ -471,14 +473,16 @@ content"""
         self.assertEqual(self._logText(), '')
 
     @base.inMainLoop
-    def test_uiCheck9b(self):
+    def test_previewCheck9b(self):
+        """Empty code file should be rendered correctly with 'no title' warning.
+        """
         self._doBasicSphinxConfig()
         self.testText = u''
         webViewContent, logContent = self._doBasicSphinxTest('rst')
         self.assertTrue(u"""doesn't have a title""" in logContent)
 
     @requiresModule('CodeChat')
-    def test_uiCheck9(self):
+    def test_previewCheck9(self):
         """Uninterpretable reStructuredText syntax in source code will generate
            errors and be displayed in the output log window."""
         core.config()['CodeChat']['Enabled'] = True
@@ -492,7 +496,7 @@ content"""
 
     @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
-    def test_uiCheck9a(self):
+    def test_previewCheck9a(self):
         """Test Sphinx error can be captured correctly"""
         self._doBasicSphinxConfig()
         self.testText = u"""****
@@ -504,7 +508,7 @@ content"""
         self.assertTrue("Title overline too short" in logContent)
 
     @requiresModule('CodeChat')
-    def test_uiCheck10(self):
+    def ttest_previewCheck10(self):
         """Empty input should generate an empty log.
         """
         core.config()['CodeChat']['Enabled'] = True
@@ -516,7 +520,7 @@ content"""
         self.assertEqual(self._logText(), '')
 
     @requiresModule('CodeChat')
-    def test_uiCheck11(self):
+    def test_previewCheck11(self):
         """Unicode should display correctly in log window too.
         """
         core.config()['CodeChat']['Enabled'] = True
@@ -530,7 +534,7 @@ content"""
     @unittest.expectedFailure
     @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
-    def test_uiCheck11a(self):
+    def test_previewCheck12(self):
         """Unicode in log window while in Sphinx mode does not work since Sphinx
            error output is not in unicode.
         """
@@ -545,7 +549,7 @@ head
         self.assertTrue(u'Енки' in logContent)
 
     @requiresModule('CodeChat')
-    def test_uiCheck12(self):
+    def test_previewCheck13(self):
         """Test progress bar status (indefinitely) when building
         """
         core.config()['CodeChat']['Enabled'] = True
@@ -554,7 +558,7 @@ head
         self.assertEqual(self._widget().prgStatus.minimum(), 0)
 
     @requiresModule('CodeChat')
-    def test_uiCheck13(self):
+    def test_previewCheck14(self):
         """Check different progressbar color given different scenarios.
         """
         core.config()['CodeChat']['Enabled'] = True
@@ -564,7 +568,7 @@ head
         self.assertEqual(self._widget().prgStatus.styleSheet(), 'QProgressBar::chunk {}')
 
     @requiresModule('CodeChat')
-    def test_uiCheck14(self):
+    def test_previewCheck15(self):
         core.config()['CodeChat']['Enabled'] = True
         # Next, test a code piece with only warnings.
         self.testText = u'`abc'
@@ -572,7 +576,7 @@ head
         self.assertTrue('yellow' in self._widget().prgStatus.styleSheet())
 
     @requiresModule('CodeChat')
-    def test_uiCheck15(self):
+    def test_previewCheck16(self):
         core.config()['CodeChat']['Enabled'] = True
         # Next, test a code piece with only errors.
         self.testText = u'# .. ERROR::'
@@ -580,7 +584,7 @@ head
         self.assertTrue('red' in self._widget().prgStatus.styleSheet())
 
     @requiresModule('CodeChat')
-    def test_uiCheck16(self):
+    def test_previewCheck17(self):
         """A complex test case that tests both the log parser regexp and
         the progress bar color when both warnings and errors are present.
         """
@@ -588,11 +592,11 @@ head
         self.testText = u'# .. ERROR::\n# `WARNING_'
         self._doBasicTest('py')
         self.assertTrue('red' in self._widget().prgStatus.styleSheet())
-        self.assertTrue('Warning(s): 2 Error(s): 2' in self._logText())
+        self.assertTrue('Warning(s): 2, error(s): 2' in self._logText())
 
     @base.inMainLoop
     @requiresModule('CodeChat')
-    def test_uiCheck17(self):
+    def test_previewCheck18(self):
         """Switching between different files should update the log
         window accordingly.
         """
@@ -608,12 +612,12 @@ head
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
         base.waitForSignal(lambda: None, self._widget().webView.page().mainFrame().loadFinished, 200)
         self.assertIn('yellow', self._widget().prgStatus.styleSheet())
-        self.assertTrue('Warning(s): 1 Error(s): 0' in self._logText())
+        self.assertTrue('Warning(s): 1, error(s): 0' in self._logText())
         # switch to document 2
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
         base.waitForSignal(lambda: None, self._widget().webView.page().mainFrame().loadFinished, 200)
         self.assertTrue('red' in self._widget().prgStatus.styleSheet())
-        self.assertTrue('Warning(s): 0 Error(s): 1' in self._logText())
+        self.assertTrue('Warning(s): 0, error(s): 1' in self._logText())
         # switch to document 3
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
         base.waitForSignal(lambda: None, self._widget().webView.page().mainFrame().loadFinished, 200)
@@ -623,7 +627,7 @@ head
     @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
     @requiresModule('CodeChat')
-    def test_uiCheck18(self):
+    def test_previewCheck19(self):
         """Check Advanced Mode. In this case Advanced Mode does not have
         space in its path.
         """
@@ -645,7 +649,7 @@ head
     @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
     @requiresModule('CodeChat')
-    def test_uiCheck19(self):
+    def test_previewCheck20(self):
         """Check space in path name. Advanced mode is not enabled.
         """
         core.config()['CodeChat']['Enabled'] = True
@@ -670,7 +674,7 @@ head
     @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
     @requiresModule('CodeChat')
-    def test_uiCheck19a(self):
+    def test_previewCheck20a(self):
         """Check spaces in path name. Advanced mode is enabled.
         """
         core.config()['CodeChat']['Enabled'] = True
@@ -699,7 +703,7 @@ head
     @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
     @requiresModule('CodeChat')
-    def test_uiCheck20(self):
+    def test_previewCheck21(self):
         """When user hit ok button in setting window, the project will get
         rebuild.
         """
@@ -866,7 +870,7 @@ head
         errors = []
         # Make the source file write only
         mode = os.stat(os.path.join(source, 'dummy.html'))[0]
-        os.chmod(os.path.join(source, 'dummy.html'), stat.S_IREAD)
+        os.chmod(os.path.join(source, 'dummy.html'), stat.S_IWRITE)
         copyTemplateFile(errors, source, 'dummy.html', dest)
         # Restore source file's attribute
         os.chmod(os.path.join(source, 'dummy.html'), mode)
@@ -939,15 +943,15 @@ head
         """
         defaultSplitterSize = [199, 50]
         document1 = self.createFile('file1.rst', '.. file1::')
-        document2 = self.createFile('file2.rst', '')
-        document3 = self.createFile('file3.rst', '.. file3::')
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
         # Check splitter size of document 1.
         self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
         # Switch to document 2. Log window is hidden now.
+        document2 = self.createFile('file2.rst', '')
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
         self.assertFalse(self._widget().splitter.sizes()[1])
         # Switch to document 3. Log window should be restore to original size.
+        document3 = self.createFile('file3.rst', '.. file3::')
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
         self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
 
@@ -955,8 +959,6 @@ head
         """Feature 1,2,3. A combination of the above test cases.
         """
         document1 = self.createFile('file1.rst', '.. file1::')
-        document2 = self.createFile('file2.rst', '')
-        document3 = self.createFile('file3.rst', '.. file3::')
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
         # Change splitter setting of document 1.
         newSplitterSize = [125, 124]
@@ -964,9 +966,11 @@ head
         self._widget().splitter.splitterMoved.emit(newSplitterSize[0], 1)
         self.assertEqual(self._widget().splitter.sizes(), newSplitterSize)
         # Switch to an error-free document, assert log window hidden.
+        document2 = self.createFile('file2.rst', '')
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
         self.assertFalse(self._widget().splitter.sizes()[1])
         # Switch to file3 which will cause build error, check splitter size.
+        document3 = self.createFile('file3.rst', '.. file3::')
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
         self.assertEqual(self._widget().splitter.sizes(), newSplitterSize)
 
