@@ -166,8 +166,8 @@ def processText(ctagsLang, text, sortAlphabetically):
         tempFile.close() # Windows compatibility
 
         try:
-            stdout = get_console_output([ctagsPath,
-                                         '-f', '-', '-u', '--fields=nKs', langArg, tempFile.name])[0]
+            stdout = gco.get_console_output([ctagsPath,
+                                             '-f', '-', '-u', '--fields=nKs', langArg, tempFile.name])[0]
         except OSError as ex:
             raise FailedException('Failed to execute ctags console utility "{}": {}\n'\
                                         .format(ctagsPath, str(ex)) + \

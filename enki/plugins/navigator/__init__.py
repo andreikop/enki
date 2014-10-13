@@ -137,7 +137,7 @@ class SettingsWidget(QWidget):
         Return None if OK or textual error
         """
         try:
-            stdout, stderr = gco.get_console_output(path, ['--version'])
+            stdout, stderr = gco.get_console_output([path, '--version'])
         except OSError as ex:
             self.lExecuteError.setText('Failed to execute ctags: {}'.format(ex))
         else:
