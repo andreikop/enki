@@ -104,7 +104,7 @@ class PreviewTestCase(base.TestCase):
         core.config()['Sphinx']['Enabled'] = True
         core.config()['Sphinx']['Executable'] = r'sphinx-build'
         core.config()['Sphinx']['ProjectPath'] = self.TEST_FILE_DIR
-        core.config()['Sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build', 'html')
+        core.config()['Sphinx']['OutputPath'] = os.path.join('_build', 'html')
         core.config()['Sphinx']['OutputExtension'] = r'html'
         core.config()['Sphinx']['AdvancedMode'] = False
 
@@ -353,6 +353,39 @@ head
 content"""
         webViewContent, logContent = self._doBasicSphinxTest('rst')
 
+    @base.requiresCmdlineUtility('sphinx-build --version')
+    @base.inMainLoop
+    def test_previewCheck2a(self):
+        """Basic Sphinx test. Output directory is an absolute directory
+        """
+        self._doBasicSphinxConfig()
+        core.config()['Sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build', 'html')
+        self.testText = """****
+head
+****
+
+content"""
+        webViewContent, logContent = self._doBasicSphinxTest('rst')
+
+    @base.requiresCmdlineUtility('sphinx-build --version')
+    @requiresModule('CodeChat')
+    @base.inMainLoop
+    def test_previewCheck3a(self):
+        """Basic Sphinx with CodeChat test. Output directory is a absolute
+        directory.
+        """
+        core.config()['CodeChat']['Enabled'] = True
+        self._doBasicSphinxConfig()
+        core.config()['Sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build', 'html')
+
+        self.testText = u"""# ****
+# head
+# ****
+#
+# content"""
+        webViewContent, logContent = self._doBasicSphinxTest('py')
+        self.assertTrue(u'<p>content</p>' in webViewContent)
+        self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     @base.requiresCmdlineUtility('sphinx-build --version')
     @requiresModule('CodeChat')
