@@ -976,15 +976,16 @@ head
         """
         defaultSplitterSize = [199, 50]
         document1 = self.createFile('file1.rst', '.. file1::')
+        document2 = self.createFile('file2.rst', '')
+        document3 = self.createFile('file3.rst', '.. file3::')
+        self._assertHtmlReady(lambda: None)
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
         # Check splitter size of document 1.
         self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
         # Switch to document 2. Log window is hidden now.
-        document2 = self.createFile('file2.rst', '')
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
         self.assertFalse(self._widget().splitter.sizes()[1])
         # Switch to document 3. Log window should be restore to original size.
-        document3 = self.createFile('file3.rst', '.. file3::')
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
         self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
 
@@ -992,6 +993,9 @@ head
         """Feature 1,2,3. A combination of the above test cases.
         """
         document1 = self.createFile('file1.rst', '.. file1::')
+        document2 = self.createFile('file2.rst', '')
+        document3 = self.createFile('file3.rst', '.. file3::')
+        self._assertHtmlReady(lambda: None)
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
         # Change splitter setting of document 1.
         newSplitterSize = [125, 124]
@@ -999,11 +1003,9 @@ head
         self._widget().splitter.splitterMoved.emit(newSplitterSize[0], 1)
         self.assertEqual(self._widget().splitter.sizes(), newSplitterSize)
         # Switch to an error-free document, assert log window hidden.
-        document2 = self.createFile('file2.rst', '')
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
         self.assertFalse(self._widget().splitter.sizes()[1])
         # Switch to file3 which will cause build error, check splitter size.
-        document3 = self.createFile('file3.rst', '.. file3::')
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
         self.assertEqual(self._widget().splitter.sizes(), newSplitterSize)
 
