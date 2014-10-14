@@ -16,6 +16,7 @@ import traceback
 import re
 import shutil
 import cgi
+import sys
 
 # Third-party imports
 # -------------------
@@ -38,11 +39,18 @@ try:
     # other CodeChat.* imports below, doesn't define this.
     import CodeChat
 except ImportError:
+    CodeChat = None
     CodeToRest = None
     LSO = None
 else:
     import CodeChat.CodeToRest as CodeToRest
     import CodeChat.LanguageSpecificOptions as LSO
+
+# Determine if we're frozen with Pyinstaller or not.
+if getattr(sys, 'frozen', False):
+    isFrozen = True
+else:
+    isFrozen = False
 
 def commonPrefix(*dirs):
     """This function provides a platform-independent path commonPrefix. It
@@ -285,17 +293,28 @@ class ConverterThread(QThread):
                    '<a href="http://pypi.python.org/pypi/docutils"/>this page.</a>', None
 
         errStream = StringIO.StringIO()
-        htmlString = docutils.core.publish_string(text, writer_name='html', settings_overrides={
-                     # Make sure to use Unicode everywhere.
-                     'output_encoding': 'unicode',
-                     'input_encoding' : 'unicode',
-                     # The default docutils stylesheet and template uses a relative path, which doesn't work when frozen ???.
-                     'template': os.path.join(os.path.dirname(docutils.writers.html4css1.__file__), docutils.writers.html4css1.Writer.default_template),
-                     'stylesheet_dirs': ['.', os.path.dirname(docutils.writers.html4css1.__file__)],
-                     # Don't stop processing, no matter what.
-                     'halt_level'     : 5,
-                     # Capture errors to a string and return it.
-                     'warning_stream' : errStream})
+        settingsDict = {
+          # Make sure to use Unicode everywhere.
+          'output_encoding': 'unicode',
+          'input_encoding' : 'unicode',
+          # Don't stop processing, no matter what.
+          'halt_level'     : 5,
+          # Capture errors to a string and return it.
+          'warning_stream' : errStream }
+        # Frozen-specific settings.
+        if isFrozen:
+            settingsDict['template'] = (
+              # The default docutils stylesheet and template uses a relative path,
+              # which doesn't work when frozen ???. Under Unix when not frozen,
+              # it produces:
+              # ``IOError: [Errno 2] No such file or directory:
+              # '/usr/lib/python2.7/dist-packages/docutils/writers/html4css1/template.txt'``.
+              os.path.join(os.path.dirname(docutils.writers.html4css1.__file__),
+                           docutils.writers.html4css1.Writer.default_template) )
+            settingsDict['stylesheet_dirs'] = ['.',
+              os.path.dirname(docutils.writers.html4css1.__file__)]
+        htmlString = docutils.core.publish_string(text, writer_name='html',
+                                                  settings_overrides=settingsDict)
         errString = errStream.getvalue()
         if errString:
             errString = "<font color='red'>" + cgi.escape(errString) + '</font>'
@@ -309,7 +328,8 @@ class ConverterThread(QThread):
         else:
             # For available builder options, refer to: http://sphinx-doc.org/builders.html
             htmlBuilderCommandLine = [core.config()['Sphinx']['Executable'],
-              # Place doctrees in the ``_build`` directory; by default, Sphinx places this in _build/html/.doctrees.
+              # Place doctrees in the ``_build`` directory; by default, Sphinx
+              # places this in _build/html/.doctrees.
               '-d', os.path.join('_build', 'doctrees'),
               # Source directory
               core.config()['Sphinx']['ProjectPath'],
@@ -675,11 +695,12 @@ class PreviewDock(DockWidget):
         """Add conf.py, default.css and index.rst (if ther're missing)
            to the Sphinx project directory.
            """
+        # The templates depend on CodeChat. Give up if that's not available.
+        if not CodeChat:
+            return ""
+
         # Check the existance of conf.py, default.css, and index.rst. If
-        # any of those files are missing, we will add a template file to it
-        # But before that a notification will pop out tellign the user we are
-        # about to copy some template files. If any system error (shutil
-        # exceptions)
+        # any of those files are missing, we will add a template file to it.
         codeChatPath = os.path.dirname(os.path.realpath(CodeChat.__file__))
         templatePath = os.path.join(codeChatPath, 'template')
         sphinxProjectPath = core.config()['Sphinx']['ProjectPath']
