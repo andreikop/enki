@@ -82,7 +82,7 @@ dist\enki\enki
 : --hidden-import=CodeChat.CodeToRestSphinx doesn't work (CodeChat.LanguageSpecificOptions
 : won't be found). Why?
 pause Press Enter to build and test Sphinx.
-pyinstaller --noconfirm --hidden-import=CodeChat.CodeToRestSphinx --hidden-import=CodeChat.CodeToRest --hidden-import=CodeChat.LanguageSpecificOptions --log-level=DEBUG win\sphinx-build.py
+pyinstaller --noconfirm --hidden-import=CodeChat.CodeToRestSphinx --hidden-import=CodeChat.CodeToRest --hidden-import=CodeChat.LanguageSpecificOptions win\sphinx-build.py
 dist\sphinx-build\sphinx-build
 :
 : Combined Enki and Sphinx
@@ -92,7 +92,7 @@ dist\sphinx-build\sphinx-build
 :
 : Note: Existing build/ and dist/ directories from the standalone builds seem to
 : confuse Pyinstaller. Start clean.
-:pause Press Enter to build combined Enki and Sphinx binaries.
+pause Press Enter to build combined Enki and Sphinx binaries.
 rmdir /q /s build dist
 pyinstaller --noconfirm win\enki-sphinx.spec
 : Sphinx binaries depend on Enki files, since they're combined. Copy them over.
