@@ -337,22 +337,30 @@ class ConverterThread(QThread):
               # Place doctrees in the ``_build`` directory; by default, Sphinx
               # places this in _build/html/.doctrees.
               '-d', os.path.join('_build', 'doctrees'),
-              # Source directory
-              core.config()['Sphinx']['ProjectPath'],
+              # Source directory -- the current directory, since we'll chdir to
+              # the project directory before executing this.
+              '.',
               # Build directory
               core.config()['Sphinx']['OutputPath']]
 
         # Invoke it.
         try:
-            stdout, stderr = get_console_output(htmlBuilderCommandLine)
-        except Exception as ex:
-            return '<pre><font color=red>Failed to execute HTML builder' + \
-                   'console utility "{}":\n{}</font>\n'\
-                   .format(htmlBuilderCommandLine if isinstance(htmlBuilderCommandLine, str)\
-                   else ' '.join(htmlBuilderCommandLine), str(ex)) + \
-                   '\nGo to Settings -> Settings -> CodeChat to set HTML builder configurations.</pre>'
+            cwd = core.config()['Sphinx']['ProjectPath']
+            # If the command line is already a string (advanced mode), just print it.
+            # Otherwise, it's a list that should be transformed to a string.
+            if isinstance(htmlBuilderCommandLine, str):
+                htmlBuilderCommandLineStr = htmlBuilderCommandLine
+            else:
+                htmlBuilderCommandLineStr = ' '.join(htmlBuilderCommandLine)
+            s = '<pre>{} : {}\n\n'.format(cwd, htmlBuilderCommandLineStr)
+            stdout, stderr = get_console_output(htmlBuilderCommandLine,
+                                                cwd=cwd)
+        except OSError as ex:
+            return s + '<font color=red>Failed to execute HTML builder:\n' + \
+                   '{}\n'.format(str(ex)) + \
+                   'Go to Settings -> Settings -> CodeChat to set HTML builder configurations.</pre>'
 
-        return cgi.escape(stdout) + '<br><font color=red>' + cgi.escape(stderr) + '</font>'
+        return s + cgi.escape(stdout) + '<br><font color=red>' + cgi.escape(stderr) + '</font></pre>'
 
     def run(self):
         """Thread function
@@ -396,7 +404,7 @@ class PreviewDock(DockWidget):
 
         self._widget.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
         self._widget.webView.page().linkClicked.connect(self._onLinkClicked)
-        self._widget.webView.page().mainFrame().setZoomFactor(1.5)
+        #self._widget.webView.page().mainFrame().setZoomFactor(1.5)
 
         self._widget.webView.page().mainFrame().titleChanged.connect(self._updateTitle)
         self.setWidget(self._widget)
