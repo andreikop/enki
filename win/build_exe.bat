@@ -37,6 +37,7 @@
 :
 : * ``hook-enki.py``
 : * ``hook-qutepart.py``
+: * ``hook-CodeChat.py``
 : * ``rthook_pyqt4.py``
 :
 : PyInstaller is invoked with the following `options
@@ -78,11 +79,8 @@ dist\enki\enki
 : same flow as Enki's process above.
 :
 : Specify CodeChat as an import, since it's dynamically loaded by Sphinx.
-: Confusion: just doing --hidden-import=CodeChat, or even
-: --hidden-import=CodeChat.CodeToRestSphinx doesn't work (CodeChat.LanguageSpecificOptions
-: won't be found). Why?
 pause Press Enter to build and test Sphinx.
-pyinstaller --noconfirm --hidden-import=CodeChat.CodeToRestSphinx --hidden-import=CodeChat.CodeToRest --hidden-import=CodeChat.LanguageSpecificOptions win\sphinx-build.py
+pyinstaller --noconfirm --additional-hooks-dir=win --hidden-import=CodeChat win\sphinx-build.py
 dist\sphinx-build\sphinx-build
 :
 : Combined Enki and Sphinx
@@ -91,7 +89,8 @@ dist\sphinx-build\sphinx-build
 : See ``enki-ephinx.spec`` for more details.
 :
 : Note: Existing build/ and dist/ directories from the standalone builds seem to
-: confuse Pyinstaller. Start clean.
+: confuse Pyinstaller. Start clean. The ``build_installer.bat`` file provides
+: docs for the various rmdir/xoopy switches used below.
 pause Press Enter to build combined Enki and Sphinx binaries.
 rmdir /q /s build dist
 pyinstaller --noconfirm win\enki-sphinx.spec

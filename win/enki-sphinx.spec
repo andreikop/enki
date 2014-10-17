@@ -3,18 +3,17 @@
 # ****************
 # enki-sphinx.spec
 # ****************
-# This file is instructors Pyinstaller to build a binary containing both Enki
+# This file instructs Pyinstaller to build a binary containing both Enki
 # and Sphinx executables.
 #
 # Procedure to create this file:
 #
-# #. Run ``win\build_exe.bat`` and test. This creates a working
-#    ``enki.spec`` file.
-# #. Run ``pyinstaller win\sphinx-build.py`` and test. This creates
-#    a working ``sphinx.spec`` file.
+# #. Run ``win\build_exe.bat`` and test. This creates working
+#    ``enki.spec`` and ``sphinx-build.spec`` files.
 # #. Combine these files according to the `Pyinstaller merge docs
 #    <http://htmlpreview.github.io/?https://github.com/pyinstaller/pyinstaller/blob/develop/doc/Manual.html#multipackage-bundles>`_.
 #    These steps are illustrated in the comments below.
+# #. Run ``win\build_exe.bat`` again; the third build is the combined version.
 
 block_cipher = None
 
@@ -35,8 +34,8 @@ enki_a = Analysis(['bin\\enki'],
              cipher=block_cipher)
 sphinx_a = Analysis(['win\\sphinx-build.py'],
              pathex=['C:\\Users\\bjones\\Documents\\enki_all\\enki1'],
-             hiddenimports=['CodeChat.CodeToRestSphinx', 'CodeChat.CodeToRest', 'CodeChat.LanguageSpecificOptions' ],
-             hookspath=None,
+             hiddenimports=['CodeChat'],
+             hookspath=['win'],
              runtime_hooks=None,
              excludes=['_tkinter'],
              cipher=block_cipher)
