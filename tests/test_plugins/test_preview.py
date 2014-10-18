@@ -92,10 +92,11 @@ class PreviewTestCase(base.TestCase):
         # date. Omitting this causes failures in test_uiCheck17.
         base._processPendingEvents()
 
-    def _doBasicTest(self, extension):
+    def _doBasicTest(self, extension, name='file'):
         # HTML files don't need processing in the worker thread.
         if extension != 'html':
-            self._assertHtmlReady(lambda: self.createFile('file.' + extension, self.testText))
+            self._assertHtmlReady(lambda: self.createFile('.'.join([name, extension]),
+                                                          self.testText))
 
     def _doBasicSphinxConfig(self):
         """This function will set basic Sphinx configuration options
@@ -108,7 +109,7 @@ class PreviewTestCase(base.TestCase):
         core.config()['Sphinx']['OutputExtension'] = r'html'
         core.config()['Sphinx']['AdvancedMode'] = False
 
-    def _doBasicSphinxTest(self, extension):
+    def _doBasicSphinxTest(self, extension, name='code'):
         """This function will build a basic Sphinx project in the temporary
         directory. The project consists of master document content.rst and a
         simple code document code.extension. Here the extension to the code
@@ -125,7 +126,8 @@ class PreviewTestCase(base.TestCase):
    code.""" + extension)
 
         # Build the HTML, then return it and the log.
-        self._assertHtmlReady(lambda : self.createFile('code.' + extension, self.testText), timeout=10000)
+        self._assertHtmlReady(lambda : self.createFile('.'.join([name, extension]),
+                                                       self.testText), timeout=10000)
         return self._html(), self._logText()
 
 class Test(PreviewTestCase):
@@ -755,6 +757,23 @@ head
         core.uiSettingsManager().dialogAccepted.emit()
         self._assertHtmlReady(lambda: None, timeout = 10000)
         self.assertTrue(u'Unknown interpreted text role "doc"' in self._logText())
+
+    @base.requiresCmdlineUtility('sphinx-build --version')
+    def test_previewCheck22(self):
+        """ Assume codechat is not installed, render a .rst file using
+        restructuredText and then render using sphinx.
+        """
+        with ImportFail('CodeChat'):
+            self.testText = u'Underlying :download:`source code <file.rst>`.'
+            self._doBasicTest('rst')
+            self.assertTrue(u'Unknown interpreted text role "download".' in self._logText())
+            self.assertTrue('red' in self._widget().prgStatus.styleSheet())
+
+            self._doBasicSphinxConfig()
+            core.uiSettingsManager().dialogAccepted.emit()
+            self._assertHtmlReady(lambda: None, timeout = 10000)
+            self.assertTrue(u"document isn't included in any toctree" in self._logText())
+            self.assertTrue('yellow' in self._widget().prgStatus.styleSheet())
 
     # Cases testing commonprefix
     ##--------------------------
