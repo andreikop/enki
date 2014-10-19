@@ -17,6 +17,7 @@ import re
 import shutil
 import cgi
 import sys
+import shlex
 
 # Third-party imports
 # -------------------
@@ -325,6 +326,11 @@ class ConverterThread(QThread):
         # Build the commond line for Sphinx.
         if core.config()['Sphinx']['AdvancedMode']:
             htmlBuilderCommandLine = core.config()['Sphinx']['Cmdline']
+            if sys.platform.startswith('linux'):
+                # If linux is used, then subprocess can not take the whole
+                # commandline as name of executable file. module shlex
+                # has to be used to parse commandline
+                htmlBuilderCommandLine = shlex.split(htmlBuilderCommandLine)
         else:
             # For available builder options, refer to: http://sphinx-doc.org/builders.html
             htmlBuilderCommandLine = [core.config()['Sphinx']['Executable'],
@@ -342,7 +348,8 @@ class ConverterThread(QThread):
         except Exception as ex:
             return '<pre><font color=red>Failed to execute HTML builder' + \
                    'console utility "{}":\n{}</font>\n'\
-                   .format(' '.join(htmlBuilderCommandLine), str(ex)) + \
+                   .format(htmlBuilderCommandLine if htmlBuilderCommandLine.__class__.__name__ is 'str'\
+                   else ' '.join(htmlBuilderCommandLine), str(ex)) + \
                    '\nGo to Settings -> Settings -> CodeChat to set HTML builder configurations.</pre>'
 
         return cgi.escape(stdout) + '<br><font color=red>' + cgi.escape(stderr) + '</font>'

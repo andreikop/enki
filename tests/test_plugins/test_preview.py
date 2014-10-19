@@ -543,7 +543,7 @@ content"""
         self.assertTrue("Title overline too short" in logContent)
 
     @requiresModule('CodeChat')
-    def ttest_previewCheck10(self):
+    def test_previewCheck10(self):
         """Empty input should generate an empty log.
         """
         core.config()['CodeChat']['Enabled'] = True
@@ -801,7 +801,7 @@ head
 
     # Check for the bug in os.path.commonprefix.
     def test_commonPrefix8(self):
-        self.assertEqual(commonPrefix('a\\bc', 'a\\b'), 'a')
+        self.assertEqual(commonPrefix(os.path.join('a', 'bc'), os.path.join('a','b')), 'a')
 
     @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
     def test_commonPrefix9(self):
@@ -830,9 +830,18 @@ head
         d1 = os.path.join(os.getcwd(), 'a1')
         self.assertEqual(commonPrefix(d1, 'a2'), os.path.normcase(os.getcwd()))
 
-    # Test for paths with spaces
+    # Test for paths with spaces (Windows version)
+    @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
     def test_commonPrefix12(self):
+        # Cases like this only applies to Windows. Since Unix separator
+        # is not '\\' but '/'. Unix will treat '\\' as part of file name.
         self.assertEqual(commonPrefix('a a\\b b\\c c', 'a a\\b b'), os.path.join('a a','b b'))
+
+    # Test for paths with spaces (Platform independent version)
+    def test_commonPrefix12a(self):
+        # Cases like this only applies to Windows. Since Unix separator
+        # is not '\\' but '/'. Unix will treat '\\' as part of file name.
+        self.assertEqual(commonPrefix(os.path.join('a a', 'b b', 'c c'), os.path.join('a a', 'b b')), os.path.join('a a','b b'))
 
     # Test for paths with different cases (Windows only)
     @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
@@ -853,7 +862,9 @@ head
         # current working directory. If the resulting common prefix does not
         # have current workign directory as one of its parent directories, then
         # the absolute path will be used.
-        self.assertEqual(commonPrefix('..\\AVeryLongFileName', '..\\AVeryLongFileName'), os.path.normcase(os.path.abspath("../AVeryLongFileName")))
+        self.assertEqual(commonPrefix(os.path.join('..', 'AVeryLongFileName'),
+                                      os.path.join('..', 'AVeryLongFileName')),
+         os.path.normcase(os.path.abspath(os.path.join('..', 'AVeryLongFileName'))))
 
     # TODO: need symbolic link test case.
 
@@ -926,7 +937,7 @@ head
         copyTemplateFile(errors, source, 'dummy.html', dest)
         # Restore source file's attribute
         os.chmod(os.path.join(source, 'dummy.html'), mode)
-        self.assertNotEqual(filter(lambda x: "Access denied" in x, errors[0]), ())
+        self.assertNotEqual(filter(lambda x: "Permission denied" in x, errors[0]), ())
 
     def test_copyTemplateFile5(self):
         # Test the fifth argument of copyTemplateFile: newName, that will alter
@@ -965,11 +976,13 @@ head
         document2 = self.createFile('file2.rst', '.. file2::')
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
         # Check splitter size of document 2.
-        self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
+        self.assertNotEqual(self._widget().splitter.sizes()[0], 0)
+        self.assertEqual(self._widget().splitter.sizes()[1], defaultSplitterSize[1])
         # Switch to document 1. Splitter size should be the same.
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
         # Make sure all documents have the same splitter size.
-        self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
+        self.assertNotEqual(self._widget().splitter.sizes()[0], 0)
+        self.assertEqual(self._widget().splitter.sizes()[1], defaultSplitterSize[1])
 
     def test_logWindowSplitter2(self):
         """Feature 2. All build-with-error files' splitter size are connected.
@@ -978,16 +991,18 @@ head
         document2 = self.createFile('file2.rst', '.. file2::')
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
         # Change splitter location of document 2.
-        newSplitterSize = [125, 124]
+        newSplitterSize = [124, 123]
         self._widget().splitter.setSizes(newSplitterSize)
         # Calling setSizes directly will not trigger splitter's ``splitterMoved``
         # signal. We need to manually emit this signal with two arguments (not
         # important here.)
         self._widget().splitter.splitterMoved.emit(newSplitterSize[0], 1)
-        self.assertEqual(self._widget().splitter.sizes(), newSplitterSize)
+        self.assertNotEqual(newSplitterSize[1], 0)
+        self.assertAlmostEqual(newSplitterSize[0], newSplitterSize[1], delta=1)
         # Switch to document 1, make sure its splitter size is changed, too.
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
-        self.assertEqual(self._widget().splitter.sizes(), newSplitterSize)
+        self.assertNotEqual(newSplitterSize[1], 0)
+        self.assertAlmostEqual(newSplitterSize[0], newSplitterSize[1], delta=1)
 
     def test_logWindowSplitter3(self):
         """Feature 3. Error free document will not affect other documents'
@@ -1000,13 +1015,14 @@ head
         self._assertHtmlReady(lambda: None)
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
         # Check splitter size of document 1.
-        self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
+        self.assertEqual(self._widget().splitter.sizes()[1], defaultSplitterSize[1])
         # Switch to document 2. Log window is hidden now.
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
         self.assertFalse(self._widget().splitter.sizes()[1])
         # Switch to document 3. Log window should be restore to original size.
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
-        self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
+        self.assertNotEqual(self._widget().splitter.sizes()[0], 0)
+        self.assertEqual(self._widget().splitter.sizes()[1], defaultSplitterSize[1])
 
     def test_logWindowSplitter3a(self):
         """Feature 1,2,3. A combination of the above test cases.
@@ -1020,13 +1036,15 @@ head
         newSplitterSize = [125, 124]
         self._widget().splitter.setSizes(newSplitterSize)
         self._widget().splitter.splitterMoved.emit(newSplitterSize[0], 1)
-        self.assertEqual(self._widget().splitter.sizes(), newSplitterSize)
+        self.assertNotEqual(newSplitterSize[1], 0)
+        self.assertAlmostEqual(newSplitterSize[0], newSplitterSize[1], delta=1)
         # Switch to an error-free document, assert log window hidden.
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
         self.assertFalse(self._widget().splitter.sizes()[1])
         # Switch to file3 which will cause build error, check splitter size.
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
-        self.assertEqual(self._widget().splitter.sizes(), newSplitterSize)
+        self.assertNotEqual(newSplitterSize[1], 0)
+        self.assertAlmostEqual(newSplitterSize[0], newSplitterSize[1], delta=1)
 
     def test_logWindowSplitter4(self):
         """User actively hide log window, Enki should be able to remember this.
