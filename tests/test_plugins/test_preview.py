@@ -977,6 +977,8 @@ head
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
         # Check splitter size of document 2.
         self.assertNotEqual(self._widget().splitter.sizes()[0], 0)
+        # Assert log window size is 50 even though preview window size might not
+        # be 199.
         self.assertEqual(self._widget().splitter.sizes()[1], defaultSplitterSize[1])
         # Switch to document 1. Splitter size should be the same.
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
@@ -997,12 +999,13 @@ head
         # signal. We need to manually emit this signal with two arguments (not
         # important here.)
         self._widget().splitter.splitterMoved.emit(newSplitterSize[0], 1)
-        self.assertNotEqual(newSplitterSize[1], 0)
-        self.assertAlmostEqual(newSplitterSize[0], newSplitterSize[1], delta=1)
+        # Assert preview window and log window are visible and are of almost equal size
+        self.assertNotIn(0, self._widget().splitter.sizes())
+        self.assertAlmostEqual(self._widget().splitter.sizes()[0], self._widget().splitter.sizes()[1], delta=10)
         # Switch to document 1, make sure its splitter size is changed, too.
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
-        self.assertNotEqual(newSplitterSize[1], 0)
-        self.assertAlmostEqual(newSplitterSize[0], newSplitterSize[1], delta=1)
+        self.assertNotIn(0, self._widget().splitter.sizes())
+        self.assertAlmostEqual(self._widget().splitter.sizes()[0], self._widget().splitter.sizes()[1], delta=10)
 
     def test_logWindowSplitter3(self):
         """Feature 3. Error free document will not affect other documents'
@@ -1036,16 +1039,17 @@ head
         newSplitterSize = [125, 124]
         self._widget().splitter.setSizes(newSplitterSize)
         self._widget().splitter.splitterMoved.emit(newSplitterSize[0], 1)
-        self.assertNotEqual(newSplitterSize[1], 0)
-        self.assertAlmostEqual(newSplitterSize[0], newSplitterSize[1], delta=1)
+        # Assert log window and preview window are visible and are of almost
+        # equal size.
+        self.assertNotIn(0, self._widget().splitter.sizes())
+        self.assertAlmostEqual(self._widget().splitter.sizes()[0], self._widget().splitter.sizes()[1], delta=10)
         # Switch to an error-free document, assert log window hidden.
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
         self.assertFalse(self._widget().splitter.sizes()[1])
         # Switch to file3 which will cause build error, check splitter size.
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
-        self.assertNotEqual(newSplitterSize[1], 0)
-        self.assertAlmostEqual(newSplitterSize[0], newSplitterSize[1], delta=1)
-
+        self.assertNotIn(0, self._widget().splitter.sizes())
+        self.assertAlmostEqual(self._widget().splitter.sizes()[0], self._widget().splitter.sizes()[1], delta=10)
     def test_logWindowSplitter4(self):
         """User actively hide log window, Enki should be able to remember this.
         """

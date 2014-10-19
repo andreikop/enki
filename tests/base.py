@@ -123,7 +123,7 @@ def inMainLoop(func, *args):
 
 def _cmdlineUtilityExists(cmdlineArgs):
     try:
-        subprocess.call(cmdlineArgs, stdout=subprocess.PIPE)
+        subprocess.call(cmdlineArgs, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except OSError as e:
         if e.errno == os.errno.ENOENT:
             return False
