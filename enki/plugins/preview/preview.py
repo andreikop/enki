@@ -348,7 +348,7 @@ class ConverterThread(QThread):
         except Exception as ex:
             return '<pre><font color=red>Failed to execute HTML builder' + \
                    'console utility "{}":\n{}</font>\n'\
-                   .format(htmlBuilderCommandLine if htmlBuilderCommandLine.__class__.__name__ is 'str'\
+                   .format(htmlBuilderCommandLine if isinstance(htmlBuilderCommandLine, str)\
                    else ' '.join(htmlBuilderCommandLine), str(ex)) + \
                    '\nGo to Settings -> Settings -> CodeChat to set HTML builder configurations.</pre>'
 
@@ -651,9 +651,9 @@ class PreviewDock(DockWidget):
             #
             # .. digraph:: BuildOnSave_mechanism
             #
-            #    label = "Should sphinx be called\nwhen document processing is needed"
+            #    label = "When should enki generate preview?"
             #    graph[size="7,6"]
-            #    rankdir = LR
+            #    rankdir = TB
             #
             #    start[color = white, shape = record, label = "CodeChat\nenabled file"]
             #    subgraph lvl1 {
@@ -667,36 +667,58 @@ class PreviewDock(DockWidget):
             #       build2[color = none, shape = record, label = "Build", style = filled, fillcolor = green]
             #    }
             #    subgraph lvl3 {
+            #       rank = same
             #       pass[color = none, shape = record, label = "Pass", style = filled, fillcolor = red]
             #       if_buildOnSave[shape = diamond, label = "BuildOnSave\nEnabled?"]
-            #       build3[color = none, shape = record, label = "Build", style = filled, fillcolor = green]
+            #    }
+            #    subgraph lvl4 {
+            #       rank = same
+            #       externally_modified[shape = diamond, label = "Externally\nModified?"]
+            #       saveAndBuild[color = none, shape = record, label = "Save+Build", style = filled, fillcolor = green]
+            #    }
+            #    subgraph lvl5{
+            #       rank = TB
+            #       enableBuildOnSave[shape = record, label = "Enable\nBuildOnSave"]
+            #       pass2[color = none, shape = record, label = "Pass", style = filled, fillcolor = red]
             #    }
             #    start->if_sphinx_enabled
             #    if_sphinx_enabled->build1[label = "No"]
             #    if_sphinx_enabled->if_document_modified[label = "Yes"]
             #    if_document_modified->build2[label = "No"]
             #    if_document_modified->if_buildOnSave[label = "Yes"]
-            #    if_buildOnSave->build3[label = "No"]
             #    if_buildOnSave->pass[label = "Yes"]
+            #    if_buildOnSave->externally_modified[label = "No"]
+            #    externally_modified->saveAndBuild[label = "No"]
+            #    externally_modified->enableBuildOnSave[label = "Yes"]
+            #    enableBuildOnSave->pass2\
+            externallyModified = document.isExternallyModified()
+            internallyModified = qp.document().isModified()
+            documentModified = externallyModified or internallyModified
             if ( not core.config()['Sphinx']['Enabled'] or
                  not sphinxEnabledForFile(document.filePath()) or
-                 sphinxEnabledForFile(document.filePath()) and not qp.document().isModified() ):
+                 sphinxEnabledForFile(document.filePath()) and not documentModified):
+                 # For some reason, qp.document().isModified() does not detect
+                 # externally modification, thus the following line of code is necessary.
                 self._setHtmlProgress(-1)
                 # for rest language is already correct
                 self._thread.process(document.filePath(), language, text)
-            elif (sphinxEnabledForFile(document.filePath()) and qp.document().isModified()
+            elif (sphinxEnabledForFile(document.filePath()) and documentModified
                   and not core.config()['Sphinx']['BuildOnSave']):
-                # Only save when Sphinx is enabled for current document. Trailing
-                # whitespace is not stripped when autosaving. When saving actions
-                # are invoked manually, trailing whitespace will be stripped if
-                # enabled.
-                whitespaceSetting = core.config()["Qutepart"]["StripTrailingWhitespace"]
-                core.config()["Qutepart"]["StripTrailingWhitespace"] = False
-                document.saveFile()
-                core.config()["Qutepart"]["StripTrailingWhitespace"] = whitespaceSetting
-                self._setHtmlProgress(-1)
-                # for rest language is already correct
-                self._thread.process(document.filePath(), language, text)
+                if not document.isExternallyModified():
+                    # Only save when Sphinx is enabled for current document. Trailing
+                    # whitespace is not stripped when autosaving. When saving actions
+                    # are invoked manually, trailing whitespace will be stripped if
+                    # enabled.
+                    whitespaceSetting = core.config()["Qutepart"]["StripTrailingWhitespace"]
+                    core.config()["Qutepart"]["StripTrailingWhitespace"] = False
+                    document.saveFile()
+                    core.config()["Qutepart"]["StripTrailingWhitespace"] = whitespaceSetting
+                    self._setHtmlProgress(-1)
+                    # for rest language is already correct
+                    self._thread.process(document.filePath(), language, text)
+                else:
+                    core.config()['Sphinx']['BuildOnSave'] = True
+                    core.config().flush()
 
     def _copySphinxProjectTemplate(self, documentFilePath):
         """Add conf.py, default.css and index.rst (if ther're missing)
