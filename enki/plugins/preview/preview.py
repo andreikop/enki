@@ -404,7 +404,6 @@ class PreviewDock(DockWidget):
 
         self._widget.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
         self._widget.webView.page().linkClicked.connect(self._onLinkClicked)
-        #self._widget.webView.page().mainFrame().setZoomFactor(1.5)
 
         self._widget.webView.page().mainFrame().titleChanged.connect(self._updateTitle)
         self.setWidget(self._widget)
