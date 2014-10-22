@@ -775,6 +775,32 @@ head
             self.assertTrue(u"document isn't included in any toctree" in self._logText())
             self.assertTrue('yellow' in self._widget().prgStatus.styleSheet())
 
+    @base.requiresCmdlineUtility('sphinx-build --version')
+    def test_previewCheck23(self):
+        """If the document is modified externally, then build on save will be
+        automatically enabled. Calling scheduledocumentprocessing will not
+        trigger a rebuild.
+        """
+        self._doBasicSphinxConfig()
+        core.config()['Sphinx']['BuildOnSave'] = False
+        core.config().flush()
+        self.codeText = u"""****
+head
+****
+
+"""
+        self.masterText = u""".. toctree::
+
+   code.rst"""
+        codeDoc = self.createFile('code.rst', self.testText)
+        masterDoc = self.createFile('index.rst', self.testText)
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(codeDoc), timeout=10000)
+        with open("code.rst", 'a') as f:
+            f.write (".. mytag::")
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(masterDoc), timeout=10000)
+        core.workspace().setCurrentDocument(codeDoc)
+        self.assertTrue(core.config()['Sphinx']['BuildOnSave'])
+
     # Cases testing commonprefix
     ##--------------------------
     # Basic checks
@@ -1050,6 +1076,7 @@ head
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
         self.assertNotIn(0, self._widget().splitter.sizes())
         self.assertAlmostEqual(self._widget().splitter.sizes()[0], self._widget().splitter.sizes()[1], delta=10)
+
     def test_logWindowSplitter4(self):
         """User actively hide log window, Enki should be able to remember this.
         """
