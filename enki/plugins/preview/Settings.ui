@@ -94,7 +94,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Build on save</string>
+         <string>Build only on save</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
