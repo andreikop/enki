@@ -795,11 +795,21 @@ head
         codeDoc = self.createFile('code.rst', self.testText)
         masterDoc = self.createFile('index.rst', self.testText)
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(codeDoc), timeout=10000)
+        # Modify this file externally.
         with open("code.rst", 'a') as f:
             f.write (".. mytag::")
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(masterDoc), timeout=10000)
         core.workspace().setCurrentDocument(codeDoc)
-        self.assertTrue(core.config()['Sphinx']['BuildOnSave'])
+
+        # Modify this file internally, then wait for the typing timer to expire.
+        qp = core.workspace().currentDocument().qutepart
+        self.assertEmits(lambda: qp.appendPlainText('xxx'),
+                         self._dock()._typingTimer.timeout, timeoutMs=1000)
+        # The typing timer invokes _scheduleDocumentProcessing. Make sure
+        # it completes by waiting until all events are processed.
+        base._processPendingEvents()
+        # Make sure the file wasn't saved.
+        self.assertTrue(qp.document().isModified())
 
     # Cases testing commonprefix
     ##--------------------------

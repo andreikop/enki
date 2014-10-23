@@ -327,9 +327,9 @@ class ConverterThread(QThread):
         if core.config()['Sphinx']['AdvancedMode']:
             htmlBuilderCommandLine = core.config()['Sphinx']['Cmdline']
             if sys.platform.startswith('linux'):
-                # If linux is used, then subprocess can not take the whole
-                # commandline as name of executable file. module shlex
-                # has to be used to parse commandline
+                # If Linux is used, then subprocess cannot take the whole
+                # commandline as the name of an executable file. Module shlex
+                # has to be used to parse commandline.
                 htmlBuilderCommandLine = shlex.split(htmlBuilderCommandLine)
         else:
             # For available builder options, refer to: http://sphinx-doc.org/builders.html
@@ -414,14 +414,15 @@ class PreviewDock(DockWidget):
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         core.workspace().textChanged.connect(self._onTextChanged)
 
-        # If user hit accept button in setting dialog, Enki will force a rebuild of the
-        # whole project.
-        # TODO: should we only build if preview setting has been changed?
+        # If the user presses the accept button in the setting dialog, Enki
+        # will force a rebuild of the whole project.
         #
-        # In order to make this happen, let _onSettingsDialogAboutToExecute emit
-        # a signal indicating codechat setting dialog has been opened. Save
+        # TODO: only build if preview settings have been changed.
+        #
+        # In order to make this happen, let ``_onSettingsDialogAboutToExecute`` emit
+        # a signal indicating that the CodeChat setting dialog has been opened. Save
         # core.config()['Sphinx'] and core.config()['CodeChat']. After dialogAccepted
-        # detected, compare current settings with the old one. Build if necessary.
+        # is detected, compare current settings with the old one. Build if necessary.
         core.uiSettingsManager().dialogAccepted.connect(self._scheduleDocumentProcessing)
 
         # File save actions always trigger a rebuild
@@ -438,7 +439,8 @@ class PreviewDock(DockWidget):
 
         self._visiblePath = None
 
-        # If we update Preview on every key pressing, freezes are sensible (GUI thread draws preview too slowly
+        # If we update Preview on every key press, freezes are noticable (the
+        # GUI thread draws the preview too slowly).
         # This timer is used for drawing Preview 300 ms After user has stopped typing text
         self._typingTimer = QTimer()
         self._typingTimer.setInterval(300)
@@ -651,81 +653,68 @@ class PreviewDock(DockWidget):
                 return
             elif language == 'Restructured Text':
                 pass
-            # The following flowchart will be used to illustrate when to call
-            # Sphinx based on ``core.config()['Sphinx']['BuildOnSave']`` option,
-            # current document location, text modified conditions, and other
-            # conditions.
+            # Determine whether to initiate a build or not. The underlying
+            # logic:
             #
-            # .. digraph:: BuildOnSave_mechanism
+            # - If Sphinx can't process this file, just build it.
+            # - If Sphinx can process this file:
             #
-            #    label = "When should enki generate preview?"
-            #    graph[size="7,6"]
-            #    rankdir = TB
+            #   - If the document isn't internally modified, we're here because the file
+            #     was saved or the refresh button was pressed. Build it.
+            #   - If the document was internally modified and "insta-build" is
+            #     enabled (i.e. build on save is disabled):
             #
-            #    start[color = white, shape = record, label = "CodeChat\nenabled file"]
-            #    subgraph lvl1 {
-            #       rank = same
-            #       if_sphinx_enabled[shape = diamond, label = "Sphinx\nEnabled?"]
-            #       build1[color = none, shape = record, label = "Build", style = filled, fillcolor = green]
-            #    }
-            #    subgraph lvl2 {
-            #       rank = same
-            #       if_document_modified[shape = diamond, label = "Document\nModified?"]
-            #       build2[color = none, shape = record, label = "Build", style = filled, fillcolor = green]
-            #    }
-            #    subgraph lvl3 {
-            #       rank = same
-            #       pass[color = none, shape = record, label = "Pass", style = filled, fillcolor = red]
-            #       if_buildOnSave[shape = diamond, label = "BuildOnSave\nEnabled?"]
-            #    }
-            #    subgraph lvl4 {
-            #       rank = same
-            #       externally_modified[shape = diamond, label = "Externally\nModified?"]
-            #       saveAndBuild[color = none, shape = record, label = "Save+Build", style = filled, fillcolor = green]
-            #    }
-            #    subgraph lvl5{
-            #       rank = TB
-            #       enableBuildOnSave[shape = record, label = "Enable\nBuildOnSave"]
-            #       pass2[color = none, shape = record, label = "Pass", style = filled, fillcolor = red]
-            #    }
-            #    start->if_sphinx_enabled
-            #    if_sphinx_enabled->build1[label = "No"]
-            #    if_sphinx_enabled->if_document_modified[label = "Yes"]
-            #    if_document_modified->build2[label = "No"]
-            #    if_document_modified->if_buildOnSave[label = "Yes"]
-            #    if_buildOnSave->pass[label = "Yes"]
-            #    if_buildOnSave->externally_modified[label = "No"]
-            #    externally_modified->saveAndBuild[label = "No"]
-            #    externally_modified->enableBuildOnSave[label = "Yes"]
-            #    enableBuildOnSave->pass2\
+            #     - If the document was not externally modified, then save and
+            #       build.
+            #     - If the document was externally modified, DANGER! The user
+            #       needs to decide which file wins (external changes or
+            #       internal changes). Don't save and build, since this would
+            #       overwrite external modifications without the user realizing
+            #       what happened. Instead, warn the user.
+            #
             externallyModified = document.isExternallyModified()
             internallyModified = qp.document().isModified()
-            documentModified = externallyModified or internallyModified
-            if ( not core.config()['Sphinx']['Enabled'] or
-                 not sphinxEnabledForFile(document.filePath()) or
-                 sphinxEnabledForFile(document.filePath()) and not documentModified):
-                 # For some reason, qp.document().isModified() does not detect
-                 # externally modification, thus the following line of code is necessary.
+            if not sphinxEnabledForFile(document.filePath()):
+                # Sphinx can't process this file, so just build it.
+                shouldBuild = True
+            else:
+                # Sphinx can process this file.
+                if not internallyModified:
+                    # The file was just saved by the user. Build it.
+                    shouldBuild = True
+                else:
+                    # This file was internally modified. Should we auto-save
+                    # and build?
+                    if core.config()['Sphinx']['BuildOnSave']:
+                        # Don't build, since the modified file isn't saved;
+                        # Sphinx can't see these unsaved modifications.
+                        shouldBuild = False
+                    else:
+                        # Insta-build is true.
+                        if externallyModified:
+                            # DANGER! The file is both internally modified and
+                            # externally modified and in insta-build mode. So,
+                            # DON'T save, since this will overwrite externals
+                            # modifications.
+                            shouldBuild = False
+                            # TODO: warn the user.
+                        else:
+                            # This file was internally modified, not externally
+                            # modified. So, auto-save the current document then
+                            # build it.
+                            shouldBuild = True
+                            # Trailing whitespace is not stripped when
+                            # autosaving. When a save is invoked manually,
+                            # trailing whitespace will be stripped if enabled.
+                            whitespaceSetting = core.config()["Qutepart"]["StripTrailingWhitespace"]
+                            core.config()["Qutepart"]["StripTrailingWhitespace"] = False
+                            document.saveFile()
+                            core.config()["Qutepart"]["StripTrailingWhitespace"] = whitespaceSetting
+
+            if shouldBuild:
                 self._setHtmlProgress(-1)
                 # for rest language is already correct
                 self._thread.process(document.filePath(), language, text)
-            elif (sphinxEnabledForFile(document.filePath()) and documentModified
-                  and not core.config()['Sphinx']['BuildOnSave']):
-                if not document.isExternallyModified():
-                    # Only save when Sphinx is enabled for current document. Trailing
-                    # whitespace is not stripped when autosaving. When saving actions
-                    # are invoked manually, trailing whitespace will be stripped if
-                    # enabled.
-                    whitespaceSetting = core.config()["Qutepart"]["StripTrailingWhitespace"]
-                    core.config()["Qutepart"]["StripTrailingWhitespace"] = False
-                    document.saveFile()
-                    core.config()["Qutepart"]["StripTrailingWhitespace"] = whitespaceSetting
-                    self._setHtmlProgress(-1)
-                    # for rest language is already correct
-                    self._thread.process(document.filePath(), language, text)
-                else:
-                    core.config()['Sphinx']['BuildOnSave'] = True
-                    core.config().flush()
 
     def _copySphinxProjectTemplate(self, documentFilePath):
         """Add conf.py, default.css and index.rst (if ther're missing)
