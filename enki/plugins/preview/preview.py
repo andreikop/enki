@@ -662,7 +662,7 @@ class PreviewDock(DockWidget):
             #   - If the document isn't internally modified, we're here because the file
             #     was saved or the refresh button was pressed. Build it.
             #   - If the document was internally modified and "insta-build" is
-            #     enabled (i.e. build on save is disabled):
+            #     enabled (i.e. build only on save is disabled):
             #
             #     - If the document was not externally modified, then save and
             #       build.
@@ -672,49 +672,45 @@ class PreviewDock(DockWidget):
             #       overwrite external modifications without the user realizing
             #       what happened. Instead, warn the user.
             #
-            externallyModified = document.isExternallyModified()
+            # As a table, see below. Build, Save, and Warn are the outputs; all
+            # others are inputs.
+            #
+            # ==================  ===================  ===================  =============  =====  ====  ====
+            # Sphinx can process  Internally modified  Externally modified  Build on Save  Build  Save  Warn
+            # ==================  ===================  ===================  =============  =====  ====  ====
+            # No                  X                    X                    X              Yes    No    No
+            # Yes                 No                   X                    X              Yes    No    No
+            # Yes                 Yes                  No                   Yes            Yes    Yes   No
+            # Yes                 Yes                  Yes                  Yes            No     No    Yes
+            # Yes                 Yes                  X                    No             No     No    No
+            # ==================  ===================  ===================  =============  =====  ====  ====
+            sphinxCanProcess = sphinxEnabledForFile(document.filePath())
             internallyModified = qp.document().isModified()
-            if not sphinxEnabledForFile(document.filePath()):
-                # Sphinx can't process this file, so just build it.
-                shouldBuild = True
-            else:
-                # Sphinx can process this file.
-                if not internallyModified:
-                    # The file was just saved by the user. Build it.
-                    shouldBuild = True
-                else:
-                    # This file was internally modified. Should we auto-save
-                    # and build?
-                    if core.config()['Sphinx']['BuildOnSave']:
-                        # Don't build, since the modified file isn't saved;
-                        # Sphinx can't see these unsaved modifications.
-                        shouldBuild = False
-                    else:
-                        # Insta-build is true.
-                        if externallyModified:
-                            # DANGER! The file is both internally modified and
-                            # externally modified and in insta-build mode. So,
-                            # DON'T save, since this will overwrite externals
-                            # modifications.
-                            shouldBuild = False
-                            # TODO: warn the user.
-                        else:
-                            # This file was internally modified, not externally
-                            # modified. So, auto-save the current document then
-                            # build it.
-                            shouldBuild = True
-                            # Trailing whitespace is not stripped when
-                            # autosaving. When a save is invoked manually,
-                            # trailing whitespace will be stripped if enabled.
-                            whitespaceSetting = core.config()["Qutepart"]["StripTrailingWhitespace"]
-                            core.config()["Qutepart"]["StripTrailingWhitespace"] = False
-                            document.saveFile()
-                            core.config()["Qutepart"]["StripTrailingWhitespace"] = whitespaceSetting
-
-            if shouldBuild:
+            externallyModified = document.isExternallyModified()
+            buildOnSave = core.config()['Sphinx']['BuildOnSave']
+            # Save first, if needed.
+            saveThenBuild = (sphinxCanProcess and internallyModified and
+                not externallyModified and buildOnSave)
+            if saveThenBuild:
+                    # Trailing whitespace is not stripped when
+                    # autosaving. When a save is invoked manually,
+                    # trailing whitespace will be stripped if enabled.
+                    whitespaceSetting = core.config()["Qutepart"]["StripTrailingWhitespace"]
+                    core.config()["Qutepart"]["StripTrailingWhitespace"] = False
+                    document.saveFile()
+                    core.config()["Qutepart"]["StripTrailingWhitespace"] = whitespaceSetting
+            # Build. Each line is one row in the table above.
+            if ( (not sphinxCanProcess) or
+                (sphinxCanProcess and not internallyModified) or
+                saveThenBuild ):
                 self._setHtmlProgress(-1)
                 # for rest language is already correct
                 self._thread.process(document.filePath(), language, text)
+            # Warn.
+            if (sphinxCanProcess and internallyModified and
+                externallyModified and buildOnSave):
+                # TODO: warn user.
+                pass
 
     def _copySphinxProjectTemplate(self, documentFilePath):
         """Add conf.py, default.css and index.rst (if ther're missing)
