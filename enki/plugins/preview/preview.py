@@ -680,9 +680,9 @@ class PreviewDock(DockWidget):
             # ==================  ===================  ===================  =============  =====  ====  ====
             # No                  X                    X                    X              Yes    No    No
             # Yes                 No                   X                    X              Yes    No    No
-            # Yes                 Yes                  No                   Yes            Yes    Yes   No
-            # Yes                 Yes                  Yes                  Yes            No     No    Yes
-            # Yes                 Yes                  X                    No             No     No    No
+            # Yes                 Yes                  No                   No             Yes    Yes   No
+            # Yes                 Yes                  Yes                  No             No     No    Yes
+            # Yes                 Yes                  X                    Yes            No     No    No
             # ==================  ===================  ===================  =============  =====  ====  ====
             sphinxCanProcess = sphinxEnabledForFile(document.filePath())
             internallyModified = qp.document().isModified()
@@ -690,7 +690,7 @@ class PreviewDock(DockWidget):
             buildOnSave = core.config()['Sphinx']['BuildOnSave']
             # Save first, if needed.
             saveThenBuild = (sphinxCanProcess and internallyModified and
-                not externallyModified and buildOnSave)
+                not externallyModified and not buildOnSave)
             if saveThenBuild:
                     # Trailing whitespace is not stripped when
                     # autosaving. When a save is invoked manually,
@@ -708,7 +708,7 @@ class PreviewDock(DockWidget):
                 self._thread.process(document.filePath(), language, text)
             # Warn.
             if (sphinxCanProcess and internallyModified and
-                externallyModified and buildOnSave):
+                externallyModified and not buildOnSave):
                 # TODO: warn user.
                 pass
 

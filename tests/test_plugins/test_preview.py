@@ -222,9 +222,12 @@ class Test(PreviewTestCase):
         sw = SettingsWidget()
         # Sphinx is enabled but unchecked.
         self.assertFalse(sw.gbSphinxProject.isChecked())
-        # buildOnSave is not enabled nor checked.
-        self.assertFalse(sw.cbBuildOnSaveEnable.isEnabled())
-        self.assertFalse(sw.cbBuildOnSaveEnable.isChecked())
+        # Build options are all disabled. But build only on save is still
+        # enabled by default.
+        self.assertFalse(sw.rbBuildOnlyOnSave.isEnabled())
+        self.assertTrue(sw.rbBuildOnlyOnSave.isChecked())
+        self.assertFalse(sw.rbBuildOnFileChange.isEnabled())
+        self.assertFalse(sw.rbBuildOnFileChange.isChecked())
         # All setting directories are disabled and empty.
         self.assertFalse(sw.leSphinxProjectPath.isEnabled())
         self.assertEqual(sw.leSphinxProjectPath.text(), '')
@@ -293,9 +296,11 @@ class Test(PreviewTestCase):
         # executable, output extension and default commandline will be initialize
         # to preset values.
         self.assertTrue(sw.gbSphinxProject.isChecked())
-        # buildOnSave is not enabled nor checked.
-        self.assertTrue(sw.cbBuildOnSaveEnable.isEnabled())
-        self.assertFalse(sw.cbBuildOnSaveEnable.isChecked())
+        # Build option is enabled and automatically set to Build only on save.
+        self.assertTrue(sw.rbBuildOnlyOnSave.isEnabled())
+        self.assertTrue(sw.rbBuildOnlyOnSave.isChecked())
+        self.assertTrue(sw.rbBuildOnFileChange.isEnabled())
+        self.assertFalse(sw.rbBuildOnFileChange.isChecked())
         # All setting directories are enabled and empty.
         self.assertTrue(sw.leSphinxProjectPath.isEnabled())
         self.assertEqual(sw.leSphinxProjectPath.text(), '')

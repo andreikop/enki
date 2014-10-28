@@ -12,7 +12,7 @@ from PyQt4.QtGui import QAction, QIcon, QKeySequence, QWidget, QFileDialog
 from PyQt4 import uic
 
 from enki.core.core import core
-from enki.core.uisettings import CheckableOption, TextOption
+from enki.core.uisettings import CheckableOption, TextOption, ChoiseOption
 
 # Import CodeChat if possible; otherwise, indicate it wasn't available.
 try:
@@ -305,7 +305,10 @@ class Plugin(QObject):
                                             widget.gbSphinxProject))
         dialog.appendOption(CheckableOption(dialog, core.config(),
                                             "Sphinx/BuildOnSave",
-                                            widget.cbBuildOnSaveEnable))
+                                            widget.rbBuildOnlyOnSave))
+        dialog.appendOption(ChoiseOption(dialog, core.config(), "Sphinx/BuildOnSave",
+                                         {widget.rbBuildOnlyOnSave: True,
+                                          widget.rbBuildOnFileChange: False}))
         dialog.appendOption(TextOption(dialog, core.config(),
                                        "Sphinx/ProjectPath",
                                        widget.leSphinxProjectPath))

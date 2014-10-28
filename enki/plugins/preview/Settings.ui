@@ -75,20 +75,28 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="cbBuildOnSaveEnable">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Build only on save</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="loBuildOnlyOnSave">
+        <item>
+         <widget class="QRadioButton" name="rbBuildOnlyOnSave">
+          <property name="text">
+           <string>Build only on save</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="rbBuildOnFileChange">
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="text">
+           <string>Build upon any file change</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <widget class="QLabel" name="label_3">
@@ -304,7 +312,6 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>cbBuildOnSaveEnable</tabstop>
   <tabstop>leSphinxProjectPath</tabstop>
   <tabstop>pbSphinxProjectPath</tabstop>
   <tabstop>leSphinxOutputPath</tabstop>
