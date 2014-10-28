@@ -616,7 +616,7 @@ head
         # Next, test a code piece with only warnings.
         self.testText = u'`abc'
         self._doBasicTest('rst')
-        self.assertTrue('yellow' in self._widget().prgStatus.styleSheet())
+        self.assertTrue('#FFFF00' in self._widget().prgStatus.styleSheet())
 
     @requiresModule('CodeChat')
     def test_previewCheck16(self):
@@ -624,7 +624,7 @@ head
         # Next, test a code piece with only errors.
         self.testText = u'# .. ERROR::'
         self._doBasicTest('py')
-        self.assertTrue('red' in self._widget().prgStatus.styleSheet())
+        self.assertTrue('#FF9955' in self._widget().prgStatus.styleSheet())
 
     @requiresModule('CodeChat')
     def test_previewCheck17(self):
@@ -634,7 +634,7 @@ head
         core.config()['CodeChat']['Enabled'] = True
         self.testText = u'# .. ERROR::\n# `WARNING_'
         self._doBasicTest('py')
-        self.assertTrue('red' in self._widget().prgStatus.styleSheet())
+        self.assertTrue('#FF9955' in self._widget().prgStatus.styleSheet())
         self.assertTrue('Warning(s): 2, error(s): 2' in self._logText())
 
     @base.inMainLoop
@@ -654,12 +654,12 @@ head
         # switch to document 1
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
         base.waitForSignal(lambda: None, self._widget().webView.page().mainFrame().loadFinished, 200)
-        self.assertIn('yellow', self._widget().prgStatus.styleSheet())
+        self.assertIn('#FFFF00', self._widget().prgStatus.styleSheet())
         self.assertTrue('Warning(s): 1, error(s): 0' in self._logText())
         # switch to document 2
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
         base.waitForSignal(lambda: None, self._widget().webView.page().mainFrame().loadFinished, 200)
-        self.assertTrue('red' in self._widget().prgStatus.styleSheet())
+        self.assertTrue('#FF9955' in self._widget().prgStatus.styleSheet())
         self.assertTrue('Warning(s): 0, error(s): 1' in self._logText())
         # switch to document 3
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
@@ -775,13 +775,13 @@ head
             self.testText = u'Underlying :download:`source code <file.rst>`.'
             self._doBasicTest('rst')
             self.assertTrue(u'Unknown interpreted text role "download".' in self._logText())
-            self.assertTrue('red' in self._widget().prgStatus.styleSheet())
+            self.assertTrue('#FF9955' in self._widget().prgStatus.styleSheet())
 
             self._doBasicSphinxConfig()
             core.uiSettingsManager().dialogAccepted.emit()
             self._assertHtmlReady(lambda: None, timeout = 10000)
             self.assertTrue(u"document isn't included in any toctree" in self._logText())
-            self.assertTrue('yellow' in self._widget().prgStatus.styleSheet())
+            self.assertTrue('#FFFF00' in self._widget().prgStatus.styleSheet())
 
     @base.requiresCmdlineUtility('sphinx-build --version')
     def test_previewCheck23(self):
