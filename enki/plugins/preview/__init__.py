@@ -38,7 +38,8 @@ class SettingsWidget(QWidget):
         if CodeChat is None:
             # If the CodeChat module can't be loaded, then disable the
             # associated checkbox and show the "not installed" message.
-            self.cbCodeChatEnable.setEnabled(False)
+            self.gbCodeChat.setChecked(False)
+            self.gbCodeChat.setCheckable(False)
             self.labelCodeChatNotInstalled.setVisible(True)
         else:
             # Hide the "not installed" message.
@@ -53,24 +54,24 @@ class SettingsWidget(QWidget):
         self.cmbSphinxOutputExtension.addItem("htm")
         self._updateSphinxSettingMode()
 
-    def on_cbSphinxEnable_stateChanged(self, layout=None):
+    def on_gbSphinxProject_toggled(self, layout=None):
         """Recursively set everything in the layout argument to enabled/disabled
         based on the state of the Sphinx enable checkbox, including any child
         of ``layout``.
         """
-        if isinstance(layout, int):
-            # on_cbSphinxEnable_stateChanged is called by cbSphinxEnable.stateChanged,
-            # which will pass an unnecessary integer argument. Replace it with
-            # the default layout.
+        if isinstance(layout, bool):
+            # on_gbSphinxProject_toggled is called by gbSphinxProject.toggled,
+            # which will pass an bool argument indicating the checkbox status.
+            # Replace it with the default layout.
             layout = self.loSphinxProject
         for i in range(layout.count()):
             item = layout.itemAt(i)
             if item.layout():
-                self.on_cbSphinxEnable_stateChanged(item.layout())
-            # Don't hide the Sphinx enable or Sphinx description text.
+                self.on_gbSphinxProject_toggled(item.layout())
+            # Don't hide Sphinx description text.
             if (item.widget() and
-              (item.widget() not in (self.cbSphinxEnable, self.labelSphinxIntro)) ):
-                item.widget().setEnabled(self.cbSphinxEnable.isChecked())
+              (item.widget() is not self.labelSphinxIntro) ):
+                item.widget().setEnabled(self.gbSphinxProject.isChecked())
 
     @pyqtSlot()
     def on_pbSphinxProjectPath_clicked(self):
@@ -298,10 +299,10 @@ class Plugin(QObject):
         # config entries.
         dialog.appendOption(CheckableOption(dialog, core.config(),
                                             "CodeChat/Enabled",
-                                            widget.cbCodeChatEnable))
+                                            widget.gbCodeChat))
         dialog.appendOption(CheckableOption(dialog, core.config(),
                                             "Sphinx/Enabled",
-                                            widget.cbSphinxEnable))
+                                            widget.gbSphinxProject))
         dialog.appendOption(CheckableOption(dialog, core.config(),
                                             "Sphinx/BuildOnSave",
                                             widget.cbBuildOnSaveEnable))
