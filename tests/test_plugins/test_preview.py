@@ -202,8 +202,8 @@ class Test(PreviewTestCase):
         """When Enki runs for the first time, the CodeChat module should be
            disabled by default."""
         sw = SettingsWidget()
-        self.assertFalse(sw.cbCodeChatEnable.isChecked())
-        self.assertTrue(sw.cbCodeChatEnable.isEnabled())
+        self.assertFalse(sw.gbCodeChat.isChecked())
+        self.assertTrue(sw.gbCodeChat.isEnabled())
         # If the CodeChat module is present, the user should not be able to see
         # the 'CodeChat not installed' notification.
         #
@@ -221,8 +221,7 @@ class Test(PreviewTestCase):
         path setting line edits and buttons are disabled."""
         sw = SettingsWidget()
         # Sphinx is enabled but unchecked.
-        self.assertTrue(sw.cbSphinxEnable.isEnabled())
-        self.assertFalse(sw.cbSphinxEnable.isChecked())
+        self.assertFalse(sw.gbSphinxProject.isChecked())
         # buildOnSave is not enabled nor checked.
         self.assertFalse(sw.cbBuildOnSaveEnable.isEnabled())
         self.assertFalse(sw.cbBuildOnSaveEnable.isChecked())
@@ -257,7 +256,8 @@ class Test(PreviewTestCase):
         with ImportFail('CodeChat'):
             reload(enki.plugins.preview)
             sw = SettingsWidget()
-            enabled = sw.cbCodeChatEnable.isEnabled()
+            checkable = sw.gbCodeChat.isCheckable()
+            enabled = sw.gbCodeChat.isChecked()
             sw.show()
             notice = sw.labelCodeChatNotInstalled.isVisible()
             sw.close()
@@ -268,12 +268,15 @@ class Test(PreviewTestCase):
         # fails).
         reload(enki.plugins.preview)
         self.assertFalse(enabled)
+        self.assertFalse(checkable)
         self.assertTrue(notice)
 
-        # Now, prove that the reload worked: CodeChat should now be enabled,
-        # and 'not installed' notification should be invisible.
+        # Now, prove that the reload worked: CodeChat should now be enabled, but
+        # remain unchecked just like the first time enki starts. 'not installed'
+        # notification should be invisible.
         sw = SettingsWidget()
-        self.assertTrue(sw.cbCodeChatEnable.isEnabled())
+        self.assertTrue(sw.gbCodeChat.isCheckable())
+        self.assertFalse(sw.gbCodeChat.isChecked())
         sw.show()
         self.assertFalse(sw.labelCodeChatNotInstalled.isVisible())
         sw.close()
@@ -285,11 +288,11 @@ class Test(PreviewTestCase):
         """
         sw = SettingsWidget()
         # Mannually enable Sphinx.
-        sw.cbSphinxEnable.setChecked(True)
+        sw.gbSphinxProject.setChecked(True)
         # Since it is assumed that the user has sphinx-build installed, the Sphinx
         # executable, output extension and default commandline will be initialize
         # to preset values.
-        self.assertTrue(sw.cbSphinxEnable.isChecked())
+        self.assertTrue(sw.gbSphinxProject.isChecked())
         # buildOnSave is not enabled nor checked.
         self.assertTrue(sw.cbBuildOnSaveEnable.isEnabled())
         self.assertFalse(sw.cbBuildOnSaveEnable.isChecked())

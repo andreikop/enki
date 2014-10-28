@@ -19,24 +19,17 @@
      <property name="title">
       <string>CodeChat</string>
      </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QLabel" name="labelCodeChatNotInstalled">
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#ff0000;&quot;&gt;The CodeChat package is not installed or not found&lt;/span&gt;. Refer to the link below for installation instructions.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="cbCodeChatEnable">
-        <property name="text">
-         <string>Enable</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -61,20 +54,13 @@
      <property name="title">
       <string>Sphinx Project</string>
      </property>
-     <layout class="QVBoxLayout" name="loSphinxProject">
-      <item>
-       <widget class="QCheckBox" name="cbSphinxEnable">
-        <property name="text">
-         <string>Enable</string>
-        </property>
         <property name="checkable">
          <bool>true</bool>
         </property>
         <property name="checked">
          <bool>false</bool>
         </property>
-       </widget>
-      </item>
+     <layout class="QVBoxLayout" name="loSphinxProject">
       <item>
        <widget class="QLabel" name="labelSphinxIntro">
         <property name="text">
@@ -318,8 +304,6 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>cbCodeChatEnable</tabstop>
-  <tabstop>cbSphinxEnable</tabstop>
   <tabstop>cbBuildOnSaveEnable</tabstop>
   <tabstop>leSphinxProjectPath</tabstop>
   <tabstop>pbSphinxProjectPath</tabstop>
