@@ -839,7 +839,7 @@ class PreviewDock(DockWidget):
             self._widget.teLog.appendHtml('<pre>' + errString + '<font color=red>' \
                                           + status + '</font></pre>')
             # Update the progress bar.
-            color = 'red' if errNum else 'yellow' if warningNum else None
+            color = '#FF9955' if errNum else '#FFFF00' if warningNum else None
             self._setHtmlProgress(100, color)
         else:
             # If there are no errors/warnings, collapse the log window (can mannually
@@ -860,7 +860,7 @@ class PreviewDock(DockWidget):
         """
         if color:
             self._widget.prgStatus.setTextVisible(True)
-            self._widget.prgStatus.setFormat(('Error' if color is 'red' else 'Warning')
+            self._widget.prgStatus.setFormat(('Error' if color is '#FF9955' else 'Warning')
                                              + '(s) detected')
             style = 'QProgressBar::chunk {\nbackground-color: '+color+'\n}'
         else:
