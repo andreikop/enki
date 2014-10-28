@@ -860,7 +860,8 @@ class PreviewDock(DockWidget):
         """
         if color:
             self._widget.prgStatus.setTextVisible(True)
-            self._widget.prgStatus.setFormat(('Error' if color is '#FF9955' else 'Warning')
+            self._widget.prgStatus.setAlignment(Qt.AlignCenter)
+            self._widget.prgStatus.setFormat(('Error' if color == '#FF9955' else 'Warning')
                                              + '(s) detected')
             style = 'QProgressBar::chunk {\nbackground-color: '+color+'\n}'
         else:
