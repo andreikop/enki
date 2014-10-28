@@ -859,8 +859,12 @@ class PreviewDock(DockWidget):
           with that percentage of completion.
         """
         if color:
+            self._widget.prgStatus.setTextVisible(True)
+            self._widget.prgStatus.setFormat(('Error' if color is 'red' else 'Warning')
+                                             + '(s) detected')
             style = 'QProgressBar::chunk {\nbackground-color: '+color+'\n}'
         else:
+            self._widget.prgStatus.setTextVisible(False)
             style = 'QProgressBar::chunk {}'
         self._widget.prgStatus.setStyleSheet(style)
         if progress == -1:
