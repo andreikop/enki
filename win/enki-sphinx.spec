@@ -34,7 +34,14 @@ enki_a = Analysis(['bin\\enki'],
              cipher=block_cipher)
 sphinx_a = Analysis(['win\\sphinx-build.py'],
              pathex=['C:\\Users\\bjones\\Documents\\enki_all\\enki1'],
-             hiddenimports=['CodeChat'],
+             # Only include 'CodeChat' in the list below, even through all the
+             # modules below are listed in the hidden import of win/hook-CodeChat.py,
+             #  produces the following error::
+             #
+             #  Extension error:
+             #  Could not import extension CodeChat.CodeToRestSphinx (exception:
+             #  cannot import name CodeToRest)
+             hiddenimports=['CodeChat.CodeToRestSphinx', 'CodeChat.CodeToRest', 'CodeChat.LanguageSpecificOptions' ],
              hookspath=['win'],
              runtime_hooks=None,
              excludes=['_tkinter'],
