@@ -35,12 +35,14 @@ class SettingsWidget(QWidget):
         QWidget.__init__(self, *args)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Settings.ui'), self)
 
+        self.labelCodeChatIntro.setEnabled(1)
         if CodeChat is None:
             # If the CodeChat module can't be loaded, then disable the
             # associated checkbox and show the "not installed" message.
             self.gbCodeChat.setChecked(False)
             self.gbCodeChat.setCheckable(False)
             self.labelCodeChatNotInstalled.setVisible(True)
+            self.labelCodeChatNotInstalled.setEnabled(True)
         else:
             # Hide the "not installed" message.
             self.labelCodeChatNotInstalled.setVisible(False)
@@ -54,11 +56,16 @@ class SettingsWidget(QWidget):
         self.cmbSphinxOutputExtension.addItem("htm")
         self._updateSphinxSettingMode()
 
+    def on_gbCodeChat_toggled(self):
+        # Re-enable codechat intro such that user can click the hyperlink.
+        self.labelCodeChatIntro.setEnabled(1)
+
     def on_gbSphinxProject_toggled(self, layout=None):
         """Recursively set everything in the layout argument to enabled/disabled
         based on the state of the Sphinx enable checkbox, including any child
         of ``layout``.
         """
+        self.labelSphinxIntro.setEnabled(1)
         if isinstance(layout, bool):
             # on_gbSphinxProject_toggled is called by gbSphinxProject.toggled,
             # which will pass an bool argument indicating the checkbox status.
@@ -133,6 +140,7 @@ class SettingsWidget(QWidget):
         """Update the Sphinx settings mode by hiding/revealing the appropriate
         controls.
         """
+        self.labelSphinxIntro.setEnabled(1)
         if core.config()['Sphinx']['AdvancedMode']:
             # Switch to advanced setting mode:
             # hide all path setting line edit boxes and buttons.

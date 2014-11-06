@@ -262,7 +262,9 @@ class Test(PreviewTestCase):
             checkable = sw.gbCodeChat.isCheckable()
             enabled = sw.gbCodeChat.isChecked()
             sw.show()
-            notice = sw.labelCodeChatNotInstalled.isVisible()
+            noticeVisible = sw.labelCodeChatNotInstalled.isVisible()
+            noticeEnabled = sw.labelCodeChatNotInstalled.isEnabled()
+            introEnabled = sw.labelCodeChatIntro.isEnabled()
             sw.close()
         # When done with this test first restore the state of the preview module
         # by reloading with the CodeChat module available, so that other tests
@@ -272,7 +274,9 @@ class Test(PreviewTestCase):
         reload(enki.plugins.preview)
         self.assertFalse(enabled)
         self.assertFalse(checkable)
-        self.assertTrue(notice)
+        self.assertTrue(noticeVisible)
+        self.assertTrue(noticeEnabled)
+        self.assertTrue(introEnabled)
 
         # Now, prove that the reload worked: CodeChat should now be enabled, but
         # remain unchecked just like the first time enki starts. 'not installed'
@@ -282,6 +286,7 @@ class Test(PreviewTestCase):
         self.assertFalse(sw.gbCodeChat.isChecked())
         sw.show()
         self.assertFalse(sw.labelCodeChatNotInstalled.isVisible())
+        self.assertTrue(sw.labelCodeChatIntro.isEnabled())
         sw.close()
 
     @base.requiresCmdlineUtility('sphinx-build --version')
