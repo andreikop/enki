@@ -28,15 +28,16 @@ def isHtmlFile(document):
            'html' in document.qutepart.language().lower()  and \
            (not 'php' in document.qutepart.language().lower())  # Django HTML template but not HTML (PHP)
 
-def cmdlineExists(cmd):
-    """This function will test the existence of command line executable ``cmd``
-    by calling ``get_console_output`` function.
+def _getSphinxVersion(path):
+    """Get sphinx version as tuple of integer items.
+
+    Raise OSError if not found
+          ValueError if failed to parse
     """
-    try:
-        stdout, stderr = get_console_output(cmd)
-        return True
-    except:
-        return False
+    stdout = get_console_output([path, '--version'])[0]
+    if stdout.startswith("Sphinx"):
+        return [int(num) for num in stdout.split()[2].split('.')]
+    raise ValueError
 
 class SettingsWidget(QWidget):
     """Insert the preview plugin as a page of the UISettings dialog.
@@ -66,6 +67,20 @@ class SettingsWidget(QWidget):
         self.cmbSphinxOutputExtension.addItem("html")
         self.cmbSphinxOutputExtension.addItem("htm")
         self._updateSphinxSettingMode()
+
+    def _updateleValidateSphinxExecutable(self, path):
+        """ Check if Sphinx is installed. Sphinx version is not important
+
+        Update leValidateSphinxExecutable based on Sphinx status.
+        """
+        try:
+            _getSphinxVersion(path)
+        except OSError as ex:
+            self.leValidateSphinxExecutable.setText('Failed to execute sphinx-build: {}'.format(ex))
+        except ValueError:
+            self.leValidateSphinxExecutable.setText('Failed to parse sphinx-build version. Does sphinx work?')
+        else:
+            self.leValidateSphinxExecutable.setText('Sphinx is found!')
 
     def on_gbCodeChat_toggled(self):
         # Re-enable codechat intro such that user can click the hyperlink.
@@ -129,8 +144,7 @@ class SettingsWidget(QWidget):
                                            filter=fltr)
         if path:
             self.leSphinxExecutable.setText(path)
-            self.leValidateSphinxExecutable.setText("Valid executable"
-                if cmdlineExists(path) else "Invalid executable")
+            self._updateleValidateSphinxExecutable(path)
 
     def on_ToggleSphinxSettingModeClicked(self, *args):
         core.config()['Sphinx']['AdvancedMode'] = not core.config()['Sphinx']['AdvancedMode']
@@ -148,16 +162,14 @@ class SettingsWidget(QWidget):
 
     def on_leSphinxExecutable_editingFinished(self):
         self.leSphinxExecutable.setText(self.leSphinxExecutable.text())
-        self.leValidateSphinxExecutable.setText("Valid executable"
-                if cmdlineExists(self.leSphinxExecutable.text()) else "Invalid executable")
+        self._updateleValidateSphinxExecutable(self.leSphinxExecutable.text())
 
     def _updateSphinxSettingMode(self):
         """Update the Sphinx settings mode by hiding/revealing the appropriate
         controls.
         """
         self.labelSphinxIntro.setEnabled(1)
-        self.leValidateSphinxExecutable.setText("Valid executable"
-            if cmdlineExists(core.config()['Sphinx']['Executable']) else "Invalid executable")
+        self._updateleValidateSphinxExecutable(core.config()['Sphinx']['Executable'])
         if core.config()['Sphinx']['AdvancedMode']:
             # Switch to advanced setting mode:
             # hide all path setting line edit boxes and buttons.
