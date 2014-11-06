@@ -13,6 +13,7 @@ from PyQt4 import uic
 
 from enki.core.core import core
 from enki.core.uisettings import CheckableOption, TextOption, ChoiseOption
+from enki.lib.get_console_output import get_console_output
 
 # Import CodeChat if possible; otherwise, indicate it wasn't available.
 try:
@@ -26,6 +27,16 @@ def isHtmlFile(document):
            document.qutepart.language() is not None and \
            'html' in document.qutepart.language().lower()  and \
            (not 'php' in document.qutepart.language().lower())  # Django HTML template but not HTML (PHP)
+
+def cmdlineExists(cmd):
+    """This function will test the existence of command line executable ``cmd``
+    by calling ``get_console_output`` function.
+    """
+    try:
+        stdout, stderr = get_console_output(cmd)
+        return True
+    except:
+        return False
 
 class SettingsWidget(QWidget):
     """Insert the preview plugin as a page of the UISettings dialog.
@@ -118,6 +129,8 @@ class SettingsWidget(QWidget):
                                            filter=fltr)
         if path:
             self.leSphinxExecutable.setText(path)
+            self.leValidateSphinxExecutable.setText("Valid executable"
+                if cmdlineExists(path) else "Invalid executable")
 
     def on_ToggleSphinxSettingModeClicked(self, *args):
         core.config()['Sphinx']['AdvancedMode'] = not core.config()['Sphinx']['AdvancedMode']
@@ -135,12 +148,16 @@ class SettingsWidget(QWidget):
 
     def on_leSphinxExecutable_editingFinished(self):
         self.leSphinxExecutable.setText(self.leSphinxExecutable.text())
+        self.leValidateSphinxExecutable.setText("Valid executable"
+                if cmdlineExists(self.leSphinxExecutable.text()) else "Invalid executable")
 
     def _updateSphinxSettingMode(self):
         """Update the Sphinx settings mode by hiding/revealing the appropriate
         controls.
         """
         self.labelSphinxIntro.setEnabled(1)
+        self.leValidateSphinxExecutable.setText("Valid executable"
+            if cmdlineExists(core.config()['Sphinx']['Executable']) else "Invalid executable")
         if core.config()['Sphinx']['AdvancedMode']:
             # Switch to advanced setting mode:
             # hide all path setting line edit boxes and buttons.
@@ -153,6 +170,7 @@ class SettingsWidget(QWidget):
             self.lbSphinxCmdline.setVisible(True)
             self.leSphinxCmdline.setVisible(True)
             self.lbSphinxReference.setVisible(True)
+            self.leValidateSphinxExecutable.setVisible(False)
         else:
             # Reenable all path setting line edit boxes and buttons
             for i in range(self.gridLayout.count()):
@@ -164,6 +182,7 @@ class SettingsWidget(QWidget):
             self.lbSphinxCmdline.setVisible(False)
             self.leSphinxCmdline.setVisible(False)
             self.lbSphinxReference.setVisible(False)
+            self.leValidateSphinxExecutable.setVisible(True)
 
 class Plugin(QObject):
     """Plugin interface implementation
