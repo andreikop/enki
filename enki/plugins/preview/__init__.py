@@ -68,11 +68,12 @@ class SettingsWidget(QWidget):
         self.cmbSphinxOutputExtension.addItem("htm")
         self._updateSphinxSettingMode()
 
-    def _updateleValidateSphinxExecutable(self, path):
+    def _updateleValidateSphinxExecutable(self):
         """ Check if Sphinx is installed. Sphinx version is not important
 
         Update leValidateSphinxExecutable based on Sphinx status.
         """
+        path = self.leSphinxExecutable.text()
         try:
             _getSphinxVersion(path)
         except OSError as ex:
@@ -144,7 +145,7 @@ class SettingsWidget(QWidget):
                                            filter=fltr)
         if path:
             self.leSphinxExecutable.setText(path)
-            self._updateleValidateSphinxExecutable(path)
+            self._updateleValidateSphinxExecutable()
 
     def on_ToggleSphinxSettingModeClicked(self, *args):
         core.config()['Sphinx']['AdvancedMode'] = not core.config()['Sphinx']['AdvancedMode']
@@ -161,15 +162,14 @@ class SettingsWidget(QWidget):
         self.leSphinxOutputPath.setText(os.path.normpath(self.leSphinxOutputPath.text()))
 
     def on_leSphinxExecutable_editingFinished(self):
-        self.leSphinxExecutable.setText(self.leSphinxExecutable.text())
-        self._updateleValidateSphinxExecutable(self.leSphinxExecutable.text())
+        self._updateleValidateSphinxExecutable()
 
     def _updateSphinxSettingMode(self):
         """Update the Sphinx settings mode by hiding/revealing the appropriate
         controls.
         """
         self.labelSphinxIntro.setEnabled(1)
-        self._updateleValidateSphinxExecutable(core.config()['Sphinx']['Executable'])
+        self._updateleValidateSphinxExecutable()
         if core.config()['Sphinx']['AdvancedMode']:
             # Switch to advanced setting mode:
             # hide all path setting line edit boxes and buttons.
@@ -342,9 +342,6 @@ class Plugin(QObject):
         dialog.appendOption(CheckableOption(dialog, core.config(),
                                             "Sphinx/Enabled",
                                             widget.gbSphinxProject))
-        dialog.appendOption(CheckableOption(dialog, core.config(),
-                                            "Sphinx/BuildOnSave",
-                                            widget.rbBuildOnlyOnSave))
         dialog.appendOption(ChoiseOption(dialog, core.config(), "Sphinx/BuildOnSave",
                                          {widget.rbBuildOnlyOnSave: True,
                                           widget.rbBuildOnFileChange: False}))

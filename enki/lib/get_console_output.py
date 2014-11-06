@@ -7,7 +7,7 @@ import subprocess
 import os
 
 
-def get_console_output(command, cwd=None):
+def open_console_output(command, cwd=None):
     if hasattr(subprocess, 'STARTUPINFO'):  # windows only
         # On Windows, subprocess will pop up a command window by default when run from
         # Pyinstaller with the --noconsole option. Avoid this distraction.
@@ -30,4 +30,8 @@ def get_console_output(command, cwd=None):
             stdout=subprocess.PIPE,
             startupinfo=si, env=env, cwd=cwd)
 
+    return popen
+
+def get_console_output(command, cwd=None):
+    popen = open_console_output(command, cwd)
     return popen.communicate()
