@@ -93,6 +93,15 @@ class SettingsWidget(QWidget):
         of ``layout``.
         """
         self.labelSphinxIntro.setEnabled(1)
+        # Enable Advance mode qlabel will be disabled. Its color needs to be
+        # changed to gray manually.
+        color = "blue" if self.gbSphinxProject.isChecked() else "gray"
+        self.lbSphinxEnableAdvMode.setStyleSheet("QLabel { color:"+color+"; }")
+        # Sphinx-build reference label's color also needs to be changed manually
+        self.lbSphinxReference.setText('<a href="http://sphinx-doc.org/invocation.html">'+
+        '<span style=" text-decoration: underline;color:' + color +
+        '">Reference</span></a>')
+
         if isinstance(layout, bool):
             # on_gbSphinxProject_toggled is called by gbSphinxProject.toggled,
             # which will pass an bool argument indicating the checkbox status.
@@ -102,9 +111,7 @@ class SettingsWidget(QWidget):
             item = layout.itemAt(i)
             if item.layout():
                 self.on_gbSphinxProject_toggled(item.layout())
-            # Don't hide Sphinx description text.
-            if (item.widget() and
-              (item.widget() is not self.labelSphinxIntro) ):
+            if item.widget():
                 item.widget().setEnabled(self.gbSphinxProject.isChecked())
 
     @pyqtSlot()
@@ -169,7 +176,6 @@ class SettingsWidget(QWidget):
         controls.
         """
         self.labelSphinxIntro.setEnabled(1)
-        self._updateleValidateSphinxExecutable()
         if core.config()['Sphinx']['AdvancedMode']:
             # Switch to advanced setting mode:
             # hide all path setting line edit boxes and buttons.
@@ -177,7 +183,7 @@ class SettingsWidget(QWidget):
                 self.gridLayout.itemAt(i).widget().setVisible(False)
             # Enable advanced setting mode items
             self.lbSphinxEnableAdvMode.setText('<html><head/><body><p>' +
-            '<span style="text-decoration: underline; color:#0000ff;">Switch to Normal Mode' +
+            '<span style="text-decoration: underline;">Switch to Normal Mode' +
             '</span></p></body></html>')
             self.lbSphinxCmdline.setVisible(True)
             self.leSphinxCmdline.setVisible(True)
@@ -189,7 +195,7 @@ class SettingsWidget(QWidget):
                 self.gridLayout.itemAt(i).widget().setVisible(True)
             # Hide all advanced mode entries.
             self.lbSphinxEnableAdvMode.setText('<html><head/><body><p>' +
-              '<span style="text-decoration: underline; color:#0000ff;">Switch to Advanced Mode' +
+              '<span style="text-decoration: underline;">Switch to Advanced Mode' +
               '</span></p></body></html>')
             self.lbSphinxCmdline.setVisible(False)
             self.leSphinxCmdline.setVisible(False)
@@ -360,3 +366,4 @@ class Plugin(QObject):
         dialog.appendOption(TextOption(dialog, core.config(),
                                        "Sphinx/Cmdline",
                                        widget.leSphinxCmdline))
+        widget._updateleValidateSphinxExecutable()
