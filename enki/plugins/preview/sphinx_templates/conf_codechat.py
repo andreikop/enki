@@ -91,7 +91,7 @@ pygments_style = 'sphinx'
 #
 # `General configuration <http://sphinx-doc.org/config.html#general-configuration>`_
 # -----------------------------------------------------------------------------------
-# `extensions <http://sphinx-doc.org/config.html#confval-extensions>`_: If your 
+# `extensions <http://sphinx-doc.org/config.html#confval-extensions>`_: If your
 # documentation needs a minimal Sphinx version, state it here. CodeChat comes
 # bundled with the correct version of Sphinx; you may ignore this unless you
 # plan on building the docuumentation with an externally-installed Sphinx.
@@ -130,7 +130,7 @@ master_doc = 'index'
 # Sphinx output is placed.
 exclude_patterns = ['_build']
 
-# `default_role <http://sphinx-doc.org/config.html#confval-default_role>`_: The 
+# `default_role <http://sphinx-doc.org/config.html#confval-default_role>`_: The
 # reST default role (used for this markup: `text`) to use for all documents.
 ##default_role = None
 
@@ -156,7 +156,7 @@ html_theme = 'default'
 
 # `html_style <http://sphinx-doc.org/config.html#confval-html_style>`_: The
 # style sheet to use for HTML pages.
-##html_style = ''
+html_style = 'CodeChat.css'
 
 # `html_theme_path <http://sphinx-doc.org/config.html#confval-html_theme_path>`_:
 # Add any paths that contain custom themes here, relative to this directory.
@@ -171,7 +171,7 @@ html_theme = 'default'
 # A shorter title for the navigation bar.  Default is the same as html_title.
 ##html_short_title = None
 
-# `html_logo <http://sphinx-doc.org/config.html#confval-html_logo>`_: The name 
+# `html_logo <http://sphinx-doc.org/config.html#confval-html_logo>`_: The name
 # of an image file (relative to this directory) to place at the top of the
 # sidebar.
 ##html_logo = None
@@ -187,7 +187,7 @@ html_theme = 'default'
 # relative to this directory. They are copied after the builtin static files, so
 # a file named ``default.css`` will overwrite the builtin ``default.css``.
 # **CodeChat note:** This must always include ``default.css``.
-html_static_path = ['default.css']
+html_static_path = ['CodeChat.css']
 
 # `html_last_updated_fmt <http://sphinx-doc.org/config.html#confval-html_last_updated_fmt>`_:
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
@@ -212,7 +212,7 @@ html_use_smartypants = True
 # If false, no module index is generated.
 ##html_domain_indices = True
 
-# `html_use_index <http://sphinx-doc.org/config.html#confval-html_use_index>`_: 
+# `html_use_index <http://sphinx-doc.org/config.html#confval-html_use_index>`_:
 # If false, no index is generated.
 ##html_use_index = True
 
@@ -221,7 +221,7 @@ html_use_smartypants = True
 ##html_split_index = False
 
 # `html_show_sourcelink <http://sphinx-doc.org/config.html#confval-html_show_sourcelink>`_:
-# If true, links to the reST sources are added to the pages. **CodeChat note:** 
+# If true, links to the reST sources are added to the pages. **CodeChat note:**
 # at this time, the sourcelink doesn't show the original source code, making it
 # (mostly) useless.
 html_show_sourcelink = False
