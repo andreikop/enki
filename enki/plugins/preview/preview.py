@@ -716,18 +716,14 @@ class PreviewDock(DockWidget):
         """Add conf.py, default.css and index.rst (if ther're missing)
            to the Sphinx project directory.
            """
-        # The templates depend on CodeChat. Give up if that's not available.
-        if not CodeChat:
-            return ""
 
-        # Check the existance of conf.py, default.css, and index.rst. If
-        # any of those files are missing, we will add a template file to it.
-        codeChatPath = os.path.dirname(os.path.realpath(CodeChat.__file__))
-        templatePath = os.path.join(codeChatPath, 'template')
+        # Check the existance of conf.py and index.rst. We will copy a template
+        # file to the project if necessary.
+        pluginsPath = os.path.dirname(os.path.realpath(__file__))
+        templatePath = os.path.join(pluginsPath, 'sphinx_templates')
         sphinxProjectPath = core.config()['Sphinx']['ProjectPath']
         errors = []
 
-        copyTemplateFile(errors, templatePath, 'default.css', sphinxProjectPath)
         copyTemplateFile(errors, templatePath, 'index.rst', sphinxProjectPath)
         if core.config()['CodeChat']['Enabled']:
             copyTemplateFile(errors, templatePath, 'conf_codechat.py', sphinxProjectPath, 'conf.py')
