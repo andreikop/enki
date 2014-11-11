@@ -38,14 +38,6 @@ from enki.plugins.preview.preview import commonPrefix
 from enki.plugins.preview.preview import copyTemplateFile
 from import_fail import ImportFail
 
-try:
-    # Since Sphinx template files are stored in CodeChat module, if CodeChat is
-    # not installed, some files need to be created manually. Thus for the
-    # completeness of all test functions, it is important to know whether user
-    # has CodeChat installed or not.
-    import CodeChat
-except ImportError:
-    CodeChat = None
 
 # Preview module tests
 # ====================
@@ -116,29 +108,6 @@ class PreviewTestCase(base.TestCase):
         core.config()['Sphinx']['OutputPath'] = os.path.join('_build', 'html')
         core.config()['Sphinx']['OutputExtension'] = r'html'
         core.config()['Sphinx']['AdvancedMode'] = False
-
-    def _autoGenerateTemplateFile(self, extension='rst', codeFileName='code'):
-        """This function will manually generate necessary sphinx template files
-        such that it can be used in the tests without CodeChat's help.
-        """
-        conf = os.path.join(self.TEST_FILE_DIR, "conf.py")
-        with codecs.open(conf, 'wb', encoding='utf8') as file_:
-            file_.write("""import sys, os
-pygments_style = 'sphinx'
-templates_path = ['_templates']
-source_suffix = '.rst'
-master_doc = 'contents'""")
-        contents = os.path.join(self.TEST_FILE_DIR, "contents.rst")
-        with codecs.open(contents, 'wb', encoding='utf8') as file_:
-            file_.write("""h
-=
-
-Contents:
-
-.. toctree::
-   :maxdepth: 2
-
-   """ + codeFileName + '.' + extension)
 
     def _doBasicSphinxTest(self, extension, name='code'):
         """This function will build a basic Sphinx project in the temporary
@@ -493,8 +462,6 @@ content"""
         """Empty code file produces a Sphinx failure since file in toctree should
            always have a header."""
         self._doBasicSphinxConfig()
-        if not CodeChat:
-            self._autoGenerateTemplateFile()
         self.testText = u''
         webViewContent, logContent = self._doBasicSphinxTest('rst')
         self.assertTrue(u"doesn't have a title" in logContent)
@@ -516,8 +483,6 @@ content"""
         """Unicode string passed to Sphinx should be handled properly.
         """
         self._doBasicSphinxConfig()
-        if not CodeChat:
-            self._autoGenerateTemplateFile()
         self.testText = u"""**********
 Енки
 **********
@@ -560,8 +525,6 @@ content"""
         """Empty code file should be rendered correctly with 'no title' warning.
         """
         self._doBasicSphinxConfig()
-        if not CodeChat:
-            self._autoGenerateTemplateFile()
         self.testText = u''
         webViewContent, logContent = self._doBasicSphinxTest('rst')
         self.assertTrue(u"""doesn't have a title""" in logContent)
@@ -584,8 +547,6 @@ content"""
     def test_previewCheck9a(self):
         """Test Sphinx error can be captured correctly"""
         self._doBasicSphinxConfig()
-        if not CodeChat:
-            self._autoGenerateTemplateFile()
         self.testText = u"""****
 head3
 ****
@@ -681,8 +642,8 @@ head
         self.assertTrue('red' in self._widget().prgStatus.styleSheet())
         self.assertTrue('Warning(s): 2, error(s): 2' in self._logText())
 
-    @base.inMainLoop
     @requiresModule('CodeChat')
+    @base.inMainLoop
     def test_previewCheck18(self):
         """Switching between different files should update the log
         window accordingly.
@@ -712,8 +673,8 @@ head
         self.assertEqual(self._logText(), '')
 
     @base.requiresCmdlineUtility('sphinx-build --version')
-    @base.inMainLoop
     @requiresModule('CodeChat')
+    @base.inMainLoop
     def test_previewCheck19(self):
         """Check Advanced Mode. In this case Advanced Mode does not have
         space in its path.
@@ -734,8 +695,8 @@ head
         self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     @base.requiresCmdlineUtility('sphinx-build --version')
-    @base.inMainLoop
     @requiresModule('CodeChat')
+    @base.inMainLoop
     def test_previewCheck20(self):
         """Check space in path name. Advanced mode is not enabled.
         """
@@ -759,8 +720,8 @@ head
         self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     @base.requiresCmdlineUtility('sphinx-build --version')
-    @base.inMainLoop
     @requiresModule('CodeChat')
+    @base.inMainLoop
     def test_previewCheck20a(self):
         """Check spaces in path name. Advanced mode is enabled.
         """
@@ -788,8 +749,8 @@ head
         self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     @base.requiresCmdlineUtility('sphinx-build --version')
-    @base.inMainLoop
     @requiresModule('CodeChat')
+    @base.inMainLoop
     def test_previewCheck21(self):
         """When user hit ok button in setting window, the project will get
         rebuild.
@@ -822,7 +783,6 @@ head
             self.assertTrue('red' in self._widget().prgStatus.styleSheet())
 
             self._doBasicSphinxConfig()
-            self._autoGenerateTemplateFile()
             core.uiSettingsManager().dialogAccepted.emit()
             self._assertHtmlReady(lambda: None, timeout = 10000)
             self.assertTrue(u"document isn't included in any toctree" in self._logText())
