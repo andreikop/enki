@@ -1,0 +1,80 @@
+/*
+:Author: Bryan A. Jones
+:Contact: bjones AT ece DOT msstate DOT edu
+:Copyright: This stylesheet has been placed in the public domain.
+
+Stylesheet for use with CodeChat's extensions to Docutils.
+*/
+
+/*
+    This will cause an error if the html4css1 stylesheet is embedded instead of
+    linked, though the page still displays without problems. However, omitting
+    it will cause the linked stylesheet case to fail, so leave this in.
+*/
+@import url(html4css1.css);
+
+
+/*
+   The overall goal is to allow comments (everything but <pre> tags) to appear
+   with normal (double) spacing, while comments and code are single spaced. In
+   addition, this insures that a blockquote indent is one <pre> space, to allow
+   comments and code to have identical horizontal alignment.
+
+   The implementation:
+   1. Fix the blockquote left margin to be one <pre> space; use no right margin. */
+blockquote {
+  margin-left: 0.5em;
+  margin-right: 0em;
+}
+
+/* 2. Remove all top and bottom space around <pre>, making it single-spaced.
+      Also, remove the border so that code and comments mix more
+      naturally. */
+pre {
+    padding: 0px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    border: none;
+}
+
+/* reST's default style sheet indents literal blocks. Remove this indent. */
+pre.literal-block {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+/* 3. Remove the bottom margin around all elements, so they're only separated
+      by a top margin.
+
+      This is actually a bad thing: the spacing between dissimilar elements may
+      not be correct. However, I can't find a CSS rule to modify the
+      margins of elements which preceed code, so I just change them all. */
+p, blockquote, div.body h1, div.body h2, div.body h3, div.body h4, div.body h5, div.body h6 {
+    margin-bottom: 0px;
+}
+
+/* 4. Remove the top margin of all comments which follow code, placing them
+      next to code. Note that Sphinx encloses code in a
+      <div class="highlight-language_name"> element.
+
+      Also, note that this will need to be duplicated for all highlighted
+      languages (yuck). I can't find a CSS rule to select class named using a
+      regular expression. */
+/* This line handles docutils output. */
+pre.literal-block + *,
+/* The remaining lines handle Sphinx output. */
+div.highlight-none + *,
+div.highlight-nasm + *,
+div.highlight-c + *,
+div.highlight-python + *,
+div.highlight-python3 + * {
+  margin-top: 0px;
+}
+
+/* 5. Indents in code are matched by a series of nested blockquotes, one nest
+      per space. Inside this nest, each blockquote has a margin-top which the
+      previous rule doesn't see. Fix this special case by zeroing these nested
+      margin-tops. */
+blockquote blockquote {
+  margin-top: 0px;
+}
