@@ -8,7 +8,7 @@
 import sys
 import os.path
 from PyQt4.QtCore import QObject, Qt, pyqtSlot
-from PyQt4.QtGui import QAction, QIcon, QKeySequence, QWidget, QFileDialog
+from PyQt4.QtGui import QAction, QIcon, QKeySequence, QWidget, QFileDialog, QPalette
 from PyQt4 import uic
 
 from enki.core.core import core
@@ -46,6 +46,14 @@ class SettingsWidget(QWidget):
         # Initialize the dialog, loading in the literate programming settings GUI.
         QWidget.__init__(self, *args)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Settings.ui'), self)
+
+        # Make links gray when they are disabled
+        palette = self.palette()
+        palette.setColor(QPalette.Disabled,
+                         QPalette.Link,
+                         palette.color(QPalette.Disabled, QPalette.Text))
+        self.lbSphinxEnableAdvMode.setPalette(palette)
+        self.lbSphinxReference.setPalette(palette)
 
         self.labelCodeChatIntro.setEnabled(1)
         if CodeChat is None:
@@ -86,32 +94,6 @@ class SettingsWidget(QWidget):
     def on_gbCodeChat_toggled(self):
         # Re-enable codechat intro such that user can click the hyperlink.
         self.labelCodeChatIntro.setEnabled(1)
-
-    def on_gbSphinxProject_toggled(self, layout=None):
-        """Recursively set everything in the layout argument to enabled/disabled
-        based on the state of the Sphinx enable checkbox, including any child
-        of ``layout``.
-        """
-        # Enable Advance mode qlabel will be disabled. Its color needs to be
-        # changed to gray manually.
-        color = "blue" if self.gbSphinxProject.isChecked() else "gray"
-        self.lbSphinxEnableAdvMode.setStyleSheet("QLabel { color:"+color+"; }")
-        # Sphinx-build reference label's color also needs to be changed manually
-        self.lbSphinxReference.setText('<a href="http://sphinx-doc.org/invocation.html">'+
-        '<span style=" text-decoration: underline;color:' + color +
-        '">Reference</span></a>')
-
-        if isinstance(layout, bool):
-            # on_gbSphinxProject_toggled is called by gbSphinxProject.toggled,
-            # which will pass an bool argument indicating the checkbox status.
-            # Replace it with the default layout.
-            layout = self.loSphinxProject
-        for i in range(layout.count()):
-            item = layout.itemAt(i)
-            if item.layout():
-                self.on_gbSphinxProject_toggled(item.layout())
-            if item.widget():
-                item.widget().setEnabled(self.gbSphinxProject.isChecked())
 
     @pyqtSlot()
     def on_pbSphinxProjectPath_clicked(self):
