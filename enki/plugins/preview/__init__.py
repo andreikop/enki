@@ -92,7 +92,6 @@ class SettingsWidget(QWidget):
         based on the state of the Sphinx enable checkbox, including any child
         of ``layout``.
         """
-        self.labelSphinxIntro.setEnabled(1)
         # Enable Advance mode qlabel will be disabled. Its color needs to be
         # changed to gray manually.
         color = "blue" if self.gbSphinxProject.isChecked() else "gray"
@@ -175,7 +174,6 @@ class SettingsWidget(QWidget):
         """Update the Sphinx settings mode by hiding/revealing the appropriate
         controls.
         """
-        self.labelSphinxIntro.setEnabled(1)
         if core.config()['Sphinx']['AdvancedMode']:
             # Switch to advanced setting mode:
             # hide all path setting line edit boxes and buttons.
