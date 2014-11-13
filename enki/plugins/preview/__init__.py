@@ -52,8 +52,13 @@ class SettingsWidget(QWidget):
         palette.setColor(QPalette.Disabled,
                          QPalette.Link,
                          palette.color(QPalette.Disabled, QPalette.Text))
-        self.lbSphinxEnableAdvMode.setPalette(palette)
         self.lbSphinxReference.setPalette(palette)
+
+        palette = self.palette()
+        palette.setColor(QPalette.Active,
+                         QPalette.WindowText,
+                         palette.color(QPalette.Normal, QPalette.Link))
+        self.lbSphinxEnableAdvMode.setPalette(palette)
 
         self.labelCodeChatIntro.setEnabled(1)
         if CodeChat is None:
