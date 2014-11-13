@@ -36,7 +36,7 @@
       <item>
        <widget class="QLabel" name="labelCodeChatIntro">
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;CodeChat is a conversational coding system that encourages literate programming by transforming source code to HTML including hyperlinks, images, and much more. This web page produced by CodeChat is viewable in the Preview dock. Refer to the CodeChat &lt;a href=&quot;http://bitbucket.org/bjones/documentation/overview&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;documentation&lt;/span&gt;&lt;/a&gt; for more details.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;CodeChat is a conversational coding system that encourages literate programming by transforming source code to HTML including hyperlinks, images, and much more. This web page produced by CodeChat is viewable in the Preview dock.&lt;/p&gt;&lt;p&gt;Refer to the CodeChat &lt;a href=&quot;http://bitbucket.org/bjones/documentation/overview&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;documentation&lt;/span&gt;&lt;/a&gt; for more details.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -151,7 +151,7 @@
            <item>
             <widget class="QLabel" name="lbSphinxCmdline">
              <property name="text">
-              <string>Command line </string>
+              <string>Command line arguments</string>
              </property>
             </widget>
            </item>
@@ -169,7 +169,7 @@
            <item>
             <widget class="QLabel" name="lbSphinxReference">
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;http://sphinx-doc.org/invocation.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Sphinx arguments reference&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;a href=&quot;http://sphinx-doc.org/invocation.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Reference&lt;/span&gt;&lt;/a&gt;</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -205,16 +205,6 @@
           </layout>
          </item>
         </layout>
-        <zorder>leSphinxProjectPath</zorder>
-        <zorder>lbSphinxProjectPath</zorder>
-        <zorder>lbSphinxOutputPath</zorder>
-        <zorder>leSphinxOutputPath</zorder>
-        <zorder>pbSphinxOutputPath</zorder>
-        <zorder>lbSphinxOutputExtension</zorder>
-        <zorder>cmbSphinxOutputExtension</zorder>
-        <zorder>lbSphinxCmdline</zorder>
-        <zorder>leSphinxCmdline</zorder>
-        <zorder>pbSphinxProjectPath</zorder>
        </widget>
       </item>
       <item>
