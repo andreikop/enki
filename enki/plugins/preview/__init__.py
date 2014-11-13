@@ -320,7 +320,7 @@ class Plugin(QObject):
            settings."""
         # First, append the CodeChat settings page to the settings dialog.
         widget = SettingsWidget(dialog)
-        dialog.appendPage(u"CodeChat", widget)
+        dialog.appendPage(u"Literate programming", widget)
         # Next, have the setting UI auto-update the corresponding CodeChat and
         # config entries.
         dialog.appendOption(CheckableOption(dialog, core.config(),
