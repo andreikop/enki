@@ -4,7 +4,14 @@ Popen wrapper, which does some platform specific hacks
 """
 
 import subprocess
-import os
+import os, os.path
+import sys
+
+# Determine if we're frozen with Pyinstaller or not.
+if getattr(sys, 'frozen', False):
+    isFrozen = True
+else:
+    isFrozen = False
 
 
 def open_console_output(command, cwd):
@@ -17,7 +24,12 @@ def open_console_output(command, cwd):
         env = os.environ
     else:
         si = None
-        env = None
+        if isFrozen and sys.platform.startswith('linux'):
+            # Prepend the path to the frozen executable, since several other
+            # utilities (Sphinx, ctags, etc.) are there.
+            env = {'PATH': os.path.dirname(sys.executable) + ':' + os.environ['PATH']}
+        else:
+            env = None
 
     # On Windows, running this from the binary produced by Pyinstller
     # with the --noconsole option requires redirecting everything
