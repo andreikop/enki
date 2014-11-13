@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>777</width>
-    <height>650</height>
+    <width>958</width>
+    <height>687</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="verticalLayout_5">
    <item>
     <widget class="QGroupBox" name="gbCodeChat">
      <property name="title">
@@ -57,17 +57,14 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="gbSphinxProject">
+    <widget class="QGroupBox" name="gbSphinx">
      <property name="title">
       <string>Sphinx</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
      </property>
      <property name="checked">
       <bool>false</bool>
      </property>
-     <layout class="QVBoxLayout" name="loSphinxProject">
+     <layout class="QVBoxLayout" name="verticalLayout_4">
       <item>
        <widget class="QLabel" name="labelSphinxIntro">
         <property name="text">
@@ -82,280 +79,235 @@
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="loBuildOnlyOnSave">
-        <item>
-         <widget class="QRadioButton" name="rbBuildOnlyOnSave">
-          <property name="text">
-           <string>Build only on save</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="rbBuildOnFileChange">
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
-          </property>
-          <property name="text">
-           <string>Build upon any file change</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_3">
+       <widget class="QGroupBox" name="gbSphinxProject">
         <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Build on save lets Enki build the current project only when a file is saved. If not checked, Enki will watch and rebuild the project whenever a file is changed..&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="wordWrap">
          <bool>true</bool>
         </property>
-        <property name="openExternalLinks">
+        <property name="title">
+         <string>Enable Sphinx project</string>
+        </property>
+        <property name="checkable">
          <bool>true</bool>
         </property>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QLabel" name="lbSphinxProjectPath">
+             <property name="text">
+              <string>Project path   </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="leSphinxProjectPath"/>
+           </item>
+           <item>
+            <widget class="QToolButton" name="pbSphinxProjectPath">
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="gridLtNotAdvancedSettings">
+           <item row="0" column="0">
+            <widget class="QLabel" name="lbSphinxOutputPath">
+             <property name="text">
+              <string>Output path</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="leSphinxOutputPath"/>
+           </item>
+           <item row="0" column="2">
+            <widget class="QToolButton" name="pbSphinxOutputPath">
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="lbSphinxOutputExtension">
+             <property name="text">
+              <string>Output format</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" colspan="2">
+            <widget class="QComboBox" name="cmbSphinxOutputExtension">
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QLabel" name="lbSphinxCmdline">
+             <property name="text">
+              <string>Command line </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="leSphinxCmdline">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QLabel" name="lbSphinxReference">
+             <property name="text">
+              <string>&lt;a href=&quot;http://sphinx-doc.org/invocation.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Reference&lt;/span&gt;&lt;/a&gt;</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+             <property name="openExternalLinks">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>287</width>
+               <height>17</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="lbSphinxEnableAdvMode">
+             <property name="cursor">
+              <cursorShape>PointingHandCursor</cursorShape>
+             </property>
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Switch to Advanced Mode&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+        <zorder>leSphinxProjectPath</zorder>
+        <zorder>lbSphinxProjectPath</zorder>
+        <zorder>lbSphinxOutputPath</zorder>
+        <zorder>leSphinxOutputPath</zorder>
+        <zorder>pbSphinxOutputPath</zorder>
+        <zorder>lbSphinxOutputExtension</zorder>
+        <zorder>cmbSphinxOutputExtension</zorder>
+        <zorder>lbSphinxCmdline</zorder>
+        <zorder>leSphinxCmdline</zorder>
+        <zorder>pbSphinxProjectPath</zorder>
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="QLabel" name="lbSphinxProjectPath">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Project path   </string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="leSphinxProjectPath">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="pbSphinxProjectPath">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QGroupBox" name="groupBox_2">
+        <property name="title">
+         <string>Sphinx executable path</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="0">
+          <widget class="QLineEdit" name="leSphinxExecutable"/>
+         </item>
+         <item row="0" column="1">
+          <widget class="QToolButton" name="pbSphinxExecutable">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="leValidateSphinxExecutable">
+           <property name="palette">
+            <palette>
+             <active>
+              <colorrole role="WindowText">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>255</red>
+                 <green>0</green>
+                 <blue>0</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </active>
+             <inactive>
+              <colorrole role="WindowText">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>255</red>
+                 <green>0</green>
+                 <blue>0</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </inactive>
+             <disabled>
+              <colorrole role="WindowText">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>158</red>
+                 <green>158</green>
+                 <blue>158</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </disabled>
+            </palette>
+           </property>
+           <property name="text">
+            <string>To be set</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </item>
       <item>
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <widget class="QLabel" name="lbSphinxOutputPath">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Output path</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="leSphinxOutputPath">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="QToolButton" name="pbSphinxOutputPath">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="lbSphinxExecutable">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Executable</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="leSphinxExecutable">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QToolButton" name="pbSphinxExecutable">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="lbSphinxOutputExtension">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Output format</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1" colspan="2">
-         <widget class="QComboBox" name="cmbSphinxOutputExtension">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="editable">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
-        <item>
-         <widget class="QLabel" name="lbSphinxCmdline">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Command line </string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="leSphinxCmdline">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QLabel" name="lbSphinxReference">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>&lt;a href=&quot;http://sphinx-doc.org/invocation.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Reference&lt;/span&gt;&lt;/a&gt;</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-          </property>
-          <property name="openExternalLinks">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="leValidateSphinxExecutable">
-          <property name="palette">
-           <palette>
-            <active>
-             <colorrole role="WindowText">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>255</red>
-                <green>0</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-            </active>
-            <inactive>
-             <colorrole role="WindowText">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>255</red>
-                <green>0</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </colorrole>
-            </inactive>
-            <disabled>
-             <colorrole role="WindowText">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>158</red>
-                <green>158</green>
-                <blue>158</blue>
-               </color>
-              </brush>
-             </colorrole>
-            </disabled>
-           </palette>
-          </property>
-          <property name="text">
-           <string>To be set</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QLabel" name="lbSphinxEnableAdvMode">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
-          </property>
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Switch to Advanced Mode&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QGroupBox" name="groupBox">
+        <property name="title">
+         <string>Rebuild Sphinx projects</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QRadioButton" name="rbBuildOnlyOnSave">
+           <property name="text">
+            <string>Only after file was saved</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rbBuildOnFileChange">
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
+           <property name="text">
+            <string>Upon any file change</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </item>
       <item>
        <spacer name="verticalSpacer">
@@ -377,7 +329,7 @@
  </widget>
  <tabstops>
   <tabstop>gbCodeChat</tabstop>
-  <tabstop>gbSphinxProject</tabstop>
+  <tabstop>gbSphinx</tabstop>
   <tabstop>rbBuildOnlyOnSave</tabstop>
   <tabstop>rbBuildOnFileChange</tabstop>
   <tabstop>leSphinxProjectPath</tabstop>
@@ -387,7 +339,6 @@
   <tabstop>leSphinxExecutable</tabstop>
   <tabstop>pbSphinxExecutable</tabstop>
   <tabstop>cmbSphinxOutputExtension</tabstop>
-  <tabstop>leSphinxCmdline</tabstop>
  </tabstops>
  <resources>
   <include location="../../../icons/enkiicons.qrc"/>
