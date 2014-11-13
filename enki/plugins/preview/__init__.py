@@ -164,7 +164,6 @@ class SettingsWidget(QWidget):
             self.lbSphinxCmdline.setVisible(True)
             self.leSphinxCmdline.setVisible(True)
             self.lbSphinxReference.setVisible(True)
-            self.leValidateSphinxExecutable.setVisible(False)
         else:
             # Reenable all path setting line edit boxes and buttons
             for i in range(self.gridLtNotAdvancedSettings.count()):
@@ -177,7 +176,7 @@ class SettingsWidget(QWidget):
             self.lbSphinxCmdline.setVisible(False)
             self.leSphinxCmdline.setVisible(False)
             self.lbSphinxReference.setVisible(False)
-            self.leValidateSphinxExecutable.setVisible(True)
+
 
 class Plugin(QObject):
     """Plugin interface implementation
