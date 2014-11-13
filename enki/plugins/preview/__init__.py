@@ -60,7 +60,6 @@ class SettingsWidget(QWidget):
             # If the CodeChat module can't be loaded, then disable the
             # associated checkbox and show the "not installed" message.
             self.gbCodeChat.setChecked(False)
-            self.gbCodeChat.setCheckable(False)
             self.labelCodeChatNotInstalled.setVisible(True)
             self.labelCodeChatNotInstalled.setEnabled(True)
         else:
@@ -90,10 +89,6 @@ class SettingsWidget(QWidget):
             self.leValidateSphinxExecutable.setText('Failed to parse sphinx-build version. Does sphinx work?')
         else:
             self.leValidateSphinxExecutable.setText('Sphinx is found!')
-
-    def on_gbCodeChat_toggled(self):
-        # Re-enable codechat intro such that user can click the hyperlink.
-        self.labelCodeChatIntro.setEnabled(1)
 
     @pyqtSlot()
     def on_pbSphinxProjectPath_clicked(self):
@@ -324,7 +319,7 @@ class Plugin(QObject):
         # config entries.
         dialog.appendOption(CheckableOption(dialog, core.config(),
                                             "CodeChat/Enabled",
-                                            widget.gbCodeChat))
+                                            widget.cbCodeChat))
         dialog.appendOption(CheckableOption(dialog, core.config(),
                                             "Sphinx/Enabled",
                                             widget.gbSphinxProject))
