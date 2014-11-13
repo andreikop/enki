@@ -92,10 +92,9 @@ pygments_style = 'sphinx'
 # `General configuration <http://sphinx-doc.org/config.html#general-configuration>`_
 # -----------------------------------------------------------------------------------
 # `extensions <http://sphinx-doc.org/config.html#confval-extensions>`_: If your
-# documentation needs a minimal Sphinx version, state it here. CodeChat comes
-# bundled with the correct version of Sphinx; you may ignore this unless you
-# plan on building the docuumentation with an externally-installed Sphinx.
-##needs_sphinx = '1.0'
+# documentation needs a minimal Sphinx version, state it here. **CodeChat note:**
+# while earlier versions may work, they haven't been extensively tested.
+needs_sphinx = '1.2'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones. **Important:**
@@ -125,9 +124,7 @@ master_doc = 'index'
 
 # `exclude_patterns <http://sphinx-doc.org/config.html#confval-exclude_patterns>`_:
 # List of patterns, relative to source directory, that match files and
-# directories to ignore when looking for source files. **CodeChat note:** This
-# should always include the ``_build`` directory, which is where CodeChat's
-# Sphinx output is placed.
+# directories to ignore when looking for source files.
 exclude_patterns = ['_build']
 
 # `default_role <http://sphinx-doc.org/config.html#confval-default_role>`_: The
@@ -145,17 +142,17 @@ keep_warnings = True
 # `Options for HTML output <http://sphinx-doc.org/config.html#options-for-html-output>`_
 # --------------------------------------------------------------------------------------
 # `html_theme <http://sphinx-doc.org/config.html#confval-html_theme>`_: The
-# theme to use for HTML and HTML Help pages.  **CodeChat note:** Only the
-# ``default`` theme has been modified to work with CodeChat; only use it.
+# theme to use for HTML and HTML Help pages.
 html_theme = 'default'
 
 # `html_theme_options <http://sphinx-doc.org/config.html#confval-html_theme_options>`_:
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.
-##html_theme_options = { "nosidebar" : "true" }
+html_theme_options = { "nosidebar" : "true" }
 
 # `html_style <http://sphinx-doc.org/config.html#confval-html_style>`_: The
-# style sheet to use for HTML pages.
+# style sheet to use for HTML pages. **CodeChat note:** This is required for
+# correct rendering of source files.
 html_style = 'CodeChat.css'
 
 # `html_theme_path <http://sphinx-doc.org/config.html#confval-html_theme_path>`_:
@@ -186,7 +183,7 @@ html_style = 'CodeChat.css'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files, so
 # a file named ``default.css`` will overwrite the builtin ``default.css``.
-# **CodeChat note:** This must always include ``default.css``.
+# **CodeChat note:** This must always include ``CodeChat.css``.
 html_static_path = ['CodeChat.css']
 
 # `html_last_updated_fmt <http://sphinx-doc.org/config.html#confval-html_last_updated_fmt>`_:
@@ -241,6 +238,5 @@ html_show_sourcelink = False
 ##html_use_opensearch = ''
 
 # `html_file_suffix <http://sphinx-doc.org/config.html#confval-html_file_suffix>`_:
-# This is the file name suffix for HTML files (e.g. ".xhtml"). **CodeChat
-# note:** do no change; CodeChat assumes a ``.html`` extension.
+# This is the file name suffix for HTML files (e.g. ".xhtml").
 ##html_file_suffix = None

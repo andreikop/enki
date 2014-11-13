@@ -717,8 +717,8 @@ class PreviewDock(DockWidget):
            to the Sphinx project directory.
            """
 
-        # Check the existance of conf.py and index.rst. We will copy a template
-        # file to the project if necessary.
+        # Check for the existance Sphinx project files. Copy skeleton versions
+        # of them to the project if necessary.
         pluginsPath = os.path.dirname(os.path.realpath(__file__))
         templatePath = os.path.join(pluginsPath, 'sphinx_templates')
         sphinxProjectPath = core.config()['Sphinx']['ProjectPath']
@@ -727,6 +727,7 @@ class PreviewDock(DockWidget):
         copyTemplateFile(errors, templatePath, 'index.rst', sphinxProjectPath)
         if core.config()['CodeChat']['Enabled']:
             copyTemplateFile(errors, templatePath, 'conf_codechat.py', sphinxProjectPath, 'conf.py')
+            copyTemplateFile(errors, templatePath, 'CodeChat.css', sphinxProjectPath)
         else:
             copyTemplateFile(errors, templatePath, 'conf.py', sphinxProjectPath)
 
