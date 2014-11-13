@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>505</width>
-    <height>500</height>
+    <width>777</width>
+    <height>650</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <string>CodeChat</string>
      </property>
      <property name="checkable">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <property name="checked">
       <bool>false</bool>
@@ -46,26 +46,20 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="cbCodeChat">
+        <property name="text">
+         <string>Enable CodeChat</string>
+        </property>
+       </widget>
+      </item>
      </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="labelSphinxIntro">
-     <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;http://sphinx-doc.org&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Sphinx&lt;/span&gt;&lt;/a&gt; is a tool that makes it easy to create intelligent and beautiful documentation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-     <property name="openExternalLinks">
-      <bool>true</bool>
-     </property>
     </widget>
    </item>
    <item>
     <widget class="QGroupBox" name="gbSphinxProject">
      <property name="title">
-      <string>Sphinx Project</string>
+      <string>Sphinx</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -74,6 +68,19 @@
       <bool>false</bool>
      </property>
      <layout class="QVBoxLayout" name="loSphinxProject">
+      <item>
+       <widget class="QLabel" name="labelSphinxIntro">
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;http://sphinx-doc.org&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Sphinx&lt;/span&gt;&lt;/a&gt; is a tool that makes it easy to create intelligent and beautiful documentation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+        <property name="openExternalLinks">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
       <item>
        <layout class="QHBoxLayout" name="loBuildOnlyOnSave">
         <item>
