@@ -154,8 +154,9 @@ class SettingsWidget(QWidget):
         if core.config()['Sphinx']['AdvancedMode']:
             # Switch to advanced setting mode:
             # hide all path setting line edit boxes and buttons.
-            for i in range(self.gridLayout.count()):
-                self.gridLayout.itemAt(i).widget().setVisible(False)
+            for i in range(self.gridLtNotAdvancedSettings.count()):
+                if self.gridLtNotAdvancedSettings.itemAt(i):
+                    self.gridLtNotAdvancedSettings.itemAt(i).widget().setVisible(False)
             # Enable advanced setting mode items
             self.lbSphinxEnableAdvMode.setText('<html><head/><body><p>' +
             '<span style="text-decoration: underline;">Switch to Normal Mode' +
@@ -166,8 +167,9 @@ class SettingsWidget(QWidget):
             self.leValidateSphinxExecutable.setVisible(False)
         else:
             # Reenable all path setting line edit boxes and buttons
-            for i in range(self.gridLayout.count()):
-                self.gridLayout.itemAt(i).widget().setVisible(True)
+            for i in range(self.gridLtNotAdvancedSettings.count()):
+                if self.gridLtNotAdvancedSettings.itemAt(i):
+                    self.gridLtNotAdvancedSettings.itemAt(i).widget().setVisible(True)
             # Hide all advanced mode entries.
             self.lbSphinxEnableAdvMode.setText('<html><head/><body><p>' +
               '<span style="text-decoration: underline;">Switch to Advanced Mode' +
