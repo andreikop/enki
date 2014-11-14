@@ -68,17 +68,17 @@ class ProcessorThread(QThread):
 
     def _processSync(self, language, filePath):
         try:
-            stderr, stdout = get_console_output(core.config()['Lint']['Python']['Path'],
-                                                ['--msg-template=enkilint:{line}:{msg_id}:{msg}',
-                                                 '--reports=no',
-                                                 '--output-format=text',
-                                                 filePath])
+            stdout = get_console_output([core.config()['Lint']['Python']['Path'],
+                                         '--msg-template=enkilint:{line}:{msg_id}:{msg}',
+                                         '--reports=no',
+                                         '--output-format=text',
+                                         filePath])[0]
         except OSError:
             return
 
         result = {}
 
-        for line in stderr.splitlines():
+        for line in stdout.splitlines():
             if line.startswith('enkilint:'):
                 _, lineNumber, msgId, msgText = line.split(':', 3)
 

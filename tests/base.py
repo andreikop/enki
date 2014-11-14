@@ -5,9 +5,7 @@ import unittest
 import logging
 import os
 import sys
-import threading
 import shutil
-import time
 import tempfile
 import subprocess
 import codecs
@@ -15,8 +13,8 @@ import codecs
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 from persistent_qapplication import papp
 
-from PyQt4.QtCore import Qt, QTimer, QEventLoop, pyqtSlot
-from PyQt4.QtGui import QApplication, QDialog, QKeySequence
+from PyQt4.QtCore import Qt, QTimer, QEventLoop
+from PyQt4.QtGui import QDialog, QKeySequence
 from PyQt4.QtTest import QTest
 
 import qutepart
@@ -41,10 +39,30 @@ class DummyProfiler:
 def _processPendingEvents():
     """Process pending application events."""
 
-    # Quit the event loop when it becomes idle.
-    QTimer.singleShot(0, papp.quit)
-    papp.exec_()
+    # Create an event loop to run in. Otherwise, we need to use the papp
+    # (QApplication) main loop, which may already be running and therefore
+    # unusable.
+    qe = QEventLoop()
 
+# Create a single-shot timer. Could use QTimer.singleShot(),
+    # but can't cancel this / disconnect it.
+    timer = QTimer()
+    timer.setSingleShot(True)
+    timer.timeout.connect(qe.quit)
+    timer.start(0)
+
+    # Wait for an emitted signal.
+    qe.exec_()
+
+# Clean up: don't allow the timer to call app.quit after this
+    # function exits, which would produce "interesting" behavior.
+    timer.stop()
+    # Stopping the timer may not cancel timeout signals in the
+    # event queue. Disconnect the signal to be sure that loop
+    # will never receive a timeout after the function exits.
+    timer.timeout.disconnect(qe.quit)
+
+    
 # By default, the traceback for excpetions occurring inside
 # an exec_ loop will be printed.
 PRINT_EXEC_TRACKBACK = True
@@ -58,12 +76,18 @@ def inMainLoop(func, *args):
     def wrapper(*args):
         self = args[0]
 
+        # create a single-shot timer. Could use QTimer.singleShot(),
+        # but can't cancel this / disconnect it.
+        timer = QTimer()
+        timer.setSingleShot(True)
+        timer.timeout.connect(self.app.quit)
+
         def execWithArgs():
             core.mainWindow().show()
             QTest.qWaitForWindowShown(core.mainWindow())
             func(*args)
-            # When done processing these events, exit the event loop.
-            QTimer.singleShot(0, self.app.quit)
+            # When done processing these events, exit the event loop. To do so,
+            timer.start(0)
 
         QTimer.singleShot(0, execWithArgs)
 
@@ -74,7 +98,7 @@ def inMainLoop(func, *args):
             exceptions.append((value, tracebackObj))
             if PRINT_EXEC_TRACKBACK:
                 oldExcHook(type_, value, tracebackObj)
-            self.app.quit()
+            self.app.exit()
         oldExcHook = sys.excepthook
         sys.excepthook = excepthook
 
@@ -88,6 +112,10 @@ def inMainLoop(func, *args):
         finally:
             # Restore the old exception hook
             sys.excepthook = oldExcHook
+            # Stop the timer, in case an exception or an unexpected call to
+            # self.app.exit() brought us here.
+            timer.stop()
+            timer.timeout.disconnect(self.app.quit)
 
     wrapper.__name__ = func.__name__  # for unittest test runner
     return wrapper
@@ -95,7 +123,7 @@ def inMainLoop(func, *args):
 
 def _cmdlineUtilityExists(cmdlineArgs):
     try:
-        subprocess.call(cmdlineArgs, stdout=subprocess.PIPE)
+        subprocess.call(cmdlineArgs, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except OSError as e:
         if e.errno == os.errno.ENOENT:
             return False
@@ -107,15 +135,11 @@ def requiresCmdlineUtility(command):
     """A decorator: a test requires a command.
        The command will be split if contains spaces.
     """
-    def inner(func):
-        def wrapper(*args, **kwargs):
-            cmdlineArgs = command.split()
-            if not _cmdlineUtilityExists(cmdlineArgs):
-                self = args[0]
-                self.skipTest('{} command not found. Cannot run the test without it'.format(cmdlineArgs[0]))
-            return func(*args, **kwargs)
-        return wrapper
-    return inner
+    cmdlineArgs = command.split()
+    if not _cmdlineUtilityExists(cmdlineArgs):
+        return unittest.skip('{} command not found. Cannot run the test without it'.format(cmdlineArgs[0]))
+    else:
+        return lambda func: func
 
 
 class TestCase(unittest.TestCase):
@@ -277,8 +301,39 @@ class TestCase(unittest.TestCase):
             function()
 
     def findDock(self, windowTitle):
+        """Return a reference to the dock object whose name is windowTitle.
+        """
         for dock in core.mainWindow().findChildren(DockWidget):
-            if dock.windowTitle() == windowTitle:
+            # The preview dock's name will have the title of the web page it's
+            # it's displaying appended to the title (when a Sphinx document is
+            # loaded). Therefore, check for startswith instead of equality.
+            if dock.windowTitle().startswith(windowTitle):
+                return dock
+        else:
+            self.fail('Dock {} not found'.format(windowTitle))
+
+    def findVisibleDock(self, windowTitle):
+        """Return a reference to the dock object which is both visible and
+        has "windowTitle" as its name.
+        """
+        # Per Andrei's explaination, Enki dock has the following 4 states:
+        #
+        # #. doesn't exist, not available. Search results dock is created only
+        #    when search in directory is used first time;
+        # #. exists, available, but not visible. Close "Opened Files" dock. It
+        #    still exists and can be opened again by Alt+O;
+        # #. exists, available, visible;
+        # #. exists, not available, not visible. Navigator is only shown for
+        #    languages which are supported by ctags. If current file is not
+        #    supported, Navigator is not available. But may exist because had
+        #    been created for another file.
+        #
+        # Dock can exist for another file even if it might not be visible. In
+        # our test case, there will always be one preview dock exisiting for
+        # *dummy.html* file. Thus instead of checking ``findChildren``, we use
+        # ``_addedDockWidigets`` that will only check available docks.
+        for dock in core.mainWindow()._addedDockWidgets:
+            if dock.windowTitle().startswith(windowTitle):
                 return dock
         else:
             self.fail('Dock {} not found'.format(windowTitle))
@@ -332,7 +387,7 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
           (expectedSignalParams is not None) and
           (expectedSignalParams != args) )
         # We received the requested signal, so exit the event loop.
-        qe.quit()
+        qe.exit()
 
     # Connect both signals to a slot which quits the event loop.
     senderSignal.connect(senderSignalSlot)

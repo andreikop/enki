@@ -112,6 +112,7 @@ for loader, name, ispkg in pkgutil.iter_modules(['enki/plugins']):
         package_data['enki'].append('plugins/%s/*.ui' % name)
         package_data['enki'].append('plugins/%s/*.png' % name)
         package_data['enki'].append('plugins/%s/templates/*' % name)
+        package_data['enki'].append('plugins/%s/sphinx_templates/*' % name)
 
 script = 'bin/enki.py' if platform.system() == 'Windows' else 'bin/enki'
 
@@ -123,7 +124,7 @@ if __name__ == '__main__':
 
     setup(  name=PACKAGE_NAME.lower(),
             version=PACKAGE_VERSION,
-            description='Simple programmers text editor',
+            description='Simple programmer''s text editor',
             long_description=long_description,
             author='Andrei Kopats',
             author_email='hlamer@tut.by',

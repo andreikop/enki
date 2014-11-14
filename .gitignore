@@ -21,3 +21,4 @@ win/Install_Enki.exe
 
 # PyInstaller files
 enki.spec
+sphinx-build.spec

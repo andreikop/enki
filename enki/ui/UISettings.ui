@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>771</width>
+    <width>856</width>
     <height>550</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
     <widget class="QTreeWidget" name="twMenu">
      <property name="minimumSize">
       <size>
-       <width>180</width>
+       <width>210</width>
        <height>0</height>
       </size>
      </property>
@@ -31,6 +31,9 @@
      <property name="rootIsDecorated">
       <bool>true</bool>
      </property>
+     <attribute name="headerVisible">
+      <bool>false</bool>
+     </attribute>
      <column>
       <property name="text">
        <string>Properties</string>
