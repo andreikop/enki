@@ -64,7 +64,7 @@ class SettingsWidget(QWidget):
         if CodeChat is None:
             # If the CodeChat module can't be loaded, then disable the
             # associated checkbox and show the "not installed" message.
-            self.gbCodeChat.setChecked(False)
+            self.cbCodeChat.setEnabled(False)
             self.labelCodeChatNotInstalled.setVisible(True)
             self.labelCodeChatNotInstalled.setEnabled(True)
         else:
@@ -347,4 +347,7 @@ class Plugin(QObject):
         dialog.appendOption(TextOption(dialog, core.config(),
                                        "Sphinx/Cmdline",
                                        widget.leSphinxCmdline))
+
+        # Run this after the appendOption calls, since these fields must be set
+        # up before _updateleValidateSphinxExecutable can run.
         widget._updateleValidateSphinxExecutable()
