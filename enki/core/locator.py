@@ -415,6 +415,7 @@ class _CompleterConstructorThread(threading.Thread):
         Works in the GUI thread
         """
         self._checkQueueTimer.stop()
+        self.join()
 
     def run(self):
         """Thread function
