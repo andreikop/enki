@@ -5,3 +5,6 @@ mkdir dist/enki/enki/core
 cp -r dist/sphinx-build/* dist/enki
 cp /usr/bin/ctags dist/enki
 dist/enki/enki-editor
+cd dist
+zip -r enki.zip enki
+cd ..
