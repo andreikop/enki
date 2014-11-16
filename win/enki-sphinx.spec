@@ -17,16 +17,10 @@
 
 # Use the ``.exe`` extension for Windows, but not Unix.
 import sys
-enki_out_name = 'enki'
-sphinx_out_name = 'sphinx-build'
 if sys.platform.startswith('linux'):
-    # On Linux, a binary name 'enki' conflicts with the path 'enki'
-    # where enki's code and resources live. So, pick a different
-    # executable name. On Windows, enki.exe differs from enki/.
-    enki_out_name += '-editor'
+    ext = ''
 else:
-    enki_out_name += '.exe'
-    sphinx_out_name += '.exe'
+    ext = '.exe'
 
 block_cipher = None
 
@@ -73,7 +67,7 @@ enki_pyz = PYZ(enki_a.pure,
 enki_exe = EXE(enki_pyz,
           enki_a.scripts,
           exclude_binaries=True,
-          name=enki_out_name,
+          name='enki-editor' + ext,
           debug=False,
           strip=None,
           upx=True,
@@ -91,7 +85,7 @@ sphinx_pyz = PYZ(sphinx_a.pure,
 sphinx_exe = EXE(sphinx_pyz,
           sphinx_a.scripts,
           exclude_binaries=True,
-          name=sphinx_out_name,
+          name='sphinx-build' + ext,
           debug=False,
           strip=None,
           upx=True,
