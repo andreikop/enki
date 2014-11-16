@@ -31,12 +31,6 @@
 from hookutils import get_package_paths
 import os.path
 
-# Confusion: just doing hiddenimports=('CodeChat'), or even
-# hiddenimports=('CodeChat.CodeToRestSphinx') doesn't work
-# (CodeChat.LanguageSpecificOptions won't be found). Why?
-hiddenimports = ('CodeChat.CodeToRestSphinx', 'CodeChat.CodeToRest',
-                 'CodeChat.LanguageSpecificOptions')
-
 # The ``template/`` directory contains data files to be copied. Get an
 # absolute path to the CodeChat directory containing it.
 pkg_base, pkg_dir = get_package_paths('CodeChat')
