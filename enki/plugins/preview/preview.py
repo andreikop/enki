@@ -709,7 +709,9 @@ class PreviewDock(DockWidget):
             # Warn.
             if (sphinxCanProcess and internallyModified and
                 externallyModified and not buildOnSave):
-                # TODO: warn user.
+                 # TODO: warn user. Andrei: what method do I use to put a
+                 # warning message on the screen, like the warning produced
+                 # when opening a file that utf-8 decoding fails on?
                 pass
 
     def _copySphinxProjectTemplate(self, documentFilePath):
@@ -719,17 +721,19 @@ class PreviewDock(DockWidget):
 
         # Check for the existance Sphinx project files. Copy skeleton versions
         # of them to the project if necessary.
-        pluginsPath = os.path.dirname(os.path.realpath(__file__))
-        templatePath = os.path.join(pluginsPath, 'sphinx_templates')
+        sphinxPluginsPath = os.path.dirname(os.path.realpath(__file__))
+        sphinxTemplatePath = os.path.join(sphinxPluginsPath, 'sphinx_templates')
         sphinxProjectPath = core.config()['Sphinx']['ProjectPath']
         errors = []
 
-        copyTemplateFile(errors, templatePath, 'index.rst', sphinxProjectPath)
-        if core.config()['CodeChat']['Enabled']:
-            copyTemplateFile(errors, templatePath, 'conf_codechat.py', sphinxProjectPath, 'conf.py')
-            copyTemplateFile(errors, templatePath, 'CodeChat.css', sphinxProjectPath)
+        copyTemplateFile(errors, sphinxTemplatePath, 'index.rst', sphinxProjectPath)
+        if core.config()['CodeChat']['Enabled'] and CodeChat:
+            codeChatPluginsPath = os.path.dirname(os.path.realpath(CodeChat.__file__))
+            codeChatTemplatePath = os.path.join(codeChatPluginsPath, 'template')
+            copyTemplateFile(errors, codeChatTemplatePath, 'conf_codechat.py', sphinxProjectPath, 'conf.py')
+            copyTemplateFile(errors, codeChatTemplatePath, 'CodeChat.css', sphinxProjectPath)
         else:
-            copyTemplateFile(errors, templatePath, 'conf.py', sphinxProjectPath)
+            copyTemplateFile(errors, sphinxTemplatePath, 'conf.py', sphinxProjectPath)
 
         errInfo = ""
         for error in errors:
