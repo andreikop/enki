@@ -179,6 +179,16 @@ html_use_smartypants = True
 
 # This is the file name suffix for HTML files (e.g. ".xhtml").
 #html_file_suffix = None
+# **CodeChat note:** `Enki <http://enki-editor.org/>`_, which hosts CodeChat,
+# needs to know this value. So, save it toa file for Enki to read.
+import codecs
+try:
+    with codecs.open('sphinx-enki-info.txt', 'wb', 'utf-8') as f:
+        f.write(html_file_suffix)
+except NameError, TypeError:
+    # If html_file_suffix isn't defined (NameError) or is None (TypeError), Enki
+    # will assume ``.html.``.
+    pass
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'templatedoc'
