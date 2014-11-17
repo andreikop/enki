@@ -10,6 +10,7 @@
 # ===============
 # Echo all commands.
 set -o verbose
+# Set up alias for repeated commands.
 PAUSE="read -p Press_[Enter]_to_continue... junk"
 INSTALL="sudo apt-get install -y"
 #
@@ -21,7 +22,7 @@ cd enki_all
 
 # TRE
 # ===
-$INSTALL git build-essential autotools-dev automake gettext libtool autopoint zip python-pip python-dev python-setuptools
+$INSTALL git build-essential autotools-dev automake gettext libtool autopoint zip python-dev python-setuptools
 # See https://github.com/bjones1/tre.
 git clone https://github.com/bjones1/tre.git
 cd tre
@@ -36,9 +37,18 @@ $PAUSE
 cd python
 sudo python setup.py install
 # Note: the line below should be added to your .bashrc,
-export LD_LIBRARY_PATH=/usr/local/lib
+export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 $PAUSE
 cd ../..
+
+# CodeChat
+# ========
+$INSTALL mercurial
+hg clone https://bitbucket.org/bjones/documentation CodeChat
+cd CodeChat
+sudo python setup.py develop
+$PAUSE
+cd ..
 
 # Qutepart
 # ========
@@ -55,7 +65,6 @@ cd ..
 # Enki
 # ====
 $INSTALL desktop-file-utils exuberant-ctags python-pyparsing python-markdown python-sphinx pylint
-sudo pip install CodeChat
 # See https://github.com/bjones1/enki.
 git clone https://github.com/bjones1/enki.git
 cd enki
