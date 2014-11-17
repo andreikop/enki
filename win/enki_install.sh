@@ -64,7 +64,8 @@ cd ..
 
 # Enki
 # ====
-$INSTALL desktop-file-utils exuberant-ctags python-pyparsing python-markdown python-sphinx pylint
+$INSTALL desktop-file-utils exuberant-ctags python-pyparsing python-markdown python-sphinx python-pip pylint
+sudo pip install mock
 # See https://github.com/bjones1/enki.
 git clone https://github.com/bjones1/enki.git
 cd enki
