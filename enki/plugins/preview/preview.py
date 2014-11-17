@@ -730,7 +730,7 @@ class PreviewDock(DockWidget):
         if core.config()['CodeChat']['Enabled'] and CodeChat:
             codeChatPluginsPath = os.path.dirname(os.path.realpath(CodeChat.__file__))
             codeChatTemplatePath = os.path.join(codeChatPluginsPath, 'template')
-            copyTemplateFile(errors, codeChatTemplatePath, 'conf_codechat.py', sphinxProjectPath, 'conf.py')
+            copyTemplateFile(errors, codeChatTemplatePath, 'conf.py', sphinxProjectPath)
             copyTemplateFile(errors, codeChatTemplatePath, 'CodeChat.css', sphinxProjectPath)
         else:
             copyTemplateFile(errors, sphinxTemplatePath, 'conf.py', sphinxProjectPath)
