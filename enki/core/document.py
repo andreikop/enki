@@ -225,6 +225,7 @@ class Document(QWidget):
         self.qutepart.textChanged.disconnect()
 
         self.qutepart.text = ''  # stop background highlighting, free memory
+        self.qutepart.del_()
 
     def _onWatcherFileModified(self, modified):
         """File has been modified
