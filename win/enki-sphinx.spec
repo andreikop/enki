@@ -32,8 +32,7 @@ enki_a = Analysis(['bin/enki'],
              pathex=['.'],
              hiddenimports=[],
              hookspath=['win'],
-             runtime_hooks=['win/rthook_pyqt4.py',
-                            'win/rthook_sys_file_encoding.py'],
+             runtime_hooks=['win/rthook_pyqt4.py'],
              # Per  Hartmut on 24-Sep-2014 on the Pyinstaller e-mail list:
              # "An optional list of module or package names (their Python names,
              # not path names) that will be ignored (as though they were not
@@ -44,7 +43,7 @@ sphinx_a = Analysis(['win/sphinx-build.py'],
              pathex=['.'],
              hiddenimports=['CodeChat'],
              hookspath=['win'],
-             runtime_hooks=['win/rthook_sys_file_encoding.py'],
+             runtime_hooks=[],
              excludes=['_tkinter'],
              cipher=block_cipher)
 

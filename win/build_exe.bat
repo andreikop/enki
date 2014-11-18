@@ -66,7 +66,7 @@
 : ``bin\enki``
 :   Enki entry point, from which Pyinstaller builds the application.
 :
-pyinstaller --noconfirm --additional-hooks-dir=win --runtime-hook=win\rthook_pyqt4.py --runtime-hook=win\rthook_sys_file_encoding.py --noconsole --icon=icons\logo\enki.ico bin\enki
+pyinstaller --noconfirm --additional-hooks-dir=win --runtime-hook=win\rthook_pyqt4.py --noconsole --icon=icons\logo\enki.ico bin\enki
 :
 : Testing
 : -------
@@ -80,7 +80,7 @@ dist\enki\enki
 :
 : Specify CodeChat as an import, since it's dynamically loaded by Sphinx.
 pause Press Enter to build and test Sphinx.
-pyinstaller --noconfirm --additional-hooks-dir=win --hidden-import=CodeChat --runtime-hook=win\rthook_sys_file_encoding.py win\sphinx-build.py
+pyinstaller --noconfirm --additional-hooks-dir=win --hidden-import=CodeChat win\sphinx-build.py
 dist\sphinx-build\sphinx-build
 :
 : Combined Enki and Sphinx
