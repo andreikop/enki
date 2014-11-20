@@ -60,6 +60,7 @@ def inMainLoop(func, *args):
             core.mainWindow().show()
             QTest.qWaitForWindowShown(core.mainWindow())
             papp.setActiveWindow(core.mainWindow())
+            assert papp.focusWidget() is not None
             func(*args)
             # When done processing these events, exit the event loop.
             QTimer.singleShot(0, self.app.quit)
@@ -194,8 +195,13 @@ class TestCase(unittest.TestCase):
 
         key may be QKeySequence or string
         """
-        if widget is not None:
+        if widget is None:
             widget = self.app.focusWidget()
+
+        if widget is None:
+            widget = core.mainWindow()
+
+        assert widget is not None
 
         if isinstance(key, basestring):
             assert modifiers == Qt.NoModifier, 'Do not set modifiers, if using text key'
@@ -209,10 +215,15 @@ class TestCase(unittest.TestCase):
         """Alias for ``QTest.keyClicks``.
 
         If widget is none - focused widget will be keyclicked"""
-        if widget is not None:
-            QTest.keyClicks(widget, text, modifiers)
-        else:
-            QTest.keyClicks(self.app.focusWidget(), text, modifiers)
+        if widget is None:
+            widget = self.app.focusWidget()
+
+        if widget is None:
+            widget = core.mainWindow()
+
+        assert widget is not None
+
+        QTest.keyClicks(widget, text, modifiers)
 
     def createFile(self, name, text):
         """Create file in TEST_FILE_DIR.
