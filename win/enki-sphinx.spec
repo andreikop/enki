@@ -47,9 +47,26 @@ sphinx_a = Analysis(['win/sphinx-build.py'],
              excludes=['_tkinter'],
              cipher=block_cipher)
 
+import pylint
+import os.path
+
+           # Find the location of pylint's __init__.py file. Note that
+           # ``pylint.__file__`` returns a .pyc file, which breaks PyInstaller.
+           # So, replace the extension with a ``.py`` instead.
+pylint_a = Analysis([os.path.splitext(pylint.__file__)[0] + '.py'],
+             pathex=['.'],
+             hiddenimports=[],
+             hookspath=None,
+             runtime_hooks=None,
+             excludes=['_tkinter'],
+             cipher=block_cipher)
 # Next, eliminate duplicate libraries and modules. Listing Enki first seems to
 # place all libraries and modules there.
-MERGE( (enki_a, 'enki', 'enki'), (sphinx_a, 'sphinx', 'sphinx') )
+MERGE(
+    (enki_a, 'enki', 'enki'),
+    (sphinx_a, 'sphinx', 'sphinx'),
+    (pylint_a, 'pylint', 'pylint'),
+    )
 
 # Finally, produce both binaries. Note that the resulting Sphinx binary doesn't
 # work as is, since it has no libraries bundled with it. Instead, it needs to
@@ -88,4 +105,22 @@ sphinx_coll = COLLECT(sphinx_exe,
                sphinx_a.datas,
                strip=None,
                upx=True,
-               name='sphinx-build')
+                name='sphinx-build')
+
+pylint_pyz = PYZ(pylint_a.pure,
+             cipher=block_cipher)
+pylint_exe = EXE(pylint_pyz,
+          pylint_a.scripts,
+          exclude_binaries=True,
+          name='pylint' + ext,
+          debug=False,
+          strip=None,
+          upx=True,
+          console=True )
+pylint_coll = COLLECT(pylint_exe,
+               pylint_a.binaries,
+               pylint_a.zipfiles,
+               pylint_a.datas,
+               strip=None,
+               upx=True,
+               name='pylint')
