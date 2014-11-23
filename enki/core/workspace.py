@@ -571,6 +571,7 @@ class Workspace(QStackedWidget):
 
         if document is not None:
             self.setCurrentWidget(document)
+            document.setFocus()
 
         return document
 

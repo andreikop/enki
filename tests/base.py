@@ -5,9 +5,7 @@ import unittest
 import logging
 import os
 import sys
-import threading
 import shutil
-import time
 import tempfile
 import subprocess
 import codecs
