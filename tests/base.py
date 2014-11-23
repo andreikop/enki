@@ -136,6 +136,18 @@ class TestCase(unittest.TestCase):
         except OSError as e:
             pass
 
+    def waitUntilPassed(self, timeout, func):
+        """Try to execute a function until it doesn't fail"""
+        for _ in range(20):
+            QTest.qWait(timeout / 20.)
+            try:
+                func()
+            except:
+                continue
+            else:
+                break
+        else:
+            func()
 
     def setUp(self):
         self._finished = False

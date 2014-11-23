@@ -23,8 +23,7 @@ class Test(base.TestCase):
     def test_1(self):
         """ File is checked after opened """
         doc = self.createFile('test.py', 'asdf\n\n')
-        QTest.qWait(500)
-        self.assertEqual(doc.qutepart.lintMarks, {0: ('e', "Undefined variable 'asdf'")})
+        self.waitUntilPassed(2000, lambda: self.assertEqual(doc.qutepart.lintMarks, {0: ('e', "Undefined variable 'asdf'")}))
         self.assertEqual(core.mainWindow().statusBar().currentMessage(), "Undefined variable 'asdf'")
 
         doc.qutepart.cursorPosition = ((1, 0))
@@ -38,8 +37,8 @@ class Test(base.TestCase):
         self.assertEqual(core.mainWindow().statusBar().currentMessage(), "")
 
         doc.saveFile()
-        QTest.qWait(500)
-        self.assertEqual(doc.qutepart.lintMarks, {0: ('e', 'invalid syntax')})
+
+        self.waitUntilPassed(2000, lambda: self.assertEqual(doc.qutepart.lintMarks, {0: ('e', 'invalid syntax')}))
 
     @unittest.skipUnless(havePylint, 'Pylint not found')
     def test_2(self):
