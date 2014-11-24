@@ -34,9 +34,10 @@ def _getSphinxVersion(path):
     Raise OSError if not found
           ValueError if failed to parse
     """
-    stdout = get_console_output([path, '--version'])[0]
-    if stdout.startswith("Sphinx"):
-        return [int(num) for num in stdout.split()[2].split('.')]
+    stderr = get_console_output(path)[1]
+    for line in stderr.split('\n'):
+        if line.startswith("Sphinx"):
+            return [int(num) for num in line.split()[1][1:].split('.')]
     raise ValueError
 
 class SettingsWidget(QWidget):
