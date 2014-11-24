@@ -112,6 +112,18 @@ pylint_pyz = PYZ(pylint_a.pure,
 pylint_exe = EXE(pylint_pyz,
           pylint_a.scripts,
           exclude_binaries=True,
+          # TODO: This fails on Unix, since there's already a directory named
+          # pylint/, conflicting with the binary this is producing named pylint.
+          # One solution: change the name below. But then Enki needs to know
+          # about this special case (unique name only for Linux frozen), which
+          # is ugly.
+          #
+          # Also, pylint doesn't work on Ubuntu 12.04. Output when running the
+          # binary::
+          #
+          #      Traceback (most recent call last):
+          #        File "<string>", line 18, in <module>
+          #      ValueError: Attempted relative import in non-package
           name='pylint' + ext,
           debug=False,
           strip=None,
