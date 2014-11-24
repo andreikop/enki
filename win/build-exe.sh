@@ -25,10 +25,12 @@ cp /usr/bin/ctags dist/enki
 #
 # Test
 # ====
+read -p "Press enter to run the resulting binary..." junk
 dist/enki/enki-editor
 #
 # Package
 # =======
+read -p "Press enter to compress the resulting binary..." junk
 cd dist
 zip -r enki.zip enki
 cd ..
