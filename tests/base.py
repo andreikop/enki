@@ -59,6 +59,7 @@ def inMainLoop(func, *args):
         def execWithArgs():
             core.mainWindow().show()
             QTest.qWaitForWindowShown(core.mainWindow())
+            papp.setActiveWindow(core.mainWindow())
             func(*args)
             # When done processing these events, exit the event loop.
             QTimer.singleShot(0, self.app.quit)
