@@ -215,46 +215,6 @@ class Test(PreviewTestCase):
         self.assertFalse(sw.labelCodeChatNotInstalled.isVisible())
         sw.close()
 
-    # Pan: I noticed that this test doesn't run __init__.Plugin._onSettingsDialogAboutToExecute,
-    # so it can't really test these items correctly. I've commented it out for
-    # that reason, since fixing it is a pain and I don't think these tests
-    # are that important. Your thoughts?
-    """
-    @base.requiresCmdlineUtility('sphinx-build --version')
-    def test_settingUiCheck1a(self):
-        " ""By default, when Sphinx is available, it is set to be disabled. all
-        path setting line edits and buttons are disabled."" "
-        sw = SettingsWidget()
-        # Sphinx is enabled but unchecked.
-        self.assertFalse(sw.gbSphinxProject.isChecked())
-        # Build options are all disabled. But build only on save is still
-        # enabled by default.
-        self.assertFalse(sw.rbBuildOnlyOnSave.isEnabled())
-        self.assertTrue(sw.rbBuildOnlyOnSave.isChecked())
-        self.assertFalse(sw.rbBuildOnFileChange.isEnabled())
-        self.assertFalse(sw.rbBuildOnFileChange.isChecked())
-        # All setting directories are disabled and empty.
-        self.assertFalse(sw.leSphinxProjectPath.isEnabled())
-        self.assertEqual(sw.leSphinxProjectPath.text(), '')
-        self.assertFalse(sw.leSphinxOutputPath.isEnabled())
-        self.assertEqual(sw.leSphinxOutputPath.text(), '')
-        # executable is disabled and set to default 'sphinx-build'
-        self.assertFalse(sw.leSphinxExecutable.isEnabled())
-        self.assertEqual(sw.leSphinxExecutable.text(), '')
-        # builder extension is disabled and set to default 'html'
-        self.assertFalse(sw.cmbSphinxOutputExtension.isEnabled())
-        self.assertEqual(sw.cmbSphinxOutputExtension.lineEdit().text(), 'html')
-        # Assert advanced mode toggle label disabled and reads 'Advanced Mode'
-        self.assertFalse(sw.lbSphinxEnableAdvMode.isEnabled())
-        self.assertTrue('Advanced Mode' in sw.lbSphinxEnableAdvMode.text())
-        sw.show()
-        # Assert user cannot see any advanced setting items.
-        self.assertFalse(sw.lbSphinxCmdline.isVisible())
-        self.assertFalse(sw.leSphinxCmdline.isVisible())
-        self.assertFalse(sw.lbSphinxReference.isVisible())
-        sw.close()
-"""
-
     @requiresModule('CodeChat')
     def test_settingUiCheck3(self):
         """ The Enable CodeChat checkbox should only be enabled if CodeChat can
@@ -317,9 +277,6 @@ class Test(PreviewTestCase):
         # Executable is enabled and set to default 'sphinx-build'
         self.assertTrue(sw.leSphinxExecutable.isEnabled())
         self.assertEqual(sw.leSphinxExecutable.text(), '')
-        # Builder extension is enabled and set to default 'html'
-        self.assertTrue(sw.cmbSphinxOutputExtension.isEnabled())
-        self.assertEqual(sw.cmbSphinxOutputExtension.lineEdit().text(), 'html')
         # Assert advanced mode toggle label enabled and reads 'Advanced Mode'
         self.assertTrue(sw.lbSphinxEnableAdvMode.isEnabled())
         self.assertTrue('Advanced Mode' in sw.lbSphinxEnableAdvMode.text())
@@ -873,7 +830,7 @@ head
         """Check that leading ../current_subdir will be removed after path
            clearnup."""
         # Get the name of the current directory
-        # Pan: Would you test this?
+        # TODO: Pan: Would you test this?
         d = os.path.basename(os.getcwd())
         self.assertEqual(commonPrefix('../' + d + '/a/b', 'a/b'), os.path.join('a','b'))
 

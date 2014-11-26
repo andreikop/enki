@@ -18,6 +18,7 @@ import shutil
 import cgi
 import sys
 import shlex
+import codecs
 
 # Third-party imports
 # -------------------
@@ -201,9 +202,16 @@ class ConverterThread(QThread):
                     outputPath = os.path.join(projectPath, outputPath)
                 # Create an htmlPath as OutputPath + remainder of filePath.
                 htmlPath = os.path.join(outputPath + filePath[len(projectPath):])
+                html_file_suffix = u'html'
+                try:
+                    with codecs.open(os.path.join(projectPath, 'sphinx-enki-info.json')) as f:
+                        html_file_suffix = f.read()
+                except:
+                    # TODO: A user warning maybe?
+                    pass
                 # First place to look: file.html. For example, look for foo.py
                 # in foo.py.html.
-                ext =  u'.' + core.config()['Sphinx']['OutputExtension']
+                ext =  u'.' + html_file_suffix
                 htmlFile = htmlPath + ext
                 # Second place to look: file without extension.html. For
                 # example, look for foo.html for foo.rst.

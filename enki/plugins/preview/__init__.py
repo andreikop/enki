@@ -77,8 +77,6 @@ class SettingsWidget(QWidget):
         self.lbSphinxEnableAdvMode.mousePressEvent = self.on_ToggleSphinxSettingModeClicked
 
         # Update misc pieces of the GUI that can't be stored in the .ui file.
-        self.cmbSphinxOutputExtension.addItem("html")
-        self.cmbSphinxOutputExtension.addItem("htm")
         self._updateSphinxSettingMode()
 
     def _updateleValidateSphinxExecutable(self):
@@ -154,7 +152,8 @@ class SettingsWidget(QWidget):
         self._updateleValidateSphinxExecutable()
 
     def _updateSphinxSettingMode(self):
-        """Update the Sphinx settings mode by hiding/revealing the appropriate
+        """Update the Sphinx settings mode by read in sphinx settings (output
+        extension created by conf.py) and hiding/revealing the appropriate
         controls.
         """
         if core.config()['Sphinx']['AdvancedMode']:
@@ -217,7 +216,6 @@ class Plugin(QObject):
             core.config()['Sphinx']['ProjectPath'] = u''
             core.config()['Sphinx']['BuildOnSave'] = False
             core.config()['Sphinx']['OutputPath'] = os.path.join('_build', 'html')
-            core.config()['Sphinx']['OutputExtension'] = u'html'
             core.config()['Sphinx']['AdvancedMode'] = False
             core.config()['Sphinx']['Cmdline'] = u'sphinx-build -d ' + os.path.join('_build','doctrees')  \
                                                  + ' . ' + os.path.join('_build','html')
@@ -339,9 +337,6 @@ class Plugin(QObject):
         dialog.appendOption(TextOption(dialog, core.config(),
                                        "Sphinx/OutputPath",
                                        widget.leSphinxOutputPath))
-        dialog.appendOption(TextOption(dialog, core.config(),
-                                       "Sphinx/OutputExtension",
-                                       widget.cmbSphinxOutputExtension.lineEdit()))
         dialog.appendOption(TextOption(dialog, core.config(),
                                        "Sphinx/Executable",
                                        widget.leSphinxExecutable))
