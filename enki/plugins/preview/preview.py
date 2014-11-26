@@ -121,16 +121,15 @@ def sphinxEnabledForFile(filePath):
            os.path.normcase(sphinxProjectPath) == commonPrefix(filePath, sphinxProjectPath))
 
 def copyTemplateFile(errors, source, templateFileName, dest, newName=None):
-    """For each sphinx project, three files are needed: ``default.css`` as
-    html theming support file, ``index.rst``as master document, and ``conf.py``
-    as sphinx configuration file. Given a ``templateFileName`` among those
-    three files, it will be copied to destination directory ``dest``. If any
-    error occurs during copy operation, error information will be appended to
-    ``errors``.
+    """For each sphinx project, two files are needed: ``index.rst``as master
+    document, and ``conf.py`` as sphinx configuration file. Given a file with
+    ``templateFileName``, it will be copied to destination directory ``dest``.
+    If any error occurs during copy operation, error information will
+    be appended to ``errors``.
     """
     if not source or not dest:
         errors.append((source, dest, "Input or output directory cannot be None"))
-        return
+        raise OSError(2, "Input or output directory cannot be None", None)
     if not newName:
         newName = templateFileName
     if not os.path.exists(os.path.join(dest, newName)):
@@ -715,9 +714,14 @@ class PreviewDock(DockWidget):
                 pass
 
     def _copySphinxProjectTemplate(self, documentFilePath):
-        """Add conf.py, default.css and index.rst (if ther're missing)
-           to the Sphinx project directory.
-           """
+        """Add conf.py, CodeChat.css and index.rst (if ther're missing)
+        to the Sphinx project directory.
+        """
+        try:
+            if core.config()['Sphinx']['ProjectPath'] in self._sphinxTemplateCheckIgnoreList:
+                return;
+        except AttributeError:
+            self._sphinxTemplateCheckIgnoreList = []
 
         # Check for the existance Sphinx project files. Copy skeleton versions
         # of them to the project if necessary.
@@ -725,6 +729,28 @@ class PreviewDock(DockWidget):
         sphinxTemplatePath = os.path.join(sphinxPluginsPath, 'sphinx_templates')
         sphinxProjectPath = core.config()['Sphinx']['ProjectPath']
         errors = []
+        checklist = ['index.rst', 'conf.py', 'CodeChat.css']
+        missinglist = []
+        for filename in checklist:
+            if not os.path.exists(os.path.join(sphinxProjectPath, filename)):
+                missinglist.append(filename)
+        if not missinglist:
+            return errors
+
+        question = QMessageBox(self)
+        question.addButton(QMessageBox.Yes)
+        question.addButton(QMessageBox.No)
+        question.addButton("Not now", QMessageBox.RejectRole)
+        question.setWindowTitle("Enki")
+        question.setText("Sphinx prject at:\n " + sphinxProjectPath
+                         + "\nmisses template file(s): "+ ' '.join(missinglist)
+                         + ". Auto-generate those file(s)?")
+        question.setDefaultButton(QMessageBox.Yes)
+        res = question.exec_()
+        if res != QMessageBox.Yes:
+            if res == QMessageBox.No:
+                self._sphinxTemplateCheckIgnoreList.append(sphinxProjectPath)
+            return
 
         copyTemplateFile(errors, sphinxTemplatePath, 'index.rst', sphinxProjectPath)
         if core.config()['CodeChat']['Enabled'] and CodeChat:
