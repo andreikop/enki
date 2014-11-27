@@ -94,6 +94,15 @@ class MainWindow(QMainWindow):
     FileBrowser shows directory
     """  # pylint: disable=W0105
 
+    exitProgram = pyqtSignal()
+    """
+    exitProgram()
+
+    **Signal** emitted, when user close the mainwindow.
+    This signal is emitted along with close event. Overloading close event
+    seems like a bad idea. Thus a signal is added.
+    """  # pylint: disable=W0105
+
     _STATE_FILE = os.path.join(enki.core.defines.CONFIG_DIR, "main_window_state.bin")
     _GEOMETRY_FILE = os.path.join(enki.core.defines.CONFIG_DIR, "main_window_geometry.bin")
 
@@ -333,6 +342,8 @@ class MainWindow(QMainWindow):
         Close event handler.
         Shows save files dialog. Cancels close, if dialog was rejected
         """
+        # Emit closing signal
+        self.exitProgram.emit()
 
         # saving geometry BEFORE closing widgets, because state might be changed, when docks are closed
         self._saveState()

@@ -418,6 +418,10 @@ class PreviewDock(DockWidget):
 
         self._widget.cbEnableJavascript.clicked.connect(self._onJavaScriptEnabledCheckbox)
 
+        # When quitting program, remaining sphinx projects need not to be rebuilt.
+        self._programRunning = True
+        core.mainWindow().exitProgram.connect(self._quitingApplication)
+
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         core.workspace().textChanged.connect(self._onTextChanged)
 
@@ -469,6 +473,9 @@ class PreviewDock(DockWidget):
         self._widget.splitter.setSizes(self._widget.splitterNormStateSize)
         self._widget.splitter.splitterMoved.connect(self.on_splitterMoved)
         # Don't need to schedule document processing; a call to show() does.
+
+    def _quitingApplication(self):
+        self._programRunning = False
 
     def on_splitterMoved(self, pos, index):
         if self._widget.splitterNormState:
@@ -642,6 +649,9 @@ class PreviewDock(DockWidget):
     def _scheduleDocumentProcessing(self):
         """Start document processing with the thread.
         """
+        if not self._programRunning:
+            return
+
         self._typingTimer.stop()
 
         document = core.workspace().currentDocument()
