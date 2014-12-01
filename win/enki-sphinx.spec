@@ -15,8 +15,11 @@
 #    These steps are illustrated in the comments below.
 # #. Run ``win\build_exe.bat`` again; the third build is the combined version.
 
-# Use the ``.exe`` extension for Windows, but not Unix.
 import sys
+import os.path
+import pylint
+
+# Use the ``.exe`` extension for Windows, but not Unix.
 if sys.platform.startswith('linux'):
     ext = ''
 else:
@@ -39,6 +42,7 @@ enki_a = Analysis(['bin/enki'],
              # found)."
              excludes=['_tkinter'],
              cipher=block_cipher)
+
 sphinx_a = Analysis(['win/sphinx-build.py'],
              pathex=['.'],
              hiddenimports=['CodeChat'],
@@ -47,13 +51,9 @@ sphinx_a = Analysis(['win/sphinx-build.py'],
              excludes=['_tkinter'],
              cipher=block_cipher)
 
-import pylint
-import os.path
 
-           # Find the location of pylint's __init__.py file. Note that
-           # ``pylint.__file__`` returns a .pyc file, which breaks PyInstaller.
-           # So, replace the extension with a ``.py`` instead.
-pylint_a = Analysis([os.path.splitext(pylint.__file__)[0] + '.py'],
+           # Provide the OS-dependent location of pylint's __main__.py file.
+pylint_a = Analysis([os.path.join(pylint.__path__[0], '__main__.py')],
              pathex=['.'],
              hiddenimports=[],
              hookspath=None,
@@ -117,13 +117,6 @@ pylint_exe = EXE(pylint_pyz,
           # One solution: change the name below. But then Enki needs to know
           # about this special case (unique name only for Linux frozen), which
           # is ugly.
-          #
-          # Also, pylint doesn't work on Ubuntu 12.04. Output when running the
-          # binary::
-          #
-          #      Traceback (most recent call last):
-          #        File "<string>", line 18, in <module>
-          #      ValueError: Attempted relative import in non-package
           name='pylint' + ext,
           debug=False,
           strip=None,

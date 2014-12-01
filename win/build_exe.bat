@@ -107,6 +107,6 @@ pyinstaller --noconfirm win\enki-sphinx.spec
 : Sphinx and pylint binaries depend on Enki files, since they're combined. Copy
 : them over.
 xcopy /E /I /Q dist\sphinx-build dist\enki
-xcopy /E /I /Q dist\pylint dist\enki
+xcopy /E /I /Q /Y dist\pylint dist\enki
 : Run to see if everything works.
 dist\enki\enki-editor
