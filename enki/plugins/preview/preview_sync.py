@@ -51,8 +51,6 @@ class PreviewSync(QObject):
         self.webView = webView
         self._initPreviewToTextSync()
         self._initTextToPreviewSync()
-        core.workspace().cursorPositionChanged.connect(self._onCursorPositionChanged)
-        core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
 
     def _onJavaScriptCleared(self):
         """This is called before starting a new load of a web page, to inject the
@@ -75,6 +73,7 @@ class PreviewSync(QObject):
         # place (it depends on TRE).
         if findApproxTextInTarget:
             self._cursorMovementTimer.stop()
+            core.workspace().cursorPositionChanged.disconnect(self._onCursorPositionChanged)
 
     # Vertical synchronization
     ##========================
@@ -522,8 +521,7 @@ class PreviewSync(QObject):
         self._cursorMovementTimer.setInterval(300)
         self._cursorMovementTimer.timeout.connect(self.syncTextToPreview)
         # Restart this timer every time the cursor moves.
-        self.currentCursorPositionChanged = core.workspace().currentDocument().qutepart.cursorPositionChanged
-        self.currentCursorPositionChanged.connect(self._onCursorPositionChanged)
+        core.workspace().cursorPositionChanged.connect(self._onCursorPositionChanged)
         # Set up a variable to tell us when the preview to text sync just fired,
         # disabling this sync. Otherwise, that sync would trigger this sync,
         # which is unnecessary.
@@ -612,14 +610,3 @@ class PreviewSync(QObject):
 
             # Sync the cursors.
             self._scrollSync(True)
-
-    def _onDocumentChanged(self, old, new):
-        """When the document changes, ask for cursor position updates from the
-           new document."""
-        self._cursorMovementTimer.stop()
-        # Switch connections to the current document.
-        if old is not None:
-            self.currentCursorPositionChanged.disconnect(self._onCursorPositionChanged)
-        if new is not None:
-            self.currentCursorPositionChanged = core.workspace().currentDocument().qutepart.cursorPositionChanged
-            self.currentCursorPositionChanged.connect(self._onCursorPositionChanged)
