@@ -534,8 +534,10 @@ class PreviewSync(QObject):
         want cursor movement notification from the active text document. This is
         handled in _onDocumentChanged.
         """
-        # Ignore this callback if a preview to text sync caused it.
-        if not self._previewToTextSyncRunning:
+        # Ignore this callback if a preview to text sync caused it or if the
+        # preview dock is closed.
+        if (not self._previewToTextSyncRunning and
+          core.config()['Preview']['Enabled']):
             self._cursorMovementTimer.stop()
             self._cursorMovementTimer.start()
 
