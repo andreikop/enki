@@ -152,8 +152,7 @@ class SettingsWidget(QWidget):
         self._updateleValidateSphinxExecutable()
 
     def _updateSphinxSettingMode(self):
-        """Update the Sphinx settings mode by read in sphinx settings (output
-        extension created by conf.py) and hiding/revealing the appropriate
+        """Update the Sphinx settings mode by hiding/revealing the appropriate
         controls.
         """
         if core.config()['Sphinx']['AdvancedMode']:

@@ -129,7 +129,6 @@ def copyTemplateFile(errors, source, templateFileName, dest, newName=None):
     be appended to ``errors``.
     """
     if not source or not dest:
-        errors.append((source, dest, "Input or output directory cannot be None"))
         raise OSError(2, "Input or output directory cannot be None", None)
     if not newName:
         newName = templateFileName
@@ -207,7 +206,8 @@ class ConverterThread(QThread):
                     with codecs.open(os.path.join(projectPath, 'sphinx-enki-info.json')) as f:
                         html_file_suffix = f.read()
                 except:
-                    # TODO: A user warning maybe?
+                    errString = "Warning: assuming .html extension. Use " + \
+                      "the conf.py template to set the extension.\n" + errString
                     pass
                 # First place to look: file.html. For example, look for foo.py
                 # in foo.py.html.
@@ -418,7 +418,9 @@ class PreviewDock(DockWidget):
 
         self._widget.cbEnableJavascript.clicked.connect(self._onJavaScriptEnabledCheckbox)
 
-        # When quitting program, remaining sphinx projects need not to be rebuilt.
+        # When quitting this program, don't rebuild when closing all open
+        # documents. This can take a long time, particularly if a some of the
+        # documents are associated with a Sphinx project.
         self._programRunning = True
         core.mainWindow().exitProgram.connect(self._quitingApplication)
 
@@ -444,6 +446,10 @@ class PreviewDock(DockWidget):
         self._scrollPos = {}
         self._vAtEnd = {}
         self._hAtEnd = {}
+
+        # Keep track of which Sphinx template copies we've already asked the
+        # user about.
+        self._sphinxTemplateCheckIgnoreList = []
 
         self._thread = ConverterThread()
         self._thread.htmlReady.connect(self._setHtml)
@@ -735,11 +741,8 @@ class PreviewDock(DockWidget):
         """Add conf.py, CodeChat.css and index.rst (if ther're missing)
         to the Sphinx project directory.
         """
-        try:
-            if core.config()['Sphinx']['ProjectPath'] in self._sphinxTemplateCheckIgnoreList:
-                return;
-        except AttributeError:
-            self._sphinxTemplateCheckIgnoreList = []
+        if core.config()['Sphinx']['ProjectPath'] in self._sphinxTemplateCheckIgnoreList:
+            return;
 
         # Check for the existance Sphinx project files. Copy skeleton versions
         # of them to the project if necessary.
@@ -757,14 +760,20 @@ class PreviewDock(DockWidget):
 
         question = QMessageBox(self)
         question.addButton(QMessageBox.Yes)
+        question.setDefaultButton(QMessageBox.Yes)
         question.addButton(QMessageBox.No)
         question.addButton("Not now", QMessageBox.RejectRole)
         question.setWindowTitle("Enki")
-        question.setText("Sphinx prject at:\n " + sphinxProjectPath
-                         + "\nmisses template file(s): "+ ' '.join(missinglist)
+        question.setText("Sphinx project at:\n " + sphinxProjectPath
+                         + "\nis missing the template file(s): "+ ' '.join(missinglist)
                          + ". Auto-generate those file(s)?")
         question.setDefaultButton(QMessageBox.Yes)
-        res = question.exec_()
+        # For testing, check for test-provided button presses
+        if ( (len(self._sphinxTemplateCheckIgnoreList) == 1) and
+            isinstance(self._sphinxTemplateCheckIgnoreList[0], int) ):
+            res = self._sphinxTemplateCheckIgnoreList[0]
+        else:
+            res = question.exec_()
         if res != QMessageBox.Yes:
             if res == QMessageBox.No:
                 self._sphinxTemplateCheckIgnoreList.append(sphinxProjectPath)

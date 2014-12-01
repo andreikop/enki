@@ -25,7 +25,7 @@ import base
 
 # Third-party library imports
 # ---------------------------
-from PyQt4.QtGui import QTextCursor
+from PyQt4.QtGui import QTextCursor, QMessageBox
 
 # Local application imports
 # -------------------------
@@ -108,6 +108,7 @@ class PreviewTestCase(base.TestCase):
         core.config()['Sphinx']['OutputPath'] = os.path.join('_build', 'html')
         core.config()['Sphinx']['OutputExtension'] = r'html'
         core.config()['Sphinx']['AdvancedMode'] = False
+        self._dock()._sphinxTemplateCheckIgnoreList = [QMessageBox.Yes]
 
     def _doBasicSphinxTest(self, extension, name='code'):
         """This function will build a basic Sphinx project in the temporary
@@ -830,7 +831,6 @@ head
         """Check that leading ../current_subdir will be removed after path
            clearnup."""
         # Get the name of the current directory
-        # TODO: Pan: Would you test this?
         d = os.path.basename(os.getcwd())
         self.assertEqual(commonPrefix('../' + d + '/a/b', 'a/b'), os.path.join('a','b'))
 
@@ -912,8 +912,9 @@ head
         dest = os.path.join(self.TEST_FILE_DIR, 'sub')
         os.makedirs(dest)
         errors = []
-        copyTemplateFile(errors, source, 'missing.file', dest)
-        self.assertTrue(errors[0][2].startswith("Input or output directory cannot be None"))
+        with self.assertRaisesRegexp(OSError,
+          "Input or output directory cannot be None"):
+            copyTemplateFile(errors, source, 'missing.file', dest)
 
     def test_copyTemplateFile3(self):
         # Test invalid destination directory.
@@ -929,15 +930,16 @@ head
         source = self.TEST_FILE_DIR
         dest = None
         errors = []
-        copyTemplateFile(errors, source, 'dummy.html', dest)
-        self.assertTrue(errors[0][2].startswith("Input or output directory cannot be None"))
+        with self.assertRaisesRegexp(OSError,
+          "Input or output directory cannot be None"):
+            copyTemplateFile(errors, source, 'dummy.html', dest)
 
     @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     def test_copyTemplateFile4(self):
         # Make target directory read only, causing access error (*nix only since
         # NTFS does not have Write-only property)
         source = self.TEST_FILE_DIR
-        dest= os.path.join(source, 'sub')
+        dest = os.path.join(source, 'sub')
         os.makedirs(dest)
         errors = []
         # Make the source file write only
