@@ -271,7 +271,7 @@
          <item>
           <widget class="QRadioButton" name="rbBuildOnlyOnSave">
            <property name="text">
-            <string>Only after file was saved</string>
+            <string>Only after the file was saved</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -284,7 +284,7 @@
             <enum>Qt::LeftToRight</enum>
            </property>
            <property name="text">
-            <string>Upon any file change</string>
+            <string>Auto-save and build on any file change</string>
            </property>
           </widget>
          </item>

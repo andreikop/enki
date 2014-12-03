@@ -682,8 +682,8 @@ class PreviewDock(DockWidget):
             # - If Sphinx can't process this file, just build it.
             # - If Sphinx can process this file:
             #
-            #   - If the document isn't internally modified, we're here because the file
-            #     was saved or the refresh button was pressed. Build it.
+            #   - If the document isn't internally modified, we're here because
+            #     the file was saved or the refresh button was pressed. Build it.
             #   - If the document was internally modified and "insta-build" is
             #     enabled (i.e. build only on save is disabled):
             #
@@ -732,10 +732,7 @@ class PreviewDock(DockWidget):
             # Warn.
             if (sphinxCanProcess and internallyModified and
                 externallyModified and not buildOnSave):
-                 # TODO: warn user. Andrei: what method do I use to put a
-                 # warning message on the screen, like the warning produced
-                 # when opening a file that utf-8 decoding fails on?
-                pass
+                core.mainWindow().appendMessage('Warning: file modified externally. Auto-save disabled.')
 
     def _copySphinxProjectTemplate(self, documentFilePath):
         """Add conf.py, CodeChat.css and index.rst (if ther're missing)
