@@ -540,7 +540,7 @@ content"""
         self._doBasicTest('rst')
         self.assertTrue(u'Енки' in self._logText())
 
-    @unittest.expectedFailure
+    @unittest.skip("Unicode isn't presented in the log window")
     @base.requiresCmdlineUtility('sphinx-build --version')
     @base.inMainLoop
     def test_previewCheck12(self):
