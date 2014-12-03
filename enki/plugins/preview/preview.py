@@ -422,7 +422,7 @@ class PreviewDock(DockWidget):
         # documents. This can take a long time, particularly if a some of the
         # documents are associated with a Sphinx project.
         self._programRunning = True
-        core.mainWindow().exitProgram.connect(self._quitingApplication)
+        core.aboutToTerminate.connect(self._quitingApplication)
 
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         core.workspace().textChanged.connect(self._onTextChanged)
