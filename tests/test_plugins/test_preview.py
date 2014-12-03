@@ -15,6 +15,7 @@ import sys
 import stat
 import imp
 import codecs
+import mock
 
 # Local application imports
 # -------------------------
@@ -37,6 +38,7 @@ from enki.plugins.preview import SettingsWidget
 from enki.plugins.preview.preview import commonPrefix
 from enki.plugins.preview.preview import copyTemplateFile
 from import_fail import ImportFail
+from enki.plugins.preview import _getSphinxVersion
 
 
 # Preview module tests
@@ -1079,6 +1081,38 @@ head
         # Switch to document 3. Log window should keep hidden.
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
         self.assertFalse(self._widget().splitter.sizes()[1])
+
+    def test_getSphinxVersion1(self):
+        """Check that _getSphinxVersion raises an exception if the binary isn't
+        present."""
+        with self.assertRaises(OSError):
+            _getSphinxVersion('this_executable_does_not_exist')
+
+    # For mocking, mock an item where it is used, not where it came from. See
+    # https://docs.python.org/3/library/unittest.mock.html#where-to-patch and
+    # http://www.toptal.com/python/an-introduction-to-mocking-in-python.
+    @mock.patch('enki.plugins.preview.get_console_output')
+    def test_getSphinxVersion2(self, mock_gca):
+        """Check that _getSphinxVersion raises an exception if the Sphinx
+        version info isn't present."""
+        mock_gca.return_value = ("stderr",
+          "stdout - no version info here, sorry!")
+        with self.assertRaises(ValueError):
+            _getSphinxVersion('anything_since_replaced_by_mock')
+
+    @mock.patch('enki.plugins.preview.get_console_output')
+    def test_getSphinxVersion3(self, mock_gca):
+        """Check that _getSphinxVersion raises an exception if the Sphinx
+        version info isn't present."""
+        mock_gca.return_value = ("stderr", \
+"""Error: Insufficient arguments.
+
+Sphinx v1.2.3
+Usage: C:\Python27\Scripts\sphinx-build [options] sourcedir outdir [filenames...
+]
+""")
+        self.assertEqual(_getSphinxVersion('anything_since_replaced_by_mock'),
+                         [1, 2, 3])
 
 # Main
 # ====

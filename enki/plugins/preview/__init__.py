@@ -29,15 +29,21 @@ def isHtmlFile(document):
            (not 'php' in document.qutepart.language().lower())  # Django HTML template but not HTML (PHP)
 
 def _getSphinxVersion(path):
-    """Get sphinx version as tuple of integer items.
+    """Return the Sphinx version as a list of integer items.
 
-    Raise OSError if not found
-          ValueError if failed to parse
+    Raise OSError if not found, or
+          ValueError if failed to parse.
     """
-    stderr = get_console_output(path)[1]
+    stdout, stderr = get_console_output(path)
     for line in stderr.split('\n'):
         if line.startswith("Sphinx"):
-            return [int(num) for num in line.split()[1][1:].split('.')]
+            # Typical line we're looking for, taking from running
+            # ``sphinx-build`` on the command line: ``Sphinx v1.2.3``.
+            # Therefore, ``line.split()[1][1:] == '1.2.3'``.
+            version = line.split()[1][1:]
+            # Split on periods and convert to an int, returning the version as a
+            # tuple.
+            return [int(num) for num in version.split('.')]
     raise ValueError
 
 class SettingsWidget(QWidget):
@@ -88,9 +94,9 @@ class SettingsWidget(QWidget):
         try:
             _getSphinxVersion(path)
         except OSError as ex:
-            self.leValidateSphinxExecutable.setText('Failed to execute sphinx-build: {}'.format(ex))
+            self.leValidateSphinxExecutable.setText('Failed to execute {}: {}'.format(path, ex))
         except ValueError:
-            self.leValidateSphinxExecutable.setText('Failed to parse sphinx-build version. Does sphinx work?')
+            self.leValidateSphinxExecutable.setText('Failed to parse {} version. Does sphinx work?'.format(path))
         else:
             self.leValidateSphinxExecutable.setText('Sphinx is found!')
 
