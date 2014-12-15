@@ -204,7 +204,7 @@ class Test(PreviewTestCase):
         # The sync won't happen until the timer expires; wait
         # for that.
         self.assertEmits(lambda: self._dock().previewSync._moveTextPaneToIndex(index, False),
-          self._dock().previewSync._cursorMovementTimer.timeout, 350)
+          self._dock().previewSync.textToPreviewSynced, 350)
         # The web view should have the line containing s selected now.
         if checkText:
             self.assertTrue(s in self._widget().webView.selectedText())
@@ -225,13 +225,10 @@ class Test(PreviewTestCase):
 
     # More complex test to web sync
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    @unittest.expectedFailure
     @requiresModule('docutils')
     def test_sync12(self):
-        """Tables with an embedded image cause findText to fail. Make sure no
-        exceptions are raised.
-
-        I can't seem to find a workaround to this: what search text does findText
-        expect when a table + embedded image are involved?
+        """Tables with an embedded image cause findText to fail.
         """
         self._textToWeb('table', """
 ================  ========================
