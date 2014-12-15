@@ -10,7 +10,11 @@
 #
 # Imports
 # =======
-import cProfile
+# Comment out one of the two following lines to enable or disable profiling
+# of text to web sync.
+#from time import time
+#import cProfile
+cProfile = None
 # Third-party
 # -----------
 from PyQt4.QtCore import pyqtSignal, QPoint, Qt, QTimer, QObject, QThread
@@ -54,7 +58,8 @@ class PreviewSync(QObject):
         self.webView = webView
         self._initPreviewToTextSync()
         self._initTextToPreviewSync()
-        self.pr = cProfile.Profile()
+        if cProfile:
+            self._pr = cProfile.Profile()
 
     def _onJavaScriptCleared(self):
         """This is called before starting a new load of a web page, to inject the
@@ -75,7 +80,8 @@ class PreviewSync(QObject):
     def del_(self):
         # Uninstall the text-to-web sync only if it was installed in the first
         # place (it depends on TRE).
-        self.pr.print_stats()
+        if cProfile:
+            self._pr.print_stats()
         if findApproxTextInTarget:
             self._cursorMovementTimer.stop()
             core.workspace().cursorPositionChanged.disconnect(self._onCursorPositionChanged)
@@ -86,7 +92,7 @@ class PreviewSync(QObject):
             self._ac.del_()
             # Disconnect after del\_, since del\_ guarentees that all threaded
             # tasks are complete; only after that should we disconnect.
-            self._future.signalInvoker.doneSignal.disconnect()
+                self._future.signalInvoker.doneSignal.disconnect()
 
     # Vertical synchronization
     ##========================
@@ -461,7 +467,7 @@ class PreviewSync(QObject):
         self._ac._workerThread.setPriority(QThread.LowPriority)
         # Create a dummy future object for use in canceling pending sync jobs
         # when a new sync needs to be run.
-        self._future = self._ac.start(None, lambda: None)
+        self._future = self._ac.start(lambda future: None, lambda: None)
 
     def _webTextContent(self):
         """Return the ``textContent`` of the entire web page. This differs from
@@ -623,7 +629,9 @@ class PreviewSync(QObject):
         per item 3 above. It can also be called when a sync is needed (when
         switching windows, for example).
         """
-        self.pr.enable()
+        if cProfile:
+            self._pr.enable()
+            self._startTime = time()
         # Only run this if we TRE is installed.
         if not findApproxTextInTarget:
             return
@@ -638,6 +646,8 @@ class PreviewSync(QObject):
         self._future.cancel()
         self._future = self._ac.start(self._movePreviewPaneToIndex, findApproxTextInTarget,
                        qp.text, qp.textCursor().position(), txt)
+        if cProfile:
+                print('Time before: ' + str(time() - self._startTime))
 
     def _movePreviewPaneToIndex(self, future):
         """Highlights webIndex in the preview pane, per item 4 above.
@@ -647,6 +657,8 @@ class PreviewSync(QObject):
           pane.
         txt - The text of the webpage, returned by mainFrame.toPlainText().
         """
+        if cProfile:
+            self._startTime = time()
         # Retrieve the return value from findApproxTextInTarget.
         webIndex = future.result
         # Only move the cursor to webIndex in the preview pane if
@@ -700,4 +712,6 @@ class PreviewSync(QObject):
             # Sync the cursors.
             self._scrollSync(True)
             self.textToPreviewSynced.emit()
-            self.pr.disable()
+            if cProfile:
+                self._pr.disable()
+                print('Time after: ' + str(time() - self._startTime))
