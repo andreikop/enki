@@ -92,7 +92,10 @@ class PreviewSync(QObject):
             self._ac.del_()
             # Disconnect after del\_, since del\_ guarentees that all threaded
             # tasks are complete; only after that should we disconnect.
+            try:
                 self._future.signalInvoker.doneSignal.disconnect()
+            except TypeError:
+                pass
 
     # Vertical synchronization
     ##========================
@@ -644,6 +647,7 @@ class PreviewSync(QObject):
         txt = mf.toPlainText()
         # Before starting a new sync job, cancel pending ones.
         self._future.cancel()
+        self._future.signalInvoker.doneSignal.disconnect()
         self._future = self._ac.start(self._movePreviewPaneToIndex, findApproxTextInTarget,
                        qp.text, qp.textCursor().position(), txt)
         if cProfile:
