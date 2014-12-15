@@ -12,7 +12,7 @@
 # =======
 # Third-party
 # -----------
-from PyQt4.QtCore import pyqtSignal, QPoint, Qt, QTimer, QObject
+from PyQt4.QtCore import pyqtSignal, QPoint, Qt, QTimer, QObject, QThread
 from PyQt4 import QtGui
 from PyQt4.QtWebKit import QWebPage
 from PyQt4.QtTest import QTest
@@ -20,6 +20,7 @@ from PyQt4.QtTest import QTest
 # Local
 # -----
 from enki.core.core import core
+from enki.lib.future import AsyncController
 
 # If TRE isn't installed, this import will fail. In this case, disable the sync
 # feature.
@@ -34,6 +35,7 @@ class PreviewSync(QObject):
     """This class synchronizes the contents of the web and text views and aligns
        them vertically.
     """
+    textToPreviewSynced = pyqtSignal()
     # Setup / cleanup
     ##===============
     def __init__(self,
@@ -74,6 +76,14 @@ class PreviewSync(QObject):
         if findApproxTextInTarget:
             self._cursorMovementTimer.stop()
             core.workspace().cursorPositionChanged.disconnect(self._onCursorPositionChanged)
+            # Shut down the background sync. If a sync was already in progress,
+            # then discard its output, since that output might not come until
+            # after this routine finishes and this class is not usable.
+            self._future.cancel()
+            self._ac.del_()
+            # Disconnect after del\_, since del\_ guarentees that all threaded
+            # tasks are complete; only after that should we disconnect.
+            self._future.signalInvoker.doneSignal.disconnect()
 
     # Vertical synchronization
     ##========================
@@ -335,7 +345,7 @@ class PreviewSync(QObject):
     #
     # #. ``jsClick``, a PyQt signal with a single numeric argument (the index into
     #    a string containing the plain text rendering of the web page) is defined.
-    #    This signal is :ref:`connected <onJavaScriptCleared.connect>` to the
+    #    This signal is `connected <onJavaScriptCleared.connect>`_ to the
     #    ``onWebviewClick`` slot.
     # #. The ``onJavaScriptCleared`` method inserts the JavaScript to listen for a
     #    click and then emit a signal giving the click's location.
@@ -443,6 +453,12 @@ class PreviewSync(QObject):
         # onclick JavaScript.
         self.webView.page().mainFrame(). \
           javaScriptWindowObjectCleared.connect(self._onJavaScriptCleared)
+        # Run the approximate match in a separate thread.
+        self._ac = AsyncController('QThread')
+        self._ac._workerThread.setPriority(QThread.LowPriority)
+        # Create a dummy future object for use in canceling pending sync jobs
+        # when a new sync needs to be run.
+        self._future = self._ac.start(None, lambda: None)
 
     def _webTextContent(self):
         """Return the ``textContent`` of the entire web page. This differs from
@@ -551,21 +567,31 @@ class PreviewSync(QObject):
             return
         # Stop the timer; the next cursor movement will restart it.
         self._cursorMovementTimer.stop()
-        # Perform an approximate match.
+        # Perform an approximate match in a separate thread, then update
+        # the cursor based on the match results.
         mf = self.webView.page().mainFrame()
         qp = core.workspace().currentDocument().qutepart
-        webIndex = findApproxTextInTarget(qp.text, qp.textCursor().position(), mf.toPlainText())
-        # Move the cursor to webIndex in the preview pane, assuming
-        # corresponding text was found.
-        if webIndex >= 0:
-            self._movePreviewPaneToIndex(webIndex)
+        txt = mf.toPlainText()
+        # Before starting a new sync job, cancel pending ones.
+        self._future.cancel()
+        self._future = self._ac.start(self._movePreviewPaneToIndex, findApproxTextInTarget,
+                       qp.text, qp.textCursor().position(), txt)
 
-    def _movePreviewPaneToIndex(self, webIndex):
+    def _movePreviewPaneToIndex(self, future):
         """Highlights webIndex in the preview pane, per item 4 above.
 
         Params:
-        webIndex - The index to move the cursor / highlight to in the preview pane.
+        webIndex - The index to move the cursor / highlight to in the preview
+          pane.
+        txt - The text of the webpage, returned by mainFrame.toPlainText().
         """
+        # Retrieve the return value from findApproxTextInTarget.
+        webIndex = future.result
+        # Only move the cursor to webIndex in the preview pane if
+        # corresponding text was found.
+        if webIndex < 0:
+            return
+
         # Implementation: there's no direct way I know of to move the cursor in
         # a web page. However, the find operation is fairly common. So, simply
         # search from the beginning of the page for a substring of the web
@@ -574,14 +600,13 @@ class PreviewSync(QObject):
         # relies on the page being editable, which is set in
         # _initTextToPreviewSync).
         pg = self.webView.page()
-        mf = pg.mainFrame()
-        txt = mf.toPlainText()
         # Start the search location at the beginning of the document by clearing
         # the previous selection using `findText
         # <http://qt-project.org/doc/qt-4.8/qwebpage.html#findText>`_ with an
         # empty search string.
         pg.findText('')
         # Find the index with findText_.
+        txt = pg.mainFrame().toPlainText()
         ft = txt[:webIndex]
         found = pg.findText(ft, QWebPage.FindCaseSensitively)
 
@@ -599,8 +624,8 @@ class PreviewSync(QObject):
             #    perform any edits by sending keypresses. The best reference I
             #    found for injecting keypresses was `this jsbin demo
             #    <http://stackoverflow.com/questions/10455626/keydown-simulation-in-chrome-fires-normally-but-not-the-correct-key/12522769#12522769>`_.
-            oce = self.webView.page().isContentEditable()
-            self.webView.page().setContentEditable(True)
+            ice = pg.isContentEditable()
+            pg.setContentEditable(True)
             # If the find text ends with a newline, findText doesn't include
             # the newline. Manaully move one char forward in this case to get it.
             # This is tested in test_preview.py:test_sync10, test_sync11.
@@ -608,7 +633,8 @@ class PreviewSync(QObject):
                 QTest.keyClick(self.webView, Qt.Key_Right, Qt.ShiftModifier)
             QTest.keyClick(self.webView, Qt.Key_Home)
             QTest.keyClick(self.webView, Qt.Key_End, Qt.ShiftModifier)
-            self.webView.page().setContentEditable(oce)
+            pg.setContentEditable(ice)
 
             # Sync the cursors.
             self._scrollSync(True)
+            self.textToPreviewSynced.emit()
