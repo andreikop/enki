@@ -81,7 +81,7 @@ class PreviewSync(QObject):
         # Uninstall the text-to-web sync only if it was installed in the first
         # place (it depends on TRE).
         if cProfile:
-            self._pr.print_stats()
+            self._pr.print_stats('cumtime')
         if findApproxTextInTarget:
             self._cursorMovementTimer.stop()
             core.workspace().cursorPositionChanged.disconnect(self._onCursorPositionChanged)
@@ -92,6 +92,20 @@ class PreviewSync(QObject):
             self._ac.del_()
             # Disconnect after del\_, since del\_ guarentees that all threaded
             # tasks are complete; only after that should we disconnect.
+            #
+            # Thoughts on cleanup:
+            #
+            # #. The user moves the cursor in the text pane, so a text to web
+            #    sync is started.
+            # #. The user moves the cursor again. The preview sync is already
+            #    running, so cancel() has no effect. However, before submitting
+            #    the new job, the old job's signal is disconnected.
+            # #. The old syn job is still running when Enki exits, so this
+            #    method is called. The new job is canceled and disconnected,
+            #    so it won't call this class in the future. The old job has
+            #    also been disconnected and canceled. We're safe from any
+            #    future calls from the sync job to this thread, which would
+            #    cause a crash (this object is destroyed --  don't call it!).
             try:
                 self._future.signalInvoker.doneSignal.disconnect()
             except TypeError:
@@ -465,12 +479,6 @@ class PreviewSync(QObject):
         # onclick JavaScript.
         self.webView.page().mainFrame(). \
           javaScriptWindowObjectCleared.connect(self._onJavaScriptCleared)
-        # Run the approximate match in a separate thread.
-        self._ac = AsyncController('QThread')
-        self._ac._workerThread.setPriority(QThread.LowPriority)
-        # Create a dummy future object for use in canceling pending sync jobs
-        # when a new sync needs to be run.
-        self._future = self._ac.start(lambda future: None, lambda: None)
 
     def _webTextContent(self):
         """Return the ``textContent`` of the entire web page. This differs from
@@ -496,64 +504,6 @@ class PreviewSync(QObject):
         qp = core.workspace().currentDocument().qutepart
         # Perform an approximate match between the clicked webpage text and the
         # qutepart text.
-        #
-        # Performance notes: the following line is REALLY slow. Scrolling through
-        # preview.py with profiling enabled produced::
-        #
-        #  Output from Enki:
-        #         41130 function calls in 3.642 seconds
-        #
-        #   Ordered by: standard name
-        #
-        #   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-        #       13    0.000    0.000    0.000    0.000 __init__.py:406(text)
-        #       13    0.000    0.000    3.398    0.261 approx_match.py:138(findApproxText)
-        #       13    0.000    0.000    3.432    0.264 approx_match.py:175(findApproxTextInTarget)
-        #       13    0.029    0.002    0.034    0.003 approx_match.py:252(refineSearchResult)
-        #       26    0.000    0.000    0.000    0.000 core.py:177(workspace)
-        #       13    0.000    0.000    0.000    0.000 dockwidget.py:156(keyPressEvent)
-        #       13    0.000    0.000    0.013    0.001 preview_sync.py:221(_webCursorCoords)
-        #       13    0.001    0.000    0.018    0.001 preview_sync.py:233(_scrollSync)
-        #       13    0.000    0.000    0.206    0.016 preview_sync.py:568(_movePreviewPaneToIndex)
-        #       13    0.000    0.000    0.000    0.000 preview_sync.py:99(_alignScrollAmount)
-        #       26    0.000    0.000    0.000    0.000 workspace.py:380(currentDocument)
-        #       26    0.000    0.000    0.000    0.000 {built-in method currentWidget}
-        #       13    0.000    0.000    0.000    0.000 {built-in method cursorRect}
-        #       13    0.013    0.001    0.013    0.001 {built-in method evaluateJavaScript}
-        #       26    0.119    0.005    0.119    0.005 {built-in method findText}
-        #       52    0.000    0.000    0.000    0.000 {built-in method geometry}
-        #       52    0.000    0.000    0.000    0.000 {built-in method height}
-        #       13    0.000    0.000    0.000    0.000 {built-in method horizontalScrollBar}
-        #       13    0.000    0.000    0.000    0.000 {built-in method isContentEditable}
-        #       13    0.000    0.000    0.000    0.000 {built-in method isVisible}
-        #       13    0.000    0.000    0.000    0.000 {built-in method key}
-        #       52    0.000    0.000    0.000    0.000 {built-in method mainFrame}
-        #       26    0.000    0.000    0.000    0.000 {built-in method mapToGlobal}
-        #       91    0.001    0.000    0.001    0.000 {built-in method page}
-        #       13    0.000    0.000    0.000    0.000 {built-in method position}
-        #       13    0.000    0.000    0.000    0.000 {built-in method scrollBarGeometry}
-        #       13    0.000    0.000    0.000    0.000 {built-in method scrollPosition}
-        #       26    0.001    0.000    0.001    0.000 {built-in method setContentEditable}
-        #       13    0.003    0.000    0.003    0.000 {built-in method setScrollPosition}
-        #       13    0.000    0.000    0.000    0.000 {built-in method stop}
-        #       13    0.000    0.000    0.000    0.000 {built-in method textCursor}
-        #       26    0.007    0.000    0.007    0.000 {built-in method toPlainText}
-        #       26    0.000    0.000    0.000    0.000 {built-in method topLeft}
-        #       13    0.000    0.000    0.000    0.000 {built-in method top}
-        #       26    0.000    0.000    0.000    0.000 {built-in method y}
-        #       26    0.064    0.002    0.064    0.002 {keyClick}
-        #       13    0.000    0.000    0.000    0.000 {keyPressEvent}
-        #      845    0.000    0.000    0.000    0.000 {len}
-        #    38582    0.004    0.000    0.004    0.000 {max}
-        #       13    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
-        #       13    0.000    0.000    0.000    0.000 {method 'groups' of 'tre.Match' objects}
-        #       26    3.397    0.131    3.397    0.131 {method 'search' of 'tre.Pattern' objects}
-        #       26    0.000    0.000    0.000    0.000 {min}
-        #      806    0.000    0.000    0.000    0.000 {range}
-        #       13    0.001    0.000    0.001    0.000 {tre.compile}
-        #
-        # Therefore, finding ways to make this faster or run it in another
-        # thread should significantly speed its operation.
         textIndex = findApproxTextInTarget(tc, webIndex, qp.text)
         # Move the cursor to textIndex in qutepart, assuming corresponding text
         # was found.
@@ -612,6 +562,12 @@ class PreviewSync(QObject):
         # disabling this sync. Otherwise, that sync would trigger this sync,
         # which is unnecessary.
         self._previewToTextSyncRunning = False
+        # Run the approximate match in a separate thread.
+        self._ac = AsyncController('QThread')
+        self._ac._workerThread.setPriority(QThread.LowPriority)
+        # Create a dummy future object for use in canceling pending sync jobs
+        # when a new sync needs to be run.
+        self._future = self._ac.start(lambda future: None, lambda: None)
 
     def _onCursorPositionChanged(self):
         """Called when the cursor position in the text pane changes. It (re)schedules
@@ -648,10 +604,29 @@ class PreviewSync(QObject):
         # Before starting a new sync job, cancel pending ones.
         self._future.cancel()
         self._future.signalInvoker.doneSignal.disconnect()
-        self._future = self._ac.start(self._movePreviewPaneToIndex, findApproxTextInTarget,
-                       qp.text, qp.textCursor().position(), txt)
+        # Performance notes: findApproxTextInTarget is REALLY slow. Scrolling
+        # through preview.py with profiling enabled produced::
+        #
+        #  Output from Enki:
+        #         41130 function calls in 3.642 seconds
+        #
+        #   Ordered by: standard name
+        #
+        #   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        #       13    0.000    0.000    0.000    0.000 __init__.py:406(text)
+        #       13    0.000    0.000    3.398    0.261 approx_match.py:138(findApproxText)
+        #       13    0.000    0.000    3.432    0.264 approx_match.py:175(findApproxTextInTarget)
+        #       13    0.029    0.002    0.034    0.003 approx_match.py:252(refineSearchResult)
+        #       26    0.000    0.000    0.000    0.000 core.py:177(workspace)
+        #       ...snip lots more 0.000 or very small times...
+        #
+        # Therefore, finding ways to make this faster or run it in another
+        # thread should significantly improve the GUI's responsiveness.
+        self._future = self._ac.start(self._movePreviewPaneToIndex,
+                       findApproxTextInTarget, qp.text,
+                       qp.textCursor().position(), txt)
         if cProfile:
-                print('Time before: ' + str(time() - self._startTime))
+            print('Time before: ' + str(time() - self._startTime))
 
     def _movePreviewPaneToIndex(self, future):
         """Highlights webIndex in the preview pane, per item 4 above.
@@ -662,6 +637,7 @@ class PreviewSync(QObject):
         txt - The text of the webpage, returned by mainFrame.toPlainText().
         """
         if cProfile:
+            print('Time between: ' + str(time() - self._startTime))
             self._startTime = time()
         # Retrieve the return value from findApproxTextInTarget.
         webIndex = future.result
