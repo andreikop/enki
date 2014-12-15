@@ -52,6 +52,14 @@ def requiresModule(module):
         return unittest.skip("This test requires python-{}".format(module))
     return lambda func: func
 
+# Decorating each test function which needs it with
+# @base.requiresCmdlineUtility('sphinx-build --version')
+# makes the tests slow: using
+# ``python -m profile -s cumtime test_preview_sync.py`` showed almost
+# 7 seconds spend running this command. So, run it once here then re-use
+# this value.
+requiresSphinx = base.requiresCmdlineUtility('sphinx-build --version')
+
 
 class PreviewTestCase(base.TestCase):
     """A class of utilities used to aid in testing the preview module."""
@@ -141,7 +149,7 @@ class Test(PreviewTestCase):
         with self.assertRaisesRegexp(AssertionError, 'Dock Previe&w not found'):
             self._dock()
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+    @requiresSphinx
     def test_emptySphinxDocument(self):
         core.config()['Sphinx']['Enabled'] = True
         core.workspace().createEmptyNotSavedDocument()
@@ -255,7 +263,7 @@ class Test(PreviewTestCase):
         self.assertTrue(sw.labelCodeChatIntro.isEnabled())
         sw.close()
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+    @requiresSphinx
     def test_settingUiCheck3a(self):
         """test_uiCheck1a has tested the case when Sphinx is disabled. This
         unit test will test the case when Sphinx is mannually enabled.
@@ -318,7 +326,7 @@ class Test(PreviewTestCase):
         # call self._dock()
         #self._dock()
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+    @requiresSphinx
     @base.inMainLoop
     def test_previewCheck2(self):
         """Basic Sphinx test: create a Sphinx project in a temp folder, return
@@ -331,7 +339,7 @@ head
 content"""
         webViewContent, logContent = self._doBasicSphinxTest('rst')
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+    @requiresSphinx
     @base.inMainLoop
     def test_previewCheck2a(self):
         """Basic Sphinx test. Output directory is an absolute directory
@@ -345,7 +353,7 @@ head
 content"""
         webViewContent, logContent = self._doBasicSphinxTest('rst')
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+    @requiresSphinx
     @requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck3a(self):
@@ -365,7 +373,7 @@ content"""
         self.assertTrue(u'<p>content</p>' in webViewContent)
         self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+    @requiresSphinx
     @requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck3(self):
@@ -392,7 +400,7 @@ content"""
         with self.assertRaisesRegexp(AssertionError, 'Dock Previe&w not found'):
             self._dock()
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+    @requiresSphinx
     @base.inMainLoop
     def test_previewCheck5(self):
         """Basic Sphinx test: with Sphinx and codechat disabled, no preview
@@ -419,7 +427,7 @@ content"""
         self._doBasicTest('py')
         self.assertEqual(self._plainText(), self.testText)
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+    @requiresSphinx
     @base.inMainLoop
     def test_previewCheck6a(self):
         """Empty code file produces a Sphinx failure since file in toctree should
@@ -440,7 +448,7 @@ content"""
         # preview dock is not empty. A '\n' is added accordingly.
         self.assertEqual(self._plainText(), self.testText + '\n')
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+    @requiresSphinx
     @base.inMainLoop
     def test_previewCheck7a(self):
         """Unicode string passed to Sphinx should be handled properly.
@@ -469,7 +477,7 @@ content"""
         assert 'test' in self._html()
 
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+    @requiresSphinx
     @base.inMainLoop
     def test_previewCheck8a(self):
         """Start with Sphinx disabled, make sure rst file will be rendered by
@@ -505,7 +513,7 @@ content"""
         self._doBasicTest('rst')
         self.assertTrue("""Unknown directive type "wrong".""" in self._logText())
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+    @requiresSphinx
     @base.inMainLoop
     def test_previewCheck9a(self):
         """Test Sphinx error can be captured correctly"""
@@ -543,7 +551,7 @@ content"""
         self.assertTrue(u'Енки' in self._logText())
 
     @unittest.skip("Unicode isn't presented in the log window")
-    @base.requiresCmdlineUtility('sphinx-build --version')
+    @requiresSphinx
     @base.inMainLoop
     def test_previewCheck12(self):
         """Unicode in log window while in Sphinx mode does not work since Sphinx
@@ -635,7 +643,7 @@ head
         self.assertEqual(self._widget().prgStatus.styleSheet(), 'QProgressBar::chunk {}')
         self.assertEqual(self._logText(), '')
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+    @requiresSphinx
     @requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck19(self):
@@ -657,7 +665,7 @@ head
         self.assertTrue(u'<p>content</p>' in webViewContent)
         self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+    @requiresSphinx
     @requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck20(self):
@@ -682,7 +690,7 @@ head
         self.assertTrue(u'<p>content</p>' in webViewContent)
         self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+    @requiresSphinx
     @requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck20a(self):
@@ -711,7 +719,7 @@ head
         self.assertTrue(u'<p>content</p>' in webViewContent)
         self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+    @requiresSphinx
     @requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck21(self):
@@ -734,7 +742,7 @@ head
         self._assertHtmlReady(lambda: None, timeout = 10000)
         self.assertTrue(u'Unknown interpreted text role "doc"' in self._logText())
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+    @requiresSphinx
     def test_previewCheck22(self):
         """ Assume codechat is not installed, render a .rst file using
         restructuredText and then render using sphinx.
@@ -751,7 +759,7 @@ head
             self.assertTrue(u"document isn't included in any toctree" in self._logText())
             self.assertTrue('#FF9955' in self._widget().prgStatus.styleSheet())
 
-    @base.requiresCmdlineUtility('sphinx-build --version')
+    @requiresSphinx
     def test_previewCheck23(self):
         """If the document is modified externally, then build on save will be
         automatically enabled. Calling scheduledocumentprocessing will not
