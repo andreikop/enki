@@ -106,10 +106,7 @@ class PreviewSync(QObject):
             #    also been disconnected and canceled. We're safe from any
             #    future calls from the sync job to this thread, which would
             #    cause a crash (this object is destroyed --  don't call it!).
-            try:
-                self._future.signalInvoker.doneSignal.disconnect()
-            except TypeError:
-                pass
+            self._future.signalInvoker.doneSignal.disconnect()
 
     # Vertical synchronization
     ##========================
