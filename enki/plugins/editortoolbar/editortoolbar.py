@@ -10,11 +10,42 @@ File contains module implementation
 import os.path
 
 
-from PyQt4.QtCore import QSize, QTimer
-from PyQt4.QtGui import QDialog, QFontMetrics, QIcon, QMenu, QToolButton
+from PyQt4.QtCore import Qt, QSize, QTimer
+from PyQt4.QtGui import QDialog, QFontMetrics, QIcon, QLabel, QMenu, QToolButton, QPalette
 from PyQt4 import uic
 
 from enki.core.core import core
+
+
+class VimModeIndicator(QLabel):
+    def __init__(self, *args):
+        QLabel.__init__(self, *args)
+
+        self.setMinimumWidth(QFontMetrics(self.font()).width("Xreplace charX"))
+        self.setAlignment(Qt.AlignCenter)
+
+        core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
+
+    def _onCurrentDocumentChanged(self, oldDocument, currentDocument):  # pylint: disable=W0613
+        if oldDocument is not None:
+            oldDocument.qutepart.vimModeEnabledChanged.disconnect(self.setVisible)
+            oldDocument.qutepart.vimModeIndicationChanged.disconnect(self._onChanged)
+
+        if currentDocument is not None:
+            currentDocument.qutepart.vimModeEnabledChanged.connect(self.setVisible)
+            currentDocument.qutepart.vimModeIndicationChanged.connect(self._onChanged)
+            if currentDocument.qutepart.vimModeEnabled:
+                self._onChanged(*currentDocument.qutepart.vimModeIndication)
+
+        self.setVisible(currentDocument is not None and currentDocument.qutepart.vimModeEnabled)
+
+    def _onChanged(self, color, text):
+        palette = self.palette()
+        palette.setColor(QPalette.Window, color)
+        style = 'background: {}; border: 4px solid transparent; border-radius: 10px;'.format(color.name())
+        self.setStyleSheet(style)
+        self.setText(text)
+
 
 # AK: Idea of _EolIndicatorAndSwitcher, and icons for it was taken from juffed
 

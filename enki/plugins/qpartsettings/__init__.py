@@ -67,6 +67,7 @@ class Plugin:
     """
     def __init__(self):
         Plugin.instance = self
+        core.workspace().documentOpened.connect(self._onDocumentOpened)
         core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
 
         showTrailingAction = core.actionManager().action('mView/aShowIncorrectIndentation')
@@ -84,7 +85,10 @@ class Plugin:
         stripTrailingWhitespaceAction.setChecked(self._confStripTrailing())
         stripTrailingWhitespaceAction.setEnabled(True)
 
-        core.workspace().documentOpened.connect(self._onDocumentOpened)
+        enableVimMode = core.actionManager().action('mEdit/aEnableVimMode')
+        enableVimMode.triggered.connect(self._onVimModeEnabledChanged)
+        enableVimMode.setChecked(self._confVimModeEnabled())
+        enableVimMode.setEnabled(True)
 
     def del_(self):
         pass
@@ -101,9 +105,14 @@ class Plugin:
     def _confStripTrailing():
         return core.config()['Qutepart']['StripTrailingWhitespace']
 
+    @staticmethod
+    def _confVimModeEnabled():
+        return core.config()['Qutepart']['VimModeEnabled']
+
     def _onDocumentOpened(self, document):
         document.qutepart.drawIncorrectIndentation = self._confShowIncorrect()
         document.qutepart.drawAnyWhitespace = self._confShowAnyWhitespace()
+        document.qutepart.vimModeEnabled = self._confVimModeEnabled()
 
     def _onShowIncorrectTriggered(self, checked):
         for document in core.workspace().documents():
@@ -175,6 +184,13 @@ class Plugin:
 
         eolWidget.lReloadToReapply.setVisible(eolWidget.cbAutoDetectEol.isChecked())
 
+    def _onVimModeEnabledChanged(self, checked):
+        for document in core.workspace().documents():
+            document.qutepart.vimModeEnabled = checked
+        core.config()['Qutepart']['VimModeEnabled'] = checked
+        core.config().flush()
+
+
 """ Old options. TODO Uncomment or delete
             CheckableOption(dialog, cfg, "Editor/Indentation/ConvertUponOpen", dialog.cbConvertIndentationUponOpen),
 
@@ -196,7 +212,6 @@ class Plugin:
             CheckableOption(dialog, cfg, "Editor/AutoCompletion/ReplaceWord", dialog.cbAutoCompletionReplaceWord),
             CheckableOption(dialog, cfg, "Editor/AutoCompletion/ShowSingle", dialog.cbAutoCompletionShowSingle),
 
-            # TODO restore or remove
             #CheckableOption(dialog, cfg, "Editor/CallTips/Enabled", dialog.gbCalltips),
             #NumericOption(dialog, cfg, "Editor/CallTips/VisibleCount", dialog.sCallTipsVisible),
             #ChoiseOption(dialog, cfg, "Editor/CallTips/Style",

@@ -1,5 +1,5 @@
 {
-    "_version" : 15,
+    "_version" : 16,
     "PlatformDefaultsHaveBeenSet" : false,
 
     "NegativeFileFilter": [ "*~", "*.o", "*.pyc", "*.bak", "__pycache__" ],
@@ -35,7 +35,8 @@
             "Incorrect": true,
             "Any": false
         },
-        "StripTrailingWhitespace": false
+        "StripTrailingWhitespace": false,
+        "VimModeEnabled": false
     },
     "Modes": {
         "Scheme": {

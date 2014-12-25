@@ -258,6 +258,8 @@ class MainWindow(QMainWindow):
         separator("mEdit")
         menu  ("mEdit/mCopyPasteLines",               "Copy-paste lines"      , ""            )
         menu  ("mEdit/mIndentation",                  "Indentation"           , ""            )
+        separator("mEdit")
+        action("mEdit/aEnableVimMode",                "Enable Vim mode"       , "",             "",             ""                      , False, True)
 
         menu  ("mNavigation",                          "Navigation"            , ""           )
         action("mNavigation/aFocusCurrentDocument",   "Focus to editor"       , "text.png",     "Ctrl+Return",  "Focus current document" , False)

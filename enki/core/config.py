@@ -131,6 +131,10 @@ class Config():
             self._data['FileBrowser'] = {'LastPath': ''}
             self._data['_version'] = 15
 
+        if self._data['_version'] == 15:
+            self._data['Qutepart']['VimModeEnabled'] = False
+            self._data['_version'] = 16
+
     def _setPlatformDefaults(self):
         """Set default values, which depend on platform
         """

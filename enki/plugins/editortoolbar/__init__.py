@@ -17,6 +17,8 @@ class Plugin:
     """
     def __init__(self):
         tb = core.mainWindow().topToolBar()
+        self._vim = editortoolbar.VimModeIndicator(tb)
+        self._vimAct = tb.addWidget(self._vim)
         # EOL indicator and switcher
         self._eol = editortoolbar.EolIndicatorAndSwitcher(tb)
         self._eolAct = tb.addWidget(self._eol)
@@ -32,3 +34,4 @@ class Plugin:
         tb.removeAction(self._eolAct)
         tb.removeAction(self._indentAct)
         tb.removeAction(self._posAct)
+        tb.removeAction(self._vimAct)
