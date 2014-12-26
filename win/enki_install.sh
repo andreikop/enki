@@ -22,7 +22,11 @@ cd enki_all
 
 # TRE
 # ===
-$INSTALL git build-essential autotools-dev automake gettext libtool autopoint zip python-dev python-setuptools
+$INSTALL git build-essential autotools-dev automake gettext libtool autopoint zip python-dev python-pip
+# Upgrade pip first.
+sudo pip install -U pip
+# Then install Python packages from pip, since apt-get packages are older.
+sudo pip install -U setuptools
 # See https://github.com/bjones1/tre.
 git clone https://github.com/bjones1/tre.git
 cd tre
@@ -36,7 +40,7 @@ sudo make install
 $PAUSE
 cd python
 sudo python setup.py install
-# Note: the line below should be added to your .bashrc,
+# Note: the line below should be added to your .bashrc.
 export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 $PAUSE
 cd ../..
@@ -64,8 +68,9 @@ cd ..
 
 # Enki
 # ====
-$INSTALL desktop-file-utils exuberant-ctags python-pyparsing python-markdown python-sphinx python-pip pylint
-sudo pip install mock
+$INSTALL desktop-file-utils exuberant-ctags
+# Then install Python packages from pip, since apt-get packages are older.
+sudo pip install -U mock pyparsing markdown sphinx pylint
 # See https://github.com/bjones1/enki.
 git clone https://github.com/bjones1/enki.git
 cd enki
