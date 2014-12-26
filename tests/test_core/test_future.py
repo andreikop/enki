@@ -16,6 +16,7 @@
 #
 # Imports
 # =======
+import time
 import sys
 import os.path
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
@@ -151,6 +152,8 @@ class Emitter(QObject):
     def g(self, future):
         self.bing.emit()
         self.thread = QThread.currentThread()
+        # Retrieve the result, even if it won't be checked, to make sure that no
+        # exceptions were raised.
         self.result = future.result
         if self.expected:
             self.assertEquals(self.expected, self.result)
@@ -326,7 +329,7 @@ class TestAsyncController(unittest.TestCase):
 
     # Verify that job status and cancelation works.
     def test_12(self):
-        for _ in self.l:
+        for _ in ('QThread', 1):
             with AsyncController(_) as ac:
                 q1a = Queue()
                 q1b = Queue()
@@ -339,12 +342,34 @@ class TestAsyncController(unittest.TestCase):
                 self.assertEquals(future1.state, Future.STATE_RUNNING)
 
                 future2 = ac.start(None, lambda: None)
+                time.sleep(0.100)
                 self.assertEquals(future2.state, Future.STATE_WAITING)
                 with WaitForSignal(em1.bing, 1000):
                     future2.cancel()
                     q1a.put(None)
                 self.assertEquals(future1.state, Future.STATE_FINISHED)
+                time.sleep(0.1)
                 self.assertEquals(future2.state, Future.STATE_CANCELED)
-                
+
+    # Verify that job status and cancelation works.
+    def test_13(self):
+        for _ in ('QThread', 1):
+            with AsyncController(_) as ac:
+                q1a = Queue()
+                q1b = Queue()
+                def f1():
+                    q1b.put(None)
+                    q1a.get()
+                # Cancel future3 while it's running in the other thread.
+                em3 = Emitter('should never be called', self.assertEquals)
+                em3.bing.connect(self.fail)
+                future3 = ac.start(em3.g, f1)
+                q1b.get()
+                future3.cancel(True)
+                q1a.put(None)
+                # It should never emit a signal or invoke its callback. Wait to
+                # make sure neither happened.
+                time.sleep(0.1)
+
 if __name__ == '__main__':
     unittest.main()

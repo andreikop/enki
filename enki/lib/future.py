@@ -27,6 +27,7 @@
 # =====
 # - Make job cancellation change state after the current job completes,
 #   instead of waiting until the cancelled job would have been run.
+# - Provide a "shut down and discard all" option?
 #
 # Imports
 # =======
@@ -262,6 +263,7 @@ class Future(object):
         self._state = self.STATE_WAITING
         self.signalInvoker = SignalInvoker()
         self._requestCancel = False
+        self._emitDoneSignal = True
         self._result = None
         self._exc_info = None
 
@@ -288,12 +290,17 @@ class Future(object):
 
             # Report the results.
             self._state = self.STATE_FINISHED
-            self.signalInvoker.doneSignal.emit(self)
+            if self._emitDoneSignal:
+                self.signalInvoker.doneSignal.emit(self)
 
     # This method may be called from any thread; it requests that the execution
-    # of ``f`` be canceled.
-    def cancel(self):
+    # of ``f`` be canceled. If ``f`` is already running, then it will not be
+    # interrupted. However, if ``discardResult`` is True, then the results
+    # returned from evaluating ``f`` will be discarded and the signal that is
+    # emitted when ``f`` finishes will not be.
+    def cancel(self, discardResult=False):
         self._requestCancel = True
+        self._emitDoneSignal = not discardResult
 
     # Return the result produced by invoking ``f``, or raise any exception which
     # occurred in ``f``.
