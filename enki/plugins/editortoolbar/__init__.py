@@ -19,6 +19,7 @@ class Plugin:
         tb = core.mainWindow().topToolBar()
         self._vim = editortoolbar.VimModeIndicator(tb)
         self._vimAct = tb.addWidget(self._vim)
+        self._vim.setMeVisible.connect(self._vimAct.setVisible)
         # EOL indicator and switcher
         self._eol = editortoolbar.EolIndicatorAndSwitcher(tb)
         self._eolAct = tb.addWidget(self._eol)

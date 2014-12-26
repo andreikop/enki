@@ -10,7 +10,7 @@ File contains module implementation
 import os.path
 
 
-from PyQt4.QtCore import Qt, QSize, QTimer
+from PyQt4.QtCore import Qt, QSize, QTimer, pyqtSignal
 from PyQt4.QtGui import QDialog, QFontMetrics, QIcon, QLabel, QMenu, QToolButton, QPalette
 from PyQt4 import uic
 
@@ -18,6 +18,8 @@ from enki.core.core import core
 
 
 class VimModeIndicator(QLabel):
+    setMeVisible = pyqtSignal(bool)
+
     def __init__(self, *args):
         QLabel.__init__(self, *args)
 
@@ -35,9 +37,16 @@ class VimModeIndicator(QLabel):
             currentDocument.qutepart.vimModeEnabledChanged.connect(self._onVimModeEnabled)
             currentDocument.qutepart.vimModeIndicationChanged.connect(self._onIndicationChanged)
             if currentDocument.qutepart.vimModeEnabled:
-                self._onIndicationChanged(*currentDocument.qutepart.vimModeIndication)
+                self._updateIndication()
 
-        self.setVisible(currentDocument is not None and currentDocument.qutepart.vimModeEnabled)
+        self.setMeVisible.emit(currentDocument is not None and currentDocument.qutepart.vimModeEnabled)
+        self._updateIndication()
+
+    def _updateIndication(self):
+        doc = core.workspace().currentDocument()
+        if doc:
+            self._onIndicationChanged(*doc.qutepart.vimModeIndication)
+
 
     def _onIndicationChanged(self, color, text):
         palette = self.palette()
@@ -47,12 +56,10 @@ class VimModeIndicator(QLabel):
         self.setText(text)
 
     def _onVimModeEnabled(self, enabled):
-        self.setVisible(enabled)
+        self.setMeVisible.emit(enabled)
 
         if enabled:
-            doc = core.workspace().currentDocument()
-            if doc:
-                self._onIndicationChanged(*doc.qutepart.vimModeIndication)
+            self._updateIndication()
 
 
 # AK: Idea of _EolIndicatorAndSwitcher, and icons for it was taken from juffed
