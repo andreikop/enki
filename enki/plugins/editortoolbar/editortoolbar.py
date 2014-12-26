@@ -28,23 +28,31 @@ class VimModeIndicator(QLabel):
 
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument):  # pylint: disable=W0613
         if oldDocument is not None:
-            oldDocument.qutepart.vimModeEnabledChanged.disconnect(self.setVisible)
-            oldDocument.qutepart.vimModeIndicationChanged.disconnect(self._onChanged)
+            oldDocument.qutepart.vimModeEnabledChanged.disconnect(self._onVimModeEnabled)
+            oldDocument.qutepart.vimModeIndicationChanged.disconnect(self._onIndicationChanged)
 
         if currentDocument is not None:
-            currentDocument.qutepart.vimModeEnabledChanged.connect(self.setVisible)
-            currentDocument.qutepart.vimModeIndicationChanged.connect(self._onChanged)
+            currentDocument.qutepart.vimModeEnabledChanged.connect(self._onVimModeEnabled)
+            currentDocument.qutepart.vimModeIndicationChanged.connect(self._onIndicationChanged)
             if currentDocument.qutepart.vimModeEnabled:
-                self._onChanged(*currentDocument.qutepart.vimModeIndication)
+                self._onIndicationChanged(*currentDocument.qutepart.vimModeIndication)
 
         self.setVisible(currentDocument is not None and currentDocument.qutepart.vimModeEnabled)
 
-    def _onChanged(self, color, text):
+    def _onIndicationChanged(self, color, text):
         palette = self.palette()
         palette.setColor(QPalette.Window, color)
         style = 'background: {}; border: 4px solid transparent; border-radius: 10px;'.format(color.name())
         self.setStyleSheet(style)
         self.setText(text)
+
+    def _onVimModeEnabled(self, enabled):
+        self.setVisible(enabled)
+
+        if enabled:
+            doc = core.workspace().currentDocument()
+            if doc:
+                self._onIndicationChanged(*doc.qutepart.vimModeIndication)
 
 
 # AK: Idea of _EolIndicatorAndSwitcher, and icons for it was taken from juffed
