@@ -45,7 +45,9 @@ class VimModeIndicator(QLabel):
     def _updateIndication(self):
         doc = core.workspace().currentDocument()
         if doc:
-            self._onIndicationChanged(*doc.qutepart.vimModeIndication)
+            qpart = doc.qutepart
+            if qpart.vimModeEnabled:
+                self._onIndicationChanged(*doc.qutepart.vimModeIndication)
 
 
     def _onIndicationChanged(self, color, text):
