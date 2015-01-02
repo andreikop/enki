@@ -177,12 +177,14 @@ class SignalCombiner(QObject):
 # ==========
 class TestAsyncController(unittest.TestCase):
     # Tuples of AsyncController params to test over.
-    l = ('QThread', 0, 1, 4)
-    m = (0, 1, 4)
+    poolAndThread = ('QThread', 0, 1, 4)
+    poolOnly = (0, 1, 4)
+    singleThreadOnly = ('QThread', 1)
+    multipleThreadsOnly = (0, 4)
 
     # Verify that a test function is run.
     def test_1(self):
-        for _ in self.l:
+        for _ in self.poolAndThread:
             with AsyncController(_) as ac:
                 # gotHere must be a list in order to f to change it in a way that is
                 # visible outside of f.
@@ -196,7 +198,7 @@ class TestAsyncController(unittest.TestCase):
 
     # Verify that the result function is run.
     def test_2(self):
-        for _ in self.l:
+        for _ in self.poolAndThread:
             with AsyncController(_) as ac:
                 em = Emitter(2, self.assertEquals)
                 with WaitForSignal(em.bing, 1000):
@@ -204,7 +206,7 @@ class TestAsyncController(unittest.TestCase):
 
     # Verify that a result from f is passed to g.
     def test_3(self):
-        for _ in self.l:
+        for _ in self.poolAndThread:
             with AsyncController(_) as ac:
                 em = Emitter(123, self.assertEquals)
                 with WaitForSignal(em.bing, 1000):
@@ -212,7 +214,7 @@ class TestAsyncController(unittest.TestCase):
 
     # Verify that correct arguments are passed to f.
     def test_4(self):
-        for _ in self.l:
+        for _ in self.poolAndThread:
             with AsyncController(_) as ac:
                 def f(a, b, c=2, d=4):
                     self.assertEquals(a, 2)
@@ -225,7 +227,7 @@ class TestAsyncController(unittest.TestCase):
 
     # Verify that f actually runs in a separate thread.
     def test_5(self):
-        for _ in self.l:
+        for _ in self.poolAndThread:
             with AsyncController(_) as ac:
                 def f(currentThread):
                     self.assertNotEquals(currentThread, QThread.currentThread())
@@ -237,7 +239,7 @@ class TestAsyncController(unittest.TestCase):
     def test_6(self):
         # Don't test with one pooled thread -- this test expects at least two
         # threads.
-        for _ in (0, 4):
+        for _ in self.multipleThreadsOnly:
             with AsyncController(_) as ac:
                 q = Queue()
                 def f():
@@ -267,7 +269,7 @@ class TestAsyncController(unittest.TestCase):
 
     # Verify that the correct functions and callbacks get executed in a pool.
     def test_8(self):
-        for _ in self.m:
+        for _ in self.poolOnly:
             with AsyncController(_) as ac:
                 q1 = Queue()
                 q2 = Queue()
@@ -289,7 +291,7 @@ class TestAsyncController(unittest.TestCase):
 
     # Verify that exceptions get propogated correctly.
     def test_9(self):
-        for _ in self.l:
+        for _ in self.poolAndThread:
             with AsyncController(_) as ac:
                 def f():
                     raise TypeError
@@ -313,7 +315,7 @@ class TestAsyncController(unittest.TestCase):
     def test_11(self):
         # Don't test with one pooled thread -- this test expects at least two
         # threads.
-        for _ in (0, 4):
+        for _ in self.multipleThreadsOnly:
             with AsyncController(_) as ac:
                 em2 = Emitter()
                 def f2():
@@ -329,7 +331,7 @@ class TestAsyncController(unittest.TestCase):
 
     # Verify that job status and cancelation works.
     def test_12(self):
-        for _ in ('QThread', 1):
+        for _ in self.singleThreadOnly:
             with AsyncController(_) as ac:
                 q1a = Queue()
                 q1b = Queue()
@@ -353,7 +355,7 @@ class TestAsyncController(unittest.TestCase):
 
     # Verify that job status and cancelation works.
     def test_13(self):
-        for _ in ('QThread', 1):
+        for _ in self.singleThreadOnly:
             with AsyncController(_) as ac:
                 q1a = Queue()
                 q1b = Queue()
