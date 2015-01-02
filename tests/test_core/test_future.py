@@ -373,5 +373,22 @@ class TestAsyncController(unittest.TestCase):
                 # make sure neither happened.
                 time.sleep(0.1)
 
+    # Test per-task priority.
+    def test_14(self):
+        for _ in self.poolAndThread:
+            with AsyncController(_) as ac:
+                def f(assertEquals, priority):
+                    assertEquals(QThread.currentThread().priority(), priority)
+                em = Emitter()
+                ac.defaultPriority = QThread.LowPriority
+                with WaitForSignal(em.bing, 1000):
+                    ac.start(em.g, f, self.assertEquals, QThread.LowestPriority,
+                             _futurePriority=QThread.LowestPriority)
+                with WaitForSignal(em.bing, 1000):
+                    ac.start(em.g, f, self.assertEquals, QThread.LowPriority)
+                with WaitForSignal(em.bing, 1000):
+                    ac.start(em.g, f, self.assertEquals, QThread.HighestPriority,
+                             _futurePriority=QThread.HighestPriority)
+
 if __name__ == '__main__':
     unittest.main()
