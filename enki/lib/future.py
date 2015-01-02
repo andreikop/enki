@@ -28,6 +28,12 @@
 # - Make job cancellation change state after the current job completes,
 #   instead of waiting until the cancelled job would have been run.
 # - Provide a "shut down and discard all" option?
+# - Refactor to use inheritance: a base AsyncController class, from which
+#   AsyncControllerThread and AsyncControllerPool are derived? Not sure this
+#   makes the design any cleaner.
+# - Allow management of user-supplied QThreads/QThreadPools? If so, for a
+#   QThread, should this class finalize (quit/wait) or not? That is, should
+#   this class "own" the QThread?
 #
 # Imports
 # =======
@@ -115,27 +121,33 @@ class AsyncController(QObject):
     # instance, which can be used to interact with ``f``.
     #
     def start(self,
-      # A result function which take one parameter, ``future``, which will be
-      # executed in the thread *t* from which this method was called, or None if
-      # no function should be invoked after ``f`` completes. **Important**: ``g``
-      # will **not** be invoked if the thread *t* does not provide an event
-      # loop -- such as a thread taken from the thread pool. See the
-      # constructor's ``qThreadOrThreadPool`` parameter for more information.
+      # .. |g| replace:: A result function which take one parameter, ``future``,
+      #    which will be executed in the thread *t* from which this method was
+      #    called, or None if no function should be invoked after ``f``
+      #    completes. **Important**: ``g`` will **not** be invoked if the thread
+      #    *t* does not provide an event loop -- such as a thread taken from
+      #    the thread pool. See the AsycController constructor's
+      #    ``qThreadOrThreadPool`` parameter for more information.
+      #
+      # |g|
       g,
 
-      # A function which will be executed in a separate thread. Note that:
+      # .. |f| replace:: A function which will be executed in a separate thread.
+      #    Any exceptions raised in ``f`` will be caught, then re-raised in
+      #    ``g(future)`` when accessing ``future.result``.
+      #    **Very important**: The parameters to ``f`` must be immutable, or must
+      #    not change while ``f`` is executing. The same is true of the value
+      #    returned by ``f``.
       #
-      # - Any exceptions raised in ``f`` will be caught, then re-raised in
-      #   ``g(future)`` when accessing ``future.result``.
-      # - **Very important**: The parameters to ``f`` must be immutable, or must
-      #   not change while ``f`` is executing. The same is true of the value
-      #   returned by ``f``.
+      # |f|
       f,
 
-      # Arguments used to invoke ``f``.
+      # .. |args| replace:: Arguments used to invoke ``f``.
       *args,
 
-      # Keyword arguments used to invoke ``f``.
+      # .. |kwargs| replace:: A dict of keyword arguments passed to ``f``. If
+      #    the keyword argument ``_futurePriority`` is provided, this will
+      #    determine the priority of the thread used to execute ``f``.
       **kwargs):
 
         # Wrap ``f`` and associated data in a Future.
@@ -242,15 +254,21 @@ class Future(object):
     STATE_WAITING, STATE_RUNNING, STATE_FINISHED, STATE_CANCELED = range(4)
 
     def __init__(self,
-      # A function to invoke in the calling thread with the return value
-      # produced by  ``f``  If this is None, it will not be invoked.
+      # |g|
       g,
-      # A function which will be invoked in the worker thread / pool.
+
+      # |f|
       f,
-      # A list of arguments passed to ``f``.
+
+      # |args|
       args,
-      # A dict of keyword arguments passed to ``f``.
+
+      # |kwargs|
       kwargs):
+
+        # Look for the ``_futurePriority`` keyword argument and remove it if
+        # found.
+        self._futurePriority = kwargs.pop('_futurePriority', None)
 
         self._g = g
         self._f = f
@@ -278,6 +296,9 @@ class Future(object):
         else:
             # Run the function, catching any exceptions.
             self._state = self.STATE_RUNNING
+            # Change this thread's priority, if specified.
+            if self._futurePriority:
+                QThread.currentThread().setPriority(self._futurePriority)
             try:
                 self._result = self._f(*self._args, **self._kwargs)
             except:
