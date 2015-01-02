@@ -201,13 +201,11 @@ class AsyncController(QObject):
     # emulates a C++ destructor by freeing resources before the C++ class is
     # destroyed.
     def onParentDestroyed(self):
-        #print('onParentDestroyed')
         self.del_()
 #
 # Destructor
 # """"""""""
-    # In case the above method wasn't called (parent wasn't provided to the
-    # constructor, typically), try to exit gracefully here.
+    # In case the above method wasn't called, try to exit gracefully here.
     def __del__(self):
         self.del_()
 #
