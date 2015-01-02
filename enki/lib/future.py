@@ -87,6 +87,11 @@ class AsyncController(QObject):
         QObject.__init__(self, parent)
         self.isAlive = True
 
+        # I would prefer to use QThread.currentThread().priority(), but this
+        # returns QThread.InheritPriority during unit tests, which causes future
+        # calls to setPriority to fail.
+        self.defaultPriority = None
+
         # Ask the parent and QApplication for a signal before they're
         # destroyed, so we can do cleanup.
         if parent:
@@ -143,11 +148,17 @@ class AsyncController(QObject):
       f,
 
       # .. |args| replace:: Arguments used to invoke ``f``.
+      #
+      # |args|
       *args,
 
       # .. |kwargs| replace:: A dict of keyword arguments passed to ``f``. If
       #    the keyword argument ``_futurePriority`` is provided, this will
-      #    determine the priority of the thread used to execute ``f``.
+      #    determine the priority of the thread used to execute ``f``. If no
+      #    priority is given, AsyncController.defaultPriority is used; set this
+      #    if desired.
+      #
+      # |kwargs|
       **kwargs):
 
         # Wrap ``f`` and associated data in a Future.
@@ -160,7 +171,7 @@ class AsyncController(QObject):
     # method are used to do testing.
     def _wrap(self, g, f, *args, **kwargs):
         # Wrap ``f`` and associated data in a class.
-        return Future(g, f, args, kwargs)
+        return Future(g, f, args, kwargs, self.defaultPriority)
 
     # Given a Future instance, run it in another thread.
     def _start(self, future):
@@ -264,11 +275,14 @@ class Future(object):
       args,
 
       # |kwargs|
-      kwargs):
+      kwargs,
+
+      # The thread priority to use if none is given in ``kwargs`` above.
+      defaultPriority):
 
         # Look for the ``_futurePriority`` keyword argument and remove it if
         # found.
-        self._futurePriority = kwargs.pop('_futurePriority', None)
+        self._futurePriority = kwargs.pop('_futurePriority', defaultPriority)
 
         self._g = g
         self._f = f
@@ -296,7 +310,7 @@ class Future(object):
         else:
             # Run the function, catching any exceptions.
             self._state = self.STATE_RUNNING
-            # Change this thread's priority, if specified.
+            # Change this thread's priority, if available.
             if self._futurePriority:
                 QThread.currentThread().setPriority(self._futurePriority)
             try:
