@@ -367,6 +367,7 @@ class TestAsyncController(unittest.TestCase):
                 em1.bing.connect(self.fail)
                 future1 = ac.start(em1.g, f1)
                 q1b.get()
+                self.assertEquals(future1.state, Future.STATE_RUNNING)
                 future1.cancel(True)
                 q1a.put(None)
                 # If the result is discarded, it should never emit a signal or
@@ -381,6 +382,7 @@ class TestAsyncController(unittest.TestCase):
                 em2.bing.connect(self.fail)
                 future2 = ac.start(em2.g, lambda: None)
                 time.sleep(0.1)
+                self.assertEquals(future2.state, Future.STATE_FINISHED)
                 future2.cancel(True)
 
     # Test per-task priority.
