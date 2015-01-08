@@ -84,29 +84,17 @@ class PreviewSync(QObject):
             self._pr.print_stats('cumtime')
         if findApproxTextInTarget:
             self._cursorMovementTimer.stop()
-            core.workspace().cursorPositionChanged.disconnect(self._onCursorPositionChanged)
+            core.workspace().cursorPositionChanged.disconnect(
+              self._onCursorPositionChanged)
+            core.workspace().currentDocumentChanged.disconnect(
+              self._onDocumentChanged)
             # Shut down the background sync. If a sync was already in progress,
             # then discard its output, since that output might not come until
-            # after this routine finishes and this class is not usable.
-            self._future.cancel()
+            # after this routine finishes and this class is not usable. Adding
+            # the True guarentees that _movePreviewPaneToIndex will not be
+            # invoked after this line.
+            self._future.cancel(True)
             self._ac.del_()
-            # Disconnect after del\_, since del\_ guarentees that all threaded
-            # tasks are complete; only after that should we disconnect.
-            #
-            # Thoughts on cleanup:
-            #
-            # #. The user moves the cursor in the text pane, so a text to web
-            #    sync is started.
-            # #. The user moves the cursor again. The preview sync is already
-            #    running, so cancel() has no effect. However, before submitting
-            #    the new job, the old job's signal is disconnected.
-            # #. The old syn job is still running when Enki exits, so this
-            #    method is called. The new job is canceled and disconnected,
-            #    so it won't call this class in the future. The old job has
-            #    also been disconnected and canceled. We're safe from any
-            #    future calls from the sync job to this thread, which would
-            #    cause a crash (this object is destroyed --  don't call it!).
-            self._future.signalInvoker.doneSignal.disconnect()
 
     # Vertical synchronization
     ##========================
@@ -559,12 +547,17 @@ class PreviewSync(QObject):
         # disabling this sync. Otherwise, that sync would trigger this sync,
         # which is unnecessary.
         self._previewToTextSyncRunning = False
-        # Run the approximate match in a separate thread.
+        # Run the approximate match in a separate thread. Cancel it if the
+        # document changes.
         self._ac = AsyncController('QThread')
         self._ac._workerThread.setPriority(QThread.LowPriority)
+        core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         # Create a dummy future object for use in canceling pending sync jobs
         # when a new sync needs to be run.
         self._future = self._ac.start(lambda future: None, lambda: None)
+
+    def _onDocumentChanged(self, old, new):
+        self._future.cancel(True)
 
     def _onCursorPositionChanged(self):
         """Called when the cursor position in the text pane changes. It (re)schedules
@@ -599,8 +592,7 @@ class PreviewSync(QObject):
         qp = core.workspace().currentDocument().qutepart
         txt = mf.toPlainText()
         # Before starting a new sync job, cancel pending ones.
-        self._future.cancel()
-        self._future.signalInvoker.doneSignal.disconnect()
+        self._future.cancel(True)
         # Performance notes: findApproxTextInTarget is REALLY slow. Scrolling
         # through preview.py with profiling enabled produced::
         #
