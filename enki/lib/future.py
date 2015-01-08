@@ -287,8 +287,8 @@ class AsyncPoolController(AsyncAbstractController):
     def __init__(self,
       # A number *n* to create a pool of *n* simple threads, where each thread
       # lacks an event loop, so that it can emit but not receive signals.
-      # This means that ``g`` may **not** be run in a thread, without
-      # manually adding a event loop. If *n* < 1, the global thread pool
+      # This means that ``g`` may **not** be run in a thread of this pool,
+      # without manually adding a event loop. If *n* < 1, the global thread pool
       # is used.
       maxThreadCount,
 
@@ -297,21 +297,21 @@ class AsyncPoolController(AsyncAbstractController):
 
         AsyncAbstractController.__init__(self, parent)
         if maxThreadCount < 1:
-            self._threadPool = QThreadPool.globalInstance()
+            self.threadPool = QThreadPool.globalInstance()
         else:
-            self._threadPool = QThreadPool()
-            self._threadPool.setMaxThreadCount(maxThreadCount)
+            self.threadPool = QThreadPool()
+            self.threadPool.setMaxThreadCount(maxThreadCount)
 
     # |_start|
     def _start(self, future):
         # Asynchronously invoke ``f``.
         apw = _AsyncPoolWorker(future)
-        self._threadPool.start(apw)
+        self.threadPool.start(apw)
 
     # |del_|
     def _del(self):
-        self._threadPool.waitForDone()
-        del self._threadPool
+        self.threadPool.waitForDone()
+        del self.threadPool
 
 # AsyncController
 # ---------------
@@ -419,8 +419,10 @@ class Future(object):
             # exception doesn't preserve the full traceback. Likewise, ``raise
             # self._exc_info`` provides only a limited tracebacak.
             #
-            # The mapping: One form of `raise <https://docs.python.org/2/reference/simple_stmts.html#raise>`_
-            # expects ``instance, None, traceback``. `sys.exc_info() <https://docs.python.org/2/library/sys.html#sys.exc_info>`_
+            # The mapping: One form of `raise
+            # <https://docs.python.org/2/reference/simple_stmts.html#raise>`_
+            # expects ``instance, None, traceback``. `sys.exc_info()
+            # <https://docs.python.org/2/library/sys.html#sys.exc_info>`_
             # produces ``type, value, traceback`` where type is the exception
             # type of the exception being handled, value is a class instance,
             # and traceback is the desired trackback to report.
