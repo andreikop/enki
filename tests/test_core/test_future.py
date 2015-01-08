@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 # .. -*- coding: utf-8 -*-
 #
 # *****************************************
@@ -150,13 +152,13 @@ class Emitter(QObject):
         self.assertEquals = assertEquals
 
     def g(self, future):
-        self.bing.emit()
         self.thread = QThread.currentThread()
         # Retrieve the result, even if it won't be checked, to make sure that no
         # exceptions were raised.
         self.result = future.result
         if self.expected:
             self.assertEquals(self.expected, self.result)
+        self.bing.emit()
 
 # Emit a signal afte receiving three unique signals.
 class SignalCombiner(QObject):
@@ -180,7 +182,7 @@ class TestAsyncController(unittest.TestCase):
     poolAndThread = ('QThread', 0, 1, 4)
     poolOnly = (0, 1, 4)
     singleThreadOnly = ('QThread', 1)
-    multipleThreadsOnly = (0, 4)
+    multipleThreadsOnly = (4,)
 
     # Verify that a test function is run.
     def test_1(self):
@@ -239,21 +241,20 @@ class TestAsyncController(unittest.TestCase):
     def test_6(self):
         # Don't test with one pooled thread -- this test expects at least two
         # threads.
-        for _ in self.multipleThreadsOnly:
-            with AsyncController(_) as ac:
-                q = Queue()
-                def f():
-                    q.get()
-                    return QThread.currentThread()
-                em1 = Emitter()
-                em2 = Emitter()
-                ac.start(em1.g, f)
-                ac.start(em2.g, f)
-                with WaitForSignal(em1.bing, 1000), WaitForSignal(em2.bing, 1000):
-                    q.put(None)
-                    q.put(None)
-                s = set([em1.result, em2.result, QThread.currentThread()])
-                self.assertEquals(len(s), 3)
+        with AsyncController(2) as ac:
+            q = Queue()
+            def f():
+                q.get()
+                return QThread.currentThread()
+            em1 = Emitter()
+            em2 = Emitter()
+            ac.start(em1.g, f)
+            ac.start(em2.g, f)
+            with WaitForSignal(em1.bing, 1000), WaitForSignal(em2.bing, 1000):
+                q.put(None)
+                q.put(None)
+            s = set([em1.result, em2.result, QThread.currentThread()])
+            self.assertEquals(len(s), 3)
 
     # Verify that the correct functions and callbacks get executed.
     def test_7(self):
@@ -303,31 +304,30 @@ class TestAsyncController(unittest.TestCase):
     # same thread.
     def test_10(self):
         with AsyncController('QThread') as ac:
-            em2 = Emitter()
-            def f2():
-                future2 = ac.start(em2.g, lambda x: x, QThread.currentThread())
-            with WaitForSignal(em2.bing, 1000):
-                ac.start(None, f2)
-            self.assertEquals(em2.thread, em2.result)
+            em1 = Emitter()
+            def f1():
+                ac.start(em1.g, lambda: QThread.currentThread())
+            with WaitForSignal(em1.bing, 1000):
+                ac.start(None, f1)
+            self.assertEquals(em1.thread, em1.result)
 
     # Verify that if ``f`` is launched in a thread, ``g`` will be run in that
     # same thread. (For thread pools).
     def test_11(self):
         # Don't test with one pooled thread -- this test expects at least two
         # threads.
-        for _ in self.multipleThreadsOnly:
-            with AsyncController(_) as ac:
-                em2 = Emitter()
-                def f2():
-                    future = ac.start(em2.g, lambda x: x, QThread.currentThread())
-                    # The doneSignal won't be processed without an event loop. A
-                    # thread pool doesn't create one, so make our own to run ``g``.
-                    qe = QEventLoop()
-                    future.signalInvoker.doneSignal.connect(qe.exit)
-                    qe.exec_()
-                with WaitForSignal(em2.bing, 1000):
-                    ac.start(None, f2)
-                self.assertEquals(em2.thread, em2.result)
+        with AsyncController(2) as ac:
+            em2 = Emitter()
+            def f2():
+                future = ac.start(em2.g, lambda x: x, QThread.currentThread())
+                # The doneSignal won't be processed without an event loop. A
+                # thread pool doesn't create one, so make our own to run ``g``.
+                qe = QEventLoop()
+                future.signalInvoker.doneSignal.connect(qe.exit)
+                qe.exec_()
+            with WaitForSignal(em2.bing, 1000):
+                ac.start(None, f2)
+            self.assertEquals(em2.thread, em2.result)
 
     # Verify that job status and cancelation works.
     def test_12(self):
