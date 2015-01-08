@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."
 from persistent_qapplication import papp
 
 from PyQt4.QtCore import Qt, QTimer, QEventLoop
-from PyQt4.QtGui import QDialog, QKeySequence
+from PyQt4.QtGui import QDialog, QKeySequence, QApplication
 from PyQt4.QtTest import QTest
 
 import qutepart
@@ -39,8 +39,8 @@ class DummyProfiler:
 def _processPendingEvents():
     """Process pending application events."""
 
-    # Create an event loop to run in. Otherwise, we need to use the papp
-    # (QApplication) main loop, which may already be running and therefore
+    # Create an event loop to run in. Otherwise, we need to use the
+    # QApplication main loop, which may already be running and therefore
     # unusable.
     qe = QEventLoop()
 
@@ -62,7 +62,7 @@ def _processPendingEvents():
     # will never receive a timeout after the function exits.
     timer.timeout.disconnect(qe.quit)
 
-    
+
 # By default, the traceback for excpetions occurring inside
 # an exec_ loop will be printed.
 PRINT_EXEC_TRACKBACK = True
@@ -85,8 +85,9 @@ def inMainLoop(func, *args):
         def execWithArgs():
             core.mainWindow().show()
             QTest.qWaitForWindowShown(core.mainWindow())
-            papp.setActiveWindow(core.mainWindow())
-            assert papp.focusWidget() is not None
+            app = QApplication.instance()
+            app.setActiveWindow(core.mainWindow())
+            assert app.focusWidget() is not None
             func(*args)
             # When done processing these events, exit the event loop. To do so,
             timer.start(0)
@@ -145,7 +146,7 @@ def requiresCmdlineUtility(command):
 
 
 class TestCase(unittest.TestCase):
-    app = papp
+    app = QApplication.instance()
 
     TEST_FILE_DIR = os.path.join(tempfile.gettempdir(), 'enki-tests')
 
@@ -392,8 +393,8 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     timer = QTimer()
     timer.setSingleShot(True)
 
-    # Create an event loop to run in. Otherwise, we need to use the papp
-    # (QApplication) main loop, which may already be running and therefore
+    # Create an event loop to run in. Otherwise, we need to use the
+    # QApplication main loop, which may already be running and therefore
     # unusable.
     qe = QEventLoop()
 
