@@ -363,15 +363,25 @@ class TestAsyncController(unittest.TestCase):
                     q1b.put(None)
                     q1a.get()
                 # Cancel future3 while it's running in the other thread.
-                em3 = Emitter('should never be called', self.assertEquals)
-                em3.bing.connect(self.fail)
-                future3 = ac.start(em3.g, f1)
+                em1 = Emitter('should never be called', self.assertEquals)
+                em1.bing.connect(self.fail)
+                future1 = ac.start(em1.g, f1)
                 q1b.get()
-                future3.cancel(True)
+                future1.cancel(True)
                 q1a.put(None)
-                # It should never emit a signal or invoke its callback. Wait to
-                # make sure neither happened.
+                # If the result is discarded, it should never emit a signal or
+                # invoke its callback, even if the task is already running. Wait
+                # to make sure neither happened.
                 time.sleep(0.1)
+
+                # In addition, the signal from a finished task that is discarded
+                # should not invoke the callback, even after the task has
+                # finihsed and the sigal emitted.
+                em2 = Emitter('should never be called', self.assertEquals)
+                em2.bing.connect(self.fail)
+                future2 = ac.start(em2.g, lambda: None)
+                time.sleep(0.1)
+                future2.cancel(True)
 
     # Test per-task priority.
     def test_14(self):

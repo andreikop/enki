@@ -59,6 +59,14 @@ from PyQt4.QtCore import QThread, pyqtSignal, QObject, QTimer, QRunnable, \
 # ``_AsyncPoolWorker`` pool it uses, then passes results from that invocation
 # back to the thread in which the ``asyncController.start()`` method was called.
 #
+# Priority
+# --------
+# The priority of the thread used to execute ``f`` is
+# ``AsyncController.defaultPriority``, unless this value is overriden by
+# supplying the keyword argument ``futurePriority =``
+# `QThread.Priority <http://qt-project.org/doc/qt-4.8/qthread.html#Priority-enum>`_
+# when invoking ``start``.
+#
 # AsyncController
 # ---------------
 # This class provides a simpe user interface to start up a thread or thread
@@ -90,7 +98,7 @@ class AsyncController(QObject):
         # I would prefer to use QThread.currentThread().priority(), but this
         # returns QThread.InheritPriority during unit tests, which causes future
         # calls to setPriority to fail.
-        self.defaultPriority = None
+        self.defaultPriority = QThread.NormalPriority
 
         # Ask the parent and QApplication for a signal before they're
         # destroyed, so we can do cleanup.
@@ -293,7 +301,6 @@ class Future(object):
         self._state = self.STATE_WAITING
         self.signalInvoker = SignalInvoker()
         self._requestCancel = False
-        self._emitDoneSignal = True
         self._result = None
         self._exc_info = None
 
@@ -310,9 +317,7 @@ class Future(object):
         else:
             # Run the function, catching any exceptions.
             self._state = self.STATE_RUNNING
-            # Change this thread's priority, if available.
-            if self._futurePriority:
-                QThread.currentThread().setPriority(self._futurePriority)
+            QThread.currentThread().setPriority(self._futurePriority)
             try:
                 self._result = self._f(*self._args, **self._kwargs)
             except:
@@ -323,8 +328,7 @@ class Future(object):
 
             # Report the results.
             self._state = self.STATE_FINISHED
-            if self._emitDoneSignal:
-                self.signalInvoker.doneSignal.emit(self)
+            self.signalInvoker.doneSignal.emit(self)
 
     # This method may be called from any thread; it requests that the execution
     # of ``f`` be canceled. If ``f`` is already running, then it will not be
@@ -332,8 +336,9 @@ class Future(object):
     # returned from evaluating ``f`` will be discarded and the signal that is
     # emitted when ``f`` finishes will not be.
     def cancel(self, discardResult=False):
+        if discardResult:
+            self.signalInvoker.doneSignal.disconnect(self.signalInvoker.onDoneSignal)
         self._requestCancel = True
-        self._emitDoneSignal = not discardResult
 
     # Return the result produced by invoking ``f``, or raise any exception which
     # occurred in ``f``.
