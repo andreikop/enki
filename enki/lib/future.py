@@ -406,7 +406,12 @@ class Future(object):
     # emitted when ``f`` finishes will not be.
     def cancel(self, discardResult=False):
         if discardResult:
-            self.signalInvoker.doneSignal.disconnect(self.signalInvoker.onDoneSignal)
+            # If cancel(True) was called before, this raises and exception.
+            # Ignore it.
+            try:
+                self.signalInvoker.doneSignal.disconnect(self.signalInvoker.onDoneSignal)
+            except TypeError:
+                pass
         self._requestCancel = True
 
     # Return the result produced by invoking ``f``, or raise any exception which

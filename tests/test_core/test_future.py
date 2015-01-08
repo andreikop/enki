@@ -402,5 +402,13 @@ class TestAsyncController(unittest.TestCase):
                     ac.start(em.g, f, self.assertEquals, QThread.HighestPriority,
                              _futurePriority=QThread.HighestPriority)
 
+    # Test calling canel twice.
+    def test_15(self):
+        for _ in self.poolAndThread:
+            with AsyncController(_) as ac:
+                future = ac._wrap(None, lambda: None)
+                future.cancel(True)
+                future.cancel(True)
+
 if __name__ == '__main__':
     unittest.main()
