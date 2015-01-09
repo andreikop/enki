@@ -297,7 +297,7 @@ class TestAsyncController(unittest.TestCase):
                 def f():
                     raise TypeError
                 em = Emitter()
-                with self.assertRaises(TypeError), WaitForSignal(em.bing, 1000):
+                with self.assertRaises(TypeError), WaitForSignal(em.bing, 1000, printExcTraceback=False):
                     ac.start(em.g, f)
 
     # Verify that if ``f`` is launched in a thread, ``g`` will be run in that
