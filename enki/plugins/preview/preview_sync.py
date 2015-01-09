@@ -550,7 +550,7 @@ class PreviewSync(QObject):
         # Run the approximate match in a separate thread. Cancel it if the
         # document changes.
         self._ac = AsyncController('QThread')
-        self._ac._workerThread.setPriority(QThread.LowPriority)
+        self._ac.defaultPriority = QThread.LowPriority
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         # Create a dummy future object for use in canceling pending sync jobs
         # when a new sync needs to be run.
