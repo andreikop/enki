@@ -55,7 +55,7 @@ def excepthook(excepttype, exceptvalue, tracebackobj):
     logging.critical(text)
 
     from PyQt4 import uic
-    from PyQt4.QtCore import pyqtSignal, QObject, QTimer
+    from PyQt4.QtCore import pyqtSignal, QObject
     from PyQt4.QtGui import QApplication, QDialog
 
     from enki.core.core import core, DATA_FILES_PATH
@@ -270,7 +270,7 @@ def main():
 
     # init the core
     from enki.core.core import core
-    core.init(profiler)
+    core.init(profiler, cmdLine)
 
     _openFiles(core, cmdLine, profiler)
 

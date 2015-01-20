@@ -23,7 +23,7 @@ class Test(base.TestCase):
         dock.setCurrentPath(path)
 
         core.term()
-        core.init(base.DummyProfiler())
+        core.init(base.DummyProfiler(), {})
         dock = self.findDock('&File Browser')
         dock._onVisibilityChanged(True)
 

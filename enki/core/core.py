@@ -54,7 +54,7 @@ class Core(QObject):
 
     **Signal** emitted, when settings dialog had been accepted
     """  # pylint: disable=W0105
-    
+
     # internal, don't use it. Used only by bin/enki
     _doNotGargadgeCollectThisObjects = []
 
@@ -66,6 +66,7 @@ class Core(QObject):
         self._uiSettingsManager = None
         self._fileFilter = None
         self._loadedPlugins = []
+        self._cmdLine = {}
 
     def _prepareToCatchSigInt(self):
         """Catch SIGINT signal to close the application
@@ -75,11 +76,13 @@ class Core(QObject):
         self._checkSignalsTimer.start(500)
         self._checkSignalsTimer.timeout.connect(lambda: None)  # Let the interpreter run each 500 ms.
 
-    def init(self, profiler):
+    def init(self, profiler, cmdLine):
         """Initialize core.
 
         Called only by main()
         """
+        self._cmdLine = cmdLine
+
         self._prepareToCatchSigInt()
 
         profiler.stepDone('Catch SIGINT')
@@ -284,6 +287,11 @@ class Core(QObject):
         Use it for adding own settings to the dialogue
         """
         return self._uiSettingsManager
+
+    def commandLineArgs(self):
+        """ Dictionary of command line arguments, passed on Enki start
+        """
+        return self._cmdLine
 
 core = Core()  # pylint: disable=C0103
 """Core instance. It is accessible as:
