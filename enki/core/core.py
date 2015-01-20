@@ -40,6 +40,16 @@ class Core(QObject):
     listed in the command line has been opened.
     Only if user hadn't passed --no-session key
     """  # pylint: disable=W0105
+    
+    backupSession = pyqtSignal()
+    """
+    backupSession()
+
+    **Signal** for session plugin.
+    Emitted when Enki starts up with files specified on command line.
+    It creates new session which may overwrite the old session,
+    so we may want to create a backup.
+    """  # pylint: disable=W0105
 
     aboutToTerminate = pyqtSignal()
     """

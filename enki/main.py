@@ -171,6 +171,9 @@ def _parseCommandLine():
 
     parser.add_option("-n", "--no-session", dest="no_session", action="store_true",
                       help="Do not restore session")
+    
+    parser.add_option("-s", "--session", dest="session_name", action="store",
+                      help="Session name or file, overrides ENKI_SESSION environment variable")
 
     parser.add_option("-p", "--profiling", dest="profiling", action="store_true",
                       help="profile initialization and exit. For developers")
@@ -178,6 +181,7 @@ def _parseCommandLine():
     (options, args) = parser.parse_args()
 
     cmdLine = {"profiling" : options.profiling,
+               "session_name": options.session_name,
                "no-session" : options.no_session}
 
     # Parse +N spec.
@@ -224,6 +228,7 @@ def _openFiles(core, cmdLine, profiler):
         line = cmdLine["firstFileLineToGo"] - 1  # convert from users to internal indexing
         core.workspace().goTo(existingFiles[0], line=line)
     elif existingFiles or notExistingFiles:
+        core.backupSession.emit()
         core.workspace().openFiles(existingFiles)
         for filePath in notExistingFiles:
             core.workspace().createEmptyNotSavedDocument(filePath)
