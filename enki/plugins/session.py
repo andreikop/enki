@@ -11,7 +11,16 @@ from enki.core.core import core
 from enki.core.defines import CONFIG_DIR
 import enki.core.json_wrapper
 
-_SESSION_FILE_PATH = os.path.join(CONFIG_DIR, 'session.json')
+def getSessionFilePath():
+    session_envvar = os.environ.get("ENKI_SESSION");
+    # assuming environment variable values are secure
+    if not session_envvar:
+        return os.path.join(CONFIG_DIR, 'session.json')
+    if '/' not in session_envvar:
+        return os.path.join(CONFIG_DIR, 'session_%s.json' % session_envvar)
+    return session_envvar;
+
+_SESSION_FILE_PATH = getSessionFilePath()
 
 class Plugin:
     """Plugin interface
