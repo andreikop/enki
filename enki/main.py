@@ -228,6 +228,7 @@ def _openFiles(core, cmdLine, profiler):
         line = cmdLine["firstFileLineToGo"] - 1  # convert from users to internal indexing
         core.workspace().goTo(existingFiles[0], line=line)
     elif existingFiles or notExistingFiles:
+        core.backupSession.emit()
         core.workspace().openFiles(existingFiles)
         for filePath in notExistingFiles:
             core.workspace().createEmptyNotSavedDocument(filePath)
