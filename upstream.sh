@@ -1,3 +1,3 @@
-#!/bin/sh
+#!/bin/bash
 
-PYTHONPATH=$(pwd)/../qutepart bin/enki
+PYTHONPATH=$(pwd)/../qutepart bin/enki $@
