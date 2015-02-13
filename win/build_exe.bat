@@ -52,6 +52,12 @@
 : --hidden-import=modulename
 :   Name an imported Python module that is not visible in your code.
 :
+: --exclude-module=MODULENAME
+:   Optional module or package name (his Python name,
+:   not path names) that will be ignored (as though
+:   it was not found). Not yes in the docs; see
+:   https://github.com/pyinstaller/pyinstaller/commit/b269a42079df2bc2fe30be0c1f0a3d0a9f9d8dfb.
+:
 : --name=name
 :   Give a name for the specfile and the executable output. The default is the basename of the first script.
 :
@@ -69,7 +75,7 @@
 : ``bin\enki``
 :   Enki entry point, from which Pyinstaller builds the application.
 :
-:pyinstaller --noconfirm --additional-hooks-dir=win --runtime-hook=win\rthook_pyqt4.py --noconsole --icon=icons\logo\enki.ico bin\enki
+:pyinstaller --noconfirm --additional-hooks-dir=win --exclude-module=_tkinter --runtime-hook=win\rthook_pyqt4.py --noconsole --icon=icons\logo\enki.ico bin\enki
 :
 : Testing
 : -------
@@ -83,19 +89,19 @@
 :
 : Specify CodeChat as an import, since it's dynamically loaded by Sphinx.
 :pause Press Enter to build and test Sphinx.
-:pyinstaller --noconfirm --additional-hooks-dir=win --hidden-import=CodeChat win\sphinx-build.py
+:pyinstaller --noconfirm --additional-hooks-dir=win --hidden-import=CodeChat --exclude-module=_tkinter win\sphinx-build.py
 :dist\sphinx-build\sphinx-build
 :
 : Pylint
 : ======
 : This builds a pylint binary.
 :pause Press Enter to build and test Pylint.
-:pyinstaller --noconfirm --name=pylint C:\Python27\Lib\site-packages\pylint\__main__.py
+:pyinstaller --noconfirm --exclude-module=_tkinter --name=pylint C:\Python27\Lib\site-packages\pylint\__main__.py
 :dist\pylint\pylint
 :
-: Combined Enki and Sphinx
-: ========================
-: This builds two binaries which can be placed in the same directory.
+: Combined Enki, Pylint, and Sphinx
+: =================================
+: This builds tthree binaries which can be placed in the same directory.
 : See ``enki-ephinx.spec`` for more details.
 :
 : Note: Existing build/ and dist/ directories from the standalone builds seem to

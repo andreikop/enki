@@ -3,13 +3,13 @@
 # ****************
 # enki-sphinx.spec
 # ****************
-# This file instructs Pyinstaller to build a binary containing both Enki
-# and Sphinx executables.
+# This file instructs Pyinstaller to build a binary containing both Enki,
+# Pylint, and Sphinx executables.
 #
 # Procedure to create this file:
 #
 # #. Run ``win\build_exe.bat`` and test. This creates working
-#    ``enki.spec`` and ``sphinx-build.spec`` files.
+#    ``enki.spec``, ``pylint.spec`` and ``sphinx-build.spec`` files.
 # #. Combine these files according to the `Pyinstaller merge docs
 #    <http://htmlpreview.github.io/?https://github.com/pyinstaller/pyinstaller/blob/develop/doc/Manual.html#multipackage-bundles>`_.
 #    These steps are illustrated in the comments below.
