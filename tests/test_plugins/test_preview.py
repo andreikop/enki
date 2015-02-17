@@ -126,9 +126,6 @@ class PreviewTestCase(base.TestCase):
         simple code document code.extension. Here the extension to the code
         file can be altered. For example, the extension can be set to .rst .
         """
-        # Fill in conf.py and default.css file
-        #enki.plugins.preview.copySphinxProjectTemplate()
-
         # Create master document index.rst
         master = os.path.join(self.TEST_FILE_DIR, 'index.rst')
         with codecs.open(master, 'wb', encoding='utf8') as file_:
