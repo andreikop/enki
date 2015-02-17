@@ -782,6 +782,30 @@ head
         # Make sure the file wasn't saved.
         self.assertTrue(qp.document().isModified())
 
+    @requiresSphinx
+    def test_previewCheck24(self):
+        """If the file to be previewed is older than the source, an error
+        should appear."""
+        # First, run Sphinx and generate some output.
+        self._doBasicSphinxConfig()
+        core.config()['Sphinx']['BuildOnSave'] = False
+        core.config().flush()
+        self.testText = u'Testing'
+        webViewContent, logContent = self._doBasicSphinxTest('rst')
+        self.assertTrue(u'Testing' in webViewContent)
+
+        # Now, exclude this from the build and re-run.
+        conf = os.path.join(self.TEST_FILE_DIR, 'conf.py')
+        with open(conf, 'a') as f:
+            f.write('\n\nexclude_patterns = ["code.rst"]')
+        # Run Sphinx again.
+        qp = core.workspace().currentDocument().qutepart
+        self._assertHtmlReady(lambda: qp.appendPlainText('xxx'),
+                              timeout=10000)
+        webViewContent, logContent = (self._html(), self._logText())
+        assert 'is older than the source file' in webViewContent
+
+
     # Cases testing commonprefix
     ##--------------------------
     # Basic checks

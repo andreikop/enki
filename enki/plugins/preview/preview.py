@@ -217,9 +217,18 @@ class ConverterThread(QThread):
                 # example, look for foo.html for foo.rst.
                 htmlFileAlter = os.path.splitext(htmlPath)[0] + ext
                 if os.path.exists(htmlFile):
-                    return u'', errString, QUrl.fromLocalFile(htmlFile)
+                    # If the file exists, but is old, refuse to display it.
+                    if os.path.getmtime(htmlFile) > os.path.getmtime(filePath):
+                        return u'', errString, QUrl.fromLocalFile(htmlFile)
+                    else:
+                        return ('The file {} is older than the source file {}.'
+                                .format(htmlFile, filePath), errString, QUrl())
                 elif os.path.exists(htmlFileAlter):
-                    return u'', errString, QUrl.fromLocalFile(htmlFileAlter)
+                    if os.path.getmtime(htmlFileAlter) > os.path.getmtime(filePath):
+                        return u'', errString, QUrl.fromLocalFile(htmlFileAlter)
+                    else:
+                        return ('The file {} is older than the source file {}.'
+                                .format(htmlFileAlter, filePath), errString, QUrl())
                 else:
                     return ('No preview for this type of file.<br>Expect ' + htmlFile +
                             " or " + htmlFileAlter, errString, QUrl())
