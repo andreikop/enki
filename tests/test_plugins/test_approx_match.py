@@ -43,13 +43,14 @@ from test_preview import requiresModule
 try:
     from enki.plugins.preview.approx_match import findApproxTextInTarget as f
     from enki.plugins.preview.approx_match import refineSearchResult as lcs
-except ImportError as e:
-    pass
+except (ImportError, UnicodeEncodeError):
+    f = None
+    lcs = None
 
 # Tests for findApproxTextInTarget
 # ================================
 # Find a location in a source file based on a given location in the resulting html.
-@requiresModule('tre')
+@unittest.skipUnless(f, 'Requires working TRE')
 class TestApproxMatch(unittest.TestCase):
     # Show that we can match identical text.
     def test_1(self):
@@ -231,7 +232,7 @@ class TestApproxMatch(unittest.TestCase):
 
 # Tests for refineSearchResult
 # ============================
-@requiresModule('tre')
+@unittest.skipUnless(lcs, 'Requires working TRE')
 class TestRefineSearchResult(unittest.TestCase):
     # Boundary conditions: empty search and target strings.
     def test_1(self):
