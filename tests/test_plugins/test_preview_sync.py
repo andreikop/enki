@@ -32,13 +32,13 @@ import mock
 # -------------------------
 from enki.core.core import core
 from test_preview import requiresModule, PreviewTestCase
-# Both of the two following lines are needed: the first, so we can later
-# ``reload(enki.plugins.preview)``; the last, to instiantate ``SettingsWidget``.
 import enki.plugins.preview
+import enki.plugins.preview.preview_sync
 from import_fail import ImportFail
 
 
-@requiresModule('tre')
+@unittest.skipUnless(enki.plugins.preview.preview_sync.findApproxTextInTarget,
+                     'Requires working TRE')
 class Test(PreviewTestCase):
     # Web to code sync tests
     ##----------------------
