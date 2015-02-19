@@ -233,25 +233,14 @@ class Test(PreviewTestCase):
         # Trick Python into thinking that the CodeChat module doesn't exist.
         # Verify that the CodeChat checkbox is disabled, and the 'not installed'
         # notification is visible.
-        with ImportFail(['CodeChat']):
-            reload(enki.plugins.preview)
+        with ImportFail(['CodeChat'], [enki.plugins.preview]):
             sw = SettingsWidget()
-            enabled = sw.cbCodeChat.isEnabled()
+            self.assertFalse(sw.cbCodeChat.isEnabled())
             sw.show()
-            noticeVisible = sw.labelCodeChatNotInstalled.isVisible()
-            noticeEnabled = sw.labelCodeChatNotInstalled.isEnabled()
-            introEnabled = sw.labelCodeChatIntro.isEnabled()
+            self.assertTrue(sw.labelCodeChatNotInstalled.isVisible())
+            self.assertTrue(sw.labelCodeChatNotInstalled.isEnabled())
+            self.assertTrue(sw.labelCodeChatIntro.isEnabled())
             sw.close()
-        # When done with this test first restore the state of the preview module
-        # by reloading with the CodeChat module available, so that other tests
-        # won't be affected. Therefore, only do an assertFalse **after** the
-        # reload, since statements after the assert might not run (if the assert
-        # fails).
-        reload(enki.plugins.preview)
-        self.assertFalse(enabled)
-        self.assertTrue(noticeVisible)
-        self.assertTrue(noticeEnabled)
-        self.assertTrue(introEnabled)
 
         # Now, prove that the reload worked: CodeChat should now be enabled, but
         # remain unchecked just like the first time enki starts. 'not installed'

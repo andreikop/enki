@@ -367,11 +367,10 @@ text after table""", True)
     def test_sync22(self):
         """Prevent TRE from being imported. Make sure there are no exceptions.
         """
-        with ImportFail(['approx_match']):
-            reload(enki.plugins.preview.preview_sync)
-            fatit = enki.plugins.preview.preview_sync.findApproxTextInTarget
-        reload(enki.plugins.preview.preview_sync)
-        self.assertIsNone(fatit)
+        with ImportFail(['approx_match'], [enki.plugins.preview.preview_sync]):
+            self.assertIsNone(enki.plugins.preview.preview_sync.findApproxTextInTarget)
+        # Now, make sure that TRE imports correctly.
+        self.assertTrue(enki.plugins.preview.preview_sync.findApproxTextInTarget)
 
 # Main
 # ====
