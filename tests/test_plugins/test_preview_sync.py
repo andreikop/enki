@@ -362,6 +362,17 @@ text after table""", True)
           targetCursorHeight = 1)
         self.assertEqual(offset, 2)
 
+    # Test that no crashes occur if TRE isn't available or is old
+    ##-----------------------------------------------------------
+    def test_sync22(self):
+        """Prevent TRE from being imported. Make sure there are no exceptions.
+        """
+        with ImportFail(['approx_match']):
+            reload(enki.plugins.preview.preview_sync)
+            fatit = enki.plugins.preview.preview_sync.findApproxTextInTarget
+        reload(enki.plugins.preview.preview_sync)
+        self.assertIsNone(fatit)
+
 # Main
 # ====
 # Run the unit tests in this file.

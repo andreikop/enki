@@ -233,7 +233,7 @@ class Test(PreviewTestCase):
         # Trick Python into thinking that the CodeChat module doesn't exist.
         # Verify that the CodeChat checkbox is disabled, and the 'not installed'
         # notification is visible.
-        with ImportFail('CodeChat'):
+        with ImportFail(['CodeChat']):
             reload(enki.plugins.preview)
             sw = SettingsWidget()
             enabled = sw.cbCodeChat.isEnabled()
@@ -748,7 +748,7 @@ head
         """ Assume codechat is not installed, render a .rst file using
         restructuredText and then render using sphinx.
         """
-        with ImportFail('CodeChat'):
+        with ImportFail(['CodeChat']):
             self.testText = u'Underlying :download:`source code <file.rst>`.'
             self._doBasicTest('rst')
             self.assertTrue(u'Unknown interpreted text role "download".' in self._logText())

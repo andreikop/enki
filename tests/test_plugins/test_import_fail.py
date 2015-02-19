@@ -9,11 +9,15 @@
 # Library imports
 # ---------------
 import unittest
-
+#
+# Third-party library imports
+# ---------------------------
+from mock import patch, call
+#
 # Local imports
 # -------------
 from import_fail import ImportFail
-
+#
 # ImportFail tests
 # ================
 class TestImportFail(unittest.TestCase):
@@ -21,7 +25,7 @@ class TestImportFail(unittest.TestCase):
         """ Make sure ImportFail causes an exception for a fail_name.
         """
         with self.assertRaises(ImportError):
-            with ImportFail('re'):
+            with ImportFail(['re']):
                 import re
         # Make sure the same name now works
         import re
@@ -30,7 +34,7 @@ class TestImportFail(unittest.TestCase):
         """ Make sure ImportFail causes an exception for multiple fail_names.
         """
         with self.assertRaises(ImportError):
-            with ImportFail('os', 're'):
+            with ImportFail(['os', 're']):
                 import re
         # Make sure the same name now works
         import re
@@ -38,9 +42,37 @@ class TestImportFail(unittest.TestCase):
     def test_3(self):
         """Make sure import of other modules works.
         """
-        with ImportFail('re'):
+        with ImportFail(['re']):
             import os
 
+    @patch('__builtin__.reload')
+    def test_4(self, _reload):
+        """Check that reload isn't called if no modules are given."""
+        with ImportFail(['re']):
+            pass
+        self.assertFalse(_reload.called)
+
+    @patch('__builtin__.reload')
+    def test_5(self, _reload):
+        """Check that reload is called twice, in the correct context."""
+        class ImportTester(object):
+            def __init__(self):
+                # Save a list of success/failure of an import.
+                self.import_success = []
+
+            def try_import(self, *args, **kwargs):
+                try:
+                    import re
+                    self.import_success += [True]
+                except ImportError:
+                    self.import_success += [False]
+
+        it = ImportTester()
+        _reload.side_effect = it.try_import
+        with ImportFail(['re'], ['one', 'two']):
+            pass
+        _reload.assert_has_calls([call('one'), call('two'), call('one'), call('two')])
+        self.assertEquals(it.import_success, [False, False, True, True])
 
 # Main
 # ====
