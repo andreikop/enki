@@ -43,6 +43,10 @@ import os
 # For approximate pattern matching, this module uses the Python port of `TRE
 # <http://hackerboss.com/approximate-regex-matching-in-python>`_.
 import tre
+# Older versions of tre don't support unicode. Produce an excpetion if so.
+# Note that older tre will coerce an Unicode string such as u'hi' into ascii.
+# So, give it something that can't convert (a no-break space).
+tre.compile(u'\u00a0', tre.LITERAL)
 #
 # For debug
 # =========

@@ -31,7 +31,7 @@ from enki.lib.future import AsyncController
 # feature.
 try:
     from approx_match import findApproxTextInTarget
-except ImportError as e:
+except (ImportError, UnicodeEncodeError) as e:
     findApproxTextInTarget = None
 
 # PreviewSync
