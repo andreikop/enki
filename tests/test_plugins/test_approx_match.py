@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # .. -*- coding: utf-8 -*-
 #
 #    Copyright (C) 2012-2013 Bryan A. Jones.
