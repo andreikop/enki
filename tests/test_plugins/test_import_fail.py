@@ -54,7 +54,14 @@ class TestImportFail(unittest.TestCase):
 
     @patch('__builtin__.reload')
     def test_5(self, _reload):
-        """Check that reload is called twice, in the correct context."""
+        """Check that reload is called twice."""
+        with ImportFail(['re'], ['one', 'two']):
+            pass
+        _reload.assert_has_calls([call('one'), call('two'), call('one'), call('two')])
+
+    @patch('__builtin__.reload')
+    def test_6(self, _reload):
+        """Check that reload is called in the correct context."""
         class ImportTester(object):
             def __init__(self):
                 # Save a list of success/failure of an import.
@@ -69,10 +76,9 @@ class TestImportFail(unittest.TestCase):
 
         it = ImportTester()
         _reload.side_effect = it.try_import
-        with ImportFail(['re'], ['one', 'two']):
+        with ImportFail(['re'], ['one']):
             pass
-        _reload.assert_has_calls([call('one'), call('two'), call('one'), call('two')])
-        self.assertEquals(it.import_success, [False, False, True, True])
+        self.assertEquals(it.import_success, [False, True])
 
 # Main
 # ====
