@@ -15,7 +15,6 @@ import sys
 import stat
 import imp
 import codecs
-import mock
 
 # Local application imports
 # -------------------------
@@ -26,7 +25,8 @@ import base
 
 # Third-party library imports
 # ---------------------------
-from PyQt4.QtGui import QTextCursor, QMessageBox
+from PyQt4.QtGui import QMessageBox
+import mock
 
 # Local application imports
 # -------------------------
