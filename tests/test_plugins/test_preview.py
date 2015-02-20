@@ -491,6 +491,7 @@ content"""
         self.assertEqual(self._plainText(), '')
         self.assertEqual(self._logText(), '')
 
+    @base.requiresCmdlineUtility('sphinx-build')
     @base.inMainLoop
     def test_previewCheck9b(self):
         """Empty code file should be rendered correctly with 'no title' warning.

@@ -14,12 +14,9 @@ from PyQt4.QtTest import QTest
 from enki.core.core import core
 from enki.plugins.lint.settings_widget import _getPylintVersion
 
-nullFile = '/dev/null' if os.name == 'posix' else 'nul'
-err = os.system('pylint --version > {} 2>&1'.format(nullFile))
-havePylint = (0 == err)
 
 class Test(base.TestCase):
-    @unittest.skipUnless(havePylint, 'Pylint not found')
+    @base.requiresCmdlineUtility('pylint --version')
     def test_1(self):
         """ File is checked after opened """
         doc = self.createFile('test.py', 'asdf\n\n')
@@ -40,7 +37,7 @@ class Test(base.TestCase):
 
         self.waitUntilPassed(2000, lambda: self.assertEqual(doc.qutepart.lintMarks, {0: ('e', 'invalid syntax')}))
 
-    @unittest.skipUnless(havePylint, 'Pylint not found')
+    @base.requiresCmdlineUtility('pylint --version')
     def test_2(self):
         """ _getPylintVersion """
         version = _getPylintVersion('pylint')
