@@ -433,8 +433,6 @@ class Document(QWidget):
         """
         if self.isNeverSaved():  # never has been saved
             icon = "save.png"
-        elif self._externallyRemoved  and self._externallyModified:
-            icon = "modified-externally-deleted.png"
         elif self._externallyRemoved:
             icon = "deleted.png"
         elif self._externallyModified and self.qutepart.document().isModified():
