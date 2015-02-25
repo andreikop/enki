@@ -124,6 +124,7 @@ class MainWindow(QMainWindow):
         self._topToolBar.setObjectName("topToolBar")
         self._topToolBar.setMovable(False)
         self._topToolBar.setIconSize(QSize(16, 16))
+        self._topToolBar.setContextMenuPolicy(Qt.PreventContextMenu)  # to avoid possibility to hide the toolbar
 
         # Create menu bar
         self._menuBar = ActionMenuBar(self, core.actionManager())
