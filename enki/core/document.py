@@ -436,7 +436,7 @@ class Document(QWidget):
         elif self._externallyRemoved and self.qutepart.document().isModified():
             icon = 'modified-externally-deleted.png'
         elif self._externallyRemoved:
-            icon = "deleted.png"
+            icon = "close.png"
         elif self._externallyModified and self.qutepart.document().isModified():
             icon = "modified-externally-modified.png"
         elif self._externallyModified:
