@@ -12,13 +12,15 @@ from enki.core.defines import CONFIG_DIR
 import enki.core.json_wrapper
 
 def getSessionFilePath():
-    session_envvar = os.environ.get("ENKI_SESSION");
-    # assuming environment variable values are secure
-    if not session_envvar:
+    session_name = core.commandLineArgs().get("session_name")
+    if not session_name:
+        session_name = os.environ.get("ENKI_SESSION")
+    # assuming session_name value is secure
+    if not session_name:
         return os.path.join(CONFIG_DIR, 'session.json')
-    if '/' not in session_envvar:
-        return os.path.join(CONFIG_DIR, 'session_%s.json' % session_envvar)
-    return session_envvar;
+    if '/' not in session_name:
+        return os.path.join(CONFIG_DIR, 'session_%s.json' % session_name)
+    return session_name;
 
 _SESSION_FILE_PATH = getSessionFilePath()
 

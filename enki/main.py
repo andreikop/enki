@@ -171,6 +171,9 @@ def _parseCommandLine():
 
     parser.add_option("-n", "--no-session", dest="no_session", action="store_true",
                       help="Do not restore session")
+    
+    parser.add_option("-s", "--session", dest="session_name", action="store",
+                      help="Session name or file, overrides ENKI_SESSION environment variable")
 
     parser.add_option("-p", "--profiling", dest="profiling", action="store_true",
                       help="profile initialization and exit. For developers")
@@ -178,6 +181,7 @@ def _parseCommandLine():
     (options, args) = parser.parse_args()
 
     cmdLine = {"profiling" : options.profiling,
+               "session_name": options.session_name,
                "no-session" : options.no_session}
 
     # Parse +N spec.
