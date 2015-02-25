@@ -11,14 +11,25 @@ from enki.core.core import core
 from enki.core.defines import CONFIG_DIR
 import enki.core.json_wrapper
 
+
 def getSessionFilePath():
-    session_envvar = os.environ.get("ENKI_SESSION");
-    # assuming environment variable values are secure
-    if not session_envvar:
-        return os.path.join(CONFIG_DIR, 'session.json')
-    if '/' not in session_envvar:
-        return os.path.join(CONFIG_DIR, 'session_%s.json' % session_envvar)
-    return session_envvar;
+    if core.commandLineArgs()['session_name']:
+        session_name = core.commandLineArgs()['session_name']
+    elif 'ENKI_SESSION' in os.environ:
+        session_name = os.environ['ENKI_SESSION']
+    else:
+        session_name = ''
+
+    if session_name:
+        session_filename = 'session_{}.json'.format(session_name)
+
+        for char in r'<>:"/\|?*' + ' ':  # reserved characters for file name on Windows. By MSDN. And space
+            session_filename = session_filename.replace(char, '_')
+    else:
+        session_filename = 'session.json'
+
+    return os.path.join(CONFIG_DIR, session_filename)
+
 
 _SESSION_FILE_PATH = getSessionFilePath()
 
