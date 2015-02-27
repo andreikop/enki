@@ -196,7 +196,7 @@ class TestCase(unittest.TestCase):
 
         os.chdir(self.TEST_FILE_DIR)
 
-        core.init(DummyProfiler(), {})
+        core.init(DummyProfiler(), {'session_name': ''})
 
     def tearDown(self):
         self._finished = True
