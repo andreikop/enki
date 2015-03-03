@@ -79,6 +79,15 @@ git remote add upstream https://github.com/hlamer/enki.git
 $PAUSE
 cd ..
 
+# Python-markdown-mathjax
+# =======================
+# See https://github.com/mayoff/python-markdown-mathjax.
+wget https://raw.githubusercontent.com/mayoff/python-markdown-mathjax/master/mdx_mathjax.py
+MARKDOWN_PATH=`python -c 'import markdown; print markdown.__path__[0]'`
+# Per the instructions, rename to mathjax.py and install in the markdown
+# extensions folder.
+sudo cp mdx_mathjax.py $MARKDOWN_PATH/extensions/mathjax.py
+
 # PyInstaller
 # ===========
 # See http://www.pyinstaller.org/.
