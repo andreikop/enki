@@ -179,6 +179,7 @@ class SignalCombiner(QObject):
 # ==========
 class TestAsyncController(unittest.TestCase):
     # Tuples of AsyncController params to test over.
+    syncPoolAndThread = ('Sync', 'QThread', 0, 1, 4)
     poolAndThread = ('QThread', 0, 1, 4)
     poolOnly = (0, 1, 4)
     singleThreadOnly = ('QThread', 1)
@@ -186,7 +187,7 @@ class TestAsyncController(unittest.TestCase):
 
     # Verify that a test function is run.
     def test_1(self):
-        for _ in self.poolAndThread:
+        for _ in self.syncPoolAndThread:
             with AsyncController(_) as ac:
                 # gotHere must be a list in order to f to change it in a way that is
                 # visible outside of f.
@@ -200,7 +201,7 @@ class TestAsyncController(unittest.TestCase):
 
     # Verify that the result function is run.
     def test_2(self):
-        for _ in self.poolAndThread:
+        for _ in self.syncPoolAndThread:
             with AsyncController(_) as ac:
                 em = Emitter(2, self.assertEquals)
                 with WaitForSignal(em.bing, 1000):
@@ -208,7 +209,7 @@ class TestAsyncController(unittest.TestCase):
 
     # Verify that a result from f is passed to g.
     def test_3(self):
-        for _ in self.poolAndThread:
+        for _ in self.syncPoolAndThread:
             with AsyncController(_) as ac:
                 em = Emitter(123, self.assertEquals)
                 with WaitForSignal(em.bing, 1000):
@@ -216,7 +217,7 @@ class TestAsyncController(unittest.TestCase):
 
     # Verify that correct arguments are passed to f.
     def test_4(self):
-        for _ in self.poolAndThread:
+        for _ in self.syncPoolAndThread:
             with AsyncController(_) as ac:
                 def f(a, b, c=2, d=4):
                     self.assertEquals(a, 2)
@@ -258,15 +259,16 @@ class TestAsyncController(unittest.TestCase):
 
     # Verify that the correct functions and callbacks get executed.
     def test_7(self):
-        with AsyncController('QThread') as ac:
-            em1 = Emitter(15, self.assertEquals)
-            em2 = Emitter(16, self.assertEquals)
-            em3 = Emitter(17, self.assertEquals)
-            ac.start(em1.g, lambda: 15)
-            ac.start(em2.g, lambda: 16)
-            future3 = ac._wrap(em3.g, lambda: 17)
-            with WaitForSignal(em3.bing, 1000):
-                ac._start(future3)
+        for _ in ('Sync', 'QThread'):
+            with AsyncController(_) as ac:
+                em1 = Emitter(15, self.assertEquals)
+                em2 = Emitter(16, self.assertEquals)
+                em3 = Emitter(17, self.assertEquals)
+                ac.start(em1.g, lambda: 15)
+                ac.start(em2.g, lambda: 16)
+                future3 = ac._wrap(em3.g, lambda: 17)
+                with WaitForSignal(em3.bing, 1000):
+                    ac._start(future3)
 
     # Verify that the correct functions and callbacks get executed in a pool.
     def test_8(self):
@@ -292,7 +294,7 @@ class TestAsyncController(unittest.TestCase):
 
     # Verify that exceptions get propogated correctly.
     def test_9(self):
-        for _ in self.poolAndThread:
+        for _ in self.syncPoolAndThread:
             with AsyncController(_) as ac:
                 def f():
                     raise TypeError
@@ -329,7 +331,8 @@ class TestAsyncController(unittest.TestCase):
                 ac.start(None, f2)
             self.assertEquals(em2.thread, em2.result)
 
-    # Verify that job status and cancelation works.
+    # Verify that job status and cancelation works: while a job in in progress,
+    # cancel an pending job.
     def test_12(self):
         for _ in self.singleThreadOnly:
             with AsyncController(_) as ac:
@@ -353,7 +356,9 @@ class TestAsyncController(unittest.TestCase):
                 time.sleep(0.1)
                 self.assertEquals(future2.state, Future.STATE_CANCELED)
 
-    # Verify that job status and cancelation works.
+    # Verify that job status and cancelation works: cancel an in-progress job,
+    # verifying that it does not emit a signal or invoke a callback when it
+    # completes.
     def test_13(self):
         for _ in self.singleThreadOnly:
             with AsyncController(_) as ac:
@@ -402,9 +407,9 @@ class TestAsyncController(unittest.TestCase):
                     ac.start(em.g, f, self.assertEquals, QThread.HighestPriority,
                              _futurePriority=QThread.HighestPriority)
 
-    # Test calling canel twice.
+    # Test calling canel twice. Should not raise an exception.
     def test_15(self):
-        for _ in self.poolAndThread:
+        for _ in self.syncPoolAndThread:
             with AsyncController(_) as ac:
                 future = ac._wrap(None, lambda: None)
                 future.cancel(True)
