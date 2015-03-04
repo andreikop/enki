@@ -228,7 +228,6 @@ class AsyncAbstractController(QObject):
     def del_(self):
         # Only run this once.
         if self.isAlive:
-            #print('shutdown')
             self.isAlive = False
             self._del()
 
@@ -313,6 +312,19 @@ class AsyncPoolController(AsyncAbstractController):
         self.threadPool.waitForDone()
         del self.threadPool
 
+# SyncController
+# --------------
+# For testing purposes, this controller simply runs all jobs given it in the
+# current thread, using the ``AsyncAbstractController`` framework.
+class SyncController(AsyncAbstractController):
+    # |_start|
+    def _start(self, future):
+        future._invoke()
+
+    # |del_|
+    def _del(self):
+        pass
+
 # AsyncController
 # ---------------
 # This "class" provides a unified interface to both the thread and thread pool
@@ -328,7 +340,9 @@ def AsyncController(
   #   is used.
   qThreadOrThreadPool, parent=None):
 
-    if (qThreadOrThreadPool == 'QThread') or (qThreadOrThreadPool == 'Sync'):
+    if qThreadOrThreadPool == 'Sync':
+        return SyncController(parent)
+    elif qThreadOrThreadPool == 'QThread':
         return AsyncThreadController(parent)
     else:
         return AsyncPoolController(qThreadOrThreadPool, parent)
