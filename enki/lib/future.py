@@ -328,7 +328,7 @@ def AsyncController(
   #   is used.
   qThreadOrThreadPool, parent=None):
 
-    if qThreadOrThreadPool == 'QThread':
+    if (qThreadOrThreadPool == 'QThread') or (qThreadOrThreadPool == 'Sync'):
         return AsyncThreadController(parent)
     else:
         return AsyncPoolController(qThreadOrThreadPool, parent)
