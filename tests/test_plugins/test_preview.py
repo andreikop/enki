@@ -161,14 +161,17 @@ class Test(PreviewTestCase):
         with self.assertRaisesRegexp(AssertionError, 'Dock Previe&w not found'):
             self._dock()
 
+    @base.inMainLoop
     def test_html(self):
         self._doBasicTest('html')
 
     @requiresModule('docutils')
+    @base.inMainLoop
     def test_rst(self):
         self._doBasicTest('rst')
 
     @requiresModule('markdown')
+    @base.inMainLoop
     def test_markdown(self):
         self._doBasicTest('md')
 
@@ -306,14 +309,13 @@ class Test(PreviewTestCase):
     # Cases for code preview using Codechat or Sphinx
     ##-----------------------------------------------
     @requiresModule('CodeChat')
+    @base.inMainLoop
     def test_previewCheck1(self):
         """If Enki is opened with CodeChat enabled, the preview dock should be
            found."""
         core.config()['CodeChat']['Enabled'] = True
         self._doBasicTest('py')
-        # The next line of code is unnecessary since self._doBasicTest() will
-        # call self._dock()
-        #self._dock()
+        self._dock()
 
     @requiresSphinx
     @base.inMainLoop
@@ -381,6 +383,7 @@ content"""
         self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     @requiresModule('CodeChat')
+    @base.inMainLoop
     def test_previewCheck4(self):
         """If Enki is opened without any configuration, the preview dock will
         not appear. This will not affect resT files or html files."""
@@ -408,6 +411,7 @@ content"""
         self.assertNotIn('<h1>head', d._widget.webView.page().mainFrame().toHtml())
 
     @requiresModule('CodeChat')
+    @base.inMainLoop
     def test_previewCheck6(self):
         """If an empty code file is passed to Enki, the CodeChat preview panel
            should be empty."""
@@ -427,6 +431,7 @@ content"""
         self.assertTrue(u"doesn't have a title" in logContent)
 
     @requiresModule('CodeChat')
+    @base.inMainLoop
     def test_previewCheck7(self):
         """Test that Unicode characters are handled properly.
         """
@@ -452,6 +457,7 @@ content"""
         self.assertTrue(u"<h1>Енки" in webViewContent)
 
     @requiresModule('CodeChat')
+    @base.inMainLoop
     def test_previewCheck8(self):
         """Start with a short code file, make sure the preview window isn't
            opened, then enable the CodeChat module and refresh Enki.
@@ -491,6 +497,7 @@ content"""
         self.assertTrue(u"""doesn't have a title""" in logContent)
 
     @requiresModule('CodeChat')
+    @base.inMainLoop
     def test_previewCheck9(self):
         """Uninterpretable reStructuredText syntax in source code will generate
            errors and be displayed in the output log window."""
@@ -517,6 +524,7 @@ content"""
         self.assertTrue("Title overline too short" in logContent)
 
     @requiresModule('CodeChat')
+    @base.inMainLoop
     def test_previewCheck10(self):
         """Empty input should generate an empty log.
         """
@@ -529,6 +537,7 @@ content"""
         self.assertEqual(self._logText(), '')
 
     @requiresModule('CodeChat')
+    @base.inMainLoop
     def test_previewCheck11(self):
         """Unicode should display correctly in log window too.
         """
@@ -558,6 +567,7 @@ head
         self.assertTrue(u'Енки' in logContent)
 
     @requiresModule('CodeChat')
+    @base.inMainLoop
     def test_previewCheck13(self):
         """Test progress bar status (indefinitely) when building
         """
@@ -567,6 +577,7 @@ head
         self.assertEqual(self._widget().prgStatus.minimum(), 0)
 
     @requiresModule('CodeChat')
+    @base.inMainLoop
     def test_previewCheck14(self):
         """Check different progressbar color given different scenarios.
         """
@@ -577,6 +588,7 @@ head
         self.assertEqual(self._widget().prgStatus.styleSheet(), 'QProgressBar::chunk {}')
 
     @requiresModule('CodeChat')
+    @base.inMainLoop
     def test_previewCheck15(self):
         core.config()['CodeChat']['Enabled'] = True
         # Next, test a code piece with only warnings.
@@ -585,6 +597,7 @@ head
         self.assertTrue('#FF9955' in self._widget().prgStatus.styleSheet())
 
     @requiresModule('CodeChat')
+    @base.inMainLoop
     def test_previewCheck16(self):
         core.config()['CodeChat']['Enabled'] = True
         # Next, test a code piece with only errors.
@@ -593,6 +606,7 @@ head
         self.assertTrue('red' in self._widget().prgStatus.styleSheet())
 
     @requiresModule('CodeChat')
+    @base.inMainLoop
     def test_previewCheck17(self):
         """A complex test case that tests both the log parser regexp and
         the progress bar color when both warnings and errors are present.
@@ -733,6 +747,7 @@ head
         self.assertTrue(u'Unknown interpreted text role "doc"' in self._logText())
 
     @requiresSphinx
+    @base.inMainLoop
     def test_previewCheck22(self):
         """ Assume codechat is not installed, render a .rst file using
         restructuredText and then render using sphinx.
@@ -750,6 +765,7 @@ head
             self.assertTrue('#FF9955' in self._widget().prgStatus.styleSheet())
 
     @requiresSphinx
+    @base.inMainLoop
     def test_previewCheck23(self):
         """If the document is modified externally, then build on save will be
         automatically enabled. Calling scheduledocumentprocessing will not
@@ -979,6 +995,7 @@ head
     # #. User hide splitter size. Then switch to another error-free document.
     #    Switch back. Will log window keep hidden?
 
+    @base.inMainLoop
     def test_logWindowSplitter1(self):
         """Feature 1. Created files will have same default splitter size.
         """
@@ -997,6 +1014,7 @@ head
         self.assertNotEqual(self._widget().splitter.sizes()[0], 0)
         self.assertEqual(self._widget().splitter.sizes()[1], defaultSplitterSize[1])
 
+    @base.inMainLoop
     def test_logWindowSplitter2(self):
         """Feature 2. All build-with-error files' splitter size are connected.
         """
@@ -1018,6 +1036,7 @@ head
         self.assertNotIn(0, self._widget().splitter.sizes())
         self.assertAlmostEqual(self._widget().splitter.sizes()[0], self._widget().splitter.sizes()[1], delta=10)
 
+    @base.inMainLoop
     def test_logWindowSplitter3(self):
         """Feature 3. Error free document will not affect other documents'
         splitter size.
@@ -1038,6 +1057,7 @@ head
         self.assertNotEqual(self._widget().splitter.sizes()[0], 0)
         self.assertEqual(self._widget().splitter.sizes()[1], defaultSplitterSize[1])
 
+    @base.inMainLoop
     def test_logWindowSplitter3a(self):
         """Feature 1,2,3. A combination of the above test cases.
         """
@@ -1062,6 +1082,7 @@ head
         self.assertNotIn(0, self._widget().splitter.sizes())
         self.assertAlmostEqual(self._widget().splitter.sizes()[0], self._widget().splitter.sizes()[1], delta=10)
 
+    @base.inMainLoop
     def test_logWindowSplitter4(self):
         """User actively hide log window, Enki should be able to remember this.
         """
