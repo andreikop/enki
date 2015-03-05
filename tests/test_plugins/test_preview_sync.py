@@ -44,8 +44,7 @@ class Test(PreviewTestCase):
     ##----------------------
     # Test that mouse clicks get turned into a ``jsClick`` signal
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    @requiresModule('docutils')
-    def test_sync1(self):
+    def check_sync1(self):
         """Test that web-to-text sync occurs on clicks to the web pane.
         A click at 0, height (top left corner) should produce
         an index of 0. It doesn't; I'm not sure I understand how
@@ -59,6 +58,10 @@ class Test(PreviewTestCase):
           self._dock().previewSync.jsClick,
           200)
 
+    @requiresModule('docutils')
+    @base.inMainLoop
+    def test_sync1(self):
+        self.check_sync1()
 
     # Test that simulated mouse clicks at beginning/middle/end produce correct ``jsClick`` values
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -97,6 +100,7 @@ class Test(PreviewTestCase):
                          expectedSignalParams=(len(s) + wsLen,))
 
     @requiresModule('docutils')
+    @base.inMainLoop
     def test_sync2a(self):
         """TODO: simulate a click before the first letter. Select T, then move backwards using
         https://developer.mozilla.org/en-US/docs/Web/API/Selection.modify.
@@ -105,11 +109,13 @@ class Test(PreviewTestCase):
         self._testSyncString('T')
 
     @requiresModule('docutils')
+    @base.inMainLoop
     def test_sync2(self):
         """Simulate a click after 'The pre' and check the resulting ``jsClick`` result."""
         self._testSyncString('The pre')
 
     @requiresModule('docutils')
+    @base.inMainLoop
     def test_sync3(self):
         """Same as above, but with the entire string."""
         self._testSyncString(self.testText)
@@ -135,16 +141,19 @@ class Test(PreviewTestCase):
         self.assertEqual(p, index)
 
     @requiresModule('docutils')
+    @base.inMainLoop
     def test_sync4(self):
         """Test a click at the beginning of the string."""
         self._sendJsClick(0)
 
     @requiresModule('docutils')
+    @base.inMainLoop
     def test_sync5(self):
         """Test a click at the middle of the string."""
         self._sendJsClick(8)
 
     @requiresModule('docutils')
+    @base.inMainLoop
     def test_sync6(self):
         """Test a click at the end of the string."""
         self._sendJsClick(len(self.testText))
@@ -152,10 +161,11 @@ class Test(PreviewTestCase):
     # Misc tests
     ##^^^^^^^^^^
     @requiresModule('docutils')
+    @base.inMainLoop
     def test_sync7(self):
         """Test on an empty document."""
         self.testText = ''
-        self.test_sync1()
+        self.check_sync1()
 
     # Test after the web page was changed and therefore reloaded,
     # which might remove the JavaScript to respond to clicks.
@@ -166,6 +176,7 @@ class Test(PreviewTestCase):
     #     javaScriptWindowObjectCleared.connect(self._onJavaScriptCleared)
 
     @requiresModule('docutils')
+    @base.inMainLoop
     def test_sync8(self):
         """Test with javascript disabled."""
         # The ``_dock()`` method only works after the dock exists.
@@ -210,16 +221,19 @@ class Test(PreviewTestCase):
             self.assertTrue(s in self._widget().webView.selectedText())
 
     @requiresModule('docutils')
+    @base.inMainLoop
     def test_sync9(self):
         # Don't use One, which is an index of 0, which causes no
         # cursor movement and therefore no text to web sync.
         self._textToWeb('ne')
 
     @requiresModule('docutils')
+    @base.inMainLoop
     def test_sync10(self):
         self._textToWeb('Two')
 
     @requiresModule('docutils')
+    @base.inMainLoop
     def test_sync11(self):
         self._textToWeb('Three')
 
@@ -227,6 +241,7 @@ class Test(PreviewTestCase):
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     @unittest.expectedFailure
     @requiresModule('docutils')
+    @base.inMainLoop
     def test_sync12(self):
         """Tables with an embedded image cause findText to fail.
         """
@@ -282,6 +297,7 @@ text after table""", True)
 text after table""", True)
 
     @requiresModule('docutils')
+    @base.inMainLoop
     def test_sync16(self):
         """Tables with column spans produce out-of-order text, so sync in some rows
         containing a column span fails. The ReST below, copied as text after
@@ -301,17 +317,20 @@ text after table""", True)
         self._textToWeb('Banana', self._row_span_rest(), True)
 
     @requiresModule('docutils')
+    @base.inMainLoop
     def test_sync17(self):
         """A failing case of the above test series."""
         self._textToWeb('Bael', self._row_span_rest(), False)
 
     @requiresModule('docutils')
+    @base.inMainLoop
     def test_sync18(self):
         """Verify that sync after the column span works."""
         self._textToWeb('Text', self._row_span_rest(), True)
 
     # Test no sync on closed preview window
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    @base.inMainLoop
     def test_sync13(self):
         self._doBasicTest('rst')
         self._dock().close()
@@ -325,6 +344,7 @@ text after table""", True)
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     # Case 1: when the source y (in global coordinates) is above the target
     # window.
+    @base.inMainLoop
     def test_sync19(self):
         self._doBasicTest('rst')
         offset = self._dock().previewSync._alignScrollAmount(
@@ -338,6 +358,7 @@ text after table""", True)
 
     # Case 2: when the source y (in global coordinates) is within the target
     # window.
+    @base.inMainLoop
     def test_sync20(self):
         self._doBasicTest('rst')
         offset = self._dock().previewSync._alignScrollAmount(
@@ -351,6 +372,7 @@ text after table""", True)
 
     # Case 3: when the source y (in global coordinates) is belowthe target
     # window.
+    @base.inMainLoop
     def test_sync21(self):
         self._doBasicTest('rst')
         offset = self._dock().previewSync._alignScrollAmount(
