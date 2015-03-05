@@ -410,6 +410,7 @@ class PreviewDock(DockWidget):
         self._loadTemplates()
 
         self._widget.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
+        self._widget.webView.page().mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
         self._widget.webView.page().linkClicked.connect(self._onLinkClicked)
 
         self._widget.webView.page().mainFrame().titleChanged.connect(self._updateTitle)
@@ -537,7 +538,6 @@ class PreviewDock(DockWidget):
 
         pos = frame.scrollPosition()
         self._scrollPos[self._visiblePath] = pos
-        self._hAtEnd[self._visiblePath] = frame.scrollBarMaximum(Qt.Horizontal) == pos.x()
         self._vAtEnd[self._visiblePath] = frame.scrollBarMaximum(Qt.Vertical) == pos.y()
 
     def _restoreScrollPos(self, ok):
@@ -558,11 +558,9 @@ class PreviewDock(DockWidget):
 
         frame.setScrollPosition(self._scrollPos[self._visiblePath])
 
-        if self._hAtEnd[self._visiblePath]:
-            frame.setScrollBarValue(Qt.Horizontal, frame.scrollBarMaximum(Qt.Horizontal))
-
         if self._vAtEnd[self._visiblePath]:
             frame.setScrollBarValue(Qt.Vertical, frame.scrollBarMaximum(Qt.Vertical))
+            print '~~~~ v max'
 
         # Re-sync the re-loaded text.
         self.previewSync.syncTextToPreview()

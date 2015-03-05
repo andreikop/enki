@@ -312,7 +312,7 @@ class PreviewSync(QObject):
             # Note that scroll bars are backwards: to make the text go up, you must
             # move the bars down (a positive delta) and vice versa. Hence, the
             # subtration, rather than addition, below.
-            mf.setScrollPosition(mf.scrollPosition() - QPoint(0, deltaY))
+            #mf.setScrollPosition(mf.scrollPosition() - QPoint(0, deltaY))
         else:
             deltaY = self._alignScrollAmount(wvGlobalTop, wvCursorTop,
               qpGlobalTop, qpCursorTop, qpHeight, qpCursorHeight)
