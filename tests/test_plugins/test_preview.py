@@ -801,6 +801,34 @@ head
         # Make sure the file wasn't saved.
         self.assertTrue(qp.document().isModified())
 
+    @requiresSphinx
+    @base.inMainLoop
+    def test_previewCheck24(self):
+        self._doBasicSphinxConfig()
+        self.testText = u"""# ****
+# head
+# ****
+#
+# content"""
+        webViewContent, logContent = self._doBasicSphinxTest('py')
+        self.assertFalse(os.path.isfile(os.path.join(self.TEST_FILE_DIR, 'CodeChat.css')))
+
+    @requiresSphinx
+    @requiresModule('CodeChat')
+    @base.inMainLoop
+    def test_previewCheck20a(self):
+        core.config()['CodeChat']['Enabled'] = True
+        self._doBasicSphinxConfig()
+
+        self.testText = u"""# ****
+# head
+# ****
+#
+# content"""
+        webViewContent, logContent = self._doBasicSphinxTest('py')
+        self.assertTrue(os.path.isfile(os.path.join(self.TEST_FILE_DIR, 'CodeChat.css')))
+
+
     # Cases testing commonprefix
     ##--------------------------
     # Basic checks

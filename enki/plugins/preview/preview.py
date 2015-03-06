@@ -754,22 +754,14 @@ class PreviewDock(DockWidget):
         if not missinglist:
             return errors
 
-        question = QMessageBox(self)
-        question.addButton(QMessageBox.Yes)
-        question.setDefaultButton(QMessageBox.Yes)
-        question.addButton(QMessageBox.No)
-        question.addButton("Not now", QMessageBox.RejectRole)
-        question.setWindowTitle("Enki")
-        question.setText("Sphinx project at:\n " + sphinxProjectPath
-                         + "\nis missing the template file(s): "+ ' '.join(missinglist)
-                         + ". Auto-generate those file(s)?")
-        question.setDefaultButton(QMessageBox.Yes)
         # For testing, check for test-provided button presses
         if ( (len(self._sphinxTemplateCheckIgnoreList) == 1) and
             isinstance(self._sphinxTemplateCheckIgnoreList[0], int) ):
             res = self._sphinxTemplateCheckIgnoreList[0]
         else:
-            res = question.exec_()
+            res = QMessageBox.warning(self, r"Enki", "Sphinx project at:\n " + sphinxProjectPath
+                         + "\nis missing the template file(s): "+ ' '.join(missinglist)
+                         + ". Auto-generate those file(s)?", QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel, QMessageBox.Yes)
         if res != QMessageBox.Yes:
             if res == QMessageBox.No:
                 self._sphinxTemplateCheckIgnoreList.append(sphinxProjectPath)
