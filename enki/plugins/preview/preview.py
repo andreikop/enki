@@ -174,8 +174,24 @@ class ConverterThread(QThread):
 
     def _canUseCodeChat(self):
         # Codechat is available when LSO and CodeToRest can be found,
-        # and Enki settings enable codechat (config()['CodeChat']['Enabled'] is true).
+        # and Enki settings enable codechat (config()['CodeChat']['Enabled'] is
+        # true).
         return core.config()['CodeChat']['Enabled'] and LSO and CodeToRest
+
+    def _checkModificationTime(self, sourceFile, outputFile, s):
+        """Make sure the outputFile is newer than the sourceFile.
+        Otherwise, return an error."""
+        # Recall that time is measured in seconds since the epoch,
+        # so that larger = newer.
+        try:
+            if os.path.getmtime(outputFile) > os.path.getmtime(sourceFile):
+                return u'', s, QUrl.fromLocalFile(outputFile)
+            else:
+                return ('The file {} is older than the source file {}.'
+                        .format(outputFile, sourceFile), s, QUrl())
+        except OSError as e:
+            return ('Error checking modification time: {}'.format(str(e)),
+                    s, QUrl())
 
     def _getHtml(self, language, text, filePath):
         """Get HTML for document
@@ -216,13 +232,17 @@ class ConverterThread(QThread):
                 # Second place to look: file without extension.html. For
                 # example, look for foo.html for foo.rst.
                 htmlFileAlter = os.path.splitext(htmlPath)[0] + ext
+                # Check that the output file produced by Sphinx is newer than
+                # the source file it was built from.
                 if os.path.exists(htmlFile):
-                    return u'', errString, QUrl.fromLocalFile(htmlFile)
+                    return self._checkModificationTime(filePath, htmlFile,
+                                                       errString)
                 elif os.path.exists(htmlFileAlter):
-                    return u'', errString, QUrl.fromLocalFile(htmlFileAlter)
+                    return self._checkModificationTime(filePath, htmlFileAlter,
+                                                       errString)
                 else:
-                    return ('No preview for this type of file.<br>Expect ' + htmlFile +
-                            " or " + htmlFileAlter, errString, QUrl())
+                    return ('No preview for this type of file.<br>Expect ' +
+                            htmlFile + " or " + htmlFileAlter, errString, QUrl())
 
             # Otherwise, fall back to using CodeChat+docutils.
             elif self._canUseCodeChat():

@@ -126,9 +126,6 @@ class PreviewTestCase(base.TestCase):
         simple code document code.extension. Here the extension to the code
         file can be altered. For example, the extension can be set to .rst .
         """
-        # Fill in conf.py and default.css file
-        #enki.plugins.preview.copySphinxProjectTemplate()
-
         # Create master document index.rst
         master = os.path.join(self.TEST_FILE_DIR, 'index.rst')
         with codecs.open(master, 'wb', encoding='utf8') as file_:
@@ -784,6 +781,45 @@ head
         base._processPendingEvents()
         # Make sure the file wasn't saved.
         self.assertTrue(qp.document().isModified())
+
+    @requiresSphinx
+    def test_previewCheck24(self):
+        """If the file to be previewed is older than the source, an error
+        should appear."""
+        # First, run Sphinx and generate some output.
+        self._doBasicSphinxConfig()
+        core.config()['Sphinx']['BuildOnSave'] = False
+        core.config().flush()
+        self.testText = u'Testing'
+        webViewContent, logContent = self._doBasicSphinxTest('rst')
+        self.assertTrue(u'Testing' in webViewContent)
+
+        # Now, exclude this from the build and re-run.
+        conf = os.path.join(self.TEST_FILE_DIR, 'conf.py')
+        with open(conf, 'a') as f:
+            f.write('\n\nexclude_patterns = ["code.rst"]')
+        # Run Sphinx again.
+        qp = core.workspace().currentDocument().qutepart
+        self._assertHtmlReady(lambda: qp.appendPlainText('xxx'),
+                              timeout=10000)
+        webViewContent, logContent = (self._html(), self._logText())
+        self.assertIn(u'is older than the source file', webViewContent)
+
+    @mock.patch('os.path.getmtime')
+    @requiresSphinx
+    @base.inMainLoop
+    def test_previewCheck25(self, _getmtime):
+        """Check exception handling in date comparison code."""
+        # Make getmtime fail.
+        _getmtime.side_effect=OSError()
+        # First, run Sphinx and generate some output.
+        self._doBasicSphinxConfig()
+        core.config()['Sphinx']['BuildOnSave'] = False
+        core.config().flush()
+        self.testText = u'Testing'
+        webViewContent, logContent = self._doBasicSphinxTest('rst')
+        self.assertIn(u'modification', webViewContent)
+
 
     # Cases testing commonprefix
     ##--------------------------
