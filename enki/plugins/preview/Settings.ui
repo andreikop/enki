@@ -118,6 +118,13 @@
           </layout>
          </item>
          <item>
+          <widget class="QLabel" name="lbSphinxProjectPathHint">
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Hint: this usually contains &lt;/span&gt;&lt;span style=&quot; font-family:'Courier New,courier';&quot;&gt;conf.py&lt;/span&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <layout class="QGridLayout" name="gridLtNotAdvancedSettings">
            <item row="0" column="0">
             <widget class="QLabel" name="lbSphinxOutputPath">
