@@ -40,7 +40,7 @@ def load(filePath, dataName, defaultValue):
         return defaultValue
 
 
-def dump(filePath, dataName, data):
+def dump(filePath, dataName, data, showWarnings=True):
     """Try to save data to JSON file.
     Show exceptions on main window and print it, if something goes wrong
     """
@@ -50,6 +50,6 @@ def dump(filePath, dataName, data):
     except (OSError, IOError), ex:
         error = unicode(str(ex), 'utf8')
         text = "Failed to save %s to '%s': %s" % (dataName, filePath, error)
-        if core.mainWindow() is not None:
+        if showWarnings and core.mainWindow() is not None:
             core.mainWindow().appendMessage(text)
         print >> sys.stderr, error

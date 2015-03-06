@@ -2,14 +2,18 @@
 session --- Reopen files when starting
 ======================================
 """
+from PyQt4.QtCore import QTimer
 
-import sys
 import os.path
-import json
 
 from enki.core.core import core
 from enki.core.defines import CONFIG_DIR
 import enki.core.json_wrapper
+
+
+
+
+_AUTO_SAVE_INTERVAL_MS = 60 * 1000
 
 
 def getSessionFilePath():
@@ -33,17 +37,23 @@ def getSessionFilePath():
 
 _SESSION_FILE_PATH = getSessionFilePath()
 
+
 class Plugin:
     """Plugin interface
     """
     def __init__(self):
         core.restoreSession.connect(self._onRestoreSession)
-        core.aboutToTerminate.connect(self._onAboutToTerminate)
+        core.aboutToTerminate.connect(self._saveSession)
+        self._timer = QTimer(core)
+        self._timer.timeout.connect(self._autoSaveSession)
+        self._timer.setInterval(_AUTO_SAVE_INTERVAL_MS)
+        self._timer.start()
 
     def del_(self):
         """Explicitly called destructor
         """
-        pass
+        core.restoreSession.disconnect(self._onRestoreSession)
+        core.aboutToTerminate.disconnect(self._saveSession)
 
     def _onRestoreSession(self):
         """Enki initialisation finished.
@@ -79,7 +89,7 @@ class Plugin:
 
         return None
 
-    def _onAboutToTerminate(self):
+    def _saveSession(self, showWarnings=True):
         """Enki is going to be terminated.
         Save session
         """
@@ -101,4 +111,7 @@ class Plugin:
         session = {'current' : currentPath,
                    'opened' : fileList}
 
-        enki.core.json_wrapper.dump(_SESSION_FILE_PATH, 'session', session)
+        enki.core.json_wrapper.dump(_SESSION_FILE_PATH, 'session', session, showWarnings)
+
+    def _autoSaveSession(self):
+        self._saveSession(showWarnings=False)

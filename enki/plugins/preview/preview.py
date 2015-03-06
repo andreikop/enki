@@ -560,7 +560,6 @@ class PreviewDock(DockWidget):
 
         if self._vAtEnd[self._visiblePath]:
             frame.setScrollBarValue(Qt.Vertical, frame.scrollBarMaximum(Qt.Vertical))
-            print '~~~~ v max'
 
         # Re-sync the re-loaded text.
         self.previewSync.syncTextToPreview()
