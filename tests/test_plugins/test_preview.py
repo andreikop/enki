@@ -803,7 +803,22 @@ head
         self._assertHtmlReady(lambda: qp.appendPlainText('xxx'),
                               timeout=10000)
         webViewContent, logContent = (self._html(), self._logText())
-        assert 'is older than the source file' in webViewContent
+        self.assertIn(u'is older than the source file', webViewContent)
+
+    @mock.patch('os.path.getmtime')
+    @requiresSphinx
+    @base.inMainLoop
+    def test_previewCheck25(self, _getmtime):
+        """Check exception handling in date comparison code."""
+        # Make getmtime fail.
+        _getmtime.side_effect=OSError()
+        # First, run Sphinx and generate some output.
+        self._doBasicSphinxConfig()
+        core.config()['Sphinx']['BuildOnSave'] = False
+        core.config().flush()
+        self.testText = u'Testing'
+        webViewContent, logContent = self._doBasicSphinxTest('rst')
+        self.assertIn(u'modification', webViewContent)
 
 
     # Cases testing commonprefix
