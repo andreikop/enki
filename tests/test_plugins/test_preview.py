@@ -997,22 +997,22 @@ head
 
     @base.inMainLoop
     def test_logWindowSplitter1(self):
-        """Feature 1. Created files will have same default splitter size.
+        """Feature 1. Created files will have same splitter size.
         """
-        defaultSplitterSize = [199, 50]
         document1 = self.createFile('file1.rst', '.. file1::')
         document2 = self.createFile('file2.rst', '.. file2::')
+        document3 = self.createFile('file3.rst', '.. file3::')
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
+        # Store default splitter size
+        defaultSplitterSize = self._widget().splitter.sizes()
+        self.assertTrue(defaultSplitterSize[1])
+        # Switch to other two documents, they should have the same splitter size
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
+        self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
         # Check splitter size of document 2.
-        self.assertNotEqual(self._widget().splitter.sizes()[0], 0)
-        # Assert log window size is 50 even though preview window size might not
-        # be 199.
-        self.assertEqual(self._widget().splitter.sizes()[1], defaultSplitterSize[1])
-        # Switch to document 1. Splitter size should be the same.
+        # Switch to other two documents, they should have the same splitter size
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
-        # Make sure all documents have the same splitter size.
-        self.assertNotEqual(self._widget().splitter.sizes()[0], 0)
-        self.assertEqual(self._widget().splitter.sizes()[1], defaultSplitterSize[1])
+        self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
 
     @base.inMainLoop
     def test_logWindowSplitter2(self):
@@ -1041,21 +1041,20 @@ head
         """Feature 3. Error free document will not affect other documents'
         splitter size.
         """
-        defaultSplitterSize = [199, 50]
         document1 = self.createFile('file1.rst', '.. file1::')
         document2 = self.createFile('file2.rst', '')
         document3 = self.createFile('file3.rst', '.. file3::')
         self._assertHtmlReady(lambda: None)
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
-        # Check splitter size of document 1.
-        self.assertEqual(self._widget().splitter.sizes()[1], defaultSplitterSize[1])
+        defaultSplitterSize = self._widget().splitter.sizes()
+        self.assertTrue(defaultSplitterSize[1])
         # Switch to document 2. Log window is hidden now.
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
         self.assertFalse(self._widget().splitter.sizes()[1])
         # Switch to document 3. Log window should be restore to original size.
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
-        self.assertNotEqual(self._widget().splitter.sizes()[0], 0)
-        self.assertEqual(self._widget().splitter.sizes()[1], defaultSplitterSize[1])
+        self.assertTrue(self._widget().splitter.sizes()[0])
+        self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
 
     @base.inMainLoop
     def test_logWindowSplitter3a(self):
