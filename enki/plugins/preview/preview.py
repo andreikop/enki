@@ -747,7 +747,9 @@ class PreviewDock(DockWidget):
         sphinxTemplatePath = os.path.join(sphinxPluginsPath, 'sphinx_templates')
         sphinxProjectPath = core.config()['Sphinx']['ProjectPath']
         errors = []
-        checklist = ['index.rst', 'conf.py', 'CodeChat.css']
+        checklist = ['index.rst', 'conf.py']
+        if core.config()['CodeChat']['Enabled'] and CodeChat:
+            checklist.append('CodeChat.css')
         missinglist = []
         for filename in checklist:
             if not os.path.exists(os.path.join(sphinxProjectPath, filename)):
