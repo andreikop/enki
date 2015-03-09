@@ -194,6 +194,7 @@ class Test(PreviewTestCase):
         self.assertTrue('body {color: white; background: black;}' in self._html())
 
     @requiresModule('markdown')
+    @base.inMainLoop
     def test_markdown_templates_help(self):
         core.config()['Preview']['Template'] = 'WhiteOnBlack'
         document = self.createFile('test.md', 'foo')
@@ -826,6 +827,7 @@ head
         self.assertTrue(os.path.isfile(os.path.join(self.TEST_FILE_DIR, 'CodeChat.css')))
 
     @requiresSphinx
+    @base.inMainLoop
     def test_previewCheck25(self):
         """If the file to be previewed is older than the source, an error
         should appear."""
