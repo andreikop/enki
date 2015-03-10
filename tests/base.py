@@ -9,6 +9,7 @@ import shutil
 import tempfile
 import subprocess
 import codecs
+import imp
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
@@ -148,6 +149,16 @@ def requiresCmdlineUtility(command):
         return unittest.skip('{} command not found. Cannot run the test without it'.format(cmdlineArgs[0]))
     else:
         return lambda func: func
+
+
+def requiresModule(module):
+    """This decorator checks that the given python module, which is
+       required for a unit test, is present. If not, it skips the test."""
+    try:
+        imp.find_module(module)
+    except ImportError:
+        return unittest.skip("This test requires python-{}".format(module))
+    return lambda func: func
 
 
 class TestCase(unittest.TestCase):

@@ -13,7 +13,6 @@ import unittest
 import os.path
 import sys
 import stat
-import imp
 import codecs
 
 # Local application imports
@@ -43,14 +42,6 @@ from enki.plugins.preview import _getSphinxVersion
 
 # Preview module tests
 # ====================
-def requiresModule(module):
-    """This decorator checks that the given python module, which is
-       required for a unit test, is present. If not, it skips the test."""
-    try:
-        imp.find_module(module)
-    except ImportError:
-        return unittest.skip("This test requires python-{}".format(module))
-    return lambda func: func
 
 # Decorating each test function which needs it with
 # @base.requiresCmdlineUtility('sphinx-build --version')
@@ -139,7 +130,7 @@ class PreviewTestCase(base.TestCase):
         return self._html(), self._logText()
 
 class Test(PreviewTestCase):
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     def test_emptyCodeChatDocument(self):
         core.config()['CodeChat']['Enabled'] = True
         core.workspace().createEmptyNotSavedDocument()
@@ -162,17 +153,17 @@ class Test(PreviewTestCase):
     def test_html(self):
         self._doBasicTest('html')
 
-    @requiresModule('docutils')
+    @base.requiresModule('docutils')
     @base.inMainLoop
     def test_rst(self):
         self._doBasicTest('rst')
 
-    @requiresModule('markdown')
+    @base.requiresModule('markdown')
     @base.inMainLoop
     def test_markdown(self):
         self._doBasicTest('md')
 
-    @requiresModule('markdown')
+    @base.requiresModule('markdown')
     @base.inMainLoop
     def test_markdown_templates(self):
         core.config()['Preview']['Template'] = 'WhiteOnBlack'
@@ -193,7 +184,7 @@ class Test(PreviewTestCase):
         self.assertFalse('body {color: white; background: black;}' in self._plainText())
         self.assertTrue('body {color: white; background: black;}' in self._html())
 
-    @requiresModule('markdown')
+    @base.requiresModule('markdown')
     @base.inMainLoop
     def test_markdown_templates_help(self):
         core.config()['Preview']['Template'] = 'WhiteOnBlack'
@@ -209,7 +200,7 @@ class Test(PreviewTestCase):
 
     # Cases for literate programming setting ui
     ##-----------------------------------------
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     def test_settingUiCheck1(self):
         """When Enki runs for the first time, the CodeChat module should be
            disabled by default."""
@@ -227,7 +218,7 @@ class Test(PreviewTestCase):
         self.assertFalse(sw.labelCodeChatNotInstalled.isVisible())
         sw.close()
 
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     def test_settingUiCheck3(self):
         """ The Enable CodeChat checkbox should only be enabled if CodeChat can
             be imported; otherwise, it should be disabled."""
@@ -306,7 +297,7 @@ class Test(PreviewTestCase):
 
     # Cases for code preview using Codechat or Sphinx
     ##-----------------------------------------------
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck1(self):
         """If Enki is opened with CodeChat enabled, the preview dock should be
@@ -343,7 +334,7 @@ content"""
         webViewContent, logContent = self._doBasicSphinxTest('rst')
 
     @requiresSphinx
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck3a(self):
         """Basic Sphinx with CodeChat test. Output directory is a absolute
@@ -363,7 +354,7 @@ content"""
         self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     @requiresSphinx
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck3(self):
         """Basic Sphinx with CodeChat test: create a Sphinx project with codechat
@@ -380,7 +371,7 @@ content"""
         self.assertTrue(u'<p>content</p>' in webViewContent)
         self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck4(self):
         """If Enki is opened without any configuration, the preview dock will
@@ -408,7 +399,7 @@ content"""
         self._doBasicSphinxTest('rst')
         self.assertNotIn('<h1>head', d._widget.webView.page().mainFrame().toHtml())
 
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck6(self):
         """If an empty code file is passed to Enki, the CodeChat preview panel
@@ -428,7 +419,7 @@ content"""
         webViewContent, logContent = self._doBasicSphinxTest('rst')
         self.assertTrue(u"doesn't have a title" in logContent)
 
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck7(self):
         """Test that Unicode characters are handled properly.
@@ -454,7 +445,7 @@ content"""
         webViewContent, logContent = self._doBasicSphinxTest('rst')
         self.assertTrue(u"<h1>Енки" in webViewContent)
 
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck8(self):
         """Start with a short code file, make sure the preview window isn't
@@ -494,7 +485,7 @@ content"""
         webViewContent, logContent = self._doBasicSphinxTest('rst')
         self.assertTrue(u"""doesn't have a title""" in logContent)
 
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck9(self):
         """Uninterpretable reStructuredText syntax in source code will generate
@@ -521,7 +512,7 @@ content"""
         webViewContent, logContent = self._doBasicSphinxTest('rst')
         self.assertTrue("Title overline too short" in logContent)
 
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck10(self):
         """Empty input should generate an empty log.
@@ -534,7 +525,7 @@ content"""
         self._doBasicTest('rst')
         self.assertEqual(self._logText(), '')
 
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck11(self):
         """Unicode should display correctly in log window too.
@@ -564,7 +555,7 @@ head
         # Unicode cannot be found in Sphinx error message output.
         self.assertTrue(u'Енки' in logContent)
 
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck13(self):
         """Test progress bar status (indefinitely) when building
@@ -574,7 +565,7 @@ head
         self.assertEqual(self._widget().prgStatus.maximum(), 0)
         self.assertEqual(self._widget().prgStatus.minimum(), 0)
 
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck14(self):
         """Check different progressbar color given different scenarios.
@@ -585,7 +576,7 @@ head
         self._doBasicTest('rst')
         self.assertEqual(self._widget().prgStatus.styleSheet(), 'QProgressBar::chunk {}')
 
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck15(self):
         core.config()['CodeChat']['Enabled'] = True
@@ -594,7 +585,7 @@ head
         self._doBasicTest('rst')
         self.assertTrue('#FF9955' in self._widget().prgStatus.styleSheet())
 
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck16(self):
         core.config()['CodeChat']['Enabled'] = True
@@ -603,7 +594,7 @@ head
         self._doBasicTest('py')
         self.assertTrue('red' in self._widget().prgStatus.styleSheet())
 
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck17(self):
         """A complex test case that tests both the log parser regexp and
@@ -615,7 +606,7 @@ head
         self.assertTrue('red' in self._widget().prgStatus.styleSheet())
         self.assertTrue('Warning(s): 2, error(s): 2' in self._logText())
 
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck18(self):
         """Switching between different files should update the log
@@ -646,7 +637,7 @@ head
         self.assertEqual(self._logText(), '')
 
     @requiresSphinx
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck19(self):
         """Check Advanced Mode. In this case Advanced Mode does not have
@@ -668,7 +659,7 @@ head
         self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     @requiresSphinx
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck20(self):
         """Check space in path name. Advanced mode is not enabled.
@@ -693,7 +684,7 @@ head
         self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     @requiresSphinx
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck20a(self):
         """Check spaces in path name. Advanced mode is enabled.
@@ -722,7 +713,7 @@ head
         self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     @requiresSphinx
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck21(self):
         """When user hit ok button in setting window, the project will get
@@ -812,7 +803,7 @@ head
         self.assertFalse(os.path.isfile(os.path.join(self.TEST_FILE_DIR, 'CodeChat.css')))
 
     @requiresSphinx
-    @requiresModule('CodeChat')
+    @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck20a(self):
         core.config()['CodeChat']['Enabled'] = True

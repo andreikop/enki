@@ -37,7 +37,7 @@ import base
 
 # Base will insert path to enki, so its modules that we want to test can now be
 # imported.
-from test_preview import requiresModule
+from base import requiresModule
 # If TRE isn't installed, these will fail; ignore this exception, and skip the
 # tests instead.
 try:
