@@ -558,12 +558,11 @@ head
     @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck13(self):
-        """Test progress bar status (indefinitely) when building
+        """Test progress bar status (100%) when building reST / CodeChat.
         """
         core.config()['CodeChat']['Enabled'] = True
         self.createFile('file.py', self.testText)
-        self.assertEqual(self._widget().prgStatus.maximum(), 0)
-        self.assertEqual(self._widget().prgStatus.minimum(), 0)
+        self.assertEqual(self._widget().prgStatus.value(), 100)
 
     @base.requiresModule('CodeChat')
     @base.inMainLoop

@@ -694,12 +694,21 @@ class PreviewDock(DockWidget):
             if document.qutepart.language() == 'Markdown':
                 language = 'Markdown'
                 text = self._getCurrentTemplate() + text
+                # Hide the progress bar, since processing is usually short and
+                # Markdown produces no errors or warnings to display in the
+                # progress bar. See https://github.com/bjones1/enki/issues/36.
+                self._widget.prgStatus.setVisible(False)
             elif isHtmlFile(document):
                 # No processing needed -- just display it.
                 self._setHtml(document.filePath(), text)
+                # Hide the progress bar, since no processing is necessary.
+                self._widget.prgStatus.setVisible(False)
                 return
             elif language == 'Restructured Text':
-                pass
+                # Show the progress bar for reST / Sphinx builds. It will
+                # display progress (for Sphinx) and errors/warnings (for
+                # reST or Sphinx.
+                self._widget.prgStatus.setVisible(True)
             # Determine whether to initiate a build or not. The underlying
             # logic:
             #
@@ -746,12 +755,14 @@ class PreviewDock(DockWidget):
                     core.config()["Qutepart"]["StripTrailingWhitespace"] = False
                     document.saveFile()
                     core.config()["Qutepart"]["StripTrailingWhitespace"] = whitespaceSetting
+            # Only show progress bar percentage if using Sphinx.
+            if sphinxCanProcess:
+                self._setHtmlProgress(0)
             # Build. Each line is one row in the table above.
             if ( (not sphinxCanProcess) or
                 (sphinxCanProcess and not internallyModified) or
                 saveThenBuild ):
-                self._setHtmlProgress(-1)
-                # for rest language is already correct
+                # For reST language is already correct.
                 self._thread.process(document.filePath(), language, text)
             # Warn.
             if (sphinxCanProcess and internallyModified and
@@ -923,7 +934,6 @@ class PreviewDock(DockWidget):
     def _setHtmlProgress(self, progress=None, color=None):
         """Set progress bar and status label.
         if progress is -1: use an indefinite progress bar.
-        if progress is 0: reset the progress bar to 0.
         if progress is any value between 0 and 100: display progress bar
           with that percentage of completion.
         """
@@ -939,8 +949,6 @@ class PreviewDock(DockWidget):
         self._widget.prgStatus.setStyleSheet(style)
         if progress == -1:
             self._widget.prgStatus.setRange(0, 0)
-        elif progress == 0 or not progress:
-            self._widget.prgStatus.reset()
         else:
             assert progress >= 0 and progress <= 100
             self._widget.prgStatus.setRange(0, 100)
