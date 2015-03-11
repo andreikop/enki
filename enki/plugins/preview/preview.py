@@ -501,6 +501,16 @@ class PreviewDock(DockWidget):
         self._widget.splitter.splitterMoved.connect(self.on_splitterMoved)
         # Don't need to schedule document processing; a call to show() does.
 
+        # Per https://github.com/bjones1/enki/issues/18 and
+        # https://github.com/bjones1/enki/issues/34, the default Unix color
+        # for inactive hilighted text is unreadable. Just set all platforms to
+        # use something reasonable. See
+        # http://qt-project.org/doc/qt-4.8/stylesheet-reference.html#selection-color-prop.
+        # Note that setting only the selection-color produces actually changes
+        # the selection-background-color, since styles override the palette in
+        # ways I don't fully understand.
+        self._widget.webView.setStyleSheet("QWebView { selection-color: black; selection-background-color: #FFFFA0; }")
+
     def _quitingApplication(self):
         self._programRunning = False
 
