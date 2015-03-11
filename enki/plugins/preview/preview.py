@@ -691,8 +691,7 @@ class PreviewDock(DockWidget):
             qp = document.qutepart
             language = qp.language()
             text = qp.text
-            if document.qutepart.language() == 'Markdown':
-                language = 'Markdown'
+            if language == 'Markdown':
                 text = self._getCurrentTemplate() + text
                 # Hide the progress bar, since processing is usually short and
                 # Markdown produces no errors or warnings to display in the
@@ -748,13 +747,13 @@ class PreviewDock(DockWidget):
             saveThenBuild = (sphinxCanProcess and internallyModified and
                 not externallyModified and not buildOnSave)
             if saveThenBuild:
-                    # Trailing whitespace is not stripped when
-                    # autosaving. When a save is invoked manually,
-                    # trailing whitespace will be stripped if enabled.
-                    whitespaceSetting = core.config()["Qutepart"]["StripTrailingWhitespace"]
-                    core.config()["Qutepart"]["StripTrailingWhitespace"] = False
-                    document.saveFile()
-                    core.config()["Qutepart"]["StripTrailingWhitespace"] = whitespaceSetting
+                # Trailing whitespace is not stripped when
+                # autosaving. When a save is invoked manually,
+                # trailing whitespace will be stripped if enabled.
+                whitespaceSetting = core.config()["Qutepart"]["StripTrailingWhitespace"]
+                core.config()["Qutepart"]["StripTrailingWhitespace"] = False
+                document.saveFile()
+                core.config()["Qutepart"]["StripTrailingWhitespace"] = whitespaceSetting
             # Only show progress bar percentage if using Sphinx.
             if sphinxCanProcess:
                 self._setHtmlProgress(0)
