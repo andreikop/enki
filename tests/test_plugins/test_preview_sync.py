@@ -395,27 +395,6 @@ text after table""", True)
         # Now, make sure that TRE imports correctly.
         self.assertTrue(enki.plugins.preview.preview_sync.findApproxTextInTarget)
 
-    def test_sync23(self):
-        """Import an old TRE that doesn't handle unicode. Make sure preview_sync
-        treats this as if TRE wasn't importable."""
-        with mock.patch('tre.compile') as _tre_compile:
-            # Older TRE versions don't support unicode. Emulate that.
-            def mock_tre_compile(searchText, matchType):
-                if isinstance(searchText, unicode):
-                    # I can't figure out how to construct a UnicodeEncodeError.
-                    # So, raise one instead.
-                    codecs.encode(u'\u00a0')
-            _tre_compile.side_effect = mock_tre_compile
-            # Force Python to reload approx_match during the reload of
-            # preivew_sync, so that import approx_match will raise an exception.
-            del sys.modules['enki.plugins.preview.approx_match']
-            reload(enki.plugins.preview.preview_sync)
-            fatit = enki.plugins.preview.preview_sync.findApproxTextInTarget
-        # Reload preview_sync so that the remaining tests will have a working
-        # approx_match.
-        reload(enki.plugins.preview.preview_sync)
-        self.assertIsNone(fatit)
-        self.assertTrue(enki.plugins.preview.preview_sync.findApproxTextInTarget)
 
 # Main
 # ====
