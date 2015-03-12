@@ -31,7 +31,8 @@ from PyQt4 import uic
 # -------------
 from enki.core.core import core
 from enki.widgets.dockwidget import DockWidget
-from enki.plugins.preview import isHtmlFile, canUseCodeChat
+from enki.plugins.preview import isHtmlFile, canUseCodeChat, \
+    sphinxEnabledForFile
 from preview_sync import PreviewSync
 from enki.lib.get_console_output import get_console_output
 
@@ -53,73 +54,6 @@ if getattr(sys, 'frozen', False):
     isFrozen = True
 else:
     isFrozen = False
-
-def commonPrefix(*dirs):
-    """This function provides a platform-independent path commonPrefix. It
-    returns the common path between all directories in input list dirs, assuming
-    that any relative paths are rooted in the current directory. While`this post
-    <http://stackoverflow.com/questions/21498939/how-to-circumvent-the-fallacy-of-pythons-os-path-commonprefix>`_
-    has two solutions, neither are correct; hence, the following code.
-
-    Parameters: dirs - Directory list.
-    Return value: the common path prefix shared by all input directories.
-    """
-    # corner case (empty input list)
-    if not dirs:
-        return ''
-    # Path cleaning toolset:
-    #
-    # - **realpath** follows symbolic links, so they will be compared in
-    #   terms of what they refer to. realpath will also evaluate directory
-    #   traversals.
-    #
-    #   #. get Canonical path.
-    #   #. eliminate symbolic links.
-    #
-    # - **normcase** makes Windows filenames all lowercase, since the
-    #   following code uses case-sensitive string comparions. Windows
-    #   uses case-insensitive naming for its files.
-    #
-    #   #. converts path to lower case for case-insensitive filesystem.
-    #   #. converts forward slashes to backward slashes (Windows only)
-    # - **abspath** collapses and evaluates directory traversals like
-    #   ``./../subdir``, to correctly compare absolute and relative paths,
-    #   and normalizes the os.path.sep for the current platform
-    #   (i.e. no `\a/b` paths). Similar to ``normpath(join(os.getcwd(), path))``.
-    fullPathList = [os.path.normcase(os.path.abspath(os.path.realpath(d))) for d in dirs]
-    # Now use ``commonprefix`` on absolute paths.
-    prefix = os.path.commonprefix(fullPathList)
-    # commonprefix stops at the first dissimilar character, leaving an incomplete
-    # path name. For example, ``commonprefix(('aa', 'ab')) == 'a'``. Fix this
-    # by removing this ending incomplete path if necessary.
-    for d in fullPathList:
-        # ``commonPrefix`` contains a complete path if the character in
-        # ``d`` after its end is an os.path.sep or the end of the path name.
-        if len(d) > len(prefix) and d[len(prefix)] != os.path.sep:
-            # This is an incomplete path. Remove it.
-            prefix = os.path.dirname(prefix)
-            break
-    # If any input directory is absolute path, then commonPrefix will return
-    # an absolute path.
-    if any((os.path.isabs(d)) for d in dirs):
-        return prefix
-
-    # If not, we will use the assumption that all relative paths
-    # are rooted in the current directory. Test whether ``prefix`` starts with
-    # the current working directory. If not, return an absolute path.
-    cwd = os.getcwd()
-    return prefix if not prefix.startswith(cwd) else prefix[len(cwd) + len(os.path.sep):]
-
-
-def sphinxEnabledForFile(filePath):
-    """Based on Sphinx settings under core.config()['Sphinx'], this function
-    determines whether sphinx can be applied to *filePath*.
-    """
-    sphinxProjectPath = core.config()['Sphinx']['ProjectPath']
-    return ( filePath and
-           core.config()['Sphinx']['Enabled'] and
-           os.path.exists(core.config()['Sphinx']['ProjectPath']) and
-           os.path.normcase(sphinxProjectPath) == commonPrefix(filePath, sphinxProjectPath))
 
 def copyTemplateFile(errors, source, templateFileName, dest, newName=None):
     """For each sphinx project, two files are needed: ``index.rst``as master

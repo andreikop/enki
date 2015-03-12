@@ -34,7 +34,7 @@ from enki.core.core import core
 # ``reload(enki.plugins.preview)``; the last, to instiantate ``SettingsWidget``.
 import enki.plugins.preview
 from enki.plugins.preview import SettingsWidget
-from enki.plugins.preview.preview import commonPrefix
+from enki.plugins.preview import commonPrefix
 from enki.plugins.preview.preview import copyTemplateFile
 from import_fail import ImportFail
 from enki.plugins.preview import _getSphinxVersion
