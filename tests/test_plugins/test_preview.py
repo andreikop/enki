@@ -152,6 +152,7 @@ class Test(PreviewTestCase):
     @base.inMainLoop
     def test_html(self):
         self._doBasicTest('html')
+        self.assertFalse(self._widget().prgStatus.isVisible())
 
     @base.requiresModule('docutils')
     @base.inMainLoop
@@ -162,6 +163,7 @@ class Test(PreviewTestCase):
     @base.inMainLoop
     def test_markdown(self):
         self._doBasicTest('md')
+        self.assertFalse(self._widget().prgStatus.isVisible())
 
     @base.requiresModule('markdown')
     @base.inMainLoop
@@ -305,6 +307,7 @@ class Test(PreviewTestCase):
         core.config()['CodeChat']['Enabled'] = True
         self._doBasicTest('py')
         self._dock()
+        self.assertTrue(self._widget().prgStatus.isVisible())
 
     @requiresSphinx
     @base.inMainLoop
