@@ -158,6 +158,7 @@ class Test(PreviewTestCase):
     @base.inMainLoop
     def test_rst(self):
         self._doBasicTest('rst')
+        self.assertTrue(self._widget().prgStatus.isVisible())
 
     @base.requiresModule('markdown')
     @base.inMainLoop
@@ -321,6 +322,7 @@ head
 
 content"""
         webViewContent, logContent = self._doBasicSphinxTest('rst')
+        self.assertTrue(self._widget().prgStatus.isVisible())
 
     @requiresSphinx
     @base.inMainLoop
