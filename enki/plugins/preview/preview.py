@@ -31,7 +31,7 @@ from PyQt4 import uic
 # -------------
 from enki.core.core import core
 from enki.widgets.dockwidget import DockWidget
-from enki.plugins.preview import isHtmlFile
+from enki.plugins.preview import isHtmlFile, canUseCodeChat
 from preview_sync import PreviewSync
 from enki.lib.get_console_output import get_console_output
 
@@ -172,12 +172,6 @@ class ConverterThread(QThread):
     def stop_async(self):
         self._queue.put(None)
 
-    def _canUseCodeChat(self):
-        # Codechat is available when LSO and CodeToRest can be found,
-        # and Enki settings enable codechat (config()['CodeChat']['Enabled'] is
-        # true).
-        return core.config()['CodeChat']['Enabled'] and LSO and CodeToRest
-
     def _checkModificationTime(self, sourceFile, outputFile, s):
         """Make sure the outputFile is newer than the sourceFile.
         Otherwise, return an error."""
@@ -245,16 +239,12 @@ class ConverterThread(QThread):
                             htmlFile + " or " + htmlFileAlter, errString, QUrl())
 
             # Otherwise, fall back to using CodeChat+docutils.
-            elif self._canUseCodeChat():
+            elif canUseCodeChat(filePath):
                 # Use StringIO to pass CodeChat compilation information back to
                 # the UI.
                 errStream = StringIO.StringIO()
                 lso = LSO.LanguageSpecificOptions()
                 fileName, fileExtension = os.path.splitext(filePath)
-                # Check to seee if CodeToRest supportgs this file's extension.
-                if fileExtension not in lso.extension_to_options.keys():
-                    return 'No preview for this type of file', None, QUrl()
-                # CodeToRest can render this file. Do so.
                 lso.set_language(fileExtension)
                 htmlString = CodeToRest.code_to_html_string(text, lso, errStream)
                 # Error string might contain characters such as ">" and "<",

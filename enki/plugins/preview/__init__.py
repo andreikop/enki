@@ -28,6 +28,19 @@ def isHtmlFile(document):
            'html' in document.qutepart.language().lower()  and \
            (not 'php' in document.qutepart.language().lower())  # Django HTML template but not HTML (PHP)
 
+def canUseCodeChat(filePath):
+    # CodeChat can preview a file if it's enabled and if that file's
+    # extension is supported. Since enki needs to check file extension,
+    # file path cannot be none.
+    if ( CodeChat is not None and core.config()['CodeChat']['Enabled']
+         and filePath):
+        lso = LSO.LanguageSpecificOptions()
+        fileExtension = os.path.splitext(filePath)[1]
+        if fileExtension in lso.extension_to_options.keys():
+            return True
+    return False
+
+
 def _getSphinxVersion(path):
     """Return the Sphinx version as a list of integer items.
 
@@ -256,15 +269,9 @@ class Plugin(QObject):
            isHtmlFile(document):
             return True
 
-        # CodeChat can preview a file if it's enabled and if that file's
-        # extension is supported. Since enki needs to check file extension,
-        # file path cannot be none.
-        if ( CodeChat is not None and core.config()['CodeChat']['Enabled']
-             and document.filePath()):
-            lso = LSO.LanguageSpecificOptions()
-            fileExtension = os.path.splitext(document.filePath())[1]
-            if fileExtension in lso.extension_to_options.keys():
-                return True
+        if canUseCodeChat(document.filePath()):
+            return True
+
         # TODO: When to really show the preview dock with Sphinx? That is, how
         # can we tell if Sphinx will produce a .html file based on the currently
         # open file in the editor? Just checking for a .html file doesn't work;
