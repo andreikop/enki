@@ -615,6 +615,7 @@ class PreviewDock(DockWidget):
             qp = document.qutepart
             language = qp.language()
             text = qp.text
+            sphinxCanProcess = sphinxEnabledForFile(document.filePath())
             if language == 'Markdown':
                 text = self._getCurrentTemplate() + text
                 # Hide the progress bar, since processing is usually short and
@@ -627,10 +628,11 @@ class PreviewDock(DockWidget):
                 # Hide the progress bar, since no processing is necessary.
                 self._widget.prgStatus.setVisible(False)
                 return
-            elif language == 'Restructured Text':
-                # Show the progress bar for reST / Sphinx builds. It will
-                # display progress (for Sphinx) and errors/warnings (for
-                # reST or Sphinx.
+            elif ( (language == 'Restructured Text') or sphinxCanProcess or
+                  canUseCodeChat(document.filePath()) ):
+                # Show the progress bar for reST, CodeChat, or Sphinx builds. It
+                # will display progress (Sphinx only) and errors/warnings (for
+                # all three).
                 self._widget.prgStatus.setVisible(True)
             # Determine whether to initiate a build or not. The underlying
             # logic:
@@ -663,7 +665,6 @@ class PreviewDock(DockWidget):
             # Yes                 Yes                  Yes                  No             No     No    Yes
             # Yes                 Yes                  X                    Yes            No     No    No
             # ==================  ===================  ===================  =============  =====  ====  ====
-            sphinxCanProcess = sphinxEnabledForFile(document.filePath())
             internallyModified = qp.document().isModified()
             externallyModified = document.isExternallyModified()
             buildOnSave = core.config()['Sphinx']['BuildOnSave']
