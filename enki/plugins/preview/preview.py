@@ -23,7 +23,7 @@ import codecs
 # Third-party imports
 # -------------------
 from PyQt4.QtCore import pyqtSignal, QSize, Qt, QThread, QTimer, QUrl
-from PyQt4.QtGui import QDesktopServices, QFileDialog, QIcon, QMessageBox, QWidget
+from PyQt4.QtGui import QDesktopServices, QFileDialog, QIcon, QMessageBox, QWidget, QPalette
 from PyQt4.QtWebKit import QWebPage
 from PyQt4 import uic
 
@@ -432,6 +432,13 @@ class PreviewDock(DockWidget):
         self._widget.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
         self._widget.webView.page().mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
         self._widget.webView.page().linkClicked.connect(self._onLinkClicked)
+
+        # Fix preview palette. See https://github.com/bjones1/enki/issues/34
+        webViewPalette = self._widget.webView.palette()
+        webViewPalette.setColor(QPalette.Inactive, QPalette.HighlightedText,
+                                webViewPalette.color(QPalette.Text))
+        self._widget.webView.setPalette(webViewPalette)
+
 
         self._widget.webView.page().mainFrame().titleChanged.connect(self._updateTitle)
         self.setWidget(self._widget)
