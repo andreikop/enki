@@ -141,6 +141,7 @@
 		<file>value.png</file>
 		<file>values.png</file>
 		<file>variable.png</file>
+		<file>vim.png</file>
 		<file>winEol.png</file>
 	</qresource>
 </RCC>

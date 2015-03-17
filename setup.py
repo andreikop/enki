@@ -111,6 +111,7 @@ for loader, name, ispkg in pkgutil.iter_modules(['enki/plugins']):
         packages.append('enki/plugins/' + name)
         package_data['enki'].append('plugins/%s/*.ui' % name)
         package_data['enki'].append('plugins/%s/*.png' % name)
+        package_data['enki'].append('plugins/%s/*.txt' % name)
         package_data['enki'].append('plugins/%s/templates/*' % name)
         package_data['enki'].append('plugins/%s/sphinx_templates/*' % name)
 
