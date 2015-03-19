@@ -1,1 +1,7 @@
-
+<style type="text/css">
+    table, th, td {
+       border: 1px solid gray;
+       border-collapse: collapse;
+       padding: 5px;
+    }
+</style>

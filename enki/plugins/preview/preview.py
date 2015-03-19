@@ -208,7 +208,7 @@ class ConverterThread(QThread):
         except ImportError:
             pass  #mathjax doesn't require import statement if installed as extension
 
-        extensions = ['fenced_code', 'nl2br']
+        extensions = ['fenced_code', 'nl2br', 'tables']
 
         # version 2.0 supports only extension names, not instances
         if markdown.version_info[0] > 2 or \

@@ -1,3 +1,7 @@
 <style type="text/css">
-body {color: white; background: black;}
+    body {color: white; background: black;}
+    table, th, td {
+       border: 1px solid gray;
+       border-collapse: collapse;
+    }
 </style>
