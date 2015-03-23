@@ -343,8 +343,11 @@ text after table""", True)
 
     # Cases for _alignScrollAmount
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    # Case 1: when the source y (in global coordinates) is above the target
-    # window.
+    # When the source y (in global coordinates) is above the target
+    # window. The best the algorithm can do is move to the top of the target
+    # window (a delta of -1 from where targetCursorTop is now).
+    #
+    # .. image:: preview_sync_source_above_target.png
     @base.inMainLoop
     def test_sync19(self):
         self._doBasicTest('rst')
@@ -353,37 +356,73 @@ text after table""", True)
           sourceCursorTop = 1,
           targetGlobalTop = 2,
           targetCursorTop = 1,
-          targetHeight = 4,
+          targetHeight = 2,
           targetCursorHeight = 1)
         self.assertEqual(offset, -1)
 
-    # Case 2: when the source y (in global coordinates) is within the target
-    # window.
+    # When the source y (in global coordinates) is within the target
+    # window, and the target y is equal to the source y.
+    #
+    # .. image:: preview_sync_source_aligned_target.png
     @base.inMainLoop
-    def test_sync20(self):
+    def test_sync20a(self):
         self._doBasicTest('rst')
         offset = self._dock().previewSync._alignScrollAmount(
           sourceGlobalTop = 0,
-          sourceCursorTop = 2,
+          sourceCursorTop = 1,
           targetGlobalTop = 0,
           targetCursorTop = 1,
-          targetHeight = 4,
+          targetHeight = 3,
+          targetCursorHeight = 1)
+        self.assertEqual(offset, 0)
+
+    # When the source y (in global coordinates) is within the target
+    # window, and the target y is above the source y. Similar to the
+    # image above, but targetCursorTop = 0 (one unit higher than what
+    # is shown in the image).
+    @base.inMainLoop
+    def test_sync20b(self):
+        self._doBasicTest('rst')
+        offset = self._dock().previewSync._alignScrollAmount(
+          sourceGlobalTop = 0,
+          sourceCursorTop = 1,
+          targetGlobalTop = 0,
+          targetCursorTop = 0,
+          targetHeight = 3,
           targetCursorHeight = 1)
         self.assertEqual(offset, 1)
 
-    # Case 3: when the source y (in global coordinates) is belowthe target
-    # window.
+    # When the source y (in global coordinates) is within the target
+    # window, and the target y is below the source y. Similar to the
+    # image above, but targetCursorTop = 2 (one unit lower than what
+    # is shown in the image).
+    @base.inMainLoop
+    def test_sync20c(self):
+        self._doBasicTest('rst')
+        offset = self._dock().previewSync._alignScrollAmount(
+          sourceGlobalTop = 0,
+          sourceCursorTop = 1,
+          targetGlobalTop = 0,
+          targetCursorTop = 2,
+          targetHeight = 3,
+          targetCursorHeight = 1)
+        self.assertEqual(offset, -1)
+
+    # When the source y (in global coordinates) is below the target window.
+    # There's only one unit available to move down.
+    #
+    # .. image:: preview_sync_source_below_target.png
     @base.inMainLoop
     def test_sync21(self):
         self._doBasicTest('rst')
         offset = self._dock().previewSync._alignScrollAmount(
-          sourceGlobalTop = 5,
-          sourceCursorTop = 2,
+          sourceGlobalTop = 3,
+          sourceCursorTop = 1,
           targetGlobalTop = 0,
           targetCursorTop = 1,
-          targetHeight = 4,
+          targetHeight = 3,
           targetCursorHeight = 1)
-        self.assertEqual(offset, 2)
+        self.assertEqual(offset, 1)
 
     # Test that no crashes occur if TRE isn't available or is old
     ##-----------------------------------------------------------
