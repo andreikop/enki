@@ -317,7 +317,7 @@ class PreviewSync(QObject):
             # Note that scroll bars are backwards: to make the text go up, you must
             # move the bars down (a positive delta) and vice versa. Hence, the
             # subtration, rather than addition, below.
-            #mf.setScrollPosition(mf.scrollPosition() - QPoint(0, deltaY))
+            mf.setScrollPosition(mf.scrollPosition() - QPoint(0, deltaY))
         else:
             deltaY = self._alignScrollAmount(wvGlobalTop, wvCursorTop,
               qpGlobalTop, qpCursorTop, qpHeight, qpCursorHeight)
@@ -645,9 +645,12 @@ class PreviewSync(QObject):
         # search from the beginning of the page for a substring of the web
         # page's text rendering from the beginning to webIndex. Then press home
         # followed by shift+end to select the line the cursor is on. (This
-        # relies on the page being editable, which is set in
-        # _initTextToPreviewSync).
+        # relies on the page being editable, which is set below).
         pg = self.webView.page()
+        mf = pg.mainFrame()
+        # The find operations below change the scroll position. Save, then
+        # restore it to avoid the window jumping around.
+        scrollPos = mf.scrollPosition()
         # Start the search location at the beginning of the document by clearing
         # the previous selection using `findText
         # <http://qt-project.org/doc/qt-4.8/qwebpage.html#findText>`_ with an
@@ -657,6 +660,7 @@ class PreviewSync(QObject):
         txt = pg.mainFrame().toPlainText()
         ft = txt[:webIndex]
         found = pg.findText(ft, QWebPage.FindCaseSensitively)
+        mf.setScrollPosition(scrollPos)
 
         # Before highlighting a line, make sure the text was found. If the
         # search string was empty, it still counts (found is false, but
