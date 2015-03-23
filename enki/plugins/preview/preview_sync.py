@@ -111,9 +111,6 @@ class PreviewSync(QObject):
     #
     # Ideally, this would instead operate on the baseline of the text, rather
     # than the top (or bottom), but getting this is much harder.
-    #
-    # TODO: diagram.
-    #
     def _alignScrollAmount(self,
       # The top (y) coordinate of the source widget in a global coordinate frame,
       # such as screen coordinates. In pixels.
@@ -134,6 +131,8 @@ class PreviewSync(QObject):
       targetCursorHeight):
 
         # Compute the raw delta between the source and target widgets.
+        #
+        # .. image:: dtop_initial_diagram.png
         dTop = (
           # Global coords of the source cursor top.
           (sourceGlobalTop + sourceCursorTop) -
@@ -142,7 +141,13 @@ class PreviewSync(QObject):
           (targetGlobalTop + targetCursorTop) );
 
         # Clip the resulting delta so that the target cursor remains visible.
-        dTop = min(max(-targetCursorTop, dTop),
+        dTop = min(
+          # Scroll up (in the negative direction) only to the top of the widget,
+          # but no further.
+          max(-targetCursorTop, dTop),
+          # Scroll down (in the positive direction) only. The expression below
+          # computes the number of pixels between the bottom of the current line
+          # (by including the targetCursorHeight) and the bottom of the widget.
           targetHeight - targetCursorHeight - targetCursorTop)
 
         return dTop
