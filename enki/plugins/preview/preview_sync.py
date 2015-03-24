@@ -66,12 +66,12 @@ class PreviewSync(QObject):
            JavaScript needed for PreviewSync."""
         mf = self.webView.page().mainFrame()
         # Use `addToJavaScriptWindowObject
-        # <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#addToJavaScriptWindowObject>`_
+        # <http://doc.qt.io/qt-4.8/qwebframe.html#addToJavaScriptWindowObject>`_
         # to make this PreviewDock object known to JavaScript, so that
         # JavaScript can emit the ``jsClick`` signal defined by PreviewDock.
         mf.addToJavaScriptWindowObject("PyPreviewDock", self)
         # Use `evaluateJavaScript
-        # <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#evaluateJavaScript>`_
+        # <http://doc.qt.io/qt-4.8/qwebframe.html#evaluateJavaScript>`_
         # to insert JavaScript needed by PreviewSync.
         res = mf.evaluateJavaScript(self._jsPreviewSync)
         # Make sure no errors were returned; the result should be empty.
@@ -110,21 +110,21 @@ class PreviewSync(QObject):
     # the cursor at the bottom of the widget.
     #
     # Ideally, this would instead operate on the baseline of the text, rather
-    # than the top (or bottom), but getting this is much harder.
+    # than the bottom, but getting this is harder.
     def _alignScrollAmount(self,
       # The top (y) coordinate of the source widget in a global coordinate frame,
       # such as screen coordinates. In pixels.
       sourceGlobalTop,
-      # The top coordinate of the cursor in the source widget, measured from the
+      # The bottom coordinate of the cursor in the source widget, measured from the
       # top of the widget, NOT the top of the viewport. In pixels.
-      sourceCursorTop,
+      sourceCursorBottom,
 
       # The top (y) coordinate of the target widget in a global coordinate frame,
       # such as screen coordinates. In pixels.
       targetGlobalTop,
-      # The top coordinate of the cursor in the target widget, measured from the
+      # The bottom coordinate of the cursor in the target widget, measured from the
       # top of the widget, NOT the top of the viewport. In pixels.
-      targetCursorTop,
+      targetCursorBottom,
       # The height of the target widget. In pixels.
       targetHeight,
       # The height of the cursor in the target widget. In pixels.
@@ -135,20 +135,19 @@ class PreviewSync(QObject):
         # .. image:: dtop_initial_diagram.png
         dTop = (
           # Global coords of the source cursor top.
-          (sourceGlobalTop + sourceCursorTop) -
+          (sourceGlobalTop + sourceCursorBottom) -
           # Global coords of the target cursor top. The difference
           # gives the number of pixels separating them.
-          (targetGlobalTop + targetCursorTop) );
+          (targetGlobalTop + targetCursorBottom) );
 
         # Clip the resulting delta so that the target cursor remains visible.
         dTop = min(
           # Scroll up (in the negative direction) only to the top of the widget,
-          # but no further.
-          max(-targetCursorTop, dTop),
-          # Scroll down (in the positive direction) only. The expression below
-          # computes the number of pixels between the bottom of the current line
-          # (by including the targetCursorHeight) and the bottom of the widget.
-          targetHeight - targetCursorHeight - targetCursorTop)
+          # but no further. Include the cursor height, so that it will remain
+          # fully visible after the scroll.
+          max(-targetCursorBottom + targetCursorHeight, dTop),
+          # Scroll down (in the positive direction) only.
+          targetHeight - targetCursorBottom)
 
         return dTop
 
@@ -265,7 +264,7 @@ class PreviewSync(QObject):
         # is relative to the parent frame. Then, use `mapToGlobal
         # <http://qt-project.org/doc/qt-4.8/qwidget.html#mapToGlobal>`_ to
         # put this in global coordinates. This works for `QWebView
-        # <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebview.html>`_, since it
+        # <http://doc.qt.io/qt-4.8/qwebview.html>`_, since it
         # inherits from QWidget.
         wv = self.webView
         qp = core.workspace().currentDocument().qutepart
@@ -276,8 +275,8 @@ class PreviewSync(QObject):
         # <http://qt-project.org/doc/qt-4.8/qplaintextedit.html#cursorRect-2>`_
         # gives a value in viewport == widget coordinates. Use that directly.
         cr = qp.cursorRect()
-        qpCursorTop = cr.top()
         qpCursorHeight = cr.height()
+        qpCursorBottom = cr.top() + qpCursorHeight
 
         # Widget height includes the scrollbars. Subtract that off to get a
         # viewable height for qutepart.
@@ -288,7 +287,7 @@ class PreviewSync(QObject):
         if hsb.isVisible():
             qpHeight -= qp.horizontalScrollBar().height()
         mf = wv.page().mainFrame()
-        # Since `scrollBarGeometry <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#scrollBarGeometry>`_
+        # Since `scrollBarGeometry <http://doc.qt.io/qt-4.8/qwebframe.html#scrollBarGeometry>`_
         # returns an empty rect if the scroll bar doesn't exist, just subtract
         # its height.
         wvHeight = wv.geometry().height() - mf.scrollBarGeometry(Qt.Horizontal).height()
@@ -301,26 +300,27 @@ class PreviewSync(QObject):
         if not ret:
             return
         wvCursorTop, wvCursorHeight = ret
+        wvCursorBottom = wvCursorTop + wvCursorHeight
 
         if doTextToWebSync:
-            deltaY = self._alignScrollAmount(qpGlobalTop, qpCursorTop,
-              wvGlobalTop, wvCursorTop, wvHeight, wvCursorHeight)
+            deltaY = self._alignScrollAmount(qpGlobalTop, qpCursorBottom,
+              wvGlobalTop, wvCursorBottom, wvHeight, wvCursorHeight)
             # Uncomment for helpful debug info.
-            ##print(("qpGlobalTop = %d, qpCursorTop = %d, qpHeight = %d, deltaY = %d\n" +
-            ##  "  wvGlobalTop = %d, wvCursorTop = %d, wvHeight = %d, wvCursorHeight = %d)") %
-            ##  (qpGlobalTop, qpCursorTop, qpHeight, deltaY,
-            ##  wvGlobalTop, wvCursorTop, wvHeight, wvCursorHeight))
+            ## print(("qpGlobalTop = %d, qpCursorBottom = %d, qpHeight = %d, deltaY = %d\n" +
+            ##   "  wvGlobalTop = %d, wvCursorBottom = %d, wvHeight = %d, wvCursorHeight = %d)") %
+            ##   (qpGlobalTop, qpCursorBottom, qpHeight, deltaY,
+            ##   wvGlobalTop, wvCursorBottom, wvHeight, wvCursorHeight))
 
             # Scroll based on this info using `setScrollPosition
-            # <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#scrollPosition-prop>`_.
+            # <http://doc.qt.io/qt-4.8/qwebframe.html#scrollPosition-prop>`_.
             #
             # Note that scroll bars are backwards: to make the text go up, you must
             # move the bars down (a positive delta) and vice versa. Hence, the
             # subtration, rather than addition, below.
             mf.setScrollPosition(mf.scrollPosition() - QPoint(0, deltaY))
         else:
-            deltaY = self._alignScrollAmount(wvGlobalTop, wvCursorTop,
-              qpGlobalTop, qpCursorTop, qpHeight, qpCursorHeight)
+            deltaY = self._alignScrollAmount(wvGlobalTop, wvCursorBottom,
+              qpGlobalTop, qpCursorBottom, qpHeight, qpCursorHeight)
             vsb = qp.verticalScrollBar()
             # The units for the vertical scroll bar is pixels not lines. So, do
             # a kludgy conversion by assuming that all line heights are the
@@ -464,7 +464,7 @@ class PreviewSync(QObject):
         # ``onWebviewClick``.
         self.jsClick.connect(self._onWebviewClick)
         # Qt emits the `javaScriptWindowObjectCleared
-        # <http://qt-project.org/doc/qt-5.0/qtwebkit/qwebframe.html#javaScriptWindowObjectCleared.>`_
+        # <http://doc.qt.io/qt-4.8/qwebframe.html#javaScriptWindowObjectCleared>`_
         # signal when a web page is loaded. When this happens, reinsert our
         # onclick JavaScript.
         self.webView.page().mainFrame(). \
