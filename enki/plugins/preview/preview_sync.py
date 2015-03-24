@@ -128,7 +128,9 @@ class PreviewSync(QObject):
       # The height of the target widget. In pixels.
       targetHeight,
       # The height of the cursor in the target widget. In pixels.
-      targetCursorHeight):
+      targetCursorHeight,
+      # tol
+      tolerance):
 
         # Compute the raw delta between the source and target widgets.
         #
@@ -145,9 +147,9 @@ class PreviewSync(QObject):
           # Scroll up (in the negative direction) only to the top of the widget,
           # but no further. Include the cursor height, so that it will remain
           # fully visible after the scroll.
-          max(-targetCursorBottom + targetCursorHeight, dTop),
+          max(-targetCursorBottom + targetCursorHeight + tolerance, dTop),
           # Scroll down (in the positive direction) only.
-          targetHeight - targetCursorBottom)
+          targetHeight - targetCursorBottom - tolerance)
 
         return dTop
 
@@ -256,7 +258,9 @@ class PreviewSync(QObject):
       # True to scroll the web view so that its cursor aligns vertically with
       # the y coordinate of the text view. False to do the opposite: scroll the
       # text view to the y coordinate of the web view's cursor.
-      doTextToWebSync):
+      doTextToWebSync,
+      # Tol
+      tolerance=0):
 
         # Per the `window geometry
         # <http://qt-project.org/doc/qt-4.8/application-windows.html#window-geometry>`_,
@@ -304,23 +308,25 @@ class PreviewSync(QObject):
 
         if doTextToWebSync:
             deltaY = self._alignScrollAmount(qpGlobalTop, qpCursorBottom,
-              wvGlobalTop, wvCursorBottom, wvHeight, wvCursorHeight)
+              wvGlobalTop, wvCursorBottom, wvHeight, wvCursorHeight, tolerance)
             # Uncomment for helpful debug info.
             ## print(("qpGlobalTop = %d, qpCursorBottom = %d, qpHeight = %d, deltaY = %d\n" +
             ##   "  wvGlobalTop = %d, wvCursorBottom = %d, wvHeight = %d, wvCursorHeight = %d)") %
             ##   (qpGlobalTop, qpCursorBottom, qpHeight, deltaY,
             ##   wvGlobalTop, wvCursorBottom, wvHeight, wvCursorHeight))
 
-            # Scroll based on this info using `setScrollPosition
-            # <http://doc.qt.io/qt-4.8/qwebframe.html#scrollPosition-prop>`_.
-            #
-            # Note that scroll bars are backwards: to make the text go up, you must
-            # move the bars down (a positive delta) and vice versa. Hence, the
-            # subtration, rather than addition, below.
-            mf.setScrollPosition(mf.scrollPosition() - QPoint(0, deltaY))
+            # Only scroll if we've outside the tolerance.
+            if deltaY > tolerance:
+                # Scroll based on this info using `setScrollPosition
+                # <http://doc.qt.io/qt-4.8/qwebframe.html#scrollPosition-prop>`_.
+                #
+                # Note that scroll bars are backwards: to make the text go up, you must
+                # move the bars down (a positive delta) and vice versa. Hence, the
+                # subtration, rather than addition, below.
+                mf.setScrollPosition(mf.scrollPosition() - QPoint(0, deltaY))
         else:
             deltaY = self._alignScrollAmount(wvGlobalTop, wvCursorBottom,
-              qpGlobalTop, qpCursorBottom, qpHeight, qpCursorHeight)
+              qpGlobalTop, qpCursorBottom, qpHeight, qpCursorHeight, tolerance)
             vsb = qp.verticalScrollBar()
             # The units for the vertical scroll bar is pixels not lines. So, do
             # a kludgy conversion by assuming that all line heights are the
@@ -687,8 +693,13 @@ class PreviewSync(QObject):
             QTest.keyClick(self.webView, Qt.Key_End, Qt.ShiftModifier)
             pg.setContentEditable(ice)
 
-            # Sync the cursors.
-            self._scrollSync(True)
+            # Sync the cursors. If we're already scrolling, take full advantage
+            # of it with a tolerance of 0 (exact sync).
+            if mf.scrollPosition().y() != scrollPos.y():
+                tol = 0
+            else:
+                tol = 50
+            self._scrollSync(True, tol)
             self.textToPreviewSynced.emit()
             if cProfile:
                 self._pr.disable()
