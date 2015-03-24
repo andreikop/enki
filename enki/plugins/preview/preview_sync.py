@@ -270,7 +270,7 @@ class PreviewSync(QObject):
         wv = self.webView
         qp = core.workspace().currentDocument().qutepart
         qpGlobalTop = qp.mapToGlobal(qp.geometry().topLeft()).y()
-        wvGlobalTop = wv.mapToGlobal(wv.geometry().topLeft()).y() - 10
+        wvGlobalTop = wv.mapToGlobal(wv.geometry().topLeft()).y()
 
         # `qutepart.cursorRect()
         # <http://qt-project.org/doc/qt-4.8/qplaintextedit.html#cursorRect-2>`_
