@@ -100,14 +100,9 @@ class PreviewSync(QObject):
     ##========================
     # These routines perform vertical synchronization.
     #
-    # This function returns a delta vertical scroll amount, in pixels, in order to
-    # align the top (y) coordinate of the cursor in the target widget with the cursor
-    # in the source widget. If the the two widgets don't intersect vertically,
-    # then the target cursor is scrolled to be as close to the source
-    # widget as possible: if the source widget is above the target, the target
-    # widget will scroll to place the cursor at the top of the widget; if the
-    # source widget is below the target, the target widget will scroll to place
-    # the cursor at the bottom of the widget.
+    # This function computes the distance, in pixels, measured from the target cursor location to the source cursor location, as shown in part (a) of the figure below: delta = source - target, so that source = target + delta. This distance is limited by a constraint: the resulting target cusor location must be kept a padding pixels amount away from the boundaries of the target widget. Part (b) of the figure shows show this distance is limited when the source lies above the target widget; the same constraint applies when the source lies below the target widget.
+    #
+    # .. image:: sync_delta.png
     #
     # Ideally, this would instead operate on the baseline of the text, rather
     # than the bottom, but getting this is harder.
@@ -129,29 +124,27 @@ class PreviewSync(QObject):
       targetHeight,
       # The height of the cursor in the target widget. In pixels.
       targetCursorHeight,
-      # tol
-      tolerance):
+      # The minimum allowable distance between target + delta and the top or
+      # bottom of the target widget.
+      padding):
 
         # Compute the raw delta between the source and target widgets.
         #
         # .. image:: dtop_initial_diagram.png
-        dTop = (
+        delta = (
           # Global coords of the source cursor top.
           (sourceGlobalTop + sourceCursorBottom) -
           # Global coords of the target cursor top. The difference
           # gives the number of pixels separating them.
           (targetGlobalTop + targetCursorBottom) );
 
-        # Clip the resulting delta so that the target cursor remains visible.
-        dTop = min(
-          # Scroll up (in the negative direction) only to the top of the widget,
-          # but no further. Include the cursor height, so that it will remain
-          # fully visible after the scroll.
-          max(-targetCursorBottom + targetCursorHeight + tolerance, dTop),
-          # Scroll down (in the positive direction) only.
-          targetHeight - targetCursorBottom - tolerance)
+        # Constrain the resulting delta so that the stays padding pixels from
+        # the top of the target widget.
+        delta = max(-targetCursorBottom + targetCursorHeight + padding, delta)
+        # Likewise, constrain the bottom.
+        delta = min(targetHeight - targetCursorBottom - padding, delta)
 
-        return dTop
+        return delta
 
     # This string contains JavaScript code to determine the coordinates and height of the
     # anchor of the selection in the web view.
@@ -326,9 +319,9 @@ class PreviewSync(QObject):
                 mf.setScrollPosition(mf.scrollPosition() - QPoint(0, deltaY))
         else:
             deltaY = self._alignScrollAmount(wvGlobalTop, wvCursorBottom,
-              qpGlobalTop, qpCursorBottom, qpHeight, qpCursorHeight, tolerance)
+              qpGlobalTop, qpCursorBottom, qpHeight, qpCursorHeight, 0)
             vsb = qp.verticalScrollBar()
-            # The units for the vertical scroll bar is pixels not lines. So, do
+            # The units for the vertical scroll bar is pixels, not lines. So, do
             # a kludgy conversion by assuming that all line heights are the
             # same.
             vsb.setValue(vsb.value() - round(deltaY/qpCursorHeight))

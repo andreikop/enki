@@ -345,7 +345,7 @@ text after table""", True)
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     # When the source y (in global coordinates) is above the target
     # window. The best the algorithm can do is move to the top of the target
-    # window (a delta of -90 from where targetCursorTop is now).
+    # window.
     #
     # .. image:: preview_sync_source_above_target.png
     @base.inMainLoop
@@ -358,8 +358,8 @@ text after table""", True)
           targetCursorBottom = 100,
           targetHeight = 200,
           targetCursorHeight = 10,
-          tolerance=0)
-        self.assertEqual(offset, -90)
+          padding=15)
+        self.assertEqual(offset, -75)
 
     # When the source y (in global coordinates) is within the target
     # window, and the target y is equal to the source y.
@@ -375,7 +375,7 @@ text after table""", True)
           targetCursorBottom = 100,
           targetHeight = 300,
           targetCursorHeight = 10,
-          tolerance=0)
+          padding=0)
         self.assertEqual(offset, 0)
 
     # When the source y (in global coordinates) is within the target
@@ -392,7 +392,7 @@ text after table""", True)
           targetCursorBottom = 0,
           targetHeight = 300,
           targetCursorHeight = 10,
-          tolerance=0)
+          padding=0)
         self.assertEqual(offset, 100)
 
     # When the source y (in global coordinates) is within the target
@@ -409,7 +409,7 @@ text after table""", True)
           targetCursorBottom = 200,
           targetHeight = 300,
           targetCursorHeight = 10,
-          tolerance=0)
+          padding=0)
         self.assertEqual(offset, -100)
 
     # When the source y (in global coordinates) is below the target window.
@@ -423,10 +423,10 @@ text after table""", True)
           sourceCursorBottom = 100,
           targetGlobalTop = 0,
           targetCursorBottom = 100,
-          targetHeight = 300,
+          targetHeight = 200,
           targetCursorHeight = 10,
-          tolerance=0)
-        self.assertEqual(offset, 200)
+          padding=15)
+        self.assertEqual(offset, 85)
 
     # Test that no crashes occur if TRE isn't available or is old
     ##-----------------------------------------------------------
