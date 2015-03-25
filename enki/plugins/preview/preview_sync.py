@@ -100,7 +100,14 @@ class PreviewSync(QObject):
     ##========================
     # These routines perform vertical synchronization.
     #
-    # This function computes the distance, in pixels, measured from the target cursor location to the source cursor location, as shown in part (a) of the figure below: delta = source - target, so that source = target + delta. This distance is limited by a constraint: the resulting target cusor location must be kept a padding pixels amount away from the boundaries of the target widget. Part (b) of the figure shows show this distance is limited when the source lies above the target widget; the same constraint applies when the source lies below the target widget.
+    # This function computes the distance, in pixels, measured from the target
+    # cursor location to the source cursor location, as shown in part (a) of the
+    # figure below: delta = source - target, so that source = target + delta.
+    # This distance is limited by a constraint: the resulting target cursor
+    # location must be kept a padding pixels amount away from the boundaries of
+    # the target widget. Part (b) of the figure shows show this distance is
+    # limited when the source lies above the target widget; the same constraint
+    # applies when the source lies below the target widget.
     #
     # .. image:: sync_delta.png
     #
@@ -248,11 +255,15 @@ class PreviewSync(QObject):
     # Scroll the web view to align its cursor with the qutepart cursor or vice
     # versa.
     def _scrollSync(self,
-      # True to scroll the web view so that its cursor aligns vertically with
-      # the y coordinate of the text view. False to do the opposite: scroll the
-      # text view to the y coordinate of the web view's cursor.
-      doTextToWebSync,
-      # Tol
+      # None to scroll the text view to the y coordinate of the web view's
+      # cursor. True or False to do the opposite:  scroll the web view so that
+      # its cursor aligns vertically with the y coordinate of the text view. In
+      # this case, True will use the tolerance to scroll only if the amount to
+      # scroll exceeds that tolerance; False will scroll irregardless of the
+      # tolerance.
+      alreadyScrolling=None,
+      # Ignored if alreadyScrolling == None. Used a both a padding value and a
+      # scroll tolerance, as described in alreadyScrolling.
       tolerance=0):
 
         # Per the `window geometry
@@ -299,17 +310,17 @@ class PreviewSync(QObject):
         wvCursorTop, wvCursorHeight = ret
         wvCursorBottom = wvCursorTop + wvCursorHeight
 
-        if doTextToWebSync:
+        if alreadyScrolling is not None:
             deltaY = self._alignScrollAmount(qpGlobalTop, qpCursorBottom,
               wvGlobalTop, wvCursorBottom, wvHeight, wvCursorHeight, tolerance)
             # Uncomment for helpful debug info.
-            ## print(("qpGlobalTop = %d, qpCursorBottom = %d, qpHeight = %d, deltaY = %d\n" +
-            ##   "  wvGlobalTop = %d, wvCursorBottom = %d, wvHeight = %d, wvCursorHeight = %d)") %
-            ##   (qpGlobalTop, qpCursorBottom, qpHeight, deltaY,
+            ## print(("qpGlobalTop = %d, qpCursorBottom = %d, qpHeight = %d, deltaY = %d, tol = %d\n" +
+            ##   "  wvGlobalTop = %d, wvCursorBottom = %d, wvHeight = %d, wvCursorHeight = %d") %
+            ##   (qpGlobalTop, qpCursorBottom, qpHeight, deltaY, tolerance,
             ##   wvGlobalTop, wvCursorBottom, wvHeight, wvCursorHeight))
 
             # Only scroll if we've outside the tolerance.
-            if deltaY > tolerance:
+            if alreadyScrolling or (abs(deltaY) > tolerance):
                 # Scroll based on this info using `setScrollPosition
                 # <http://doc.qt.io/qt-4.8/qwebframe.html#scrollPosition-prop>`_.
                 #
@@ -518,7 +529,7 @@ class PreviewSync(QObject):
         # Scroll the document to make sure the cursor is visible.
         qp.ensureCursorVisible()
         # Sync the cursors.
-        self._scrollSync(False)
+        self._scrollSync()
         # Focus on the editor so the cursor will be shown and ready for typing.
         core.workspace().focusCurrentDocument()
 
@@ -687,12 +698,8 @@ class PreviewSync(QObject):
             pg.setContentEditable(ice)
 
             # Sync the cursors. If we're already scrolling, take full advantage
-            # of it with a tolerance of 0 (exact sync).
-            if mf.scrollPosition().y() != scrollPos.y():
-                tol = 0
-            else:
-                tol = 50
-            self._scrollSync(True, tol)
+            # of it.
+            self._scrollSync(mf.scrollPosition().y() != scrollPos.y(), 50)
             self.textToPreviewSynced.emit()
             if cProfile:
                 self._pr.disable()
