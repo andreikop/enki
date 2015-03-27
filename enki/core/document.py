@@ -411,6 +411,7 @@ class Document(QWidget):
         self._externallyModified = False
         self._externallyRemoved = False
         self.qutepart.cursorPosition = pos
+        self.qutepart.centerCursor()
 
     def modelToolTip(self):
         """Tool tip for the opened files model
