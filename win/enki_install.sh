@@ -23,7 +23,8 @@ cd enki_all
 
 # TRE
 # ===
-$INSTALL git build-essential autotools-dev automake gettext libtool autopoint zip python-dev python-pip # On Fedora, use python-devel
+# Fedora: git gcc make                      automake gettext libtool gettext-devel zip python-devel python-pip
+$INSTALL  git build-essential autotools-dev automake gettext libtool autopoint     zip python-dev   python-pip
 # Upgrade pip first.
 sudo pip install -U pip
 # Then install Python packages from pip, since apt-get packages are older.
@@ -57,7 +58,8 @@ cd ..
 
 # Qutepart
 # ========
-$INSTALL libpcre3 libpcre3-dev python-qt4 # On Fedora, use pcre, pcre-devel.
+# Fedora: pcre     pcre-devel   python-qt4
+$INSTALL  libpcre3 libpcre3-dev python-qt4
 # See https://github.com/hlamer/qutepart.
 git clone https://github.com/bjones1/qutepart.git
 cd qutepart
@@ -69,7 +71,8 @@ cd ..
 
 # Enki
 # ====
-$INSTALL desktop-file-utils exuberant-ctags # On Fedora, use ctags.
+# Fedora: desktop-file-utils ctags
+$INSTALL  desktop-file-utils exuberant-ctags # On Fedora, use ctags.
 # Then install Python packages from pip, since apt-get packages are older.
 sudo pip install -U mock markdown sphinx pylint
 # See https://github.com/bjones1/enki.
