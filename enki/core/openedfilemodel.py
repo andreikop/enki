@@ -412,7 +412,11 @@ class OpenedFileExplorer(DockWidget):
         menu.addAction( core.actionManager().action( "mFile/mClose/aCurrent" ) )
         menu.addAction( core.actionManager().action( "mFile/mSave/aCurrent" ) )
         menu.addAction( core.actionManager().action( "mFile/mReload/aCurrent" ) )
-        menu.addMenu( core.actionManager().action( "mFile/mFileSystem" ).menu() )
         menu.addSeparator()
+        menu.addAction( core.actionManager().action( "mFile/mFileSystem/aRename" ) )
+        toggleExecutableAction = core.actionManager().action("mFile/mFileSystem/aToggleExecutable")
+        if toggleExecutableAction:  # not available on Windows
+            menu.addAction(toggleExecutableAction)
+        core.actionManager().action("mFile/mFileSystem").menu().aboutToShow.emit()  # to update aToggleExecutable
 
         menu.exec_( self.tvFiles.mapToGlobal( pos ) )
