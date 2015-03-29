@@ -131,15 +131,13 @@ class Plugin:
         indentWidget = _SettingsPageWidget('Indentation.ui', dialog)
         complWidget = _SettingsPageWidget('Autocompletion.ui', dialog)
         eolWidget = _SettingsPageWidget('Eol.ui', dialog)
-        edgeWidget = _SettingsPageWidget('Edge.ui', dialog)
-        wrapWidget = _SettingsPageWidget('Wrap.ui', dialog)
+        longLinesWidget = _SettingsPageWidget('LongLines.ui', dialog)
 
         dialog.appendPage(u"Editor/Font", fontWidget)
         dialog.appendPage(u"Editor/Indentation", indentWidget)
         dialog.appendPage(u"Editor/Autocompletion", complWidget)
         dialog.appendPage(u"Editor/EOL", eolWidget)
-        dialog.appendPage(u"Editor/Edge", edgeWidget)
-        dialog.appendPage(u"Editor/Wrap", wrapWidget)
+        dialog.appendPage(u"Editor/Long Lines", longLinesWidget)
 
         cfg = core.config()
         options = \
@@ -159,17 +157,17 @@ class Plugin:
                           eolWidget.rbEolMac: r'\r'}),
             CheckableOption(dialog, cfg, "Qutepart/EOL/AutoDetect", eolWidget.cbAutoDetectEol),
 
-            CheckableOption(dialog, cfg, "Qutepart/Edge/Enabled", edgeWidget.gbEdgeEnabled),
-            NumericOption(dialog, cfg, "Qutepart/Edge/Column", edgeWidget.sEdgeColumnNumber),
-            ColorOption(dialog, cfg, "Qutepart/Edge/Color", edgeWidget.tbEdgeColor),
+            CheckableOption(dialog, cfg, "Qutepart/Edge/Enabled", longLinesWidget.gbEdgeEnabled),
+            NumericOption(dialog, cfg, "Qutepart/Edge/Column", longLinesWidget.sEdgeColumnNumber),
+            ColorOption(dialog, cfg, "Qutepart/Edge/Color", longLinesWidget.tbEdgeColor),
 
             CheckableOption(dialog, cfg, "Qutepart/AutoCompletion/Enabled", complWidget.gbAutoCompletion),
             NumericOption(dialog, cfg, "Qutepart/AutoCompletion/Threshold", complWidget.sThreshold),
 
-            CheckableOption(dialog, cfg, "Qutepart/Wrap/Enabled", wrapWidget.gbWrapEnabled),
+            CheckableOption(dialog, cfg, "Qutepart/Wrap/Enabled", longLinesWidget.gbWrapEnabled),
             ChoiseOption(dialog, cfg, "Qutepart/Wrap/Mode",
-                         {wrapWidget.rbWrapAtWord : "WrapAtWord",
-                          wrapWidget.rbWrapAnywhere: "WrapAnywhere"}),
+                         {longLinesWidget.rbWrapAtWord : "WrapAtWord",
+                          longLinesWidget.rbWrapAnywhere: "WrapAnywhere"}),
         )
 
         for option in options:

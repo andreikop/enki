@@ -102,7 +102,7 @@ class AutoCompletion(_BaseTestCase):
 class Edge(_BaseTestCase):
     def _doTest(self, enabled, width, colorName):
         def continueFunc(dialog):
-            page = dialog._pageForItem["Editor/Edge"]
+            page = dialog._pageForItem["Editor/Long Lines"]
 
             page.gbEdgeEnabled.setChecked(enabled)
             page.sEdgeColumnNumber.setValue(width)
@@ -182,7 +182,7 @@ class Eol(_BaseTestCase):
 class Wrap(_BaseTestCase):
     def _doTest(self, enabled, atWord, lineWrapMode, wordWrapMode, wordWrapText):
         def continueFunc(dialog):
-            page = dialog._pageForItem["Editor/Wrap"]
+            page = dialog._pageForItem["Editor/Long Lines"]
 
             page.gbWrapEnabled.setChecked(enabled)
             if atWord:

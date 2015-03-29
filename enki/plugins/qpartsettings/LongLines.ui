@@ -67,6 +67,32 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="gbWrapEnabled">
+     <property name="title">
+      <string>Wrap long lines</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="2" column="0">
+       <widget class="QRadioButton" name="rbWrapAtWord">
+        <property name="text">
+         <string>At word</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QRadioButton" name="rbWrapAnywhere">
+        <property name="text">
+         <string>Anywhere</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
