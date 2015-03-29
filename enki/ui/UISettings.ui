@@ -69,53 +69,10 @@
         <bool>true</bool>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="pGeneral">
         <layout class="QVBoxLayout" name="verticalLayout_6">
-         <item>
-          <widget class="QGroupBox" name="gbWorkspace">
-           <property name="title">
-            <string>Opened file list sorting mode</string>
-           </property>
-           <layout class="QGridLayout">
-            <property name="margin">
-             <number>5</number>
-            </property>
-            <property name="spacing">
-             <number>3</number>
-            </property>
-            <item row="0" column="0">
-             <widget class="QRadioButton" name="rbOpeningOrder">
-              <property name="text">
-               <string>Opening order</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QRadioButton" name="rbFileName">
-              <property name="text">
-               <string>File name</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QRadioButton" name="rbUri">
-              <property name="text">
-               <string>URI</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QRadioButton" name="rbSuffix">
-              <property name="text">
-               <string>Suffix</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
          <item>
           <widget class="QGroupBox" name="gbFilesToHide">
            <property name="title">

@@ -4,9 +4,6 @@
 
     "NegativeFileFilter": [ "*~", "*.o", "*.pyc", "*.bak", "__pycache__" ],
 
-    "Workspace": {
-        "FileSortMode": "URL"
-    },
     "Qutepart": {
         "Font": {
             "Family": "Monospace",

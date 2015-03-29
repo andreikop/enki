@@ -35,15 +35,9 @@ class _OpenedFileModel(QAbstractItemModel):
     It switches current file, does file sorting
     """
 
-    OpeningOrder = "OpeningOrder"
-    FileName = "FileName"
-    URL = "URL"
-    Suffixes = "Suffixes"
-    Custom = "Custom"
-
     def __init__(self, parentObject):
         QAbstractItemModel.__init__(self, parentObject )
-        self._sortMode = core.config()["Workspace"]["FileSortMode"]
+        self._manuallySorted = False
         self._workspace = parentObject.parent()
         self._workspace.documentOpened.connect(self._onDocumentOpened)
         self._workspace.documentClosed.connect(self._onDocumentClosed)
@@ -219,8 +213,7 @@ class _OpenedFileModel(QAbstractItemModel):
 
         self.rebuildMapping( self._workspace.sortedDocuments, newDocuments )
 
-        if  self._sortMode != _OpenedFileModel.Custom :
-            self.setSortMode( _OpenedFileModel.Custom )
+        self._manuallySorted = True
 
         QObject.parent(self).tvFiles.setCurrentIndex(self.documentIndex(item))
 
@@ -242,43 +235,13 @@ class _OpenedFileModel(QAbstractItemModel):
 
         return QModelIndex()
 
-    def sortMode(self):
-        """Current sort mode"""
-        return self._sortMode
-
-    def setSortMode(self, mode ):
-        """Set current sort mode, resort documents"""
-        if  self._sortMode != mode :
-            self._sortMode = mode
-            if mode != self.Custom:
-                core.config().reload()
-                core.config()["Workspace"]["FileSortMode"] = mode
-                core.config().flush()
-            self.sortDocuments()
-
     def sortDocuments(self):
         """Sort documents list according to current sort mode"""
-        newDocuments = copy.copy(self._workspace.sortedDocuments)
-
-        if self._sortMode == self.OpeningOrder:
-            newDocuments.sort(lambda a, b: cmp(self._workspace.sortedDocuments.index(a), \
-                                               self._workspace.sortedDocuments.index(b)))
-        elif self._sortMode == self.FileName:
-            newDocuments.sort(lambda a, b: cmp(a.fileName(), b.fileName()))
-        elif self._sortMode == self.URL:
-            newDocuments.sort(lambda a, b: cmp(a.filePath(), b.filePath()))
-        elif self._sortMode == self.Suffixes:
-            def sorter(a, b):  # pylint: disable=C0103
-                """ Compare 2 file pathes"""
-                aSuffix = os.path.splitext(a.filePath())[1]
-                bSuffix = os.path.splitext(b.filePath())[1]
-                return cmp(aSuffix, bSuffix)
-            newDocuments.sort(sorter)
-        elif self._sortMode == self.Custom:
-            pass
-        else:
-            assert(0)
-        self.rebuildMapping( self._workspace.sortedDocuments, newDocuments )
+        sortedDocuments = self._workspace.sortedDocuments
+        if not self._manuallySorted:
+            sortedDocuments = sorted(sortedDocuments,
+                                     lambda a, b: cmp(a.filePath(), b.filePath()))
+        self.rebuildMapping( self._workspace.sortedDocuments, sortedDocuments )
         # scroll the view
         selected = QObject.parent(self).tvFiles.selectionModel().selectedIndexes()
         if selected:
@@ -396,29 +359,10 @@ class OpenedFileExplorer(DockWidget):
 
         core.actionManager().addAction("mView/aOpenedFiles", self.showAction())
 
-        core.uiSettingsManager().dialogAccepted.connect(self._applySettings)
-        core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
-
     def del_(self):
         """Explicitly called destructor
         """
         core.actionManager().removeAction("mView/aOpenedFiles")
-
-    def _applySettings(self):
-        """Settings dialogue has been accepted.
-        Apply settings
-        """
-        self.model.setSortMode(core.config()["Workspace"]["FileSortMode"])
-
-    def _onSettingsDialogAboutToExecute(self, dialog):
-        """UI settings dialogue is about to execute.
-        Add own option
-        """
-        dialog.appendOption(ChoiseOption(dialog, core.config(), "Workspace/FileSortMode",
-                                         {dialog.rbOpeningOrder: "OpeningOrder",
-                                          dialog.rbFileName: "FileName",
-                                          dialog.rbUri: "URL",
-                                          dialog.rbSuffix: "Suffixes"}))
 
     def startModifyModel(self):
         """Blocks signals from model while it is modified by code
@@ -429,12 +373,6 @@ class OpenedFileExplorer(DockWidget):
         """Unblocks signals from model
         """
         self.tvFiles.selectionModel().selectionChanged.connect(self._onSelectionModelSelectionChanged)
-
-    def _onSortTriggered(self, action ):
-        """ One of sort actions has been triggered in the opened file list context menu
-        """
-        mode = action.data()
-        self.model.setSortMode( mode )
 
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument ):  # pylint: disable=W0613
         """ Current document has been changed on workspace
@@ -477,28 +415,4 @@ class OpenedFileExplorer(DockWidget):
         menu.addMenu( core.actionManager().action( "mFile/mFileSystem" ).menu() )
         menu.addSeparator()
 
-        # sort menu
-        sortMenu = QMenu( self )
-        group = QActionGroup( sortMenu )
-
-        group.addAction( self.tr( "Opening order" ) )
-        group.addAction( self.tr( "File name" ) )
-        group.addAction( self.tr( "URL" ) )
-        group.addAction( self.tr( "Suffixes" ) )
-        group.triggered.connect(self._onSortTriggered)
-        sortMenu.addActions( group.actions() )
-
-        for i, sortMode in enumerate(["OpeningOrder", "FileName", "URL", "Suffixes"]):
-            action = group.actions()[i]
-            action.setData( sortMode )
-            action.setCheckable( True )
-            if sortMode == self.model.sortMode():
-                action.setChecked( True )
-
-        aSortMenu = QAction( self.tr( "Sorting" ), self )
-        aSortMenu.setMenu( sortMenu )
-        aSortMenu.setIcon( QIcon( ":/enkiicons/sort.png" ))
-        aSortMenu.setToolTip( aSortMenu.text() )
-
-        menu.addAction( sortMenu.menuAction() )
         menu.exec_( self.tvFiles.mapToGlobal( pos ) )
