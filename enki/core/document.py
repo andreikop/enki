@@ -224,7 +224,8 @@ class Document(QWidget):
         self.qutepart.cursorPositionChanged.disconnect()  #
         self.qutepart.textChanged.disconnect()
 
-        self.qutepart.text = ''  # stop background highlighting, free memory
+        self.qutepart.terminate()  # stop background highlighting, free memory
+
 
     def _onWatcherFileModified(self, modified):
         """File has been modified

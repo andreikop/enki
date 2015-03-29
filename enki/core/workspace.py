@@ -284,6 +284,7 @@ class Workspace(QStackedWidget):
     def del_(self):
         """Terminate workspace. Called by the core to clear actions
         """
+        self.forceCloseAllDocuments()
         self.openedFileExplorer.del_()
 
     def _mainWindow(self):

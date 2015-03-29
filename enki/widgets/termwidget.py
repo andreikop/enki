@@ -79,6 +79,9 @@ class TermWidget(QWidget):
 
         self._edit.setFocus()
 
+    def terminate(self):
+        self._edit.terminate()
+
     def eventFilter(self, obj, event):
         pass # suppress docsting for non-public method
         """QWidget.eventFilter implementation. Catches _edit key pressings. Processes some of them

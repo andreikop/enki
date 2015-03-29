@@ -26,7 +26,7 @@ class _BaseTest(base.TestCase):
           self.term = TermWidget(self.app.font())
 
      def tearDown(self):
-          del self.term
+          self.term.terminate()
           base.TestCase.tearDown(self)
 
 

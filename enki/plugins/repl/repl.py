@@ -210,6 +210,7 @@ class _AbstractInterpreter(QObject):
         self._processIsRunning = False
         self._term.appendError("Interpreter process exited. Execute any command to run it again\n")
         self.processIsRunningChanged.emit(self._processIsRunning)
+        self._term.terminate()
 
     def execCommand(self, text):
         """Execute text
