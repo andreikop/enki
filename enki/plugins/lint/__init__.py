@@ -130,7 +130,6 @@ class Plugin(QObject):
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
         core.workspace().cursorPositionChanged.connect(self._onCursorPositionChanged)
         core.workspace().modificationChanged.connect(self._onModificationChanged)
-        core.workspace().escPressed.connect(self._onEscPressed)
         core.mainWindow().statusBar().messageChanged.connect(self._onStatusBarMessageChanged)
 
         self._installed = True
@@ -143,7 +142,6 @@ class Plugin(QObject):
         core.workspace().currentDocumentChanged.disconnect(self._onCurrentDocumentChanged)
         core.workspace().cursorPositionChanged.disconnect(self._onCursorPositionChanged)
         core.workspace().modificationChanged.disconnect(self._onModificationChanged)
-        core.workspace().escPressed.disconnect(self._onEscPressed)
         core.mainWindow().statusBar().messageChanged.disconnect(self._onStatusBarMessageChanged)
 
         if self._thread is not None:
@@ -229,12 +227,6 @@ class Plugin(QObject):
 
     def _onStatusBarMessageChanged(self):
         self._myMessageIsShown = False
-
-    def _onEscPressed(self):
-        document = core.workspace().currentDocument()
-        if document is not None:
-            document.qutepart.lintMarks = {}
-        self._clearMessage()
 
     def _onResultsReady(self, params):
         document, results = params
