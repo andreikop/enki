@@ -24,7 +24,8 @@ import base
 
 # Third-party library imports
 # ---------------------------
-from PyQt4.QtGui import QMessageBox
+from PyQt4.QtGui import QMessageBox, QWheelEvent, QApplication
+from PyQt4.QtCore import Qt, QPoint
 import mock
 
 # Local application imports
@@ -1191,6 +1192,21 @@ Usage: C:\Python27\Scripts\sphinx-build [options] sourcedir outdir [filenames...
 """)
         self.assertEqual(_getSphinxVersion('anything_since_replaced_by_mock'),
                          [1, 2, 3])
+
+    def test_zoom(self):
+        webView = self._widget().webView
+        self.assertEqual(webView.zoomFactor(), 1)
+        zoom_out = QWheelEvent(webView.mapToGlobal(QPoint(10, 10)), 120, Qt.NoButton, Qt.ControlModifier)
+        zoom_in = QWheelEvent(webView.mapToGlobal(QPoint(10, 10)), -120, Qt.NoButton, Qt.ControlModifier)
+
+        QApplication.instance().sendEvent(webView, zoom_out)
+        self.assertTrue(0.85 < webView.zoomFactor() < 0.95)
+
+        QApplication.instance().sendEvent(webView, zoom_in)
+        self.assertTrue(0.95 < webView.zoomFactor() < 1.05)
+
+        QApplication.instance().sendEvent(webView, zoom_in)
+        self.assertTrue(1.05 < webView.zoomFactor() < 1.15)
 
 # Main
 # ====

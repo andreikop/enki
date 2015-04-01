@@ -23,7 +23,7 @@ import codecs
 # Third-party imports
 # -------------------
 from PyQt4.QtCore import pyqtSignal, QSize, Qt, QThread, QTimer, QUrl
-from PyQt4.QtGui import QDesktopServices, QFileDialog, QIcon, QMessageBox, QWidget, QPalette
+from PyQt4.QtGui import QDesktopServices, QFileDialog, QIcon, QMessageBox, QWidget, QPalette, QWheelEvent
 from PyQt4.QtWebKit import QWebPage
 from PyQt4 import uic
 
@@ -369,6 +369,8 @@ class PreviewDock(DockWidget):
 
         self._widget.cbEnableJavascript.clicked.connect(self._onJavaScriptEnabledCheckbox)
 
+        self._widget.webView.installEventFilter(self)
+
         # When quitting this program, don't rebuild when closing all open
         # documents. This can take a long time, particularly if a some of the
         # documents are associated with a Sphinx project.
@@ -463,6 +465,19 @@ class PreviewDock(DockWidget):
         self.closed.emit()
         self._clear()
         return DockWidget.closeEvent(self, event)
+
+    def eventFilter(self, obj, ev):
+        """ Event filter for the web view
+        Zooms the web view
+        """
+        if isinstance(ev, QWheelEvent) and \
+           ev.modifiers() == Qt.ControlModifier:
+            multiplier = 1 - (0.1 * (ev.delta() / 120.))
+            view = self._widget.webView
+            view.setZoomFactor(view.zoomFactor() * multiplier)
+            return True
+        else:
+            return DockWidget.eventFilter(self, obj, ev)
 
     def _onLinkClicked(self, url):
         res = QDesktopServices.openUrl(url)
