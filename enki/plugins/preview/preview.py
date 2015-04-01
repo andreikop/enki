@@ -413,7 +413,7 @@ class PreviewDock(DockWidget):
         # GUI thread draws the preview too slowly).
         # This timer is used for drawing Preview 300 ms After user has stopped typing text
         self._typingTimer = QTimer()
-        self._typingTimer.setInterval(300)
+        self._typingTimer.setInterval(800)
         self._typingTimer.timeout.connect(self._scheduleDocumentProcessing)
 
         self._widget.cbTemplate.currentIndexChanged.connect(self._onCurrentTemplateChanged)
