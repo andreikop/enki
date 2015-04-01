@@ -373,10 +373,7 @@ class PreviewDock(DockWidget):
         # is detected, compare current settings with the old one. Build if necessary.
         core.uiSettingsManager().dialogAccepted.connect(self._scheduleDocumentProcessing)
 
-        # File save actions always trigger a rebuild
-        core.actionManager().action( "mFile/mSave/aCurrent" ).triggered.connect(self._scheduleDocumentProcessing)
-        core.actionManager().action( "mFile/mSave/aAll" ).triggered.connect(self._scheduleDocumentProcessing)
-        core.actionManager().action( "mFile/mSave/aSaveAs" ).triggered.connect(self._scheduleDocumentProcessing)
+        core.workspace().modificationChanged.connect(self._onDocumentModificationChanged)
 
         self._scrollPos = {}
         self._vAtEnd = {}
@@ -450,9 +447,7 @@ class PreviewDock(DockWidget):
         except TypeError:  # already has been disconnected
             pass
         self.previewSync.del_()
-        core.actionManager().action( "mFile/mSave/aCurrent" ).triggered.disconnect(self._scheduleDocumentProcessing)
-        core.actionManager().action( "mFile/mSave/aAll" ).triggered.disconnect(self._scheduleDocumentProcessing)
-        core.actionManager().action( "mFile/mSave/aSaveAs" ).triggered.disconnect(self._scheduleDocumentProcessing)
+        core.workspace().modificationChanged.disconnect(self._onDocumentModificationChanged)
 
         self._thread.stop_async()
         self._thread.wait()
@@ -476,6 +471,10 @@ class PreviewDock(DockWidget):
             return True
         else:
             return DockWidget.eventFilter(self, obj, ev)
+
+    def _onDocumentModificationChanged(self, document, modified):
+        if not modified:  # probably has been saved just now
+            self._scheduleDocumentProcessing()
 
     def _onLinkClicked(self, url):
         res = QDesktopServices.openUrl(url)
@@ -620,6 +619,9 @@ class PreviewDock(DockWidget):
         """Start document processing with the thread.
         """
         if not self._programRunning:
+            return
+
+        if self.isHidden():
             return
 
         self._typingTimer.stop()

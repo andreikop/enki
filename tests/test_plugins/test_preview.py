@@ -383,7 +383,7 @@ content"""
         """If Enki is opened without any configuration, the preview dock will
         not appear. This will not affect resT files or html files."""
         self.testText = u'test'
-        self._doBasicTest('py')
+        self.createFile('file.py', self.testText)
         with self.assertRaisesRegexp(AssertionError, 'Dock Previe&w not found'):
             self._dock()
 
@@ -458,7 +458,7 @@ content"""
            opened, then enable the CodeChat module and refresh Enki.
            The preview window should now be opened."""
         self.testText = u'test'
-        self._doBasicTest('py')
+        self.createFile('file.py', self.testText)
         with self.assertRaisesRegexp(AssertionError, 'Dock Previe&w not found'):
             self._dock()
         core.config()['CodeChat']['Enabled'] = True
