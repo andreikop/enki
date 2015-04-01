@@ -20,21 +20,18 @@ import sys
 import shlex
 import codecs
 
-# Third-party imports
-# -------------------
 from PyQt4.QtCore import pyqtSignal, QSize, Qt, QThread, QTimer, QUrl
 from PyQt4.QtGui import QDesktopServices, QFileDialog, QIcon, QMessageBox, QWidget, QPalette, QWheelEvent
 from PyQt4.QtWebKit import QWebPage
 from PyQt4 import uic
 
-# Local imports
-# -------------
 from enki.core.core import core
 from enki.widgets.dockwidget import DockWidget
 from enki.plugins.preview import isHtmlFile, canUseCodeChat, \
     sphinxEnabledForFile
 from preview_sync import PreviewSync
 from enki.lib.get_console_output import get_console_output
+
 
 # Likewise, attempt importing CodeChat; failing that, disable the CodeChat feature.
 try:
@@ -49,11 +46,13 @@ else:
     import CodeChat.CodeToRest as CodeToRest
     import CodeChat.LanguageSpecificOptions as LSO
 
+
 # Determine if we're frozen with Pyinstaller or not.
 if getattr(sys, 'frozen', False):
     isFrozen = True
 else:
     isFrozen = False
+
 
 def copyTemplateFile(errors, source, templateFileName, dest, newName=None):
     """For each sphinx project, two files are needed: ``index.rst``as master
@@ -72,6 +71,7 @@ def copyTemplateFile(errors, source, templateFileName, dest, newName=None):
             shutil.copy(sourcePath, os.path.join(dest, newName))
         except (IOError, OSError) as why:
             errors.append((sourcePath, dest, str(why)))
+
 
 class ConverterThread(QThread):
     """Thread converts markdown to HTML.
@@ -106,21 +106,6 @@ class ConverterThread(QThread):
     def stop_async(self):
         self._queue.put(None)
 
-    def _checkModificationTime(self, sourceFile, outputFile, s):
-        """Make sure the outputFile is newer than the sourceFile.
-        Otherwise, return an error."""
-        # Recall that time is measured in seconds since the epoch,
-        # so that larger = newer.
-        try:
-            if os.path.getmtime(outputFile) > os.path.getmtime(sourceFile):
-                return u'', s, QUrl.fromLocalFile(outputFile)
-            else:
-                return ('The file {} is older than the source file {}.'
-                        .format(outputFile, sourceFile), s, QUrl())
-        except OSError as e:
-            return ('Error checking modification time: {}'.format(str(e)),
-                    s, QUrl())
-
     def _getHtml(self, language, text, filePath):
         """Get HTML for document
         """
@@ -130,68 +115,12 @@ class ConverterThread(QThread):
         elif language == 'Restructured Text' and not sphinxEnabledForFile(filePath):
             htmlUnicode, errString = self._convertReST(text)
             return htmlUnicode, errString, QUrl()
-        elif filePath:
-            # Use Sphinx to generate the HTML if possible.
-            if sphinxEnabledForFile(filePath):
-                # Run the builder.
-                errString = self._runHtmlBuilder()
-
-                # Look for the HTML output.
-                #
-                # Get an absolute path to the output path, which could be relative.
-                outputPath = core.config()['Sphinx']['OutputPath']
-                projectPath = core.config()['Sphinx']['ProjectPath']
-                if not os.path.isabs(outputPath):
-                    outputPath = os.path.join(projectPath, outputPath)
-                # Create an htmlPath as OutputPath + remainder of filePath.
-                htmlPath = os.path.join(outputPath + filePath[len(projectPath):])
-                html_file_suffix = u'html'
-                try:
-                    with codecs.open(os.path.join(projectPath, 'sphinx-enki-info.json')) as f:
-                        html_file_suffix = f.read()
-                except:
-                    errString = "Warning: assuming .html extension. Use " + \
-                      "the conf.py template to set the extension.\n" + errString
-                    pass
-                # First place to look: file.html. For example, look for foo.py
-                # in foo.py.html.
-                ext =  u'.' + html_file_suffix
-                htmlFile = htmlPath + ext
-                # Second place to look: file without extension.html. For
-                # example, look for foo.html for foo.rst.
-                htmlFileAlter = os.path.splitext(htmlPath)[0] + ext
-                # Check that the output file produced by Sphinx is newer than
-                # the source file it was built from.
-                if os.path.exists(htmlFile):
-                    return self._checkModificationTime(filePath, htmlFile,
-                                                       errString)
-                elif os.path.exists(htmlFileAlter):
-                    return self._checkModificationTime(filePath, htmlFileAlter,
-                                                       errString)
-                else:
-                    return ('No preview for this type of file.<br>Expect ' +
-                            htmlFile + " or " + htmlFileAlter, errString, QUrl())
-
-            # Otherwise, fall back to using CodeChat+docutils.
-            elif canUseCodeChat(filePath):
-                # Use StringIO to pass CodeChat compilation information back to
-                # the UI.
-                errStream = StringIO.StringIO()
-                lso = LSO.LanguageSpecificOptions()
-                fileName, fileExtension = os.path.splitext(filePath)
-                lso.set_language(fileExtension)
-                htmlString = CodeToRest.code_to_html_string(text, lso, errStream)
-                # Error string might contain characters such as ">" and "<",
-                # they need to be converted to "&gt;" and "&lt;" such that
-                # they can be displayed correctly in the log window as html strings.
-                # This step is handled by ``cgi.escape``.
-                errString = errStream.getvalue()
-                if errString:
-                    errString = "<font color='red'>" + cgi.escape(errString) + '</font>'
-                errStream.close()
-                return htmlString, errString, QUrl()
-
-        return 'No preview for this type of file', None, QUrl()
+        elif filePath and sphinxEnabledForFile(filePath):  # Use Sphinx to generate the HTML if possible.
+            return self._convertSphinx(filePath)
+        elif filePath and canUseCodeChat(filePath):  # Otherwise, fall back to using CodeChat+docutils.
+            return self._convertCodeChat(text, filePath)
+        else:
+            return 'No preview for this type of file', None, QUrl()
 
     def _convertMarkdown(self, text):
         """Convert Markdown to HTML
@@ -272,6 +201,76 @@ class ConverterThread(QThread):
             errString = "<font color='red'>" + cgi.escape(errString) + '</font>'
         errStream.close()
         return htmlString, errString
+
+    def _convertSphinx(self, filePath):
+        def checkModificationTime(sourceFile, outputFile, s):
+            """Make sure the outputFile is newer than the sourceFile.
+            Otherwise, return an error."""
+            # Recall that time is measured in seconds since the epoch,
+            # so that larger = newer.
+            try:
+                if os.path.getmtime(outputFile) > os.path.getmtime(sourceFile):
+                    return u'', s, QUrl.fromLocalFile(outputFile)
+                else:
+                    return ('The file {} is older than the source file {}.'
+                            .format(outputFile, sourceFile), s, QUrl())
+            except OSError as e:
+                return ('Error checking modification time: {}'.format(str(e)),
+                        s, QUrl())
+        # Run the builder.
+        errString = self._runHtmlBuilder()
+
+        # Look for the HTML output.
+        #
+        # Get an absolute path to the output path, which could be relative.
+        outputPath = core.config()['Sphinx']['OutputPath']
+        projectPath = core.config()['Sphinx']['ProjectPath']
+        if not os.path.isabs(outputPath):
+            outputPath = os.path.join(projectPath, outputPath)
+        # Create an htmlPath as OutputPath + remainder of filePath.
+        htmlPath = os.path.join(outputPath + filePath[len(projectPath):])
+        html_file_suffix = u'html'
+        try:
+            with codecs.open(os.path.join(projectPath, 'sphinx-enki-info.json')) as f:
+                html_file_suffix = f.read()
+        except:
+            errString = "Warning: assuming .html extension. Use " + \
+              "the conf.py template to set the extension.\n" + errString
+            pass
+        # First place to look: file.html. For example, look for foo.py
+        # in foo.py.html.
+        ext =  u'.' + html_file_suffix
+        htmlFile = htmlPath + ext
+        # Second place to look: file without extension.html. For
+        # example, look for foo.html for foo.rst.
+        htmlFileAlter = os.path.splitext(htmlPath)[0] + ext
+        # Check that the output file produced by Sphinx is newer than
+        # the source file it was built from.
+        if os.path.exists(htmlFile):
+            return checkModificationTime(filePath, htmlFile, errString)
+        elif os.path.exists(htmlFileAlter):
+            return checkModificationTime(filePath, htmlFileAlter, errString)
+        else:
+            return ('No preview for this type of file.<br>Expect ' +
+                    htmlFile + " or " + htmlFileAlter, errString, QUrl())
+
+    def _convertCodeChat(self, text, filePath):
+        # Use StringIO to pass CodeChat compilation information back to
+        # the UI.
+        errStream = StringIO.StringIO()
+        lso = LSO.LanguageSpecificOptions()
+        fileName, fileExtension = os.path.splitext(filePath)
+        lso.set_language(fileExtension)
+        htmlString = CodeToRest.code_to_html_string(text, lso, errStream)
+        # Error string might contain characters such as ">" and "<",
+        # they need to be converted to "&gt;" and "&lt;" such that
+        # they can be displayed correctly in the log window as html strings.
+        # This step is handled by ``cgi.escape``.
+        errString = errStream.getvalue()
+        if errString:
+            errString = "<font color='red'>" + cgi.escape(errString) + '</font>'
+        errStream.close()
+        return htmlString, errString, QUrl()
 
     def _runHtmlBuilder(self):
         # Build the commond line for Sphinx.
