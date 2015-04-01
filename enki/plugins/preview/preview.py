@@ -346,29 +346,12 @@ class PreviewDock(DockWidget):
 
     def __init__(self):
         DockWidget.__init__(self, core.mainWindow(), "Previe&w", QIcon(':/enkiicons/internet.png'), "Alt+W")
-        self._widget = QWidget(self)
 
-        uic.loadUi(os.path.join(os.path.dirname(__file__), 'Preview.ui'), self._widget)
+        self._widget = self._createWidget()
+        # Don't need to schedule document processing; a call to show() does.
 
         self._loadTemplates()
-
-        self._widget.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
-        self._widget.webView.page().linkClicked.connect(self._onLinkClicked)
-
-        # Fix preview palette. See https://github.com/bjones1/enki/issues/34
-        webViewPalette = self._widget.webView.palette()
-        webViewPalette.setColor(QPalette.Inactive, QPalette.HighlightedText,
-                                webViewPalette.color(QPalette.Text))
-        self._widget.webView.setPalette(webViewPalette)
-
-
-        self._widget.webView.page().mainFrame().titleChanged.connect(self._updateTitle)
-        self.setWidget(self._widget)
-        self.setFocusProxy(self._widget.webView)
-
-        self._widget.cbEnableJavascript.clicked.connect(self._onJavaScriptEnabledCheckbox)
-
-        self._widget.webView.installEventFilter(self)
+        self._widget.cbTemplate.currentIndexChanged.connect(self._onCurrentTemplateChanged)
 
         # When quitting this program, don't rebuild when closing all open
         # documents. This can take a long time, particularly if a some of the
@@ -399,8 +382,7 @@ class PreviewDock(DockWidget):
         self._vAtEnd = {}
         self._hAtEnd = {}
 
-        # Keep track of which Sphinx template copies we've already asked the
-        # user about.
+        # Keep track of which Sphinx template copies we've already asked the user about.
         self._sphinxTemplateCheckIgnoreList = []
 
         self._thread = ConverterThread()
@@ -410,27 +392,44 @@ class PreviewDock(DockWidget):
 
         # If we update Preview on every key press, freezes are noticable (the
         # GUI thread draws the preview too slowly).
-        # This timer is used for drawing Preview 300 ms After user has stopped typing text
+        # This timer is used for drawing Preview 800 ms After user has stopped typing text
         self._typingTimer = QTimer()
         self._typingTimer.setInterval(800)
         self._typingTimer.timeout.connect(self._scheduleDocumentProcessing)
-
-        self._widget.cbTemplate.currentIndexChanged.connect(self._onCurrentTemplateChanged)
 
         self.previewSync = PreviewSync(self._widget.webView)
 
         self._applyJavaScriptEnabled(self._isJavaScriptEnabled())
 
-        self._widget.tbSave.clicked.connect(self.onPreviewSave)
+    def _createWidget(self):
+        widget = QWidget(self)
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'Preview.ui'), widget)
+        widget.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
+        widget.webView.page().linkClicked.connect(self._onLinkClicked)
+        # Fix preview palette. See https://github.com/bjones1/enki/issues/34
+        webViewPalette = widget.webView.palette()
+        webViewPalette.setColor(QPalette.Inactive, QPalette.HighlightedText,
+                                webViewPalette.color(QPalette.Text))
+        widget.webView.setPalette(webViewPalette)
 
-        # Add an attribute to ``self._widget`` denoting the splitter location.
+        widget.webView.page().mainFrame().titleChanged.connect(self._updateTitle)
+        widget.cbEnableJavascript.clicked.connect(self._onJavaScriptEnabledCheckbox)
+        widget.webView.installEventFilter(self)
+
+        self.setWidget(widget)
+        self.setFocusProxy(widget.webView)
+
+        widget.tbSave.clicked.connect(self.onPreviewSave)
+        # Add an attribute to ``widget`` denoting the splitter location.
         # This value will be overwritten when the user changes splitter location.
-        self._widget.splitterErrorStateSize = (199,50)
-        self._widget.splitterNormStateSize = (1,0)
-        self._widget.splitterNormState = True
-        self._widget.splitter.setSizes(self._widget.splitterNormStateSize)
-        self._widget.splitter.splitterMoved.connect(self.on_splitterMoved)
-        # Don't need to schedule document processing; a call to show() does.
+        widget.splitterErrorStateSize = (199,50)
+        widget.splitterNormStateSize = (1,0)
+        widget.splitterNormState = True
+        widget.splitter.setSizes(widget.splitterNormStateSize)
+        widget.splitter.splitterMoved.connect(self.on_splitterMoved)
+
+        return widget
+
 
     def _quitingApplication(self):
         self._programRunning = False
