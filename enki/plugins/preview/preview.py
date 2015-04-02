@@ -465,7 +465,7 @@ class PreviewDock(DockWidget):
         """
         if isinstance(ev, QWheelEvent) and \
            ev.modifiers() == Qt.ControlModifier:
-            multiplier = 1 - (0.1 * (ev.delta() / 120.))
+            multiplier = 1 + (0.1 * (ev.delta() / 120.))
             view = self._widget.webView
             view.setZoomFactor(view.zoomFactor() * multiplier)
             return True

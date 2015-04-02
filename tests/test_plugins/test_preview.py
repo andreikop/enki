@@ -1196,8 +1196,8 @@ Usage: C:\Python27\Scripts\sphinx-build [options] sourcedir outdir [filenames...
     def test_zoom(self):
         webView = self._widget().webView
         self.assertEqual(webView.zoomFactor(), 1)
-        zoom_out = QWheelEvent(webView.mapToGlobal(QPoint(10, 10)), 120, Qt.NoButton, Qt.ControlModifier)
-        zoom_in = QWheelEvent(webView.mapToGlobal(QPoint(10, 10)), -120, Qt.NoButton, Qt.ControlModifier)
+        zoom_out = QWheelEvent(webView.mapToGlobal(QPoint(10, 10)), -120, Qt.NoButton, Qt.ControlModifier)
+        zoom_in = QWheelEvent(webView.mapToGlobal(QPoint(10, 10)), 120, Qt.NoButton, Qt.ControlModifier)
 
         QApplication.instance().sendEvent(webView, zoom_out)
         self.assertTrue(0.85 < webView.zoomFactor() < 0.95)
