@@ -92,11 +92,11 @@ baseurl: .
             </div>
             {% endfor %}
         </div>
+        <div id="allnews">
+            <a href="archive.html">All news...</a>
+        </div>
     </div>
 
-    <div id="allnews">
-        <a href="archive.html">All news...</a>
-    </div>
 
 </div>
 
