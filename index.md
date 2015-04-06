@@ -18,23 +18,22 @@ baseurl: .
     <li><strong>Open source.</strong> In GitHub we trust.</li>
 </ul>
 
-<div id="social-buttons">
+    <div id="social-buttons">
         <div id="twitter">
             <a href="https://twitter.com/EnkiEditor" class="twitter-follow-button" data-show-count="false" data-size="large" data-show-screen-name="false">Follow @EnkiEditor</a>
         </div>
 
-    <!-- Hiding Facebook button
-        <div id="facebook">
-            <a href="http://www.facebook.com/sharer.php?u=http://enki-editor.org/"><img src="./img/facebook.png" title="Share enki editor on Facebook" alt="Share enki editor on Facebook"></a>
-        </div>
+        <!-- Hiding Facebook button
+            <div id="facebook">
+                <a href="http://www.facebook.com/sharer.php?u=http://enki-editor.org/"><img src="./img/facebook.png" title="Share enki editor on Facebook" alt="Share enki editor on Facebook"></a>
+            </div>
         -->
-
     </div>
+
 </div>
 
 <div id="content-row-2">
     <div id="left-col">
-
 
         <div id="download">
 
@@ -77,28 +76,29 @@ baseurl: .
             </div>
 
         <a href="./packaging.html" id="where-is">Where is package for my OS?</a>
-        </div>
-
-
-        <div id="news">
-            <h2>News</h2>
-            <div id="news-inner-container">
-                {% for post in site.posts limit:5 %}
-                <div class="news-row">
-                    <div class="date">
-                        {{ post.date | date_to_string }}
-                    </div>
-                    <div class="post-title">
-                        <a href="{{ page.baseurl }}{{ post.url }}">{{ post.title }}</a>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-            <div id="allnews">
-                <a href="archive.html">All news...</a>
-            </div>
     </div>
+
+    <div id="news">
+        <h2>News</h2>
+        <div id="news-inner-container">
+            {% for post in site.posts limit:5 %}
+            <div class="news-row">
+                <div class="date">
+                    {{ post.date | date_to_string }}
+                </div>
+                <div class="post-title">
+                    <a href="{{ page.baseurl }}{{ post.url }}">{{ post.title }}</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div id="allnews">
+        <a href="archive.html">All news...</a>
+    </div>
+
+</div>
 
 
 <div id="screenshot-container">
