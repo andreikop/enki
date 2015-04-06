@@ -185,6 +185,7 @@ min-height: 460px;
 	margin: -15px 0px 10px 40px;
 	position: relative;
 	z-index: 4000;
+	font-size: 16px;
 }
 
 #social-buttons {
