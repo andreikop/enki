@@ -133,7 +133,8 @@ baseurl: .
 
     </div>
 
-    <div id="seperator">
-    </div>
 
+</div>
+
+<div id="seperator">
 </div>
