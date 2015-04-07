@@ -25,23 +25,14 @@ class AbstractCommand:
     """Base class for Locator commands.
 
     Inherit it to create own commands. Than add your command with Locator.addCommandClass()
+
+    Public attributes:
+
+    * ``signature`` - Command signature. Shown in the Help. Example:  ``[f] PATH [LINE]``
+    * ``description`` - Command description. Shown in the Help. Example: ``Open file. Globs are supported``
     """
-
-    @staticmethod
-    def signature():
-        """Command signature. Shown in the Help. Example:
-
-        '[f] PATH [LINE]'
-        """
-        raise NotImplemented()
-
-    @staticmethod
-    def description():
-        """Command description. Shown in the Help. Example:
-
-        'Open file. Globs are supported'
-        """
-        raise NotImplemented()
+    signature = NotImplemented
+    description = NotImplemented
 
     @staticmethod
     def pattern():
@@ -157,9 +148,9 @@ class _HelpCompleter(AbstractCompleter):
         Return command description
         """
         if column == 0:
-            return self._commands[row].signature()
+            return self._commands[row].signature
         else:
-            return self._commands[row].description()
+            return self._commands[row].description
 
 
 class _StatusCompleter(AbstractCompleter):

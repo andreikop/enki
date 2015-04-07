@@ -15,17 +15,8 @@ from enki.core.locator import AbstractCommand
 class CommandGotoLine(AbstractCommand):
     """Go to line command implementation
     """
-    @staticmethod
-    def signature():
-        """Command signature. For Help
-        """
-        return '[l] [LINE]'
-
-    @staticmethod
-    def description():
-        """Command description. For Help
-        """
-        return 'Go to line'
+    signature = '[l] [LINE]'
+    description = 'Go to line'
 
     @staticmethod
     def pattern():
@@ -71,17 +62,8 @@ class CommandGotoLine(AbstractCommand):
 
 class CommandOpen(AbstractCommand):
 
-    @staticmethod
-    def signature():
-        """Command signature. For Help
-        """
-        return '[f] PATH [LINE]'
-
-    @staticmethod
-    def description():
-        """Command description. For Help
-        """
-        return 'Open file. Globs are supported'
+    signature = '[f] PATH [LINE]'
+    description = 'Open file. Globs are supported'
 
     @staticmethod
     def pattern():
@@ -211,18 +193,8 @@ class CommandOpen(AbstractCommand):
 class CommandSaveAs(AbstractCommand):
     """Save As Locator command
     """
-
-    @staticmethod
-    def signature():
-        """Command signature. For Help
-        """
-        return 's PATH'
-
-    @staticmethod
-    def description():
-        """Command description. For Help
-        """
-        return 'Save file As'
+    signature = 's PATH'
+    description = 'Save file As'
 
     @staticmethod
     def pattern():
