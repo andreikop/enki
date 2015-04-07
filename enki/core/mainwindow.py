@@ -158,6 +158,7 @@ class MainWindow(QMainWindow):
         """On Unity (Ubuntu) and MacOS menu bar is embedded to task bar
         """
         return 'UBUNTU_MENUPROXY' in os.environ or \
+               os.environ.get('XDG_CURRENT_DESKTOP') == 'Unity' or \
                'darwin' == sys.platform
 
     def _initMenubarAndStatusBarLayout(self):
@@ -170,8 +171,10 @@ class MainWindow(QMainWindow):
             toolBarStyleSheet = "QToolBar {border: 0; border-bottom-width: 1; border-bottom-style: solid}"""
             self._topToolBar.setStyleSheet(toolBarStyleSheet)
 
+        area = Qt.BottomToolBarArea if self._isMenuEmbeddedToTaskBar() else Qt.TopToolBarArea
+        self.addToolBar(area, self._topToolBar)
+
         if self._isMenuEmbeddedToTaskBar():  # separate menu bar
-            self.addToolBar(self._topToolBar)
             self.setMenuBar(self._menuBar)
         else:  # menubar, statusbar and editor tool bar on one line
             self._menuBar.setAutoFillBackground(False)
@@ -183,12 +186,20 @@ class MainWindow(QMainWindow):
             self._menuBar.setStyleSheet(menuBarStyleSheet)
             self._menuBar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
-            self.addToolBar(self._topToolBar)
             self._topToolBar.addWidget(self._menuBar)
 
         # Create status bar
         self._statusBar = _StatusBar(self)
         self._topToolBar.addWidget(self._statusBar)
+
+    def _initQueuedMessageToolBar(self):
+        from enki.core.queued_msg_tool_bar import QueuedMessageToolBar
+
+        self._queuedMessageToolBar = QueuedMessageToolBar(self)
+        area = Qt.TopToolBarArea if self._isMenuEmbeddedToTaskBar() else Qt.BottomToolBarArea
+        self.addToolBar(area, self._queuedMessageToolBar)
+        self._queuedMessageToolBar.setVisible( False )
+
 
     def _createMenuStructure(self):
         """Fill menu bar with items. The majority of items are not connected to the slots,
@@ -323,11 +334,7 @@ class MainWindow(QMainWindow):
         but, not so important, to interrupt an user with QMessageBox
         """
         if self._queuedMessageToolBar is None:
-            from enki.core.queued_msg_tool_bar import QueuedMessageToolBar
-
-            self._queuedMessageToolBar = QueuedMessageToolBar(self)
-            self.addToolBar(Qt.BottomToolBarArea, self._queuedMessageToolBar)
-            self._queuedMessageToolBar.setVisible( False )
+            self._initQueuedMessageToolBar()
 
         self._queuedMessageToolBar.appendMessage(text, timeoutMs)
 
