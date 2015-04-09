@@ -9,36 +9,24 @@ import glob
 from enki.core.core import core
 from enki.lib.pathcompleter import makeSuitableCompleter, PathCompleter
 
-from enki.core.locator import AbstractCommand
+from enki.core.locator import AbstractCommand, InvalidCmdArgs
 
 
 class CommandGotoLine(AbstractCommand):
     """Go to line command implementation
     """
-    signature = '[l] [LINE]'
+    command = 'l'
+    signature = 'l [LINE]'
     description = 'Go to line'
 
-    @staticmethod
-    def pattern():
-        """Pyparsing pattern
-        """
-        from pyparsing import Literal, Optional, Suppress, White, Word, nums  # delayed import, performance optimization
+    def __init__(self, args):
+        if len(args) != 1:
+            raise InvalidCmdArgs()
 
-        line = Word(nums)("line")
-        pat = (Literal('l ') + Suppress(Optional(White())) + Optional(line)) ^ line
-        pat.leaveWhitespace()
-        pat.setParseAction(CommandGotoLine.create)
-        return pat
-
-    @staticmethod
-    def create(str, loc, tocs):
-        """Callback for pyparsing. Creates an instance of command
-        """
-        if tocs.line:
-            line = int(tocs.line)
-        else:
-            line = None
-        return [CommandGotoLine(line)]
+        try:
+            self._line = int(args[0])
+        except ValueError:
+            raise InvalidCmdArgs()
 
     @staticmethod
     def isAvailable():
@@ -46,13 +34,10 @@ class CommandGotoLine(AbstractCommand):
         """
         return core.workspace().currentDocument() is not None
 
-    def __init__(self, line):
-        self._line = line
-
     def isReadyToExecute(self):
         """Check if command is complete and ready to execute
         """
-        return self._line is not None
+        return True
 
     def execute(self):
         """Execute the command
@@ -62,54 +47,24 @@ class CommandGotoLine(AbstractCommand):
 
 class CommandOpen(AbstractCommand):
 
+    command = 'f'
     signature = '[f] PATH [LINE]'
     description = 'Open file. Globs are supported'
 
-    @staticmethod
-    def pattern():
-        """pyparsing pattern
-        """
+    def __init__(self, args):
+        if len(args) not in (1, 2):
+            raise InvalidCmdArgs()
 
-        def attachLocation(s, loc, tocs):
-            """pyparsing callback. Saves path position in the original string
-            """
-            return [(loc, tocs[0])]
+        self._path = args.pop(0)
 
-        from pyparsing import CharsNotIn, Combine, Literal, Optional, White, Word, nums  # delayed import, performance optimization
-
-        path = CharsNotIn(" \t")("path")
-        path.setParseAction(attachLocation)
-        longPath = CharsNotIn(" \t", min=2)("path")
-        longPath.setParseAction(attachLocation)
-        slashPath = Combine(Literal('/') + Optional(CharsNotIn(" \t")))("path")
-        slashPath.setParseAction(attachLocation)
-
-        pat = ((Literal('f ') + Optional(White()) + Optional(path)) ^ longPath ^ slashPath) + \
-                    Optional(White() + Word(nums)("line"))
-        pat.leaveWhitespace()
-        pat.setParseAction(CommandOpen.create)
-        return pat
-
-    @staticmethod
-    def create(str, loc, tocs):
-        """pyparsing callback. Creates an instance of command
-        """
-        if tocs.path:
-            pathLocation, path = tocs.path
+        if args:
+            try:
+                self._line = int(args[0])
+            except ValueError:
+                raise InvalidCmdArgs()
         else:
-            pathLocation, path = 0, ''
+            self._line = None
 
-        if tocs.line:
-            line = int(tocs.line)
-        else:
-            line = None
-
-        return [CommandOpen(pathLocation, path, line)]
-
-    def __init__(self, pathLocation, path, line):
-        self._path = path
-        self._pathLocation = pathLocation
-        self._line = line
 
     def completer(self, text, pos):
         """Command completer.
@@ -120,14 +75,6 @@ class CommandOpen(AbstractCommand):
             return makeSuitableCompleter(self._path, pos - self._pathLocation)
         else:
             return None
-
-    def constructCommand(self, completableText):
-        """Construct command by path
-        """
-        command = 'f ' + completableText
-        if self._line is not None:
-            command += ' %d' % self._line
-        return command
 
     @staticmethod
     def _isGlob(text):
@@ -140,8 +87,8 @@ class CommandOpen(AbstractCommand):
         """
         if self._isGlob(self._path):
             files = glob.glob(os.path.expanduser(self._path))
-            return len(files) > 0 and \
-                   all([os.path.isfile(p) for p in files])
+            return files and \
+                   all([os.path.isfile(f) for f in files])
         else:
             if not self._path:
                 return False
@@ -160,12 +107,13 @@ class CommandOpen(AbstractCommand):
         """
         if self._isGlob(self._path):
             expandedPathes = []
-            for path in glob.iglob(os.path.expanduser(self._path)):
+            for filePath in glob.iglob(os.path.expanduser(self._path)):
                 try:
-                    path = os.path.abspath(path)
+                    absFilePath = os.path.abspath(filePath)
                 except OSError:
-                    pass
-                expandedPathes.append(path)
+                    expandedPathes.append(filePath)
+                else:
+                    expandedPathes.append(absFilePath)
 
             # 2 loops, because we should open absolute pathes. When opening files, enki changes its current directory
             for path in expandedPathes:
@@ -193,36 +141,10 @@ class CommandOpen(AbstractCommand):
 class CommandSaveAs(AbstractCommand):
     """Save As Locator command
     """
+    command = 's'
     signature = 's PATH'
     description = 'Save file As'
 
-    @staticmethod
-    def pattern():
-        """pyparsing pattern of the command
-        """
-        def attachLocation(s, loc, tocs):
-            return [(loc, tocs[0])]
-
-        from pyparsing import CharsNotIn, Literal, Optional, White  # delayed import, performance optimization
-
-        path = CharsNotIn(" \t")("path")
-        path.setParseAction(attachLocation)
-
-        pat = (Literal('s ') + Optional(White()) + Optional(path))
-        pat.leaveWhitespace()
-        pat.setParseAction(CommandSaveAs.create)
-        return pat
-
-    @staticmethod
-    def create(str, loc, tocs):
-        """Callback for pyparsing. Creates an instance
-        """
-        if tocs.path:
-            pathLocation, path = tocs.path
-        else:
-            pathLocation, path = 0, ''
-
-        return [CommandSaveAs(pathLocation, path)]
 
     @staticmethod
     def isAvailable():
@@ -231,9 +153,11 @@ class CommandSaveAs(AbstractCommand):
         """
         return core.workspace().currentDocument() is not None
 
-    def __init__(self, pathLocation, path):
-        self._path = path
-        self._pathLocation = pathLocation
+    def __init__(self, args):
+        if len(args) != 1:
+            raise InvalidCmdArgs()
+
+        self._path = args[0]
 
     def completer(self, text, pos):
         """Command Completer.
@@ -244,11 +168,6 @@ class CommandSaveAs(AbstractCommand):
             return PathCompleter(self._path, pos - self._pathLocation)
         else:
             return None
-
-    def constructCommand(self, completableText):
-        """Construct command by path
-        """
-        return 'f ' + completableText
 
     def isReadyToExecute(self):
         """Check if command is complete and ready to execute
@@ -267,15 +186,18 @@ class CommandSaveAs(AbstractCommand):
         core.workspace().currentDocument().saveFile()
 
 
+_CMD_CLASSES = (CommandGotoLine, CommandOpen, CommandSaveAs)
+
+
 class Plugin:
     """Plugin interface
     """
     def __init__(self):
-        for comClass in (CommandGotoLine, CommandOpen, CommandSaveAs):
-            core.locator().addCommandClass(comClass)
+        for cmdClass in _CMD_CLASSES:
+            core.locator().addCommandClass(cmdClass)
 
     def del_(self):
         """Explicitly called destructor
         """
-        for comClass in (CommandGotoLine, CommandOpen, CommandSaveAs):
-            core.locator().removeCommandClass(comClass)
+        for cmdClass in _CMD_CLASSES:
+            core.locator().removeCommandClass(cmdClass)

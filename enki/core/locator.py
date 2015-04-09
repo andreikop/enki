@@ -21,6 +21,11 @@ import Queue
 from enki.core.core import core
 from enki.lib.htmldelegate import HTMLDelegate
 
+
+class InvalidCmdArgs(UserWarning):
+    pass
+
+
 class AbstractCommand:
     """Base class for Locator commands.
 
@@ -34,11 +39,10 @@ class AbstractCommand:
     signature = NotImplemented
     description = NotImplemented
 
-    @staticmethod
-    def pattern():
-        """pyparsing pattern, which recognizes and constructs commands.
+    def __init__(self, args):
+        """ Construct a command insance from arguments
 
-        See `workspace_commands <https://github.com/hlamer/enki/blob/master/enki/plugins/workspace_commands.py>` as example
+        Raises InvalidCmdArgs if arguments are invalid
         """
         raise NotImplemented()
 
@@ -522,6 +526,7 @@ class Locator(QDialog):
 
         command = self._parseCommand(text)
         if command is not None:
+            return
             if self._completerConstructorThread is not None:
                 self._completerConstructorThread.terminate()
             self._completerConstructorThread = _CompleterConstructorThread(self)
@@ -608,14 +613,18 @@ class Locator(QDialog):
         """Parse text and try to get command
         """
         # delayed import, for optimize application start time
-        from pyparsing import Optional, Or, ParseException, StringEnd, White
-        optWs = Optional(White()).suppress()
-        pattern = optWs + Or([cmd.pattern() for cmd in self._availableCommands()]) + optWs + StringEnd()
-        try:
-            res = pattern.parseString(text)
-            return res[0]
-        except ParseException:
+        words = text.strip().split()
+        if not words:
             return None
+
+        for cmdClass in self._commandClasses:
+            if cmdClass.command == words[0]:
+                try:
+                    return cmdClass(words[1:])
+                except InvalidCmdArgs:
+                    return None
+
+        return None
 
     def exec_(self):
         """QDialog.exec() implementation. Updates completion before showing widget

@@ -7,7 +7,7 @@ import unittest
 import os.path
 import os
 import sys
-import stat
+
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
@@ -29,7 +29,7 @@ class Test(base.TestCase):
             self.keyClicks('L', Qt.ControlModifier)
 
         def inDialogFunc(dialog):
-            self.keyClicks('5')
+            self.keyClicks('l 5')
             self.keyClick(Qt.Key_Enter)
 
         self.openDialog(openDialogFunc, inDialogFunc)
@@ -48,7 +48,7 @@ class Test(base.TestCase):
             self.keyClicks('L', Qt.ControlModifier)
 
         def inDialogFunc(dialog):
-            self.keyClicks(fullPath)
+            self.keyClicks('f ' + fullPath)
             self.keyClick(Qt.Key_Enter)
 
         self.openDialog(openDialogFunc, inDialogFunc)
