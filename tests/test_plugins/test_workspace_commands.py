@@ -120,6 +120,26 @@ class Test(base.TestCase):
 
         self.assertEqual(data, text)
 
+    @base.inMainLoop
+    def test_6(self):
+        """Open file type only path """
+        document = core.workspace().createEmptyNotSavedDocument()
+
+        fullPath = os.path.join(self.TEST_FILE_DIR, 'thefile.txt')
+
+        with open(fullPath, 'w') as file_:
+            file_.write('thedata')
+
+        def openDialogFunc():
+            self.keyClicks('L', Qt.ControlModifier)
+
+        def inDialogFunc(dialog):
+            self.keyClicks(fullPath)
+            self.keyClick(Qt.Key_Enter)
+
+        self.openDialog(openDialogFunc, inDialogFunc)
+
+        self.assertEqual(core.workspace().currentDocument().filePath(), fullPath)
 
 if __name__ == '__main__':
     unittest.main()

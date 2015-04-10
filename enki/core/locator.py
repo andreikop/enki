@@ -33,11 +33,15 @@ class AbstractCommand:
 
     Public attributes:
 
+    * ``command`` - Command text (first word), i.e. ``f`` for Open and ``s`` for Save
     * ``signature`` - Command signature. Shown in the Help. Example:  ``[f] PATH [LINE]``
     * ``description`` - Command description. Shown in the Help. Example: ``Open file. Globs are supported``
+    * ``isDefaultCommand`` - If True, command is executed if no other command matches. Must be ``True`` for only 1 command. Currently it is Open
     """
+    command = NotImplemented
     signature = NotImplemented
     description = NotImplemented
+    isDefaultCommand = False
 
     def __init__(self, args):
         """ Construct a command insance from arguments
@@ -623,6 +627,13 @@ class Locator(QDialog):
                     return cmdClass(words[1:])
                 except InvalidCmdArgs:
                     return None
+        else:
+            for cmdClass in self._commandClasses:
+                if cmdClass.isDefaultCommand:
+                    try:
+                        return cmdClass(words)
+                    except InvalidCmdArgs:
+                        return None
 
         return None
 
