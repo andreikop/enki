@@ -3,7 +3,6 @@ pathcompleter --- Path completer for Locator
 ============================================
 """
 
-
 from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QApplication, QFileSystemModel, QPalette, QStyle
 
@@ -15,13 +14,15 @@ from enki.lib.htmldelegate import htmlEscape
 from enki.core.locator import AbstractCompleter
 from enki.core.core import core
 
-def makeSuitableCompleter(text, pos):
+
+def makeSuitableCompleter(text):
     """Returns PathCompleter if text is normal path or GlobCompleter for glob
     """
     if '*' in text or '?' in text or '[' in text:
         return GlobCompleter(text)
     else:
-        return PathCompleter(text, pos)
+        return PathCompleter(text)
+
 
 class AbstractPathCompleter(AbstractCompleter):
     """Base class for PathCompleter and GlobCompleter
@@ -164,7 +165,7 @@ class PathCompleter(AbstractPathCompleter):
     Used by Open command
     """
 
-    def __init__(self, text, pos):
+    def __init__(self, text):
         AbstractPathCompleter.__init__(self, text)
 
         enterredDir = os.path.dirname(text)

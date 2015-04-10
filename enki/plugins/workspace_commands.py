@@ -66,14 +66,13 @@ class CommandOpen(AbstractCommand):
         else:
             self._line = None
 
-
-    def completer(self, text, pos):
+    def completer(self, argIndex):
         """Command completer.
         If cursor is after path, returns PathCompleter or GlobCompleter
         """
-        if pos == self._pathLocation + len(self._path) or \
-           (not self._path and pos == len(text)):
-            return makeSuitableCompleter(self._path, pos - self._pathLocation)
+        if argIndex == 0:
+            print '~~ compleer for', self._path
+            return makeSuitableCompleter(self._path)
         else:
             return None
 

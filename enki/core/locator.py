@@ -58,10 +58,11 @@ class AbstractCommand:
         """
         return True
 
-    def completer(self, text, pos):
+    def completer(self, argIndex):
         """ ::class:`enki.core.locator.AbstractCompleter` instance for partially typed command.
 
         Return None, if your command doesn't have completer, or if completion is not available now
+        argIndex is an index of command argument, for which completion is required
         """
         return None
 
@@ -398,14 +399,13 @@ class _CompleterConstructorThread(threading.Thread):
             command, completer = self._queue.get()
             self._locator._applyCompleter(command, completer)
 
-    def start(self, command, text, cursorPos):
+    def start(self, command, argIndex):
         """Start constructing completer
         Works in the GUI thread
         """
         self._terminated = False
         self._command = command
-        self._text = text
-        self._cursorPos = cursorPos
+        self._argIndex = argIndex
         self._checkQueueTimer.start()
         threading.Thread.start(self)
 
@@ -420,7 +420,7 @@ class _CompleterConstructorThread(threading.Thread):
         """Thread function
         Works in NEW thread
         """
-        completer = self._command.completer(self._text, self._cursorPos)
+        completer = self._command.completer(self._argIndex)
         self._queue.put([self._command, completer])
 
 
@@ -526,19 +526,18 @@ class Locator(QDialog):
         """User edited text or moved cursor. Update inline and TreeView completion
         """
         text = self._edit.commandText()
+        atEnd = self._edit.cursorPosition() == len(text)
         completer = None
 
         command = self._parseCommand(text)
-        if command is not None:
-            return
+        if command is not None and atEnd:
             if self._completerConstructorThread is not None:
                 self._completerConstructorThread.terminate()
             self._completerConstructorThread = _CompleterConstructorThread(self)
 
             self._loadingTimer.start()
             self._completerConstructorThread.start(command,
-                                                   text,
-                                                   self._edit.cursorPosition())
+                                                   0)
         else:
             self._applyCompleter(None, _HelpCompleter(self._availableCommands()))
 
@@ -614,9 +613,8 @@ class Locator(QDialog):
         return [cmd for cmd in self._commandClasses if cmd.isAvailable()]
 
     def _parseCommand(self, text):
-        """Parse text and try to get command
+        """ Parse text and try to get command
         """
-        # delayed import, for optimize application start time
         words = text.strip().split()
         if not words:
             return None
