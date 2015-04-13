@@ -105,7 +105,7 @@ def inMainLoop(func, *args):
         exceptions = []
         def excepthook(type_, value, tracebackObj):
             exceptions.append((value, tracebackObj))
-            if PRINT_EXEC_TRACKBACK:
+            if PRINT_EXEC_TRACKBACK and not 'ExpectedFailure' in str(type(value)):
                 oldExcHook(type_, value, tracebackObj)
             self.app.exit()
         oldExcHook = sys.excepthook
