@@ -424,6 +424,46 @@ class _CompleterConstructorThread(threading.Thread):
         self._queue.put([self._command, completer])
 
 
+def splitLine(text):
+    """ Split text onto words
+    Return list of (word, endIndex)
+    """
+    words = []  # list of tuples (text, endIndex)
+
+    it = enumerate(text)
+
+    def findNonSpace():
+        index, char = it.next()
+        while char.isspace():
+            index, char = it.next()
+
+        return index, char
+
+    def getWord(index, firstChar):
+        word = firstChar
+        try:
+            index, char = it.next()
+            while not char.isspace():
+                word += char
+                index, char = it.next()
+            index -= 1  # found space. Step back
+        except StopIteration:
+            pass
+
+        return word, index + 1
+
+    while True:
+        try:
+            nonSpaceChar, index = findNonSpace()
+        except StopIteration:
+            break
+
+        words.append(getWord(nonSpaceChar, index))
+
+    return words
+
+
+
 class Locator(QDialog):
     """Locator widget and implementation
     """
@@ -511,7 +551,7 @@ class Locator(QDialog):
         """Item in the TreeView has been clicked.
         Open file, if user selected it
         """
-        command = self._parseCommand(self._edit.commandText())
+        command, completableWordIndex = self._parseCurrentCommand()
         if command is not None:
             newText = self._model.completer.getFullText(index.row())
             if newText is not None:
@@ -529,7 +569,7 @@ class Locator(QDialog):
         atEnd = self._edit.cursorPosition() == len(text)
         completer = None
 
-        command = self._parseCommand(text)
+        command, completableWordIndex = self._parseCurrentCommand()
         if command is not None and atEnd:
             if self._completerConstructorThread is not None:
                 self._completerConstructorThread.terminate()
@@ -537,7 +577,7 @@ class Locator(QDialog):
 
             self._loadingTimer.start()
             self._completerConstructorThread.start(command,
-                                                   0)
+                                                   completableWordIndex)
         else:
             self._applyCompleter(None, _HelpCompleter(self._availableCommands()))
 
@@ -566,7 +606,7 @@ class Locator(QDialog):
         """User pressed Enter or clicked item. Execute command, if possible
         """
         text = self._edit.commandText()
-        command = self._parseCommand(text)
+        command, completableWordIndex = self._parseCurrentCommand()
         if command is not None and command.isReadyToExecute():
             command.execute()
             self._history[-1] = text
@@ -612,28 +652,59 @@ class Locator(QDialog):
         """
         return [cmd for cmd in self._commandClasses if cmd.isAvailable()]
 
-    def _parseCommand(self, text):
-        """ Parse text and try to get command
+    def _parseCurrentCommand(self):
+        """ Parse text and try to get (command, completable word index)
+        Return None, None if failed to parse
         """
-        words = text.strip().split()
-        if not words:
-            return None
+        if not self._commandClasses:
+            return None, None
 
+        #
+        # Split line
+        #
+        text = self._edit.commandText()
+        wordsWithIndexes = splitLine(text)
+        if not wordsWithIndexes:
+            return None, None
+
+        #
+        # Find command
+        #
         for cmdClass in self._commandClasses:
-            if cmdClass.command == words[0]:
-                try:
-                    return cmdClass(words[1:])
-                except InvalidCmdArgs:
-                    return None
+            if cmdClass.command == wordsWithIndexes[0][0]:
+                effectiveCmdClass = cmdClass
+                argWordsWithIndexes = wordsWithIndexes[1:]
+                break
         else:
             for cmdClass in self._commandClasses:
                 if cmdClass.isDefaultCommand:
-                    try:
-                        return cmdClass(words)
-                    except InvalidCmdArgs:
-                        return None
+                    effectiveCmdClass = cmdClass
+                    argWordsWithIndexes = wordsWithIndexes
+                    break
 
-        return None
+
+        #
+        # Try to make command object
+        #
+        args = [item[0] for item in argWordsWithIndexes]
+        endIndexes = [item[1] for item in argWordsWithIndexes]
+
+        try:
+            cmd = effectiveCmdClass(args)
+        except InvalidCmdArgs:
+            return None, None
+
+        #
+        # Check if some word is completable
+        #
+        cursorPos = self._edit.cursorPosition()
+        if cursorPos in endIndexes:
+            completableWordIndex = endIndexes.index(cursorPos)
+        else:
+            completableWordIndex = None
+
+        return cmd, completableWordIndex
+
 
     def exec_(self):
         """QDialog.exec() implementation. Updates completion before showing widget

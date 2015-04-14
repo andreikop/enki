@@ -14,26 +14,27 @@ sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."
 import base  # configures sys.path ans sip
 
 from PyQt4.QtCore import Qt
-from PyQt4.QtTest import QTest
 
 from enki.core.core import core
 
 
 class Test(base.TestCase):
-    @base.inMainLoop
-    def test_1(self):
-        """Go to line"""
-        document = self.createFile('asdf.txt', 'a\n' * 10)
-
+    def _execCommand(self, text):
         def openDialogFunc():
             self.keyClicks('L', Qt.ControlModifier)
 
         def inDialogFunc(dialog):
-            self.keyClicks('l 5')
+            self.keyClicks(text)
             self.keyClick(Qt.Key_Enter)
 
         self.openDialog(openDialogFunc, inDialogFunc)
 
+
+    @base.inMainLoop
+    def test_1(self):
+        """Go to line"""
+        document = self.createFile('asdf.txt', 'a\n' * 10)
+        self._execCommand('l 5')
         self.assertEqual(document.qutepart.cursorPosition[0], 4)
 
     @base.inMainLoop
@@ -44,14 +45,7 @@ class Test(base.TestCase):
         with open(fullPath, 'w') as file_:
             file_.write('thedata')
 
-        def openDialogFunc():
-            self.keyClicks('L', Qt.ControlModifier)
-
-        def inDialogFunc(dialog):
-            self.keyClicks('f ' + fullPath)
-            self.keyClick(Qt.Key_Enter)
-
-        self.openDialog(openDialogFunc, inDialogFunc)
+        self._execCommand(fullPath)
 
         self.assertEqual(core.workspace().currentDocument().filePath(), fullPath)
 
@@ -65,14 +59,7 @@ class Test(base.TestCase):
         with open(fullPath, 'w') as file_:
             file_.write('thedata')
 
-        def openDialogFunc():
-            self.keyClicks('L', Qt.ControlModifier)
-
-        def inDialogFunc(dialog):
-            self.keyClicks('f ' + fullPath)
-            self.keyClick(Qt.Key_Enter)
-
-        self.openDialog(openDialogFunc, inDialogFunc)
+        self._execCommand('f ' + fullPath)
 
         self.assertEqual(core.workspace().currentDocument().filePath(), fullPath)
 
@@ -84,14 +71,7 @@ class Test(base.TestCase):
 
         fullPath = os.path.join(self.TEST_FILE_DIR, 'dir1/dir2/thefile.txt')
 
-        def openDialogFunc():
-            self.keyClicks('L', Qt.ControlModifier)
-
-        def inDialogFunc(dialog):
-            self.keyClicks('s ' + fullPath)
-            self.keyClick(Qt.Key_Enter)
-
-        self.openDialog(openDialogFunc, inDialogFunc)
+        self._execCommand('s ' + fullPath)
 
         with open(fullPath) as file_:
             data = file_.read()
@@ -106,40 +86,13 @@ class Test(base.TestCase):
 
         relPath = 'dir1/dir2/newfile.txt'
 
-        def openDialogFunc():
-            self.keyClicks('L', Qt.ControlModifier)
-
-        def inDialogFunc(dialog):
-            self.keyClicks('s ' + relPath)
-            self.keyClick(Qt.Key_Enter)
-
-        self.openDialog(openDialogFunc, inDialogFunc)
+        self._execCommand('s ' + relPath)
 
         with open(relPath) as file_:
             data = file_.read()
 
         self.assertEqual(data, text)
 
-    @base.inMainLoop
-    def test_6(self):
-        """Open file type only path """
-        document = core.workspace().createEmptyNotSavedDocument()
-
-        fullPath = os.path.join(self.TEST_FILE_DIR, 'thefile.txt')
-
-        with open(fullPath, 'w') as file_:
-            file_.write('thedata')
-
-        def openDialogFunc():
-            self.keyClicks('L', Qt.ControlModifier)
-
-        def inDialogFunc(dialog):
-            self.keyClicks(fullPath)
-            self.keyClick(Qt.Key_Enter)
-
-        self.openDialog(openDialogFunc, inDialogFunc)
-
-        self.assertEqual(core.workspace().currentDocument().filePath(), fullPath)
 
 if __name__ == '__main__':
     unittest.main()

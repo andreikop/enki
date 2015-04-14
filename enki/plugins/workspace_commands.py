@@ -56,11 +56,11 @@ class CommandOpen(AbstractCommand):
         if len(args) not in (1, 2):
             raise InvalidCmdArgs()
 
-        self._path = args.pop(0)
+        self._path = args[0]
 
-        if args:
+        if len(args) == 2:
             try:
-                self._line = int(args[0])
+                self._line = int(args[1])
             except ValueError:
                 raise InvalidCmdArgs()
         else:
@@ -71,7 +71,6 @@ class CommandOpen(AbstractCommand):
         If cursor is after path, returns PathCompleter or GlobCompleter
         """
         if argIndex == 0:
-            print '~~ compleer for', self._path
             return makeSuitableCompleter(self._path)
         else:
             return None
@@ -159,13 +158,12 @@ class CommandSaveAs(AbstractCommand):
 
         self._path = args[0]
 
-    def completer(self, text, pos):
+    def completer(self, argIndex):
         """Command Completer.
         Returns PathCompleter, if cursor stays after path
         """
-        if pos == self._pathLocation + len(self._path) or \
-           (not self._path and pos == len(text)):
-            return PathCompleter(self._path, pos - self._pathLocation)
+        if argIndex == 0:
+            return PathCompleter(self._path)
         else:
             return None
 
