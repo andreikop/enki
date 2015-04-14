@@ -1181,17 +1181,32 @@ head
 
     @mock.patch('enki.plugins.preview.get_console_output')
     def test_getSphinxVersion3(self, mock_gca):
-        """Check that _getSphinxVersion raises an exception if the Sphinx
-        version info isn't present."""
+        """Check that _getSphinxVersion complies to sphinx version 1.1.3"""
         mock_gca.return_value = ("stderr", \
-"""Error: Insufficient arguments.
-
-Sphinx v1.2.3
+"""Sphinx v1.1.3
 Usage: C:\Python27\Scripts\sphinx-build [options] sourcedir outdir [filenames...
 ]
 """)
         self.assertEqual(_getSphinxVersion('anything_since_replaced_by_mock'),
+                         [1, 1, 3])
+
+    @mock.patch('enki.plugins.preview.get_console_output')
+    def test_getSphinxVersion4(self, mock_gca):
+        """Check that _getSphinxVersion complies to sphinx version 1.2.3"""
+        mock_gca.return_value = ("stderr", \
+"""Sphinx (sphinx-build) 1.2.3
+""")
+        self.assertEqual(_getSphinxVersion('anything_since_replaced_by_mock'),
                          [1, 2, 3])
+
+    @mock.patch('enki.plugins.preview.get_console_output')
+    def test_getSphinxVersion5(self, mock_gca):
+        """Check that _getSphinxVersion complies to sphinx version 1.3.1"""
+        mock_gca.return_value = ("stdout", \
+"""Sphinx (sphinx-build) 1.3.1
+""")
+        self.assertEqual(_getSphinxVersion('anything_since_replaced_by_mock'),
+                         [1, 3, 1])
 
     def test_zoom(self):
         webView = self._widget().webView

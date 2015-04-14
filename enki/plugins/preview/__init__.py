@@ -124,9 +124,12 @@ def _getSphinxVersion(path):
     out = stdout + '\n' + stderr
     for line in out.split('\n'):
         if line.startswith("Sphinx"):
-            # Split on periods and convert to an int, returning the version as a
+            # Split on space, take the last segment, if it starts with character
+            # 'v', strip the 'v'. Then split on dot. returning the version as a
             # tuple.
-            return [int(num) for num in line[-5:].split('.')]
+            version = line.split(' ')[-1]
+            version = version[1:] if version.startswith('v') else version
+            return [int(num) for num in version.split('.')]
     raise ValueError
 
 class SettingsWidget(QWidget):
