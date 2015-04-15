@@ -523,26 +523,9 @@ class Locator(QDialog):
         if self._completerConstructorThread is not None:
             self._completerConstructorThread.terminate()
 
-    def _checkPyParsing(self):
-        """Check if pyparsing is available.
-        Show message, if not available
-        """
-        try:
-            import pyparsing
-            return True
-        except ImportError, ex:
-            QMessageBox.warning(core.mainWindow(), "Failed to start Locator",
-                                "<html>Locator requires <b>pyparsing</b> python module.<br\>\n"
-                                "See <a href='http://enki-editor.org/install-sources.html'>"
-                                    "installation instructions</a></html>")
-            return False
-
     def _onAction(self):
         """Locator action triggered. Show themselves and make focused
         """
-        if not self._checkPyParsing():
-            return
-
         self._edit.setFocus()
         if not self.isVisible():
             self.exec_()

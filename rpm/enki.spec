@@ -30,11 +30,9 @@ Requires:       ctags
 %if 0%{?fedora_version}
 BuildRequires:  PyQt4
 Requires:       PyQt4
-Requires:       pyparsing
 %else
 BuildRequires:  python-qt4
 Requires:       python-qt4
-Requires:       python-pyparsing
 %endif
 
 %description

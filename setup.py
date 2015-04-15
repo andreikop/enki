@@ -26,13 +26,6 @@ def _checkDependencies():
         ok = False
 
     try:
-        import pyparsing
-    except ImportError as ex:
-        print "Failed to import pyparsing:"
-        print '\t' + str(ex)
-        ok = False
-
-    try:
         import qutepart
     except ImportError as ex:
         print "Failed to import qutepart:"
@@ -138,5 +131,4 @@ if __name__ == '__main__':
             data_files=data_files,
             classifiers=classifiers,
             license='gpl2',
-            requires=['pyparsing'],
          )

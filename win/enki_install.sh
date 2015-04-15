@@ -71,7 +71,7 @@ cd ..
 # ====
 $INSTALL desktop-file-utils exuberant-ctags # On Fedora, use ctags.
 # Then install Python packages from pip, since apt-get packages are older.
-sudo pip install -U mock pyparsing markdown sphinx pylint
+sudo pip install -U mock markdown sphinx pylint
 # See https://github.com/bjones1/enki.
 git clone https://github.com/bjones1/enki.git
 cd enki
