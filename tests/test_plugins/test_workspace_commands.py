@@ -14,21 +14,21 @@ sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."
 import base  # configures sys.path ans sip
 
 from PyQt4.QtCore import Qt
+from PyQt4.QtTest import QTest
 
 from enki.core.core import core
 
 
 class Test(base.TestCase):
     def _execCommand(self, text):
-        def openDialogFunc():
-            self.keyClicks('L', Qt.ControlModifier)
-
         def inDialogFunc(dialog):
             self.keyClicks(text)
             self.keyClick(Qt.Key_Enter)
 
-        self.openDialog(openDialogFunc, inDialogFunc)
+        self.openDialog(self._openDialog, inDialogFunc)
 
+    def _openDialog(self):
+        self.keyClicks('L', Qt.ControlModifier)
 
     @base.inMainLoop
     def test_1(self):
@@ -51,7 +51,7 @@ class Test(base.TestCase):
 
     @base.inMainLoop
     def test_3(self):
-        """Open file, type only 'f path' """
+        """Open file, type 'f path' """
         document = core.workspace().createEmptyNotSavedDocument()
 
         fullPath = os.path.join(self.TEST_FILE_DIR, 'thefile.txt')
@@ -92,6 +92,40 @@ class Test(base.TestCase):
             data = file_.read()
 
         self.assertEqual(data, text)
+
+    @base.inMainLoop
+    def test_6(self):
+        """Open file, type 'f path with spaces' """
+        document = core.workspace().createEmptyNotSavedDocument()
+
+        fullPath = os.path.join(self.TEST_FILE_DIR, 'the file.txt')
+
+        with open(fullPath, 'w') as file_:
+            file_.write('thedata')
+
+        self._execCommand('f ' + fullPath.replace(' ', '\\ '))
+
+        self.assertEqual(core.workspace().currentDocument().filePath(), fullPath)
+
+    @base.inMainLoop
+    def test_7(self):
+        """ Check inline completion for file with spaces"""
+        document = core.workspace().createEmptyNotSavedDocument()
+
+        fullPath = os.path.join(self.TEST_FILE_DIR, 'the file.txt')
+
+        with open(fullPath, 'w') as file_:
+            file_.write('thedata')
+
+        def inDialogFunc(dialog):
+            self.keyClicks('f ' + self.TEST_FILE_DIR + '/the')
+            QTest.qWait(200)
+            self.assertEqual(core.locator()._edit.text(),
+                             'f ' + fullPath.replace(' ', '\\ '))
+            self.keyClick(Qt.Key_Escape)
+
+        self.openDialog(self._openDialog, inDialogFunc)
+
 
 
 if __name__ == '__main__':

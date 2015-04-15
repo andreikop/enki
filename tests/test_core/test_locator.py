@@ -22,6 +22,10 @@ class Test(unittest.TestCase):
         self.assertEqual(splitLine('  asdf  '), [('asdf', 6)])
         self.assertEqual(splitLine('asdf x yz'), [('asdf', 4), ('x', 6), ('yz', 9)])
         self.assertEqual(splitLine(' asdf x  yz    '), [('asdf', 5), ('x', 7), ('yz', 11)])
+        self.assertEqual(splitLine('\\'), [('\\', 1)])
+        self.assertEqual(splitLine('\\ '), [(' ', 2)])
+        self.assertEqual(splitLine('\\\\'), [('\\', 2)])
+        self.assertEqual(splitLine('\\x'), [('x', 2)])
 
 
 

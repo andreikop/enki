@@ -356,8 +356,9 @@ class _CompletableLineEdit(QLineEdit):
         """Set inline completion
         """
         if text:
-            self.insert(text)
-            self.setSelection(self.cursorPosition(), -len(text))
+            visibleText = text.replace(' ', '\\ ')
+            self.insert(visibleText)
+            self.setSelection(self.cursorPosition(), -len(visibleText))
             self._inlineCompletionIsSet = True
         else:
             self._clearInlineCompletion()
@@ -439,14 +440,25 @@ def splitLine(text):
 
         return index, char
 
-    def getWord(index, firstChar):
-        word = firstChar
+    def getWord(index, char):
+        word = ''
         try:
-            index, char = it.next()
-            while not char.isspace():
-                word += char
+            while True:
+                if char.isspace():
+                    index -= 1
+                    break
+                elif char == '\\':
+                    try:
+                        index, char = it.next()
+                    except StopIteration:
+                        word += '\\'
+                        raise
+                    else:
+                        word += char
+                else:
+                    word += char
                 index, char = it.next()
-            index -= 1  # found space. Step back
+
         except StopIteration:
             pass
 
