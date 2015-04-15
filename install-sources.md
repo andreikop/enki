@@ -13,7 +13,6 @@ Mandatory:
 
 * [Python 2.7](http://python.org/download)
 * [PyQt4](http://www.riverbankcomputing.co.uk/software/pyqt/download)
-* [pyparsing](http://pyparsing.wikispaces.com/Download+and+Installation)
 * [Qutepart](https://github.com/hlamer/qutepart)
 
 Optional:
@@ -26,7 +25,7 @@ Optional:
 
 #### Debian and Debian based
 
-   `apt-get install python python-qt4 python-pyparsing python-markdown python-docutils ctags`
+   `apt-get install python python-qt4 python-markdown python-docutils ctags`
 
 Install Qutepart from [sources](https://github.com/hlamer/qutepart).
 #### Other Unixes
