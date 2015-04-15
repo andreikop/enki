@@ -53,10 +53,13 @@ class CommandOpen(AbstractCommand):
     isDefaultCommand = True
 
     def __init__(self, args):
-        if len(args) not in (1, 2):
+        if len(args) > 2:
             raise InvalidCmdArgs()
 
-        self._path = args[0]
+        if args:
+            self._path = args[0]
+        else:
+            self._path = None
 
         if len(args) == 2:
             try:
@@ -72,6 +75,12 @@ class CommandOpen(AbstractCommand):
         """
         if argIndex == 0:
             return makeSuitableCompleter(self._path)
+        elif argIndex == None:
+            try:
+                curDir = os.getcwd()
+            except:
+                return None
+            return makeSuitableCompleter(curDir + '/')
         else:
             return None
 
