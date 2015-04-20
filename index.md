@@ -106,21 +106,21 @@ baseurl: .
 <div id="screenshot-container">
     <div class="screenshot-row">
         <div class="screenshot">
-            <a href="screenshots/minimal.png" rel="lightbox[screenshots]" title="Minimalistic UI">
-                <img src="screenshots/preview/minimal.png" class="fancy-border" /></a><br />
-            Minimalistic UI
+            <a href="screenshots/minimalistic.png" rel="lightbox[screenshots]" title="Minimalistic UI. Really">
+                <img src="screenshots/preview/minimalistic.png" class="fancy-border" /></a><br />
+            Minimalistic UI. Really
         </div>
         <div class="screenshot">
-            <a href="screenshots/search.png" rel="lightbox[screenshots]" title="Search">
+            <a href="screenshots/search.png" rel="lightbox[screenshots]" title="Best in class search-replace functionality">
                 <img src="screenshots/preview/search.png" class="fancy-border" /></a><br />
-            Search
+            Best in class search-replace functionality
         </div>
     </div>
     <div class="screenshot-row">
         <div class="screenshot">
-            <a href="screenshots/navigator.png" rel="lightbox[screenshots]" title="Navigator">
+            <a href="screenshots/navigator.png" rel="lightbox[screenshots]" title="In-file navigation for 40+ languages">
                 <img src="screenshots/preview/navigator.png" class="fancy-border" /></a><br />
-            Navigator
+            In-file navigation for 40+ languages
         </div>
         <div class="screenshot">
             <a href="screenshots/markdown-preview.png" rel="lightbox[screenshots]" title="Markdown live preview">
