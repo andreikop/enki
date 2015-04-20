@@ -216,20 +216,16 @@ min-height: 460px;
 
 /* Container for Downloads, Screenshots, News */
 
-#left-col {
-	float: left;
-	width: 511px;
-}
-
-#left-col h2 {
+#left-col download {
 	color: white;
 	text-align: center;
 }
 
 #download {
+	float: left;
 	margin: 0 auto;
-	padding: 5px;
-	width: 420px;
+	padding: 15px;
+	width: 480px;
 }
 
 .download-button {
@@ -238,7 +234,7 @@ min-height: 460px;
 	color: white;
 	text-align: center;
 	font-size: 24px;
-	margin: 5px;
+	margin: 15px;
 }
 
 .download-button:visited {
@@ -250,7 +246,8 @@ min-height: 460px;
 }
 
 #where-is {
-	font-size: 13px;
+	padding: 5px;
+	float: right;
 }
 
 #more-downloads {
@@ -263,7 +260,7 @@ min-height: 460px;
 
 #seperator {
 	width: 2px;
-	height: 343px;
+	height: 230px;
 	background-color: white;
 	margin: 0 auto 0 auto;
 	top: 20px;
@@ -309,24 +306,28 @@ padding: 0px 0px 10px 0px;
 }
 
 #more-screenshots {
-float: right !important;
-text-align: right;
-font-size: 13px;
+	float: right !important;
+	text-align: right;
+	font-size: 13px;
 }
 
 /* News */
 
 #news {
-width: 490px;
+	float: right;
+	position: relative;
+	top: 31px;
+	right: 20px;
+	width: 454px;
 }
 
 #news div {
-	font-size: 15px;
+	font-size: 18px;
 }
 
 
 #news .news-row {
-
+	padding: 4px;
 }
 
 
@@ -341,7 +342,7 @@ width: 490px;
 }
 
 #news-inner-container {
-	width: 25em;
+	width: 45em;
 	margin: 0 auto;
 }
 
@@ -352,6 +353,7 @@ width: 490px;
 #allnews {
 	margin-right: 60px;
 	margin-bottom: 20px;
+	margin-top: 16px;
 	text-align: right;
 }
 

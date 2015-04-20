@@ -33,50 +33,50 @@ baseurl: .
 </div>
 
 <div id="content-row-2">
-    <div id="left-col">
+    <div id="download">
 
-        <div id="download">
+        <div>
+            <a href="install-sources.html" class="download-button">
+                <img src="../img/tgz.png"/>
+                <br/>
+                Source<br/>package
+            </a>
 
-            <div>
-                <a href="install-sources.html" class="download-button">
-                    <img src="../img/tgz.png"/>
-                    <br/>
-                    Source<br/>package
-                </a>
+            <a href="http://software.opensuse.org/download.html?project=home%3Ahlamer%3Aenki&amp;package=enki" class="download-button">
+                <table>
+                    <tr>
+                        <td>
+                            <img src="../img/debian.png"/>
+                        </td>
+                        <td>
+                            <img src="../img/fedora.png"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <img src="../img/suse.png"/>
+                        </td>
+                        <td>
+                            <img src="../img/ubuntu.png"/>
+                        </td>
+                    </tr>
+                </table>
+                <br/>
+                Linux<br/>installer
+            </a>
 
-                <a href="http://software.opensuse.org/download.html?project=home%3Ahlamer%3Aenki&amp;package=enki" class="download-button">
-                    <table>
-                        <tr>
-                            <td>
-                                <img src="../img/debian.png"/>
-                            </td>
-                            <td>
-                                <img src="../img/fedora.png"/>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <img src="../img/suse.png"/>
-                            </td>
-                            <td>
-                                <img src="../img/ubuntu.png"/>
-                            </td>
-                        </tr>
-                    </table>
-                    <br/>
-                    Linux<br/>installer
-                </a>
+            <a href="http://github.com/hlamer/enki/releases" class="download-button">
+                <img src="../img/win.svg" width="120" height="106" align="midle"/>
+                <br/>
+                Windows<br/>installer
+            </a>
 
-                <a href="http://github.com/hlamer/enki/releases" class="download-button">
-                    <img src="../img/win.svg" width="120" height="106" align="midle"/>
-                    <br/>
-                    Windows<br/>installer
-                </a>
-
-            </div>
+        </div>
 
         <a href="./packaging.html" id="where-is">Where is package for my OS?</a>
+
     </div>
+
 
     <div id="news">
         <h2>News</h2>
@@ -98,8 +98,10 @@ baseurl: .
     </div>
 
 
-</div>
+    <div id="seperator">
+    </div>
 
+</div>
 
 <div id="screenshot-container">
      <div class="screenshot-row">
@@ -134,7 +136,4 @@ baseurl: .
     </div>
 
 
-</div>
-
-<div id="seperator">
 </div>

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: PyQt. How to shoot yourself in the foot.
+title: PyQt. How to shoot yourself in the foot
 baseurl: ../../../
 ---
 
