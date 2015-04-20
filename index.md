@@ -9,13 +9,13 @@ baseurl: .
 <h2>Enki is a text editor for programmers. It is:</h2>
 <ul>
     <li><strong>User friendly.</strong> Intuitive interface. Works out of the box. You don&#8217;t have to read a lot of docs</li>
-    <li><strong>Hacker friendly.</strong> Work as quickly as possible. You don&#8217;t need your mouse for coding.</li>
-    <li><strong>Lighweight.</strong> Some IDEs show splashscreen. Enki will never do it. It just starts quickly.</li>
-    <li><strong>Advanced.</strong> You invent software. An editor helps you to do a routine job.</li>
-    <li><strong>Extensible.</strong> Operating systems are designed for running applications. Enki is designed for running plugins.</li>
-    <li><strong>Cross platform.</strong> Use your habitual editor on any OS. Currently has beeen tested on Linux, MacOS X, Windows.</li>
-    <li><strong>High quality.</strong> No long list of fancy features. But, what is done, is done well.</li>
-    <li><strong>Open source.</strong> In GitHub we trust.</li>
+    <li><strong>Hacker friendly.</strong> Work as quickly as possible. You don&#8217;t need your mouse for coding</li>
+    <li><strong>Lighweight.</strong> Some IDEs show splashscreen. Enki will never do it. It just starts quickly</li>
+    <li><strong>Advanced.</strong> You invent software. An editor helps you to do a routine job</li>
+    <li><strong>Extensible.</strong> Operating systems are designed for running applications. Enki is designed for running plugins</li>
+    <li><strong>Cross platform.</strong> Use your habitual editor on any OS. Currently has beeen tested on Linux, MacOS X, Windows</li>
+    <li><strong>High quality.</strong> No long list of fancy features. But, what is done, is done well</li>
+    <li><strong>Open source.</strong> In GitHub we trust</li>
 </ul>
 
     <div id="social-buttons">
@@ -104,8 +104,8 @@ baseurl: .
 </div>
 
 <div id="screenshot-container">
-     <div class="screenshot-row">
-       <div class="screenshot">
+    <div class="screenshot-row">
+        <div class="screenshot">
             <a href="screenshots/minimal.png" rel="lightbox[screenshots]" title="Minimalistic UI">
                 <img src="screenshots/preview/minimal.png" class="fancy-border" /></a><br />
             Minimalistic UI
@@ -130,10 +130,7 @@ baseurl: .
     </div>
 
     <!-- Hiding More Screenshots link
-    <div id="more-screenshots"><a href="#">More screenshots ...</a></div>
+        <div id="more-screenshots"><a href="#">More screenshots ...</a></div>
     -->
-
-    </div>
-
 
 </div>

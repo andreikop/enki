@@ -270,11 +270,9 @@ min-height: 460px;
 /* Screenshots */
 
 #screenshot-container {
-float: right;
-position: relative;
-top: 39px;
-right: 10px;
-width: 454px;
+clear: both;
+width: 1024px;
+padding-top: 40px;
 }
 
 .screenshot-row {
@@ -285,14 +283,14 @@ width: 454px;
 
 .screenshot {
 float: left;
-width: 217px;
+width: 512px;
 text-align: center;
 font-size: 15px;
 padding: 0px 0px 10px 0px;
 }
 
 #screenshot-container img {
-	width: 179px;
+	width: 440px;
 	margin: 0px 0px 10px 0px;
 }
 
