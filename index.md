@@ -81,7 +81,7 @@ baseurl: .
     <div id="news">
         <h2>News</h2>
         <div id="news-inner-container">
-            {% for post in site.posts limit:5 %}
+            {% for post in site.posts limit:6 %}
             <div class="news-row">
                 <div class="date">
                     {{ post.date | date_to_string }}
@@ -123,9 +123,35 @@ baseurl: .
             In-file navigation for 40+ languages
         </div>
         <div class="screenshot">
-            <a href="screenshots/markdown-preview.png" rel="lightbox[screenshots]" title="Markdown live preview">
+            <a href="screenshots/markdown-preview.png" rel="lightbox[screenshots]" title="Markdown, HTML, reStructuredText live preview">
                 <img src="screenshots/preview/markdown-preview.png" class="fancy-border" /></a><br />
-            Markdown live preview
+            Markdown, HTML, reStructuredText live preview
+        </div>
+    </div>
+
+    <div class="screenshot-row">
+        <div class="screenshot">
+            <a href="screenshots/locator.png" rel="lightbox[screenshots]" title="File open dialog with bash-like Tab completion">
+                <img src="screenshots/preview/locator.png" class="fancy-border" /></a><br />
+            File open dialog with bash-like Tab completion
+        </div>
+        <div class="screenshot">
+            <a href="screenshots/repl.png" rel="lightbox[screenshots]" title="REPL for Python, SML, Scheme">
+                <img src="screenshots/preview/repl.png" class="fancy-border" /></a><br />
+            REPL for Python, SML, Scheme
+        </div>
+    </div>
+
+    <div class="screenshot-row">
+        <div class="screenshot">
+            <a href="screenshots/pylint.png" rel="lightbox[screenshots]" title="Pylint support">
+                <img src="screenshots/preview/pylint.png" class="fancy-border" /></a><br />
+            Pylint support
+        </div>
+        <div class="screenshot">
+            <a href="screenshots/vim.png" rel="lightbox[screenshots]" title="Vim mode">
+                <img src="screenshots/preview/vim.png" class="fancy-border" /></a><br />
+            Vim mode
         </div>
     </div>
 

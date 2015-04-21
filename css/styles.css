@@ -325,13 +325,12 @@ padding: 0px 0px 30px 0px;
 
 
 #news .news-row {
-	padding: 4px;
+	padding: 2px;
 }
 
 
 #news .date {
 	display: inline-block;
-	font-family: monospace;
 	padding-right: 10px;
 }
 
