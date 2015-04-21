@@ -320,7 +320,6 @@ padding: 0px 0px 30px 0px;
 }
 
 #news div {
-	font-size: 18px;
 }
 
 
@@ -339,6 +338,7 @@ padding: 0px 0px 30px 0px;
 }
 
 #news-inner-container {
+	font-size: 18px;
 	width: 45em;
 	margin: 0 auto;
 }
