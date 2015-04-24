@@ -13,7 +13,7 @@ baseurl: .
 
 [hlamer@tut.by](mailto:hlamer@tut.by)
 
-Enki developer
+Enki developer.
 <hr/>
 
 ## Filipe Azevedo
@@ -22,7 +22,7 @@ Enki developer
 ![Photo](photo/PasNox.jpg)
 
 [Monkey Studio](http://monkeystudio.org) founder, maintainer and the most active developer.
-Guy, who knows Qt better, than its developers do.
+A guy who knows Qt better than its developers do.
 <hr/>
 
 ## Bryan A. Jones
@@ -30,9 +30,9 @@ Guy, who knows Qt better, than its developers do.
 
 ![Photo](photo/BryanAJones.jpg)
 
-Windows packager.
+Windows packager. Contributor to literate programming functionality.
 
-Assistant Professor at Department of Electrical and Computer Engineering. Mississippi State University.
+[Assistant Professor at Department of Electrical and Computer Engineering](http://www.ece.msstate.edu/~bjones), Mississippi State University.
 <hr/>
 
 ## Jairo Llopis
@@ -51,4 +51,4 @@ Fedora packager.
 
 Early adopter. The most active user.
 
-Generaged huge amount of useful bug reports and feature ideas.
+Generaged huge amounts of useful bug reports and feature ideas.

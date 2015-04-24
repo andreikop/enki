@@ -8,14 +8,13 @@ baseurl: .
 
 <h2>Enki is a text editor for programmers. It is:</h2>
 <ul>
-    <li><strong>User friendly.</strong> Intuitive interface. Works out of the box. You don&#8217;t have to read a lot of docs</li>
-    <li><strong>Hacker friendly.</strong> Work as quickly as possible. You don&#8217;t need your mouse for coding</li>
-    <li><strong>Lighweight.</strong> Some IDEs show splashscreen. Enki will never do it. It just starts quickly</li>
-    <li><strong>Advanced.</strong> You invent software. An editor helps you to do a routine job</li>
-    <li><strong>Extensible.</strong> Operating systems are designed for running applications. Enki is designed for running plugins</li>
-    <li><strong>Cross platform.</strong> Use your habitual editor on any OS. Currently has beeen tested on Linux, MacOS X, Windows</li>
-    <li><strong>High quality.</strong> No long list of fancy features. But, what is done, is done well</li>
-    <li><strong>Open source.</strong> In GitHub we trust</li>
+    <li><strong>User friendly.</strong> Intuitive interface. Works out of the box. You don&#8217;t have to read a lot of docs.</li>
+    <li><strong>Hacker friendly.</strong> Work as quickly as possible. Navigate efficiently without your mouse.</li>
+    <li><strong>Advanced.</strong> You invent software. An editor helps you focus on inventing, instead of fighting with your tools.</li>
+    <li><strong>Extensible.</strong> Operating systems are designed for running applications. Enki is designed for running plugins.</li>
+    <li><strong>Cross platform.</strong> Use your habitual editor on any OS. Enki is tested on Linux, MacOS X <!-- Really? I see Linux/Windows as the place testing happens, with Mac rarely tested -->, and Windows</li>
+    <li><strong>High quality.</strong> No long list of fancy features. But, what is done, is done well.</li>
+    <li><strong>Open source.</strong> Created, tested, and designed for the community, by the community, and with the community.</li>
 </ul>
 
     <div id="social-buttons">
@@ -108,12 +107,12 @@ baseurl: .
         <div class="screenshot">
             <a href="screenshots/minimalistic.png" rel="lightbox[screenshots]" title="Minimalistic UI. Really">
                 <img src="screenshots/preview/minimalistic.png" class="fancy-border" /></a><br />
-            Minimalistic UI. Really
+            Truly Minimalistic UI
         </div>
         <div class="screenshot">
             <a href="screenshots/search.png" rel="lightbox[screenshots]" title="Best in class search-replace functionality">
                 <img src="screenshots/preview/search.png" class="fancy-border" /></a><br />
-            Best in class search-replace functionality
+            Best-in-class search/replace functionality
         </div>
     </div>
     <div class="screenshot-row">
@@ -131,7 +130,7 @@ baseurl: .
 
     <div class="screenshot-row">
         <div class="screenshot">
-            <a href="screenshots/locator.png" rel="lightbox[screenshots]" title="File open dialog with bash-like Tab completion">
+            <a href="screenshots/locator.png" rel="lightbox[screenshots]" title="File open dialog with Bash-like tab completion">
                 <img src="screenshots/preview/locator.png" class="fancy-border" /></a><br />
             File open dialog with bash-like Tab completion
         </div>

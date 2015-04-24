@@ -4,6 +4,9 @@ title: Install enki from sources
 baseurl: .
 ---
 
+<!-- Shouldn't this be a copy of readme.md from the master branch? Is there some way to simply point to that page?
+-->
+
 # Install from sources
 
 On **Windows**, [this link](https://github.com/hlamer/enki/issues/19) might be helpful.
