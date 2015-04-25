@@ -13,7 +13,7 @@ Enki supports MIT Scheme interpreter integration. It allows you to quickly execu
 ### Activating scheme mode
 * Make sure the **MIT Scheme** (*mit-scheme*) package is installed.
 * Open any Scheme file (*.scm, *.ss). The Scheme mode will automatically be loaded. You will have an *MIT Scheme* item in your main menu.
-Alternatively you maygo to *Settings -> Settings -> Modes -> Scheme* and choose the option *Enable MIT Scheme always*.
+Alternatively you may go to *Settings -> Settings -> Modes -> Scheme* and choose the option *Enable MIT Scheme always*.
 
 ### Evaluating your file
 Press Ctrl+E to evaluate the whole file, or select some text and press Ctrl+E to evaluate only this text.
