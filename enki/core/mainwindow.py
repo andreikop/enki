@@ -395,6 +395,8 @@ class MainWindow(QMainWindow):
         """Restore window state from main_window_state.bin and config.
         Called by the core after all plugins had been initialized
         """
+        self.resize(880, 517)
+        return
         self._restoreGeometry()
 
         state = self._loadByteArray(self._STATE_FILE, "main window state")
