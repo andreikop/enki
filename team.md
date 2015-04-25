@@ -30,7 +30,7 @@ A guy who knows Qt better than its developers do.
 
 ![Photo](photo/BryanAJones.jpg)
 
-Windows packager. Contributor to literate programming functionality.
+Windows packager. Creator of literate programming functionality.
 
 [Assistant Professor at Department of Electrical and Computer Engineering](http://www.ece.msstate.edu/~bjones), Mississippi State University.
 <hr/>
