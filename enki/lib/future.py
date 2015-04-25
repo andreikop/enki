@@ -555,7 +555,7 @@ def main():
         time.sleep(0.3)
         return a + 0.1
     def foo_done(future):
-        print('Done ' + str(future.result) )
+        print('Done ' + str(future.result))
 
     # Run foo using a single thread ('QThread') or a pool of threads (0). Give
     # it ``app`` as the parent so that when Qt destroys ``app``, it will also

@@ -125,7 +125,7 @@ if __name__ == '__main__':
             url=PACKAGE_URL,
             download_url='https://github.com/hlamer/enki/tags',
             packages=packages,
-            package_dir = package_dir,
+            package_dir= package_dir,
             package_data=package_data,
             scripts=[script],
             data_files=data_files,

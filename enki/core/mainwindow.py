@@ -425,14 +425,14 @@ class MainWindow(QMainWindow):
         """QMainWindow method reimplementation.
         Say, that we are ready to accept dragged urls
         """
-        if  event.mimeData().hasUrls() :
+        if  event.mimeData().hasUrls():
             # accept drag
             event.acceptProposedAction()
 
         # default handler
         QMainWindow.dragEnterEvent(self, event)
 
-    def dropEvent( self, event ):
+    def dropEvent(self, event):
         """QMainWindow method reimplementation.
         Open dropt files
         """
