@@ -35,7 +35,7 @@ baseurl: .
     <div id="download">
 
         <div>
-            <a href="install-sources.html" class="download-button">
+            <a href="https://github.com/hlamer/enki/#installation" class="download-button">
                 <img src="../img/tgz.png"/>
                 <br/>
                 Source<br/>package
