@@ -45,7 +45,7 @@ class Test(base.TestCase):
         with open(fullPath, 'w') as file_:
             file_.write('thedata')
 
-        self._execCommand(fullPath)
+        self._execCommand(fullPath.replace('\\', '\\\\'))
 
         self.assertEqual(core.workspace().currentDocument().filePath(), fullPath)
 
@@ -59,7 +59,7 @@ class Test(base.TestCase):
         with open(fullPath, 'w') as file_:
             file_.write('thedata')
 
-        self._execCommand('f ' + fullPath)
+        self._execCommand('f ' + fullPath.replace('\\', '\\\\'))
 
         self.assertEqual(core.workspace().currentDocument().filePath(), fullPath)
 
@@ -71,7 +71,7 @@ class Test(base.TestCase):
 
         fullPath = os.path.join(self.TEST_FILE_DIR, 'dir1/dir2/thefile.txt')
 
-        self._execCommand('s ' + fullPath)
+        self._execCommand('s ' + fullPath.replace('\\', '\\\\'))
 
         with open(fullPath) as file_:
             data = file_.read()
@@ -103,7 +103,7 @@ class Test(base.TestCase):
         with open(fullPath, 'w') as file_:
             file_.write('thedata')
 
-        self._execCommand('f ' + fullPath.replace(' ', '\\ '))
+        self._execCommand('f ' + fullPath.replace('\\', '\\\\').replace(' ', '\\ '))
 
         self.assertEqual(core.workspace().currentDocument().filePath(), fullPath)
 
@@ -121,7 +121,7 @@ class Test(base.TestCase):
             self.keyClicks('f ' + self.TEST_FILE_DIR + '/the')
             QTest.qWait(200)
             self.assertEqual(core.locator()._edit.text(),
-                             'f ' + fullPath.replace(' ', '\\ '))
+                             'f ' + fullPath.replace('\\', '\\\\').replace(' ', '\\ '))
             self.keyClick(Qt.Key_Escape)
 
         self.openDialog(self._openDialog, inDialogFunc)
