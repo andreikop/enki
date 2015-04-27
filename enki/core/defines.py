@@ -1,14 +1,13 @@
 """
 File contains some volatile info, such as version, release date and authors
 """
-import sys
 import os.path
 
 PACKAGE_NAME = "Enki"
 PACKAGE_ORGANISATION = "Andrei Kopats"
 PACKAGE_URL = "https://enki-editor.org"
-PACKAGE_VERSION = "14.07.2"
-PACKAGE_COPYRIGHTS = "(C) 2014 Andrei KOPATS"
+PACKAGE_VERSION = "15.04.0"
+PACKAGE_COPYRIGHTS = "(C) 2015 Andrei KOPATS"
 
 QUTEPART_SUPPORTED_MAJOR = 2
 QUTEPART_SUPPORTED_MINOR = 0

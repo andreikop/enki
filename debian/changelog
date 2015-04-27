@@ -1,3 +1,11 @@
+enki (15.04.0-1~ubuntuseries1) ubuntuseries; urgency=medium
+
+  * Vim mode
+  * Literate programming and preview enhancements
+  * Improvements and bugfixes
+
+ -- Andrei Kopats <hlamer@tut.by>  Mon, 27 Apr 2015 21:09:16 +0300
+
 enki (14.07.2-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Fix pylint and navigator related bugs

@@ -18,7 +18,7 @@ all install:
 bump-version:
 	enki enki/core/defines.py +10
 	enki rpm/enki.spec +8
-	enki win/Enki.iss
+	enki win/Enki.iss +31
 
 
 changelog-update:
