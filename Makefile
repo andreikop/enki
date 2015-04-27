@@ -8,6 +8,9 @@ ENV=DEBFULLNAME="$(AUTHOR)" DEBEMAIL=$(AUTHOR_EMAIL) EDITOR=enki
 
 DEBIGAN_ORIG_ARCHIVE=${PACKAGE_NAME}_${VERSION}.orig.tar.gz
 
+DEB_BUILD_DIR=build/deb
+OBS_REPO_DIR=build/obs_home_hlamer_enki
+
 
 all install:
 	@echo This Makefile does not build and install the project.
@@ -33,28 +36,28 @@ dist/${ARCHIVE}:
 
 
 deb-obs: dist/${ARCHIVE}
-	rm -rf build/deb
-	mkdir -p build/deb
-	cp dist/${ARCHIVE} build/deb/${DEBIGAN_ORIG_ARCHIVE}
-	cd build/deb && tar -xf ${DEBIGAN_ORIG_ARCHIVE}
-	cp -r debian build/deb/${PACKAGE_NAME}-${VERSION}
-	sed -i s/ubuntuseries/obs/g build/deb/${PACKAGE_NAME}-${VERSION}/debian/changelog
-	cd build/deb/${PACKAGE_NAME}-${VERSION} && $(ENV) debuild -us -uc -S
+	rm -rf ${DEB_BUILD_DIR}
+	mkdir -p ${DEB_BUILD_DIR}
+	cp dist/${ARCHIVE} ${DEB_BUILD_DIR}/${DEBIGAN_ORIG_ARCHIVE}
+	cd ${DEB_BUILD_DIR} && tar -xf ${DEBIGAN_ORIG_ARCHIVE}
+	cp -r debian ${DEB_BUILD_DIR}/${PACKAGE_NAME}-${VERSION}
+	sed -i s/ubuntuseries/obs/g ${DEB_BUILD_DIR}/${PACKAGE_NAME}-${VERSION}/debian/changelog
+	cd ${DEB_BUILD_DIR}/${PACKAGE_NAME}-${VERSION} && $(ENV) debuild -us -uc -S
 
-build/obs_home_hlamer_enki:
+${OBS_REPO_DIR}:
 	rm -rf home:hlamer:enki
 	osc co home:hlamer:enki enki
 	mkdir -p build
-	mv home\:hlamer\:enki build/obs_home_hlamer_enki
+	mv home\:hlamer\:enki ${OBS_REPO_DIR}
 
-put-obs: build/obs_home_hlamer_enki deb-obs
-	rm -f build/obs_home_hlamer_enki/enki/*
-	cp rpm/enki.spec build/obs_home_hlamer_enki/enki
-	cp dist/${ARCHIVE} build/obs_home_hlamer_enki/enki
-	cp build/*.debian.tar.gz build/obs_home_hlamer_enki/enki
-	cp build/*.orig.tar.gz build/obs_home_hlamer_enki/enki
-	cp build/*.dsc build/obs_home_hlamer_enki/enki
-	cd build/obs_home_hlamer_enki/enki && \
+put-obs: ${OBS_REPO_DIR} deb-obs
+	rm -f ${OBS_REPO_DIR}/enki/*
+	cp rpm/enki.spec ${OBS_REPO_DIR}/enki
+	cp dist/${ARCHIVE} ${OBS_REPO_DIR}/enki
+	cp ${DEB_BUILD_DIR}/*.debian.tar.gz ${OBS_REPO_DIR}/enki
+	cp ${DEB_BUILD_DIR}/*.orig.tar.gz ${OBS_REPO_DIR}/enki
+	cp ${DEB_BUILD_DIR}/*.dsc ${OBS_REPO_DIR}/enki
+	cd ${OBS_REPO_DIR}/enki && \
 		osc addremove && \
 		osc ci -m 'update by the publish script'
 
