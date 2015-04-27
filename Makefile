@@ -33,16 +33,18 @@ dist/${ARCHIVE}:
 
 
 deb-obs: dist/${ARCHIVE}
-	rm -rf build
-	mkdir build
-	cp dist/${ARCHIVE} build/${DEBIGAN_ORIG_ARCHIVE}
-	cd build && tar -xf ${DEBIGAN_ORIG_ARCHIVE}
-	cp -r debian build/${PACKAGE_NAME}-${VERSION}
-	sed -i s/ubuntuseries/obs/g build/${PACKAGE_NAME}-${VERSION}/debian/changelog
-	cd build/${PACKAGE_NAME}-${VERSION} && $(ENV) debuild -us -uc -S
+	rm -rf build/deb
+	mkdir -p build/deb
+	cp dist/${ARCHIVE} build/deb/${DEBIGAN_ORIG_ARCHIVE}
+	cd build/deb && tar -xf ${DEBIGAN_ORIG_ARCHIVE}
+	cp -r debian build/deb/${PACKAGE_NAME}-${VERSION}
+	sed -i s/ubuntuseries/obs/g build/deb/${PACKAGE_NAME}-${VERSION}/debian/changelog
+	cd build/deb/${PACKAGE_NAME}-${VERSION} && $(ENV) debuild -us -uc -S
 
 build/obs_home_hlamer_enki:
+	rm -rf home:hlamer:enki
 	osc co home:hlamer:enki enki
+	mkdir -p build
 	mv home\:hlamer\:enki build/obs_home_hlamer_enki
 
 put-obs: build/obs_home_hlamer_enki deb-obs
