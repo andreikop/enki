@@ -19,10 +19,10 @@ BuildArch:      noarch
 
 BuildRequires:  desktop-file-utils
 BuildRequires:  python-setuptools
-BuildRequires:  python-qutepart >= 2.1
+BuildRequires:  python-qutepart >= 2.2
 Requires:       python >= 2.7
 Requires:       python-markdown
-Requires:       python-qutepart >= 2.1
+Requires:       python-qutepart >= 2.2
 Requires:       python-docutils
 Requires:       ctags
 
