@@ -4,13 +4,26 @@
 # The Preview plugin provides an HTML-based rendering of the
 # file currently being edited. This file implements the
 # Plugin interface; other modules are given below.
-
+#
+# Imports
+# =======
+# These are listed in the order prescribed by `PEP 8
+# <http://www.python.org/dev/peps/pep-0008/#imports>`_.
+#
+# Library imports
+# ---------------
 import sys
 import os.path
+#
+# Third-party imports
+# -------------------
 from PyQt4.QtCore import QObject, Qt, pyqtSlot
-from PyQt4.QtGui import QAction, QIcon, QKeySequence, QWidget, QFileDialog, QPalette
+from PyQt4.QtGui import QAction, QIcon, QKeySequence, QWidget, QFileDialog, \
+    QPalette
 from PyQt4 import uic
-
+#
+# Local imports
+# -------------
 from enki.core.core import core
 from enki.core.uisettings import CheckableOption, TextOption, ChoiseOption
 from enki.lib.get_console_output import get_console_output
@@ -22,16 +35,25 @@ try:
 except ImportError:
     CodeChat = None
 
+# Utilities
+# =========
 def isHtmlFile(document):
-    return document is not None and  \
-           document.qutepart.language() is not None and \
-           'html' in document.qutepart.language().lower()  and \
-           (not 'php' in document.qutepart.language().lower())  # Django HTML template but not HTML (PHP)
+    """Return True if document refers to an HTML file; return False otherwise.
+    """
+    return ( document is not None and
+        document.qutepart.language() is not None and
+        'html' in document.qutepart.language().lower() and
+        # Return True if this is a Django HTML template;
+        # return False for HTML (PHP).
+        (not 'php' in document.qutepart.language().lower()) )
 
 def canUseCodeChat(filePath):
+    """Return True if CodeChat can be used with ``filePath``; return False
+    otherwise.
+    """
     # CodeChat can preview a file if it's enabled and if that file's
-    # extension is supported. Since enki needs to check file extension,
-    # file path cannot be none.
+    # extension is supported. Since Enki needs to check the file's extension,
+    # filePath cannot be none.
     if ( CodeChat is not None and core.config()['CodeChat']['Enabled']
          and filePath):
         lso = LSO.LanguageSpecificOptions()
@@ -42,7 +64,7 @@ def canUseCodeChat(filePath):
 
 def sphinxEnabledForFile(filePath):
     """Based on Sphinx settings under core.config()['Sphinx'], this function
-    determines whether Sphinx can be applied to *filePath*. It can't know if
+    determines whether Sphinx can be applied to filePath. It can't know if
     Sphinx actually processes the file or not, since this is based on conf.py
     settings.
     """
@@ -55,7 +77,7 @@ def sphinxEnabledForFile(filePath):
 def commonPrefix(*dirs):
     """This function provides a platform-independent path commonPrefix. It
     returns the common path between all directories in input list dirs, assuming
-    that any relative paths are rooted in the current directory. While`this post
+    that any relative paths are rooted in the current directory. While `this post
     <http://stackoverflow.com/questions/21498939/how-to-circumvent-the-fallacy-of-pythons-os-path-commonprefix>`_
     has two solutions, neither are correct; hence, the following code.
 
@@ -132,6 +154,9 @@ def _getSphinxVersion(path):
             return [int(num) for num in version.split('.')]
     raise ValueError
 
+# GUI
+# ===
+# This class implements the GUI for a combined CodeChat / Sphinx settings page.
 class SettingsWidget(QWidget):
     """Insert the preview plugin as a page of the UISettings dialog.
     """
@@ -274,8 +299,13 @@ class SettingsWidget(QWidget):
             self.lbSphinxReference.setVisible(False)
 
 
+# Plugin
+# ======
+# This class integrates the preview dock into Enki. Specifically, it:
+#
+# #. Adds the GUI defined above to the Settings dialog box
 class Plugin(QObject):
-    """Plugin interface implementation
+    """Plugin interface implementation.
     """
     def __init__(self):
         """Create and install the plugin
