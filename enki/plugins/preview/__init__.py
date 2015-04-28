@@ -160,9 +160,9 @@ def _getSphinxVersion(path):
 class SettingsWidget(QWidget):
     """Insert the preview plugin as a page of the UISettings dialog.
     """
-    def __init__(self, *args):
+    def __init__(self, dialog):
         # Initialize the dialog, loading in the literate programming settings GUI.
-        QWidget.__init__(self, *args)
+        QWidget.__init__(self, dialog)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Settings.ui'), self)
 
         # Make links gray when they are disabled
@@ -195,6 +195,36 @@ class SettingsWidget(QWidget):
 
         # Update misc pieces of the GUI that can't be stored in the .ui file.
         self._updateSphinxSettingMode()
+
+        # Add this GUI to the settings dialog box.
+        dialog.appendPage(u"Literate programming", self)
+        # Next, have the setting UI auto-update the corresponding CodeChat and
+        # config entries.
+        dialog.appendOption(CheckableOption(dialog, core.config(),
+                                            "CodeChat/Enabled",
+                                            self.cbCodeChat))
+        dialog.appendOption(CheckableOption(dialog, core.config(),
+                                            "Sphinx/Enabled",
+                                            self.gbSphinxProject))
+        dialog.appendOption(ChoiseOption(dialog, core.config(), "Sphinx/BuildOnSave",
+                                         {self.rbBuildOnlyOnSave: True,
+                                          self.rbBuildOnFileChange: False}))
+        dialog.appendOption(TextOption(dialog, core.config(),
+                                       "Sphinx/ProjectPath",
+                                       self.leSphinxProjectPath))
+        dialog.appendOption(TextOption(dialog, core.config(),
+                                       "Sphinx/OutputPath",
+                                       self.leSphinxOutputPath))
+        dialog.appendOption(TextOption(dialog, core.config(),
+                                       "Sphinx/Executable",
+                                       self.leSphinxExecutable))
+        dialog.appendOption(TextOption(dialog, core.config(),
+                                       "Sphinx/Cmdline",
+                                       self.leSphinxCmdline))
+
+        # Run this after the appendOption calls, since these fields must be set
+        # up before _updateleValidateSphinxExecutable can run.
+        self._updateleValidateSphinxExecutable()
 
     def _updateleValidateSphinxExecutable(self):
         """ Check if Sphinx is installed. Sphinx version is not important
@@ -428,31 +458,3 @@ class Plugin(QObject):
            settings."""
         # First, append the CodeChat settings page to the settings dialog.
         widget = SettingsWidget(dialog)
-        dialog.appendPage(u"Literate programming", widget)
-        # Next, have the setting UI auto-update the corresponding CodeChat and
-        # config entries.
-        dialog.appendOption(CheckableOption(dialog, core.config(),
-                                            "CodeChat/Enabled",
-                                            widget.cbCodeChat))
-        dialog.appendOption(CheckableOption(dialog, core.config(),
-                                            "Sphinx/Enabled",
-                                            widget.gbSphinxProject))
-        dialog.appendOption(ChoiseOption(dialog, core.config(), "Sphinx/BuildOnSave",
-                                         {widget.rbBuildOnlyOnSave: True,
-                                          widget.rbBuildOnFileChange: False}))
-        dialog.appendOption(TextOption(dialog, core.config(),
-                                       "Sphinx/ProjectPath",
-                                       widget.leSphinxProjectPath))
-        dialog.appendOption(TextOption(dialog, core.config(),
-                                       "Sphinx/OutputPath",
-                                       widget.leSphinxOutputPath))
-        dialog.appendOption(TextOption(dialog, core.config(),
-                                       "Sphinx/Executable",
-                                       widget.leSphinxExecutable))
-        dialog.appendOption(TextOption(dialog, core.config(),
-                                       "Sphinx/Cmdline",
-                                       widget.leSphinxCmdline))
-
-        # Run this after the appendOption calls, since these fields must be set
-        # up before _updateleValidateSphinxExecutable can run.
-        widget._updateleValidateSphinxExecutable()
