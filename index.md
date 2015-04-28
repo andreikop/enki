@@ -12,7 +12,7 @@ baseurl: .
     <li><strong>Hacker friendly.</strong> Work as quickly as possible. Navigate efficiently without your mouse.</li>
     <li><strong>Advanced.</strong> You invent software. An editor helps you focus on inventing, instead of fighting with your tools.</li>
     <li><strong>Extensible.</strong> Operating systems are designed for running applications. Enki is designed for running plugins.</li>
-    <li><strong>Cross platform.</strong> Use your habitual editor on any OS. Enki is tested on Linux, MacOS X <!-- Really? I see Linux/Windows as the place testing happens, with Mac rarely tested -->, and Windows</li>
+    <li><strong>Cross platform.</strong> Use your habitual editor on any OS. Tested on Linux and Windows. Users report that Enki works Mac OS X.</li>
     <li><strong>High quality.</strong> No long list of fancy features. But, what is done, is done well.</li>
     <li><strong>Open source.</strong> Created, tested, and designed for the community, by the community, and with the community.</li>
 </ul>
