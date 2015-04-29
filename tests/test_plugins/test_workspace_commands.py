@@ -118,13 +118,15 @@ class Test(base.TestCase):
             file_.write('thedata')
 
         def inDialogFunc(dialog):
-            self.keyClicks('f ' + self.TEST_FILE_DIR + '/the')
+            cmdPath = (self.TEST_FILE_DIR + '/the').replace('\\', '\\\\').replace(' ', '\\ ')
+            self.keyClicks('f ' + cmdPath)
             QTest.qWait(200)
-            self.assertEqual(core.locator()._edit.text(),
-                             'f ' + fullPath.replace('\\', '\\\\').replace(' ', '\\ '))
-            self.keyClick(Qt.Key_Escape)
+            self.assertTrue(core.locator()._edit.text().endswith('file.txt'))
+            self.keyClick(Qt.Key_Enter)
 
         self.openDialog(self._openDialog, inDialogFunc)
+
+        self.assertEqual(core.workspace().currentDocument().filePath(), fullPath)
 
 
 
