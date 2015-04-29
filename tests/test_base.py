@@ -124,12 +124,7 @@ class TestWaitForSignal(unittest.TestCase):
     def test_11(self):
         ts = TestSignal()
         with self.assertRaises(AssertionError):
-            oldVal = base.PRINT_EXEC_TRACKBACK
-            base.PRINT_EXEC_TRACKBACK = False
-            try:
-                base.waitForSignal(lambda: self.fail(), ts.testSignal, 100)
-            finally:
-                base.PRINT_EXEC_TRACKBACK = oldVal
+            base.waitForSignal(lambda: self.fail(), ts.testSignal, 100)
 
 
 # inMainLoop
@@ -143,12 +138,7 @@ class TestInMainLoop(base.TestCase):
     # Make sure exceptions inMainLoop get propagated.
     def test_1(self):
         with self.assertRaises(AssertionError):
-            oldVal = base.PRINT_EXEC_TRACKBACK
-            base.PRINT_EXEC_TRACKBACK = False
-            try:
-                self._failInMainLoop()
-            finally:
-                base.PRINT_EXEC_TRACKBACK = oldVal
+            self._failInMainLoop()
 
 # Main
 # ====

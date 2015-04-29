@@ -69,11 +69,6 @@ def _processPendingEvents():
     timer.timeout.disconnect(qe.quit)
 
 
-# By default, the traceback for excpetions occurring inside
-# an exec_ loop will be printed.
-PRINT_EXEC_TRACKBACK = True
-
-
 def inMainLoop(func, *args):
     """Decorator executes test method in the QApplication main loop.
     QAction shortcuts doesn't work, if main loop is not running.
@@ -105,8 +100,6 @@ def inMainLoop(func, *args):
         exceptions = []
         def excepthook(type_, value, tracebackObj):
             exceptions.append((value, tracebackObj))
-            if PRINT_EXEC_TRACKBACK and not 'ExpectedFailure' in str(type(value)):
-                oldExcHook(type_, value, tracebackObj)
             self.app.exit()
         oldExcHook = sys.excepthook
         sys.excepthook = excepthook
@@ -445,8 +438,6 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     exceptions = []
     def excepthook(type_, value, tracebackObj):
         exceptions.append((value, tracebackObj))
-        if PRINT_EXEC_TRACKBACK:
-            oldExcHook(type_, value, tracebackObj)
     oldExcHook = sys.excepthook
     sys.excepthook = excepthook
 
