@@ -178,7 +178,6 @@ class SettingsWidget(QWidget):
                          palette.color(QPalette.Normal, QPalette.Link))
         self.lbSphinxEnableAdvMode.setPalette(palette)
 
-        self.labelCodeChatIntro.setEnabled(1)
         if CodeChat is None:
             # If the CodeChat module can't be loaded, then disable the
             # associated checkbox and show the "not installed" message.
