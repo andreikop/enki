@@ -35,7 +35,7 @@ from enki.core.uisettings import UISettings
 # Both of the two following lines are needed: the first, so we can later
 # ``reload(enki.plugins.preview)``; the last, to instiantate ``SettingsWidget``.
 import enki.plugins.preview
-from enki.plugins.preview import SettingsWidget
+from enki.plugins.preview import CodeChatSettingsWidget, SphinxSettingsWidget
 from enki.plugins.preview import commonPrefix
 from enki.plugins.preview.preview import copyTemplateFile
 from import_fail import ImportFail
@@ -219,9 +219,9 @@ class Test(PreviewTestCase):
     def test_settingUiCheck1(self):
         """When Enki runs for the first time, the CodeChat module should be
            disabled by default."""
-        us, sw = self.setupSettingsWidget(SettingsWidget)
-        self.assertFalse(sw.gbCodeChat.isChecked())
-        self.assertTrue(sw.gbCodeChat.isEnabled())
+        us, sw = self.setupSettingsWidget(CodeChatSettingsWidget)
+        self.assertFalse(sw.cbCodeChat.isChecked())
+        self.assertTrue(sw.cbCodeChat.isEnabled())
         # If the CodeChat module is present, the user should not be able to see
         # the 'CodeChat not installed' notification.
         #
@@ -240,7 +240,7 @@ class Test(PreviewTestCase):
         # Verify that the CodeChat checkbox is disabled, and the 'not installed'
         # notification is visible.
         with ImportFail(['CodeChat'], [enki.plugins.preview]):
-            us, sw = self.setupSettingsWidget(SettingsWidget)
+            us, sw = self.setupSettingsWidget(CodeChatSettingsWidget)
             self.assertFalse(sw.cbCodeChat.isEnabled())
             self.assertTrue(sw.labelCodeChatNotInstalled.isVisible())
             self.assertTrue(sw.labelCodeChatNotInstalled.isEnabled())
@@ -250,20 +250,18 @@ class Test(PreviewTestCase):
         # Now, prove that the reload worked: CodeChat should now be enabled, but
         # remain unchecked just like the first time enki starts. 'not installed'
         # notification should be invisible.
-        us = UISettings(None)
-        sw = SettingsWidget(us)
+        us, sw = self.setupSettingsWidget(CodeChatSettingsWidget)
         self.assertTrue(sw.cbCodeChat.isEnabled())
-        sw.show()
         self.assertFalse(sw.labelCodeChatNotInstalled.isVisible())
         self.assertTrue(sw.labelCodeChatIntro.isEnabled())
-        sw.close()
+        us.close()
 
     @requiresSphinx
     def test_settingUiCheck3a(self):
         """test_uiCheck1a has tested the case when Sphinx is disabled. This
         unit test will test the case when Sphinx is mannually enabled.
         """
-        us, sw = self.setupSettingsWidget(SettingsWidget)
+        us, sw = self.setupSettingsWidget(SphinxSettingsWidget)
         # Mannually enable Sphinx.
         sw.gbSphinxProject.setChecked(True)
         # Since it is assumed that the user has sphinx-build installed, the Sphinx

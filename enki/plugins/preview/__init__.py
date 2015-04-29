@@ -154,16 +154,43 @@ def _getSphinxVersion(path):
             return [int(num) for num in version.split('.')]
     raise ValueError
 
-# GUI
-# ===
-# This class implements the GUI for a combined CodeChat / Sphinx settings page.
-class SettingsWidget(QWidget):
+# GUIs
+# ====
+# This class implements the GUI for a combined CodeChat settings page.
+class CodeChatSettingsWidget(QWidget):
     """Insert the preview plugin as a page of the UISettings dialog.
     """
     def __init__(self, dialog):
         # Initialize the dialog, loading in the literate programming settings GUI.
         QWidget.__init__(self, dialog)
-        uic.loadUi(os.path.join(os.path.dirname(__file__), 'Settings.ui'), self)
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'CodeChat_Settings.ui'), self)
+
+        if CodeChat is None:
+            # If the CodeChat module can't be loaded, then disable the
+            # associated checkbox and show the "not installed" message.
+            self.cbCodeChat.setEnabled(False)
+            self.labelCodeChatNotInstalled.setVisible(True)
+            self.labelCodeChatNotInstalled.setEnabled(True)
+        else:
+            # Hide the "not installed" message.
+            self.labelCodeChatNotInstalled.setVisible(False)
+
+        # Add this GUI to the settings dialog box.
+        dialog.appendPage(u"Literate programming", self)
+        # Next, have the setting UI auto-update the corresponding CodeChat and
+        # config entries.
+        dialog.appendOption(CheckableOption(dialog, core.config(),
+                                            "CodeChat/Enabled",
+                                            self.cbCodeChat))
+
+# This class implements the GUI for a combined CodeChat / Sphinx settings page.
+class SphinxSettingsWidget(QWidget):
+    """Insert the preview plugin as a page of the UISettings dialog.
+    """
+    def __init__(self, dialog):
+        # Initialize the dialog, loading in the literate programming settings GUI.
+        QWidget.__init__(self, dialog)
+        uic.loadUi(os.path.join(os.path.dirname(__file__), 'Sphinx_Settings.ui'), self)
 
         # Make links gray when they are disabled
         palette = self.palette()
@@ -178,16 +205,6 @@ class SettingsWidget(QWidget):
                          palette.color(QPalette.Normal, QPalette.Link))
         self.lbSphinxEnableAdvMode.setPalette(palette)
 
-        if CodeChat is None:
-            # If the CodeChat module can't be loaded, then disable the
-            # associated checkbox and show the "not installed" message.
-            self.cbCodeChat.setEnabled(False)
-            self.labelCodeChatNotInstalled.setVisible(True)
-            self.labelCodeChatNotInstalled.setEnabled(True)
-        else:
-            # Hide the "not installed" message.
-            self.labelCodeChatNotInstalled.setVisible(False)
-
         # Clicking on advanced mode label triggers either advanced mode or
         # normal mode.
         self.lbSphinxEnableAdvMode.mousePressEvent = self.on_ToggleSphinxSettingModeClicked
@@ -196,12 +213,9 @@ class SettingsWidget(QWidget):
         self._updateSphinxSettingMode()
 
         # Add this GUI to the settings dialog box.
-        dialog.appendPage(u"Literate programming", self)
+        dialog.appendPage(u"Documentation generators", self)
         # Next, have the setting UI auto-update the corresponding CodeChat and
         # config entries.
-        dialog.appendOption(CheckableOption(dialog, core.config(),
-                                            "CodeChat/Enabled",
-                                            self.cbCodeChat))
         dialog.appendOption(CheckableOption(dialog, core.config(),
                                             "Sphinx/Enabled",
                                             self.gbSphinxProject))
@@ -453,7 +467,7 @@ class Plugin(QObject):
         self._dockInstalled = False
 
     def _onSettingsDialogAboutToExecute(self, dialog):
-        """The UI settings dialog is about to execute. Install CodeChat-related
+        """The UI settings dialog is about to execute. Install preview-related
            settings."""
-        # First, append the CodeChat settings page to the settings dialog.
-        widget = SettingsWidget(dialog)
+        CodeChatSettingsWidget(dialog)
+        SphinxSettingsWidget(dialog)
