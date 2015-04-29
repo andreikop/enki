@@ -22,15 +22,16 @@ sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."
 
 import base
 
-# Third-party library imports
+# Third-party library ihmports
 # ---------------------------
-from PyQt4.QtGui import QMessageBox, QWheelEvent, QApplication
+from PyQt4.QtGui import QMessageBox, QWheelEvent, QApplication, QDialog
 from PyQt4.QtCore import Qt, QPoint
 import mock
 
 # Local application imports
 # -------------------------
 from enki.core.core import core
+from enki.core.uisettings import UISettings
 # Both of the two following lines are needed: the first, so we can later
 # ``reload(enki.plugins.preview)``; the last, to instiantate ``SettingsWidget``.
 import enki.plugins.preview
@@ -204,11 +205,21 @@ class Test(PreviewTestCase):
 
     # Cases for literate programming setting ui
     ##-----------------------------------------
+    def setupSettingsWidget(self, WidgetClass):
+        """To use a widget embedded in a UISettings requres a bit of
+        manipulation, which this helper function encapsulates.
+        """
+        us = UISettings(None)
+        wc = WidgetClass(us)
+        us.swPages.setCurrentWidget(wc)
+        us.show()
+        return us, wc
+
     @base.requiresModule('CodeChat')
     def test_settingUiCheck1(self):
         """When Enki runs for the first time, the CodeChat module should be
            disabled by default."""
-        sw = SettingsWidget()
+        us, sw = self.setupSettingsWidget(SettingsWidget)
         self.assertFalse(sw.gbCodeChat.isChecked())
         self.assertTrue(sw.gbCodeChat.isEnabled())
         # If the CodeChat module is present, the user should not be able to see
@@ -218,7 +229,6 @@ class Test(PreviewTestCase):
         # ancesters are visible. Check `here <http://qt-project.org/doc/qt-5/qwidget.html#visible-prop>`_
         # for more details. Calling show() function will force update on
         # setting ui.
-        sw.show()
         self.assertFalse(sw.labelCodeChatNotInstalled.isVisible())
         sw.close()
 
@@ -230,18 +240,18 @@ class Test(PreviewTestCase):
         # Verify that the CodeChat checkbox is disabled, and the 'not installed'
         # notification is visible.
         with ImportFail(['CodeChat'], [enki.plugins.preview]):
-            sw = SettingsWidget()
+            us, sw = self.setupSettingsWidget(SettingsWidget)
             self.assertFalse(sw.cbCodeChat.isEnabled())
-            sw.show()
             self.assertTrue(sw.labelCodeChatNotInstalled.isVisible())
             self.assertTrue(sw.labelCodeChatNotInstalled.isEnabled())
             self.assertTrue(sw.labelCodeChatIntro.isEnabled())
-            sw.close()
+            us.close()
 
         # Now, prove that the reload worked: CodeChat should now be enabled, but
         # remain unchecked just like the first time enki starts. 'not installed'
         # notification should be invisible.
-        sw = SettingsWidget()
+        us = UISettings(None)
+        sw = SettingsWidget(us)
         self.assertTrue(sw.cbCodeChat.isEnabled())
         sw.show()
         self.assertFalse(sw.labelCodeChatNotInstalled.isVisible())
@@ -253,7 +263,7 @@ class Test(PreviewTestCase):
         """test_uiCheck1a has tested the case when Sphinx is disabled. This
         unit test will test the case when Sphinx is mannually enabled.
         """
-        sw = SettingsWidget()
+        us, sw = self.setupSettingsWidget(SettingsWidget)
         # Mannually enable Sphinx.
         sw.gbSphinxProject.setChecked(True)
         # Since it is assumed that the user has sphinx-build installed, the Sphinx
@@ -262,34 +272,24 @@ class Test(PreviewTestCase):
         self.assertTrue(sw.gbSphinxProject.isChecked())
         # Build option is enabled and automatically set to Build only on save.
         self.assertTrue(sw.rbBuildOnlyOnSave.isEnabled())
-        self.assertTrue(sw.rbBuildOnlyOnSave.isChecked())
         self.assertTrue(sw.rbBuildOnFileChange.isEnabled())
-        self.assertFalse(sw.rbBuildOnFileChange.isChecked())
         # All setting directories are enabled and empty.
         self.assertTrue(sw.leSphinxProjectPath.isEnabled())
-        self.assertEqual(sw.leSphinxProjectPath.text(), '')
         self.assertTrue(sw.leSphinxOutputPath.isEnabled())
-        self.assertEqual(sw.leSphinxOutputPath.text(), '')
         # Executable is enabled and set to default 'sphinx-build'
         self.assertTrue(sw.leSphinxExecutable.isEnabled())
-        self.assertEqual(sw.leSphinxExecutable.text(), '')
         # Assert advanced mode toggle label enabled and reads 'Advanced Mode'
         self.assertTrue(sw.lbSphinxEnableAdvMode.isEnabled())
         self.assertTrue('Advanced Mode' in sw.lbSphinxEnableAdvMode.text())
-        sw.show()
         # Assert user cannot see any advanced setting items.
         self.assertFalse(sw.lbSphinxCmdline.isVisible())
         self.assertFalse(sw.leSphinxCmdline.isVisible())
         self.assertFalse(sw.lbSphinxReference.isVisible())
-        sw.close()
 
         # Now simulate a keypress event on advanced setting toggle label
         sw.lbSphinxEnableAdvMode.mousePressEvent()
-        # Verify that in advanced setting mode, default command line commands are used.
-        self.assertEqual(sw.leSphinxCmdline.text(), u'')
         # Assert advanced model toggle label now reads 'Normal Mode'
         self.assertTrue('Normal Mode' in sw.lbSphinxEnableAdvMode.text())
-        sw.show()
         # Verify that normal mode setting line edits and pushbuttons are all gone
         for i in range(sw.gridLtNotAdvancedSettings.count()):
             self.assertFalse(sw.gridLtNotAdvancedSettings.itemAt(i).widget().isVisible())
@@ -297,7 +297,7 @@ class Test(PreviewTestCase):
         self.assertTrue(sw.lbSphinxCmdline.isVisible())
         self.assertTrue(sw.leSphinxCmdline.isVisible())
         self.assertTrue(sw.lbSphinxReference.isVisible())
-        sw.close()
+        us.close()
 
     # Cases for code preview using Codechat or Sphinx
     ##-----------------------------------------------
