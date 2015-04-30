@@ -72,7 +72,8 @@ def sphinxEnabledForFile(filePath):
     return ( filePath and
            core.config()['Sphinx']['Enabled'] and
            os.path.exists(core.config()['Sphinx']['ProjectPath']) and
-           os.path.normcase(sphinxProjectPath) == commonPrefix(filePath, sphinxProjectPath))
+           os.path.normcase(sphinxProjectPath) ==
+             commonPrefix(filePath, sphinxProjectPath))
 
 def commonPrefix(*dirs):
     """This function provides a platform-independent path commonPrefix. It
@@ -105,13 +106,15 @@ def commonPrefix(*dirs):
     # - **abspath** collapses and evaluates directory traversals like
     #   ``./../subdir``, to correctly compare absolute and relative paths,
     #   and normalizes the os.path.sep for the current platform
-    #   (i.e. no `\a/b` paths). Similar to ``normpath(join(os.getcwd(), path))``.
-    fullPathList = [os.path.normcase(os.path.abspath(os.path.realpath(d))) for d in dirs]
+    #   (i.e. no `\a/b` paths). Similar to ``normpath(join(os.getcwd(),
+    #   path))``.
+    fullPathList = [os.path.normcase(os.path.abspath(os.path.realpath(d)))
+                    for d in dirs]
     # Now use ``commonprefix`` on absolute paths.
     prefix = os.path.commonprefix(fullPathList)
-    # commonprefix stops at the first dissimilar character, leaving an incomplete
-    # path name. For example, ``commonprefix(('aa', 'ab')) == 'a'``. Fix this
-    # by removing this ending incomplete path if necessary.
+    # commonprefix stops at the first dissimilar character, leaving an
+    # incomplete path name. For example, ``commonprefix(('aa', 'ab')) == 'a'``.
+    # Fix this by removing this ending incomplete path if necessary.
     for d in fullPathList:
         # ``commonPrefix`` contains a complete path if the character in
         # ``d`` after its end is an os.path.sep or the end of the path name.
@@ -128,7 +131,8 @@ def commonPrefix(*dirs):
     # are rooted in the current directory. Test whether ``prefix`` starts with
     # the current working directory. If not, return an absolute path.
     cwd = os.getcwd()
-    return prefix if not prefix.startswith(cwd) else prefix[len(cwd) + len(os.path.sep):]
+    return prefix if not prefix.startswith(cwd) \
+                  else prefix[len(cwd) + len(os.path.sep):]
 
 def _getSphinxVersion(path):
     """Return the Sphinx version as a list of integer items.
@@ -140,9 +144,9 @@ def _getSphinxVersion(path):
     # Command "Sphinx-build --version" will only output sphinx version info.
     # Typical output looks like: ``Sphinx (sphinx-build) 1.2.3`` or
     # ``Sphinx v1.2.3``
-    # But the problem is sometimes version info goes to stdout(version 1.2.3), while
-    # sometimes it goes to stderr(version 1.1.3). Thus combining stdout and
-    # stderr is necessary.
+    # But the problem is sometimes version info goes to stdout(version 1.2.3),
+    # while sometimes it goes to stderr(version 1.1.3). Thus combining stdout
+    # and stderr is necessary.
     out = stdout + '\n' + stderr
     for line in out.split('\n'):
         if line.startswith("Sphinx"):
@@ -161,9 +165,11 @@ class CodeChatSettingsWidget(QWidget):
     """Insert the preview plugin as a page of the UISettings dialog.
     """
     def __init__(self, dialog):
-        # Initialize the dialog, loading in the literate programming settings GUI.
+        # Initialize the dialog, loading in the literate programming settings
+        # GUI.
         QWidget.__init__(self, dialog)
-        uic.loadUi(os.path.join(os.path.dirname(__file__), 'CodeChat_Settings.ui'), self)
+        uic.loadUi(os.path.join(os.path.dirname(__file__),
+                                'CodeChat_Settings.ui'), self)
 
         if CodeChat is None:
             # If the CodeChat module can't be loaded, then disable the
@@ -188,9 +194,11 @@ class SphinxSettingsWidget(QWidget):
     """Insert the preview plugin as a page of the UISettings dialog.
     """
     def __init__(self, dialog):
-        # Initialize the dialog, loading in the literate programming settings GUI.
+        # Initialize the dialog, loading in the literate programming settings
+        # GUI.
         QWidget.__init__(self, dialog)
-        uic.loadUi(os.path.join(os.path.dirname(__file__), 'Sphinx_Settings.ui'), self)
+        uic.loadUi(os.path.join(os.path.dirname(__file__),
+                                'Sphinx_Settings.ui'), self)
 
         # Make links gray when they are disabled
         palette = self.palette()
@@ -219,7 +227,8 @@ class SphinxSettingsWidget(QWidget):
         dialog.appendOption(CheckableOption(dialog, core.config(),
                                             "Sphinx/Enabled",
                                             self.gbSphinxProject))
-        dialog.appendOption(ChoiseOption(dialog, core.config(), "Sphinx/BuildOnSave",
+        dialog.appendOption(ChoiseOption(dialog, core.config(),
+                                         "Sphinx/BuildOnSave",
                                          {self.rbBuildOnlyOnSave: True,
                                           self.rbBuildOnFileChange: False}))
         dialog.appendOption(TextOption(dialog, core.config(),
@@ -271,7 +280,8 @@ class SphinxSettingsWidget(QWidget):
             # ``_build\html``, then it's probably OK without changing.
             if (not self.leSphinxOutputPath.text()
                 or os.path.isabs(self.leSphinxOutputPath.text())):
-                self.leSphinxOutputPath.setText(os.path.join(path, '_build', 'html'))
+                self.leSphinxOutputPath.setText(os.path.join(path, '_build',
+                                                             'html'))
 
     @pyqtSlot()
     def on_pbSphinxOutputPath_clicked(self):
@@ -363,8 +373,8 @@ class Plugin(QObject):
 
         # Install our CodeChat page into the settings dialog.
         core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
-        # Update preview dock when the settings dialog (which contains the CodeChat
-        # enable checkbox) is changed.
+        # Update preview dock when the settings dialog (which contains the
+        # CodeChat enable checkbox) is changed.
         core.uiSettingsManager().dialogAccepted.connect(self._onDocumentChanged)
 
         # If user's config .json file lacks it, populate CodeChat's default
@@ -379,10 +389,12 @@ class Plugin(QObject):
             core.config()['Sphinx']['Executable'] = u'sphinx-build'
             core.config()['Sphinx']['ProjectPath'] = u''
             core.config()['Sphinx']['BuildOnSave'] = False
-            core.config()['Sphinx']['OutputPath'] = os.path.join('_build', 'html')
+            core.config()['Sphinx']['OutputPath'] = os.path.join('_build',
+                                                                 'html')
             core.config()['Sphinx']['AdvancedMode'] = False
-            core.config()['Sphinx']['Cmdline'] = u'sphinx-build -d ' + os.path.join('_build','doctrees')  \
-                                                 + ' . ' + os.path.join('_build','html')
+            core.config()['Sphinx']['Cmdline'] = ( u'sphinx-build -d ' +
+              os.path.join('_build','doctrees') + ' . ' +
+              os.path.join('_build', 'html') )
             core.config().flush()
 
     def del_(self):
@@ -432,13 +444,15 @@ class Plugin(QObject):
             self._dock = PreviewDock()
             self._dock.closed.connect(self._onDockClosed)
             self._dock.shown.connect(self._onDockShown)
-            self._saveAction = QAction(QIcon(':enkiicons/save.png'), 'Save Preview as HTML', self._dock)
+            self._saveAction = QAction(QIcon(':enkiicons/save.png'),
+                                       'Save Preview as HTML', self._dock)
             self._saveAction.setShortcut(QKeySequence("Alt+Shift+P"))
             self._saveAction.triggered.connect(self._dock.onPreviewSave)
 
         core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
 
-        core.actionManager().addAction("mView/aPreview", self._dock.showAction())
+        core.actionManager().addAction("mView/aPreview",
+                                       self._dock.showAction())
         core.actionManager().addAction("mFile/aSavePreview", self._saveAction)
         self._dockInstalled = True
         if core.config()['Preview']['Enabled']:
