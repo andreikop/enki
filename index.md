@@ -71,7 +71,7 @@ baseurl: .
             </a>
 
             <a href="http://github.com/hlamer/enki/releases" class="download-button">
-                <img src="../img/win.svg" width="120" height="106" align="midle"/>
+                <img src="../img/win.svg" width="110" height="110"/>
                 <br/>
                 Windows<br/>installer
             </a>
