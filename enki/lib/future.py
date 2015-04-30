@@ -60,7 +60,7 @@ import sys, time
 # -------------------
 from PyQt4.QtGui import QApplication
 from PyQt4.QtCore import QThread, pyqtSignal, QObject, QTimer, QRunnable, \
-    QThreadPool
+  QThreadPool
 #
 # Local imports
 # -------------
@@ -88,7 +88,7 @@ class AsyncAbstractController(QObject):
       # .. |parent| replace:: The parent of this object, if it exists. Selecting an object as
       #    a parent guarantees that this class instance will be properly
       #    finalized when the parent is deleted. If parent is None, then the
-      #    ``del_()`` method **MUST** be called before the program exits.
+      #    ``terminate()`` method **MUST** be called before the program exits.
       #    See the cleanup_ section below for more information.
       #
       # |parent|
@@ -166,7 +166,6 @@ class AsyncAbstractController(QObject):
     def _wrap(self, g, f, *args, **kwargs):
         # Wrap ``f`` and associated data in a class.
         return Future(g, f, args, kwargs, self.defaultPriority)
-
 #
 # Cleanup
 # -------
@@ -188,9 +187,8 @@ class AsyncAbstractController(QObject):
 # #. Finalize this instance if the Python destructor is invoked. Python does
 #    not guarantee that this will **ever** be invoked. Don't rely on it.
 #
-# #. Manually call ``asyncController.del_()`` when necessary. This is soooo
+# #. Manually call ``asyncController.terminate()`` when necessary. This is soooo
 #    easy to forget.
-#
 #
 # Context manager
 # ^^^^^^^^^^^^^^^
@@ -200,7 +198,7 @@ class AsyncAbstractController(QObject):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.del_()
+        self.terminate()
         # Pass any exceptions through.
         return False
 #
@@ -210,13 +208,13 @@ class AsyncAbstractController(QObject):
     # emulates a C++ destructor by freeing resources before the C++ class is
     # destroyed.
     def onParentDestroyed(self):
-        self.del_()
+        self.terminate()
 #
 # Python destructor
 # ^^^^^^^^^^^^^^^^^
     # In case the above method wasn't called, try to exit gracefully here.
-    def __del__(self):
-        self.del_()
+    def __terminate__(self):
+        self.terminate()
 #
 # Manual
 # ^^^^^^
@@ -225,16 +223,16 @@ class AsyncAbstractController(QObject):
     # "QThread: Destroyed while thread is still running" messages.
     #
     # This is NOT thread-safe.
-    def del_(self):
+    def terminate(self):
         # Only run this once.
         if self.isAlive:
             self.isAlive = False
-            self._del()
+            self._terminate()
 
-    # .. |del_| replace:: Called by ``del_`` to actually shut down this class.
+    # .. |terminate| replace:: Called by ``terminate`` to actually shut down this class.
     #
-    # |del_|
-    def _del(self):
+    # |terminate|
+    def _terminate(self):
         raise RuntimeError('Abstact method')
 
 
@@ -269,8 +267,8 @@ class AsyncThreadController(AsyncAbstractController):
     def _start(self, future):
         self._worker.startSignal.emit(future)
 
-    # |del_|
-    def _del(self):
+    # |terminate|
+    def _terminate(self):
         # Shut down the thread the Worker runs in.
         self._workerThread.quit()
         self._workerThread.wait()
@@ -278,7 +276,7 @@ class AsyncThreadController(AsyncAbstractController):
         # used by this class.
         del self._worker
         del self._workerThread
-
+#
 # AsyncPoolController
 # -------------------
 # Run functions in a QThread, using the ``AsyncAbstractController`` framework.
@@ -307,11 +305,11 @@ class AsyncPoolController(AsyncAbstractController):
         apw = _AsyncPoolWorker(future)
         self.threadPool.start(apw)
 
-    # |del_|
-    def _del(self):
+    # |terminate|
+    def _terminate(self):
         self.threadPool.waitForDone()
         del self.threadPool
-
+#
 # SyncController
 # --------------
 # For testing purposes, this controller simply runs all jobs given it in the
@@ -321,10 +319,10 @@ class SyncController(AsyncAbstractController):
     def _start(self, future):
         future._invoke()
 
-    # |del_|
-    def _del(self):
+    # |terminate|
+    def _terminate(self):
         pass
-
+#
 # AsyncController
 # ---------------
 # This "class" provides a unified interface to both the thread and thread pool
@@ -338,6 +336,8 @@ def AsyncController(
   #   This means that ``g`` may **not** be run in a thread, without
   #   manually adding a event loop. If *n* < 1, the global thread pool
   #   is used.
+  # * 'Sync' to execute tasks in the current thread, rather than a separate
+  #   thread. Primarily provided to test and debug purposes.
   qThreadOrThreadPool, parent=None):
 
     if qThreadOrThreadPool == 'Sync':
@@ -417,10 +417,10 @@ class Future(object):
     # of ``f`` be canceled. If ``f`` is already running, then it will not be
     # interrupted. However, if ``discardResult`` is True, then the results
     # returned from evaluating ``f`` will be discarded and the signal that is
-    # emitted when ``f`` finishes will not be.
+    # usually emitted when ``f`` finishes will not be.
     def cancel(self, discardResult=False):
         if discardResult:
-            # If cancel(True) was called before, this raises and exception.
+            # If cancel(True) was called before, this raises an exception.
             # Ignore it.
             try:
                 self.signalInvoker.doneSignal.disconnect(self.signalInvoker.onDoneSignal)
