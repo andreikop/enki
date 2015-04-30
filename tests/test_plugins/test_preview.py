@@ -211,6 +211,12 @@ class Test(PreviewTestCase):
         """
         us = UISettings(None)
         wc = WidgetClass(us)
+        # Important: show() causes all the GUI buttons, checkboxes, etc. to
+        # work. For example, setting a checkbox to checked then immediately
+        # reading it before calling show() results in Qt reporting an unchecked
+        # checkbox. However, show() only operates on the currently visible page
+        # of the settings. Hence, make the page being tested the current page,
+        # then show() it.
         us.swPages.setCurrentWidget(wc)
         us.show()
         return us, wc
@@ -226,11 +232,12 @@ class Test(PreviewTestCase):
         # the 'CodeChat not installed' notification.
         #
         # Widgets that are not on the top level will be visible only when all their
-        # ancesters are visible. Check `here <http://qt-project.org/doc/qt-5/qwidget.html#visible-prop>`_
+        # ancesters are visible. Check `here
+        # <http://qt-project.org/doc/qt-5/qwidget.html#visible-prop>`_
         # for more details. Calling show() function will force update on
         # setting ui.
         self.assertFalse(sw.labelCodeChatNotInstalled.isVisible())
-        sw.close()
+        us.close()
 
     @base.requiresModule('CodeChat')
     def test_settingUiCheck3(self):
