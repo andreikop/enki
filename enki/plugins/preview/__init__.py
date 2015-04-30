@@ -213,7 +213,7 @@ class SphinxSettingsWidget(QWidget):
         self._updateSphinxSettingMode()
 
         # Add this GUI to the settings dialog box.
-        dialog.appendPage(u"Documentation generators", self)
+        dialog.appendPage("Sphinx", self)
         # Next, have the setting UI auto-update the corresponding CodeChat and
         # config entries.
         dialog.appendOption(CheckableOption(dialog, core.config(),
