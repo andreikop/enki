@@ -47,7 +47,7 @@ class PreviewSync(QObject):
       # The web view involved in synchronization
       webView):
 
-        QObject.__init__(self)
+        QObject.__init__(self, webView)
         # Only set up sync if TRE is installed.
         if not findApproxTextInTarget:
             return
@@ -94,7 +94,7 @@ class PreviewSync(QObject):
             # the True guarentees that _movePreviewPaneToIndex will not be
             # invoked after this line.
             self._future.cancel(True)
-            self._ac.del_()
+            self._ac.terminate()
 
     # Vertical synchronization
     ##========================
@@ -564,7 +564,7 @@ class PreviewSync(QObject):
         self._previewToTextSyncRunning = False
         # Run the approximate match in a separate thread. Cancel it if the
         # document changes.
-        self._ac = AsyncController('QThread')
+        self._ac = AsyncController('QThread', self)
         self._ac.defaultPriority = QThread.LowPriority
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
         # Create a dummy future object for use in canceling pending sync jobs

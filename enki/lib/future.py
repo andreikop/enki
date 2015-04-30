@@ -254,7 +254,7 @@ class AsyncThreadController(AsyncAbstractController):
         # inspired by  example given in the `QThread docs
         # <http://qt-project.org/doc/qt-4.8/qthread.html>`_.
         self._worker = _AsyncWorker()
-        self._workerThread = QThread()
+        self._workerThread = QThread(parent)
         # Attach the worker to the thread's event queue.
         self._worker.moveToThread(self._workerThread)
         # Hook up signals.
