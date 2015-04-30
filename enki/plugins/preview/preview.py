@@ -229,21 +229,25 @@ class ConverterThread(QThread):
             outputPath = os.path.join(projectPath, outputPath)
         # Create an htmlPath as OutputPath + remainder of filePath.
         htmlPath = os.path.join(outputPath + filePath[len(projectPath):])
-        html_file_suffix = u'html'
+        html_file_suffix = u'.html'
         try:
-            with codecs.open(os.path.join(projectPath, 'sphinx-enki-info.json')) as f:
-                html_file_suffix = f.read()
+            with codecs.open(os.path.join(projectPath, 'sphinx-enki-info.txt')) as f:
+                hfs = f.read()
+                # If the file is empty, then html_file_suffix wasn't defined
+                # or is None. In this case, use the default extension.
+                # Otherwise, use the extension read from the file.
+                if hfs:
+                    html_file_suffix = hfs
         except:
             errString = "Warning: assuming .html extension. Use " + \
               "the conf.py template to set the extension.\n" + errString
             pass
         # First place to look: file.html. For example, look for foo.py
         # in foo.py.html.
-        ext =  u'.' + html_file_suffix
-        htmlFile = htmlPath + ext
+        htmlFile = htmlPath + html_file_suffix
         # Second place to look: file without extension.html. For
         # example, look for foo.html for foo.rst.
-        htmlFileAlter = os.path.splitext(htmlPath)[0] + ext
+        htmlFileAlter = os.path.splitext(htmlPath)[0] + html_file_suffix
         # Check that the output file produced by Sphinx is newer than
         # the source file it was built from.
         if os.path.exists(htmlFile):
