@@ -1206,6 +1206,7 @@ Usage: C:\Python27\Scripts\sphinx-build [options] sourcedir outdir [filenames...
         self.assertEqual(_getSphinxVersion('anything_since_replaced_by_mock'),
                          [1, 3, 1])
 
+    @base.inMainLoop
     def test_zoom(self):
         webView = self._widget().webView
         self.assertEqual(webView.zoomFactor(), 1)
