@@ -210,18 +210,7 @@ class TestCase(unittest.TestCase):
 
         core.workspace().closeAllDocuments()
         core.term()
-
-        # | **Find orphaned objects**
-        # | Look for any objects that are still generating signals after
-        # core.term().
-        #
-        # \1. Process all termination-related events.
         _processPendingEvents()
-        # \2. Now, print a diagnostic on any events that are still occurring.
-        self.app.assertOnEvents = True
-        _processPendingEvents()
-        self.app.assertOnEvents = False
-
         self._cleanUpFs()
 
     def keyClick(self, key, modifiers=Qt.NoModifier, widget=None):
