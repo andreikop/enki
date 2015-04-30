@@ -141,10 +141,11 @@ class Config():
 
         """Monaco - old Mac font,
         Menlo - modern Mac font,
-        Consolas - default font for Windows
+        Consolas - default font for Windows Vista+
+        Lucida Console - on Windows XP
         Monospace - default for other platforms
         """
-        fontFamilies = ("Menlo", "Monaco", "Monospace", "Consolas")
+        fontFamilies = ("Menlo", "Monaco", "Monospace", "Consolas", "Lucida Console")
         availableFontFamilies = QFontDatabase().families()
         for fontFamily in fontFamilies:
             if fontFamily in availableFontFamilies:
@@ -153,7 +154,7 @@ class Config():
         else:
             self._data['Qutepart']['Font']['Family'] = 'Monospace'
 
-        self._data['Qutepart']['Font']['Size'] = QApplication.instance().font().pointSize()
+        self._data['Qutepart']['Font']['Size'] = max(QApplication.instance().font().pointSize(), 12)
         self._data['PlatformDefaultsHaveBeenSet'] = True
 
     def reload(self):
