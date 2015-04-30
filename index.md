@@ -45,18 +45,24 @@ baseurl: .
                 <table>
                     <tr>
                         <td>
-                            <img src="../img/debian.png"/>
+                            <img src="../img/debian.png" width="36" height="36"/>
                         </td>
                         <td>
-                            <img src="../img/fedora.png"/>
+                            <img src="../img/fedora.png" width="36" height="36"/>
+                        </td>
+                        <td>
+                            <img src="../img/rhel.png" width="36" height="36"/>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <img src="../img/suse.png"/>
+                            <img src="../img/ubuntu.png" width="36" height="36"/>
                         </td>
                         <td>
-                            <img src="../img/ubuntu.png"/>
+                            <img src="../img/suse.png" width="36" height="36"/>
+                        </td>
+                        <td>
+                            <img src="../img/centos.png" width="36" height="36"/>
                         </td>
                     </tr>
                 </table>
