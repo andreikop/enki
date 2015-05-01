@@ -50,17 +50,17 @@ def _processPendingEvents():
     # unusable.
     qe = QEventLoop()
 
-# Create a single-shot timer. Could use QTimer.singleShot(),
+    # Create a single-shot timer. Could use QTimer.singleShot(),
     # but can't cancel this / disconnect it.
     timer = QTimer()
     timer.setSingleShot(True)
     timer.timeout.connect(qe.quit)
-    timer.start(0)
+    timer.start(1)
 
     # Wait for an emitted signal.
     qe.exec_()
 
-# Clean up: don't allow the timer to call app.quit after this
+    # Clean up: don't allow the timer to call qe.quit after this
     # function exits, which would produce "interesting" behavior.
     timer.stop()
     # Stopping the timer may not cancel timeout signals in the

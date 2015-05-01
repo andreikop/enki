@@ -112,9 +112,6 @@ class PreviewTestCase(SimplePreviewTestCase):
         # Wait for the worker thread to signal that it's produced
         # updated HTML.
         self.assertEmits(start, self._widget().webView.page().mainFrame().loadFinished, timeout)
-        # Process any pending messages to make sure the GUI is up to
-        # date. Omitting this causes failures in test_uiCheck17.
-        base._processPendingEvents()
 
     def _doBasicTest(self, extension, name='file'):
         # HTML files don't need processing in the worker thread.
@@ -983,15 +980,18 @@ head
         document2 = self.createFile('file2.rst', '')
         document3 = self.createFile('file3.rst', '.. file3::')
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
+        base._processPendingEvents()
         # User manually change error state splitter size such that log window
         # is hidden.
         self._widget().splitter.setSizes([1, 0])
         self._widget().splitter.splitterMoved.emit(1, 1)
         # Switch to document 2. Log window is hidden now.
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
+        base._processPendingEvents()
         self.assertFalse(self._widget().splitter.sizes()[1])
         # Switch to document 3. Log window should keep hidden.
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
+        base._processPendingEvents()
         self.assertFalse(self._widget().splitter.sizes()[1])
 
     @base.inMainLoop
