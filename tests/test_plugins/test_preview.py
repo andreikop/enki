@@ -937,6 +937,7 @@ head
         document3 = self.createFile('file3.rst', '.. file3::')
         self._assertHtmlReady(lambda: None)
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
+        base._processPendingEvents()
         defaultSplitterSize = self._widget().splitter.sizes()
         self.assertTrue(defaultSplitterSize[1])
         # Switch to document 2. Log window is hidden now.
@@ -956,6 +957,7 @@ head
         document3 = self.createFile('file3.rst', '.. file3::')
         self._assertHtmlReady(lambda: None)
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
+        base._processPendingEvents()
         # Change splitter setting of document 1.
         newSplitterSize = [125, 124]
         self._widget().splitter.setSizes(newSplitterSize)
