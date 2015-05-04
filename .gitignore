@@ -1,3 +1,6 @@
 _site
 api/.buildinfo
 api/.doctrees
+_codechat_demo/_build
+_codechat_demo/sphinx-enki-info.txt
+*.py.rst
