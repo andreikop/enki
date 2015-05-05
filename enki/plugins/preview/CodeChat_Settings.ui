@@ -17,14 +17,17 @@
    <item>
     <widget class="QLabel" name="labelCodeChatNotInstalled">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#ff0000;&quot;&gt;The CodeChat package is not installed or not found&lt;/span&gt;. &lt;a href=&quot;https://bitbucket.org/bjones/documentation/overview#rst-header-installation&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Install it.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#ff0000;&quot;&gt;The CodeChat package is not installed or not found&lt;/span&gt;. &lt;a href=&quot;https://pythonhosted.org/CodeChat/install.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Install it&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QLabel" name="labelCodeChatIntro">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;CodeChat is a conversational coding system that encourages literate programming by transforming source code to HTML including hyperlinks, images, and much more. This web page produced by CodeChat is viewable in the Preview dock.&lt;/p&gt;&lt;p&gt;Refer to the CodeChat &lt;a href=&quot;http://bitbucket.org/bjones/documentation/overview&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;documentation&lt;/span&gt;&lt;/a&gt; for more details.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;CodeChat is a conversational coding system that encourages literate programming by transforming source code to HTML including hyperlinks, images, and much more. This web page produced by CodeChat is viewable in the Preview dock.&lt;/p&gt;&lt;p&gt;Refer to the CodeChat &lt;a href=&quot;http://pythonhosted.org/CodeChat/README.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;documentation&lt;/span&gt;&lt;/a&gt; for more details.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

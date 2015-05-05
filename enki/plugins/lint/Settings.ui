@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Python linter uses &lt;a href=&quot;http://pylint.org&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Pylint&lt;/span&gt;&lt;/a&gt; to check the code for mistakes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The Python linter uses &lt;a href=&quot;http://pylint.org&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Pylint&lt;/span&gt;&lt;/a&gt; to check the code for mistakes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="openExternalLinks">
       <bool>true</bool>
@@ -50,7 +50,7 @@
       <item>
        <widget class="QRadioButton" name="rbAll">
         <property name="text">
-         <string>Show errors, warnings, notes</string>
+         <string>Show errors, warnings, and notes</string>
         </property>
        </widget>
       </item>
@@ -128,7 +128,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Hint: You can configure pylint via ~/.pylintrc file</string>
+      <string>Hint: You can configure pylint via the ~/.pylintrc file.</string>
      </property>
     </widget>
    </item>

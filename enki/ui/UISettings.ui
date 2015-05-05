@@ -82,7 +82,7 @@
             <item>
              <widget class="QLabel" name="label_3">
               <property name="text">
-               <string>This files are not displayed by File Browser, Locator, ignored when searching in directory</string>
+               <string>These files are not displayed by the File Browser or Locator; they are ignored when searching in directories.</string>
               </property>
               <property name="wordWrap">
                <bool>true</bool>
@@ -97,7 +97,7 @@
                </font>
               </property>
               <property name="text">
-               <string>One glob per line</string>
+               <string>One glob per line.</string>
               </property>
              </widget>
             </item>
