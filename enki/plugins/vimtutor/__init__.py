@@ -15,7 +15,7 @@ class Plugin:
         core.actionManager().removeAction(self._action)
 
     def _onTriggered(self):
-        path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'vimtutor.txt'))
+        path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'vimtutor.md'))
         try:
             with open(path) as vimtutor_file:
                 text = vimtutor_file.read()
@@ -27,3 +27,4 @@ class Plugin:
 
         document = core.workspace().createEmptyNotSavedDocument()
         document.qutepart.text = text
+        document.qutepart.detectSyntax(language='Markdown')

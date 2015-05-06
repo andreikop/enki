@@ -1,60 +1,53 @@
-===============================================================================
-=    W e l c o m e   t o   t h e   V I M   T u t o r    f o r  E n k i        =
-===============================================================================
+# Welcome to the VIM Tutor for Enki
 
-     Welcome to Vim mode tutorial of Enki editor. Vim is a very powerful
-     editor, which implements a wonderful idea of editing text with
-     alphanumeric keyboard. Enki has a special mode, which allows you
-     to use this mode.
+Welcome to Vim mode tutorial of Enki editor. Vim is a very powerful editor, which implements a wonderful idea of editing text with alphanumeric keyboard. Enki has a special mode, which allows you to use this mode.
 
-     The mode will look weird and complicated at the beginning, but spend
-     spend 20 minutes on completing this tutorial, than a few days on getting
-     habitual to the mode, and it is varrantied, that you'll certainly edit
-     text quicker and get tired less!
+The mode will look weird and complicated at the beginning, but spend 20 minutes on completing this tutorial, than a few days on getting habitual to the mode, and it is varrantied, that you will edit text quicker and get tired less!
 
-     You'll realize that you've been crawling and now can fly!
+You'll realize that you've been crawling and now can fly!
 
-     This tutorial is based on version 1.7 of original Vim Tutorial.
-     It is going to describe enough commands to start using Vim mode
-     effectivelly.
+This tutorial is based on version 1.7 of original Vim Tutorial. It is going to describe enough commands to start using Vim mode effectivelly.
 
-     It is important to remember that this tutor is set up to teach by
-     use.  That means that you need to execute the commands to learn them
-     properly.  If you only read the text, you will forget the commands!
+It is important to remember that this tutor is set up to teach by use.  That means that you need to execute the commands to learn them properly.  If you only read the text, you will forget the commands!
 
-     NOTE: when you've finished with the tutorial, read commands reference:
+It could be easier to read this tutorial if you open the Preview dock. **But do the edit operation on the code!**
 
-              https://github.com/hlamer/enki/wiki/Vim
+NOTE: when you've finished with the tutorial, read [commands reference](https://github.com/hlamer/enki/wiki/Vim)
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            Lesson 0:  SWITCHING ON VIM MODE
+-----------------------------------------------------------------------------
+## Lesson 0: Switching on Vim mode
 
-  1. Open "Edit" menu and make sure that "Enable Vim mode" checkbox
-     is checked. Look at top-right corner of your screen.
-     You'll see a green rounded rectangle.
 
-  2. If the rectangle is not green, set focus to the editor widget
-     and press <ESC> a few times.
+1. Open "Edit" menu and make sure that "Enable Vim mode" checkbox
+   is checked. Look at top-right corner of your screen.
+   You'll see a green rounded rectangle.
 
-  3. Now, make sure that your Shift-Lock key is NOT depressed and press
-     the   j   key enough times to move the cursor so that Lesson 1.1
-     completely fills the screen.
+2. If the rectangle is not green, set focus to the editor widget
+   and press <ESC> a few times.
+
+3. Now, make sure that your Shift-Lock key is NOT depressed and press
+   the   j   key enough times to move the cursor so that Lesson 1.1
+   completely fills the screen.
 
 NOTE: If you don't like the Vim mode you always can switch it off
-in the "Edit" menu. But Enki hopes you'll like it.
+in the `Edit` menu. But Enki hopes you'll like it.
 
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            Lesson 1.1:  MOVING THE CURSOR
+-----------------------------------------------------------------------------
+## Lesson 1.1: Moving the cursor
 
 
    ** To move the cursor, press the h,j,k,l keys as indicated. **
-         ^
-         k            Hint:  The h key is at the left and moves left.
-    < h     l >       The l key is at the right and moves right.
-         j            The j key looks like a down arrow.
-         v
+```
+hjkl
+<v^>
+```
+
+Hint:  The *h* key is at the left and moves left.
+Hint:  The *l* key is at the right and moves right.
+Hint:  The *j* key looks like a down arrow.
+
   1. Move the cursor around the screen until you are comfortable.
 
   2. Hold down the down key (j) until it repeats.
@@ -70,11 +63,11 @@ NOTE: The cursor keys should also work.  But using hjkl you will be able to
 
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-             Lesson 1.2: TEXT EDITING - DELETION
+-----------------------------------------------------------------------------
+## Lesson 1.2: Text editing - Deletion
 
 
-       ** Press  x  to delete the character under the cursor. **
+** Press  x  to delete the character under the cursor. **
 
   1. Move the cursor to the line below marked --->.
 
@@ -85,7 +78,7 @@ NOTE: The cursor keys should also work.  But using hjkl you will be able to
 
   4. Repeat steps 2 through 4 until the sentence is correct.
 
----> The ccow jumpedd ovverr thhe mooon.
+      ---> The ccow jumpedd ovverr thhe mooon.
 
   5. Now that the line is correct, go on to Lesson 1.3.
 
@@ -93,11 +86,11 @@ NOTE: As you go through this tutor, do not try to memorize, learn by usage.
 
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-              Lesson 1.3: TEXT EDITING - INSERTION
+-----------------------------------------------------------------------------
+## Lesson 1.3: Text editing - Insertion
 
 
-            ** Press  i  to insert text. **
+** Press  i  to insert text. **
 
   1. Move the cursor to the first line below marked --->.
 
@@ -111,18 +104,18 @@ NOTE: As you go through this tutor, do not try to memorize, learn by usage.
   5. As each error is fixed press <ESC> to return to Normal mode.
      Repeat steps 2 through 4 to correct the sentence.
 
----> There is text misng this .
----> There is some text missing from this line.
+      ---> There is text misng this .
+      ---> There is some text missing from this line.
 
   6. When you are comfortable inserting text move to lesson 1.4.
 
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-             Lesson 1.4: TEXT EDITING - APPENDING
+-----------------------------------------------------------------------------
+## Lesson 1.4: Text editing - Appending
 
 
-            ** Press  A  to append text. **
+** Press  A  to append text. **
 
   1. Move the cursor to the first line below marked --->.
      It does not matter on what character the cursor is in that line.
@@ -134,15 +127,15 @@ NOTE: As you go through this tutor, do not try to memorize, learn by usage.
   4. Move the cursor to the second line marked ---> and repeat
      steps 2 and 3 to correct this sentence.
 
----> There is some text missing from th
-     There is some text missing from this line.
----> There is also some text miss
-     There is also some text missing here.
+      ---> There is some text missing from th
+           There is some text missing from this line.
+      ---> There is also some text miss
+           There is also some text missing here.
 
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                   Lesson 1 SUMMARY
+-----------------------------------------------------------------------------
+## Lesson 1 Summary
 
 
   1. The cursor is moved using either the arrow keys or the hjkl keys.
@@ -161,11 +154,11 @@ Now continue with Lesson 2.
 
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            Lesson 2.1: DELETION COMMANDS
+-----------------------------------------------------------------------------
+## Lesson 2.1: Deletion Commands
 
 
-               ** Type  dw  to delete a word. **
+** Type  dw  to delete a word. **
 
   1. Press  <ESC>  to make sure you are in Normal mode.
 
@@ -175,21 +168,18 @@ Now continue with Lesson 2.
 
   4. Type   dw     to make the word disappear.
 
-  NOTE: The letter  d  will appear on the last line of the screen as you type
-    it.  Vim is waiting for you to type  w .  If you see another character
-    than  d  you typed something wrong; press  <ESC>  and start over.
-
+  NOTE: The letter  d  will appear on the last line of the screen as you type it.  Vim is waiting for you to type  w .  If you see another character than  d  you typed something wrong; press  <ESC>  and start over.
 ---> There are a some words fun that don't belong paper in this sentence.
 
   5. Repeat steps 3 and 4 until the sentence is correct and go to Lesson 2.2.
 
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-              Lesson 2.2: MORE DELETION COMMANDS
+-----------------------------------------------------------------------------
+## Lesson 2.2: More Deletion Commands
 
 
-       ** Type  d$    to delete to the end of the line. **
+** Type  d$    to delete to the end of the line. **
 
   1. Press  <ESC>  to make sure you are in Normal mode.
 
@@ -206,31 +196,37 @@ Now continue with Lesson 2.
 
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-             Lesson 2.3: ON OPERATORS AND MOTIONS
+-----------------------------------------------------------------------------
+## Lesson 2.3: On Operators and Motions
 
 
   Many commands that change text are made from an operator and a motion.
   The format for a delete command with the  d  delete operator is as follows:
 
+```
       d   motion
+```
 
-  Where:
-    d      - is the delete operator.
-    motion - is what the operator will operate on (listed below).
+Where:
 
-  A short list of motions:
-    w - until the start of the next word, EXCLUDING its first character.
-    e - to the end of the current word, INCLUDING the last character.
-    $ - to the end of the line, INCLUDING the last character.
+ * d      - is the delete operator.
+ * motion - is what the operator will operate on (listed below).
+
+A short list of motions:
+
+* w - until the start of the next word, EXCLUDING its first character.
+* e - to the end of the current word, INCLUDING the last character.
+* $ - to the end of the line, INCLUDING the last character.
 
   Thus typing  de  will delete from the cursor to the end of the word.
 
 NOTE:  Pressing just the motion while in Normal mode without an operator will
        move the cursor as specified.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-             Lesson 2.4: USING A COUNT FOR A MOTION
+
+
+-----------------------------------------------------------------------------
+## Lesson 2.4: Using a Count for a Motion
 
 
    ** Typing a number before a motion repeats it that many times. **
@@ -251,15 +247,17 @@ NOTE:  Pressing just the motion while in Normal mode without an operator will
 
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-             Lesson 2.5: USING A COUNT TO DELETE MORE
+-----------------------------------------------------------------------------
+## Lesson 2.5: Using a Count to Delete More
 
 
-   ** Typing a number with an operator repeats it that many times. **
+** Typing a number with an operator repeats it that many times. **
 
   In the combination of the delete operator and a motion mentioned above you
   insert a count before the motion to delete more:
+```
      d   number   motion
+```
 
   1. Move the cursor to the first UPPER CASE word in the line marked --->.
 
@@ -272,11 +270,11 @@ NOTE:  Pressing just the motion while in Normal mode without an operator will
 
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-             Lesson 2.6: OPERATING ON LINES
+-----------------------------------------------------------------------------
+## Lesson 2.6: Operating on Lines
 
 
-           ** Type  dd   to delete a whole line. **
+** Type  dd   to delete a whole line. **
 
   Due to the frequency of whole line deletion, the designers of Vi decided
   it would be easier to simply type two d's to delete a line.
@@ -296,11 +294,11 @@ NOTE:  Pressing just the motion while in Normal mode without an operator will
 
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-             Lesson 2.7: THE UNDO COMMAND
+-----------------------------------------------------------------------------
+## Lesson 2.7: The Undo Command
 
 
-   ** Press  u    to undo the last commands,   U  to redo the changes. **
+** Press  u    to undo the last commands,   U  to redo the changes. **
 
   1. Move the cursor to the line below marked ---> and place it on the
      first error.
@@ -308,14 +306,14 @@ NOTE:  Pressing just the motion while in Normal mode without an operator will
   3. Now type  u  to undo the last command executed.
   4. Now press U to redo the last command.
 
----> Fiix the errors oon thhis line and reeplace them witth undo.
+      ---> Fiix the errors oon thhis line and reeplace them witth undo.
 
   5. These are very useful commands.  Now move on to the Lesson 2 Summary.
 
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                   Lesson 2 SUMMARY
+-----------------------------------------------------------------------------
+## Lesson 2 Summary
 
 
   1. To delete from the cursor up to the next word type:    dw
@@ -326,10 +324,9 @@ NOTE:  Pressing just the motion while in Normal mode without an operator will
   5. The format for a change command is:
                operator   [number]   motion
      where:
-       operator - is what to do, such as  d  for delete
-       [number] - is an optional count to repeat the motion
-       motion   - moves over the text to operate on, such as  w (word),
-          $ (to the end of line), etc.
+       * operator - is what to do, such as  d  for delete
+       * [number] - is an optional count to repeat the motion
+       * motion   - moves over the text to operate on, such as  w (word), $ (to the end of line), etc.
 
   6. To move to the start of the line use a zero:  0
 
@@ -338,15 +335,14 @@ NOTE:  Pressing just the motion while in Normal mode without an operator will
 
 
 
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-             Lesson 3.1: THE PASTE COMMAND
+-----------------------------------------------------------------------------
+## Lesson 3.1: The Paste Command
 
 
 NOTE: Original Vim calls this command "Put", but for the Enki users it is more
 habitual to think about it as "Paste".
 
-       ** Type  p  to paste previously deleted text after the cursor. **
+** Type  p  to paste previously deleted text after the cursor. **
 
   1. Move the cursor to the first ---> line below.
 
@@ -365,11 +361,11 @@ habitual to think about it as "Paste".
 
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-               Lesson 3.2: THE REPLACE COMMAND
+-----------------------------------------------------------------------------
+## Lesson 3.2: The Replace Command
 
 
-       ** Type  rx  to replace the character at the cursor with  x . **
+** Type  rx  to replace the character at the cursor with  x . **
 
   1. Move the cursor to the first line below marked --->.
 
@@ -379,8 +375,8 @@ habitual to think about it as "Paste".
 
   4. Repeat steps 2 and 3 until the first line is equal to the second one.
 
---->  Whan this lime was tuoed in, someone presswd some wrojg keys!
---->  When this line was typed in, someone pressed some wrong keys!
+      --->  Whan this lime was tuoed in, someone presswd some wrojg keys!
+      --->  When this line was typed in, someone pressed some wrong keys!
 
   5. Now move on to Lesson 3.3.
 
@@ -388,11 +384,11 @@ NOTE: Remember that you should be learning by doing, not memorization.
 
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            Lesson 3.3: THE CHANGE OPERATOR
+-----------------------------------------------------------------------------
+## Lesson 3.3: The Change Operator
 
 
-       ** To change until the end of a word, type  ce . **
+** To change until the end of a word, type  ce . **
 
   1. Move the cursor to the first line below marked --->.
 
@@ -411,15 +407,17 @@ Notice that  ce  deletes the word and places you in Insert mode.
 
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-               Lesson 3.4: MORE CHANGES USING c
+-----------------------------------------------------------------------------
+## Lesson 3.4: More Changes Using c
 
 
-     ** The change operator is used with the same motions as delete. **
+** The change operator is used with the same motions as delete. **
 
   1. The change operator works in the same way as delete.  The format is:
 
-         c    [number]   motion
+      ```
+               c    [number]   motion
+      ```
 
   2. The motions are the same, such as   w (word) and  $ (end of line).
 
@@ -436,8 +434,8 @@ NOTE:  You can use the Backspace key to correct mistakes while typing.
 
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                   Lesson 3 SUMMARY
+-----------------------------------------------------------------------------
+## Lesson 3 SUMMARY
 
 
   1. To paste back text that has just been deleted, type   p .
@@ -453,42 +451,42 @@ NOTE:  You can use the Backspace key to correct mistakes while typing.
 
   4. The format for change is:
 
-     c   [number]   motion
+      ```
+           c   [number]   motion
+      ```
 
 Now go on to the next lesson.
 
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          Lesson 4.1: CURSOR LOCATION AND FILE STATUS
+-----------------------------------------------------------------------------
+## Lesson 4.1: Cursor Location
 
-  ** Type CTRL-G to show your location in the file and the file status.
-     Type  G  to move to a line in the file. **
+
+** Type  G  to move to a line in the file. **
 
   NOTE: Read this entire lesson before executing any of the steps!!
 
-  1. Hold down the Ctrl key and press  g .  We call this CTRL-G.
-     A message will appear at the bottom of the page with the filename and the
-     position in the file.  Remember the line number for Step 3.
+   1.  Remember the current line number for Step 3.
 
-NOTE:  You may see the cursor position in the lower right corner of the screen
-       This happens when the 'ruler' option is set (see  :help 'ruler'  )
+      NOTE:  You may see the cursor position in the lower right corner of the screen
+             This happens when the 'ruler' option is set (see  :help 'ruler'  )
 
   2. Press  G  to move you to the bottom of the file.
      Type  gg  to move you to the start of the file.
 
   3. Type the number of the line you were on and then  G .  This will
-     return you to the line you were on when you first pressed CTRL-G.
+     return you to the line you were on at the beginning of the lesson.
 
   4. If you feel confident to do this, execute steps 1 through 3.
 
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-           Lesson 4.2: MATCHING PARENTHESES SEARCH
+-----------------------------------------------------------------------------
+## Lesson 4.2: Matching Parentheses Search
 
 
-          ** Type  %  to find a matching ),], or } . **
+ ** Type  %  to find a matching ),], or } . **
 
   1. Place the cursor on any (, [, or { in the line below marked --->.
 
@@ -507,8 +505,8 @@ NOTE: This is very useful in debugging a program with unmatched parentheses!
 
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                   Lesson 4 SUMMARY
+-----------------------------------------------------------------------------
+## Lesson 4 SUMMARY
 
 
   1. CTRL-G  displays your location in the file and the file status.
@@ -524,19 +522,13 @@ NOTE: This is very useful in debugging a program with unmatched parentheses!
 
   3. Typing  %    while the cursor is on a (,),[,],{, or } goes to its match.
 
-  4. To substitute new for the first old in a line type    :s/old/new
-     To substitute new for all 'old's on a line type       :s/old/new/g
-     To substitute phrases between two line #'s type       :#,#s/old/new/g
-     To substitute all occurrences in the file type       :%s/old/new/g
-     To ask for confirmation each time add 'c'           :%s/old/new/gc
 
 
+-----------------------------------------------------------------------------
+## Lesson 5.1: The Append Command
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            Lesson 5.1: THE APPEND COMMAND
 
-
-         ** Type  a  to insert text AFTER the cursor. **
+** Type  a  to insert text AFTER the cursor. **
 
   1. Move the cursor to the start of the line below marked --->.
 
@@ -555,11 +547,13 @@ NOTE: This is very useful in debugging a program with unmatched parentheses!
 NOTE:  a, i and A all go to the same Insert mode, the only difference is where
        the characters are inserted.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            Lesson 5.2: ANOTHER WAY TO REPLACE
 
 
-      ** Type a capital  R  to replace more than one character. **
+-----------------------------------------------------------------------------
+## Lesson 5.2: Another Way to Replace
+
+
+** Type a capital  R  to replace more than one character. **
 
   1. Move the cursor to the first line below marked --->.  Move the cursor to
      the beginning of the first  xxx .
@@ -578,11 +572,13 @@ NOTE:  a, i and A all go to the same Insert mode, the only difference is where
 NOTE:  Replace mode is like Insert mode, but every typed character deletes an
        existing character.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            Lesson 5.3: COPY AND PASTE TEXT
 
 
-      ** Use the  y  operator to copy text and  p  to paste it **
+-----------------------------------------------------------------------------
+## Lesson 5.3: Copy and Paste Text
+
+
+** Use the  y  operator to copy text and  p  to paste it **
 
   1. Go to the line marked with ---> below and place the cursor after "a)".
 
@@ -597,15 +593,18 @@ NOTE:  Replace mode is like Insert mode, but every typed character deletes an
   6. Use Visual mode to select " item.", yank it with  y , move to the end of
      the next line with  j$  and put the text there with  p .
 
+```
 --->  a) this is the first item.
       b)
+```
 
   NOTE: you can also use  y  as an operator;  yw  yanks one word.
 
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                   Lesson 5 SUMMARY
+-----------------------------------------------------------------------------
+## Lesson 5 Summary
+
 
   1. Type  o  to open a line BELOW the cursor and start Insert mode.
      Type  O  to open a line ABOVE the cursor.
@@ -620,21 +619,14 @@ NOTE:  Replace mode is like Insert mode, but every typed character deletes an
   5. Typing a capital  R  enters Replace mode until  <ESC>  is pressed.
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------------------------------------------------
+  This concludes the Vim mode Tutor.  It was intended to give a brief overview of the Vim mode, just enough to allow you to use the mode fairly easily.
+  Check the [documentation](https://github.com/hlamer/enki/wiki/Vim) to find many more useful commands.
 
-  This concludes the Vim mode Tutor.  It was intended to give a brief
-  overview of the Vim mode, just enough to allow you to use the mode fairly
-  easily.
-  Check the documentation to find many more useful commands:
-  https://github.com/hlamer/enki/wiki/Vim
-
-  This tutorial is based on original Vim tutorial by Michael C. Pierce and
-  Robert K. Ware, Colorado School of Mines using ideas supplied by
-  Charles Smith, Colorado State University.
-  E-mail: bware@mines.colorado.edu.
+  This tutorial is based on original Vim tutorial by Michael C. Pierce and Robert K. Ware, Colorado School of Mines using ideas supplied by Charles Smith, Colorado State University. E-mail: bware@mines.colorado.edu.
 
   Modified for Vim by Bram Moolenaar.
 
   Modified for Enki by Andrei Kopats.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------------------------------------------------
