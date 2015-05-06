@@ -17,7 +17,7 @@
    <item>
     <widget class="QGroupBox" name="gbEdgeEnabled">
      <property name="title">
-      <string>Mark too long lines with vertical line</string>
+      <string>Mark over-length lines with a vertical line</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -30,7 +30,7 @@
         </property>
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>Maximul allowed width:</string>
+          <string>Maximum allowed width:</string>
          </property>
         </widget>
         <widget class="QSpinBox" name="sEdgeColumnNumber">

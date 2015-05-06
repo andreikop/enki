@@ -146,7 +146,7 @@ class _AbstractReplPlugin(QObject):
         self._schemeMenu = core.actionManager().addMenu(self._MENU_PATH, self._FULL_NAME)
         self._evalAction = core.actionManager().addAction("%s/aEval" % self._MENU_PATH,
                                                           "Eval. selection/Save and eval.")
-        self._evalAction.setStatusTip("Evaluate selection. If nothing is selected - save and evaluate whole file")
+        self._evalAction.setStatusTip("Evaluate selection. If nothing is selected, then save and evaluate whole file.")
         self._evalAction.setShortcut("Ctrl+E")
         self._evalAction.triggered.connect(self._onEvalTriggered)
         self._breakAction = core.actionManager().addAction("%s/aBreak" % self._MENU_PATH, "Stop the interpreter")

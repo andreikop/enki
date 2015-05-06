@@ -34,7 +34,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Uncheck the option to force EOL mode for all files you are saving</string>
+         <string>Uncheck this option to force the selected EOL mode for all files you are saving.</string>
         </property>
        </widget>
       </item>
@@ -66,7 +66,7 @@
       <item row="2" column="0">
        <widget class="QCheckBox" name="cbAutoDetectEol">
         <property name="text">
-         <string>Try to detect EOL automatically upon opening file</string>
+         <string>Try to detect EOL automatically while opening file</string>
         </property>
        </widget>
       </item>
@@ -115,7 +115,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Reload opened files to re-apply EOL mode</string>
+         <string>Reload opened files to re-apply the EOL mode.</string>
         </property>
        </widget>
       </item>

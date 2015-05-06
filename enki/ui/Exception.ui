@@ -18,9 +18,9 @@
     <widget class="QLabel" name="label">
      <property name="text">
       <string>&lt;html&gt;
- Exception occured.&lt;br/&gt;
-The team tries to avoid such problems and make Enki stable&lt;br/&gt;
-To help us &lt;font color=&quot;red&quot;&gt;send please a bug report to the developers&lt;/font&gt;&lt;br/&gt;
+An exception occured.&lt;br/&gt;
+The team tries to avoid such problems and make Enki stable.&lt;br/&gt;
+To help us, &lt;font color=&quot;red&quot;&gt;please send a bug report to the developers&lt;/font&gt; at:&lt;br/&gt;
 &lt;a href=&quot;mailto:enki-bugs@googlegroups.com?subject=Crash&amp;body=asdf&quot;&gt;mailto:enki-bugs@googlegroups.com&lt;/a&gt;&lt;br/&gt;
 Include your description and this text:</string>
      </property>

@@ -336,8 +336,8 @@ class Document(QWidget):
             except OSError, ex:
                 error = unicode(str(ex), 'utf8')
                 QMessageBox.critical(None,
-                                     self.tr("Can not save file"),
-                                     self.tr( "Cannot create directory '%s'. Error '%s'" % (dirPath, error)))
+                                     self.tr("Cannot save file"),
+                                     self.tr("Cannot create directory '%s'. Error '%s'." % (dirPath, error)))
                 return
 
         text = self.qutepart.textForSaving()
@@ -354,7 +354,7 @@ class Document(QWidget):
             self._fileWatcher.setContents(data)
         except IOError as ex:
             QMessageBox.critical(None,
-                                 self.tr("Can not write to file"),
+                                 self.tr("Cannot write to file"),
                                  unicode(str(ex), 'utf8'))
             return
         finally:
@@ -427,7 +427,7 @@ class Document(QWidget):
         if  self._externallyModified:
             toolTip += "<br/><font color='red'>%s</font>" % self.tr("Externally Modified")
         if  self._externallyRemoved:
-            toolTip += "<br/><font color='red'>%s</font>" % self.tr( "Externally Deleted" )
+            toolTip += "<br/><font color='red'>%s</font>" % self.tr("Externally Deleted")
         return '<html>' + toolTip + '</html>'
 
     def modelIcon(self):
@@ -453,8 +453,8 @@ class Document(QWidget):
         """Show GUI dialog, go to line, if user accepted it
         """
         line = self.qutepart.cursorPosition[0]
-        gotoLine, accepted = QInputDialog.getInteger(self, self.tr( "Go To Line..." ),
-                                                      self.tr( "Enter the line you want to go:" ),
+        gotoLine, accepted = QInputDialog.getInteger(self, self.tr("Go To Line..."),
+                                                      self.tr("Enter the line you want to go to:"),
                                                       line, 1, len(self.qutepart.lines), 1)
         if accepted:
             gotoLine -= 1
