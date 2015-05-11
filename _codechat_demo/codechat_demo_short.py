@@ -4,7 +4,7 @@
 # CodeChat demo
 # **********************************************
 # `CodeChat
-# <https://bitbucket.org/bjones/documentation/overview>`_
+# <https://pythonhosted.org/CodeChat/README.html>`_
 # lets you treat a program as a document, allowing
 # `reStructuredText
 # <http://docutils.sourceforge.net/rst.html>`_ markup
@@ -15,10 +15,10 @@
 # * Lists.
 # * **Various** *formatting* ``styles``.
 # * Tables.
-# * Titles
-# * And even figures
+# * Titles (see above).
+# * And even figures:
 #
 #   .. image:: enki.png
 def this_is_a_program(so):
-    source_code is nicely_formatted and
-    syntax(highlighted)
+    source_code = nicely_formatted and \
+      "syntax highlighted"

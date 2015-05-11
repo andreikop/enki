@@ -7,12 +7,11 @@ Stylesheet for use with CodeChat's extensions to Docutils.
 */
 
 /*
-    This will cause an error if the html4css1 or default stylesheet is embedded
-    instead of linked, though the page still displays without problems. However,
-    omitting it will cause the linked stylesheet case to fail, so leave this in.
+    This will cause an error if the html4css1 style sheet is embedded instead of
+    linked, though the page still displays without problems. However, omitting
+    it will cause the linked stylesheet case to fail, so leave this in.
 */
 @import url(html4css1.css);
-@import url(default.css);
 
 /*
    The overall goal is to allow comments (everything but <pre> tags) to appear
