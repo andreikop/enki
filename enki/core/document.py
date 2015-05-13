@@ -260,7 +260,7 @@ class Document(QWidget):
                                  'You may corrupt your file, if saved it')
             text = unicode(data, 'utf8', 'replace')
 
-        # Strip last EOL. It will be restored, when saving
+        # Strip last EOL. Qutepart adds it when saving file
         if text.endswith('\r\n'):
             text = text[:-2]
         elif text.endswith('\r') or text.endswith('\n'):
@@ -341,8 +341,6 @@ class Document(QWidget):
                 return
 
         text = self.qutepart.textForSaving()
-        if not text.endswith(self.qutepart.eol):
-            text += self.qutepart.eol
 
         # Write file
         data = text.encode('utf8')
