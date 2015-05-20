@@ -533,7 +533,7 @@ class Workspace(QStackedWidget):
         if statInfo.st_size > _MAX_SUPPORTED_FILE_SIZE:
             msg = ("<html>" + \
                    "{} file size is {}.<br/>" + \
-                   "I am a text editor, but not a data dump editor. I don't know how to open such a big files" +
+                   "I am a text editor, but not a data dump editor. I'm sory but I don't know how to open such a big files" +
                    "</html>")\
                   .format(filePath, statInfo.st_size)
             QMessageBox.critical(self._mainWindow(), "Too big file", msg)
