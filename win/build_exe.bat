@@ -115,4 +115,4 @@ pyinstaller --noconfirm win\enki-sphinx.spec
 xcopy /E /I /Q dist\sphinx-build dist\enki
 xcopy /E /I /Q /Y dist\pylint dist\enki
 : Run to see if everything works.
-dist\enki\enki-editor
+dist\enki\enki

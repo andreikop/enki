@@ -26,7 +26,7 @@ cp /usr/bin/ctags dist/enki
 # Test
 # ====
 read -p "Press enter to run the resulting binary..." junk
-dist/enki/enki-editor
+dist/enki/enki
 #
 # Package
 # =======
