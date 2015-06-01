@@ -25,7 +25,6 @@ if sys.platform.startswith('linux'):
 else:
     ext = '.exe'
 
-block_cipher = None
 
 # Per the `Pyinstaller merge docs`_, first create uniquely-named analysis
 # objects for both programs.
@@ -40,16 +39,14 @@ enki_a = Analysis(['bin/enki'],
              # "An optional list of module or package names (their Python names,
              # not path names) that will be ignored (as though they were not
              # found)."
-             excludes=['_tkinter'],
-             cipher=block_cipher)
+             excludes=['_tkinter'])
 
 sphinx_a = Analysis(['win/sphinx-build.py'],
              pathex=['.'],
              hiddenimports=['CodeChat'],
              hookspath=['win'],
              runtime_hooks=[],
-             excludes=['_tkinter'],
-             cipher=block_cipher)
+             excludes=['_tkinter'])
 
 
            # Provide the OS-dependent location of pylint's __main__.py file.
@@ -58,8 +55,7 @@ pylint_a = Analysis([os.path.join(pylint.__path__[0], '__main__.py')],
              hiddenimports=[],
              hookspath=None,
              runtime_hooks=None,
-             excludes=['_tkinter'],
-             cipher=block_cipher)
+             excludes=['_tkinter'])
 # Next, eliminate duplicate libraries and modules. Listing Enki first seems to
 # place all libraries and modules there.
 MERGE(
@@ -71,8 +67,7 @@ MERGE(
 # Finally, produce both binaries. Note that the resulting Sphinx binary doesn't
 # work as is, since it has no libraries bundled with it. Instead, it needs to
 # be copied to the Enki directory before being executed.
-enki_pyz = PYZ(enki_a.pure,
-             cipher=block_cipher)
+enki_pyz = PYZ(enki_a.pure)
 enki_exe = EXE(enki_pyz,
           enki_a.scripts,
           exclude_binaries=True,
@@ -89,8 +84,7 @@ enki_coll = COLLECT(enki_exe,
                upx=True,
                name='enki')
 
-sphinx_pyz = PYZ(sphinx_a.pure,
-             cipher=block_cipher)
+sphinx_pyz = PYZ(sphinx_a.pure)
 sphinx_exe = EXE(sphinx_pyz,
           sphinx_a.scripts,
           exclude_binaries=True,
@@ -107,8 +101,7 @@ sphinx_coll = COLLECT(sphinx_exe,
                upx=True,
                 name='sphinx-build')
 
-pylint_pyz = PYZ(pylint_a.pure,
-             cipher=block_cipher)
+pylint_pyz = PYZ(pylint_a.pure)
 pylint_exe = EXE(pylint_pyz,
           pylint_a.scripts,
           exclude_binaries=True,
