@@ -41,10 +41,8 @@ try:
 except ImportError:
     CodeChat = None
     CodeToRest = None
-    LSO = None
 else:
     import CodeChat.CodeToRest as CodeToRest
-    import CodeChat.LanguageSpecificOptions as LSO
 
 
 # Determine if we're frozen with Pyinstaller or not.
@@ -262,11 +260,10 @@ class ConverterThread(QThread):
         # Use StringIO to pass CodeChat compilation information back to
         # the UI.
         errStream = StringIO.StringIO()
-        lso = LSO.LanguageSpecificOptions()
         fileName, fileExtension = os.path.splitext(filePath)
-        lso.set_language(fileExtension)
-        htmlString = CodeToRest.code_to_html_string(text, lso, errStream)
-        # Error string might contain characters such as ">" and "<",
+        lexer = CodeToRest.get_lexer(filename=filePath)
+        htmlString = CodeToRest.code_to_html_string(text, errStream, lexer=lexer)
+        # Since the error string might contain characters such as ">" and "<",
         # they need to be converted to "&gt;" and "&lt;" such that
         # they can be displayed correctly in the log window as html strings.
         # This step is handled by ``cgi.escape``.

@@ -30,10 +30,10 @@ from enki.lib.get_console_output import get_console_output
 
 # Import CodeChat if possible; otherwise, indicate it wasn't available.
 try:
-    import CodeChat
-    import CodeChat.LanguageSpecificOptions as LSO
+    from CodeChat import CodeToRest
+    from CodeChat.CommentDelimiterInfo import COMMENT_DELIMITER_INFO
 except ImportError:
-    CodeChat = None
+    CodeToRest = None
 
 # Utilities
 # =========
@@ -54,11 +54,10 @@ def canUseCodeChat(filePath):
     # CodeChat can preview a file if it's enabled and if that file's
     # extension is supported. Since Enki needs to check the file's extension,
     # filePath cannot be none.
-    if ( CodeChat is not None and core.config()['CodeChat']['Enabled']
+    if ( CodeToRest is not None and core.config()['CodeChat']['Enabled']
          and filePath):
-        lso = LSO.LanguageSpecificOptions()
-        fileExtension = os.path.splitext(filePath)[1]
-        if fileExtension in lso.extension_to_options.keys():
+        lexer = CodeToRest.get_lexer(filename=filePath)
+        if lexer.name in COMMENT_DELIMITER_INFO:
             return True
     return False
 
@@ -171,7 +170,7 @@ class CodeChatSettingsWidget(QWidget):
         uic.loadUi(os.path.join(os.path.dirname(__file__),
                                 'CodeChat_Settings.ui'), self)
 
-        if CodeChat is None:
+        if CodeToRest is None:
             # If the CodeChat module can't be loaded, then disable the
             # associated checkbox and show the "not installed" message.
             self.cbCodeChat.setEnabled(False)
