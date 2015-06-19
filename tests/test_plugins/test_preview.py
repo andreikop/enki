@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."
 
 import base
 
-# Third-party library ihmports
+# Third-party library imports
 # ---------------------------
 from PyQt4.QtGui import QMessageBox, QWheelEvent, QApplication, QDialog
 from PyQt4.QtCore import Qt, QPoint
@@ -364,7 +364,6 @@ content"""
 # content"""
         webViewContent, logContent = self._doBasicSphinxTest('py')
         self.assertTrue(u'<p>content</p>' in webViewContent)
-        self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     @requiresSphinx
     @base.requiresModule('CodeChat')
@@ -382,7 +381,6 @@ content"""
 # content"""
         webViewContent, logContent = self._doBasicSphinxTest('py')
         self.assertTrue(u'<p>content</p>' in webViewContent)
-        self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     @base.requiresModule('CodeChat')
     @base.inMainLoop
@@ -420,7 +418,7 @@ content"""
         core.config()['CodeChat']['Enabled'] = True
         self.testText = u''
         self._doBasicTest('py')
-        self.assertEqual(self._plainText(), self.testText)
+        self.assertEqual(self._plainText(), u' \n')
 
     @requiresSphinx
     @base.inMainLoop
@@ -668,7 +666,6 @@ head
 # content"""
         webViewContent, logContent = self._doBasicSphinxTest('py')
         self.assertTrue(u'<p>content</p>' in webViewContent)
-        self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     @requiresSphinx
     @base.requiresModule('CodeChat')
@@ -693,7 +690,6 @@ head
         finally:
             self.TEST_FILE_DIR = testFileDir
         self.assertTrue(u'<p>content</p>' in webViewContent)
-        self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     @requiresSphinx
     @base.requiresModule('CodeChat')
@@ -722,7 +718,6 @@ head
         finally:
             self.TEST_FILE_DIR = testFileDir
         self.assertTrue(u'<p>content</p>' in webViewContent)
-        self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     @requiresSphinx
     @base.requiresModule('CodeChat')
