@@ -21,6 +21,7 @@ import codecs
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
 import base
+from base import WaitForSignal
 
 # Third-party library imports
 # ---------------------------
@@ -119,9 +120,11 @@ class PreviewTestCase(SimplePreviewTestCase):
         """Wait for the PreviewDock to load in updated HTML after the start
         function is called. Assert if the signal isn't emitted within a timeout.
         """
-        # Wait for the worker thread to signal that it's produced
-        # updated HTML.
-        self.assertEmits(start, self._widget().webView.page().mainFrame().loadFinished, timeout)
+        # First, call start(), then wait for loadFinished to signal that the
+        # resulting web page has been fully loaded.
+        lf = self._widget().webView.page().mainFrame().loadFinished
+        with WaitForSignal(lf, timeout):
+            start()
 
     def _doBasicTest(self, extension, name='file'):
         # HTML files don't need processing in the worker thread.
