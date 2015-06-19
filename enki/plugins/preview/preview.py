@@ -543,10 +543,10 @@ class PreviewDock(DockWidget):
                 self._widget.cbTemplate.hide()
                 self._widget.lTemplate.hide()
 
-        if new is not None and core.config()['Preview']['Enabled']:
-            self._scheduleDocumentProcessing()
-        else:
             self._clear()
+
+            if core.config()['Preview']['Enabled']:
+                self._scheduleDocumentProcessing()
 
     _CUSTOM_TEMPLATE_PATH = '<custom template>'
     def _loadTemplates(self):
