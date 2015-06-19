@@ -85,10 +85,20 @@ class PreviewTestCase(SimplePreviewTestCase):
     """A class of utilities used to aid in testing the preview module."""
 
     def setUp(self):
-        base.TestCase.setUp(self)
+        SimplePreviewTestCase.setUp(self)
         self.testText = 'The preview text'
         # Open the preview dock by loading an html file.
         self.createFile('dummy.html', '')
+
+    def tearDown(self):
+        # Note that base.tearDown sets each document's contents to '' to avoid
+        # the save files dialog popping up. However, this causes Sphinx to be
+        # re-run on the modified document (if it's enabled), which wastes time.
+        # So, disable it.
+        core.config()['Sphinx']['Enabled'] = False
+
+        SimplePreviewTestCase.tearDown(self)
+
 
     def _widget(self):
         """Find then return the PreviewDock widget. Fail if it is
