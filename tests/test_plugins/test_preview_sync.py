@@ -42,9 +42,9 @@ from import_fail import ImportFail
                      'Requires working TRE')
 class Test(PreviewTestCase):
     # Web to code sync tests
-    ##----------------------
+    # ----------------------
     # Test that mouse clicks get turned into a ``jsClick`` signal
-    ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     def check_sync1(self):
         """Test that web-to-text sync occurs on clicks to the web pane.
         A click at 0, height (top left corner) should produce
@@ -65,7 +65,7 @@ class Test(PreviewTestCase):
         self.check_sync1()
 
     # Test that simulated mouse clicks at beginning/middle/end produce correct ``jsClick`` values
-    ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     def _jsOnClick(self):
         """Simulate a mouse click by calling ``window.onclick()`` in Javascript."""
         ret = self._widget().webView.page().mainFrame().evaluateJavaScript('window.onclick()')
@@ -122,7 +122,7 @@ class Test(PreviewTestCase):
         self._testSyncString(self.testText)
 
     # Test that sending a ``jsClick`` signal at beginning/middle/end moves cursor in code pane correctly
-    ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     def _sendJsClick(self, index):
         """Send a ``jsClick`` signal then see if the code view gets sycned correctly.
 
@@ -330,7 +330,7 @@ text after table""", True)
         self._textToWeb('Text', self._row_span_rest(), True)
 
     # Test no sync on closed preview window
-    ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     @base.inMainLoop
     def test_sync13(self):
         self._doBasicTest('rst')
@@ -342,7 +342,7 @@ text after table""", True)
         qp.setTextCursor(cursor)
 
     # Cases for _alignScrollAmount
-    ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     # When the source y (in global coordinates) is above the target
     # window. The best the algorithm can do is move to the top of the target
     # window.
@@ -429,7 +429,7 @@ text after table""", True)
         self.assertEqual(offset, 85)
 
     # Test that no crashes occur if TRE isn't available or is old
-    ##-----------------------------------------------------------
+    # -----------------------------------------------------------
     def test_sync22(self):
         """Prevent TRE from being imported. Make sure there are no exceptions.
         """

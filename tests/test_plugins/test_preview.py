@@ -21,8 +21,9 @@ import codecs
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
 import base
+from base import WaitForSignal
 
-# Third-party library ihmports
+# Third-party library imports
 # ---------------------------
 from PyQt4.QtGui import QMessageBox, QWheelEvent, QApplication, QDialog
 from PyQt4.QtCore import Qt, QPoint
@@ -85,10 +86,20 @@ class PreviewTestCase(SimplePreviewTestCase):
     """A class of utilities used to aid in testing the preview module."""
 
     def setUp(self):
-        base.TestCase.setUp(self)
+        SimplePreviewTestCase.setUp(self)
         self.testText = 'The preview text'
         # Open the preview dock by loading an html file.
         self.createFile('dummy.html', '')
+
+    def tearDown(self):
+        # Note that base.tearDown sets each document's contents to '' to avoid
+        # the save files dialog popping up. However, this causes Sphinx to be
+        # re-run on the modified document (if it's enabled), which wastes time.
+        # So, disable it.
+        core.config()['Sphinx']['Enabled'] = False
+
+        SimplePreviewTestCase.tearDown(self)
+
 
     def _widget(self):
         """Find then return the PreviewDock widget. Fail if it is
@@ -109,9 +120,11 @@ class PreviewTestCase(SimplePreviewTestCase):
         """Wait for the PreviewDock to load in updated HTML after the start
         function is called. Assert if the signal isn't emitted within a timeout.
         """
-        # Wait for the worker thread to signal that it's produced
-        # updated HTML.
-        self.assertEmits(start, self._widget().webView.page().mainFrame().loadFinished, timeout)
+        # First, call start(), then wait for loadFinished to signal that the
+        # resulting web page has been fully loaded.
+        lf = self._widget().webView.page().mainFrame().loadFinished
+        with WaitForSignal(lf, timeout):
+            start()
 
     def _doBasicTest(self, extension, name='file'):
         # HTML files don't need processing in the worker thread.
@@ -364,7 +377,6 @@ content"""
 # content"""
         webViewContent, logContent = self._doBasicSphinxTest('py')
         self.assertTrue(u'<p>content</p>' in webViewContent)
-        self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     @requiresSphinx
     @base.requiresModule('CodeChat')
@@ -382,7 +394,6 @@ content"""
 # content"""
         webViewContent, logContent = self._doBasicSphinxTest('py')
         self.assertTrue(u'<p>content</p>' in webViewContent)
-        self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     @base.requiresModule('CodeChat')
     @base.inMainLoop
@@ -420,7 +431,7 @@ content"""
         core.config()['CodeChat']['Enabled'] = True
         self.testText = u''
         self._doBasicTest('py')
-        self.assertEqual(self._plainText(), self.testText)
+        self.assertEqual(self._plainText(), u' \n')
 
     @requiresSphinx
     @base.inMainLoop
@@ -668,7 +679,6 @@ head
 # content"""
         webViewContent, logContent = self._doBasicSphinxTest('py')
         self.assertTrue(u'<p>content</p>' in webViewContent)
-        self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     @requiresSphinx
     @base.requiresModule('CodeChat')
@@ -693,7 +703,6 @@ head
         finally:
             self.TEST_FILE_DIR = testFileDir
         self.assertTrue(u'<p>content</p>' in webViewContent)
-        self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     @requiresSphinx
     @base.requiresModule('CodeChat')
@@ -722,7 +731,6 @@ head
         finally:
             self.TEST_FILE_DIR = testFileDir
         self.assertTrue(u'<p>content</p>' in webViewContent)
-        self.assertTrue(u'Processing code.py to code.py.rst' in logContent)
 
     @requiresSphinx
     @base.requiresModule('CodeChat')
