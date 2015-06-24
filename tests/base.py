@@ -466,19 +466,22 @@ class WaitForSignal(unittest.TestCase):
       # Expected parameters which this signal must supply.
       expectedSignalParams=None,
       # True to print exceptions raised in the event loop
-      printExcTraceback=True):
+      printExcTraceback=True,
+      # Number of times this signal must be emitted
+      numEmittedExpected=1):
 
         self.signal = signal
         self.timeoutMs = timeoutMs
         self.expectedSignalParams = expectedSignalParams
         self.assertIfNotRaised = assertIfNotRaised
         self.printExcTraceback = printExcTraceback
+        self.numEmittedExpected = numEmittedExpected
 
         # Stores the result of comparing self.expectedSignalParams with the
         # actual params.
         self.areSenderSignalArgsWrong = False
-        # True if signal was received.
-        self.gotSignal = False
+        # The number of times this signal was emitted.
+        self.numEmitted = 0
 
     # Create a slot which receives a senderSignal with any number
     # of arguments. Check the arguments against their expected
@@ -491,13 +494,18 @@ class WaitForSignal(unittest.TestCase):
         # they're right.
         if self.expectedSignalParams:
             self.areSenderSignalArgsWrong = (self.expectedSignalParams != args)
-        # We received the requested signal, so exit the event loop or never
-        # enter it (exit won't exit an event loop that hasn't been run). When
-        # this is nested inside other WaitForSignal clauses, signals may be
-        # received in another QEventLoop, even before this object's QEventLoop
-        # starts.
-        self.qe.exit()
-        self.gotSignal = True
+        self.numEmitted += 1
+        if self._gotSignal():
+            # We received the requested signal, so exit the event loop or never
+            # enter it (exit won't exit an event loop that hasn't been run). When
+            # this is nested inside other WaitForSignal clauses, signals may be
+            # received in another QEventLoop, even before this object's QEventLoop
+            # starts.
+            self.qe.exit()
+
+    # True of the signal was emitted the expected number of times.
+    def _gotSignal(self):
+        return self.numEmitted == self.numEmittedExpected
 
     def __enter__(self):
         # Create an event loop to run in. Otherwise, we need to use the papp
@@ -530,13 +538,13 @@ class WaitForSignal(unittest.TestCase):
         sys.excepthook = excepthook
 
         # Wait for an emitted signal, unless it already occurred.
-        if not self.gotSignal:
+        if not self._gotSignal():
             self.qe.exec_()
         # Restore the old exception hook
         sys.excepthook = oldExcHook
         # Clean up: don't allow the timer to call qe.quit after this
         # function exits, which would produce "interesting" behavior.
-        ret = self.timer.isActive()
+        timerIsActive = self.timer.isActive()
         self.timer.stop()
         # Stopping the timer may not cancel timeout signals in the
         # event queue. Disconnect the signal to be sure that loop
@@ -551,7 +559,7 @@ class WaitForSignal(unittest.TestCase):
             raise value, None, tracebackObj
 
         # Check that the signal occurred.
-        self.sawSignal = ret and not self.areSenderSignalArgsWrong
+        self.sawSignal = timerIsActive and not self.areSenderSignalArgsWrong
         if self.assertIfNotRaised:
             self.assertTrue(self.sawSignal)
 

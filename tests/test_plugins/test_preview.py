@@ -116,21 +116,22 @@ class PreviewTestCase(SimplePreviewTestCase):
         """Return log window text"""
         return self._widget().teLog.toPlainText()
 
-    def _assertHtmlReady(self, start, timeout=2000):
+    def _assertHtmlReady(self, start, timeout=2000, numEmittedExpected=2):
         """Wait for the PreviewDock to load in updated HTML after the start
         function is called. Assert if the signal isn't emitted within a timeout.
         """
         # First, call start(), then wait for loadFinished to signal that the
-        # resulting web page has been fully loaded.
+        # resulting web page has been fully loaded. Expect two calls: one
+        # produced by _clear(), then the second when the page is actually ready.
         lf = self._widget().webView.page().mainFrame().loadFinished
-        with WaitForSignal(lf, timeout):
+        with WaitForSignal(lf, timeout, numEmittedExpected=numEmittedExpected):
             start()
 
-    def _doBasicTest(self, extension, name='file'):
+    def _doBasicTest(self, extension, name='file', numEmittedExpected=2):
         # HTML files don't need processing in the worker thread.
         if extension != 'html':
             self._assertHtmlReady(lambda: self.createFile('.'.join([name, extension]),
-                                                          self.testText))
+              self.testText), numEmittedExpected=numEmittedExpected)
 
     def _doBasicSphinxConfig(self):
         """This function will set basic Sphinx configuration options
@@ -191,12 +192,14 @@ class TestPreview(PreviewTestCase):
         self.assertNotIn('body {color: white; background: black;}', self._plainText())
         self.assertIn('body {color: white; background: black;}', self._html())
 
-        self._assertHtmlReady(lambda: combo.setCurrentIndex(combo.findText('Default')))
+        self._assertHtmlReady(lambda: combo.setCurrentIndex(combo.findText('Default')),
+                              numEmittedExpected=1)
         self.assertFalse('body {color: white; background: black;}' in self._plainText())
         self.assertFalse('body {color: white; background: black;}' in self._html())
         self.assertEqual(core.config()['Preview']['Template'], 'Default')
 
-        self._assertHtmlReady(lambda: combo.setCurrentIndex(combo.findText('WhiteOnBlack')))
+        self._assertHtmlReady(lambda: combo.setCurrentIndex(combo.findText('WhiteOnBlack')),
+                              numEmittedExpected=1)
         self.assertEqual(combo.currentText(), 'WhiteOnBlack')
         self.assertFalse('body {color: white; background: black;}' in self._plainText())
         self.assertTrue('body {color: white; background: black;}' in self._html())
@@ -481,7 +484,7 @@ content"""
             self._dock()
         core.config()['CodeChat']['Enabled'] = True
         core.uiSettingsManager().dialogAccepted.emit();
-        self._doBasicTest('py')
+        self._doBasicTest('py', numEmittedExpected=1)
         assert 'test' in self._html()
 
 
@@ -752,7 +755,8 @@ head
         self.assertTrue(u'unknown document: missing.file' in logContent)
         core.config()['Sphinx']['Enabled'] = False
         core.uiSettingsManager().dialogAccepted.emit()
-        self._assertHtmlReady(lambda: None, timeout = 10000)
+        self._assertHtmlReady(lambda: None, timeout = 10000,
+                              numEmittedExpected=1)
         self.assertTrue(u'Unknown interpreted text role "doc"' in self._logText())
 
     @requiresSphinx
@@ -769,7 +773,8 @@ head
 
             self._doBasicSphinxConfig()
             core.uiSettingsManager().dialogAccepted.emit()
-            self._assertHtmlReady(lambda: None, timeout = 10000)
+            self._assertHtmlReady(lambda: None, timeout = 10000,
+                                  numEmittedExpected=1)
             self.assertTrue(u"document isn't included in any toctree" in self._logText())
             self.assertTrue('#FF9955' in self._widget().prgStatus.styleSheet())
 
