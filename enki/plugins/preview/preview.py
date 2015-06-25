@@ -352,16 +352,17 @@ class PreviewDock(DockWidget):
         # Don't need to schedule document processing; a call to show() does.
 
         self._loadTemplates()
-        self._widget.cbTemplate.currentIndexChanged.connect(self._onCurrentTemplateChanged)
+        self._widget.cbTemplate.currentIndexChanged.connect(
+          self._onCurrentTemplateChanged) # Disconnected.
 
         # When quitting this program, don't rebuild when closing all open
         # documents. This can take a long time, particularly if a some of the
         # documents are associated with a Sphinx project.
         self._programRunning = True
-        core.aboutToTerminate.connect(self._quitingApplication)
+        core.aboutToTerminate.connect(self._quitingApplication) # Disconnected.
 
-        core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
-        core.workspace().textChanged.connect(self._onTextChanged)
+        core.workspace().currentDocumentChanged.connect(self._onDocumentChanged) # Disconnected.
+        core.workspace().textChanged.connect(self._onTextChanged) # Disconnected.
 
         # If the user presses the accept button in the setting dialog, Enki
         # will force a rebuild of the whole project.
@@ -372,9 +373,11 @@ class PreviewDock(DockWidget):
         # a signal indicating that the CodeChat setting dialog has been opened. Save
         # core.config()['Sphinx'] and core.config()['CodeChat']. After dialogAccepted
         # is detected, compare current settings with the old one. Build if necessary.
-        core.uiSettingsManager().dialogAccepted.connect(self._scheduleDocumentProcessing)
+        core.uiSettingsManager().dialogAccepted.connect(
+          self._scheduleDocumentProcessing) # Disconnected.
 
-        core.workspace().modificationChanged.connect(self._onDocumentModificationChanged)
+        core.workspace().modificationChanged.connect(
+          self._onDocumentModificationChanged) # disconnected
 
         self._scrollPos = {}
         self._vAtEnd = {}
@@ -383,19 +386,19 @@ class PreviewDock(DockWidget):
         # Keep track of which Sphinx template copies we've already asked the user about.
         self._sphinxTemplateCheckIgnoreList = []
 
-        self._thread = ConverterThread()
-        self._thread.htmlReady.connect(self._setHtml)
+        self._thread = ConverterThread() # stopped
+        self._thread.htmlReady.connect(self._setHtml) # disconnected
 
         self._visiblePath = None
 
         # If we update Preview on every key press, freezes are noticable (the
         # GUI thread draws the preview too slowly).
         # This timer is used for drawing Preview 800 ms After user has stopped typing text
-        self._typingTimer = QTimer()
+        self._typingTimer = QTimer() # stopped.
         self._typingTimer.setInterval(800)
-        self._typingTimer.timeout.connect(self._scheduleDocumentProcessing)
+        self._typingTimer.timeout.connect(self._scheduleDocumentProcessing) # Disconnected.
 
-        self.previewSync = PreviewSync(self._widget.webView)
+        self.previewSync = PreviewSync(self._widget.webView) # del_ called
 
         self._applyJavaScriptEnabled(self._isJavaScriptEnabled())
 
@@ -403,28 +406,30 @@ class PreviewDock(DockWidget):
         widget = QWidget(self)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Preview.ui'), widget)
         widget.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
-        widget.webView.page().linkClicked.connect(self._onLinkClicked)
+        widget.webView.page().linkClicked.connect(self._onLinkClicked) # Disconnected.
         # Fix preview palette. See https://github.com/bjones1/enki/issues/34
         webViewPalette = widget.webView.palette()
         webViewPalette.setColor(QPalette.Inactive, QPalette.HighlightedText,
                                 webViewPalette.color(QPalette.Text))
         widget.webView.setPalette(webViewPalette)
 
-        widget.webView.page().mainFrame().titleChanged.connect(self._updateTitle)
-        widget.cbEnableJavascript.clicked.connect(self._onJavaScriptEnabledCheckbox)
+        widget.webView.page().mainFrame().titleChanged.connect(
+          self._updateTitle) # Disconnected.
+        widget.cbEnableJavascript.clicked.connect(
+          self._onJavaScriptEnabledCheckbox) # Disconnected.
         widget.webView.installEventFilter(self)
 
         self.setWidget(widget)
         self.setFocusProxy(widget.webView)
 
-        widget.tbSave.clicked.connect(self.onPreviewSave)
+        widget.tbSave.clicked.connect(self.onPreviewSave) # Disconnected.
         # Add an attribute to ``widget`` denoting the splitter location.
         # This value will be overwritten when the user changes splitter location.
         widget.splitterErrorStateSize = (199,50)
         widget.splitterNormStateSize = (1,0)
         widget.splitterNormState = True
         widget.splitter.setSizes(widget.splitterNormStateSize)
-        widget.splitter.splitterMoved.connect(self.on_splitterMoved)
+        widget.splitter.splitterMoved.connect(self.on_splitterMoved) # Disconnected.
 
         return widget
 
@@ -442,14 +447,34 @@ class PreviewDock(DockWidget):
         """Uninstall themselves
         """
         self._typingTimer.stop()
-        self._thread.htmlReady.disconnect(self._setHtml)
+        self._typingTimer.timeout.disconnect(self._scheduleDocumentProcessing)
         try:
-            self._widget.webView.page().mainFrame().loadFinished.disconnect(self._restoreScrollPos)
+            self._widget.webView.page().mainFrame().loadFinished.disconnect(
+              self._restoreScrollPos)
         except TypeError:  # already has been disconnected
             pass
         self.previewSync.del_()
-        core.workspace().modificationChanged.disconnect(self._onDocumentModificationChanged)
+        core.workspace().modificationChanged.disconnect(
+          self._onDocumentModificationChanged)
 
+        self._widget.cbTemplate.currentIndexChanged.disconnect(
+          self._onCurrentTemplateChanged)
+        core.aboutToTerminate.disconnect(self._quitingApplication)
+        core.workspace().currentDocumentChanged.disconnect(
+          self._onDocumentChanged)
+        core.workspace().textChanged.disconnect(self._onTextChanged)
+        core.uiSettingsManager().dialogAccepted.disconnect(
+          self._scheduleDocumentProcessing)
+        # Crashes during testing if this is omitted.
+        widget.webView.page().linkClicked.disconnect(self._onLinkClicked)
+        widget.webView.page().mainFrame().titleChanged.disconnect(
+          self._updateTitle)
+        widget.cbEnableJavascript.clicked.disconnect(
+          self._onJavaScriptEnabledCheckbox)
+        widget.tbSave.clicked.disconnect(self.onPreviewSave)
+        widget.splitter.splitterMoved.disconnect(self.on_splitterMoved)
+
+        self._thread.htmlReady.disconnect(self._setHtml)
         self._thread.stop_async()
         self._thread.wait()
 
@@ -652,7 +677,7 @@ class PreviewDock(DockWidget):
                 # Show the progress bar for reST, CodeChat, or Sphinx builds. It
                 # will display progress (Sphinx only) and errors/warnings (for
                 # all three).
-                self._widget.prgStatus.setVisible(True)
+                self._setHtmlProgress('Building...')
             # Determine whether to initiate a build or not. The underlying
             # logic:
             #
@@ -698,9 +723,6 @@ class PreviewDock(DockWidget):
                 core.config()["Qutepart"]["StripTrailingWhitespace"] = False
                 document.saveFile()
                 core.config()["Qutepart"]["StripTrailingWhitespace"] = whitespaceSetting
-            # Only show progress bar percentage if using Sphinx.
-            if sphinxCanProcess:
-                self._setHtmlProgress(0)
             # Build. Each line is one row in the table above.
             if ( (not sphinxCanProcess) or
                 (sphinxCanProcess and not internallyModified) or
@@ -773,7 +795,8 @@ class PreviewDock(DockWidget):
         """
         self._saveScrollPos()
         self._visiblePath = filePath
-        self._widget.webView.page().mainFrame().loadFinished.connect(self._restoreScrollPos)
+        self._widget.webView.page().mainFrame().loadFinished.connect(
+          self._restoreScrollPos) # disconnected
 
         if baseUrl.isEmpty():
             self._widget.webView.setHtml(html, baseUrl=QUrl.fromLocalFile(filePath))
@@ -863,7 +886,7 @@ class PreviewDock(DockWidget):
                                           + status + '</font></pre>')
             # Update the progress bar.
             color = 'red' if errNum else '#FF9955' if warningNum else None
-            self._setHtmlProgress(100, color)
+            self._setHtmlProgress(status, color)
         else:
             # If there are no errors/warnings, collapse the log window (can mannually
             # expand it back to visible)
@@ -871,31 +894,19 @@ class PreviewDock(DockWidget):
                 self._widget.splitterErrorStateSize = self._widget.splitter.sizes()
                 self._widget.splitterNormState = True
             self._widget.splitter.setSizes(self._widget.splitterNormStateSize)
-            self._setHtmlProgress(100)
+            self._setHtmlProgress('Warning(s): 0, error(s): 0')
         self.setHtmlDone.emit()
 
-    def _setHtmlProgress(self, progress=None, color=None):
-        """Set progress bar and status label.
-        if progress is -1: use an indefinite progress bar.
-        if progress is any value between 0 and 100: display progress bar
-          with that percentage of completion.
+    def _setHtmlProgress(self, text, color=None):
+        """Set progress label.
         """
         if color:
-            self._widget.prgStatus.setTextVisible(True)
-            self._widget.prgStatus.setAlignment(Qt.AlignCenter)
-            self._widget.prgStatus.setFormat(('Error' if color == 'red' else 'Warning')
-                                             + '(s) detected')
-            style = 'QProgressBar::chunk {\nbackground-color: '+color+'\n}'
+            style = 'QLabel { background-color: '+color+'; }'
         else:
-            self._widget.prgStatus.setTextVisible(False)
-            style = 'QProgressBar::chunk {}'
+            style = style = 'QLabel {}'
         self._widget.prgStatus.setStyleSheet(style)
-        if progress == -1:
-            self._widget.prgStatus.setRange(0, 0)
-        else:
-            assert progress >= 0 and progress <= 100
-            self._widget.prgStatus.setRange(0, 100)
-            self._widget.prgStatus.setValue(progress)
+        self._widget.prgStatus.setText(text)
+        self._widget.prgStatus.setVisible(True)
 
     def _clear(self):
         """Clear the preview dock contents.
