@@ -409,9 +409,10 @@ class Plugin(QObject):
           self._onSettingsDialogAboutToExecute)
         core.uiSettingsManager().dialogAccepted.disconnect(
           self._onDocumentChanged)
-        self._dock.closed.disconnect(self._onDockClosed)
-        self._dock.shown.disconnect(self._onDockShown)
-        self._saveAction.triggered.disconnect(self._dock.onPreviewSave)
+        if self._dock:
+            self._dock.closed.disconnect(self._onDockClosed)
+            self._dock.shown.disconnect(self._onDockShown)
+            self._saveAction.triggered.disconnect(self._dock.onPreviewSave)
 
     def _onDocumentChanged(self):
         """Document or Language changed.
