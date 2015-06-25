@@ -60,9 +60,6 @@ def _processPendingEvents():
     # Wait for an emitted signal.
     qe.exec_()
 
-    import traceback
-    traceback.print_stack()
-
     # Clean up: don't allow the timer to call qe.quit after this
     # function exits, which would produce "interesting" behavior.
     timer.stop()
@@ -214,9 +211,6 @@ class TestCase(unittest.TestCase):
         core.workspace().closeAllDocuments()
         core.term()
         _processPendingEvents()
-
-        import traceback
-        traceback.print_stack()
         self._cleanUpFs()
 
 
