@@ -465,14 +465,13 @@ class PreviewDock(DockWidget):
         core.workspace().textChanged.disconnect(self._onTextChanged)
         core.uiSettingsManager().dialogAccepted.disconnect(
           self._scheduleDocumentProcessing)
-        # Crashes during testing if this is omitted.
-        widget.webView.page().linkClicked.disconnect(self._onLinkClicked)
-        widget.webView.page().mainFrame().titleChanged.disconnect(
+        self._widget.webView.page().linkClicked.disconnect(self._onLinkClicked)
+        self._widget.webView.page().mainFrame().titleChanged.disconnect(
           self._updateTitle)
-        widget.cbEnableJavascript.clicked.disconnect(
+        self._widget.cbEnableJavascript.clicked.disconnect(
           self._onJavaScriptEnabledCheckbox)
-        widget.tbSave.clicked.disconnect(self.onPreviewSave)
-        widget.splitter.splitterMoved.disconnect(self.on_splitterMoved)
+        self._widget.tbSave.clicked.disconnect(self.onPreviewSave)
+        self._widget.splitter.splitterMoved.disconnect(self.on_splitterMoved)
 
         self._thread.htmlReady.disconnect(self._setHtml)
         self._thread.stop_async()

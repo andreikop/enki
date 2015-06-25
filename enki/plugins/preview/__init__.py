@@ -364,14 +364,15 @@ class Plugin(QObject):
         self._dock = None
         self._saveAction = None
         self._dockInstalled = False
-        core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
-        core.workspace().languageChanged.connect(self._onDocumentChanged)
+        core.workspace().currentDocumentChanged.connect(self._onDocumentChanged) # Disconnected.
+        core.workspace().languageChanged.connect(self._onDocumentChanged) # Disconnected.
 
         # Install our CodeChat page into the settings dialog.
-        core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
+        core.uiSettingsManager().aboutToExecute.connect(
+          self._onSettingsDialogAboutToExecute) # Disconnected.
         # Update preview dock when the settings dialog (which contains the
         # CodeChat enable checkbox) is changed.
-        core.uiSettingsManager().dialogAccepted.connect(self._onDocumentChanged)
+        core.uiSettingsManager().dialogAccepted.connect(self._onDocumentChanged) # Disconnected.
 
         # If user's config .json file lacks it, populate CodeChat's default
         # config key and Sphinx's default config key.
@@ -401,6 +402,16 @@ class Plugin(QObject):
 
         if self._dock is not None:
             self._dock.del_()
+
+        core.workspace().currentDocumentChanged.disconnect(self._onDocumentChanged)
+        core.workspace().languageChanged.disconnect(self._onDocumentChanged)
+        core.uiSettingsManager().aboutToExecute.disconnect(
+          self._onSettingsDialogAboutToExecute)
+        core.uiSettingsManager().dialogAccepted.disconnect(
+          self._onDocumentChanged)
+        self._dock.closed.disconnect(self._onDockClosed)
+        self._dock.shown.disconnect(self._onDockShown)
+        self._saveAction.triggered.disconnect(self._dock.onPreviewSave)
 
     def _onDocumentChanged(self):
         """Document or Language changed.
@@ -438,12 +449,12 @@ class Plugin(QObject):
         if self._dock is None:
             from enki.plugins.preview.preview import PreviewDock
             self._dock = PreviewDock()
-            self._dock.closed.connect(self._onDockClosed)
-            self._dock.shown.connect(self._onDockShown)
+            self._dock.closed.connect(self._onDockClosed) # Disconnected.
+            self._dock.shown.connect(self._onDockShown) # Disconnected.
             self._saveAction = QAction(QIcon(':enkiicons/save.png'),
                                        'Save Preview as HTML', self._dock)
             self._saveAction.setShortcut(QKeySequence("Alt+Shift+P"))
-            self._saveAction.triggered.connect(self._dock.onPreviewSave)
+            self._saveAction.triggered.connect(self._dock.onPreviewSave) # Disconnected.
 
         core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
 
