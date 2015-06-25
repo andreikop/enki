@@ -589,7 +589,7 @@ head
         """
         core.config()['CodeChat']['Enabled'] = True
         self.createFile('file.py', self.testText)
-        self.assertEqual(self._widget().prgStatus.value(), 100)
+        self.assertEqual(self._widget().prgStatus.text(), 'Building...')
 
     @base.requiresModule('CodeChat')
     @base.inMainLoop
@@ -600,7 +600,7 @@ head
         # First, First, working code with no errors or warnings.
         self.testText = u'abc'
         self._doBasicTest('rst')
-        self.assertEqual(self._widget().prgStatus.styleSheet(), 'QProgressBar::chunk {}')
+        self.assertEqual(self._widget().prgStatus.styleSheet(), 'QLabel {}')
 
     @base.requiresModule('CodeChat')
     @base.inMainLoop
@@ -659,7 +659,7 @@ head
         # switch to document 3
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
         base.waitForSignal(lambda: None, self._widget().webView.page().mainFrame().loadFinished, 200)
-        self.assertEqual(self._widget().prgStatus.styleSheet(), 'QProgressBar::chunk {}')
+        self.assertEqual(self._widget().prgStatus.styleSheet(), 'QLabel {}')
         self.assertEqual(self._logText(), '')
 
     @requiresSphinx

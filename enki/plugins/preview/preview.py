@@ -330,7 +330,8 @@ class ConverterThread(QThread):
             # thread and re-raise it there, or use a QFuture like approach which
             # does this automaticlaly.
             try:
-                html, errString, url = self._getHtml(task.language, task.text, task.filePath)
+                html, errString, url = self._getHtml(task.language, task.text,
+                                                     task.filePath)
             except Exception:
                 traceback.print_exc()
 
@@ -676,6 +677,7 @@ class PreviewDock(DockWidget):
                 # Show the progress bar for reST, CodeChat, or Sphinx builds. It
                 # will display progress (Sphinx only) and errors/warnings (for
                 # all three).
+                self._widget.prgStatus.setVisible(True)
                 self._setHtmlProgress('Building...')
             # Determine whether to initiate a build or not. The underlying
             # logic:
@@ -798,7 +800,8 @@ class PreviewDock(DockWidget):
           self._restoreScrollPos) # disconnected
 
         if baseUrl.isEmpty():
-            self._widget.webView.setHtml(html, baseUrl=QUrl.fromLocalFile(filePath))
+            self._widget.webView.setHtml(html,
+                                         baseUrl=QUrl.fromLocalFile(filePath))
         else:
             self._widget.webView.setUrl(baseUrl)
 
@@ -905,7 +908,6 @@ class PreviewDock(DockWidget):
             style = style = 'QLabel {}'
         self._widget.prgStatus.setStyleSheet(style)
         self._widget.prgStatus.setText(text)
-        self._widget.prgStatus.setVisible(True)
 
     def _clear(self):
         """Clear the preview dock contents.
