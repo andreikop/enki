@@ -717,13 +717,17 @@ class PreviewDock(DockWidget):
             saveThenBuild = (sphinxCanProcess and internallyModified and
                 not externallyModified and not buildOnSave)
             if saveThenBuild:
-                # Trailing whitespace is not stripped when
-                # autosaving. When a save is invoked manually,
-                # trailing whitespace will be stripped if enabled.
-                whitespaceSetting = core.config()["Qutepart"]["StripTrailingWhitespace"]
-                core.config()["Qutepart"]["StripTrailingWhitespace"] = False
+                # If trailing whitespace strip changes the cursor position,
+                # restore the whitespace and cursor position.
+                lineNum, col = qp.cursorPosition
+                lineText = qp.lines[lineNum]
                 document.saveFile()
-                core.config()["Qutepart"]["StripTrailingWhitespace"] = whitespaceSetting
+                if qp.cursorPosition != (lineNum, col):
+                    qp.lines[lineNum] = lineText
+                    qp.cursorPosition = lineNum, col
+                    # Mark the document as not modified. This will somewhat
+                    # booger the undo/redo stack -- TODO.
+                    qp.document().setModified(False)
             # Build. Each line is one row in the table above.
             if ( (not sphinxCanProcess) or
                 (sphinxCanProcess and not internallyModified) or

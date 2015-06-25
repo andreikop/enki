@@ -116,15 +116,19 @@ class PreviewTestCase(SimplePreviewTestCase):
         """Return log window text"""
         return self._widget().teLog.toPlainText()
 
+    def _WaitForHtmlReady(self, timeout=2000, numEmittedExpected=2):
+        # Expect two calls to loadFinished: one
+        # produced by _clear(), then the second when the page is actually ready.
+        lf = self._widget().webView.page().mainFrame().loadFinished
+        return WaitForSignal(lf, timeout,
+                             numEmittedExpected=numEmittedExpected)
+
     def _assertHtmlReady(self, start, timeout=2000, numEmittedExpected=2):
         """Wait for the PreviewDock to load in updated HTML after the start
         function is called. Assert if the signal isn't emitted within a timeout.
         """
-        # First, call start(), then wait for loadFinished to signal that the
-        # resulting web page has been fully loaded. Expect two calls: one
-        # produced by _clear(), then the second when the page is actually ready.
-        lf = self._widget().webView.page().mainFrame().loadFinished
-        with WaitForSignal(lf, timeout, numEmittedExpected=numEmittedExpected):
+        with self._WaitForHtmlReady(timeout,
+                                    numEmittedExpected=numEmittedExpected):
             start()
 
     def _doBasicTest(self, extension, name='file', numEmittedExpected=2):
@@ -1024,6 +1028,34 @@ head
 
         QApplication.instance().sendEvent(webView, zoom_in)
         self.assertTrue(1.05 < webView.zoomFactor() < 1.15)
+
+    @requiresSphinx
+    @base.inMainLoop
+    def test_saveAndBuildWhitespace1(self):
+        """See if whitespace is preserved on the current line
+           when auto build and save is enabled."""
+        # Get Sphinx auto-save-and-build plus strip trailing whitespace set up.
+        self._doBasicSphinxConfig()
+        core.config()['Sphinx']['BuildOnSave'] = False
+        core.config()["Qutepart"]["StripTrailingWhitespace"] = True
+        self.testText = "testing "
+        webViewContent, logContent = self._doBasicSphinxTest('rst')
+
+        # Move to the end of the document and add a space on the next line,
+        # which should be preserved through the auto-save. The space at the
+        # end of the first line should be removed.
+        qp = core.workspace().currentDocument().qutepart
+        # The format is line, column. This goes to the next line ???
+        qp.cursorPosition = 0, len(self.testText)
+        with self._WaitForHtmlReady(timeout=5000, numEmittedExpected=1):
+            qp.appendPlainText(' ')
+            self.assertTrue(qp.document().isModified())
+        self.assertEquals(qp.text, "testing\n ")
+        self.assertFalse(qp.document().isModified())
+
+
+
+
 #
 # Main
 # ====
