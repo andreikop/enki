@@ -63,8 +63,6 @@ $INSTALL  libpcre3 libpcre3-dev python-qt4
 # See https://github.com/hlamer/qutepart.
 git clone https://github.com/bjones1/qutepart.git
 cd qutepart
-# See https://help.github.com/articles/adding-a-remote/.
-git remote add upstream https://github.com/hlamer/qutepart.git
 sudo python setup.py install
 $PAUSE
 cd ..
@@ -78,7 +76,6 @@ sudo pip install -U mock markdown sphinx pylint
 # See https://github.com/bjones1/enki.
 git clone https://github.com/bjones1/enki.git
 cd enki
-git remote add upstream https://github.com/hlamer/enki.git
 $PAUSE
 cd ..
 
