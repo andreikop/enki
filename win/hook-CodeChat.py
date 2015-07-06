@@ -36,3 +36,6 @@ import os.path
 pkg_base, pkg_dir = get_package_paths('CodeChat')
 ##         -------------Source files------------  -----dest path-----
 datas = [ (os.path.join(pkg_dir, 'template', '*'), 'CodeChat/template') ]
+
+# This isn't imported by CodeChat directly, so include it for Sphinx's use.
+hiddenimports = ['CodeChat.CodeToRestSphinx']
