@@ -633,8 +633,9 @@ head
         core.config()['CodeChat']['Enabled'] = True
         self.testText = u'# .. ERROR::\n# `WARNING_'
         self._doBasicTest('py')
-        self.assertTrue('red' in self._widget().prgStatus.styleSheet())
-        self.assertTrue('Warning(s): 2, error(s): 2' in self._logText())
+        ps = self._widget().prgStatus
+        self.assertIn('red', ps.styleSheet())
+        self.assertIn('Warning(s): 2, error(s): 2', ps.text())
 
     @base.requiresModule('CodeChat')
     @base.inMainLoop
@@ -653,13 +654,14 @@ head
         # switch to document 1
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
         base.waitForSignal(lambda: None, self._widget().webView.page().mainFrame().loadFinished, 200)
-        self.assertIn('#FF9955', self._widget().prgStatus.styleSheet())
-        self.assertTrue('Warning(s): 1, error(s): 0' in self._logText())
+        ps = self._widget().prgStatus
+        self.assertIn('#FF9955', ps.styleSheet())
+        self.assertIn('Warning(s): 1, error(s): 0', ps.text())
         # switch to document 2
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
         base.waitForSignal(lambda: None, self._widget().webView.page().mainFrame().loadFinished, 200)
-        self.assertTrue('red' in self._widget().prgStatus.styleSheet())
-        self.assertTrue('Warning(s): 0, error(s): 1' in self._logText())
+        self.assertIn('red', ps.styleSheet())
+        self.assertIn('Warning(s): 0, error(s): 1', ps.text())
         # switch to document 3
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
         base.waitForSignal(lambda: None, self._widget().webView.page().mainFrame().loadFinished, 200)

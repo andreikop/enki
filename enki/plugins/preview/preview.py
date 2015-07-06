@@ -660,6 +660,10 @@ class PreviewDock(DockWidget):
             language = qp.language()
             text = qp.text
             sphinxCanProcess = sphinxEnabledForFile(document.filePath())
+            # Clear the log, then prepare for monospaced context.
+            self._widget.teLog.clear()
+            self._widget.teLog.appendHtml('<pre>')
+
             if language == 'Markdown':
                 text = self._getCurrentTemplate() + text
                 # Hide the progress bar, since processing is usually short and
@@ -809,8 +813,6 @@ class PreviewDock(DockWidget):
         else:
             self._widget.webView.setUrl(baseUrl)
 
-        self._widget.teLog.clear()
-
         # If there were messages from the conversion process, extract a count of
         # errors and warnings from these messages.
         if errString:
@@ -888,8 +890,7 @@ class PreviewDock(DockWidget):
             # Report these results this to the user.
             status = 'Warning(s): ' + str(warningNum) \
                      + ', error(s): ' + str(errNum)
-            self._widget.teLog.appendHtml('<pre>' + errString + '<font color=red>' \
-                                          + status + '</font></pre>')
+            self._widget.teLog.appendHtml(errString + '</pre>')
             # Update the progress bar.
             color = 'red' if errNum else '#FF9955' if warningNum else None
             self._setHtmlProgress(status, color)
