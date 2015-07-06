@@ -34,19 +34,13 @@ enki_a = Analysis(['bin/enki'],
              pathex=['.'],
              hiddenimports=[],
              hookspath=['win'],
-             runtime_hooks=['win/rthook_pyqt4.py'],
-             # Per  Hartmut on 24-Sep-2014 on the Pyinstaller e-mail list:
-             # "An optional list of module or package names (their Python names,
-             # not path names) that will be ignored (as though they were not
-             # found)."
-             excludes=['_tkinter'])
+             runtime_hooks=['win/rthook_pyqt4.py'])
 
 sphinx_a = Analysis(['win/sphinx-build.py'],
              pathex=['.'],
              hiddenimports=['CodeChat'],
              hookspath=['win'],
-             runtime_hooks=[],
-             excludes=['_tkinter'])
+             runtime_hooks=[])
 
 
            # Provide the OS-dependent location of pylint's __main__.py file.
@@ -54,8 +48,7 @@ pylint_a = Analysis([os.path.join(pylint.__path__[0], '__main__.py')],
              pathex=['.'],
              hiddenimports=[],
              hookspath=None,
-             runtime_hooks=None,
-             excludes=['_tkinter'])
+             runtime_hooks=None)
 # Next, eliminate duplicate libraries and modules. Listing Enki first seems to
 # place all libraries and modules there.
 MERGE(
