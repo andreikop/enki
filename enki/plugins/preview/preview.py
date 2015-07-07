@@ -110,6 +110,7 @@ class ConverterThread(QThread):
         QThread.__init__(self)
         self._queue = Queue.Queue()
         self.start(QThread.LowPriority)
+        self._count = 0
 
     def process(self, filePath, language, text):
         """Convert data and emit result.
@@ -218,6 +219,8 @@ class ConverterThread(QThread):
     def _convertSphinx(self, filePath):
         # Run the builder.
         errString = self._runHtmlBuilder()
+        self._count += 1
+        errString += '\nCount: {}'.format(self._count)
 
         # Look for the HTML output.
         #
@@ -410,6 +413,8 @@ class PreviewDock(DockWidget):
         self.previewSync = PreviewSync(self._widget.webView) # del_ called
 
         self._applyJavaScriptEnabled(self._isJavaScriptEnabled())
+        self._ignoreDocumentChanged = False
+        self._ignoreTextChanges = False
 
     def _createWidget(self):
         widget = QWidget(self)
@@ -508,7 +513,8 @@ class PreviewDock(DockWidget):
 
     def _onDocumentModificationChanged(self, document, modified):
         if not modified:  # probably has been saved just now
-            self._scheduleDocumentProcessing()
+            if not self._ignoreDocumentChanged:
+                self._scheduleDocumentProcessing()
 
     def _onLinkClicked(self, url):
         res = QDesktopServices.openUrl(url)
@@ -639,7 +645,7 @@ class PreviewDock(DockWidget):
     def _onTextChanged(self, document):
         """Text changed, update preview
         """
-        if core.config()['Preview']['Enabled']:
+        if core.config()['Preview']['Enabled'] and not self._ignoreTextChanges:
             self._typingTimer.stop()
             self._typingTimer.start()
 
@@ -733,13 +739,32 @@ class PreviewDock(DockWidget):
                 # restore the whitespace and cursor position.
                 lineNum, col = qp.cursorPosition
                 lineText = qp.lines[lineNum]
+                # Invoking saveFile when Strip Trailing whitespace is enabled
+                # causes ``onTextChanged`` (due to whitespace strips) and
+                # ``onDocumentChanged`` signals to be emitted. These both
+                # re-invoke this routine, causing a double build. So, ignore
+                # both these signals.
+                self._ignoreDocumentChanged = True
+                self._ignoreTextChanges = True
                 document.saveFile()
+                self._ignoreDocumentChanged = False
+                self._ignoreTextChanges = False
                 if qp.cursorPosition != (lineNum, col):
-                    qp.lines[lineNum] = lineText
-                    qp.cursorPosition = lineNum, col
-                    # Mark the document as not modified. This will somewhat
-                    # booger the undo/redo stack -- TODO.
+                    # Likewise, the edits below cause text changes which must be
+                    # ignored to avoid a double build.
+                    self._ignoreTextChanges = True
+                    # Mark this as one operation on the undo stack. To do so,
+                    # enclose all editing operations in a context manager. See
+                    # "Text modification and Undo/Redo" in the qutepart docs.
+                    with qp:
+                        qp.lines[lineNum] = lineText
+                        qp.cursorPosition = lineNum, col
+                    self._ignoreTextChanges = False
+                    # Changing the modified flag causes an ``onDocumentChanged``
+                    # signal, which should be ignored to avoid a double build.
+                    self._ignoreDocumentChanged = True
                     qp.document().setModified(False)
+                    self._ignoreDocumentChanged = False
             # Build. Each line is one row in the table above.
             if ( (not sphinxCanProcess) or
                 (sphinxCanProcess and not internallyModified) or
