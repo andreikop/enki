@@ -70,6 +70,21 @@ def copyTemplateFile(errors, source, templateFileName, dest, newName=None):
         except (IOError, OSError) as why:
             errors.append((sourcePath, dest, str(why)))
 
+def _checkModificationTime(sourceFile, outputFile, s):
+    """Make sure the outputFile is newer than the sourceFile.
+    Otherwise, return an error."""
+    # Recall that time is measured in seconds since the epoch,
+    # so that larger = newer.
+    try:
+        if os.path.getmtime(outputFile) > os.path.getmtime(sourceFile):
+            return u'', s, QUrl.fromLocalFile(outputFile)
+        else:
+            return ('The file {} is older than the source file {}.'
+                    .format(outputFile, sourceFile), s, QUrl())
+    except OSError as e:
+        return ('Error checking modification time: {}'.format(str(e)),
+                s, QUrl())
+
 
 class ConverterThread(QThread):
     """Thread converts markdown to HTML.
@@ -201,20 +216,6 @@ class ConverterThread(QThread):
         return htmlString, errString
 
     def _convertSphinx(self, filePath):
-        def checkModificationTime(sourceFile, outputFile, s):
-            """Make sure the outputFile is newer than the sourceFile.
-            Otherwise, return an error."""
-            # Recall that time is measured in seconds since the epoch,
-            # so that larger = newer.
-            try:
-                if os.path.getmtime(outputFile) > os.path.getmtime(sourceFile):
-                    return u'', s, QUrl.fromLocalFile(outputFile)
-                else:
-                    return ('The file {} is older than the source file {}.'
-                            .format(outputFile, sourceFile), s, QUrl())
-            except OSError as e:
-                return ('Error checking modification time: {}'.format(str(e)),
-                        s, QUrl())
         # Run the builder.
         errString = self._runHtmlBuilder()
 
@@ -249,9 +250,9 @@ class ConverterThread(QThread):
         # Check that the output file produced by Sphinx is newer than
         # the source file it was built from.
         if os.path.exists(htmlFile):
-            return checkModificationTime(filePath, htmlFile, errString)
+            return _checkModificationTime(filePath, htmlFile, errString)
         elif os.path.exists(htmlFileAlter):
-            return checkModificationTime(filePath, htmlFileAlter, errString)
+            return _checkModificationTime(filePath, htmlFileAlter, errString)
         else:
             return ('No preview for this type of file.<br>Expect ' +
                     htmlFile + " or " + htmlFileAlter, errString, QUrl())
