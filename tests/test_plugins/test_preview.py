@@ -335,7 +335,6 @@ class TestPreview(PreviewTestCase):
            found."""
         core.config()['CodeChat']['Enabled'] = True
         self._doBasicTest('py')
-        self._dock()
         self.assertTrue(self._widget().prgStatus.isVisible())
 
     @requiresSphinx
@@ -424,11 +423,8 @@ head
 ****
 
 content"""
-        # After calling doBasicSphinxText, self._dock() can't be found.
-        # So, save it here.
-        d = self._dock()
         self._doBasicSphinxTest('rst')
-        self.assertNotIn('<h1>head', d._widget.webView.page().mainFrame().toHtml())
+        self.assertNotIn('<h1>head', self._widget().webView.page().mainFrame().toHtml())
 
     @base.requiresModule('CodeChat')
     @base.inMainLoop
