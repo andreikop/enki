@@ -260,9 +260,16 @@ class ConverterThread(QThread):
         # Use StringIO to pass CodeChat compilation information back to
         # the UI.
         errStream = StringIO.StringIO()
-        fileName, fileExtension = os.path.splitext(filePath)
-        lexer = CodeToRest.get_lexer(filename=filePath)
-        htmlString = CodeToRest.code_to_html_string(text, errStream, lexer=lexer)
+        try:
+            htmlString = CodeToRest.code_to_html_string(text, errStream,
+                                                        filename=filePath)
+        except KeyError:
+            # Although the file extension may be in the list of supported
+            # extensions, CodeChat may not support the lexer chosen by Pygments.
+            # For example, a ``.v`` file may be Verilog (supported by CodeChat)
+            # or Coq (not supported). In this case, provide an error messsage
+            errStream.write('Error: this file is not supported by CodeChat.')
+            htmlString = ''
         # Since the error string might contain characters such as ">" and "<",
         # they need to be converted to "&gt;" and "&lt;" such that
         # they can be displayed correctly in the log window as html strings.

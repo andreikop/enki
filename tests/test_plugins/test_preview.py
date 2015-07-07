@@ -337,6 +337,17 @@ class TestPreview(PreviewTestCase):
         self._doBasicTest('py')
         self.assertTrue(self._widget().prgStatus.isVisible())
 
+    @base.requiresModule('CodeChat')
+    @base.inMainLoop
+    def test_previewCheck1a(self):
+        """If a non-supported language with a known extension is provided to
+           CodeChat, make sure an appropriate error is generated."""
+        core.config()['CodeChat']['Enabled'] = True
+        self.testText = '(* A comment *)\nZ -> Z * Z'
+        self._doBasicTest('v')
+        self.assertTrue(self._widget().prgStatus.isVisible())
+        self.assertIn('this file is not supported by CodeChat', self._logText())
+
     @requiresSphinx
     @base.inMainLoop
     def test_previewCheck2(self):
