@@ -223,7 +223,7 @@ class TestPreview(PreviewTestCase):
         self.openDialog(lambda: combo.setCurrentIndex(combo.count() - 1), inDialog)
 
     # Cases for literate programming setting ui
-    ##-----------------------------------------
+    # -----------------------------------------
     def setupSettingsWidget(self, WidgetClass):
         """To use a widget embedded in a UISettings requres a bit of
         manipulation, which this helper function encapsulates.
@@ -327,7 +327,7 @@ class TestPreview(PreviewTestCase):
         us.close()
 
     # Cases for code preview using Codechat or Sphinx
-    ##-----------------------------------------------
+    # -----------------------------------------------
     @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck1(self):
@@ -889,7 +889,7 @@ head
 
 
     # Cases testing logwindow splitter
-    ##--------------------------------
+    # --------------------------------
     # Log splitter has three features:
     #
     # #. When created, different files will have same default splitter size
