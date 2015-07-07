@@ -116,14 +116,14 @@ class PreviewTestCase(SimplePreviewTestCase):
         """Return log window text"""
         return self._widget().teLog.toPlainText()
 
-    def _WaitForHtmlReady(self, timeout=2000, numEmittedExpected=2):
+    def _WaitForHtmlReady(self, timeout=4000, numEmittedExpected=2):
         # Expect two calls to loadFinished: one
         # produced by _clear(), then the second when the page is actually ready.
         lf = self._widget().webView.page().mainFrame().loadFinished
         return WaitForSignal(lf, timeout,
                              numEmittedExpected=numEmittedExpected)
 
-    def _assertHtmlReady(self, start, timeout=2000, numEmittedExpected=2):
+    def _assertHtmlReady(self, start, timeout=4000, numEmittedExpected=2):
         """Wait for the PreviewDock to load in updated HTML after the start
         function is called. Assert if the signal isn't emitted within a timeout.
         """
