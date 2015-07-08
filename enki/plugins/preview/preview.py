@@ -353,9 +353,8 @@ class ConverterThread(QThread):
 class PreviewDock(DockWidget):
     """GUI and implementation
     """
+    # Emitted when this window is closed.
     closed = pyqtSignal()
-    # Sent when the _setHtml methods completes.
-    setHtmlDone = pyqtSignal()
 
     def __init__(self):
         DockWidget.__init__(self, core.mainWindow(), "Previe&w", QIcon(':/enkiicons/internet.png'), "Alt+W")
@@ -935,7 +934,6 @@ class PreviewDock(DockWidget):
                 self._widget.splitterNormState = True
             self._widget.splitter.setSizes(self._widget.splitterNormStateSize)
             self._setHtmlProgress('Warning(s): 0, error(s): 0')
-        self.setHtmlDone.emit()
 
     def _setHtmlProgress(self, text, color=None):
         """Set progress label.
