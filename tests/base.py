@@ -455,7 +455,7 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
 # The function above is rather awkward to use. This provides the same
 # functionality, but as a context manager instead. All statements inside the
 # ``with`` statement are run, then a timer started; if a signal is emitted
-# before the times expires, the test succeeds.
+# before the timer expires, the test succeeds.
 class WaitForSignal(unittest.TestCase):
     def __init__(self,
       # The signal to wait for.
