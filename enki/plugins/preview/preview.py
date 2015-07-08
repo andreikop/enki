@@ -356,6 +356,11 @@ class PreviewDock(DockWidget):
     # Emitted when this window is closed.
     closed = pyqtSignal()
 
+    # This signal receives log window messages.
+    logWindowText = pyqtSignal(
+      # A string to append to the log windows.
+      unicode)
+
     def __init__(self):
         DockWidget.__init__(self, core.mainWindow(), "Previe&w", QIcon(':/enkiicons/internet.png'), "Alt+W")
 
@@ -412,6 +417,9 @@ class PreviewDock(DockWidget):
         self.previewSync = PreviewSync(self._widget.webView) # del_ called
 
         self._applyJavaScriptEnabled(self._isJavaScriptEnabled())
+
+        # Clear flags used to temporarily disable signals during
+        # ``_scheduleDocumentProcessing.``.
         self._ignoreDocumentChanged = False
         self._ignoreTextChanges = False
 
