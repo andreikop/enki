@@ -106,11 +106,12 @@ class ConverterThread(QThread):
 
     _Task = collections.namedtuple("Task", ["filePath", "language", "text"])
 
-    def __init__(self):
+    def __init__(self, logWindowText):
         QThread.__init__(self)
         self._queue = Queue.Queue()
         self.start(QThread.LowPriority)
         self._count = 0
+        self.logWindowText = logWindowText
 
     def process(self, filePath, language, text):
         """Convert data and emit result.
@@ -402,7 +403,7 @@ class PreviewDock(DockWidget):
         # Keep track of which Sphinx template copies we've already asked the user about.
         self._sphinxTemplateCheckIgnoreList = []
 
-        self._thread = ConverterThread() # stopped
+        self._thread = ConverterThread(self.logWindowText) # stopped
         self._thread.htmlReady.connect(self._setHtml) # disconnected
 
         self._visiblePath = None
@@ -422,6 +423,9 @@ class PreviewDock(DockWidget):
         # ``_scheduleDocumentProcessing.``.
         self._ignoreDocumentChanged = False
         self._ignoreTextChanges = False
+
+        # The logWindowText signal simply appends text to the log window.
+        self.logWindowText.connect(lambda s: self._widget.teLog.appendHtml(s)) # disconnected
 
     def _createWidget(self):
         widget = QWidget(self)
@@ -493,6 +497,7 @@ class PreviewDock(DockWidget):
           self._onJavaScriptEnabledCheckbox)
         self._widget.tbSave.clicked.disconnect(self.onPreviewSave)
         self._widget.splitter.splitterMoved.disconnect(self.on_splitterMoved)
+        self.logWindowText.disconnect()
 
         self._thread.htmlReady.disconnect(self._setHtml)
         self._thread.stop_async()
