@@ -824,13 +824,14 @@ class PreviewDock(DockWidget):
                 self._sphinxTemplateCheckIgnoreList.append(sphinxProjectPath)
             return
 
-        copyTemplateFile(errors, sphinxTemplatePath, 'index.rst', sphinxProjectPath)
         if core.config()['CodeChat']['Enabled'] and CodeChat:
             codeChatPluginsPath = os.path.dirname(os.path.realpath(CodeChat.__file__))
             codeChatTemplatePath = os.path.join(codeChatPluginsPath, 'template')
+            copyTemplateFile(errors, codeChatTemplatePath, 'index.rst', sphinxProjectPath)
             copyTemplateFile(errors, codeChatTemplatePath, 'conf.py', sphinxProjectPath)
             copyTemplateFile(errors, codeChatTemplatePath, 'CodeChat.css', sphinxProjectPath)
         else:
+            copyTemplateFile(errors, sphinxTemplatePath, 'index.rst', sphinxProjectPath)
             copyTemplateFile(errors, sphinxTemplatePath, 'conf.py', sphinxProjectPath)
 
         errInfo = ""
