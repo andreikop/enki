@@ -14,7 +14,7 @@ else:
     isFrozen = False
 
 
-def open_console_output(command, cwd):
+def open_console_output(command, cwd=None):
     if hasattr(subprocess, 'STARTUPINFO'):  # windows only
         # On Windows, subprocess will pop up a command window by default when run from
         # Pyinstaller with the --noconsole option. Avoid this distraction.
