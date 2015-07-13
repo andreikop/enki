@@ -20,8 +20,10 @@ import sys
 import shlex
 import codecs
 
-from PyQt4.QtCore import pyqtSignal, QSize, Qt, QThread, QTimer, QUrl
-from PyQt4.QtGui import QDesktopServices, QFileDialog, QIcon, QMessageBox, QWidget, QPalette, QWheelEvent
+from PyQt4.QtCore import pyqtSignal, QSize, Qt, QThread, QTimer, QUrl, \
+  QEventLoop
+from PyQt4.QtGui import QDesktopServices, QFileDialog, QIcon, QMessageBox, \
+  QWidget, QPalette, QWheelEvent
 from PyQt4.QtWebKit import QWebPage
 from PyQt4 import uic
 
@@ -29,8 +31,9 @@ from enki.core.core import core
 from enki.widgets.dockwidget import DockWidget
 from enki.plugins.preview import isHtmlFile, canUseCodeChat, \
     sphinxEnabledForFile
-from preview_sync import PreviewSync
-from enki.lib.get_console_output import get_console_output
+from .preview_sync import PreviewSync
+from enki.lib.get_console_output import open_console_output
+from enki.lib.future import AsyncController
 
 
 # Likewise, attempt importing CodeChat; failing that, disable the CodeChat feature.
@@ -104,14 +107,20 @@ class ConverterThread(QThread):
       # parameter above contains the HTML instead.
       QUrl)
 
+    # This signal emits messages for the log window.
+    logWindowText = pyqtSignal(
+      # A string to append to the log window.
+      unicode)
+
     _Task = collections.namedtuple("Task", ["filePath", "language", "text"])
 
-    def __init__(self, logWindowText):
+    def __init__(self):
         QThread.__init__(self)
         self._queue = Queue.Queue()
         self.start(QThread.LowPriority)
         self._count = 0
-        self.logWindowText = logWindowText
+        self._ac = AsyncController('QThread', self)
+        self._ac.defaultPriority = QThread.LowPriority
 
     def process(self, filePath, language, text):
         """Convert data and emit result.
@@ -315,15 +324,63 @@ class ConverterThread(QThread):
                 htmlBuilderCommandLineStr = htmlBuilderCommandLine
             else:
                 htmlBuilderCommandLineStr = ' '.join(htmlBuilderCommandLine)
-            s = '<pre>{} : {}\n\n'.format(cwd, htmlBuilderCommandLineStr)
-            stdout, stderr = get_console_output(htmlBuilderCommandLine,
-                                                cwd=cwd)
+            self.logWindowText.emit('{} : {}\n\n'.format(cwd,
+              htmlBuilderCommandLineStr))
+
+            # Run Sphinx, reading stdout in a separate thread.
+            self._qe = QEventLoop()
+            # Sphinx will output just a carriage return (0x0D) to simulate a
+            # single line being updated by build status and the build
+            # progresses. Without universal newline support here, we'll wait
+            # until the build is complete (with a \n\r) to report any build
+            # progress! So, enable universal newlines, so that each \r will be
+            # treated as a separate line, providing immediate feedback on build
+            # progress.
+            popen = open_console_output(htmlBuilderCommandLine, cwd=cwd,
+                                        universal_newlines=True)
+            # Perform reads in an event loop. The loop is exit when all reads
+            # have completed. We can't simply start the _stderr_read thread
+            # here, because calls to self._qe_exit() will be ignored until
+            # we're inside the event loop.
+            QTimer.singleShot(0, lambda: self._popen_read(popen))
+            self._qe.exec_()
         except OSError as ex:
-            return s + '<font color=red>Failed to execute HTML builder:\n' + \
+            return '<font color=red>Failed to execute HTML builder:\n' + \
                    '{}\n'.format(str(ex)) + \
                    'Go to Settings -> Settings -> CodeChat to set HTML builder configurations.</pre>'
 
-        return s + cgi.escape(stdout) + '<br><font color=red>' + cgi.escape(stderr) + '</font></pre>'
+        return '<br><font color=red>' + cgi.escape(self._stderr) + '</font></pre>'
+
+    # Read from stdout (in this thread) and stderr (in another thread),
+    # so that the user sees output as the build progresses, rather than only
+    # producing output after the build is complete.
+    def _popen_read(self, popen):
+        # Read are blocking; we can't read from both stdout and stderr in the
+        # same thread without possible buffer overflows. So, use this thread to
+        # read from and immediately report progress from stdout. In another
+        # thread, read all stderr and report that after the build finishes.
+        self._ac.start(None, self._stderr_read, popen.stderr)
+
+        # Read a line of stdout then report it to the user immediately.
+        s = popen.stdout.readline()
+        while s:
+            self.logWindowText.emit(s.rstrip('\n'))
+            s = popen.stdout.readline()
+        # I would expect the following code to do the same thing. It doesn't:
+        # instead, it waits until Sphinx completes before returning anything.
+        # ???
+        #
+        # .. code-block: python
+        #    :linenos:
+        #
+        #    for s in popen.stdout:
+        #        self.logWindowText.emit(s)
+
+    # Runs in a separate thread to read stdout. It then exits the QEventLoop as
+    # a way to signal that stderr reads have completed.
+    def _stderr_read(self, stderr):
+        self._stderr = stderr.read()
+        self._qe.exit()
 
     def run(self):
         """Thread function
@@ -336,6 +393,7 @@ class ConverterThread(QThread):
                 task = self._queue.get()
 
             if task is None:  # None is a quit command
+                self._ac.terminate()
                 break
 
             # TODO: This is ugly. Should pass this exception back to the main
@@ -356,11 +414,6 @@ class PreviewDock(DockWidget):
     """
     # Emitted when this window is closed.
     closed = pyqtSignal()
-
-    # This signal receives log window messages.
-    logWindowText = pyqtSignal(
-      # A string to append to the log windows.
-      unicode)
 
     def __init__(self):
         DockWidget.__init__(self, core.mainWindow(), "Previe&w", QIcon(':/enkiicons/internet.png'), "Alt+W")
@@ -403,7 +456,7 @@ class PreviewDock(DockWidget):
         # Keep track of which Sphinx template copies we've already asked the user about.
         self._sphinxTemplateCheckIgnoreList = []
 
-        self._thread = ConverterThread(self.logWindowText) # stopped
+        self._thread = ConverterThread() # stopped
         self._thread.htmlReady.connect(self._setHtml) # disconnected
 
         self._visiblePath = None
@@ -425,7 +478,8 @@ class PreviewDock(DockWidget):
         self._ignoreTextChanges = False
 
         # The logWindowText signal simply appends text to the log window.
-        self.logWindowText.connect(lambda s: self._widget.teLog.appendHtml(s)) # disconnected
+        self._thread.logWindowText.connect(lambda s:
+          self._widget.teLog.appendPlainText(s)) # disconnected
 
     def _createWidget(self):
         widget = QWidget(self)
@@ -497,7 +551,7 @@ class PreviewDock(DockWidget):
           self._onJavaScriptEnabledCheckbox)
         self._widget.tbSave.clicked.disconnect(self.onPreviewSave)
         self._widget.splitter.splitterMoved.disconnect(self.on_splitterMoved)
-        self.logWindowText.disconnect()
+        self._thread.logWindowText.disconnect()
 
         self._thread.htmlReady.disconnect(self._setHtml)
         self._thread.stop_async()
