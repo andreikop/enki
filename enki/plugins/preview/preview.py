@@ -118,9 +118,9 @@ class ConverterThread(QThread):
         QThread.__init__(self)
         self._queue = Queue.Queue()
         self.start(QThread.LowPriority)
-        self._count = 0
         self._ac = AsyncController('QThread', self)
         self._ac.defaultPriority = QThread.LowPriority
+        self._SphinxInvocationCount = 1
 
     def process(self, filePath, language, text):
         """Convert data and emit result.
@@ -229,8 +229,6 @@ class ConverterThread(QThread):
     def _convertSphinx(self, filePath):
         # Run the builder.
         errString = self._runHtmlBuilder()
-        self._count += 1
-        errString += '\nCount: {}'.format(self._count)
 
         # Look for the HTML output.
         #
@@ -366,6 +364,7 @@ class ConverterThread(QThread):
         while s:
             self.logWindowText.emit(s.rstrip('\n'))
             s = popen.stdout.readline()
+        self._SphinxInvocationCount += 1
         # I would expect the following code to do the same thing. It doesn't:
         # instead, it waits until Sphinx completes before returning anything.
         # ???
@@ -816,21 +815,13 @@ class PreviewDock(DockWidget):
                 self._ignoreDocumentChanged = False
                 self._ignoreTextChanges = False
                 if qp.cursorPosition != (lineNum, col):
-                    # Likewise, the edits below cause text changes which must be
-                    # ignored to avoid a double build.
-                    self._ignoreTextChanges = True
                     # Mark this as one operation on the undo stack. To do so,
                     # enclose all editing operations in a context manager. See
                     # "Text modification and Undo/Redo" in the qutepart docs.
                     with qp:
                         qp.lines[lineNum] = lineText
                         qp.cursorPosition = lineNum, col
-                    self._ignoreTextChanges = False
-                    # Changing the modified flag causes an ``onDocumentChanged``
-                    # signal, which should be ignored to avoid a double build.
-                    self._ignoreDocumentChanged = True
                     qp.document().setModified(False)
-                    self._ignoreDocumentChanged = False
             # Build. Each line is one row in the table above.
             if ( (not sphinxCanProcess) or
                 (sphinxCanProcess and not internallyModified) or
