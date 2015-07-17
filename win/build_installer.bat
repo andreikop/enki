@@ -81,7 +81,7 @@ copy ..\..\..\ctags58\ctags.exe bin
 : Command-line options:
 :
 : /Q      Quiet compile (print error messages only)
-"C:\Program Files\Inno Setup 5\ISCC.exe" /Q ..\..\win\Enki.iss
+"C:\Program Files (x86)\Inno Setup 5\ISCC.exe" /Q ..\..\win\Enki.iss
 :
 : Return to the directory this batch file was run from.
 cd ..\..
