@@ -377,6 +377,38 @@ content"""
         webViewContent, logContent = self._doBasicSphinxTest('rst')
 
     @requiresSphinx
+    @base.inMainLoop
+    def test_previewCheck2b(self):
+        """Check for double builds.
+        """
+        self._doBasicSphinxConfig()
+        webViewContent, logContent = self._doBasicSphinxTest('rst')
+        # After the inital ``_clear`` then a build with text, we expect to
+        # see two builds.
+        self.assertEqual(self._dock()._thread._SphinxInvocationCount, 2)
+
+        # Inserting a character when auto-save is enabled can cause a double
+        # build: the save made in preparation for the first build also invokes
+        # the second build.
+        qp = core.workspace().currentDocument().qutepart
+        core.config()['Sphinx']['BuildOnSave'] = False
+        with self._WaitForHtmlReady(timeout=10000, numEmittedExpected=1):
+            qp.lines[0] += ' '
+        self.assertEqual(self._dock()._thread._SphinxInvocationCount, 3)
+
+        # Inserting a space at the end of the line can cause a double build,
+        # since the StripTrailingWhitespace option deletes the space, then
+        # the auto-save and build code restores it.
+        #
+        # However, double builds still only produce a single ``loadFinished``
+        # signal.
+        core.config()["Qutepart"]["StripTrailingWhitespace"] = True
+        qp = core.workspace().currentDocument().qutepart
+        with self._WaitForHtmlReady(timeout=10000, numEmittedExpected=1):
+            qp.appendPlainText('\nTesting...')
+        self.assertEqual(self._dock()._thread._SphinxInvocationCount, 4)
+
+    @requiresSphinx
     @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck3a(self):
