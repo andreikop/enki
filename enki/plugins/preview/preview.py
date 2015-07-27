@@ -480,6 +480,9 @@ class PreviewDock(DockWidget):
         self._ignoreDocumentChanged = False
         self._ignoreTextChanges = False
 
+        # Provide an inital value for the rebuild needed flag.
+        self._rebuildNeeded = False
+
         # The logWindowClear signal clears the log window.
         self._thread.logWindowClear.connect(self._widget.teLog.clear) # disconnected
         # The logWindowText signal simply appends text to the log window.
@@ -746,6 +749,8 @@ class PreviewDock(DockWidget):
             language = qp.language()
             text = qp.text
             sphinxCanProcess = sphinxEnabledForFile(document.filePath())
+            # Determine if we're in the middle of a build.
+            currentlyBuilding = self._widget.prgStatus.text() == 'Building...'
 
             if language == 'Markdown':
                 text = self._getCurrentTemplate() + text
@@ -766,6 +771,7 @@ class PreviewDock(DockWidget):
                 # all three).
                 self._widget.prgStatus.setVisible(True)
                 self._setHtmlProgress('Building...')
+
             # Determine whether to initiate a build or not. The underlying
             # logic:
             #
@@ -800,9 +806,17 @@ class PreviewDock(DockWidget):
             internallyModified = qp.document().isModified()
             externallyModified = document.isExternallyModified()
             buildOnSave = core.config()['Sphinx']['BuildOnSave']
-            # Save first, if needed.
             saveThenBuild = (sphinxCanProcess and internallyModified and
                 not externallyModified and not buildOnSave)
+            # If Sphinx is currently building, don't autosave -- this can
+            # cause Sphinx to miss changes on its next build. Instead, wait
+            # until Sphinx completes, then do a save and build.
+            if saveThenBuild and currentlyBuilding:
+                self._rebuildNeeded = True
+                saveThenBuild = False
+            else:
+                self._rebuildNeeded = False
+            # Save first, if needed.
             if saveThenBuild:
                 # If trailing whitespace strip changes the cursor position,
                 # restore the whitespace and cursor position.
@@ -999,6 +1013,11 @@ class PreviewDock(DockWidget):
                 self._widget.splitterNormState = True
             self._widget.splitter.setSizes(self._widget.splitterNormStateSize)
             self._setHtmlProgress('Warning(s): 0, error(s): 0')
+
+        # Do a rebuild if needed.
+        if self._rebuildNeeded:
+            self._rebuildNeeded = False
+            self._scheduleDocumentProcessing()
 
     def _setHtmlProgress(self, text, color=None):
         """Set progress label.
