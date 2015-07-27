@@ -107,6 +107,9 @@ class ConverterThread(QThread):
       # parameter above contains the HTML instead.
       QUrl)
 
+    # This signal clears the context of the log window.
+    logWindowClear = pyqtSignal()
+
     # This signal emits messages for the log window.
     logWindowText = pyqtSignal(
       # A string to append to the log window.
@@ -315,6 +318,9 @@ class ConverterThread(QThread):
 
         # Invoke it.
         try:
+            # Clear the log at the beginning of a Sphinx build.
+            self.logWindowClear.emit()
+
             cwd = core.config()['Sphinx']['ProjectPath']
             # If the command line is already a string (advanced mode), just print it.
             # Otherwise, it's a list that should be transformed to a string.
@@ -474,6 +480,8 @@ class PreviewDock(DockWidget):
         self._ignoreDocumentChanged = False
         self._ignoreTextChanges = False
 
+        # The logWindowClear signal clears the log window.
+        self._thread.logWindowClear.connect(self._widget.teLog.clear) # disconnected
         # The logWindowText signal simply appends text to the log window.
         self._thread.logWindowText.connect(lambda s:
           self._widget.teLog.appendPlainText(s)) # disconnected
@@ -548,6 +556,7 @@ class PreviewDock(DockWidget):
           self._onJavaScriptEnabledCheckbox)
         self._widget.tbSave.clicked.disconnect(self.onPreviewSave)
         self._widget.splitter.splitterMoved.disconnect(self.on_splitterMoved)
+        self._thread.logWindowClear.disconnect()
         self._thread.logWindowText.disconnect()
 
         self._thread.htmlReady.disconnect(self._setHtml)
@@ -737,8 +746,6 @@ class PreviewDock(DockWidget):
             language = qp.language()
             text = qp.text
             sphinxCanProcess = sphinxEnabledForFile(document.filePath())
-            # Clear the log, then prepare for monospaced context.
-            self._widget.teLog.clear()
 
             if language == 'Markdown':
                 text = self._getCurrentTemplate() + text
@@ -896,6 +903,8 @@ class PreviewDock(DockWidget):
           self._restoreScrollPos) # disconnected
 
         if baseUrl.isEmpty():
+            # Clear the log, then update it with build content.
+            self._widget.teLog.clear()
             self._widget.webView.setHtml(html,
                                          baseUrl=QUrl.fromLocalFile(filePath))
         else:
