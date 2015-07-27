@@ -347,7 +347,7 @@ class ConverterThread(QThread):
                    '{}\n'.format(str(ex)) + \
                    'Go to Settings -> Settings -> CodeChat to set HTML builder configurations.</pre>'
 
-        return '<br><font color=red>' + cgi.escape(self._stderr) + '</font></pre>'
+        return '<br><font color=red>' + cgi.escape(self._stderr) + '</font>'
 
     # Read from stdout (in this thread) and stderr (in another thread),
     # so that the user sees output as the build progresses, rather than only
@@ -741,7 +741,6 @@ class PreviewDock(DockWidget):
             sphinxCanProcess = sphinxEnabledForFile(document.filePath())
             # Clear the log, then prepare for monospaced context.
             self._widget.teLog.clear()
-            self._widget.teLog.appendHtml('<pre>')
 
             if language == 'Markdown':
                 text = self._getCurrentTemplate() + text
