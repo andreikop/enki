@@ -348,7 +348,6 @@ class ConverterThread(QThread):
                    'Go to Settings -> Settings -> CodeChat to set HTML builder configurations.</pre>'
 
         return '<br><font color=red>' + cgi.escape(self._stderr) + '</font>'
-
     # Read from stdout (in this thread) and stderr (in another thread),
     # so that the user sees output as the build progresses, rather than only
     # producing output after the build is complete.
@@ -404,8 +403,7 @@ class ConverterThread(QThread):
             except Exception:
                 traceback.print_exc()
 
-            if not self._queue.qsize():  # Do not emit results, if having new task
-                self.htmlReady.emit(task.filePath, html, errString, url)
+            self.htmlReady.emit(task.filePath, html, errString, url)
 
 
 class PreviewDock(DockWidget):
