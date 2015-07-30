@@ -478,8 +478,15 @@ class PreviewDock(DockWidget):
         # Provide an inital value for the rebuild needed flag.
         self._rebuildNeeded = False
 
+        # Save the initial font, then restore it after a ``clear``. Note that
+        # ``clear()`` doesn't reset the `currentCharFormat
+        # <http://doc.qt.io/qt-4.8/qplaintextedit.html#currentCharFormat>`_. In
+        # fact, clicking in red (error/warning) message in the log window
+        # changes the current font to red! So, save it here so that it will be
+        # restored correctly on a ``_clear_log``.
+        self._defaultLogFont = self._widget.teLog.currentCharFormat()
         # The logWindowClear signal clears the log window.
-        self._thread.logWindowClear.connect(self._widget.teLog.clear) # disconnected
+        self._thread.logWindowClear.connect(self._clear_log) # disconnected
         # The logWindowText signal simply appends text to the log window.
         self._thread.logWindowText.connect(lambda s:
           self._widget.teLog.appendPlainText(s)) # disconnected
@@ -514,7 +521,6 @@ class PreviewDock(DockWidget):
         widget.splitter.splitterMoved.connect(self.on_splitterMoved) # Disconnected.
 
         return widget
-
 
     def _quitingApplication(self):
         self._programRunning = False
@@ -554,7 +560,7 @@ class PreviewDock(DockWidget):
           self._onJavaScriptEnabledCheckbox)
         self._widget.tbSave.clicked.disconnect(self.onPreviewSave)
         self._widget.splitter.splitterMoved.disconnect(self.on_splitterMoved)
-        self._thread.logWindowClear.disconnect()
+        self._thread.logWindowClear.disconnect(self._clear_log)
         self._thread.logWindowText.disconnect()
 
         self._thread.htmlReady.disconnect(self._setHtml)
@@ -567,6 +573,11 @@ class PreviewDock(DockWidget):
         self.closed.emit()
         self._clear()
         return DockWidget.closeEvent(self, event)
+
+    def _clear_log(self):
+        """Clear the log window and reset the default font."""
+        self._widget.teLog.clear()
+        self._widget.teLog.setCurrentCharFormat(self._defaultLogFont)
 
     def eventFilter(self, obj, ev):
         """ Event filter for the web view
@@ -983,7 +994,7 @@ class PreviewDock(DockWidget):
             result = regex.findall(errString)
 
             # The variable ``result`` now contains a list of tuples, where each
-            # tuples contains the two matche groups (line number, error_string).
+            # tuples contains the two matched groups (line number, error_string).
             # For example::
             #
             #  [('1589', 'ERROR')]
