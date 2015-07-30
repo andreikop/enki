@@ -674,7 +674,7 @@ head
         self._doBasicTest('py')
         ps = self._widget().prgStatus
         self.assertIn('red', ps.styleSheet())
-        self.assertIn('Warning(s): 2, error(s): 2', ps.text())
+        self.assertIn('Error(s): 2, warning(s): 2', ps.text())
 
     @base.requiresModule('CodeChat')
     @base.inMainLoop
@@ -695,12 +695,12 @@ head
         base.waitForSignal(lambda: None, self._widget().webView.page().mainFrame().loadFinished, 200)
         ps = self._widget().prgStatus
         self.assertIn('#FF9955', ps.styleSheet())
-        self.assertIn('Warning(s): 1, error(s): 0', ps.text())
+        self.assertIn('Error(s): 0, warning(s): 1', ps.text())
         # switch to document 2
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
         base.waitForSignal(lambda: None, self._widget().webView.page().mainFrame().loadFinished, 200)
         self.assertIn('red', ps.styleSheet())
-        self.assertIn('Warning(s): 0, error(s): 1', ps.text())
+        self.assertIn('Error(s): 1, warning(s): 0', ps.text())
         # switch to document 3
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
         base.waitForSignal(lambda: None, self._widget().webView.page().mainFrame().loadFinished, 200)

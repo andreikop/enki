@@ -224,8 +224,6 @@ class ConverterThread(QThread):
         htmlString = docutils.core.publish_string(text, writer_name='html',
                                                   settings_overrides=settingsDict)
         errString = errStream.getvalue()
-        if errString:
-            errString = "<font color='red'>" + cgi.escape(errString) + '</font>'
         errStream.close()
         return htmlString, errString
 
@@ -268,7 +266,7 @@ class ConverterThread(QThread):
         elif os.path.exists(htmlFileAlter):
             return _checkModificationTime(filePath, htmlFileAlter, errString)
         else:
-            return ('No preview for this type of file.<br>Expect ' +
+            return ('No preview for this type of file.<br>Expected ' +
                     htmlFile + " or " + htmlFileAlter, errString, QUrl())
 
     def _convertCodeChat(self, text, filePath):
@@ -285,13 +283,7 @@ class ConverterThread(QThread):
             # or Coq (not supported). In this case, provide an error messsage
             errStream.write('Error: this file is not supported by CodeChat.')
             htmlString = ''
-        # Since the error string might contain characters such as ">" and "<",
-        # they need to be converted to "&gt;" and "&lt;" such that
-        # they can be displayed correctly in the log window as html strings.
-        # This step is handled by ``cgi.escape``.
         errString = errStream.getvalue()
-        if errString:
-            errString = "<font color='red'>" + cgi.escape(errString) + '</font>'
         errStream.close()
         return htmlString, errString, QUrl()
 
@@ -349,11 +341,14 @@ class ConverterThread(QThread):
             QTimer.singleShot(0, lambda: self._popen_read(popen))
             self._qe.exec_()
         except OSError as ex:
-            return '<font color=red>Failed to execute HTML builder:\n' + \
-                   '{}\n'.format(str(ex)) + \
-                   'Go to Settings -> Settings -> CodeChat to set HTML builder configurations.</pre>'
+            return (
+                    'Failed to execute HTML builder:\n'
+                    '{}\n'.format(str(ex)) +
+                    'Go to Settings -> Settings -> CodeChat to set HTML'
+                    ' builder configurations.')
 
-        return '<br><font color=red>' + cgi.escape(self._stderr) + '</font>'
+        return self._stderr
+
     # Read from stdout (in this thread) and stderr (in another thread),
     # so that the user sees output as the build progresses, rather than only
     # producing output after the build is complete.
@@ -996,12 +991,17 @@ class PreviewDock(DockWidget):
             # Therefeore, the second element of each tuple, represented as x[1],
             # is the error_string. The next two lines of code will collect all
             # ERRORs/SEVEREs and WARNINGs found in the error_string separately.
-            errNum = sum([x[1]==u'ERROR' or x[1]==u'SEVERE' for x in result])
+            errNum = sum([x[1] == u'ERROR' or x[1] == u'SEVERE' for x in result])
             warningNum = [x[1] for x in result].count('WARNING')
             # Report these results this to the user.
-            status = 'Warning(s): ' + str(warningNum) \
-                     + ', error(s): ' + str(errNum)
-            self._widget.teLog.appendHtml(errString + '</pre>')
+            status = 'Error(s): {}, warning(s): {}'.format(errNum, warningNum)
+            # Since the error string might contain characters such as ">" and "<",
+            # they need to be converted to "&gt;" and "&lt;" such that
+            # they can be displayed correctly in the log window as HTML strings.
+            # This step is handled by ``cgi.escape``.
+            self._widget.teLog.appendHtml("<pre><font color='red'>\n" +
+                                          cgi.escape(errString) +
+                                          '</font></pre>')
             # Update the progress bar.
             color = 'red' if errNum else '#FF9955' if warningNum else None
             self._setHtmlProgress(status, color)
@@ -1012,7 +1012,7 @@ class PreviewDock(DockWidget):
                 self._widget.splitterErrorStateSize = self._widget.splitter.sizes()
                 self._widget.splitterNormState = True
             self._widget.splitter.setSizes(self._widget.splitterNormStateSize)
-            self._setHtmlProgress('Warning(s): 0, error(s): 0')
+            self._setHtmlProgress('Error(s): 0, warning(s): 0')
 
         # Do a rebuild if needed.
         if self._rebuildNeeded:
