@@ -60,8 +60,7 @@ cd ..
 # ========
 # Fedora: pcre     pcre-devel   python-qt4
 $INSTALL  libpcre3 libpcre3-dev python-qt4
-# See https://github.com/hlamer/qutepart.
-git clone https://github.com/bjones1/qutepart.git
+git clone https://github.com/hlamer/qutepart.git
 cd qutepart
 sudo python setup.py install
 $PAUSE
@@ -73,8 +72,7 @@ cd ..
 $INSTALL  desktop-file-utils exuberant-ctags # On Fedora, use ctags.
 # Then install Python packages from pip, since apt-get packages are older.
 sudo pip install -U mock markdown sphinx pylint
-# See https://github.com/bjones1/enki.
-git clone https://github.com/bjones1/enki.git
+git clone https://github.com/hlamer/enki.git
 cd enki
 $PAUSE
 cd ..
@@ -87,14 +85,5 @@ MARKDOWN_PATH=`python -c 'import markdown; print markdown.__path__[0]'`
 # Per the instructions, rename to mathjax.py and install in the markdown
 # extensions folder.
 sudo cp mdx_mathjax.py $MARKDOWN_PATH/extensions/mathjax.py
-
-# PyInstaller
-# ===========
-# See http://www.pyinstaller.org/.
-git clone git://github.com/pyinstaller/pyinstaller.git
-cd pyinstaller
-sudo python setup.py install
-$PAUSE
-cd ..
 
 cd ..
