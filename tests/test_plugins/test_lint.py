@@ -12,22 +12,23 @@ from PyQt4.QtCore import Qt
 from PyQt4.QtTest import QTest
 
 from enki.core.core import core
-from enki.plugins.lint.settings_widget import _getPylintVersion
+from enki.plugins.lint.settings_widget import _getFlake8Version
 
 
 class Test(base.TestCase):
-    @base.requiresCmdlineUtility('pylint --version')
+    @base.requiresCmdlineUtility('flake8 --version')
     def test_1(self):
         """ File is checked after opened """
         doc = self.createFile('test.py', 'asdf\n\n')
-        self.waitUntilPassed(2000, lambda: self.assertEqual(doc.qutepart.lintMarks, {0: ('e', "Undefined variable 'asdf'")}))
-        self.assertEqual(core.mainWindow().statusBar().currentMessage(), "Undefined variable 'asdf'")
+        self.waitUntilPassed(2000, lambda: self.assertEqual(doc.qutepart.lintMarks, {0: ('e', "F821 undefined name 'asdf'"),
+                                                                                     1: ('w', 'W391 blank line at end of file')}))
+        self.assertEqual(core.mainWindow().statusBar().currentMessage(), "F821 undefined name 'asdf'")
 
         doc.qutepart.cursorPosition = ((1, 0))
-        self.assertEqual(core.mainWindow().statusBar().currentMessage(), "")
+        self.assertEqual(core.mainWindow().statusBar().currentMessage(), 'W391 blank line at end of file')
 
         doc.qutepart.cursorPosition = ((0, 1))
-        self.assertEqual(core.mainWindow().statusBar().currentMessage(), "Undefined variable 'asdf'")
+        self.assertEqual(core.mainWindow().statusBar().currentMessage(), "F821 undefined name 'asdf'")
 
         doc.qutepart.text = 'def main()\n    return 7'
         self.assertEqual(doc.qutepart.lintMarks, {})
@@ -35,12 +36,13 @@ class Test(base.TestCase):
 
         doc.saveFile()
 
-        self.waitUntilPassed(2000, lambda: self.assertEqual(doc.qutepart.lintMarks, {0: ('e', 'invalid syntax')}))
+        self.waitUntilPassed(2000, lambda: self.assertEqual(doc.qutepart.lintMarks, {0: ('e', 'E901 SyntaxError: invalid syntax'),
+                                                                                     1: ('e', 'E113 unexpected indentation')}))
 
-    @base.requiresCmdlineUtility('pylint --version')
+    @base.requiresCmdlineUtility('flake8 --version')
     def test_2(self):
-        """ _getPylintVersion """
-        version = _getPylintVersion('pylint')
+        """ _getFlake8Version """
+        version = _getFlake8Version('flake8')
         self.assertIsInstance(version, list)
         self.assertEqual(len(version), 3)
 
@@ -55,7 +57,7 @@ class Test(base.TestCase):
                 getattr(page, checkedRb).setChecked(True)
 
             if path is not None:
-                page.lePylintPath.setText(path)
+                page.leFlake8Path.setText(path)
 
             QTest.keyClick(dialog, Qt.Key_Enter)
 

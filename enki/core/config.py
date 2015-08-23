@@ -135,6 +135,10 @@ class Config():
             self._data['Qutepart']['VimModeEnabled'] = False
             self._data['_version'] = 16
 
+        if self._data['_version'] == 16:
+            self._data['Lint']['Python']['Path'] = 'flake8'
+            self._data['_version'] = 17
+
     def _setPlatformDefaults(self):
         """Set default values, which depend on platform
         """

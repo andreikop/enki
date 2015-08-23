@@ -65,7 +65,7 @@
         "Python": {
             "Enabled": true,
             "Show": "all",
-            "Path": "pylint"
+            "Path": "flake8"
         }
     },
     "FileBrowser": {

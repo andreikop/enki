@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The Python linter uses &lt;a href=&quot;http://pylint.org&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Pylint&lt;/span&gt;&lt;/a&gt; to check the code for mistakes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The Python linter uses &lt;a href=&quot;https://pypi.python.org/pypi/flake8&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Flake8&lt;/span&gt;&lt;/a&gt; to check the code for mistakes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="openExternalLinks">
       <bool>true</bool>
@@ -27,7 +27,7 @@
    <item>
     <widget class="QGroupBox" name="gbEnabled">
      <property name="title">
-      <string>Enable Pylint</string>
+      <string>Enable Flake8</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -58,16 +58,16 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="gbPylintPath">
+    <widget class="QGroupBox" name="gbFlake8Path">
      <property name="title">
-      <string>Pylint path</string>
+      <string>Flake8 path</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QLineEdit" name="lePylintPath"/>
+       <widget class="QLineEdit" name="leFlake8Path"/>
       </item>
       <item>
-       <widget class="QToolButton" name="pbPylintPath">
+       <widget class="QToolButton" name="pbFlake8Path">
         <property name="text">
          <string>...</string>
         </property>
@@ -128,7 +128,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Hint: You can configure pylint via the ~/.pylintrc file.</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Hint: You can configure pylint via the ~/.config/flake8 file. (~/.flake8 on Windows)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
    </item>

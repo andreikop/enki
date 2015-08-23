@@ -23,12 +23,11 @@ class ProcessorThread(QThread):
 
     _Task = collections.namedtuple("Task", ["document", "language", "filePath"])
 
-    _MSG_ID_CONVERTOR = {'C': Qutepart.LINT_NOTE,
-                         'E': Qutepart.LINT_ERROR,
-                         'F': None,
-                         'I': None,
-                         'R': Qutepart.LINT_NOTE,
-                         'W': Qutepart.LINT_WARNING
+    _MSG_ID_CONVERTOR = {'E': Qutepart.LINT_ERROR,
+                         'W': Qutepart.LINT_WARNING,
+                         'F': Qutepart.LINT_ERROR,
+                         'C': Qutepart.LINT_NOTE,
+                         'N': Qutepart.LINT_NOTE,
                         }
 
     def __init__(self):
@@ -69,9 +68,6 @@ class ProcessorThread(QThread):
     def _processSync(self, language, filePath):
         try:
             stdout = get_console_output([core.config()['Lint']['Python']['Path'],
-                                         '--msg-template=enkilint:{line}:{msg_id}:{msg}',
-                                         '--reports=no',
-                                         '--output-format=text',
                                          filePath])[0]
         except OSError:
             return
@@ -79,13 +75,15 @@ class ProcessorThread(QThread):
         result = {}
 
         for line in stdout.splitlines():
-            if line.startswith('enkilint:'):
-                _, lineNumber, msgId, msgText = line.split(':', 3)
+                filePath, lineNumber, columnNumber, rest = line.split(':', 3)
+                rest = rest.lstrip()
+                msgId, msgText = rest.lstrip().split(' ', 1)
 
                 lineIndex = int(lineNumber) - 1
                 msgType = self._MSG_ID_CONVERTOR[msgId[0]]
                 if msgType is not None:  # not ignored
-                    result[lineIndex] = (msgType, msgText)
+                    if not lineIndex in result:
+                        result[lineIndex] = (msgType, rest)
 
         return result
 
@@ -161,7 +159,7 @@ class Plugin(QObject):
         from .settings_widget import SettingsWidget
         widget = SettingsWidget(dialog)
 
-        icon = QIcon(os.path.join(os.path.dirname(__file__), 'pylint.png'))
+        icon = QIcon(os.path.join(os.path.dirname(__file__), 'python.png'))
         dialog.appendPage(u"Lint/Python", widget, icon)
 
         # Options
@@ -171,7 +169,7 @@ class Plugin(QObject):
                                           widget.rbErrorsAndWarnings: "errorsAndWarnings",
                                           widget.rbAll: "all"}))
         dialog.appendOption(TextOption(dialog, core.config(),
-                                       "Lint/Python/Path", widget.lePylintPath))
+                                       "Lint/Python/Path", widget.leFlake8Path))
 
     def _applySettings(self):
         if core.config()['Lint']['Python']['Enabled']:
