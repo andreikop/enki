@@ -139,6 +139,11 @@ class Config():
             self._data['Lint']['Python']['Path'] = 'flake8'
             self._data['_version'] = 17
 
+        if self._data['_version'] == 17:
+            self._data['Lint']['Python']['IgnoredMessages'] = ''
+            self._data['Lint']['Python']['MaxLineLength'] = 79
+            self._data['_version'] = 18
+
     def _setPlatformDefaults(self):
         """Set default values, which depend on platform
         """

@@ -9,8 +9,7 @@ from PyQt4.QtCore import QObject, QThread, pyqtSignal
 from PyQt4.QtGui import QIcon
 
 from enki.core.core import core
-from enki.core.document import Document
-from enki.core.uisettings import ChoiseOption, TextOption, CheckableOption
+from enki.core.uisettings import ChoiseOption, TextOption, CheckableOption, NumericOption
 from enki.lib.get_console_output import get_console_output
 
 from qutepart import Qutepart
@@ -66,8 +65,12 @@ class ProcessorThread(QThread):
                 self.resultsReady.emit((task.document, results,))
 
     def _processSync(self, language, filePath):
+        conf = core.config()['Lint']['Python']
+        ignored = ','.join(conf['IgnoredMessages'].split())
         try:
-            stdout = get_console_output([core.config()['Lint']['Python']['Path'],
+            stdout = get_console_output([conf['Path'],
+                                         '--max-line-length={}'.format(conf['MaxLineLength']),
+                                         '--ignore={}'.format(ignored),
                                          filePath])[0]
         except OSError:
             return
@@ -88,7 +91,6 @@ class ProcessorThread(QThread):
         return result
 
 
-
 class Plugin(QObject):
     """Main class. Interface for the core.
     """
@@ -97,7 +99,6 @@ class Plugin(QObject):
                      'errorsAndWarnings': (Qutepart.LINT_ERROR, Qutepart.LINT_WARNING),
                      'all': (Qutepart.LINT_ERROR, Qutepart.LINT_WARNING, Qutepart.LINT_NOTE)
                     }
-
 
     def __init__(self):
         QObject.__init__(self)
@@ -170,6 +171,10 @@ class Plugin(QObject):
                                           widget.rbAll: "all"}))
         dialog.appendOption(TextOption(dialog, core.config(),
                                        "Lint/Python/Path", widget.leFlake8Path))
+        dialog.appendOption(TextOption(dialog, core.config(),
+                                       "Lint/Python/IgnoredMessages", widget.leIgnoredMessages))
+        dialog.appendOption(NumericOption(dialog, core.config(),
+                                       "Lint/Python/MaxLineLength", widget.spMaxLineLength))
 
     def _applySettings(self):
         if core.config()['Lint']['Python']['Enabled']:
@@ -187,7 +192,6 @@ class Plugin(QObject):
             self._thread.resultsReady.connect(self._onResultsReady)
 
         self._thread.process(document)
-
 
     def _isSupported(self, document):
         return document is not None and \
@@ -233,8 +237,8 @@ class Plugin(QObject):
 
         visibleMessagesFilter = self._LEVEL_FILTER[core.config().get('Lint/Python/Show')]
 
-        filteredResults = {lineNumber: value \
-                                for lineNumber, value in results.items() \
+        filteredResults = {lineNumber: value
+                                for lineNumber, value in results.items()
                                     if (value[0] in visibleMessagesFilter)}
 
         for level, message in filteredResults.values():

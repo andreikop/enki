@@ -20,8 +20,9 @@ class Test(base.TestCase):
     def test_1(self):
         """ File is checked after opened """
         doc = self.createFile('test.py', 'asdf\n\n')
-        self.waitUntilPassed(2000, lambda: self.assertEqual(doc.qutepart.lintMarks, {0: ('e', "F821 undefined name 'asdf'"),
-                                                                                     1: ('w', 'W391 blank line at end of file')}))
+        self.waitUntilPassed(2000, lambda: self.assertEqual(doc.qutepart.lintMarks,
+                             {0: ('e', "F821 undefined name 'asdf'"),
+                              1: ('w', 'W391 blank line at end of file')}))
         self.assertEqual(core.mainWindow().statusBar().currentMessage(), "F821 undefined name 'asdf'")
 
         doc.qutepart.cursorPosition = ((1, 0))
@@ -36,8 +37,9 @@ class Test(base.TestCase):
 
         doc.saveFile()
 
-        self.waitUntilPassed(2000, lambda: self.assertEqual(doc.qutepart.lintMarks, {0: ('e', 'E901 SyntaxError: invalid syntax'),
-                                                                                     1: ('e', 'E113 unexpected indentation')}))
+        self.waitUntilPassed(2000, lambda: self.assertEqual(doc.qutepart.lintMarks,
+                             {0: ('e', 'E901 SyntaxError: invalid syntax'),
+                              1: ('e', 'E113 unexpected indentation')}))
 
     @base.requiresCmdlineUtility('flake8 --version')
     def test_2(self):
@@ -64,7 +66,7 @@ class Test(base.TestCase):
         self.openSettings(continueFunc)
 
     def test_3(self):
-        """ Settings """
+        """ Settings widget """
         self._setSettings(enabled=False, path='newlint', checkedRb='rbErrors')
 
         self.assertEqual(core.config().get('Lint/Python/Enabled'), False)
@@ -79,6 +81,20 @@ class Test(base.TestCase):
 
         self._setSettings(enabled=True)
         self.assertEqual(core.config().get('Lint/Python/Enabled'), True)
+
+    def test_4(self):
+        """ Settings are applied """
+        doc = self.createFile('test.py', 'asdf\n\n')
+        self.waitUntilPassed(2000, lambda: self.assertEqual(doc.qutepart.lintMarks,
+                                                            {0: ('e', "F821 undefined name 'asdf'"),
+                                                             1: ('w', 'W391 blank line at end of file')}))
+
+        core.config().set('Lint/Python/IgnoredMessages', 'F821 W391')
+        doc.qutepart.text += ' '
+        doc.saveFile()
+
+        self.waitUntilPassed(2000, lambda: self.assertEqual(doc.qutepart.lintMarks,
+                                                            {1: ('w', 'W293 blank line contains whitespace')}))
 
 
 if __name__ == '__main__':
