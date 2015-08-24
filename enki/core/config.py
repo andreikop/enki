@@ -43,106 +43,12 @@ class Config():
     def _updateVersion(self):
         """Update config version, if config is old
         """
-        if not '_version' in self._data:
-            self._data['_version'] = 1
-            self._data['NegativeFileFilter'] = self._data['FileBrowser']['NegativeFilter']
+        currentVersion = self._data['_version']
+        while hasattr(self, '_migrate_to_{}'.format(currentVersion + 1)):
+            getattr(self, '_migrate_to_{}'.format(currentVersion + 1))()
+            self._data['_version'] = currentVersion + 1
+            currentVersion += 1
 
-        if self._data['_version'] == 1:
-            self._data['Associations']['Markdown'] = { "FileName": [ "*.md", "*.markdown"], \
-                                                       "FirstLine": [] }
-            self._data['_version'] = 2
-
-        if self._data['_version'] == 2:
-            self._data["Editor"]["MonochromeSelectionForeground"] = True
-            self._data['_version'] = 3
-
-        if self._data['_version'] == 3:
-            self._data['PlatformDefaultsHaveBeenSet'] = False
-            self._data["Preview"] = {"Enabled": True,
-                                     "JavaScriptEnabled": True}
-
-            self._data['_version'] = 4
-
-        if self._data['_version'] == 4:
-            editor = self._data['Editor']
-            self._data['Qutepart'] = {
-                "Font": { "Family": editor['DefaultFont'],
-                          "Size": editor['DefaultFontSize'] },
-                "Indentation": {'UseTabs': editor['Indentation']['UseTabs'],
-                                'Width': editor['Indentation']['Width'],
-                                'AutoDetect': editor['Indentation']['AutoDetect'],
-                               },
-                "Edge": { 'Color': editor['Edge']['Color'],
-                          'Column': editor['Edge']['Column'],
-                          'Enabled': editor['Edge']['Enabled']
-                        },
-                "AutoCompletion": { 'Enabled': editor['AutoCompletion']['Enabled'],
-                                    "Threshold": editor['AutoCompletion']['Threshold']
-                                  },
-                "Wrap": { 'Enabled': editor['Wrap']['Enabled'],
-                          'Mode': 'WrapAtWord' if editor['Wrap']['Mode'] == "WrapWord" else "WrapAnywhere" },
-                "EOL": editor["EOL"]
-            }
-            self._data['_version'] = 5
-
-        if self._data['_version'] in (5, 6):
-            self._data['Qutepart']['WhiteSpaceVisibility'] = {'Trailing': True, 'AnyIndentation': False}
-            self._data['_version'] = 7
-
-        if self._data['_version'] == 7:
-            if not 'Preview' in self._data:  # should appear in version 4, but migration was broken in some versions
-                self._data["Preview"] = {"Enabled": True,
-                                         "JavaScriptEnabled": True}
-            self._data['Preview']['Template'] = 'Default'
-            self._data['_version'] = 8
-
-        if self._data['_version'] == 8:
-            self._data['Navigator'] = {'Enabled': True, 'CtagsPath': 'ctags'}
-            self._data['_version'] = 9
-
-        if self._data['_version'] == 9:
-            self._data['Qutepart']['StripTrailingWhitespace'] = False
-            self._data['_version'] = 10
-
-        if self._data['_version'] == 10:
-            self._data['Navigator']['SortAlphabetically'] = False
-            self._data['_version'] = 11
-
-        if self._data['_version'] == 11:
-            self._data['OpenTerm'] = {'Term': ''}
-            self._data['_version'] = 12
-
-        if self._data['_version'] == 12:
-            ws = self._data['Qutepart']['WhiteSpaceVisibility']
-            ws['Incorrect'] = ws['Trailing']
-            del ws['Trailing']
-            ws['Any'] = ws['AnyIndentation']
-            del ws['AnyIndentation']
-            self._data['_version'] = 13
-
-        if self._data['_version'] == 13:
-            self._data['Lint'] = {'Python': {'Enabled': True,
-                                             'Show': "all",
-                                             'Path': "pylint"}
-                                 }
-            self._data['_version'] = 14
-
-        if self._data['_version'] == 14:
-            self._data['FileBrowser'] = {'LastPath': ''}
-            self._data['_version'] = 15
-
-        if self._data['_version'] == 15:
-            self._data['Qutepart']['VimModeEnabled'] = False
-            self._data['_version'] = 16
-
-        if self._data['_version'] == 16:
-            self._data['Lint']['Python']['Path'] = 'flake8'
-            self._data['_version'] = 17
-
-        if self._data['_version'] == 17:
-            self._data['Lint']['Python']['IgnoredMessages'] = ''
-            self._data['Lint']['Python']['MaxLineLength'] = 79
-            self._data['_version'] = 18
 
     def _setPlatformDefaults(self):
         """Set default values, which depend on platform
@@ -237,3 +143,88 @@ class Config():
         """Python dictionary interface implementation
         """
         return key in self._data
+
+    def _migrate_to_1(self):
+        self._data['NegativeFileFilter'] = self._data['FileBrowser']['NegativeFilter']
+
+    def _migrate_to_2(self):
+        self._data['Associations']['Markdown'] = {"FileName": ["*.md", "*.markdown"],
+                                                  "FirstLine": []}
+
+    def _migrate_to_3(self):
+        self._data["Editor"]["MonochromeSelectionForeground"] = True
+
+    def _migrate_to_4(self):
+        self._data['PlatformDefaultsHaveBeenSet'] = False
+        self._data["Preview"] = {"Enabled": True,
+                                 "JavaScriptEnabled": True}
+
+    def _migrate_to_5(self):
+        editor = self._data['Editor']
+        self._data['Qutepart'] = {
+            "Font": { "Family": editor['DefaultFont'],
+                      "Size": editor['DefaultFontSize'] },
+            "Indentation": {'UseTabs': editor['Indentation']['UseTabs'],
+                            'Width': editor['Indentation']['Width'],
+                            'AutoDetect': editor['Indentation']['AutoDetect'],
+                           },
+            "Edge": { 'Color': editor['Edge']['Color'],
+                      'Column': editor['Edge']['Column'],
+                      'Enabled': editor['Edge']['Enabled']
+                    },
+            "AutoCompletion": { 'Enabled': editor['AutoCompletion']['Enabled'],
+                                "Threshold": editor['AutoCompletion']['Threshold']
+                              },
+            "Wrap": { 'Enabled': editor['Wrap']['Enabled'],
+                      'Mode': 'WrapAtWord' if editor['Wrap']['Mode'] == "WrapWord" else "WrapAnywhere" },
+            "EOL": editor["EOL"]
+        }
+
+    def _migrate_to_6(self):
+        pass
+
+    def _migrate_to_7(self):
+        self._data['Qutepart']['WhiteSpaceVisibility'] = {'Trailing': True, 'AnyIndentation': False}
+
+    def _migrate_to_8(self):
+        if not 'Preview' in self._data:  # should appear in version 4, but migration was broken in some versions
+            self._data["Preview"] = {"Enabled": True,
+                                     "JavaScriptEnabled": True}
+        self._data['Preview']['Template'] = 'Default'
+
+    def _migrate_to_9(self):
+        self._data['Navigator'] = {'Enabled': True, 'CtagsPath': 'ctags'}
+
+    def _migrate_to_10(self):
+        self._data['Qutepart']['StripTrailingWhitespace'] = False
+
+    def _migrate_to_11(self):
+        self._data['Navigator']['SortAlphabetically'] = False
+
+    def _migrate_to_12(self):
+        self._data['OpenTerm'] = {'Term': ''}
+
+    def _migrate_to_13(self):
+        ws = self._data['Qutepart']['WhiteSpaceVisibility']
+        ws['Incorrect'] = ws['Trailing']
+        del ws['Trailing']
+        ws['Any'] = ws['AnyIndentation']
+        del ws['AnyIndentation']
+
+    def _migrate_to_14(self):
+        self._data['Lint'] = {'Python': {'Enabled': True,
+                                         'Show': "all",
+                                         'Path': "pylint"}}
+
+    def _migrate_to_15(self):
+        self._data['FileBrowser'] = {'LastPath': ''}
+
+    def _migrate_to_16(self):
+        self._data['Qutepart']['VimModeEnabled'] = False
+
+    def _migrate_to_17(self):
+        self._data['Lint']['Python']['Path'] = 'flake8'
+
+    def _migrate_to_18(self):
+        self._data['Lint']['Python']['IgnoredMessages'] = ''
+        self._data['Lint']['Python']['MaxLineLength'] = 79
