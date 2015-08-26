@@ -267,7 +267,7 @@ class Workspace(QStackedWidget):
         QStackedWidget.__init__(self, mainWindow)
         mainWindow.setFocusProxy(self)
 
-        self.setStyleSheet("QStackedWidget { padding-bottom: 5; }");
+        self.setStyleSheet("QStackedWidget { padding-bottom: 5; }")
         self.sortedDocuments = []  # not protected, because available for OpenedFileModel
         self._oldCurrentDocument = None
 
@@ -280,6 +280,8 @@ class Workspace(QStackedWidget):
 
         self.currentDocumentChanged.connect(self._updateMainWindowTitle)
         self.currentDocumentChanged.connect(self._onCurrentDocumentChanged)
+
+        self._projectPath = os.path.abspath('.')
 
     def del_(self):
         """Terminate workspace. Called by the core to clear actions
@@ -296,25 +298,22 @@ class Workspace(QStackedWidget):
         """Update window title after document or it's modified state has been changed
         """
         document = self.currentDocument()
-        if document:
-            name = document.fileName()
-            if name is None:
-                name = 'untitled'
-            if document.qutepart.document().isModified():
-                name += '*'
-            if document.filePath() is not None:
-                path = os.path.dirname(document.filePath())
-            else:
-                try:
-                    path = os.path.abspath(os.curdir)
-                except OSError:  # deleted
-                    path = '?'
 
-            name += ' - '
-            name += path
+        if document:
+            filePath = document.filePath()
+            if filePath is None:
+                relFilePath = 'untitled'
+            else:
+                relFilePath = os.path.relpath(filePath, self._projectPath)
+
+            if document.qutepart.document().isModified():
+                relFilePath += '*'
+
+            title = '{} - {}'.format(relFilePath, self._projectPath)
         else:
-            name = self._mainWindow().defaultTitle()
-        self._mainWindow().setWindowTitle(name)
+            title = self._projectPath
+
+        self._mainWindow().setWindowTitle(title)
 
     def eventFilter( self, obj, event ):
         pass  # suppress docstring for non-public method
@@ -358,13 +357,6 @@ class Workspace(QStackedWidget):
     def _onCurrentDocumentChanged(self, old, new):
         """Change current directory, if current file changed
         """
-        if  new and new.filePath() is not None and \
-            os.path.exists(os.path.dirname(new.filePath())):
-            try:
-                os.chdir( os.path.dirname(new.filePath()) )
-            except OSError, ex:  # directory might be deleted
-                print >> sys.stderr, 'Failed to change directory:', str(ex)
-
         if old is not None:
             for path, name in self._QUTEPART_ACTIONS:
                 core.actionManager().removeAction(path)
@@ -691,3 +683,13 @@ class Workspace(QStackedWidget):
         """
         for document in self.documents()[::-1]:
             self._doCloseDocument(document)
+
+    def setProjectPath(self, path):
+        self._projectPath = path
+        try:
+            os.chdir(path)
+        except OSError:
+            pass
+
+    def projectPath(self):
+        return self._projectPath

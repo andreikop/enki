@@ -692,13 +692,7 @@ class DockFileBrowser(DockWidget):
         # notify SmartRecents and own slots
         self.rootChanged.emit(path)
 
-        # cd if no files with known path
-        if not any([doc for doc in core.workspace().documents() \
-                        if doc.filePath() is not None]):
-            try:
-                os.chdir(path)
-            except OSError:  # directory deleted
-                pass
+        core.workspace().setProjectPath(path)
 
     def moveUp(self):
         """Move tree root up, or only move focus"""
