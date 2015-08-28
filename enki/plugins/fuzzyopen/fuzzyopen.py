@@ -183,7 +183,7 @@ class FuzzyOpener(QDialog):
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.KeyPress and \
-           event.key() in (Qt.Key_Up, Qt.Key_Down):
+           event.key() in (Qt.Key_Up, Qt.Key_Down, Qt.Key_PageUp, Qt.Key_PageDown, Qt.Key_Home, Qt.Key_End):
             self.listView.event(event)
             return True
         else:
