@@ -12,22 +12,42 @@ from enki.lib.htmldelegate import HTMLDelegate
 from enki.core.core import core
 
 
-def fuzzy_match(pattern, text):
+def fuzzyMatch(pattern, text):
     """Match text with pattern and return
-    list of matching indexes or None
-    """
+        (score, list of matching indexes)
+        or None
 
-    iter_text = enumerate(text)
+    Score is a summa or distances of continuos matched peaces from the end of the text.
+    Less peaces -> better mathing
+    Peaces close to the end -> better matching
+
+    Reverse mathing is used because symbols at the end of the path are usually more impotant.
+    """
+    iter_text = reversed(list(enumerate(text)))
     indexes = []
-    for pattern_char in pattern:
+
+    sequence_start_indexes = []
+
+    prev_matched = False
+    for pattern_char in reversed(pattern):
         for text_index, text_char in iter_text:
             if pattern_char == text_char:
+                if not prev_matched:  # start of sequence of matched symbols
+                    sequence_start_indexes.append(text_index)
+                    prev_matched = True
                 indexes.append(text_index)
                 break
+            else:
+                prev_matched = False
+
         else:
             return None
 
-    return indexes
+    if indexes:
+        score = sum([len(text) - index for index in sequence_start_indexes])
+        return (score, indexes)
+    else:
+        return None
 
 
 class ScannerThread(QThread):
@@ -84,7 +104,7 @@ class ListModel(QAbstractListModel):
             if self._message:
                 return self._message
             else:
-                path, indexes = self._items[index.row()]
+                path, score, indexes = self._items[index.row()]
                 basename = os.path.basename(path)
                 chars = ['<b>{}</b>'.format(char) if charIndex in indexes else char
                             for charIndex, char in enumerate(path)]
@@ -111,14 +131,14 @@ class FuzzyOpener(QDialog):
         QDialog.__init__(self, parent)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'fuzzyopen.ui'), self)
 
-        self._items = []
+        self._pathList = []
 
         path = core.workspace().projectPath()
 
         self._model = ListModel(path)
 
         self._thread = ScannerThread(self, path)
-        self._thread.itemsReady.connect(self._onItemsReady)
+        self._thread.itemsReady.connect(self._onPathListReady)
         self._thread.start()
 
         self.listView.setModel(self._model)
@@ -134,22 +154,24 @@ class FuzzyOpener(QDialog):
     def terminate(self):
         self._thread.stop()
 
-    def _onItemsReady(self, items):
-        self._items = items
+    def _onPathListReady(self, pathList):
+        self._pathList = pathList
         self._updateModel()
 
     def _updateModel(self):
         pattern = self.lineEdit.text()
         if pattern:
             matching = []
-            for item in self._items:
-                indexes = fuzzy_match(pattern, item)
-                if indexes:
-                    matching.append((item, indexes))
+            for path in self._pathList:
+                res = fuzzyMatch(pattern, path)
+                if res is not None:
+                    score, indexes = res
+                    matching.append((path, score, indexes))
 
+            matching.sort(key=lambda item: item[1])  # sort starting from minimal score
             self._model.setItems(matching)
         else:
-            self._model.setItems([(item, []) for item in self._items])
+            self._model.setItems([(item, 0, []) for item in self._pathList])
         self.listView.setCurrentIndex(self._model.createIndex(0, 0))
 
     def _onEnter(self):
