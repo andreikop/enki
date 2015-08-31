@@ -13,4 +13,6 @@ class Plugin:
         core.actionManager().removeAction(self._action)
 
     def _onActionTriggered(self):
-        FuzzyOpener(core.mainWindow()).exec_()
+        f = FuzzyOpener(core.mainWindow())
+        f.exec_()
+        f.terminate()
