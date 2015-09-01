@@ -279,6 +279,7 @@ class Workspace(QStackedWidget):
         self.currentChanged.connect(self._onStackedLayoutIndexChanged)
 
         self.currentDocumentChanged.connect(self._updateMainWindowTitle)
+        core.project().changed.connect(self._updateMainWindowTitle)
         self.currentDocumentChanged.connect(self._onCurrentDocumentChanged)
 
     def del_(self):
