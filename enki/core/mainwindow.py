@@ -236,6 +236,8 @@ class MainWindow(QMainWindow):
         # Menu or action path                          Name                     Icon            Shortcut        Hint                     enabled  checkable
         tr = self.tr  # pylint: disable=C0103
         menu  ("mFile",                               "File"                  , ""            )
+        action("mFile/aOpenProject",                  "Open Pro&ject..."      , "open.png",     "Shift+Ctrl+O" ,"Open a project"         , True )
+        separator("mFile")
         menu  ("mFile/mUndoClose",                    "Undo Close"            , "recents.png" )
         separator("mFile")
         action("mFile/aNew",                          "&New file..."          , "new.png",      'Ctrl+N',       "New file"               , True )
