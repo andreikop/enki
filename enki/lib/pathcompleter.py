@@ -237,9 +237,8 @@ class PathCompleter(AbstractPathCompleter):
             path += '/'
 
         typedLen = self._lastTypedSegmentLength()
-        inline = self.inline()
         typedLenPlusInline = typedLen + len(self.inline())
-        return '<b>%s</b><u>%s</u>%s' % \
+        return '<b>%s</b><font color="red">%s</font>%s' % \
             (htmlEscape(path[:typedLen]),
              htmlEscape(path[typedLen:typedLenPlusInline]),
              htmlEscape(path[typedLenPlusInline:]))

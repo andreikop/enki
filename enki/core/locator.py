@@ -491,22 +491,27 @@ class Locator(QDialog):
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(1)
 
-        self._table = QTreeView(self)
-        self._model = _CompleterModel()
-        self._table.setModel(self._model)
-        self._table.setItemDelegate(HTMLDelegate())
-        self._table.setRootIsDecorated(False)
-        self._table.setHeaderHidden(True)
-        self._table.clicked.connect(self._onItemClicked)
-        self.layout().addWidget(self._table)
+        biggerFont = self.font()
+        biggerFont.setPointSizeF(biggerFont.pointSizeF() * 2)
+        self.setFont(biggerFont)
 
         self._edit = _CompletableLineEdit(self)
-        self.layout().addWidget(self._edit)
         self._edit.updateCompletion.connect(self._updateCompletion)
         self._edit.enterPressed.connect(self._onEnterPressed)
         self._edit.historyPrevious.connect(self._onHistoryPrevious)
         self._edit.historyNext.connect(self._onHistoryNext)
+        self.layout().addWidget(self._edit)
         self.setFocusProxy(self._edit)
+
+        self._table = QTreeView(self)
+        self._model = _CompleterModel()
+        self._table.setFont(biggerFont)
+        self._table.setModel(self._model)
+        self._table.setItemDelegate(HTMLDelegate(self._table))
+        self._table.setRootIsDecorated(False)
+        self._table.setHeaderHidden(True)
+        self._table.clicked.connect(self._onItemClicked)
+        self.layout().addWidget(self._table)
 
         width = QFontMetrics(self.font()).width('x' * 64)  # width of 64 'x' letters
         self.resize(width, width * 0.62)
@@ -524,7 +529,6 @@ class Locator(QDialog):
         self._loadingTimer.timeout.connect(self._applyLoadingCompleter)
 
         self._completerConstructorThread = None
-
 
     def del_(self):
         """Explicitly called destructor
@@ -562,7 +566,6 @@ class Locator(QDialog):
         """
         text = self._edit.commandText()
         atEnd = self._edit.cursorPosition() == len(text)
-        completer = None
 
         command, completableWordIndex = self._parseCurrentCommand()
         if command is not None and atEnd:
@@ -677,7 +680,6 @@ class Locator(QDialog):
                     argWordsWithIndexes = wordsWithIndexes
                     break
 
-
         #
         # Try to make command object
         #
@@ -699,7 +701,6 @@ class Locator(QDialog):
             completableWordIndex = None
 
         return cmd, completableWordIndex
-
 
     def exec_(self):
         """QDialog.exec() implementation. Updates completion before showing widget
