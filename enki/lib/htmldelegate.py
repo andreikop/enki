@@ -5,30 +5,40 @@ htmldelegate --- QStyledItemDelegate delegate. Draws HTML
 
 from PyQt4.QtGui import QApplication, QAbstractTextDocumentLayout, \
                         QStyledItemDelegate, QStyle, QStyleOptionViewItemV4, \
-                        QTextDocument, QPalette
+                        QTextDocument, QPalette, QWidget
 from PyQt4.QtCore import QSize
 
+
 _HTML_ESCAPE_TABLE = \
-{
-    "&": "&amp;",
-    '"': "&quot;",
-    "'": "&apos;",
-    ">": "&gt;",
-    "<": "&lt;",
-    " ": "&nbsp;",
-    "\t": "&nbsp;&nbsp;&nbsp;&nbsp;",
-}
+    {
+        "&": "&amp;",
+        '"': "&quot;",
+        "'": "&apos;",
+        ">": "&gt;",
+        "<": "&lt;",
+        " ": "&nbsp;",
+        "\t": "&nbsp;&nbsp;&nbsp;&nbsp;",
+    }
+
 
 def htmlEscape(text):
     """Replace special HTML symbols with escase sequences
     """
-    return "".join(_HTML_ESCAPE_TABLE.get(c,c) for c in text)
+    return "".join(_HTML_ESCAPE_TABLE.get(c, c) for c in text)
+
 
 class HTMLDelegate(QStyledItemDelegate):
     """QStyledItemDelegate implementation. Draws HTML
 
     http://stackoverflow.com/questions/1956542/how-to-make-item-view-render-rich-html-text-in-qt/1956781#1956781
     """
+    def __init__(self, parent=None):
+        if isinstance(parent, QWidget):
+            self._font = parent.font()
+        else:
+            self._font = None
+
+        QStyledItemDelegate.__init__(self, parent)
 
     def paint(self, painter, option, index):
         """QStyledItemDelegate.paint implementation
@@ -36,17 +46,20 @@ class HTMLDelegate(QStyledItemDelegate):
         option.state &= ~QStyle.State_HasFocus  # never draw focus rect
 
         options = QStyleOptionViewItemV4(option)
-        self.initStyleOption(options,index)
+        self.initStyleOption(options, index)
 
         style = QApplication.style() if options.widget is None else options.widget.style()
 
         doc = QTextDocument()
+        if self._font is not None:
+            doc.setDefaultFont(self._font)
+
         doc.setDocumentMargin(1)
         doc.setHtml(options.text)
         #  bad long (multiline) strings processing doc.setTextWidth(options.rect.width())
 
         options.text = ""
-        style.drawControl(QStyle.CE_ItemViewItem, options, painter);
+        style.drawControl(QStyle.CE_ItemViewItem, options, painter)
 
         ctx = QAbstractTextDocumentLayout.PaintContext()
 
@@ -66,9 +79,11 @@ class HTMLDelegate(QStyledItemDelegate):
         """QStyledItemDelegate.sizeHint implementation
         """
         options = QStyleOptionViewItemV4(option)
-        self.initStyleOption(options,index)
+        self.initStyleOption(options, index)
 
         doc = QTextDocument()
+        if self._font is not None:
+            doc.setDefaultFont(self._font)
         doc.setDocumentMargin(1)
         #  bad long (multiline) strings processing doc.setTextWidth(options.rect.width())
         doc.setHtml(options.text)
