@@ -67,6 +67,7 @@ class Core(QObject):
         self._fileFilter = None
         self._loadedPlugins = []
         self._cmdLine = {}
+        self._project = None
 
     def _prepareToCatchSigInt(self):
         """Catch SIGINT signal to close the application
@@ -125,6 +126,10 @@ class Core(QObject):
         self._locator = enki.core.locator.Locator(self._mainWindow)
         profiler.stepDone('Create Locator')
 
+        import enki.core.project
+        self._project = enki.core.project.Project(self)
+        profiler.stepDone('Create Project')
+
         # Create plugins
         firstPlugin = True
         pluginsPath = os.path.join(os.path.dirname(__file__), '../plugins')
@@ -145,6 +150,9 @@ class Core(QObject):
             plugin = self._loadedPlugins.pop()
             plugin.del_()
 
+        if self._project is not None:
+            self._project.del_()
+            self._project = None
         if self._locator is not None:
             self._locator.del_()
             self._locator = None
@@ -292,6 +300,13 @@ class Core(QObject):
         """ Dictionary of command line arguments, passed on Enki start
         """
         return self._cmdLine
+
+    def project(self):
+        """Project support core module
+
+        ::class:`enki.core.project.Project`
+        """
+        return self._project
 
 core = Core()  # pylint: disable=C0103
 """Core instance. It is accessible as:

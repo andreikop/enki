@@ -3,7 +3,7 @@
 import os
 import os.path
 
-from PyQt4.QtCore import QEvent, QAbstractListModel, QThread, Qt, pyqtSignal
+from PyQt4.QtCore import QEvent, QAbstractListModel, Qt
 from PyQt4.QtGui import QApplication, QDialog
 from PyQt4 import uic
 
@@ -50,36 +50,6 @@ def fuzzyMatch(pattern, text):
         return None
 
 
-class ScannerThread(QThread):
-    itemsReady = pyqtSignal(list)
-
-    def __init__(self, parent, path):
-        QThread.__init__(self, parent)
-        self._path = path
-        self._stop = False
-
-    def run(self):
-        results = []
-
-        filterRe = core.fileFilter().regExp()
-
-        for root, dirnames, filenames in os.walk(self._path):
-            if self._stop:
-                break
-            for pattern in '.git', '.svn':
-                if pattern in dirnames:
-                    dirnames.remove(pattern)
-            for filename in filenames:
-                if not filterRe.match(filename):
-                    results.append(os.path.relpath(os.path.join(root, filename), self._path))
-
-        if not self._stop:
-            self.itemsReady.emit(results)
-
-    def stop(self):
-        self._stop = True
-
-
 class ListModel(QAbstractListModel):
     def __init__(self, path):
         QAbstractListModel.__init__(self)
@@ -91,7 +61,7 @@ class ListModel(QAbstractListModel):
                               '<div style="margin: 10px;">{{}}</div>'.format(biggerFont=biggerFont))
 
     def terminate(self):
-        self._thread.stop()
+        pass
 
     def rowCount(self, index):
         if self._message:
@@ -131,18 +101,13 @@ class FuzzyOpener(QDialog):
         QDialog.__init__(self, parent)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'fuzzyopen.ui'), self)
 
-        self._pathList = []
-
-        path = core.workspace().projectPath()
+        path = core.project().path()
 
         self._model = ListModel(path)
 
-        self._thread = ScannerThread(self, path)
-        self._thread.itemsReady.connect(self._onPathListReady)
-        self._thread.start()
-
         self.listView.setModel(self._model)
         self.listView.setItemDelegate(HTMLDelegate())
+        self._updateModel()
 
         self.lineEdit.textEdited.connect(self._updateModel)
         self.lineEdit.returnPressed.connect(self._onEnter)
@@ -152,17 +117,13 @@ class FuzzyOpener(QDialog):
         self.show()
 
     def terminate(self):
-        self._thread.stop()
-
-    def _onPathListReady(self, pathList):
-        self._pathList = pathList
-        self._updateModel()
+        pass
 
     def _updateModel(self):
         pattern = self.lineEdit.text()
         if pattern:
             matching = []
-            for path in self._pathList:
+            for path in core.project().files():
                 res = fuzzyMatch(pattern, path)
                 if res is not None:
                     score, indexes = res
@@ -171,14 +132,14 @@ class FuzzyOpener(QDialog):
             matching.sort(key=lambda item: item[1])  # sort starting from minimal score
             self._model.setItems(matching)
         else:
-            self._model.setItems([(item, 0, []) for item in self._pathList])
+            self._model.setItems([(item, 0, []) for item in core.project().files()])
         self.listView.setCurrentIndex(self._model.createIndex(0, 0))
 
     def _onEnter(self):
         index = self.listView.currentIndex()
         if index.isValid():
             path = self._model.path(index)
-            core.workspace().openFile(path)
+            core.workspace().openFile(os.path.join(core.project().path(), path))
             self.accept()
 
     def eventFilter(self, obj, event):
