@@ -100,16 +100,22 @@ class Core(QObject):
         # Imports are here for hack crossimport problem
         import enki.core.mainwindow  # pylint: disable=W0621,W0404
         self._mainWindow = enki.core.mainwindow.MainWindow()
-
         profiler.stepDone('create main window')
 
         self._config = self._createConfig()
-
         profiler.stepDone('create config')
 
         import enki.core.uisettings  # pylint: disable=W0404
         self._uiSettingsManager = enki.core.uisettings.UISettingsManager()
         profiler.stepDone('Create UISettings')
+
+        import enki.core.filefilter
+        self._fileFilter = enki.core.filefilter.FileFilter()
+        profiler.stepDone('Create FileFilter')
+
+        import enki.core.project
+        self._project = enki.core.project.Project(self)
+        profiler.stepDone('Create Project')
 
         import enki.core.workspace
         profiler.stepDone('import workspace')
@@ -118,17 +124,9 @@ class Core(QObject):
         self._mainWindow.setWorkspace(self._workspace)
         profiler.stepDone('create workspace')
 
-        import enki.core.filefilter
-        self._fileFilter = enki.core.filefilter.FileFilter()
-        profiler.stepDone('Create FileFilter')
-
         import enki.core.locator
         self._locator = enki.core.locator.Locator(self._mainWindow)
         profiler.stepDone('Create Locator')
-
-        import enki.core.project
-        self._project = enki.core.project.Project(self)
-        profiler.stepDone('Create Project')
 
         # Create plugins
         firstPlugin = True
