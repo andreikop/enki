@@ -692,7 +692,7 @@ class DockFileBrowser(DockWidget):
         # notify SmartRecents and own slots
         self.rootChanged.emit(path)
 
-        core.workspace().setProjectPath(path)
+        core.project().open(path)
 
     def moveUp(self):
         """Move tree root up, or only move focus"""

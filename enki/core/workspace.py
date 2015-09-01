@@ -281,8 +281,6 @@ class Workspace(QStackedWidget):
         self.currentDocumentChanged.connect(self._updateMainWindowTitle)
         self.currentDocumentChanged.connect(self._onCurrentDocumentChanged)
 
-        self._projectPath = os.path.abspath('.')
-
     def del_(self):
         """Terminate workspace. Called by the core to clear actions
         """
@@ -304,14 +302,14 @@ class Workspace(QStackedWidget):
             if filePath is None:
                 relFilePath = 'untitled'
             else:
-                relFilePath = os.path.relpath(filePath, self._projectPath)
+                relFilePath = os.path.relpath(filePath, core.project().path())
 
             if document.qutepart.document().isModified():
                 relFilePath += '*'
 
-            title = '{} - {}'.format(relFilePath, self._projectPath)
+            title = '{} - {}'.format(relFilePath, core.project().path())
         else:
-            title = self._projectPath
+            title = core.project().path()
 
         self._mainWindow().setWindowTitle(title)
 
@@ -683,13 +681,3 @@ class Workspace(QStackedWidget):
         """
         for document in self.documents()[::-1]:
             self._doCloseDocument(document)
-
-    def setProjectPath(self, path):
-        self._projectPath = path
-        try:
-            os.chdir(path)
-        except OSError:
-            pass
-
-    def projectPath(self):
-        return self._projectPath
