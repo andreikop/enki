@@ -44,7 +44,7 @@ class AbstractCommand:
     isDefaultCommand = False
 
     def __init__(self, args):
-        """ Construct a command insance from arguments
+        """Construct a command insance from arguments
 
         Raises InvalidCmdArgs if arguments are invalid
         """
@@ -54,15 +54,16 @@ class AbstractCommand:
     def isAvailable():
         """Check if command is available now.
 
-        i.e. SaveAs command is not available, if not files are opened
+        i.e. SaveAs command is not available, if no files are opened
         """
         return True
 
     def completer(self, argIndex):
         """ ::class:`enki.core.locator.AbstractCompleter` instance for partially typed command.
 
-        Return None, if your command doesn't have completer, or if completion is not available now
-        argIndex is an index of command argument, for which completion is required
+        Return ``None``, if your command doesn't have completer, or if completion is not available now.
+
+        ``argIndex`` is an index of command argument, for which completion is required.
         """
         return None
 
