@@ -294,23 +294,36 @@ class Workspace(QStackedWidget):
         return self.parentWidget().parentWidget()
 
     def _updateMainWindowTitle(self):
-        """Update window title after document or it's modified state has been changed
+        """Update window title after current project, document or it's modified state has been changed
         """
-        document = self.currentDocument()
+        projPath = core.project().path()
+        if projPath is not None:
+            homePath = os.path.expanduser('~')
+            if projPath.startswith(homePath):
+                projPath = os.path.relpath(projPath, homePath)
 
+        document = self.currentDocument()
         if document:
             filePath = document.filePath()
             if filePath is None:
-                relFilePath = 'untitled'
-            else:
-                relFilePath = os.path.relpath(filePath, core.project().path())
+                filePath = 'untitled'
+            elif core.project().path() is not None and \
+                 filePath.startswith(core.project().path()):
+                filePath = os.path.relpath(filePath, core.project().path())
 
             if document.qutepart.document().isModified():
-                relFilePath += '*'
-
-            title = '{} - {}'.format(relFilePath, core.project().path())
+                filePath += '*'
         else:
-            title = core.project().path()
+            filePath = None
+
+        if projPath is not None and filePath is not None:
+            title = '{} - {}'.format(projPath, filePath)
+        elif projPath is not None:
+            title = projPath
+        elif filePath is not None:
+            title = filePath
+        else:
+            title = 'Enki v.{}'.format(enki.core.defines.PACKAGE_VERSION)
 
         self._mainWindow().setWindowTitle(title)
 
