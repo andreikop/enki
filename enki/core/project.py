@@ -81,6 +81,12 @@ class Project(QObject):
         self._path = path
         self._projectFiles = []
         self._startScannerThread()
+
+        try:
+            os.chdir(path)
+        except:
+            pass
+
         self.changed.emit(path)
 
     def path(self):
