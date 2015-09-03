@@ -47,10 +47,9 @@ class CommandGotoLine(AbstractCommand):
 
 class CommandOpen(AbstractCommand):
 
-    command = 'f'
-    signature = '[f] PATH [LINE]'
+    command = 'o'
+    signature = '[o] PATH [LINE]'
     description = 'Open file. Globs are supported'
-    isDefaultCommand = True
 
     def __init__(self, args):
         if len(args) > 2:
@@ -75,7 +74,7 @@ class CommandOpen(AbstractCommand):
         """
         if argIndex == 0:
             return makeSuitableCompleter(self._path)
-        elif argIndex == None:
+        elif argIndex is None:
             try:
                 curDir = os.getcwd()
             except:
