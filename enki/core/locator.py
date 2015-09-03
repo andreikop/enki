@@ -246,7 +246,7 @@ class _CompletableLineEdit(QLineEdit):
 
     Based on QLineEdit, because needs HTML support
 
-    Supports inline completion, emits signals when user wants to roll history or execute command
+    Supports inline completion, emits signals when user wants to execute command
     """
 
     """Text changed or cursor moved. Update completion
@@ -256,13 +256,6 @@ class _CompletableLineEdit(QLineEdit):
     """Enter pressed. Execute command, if complete
     """
     enterPressed = pyqtSignal()
-
-    """Up pressed, roll history
-    """
-    historyPrevious = pyqtSignal()
-    """Down pressed, roll history
-    """
-    historyNext = pyqtSignal()
 
     def __init__(self, *args):
         QLineEdit.__init__(self, *args)
@@ -287,10 +280,6 @@ class _CompletableLineEdit(QLineEdit):
             if self._inlineCompletionIsSet:
                 self.setCursorPosition(self.selectionStart() + len(self.selectedText()))
             self.enterPressed.emit()
-        elif event.key() == Qt.Key_Up:
-            self.historyPrevious.emit()
-        elif event.key() == Qt.Key_Down:
-            self.historyNext.emit()
         elif event.key() in (Qt.Key_Right, Qt.Key_End):
             if self.selectedText():
                 self.setCursorPosition(self.selectionStart() + len(self.selectedText()))
@@ -484,8 +473,6 @@ class Locator(QDialog):
         QDialog.__init__(self, *args)
 
         self._commandClasses = []
-        self._history = ['']
-        self._historyIndex = 0
         self._incompleteCommand = None
 
         self.setLayout(QVBoxLayout())
@@ -499,8 +486,6 @@ class Locator(QDialog):
         self._edit = _CompletableLineEdit(self)
         self._edit.updateCompletion.connect(self._updateCompletion)
         self._edit.enterPressed.connect(self._onEnterPressed)
-        self._edit.historyPrevious.connect(self._onHistoryPrevious)
-        self._edit.historyNext.connect(self._onHistoryNext)
         self.layout().addWidget(self._edit)
         self.setFocusProxy(self._edit)
 
@@ -608,33 +593,10 @@ class Locator(QDialog):
         command, completableWordIndex = self._parseCurrentCommand()
         if command is not None and command.isReadyToExecute():
             command.execute()
-            self._history[-1] = text
-            if len(self._history) > 1 and \
-               self._history[-1].strip() == self._history[-2].strip():
-                   self._history = self._history[:-1]  # if the last command repeats, remove duplicate
-            self._history.append('')  # new edited command
-            self._historyIndex = len(self._history) - 1
             self._edit.clear()
             if core.workspace().currentDocument() is not None:
                 core.workspace().currentDocument().setFocus()
             self.hide()
-
-    def _onHistoryPrevious(self):
-        """User pressed Up. Roll history
-        """
-        if self._historyIndex == len(self._history) - 1:  # save edited command
-            self._history[self._historyIndex] = self._edit.commandText()
-
-        if self._historyIndex > 0:
-            self._historyIndex -= 1
-            self._edit.setText(self._history[self._historyIndex])
-
-    def _onHistoryNext(self):
-        """User pressed Down. Roll history
-        """
-        if self._historyIndex < len(self._history) - 1:
-            self._historyIndex += 1
-            self._edit.setText(self._history[self._historyIndex])
 
     def addCommandClass(self, commandClass):
         """Add new command to the locator. Shall be called by plugins, which provide locator commands
