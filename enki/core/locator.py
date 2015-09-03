@@ -9,7 +9,7 @@ Contains definition of AbstractCommand and AbstractCompleter interfaces
 
 
 
-from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QModelIndex, QSize, Qt, QTimer
+from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QEvent, QModelIndex, QSize, Qt, QTimer
 from PyQt4.QtGui import QApplication, QDialog, QFontMetrics, QMessageBox, QPalette, QSizePolicy, \
                         QStyle, QStyleOptionFrameV2, \
                         QTextCursor, QLineEdit, QTextOption, QTreeView, QVBoxLayout
@@ -130,6 +130,15 @@ class AbstractCompleter:
 
     def getFullText(self, row):
         """Row had been clicked by mouse. Get inline completion, which will be inserted after cursor
+        """
+        return None
+
+    def autoSelectItem(self):
+        """Item, which shall be auto-selected when completer is applied.
+
+        If not None, shall be ``(row, column)``
+
+        Default implementation returns None
         """
         return None
 
@@ -465,7 +474,6 @@ def splitLine(text):
     return words
 
 
-
 class Locator(QDialog):
     """Locator widget and implementation
     """
@@ -486,6 +494,7 @@ class Locator(QDialog):
         self._edit = _CompletableLineEdit(self)
         self._edit.updateCompletion.connect(self._updateCompletion)
         self._edit.enterPressed.connect(self._onEnterPressed)
+        self._edit.installEventFilter(self)  # catch Up, Down
         self.layout().addWidget(self._edit)
         self.setFocusProxy(self._edit)
 
@@ -532,21 +541,6 @@ class Locator(QDialog):
         if not self.isVisible():
             self.exec_()
 
-    def _onItemClicked(self, index):
-        """Item in the TreeView has been clicked.
-        Open file, if user selected it
-        """
-        command, completableWordIndex = self._parseCurrentCommand()
-        if command is not None:
-            newText = self._model.completer.getFullText(index.row())
-            if newText is not None:
-                newCommandText = command.constructCommand(newText)
-                if newCommandText is not None:
-                    self._edit.setText(newCommandText)
-                    self._edit.setFocus()
-                    self._onEnterPressed()
-                    self._updateCompletion()
-
     def _updateCompletion(self):
         """User edited text or moved cursor. Update inline and TreeView completion
         """
@@ -586,9 +580,36 @@ class Locator(QDialog):
             self._table.resizeColumnToContents(0)
             self._table.setColumnWidth(0, self._table.columnWidth(0) + 20)  # 20 px spacing between columns
 
+        selItem = completer.autoSelectItem()
+        if selItem:
+            index = self._model.createIndex(selItem[0],
+                                            selItem[1])
+            self._table.setCurrentIndex(index)
+
+    def _onItemClicked(self, index):
+        """Item in the TreeView has been clicked.
+        Open file, if user selected it
+        """
+        command, completableWordIndex = self._parseCurrentCommand()
+        if command is not None:
+            newText = self._model.completer.getFullText(index.row())
+            if newText is not None:
+                newCommandText = command.constructCommand(newText)
+                if newCommandText is not None:
+                    self._edit.setText(newCommandText)
+                    self._edit.setFocus()
+                    self._execCurrentCommand()
+                    self._updateCompletion()
+
     def _onEnterPressed(self):
         """User pressed Enter or clicked item. Execute command, if possible
         """
+        if self._table.currentIndex().isValid():
+            self._onItemClicked(self._table.currentIndex())
+        else:
+            self._execCurrentCommand()
+
+    def _execCurrentCommand(self):
         text = self._edit.commandText()
         command, completableWordIndex = self._parseCurrentCommand()
         if command is not None and command.isReadyToExecute():
@@ -678,3 +699,11 @@ class Locator(QDialog):
         self._edit.setText('')
         self._updateCompletion()
         QDialog.exec_(self)
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.KeyPress and \
+           event.key() in (Qt.Key_Up, Qt.Key_Down, Qt.Key_PageUp, Qt.Key_PageDown, Qt.Key_Home, Qt.Key_End):
+            self._table.event(event)
+            return True
+        else:
+            return False

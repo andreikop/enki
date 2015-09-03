@@ -13,7 +13,7 @@ from enki.core.core import core
 
 
 class _ScannerThread(QThread):
-    itemsReady = pyqtSignal(list)
+    itemsReady = pyqtSignal(unicode, list)
 
     def __init__(self, parent, path):
         QThread.__init__(self, parent)
@@ -36,7 +36,7 @@ class _ScannerThread(QThread):
                     results.append(os.path.relpath(os.path.join(root, filename), self._path))
 
         if not self._stop:
-            self.itemsReady.emit(results)
+            self.itemsReady.emit(self._path, results)
 
     def stop(self):
         self._stop = True
@@ -71,6 +71,7 @@ class Project(QObject):
         if self._thread is not None:
             self._thread.stop()
             self._thread.wait()
+            self._thread.itemsReady.disconnect(self._onFilesReady)
             self._thread = None
 
     def open(self, path):
@@ -103,6 +104,6 @@ class Project(QObject):
         """
         return self._projectFiles
 
-    def _onFilesReady(self, files):
+    def _onFilesReady(self, path, files):
         self._projectFiles = files
         self._stopScannerThread()
