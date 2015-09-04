@@ -144,6 +144,10 @@ class CommandOpen(AbstractCommand):
             else:
                 core.workspace().createEmptyNotSavedDocument(path)
 
+    @classmethod
+    def constructCommand(cls, fullText):
+        return '{} {}'.format(cls.command, fullText)
+
 
 class CommandSaveAs(AbstractCommand):
     """Save As Locator command
