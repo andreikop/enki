@@ -48,14 +48,14 @@ class AbstractPathCompleter(AbstractCompleter):
         returns incorrect icons. I really can't understand when and why.
         When it is private member of instance, it seems it works
         """
-        self._model = None # can't construct in the construtor, must be constructed in GUI thread
+        self._model = None  # can't construct in the construtor, must be constructed in GUI thread
 
     @staticmethod
     def _filterHidden(paths):
         """Remove hidden and ignored files from the list
         """
-        return [path for path in paths \
-                    if not os.path.basename(path).startswith('.') and \
+        return [path for path in paths
+                    if not os.path.basename(path).startswith('.') and
                         not core.fileFilter().regExp().match(path)]
 
     def _classifyRowIndex(self, row):
@@ -148,7 +148,6 @@ class AbstractPathCompleter(AbstractCompleter):
         """User clicked a row. Get inline completion for this row
         """
         row -= 1  # skip current directory
-        path = None
         if row in range(len(self._dirs)):
             return self._dirs[row] + '/'
         else:
@@ -201,7 +200,7 @@ class PathCompleter(AbstractPathCompleter):
             return
 
         # filter matching
-        variants = [path for path in filesAndDirs\
+        variants = [path for path in filesAndDirs
                         if path.startswith(enterredFile)]
 
         notHiddenVariants = self._filterHidden(variants)

@@ -8,11 +8,8 @@ Contains definition of AbstractCommand and AbstractCompleter interfaces
 """
 
 
-
-from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QEvent, QModelIndex, QSize, Qt, QTimer
-from PyQt4.QtGui import QApplication, QDialog, QFontMetrics, QMessageBox, QPalette, QSizePolicy, \
-                        QStyle, QStyleOptionFrameV2, \
-                        QTextCursor, QLineEdit, QTextOption, QTreeView, QVBoxLayout
+from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QEvent, QModelIndex, Qt, QTimer
+from PyQt4.QtGui import QDialog, QFontMetrics, QLineEdit, QTreeView, QVBoxLayout
 
 import os
 import threading
@@ -36,7 +33,7 @@ class AbstractCommand:
     * ``command`` - Command text (first word), i.e. ``f`` for Open and ``s`` for Save
     * ``signature`` - Command signature. Shown in the Help. Example:  ``[f] PATH [LINE]``
     * ``description`` - Command description. Shown in the Help. Example: ``Open file. Globs are supported``
-    * ``isDefaultCommand`` - If True, command is executed if no other command matches. Must be ``True`` for only 1 command. Currently it is Open
+    * ``isDefaultCommand`` - If True, command is executed if no other command matches. Must be ``True`` for only 1 command. Currently it is FuzzyOpen
     """
     command = NotImplemented
     signature = NotImplemented
@@ -268,7 +265,7 @@ class _CompletableLineEdit(QLineEdit):
 
     def __init__(self, *args):
         QLineEdit.__init__(self, *args)
-        self._inlineCompletionIsSet = False  # for differentiate inline completion and selection
+        self._inlineCompletionIsSet = False  # to differentiate inline completion and selection
 
     def event(self, event):
         """QObject.event implementation. Catches Tab events
@@ -282,16 +279,20 @@ class _CompletableLineEdit(QLineEdit):
         else:
             return QLineEdit.event(self, event)
 
+    def _applyInlineCompetion(self):
+        self.setCursorPosition(self.selectionStart() + len(self.selectedText()))
+        self._inlineCompletionIsSet = False
+
     def keyPressEvent(self, event):
         """QWidget.keyPressEvent implementation. Catches Return, Up, Down, Ctrl+Backspace
         """
         if event.key() in (Qt.Key_Enter, Qt.Key_Return):
             if self._inlineCompletionIsSet:
-                self.setCursorPosition(self.selectionStart() + len(self.selectedText()))
+                self._applyInlineCompetion()
             self.enterPressed.emit()
         elif event.key() in (Qt.Key_Right, Qt.Key_End):
             if self.selectedText():
-                self.setCursorPosition(self.selectionStart() + len(self.selectedText()))
+                self._applyInlineCompetion()
             else:
                 QLineEdit.keyPressEvent(self, event)
         elif event.key() == Qt.Key_Backspace and \
@@ -309,7 +310,6 @@ class _CompletableLineEdit(QLineEdit):
         else:
             oldTextBeforeCompletion = self.text()[:self.cursorPosition()]
             inlineCompletion = self._inlineCompletion()
-            textAfterCompletion = self.text()[:self.cursorPosition() + len(inlineCompletion)]
 
             self._clearInlineCompletion()
 
@@ -610,14 +610,13 @@ class Locator(QDialog):
             self._execCurrentCommand()
 
     def _execCurrentCommand(self):
-        text = self._edit.commandText()
         command, completableWordIndex = self._parseCurrentCommand()
         if command is not None and command.isReadyToExecute():
             command.execute()
             self._edit.clear()
             if core.workspace().currentDocument() is not None:
                 core.workspace().currentDocument().setFocus()
-            self.hide()
+            self.accept()
 
     def addCommandClass(self, commandClass):
         """Add new command to the locator. Shall be called by plugins, which provide locator commands
