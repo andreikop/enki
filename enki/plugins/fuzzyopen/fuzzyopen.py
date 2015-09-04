@@ -51,7 +51,7 @@ class FuzzyOpenCompleter(AbstractCompleter):
 
         smallerFont = core.locator().font().pointSizeF() / 1.5
         self._itemTemplate = ('{{}}'
-            '<div style="margin: 10px; font-size:{smallerFont}pt">{{}}</div>'.format(smallerFont=smallerFont))
+            '<div style="margin: 15px; font-size:{smallerFont}pt">{{}}</div>'.format(smallerFont=smallerFont))
 
     def rowCount(self):
         return len(self._items)
@@ -65,7 +65,7 @@ class FuzzyOpenCompleter(AbstractCompleter):
         else:
             path, score, indexes = self._items[row]
             basename = os.path.basename(path)
-            chars = ['<font color="#ff3333">{}</font>'.format(char) if charIndex in indexes else char
+            chars = ['<span style="font-weight:900;">{}</span>'.format(char) if charIndex in indexes else char
                         for charIndex, char in enumerate(path)]
             pathFormatted = ''.join(chars)
             basenameFormatted = ''.join(chars[-len(basename):])
