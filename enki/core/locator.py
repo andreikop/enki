@@ -499,8 +499,8 @@ class Locator(QDialog):
         self.setFocusProxy(self._edit)
 
         self._table = QTreeView(self)
-        self._model = _CompleterModel()
         self._table.setFont(biggerFont)
+        self._model = _CompleterModel()
         self._table.setModel(self._model)
         self._table.setItemDelegate(HTMLDelegate(self._table))
         self._table.setRootIsDecorated(False)
@@ -597,9 +597,9 @@ class Locator(QDialog):
                 newCommandText = command.constructCommand(newText)
                 if newCommandText is not None:
                     self._edit.setText(newCommandText)
-                    self._edit.setFocus()
-                    self._execCurrentCommand()
-                    self._updateCompletion()
+                    if not self._tryExecCurrentCommand():
+                        self._updateCompletion()
+                        self._edit.setFocus()
 
     def _onEnterPressed(self):
         """User pressed Enter or clicked item. Execute command, if possible
@@ -609,7 +609,7 @@ class Locator(QDialog):
         else:
             self._execCurrentCommand()
 
-    def _execCurrentCommand(self):
+    def _tryExecCurrentCommand(self):
         command, completableWordIndex = self._parseCurrentCommand()
         if command is not None and command.isReadyToExecute():
             command.execute()
@@ -617,6 +617,9 @@ class Locator(QDialog):
             if core.workspace().currentDocument() is not None:
                 core.workspace().currentDocument().setFocus()
             self.accept()
+            return True
+        else:
+            return False
 
     def addCommandClass(self, commandClass):
         """Add new command to the locator. Shall be called by plugins, which provide locator commands
