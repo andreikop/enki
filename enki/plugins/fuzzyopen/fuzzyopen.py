@@ -110,7 +110,7 @@ class FuzzyOpenCommand(AbstractCommand):
 
         self._matching = matching
 
-    def completer(self, argIndex):
+    def completer(self):
         return FuzzyOpenCompleter(self._matching)
 
     def constructCommand(self, completableText):
