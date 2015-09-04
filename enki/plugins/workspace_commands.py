@@ -68,20 +68,18 @@ class CommandOpen(AbstractCommand):
         else:
             self._line = None
 
-    def completer(self, argIndex):
+    def completer(self):
         """Command completer.
         If cursor is after path, returns PathCompleter or GlobCompleter
         """
-        if argIndex == 0:
+        if self._path is not None:
             return makeSuitableCompleter(self._path)
-        elif argIndex is None:
+        else:
             try:
                 curDir = os.getcwd()
             except:
                 return None
             return makeSuitableCompleter(curDir + '/')
-        else:
-            return None
 
     @staticmethod
     def _isGlob(text):
@@ -156,7 +154,6 @@ class CommandSaveAs(AbstractCommand):
     signature = 's PATH'
     description = 'Save file As'
 
-
     @staticmethod
     def isAvailable():
         """Check if command is available.
@@ -170,14 +167,11 @@ class CommandSaveAs(AbstractCommand):
 
         self._path = args[0]
 
-    def completer(self, argIndex):
+    def completer(self):
         """Command Completer.
         Returns PathCompleter, if cursor stays after path
         """
-        if argIndex == 0:
-            return PathCompleter(self._path)
-        else:
-            return None
+        return PathCompleter(self._path)
 
     def isReadyToExecute(self):
         """Check if command is complete and ready to execute
