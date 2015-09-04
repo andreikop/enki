@@ -95,11 +95,11 @@ class FuzzyOpenCommand(AbstractCommand):
         return core.project().path() is not None
 
     def __init__(self, args):
-        pattern = args[0] if args else ''
+        pattern = args[0].lower() if args else ''
         if pattern:
             matching = []
             for path in core.project().files():
-                res = fuzzyMatch(pattern, path)
+                res = fuzzyMatch(pattern, path.lower())
                 if res is not None:
                     score, indexes = res
                     matching.append((path, score, indexes))
