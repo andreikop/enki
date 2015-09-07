@@ -167,12 +167,13 @@ class PathCompleter(AbstractPathCompleter):
     def __init__(self, text):
         AbstractPathCompleter.__init__(self, text)
 
-        enterredDir = os.path.dirname(text)
-        enterredFile = os.path.basename(text)
+    def load(self):
+        enterredDir = os.path.dirname(self._originalText)
+        enterredFile = os.path.basename(self._originalText)
 
         if enterredDir.startswith('/'):
             pass
-        elif text.startswith('~'):
+        elif self._originalText.startswith('~'):
             enterredDir = os.path.expanduser(enterredDir)
         else:  # relative path
             relPath = os.path.join(os.path.curdir, enterredDir)
@@ -279,7 +280,9 @@ class GlobCompleter(AbstractPathCompleter):
     """
     def __init__(self, text):
         AbstractPathCompleter.__init__(self, text)
-        variants = glob.iglob(os.path.expanduser(text) + '*')
+
+    def load(self):
+        variants = glob.iglob(os.path.expanduser(self._originalText) + '*')
         variants = self._filterHidden(variants)
         variants.sort()
 
