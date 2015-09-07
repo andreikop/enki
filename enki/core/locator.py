@@ -8,7 +8,7 @@ Contains definition of AbstractCommand and AbstractCompleter interfaces
 """
 
 
-from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QEvent, QModelIndex, Qt, QTimer
+from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QEvent, QModelIndex, QObject, Qt, QTimer
 from PyQt4.QtGui import QDialog, QFontMetrics, QLineEdit, QTreeView, QVBoxLayout
 
 import os
@@ -471,13 +471,42 @@ def splitLine(text):
     return words
 
 
-class Locator(QDialog):
+class Locator(QObject):
+    def __init__(self):
+        QObject.__init__(self)
+        self._commandClasses = []
+
+        self._action = core.actionManager().addAction("mNavigation/aLocator", "Locator", shortcut='Ctrl+L')
+        self._action.triggered.connect(self._onAction)
+        self._separator = core.actionManager().menu("mNavigation").addSeparator()
+
+    def del_(self):
+        core.actionManager().removeAction(self._action)
+        core.actionManager().menu("mNavigation").removeAction(self._separator)
+
+    def _onAction(self):
+        """Locator action triggered. Show themselves and make focused
+        """
+        _LocatorDialog(core.mainWindow(), self._action, self._commandClasses).exec_()
+
+    def addCommandClass(self, commandClass):
+        """Add new command to the locator. Shall be called by plugins, which provide locator commands
+        """
+        self._commandClasses.append(commandClass)
+
+    def removeCommandClass(self, commandClass):
+        """Remove command from the locator. Shall be called by plugins when terminating it
+        """
+        self._commandClasses.remove(commandClass)
+
+
+class _LocatorDialog(QDialog):
     """Locator widget and implementation
     """
-    def __init__(self, *args):
-        QDialog.__init__(self, *args)
+    def __init__(self, parent, action, commandClasses):
+        QDialog.__init__(self, parent)
+        self._commandClasses = commandClasses
 
-        self._commandClasses = []
         self._incompleteCommand = None
 
         self.setLayout(QVBoxLayout())
@@ -508,12 +537,8 @@ class Locator(QDialog):
         width = QFontMetrics(self.font()).width('x' * 64)  # width of 64 'x' letters
         self.resize(width, width * 0.62)
 
-        self._action = core.actionManager().addAction("mNavigation/aLocator", "Locator", shortcut='Ctrl+L')
-        self._action.triggered.connect(self._onAction)
-        self._separator = core.actionManager().menu("mNavigation").addSeparator()
-
         # without it action works only when main window is focused, and user can't move focus, when tree is focused
-        self.addAction(self._action)
+        self.addAction(action)
 
         self._loadingTimer = QTimer(self)
         self._loadingTimer.setSingleShot(True)
@@ -521,28 +546,24 @@ class Locator(QDialog):
         self._loadingTimer.timeout.connect(self._applyLoadingCompleter)
 
         self._completerConstructorThread = None
+        self._edit.setFocus()
+        self.finished.connect(self._terminate)
 
-    def del_(self):
-        """Explicitly called destructor
-        """
-        core.actionManager().removeAction(self._action)
-        core.actionManager().menu("mNavigation").removeAction(self._separator)
+        try:
+            curDir = os.path.abspath(os.path.curdir)
+        except OSError:  # deleted
+            curDir = '?'
 
+        self.setWindowTitle(curDir)
+        self._updateCompletion()
+
+    def _terminate(self):
         if self._completerConstructorThread is not None:
             self._completerConstructorThread.terminate()
-
-    def _onAction(self):
-        """Locator action triggered. Show themselves and make focused
-        """
-        self._edit.setFocus()
-        if not self.isVisible():
-            self.exec_()
 
     def _updateCompletion(self):
         """User edited text or moved cursor. Update inline and TreeView completion
         """
-        text = self._edit.commandText()
-
         command, completableWordIndex = self._parseCurrentCommand()
         if command is not None:
             if self._completerConstructorThread is not None:
@@ -602,7 +623,7 @@ class Locator(QDialog):
         if self._table.currentIndex().isValid():
             self._onItemClicked(self._table.currentIndex())
         else:
-            self._execCurrentCommand()
+            self._tryExecCurrentCommand()
 
     def _tryExecCurrentCommand(self):
         command, completableWordIndex = self._parseCurrentCommand()
@@ -615,16 +636,6 @@ class Locator(QDialog):
             return True
         else:
             return False
-
-    def addCommandClass(self, commandClass):
-        """Add new command to the locator. Shall be called by plugins, which provide locator commands
-        """
-        self._commandClasses.append(commandClass)
-
-    def removeCommandClass(self, commandClass):
-        """Remove command from the locator. Shall be called by plugins when terminating it
-        """
-        self._commandClasses.remove(commandClass)
 
     def _availableCommands(self):
         """Get list of available commands
@@ -682,20 +693,6 @@ class Locator(QDialog):
             completableWordIndex = None
 
         return cmd, completableWordIndex
-
-    def exec_(self):
-        """QDialog.exec() implementation. Updates completion before showing widget
-        """
-        try:
-            curDir = os.path.abspath(os.path.curdir)
-        except OSError:  # deleted
-            curDir = '?'
-
-        self.setWindowTitle(curDir)
-
-        self._edit.setText('')
-        self._updateCompletion()
-        QDialog.exec_(self)
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.KeyPress and \

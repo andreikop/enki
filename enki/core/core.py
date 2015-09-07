@@ -125,7 +125,7 @@ class Core(QObject):
         profiler.stepDone('create workspace')
 
         import enki.core.locator
-        self._locator = enki.core.locator.Locator(self._mainWindow)
+        self._locator = enki.core.locator.Locator()
         profiler.stepDone('Create Locator')
 
         # Create plugins
