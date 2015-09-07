@@ -487,7 +487,7 @@ class Locator(QObject):
     def _onAction(self):
         """Locator action triggered. Show themselves and make focused
         """
-        _LocatorDialog(core.mainWindow(), self._action, self._commandClasses).exec_()
+        _LocatorDialog(core.mainWindow(), self._availableCommands()).exec_()
 
     def addCommandClass(self, commandClass):
         """Add new command to the locator. Shall be called by plugins, which provide locator commands
@@ -499,15 +499,34 @@ class Locator(QObject):
         """
         self._commandClasses.remove(commandClass)
 
+    def _availableCommands(self):
+        """Get list of available commands
+        """
+        return [cmd for cmd in self._commandClasses if cmd.isAvailable()]
+
 
 class _LocatorDialog(QDialog):
     """Locator widget and implementation
     """
-    def __init__(self, parent, action, commandClasses):
+    def __init__(self, parent, commandClasses):
         QDialog.__init__(self, parent)
         self._commandClasses = commandClasses
 
-        self._incompleteCommand = None
+        self._createUi()
+
+        self._loadingTimer = QTimer(self)
+        self._loadingTimer.setSingleShot(True)
+        self._loadingTimer.setInterval(200)
+        self._loadingTimer.timeout.connect(self._applyLoadingCompleter)
+
+        self._completerConstructorThread = None
+
+        self.finished.connect(self._terminate)
+
+        self._updateCompletion()
+
+    def _createUi(self):
+        self.setWindowTitle(core.project().path() or 'Locator')
 
         self.setLayout(QVBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
@@ -537,26 +556,6 @@ class _LocatorDialog(QDialog):
         width = QFontMetrics(self.font()).width('x' * 64)  # width of 64 'x' letters
         self.resize(width, width * 0.62)
 
-        # without it action works only when main window is focused, and user can't move focus, when tree is focused
-        self.addAction(action)
-
-        self._loadingTimer = QTimer(self)
-        self._loadingTimer.setSingleShot(True)
-        self._loadingTimer.setInterval(200)
-        self._loadingTimer.timeout.connect(self._applyLoadingCompleter)
-
-        self._completerConstructorThread = None
-        self._edit.setFocus()
-        self.finished.connect(self._terminate)
-
-        try:
-            curDir = os.path.abspath(os.path.curdir)
-        except OSError:  # deleted
-            curDir = '?'
-
-        self.setWindowTitle(curDir)
-        self._updateCompletion()
-
     def _terminate(self):
         if self._completerConstructorThread is not None:
             self._completerConstructorThread.terminate()
@@ -573,7 +572,7 @@ class _LocatorDialog(QDialog):
             self._loadingTimer.start()
             self._completerConstructorThread.start(command)
         else:
-            self._applyCompleter(None, _HelpCompleter(self._availableCommands()))
+            self._applyCompleter(None, _HelpCompleter(self._commandClasses))
 
     def _applyLoadingCompleter(self):
         """Set 'Loading...' message
@@ -616,6 +615,9 @@ class _LocatorDialog(QDialog):
                     if not self._tryExecCurrentCommand():
                         self._updateCompletion()
                         self._edit.setFocus()
+        else:
+            self._edit.setFocus()
+
 
     def _onEnterPressed(self):
         """User pressed Enter or clicked item. Execute command, if possible
@@ -636,11 +638,6 @@ class _LocatorDialog(QDialog):
             return True
         else:
             return False
-
-    def _availableCommands(self):
-        """Get list of available commands
-        """
-        return [cmd for cmd in self._commandClasses if cmd.isAvailable()]
 
     def _parseCurrentCommand(self):
         """ Parse text and try to get (command, completable word index)
