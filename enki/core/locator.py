@@ -559,11 +559,12 @@ class _LocatorDialog(QDialog):
     def _terminate(self):
         if self._completerConstructorThread is not None:
             self._completerConstructorThread.terminate()
+        core.workspace().focusCurrentDocument()
 
     def _updateCompletion(self):
         """User edited text or moved cursor. Update inline and TreeView completion
         """
-        command, completableWordIndex = self._parseCurrentCommand()
+        command = self._parseCurrentCommand()
         if command is not None:
             if self._completerConstructorThread is not None:
                 self._completerConstructorThread.terminate()
@@ -605,7 +606,7 @@ class _LocatorDialog(QDialog):
         """Item in the TreeView has been clicked.
         Open file, if user selected it
         """
-        command, completableWordIndex = self._parseCurrentCommand()
+        command = self._parseCurrentCommand()
         if command is not None:
             newText = self._model.completer.getFullText(index.row())
             if newText is not None:
@@ -618,7 +619,6 @@ class _LocatorDialog(QDialog):
         else:
             self._edit.setFocus()
 
-
     def _onEnterPressed(self):
         """User pressed Enter or clicked item. Execute command, if possible
         """
@@ -628,12 +628,9 @@ class _LocatorDialog(QDialog):
             self._tryExecCurrentCommand()
 
     def _tryExecCurrentCommand(self):
-        command, completableWordIndex = self._parseCurrentCommand()
+        command = self._parseCurrentCommand()
         if command is not None and command.isReadyToExecute():
             command.execute()
-            self._edit.clear()
-            if core.workspace().currentDocument() is not None:
-                core.workspace().currentDocument().setFocus()
             self.accept()
             return True
         else:
@@ -641,55 +638,42 @@ class _LocatorDialog(QDialog):
 
     def _parseCurrentCommand(self):
         """ Parse text and try to get (command, completable word index)
-        Return None, None if failed to parse
+        Return None if failed to parse
         """
-        if not self._commandClasses:
-            return None, None
-
         #
         # Split line
         #
         text = self._edit.commandText()
         wordsWithIndexes = splitLine(text)
         if not wordsWithIndexes:
-            return None, None
+            return None
 
         #
         # Find command
         #
         for cmdClass in self._commandClasses:
             if cmdClass.command == wordsWithIndexes[0][0]:
-                effectiveCmdClass = cmdClass
+                foundCommandClass = cmdClass
                 argWordsWithIndexes = wordsWithIndexes[1:]
                 break
         else:
             for cmdClass in self._commandClasses:
                 if cmdClass.isDefaultCommand:
-                    effectiveCmdClass = cmdClass
+                    foundCommandClass = cmdClass
                     argWordsWithIndexes = wordsWithIndexes
                     break
+                else:
+                    return None
 
         #
         # Try to make command object
         #
         args = [item[0] for item in argWordsWithIndexes]
-        endIndexes = [item[1] for item in argWordsWithIndexes]
 
         try:
-            cmd = effectiveCmdClass(args)
+            return foundCommandClass(args)
         except InvalidCmdArgs:
-            return None, None
-
-        #
-        # Check if some word is completable
-        #
-        cursorPos = self._edit.cursorPosition()
-        if cursorPos in endIndexes:
-            completableWordIndex = endIndexes.index(cursorPos)
-        else:
-            completableWordIndex = None
-
-        return cmd, completableWordIndex
+            return None
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.KeyPress and \
