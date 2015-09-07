@@ -49,7 +49,7 @@ class FuzzyOpenCompleter(AbstractCompleter):
         self._message = None
         self._items = items
 
-        smallerFont = core.locator().font().pointSizeF() / 1.5
+        smallerFont = core.mainWindow().font().pointSizeF() * 2 / 1.5
         self._itemTemplate = ('{{}}'
             '<div style="margin: 15px; font-size:{smallerFont}pt">{{}}</div>'.format(smallerFont=smallerFont))
 
