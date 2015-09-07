@@ -62,6 +62,14 @@ class AbstractCommand:
         """
         return None
 
+    def onCompleterLoaded(self, completer):
+        """ This method is called after ``completer.load()`` method has finished.
+        Completer instance created in ``completer()`` is passed as parameter.
+
+        The command can use loaded data from the completer now.
+        """
+        pass
+
     def constructCommand(self, completableText):
         """After user clicked item on the TreeView, Locator
 
@@ -95,6 +103,16 @@ class AbstractCompleter:
     * status and any other information from command
     * list of possible completions
     """
+
+    def load(self):
+        """Load necessary data in a thread
+        """
+        pass
+
+    def cancelLoading(self):
+        """Cancel loading data
+        """
+        pass
 
     def rowCount(self):
         """Row count for TreeView
@@ -372,7 +390,7 @@ class _CompletableLineEdit(QLineEdit):
         return text
 
 
-class _CompleterConstructorThread(threading.Thread):
+class _CompleterLoaderThread(threading.Thread):
     """Thread constructs Completer
     Sometimes it requires a lot of time, i.e. when expanding "/usr/lib/*"
     hlamer: I tried to use QThread + pyqtSignal, but got tired with crashes and deadlocks
@@ -385,6 +403,7 @@ class _CompleterConstructorThread(threading.Thread):
 
         self._locator = locator
         self._queue = Queue.Queue()
+
         self._checkQueueTimer = QTimer()
         self._checkQueueTimer.setInterval(50)
         self._checkQueueTimer.timeout.connect(self._checkQueue)
@@ -403,6 +422,7 @@ class _CompleterConstructorThread(threading.Thread):
         """
         self._terminated = False
         self._command = command
+        self._completer = command.completer()
         self._checkQueueTimer.start()
         threading.Thread.start(self)
 
@@ -410,6 +430,7 @@ class _CompleterConstructorThread(threading.Thread):
         """Set termination flag
         Works in the GUI thread
         """
+        self._completer.cancelLoading()
         self._checkQueueTimer.stop()
         self.join()
 
@@ -417,8 +438,8 @@ class _CompleterConstructorThread(threading.Thread):
         """Thread function
         Works in NEW thread
         """
-        completer = self._command.completer()
-        self._queue.put([self._command, completer])
+        self._completer.load()
+        self._queue.put([self._command, self._completer])
 
 
 def splitLine(text):
@@ -568,7 +589,7 @@ class _LocatorDialog(QDialog):
         if command is not None:
             if self._completerConstructorThread is not None:
                 self._completerConstructorThread.terminate()
-            self._completerConstructorThread = _CompleterConstructorThread(self)
+            self._completerConstructorThread = _CompleterLoaderThread(self)
 
             self._loadingTimer.start()
             self._completerConstructorThread.start(command)
@@ -584,6 +605,9 @@ class _LocatorDialog(QDialog):
         """Apply completer. Called by _updateCompletion or by thread function when Completer is constructed
         """
         self._loadingTimer.stop()
+
+        if command is not None:
+            command.onCompleterLoaded(completer)
 
         if completer is None:
             completer = _HelpCompleter([command])
