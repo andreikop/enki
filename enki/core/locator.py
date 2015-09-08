@@ -11,9 +11,7 @@ Contains definition of AbstractCommand and AbstractCompleter interfaces
 from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QEvent, QModelIndex, QObject, Qt, QTimer
 from PyQt4.QtGui import QDialog, QFontMetrics, QLineEdit, QTreeView, QVBoxLayout
 
-import os
-import threading
-import Queue
+from multiprocessing import Process, Queue
 
 from enki.core.core import core
 from enki.lib.htmldelegate import HTMLDelegate
@@ -112,11 +110,6 @@ class AbstractCompleter:
 
     def load(self):
         """Load necessary data in a thread
-        """
-        pass
-
-    def cancelLoading(self):
-        """Cancel loading data
         """
         pass
 
@@ -396,56 +389,71 @@ class _CompletableLineEdit(QLineEdit):
         return text
 
 
-class _CompleterLoaderThread(threading.Thread):
+class _CompleterLoaderProcess(Process):
     """Thread constructs Completer
     Sometimes it requires a lot of time, i.e. when expanding "/usr/lib/*"
     hlamer: I tried to use QThread + pyqtSignal, but got tired with crashes and deadlocks
     """
+    daemon = True
 
     def __init__(self, locator):
         """Works in the GUI thread
         """
-        threading.Thread.__init__(self)
+        Process.__init__(self)
 
         self._locator = locator
-        self._queue = Queue.Queue()
+
+        self._taskQueue = Queue()  # (command, completer) or None as exit signal
+        self._resultQueue = Queue()
 
         self._checkQueueTimer = QTimer()
         self._checkQueueTimer.setInterval(50)
         self._checkQueueTimer.timeout.connect(self._checkQueue)
+        self._checkQueueTimer.start()
+
+        Process.start(self)
 
     def _checkQueue(self):
         """Check if thread constructed a completer and put it to the queue
         Works in the GUI thread
         """
-        if not self._queue.empty():
-            command, completer = self._queue.get()
-            self._locator._applyCompleter(command, completer)
+        if not self._resultQueue.empty():
+            command, completer = self._resultQueue.get()
+            self._locator.onCompleterLoaded(command, completer)
 
-    def start(self, command):
+    def pushCommand(self, command):
         """Start constructing completer
         Works in the GUI thread
         """
-        self._terminated = False
-        self._command = command
-        self._completer = command.completer()
-        self._checkQueueTimer.start()
-        threading.Thread.start(self)
+        completer = command.completer()
+        self._taskQueue.put((command, completer))
 
     def terminate(self):
         """Set termination flag
         Works in the GUI thread
         """
-        self._completer.cancelLoading()
+        self._taskQueue.put(None)
         self._checkQueueTimer.stop()
         self.join()
+
+    def _getNextTask(self):
+        while self._taskQueue.qsize() > 1:
+            self._taskQueue.get()  # discard old commands
+
+        return self._taskQueue.get()
 
     def run(self):
         """Thread function
         Works in NEW thread
         """
-        self._completer.load()
-        self._queue.put([self._command, self._completer])
+        while True:
+            task = self._getNextTask()
+            if task is None:  # exit command
+                break
+
+            command, completer = task
+            completer.load()
+            self._resultQueue.put((command, completer))
 
 
 def splitLine(text):
@@ -546,7 +554,7 @@ class _LocatorDialog(QDialog):
         self._loadingTimer.setInterval(200)
         self._loadingTimer.timeout.connect(self._applyLoadingCompleter)
 
-        self._completerConstructorThread = None
+        self._completerLoaderProcess = _CompleterLoaderProcess(self)
 
         self.finished.connect(self._terminate)
 
@@ -586,8 +594,7 @@ class _LocatorDialog(QDialog):
         self.resize(width, width * 0.62)
 
     def _terminate(self):
-        if self._completerConstructorThread is not None:
-            self._completerConstructorThread.terminate()
+        self._completerLoaderProcess.terminate()
         core.workspace().focusCurrentDocument()
 
     def _updateCompletion(self):
@@ -595,12 +602,8 @@ class _LocatorDialog(QDialog):
         """
         self._command = self._parseCurrentCommand()
         if self._command is not None:
-            if self._completerConstructorThread is not None:
-                self._completerConstructorThread.terminate()
-            self._completerConstructorThread = _CompleterLoaderThread(self)
-
             self._loadingTimer.start()
-            self._completerConstructorThread.start(self._command)
+            self._completerLoaderProcess.pushCommand(self._command)
         else:
             self._applyCompleter(None, _HelpCompleter(self._commandClasses))
 
@@ -608,6 +611,12 @@ class _LocatorDialog(QDialog):
         """Set 'Loading...' message
         """
         self._applyCompleter(None, _StatusCompleter('<i>Loading...</i>'))
+
+    def onCompleterLoaded(self, command, completer):
+        """The method called from _CompleterLoaderProcess when the completer is ready
+        This code works in the GUI thread
+        """
+        self._applyCompleter(command, completer)
 
     def _applyCompleter(self, command, completer):
         """Apply completer. Called by _updateCompletion or by thread function when Completer is constructed
