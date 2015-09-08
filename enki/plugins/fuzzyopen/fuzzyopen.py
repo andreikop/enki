@@ -118,6 +118,7 @@ class FuzzyOpenCommand(AbstractCommand):
     def __init__(self, args):
         self._pattern = args[0] if args else ''
         self._completer = None
+        self._clickedPath = None
 
     def completer(self):
         return FuzzyOpenCompleter(self._pattern, core.project().files())
@@ -125,13 +126,19 @@ class FuzzyOpenCommand(AbstractCommand):
     def onCompleterLoaded(self, completer):
         self._completer = completer
 
-    def constructCommand(self, completableText):
-        return 'f ' + completableText
+    def onItemClicked(self, fullText):
+        self._clickedPath = fullText
+
+    def lineEditText(self):
+        return 'f ' + self._clickedPath
 
     def isReadyToExecute(self):
-        return self._completer is not None
+        return self._completer is not None or self._clickedPath is not None
 
     def execute(self):
-        if self._completer:
+        if self._clickedPath:
+            path = self._clickedPath
+        elif self._completer:
             path = self._matching[0][0]
-            core.workspace().openFile(os.path.join(core.project().path(), path))
+
+        core.workspace().openFile(os.path.join(core.project().path(), path))

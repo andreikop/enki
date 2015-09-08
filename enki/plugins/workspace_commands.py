@@ -142,9 +142,14 @@ class CommandOpen(AbstractCommand):
             else:
                 core.workspace().createEmptyNotSavedDocument(path)
 
-    @classmethod
-    def constructCommand(cls, fullText):
-        return '{} {}'.format(cls.command, fullText)
+    def onItemClicked(self, fullText):
+        self._path = fullText
+
+    def lineEditText(self):
+        if self._line is not None:
+            return '{} {} {}'.format(self.command, self._path, self._line)
+        else:
+            return '{} {}'.format(self.command, self._path)
 
 
 class CommandSaveAs(AbstractCommand):

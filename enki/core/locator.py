@@ -70,13 +70,19 @@ class AbstractCommand:
         """
         pass
 
-    def constructCommand(self, completableText):
-        """After user clicked item on the TreeView, Locator
+    def onItemClicked(self, fullText):
+        """Item in the completion tree has been clicked.
 
-        1) gets item full text with AbstractCompleter.getFullText() method
-        2) constructs a command with this text using currentCommand.constructCommand()
-        3) sets command to the LineEdit
-        4) tries to execute the command
+        Update internal state. After this call Locator will execute the command
+        if isReadyToExecute or update line edit text with lineEditText() otherwise.
+        """
+        pass
+
+    def lineEditText(self):
+        """Get text for Locator dialog line edit.
+
+        This method is called after internal command state has been
+        updated with onItemClicked()
         """
         return None
 
@@ -546,6 +552,8 @@ class _LocatorDialog(QDialog):
 
         self._updateCompletion()
 
+        self._command = None
+
     def _createUi(self):
         self.setWindowTitle(core.project().path() or 'Locator')
 
@@ -585,14 +593,14 @@ class _LocatorDialog(QDialog):
     def _updateCompletion(self):
         """User edited text or moved cursor. Update inline and TreeView completion
         """
-        command = self._parseCurrentCommand()
-        if command is not None:
+        self._command = self._parseCurrentCommand()
+        if self._command is not None:
             if self._completerConstructorThread is not None:
                 self._completerConstructorThread.terminate()
             self._completerConstructorThread = _CompleterLoaderThread(self)
 
             self._loadingTimer.start()
-            self._completerConstructorThread.start(command)
+            self._completerConstructorThread.start(self._command)
         else:
             self._applyCompleter(None, _HelpCompleter(self._commandClasses))
 
@@ -630,18 +638,18 @@ class _LocatorDialog(QDialog):
         """Item in the TreeView has been clicked.
         Open file, if user selected it
         """
-        command = self._parseCurrentCommand()
-        if command is not None:
-            newText = self._model.completer.getFullText(index.row())
-            if newText is not None:
-                newCommandText = command.constructCommand(newText)
-                if newCommandText is not None:
-                    self._edit.setText(newCommandText)
-                    if not self._tryExecCurrentCommand():
-                        self._updateCompletion()
-                        self._edit.setFocus()
-        else:
-            self._edit.setFocus()
+        if self._command is not None:
+            fullText = self._model.completer.getFullText(index.row())
+            if fullText is not None:
+                self._command.onItemClicked(fullText)
+                if self._tryExecCurrentCommand():
+                    self.accept()
+                    return
+                else:
+                    self._edit.setText(self._command.lineEditText())
+                    self._updateCompletion()
+
+        self._edit.setFocus()
 
     def _onEnterPressed(self):
         """User pressed Enter or clicked item. Execute command, if possible
@@ -652,9 +660,8 @@ class _LocatorDialog(QDialog):
             self._tryExecCurrentCommand()
 
     def _tryExecCurrentCommand(self):
-        command = self._parseCurrentCommand()
-        if command is not None and command.isReadyToExecute():
-            command.execute()
+        if self._command is not None and self._command.isReadyToExecute():
+            self._command.execute()
             self.accept()
             return True
         else:
