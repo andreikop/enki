@@ -52,7 +52,6 @@ class FuzzyOpenCompleter(AbstractCompleter):
 
         self._pattern = pattern
         self._files = files
-        self._stopped = False
 
     def load(self):
         caseSensitive = any([c.isupper() for c in self._pattern])
@@ -63,9 +62,6 @@ class FuzzyOpenCompleter(AbstractCompleter):
         if self._pattern:
             matching = []
             for path in self._files:
-                if self._stopped:
-                    return
-
                 if caseSensitive:
                     res = fuzzyMatch(self._pattern, path)
                 else:
@@ -79,9 +75,6 @@ class FuzzyOpenCompleter(AbstractCompleter):
             matching = [(item, 0, []) for item in self._files]
 
         self._items = matching
-
-    def cancelLoading(self):
-        self._stopped = True
 
     def rowCount(self):
         return len(self._items)
@@ -102,7 +95,10 @@ class FuzzyOpenCompleter(AbstractCompleter):
         return (0, 0)
 
     def getFullText(self, row):
-        return self._items[row][0]
+        if self._items:
+            return self._items[row][0]
+        else:
+            return None
 
 
 class FuzzyOpenCommand(AbstractCommand):
