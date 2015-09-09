@@ -433,8 +433,19 @@ class _CompleterLoaderProcess(Process):
         Works in the GUI thread
         """
         self._taskQueue.put(None)
+
+        """ Join the Queue to avoid dead lock when
+        process has exited but our thread tries to write data
+        """
         self._checkQueueTimer.stop()
-        self.join()
+
+        while True:
+            self.join(0.02)
+            if self.is_alive():
+                if self._resultQueue.qsize():  # read data from the queue to avoid deadlock
+                    self._resultQueue.get()
+            else:
+                break
 
     def _getNextTask(self):
         while self._taskQueue.qsize() > 1:
