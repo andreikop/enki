@@ -38,6 +38,7 @@ class AbstractCommand:
     description = NotImplemented
     isDefaultCommand = False
 
+
     def __init__(self, args):
         """Construct a command insance from arguments
 
@@ -184,7 +185,7 @@ class _HelpCompleter(AbstractCompleter):
             return self._commands[row].description
 
 
-class _StatusCompleter(AbstractCompleter):
+class StatusCompleter(AbstractCompleter):
     """AbstractCompleter implementation, which shows status message
     """
     def __init__(self, text):
@@ -571,6 +572,9 @@ class _LocatorDialog(QDialog):
 
         self._updateCompletion()
 
+        # This is necessary only for FuzzyOpen. Maybe better solution will be invented later
+        core.project().filesReady.connect(self._updateCompletion)
+
         self._command = None
 
     def _createUi(self):
@@ -621,7 +625,7 @@ class _LocatorDialog(QDialog):
     def _applyLoadingCompleter(self):
         """Set 'Loading...' message
         """
-        self._applyCompleter(None, _StatusCompleter('<i>Loading...</i>'))
+        self._applyCompleter(None, StatusCompleter('<i>Loading...</i>'))
 
     def onCompleterLoaded(self, command, completer):
         """The method called from _CompleterLoaderProcess when the completer is ready

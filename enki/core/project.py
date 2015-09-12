@@ -51,10 +51,17 @@ class Project(QObject):
     **Signal** emitted, when project path is changed
     """
 
+    filesReady = pyqtSignal()
+    """
+    filesReady()
+
+    **Signal** emitted, when list of project files has been loaded
+    """
+
     def __init__(self, parent):
         QObject.__init__(self, parent)
         self._path = None
-        self._projectFiles = []
+        self._projectFiles = None
         self._thread = None
         self.open(os.path.abspath('.'))
 
@@ -80,7 +87,7 @@ class Project(QObject):
         """
         self._stopScannerThread()
         self._path = path
-        self._projectFiles = []
+        self._projectFiles = None
         self._startScannerThread()
 
         try:
@@ -107,3 +114,4 @@ class Project(QObject):
     def _onFilesReady(self, path, files):
         self._projectFiles = files
         self._stopScannerThread()
+        self.filesReady.emit()
