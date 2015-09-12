@@ -3,7 +3,7 @@ import os.path
 
 from enki.core.core import core
 
-from enki.core.locator import AbstractCommand, AbstractCompleter
+from enki.core.locator import AbstractCommand, AbstractCompleter, StatusCompleter
 
 
 def fuzzyMatch(pattern, text):
@@ -117,7 +117,10 @@ class FuzzyOpenCommand(AbstractCommand):
         self._clickedPath = None
 
     def completer(self):
-        return FuzzyOpenCompleter(self._pattern, core.project().files())
+        if core.project().files() is not None:
+            return FuzzyOpenCompleter(self._pattern, core.project().files())
+        else:
+            return StatusCompleter("<i>Loading project files...</i>")
 
     def onCompleterLoaded(self, completer):
         self._completer = completer
