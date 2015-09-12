@@ -74,7 +74,7 @@ class FuzzyOpenCompleter(AbstractCompleter):
         else:
             matching = [(item, 0, []) for item in self._files]
 
-        self._items = matching
+        self._items = matching[:32]  # show not more than 32 items for better performance
 
     def rowCount(self):
         return len(self._items)
