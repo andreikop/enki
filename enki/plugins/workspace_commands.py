@@ -50,6 +50,7 @@ class CommandOpen(AbstractCommand):
     command = 'o'
     signature = '[o] PATH [LINE]'
     description = 'Open file. Globs are supported'
+    isDefaultPathCommand = True
 
     def __init__(self, args):
         if len(args) > 2:
