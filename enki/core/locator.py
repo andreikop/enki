@@ -505,7 +505,7 @@ def splitLine(text):
         except StopIteration:
             pass
 
-        return word, index + 1
+        return word
 
     while True:
         try:
@@ -699,23 +699,23 @@ class _LocatorDialog(QDialog):
         # Split line
         #
         text = self._edit.commandText()
-        wordsWithIndexes = splitLine(text)
-        if not wordsWithIndexes:
+        words = splitLine(text)
+        if not words:
             return None
 
         #
         # Find command
         #
         for cmdClass in self._commandClasses:
-            if cmdClass.command == wordsWithIndexes[0][0]:
+            if cmdClass.command == words[0]:
                 foundCommandClass = cmdClass
-                argWordsWithIndexes = wordsWithIndexes[1:]
+                args = words[1:]
                 break
         else:
             for cmdClass in self._commandClasses:
                 if cmdClass.isDefaultCommand:
                     foundCommandClass = cmdClass
-                    argWordsWithIndexes = wordsWithIndexes
+                    args = words
                     break
                 else:
                     return None
@@ -723,7 +723,6 @@ class _LocatorDialog(QDialog):
         #
         # Try to make command object
         #
-        args = [item[0] for item in argWordsWithIndexes]
 
         try:
             return foundCommandClass(args)
