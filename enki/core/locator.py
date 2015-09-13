@@ -32,11 +32,13 @@ class AbstractCommand:
     * ``signature`` - Command signature. Shown in the Help. Example:  ``[f] PATH [LINE]``
     * ``description`` - Command description. Shown in the Help. Example: ``Open file. Globs are supported``
     * ``isDefaultCommand`` - If True, command is executed if no other command matches. Must be ``True`` for only 1 command. Currently it is FuzzyOpen
+    * ``isDefaultCommand`` - If True, command is executed if no other command matches and text looks like a path. Must be ``True`` for only 1 command. Currently it is Open
     """
     command = NotImplemented
     signature = NotImplemented
     description = NotImplemented
     isDefaultCommand = False
+    isDefaultPathCommand = False
 
 
     def __init__(self, args):
@@ -691,41 +693,38 @@ class _LocatorDialog(QDialog):
         else:
             return False
 
+    def _chooseCommand(self, words):
+        for cmd in self._commandClasses:
+            if cmd.command == words[0]:
+                return cmd, words[1:]
+
+        if words:
+            if words[0].startswith('/') or \
+               words[0].startswith('./'):
+                for cmd in self._commandClasses:
+                    if cmd.isDefaultPathCommand:
+                        return cmd, words
+
+        for cmd in self._commandClasses:
+            if cmd.isDefaultCommand:
+                return cmd, words
+
     def _parseCurrentCommand(self):
         """ Parse text and try to get (command, completable word index)
         Return None if failed to parse
         """
-        #
         # Split line
-        #
         text = self._edit.commandText()
         words = splitLine(text)
         if not words:
             return None
 
-        #
         # Find command
-        #
-        for cmdClass in self._commandClasses:
-            if cmdClass.command == words[0]:
-                foundCommandClass = cmdClass
-                args = words[1:]
-                break
-        else:
-            for cmdClass in self._commandClasses:
-                if cmdClass.isDefaultCommand:
-                    foundCommandClass = cmdClass
-                    args = words
-                    break
-                else:
-                    return None
+        cmdClass, args = self._chooseCommand(words)
 
-        #
         # Try to make command object
-        #
-
         try:
-            return foundCommandClass(args)
+            return cmdClass(args)
         except InvalidCmdArgs:
             return None
 
