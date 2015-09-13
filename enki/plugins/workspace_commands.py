@@ -9,7 +9,7 @@ import glob
 from enki.core.core import core
 from enki.lib.pathcompleter import makeSuitableCompleter, PathCompleter
 
-from enki.core.locator import AbstractCommand, InvalidCmdArgs
+from enki.core.locator import AbstractCommand, InvalidCmdArgs, StatusCompleter
 
 
 class CommandGotoLine(AbstractCommand):
@@ -18,6 +18,7 @@ class CommandGotoLine(AbstractCommand):
     command = 'l'
     signature = 'l [LINE]'
     description = 'Go to line'
+    isDefaultNumericCommand = True
 
     def __init__(self, args):
         if len(args) != 1:
@@ -43,6 +44,9 @@ class CommandGotoLine(AbstractCommand):
         """Execute the command
         """
         core.workspace().currentDocument().qutepart.cursorPosition = self._line - 1, None
+
+    def completer(self):
+        return StatusCompleter("Go to line {}".format(self._line))
 
 
 class CommandOpen(AbstractCommand):

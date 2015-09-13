@@ -32,13 +32,15 @@ class AbstractCommand:
     * ``signature`` - Command signature. Shown in the Help. Example:  ``[f] PATH [LINE]``
     * ``description`` - Command description. Shown in the Help. Example: ``Open file. Globs are supported``
     * ``isDefaultCommand`` - If True, command is executed if no other command matches. Must be ``True`` for only 1 command. Currently it is FuzzyOpen
-    * ``isDefaultCommand`` - If True, command is executed if no other command matches and text looks like a path. Must be ``True`` for only 1 command. Currently it is Open
+    * ``isDefaultPathCommand`` - If True, command is executed if no other command matches and text looks like a path. Must be ``True`` for only 1 command. Currently it is Open
+    * ``isDefaultNumericCommand`` - If True, command is executed if no other command matches and text looks like a number. Must be ``True`` for only 1 command. Currently it is GotoLine
     """
     command = NotImplemented
     signature = NotImplemented
     description = NotImplemented
     isDefaultCommand = False
     isDefaultPathCommand = False
+    isDefaultNumericCommand = False
 
 
     def __init__(self, args):
@@ -698,15 +700,20 @@ class _LocatorDialog(QDialog):
             if cmd.command == words[0]:
                 return cmd, words[1:]
 
-        if words:
-            if words[0].startswith('/') or \
-               words[0].startswith('./'):
-                for cmd in self._commandClasses:
-                    if cmd.isDefaultPathCommand:
-                        return cmd, words
+        isPath = words and (words[0].startswith('/') or
+                            words[0].startswith('./'))
+        isNumber = len(words) == 1 and all([c.isdigit() for c in words[0]])
+
+        def matches(cmd):
+            if isPath:
+                return cmd.isDefaultPathCommand
+            elif isNumber:
+                return cmd.isDefaultNumericCommand
+            else:
+                return cmd.isDefaultCommand
 
         for cmd in self._commandClasses:
-            if cmd.isDefaultCommand:
+            if matches(cmd):
                 return cmd, words
 
     def _parseCurrentCommand(self):
