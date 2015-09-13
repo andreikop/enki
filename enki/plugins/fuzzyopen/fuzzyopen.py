@@ -112,7 +112,14 @@ class FuzzyOpenCommand(AbstractCommand):
         return core.project().path() is not None
 
     def __init__(self, args):
-        self._pattern = args[0] if args else ''
+        if len(args) > 1 and \
+           all([c.isdigit() for c in args[-1]]):
+            self._line = int(args[-1])
+            del args[-1]
+        else:
+            self._line = None
+
+        self._pattern = '/'.join(args) if args else ''
         self._completer = None
         self._clickedPath = None
 
@@ -140,4 +147,8 @@ class FuzzyOpenCommand(AbstractCommand):
         elif self._completer:
             path = self._matching[0][0]
 
-        core.workspace().openFile(os.path.join(core.project().path(), path))
+        fullPath = os.path.join(core.project().path(), path)
+        if self._line is None:
+            core.workspace().goTo(fullPath)
+        else:
+            core.workspace().goTo(fullPath, line=self._line - 1)
