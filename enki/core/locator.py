@@ -607,6 +607,7 @@ class _LocatorDialog(QDialog):
         self._table.setRootIsDecorated(False)
         self._table.setHeaderHidden(True)
         self._table.clicked.connect(self._onItemClicked)
+        self._table.setAlternatingRowColors(True)
         self.layout().addWidget(self._table)
 
         width = QFontMetrics(self.font()).width('x' * 64)  # width of 64 'x' letters
