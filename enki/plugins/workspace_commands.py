@@ -168,14 +168,14 @@ class CommandSaveAs(AbstractCommand):
         return core.workspace().currentDocument() is not None
 
     def __init__(self, args):
-        if len(args) != 1:
+        if len(args) > 1:
             raise InvalidCmdArgs()
 
-        self._path = args[0]
+        self._path = args[0] if args else ''
 
     def completer(self):
         """Command Completer.
-        Returns PathCompleter, if cursor stays after path
+        Return PathCompleter.
         """
         return PathCompleter(self._path)
 
@@ -194,6 +194,12 @@ class CommandSaveAs(AbstractCommand):
 
         core.workspace().currentDocument().setFilePath(path)
         core.workspace().currentDocument().saveFile()
+
+    def onItemClicked(self, fullText):
+        self._path = fullText
+
+    def lineEditText(self):
+        return '{} {}'.format(self.command, self._path)
 
 
 _CMD_CLASSES = (CommandGotoLine, CommandOpen, CommandSaveAs)
