@@ -16,7 +16,7 @@ class CommandGotoLine(AbstractCommand):
     """Go to line command implementation
     """
     command = 'l'
-    signature = 'l [LINE]'
+    signature = 'l [LINE]<br/>[LINE]'
     description = 'Go to line'
     isDefaultNumericCommand = True
 
@@ -52,7 +52,7 @@ class CommandGotoLine(AbstractCommand):
 class CommandOpen(AbstractCommand):
 
     command = 'o'
-    signature = '[o] PATH [LINE]'
+    signature = 'o PATH [LINE]<br/>/PATH [LINE]<br/>./PATH [LINE]<br/>../PATH [LINE]'
     description = 'Open file. Globs are supported'
     isDefaultPathCommand = True
 
