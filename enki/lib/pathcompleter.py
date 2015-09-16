@@ -28,6 +28,8 @@ class AbstractPathCompleter(AbstractCompleter):
     """Base class for PathCompleter and GlobCompleter
     """
 
+    mustBeLoaded = True
+
     # global object. Reused by all completers
     _fsModel = QFileSystemModel()
 

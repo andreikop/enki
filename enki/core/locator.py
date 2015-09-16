@@ -111,7 +111,10 @@ class AbstractCompleter:
     * command(s) description
     * status and any other information from command
     * list of possible completions
+
+    If ``mustBeLoaded`` class attribute is True, ``load()`` method will be called in a process.
     """
+    mustBeLoaded = False
 
     def load(self):
         """Load necessary data in a thread
@@ -426,11 +429,10 @@ class _CompleterLoaderProcess(Process):
             command, completer = self._resultQueue.get()
             self._locator.onCompleterLoaded(command, completer)
 
-    def pushCommand(self, command):
+    def loadCompleter(self, command, completer):
         """Start constructing completer
         Works in the GUI thread
         """
-        completer = command.completer()
         self._taskQueue.put((command, completer))
 
     def terminate(self):
@@ -622,8 +624,13 @@ class _LocatorDialog(QDialog):
         """
         self._command = self._parseCurrentCommand()
         if self._command is not None:
-            self._loadingTimer.start()
-            self._completerLoaderProcess.pushCommand(self._command)
+            completer = self._command.completer()
+
+            if completer.mustBeLoaded:
+                self._loadingTimer.start()
+                self._completerLoaderProcess.loadCompleter(self._command, completer)
+            else:
+                self._applyCompleter(self._command, completer)
         else:
             self._applyCompleter(None, _HelpCompleter(self._commandClasses))
 
