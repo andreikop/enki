@@ -6,7 +6,7 @@ from enki.core.core import core
 from enki.core.locator import AbstractCommand, AbstractCompleter, StatusCompleter
 
 
-def fuzzyMatch(pattern, text):
+def fuzzyMatch(reversed_pattern, text):
     """Match text with pattern and return
         (score, list of matching indexes)
         or None
@@ -16,32 +16,28 @@ def fuzzyMatch(pattern, text):
     Peaces close to the end -> better matching
 
     Reverse mathing is used because symbols at the end of the path are usually more impotant.
+
+    pattern shall be already reversed for performance reasons
     """
-    iter_text = reversed(list(enumerate(text)))
     indexes = []
+    score = 0
+    text_len = len(text)
 
-    sequence_start_indexes = []
+    index = text_len + 1
+    prev_match = index
+    for char in reversed_pattern:
+        index = text.rfind(char, 0, index)
+        if index == -1:
+            return None, None
 
-    prev_matched = False
-    for pattern_char in reversed(pattern):
-        for text_index, text_char in iter_text:
-            if pattern_char == text_char:
-                if not prev_matched:  # start of sequence of matched symbols
-                    sequence_start_indexes.append(text_index)
-                    prev_matched = True
-                indexes.append(text_index)
-                break
-            else:
-                prev_matched = False
+        indexes.append(index)
+        if index + 1 != prev_match:
+            score += text_len - index
 
-        else:
-            return None
+        prev_match = index
 
-    if indexes:
-        score = sum([len(text) - index for index in sequence_start_indexes])
-        return (score, indexes)
-    else:
-        return None
+    return score, indexes
+
 
 
 class FuzzyOpenCompleter(AbstractCompleter):
@@ -64,17 +60,24 @@ class FuzzyOpenCompleter(AbstractCompleter):
             self._pattern = self._pattern.lower()
 
         if self._pattern:
+            if caseSensitive:
+                pattern = self._pattern
+                files = self._files
+            else:
+                pattern = self._pattern.lower()
+                files = [f.lower() for f in self._files]
+
+            reversed_pattern = pattern[::-1]
+
             matching = []
-            for path in self._files:
-                if stopEvent.is_set():
-                    return
-                if caseSensitive:
-                    res = fuzzyMatch(self._pattern, path)
-                else:
-                    res = fuzzyMatch(self._pattern, path.lower())
-                if res is not None:
-                    score, indexes = res
+            for i, path in enumerate(files):
+                score, indexes = fuzzyMatch(reversed_pattern, path)
+                if indexes:
                     matching.append((path, score, indexes))
+
+                if not (i % 1000):
+                    if stopEvent.is_set():
+                        return
 
             matching.sort(key=lambda item: item[1])  # sort starting from minimal score
         else:
