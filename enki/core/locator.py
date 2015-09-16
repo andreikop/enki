@@ -11,7 +11,7 @@ Contains definition of AbstractCommand and AbstractCompleter interfaces
 from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QEvent, QModelIndex, QObject, Qt, QTimer
 from PyQt4.QtGui import QDialog, QFontMetrics, QLineEdit, QTreeView, QVBoxLayout
 
-from multiprocessing import Process, Queue, Event
+from multiprocessing import Process, Queue, JoinableQueue, Event
 
 from enki.core.core import core
 from enki.lib.htmldelegate import HTMLDelegate
@@ -413,7 +413,7 @@ class _CompleterLoaderProcess(Process):
 
         self._locator = locator
 
-        self._taskQueue = Queue()  # (command, completer) or None as exit signal
+        self._taskQueue = JoinableQueue()  # completer or None as exit signal
         self._resultQueue = Queue()
 
         self._checkQueueTimer = QTimer()
@@ -436,6 +436,12 @@ class _CompleterLoaderProcess(Process):
         """Start constructing completer
         Works in the GUI thread
         """
+        # Stop previous
+        self._stopEvent.set()
+        self._taskQueue.join()
+
+        # Start new
+        self._stopEvent.clear()
         self._taskQueue.put((command, completer))
 
     def terminate(self):
@@ -459,9 +465,12 @@ class _CompleterLoaderProcess(Process):
                 break
 
     def _getNextTask(self):
+        # discard old commands
         while self._taskQueue.qsize() > 1:
-            self._taskQueue.get()  # discard old commands
+            self._taskQueue.get()
+            self._taskQueue.task_done()
 
+        # Get the last command
         return self._taskQueue.get()
 
     def run(self):
@@ -471,11 +480,14 @@ class _CompleterLoaderProcess(Process):
         while True:
             task = self._getNextTask()
             if task is None:  # exit command
+                self._taskQueue.task_done()
                 break
 
             command, completer = task
             completer.load(self._stopEvent)
-            self._resultQueue.put((command, completer))
+            if self._taskQueue.empty():
+                self._resultQueue.put((command, completer))
+            self._taskQueue.task_done()
 
 
 def splitLine(text):
