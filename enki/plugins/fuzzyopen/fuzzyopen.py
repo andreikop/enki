@@ -45,6 +45,9 @@ def fuzzyMatch(pattern, text):
 
 
 class FuzzyOpenCompleter(AbstractCompleter):
+
+    mustBeLoaded = True
+
     def __init__(self, pattern, files):
         smallerFont = core.mainWindow().font().pointSizeF() * 2 / 1.5
         self._itemTemplate = ('{{}}'
