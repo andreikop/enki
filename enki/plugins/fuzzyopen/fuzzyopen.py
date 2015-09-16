@@ -55,8 +55,9 @@ class FuzzyOpenCompleter(AbstractCompleter):
 
         self._pattern = pattern
         self._files = files
+        self._items = []
 
-    def load(self):
+    def load(self, stopEvent):
         caseSensitive = any([c.isupper() for c in self._pattern])
 
         if not caseSensitive:
@@ -65,6 +66,8 @@ class FuzzyOpenCompleter(AbstractCompleter):
         if self._pattern:
             matching = []
             for path in self._files:
+                if stopEvent.is_set():
+                    return
                 if caseSensitive:
                     res = fuzzyMatch(self._pattern, path)
                 else:

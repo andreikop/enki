@@ -11,7 +11,7 @@ Contains definition of AbstractCommand and AbstractCompleter interfaces
 from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QEvent, QModelIndex, QObject, Qt, QTimer
 from PyQt4.QtGui import QDialog, QFontMetrics, QLineEdit, QTreeView, QVBoxLayout
 
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, Event
 
 from enki.core.core import core
 from enki.lib.htmldelegate import HTMLDelegate
@@ -116,8 +116,10 @@ class AbstractCompleter:
     """
     mustBeLoaded = False
 
-    def load(self):
-        """Load necessary data in a thread
+    def load(self, stopEvent):
+        """Load necessary data in a process.
+        This method must often check ``stopEvent`` ``multiprocessing.Event``
+        and return if it is set.
         """
         pass
 
@@ -419,6 +421,7 @@ class _CompleterLoaderProcess(Process):
         self._checkQueueTimer.timeout.connect(self._checkQueue)
         self._checkQueueTimer.start()
 
+        self._stopEvent = Event()
         Process.start(self)
 
     def _checkQueue(self):
@@ -439,6 +442,7 @@ class _CompleterLoaderProcess(Process):
         """Set termination flag
         Works in the GUI thread
         """
+        self._stopEvent.set()
         self._taskQueue.put(None)
 
         """ Join the Queue to avoid dead lock when
@@ -470,7 +474,7 @@ class _CompleterLoaderProcess(Process):
                 break
 
             command, completer = task
-            completer.load()
+            completer.load(self._stopEvent)
             self._resultQueue.put((command, completer))
 
 
