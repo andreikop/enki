@@ -11,7 +11,8 @@ Contains definition of AbstractCommand and AbstractCompleter interfaces
 from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QEvent, QModelIndex, QObject, Qt, QTimer
 from PyQt4.QtGui import QDialog, QFontMetrics, QLineEdit, QTreeView, QVBoxLayout
 
-from multiprocessing import Process, Queue, JoinableQueue, Event
+from threading import Thread, Event
+from Queue import Queue
 
 from enki.core.core import core
 from enki.lib.htmldelegate import HTMLDelegate
@@ -112,13 +113,13 @@ class AbstractCompleter:
     * status and any other information from command
     * list of possible completions
 
-    If ``mustBeLoaded`` class attribute is True, ``load()`` method will be called in a process.
+    If ``mustBeLoaded`` class attribute is True, ``load()`` method will be called in a thread.
     """
     mustBeLoaded = False
 
     def load(self, stopEvent):
-        """Load necessary data in a process.
-        This method must often check ``stopEvent`` ``multiprocessing.Event``
+        """Load necessary data in a thread.
+        This method must often check ``stopEvent`` ``threading.Event``
         and return if it is set.
         """
         pass
@@ -292,6 +293,12 @@ class _CompletableLineEdit(QLineEdit):
         QLineEdit.__init__(self, *args)
         self._inlineCompletionIsSet = False  # to differentiate inline completion and selection
 
+        # Timer is used to delay completion update until user has finished typing
+        self._updateCompletionTimer = QTimer(self)
+        self._updateCompletionTimer.setInterval(100)
+        self._updateCompletionTimer.setSingleShot(True)
+        self._updateCompletionTimer.timeout.connect(self.updateCompletion)
+
     def event(self, event):
         """QObject.event implementation. Catches Tab events
         """
@@ -299,7 +306,7 @@ class _CompletableLineEdit(QLineEdit):
            event.key() == Qt.Key_Tab:
             if self.selectedText():
                 self.setCursorPosition(self.selectionStart() + len(self.selectedText()))
-                self.updateCompletion.emit()
+                self._updateCompletionTimer.start()
             return True
         else:
             return QLineEdit.event(self, event)
@@ -349,7 +356,7 @@ class _CompletableLineEdit(QLineEdit):
                textBeforeCompletion[-1] == inlineCompletion[0]:
                 self.setInlineCompletion(inlineCompletion[1:])  # set rest of the inline completion
 
-        self.updateCompletion.emit()
+        self._updateCompletionTimer.start()
 
     def _deleteToSlash(self):
         """Delete back until /. Called on Ctrl+Backspace pressing
@@ -399,7 +406,7 @@ class _CompletableLineEdit(QLineEdit):
         return text
 
 
-class _CompleterLoaderProcess(Process):
+class _CompleterLoaderThread(Thread):
     """Thread constructs Completer
     Sometimes it requires a lot of time, i.e. when expanding "/usr/lib/*"
     hlamer: I tried to use QThread + pyqtSignal, but got tired with crashes and deadlocks
@@ -409,11 +416,11 @@ class _CompleterLoaderProcess(Process):
     def __init__(self, locator):
         """Works in the GUI thread
         """
-        Process.__init__(self)
+        Thread.__init__(self)
 
         self._locator = locator
 
-        self._taskQueue = JoinableQueue()  # completer or None as exit signal
+        self._taskQueue = Queue()  # completer or None as exit signal
         self._resultQueue = Queue()
 
         self._checkQueueTimer = QTimer()
@@ -422,7 +429,7 @@ class _CompleterLoaderProcess(Process):
         self._checkQueueTimer.start()
 
         self._stopEvent = Event()
-        Process.start(self)
+        Thread.start(self)
 
     def _checkQueue(self):
         """Check if thread constructed a completer and put it to the queue
@@ -450,19 +457,8 @@ class _CompleterLoaderProcess(Process):
         """
         self._stopEvent.set()
         self._taskQueue.put(None)
-
-        """ Join the Queue to avoid dead lock when
-        process has exited but our thread tries to write data
-        """
         self._checkQueueTimer.stop()
-
-        while True:
-            self.join(0.02)
-            if self.is_alive():
-                if self._resultQueue.qsize():  # read data from the queue to avoid deadlock
-                    self._resultQueue.get()
-            else:
-                break
+        self.join()
 
     def _getNextTask(self):
         # discard old commands
@@ -588,7 +584,7 @@ class _LocatorDialog(QDialog):
         self._loadingTimer.setInterval(200)
         self._loadingTimer.timeout.connect(self._applyLoadingCompleter)
 
-        self._completerLoaderProcess = _CompleterLoaderProcess(self)
+        self._completerLoaderThread = _CompleterLoaderThread(self)
 
         self.finished.connect(self._terminate)
 
@@ -632,7 +628,7 @@ class _LocatorDialog(QDialog):
         self.resize(width, width * 0.62)
 
     def _terminate(self):
-        self._completerLoaderProcess.terminate()
+        self._completerLoaderThread.terminate()
         core.workspace().focusCurrentDocument()
 
     def _updateCompletion(self):
@@ -644,7 +640,7 @@ class _LocatorDialog(QDialog):
 
             if completer.mustBeLoaded:
                 self._loadingTimer.start()
-                self._completerLoaderProcess.loadCompleter(self._command, completer)
+                self._completerLoaderThread.loadCompleter(self._command, completer)
             else:
                 self._applyCompleter(self._command, completer)
         else:
@@ -656,7 +652,7 @@ class _LocatorDialog(QDialog):
         self._applyCompleter(None, StatusCompleter('<i>Loading...</i>'))
 
     def onCompleterLoaded(self, command, completer):
-        """The method called from _CompleterLoaderProcess when the completer is ready
+        """The method called from _CompleterLoaderThread when the completer is ready
         This code works in the GUI thread
         """
         self._applyCompleter(command, completer)

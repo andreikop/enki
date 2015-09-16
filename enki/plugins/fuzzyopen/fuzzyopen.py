@@ -75,7 +75,7 @@ class FuzzyOpenCompleter(AbstractCompleter):
                 if indexes:
                     matching.append((path, score, indexes))
 
-                if not (i % 1000):
+                if not (i % 100):
                     if stopEvent.is_set():
                         return
 
