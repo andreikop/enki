@@ -52,7 +52,7 @@ class CommandGotoLine(AbstractCommand):
 class CommandOpen(AbstractCommand):
 
     command = 'o'
-    signature = 'o PATH [LINE]<br/>/PATH [LINE]<br/>./PATH [LINE]<br/>../PATH [LINE]'
+    signature = 'o PATH [LINE]<br/>/PATH [LINE]<br/>./PATH [LINE]<br/>../PATH [LINE]<br/>~/PATH [LINE]'
     description = 'Open file. Globs are supported'
     isDefaultPathCommand = True
 

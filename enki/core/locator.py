@@ -703,7 +703,8 @@ class _LocatorDialog(QDialog):
 
         isPath = words and (words[0].startswith('/') or
                             words[0].startswith('./') or
-                            words[0].startswith('../'))
+                            words[0].startswith('../') or
+                            words[0].startswith('~/'))
         isNumber = len(words) == 1 and all([c.isdigit() for c in words[0]])
 
         def matches(cmd):
