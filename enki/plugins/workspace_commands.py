@@ -73,6 +73,17 @@ class CommandOpen(AbstractCommand):
         else:
             self._line = None
 
+        # TODO: Check Windows factor
+        if self._path:
+            if self._path.startswith("./") or self._path.startswith("../"):
+                doc =  core.workspace().currentDocument()
+                if doc is not None:
+                    fp = doc.filePath()
+                    if fp is not None:
+                        if os.path.isabs(fp):
+                            dn = os.path.dirname(fp)
+                            self._path = dn + os.path.sep + self._path
+
     def completer(self):
         """Command completer.
         If cursor is after path, returns PathCompleter or GlobCompleter
