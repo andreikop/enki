@@ -455,10 +455,11 @@ class _CompleterLoaderThread(Thread):
         """Set termination flag
         Works in the GUI thread
         """
-        self._stopEvent.set()
-        self._taskQueue.put(None)
-        self._checkQueueTimer.stop()
-        self.join()
+        if self.is_alive():
+            self._stopEvent.set()
+            self._taskQueue.put(None)
+            self._checkQueueTimer.stop()
+            self.join()
 
     def _getNextTask(self):
         # discard old commands
