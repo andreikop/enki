@@ -49,6 +49,26 @@ class CommandGotoLine(AbstractCommand):
         return StatusCompleter("Go to line {}".format(self._line))
 
 
+def _expandDotDirectories(path):
+    """Replace ./ and ../ with CURRENT FILE directory
+
+    Current Enki directory is a project directory.
+    But it is more comfortable to use current file directory for open and save commands.
+    """
+
+    # TODO: Check Windows factor
+    if path:
+        if path.startswith("./") or path.startswith("../"):
+            doc = core.workspace().currentDocument()
+            if doc is not None:
+                fp = doc.filePath()
+                if fp is not None:
+                    dn = os.path.dirname(fp)
+                    return os.path.join(dn, path)
+
+    return path
+
+
 class CommandOpen(AbstractCommand):
 
     command = 'o'
@@ -61,7 +81,7 @@ class CommandOpen(AbstractCommand):
             raise InvalidCmdArgs()
 
         if args:
-            self._path = args[0]
+            self._path = _expandDotDirectories(args[0])
         else:
             self._path = None
 
@@ -72,17 +92,6 @@ class CommandOpen(AbstractCommand):
                 raise InvalidCmdArgs()
         else:
             self._line = None
-
-        # TODO: Check Windows factor
-        if self._path:
-            if self._path.startswith("./") or self._path.startswith("../"):
-                doc =  core.workspace().currentDocument()
-                if doc is not None:
-                    fp = doc.filePath()
-                    if fp is not None:
-                        if os.path.isabs(fp):
-                            dn = os.path.dirname(fp)
-                            self._path = dn + os.path.sep + self._path
 
     def completer(self):
         """Command completer.
@@ -186,7 +195,7 @@ class CommandSaveAs(AbstractCommand):
         if len(args) > 1:
             raise InvalidCmdArgs()
 
-        self._path = args[0] if args else ''
+        self._path = _expandDotDirectories(args[0]) if args else ''
 
     def completer(self):
         """Command Completer.
