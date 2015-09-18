@@ -623,6 +623,7 @@ class _LocatorDialog(QDialog):
         self._table.setHeaderHidden(True)
         self._table.clicked.connect(self._onItemClicked)
         self._table.setAlternatingRowColors(True)
+        self._table.installEventFilter(self)  # catch focus and give to the edit
         self.layout().addWidget(self._table)
 
         width = QFontMetrics(self.font()).width('x' * 64)  # width of 64 'x' letters
@@ -759,9 +760,13 @@ class _LocatorDialog(QDialog):
             return None
 
     def eventFilter(self, obj, event):
-        if event.type() == QEvent.KeyPress and \
-           event.key() in (Qt.Key_Up, Qt.Key_Down, Qt.Key_PageUp, Qt.Key_PageDown):
-            self._table.event(event)
-            return True
-        else:
-            return False
+        if obj is self._edit:
+            if event.type() == QEvent.KeyPress and \
+               event.key() in (Qt.Key_Up, Qt.Key_Down, Qt.Key_PageUp, Qt.Key_PageDown):
+                return self._table.event(event)
+        elif obj is self._table:
+            if event.type() == QEvent.FocusIn:
+                self._edit.setFocus()
+                return True
+
+        return False
