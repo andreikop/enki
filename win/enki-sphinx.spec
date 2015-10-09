@@ -19,13 +19,6 @@ import sys
 import os.path
 import pylint
 
-# Use the ``.exe`` extension for Windows, but not Unix.
-if sys.platform.startswith('linux'):
-    ext = ''
-else:
-    ext = '.exe'
-
-
 # Per the `Pyinstaller merge docs`_, first create uniquely-named analysis
 # objects for both programs.
 enki_a = Analysis(['bin/enki'],
@@ -64,7 +57,7 @@ enki_pyz = PYZ(enki_a.pure)
 enki_exe = EXE(enki_pyz,
           enki_a.scripts,
           exclude_binaries=True,
-          name='enki' + ext,
+          name='enki',
           debug=False,
           strip=None,
           upx=True,
@@ -81,7 +74,7 @@ sphinx_pyz = PYZ(sphinx_a.pure)
 sphinx_exe = EXE(sphinx_pyz,
           sphinx_a.scripts,
           exclude_binaries=True,
-          name='sphinx-build' + ext,
+          name='sphinx-build',
           debug=False,
           strip=None,
           upx=True,
@@ -103,7 +96,7 @@ pylint_exe = EXE(pylint_pyz,
           # One solution: change the name below. But then Enki needs to know
           # about this special case (unique name only for Linux frozen), which
           # is ugly.
-          name='pylint' + ext,
+          name='pylint',
           debug=False,
           strip=None,
           upx=True,
