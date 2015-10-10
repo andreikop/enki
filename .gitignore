@@ -12,15 +12,14 @@ MANIFEST
 .idea
 sphinx-enki-info.txt
 
-# CodeChat files
+# CodeChat-generated files.
 _build
 *.py.rst
 *.iss.rst
 *.bat.rst
 
-# Installer
+# Installer.
 win/Install_Enki.exe
 
-# PyInstaller files
-enki.spec
+# Pyinstaller-generated files.
 *.spec
