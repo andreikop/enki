@@ -26,7 +26,8 @@
 # data files (such as ``.ui`` files). This hook informs
 # PyInstaller that these files must be included in the Enki
 # bundle.
-from hookutils import collect_submodules, collect_data_files
+from PyInstaller.utils.hooks import collect_submodules, \
+  collect_data_files
 
 hiddenimports = (
     # The plugins are dynamically loaded, making them a
@@ -35,7 +36,7 @@ hiddenimports = (
     # The colorbutton widget is loaded from a .ui file,
     # making it a hidden import. Not sure if others there
     # are or not, but they're certainly all needed.
-    collect_submodules('enki.widgets'))
+    collect_submodules('enki.widgets') )
 
 datas = (
     # Enki relies on a number of .ui files and some .json
@@ -45,3 +46,4 @@ datas = (
     # files available to be found by for os.listdir-type
     # operations. Gather them.
     collect_data_files('enki.plugins', True))
+

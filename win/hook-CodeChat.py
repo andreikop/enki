@@ -28,7 +28,7 @@
 # bundle. See
 # http://htmlpreview.github.io/?https://github.com/pyinstaller/pyinstaller/blob/develop/doc/Manual.html#using-hook-files
 # for details.
-from hookutils import get_package_paths
+from PyInstaller.utils.hooks import get_package_paths
 import os.path
 
 # The ``template/`` directory contains data files to be copied. Get an
