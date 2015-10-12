@@ -28,20 +28,23 @@ enki_a = Analysis(['../bin/enki'],
   pathex=['.'],
   hiddenimports=[],
   hookspath=['win'],
-  runtime_hooks=['win/rthook_pyqt4.py'])
+  runtime_hooks=['win/rthook_pyqt4.py'],
+  excludes=['_tkinter'])
 
 sphinx_a = Analysis(['sphinx-build.py'],
   pathex=['.'],
   hiddenimports=['CodeChat'],
   hookspath=['win'],
-  runtime_hooks=[])
+  runtime_hooks=[],
+  excludes=['_tkinter'])
 
 # Provide the OS-dependent location of pylint's __main__.py file.
 pylint_a = Analysis([os.path.join(pylint.__path__[0], '__main__.py')],
   pathex=['.'],
   hiddenimports=[],
   hookspath=None,
-  runtime_hooks=None)
+  runtime_hooks=None,
+  excludes=['_tkinter'])
 #
 # Merge
 # =====
@@ -50,8 +53,7 @@ pylint_a = Analysis([os.path.join(pylint.__path__[0], '__main__.py')],
 MERGE(
     (enki_a, 'enki', 'enki'),
     (sphinx_a, 'sphinx', 'sphinx'),
-    (pylint_a, 'pylint', 'pylint'),
-    )
+    (pylint_a, 'pylint', 'pylint'))
 #
 # Produce binaries
 # ================
