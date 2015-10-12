@@ -108,7 +108,7 @@ for loader, name, ispkg in pkgutil.iter_modules(['enki/plugins']):
         package_data['enki'].append('plugins/%s/templates/*' % name)
         package_data['enki'].append('plugins/%s/sphinx_templates/*' % name)
 
-script = 'bin/enki.py' if platform.system() == 'Windows' else 'bin/enki'
+script = 'bin/enki-editor.pyw' if platform.system() == 'Windows' else 'bin/enki'
 
 if __name__ == '__main__':
     if 'install' in sys.argv:

@@ -2,7 +2,7 @@
 
 """
 Enki. A text editor for programmers
-Unix entry point. See also enki.py
+Unix entry point. See also enki-editor.pyw.
 """
 
 import sys
