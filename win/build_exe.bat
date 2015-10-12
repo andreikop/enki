@@ -114,5 +114,8 @@ pyinstaller --noconfirm win\enki-all.spec
 : them over.
 xcopy /E /I /Q dist\sphinx-build dist\enki
 xcopy /E /I /Q /Y dist\pylint dist\enki
+: Exclusing Tkinter still leaves two of its files around. Remove those.
+del dist\enki\tcl85.dll
+del dist\enki\tk85.dll
 : Run to see if everything works.
 dist\enki\enki
