@@ -24,13 +24,13 @@ import pylint
 # ========
 # Per the `Pyinstaller merge docs`_, first create uniquely-named analysis
 # objects for both programs.
-enki_a = Analysis(['bin/enki'],
+enki_a = Analysis(['../bin/enki'],
   pathex=['.'],
   hiddenimports=[],
   hookspath=['win'],
   runtime_hooks=['win/rthook_pyqt4.py'])
 
-sphinx_a = Analysis(['win/sphinx-build.py'],
+sphinx_a = Analysis(['sphinx-build.py'],
   pathex=['.'],
   hiddenimports=['CodeChat'],
   hookspath=['win'],
