@@ -102,14 +102,14 @@
 : Combined Enki, Pylint, and Sphinx
 : =================================
 : This builds tthree binaries which can be placed in the same directory.
-: See ``enki-ephinx.spec`` for more details.
+: See ``enki-all.spec`` for more details.
 :
 : Note: Existing build/ and dist/ directories from the standalone builds seem to
 : confuse Pyinstaller. Start clean. The ``build_installer.bat`` file provides
 : docs for the various rmdir/xoopy switches used below.
 :pause Press Enter to build combined Enki and Sphinx binaries.
 rmdir /q /s build dist
-pyinstaller --noconfirm win\enki-sphinx.spec
+pyinstaller --noconfirm win\enki-all.spec
 : Sphinx and pylint binaries depend on Enki files, since they're combined. Copy
 : them over.
 xcopy /E /I /Q dist\sphinx-build dist\enki

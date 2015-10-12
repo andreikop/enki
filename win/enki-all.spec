@@ -1,8 +1,8 @@
 # .. -*- mode: python -*-
 #
-# ****************
-# enki-sphinx.spec
-# ****************
+# *************
+# enki-all.spec
+# *************
 # This file instructs Pyinstaller to build a binary containing both Enki,
 # Pylint, and Sphinx executables.
 #
