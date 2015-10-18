@@ -4,12 +4,12 @@
 # enki-all.spec
 # *************
 # This file instructs Pyinstaller to build a binary containing both Enki,
-# Pylint, and Sphinx executables.
+# flake8, and Sphinx executables.
 #
 # Procedure to create this file:
 #
 # #. Run ``win\build_exe.bat`` and test. This creates working
-#    ``enki.spec``, ``pylint.spec`` and ``sphinx-build.spec`` files.
+#    ``enki.spec``, ``flake8.spec`` and ``sphinx-build.spec`` files.
 # #. Combine these files according to the `Pyinstaller merge docs
 #    <http://htmlpreview.github.io/?https://github.com/pyinstaller/pyinstaller/blob/develop/doc/Manual.html#multipackage-bundles>`_.
 #    These steps are illustrated in the comments below.
@@ -18,7 +18,7 @@
 # Imports
 # =======
 import os.path
-import pylint
+import flake8
 #
 # Analysis
 # ========
@@ -38,8 +38,8 @@ sphinx_a = Analysis(['sphinx-build.py'],
   runtime_hooks=[],
   excludes=['_tkinter'])
 
-# Provide the OS-dependent location of pylint's __main__.py file.
-pylint_a = Analysis([os.path.join(pylint.__path__[0], '__main__.py')],
+# Provide the OS-dependent location of flake8's __main__.py file.
+flake8_a = Analysis([os.path.join(flake8.__path__[0], '__main__.py')],
   pathex=['.'],
   hiddenimports=[],
   hookspath=None,
@@ -53,7 +53,7 @@ pylint_a = Analysis([os.path.join(pylint.__path__[0], '__main__.py')],
 MERGE(
     (enki_a, 'enki', 'enki'),
     (sphinx_a, 'sphinx', 'sphinx'),
-    (pylint_a, 'pylint', 'pylint'))
+    (flake8_a, 'flake8', 'flake8'))
 #
 # Produce binaries
 # ================
@@ -95,25 +95,20 @@ sphinx_coll = COLLECT(sphinx_exe,
   upx=True,
   name='sphinx-build')
 
-pylint_pyz = PYZ(pylint_a.pure)
-pylint_exe = EXE(pylint_pyz,
-  pylint_a.scripts,
+flake8_pyz = PYZ(flake8_a.pure)
+flake8_exe = EXE(flake8_pyz,
+  flake8_a.scripts,
   exclude_binaries=True,
-  # TODO: This fails on Unix, since there's already a directory named
-  # pylint/, conflicting with the binary this is producing named pylint.
-  # One solution: change the name below. But then Enki needs to know
-  # about this special case (unique name only for Linux frozen), which
-  # is ugly.
-  name='pylint',
+  name='flake8',
   debug=False,
   strip=None,
   upx=True,
   console=True)
-pylint_coll = COLLECT(pylint_exe,
-  pylint_a.binaries,
-  pylint_a.zipfiles,
-  pylint_a.datas,
+flake8_coll = COLLECT(flake8_exe,
+  flake8_a.binaries,
+  flake8_a.zipfiles,
+  flake8_a.datas,
   strip=None,
   upx=True,
-  name='pylint')
+  name='flake8')
 

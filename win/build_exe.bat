@@ -92,14 +92,14 @@
 :pyinstaller --noconfirm --additional-hooks-dir=win --hidden-import=CodeChat --exclude-module=_tkinter win\sphinx-build.py
 :dist\sphinx-build\sphinx-build
 :
-: Pylint
+: Flake8
 : ======
-: This builds a pylint binary.
-:pause Press Enter to build and test Pylint.
-:pyinstaller --noconfirm --exclude-module=_tkinter --name=pylint C:\Python27\Lib\site-packages\pylint\__main__.py
-:dist\pylint\pylint
+: This builds a flake8 binary.
+:pause Press Enter to build and test Flake8.
+:pyinstaller --noconfirm --exclude-module=_tkinter --name=flake8 C:\Python27\Lib\site-packages\flake8\__main__.py
+:dist\flake8\flake8
 :
-: Combined Enki, Pylint, and Sphinx
+: Combined Enki, Flake8, and Sphinx
 : =================================
 : This builds tthree binaries which can be placed in the same directory.
 : See ``enki-all.spec`` for more details.
@@ -110,10 +110,10 @@
 :pause Press Enter to build combined Enki and Sphinx binaries.
 rmdir /q /s build dist
 pyinstaller --noconfirm win\enki-all.spec
-: Sphinx and pylint binaries depend on Enki files, since they're combined. Copy
+: Sphinx and flake8 binaries depend on Enki files, since they're combined. Copy
 : them over.
 xcopy /E /I /Q dist\sphinx-build dist\enki
-xcopy /E /I /Q /Y dist\pylint dist\enki
+xcopy /E /I /Q /Y dist\flake8 dist\enki
 : Exclusing Tkinter still leaves two of its files around. Remove those.
 del dist\enki\tcl85.dll
 del dist\enki\tk85.dll
