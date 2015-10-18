@@ -283,7 +283,7 @@ class _CompletableLineEdit(QLineEdit):
 
     """Text changed or cursor moved. Update completion
     """
-    updateCompletion = pyqtSignal()
+    updateCurrentCommand = pyqtSignal()
 
     """Enter pressed. Execute command, if complete
     """
@@ -294,10 +294,10 @@ class _CompletableLineEdit(QLineEdit):
         self._inlineCompletionIsSet = False  # to differentiate inline completion and selection
 
         # Timer is used to delay completion update until user has finished typing
-        self._updateCompletionTimer = QTimer(self)
-        self._updateCompletionTimer.setInterval(100)
-        self._updateCompletionTimer.setSingleShot(True)
-        self._updateCompletionTimer.timeout.connect(self.updateCompletion)
+        self._updateCurrentCommandTimer = QTimer(self)
+        self._updateCurrentCommandTimer.setInterval(100)
+        self._updateCurrentCommandTimer.setSingleShot(True)
+        self._updateCurrentCommandTimer.timeout.connect(self.updateCurrentCommand)
 
     def event(self, event):
         """QObject.event implementation. Catches Tab events
@@ -306,7 +306,7 @@ class _CompletableLineEdit(QLineEdit):
            event.key() == Qt.Key_Tab:
             if self.selectedText():
                 self.setCursorPosition(self.selectionStart() + len(self.selectedText()))
-                self._updateCompletionTimer.start()
+                self._updateCurrentCommandTimer.start()
             return True
         else:
             return QLineEdit.event(self, event)
@@ -356,7 +356,7 @@ class _CompletableLineEdit(QLineEdit):
                textBeforeCompletion[-1] == inlineCompletion[0]:
                 self.setInlineCompletion(inlineCompletion[1:])  # set rest of the inline completion
 
-        self._updateCompletionTimer.start()
+        self._updateCurrentCommandTimer.start()
 
     def _deleteToSlash(self):
         """Delete back until /. Called on Ctrl+Backspace pressing
@@ -589,7 +589,7 @@ class _LocatorDialog(QDialog):
 
         self.finished.connect(self._terminate)
 
-        self._updateCompletion()
+        self._updateCurrentCommand()
 
         # This is necessary only for FuzzyOpen. Maybe better solution will be invented later
         core.project().filesReady.connect(self._updateCompletion)
@@ -608,7 +608,7 @@ class _LocatorDialog(QDialog):
         self.setFont(biggerFont)
 
         self._edit = _CompletableLineEdit(self)
-        self._edit.updateCompletion.connect(self._updateCompletion)
+        self._edit.updateCurrentCommand.connect(self._updateCurrentCommand)
         self._edit.enterPressed.connect(self._onEnterPressed)
         self._edit.installEventFilter(self)  # catch Up, Down
         self.layout().addWidget(self._edit)
@@ -633,10 +633,15 @@ class _LocatorDialog(QDialog):
         self._completerLoaderThread.terminate()
         core.workspace().focusCurrentDocument()
 
+    def _updateCurrentCommand(self):
+        """Try to parse line edit text and set current command
+        """
+        self._command = self._parseCurrentCommand()
+        self._updateCompletion()
+
     def _updateCompletion(self):
         """User edited text or moved cursor. Update inline and TreeView completion
         """
-        self._command = self._parseCurrentCommand()
         if self._command is not None:
             completer = self._command.completer()
 
@@ -697,7 +702,7 @@ class _LocatorDialog(QDialog):
                     return
                 else:
                     self._edit.setText(self._command.lineEditText())
-                    self._updateCompletion()
+                    self._updateCurrentCommand()
 
         self._edit.setFocus()
 
