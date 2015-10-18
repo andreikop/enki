@@ -34,6 +34,8 @@ class _ScannerThread(QThread):
         basename = os.path.basename(self._path)
         lastUpdateTime = time.time()
 
+        self.status.emit('Scanning {}: {} files found'.format(basename, len(results)))
+
         for root, dirnames, filenames in os.walk(self._path):
             if self._stop:
                 break
@@ -70,12 +72,20 @@ class Project(QObject):
 
     **Signal** emitted, when list of project files has been loaded
     """
+    scanStatusChanged = pyqtSignal(unicode)
+    """
+    scanStatusChanged()
+
+    **Signal** is periodically emited during FS scanning.
+    Parameter contains readable text
+    """
 
     def __init__(self, parent):
         QObject.__init__(self, parent)
         self._path = None
         self._projectFiles = None
         self._thread = None
+        self._scanStatus = None
         self.open(os.path.abspath('.'))
 
     def del_(self):
@@ -85,7 +95,7 @@ class Project(QObject):
         assert self._thread is None
         self._thread = _ScannerThread(self, self._path)
         self._thread.itemsReady.connect(self._onFilesReady)
-        self._thread.status.connect(self._onStatus)
+        self._thread.status.connect(self._onScanStatus)
         self._thread.start()
 
     def _stopScannerThread(self):
@@ -93,7 +103,7 @@ class Project(QObject):
             self._thread.stop()
             self._thread.wait()
             self._thread.itemsReady.disconnect(self._onFilesReady)
-            self._thread.status.disconnect(self._onStatus)
+            self._thread.status.disconnect(self._onScanStatus)
             self._thread = None
 
     def open(self, path):
@@ -103,6 +113,7 @@ class Project(QObject):
         self._stopScannerThread()
         self._path = path
         self._projectFiles = None
+        self._scanStatus = 'Not scanning'
 
         try:
             os.chdir(path)
@@ -130,13 +141,19 @@ class Project(QObject):
 
         It is allowed to call this method multiple times.
         """
-        self._startScannerThread()
+        if self._thread is None:
+            self._startScannerThread()
+
+    def scanStatus(self):
+        """Get scanning status as text message
+        """
+        return self._scanStatus
+
+    def _onScanStatus(self, text):
+        self._scanStatus = text
+        self.scanStatusChanged.emit(text)
 
     def _onFilesReady(self, path, files):
         self._projectFiles = files
         self._stopScannerThread()
         self.filesReady.emit()
-
-    def _onStatus(self, message):
-        core.mainWindow().statusBar().showMessage(message,
-                                                  STATUS_SHOW_TIMEOUT_MSEC)

@@ -21,6 +21,7 @@ class CommandGotoLine(AbstractCommand):
     isDefaultNumericCommand = True
 
     def __init__(self, args):
+        AbstractCommand.__init__(self, args)
         if len(args) != 1:
             raise InvalidCmdArgs()
 
@@ -77,6 +78,7 @@ class CommandOpen(AbstractCommand):
     isDefaultPathCommand = True
 
     def __init__(self, args):
+        AbstractCommand.__init__(self, args)
         if len(args) > 2:
             raise InvalidCmdArgs()
 
@@ -192,6 +194,7 @@ class CommandSaveAs(AbstractCommand):
         return core.workspace().currentDocument() is not None
 
     def __init__(self, args):
+        AbstractCommand.__init__(self, args)
         if len(args) > 1:
             raise InvalidCmdArgs()
 

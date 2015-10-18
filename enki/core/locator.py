@@ -22,7 +22,7 @@ class InvalidCmdArgs(UserWarning):
     pass
 
 
-class AbstractCommand:
+class AbstractCommand(QObject):
     """Base class for Locator commands.
 
     Inherit it to create own commands. Than add your command with Locator.addCommandClass()
@@ -43,13 +43,30 @@ class AbstractCommand:
     isDefaultPathCommand = False
     isDefaultNumericCommand = False
 
+    updateCompleter = pyqtSignal()
+    """ Signal is emitted by the command after completer has changed.
+
+    Locator will call ``completer()`` method again after this signal.
+    Use this signal only for commands for which completer is changed dynamically,
+    i.e. FuzzyOpen loads project files asyncronously.
+    For the majority of commands it is enough to implement ``completer()`` method.
+    """
 
     def __init__(self, args):
         """Construct a command insance from arguments
 
         Raises InvalidCmdArgs if arguments are invalid
+
+        Do not forget to call ``AbstractCommand`` constructor.
         """
-        raise NotImplemented()
+        QObject.__init__(self)
+
+    def terminate(self):
+        """Terminate the command if necessary.
+
+        Default implementation does nothing
+        """
+        pass
 
     @staticmethod
     def isAvailable():
@@ -589,12 +606,8 @@ class _LocatorDialog(QDialog):
 
         self.finished.connect(self._terminate)
 
-        self._updateCurrentCommand()
-
-        # This is necessary only for FuzzyOpen. Maybe better solution will be invented later
-        core.project().filesReady.connect(self._updateCompletion)
-
         self._command = None
+        self._updateCurrentCommand()
 
     def _createUi(self):
         self.setWindowTitle(core.project().path() or 'Locator')
@@ -630,13 +643,24 @@ class _LocatorDialog(QDialog):
         self.resize(width, width * 0.62)
 
     def _terminate(self):
+        if self._command is not None:
+            self._command.terminate()
+            self._command = None
+
         self._completerLoaderThread.terminate()
         core.workspace().focusCurrentDocument()
 
     def _updateCurrentCommand(self):
         """Try to parse line edit text and set current command
         """
+        if self._command is not None:
+            self._command.updateCompleter.disconnect(self._updateCompletion)
+            self._command.terminate()
+
         self._command = self._parseCurrentCommand()
+        if self._command is not None:
+            self._command.updateCompleter.connect(self._updateCompletion)
+
         self._updateCompletion()
 
     def _updateCompletion(self):
