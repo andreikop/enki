@@ -142,7 +142,7 @@ class Project(QObject):
 
         It is allowed to call this method multiple times.
         """
-        if self._thread is None:
+        if self._thread is None and self._projectFiles is None:
             self._startScannerThread()
 
     def cancelLoadingFiles(self):

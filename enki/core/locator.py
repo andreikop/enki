@@ -322,6 +322,9 @@ class _CompletableLineEdit(QLineEdit):
         self._updateCurrentCommandTimer.setSingleShot(True)
         self._updateCurrentCommandTimer.timeout.connect(self.updateCurrentCommand)
 
+    def terminate(self):
+        self._updateCurrentCommandTimer.stop()
+
     def event(self, event):
         """QObject.event implementation. Catches Tab events
         """
@@ -446,15 +449,15 @@ class _CompleterLoaderThread(Thread):
         self._taskQueue = Queue()  # completer or None as exit signal
         self._resultQueue = Queue()
 
-        self._checkQueueTimer = QTimer()
-        self._checkQueueTimer.setInterval(50)
-        self._checkQueueTimer.timeout.connect(self._checkQueue)
-        self._checkQueueTimer.start()
+        self._checkResultQueueTimer = QTimer()
+        self._checkResultQueueTimer.setInterval(50)
+        self._checkResultQueueTimer.timeout.connect(self._checkResultQueue)
+        self._checkResultQueueTimer.start()
 
         self._stopEvent = Event()
         Thread.start(self)
 
-    def _checkQueue(self):
+    def _checkResultQueue(self):
         """Check if thread constructed a completer and put it to the queue
         Works in the GUI thread
         """
@@ -472,7 +475,10 @@ class _CompleterLoaderThread(Thread):
 
         # Start new
         self._stopEvent.clear()
-        self._taskQueue.put((command, completer))
+        task = (command, completer)
+        if not self.is_alive():
+            assert 0
+        self._taskQueue.put(task)
 
     def terminate(self):
         """Set termination flag
@@ -481,13 +487,13 @@ class _CompleterLoaderThread(Thread):
         if self.is_alive():
             self._stopEvent.set()
             self._taskQueue.put(None)
-            self._checkQueueTimer.stop()
+            self._checkResultQueueTimer.stop()
             self.join()
 
     def _getNextTask(self):
         # discard old commands
         while self._taskQueue.qsize() > 1:
-            self._taskQueue.get()
+            task = self._taskQueue.get()
             self._taskQueue.task_done()
 
         # Get the last command
@@ -499,15 +505,16 @@ class _CompleterLoaderThread(Thread):
         """
         while True:
             task = self._getNextTask()
-            if task is None:  # exit command
-                self._taskQueue.task_done()
-                break
+            try:
+                if task is None:  # exit command
+                    break
 
-            command, completer = task
-            completer.load(self._stopEvent)
-            if self._taskQueue.empty():
-                self._resultQueue.put((command, completer))
-            self._taskQueue.task_done()
+                command, completer = task
+                completer.load(self._stopEvent)
+                if self._taskQueue.empty():
+                    self._resultQueue.put((command, completer))
+            finally:
+                self._taskQueue.task_done()
 
 
 def splitLine(text):
@@ -599,6 +606,7 @@ class _LocatorDialog(QDialog):
     """
     def __init__(self, parent, commandClasses):
         QDialog.__init__(self, parent)
+        self._terminated = False
         self._commandClasses = commandClasses
 
         self._createUi()
@@ -649,16 +657,23 @@ class _LocatorDialog(QDialog):
         self.resize(width, width * 0.62)
 
     def _terminate(self):
-        if self._command is not None:
-            self._command.terminate()
-            self._command = None
+        if not self._terminated:
+            if self._command is not None:
+                self._command.terminate()
+                self._command = None
 
-        self._completerLoaderThread.terminate()
-        core.workspace().focusCurrentDocument()
+            self._edit.terminate()
+
+            self._completerLoaderThread.terminate()
+            core.workspace().focusCurrentDocument()
+            self._terminated = True
 
     def _updateCurrentCommand(self):
         """Try to parse line edit text and set current command
         """
+        if self._terminated:
+            return
+
         newCommand = self._parseCurrentCommand()
 
         if newCommand is not self._command:
