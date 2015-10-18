@@ -96,6 +96,7 @@ class Project(QObject):
         self._thread = _ScannerThread(self, self._path)
         self._thread.itemsReady.connect(self._onFilesReady)
         self._thread.status.connect(self._onScanStatus)
+        self._scanStatus = ''
         self._thread.start()
 
     def _stopScannerThread(self):
@@ -143,6 +144,16 @@ class Project(QObject):
         """
         if self._thread is None:
             self._startScannerThread()
+
+    def cancelLoadingFiles(self):
+        """Cancel asyncronous loading project files.
+
+        It is allowed to call this method multiple times.
+
+        If files are already loaded, they will be kept.
+        """
+        if self._thread is not None:
+            self._stopScannerThread()
 
     def scanStatus(self):
         """Get scanning status as text message

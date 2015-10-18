@@ -52,10 +52,8 @@ class AbstractCommand(QObject):
     For the majority of commands it is enough to implement ``completer()`` method.
     """
 
-    def __init__(self, args):
-        """Construct a command insance from arguments
-
-        Raises InvalidCmdArgs if arguments are invalid
+    def __init__(self):
+        """Construct a command insance.
 
         Do not forget to call ``AbstractCommand`` constructor.
         """
@@ -75,6 +73,14 @@ class AbstractCommand(QObject):
         i.e. SaveAs command is not available, if no files are opened
         """
         return True
+
+    def setArgs(self):
+        """Set command arguments.
+
+        This method can be called multiple times
+        while the user edits the command.
+        Raise ``InvalidCmdArgs`` if the arguments are invalid.
+        """
 
     def completer(self):
         """ ::class:`enki.core.locator.AbstractCompleter` instance for partially typed command.
@@ -653,13 +659,16 @@ class _LocatorDialog(QDialog):
     def _updateCurrentCommand(self):
         """Try to parse line edit text and set current command
         """
-        if self._command is not None:
-            self._command.updateCompleter.disconnect(self._updateCompletion)
-            self._command.terminate()
+        newCommand = self._parseCurrentCommand()
 
-        self._command = self._parseCurrentCommand()
-        if self._command is not None:
-            self._command.updateCompleter.connect(self._updateCompletion)
+        if newCommand is not self._command:
+            if self._command is not None:
+                self._command.updateCompleter.disconnect(self._updateCompletion)
+                self._command.terminate()
+
+            self._command = newCommand
+            if self._command is not None:
+                self._command.updateCompleter.connect(self._updateCompletion)
 
         self._updateCompletion()
 
@@ -782,11 +791,18 @@ class _LocatorDialog(QDialog):
         # Find command
         cmdClass, args = self._chooseCommand(words)
 
+        if isinstance(self._command, cmdClass):
+            command = self._command
+        else:
+            command = cmdClass()
+
         # Try to make command object
         try:
-            return cmdClass(args)
+            command.setArgs(args)
         except InvalidCmdArgs:
             return None
+        else:
+            return command
 
     def eventFilter(self, obj, event):
         if obj is self._edit:

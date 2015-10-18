@@ -20,8 +20,13 @@ class CommandGotoLine(AbstractCommand):
     description = 'Go to line'
     isDefaultNumericCommand = True
 
-    def __init__(self, args):
-        AbstractCommand.__init__(self, args)
+    @staticmethod
+    def isAvailable():
+        """Check if command is currently available
+        """
+        return core.workspace().currentDocument() is not None
+
+    def setArgs(self, args):
         if len(args) != 1:
             raise InvalidCmdArgs()
 
@@ -30,11 +35,6 @@ class CommandGotoLine(AbstractCommand):
         except ValueError:
             raise InvalidCmdArgs()
 
-    @staticmethod
-    def isAvailable():
-        """Check if command is currently available
-        """
-        return core.workspace().currentDocument() is not None
 
     def isReadyToExecute(self):
         """Check if command is complete and ready to execute
@@ -77,8 +77,7 @@ class CommandOpen(AbstractCommand):
     description = 'Open file. Globs are supported'
     isDefaultPathCommand = True
 
-    def __init__(self, args):
-        AbstractCommand.__init__(self, args)
+    def setArgs(self, args):
         if len(args) > 2:
             raise InvalidCmdArgs()
 
@@ -193,8 +192,7 @@ class CommandSaveAs(AbstractCommand):
         """
         return core.workspace().currentDocument() is not None
 
-    def __init__(self, args):
-        AbstractCommand.__init__(self, args)
+    def setArgs(self, args):
         if len(args) > 1:
             raise InvalidCmdArgs()
 

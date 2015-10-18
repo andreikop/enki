@@ -120,8 +120,21 @@ class FuzzyOpenCommand(AbstractCommand):
     def isAvailable():
         return core.project().path() is not None
 
-    def __init__(self, args):
-        AbstractCommand.__init__(self, args)
+    def __init__(self):
+        AbstractCommand.__init__(self)
+        self._completer = None
+        self._clickedPath = None
+
+        core.project().filesReady.connect(self.updateCompleter)
+        core.project().scanStatusChanged.connect(self.updateCompleter)
+        core.project().startLoadingFiles()
+
+    def terminate(self):
+        core.project().cancelLoadingFiles()
+        core.project().filesReady.disconnect(self.updateCompleter)
+        core.project().scanStatusChanged.disconnect(self.updateCompleter)
+
+    def setArgs(self, args):
         if len(args) > 1 and \
            all([c.isdigit() for c in args[-1]]):
             self._line = int(args[-1])
@@ -130,21 +143,11 @@ class FuzzyOpenCommand(AbstractCommand):
             self._line = None
 
         self._pattern = '/'.join(args) if args else ''
-        self._completer = None
-        self._clickedPath = None
-
-        core.project().filesReady.connect(self.updateCompleter)
-        core.project().scanStatusChanged.connect(self.updateCompleter)
-
-    def terminate(self):
-        core.project().filesReady.disconnect(self.updateCompleter)
-        core.project().scanStatusChanged.disconnect(self.updateCompleter)
 
     def completer(self):
         if core.project().files() is not None:
             return FuzzyOpenCompleter(self._pattern, core.project().files())
         else:
-            core.project().startLoadingFiles()
             return StatusCompleter("<i>{}</i>".format(core.project().scanStatus()))
 
     def onCompleterLoaded(self, completer):
