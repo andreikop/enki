@@ -136,6 +136,7 @@ class FuzzyOpenCommand(AbstractCommand):
         if core.project().files() is not None:
             return FuzzyOpenCompleter(self._pattern, core.project().files())
         else:
+            core.project().startLoadingFiles()
             return StatusCompleter("<i>Loading project files...</i>")
 
     def onCompleterLoaded(self, completer):

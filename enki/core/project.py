@@ -103,7 +103,6 @@ class Project(QObject):
         self._stopScannerThread()
         self._path = path
         self._projectFiles = None
-        self._startScannerThread()
 
         try:
             os.chdir(path)
@@ -122,9 +121,16 @@ class Project(QObject):
     def files(self):
         """List of project files
 
-        Empty list if not loaded yet
+        ``None`` if not loaded yet
         """
         return self._projectFiles
+
+    def startLoadingFiles(self):
+        """Start asyncronous loading project files.
+
+        It is allowed to call this method multiple times.
+        """
+        self._startScannerThread()
 
     def _onFilesReady(self, path, files):
         self._projectFiles = files
