@@ -6,14 +6,20 @@ project --- Open project and manage it
 """
 
 import os
+import time
 
 from PyQt4.QtCore import QObject, QThread, pyqtSignal
 
 from enki.core.core import core
 
 
+STATUS_UPDATE_TIMEOUT_SEC = 0.25
+STATUS_SHOW_TIMEOUT_MSEC = 3000
+
+
 class _ScannerThread(QThread):
     itemsReady = pyqtSignal(unicode, list)
+    status = pyqtSignal(unicode)
 
     def __init__(self, parent, path):
         QThread.__init__(self, parent)
@@ -25,6 +31,9 @@ class _ScannerThread(QThread):
 
         filterRe = core.fileFilter().regExp()
 
+        basename = os.path.basename(self._path)
+        lastUpdateTime = time.time()
+
         for root, dirnames, filenames in os.walk(self._path):
             if self._stop:
                 break
@@ -34,8 +43,12 @@ class _ScannerThread(QThread):
             for filename in filenames:
                 if not filterRe.match(filename):
                     results.append(os.path.relpath(os.path.join(root, filename), self._path))
+            if time.time() - lastUpdateTime > STATUS_UPDATE_TIMEOUT_SEC:
+                self.status.emit('Scanning {}: {} files found'.format(basename, len(results)))
+                lastUpdateTime = time.time()
 
         if not self._stop:
+            self.status.emit('Scanning {} done: {} files found'.format(basename, len(results)))
             self.itemsReady.emit(self._path, results)
 
     def stop(self):
@@ -72,6 +85,7 @@ class Project(QObject):
         assert self._thread is None
         self._thread = _ScannerThread(self, self._path)
         self._thread.itemsReady.connect(self._onFilesReady)
+        self._thread.status.connect(self._onStatus)
         self._thread.start()
 
     def _stopScannerThread(self):
@@ -79,6 +93,7 @@ class Project(QObject):
             self._thread.stop()
             self._thread.wait()
             self._thread.itemsReady.disconnect(self._onFilesReady)
+            self._thread.status.disconnect(self._onStatus)
             self._thread = None
 
     def open(self, path):
@@ -115,3 +130,7 @@ class Project(QObject):
         self._projectFiles = files
         self._stopScannerThread()
         self.filesReady.emit()
+
+    def _onStatus(self, message):
+        core.mainWindow().statusBar().showMessage(message,
+                                                  STATUS_SHOW_TIMEOUT_MSEC)
