@@ -45,6 +45,8 @@ class HTMLDelegate(QStyledItemDelegate):
         """
         option.state &= ~QStyle.State_HasFocus  # never draw focus rect
 
+        option.state |= QStyle.State_Active  # draw fuzzy-open completion as focused, even if focus is on the line edit
+
         options = QStyleOptionViewItemV4(option)
         self.initStyleOption(options, index)
 
