@@ -178,6 +178,56 @@ class CommandOpen(AbstractCommand):
             return '{} {}'.format(self.command, self._path)
 
 
+class CommandOpenProject(AbstractCommand):
+
+    command = 'p'
+    signature = 'p PATH'
+    description = 'Open project (directory)'
+
+    def setArgs(self, args):
+        if len(args) > 1:
+            raise InvalidCmdArgs()
+
+        if args:
+            self._path = _expandDotDirectories(args[0])
+        else:
+            self._path = None
+
+    def completer(self):
+        """Command completer.
+        If cursor is after path, returns PathCompleter or GlobCompleter
+        """
+        if self._path is not None:
+            return PathCompleter(self._path)
+        else:
+            try:
+                curDir = os.getcwd()
+            except:
+                return None
+            return PathCompleter(curDir + '/')
+
+    def isReadyToExecute(self):
+        """Check if command is complete and ready to execute
+        """
+        if not self._path:
+            return False
+
+        return os.path.exists(self._path) and \
+               os.path.isdir(self._path)
+
+    def execute(self):
+        """Execute the command
+        """
+        path = os.path.expanduser(self._path)
+        core.project().open(path)
+
+    def onItemClicked(self, fullText):
+        self._path = fullText
+
+    def lineEditText(self):
+        return '{} {}'.format(self.command, self._path)
+
+
 class CommandSaveAs(AbstractCommand):
     """Save As Locator command
     """
@@ -202,7 +252,14 @@ class CommandSaveAs(AbstractCommand):
         """Command Completer.
         Return PathCompleter.
         """
-        return PathCompleter(self._path)
+        if self._path is not None:
+            return PathCompleter(self._path)
+        else:
+            try:
+                curDir = os.getcwd()
+            except:
+                return None
+            return PathCompleter(curDir + '/')
 
     def isReadyToExecute(self):
         """Check if command is complete and ready to execute
@@ -227,7 +284,7 @@ class CommandSaveAs(AbstractCommand):
         return '{} {}'.format(self.command, self._path)
 
 
-_CMD_CLASSES = (CommandGotoLine, CommandOpen, CommandSaveAs)
+_CMD_CLASSES = (CommandGotoLine, CommandOpen, CommandOpenProject, CommandSaveAs)
 
 
 class Plugin:
