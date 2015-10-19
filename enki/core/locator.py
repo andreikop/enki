@@ -347,12 +347,14 @@ class _CompletableLineEdit(QLineEdit):
         if event.key() in (Qt.Key_Enter, Qt.Key_Return):
             if self._inlineCompletionIsSet:
                 self._applyInlineCompetion()
+            self.updateCurrentCommand.emit()
             self.enterPressed.emit()
         elif event.key() in (Qt.Key_Right, Qt.Key_End):
             if self.selectedText():
                 self._applyInlineCompetion()
             else:
                 QLineEdit.keyPressEvent(self, event)
+            self.updateCurrentCommand.emit()
         elif event.key() == Qt.Key_Backspace and \
              event.modifiers() == Qt.ControlModifier:
             # Ctrl+Backspace. Usualy deletes word, but, for this edit should delete path level
@@ -365,6 +367,7 @@ class _CompletableLineEdit(QLineEdit):
                 self._deleteToSlash()
             else:
                 QLineEdit.keyPressEvent(self, event)
+            self._updateCurrentCommandTimer.start()
         else:
             oldTextBeforeCompletion = self.text()[:self.cursorPosition()]
             inlineCompletion = self._inlineCompletion()
@@ -381,8 +384,8 @@ class _CompletableLineEdit(QLineEdit):
                textBeforeCompletion.startswith(oldTextBeforeCompletion) and \
                textBeforeCompletion[-1] == inlineCompletion[0]:
                 self.setInlineCompletion(inlineCompletion[1:])  # set rest of the inline completion
+            self._updateCurrentCommandTimer.start()
 
-        self._updateCurrentCommandTimer.start()
 
     def _deleteToSlash(self):
         """Delete back until /. Called on Ctrl+Backspace pressing

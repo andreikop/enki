@@ -23,6 +23,7 @@ class Test(base.TestCase):
     def _execCommand(self, text):
         def inDialogFunc(dialog):
             self.keyClicks(text)
+            QTest.qWait(150)
             self.keyClick(Qt.Key_Enter)
 
         self.openDialog(self._openDialog, inDialogFunc)
@@ -59,7 +60,7 @@ class Test(base.TestCase):
         with open(fullPath, 'w') as file_:
             file_.write('thedata')
 
-        self._execCommand('f ' + fullPath.replace('\\', '\\\\'))
+        self._execCommand('o ' + fullPath.replace('\\', '\\\\'))
 
         self.assertEqual(core.workspace().currentDocument().filePath(), fullPath)
 
@@ -103,7 +104,7 @@ class Test(base.TestCase):
         with open(fullPath, 'w') as file_:
             file_.write('thedata')
 
-        self._execCommand('f ' + fullPath.replace('\\', '\\\\').replace(' ', '\\ '))
+        self._execCommand('o ' + fullPath.replace('\\', '\\\\').replace(' ', '\\ '))
 
         self.assertEqual(core.workspace().currentDocument().filePath(), fullPath)
 
@@ -119,9 +120,9 @@ class Test(base.TestCase):
 
         def inDialogFunc(dialog):
             cmdPath = (self.TEST_FILE_DIR + '/the').replace('\\', '\\\\').replace(' ', '\\ ')
-            self.keyClicks('f ' + cmdPath)
+            self.keyClicks('o ' + cmdPath)
             QTest.qWait(200)
-            self.assertTrue(core.locator()._edit.text().endswith('file.txt'))
+            self.assertTrue(dialog._edit.text().endswith('file.txt'))
             self.keyClick(Qt.Key_Enter)
 
         self.openDialog(self._openDialog, inDialogFunc)
