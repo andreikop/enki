@@ -228,3 +228,7 @@ class Config():
     def _migrate_to_18(self):
         self._data['Lint']['Python']['IgnoredMessages'] = ''
         self._data['Lint']['Python']['MaxLineLength'] = 79
+
+    def _migrate_to_19(self):
+        if not '*.class' in self._data['NegativeFileFilter']:
+            self._data['NegativeFileFilter'].append('*.class')

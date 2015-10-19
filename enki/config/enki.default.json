@@ -1,8 +1,8 @@
 {
-    "_version" : 16,
+    "_version" : 19,
     "PlatformDefaultsHaveBeenSet" : false,
 
-    "NegativeFileFilter": [ "*~", "*.o", "*.pyc", "*.bak", "__pycache__" ],
+    "NegativeFileFilter": [ "*~", "*.o", "*.pyc", "*.bak", "__pycache__", "*.class" ],
 
     "Qutepart": {
         "Font": {
@@ -65,7 +65,9 @@
         "Python": {
             "Enabled": true,
             "Show": "all",
-            "Path": "flake8"
+            "Path": "flake8",
+            "IgnoredMessages": "",
+            "MaxLineLength": 79
         }
     },
     "FileBrowser": {
