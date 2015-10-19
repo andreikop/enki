@@ -193,6 +193,12 @@ class CommandOpenProject(AbstractCommand):
         else:
             self._path = None
 
+    def _fullPath(self):
+        if self._path is None:
+            return None
+        else:
+            return os.path.abspath(os.path.expanduser(self._path))
+
     def completer(self):
         """Command completer.
         If cursor is after path, returns PathCompleter or GlobCompleter
@@ -209,17 +215,17 @@ class CommandOpenProject(AbstractCommand):
     def isReadyToExecute(self):
         """Check if command is complete and ready to execute
         """
-        if not self._path:
+        fp = self._fullPath()
+        if not fp:
             return False
 
-        return os.path.exists(self._path) and \
-               os.path.isdir(self._path)
+        return os.path.exists(fp) and \
+               os.path.isdir(fp)
 
     def execute(self):
         """Execute the command
         """
-        path = os.path.expanduser(self._path)
-        core.project().open(path)
+        core.project().open(self._fullPath())
 
     def onItemClicked(self, fullText):
         self._path = fullText

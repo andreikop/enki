@@ -111,8 +111,11 @@ class Project(QObject):
         """Open project.
         Replaces previous opened project
         """
+        if self._path == path:
+            return
+
         self._stopScannerThread()
-        self._path = os.path.abspath(path)
+        self._path = path
         self._projectFiles = None
         self._scanStatus = 'Not scanning'
 

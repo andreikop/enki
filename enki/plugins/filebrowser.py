@@ -592,6 +592,7 @@ class DockFileBrowser(DockWidget):
         core.actionManager().addAction("mView/aFileBrowser", self.showAction())
 
         core.mainWindow().directoryDropt.connect(self._onDirectoryDropt)
+        core.project().changed.connect(self.setCurrentPath)
 
         self.visibilityChanged.connect(self._onVisibilityChanged)
 
@@ -683,6 +684,9 @@ class DockFileBrowser(DockWidget):
         """Set current path (root of the tree)
         If there are no documents on workspace, also changes process current directory
         """
+        if self._tree.currentPath() == path:
+            return
+
         self._tree.setCurrentPath(path)
         self._tree.setFocus()
 
