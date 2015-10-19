@@ -9,17 +9,24 @@ import glob
 from enki.core.core import core
 from enki.lib.pathcompleter import makeSuitableCompleter, PathCompleter
 
-from enki.core.locator import AbstractCommand, InvalidCmdArgs
+from enki.core.locator import AbstractCommand, InvalidCmdArgs, StatusCompleter
 
 
 class CommandGotoLine(AbstractCommand):
     """Go to line command implementation
     """
     command = 'l'
-    signature = 'l [LINE]'
+    signature = 'l [LINE]<br/>[LINE]'
     description = 'Go to line'
+    isDefaultNumericCommand = True
 
-    def __init__(self, args):
+    @staticmethod
+    def isAvailable():
+        """Check if command is currently available
+        """
+        return core.workspace().currentDocument() is not None
+
+    def setArgs(self, args):
         if len(args) != 1:
             raise InvalidCmdArgs()
 
@@ -28,11 +35,6 @@ class CommandGotoLine(AbstractCommand):
         except ValueError:
             raise InvalidCmdArgs()
 
-    @staticmethod
-    def isAvailable():
-        """Check if command is currently available
-        """
-        return core.workspace().currentDocument() is not None
 
     def isReadyToExecute(self):
         """Check if command is complete and ready to execute
@@ -44,20 +46,43 @@ class CommandGotoLine(AbstractCommand):
         """
         core.workspace().currentDocument().qutepart.cursorPosition = self._line - 1, None
 
+    def completer(self):
+        return StatusCompleter("Go to line {}".format(self._line))
+
+
+def _expandDotDirectories(path):
+    """Replace ./ and ../ with CURRENT FILE directory
+
+    Current Enki directory is a project directory.
+    But it is more comfortable to use current file directory for open and save commands.
+    """
+
+    # TODO: Check Windows factor
+    if path:
+        if path.startswith("./") or path.startswith("../"):
+            doc = core.workspace().currentDocument()
+            if doc is not None:
+                fp = doc.filePath()
+                if fp is not None:
+                    dn = os.path.dirname(fp)
+                    return os.path.join(dn, path)
+
+    return path
+
 
 class CommandOpen(AbstractCommand):
 
-    command = 'f'
-    signature = '[f] PATH [LINE]'
-    description = 'Open file. Globs are supported'
-    isDefaultCommand = True
+    command = 'o'
+    signature = 'o PATH [LINE]<br/>/PATH [LINE]<br/>./PATH [LINE]<br/>../PATH [LINE]<br/>~/PATH [LINE]'
+    description = 'Open file. Globs are supported<br/>from the root<br/>from the current file directory<br/>from the directory above current file<br/>from the home'
+    isDefaultPathCommand = True
 
-    def __init__(self, args):
+    def setArgs(self, args):
         if len(args) > 2:
             raise InvalidCmdArgs()
 
         if args:
-            self._path = args[0]
+            self._path = _expandDotDirectories(args[0])
         else:
             self._path = None
 
@@ -69,20 +94,18 @@ class CommandOpen(AbstractCommand):
         else:
             self._line = None
 
-    def completer(self, argIndex):
+    def completer(self):
         """Command completer.
         If cursor is after path, returns PathCompleter or GlobCompleter
         """
-        if argIndex == 0:
+        if self._path is not None:
             return makeSuitableCompleter(self._path)
-        elif argIndex == None:
+        else:
             try:
                 curDir = os.getcwd()
             except:
                 return None
             return makeSuitableCompleter(curDir + '/')
-        else:
-            return None
 
     @staticmethod
     def _isGlob(text):
@@ -145,6 +168,71 @@ class CommandOpen(AbstractCommand):
             else:
                 core.workspace().createEmptyNotSavedDocument(path)
 
+    def onItemClicked(self, fullText):
+        self._path = fullText
+
+    def lineEditText(self):
+        if self._line is not None:
+            return '{} {} {}'.format(self.command, self._path, self._line)
+        else:
+            return '{} {}'.format(self.command, self._path)
+
+
+class CommandOpenProject(AbstractCommand):
+
+    command = 'p'
+    signature = 'p PATH'
+    description = 'Open project (directory)'
+
+    def setArgs(self, args):
+        if len(args) > 1:
+            raise InvalidCmdArgs()
+
+        if args:
+            self._path = _expandDotDirectories(args[0])
+        else:
+            self._path = None
+
+    def _fullPath(self):
+        if self._path is None:
+            return None
+        else:
+            return os.path.abspath(os.path.expanduser(self._path))
+
+    def completer(self):
+        """Command completer.
+        If cursor is after path, returns PathCompleter or GlobCompleter
+        """
+        if self._path is not None:
+            return PathCompleter(self._path)
+        else:
+            try:
+                curDir = os.getcwd()
+            except:
+                return None
+            return PathCompleter(curDir + '/')
+
+    def isReadyToExecute(self):
+        """Check if command is complete and ready to execute
+        """
+        fp = self._fullPath()
+        if not fp:
+            return False
+
+        return os.path.exists(fp) and \
+               os.path.isdir(fp)
+
+    def execute(self):
+        """Execute the command
+        """
+        core.project().open(self._fullPath())
+
+    def onItemClicked(self, fullText):
+        self._path = fullText
+
+    def lineEditText(self):
+        return '{} {}'.format(self.command, self._path)
+
 
 class CommandSaveAs(AbstractCommand):
     """Save As Locator command
@@ -153,7 +241,6 @@ class CommandSaveAs(AbstractCommand):
     signature = 's PATH'
     description = 'Save file As'
 
-
     @staticmethod
     def isAvailable():
         """Check if command is available.
@@ -161,20 +248,24 @@ class CommandSaveAs(AbstractCommand):
         """
         return core.workspace().currentDocument() is not None
 
-    def __init__(self, args):
-        if len(args) != 1:
+    def setArgs(self, args):
+        if len(args) > 1:
             raise InvalidCmdArgs()
 
-        self._path = args[0]
+        self._path = _expandDotDirectories(args[0]) if args else ''
 
-    def completer(self, argIndex):
+    def completer(self):
         """Command Completer.
-        Returns PathCompleter, if cursor stays after path
+        Return PathCompleter.
         """
-        if argIndex == 0:
+        if self._path is not None:
             return PathCompleter(self._path)
         else:
-            return None
+            try:
+                curDir = os.getcwd()
+            except:
+                return None
+            return PathCompleter(curDir + '/')
 
     def isReadyToExecute(self):
         """Check if command is complete and ready to execute
@@ -192,8 +283,14 @@ class CommandSaveAs(AbstractCommand):
         core.workspace().currentDocument().setFilePath(path)
         core.workspace().currentDocument().saveFile()
 
+    def onItemClicked(self, fullText):
+        self._path = fullText
 
-_CMD_CLASSES = (CommandGotoLine, CommandOpen, CommandSaveAs)
+    def lineEditText(self):
+        return '{} {}'.format(self.command, self._path)
+
+
+_CMD_CLASSES = (CommandGotoLine, CommandOpen, CommandOpenProject, CommandSaveAs)
 
 
 class Plugin:

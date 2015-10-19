@@ -67,6 +67,7 @@ class Core(QObject):
         self._fileFilter = None
         self._loadedPlugins = []
         self._cmdLine = {}
+        self._project = None
 
     def _prepareToCatchSigInt(self):
         """Catch SIGINT signal to close the application
@@ -99,16 +100,22 @@ class Core(QObject):
         # Imports are here for hack crossimport problem
         import enki.core.mainwindow  # pylint: disable=W0621,W0404
         self._mainWindow = enki.core.mainwindow.MainWindow()
-
         profiler.stepDone('create main window')
 
         self._config = self._createConfig()
-
         profiler.stepDone('create config')
 
         import enki.core.uisettings  # pylint: disable=W0404
         self._uiSettingsManager = enki.core.uisettings.UISettingsManager()
         profiler.stepDone('Create UISettings')
+
+        import enki.core.filefilter
+        self._fileFilter = enki.core.filefilter.FileFilter()
+        profiler.stepDone('Create FileFilter')
+
+        import enki.core.project
+        self._project = enki.core.project.Project(self)
+        profiler.stepDone('Create Project')
 
         import enki.core.workspace
         profiler.stepDone('import workspace')
@@ -117,12 +124,8 @@ class Core(QObject):
         self._mainWindow.setWorkspace(self._workspace)
         profiler.stepDone('create workspace')
 
-        import enki.core.filefilter
-        self._fileFilter = enki.core.filefilter.FileFilter()
-        profiler.stepDone('Create FileFilter')
-
         import enki.core.locator
-        self._locator = enki.core.locator.Locator(self._mainWindow)
+        self._locator = enki.core.locator.Locator()
         profiler.stepDone('Create Locator')
 
         # Create plugins
@@ -145,6 +148,9 @@ class Core(QObject):
             plugin = self._loadedPlugins.pop()
             plugin.del_()
 
+        if self._project is not None:
+            self._project.del_()
+            self._project = None
         if self._locator is not None:
             self._locator.del_()
             self._locator = None
@@ -292,6 +298,13 @@ class Core(QObject):
         """ Dictionary of command line arguments, passed on Enki start
         """
         return self._cmdLine
+
+    def project(self):
+        """Project support core module
+
+        ::class:`enki.core.project.Project`
+        """
+        return self._project
 
 core = Core()  # pylint: disable=C0103
 """Core instance. It is accessible as:

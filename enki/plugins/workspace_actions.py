@@ -21,6 +21,7 @@ class Plugin(QObject):
         core.workspace().documentClosed.connect(self._onDocumentOpenedOrClosed)
 
         core.actionManager().action( "mFile/aOpen" ).triggered.connect(self._onFileOpenTriggered)
+        core.actionManager().action( "mFile/aOpenProject" ).triggered.connect(self._onProjectOpenTriggered)
         core.actionManager().action( "mFile/mReload/aCurrent" ).triggered.connect(self._onFileReloadTriggered)
         core.actionManager().action( "mFile/mReload/aAll" ).triggered.connect(self._onFileReloadAllTriggered)
         core.actionManager().action( "mFile/aNew" ).triggered.connect(lambda : core.workspace().createEmptyNotSavedDocument(None))
@@ -74,6 +75,15 @@ class Plugin(QObject):
         moreThanOneDocument = len(core.workspace().documents()) > 1
         core.actionManager().action( "mNavigation/aNext" ).setEnabled( moreThanOneDocument )
         core.actionManager().action( "mNavigation/aPrevious" ).setEnabled( moreThanOneDocument )
+
+    def _onProjectOpenTriggered(self):
+        """Handler of File->Open Project
+        """
+        dirPath = QFileDialog.getExistingDirectory(core.mainWindow(),
+            "Classic open project dialog. Main menu -> Navigation -> Locator is better")
+
+        if dirPath:
+            core.project().open(dirPath)
 
     def _onFileOpenTriggered(self):
         """Handler of File->Open

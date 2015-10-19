@@ -23,6 +23,7 @@ class Test(base.TestCase):
     def _execCommand(self, text):
         def inDialogFunc(dialog):
             self.keyClicks(text)
+            QTest.qWait(150)
             self.keyClick(Qt.Key_Enter)
 
         self.openDialog(self._openDialog, inDialogFunc)
@@ -31,14 +32,14 @@ class Test(base.TestCase):
         self.keyClicks('L', Qt.ControlModifier)
 
     @base.inMainLoop
-    def test_1(self):
+    def test_01(self):
         """Go to line"""
         document = self.createFile('asdf.txt', 'a\n' * 10)
         self._execCommand('l 5')
         self.assertEqual(document.qutepart.cursorPosition[0], 4)
 
     @base.inMainLoop
-    def test_2(self):
+    def test_02(self):
         """Open file, type only path"""
         fullPath = os.path.join(self.TEST_FILE_DIR, 'thefile.txt')
 
@@ -50,7 +51,7 @@ class Test(base.TestCase):
         self.assertEqual(core.workspace().currentDocument().filePath(), fullPath)
 
     @base.inMainLoop
-    def test_3(self):
+    def test_03(self):
         """Open file, type 'f path' """
         document = core.workspace().createEmptyNotSavedDocument()
 
@@ -59,12 +60,12 @@ class Test(base.TestCase):
         with open(fullPath, 'w') as file_:
             file_.write('thedata')
 
-        self._execCommand('f ' + fullPath.replace('\\', '\\\\'))
+        self._execCommand('o ' + fullPath.replace('\\', '\\\\'))
 
         self.assertEqual(core.workspace().currentDocument().filePath(), fullPath)
 
     @base.inMainLoop
-    def test_4(self):
+    def test_04(self):
         """Save file, create dirs"""
         document = core.workspace().createEmptyNotSavedDocument()
         document.qutepart.text = 'filetext'
@@ -79,7 +80,7 @@ class Test(base.TestCase):
         self.assertEqual(data, 'filetext\n')
 
     @base.inMainLoop
-    def test_5(self):
+    def test_05(self):
         """Save file, relative path"""
         text = 'a\n' * 10
         document = self.createFile('asdf.txt', text)
@@ -94,7 +95,7 @@ class Test(base.TestCase):
         self.assertEqual(data, text)
 
     @base.inMainLoop
-    def test_6(self):
+    def test_06(self):
         """Open file, type 'f path with spaces' """
         document = core.workspace().createEmptyNotSavedDocument()
 
@@ -103,12 +104,12 @@ class Test(base.TestCase):
         with open(fullPath, 'w') as file_:
             file_.write('thedata')
 
-        self._execCommand('f ' + fullPath.replace('\\', '\\\\').replace(' ', '\\ '))
+        self._execCommand('o ' + fullPath.replace('\\', '\\\\').replace(' ', '\\ '))
 
         self.assertEqual(core.workspace().currentDocument().filePath(), fullPath)
 
     @base.inMainLoop
-    def test_7(self):
+    def test_07(self):
         """ Check inline completion for file with spaces"""
         document = core.workspace().createEmptyNotSavedDocument()
 
@@ -119,14 +120,29 @@ class Test(base.TestCase):
 
         def inDialogFunc(dialog):
             cmdPath = (self.TEST_FILE_DIR + '/the').replace('\\', '\\\\').replace(' ', '\\ ')
-            self.keyClicks('f ' + cmdPath)
+            self.keyClicks('o ' + cmdPath)
             QTest.qWait(200)
-            self.assertTrue(core.locator()._edit.text().endswith('file.txt'))
+            self.assertTrue(dialog._edit.text().endswith('file.txt'))
             self.keyClick(Qt.Key_Enter)
 
         self.openDialog(self._openDialog, inDialogFunc)
 
         self.assertEqual(core.workspace().currentDocument().filePath(), fullPath)
+
+    @base.inMainLoop
+    def test_08(self):
+        """ Open project """
+        core.project().open(os.path.dirname(self.TEST_FILE_DIR))
+
+        self.assertNotEqual(core.project().path(), self.TEST_FILE_DIR)
+
+        def inDialogFunc(dialog):
+            self.keyClicks('p ' + self.TEST_FILE_DIR)
+            self.keyClick(Qt.Key_Enter)
+
+        self.openDialog(self._openDialog, inDialogFunc)
+
+        self.assertEqual(core.project().path(), self.TEST_FILE_DIR)
 
 
 

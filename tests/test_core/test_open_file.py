@@ -7,13 +7,8 @@ import sys
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 import base
 
-from PyQt4.QtCore import QTimer
-from PyQt4.QtGui import QAction
-from PyQt4.QtTest import QTest
-
 import enki.core.workspace
 from enki.core.core import core
-
 
 
 class Test(base.TestCase):
@@ -22,7 +17,6 @@ class Test(base.TestCase):
         doc = self.createFile('file1.rb', 'asdf\nfdsa')
         doc2 = core.workspace().openFile(doc.filePath())
         self.assertTrue(doc is doc2)
-
 
 
 class OpenFail(base.TestCase):

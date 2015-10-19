@@ -267,7 +267,7 @@ class Workspace(QStackedWidget):
         QStackedWidget.__init__(self, mainWindow)
         mainWindow.setFocusProxy(self)
 
-        self.setStyleSheet("QStackedWidget { padding-bottom: 5; }");
+        self.setStyleSheet("QStackedWidget { padding-bottom: 5; }")
         self.sortedDocuments = []  # not protected, because available for OpenedFileModel
         self._oldCurrentDocument = None
 
@@ -279,6 +279,7 @@ class Workspace(QStackedWidget):
         self.currentChanged.connect(self._onStackedLayoutIndexChanged)
 
         self.currentDocumentChanged.connect(self._updateMainWindowTitle)
+        core.project().changed.connect(self._updateMainWindowTitle)
         self.currentDocumentChanged.connect(self._onCurrentDocumentChanged)
 
     def del_(self):
@@ -293,28 +294,38 @@ class Workspace(QStackedWidget):
         return self.parentWidget().parentWidget()
 
     def _updateMainWindowTitle(self):
-        """Update window title after document or it's modified state has been changed
+        """Update window title after current project, document or it's modified state has been changed
         """
+        projPath = core.project().path()
+        if projPath is not None:
+            homePath = os.path.expanduser('~')
+            if projPath.startswith(homePath):
+                projPath = os.path.relpath(projPath, homePath)
+
         document = self.currentDocument()
         if document:
-            name = document.fileName()
-            if name is None:
-                name = 'untitled'
-            if document.qutepart.document().isModified():
-                name += '*'
-            if document.filePath() is not None:
-                path = os.path.dirname(document.filePath())
-            else:
-                try:
-                    path = os.path.abspath(os.curdir)
-                except OSError:  # deleted
-                    path = '?'
+            filePath = document.filePath()
+            if filePath is None:
+                filePath = 'untitled'
+            elif core.project().path() is not None and \
+                 filePath.startswith(core.project().path()):
+                filePath = os.path.relpath(filePath, core.project().path())
 
-            name += ' - '
-            name += path
+            if document.qutepart.document().isModified():
+                filePath += '*'
         else:
-            name = self._mainWindow().defaultTitle()
-        self._mainWindow().setWindowTitle(name)
+            filePath = None
+
+        if projPath is not None and filePath is not None:
+            title = '{} - {}'.format(projPath, filePath)
+        elif projPath is not None:
+            title = projPath
+        elif filePath is not None:
+            title = filePath
+        else:
+            title = 'Enki v.{}'.format(enki.core.defines.PACKAGE_VERSION)
+
+        self._mainWindow().setWindowTitle(title)
 
     def eventFilter( self, obj, event ):
         pass  # suppress docstring for non-public method
@@ -358,13 +369,6 @@ class Workspace(QStackedWidget):
     def _onCurrentDocumentChanged(self, old, new):
         """Change current directory, if current file changed
         """
-        if  new and new.filePath() is not None and \
-            os.path.exists(os.path.dirname(new.filePath())):
-            try:
-                os.chdir( os.path.dirname(new.filePath()) )
-            except OSError, ex:  # directory might be deleted
-                print >> sys.stderr, 'Failed to change directory:', str(ex)
-
         if old is not None:
             for path, name in self._QUTEPART_ACTIONS:
                 core.actionManager().removeAction(path)

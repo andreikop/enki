@@ -28,6 +28,8 @@ class AbstractPathCompleter(AbstractCompleter):
     """Base class for PathCompleter and GlobCompleter
     """
 
+    mustBeLoaded = True
+
     # global object. Reused by all completers
     _fsModel = QFileSystemModel()
 
@@ -48,14 +50,14 @@ class AbstractPathCompleter(AbstractCompleter):
         returns incorrect icons. I really can't understand when and why.
         When it is private member of instance, it seems it works
         """
-        self._model = None # can't construct in the construtor, must be constructed in GUI thread
+        self._model = None  # can't construct in the construtor, must be constructed in GUI thread
 
     @staticmethod
     def _filterHidden(paths):
         """Remove hidden and ignored files from the list
         """
-        return [path for path in paths \
-                    if not os.path.basename(path).startswith('.') and \
+        return [path for path in paths
+                    if not os.path.basename(path).startswith('.') and
                         not core.fileFilter().regExp().match(path)]
 
     def _classifyRowIndex(self, row):
@@ -148,7 +150,6 @@ class AbstractPathCompleter(AbstractCompleter):
         """User clicked a row. Get inline completion for this row
         """
         row -= 1  # skip current directory
-        path = None
         if row in range(len(self._dirs)):
             return self._dirs[row] + '/'
         else:
@@ -168,12 +169,13 @@ class PathCompleter(AbstractPathCompleter):
     def __init__(self, text):
         AbstractPathCompleter.__init__(self, text)
 
-        enterredDir = os.path.dirname(text)
-        enterredFile = os.path.basename(text)
+    def load(self, stopEvent):
+        enterredDir = os.path.dirname(self._originalText)
+        enterredFile = os.path.basename(self._originalText)
 
         if enterredDir.startswith('/'):
             pass
-        elif text.startswith('~'):
+        elif self._originalText.startswith('~'):
             enterredDir = os.path.expanduser(enterredDir)
         else:  # relative path
             relPath = os.path.join(os.path.curdir, enterredDir)
@@ -201,7 +203,7 @@ class PathCompleter(AbstractPathCompleter):
             return
 
         # filter matching
-        variants = [path for path in filesAndDirs\
+        variants = [path for path in filesAndDirs
                         if path.startswith(enterredFile)]
 
         notHiddenVariants = self._filterHidden(variants)
@@ -237,9 +239,8 @@ class PathCompleter(AbstractPathCompleter):
             path += '/'
 
         typedLen = self._lastTypedSegmentLength()
-        inline = self.inline()
         typedLenPlusInline = typedLen + len(self.inline())
-        return '<b>%s</b><u>%s</u>%s' % \
+        return '<b>%s</b><font color="red">%s</font>%s' % \
             (htmlEscape(path[:typedLen]),
              htmlEscape(path[typedLen:typedLenPlusInline]),
              htmlEscape(path[typedLenPlusInline:]))
@@ -281,7 +282,9 @@ class GlobCompleter(AbstractPathCompleter):
     """
     def __init__(self, text):
         AbstractPathCompleter.__init__(self, text)
-        variants = glob.iglob(os.path.expanduser(text) + '*')
+
+    def load(self, stopEvent):
+        variants = glob.iglob(os.path.expanduser(self._originalText) + '*')
         variants = self._filterHidden(variants)
         variants.sort()
 

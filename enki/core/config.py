@@ -230,5 +230,8 @@ class Config():
         self._data['Lint']['Python']['MaxLineLength'] = 79
 
     def _migrate_to_19(self):
-        if not '*.class' in self._data['NegativeFileFilter']:
+        if '*.class' not in self._data['NegativeFileFilter']:
             self._data['NegativeFileFilter'].append('*.class')
+
+    def _migrate_to_20(self):
+        del self._data['FileBrowser']

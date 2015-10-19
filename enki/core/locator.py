@@ -8,15 +8,11 @@ Contains definition of AbstractCommand and AbstractCompleter interfaces
 """
 
 
+from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QEvent, QModelIndex, QObject, Qt, QTimer
+from PyQt4.QtGui import QDialog, QFontMetrics, QLineEdit, QTreeView, QVBoxLayout
 
-from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QModelIndex, QSize, Qt, QTimer
-from PyQt4.QtGui import QApplication, QDialog, QFontMetrics, QMessageBox, QPalette, QSizePolicy, \
-                        QStyle, QStyleOptionFrameV2, \
-                        QTextCursor, QLineEdit, QTextOption, QTreeView, QVBoxLayout
-
-import os
-import threading
-import Queue
+from threading import Thread, Event
+from Queue import Queue
 
 from enki.core.core import core
 from enki.lib.htmldelegate import HTMLDelegate
@@ -26,7 +22,7 @@ class InvalidCmdArgs(UserWarning):
     pass
 
 
-class AbstractCommand:
+class AbstractCommand(QObject):
     """Base class for Locator commands.
 
     Inherit it to create own commands. Than add your command with Locator.addCommandClass()
@@ -36,43 +32,84 @@ class AbstractCommand:
     * ``command`` - Command text (first word), i.e. ``f`` for Open and ``s`` for Save
     * ``signature`` - Command signature. Shown in the Help. Example:  ``[f] PATH [LINE]``
     * ``description`` - Command description. Shown in the Help. Example: ``Open file. Globs are supported``
-    * ``isDefaultCommand`` - If True, command is executed if no other command matches. Must be ``True`` for only 1 command. Currently it is Open
+    * ``isDefaultCommand`` - If True, command is executed if no other command matches. Must be ``True`` for only 1 command. Currently it is FuzzyOpen
+    * ``isDefaultPathCommand`` - If True, command is executed if no other command matches and text looks like a path. Must be ``True`` for only 1 command. Currently it is Open
+    * ``isDefaultNumericCommand`` - If True, command is executed if no other command matches and text looks like a number. Must be ``True`` for only 1 command. Currently it is GotoLine
     """
     command = NotImplemented
     signature = NotImplemented
     description = NotImplemented
     isDefaultCommand = False
+    isDefaultPathCommand = False
+    isDefaultNumericCommand = False
 
-    def __init__(self, args):
-        """ Construct a command insance from arguments
+    updateCompleter = pyqtSignal()
+    """ Signal is emitted by the command after completer has changed.
 
-        Raises InvalidCmdArgs if arguments are invalid
+    Locator will call ``completer()`` method again after this signal.
+    Use this signal only for commands for which completer is changed dynamically,
+    i.e. FuzzyOpen loads project files asyncronously.
+    For the majority of commands it is enough to implement ``completer()`` method.
+    """
+
+    def __init__(self):
+        """Construct a command insance.
+
+        Do not forget to call ``AbstractCommand`` constructor.
         """
-        raise NotImplemented()
+        QObject.__init__(self)
+
+    def terminate(self):
+        """Terminate the command if necessary.
+
+        Default implementation does nothing
+        """
+        pass
 
     @staticmethod
     def isAvailable():
         """Check if command is available now.
 
-        i.e. SaveAs command is not available, if not files are opened
+        i.e. SaveAs command is not available, if no files are opened
         """
         return True
 
-    def completer(self, argIndex):
+    def setArgs(self):
+        """Set command arguments.
+
+        This method can be called multiple times
+        while the user edits the command.
+        Raise ``InvalidCmdArgs`` if the arguments are invalid.
+        """
+
+    def completer(self):
         """ ::class:`enki.core.locator.AbstractCompleter` instance for partially typed command.
 
-        Return None, if your command doesn't have completer, or if completion is not available now
-        argIndex is an index of command argument, for which completion is required
+        Return ``None``, if your command doesn't have completer, or if completion is not available now.
         """
         return None
 
-    def constructCommand(self, completableText):
-        """After user clicked item on the TreeView, Locator
+    def onCompleterLoaded(self, completer):
+        """ This method is called after ``completer.load()`` method has finished.
+        Completer instance created in ``completer()`` is passed as parameter.
 
-        1) gets item full text with AbstractCompleter.getFullText() method
-        2) constructs a command with this text using currentCommand.constructCommand()
-        3) sets command to the LineEdit
-        4) tries to execute the command
+        The command can use loaded data from the completer now.
+        """
+        pass
+
+    def onItemClicked(self, fullText):
+        """Item in the completion tree has been clicked.
+
+        Update internal state. After this call Locator will execute the command
+        if isReadyToExecute or update line edit text with lineEditText() otherwise.
+        """
+        pass
+
+    def lineEditText(self):
+        """Get text for Locator dialog line edit.
+
+        This method is called after internal command state has been
+        updated with onItemClicked()
         """
         return None
 
@@ -98,7 +135,17 @@ class AbstractCompleter:
     * command(s) description
     * status and any other information from command
     * list of possible completions
+
+    If ``mustBeLoaded`` class attribute is True, ``load()`` method will be called in a thread.
     """
+    mustBeLoaded = False
+
+    def load(self, stopEvent):
+        """Load necessary data in a thread.
+        This method must often check ``stopEvent`` ``threading.Event``
+        and return if it is set.
+        """
+        pass
 
     def rowCount(self):
         """Row count for TreeView
@@ -132,6 +179,15 @@ class AbstractCompleter:
         """
         return None
 
+    def autoSelectItem(self):
+        """Item, which shall be auto-selected when completer is applied.
+
+        If not None, shall be ``(row, column)``
+
+        Default implementation returns None
+        """
+        return None
+
 
 class _HelpCompleter(AbstractCompleter):
     """AbstractCompleter implementation, which shows help about all or one command
@@ -162,7 +218,7 @@ class _HelpCompleter(AbstractCompleter):
             return self._commands[row].description
 
 
-class _StatusCompleter(AbstractCompleter):
+class StatusCompleter(AbstractCompleter):
     """AbstractCompleter implementation, which shows status message
     """
     def __init__(self, text):
@@ -245,27 +301,29 @@ class _CompletableLineEdit(QLineEdit):
 
     Based on QLineEdit, because needs HTML support
 
-    Supports inline completion, emits signals when user wants to roll history or execute command
+    Supports inline completion, emits signals when user wants to execute command
     """
 
     """Text changed or cursor moved. Update completion
     """
-    updateCompletion = pyqtSignal()
+    updateCurrentCommand = pyqtSignal()
 
     """Enter pressed. Execute command, if complete
     """
     enterPressed = pyqtSignal()
 
-    """Up pressed, roll history
-    """
-    historyPrevious = pyqtSignal()
-    """Down pressed, roll history
-    """
-    historyNext = pyqtSignal()
-
     def __init__(self, *args):
         QLineEdit.__init__(self, *args)
-        self._inlineCompletionIsSet = False  # for differentiate inline completion and selection
+        self._inlineCompletionIsSet = False  # to differentiate inline completion and selection
+
+        # Timer is used to delay completion update until user has finished typing
+        self._updateCurrentCommandTimer = QTimer(self)
+        self._updateCurrentCommandTimer.setInterval(100)
+        self._updateCurrentCommandTimer.setSingleShot(True)
+        self._updateCurrentCommandTimer.timeout.connect(self.updateCurrentCommand)
+
+    def terminate(self):
+        self._updateCurrentCommandTimer.stop()
 
     def event(self, event):
         """QObject.event implementation. Catches Tab events
@@ -274,27 +332,29 @@ class _CompletableLineEdit(QLineEdit):
            event.key() == Qt.Key_Tab:
             if self.selectedText():
                 self.setCursorPosition(self.selectionStart() + len(self.selectedText()))
-                self.updateCompletion.emit()
+                self.updateCurrentCommand.emit()
             return True
         else:
             return QLineEdit.event(self, event)
+
+    def _applyInlineCompetion(self):
+        self.setCursorPosition(self.selectionStart() + len(self.selectedText()))
+        self._inlineCompletionIsSet = False
 
     def keyPressEvent(self, event):
         """QWidget.keyPressEvent implementation. Catches Return, Up, Down, Ctrl+Backspace
         """
         if event.key() in (Qt.Key_Enter, Qt.Key_Return):
             if self._inlineCompletionIsSet:
-                self.setCursorPosition(self.selectionStart() + len(self.selectedText()))
+                self._applyInlineCompetion()
+            self.updateCurrentCommand.emit()
             self.enterPressed.emit()
-        elif event.key() == Qt.Key_Up:
-            self.historyPrevious.emit()
-        elif event.key() == Qt.Key_Down:
-            self.historyNext.emit()
         elif event.key() in (Qt.Key_Right, Qt.Key_End):
             if self.selectedText():
-                self.setCursorPosition(self.selectionStart() + len(self.selectedText()))
+                self._applyInlineCompetion()
             else:
                 QLineEdit.keyPressEvent(self, event)
+            self.updateCurrentCommand.emit()
         elif event.key() == Qt.Key_Backspace and \
              event.modifiers() == Qt.ControlModifier:
             # Ctrl+Backspace. Usualy deletes word, but, for this edit should delete path level
@@ -307,10 +367,10 @@ class _CompletableLineEdit(QLineEdit):
                 self._deleteToSlash()
             else:
                 QLineEdit.keyPressEvent(self, event)
+            self._updateCurrentCommandTimer.start()
         else:
             oldTextBeforeCompletion = self.text()[:self.cursorPosition()]
             inlineCompletion = self._inlineCompletion()
-            textAfterCompletion = self.text()[:self.cursorPosition() + len(inlineCompletion)]
 
             self._clearInlineCompletion()
 
@@ -324,8 +384,8 @@ class _CompletableLineEdit(QLineEdit):
                textBeforeCompletion.startswith(oldTextBeforeCompletion) and \
                textBeforeCompletion[-1] == inlineCompletion[0]:
                 self.setInlineCompletion(inlineCompletion[1:])  # set rest of the inline completion
+            self._updateCurrentCommandTimer.start()
 
-        self.updateCompletion.emit()
 
     def _deleteToSlash(self):
         """Delete back until /. Called on Ctrl+Backspace pressing
@@ -355,6 +415,9 @@ class _CompletableLineEdit(QLineEdit):
     def setInlineCompletion(self, text):
         """Set inline completion
         """
+        if self._updateCurrentCommandTimer.isActive():
+            return  # ignore this inline completion because the text has changed
+
         if text:
             visibleText = text.replace(' ', '\\ ')
             self.insert(visibleText)
@@ -375,54 +438,93 @@ class _CompletableLineEdit(QLineEdit):
         return text
 
 
-class _CompleterConstructorThread(threading.Thread):
+class _CompleterLoaderThread(Thread):
     """Thread constructs Completer
     Sometimes it requires a lot of time, i.e. when expanding "/usr/lib/*"
     hlamer: I tried to use QThread + pyqtSignal, but got tired with crashes and deadlocks
     """
+    daemon = True
 
     def __init__(self, locator):
         """Works in the GUI thread
         """
-        threading.Thread.__init__(self)
+        Thread.__init__(self)
 
         self._locator = locator
-        self._queue = Queue.Queue()
-        self._checkQueueTimer = QTimer()
-        self._checkQueueTimer.setInterval(50)
-        self._checkQueueTimer.timeout.connect(self._checkQueue)
 
-    def _checkQueue(self):
+        self._taskQueue = Queue()  # completer or None as exit signal
+        self._resultQueue = Queue()
+
+        self._checkResultQueueTimer = QTimer()
+        self._checkResultQueueTimer.setInterval(50)
+        self._checkResultQueueTimer.timeout.connect(self._checkResultQueue)
+        self._checkResultQueueTimer.start()
+
+        self._stopEvent = Event()
+        Thread.start(self)
+
+    def _checkResultQueue(self):
         """Check if thread constructed a completer and put it to the queue
         Works in the GUI thread
         """
-        if not self._queue.empty():
-            command, completer = self._queue.get()
-            self._locator._applyCompleter(command, completer)
+        if not self._resultQueue.empty():
+            command, completer = self._resultQueue.get()
+            self._locator.onCompleterLoaded(command, completer)
 
-    def start(self, command, argIndex):
+    def loadCompleter(self, command, completer):
         """Start constructing completer
         Works in the GUI thread
         """
-        self._terminated = False
-        self._command = command
-        self._argIndex = argIndex
-        self._checkQueueTimer.start()
-        threading.Thread.start(self)
+        # Stop previous
+        self._stopEvent.set()
+        self._taskQueue.join()
+
+        # Drop previous result
+        while not self._resultQueue.empty():
+            self._resultQueue.get()
+
+        # Start new
+        self._stopEvent.clear()
+        task = (command, completer)
+        if not self.is_alive():
+            assert 0
+        self._taskQueue.put(task)
 
     def terminate(self):
         """Set termination flag
         Works in the GUI thread
         """
-        self._checkQueueTimer.stop()
-        self.join()
+        if self.is_alive():
+            self._stopEvent.set()
+            self._taskQueue.put(None)
+            self._checkResultQueueTimer.stop()
+            self.join()
+
+    def _getNextTask(self):
+        # discard old commands
+        while self._taskQueue.qsize() > 1:
+            task = self._taskQueue.get()
+            self._taskQueue.task_done()
+
+        # Get the last command
+        return self._taskQueue.get()
 
     def run(self):
         """Thread function
         Works in NEW thread
         """
-        completer = self._command.completer(self._argIndex)
-        self._queue.put([self._command, completer])
+        while True:
+            task = self._getNextTask()
+            try:
+                if task is None:  # exit command
+                    break
+
+                command, completer = task
+                completer.load(self._stopEvent)
+                if self._taskQueue.empty():
+                    self._resultQueue.put((command, completer))
+            finally:
+                self._taskQueue.task_done()
 
 
 def splitLine(text):
@@ -462,7 +564,7 @@ def splitLine(text):
         except StopIteration:
             pass
 
-        return word, index + 1
+        return word
 
     while True:
         try:
@@ -475,162 +577,23 @@ def splitLine(text):
     return words
 
 
-
-class Locator(QDialog):
-    """Locator widget and implementation
-    """
-    def __init__(self, *args):
-        QDialog.__init__(self, *args)
-
+class Locator(QObject):
+    def __init__(self):
+        QObject.__init__(self)
         self._commandClasses = []
-        self._history = ['']
-        self._historyIndex = 0
-        self._incompleteCommand = None
-
-        self.setLayout(QVBoxLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().setSpacing(1)
-
-        self._table = QTreeView(self)
-        self._model = _CompleterModel()
-        self._table.setModel(self._model)
-        self._table.setItemDelegate(HTMLDelegate())
-        self._table.setRootIsDecorated(False)
-        self._table.setHeaderHidden(True)
-        self._table.clicked.connect(self._onItemClicked)
-        self.layout().addWidget(self._table)
-
-        self._edit = _CompletableLineEdit(self)
-        self.layout().addWidget(self._edit)
-        self._edit.updateCompletion.connect(self._updateCompletion)
-        self._edit.enterPressed.connect(self._onEnterPressed)
-        self._edit.historyPrevious.connect(self._onHistoryPrevious)
-        self._edit.historyNext.connect(self._onHistoryNext)
-        self.setFocusProxy(self._edit)
-
-        width = QFontMetrics(self.font()).width('x' * 64)  # width of 64 'x' letters
-        self.resize(width, width * 0.62)
 
         self._action = core.actionManager().addAction("mNavigation/aLocator", "Locator", shortcut='Ctrl+L')
         self._action.triggered.connect(self._onAction)
         self._separator = core.actionManager().menu("mNavigation").addSeparator()
 
-        # without it action works only when main window is focused, and user can't move focus, when tree is focused
-        self.addAction(self._action)
-
-        self._loadingTimer = QTimer(self)
-        self._loadingTimer.setSingleShot(True)
-        self._loadingTimer.setInterval(200)
-        self._loadingTimer.timeout.connect(self._applyLoadingCompleter)
-
-        self._completerConstructorThread = None
-
-
     def del_(self):
-        """Explicitly called destructor
-        """
         core.actionManager().removeAction(self._action)
         core.actionManager().menu("mNavigation").removeAction(self._separator)
-
-        if self._completerConstructorThread is not None:
-            self._completerConstructorThread.terminate()
 
     def _onAction(self):
         """Locator action triggered. Show themselves and make focused
         """
-        self._edit.setFocus()
-        if not self.isVisible():
-            self.exec_()
-
-    def _onItemClicked(self, index):
-        """Item in the TreeView has been clicked.
-        Open file, if user selected it
-        """
-        command, completableWordIndex = self._parseCurrentCommand()
-        if command is not None:
-            newText = self._model.completer.getFullText(index.row())
-            if newText is not None:
-                newCommandText = command.constructCommand(newText)
-                if newCommandText is not None:
-                    self._edit.setText(newCommandText)
-                    self._edit.setFocus()
-                    self._onEnterPressed()
-                    self._updateCompletion()
-
-    def _updateCompletion(self):
-        """User edited text or moved cursor. Update inline and TreeView completion
-        """
-        text = self._edit.commandText()
-        atEnd = self._edit.cursorPosition() == len(text)
-        completer = None
-
-        command, completableWordIndex = self._parseCurrentCommand()
-        if command is not None and atEnd:
-            if self._completerConstructorThread is not None:
-                self._completerConstructorThread.terminate()
-            self._completerConstructorThread = _CompleterConstructorThread(self)
-
-            self._loadingTimer.start()
-            self._completerConstructorThread.start(command,
-                                                   completableWordIndex)
-        else:
-            self._applyCompleter(None, _HelpCompleter(self._availableCommands()))
-
-    def _applyLoadingCompleter(self):
-        """Set 'Loading...' message
-        """
-        self._applyCompleter(None, _StatusCompleter('<i>Loading...</i>'))
-
-    def _applyCompleter(self, command, completer):
-        """Apply completer. Called by _updateCompletion or by thread function when Completer is constructed
-        """
-        self._loadingTimer.stop()
-
-        if completer is None:
-            completer = _HelpCompleter([command])
-
-        inline = completer.inline()
-        self._edit.setInlineCompletion(inline)
-
-        self._model.setCompleter(completer)
-        if completer.columnCount() > 1:
-            self._table.resizeColumnToContents(0)
-            self._table.setColumnWidth(0, self._table.columnWidth(0) + 20)  # 20 px spacing between columns
-
-    def _onEnterPressed(self):
-        """User pressed Enter or clicked item. Execute command, if possible
-        """
-        text = self._edit.commandText()
-        command, completableWordIndex = self._parseCurrentCommand()
-        if command is not None and command.isReadyToExecute():
-            command.execute()
-            self._history[-1] = text
-            if len(self._history) > 1 and \
-               self._history[-1].strip() == self._history[-2].strip():
-                   self._history = self._history[:-1]  # if the last command repeats, remove duplicate
-            self._history.append('')  # new edited command
-            self._historyIndex = len(self._history) - 1
-            self._edit.clear()
-            if core.workspace().currentDocument() is not None:
-                core.workspace().currentDocument().setFocus()
-            self.hide()
-
-    def _onHistoryPrevious(self):
-        """User pressed Up. Roll history
-        """
-        if self._historyIndex == len(self._history) - 1:  # save edited command
-            self._history[self._historyIndex] = self._edit.commandText()
-
-        if self._historyIndex > 0:
-            self._historyIndex -= 1
-            self._edit.setText(self._history[self._historyIndex])
-
-    def _onHistoryNext(self):
-        """User pressed Down. Roll history
-        """
-        if self._historyIndex < len(self._history) - 1:
-            self._historyIndex += 1
-            self._edit.setText(self._history[self._historyIndex])
+        _LocatorDialog(core.mainWindow(), self._availableCommands()).exec_()
 
     def addCommandClass(self, commandClass):
         """Add new command to the locator. Shall be called by plugins, which provide locator commands
@@ -647,70 +610,233 @@ class Locator(QDialog):
         """
         return [cmd for cmd in self._commandClasses if cmd.isAvailable()]
 
+
+class _LocatorDialog(QDialog):
+    """Locator widget and implementation
+    """
+    def __init__(self, parent, commandClasses):
+        QDialog.__init__(self, parent)
+        self._terminated = False
+        self._commandClasses = commandClasses
+
+        self._createUi()
+
+        self._loadingTimer = QTimer(self)
+        self._loadingTimer.setSingleShot(True)
+        self._loadingTimer.setInterval(200)
+        self._loadingTimer.timeout.connect(self._applyLoadingCompleter)
+
+        self._completerLoaderThread = _CompleterLoaderThread(self)
+
+        self.finished.connect(self._terminate)
+
+        self._command = None
+        self._updateCurrentCommand()
+
+    def _createUi(self):
+        self.setWindowTitle(core.project().path() or 'Locator')
+
+        self.setLayout(QVBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().setSpacing(1)
+
+        biggerFont = self.font()
+        biggerFont.setPointSizeF(biggerFont.pointSizeF() * 2)
+        self.setFont(biggerFont)
+
+        self._edit = _CompletableLineEdit(self)
+        self._edit.updateCurrentCommand.connect(self._updateCurrentCommand)
+        self._edit.enterPressed.connect(self._onEnterPressed)
+        self._edit.installEventFilter(self)  # catch Up, Down
+        self.layout().addWidget(self._edit)
+        self.setFocusProxy(self._edit)
+
+        self._table = QTreeView(self)
+        self._table.setFont(biggerFont)
+        self._model = _CompleterModel()
+        self._table.setModel(self._model)
+        self._table.setItemDelegate(HTMLDelegate(self._table))
+        self._table.setRootIsDecorated(False)
+        self._table.setHeaderHidden(True)
+        self._table.clicked.connect(self._onItemClicked)
+        self._table.setAlternatingRowColors(True)
+        self._table.installEventFilter(self)  # catch focus and give to the edit
+        self.layout().addWidget(self._table)
+
+        width = QFontMetrics(self.font()).width('x' * 64)  # width of 64 'x' letters
+        self.resize(width, width * 0.62)
+
+    def _terminate(self):
+        if not self._terminated:
+            if self._command is not None:
+                self._command.terminate()
+                self._command = None
+
+            self._edit.terminate()
+
+            self._completerLoaderThread.terminate()
+            core.workspace().focusCurrentDocument()
+            self._terminated = True
+
+    def _updateCurrentCommand(self):
+        """Try to parse line edit text and set current command
+        """
+        if self._terminated:
+            return
+
+        newCommand = self._parseCurrentCommand()
+
+        if newCommand is not self._command:
+            if self._command is not None:
+                self._command.updateCompleter.disconnect(self._updateCompletion)
+                self._command.terminate()
+
+            self._command = newCommand
+            if self._command is not None:
+                self._command.updateCompleter.connect(self._updateCompletion)
+
+        self._updateCompletion()
+
+    def _updateCompletion(self):
+        """User edited text or moved cursor. Update inline and TreeView completion
+        """
+        if self._command is not None:
+            completer = self._command.completer()
+
+            if completer.mustBeLoaded:
+                self._loadingTimer.start()
+                self._completerLoaderThread.loadCompleter(self._command, completer)
+            else:
+                self._applyCompleter(self._command, completer)
+        else:
+            self._applyCompleter(None, _HelpCompleter(self._commandClasses))
+
+    def _applyLoadingCompleter(self):
+        """Set 'Loading...' message
+        """
+        self._applyCompleter(None, StatusCompleter('<i>Loading...</i>'))
+
+    def onCompleterLoaded(self, command, completer):
+        """The method called from _CompleterLoaderThread when the completer is ready
+        This code works in the GUI thread
+        """
+        self._applyCompleter(command, completer)
+
+    def _applyCompleter(self, command, completer):
+        """Apply completer. Called by _updateCompletion or by thread function when Completer is constructed
+        """
+        self._loadingTimer.stop()
+
+        if command is not None:
+            command.onCompleterLoaded(completer)
+
+        if completer is None:
+            completer = _HelpCompleter([command])
+
+        if self._edit.cursorPosition() == len(self._edit.text()):  # if cursor at the end of text
+            self._edit.setInlineCompletion(completer.inline())
+
+        self._model.setCompleter(completer)
+        if completer.columnCount() > 1:
+            self._table.resizeColumnToContents(0)
+            self._table.setColumnWidth(0, self._table.columnWidth(0) + 20)  # 20 px spacing between columns
+
+        selItem = completer.autoSelectItem()
+        if selItem:
+            index = self._model.createIndex(selItem[0],
+                                            selItem[1])
+            self._table.setCurrentIndex(index)
+
+    def _onItemClicked(self, index):
+        """Item in the TreeView has been clicked.
+        Open file, if user selected it
+        """
+        if self._command is not None:
+            fullText = self._model.completer.getFullText(index.row())
+            if fullText is not None:
+                self._command.onItemClicked(fullText)
+                if self._tryExecCurrentCommand():
+                    self.accept()
+                    return
+                else:
+                    self._edit.setText(self._command.lineEditText())
+                    self._updateCurrentCommand()
+
+        self._edit.setFocus()
+
+    def _onEnterPressed(self):
+        """User pressed Enter or clicked item. Execute command, if possible
+        """
+        if self._table.currentIndex().isValid():
+            self._onItemClicked(self._table.currentIndex())
+        else:
+            self._tryExecCurrentCommand()
+
+    def _tryExecCurrentCommand(self):
+        if self._command is not None and self._command.isReadyToExecute():
+            self._command.execute()
+            self.accept()
+            return True
+        else:
+            return False
+
+    def _chooseCommand(self, words):
+        for cmd in self._commandClasses:
+            if cmd.command == words[0]:
+                return cmd, words[1:]
+
+        isPath = words and (words[0].startswith('/') or
+                            words[0].startswith('./') or
+                            words[0].startswith('../') or
+                            words[0].startswith('~/'))
+        isNumber = len(words) == 1 and all([c.isdigit() for c in words[0]])
+
+        def matches(cmd):
+            if isPath:
+                return cmd.isDefaultPathCommand
+            elif isNumber:
+                return cmd.isDefaultNumericCommand
+            else:
+                return cmd.isDefaultCommand
+
+        for cmd in self._commandClasses:
+            if matches(cmd):
+                return cmd, words
+
     def _parseCurrentCommand(self):
         """ Parse text and try to get (command, completable word index)
-        Return None, None if failed to parse
+        Return None if failed to parse
         """
-        if not self._commandClasses:
-            return None, None
-
-        #
         # Split line
-        #
         text = self._edit.commandText()
-        wordsWithIndexes = splitLine(text)
-        if not wordsWithIndexes:
-            return None, None
+        words = splitLine(text)
+        if not words:
+            return None
 
-        #
         # Find command
-        #
-        for cmdClass in self._commandClasses:
-            if cmdClass.command == wordsWithIndexes[0][0]:
-                effectiveCmdClass = cmdClass
-                argWordsWithIndexes = wordsWithIndexes[1:]
-                break
+        cmdClass, args = self._chooseCommand(words)
+
+        if isinstance(self._command, cmdClass):
+            command = self._command
         else:
-            for cmdClass in self._commandClasses:
-                if cmdClass.isDefaultCommand:
-                    effectiveCmdClass = cmdClass
-                    argWordsWithIndexes = wordsWithIndexes
-                    break
+            command = cmdClass()
 
-
-        #
         # Try to make command object
-        #
-        args = [item[0] for item in argWordsWithIndexes]
-        endIndexes = [item[1] for item in argWordsWithIndexes]
-
         try:
-            cmd = effectiveCmdClass(args)
+            command.setArgs(args)
         except InvalidCmdArgs:
-            return None, None
-
-        #
-        # Check if some word is completable
-        #
-        cursorPos = self._edit.cursorPosition()
-        if cursorPos in endIndexes:
-            completableWordIndex = endIndexes.index(cursorPos)
+            return None
         else:
-            completableWordIndex = None
+            return command
 
-        return cmd, completableWordIndex
+    def eventFilter(self, obj, event):
+        if obj is self._edit:
+            if event.type() == QEvent.KeyPress and \
+               event.key() in (Qt.Key_Up, Qt.Key_Down, Qt.Key_PageUp, Qt.Key_PageDown):
+                return self._table.event(event)
+        elif obj is self._table:
+            if event.type() == QEvent.FocusIn:
+                self._edit.setFocus()
+                return True
 
-
-    def exec_(self):
-        """QDialog.exec() implementation. Updates completion before showing widget
-        """
-        try:
-            curDir = os.path.abspath(os.path.curdir)
-        except OSError:  # deleted
-            curDir = '?'
-
-        self.setWindowTitle(curDir)
-
-        self._edit.setText('')
-        self._updateCompletion()
-        QDialog.exec_(self)
+        return False

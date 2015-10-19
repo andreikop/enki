@@ -11,8 +11,6 @@ from enki.core.defines import CONFIG_DIR
 import enki.core.json_wrapper
 
 
-
-
 _AUTO_SAVE_INTERVAL_MS = 60 * 1000
 
 
@@ -75,8 +73,13 @@ class Plugin:
 
             if session['current'] is not None:
                 document = self._documentForPath(session['current'])
-                if document is not None: # document might be already deleted
+                if document is not None:  # document might be already deleted
                     core.workspace().setCurrentDocument(document)
+
+            if 'project' in session:
+                path = session['project']
+                if path is not None and os.path.isdir(path):
+                    core.project().open(path)
 
     def _documentForPath(self, filePath):
         """Find document by it's file path.
@@ -93,12 +96,12 @@ class Plugin:
         """Enki is going to be terminated.
         Save session
         """
-        fileList = [document.filePath() \
-                        for document in core.workspace().documents() \
-                            if document.filePath() is not None and \
-                                os.path.exists(document.filePath()) and \
-                                not '/.git/' in document.filePath() and \
-                                not (document.fileName().startswith('svn-commit') and \
+        fileList = [document.filePath()
+                        for document in core.workspace().documents()
+                            if document.filePath() is not None and
+                                os.path.exists(document.filePath()) and
+                                not '/.git/' in document.filePath() and
+                                not (document.fileName().startswith('svn-commit') and
                                      document.fileName().endswith('.tmp'))]
 
         if not fileList:
@@ -108,8 +111,9 @@ class Plugin:
         if core.workspace().currentDocument() is not None:
             currentPath = core.workspace().currentDocument().filePath()
 
-        session = {'current' : currentPath,
-                   'opened' : fileList}
+        session = {'current': currentPath,
+                   'opened': fileList,
+                   'project': core.project().path()}
 
         enki.core.json_wrapper.dump(_SESSION_FILE_PATH, 'session', session, showWarnings)
 
