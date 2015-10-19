@@ -280,7 +280,7 @@ class UISettings(QDialog):
         self.setAttribute( Qt.WA_DeleteOnClose )
 
         # Expand all tree widget items
-        self._pageForItem = {u"General": self.pGeneral,
+        self._pageForItem = {u"Ignored files": self.pIgnoredFiles,
                              u"REPL": self.pRepl,
                              u"Lint": self.pLint,
                              u"Editor": self.pEditor}
@@ -290,7 +290,7 @@ class UISettings(QDialog):
         self.resize(max(hint.width(), hint.height() * 1.61), hint.height())
 
     def _itemByPath(self, pathParts):
-        """Find item by it's path. Path is list of parts. I.e. ['Editor', 'General']
+        """Find item by it's path. Path is list of parts. I.e. ['Editor', 'Ignored files']
         """
         item = self.twMenu.findItems(pathParts[0], Qt.MatchExactly)[0]
         for part in pathParts[1:]:

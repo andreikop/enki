@@ -41,7 +41,7 @@
      </column>
      <item>
       <property name="text">
-       <string>General</string>
+       <string>Ignored files</string>
       </property>
      </item>
      <item>
@@ -71,7 +71,7 @@
        <property name="currentIndex">
         <number>0</number>
        </property>
-       <widget class="QWidget" name="pGeneral">
+       <widget class="QWidget" name="pIgnoredFiles">
         <layout class="QVBoxLayout" name="verticalLayout_6">
          <item>
           <widget class="QGroupBox" name="gbFilesToHide">
