@@ -74,7 +74,7 @@ class CommandOpen(AbstractCommand):
 
     command = 'o'
     signature = 'o PATH [LINE]<br/>/PATH [LINE]<br/>./PATH [LINE]<br/>../PATH [LINE]<br/>~/PATH [LINE]'
-    description = 'Open file. Globs are supported'
+    description = 'Open file. Globs are supported<br/>from the root<br/>from the current file directory<br/>from the directory above current file<br/>from the home'
     isDefaultPathCommand = True
 
     def setArgs(self, args):
