@@ -332,7 +332,7 @@ class _CompletableLineEdit(QLineEdit):
            event.key() == Qt.Key_Tab:
             if self.selectedText():
                 self.setCursorPosition(self.selectionStart() + len(self.selectedText()))
-                self._updateCurrentCommandTimer.start()
+                self.updateCurrentCommand.emit()
             return True
         else:
             return QLineEdit.event(self, event)
@@ -412,6 +412,9 @@ class _CompletableLineEdit(QLineEdit):
     def setInlineCompletion(self, text):
         """Set inline completion
         """
+        if self._updateCurrentCommandTimer.isActive():
+            return  # ignore this inline completion because the text has changed
+
         if text:
             visibleText = text.replace(' ', '\\ ')
             self.insert(visibleText)
@@ -472,6 +475,10 @@ class _CompleterLoaderThread(Thread):
         # Stop previous
         self._stopEvent.set()
         self._taskQueue.join()
+
+        # Drop previous result
+        while not self._resultQueue.empty():
+            self._resultQueue.get()
 
         # Start new
         self._stopEvent.clear()
