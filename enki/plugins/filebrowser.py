@@ -6,16 +6,14 @@ import sys
 import os
 import os.path
 import operator
-import json
 import logging
 
-from PyQt4.QtCore import QDir, QRect, QEvent, QModelIndex, QObject, Qt, QTimer, \
+from PyQt4.QtCore import QDir, QModelIndex, QObject, Qt, QTimer, \
                          pyqtSignal, pyqtSlot
 from PyQt4.QtGui import QAction, QCompleter, QDirModel, \
                         QFrame, QFileSystemModel, \
                         QIcon, QItemSelectionModel, QKeySequence, QComboBox, \
-                        QPainter, \
-                        QShortcut, QSortFilterProxyModel, QToolButton, QTreeView, QVBoxLayout, QWidget
+                        QShortcut, QSortFilterProxyModel, QTreeView, QVBoxLayout, QWidget
 
 from enki.widgets.dockwidget import DockWidget
 
@@ -52,11 +50,6 @@ class Plugin(QObject):
     def del_(self):
         """Uninstall the plugin
         """
-        curPath = self.dock.currentPath()
-        if curPath is not None:
-            core.config()['FileBrowser']['LastPath'] = curPath
-            core.config().flush()
-
         self.dock.del_()
 
 
@@ -76,14 +69,14 @@ class FileBrowserFilteredModel(QSortFilterProxyModel):
     def hasChildren(self, parent = QModelIndex()):
         """Check if node has children. QAbstractItemModel standard method
         """
-        return self.sourceModel().hasChildren( self.mapToSource( parent ) )
+        return self.sourceModel().hasChildren(self.mapToSource(parent))
 
     def filterAcceptsRow(self, sourceRow, sourceParent):
         """ Main method. Check if file matches filter
         """
         if  sourceParent == QModelIndex():
             return True
-        return not core.fileFilter().regExp().match(sourceParent.child( sourceRow, 0 ).data() )
+        return not core.fileFilter().regExp().match(sourceParent.child(sourceRow, 0).data())
 
 
 class SmartRecents(QObject):
@@ -206,7 +199,7 @@ class SmartHistory(QObject):
         self._historyIndex = -1
 
         fileBrowser.titleBarWidget().addSeparator()
-        self._aBack = QAction(  QIcon(':enkiicons/previous.png'),
+        self._aBack = QAction(QIcon(':enkiicons/previous.png'),
                                 self.tr("Back"),
                                 self)
         self._aBack.setShortcut('Alt+Left')
@@ -214,7 +207,7 @@ class SmartHistory(QObject):
         core.actionManager().addAction("mNavigation/mFileBrowser/aBack", self._aBack)
         self._aBack.triggered.connect(self._onTbBackTriggered)
 
-        self._aForward = QAction(   QIcon(':enkiicons/next.png'),
+        self._aForward = QAction(QIcon(':enkiicons/next.png'),
                                     self.tr("Forward"),
                                     self)
         self._aForward.setShortcut('Alt+Right')
@@ -332,43 +325,43 @@ class Tree(QTreeView):
 
         self._fileBrowser = fileBrowser
 
-        self.setAttribute( Qt.WA_MacShowFocusRect, False )
-        self.setAttribute( Qt.WA_MacSmallSize )
-        self.setContextMenuPolicy( Qt.ActionsContextMenu )
-        self.setHeaderHidden( True )
-        self.setUniformRowHeights( True )
+        self.setAttribute(Qt.WA_MacShowFocusRect, False)
+        self.setAttribute(Qt.WA_MacSmallSize)
+        self.setContextMenuPolicy(Qt.ActionsContextMenu)
+        self.setHeaderHidden(True)
+        self.setUniformRowHeights(True)
         self.setTextElideMode(Qt.ElideMiddle)
 
         # dir model
-        self._dirsModel = _FileSystemModel( self )
-        self._dirsModel.setNameFilterDisables( False )
-        self._dirsModel.setFilter( QDir.AllDirs | QDir.AllEntries | QDir.CaseSensitive | QDir.NoDotAndDotDot )
+        self._dirsModel = _FileSystemModel(self)
+        self._dirsModel.setNameFilterDisables(False)
+        self._dirsModel.setFilter(QDir.AllDirs | QDir.AllEntries | QDir.CaseSensitive | QDir.NoDotAndDotDot)
         # self._dirsModel.directoryLoaded.connect(self.setFocus)  TODO don't have this signal in my Qt version
 
         # create proxy model
-        self._filteredModel = FileBrowserFilteredModel( self )
-        self._filteredModel.setSourceModel( self._dirsModel )
+        self._filteredModel = FileBrowserFilteredModel(self)
+        self._filteredModel.setSourceModel(self._dirsModel)
 
-        self.setModel( self._filteredModel)
+        self.setModel(self._filteredModel)
 
         if not sys.platform.startswith('win'):
-            self._dirsModel.setRootPath( "/" )
+            self._dirsModel.setRootPath("/")
         else:
             self._dirsModel.setRootPath('')
 
         # shortcut accessible only when self._tree has focus
-        self._upShortcut = QShortcut( QKeySequence( "BackSpace" ), self )
-        self._upShortcut.setContext( Qt.WidgetShortcut )
+        self._upShortcut = QShortcut(QKeySequence("BackSpace"), self)
+        self._upShortcut.setContext(Qt.WidgetShortcut)
         self._upShortcut.activated.connect(self.moveUp)
 
         # shortcut accessible only when self._tree has focus
-        self._homeShortcut = QShortcut( QKeySequence( "`" ), self )
-        self._homeShortcut.setContext( Qt.WidgetShortcut )
+        self._homeShortcut = QShortcut(QKeySequence("`"), self)
+        self._homeShortcut.setContext(Qt.WidgetShortcut)
         self._homeShortcut.activated.connect(self._goUserHomeDir)
 
         # shortcut accessible only when self._tree has focus
-        self._homeShortcut = QShortcut( QKeySequence( "." ), self )
-        self._homeShortcut.setContext( Qt.WidgetShortcut )
+        self._homeShortcut = QShortcut(QKeySequence("."), self)
+        self._homeShortcut.setContext(Qt.WidgetShortcut)
         self._homeShortcut.activated.connect(self._goCurrentDir)
 
         self.activated.connect(self._onActivated)
@@ -381,13 +374,13 @@ class Tree(QTreeView):
         self.destroyed.connect(self._setFocusTimer.stop)
         self._timerAttempts = 0
 
-    def _onActivated(self, idx ):
+    def _onActivated(self, idx):
         """File or directory doubleClicked
         """
-        index = self._filteredModel.mapToSource( idx )
-        path = self._dirsModel.filePath( index )
+        index = self._filteredModel.mapToSource(idx)
+        path = self._dirsModel.filePath(index)
 
-        if  os.path.isdir( path ) :
+        if  os.path.isdir(path) :
             self._fileBrowser.setCurrentPath(path)
         else:
             self._fileActivated.emit()
@@ -429,15 +422,15 @@ class Tree(QTreeView):
     def _filteredModelIndexToPath(self, index):
         """Map index to file path
         """
-        srcIndex = self._filteredModel.mapToSource( index )
-        return self._dirsModel.filePath( srcIndex )
+        srcIndex = self._filteredModel.mapToSource(index)
+        return self._dirsModel.filePath(srcIndex)
 
     def currentPath(self):
         """Get current path (root of the tree)
         """
         index = self.rootIndex()
-        index = self._filteredModel.mapToSource( index )
-        return self._dirsModel.filePath( index )
+        index = self._filteredModel.mapToSource(index)
+        return self._dirsModel.filePath(index)
 
     def _isDescendant(self, child, parent):
         """Check if child is descendant of parent
@@ -473,7 +466,7 @@ class Tree(QTreeView):
 
         # set current path
         self._filteredModel.invalidate()
-        newRoot = self._filteredModel.mapFromSource( index )
+        newRoot = self._filteredModel.mapFromSource(index)
         self.setRootIndex(newRoot)
 
         self._timerAttempts = 10
@@ -495,14 +488,14 @@ class ComboBox(QComboBox):
 
         self._fileBrowser = fileBrowser
 
-        self.setAttribute( Qt.WA_MacShowFocusRect, False )
-        self.setAttribute( Qt.WA_MacSmallSize )
+        self.setAttribute(Qt.WA_MacShowFocusRect, False)
+        self.setAttribute(Qt.WA_MacSmallSize)
         self.setEditable(True)
         self.setMinimumContentsLength(1)
         self.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
-        self.lineEdit().setReadOnly( False )
+        self.lineEdit().setReadOnly(False)
         self._completionModel = QDirModel(self.lineEdit())
-        self._completionModel.setFilter( QDir.AllDirs | QDir.NoDotAndDotDot )
+        self._completionModel.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)
         self.lineEdit().setCompleter(QCompleter(self._completionModel,
                                                self.lineEdit()))
         #TODO QDirModel is deprecated but QCompleter does not yet handle
@@ -587,7 +580,7 @@ class DockFileBrowser(DockWidget):
         self._smartHistory = None
 
         # restrict areas
-        self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
+        self.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
 
         core.actionManager().addAction("mView/aFileBrowser", self.showAction())
 
@@ -617,45 +610,41 @@ class DockFileBrowser(DockWidget):
         """Delayed initialization of the widget for quicker start of application
         """
         # central widget
-        wdg = QWidget( self )
-        self.setWidget( wdg )
+        wdg = QWidget(self)
+        self.setWidget(wdg)
 
         # vertical layout
-        vertLayout = QVBoxLayout( wdg )
-        vertLayout.setMargin( 0 )
-        vertLayout.setSpacing( 3 )
+        vertLayout = QVBoxLayout(wdg)
+        vertLayout.setMargin(0)
+        vertLayout.setSpacing(3)
 
         # combo
         self._comboBox = ComboBox(self)
-        vertLayout.addWidget( self._comboBox )
+        vertLayout.addWidget(self._comboBox)
 
         # hline
-        hline = QFrame( self )
-        hline.setFrameStyle( QFrame.HLine | QFrame.Sunken )
-        vertLayout.addWidget( hline )
+        hline = QFrame(self)
+        hline.setFrameStyle(QFrame.HLine | QFrame.Sunken)
+        vertLayout.addWidget(hline)
 
         # files view
         self._tree = Tree(self)
-        vertLayout.addWidget( self._tree )
+        vertLayout.addWidget(self._tree)
 
         # cd up button
-        self._aCdUp = QAction(  QIcon(':enkiicons/go-up.png'),
-                                self.tr("Up"),
-                                self)
+        self._aCdUp = QAction(QIcon(':enkiicons/go-up.png'),
+                              self.tr("Up"),
+                              self)
         self.titleBarWidget().addAction(self._aCdUp)
         self._aCdUp.triggered.connect(self.moveUp)
 
         # redirirect focus proxy
-        self.setFocusProxy( self._tree )
+        self.setFocusProxy(self._tree)
 
         self._smartRecents = SmartRecents(self)
         self._smartHistory = SmartHistory(self)
 
-        if os.path.isdir(core.config()['FileBrowser']['LastPath']):
-            self.setCurrentPath(core.config()['FileBrowser']['LastPath'])
-        else:
-            self.setCurrentPath(_getCurDir())
-
+        self.setCurrentPath(core.project().path() or _getCurDir())
 
     def _onDirectoryDropt(self, path):
         """Directory drag-n-dropt to main window. Show it
@@ -684,6 +673,9 @@ class DockFileBrowser(DockWidget):
         """Set current path (root of the tree)
         If there are no documents on workspace, also changes process current directory
         """
+        if self._tree is None:
+            return
+
         if self._tree.currentPath() == path:
             return
 
