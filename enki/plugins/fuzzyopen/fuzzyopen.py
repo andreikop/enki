@@ -39,7 +39,6 @@ def fuzzyMatch(reversed_pattern, text):
     return score, indexes
 
 
-
 class FuzzyOpenCompleter(AbstractCompleter):
 
     mustBeLoaded = True
@@ -73,7 +72,8 @@ class FuzzyOpenCompleter(AbstractCompleter):
             for i, path in enumerate(files):
                 score, indexes = fuzzyMatch(reversed_pattern, path)
                 if indexes:
-                    matching.append((path, score, indexes))
+                    # Using original case path here
+                    matching.append((self._files[i], score, indexes))
 
                 if not (i % 100):
                     if stopEvent.is_set():
