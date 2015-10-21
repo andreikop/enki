@@ -123,13 +123,13 @@ class TestApproxMatch(unittest.TestCase):
                   # The expected targetText index is between ``bqwc?xyz`` and ``d``.
         self.assertIn(index, (8, 9, 10))
 
-    # This is a typical multiple match case. It should therefore return a -1.
+    # This is a typical multiple match case. It should therefore match any of the three abcd strings.
     def test_9(self):
         index = f(searchAnchor = 2,
                   # Place searchAnchor between ``abc`` and ``d``.
                   searchText = 'abcd',
                   targetText = 'xxabcdabcdabcdxxx')
-        self.assertEqual(index, -1)
+        self.assertEqual(index, 4)
 
     # If the anchor is placed after the search string, test to see if a
     # correct target index can be found.
@@ -377,22 +377,7 @@ Text after block 1,2, and 3""")[0]
                 targetText = 'bqwc?xyzaad')[0]
                 # The expected targetText index is between ``bqwc?xyza`` and ``d``.
         self.assertIn(index, (8, 9, 10))
-
-    # Test the performance when comparing two files. It takes about
-    # 1 minute to run.
-    @unittest.skip('Long-running performance test')
-    def test_10(self):
-        print os.getcwd()
-        with open("D:\\enki\\tests\\test_plugins\\test_ApproxMatch.py", 'r') as file:
-            searchText = file.read()
-        targetText = searchText
-        string = lcs(searchAnchor = 0,
-                     returnLcsString = True,
-                     searchText = searchText,
-                     targetText = targetText)[1]
-        self.assertEqual(string, searchText)
-
-
+#
 # Main
 # ====
 if __name__ == '__main__':

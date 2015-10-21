@@ -40,13 +40,8 @@ import os
 #
 # Third-party imports
 # -------------------
-# For approximate pattern matching, this module uses the Python port of `TRE
-# <http://hackerboss.com/approximate-regex-matching-in-python>`_.
-import tre
-# Older versions of tre don't support unicode. Produce an excpetion if so.
-# Note that older tre will coerce an Unicode string such as u'hi' into ascii.
-# So, give it something that can't convert (a no-break space).
-tre.compile(u'\u00a0', tre.LITERAL)
+# The `regex <https://pypi.python.org/pypi/regex>`_ module supports approximate matching.
+import regex
 #
 # For debug
 # =========
@@ -121,18 +116,15 @@ def writeHtmlLog(htmlText):
         f.write(htmlText)
 #
 # findApproxText
-# ================
-# This function performs a single approximate match using TRE_. TRE_ stops at
-# the best match it finds; this routine makes sure the match found is at least
-# 10% better than the next best approximate match, thus checking that the
-# resulting match is reasonable unique.
+# ==============
+# This function performs a single approximate match using the regex_ library.
 #
 # Return value:
 #   - If there is no unique value, (None, 0, 0)
 #   - Otherwise, it returns (match, beginInTarget, endInTarget) where:
 #
 #     match
-#       A TRE match object.
+#       A regex_ match object.
 #
 #     beginInTarget
 #       The index into the target string at which the approximate match begins.
@@ -143,34 +135,20 @@ def findApproxText(
   # Text to search for
   searchText,
   # Text in which to find the searchText
-  targetText,
-  # Maximum allowable cost for an approximate match. None indicates no maximum cost.
-  cost = None):
+  targetText):
 
-    # tre.LITERAL specifies that searchText is a literal search string, not
-    # a regex.
-    pat = tre.compile(searchText, tre.LITERAL)
-    fz = tre.Fuzzyness(maxerr = cost) if cost else tre.Fuzzyness()
-    match = pat.search(targetText, fz)
-    # Store the index into the target string of the first and last matched chars.
-    beginInTarget, endInTarget = match.groups()[0]
-
-    # TRE picks the first match it finds, even if there is
-    # more than one match with identical error. So, manually
-    # call it again excluding the found text to check. In addition,
-    # make sure this match is unique: it should be 10%
-    # better than the next best match.
-    matchAgain = pat.search(targetText[:beginInTarget] + targetText[endInTarget:], fz)
-
-    if matchAgain and (matchAgain.cost <= match.cost*1.1):
-        ## print('Multiple matches ' + str(matchAgain.groups()))
-        return None, 0, 0
+    # The regex_ library supports fuzzy matching. Quoting from the manual:
+    #
+    # - (item){e} means perform a fuzzy match of the given ``item``, allowing insertions, deletions, or substitutions.
+    # - the BESTMATCH flag searches for the best possible match, rather than the match found first.
+    mo = regex.search('(' + searchText + '){e}', targetText, regex.BESTMATCH)
+    if mo:
+        return mo, mo.start(), mo.end()
     else:
-        ## print(searchText + '\n' + targetText[beginInTarget:endInTarget])
-        return match, beginInTarget, endInTarget
+        return None, 0, 0
 #
 # findApproxTextInTarget
-# ==========================
+# ======================
 # This routine first finds the closest approximate match of a substring centered
 # around the searchAnchor in the targetText.
 #
