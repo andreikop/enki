@@ -17,7 +17,7 @@ Optional:
 * [Python-Markdown](http://packages.python.org/Markdown/install.html). For Markdown preview
 * [python-docutils](http://docutils.sourceforge.net/). For reStructuredText preview
 * [ctags](http://ctags.sourceforge.net/). For navigation in file
-* [tre](http://hackerboss.com/approximate-regex-matching-in-python/). For preview synchronization; see [this page](https://github.com/bjones1/tre/blob/master/INSTALL.rst) for build instructions
+* [regex](https://pypi.python.org/pypi/regex). For preview synchronization
 * [CodeChat](https://bitbucket.org/bjones/documentation/overview). For source code to HTML translation (literate programming)
 
 #### Debian and Debian based

@@ -20,33 +20,7 @@ INSTALL="sudo apt-get install -y"
 # Put everything in ``enki_all``.
 mkdir enki_all
 cd enki_all
-
-# TRE
-# ===
-# Fedora: git gcc make                      automake gettext libtool gettext-devel zip python-devel python-pip
-$INSTALL  git build-essential autotools-dev automake gettext libtool autopoint     zip python-dev   python-pip
-# Upgrade pip first.
-sudo pip install -U pip
-# Then install Python packages from pip, since apt-get packages are older.
-sudo pip install -U setuptools
-# See https://github.com/bjones1/tre.
-git clone https://github.com/bjones1/tre.git
-cd tre
-./utils/autogen.sh
-$PAUSE
-./configure
-$PAUSE
-make
-$PAUSE
-sudo make install
-$PAUSE
-cd python
-sudo python setup.py install
-# Note: the line below should be added to your .bashrc.
-export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-$PAUSE
-cd ../..
-
+#
 # CodeChat
 # ========
 $INSTALL mercurial
@@ -55,7 +29,7 @@ cd CodeChat
 sudo python setup.py develop
 $PAUSE
 cd ..
-
+#
 # Qutepart
 # ========
 # Fedora: pcre     pcre-devel   python-qt4
@@ -65,18 +39,18 @@ cd qutepart
 sudo python setup.py install
 $PAUSE
 cd ..
-
+#
 # Enki
 # ====
 # Fedora: desktop-file-utils ctags
 $INSTALL  desktop-file-utils exuberant-ctags # On Fedora, use ctags.
 # Then install Python packages from pip, since apt-get packages are older.
-sudo pip install -U mock markdown sphinx pylint
+sudo pip install -U mock markdown sphinx flake8 regex
 git clone https://github.com/hlamer/enki.git
 cd enki
 $PAUSE
 cd ..
-
+#
 # Python-markdown-mathjax
 # =======================
 # See https://github.com/mayoff/python-markdown-mathjax.
