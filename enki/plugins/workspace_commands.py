@@ -189,7 +189,12 @@ class CommandOpenProject(AbstractCommand):
             raise InvalidCmdArgs()
 
         if args:
-            self._path = _expandDotDirectories(args[0])
+            path = args[0]
+            if path.startswith('./') or path.startswith('../') \
+               or path in ('.', '..'):
+                path = os.path.join(core.project().path(), path)
+
+            self._path = path
         else:
             self._path = None
 

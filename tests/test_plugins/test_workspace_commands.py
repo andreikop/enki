@@ -19,6 +19,9 @@ from PyQt4.QtTest import QTest
 from enki.core.core import core
 
 
+PROJ_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'enki'))
+
+
 class Test(base.TestCase):
     def _execCommand(self, text):
         def inDialogFunc(dialog):
@@ -143,6 +146,28 @@ class Test(base.TestCase):
         self.openDialog(self._openDialog, inDialogFunc)
 
         self.assertEqual(core.project().path(), self.TEST_FILE_DIR)
+
+    @base.inMainLoop
+    def test_09(self):
+        """ Open .. """
+        core.project().open(PROJ_ROOT)
+
+        def inDialogFunc(dialog):
+            self.keyClicks('p ..')
+            self.keyClick(Qt.Key_Enter)
+        self.openDialog(self._openDialog, inDialogFunc)
+        self.assertEqual(core.project().path(), os.path.dirname(PROJ_ROOT))
+
+    @base.inMainLoop
+    def test_10(self):
+        """ Open ./ """
+        core.project().open(PROJ_ROOT)
+
+        def inDialogFunc(dialog):
+            self.keyClicks('p ./core')
+            self.keyClick(Qt.Key_Enter)
+        self.openDialog(self._openDialog, inDialogFunc)
+        self.assertEqual(core.project().path(), os.path.join(PROJ_ROOT, 'core'))
 
 
 if __name__ == '__main__':
