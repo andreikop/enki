@@ -111,7 +111,7 @@ class Test(base.TestCase):
     @base.inMainLoop
     def test_07(self):
         """ Check inline completion for file with spaces"""
-        document = core.workspace().createEmptyNotSavedDocument()
+        core.workspace().createEmptyNotSavedDocument()
 
         fullPath = os.path.join(self.TEST_FILE_DIR, 'the file.txt')
 
@@ -143,7 +143,6 @@ class Test(base.TestCase):
         self.openDialog(self._openDialog, inDialogFunc)
 
         self.assertEqual(core.project().path(), self.TEST_FILE_DIR)
-
 
 
 if __name__ == '__main__':

@@ -81,6 +81,7 @@ class AbstractCommand(QObject):
         while the user edits the command.
         Raise ``InvalidCmdArgs`` if the arguments are invalid.
         """
+        raise NotImplemented()
 
     def completer(self):
         """ ::class:`enki.core.locator.AbstractCompleter` instance for partially typed command.
@@ -703,7 +704,7 @@ class _LocatorDialog(QDialog):
         if self._command is not None:
             completer = self._command.completer()
 
-            if completer.mustBeLoaded:
+            if completer is not None and completer.mustBeLoaded:
                 self._loadingTimer.start()
                 self._completerLoaderThread.loadCompleter(self._command, completer)
             else:

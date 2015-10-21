@@ -105,5 +105,20 @@ class Test(base.TestCase):
         path = os.path.join(PROJ_ROOT, 'plugins', 'helpmenu', 'UIAbout.ui')
         self.assertEqual(core.workspace().currentDocument().filePath(), path)
 
+    @base.inMainLoop
+    def test_05(self):
+        """ scan """
+        core.project().open(PROJ_ROOT)  # not scanned yet
+
+        def inDialogFunc(dialog):
+            self.keyClicks('scan')
+            self.keyClick(Qt.Key_Enter)
+
+        self.openDialog(self._openDialog, inDialogFunc)
+
+        self.assertTrue(core.project().isScanning())
+        self._waitFiles()
+        self.assertFalse(core.project().isScanning())
+
 if __name__ == '__main__':
     unittest.main()

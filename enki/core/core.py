@@ -306,6 +306,7 @@ class Core(QObject):
         """
         return self._project
 
+
 core = Core()  # pylint: disable=C0103
 """Core instance. It is accessible as:
 

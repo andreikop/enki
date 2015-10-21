@@ -80,12 +80,13 @@ class Project(QObject):
     Parameter contains readable text
     """
 
-    def __init__(self, parent):
-        QObject.__init__(self, parent)
+    def __init__(self, core):
+        QObject.__init__(self, core)
         self._path = None
         self._projectFiles = None
         self._thread = None
         self._scanStatus = None
+        self._core = core
         self.open(os.path.abspath('.'))
 
     def del_(self):
@@ -118,6 +119,7 @@ class Project(QObject):
         self._path = path
         self._projectFiles = None
         self._scanStatus = 'Not scanning'
+        self._backgroundScan = False
 
         try:
             os.chdir(path)
@@ -163,11 +165,30 @@ class Project(QObject):
         """
         return self._scanStatus
 
+    def startBackgroundScan(self):
+        """Scan the project in background.
+
+        Report progress to status bar.
+        It is allowed to call this method multiple times.
+        """
+        if self._thread is not None:
+            return
+
+        self._backgroundScan = True
+        self._startScannerThread()
+
+    def isScanning(self):
+        return self._thread is not None
+
     def _onScanStatus(self, text):
         self._scanStatus = text
         self.scanStatusChanged.emit(text)
+        if self._backgroundScan:
+            self._core.mainWindow().statusBar().showMessage(text,
+                                                            STATUS_SHOW_TIMEOUT_MSEC)
 
     def _onFilesReady(self, path, files):
         self._projectFiles = files
+        self._backgroundScan = False
         self._stopScannerThread()
         self.filesReady.emit()

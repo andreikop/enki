@@ -127,10 +127,16 @@ class FuzzyOpenCommand(AbstractCommand):
 
         core.project().filesReady.connect(self.updateCompleter)
         core.project().scanStatusChanged.connect(self.updateCompleter)
-        core.project().startLoadingFiles()
+        if not core.project().isScanning():
+            core.project().startLoadingFiles()
+            self._iHaveStartedScan = True
+        else:
+            self._iHaveStartedScan = False
 
     def terminate(self):
-        core.project().cancelLoadingFiles()
+        if self._iHaveStartedScan:
+            core.project().cancelLoadingFiles()
+
         core.project().filesReady.disconnect(self.updateCompleter)
         core.project().scanStatusChanged.disconnect(self.updateCompleter)
 
@@ -160,16 +166,35 @@ class FuzzyOpenCommand(AbstractCommand):
         return 'f ' + self._clickedPath
 
     def isReadyToExecute(self):
-        return self._completer is not None or self._clickedPath is not None
+        return self._clickedPath is not None
 
     def execute(self):
-        if self._clickedPath:
-            path = self._clickedPath
-        elif self._completer:
-            path = self._matching[0][0]
-
+        path = self._clickedPath
         fullPath = os.path.join(core.project().path(), path)
         if self._line is None:
             core.workspace().goTo(fullPath)
         else:
             core.workspace().goTo(fullPath, line=self._line - 1)
+
+
+class ScanCommand(AbstractCommand):
+    """Save As Locator command
+    """
+    command = 'scan'
+    signature = 'scan'
+    description = 'Scan (rescan) the project'
+
+    @staticmethod
+    def isAvailable():
+        """Check if command is available.
+        It is available, if at least one document is opened
+        """
+        return True
+
+    def setArgs(self, args):
+        if args:
+            raise InvalidCmdArgs()
+
+    def execute(self):
+        core.project().startBackgroundScan()
+
