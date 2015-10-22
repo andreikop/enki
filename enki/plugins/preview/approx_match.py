@@ -137,6 +137,8 @@ def findApproxText(
   # Text in which to find the searchText
   targetText):
 
+    # Escape any characters in searchText that would be treated as a regexp.
+    searchText = regex.escape(searchText)
     # The regex_ library supports fuzzy matching. Quoting from the manual:
     #
     # - (item){e} means perform a fuzzy match of the given ``item``, allowing insertions, deletions, or substitutions.

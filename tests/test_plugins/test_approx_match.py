@@ -42,11 +42,23 @@ from base import requiresModule
 # tests instead.
 try:
     from enki.plugins.preview.approx_match import findApproxTextInTarget as f
+    from enki.plugins.preview.approx_match import findApproxText as g
     from enki.plugins.preview.approx_match import refineSearchResult as lcs
 except (ImportError, UnicodeEncodeError):
     f = None
     lcs = None
-
+#
+# Tests for findApproxText
+# ==========================
+class TestFindApproxText(unittest.TestCase):
+    # Check that searchText strings aren't treated as regular expressions
+    def test_1(self):
+        mo, begin, end = g(searchText='.',
+                           targetText='===.===')
+        self.assertTrue(mo)
+        self.assertEqual(begin, 3)
+        self.assertEqual(end, 4)
+#
 # Tests for findApproxTextInTarget
 # ================================
 # Find a location in a source file based on a given location in the resulting html.
@@ -167,6 +179,7 @@ class TestApproxMatch(unittest.TestCase):
                   # ``\n\n\n\n``.
         self.assertEqual(index, 8)
 
+#
 # Failing test casess
 # -------------------
     # Scenario:
