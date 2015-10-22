@@ -6,6 +6,7 @@ import unittest
 import markdown
 import docutils
 import mock
+import regex
 
 
 if __name__ == "__main__":

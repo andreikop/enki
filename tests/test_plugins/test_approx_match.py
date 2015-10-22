@@ -34,19 +34,11 @@ import sys
 # Insert path to base before importing.
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 import base
-
 # Base will insert path to enki, so its modules that we want to test can now be
 # imported.
-from base import requiresModule
-# If TRE isn't installed, these will fail; ignore this exception, and skip the
-# tests instead.
-try:
-    from enki.plugins.preview.approx_match import findApproxTextInTarget as f
-    from enki.plugins.preview.approx_match import findApproxText as g
-    from enki.plugins.preview.approx_match import refineSearchResult as lcs
-except (ImportError, UnicodeEncodeError):
-    f = None
-    lcs = None
+from enki.plugins.preview.approx_match import findApproxTextInTarget as f
+from enki.plugins.preview.approx_match import findApproxText as g
+from enki.plugins.preview.approx_match import refineSearchResult as lcs
 #
 # Tests for findApproxText
 # ==========================
@@ -62,7 +54,6 @@ class TestFindApproxText(unittest.TestCase):
 # Tests for findApproxTextInTarget
 # ================================
 # Find a location in a source file based on a given location in the resulting html.
-@unittest.skipUnless(f, 'Requires working TRE')
 class TestApproxMatch(unittest.TestCase):
     # Show that we can match identical text.
     def test_1(self):
@@ -245,7 +236,6 @@ class TestApproxMatch(unittest.TestCase):
 
 # Tests for refineSearchResult
 # ============================
-@unittest.skipUnless(lcs, 'Requires working TRE')
 class TestRefineSearchResult(unittest.TestCase):
     # Boundary conditions: empty search and target strings.
     def test_1(self):
