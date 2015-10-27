@@ -19,7 +19,7 @@ class Test(base.TestCase):
     @base.requiresCmdlineUtility('flake8 --version')
     def test_1(self):
         """ File is checked after opened """
-        doc = self.createFile('test.py', 'asdf\n\n')
+        doc = self.createFile('te:st .py', 'asdf\n\n')
         self.waitUntilPassed(2000, lambda: self.assertEqual(doc.qutepart.lintMarks,
                              {0: ('e', "F821 undefined name 'asdf'"),
                               1: ('w', 'W391 blank line at end of file')}))

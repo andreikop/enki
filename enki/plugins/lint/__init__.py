@@ -1,6 +1,7 @@
 """Lint plugin shows linter messages for different languages
 """
 
+import re
 import os.path
 import collections
 import Queue
@@ -27,7 +28,9 @@ class ProcessorThread(QThread):
                          'F': Qutepart.LINT_ERROR,
                          'C': Qutepart.LINT_NOTE,
                          'N': Qutepart.LINT_NOTE,
-                        }
+                         }
+
+    _PARSER_REG_EXP = re.compile('^(.+):(\d+):(\d+): ([A-Z]\d\d\d .+)$')
 
     def __init__(self):
         QThread.__init__(self)
@@ -78,14 +81,19 @@ class ProcessorThread(QThread):
         result = {}
 
         for line in stdout.splitlines():
-                filePath, lineNumber, columnNumber, rest = line.split(':', 3)
-                rest = rest.lstrip()
+            match = self._PARSER_REG_EXP.match(line)
+            if match:
+                filePath = match.group(1)
+                lineNumber = match.group(2)
+                columnNumber = match.group(3)
+                rest = match.group(4)
+
                 msgId, msgText = rest.lstrip().split(' ', 1)
 
                 lineIndex = int(lineNumber) - 1
                 msgType = self._MSG_ID_CONVERTOR[msgId[0]]
                 if msgType is not None:  # not ignored
-                    if not lineIndex in result:
+                    if lineIndex not in result:
                         result[lineIndex] = (msgType, rest)
 
         return result
