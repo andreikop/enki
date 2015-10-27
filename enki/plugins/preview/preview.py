@@ -627,16 +627,23 @@ class PreviewDock(DockWidget):
     def _restoreScrollPos(self, ok):
         """Restore scroll bar position for document
         """
-        if core.workspace().currentDocument() is None:
-            return  # nothing to restore if don't have document
-
         try:
             self._widget.webView.page().mainFrame().loadFinished.disconnect(self._restoreScrollPos)
         except TypeError:  # already has been disconnected
             pass
 
+        if core.workspace().currentDocument() is None:
+            return  # nothing to restore if don't have document
+
         if not self._visiblePath in self._scrollPos:
             return  # no data for this document
+
+        # Don't restore the scroll position if the window is hidden. This can
+        # happen when the current document is changed, which invokes _clear,
+        # which calls setHtml, which calls _saveScrollPos and then this routine
+        # when the HTML is loaded.
+        if not self.isVisible():
+            return
 
         frame = self._widget.webView.page().mainFrame()
 
