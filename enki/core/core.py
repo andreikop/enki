@@ -90,7 +90,7 @@ class Core(QObject):
 
         qInitResources()
 
-        QApplication.instance().setWindowIcon(QIcon(':/enkiicons/logo/enki.svg') )
+        QApplication.instance().setWindowIcon(QIcon(':/enkiicons/logo/enki.svg'))
 
         self._initConfigDir()
 

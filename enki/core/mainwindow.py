@@ -66,8 +66,8 @@ class MainWindow(QMainWindow):
     If you need to access to some existing menu items - check action path
     in the class constructor, than use next code: ::
 
-        core.actionManager().action( "mFile/aOpen" ).setEnabled(True)
-        core.actionManager().action( "mFile/aOpen" ).triggered.connect(self.myCoolMethod)
+        core.actionManager().action("mFile/aOpen").setEnabled(True)
+        core.actionManager().action("mFile/aOpen").triggered.connect(self.myCoolMethod)
 
     MainWindow instance is accessible as: ::
 
@@ -106,18 +106,18 @@ class MainWindow(QMainWindow):
 
         self._addedDockWidgets = []
 
-        self.setUnifiedTitleAndToolBarOnMac( True )
-        self.setIconSize( QSize( 16, 16 ) )
-        self.setAcceptDrops( True )
+        self.setUnifiedTitleAndToolBarOnMac(True)
+        self.setIconSize(QSize(16, 16))
+        self.setAcceptDrops(True)
 
         # Set corner settings for dock widgets
-        self.setCorner( Qt.TopLeftCorner, Qt.LeftDockWidgetArea )
-        self.setCorner( Qt.TopRightCorner, Qt.RightDockWidgetArea )
-        self.setCorner( Qt.BottomLeftCorner, Qt.LeftDockWidgetArea )
-        self.setCorner( Qt.BottomRightCorner, Qt.RightDockWidgetArea )
+        self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
+        self.setCorner(Qt.TopRightCorner, Qt.RightDockWidgetArea)
+        self.setCorner(Qt.BottomLeftCorner, Qt.LeftDockWidgetArea)
+        self.setCorner(Qt.BottomRightCorner, Qt.RightDockWidgetArea)
 
         self.setWindowTitle(self.defaultTitle())  # overwriten by workspace when file or it's modified state changes
-        self.setWindowIcon( QIcon(':/enkiicons/logo/enki.svg') )
+        self.setWindowIcon(QIcon(':/enkiicons/logo/enki.svg'))
 
         # Create top tool bar
         self._topToolBar = QToolBar("topToolBar")
@@ -198,7 +198,7 @@ class MainWindow(QMainWindow):
         self._queuedMessageToolBar = QueuedMessageToolBar(self)
         area = Qt.TopToolBarArea if self._isMenuEmbeddedToTaskBar() else Qt.BottomToolBarArea
         self.addToolBar(area, self._queuedMessageToolBar)
-        self._queuedMessageToolBar.setVisible( False )
+        self._queuedMessageToolBar.setVisible(False)
 
 
     def _createMenuStructure(self):
@@ -235,21 +235,21 @@ class MainWindow(QMainWindow):
         # enable long lines for menu items
         # Menu or action path                          Name                     Icon            Shortcut        Hint                     enabled  checkable
         tr = self.tr  # pylint: disable=C0103
-        menu  ("mFile",                               "File"                  , ""            )
-        action("mFile/aOpenProject",                  "Open Pro&ject..."      , "open.png",     "Shift+Ctrl+O" ,"Open a project"         , True )
+        menu  ("mFile",                               "File"                  , ""           )
+        action("mFile/aOpenProject",                  "Open Pro&ject..."      , "open.png",     "Shift+Ctrl+O" ,"Open a project"         , True)
         separator("mFile")
-        menu  ("mFile/mUndoClose",                    "Undo Close"            , "recents.png" )
+        menu  ("mFile/mUndoClose",                    "Undo Close"            , "recents.png")
         separator("mFile")
-        action("mFile/aNew",                          "&New file..."          , "new.png",      'Ctrl+N',       "New file"               , True )
-        action("mFile/aOpen",                         "&Open..."              , "open.png",     "Ctrl+O" ,      "Open a file"            , True )
-        menu  ("mFile/mSave",                         "&Save"                 , "save.png"    )
+        action("mFile/aNew",                          "&New file..."          , "new.png",      'Ctrl+N',       "New file"               , True)
+        action("mFile/aOpen",                         "&Open..."              , "open.png",     "Ctrl+O" ,      "Open a file"            , True)
+        menu  ("mFile/mSave",                         "&Save"                 , "save.png"   )
         action("mFile/mSave/aCurrent",                "&Save"                 , "save.png" ,    "Ctrl+S" ,      "Save the current file"  , False)
         action("mFile/mSave/aSaveAs",                 "Save As..."            , "save.png" ,    "Ctrl+Alt+S" ,  ""                           , False)
         action("mFile/mSave/aAll",                    "Save &All"             , "saveall.png",  'Shift+Ctrl+S', "Save all files"         , False)
-        menu  ("mFile/mReload",                       "&Reload"               , "reload.png"    )
+        menu  ("mFile/mReload",                       "&Reload"               , "reload.png"   )
         action("mFile/mReload/aCurrent",              "Reload"                , "reload.png"  , 'F5',           "Reload the current file", False)
         action("mFile/mReload/aAll",                  "Reload All"            , "reload.png"  , 'Shift+F5',     "Reload all files"       , True)
-        menu  ("mFile/mClose",                        "&Close"                , "close.png"   )
+        menu  ("mFile/mClose",                        "&Close"                , "close.png"  )
         action("mFile/mClose/aCurrent",               "&Close"                , "close.png",    "Ctrl+W",       "Close the current file" , False)
         action("mFile/mClose/aAll",                   "Close &All"            , "closeall.png", 'Shift+Ctrl+W', "Close all files"        , False)
         menu  ("mFile/mFileSystem",                   "File System"           , "filesystem.png")
@@ -258,7 +258,7 @@ class MainWindow(QMainWindow):
             action("mFile/mFileSystem/aToggleExecutable", "Make executable"   , "",            '',             "Toggle executable mode" , False)
         separator("mFile")
 
-        menu  ("mView",                               "View"                  , ""            )
+        menu  ("mView",                               "View"                  , ""           )
         action("mView/aShowIncorrectIndentation",      "Show incorrect indentation", "",       "",              ""                       , False, True)
         action("mView/aShowAnyWhitespaces",     "Show any whitespace",        "",              "",              ""                       , False, True)
         separator("mView")
@@ -266,15 +266,15 @@ class MainWindow(QMainWindow):
         action("mView/aOpenMainMenu",                 "Open main menu"       , "",             "F10",         ""                          , True)
         separator("mView")
 
-        menu  ("mEdit",                               "Edit"                  , ""            )
+        menu  ("mEdit",                               "Edit"                  , ""           )
         action("mEdit/aStripTrailingWhitespace",      "Strip trailing whitespace when saving", "", "",            ""                   , True, True)
         separator("mEdit")
-        menu  ("mEdit/mCopyPasteLines",               "Copy-paste lines"      , ""            )
-        menu  ("mEdit/mIndentation",                  "Indentation"           , ""            )
+        menu  ("mEdit/mCopyPasteLines",               "Copy-paste lines"      , ""           )
+        menu  ("mEdit/mIndentation",                  "Indentation"           , ""           )
         separator("mEdit")
         action("mEdit/aEnableVimMode",                "Enable Vim mode"       , "",             "",             ""                      , False, True)
 
-        menu  ("mNavigation",                          "Navigation"            , ""           )
+        menu  ("mNavigation",                          "Navigation"            , ""          )
         action("mNavigation/aFocusCurrentDocument",   "Focus to editor"       , "text.png",     "Ctrl+Return",  "Focus current document" , False)
 
         menu  ("mNavigation/mSearchReplace",           "&Search && Replace"    , "search-replace-directory.png")
@@ -288,10 +288,10 @@ class MainWindow(QMainWindow):
         menu  ("mNavigation/mFileBrowser",            "File browser"          , ':/enkiicons/open.png')
         menu  ("mNavigation/mScroll",                 "Scroll file"           , '')
 
-        menu  ("mSettings",                           "Settings"              , ""            )
+        menu  ("mSettings",                           "Settings"              , ""           )
 
-        menu  ("mTools",                              "Tools"                 , ""            )
-        menu  ("mHelp",                               "Help"                  , ""            )
+        menu  ("mTools",                              "Tools"                 , ""           )
+        menu  ("mHelp",                               "Help"                  , ""           )
 
     def _openMainMenu(self):
         fileMenu = core.actionManager().menu('mFile')
@@ -340,7 +340,7 @@ class MainWindow(QMainWindow):
 
         self._queuedMessageToolBar.appendMessage(text, timeoutMs)
 
-    def closeEvent( self, event ):
+    def closeEvent(self, event):
         """NOT A PUBLIC API
         Close event handler.
         Shows save files dialog. Cancels close, if dialog was rejected
@@ -371,7 +371,7 @@ class MainWindow(QMainWindow):
             error = unicode(str(ex), 'utf8')
             QMessageBox.critical(None,
                                 self.tr("Cannot save {}".format(title)),
-                                self.tr( "Cannot create file '%s'\nError: %s" % (path, error)))
+                                self.tr("Cannot create file '%s'\nError: %s" % (path, error)))
             return
 
     def _loadByteArray(self, path, title):
@@ -384,7 +384,7 @@ class MainWindow(QMainWindow):
                 error = unicode(str(ex), 'utf8')
                 QMessageBox.critical(None,
                                     self.tr("Cannot restore {}".format(title)),
-                                    self.tr( "Cannot read file '%s'\nError: %s" % (path, error)))
+                                    self.tr("Cannot read file '%s'\nError: %s" % (path, error)))
 
         return None
 
@@ -423,7 +423,7 @@ class MainWindow(QMainWindow):
     def sizeHint(self):
         return QSize(900, 560)
 
-    def dragEnterEvent( self, event):
+    def dragEnterEvent(self, event):
         """QMainWindow method reimplementation.
         Say, that we are ready to accept dragged urls
         """
