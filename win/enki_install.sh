@@ -4,13 +4,13 @@
 # Enki install script
 # *******************
 # This script installs Enki and its dependencies from source. It is tested on
-# Ubuntu 12.04.
+# Ubuntu 12.04. Some testing is done on Fedora; see comments below.
 #
 # Common commands
 # ===============
 # Echo all commands.
 set -o verbose
-# Set up alias for repeated commands.
+# Set up aliases for repeated commands.
 PAUSE="read -p Press_[Enter]_to_continue... junk"
 INSTALL="sudo apt-get install -y"
 #INSTALL="sudo yum install -y" # Fedora
@@ -43,7 +43,7 @@ cd ..
 # Enki
 # ====
 # Fedora: desktop-file-utils ctags
-$INSTALL  desktop-file-utils exuberant-ctags # On Fedora, use ctags.
+$INSTALL  desktop-file-utils exuberant-ctags
 # Then install Python packages from pip, since apt-get packages are older.
 sudo pip install -U mock markdown sphinx flake8 regex
 git clone https://github.com/hlamer/enki.git
