@@ -16,6 +16,7 @@ Converting Enki to a self-contained executable bundle
 - Obtain the latest sources from ``git clone https://github.com/hlamer/enki``.
 - Install `Enki dependencies <../README.html#dependencies>`_.
 - Download `ctags <http://ctags.sourceforge.net/>`_ and unpack to ``enki/../ctags58``.
+- Install Python modules. ``pip install flake8 sphinx markdown``.
 - Obtain the latest PyInstaller sources using ``git clone
   https://github.com/pyinstaller/pyinstaller.git``. Change to the resulting
   pyinstaller directory then run ``python setup.py install`` to install
