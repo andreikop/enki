@@ -295,7 +295,7 @@ text after table""", True)
         self._textToWeb('table', """
 .. image:: img.png
 
-text after table""", True)
+Here is some text after a table.""", True)
 
     @requiresModule('docutils')
     @base.inMainLoop
