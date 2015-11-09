@@ -137,17 +137,44 @@ def findApproxText(
   # Text in which to find the searchText
   targetText):
 
+    mo = regexFuzzySearch(searchText, targetText)
+    if mo:
+        # See if this match is unique enough by looking for the next best match
+        # by searching in the string before then the string after the match.
+        moPre = regexFuzzySearch(searchText, targetText[:mo.start()])
+        moPost = regexFuzzySearch(searchText, targetText[mo.end():])
+
+        # Compute an error based on the fuzzyness. If there wasn't a match, use
+        # maximum error of moError + 6, so that the test below passes.
+        moError = sum(mo.fuzzy_counts)
+        moPreError = sum(moPre.fuzzy_counts) if moPre else moError*2
+        moPostError = sum(moPost.fuzzy_counts) if moPost else moError*2
+
+        # Make sure the difference between the match and any other match is high
+        # enough to consider this match unique.
+        if moError*1.1 <= moPreError and moError*1.1 <= moPostError:
+            return mo, mo.start(), mo.end()
+
+    # If a match couldn't be found or wasn't good enough, return a failure.
+    return None, 0, 0
+
+# This helper function uses regex_ to perform a fuzzy search.
+def regexFuzzySearch(
+  # Text to search for. It is NOT treated as a regex.
+  searchText,
+  # Text in which to find the searchText
+  targetText):
+
     # Escape any characters in searchText that would be treated as a regexp.
     searchText = regex.escape(searchText)
     # The regex_ library supports fuzzy matching. Quoting from the manual:
     #
-    # - (item){e} means perform a fuzzy match of the given ``item``, allowing insertions, deletions, or substitutions.
-    # - the BESTMATCH flag searches for the best possible match, rather than the match found first.
-    mo = regex.search('(' + searchText + '){e}', targetText, regex.BESTMATCH)
-    if mo:
-        return mo, mo.start(), mo.end()
-    else:
-        return None, 0, 0
+    # - ``(item){e}`` means perform a fuzzy match of the given ``item``,
+    #   allowing insertions, deletions, or substitutions.
+    # - The BESTMATCH flag searches for the best possible match, rather than the
+    #   match found first.
+    return regex.search('(' + searchText + '){e}', targetText, regex.BESTMATCH)
+
 #
 # findApproxTextInTarget
 # ======================
