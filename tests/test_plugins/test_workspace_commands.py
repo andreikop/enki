@@ -140,7 +140,7 @@ class Test(base.TestCase):
         self.assertNotEqual(core.project().path(), self.TEST_FILE_DIR)
 
         def inDialogFunc(dialog):
-            self.keyClicks('p ' + self.TEST_FILE_DIR)
+            self.keyClicks('p ' + self.TEST_FILE_DIR.replace('\\', '\\\\'))
             self.keyClick(Qt.Key_Enter)
 
         self.openDialog(self._openDialog, inDialogFunc)
