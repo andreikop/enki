@@ -20,7 +20,7 @@
 # ***********************************
 # test_approx_match.py - Unit testing
 # ***********************************
-
+#
 # Imports
 # =======
 # Library imports
@@ -28,7 +28,7 @@
 import unittest
 import os.path
 import sys
-
+#
 # Local application imports
 # -------------------------
 # Insert path to base before importing.
@@ -45,11 +45,11 @@ from enki.plugins.preview.approx_match import refineSearchResult as lcs
 class TestFindApproxText(unittest.TestCase):
     # Check that searchText strings aren't treated as regular expressions
     def test_1(self):
-        mo, begin, end = g(searchText='.',
-                           targetText='===.===')
+        mo = g(searchText='.',
+               targetText='===.===')
         self.assertTrue(mo)
-        self.assertEqual(begin, 3)
-        self.assertEqual(end, 4)
+        self.assertEqual(mo.start(), 3)
+        self.assertEqual(mo.end(), 4)
 #
 # Tests for findApproxTextInTarget
 # ================================
@@ -232,8 +232,7 @@ class TestApproxMatch(unittest.TestCase):
                   targetText = 'abcd')
                   # The expected targetText index is between ``ab`` and ``cd``.
         self.assertEqual(index, 2)
-
-
+#
 # Tests for refineSearchResult
 # ============================
 class TestRefineSearchResult(unittest.TestCase):
@@ -325,9 +324,9 @@ Text after block 1,2, and 3""")[0]
                     # The expected targetText index is at the beginning of the
                     # line ``Text after block 1,2, and 3``.
         self.assertEqual(index, 28)
-
-# Cases from comments in refineSearchResult
-# -----------------------------------------
+    #
+    # Cases from comments in refineSearchResult
+    # -----------------------------------------
     # Case 1.
     def test_14(self):
         index = lcs(searchAnchor = 1,

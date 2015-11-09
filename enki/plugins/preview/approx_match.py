@@ -153,10 +153,10 @@ def findApproxText(
         # Make sure the difference between the match and any other match is high
         # enough to consider this match unique.
         if moError*1.1 <= moPreError and moError*1.1 <= moPostError:
-            return mo, mo.start(), mo.end()
+            return mo
 
     # If a match couldn't be found or wasn't good enough, return a failure.
-    return None, 0, 0
+    return None
 
 # This helper function uses regex_ to perform a fuzzy search.
 def regexFuzzySearch(
@@ -206,14 +206,15 @@ def findApproxTextInTarget(
     # Empty documents are easy to search.
     if end <= begin:
         return 0
-    # Look for a match; record left and right search radii.
-    match, beginInTarget, endInTarget = findApproxText(searchText[begin:end], targetText)
+    # Look for a match.
+    # record left and right search radii.
+    mo = findApproxText(searchText[begin:end], targetText)
     # If no unique match is found, try again with an increased search radius.
-    if not match:
+    if not mo:
         begin = max(0, searchAnchor - int(searchRange*1.5))
         end = min(len(searchText), searchAnchor + int(searchRange*1.5))
-        match, beginInTarget, endInTarget = findApproxText(searchText[begin:end], targetText)
-        if not match:
+        mo = findApproxText(searchText[begin:end], targetText)
+        if not mo:
             if ENABLE_LOG:
                 si = htmlFormatSearchInput(searchText, begin, searchAnchor, end)
                 sr = htmlFormatSearchInput(targetText, 0, 0, 0)
@@ -224,29 +225,27 @@ def findApproxTextInTarget(
     if ENABLE_LOG:
         # Log the initial match results
         si = htmlFormatSearchInput(searchText, begin, searchAnchor, end)
-        sr = htmlFormatSearchInput(targetText, beginInTarget, beginInTarget,
-          endInTarget, False)
-        fs = htmlFormatSearch(si, sr, "Initial TRE results")
+        sr = htmlFormatSearchInput(targetText, mo.start(), mo.start(),
+          mo.end(), False)
+        fs = htmlFormatSearch(si, sr, "Initial fuzzy search results")
 
-    # Get a search and target substring from the TRE_ match.
+    # Get a search and target substring from the match.
     searchPattern = searchText[begin:end]
-    targetSubstring = targetText[beginInTarget:endInTarget]
+    targetSubstring = targetText[mo.start():mo.end()]
     # Use the LCS_ algorithm to perform a more exact match. This algorithm
-    # runs in O(NM) time, compared to TRE_'s O(N) for most cases (it *can* be
-    # O(M^2N) for rare cases -- see TRE_'s README file), where
-    # N = len(searchText) and M = len(largetText). Therefore, let TRE_ do an
-    # initial, faster search then do a more exact refine using LCS_.
+    # runs in O(NM) time, compared to regex's compiled (and hopefully faster)
+    # performance.
     relativeSearchAnchor = searchAnchor - begin
     offset, lcsString = refineSearchResult(searchPattern, relativeSearchAnchor,
       targetSubstring, ENABLE_LOG)
     if offset != -1:
-        offset = offset + beginInTarget
+        offset = offset + mo.start()
 
     if ENABLE_LOG:
         si = htmlFormatSearchInput(searchText, begin, searchAnchor, end)
         if offset is not -1:
-            sr = htmlFormatSearchInput(targetText, beginInTarget, offset,
-              endInTarget)
+            sr = htmlFormatSearchInput(targetText, mo.start(), offset,
+              mo.end())
             fs += htmlFormatSearch(si, sr, "Match was '%s'" % lcsString)
         else:
             sr = htmlFormatSearchInput(targetText, 0, 0, 0)
@@ -306,7 +305,7 @@ def refineSearchResult(
 
     # If LCS fails to find a common subsequence, then set the offset to -1 and
     # inform ``findApproxTextInTarget`` that no match is found. This rarely
-    # happens since TRE has preprocessed input string.
+    # happens since regex has preprocessed input string.
     if lengths[-1][-1] == 0:
         return -1, ''
 
