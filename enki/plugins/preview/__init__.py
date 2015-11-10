@@ -14,6 +14,7 @@
 # ---------------
 import sys
 import os.path
+import fnmatch
 #
 # Third-party imports
 # -------------------
@@ -31,7 +32,7 @@ from enki.lib.get_console_output import get_console_output
 # Import CodeChat if possible; otherwise, indicate it wasn't available.
 try:
     from CodeChat import CodeToRest
-    from CodeChat.CommentDelimiterInfo import SUPPORTED_EXTENSIONS
+    from CodeChat.CommentDelimiterInfo import SUPPORTED_GLOBS
 except ImportError:
     CodeToRest = None
 
@@ -52,10 +53,13 @@ def canUseCodeChat(filePath):
     otherwise.
     """
     # CodeChat can preview a file if it's enabled and if that file's
-    # extension is supported.
+    # name/extension is supported.
     if ( CodeToRest is not None and core.config()['CodeChat']['Enabled']
-         and filePath and os.path.splitext(filePath)[1] in SUPPORTED_EXTENSIONS ):
-        return True
+         and filePath ):
+        filePath = os.path.normcase(filePath)
+        for glob in SUPPORTED_GLOBS:
+            if fnmatch.fnmatch(filePath, glob):
+                return True
     return False
 
 def sphinxEnabledForFile(filePath):
