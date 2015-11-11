@@ -56,7 +56,7 @@ def canUseCodeChat(filePath):
     # name/extension is supported.
     if ( CodeToRest is not None and core.config()['CodeChat']['Enabled']
          and filePath ):
-        filename = os.path.basename(os.path.normcase(filePath))
+        filename = os.path.basename(filePath)
         for glob in SUPPORTED_GLOBS:
             if fnmatch.fnmatch(filename, glob):
                 return True
