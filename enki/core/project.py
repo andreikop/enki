@@ -88,6 +88,7 @@ class Project(QObject):
         self._scanStatus = None
         self._core = core
         self.open(os.path.abspath('.'))
+        core.fileFilter().regExpChanged.connect(self._onFileFilterChanged)
 
     def del_(self):
         self._stopScannerThread()
@@ -192,3 +193,10 @@ class Project(QObject):
         self._backgroundScan = False
         self._stopScannerThread()
         self.filesReady.emit()
+
+    def _onFileFilterChanged(self):
+        if self.isScanning():
+            self._stopScannerThread()
+            self._startScannerThread()
+        else:
+            self._projectFiles = None
