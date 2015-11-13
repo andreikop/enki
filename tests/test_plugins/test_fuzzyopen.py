@@ -26,7 +26,7 @@ class Test(base.TestCase):
     def _execCommand(self, text):
         def inDialogFunc(dialog):
             self.keyClicks(text)
-            print dialog._edit.text()
+            self._waitCompletion(dialog)
             self.keyClick(Qt.Key_Enter)
 
         self.openDialog(self._openDialog, inDialogFunc)
@@ -42,9 +42,19 @@ class Test(base.TestCase):
         else:
             self.fail("Project not scanned")
 
-    def _enter(self, text):
+    def _waitCompletion(self, dialog):
+        model = dialog._table.model()
+        for _ in range(20):
+            if model.rowCount() > 1:
+                break
+            QTest.qWait(1000 / 20)
+        else:
+            self.fail("No completion")
+
+    def _enter(self, dialog, text):
         self.keyClicks(text)
         self._waitFiles()
+        self._waitCompletion(dialog)
         self.keyClick(Qt.Key_Enter)
 
     def setUp(self):
@@ -54,13 +64,7 @@ class Test(base.TestCase):
     @base.inMainLoop
     def test_01(self):
         """ Open core.py (first choice) """
-
-        def inDialogFunc(dialog):
-            self.keyClicks('cowo')
-            self._waitFiles()
-            self.keyClick(Qt.Key_Enter)
-
-        self.openDialog(self._openDialog, lambda d: self._enter('cowo'))
+        self.openDialog(self._openDialog, lambda d: self._enter(d, 'cowo'))
 
         path = os.path.join(PROJ_ROOT, 'core', 'workspace.py')
         self.assertEqual(core.workspace().currentDocument().filePath(), path)
@@ -73,6 +77,7 @@ class Test(base.TestCase):
         def inDialogFunc(dialog):
             self.keyClicks('cowo')
             self._waitFiles()
+            self._waitCompletion(dialog)
             self.keyClick(Qt.Key_Down)
             self.keyClick(Qt.Key_Enter)
 
@@ -86,7 +91,7 @@ class Test(base.TestCase):
         """ Upper case files are opened """
         core.project().open(PROJ_ROOT)  # not scanned yet
 
-        self.openDialog(self._openDialog, lambda d: self._enter('uisetui'))
+        self.openDialog(self._openDialog, lambda d: self._enter(d, 'uisetui'))
 
         path = os.path.join(PROJ_ROOT, 'ui', 'UISettings.ui')
         self.assertEqual(core.workspace().currentDocument().filePath(), path)
@@ -94,14 +99,14 @@ class Test(base.TestCase):
     @base.inMainLoop
     def test_04a(self):
         """ Case matters """
-        self.openDialog(self._openDialog, lambda d: self._enter('atu'))
+        self.openDialog(self._openDialog, lambda d: self._enter(d, 'atu'))
         path = os.path.join(PROJ_ROOT, 'plugins', 'qpartsettings', 'Indentation.ui')
         self.assertEqual(core.workspace().currentDocument().filePath(), path)
 
     @base.inMainLoop
     def test_04b(self):
         """ Case matters """
-        self.openDialog(self._openDialog, lambda d: self._enter('Atu'))
+        self.openDialog(self._openDialog, lambda d: self._enter(d, 'Atu'))
         path = os.path.join(PROJ_ROOT, 'plugins', 'helpmenu', 'UIAbout.ui')
         self.assertEqual(core.workspace().currentDocument().filePath(), path)
 

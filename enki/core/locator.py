@@ -262,7 +262,7 @@ class _CompleterModel(QAbstractItemModel):
         """
         return QModelIndex()
 
-    def rowCount(self, index):
+    def rowCount(self, index=QModelIndex()):
         """QAbstractItemModel method implementation
         """
         if index.isValid():
