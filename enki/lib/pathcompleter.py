@@ -229,7 +229,7 @@ class PathCompleter(AbstractPathCompleter):
     def _headerText(self):
         """Get text, which shall be displayed on the header
         """
-        return self._path
+        return self._path.replace(os.sep, '/')
 
     def _formatPath(self, path, isDir):
         """Format file or directory for show it in the list of completions
