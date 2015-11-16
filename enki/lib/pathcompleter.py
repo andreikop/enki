@@ -146,6 +146,10 @@ class AbstractPathCompleter(AbstractCompleter):
         elif rowType == self._FILE:
             return self._iconForPath(self._files[index])
 
+    def isSelectable(self, row, column):
+        rowType, index = self._classifyRowIndex(row)
+        return rowType in (self._DIRECTORY, self._FILE)
+
     def getFullText(self, row):
         """User clicked a row. Get inline completion for this row
         """

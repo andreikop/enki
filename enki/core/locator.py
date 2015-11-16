@@ -168,6 +168,11 @@ class AbstractCompleter:
         """
         return None
 
+    def isSelectable(self, row, column):
+        """Check if item is selectable with arrow keys
+        """
+        return True
+
     def inline(self):
         """Inline completion.
 
@@ -289,6 +294,13 @@ class _CompleterModel(QAbstractItemModel):
         elif role == Qt.DecorationRole:
             return self.completer.icon(index.row(), index.column())
         return None
+
+    def flags(self, index):
+        flags = QAbstractItemModel.flags(self, index)
+        if not self.completer.isSelectable(index.row(), index.column()):
+            flags = flags & ~Qt.ItemIsEnabled
+
+        return flags
 
     def setCompleter(self, completer):
         """Set completer, which will be used as data source
