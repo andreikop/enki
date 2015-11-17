@@ -159,12 +159,7 @@ class ConverterThread(QThread):
                    'Install it with your package manager or see ' \
                    '<a href="http://packages.python.org/Markdown/install.html">installation instructions</a>'
 
-        try:
-            import mdx_mathjax
-        except ImportError:
-            pass  #mathjax doesn't require import statement if installed as extension
-
-        extensions = ['fenced_code', 'nl2br', 'tables']
+        extensions = ['fenced_code', 'nl2br', 'tables', 'enki.plugins.preview.mdx_math']
 
         # version 2.0 supports only extension names, not instances
         if markdown.version_info[0] > 2 or \
@@ -183,11 +178,7 @@ class ConverterThread(QThread):
 
             extensions.append(_StrikeThroughExtension())
 
-        try:
-            return markdown.markdown(text, extensions + ['mathjax'])
-        except (ImportError, ValueError):  # markdown raises ValueError or ImportError, depends on version
-                                           # it is not clear, how to distinguish missing mathjax from other errors
-            return markdown.markdown(text, extensions) #keep going without mathjax
+        return markdown.markdown(text, extensions)
 
     def _convertReST(self, text):
         """Convert ReST
