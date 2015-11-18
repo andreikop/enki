@@ -7,7 +7,7 @@ Math extension for Python-Markdown
 Adds support for displaying math formulas using [MathJax](http://www.mathjax.org/).
 
 Author: 2015, Dmitry Shachnev <mitya57@gmail.com>.
-Source: https://github.com/mitya57/python-markdown-math, commit db12837790a0e260c87da4edd9dc276361501897.
+Source: https://github.com/mitya57/python-markdown-math, commit db12837790a0e260c87da4edd9dc276361501897 plus some fixes.
 '''
 
 import markdown
@@ -35,7 +35,6 @@ class MathExtension(markdown.extensions.Extension):
                 node.text = markdown.util.AtomicString(m.group(3))
             return node
 
-        configs = self.getConfigs()
         inlinemathpatterns = (
             markdown.inlinepatterns.Pattern(r'(?<!\\|\$)(\$)([^\$]+)(\$)'),  #  $...$
             markdown.inlinepatterns.Pattern(r'(?<!\\)(\\\()(.+?)(\\\))')     # \(...\)
@@ -45,7 +44,7 @@ class MathExtension(markdown.extensions.Extension):
             markdown.inlinepatterns.Pattern(r'(?<!\\)(\\\[)(.+?)(\\\])'),    # \[...\]
             markdown.inlinepatterns.Pattern(r'(?<!\\)(\\begin{([a-z]+?\*?)})(.+?)(\\end{\3})')
         )
-        if not configs['enable_dollar_delimiter']:
+        if not self.getConfig('enable_dollar_delimiter'):
             inlinemathpatterns = inlinemathpatterns[1:]
         for i, pattern in enumerate(inlinemathpatterns):
             pattern.handleMatch = handle_match_inline
