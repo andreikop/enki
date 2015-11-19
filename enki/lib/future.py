@@ -387,11 +387,11 @@ class Future(object):
         self._requestCancel = False
         self._result = None
         self._exc_info = None
+        self._exc_raised = False
 
-        if self._g:
-            # Set up to invoke ``g`` in the current thread, if ``g`` was
-            # provided.
-            self.signalInvoker.doneSignal.connect(self.signalInvoker.onDoneSignal)
+        # Set up to invoke ``g`` in the current thread, if ``g`` was
+        # provided.
+        self.signalInvoker.doneSignal.connect(self.signalInvoker.onDoneSignal)
 
     # Invoke ``f`` and emit its returned value.
     def _invoke(self):
@@ -425,6 +425,8 @@ class Future(object):
     @property
     def result(self):
         if self._exc_info:
+            # Note that the exception was raised.
+            self._exc_raised = True
             # Raise an exception which provides a trackback all the way into the
             # line in ``f`` that caused the exception. Just re-raising the
             # exception doesn't preserve the full traceback. Likewise, ``raise
@@ -470,7 +472,13 @@ class SignalInvoker(QObject):
     # A method to invoke ``future.g``.
     @pyqtSlot(Future)
     def onDoneSignal(self, future):
-        future._g(future)
+        # Invoke ``g`` if it was provided.
+        if future._g:
+            future._g(future)
+        # If an exception occurred while executing ``f`` and that exception
+        # wasn't raised, do so now.
+        if future._exc_info and not future._exc_raised:
+            future.result
 #
 # Thread / thread pool worker classes
 # -----------------------------------

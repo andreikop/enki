@@ -206,6 +206,18 @@ class TestAsyncController(unittest.TestCase):
                   printExcTraceback=False):
                     ac.start(em.g, f)
 
+                # Make sure that the exception is still raised even if g doesn't
+                # check for it.
+                with self.assertRaises(TypeError), WaitForSignal(em.bing, 1000,
+                  printExcTraceback=False):
+                    ac.start(lambda result: None, f)
+
+                # Make sure that the exception is still raised even there is no
+                # g to check for it.
+                with self.assertRaises(TypeError), WaitForSignal(em.bing, 1000,
+                  printExcTraceback=False):
+                    ac.start(None, f)
+
     # Verify that if ``f`` is launched in a thread, ``g`` will be run in that
     # same thread.
     def test_10(self):
@@ -260,33 +272,8 @@ class TestAsyncController(unittest.TestCase):
                 QTest.qWait(100)
                 self.assertEquals(future2.state, Future.STATE_CANCELED)
 
-    # Verify that job status and cancelation works: cancel an in-progress job,
-    # verifying that it does not emit a signal or invoke a callback when it
-    # completes.
-    def xtest_13(self):
-        for _ in self.singleThreadOnly:
-            with AsyncController(_) as ac:
-                q1a = Queue()
-                q1b = Queue()
-                def f1():
-                    q1b.put(None)
-                    q1a.get()
-                # Cancel future3 while it's running in the other thread.
-                em1 = Emitter('em1 should never be called by {}'.format(_),
-                              self.assertEquals)
-                em1.bing.connect(self.fail)
-                future1 = ac.start(em1.g, f1)
-                q1b.get()
-                self.assertEquals(future1.state, Future.STATE_RUNNING)
-                future1.cancel(True)
-                q1a.put(None)
-                # If the result is discarded, it should never emit a signal or
-                # invoke its callback, even if the task is already running. Wait
-                # to make sure neither happened.
-                QTest.qWait(100)
-
     # Test per-task priority.
-    def test_14(self):
+    def test_13(self):
         for _ in self.poolAndThread:
             with AsyncController(_) as ac:
                 def f(assertEquals, priority):
