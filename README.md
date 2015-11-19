@@ -5,28 +5,34 @@
 
 ## Installation
 
-For most Linux (CentOS, Debian, Fedora, openSUSE, RHEL, and Ubuntu) and Windows users: use the pre-built binaries from the [official site](http://enki-editor.org/). Otherwise, follow the instructions below.
+For most Linux and Windows users: use the pre-built binaries from the [official site](http://enki-editor.org/). Otherwise, follow the instructions below.
 
-For Linux developers, the [install script](https://github.com/hlamer/enki/blob/master/win/enki_install.sh) provides a quick install. For all others, follow the instructions below.
+For Linux developers, the [install script](https://github.com/hlamer/enki/blob/master/win/enki_install.sh) provides a quick install. For all developers, follow the instructions below.
 
 ### 1. Install dependencies
-Mandatory:
+
+#### Mandatory:
 
 * [Python 3](http://python.org/download)
 * [PyQt5](http://www.riverbankcomputing.co.uk/software/pyqt/download). With SVG support.
 * [Qutepart](https://github.com/hlamer/qutepart)
 
-Optional:
+#### Optional:
+
+The following dependencies can all be installed via `pip install -U markdown regex CodeChat sphinx flake8 mock`.
 
 * [Python-Markdown](http://packages.python.org/Markdown/install.html) for Markdown preview.
 * [python-docutils](http://docutils.sourceforge.net/) for reStructuredText preview.
-* [ctags](http://ctags.sourceforge.net/) for navigation in files.
 * [regex](https://pypi.python.org/pypi/regex) for preview synchronization.
 * [CodeChat](https://bitbucket.org/bjones/documentation/overview) for source code to HTML translation (literate programming).
 * [Sphinx](http://sphinx-doc.org/) for documentation generation.
 * [Flake8](https://pypi.python.org/pypi/flake8) for Python source code checking.
-* [Markdown mathjax](https://github.com/mayoff/python-markdown-mathjax) for Python-Markdown math support.
 * [Mock](https://pypi.python.org/pypi/mock) (developers only) for unit test support.
+
+These dependencies are not available from `pip`.
+
+* [ctags](http://ctags.sourceforge.net/) for navigation in files.
+* [scheme](https://www.gnu.org/software/mit-scheme/) and [Standard ML](http://www.smlnj.org/software.html) (developers using these languages only) for use in the [REPL](http://enki-editor.org/scheme.html) mode.
 
 ### 2. Get the sources
 
