@@ -416,7 +416,7 @@ class Future(object):
 
         # State maintained by Future.
         self._state = self.STATE_WAITING
-        self.signalInvoker = SignalInvoker()
+        self._signalInvoker = _SignalInvoker()
         self._requestCancel = False
         self._result = None
         self._exc_info = None
@@ -425,7 +425,7 @@ class Future(object):
 
         # Set up to invoke ``g`` in the current thread, if ``g`` was
         # provided.
-        self.signalInvoker.doneSignal.connect(self.signalInvoker.onDoneSignal)
+        self._signalInvoker.doneSignal.connect(self._signalInvoker.onDoneSignal)
 
     # Invoke ``f`` and emit its returned value.
     def _invoke(self):
@@ -446,7 +446,7 @@ class Future(object):
 
             # Report the results.
             self._state = self.STATE_FINISHED
-            self.signalInvoker.doneSignal.emit(self)
+            self._signalInvoker.doneSignal.emit(self)
 
     # This method may be called from any thread; it requests that the execution
     # of ``f`` be canceled. If ``f`` is already running, then it will not be
@@ -505,7 +505,7 @@ class Future(object):
 # #. If the signal is declared in ``Future``, then the it must accept an
 #    ``object`` instead of a ``Future``, sine ``Future`` isn't defined yet.
 #    Awkward, but not a show-stopper.
-class SignalInvoker(QObject):
+class _SignalInvoker(QObject):
     # Emitted to invoke ``g``.
     doneSignal = pyqtSignal(Future)
 

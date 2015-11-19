@@ -86,7 +86,7 @@ class TestAsyncController(unittest.TestCase):
                 def f():
                     gotHere[0] = True
                 future = ac._wrap(None, f)
-                with WaitForSignal(future.signalInvoker.doneSignal, 1000):
+                with WaitForSignal(future._signalInvoker.doneSignal, 1000):
                     ac._start(future)
                 self.assertTrue(gotHere[0])
 
@@ -241,7 +241,7 @@ class TestAsyncController(unittest.TestCase):
                 # The doneSignal won't be processed without an event loop. A
                 # thread pool doesn't create one, so make our own to run ``g``.
                 qe = QEventLoop()
-                future.signalInvoker.doneSignal.connect(qe.exit)
+                future._signalInvoker.doneSignal.connect(qe.exit)
                 qe.exec_()
             with WaitForSignal(em2.bing, 1000):
                 ac.start(None, f2)
