@@ -347,6 +347,29 @@ def AsyncController(
         return AsyncThreadController(parent)
     else:
         return AsyncPoolController(qThreadOrThreadPool, parent)
+
+# RunLatest
+# ---------
+# This class runs the latest (most recent) job submitted, discarding any jobs
+# that have been submitted but not run.
+class RunLatest(object):
+    def __init__(self,
+      # See AsyncController_'s ``qThreadOrThreadPool`` argument.
+      qThreadOrThreadPool,
+      parent=None):
+
+        self.ac = AsyncController(qThreadOrThreadPool, parent)
+        # Create a valid ``_future`` object, so that the first calls to
+        # ``start`` can still operate on a valid instance of ``_future``.
+        self._future = self.ac.start(None, lambda: None)
+
+    def start(self, *args, **kwargs):
+        self._future.cancel()
+        self._future = self.ac.start(*args, **kwargs)
+        return self._future
+
+    def terminate(self):
+        self.ac.terminate()
 #
 # Future
 # ======

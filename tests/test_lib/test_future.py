@@ -25,7 +25,7 @@ from PyQt4.QtTest import QTest
 #
 # Local imports
 # -------------
-from enki.lib.future import AsyncController, Future
+from enki.lib.future import AsyncController, Future, RunLatest
 #
 # Test helpers
 # ============
@@ -288,6 +288,35 @@ class TestAsyncController(unittest.TestCase):
                 with WaitForSignal(em.bing, 1000):
                     ac.start(em.g, f, self.assertEquals, QThread.HighestPriority,
                              _futurePriority=QThread.HighestPriority)
+
+    # Test the RunLatest class.
+    def test_14(self):
+        for _ in self.poolAndThread:
+            rl = RunLatest(_)
+
+            # Start a job, keeping it running.
+            q1a = Queue()
+            q1b = Queue()
+            def f1():
+                q1b.put(None)
+                q1a.get()
+            em1 = Emitter()
+            future1 = rl.start(em1.g, f1)
+            q1b.get()
+            self.assertEquals(future1.state, Future.STATE_RUNNING)
+
+            # Start two more. The first should not run; if it does, it raises
+            # an exception.
+            def f2():
+                raise TypeError
+            rl.start(None, f2)
+            em3 = Emitter()
+            rl.start(em3.g, lambda: None)
+
+            with WaitForSignal(em3.bing, 1000):
+                q1a.put(None)
+
+            rl.terminate()
 
 if __name__ == '__main__':
     unittest.main()
