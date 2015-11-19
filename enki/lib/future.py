@@ -94,7 +94,7 @@ class AsyncAbstractController(QObject):
       # |parent|
       parent=None):
 
-        QObject.__init__(self, parent)
+        super(AsyncAbstractController, self).__init__(parent)
         self.isAlive = True
 
         # I would prefer to use QThread.currentThread().priority(), but this
@@ -250,7 +250,7 @@ class AsyncThreadController(AsyncAbstractController):
       # |parent|
       parent=None):
 
-        AsyncAbstractController.__init__(self, parent)
+        super(AsyncThreadController, self).__init__(parent)
         # Create a worker and a thread it runs in. This approach was
         # inspired by  example given in the `QThread docs
         # <http://qt-project.org/doc/qt-4.8/qthread.html>`_.
@@ -293,7 +293,7 @@ class AsyncPoolController(AsyncAbstractController):
       # |parent|
       parent=None):
 
-        AsyncAbstractController.__init__(self, parent)
+        super(AsyncPoolController, self).__init__(parent)
         if maxThreadCount < 1:
             self.threadPool = QThreadPool.globalInstance()
         else:
@@ -513,7 +513,7 @@ class _AsyncPoolWorker(QRunnable):
       # The Future instance which contains the callable to invoke.
       future):
 
-        QRunnable.__init__(self)
+        super(_AsyncPoolWorker, self).__init__()
         self._future = future
 
     # This is invoked by a thread from the thread pool.
