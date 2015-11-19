@@ -60,7 +60,7 @@ import sys, time
 # -------------------
 from PyQt4.QtGui import QApplication
 from PyQt4.QtCore import QThread, pyqtSignal, QObject, QTimer, QRunnable, \
-  QThreadPool
+  QThreadPool, pyqtSlot
 #
 # Local imports
 # -------------
@@ -207,13 +207,14 @@ class AsyncAbstractController(QObject):
     # This is run shortly before this class's C++ destructor is invoked. It
     # emulates a C++ destructor by freeing resources before the C++ class is
     # destroyed.
+    @pyqtSlot()
     def onParentDestroyed(self):
         self.terminate()
 #
 # Python destructor
 # ^^^^^^^^^^^^^^^^^
     # In case the above method wasn't called, try to exit gracefully here.
-    def __terminate__(self):
+    def __del__(self):
         self.terminate()
 #
 # Manual
@@ -415,17 +416,8 @@ class Future(object):
 
     # This method may be called from any thread; it requests that the execution
     # of ``f`` be canceled. If ``f`` is already running, then it will not be
-    # interrupted. However, if ``discardResult`` is True, then the results
-    # returned from evaluating ``f`` will be discarded and the signal that is
-    # usually emitted when ``f`` finishes will not be.
-    def cancel(self, discardResult=False):
-        if discardResult:
-            # If cancel(True) was called before, this raises an exception.
-            # Ignore it.
-            try:
-                self.signalInvoker.doneSignal.disconnect(self.signalInvoker.onDoneSignal)
-            except TypeError:
-                pass
+    # interrupted, nor will it be canceled.
+    def cancel(self):
         self._requestCancel = True
 
     # Return the result produced by invoking ``f``, or raise any exception which
@@ -476,6 +468,7 @@ class SignalInvoker(QObject):
     doneSignal = pyqtSignal(Future)
 
     # A method to invoke ``future.g``.
+    @pyqtSlot(Future)
     def onDoneSignal(self, future):
         future._g(future)
 #
@@ -502,6 +495,7 @@ class _AsyncWorker(QObject):
 
     # The start signal is connected to this slot. It runs ``f`` in the worker
     # thread.
+    @pyqtSlot(Future)
     def onStart(self,
       # The Future instance which contains the callable to invoke.
       future):
@@ -532,6 +526,7 @@ class TimePrinter(object):
         self.qt.start(self.interval_sec*1000)
 
     # Print the time.
+    @pyqtSlot()
     def printTime(self):
         sys.stdout.write('{} seconds: task states are '.format(self.time_sec))
         for task in self.tasks:
