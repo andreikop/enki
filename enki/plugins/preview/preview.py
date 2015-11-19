@@ -762,18 +762,24 @@ class PreviewDock(DockWidget):
                 # Markdown produces no errors or warnings to display in the
                 # progress bar. See https://github.com/bjones1/enki/issues/36.
                 self._widget.prgStatus.setVisible(False)
+                # Hide the error log, since Markdown never generates errors or
+                # warnings.
+                self._widget.teLog.setVisible(False)
             elif isHtmlFile(document):
                 # No processing needed -- just display it.
                 self._setHtml(document.filePath(), text)
                 # Hide the progress bar, since no processing is necessary.
                 self._widget.prgStatus.setVisible(False)
+                # Hide the error log, since we do not HTML checking.
+                self._widget.teLog.setVisible(False)
                 return
             elif ( (language == 'Restructured Text') or sphinxCanProcess or
                   canUseCodeChat(document.filePath()) ):
-                # Show the progress bar for reST, CodeChat, or Sphinx builds. It
-                # will display progress (Sphinx only) and errors/warnings (for
-                # all three).
+                # Show the progress bar and error log for reST, CodeChat, or
+                # Sphinx builds. It will display progress (Sphinx only) and
+                # errors/warnings (for all three).
                 self._widget.prgStatus.setVisible(True)
+                self._widget.teLog.setVisible(True)
                 self._setHtmlProgress('Building...')
 
             # Determine whether to initiate a build or not. The underlying
