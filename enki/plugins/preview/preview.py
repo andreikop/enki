@@ -397,6 +397,9 @@ class ConverterThread(QThread):
 
             self.htmlReady.emit(task.filePath, html, errString, url)
 
+        # Free resources.
+        self._ac.terminate()
+
 
 class PreviewDock(DockWidget):
     """GUI and implementation
