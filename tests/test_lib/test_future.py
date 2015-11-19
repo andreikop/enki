@@ -6,7 +6,6 @@
 # *****************************************
 # Imports
 # =======
-import time
 import sys
 import os.path
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)),
@@ -171,9 +170,9 @@ class TestAsyncController(unittest.TestCase):
                 em1 = Emitter(15, self.assertEquals)
                 em2 = Emitter(16, self.assertEquals)
                 em3 = Emitter(17, self.assertEquals)
-                future1 = ac.start(em1.g, lambda: q1.get())
-                future2 = ac.start(em2.g, lambda: q2.get())
-                future3 = ac.start(em3.g, lambda: q3.get())
+                ac.start(em1.g, lambda: q1.get())
+                ac.start(em2.g, lambda: q2.get())
+                ac.start(em3.g, lambda: q3.get())
                 sc = SignalCombiner()
                 em1.bing.connect(sc.onBing)
                 em2.bing.connect(sc.onBing)
