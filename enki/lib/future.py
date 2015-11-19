@@ -339,7 +339,11 @@ def AsyncController(
   #   is used.
   # * 'Sync' to execute tasks in the current thread, rather than a separate
   #   thread. Primarily provided to test and debug purposes.
-  qThreadOrThreadPool, parent=None):
+  qThreadOrThreadPool,
+  # .. _AsyncController_parent:
+  #
+  # Parent object if using a QThread. Otherwise, this parameter is ignored.
+  parent=None):
 
     if qThreadOrThreadPool == 'Sync':
         return SyncController(parent)
@@ -356,17 +360,23 @@ class RunLatest(object):
     def __init__(self,
       # See AsyncController_'s ``qThreadOrThreadPool`` argument.
       qThreadOrThreadPool,
+      # If ``True``, discard the results of a currently-executing job when a new
+      # job is submitted. If ``False``, report the results of the
+      # currently-executing job when a new job is submitted.
+      discardPending=False,
+      # See AsyncController_parent_.
       parent=None):
 
         self.ac = AsyncController(qThreadOrThreadPool, parent)
         # Create a valid ``_future`` object, so that the first calls to
         # ``start`` can still operate on a valid instance of ``_future``.
-        self._future = self.ac.start(None, lambda: None)
+        self.future = self.ac.start(None, lambda: None)
+        self.discardPending = discardPending
 
     def start(self, *args, **kwargs):
-        self._future.cancel()
-        self._future = self.ac.start(*args, **kwargs)
-        return self._future
+        self.future.cancel(self.discardPending)
+        self.future = self.ac.start(*args, **kwargs)
+        return self.future
 
     def terminate(self):
         self.ac.terminate()
@@ -411,6 +421,7 @@ class Future(object):
         self._result = None
         self._exc_info = None
         self._exc_raised = False
+        self._discardResult = False
 
         # Set up to invoke ``g`` in the current thread, if ``g`` was
         # provided.
@@ -439,9 +450,15 @@ class Future(object):
 
     # This method may be called from any thread; it requests that the execution
     # of ``f`` be canceled. If ``f`` is already running, then it will not be
-    # interrupted, nor will it be canceled.
-    def cancel(self):
+    # interrupted. However, if ``discardResult`` is True, then the results
+    # returned from evaluating ``f`` will be discarded, instead of invoking
+    # ``g`` [#]_. Any exceptions which occurred in ``f`` will still be raised.
+    #
+    # .. [#]  Note that this is only guaranteed to work when ``cancel`` is
+    #         invoked from the thread which started the job.
+    def cancel(self, discardResult=False):
         self._requestCancel = True
+        self._discardResult = discardResult
 
     # Return the result produced by invoking ``f``, or raise any exception which
     # occurred in ``f``.
@@ -495,8 +512,8 @@ class SignalInvoker(QObject):
     # A method to invoke ``future.g``.
     @pyqtSlot(Future)
     def onDoneSignal(self, future):
-        # Invoke ``g`` if it was provided.
-        if future._g:
+        # Invoke ``g`` if it was provided and should be invoked.
+        if future._g and not future._discardResult:
             future._g(future)
         # If an exception occurred while executing ``f`` and that exception
         # wasn't raised, do so now.

@@ -6,6 +6,7 @@
 # *****************************************
 # Imports
 # =======
+import time
 import sys
 import os.path
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)),
@@ -271,8 +272,47 @@ class TestAsyncController(unittest.TestCase):
                 QTest.qWait(100)
                 self.assertEquals(future2.state, Future.STATE_CANCELED)
 
-    # Test per-task priority.
+    # Verify that job status and cancelation works: cancel an in-progress job,
+    # verifying that it does not emit a signal or invoke a callback when it
+    # completes.
     def test_13(self):
+        for _ in self.singleThreadOnly:
+            with AsyncController(_) as ac:
+                q1a = Queue()
+                q1b = Queue()
+                def f1():
+                    q1b.put(None)
+                    q1a.get()
+                # Cancel future3 while it's running in the other thread.
+                em1 = Emitter('em1 should never be called by {}'.format(_),
+                              self.assertEquals)
+                em1.bing.connect(self.fail)
+                future1 = ac.start(em1.g, f1)
+                q1b.get()
+                self.assertEquals(future1.state, Future.STATE_RUNNING)
+                future1.cancel(True)
+                q1a.put(None)
+                # If the result is discarded, it should never emit a signal or
+                # invoke its callback, even if the task is already running. Wait
+                # to make sure neither happened.
+                QTest.qWait(100)
+
+                # In addition, the signal from a finished task that is discarded
+                # should not invoke the callback, even after the task has
+                # finihsed and the sigal emitted.
+                em2 = Emitter('em2 should never be called be {}'.format(_),
+                              self.assertEquals)
+                em2.bing.connect(self.fail)
+                future2 = ac.start(em2.g, lambda: None)
+                # Don't use qWait here, since it will process messages, which
+                # causes em2.g to be invoked.
+                time.sleep(0.1)
+                self.assertEquals(future2.state, Future.STATE_FINISHED)
+                future2.cancel(True)    # Test per-task priority.
+                # Wait, in case a pending signal will invoke em2.g.
+                QTest.qWait(100)
+
+    def test_14(self):
         for _ in self.poolAndThread:
             with AsyncController(_) as ac:
                 def f(assertEquals, priority):
