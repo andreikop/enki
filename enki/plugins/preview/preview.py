@@ -21,7 +21,7 @@ import shlex
 import codecs
 
 from PyQt4.QtCore import pyqtSignal, QSize, Qt, QThread, QTimer, QUrl, \
-  QEventLoop
+  QEventLoop, pyqtSlot
 from PyQt4.QtGui import QDesktopServices, QFileDialog, QIcon, QMessageBox, \
   QWidget, QPalette, QWheelEvent
 from PyQt4.QtWebKit import QWebPage
@@ -1087,3 +1087,9 @@ class PreviewDock(DockWidget):
                     openedFile.write(data)
             except (OSError, IOError) as ex:
                 QMessageBox.critical(self, "Failed to save HTML", unicode(str(ex), 'utf8'))
+
+    @pyqtSlot()
+    def onSphinxPath(self):
+        core.config()['Sphinx']['ProjectPath'] = os.getcwd()
+        core.config().flush()
+        self._scheduleDocumentProcessing()
