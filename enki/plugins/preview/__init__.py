@@ -456,16 +456,23 @@ class Plugin(QObject):
             self._dock = PreviewDock()
             self._dock.closed.connect(self._onDockClosed) # Disconnected.
             self._dock.shown.connect(self._onDockShown) # Disconnected.
+
             self._saveAction = QAction(QIcon(':enkiicons/save.png'),
                                        'Save Preview as HTML', self._dock)
             self._saveAction.setShortcut(QKeySequence("Alt+Shift+P"))
             self._saveAction.triggered.connect(self._dock.onPreviewSave) # Disconnected.
+
+            self._sphinxAction = QAction('Set Sphinx path', self._dock)
+            self._sphinxAction.setShortcut(QKeySequence('Alt+Shift+S'))
+            self._sphinxAction.triggered.connect(self._dock.onSphinxPath)
 
         core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
 
         core.actionManager().addAction("mView/aPreview",
                                        self._dock.showAction())
         core.actionManager().addAction("mFile/aSavePreview", self._saveAction)
+        core.actionManager().addAction('mTools/aSetSphinxPath',
+                                       self._sphinxAction)
         self._dockInstalled = True
         if core.config()['Preview']['Enabled']:
             self._dock.show()
@@ -489,6 +496,7 @@ class Plugin(QObject):
         """
         core.actionManager().removeAction("mView/aPreview")
         core.actionManager().removeAction("mFile/aSavePreview")
+        core.actionManager().removeAction('mTools/aSetSphinxPath')
         core.mainWindow().removeDockWidget(self._dock)
         self._dockInstalled = False
 
