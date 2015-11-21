@@ -457,18 +457,10 @@ class MainWindow(QMainWindow):
         assert not dock in self._addedDockWidgets
         self._addedDockWidgets.append(dock)
 
-        if not self.restoreDockWidget(dock):
+        if self.restoreDockWidget(dock):
+            return
+        else:
             QMainWindow.addDockWidget(self, area, dock)
-
-        if core.workspace() is not None:
-            document = core.workspace().currentDocument()
-            if document is not None:
-                """ Scroll view to make the cursor visible.
-                Otherwise cursor can disappear from the viewport.
-                QTimer is used because ensureCursorVisible works only after the dock has been drawn.
-                A bad fix for #319
-                """
-                QTimer.singleShot(0, document.qutepart.ensureCursorVisible)
 
     def removeDockWidget(self, dock):
         pass  # not a plugin API method
