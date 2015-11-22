@@ -233,3 +233,7 @@ class Config():
 
     def _migrate_to_20(self):
         del self._data['FileBrowser']
+
+    def _migrate_to_21(self):
+        if not '.*' in self._data['NegativeFileFilter']:
+            self._data['NegativeFileFilter'].insert(0, '.*')
