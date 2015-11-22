@@ -40,9 +40,12 @@ class _ScannerThread(QThread):
         for root, dirnames, filenames in os.walk(self._path):
             if self._stop:
                 break
-            for pattern in '.git', '.svn':
-                if pattern in dirnames:
-                    dirnames.remove(pattern)
+
+            # remove not interesting directories
+            for dirname in dirnames[:]:
+                if filterRe.match(dirname):
+                    dirnames.remove(dirname)
+
             for filename in filenames:
                 if not filterRe.match(filename):
                     results.append(os.path.relpath(os.path.join(root, filename), self._path))
