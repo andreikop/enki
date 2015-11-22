@@ -135,6 +135,8 @@ class DockWidget(QDockWidget):
         self.setObjectName(str(self.__class__))
         self.setWindowTitle(windowTitle)
 
+        self.setFeatures(self.features() & (~QDockWidget.DockWidgetFloatable))
+
         if not windowIcon.isNull():
             self.setWindowIcon(windowIcon)
         if shortcut is not None:
