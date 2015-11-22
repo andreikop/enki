@@ -3,10 +3,9 @@ config --- Load and save settings
 =================================
 """
 
-from enki.core.core import core
 import enki.core.json_wrapper
 
-from PyQt4.QtGui import QApplication, QFont, QFontDatabase
+from PyQt4.QtGui import QApplication, QFontDatabase
 
 
 class Config():
@@ -48,7 +47,6 @@ class Config():
             getattr(self, '_migrate_to_{}'.format(currentVersion + 1))()
             self._data['_version'] = currentVersion + 1
             currentVersion += 1
-
 
     def _setPlatformDefaults(self):
         """Set default values, which depend on platform
@@ -162,21 +160,21 @@ class Config():
     def _migrate_to_5(self):
         editor = self._data['Editor']
         self._data['Qutepart'] = {
-            "Font": { "Family": editor['DefaultFont'],
-                      "Size": editor['DefaultFontSize'] },
+            "Font": {"Family": editor['DefaultFont'],
+                     "Size": editor['DefaultFontSize']},
             "Indentation": {'UseTabs': editor['Indentation']['UseTabs'],
                             'Width': editor['Indentation']['Width'],
                             'AutoDetect': editor['Indentation']['AutoDetect'],
-                           },
-            "Edge": { 'Color': editor['Edge']['Color'],
-                      'Column': editor['Edge']['Column'],
-                      'Enabled': editor['Edge']['Enabled']
-                    },
-            "AutoCompletion": { 'Enabled': editor['AutoCompletion']['Enabled'],
-                                "Threshold": editor['AutoCompletion']['Threshold']
-                              },
-            "Wrap": { 'Enabled': editor['Wrap']['Enabled'],
-                      'Mode': 'WrapAtWord' if editor['Wrap']['Mode'] == "WrapWord" else "WrapAnywhere" },
+                            },
+            "Edge": {'Color': editor['Edge']['Color'],
+                     'Column': editor['Edge']['Column'],
+                     'Enabled': editor['Edge']['Enabled']
+                     },
+            "AutoCompletion": {'Enabled': editor['AutoCompletion']['Enabled'],
+                               "Threshold": editor['AutoCompletion']['Threshold']
+                               },
+            "Wrap": {'Enabled': editor['Wrap']['Enabled'],
+                     'Mode': 'WrapAtWord' if editor['Wrap']['Mode'] == "WrapWord" else "WrapAnywhere"},
             "EOL": editor["EOL"]
         }
 
