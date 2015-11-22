@@ -456,6 +456,9 @@ class Plugin(QObject):
             self._dock = PreviewDock()
             self._dock.closed.connect(self._onDockClosed) # Disconnected.
             self._dock.shown.connect(self._onDockShown) # Disconnected.
+            core.uiSettingsManager().dialogAccepted.connect(
+              self._setSphinxActionVisibility)
+
 
             self._saveAction = QAction(QIcon(':enkiicons/save.png'),
                                        'Save Preview as HTML', self._dock)
@@ -465,6 +468,7 @@ class Plugin(QObject):
             self._sphinxAction = QAction('Set Sphinx path', self._dock)
             self._sphinxAction.setShortcut(QKeySequence('Alt+Shift+S'))
             self._sphinxAction.triggered.connect(self._dock.onSphinxPath)
+            self._setSphinxActionVisibility()
 
         core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
 
@@ -505,3 +509,7 @@ class Plugin(QObject):
            settings."""
         CodeChatSettingsWidget(dialog)
         SphinxSettingsWidget(dialog)
+
+    @pyqtSlot()
+    def _setSphinxActionVisibility(self):
+        self._sphinxAction.setVisible(core.config()['Sphinx']['Enabled'])
