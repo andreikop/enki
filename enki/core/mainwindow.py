@@ -457,10 +457,28 @@ class MainWindow(QMainWindow):
         assert not dock in self._addedDockWidgets
         self._addedDockWidgets.append(dock)
 
-        if self.restoreDockWidget(dock):
-            return
+        # Qt will lose the scroll bar position when adding/restoring a docked
+        # widget. See https://github.com/hlamer/enki/issues/319. So, save the
+        # scroll bar position, then restore it after the dock is in place.
+        if core.workspace():
+            document = core.workspace().currentDocument()
+            if document:
+                qp = document.qutepart
+                vsb = qp.verticalScrollBar()
+                scrollPosVert = vsb.value()
+                hsb = qp.horizontalScrollBar()
+                scrollPosHoriz = hsb.value()
         else:
+            document = False
+
+        # Add/restore the dock.
+        if not self.restoreDockWidget(dock):
             QMainWindow.addDockWidget(self, area, dock)
+
+        # Restore the scroll bar position.
+        if document:
+            vsb.setValue(scrollPosVert)
+            hsb.setValue(scrollPosHoriz)
 
     def removeDockWidget(self, dock):
         pass  # not a plugin API method

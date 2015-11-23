@@ -146,6 +146,10 @@ class AbstractPathCompleter(AbstractCompleter):
         elif rowType == self._FILE:
             return self._iconForPath(self._files[index])
 
+    def isSelectable(self, row, column):
+        rowType, index = self._classifyRowIndex(row)
+        return rowType in (self._DIRECTORY, self._FILE)
+
     def getFullText(self, row):
         """User clicked a row. Get inline completion for this row
         """
@@ -229,7 +233,7 @@ class PathCompleter(AbstractPathCompleter):
     def _headerText(self):
         """Get text, which shall be displayed on the header
         """
-        return self._path
+        return self._path.replace(os.sep, '/')
 
     def _formatPath(self, path, isDir):
         """Format file or directory for show it in the list of completions

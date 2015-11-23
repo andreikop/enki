@@ -6,6 +6,7 @@ project --- Open project and manage it
 """
 
 import os
+import os.path
 import time
 
 from PyQt4.QtCore import QObject, QThread, pyqtSignal
@@ -113,6 +114,7 @@ class Project(QObject):
         """Open project.
         Replaces previous opened project
         """
+        path = os.path.normpath(path)
         if self._path == path:
             return
 

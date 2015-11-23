@@ -60,7 +60,7 @@ import sys, time
 # -------------------
 from PyQt4.QtGui import QApplication
 from PyQt4.QtCore import QThread, pyqtSignal, QObject, QTimer, QRunnable, \
-  QThreadPool
+  QThreadPool, pyqtSlot
 #
 # Local imports
 # -------------
@@ -94,7 +94,7 @@ class AsyncAbstractController(QObject):
       # |parent|
       parent=None):
 
-        QObject.__init__(self, parent)
+        super(AsyncAbstractController, self).__init__(parent)
         self.isAlive = True
 
         # I would prefer to use QThread.currentThread().priority(), but this
@@ -207,13 +207,14 @@ class AsyncAbstractController(QObject):
     # This is run shortly before this class's C++ destructor is invoked. It
     # emulates a C++ destructor by freeing resources before the C++ class is
     # destroyed.
+    @pyqtSlot()
     def onParentDestroyed(self):
         self.terminate()
 #
 # Python destructor
 # ^^^^^^^^^^^^^^^^^
     # In case the above method wasn't called, try to exit gracefully here.
-    def __terminate__(self):
+    def __del__(self):
         self.terminate()
 #
 # Manual
@@ -249,7 +250,7 @@ class AsyncThreadController(AsyncAbstractController):
       # |parent|
       parent=None):
 
-        AsyncAbstractController.__init__(self, parent)
+        super(AsyncThreadController, self).__init__(parent)
         # Create a worker and a thread it runs in. This approach was
         # inspired by  example given in the `QThread docs
         # <http://qt-project.org/doc/qt-4.8/qthread.html>`_.
@@ -292,7 +293,7 @@ class AsyncPoolController(AsyncAbstractController):
       # |parent|
       parent=None):
 
-        AsyncAbstractController.__init__(self, parent)
+        super(AsyncPoolController, self).__init__(parent)
         if maxThreadCount < 1:
             self.threadPool = QThreadPool.globalInstance()
         else:
@@ -338,7 +339,11 @@ def AsyncController(
   #   is used.
   # * 'Sync' to execute tasks in the current thread, rather than a separate
   #   thread. Primarily provided to test and debug purposes.
-  qThreadOrThreadPool, parent=None):
+  qThreadOrThreadPool,
+  # .. _AsyncController_parent:
+  #
+  # Parent object if using a QThread. Otherwise, this parameter is ignored.
+  parent=None):
 
     if qThreadOrThreadPool == 'Sync':
         return SyncController(parent)
@@ -346,6 +351,35 @@ def AsyncController(
         return AsyncThreadController(parent)
     else:
         return AsyncPoolController(qThreadOrThreadPool, parent)
+
+# RunLatest
+# ---------
+# This class runs the latest (most recent) job submitted, discarding any jobs
+# that have been submitted but not run.
+class RunLatest(object):
+    def __init__(self,
+      # See AsyncController_'s ``qThreadOrThreadPool`` argument.
+      qThreadOrThreadPool,
+      # If ``True``, discard the results of a currently-executing job when a new
+      # job is submitted. If ``False``, report the results of the
+      # currently-executing job when a new job is submitted.
+      discardPending=False,
+      # See AsyncController_parent_.
+      parent=None):
+
+        self.ac = AsyncController(qThreadOrThreadPool, parent)
+        # Create a valid ``_future`` object, so that the first calls to
+        # ``start`` can still operate on a valid instance of ``_future``.
+        self.future = self.ac.start(None, lambda: None)
+        self.discardPending = discardPending
+
+    def start(self, *args, **kwargs):
+        self.future.cancel(self.discardPending)
+        self.future = self.ac.start(*args, **kwargs)
+        return self.future
+
+    def terminate(self):
+        self.ac.terminate()
 #
 # Future
 # ======
@@ -382,15 +416,16 @@ class Future(object):
 
         # State maintained by Future.
         self._state = self.STATE_WAITING
-        self.signalInvoker = SignalInvoker()
+        self._signalInvoker = _SignalInvoker()
         self._requestCancel = False
         self._result = None
         self._exc_info = None
+        self._exc_raised = False
+        self._discardResult = False
 
-        if self._g:
-            # Set up to invoke ``g`` in the current thread, if ``g`` was
-            # provided.
-            self.signalInvoker.doneSignal.connect(self.signalInvoker.onDoneSignal)
+        # Set up to invoke ``g`` in the current thread, if ``g`` was
+        # provided.
+        self._signalInvoker.doneSignal.connect(self._signalInvoker.onDoneSignal)
 
     # Invoke ``f`` and emit its returned value.
     def _invoke(self):
@@ -411,28 +446,27 @@ class Future(object):
 
             # Report the results.
             self._state = self.STATE_FINISHED
-            self.signalInvoker.doneSignal.emit(self)
+            self._signalInvoker.doneSignal.emit(self)
 
     # This method may be called from any thread; it requests that the execution
     # of ``f`` be canceled. If ``f`` is already running, then it will not be
     # interrupted. However, if ``discardResult`` is True, then the results
-    # returned from evaluating ``f`` will be discarded and the signal that is
-    # usually emitted when ``f`` finishes will not be.
+    # returned from evaluating ``f`` will be discarded, instead of invoking
+    # ``g`` [#]_. Any exceptions which occurred in ``f`` will still be raised.
+    #
+    # .. [#]  Note that this is only guaranteed to work when ``cancel`` is
+    #         invoked from the thread which started the job.
     def cancel(self, discardResult=False):
-        if discardResult:
-            # If cancel(True) was called before, this raises an exception.
-            # Ignore it.
-            try:
-                self.signalInvoker.doneSignal.disconnect(self.signalInvoker.onDoneSignal)
-            except TypeError:
-                pass
         self._requestCancel = True
+        self._discardResult = discardResult
 
     # Return the result produced by invoking ``f``, or raise any exception which
     # occurred in ``f``.
     @property
     def result(self):
         if self._exc_info:
+            # Note that the exception was raised.
+            self._exc_raised = True
             # Raise an exception which provides a trackback all the way into the
             # line in ``f`` that caused the exception. Just re-raising the
             # exception doesn't preserve the full traceback. Likewise, ``raise
@@ -471,13 +505,20 @@ class Future(object):
 # #. If the signal is declared in ``Future``, then the it must accept an
 #    ``object`` instead of a ``Future``, sine ``Future`` isn't defined yet.
 #    Awkward, but not a show-stopper.
-class SignalInvoker(QObject):
+class _SignalInvoker(QObject):
     # Emitted to invoke ``g``.
     doneSignal = pyqtSignal(Future)
 
     # A method to invoke ``future.g``.
+    @pyqtSlot(Future)
     def onDoneSignal(self, future):
-        future._g(future)
+        # Invoke ``g`` if it was provided and should be invoked.
+        if future._g and not future._discardResult:
+            future._g(future)
+        # If an exception occurred while executing ``f`` and that exception
+        # wasn't raised, do so now.
+        if future._exc_info and not future._exc_raised:
+            future.result
 #
 # Thread / thread pool worker classes
 # -----------------------------------
@@ -489,7 +530,7 @@ class _AsyncPoolWorker(QRunnable):
       # The Future instance which contains the callable to invoke.
       future):
 
-        QRunnable.__init__(self)
+        super(_AsyncPoolWorker, self).__init__()
         self._future = future
 
     # This is invoked by a thread from the thread pool.
@@ -502,6 +543,7 @@ class _AsyncWorker(QObject):
 
     # The start signal is connected to this slot. It runs ``f`` in the worker
     # thread.
+    @pyqtSlot(Future)
     def onStart(self,
       # The Future instance which contains the callable to invoke.
       future):
@@ -532,6 +574,7 @@ class TimePrinter(object):
         self.qt.start(self.interval_sec*1000)
 
     # Print the time.
+    @pyqtSlot()
     def printTime(self):
         sys.stdout.write('{} seconds: task states are '.format(self.time_sec))
         for task in self.tasks:
