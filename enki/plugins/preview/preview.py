@@ -1087,9 +1087,3 @@ class PreviewDock(DockWidget):
                     openedFile.write(data)
             except (OSError, IOError) as ex:
                 QMessageBox.critical(self, "Failed to save HTML", unicode(str(ex), 'utf8'))
-
-    @pyqtSlot()
-    def onSphinxPath(self):
-        core.config()['Sphinx']['ProjectPath'] = os.getcwd()
-        core.config().flush()
-        self._scheduleDocumentProcessing()

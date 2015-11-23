@@ -378,6 +378,14 @@ class Plugin(QObject):
         # CodeChat enable checkbox) is changed.
         core.uiSettingsManager().dialogAccepted.connect(self._onDocumentChanged) # Disconnected.
 
+        # Provide a "Set Sphinx Path" menu item.
+        core.uiSettingsManager().dialogAccepted.connect(
+          self._setSphinxActionVisibility)
+        self._sphinxAction = QAction('Set Sphinx path', self._dock)
+        self._sphinxAction.setShortcut(QKeySequence('Alt+Shift+S'))
+        self._sphinxAction.triggered.connect(self.onSphinxPath)
+        self._setSphinxActionVisibility()
+
         # If user's config .json file lacks it, populate CodeChat's default
         # config key and Sphinx's default config key.
         if not 'CodeChat' in core.config():
@@ -456,19 +464,12 @@ class Plugin(QObject):
             self._dock = PreviewDock()
             self._dock.closed.connect(self._onDockClosed) # Disconnected.
             self._dock.shown.connect(self._onDockShown) # Disconnected.
-            core.uiSettingsManager().dialogAccepted.connect(
-              self._setSphinxActionVisibility)
 
 
             self._saveAction = QAction(QIcon(':enkiicons/save.png'),
                                        'Save Preview as HTML', self._dock)
             self._saveAction.setShortcut(QKeySequence("Alt+Shift+P"))
             self._saveAction.triggered.connect(self._dock.onPreviewSave) # Disconnected.
-
-            self._sphinxAction = QAction('Set Sphinx path', self._dock)
-            self._sphinxAction.setShortcut(QKeySequence('Alt+Shift+S'))
-            self._sphinxAction.triggered.connect(self._dock.onSphinxPath)
-            self._setSphinxActionVisibility()
 
         core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
 
@@ -513,3 +514,10 @@ class Plugin(QObject):
     @pyqtSlot()
     def _setSphinxActionVisibility(self):
         self._sphinxAction.setVisible(core.config()['Sphinx']['Enabled'])
+
+    @pyqtSlot()
+    def onSphinxPath(self):
+        core.config()['Sphinx']['ProjectPath'] = os.getcwd()
+        core.config().flush()
+        if core.config()['Preview']['Enabled']:
+            self._dock._scheduleDocumentProcessing()
