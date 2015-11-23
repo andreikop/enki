@@ -23,8 +23,20 @@ import os
 #
 # Third-party imports
 # -------------------
-# The `regex <https://pypi.python.org/pypi/regex>`_ module supports approximate matching.
+import pkg_resources
+
+# The `regex <https://pypi.python.org/pypi/regex>`_ module supports approximate
+# matching. Make sure it is recent enough to be usable.
 import regex
+try:
+  # Get the version of regex. See https://pythonhosted.org/setuptools/pkg_resources.html#distribution-attributes.
+  regexVersion = pkg_resources.get_distribution('regex').parsed_version
+  # Issues I filed before this make regex unusable. See #166, #167, andd #169 at
+  # https://bitbucket.org/mrabarnett/mrab-regex/issues. For version parse, see
+  # https://pythonhosted.org/setuptools/pkg_resources.html#parsing-utilities.
+  assert regexVersion >= pkg_resources.parse_version('2015.11.07')
+except AssertionError, ValueError:
+  raise ImportError
 #
 # For debug
 # =========
