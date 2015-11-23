@@ -10,18 +10,21 @@
 #
 # Imports
 # =======
+# Library imports
+# ---------------
 # Comment out one of the two following lines to enable or disable profiling
 # of text to web sync.
 #from time import time
 #import cProfile
 cProfile = None
+#
 # Third-party
 # -----------
 from PyQt4.QtCore import pyqtSignal, QPoint, Qt, QTimer, QObject, QThread
 from PyQt4 import QtGui
 from PyQt4.QtWebKit import QWebPage
 from PyQt4.QtTest import QTest
-
+#
 # Local
 # -----
 from enki.core.core import core
@@ -33,8 +36,7 @@ try:
     from approx_match import findApproxTextInTarget
 except ImportError as e:
     findApproxTextInTarget = None
-
-
+#
 # PreviewSync
 # ===========
 class PreviewSync(QObject):
@@ -96,9 +98,9 @@ class PreviewSync(QObject):
             # invoked after this line.
             self._runLatest.future.cancel(True)
             self._runLatest.terminate()
-
+    #
     # Vertical synchronization
-    # ========================
+    ##========================
     # These routines perform vertical synchronization.
     #
     # This function computes the distance, in pixels, measured from the target
@@ -340,7 +342,7 @@ class PreviewSync(QObject):
     #
     #
     # Synchronizing between the text pane and the preview pane
-    # ========================================================
+    ##========================================================
     # A single click in the preview pane should move the text pane's cursor to the
     # corresponding location. Likewise, movement of the text pane's cursor should
     # select the corresponding text in the preview pane. To do so, an approximate
@@ -349,13 +351,13 @@ class PreviewSync(QObject):
     # to highlight.
     #
     # Bugs / to-do items
-    # ------------------
+    ##------------------
     # #. I call ``toPlainText()`` several times. In the past, this was quite slow
     #    in a ``QTextEdit``. Check performance and possibly cache this value; it
     #    should be easy to update by adding a few lines to _setHtml().
     #
     # Preview-to-text sync
-    # --------------------
+    ##--------------------
     # This functionaliy relies heavily on the Web to Qt bridge. Some helpful
     # references:
     #
@@ -381,7 +383,7 @@ class PreviewSync(QObject):
     # #. When a new web page is loaded, all JavaScript is lost and must be reinserted.
     #    The ``onJavaScriptCleared`` slot, connected to the
     #    ``javaScriptWindowObjectCleared`` signal, does this.
-
+    #
     # The job of this JavaScript handler is to
     # translate a mouse click into an index into the text rendering of the
     # webpage. To do this, we must:
@@ -535,7 +537,7 @@ class PreviewSync(QObject):
         core.workspace().focusCurrentDocument()
 
     # Text-to-preview sync
-    # --------------------
+    ##--------------------
     # The opposite direction is easier, since all the work can be done in Python.
     # When the cursor moves in the text pane, find its matching location in the
     # preview pane using an approximate match. Select several characters before and
