@@ -380,9 +380,11 @@ class Plugin(QObject):
 
         # Provide a "Set Sphinx Path" menu item.
         core.uiSettingsManager().dialogAccepted.connect(
-          self._setSphinxActionVisibility)
+            self._setSphinxActionVisibility)
         self._sphinxAction = QAction('Set Sphinx path', self._dock)
         self._sphinxAction.setShortcut(QKeySequence('Alt+Shift+S'))
+        core.actionManager().addAction('mTools/aSetSphinxPath',
+                                       self._sphinxAction)
         self._sphinxAction.triggered.connect(self.onSphinxPath)
         self._setSphinxActionVisibility()
 
@@ -409,6 +411,8 @@ class Plugin(QObject):
     def del_(self):
         """Uninstall the plugin
         """
+        core.actionManager().removeAction('mTools/aSetSphinxPath')
+
         if self._dockInstalled:
             self._removeDock()
 
@@ -476,8 +480,6 @@ class Plugin(QObject):
         core.actionManager().addAction("mView/aPreview",
                                        self._dock.showAction())
         core.actionManager().addAction("mFile/aSavePreview", self._saveAction)
-        core.actionManager().addAction('mTools/aSetSphinxPath',
-                                       self._sphinxAction)
         self._dockInstalled = True
         if core.config()['Preview']['Enabled']:
             self._dock.show()
@@ -501,7 +503,6 @@ class Plugin(QObject):
         """
         core.actionManager().removeAction("mView/aPreview")
         core.actionManager().removeAction("mFile/aSavePreview")
-        core.actionManager().removeAction('mTools/aSetSphinxPath')
         core.mainWindow().removeDockWidget(self._dock)
         self._dockInstalled = False
 
