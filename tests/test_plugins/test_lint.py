@@ -39,7 +39,7 @@ class Test(base.TestCase):
 
         self.waitUntilPassed(2000, lambda: self.assertEqual(doc.qutepart.lintMarks,
                              {0: ('e', 'E901 SyntaxError: invalid syntax'),
-                              1: ('e', 'E113 unexpected indentation')}))
+                              1: ('w', 'E113 unexpected indentation')}))
 
     @base.requiresCmdlineUtility('flake8 --version')
     def test_2(self):
