@@ -378,6 +378,14 @@ class Plugin(QObject):
         # CodeChat enable checkbox) is changed.
         core.uiSettingsManager().dialogAccepted.connect(self._onDocumentChanged) # Disconnected.
 
+        # Provide a "Set Sphinx Path" menu item.
+        core.uiSettingsManager().dialogAccepted.connect(
+          self._setSphinxActionVisibility)
+        self._sphinxAction = QAction('Set Sphinx path', self._dock)
+        self._sphinxAction.setShortcut(QKeySequence('Alt+Shift+S'))
+        self._sphinxAction.triggered.connect(self.onSphinxPath)
+        self._setSphinxActionVisibility()
+
         # If user's config .json file lacks it, populate CodeChat's default
         # config key and Sphinx's default config key.
         if not 'CodeChat' in core.config():
@@ -456,6 +464,8 @@ class Plugin(QObject):
             self._dock = PreviewDock()
             self._dock.closed.connect(self._onDockClosed) # Disconnected.
             self._dock.shown.connect(self._onDockShown) # Disconnected.
+
+
             self._saveAction = QAction(QIcon(':enkiicons/save.png'),
                                        'Save Preview as HTML', self._dock)
             self._saveAction.setShortcut(QKeySequence("Alt+Shift+P"))
@@ -466,6 +476,8 @@ class Plugin(QObject):
         core.actionManager().addAction("mView/aPreview",
                                        self._dock.showAction())
         core.actionManager().addAction("mFile/aSavePreview", self._saveAction)
+        core.actionManager().addAction('mTools/aSetSphinxPath',
+                                       self._sphinxAction)
         self._dockInstalled = True
         if core.config()['Preview']['Enabled']:
             self._dock.show()
@@ -489,6 +501,7 @@ class Plugin(QObject):
         """
         core.actionManager().removeAction("mView/aPreview")
         core.actionManager().removeAction("mFile/aSavePreview")
+        core.actionManager().removeAction('mTools/aSetSphinxPath')
         core.mainWindow().removeDockWidget(self._dock)
         self._dockInstalled = False
 
@@ -497,3 +510,14 @@ class Plugin(QObject):
            settings."""
         CodeChatSettingsWidget(dialog)
         SphinxSettingsWidget(dialog)
+
+    @pyqtSlot()
+    def _setSphinxActionVisibility(self):
+        self._sphinxAction.setVisible(core.config()['Sphinx']['Enabled'])
+
+    @pyqtSlot()
+    def onSphinxPath(self):
+        core.config()['Sphinx']['ProjectPath'] = os.getcwd()
+        core.config().flush()
+        if core.config()['Preview']['Enabled']:
+            self._dock._scheduleDocumentProcessing()
