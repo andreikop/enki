@@ -460,7 +460,7 @@ class PreviewDock(DockWidget):
         self._typingTimer.setInterval(800)
         self._typingTimer.timeout.connect(self._scheduleDocumentProcessing) # Disconnected.
 
-        self.previewSync = PreviewSync(self._widget.webView) # del_ called
+        self.previewSync = PreviewSync(self) # del_ called
 
         self._applyJavaScriptEnabled(self._isJavaScriptEnabled())
 

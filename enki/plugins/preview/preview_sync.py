@@ -45,18 +45,18 @@ class PreviewSync(QObject):
     # Setup / cleanup
     # ===============
     def __init__(self,
-      # The web view involved in synchronization
-      webView):
+      # The preview dock involved in synchronization.
+      previewDock):
 
-        QObject.__init__(self, webView)
-        # Only set up sync if TRE is installed.
+        QObject.__init__(self)
+        # Only set up sync if fuzzy matching is available.
         if not findApproxTextInTarget:
             return
 
         # Gather into one variable all the JavaScript needed for PreviewSync.
         self._jsPreviewSync = self._jsOnClick + self._jsWebCursorCoords
 
-        self.webView = webView
+        self._dock = previewDock
         self._initPreviewToTextSync()
         self._initTextToPreviewSync()
         if cProfile:
@@ -65,7 +65,7 @@ class PreviewSync(QObject):
     def _onJavaScriptCleared(self):
         """This is called before starting a new load of a web page, to inject the
            JavaScript needed for PreviewSync."""
-        mf = self.webView.page().mainFrame()
+        mf = self._dock._widget.webView.page().mainFrame()
         # Use `addToJavaScriptWindowObject
         # <http://doc.qt.io/qt-4.8/qwebframe.html#addToJavaScriptWindowObject>`_
         # to make this PreviewDock object known to JavaScript, so that
@@ -244,7 +244,7 @@ class PreviewSync(QObject):
     #
     #   left - Left of the selection, measured from the web page's origin. In pixels.
     def _webCursorCoords(self):
-        res = self.webView.page().mainFrame(). \
+        res = self._dock._widget.webView.page().mainFrame(). \
           evaluateJavaScript('selectionAnchorCoords();')
         # See if a 3-element tuple is returned. Null is returned if the
         # selection is empty.
@@ -275,7 +275,7 @@ class PreviewSync(QObject):
         # put this in global coordinates. This works for `QWebView
         # <http://doc.qt.io/qt-4.8/qwebview.html>`_, since it
         # inherits from QWidget.
-        wv = self.webView
+        wv = self._dock._widget.webView
         qp = core.workspace().currentDocument().qutepart
         qpGlobalTop = qp.mapToGlobal(qp.geometry().topLeft()).y()
         wvGlobalTop = wv.mapToGlobal(wv.geometry().topLeft()).y()
@@ -478,7 +478,7 @@ class PreviewSync(QObject):
         # <http://doc.qt.io/qt-4.8/qwebframe.html#javaScriptWindowObjectCleared>`_
         # signal when a web page is loaded. When this happens, reinsert our
         # onclick JavaScript.
-        self.webView.page().mainFrame(). \
+        self._dock._widget.webView.page().mainFrame(). \
           javaScriptWindowObjectCleared.connect(self._onJavaScriptCleared)
 
     def _webTextContent(self):
@@ -488,7 +488,7 @@ class PreviewSync(QObject):
         is computed based on textContent, that must be used for all web to text
         sync operations.
         """
-        return (self.webView.page().mainFrame().
+        return (self._dock._widget.webView.page().mainFrame().
           evaluateJavaScript('document.body.textContent.toString()'))
 
     def _onWebviewClick(self, webIndex):
@@ -571,6 +571,7 @@ class PreviewSync(QObject):
 
     def _onDocumentChanged(self, old, new):
         self._runLatest.future.cancel(True)
+        self._cursorMovementTimer.stop()
 
     def _onCursorPositionChanged(self):
         """Called when the cursor position in the text pane changes. It (re)schedules
@@ -581,8 +582,7 @@ class PreviewSync(QObject):
         """
         # Ignore this callback if a preview to text sync caused it or if the
         # preview dock is closed.
-        if (not self._previewToTextSyncRunning and
-          core.config()['Preview']['Enabled']):
+        if not self._previewToTextSyncRunning and self._dock.isVisible():
             self._cursorMovementTimer.stop()
             self._cursorMovementTimer.start()
 
@@ -601,7 +601,7 @@ class PreviewSync(QObject):
         self._cursorMovementTimer.stop()
         # Perform an approximate match in a separate thread, then update
         # the cursor based on the match results.
-        mf = self.webView.page().mainFrame()
+        mf = self._dock._widget.webView.page().mainFrame()
         qp = core.workspace().currentDocument().qutepart
         txt = mf.toPlainText()
         # Performance notes: findApproxTextInTarget is REALLY slow. Scrolling
@@ -651,7 +651,7 @@ class PreviewSync(QObject):
         # page's text rendering from the beginning to webIndex. Then press home
         # followed by shift+end to select the line the cursor is on. (This
         # relies on the page being editable, which is set below).
-        pg = self.webView.page()
+        pg = self._dock._widget.webView.page()
         mf = pg.mainFrame()
         # The find operations below change the scroll position. Save, then
         # restore it to avoid the window jumping around.
@@ -687,9 +687,9 @@ class PreviewSync(QObject):
             # the newline. Manaully move one char forward in this case to get it.
             # This is tested in test_preview.py:test_sync10, test_sync11.
             if ft and ft[-1] == '\n':
-                QTest.keyClick(self.webView, Qt.Key_Right, Qt.ShiftModifier)
-            QTest.keyClick(self.webView, Qt.Key_Home)
-            QTest.keyClick(self.webView, Qt.Key_End, Qt.ShiftModifier)
+                QTest.keyClick(self._dock._widget.webView, Qt.Key_Right, Qt.ShiftModifier)
+            QTest.keyClick(self._dock._widget.webView, Qt.Key_Home)
+            QTest.keyClick(self._dock._widget.webView, Qt.Key_End, Qt.ShiftModifier)
             pg.setContentEditable(ice)
 
             # Sync the cursors. If we're already scrolling, take full advantage
