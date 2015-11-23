@@ -539,12 +539,12 @@ class ComboBox(QComboBox):
         self.currentIndexChanged[int].disconnect()
         self.clear()
         # Current text
-        self.addItem(self._fileBrowser.currentPath())
+        self.addItem(os.path.normpath(self._fileBrowser.currentPath()))
         self.setItemData(0, self._fileBrowser.currentPath())
         self.insertSeparator(self.count())
 
         for index, path in enumerate(items):
-            self.addItem(path)
+            self.addItem(os.path.normpath(path))
             self.setItemData(index + 2, path)
         self._count = self.count()
         self.currentIndexChanged[int].connect(self._onItemSelected)

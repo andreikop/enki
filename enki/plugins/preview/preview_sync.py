@@ -25,10 +25,10 @@ from PyQt4.QtTest import QTest
 # Local
 # -----
 from enki.core.core import core
-from enki.lib.future import AsyncController
+from enki.lib.future import RunLatest
 
-# If TRE isn't installed, this import will fail. In this case, disable the sync
-# feature.
+# If regex isn't installed or is too old, this import will fail. In this case,
+# disable the sync feature.
 try:
     from approx_match import findApproxTextInTarget
 except ImportError as e:
@@ -94,8 +94,8 @@ class PreviewSync(QObject):
             # after this routine finishes and this class is not usable. Adding
             # the True guarentees that _movePreviewPaneToIndex will not be
             # invoked after this line.
-            self._future.cancel(True)
-            self._ac.terminate()
+            self._runLatest.future.cancel(True)
+            self._runLatest.terminate()
 
     # Vertical synchronization
     # ========================
@@ -565,15 +565,12 @@ class PreviewSync(QObject):
         self._previewToTextSyncRunning = False
         # Run the approximate match in a separate thread. Cancel it if the
         # document changes.
-        self._ac = AsyncController('QThread', self)
-        self._ac.defaultPriority = QThread.LowPriority
+        self._runLatest = RunLatest('QThread', self)
+        self._runLatest.ac.defaultPriority = QThread.LowPriority
         core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
-        # Create a dummy future object for use in canceling pending sync jobs
-        # when a new sync needs to be run.
-        self._future = self._ac.start(lambda future: None, lambda: None)
 
     def _onDocumentChanged(self, old, new):
-        self._future.cancel(True)
+        self._runLatest.future.cancel(True)
 
     def _onCursorPositionChanged(self):
         """Called when the cursor position in the text pane changes. It (re)schedules
@@ -607,8 +604,6 @@ class PreviewSync(QObject):
         mf = self.webView.page().mainFrame()
         qp = core.workspace().currentDocument().qutepart
         txt = mf.toPlainText()
-        # Before starting a new sync job, cancel pending ones.
-        self._future.cancel(True)
         # Performance notes: findApproxTextInTarget is REALLY slow. Scrolling
         # through preview.py with profiling enabled produced::
         #
@@ -627,9 +622,8 @@ class PreviewSync(QObject):
         #
         # Therefore, finding ways to make this faster or run it in another
         # thread should significantly improve the GUI's responsiveness.
-        self._future = self._ac.start(self._movePreviewPaneToIndex,
-                       findApproxTextInTarget, qp.text,
-                       qp.textCursor().position(), txt)
+        self._runLatest.start(self._movePreviewPaneToIndex,
+          findApproxTextInTarget, qp.text, qp.textCursor().position(), txt)
         if cProfile:
             print('Time before: ' + str(time() - self._startTime))
 
