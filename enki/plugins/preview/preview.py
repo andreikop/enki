@@ -666,7 +666,7 @@ class PreviewDock(DockWidget):
 
             self._clear()
 
-            if core.config()['Preview']['Enabled']:
+            if self.isVisible():
                 self._scheduleDocumentProcessing()
 
     _CUSTOM_TEMPLATE_PATH = '<custom template>'
@@ -727,7 +727,7 @@ class PreviewDock(DockWidget):
     def _onTextChanged(self, document):
         """Text changed, update preview
         """
-        if core.config()['Preview']['Enabled'] and not self._ignoreTextChanges:
+        if self.isVisible() and not self._ignoreTextChanges:
             self._typingTimer.stop()
             self._typingTimer.start()
 
