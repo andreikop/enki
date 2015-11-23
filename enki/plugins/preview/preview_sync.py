@@ -27,8 +27,8 @@ from PyQt4.QtTest import QTest
 from enki.core.core import core
 from enki.lib.future import RunLatest
 
-# If TRE isn't installed, this import will fail. In this case, disable the sync
-# feature.
+# If regex isn't installed or is too old, this import will fail. In this case,
+# disable the sync feature.
 try:
     from approx_match import findApproxTextInTarget
 except ImportError as e:
