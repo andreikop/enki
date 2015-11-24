@@ -12,12 +12,12 @@
 import unittest
 import os.path
 import sys
-import codecs
 #
 # Local application imports
 # -------------------------
 # Do this before PyQt imports so that base will set up sip API correctly.
-sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
+sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                                ".."))
 
 import base
 #
@@ -329,9 +329,10 @@ Here is some text after a table.""", True)
         """Verify that sync after the column span works."""
         self._textToWeb('Text', self._row_span_rest(), True)
 
-    # Test no sync on closed preview window
+    # Test no sync on hidden preview window
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     @base.inMainLoop
+    @requiresModule('docutils')
     def test_sync13(self):
         self._doBasicTest('rst')
         self._dock().close()
@@ -340,6 +341,27 @@ Here is some text after a table.""", True)
         cursor = qp.textCursor()
         cursor.setPosition(1, QTextCursor.MoveAnchor)
         qp.setTextCursor(cursor)
+
+    @base.inMainLoop
+    @requiresModule('docutils')
+    def test_sync13a(self):
+        """ Make sure sync stops if the Preview dock is hidden. See https://github.com/hlamer/enki/issues/352.
+        """
+        # First, open the preview dock.
+        self._doBasicTest('rst')
+        # Speed up the test by reducing the cursor movemovement timer's timeout. This can only be done when the preview dock is open. Record `ps`, since this won't be available when the Preview dock is hidden below.
+        ps = self._dock().previewSync
+        ps._cursorMovementTimer.setInterval(0)
+        # Now, switch to a non-previewable file.
+        self.createFile('foo.unpreviewable_extension', 'Junk')
+        # Move the cursor. Make sure sync doesn't run.
+        qp = core.workspace().currentDocument().qutepart
+        # One way to tell: the background sync won't run, meaning the future won't change. I tried with ``mock.patch('enki.plugins.preview.preview_sync.PreviewSync.syncTextToPreview`) as syncTextToPreview:``, but ``syncTextToPreview.assert_not_called()`` always passed.
+        f = ps._runLatest.future
+        qp.cursorPosition = (100, 100)
+        # Wait for Qt to process messages, such as the timer.
+        QTest.qWait(0)
+        self.assertEquals(f, ps._runLatest.future)
 
     # Cases for _alignScrollAmount
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^
