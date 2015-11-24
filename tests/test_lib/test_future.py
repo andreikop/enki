@@ -12,7 +12,7 @@ import os.path
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                 ".."))
 from base import WaitForSignal
-
+#
 # Library imports
 # ---------------
 from Queue import Queue
@@ -328,9 +328,9 @@ class TestAsyncController(unittest.TestCase):
                     ac.start(em.g, f, self.assertEquals, QThread.HighestPriority,
                              _futurePriority=QThread.HighestPriority)
 
-    # Test the RunLatest class.
-    def test_14(self):
-        for _ in self.poolAndThread:
+    # Test the RunLatest class: do older jobs get canceled?
+    def test_15(self):
+        for _ in self.singleThreadOnly:
             rl = RunLatest(_)
 
             # Start a job, keeping it running.
@@ -353,6 +353,31 @@ class TestAsyncController(unittest.TestCase):
             rl.start(em3.g, lambda: None)
 
             with WaitForSignal(em3.bing, 1000):
+                q1a.put(None)
+
+            rl.terminate()
+
+    # Test the RunLatest class: do older completed jobs get canceled?
+    def test_16(self):
+        for _ in self.singleThreadOnly:
+            rl = RunLatest(_, True)
+
+            # Start a job.
+            q1a = Queue()
+            q1b = Queue()
+            def f1():
+                q1b.put(None)
+                q1a.get()
+            em1 = Emitter('em1 should never be called by {}'.format(_),
+                              self.assertEquals)
+            future1 = rl.start(em1.g, f1)
+            q1b.get()
+            self.assertEquals(future1.state, Future.STATE_RUNNING)
+
+            # Start another job, canceling the previous job while it's running.
+            em2 = Emitter()
+            rl.start(em2.g, lambda: None)
+            with WaitForSignal(em2.bing, 1000):
                 q1a.put(None)
 
             rl.terminate()
