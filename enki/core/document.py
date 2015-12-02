@@ -253,7 +253,7 @@ class Document(QWidget):
             QMessageBox.critical(None,
                                  self.tr("Can not decode file"),
                                  filePath + '\n' +
-                                 str(str(ex), 'utf8') +
+                                 str(ex) +
                                  '\nProbably invalid encoding was set. ' +
                                  'You may corrupt your file, if saved it')
             text = str(data, 'utf8', 'replace')
@@ -332,7 +332,7 @@ class Document(QWidget):
             try:
                 os.makedirs(dirPath)
             except OSError as ex:
-                error = str(str(ex), 'utf8')
+                error = str(ex)
                 QMessageBox.critical(None,
                                      self.tr("Cannot save file"),
                                      self.tr("Cannot create directory '%s'. Error '%s'." % (dirPath, error)))
@@ -351,7 +351,7 @@ class Document(QWidget):
         except IOError as ex:
             QMessageBox.critical(None,
                                  self.tr("Cannot write to file"),
-                                 str(str(ex), 'utf8'))
+                                 str(ex))
             return
         finally:
             self._fileWatcher.enable()

@@ -232,13 +232,13 @@ class Core(QObject):
             try:
                 os.makedirs(enki.core.defines.CONFIG_DIR)
             except (OSError, IOError) as ex:
-                raise UserWarning('Failed to create directory "%s". Error: %s\n' % \
-                                  (enki.core.defines.CONFIG_DIR, str(str(ex), 'utf8')))
+                raise UserWarning('Failed to create directory "%s". Error: %s\n' %
+                                  (enki.core.defines.CONFIG_DIR, str(ex)))
         try:
             shutil.copyfile(_DEFAULT_CONFIG_PATH, _CONFIG_PATH)
         except (OSError, IOError) as ex:
-            raise UserWarning('Failed to create configuration file "%s". Error:\n%s' % \
-                              (_CONFIG_PATH, str(str(ex), 'utf8')))
+            raise UserWarning('Failed to create configuration file "%s". Error:\n%s' %
+                              (_CONFIG_PATH, str(ex)))
 
     def _createConfig(self):
         """Open main config file and return Config instance

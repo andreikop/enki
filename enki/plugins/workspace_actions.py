@@ -129,7 +129,7 @@ class Plugin(QObject):
         except IOError as ex:
             QMessageBox.critical(None,
                                  self.tr("File not reloaded"),
-                                 str(str(ex), 'utf8'))
+                                 str(ex))
             return None
         finally:
             QApplication.restoreOverrideCursor()

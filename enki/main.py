@@ -51,7 +51,6 @@ def excepthook(excepttype, exceptvalue, tracebackobj):
     """Show exception dialog, write to log
     """
     text = ''.join(traceback.format_exception(excepttype, exceptvalue, tracebackobj)).strip()
-    text = str(text, 'utf8')
     logging.critical(text)
 
     from PyQt5 import uic
@@ -199,11 +198,8 @@ def _parseCommandLine():
             print("Invalid +N spec value: '%s'" % spec, file=sys.stderr)
             sys.exit(-1)
 
-
     # Get list of absolute pathes of files to open. List may contain not existing files
     filePathes = [os.path.abspath(arg) for arg in files]
-    # convert to unicode for avoid Python <-> Qt interaction problems
-    filePathes = [str(f, 'utf8') for f in filePathes]
     cmdLine["files"] = filePathes
 
     return cmdLine

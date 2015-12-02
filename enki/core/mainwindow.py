@@ -368,7 +368,7 @@ class MainWindow(QMainWindow):
             with open(path, 'wb') as f:
                 f.write(data)
         except (OSError, IOError) as ex:
-            error = str(str(ex), 'utf8')
+            error = str(ex)
             QMessageBox.critical(None,
                                 self.tr("Cannot save {}".format(title)),
                                 self.tr("Cannot create file '%s'\nError: %s" % (path, error)))
@@ -381,7 +381,7 @@ class MainWindow(QMainWindow):
                 with open(path, 'rb') as f:
                     return f.read()
             except (OSError, IOError) as ex:
-                error = str(str(ex), 'utf8')
+                error = str(ex)
                 QMessageBox.critical(None,
                                     self.tr("Cannot restore {}".format(title)),
                                     self.tr("Cannot read file '%s'\nError: %s" % (path, error)))

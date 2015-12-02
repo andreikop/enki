@@ -201,7 +201,7 @@ class PathCompleter(AbstractPathCompleter):
         try:
             filesAndDirs = os.listdir(self._path)
         except OSError as ex:
-            self._error = str(str(ex), 'utf8')
+            self._error = str(ex)
             return
 
         if not filesAndDirs:

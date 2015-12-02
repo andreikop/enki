@@ -1086,4 +1086,4 @@ class PreviewDock(DockWidget):
                 with open(path, 'w') as openedFile:
                     openedFile.write(data)
             except (OSError, IOError) as ex:
-                QMessageBox.critical(self, "Failed to save HTML", str(str(ex), 'utf8'))
+                QMessageBox.critical(self, "Failed to save HTML", str(ex))

@@ -275,7 +275,7 @@ class ReplaceThread(StopableThread):
             content = content.encode('utf8')
         except UnicodeEncodeError as ex:
             pattern = self.tr("Failed to encode file to utf8: %s")
-            text = str(str(ex), 'utf8')
+            text = str(ex)
             self.error.emit(pattern % text)
             return
 
@@ -284,7 +284,7 @@ class ReplaceThread(StopableThread):
                 openFile.write(content)
         except IOError as ex:
             pattern = self.tr("Error while saving replaced content: %s")
-            text = str(str(ex), 'utf8')
+            text = str(ex)
             self.error.emit(pattern % text)
 
     def _fileContent(self, fileName):

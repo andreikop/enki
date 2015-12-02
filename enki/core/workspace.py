@@ -525,7 +525,7 @@ class Workspace(QStackedWidget):
         except (OSError, IOError) as ex:
             QMessageBox.critical(self._mainWindow(),
                                  "Failed to stat the file",
-                                 str(str(ex), 'utf8'))
+                                 str(ex))
             return None
 
         # Check if is a directory

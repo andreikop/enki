@@ -186,7 +186,7 @@ class _AbstractInterpreter(QObject):
         except OSError as ex:
             fullName = self._fullName.replace(' ', '&nbsp;')
             text = '<p>Interpreter path: %s</p>' % self._interpreterPath
-            text += '<p>Error: %s</p>' % str(str(ex), 'utf8')
+            text += '<p>Error: %s</p>' % str(ex)
             text += '<p>Make sure interpreter is installed and go to '\
                     '<b>Settings -> Settings -> Modes -> %s</b> to correct the path</p>' % fullName
             text = '<html>%s</html' % text
