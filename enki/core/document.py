@@ -185,7 +185,7 @@ class Document(QWidget):
         core.uiSettingsManager().dialogAccepted.connect(self._applyQpartSettings)
 
         layout = QVBoxLayout(self)
-        layout.setSpacing(0)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.qutepart)
         self.setFocusProxy(self.qutepart)
 

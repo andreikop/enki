@@ -138,7 +138,7 @@ class MainWindow(QMainWindow):
         # create central layout
         widget = QWidget(self)
         self._centralLayout = QVBoxLayout(widget)
-        self._centralLayout.setSpacing(0)
+        self._centralLayout.setContentsMargins(0, 0, 0, 0)
         self.setCentralWidget(widget)
 
     def del_(self):

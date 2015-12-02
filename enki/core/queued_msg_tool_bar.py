@@ -57,7 +57,7 @@ class _QueuedMessageWidget(QWidget):
 
         # layout
         self.hbl = QHBoxLayout( self )
-        self.hbl.setMargin( 0 )
+        self.hbl.setContentsMargins(0, 0, 0, 0)
         self.hbl.addWidget( self.lPixmap, 0, Qt.AlignCenter )
         self.hbl.addWidget( self.lMessage )
         self.hbl.addWidget( self.dbbButtons, 0, Qt.AlignCenter )
@@ -254,7 +254,7 @@ class QueuedMessageToolBar(QToolBar):
         self.toggleViewAction().setVisible( False )
 
         self.addWidget( self._queuedWidget )
-        self.layout().setMargin( 3 )
+        self.layout().setContentsMargins(3, 3, 3, 3)
 
         # connections
         self._queuedWidget.shown.connect(self.messageShown)

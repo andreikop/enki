@@ -142,7 +142,7 @@ class SearchResultsDock(DockWidget):
         self._view.setItemDelegate(self._delegate)
 
         self._layout = QHBoxLayout( widget )
-        self._layout.setMargin( 5 )
+        self._layout.setContentsMargins(5, 5, 5, 5)
         self._layout.setSpacing( 5 )
         self._layout.addWidget( self._view )
 
