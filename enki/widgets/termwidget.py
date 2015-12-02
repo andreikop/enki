@@ -9,10 +9,12 @@ This widget only provides GUI, but does not implement any system terminal or oth
 
 import cgi
 
-from PyQt5.QtCore import pyqtSignal, QEvent, QPoint, QSize
-from PyQt5.QtGui import QColor, QFont, QKeySequence, QLabel, QLineEdit, QPalette,\
-                        QSizePolicy, QTextCursor, QTextEdit, \
+from PyQt5.QtCore import QEvent, QPoint, QSize
+from PyQt5.QtWidgets import QLabel, \
+                        QSizePolicy, QTextEdit, \
                         QVBoxLayout, QWidget
+from PyQt5.QtGui import QColor, QKeySequence, QPalette, \
+                        QTextCursor
 
 from enki.core.core import core
 

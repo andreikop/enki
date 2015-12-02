@@ -158,8 +158,7 @@ def processText(ctagsLang, text, sortAlphabetically):
 
     # \t is used as separator in ctags output. Avoid \t in tags text to simplify parsing
     # encode to utf8
-    data = text.encode('utf8').replace('\t', '    ')
-
+    data = text.replace('\t', '    ').encode('utf8')
 
     with _namedTemp() as tempFile:
         tempFile.write(data)
