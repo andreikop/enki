@@ -6,7 +6,7 @@ cppfileswitch --- Switch C/C++ between header and implementation files
 import fnmatch
 import os.path
 
-from PyQt4.QtCore import QObject
+from PyQt5.QtCore import QObject
 
 from enki.core.core import core
 

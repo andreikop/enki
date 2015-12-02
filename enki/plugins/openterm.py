@@ -3,8 +3,9 @@ import platform
 import os.path
 import os
 
-from PyQt4.QtGui import QMessageBox, QIcon, QWidget, QVBoxLayout, \
+from PyQt5.QtWidgets import QMessageBox, QWidget, QVBoxLayout, \
                         QLabel, QLineEdit, QSpacerItem, QSizePolicy
+from PyQt5.QtGui import QIcon
 
 from enki.core.core import core
 from enki.core.uisettings import TextOption

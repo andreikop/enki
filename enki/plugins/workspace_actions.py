@@ -7,10 +7,11 @@ import os.path
 import stat
 import platform
 
-from PyQt4.QtCore import QObject, Qt
-from PyQt4.QtGui import QApplication, QFileDialog, QInputDialog, QMessageBox
+from PyQt5.QtCore import QObject, Qt
+from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QMessageBox
 
 from enki.core.core import core
+
 
 class Plugin(QObject):
     def __init__(self):

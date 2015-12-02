@@ -1,8 +1,8 @@
 """Queued message tool bar. Not a public API, but available via MainWindow.appendMessage()
 """
 
-from PyQt4.QtCore import pyqtSignal, QEvent, Qt, QTimer
-from PyQt4.QtGui import QAbstractButton, QColor, QBrush, QDialogButtonBox, QHBoxLayout, \
+from PyQt5.QtCore import pyqtSignal, QEvent, Qt, QTimer
+from PyQt5.QtGui import QAbstractButton, QColor, QBrush, QDialogButtonBox, QHBoxLayout, \
                         QLabel, QPainter, QPixmap, QSizePolicy, QToolBar, QWidget
 
 

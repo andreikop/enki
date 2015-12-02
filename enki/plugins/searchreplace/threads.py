@@ -10,7 +10,7 @@ import re
 import time
 import fnmatch
 
-from PyQt4.QtCore import pyqtSignal, \
+from PyQt5.QtCore import pyqtSignal, \
                          QThread
 
 from enki.core.core import core

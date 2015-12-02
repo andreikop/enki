@@ -5,16 +5,14 @@ document --- Opened file representation
 
 import os.path
 
-from PyQt4.QtCore import pyqtSignal, QFileSystemWatcher, QObject, QTimer
-from PyQt4.QtGui import QColor, QFileDialog, \
-                        QFont, \
-                        QIcon, \
+from PyQt5.QtCore import pyqtSignal, QFileSystemWatcher, QObject, QTimer
+from PyQt5.QtWidgets import QFileDialog, \
                         QInputDialog, \
                         QMessageBox, \
                         QPlainTextEdit, \
-                        QTextOption, \
                         QWidget, \
                         QVBoxLayout
+from PyQt5.QtGui import QColor, QFont, QIcon, QTextOption
 
 from qutepart import Qutepart
 
@@ -187,7 +185,7 @@ class Document(QWidget):
         core.uiSettingsManager().dialogAccepted.connect(self._applyQpartSettings)
 
         layout = QVBoxLayout(self)
-        layout.setMargin(0)
+        layout.setSpacing(0)
         layout.addWidget(self.qutepart)
         self.setFocusProxy(self.qutepart)
 

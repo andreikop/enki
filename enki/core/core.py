@@ -11,8 +11,9 @@ import shutil
 import signal
 import pkgutil
 
-from PyQt4.QtGui import QApplication, QIcon, QMessageBox
-from PyQt4.QtCore import pyqtSignal, QObject, QTimer
+from PyQt5.QtWidgets import QApplication, QMessageBox
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import pyqtSignal, QObject, QTimer
 
 import enki.core.defines
 from enki.resources.icons import qInitResources, qCleanupResources
@@ -201,8 +202,8 @@ class Core(QObject):
     def _loadPlugin(self, name):
         """Load plugin by it's module name
         """
-        exec("import enki.plugins.%s as module" % name)  # pylint: disable=W0122
-        self._loadedPlugins.append(module.Plugin())  # pylint: disable=E0602
+        # TODO do not use exec()
+        exec("import enki.plugins.%s as module; self._loadedPlugins.append(module.Plugin())" % name)
 
     def _initConfigDir(self):
         """Enki on Linux used to store configs in ~/.enki on Linux.

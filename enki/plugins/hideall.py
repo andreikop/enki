@@ -3,7 +3,7 @@ hideall --- Hide all widgets and restore state
 ==============================================
 """
 
-from PyQt4.QtCore import QObject
+from PyQt5.QtCore import QObject
 
 from enki.core.core import core
 from enki.widgets.dockwidget import DockWidget

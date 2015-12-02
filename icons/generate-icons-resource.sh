@@ -13,7 +13,7 @@ done
 echo '	</qresource>' >>$QRC_FILE
 echo '</RCC>' >> $QRC_FILE
 
-pyrcc4 -o $TMP_RESOURCE_FILE $QRC_FILE
+pyrcc5 -o $TMP_RESOURCE_FILE $QRC_FILE
 
 grep -v '^qInitResources()' $TMP_RESOURCE_FILE > $RESOURCE_FILE
 

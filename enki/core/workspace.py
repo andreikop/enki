@@ -14,19 +14,13 @@ Document - opened file, widget on workspace. :class:`enki.core.document.Document
 import os
 import os.path
 import stat
-import sys
 
-from PyQt4.QtGui import QAction, \
-                        QApplication, \
-                        QDialog, QDialogButtonBox, \
-                        QFileDialog, \
-                        QKeySequence, \
-                        QListWidgetItem, \
-                        QMessageBox, \
-                        QStackedWidget, \
-                        QShortcut
-from PyQt4.QtCore import pyqtSignal, QEvent, Qt  # pylint: disable=E0611
-from PyQt4 import uic
+from PyQt5.QtWidgets import QAction, QApplication, QDialog, QDialogButtonBox, \
+    QListWidgetItem, QMessageBox, QStackedWidget, QShortcut
+from PyQt5.QtGui import QKeySequence
+
+from PyQt5.QtCore import pyqtSignal, QEvent, Qt  # pylint: disable=E0611
+from PyQt5 import uic
 
 from enki.core.core import core, DATA_FILES_PATH
 import enki.core.openedfilemodel

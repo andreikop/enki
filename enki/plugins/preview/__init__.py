@@ -18,10 +18,10 @@ import fnmatch
 #
 # Third-party imports
 # -------------------
-from PyQt4.QtCore import QObject, Qt, pyqtSlot
-from PyQt4.QtGui import QAction, QIcon, QKeySequence, QWidget, QFileDialog, \
-    QPalette
-from PyQt4 import uic
+from PyQt5.QtCore import QObject, Qt, pyqtSlot
+from PyQt5.QtWidgets import QAction, QWidget, QFileDialog
+from PyQt5.QtGui import QIcon, QKeySequence, QPalette
+from PyQt5 import uic
 #
 # Local imports
 # -------------

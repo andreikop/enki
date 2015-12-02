@@ -8,8 +8,9 @@ Contains definition of AbstractCommand and AbstractCompleter interfaces
 """
 
 
-from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QEvent, QModelIndex, QObject, Qt, QTimer
-from PyQt4.QtGui import QDialog, QFontMetrics, QLineEdit, QTreeView, QVBoxLayout
+from PyQt5.QtCore import pyqtSignal, QAbstractItemModel, QEvent, QModelIndex, QObject, Qt, QTimer
+from PyQt5.QtWidgets import QDialog, QLineEdit, QTreeView, QVBoxLayout
+from PyQt5.QtGui import QFontMetrics
 
 from threading import Thread, Event
 from queue import Queue

@@ -20,12 +20,12 @@ import sys
 import shlex
 import codecs
 
-from PyQt4.QtCore import pyqtSignal, QSize, Qt, QThread, QTimer, QUrl, \
+from PyQt5.QtCore import pyqtSignal, QSize, Qt, QThread, QTimer, QUrl, \
   QEventLoop, pyqtSlot
-from PyQt4.QtGui import QDesktopServices, QFileDialog, QIcon, QMessageBox, \
+from PyQt5.QtGui import QDesktopServices, QFileDialog, QIcon, QMessageBox, \
   QWidget, QPalette, QWheelEvent
-from PyQt4.QtWebKit import QWebPage
-from PyQt4 import uic
+from PyQt5.QtWebKit import QWebPage
+from PyQt5 import uic
 
 from enki.core.core import core
 from enki.widgets.dockwidget import DockWidget

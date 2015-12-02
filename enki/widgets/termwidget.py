@@ -9,8 +9,8 @@ This widget only provides GUI, but does not implement any system terminal or oth
 
 import cgi
 
-from PyQt4.QtCore import pyqtSignal, QEvent, QPoint, QSize
-from PyQt4.QtGui import QColor, QFont, QKeySequence, QLabel, QLineEdit, QPalette,\
+from PyQt5.QtCore import pyqtSignal, QEvent, QPoint, QSize
+from PyQt5.QtGui import QColor, QFont, QKeySequence, QLabel, QLineEdit, QPalette,\
                         QSizePolicy, QTextCursor, QTextEdit, \
                         QVBoxLayout, QWidget
 

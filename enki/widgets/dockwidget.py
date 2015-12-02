@@ -8,10 +8,13 @@ This class adds next features to QDockWidget:
     * title bar contains QToolBar
 """
 
-from PyQt4.QtCore import pyqtSignal, QSize, Qt
-from PyQt4.QtGui import QAction, QDockWidget, QFontMetrics, QIcon, \
-                        QKeySequence, QPainter, QShortcut, QSizePolicy, QStyle, QStyleOptionButton, \
-                        QTransform, QToolBar, QWidget
+from PyQt5.QtCore import pyqtSignal, QSize, Qt
+from PyQt5.QtWidgets import QAction, QDockWidget, \
+                        QShortcut, QSizePolicy, QStyle, QStyleOptionButton, \
+                        QStyleOptionButton, QToolBar, QWidget
+from PyQt5.QtGui import QFontMetrics, QIcon, \
+                        QKeySequence, QPainter, \
+                        QTransform
 
 
 class _TitleBar(QToolBar):

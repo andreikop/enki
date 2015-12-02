@@ -9,7 +9,7 @@ import os
 import os.path
 import time
 
-from PyQt4.QtCore import QObject, QThread, pyqtSignal
+from PyQt5.QtCore import QObject, QThread, pyqtSignal
 
 from enki.core.core import core
 

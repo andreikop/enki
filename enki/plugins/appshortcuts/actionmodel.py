@@ -4,11 +4,14 @@ See information at https://github.com/pasnox/fresh and
 API docks at http://api.monkeystudio.org/fresh/
 """
 
-from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt
-from PyQt4.QtGui import QAction, QKeySequence
+from PyQt5.QtCore import QAbstractItemModel, QModelIndex, Qt
+from PyQt5.QtWidgets import QAction
+from PyQt5.QtGui import QKeySequence
+
 
 def tr(text):
     return text
+
 
 class ActionModel(QAbstractItemModel):
     _COLUMN_COUNT = 3

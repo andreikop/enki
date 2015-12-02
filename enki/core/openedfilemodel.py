@@ -11,17 +11,17 @@ import os.path
 import copy
 
 
-from PyQt4.QtCore import QAbstractItemModel, \
+from PyQt5.QtCore import QAbstractItemModel, \
                          QByteArray, \
                          QMimeData, \
                          QModelIndex, \
                          QObject, \
                          Qt
-from PyQt4.QtGui import QAbstractItemView, QAction, QActionGroup, \
-                        QIcon, \
+from PyQt5.QtWidgets import QAbstractItemView, QAction, QActionGroup, \
                         QMenu, \
                         QMessageBox, \
                         QTreeView
+from PyQt5.QtGui import QIcon
 
 
 from enki.core.core import core, DATA_FILES_PATH

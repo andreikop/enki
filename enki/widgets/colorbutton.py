@@ -4,8 +4,8 @@ colorbutton --- Button, which is used for configuring colors
 
 Button shows selected color as own icon and opens QColorDialog when clicked
 """
-from PyQt4.QtCore import pyqtSignal, QSize
-from PyQt4.QtGui import QColor, QColorDialog, QIcon, QPixmap, QToolButton
+from PyQt5.QtCore import pyqtSignal, QSize
+from PyQt5.QtGui import QColor, QColorDialog, QIcon, QPixmap, QToolButton
 
 def tr(text):
     """Dummy tr() implementation

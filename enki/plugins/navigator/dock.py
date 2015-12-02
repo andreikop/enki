@@ -4,9 +4,9 @@ Contains tag model class
 
 import fnmatch
 
-from PyQt4.QtCore import pyqtSignal, Qt, QEvent, QTimer,  QAbstractItemModel, QModelIndex
-from PyQt4.QtGui import QApplication, QBrush, QColor, QVBoxLayout, QIcon, QLabel, QLineEdit, \
-                        QTreeView, QWidget
+from PyQt5.QtCore import pyqtSignal, Qt, QEvent, QTimer,  QAbstractItemModel, QModelIndex
+from PyQt5.QtWidgets import QApplication, QVBoxLayout, QLabel, QTreeView, QWidget
+from PyQt5.QtGui import QBrush, QColor, QIcon
 
 from enki.widgets.dockwidget import DockWidget
 from enki.core.core import core

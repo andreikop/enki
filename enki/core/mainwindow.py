@@ -10,11 +10,10 @@ import sys
 import os.path
 import platform
 
-from PyQt4.QtCore import pyqtSignal, QSize, Qt, QTimer
-from PyQt4.QtGui import QHBoxLayout, QIcon, QLabel, QMessageBox, \
-                        QPalette, QSizePolicy, QStatusBar, QToolBar, QVBoxLayout, QWidget
-
-from PyQt4.QtGui import QMainWindow
+from PyQt5.QtCore import pyqtSignal, QSize, Qt, QTimer
+from PyQt5.QtGui import QIcon, QPalette
+from PyQt5.QtWidgets import QLabel, QMessageBox, QMainWindow, \
+                        QSizePolicy, QStatusBar, QToolBar, QVBoxLayout, QWidget
 
 from enki.widgets.dockwidget import DockWidget
 from enki.core.actionmanager import ActionMenuBar
@@ -106,7 +105,8 @@ class MainWindow(QMainWindow):
 
         self._addedDockWidgets = []
 
-        self.setUnifiedTitleAndToolBarOnMac(True)
+        if hasattr(self, 'setUnifiedTitleAndToolBarOnMac'):  # missing on some PyQt5 versions
+            self.setUnifiedTitleAndToolBarOnMac(True)
         self.setIconSize(QSize(16, 16))
         self.setAcceptDrops(True)
 
@@ -138,7 +138,7 @@ class MainWindow(QMainWindow):
         # create central layout
         widget = QWidget(self)
         self._centralLayout = QVBoxLayout(widget)
-        self._centralLayout.setMargin(0)
+        self._centralLayout.setSpacing(0)
         self.setCentralWidget(widget)
 
     def del_(self):

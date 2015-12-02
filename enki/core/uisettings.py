@@ -71,14 +71,10 @@ Option types:
 import sys
 import os.path
 
-from PyQt4.QtCore import pyqtSignal, Qt, QObject
-from PyQt4.QtGui import QColor, \
-                        QDialog, \
-                        QFont, \
-                        QFontDialog, \
-                        QIcon, \
-                        QTreeWidgetItem
-from PyQt4 import uic
+from PyQt5.QtCore import pyqtSignal, Qt, QObject
+from PyQt5.QtWidgets import QDialog, QFontDialog, QTreeWidgetItem
+from PyQt5.QtGui import QColor, QFont, QIcon
+from PyQt5 import uic
 
 from enki.core.core import core, DATA_FILES_PATH
 

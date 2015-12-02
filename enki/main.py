@@ -54,9 +54,9 @@ def excepthook(excepttype, exceptvalue, tracebackobj):
     text = str(text, 'utf8')
     logging.critical(text)
 
-    from PyQt4 import uic
-    from PyQt4.QtCore import pyqtSignal, QObject
-    from PyQt4.QtGui import QApplication, QDialog
+    from PyQt5 import uic
+    from PyQt5.QtCore import pyqtSignal, QObject
+    from PyQt5.QtWidgets import QApplication, QDialog
 
     from enki.core.core import core, DATA_FILES_PATH
 
@@ -89,7 +89,7 @@ def _showErrorMessage(haveQt, header, html, plain):
     print(header, file=sys.stderr)
     print(plain, file=sys.stderr)
     if haveQt:
-        from PyQt4.QtGui import QApplication, QMessageBox
+        from PyQt5.QtGui import QApplication, QMessageBox
         app = QApplication ( sys.argv )
         QMessageBox.critical(None, header, html)
     else:
@@ -110,20 +110,20 @@ def _checkDependencies(profiler):
             'installation instructions</a>'
 
     try:
-        import PyQt4
+        import PyQt5
     except ImportError as ex:
         plain =  'Failed to import Qt4 python bindings:\n' + \
                  str(ex) + '\n' + \
                  _SEE_SITE_PLAIN
 
-        _showErrorMessage(False, 'PyQt4 not found', plain, plain)
+        _showErrorMessage(False, 'PyQt5 not found', plain, plain)
         raise ex
 
     import sip
     sip.setapi('QString', 2)
     sip.setapi('QVariant', 2)
 
-    profiler.stepDone('Import PyQt4')
+    profiler.stepDone('Import PyQt5')
 
     try:
         import qutepart
@@ -256,7 +256,7 @@ def main():
         sys.exit(-1)
 
     # Imports only here. Hack for ability to get help and version info even on system without PyQt.
-    import PyQt4.QtGui
+    import PyQt5.QtGui
     import qutepart
 
     logging.basicConfig(level=logging.ERROR)
@@ -264,7 +264,7 @@ def main():
 
     sys.excepthook = excepthook
 
-    app = PyQt4.QtGui.QApplication ( sys.argv )
+    app = PyQt5.QtWidgets.QApplication ( sys.argv )
     app.setApplicationName( enki.core.defines.PACKAGE_NAME )
     app.setOrganizationName( enki.core.defines.PACKAGE_ORGANISATION )
     app.setOrganizationDomain( enki.core.defines.PACKAGE_URL )

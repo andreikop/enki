@@ -1,8 +1,10 @@
 import os.path
 
-from PyQt4.QtGui import QIcon, QMessageBox
+from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtGui import QIcon
 
 from enki.core.core import core
+
 
 class Plugin:
     def __init__(self):

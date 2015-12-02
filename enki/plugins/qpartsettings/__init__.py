@@ -11,8 +11,8 @@ from the core for make it smaller.
 
 import os
 
-from PyQt4.QtGui import QWidget
-from PyQt4 import uic
+from PyQt5.QtWidgets import QWidget
+from PyQt5 import uic
 
 from enki.core.core import core
 

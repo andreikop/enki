@@ -3,8 +3,8 @@
 
 import os.path
 
-from PyQt4.QtGui import QFileDialog, QWidget
-from PyQt4 import uic
+from PyQt5.QtGui import QFileDialog, QWidget
+from PyQt5 import uic
 
 from enki.core.core import core
 from enki.lib.get_console_output import get_console_output

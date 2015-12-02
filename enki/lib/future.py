@@ -58,9 +58,9 @@ import sys, time
 #
 # Third-party imports
 # -------------------
-from PyQt4.QtGui import QApplication
-from PyQt4.QtCore import QThread, pyqtSignal, QObject, QTimer, QRunnable, \
-  QThreadPool, pyqtSlot
+from PyQt5.QtGui import QApplication
+from PyQt5.QtCore import QThread, pyqtSignal, QObject, QTimer, QRunnable, \
+  QThreadPool
 #
 # Local imports
 # -------------

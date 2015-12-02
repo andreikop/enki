@@ -7,10 +7,10 @@ Use this module for adding own actions to the main menu
 Shortcuts are configured by appshortcuts plugin
 """
 
-import sys
+from PyQt5.QtCore import pyqtSignal, QObject
+from PyQt5.QtWidgets import QMenu, QMenuBar, QAction
+from PyQt5.QtGui import QIcon, QKeySequence
 
-from PyQt4.QtCore import pyqtSignal, QDir, QObject
-from PyQt4.QtGui import QAction, QIcon, QKeySequence, QMenu, QMenuBar
 
 class ActionMenuBar(QMenuBar):
     """Menu bar implementation.

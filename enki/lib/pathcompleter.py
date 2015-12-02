@@ -3,8 +3,9 @@ pathcompleter --- Path completer for Locator
 ============================================
 """
 
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QApplication, QFileSystemModel, QPalette, QStyle
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QFileSystemModel, QStyle
+from PyQt5.QtGui import QPalette
 
 import os
 import os.path

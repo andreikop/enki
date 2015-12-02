@@ -8,12 +8,14 @@ import os.path
 import operator
 import logging
 
-from PyQt4.QtCore import QDir, QModelIndex, QObject, Qt, QTimer, \
+from PyQt5.QtCore import QDir, QModelIndex, QObject, Qt, QTimer, \
                          pyqtSignal, pyqtSlot
-from PyQt4.QtGui import QAction, QCompleter, QDirModel, \
+from PyQt5.QtWidgets import QAction, QCompleter, QDirModel, \
                         QFrame, QFileSystemModel, \
-                        QIcon, QItemSelectionModel, QKeySequence, QComboBox, \
-                        QShortcut, QSortFilterProxyModel, QTreeView, QVBoxLayout, QWidget
+                        QComboBox, \
+                        QShortcut, QTreeView, QVBoxLayout, QWidget
+from PyQt5.QtGui import QIcon, QKeySequence
+from PyQt5.QtCore import QSortFilterProxyModel, QItemSelectionModel
 
 from enki.widgets.dockwidget import DockWidget
 

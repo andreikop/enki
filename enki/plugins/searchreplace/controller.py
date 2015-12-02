@@ -7,8 +7,9 @@ This module implements S&R plugin functionality. It joins together all other mod
 import re
 import sys
 
-from PyQt4.QtCore import QObject, Qt
-from PyQt4.QtGui import QApplication, QAction, QIcon, QMessageBox
+from PyQt5.QtCore import QObject, Qt
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtGui import QIcon
 
 
 from enki.core.core import core

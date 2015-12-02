@@ -5,7 +5,7 @@ recentfiles --- Recent files menu and Undo Close action
 import os.path
 import json
 
-from PyQt4.QtCore import QObject
+from PyQt5.QtCore import QObject
 
 from enki.core.core import core
 from enki.core.defines import CONFIG_DIR

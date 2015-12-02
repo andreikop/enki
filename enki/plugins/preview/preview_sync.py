@@ -20,10 +20,10 @@ cProfile = None
 #
 # Third-party
 # -----------
-from PyQt4.QtCore import pyqtSignal, QPoint, Qt, QTimer, QObject, QThread
-from PyQt4 import QtGui
-from PyQt4.QtWebKit import QWebPage
-from PyQt4.QtTest import QTest
+from PyQt5.QtCore import pyqtSignal, QPoint, Qt, QTimer, QObject, QThread
+from PyQt5 import QtGui
+from PyQt5.QtWebKit import QWebPage
+from PyQt5.QtTest import QTest
 #
 # Local
 # -----

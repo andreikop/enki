@@ -8,9 +8,10 @@ About dialogue and *Help* menu items
 import os.path
 
 
-from PyQt4.QtCore import QObject
-from PyQt4.QtGui import QApplication, QDialog, QIcon
-from PyQt4 import uic
+from PyQt5.QtCore import QObject
+from PyQt5.QtWidgets import QApplication, QDialog
+from PyQt5.QtGui import QIcon
+from PyQt5 import uic
 
 from enki.core.defines import PACKAGE_NAME, PACKAGE_VERSION
 from enki.core.core import core

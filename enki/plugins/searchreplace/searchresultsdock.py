@@ -5,8 +5,8 @@ searchresultsdock --- Search results dock widget
 Shows results with SearchResultsModel
 """
 
-from PyQt4.QtCore import Qt, pyqtSignal, QModelIndex
-from PyQt4.QtGui import QFontMetrics, QHBoxLayout, QIcon, \
+from PyQt5.QtCore import Qt, pyqtSignal, QModelIndex
+from PyQt5.QtGui import QFontMetrics, QHBoxLayout, QIcon, \
                         QTreeView, QWidget, QPushButton
 from enki.widgets.dockwidget import DockWidget
 from enki.core.core import core

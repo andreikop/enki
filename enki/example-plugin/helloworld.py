@@ -1,5 +1,5 @@
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QAction, QHBoxLayout, QIcon, QLabel, QLineEdit, QMessageBox, QWidget
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QAction, QHBoxLayout, QIcon, QLabel, QLineEdit, QMessageBox, QWidget
 
 # core is main enki.core singletone. It is usually used for getting pointers to other singletones
 from enki.core.core import core

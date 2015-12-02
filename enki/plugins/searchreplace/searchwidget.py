@@ -10,11 +10,11 @@ import os.path
 import re
 
 
-from PyQt4.QtCore import QDir, QEvent, \
+from PyQt5.QtCore import QDir, QEvent, \
                          QRect, QSize, Qt, \
                          pyqtSignal
 
-from PyQt4.QtGui import QApplication, QCompleter, QColor, QDirModel, QFileDialog,  \
+from PyQt5.QtGui import QApplication, QCompleter, QColor, QDirModel, QFileDialog,  \
                         QFrame, QFileDialog, QIcon, \
                         QKeySequence, \
                         QPainter,  \
@@ -22,7 +22,7 @@ from PyQt4.QtGui import QApplication, QCompleter, QColor, QDirModel, QFileDialog
                         QProgressBar, \
                         QShortcut, \
                         QToolButton, QWidget
-from PyQt4 import uic
+from PyQt5 import uic
 
 from enki.core.core import core
 

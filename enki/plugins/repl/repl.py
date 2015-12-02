@@ -8,9 +8,9 @@ File contains plugin functionality implementation
 import os
 import os.path
 
-from PyQt4.QtCore import pyqtSignal, QEvent, QObject, Qt, QTimer
-from PyQt4.QtGui import QFileDialog, QFont, QIcon, QMessageBox, QWidget
-from PyQt4 import uic
+from PyQt5.QtCore import pyqtSignal, QEvent, QObject, Qt, QTimer
+from PyQt5.QtGui import QFileDialog, QFont, QIcon, QMessageBox, QWidget
+from PyQt5 import uic
 
 from enki.core.core import core
 

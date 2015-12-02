@@ -6,8 +6,8 @@ import os.path
 import collections
 import queue
 
-from PyQt4.QtCore import QObject, QThread, pyqtSignal
-from PyQt4.QtGui import QIcon
+from PyQt5.QtCore import QObject, QThread, pyqtSignal
+from PyQt5.QtGui import QIcon
 
 from enki.core.core import core
 from enki.core.uisettings import ChoiseOption, TextOption, CheckableOption, NumericOption

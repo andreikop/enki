@@ -2,13 +2,13 @@
 """
 
 import os.path
-import threading
 import collections
 import queue
 
-from PyQt4.QtCore import pyqtSignal, QObject, Qt, QThread, QTimer
-from PyQt4.QtGui import QFileDialog, QIcon, QWidget
-from PyQt4 import uic
+from PyQt5.QtCore import pyqtSignal, QObject, QThread, QTimer
+from PyQt5.QtWidgets import QFileDialog, QWidget
+from PyQt5.QtGui import QIcon
+from PyQt5 import uic
 
 
 from enki.core.core import core
