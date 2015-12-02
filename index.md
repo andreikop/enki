@@ -136,9 +136,9 @@ baseurl: .
 
     <div class="screenshot-row">
         <div class="screenshot">
-            <a href="screenshots/locator.png" rel="lightbox[screenshots]" title="File open dialog with Bash-like tab completion">
+            <a href="screenshots/locator.png" rel="lightbox[screenshots]" title="Fuzzy file-matching and bash-like path completion">
                 <img src="screenshots/preview/locator.png" class="fancy-border" /></a><br />
-            File open dialog with bash-like Tab completion
+            Fuzzy file-matching and bash-like path completion
         </div>
         <div class="screenshot">
             <a href="screenshots/repl.png" rel="lightbox[screenshots]" title="REPL for Python, SML, Scheme">
@@ -149,7 +149,7 @@ baseurl: .
 
     <div class="screenshot-row">
         <div class="screenshot">
-            <a href="screenshots/pylint.png" rel="lightbox[screenshots]" title="Pylint support">
+            <a href="screenshots/pylint.png" rel="lightbox[screenshots]" title="Flake8 support">
                 <img src="screenshots/preview/pylint.png" class="fancy-border" /></a><br />
             Pylint support
         </div>

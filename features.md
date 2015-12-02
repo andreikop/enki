@@ -21,6 +21,7 @@ baseurl: .
  * File system tree browser
  * Class tree and Navigation in a file based on ctags
  * Locator. A File open dialog with bash-like Tab completion and glob support. Even better than bash!
+ * Fuzzy file opener
 
 ### REPL
 (Read, Eval, Print loop)
