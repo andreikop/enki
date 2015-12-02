@@ -28,7 +28,7 @@ from enki.core.core import core
 import enki.core.defines
 import enki.core.json_wrapper
 
-from action_shortcut_editor import ActionShortcutEditor
+from .action_shortcut_editor import ActionShortcutEditor
 
 
 def tr(text):  # pylint: disable=C0103

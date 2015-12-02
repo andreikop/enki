@@ -178,7 +178,7 @@ class Workspace(QStackedWidget):
     Convenience signal, which retransmits original signal, sent by the document
     """  # pylint: disable=W0105
 
-    languageChanged = pyqtSignal(Document, unicode)
+    languageChanged = pyqtSignal(Document, str)
     """
     languageChanged(document, language)
 
@@ -205,7 +205,7 @@ class Workspace(QStackedWidget):
     Convenience signal, which retransmits original signal, sent by the document
     """  # pylint: disable=W0105
 
-    eolChanged = pyqtSignal(Document, unicode)
+    eolChanged = pyqtSignal(Document, str)
     """
     eolChanged(document, eol)
 
@@ -531,7 +531,7 @@ class Workspace(QStackedWidget):
         except (OSError, IOError) as ex:
             QMessageBox.critical(self._mainWindow(),
                                  "Failed to stat the file",
-                                 unicode(str(ex), 'utf8'))
+                                 str(str(ex), 'utf8'))
             return None
 
         # Check if is a directory

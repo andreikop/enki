@@ -182,7 +182,7 @@ class CodeChatSettingsWidget(QWidget):
             self.labelCodeChatNotInstalled.setVisible(False)
 
         # Add this GUI to the settings dialog box.
-        dialog.appendPage(u"Literate programming", self)
+        dialog.appendPage("Literate programming", self)
         # Next, have the setting UI auto-update the corresponding CodeChat and
         # config entries.
         dialog.appendOption(CheckableOption(dialog, core.config(),
@@ -396,13 +396,13 @@ class Plugin(QObject):
         if not 'Sphinx' in core.config():
             core.config()['Sphinx'] = {}
             core.config()['Sphinx']['Enabled'] = False
-            core.config()['Sphinx']['Executable'] = u'sphinx-build'
-            core.config()['Sphinx']['ProjectPath'] = u''
+            core.config()['Sphinx']['Executable'] = 'sphinx-build'
+            core.config()['Sphinx']['ProjectPath'] = ''
             core.config()['Sphinx']['BuildOnSave'] = False
             core.config()['Sphinx']['OutputPath'] = os.path.join('_build',
                                                                  'html')
             core.config()['Sphinx']['AdvancedMode'] = False
-            core.config()['Sphinx']['Cmdline'] = ( u'sphinx-build -d ' +
+            core.config()['Sphinx']['Cmdline'] = ( 'sphinx-build -d ' +
               os.path.join('_build','doctrees') + ' . ' +
               os.path.join('_build', 'html') )
             core.config().flush()

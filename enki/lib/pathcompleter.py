@@ -13,6 +13,7 @@ import glob
 from enki.lib.htmldelegate import htmlEscape
 from enki.core.locator import AbstractCompleter
 from enki.core.core import core
+from functools import reduce
 
 
 def makeSuitableCompleter(text):
@@ -198,8 +199,8 @@ class PathCompleter(AbstractPathCompleter):
 
         try:
             filesAndDirs = os.listdir(self._path)
-        except OSError, ex:
-            self._error = unicode(str(ex), 'utf8')
+        except OSError as ex:
+            self._error = str(str(ex), 'utf8')
             return
 
         if not filesAndDirs:

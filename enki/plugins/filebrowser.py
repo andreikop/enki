@@ -26,7 +26,7 @@ def _getCurDir():
     """Get process current directory
     """
     try:
-        return os.path.abspath(unicode(os.curdir))
+        return os.path.abspath(str(os.curdir))
     except OSError:  # current directory might have been deleted
         return ''
 
@@ -112,11 +112,11 @@ class SmartRecents(QObject):
         """
         self._popularDirs = enki.core.json_wrapper.load(self.FILE_PATH, 'file browser popular directories', {})
 
-        for k in self._popularDirs.iterkeys():
+        for k in self._popularDirs.keys():
             try:
                 self._popularDirs[k] = float(self._popularDirs[k])
             except ValueError as ex:
-                logging.error('Invalid PopularDirs value: ' + unicode(ex))
+                logging.error('Invalid PopularDirs value: ' + str(ex))
                 self._popularDirs[k] = 0.0
 
     def _savePopularDirs(self):
@@ -130,7 +130,7 @@ class SmartRecents(QObject):
         if not self._popularDirs:
             return ()
 
-        dirAndPopularity = sorted(self._popularDirs.iteritems(), key=operator.itemgetter(1), reverse=True)
+        dirAndPopularity = sorted(iter(self._popularDirs.items()), key=operator.itemgetter(1), reverse=True)
         dirs = [dp[0] for dp in dirAndPopularity]  # take only first elements
         return dirs
 
@@ -152,10 +152,10 @@ class SmartRecents(QObject):
         self._popularDirs[self._currDir] += self.BONUS_FOR_OPENING
 
         # Normalization
-        pointsSum = sum(self._popularDirs.itervalues())
+        pointsSum = sum(self._popularDirs.values())
         multiplier = self.MAX_POINTS_COUNT / pointsSum
         if multiplier < 1:
-            for k in self._popularDirs.iterkeys():
+            for k in self._popularDirs.keys():
                 self._popularDirs[k] *= multiplier
 
         self._savePopularDirs()
@@ -557,7 +557,7 @@ class DockFileBrowser(DockWidget):
     tree, for moving root of tree to currently selected directory and
     up (relatively for current directory)
     """
-    rootChanged = pyqtSignal(unicode)
+    rootChanged = pyqtSignal(str)
     """
     rootChanged(path)
 

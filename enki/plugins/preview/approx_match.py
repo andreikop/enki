@@ -106,7 +106,7 @@ def htmlTemplate(body):
 
 # Given HTML, write it to a file.
 def writeHtmlLog(htmlText):
-    print("Writing log file to " + os.getcwd())
+    print(("Writing log file to " + os.getcwd()))
     with codecs.open('approx_match_log.html', 'w', encoding = 'utf-8') as f:
         f.write(htmlText)
 #

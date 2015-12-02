@@ -4,7 +4,7 @@
 import os.path
 import threading
 import collections
-import Queue
+import queue
 
 from PyQt4.QtCore import pyqtSignal, QObject, Qt, QThread, QTimer
 from PyQt4.QtGui import QFileDialog, QIcon, QWidget
@@ -15,8 +15,8 @@ from enki.core.core import core
 from enki.core.uisettings import TextOption, CheckableOption
 import enki.lib.get_console_output as gco
 
-import ctags
-from dock import NavigatorDock
+from . import ctags
+from .dock import NavigatorDock
 
 
 
@@ -69,7 +69,7 @@ _CTAGS_TO_QUTEPART_LANG_MAP = {
 
 # build reverse map
 _QUTEPART_TO_CTAGS_LANG_MAP = {}
-for ctagsLang, qutepartLangs in _CTAGS_TO_QUTEPART_LANG_MAP.iteritems():
+for ctagsLang, qutepartLangs in _CTAGS_TO_QUTEPART_LANG_MAP.items():
     for qutepartLang in qutepartLangs:
         _QUTEPART_TO_CTAGS_LANG_MAP[qutepartLang] = ctagsLang
 
@@ -84,7 +84,7 @@ class ProcessorThread(QThread):
 
     def __init__(self):
         QThread.__init__(self)
-        self._queue = Queue.Queue()
+        self._queue = queue.Queue()
         self.start(QThread.LowPriority)
 
     def process(self, ctagsLang, text, sortAlphabetically):
@@ -251,7 +251,7 @@ class Plugin(QObject):
         """
         widget = SettingsWidget(dialog)
 
-        dialog.appendPage(u"Navigator", widget, QIcon(':/enkiicons/goto.png'))
+        dialog.appendPage("Navigator", widget, QIcon(':/enkiicons/goto.png'))
 
         # Options
         dialog.appendOption(TextOption(dialog, core.config(),

@@ -218,7 +218,7 @@ class Core(QObject):
                 shutil.move(_OLD_CONFIG_DIR, newPath)
             except Exception as ex:
                 text = 'Failed to move config directory from {} to {}: {}' \
-                    .format(_OLD_CONFIG_DIR, newPath, unicode(ex))
+                    .format(_OLD_CONFIG_DIR, newPath, str(ex))
                 QMessageBox.warning(None, 'Failed to move configs', text)
 
     def _createDefaultConfigFile(self):
@@ -231,13 +231,13 @@ class Core(QObject):
             try:
                 os.makedirs(enki.core.defines.CONFIG_DIR)
             except (OSError, IOError) as ex:
-                raise UserWarning(u'Failed to create directory "%s". Error: %s\n' % \
-                                  (enki.core.defines.CONFIG_DIR, unicode(str(ex), 'utf8')))
+                raise UserWarning('Failed to create directory "%s". Error: %s\n' % \
+                                  (enki.core.defines.CONFIG_DIR, str(str(ex), 'utf8')))
         try:
             shutil.copyfile(_DEFAULT_CONFIG_PATH, _CONFIG_PATH)
         except (OSError, IOError) as ex:
-            raise UserWarning(u'Failed to create configuration file "%s". Error:\n%s' % \
-                              (_CONFIG_PATH, unicode(str(ex), 'utf8')))
+            raise UserWarning('Failed to create configuration file "%s". Error:\n%s' % \
+                              (_CONFIG_PATH, str(str(ex), 'utf8')))
 
     def _createConfig(self):
         """Open main config file and return Config instance
@@ -255,7 +255,7 @@ class Core(QObject):
                 self._createDefaultConfigFile()
                 haveFileInHome = True
             except UserWarning as ex:
-                self.mainWindow().appendMessage(unicode(ex))
+                self.mainWindow().appendMessage(str(ex))
 
         # Try to open
         config = None

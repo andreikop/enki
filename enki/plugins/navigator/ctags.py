@@ -102,7 +102,7 @@ def _parseTags(ctagsLang, text):
         try:
             name, lineNumber, type_, scopeType, scopeName = _parseTag(line)
         except _ParseFailed:
-            print >> sys.stderr, 'navigator: failed to parse ctags output line "{}"'.format(line)
+            print('navigator: failed to parse ctags output line "{}"'.format(line), file=sys.stderr)
             continue
 
         if type_ not in ignoredTypes:

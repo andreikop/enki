@@ -13,7 +13,7 @@ from enki.core.core import core
 
 from enki.widgets.lineedit import LineEdit
 
-import ctags
+from . import ctags
 
 
 def _tagPath(tag):

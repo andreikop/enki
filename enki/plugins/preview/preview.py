@@ -10,8 +10,8 @@
 # ---------------
 import os.path
 import collections
-import Queue
-import StringIO
+import queue
+import io
 import traceback
 import re
 import shutil
@@ -80,7 +80,7 @@ def _checkModificationTime(sourceFile, outputFile, s):
     # so that larger = newer.
     try:
         if os.path.getmtime(outputFile) > os.path.getmtime(sourceFile):
-            return u'', s, QUrl.fromLocalFile(outputFile)
+            return '', s, QUrl.fromLocalFile(outputFile)
         else:
             return ('The file {} is older than the source file {}.'
                     .format(outputFile, sourceFile), s, QUrl())
@@ -97,12 +97,12 @@ class ConverterThread(QThread):
     # converted to HTML.
     htmlReady = pyqtSignal(
       # Path to the file which should be converted to / displayed as HTML.
-      unicode,
+      str,
       # HTML rendering of the file; empty if the HTML is provided in a file
       # specified by the URL below.
-      unicode,
+      str,
       # Error text resulting from the conversion process.
-      unicode,
+      str,
       # A reference to a file containing HTML rendering. Empty if the second
       # parameter above contains the HTML instead.
       QUrl)
@@ -113,13 +113,13 @@ class ConverterThread(QThread):
     # This signal emits messages for the log window.
     logWindowText = pyqtSignal(
       # A string to append to the log window.
-      unicode)
+      str)
 
     _Task = collections.namedtuple("Task", ["filePath", "language", "text"])
 
     def __init__(self):
         QThread.__init__(self)
-        self._queue = Queue.Queue()
+        self._queue = queue.Queue()
         self.start(QThread.LowPriority)
         self._ac = AsyncController('QThread', self)
         self._ac.defaultPriority = QThread.LowPriority
@@ -191,7 +191,7 @@ class ConverterThread(QThread):
                    'Install it with your package manager or see ' \
                    '<a href="http://pypi.python.org/pypi/docutils"/>this page.</a>', None
 
-        errStream = StringIO.StringIO()
+        errStream = io.StringIO()
         settingsDict = {
           # Make sure to use Unicode everywhere.
           'output_encoding': 'unicode',
@@ -231,7 +231,7 @@ class ConverterThread(QThread):
             outputPath = os.path.join(projectPath, outputPath)
         # Create an htmlPath as OutputPath + remainder of filePath.
         htmlPath = os.path.join(outputPath + filePath[len(projectPath):])
-        html_file_suffix = u'.html'
+        html_file_suffix = '.html'
         try:
             with codecs.open(os.path.join(projectPath, 'sphinx-enki-info.txt')) as f:
                 hfs = f.read()
@@ -263,7 +263,7 @@ class ConverterThread(QThread):
     def _convertCodeChat(self, text, filePath):
         # Use StringIO to pass CodeChat compilation information back to
         # the UI.
-        errStream = StringIO.StringIO()
+        errStream = io.StringIO()
         try:
             htmlString = CodeToRest.code_to_html_string(text, errStream,
                                                         filename=filePath)
@@ -694,7 +694,7 @@ class PreviewDock(DockWidget):
         if index == -1:  # empty combo
             return ''
 
-        return unicode(self._widget.cbTemplate.itemData(index))
+        return str(self._widget.cbTemplate.itemData(index))
 
     def _getCurrentTemplate(self):
         path = self._getCurrentTemplatePath()
@@ -1009,7 +1009,7 @@ class PreviewDock(DockWidget):
             # Therefeore, the second element of each tuple, represented as x[1],
             # is the error_string. The next two lines of code will collect all
             # ERRORs/SEVEREs and WARNINGs found in the error_string separately.
-            errNum = sum([x[1] == u'ERROR' or x[1] == u'SEVERE' for x in result])
+            errNum = sum([x[1] == 'ERROR' or x[1] == 'SEVERE' for x in result])
             warningNum = [x[1] for x in result].count('WARNING')
             # Report these results this to the user.
             status = 'Error(s): {}, warning(s): {}'.format(errNum, warningNum)
@@ -1086,4 +1086,4 @@ class PreviewDock(DockWidget):
                 with open(path, 'w') as openedFile:
                     openedFile.write(data)
             except (OSError, IOError) as ex:
-                QMessageBox.critical(self, "Failed to save HTML", unicode(str(ex), 'utf8'))
+                QMessageBox.critical(self, "Failed to save HTML", str(str(ex), 'utf8'))

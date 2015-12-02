@@ -12,7 +12,7 @@ from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, QEvent, QModelIndex, QO
 from PyQt4.QtGui import QDialog, QFontMetrics, QLineEdit, QTreeView, QVBoxLayout
 
 from threading import Thread, Event
-from Queue import Queue
+from queue import Queue
 
 from enki.core.core import core
 from enki.lib.htmldelegate import HTMLDelegate
@@ -549,9 +549,9 @@ def splitLine(text):
     it = enumerate(text)
 
     def findNonSpace():
-        index, char = it.next()
+        index, char = next(it)
         while char.isspace():
-            index, char = it.next()
+            index, char = next(it)
 
         return index, char
 
@@ -564,7 +564,7 @@ def splitLine(text):
                     break
                 elif char == '\\':
                     try:
-                        index, char = it.next()
+                        index, char = next(it)
                     except StopIteration:
                         word += '\\'
                         raise
@@ -572,7 +572,7 @@ def splitLine(text):
                         word += char
                 else:
                     word += char
-                index, char = it.next()
+                index, char = next(it)
 
         except StopIteration:
             pass

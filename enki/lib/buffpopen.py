@@ -12,7 +12,7 @@ import copy
 import time
 
 try:
-    from Queue import Queue, Empty, Full
+    from queue import Queue, Empty, Full
 except ImportError:
     from queue import Queue, Empty, Full  # python 3.x
 

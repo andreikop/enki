@@ -12,7 +12,7 @@ from enki.widgets.dockwidget import DockWidget
 from enki.core.core import core
 from enki.lib.htmldelegate import HTMLDelegate
 
-import searchresultsmodel
+from . import searchresultsmodel
 
 
 class ExpandCollapseAllButton(QPushButton):

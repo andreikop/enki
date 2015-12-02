@@ -20,8 +20,8 @@ class _QueuedMessageWidget(QWidget):
     finished = pyqtSignal()
     shown = pyqtSignal()
     closed = pyqtSignal()
-    linkActivated = pyqtSignal(unicode)
-    linkHovered= pyqtSignal(unicode)
+    linkActivated = pyqtSignal(str)
+    linkHovered= pyqtSignal(str)
     buttonClicked = pyqtSignal(QAbstractButton)
 
     def __init__(self, *args):
@@ -200,7 +200,7 @@ class _QueuedMessageWidget(QWidget):
 
         self.dbbButtons.clear()
 
-        for button in msg.buttons.iterkeys():
+        for button in msg.buttons.keys():
             pb = self.dbbButtons.addButton( button )
 
             if button in msg.buttons:

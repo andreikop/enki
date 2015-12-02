@@ -86,7 +86,7 @@ class MainWindow(QMainWindow):
     themselves.
     """  # pylint: disable=W0105
 
-    directoryDropt = pyqtSignal(unicode)
+    directoryDropt = pyqtSignal(str)
     """
     directoryDropt()
 
@@ -367,8 +367,8 @@ class MainWindow(QMainWindow):
         try:
             with open(path, 'wb') as f:
                 f.write(data)
-        except (OSError, IOError), ex:
-            error = unicode(str(ex), 'utf8')
+        except (OSError, IOError) as ex:
+            error = str(str(ex), 'utf8')
             QMessageBox.critical(None,
                                 self.tr("Cannot save {}".format(title)),
                                 self.tr("Cannot create file '%s'\nError: %s" % (path, error)))
@@ -380,8 +380,8 @@ class MainWindow(QMainWindow):
             try:
                 with open(path, 'rb') as f:
                     return f.read()
-            except (OSError, IOError), ex:
-                error = unicode(str(ex), 'utf8')
+            except (OSError, IOError) as ex:
+                error = str(str(ex), 'utf8')
                 QMessageBox.critical(None,
                                     self.tr("Cannot restore {}".format(title)),
                                     self.tr("Cannot read file '%s'\nError: %s" % (path, error)))

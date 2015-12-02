@@ -251,17 +251,17 @@ class ChoiseOption(Option):
         """Load the value from config to GUI
         """
         value = self.config.get(self.optionName)
-        for button, keyValue in self.cotrolToValue.iteritems():
+        for button, keyValue in self.cotrolToValue.items():
             if value == keyValue:
                 button.setChecked(True)
                 break
         else:
-            print >> sys.stderr, 'Button not found for option %s value' % self.optionName, value
+            print('Button not found for option %s value' % self.optionName, value, file=sys.stderr)
 
     def save(self):
         """Save the value from GUI to config
         """
-        for button in self.cotrolToValue.iterkeys():
+        for button in self.cotrolToValue.keys():
             if button.isChecked():
                 _set(self.config, self.optionName, self.cotrolToValue[button])
 
@@ -280,10 +280,10 @@ class UISettings(QDialog):
         self.setAttribute( Qt.WA_DeleteOnClose )
 
         # Expand all tree widget items
-        self._pageForItem = {u"Ignored files": self.pIgnoredFiles,
-                             u"REPL": self.pRepl,
-                             u"Lint": self.pLint,
-                             u"Editor": self.pEditor}
+        self._pageForItem = {"Ignored files": self.pIgnoredFiles,
+                             "REPL": self.pRepl,
+                             "Lint": self.pLint,
+                             "Editor": self.pEditor}
 
         # resize to minimum size
         hint = self.sizeHint()
@@ -400,4 +400,4 @@ class UISettingsManager(QObject):  # pylint: disable=R0903
         try:
             core.config().flush()
         except UserWarning as ex:
-            core.mainWindow().appendMessage(unicode(ex))
+            core.mainWindow().appendMessage(str(ex))

@@ -10,7 +10,7 @@ from PyQt4 import uic
 from PyQt4.QtCore import QEvent, Qt
 from PyQt4.QtGui import QDialog, QDialogButtonBox, QHeaderView, QKeySequence, QMessageBox, QSortFilterProxyModel
 
-from actionmodel import ActionModel
+from .actionmodel import ActionModel
 from enki.widgets.lineedit import LineEdit
 
 
@@ -146,7 +146,7 @@ class ActionShortcutEditor(QDialog):
         try:
             self._model.setShortcut( action, shortcut)
         except UserWarning as ex:
-            QMessageBox.information(self, None, unicode(ex))
+            QMessageBox.information(self, None, str(ex))
             return
 
         self.tvActions_selectionModel_selectionChanged()
@@ -194,7 +194,7 @@ class ActionShortcutEditor(QDialog):
         elif self.dbbButtons.standardButton( button ) == QDialogButtonBox.Ok:
             self.accept()
         elif self.dbbButtons.standardButton( button ) == QDialogButtonBox.Cancel:
-            for action in self._originalShortcuts.iterkeys():
+            for action in self._originalShortcuts.keys():
                 action.setShortcut( self._originalShortcuts[action] )
             self.reject()
         else:

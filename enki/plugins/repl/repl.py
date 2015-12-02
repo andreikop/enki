@@ -183,10 +183,10 @@ class _AbstractInterpreter(QObject):
 
         try:
             self._buffPopen.start(args)
-        except OSError, ex:
+        except OSError as ex:
             fullName = self._fullName.replace(' ', '&nbsp;')
             text = '<p>Interpreter path: %s</p>' % self._interpreterPath
-            text += '<p>Error: %s</p>' % unicode(str(ex), 'utf8')
+            text += '<p>Error: %s</p>' % str(str(ex), 'utf8')
             text += '<p>Make sure interpreter is installed and go to '\
                     '<b>Settings -> Settings -> Modes -> %s</b> to correct the path</p>' % fullName
             text = '<html>%s</html' % text

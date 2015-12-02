@@ -135,7 +135,7 @@ class ActionModel(QAbstractItemModel):
         return True
 
     def setShortcut(self, action, shortcut):
-        if isinstance(action, basestring):
+        if isinstance(action, str):
             action = self.action( action )
 
         if shortcut is None:

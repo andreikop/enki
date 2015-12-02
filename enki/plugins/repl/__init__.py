@@ -124,10 +124,10 @@ class _AbstractReplPlugin(QObject):
         """UI settings dialogue is about to execute.
         Add own options
         """
-        from repl import SettingsWidget
+        from .repl import SettingsWidget
         widget = SettingsWidget(dialog)
 
-        dialog.appendPage(u"REPL/%s" % self._FULL_NAME, widget, self._icon())
+        dialog.appendPage("REPL/%s" % self._FULL_NAME, widget, self._icon())
 
         # Options
         dialog.appendOption(ChoiseOption(dialog, core.config(), "Modes/%s/Enabled" % self._LANGUAGE,
@@ -162,7 +162,7 @@ class _AbstractReplPlugin(QObject):
             self._interpreter.processIsRunningChanged.connect(lambda isRunning: self._breakAction.setEnabled(isRunning))
 
         if self._dock is None:
-            from repl import ReplDock
+            from .repl import ReplDock
             self._dock = ReplDock(self._interpreter.widget(),
                                   self._DOCK_TITLE,
                                   self._icon())
@@ -208,7 +208,7 @@ class _SchemeReplPlugin(_AbstractReplPlugin):
     def _createInterpreter(self):
         """Create interpreter instance
         """
-        from repl import MitSchemeInterpreter
+        from .repl import MitSchemeInterpreter
         return MitSchemeInterpreter(self._LANGUAGE, self._FULL_NAME, self._activeInterpreterPath)
 
 
@@ -231,7 +231,7 @@ class _SmlReplPlugin(_AbstractReplPlugin):
     def _createInterpreter(self):
         """Create interpreter instance
         """
-        from repl import SmlInterpreter
+        from .repl import SmlInterpreter
         return SmlInterpreter(self._LANGUAGE, self._FULL_NAME, self._activeInterpreterPath)
 
 
@@ -256,7 +256,7 @@ class _PythonReplPlugin(_AbstractReplPlugin):
     def _createInterpreter(self):
         """Create interpreter instance
         """
-        from repl import PythonInterpreter
+        from .repl import PythonInterpreter
         return PythonInterpreter(self._LANGUAGE, self._FULL_NAME, self._activeInterpreterPath)
 
 

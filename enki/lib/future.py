@@ -387,7 +387,7 @@ class RunLatest(object):
 # and return its results to ``g``.
 class Future(object):
     # The possible states for an instance of this class.
-    STATE_WAITING, STATE_RUNNING, STATE_FINISHED, STATE_CANCELED = range(4)
+    STATE_WAITING, STATE_RUNNING, STATE_FINISHED, STATE_CANCELED = list(range(4))
 
     def __init__(self,
       # |g|
@@ -479,7 +479,7 @@ class Future(object):
             # produces ``type, value, traceback`` where type is the exception
             # type of the exception being handled, value is a class instance,
             # and traceback is the desired trackback to report.
-            raise self._exc_info[1], None, self._exc_info[2]
+            raise self._exc_info[1].with_traceback(self._exc_info[2])
         else:
             return self._result
 
@@ -590,7 +590,7 @@ def main():
     # Define a function ``foo`` to run aysnchronously, calling ``foo_done`` when
     # it completes.
     def foo(a, b):
-        print('Foo ' + str(a) + str(b) + ' in thread ' + str(QThread.currentThread()))
+        print(('Foo ' + str(a) + str(b) + ' in thread ' + str(QThread.currentThread())))
         if a == 3:
             # As a test, raise an exception. See if a useful traceback is
             # printed.
@@ -598,7 +598,7 @@ def main():
         time.sleep(0.3)
         return a + 0.1
     def foo_done(future):
-        print('Done ' + str(future.result))
+        print(('Done ' + str(future.result)))
 
     # Run foo using a single thread ('QThread') or a pool of threads (0). Give
     # it ``app`` as the parent so that when Qt destroys ``app``, it will also

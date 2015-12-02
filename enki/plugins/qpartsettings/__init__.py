@@ -142,11 +142,11 @@ class Plugin:
         eolWidget = _SettingsPageWidget('Eol.ui', dialog)
         longLinesWidget = _SettingsPageWidget('LongLines.ui', dialog)
 
-        dialog.appendPage(u"Editor/Font", fontWidget)
-        dialog.appendPage(u"Editor/Indentation", indentWidget)
-        dialog.appendPage(u"Editor/Autocompletion", complWidget)
-        dialog.appendPage(u"Editor/EOL", eolWidget)
-        dialog.appendPage(u"Editor/Long Lines", longLinesWidget)
+        dialog.appendPage("Editor/Font", fontWidget)
+        dialog.appendPage("Editor/Indentation", indentWidget)
+        dialog.appendPage("Editor/Autocompletion", complWidget)
+        dialog.appendPage("Editor/EOL", eolWidget)
+        dialog.appendPage("Editor/Long Lines", longLinesWidget)
 
         cfg = core.config()
         options = \

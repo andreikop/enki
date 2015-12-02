@@ -48,8 +48,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'template'
-copyright = u'2014, Author Name'
+project = 'template'
+copyright = '2014, Author Name'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -185,7 +185,7 @@ import codecs
 try:
     with codecs.open('sphinx-enki-info.txt', 'wb', 'utf-8') as f:
         f.write(html_file_suffix)
-except NameError, TypeError:
+except NameError as TypeError:
     # If ``html_file_suffix`` isn't defined (NameError) or is None (TypeError),
     # Enki will assume ``.html``.
     pass
@@ -210,8 +210,8 @@ latex_elements = {
 # (source start file, target name, title,
 # author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'template.tex', u'template Documentation',
-   u'Author Name', 'manual'),
+  ('index', 'template.tex', 'template Documentation',
+   'Author Name', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -240,8 +240,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'template', u'template Documentation',
-     [u'Author Name'], 1)
+    ('index', 'template', 'template Documentation',
+     ['Author Name'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -254,8 +254,8 @@ man_pages = [
 # (source start file, target name, title, author,
 # dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'template', u'template Documentation',
-   u'Author Name', 'template', 'One line description of project.',
+  ('index', 'template', 'template Documentation',
+   'Author Name', 'template', 'One line description of project.',
    'Miscellaneous'),
 ]
 

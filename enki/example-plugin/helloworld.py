@@ -102,7 +102,7 @@ class Plugin:
         Add own options
         """
         page = SettingsPage(dialog)
-        dialog.appendPage(u"Hello World", page, QIcon(':/enkiicons/help.png'))
+        dialog.appendPage("Hello World", page, QIcon(':/enkiicons/help.png'))
 
         # Options
         dialog.appendOption(TextOption(dialog, core.config(), "HelloWorld/VeryImportantOption", page.edit))
