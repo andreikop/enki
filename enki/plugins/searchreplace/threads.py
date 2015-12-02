@@ -129,7 +129,7 @@ class SearchThread(StopableThread):
             maskRegExp = None
 
         if self._inOpenedFiles:
-            files = self._openedFiles.keys()
+            files = self._openedFiles.iterkeys()
             if maskRegExp:
                 basenames = [os.path.basename(f) for f in files]
                 files = [f for f in basenames if maskRegExp.match(f)]
@@ -310,7 +310,7 @@ class ReplaceThread(StopableThread):
         """
         startTime = time.clock()
 
-        for fileName in self._results.keys():
+        for fileName in self._results.iterkeys():
             content = self._fileContent(fileName)
             if content is None:  # if failed to read file
                 continue

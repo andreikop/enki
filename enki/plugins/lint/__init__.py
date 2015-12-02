@@ -251,10 +251,10 @@ class Plugin(QObject):
         visibleMessagesFilter = self._LEVEL_FILTER[core.config().get('Lint/Python/Show')]
 
         filteredResults = {lineNumber: value
-                                for lineNumber, value in results.items()
+                                for lineNumber, value in results.iteritems()
                                     if (value[0] in visibleMessagesFilter)}
 
-        for level, message in filteredResults.values():
+        for level, message in filteredResults.itervalues():
             if level == Qutepart.LINT_ERROR:
                 errors += 1
             elif level == Qutepart.LINT_WARNING:

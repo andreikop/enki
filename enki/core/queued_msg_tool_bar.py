@@ -200,7 +200,7 @@ class _QueuedMessageWidget(QWidget):
 
         self.dbbButtons.clear()
 
-        for button in msg.buttons.keys():
+        for button in msg.buttons.iterkeys():
             pb = self.dbbButtons.addButton( button )
 
             if button in msg.buttons:

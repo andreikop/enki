@@ -72,7 +72,7 @@ class ActionManager(QObject):
     def del_(self):
         if self._pathToAction:
             assert 0, 'ActionManager: you have to delete all actions before destroying actions model. ' + \
-                      'Existing actions: ' + str(self._pathToAction.keys())
+                      'Existing actions: ' + str(self._pathToAction.iterkeys())
 
     def action(self, path ):
         """Get action by its path. i.e.
@@ -230,11 +230,11 @@ class ActionManager(QObject):
             return [object \
                         for object in QObject.children(self) \
                             if isinstance(object, QAction) and \
-                               object in self._pathToAction.values()]
+                               object in self._pathToAction.itervalues()]
         else:
             return [object \
                         for object in action.children() \
-                            if object in self._pathToAction.values()]
+                            if object in self._pathToAction.itervalues()]
 
     def defaultShortcut(self, action ):
         """Get actions default shortcut
