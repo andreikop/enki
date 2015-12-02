@@ -240,7 +240,7 @@ class _OpenedFileModel(QAbstractItemModel):
         sortedDocuments = self._workspace.sortedDocuments
         if not self._manuallySorted:
             sortedDocuments = sorted(sortedDocuments,
-                                     lambda a, b: cmp(a.filePath(), b.filePath()))
+                                     key=lambda d: d.filePath())
         self.rebuildMapping( self._workspace.sortedDocuments, sortedDocuments )
         # scroll the view
         selected = QObject.parent(self).tvFiles.selectionModel().selectedIndexes()
