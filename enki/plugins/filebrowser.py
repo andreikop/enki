@@ -392,6 +392,7 @@ class Tree(QTreeView):
         else:
             self._fileActivated.emit()
             core.workspace().openFile(path)
+            core.workspace().focusCurrentDocument()
 
     def moveUp(self):
         """User pressed Up key or button. Move focus and root up
@@ -527,6 +528,7 @@ class ComboBox(QComboBox):
     def _onShowPopup(self, triggered):
         """Handler for self._showPopupAction
         """
+        self._fileBrowser.show()
         self.showPopup()
 
     def _onItemSelected(self, index):
