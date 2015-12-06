@@ -40,8 +40,9 @@ class _UISaveFiles(QDialog):
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/SaveFiles.ui'), self)
         self.buttonBox.clicked.connect(self._onButtonClicked)
 
-        self._itemToDocument = {}
-        for document in documents:
+        self._documents = documents
+
+        for index, document in enumerate(documents):
             name = document.fileName()
             if name is None:
                 name = 'untitled'
@@ -49,7 +50,6 @@ class _UISaveFiles(QDialog):
             if document.filePath() is not None:
                 item.setToolTip( document.filePath() )
             item.setCheckState( Qt.Checked )
-            self._itemToDocument[item] = document
 
         # Retitle buttons, add first letter shortcuts for them.
         bb = self.buttonBox
@@ -94,7 +94,7 @@ class _UISaveFiles(QDialog):
         if stButtton == QDialogButtonBox.Save:
             for i in range(self.listWidget.count()):
                 if  self.listWidget.item( i ).checkState() != Qt.Unchecked:
-                    saved = self._itemToDocument[self.listWidget.item(i)].saveFile()
+                    saved = self._documents[i].saveFile()
                     if not saved:
                         self.reject()
                         break

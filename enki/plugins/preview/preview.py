@@ -15,16 +15,15 @@ import io
 import traceback
 import re
 import shutil
-import cgi
+import html
 import sys
 import shlex
 import codecs
 
-from PyQt5.QtCore import pyqtSignal, QSize, Qt, QThread, QTimer, QUrl, \
-  QEventLoop, pyqtSlot
-from PyQt5.QtGui import QDesktopServices, QFileDialog, QIcon, QMessageBox, \
-  QWidget, QPalette, QWheelEvent
-from PyQt5.QtWebKit import QWebPage
+from PyQt5.QtCore import pyqtSignal, QSize, Qt, QThread, QTimer, QUrl, QEventLoop
+from PyQt5.QtWidgets import QFileDialog, QMessageBox, QWidget
+from PyQt5.QtGui import QDesktopServices, QIcon, QPalette, QWheelEvent
+from PyQt5.QtWebKitWidgets import QWebPage
 from PyQt5 import uic
 
 from enki.core.core import core
@@ -579,7 +578,7 @@ class PreviewDock(DockWidget):
         """
         if isinstance(ev, QWheelEvent) and \
            ev.modifiers() == Qt.ControlModifier:
-            multiplier = 1 + (0.1 * (ev.delta() / 120.))
+            multiplier = 1 + (0.1 * (ev.angleDelta().y() / 120.))
             view = self._widget.webView
             view.setZoomFactor(view.zoomFactor() * multiplier)
             return True
@@ -611,7 +610,7 @@ class PreviewDock(DockWidget):
         """
         frame = self._widget.webView .page().mainFrame()
         if frame.contentsSize() == QSize(0, 0):
-            return # no valida data, nothing to save
+            return  # no valida data, nothing to save
 
         pos = frame.scrollPosition()
         self._scrollPos[self._visiblePath] = pos
@@ -920,7 +919,7 @@ class PreviewDock(DockWidget):
 
         return errors
 
-    def _setHtml(self, filePath, html, errString=None, baseUrl=QUrl()):
+    def _setHtml(self, filePath, htmlText, errString=None, baseUrl=QUrl()):
         """Set HTML to the view and restore scroll bars position.
         Called by the thread
         """
@@ -932,7 +931,7 @@ class PreviewDock(DockWidget):
         if baseUrl.isEmpty():
             # Clear the log, then update it with build content.
             self._widget.teLog.clear()
-            self._widget.webView.setHtml(html,
+            self._widget.webView.setHtml(htmlText,
                                          baseUrl=QUrl.fromLocalFile(filePath))
         else:
             self._widget.webView.setUrl(baseUrl)
@@ -1016,9 +1015,9 @@ class PreviewDock(DockWidget):
             # Since the error string might contain characters such as ">" and "<",
             # they need to be converted to "&gt;" and "&lt;" such that
             # they can be displayed correctly in the log window as HTML strings.
-            # This step is handled by ``cgi.escape``.
+            # This step is handled by ``html.escape``.
             self._widget.teLog.appendHtml("<pre><font color='red'>\n" +
-                                          cgi.escape(errString) +
+                                          html.escape(errString) +
                                           '</font></pre>')
             # Update the progress bar.
             color = 'red' if errNum else '#FF9955' if warningNum else None

@@ -54,13 +54,13 @@
 # =======
 # Library imports
 # ---------------
-import sys, time
+import sys
+import time
 #
 # Third-party imports
 # -------------------
-from PyQt5.QtGui import QApplication
-from PyQt5.QtCore import QThread, pyqtSignal, QObject, QTimer, QRunnable, \
-  QThreadPool
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtCore import QThread, pyqtSignal, QObject, QTimer, QRunnable, QThreadPool
 #
 # Local imports
 # -------------
@@ -228,6 +228,9 @@ class AsyncAbstractController(QObject):
         # Only run this once.
         if self.isAlive:
             self.isAlive = False
+            if self.parent():
+                self.parent().destroyed.disconnect(self.onParentDestroyed)
+            QApplication.instance().destroyed.disconnect(self.onParentDestroyed)
             self._terminate()
 
     # .. |terminate| replace:: Called by ``terminate`` to actually shut down this class.

@@ -13,6 +13,7 @@ import unittest
 import os.path
 import sys
 import codecs
+from unittest.mock import patch
 
 # Local application imports
 # -------------------------
@@ -24,9 +25,9 @@ from base import WaitForSignal
 
 # Third-party library imports
 # ---------------------------
-from PyQt5.QtGui import QMessageBox, QWheelEvent, QApplication
-from PyQt5.QtCore import Qt, QPoint
-from unittest.mock import patch
+from PyQt5.QtWidgets import QMessageBox, QApplication
+from PyQt5.QtGui import QWheelEvent
+from PyQt5.QtCore import Qt, QPointF, QPoint
 
 # Local application imports
 # -------------------------
@@ -78,19 +79,19 @@ class TestSimplePreview(SimplePreviewTestCase):
     def test_emptyCodeChatDocument(self):
         core.config()['CodeChat']['Enabled'] = True
         core.workspace().createEmptyNotSavedDocument()
-        with self.assertRaisesRegexp(AssertionError, 'Dock Previe&w not found'):
+        with self.assertRaisesRegex(AssertionError, 'Dock Previe&w not found'):
             self._dock()
 
     @requiresSphinx()
     def test_emptySphinxDocument(self):
         core.config()['Sphinx']['Enabled'] = True
         core.workspace().createEmptyNotSavedDocument()
-        with self.assertRaisesRegexp(AssertionError, 'Dock Previe&w not found'):
+        with self.assertRaisesRegex(AssertionError, 'Dock Previe&w not found'):
             self._dock()
 
     def test_emptyDocument(self):
         core.workspace().createEmptyNotSavedDocument()
-        with self.assertRaisesRegexp(AssertionError, 'Dock Previe&w not found'):
+        with self.assertRaisesRegex(AssertionError, 'Dock Previe&w not found'):
             self._dock()
 
 class PreviewTestCase(SimplePreviewTestCase):
@@ -462,7 +463,7 @@ content"""
         not appear. This will not affect resT files or html files."""
         self.testText = 'test'
         self.createFile('file.py', self.testText)
-        with self.assertRaisesRegexp(AssertionError, 'Dock Previe&w not found'):
+        with self.assertRaisesRegex(AssertionError, 'Dock Previe&w not found'):
             self._dock()
 
     @requiresSphinx()
@@ -534,7 +535,7 @@ content"""
            The preview window should now be opened."""
         self.testText = 'test'
         self.createFile('file.py', self.testText)
-        with self.assertRaisesRegexp(AssertionError, 'Dock Previe&w not found'):
+        with self.assertRaisesRegex(AssertionError, 'Dock Previe&w not found'):
             self._dock()
         core.config()['CodeChat']['Enabled'] = True
         core.uiSettingsManager().dialogAccepted.emit();
@@ -1069,8 +1070,16 @@ head
     def test_zoom(self):
         webView = self._widget().webView
         self.assertEqual(webView.zoomFactor(), 1)
-        zoom_out = QWheelEvent(webView.mapToGlobal(QPoint(10, 10)), -120, Qt.NoButton, Qt.ControlModifier)
-        zoom_in = QWheelEvent(webView.mapToGlobal(QPoint(10, 10)), 120, Qt.NoButton, Qt.ControlModifier)
+
+        def makeEv(delta):
+            return QWheelEvent(QPointF(10, 10), QPointF(webView.mapToGlobal(QPoint(10, 10))),
+                               QPoint(0, 0), QPoint(0, delta),
+                               delta,
+                               Qt.Horizontal,
+                               Qt.NoButton,
+                               Qt.ControlModifier)
+        zoom_out = makeEv(-120)
+        zoom_in = makeEv(120)
 
         QApplication.instance().sendEvent(webView, zoom_out)
         self.assertTrue(0.85 < webView.zoomFactor() < 0.95)

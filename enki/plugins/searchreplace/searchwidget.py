@@ -14,14 +14,13 @@ from PyQt5.QtCore import QDir, QEvent, \
                          QRect, QSize, Qt, \
                          pyqtSignal
 
-from PyQt5.QtGui import QApplication, QCompleter, QColor, QDirModel, QFileDialog,  \
-                        QFrame, QFileDialog, QIcon, \
-                        QKeySequence, \
-                        QPainter,  \
-                        QPalette, \
+from PyQt5.QtWidgets import QApplication, QCompleter, QDirModel, QFileDialog,  \
+                        QFrame, QFileDialog, \
                         QProgressBar, \
                         QShortcut, \
                         QToolButton, QWidget
+from PyQt5.QtGui import QColor, QIcon, QKeySequence, QPainter, QPalette
+
 from PyQt5 import uic
 
 from enki.core.core import core

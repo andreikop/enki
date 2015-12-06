@@ -71,7 +71,7 @@ class TestWithDummy(base.TestCase):
         dest = os.path.join(self.TEST_FILE_DIR, 'sub')
         os.makedirs(dest)
         errors = []
-        with self.assertRaisesRegexp(OSError,
+        with self.assertRaisesRegex(OSError,
           "Input or output directory cannot be None"):
             copyTemplateFile(errors, source, 'missing.file', dest)
 
@@ -88,7 +88,7 @@ class TestWithDummy(base.TestCase):
         source = self.TEST_FILE_DIR
         dest = None
         errors = []
-        with self.assertRaisesRegexp(OSError,
+        with self.assertRaisesRegex(OSError,
           "Input or output directory cannot be None"):
             copyTemplateFile(errors, source, 'dummy.txt', dest)
 

@@ -10,7 +10,8 @@ import base
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtTest import QTest
-from PyQt5.QtGui import QColor, QFont, QPlainTextEdit, QTextOption
+from PyQt5.QtWidgets import QPlainTextEdit
+from PyQt5.QtGui import QColor, QFont, QTextOption
 
 from enki.core.core import core
 

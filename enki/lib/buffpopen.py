@@ -11,10 +11,7 @@ import os
 import copy
 import time
 
-try:
-    from queue import Queue, Empty, Full
-except ImportError:
-    from queue import Queue, Empty, Full  # python 3.x
+from queue import Queue, Empty, Full  # python 3.x
 
 
 class BufferedPopen:
@@ -116,7 +113,15 @@ class BufferedPopen:
             else:
                 return pipe.read()
 
-        text = read()
+        def conv(data):
+            # TODO FIXME BUG this will not work with more than 1-byte symbols
+            # since bytes are decoded separatelly
+            try:
+                return data.decode('utf8')
+            except UnicodeDecodeError:
+                return ''
+
+        text = conv(read())
         while text and not self._mustDie:
             try:
                 self._outQueue.put(text, False)
@@ -124,7 +129,7 @@ class BufferedPopen:
                 time.sleep(0.01)
                 continue
 
-            text = read()
+            text = conv(read())
 
     def _writeInputThread(self):
         """Writer thread function. Writes data from input queue to process
@@ -135,7 +140,8 @@ class BufferedPopen:
             except Empty:
                 continue
 
-            self._popen.stdin.write(text)
+            data = text.encode('utf8')
+            self._popen.stdin.write(data)
 
     def write(self, text):
         """Write data to the subprocess

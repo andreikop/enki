@@ -124,7 +124,7 @@ class TestAsyncController(unittest.TestCase):
         for _ in self.poolAndThread:
             with AsyncController(_) as ac:
                 def f(currentThread):
-                    self.assertNotEquals(currentThread, QThread.currentThread())
+                    self.assertNotEqual(currentThread, QThread.currentThread())
                 em = Emitter()
                 with WaitForSignal(em.bing, 1000):
                     ac.start(em.g, f, QThread.currentThread())

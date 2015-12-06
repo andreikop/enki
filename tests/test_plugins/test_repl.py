@@ -3,16 +3,12 @@
 import unittest
 import os.path
 import sys
-import time
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
 import base
 
-from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtTest import QTest
-
-from enki.core.core import core
 
 
 class Test(base.TestCase):
@@ -34,7 +30,7 @@ class Test(base.TestCase):
     @base.inMainLoop
     def test_1(self):
         # Scheme
-        return # TODO
+        return  # TODO
         self.createFile('test.scm', '(+ 17 10)')
         self.keyClick('Ctrl+E')
         self._waitForText('27', 'MIT Scheme')
@@ -52,7 +48,7 @@ class Test(base.TestCase):
     @base.inMainLoop
     def test_3(self):
         # Python
-        self.createFile('test.py', 'print 1234 * 567\n')
+        self.createFile('test.py', 'print(1234 * 567)\n')
         self.keyClick('Ctrl+E')
 
         self._waitForText('699678', 'Python')

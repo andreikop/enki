@@ -10,8 +10,7 @@ import re
 import time
 import fnmatch
 
-from PyQt5.QtCore import pyqtSignal, \
-                         QThread
+from PyQt5.QtCore import pyqtSignal, QThread
 
 from enki.core.core import core
 from . import searchresultsmodel
@@ -21,7 +20,7 @@ from . import substitutions
 def _isBinary(fileObject):
     """Expects, that file position is 0, when exits, file position is 0
     """
-    binary = '\0' in fileObject.read( 4096 )
+    binary = b'\0' in fileObject.read(4096)
     fileObject.seek(0)
     return binary
 

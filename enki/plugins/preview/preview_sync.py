@@ -22,7 +22,7 @@ cProfile = None
 # -----------
 from PyQt5.QtCore import pyqtSignal, QPoint, Qt, QTimer, QObject, QThread
 from PyQt5 import QtGui
-from PyQt5.QtWebKit import QWebPage
+from PyQt5.QtWebKitWidgets import QWebPage
 from PyQt5.QtTest import QTest
 #
 # Local

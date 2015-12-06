@@ -6,8 +6,8 @@ Shows results with SearchResultsModel
 """
 
 from PyQt5.QtCore import Qt, pyqtSignal, QModelIndex
-from PyQt5.QtGui import QFontMetrics, QHBoxLayout, QIcon, \
-                        QTreeView, QWidget, QPushButton
+from PyQt5.QtWidgets import QTreeView, QWidget, QPushButton, QHBoxLayout
+from PyQt5.QtGui import QFontMetrics, QIcon
 from enki.widgets.dockwidget import DockWidget
 from enki.core.core import core
 from enki.lib.htmldelegate import HTMLDelegate

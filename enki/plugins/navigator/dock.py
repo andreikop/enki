@@ -40,7 +40,7 @@ class _TagModel(QAbstractItemModel):
         self._currentTagBrush = QBrush(brightBg)
 
         core.workspace().cursorPositionChanged.connect(self._onCursorPositionChanged)
-        self._updateCurrentTagTimer = QTimer()
+        self._updateCurrentTagTimer = QTimer(self)
         self._updateCurrentTagTimer.setInterval(300)
         self._updateCurrentTagTimer.timeout.connect(self._updateCurrentTagAndEmitSignal)
 
@@ -74,7 +74,7 @@ class _TagModel(QAbstractItemModel):
         if emitChanged:
             if old != self._currentTagIndex and \
                old.isValid():
-               self.dataChanged.emit(old, old)
+                self.dataChanged.emit(old, old)
             if self._currentTagIndex.isValid():
                 self.dataChanged.emit(self._currentTagIndex, self._currentTagIndex)
 
