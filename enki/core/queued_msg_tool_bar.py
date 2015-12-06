@@ -69,6 +69,10 @@ class _QueuedMessageWidget(QWidget):
         self.lMessage.linkHovered.connect(self.linkHovered)
         self.dbbButtons.clicked.connect(self.buttonClicked)
 
+        self._closeTimer = QTimer(self)
+        self._closeTimer.setSingleShot(True)
+        self._closeTimer.timeout.connect(self.closeMessage)
+
     def sizeHint(self):
         return QWidget.minimumSizeHint(self)
 
@@ -214,8 +218,9 @@ class _QueuedMessageWidget(QWidget):
         else:
             timeout =  msg.milliSeconds
 
-        if  timeout > 0:
-            QTimer.singleShot( timeout, self.closeMessage )
+        if timeout > 0:
+            self._closeTimer.setInterval(timeout)
+            self._closeTimer.start()
 
         # signal.emit
         self.shown.emit()
