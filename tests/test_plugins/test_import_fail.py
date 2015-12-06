@@ -9,6 +9,8 @@
 # =======
 # Library imports
 # ---------------
+import sys
+import os.path
 import unittest
 #
 # Third-party library imports
@@ -17,6 +19,7 @@ from unittest.mock import patch, call
 #
 # Local imports
 # -------------
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 from import_fail import ImportFail
 #
 # ImportFail tests

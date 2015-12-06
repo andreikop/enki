@@ -110,7 +110,7 @@ class _QueuedMessageWidget(QWidget):
         self._messages.append(msg)
 
         if  len(self._messages) == 1 :
-            QTimer.singleShot( 0, self.showMessage)
+            self.showMessage()
 
     def setOpenExternalLinks(self, open ):
         self.lMessage.setOpenExternalLinks( open )
@@ -229,9 +229,9 @@ class _QueuedMessageWidget(QWidget):
 
         # process next if possible, clear gui
         if self._messages:
-            QTimer.singleShot( 0, self.showMessage)
+            self.showMessage()
         else:
-            QTimer.singleShot( 0, self.clearMessage)
+            self.clearMessage()
 
         # finished.emit message if needed
         if not self._messages:
