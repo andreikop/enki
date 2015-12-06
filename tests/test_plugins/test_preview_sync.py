@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # .. -*- coding: utf-8 -*-
 #
 # *************************************************************
@@ -23,19 +23,18 @@ import base
 #
 # Third-party library imports
 # ---------------------------
-from PyQt4.QtCore import Qt, QPoint
-from PyQt4.QtTest import QTest
-from PyQt4.QtGui import QTextCursor
-import mock
+from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtTest import QTest
+from PyQt5.QtGui import QTextCursor
 #
 # Local application imports
 # -------------------------
 from enki.core.core import core
-from test_preview import PreviewTestCase
+from .test_preview import PreviewTestCase
 from base import requiresModule
 import enki.plugins.preview
 import enki.plugins.preview.preview_sync
-from import_fail import ImportFail
+from .import_fail import ImportFail
 
 
 @unittest.skipUnless(enki.plugins.preview.preview_sync.findApproxTextInTarget,
@@ -192,7 +191,7 @@ class Test(PreviewTestCase):
     ##----------------------
     # Basic text to web sync
     ##^^^^^^^^^^^^^^^^^^^^^^
-    def _textToWeb(self, s, testText=u'One\n\nTwo\n\nThree', checkText=True):
+    def _textToWeb(self, s, testText='One\n\nTwo\n\nThree', checkText=True):
         """Move the cursor in the text pane. Make sure it moves
         to the matching location in the web pane.
 

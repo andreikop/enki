@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import unittest
 import os.path
@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."
 
 import base
 
-from PyQt4.QtCore import Qt
+from PyQt5.QtCore import Qt
 
 from enki.core.core import core
 from enki.widgets.dockwidget import DockWidget

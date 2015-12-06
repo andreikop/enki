@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # .. -*- coding: utf-8 -*-
 #
 # *****************************************
@@ -15,13 +15,13 @@ from base import WaitForSignal
 #
 # Library imports
 # ---------------
-from Queue import Queue
+from queue import Queue
 import unittest
 #
 # Third-party imports
 # -------------------
-from PyQt4.QtCore import pyqtSignal, QObject, QEventLoop, QThread
-from PyQt4.QtTest import QTest
+from PyQt5.QtCore import pyqtSignal, QObject, QTimer, QEventLoop, QThread
+from PyQt5.QtTest import QTest
 #
 # Local imports
 # -------------
@@ -33,10 +33,10 @@ from enki.lib.future import AsyncController, Future, RunLatest
 class Emitter(QObject):
     bing = pyqtSignal()
 
-    def __init__(self, expected=None, assertEquals=None):
+    def __init__(self, expected=None, assertEqual=None):
         QObject.__init__(self)
         self.expected = expected
-        self.assertEquals = assertEquals
+        self.assertEqual = assertEqual
 
     def g(self, future):
         self.thread = QThread.currentThread()
@@ -46,7 +46,7 @@ class Emitter(QObject):
             # that no exceptions were raised.
             self.result = future.result
             if self.expected:
-                self.assertEquals(self.expected, self.result)
+                self.assertEqual(self.expected, self.result)
         except:
             raise
         finally:
@@ -94,7 +94,7 @@ class TestAsyncController(unittest.TestCase):
     def test_2(self):
         for _ in self.syncPoolAndThread:
             with AsyncController(_) as ac:
-                em = Emitter(2, self.assertEquals)
+                em = Emitter(2, self.assertEqual)
                 with WaitForSignal(em.bing, 1000):
                     ac.start(em.g, lambda: 2)
 
@@ -102,7 +102,7 @@ class TestAsyncController(unittest.TestCase):
     def test_3(self):
         for _ in self.syncPoolAndThread:
             with AsyncController(_) as ac:
-                em = Emitter(123, self.assertEquals)
+                em = Emitter(123, self.assertEqual)
                 with WaitForSignal(em.bing, 1000):
                     ac.start(em.g, lambda x: x + 2, 121)
 
@@ -111,10 +111,10 @@ class TestAsyncController(unittest.TestCase):
         for _ in self.syncPoolAndThread:
             with AsyncController(_) as ac:
                 def f(a, b, c=2, d=4):
-                    self.assertEquals(a, 2)
-                    self.assertEquals(b, 3)
-                    self.assertEquals(c, 4)
-                    self.assertEquals(d, 5)
+                    self.assertEqual(a, 2)
+                    self.assertEqual(b, 3)
+                    self.assertEqual(c, 4)
+                    self.assertEqual(d, 5)
                 em = Emitter()
                 with WaitForSignal(em.bing, 1000):
                     ac.start(em.g, f, 2, 3, d=5, c=4)
@@ -146,15 +146,15 @@ class TestAsyncController(unittest.TestCase):
                 q.put(None)
                 q.put(None)
             s = set([em1.result, em2.result, QThread.currentThread()])
-            self.assertEquals(len(s), 3)
+            self.assertEqual(len(s), 3)
 
     # Verify that the correct functions and callbacks get executed.
     def test_7(self):
         for _ in ('Sync', 'QThread'):
             with AsyncController(_) as ac:
-                em1 = Emitter(15, self.assertEquals)
-                em2 = Emitter(16, self.assertEquals)
-                em3 = Emitter(17, self.assertEquals)
+                em1 = Emitter(15, self.assertEqual)
+                em2 = Emitter(16, self.assertEqual)
+                em3 = Emitter(17, self.assertEqual)
                 ac.start(em1.g, lambda: 15)
                 ac.start(em2.g, lambda: 16)
                 future3 = ac._wrap(em3.g, lambda: 17)
@@ -227,7 +227,7 @@ class TestAsyncController(unittest.TestCase):
                 ac.start(em1.g, lambda: QThread.currentThread())
             with WaitForSignal(em1.bing, 1000):
                 ac.start(None, f1)
-            self.assertEquals(em1.thread, em1.result)
+            self.assertEqual(em1.thread, em1.result)
 
     # Verify that if ``f`` is launched in a thread, ``g`` will be run in that
     # same thread. (For thread pools).
@@ -245,7 +245,7 @@ class TestAsyncController(unittest.TestCase):
                 qe.exec_()
             with WaitForSignal(em2.bing, 1000):
                 ac.start(None, f2)
-            self.assertEquals(em2.thread, em2.result)
+            self.assertEqual(em2.thread, em2.result)
 
     # Verify that job status and cancelation works: while a job in in progress,
     # cancel an pending job.
@@ -260,7 +260,7 @@ class TestAsyncController(unittest.TestCase):
                 em1 = Emitter()
                 future1 = ac.start(em1.g, f1)
                 q1b.get()
-                self.assertEquals(future1.state, Future.STATE_RUNNING)
+                self.assertEqual(future1.state, Future.STATE_RUNNING)
 
                 future2 = ac.start(None, lambda: None)
                 QTest.qWait(100)
@@ -289,7 +289,7 @@ class TestAsyncController(unittest.TestCase):
                 em1.bing.connect(self.fail)
                 future1 = ac.start(em1.g, f1)
                 q1b.get()
-                self.assertEquals(future1.state, Future.STATE_RUNNING)
+                self.assertEqual(future1.state, Future.STATE_RUNNING)
                 future1.cancel(True)
                 q1a.put(None)
                 # If the result is discarded, it should never emit a signal or
@@ -315,17 +315,17 @@ class TestAsyncController(unittest.TestCase):
     def test_14(self):
         for _ in self.poolAndThread:
             with AsyncController(_) as ac:
-                def f(assertEquals, priority):
-                    assertEquals(QThread.currentThread().priority(), priority)
+                def f(assertEqual, priority):
+                    assertEqual(QThread.currentThread().priority(), priority)
                 em = Emitter()
                 ac.defaultPriority = QThread.LowPriority
                 with WaitForSignal(em.bing, 1000):
-                    ac.start(em.g, f, self.assertEquals, QThread.LowestPriority,
+                    ac.start(em.g, f, self.assertEqual, QThread.LowestPriority,
                              _futurePriority=QThread.LowestPriority)
                 with WaitForSignal(em.bing, 1000):
-                    ac.start(em.g, f, self.assertEquals, QThread.LowPriority)
+                    ac.start(em.g, f, self.assertEqual, QThread.LowPriority)
                 with WaitForSignal(em.bing, 1000):
-                    ac.start(em.g, f, self.assertEquals, QThread.HighestPriority,
+                    ac.start(em.g, f, self.assertEqual, QThread.HighestPriority,
                              _futurePriority=QThread.HighestPriority)
 
     # Test the RunLatest class: do older jobs get canceled?

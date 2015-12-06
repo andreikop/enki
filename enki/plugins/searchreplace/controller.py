@@ -70,6 +70,9 @@ class Controller(QObject):
         if self._dock is not None:
             self._dock.del_()
 
+        core.workspace().currentDocumentChanged.disconnect(self._resetSearchInFileStartPoint)
+        QApplication.instance().focusChanged.disconnect(self._resetSearchInFileStartPoint)
+
     def _createActions(self):
         """Create main menu actions
         """
@@ -325,7 +328,6 @@ class Controller(QObject):
             return
 
         regExp = re.compile('\\b%s\\b' % re.escape(word))
-        text = document.qutepart.text
 
         # avoid matching word under cursor
         if forward:
@@ -338,7 +340,7 @@ class Controller(QObject):
         match, matches = self._searchInText(regExp, document.qutepart.text, startPoint, forward)
         if match is not None:
             document.qutepart.absSelectedPosition = (match.start(), match.start() + len(match.group(0)))
-            core.mainWindow().statusBar().showMessage('Match %d of %d' % \
+            core.mainWindow().statusBar().showMessage('Match %d of %d' %
                                                       (matches.index(match) + 1, len(matches)), 3000)
         else:
             core.workspace().currentDocument().qutepart.resetSelection()

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """Tests for enki.core.termwidget
 Formatting and history is tested here, functionality shall be tested by tests for client code
@@ -13,9 +13,9 @@ sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."
 import base  # configures sys.path and sip
 
 
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QApplication, QColor
-from PyQt4.QtTest import QTest
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QApplication, QColor
+from PyQt5.QtTest import QTest
 
 from enki.widgets.termwidget import TermWidget
 

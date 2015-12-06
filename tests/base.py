@@ -17,9 +17,10 @@ import sip
 sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
 
-from PyQt4.QtCore import Qt, QTimer, QEventLoop
-from PyQt4.QtGui import QDialog, QKeySequence, QApplication
-from PyQt4.QtTest import QTest
+from PyQt5.QtCore import Qt, QTimer, QEventLoop
+from PyQt5.QtWidgets import QDialog, QApplication
+from PyQt5.QtGui import QKeySequence
+from PyQt5.QtTest import QTest
 
 papp = QApplication(sys.argv)
 
@@ -85,7 +86,7 @@ def inMainLoop(func, *args):
 
         def execWithArgs():
             core.mainWindow().show()
-            QTest.qWaitForWindowShown(core.mainWindow())
+            QTest.qWaitForWindowExposed(core.mainWindow())
             app = QApplication.instance()
             app.setActiveWindow(core.mainWindow())
             assert app.focusWidget() is not None
@@ -110,7 +111,7 @@ def inMainLoop(func, *args):
             # If an exception occurred in the event loop, re-raise it.
             if exceptions:
                 value, tracebackObj = exceptions[0]
-                raise value, None, tracebackObj
+                raise value.with_traceback(tracebackObj)
         finally:
             # Restore the old exception hook
             sys.excepthook = oldExcHook
@@ -229,7 +230,7 @@ class TestCase(unittest.TestCase):
 
         assert widget is not None
 
-        if isinstance(key, basestring):
+        if isinstance(key, str):
             assert modifiers == Qt.NoModifier, 'Do not set modifiers, if using text key'
             code = QKeySequence(key)[0]
             key = Qt.Key(code & 0x01ffffff)
@@ -436,7 +437,7 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     # If an exception occurred in the event loop, re-raise it.
     if exceptions:
         value, tracebackObj = exceptions[0]
-        raise value, None, tracebackObj
+        raise value.with_traceback(tracebackObj)
     # Clean up: don't allow the timer to call app.quit after this
     # function exits, which would produce "interesting" behavior.
     ret = timer.isActive()
@@ -557,7 +558,7 @@ class WaitForSignal(unittest.TestCase):
         # If an exception occurred in the event loop, re-raise it.
         if self.exceptions:
             value, tracebackObj = self.exceptions
-            raise value, None, tracebackObj
+            raise value.with_traceback(tracebackObj)
 
         # Check that the signal occurred.
         self.sawSignal = timerIsActive and not self.areSenderSignalArgsWrong

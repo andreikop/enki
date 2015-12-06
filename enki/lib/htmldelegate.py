@@ -49,7 +49,7 @@ class HTMLDelegate(QStyledItemDelegate):
 
         option.state |= QStyle.State_Active  # draw fuzzy-open completion as focused, even if focus is on the line edit
 
-        options = QStyleOptionViewItemV4(option)
+        options = QStyleOptionViewItem(option)
         self.initStyleOption(options, index)
 
         style = QApplication.style() if options.widget is None else options.widget.style()
@@ -82,7 +82,7 @@ class HTMLDelegate(QStyledItemDelegate):
     def sizeHint(self, option, index):
         """QStyledItemDelegate.sizeHint implementation
         """
-        options = QStyleOptionViewItemV4(option)
+        options = QStyleOptionViewItem(option)
         self.initStyleOption(options, index)
 
         doc = QTextDocument()

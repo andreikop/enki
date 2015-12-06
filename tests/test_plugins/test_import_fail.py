@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # .. -*- coding: utf-8 -*-
 #
 # ************************************************************************
@@ -13,7 +13,7 @@ import unittest
 #
 # Third-party library imports
 # ---------------------------
-from mock import patch, call
+from unittest.mock import patch, call
 #
 # Local imports
 # -------------
@@ -46,21 +46,21 @@ class TestImportFail(unittest.TestCase):
         with ImportFail(['re']):
             import os
 
-    @patch('__builtin__.reload')
+    @patch('imp.reload')
     def test_4(self, _reload):
         """Check that reload isn't called if no modules are given."""
         with ImportFail(['re']):
             pass
         self.assertFalse(_reload.called)
 
-    @patch('__builtin__.reload')
+    @patch('imp.reload')
     def test_5(self, _reload):
         """Check that reload is called twice."""
         with ImportFail(['re'], ['one', 'two']):
             pass
         _reload.assert_has_calls([call('one'), call('two'), call('one'), call('two')])
 
-    @patch('__builtin__.reload')
+    @patch('imp.reload')
     def test_6(self, _reload):
         """Check that reload is called in the correct context."""
         class ImportTester(object):
@@ -79,7 +79,7 @@ class TestImportFail(unittest.TestCase):
         _reload.side_effect = it.try_import
         with ImportFail(['re'], ['one']):
             pass
-        self.assertEquals(it.import_success, [False, True])
+        self.assertEqual(it.import_success, [False, True])
 
 # Main
 # ====

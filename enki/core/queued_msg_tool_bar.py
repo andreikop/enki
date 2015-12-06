@@ -2,8 +2,9 @@
 """
 
 from PyQt5.QtCore import pyqtSignal, QEvent, Qt, QTimer
-from PyQt5.QtGui import QAbstractButton, QColor, QBrush, QDialogButtonBox, QHBoxLayout, \
-                        QLabel, QPainter, QPixmap, QSizePolicy, QToolBar, QWidget
+from PyQt5.QtWidgets import (QAbstractButton, QDialogButtonBox, QHBoxLayout,
+                             QLabel, QSizePolicy, QToolBar, QWidget)
+from PyQt5.QtGui import QColor, QBrush, QPainter, QPixmap
 
 
 class _QueuedMessage:
@@ -13,6 +14,7 @@ class _QueuedMessage:
         self.foreground = QBrush( Qt.NoBrush )
         self.slot = None
         self.buttons = {}
+
 
 class _QueuedMessageWidget(QWidget):
 

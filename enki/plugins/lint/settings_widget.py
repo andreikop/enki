@@ -3,7 +3,7 @@
 
 import os.path
 
-from PyQt5.QtGui import QFileDialog, QWidget
+from PyQt5.QtWidgets import QFileDialog, QWidget
 from PyQt5 import uic
 
 from enki.core.core import core
@@ -22,8 +22,8 @@ def _getFlake8Version(path):
     except IndexError:  # empty output
         raise ValueError()
     version = versionLine.split()[0]
-    return [int(num) \
-                for num in version.split('.')]
+    return [int(num)
+            for num in version.split('.')]
 
 
 class SettingsWidget(QWidget):

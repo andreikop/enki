@@ -12,7 +12,8 @@
 # Allow us to `replace
 # <https://docs.python.org/2/library/functions.html#__import__>`_ the built-in
 # import statement / __import__ function.
-import __builtin__
+import builtins
+import imp
 
 # ImportFail class
 # ================
@@ -121,8 +122,8 @@ class ImportFail(object):
     # function, replacing it with a ``import_hook`` below which fails when
     # importing ``self.fail_names``.
     def __enter__(self):
-        self.orig_import = __builtin__.__import__
-        __builtin__.__import__ = self.import_hook
+        self.orig_import = builtins.__import__
+        builtins.__import__ = self.import_hook
         # Reload the requested modules now that the ImportFail is in force.
         self._reload_modules()
 
@@ -130,7 +131,7 @@ class ImportFail(object):
     def _reload_modules(self):
         if self.reload_modules:
             for mod in self.reload_modules:
-                reload(mod)
+                imp.reload(mod)
 
     # Act like ``__import__``, except raise *ImportError* if
     # ``self.fail_names`` is imported.
@@ -142,5 +143,5 @@ class ImportFail(object):
     # Restore the original import function when leaving the context
     # manager.
     def __exit__(self, *args):
-        __builtin__.__import__ = self.orig_import
+        builtins.__import__ = self.orig_import
         self._reload_modules()

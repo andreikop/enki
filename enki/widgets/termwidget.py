@@ -7,18 +7,14 @@ Shows intput and output text. Allows to enter commands. Supports history.
 This widget only provides GUI, but does not implement any system terminal or other functionality
 """
 
-import cgi
+import html
 
 from PyQt5.QtCore import QEvent, QPoint, QSize
-from PyQt5.QtWidgets import QLabel, \
-                        QSizePolicy, QTextEdit, \
-                        QVBoxLayout, QWidget
-from PyQt5.QtGui import QColor, QKeySequence, QPalette, \
-                        QTextCursor
-
-from enki.core.core import core
+from PyQt5.QtWidgets import QLabel, QSizePolicy, QTextEdit, QVBoxLayout, QWidget
+from PyQt5.QtGui import QColor, QKeySequence, QPalette, QTextCursor
 
 from qutepart import Qutepart
+
 
 class _TextEdit(Qutepart):
     """Text editor class, which implements good size hints
@@ -109,7 +105,7 @@ class TermWidget(QWidget):
     def _appendToBrowser(self, style, text):
         """Convert text to HTML for inserting it to browser. Insert the HTML
         """
-        text = cgi.escape(text)
+        text = html.escape(text)
 
         text = text.replace('\n', '<br/>')
 
