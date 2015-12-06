@@ -12,22 +12,22 @@
 import unittest
 import os.path
 import sys
-import codecs
-
+#
 # Local application imports
 # -------------------------
 # Do this before PyQt imports so that base will set up sip API correctly.
-sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
+sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                                ".."))
 
 import base
-
+#
 # Third-party library imports
 # ---------------------------
 from PyQt4.QtCore import Qt, QPoint
 from PyQt4.QtTest import QTest
 from PyQt4.QtGui import QTextCursor
 import mock
-
+#
 # Local application imports
 # -------------------------
 from enki.core.core import core
@@ -42,9 +42,9 @@ from import_fail import ImportFail
                      'Requires working TRE')
 class Test(PreviewTestCase):
     # Web to code sync tests
-    # ----------------------
+    ##----------------------
     # Test that mouse clicks get turned into a ``jsClick`` signal
-    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     def check_sync1(self):
         """Test that web-to-text sync occurs on clicks to the web pane.
         A click at 0, height (top left corner) should produce
@@ -65,7 +65,7 @@ class Test(PreviewTestCase):
         self.check_sync1()
 
     # Test that simulated mouse clicks at beginning/middle/end produce correct ``jsClick`` values
-    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     def _jsOnClick(self):
         """Simulate a mouse click by calling ``window.onclick()`` in Javascript."""
         ret = self._widget().webView.page().mainFrame().evaluateJavaScript('window.onclick()')
@@ -329,9 +329,10 @@ Here is some text after a table.""", True)
         """Verify that sync after the column span works."""
         self._textToWeb('Text', self._row_span_rest(), True)
 
-    # Test no sync on closed preview window
-    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    # Test no sync on hidden preview window
+    ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     @base.inMainLoop
+    @requiresModule('docutils')
     def test_sync13(self):
         self._doBasicTest('rst')
         self._dock().close()
@@ -341,8 +342,29 @@ Here is some text after a table.""", True)
         cursor.setPosition(1, QTextCursor.MoveAnchor)
         qp.setTextCursor(cursor)
 
+    @base.inMainLoop
+    @requiresModule('docutils')
+    def test_sync13a(self):
+        """ Make sure sync stops if the Preview dock is hidden. See https://github.com/hlamer/enki/issues/352.
+        """
+        # First, open the preview dock.
+        self._doBasicTest('rst')
+        # Speed up the test by reducing the cursor movemovement timer's timeout. This can only be done when the preview dock is open. Record `ps`, since this won't be available when the Preview dock is hidden below.
+        ps = self._dock().previewSync
+        ps._cursorMovementTimer.setInterval(0)
+        # Now, switch to a non-previewable file.
+        self.createFile('foo.unpreviewable_extension', 'Junk')
+        # Move the cursor. Make sure sync doesn't run.
+        qp = core.workspace().currentDocument().qutepart
+        # One way to tell: the background sync won't run, meaning the future won't change. I tried with ``mock.patch('enki.plugins.preview.preview_sync.PreviewSync.syncTextToPreview`) as syncTextToPreview:``, but ``syncTextToPreview.assert_not_called()`` always passed.
+        f = ps._runLatest.future
+        qp.cursorPosition = (100, 100)
+        # Wait for Qt to process messages, such as the timer.
+        QTest.qWait(0)
+        self.assertEquals(f, ps._runLatest.future)
+
     # Cases for _alignScrollAmount
-    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     # When the source y (in global coordinates) is above the target
     # window. The best the algorithm can do is move to the top of the target
     # window.
@@ -429,7 +451,7 @@ Here is some text after a table.""", True)
         self.assertEqual(offset, 85)
 
     # Test that no crashes occur if TRE isn't available or is old
-    # -----------------------------------------------------------
+    ##-----------------------------------------------------------
     def test_sync22(self):
         """Prevent TRE from being imported. Make sure there are no exceptions.
         """
@@ -437,8 +459,7 @@ Here is some text after a table.""", True)
             self.assertIsNone(enki.plugins.preview.preview_sync.findApproxTextInTarget)
         # Now, make sure that TRE imports correctly.
         self.assertTrue(enki.plugins.preview.preview_sync.findApproxTextInTarget)
-
-
+#
 # Main
 # ====
 # Run the unit tests in this file.

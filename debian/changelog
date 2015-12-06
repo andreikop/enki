@@ -1,8 +1,15 @@
+enki (15.11.0-1~ubuntuseries1) ubuntuseries; urgency=medium
+
+  * Fuzzy opener
+  * Bug fixes and improvements
+
+ -- Andrei Kopats <hlamer@tut.by>  Mon, 30 Nov 2015 23:29:14 +0300
+
 enki (15.06.0-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Literate programming and preview enhancements
 
- -- Bryan Jones <bjones AT ece.msstate.edu> Mon, Jul 27 2015 15:29:00 -0600
+ -- Bryan Jones <bjones@ece.msstate.edu>  Mon, 27 Jul 2015 15:29:00 -0600
 
 enki (15.05.0-1~ubuntuseries1) ubuntuseries; urgency=low
 
@@ -10,7 +17,7 @@ enki (15.05.0-1~ubuntuseries1) ubuntuseries; urgency=low
 
  -- Andrei Kopats <hlamer@tut.by>  Sat, 30 May 2015 22:07:50 +0300
 
-enki (15.04.0-1~ubuntuseries1) ubuntuseries; urgency=medium
+enki (15.04.0-1~ubuntuseries1) ubuntuseries; urgency=low
 
   * Vim mode
   * Literate programming and preview enhancements

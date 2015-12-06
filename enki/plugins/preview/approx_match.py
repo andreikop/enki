@@ -1,21 +1,4 @@
 # .. -*- coding: utf-8 -*-
-#
-#    Copyright (C) 2012-2013 Bryan A. Jones.
-#
-#    This file is part of Enki.
-#
-#    Enki is free software: you can redistribute it and/or modify it under the
-#    terms of the GNU General Public License as published by the Free Software
-#    Foundation, either version 3 of the License, or (at your option) any later
-#    version.
-#
-#    Enki is distributed in the hope that it will be useful, but WITHOUT ANY
-#    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-#    FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-#
-#    You should have received a copy of the GNU General Public License along with
-#    Enki.  If not, see <http://www.gnu.org/licenses/>.
-#
 # **************************************************************************************
 # approx_match.py - provide approximate matching to support code and web synchronization
 # **************************************************************************************
@@ -40,8 +23,20 @@ import os
 #
 # Third-party imports
 # -------------------
-# The `regex <https://pypi.python.org/pypi/regex>`_ module supports approximate matching.
+import pkg_resources
+
+# The `regex <https://pypi.python.org/pypi/regex>`_ module supports approximate
+# matching. Make sure it is recent enough to be usable.
 import regex
+try:
+  # Get the version of regex. See https://pythonhosted.org/setuptools/pkg_resources.html#distribution-attributes.
+  regexVersion = pkg_resources.get_distribution('regex').parsed_version
+  # Issues I filed before this make regex unusable. See #166, #167, andd #169 at
+  # https://bitbucket.org/mrabarnett/mrab-regex/issues. For version parse, see
+  # https://pythonhosted.org/setuptools/pkg_resources.html#parsing-utilities.
+  assert regexVersion >= pkg_resources.parse_version('2015.11.07')
+except AssertionError, ValueError:
+  raise ImportError
 #
 # For debug
 # =========

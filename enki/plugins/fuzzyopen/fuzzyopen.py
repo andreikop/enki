@@ -36,6 +36,11 @@ def fuzzyMatch(reversed_pattern, text):
 
         prev_match = index
 
+    # find next /. Closer - better
+    slash_index = text.rfind(os.sep, 0, index)
+    if slash_index != -1:
+        score += index - slash_index
+
     return score, indexes
 
 
@@ -148,7 +153,7 @@ class FuzzyOpenCommand(AbstractCommand):
         else:
             self._line = None
 
-        self._pattern = '/'.join(args) if args else ''
+        self._pattern = os.sep.join(args) if args else ''
 
     def completer(self):
         if core.project().files() is not None:

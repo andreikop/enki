@@ -1,8 +1,8 @@
 {
-    "_version" : 20,
+    "_version" : 21,
     "PlatformDefaultsHaveBeenSet" : false,
 
-    "NegativeFileFilter": [ "*~", "*.o", "*.pyc", "*.bak", "__pycache__", "*.class" ],
+    "NegativeFileFilter": [ ".*", "*~", "*.o", "*.pyc", "*.bak", "__pycache__", "*.class" ],
 
     "Qutepart": {
         "Font": {

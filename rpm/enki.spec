@@ -5,7 +5,7 @@
 %global icon_cache_gtk_update /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 Name:           enki
-Version:        15.06.0
+Version:        15.11.0
 Release:        5%{?dist}
 Summary:        Advanced text editor for programmers
 Group:          Productivity/Text/Editors
@@ -104,6 +104,10 @@ fi
 
 
 %changelog
+* Mon Nov 30 2015 Andrei Kopats <hlamer@tut.by> 15.11.0-14
+ - Fuzzy opener
+ - Bug fixes and improvements
+
 * Mon Jul 27 2015 Bryan Jones <bjones AT ece.msstate.edu> 15.06.0-13
  - Literate programming and preview enhancements
 

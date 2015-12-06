@@ -159,12 +159,7 @@ class ConverterThread(QThread):
                    'Install it with your package manager or see ' \
                    '<a href="http://packages.python.org/Markdown/install.html">installation instructions</a>'
 
-        try:
-            import mdx_mathjax
-        except ImportError:
-            pass  #mathjax doesn't require import statement if installed as extension
-
-        extensions = ['fenced_code', 'nl2br', 'tables']
+        extensions = ['fenced_code', 'nl2br', 'tables', 'enki.plugins.preview.mdx_math']
 
         # version 2.0 supports only extension names, not instances
         if markdown.version_info[0] > 2 or \
@@ -183,11 +178,7 @@ class ConverterThread(QThread):
 
             extensions.append(_StrikeThroughExtension())
 
-        try:
-            return markdown.markdown(text, extensions + ['mathjax'])
-        except (ImportError, ValueError):  # markdown raises ValueError or ImportError, depends on version
-                                           # it is not clear, how to distinguish missing mathjax from other errors
-            return markdown.markdown(text, extensions) #keep going without mathjax
+        return markdown.markdown(text, extensions)
 
     def _convertReST(self, text):
         """Convert ReST
@@ -406,6 +397,9 @@ class ConverterThread(QThread):
 
             self.htmlReady.emit(task.filePath, html, errString, url)
 
+        # Free resources.
+        self._ac.terminate()
+
 
 class PreviewDock(DockWidget):
     """GUI and implementation
@@ -466,7 +460,7 @@ class PreviewDock(DockWidget):
         self._typingTimer.setInterval(800)
         self._typingTimer.timeout.connect(self._scheduleDocumentProcessing) # Disconnected.
 
-        self.previewSync = PreviewSync(self._widget.webView) # del_ called
+        self.previewSync = PreviewSync(self) # del_ called
 
         self._applyJavaScriptEnabled(self._isJavaScriptEnabled())
 
@@ -672,7 +666,7 @@ class PreviewDock(DockWidget):
 
             self._clear()
 
-            if core.config()['Preview']['Enabled']:
+            if self.isVisible():
                 self._scheduleDocumentProcessing()
 
     _CUSTOM_TEMPLATE_PATH = '<custom template>'
@@ -733,7 +727,7 @@ class PreviewDock(DockWidget):
     def _onTextChanged(self, document):
         """Text changed, update preview
         """
-        if core.config()['Preview']['Enabled'] and not self._ignoreTextChanges:
+        if self.isVisible() and not self._ignoreTextChanges:
             self._typingTimer.stop()
             self._typingTimer.start()
 
@@ -771,18 +765,24 @@ class PreviewDock(DockWidget):
                 # Markdown produces no errors or warnings to display in the
                 # progress bar. See https://github.com/bjones1/enki/issues/36.
                 self._widget.prgStatus.setVisible(False)
+                # Hide the error log, since Markdown never generates errors or
+                # warnings.
+                self._widget.teLog.setVisible(False)
             elif isHtmlFile(document):
                 # No processing needed -- just display it.
                 self._setHtml(document.filePath(), text)
                 # Hide the progress bar, since no processing is necessary.
                 self._widget.prgStatus.setVisible(False)
+                # Hide the error log, since we do not HTML checking.
+                self._widget.teLog.setVisible(False)
                 return
             elif ( (language == 'Restructured Text') or sphinxCanProcess or
                   canUseCodeChat(document.filePath()) ):
-                # Show the progress bar for reST, CodeChat, or Sphinx builds. It
-                # will display progress (Sphinx only) and errors/warnings (for
-                # all three).
+                # Show the progress bar and error log for reST, CodeChat, or
+                # Sphinx builds. It will display progress (Sphinx only) and
+                # errors/warnings (for all three).
                 self._widget.prgStatus.setVisible(True)
+                self._widget.teLog.setVisible(True)
                 self._setHtmlProgress('Building...')
 
             # Determine whether to initiate a build or not. The underlying

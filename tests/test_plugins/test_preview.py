@@ -12,7 +12,6 @@
 import unittest
 import os.path
 import sys
-import stat
 import codecs
 
 # Local application imports
@@ -25,7 +24,7 @@ from base import WaitForSignal
 
 # Third-party library imports
 # ---------------------------
-from PyQt4.QtGui import QMessageBox, QWheelEvent, QApplication, QDialog
+from PyQt4.QtGui import QMessageBox, QWheelEvent, QApplication
 from PyQt4.QtCore import Qt, QPoint
 import mock
 
@@ -37,22 +36,33 @@ from enki.core.uisettings import UISettings
 # ``reload(enki.plugins.preview)``; the last, to instiantate ``SettingsWidget``.
 import enki.plugins.preview
 from enki.plugins.preview import CodeChatSettingsWidget, SphinxSettingsWidget
-from enki.plugins.preview import commonPrefix
-from enki.plugins.preview.preview import copyTemplateFile
 from import_fail import ImportFail
 from enki.plugins.preview import _getSphinxVersion
+
+
+_SPHINX_VERSION = [1, 3, 0]
+try:
+    sphinxVersion = _getSphinxVersion('sphinx-build')
+except:
+    sphinxIsAvailable = False
+    sphinxVersion = None
+else:
+    sphinxIsAvailable = sphinxVersion >= _SPHINX_VERSION
+
+
+def requiresSphinx():
+    """ A decorator: a test requires Sphinx """
+    if sphinxIsAvailable:
+        return lambda func: func
+    elif sphinxVersion is not None:
+        return unittest.skip('Sphinx is too old. {} required'.format(_SPHINX_VERSION))
+    else:
+        return unittest.skip('Sphinx not found')
 
 
 # Preview module tests
 # ====================
 
-# Decorating each test function which needs it with
-# @base.requiresCmdlineUtility('sphinx-build --version')
-# makes the tests slow: using
-# ``python -m profile -s cumtime test_preview_sync.py`` showed almost
-# 7 seconds spend running this command. So, run it once here then re-use
-# this value.
-requiresSphinx = base.requiresCmdlineUtility('sphinx-build --version')
 
 class SimplePreviewTestCase(base.TestCase):
     """Only for very minimal testing of the Preview dock."""
@@ -62,6 +72,7 @@ class SimplePreviewTestCase(base.TestCase):
         it is not found."""
         return self.findVisibleDock('Previe&w')
 
+
 class TestSimplePreview(SimplePreviewTestCase):
     @base.requiresModule('CodeChat')
     def test_emptyCodeChatDocument(self):
@@ -70,7 +81,7 @@ class TestSimplePreview(SimplePreviewTestCase):
         with self.assertRaisesRegexp(AssertionError, 'Dock Previe&w not found'):
             self._dock()
 
-    @requiresSphinx
+    @requiresSphinx()
     def test_emptySphinxDocument(self):
         core.config()['Sphinx']['Enabled'] = True
         core.workspace().createEmptyNotSavedDocument()
@@ -284,7 +295,7 @@ class TestPreview(PreviewTestCase):
         self.assertTrue(sw.labelCodeChatIntro.isEnabled())
         us.close()
 
-    @requiresSphinx
+    @requiresSphinx()
     @base.inMainLoop
     def test_settingUiCheck3a(self):
         """test_uiCheck1a has tested the case when Sphinx is disabled. This
@@ -348,7 +359,7 @@ class TestPreview(PreviewTestCase):
         self.assertTrue(self._widget().prgStatus.isVisible())
         self.assertIn('this file is not supported by CodeChat', self._logText())
 
-    @requiresSphinx
+    @requiresSphinx()
     @base.inMainLoop
     def test_previewCheck2(self):
         """Basic Sphinx test: create a Sphinx project in a temp folder, return
@@ -362,7 +373,7 @@ content"""
         webViewContent, logContent = self._doBasicSphinxTest('rst')
         self.assertTrue(self._widget().prgStatus.isVisible())
 
-    @requiresSphinx
+    @requiresSphinx()
     @base.inMainLoop
     def test_previewCheck2a(self):
         """Basic Sphinx test. Output directory is an absolute directory
@@ -376,7 +387,7 @@ head
 content"""
         webViewContent, logContent = self._doBasicSphinxTest('rst')
 
-    @requiresSphinx
+    @requiresSphinx()
     @base.inMainLoop
     def test_previewCheck2b(self):
         """Check for double builds.
@@ -408,7 +419,7 @@ content"""
             qp.appendPlainText('\nTesting...')
         self.assertEqual(self._dock()._thread._SphinxInvocationCount, 4)
 
-    @requiresSphinx
+    @requiresSphinx()
     @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck3a(self):
@@ -427,7 +438,7 @@ content"""
         webViewContent, logContent = self._doBasicSphinxTest('py')
         self.assertTrue(u'<p>content</p>' in webViewContent)
 
-    @requiresSphinx
+    @requiresSphinx()
     @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck3(self):
@@ -454,7 +465,7 @@ content"""
         with self.assertRaisesRegexp(AssertionError, 'Dock Previe&w not found'):
             self._dock()
 
-    @requiresSphinx
+    @requiresSphinx()
     @base.inMainLoop
     def test_previewCheck5(self):
         """Basic Sphinx test: with Sphinx and codechat disabled, no preview
@@ -479,7 +490,7 @@ content"""
         self._doBasicTest('py')
         self.assertEqual(self._plainText(), u' \n')
 
-    @requiresSphinx
+    @requiresSphinx()
     @base.inMainLoop
     def test_previewCheck6a(self):
         """Empty code file produces a Sphinx failure since file in toctree should
@@ -501,7 +512,7 @@ content"""
         # preview dock is not empty. A '\n' is added accordingly.
         self.assertEqual(self._plainText(), self.testText + '\n')
 
-    @requiresSphinx
+    @requiresSphinx()
     @base.inMainLoop
     def test_previewCheck7a(self):
         """Unicode string passed to Sphinx should be handled properly.
@@ -531,7 +542,7 @@ content"""
         assert 'test' in self._html()
 
 
-    @requiresSphinx
+    @requiresSphinx()
     @base.inMainLoop
     def test_previewCheck8a(self):
         """Start with Sphinx disabled, make sure rst file will be rendered by
@@ -569,7 +580,7 @@ content"""
         self._doBasicTest('rst')
         self.assertTrue("""Unknown directive type "wrong".""" in self._logText())
 
-    @requiresSphinx
+    @requiresSphinx()
     @base.inMainLoop
     def test_previewCheck9a(self):
         """Test Sphinx error can be captured correctly"""
@@ -609,7 +620,7 @@ content"""
         self.assertTrue(u'Енки' in self._logText())
 
     @unittest.skip("Unicode isn't presented in the log window")
-    @requiresSphinx
+    @requiresSphinx()
     @base.inMainLoop
     def test_previewCheck12(self):
         """Unicode in log window while in Sphinx mode does not work since Sphinx
@@ -707,7 +718,7 @@ head
         self.assertEqual(self._widget().prgStatus.styleSheet(), 'QLabel {}')
         self.assertEqual(self._logText(), '')
 
-    @requiresSphinx
+    @requiresSphinx()
     @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck19(self):
@@ -728,7 +739,7 @@ head
         webViewContent, logContent = self._doBasicSphinxTest('py')
         self.assertTrue(u'<p>content</p>' in webViewContent)
 
-    @requiresSphinx
+    @requiresSphinx()
     @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck20(self):
@@ -752,7 +763,7 @@ head
             self.TEST_FILE_DIR = testFileDir
         self.assertTrue(u'<p>content</p>' in webViewContent)
 
-    @requiresSphinx
+    @requiresSphinx()
     @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck20a(self):
@@ -780,7 +791,7 @@ head
             self.TEST_FILE_DIR = testFileDir
         self.assertTrue(u'<p>content</p>' in webViewContent)
 
-    @requiresSphinx
+    @requiresSphinx()
     @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck21(self):
@@ -804,7 +815,7 @@ head
                               numEmittedExpected=1)
         self.assertTrue(u'Unknown interpreted text role "doc"' in self._logText())
 
-    @requiresSphinx
+    @requiresSphinx()
     @base.inMainLoop
     def test_previewCheck22(self):
         """ Assume codechat is not installed, render a .rst file using
@@ -823,7 +834,7 @@ head
             self.assertTrue(u"document isn't included in any toctree" in self._logText())
             self.assertTrue('#FF9955' in self._widget().prgStatus.styleSheet())
 
-    @requiresSphinx
+    @requiresSphinx()
     @base.inMainLoop
     def test_previewCheck23(self):
         """If the document is modified externally, then build on save will be
@@ -860,7 +871,7 @@ head
         # Make sure the file wasn't saved.
         self.assertTrue(qp.document().isModified())
 
-    @requiresSphinx
+    @requiresSphinx()
     @base.inMainLoop
     def test_previewCheck24(self):
         self._doBasicSphinxConfig()
@@ -872,7 +883,7 @@ head
         webViewContent, logContent = self._doBasicSphinxTest('py')
         self.assertFalse(os.path.isfile(os.path.join(self.TEST_FILE_DIR, 'CodeChat.css')))
 
-    @requiresSphinx
+    @requiresSphinx()
     @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck20a(self):
@@ -887,7 +898,7 @@ head
         webViewContent, logContent = self._doBasicSphinxTest('py')
         self.assertTrue(os.path.isfile(os.path.join(self.TEST_FILE_DIR, 'CodeChat.css')))
 
-    @requiresSphinx
+    @requiresSphinx()
     @base.inMainLoop
     def test_previewCheck25(self):
         """If the file to be previewed is older than the source, an error
@@ -912,7 +923,7 @@ head
         self.assertIn(u'is older than the source file', webViewContent)
 
     @mock.patch('os.path.getmtime')
-    @requiresSphinx
+    @requiresSphinx()
     @base.inMainLoop
     def test_previewCheck25(self, _getmtime):
         """Check exception handling in date comparison code."""
@@ -1070,7 +1081,7 @@ head
         QApplication.instance().sendEvent(webView, zoom_in)
         self.assertTrue(1.05 < webView.zoomFactor() < 1.15)
 
-    @requiresSphinx
+    @requiresSphinx()
     @base.inMainLoop
     def test_saveAndBuildWhitespace1(self):
         """See if whitespace is preserved on the current line
