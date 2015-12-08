@@ -16,11 +16,12 @@ from PyQt5.QtCore import QAbstractItemModel, \
     QMimeData, \
     QModelIndex, \
     QObject, \
-    Qt, QPoint, QItemSelection, pyqtSlot
+    Qt, QPoint, QItemSelection, pyqtSlot, QEvent, QObject, QTimer
 from PyQt5.QtWidgets import QAbstractItemView, \
     QMenu, \
     QMessageBox, \
-    QTreeView
+    QTreeView, \
+    QApplication
 from PyQt5.QtGui import QIcon
 
 
@@ -369,10 +370,19 @@ class OpenedFileExplorer(DockWidget):
 
         core.actionManager().addAction("mView/aOpenedFiles", self.showAction())
 
+        # Add auto-hide capability.
+        self._waitForCtrlRelease = False
+        core.actionManager().action("mNavigation/aNext").triggered.connect(
+          self._setWaitForCtrlRelease)
+        core.actionManager().action("mNavigation/aPrevious").triggered.connect(
+          self._setWaitForCtrlRelease)
+        QApplication.instance().installEventFilter(self)
+
     def terminate(self):
         """Explicitly called destructor
         """
         core.actionManager().removeAction("mView/aOpenedFiles")
+        QApplication.instance().removeEventFilter(self)
 
     def startModifyModel(self):
         """Blocks signals from model while it is modified by code
@@ -433,3 +443,29 @@ class OpenedFileExplorer(DockWidget):
         core.actionManager().action("mFile/mFileSystem").menu().aboutToShow.emit()  # to update aToggleExecutable
 
         menu.exec_(self.tvFiles.mapToGlobal(pos))
+
+    def _setWaitForCtrlRelease(self):
+        # We can't see actual Ctrl+PgUp/PgDn keypresses, since these get eaten
+        # by the QAction and don't even show up in the event filter below. We
+        # want to avoid waiting for a Ctrl release if the menu item brought us
+        # here. As a workaround, check that Ctrl is pressed. If so, it's
+        # unlikely to be the menu item.
+        if QApplication.instance().keyboardModifiers() & Qt.ControlModifier:
+            self._waitForCtrlRelease = True
+            self.show()
+
+    def eventFilter(self, obj, event):
+        """An event filter that looks for ctrl key releases and focus out
+           events."""
+        # Wait for the user to release the Ctrl key.
+        if ( self._waitForCtrlRelease and event.type() == QEvent.KeyRelease and
+          event.key() == Qt.Key_Control and
+          event.modifiers() == Qt.NoModifier):
+            self._waitForCtrlRelease = False
+            if self.titleBarWidget().cbAutoHide.isChecked():
+                self.hide()
+        # Look for a focus out event sent by the containing widget's focus
+        # proxy.
+        if event.type() == QEvent.FocusOut and obj == self.focusProxy():
+            self._moveToTop()
+        return QObject.eventFilter(self, obj, event)

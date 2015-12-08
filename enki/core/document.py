@@ -6,18 +6,20 @@ document --- Opened file representation
 import os.path
 
 import sip
-from PyQt5.QtCore import pyqtSignal, QFileSystemWatcher, QObject, QTimer, pyqtSlot
+from PyQt5.QtCore import pyqtSignal, QFileSystemWatcher, QObject, QTimer, pyqtSlot, QEvent
 from PyQt5.QtWidgets import QFileDialog, \
     QInputDialog, \
     QMessageBox, \
     QPlainTextEdit, \
     QWidget, \
-    QVBoxLayout
+    QVBoxLayout, \
+    QApplication
 from PyQt5.QtGui import QColor, QFont, QIcon, QTextOption
 
 from qutepart import Qutepart
 
 from enki.core.core import core
+from enki.widgets.dockwidget import DockWidget
 
 
 class _FileWatcher(QObject):
@@ -202,6 +204,8 @@ class Document(QWidget):
         self._configureEolMode(originalText)
 
         self._tryDetectSyntax()
+
+        QApplication.instance().installEventFilter(self)
 
     def _tryDetectSyntax(self):
         if len(self.qutepart.lines) > (100 * 1000) and \
@@ -544,3 +548,18 @@ class Document(QWidget):
             self.qutepart.eol = self._EOL_CONVERTOR[conf['EOL']['Mode']]
 
         # Whitespace visibility is managed by qpartsettings plugin
+
+    def eventFilter(self, obj, event):
+        """An event filter that looks for focus in events, closing any floating
+           docks when found."""
+
+        # Note: We can't ``def focusInEvent(self, focusEvent)`` since qutepart
+        # is the focus proxy, meaning this won't be called. Hence, the neeed for
+        # an event listener.
+        if (event.type() == QEvent.FocusIn and
+          (obj == self or obj == self.focusProxy()) ):
+            for dock in core.mainWindow().findChildren(DockWidget):
+                if dock.titleBarWidget().cbAutoHide.isChecked():
+                    dock._close()
+
+        return QWidget.eventFilter(self, obj, event)
