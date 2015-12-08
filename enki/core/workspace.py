@@ -438,6 +438,7 @@ class Workspace(QStackedWidget):
         document = self.currentDocument()
         if document:
             document.setFocus()
+            document.activateWindow()
 
     def goTo(self, filePath, absPos=None, line=None, column=None, selectionLength=None):
         """Open file, activate it, and go to specified position. Select text after position, if necessary.

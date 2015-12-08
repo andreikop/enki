@@ -213,6 +213,13 @@ class DockWidget(QDockWidget):
         """Widget was closed"""
         self.closed.emit()
 
+    def show(self):
+        QDockWidget.show(self)
+        # If floating, then active this window so it will receive keyboard
+        # input.
+        if self.isFloating():
+            self.activateWindow()
+
     def showEvent(self, event):
         """Widget was shown"""
         self.shown.emit()
