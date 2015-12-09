@@ -207,7 +207,6 @@ class AsyncAbstractController(QObject):
     # This is run shortly before this class's C++ destructor is invoked. It
     # emulates a C++ destructor by freeing resources before the C++ class is
     # destroyed.
-    @pyqtSlot()
     def onParentDestroyed(self):
         self.terminate()
 #
@@ -513,7 +512,6 @@ class _SignalInvoker(QObject):
     doneSignal = pyqtSignal(Future)
 
     # A method to invoke ``future.g``.
-    @pyqtSlot(Future)
     def onDoneSignal(self, future):
         # Invoke ``g`` if it was provided and should be invoked.
         if future._g and not future._discardResult:
@@ -546,7 +544,6 @@ class _AsyncWorker(QObject):
 
     # The start signal is connected to this slot. It runs ``f`` in the worker
     # thread.
-    @pyqtSlot(Future)
     def onStart(self,
       # The Future instance which contains the callable to invoke.
       future):
@@ -577,7 +574,6 @@ class TimePrinter(object):
         self.qt.start(self.interval_sec*1000)
 
     # Print the time.
-    @pyqtSlot()
     def printTime(self):
         sys.stdout.write('{} seconds: task states are '.format(self.time_sec))
         for task in self.tasks:

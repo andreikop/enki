@@ -9,7 +9,7 @@ import operator
 import logging
 
 from PyQt5.QtCore import QDir, QModelIndex, QObject, Qt, QTimer, \
-                         pyqtSignal, pyqtSlot
+                         pyqtSignal
 from PyQt5.QtWidgets import QAction, QCompleter, QDirModel, \
                         QFrame, QFileSystemModel, \
                         QComboBox, \
@@ -523,7 +523,6 @@ class ComboBox(QComboBox):
         """
         self.showPopup()
 
-    @pyqtSlot(int)
     def _onItemSelected(self, index):
         """Handler of item selection in the combo box
         """
@@ -654,7 +653,6 @@ class DockFileBrowser(DockWidget):
         self.setCurrentPath(path)
         self.show()
 
-    @pyqtSlot(list)
     def updateComboItems(self, items):
         """Update items in the combo box according to current history
         """

@@ -263,7 +263,6 @@ class SphinxSettingsWidget(QWidget):
         else:
             self.leValidateSphinxExecutable.setText('Sphinx is found!')
 
-    @pyqtSlot()
     def on_pbSphinxProjectPath_clicked(self):
         """Provide a directory chooser for the user to select a project path.
         """
@@ -283,7 +282,6 @@ class SphinxSettingsWidget(QWidget):
                 self.leSphinxOutputPath.setText(os.path.join(path, '_build',
                                                              'html'))
 
-    @pyqtSlot()
     def on_pbSphinxOutputPath_clicked(self):
         """Proivde a directory chooser for the user to select an output path.
         """
@@ -293,7 +291,6 @@ class SphinxSettingsWidget(QWidget):
 
     # The Sphinx executable can be selected by the user. A filter is needed
     # such that non-executable files will not be selected by the user.
-    @pyqtSlot()
     def on_pbSphinxExecutable_clicked(self):
         fltr = "sphinx-build" + (".exe" if sys.platform.startswith("win") else "") \
                + ";; All files (*)"
@@ -513,11 +510,9 @@ class Plugin(QObject):
         CodeChatSettingsWidget(dialog)
         SphinxSettingsWidget(dialog)
 
-    @pyqtSlot()
     def _setSphinxActionVisibility(self):
         self._sphinxAction.setVisible(core.config()['Sphinx']['Enabled'])
 
-    @pyqtSlot()
     def onSphinxPath(self):
         core.config()['Sphinx']['ProjectPath'] = os.getcwd()
         core.config().flush()
