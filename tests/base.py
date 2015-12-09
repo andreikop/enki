@@ -10,6 +10,7 @@ import tempfile
 import subprocess
 import codecs
 import imp
+import warnings
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
@@ -191,6 +192,11 @@ class TestCase(unittest.TestCase):
     def setUp(self):
         self._finished = False
         self._cleanUpFs()
+
+        # Ignore warnings from PyQt5 ui loader
+        warnings.simplefilter("ignore", ResourceWarning)
+        warnings.simplefilter("ignore", DeprecationWarning)
+
         try:
             os.mkdir(self.TEST_FILE_DIR)
         except OSError as e:
