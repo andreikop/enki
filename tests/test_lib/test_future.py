@@ -168,9 +168,9 @@ class TestAsyncController(unittest.TestCase):
                 q1 = Queue()
                 q2 = Queue()
                 q3 = Queue()
-                em1 = Emitter(15, self.assertEquals)
-                em2 = Emitter(16, self.assertEquals)
-                em3 = Emitter(17, self.assertEquals)
+                em1 = Emitter(15, self.assertEqual)
+                em2 = Emitter(16, self.assertEqual)
+                em3 = Emitter(17, self.assertEqual)
                 ac.start(em1.g, lambda: q1.get())
                 ac.start(em2.g, lambda: q2.get())
                 ac.start(em3.g, lambda: q3.get())
@@ -264,13 +264,13 @@ class TestAsyncController(unittest.TestCase):
 
                 future2 = ac.start(None, lambda: None)
                 QTest.qWait(100)
-                self.assertEquals(future2.state, Future.STATE_WAITING)
+                self.assertEqual(future2.state, Future.STATE_WAITING)
                 with WaitForSignal(em1.bing, 1000):
                     future2.cancel()
                     q1a.put(None)
-                self.assertEquals(future1.state, Future.STATE_FINISHED)
+                self.assertEqual(future1.state, Future.STATE_FINISHED)
                 QTest.qWait(100)
-                self.assertEquals(future2.state, Future.STATE_CANCELED)
+                self.assertEqual(future2.state, Future.STATE_CANCELED)
 
     # Verify that job status and cancelation works: cancel an in-progress job,
     # verifying that it does not emit a signal or invoke a callback when it
@@ -285,7 +285,7 @@ class TestAsyncController(unittest.TestCase):
                     q1a.get()
                 # Cancel future3 while it's running in the other thread.
                 em1 = Emitter('em1 should never be called by {}'.format(_),
-                              self.assertEquals)
+                              self.assertEqual)
                 em1.bing.connect(self.fail)
                 future1 = ac.start(em1.g, f1)
                 q1b.get()
@@ -301,13 +301,13 @@ class TestAsyncController(unittest.TestCase):
                 # should not invoke the callback, even after the task has
                 # finihsed and the sigal emitted.
                 em2 = Emitter('em2 should never be called be {}'.format(_),
-                              self.assertEquals)
+                              self.assertEqual)
                 em2.bing.connect(self.fail)
                 future2 = ac.start(em2.g, lambda: None)
                 # Don't use qWait here, since it will process messages, which
                 # causes em2.g to be invoked.
                 time.sleep(0.1)
-                self.assertEquals(future2.state, Future.STATE_FINISHED)
+                self.assertEqual(future2.state, Future.STATE_FINISHED)
                 future2.cancel(True)    # Test per-task priority.
                 # Wait, in case a pending signal will invoke em2.g.
                 QTest.qWait(100)
@@ -342,7 +342,7 @@ class TestAsyncController(unittest.TestCase):
             em1 = Emitter()
             future1 = rl.start(em1.g, f1)
             q1b.get()
-            self.assertEquals(future1.state, Future.STATE_RUNNING)
+            self.assertEqual(future1.state, Future.STATE_RUNNING)
 
             # Start two more. The first should not run; if it does, it raises
             # an exception.
@@ -369,10 +369,10 @@ class TestAsyncController(unittest.TestCase):
                 q1b.put(None)
                 q1a.get()
             em1 = Emitter('em1 should never be called by {}'.format(_),
-                              self.assertEquals)
+                              self.assertEqual)
             future1 = rl.start(em1.g, f1)
             q1b.get()
-            self.assertEquals(future1.state, Future.STATE_RUNNING)
+            self.assertEqual(future1.state, Future.STATE_RUNNING)
 
             # Start another job, canceling the previous job while it's running.
             em2 = Emitter()

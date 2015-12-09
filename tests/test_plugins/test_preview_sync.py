@@ -360,7 +360,7 @@ Here is some text after a table.""", True)
         qp.cursorPosition = (100, 100)
         # Wait for Qt to process messages, such as the timer.
         QTest.qWait(0)
-        self.assertEquals(f, ps._runLatest.future)
+        self.assertEqual(f, ps._runLatest.future)
 
     # Cases for _alignScrollAmount
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^
