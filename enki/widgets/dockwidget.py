@@ -50,15 +50,15 @@ class _TitleBar(QToolBar):
 
         self.setStyleSheet('QToolBar{spacing:0px; margin:0px}')
 
-        # The auto-hide checkbox
-        self.cbAutoHide = QToolButton()
+        # The pinned/unpinned control.
+        self.tbUnPinned = QToolButton()
         icon = QIcon()
         # To do: Replace with my own image and put in resources.
         icon.addPixmap(QPixmap(os.path.join(os.path.dirname(__file__), 'unpinned.png')), QIcon.Normal, QIcon.On)
         icon.addPixmap(QPixmap(os.path.join(os.path.dirname(__file__), 'pinned.png')), QIcon.Normal, QIcon.Off)
-        self.cbAutoHide.setIcon(icon)
-        self.cbAutoHide.setCheckable(True)
-        self.addWidget(self.cbAutoHide)
+        self.tbUnPinned.setIcon(icon)
+        self.tbUnPinned.setCheckable(True)
+        self.addWidget(self.tbUnPinned)
 
     def paintEvent(self, event):
         """QToolBar.paintEvent reimplementation
@@ -233,3 +233,7 @@ class DockWidget(QDockWidget):
     def showEvent(self, event):
         """Widget was shown"""
         self.shown.emit()
+
+    def isPinned(self):
+        """True if the widget is pinned; false if unpinned (auto-hide mode)."""
+        return not self._titleBar.tbUnPinned.isChecked()

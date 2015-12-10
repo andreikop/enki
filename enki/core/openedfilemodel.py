@@ -462,7 +462,7 @@ class OpenedFileExplorer(DockWidget):
           event.key() == Qt.Key_Control and
           event.modifiers() == Qt.NoModifier):
             self._waitForCtrlRelease = False
-            if self.titleBarWidget().cbAutoHide.isChecked():
+            if not self.isPinned():
                 self.hide()
         # Look for a focus out event sent by the containing widget's focus
         # proxy.

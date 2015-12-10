@@ -559,7 +559,7 @@ class Document(QWidget):
         if (event.type() == QEvent.FocusIn and
           (obj == self or obj == self.focusProxy()) ):
             for dock in core.mainWindow().findChildren(DockWidget):
-                if dock.titleBarWidget().cbAutoHide.isChecked():
+                if not dock.isPinned():
                     dock._close()
 
         return QWidget.eventFilter(self, obj, event)
