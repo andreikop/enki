@@ -35,7 +35,7 @@ try:
   # https://bitbucket.org/mrabarnett/mrab-regex/issues. For version parse, see
   # https://pythonhosted.org/setuptools/pkg_resources.html#parsing-utilities.
   assert regexVersion >= pkg_resources.parse_version('2015.11.07')
-except AssertionError, ValueError:
+except AssertionError as ValueError:
   raise ImportError
 #
 # For debug
