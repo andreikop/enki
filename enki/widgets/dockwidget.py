@@ -11,7 +11,7 @@ This class adds next features to QDockWidget:
 from PyQt5.QtCore import pyqtSignal, QSize, Qt
 from PyQt5.QtWidgets import QAction, QDockWidget, \
     QShortcut, QSizePolicy, QStyle, \
-    QStyleOptionButton, QToolBar, QWidget, QCheckBox
+    QStyleOptionButton, QToolBar, QWidget, QToolButton, QPixmap
 from PyQt5.QtGui import QFontMetrics, QIcon, \
     QKeySequence, QPainter, \
     QTransform
@@ -51,7 +51,13 @@ class _TitleBar(QToolBar):
         self.setStyleSheet('QToolBar{spacing:0px; margin:0px}')
 
         # The auto-hide checkbox
-        self.cbAutoHide = QCheckBox()
+        self.cbAutoHide = QToolButton()
+        icon = QIcon()
+        # To do: Replace with my own image and put in resources.
+        icon.addPixmap(QPixmap(os.path.join(os.path.dirname(__file__), 'unpinned.png')), QIcon.Normal, QIcon.On)
+        icon.addPixmap(QPixmap(os.path.join(os.path.dirname(__file__), 'pinned.png')), QIcon.Normal, QIcon.Off)
+        self.cbAutoHide.setIcon(icon)
+        self.cbAutoHide.setCheckable(True)
         self.addWidget(self.cbAutoHide)
 
     def paintEvent(self, event):
