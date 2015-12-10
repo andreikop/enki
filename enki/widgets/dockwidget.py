@@ -225,8 +225,9 @@ class DockWidget(QDockWidget):
         """Hide and return focus to MainWindow focus proxy
         """
         self.close()
-        if self.parent() is not None and \
-           self.parent().focusProxy() is not None:
+        if ( self.parent() is not None and
+          self.parent().focusProxy() is not None and
+          self.hasFocus() ):
             self.parent().focusProxy().setFocus()
 
     def closeEvent(self, event):
