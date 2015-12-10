@@ -15,6 +15,7 @@ from PyQt5.QtWidgets import QAction, QDockWidget, \
 from PyQt5.QtGui import QFontMetrics, QIcon, \
     QKeySequence, QPainter, \
     QTransform
+from enki.core.core import core
 
 
 class _TitleBar(QToolBar):
@@ -58,7 +59,15 @@ class _TitleBar(QToolBar):
         icon.addPixmap(QPixmap(os.path.join(os.path.dirname(__file__), 'pinned.png')), QIcon.Normal, QIcon.Off)
         self.tbUnPinned.setIcon(icon)
         self.tbUnPinned.setCheckable(True)
+        self._configName = parent.windowTitle() + " pinned"
+        if self._configName in core.config():
+            self.tbUnPinned.setChecked(not core.config()[self._configName])
+        self.tbUnPinned.toggled.connect(self.on_tbUnPinned_toggled)
         self.addWidget(self.tbUnPinned)
+
+    def on_tbUnPinned_toggled(self, checked):
+        core.config()[self._configName] = not checked
+        core.config().flush()
 
     def paintEvent(self, event):
         """QToolBar.paintEvent reimplementation
