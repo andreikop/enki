@@ -29,7 +29,7 @@ class Test(base.TestCase):
     @base.requiresCmdlineUtility('scheme')
     @base.inMainLoop
     def test_1(self):
-        # Scheme
+        """ Scheme """
         return  # TODO
         self.createFile('test.scm', '(+ 17 10)')
         self.keyClick('Ctrl+E')
@@ -38,7 +38,7 @@ class Test(base.TestCase):
     @base.requiresCmdlineUtility('sml -h')
     @base.inMainLoop
     def test_2(self):
-        # SML
+        """ SML """
         self.createFile('test.sml', '1234 * 567;')
         self.keyClick('Ctrl+E')
 
@@ -47,7 +47,7 @@ class Test(base.TestCase):
     @base.requiresCmdlineUtility('python -h')
     @base.inMainLoop
     def test_3(self):
-        # Python
+        """ Python """
         self.createFile('test.py', 'print(1234 * 567)\n')
         self.keyClick('Ctrl+E')
 
@@ -56,7 +56,7 @@ class Test(base.TestCase):
     @base.requiresCmdlineUtility('python -h')
     @base.inMainLoop
     def test_4(self):
-        # Python, execute a function
+        """ Python, execute a function """
         self.createFile('test.py', 'def mysum(a, b):\n\n  return a + b\n')
         self.keyClick('Ctrl+E')
         self.keyClick('Alt+I')
@@ -64,6 +64,15 @@ class Test(base.TestCase):
         self.keyClick('Enter')
 
         self._waitForText('77013', 'Python')
+
+    @base.requiresCmdlineUtility('python -h')
+    @base.inMainLoop
+    def test_5(self):
+        """ print unicode """
+        self.createFile('test.py', '# coding=utf8\nprint("Привет")\n')
+        self.keyClick('Ctrl+E')
+
+        self._waitForText('Привет', 'Python')
 
 
 if __name__ == '__main__':

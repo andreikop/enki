@@ -108,21 +108,19 @@ class BufferedPopen:
         """
         # hlamer: Reading output by one character is not effective, but, I don't know
         # how to implement non-blocking reading of not full lines better
-        def read():
-            if self.isAlive():
-                return pipe.read(1)
-            else:
-                return pipe.read()
+        def readChar():
+            pendingData = b''
+            while True:
+                data = pipe.read(1)
+                try:
+                    text = (pendingData + data).decode('utf8')
+                except UnicodeDecodeError:
+                    pendingData += data
+                    continue
+                else:
+                    return text
 
-        def conv(data):
-            # TODO FIXME BUG this will not work with more than 1-byte symbols
-            # since bytes are decoded separatelly
-            try:
-                return data.decode('utf8')
-            except UnicodeDecodeError:
-                return ''
-
-        text = conv(read())
+        text = readChar()
         while text and not self._mustDie:
             try:
                 self._outQueue.put(text, False)
@@ -130,7 +128,7 @@ class BufferedPopen:
                 time.sleep(0.01)
                 continue
 
-            text = conv(read())
+            text = readChar()
 
     def _writeInputThread(self):
         """Writer thread function. Writes data from input queue to process
