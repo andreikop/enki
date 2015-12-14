@@ -220,7 +220,6 @@ class TestCase(unittest.TestCase):
         _processPendingEvents()
         self._cleanUpFs()
 
-
     def keyClick(self, key, modifiers=Qt.NoModifier, widget=None):
         """Alias for ``QTest.keyClick``.
 

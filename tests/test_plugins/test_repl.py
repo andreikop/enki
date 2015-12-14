@@ -57,7 +57,7 @@ class Test(base.TestCase):
     @base.inMainLoop
     def test_4(self):
         # Python, execute a function
-        self.createFile('test.py', 'def mysum(a, b):\n\n  return a + b')
+        self.createFile('test.py', 'def mysum(a, b):\n\n  return a + b\n')
         self.keyClick('Ctrl+E')
         self.keyClick('Alt+I')
         self.keyClicks('mysum(77000, 13)')

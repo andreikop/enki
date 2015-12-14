@@ -53,7 +53,8 @@ class BufferedPopen:
                                        stdin=subprocess.PIPE,
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.STDOUT,
-                                       startupinfo=si, env=env)
+                                       startupinfo=si, env=env,
+                                       bufsize=0)
 
         self._inThread = threading.Thread(target=self._writeInputThread,
                                           name='enki.lib.buffpopen.input')
