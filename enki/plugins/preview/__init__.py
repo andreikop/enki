@@ -386,7 +386,6 @@ class Plugin(QObject):
         core.actionManager().addAction('mTools/aSetSphinxPath',
                                        self._sphinxAction)
         self._sphinxAction.triggered.connect(self.onSphinxPath)
-        self._setSphinxActionVisibility()
 
         # If user's config .json file lacks it, populate CodeChat's default
         # config key and Sphinx's default config key.
@@ -407,6 +406,8 @@ class Plugin(QObject):
               os.path.join('_build','doctrees') + ' . ' +
               os.path.join('_build', 'html') )
             core.config().flush()
+
+        self._setSphinxActionVisibility()
 
     def del_(self):
         """Uninstall the plugin
