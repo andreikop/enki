@@ -369,6 +369,14 @@ class Workspace(QStackedWidget):
     def _onCurrentDocumentChanged(self, old, new):
         """Change current directory, if current file changed
         """
+        if(new and
+           new.filePath() is not None and
+           os.path.exists(os.path.dirname(new.filePath()))):
+            try:
+                os.chdir(os.path.dirname(new.filePath()))
+            except OSError as ex:  # directory might be deleted
+                print >> sys.stderr, 'Failed to change directory:', str(ex)
+
         if old is not None:
             for path, name in self._QUTEPART_ACTIONS:
                 core.actionManager().removeAction(path)

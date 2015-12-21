@@ -127,11 +127,6 @@ class Project(QObject):
         self._scanStatus = 'Not scanning'
         self._backgroundScan = False
 
-        try:
-            os.chdir(path)
-        except:
-            pass
-
         self.changed.emit(path)
 
     def path(self):

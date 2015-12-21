@@ -14,7 +14,7 @@ from enki.core.core import core
 
 class Test(base.TestCase):
     def test_1(self):
-        """ Restore path
+        """ Init with current document path
         """
         path = os.path.abspath('../..')
 
@@ -32,7 +32,8 @@ class Test(base.TestCase):
         # We can't use ``os.path.samefile()`` because that's available only on
         # Unix for Python 2.7. So, use normpath and normcase per
         # http://stackoverflow.com/questions/21158667/comparing-two-paths-in-python.
-        self.assertEqual(normpathcase(dock.currentPath()), normpathcase(path))
+        self.assertEqual(normpathcase(dock.currentPath()), normpathcase(self.TEST_FILE_DIR))
+
 
 def normpathcase(path):
     """A helper function to normalize the path and case of a given path a.
