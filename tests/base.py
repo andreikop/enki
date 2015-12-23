@@ -98,6 +98,7 @@ def inMainLoop(func, *args):
         # Catch any exceptions which the EventLoop would otherwise catch
         # and not re-raise.
         exceptions = []
+
         def excepthook(type_, value, tracebackObj):
             exceptions.append((value, tracebackObj))
             QApplication.instance().exit()
@@ -208,12 +209,17 @@ class TestCase(unittest.TestCase):
     def tearDown(self):
         self._finished = True
 
-        for document in core.workspace().documents():
-            document.qutepart.text = ''  # clear modified flag, avoid Save Files dialog
+        def blockingFunc():
+            try:
+                core.workspace().forceCloseAllDocuments()
+                core.term()
+                _processPendingEvents()
+            finally:
+                QApplication.instance().quit()
 
-        core.workspace().closeAllDocuments()
-        core.term()
-        _processPendingEvents()
+        QTimer.singleShot(0, blockingFunc)
+        QApplication.exec_()
+
         self._cleanUpFs()
 
     def keyClick(self, key, modifiers=Qt.NoModifier, widget=None):
