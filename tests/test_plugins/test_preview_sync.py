@@ -240,8 +240,8 @@ class Test(PreviewTestCase):
     # More complex test to web sync
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     @requiresModule('docutils')
-    @base.inMainLoop
     @unittest.expectedFailure
+    @base.inMainLoop
     def test_sync12(self):
         """Tables with an embedded image cause findText to fail.
         """
