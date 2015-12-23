@@ -77,21 +77,21 @@ def inMainLoop(func, *args):
     Do not use for tests, which doesn't use main loop, because it slows down execution.
     """
     def wrapper(*args):
-        # create a single-shot timer. Could use QTimer.singleShot(),
-        # but can't cancel this / disconnect it.
-        timer = QTimer()
-        timer.setSingleShot(True)
-        timer.timeout.connect(QApplication.instance().quit)
-
         def execWithArgs():
-            core.mainWindow().show()
-            QTest.qWaitForWindowExposed(core.mainWindow())
-            app = QApplication.instance()
-            app.setActiveWindow(core.mainWindow())
-            assert app.focusWidget() is not None
-            func(*args)
-            # When done processing these events, exit the event loop. To do so,
-            timer.start(0)
+            try:
+                core.mainWindow().show()
+                QTest.qWaitForWindowExposed(core.mainWindow())
+                app = QApplication.instance()
+                app.setActiveWindow(core.mainWindow())
+                assert app.focusWidget() is not None
+                func(*args)
+                # When done processing these events, exit the event loop. To do so,
+            finally:
+                try:
+                    app.processEvents()
+                except:
+                    pass
+                app.quit()
 
         QTimer.singleShot(0, execWithArgs)
 
@@ -115,10 +115,6 @@ def inMainLoop(func, *args):
         finally:
             # Restore the old exception hook
             sys.excepthook = oldExcHook
-            # Stop the timer, in case an exception or an unexpected call to
-            # QApplication.instance().exit() brought us here.
-            timer.stop()
-            timer.timeout.disconnect(QApplication.instance().quit)
 
     wrapper.__name__ = func.__name__  # for unittest test runner
     return wrapper
@@ -213,8 +209,11 @@ class TestCase(unittest.TestCase):
             try:
                 core.workspace().forceCloseAllDocuments()
                 core.term()
-                _processPendingEvents()
             finally:
+                try:
+                    QApplication.instance().processEvents()
+                except:
+                    pass
                 QApplication.instance().quit()
 
         QTimer.singleShot(0, blockingFunc)
