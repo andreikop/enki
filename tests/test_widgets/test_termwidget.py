@@ -15,6 +15,7 @@ import base  # configures sys.path and sip
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
+from PyQt5.QtWidgets import QApplication
 from PyQt5.QtTest import QTest
 
 from enki.widgets.termwidget import TermWidget
@@ -24,7 +25,7 @@ class _BaseTest(base.TestCase):
 
     def setUp(self):
         base.TestCase.setUp(self)
-        self.term = TermWidget(self.app.font())
+        self.term = TermWidget(QApplication.instance().font())
 
     def tearDown(self):
         self.term.terminate()
@@ -33,10 +34,10 @@ class _BaseTest(base.TestCase):
 
 class Formatting(_BaseTest):
     def setupPalette(self, baseColorName, textColorName):
-        palette = self.app.palette()
+        palette = QApplication.instance().palette()
         palette.setColor(palette.Base, QColor(baseColorName))
         palette.setColor(palette.Text, QColor(textColorName))
-        self.app.setPalette(palette)
+        QApplication.instance().setPalette(palette)
 
     def body(self):
         text = self.term._browser.toHtml()

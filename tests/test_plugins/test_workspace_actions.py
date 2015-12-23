@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."
 import base  # configures sys.path ans sip
 
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication
 from PyQt5.QtTest import QTest
 
 from enki.core.core import core
@@ -57,7 +58,7 @@ class Rename(base.TestCase):
 
         # can rename
         def runInDialog(dialog):
-            QTest.keyClicks(self.app.focusWidget(), NEW_PATH)
+            QTest.keyClicks(QApplication.instance().focusWidget(), NEW_PATH)
             self.keyClick(Qt.Key_Return)
 
         self.openDialog(action.trigger, runInDialog)
@@ -76,7 +77,7 @@ class Rename(base.TestCase):
 
         # can rename
         def runInDialog(dialog):
-            QTest.keyClicks(self.app.focusWidget(), NEW_PATH)
+            QTest.keyClicks(QApplication.instance().focusWidget(), NEW_PATH)
 
             def nextRunInDialog(nextDialog):
                 self.assertEqual(nextDialog.windowTitle(), 'Failed to rename file')
@@ -95,7 +96,7 @@ class Rename(base.TestCase):
         action = core.actionManager().action("mFile/mFileSystem/aRename")
 
         def runInDialog(dialog):
-            QTest.keyClicks(self.app.focusWidget(), FILE_PATH)
+            QTest.keyClicks(QApplication.instance().focusWidget(), FILE_PATH)
             # will not generate error messagebox, because same path is used
             self.keyClick(Qt.Key_Return)
 
@@ -112,7 +113,7 @@ class Rename(base.TestCase):
         self.assertTrue(os.path.isfile(self.EXISTING_FILE))
 
         def runInDialog(dialog):
-            QTest.keyClicks(self.app.focusWidget(), '/dev/null')
+            QTest.keyClicks(QApplication.instance().focusWidget(), '/dev/null')
             self.keyClick(Qt.Key_Return)
 
         self.openDialog(action.trigger, runInDialog)
@@ -129,7 +130,7 @@ class Rename(base.TestCase):
         document = core.workspace().openFile('/etc/passwd')
 
         def runInDialog(dialog):
-            QTest.keyClicks(self.app.focusWidget(), '/dev/null')
+            QTest.keyClicks(QApplication.instance().focusWidget(), '/dev/null')
 
             def runInNextDialog(nextDialog):
                 self.assertTrue(nextDialog.windowTitle(), 'Not this time')

@@ -77,13 +77,11 @@ def inMainLoop(func, *args):
     Do not use for tests, which doesn't use main loop, because it slows down execution.
     """
     def wrapper(*args):
-        self = args[0]
-
         # create a single-shot timer. Could use QTimer.singleShot(),
         # but can't cancel this / disconnect it.
         timer = QTimer()
         timer.setSingleShot(True)
-        timer.timeout.connect(self.app.quit)
+        timer.timeout.connect(QApplication.instance().quit)
 
         def execWithArgs():
             core.mainWindow().show()
@@ -102,13 +100,13 @@ def inMainLoop(func, *args):
         exceptions = []
         def excepthook(type_, value, tracebackObj):
             exceptions.append((value, tracebackObj))
-            self.app.exit()
+            QApplication.instance().exit()
         oldExcHook = sys.excepthook
         sys.excepthook = excepthook
 
         try:
             # Run the requested function in the application's main loop.
-            self.app.exec_()
+            QApplication.instance().exec_()
             # If an exception occurred in the event loop, re-raise it.
             if exceptions:
                 value, tracebackObj = exceptions[0]
@@ -117,9 +115,9 @@ def inMainLoop(func, *args):
             # Restore the old exception hook
             sys.excepthook = oldExcHook
             # Stop the timer, in case an exception or an unexpected call to
-            # self.app.exit() brought us here.
+            # QApplication.instance().exit() brought us here.
             timer.stop()
-            timer.timeout.disconnect(self.app.quit)
+            timer.timeout.disconnect(QApplication.instance().quit)
 
     wrapper.__name__ = func.__name__  # for unittest test runner
     return wrapper
@@ -157,8 +155,6 @@ def requiresModule(module):
 
 
 class TestCase(unittest.TestCase):
-    app = QApplication.instance()
-
     TEST_FILE_DIR = os.path.join(tempfile.gettempdir(), 'enki-tests')
 
     EXISTING_FILE = os.path.join(TEST_FILE_DIR, 'existing_file.txt')
@@ -228,7 +224,7 @@ class TestCase(unittest.TestCase):
         key may be QKeySequence or string
         """
         if widget is None:
-            widget = self.app.focusWidget()
+            widget = QApplication.instance().focusWidget()
 
         if widget is None:
             widget = core.mainWindow()
@@ -248,7 +244,7 @@ class TestCase(unittest.TestCase):
 
         If widget is none - focused widget will be keyclicked"""
         if widget is None:
-            widget = self.app.focusWidget()
+            widget = QApplication.instance().focusWidget()
 
         if widget is None:
             widget = core.mainWindow()
@@ -269,7 +265,7 @@ class TestCase(unittest.TestCase):
         return core.workspace().openFile(path)
 
     def _findDialog(self):
-        for widget in self.app.topLevelWidgets():
+        for widget in QApplication.instance().topLevelWidgets():
             if widget.isVisible() and isinstance(widget, QDialog):
                 return widget
         else:
@@ -296,7 +292,7 @@ class TestCase(unittest.TestCase):
             dialog = self._findDialog()
 
             if dialog is not None and \
-               isDialogsChild(dialog, self.app.focusWidget()):
+               isDialogsChild(dialog, QApplication.instance().focusWidget()):
                 runInDialogFunc(dialog)
             else:
                 if attempt < ATTEMPTS:
