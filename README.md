@@ -9,7 +9,7 @@
 Mandatory:
 
 * [Python 2.7](http://python.org/download)
-* [PyQt4](http://www.riverbankcomputing.co.uk/software/pyqt/download)
+* [PyQt4](http://www.riverbankcomputing.co.uk/software/pyqt/download). With SVG support.
 * [Qutepart](https://github.com/hlamer/qutepart)
 
 Optional:

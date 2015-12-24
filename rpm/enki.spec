@@ -26,6 +26,7 @@ Requires:       python-qutepart >= 2.2
 Requires:       python-docutils
 Requires:       python-regex
 Requires:       ctags
+Requires:       libqt5svg
 
 
 %if 0%{?fedora_version}
