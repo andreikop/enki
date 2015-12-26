@@ -16,6 +16,7 @@ class Plugin:
 
     Installs and removes editor from the system
     """
+
     def __init__(self):
         tb = core.mainWindow().topToolBar()
         self._vim = editortoolbar.VimModeIndicator(tb)

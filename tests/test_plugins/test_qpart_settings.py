@@ -17,12 +17,14 @@ from enki.core.core import core
 
 
 class _BaseTestCase(base.TestCase):
+
     def setUp(self):
         base.TestCase.setUp(self)
         self.createFile("asdf.txt", "")
 
 
 class Font(_BaseTestCase):
+
     def test_1(self):
         font = QFont("Arial", 88)
 
@@ -43,6 +45,7 @@ class Font(_BaseTestCase):
 
 
 class Indent(_BaseTestCase):
+
     def _doTest(self, useTabs, width, autoDetect):
         def continueFunc(dialog):
             page = dialog._pageForItem["Editor/Indentation"]
@@ -74,6 +77,7 @@ class Indent(_BaseTestCase):
 
 
 class AutoCompletion(_BaseTestCase):
+
     def _doTest(self, enabled, threshold):
         def continueFunc(dialog):
             page = dialog._pageForItem["Editor/Autocompletion"]
@@ -101,6 +105,7 @@ class AutoCompletion(_BaseTestCase):
 
 
 class Edge(_BaseTestCase):
+
     def _doTest(self, enabled, width, colorName):
         def continueFunc(dialog):
             page = dialog._pageForItem["Editor/Long Lines"]
@@ -135,6 +140,7 @@ class Edge(_BaseTestCase):
 
 
 class Eol(_BaseTestCase):
+
     def _doTest(self, mode, autoDetect):
         def continueFunc(dialog):
             page = dialog._pageForItem["Editor/EOL"]
@@ -181,6 +187,7 @@ class Eol(_BaseTestCase):
 
 
 class Wrap(_BaseTestCase):
+
     def _doTest(self, enabled, atWord, lineWrapMode, wordWrapMode, wordWrapText):
         def continueFunc(dialog):
             page = dialog._pageForItem["Editor/Long Lines"]
@@ -203,7 +210,6 @@ class Wrap(_BaseTestCase):
         self.assertEqual(core.workspace().currentDocument().qutepart.wordWrapMode(),
                          wordWrapMode)
 
-
     def test_1(self):
         self._doTest(True, True, QPlainTextEdit.WidgetWidth, QTextOption.WrapAtWordBoundaryOrAnywhere, "WrapAtWord")
 
@@ -215,6 +221,7 @@ class Wrap(_BaseTestCase):
 
 
 class WhiteSpaceVisibility(_BaseTestCase):
+
     def _doTest(self, incorrect, anyIndent):
         incorrectAction = core.actionManager().action('mView/aShowIncorrectIndentation')
         anyIndentAction = core.actionManager().action('mView/aShowAnyWhitespaces')
@@ -255,6 +262,7 @@ class WhiteSpaceVisibility(_BaseTestCase):
 
 
 class WhitespaceStrip(_BaseTestCase):
+
     def _doTest(self, checked):
         action = core.actionManager().action('mEdit/aStripTrailingWhitespace')
 

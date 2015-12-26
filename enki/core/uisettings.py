@@ -78,10 +78,12 @@ from PyQt5 import uic
 
 from enki.core.core import core, DATA_FILES_PATH
 
+
 def _tr(text):
     """Stub for translation
     """
     return text
+
 
 def _set(config, key, value):
     """This method saves value for either core.config.Config instance and dictionary
@@ -98,6 +100,7 @@ class Option:
 
     Do not create dirrectly, use *Option classes
     """
+
     def __init__(self, dialog, config, optionName, control):
         self.config = config
         self.optionName = optionName
@@ -116,11 +119,13 @@ class Option:
         """
         pass
 
+
 class CheckableOption(Option):
     """Bool option.
 
     Control may be QCheckBox, QGroupBox or other control, which has .isChecked() and .setChecked()
     """
+
     def load(self):
         """Load the value from config to GUI
         """
@@ -131,11 +136,13 @@ class CheckableOption(Option):
         """
         _set(self.config, self.optionName, self.control.isChecked())
 
+
 class TextOption(Option):
     """Text option
 
     Control may be QLineEdit
     """
+
     def load(self):
         """Load the value from config to GUI
         """
@@ -146,11 +153,13 @@ class TextOption(Option):
         """
         _set(self.config, self.optionName, self.control.text())
 
+
 class ListOnePerLineOption(Option):
     """List of strings. One item per line.
 
     Control may be QPlainTextEdit
     """
+
     def load(self):
         """Load the value from config to GUI
         """
@@ -162,11 +171,13 @@ class ListOnePerLineOption(Option):
         lines = self.control.toPlainText().split('\n')
         _set(self.config, self.optionName, lines)
 
+
 class NumericOption(Option):
     """Numeric option.
 
     Control may be QSlider or other control, which has .value() and .setValue() methods
     """
+
     def load(self):
         """Load the value from config to GUI
         """
@@ -177,11 +188,13 @@ class NumericOption(Option):
         """
         _set(self.config, self.optionName, self.control.value())
 
+
 class ColorOption(Option):
     """Color option
 
     Control must be enki.widgets.ColorButton
     """
+
     def load(self):
         """Load the value from config to GUI
         """
@@ -191,6 +204,7 @@ class ColorOption(Option):
         """Save the value from GUI to config
         """
         _set(self.config, self.optionName, self.control.color().name())
+
 
 class FontOption(Option):
     """Font option.
@@ -202,6 +216,7 @@ class FontOption(Option):
 
     This option opens Font dialogue automatically, when button has been clicked
     """
+
     def __init__(self, dialog, config, familyOption, sizeOption, editControl, buttonControl):  # pylint: disable=R0913
         self.familyOptionName = familyOption
         self.sizeOptionName = sizeOption
@@ -214,8 +229,8 @@ class FontOption(Option):
         """Load the value from config to GUI
         """
         font = QFont(self.config.get(self.familyOptionName), self.config.get(self.sizeOptionName))
-        self.editControl.setFont( font )
-        self.editControl.setToolTip( font.toString() )
+        self.editControl.setFont(font)
+        self.editControl.setToolTip(font.toString())
 
     def save(self):
         """Save the value from GUI to config
@@ -227,9 +242,9 @@ class FontOption(Option):
     def _onClicked(self):
         """Button click handler. Open font dialog
         """
-        font, accepted = QFontDialog.getFont(self.editControl.font(), self.dialog )
+        font, accepted = QFontDialog.getFont(self.editControl.font(), self.dialog)
         if accepted:
-            self.editControl.setFont( font )
+            self.editControl.setFont(font)
 
 
 class ChoiseOption(Option):
@@ -239,6 +254,7 @@ class ChoiseOption(Option):
 
     *controlToValue* dictionary contains mapping *checked radio button name: option value*
     """
+
     def __init__(self, dialog, config, optionName, controlToValue):
         self.cotrolToValue = controlToValue
         Option.__init__(self, dialog, config, optionName, None)
@@ -273,7 +289,7 @@ class UISettings(QDialog):
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/UISettings.ui'), self)
         self.swPages.setCurrentIndex(0)
 
-        self.setAttribute( Qt.WA_DeleteOnClose )
+        self.setAttribute(Qt.WA_DeleteOnClose)
 
         # Expand all tree widget items
         self._pageForItem = {"Ignored files": self.pIgnoredFiles,
@@ -290,7 +306,7 @@ class UISettings(QDialog):
         """
         item = self.twMenu.findItems(pathParts[0], Qt.MatchExactly)[0]
         for part in pathParts[1:]:
-            for index in range (item.childCount()):
+            for index in range(item.childCount()):
                 if item.child(index).text[0] == part:
                     item = item.child(index)
                     break
@@ -373,9 +389,9 @@ class UISettingsManager(QObject):  # pylint: disable=R0903
     def __init__(self):
         QObject.__init__(self)
         self._action = core.actionManager().addAction("mSettings/aSettings",
-                                                    _tr( "Settings.."),
-                                                    QIcon(':/enkiicons/settings.png'))
-        self._action.setStatusTip(_tr( "Edit settigns.."))
+                                                      _tr("Settings.."),
+                                                      QIcon(':/enkiicons/settings.png'))
+        self._action.setStatusTip(_tr("Edit settigns.."))
         self._action.triggered.connect(self._onEditSettings)
 
     def del_(self):

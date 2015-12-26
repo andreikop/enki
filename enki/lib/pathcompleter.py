@@ -59,8 +59,8 @@ class AbstractPathCompleter(AbstractCompleter):
         """Remove hidden and ignored files from the list
         """
         return [path for path in paths
-                    if not os.path.basename(path).startswith('.') and
-                        not core.fileFilter().regExp().match(path)]
+                if not os.path.basename(path).startswith('.') and
+                not core.fileFilter().regExp().match(path)]
 
     def _classifyRowIndex(self, row):
         """Get list item type and index by it's row
@@ -92,9 +92,9 @@ class AbstractPathCompleter(AbstractCompleter):
         """Format current directory for show it in the list of completions
         """
         return '<font style="background-color: %s; color: %s">%s</font>' % \
-                (QApplication.instance().palette().color(QPalette.Window).name(),
-                 QApplication.instance().palette().color(QPalette.WindowText).name(),
-                 htmlEscape(text))
+            (QApplication.instance().palette().color(QPalette.Window).name(),
+             QApplication.instance().palette().color(QPalette.WindowText).name(),
+             htmlEscape(text))
 
     def rowCount(self):
         """Row count in the list of completions
@@ -210,7 +210,7 @@ class PathCompleter(AbstractPathCompleter):
 
         # filter matching
         variants = [path for path in filesAndDirs
-                        if path.startswith(enterredFile)]
+                    if path.startswith(enterredFile)]
 
         notHiddenVariants = self._filterHidden(variants)
         """If list if not ignored (not hidden) variants is empty, we use list of
@@ -286,13 +286,13 @@ class GlobCompleter(AbstractPathCompleter):
 
     Used by Open command
     """
+
     def __init__(self, text):
         AbstractPathCompleter.__init__(self, text)
 
     def load(self, stopEvent):
         variants = glob.iglob(os.path.expanduser(self._originalText) + '*')
-        variants = self._filterHidden(variants)
-        variants.sort()
+        variants = sorted(self._filterHidden(variants))
 
         for path in sorted(variants):
             if os.path.isdir(path):

@@ -53,10 +53,10 @@ class Test(PreviewTestCase):
         """
         self._doBasicTest('rst')
         self.assertEmits(
-          lambda: QTest.mouseClick(self._widget().webView,
-            Qt.LeftButton, Qt.NoModifier, QPoint(0, self._widget().webView.height())),
-          self._dock().previewSync.jsClick,
-          200)
+            lambda: QTest.mouseClick(self._widget().webView,
+                                     Qt.LeftButton, Qt.NoModifier, QPoint(0, self._widget().webView.height())),
+            self._dock().previewSync.jsClick,
+            200)
 
     @requiresModule('docutils')
     @base.inMainLoop
@@ -78,7 +78,6 @@ class Test(PreviewTestCase):
         """
         wtc = self._dock().previewSync._webTextContent()
         return len(wtc) - len(wtc.lstrip())
-
 
     def _testSyncString(self, s):
         """Given a string ``s``, place the cursor after it and simulate a click
@@ -215,7 +214,7 @@ class Test(PreviewTestCase):
         # The sync won't happen until the timer expires; wait
         # for that.
         self.assertEmits(lambda: self._dock().previewSync._moveTextPaneToIndex(index, False),
-          self._dock().previewSync.textToPreviewSynced, 350)
+                         self._dock().previewSync.textToPreviewSynced, 350)
         # The web view should have the line containing s selected now.
         if checkText:
             self.assertTrue(s in self._widget().webView.selectedText())
@@ -373,13 +372,13 @@ Here is some text after a table.""", True)
     def test_sync19(self):
         self._doBasicTest('rst')
         offset = self._dock().previewSync._alignScrollAmount(
-          sourceGlobalTop = 0,
-          sourceCursorBottom = 100,
-          targetGlobalTop = 200,
-          targetCursorBottom = 100,
-          targetHeight = 200,
-          targetCursorHeight = 10,
-          padding=15)
+            sourceGlobalTop=0,
+            sourceCursorBottom=100,
+            targetGlobalTop=200,
+            targetCursorBottom=100,
+            targetHeight=200,
+            targetCursorHeight=10,
+            padding=15)
         self.assertEqual(offset, -75)
 
     # When the source y (in global coordinates) is within the target
@@ -390,13 +389,13 @@ Here is some text after a table.""", True)
     def test_sync20a(self):
         self._doBasicTest('rst')
         offset = self._dock().previewSync._alignScrollAmount(
-          sourceGlobalTop = 0,
-          sourceCursorBottom = 100,
-          targetGlobalTop = 0,
-          targetCursorBottom = 100,
-          targetHeight = 300,
-          targetCursorHeight = 10,
-          padding=0)
+            sourceGlobalTop=0,
+            sourceCursorBottom=100,
+            targetGlobalTop=0,
+            targetCursorBottom=100,
+            targetHeight=300,
+            targetCursorHeight=10,
+            padding=0)
         self.assertEqual(offset, 0)
 
     # When the source y (in global coordinates) is within the target
@@ -407,13 +406,13 @@ Here is some text after a table.""", True)
     def test_sync20b(self):
         self._doBasicTest('rst')
         offset = self._dock().previewSync._alignScrollAmount(
-          sourceGlobalTop = 0,
-          sourceCursorBottom = 100,
-          targetGlobalTop = 0,
-          targetCursorBottom = 0,
-          targetHeight = 300,
-          targetCursorHeight = 10,
-          padding=0)
+            sourceGlobalTop=0,
+            sourceCursorBottom=100,
+            targetGlobalTop=0,
+            targetCursorBottom=0,
+            targetHeight=300,
+            targetCursorHeight=10,
+            padding=0)
         self.assertEqual(offset, 100)
 
     # When the source y (in global coordinates) is within the target
@@ -424,13 +423,13 @@ Here is some text after a table.""", True)
     def test_sync20c(self):
         self._doBasicTest('rst')
         offset = self._dock().previewSync._alignScrollAmount(
-          sourceGlobalTop = 0,
-          sourceCursorBottom = 100,
-          targetGlobalTop = 0,
-          targetCursorBottom = 200,
-          targetHeight = 300,
-          targetCursorHeight = 10,
-          padding=0)
+            sourceGlobalTop=0,
+            sourceCursorBottom=100,
+            targetGlobalTop=0,
+            targetCursorBottom=200,
+            targetHeight=300,
+            targetCursorHeight=10,
+            padding=0)
         self.assertEqual(offset, -100)
 
     # When the source y (in global coordinates) is below the target window.
@@ -440,13 +439,13 @@ Here is some text after a table.""", True)
     def test_sync21(self):
         self._doBasicTest('rst')
         offset = self._dock().previewSync._alignScrollAmount(
-          sourceGlobalTop = 300,
-          sourceCursorBottom = 100,
-          targetGlobalTop = 0,
-          targetCursorBottom = 100,
-          targetHeight = 200,
-          targetCursorHeight = 10,
-          padding=15)
+            sourceGlobalTop=300,
+            sourceCursorBottom=100,
+            targetGlobalTop=0,
+            targetCursorBottom=100,
+            targetHeight=200,
+            targetCursorHeight=10,
+            padding=15)
         self.assertEqual(offset, 85)
 
     # Test that no crashes occur if TRE isn't available or is old

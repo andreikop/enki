@@ -8,10 +8,11 @@ from PyQt5.QtGui import QColor, QBrush, QPainter, QPixmap
 
 
 class _QueuedMessage:
+
     def __init__(self):
         self.milliSeconds = -1
-        self.background = QBrush( Qt.NoBrush )
-        self.foreground = QBrush( Qt.NoBrush )
+        self.background = QBrush(Qt.NoBrush)
+        self.foreground = QBrush(Qt.NoBrush)
         self.slot = None
         self.buttons = {}
 
@@ -23,46 +24,46 @@ class _QueuedMessageWidget(QWidget):
     shown = pyqtSignal()
     closed = pyqtSignal()
     linkActivated = pyqtSignal(str)
-    linkHovered= pyqtSignal(str)
+    linkHovered = pyqtSignal(str)
     buttonClicked = pyqtSignal(QAbstractButton)
 
     def __init__(self, *args):
         QWidget.__init__(self, *args)
         self._messages = []
         self._defaultTimeout = 0
-        self._defaultPixmap = QPixmap(":/enkiicons/infos.png" )
-        self._defaultBackground = QBrush( QColor( 250, 230, 147 ) )
-        self._defaultForeground = QBrush( QColor( 0, 0, 0 ) )
+        self._defaultPixmap = QPixmap(":/enkiicons/infos.png")
+        self._defaultBackground = QBrush(QColor(250, 230, 147))
+        self._defaultForeground = QBrush(QColor(0, 0, 0))
 
         # pixmap
-        self.lPixmap = QLabel( self )
-        self.lPixmap.setAlignment( Qt.AlignCenter )
-        self.lPixmap.setSizePolicy( QSizePolicy( QSizePolicy.Maximum, QSizePolicy.Preferred ) )
+        self.lPixmap = QLabel(self)
+        self.lPixmap.setAlignment(Qt.AlignCenter)
+        self.lPixmap.setSizePolicy(QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred))
 
         # message
-        self.lMessage = QLabel( self )
-        self.lMessage.setAlignment( Qt.AlignVCenter | Qt.AlignLeft )
-        self.lMessage.setSizePolicy( QSizePolicy( QSizePolicy.Expanding, QSizePolicy.Preferred ) )
-        self.lMessage.setWordWrap( True )
-        self.lMessage.setOpenExternalLinks( True )
-        self.lMessage.setTextInteractionFlags( Qt.TextBrowserInteraction )
+        self.lMessage = QLabel(self)
+        self.lMessage.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+        self.lMessage.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred))
+        self.lMessage.setWordWrap(True)
+        self.lMessage.setOpenExternalLinks(True)
+        self.lMessage.setTextInteractionFlags(Qt.TextBrowserInteraction)
 
         # button
-        self.dbbButtons = QDialogButtonBox( self )
+        self.dbbButtons = QDialogButtonBox(self)
 
         # if false - buttons don't have neither text nor icons
         self.dbbButtons.setStyleSheet("dialogbuttonbox-buttons-have-icons: true;")
 
-        self.dbbButtons.setSizePolicy( QSizePolicy( QSizePolicy.Maximum, QSizePolicy.Preferred ) )
+        self.dbbButtons.setSizePolicy(QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred))
 
-        self.setSizePolicy( QSizePolicy( QSizePolicy.Expanding, QSizePolicy.Maximum ) )
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum))
 
         # layout
-        self.hbl = QHBoxLayout( self )
+        self.hbl = QHBoxLayout(self)
         self.hbl.setContentsMargins(0, 0, 0, 0)
-        self.hbl.addWidget( self.lPixmap, 0, Qt.AlignCenter )
-        self.hbl.addWidget( self.lMessage )
-        self.hbl.addWidget( self.dbbButtons, 0, Qt.AlignCenter )
+        self.hbl.addWidget(self.lPixmap, 0, Qt.AlignCenter)
+        self.hbl.addWidget(self.lMessage)
+        self.hbl.addWidget(self.dbbButtons, 0, Qt.AlignCenter)
 
         # connections
         self.lMessage.linkActivated.connect(self.linkActivated)
@@ -100,43 +101,43 @@ class _QueuedMessageWidget(QWidget):
     def currentMessage(self):
         return self._messages[0]
 
-    def append(self, message, milliSeconds ):
+    def append(self, message, milliSeconds):
         msg = _QueuedMessage()
         msg.message = message
         if milliSeconds == -1:
             msg.milliSeconds = self._defaultTimeout
         else:
-           msg.milliSeconds = milliSeconds
+            msg.milliSeconds = milliSeconds
         msg.pixmap = self._defaultPixmap
         msg.background = self._defaultBackground
         msg.foreground = self._defaultForeground
 
         self._messages.append(msg)
 
-        if  len(self._messages) == 1 :
+        if len(self._messages) == 1:
             self.showMessage()
 
-    def setOpenExternalLinks(self, open ):
-        self.lMessage.setOpenExternalLinks( open )
+    def setOpenExternalLinks(self, open):
+        self.lMessage.setOpenExternalLinks(open)
 
-    def setDefaultTimeout(self, timeout ):
+    def setDefaultTimeout(self, timeout):
         self._defaultTimeout = timeout
 
-    def setDefaultPixmap(self, pixmap ):
+    def setDefaultPixmap(self, pixmap):
         self._defaultPixmap = pixmap
 
-    def setDefaultBackground(self, brush ):
+    def setDefaultBackground(self, brush):
         self._defaultBackground = brush
 
-    def setDefaultForeground(self, brush ):
+    def setDefaultForeground(self, brush):
         self._defaultForeground = brush
 
-    def remove(self, message ):
+    def remove(self, message):
         raise NotImplemented()  # incorrect port from cpp fresh
         if not self._messages or self._messages.first() == message:
             return
 
-        self._messages.removeOne( message )
+        self._messages.removeOne(message)
 
     def clear(self):
         self._messages.clear()
@@ -154,31 +155,31 @@ class _QueuedMessageWidget(QWidget):
 
     def currentMessageBackground(self):
         msg = self.currentMessage()
-        if msg.background == QBrush( Qt.NoBrush ):
+        if msg.background == QBrush(Qt.NoBrush):
             return self._defaultBackground
         else:
             return msg.background
 
     def currentMessageForeground(self):
         msg = self.currentMessage()
-        if msg.foreground == QBrush( Qt.NoBrush ):
+        if msg.foreground == QBrush(Qt.NoBrush):
             return self._defaultForeground
         else:
             return msg.foreground
 
-    def paintEvent(self, event ):
-        if  self.pendingMessageCount() == 0 :
-            QWidget.paintEvent(self, event )
+    def paintEvent(self, event):
+        if self.pendingMessageCount() == 0:
+            QWidget.paintEvent(self, event)
             return
 
-        painter = QPainter( self )
-        painter.setPen( Qt.NoPen )
-        painter.setBrush( self.currentMessageBackground() )
-        painter.drawRect( self.contentsRect() )
+        painter = QPainter(self)
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(self.currentMessageBackground())
+        painter.drawRect(self.contentsRect())
 
-    def buttonClicked(self, button ):
+    def buttonClicked(self, button):
         msg = self.currentMessage()
-        standardButton = self.dbbButtons.standardButton( button )
+        standardButton = self.dbbButtons.standardButton(button)
 
         if msg.slot is not None:
             msg.slot(standardButton, msg)
@@ -191,32 +192,32 @@ class _QueuedMessageWidget(QWidget):
 
         # update palette
         pal = self.lMessage.palette()
-        pal.setBrush( self.lMessage.foregroundRole(), self.currentMessageForeground() )
-        self.lMessage.setPalette( pal )
+        pal.setBrush(self.lMessage.foregroundRole(), self.currentMessageForeground())
+        self.lMessage.setPalette(pal)
 
         # format widget
-        self.lPixmap.setPixmap( self.currentMessagePixmap() )
-        self.lMessage.setText( msg.message )
-        self.lMessage.setToolTip( msg.message )
-        self.lMessage.setWhatsThis( msg.message )
+        self.lPixmap.setPixmap(self.currentMessagePixmap())
+        self.lMessage.setText(msg.message)
+        self.lMessage.setToolTip(msg.message)
+        self.lMessage.setWhatsThis(msg.message)
 
         # set buttons
         if not msg.buttons:
-            msg.buttons[ QDialogButtonBox.Close ] = None
+            msg.buttons[QDialogButtonBox.Close] = None
 
         self.dbbButtons.clear()
 
         for button in msg.buttons.keys():
-            pb = self.dbbButtons.addButton( button )
+            pb = self.dbbButtons.addButton(button)
 
             if button in msg.buttons:
-                pb.setText( msg.buttons[ button ] )
+                pb.setText(msg.buttons[button])
 
         # auto close if needed
         if msg.milliSeconds == -1:
             timeout = self._defaultTimeout
         else:
-            timeout =  msg.milliSeconds
+            timeout = msg.milliSeconds
 
         if timeout > 0:
             self._closeTimer.setInterval(timeout)
@@ -249,18 +250,19 @@ class _QueuedMessageWidget(QWidget):
 
 
 class QueuedMessageToolBar(QToolBar):
+
     def __init__(self, *args):
         QToolBar.__init__(self, *args)
-        self._queuedWidget = _QueuedMessageWidget( self )
+        self._queuedWidget = _QueuedMessageWidget(self)
 
-        self.setObjectName( self.metaObject().className() )
-        self.setMovable( False )
-        self.setFloatable( False )
-        self.setAllowedAreas( Qt.TopToolBarArea )
-        self.toggleViewAction().setEnabled( False )
-        self.toggleViewAction().setVisible( False )
+        self.setObjectName(self.metaObject().className())
+        self.setMovable(False)
+        self.setFloatable(False)
+        self.setAllowedAreas(Qt.TopToolBarArea)
+        self.toggleViewAction().setEnabled(False)
+        self.toggleViewAction().setVisible(False)
 
-        self.addWidget( self._queuedWidget )
+        self.addWidget(self._queuedWidget)
         self.layout().setContentsMargins(3, 3, 3, 3)
 
         # connections
@@ -270,33 +272,33 @@ class QueuedMessageToolBar(QToolBar):
     def queuedMessageWidget(self):
         return self._queuedWidget
 
-    def changeEvent(self, event ):
-        if  event.type() == QEvent.FontChange :
-            self._queuedWidget.setFont( self.font() )
+    def changeEvent(self, event):
+        if event.type() == QEvent.FontChange:
+            self._queuedWidget.setFont(self.font())
 
-        QToolBar.changeEvent( self, event )
+        QToolBar.changeEvent(self, event)
 
-    def paintEvent(self, event ):
-        if  self._queuedWidget.pendingMessageCount() == 0 :
-            QToolBar.paintEvent( self, event )
+    def paintEvent(self, event):
+        if self._queuedWidget.pendingMessageCount() == 0:
+            QToolBar.paintEvent(self, event)
             return
 
         brush = self._queuedWidget.currentMessageBackground()
-        painter = QPainter( self )
-        painter.setPen( brush.color().darker( 150 ) )
-        painter.setBrush( brush )
-        painter.drawRect( self.contentsRect().adjusted( 0, 0, -1, -1 ) )
+        painter = QPainter(self)
+        painter.setPen(brush.color().darker(150))
+        painter.setBrush(brush)
+        painter.drawRect(self.contentsRect().adjusted(0, 0, -1, -1))
 
-    def appendMessage(self, message, milliSeconds = -1):
-        return self._queuedWidget.append( message, milliSeconds )
+    def appendMessage(self, message, milliSeconds=-1):
+        return self._queuedWidget.append(message, milliSeconds)
 
-    def removeMessage(self, message ):
-        self._queuedWidget.remove( message )
+    def removeMessage(self, message):
+        self._queuedWidget.remove(message)
 
     def messageShown(self):
-        if  not self.isVisible() :
-            self.setVisible( True )
+        if not self.isVisible():
+            self.setVisible(True)
 
     def messageFinished(self):
-        if self.isVisible() :
-            self.setVisible( False )
+        if self.isVisible():
+            self.setVisible(False)

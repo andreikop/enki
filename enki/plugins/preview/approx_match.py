@@ -48,7 +48,7 @@ ENABLE_LOG = False
 # searchAnchor to rightAnchor in another color. Show the anchor with a big
 # yellow X marks the spot.
 def htmlFormatSearchInput(searchText, leftAnchor, searchAnchor, rightAnchor,
-  showX=True):
+                          showX=True):
     # Divide the text into four pieces based on the three anchors. Escape them
     # for use in HTML.
     beforeLeft = html.escape(searchText[:leftAnchor])
@@ -107,7 +107,7 @@ def htmlTemplate(body):
 # Given HTML, write it to a file.
 def writeHtmlLog(htmlText):
     print(("Writing log file to " + os.getcwd()))
-    with codecs.open('approx_match_log.html', 'w', encoding = 'utf-8') as f:
+    with codecs.open('approx_match_log.html', 'w', encoding='utf-8') as f:
         f.write(htmlText)
 #
 # findApproxText
@@ -206,8 +206,8 @@ def findApproxTextInTarget(
     mo = findApproxText(searchText[begin:end], targetText)
     # If no unique match is found, try again with an increased search radius.
     if not mo:
-        begin = max(0, searchAnchor - int(searchRange*1.5))
-        end = min(len(searchText), searchAnchor + int(searchRange*1.5))
+        begin = max(0, searchAnchor - int(searchRange * 1.5))
+        end = min(len(searchText), searchAnchor + int(searchRange * 1.5))
         mo = findApproxText(searchText[begin:end], targetText)
         if not mo:
             if ENABLE_LOG:
@@ -221,7 +221,7 @@ def findApproxTextInTarget(
         # Log the initial match results
         si = htmlFormatSearchInput(searchText, begin, searchAnchor, end)
         sr = htmlFormatSearchInput(targetText, mo.start(), mo.start(),
-          mo.end(), False)
+                                   mo.end(), False)
         fs = htmlFormatSearch(si, sr, "Initial fuzzy search results")
 
     # Get a search and target substring from the match.
@@ -232,7 +232,7 @@ def findApproxTextInTarget(
     # performance.
     relativeSearchAnchor = searchAnchor - begin
     offset, lcsString = refineSearchResult(searchPattern, relativeSearchAnchor,
-      targetSubstring, ENABLE_LOG)
+                                           targetSubstring, ENABLE_LOG)
     if offset != -1:
         offset = offset + mo.start()
 
@@ -240,7 +240,7 @@ def findApproxTextInTarget(
         si = htmlFormatSearchInput(searchText, begin, searchAnchor, end)
         if offset is not -1:
             sr = htmlFormatSearchInput(targetText, mo.start(), offset,
-              mo.end())
+                                       mo.end())
             fs += htmlFormatSearch(si, sr, "Match was '%s'" % lcsString)
         else:
             sr = htmlFormatSearchInput(targetText, 0, 0, 0)
@@ -285,7 +285,7 @@ def refineSearchResult(
     #
     # Initialize the substring length table entries to 0.
     lengths = [[0 for j in range(len(targetText) + 1)]
-                    for i in range(len(searchText) + 1)]
+               for i in range(len(searchText) + 1)]
 
     # Determine the length of the longest common subsequence and store this in
     # the table.

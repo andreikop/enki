@@ -6,7 +6,9 @@ from enki.core.core import core
 
 import enki.widgets.dockwidget
 
+
 class MyDock(enki.widgets.dockwidget.DockWidget):
+
     def __init__(self):
         enki.widgets.dockwidget.DockWidget.__init__(self, core.mainWindow(),
                                                     "Hello dock",
@@ -18,9 +20,11 @@ class MyDock(enki.widgets.dockwidget.DockWidget):
 
 from enki.core.uisettings import TextOption
 
+
 class SettingsPage(QWidget):
     """Settings page for Hello World plugin
     """
+
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self._layout = QHBoxLayout(self)
@@ -34,6 +38,7 @@ class Plugin:
     """During initialization, core imports all modules and packages in **enki/plugins** directory,
     searches for **Plugin** class in every module and creates an instance
     """
+
     def __init__(self):
         QMessageBox.information(core.mainWindow(), "Hello, world", "Plugin loaded")
         self._addAction()
@@ -54,7 +59,7 @@ class Plugin:
         """Add action to main menu
         This action uses embedded icons. You can find list of icons in **icons** directory at project root
         """
-        action = core.actionManager().addAction( "mHelp/aSayHello", 'Say Hello...', QIcon(':/enkiicons/logo/32x32/enki.png'))
+        action = core.actionManager().addAction("mHelp/aSayHello", 'Say Hello...', QIcon(':/enkiicons/logo/32x32/enki.png'))
         core.actionManager().setDefaultShortcut(action, "Ctrl+Alt+Shift+H")
         action.triggered.connect(self._sayHello)
 

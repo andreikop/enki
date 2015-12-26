@@ -7,11 +7,11 @@ import os.path
 
 from PyQt5.QtCore import pyqtSignal, QFileSystemWatcher, QObject, QTimer
 from PyQt5.QtWidgets import QFileDialog, \
-                        QInputDialog, \
-                        QMessageBox, \
-                        QPlainTextEdit, \
-                        QWidget, \
-                        QVBoxLayout
+    QInputDialog, \
+    QMessageBox, \
+    QPlainTextEdit, \
+    QWidget, \
+    QVBoxLayout
 from PyQt5.QtGui import QColor, QFont, QIcon, QTextOption
 
 from qutepart import Qutepart
@@ -40,7 +40,6 @@ class _FileWatcher(QObject):
 
         self.setPath(path)
         self.enable()
-
 
     def __del__(self):
         self._stopTimer()
@@ -159,12 +158,12 @@ class Document(QWidget):
                       r'\n': '\n',
                       r'\r': '\r'}
 
-    def __init__( self, parentObject, filePath, createNew=False):
+    def __init__(self, parentObject, filePath, createNew=False):
         """Create editor and open file.
         If file is None or createNew is True, empty not saved file is created
         IO Exceptions are not catched, therefore, must be catched on upper level
         """
-        QWidget.__init__( self, parentObject)
+        QWidget.__init__(self, parentObject)
         self._neverSaved = filePath is None or createNew
         self._filePath = filePath
         self._externallyRemoved = False
@@ -195,7 +194,7 @@ class Document(QWidget):
         else:
             originalText = ''
 
-        #autodetect eol, if need
+        # autodetect eol, if need
         self._configureEolMode(originalText)
 
         self._tryDetectSyntax()
@@ -223,7 +222,6 @@ class Document(QWidget):
         self.qutepart.textChanged.disconnect()
 
         self.qutepart.terminate()  # stop background highlighting, free memory
-
 
     def _onWatcherFileModified(self, modified):
         """File has been modified
@@ -313,22 +311,22 @@ class Document(QWidget):
         core.workspace().currentDocumentChanged.emit(self, self)
 
     def _stripTrailingWhiteSpace(self):
-        lineHasTrailingSpace = ((line and line[-1].isspace()) \
-                                    for line in self.qutepart.lines)
+        lineHasTrailingSpace = ((line and line[-1].isspace())
+                                for line in self.qutepart.lines)
         if any(lineHasTrailingSpace):
             with self.qutepart:
                 for lineNo, line in enumerate(self.qutepart.lines):
                     if line and line[-1].isspace():
                         self.qutepart.lines[lineNo] = line.rstrip()
         else:
-            pass # Do not enter with statement, because it causes wrong textChanged signal
+            pass  # Do not enter with statement, because it causes wrong textChanged signal
 
     def _saveToFs(self, filePath):
         """Low level method. Always saves file, even if not modified
         """
         # Create directory
         dirPath = os.path.dirname(filePath)
-        if  not os.path.exists(dirPath):
+        if not os.path.exists(dirPath):
             try:
                 os.makedirs(dirPath)
             except OSError as ex:
@@ -374,7 +372,7 @@ class Document(QWidget):
         """
         # Get path
         if not self._filePath:
-            path = QFileDialog.getSaveFileName (self, self.tr('Save file as...'))
+            path = QFileDialog.getSaveFileName(self, self.tr('Save file as...'))
             if path:
                 self.setFilePath(path)
             else:
@@ -389,7 +387,7 @@ class Document(QWidget):
     def saveFileAs(self):
         """Ask for new file name with dialog. Save file
         """
-        path = QFileDialog.getSaveFileName (self, self.tr('Save file as...'))
+        path = QFileDialog.getSaveFileName(self, self.tr('Save file as...'))
         if not path:
             return
 
@@ -420,9 +418,9 @@ class Document(QWidget):
 
         if self.qutepart.document().isModified():
             toolTip += "<br/><font color='blue'>%s</font>" % self.tr("Locally Modified")
-        if  self._externallyModified:
+        if self._externallyModified:
             toolTip += "<br/><font color='red'>%s</font>" % self.tr("Externally Modified")
-        if  self._externallyRemoved:
+        if self._externallyRemoved:
             toolTip += "<br/><font color='red'>%s</font>" % self.tr("Externally Deleted")
         return '<html>' + toolTip + '</html>'
 
@@ -450,8 +448,8 @@ class Document(QWidget):
         """
         line = self.qutepart.cursorPosition[0]
         gotoLine, accepted = QInputDialog.getInteger(self, self.tr("Go To Line..."),
-                                                      self.tr("Enter the line you want to go to:"),
-                                                      line, 1, len(self.qutepart.lines), 1)
+                                                     self.tr("Enter the line you want to go to:"),
+                                                     line, 1, len(self.qutepart.lines), 1)
         if accepted:
             gotoLine -= 1
             self.qutepart.cursorPosition = gotoLine, None
@@ -483,7 +481,7 @@ class Document(QWidget):
 
         if len(modes) > 1:
             message = "%s contains mix of End Of Line symbols. It will be saved with '%s'" % \
-                        (self.filePath(), repr(default))
+                (self.filePath(), repr(default))
             core.mainWindow().appendMessage(message)
             self.qutepart.eol = default
             self.qutepart.document().setModified(True)
@@ -497,7 +495,7 @@ class Document(QWidget):
                     detectedMode != default:
                 message = "%s: End Of Line mode is '%s', but file will be saved with '%s'. " \
                           "EOL autodetection is disabled in the settings" % \
-                                (self.fileName(), repr(detectedMode), repr(default))
+                    (self.fileName(), repr(detectedMode), repr(default))
                 core.mainWindow().appendMessage(message)
                 self.qutepart.document().setModified(True)
 

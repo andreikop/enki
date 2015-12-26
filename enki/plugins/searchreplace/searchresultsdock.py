@@ -18,6 +18,7 @@ from . import searchresultsmodel
 class ExpandCollapseAllButton(QPushButton):
     """Expand all/Collapse all button and functionality
     """
+
     def __init__(self, toolBar, view, model):
         QPushButton.__init__(self, QIcon(':enkiicons/scope.png'), "Ex&pand all", toolBar)
         self._action = toolBar.insertWidget(toolBar.actions()[0], self)
@@ -70,6 +71,7 @@ class ExpandCollapseAllButton(QPushButton):
 class CheckUncheckAllButton(QPushButton):
     """Check/Uncheck all matches button for replace mode
     """
+
     def __init__(self, toolBar, view, model):
         QPushButton.__init__(self, QIcon(':enkiicons/button-ok.png'), "Unc&heck all", toolBar)
         self._action = toolBar.insertWidget(toolBar.actions()[0], self)
@@ -126,27 +128,27 @@ class SearchResultsDock(DockWidget):
     onResultsHandledByReplaceThread = pyqtSignal(str, list)
 
     def __init__(self, parent):
-        DockWidget.__init__( self, parent, "&Search Results", QIcon(":/enkiicons/search.png"), "Alt+S")
+        DockWidget.__init__(self, parent, "&Search Results", QIcon(":/enkiicons/search.png"), "Alt+S")
 
         # actions
-        widget = QWidget( self )
+        widget = QWidget(self)
 
         self._model = searchresultsmodel.SearchResultsModel(self)
         self.onResultsHandledByReplaceThread.connect(self._model.onResultsHandledByReplaceThread)
 
-        self._view = QTreeView( self )
-        self._view.setHeaderHidden( True )
-        self._view.setUniformRowHeights( True )
-        self._view.setModel( self._model )
+        self._view = QTreeView(self)
+        self._view.setHeaderHidden(True)
+        self._view.setUniformRowHeights(True)
+        self._view.setModel(self._model)
         self._delegate = HTMLDelegate()
         self._view.setItemDelegate(self._delegate)
 
-        self._layout = QHBoxLayout( widget )
+        self._layout = QHBoxLayout(widget)
         self._layout.setContentsMargins(5, 5, 5, 5)
-        self._layout.setSpacing( 5 )
-        self._layout.addWidget( self._view )
+        self._layout.setSpacing(5)
+        self._layout.addWidget(self._view)
 
-        self.setWidget( widget )
+        self.setWidget(widget)
         self.setFocusProxy(self._view)
 
         # connections
@@ -161,17 +163,17 @@ class SearchResultsDock(DockWidget):
     def del_(self):
         core.actionManager().removeAction("mView/aSearchResults")
 
-    def _onResultActivated(self, index ):
+    def _onResultActivated(self, index):
         """Item doubleclicked in the model, opening file
         """
         result = index.internalPointer()
         if isinstance(result, searchresultsmodel.Result):
             fileResults = index.parent().internalPointer()
-            core.workspace().goTo( result.fileName,
-                                   line=result.line,
-                                   column=result.column,
-                                   selectionLength=len(result.match.group(0)))
-            core.mainWindow().statusBar().showMessage('Match %d of %d' % \
+            core.workspace().goTo(result.fileName,
+                                  line=result.line,
+                                  column=result.column,
+                                  selectionLength=len(result.match.group(0)))
+            core.mainWindow().statusBar().showMessage('Match %d of %d' %
                                                       (fileResults.results.index(result) + 1,
                                                        len(fileResults.results)), 3000)
             self.setFocus()
@@ -193,10 +195,10 @@ class SearchResultsDock(DockWidget):
 
         for fileRes in self._model.fileResults:
             for row, result in enumerate(fileRes.results):
-                if result.checkState == Qt.Checked :
+                if result.checkState == Qt.Checked:
                     if not result.fileName in items:
                         items[result.fileName] = []
-                    items[ result.fileName ].append(result)
+                    items[result.fileName].append(result)
         return items
 
     def setReplaceMode(self, enabled):

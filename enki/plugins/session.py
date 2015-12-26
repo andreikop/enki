@@ -39,6 +39,7 @@ _SESSION_FILE_PATH = getSessionFilePath()
 class Plugin:
     """Plugin interface
     """
+
     def __init__(self):
         core.restoreSession.connect(self._onRestoreSession)
         core.aboutToTerminate.connect(self._saveSession)
@@ -97,12 +98,12 @@ class Plugin:
         Save session
         """
         fileList = [document.filePath()
-                        for document in core.workspace().documents()
-                            if document.filePath() is not None and
-                                os.path.exists(document.filePath()) and
-                                not '/.git/' in document.filePath() and
-                                not (document.fileName().startswith('svn-commit') and
-                                     document.fileName().endswith('.tmp'))]
+                    for document in core.workspace().documents()
+                    if document.filePath() is not None and
+                    os.path.exists(document.filePath()) and
+                    not '/.git/' in document.filePath() and
+                    not (document.fileName().startswith('svn-commit') and
+                         document.fileName().endswith('.tmp'))]
 
         if not fileList:
             return

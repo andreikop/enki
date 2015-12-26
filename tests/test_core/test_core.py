@@ -15,6 +15,7 @@ import enki.core.defines
 
 
 class RestoreOldConfigs(base.TestCase):
+
     def setUp(self):
         base.TestCase.setUp(self)
         core.term()

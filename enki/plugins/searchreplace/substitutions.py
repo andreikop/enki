@@ -5,13 +5,13 @@ import re
 _seqReplacer = re.compile('\\\\.')
 
 _escapeSequences = \
-{  '\\': '\\',
-  'a': '\a',
-  'b': '\b',
-  'f': '\f',
-  'n': '\n',
-  'r': '\r',
-  't': '\t',}
+    {'\\': '\\',
+     'a': '\a',
+     'b': '\b',
+     'f': '\f',
+     'n': '\n',
+     'r': '\r',
+     't': '\t', }
 
 
 def makeSubstitutions(replaceText, matchObject):

@@ -12,15 +12,15 @@ import copy
 
 
 from PyQt5.QtCore import QAbstractItemModel, \
-                         QByteArray, \
-                         QMimeData, \
-                         QModelIndex, \
-                         QObject, \
-                         Qt
+    QByteArray, \
+    QMimeData, \
+    QModelIndex, \
+    QObject, \
+    Qt
 from PyQt5.QtWidgets import QAbstractItemView, QAction, QActionGroup, \
-                        QMenu, \
-                        QMessageBox, \
-                        QTreeView
+    QMenu, \
+    QMessageBox, \
+    QTreeView
 from PyQt5.QtGui import QIcon
 
 
@@ -36,7 +36,7 @@ class _OpenedFileModel(QAbstractItemModel):
     """
 
     def __init__(self, parentObject):
-        QAbstractItemModel.__init__(self, parentObject )
+        QAbstractItemModel.__init__(self, parentObject)
         self._manuallySorted = False
         self._workspace = parentObject.parent()
         self._workspace.documentOpened.connect(self._onDocumentOpened)
@@ -47,26 +47,26 @@ class _OpenedFileModel(QAbstractItemModel):
         """See QAbstractItemModel documentation"""
         return 1
 
-    def rowCount(self, parent ):
+    def rowCount(self, parent):
         """See QAbstractItemModel documentation"""
         if parent.isValid():
             return 0
         else:
             return len(self._workspace.sortedDocuments)
 
-    def hasChildren(self, parent ):
+    def hasChildren(self, parent):
         """See QAbstractItemModel documentation"""
         if parent.isValid():
             return False
         else:
             return (len(self._workspace.sortedDocuments) > 0)
 
-    def headerData(self, section, orientation, role ):
+    def headerData(self, section, orientation, role):
         """See QAbstractItemModel documentation"""
         if  section == 0 and \
-            orientation == Qt.Horizontal and \
-            role == Qt.DecorationRole:
-            return self.tr( "Opened Files" )
+                orientation == Qt.Horizontal and \
+                role == Qt.DecorationRole:
+            return self.tr("Opened Files")
         else:
             return None
 
@@ -84,8 +84,8 @@ class _OpenedFileModel(QAbstractItemModel):
         uniquePath = os.path.basename(docPath)
         leftPath = os.path.dirname(docPath)
 
-        sameEndOfPath = [path for path in documentPathes \
-                            if path is not None and path.endswith('/' + uniquePath)]
+        sameEndOfPath = [path for path in documentPathes
+                         if path is not None and path.endswith('/' + uniquePath)]
         while len(sameEndOfPath) > 1:
             leftPathDirname = os.path.dirname(leftPath)
             leftPathBasename = os.path.basename(leftPath)
@@ -95,15 +95,15 @@ class _OpenedFileModel(QAbstractItemModel):
 
         return uniquePath
 
-    def data(self, index, role ):
+    def data(self, index, role):
         """See QAbstractItemModel documentation"""
-        if  not index.isValid() :
+        if not index.isValid():
             return None
 
-        document = self.document( index )
+        document = self.document(index)
         assert(document)
 
-        if   role == Qt.DecorationRole:
+        if role == Qt.DecorationRole:
             return document.modelIcon()
         elif role == Qt.DisplayRole:
             return self._uniqueDocumentPath(document)
@@ -141,10 +141,10 @@ class _OpenedFileModel(QAbstractItemModel):
 
         return True
 
-    def flags(self, index ):
+    def flags(self, index):
         """See QAbstractItemModel documentation"""
         if index.isValid():
-            document = self.document( index )
+            document = self.document(index)
             if document.filePath() is None or \
                document.qutepart.document().isModified() or \
                document.isExternallyModified() or \
@@ -160,12 +160,12 @@ class _OpenedFileModel(QAbstractItemModel):
 
     def index(self, row, column, parent=QModelIndex()):
         """See QAbstractItemModel documentation"""
-        if  parent.isValid() or column > 0 or column < 0 or row < 0 or row >= len(self._workspace.sortedDocuments) :
+        if parent.isValid() or column > 0 or column < 0 or row < 0 or row >= len(self._workspace.sortedDocuments):
             return QModelIndex()
 
-        return self.createIndex( row, column, self._workspace.sortedDocuments[row] )
+        return self.createIndex(row, column, self._workspace.sortedDocuments[row])
 
-    def parent(self, index ):  # pylint: disable=W0613
+    def parent(self, index):  # pylint: disable=W0613
         """See QAbstractItemModel documentation"""
         return QModelIndex()
 
@@ -173,45 +173,45 @@ class _OpenedFileModel(QAbstractItemModel):
         """See QAbstractItemModel documentation"""
         return ["application/x-modelindexrow"]
 
-    def mimeData(self, indexes ):
+    def mimeData(self, indexes):
         """See QAbstractItemModel documentation"""
         if len(indexes) != 1:
             return 0
 
         data = QMimeData()
-        data.setData( self.mimeTypes()[0], QByteArray.number( indexes[0].row() ) )
+        data.setData(self.mimeTypes()[0], QByteArray.number(indexes[0].row()))
         return data
 
     def supportedDropActions(self):
         """See QAbstractItemModel documentation"""
         return Qt.MoveAction
 
-    def dropMimeData(self, data, action, row, column, parent ):  # pylint: disable=R0913
+    def dropMimeData(self, data, action, row, column, parent):  # pylint: disable=R0913
         """See QAbstractItemModel documentation"""
         if  parent.isValid() or \
-            ( row == -1 and column == -1 ) or \
-            action != Qt.MoveAction or \
-            not data or \
-            not data.hasFormat( self.mimeTypes()[0] ) :
+                ( row == -1 and column == -1 ) or \
+                action != Qt.MoveAction or \
+                not data or \
+                not data.hasFormat(self.mimeTypes()[0]):
             return False
 
-        fromRow = data.data( self.mimeTypes()[0] ).toInt()[0]
+        fromRow = data.data(self.mimeTypes()[0]).toInt()[0]
 
-        if  row >= len(self._workspace.sortedDocuments):
+        if row >= len(self._workspace.sortedDocuments):
             row -= 1
-        elif  fromRow < row :
+        elif fromRow < row:
             row -= 1
 
         newDocuments = copy.copy(self._workspace.sortedDocuments)
 
         item = newDocuments.pop(fromRow)
 
-        #if row > fromRow:
+        # if row > fromRow:
         #    row -= 1
 
         newDocuments.insert(row, item)
 
-        self.rebuildMapping( self._workspace.sortedDocuments, newDocuments )
+        self.rebuildMapping(self._workspace.sortedDocuments, newDocuments)
 
         self._manuallySorted = True
 
@@ -219,19 +219,19 @@ class _OpenedFileModel(QAbstractItemModel):
 
         return True
 
-    def document(self, index ):
+    def document(self, index):
         """Get document by model index"""
-        if not index.isValid() :
+        if not index.isValid():
             return None
 
         return index.internalPointer()
 
     def documentIndex(self, document):
         """Get model index by document"""
-        row = self._workspace.sortedDocuments.index( document )
+        row = self._workspace.sortedDocuments.index(document)
 
-        if  row != -1 :
-            return self.createIndex( row, 0, document )
+        if row != -1:
+            return self.createIndex(row, 0, document)
 
         return QModelIndex()
 
@@ -241,13 +241,13 @@ class _OpenedFileModel(QAbstractItemModel):
         if not self._manuallySorted:
             sortedDocuments = sorted(sortedDocuments,
                                      key=lambda d: d.filePath() or '')
-        self.rebuildMapping( self._workspace.sortedDocuments, sortedDocuments )
+        self.rebuildMapping(self._workspace.sortedDocuments, sortedDocuments)
         # scroll the view
         selected = QObject.parent(self).tvFiles.selectionModel().selectedIndexes()
         if selected:
-            QObject.parent(self).tvFiles.scrollTo( selected[0] )
+            QObject.parent(self).tvFiles.scrollTo(selected[0])
 
-    def rebuildMapping(self, oldList, newList ):
+    def rebuildMapping(self, oldList, newList):
         """TODO black magic code. Understand and comment it
         """
         self.layoutAboutToBeChanged.emit()
@@ -259,35 +259,35 @@ class _OpenedFileModel(QAbstractItemModel):
         # build old mapping
         for index in pOldIndexes:
             row = index.row()
-            documentsMapping[ row ] = oldList[row]
-            mapping[ row ] = row
+            documentsMapping[row] = oldList[row]
+            mapping[row] = row
 
         self._workspace.sortedDocuments = newList
 
         # build mapping
         for pIndex in pOldIndexes:
             row = pIndex.row()
-            document = documentsMapping[ row ]
-            index = self._workspace.sortedDocuments.index( document )
-            mapping[ row ] = index
+            document = documentsMapping[row]
+            index = self._workspace.sortedDocuments.index(document)
+            mapping[row] = index
 
         for pIndex in pOldIndexes:
             row = pIndex.row()
-            index = mapping[ row ]
+            index = mapping[row]
 
-            if  pIndex.isValid():
-                pIndexes.append(self.createIndex( index, pIndex.column(), self._workspace.sortedDocuments[index] ))
+            if pIndex.isValid():
+                pIndexes.append(self.createIndex(index, pIndex.column(), self._workspace.sortedDocuments[index]))
             else:
                 pIndexes.append(QModelIndex())
 
-        self.changePersistentIndexList( pOldIndexes, pIndexes )
+        self.changePersistentIndexList(pOldIndexes, pIndexes)
         self.layoutChanged.emit()
 
-    def _onDocumentOpened(self, document ):
+    def _onDocumentOpened(self, document):
         """New document opened at workspace. Handle it
         """
-        assert( not document in self._workspace.sortedDocuments )
-        self._workspace.sortedDocuments.append( document )
+        assert(not document in self._workspace.sortedDocuments)
+        self._workspace.sortedDocuments.append(document)
         self.sortDocuments()
         document.documentDataChanged.connect(self._onDocumentDataChanged)
 
@@ -299,21 +299,21 @@ class _OpenedFileModel(QAbstractItemModel):
         else:
             document_ = document
 
-        index = self.documentIndex( document_ )
-        self.dataChanged.emit( index, index )
+        index = self.documentIndex(document_)
+        self.dataChanged.emit(index, index)
 
-    def _onDocumentClosed(self, document ):
+    def _onDocumentClosed(self, document):
         """Document has been closed. Unhandle it
         """
-        index = self._workspace.sortedDocuments.index( document )
+        index = self._workspace.sortedDocuments.index(document)
 
-        if  index == -1 :
+        if index == -1:
             return
 
         # scroll the view
         QObject.parent(self).startModifyModel()
-        self.beginRemoveRows( QModelIndex(), index, index )
-        self._workspace.sortedDocuments.remove( document )
+        self.beginRemoveRows(QModelIndex(), index, index)
+        self._workspace.sortedDocuments.remove(document)
         self.endRemoveRows()
         QObject.parent(self).finishModifyModel()
 
@@ -323,12 +323,13 @@ class OpenedFileExplorer(DockWidget):
     It implements switching current file, files sorting. Uses _OpenedFileModel internally.
     Class instance created by Workspace.
     """
+
     def __init__(self, workspace):
         DockWidget.__init__(self, workspace, "&Opened Files", QIcon(":/enkiicons/filtered.png"), "Alt+O")
 
         self._workspace = workspace
 
-        self.setAllowedAreas( Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
+        self.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
 
         self.tvFiles = QTreeView(self)
         self.tvFiles.setHeaderHidden(True)
@@ -338,7 +339,7 @@ class OpenedFileExplorer(DockWidget):
         self.tvFiles.setDragDropMode(QAbstractItemView.InternalMove)
         self.tvFiles.setRootIsDecorated(False)
         self.tvFiles.setTextElideMode(Qt.ElideMiddle)
-        self.tvFiles.setUniformRowHeights( True )
+        self.tvFiles.setUniformRowHeights(True)
 
         self.tvFiles.customContextMenuRequested.connect(self._onTvFilesCustomContextMenuRequested)
 
@@ -346,9 +347,9 @@ class OpenedFileExplorer(DockWidget):
         self.setFocusProxy(self.tvFiles)
 
         self.model = _OpenedFileModel(self)  # Not protected, because used by Configurator
-        self.tvFiles.setModel( self.model )
-        self.tvFiles.setAttribute( Qt.WA_MacShowFocusRect, False )
-        self.tvFiles.setAttribute( Qt.WA_MacSmallSize )
+        self.tvFiles.setModel(self.model)
+        self.tvFiles.setAttribute(Qt.WA_MacShowFocusRect, False)
+        self.tvFiles.setAttribute(Qt.WA_MacSmallSize)
 
         self._workspace.currentDocumentChanged.connect(self._onCurrentDocumentChanged)
 
@@ -374,19 +375,19 @@ class OpenedFileExplorer(DockWidget):
         """
         self.tvFiles.selectionModel().selectionChanged.connect(self._onSelectionModelSelectionChanged)
 
-    def _onCurrentDocumentChanged(self, oldDocument, currentDocument ):  # pylint: disable=W0613
+    def _onCurrentDocumentChanged(self, oldDocument, currentDocument):  # pylint: disable=W0613
         """ Current document has been changed on workspace
         """
         if currentDocument is not None:
-            index = self.model.documentIndex( currentDocument )
+            index = self.model.documentIndex(currentDocument)
 
             self.startModifyModel()
-            self.tvFiles.setCurrentIndex( index )
+            self.tvFiles.setCurrentIndex(index)
             # scroll the view
-            self.tvFiles.scrollTo( index )
+            self.tvFiles.scrollTo(index)
             self.finishModifyModel()
 
-    def _onSelectionModelSelectionChanged(self, selected, deselected ):  # pylint: disable=W0613
+    def _onSelectionModelSelectionChanged(self, selected, deselected):  # pylint: disable=W0613
         """ Item selected in the list. Switch current document
         """
         if not selected.indexes():  # empty list, last file closed
@@ -398,25 +399,25 @@ class OpenedFileExplorer(DockWidget):
 
         # set current document
         document = self._workspace.sortedDocuments[index.row()]
-        self._workspace.setCurrentDocument( document )
+        self._workspace.setCurrentDocument(document)
 
         # restore focus widget
-        if  focusWidget :
+        if focusWidget:
             focusWidget.setFocus()
 
-    def _onTvFilesCustomContextMenuRequested(self, pos ):
+    def _onTvFilesCustomContextMenuRequested(self, pos):
         """Connected automatically by uic
         """
         menu = QMenu()
 
-        menu.addAction( core.actionManager().action( "mFile/mClose/aCurrent" ) )
-        menu.addAction( core.actionManager().action( "mFile/mSave/aCurrent" ) )
-        menu.addAction( core.actionManager().action( "mFile/mReload/aCurrent" ) )
+        menu.addAction(core.actionManager().action("mFile/mClose/aCurrent"))
+        menu.addAction(core.actionManager().action("mFile/mSave/aCurrent"))
+        menu.addAction(core.actionManager().action("mFile/mReload/aCurrent"))
         menu.addSeparator()
-        menu.addAction( core.actionManager().action( "mFile/mFileSystem/aRename" ) )
+        menu.addAction(core.actionManager().action("mFile/mFileSystem/aRename"))
         toggleExecutableAction = core.actionManager().action("mFile/mFileSystem/aToggleExecutable")
         if toggleExecutableAction:  # not available on Windows
             menu.addAction(toggleExecutableAction)
         core.actionManager().action("mFile/mFileSystem").menu().aboutToShow.emit()  # to update aToggleExecutable
 
-        menu.exec_( self.tvFiles.mapToGlobal( pos ) )
+        menu.exec_(self.tvFiles.mapToGlobal(pos))

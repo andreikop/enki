@@ -199,6 +199,7 @@ class AbstractCompleter:
 class _HelpCompleter(AbstractCompleter):
     """AbstractCompleter implementation, which shows help about all or one command
     """
+
     def __init__(self, commands):
         self._commands = commands
 
@@ -228,6 +229,7 @@ class _HelpCompleter(AbstractCompleter):
 class StatusCompleter(AbstractCompleter):
     """AbstractCompleter implementation, which shows status message
     """
+
     def __init__(self, text):
         self._text = text
 
@@ -370,7 +372,7 @@ class _CompletableLineEdit(QLineEdit):
                 QLineEdit.keyPressEvent(self, event)
             self.updateCurrentCommand.emit()
         elif event.key() == Qt.Key_Backspace and \
-             event.modifiers() == Qt.ControlModifier:
+                event.modifiers() == Qt.ControlModifier:
             # Ctrl+Backspace. Usualy deletes word, but, for this edit should delete path level
             self._clearInlineCompletion()
             pos = self.cursorPosition()
@@ -399,7 +401,6 @@ class _CompletableLineEdit(QLineEdit):
                textBeforeCompletion[-1] == inlineCompletion[0]:
                 self.setInlineCompletion(inlineCompletion[1:])  # set rest of the inline completion
             self._updateCurrentCommandTimer.start()
-
 
     def _deleteToSlash(self):
         """Delete back until /. Called on Ctrl+Backspace pressing
@@ -592,6 +593,7 @@ def splitLine(text):
 
 
 class Locator(QObject):
+
     def __init__(self):
         QObject.__init__(self)
         self._commandClasses = []
@@ -628,6 +630,7 @@ class Locator(QObject):
 class _LocatorDialog(QDialog):
     """Locator widget and implementation
     """
+
     def __init__(self, parent, commandClasses):
         QDialog.__init__(self, parent)
         self._terminated = False

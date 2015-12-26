@@ -33,12 +33,13 @@ from enki.plugins.preview import _getSphinxVersion
 
 
 class TestWithDummy(base.TestCase):
+
     def setUp(self):
         base.TestCase.setUp(self)
         self.createFile('dummy.txt', '')
 
     # Cases testing copyTemplateFile
-    ##------------------------------
+    # ------------------------------
     # Basic checks
     # TODO: Do we need to modularize these test cases? It seems we have many
     # tunable parameters, yet all testcases look alike.
@@ -72,7 +73,7 @@ class TestWithDummy(base.TestCase):
         os.makedirs(dest)
         errors = []
         with self.assertRaisesRegex(OSError,
-          "Input or output directory cannot be None"):
+                                    "Input or output directory cannot be None"):
             copyTemplateFile(errors, source, 'missing.file', dest)
 
     def test_copyTemplateFile3(self):
@@ -89,7 +90,7 @@ class TestWithDummy(base.TestCase):
         dest = None
         errors = []
         with self.assertRaisesRegex(OSError,
-          "Input or output directory cannot be None"):
+                                    "Input or output directory cannot be None"):
             copyTemplateFile(errors, source, 'dummy.txt', dest)
 
     @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
@@ -123,7 +124,8 @@ class TestWithDummy(base.TestCase):
 
 class Test(base.TestCase):
     #  Tests for getSphinxVersion
-    ## -------------------------
+    # -------------------------
+
     def test_getSphinxVersion1(self):
         """Check that _getSphinxVersion raises an exception if the binary isn't
         present."""
@@ -138,15 +140,15 @@ class Test(base.TestCase):
         """Check that _getSphinxVersion raises an exception if the Sphinx
         version info isn't present."""
         mock_gca.return_value = ("stderr",
-          "stdout - no version info here, sorry!")
+                                 "stdout - no version info here, sorry!")
         with self.assertRaises(ValueError):
             _getSphinxVersion('anything_since_replaced_by_mock')
 
     @patch('enki.plugins.preview.get_console_output')
     def test_getSphinxVersion3(self, mock_gca):
         """Check that _getSphinxVersion complies to sphinx version 1.1.3"""
-        mock_gca.return_value = ("stderr", \
-"""Sphinx v1.1.3
+        mock_gca.return_value = ("stderr",
+                                 """Sphinx v1.1.3
 Usage: C:\Python27\Scripts\sphinx-build [options] sourcedir outdir [filenames...
 ]
 """)
@@ -156,8 +158,8 @@ Usage: C:\Python27\Scripts\sphinx-build [options] sourcedir outdir [filenames...
     @patch('enki.plugins.preview.get_console_output')
     def test_getSphinxVersion4(self, mock_gca):
         """Check that _getSphinxVersion complies to sphinx version 1.2.3"""
-        mock_gca.return_value = ("stderr", \
-"""Sphinx (sphinx-build) 1.2.3
+        mock_gca.return_value = ("stderr",
+                                 """Sphinx (sphinx-build) 1.2.3
 """)
         self.assertEqual(_getSphinxVersion('anything_since_replaced_by_mock'),
                          [1, 2, 3])
@@ -165,14 +167,14 @@ Usage: C:\Python27\Scripts\sphinx-build [options] sourcedir outdir [filenames...
     @patch('enki.plugins.preview.get_console_output')
     def test_getSphinxVersion5(self, mock_gca):
         """Check that _getSphinxVersion complies to sphinx version 1.3.1"""
-        mock_gca.return_value = ("stdout", \
-"""Sphinx (sphinx-build) 1.3.1
+        mock_gca.return_value = ("stdout",
+                                 """Sphinx (sphinx-build) 1.3.1
 """)
         self.assertEqual(_getSphinxVersion('anything_since_replaced_by_mock'),
                          [1, 3, 1])
 
     # Cases testing commonPrefix
-    ##--------------------------
+    # --------------------------
     # Basic checks
     def test_commonPrefix1(self):
         self.assertEqual(commonPrefix('a', 'a'), 'a')
@@ -186,18 +188,18 @@ Usage: C:\Python27\Scripts\sphinx-build [options] sourcedir outdir [filenames...
     @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
     # Test using various path separators.
     def test_commonPrefix5(self):
-        self.assertEqual(commonPrefix('a\\b', 'a\\b'), os.path.join('a','b'))
+        self.assertEqual(commonPrefix('a\\b', 'a\\b'), os.path.join('a', 'b'))
 
     def test_commonPrefix6(self):
-        self.assertEqual(commonPrefix('a/b', 'a/b'), os.path.join('a','b'))
+        self.assertEqual(commonPrefix('a/b', 'a/b'), os.path.join('a', 'b'))
 
     @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
     def test_commonPrefix7(self):
-        self.assertEqual(commonPrefix('a/b', 'a\\b'), os.path.join('a','b'))
+        self.assertEqual(commonPrefix('a/b', 'a\\b'), os.path.join('a', 'b'))
 
     # Check for the bug in os.path.commonprefix.
     def test_commonPrefix8(self):
-        self.assertEqual(commonPrefix(os.path.join('a', 'bc'), os.path.join('a','b')), 'a')
+        self.assertEqual(commonPrefix(os.path.join('a', 'bc'), os.path.join('a', 'b')), 'a')
 
     @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
     def test_commonPrefix9(self):
@@ -208,17 +210,17 @@ Usage: C:\Python27\Scripts\sphinx-build [options] sourcedir outdir [filenames...
 
     @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
     def test_commonPrefix10(self):
-        self.assertEqual(commonPrefix('a\\.\\b', 'a\\b'), os.path.join('a','b'))
+        self.assertEqual(commonPrefix('a\\.\\b', 'a\\b'), os.path.join('a', 'b'))
 
     def test_commonPrefix10a(self):
-        self.assertEqual(commonPrefix('a/./b', 'a/b'), os.path.join('a','b'))
+        self.assertEqual(commonPrefix('a/./b', 'a/b'), os.path.join('a', 'b'))
 
     def test_commonPrefix11(self):
         """Check that leading ../current_subdir will be removed after path
            clearnup."""
         # Get the name of the current directory
         d = os.path.basename(os.getcwd())
-        self.assertEqual(commonPrefix('../' + d + '/a/b', 'a/b'), os.path.join('a','b'))
+        self.assertEqual(commonPrefix('../' + d + '/a/b', 'a/b'), os.path.join('a', 'b'))
 
     def test_commonPrefix11a(self):
         # if any input directory is abs path, return abs commonprefix
@@ -230,18 +232,19 @@ Usage: C:\Python27\Scripts\sphinx-build [options] sourcedir outdir [filenames...
     def test_commonPrefix12(self):
         # Cases like this only applies to Windows. Since Unix separator
         # is not '\\' but '/'. Unix will treat '\\' as part of file name.
-        self.assertEqual(commonPrefix('a a\\b b\\c c', 'a a\\b b'), os.path.join('a a','b b'))
+        self.assertEqual(commonPrefix('a a\\b b\\c c', 'a a\\b b'), os.path.join('a a', 'b b'))
 
     # Test for paths with spaces (Platform independent version)
     def test_commonPrefix12a(self):
         # Cases like this only applies to Windows. Since Unix separator
         # is not '\\' but '/'. Unix will treat '\\' as part of file name.
-        self.assertEqual(commonPrefix(os.path.join('a a', 'b b', 'c c'), os.path.join('a a', 'b b')), os.path.join('a a','b b'))
+        self.assertEqual(commonPrefix(os.path.join('a a', 'b b', 'c c'),
+                                      os.path.join('a a', 'b b')), os.path.join('a a', 'b b'))
 
     # Test for paths with different cases (Windows only)
     @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
     def test_commonPrefix13(self):
-        self.assertEqual(commonPrefix('aa\\bb', 'Aa\\bB'), os.path.join('aa','bb'))
+        self.assertEqual(commonPrefix('aa\\bb', 'Aa\\bB'), os.path.join('aa', 'bb'))
 
     def test_commonPrefix14(self):
         # Empty input list should generate empty result
@@ -259,7 +262,7 @@ Usage: C:\Python27\Scripts\sphinx-build [options] sourcedir outdir [filenames...
         # the absolute path will be used.
         self.assertEqual(commonPrefix(os.path.join('..', 'AVeryLongFileName'),
                                       os.path.join('..', 'AVeryLongFileName')),
-         os.path.normcase(os.path.abspath(os.path.join('..', 'AVeryLongFileName'))))
+                         os.path.normcase(os.path.abspath(os.path.join('..', 'AVeryLongFileName'))))
 
     # TODO: need symbolic link test case.
 #

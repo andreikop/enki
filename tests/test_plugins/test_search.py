@@ -51,6 +51,7 @@ def _findSearchController():
 
 
 class InFile(base.TestCase):
+
     def setUp(self):
         base.TestCase.setUp(self)
         doc = core.workspace().createEmptyNotSavedDocument()
@@ -213,6 +214,7 @@ class InFile(base.TestCase):
 
 
 class ReplaceInDirectory(base.TestCase):
+
     @base.inMainLoop
     def test_1(self):
         # replace 'foo' with 'UUH' in opened and not opened file
@@ -248,6 +250,7 @@ class ReplaceInDirectory(base.TestCase):
 
 
 class Gui(base.TestCase):
+
     @base.inMainLoop
     def test_esc_on_widget_closes(self):
         QTest.keyClick(core.mainWindow(), Qt.Key_F, Qt.ControlModifier)

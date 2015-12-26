@@ -13,7 +13,7 @@ import platform
 from PyQt5.QtCore import pyqtSignal, QSize, Qt, QTimer
 from PyQt5.QtGui import QIcon, QPalette
 from PyQt5.QtWidgets import QLabel, QMessageBox, QMainWindow, \
-                        QSizePolicy, QStatusBar, QToolBar, QVBoxLayout, QWidget
+    QSizePolicy, QStatusBar, QToolBar, QVBoxLayout, QWidget
 
 from enki.widgets.dockwidget import DockWidget
 from enki.core.actionmanager import ActionMenuBar
@@ -22,9 +22,11 @@ from enki.core.core import core
 import enki.core.defines
 import enki.core.json_wrapper
 
+
 class _StatusBar(QStatusBar):
     """Extended status bar. Supports HTML messages
     """
+
     def __init__(self, *args):
         QStatusBar.__init__(self, *args)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -200,7 +202,6 @@ class MainWindow(QMainWindow):
         self.addToolBar(area, self._queuedMessageToolBar)
         self._queuedMessageToolBar.setVisible(False)
 
-
     def _createMenuStructure(self):
         """Fill menu bar with items. The majority of items are not connected to the slots,
         Connections made by module, which implements menu item functionality, but, all items are in one place,
@@ -370,8 +371,8 @@ class MainWindow(QMainWindow):
         except (OSError, IOError) as ex:
             error = str(ex)
             QMessageBox.critical(None,
-                                self.tr("Cannot save {}".format(title)),
-                                self.tr("Cannot create file '%s'\nError: %s" % (path, error)))
+                                 self.tr("Cannot save {}".format(title)),
+                                 self.tr("Cannot create file '%s'\nError: %s" % (path, error)))
             return
 
     def _loadByteArray(self, path, title):
@@ -383,8 +384,8 @@ class MainWindow(QMainWindow):
             except (OSError, IOError) as ex:
                 error = str(ex)
                 QMessageBox.critical(None,
-                                    self.tr("Cannot restore {}".format(title)),
-                                    self.tr("Cannot read file '%s'\nError: %s" % (path, error)))
+                                     self.tr("Cannot restore {}".format(title)),
+                                     self.tr("Cannot read file '%s'\nError: %s" % (path, error)))
 
         return None
 
@@ -427,7 +428,7 @@ class MainWindow(QMainWindow):
         """QMainWindow method reimplementation.
         Say, that we are ready to accept dragged urls
         """
-        if  event.mimeData().hasUrls():
+        if event.mimeData().hasUrls():
             # accept drag
             event.acceptProposedAction()
 

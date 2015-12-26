@@ -29,7 +29,6 @@ class FileFilter(QObject):
     **Signal** emitted, when regExp has changed
     """  # pylint: disable=W0105
 
-
     def __init__(self):
         QObject.__init__(self)
         self._applySettings()

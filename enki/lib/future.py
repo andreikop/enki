@@ -194,6 +194,7 @@ class AsyncAbstractController(QObject):
 # ^^^^^^^^^^^^^^^
     # Provide a `context manager <https://docs.python.org/2/library/stdtypes.html#typecontextmanager>`_
     # for Pythonic construction and cleanup.
+
     def __enter__(self):
         return self
 
@@ -538,6 +539,7 @@ class _AsyncPoolWorker(QRunnable):
     def run(self):
         self._future._invoke()
 
+
 class _AsyncWorker(QObject):
     # This signal contains the information necessary to run a callable.
     startSignal = pyqtSignal(Future)
@@ -571,7 +573,7 @@ class TimePrinter(object):
         # Create a timer to continually print the time.
         self.qt = QTimer(app)
         self.qt.timeout.connect(self.printTime)
-        self.qt.start(self.interval_sec*1000)
+        self.qt.start(self.interval_sec * 1000)
 
     # Print the time.
     def printTime(self):
@@ -581,6 +583,7 @@ class TimePrinter(object):
         sys.stdout.write('.\n')
         self.time_sec += self.interval_sec
         self.tasks[3].cancel()
+
 
 def main():
     # Create an application.
@@ -596,13 +599,14 @@ def main():
             asdf
         time.sleep(0.3)
         return a + 0.1
+
     def foo_done(future):
         print(('Done ' + str(future.result)))
 
     # Run foo using a single thread ('QThread') or a pool of threads (0). Give
     # it ``app`` as the parent so that when Qt destroys ``app``, it will also
     # destroy this class.
-    ac = AsyncController(0, app) # ac = AsyncController('QThread', app)
+    ac = AsyncController(0, app)  # ac = AsyncController('QThread', app)
     task1 = ac.start(foo_done, foo, 1, b=' 2')
     task2 = ac.start(foo_done, foo, 3, b=' 4')
     task3 = ac.start(foo_done, foo, 5, b=' 6')

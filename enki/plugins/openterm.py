@@ -4,7 +4,7 @@ import os.path
 import os
 
 from PyQt5.QtWidgets import QMessageBox, QWidget, QVBoxLayout, \
-                        QLabel, QLineEdit, QSpacerItem, QSizePolicy
+    QLabel, QLineEdit, QSpacerItem, QSizePolicy
 from PyQt5.QtGui import QIcon
 
 from enki.core.core import core
@@ -19,6 +19,8 @@ else:
 
 import os.path
 import os
+
+
 def _commandExists(program):
     def _isExe(filePath):
         return os.path.isfile(filePath) and os.access(filePath, os.X_OK)
@@ -35,6 +37,7 @@ def _commandExists(program):
 class SettingsPage(QWidget):
     """Settings page for OpenTerm plugin
     """
+
     def __init__(self, parent, autodetectedCommand):
         QWidget.__init__(self, parent)
 
@@ -51,6 +54,7 @@ class SettingsPage(QWidget):
 
 
 class Plugin:
+
     def __init__(self):
         self._addAction()
         core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
@@ -81,9 +85,9 @@ class Plugin:
     def _addAction(self):
         """Add action to main menu
         """
-        action = core.actionManager().addAction( "mTools/aOpenTerm",
-                                                 ACTION_TEXT,
-                                                 QIcon(':enkiicons/console.png'))
+        action = core.actionManager().addAction("mTools/aOpenTerm",
+                                                ACTION_TEXT,
+                                                QIcon(':enkiicons/console.png'))
         core.actionManager().setDefaultShortcut(action, "Ctrl+T")
         action.triggered.connect(self._openTerm)
 

@@ -11,7 +11,8 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os
+import sys
+import os
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -180,8 +181,8 @@ htmlhelp_basename = '%sdoc' % enki.core.defines.PACKAGE_NAME
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'enki.tex', u'enki Documentation',
-   u'Andrei Kopats, Filipe Azevedo', 'manual'),
+    ('index', 'enki.tex', u'enki Documentation',
+     u'Andrei Kopats, Filipe Azevedo', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -217,7 +218,7 @@ man_pages = [
      [u'Andrei Kopats'], 1)
 ]
 
-autodoc_default_flags = [ 'members', 'undoc-members', 'show-inheritance']
+autodoc_default_flags = ['members', 'undoc-members', 'show-inheritance']
 autodoc_member_order = 'bysource'
 
 
@@ -228,7 +229,9 @@ http://read-the-docs.readthedocs.org/en/latest/faq.html#my-project-isn-t-buildin
 """
 extraAttributes = {'EditRole': 0}
 
+
 class Mock(object):
+
     def __init__(self, *args, **kwargs):
         pass
 

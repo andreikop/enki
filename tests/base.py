@@ -37,6 +37,7 @@ logging.getLogger('qutepart').removeHandler(qutepart.consoleHandler)
 
 class DummyProfiler:
     """Dummy profiler is used to run core without profiling"""
+
     def stepDone(self, description):
         pass
 
@@ -288,7 +289,7 @@ class TestCase(unittest.TestCase):
                 return False
 
             return widget is dialog or \
-                   isDialogsChild(dialog, widget.parentWidget())
+                isDialogsChild(dialog, widget.parentWidget())
 
         def timerCallback(attempt):
             if self._finished:
@@ -370,7 +371,7 @@ class TestCase(unittest.TestCase):
             self.fail('Dock {} not found'.format(windowTitle))
 
     def assertEmits(self, sender, senderSignal, timeoutMs=1,
-      expectedSignalParams=None):
+                    expectedSignalParams=None):
         """ A unit testing convenience routine.
 
         Assert that calling the sender function emits the senderSignal within timeoutMs.
@@ -381,7 +382,7 @@ class TestCase(unittest.TestCase):
 
         """
         self.assertTrue(waitForSignal(sender, senderSignal,
-          timeoutMs, expectedSignalParams))
+                                      timeoutMs, expectedSignalParams))
 
 
 def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
@@ -410,13 +411,14 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     # (I can't use senderSignalArgsWrong = True/False, since
     # non-local variables cannot be assigned in another scope).
     senderSignalArgsWrong = []
+
     def senderSignalSlot(*args):
         # If the senderSignal args should be checked and they
         # don't match, then they're wrong. In all other cases,
         # they're right.
         senderSignalArgsWrong.append(
-          (expectedSignalParams is not None) and
-          (expectedSignalParams != args) )
+            (expectedSignalParams is not None) and
+            (expectedSignalParams != args))
         # We received the requested signal, so exit the event loop.
         qe.exit()
 
@@ -433,6 +435,7 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     # Catch any exceptions which the EventLoop would otherwise catch
     # and not re-raise.
     exceptions = []
+
     def excepthook(type_, value, tracebackObj):
         exceptions.append((value, tracebackObj))
     oldExcHook = sys.excepthook
@@ -463,20 +466,23 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
 # functionality, but as a context manager instead. All statements inside the
 # ``with`` statement are run, then a timer started; if a signal is emitted
 # before the timer expires, the test succeeds.
+
+
 class WaitForSignal(unittest.TestCase):
+
     def __init__(self,
-      # The signal to wait for.
-      signal,
-      # The maximum time to wait for the signal to be emitted, in ms.
-      timeoutMs,
-      # True to self.assertif the signal wasn't emitted.
-      assertIfNotRaised=True,
-      # Expected parameters which this signal must supply.
-      expectedSignalParams=None,
-      # True to print exceptions raised in the event loop
-      printExcTraceback=True,
-      # Number of times this signal must be emitted
-      numEmittedExpected=1):
+                 # The signal to wait for.
+                 signal,
+                 # The maximum time to wait for the signal to be emitted, in ms.
+                 timeoutMs,
+                 # True to self.assertif the signal wasn't emitted.
+                 assertIfNotRaised=True,
+                 # Expected parameters which this signal must supply.
+                 expectedSignalParams=None,
+                 # True to print exceptions raised in the event loop
+                 printExcTraceback=True,
+                 # Number of times this signal must be emitted
+                 numEmittedExpected=1):
 
         self.signal = signal
         self.timeoutMs = timeoutMs
@@ -537,6 +543,7 @@ class WaitForSignal(unittest.TestCase):
         # Catch any exceptions which the EventLoop would otherwise catch
         # and not re-raise.
         self.exceptions = None
+
         def excepthook(type_, value, tracebackObj):
             self.exceptions = (value, tracebackObj)
             if self.printExcTraceback:

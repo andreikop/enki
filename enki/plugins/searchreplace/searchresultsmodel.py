@@ -12,7 +12,8 @@ from enki.lib.htmldelegate import htmlEscape
 class Result:  # pylint: disable=R0902
     """One found by search thread item. Consists coordinates and capture. Used by SearchResultsModel
     """
-    def __init__ (self, fileName, wholeLine, line, column, match):  # pylint: disable=R0913
+
+    def __init__(self, fileName, wholeLine, line, column, match):  # pylint: disable=R0913
         self.fileName = fileName
         self.wholeLine = wholeLine
         self.line = line
@@ -34,17 +35,17 @@ class Result:  # pylint: disable=R0902
             foregroundColor = 'white'
 
         return '<html>' \
-                    'Line: %d, Column: %d: %s' \
-                    '<font style=\'background-color: %s; color: %s\'>%s</font>' \
-                    '%s' \
+            'Line: %d, Column: %d: %s' \
+            '<font style=\'background-color: %s; color: %s\'>%s</font>' \
+            '%s' \
                '</html>' % \
-                ( self.line + 1,
-                  self.column,
-                  htmlEscape(beforeMatch),
-                  backgroundColor,
-                  foregroundColor,
-                  htmlEscape(self.match.group(0)),
-                  htmlEscape(afterMatch))
+            (self.line + 1,
+             self.column,
+             htmlEscape(beforeMatch),
+             backgroundColor,
+             foregroundColor,
+             htmlEscape(self.match.group(0)),
+             htmlEscape(afterMatch))
 
     def tooltip(self):
         """Tooltip of the search result"""
@@ -58,6 +59,7 @@ class Result:  # pylint: disable=R0902
 class FileResults:
     """Object stores all items, found in the file
     """
+
     def __init__(self, baseDir, fileName, results):
         self.baseDir = baseDir
         self.fileName = fileName
@@ -102,10 +104,10 @@ class SearchResultsModel(QAbstractItemModel):
     """
     firstResultsAvailable = pyqtSignal()
 
-    def __init__(self, parent ):
+    def __init__(self, parent):
         """Constructor of SearchResultsModel class
         """
-        QAbstractItemModel.__init__(self, parent )
+        QAbstractItemModel.__init__(self, parent)
         self._replaceMode = False
 
         self.fileResults = []  # list of FileResults
@@ -120,22 +122,22 @@ class SearchResultsModel(QAbstractItemModel):
                                              len(self.fileResults[-1].results) - 1,
                                              QModelIndex()))
 
-    def index(self, row, column, parent ):
+    def index(self, row, column, parent):
         """See QAbstractItemModel docs
         """
-        if  row >= self.rowCount( parent ) or column > self.columnCount(parent):
+        if row >= self.rowCount(parent) or column > self.columnCount(parent):
             return QModelIndex()
 
         if parent.isValid():  # index for result
             result = parent.internalPointer().results[row]
-            return self.createIndex( row, column, result )
+            return self.createIndex(row, column, result)
         else:  # need index for fileRes
-            return self.createIndex( row, column, self.fileResults[row])
+            return self.createIndex(row, column, self.fileResults[row])
 
     def parent(self, index):
         """See QAbstractItemModel docs
         """
-        if not index.isValid() :
+        if not index.isValid():
             return QModelIndex()
 
         if not isinstance(index.internalPointer(), Result):  # it is an top level item
@@ -157,7 +159,7 @@ class SearchResultsModel(QAbstractItemModel):
         else:
             return len(self.fileResults) != 0
 
-    def columnCount(self, parent ):  # pylint: disable=W0613
+    def columnCount(self, parent):  # pylint: disable=W0613
         """See QAbstractItemModel docs
         """
         return 1
@@ -174,20 +176,20 @@ class SearchResultsModel(QAbstractItemModel):
         else:
             assert(0)
 
-    def flags(self, index ):
+    def flags(self, index):
         """See QAbstractItemModel docs
         """
-        flags = QAbstractItemModel.flags( self, index )
+        flags = QAbstractItemModel.flags(self, index)
 
         if self._replaceMode:
             flags |= Qt.ItemIsUserCheckable
 
         return flags
 
-    def data(self, index, role ):
+    def data(self, index, role):
         """See QAbstractItemModel docs
         """
-        if not index.isValid() :
+        if not index.isValid():
             return None
 
         # Common code for file and result
@@ -197,12 +199,12 @@ class SearchResultsModel(QAbstractItemModel):
         elif role == Qt.ToolTipRole:
             return result.tooltip()
         elif role == Qt.CheckStateRole:
-            if  self.flags( index ) & Qt.ItemIsUserCheckable:
+            if self.flags(index) & Qt.ItemIsUserCheckable:
                 return result.checkState
 
         return None
 
-    def setData(self, index, value, role ):
+    def setData(self, index, value, role):
         """See QAbstractItemModel docs
         This method changes checked state of the item.
         If file unchecked - we need uncheck all items,
@@ -212,7 +214,7 @@ class SearchResultsModel(QAbstractItemModel):
             if role == Qt.CheckStateRole:
                 # update own state
                 index.internalPointer().checkState = value
-                self.dataChanged.emit( index, index )  # own checked state changed
+                self.dataChanged.emit(index, index)  # own checked state changed
                 # update parent state
                 fileRes = index.parent().internalPointer()
                 assert(isinstance(fileRes, FileResults))
@@ -255,15 +257,15 @@ class SearchResultsModel(QAbstractItemModel):
         self.fileResults = []
         self.endRemoveRows()
 
-    def appendResults(self, fileResultList ):
+    def appendResults(self, fileResultList):
         """Handler of signal from the search thread.
         New result is available, add it to the model
         """
         if not self.fileResults:  # appending first
             self.firstResultsAvailable.emit()
-        self.beginInsertRows( QModelIndex(), \
-                              len(self.fileResults), \
-                              len(self.fileResults) + len(fileResultList) - 1)
+        self.beginInsertRows(QModelIndex(),
+                             len(self.fileResults),
+                             len(self.fileResults) + len(fileResultList) - 1)
         self.fileResults.extend(fileResultList)
         self.endInsertRows()
 
@@ -296,7 +298,7 @@ class SearchResultsModel(QAbstractItemModel):
     def matchesCount(self):
         """Get count of matches, stored by the model
         """
-        return sum([len (fileRes.results) for fileRes in self.fileResults])
+        return sum([len(fileRes.results) for fileRes in self.fileResults])
 
     def empty(self):
         """Check if have some items

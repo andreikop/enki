@@ -14,8 +14,8 @@ import os.path
 # The ``template/`` directory contains data files to be copied. Get an
 # absolute path to the CodeChat directory containing it.
 pkg_base, pkg_dir = get_package_paths('CodeChat')
-##         -------------Source files------------  -----dest path-----
-datas = [ (os.path.join(pkg_dir, 'template', '*'), 'CodeChat/template') ]
+# -------------Source files------------  -----dest path-----
+datas = [(os.path.join(pkg_dir, 'template', '*'), 'CodeChat/template')]
 
 # This isn't imported by CodeChat directly, so include it for Sphinx's use.
 hiddenimports = ['CodeChat.CodeToRestSphinx']

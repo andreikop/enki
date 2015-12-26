@@ -11,14 +11,14 @@ import re
 
 
 from PyQt5.QtCore import QDir, QEvent, \
-                         QRect, QSize, Qt, \
-                         pyqtSignal
+    QRect, QSize, Qt, \
+    pyqtSignal
 
 from PyQt5.QtWidgets import QApplication, QCompleter, QDirModel, QFileDialog,  \
-                        QFrame, QFileDialog, \
-                        QProgressBar, \
-                        QShortcut, \
-                        QToolButton, QWidget
+    QFrame, QFileDialog, \
+    QProgressBar, \
+    QShortcut, \
+    QToolButton, QWidget
 from PyQt5.QtGui import QColor, QIcon, QKeySequence, QPainter, QPalette
 
 from PyQt5 import uic
@@ -28,6 +28,7 @@ from enki.core.core import core
 from . import searchresultsmodel
 
 from .controller import *
+
 
 class SearchWidget(QFrame):
     """Widget, appeared, when Ctrl+F pressed.
@@ -121,39 +122,39 @@ class SearchWidget(QFrame):
         self.cbMask.setCompleter(None)
 
         self.fsModel = QDirModel(self.cbPath.lineEdit())
-        self.fsModel.setFilter( QDir.AllDirs | QDir.NoDotAndDotDot )
+        self.fsModel.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)
 
         self.cbPath.lineEdit().setCompleter(QCompleter(self.fsModel,
-                                                       self.cbPath.lineEdit() ))
+                                                       self.cbPath.lineEdit()))
         self._pathBackspaceShortcut = QShortcut(QKeySequence("Ctrl+Backspace"), self.cbPath, self._onPathBackspace)
         self._pathBackspaceShortcut.setContext(Qt.WidgetWithChildrenShortcut)
 
         # TODO QDirModel is deprecated but QCompleter does not yet handle
         # QFileSystemodel - please update when possible."""
         self.cbSearch.setCompleter(None)
-        self.pbSearchStop.setVisible( False )
-        self.pbReplaceCheckedStop.setVisible( False )
+        self.pbSearchStop.setVisible(False)
+        self.pbReplaceCheckedStop.setVisible(False)
 
-        self._progress = QProgressBar( self )
-        self._progress.setAlignment( Qt.AlignCenter )
-        self._progress.setToolTip( self.tr( "Search in progress..." ) )
-        self._progress.setMaximumSize( QSize( 80, 16 ) )
-        core.mainWindow().statusBar().insertPermanentWidget( 1, self._progress )
-        self._progress.setVisible( False )
+        self._progress = QProgressBar(self)
+        self._progress.setAlignment(Qt.AlignCenter)
+        self._progress.setToolTip(self.tr("Search in progress..."))
+        self._progress.setMaximumSize(QSize(80, 16))
+        core.mainWindow().statusBar().insertPermanentWidget(1, self._progress)
+        self._progress.setVisible(False)
 
         # cd up action
-        self.tbCdUp = QToolButton( self.cbPath.lineEdit() )
-        self.tbCdUp.setIcon( QIcon( ":/enkiicons/go-up.png" ) )
-        self.tbCdUp.setCursor( Qt.ArrowCursor )
-        self.tbCdUp.installEventFilter( self )  # for drawing button
+        self.tbCdUp = QToolButton(self.cbPath.lineEdit())
+        self.tbCdUp.setIcon(QIcon(":/enkiicons/go-up.png"))
+        self.tbCdUp.setCursor(Qt.ArrowCursor)
+        self.tbCdUp.installEventFilter(self)  # for drawing button
 
         self.cbSearch.installEventFilter(self)  # for catching Tab and Shift+Tab
         self.cbReplace.installEventFilter(self)  # for catching Tab and Shift+Tab
         self.cbPath.installEventFilter(self)  # for catching Tab and Shift+Tab
         self.cbMask.installEventFilter(self)  # for catching Tab and Shift+Tab
 
-        self._closeShortcut = QShortcut( QKeySequence( "Esc" ), self )
-        self._closeShortcut.setContext( Qt.WidgetWithChildrenShortcut )
+        self._closeShortcut = QShortcut(QKeySequence("Esc"), self)
+        self._closeShortcut.setContext(Qt.WidgetWithChildrenShortcut)
         self._closeShortcut.activated.connect(self.hide)
 
         # connections
@@ -178,8 +179,8 @@ class SearchWidget(QFrame):
         core.mainWindow().hideAllWindows.connect(self.hide)
         core.workspace().escPressed.connect(self.hide)
 
-        core.workspace().currentDocumentChanged.connect( \
-                    lambda old, new: self.setVisible(self.isVisible() and new is not None))
+        core.workspace().currentDocumentChanged.connect(
+            lambda old, new: self.setVisible(self.isVisible() and new is not None))
 
     def show(self):
         """Reimplemented function. Sends signal
@@ -224,7 +225,7 @@ class SearchWidget(QFrame):
         text = text.replace('\n', '\\n')
         return text
 
-    def setMode(self, mode ):
+    def setMode(self, mode):
         """Change search mode.
         i.e. from "Search file" to "Replace directory"
         """
@@ -243,17 +244,17 @@ class SearchWidget(QFrame):
            document.qutepart.selectedText:
             searchText = document.qutepart.selectedText
 
-            self.cbReplace.setEditText(self._makeEscapeSeqsVisible(searchText) )
+            self.cbReplace.setEditText(self._makeEscapeSeqsVisible(searchText))
 
             if self.cbRegularExpression.checkState() == Qt.Checked:
                 searchText = self._regExEscape(searchText)
-            self.cbSearch.setEditText( searchText )
+            self.cbSearch.setEditText(searchText)
 
         if not self.cbReplace.lineEdit().text() and \
-            self.cbSearch.lineEdit().text() and \
-            not self.cbRegularExpression.checkState() == Qt.Checked:
-                replaceText = self.cbSearch.lineEdit().text().replace('\\', '\\\\')
-                self.cbReplace.setEditText(replaceText)
+                self.cbSearch.lineEdit().text() and \
+                not self.cbRegularExpression.checkState() == Qt.Checked:
+            replaceText = self.cbSearch.lineEdit().text().replace('\\', '\\\\')
+            self.cbReplace.setEditText(replaceText)
 
         # Move focus to Search edit
         self.cbSearch.setFocus()
@@ -267,19 +268,19 @@ class SearchWidget(QFrame):
             except OSError:  # current directory might have been deleted
                 pass
             else:
-                self.cbPath.setEditText( searchPath )
+                self.cbPath.setEditText(searchPath)
 
         # Set widgets visibility flag according to state
-        widgets = (self.wSearch, self.pbPrevious, self.pbNext, self.pbSearch, self.wReplace, self.wPath, \
+        widgets = (self.wSearch, self.pbPrevious, self.pbNext, self.pbSearch, self.wReplace, self.wPath,
                    self.pbReplace, self.pbReplaceAll, self.pbReplaceChecked, self.wOptions, self.wMask)
         #                         wSear  pbPrev pbNext pbSear wRepl  wPath  pbRep  pbRAll pbRCHK wOpti wMask
         visible = \
-        {MODE_SEARCH :               (1,     1,     1,     0,     0,     0,     0,     1,     1,    1,    0,),
-         MODE_REPLACE:               (1,     1,     1,     0,     1,     0,     1,     1,     0,    1,    0,),
-         MODE_SEARCH_DIRECTORY:      (1,     0,     0,     1,     0,     1,     0,     0,     0,    1,    1,),
-         MODE_REPLACE_DIRECTORY:     (1,     0,     0,     1,     1,     1,     0,     0,     1,    1,    1,),
-         MODE_SEARCH_OPENED_FILES:   (1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,),
-         MODE_REPLACE_OPENED_FILES:  (1,     0,     0,     1,     1,     0,     0,     0,     1,    1,    1,)}
+            {MODE_SEARCH:               (1,     1,     1,     0,     0,     0,     0,     1,     1,    1,    0,),
+             MODE_REPLACE:               (1,     1,     1,     0,     1,     0,     1,     1,     0,    1,    0,),
+             MODE_SEARCH_DIRECTORY:      (1,     0,     0,     1,     0,     1,     0,     0,     0,    1,    1,),
+             MODE_REPLACE_DIRECTORY:     (1,     0,     0,     1,     1,     1,     0,     0,     1,    1,    1,),
+             MODE_SEARCH_OPENED_FILES:   (1,     0,     0,     1,     0,     0,     0,     0,     0,    1,    1,),
+             MODE_REPLACE_OPENED_FILES:  (1,     0,     0,     1,     1,     0,     0,     0,     1,    1,    1,)}
 
         for i, widget in enumerate(widgets):
             widget.setVisible(visible[mode][i])
@@ -295,23 +296,23 @@ class SearchWidget(QFrame):
         self._updateLabels()
         self._updateWidgets()
 
-    def eventFilter(self, object_, event ):
+    def eventFilter(self, object_, event):
         """ Event filter for mode switch tool button
         Draws icons in the search and path lineEdits
         """
-        if  event.type() == QEvent.Paint and object_ is self.tbCdUp:  # draw CdUp button in search path QLineEdit
+        if event.type() == QEvent.Paint and object_ is self.tbCdUp:  # draw CdUp button in search path QLineEdit
             toolButton = object_
             lineEdit = self.cbPath.lineEdit()
-            lineEdit.setContentsMargins( lineEdit.height(), 0, 0, 0 )
+            lineEdit.setContentsMargins(lineEdit.height(), 0, 0, 0)
 
             height = lineEdit.height()
-            availableRect = QRect( 0, 0, height, height )
+            availableRect = QRect(0, 0, height, height)
 
-            if  toolButton.rect() != availableRect :
-                toolButton.setGeometry( availableRect )
+            if toolButton.rect() != availableRect:
+                toolButton.setGeometry(availableRect)
 
-            painter = QPainter ( toolButton )
-            toolButton.icon().paint( painter, availableRect )
+            painter = QPainter(toolButton)
+            toolButton.icon().paint(painter, availableRect)
 
             return True
 
@@ -324,7 +325,7 @@ class SearchWidget(QFrame):
                 self._moveFocus(-1)
                 return True
 
-        return QFrame.eventFilter( self, object_, event )
+        return QFrame.eventFilter(self, object_, event)
 
     def _onReturnPressed(self):
         """Return or Enter pressed on widget.
@@ -361,8 +362,8 @@ class SearchWidget(QFrame):
         Standard Qt Keyboard focus algorithm doesn't allow circular navigation
         """
         allFocusableWidgets = (self.cbSearch, self.cbReplace, self.cbPath, self.cbMask)
-        visibleWidgets = [widget for widget in allFocusableWidgets \
-                                    if widget.isVisible()]
+        visibleWidgets = [widget for widget in allFocusableWidgets
+                          if widget.isVisible()]
 
         try:
             focusedIndex = visibleWidgets.index(QApplication.focusWidget())
@@ -380,37 +381,36 @@ class SearchWidget(QFrame):
         """
         width = 0
 
-        if  self.lSearch.isVisible() :
-            width = max( width, self.lSearch.minimumSizeHint().width() )
+        if self.lSearch.isVisible():
+            width = max(width, self.lSearch.minimumSizeHint().width())
 
-        if   self.lReplace.isVisible() :
-            width = max( width,  self.lReplace.minimumSizeHint().width() )
+        if self.lReplace.isVisible():
+            width = max(width, self.lReplace.minimumSizeHint().width())
 
-        if  self.lPath.isVisible() :
-            width = max( width, self.lPath.minimumSizeHint().width() )
+        if self.lPath.isVisible():
+            width = max(width, self.lPath.minimumSizeHint().width())
 
-        self.lSearch.setMinimumWidth( width )
-        self.lReplace.setMinimumWidth( width )
-        self.lPath.setMinimumWidth( width )
-
+        self.lSearch.setMinimumWidth(width)
+        self.lReplace.setMinimumWidth(width)
+        self.lPath.setMinimumWidth(width)
 
     def _updateWidgets(self):
         """Update geometry of widgets with buttons
         """
         width = 0
 
-        if  self.wSearchRight.isVisible() :
-            width = max( width, self.wSearchRight.minimumSizeHint().width() )
+        if self.wSearchRight.isVisible():
+            width = max(width, self.wSearchRight.minimumSizeHint().width())
 
-        if  self.wReplaceRight.isVisible() :
-            width = max( width, self.wReplaceRight.minimumSizeHint().width() )
+        if self.wReplaceRight.isVisible():
+            width = max(width, self.wReplaceRight.minimumSizeHint().width())
 
-        if  self.wPathRight.isVisible() :
-            width = max( width, self.wPathRight.minimumSizeHint().width() )
+        if self.wPathRight.isVisible():
+            width = max(width, self.wPathRight.minimumSizeHint().width())
 
-        self.wSearchRight.setMinimumWidth( width )
-        self.wReplaceRight.setMinimumWidth( width )
-        self.wPathRight.setMinimumWidth( width )
+        self.wSearchRight.setMinimumWidth(width)
+        self.wReplaceRight.setMinimumWidth(width)
+        self.wPathRight.setMinimumWidth(width)
 
     def updateComboBoxes(self):
         """Update comboboxes with last used texts
@@ -421,24 +421,24 @@ class SearchWidget(QFrame):
 
         # search
         if searchText:
-            index = self.cbSearch.findText( searchText )
+            index = self.cbSearch.findText(searchText)
 
-            if  index == -1 :
-                self.cbSearch.addItem( searchText )
+            if index == -1:
+                self.cbSearch.addItem(searchText)
 
         # replace
         if replaceText:
-            index = self.cbReplace.findText( replaceText )
+            index = self.cbReplace.findText(replaceText)
 
-            if  index == -1 :
-                self.cbReplace.addItem( replaceText )
+            if index == -1:
+                self.cbReplace.addItem(replaceText)
 
         # mask
         if maskText:
-            index = self.cbMask.findText( maskText )
+            index = self.cbMask.findText(maskText)
 
-            if  index == -1 :
-                self.cbMask.addItem( maskText )
+            if index == -1:
+                self.cbMask.addItem(maskText)
 
     def _searchPatternTextAndFlags(self):
         """Get search pattern and flags
@@ -484,13 +484,13 @@ class SearchWidget(QFrame):
         mask = [_f for _f in mask if _f]
         return mask
 
-    def setState(self, state ):
+    def setState(self, state):
         """Change line edit color according to search result
         """
         widget = self.cbSearch.lineEdit()
 
-        color = {SearchWidget.Normal: QApplication.instance().palette().color(QPalette.Base), \
-                 SearchWidget.Good: QColor(Qt.green), \
+        color = {SearchWidget.Normal: QApplication.instance().palette().color(QPalette.Base),
+                 SearchWidget.Good: QColor(Qt.green),
                  SearchWidget.Bad: QColor(Qt.red),
                  SearchWidget.Incorrect: QColor(Qt.darkYellow)}
 
@@ -499,28 +499,28 @@ class SearchWidget(QFrame):
             stateColor.setAlpha(100)
 
         pal = widget.palette()
-        pal.setColor( widget.backgroundRole(), stateColor )
-        widget.setPalette( pal )
+        pal.setColor(widget.backgroundRole(), stateColor)
+        widget.setPalette(pal)
 
     def setSearchInProgress(self, inProgress):
         """Search thread started or stopped
         """
-        self.pbSearchStop.setVisible( inProgress )
-        self.pbSearch.setVisible( not inProgress )
+        self.pbSearchStop.setVisible(inProgress)
+        self.pbSearch.setVisible(not inProgress)
         self._updateWidgets()
-        self._progress.setVisible( inProgress )
+        self._progress.setVisible(inProgress)
 
-    def onSearchProgressChanged(self, value, total ):
+    def onSearchProgressChanged(self, value, total):
         """Signal from the thread, progress changed
         """
-        self._progress.setValue( value )
-        self._progress.setMaximum( total )
+        self._progress.setValue(value)
+        self._progress.setMaximum(total)
 
     def setReplaceInProgress(self, inProgress):
         """Replace thread started or stopped
         """
-        self.pbReplaceCheckedStop.setVisible( inProgress )
-        self.pbReplaceChecked.setVisible( not inProgress )
+        self.pbReplaceCheckedStop.setVisible(inProgress)
+        self.pbReplaceChecked.setVisible(not inProgress)
         self._updateWidgets()
 
     def setSearchInFileActionsEnabled(self, enabled):
@@ -559,7 +559,7 @@ class SearchWidget(QFrame):
     def on_pbSearch_pressed(self):
         """Handler of click on "Search" button (for search in directory)
         """
-        self.setState(SearchWidget.Normal )
+        self.setState(SearchWidget.Normal)
 
         self.searchInDirectoryStartPressed.emit(self.getRegExp(),
                                                 self._getSearchMask(),
@@ -583,7 +583,7 @@ class SearchWidget(QFrame):
     def on_pbBrowse_pressed(self):
         """Handler of click on "Browse" button. Explores FS for search directory path
         """
-        path = QFileDialog.getExistingDirectory( self, self.tr( "Search path" ), self.cbPath.currentText() )
+        path = QFileDialog.getExistingDirectory(self, self.tr("Search path"), self.cbPath.currentText())
 
         if path:
-            self.cbPath.setEditText( path )
+            self.cbPath.setEditText(path)

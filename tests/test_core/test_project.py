@@ -19,6 +19,7 @@ PROJ_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 
 
 
 class Test(base.TestCase):
+
     def test_1(self):
         """ Parse words
         """

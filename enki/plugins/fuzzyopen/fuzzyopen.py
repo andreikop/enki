@@ -50,7 +50,8 @@ class FuzzyOpenCompleter(AbstractCompleter):
 
     def __init__(self, pattern, files):
         smallerFont = core.mainWindow().font().pointSizeF() * 2 / 1.5
-        self._itemTemplate = ('{{}}'
+        self._itemTemplate = (
+            '{{}}'
             '<div style="margin: 15px; font-size:{smallerFont}pt">{{}}</div>'.format(smallerFont=smallerFont))
 
         self._pattern = pattern
@@ -100,7 +101,7 @@ class FuzzyOpenCompleter(AbstractCompleter):
         path, score, indexes = self._items[row]
         basename = os.path.basename(path)
         chars = ['<span style="font-weight:900;">{}</span>'.format(char) if charIndex in indexes else char
-                    for charIndex, char in enumerate(path)]
+                 for charIndex, char in enumerate(path)]
         pathFormatted = ''.join(chars)
         basenameFormatted = ''.join(chars[-len(basename):])
         return self._itemTemplate.format(basenameFormatted, pathFormatted)
@@ -202,4 +203,3 @@ class ScanCommand(AbstractCommand):
 
     def execute(self):
         core.project().startBackgroundScan()
-

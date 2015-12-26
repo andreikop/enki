@@ -22,6 +22,7 @@ import qutepart
 class Plugin(QObject):
     """Module implementation
     """
+
     def __init__(self):
         QObject.__init__(self)
 
@@ -29,7 +30,7 @@ class Plugin(QObject):
             """Create a menu action and connect it to the slot
             """
             action = core.actionManager().addAction("mHelp/%s" % menuItem, text, QIcon(':enkiicons/' + icon))
-            slot = lambda : UIAbout(core.mainWindow(), tab).exec_()  # pylint: disable=W0108
+            slot = lambda: UIAbout(core.mainWindow(), tab).exec_()  # pylint: disable=W0108
             action.triggered.connect(slot)
             return action
 
@@ -38,7 +39,7 @@ class Plugin(QObject):
                                 createAction('aReportBug', self.tr('Report &Bug...'), 'debugger.png', 'bug'),
                                 createAction('aDonate', self.tr('&Donate...'), 'add.png', 'donate')]
 
-        action = core.actionManager().addAction( "mHelp/aAboutQt", self.tr('About &Qt...'), QIcon(':enkiicons/qt.png'))
+        action = core.actionManager().addAction("mHelp/aAboutQt", self.tr('About &Qt...'), QIcon(':enkiicons/qt.png'))
         action.triggered.connect(QApplication.instance().aboutQt)
         self._createdActions.append(action)
 
@@ -52,17 +53,18 @@ class Plugin(QObject):
 class UIAbout(QDialog):
     """About dialogue
     """
+
     def __init__(self, parentWindow, tab):
         QDialog.__init__(self, parentWindow)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'UIAbout.ui'), self)
-        self.setWindowTitle( self.tr( "About : %s" % PACKAGE_NAME ) )
+        self.setWindowTitle(self.tr("About : %s" % PACKAGE_NAME))
 
-        self.lTitle.setText( PACKAGE_NAME )
-        qpartNumbers = '.'.join( [str(item) for item in qutepart.VERSION] )
+        self.lTitle.setText(PACKAGE_NAME)
+        qpartNumbers = '.'.join([str(item) for item in qutepart.VERSION])
         qpartParser = 'binary' if qutepart.binaryParserAvailable else 'Python'
         qpartVersion = '{} (with {} parser)'.format(qpartNumbers, qpartParser)
-        self.lVersion.setText( self.tr( "Version %s\nUses Qutepart %s") % \
-                                        (PACKAGE_VERSION, qpartVersion))
+        self.lVersion.setText(self.tr("Version %s\nUses Qutepart %s") %
+                              (PACKAGE_VERSION, qpartVersion))
 
         tabs = {'about': self.wLogo,
                 'help': self.tbHelp,

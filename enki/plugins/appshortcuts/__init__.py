@@ -42,15 +42,16 @@ _CONFIG_PATH = os.path.join(enki.core.defines.CONFIG_DIR, 'shortcuts.json')
 class Plugin:
     """Module implementation
     """
+
     def __init__(self):
         self._config = enki.core.json_wrapper.load(_CONFIG_PATH, 'shortcuts', None)
 
         self._actionManager = core.actionManager()
 
         self._action = self._actionManager.addAction("mSettings/aApplicationShortcuts",
-                                       tr( "Application shortcuts..."),
-                                       QIcon(':/enkiicons/shortcuts.png'))
-        self._action.setStatusTip(tr( "Edit application shortcuts..."))
+                                                     tr("Application shortcuts..."),
+                                                     QIcon(':/enkiicons/shortcuts.png'))
+        self._action.setStatusTip(tr("Edit application shortcuts..."))
         self._action.triggered.connect(self._onEditShortcuts)
 
         for action in self._actionManager.allActions():
@@ -107,7 +108,7 @@ class Plugin:
     def _onEditShortcuts(self):
         """Handler of *Edit->Shortcuts...* action. Shows dialog, than saves shortcuts to file
         """
-        ActionShortcutEditor (self._actionManager, core.mainWindow()).exec_()
+        ActionShortcutEditor(self._actionManager, core.mainWindow()).exec_()
         self._saveShortcuts()
 
     def _save(self):

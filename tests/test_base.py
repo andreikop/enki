@@ -91,37 +91,37 @@ class TestWaitForSignal(unittest.TestCase):
     def test_5(self):
         ts = TestSignal()
         self.assertTrue(base.waitForSignal(lambda: ts.testSignal.emit(1),
-          ts.testSignal, 100))
+                                           ts.testSignal, 100))
 
     # Check the arguements emitted by the requested signal.
     def test_7(self):
         ts = TestSignal()
         self.assertFalse(base.waitForSignal(lambda: ts.testSignal.emit(1),
-          ts.testSignal, 100, (2,) ))
+                                            ts.testSignal, 100, (2,)))
 
     # Check the arguements emitted by the requested signal.
     def test_8(self):
         ts = TestSignal()
         self.assertTrue(base.waitForSignal(lambda: ts.testSignal.emit(1),
-          ts.testSignal, 100, (1,) ))
+                                           ts.testSignal, 100, (1,)))
 
     # Check several arguements emitted by the requested signal.
     def test_9(self):
         ts = TestSignal()
         self.assertFalse(base.waitForSignal(lambda: ts.testSignalArgs.emit('hello', 3, 3.14),
-          ts.testSignalArgs, 100, (2,) ))
+                                            ts.testSignalArgs, 100, (2,)))
 
     # Check several arguements emitted by the requested signal.
     def test_10(self):
         ts = TestSignal()
         self.assertFalse(base.waitForSignal(lambda: ts.testSignalArgs.emit('hello', 3, 3.14),
-          ts.testSignalArgs, 100, ('Hello', 3, 3.14) ))
+                                            ts.testSignalArgs, 100, ('Hello', 3, 3.14)))
 
     # Check several arguements emitted by the requested signal.
     def test_11(self):
         ts = TestSignal()
         self.assertTrue(base.waitForSignal(lambda: ts.testSignalArgs.emit('hello', 3, 3.14),
-          ts.testSignalArgs, 100, ('hello', 3, 3.14) ))
+                                           ts.testSignalArgs, 100, ('hello', 3, 3.14)))
 
     # Make sure exceptions in sender() are raised properly.
     def test_11(self):
@@ -134,6 +134,7 @@ class TestWaitForSignal(unittest.TestCase):
 # ----------
 class TestInMainLoop(base.TestCase):
     # A helper function to raise an exception in the main loop.
+
     @base.inMainLoop
     def _failInMainLoop(self):
         self.fail()

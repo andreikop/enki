@@ -24,6 +24,7 @@ class _ParseFailed(UserWarning):
 
 
 class Tag:
+
     def __init__(self, type_, name, lineNumber, parent):
         self.type = type_
         self.name = name
@@ -33,8 +34,8 @@ class Tag:
 
     def format(self, indentLevel=0):
         indent = '\t' * indentLevel
-        formattedChildren = [child.format(indentLevel + 1) \
-                                for child in self.children]
+        formattedChildren = [child.format(indentLevel + 1)
+                             for child in self.children]
         result = '{}{} {}'.format(indent, self.lineNumber, self.name)
         if formattedChildren:
             result += '\n'
@@ -70,6 +71,7 @@ def _parseTag(line):
 
     return name, lineNumber, type_, scopeType, scopeName
 
+
 def _findScope(tag, scopeType, scopeName):
     """Check tag and its parents, if theirs name is scopeName.
     Return tag or None
@@ -77,12 +79,13 @@ def _findScope(tag, scopeType, scopeName):
     if tag is None:
         return None
     elif tag.name == scopeName and \
-       tag.type == scopeType:
+            tag.type == scopeType:
         return tag
     elif tag.parent is not None:
         return _findScope(tag.parent, scopeType, scopeName)
     else:
         return None
+
 
 def _parseTags(ctagsLang, text):
     if "Try `ctags --help' for a complete list of options." in text:
@@ -132,7 +135,9 @@ def _parseTags(ctagsLang, text):
     return tags
 
 
-# Workaround for tempfile.NamedTemporaryFile's behavior, which prevents Windows processes from accessing the file until it's deleted. Adapted from http://bugs.python.org/issue14243.
+# Workaround for tempfile.NamedTemporaryFile's behavior, which prevents
+# Windows processes from accessing the file until it's deleted. Adapted
+# from http://bugs.python.org/issue14243.
 @contextmanager
 def _namedTemp():
     f = tempfile.NamedTemporaryFile(delete=False)
@@ -149,7 +154,7 @@ def _sortTagsAlphabetically(tags):
     for tag in tags:
         tag.children = _sortTagsAlphabetically(tag.children)
 
-    return sorted(tags, key = lambda tag: tag.name)
+    return sorted(tags, key=lambda tag: tag.name)
 
 
 def processText(ctagsLang, text, sortAlphabetically):
@@ -162,14 +167,14 @@ def processText(ctagsLang, text, sortAlphabetically):
 
     with _namedTemp() as tempFile:
         tempFile.write(data)
-        tempFile.close() # Windows compatibility
+        tempFile.close()  # Windows compatibility
 
         try:
             stdout = gco.get_console_output([ctagsPath,
                                              '-f', '-', '-u', '--fields=nKs', langArg, tempFile.name])[0]
         except OSError as ex:
-            raise FailedException('Failed to execute ctags console utility "{}": {}\n'\
-                                        .format(ctagsPath, str(ex)) + \
+            raise FailedException('Failed to execute ctags console utility "{}": {}\n'
+                                  .format(ctagsPath, str(ex)) +
                                   'Go to Settings -> Settings -> Navigator to set path to ctags')
 
     tags = _parseTags(ctagsLang, stdout)

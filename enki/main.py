@@ -17,6 +17,7 @@ import enki.core.defines
 
 
 class _StartProfiler:
+
     def __init__(self, enabled):
         self.enabled = enabled
 
@@ -89,7 +90,7 @@ def _showErrorMessage(haveQt, header, html, plain):
     print(plain, file=sys.stderr)
     if haveQt:
         from PyQt5.QtGui import QApplication, QMessageBox
-        app = QApplication ( sys.argv )
+        app = QApplication(sys.argv)
         QMessageBox.critical(None, header, html)
     else:
         try:
@@ -106,7 +107,7 @@ def _checkDependencies(profiler):
     _SEE_SITE_PLAIN = 'See http://enki-editor.org/install-sources.html'
     _SEE_SITE_HTML = \
         'See <a href="http://enki-editor.org/install-sources.html">' \
-            'installation instructions</a>'
+        'installation instructions</a>'
 
     try:
         import PyQt5
@@ -128,16 +129,16 @@ def _checkDependencies(profiler):
         import qutepart
     except ImportError as ex:
         html = "<html>" + \
-                    "Failed to import qutepart.<br/>" \
-                    "See <a href=\"https://github.com/hlamer/qutepart\">qutepart site</a><br/>" \
-                    "Exception:<br/>" + \
-                    str(ex) + '<br/>' + \
-                    _SEE_SITE_HTML + \
-                "</html>"
+            "Failed to import qutepart.<br/>" \
+            "See <a href=\"https://github.com/hlamer/qutepart\">qutepart site</a><br/>" \
+            "Exception:<br/>" + \
+            str(ex) + '<br/>' + \
+            _SEE_SITE_HTML + \
+            "</html>"
         plain =  "Failed to import qutepart.\n" \
                  "See https://github.com/hlamer/qutepart\n" + \
-                str(ex) + '\n' + \
-                _SEE_SITE_PLAIN
+            str(ex) + '\n' + \
+            _SEE_SITE_PLAIN
         _showErrorMessage(True, "Qutepart not found", html, plain)
         raise ex
 
@@ -147,13 +148,13 @@ def _checkDependencies(profiler):
        qutepart.VERSION[1] < enki.core.defines.QUTEPART_SUPPORTED_MINOR:
         text = "Qutepart version not supported\n" + \
                "This Enki version requires Qutepart {}.>={}.*\n". \
-                     format(enki.core.defines.QUTEPART_SUPPORTED_MAJOR,
-                            enki.core.defines.QUTEPART_SUPPORTED_MINOR) + \
+            format(enki.core.defines.QUTEPART_SUPPORTED_MAJOR,
+                   enki.core.defines.QUTEPART_SUPPORTED_MINOR) + \
                "But {}.{}.{} is detected\n\n".format(*qutepart.VERSION)
 
         html = "<html>" + text.replace('\n', '<br/>') + \
-                    _SEE_SITE_HTML + \
-                "</html>"
+            _SEE_SITE_HTML + \
+            "</html>"
         plain = text + _SEE_SITE_PLAIN
 
         _showErrorMessage(True, "Not supported Qutepart version", html, plain)
@@ -179,9 +180,9 @@ def _parseCommandLine():
 
     (options, args) = parser.parse_args()
 
-    cmdLine = {"profiling" : options.profiling,
+    cmdLine = {"profiling": options.profiling,
                "session_name": options.session_name,
-               "no-session" : options.no_session}
+               "no-session": options.no_session}
 
     # Parse +N spec.
     plusNSpecs = [s for s in args if s.startswith('+')]
@@ -260,10 +261,10 @@ def main():
 
     sys.excepthook = excepthook
 
-    app = PyQt5.QtWidgets.QApplication ( sys.argv )
-    app.setApplicationName( enki.core.defines.PACKAGE_NAME )
-    app.setOrganizationName( enki.core.defines.PACKAGE_ORGANISATION )
-    app.setOrganizationDomain( enki.core.defines.PACKAGE_URL )
+    app = PyQt5.QtWidgets.QApplication(sys.argv)
+    app.setApplicationName(enki.core.defines.PACKAGE_NAME)
+    app.setOrganizationName(enki.core.defines.PACKAGE_ORGANISATION)
+    app.setOrganizationDomain(enki.core.defines.PACKAGE_URL)
     app.lastWindowClosed.connect(app.quit)
 
     profiler.stepDone('Construct application')

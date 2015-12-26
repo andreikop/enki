@@ -3,6 +3,7 @@ from enki.plugins.fuzzyopen.fuzzyopen import FuzzyOpenCommand, ScanCommand
 
 
 class Plugin:
+
     def __init__(self):
         core.locator().addCommandClass(FuzzyOpenCommand)
         core.locator().addCommandClass(ScanCommand)

@@ -22,13 +22,16 @@ from enki.core.uisettings import CheckableOption, ChoiseOption, FontOption, Nume
 class _SettingsPageWidget(QWidget):
     """Font settings widget. Insertted as a page to UISettings
     """
+
     def __init__(self, formName, *args):
         QWidget.__init__(self, *args)
         uic.loadUi(os.path.join(os.path.dirname(__file__), formName), self)
 
+
 class _FontSettingsWidget(QWidget):
     """Font settings widget. Insertted as a page to UISettings
     """
+
     def __init__(self, *args):
         QWidget.__init__(self, *args)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Font.ui'), self)
@@ -37,6 +40,7 @@ class _FontSettingsWidget(QWidget):
 class _IndentationSettingsWidget(QWidget):
     """Font settings widget. Insertted as a page to UISettings
     """
+
     def __init__(self, *args):
         QWidget.__init__(self, *args)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Indentation.ui'), self)
@@ -45,6 +49,7 @@ class _IndentationSettingsWidget(QWidget):
 class _AutocompletionSettingsWidget(QWidget):
     """Font settings widget. Insertted as a page to UISettings
     """
+
     def __init__(self, *args):
         QWidget.__init__(self, *args)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Autocompletion.ui'), self)
@@ -53,6 +58,7 @@ class _AutocompletionSettingsWidget(QWidget):
 class _EolSettingsWidget(QWidget):
     """Font settings widget. Insertted as a page to UISettings
     """
+
     def __init__(self, *args):
         QWidget.__init__(self, *args)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Eol.ui'), self)
@@ -65,6 +71,7 @@ class Plugin:
     Adds options to the dialogue.
     Applies settings.
     """
+
     def __init__(self):
         Plugin.instance = self
         core.workspace().documentOpened.connect(self._onDocumentOpened)
@@ -150,34 +157,34 @@ class Plugin:
 
         cfg = core.config()
         options = \
-        (
-            FontOption(dialog, cfg, "Qutepart/Font/Family", "Qutepart/Font/Size",
-                       fontWidget.lFont, fontWidget.pbFont),
+            (
+                FontOption(dialog, cfg, "Qutepart/Font/Family", "Qutepart/Font/Size",
+                           fontWidget.lFont, fontWidget.pbFont),
 
-            ChoiseOption(dialog, cfg, "Qutepart/Indentation/UseTabs",
-                         {indentWidget.rbIndentationSpaces : False,
-                          indentWidget.rbIndentationTabs: True}),
-            NumericOption(dialog, cfg, "Qutepart/Indentation/Width", indentWidget.sIndentationWidth),
-            CheckableOption(dialog, cfg, "Qutepart/Indentation/AutoDetect", indentWidget.cbAutodetectIndent),
+                ChoiseOption(dialog, cfg, "Qutepart/Indentation/UseTabs",
+                             {indentWidget.rbIndentationSpaces: False,
+                              indentWidget.rbIndentationTabs: True}),
+                NumericOption(dialog, cfg, "Qutepart/Indentation/Width", indentWidget.sIndentationWidth),
+                CheckableOption(dialog, cfg, "Qutepart/Indentation/AutoDetect", indentWidget.cbAutodetectIndent),
 
-            ChoiseOption(dialog, cfg, "Qutepart/EOL/Mode",
-                         {eolWidget.rbEolUnix: r'\n',
-                          eolWidget.rbEolWindows: r'\r\n',
-                          eolWidget.rbEolMac: r'\r'}),
-            CheckableOption(dialog, cfg, "Qutepart/EOL/AutoDetect", eolWidget.cbAutoDetectEol),
+                ChoiseOption(dialog, cfg, "Qutepart/EOL/Mode",
+                             {eolWidget.rbEolUnix: r'\n',
+                              eolWidget.rbEolWindows: r'\r\n',
+                              eolWidget.rbEolMac: r'\r'}),
+                CheckableOption(dialog, cfg, "Qutepart/EOL/AutoDetect", eolWidget.cbAutoDetectEol),
 
-            CheckableOption(dialog, cfg, "Qutepart/Edge/Enabled", longLinesWidget.gbEdgeEnabled),
-            NumericOption(dialog, cfg, "Qutepart/Edge/Column", longLinesWidget.sEdgeColumnNumber),
-            ColorOption(dialog, cfg, "Qutepart/Edge/Color", longLinesWidget.tbEdgeColor),
+                CheckableOption(dialog, cfg, "Qutepart/Edge/Enabled", longLinesWidget.gbEdgeEnabled),
+                NumericOption(dialog, cfg, "Qutepart/Edge/Column", longLinesWidget.sEdgeColumnNumber),
+                ColorOption(dialog, cfg, "Qutepart/Edge/Color", longLinesWidget.tbEdgeColor),
 
-            CheckableOption(dialog, cfg, "Qutepart/AutoCompletion/Enabled", complWidget.gbAutoCompletion),
-            NumericOption(dialog, cfg, "Qutepart/AutoCompletion/Threshold", complWidget.sThreshold),
+                CheckableOption(dialog, cfg, "Qutepart/AutoCompletion/Enabled", complWidget.gbAutoCompletion),
+                NumericOption(dialog, cfg, "Qutepart/AutoCompletion/Threshold", complWidget.sThreshold),
 
-            CheckableOption(dialog, cfg, "Qutepart/Wrap/Enabled", longLinesWidget.gbWrapEnabled),
-            ChoiseOption(dialog, cfg, "Qutepart/Wrap/Mode",
-                         {longLinesWidget.rbWrapAtWord : "WrapAtWord",
-                          longLinesWidget.rbWrapAnywhere: "WrapAnywhere"}),
-        )
+                CheckableOption(dialog, cfg, "Qutepart/Wrap/Enabled", longLinesWidget.gbWrapEnabled),
+                ChoiseOption(dialog, cfg, "Qutepart/Wrap/Mode",
+                             {longLinesWidget.rbWrapAtWord: "WrapAtWord",
+                              longLinesWidget.rbWrapAnywhere: "WrapAnywhere"}),
+            )
 
         for option in options:
             dialog.appendOption(option)

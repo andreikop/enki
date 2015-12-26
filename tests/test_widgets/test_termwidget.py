@@ -33,6 +33,7 @@ class _BaseTest(base.TestCase):
 
 
 class Formatting(_BaseTest):
+
     def setupPalette(self, baseColorName, textColorName):
         palette = QApplication.instance().palette()
         palette.setColor(palette.Base, QColor(baseColorName))
@@ -43,7 +44,7 @@ class Formatting(_BaseTest):
         text = self.term._browser.toHtml()
         pStart = text.index('<p')
         pEnd = text.index('>', pStart)
-        text = text[pEnd+1:]
+        text = text[pEnd + 1:]
         bodyEnd = text.index('</p>')
         return text[:bodyEnd]
 
@@ -89,6 +90,7 @@ class Formatting(_BaseTest):
 
 
 class History(_BaseTest):
+
     def test_1(self):
         self.term.execCommand('foo')
         self.term.execCommand('bar')
@@ -107,7 +109,9 @@ class History(_BaseTest):
         clickAndCheck(Qt.Key_Down, 'baz')
         clickAndCheck(Qt.Key_Down, '')  # no more history, type new item
 
+
 class Lang(_BaseTest):
+
     def test_1(self):
         self.term.setLanguage('Python')
         self.assertEqual(self.term._edit.language(), 'Python')

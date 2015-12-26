@@ -38,15 +38,18 @@ except ImportError:
 
 # Utilities
 # =========
+
+
 def isHtmlFile(document):
     """Return True if document refers to an HTML file; return False otherwise.
     """
-    return ( document is not None and
-        document.qutepart.language() is not None and
-        'html' in document.qutepart.language().lower() and
-        # Return True if this is a Django HTML template;
-        # return False for HTML (PHP).
-        (not 'php' in document.qutepart.language().lower()) )
+    return (document is not None and
+            document.qutepart.language() is not None and
+            'html' in document.qutepart.language().lower() and
+            # Return True if this is a Django HTML template;
+            # return False for HTML (PHP).
+            (not 'php' in document.qutepart.language().lower()))
+
 
 def canUseCodeChat(filePath):
     """Return True if CodeChat can be used with ``filePath``; return False
@@ -54,13 +57,14 @@ def canUseCodeChat(filePath):
     """
     # CodeChat can preview a file if it's enabled and if that file's
     # name/extension is supported.
-    if ( CodeToRest is not None and core.config()['CodeChat']['Enabled']
-         and filePath ):
+    if (CodeToRest is not None and core.config()['CodeChat']['Enabled']
+            and filePath):
         filename = os.path.basename(filePath)
         for glob in SUPPORTED_GLOBS:
             if fnmatch.fnmatch(filename, glob):
                 return True
     return False
+
 
 def sphinxEnabledForFile(filePath):
     """Based on Sphinx settings under core.config()['Sphinx'], this function
@@ -69,11 +73,12 @@ def sphinxEnabledForFile(filePath):
     settings.
     """
     sphinxProjectPath = core.config()['Sphinx']['ProjectPath']
-    return ( filePath and
-           core.config()['Sphinx']['Enabled'] and
-           os.path.exists(core.config()['Sphinx']['ProjectPath']) and
-           os.path.normcase(sphinxProjectPath) ==
-             commonPrefix(filePath, sphinxProjectPath))
+    return (filePath and
+            core.config()['Sphinx']['Enabled'] and
+            os.path.exists(core.config()['Sphinx']['ProjectPath']) and
+            os.path.normcase(sphinxProjectPath) ==
+            commonPrefix(filePath, sphinxProjectPath))
+
 
 def commonPrefix(*dirs):
     """This function provides a platform-independent path commonPrefix. It
@@ -132,7 +137,8 @@ def commonPrefix(*dirs):
     # the current working directory. If not, return an absolute path.
     cwd = os.getcwd()
     return prefix if not prefix.startswith(cwd) \
-                  else prefix[len(cwd) + len(os.path.sep):]
+        else prefix[len(cwd) + len(os.path.sep):]
+
 
 def _getSphinxVersion(path):
     """Return the Sphinx version as a list of integer items.
@@ -161,9 +167,12 @@ def _getSphinxVersion(path):
 # GUIs
 # ====
 # This class implements the GUI for a combined CodeChat settings page.
+
+
 class CodeChatSettingsWidget(QWidget):
     """Insert the preview plugin as a page of the UISettings dialog.
     """
+
     def __init__(self, dialog):
         # Initialize the dialog, loading in the literate programming settings
         # GUI.
@@ -190,9 +199,12 @@ class CodeChatSettingsWidget(QWidget):
                                             self.cbCodeChat))
 
 # This class implements the GUI for a combined CodeChat / Sphinx settings page.
+
+
 class SphinxSettingsWidget(QWidget):
     """Insert the preview plugin as a page of the UISettings dialog.
     """
+
     def __init__(self, dialog):
         # Initialize the dialog, loading in the literate programming settings
         # GUI.
@@ -267,7 +279,7 @@ class SphinxSettingsWidget(QWidget):
         """Provide a directory chooser for the user to select a project path.
         """
         path = QFileDialog.getExistingDirectory(core.mainWindow(),
-            'Project path', self.leSphinxProjectPath.text())
+                                                'Project path', self.leSphinxProjectPath.text())
         if path:
             self.leSphinxProjectPath.setText(path)
             # Automatically set the builder output path to '_build\\html' under
@@ -278,7 +290,7 @@ class SphinxSettingsWidget(QWidget):
             # therefore presumabely wrong). If it's a relative path such as
             # ``_build\html``, then it's probably OK without changing.
             if (not self.leSphinxOutputPath.text()
-                or os.path.isabs(self.leSphinxOutputPath.text())):
+                    or os.path.isabs(self.leSphinxOutputPath.text())):
                 self.leSphinxOutputPath.setText(os.path.join(path, '_build',
                                                              'html'))
 
@@ -330,8 +342,8 @@ class SphinxSettingsWidget(QWidget):
                     self.gridLtNotAdvancedSettings.itemAt(i).widget().setVisible(False)
             # Enable advanced setting mode items
             self.lbSphinxEnableAdvMode.setText('<html><head/><body><p>' +
-            '<span style="text-decoration: underline;">Switch to Normal Mode' +
-            '</span></p></body></html>')
+                                               '<span style="text-decoration: underline;">Switch to Normal Mode' +
+                                               '</span></p></body></html>')
             self.lbSphinxCmdline.setVisible(True)
             self.leSphinxCmdline.setVisible(True)
             self.lbSphinxReference.setVisible(True)
@@ -342,8 +354,8 @@ class SphinxSettingsWidget(QWidget):
                     self.gridLtNotAdvancedSettings.itemAt(i).widget().setVisible(True)
             # Hide all advanced mode entries.
             self.lbSphinxEnableAdvMode.setText('<html><head/><body><p>' +
-              '<span style="text-decoration: underline;">Switch to Advanced Mode' +
-              '</span></p></body></html>')
+                                               '<span style="text-decoration: underline;">Switch to Advanced Mode' +
+                                               '</span></p></body></html>')
             self.lbSphinxCmdline.setVisible(False)
             self.leSphinxCmdline.setVisible(False)
             self.lbSphinxReference.setVisible(False)
@@ -357,6 +369,7 @@ class SphinxSettingsWidget(QWidget):
 class Plugin(QObject):
     """Plugin interface implementation.
     """
+
     def __init__(self):
         """Create and install the plugin
         """
@@ -365,15 +378,15 @@ class Plugin(QObject):
         self._dock = None
         self._saveAction = None
         self._dockInstalled = False
-        core.workspace().currentDocumentChanged.connect(self._onDocumentChanged) # Disconnected.
-        core.workspace().languageChanged.connect(self._onDocumentChanged) # Disconnected.
+        core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)  # Disconnected.
+        core.workspace().languageChanged.connect(self._onDocumentChanged)  # Disconnected.
 
         # Install our CodeChat page into the settings dialog.
         core.uiSettingsManager().aboutToExecute.connect(
-          self._onSettingsDialogAboutToExecute) # Disconnected.
+            self._onSettingsDialogAboutToExecute)  # Disconnected.
         # Update preview dock when the settings dialog (which contains the
         # CodeChat enable checkbox) is changed.
-        core.uiSettingsManager().dialogAccepted.connect(self._onDocumentChanged) # Disconnected.
+        core.uiSettingsManager().dialogAccepted.connect(self._onDocumentChanged)  # Disconnected.
 
         # Provide a "Set Sphinx Path" menu item.
         core.uiSettingsManager().dialogAccepted.connect(
@@ -399,9 +412,9 @@ class Plugin(QObject):
             core.config()['Sphinx']['OutputPath'] = os.path.join('_build',
                                                                  'html')
             core.config()['Sphinx']['AdvancedMode'] = False
-            core.config()['Sphinx']['Cmdline'] = ( 'sphinx-build -d ' +
-              os.path.join('_build','doctrees') + ' . ' +
-              os.path.join('_build', 'html') )
+            core.config()['Sphinx']['Cmdline'] = ('sphinx-build -d ' +
+                                                  os.path.join('_build', 'doctrees') + ' . ' +
+                                                  os.path.join('_build', 'html'))
             core.config().flush()
 
         self._setSphinxActionVisibility()
@@ -420,9 +433,9 @@ class Plugin(QObject):
         core.workspace().currentDocumentChanged.disconnect(self._onDocumentChanged)
         core.workspace().languageChanged.disconnect(self._onDocumentChanged)
         core.uiSettingsManager().aboutToExecute.disconnect(
-          self._onSettingsDialogAboutToExecute)
+            self._onSettingsDialogAboutToExecute)
         core.uiSettingsManager().dialogAccepted.disconnect(
-          self._onDocumentChanged)
+            self._onDocumentChanged)
         if self._dock:
             self._dock.closed.disconnect(self._onDockClosed)
             self._dock.shown.disconnect(self._onDockShown)
@@ -464,14 +477,13 @@ class Plugin(QObject):
         if self._dock is None:
             from enki.plugins.preview.preview import PreviewDock
             self._dock = PreviewDock()
-            self._dock.closed.connect(self._onDockClosed) # Disconnected.
-            self._dock.shown.connect(self._onDockShown) # Disconnected.
-
+            self._dock.closed.connect(self._onDockClosed)  # Disconnected.
+            self._dock.shown.connect(self._onDockShown)  # Disconnected.
 
             self._saveAction = QAction(QIcon(':enkiicons/save.png'),
                                        'Save Preview as HTML', self._dock)
             self._saveAction.setShortcut(QKeySequence("Alt+Shift+P"))
-            self._saveAction.triggered.connect(self._dock.onPreviewSave) # Disconnected.
+            self._saveAction.triggered.connect(self._dock.onPreviewSave)  # Disconnected.
 
         core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
 

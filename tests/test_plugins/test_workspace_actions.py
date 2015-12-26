@@ -21,6 +21,7 @@ from enki.core.core import core
 
 
 class Rename(base.TestCase):
+
     def test_action_enabled(self):
         action = core.actionManager().action("mFile/mFileSystem/aRename")
         core.workspace().closeAllDocuments()
@@ -143,6 +144,7 @@ class Rename(base.TestCase):
 
 
 class ToggleExecutable(base.TestCase):
+
     @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     def test_action_enabled(self):
         action = core.actionManager().action("mFile/mFileSystem/aToggleExecutable")

@@ -13,7 +13,9 @@ from enki.core.core import core
 _HEADER_SUFFIXES = [".h", ".hh", ".hpp", ".hxx", ".h++"]
 _IMPLEMENTATION_SUFFIXES = [".c", ".cc", ".cpp", ".cxx", ".c++"]
 
+
 class Plugin(QObject):
+
     def __init__(self):
         """Create and install the plugin
         """
@@ -41,7 +43,7 @@ class Plugin(QObject):
             if self._action is None:
                 self._action = core.actionManager().addAction("mNavigation/aHeaderImplementation",
                                                               "Switch C/C++ header/implementation",
-                                                              shortcut = 'Ctrl+Alt+I')
+                                                              shortcut='Ctrl+Alt+I')
                 self._action.triggered.connect(self._onTriggered)
             self._action.setVisible(True)
             self._action.setEnabled(self._getFileToSwitch() is not None)
@@ -53,13 +55,13 @@ class Plugin(QObject):
         """Check if file is a header
         """
         return any([filePath.endswith(suffix)
-                            for suffix in _HEADER_SUFFIXES])
+                    for suffix in _HEADER_SUFFIXES])
 
     def _isImplementation(self, filePath):
         """Check if file is a header
         """
         return any([filePath.endswith(suffix)
-                            for suffix in _IMPLEMENTATION_SUFFIXES])
+                    for suffix in _IMPLEMENTATION_SUFFIXES])
 
     def _tryFindFileOnFileSystem(self):
         """Try to find file on File system with the same path, but different suffix
@@ -68,17 +70,17 @@ class Plugin(QObject):
         filePathWithoutSuffix = filePath[:filePath.rindex('.')]
 
         if self._isHeader(filePath):
-            variants = [filePathWithoutSuffix + suffix \
-                            for suffix in _IMPLEMENTATION_SUFFIXES]
+            variants = [filePathWithoutSuffix + suffix
+                        for suffix in _IMPLEMENTATION_SUFFIXES]
         elif self._isImplementation(filePath):
-            variants = [filePathWithoutSuffix + suffix \
-                            for suffix in _HEADER_SUFFIXES]
+            variants = [filePathWithoutSuffix + suffix
+                        for suffix in _HEADER_SUFFIXES]
         else:  # oops, unknown file. Suffixes DB is not up to date
             variants = []
 
         existing = [path
-                        for path in variants \
-                            if os.path.isfile(path)]
+                    for path in variants
+                    if os.path.isfile(path)]
         if existing:
             return existing[0]
         else:
@@ -92,17 +94,17 @@ class Plugin(QObject):
         fileNameWithoutSuffix = fileName[:fileName.rindex('.')]
 
         if self._isHeader(fileName):
-            variants = [fileNameWithoutSuffix + suffix \
-                            for suffix in _IMPLEMENTATION_SUFFIXES]
+            variants = [fileNameWithoutSuffix + suffix
+                        for suffix in _IMPLEMENTATION_SUFFIXES]
         elif self._isImplementation(fileName):
-            variants = [fileNameWithoutSuffix + suffix \
-                            for suffix in _HEADER_SUFFIXES]
+            variants = [fileNameWithoutSuffix + suffix
+                        for suffix in _HEADER_SUFFIXES]
         else:  # oops, unknown file. Suffixes DB is not up to date
             variants = []
 
-        matchingDocuments = [document.filePath() \
-                                for document in core.workspace().documents() \
-                                    if document.fileName() in variants]
+        matchingDocuments = [document.filePath()
+                             for document in core.workspace().documents()
+                             if document.fileName() in variants]
         if matchingDocuments:
             return matchingDocuments[0]
         else:

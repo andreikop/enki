@@ -29,6 +29,7 @@ def _getFlake8Version(path):
 class SettingsWidget(QWidget):
     """Settings widget. Insertted as a page to UISettings
     """
+
     def __init__(self, *args):
         QWidget.__init__(self, *args)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Settings.ui'), self)

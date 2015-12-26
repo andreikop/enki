@@ -35,7 +35,6 @@ class CommandGotoLine(AbstractCommand):
         except ValueError:
             raise InvalidCmdArgs()
 
-
     def isReadyToExecute(self):
         """Check if command is complete and ready to execute
         """
@@ -119,7 +118,7 @@ class CommandOpen(AbstractCommand):
         if self._isGlob(self._path):
             files = glob.glob(os.path.expanduser(self._path))
             return files and \
-                   all([os.path.isfile(f) for f in files])
+                all([os.path.isfile(f) for f in files])
         else:
             if not self._path:
                 return False
@@ -151,7 +150,7 @@ class CommandOpen(AbstractCommand):
                 if self._line is None:
                     core.workspace().goTo(path)
                 else:
-                    core.workspace().goTo(path, line = self._line - 1)
+                    core.workspace().goTo(path, line=self._line - 1)
 
         else:  # file may be not existing
             path = os.path.expanduser(self._path)
@@ -164,7 +163,7 @@ class CommandOpen(AbstractCommand):
                 if self._line is None:
                     core.workspace().goTo(path)
                 else:
-                    core.workspace().goTo(path, line = self._line - 1)
+                    core.workspace().goTo(path, line=self._line - 1)
             else:
                 core.workspace().createEmptyNotSavedDocument(path)
 
@@ -225,7 +224,7 @@ class CommandOpenProject(AbstractCommand):
             return False
 
         return os.path.exists(fp) and \
-               os.path.isdir(fp)
+            os.path.isdir(fp)
 
     def execute(self):
         """Execute the command
@@ -301,6 +300,7 @@ _CMD_CLASSES = (CommandGotoLine, CommandOpen, CommandOpenProject, CommandSaveAs)
 class Plugin:
     """Plugin interface
     """
+
     def __init__(self):
         for cmdClass in _CMD_CLASSES:
             core.locator().addCommandClass(cmdClass)

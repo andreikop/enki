@@ -10,17 +10,18 @@ This class adds next features to QDockWidget:
 
 from PyQt5.QtCore import pyqtSignal, QSize, Qt
 from PyQt5.QtWidgets import QAction, QDockWidget, \
-                        QShortcut, QSizePolicy, QStyle, QStyleOptionButton, \
-                        QStyleOptionButton, QToolBar, QWidget
+    QShortcut, QSizePolicy, QStyle, QStyleOptionButton, \
+    QStyleOptionButton, QToolBar, QWidget
 from PyQt5.QtGui import QFontMetrics, QIcon, \
-                        QKeySequence, QPainter, \
-                        QTransform
+    QKeySequence, QPainter, \
+    QTransform
 
 
 class _TitleBar(QToolBar):
     """Widget title bar.
     Contains standard dock widget buttons and allows to add new buttons and widgets
     """
+
     def __init__(self, parent, *args):
         QToolBar.__init__(self, parent, *args)
 

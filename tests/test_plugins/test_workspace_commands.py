@@ -23,6 +23,7 @@ PROJ_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 
 
 
 class Test(base.TestCase):
+
     def _execCommand(self, text):
         def inDialogFunc(dialog):
             self.keyClicks(text)

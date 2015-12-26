@@ -9,11 +9,13 @@ from enki.core.core import core
 _MAX_INDENT = 8
 _MIN_INDENT = 2
 
+
 class Plugin:
     """Plugin interface
     """
+
     def __init__(self):
-        #autodetect indent, need
+        # autodetect indent, need
         core.workspace().documentOpened.connect(self._onDocumentOpened)
         core.workspace().languageChanged.connect(self._onLanguageChanged)
 
@@ -38,7 +40,7 @@ class Plugin:
         """Delect indentation automatically and apply detected mode
         Handler for signal from the workspace
         """
-        #TODO improve algorighm sometimes to skip comments
+        # TODO improve algorighm sometimes to skip comments
 
         if not core.config()["Qutepart"]["Indentation"]["AutoDetect"]:
             return
@@ -84,7 +86,7 @@ class Plugin:
         if not popularityTable:  # no indents. Empty file?
             return  # give up
 
-        sortedIndents = sorted(iter(popularityTable.items()), key = lambda item: item[1], reverse = True)
+        sortedIndents = sorted(iter(popularityTable.items()), key=lambda item: item[1], reverse=True)
         theMostPopular = sortedIndents[0]
 
         if len(sortedIndents) >= 2:

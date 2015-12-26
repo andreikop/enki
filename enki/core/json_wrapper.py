@@ -14,6 +14,7 @@ import sys
 
 from enki.core.core import core
 
+
 def load(filePath, dataName, defaultValue):
     """Try to load data from JSON file.
     If something goes wrong - shows warnings to user. But, not if file not exists.

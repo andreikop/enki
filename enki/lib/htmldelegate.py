@@ -4,10 +4,10 @@ htmldelegate --- QStyledItemDelegate delegate. Draws HTML
 """
 
 from PyQt5.QtWidgets import QApplication, \
-                        QStyledItemDelegate, QStyle, QStyleOptionViewItem, \
-                        QWidget
+    QStyledItemDelegate, QStyle, QStyleOptionViewItem, \
+    QWidget
 from PyQt5.QtGui import QAbstractTextDocumentLayout, \
-                        QTextDocument, QPalette
+    QTextDocument, QPalette
 from PyQt5.QtCore import QSize
 
 
@@ -34,6 +34,7 @@ class HTMLDelegate(QStyledItemDelegate):
 
     http://stackoverflow.com/questions/1956542/how-to-make-item-view-render-rich-html-text-in-qt/1956781#1956781
     """
+
     def __init__(self, parent=None):
         if isinstance(parent, QWidget):
             self._font = parent.font()

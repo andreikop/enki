@@ -4,7 +4,7 @@ Contains tag model class
 
 import fnmatch
 
-from PyQt5.QtCore import pyqtSignal, Qt, QEvent, QTimer,  QAbstractItemModel, QModelIndex
+from PyQt5.QtCore import pyqtSignal, Qt, QEvent, QTimer, QAbstractItemModel, QModelIndex
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QLabel, QTreeView, QWidget
 from PyQt5.QtGui import QBrush, QColor, QIcon
 
@@ -196,14 +196,14 @@ class _TagModel(QAbstractItemModel):
             if tag.lineNumber == number:
                 return self.createIndex(row, 0, tag)
             elif tag.lineNumber > number and \
-                 prevTag is not None and \
-                 prevTag.lineNumber <= number:
+                    prevTag is not None and \
+                    prevTag.lineNumber <= number:
                 return self.createIndex(prevRow, 0, prevTag)
             else:
                 prevRow, prevTag = row, tag
         else:
             if prevTag is not None and \
-               prevTag.lineNumber <= number: # the last tag is current
+               prevTag.lineNumber <= number:  # the last tag is current
                 return self.createIndex(prevRow, 0, prevTag)
 
         return QModelIndex()
@@ -346,7 +346,7 @@ class NavigatorDock(DockWidget):
             if index.isValid():
                 self._tree.setCurrentIndex(index)
 
-    def eventFilter(self, object_, event ):
+    def eventFilter(self, object_, event):
         if object_ is self._tree:
             if event.type() == QEvent.KeyPress:
                 if event.key() == Qt.Key_Backspace:
@@ -356,7 +356,7 @@ class NavigatorDock(DockWidget):
                         self._onTreeBackspace()
                     return True
                 elif event.text() and \
-                     (event.text().isalnum() or event.text() == '_'):
+                        (event.text().isalnum() or event.text() == '_'):
                     self._onTreeTextTyped(event.text())
                     return True
         elif object_ is self._filterEdit:

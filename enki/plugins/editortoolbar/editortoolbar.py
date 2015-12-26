@@ -50,7 +50,6 @@ class VimModeIndicator(QLabel):
             if qpart.vimModeEnabled:
                 self._onIndicationChanged(*doc.qutepart.vimModeIndication)
 
-
     def _onIndicationChanged(self, color, text):
         palette = self.palette()
         palette.setColor(QPalette.Window, color)
@@ -72,9 +71,9 @@ class EolIndicatorAndSwitcher(QToolButton):
 
     It draws menu with EOL choise and switches EOL
     """
-    _ICON_FOR_MODE = {'\r\n'   : "winEol.png",
-                      '\r'     : "macEol.png",
-                      '\n'     : "unixEol.png"}
+    _ICON_FOR_MODE = {'\r\n': "winEol.png",
+                      '\r': "macEol.png",
+                      '\n': "unixEol.png"}
 
     def __init__(self, parent):
         QToolButton.__init__(self, parent)
@@ -96,7 +95,7 @@ class EolIndicatorAndSwitcher(QToolButton):
         """Current document on workspace has been changed
         """
         if currentDocument is not None:
-            self._setEolMode( currentDocument.qutepart.eol )
+            self._setEolMode(currentDocument.qutepart.eol)
             self.setEnabled(True)
         else:
             self._setEolMode(None)
@@ -147,6 +146,7 @@ class EolIndicatorAndSwitcher(QToolButton):
 class _IndentationDialog(QDialog):
     """Indentation dialog appears, if indentation label on the status bar clicked
     """
+
     def __init__(self, parent, document):
         QDialog.__init__(self, parent)
         self._document = document
@@ -202,8 +202,8 @@ class IndentIndicatorAndSwitcher(QToolButton):
         """Current document on workspace has been changed
         """
         if currentDocument is not None:
-            self._setIndentMode( currentDocument.qutepart.indentWidth,
-                                 currentDocument.qutepart.indentUseTabs )
+            self._setIndentMode(currentDocument.qutepart.indentWidth,
+                                currentDocument.qutepart.indentUseTabs)
         else:
             self._clearIndentMode()
 
@@ -241,6 +241,7 @@ class IndentIndicatorAndSwitcher(QToolButton):
 class PositionIndicator(QToolButton):
     """Indicator, which shows text "Line: yy Column: xx"
     """
+
     def __init__(self, parent):
         QToolButton.__init__(self, parent)
         self.setToolTip(self.tr("Cursor position"))
@@ -268,7 +269,7 @@ class PositionIndicator(QToolButton):
         """
         if self._passedUpdate:
             document = core.workspace().currentDocument()
-            self._setCursorPosition( *document.qutepart.cursorPosition)
+            self._setCursorPosition(*document.qutepart.cursorPosition)
             self._passedUpdate = False
 
     def _onCursorPositionChanged(self, document):

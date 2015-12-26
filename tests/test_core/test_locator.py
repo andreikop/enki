@@ -13,6 +13,7 @@ from enki.core.locator import splitLine
 
 
 class Test(unittest.TestCase):
+
     def test_1(self):
         """ Parse words
         """

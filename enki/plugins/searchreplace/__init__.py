@@ -7,6 +7,7 @@ Contains search dialog and search/replace in file/directory functionality
 
 from . import controller
 
+
 class Plugin():
     """Main class of the plugin. Installs and uninstalls plugin to the system
     """

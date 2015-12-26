@@ -19,6 +19,7 @@ from qutepart import Qutepart
 class _TextEdit(Qutepart):
     """Text editor class, which implements good size hints
     """
+
     def __init__(self, parent, font):
         Qutepart.__init__(self, parent)
         self._sizeHintLabel = QLabel("asdf")
@@ -81,7 +82,7 @@ class TermWidget(QWidget):
         self._edit.terminate()
 
     def eventFilter(self, obj, event):
-        pass # suppress docsting for non-public method
+        pass  # suppress docsting for non-public method
         """QWidget.eventFilter implementation. Catches _edit key pressings. Processes some of them
         """
         if event.type() == QEvent.KeyPress:
@@ -94,11 +95,11 @@ class TermWidget(QWidget):
                     self._onHistoryPrev()
                     return True
             elif event.matches(QKeySequence.MoveToNextPage) or \
-                 event.matches(QKeySequence.MoveToPreviousPage):
+                    event.matches(QKeySequence.MoveToPreviousPage):
                 self._browser.keyPressEvent(event)
                 return True
             elif event.matches(QKeySequence.InsertParagraphSeparator):
-                 return self._editNewLineEvent()
+                return self._editNewLineEvent()
 
         return QWidget.eventFilter(self, obj, event)
 
@@ -225,7 +226,7 @@ class TermWidget(QWidget):
 
         if self.isCommandComplete(text):
             self.execCommand(text)
-            return True # processing finished
+            return True  # processing finished
         else:
             return False  # let the editor process the event
 

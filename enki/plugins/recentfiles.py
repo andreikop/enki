@@ -14,16 +14,18 @@ import enki.core.json_wrapper
 _FILE_PATH = os.path.join(CONFIG_DIR, 'recent_files.json')
 _MAX_SIZE = 100
 
+
 class Plugin(QObject):
     """Plugin interface
     """
+
     def __init__(self):
         QObject.__init__(self)
         self._recentFileActions = []
         self._recent = enki.core.json_wrapper.load(_FILE_PATH, 'recent file list', [])
         self._undoClose = core.actionManager().addAction("mFile/mUndoClose/aUndoClose",
                                                          "Undo close",
-                                                         shortcut = 'Shift+Ctrl+U')
+                                                         shortcut='Shift+Ctrl+U')
         core.workspace().documentClosed.connect(self._onDocumentClosed)
         self._undoClose.triggered.connect(self._onUndoClose)
         menu = core.actionManager().action("mFile/mUndoClose").menu()
@@ -55,11 +57,11 @@ class Plugin(QObject):
     def _existingNotOpenedRecents(self):
         """List of existing recent files
         """
-        opened = set([document.filePath() \
-                        for document in core.workspace().documents()])
-        return [path for path in self._recent \
-                    if os.path.exists(path) and \
-                    not path in opened]
+        opened = set([document.filePath()
+                      for document in core.workspace().documents()])
+        return [path for path in self._recent
+                if os.path.exists(path) and
+                not path in opened]
 
     def _updateUndoCloseAction(self):
         """Update action text and enabled state

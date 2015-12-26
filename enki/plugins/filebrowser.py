@@ -9,11 +9,11 @@ import operator
 import logging
 
 from PyQt5.QtCore import QDir, QModelIndex, QObject, Qt, QTimer, \
-                         pyqtSignal
+    pyqtSignal
 from PyQt5.QtWidgets import QAction, QCompleter, QDirModel, \
-                        QFrame, QFileSystemModel, \
-                        QComboBox, \
-                        QShortcut, QTreeView, QVBoxLayout, QWidget
+    QFrame, QFileSystemModel, \
+    QComboBox, \
+    QShortcut, QTreeView, QVBoxLayout, QWidget
 from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5.QtCore import QSortFilterProxyModel, QItemSelectionModel
 
@@ -59,16 +59,17 @@ class FileBrowserFilteredModel(QSortFilterProxyModel):
     """Model filters out files using negative filter.
     i.e. does not show .o .pyc and other temporary files
     """
+
     def __init__(self, parent):
         QSortFilterProxyModel.__init__(self, parent)
         core.fileFilter().regExpChanged.connect(self.invalidate)
 
-    def columnCount(self, parent = QModelIndex()):  # pylint: disable=W0613
+    def columnCount(self, parent=QModelIndex()):  # pylint: disable=W0613
         """Column count for the model
         """
         return 1
 
-    def hasChildren(self, parent = QModelIndex()):
+    def hasChildren(self, parent=QModelIndex()):
         """Check if node has children. QAbstractItemModel standard method
         """
         return self.sourceModel().hasChildren(self.mapToSource(parent))
@@ -76,7 +77,7 @@ class FileBrowserFilteredModel(QSortFilterProxyModel):
     def filterAcceptsRow(self, sourceRow, sourceParent):
         """ Main method. Check if file matches filter
         """
-        if  sourceParent == QModelIndex():
+        if sourceParent == QModelIndex():
             return True
         return not core.fileFilter().regExp().match(sourceParent.child(sourceRow, 0).data())
 
@@ -176,9 +177,9 @@ class SmartRecents(QObject):
         Emit this list
         """
         # Popular directories
-        history = [path for path in self._dirsByPopularity() \
-                        if os.path.isdir(path) and \
-                           path != self._currDir]
+        history = [path for path in self._dirsByPopularity()
+                   if os.path.isdir(path) and
+                   path != self._currDir]
         # leave not more than MAX_RECENTS_SIZE
         if len(history) > self.MAX_RECENTS_SIZE:
             history = history[:self.MAX_RECENTS_SIZE]
@@ -192,6 +193,7 @@ class SmartRecents(QObject):
 class SmartHistory(QObject):
     """Class remembers file browser history and manages Back and Forward buttons
     """
+
     def __init__(self, fileBrowser):
         QObject.__init__(self)
         self._fileBrowser = fileBrowser
@@ -202,16 +204,16 @@ class SmartHistory(QObject):
 
         fileBrowser.titleBarWidget().addSeparator()
         self._aBack = QAction(QIcon(':enkiicons/previous.png'),
-                                self.tr("Back"),
-                                self)
+                              self.tr("Back"),
+                              self)
         self._aBack.setShortcut('Alt+Left')
         fileBrowser.titleBarWidget().addAction(self._aBack)
         core.actionManager().addAction("mNavigation/mFileBrowser/aBack", self._aBack)
         self._aBack.triggered.connect(self._onTbBackTriggered)
 
         self._aForward = QAction(QIcon(':enkiicons/next.png'),
-                                    self.tr("Forward"),
-                                    self)
+                                 self.tr("Forward"),
+                                 self)
         self._aForward.setShortcut('Alt+Right')
         fileBrowser.titleBarWidget().addAction(self._aForward)
         core.actionManager().addAction("mNavigation/mFileBrowser/aForward", self._aForward)
@@ -249,7 +251,7 @@ class SmartHistory(QObject):
         """
         if  self._history and \
                 self._history[self._historyIndex] == self._currDir:
-            return # Do nothing, if moved back or forward
+            return  # Do nothing, if moved back or forward
 
         if (self._historyIndex + 1) < len(self._history):  # not on the top of the stack
             # Cut history
@@ -306,6 +308,7 @@ class _FileSystemModel(QFileSystemModel):
     """Extended QFileSystemModel.
     Shows full path on tool tips
     """
+
     def __init__(self, *args):
         QFileSystemModel.__init__(self, *args)
 
@@ -382,7 +385,7 @@ class Tree(QTreeView):
         index = self._filteredModel.mapToSource(idx)
         path = self._dirsModel.filePath(index)
 
-        if  os.path.isdir(path) :
+        if os.path.isdir(path):
             self._fileBrowser.setCurrentPath(path)
         else:
             self._fileActivated.emit()
@@ -457,7 +460,7 @@ class Tree(QTreeView):
                 self._timerAttempts -= 1
                 if not self._timerAttempts:
                     self._setFocusTimer.stop()
-        else: # nothing to do, have focus
+        else:  # nothing to do, have focus
             self._setFocusTimer.stop()
 
     def setCurrentPath(self, path):
@@ -485,6 +488,7 @@ class ComboBox(QComboBox):
     """File browser combo box.
     Widget and functionality
     """
+
     def __init__(self, fileBrowser):
         QComboBox.__init__(self, fileBrowser)
 
@@ -499,9 +503,9 @@ class ComboBox(QComboBox):
         self._completionModel = QDirModel(self.lineEdit())
         self._completionModel.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)
         self.lineEdit().setCompleter(QCompleter(self._completionModel,
-                                               self.lineEdit()))
-        #TODO QDirModel is deprecated but QCompleter does not yet handle
-        #QFileSystemModel - please update when possible.
+                                                self.lineEdit()))
+        # TODO QDirModel is deprecated but QCompleter does not yet handle
+        # QFileSystemModel - please update when possible.
         self._count = 0
 
         # Show popup action

@@ -20,8 +20,8 @@ class Test(base.TestCase):
         self._doc2 = self.createFile('file2.txt', 'fdsa')
 
     def _sleepAndCheck(self, sleep,
-                        doc1_modified, doc1_removed,
-                        doc2_modified, doc2_removed):
+                       doc1_modified, doc1_removed,
+                       doc2_modified, doc2_removed):
         QTest.qWait(sleep * 1000)
         self.assertEqual(self._doc1._externallyModified, doc1_modified)
         self.assertEqual(self._doc1._externallyRemoved, doc1_removed)

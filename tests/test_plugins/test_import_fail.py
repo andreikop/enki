@@ -24,7 +24,10 @@ from import_fail import ImportFail
 #
 # ImportFail tests
 # ================
+
+
 class TestImportFail(unittest.TestCase):
+
     def test_1(self):
         """ Make sure ImportFail causes an exception for a fail_name.
         """
@@ -67,6 +70,7 @@ class TestImportFail(unittest.TestCase):
     def test_6(self, _reload):
         """Check that reload is called in the correct context."""
         class ImportTester(object):
+
             def __init__(self):
                 # Save a list of success/failure of an import.
                 self.import_success = []

@@ -68,7 +68,7 @@ class BufferedPopen:
         self._mustDie = False
         self._inThread.start()
         self._outThread.start()
-        #self._errThread.start()
+        # self._errThread.start()
 
     def stop(self):
         """Stop the process

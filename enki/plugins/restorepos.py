@@ -14,13 +14,16 @@ import enki.core.json_wrapper
 _FILE_PATH = os.path.join(CONFIG_DIR, 'lastpos.json')
 _MAX_HISTORY_SIZE = 1024
 
+
 class Plugin:
     """Plugin interface
     """
+
     def __init__(self):
         core.workspace().documentOpened.connect(self._onDocumentOpened)
         core.workspace().documentClosed.connect(self._onDocumentClosed)
-        self._positions = enki.core.json_wrapper.load(_FILE_PATH, 'cursor positions', {})  # { file path: (lasttime, position)}
+        self._positions = enki.core.json_wrapper.load(
+            _FILE_PATH, 'cursor positions', {})  # { file path: (lasttime, position)}
 
     def del_(self):
         """Explicitly called destructor
@@ -34,7 +37,7 @@ class Plugin:
             # construct list of turples (path, time, pos)
             positionsAsList = [(item[0], item[1][0], item[1][1]) for item in positions.items()]
             # sort by time
-            positionsAsList = sorted(positionsAsList, key = lambda item: item[1], reverse = True)
+            positionsAsList = sorted(positionsAsList, key=lambda item: item[1], reverse=True)
             # leave only last 1000
             positionsAsList = positionsAsList[:_MAX_HISTORY_SIZE]
             # convert to tuple again

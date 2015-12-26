@@ -88,9 +88,9 @@ class PreviewSync(QObject):
         if findApproxTextInTarget:
             self._cursorMovementTimer.stop()
             core.workspace().cursorPositionChanged.disconnect(
-              self._onCursorPositionChanged)
+                self._onCursorPositionChanged)
             core.workspace().currentDocumentChanged.disconnect(
-              self._onDocumentChanged)
+                self._onDocumentChanged)
             # Shut down the background sync. If a sync was already in progress,
             # then discard its output, since that output might not come until
             # after this routine finishes and this class is not usable. Adding
@@ -247,7 +247,7 @@ class PreviewSync(QObject):
     #   left - Left of the selection, measured from the web page's origin. In pixels.
     def _webCursorCoords(self):
         res = self._dock._widget.webView.page().mainFrame(). \
-          evaluateJavaScript('selectionAnchorCoords();')
+            evaluateJavaScript('selectionAnchorCoords();')
         # See if a 3-element tuple is returned. Null is returned if the
         # selection is empty.
         if not res:
@@ -481,7 +481,7 @@ class PreviewSync(QObject):
         # signal when a web page is loaded. When this happens, reinsert our
         # onclick JavaScript.
         self._dock._widget.webView.page().mainFrame(). \
-          javaScriptWindowObjectCleared.connect(self._onJavaScriptCleared)
+            javaScriptWindowObjectCleared.connect(self._onJavaScriptCleared)
 
     def _webTextContent(self):
         """Return the ``textContent`` of the entire web page. This differs from
@@ -491,7 +491,7 @@ class PreviewSync(QObject):
         sync operations.
         """
         return (self._dock._widget.webView.page().mainFrame().
-          evaluateJavaScript('document.body.textContent.toString()'))
+                evaluateJavaScript('document.body.textContent.toString()'))
 
     def _onWebviewClick(self, webIndex):
         """Per item 3 above, this is called when the user clicks in the web view. It
@@ -625,7 +625,7 @@ class PreviewSync(QObject):
         # Therefore, finding ways to make this faster or run it in another
         # thread should significantly improve the GUI's responsiveness.
         self._runLatest.start(self._movePreviewPaneToIndex,
-          findApproxTextInTarget, qp.text, qp.textCursor().position(), txt)
+                              findApproxTextInTarget, qp.text, qp.textCursor().position(), txt)
         if cProfile:
             print(('Time before: ' + str(time() - self._startTime)))
 

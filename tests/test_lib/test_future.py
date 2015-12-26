@@ -30,6 +30,8 @@ from enki.lib.future import AsyncController, Future, RunLatest
 # Test helpers
 # ============
 # A helper class to signal when its method function is executed.
+
+
 class Emitter(QObject):
     bing = pyqtSignal()
 
@@ -53,6 +55,8 @@ class Emitter(QObject):
             self.bing.emit()
 
 # Emit a signal afte receiving three unique signals.
+
+
 class SignalCombiner(QObject):
     allEmitted = pyqtSignal()
 
@@ -68,6 +72,8 @@ class SignalCombiner(QObject):
 #
 # Unit tests
 # ==========
+
+
 class TestAsyncController(unittest.TestCase):
     # Tuples of AsyncController params to test over.
     syncPoolAndThread = ('Sync', 'QThread', 0, 1, 4)
@@ -83,6 +89,7 @@ class TestAsyncController(unittest.TestCase):
                 # gotHere must be a list in order to f to change it in a way
                 # that is visible outside of f.
                 gotHere = [False]
+
                 def f():
                     gotHere[0] = True
                 future = ac._wrap(None, f)
@@ -135,6 +142,7 @@ class TestAsyncController(unittest.TestCase):
         # threads.
         with AsyncController(2) as ac:
             q = Queue()
+
             def f():
                 q.get()
                 return QThread.currentThread()
@@ -203,19 +211,19 @@ class TestAsyncController(unittest.TestCase):
                 # the ``with`` statement, so 'Sync' raises an exception but this
                 # is discarded. For simplicity, skip this test case for now.
                 with self.assertRaises(TypeError), WaitForSignal(em.bing, 1000,
-                  printExcTraceback=False):
+                                                                 printExcTraceback=False):
                     ac.start(em.g, f)
 
                 # Make sure that the exception is still raised even if g doesn't
                 # check for it.
                 with self.assertRaises(TypeError), WaitForSignal(em.bing, 1000,
-                  printExcTraceback=False):
+                                                                 printExcTraceback=False):
                     ac.start(lambda result: None, f)
 
                 # Make sure that the exception is still raised even there is no
                 # g to check for it.
                 with self.assertRaises(TypeError), WaitForSignal(em.bing, 1000,
-                  printExcTraceback=False):
+                                                                 printExcTraceback=False):
                     ac.start(None, f)
 
     # Verify that if ``f`` is launched in a thread, ``g`` will be run in that
@@ -223,6 +231,7 @@ class TestAsyncController(unittest.TestCase):
     def test_10(self):
         with AsyncController('QThread') as ac:
             em1 = Emitter()
+
             def f1():
                 ac.start(em1.g, lambda: QThread.currentThread())
             with WaitForSignal(em1.bing, 1000):
@@ -236,6 +245,7 @@ class TestAsyncController(unittest.TestCase):
         # threads.
         with AsyncController(2) as ac:
             em2 = Emitter()
+
             def f2():
                 future = ac.start(em2.g, lambda x: x, QThread.currentThread())
                 # The doneSignal won't be processed without an event loop. A
@@ -254,6 +264,7 @@ class TestAsyncController(unittest.TestCase):
             with AsyncController(_) as ac:
                 q1a = Queue()
                 q1b = Queue()
+
                 def f1():
                     q1b.put(None)
                     q1a.get()
@@ -280,6 +291,7 @@ class TestAsyncController(unittest.TestCase):
             with AsyncController(_) as ac:
                 q1a = Queue()
                 q1b = Queue()
+
                 def f1():
                     q1b.put(None)
                     q1a.get()
@@ -336,6 +348,7 @@ class TestAsyncController(unittest.TestCase):
             # Start a job, keeping it running.
             q1a = Queue()
             q1b = Queue()
+
             def f1():
                 q1b.put(None)
                 q1a.get()
@@ -365,11 +378,12 @@ class TestAsyncController(unittest.TestCase):
             # Start a job.
             q1a = Queue()
             q1b = Queue()
+
             def f1():
                 q1b.put(None)
                 q1a.get()
             em1 = Emitter('em1 should never be called by {}'.format(_),
-                              self.assertEqual)
+                          self.assertEqual)
             future1 = rl.start(em1.g, f1)
             q1b.get()
             self.assertEqual(future1.state, Future.STATE_RUNNING)

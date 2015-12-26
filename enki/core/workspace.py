@@ -34,6 +34,7 @@ class _UISaveFiles(QDialog):
     """Save files dialog.
     Shows checkable list of not saved files.
     """
+
     def __init__(self, workspace, documents):
         super(_UISaveFiles, self).__init__(workspace)
         self.cancelled = False
@@ -46,17 +47,17 @@ class _UISaveFiles(QDialog):
             name = document.fileName()
             if name is None:
                 name = 'untitled'
-            item = QListWidgetItem( name, self.listWidget )
+            item = QListWidgetItem(name, self.listWidget)
             if document.filePath() is not None:
-                item.setToolTip( document.filePath() )
-            item.setCheckState( Qt.Checked )
+                item.setToolTip(document.filePath())
+            item.setCheckState(Qt.Checked)
 
         # Retitle buttons, add first letter shortcuts for them.
         bb = self.buttonBox
         self._shortcut = (
-          self._firstLetterShortcut(bb.Discard, 'close &Without saving'),
-          self._firstLetterShortcut(bb.Cancel, '&Cancel close'),
-          self._firstLetterShortcut(bb.Save, '&Save checked') )
+            self._firstLetterShortcut(bb.Discard, 'close &Without saving'),
+            self._firstLetterShortcut(bb.Cancel, '&Cancel close'),
+            self._firstLetterShortcut(bb.Save, '&Save checked'))
 
         self.buttonBox.button(QDialogButtonBox.Cancel).setFocus()
 
@@ -93,7 +94,7 @@ class _UISaveFiles(QDialog):
         stButtton = self.buttonBox.standardButton(button)
         if stButtton == QDialogButtonBox.Save:
             for i in range(self.listWidget.count()):
-                if  self.listWidget.item( i ).checkState() != Qt.Unchecked:
+                if self.listWidget.item(i).checkState() != Qt.Unchecked:
                     saved = self._documents[i].saveFile()
                     if not saved:
                         self.reject()
@@ -302,7 +303,7 @@ class Workspace(QStackedWidget):
             if filePath is None:
                 filePath = 'untitled'
             elif core.project().path() is not None and \
-                 filePath.startswith(core.project().path()):
+                    filePath.startswith(core.project().path()):
                 filePath = os.path.relpath(filePath, core.project().path())
 
             if document.qutepart.document().isModified():
@@ -321,16 +322,16 @@ class Workspace(QStackedWidget):
 
         self._mainWindow().setWindowTitle(title)
 
-    def eventFilter( self, obj, event ):
+    def eventFilter(self, obj, event):
         pass  # suppress docstring for non-public method
         """
         Handler for QObject events of children
         """
-        if  obj.isWidgetType() :
+        if obj.isWidgetType():
             document = obj
-            if  event.type() == QEvent.Close:
+            if event.type() == QEvent.Close:
                 event.ignore()
-                self.closeDocument( document )
+                self.closeDocument(document)
                 return True
 
         return super(Workspace, self).eventFilter(obj, event)
@@ -389,10 +390,10 @@ class Workspace(QStackedWidget):
         """
         return self.currentWidget()
 
-    def setCurrentDocument( self, document ):
+    def setCurrentDocument(self, document):
         """Select active (focused and visible) document form list of opened documents
         """
-        self.setCurrentWidget( document )
+        self.setCurrentWidget(document)
 
     def _activeDocumentByIndex(self, index):
         """Activate document by it's index in the list of documents
@@ -408,7 +409,6 @@ class Workspace(QStackedWidget):
         curIndex = documents.index(self.currentDocument())
         nextIndex = (curIndex + 1) % len(documents)
         self._activeDocumentByIndex(nextIndex)
-
 
     def activatePreviousDocument(self):
         """Activate previous document in the list
@@ -426,7 +426,7 @@ class Workspace(QStackedWidget):
         Used if user has finished work with some dialog, and, probably, want's to edit text
         """
         document = self.currentDocument()
-        if  document :
+        if document:
             document.setFocus()
 
     def goTo(self, filePath, absPos=None, line=None, column=None, selectionLength=None):
@@ -457,33 +457,35 @@ class Workspace(QStackedWidget):
             document.absSelectedPosition = (document.qutepart.absCursorPosition,
                                             document.qutepart.absCursorPosition + selectionLength)
 
-    def _handleDocument( self, document ):
+    def _handleDocument(self, document):
         """Add document to the workspace. Connect signals
         """
         # update file menu
         document.qutepart.document().modificationChanged.connect(self._updateMainWindowTitle)
 
         # Create lambda functions, which retransmit conveniense signals, and connect it to document signals
-        document.qutepart.document().modificationChanged.connect(lambda modified: self.modificationChanged.emit(document, modified))
+        document.qutepart.document().modificationChanged.connect(
+            lambda modified: self.modificationChanged.emit(document, modified))
         document.qutepart.cursorPositionChanged.connect(lambda: self.cursorPositionChanged.emit(document))
         document.qutepart.textChanged.connect(lambda: self.textChanged.emit(document))
         document.qutepart.languageChanged.connect(lambda name: self.languageChanged.emit(document, name))
         document.qutepart.indentWidthChanged.connect(lambda width: self.indentWidthChanged.emit(document, width))
-        document.qutepart.indentUseTabsChanged.connect(lambda useTabs: self.indentUseTabsChanged.emit(document, useTabs))
+        document.qutepart.indentUseTabsChanged.connect(
+            lambda useTabs: self.indentUseTabsChanged.emit(document, useTabs))
         document.qutepart.eolChanged.connect(lambda eol: self.eolChanged.emit(document, eol))
 
         # add to workspace
-        document.installEventFilter( self )
+        document.installEventFilter(self)
 
-        self.documentOpened.emit( document )
+        self.documentOpened.emit(document)
 
-        self.addWidget( document )
+        self.addWidget(document)
 
-    def _unhandleDocument( self, document ):
+    def _unhandleDocument(self, document):
         """Remove document from the workspace. Disconnect signals
         """
         # remove from workspace
-        document.removeEventFilter( self )
+        document.removeEventFilter(self)
         self.removeWidget(document)
 
     @staticmethod
@@ -496,8 +498,8 @@ class Workspace(QStackedWidget):
 
         if hasattr(os.path, "samefile"):
             return os.path.isfile(pathA) and \
-                   os.path.isfile(pathB) and \
-                   os.path.samefile(pathA, pathB)
+                os.path.isfile(pathB) and \
+                os.path.samefile(pathA, pathB)
         else:  # os.path.samefile not available
             return os.path.normpath(pathA) == os.path.normpath(pathB)
 
@@ -516,7 +518,7 @@ class Workspace(QStackedWidget):
         # check if file is already opened
         alreadyOpenedDocument = self.findDocumentForPath(filePath)
         if alreadyOpenedDocument is not None:
-            self.setCurrentDocument( alreadyOpenedDocument )
+            self.setCurrentDocument(alreadyOpenedDocument)
             return alreadyOpenedDocument
 
         # Check if exists, get stat
@@ -537,11 +539,10 @@ class Workspace(QStackedWidget):
 
         # Check if too big
         if statInfo.st_size > _MAX_SUPPORTED_FILE_SIZE:
-            msg = ("<html>" + \
-                   "{} file size is {}.<br/>" + \
+            msg = ("<html>" +
+                   "{} file size is {}.<br/>" +
                    "I am a text editor, but not a data dump editor. I'm sory but I don't know how to open such a big files" +
-                   "</html>")\
-                  .format(filePath, statInfo.st_size)
+                   "</html>") .format(filePath, statInfo.st_size)
             QMessageBox.critical(self._mainWindow(), "Too big file", msg)
             return None
 
@@ -554,11 +555,11 @@ class Workspace(QStackedWidget):
 
         # open the file
         document = Document(self, filePath)
-        self._handleDocument( document )
+        self._handleDocument(document)
 
         if not os.access(filePath, os.W_OK):
-            core.mainWindow().appendMessage( \
-                        self.tr( "File '%s' is not writable" % filePath), 4000) # todo fix
+            core.mainWindow().appendMessage(
+                self.tr("File '%s' is not writable" % filePath), 4000)  # todo fix
 
         return document
 
@@ -570,7 +571,7 @@ class Workspace(QStackedWidget):
         Open modal message box, if failed to open the file
         """
         try:
-            QApplication.setOverrideCursor( Qt.WaitCursor )
+            QApplication.setOverrideCursor(Qt.WaitCursor)
 
             document = self._openSingleFile(filePath)
         finally:
@@ -589,7 +590,7 @@ class Workspace(QStackedWidget):
         """
         documents = []
         try:
-            QApplication.setOverrideCursor( Qt.WaitCursor )
+            QApplication.setOverrideCursor(Qt.WaitCursor)
             for filePath in filePaths:
                 document = self._openSingleFile(filePath)
                 if document is None:
@@ -647,12 +648,12 @@ class Workspace(QStackedWidget):
             else:  # not the last
                 self.activateNextDocument()
 
-        self.documentClosed.emit( document )
+        self.documentClosed.emit(document)
         # close document
-        self._unhandleDocument( document )
+        self._unhandleDocument(document)
         document.del_()
 
-    def closeDocument( self, document):
+    def closeDocument(self, document):
         """Close opened file, remove document from workspace and delete the widget.
 
         Ask for confirmation with dialog, if modified.
@@ -671,8 +672,8 @@ class Workspace(QStackedWidget):
         """
         modifiedDocuments = [d for d in self.documents() if d.qutepart.document().isModified()]
         if modifiedDocuments:
-            if (_UISaveFiles( self, modifiedDocuments).exec_() == QDialog.Rejected):
-                return False # do not close
+            if (_UISaveFiles(self, modifiedDocuments).exec_() == QDialog.Rejected):
+                return False  # do not close
 
         return True
 

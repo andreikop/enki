@@ -23,13 +23,13 @@ class ProcessorThread(QThread):
 
     _Task = collections.namedtuple("Task", ["document", "language", "filePath"])
 
-    _MSG_ID_CONVERTOR = {# Note that most of the PEP8 "errors" listed in http://pep8.readthedocs.org/en/latest/intro.html#error-codes aren't syntax errors. So, mark most of these as warnings instead. Later in the code, E9 errors are actually marked as errors. See https://github.com/hlamer/enki/issues/349.
-                         'E': Qutepart.LINT_WARNING,
-                         'W': Qutepart.LINT_WARNING,
-                         'F': Qutepart.LINT_ERROR,
-                         'C': Qutepart.LINT_NOTE,
-                         'N': Qutepart.LINT_NOTE,
-                         }
+    _MSG_ID_CONVERTOR = {  # Note that most of the PEP8 "errors" listed in http://pep8.readthedocs.org/en/latest/intro.html#error-codes aren't syntax errors. So, mark most of these as warnings instead. Later in the code, E9 errors are actually marked as errors. See https://github.com/hlamer/enki/issues/349.
+        'E': Qutepart.LINT_WARNING,
+        'W': Qutepart.LINT_WARNING,
+        'F': Qutepart.LINT_ERROR,
+        'C': Qutepart.LINT_NOTE,
+        'N': Qutepart.LINT_NOTE,
+    }
 
     _PARSER_REG_EXP = re.compile('^(.+):(\d+):(\d+): ([A-Z]\d\d\d .+)$')
 
@@ -92,7 +92,8 @@ class ProcessorThread(QThread):
                 msgId, msgText = rest.lstrip().split(' ', 1)
 
                 lineIndex = int(lineNumber) - 1
-                # Per comments on _MSG_ID_CONVERTOR, mark PEP8 E9 errors as errors. All other PEP8 errors are shown as warnings.
+                # Per comments on _MSG_ID_CONVERTOR, mark PEP8 E9 errors as errors. All
+                # other PEP8 errors are shown as warnings.
                 if msgId.startswith('E9'):
                     msgType = Qutepart.LINT_ERROR
                 else:
@@ -111,7 +112,7 @@ class Plugin(QObject):
     _LEVEL_FILTER = {'errors': (Qutepart.LINT_ERROR,),
                      'errorsAndWarnings': (Qutepart.LINT_ERROR, Qutepart.LINT_WARNING),
                      'all': (Qutepart.LINT_ERROR, Qutepart.LINT_WARNING, Qutepart.LINT_NOTE)
-                    }
+                     }
 
     def __init__(self):
         QObject.__init__(self)
@@ -187,7 +188,7 @@ class Plugin(QObject):
         dialog.appendOption(TextOption(dialog, core.config(),
                                        "Lint/Python/IgnoredMessages", widget.leIgnoredMessages))
         dialog.appendOption(NumericOption(dialog, core.config(),
-                                       "Lint/Python/MaxLineLength", widget.spMaxLineLength))
+                                          "Lint/Python/MaxLineLength", widget.spMaxLineLength))
 
     def _applySettings(self):
         if core.config()['Lint']['Python']['Enabled']:
@@ -208,8 +209,8 @@ class Plugin(QObject):
 
     def _isSupported(self, document):
         return document is not None and \
-               document.filePath() is not None and \
-               document.qutepart.language() in ('Python',)
+            document.filePath() is not None and \
+            document.qutepart.language() in ('Python',)
 
     def _onDocumentOpened(self, document):
         if not core.config()['Lint']['Python']['Enabled']:
@@ -251,8 +252,8 @@ class Plugin(QObject):
         visibleMessagesFilter = self._LEVEL_FILTER[core.config().get('Lint/Python/Show')]
 
         filteredResults = {lineNumber: value
-                                for lineNumber, value in results.items()
-                                    if (value[0] in visibleMessagesFilter)}
+                           for lineNumber, value in results.items()
+                           if (value[0] in visibleMessagesFilter)}
 
         for level, message in filteredResults.values():
             if level == Qutepart.LINT_ERROR:

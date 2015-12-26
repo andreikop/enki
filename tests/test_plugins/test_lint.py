@@ -16,13 +16,14 @@ from enki.plugins.lint.settings_widget import _getFlake8Version
 
 
 class Test(base.TestCase):
+
     @base.requiresCmdlineUtility('flake8 --version')
     def test_1(self):
         """ File is checked after opened """
         doc = self.createFile('te:st .py', 'asdf\n\n')
         self.waitUntilPassed(2000, lambda: self.assertEqual(doc.qutepart.lintMarks,
-                             {0: ('e', "F821 undefined name 'asdf'"),
-                              1: ('w', 'W391 blank line at end of file')}))
+                                                            {0: ('e', "F821 undefined name 'asdf'"),
+                                                             1: ('w', 'W391 blank line at end of file')}))
         self.assertEqual(core.mainWindow().statusBar().currentMessage(), "F821 undefined name 'asdf'")
 
         doc.qutepart.cursorPosition = ((1, 0))
@@ -38,8 +39,8 @@ class Test(base.TestCase):
         doc.saveFile()
 
         self.waitUntilPassed(2000, lambda: self.assertEqual(doc.qutepart.lintMarks,
-                             {0: ('e', 'E901 SyntaxError: invalid syntax'),
-                              1: ('w', 'E113 unexpected indentation')}))
+                                                            {0: ('e', 'E901 SyntaxError: invalid syntax'),
+                                                             1: ('w', 'E113 unexpected indentation')}))
 
     @base.requiresCmdlineUtility('flake8 --version')
     def test_2(self):

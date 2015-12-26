@@ -12,7 +12,9 @@ Source: https://github.com/mitya57/python-markdown-math, commit db12837790a0e260
 
 import markdown
 
+
 class MathExtension(markdown.extensions.Extension):
+
     def __init__(self, *args, **kwargs):
         self.config = {
             'enable_dollar_delimiter': [False, 'Enable single-dollar delimiter'],
@@ -36,11 +38,11 @@ class MathExtension(markdown.extensions.Extension):
             return node
 
         inlinemathpatterns = (
-            markdown.inlinepatterns.Pattern(r'(?<!\\|\$)(\$)([^\$]+)(\$)'),  #  $...$
+            markdown.inlinepatterns.Pattern(r'(?<!\\|\$)(\$)([^\$]+)(\$)'),  # $...$
             markdown.inlinepatterns.Pattern(r'(?<!\\)(\\\()(.+?)(\\\))')     # \(...\)
         )
         mathpatterns = (
-            markdown.inlinepatterns.Pattern(r'(?<!\\)(\$\$)([^\$]+)(\$\$)'), # $$...$$
+            markdown.inlinepatterns.Pattern(r'(?<!\\)(\$\$)([^\$]+)(\$\$)'),  # $$...$$
             markdown.inlinepatterns.Pattern(r'(?<!\\)(\\\[)(.+?)(\\\])'),    # \[...\]
             markdown.inlinepatterns.Pattern(r'(?<!\\)(\\begin{([a-z]+?\*?)})(.+?)(\\end{\3})')
         )
@@ -52,6 +54,7 @@ class MathExtension(markdown.extensions.Extension):
         for i, pattern in enumerate(mathpatterns):
             pattern.handleMatch = handle_match
             md.inlinePatterns.add('math-%d' % i, pattern, '<escape')
+
 
 def makeExtension(*args, **kwargs):
     return MathExtension(*args, **kwargs)

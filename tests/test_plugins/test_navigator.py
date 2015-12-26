@@ -38,6 +38,7 @@ end
 
 
 class Settings(base.TestCase):
+
     def test_1(self):
         # Ctags path are configurable
         def continueFunc(dialog):
@@ -62,13 +63,12 @@ class Settings(base.TestCase):
             page = dialog._pageForItem["Navigator"]
             self.assertEqual(page.lExecuteError.text(),
                              ('You are trying to use etags from the Emacs package, but it is not supported. '
-                             'Use Exuberant Ctags.'))
+                              'Use Exuberant Ctags.'))
 
             QTest.keyClick(dialog, Qt.Key_Enter)
 
         with patch('enki.lib.get_console_output.get_console_output', return_value=(stdout, None)):
             self.openSettings(continueFunc)
-
 
     @base.requiresCmdlineUtility('ctags --version')
     @base.inMainLoop
@@ -96,6 +96,7 @@ class Settings(base.TestCase):
 
 
 class Gui(base.TestCase):
+
     @base.requiresCmdlineUtility('ctags --version')
     @base.inMainLoop
     def test_1(self):
@@ -258,11 +259,10 @@ class Gui(base.TestCase):
             dock = self.findDock('&Navigator')
 
             self.retryUntilPassed(2000,
-                                  lambda: self.assertTrue(dock._errorLabel is not None and \
+                                  lambda: self.assertTrue(dock._errorLabel is not None and
                                                           dock._errorLabel.isVisible()))
 
             self.assertTrue('ctags from Emacs package is used' in dock._errorLabel.text())
-
 
 
 CPP_CODE = """
@@ -289,9 +289,11 @@ class Cls:
             pass
 """
 
+
 def asDicts(tags):
-    return {(tag.name, tag.lineNumber): asDicts(tag.children) \
-                for tag in tags}
+    return {(tag.name, tag.lineNumber): asDicts(tag.children)
+            for tag in tags}
+
 
 class Parser(base.TestCase):
 

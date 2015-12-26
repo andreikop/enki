@@ -35,6 +35,7 @@ MAX_EXTRA_SELECTIONS_COUNT = 256
 class Controller(QObject):
     """S&R module business logic
     """
+
     def __init__(self):
         QObject.__init__(self)
         self._mode = None
@@ -85,10 +86,10 @@ class Controller(QObject):
         def createAction(path, text, icon, shortcut, tooltip, slot, data, enabled=True):  # pylint: disable=R0913
             """Create action object
             """
-            actObject = core.actionManager().addAction( menu + '/' + path,
-                                                        self.tr(text),
-                                                        QIcon(':/enkiicons/' + icon),
-                                                        shortcut)
+            actObject = core.actionManager().addAction(menu + '/' + path,
+                                                       self.tr(text),
+                                                       QIcon(':/enkiicons/' + icon),
+                                                       shortcut)
             actObject.setToolTip(self.tr(tooltip))
             if slot:
                 actObject.triggered.connect(slot)
@@ -105,64 +106,64 @@ class Controller(QObject):
         # List if search actions.
         # First acition created by MainWindow, so, do not fill text
         createAction("aSearchFile", "&Search...",
-                      "search.png", "Ctrl+F",
-                      "Search in the current file...",
-                      self._onModeSwitchTriggered, MODE_SEARCH)
+                     "search.png", "Ctrl+F",
+                     "Search in the current file...",
+                     self._onModeSwitchTriggered, MODE_SEARCH)
         createAction("aSearchPrevious", "Search &Previous",
-                      "previous.png", "Shift+F3",
-                      "Search previous occurrence",
-                      self._onSearchPrevious, None,
-                      False)  # will be connected to search widget, when it is created
+                     "previous.png", "Shift+F3",
+                     "Search previous occurrence",
+                     self._onSearchPrevious, None,
+                     False)  # will be connected to search widget, when it is created
         createAction("aSearchNext", "Search &Next",
-                      "next.png", "F3",
-                      "Search next occurrence",
-                      self._onSearchNext, None,
-                      False)  # will be connected to search widget, when it is created
+                     "next.png", "F3",
+                     "Search next occurrence",
+                     self._onSearchNext, None,
+                     False)  # will be connected to search widget, when it is created
         createAction("aReplaceFile", "&Replace...",
-                      "replace.png", "Ctrl+R",
-                      "Replace in the current file...",
-                      self._onModeSwitchTriggered, MODE_REPLACE)
+                     "replace.png", "Ctrl+R",
+                     "Replace in the current file...",
+                     self._onModeSwitchTriggered, MODE_REPLACE)
         createAction("aSearchWordBackward", "Search word under cursor backward",
-                      "less.png", searchWordBackwardShortcut,
-                      "",
-                      self._onSearchCurrentWordBackward, None)
+                     "less.png", searchWordBackwardShortcut,
+                     "",
+                     self._onSearchCurrentWordBackward, None)
         createAction("aSearchWordForward", "Search word under cursor forward",
-                      "bigger.png", searchWordForwardShortcut,
-                      "",
-                      self._onSearchCurrentWordForward, None)
+                     "bigger.png", searchWordForwardShortcut,
+                     "",
+                     self._onSearchCurrentWordForward, None)
         self._menuSeparator = core.actionManager().menu(menu).addSeparator()
         createAction("aSearchDirectory", "Search in &Directory...",
-                      "search-replace-directory.png", "Ctrl+Shift+F",
-                      "Search in directory...",
-                      self._onModeSwitchTriggered, MODE_SEARCH_DIRECTORY)
+                     "search-replace-directory.png", "Ctrl+Shift+F",
+                     "Search in directory...",
+                     self._onModeSwitchTriggered, MODE_SEARCH_DIRECTORY)
         createAction("aReplaceDirectory", "Replace in Director&y...",
-                      "search-replace-directory.png", "Ctrl+Shift+R",
-                      "Replace in directory...",
-                      self._onModeSwitchTriggered, MODE_REPLACE_DIRECTORY)
+                     "search-replace-directory.png", "Ctrl+Shift+R",
+                     "Replace in directory...",
+                     self._onModeSwitchTriggered, MODE_REPLACE_DIRECTORY)
         createAction("aSearchOpenedFiles", "Search in &Opened Files...",
-                      "search-replace-opened-files.png",
-                      "Ctrl+Alt+F", "Search in opened files...",
-                      self._onModeSwitchTriggered, MODE_SEARCH_OPENED_FILES)
+                     "search-replace-opened-files.png",
+                     "Ctrl+Alt+F", "Search in opened files...",
+                     self._onModeSwitchTriggered, MODE_SEARCH_OPENED_FILES)
         createAction("aReplaceOpenedFiles", "Replace in Open&ed Files...",
-                      "search-replace-opened-files.png", "Ctrl+Alt+R",
-                      "Replace in opened files...",
-                      self._onModeSwitchTriggered, MODE_REPLACE_OPENED_FILES)
+                     "search-replace-opened-files.png", "Ctrl+Alt+R",
+                     "Replace in opened files...",
+                     self._onModeSwitchTriggered, MODE_REPLACE_OPENED_FILES)
 
         am = core.actionManager()
-        core.workspace().currentDocumentChanged.connect( \
+        core.workspace().currentDocumentChanged.connect(
             lambda old, new: am.action(menu + "/aSearchFile").setEnabled(new is not None))
-        core.workspace().currentDocumentChanged.connect( \
+        core.workspace().currentDocumentChanged.connect(
             lambda old, new: am.action(menu + "/aReplaceFile").setEnabled(new is not None))
-        core.workspace().currentDocumentChanged.connect( \
+        core.workspace().currentDocumentChanged.connect(
             lambda old, new: am.action(menu + "/aSearchOpenedFiles").setEnabled(new is not None))
-        core.workspace().currentDocumentChanged.connect( \
+        core.workspace().currentDocumentChanged.connect(
             lambda old, new: am.action(menu + "/aReplaceOpenedFiles").setEnabled(new is not None))
 
     def _createSearchWidget(self):
         """ Create search widget. Called only when user requested it first time
         """
         from . import searchwidget
-        self._widget = searchwidget.SearchWidget( self )
+        self._widget = searchwidget.SearchWidget(self)
         self._widget.searchInDirectoryStartPressed.connect(self._onSearchInDirectoryStartPressed)
         self._widget.searchInDirectoryStopPressed.connect(self._onSearchInDirectoryStopPressed)
         self._widget.replaceCheckedStartPressed.connect(self._onReplaceCheckedStartPressed)
@@ -183,8 +184,8 @@ class Controller(QObject):
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
         core.workspace().textChanged.connect(self._updateSearchWidgetFoundItemsHighlighting)
 
-        core.mainWindow().centralLayout().addWidget( self._widget )
-        self._widget.setVisible( False )
+        core.mainWindow().centralLayout().addWidget(self._widget)
+        self._widget.setVisible(False)
         self._updateFileActionsState()
 
     def _createDockWidget(self):
@@ -195,8 +196,8 @@ class Controller(QObject):
         self._dock = searchresultsdock.SearchResultsDock(core.mainWindow())
 
         core.mainWindow().addDockWidget(Qt.BottomDockWidgetArea, self._dock)
-        self._dock.setVisible( False )
-        self._dock.setReplaceMode(self._mode == MODE_REPLACE_DIRECTORY or \
+        self._dock.setVisible(False)
+        self._dock.setReplaceMode(self._mode == MODE_REPLACE_DIRECTORY or
                                   self._mode == MODE_REPLACE_OPENED_FILES)
 
     def _onModeSwitchTriggered(self):
@@ -221,7 +222,7 @@ class Controller(QObject):
         self._mode = newMode
 
         if self._dock is not None:
-            self._dock.setReplaceMode(self._mode == MODE_REPLACE_DIRECTORY or \
+            self._dock.setReplaceMode(self._mode == MODE_REPLACE_DIRECTORY or
                                       self._mode == MODE_REPLACE_OPENED_FILES)
 
     #
@@ -261,8 +262,8 @@ class Controller(QObject):
         matches = self._findAllMatches(document.qutepart.text, regExp)
 
         if len(matches) <= MAX_EXTRA_SELECTIONS_COUNT:
-            selections = [ (match.start(), len(match.group(0))) \
-                                for match in matches]
+            selections = [(match.start(), len(match.group(0)))
+                          for match in matches]
         else:
             selections = []
 
@@ -379,7 +380,7 @@ class Controller(QObject):
         if self._mode in (MODE_SEARCH, MODE_REPLACE) and \
            core.workspace().currentDocument() is not None:
             if regExp.pattern:
-                self._searchFile(forward=True, incremental=True )
+                self._searchFile(forward=True, incremental=True)
             else:  # Clear selection
                 core.workspace().currentDocument().qutepart.resetSelection()
 
@@ -387,13 +388,13 @@ class Controller(QObject):
         """Search Next clicked
         """
         self._widget.updateComboBoxes()
-        self._searchFile(forward=True, incremental=False )
+        self._searchFile(forward=True, incremental=False)
 
     def _onSearchPrevious(self):
         """Search Previous clicked
         """
         self._widget.updateComboBoxes()
-        self._searchFile(forward=False, incremental=False )
+        self._searchFile(forward=False, incremental=False)
 
     def _searchFile(self, forward=True, incremental=False):
         """Do search in file operation. Will select next found item
@@ -410,7 +411,7 @@ class Controller(QObject):
             cursor = qutepart.textCursor()
 
             if forward:
-                if  incremental :
+                if incremental:
                     self._searchInFileStartPoint = cursor.selectionStart()
                 else:
                     self._searchInFileStartPoint = cursor.selectionEnd()
@@ -423,7 +424,7 @@ class Controller(QObject):
             qutepart.absSelectedPosition = (selectionStart, selectionEnd)
             self._searchInFileLastCursorPos = selectionEnd
             self._widget.setState(self._widget.Good)  # change background acording to result
-            core.mainWindow().statusBar().showMessage('Match %d of %d' % \
+            core.mainWindow().statusBar().showMessage('Match %d of %d' %
                                                       (matches.index(match) + 1, len(matches)), 3000)
         else:
             self._widget.setState(self._widget.Bad)
@@ -450,7 +451,7 @@ class Controller(QObject):
             # move cursor to the end of replaced text
             qpart.absCursorPosition = match.start() + len(replaceTextSubed)
             # move selection to the next item
-            self._searchFile(forward=True, incremental=False )
+            self._searchFile(forward=True, incremental=False)
         else:
             self._widget.setState(self._widget.Bad)
 
@@ -468,7 +469,7 @@ class Controller(QObject):
                 replaceTextSubed = substitutions.makeSubstitutions(replaceText, match)
                 qpart.replaceText(match.start(), len(match.group(0)), replaceTextSubed)
 
-        core.mainWindow().statusBar().showMessage( self.tr( "%d match(es) replaced." % len(matches) ), 3000 )
+        core.mainWindow().statusBar().showMessage(self.tr("%d match(es) replaced." % len(matches)), 3000)
 
     #
     # Search in directory (with thread)
@@ -493,10 +494,10 @@ class Controller(QObject):
 
         self._widget.setSearchInProgress(True)
         self._dock.clear()
-        self._searchThread.search( regExp,
-                                   mask,
-                                   inOpenedFiles,
-                                   path)
+        self._searchThread.search(regExp,
+                                  mask,
+                                  inOpenedFiles,
+                                  path)
 
     def _onSearchInDirectoryStopPressed(self):
         """Handler for 'search in directory' action
@@ -532,8 +533,8 @@ class Controller(QObject):
         self._replaceThread.error.connect(self._onThreadError)
         self._replaceThread.finalStatus.connect(self._onReplaceThreadFinalStatus)
 
-        self._replaceThread.replace( self._dock.getCheckedItems(),
-                                     replaceText)
+        self._replaceThread.replace(self._dock.getCheckedItems(),
+                                    replaceText)
 
     def _onReplaceCheckedStopPressed(self):
         """Handler for 'stop replacing checked' action
@@ -541,10 +542,10 @@ class Controller(QObject):
         if self._replaceThread is not None:
             self._replaceThread.stop()
 
-    def _onThreadError(self, error ):
+    def _onThreadError(self, error):
         """Error message from the replace thread
         """
-        core.mainWindow().appendMessage( error )
+        core.mainWindow().appendMessage(error)
 
     def _onReplaceThreadFinished(self):
         """Handler for replace in directory finished event

@@ -54,12 +54,12 @@ Therefore Enki always installs its .desktop and icons to /usr/share
 if (sys.platform.startswith('linux2') and not _inVenv()) or \
    'sdist' in sys.argv or \
    'upload' in sys.argv:
-    data_files=[('/usr/share/applications/', ['install/enki.desktop']),
-                ('/usr/share/pixmaps/', ['icons/logo/48x48/enki.png']),
-                ('/usr/share/icons/hicolor/32x32/apps', ['icons/logo/32x32/enki.png']),
-                ('/usr/share/icons/hicolor/48x48/apps', ['icons/logo/48x48/enki.png']),
-                ('/usr/share/icons/hicolor/scalable/apps', ['icons/logo/enki.svg'])
-                ]
+    data_files = [('/usr/share/applications/', ['install/enki.desktop']),
+                  ('/usr/share/pixmaps/', ['icons/logo/48x48/enki.png']),
+                  ('/usr/share/icons/hicolor/32x32/apps', ['icons/logo/32x32/enki.png']),
+                  ('/usr/share/icons/hicolor/48x48/apps', ['icons/logo/48x48/enki.png']),
+                  ('/usr/share/icons/hicolor/scalable/apps', ['icons/logo/enki.svg'])
+                  ]
 else:
     data_files = []
 
@@ -75,7 +75,7 @@ classifiers = ['Development Status :: 5 - Production/Stable',
                ]
 
 long_description = \
-"""Some of features:
+    """Some of features:
 
  * Syntax highlighting for more than 30 languages
  * Bookmarks
@@ -85,19 +85,19 @@ long_description = \
  * Hightly configurable
 """
 
-packages=['enki',
-          'enki/core',
-          'enki/lib',
-          'enki/widgets',
-          'enki/plugins',
-          'enki/resources',
-         ]
+packages = ['enki',
+            'enki/core',
+            'enki/lib',
+            'enki/widgets',
+            'enki/plugins',
+            'enki/resources',
+            ]
 
 package_dir = {}
 
-package_data={'enki' : ['ui/*.ui',
-                        'config/*.json'],
-             }
+package_data = {'enki': ['ui/*.ui',
+                         'config/*.json'],
+                }
 
 for loader, name, ispkg in pkgutil.iter_modules(['enki/plugins']):
     if ispkg:
@@ -116,19 +116,19 @@ if __name__ == '__main__':
             if not _checkDependencies():
                 sys.exit(-1)
 
-    setup(  name=PACKAGE_NAME.lower(),
-            version=PACKAGE_VERSION,
-            description='Simple programmer''s text editor',
-            long_description=long_description,
-            author='Andrei Kopats',
-            author_email='hlamer@tut.by',
-            url=PACKAGE_URL,
-            download_url='https://github.com/hlamer/enki/tags',
-            packages=packages,
-            package_dir= package_dir,
-            package_data=package_data,
-            scripts=[script],
-            data_files=data_files,
-            classifiers=classifiers,
-            license='gpl2',
-         )
+    setup(name=PACKAGE_NAME.lower(),
+          version=PACKAGE_VERSION,
+          description='Simple programmer''s text editor',
+          long_description=long_description,
+          author='Andrei Kopats',
+          author_email='hlamer@tut.by',
+          url=PACKAGE_URL,
+          download_url='https://github.com/hlamer/enki/tags',
+          packages=packages,
+          package_dir=package_dir,
+          package_data=package_data,
+          scripts=[script],
+          data_files=data_files,
+          classifiers=classifiers,
+          license='gpl2',
+          )

@@ -24,6 +24,7 @@ def _startEditCurrentFilePath():
 
 
 class Rename(base.TestCase):
+
     def test_flags(self):
         workspace = core.workspace()
         tree = core.workspace().openedFileExplorer.tvFiles
@@ -99,7 +100,8 @@ class Rename(base.TestCase):
         self.assertFalse(os.path.isfile(self.EXISTING_FILE))
         self.assertIsNone(core.workspace().currentDocument())
 
-    # This test reports a permission denied dailog box failure in Windows, but then crashes. Not sure how to work around this.
+    # This test reports a permission denied dailog box failure in Windows, but
+    # then crashes. Not sure how to work around this.
     @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     @base.inMainLoop
     def test_dev_null_os_fail(self):
@@ -128,4 +130,4 @@ class Rename(base.TestCase):
 
 
 if __name__ == '__main__':
-        unittest.main()
+    unittest.main()

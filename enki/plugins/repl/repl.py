@@ -24,9 +24,11 @@ import enki.widgets.termwidget
 # Integration with the core
 #
 
+
 class SettingsWidget(QWidget):
     """Settings widget. Insertted as a page to UISettings
     """
+
     def __init__(self, *args):
         QWidget.__init__(self, *args)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Settings.ui'), self)
@@ -41,11 +43,12 @@ class SettingsWidget(QWidget):
 class ReplDock(DockWidget):
     """Dock widget with terminal emulator
     """
+
     def __init__(self, widget, title, icon):
         DockWidget.__init__(self, core.mainWindow(), title, icon, "Alt+I")
         self.setObjectName(title)
 
-        self.setAllowedAreas( Qt.BottomDockWidgetArea | Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
+        self.setAllowedAreas(Qt.BottomDockWidgetArea | Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
 
         self.setWidget(widget)
         self.setFocusProxy(widget)
@@ -57,6 +60,7 @@ class ReplDock(DockWidget):
 class _AbstractReplTermWidget(enki.widgets.termwidget.TermWidget):
     """Base class for REPL terminal widgets
     """
+
     def __init__(self, interpreter, *args):
         enki.widgets.termwidget.TermWidget.__init__(self, *args)
         self._interpreter = interpreter
@@ -70,6 +74,7 @@ class _AbstractReplTermWidget(enki.widgets.termwidget.TermWidget):
 class MitSchemeTermWidget(_AbstractReplTermWidget):
     """Scheme terminal emulator widget
     """
+
     def isCommandComplete(self, text):
         """Parse the command and check, if it is complete and should be executed
         """
@@ -81,7 +86,7 @@ class MitSchemeTermWidget(_AbstractReplTermWidget):
             try:
                 index = text.index('"', index)
             except ValueError:
-                break;
+                break
 
             try:
                 endIndex = text.index('"', index + 1)
@@ -105,6 +110,7 @@ class MitSchemeTermWidget(_AbstractReplTermWidget):
 class SmlTermWidget(_AbstractReplTermWidget):
     """Standard ML terminal emulator widget
     """
+
     def isCommandComplete(self, text):
         """TODO support comments and strings
         """
@@ -114,13 +120,14 @@ class SmlTermWidget(_AbstractReplTermWidget):
 class PythonTermWidget(_AbstractReplTermWidget):
     """Standard ML terminal emulator widget
     """
+
     def isCommandComplete(self, text):
         """TODO support comments and strings
         """
         # Filter non-empty lines, strip trailing whitespace
-        lines = [line.rstrip() \
-                    for line in text.splitlines() \
-                        if line.strip()]
+        lines = [line.rstrip()
+                 for line in text.splitlines()
+                 if line.strip()]
 
         if not lines:
             return False
@@ -191,9 +198,9 @@ class _AbstractInterpreter(QObject):
             text += '<p>Make sure interpreter is installed and go to '\
                     '<b>Settings -> Settings -> Modes -> %s</b> to correct the path</p>' % fullName
             text = '<html>%s</html' % text
-            QMessageBox.critical (core.mainWindow(),
-                                  "Failed to run the interpreter",
-                                  text)
+            QMessageBox.critical(core.mainWindow(),
+                                 "Failed to run the interpreter",
+                                 text)
             raise UserWarning("Failed to run the interpreter")
 
         self._processOutputTimer.start()
@@ -225,7 +232,7 @@ class _AbstractInterpreter(QObject):
             except UserWarning:
                 return
 
-        self._processOutput() # write old output to the log, and only then write fresh input
+        self._processOutput()  # write old output to the log, and only then write fresh input
         self._buffPopen.write(text)
 
     def _processOutput(self):
@@ -246,6 +253,7 @@ class _AbstractInterpreter(QObject):
 class MitSchemeInterpreter(_AbstractInterpreter):
     """MIT scheme interpreter
     """
+
     def _createTermWidget(self):
         return MitSchemeTermWidget(self, self._termWidgetFont())
 
@@ -263,6 +271,7 @@ class MitSchemeInterpreter(_AbstractInterpreter):
 class SmlInterpreter(_AbstractInterpreter):
     """SML interpreter
     """
+
     def __init__(self, *args):
         super(SmlInterpreter, self).__init__(*args)
         self._term.appendHint("Commands are ended with ';'\n")
@@ -284,6 +293,7 @@ class SmlInterpreter(_AbstractInterpreter):
 class PythonInterpreter(_AbstractInterpreter):
     """MIT scheme interpreter
     """
+
     def _createTermWidget(self):
         return PythonTermWidget(self, self._termWidgetFont())
 
@@ -305,8 +315,8 @@ class PythonInterpreter(_AbstractInterpreter):
         """
         # Filter non-empty lines, strip trailing whitespace
         lines = [line.rstrip()
-                    for line in text.splitlines()
-                        if line.strip()]
+                 for line in text.splitlines()
+                 if line.strip()]
 
         if lines[-1][0].isspace():  # function declaration, etc. Add extra newline
             lines.append('')

@@ -13,6 +13,7 @@ from enki.core.core import core
 
 
 class Test(base.TestCase):
+
     def test_1(self):
         """ Init with current document path
         """

@@ -7,5 +7,6 @@
 # ``enki-sphinx.spec`` for more details.
 #
 # This code was copied from the last line of ``sphinx.__init__``.
-import sys, sphinx
+import sys
+import sphinx
 sys.exit(sphinx.main(sys.argv))

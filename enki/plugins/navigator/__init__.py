@@ -19,8 +19,6 @@ from . import ctags
 from .dock import NavigatorDock
 
 
-
-
 # source map. 1 ctags language is mapped to multiply Qutepart languages
 # NOTE this map must be updated after new languages has been added to ctags or Qutepart
 #  Initially filled on Qutepart 1.1.0 and Ctags 5.9~svn20110310
@@ -120,6 +118,7 @@ class ProcessorThread(QThread):
 class SettingsWidget(QWidget):
     """Settings widget. Insertted as a page to UISettings
     """
+
     def __init__(self, *args):
         QWidget.__init__(self, *args)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Settings.ui'), self)
@@ -144,12 +143,14 @@ class SettingsWidget(QWidget):
             if 'Exuberant Ctags' in stdout:
                 self.lExecuteError.setText('ctags is found!')
             elif 'GNU Emacs' in stdout:
-                self.lExecuteError.setText('You are trying to use etags from the Emacs package, but it is not supported. Use Exuberant Ctags.')
+                self.lExecuteError.setText(
+                    'You are trying to use etags from the Emacs package, but it is not supported. Use Exuberant Ctags.')
 
 
 class Plugin(QObject):
     """Main class. Interface for the core.
     """
+
     def __init__(self):
         QObject.__init__(self)
         self._dock = None
@@ -193,7 +194,7 @@ class Plugin(QObject):
 
     def _isSupported(self, document):
         return document is not None and \
-               document.qutepart.language() in _QUTEPART_TO_CTAGS_LANG_MAP
+            document.qutepart.language() in _QUTEPART_TO_CTAGS_LANG_MAP
 
     def _onDockClosed(self):
         """Dock has been closed by a user. Change Enabled option

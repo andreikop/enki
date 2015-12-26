@@ -105,16 +105,18 @@ import imp
 #           __builtin__.__import__ = orig_import
 #
 # This is what I consider a cleaner implementation.
+
+
 class ImportFail(object):
 
     def __init__(self,
-      # Strings, giving the name of the module whose import will
-      # fail.
-      fail_names,
-      # A list of modules to reload when this ImportFail is in force. They will
-      # be reloaded without the ImportFail in force on __exit__. See `test
-      # methods`_.
-      reload_modules=None):
+                 # Strings, giving the name of the module whose import will
+                 # fail.
+                 fail_names,
+                 # A list of modules to reload when this ImportFail is in force. They will
+                 # be reloaded without the ImportFail in force on __exit__. See `test
+                 # methods`_.
+                 reload_modules=None):
         self.fail_names = fail_names
         self.reload_modules = reload_modules
 

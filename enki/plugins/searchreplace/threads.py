@@ -106,14 +106,13 @@ class SearchThread(StopableThread):
                         continue
                     retFiles.append(root + os.path.sep + fileName)
 
-                if self._exit :
+                if self._exit:
                     break
         except UnicodeDecodeError:  # from os.walk()
             self.error.emit('Failed to build list of files. Unicode decode error. Is correct locale set?')
             return []
 
         return retFiles
-
 
     def _getFilesToScan(self):
         """Get list of files for search.
@@ -141,13 +140,13 @@ class SearchThread(StopableThread):
         """Read text from file
         """
         if fileName in self._openedFiles:
-            return self._openedFiles[ fileName ]
+            return self._openedFiles[fileName]
 
         try:
             with open(fileName, 'rb') as openedFile:
                 if _isBinary(openedFile):
                     return ''
-                return str(openedFile.read(), 'utf8', errors = 'ignore')
+                return str(openedFile.read(), 'utf8', errors='ignore')
         except IOError as ex:
             print(ex)
             return ''
@@ -157,14 +156,14 @@ class SearchThread(StopableThread):
         Build list of files for search, than do search
         """
         startTime = time.clock()
-        self.progressChanged.emit( -1, 0 )
+        self.progressChanged.emit(-1, 0)
 
         files = sorted(self._getFilesToScan())
 
-        if  self._exit :
+        if self._exit:
             return
 
-        self.progressChanged.emit( 0, len(files))
+        self.progressChanged.emit(0, len(files))
 
         # Prepare data for search process
         lastResultsEmitTime = time.clock()
@@ -172,7 +171,7 @@ class SearchThread(StopableThread):
         # Search for all files
         for fileIndex, fileName in enumerate(files):
             results = self._searchInFile(fileName)
-            if  results:
+            if results:
                 newFileRes = searchresultsmodel.FileResults(self._searchPath,
                                                             fileName,
                                                             results)
@@ -180,13 +179,13 @@ class SearchThread(StopableThread):
 
             if notEmittedFileResults and \
                (time.clock() - lastResultsEmitTime) > self.RESULTS_EMIT_TIMEOUT:
-                self.progressChanged.emit( fileIndex, len(files))
+                self.progressChanged.emit(fileIndex, len(files))
                 self.resultsAvailable.emit(notEmittedFileResults)
                 notEmittedFileResults = []
                 lastResultsEmitTime = time.clock()
 
-            if  self._exit :
-                self.progressChanged.emit( fileIndex, len(files))
+            if self._exit:
+                self.progressChanged.emit(fileIndex, len(files))
                 break
 
         if notEmittedFileResults:
@@ -200,27 +199,27 @@ class SearchThread(StopableThread):
         results = []
         eol = "\n"
 
-        content = self._fileContent( fileName )
+        content = self._fileContent(fileName)
 
         # Process result for all occurrences
         for match in self._regExp.finditer(content):
             start = match.start()
 
-            eolStart = content.rfind( eol, 0, start)
-            eolEnd = content.find( eol, start + len(match.group(0)))
-            eolCount += content[lastPos:start].count( eol )
+            eolStart = content.rfind(eol, 0, start)
+            eolEnd = content.find(eol, start + len(match.group(0)))
+            eolCount += content[lastPos:start].count(eol)
             lastPos = start
 
-            wholeLine = content[eolStart+1 : eolEnd]
+            wholeLine = content[eolStart + 1: eolEnd]
             column = start - eolStart
             if eolStart != 0:
                 column -= 1
 
-            result = searchresultsmodel.Result( fileName = fileName, \
-                             wholeLine = wholeLine, \
-                             line = eolCount, \
-                             column = column, \
-                             match=match)
+            result = searchresultsmodel.Result(fileName=fileName,
+                                               wholeLine=wholeLine,
+                                               line=eolCount,
+                                               column=column,
+                                               match=match)
             results.append(result)
 
             if self._exit:
@@ -251,7 +250,7 @@ class ReplaceThread(StopableThread):
             foundDocument = core.workspace().findDocumentForPath(filePath)
             if foundDocument is not None:
                 self._replaceInOpenedDocument(foundDocument, matches)
-                self.resultsHandled.emit( filePath, matches)
+                self.resultsHandled.emit(filePath, matches)
             else:
                 self._results[filePath] = matches
 
@@ -293,14 +292,14 @@ class ReplaceThread(StopableThread):
             with open(fileName, 'rb') as openFile:
                 content = openFile.read()
         except IOError as ex:
-            self.error.emit( self.tr( "Error opening file: %s" % str(ex) ) )
+            self.error.emit(self.tr("Error opening file: %s" % str(ex)))
             return ''
 
         try:
             return str(content, 'utf8')
         except UnicodeDecodeError as ex:
-            self.error.emit(self.tr( "File %s not read: unicode error '%s'. File may be corrupted" % \
-                            (fileName, str(ex) ) ))
+            self.error.emit(self.tr("File %s not read: unicode error '%s'. File may be corrupted" %
+                                    (fileName, str(ex))))
             return None
 
     def run(self):
@@ -314,18 +313,18 @@ class ReplaceThread(StopableThread):
             if content is None:  # if failed to read file
                 continue
 
-            matches = self._results[ fileName ]
+            matches = self._results[fileName]
 
             content = self._doReplacements(content, matches)
 
             self._saveContent(fileName, content)
 
-            self.resultsHandled.emit( fileName, matches)
+            self.resultsHandled.emit(fileName, matches)
 
-            if  self._exit :
+            if self._exit:
                 break
 
-        self.finalStatus.emit("%d replacements in %d second(s)" % \
+        self.finalStatus.emit("%d replacements in %d second(s)" %
                               (self._totalCount,
                                time.clock() - startTime))
 

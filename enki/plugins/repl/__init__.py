@@ -11,6 +11,7 @@ from PyQt5.QtGui import QIcon
 from enki.core.core import core
 from enki.core.uisettings import ChoiseOption, TextOption
 
+
 class _AbstractReplPlugin(QObject):
     """Base class for language-specific REPL sub-plugins
     """
@@ -52,7 +53,7 @@ class _AbstractReplPlugin(QObject):
         """Check if document is highlighted as Scheme
         """
         return document is not None and \
-               document.qutepart.language() == self._LANGUAGE
+            document.qutepart.language() == self._LANGUAGE
 
     def _applySettings(self):
         """Apply settings. Called by configurator class
@@ -131,9 +132,9 @@ class _AbstractReplPlugin(QObject):
 
         # Options
         dialog.appendOption(ChoiseOption(dialog, core.config(), "Modes/%s/Enabled" % self._LANGUAGE,
-                                       {widget.rbWhenOpened: "whenOpened",
-                                        widget.rbNever: "never",
-                                        widget.rbAlways: "always"}))
+                                         {widget.rbWhenOpened: "whenOpened",
+                                          widget.rbNever: "never",
+                                          widget.rbAlways: "always"}))
         dialog.appendOption(TextOption(dialog, core.config(),
                                        "Modes/%s/InterpreterPath" % self._LANGUAGE, widget.leInterpreterPath))
 
@@ -223,7 +224,7 @@ class _SmlReplPlugin(_AbstractReplPlugin):
     _DOCK_TITLE = "Standard ML &Interpreter"
 
     def __init__(self):
-        if not 'SML' in core.config()['Modes']: # if config file is old, add own settings
+        if not 'SML' in core.config()['Modes']:  # if config file is old, add own settings
             core.config()['Modes']['SML'] = {'Enabled': 'whenOpened', 'InterpreterPath': 'sml'}
 
         _AbstractReplPlugin.__init__(self)
@@ -263,6 +264,7 @@ class _PythonReplPlugin(_AbstractReplPlugin):
 class Plugin:
     """Module implementation
     """
+
     def __init__(self):
         self._schemeSubPlugin = _SchemeReplPlugin()
         self._smlSubPlugin = _SmlReplPlugin()

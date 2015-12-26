@@ -7,6 +7,7 @@ from enki.core.core import core
 
 
 class Plugin:
+
     def __init__(self):
         self._action = core.actionManager().addAction('mHelp/aVimTutor',
                                                       'Vim mode tutorial',

@@ -12,6 +12,7 @@ from enki.core.core import core
 
 
 class Test(base.TestCase):
+
     def test_1(self):
         # Do not open same file twice
         doc = self.createFile('file1.rb', 'asdf\nfdsa')
@@ -20,6 +21,7 @@ class Test(base.TestCase):
 
 
 class OpenFail(base.TestCase):
+
     def _runTest(self, filePath, expectedTitle):
         def inDialog(dialog):
             self.assertEqual(dialog.windowTitle(), expectedTitle)

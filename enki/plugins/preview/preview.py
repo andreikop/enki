@@ -72,6 +72,7 @@ def copyTemplateFile(errors, source, templateFileName, dest, newName=None):
         except (IOError, OSError) as why:
             errors.append((sourcePath, dest, str(why)))
 
+
 def _checkModificationTime(sourceFile, outputFile, s):
     """Make sure the outputFile is newer than the sourceFile.
     Otherwise, return an error."""
@@ -169,6 +170,7 @@ class ConverterThread(QThread):
                 Class is placed here, because depends on imported markdown, and markdown import is lazy
                 """
                 DEL_RE = r'(~~)(.*?)~~'
+
                 def extendMarkdown(self, md, md_globals):
                     # Create the del pattern
                     delTag = markdown.inlinepatterns.SimpleTagPattern(self.DEL_RE, 'del')
@@ -210,7 +212,7 @@ class ConverterThread(QThread):
               os.path.join(os.path.dirname(docutils.writers.html4css1.__file__),
                            docutils.writers.html4css1.Writer.default_template) )
             settingsDict['stylesheet_dirs'] = ['.',
-              os.path.dirname(docutils.writers.html4css1.__file__)]
+                                               os.path.dirname(docutils.writers.html4css1.__file__)]
         htmlString = docutils.core.publish_string(text, writer_name='html',
                                                   settings_overrides=settingsDict)
         errString = errStream.getvalue()
@@ -241,7 +243,7 @@ class ConverterThread(QThread):
                     html_file_suffix = hfs
         except:
             errString = "Warning: assuming .html extension. Use " + \
-              "the conf.py template to set the extension.\n" + errString
+                "the conf.py template to set the extension.\n" + errString
             pass
         # First place to look: file.html. For example, look for foo.py
         # in foo.py.html.
@@ -311,7 +313,7 @@ class ConverterThread(QThread):
             else:
                 htmlBuilderCommandLineStr = ' '.join(htmlBuilderCommandLine)
             self.logWindowText.emit('{} : {}\n\n'.format(cwd,
-              htmlBuilderCommandLineStr))
+                                                         htmlBuilderCommandLineStr))
 
             # Run Sphinx, reading stdout in a separate thread.
             self._qe = QEventLoop()
@@ -332,10 +334,10 @@ class ConverterThread(QThread):
             self._qe.exec_()
         except OSError as ex:
             return (
-                    'Failed to execute HTML builder:\n'
-                    '{}\n'.format(str(ex)) +
-                    'Go to Settings -> Settings -> CodeChat to set HTML'
-                    ' builder configurations.')
+                'Failed to execute HTML builder:\n'
+                '{}\n'.format(str(ex)) +
+                'Go to Settings -> Settings -> CodeChat to set HTML'
+                ' builder configurations.')
 
         return self._stderr
 
@@ -414,16 +416,16 @@ class PreviewDock(DockWidget):
 
         self._loadTemplates()
         self._widget.cbTemplate.currentIndexChanged.connect(
-          self._onCurrentTemplateChanged) # Disconnected.
+            self._onCurrentTemplateChanged)  # Disconnected.
 
         # When quitting this program, don't rebuild when closing all open
         # documents. This can take a long time, particularly if a some of the
         # documents are associated with a Sphinx project.
         self._programRunning = True
-        core.aboutToTerminate.connect(self._quitingApplication) # Disconnected.
+        core.aboutToTerminate.connect(self._quitingApplication)  # Disconnected.
 
-        core.workspace().currentDocumentChanged.connect(self._onDocumentChanged) # Disconnected.
-        core.workspace().textChanged.connect(self._onTextChanged) # Disconnected.
+        core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)  # Disconnected.
+        core.workspace().textChanged.connect(self._onTextChanged)  # Disconnected.
 
         # If the user presses the accept button in the setting dialog, Enki
         # will force a rebuild of the whole project.
@@ -435,10 +437,10 @@ class PreviewDock(DockWidget):
         # core.config()['Sphinx'] and core.config()['CodeChat']. After dialogAccepted
         # is detected, compare current settings with the old one. Build if necessary.
         core.uiSettingsManager().dialogAccepted.connect(
-          self._scheduleDocumentProcessing) # Disconnected.
+            self._scheduleDocumentProcessing)  # Disconnected.
 
         core.workspace().modificationChanged.connect(
-          self._onDocumentModificationChanged) # disconnected
+            self._onDocumentModificationChanged)  # disconnected
 
         self._scrollPos = {}
         self._vAtEnd = {}
@@ -447,19 +449,19 @@ class PreviewDock(DockWidget):
         # Keep track of which Sphinx template copies we've already asked the user about.
         self._sphinxTemplateCheckIgnoreList = []
 
-        self._thread = ConverterThread() # stopped
-        self._thread.htmlReady.connect(self._setHtml) # disconnected
+        self._thread = ConverterThread()  # stopped
+        self._thread.htmlReady.connect(self._setHtml)  # disconnected
 
         self._visiblePath = None
 
         # If we update Preview on every key press, freezes are noticable (the
         # GUI thread draws the preview too slowly).
         # This timer is used for drawing Preview 800 ms After user has stopped typing text
-        self._typingTimer = QTimer() # stopped.
+        self._typingTimer = QTimer()  # stopped.
         self._typingTimer.setInterval(800)
-        self._typingTimer.timeout.connect(self._scheduleDocumentProcessing) # Disconnected.
+        self._typingTimer.timeout.connect(self._scheduleDocumentProcessing)  # Disconnected.
 
-        self.previewSync = PreviewSync(self) # del_ called
+        self.previewSync = PreviewSync(self)  # del_ called
 
         self._applyJavaScriptEnabled(self._isJavaScriptEnabled())
 
@@ -479,16 +481,16 @@ class PreviewDock(DockWidget):
         # restored correctly on a ``_clear_log``.
         self._defaultLogFont = self._widget.teLog.currentCharFormat()
         # The logWindowClear signal clears the log window.
-        self._thread.logWindowClear.connect(self._clear_log) # disconnected
+        self._thread.logWindowClear.connect(self._clear_log)  # disconnected
         # The logWindowText signal simply appends text to the log window.
         self._thread.logWindowText.connect(lambda s:
-          self._widget.teLog.appendPlainText(s)) # disconnected
+                                           self._widget.teLog.appendPlainText(s))  # disconnected
 
     def _createWidget(self):
         widget = QWidget(self)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Preview.ui'), widget)
         widget.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
-        widget.webView.page().linkClicked.connect(self._onLinkClicked) # Disconnected.
+        widget.webView.page().linkClicked.connect(self._onLinkClicked)  # Disconnected.
         # Fix preview palette. See https://github.com/bjones1/enki/issues/34
         webViewPalette = widget.webView.palette()
         webViewPalette.setColor(QPalette.Inactive, QPalette.HighlightedText,
@@ -496,22 +498,22 @@ class PreviewDock(DockWidget):
         widget.webView.setPalette(webViewPalette)
 
         widget.webView.page().mainFrame().titleChanged.connect(
-          self._updateTitle) # Disconnected.
+            self._updateTitle)  # Disconnected.
         widget.cbEnableJavascript.clicked.connect(
-          self._onJavaScriptEnabledCheckbox) # Disconnected.
+            self._onJavaScriptEnabledCheckbox)  # Disconnected.
         widget.webView.installEventFilter(self)
 
         self.setWidget(widget)
         self.setFocusProxy(widget.webView)
 
-        widget.tbSave.clicked.connect(self.onPreviewSave) # Disconnected.
+        widget.tbSave.clicked.connect(self.onPreviewSave)  # Disconnected.
         # Add an attribute to ``widget`` denoting the splitter location.
         # This value will be overwritten when the user changes splitter location.
-        widget.splitterErrorStateSize = (199,50)
-        widget.splitterNormStateSize = (1,0)
+        widget.splitterErrorStateSize = (199, 50)
+        widget.splitterNormStateSize = (1, 0)
         widget.splitterNormState = True
         widget.splitter.setSizes(widget.splitterNormStateSize)
-        widget.splitter.splitterMoved.connect(self.on_splitterMoved) # Disconnected.
+        widget.splitter.splitterMoved.connect(self.on_splitterMoved)  # Disconnected.
 
         return widget
 
@@ -531,26 +533,26 @@ class PreviewDock(DockWidget):
         self._typingTimer.timeout.disconnect(self._scheduleDocumentProcessing)
         try:
             self._widget.webView.page().mainFrame().loadFinished.disconnect(
-              self._restoreScrollPos)
+                self._restoreScrollPos)
         except TypeError:  # already has been disconnected
             pass
         self.previewSync.del_()
         core.workspace().modificationChanged.disconnect(
-          self._onDocumentModificationChanged)
+            self._onDocumentModificationChanged)
 
         self._widget.cbTemplate.currentIndexChanged.disconnect(
-          self._onCurrentTemplateChanged)
+            self._onCurrentTemplateChanged)
         core.aboutToTerminate.disconnect(self._quitingApplication)
         core.workspace().currentDocumentChanged.disconnect(
-          self._onDocumentChanged)
+            self._onDocumentChanged)
         core.workspace().textChanged.disconnect(self._onTextChanged)
         core.uiSettingsManager().dialogAccepted.disconnect(
-          self._scheduleDocumentProcessing)
+            self._scheduleDocumentProcessing)
         self._widget.webView.page().linkClicked.disconnect(self._onLinkClicked)
         self._widget.webView.page().mainFrame().titleChanged.disconnect(
-          self._updateTitle)
+            self._updateTitle)
         self._widget.cbEnableJavascript.clicked.disconnect(
-          self._onJavaScriptEnabledCheckbox)
+            self._onJavaScriptEnabledCheckbox)
         self._widget.tbSave.clicked.disconnect(self.onPreviewSave)
         self._widget.splitter.splitterMoved.disconnect(self.on_splitterMoved)
         self._thread.logWindowClear.disconnect(self._clear_log)
@@ -669,6 +671,7 @@ class PreviewDock(DockWidget):
                 self._scheduleDocumentProcessing()
 
     _CUSTOM_TEMPLATE_PATH = '<custom template>'
+
     def _loadTemplates(self):
         for path in [os.path.join(os.path.dirname(__file__), 'templates'),
                      os.path.expanduser('~/.enki/markdown-templates')]:
@@ -713,10 +716,11 @@ class PreviewDock(DockWidget):
     def _onCurrentTemplateChanged(self):
         """Update text or show message to the user"""
         if self._getCurrentTemplatePath() == self._CUSTOM_TEMPLATE_PATH:
-            QMessageBox.information(core.mainWindow(),
-                                   'Custom templaes help',
-                                   '<html>See <a href="https://github.com/hlamer/enki/wiki/Markdown-preview-templates">'
-                                   'this</a> wiki page for information about custom templates')
+            QMessageBox.information(
+                core.mainWindow(),
+                'Custom templaes help',
+                '<html>See <a href="https://github.com/hlamer/enki/wiki/Markdown-preview-templates">'
+                'this</a> wiki page for information about custom templates')
             self._restorePreviousTemplate()
 
         core.config()['Preview']['Template'] = self._widget.cbTemplate.currentText()
@@ -775,8 +779,8 @@ class PreviewDock(DockWidget):
                 # Hide the error log, since we do not HTML checking.
                 self._widget.teLog.setVisible(False)
                 return
-            elif ( (language == 'Restructured Text') or sphinxCanProcess or
-                  canUseCodeChat(document.filePath()) ):
+            elif ((language == 'Restructured Text') or sphinxCanProcess or
+                  canUseCodeChat(document.filePath())):
                 # Show the progress bar and error log for reST, CodeChat, or
                 # Sphinx builds. It will display progress (Sphinx only) and
                 # errors/warnings (for all three).
@@ -819,7 +823,7 @@ class PreviewDock(DockWidget):
             externallyModified = document.isExternallyModified()
             buildOnSave = core.config()['Sphinx']['BuildOnSave']
             saveThenBuild = (sphinxCanProcess and internallyModified and
-                not externallyModified and not buildOnSave)
+                             not externallyModified and not buildOnSave)
             # If Sphinx is currently building, don't autosave -- this can
             # cause Sphinx to miss changes on its next build. Instead, wait
             # until Sphinx completes, then do a save and build.
@@ -853,14 +857,14 @@ class PreviewDock(DockWidget):
                         qp.cursorPosition = lineNum, col
                     qp.document().setModified(False)
             # Build. Each line is one row in the table above.
-            if ( (not sphinxCanProcess) or
-                (sphinxCanProcess and not internallyModified) or
-                saveThenBuild ):
+            if ((not sphinxCanProcess) or
+                    (sphinxCanProcess and not internallyModified) or
+                    saveThenBuild):
                 # For reST language is already correct.
                 self._thread.process(document.filePath(), language, text)
             # Warn.
             if (sphinxCanProcess and internallyModified and
-                externallyModified and not buildOnSave):
+                    externallyModified and not buildOnSave):
                 core.mainWindow().appendMessage('Warning: file modified externally. Auto-save disabled.')
 
     def _copySphinxProjectTemplate(self, documentFilePath):
@@ -868,7 +872,7 @@ class PreviewDock(DockWidget):
         to the Sphinx project directory.
         """
         if core.config()['Sphinx']['ProjectPath'] in self._sphinxTemplateCheckIgnoreList:
-            return;
+            return
 
         # Check for the existance Sphinx project files. Copy skeleton versions
         # of them to the project if necessary.
@@ -887,13 +891,20 @@ class PreviewDock(DockWidget):
             return errors
 
         # For testing, check for test-provided button presses
-        if ( (len(self._sphinxTemplateCheckIgnoreList) == 1) and
-            isinstance(self._sphinxTemplateCheckIgnoreList[0], int) ):
+        if ((len(self._sphinxTemplateCheckIgnoreList) == 1) and
+                isinstance(self._sphinxTemplateCheckIgnoreList[0], int)):
             res = self._sphinxTemplateCheckIgnoreList[0]
         else:
-            res = QMessageBox.warning(self, r"Enki", "Sphinx project at:\n " + sphinxProjectPath
-                         + "\nis missing the template file(s): "+ ' '.join(missinglist)
-                         + ". Auto-generate those file(s)?", QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel, QMessageBox.Yes)
+            res = QMessageBox.warning(
+                self,
+                r"Enki",
+                "Sphinx project at:\n " +
+                sphinxProjectPath +
+                "\nis missing the template file(s): " +
+                ' '.join(missinglist) +
+                ". Auto-generate those file(s)?",
+                QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel,
+                QMessageBox.Yes)
         if res != QMessageBox.Yes:
             if res == QMessageBox.No:
                 self._sphinxTemplateCheckIgnoreList.append(sphinxProjectPath)
@@ -914,8 +925,8 @@ class PreviewDock(DockWidget):
             errInfo += "Copy from " + error[0] + " to " + error[1] + " caused error " + error[2] + ';\n'
         if errInfo:
             QMessageBox.warning(self, "Sphinx template file copy error",
-            "Copy template project files failed. The following errors are returned:<br>"
-            + errInfo)
+                                "Copy template project files failed. The following errors are returned:<br>"
+                                + errInfo)
 
         return errors
 
@@ -926,7 +937,7 @@ class PreviewDock(DockWidget):
         self._saveScrollPos()
         self._visiblePath = filePath
         self._widget.webView.page().mainFrame().loadFinished.connect(
-          self._restoreScrollPos) # disconnected
+            self._restoreScrollPos)  # disconnected
 
         if baseUrl.isEmpty():
             # Clear the log, then update it with build content.
@@ -979,7 +990,7 @@ class PreviewDock(DockWidget):
             # string "::". Next::
             #
             #   <string>:1589:        (ERROR/3)Unknown interpreted text role "ref".
-            errTypeRe =             '\(?(WARNING|ERROR|SEVERE)'
+            errTypeRe = '\(?(WARNING|ERROR|SEVERE)'
             # Next match the error type, which can
             # only be "WARNING", "ERROR" or "SEVERE". Before this error type the
             # message may optionally contain one left parenthesis.
@@ -992,9 +1003,9 @@ class PreviewDock(DockWidget):
             # TODO: Is this necesary? Is there any case where omitting this
             # causes a failure?
             regex = re.compile(errPosRe + errTypeRe + errEolRe,
-              # The message usually contain multiple lines; search each line
-              # for errors and warnings.
-              re.MULTILINE)
+                               # The message usually contain multiple lines; search each line
+                               # for errors and warnings.
+                               re.MULTILINE)
             # Use findall to return all matches in the message, not just the
             # first.
             result = regex.findall(errString)
@@ -1040,7 +1051,7 @@ class PreviewDock(DockWidget):
         """Set progress label.
         """
         if color:
-            style = 'QLabel { background-color: '+color+'; }'
+            style = 'QLabel { background-color: ' + color + '; }'
         else:
             style = style = 'QLabel {}'
         self._widget.prgStatus.setStyleSheet(style)
@@ -1060,7 +1071,7 @@ class PreviewDock(DockWidget):
     def _onJavaScriptEnabledCheckbox(self, enabled):
         """Checkbox clicked, save and apply settings
         """
-        core.config()['Preview']['JavaScriptEnabled'] = enabled;
+        core.config()['Preview']['JavaScriptEnabled'] = enabled
         core.config().flush()
 
         self._applyJavaScriptEnabled(enabled)

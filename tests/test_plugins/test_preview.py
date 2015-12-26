@@ -75,6 +75,7 @@ class SimplePreviewTestCase(base.TestCase):
 
 
 class TestSimplePreview(SimplePreviewTestCase):
+
     @base.requiresModule('CodeChat')
     def test_emptyCodeChatDocument(self):
         core.config()['CodeChat']['Enabled'] = True
@@ -94,6 +95,7 @@ class TestSimplePreview(SimplePreviewTestCase):
         with self.assertRaisesRegex(AssertionError, 'Dock Previe&w not found'):
             self._dock()
 
+
 class PreviewTestCase(SimplePreviewTestCase):
     """A class of utilities used to aid in testing the preview module."""
 
@@ -111,7 +113,6 @@ class PreviewTestCase(SimplePreviewTestCase):
         core.config()['Sphinx']['Enabled'] = False
 
         SimplePreviewTestCase.tearDown(self)
-
 
     def _widget(self):
         """Find then return the PreviewDock widget. Fail if it is
@@ -147,7 +148,7 @@ class PreviewTestCase(SimplePreviewTestCase):
         # HTML files don't need processing in the worker thread.
         if extension != 'html':
             self._assertHtmlReady(lambda: self.createFile('.'.join([name, extension]),
-              self.testText), numEmittedExpected=numEmittedExpected)
+                                                          self.testText), numEmittedExpected=numEmittedExpected)
 
     def _doBasicSphinxConfig(self):
         """This function will set basic Sphinx configuration options
@@ -175,11 +176,13 @@ class PreviewTestCase(SimplePreviewTestCase):
    code.""" + extension)
 
         # Build the HTML, then return it and the log.
-        self._assertHtmlReady(lambda : self.createFile('.'.join([name, extension]),
-                                                       self.testText), timeout=10000)
+        self._assertHtmlReady(lambda: self.createFile('.'.join([name, extension]),
+                                                      self.testText), timeout=10000)
         return self._html(), self._logText()
 
+
 class TestPreview(PreviewTestCase):
+
     @base.inMainLoop
     def test_html(self):
         self._doBasicTest('html')
@@ -538,10 +541,9 @@ content"""
         with self.assertRaisesRegex(AssertionError, 'Dock Previe&w not found'):
             self._dock()
         core.config()['CodeChat']['Enabled'] = True
-        core.uiSettingsManager().dialogAccepted.emit();
+        core.uiSettingsManager().dialogAccepted.emit()
         self._doBasicTest('py', numEmittedExpected=1)
         assert 'test' in self._html()
-
 
     @requiresSphinx()
     @base.inMainLoop
@@ -812,7 +814,7 @@ head
         self.assertTrue('unknown document: missing.file' in logContent)
         core.config()['Sphinx']['Enabled'] = False
         core.uiSettingsManager().dialogAccepted.emit()
-        self._assertHtmlReady(lambda: None, timeout = 10000,
+        self._assertHtmlReady(lambda: None, timeout=10000,
                               numEmittedExpected=1)
         self.assertTrue('Unknown interpreted text role "doc"' in self._logText())
 
@@ -830,7 +832,7 @@ head
 
             self._doBasicSphinxConfig()
             core.uiSettingsManager().dialogAccepted.emit()
-            self._assertHtmlReady(lambda: None, timeout = 10000,
+            self._assertHtmlReady(lambda: None, timeout=10000,
                                   numEmittedExpected=1)
             self.assertTrue("document isn't included in any toctree" in self._logText())
             self.assertTrue('#FF9955' in self._widget().prgStatus.styleSheet())
@@ -858,7 +860,7 @@ head
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(codeDoc), timeout=10000)
         # Modify this file externally.
         with open("code.rst", 'a') as f:
-            f.write (".. mytag::")
+            f.write(".. mytag::")
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(masterDoc), timeout=10000)
         core.workspace().setCurrentDocument(codeDoc)
 
@@ -929,7 +931,7 @@ head
     def test_previewCheck25(self, _getmtime):
         """Check exception handling in date comparison code."""
         # Make getmtime fail.
-        _getmtime.side_effect=OSError()
+        _getmtime.side_effect = OSError()
         # First, run Sphinx and generate some output.
         self._doBasicSphinxConfig()
         core.config()['Sphinx']['BuildOnSave'] = False
@@ -937,7 +939,6 @@ head
         self.testText = 'Testing'
         webViewContent, logContent = self._doBasicSphinxTest('rst')
         self.assertIn('modification', webViewContent)
-
 
     # Cases testing logwindow splitter
     # --------------------------------
@@ -1113,8 +1114,6 @@ head
             self.assertTrue(qp.document().isModified())
         self.assertEqual(qp.text, "testing\n ")
         self.assertFalse(qp.document().isModified())
-
-
 
 
 #
