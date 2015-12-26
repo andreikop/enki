@@ -8,8 +8,8 @@
 ### 1. Install dependencies
 Mandatory:
 
-* [Python 2.7](http://python.org/download)
-* [PyQt4](http://www.riverbankcomputing.co.uk/software/pyqt/download). With SVG support.
+* [Python 3](http://python.org/download)
+* [PyQt5](http://www.riverbankcomputing.co.uk/software/pyqt/download). With SVG support.
 * [Qutepart](https://github.com/hlamer/qutepart)
 
 Optional:
@@ -22,7 +22,7 @@ Optional:
 
 #### Debian and Debian based
 
-   `apt-get install python python-qt4 python-markdown python-docutils ctags`
+   `apt-get install python3 libqt5svg5 python3-pyqt5 python3-markdown python3-docutils ctags`
 
 Install Qutepart from [sources](https://github.com/hlamer/qutepart).
 #### Other Unixes
@@ -38,20 +38,14 @@ Go to official pages of the projects, download packages and install according to
 
 
 ### 3. Install Enki
-    python setup.py install
+    python3 setup.py install
 
-### 4. Fix python interpreter version
-If your default python version is python3 (i.e. in **Gentoo**), open file /usr/local/bin/enki with your text editor and replace
-`#!/usr/bin/env python`
-with
-`#!/usr/bin/env python2.7
-
-### 5. Enjoy
+### 4. Enjoy
 Don't forget to send a bug report if you are having some problems
 
 
 ## Running from the source tree
-    python bin/enki
+    python3 bin/enki
 
 ## License
 [GPL v2](LICENSE.GPL2.html)
