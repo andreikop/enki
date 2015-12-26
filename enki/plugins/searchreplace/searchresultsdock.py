@@ -196,7 +196,7 @@ class SearchResultsDock(DockWidget):
         for fileRes in self._model.fileResults:
             for row, result in enumerate(fileRes.results):
                 if result.checkState == Qt.Checked:
-                    if not result.fileName in items:
+                    if result.fileName not in items:
                         items[result.fileName] = []
                     items[result.fileName].append(result)
         return items

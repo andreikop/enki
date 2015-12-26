@@ -69,9 +69,9 @@ class ActionModel(QAbstractItemModel):
         except KeyError:
             actions = self._manager.children(parent.internalPointer())
 
-            if  row < 0 or row >= len(actions) or \
-                    column < 0 or column >= ActionModel._COLUMN_COUNT or \
-                    (parent.column() != 0 and parent.isValid()):
+            if(row < 0 or row >= len(actions) or
+               column < 0 or column >= ActionModel._COLUMN_COUNT or
+               (parent.column() != 0 and parent.isValid())):
                 return QModelIndex()
 
             index = self.createIndex(row, column, actions[row])
@@ -125,10 +125,10 @@ class ActionModel(QAbstractItemModel):
         return QAbstractItemModel.headerData(self, section, orientation, role)
 
     def isValid(self, index):
-        if  not index.isValid() or \
-                index.row() < 0 or \
-                index.column() < 0 or \
-                index.column() >= ActionModel._COLUMN_COUNT:
+        if(not index.isValid() or
+           index.row() < 0 or
+           index.column() < 0 or
+           index.column() >= ActionModel._COLUMN_COUNT):
             return False
 
         if index.internalPointer() is None:

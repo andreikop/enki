@@ -235,7 +235,6 @@ class MainWindow(QMainWindow):
         # pylint: disable=C0301
         # enable long lines for menu items
         # Menu or action path                          Name                     Icon            Shortcut        Hint                     enabled  checkable
-        tr = self.tr  # pylint: disable=C0103
         menu  ("mFile",                               "File"                  , ""           )
         action("mFile/aOpenProject",                  "Open Pro&ject..."      , "open.png",     "Shift+Ctrl+O" ,"Open a project"         , True)
         separator("mFile")

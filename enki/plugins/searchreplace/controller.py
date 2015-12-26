@@ -77,8 +77,6 @@ class Controller(QObject):
     def _createActions(self):
         """Create main menu actions
         """
-        actManager = core.actionManager()
-
         self._createdActions = []
 
         menu = 'mNavigation/mSearchReplace'
@@ -362,7 +360,6 @@ class Controller(QObject):
         """
         valid, error = self._widget.isSearchRegExpValid()
         valid = valid and len(self._widget.getRegExp().pattern) > 0  # valid and not empty
-        searchAvailable = valid
 
         haveDocument = core.workspace().currentDocument() is not None
         searchInFileAvailable = valid and haveDocument

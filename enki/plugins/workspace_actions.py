@@ -26,7 +26,8 @@ class Plugin(QObject):
         core.actionManager().action("mFile/aOpenProject").triggered.connect(self._onProjectOpenTriggered)
         core.actionManager().action("mFile/mReload/aCurrent").triggered.connect(self._onFileReloadTriggered)
         core.actionManager().action("mFile/mReload/aAll").triggered.connect(self._onFileReloadAllTriggered)
-        core.actionManager().action("mFile/aNew").triggered.connect(lambda: core.workspace().createEmptyNotSavedDocument(None))
+        core.actionManager().action("mFile/aNew").triggered.connect(
+            lambda: core.workspace().createEmptyNotSavedDocument(None))
         core.actionManager().action("mFile/mClose/aCurrent").triggered.connect(self._onCloseCurrentDocument)
         core.actionManager().action("mFile/mClose/aAll").triggered.connect(core.workspace().closeAllDocuments)
 
@@ -37,13 +38,17 @@ class Plugin(QObject):
         core.actionManager().action('mFile/mFileSystem').menu().aboutToShow.connect(self._onFsMenuAboutToShow)
         core.actionManager().action("mFile/mFileSystem/aRename").triggered.connect(self._onRename)
         if platform.system() != 'Windows':
-            core.actionManager().action("mFile/mFileSystem/aToggleExecutable").triggered.connect(self._onToggleExecutable)
+            core.actionManager().action("mFile/mFileSystem/aToggleExecutable").triggered.connect(
+                self._onToggleExecutable)
 
         core.actionManager().action("mNavigation/aNext").triggered.connect(core.workspace().activateNextDocument)
-        core.actionManager().action("mNavigation/aPrevious").triggered.connect(core.workspace().activatePreviousDocument)
+        core.actionManager().action("mNavigation/aPrevious").triggered.connect(
+            core.workspace().activatePreviousDocument)
 
-        core.actionManager().action("mNavigation/aFocusCurrentDocument").triggered.connect(core.workspace().focusCurrentDocument)
-        core.actionManager().action("mNavigation/aGoto").triggered.connect(lambda: core.workspace().currentDocument().invokeGoTo())
+        core.actionManager().action("mNavigation/aFocusCurrentDocument").triggered.connect(
+            core.workspace().focusCurrentDocument)
+        core.actionManager().action("mNavigation/aGoto").triggered.connect(
+            lambda: core.workspace().currentDocument().invokeGoTo())
 
     def del_(self):
         pass

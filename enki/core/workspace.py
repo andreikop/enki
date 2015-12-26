@@ -11,6 +11,7 @@ Document - opened file, widget on workspace. :class:`enki.core.document.Document
 :class:`enki.core.workspace.Workspace`
 """
 
+import sys
 import os
 import os.path
 import stat
@@ -370,7 +371,7 @@ class Workspace(QStackedWidget):
             try:
                 os.chdir(os.path.dirname(new.filePath()))
             except OSError as ex:  # directory might be deleted
-                print >> sys.stderr, 'Failed to change directory:', str(ex)
+                print('Failed to change directory:', str(ex), file=sys.stderr)
 
         if old is not None:
             for path, name in self._QUTEPART_ACTIONS:
@@ -541,7 +542,8 @@ class Workspace(QStackedWidget):
         if statInfo.st_size > _MAX_SUPPORTED_FILE_SIZE:
             msg = ("<html>" +
                    "{} file size is {}.<br/>" +
-                   "I am a text editor, but not a data dump editor. I'm sory but I don't know how to open such a big files" +
+                   "I am a text editor, but not a data dump editor. " +
+                   " I'm sory but I don't know how to open such a big files" +
                    "</html>") .format(filePath, statInfo.st_size)
             QMessageBox.critical(self._mainWindow(), "Too big file", msg)
             return None

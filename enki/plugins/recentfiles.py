@@ -3,7 +3,6 @@ recentfiles --- Recent files menu and Undo Close action
 =======================================================
 """
 import os.path
-import json
 
 from PyQt5.QtCore import QObject
 
@@ -61,7 +60,7 @@ class Plugin(QObject):
                       for document in core.workspace().documents()])
         return [path for path in self._recent
                 if os.path.exists(path) and
-                not path in opened]
+                path not in opened]
 
     def _updateUndoCloseAction(self):
         """Update action text and enabled state

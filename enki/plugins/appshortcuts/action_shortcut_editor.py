@@ -147,7 +147,7 @@ class ActionShortcutEditor(QDialog):
         return None
 
     def setShortcut(self, action, shortcut):
-        if not action in self._originalShortcuts:
+        if action not in self._originalShortcuts:
             self._originalShortcuts[action] = action.shortcut()
 
         try:

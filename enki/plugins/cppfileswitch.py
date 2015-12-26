@@ -3,7 +3,6 @@ cppfileswitch --- Switch C/C++ between header and implementation files
 ======================================================================
 """
 
-import fnmatch
 import os.path
 
 from PyQt5.QtCore import QObject

@@ -19,9 +19,7 @@ Module also **loads and saves** shortcuts configuration to file and provides **s
 """
 
 import os.path
-import json
 
-from PyQt5.QtCore import QModelIndex
 from PyQt5.QtGui import QIcon
 
 from enki.core.core import core

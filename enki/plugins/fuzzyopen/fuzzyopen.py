@@ -3,7 +3,7 @@ import os.path
 
 from enki.core.core import core
 
-from enki.core.locator import AbstractCommand, AbstractCompleter, StatusCompleter
+from enki.core.locator import AbstractCommand, AbstractCompleter, StatusCompleter, InvalidCmdArgs
 
 
 def fuzzyMatch(reversed_pattern, text):

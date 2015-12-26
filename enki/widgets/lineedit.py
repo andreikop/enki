@@ -10,8 +10,7 @@ Don't use this class if you need classical line edit
 """
 
 from PyQt5.QtCore import pyqtSignal, Qt, QSize
-from PyQt5.QtWidgets import QLineEdit, \
-    QStyle, QStyleOptionFrame, QToolButton, QStyleOptionFrame
+from PyQt5.QtWidgets import QLineEdit, QStyle, QToolButton
 from PyQt5.QtGui import QFontMetrics, QIcon, QPainter, QPalette
 
 

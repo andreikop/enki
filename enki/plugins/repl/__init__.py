@@ -224,7 +224,7 @@ class _SmlReplPlugin(_AbstractReplPlugin):
     _DOCK_TITLE = "Standard ML &Interpreter"
 
     def __init__(self):
-        if not 'SML' in core.config()['Modes']:  # if config file is old, add own settings
+        if 'SML' not in core.config()['Modes']:  # if config file is old, add own settings
             core.config()['Modes']['SML'] = {'Enabled': 'whenOpened', 'InterpreterPath': 'sml'}
 
         _AbstractReplPlugin.__init__(self)
@@ -248,7 +248,7 @@ class _PythonReplPlugin(_AbstractReplPlugin):
 
     def __init__(self):
         # if config file is old, add own settings
-        if not 'Python' in core.config()['Modes']:
+        if 'Python' not in core.config()['Modes']:
             core.config()['Modes']['Python'] = {'Enabled': 'whenOpened',
                                                 'InterpreterPath': 'python -i'}
 

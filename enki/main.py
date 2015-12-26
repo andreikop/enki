@@ -112,9 +112,7 @@ def _checkDependencies(profiler):
     try:
         import PyQt5
     except ImportError as ex:
-        plain =  'Failed to import Qt4 python bindings:\n' + \
-                 str(ex) + '\n' + \
-                 _SEE_SITE_PLAIN
+        plain = 'Failed to import Qt4 python bindings:\n{}\n{}'.format(str(ex), _SEE_SITE_PLAIN)
 
         _showErrorMessage(False, 'PyQt5 not found', plain, plain)
         raise ex
@@ -135,8 +133,8 @@ def _checkDependencies(profiler):
             str(ex) + '<br/>' + \
             _SEE_SITE_HTML + \
             "</html>"
-        plain =  "Failed to import qutepart.\n" \
-                 "See https://github.com/hlamer/qutepart\n" + \
+        plain = "Failed to import qutepart.\n" \
+                "See https://github.com/hlamer/qutepart\n" + \
             str(ex) + '\n' + \
             _SEE_SITE_PLAIN
         _showErrorMessage(True, "Qutepart not found", html, plain)

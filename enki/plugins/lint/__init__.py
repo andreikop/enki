@@ -23,7 +23,13 @@ class ProcessorThread(QThread):
 
     _Task = collections.namedtuple("Task", ["document", "language", "filePath"])
 
-    _MSG_ID_CONVERTOR = {  # Note that most of the PEP8 "errors" listed in http://pep8.readthedocs.org/en/latest/intro.html#error-codes aren't syntax errors. So, mark most of these as warnings instead. Later in the code, E9 errors are actually marked as errors. See https://github.com/hlamer/enki/issues/349.
+    """ Note that most of the PEP8 "errors" listed in
+    http://pep8.readthedocs.org/en/latest/intro.html#error-codes aren't syntax errors.
+    So, mark most of these as warnings instead.
+    Later in the code, E9 errors are actually marked as errors.
+    See https://github.com/hlamer/enki/issues/349.
+    """
+    _MSG_ID_CONVERTOR = {  #
         'E': Qutepart.LINT_WARNING,
         'W': Qutepart.LINT_WARNING,
         'F': Qutepart.LINT_ERROR,

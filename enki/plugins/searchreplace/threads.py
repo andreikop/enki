@@ -155,7 +155,6 @@ class SearchThread(StopableThread):
         """Start point of the code, running in thread.
         Build list of files for search, than do search
         """
-        startTime = time.clock()
         self.progressChanged.emit(-1, 0)
 
         files = sorted(self._getFilesToScan())

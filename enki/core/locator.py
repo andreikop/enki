@@ -518,7 +518,7 @@ class _CompleterLoaderThread(Thread):
     def _getNextTask(self):
         # discard old commands
         while self._taskQueue.qsize() > 1:
-            task = self._taskQueue.get()
+            self._taskQueue.get()
             self._taskQueue.task_done()
 
         # Get the last command

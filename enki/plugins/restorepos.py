@@ -3,7 +3,6 @@ restorepos --- Restore cursor position in a file
 ================================================
 """
 
-import sys
 import os.path
 import time
 

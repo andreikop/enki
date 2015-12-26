@@ -15,17 +15,15 @@ from PyQt5.QtCore import QDir, QEvent, \
     pyqtSignal
 
 from PyQt5.QtWidgets import QApplication, QCompleter, QDirModel, QFileDialog,  \
-    QFrame, QFileDialog, \
+    QFrame, \
     QProgressBar, \
     QShortcut, \
-    QToolButton, QWidget
+    QToolButton
 from PyQt5.QtGui import QColor, QIcon, QKeySequence, QPainter, QPalette
 
 from PyQt5 import uic
 
 from enki.core.core import core
-
-from . import searchresultsmodel
 
 from .controller import *
 

@@ -101,7 +101,7 @@ class Plugin:
                     for document in core.workspace().documents()
                     if document.filePath() is not None and
                     os.path.exists(document.filePath()) and
-                    not '/.git/' in document.filePath() and
+                    '/.git/' not in document.filePath() and
                     not (document.fileName().startswith('svn-commit') and
                          document.fileName().endswith('.tmp'))]
 

@@ -98,7 +98,6 @@ class Plugin:
         if not term:
             term = self._chooseDefaultTerminal()
 
-        cwd = os.getcwd()
         try:
             subprocess.Popen(term, cwd=os.getcwd())
         except Exception as ex:

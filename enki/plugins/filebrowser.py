@@ -249,8 +249,8 @@ class SmartHistory(QObject):
     def _updateHistory(self):
         """Directory has been activated. Update history
         """
-        if  self._history and \
-                self._history[self._historyIndex] == self._currDir:
+        if(self._history and
+           self._history[self._historyIndex] == self._currDir):
             return  # Do nothing, if moved back or forward
 
         if (self._historyIndex + 1) < len(self._history):  # not on the top of the stack

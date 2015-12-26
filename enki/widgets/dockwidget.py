@@ -10,7 +10,7 @@ This class adds next features to QDockWidget:
 
 from PyQt5.QtCore import pyqtSignal, QSize, Qt
 from PyQt5.QtWidgets import QAction, QDockWidget, \
-    QShortcut, QSizePolicy, QStyle, QStyleOptionButton, \
+    QShortcut, QSizePolicy, QStyle, \
     QStyleOptionButton, QToolBar, QWidget
 from PyQt5.QtGui import QFontMetrics, QIcon, \
     QKeySequence, QPainter, \

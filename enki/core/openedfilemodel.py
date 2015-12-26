@@ -17,15 +17,14 @@ from PyQt5.QtCore import QAbstractItemModel, \
     QModelIndex, \
     QObject, \
     Qt
-from PyQt5.QtWidgets import QAbstractItemView, QAction, QActionGroup, \
+from PyQt5.QtWidgets import QAbstractItemView, \
     QMenu, \
     QMessageBox, \
     QTreeView
 from PyQt5.QtGui import QIcon
 
 
-from enki.core.core import core, DATA_FILES_PATH
-from enki.core.uisettings import ChoiseOption
+from enki.core.core import core
 from enki.widgets.dockwidget import DockWidget
 
 
