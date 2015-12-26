@@ -4,7 +4,8 @@ Popen wrapper, which does some platform specific hacks
 """
 
 import subprocess
-import os, os.path
+import os
+import os.path
 import sys
 
 # Determine if we're frozen with Pyinstaller or not.
@@ -36,15 +37,27 @@ def open_console_output(command, cwd=None, **options):
     # (stdin, stdout, stderr) to avoid a OSError exception
     # "[Error 6] the handle is invalid."
     popen = subprocess.Popen(
-            command,
-            stdin=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            startupinfo=si, env=env, cwd=cwd,
-            **options)
+        command,
+        stdin=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        startupinfo=si, env=env, cwd=cwd,
+        **options)
 
     return popen
 
+
 def get_console_output(command, cwd=None, **options):
     popen = open_console_output(command, cwd, **options)
-    return popen.communicate()
+    stdout_bin, stderr_bin = popen.communicate()
+    try:
+        stdout = stdout_bin.decode('utf8')
+    except UnicodeDecodeError:
+        stdout = ''
+
+    try:
+        stderr = stderr_bin.decode('utf8')
+    except UnicodeDecodeError:
+        stderr = ''
+
+    return stdout, stderr

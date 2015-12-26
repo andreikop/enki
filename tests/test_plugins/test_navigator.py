@@ -1,20 +1,18 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import unittest
 import os
 import os.path
 import sys
-import subprocess
 
-from mock import MagicMock, patch
+from unittest.mock import patch
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
 import base
 
-from PyQt4.QtCore import Qt, QModelIndex, QTimer
-from PyQt4.QtTest import QTest
-from PyQt4.QtGui import QColor, QFont, QPlainTextEdit, QTextOption
+from PyQt5.QtCore import Qt, QModelIndex
+from PyQt5.QtTest import QTest
 
 from enki.core.core import core
 from enki.plugins.navigator.ctags import processText

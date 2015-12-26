@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # .. -*- coding: utf-8 -*-
 #
 # ***************************************************
@@ -13,6 +13,7 @@ import unittest
 import os.path
 import sys
 import codecs
+from unittest.mock import patch
 
 # Local application imports
 # -------------------------
@@ -24,9 +25,9 @@ from base import WaitForSignal
 
 # Third-party library imports
 # ---------------------------
-from PyQt4.QtGui import QMessageBox, QWheelEvent, QApplication
-from PyQt4.QtCore import Qt, QPoint
-import mock
+from PyQt5.QtWidgets import QMessageBox, QApplication
+from PyQt5.QtGui import QWheelEvent
+from PyQt5.QtCore import Qt, QPointF, QPoint
 
 # Local application imports
 # -------------------------
@@ -78,19 +79,19 @@ class TestSimplePreview(SimplePreviewTestCase):
     def test_emptyCodeChatDocument(self):
         core.config()['CodeChat']['Enabled'] = True
         core.workspace().createEmptyNotSavedDocument()
-        with self.assertRaisesRegexp(AssertionError, 'Dock Previe&w not found'):
+        with self.assertRaisesRegex(AssertionError, 'Dock Previe&w not found'):
             self._dock()
 
     @requiresSphinx()
     def test_emptySphinxDocument(self):
         core.config()['Sphinx']['Enabled'] = True
         core.workspace().createEmptyNotSavedDocument()
-        with self.assertRaisesRegexp(AssertionError, 'Dock Previe&w not found'):
+        with self.assertRaisesRegex(AssertionError, 'Dock Previe&w not found'):
             self._dock()
 
     def test_emptyDocument(self):
         core.workspace().createEmptyNotSavedDocument()
-        with self.assertRaisesRegexp(AssertionError, 'Dock Previe&w not found'):
+        with self.assertRaisesRegex(AssertionError, 'Dock Previe&w not found'):
             self._dock()
 
 class PreviewTestCase(SimplePreviewTestCase):
@@ -430,13 +431,13 @@ content"""
         self._doBasicSphinxConfig()
         core.config()['Sphinx']['OutputPath'] = os.path.join(self.TEST_FILE_DIR, '_build', 'html')
 
-        self.testText = u"""# ****
+        self.testText = """# ****
 # head
 # ****
 #
 # content"""
         webViewContent, logContent = self._doBasicSphinxTest('py')
-        self.assertTrue(u'<p>content</p>' in webViewContent)
+        self.assertTrue('<p>content</p>' in webViewContent)
 
     @requiresSphinx()
     @base.requiresModule('CodeChat')
@@ -447,22 +448,22 @@ content"""
         core.config()['CodeChat']['Enabled'] = True
         self._doBasicSphinxConfig()
 
-        self.testText = u"""# ****
+        self.testText = """# ****
 # head
 # ****
 #
 # content"""
         webViewContent, logContent = self._doBasicSphinxTest('py')
-        self.assertTrue(u'<p>content</p>' in webViewContent)
+        self.assertTrue('<p>content</p>' in webViewContent)
 
     @base.requiresModule('CodeChat')
     @base.inMainLoop
     def test_previewCheck4(self):
         """If Enki is opened without any configuration, the preview dock will
         not appear. This will not affect resT files or html files."""
-        self.testText = u'test'
+        self.testText = 'test'
         self.createFile('file.py', self.testText)
-        with self.assertRaisesRegexp(AssertionError, 'Dock Previe&w not found'):
+        with self.assertRaisesRegex(AssertionError, 'Dock Previe&w not found'):
             self._dock()
 
     @requiresSphinx()
@@ -486,9 +487,9 @@ content"""
         """If an empty code file is passed to Enki, the CodeChat preview panel
            should be empty."""
         core.config()['CodeChat']['Enabled'] = True
-        self.testText = u''
+        self.testText = ''
         self._doBasicTest('py')
-        self.assertEqual(self._plainText(), u' \n')
+        self.assertEqual(self._plainText(), ' \n')
 
     @requiresSphinx()
     @base.inMainLoop
@@ -496,9 +497,9 @@ content"""
         """Empty code file produces a Sphinx failure since file in toctree should
            always have a header."""
         self._doBasicSphinxConfig()
-        self.testText = u''
+        self.testText = ''
         webViewContent, logContent = self._doBasicSphinxTest('rst')
-        self.assertTrue(u"doesn't have a title" in logContent)
+        self.assertTrue("doesn't have a title" in logContent)
 
     @base.requiresModule('CodeChat')
     @base.inMainLoop
@@ -506,7 +507,7 @@ content"""
         """Test that Unicode characters are handled properly.
         """
         core.config()['CodeChat']['Enabled'] = True
-        self.testText = u'Енки'
+        self.testText = 'Енки'
         self._doBasicTest('py')
         # Plaintext captured from the preview dock will append a newline if
         # preview dock is not empty. A '\n' is added accordingly.
@@ -518,13 +519,13 @@ content"""
         """Unicode string passed to Sphinx should be handled properly.
         """
         self._doBasicSphinxConfig()
-        self.testText = u"""**********
+        self.testText = """**********
 Енки
 **********
 
 content"""
         webViewContent, logContent = self._doBasicSphinxTest('rst')
-        self.assertTrue(u"<h1>Енки" in webViewContent)
+        self.assertTrue("<h1>Енки" in webViewContent)
 
     @base.requiresModule('CodeChat')
     @base.inMainLoop
@@ -532,9 +533,9 @@ content"""
         """Start with a short code file, make sure the preview window isn't
            opened, then enable the CodeChat module and refresh Enki.
            The preview window should now be opened."""
-        self.testText = u'test'
+        self.testText = 'test'
         self.createFile('file.py', self.testText)
-        with self.assertRaisesRegexp(AssertionError, 'Dock Previe&w not found'):
+        with self.assertRaisesRegex(AssertionError, 'Dock Previe&w not found'):
             self._dock()
         core.config()['CodeChat']['Enabled'] = True
         core.uiSettingsManager().dialogAccepted.emit();
@@ -551,7 +552,7 @@ content"""
         """
         self._doBasicSphinxConfig()
         core.config()['Sphinx']['Enabled'] = False
-        self.testText = u''
+        self.testText = ''
         self._doBasicSphinxTest('rst')
         self.assertEqual(self._plainText(), '')
         self.assertEqual(self._logText(), '')
@@ -562,9 +563,9 @@ content"""
         """Empty code file should be rendered correctly with 'no title' warning.
         """
         self._doBasicSphinxConfig()
-        self.testText = u''
+        self.testText = ''
         webViewContent, logContent = self._doBasicSphinxTest('rst')
-        self.assertTrue(u"""doesn't have a title""" in logContent)
+        self.assertTrue("""doesn't have a title""" in logContent)
 
     @base.requiresModule('CodeChat')
     @base.inMainLoop
@@ -572,11 +573,11 @@ content"""
         """Uninterpretable reStructuredText syntax in source code will generate
            errors and be displayed in the output log window."""
         core.config()['CodeChat']['Enabled'] = True
-        self.testText = u'# .. wrong::'
+        self.testText = '# .. wrong::'
         self._doBasicTest('py')
         self.assertTrue("""Unknown directive type "wrong".""" in self._logText())
         # do the same test for restructuredText
-        self.testText = u'.. wrong::'
+        self.testText = '.. wrong::'
         self._doBasicTest('rst')
         self.assertTrue("""Unknown directive type "wrong".""" in self._logText())
 
@@ -585,7 +586,7 @@ content"""
     def test_previewCheck9a(self):
         """Test Sphinx error can be captured correctly"""
         self._doBasicSphinxConfig()
-        self.testText = u"""****
+        self.testText = """****
 head3
 ****
 
@@ -599,7 +600,7 @@ content"""
         """Empty input should generate an empty log.
         """
         core.config()['CodeChat']['Enabled'] = True
-        self.testText = u''
+        self.testText = ''
         self._doBasicTest('py')
         self.assertEqual(self._logText(), '')
         # do the same test for restructuredText
@@ -612,12 +613,12 @@ content"""
         """Unicode should display correctly in log window too.
         """
         core.config()['CodeChat']['Enabled'] = True
-        self.testText = u'# .. Енки::'
+        self.testText = '# .. Енки::'
         self._doBasicTest('py')
-        self.assertTrue(u'Енки' in self._logText())
-        self.testText = u'.. Енки::'
+        self.assertTrue('Енки' in self._logText())
+        self.testText = '.. Енки::'
         self._doBasicTest('rst')
-        self.assertTrue(u'Енки' in self._logText())
+        self.assertTrue('Енки' in self._logText())
 
     @unittest.skip("Unicode isn't presented in the log window")
     @requiresSphinx()
@@ -627,14 +628,14 @@ content"""
            error output is not in unicode.
         """
         self._doBasicSphinxConfig()
-        self.testText = u"""****
+        self.testText = """****
 head
 ****
 
 .. Енки::"""
         webViewContent, logContent = self._doBasicSphinxTest('rst')
         # Unicode cannot be found in Sphinx error message output.
-        self.assertTrue(u'Енки' in logContent)
+        self.assertTrue('Енки' in logContent)
 
     @base.requiresModule('CodeChat')
     @base.inMainLoop
@@ -652,7 +653,7 @@ head
         """
         core.config()['CodeChat']['Enabled'] = True
         # First, First, working code with no errors or warnings.
-        self.testText = u'abc'
+        self.testText = 'abc'
         self._doBasicTest('rst')
         self.assertEqual(self._widget().prgStatus.styleSheet(), 'QLabel {}')
 
@@ -661,7 +662,7 @@ head
     def test_previewCheck15(self):
         core.config()['CodeChat']['Enabled'] = True
         # Next, test a code piece with only warnings.
-        self.testText = u'`abc'
+        self.testText = '`abc'
         self._doBasicTest('rst')
         self.assertTrue('#FF9955' in self._widget().prgStatus.styleSheet())
 
@@ -670,7 +671,7 @@ head
     def test_previewCheck16(self):
         core.config()['CodeChat']['Enabled'] = True
         # Next, test a code piece with only errors.
-        self.testText = u'# .. ERROR::'
+        self.testText = '# .. ERROR::'
         self._doBasicTest('py')
         self.assertTrue('red' in self._widget().prgStatus.styleSheet())
 
@@ -681,7 +682,7 @@ head
         the progress bar color when both warnings and errors are present.
         """
         core.config()['CodeChat']['Enabled'] = True
-        self.testText = u'# .. ERROR::\n# `WARNING_'
+        self.testText = '# .. ERROR::\n# `WARNING_'
         self._doBasicTest('py')
         ps = self._widget().prgStatus
         self.assertIn('red', ps.styleSheet())
@@ -731,13 +732,13 @@ head
         core.config()['Sphinx']['Cmdline'] = r'sphinx-build -d ' + os.path.join('_build', 'doctrees') \
                                              + ' . ' + os.path.join('_build', 'html')
 
-        self.testText = u"""# ****
+        self.testText = """# ****
 # head
 # ****
 #
 # content"""
         webViewContent, logContent = self._doBasicSphinxTest('py')
-        self.assertTrue(u'<p>content</p>' in webViewContent)
+        self.assertTrue('<p>content</p>' in webViewContent)
 
     @requiresSphinx()
     @base.requiresModule('CodeChat')
@@ -752,7 +753,7 @@ head
             os.makedirs(self.TEST_FILE_DIR)
         self._doBasicSphinxConfig()
 
-        self.testText = u"""# ****
+        self.testText = """# ****
 # head
 # ****
 #
@@ -761,7 +762,7 @@ head
             webViewContent, logContent = self._doBasicSphinxTest('py')
         finally:
             self.TEST_FILE_DIR = testFileDir
-        self.assertTrue(u'<p>content</p>' in webViewContent)
+        self.assertTrue('<p>content</p>' in webViewContent)
 
     @requiresSphinx()
     @base.requiresModule('CodeChat')
@@ -780,7 +781,7 @@ head
                                              + ' "' + self.TEST_FILE_DIR \
                                              + '" ' + os.path.join('_build', 'html')
 
-        self.testText = u"""# ****
+        self.testText = """# ****
 # head
 # ****
 #
@@ -789,7 +790,7 @@ head
             webViewContent, logContent = self._doBasicSphinxTest('py')
         finally:
             self.TEST_FILE_DIR = testFileDir
-        self.assertTrue(u'<p>content</p>' in webViewContent)
+        self.assertTrue('<p>content</p>' in webViewContent)
 
     @requiresSphinx()
     @base.requiresModule('CodeChat')
@@ -801,19 +802,19 @@ head
         core.config()['CodeChat']['Enabled'] = True
         self._doBasicSphinxConfig()
 
-        self.testText = u"""# ****
+        self.testText = """# ****
 # head
 # ****
 #
 # :doc:`missing.file`"""
         webViewContent, logContent = self._doBasicSphinxTest('py')
-        self.assertTrue(u'<span class="pre">missing.file</span>' in webViewContent)
-        self.assertTrue(u'unknown document: missing.file' in logContent)
+        self.assertTrue('<span class="pre">missing.file</span>' in webViewContent)
+        self.assertTrue('unknown document: missing.file' in logContent)
         core.config()['Sphinx']['Enabled'] = False
         core.uiSettingsManager().dialogAccepted.emit()
         self._assertHtmlReady(lambda: None, timeout = 10000,
                               numEmittedExpected=1)
-        self.assertTrue(u'Unknown interpreted text role "doc"' in self._logText())
+        self.assertTrue('Unknown interpreted text role "doc"' in self._logText())
 
     @requiresSphinx()
     @base.inMainLoop
@@ -822,16 +823,16 @@ head
         restructuredText and then render using sphinx.
         """
         with ImportFail(['CodeChat']):
-            self.testText = u'Underlying :download:`source code <file.rst>`.'
+            self.testText = 'Underlying :download:`source code <file.rst>`.'
             self._doBasicTest('rst')
-            self.assertTrue(u'Unknown interpreted text role "download".' in self._logText())
+            self.assertTrue('Unknown interpreted text role "download".' in self._logText())
             self.assertTrue('red' in self._widget().prgStatus.styleSheet())
 
             self._doBasicSphinxConfig()
             core.uiSettingsManager().dialogAccepted.emit()
             self._assertHtmlReady(lambda: None, timeout = 10000,
                                   numEmittedExpected=1)
-            self.assertTrue(u"document isn't included in any toctree" in self._logText())
+            self.assertTrue("document isn't included in any toctree" in self._logText())
             self.assertTrue('#FF9955' in self._widget().prgStatus.styleSheet())
 
     @requiresSphinx()
@@ -844,12 +845,12 @@ head
         self._doBasicSphinxConfig()
         core.config()['Sphinx']['BuildOnSave'] = False
         core.config().flush()
-        self.codeText = u"""****
+        self.codeText = """****
 head
 ****
 
 """
-        self.masterText = u""".. toctree::
+        self.masterText = """.. toctree::
 
    code.rst"""
         codeDoc = self.createFile('code.rst', self.testText)
@@ -875,7 +876,7 @@ head
     @base.inMainLoop
     def test_previewCheck24(self):
         self._doBasicSphinxConfig()
-        self.testText = u"""# ****
+        self.testText = """# ****
 # head
 # ****
 #
@@ -890,7 +891,7 @@ head
         core.config()['CodeChat']['Enabled'] = True
         self._doBasicSphinxConfig()
 
-        self.testText = u"""# ****
+        self.testText = """# ****
 # head
 # ****
 #
@@ -907,9 +908,9 @@ head
         self._doBasicSphinxConfig()
         core.config()['Sphinx']['BuildOnSave'] = False
         core.config().flush()
-        self.testText = u'Testing'
+        self.testText = 'Testing'
         webViewContent, logContent = self._doBasicSphinxTest('rst')
-        self.assertTrue(u'Testing' in webViewContent)
+        self.assertTrue('Testing' in webViewContent)
 
         # Now, exclude this from the build and re-run.
         conf = os.path.join(self.TEST_FILE_DIR, 'conf.py')
@@ -920,9 +921,9 @@ head
         self._assertHtmlReady(lambda: qp.appendPlainText('xxx'),
                               timeout=10000)
         webViewContent, logContent = (self._html(), self._logText())
-        self.assertIn(u'is older than the source file', webViewContent)
+        self.assertIn('is older than the source file', webViewContent)
 
-    @mock.patch('os.path.getmtime')
+    @patch('os.path.getmtime')
     @requiresSphinx()
     @base.inMainLoop
     def test_previewCheck25(self, _getmtime):
@@ -933,9 +934,9 @@ head
         self._doBasicSphinxConfig()
         core.config()['Sphinx']['BuildOnSave'] = False
         core.config().flush()
-        self.testText = u'Testing'
+        self.testText = 'Testing'
         webViewContent, logContent = self._doBasicSphinxTest('rst')
-        self.assertIn(u'modification', webViewContent)
+        self.assertIn('modification', webViewContent)
 
 
     # Cases testing logwindow splitter
@@ -1069,8 +1070,16 @@ head
     def test_zoom(self):
         webView = self._widget().webView
         self.assertEqual(webView.zoomFactor(), 1)
-        zoom_out = QWheelEvent(webView.mapToGlobal(QPoint(10, 10)), -120, Qt.NoButton, Qt.ControlModifier)
-        zoom_in = QWheelEvent(webView.mapToGlobal(QPoint(10, 10)), 120, Qt.NoButton, Qt.ControlModifier)
+
+        def makeEv(delta):
+            return QWheelEvent(QPointF(10, 10), QPointF(webView.mapToGlobal(QPoint(10, 10))),
+                               QPoint(0, 0), QPoint(0, delta),
+                               delta,
+                               Qt.Horizontal,
+                               Qt.NoButton,
+                               Qt.ControlModifier)
+        zoom_out = makeEv(-120)
+        zoom_in = makeEv(120)
 
         QApplication.instance().sendEvent(webView, zoom_out)
         self.assertTrue(0.85 < webView.zoomFactor() < 0.95)
@@ -1102,7 +1111,7 @@ head
         with self._WaitForHtmlReady(timeout=5000, numEmittedExpected=1):
             qp.appendPlainText(' ')
             self.assertTrue(qp.document().isModified())
-        self.assertEquals(qp.text, "testing\n ")
+        self.assertEqual(qp.text, "testing\n ")
         self.assertFalse(qp.document().isModified())
 
 

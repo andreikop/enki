@@ -7,10 +7,10 @@ Use this module for adding own actions to the main menu
 Shortcuts are configured by appshortcuts plugin
 """
 
-import sys
+from PyQt5.QtCore import pyqtSignal, QObject
+from PyQt5.QtWidgets import QMenu, QMenuBar, QAction
+from PyQt5.QtGui import QIcon, QKeySequence
 
-from PyQt4.QtCore import pyqtSignal, QDir, QObject
-from PyQt4.QtGui import QAction, QIcon, QKeySequence, QMenu, QMenuBar
 
 class ActionMenuBar(QMenuBar):
     """Menu bar implementation.
@@ -72,7 +72,7 @@ class ActionManager(QObject):
     def del_(self):
         if self._pathToAction:
             assert 0, 'ActionManager: you have to delete all actions before destroying actions model. ' + \
-                      'Existing actions: ' + str(self._pathToAction.keys())
+                      'Existing actions: ' + str(iter(self._pathToAction.keys()))
 
     def action(self, path ):
         """Get action by its path. i.e.
@@ -97,7 +97,7 @@ class ActionManager(QObject):
     def allActions(self):
         """Reqursive list of existing actions
         """
-        return self._pathToAction.itervalues()
+        return iter(self._pathToAction.values())
 
     @staticmethod
     def _parentPath(path):
@@ -113,7 +113,7 @@ class ActionManager(QObject):
         if parentAction is None:
             assert False, "Menu path not found: " + subPath
 
-        if isinstance(action, basestring):
+        if isinstance(action, str):
             action = QAction( icon, action, parentAction )
         else:
             action.setParent( parentAction )
@@ -178,7 +178,7 @@ class ActionManager(QObject):
         """Remove menu.
         If removeEmptyPath is True - remove also empty parent menus
         """
-        if isinstance(action, basestring):
+        if isinstance(action, str):
             action = self.action( action )
         assert action is not None
 
@@ -230,16 +230,16 @@ class ActionManager(QObject):
             return [object \
                         for object in QObject.children(self) \
                             if isinstance(object, QAction) and \
-                               object in self._pathToAction.values()]
+                               object in iter(self._pathToAction.values())]
         else:
             return [object \
                         for object in action.children() \
-                            if object in self._pathToAction.values()]
+                            if object in iter(self._pathToAction.values())]
 
     def defaultShortcut(self, action ):
         """Get actions default shortcut
         """
-        if isinstance(action, basestring):
+        if isinstance(action, str):
             action = self.action( action )
 
         if action is not None:
@@ -251,10 +251,10 @@ class ActionManager(QObject):
     def setDefaultShortcut(self, action, shortcut ):
         """Set actions default shortcut
         """
-        if isinstance(action, basestring):
+        if isinstance(action, str):
             action = self.action( action )
 
-        if isinstance(shortcut, basestring):
+        if isinstance(shortcut, str):
             shortcut = QKeySequence(shortcut)
 
         action.defaultShortcut = shortcut

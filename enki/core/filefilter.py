@@ -12,7 +12,7 @@ Regexp is constructed from patterns, configurable in the settings
 import fnmatch
 import re
 
-from PyQt4.QtCore import pyqtSignal, QObject
+from PyQt5.QtCore import pyqtSignal, QObject
 
 from enki.core.core import core
 from enki.core.uisettings import ListOnePerLineOption

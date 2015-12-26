@@ -5,7 +5,8 @@ config --- Load and save settings
 
 import enki.core.json_wrapper
 
-from PyQt4.QtGui import QApplication, QFontDatabase
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtGui import QFontDatabase
 
 
 class Config():

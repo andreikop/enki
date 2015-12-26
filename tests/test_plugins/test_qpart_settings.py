@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import unittest
 import os.path
@@ -8,9 +8,10 @@ sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."
 
 import base
 
-from PyQt4.QtCore import Qt
-from PyQt4.QtTest import QTest
-from PyQt4.QtGui import QColor, QFont, QPlainTextEdit, QTextOption
+from PyQt5.QtCore import Qt
+from PyQt5.QtTest import QTest
+from PyQt5.QtWidgets import QPlainTextEdit
+from PyQt5.QtGui import QColor, QFont, QTextOption
 
 from enki.core.core import core
 

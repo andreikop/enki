@@ -9,7 +9,7 @@ import os
 import os.path
 import time
 
-from PyQt4.QtCore import QObject, QThread, pyqtSignal
+from PyQt5.QtCore import QObject, QThread, pyqtSignal
 
 from enki.core.core import core
 
@@ -19,8 +19,8 @@ STATUS_SHOW_TIMEOUT_MSEC = 3000
 
 
 class _ScannerThread(QThread):
-    itemsReady = pyqtSignal(unicode, list)
-    status = pyqtSignal(unicode)
+    itemsReady = pyqtSignal(str, list)
+    status = pyqtSignal(str)
 
     def __init__(self, parent, path):
         QThread.__init__(self, parent)
@@ -63,7 +63,7 @@ class _ScannerThread(QThread):
 
 class Project(QObject):
 
-    changed = pyqtSignal(unicode)
+    changed = pyqtSignal(str)
     """
     chagned(projectPath)
 
@@ -76,7 +76,7 @@ class Project(QObject):
 
     **Signal** emitted, when list of project files has been loaded
     """
-    scanStatusChanged = pyqtSignal(unicode)
+    scanStatusChanged = pyqtSignal(str)
     """
     scanStatusChanged()
 

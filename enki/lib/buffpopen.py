@@ -11,10 +11,7 @@ import os
 import copy
 import time
 
-try:
-    from Queue import Queue, Empty, Full
-except ImportError:
-    from queue import Queue, Empty, Full  # python 3.x
+from queue import Queue, Empty, Full  # python 3.x
 
 
 class BufferedPopen:
@@ -56,7 +53,8 @@ class BufferedPopen:
                                        stdin=subprocess.PIPE,
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.STDOUT,
-                                       startupinfo=si, env=env)
+                                       startupinfo=si, env=env,
+                                       bufsize=0)
 
         self._inThread = threading.Thread(target=self._writeInputThread,
                                           name='enki.lib.buffpopen.input')
@@ -110,13 +108,19 @@ class BufferedPopen:
         """
         # hlamer: Reading output by one character is not effective, but, I don't know
         # how to implement non-blocking reading of not full lines better
-        def read():
-            if self.isAlive():
-                return pipe.read(1)
-            else:
-                return pipe.read()
+        def readChar():
+            pendingData = b''
+            while True:
+                data = pipe.read(1)
+                try:
+                    text = (pendingData + data).decode('utf8')
+                except UnicodeDecodeError:
+                    pendingData += data
+                    continue
+                else:
+                    return text
 
-        text = read()
+        text = readChar()
         while text and not self._mustDie:
             try:
                 self._outQueue.put(text, False)
@@ -124,7 +128,7 @@ class BufferedPopen:
                 time.sleep(0.01)
                 continue
 
-            text = read()
+            text = readChar()
 
     def _writeInputThread(self):
         """Writer thread function. Writes data from input queue to process
@@ -135,7 +139,8 @@ class BufferedPopen:
             except Empty:
                 continue
 
-            self._popen.stdin.write(text)
+            data = text.encode('utf8')
+            self._popen.stdin.write(data)
 
     def write(self, text):
         """Write data to the subprocess

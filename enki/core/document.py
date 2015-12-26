@@ -5,16 +5,14 @@ document --- Opened file representation
 
 import os.path
 
-from PyQt4.QtCore import pyqtSignal, QFileSystemWatcher, QObject, QTimer
-from PyQt4.QtGui import QColor, QFileDialog, \
-                        QFont, \
-                        QIcon, \
+from PyQt5.QtCore import pyqtSignal, QFileSystemWatcher, QObject, QTimer
+from PyQt5.QtWidgets import QFileDialog, \
                         QInputDialog, \
                         QMessageBox, \
                         QPlainTextEdit, \
-                        QTextOption, \
                         QWidget, \
                         QVBoxLayout
+from PyQt5.QtGui import QColor, QFont, QIcon, QTextOption
 
 from qutepart import Qutepart
 
@@ -187,7 +185,7 @@ class Document(QWidget):
         core.uiSettingsManager().dialogAccepted.connect(self._applyQpartSettings)
 
         layout = QVBoxLayout(self)
-        layout.setMargin(0)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.qutepart)
         self.setFocusProxy(self.qutepart)
 
@@ -250,15 +248,15 @@ class Document(QWidget):
         self._fileWatcher.setContents(data)
 
         try:
-            text = unicode(data, 'utf8')
-        except UnicodeDecodeError, ex:
+            text = str(data, 'utf8')
+        except UnicodeDecodeError as ex:
             QMessageBox.critical(None,
                                  self.tr("Can not decode file"),
                                  filePath + '\n' +
-                                 unicode(str(ex), 'utf8') +
+                                 str(ex) +
                                  '\nProbably invalid encoding was set. ' +
                                  'You may corrupt your file, if saved it')
-            text = unicode(data, 'utf8', 'replace')
+            text = str(data, 'utf8', 'replace')
 
         # Strip last EOL. Qutepart adds it when saving file
         if text.endswith('\r\n'):
@@ -333,8 +331,8 @@ class Document(QWidget):
         if  not os.path.exists(dirPath):
             try:
                 os.makedirs(dirPath)
-            except OSError, ex:
-                error = unicode(str(ex), 'utf8')
+            except OSError as ex:
+                error = str(ex)
                 QMessageBox.critical(None,
                                      self.tr("Cannot save file"),
                                      self.tr("Cannot create directory '%s'. Error '%s'." % (dirPath, error)))
@@ -353,7 +351,7 @@ class Document(QWidget):
         except IOError as ex:
             QMessageBox.critical(None,
                                  self.tr("Cannot write to file"),
-                                 unicode(str(ex), 'utf8'))
+                                 str(ex))
             return
         finally:
             self._fileWatcher.enable()

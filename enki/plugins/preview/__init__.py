@@ -18,10 +18,10 @@ import fnmatch
 #
 # Third-party imports
 # -------------------
-from PyQt4.QtCore import QObject, Qt, pyqtSlot
-from PyQt4.QtGui import QAction, QIcon, QKeySequence, QWidget, QFileDialog, \
-    QPalette
-from PyQt4 import uic
+from PyQt5.QtCore import QObject, Qt, pyqtSlot
+from PyQt5.QtWidgets import QAction, QWidget, QFileDialog
+from PyQt5.QtGui import QIcon, QKeySequence, QPalette
+from PyQt5 import uic
 #
 # Local imports
 # -------------
@@ -182,7 +182,7 @@ class CodeChatSettingsWidget(QWidget):
             self.labelCodeChatNotInstalled.setVisible(False)
 
         # Add this GUI to the settings dialog box.
-        dialog.appendPage(u"Literate programming", self)
+        dialog.appendPage("Literate programming", self)
         # Next, have the setting UI auto-update the corresponding CodeChat and
         # config entries.
         dialog.appendOption(CheckableOption(dialog, core.config(),
@@ -263,7 +263,6 @@ class SphinxSettingsWidget(QWidget):
         else:
             self.leValidateSphinxExecutable.setText('Sphinx is found!')
 
-    @pyqtSlot()
     def on_pbSphinxProjectPath_clicked(self):
         """Provide a directory chooser for the user to select a project path.
         """
@@ -283,7 +282,6 @@ class SphinxSettingsWidget(QWidget):
                 self.leSphinxOutputPath.setText(os.path.join(path, '_build',
                                                              'html'))
 
-    @pyqtSlot()
     def on_pbSphinxOutputPath_clicked(self):
         """Proivde a directory chooser for the user to select an output path.
         """
@@ -293,7 +291,6 @@ class SphinxSettingsWidget(QWidget):
 
     # The Sphinx executable can be selected by the user. A filter is needed
     # such that non-executable files will not be selected by the user.
-    @pyqtSlot()
     def on_pbSphinxExecutable_clicked(self):
         fltr = "sphinx-build" + (".exe" if sys.platform.startswith("win") else "") \
                + ";; All files (*)"
@@ -396,13 +393,13 @@ class Plugin(QObject):
         if not 'Sphinx' in core.config():
             core.config()['Sphinx'] = {}
             core.config()['Sphinx']['Enabled'] = False
-            core.config()['Sphinx']['Executable'] = u'sphinx-build'
-            core.config()['Sphinx']['ProjectPath'] = u''
+            core.config()['Sphinx']['Executable'] = 'sphinx-build'
+            core.config()['Sphinx']['ProjectPath'] = ''
             core.config()['Sphinx']['BuildOnSave'] = False
             core.config()['Sphinx']['OutputPath'] = os.path.join('_build',
                                                                  'html')
             core.config()['Sphinx']['AdvancedMode'] = False
-            core.config()['Sphinx']['Cmdline'] = ( u'sphinx-build -d ' +
+            core.config()['Sphinx']['Cmdline'] = ( 'sphinx-build -d ' +
               os.path.join('_build','doctrees') + ' . ' +
               os.path.join('_build', 'html') )
             core.config().flush()
@@ -513,11 +510,9 @@ class Plugin(QObject):
         CodeChatSettingsWidget(dialog)
         SphinxSettingsWidget(dialog)
 
-    @pyqtSlot()
     def _setSphinxActionVisibility(self):
         self._sphinxAction.setVisible(core.config()['Sphinx']['Enabled'])
 
-    @pyqtSlot()
     def onSphinxPath(self):
         core.config()['Sphinx']['ProjectPath'] = os.getcwd()
         core.config().flush()

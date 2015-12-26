@@ -3,8 +3,9 @@ pathcompleter --- Path completer for Locator
 ============================================
 """
 
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QApplication, QFileSystemModel, QPalette, QStyle
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QFileSystemModel, QStyle
+from PyQt5.QtGui import QPalette
 
 import os
 import os.path
@@ -13,6 +14,7 @@ import glob
 from enki.lib.htmldelegate import htmlEscape
 from enki.core.locator import AbstractCompleter
 from enki.core.core import core
+from functools import reduce
 
 
 def makeSuitableCompleter(text):
@@ -198,8 +200,8 @@ class PathCompleter(AbstractPathCompleter):
 
         try:
             filesAndDirs = os.listdir(self._path)
-        except OSError, ex:
-            self._error = unicode(str(ex), 'utf8')
+        except OSError as ex:
+            self._error = str(ex)
             return
 
         if not filesAndDirs:

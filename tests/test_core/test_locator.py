@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import unittest
 
@@ -9,7 +9,6 @@ sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."
 
 # Import this to set the SIP API correctly. It is otherwise not used in these
 # tests.
-import base
 from enki.core.locator import splitLine
 
 
@@ -29,7 +28,6 @@ class Test(unittest.TestCase):
         self.assertEqual(splitLine('\\ '), [' '])
         self.assertEqual(splitLine('\\\\'), ['\\'])
         self.assertEqual(splitLine('\\x'), ['x'])
-
 
 
 if __name__ == '__main__':

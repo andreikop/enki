@@ -4,10 +4,10 @@
 import re
 import os.path
 import collections
-import Queue
+import queue
 
-from PyQt4.QtCore import QObject, QThread, pyqtSignal
-from PyQt4.QtGui import QIcon
+from PyQt5.QtCore import QObject, QThread, pyqtSignal
+from PyQt5.QtGui import QIcon
 
 from enki.core.core import core
 from enki.core.uisettings import ChoiseOption, TextOption, CheckableOption, NumericOption
@@ -35,7 +35,7 @@ class ProcessorThread(QThread):
 
     def __init__(self):
         QThread.__init__(self)
-        self._queue = Queue.Queue()
+        self._queue = queue.Queue()
         self.start(QThread.LowPriority)
 
     def process(self, document):
@@ -174,7 +174,7 @@ class Plugin(QObject):
         widget = SettingsWidget(dialog)
 
         icon = QIcon(os.path.join(os.path.dirname(__file__), 'python.png'))
-        dialog.appendPage(u"Lint/Python", widget, icon)
+        dialog.appendPage("Lint/Python", widget, icon)
 
         # Options
         dialog.appendOption(CheckableOption(dialog, core.config(), "Lint/Python/Enabled", widget.gbEnabled))

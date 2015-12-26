@@ -1,15 +1,13 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import unittest
 import os.path
 import sys
-import time
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
 import base
 
-from enki.core.core import core
 
 class Test(base.TestCase):
     CREATE_NOT_SAVED_DOCUMENT = False

@@ -10,18 +10,17 @@ import re
 import time
 import fnmatch
 
-from PyQt4.QtCore import pyqtSignal, \
-                         QThread
+from PyQt5.QtCore import pyqtSignal, QThread
 
 from enki.core.core import core
-import searchresultsmodel
-import substitutions
+from . import searchresultsmodel
+from . import substitutions
 
 
 def _isBinary(fileObject):
     """Expects, that file position is 0, when exits, file position is 0
     """
-    binary = '\0' in fileObject.read( 4096 )
+    binary = b'\0' in fileObject.read(4096)
     fileObject.seek(0)
     return binary
 
@@ -58,7 +57,7 @@ class SearchThread(StopableThread):
 
     resultsAvailable = pyqtSignal(list)  # list of searchresultsmodel.FileResults
     progressChanged = pyqtSignal(int, int)  # int value, int total
-    error = pyqtSignal(unicode)
+    error = pyqtSignal(str)
 
     def search(self, regExp, mask, inOpenedFiles, searchPath):
         """Start search process.
@@ -129,7 +128,7 @@ class SearchThread(StopableThread):
             maskRegExp = None
 
         if self._inOpenedFiles:
-            files = self._openedFiles.keys()
+            files = iter(self._openedFiles.keys())
             if maskRegExp:
                 basenames = [os.path.basename(f) for f in files]
                 files = [f for f in basenames if maskRegExp.match(f)]
@@ -148,9 +147,9 @@ class SearchThread(StopableThread):
             with open(fileName, 'rb') as openedFile:
                 if _isBinary(openedFile):
                     return ''
-                return unicode(openedFile.read(), 'utf8', errors = 'ignore')
+                return str(openedFile.read(), 'utf8', errors = 'ignore')
         except IOError as ex:
-            print ex
+            print(ex)
             return ''
 
     def run(self):
@@ -234,9 +233,9 @@ class ReplaceThread(StopableThread):
 
     Replacements in opened documents are done by GUI thread, in other - by new thread
     """
-    resultsHandled = pyqtSignal(unicode, list)
-    finalStatus = pyqtSignal(unicode)
-    error = pyqtSignal(unicode)
+    resultsHandled = pyqtSignal(str, list)
+    finalStatus = pyqtSignal(str)
+    error = pyqtSignal(str)
 
     def replace(self, results, replaceText):
         """Run replace process
@@ -244,11 +243,11 @@ class ReplaceThread(StopableThread):
         self.stop()
 
         self._replaceText = replaceText
-        self._totalCount = sum([len(v) for v in results.itervalues()])
+        self._totalCount = sum([len(v) for v in results.values()])
 
         # do replacements in opened files, prepare for replacing in not opened
         self._results = {}
-        for filePath, matches in results.iteritems():
+        for filePath, matches in results.items():
             foundDocument = core.workspace().findDocumentForPath(filePath)
             if foundDocument is not None:
                 self._replaceInOpenedDocument(foundDocument, matches)
@@ -275,7 +274,7 @@ class ReplaceThread(StopableThread):
             content = content.encode('utf8')
         except UnicodeEncodeError as ex:
             pattern = self.tr("Failed to encode file to utf8: %s")
-            text = unicode(str(ex), 'utf8')
+            text = str(ex)
             self.error.emit(pattern % text)
             return
 
@@ -284,7 +283,7 @@ class ReplaceThread(StopableThread):
                 openFile.write(content)
         except IOError as ex:
             pattern = self.tr("Error while saving replaced content: %s")
-            text = unicode(str(ex), 'utf8')
+            text = str(ex)
             self.error.emit(pattern % text)
 
     def _fileContent(self, fileName):
@@ -298,7 +297,7 @@ class ReplaceThread(StopableThread):
             return ''
 
         try:
-            return unicode(content, 'utf8')
+            return str(content, 'utf8')
         except UnicodeDecodeError as ex:
             self.error.emit(self.tr( "File %s not read: unicode error '%s'. File may be corrupted" % \
                             (fileName, str(ex) ) ))

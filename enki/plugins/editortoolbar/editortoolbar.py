@@ -10,9 +10,10 @@ File contains module implementation
 import os.path
 
 
-from PyQt4.QtCore import Qt, QSize, QTimer, pyqtSignal
-from PyQt4.QtGui import QDialog, QFontMetrics, QIcon, QLabel, QMenu, QToolButton, QPalette
-from PyQt4 import uic
+from PyQt5.QtCore import Qt, QSize, QTimer, pyqtSignal
+from PyQt5.QtWidgets import QDialog, QLabel, QMenu, QToolButton
+from PyQt5.QtGui import QFontMetrics, QIcon, QPalette
+from PyQt5 import uic
 
 from enki.core.core import core
 

@@ -10,6 +10,7 @@ import tempfile
 import subprocess
 import codecs
 import imp
+import warnings
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
@@ -17,9 +18,10 @@ import sip
 sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
 
-from PyQt4.QtCore import Qt, QTimer, QEventLoop
-from PyQt4.QtGui import QDialog, QKeySequence, QApplication
-from PyQt4.QtTest import QTest
+from PyQt5.QtCore import Qt, QTimer, QEventLoop
+from PyQt5.QtWidgets import QDialog, QApplication
+from PyQt5.QtGui import QKeySequence
+from PyQt5.QtTest import QTest
 
 papp = QApplication(sys.argv)
 
@@ -75,49 +77,44 @@ def inMainLoop(func, *args):
     Do not use for tests, which doesn't use main loop, because it slows down execution.
     """
     def wrapper(*args):
-        self = args[0]
-
-        # create a single-shot timer. Could use QTimer.singleShot(),
-        # but can't cancel this / disconnect it.
-        timer = QTimer()
-        timer.setSingleShot(True)
-        timer.timeout.connect(self.app.quit)
-
         def execWithArgs():
-            core.mainWindow().show()
-            QTest.qWaitForWindowShown(core.mainWindow())
-            app = QApplication.instance()
-            app.setActiveWindow(core.mainWindow())
-            assert app.focusWidget() is not None
-            func(*args)
-            # When done processing these events, exit the event loop. To do so,
-            timer.start(0)
+            try:
+                core.mainWindow().show()
+                QTest.qWaitForWindowExposed(core.mainWindow())
+                app = QApplication.instance()
+                app.setActiveWindow(core.mainWindow())
+                assert app.focusWidget() is not None
+                func(*args)
+                # When done processing these events, exit the event loop. To do so,
+            finally:
+                try:
+                    app.processEvents()
+                except:
+                    pass
+                app.quit()
 
         QTimer.singleShot(0, execWithArgs)
 
         # Catch any exceptions which the EventLoop would otherwise catch
         # and not re-raise.
         exceptions = []
+
         def excepthook(type_, value, tracebackObj):
             exceptions.append((value, tracebackObj))
-            self.app.exit()
+            QApplication.instance().exit()
         oldExcHook = sys.excepthook
         sys.excepthook = excepthook
 
         try:
             # Run the requested function in the application's main loop.
-            self.app.exec_()
+            QApplication.instance().exec_()
             # If an exception occurred in the event loop, re-raise it.
             if exceptions:
                 value, tracebackObj = exceptions[0]
-                raise value, None, tracebackObj
+                raise value.with_traceback(tracebackObj)
         finally:
             # Restore the old exception hook
             sys.excepthook = oldExcHook
-            # Stop the timer, in case an exception or an unexpected call to
-            # self.app.exit() brought us here.
-            timer.stop()
-            timer.timeout.disconnect(self.app.quit)
 
     wrapper.__name__ = func.__name__  # for unittest test runner
     return wrapper
@@ -155,8 +152,6 @@ def requiresModule(module):
 
 
 class TestCase(unittest.TestCase):
-    app = QApplication.instance()
-
     TEST_FILE_DIR = os.path.join(tempfile.gettempdir(), 'enki-tests')
 
     EXISTING_FILE = os.path.join(TEST_FILE_DIR, 'existing_file.txt')
@@ -190,6 +185,11 @@ class TestCase(unittest.TestCase):
     def setUp(self):
         self._finished = False
         self._cleanUpFs()
+
+        # Ignore warnings from PyQt5 ui loader
+        warnings.simplefilter("ignore", ResourceWarning)
+        warnings.simplefilter("ignore", DeprecationWarning)
+
         try:
             os.mkdir(self.TEST_FILE_DIR)
         except OSError as e:
@@ -205,14 +205,21 @@ class TestCase(unittest.TestCase):
     def tearDown(self):
         self._finished = True
 
-        for document in core.workspace().documents():
-            document.qutepart.text = ''  # clear modified flag, avoid Save Files dialog
+        def blockingFunc():
+            try:
+                core.workspace().forceCloseAllDocuments()
+                core.term()
+            finally:
+                try:
+                    QApplication.instance().processEvents()
+                except:
+                    pass
+                QApplication.instance().quit()
 
-        core.workspace().closeAllDocuments()
-        core.term()
-        _processPendingEvents()
+        QTimer.singleShot(0, blockingFunc)
+        QApplication.exec_()
+
         self._cleanUpFs()
-
 
     def keyClick(self, key, modifiers=Qt.NoModifier, widget=None):
         """Alias for ``QTest.keyClick``.
@@ -222,14 +229,14 @@ class TestCase(unittest.TestCase):
         key may be QKeySequence or string
         """
         if widget is None:
-            widget = self.app.focusWidget()
+            widget = QApplication.instance().focusWidget()
 
         if widget is None:
             widget = core.mainWindow()
 
         assert widget is not None
 
-        if isinstance(key, basestring):
+        if isinstance(key, str):
             assert modifiers == Qt.NoModifier, 'Do not set modifiers, if using text key'
             code = QKeySequence(key)[0]
             key = Qt.Key(code & 0x01ffffff)
@@ -242,7 +249,7 @@ class TestCase(unittest.TestCase):
 
         If widget is none - focused widget will be keyclicked"""
         if widget is None:
-            widget = self.app.focusWidget()
+            widget = QApplication.instance().focusWidget()
 
         if widget is None:
             widget = core.mainWindow()
@@ -263,7 +270,7 @@ class TestCase(unittest.TestCase):
         return core.workspace().openFile(path)
 
     def _findDialog(self):
-        for widget in self.app.topLevelWidgets():
+        for widget in QApplication.instance().topLevelWidgets():
             if widget.isVisible() and isinstance(widget, QDialog):
                 return widget
         else:
@@ -290,7 +297,7 @@ class TestCase(unittest.TestCase):
             dialog = self._findDialog()
 
             if dialog is not None and \
-               isDialogsChild(dialog, self.app.focusWidget()):
+               isDialogsChild(dialog, QApplication.instance().focusWidget()):
                 runInDialogFunc(dialog)
             else:
                 if attempt < ATTEMPTS:
@@ -436,7 +443,7 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     # If an exception occurred in the event loop, re-raise it.
     if exceptions:
         value, tracebackObj = exceptions[0]
-        raise value, None, tracebackObj
+        raise value.with_traceback(tracebackObj)
     # Clean up: don't allow the timer to call app.quit after this
     # function exits, which would produce "interesting" behavior.
     ret = timer.isActive()
@@ -557,7 +564,7 @@ class WaitForSignal(unittest.TestCase):
         # If an exception occurred in the event loop, re-raise it.
         if self.exceptions:
             value, tracebackObj = self.exceptions
-            raise value, None, tracebackObj
+            raise value.with_traceback(tracebackObj)
 
         # Check that the signal occurred.
         self.sawSignal = timerIsActive and not self.areSenderSignalArgsWrong

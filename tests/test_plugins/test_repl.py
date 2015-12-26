@@ -1,18 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import unittest
 import os.path
 import sys
-import time
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
 import base
 
-from PyQt4.QtCore import Qt, QTimer
-from PyQt4.QtTest import QTest
-
-from enki.core.core import core
+from PyQt5.QtTest import QTest
 
 
 class Test(base.TestCase):
@@ -33,8 +29,8 @@ class Test(base.TestCase):
     @base.requiresCmdlineUtility('scheme')
     @base.inMainLoop
     def test_1(self):
-        # Scheme
-        return # TODO
+        """ Scheme """
+        return  # TODO
         self.createFile('test.scm', '(+ 17 10)')
         self.keyClick('Ctrl+E')
         self._waitForText('27', 'MIT Scheme')
@@ -42,7 +38,7 @@ class Test(base.TestCase):
     @base.requiresCmdlineUtility('sml -h')
     @base.inMainLoop
     def test_2(self):
-        # SML
+        """ SML """
         self.createFile('test.sml', '1234 * 567;')
         self.keyClick('Ctrl+E')
 
@@ -51,8 +47,8 @@ class Test(base.TestCase):
     @base.requiresCmdlineUtility('python -h')
     @base.inMainLoop
     def test_3(self):
-        # Python
-        self.createFile('test.py', 'print 1234 * 567\n')
+        """ Python """
+        self.createFile('test.py', 'print(1234 * 567)\n')
         self.keyClick('Ctrl+E')
 
         self._waitForText('699678', 'Python')
@@ -60,14 +56,23 @@ class Test(base.TestCase):
     @base.requiresCmdlineUtility('python -h')
     @base.inMainLoop
     def test_4(self):
-        # Python, execute a function
-        self.createFile('test.py', 'def mysum(a, b):\n\n  return a + b')
+        """ Python, execute a function """
+        self.createFile('test.py', 'def mysum(a, b):\n\n  return a + b\n')
         self.keyClick('Ctrl+E')
         self.keyClick('Alt+I')
         self.keyClicks('mysum(77000, 13)')
         self.keyClick('Enter')
 
         self._waitForText('77013', 'Python')
+
+    @base.requiresCmdlineUtility('python -h')
+    @base.inMainLoop
+    def test_5(self):
+        """ print unicode """
+        self.createFile('test.py', '# coding=utf8\nprint("Привет")\n')
+        self.keyClick('Ctrl+E')
+
+        self._waitForText('Привет', 'Python')
 
 
 if __name__ == '__main__':

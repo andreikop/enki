@@ -1,5 +1,5 @@
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QAction, QHBoxLayout, QIcon, QLabel, QLineEdit, QMessageBox, QWidget
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QAction, QHBoxLayout, QIcon, QLabel, QLineEdit, QMessageBox, QWidget
 
 # core is main enki.core singletone. It is usually used for getting pointers to other singletones
 from enki.core.core import core
@@ -102,7 +102,7 @@ class Plugin:
         Add own options
         """
         page = SettingsPage(dialog)
-        dialog.appendPage(u"Hello World", page, QIcon(':/enkiicons/help.png'))
+        dialog.appendPage("Hello World", page, QIcon(':/enkiicons/help.png'))
 
         # Options
         dialog.appendOption(TextOption(dialog, core.config(), "HelloWorld/VeryImportantOption", page.edit))

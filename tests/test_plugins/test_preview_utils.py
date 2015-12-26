@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # .. -*- coding: utf-8 -*-
 #
 # **********************************************************************
@@ -23,13 +23,14 @@ import base
 
 # Third-party library ihmports
 # ---------------------------
-import mock
+from unittest.mock import patch
 
 # Local application imports
 # -------------------------
 from enki.plugins.preview import commonPrefix
 from enki.plugins.preview.preview import copyTemplateFile
 from enki.plugins.preview import _getSphinxVersion
+
 
 class TestWithDummy(base.TestCase):
     def setUp(self):
@@ -62,8 +63,7 @@ class TestWithDummy(base.TestCase):
         os.makedirs(dest)
         errors = []
         copyTemplateFile(errors, source, 'missing.file', dest)
-        self.assertNotEqual(filter(lambda x: x.startswith("[Errno 2] No such file or directory"),
-                                   errors[0]), ())
+        self.assertNotEqual([x for x in errors[0] if x.startswith("[Errno 2] No such file or directory")], ())
 
     def test_copyTemplateFile2a(self):
         # Test empty source directory.
@@ -71,7 +71,7 @@ class TestWithDummy(base.TestCase):
         dest = os.path.join(self.TEST_FILE_DIR, 'sub')
         os.makedirs(dest)
         errors = []
-        with self.assertRaisesRegexp(OSError,
+        with self.assertRaisesRegex(OSError,
           "Input or output directory cannot be None"):
             copyTemplateFile(errors, source, 'missing.file', dest)
 
@@ -81,15 +81,14 @@ class TestWithDummy(base.TestCase):
         dest = os.path.join(source, 'sub')
         errors = []
         copyTemplateFile(errors, source, 'dummy.txt', dest)
-        self.assertNotEqual(filter(lambda x: x.startswith("[Errno 2] No such file or directory"),
-                                   errors[0]), ())
+        self.assertNotEqual([x for x in errors[0] if x.startswith("[Errno 2] No such file or directory")], ())
 
     def test_copyTemplateFile3a(self):
         # Test empty destination directory.
         source = self.TEST_FILE_DIR
         dest = None
         errors = []
-        with self.assertRaisesRegexp(OSError,
+        with self.assertRaisesRegex(OSError,
           "Input or output directory cannot be None"):
             copyTemplateFile(errors, source, 'dummy.txt', dest)
 
@@ -107,7 +106,7 @@ class TestWithDummy(base.TestCase):
         copyTemplateFile(errors, source, 'dummy.txt', dest)
         # Restore source file's attribute
         os.chmod(os.path.join(source, 'dummy.txt'), mode)
-        self.assertNotEqual(filter(lambda x: "Permission denied" in x, errors[0]), ())
+        self.assertNotEqual([x for x in errors[0] if "Permission denied" in x], ())
 
     def test_copyTemplateFile5(self):
         # Test the fifth argument of copyTemplateFile: newName, that will alter
@@ -121,6 +120,7 @@ class TestWithDummy(base.TestCase):
         self.assertTrue(os.path.isfile(os.path.join(source, 'dummy.txt')))
         self.assertTrue(os.path.isfile(os.path.join(dest, 'newFile.name')))
 
+
 class Test(base.TestCase):
     #  Tests for getSphinxVersion
     ## -------------------------
@@ -133,7 +133,7 @@ class Test(base.TestCase):
     # For mocking, mock an item where it is used, not where it came from. See
     # https://docs.python.org/3/library/unittest.mock.html#where-to-patch and
     # http://www.toptal.com/python/an-introduction-to-mocking-in-python.
-    @mock.patch('enki.plugins.preview.get_console_output')
+    @patch('enki.plugins.preview.get_console_output')
     def test_getSphinxVersion2(self, mock_gca):
         """Check that _getSphinxVersion raises an exception if the Sphinx
         version info isn't present."""
@@ -142,7 +142,7 @@ class Test(base.TestCase):
         with self.assertRaises(ValueError):
             _getSphinxVersion('anything_since_replaced_by_mock')
 
-    @mock.patch('enki.plugins.preview.get_console_output')
+    @patch('enki.plugins.preview.get_console_output')
     def test_getSphinxVersion3(self, mock_gca):
         """Check that _getSphinxVersion complies to sphinx version 1.1.3"""
         mock_gca.return_value = ("stderr", \
@@ -153,7 +153,7 @@ Usage: C:\Python27\Scripts\sphinx-build [options] sourcedir outdir [filenames...
         self.assertEqual(_getSphinxVersion('anything_since_replaced_by_mock'),
                          [1, 1, 3])
 
-    @mock.patch('enki.plugins.preview.get_console_output')
+    @patch('enki.plugins.preview.get_console_output')
     def test_getSphinxVersion4(self, mock_gca):
         """Check that _getSphinxVersion complies to sphinx version 1.2.3"""
         mock_gca.return_value = ("stderr", \
@@ -162,7 +162,7 @@ Usage: C:\Python27\Scripts\sphinx-build [options] sourcedir outdir [filenames...
         self.assertEqual(_getSphinxVersion('anything_since_replaced_by_mock'),
                          [1, 2, 3])
 
-    @mock.patch('enki.plugins.preview.get_console_output')
+    @patch('enki.plugins.preview.get_console_output')
     def test_getSphinxVersion5(self, mock_gca):
         """Check that _getSphinxVersion complies to sphinx version 1.3.1"""
         mock_gca.return_value = ("stdout", \

@@ -102,7 +102,7 @@ def _parseTags(ctagsLang, text):
         try:
             name, lineNumber, type_, scopeType, scopeName = _parseTag(line)
         except _ParseFailed:
-            print >> sys.stderr, 'navigator: failed to parse ctags output line "{}"'.format(line)
+            print('navigator: failed to parse ctags output line "{}"'.format(line), file=sys.stderr)
             continue
 
         if type_ not in ignoredTypes:
@@ -158,8 +158,7 @@ def processText(ctagsLang, text, sortAlphabetically):
 
     # \t is used as separator in ctags output. Avoid \t in tags text to simplify parsing
     # encode to utf8
-    data = text.encode('utf8').replace('\t', '    ')
-
+    data = text.replace('\t', '    ').encode('utf8')
 
     with _namedTemp() as tempFile:
         tempFile.write(data)

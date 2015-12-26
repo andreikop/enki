@@ -54,13 +54,13 @@
 # =======
 # Library imports
 # ---------------
-import sys, time
+import sys
+import time
 #
 # Third-party imports
 # -------------------
-from PyQt4.QtGui import QApplication
-from PyQt4.QtCore import QThread, pyqtSignal, QObject, QTimer, QRunnable, \
-  QThreadPool, pyqtSlot
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtCore import QThread, pyqtSignal, QObject, QTimer, QRunnable, QThreadPool
 #
 # Local imports
 # -------------
@@ -207,7 +207,6 @@ class AsyncAbstractController(QObject):
     # This is run shortly before this class's C++ destructor is invoked. It
     # emulates a C++ destructor by freeing resources before the C++ class is
     # destroyed.
-    @pyqtSlot()
     def onParentDestroyed(self):
         self.terminate()
 #
@@ -228,6 +227,9 @@ class AsyncAbstractController(QObject):
         # Only run this once.
         if self.isAlive:
             self.isAlive = False
+            if self.parent():
+                self.parent().destroyed.disconnect(self.onParentDestroyed)
+            QApplication.instance().destroyed.disconnect(self.onParentDestroyed)
             self._terminate()
 
     # .. |terminate| replace:: Called by ``terminate`` to actually shut down this class.
@@ -387,7 +389,7 @@ class RunLatest(object):
 # and return its results to ``g``.
 class Future(object):
     # The possible states for an instance of this class.
-    STATE_WAITING, STATE_RUNNING, STATE_FINISHED, STATE_CANCELED = range(4)
+    STATE_WAITING, STATE_RUNNING, STATE_FINISHED, STATE_CANCELED = list(range(4))
 
     def __init__(self,
       # |g|
@@ -479,7 +481,7 @@ class Future(object):
             # produces ``type, value, traceback`` where type is the exception
             # type of the exception being handled, value is a class instance,
             # and traceback is the desired trackback to report.
-            raise self._exc_info[1], None, self._exc_info[2]
+            raise self._exc_info[1].with_traceback(self._exc_info[2])
         else:
             return self._result
 
@@ -510,7 +512,6 @@ class _SignalInvoker(QObject):
     doneSignal = pyqtSignal(Future)
 
     # A method to invoke ``future.g``.
-    @pyqtSlot(Future)
     def onDoneSignal(self, future):
         # Invoke ``g`` if it was provided and should be invoked.
         if future._g and not future._discardResult:
@@ -543,7 +544,6 @@ class _AsyncWorker(QObject):
 
     # The start signal is connected to this slot. It runs ``f`` in the worker
     # thread.
-    @pyqtSlot(Future)
     def onStart(self,
       # The Future instance which contains the callable to invoke.
       future):
@@ -574,7 +574,6 @@ class TimePrinter(object):
         self.qt.start(self.interval_sec*1000)
 
     # Print the time.
-    @pyqtSlot()
     def printTime(self):
         sys.stdout.write('{} seconds: task states are '.format(self.time_sec))
         for task in self.tasks:
@@ -590,7 +589,7 @@ def main():
     # Define a function ``foo`` to run aysnchronously, calling ``foo_done`` when
     # it completes.
     def foo(a, b):
-        print('Foo ' + str(a) + str(b) + ' in thread ' + str(QThread.currentThread()))
+        print(('Foo ' + str(a) + str(b) + ' in thread ' + str(QThread.currentThread())))
         if a == 3:
             # As a test, raise an exception. See if a useful traceback is
             # printed.
@@ -598,7 +597,7 @@ def main():
         time.sleep(0.3)
         return a + 0.1
     def foo_done(future):
-        print('Done ' + str(future.result))
+        print(('Done ' + str(future.result)))
 
     # Run foo using a single thread ('QThread') or a pool of threads (0). Give
     # it ``app`` as the parent so that when Qt destroys ``app``, it will also

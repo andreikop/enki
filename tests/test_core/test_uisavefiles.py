@@ -1,20 +1,21 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import unittest
 import os.path
 import sys
-import time
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
 import base
 
-from PyQt4.QtTest import QTest
-from PyQt4.QtGui import QFileDialog, QKeySequence
+from PyQt5.QtTest import QTest
+from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtGui import QKeySequence
 
 
 from enki.core.core import core
 from enki.core.workspace import _UISaveFiles
+
 
 class Test(base.TestCase):
 
@@ -122,7 +123,7 @@ class Test(base.TestCase):
         # Label one of the dialog buttons.
         s = uis._firstLetterShortcut(uis.buttonBox.Discard, 'Does &This work')
 
-        self.assertEquals(s.key(), QKeySequence("T"))
+        self.assertEqual(s.key(), QKeySequence("T"))
 
 if __name__ == '__main__':
     unittest.main()

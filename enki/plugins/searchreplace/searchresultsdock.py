@@ -5,14 +5,14 @@ searchresultsdock --- Search results dock widget
 Shows results with SearchResultsModel
 """
 
-from PyQt4.QtCore import Qt, pyqtSignal, QModelIndex
-from PyQt4.QtGui import QFontMetrics, QHBoxLayout, QIcon, \
-                        QTreeView, QWidget, QPushButton
+from PyQt5.QtCore import Qt, pyqtSignal, QModelIndex
+from PyQt5.QtWidgets import QTreeView, QWidget, QPushButton, QHBoxLayout
+from PyQt5.QtGui import QFontMetrics, QIcon
 from enki.widgets.dockwidget import DockWidget
 from enki.core.core import core
 from enki.lib.htmldelegate import HTMLDelegate
 
-import searchresultsmodel
+from . import searchresultsmodel
 
 
 class ExpandCollapseAllButton(QPushButton):
@@ -142,7 +142,7 @@ class SearchResultsDock(DockWidget):
         self._view.setItemDelegate(self._delegate)
 
         self._layout = QHBoxLayout( widget )
-        self._layout.setMargin( 5 )
+        self._layout.setContentsMargins(5, 5, 5, 5)
         self._layout.setSpacing( 5 )
         self._layout.addWidget( self._view )
 

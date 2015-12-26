@@ -84,7 +84,7 @@ class Plugin:
         if not popularityTable:  # no indents. Empty file?
             return  # give up
 
-        sortedIndents = sorted(popularityTable.iteritems(), key = lambda item: item[1], reverse = True)
+        sortedIndents = sorted(iter(popularityTable.items()), key = lambda item: item[1], reverse = True)
         theMostPopular = sortedIndents[0]
 
         if len(sortedIndents) >= 2:

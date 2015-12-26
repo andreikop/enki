@@ -14,19 +14,13 @@ Document - opened file, widget on workspace. :class:`enki.core.document.Document
 import os
 import os.path
 import stat
-import sys
 
-from PyQt4.QtGui import QAction, \
-                        QApplication, \
-                        QDialog, QDialogButtonBox, \
-                        QFileDialog, \
-                        QKeySequence, \
-                        QListWidgetItem, \
-                        QMessageBox, \
-                        QStackedWidget, \
-                        QShortcut
-from PyQt4.QtCore import pyqtSignal, QEvent, Qt  # pylint: disable=E0611
-from PyQt4 import uic
+from PyQt5.QtWidgets import QAction, QApplication, QDialog, QDialogButtonBox, \
+    QListWidgetItem, QMessageBox, QStackedWidget, QShortcut
+from PyQt5.QtGui import QKeySequence
+
+from PyQt5.QtCore import pyqtSignal, QEvent, Qt  # pylint: disable=E0611
+from PyQt5 import uic
 
 from enki.core.core import core, DATA_FILES_PATH
 import enki.core.openedfilemodel
@@ -46,8 +40,9 @@ class _UISaveFiles(QDialog):
         uic.loadUi(os.path.join(DATA_FILES_PATH, 'ui/SaveFiles.ui'), self)
         self.buttonBox.clicked.connect(self._onButtonClicked)
 
-        self._itemToDocument = {}
-        for document in documents:
+        self._documents = documents
+
+        for index, document in enumerate(documents):
             name = document.fileName()
             if name is None:
                 name = 'untitled'
@@ -55,7 +50,6 @@ class _UISaveFiles(QDialog):
             if document.filePath() is not None:
                 item.setToolTip( document.filePath() )
             item.setCheckState( Qt.Checked )
-            self._itemToDocument[item] = document
 
         # Retitle buttons, add first letter shortcuts for them.
         bb = self.buttonBox
@@ -100,7 +94,7 @@ class _UISaveFiles(QDialog):
         if stButtton == QDialogButtonBox.Save:
             for i in range(self.listWidget.count()):
                 if  self.listWidget.item( i ).checkState() != Qt.Unchecked:
-                    saved = self._itemToDocument[self.listWidget.item(i)].saveFile()
+                    saved = self._documents[i].saveFile()
                     if not saved:
                         self.reject()
                         break
@@ -178,7 +172,7 @@ class Workspace(QStackedWidget):
     Convenience signal, which retransmits original signal, sent by the document
     """  # pylint: disable=W0105
 
-    languageChanged = pyqtSignal(Document, unicode)
+    languageChanged = pyqtSignal(Document, str)
     """
     languageChanged(document, language)
 
@@ -205,7 +199,7 @@ class Workspace(QStackedWidget):
     Convenience signal, which retransmits original signal, sent by the document
     """  # pylint: disable=W0105
 
-    eolChanged = pyqtSignal(Document, unicode)
+    eolChanged = pyqtSignal(Document, str)
     """
     eolChanged(document, eol)
 
@@ -531,7 +525,7 @@ class Workspace(QStackedWidget):
         except (OSError, IOError) as ex:
             QMessageBox.critical(self._mainWindow(),
                                  "Failed to stat the file",
-                                 unicode(str(ex), 'utf8'))
+                                 str(ex))
             return None
 
         # Check if is a directory

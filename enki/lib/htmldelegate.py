@@ -3,10 +3,12 @@ htmldelegate --- QStyledItemDelegate delegate. Draws HTML
 =========================================================
 """
 
-from PyQt4.QtGui import QApplication, QAbstractTextDocumentLayout, \
-                        QStyledItemDelegate, QStyle, QStyleOptionViewItemV4, \
-                        QTextDocument, QPalette, QWidget
-from PyQt4.QtCore import QSize
+from PyQt5.QtWidgets import QApplication, \
+                        QStyledItemDelegate, QStyle, QStyleOptionViewItem, \
+                        QWidget
+from PyQt5.QtGui import QAbstractTextDocumentLayout, \
+                        QTextDocument, QPalette
+from PyQt5.QtCore import QSize
 
 
 _HTML_ESCAPE_TABLE = \
@@ -47,7 +49,7 @@ class HTMLDelegate(QStyledItemDelegate):
 
         option.state |= QStyle.State_Active  # draw fuzzy-open completion as focused, even if focus is on the line edit
 
-        options = QStyleOptionViewItemV4(option)
+        options = QStyleOptionViewItem(option)
         self.initStyleOption(options, index)
 
         style = QApplication.style() if options.widget is None else options.widget.style()
@@ -80,7 +82,7 @@ class HTMLDelegate(QStyledItemDelegate):
     def sizeHint(self, option, index):
         """QStyledItemDelegate.sizeHint implementation
         """
-        options = QStyleOptionViewItemV4(option)
+        options = QStyleOptionViewItem(option)
         self.initStyleOption(options, index)
 
         doc = QTextDocument()

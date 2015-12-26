@@ -43,20 +43,19 @@ class _StartProfiler:
             diffMs = (diff.seconds * 1000.) + (diff.microseconds / 1000)
             totalMs += diffMs
             prev = time
-            print '%s: %d' % (description.ljust(30), diffMs)
-        print 'Total                         : %d' % totalMs
+            print('%s: %d' % (description.ljust(30), diffMs))
+        print('Total                         : %d' % totalMs)
 
 
 def excepthook(excepttype, exceptvalue, tracebackobj):
     """Show exception dialog, write to log
     """
     text = ''.join(traceback.format_exception(excepttype, exceptvalue, tracebackobj)).strip()
-    text = unicode(text, 'utf8')
     logging.critical(text)
 
-    from PyQt4 import uic
-    from PyQt4.QtCore import pyqtSignal, QObject
-    from PyQt4.QtGui import QApplication, QDialog
+    from PyQt5 import uic
+    from PyQt5.QtCore import pyqtSignal, QObject
+    from PyQt5.QtWidgets import QApplication, QDialog
 
     from enki.core.core import core, DATA_FILES_PATH
 
@@ -86,18 +85,18 @@ def excepthook(excepttype, exceptvalue, tracebackobj):
 def _showErrorMessage(haveQt, header, html, plain):
     """Show error message with messagebox
     """
-    print >> sys.stderr, header
-    print >> sys.stderr, plain
+    print(header, file=sys.stderr)
+    print(plain, file=sys.stderr)
     if haveQt:
-        from PyQt4.QtGui import QApplication, QMessageBox
+        from PyQt5.QtGui import QApplication, QMessageBox
         app = QApplication ( sys.argv )
         QMessageBox.critical(None, header, html)
     else:
         try:
-            import tkMessageBox
+            import tkinter.messagebox
         except ImportError:
             return
-        tkMessageBox.showwarning(header, plain)
+        tkinter.messagebox.showwarning(header, plain)
 
 
 def _checkDependencies(profiler):
@@ -110,24 +109,24 @@ def _checkDependencies(profiler):
             'installation instructions</a>'
 
     try:
-        import PyQt4
-    except ImportError, ex:
+        import PyQt5
+    except ImportError as ex:
         plain =  'Failed to import Qt4 python bindings:\n' + \
                  str(ex) + '\n' + \
                  _SEE_SITE_PLAIN
 
-        _showErrorMessage(False, 'PyQt4 not found', plain, plain)
+        _showErrorMessage(False, 'PyQt5 not found', plain, plain)
         raise ex
 
     import sip
     sip.setapi('QString', 2)
     sip.setapi('QVariant', 2)
 
-    profiler.stepDone('Import PyQt4')
+    profiler.stepDone('Import PyQt5')
 
     try:
         import qutepart
-    except ImportError, ex:
+    except ImportError as ex:
         html = "<html>" + \
                     "Failed to import qutepart.<br/>" \
                     "See <a href=\"https://github.com/hlamer/qutepart\">qutepart site</a><br/>" \
@@ -185,25 +184,22 @@ def _parseCommandLine():
                "no-session" : options.no_session}
 
     # Parse +N spec.
-    plusNSpecs = filter(lambda s: s.startswith('+'), args)
-    files = filter(lambda s: not s.startswith('+'), args)
+    plusNSpecs = [s for s in args if s.startswith('+')]
+    files = [s for s in args if not s.startswith('+')]
 
     if plusNSpecs:
         if len(plusNSpecs) > 1:
-            print >> sys.stderr, "Only one +N spec are allowed"
+            print("Only one +N spec are allowed", file=sys.stderr)
             sys.exit(-1)
         spec = plusNSpecs[0]
         try:
             cmdLine["firstFileLineToGo"] = int(spec[1:])
         except ValueError:
-            print >> sys.stderr, "Invalid +N spec value: '%s'" % spec
+            print("Invalid +N spec value: '%s'" % spec, file=sys.stderr)
             sys.exit(-1)
-
 
     # Get list of absolute pathes of files to open. List may contain not existing files
     filePathes = [os.path.abspath(arg) for arg in files]
-    # convert to unicode for avoid Python <-> Qt interaction problems
-    filePathes = [unicode(f, 'utf8') for f in filePathes]
     cmdLine["files"] = filePathes
 
     return cmdLine
@@ -256,7 +252,7 @@ def main():
         sys.exit(-1)
 
     # Imports only here. Hack for ability to get help and version info even on system without PyQt.
-    import PyQt4.QtGui
+    import PyQt5.QtGui
     import qutepart
 
     logging.basicConfig(level=logging.ERROR)
@@ -264,7 +260,7 @@ def main():
 
     sys.excepthook = excepthook
 
-    app = PyQt4.QtGui.QApplication ( sys.argv )
+    app = PyQt5.QtWidgets.QApplication ( sys.argv )
     app.setApplicationName( enki.core.defines.PACKAGE_NAME )
     app.setOrganizationName( enki.core.defines.PACKAGE_ORGANISATION )
     app.setOrganizationDomain( enki.core.defines.PACKAGE_URL )

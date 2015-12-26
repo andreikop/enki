@@ -6,11 +6,13 @@ API docks at http://api.monkeystudio.org/fresh/
 
 import os.path
 
-from PyQt4 import uic
-from PyQt4.QtCore import QEvent, Qt
-from PyQt4.QtGui import QDialog, QDialogButtonBox, QHeaderView, QKeySequence, QMessageBox, QSortFilterProxyModel
+from PyQt5 import uic
+from PyQt5.QtCore import QEvent, Qt
+from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QHeaderView, QMessageBox
+from PyQt5.QtGui import QKeySequence
+from PyQt5.QtCore import QSortFilterProxyModel
 
-from actionmodel import ActionModel
+from .actionmodel import ActionModel
 from enki.widgets.lineedit import LineEdit
 
 
@@ -146,7 +148,7 @@ class ActionShortcutEditor(QDialog):
         try:
             self._model.setShortcut( action, shortcut)
         except UserWarning as ex:
-            QMessageBox.information(self, None, unicode(ex))
+            QMessageBox.information(self, None, str(ex))
             return
 
         self.tvActions_selectionModel_selectionChanged()

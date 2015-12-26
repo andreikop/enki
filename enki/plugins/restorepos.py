@@ -32,7 +32,7 @@ class Plugin:
         """
         if len(positions) > _MAX_HISTORY_SIZE:
             # construct list of turples (path, time, pos)
-            positionsAsList = [(item[0], item[1][0], item[1][1]) for item in positions.iteritems()]
+            positionsAsList = [(item[0], item[1][0], item[1][1]) for item in positions.items()]
             # sort by time
             positionsAsList = sorted(positionsAsList, key = lambda item: item[1], reverse = True)
             # leave only last 1000

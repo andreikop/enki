@@ -11,8 +11,9 @@ import shutil
 import signal
 import pkgutil
 
-from PyQt4.QtGui import QApplication, QIcon, QMessageBox
-from PyQt4.QtCore import pyqtSignal, QObject, QTimer
+from PyQt5.QtWidgets import QApplication, QMessageBox
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import pyqtSignal, QObject, QTimer
 
 import enki.core.defines
 from enki.resources.icons import qInitResources, qCleanupResources
@@ -201,8 +202,8 @@ class Core(QObject):
     def _loadPlugin(self, name):
         """Load plugin by it's module name
         """
-        exec("import enki.plugins.%s as module" % name)  # pylint: disable=W0122
-        self._loadedPlugins.append(module.Plugin())  # pylint: disable=E0602
+        # TODO do not use exec()
+        exec("import enki.plugins.%s as module; self._loadedPlugins.append(module.Plugin())" % name)
 
     def _initConfigDir(self):
         """Enki on Linux used to store configs in ~/.enki on Linux.
@@ -218,7 +219,7 @@ class Core(QObject):
                 shutil.move(_OLD_CONFIG_DIR, newPath)
             except Exception as ex:
                 text = 'Failed to move config directory from {} to {}: {}' \
-                    .format(_OLD_CONFIG_DIR, newPath, unicode(ex))
+                    .format(_OLD_CONFIG_DIR, newPath, str(ex))
                 QMessageBox.warning(None, 'Failed to move configs', text)
 
     def _createDefaultConfigFile(self):
@@ -231,13 +232,13 @@ class Core(QObject):
             try:
                 os.makedirs(enki.core.defines.CONFIG_DIR)
             except (OSError, IOError) as ex:
-                raise UserWarning(u'Failed to create directory "%s". Error: %s\n' % \
-                                  (enki.core.defines.CONFIG_DIR, unicode(str(ex), 'utf8')))
+                raise UserWarning('Failed to create directory "%s". Error: %s\n' %
+                                  (enki.core.defines.CONFIG_DIR, str(ex)))
         try:
             shutil.copyfile(_DEFAULT_CONFIG_PATH, _CONFIG_PATH)
         except (OSError, IOError) as ex:
-            raise UserWarning(u'Failed to create configuration file "%s". Error:\n%s' % \
-                              (_CONFIG_PATH, unicode(str(ex), 'utf8')))
+            raise UserWarning('Failed to create configuration file "%s". Error:\n%s' %
+                              (_CONFIG_PATH, str(ex)))
 
     def _createConfig(self):
         """Open main config file and return Config instance
@@ -255,7 +256,7 @@ class Core(QObject):
                 self._createDefaultConfigFile()
                 haveFileInHome = True
             except UserWarning as ex:
-                self.mainWindow().appendMessage(unicode(ex))
+                self.mainWindow().appendMessage(str(ex))
 
         # Try to open
         config = None

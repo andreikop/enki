@@ -27,14 +27,14 @@ def load(filePath, dataName, defaultValue):
         with open(filePath, 'r') as openedFile:
             try:
                 return json.load(openedFile)
-            except Exception, ex:  # broken file?
-                error = unicode(str(ex), 'utf8')
+            except Exception as ex:  # broken file?
+                error = str(ex)
                 text = "Failed to parse %s file '%s': %s" % (dataName, filePath, error)
                 core.mainWindow().appendMessage(text)
-                print >> sys.stderr, text
+                print(text, file=sys.stderr)
                 return defaultValue
-    except (OSError, IOError), ex:
-        error = unicode(str(ex), 'utf8')
+    except (OSError, IOError) as ex:
+        error = str(ex)
         text = "Failed to load %s file '%s': %s" % (dataName, filePath, error)
         core.mainWindow().appendMessage(text)
         return defaultValue
@@ -47,9 +47,9 @@ def dump(filePath, dataName, data, showWarnings=True):
     try:
         with open(filePath, 'w') as openedFile:
             json.dump(data, openedFile, sort_keys=True, indent=4)
-    except (OSError, IOError), ex:
-        error = unicode(str(ex), 'utf8')
+    except (OSError, IOError) as ex:
+        error = str(ex)
         text = "Failed to save %s to '%s': %s" % (dataName, filePath, error)
         if showWarnings and core.mainWindow() is not None:
             core.mainWindow().appendMessage(text)
-        print >> sys.stderr, error
+        print(error, file=sys.stderr)

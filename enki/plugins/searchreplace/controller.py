@@ -7,12 +7,13 @@ This module implements S&R plugin functionality. It joins together all other mod
 import re
 import sys
 
-from PyQt4.QtCore import QObject, Qt
-from PyQt4.QtGui import QApplication, QAction, QIcon, QMessageBox
+from PyQt5.QtCore import QObject, Qt
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtGui import QIcon
 
 
 from enki.core.core import core
-import substitutions
+from . import substitutions
 
 MODE_FLAG_SEARCH = 0x1
 MODE_FLAG_REPLACE = 0x2
@@ -68,6 +69,9 @@ class Controller(QObject):
 
         if self._dock is not None:
             self._dock.del_()
+
+        core.workspace().currentDocumentChanged.disconnect(self._resetSearchInFileStartPoint)
+        QApplication.instance().focusChanged.disconnect(self._resetSearchInFileStartPoint)
 
     def _createActions(self):
         """Create main menu actions
@@ -157,7 +161,7 @@ class Controller(QObject):
     def _createSearchWidget(self):
         """ Create search widget. Called only when user requested it first time
         """
-        import searchwidget
+        from . import searchwidget
         self._widget = searchwidget.SearchWidget( self )
         self._widget.searchInDirectoryStartPressed.connect(self._onSearchInDirectoryStartPressed)
         self._widget.searchInDirectoryStopPressed.connect(self._onSearchInDirectoryStopPressed)
@@ -187,7 +191,7 @@ class Controller(QObject):
         """Create dock widget, which displays search results.
         Called only when search in direcory process starts
         """
-        import searchresultsdock
+        from . import searchresultsdock
         self._dock = searchresultsdock.SearchResultsDock(core.mainWindow())
 
         core.mainWindow().addDockWidget(Qt.BottomDockWidgetArea, self._dock)
@@ -324,7 +328,6 @@ class Controller(QObject):
             return
 
         regExp = re.compile('\\b%s\\b' % re.escape(word))
-        text = document.qutepart.text
 
         # avoid matching word under cursor
         if forward:
@@ -337,7 +340,7 @@ class Controller(QObject):
         match, matches = self._searchInText(regExp, document.qutepart.text, startPoint, forward)
         if match is not None:
             document.qutepart.absSelectedPosition = (match.start(), match.start() + len(match.group(0)))
-            core.mainWindow().statusBar().showMessage('Match %d of %d' % \
+            core.mainWindow().statusBar().showMessage('Match %d of %d' %
                                                       (matches.index(match) + 1, len(matches)), 3000)
         else:
             core.workspace().currentDocument().qutepart.resetSelection()
@@ -479,7 +482,7 @@ class Controller(QObject):
         if self._dock is None:
             self._createDockWidget()
 
-        from threads import SearchThread
+        from .threads import SearchThread
         self._searchThread = SearchThread()
         self._searchThread.progressChanged.connect(self._widget.onSearchProgressChanged)
         self._searchThread.resultsAvailable.connect(self._dock.appendResults)
@@ -523,7 +526,7 @@ class Controller(QObject):
         if self._dock is None:  # no any results
             return
 
-        from threads import ReplaceThread
+        from .threads import ReplaceThread
         self._replaceThread = ReplaceThread()
         self._replaceThread.resultsHandled.connect(self._dock.onResultsHandledByReplaceThread)
         self._replaceThread.error.connect(self._onThreadError)

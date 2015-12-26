@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # .. -*- coding: utf-8 -*-
 #
 # *************************************************************
@@ -23,10 +23,9 @@ import base
 #
 # Third-party library imports
 # ---------------------------
-from PyQt4.QtCore import Qt, QPoint
-from PyQt4.QtTest import QTest
-from PyQt4.QtGui import QTextCursor
-import mock
+from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtTest import QTest
+from PyQt5.QtGui import QTextCursor
 #
 # Local application imports
 # -------------------------
@@ -192,7 +191,7 @@ class Test(PreviewTestCase):
     ##----------------------
     # Basic text to web sync
     ##^^^^^^^^^^^^^^^^^^^^^^
-    def _textToWeb(self, s, testText=u'One\n\nTwo\n\nThree', checkText=True):
+    def _textToWeb(self, s, testText='One\n\nTwo\n\nThree', checkText=True):
         """Move the cursor in the text pane. Make sure it moves
         to the matching location in the web pane.
 
@@ -241,8 +240,8 @@ class Test(PreviewTestCase):
     # More complex test to web sync
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     @requiresModule('docutils')
-    @base.inMainLoop
     @unittest.expectedFailure
+    @base.inMainLoop
     def test_sync12(self):
         """Tables with an embedded image cause findText to fail.
         """
@@ -361,7 +360,7 @@ Here is some text after a table.""", True)
         qp.cursorPosition = (100, 100)
         # Wait for Qt to process messages, such as the timer.
         QTest.qWait(0)
-        self.assertEquals(f, ps._runLatest.future)
+        self.assertEqual(f, ps._runLatest.future)
 
     # Cases for _alignScrollAmount
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^

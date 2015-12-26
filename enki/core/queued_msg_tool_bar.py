@@ -1,9 +1,10 @@
 """Queued message tool bar. Not a public API, but available via MainWindow.appendMessage()
 """
 
-from PyQt4.QtCore import pyqtSignal, QEvent, Qt, QTimer
-from PyQt4.QtGui import QAbstractButton, QColor, QBrush, QDialogButtonBox, QHBoxLayout, \
-                        QLabel, QPainter, QPixmap, QSizePolicy, QToolBar, QWidget
+from PyQt5.QtCore import pyqtSignal, QEvent, Qt, QTimer
+from PyQt5.QtWidgets import (QAbstractButton, QDialogButtonBox, QHBoxLayout,
+                             QLabel, QSizePolicy, QToolBar, QWidget)
+from PyQt5.QtGui import QColor, QBrush, QPainter, QPixmap
 
 
 class _QueuedMessage:
@@ -14,14 +15,15 @@ class _QueuedMessage:
         self.slot = None
         self.buttons = {}
 
+
 class _QueuedMessageWidget(QWidget):
 
     cleared = pyqtSignal()
     finished = pyqtSignal()
     shown = pyqtSignal()
     closed = pyqtSignal()
-    linkActivated = pyqtSignal(unicode)
-    linkHovered= pyqtSignal(unicode)
+    linkActivated = pyqtSignal(str)
+    linkHovered= pyqtSignal(str)
     buttonClicked = pyqtSignal(QAbstractButton)
 
     def __init__(self, *args):
@@ -57,7 +59,7 @@ class _QueuedMessageWidget(QWidget):
 
         # layout
         self.hbl = QHBoxLayout( self )
-        self.hbl.setMargin( 0 )
+        self.hbl.setContentsMargins(0, 0, 0, 0)
         self.hbl.addWidget( self.lPixmap, 0, Qt.AlignCenter )
         self.hbl.addWidget( self.lMessage )
         self.hbl.addWidget( self.dbbButtons, 0, Qt.AlignCenter )
@@ -66,6 +68,10 @@ class _QueuedMessageWidget(QWidget):
         self.lMessage.linkActivated.connect(self.linkActivated)
         self.lMessage.linkHovered.connect(self.linkHovered)
         self.dbbButtons.clicked.connect(self.buttonClicked)
+
+        self._closeTimer = QTimer(self)
+        self._closeTimer.setSingleShot(True)
+        self._closeTimer.timeout.connect(self.closeMessage)
 
     def sizeHint(self):
         return QWidget.minimumSizeHint(self)
@@ -108,7 +114,7 @@ class _QueuedMessageWidget(QWidget):
         self._messages.append(msg)
 
         if  len(self._messages) == 1 :
-            QTimer.singleShot( 0, self.showMessage)
+            self.showMessage()
 
     def setOpenExternalLinks(self, open ):
         self.lMessage.setOpenExternalLinks( open )
@@ -212,8 +218,9 @@ class _QueuedMessageWidget(QWidget):
         else:
             timeout =  msg.milliSeconds
 
-        if  timeout > 0:
-            QTimer.singleShot( timeout, self.closeMessage )
+        if timeout > 0:
+            self._closeTimer.setInterval(timeout)
+            self._closeTimer.start()
 
         # signal.emit
         self.shown.emit()
@@ -227,9 +234,9 @@ class _QueuedMessageWidget(QWidget):
 
         # process next if possible, clear gui
         if self._messages:
-            QTimer.singleShot( 0, self.showMessage)
+            self.showMessage()
         else:
-            QTimer.singleShot( 0, self.clearMessage)
+            self.clearMessage()
 
         # finished.emit message if needed
         if not self._messages:
@@ -254,7 +261,7 @@ class QueuedMessageToolBar(QToolBar):
         self.toggleViewAction().setVisible( False )
 
         self.addWidget( self._queuedWidget )
-        self.layout().setMargin( 3 )
+        self.layout().setContentsMargins(3, 3, 3, 3)
 
         # connections
         self._queuedWidget.shown.connect(self.messageShown)

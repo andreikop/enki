@@ -3,11 +3,8 @@ searchresultsmodel --- Model for search results
 ===============================================
 """
 
-from PyQt4.QtCore import pyqtSignal, QAbstractItemModel, \
-                         QDir, \
-                         QModelIndex, Qt
-
-from PyQt4.QtGui import QApplication
+from PyQt5.QtCore import pyqtSignal, QAbstractItemModel, QDir, QModelIndex, Qt
+from PyQt5.QtWidgets import QApplication
 
 from enki.lib.htmldelegate import htmlEscape
 

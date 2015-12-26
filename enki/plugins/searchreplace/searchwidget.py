@@ -10,25 +10,24 @@ import os.path
 import re
 
 
-from PyQt4.QtCore import QDir, QEvent, \
+from PyQt5.QtCore import QDir, QEvent, \
                          QRect, QSize, Qt, \
                          pyqtSignal
 
-from PyQt4.QtGui import QApplication, QCompleter, QColor, QDirModel, QFileDialog,  \
-                        QFrame, QFileDialog, QIcon, \
-                        QKeySequence, \
-                        QPainter,  \
-                        QPalette, \
+from PyQt5.QtWidgets import QApplication, QCompleter, QDirModel, QFileDialog,  \
+                        QFrame, QFileDialog, \
                         QProgressBar, \
                         QShortcut, \
                         QToolButton, QWidget
-from PyQt4 import uic
+from PyQt5.QtGui import QColor, QIcon, QKeySequence, QPainter, QPalette
+
+from PyQt5 import uic
 
 from enki.core.core import core
 
-import searchresultsmodel
+from . import searchresultsmodel
 
-from controller import *
+from .controller import *
 
 class SearchWidget(QFrame):
     """Widget, appeared, when Ctrl+F pressed.
@@ -47,7 +46,7 @@ class SearchWidget(QFrame):
     **Signal** emitted, when widget has been shown or hidden
     """  # pylint: disable=W0105
 
-    searchInDirectoryStartPressed = pyqtSignal(type(re.compile('')), list, unicode)
+    searchInDirectoryStartPressed = pyqtSignal(type(re.compile('')), list, str)
     """
     searchInDirectoryStartPressed(regEx, mask, path)
 
@@ -61,7 +60,7 @@ class SearchWidget(QFrame):
     **Signal** emitted, when 'stop search in directory' button had been pressed
     """  # pylint: disable=W0105
 
-    replaceCheckedStartPressed = pyqtSignal(unicode)
+    replaceCheckedStartPressed = pyqtSignal(str)
     """
     replaceCheckedStartPressed(replText)
 
@@ -97,14 +96,14 @@ class SearchWidget(QFrame):
     **Signal** emitted, when 'Search Previous' had been pressed
     """  # pylint: disable=W0105
 
-    replaceFileOne = pyqtSignal(unicode)
+    replaceFileOne = pyqtSignal(str)
     """
     replaceFileOne(replText)
 
     **Signal** emitted, when 'Replace' had been pressed
     """  # pylint: disable=W0105
 
-    replaceFileAll = pyqtSignal(unicode)
+    replaceFileAll = pyqtSignal(str)
     """
     replaceFileAll(replText)
 
@@ -264,7 +263,7 @@ class SearchWidget(QFrame):
         if mode & MODE_FLAG_DIRECTORY and \
            not (self.isVisible() and self.cbPath.isVisible()):
             try:
-                searchPath = os.path.abspath(unicode(os.path.curdir))
+                searchPath = os.path.abspath(str(os.path.curdir))
             except OSError:  # current directory might have been deleted
                 pass
             else:
@@ -289,7 +288,7 @@ class SearchWidget(QFrame):
         if mode == MODE_REPLACE:
             self.pbNext.setText('Next')
         else:
-            self.pbNext.setText(u'Next↵')
+            self.pbNext.setText('Next↵')
 
         # Finaly show all with valid size
         self.show()  # show before updating widgets and labels
@@ -368,7 +367,7 @@ class SearchWidget(QFrame):
         try:
             focusedIndex = visibleWidgets.index(QApplication.focusWidget())
         except ValueError:
-            print >> sys.stderr, 'Invalid focused widget in Search Widget'
+            print('Invalid focused widget in Search Widget', file=sys.stderr)
             return
 
         nextFocusedIndex = (focusedIndex + step) % len(visibleWidgets)
@@ -446,7 +445,7 @@ class SearchWidget(QFrame):
         """
         pattern = self.cbSearch.currentText()
 
-        pattern = pattern.replace(u'\u2029', '\n')  # replace unicode paragraph separator with habitual \n
+        pattern = pattern.replace('\u2029', '\n')  # replace unicode paragraph separator with habitual \n
 
         if not self.cbRegularExpression.checkState() == Qt.Checked:
             pattern = re.escape(pattern)
@@ -472,8 +471,8 @@ class SearchWidget(QFrame):
         pattern, flags = self._searchPatternTextAndFlags()
         try:
             re.compile(pattern, flags)
-        except re.error, ex:
-            return False, unicode(ex)
+        except re.error as ex:
+            return False, str(ex)
 
         return True, None
 
@@ -482,7 +481,7 @@ class SearchWidget(QFrame):
         """
         mask = [s.strip() for s in self.cbMask.currentText().split(' ')]
         # remove empty
-        mask = filter(None, mask)
+        mask = [_f for _f in mask if _f]
         return mask
 
     def setState(self, state ):

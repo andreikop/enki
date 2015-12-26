@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import unittest
 import os.path
@@ -8,7 +8,7 @@ import time
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 import base
 
-from PyQt4.QtTest import QTest
+from PyQt5.QtTest import QTest
 
 
 class Test(base.TestCase):

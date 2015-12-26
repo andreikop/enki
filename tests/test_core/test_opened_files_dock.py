@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import unittest
 import os.path
@@ -9,11 +9,11 @@ sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."
 
 import base
 
-from PyQt4.QtCore import Qt, QPoint
-from PyQt4.QtTest import QTest
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtTest import QTest
 
 from enki.core.core import core
-from enki.widgets.dockwidget import DockWidget
 
 
 def _startEditCurrentFilePath():
@@ -83,7 +83,7 @@ class Rename(base.TestCase):
         self.keyClicks(self.EXISTING_FILE)
         self.keyClick(Qt.Key_Return)
 
-        self.assertEqual(self.app.activeWindow(), core.mainWindow())  # not messagebox with error
+        self.assertEqual(QApplication.instance().activeWindow(), core.mainWindow())  # not messagebox with error
 
     @base.inMainLoop
     def test_dev_null(self):

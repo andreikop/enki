@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # **************************************
 # test_base.py -- Unit tests for base.py
@@ -22,8 +22,9 @@ import base
 
 # Third-party library imports
 # ---------------------------
-from PyQt4.QtCore import Qt, QTimer, QEventLoop, QThread, QObject, pyqtSignal
-from PyQt4.QtTest import QTest
+from PyQt5.QtCore import QTimer, QThread, QObject, pyqtSignal
+from PyQt5.QtTest import QTest
+
 
 # Tests
 # =====
@@ -45,12 +46,14 @@ class BackgroundThread(QThread):
         QTest.qWait(self.timeoutMs)
         self.done.emit()
 
+
 class TestSignal(QObject):
     """ This is a dummy class which contains a single testSignal."""
     # Create a test signal with one argument.
     testSignal = pyqtSignal(int)
     # Create a test signal with several arguments.
-    testSignalArgs = pyqtSignal(unicode, int, float)
+    testSignalArgs = pyqtSignal(str, int, float)
+
 
 # Unit tests.
 class TestWaitForSignal(unittest.TestCase):

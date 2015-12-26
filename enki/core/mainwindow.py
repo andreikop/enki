@@ -10,11 +10,10 @@ import sys
 import os.path
 import platform
 
-from PyQt4.QtCore import pyqtSignal, QSize, Qt, QTimer
-from PyQt4.QtGui import QHBoxLayout, QIcon, QLabel, QMessageBox, \
-                        QPalette, QSizePolicy, QStatusBar, QToolBar, QVBoxLayout, QWidget
-
-from PyQt4.QtGui import QMainWindow
+from PyQt5.QtCore import pyqtSignal, QSize, Qt, QTimer
+from PyQt5.QtGui import QIcon, QPalette
+from PyQt5.QtWidgets import QLabel, QMessageBox, QMainWindow, \
+                        QSizePolicy, QStatusBar, QToolBar, QVBoxLayout, QWidget
 
 from enki.widgets.dockwidget import DockWidget
 from enki.core.actionmanager import ActionMenuBar
@@ -86,7 +85,7 @@ class MainWindow(QMainWindow):
     themselves.
     """  # pylint: disable=W0105
 
-    directoryDropt = pyqtSignal(unicode)
+    directoryDropt = pyqtSignal(str)
     """
     directoryDropt()
 
@@ -106,7 +105,8 @@ class MainWindow(QMainWindow):
 
         self._addedDockWidgets = []
 
-        self.setUnifiedTitleAndToolBarOnMac(True)
+        if hasattr(self, 'setUnifiedTitleAndToolBarOnMac'):  # missing on some PyQt5 versions
+            self.setUnifiedTitleAndToolBarOnMac(True)
         self.setIconSize(QSize(16, 16))
         self.setAcceptDrops(True)
 
@@ -138,7 +138,7 @@ class MainWindow(QMainWindow):
         # create central layout
         widget = QWidget(self)
         self._centralLayout = QVBoxLayout(widget)
-        self._centralLayout.setMargin(0)
+        self._centralLayout.setContentsMargins(0, 0, 0, 0)
         self.setCentralWidget(widget)
 
     def del_(self):
@@ -367,8 +367,8 @@ class MainWindow(QMainWindow):
         try:
             with open(path, 'wb') as f:
                 f.write(data)
-        except (OSError, IOError), ex:
-            error = unicode(str(ex), 'utf8')
+        except (OSError, IOError) as ex:
+            error = str(ex)
             QMessageBox.critical(None,
                                 self.tr("Cannot save {}".format(title)),
                                 self.tr("Cannot create file '%s'\nError: %s" % (path, error)))
@@ -380,8 +380,8 @@ class MainWindow(QMainWindow):
             try:
                 with open(path, 'rb') as f:
                     return f.read()
-            except (OSError, IOError), ex:
-                error = unicode(str(ex), 'utf8')
+            except (OSError, IOError) as ex:
+                error = str(ex)
                 QMessageBox.critical(None,
                                     self.tr("Cannot restore {}".format(title)),
                                     self.tr("Cannot read file '%s'\nError: %s" % (path, error)))

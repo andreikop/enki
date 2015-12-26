@@ -18,7 +18,7 @@
 # ---------------
 # For debugging.
 import codecs
-import cgi
+import html
 import os
 #
 # Third-party imports
@@ -35,7 +35,7 @@ try:
   # https://bitbucket.org/mrabarnett/mrab-regex/issues. For version parse, see
   # https://pythonhosted.org/setuptools/pkg_resources.html#parsing-utilities.
   assert regexVersion >= pkg_resources.parse_version('2015.11.07')
-except AssertionError, ValueError:
+except AssertionError as ValueError:
   raise ImportError
 #
 # For debug
@@ -51,10 +51,10 @@ def htmlFormatSearchInput(searchText, leftAnchor, searchAnchor, rightAnchor,
   showX=True):
     # Divide the text into four pieces based on the three anchors. Escape them
     # for use in HTML.
-    beforeLeft = cgi.escape(searchText[:leftAnchor])
-    leftToAnchor = cgi.escape(searchText[leftAnchor:searchAnchor])
-    anchorToRight = cgi.escape(searchText[searchAnchor:rightAnchor])
-    afterRight = cgi.escape(searchText[rightAnchor:])
+    beforeLeft = html.escape(searchText[:leftAnchor])
+    leftToAnchor = html.escape(searchText[leftAnchor:searchAnchor])
+    anchorToRight = html.escape(searchText[searchAnchor:rightAnchor])
+    afterRight = html.escape(searchText[rightAnchor:])
 
     return ( (
       # Use preformatted text so spaces, newlines get
@@ -106,7 +106,7 @@ def htmlTemplate(body):
 
 # Given HTML, write it to a file.
 def writeHtmlLog(htmlText):
-    print("Writing log file to " + os.getcwd())
+    print(("Writing log file to " + os.getcwd()))
     with codecs.open('approx_match_log.html', 'w', encoding = 'utf-8') as f:
         f.write(htmlText)
 #

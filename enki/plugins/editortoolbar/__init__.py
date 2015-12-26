@@ -8,7 +8,7 @@ File contains integration with the core
 """
 
 from enki.core.core import core
-import editortoolbar
+from . import editortoolbar
 
 
 class Plugin:

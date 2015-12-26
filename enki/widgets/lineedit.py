@@ -9,12 +9,16 @@ This class:
 Don't use this class if you need classical line edit
 """
 
-from PyQt4.QtCore import pyqtSignal, Qt, QSize
-from PyQt4.QtGui import QFontMetrics, QIcon, QLineEdit, QPainter, QPalette, \
-                        QStyle, QStyleOptionFrameV3, QToolButton
+from PyQt5.QtCore import pyqtSignal, Qt, QSize
+from PyQt5.QtWidgets import QLineEdit, \
+                        QStyle, QStyleOptionFrame, QToolButton, QStyleOptionFrame
+from PyQt5.QtGui import QFontMetrics, QIcon, QPainter, QPalette
+
+
 
 def tr(text):
     return text
+
 
 class LineEdit(QLineEdit):
     """Extended QLineEdit.

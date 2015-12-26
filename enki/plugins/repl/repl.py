@@ -8,9 +8,10 @@ File contains plugin functionality implementation
 import os
 import os.path
 
-from PyQt4.QtCore import pyqtSignal, QEvent, QObject, Qt, QTimer
-from PyQt4.QtGui import QFileDialog, QFont, QIcon, QMessageBox, QWidget
-from PyQt4 import uic
+from PyQt5.QtCore import pyqtSignal, QObject, Qt, QTimer
+from PyQt5.QtWidgets import QFileDialog, QMessageBox, QWidget
+from PyQt5.QtGui import QFont
+from PyQt5 import uic
 
 from enki.core.core import core
 
@@ -183,10 +184,10 @@ class _AbstractInterpreter(QObject):
 
         try:
             self._buffPopen.start(args)
-        except OSError, ex:
+        except OSError as ex:
             fullName = self._fullName.replace(' ', '&nbsp;')
             text = '<p>Interpreter path: %s</p>' % self._interpreterPath
-            text += '<p>Error: %s</p>' % unicode(str(ex), 'utf8')
+            text += '<p>Error: %s</p>' % str(ex)
             text += '<p>Make sure interpreter is installed and go to '\
                     '<b>Settings -> Settings -> Modes -> %s</b> to correct the path</p>' % fullName
             text = '<html>%s</html' % text

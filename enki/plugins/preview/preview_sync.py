@@ -20,10 +20,10 @@ cProfile = None
 #
 # Third-party
 # -----------
-from PyQt4.QtCore import pyqtSignal, QPoint, Qt, QTimer, QObject, QThread
-from PyQt4 import QtGui
-from PyQt4.QtWebKit import QWebPage
-from PyQt4.QtTest import QTest
+from PyQt5.QtCore import pyqtSignal, QPoint, Qt, QTimer, QObject, QThread
+from PyQt5 import QtGui
+from PyQt5.QtWebKitWidgets import QWebPage
+from PyQt5.QtTest import QTest
 #
 # Local
 # -----
@@ -33,7 +33,7 @@ from enki.lib.future import RunLatest
 # If regex isn't installed or is too old, this import will fail. In this case,
 # disable the sync feature.
 try:
-    from approx_match import findApproxTextInTarget
+    from .approx_match import findApproxTextInTarget
 except ImportError as e:
     findApproxTextInTarget = None
 #
@@ -627,7 +627,7 @@ class PreviewSync(QObject):
         self._runLatest.start(self._movePreviewPaneToIndex,
           findApproxTextInTarget, qp.text, qp.textCursor().position(), txt)
         if cProfile:
-            print('Time before: ' + str(time() - self._startTime))
+            print(('Time before: ' + str(time() - self._startTime)))
 
     def _movePreviewPaneToIndex(self, future):
         """Highlights webIndex in the preview pane, per item 4 above.
@@ -638,7 +638,7 @@ class PreviewSync(QObject):
         txt - The text of the webpage, returned by mainFrame.toPlainText().
         """
         if cProfile:
-            print('Time between: ' + str(time() - self._startTime))
+            print(('Time between: ' + str(time() - self._startTime)))
             self._startTime = time()
         # Retrieve the return value from findApproxTextInTarget.
         webIndex = future.result
@@ -700,4 +700,4 @@ class PreviewSync(QObject):
             self.textToPreviewSynced.emit()
             if cProfile:
                 self._pr.disable()
-                print('Time after: ' + str(time() - self._startTime))
+                print(('Time after: ' + str(time() - self._startTime)))

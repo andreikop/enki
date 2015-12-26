@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import sys
@@ -21,19 +21,19 @@ def _checkDependencies():
     try:
         import PyQt4
     except ImportError as ex:
-        print 'Failed to import Qt4 python bindings:'
-        print '\t' + str(ex)
+        print('Failed to import Qt4 python bindings:')
+        print('\t' + str(ex))
         ok = False
 
     try:
         import qutepart
     except ImportError as ex:
-        print "Failed to import qutepart:"
-        print '\t' + str(ex)
+        print("Failed to import qutepart:")
+        print('\t' + str(ex))
         ok = False
 
     if not ok:
-        print 'See http://enki-editor.org/install-sources.html'
+        print('See http://enki-editor.org/install-sources.html')
 
     return ok
 

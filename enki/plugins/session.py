@@ -2,7 +2,7 @@
 session --- Reopen files when starting
 ======================================
 """
-from PyQt4.QtCore import QTimer
+from PyQt5.QtCore import QTimer
 
 import os.path
 
