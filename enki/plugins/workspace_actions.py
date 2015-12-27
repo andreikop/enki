@@ -94,7 +94,7 @@ class Plugin(QObject):
     def _onFileOpenTriggered(self):
         """Handler of File->Open
         """
-        fileNames = QFileDialog.getOpenFileNames(core.mainWindow(), self.tr(
+        fileNames, _ = QFileDialog.getOpenFileNames(core.mainWindow(), self.tr(
             "Classic open dialog. Main menu -> Navigation -> Locator is better"))
 
         for path in fileNames:
