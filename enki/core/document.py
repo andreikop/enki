@@ -447,9 +447,9 @@ class Document(QWidget):
         """Show GUI dialog, go to line, if user accepted it
         """
         line = self.qutepart.cursorPosition[0]
-        gotoLine, accepted = QInputDialog.getInteger(self, self.tr("Go To Line..."),
-                                                     self.tr("Enter the line you want to go to:"),
-                                                     line, 1, len(self.qutepart.lines), 1)
+        gotoLine, accepted = QInputDialog.getInt(self, self.tr("Go To Line..."),
+                                                 self.tr("Enter the line you want to go to:"),
+                                                 line, 1, len(self.qutepart.lines), 1)
         if accepted:
             gotoLine -= 1
             self.qutepart.cursorPosition = gotoLine, None
