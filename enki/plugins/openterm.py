@@ -98,6 +98,9 @@ class Plugin:
         if not term:
             term = self._chooseDefaultTerminal()
 
+        if term in ['konsole', 'qterminal']:
+            term = [term, '--workdir', os.getcwd()]
+
         try:
             subprocess.Popen(term, cwd=os.getcwd())
         except Exception as ex:
