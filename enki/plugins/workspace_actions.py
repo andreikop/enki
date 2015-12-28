@@ -94,8 +94,15 @@ class Plugin(QObject):
     def _onFileOpenTriggered(self):
         """Handler of File->Open
         """
-        fileNames, _ = QFileDialog.getOpenFileNames(core.mainWindow(), self.tr(
-            "Classic open dialog. Main menu -> Navigation -> Locator is better"))
+        try:
+            directory = os.getcwd()
+        except OSError:
+            directory = ''
+
+        fileNames, _ = QFileDialog.getOpenFileNames(
+            core.mainWindow(),
+            "Classic open dialog. Main menu -> Navigation -> Locator is better",
+            directory=directory)
 
         for path in fileNames:
             core.workspace().openFile(path)
