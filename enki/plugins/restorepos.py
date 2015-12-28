@@ -60,9 +60,10 @@ class Plugin:
     def _onDocumentClosed(self, document):
         """Document has been closed. Save position
         """
-        absPos = document.qutepart.absCursorPosition
         path = document.filePath()
-        if absPos != 0:
-            self._positions[document.filePath()] = (time.time(), document.qutepart.absCursorPosition)
-        elif path in self._positions:  # Clear zero item. Save space for useful information
-            del self._positions[path]
+        if path is not None:
+            absPos = document.qutepart.absCursorPosition
+            if absPos != 0:
+                self._positions[document.filePath()] = (time.time(), document.qutepart.absCursorPosition)
+            elif path in self._positions:  # Clear zero item. Save space for useful information
+                del self._positions[path]
