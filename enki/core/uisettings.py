@@ -404,7 +404,7 @@ class UISettingsManager(QObject):  # pylint: disable=R0903
         self.aboutToExecute.emit(dialog)
         dialog.accepted.connect(self.dialogAccepted)
         dialog.accepted.connect(self._saveSettings)
-        dialog.exec_()
+        dialog.open()
 
     def _saveSettings(self):
         """Flush main configuration file.
