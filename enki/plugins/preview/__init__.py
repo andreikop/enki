@@ -528,5 +528,5 @@ class Plugin(QObject):
     def onSphinxPath(self):
         core.config()['Sphinx']['ProjectPath'] = os.getcwd()
         core.config().flush()
-        if core.config()['Preview']['Enabled']:
+        if core.config()['Preview']['Enabled'] and self._dock is not None:
             self._dock._scheduleDocumentProcessing()
