@@ -37,7 +37,7 @@ class SettingsWidget(QWidget):
         self.leFlake8Path.textChanged.connect(self._updateExecuteError)
 
     def _onPbFlake8PathClicked(self):
-        path = QFileDialog.getOpenFileName(core.mainWindow(), 'Pylint path')
+        path, _ = QFileDialog.getOpenFileName(core.mainWindow(), 'Pylint path')
         if path:
             self.leFlake8Path.setText(path)
             self._updateExecuteError(path)

@@ -306,9 +306,9 @@ class SphinxSettingsWidget(QWidget):
     def on_pbSphinxExecutable_clicked(self):
         fltr = "sphinx-build" + (".exe" if sys.platform.startswith("win") else "") \
                + ";; All files (*)"
-        path = QFileDialog.getOpenFileName(self,
-                                           "Select Sphinx executable",
-                                           filter=fltr)
+        path, _ = QFileDialog.getOpenFileName(self,
+                                              "Select Sphinx executable",
+                                              filter=fltr)
         if path:
             self.leSphinxExecutable.setText(path)
             self._updateleValidateSphinxExecutable()

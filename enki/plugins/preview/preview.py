@@ -1086,7 +1086,7 @@ class PreviewDock(DockWidget):
 
     def onPreviewSave(self):
         """Save contents of the preview"""
-        path = QFileDialog.getSaveFileName(self, 'Save Preview as HTML', filter='HTML (*.html)')
+        path, _ = QFileDialog.getSaveFileName(self, 'Save Preview as HTML', filter='HTML (*.html)')
         if path:
             text = self._widget.webView.page().mainFrame().toHtml()
             data = text.encode('utf8')

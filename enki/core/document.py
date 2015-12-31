@@ -372,7 +372,7 @@ class Document(QWidget):
         """
         # Get path
         if not self._filePath:
-            path = QFileDialog.getSaveFileName(self, self.tr('Save file as...'))
+            path, _ = QFileDialog.getSaveFileName(self, self.tr('Save file as...'))
             if path:
                 self.setFilePath(path)
             else:
@@ -387,7 +387,7 @@ class Document(QWidget):
     def saveFileAs(self):
         """Ask for new file name with dialog. Save file
         """
-        path = QFileDialog.getSaveFileName(self, self.tr('Save file as...'))
+        path, _ = QFileDialog.getSaveFileName(self, self.tr('Save file as...'))
         if not path:
             return
 

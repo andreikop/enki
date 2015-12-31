@@ -35,7 +35,7 @@ class SettingsWidget(QWidget):
         self.pbInterpreterPath.clicked.connect(self._onPbInterpreterPathClicked)
 
     def _onPbInterpreterPathClicked(self):
-        path = QFileDialog.getOpenFileName(core.mainWindow(), 'Interpreter path')
+        path, _ = QFileDialog.getOpenFileName(core.mainWindow(), 'Interpreter path')
         if path:
             self.leInterpreterPath.setText(path)
 

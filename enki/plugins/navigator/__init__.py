@@ -126,7 +126,7 @@ class SettingsWidget(QWidget):
         self.leCtagsPath.textChanged.connect(self._updateExecuteError)
 
     def _onPbCtagsPathClicked(self):
-        path = QFileDialog.getOpenFileName(core.mainWindow(), 'Ctags path')
+        path, _ = QFileDialog.getOpenFileName(core.mainWindow(), 'Ctags path')
         if path:
             self.leCtagsPath.setText(path)
 
