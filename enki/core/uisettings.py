@@ -71,7 +71,7 @@ Option types:
 import sys
 import os.path
 
-from PyQt5.QtCore import pyqtSignal, Qt, QObject
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt, QObject
 from PyQt5.QtWidgets import QDialog, QFontDialog, QTreeWidgetItem
 from PyQt5.QtGui import QColor, QFont, QIcon
 from PyQt5 import uic
@@ -114,6 +114,7 @@ class Option:
         """
         pass
 
+    @pyqtSlot()
     def save(self):
         """Save the value from GUI to config. To be implemented by child classes
         """
@@ -239,6 +240,7 @@ class FontOption(Option):
         _set(self.config, self.familyOptionName, font.family())
         _set(self.config, self.sizeOptionName, font.pointSize())
 
+    @pyqtSlot()
     def _onClicked(self):
         """Button click handler. Open font dialog
         """
@@ -397,6 +399,7 @@ class UISettingsManager(QObject):  # pylint: disable=R0903
     def del_(self):
         core.actionManager().removeAction(self._action)
 
+    @pyqtSlot()
     def _onEditSettings(self):
         """*Settings->Settings* menu item handler. Open the dialogue
         """
@@ -406,6 +409,7 @@ class UISettingsManager(QObject):  # pylint: disable=R0903
         dialog.accepted.connect(self._saveSettings)
         dialog.open()
 
+    @pyqtSlot()
     def _saveSettings(self):
         """Flush main configuration file.
         """

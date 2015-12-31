@@ -10,7 +10,7 @@ import sys
 import os.path
 import platform
 
-from PyQt5.QtCore import pyqtSignal, QSize, Qt, QTimer
+from PyQt5.QtCore import pyqtSignal, QSize, Qt, QTimer, pyqtSlot
 from PyQt5.QtGui import QIcon, QPalette
 from PyQt5.QtWidgets import QLabel, QMessageBox, QMainWindow, \
     QSizePolicy, QStatusBar, QToolBar, QVBoxLayout, QWidget
@@ -296,6 +296,7 @@ class MainWindow(QMainWindow):
         menu  ("mTools",                              "Tools"                 , ""           )
         menu  ("mHelp",                               "Help"                  , ""           )
 
+    @pyqtSlot()
     def _openMainMenu(self):
         fileMenu = core.actionManager().menu('mFile')
         self._menuBar.setActiveAction(fileMenu.menuAction())

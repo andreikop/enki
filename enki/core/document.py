@@ -5,7 +5,7 @@ document --- Opened file representation
 
 import os.path
 
-from PyQt5.QtCore import pyqtSignal, QFileSystemWatcher, QObject, QTimer
+from PyQt5.QtCore import pyqtSignal, QFileSystemWatcher, QObject, QTimer, pyqtSlot
 from PyQt5.QtWidgets import QFileDialog, \
     QInputDialog, \
     QMessageBox, \
@@ -90,6 +90,7 @@ class _FileWatcher(QObject):
             self._lastEmittedRemovedStatus = isRemoved
             self.removed.emit(isRemoved)
 
+    @pyqtSlot()
     def _onFileChanged(self):
         """File changed. Emit own signal, if contents changed
         """
@@ -119,6 +120,7 @@ class _FileWatcher(QObject):
         if self._timer is not None:
             self._timer.stop()
 
+    @pyqtSlot()
     def _onCheckIfDeletedTimer(self):
         """Check, if file has been restored
         """
@@ -223,12 +225,14 @@ class Document(QWidget):
 
         self.qutepart.terminate()  # stop background highlighting, free memory
 
+    @pyqtSlot(bool)
     def _onWatcherFileModified(self, modified):
         """File has been modified
         """
         self._externallyModified = modified
         self.documentDataChanged.emit()
 
+    @pyqtSlot(bool)
     def _onWatcherFileRemoved(self, isRemoved):
         """File has been removed
         """
@@ -501,6 +505,7 @@ class Document(QWidget):
 
             self.qutepart.eol = default
 
+    @pyqtSlot()
     def _applyQpartSettings(self):
         """Apply qutepart settings
         """

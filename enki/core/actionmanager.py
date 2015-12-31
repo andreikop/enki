@@ -7,7 +7,7 @@ Use this module for adding own actions to the main menu
 Shortcuts are configured by appshortcuts plugin
 """
 
-from PyQt5.QtCore import pyqtSignal, QObject
+from PyQt5.QtCore import pyqtSignal, QObject, pyqtSlot
 from PyQt5.QtWidgets import QMenu, QMenuBar, QAction
 from PyQt5.QtGui import QIcon, QKeySequence
 
@@ -28,12 +28,14 @@ class ActionMenuBar(QMenuBar):
         self._manager.actionInserted.connect(self._onActionInserted)
         self._manager.actionRemoved.connect(self._onActionRemoved)
 
+    @pyqtSlot(QAction)
     def _onActionInserted(self, action):
         parent = self._manager.parentAction(action)
 
         if parent is None and action.menu():
             self.addMenu(action.menu())
 
+    @pyqtSlot(QAction)
     def _onActionRemoved(self, action):
         parent = self._manager.parentAction(action)
 
@@ -263,6 +265,7 @@ class ActionManager(QObject):
         if not action.shortcut():
             action.setShortcut(shortcut)
 
+    @pyqtSlot()
     def _onActionChanged(self):
         """Action changed handler.
         Retransmit signal with reference to the action
