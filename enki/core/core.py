@@ -174,6 +174,8 @@ class Core(QObject):
 
         qCleanupResources()
 
+        self._checkSignalsTimer.stop()
+
     def mainWindow(self):
         """Get :class:`enki.core.mainwindow.MainWindow` instance
         """

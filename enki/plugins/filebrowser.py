@@ -376,8 +376,10 @@ class Tree(QTreeView):
         self._setFocusTimer = QTimer()
         self._setFocusTimer.timeout.connect(self._setFirstItemAsCurrent)
         self._setFocusTimer.setInterval(50)
-        self.destroyed.connect(self._setFocusTimer.stop)
         self._timerAttempts = 0
+
+    def term(self):
+        self._setFocusTimer.stop()
 
     def _onActivated(self, idx):
         """File or directory doubleClicked
@@ -602,6 +604,8 @@ class DockFileBrowser(DockWidget):
         if self._comboBox is not None:
             self._comboBox.del_()
         core.actionManager().removeAction("mView/aFileBrowser")
+        if self._tree is not None:
+            self._tree.term()
 
     def _onVisibilityChanged(self, visible):
         """Postnoted widget initialization.

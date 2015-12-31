@@ -41,6 +41,9 @@ class _StatusBar(QStatusBar):
         self._timer.setSingleShot(True)
         self._timer.timeout.connect(self.clearMessage)
 
+    def term(self):
+        self._timer.stop()
+
     def showMessage(self, text, timeout=0):
         """QStatusBar.showMessage()
         """

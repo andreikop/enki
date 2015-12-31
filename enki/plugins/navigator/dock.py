@@ -44,6 +44,9 @@ class _TagModel(QAbstractItemModel):
         self._updateCurrentTagTimer.setInterval(300)
         self._updateCurrentTagTimer.timeout.connect(self._updateCurrentTagAndEmitSignal)
 
+    def term(self):
+        self._updateCurrentTagTimer.stop()
+
     def setTags(self, tags):
         self.beginResetModel()
         self._tags = tags
@@ -292,6 +295,9 @@ class NavigatorDock(DockWidget):
         self._errorLabel = None
 
         self._installed = False
+
+    def term(self):
+        self._tagModel.term()
 
     def install(self):
         if not self._installed:

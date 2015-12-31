@@ -176,6 +176,7 @@ class Plugin(QObject):
             self._thread.tagsReady.disconnect(self._dock.setTags)
             self._thread.error.disconnect(self._dock.onError)
             self._dock.remove()
+            self._dock.term()
         self._typingTimer.stop()
         self._thread.stopAsync()
         self._thread.wait()
