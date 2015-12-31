@@ -165,7 +165,7 @@ class _AbstractInterpreter(QObject):
 
         self._term.appendHint("Execute any command to run the interpreter\n")
 
-    def __del__(self):
+    def term(self):
         self.stop()
 
     def loadFile(self, filePath):
