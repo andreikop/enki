@@ -28,6 +28,7 @@ from base import WaitForSignal
 from PyQt5.QtWidgets import QMessageBox, QApplication
 from PyQt5.QtGui import QWheelEvent
 from PyQt5.QtCore import Qt, QPointF, QPoint
+from PyQt5.QtTest import QTest
 
 # Local application imports
 # -------------------------
@@ -1008,7 +1009,9 @@ head
         document3 = self.createFile('file3.rst', '.. file3::')
         self._assertHtmlReady(lambda: None)
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
-        base._processPendingEvents()
+        # Need to wait for events to be processed before the splitter sizes are
+        # updated. `base._processPendingEvents()` doesn't help.
+        QTest.qWait(100)
         defaultSplitterSize = self._widget().splitter.sizes()
         self.assertTrue(defaultSplitterSize[1])
         # Switch to document 2. Log window is hidden now.
@@ -1028,7 +1031,8 @@ head
         document3 = self.createFile('file3.rst', '.. file3::')
         self._assertHtmlReady(lambda: None)
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
-        base._processPendingEvents()
+        # Wait for events to process. See qWait comment above.
+        QTest.qWait(100)
         # Change splitter setting of document 1.
         newSplitterSize = [125, 124]
         self._widget().splitter.setSizes(newSplitterSize)
@@ -1039,6 +1043,8 @@ head
         self.assertAlmostEqual(self._widget().splitter.sizes()[0], self._widget().splitter.sizes()[1], delta=10)
         # Switch to an error-free document, assert log window hidden.
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
+        # Wait for events to process. See qWait comment above.
+        QTest.qWait(100)
         self.assertFalse(self._widget().splitter.sizes()[1])
         # Switch to file3 which will cause build error, check splitter size.
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
@@ -1053,18 +1059,21 @@ head
         document2 = self.createFile('file2.rst', '')
         document3 = self.createFile('file3.rst', '.. file3::')
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
-        base._processPendingEvents()
+        # Wait for events to process. See qWait comment above.
+        QTest.qWait(100)
         # User manually change error state splitter size such that log window
         # is hidden.
         self._widget().splitter.setSizes([1, 0])
         self._widget().splitter.splitterMoved.emit(1, 1)
         # Switch to document 2. Log window is hidden now.
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
-        base._processPendingEvents()
+        # Wait for events to process. See qWait comment above.
+        QTest.qWait(100)
         self.assertFalse(self._widget().splitter.sizes()[1])
         # Switch to document 3. Log window should keep hidden.
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
-        base._processPendingEvents()
+        # Wait for events to process. See qWait comment above.
+        QTest.qWait(100)
         self.assertFalse(self._widget().splitter.sizes()[1])
 
     @base.inMainLoop
