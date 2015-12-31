@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import os
 import sys
 import pkgutil
 import platform
@@ -16,10 +15,9 @@ def _checkDependencies():
     """Check if 3rdparty software is installed in the system.
     Notify user, how to install it
     """
-    _SEE_SITE_PLAIN = 'See http://enki-editor.org/install-sources.html'
     ok = True
     try:
-        import PyQt4
+        import PyQt5
     except ImportError as ex:
         print('Failed to import Qt4 python bindings:')
         print('\t' + str(ex))
@@ -51,7 +49,7 @@ BUT KDE4 on Suse 12.02 ignores data in /usr/local/share, and, probably, some oth
 Therefore Enki always installs its .desktop and icons to /usr/share
 """
 
-if (sys.platform.startswith('linux2') and not _inVenv()) or \
+if (sys.platform.startswith('linux') and not _inVenv()) or \
    'sdist' in sys.argv or \
    'upload' in sys.argv:
     data_files = [('/usr/share/applications/', ['install/enki.desktop']),
@@ -112,7 +110,7 @@ script = 'bin/enki-editor.pyw' if platform.system() == 'Windows' else 'bin/enki'
 
 if __name__ == '__main__':
     if 'install' in sys.argv:
-        if not '--force' in sys.argv and not '--help' in sys.argv:
+        if '--force' not in sys.argv and '--help' not in sys.argv:
             if not _checkDependencies():
                 sys.exit(-1)
 
