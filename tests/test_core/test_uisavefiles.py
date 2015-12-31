@@ -91,7 +91,7 @@ class Test(base.TestCase):
 
         @classmethod
         def fakeSaveFile(*args):
-            return None
+            return None, None
 
         # Native file dialog hangs the test. Mock it
         oldSaveFileName, QFileDialog.getSaveFileName = QFileDialog.getSaveFileName, fakeSaveFile
