@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# .. -*- coding: utf-8 -*-
 
 import unittest
 import os.path
@@ -69,7 +70,7 @@ class Test(base.TestCase):
     @base.inMainLoop
     def test_5(self):
         """ print unicode """
-        self.createFile('test.py', '# coding=utf8\nprint("Привет")\n')
+        self.createFile('test.py', '# -*- coding: utf-8 -*-\nprint("Привет")\n')
         self.keyClick('Ctrl+E')
 
         self._waitForText('Привет', 'Python')
