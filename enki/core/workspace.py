@@ -14,7 +14,7 @@ Document - opened file, widget on workspace. :class:`enki.core.document.Document
 import os
 import os.path
 import stat
-import sys
+import locale
 
 from PyQt4.QtGui import QAction, \
                         QApplication, \
@@ -298,7 +298,12 @@ class Workspace(QStackedWidget):
         """
         projPath = core.project().path()
         if projPath is not None:
-            homePath = os.path.expanduser('~')
+            homePath = os.path.expanduser("~" + os.sep)
+            loc = locale.getdefaultlocale()
+            if loc[1]:
+                encoding = loc[1]
+                homePath = homePath.decode(encoding)
+
             if projPath.startswith(homePath):
                 projPath = os.path.relpath(projPath, homePath)
 
