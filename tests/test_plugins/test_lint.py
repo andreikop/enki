@@ -83,6 +83,7 @@ class Test(base.TestCase):
         self._setSettings(enabled=True)
         self.assertEqual(core.config().get('Lint/Python/Enabled'), True)
 
+    @base.requiresCmdlineUtility('flake8 --version')
     def test_4(self):
         """ Settings are applied """
         doc = self.createFile('test.py', 'asdf\n\n')
