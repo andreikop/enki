@@ -313,7 +313,12 @@ class TestCase(unittest.TestCase):
         """Open Enki settings dialog and run ``runInDialogFunc``.
         Dialog is passed as a parameter to ``runInDialogFunc``
         """
-        return self.openDialog(core.actionManager().action("mSettings/aSettings").trigger,
+        # Note that the settings dialog calls ``dialog.open()``, not
+        # ``dialog.exec_()``. So, open it:
+        core.actionManager().action("mSettings/aSettings").trigger()
+        # Then run exec_, with runInDialogFunc executing in exec_'s loop.
+        dialog = self._findDialog()
+        return self.openDialog(dialog.exec_,
                                runInDialogFunc)
 
     def retryUntilPassed(self, timeoutMs, function):
