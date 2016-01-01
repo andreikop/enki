@@ -135,7 +135,7 @@ def commonPrefix(*dirs):
     # If not, we will use the assumption that all relative paths
     # are rooted in the current directory. Test whether ``prefix`` starts with
     # the current working directory. If not, return an absolute path.
-    cwd = os.getcwd()
+    cwd = os.path.normcase(os.getcwd())
     return prefix if not prefix.startswith(cwd) \
         else prefix[len(cwd) + len(os.path.sep):]
 
