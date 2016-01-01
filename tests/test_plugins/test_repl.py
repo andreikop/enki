@@ -66,6 +66,26 @@ class Test(base.TestCase):
 
         self._waitForText('77013', 'Python')
 
+    @unittest.skipIf(sys.platform.startswith("win"), "Has Windows encoding problems")
+    # Specifically, running this test (and lengthening the qWait delay to allow
+    # more time for user interaction) then typing "1" or any other character
+    # produces the following output::
+    #
+    #    python -i C:\Users\bjones\AppData\Local\Temp\enki-tests\test.py
+    #    hello
+    #    >>> 1
+    #    Traceback (most recent call last):
+    #      File "C:\Users\bjones\AppData\Local\Temp\enki-tests\test.py", line 3, in <module>
+    #        print("\u041f\u0440\u0438\u0432\u0435\u0442")
+    #      File "C:\Users\bjones\Downloads\WinPython-64bit-3.4.3.7Qt5\python-3.4.3.amd64\lib\encodings\cp1252.py", line 19, in encode
+    #        return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+    #    UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-5: character maps to <undefined>
+    #    1
+    #    >>>
+    #
+    # This doesn't happen when testing interactively, which suggests that
+    # unittest somehow changes the encoding to cp-1252 on Windows. I don't know
+    # how to fix this, so this test is skipped.
     @base.requiresCmdlineUtility('python -h')
     @base.inMainLoop
     def test_5(self):
