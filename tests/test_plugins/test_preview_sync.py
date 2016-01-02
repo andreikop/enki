@@ -205,16 +205,23 @@ class Test(PreviewTestCase):
         self._doBasicTest('rst')
         # Find the desired string.
         index = self.testText.index(s)
+        # Make the cursor movement timer expire ASAP to reduce testing time.
+        # However, I stil see failures in the with clause below with wait times
+        # of 350 ms. ???
+        self._dock().previewSync._cursorMovementTimer.setInterval(0)
+        # Move to index 0. The restorepos plugin sometimes moves the cursor to
+        # index, causing the call to _moveTextPaneToIndex to do nothing,
+        # producing a test failure.
+        self._dock().previewSync._moveTextPaneToIndex(0)
         # The cursor is already at index 0. Moving here
         # produces no cursorPositionChanged signal.
         assert index != 0
-        # Make the cursor movement timer expire ASAP to reduce testing time.
-        self._dock().previewSync._cursorMovementTimer.setInterval(0)
-        # Move to a location in the first line of the text.
+        # Move to the location of the string s in the text.
         # The sync won't happen until the timer expires; wait
         # for that.
-        self.assertEmits(lambda: self._dock().previewSync._moveTextPaneToIndex(index, False),
-                         self._dock().previewSync.textToPreviewSynced, 350)
+        with base.WaitForSignal(self._dock().previewSync.textToPreviewSynced,
+                                3500, True):
+            self._dock().previewSync._moveTextPaneToIndex(index, False)
         # The web view should have the line containing s selected now.
         if checkText:
             self.assertTrue(s in self._widget().webView.selectedText())
