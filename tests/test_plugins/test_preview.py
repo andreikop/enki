@@ -702,8 +702,12 @@ head
         document1 = self.createFile('file1.py', '# `<>_')
         # then an error only case,
         document2 = self.createFile('file2.py', '# .. h::')
-        # then an error free case.
-        document3 = self.createFile('file3.py', '# <>_')
+        # then an error free case. Wait for the HTML to be generated before
+        # continuing, so that the next assertHtmlReady won't accidentally catch
+        # the HTML ready generated here.
+        with self._WaitForHtmlReady():
+            document3 = self.createFile('file3.py', '# <>_')
+        base.waitForSignal(lambda: None, self._widget().webView.page().mainFrame().loadFinished, 200)
 
         # switch to document 1
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
