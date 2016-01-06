@@ -16,7 +16,7 @@ from PyQt5.QtCore import QAbstractItemModel, \
     QMimeData, \
     QModelIndex, \
     QObject, \
-    Qt
+    Qt, QPoint, QItemSelection, pyqtSlot
 from PyQt5.QtWidgets import QAbstractItemView, \
     QMenu, \
     QMessageBox, \
@@ -25,6 +25,7 @@ from PyQt5.QtGui import QIcon
 
 
 from enki.core.core import core
+from enki.core.document import Document
 from enki.widgets.dockwidget import DockWidget
 
 
@@ -282,6 +283,7 @@ class _OpenedFileModel(QAbstractItemModel):
         self.changePersistentIndexList(pOldIndexes, pIndexes)
         self.layoutChanged.emit()
 
+    @pyqtSlot(Document)
     def _onDocumentOpened(self, document):
         """New document opened at workspace. Handle it
         """
@@ -290,6 +292,7 @@ class _OpenedFileModel(QAbstractItemModel):
         self.sortDocuments()
         document.documentDataChanged.connect(self._onDocumentDataChanged)
 
+    @pyqtSlot(Document)
     def _onDocumentDataChanged(self, document=None):
         """Document data has been changed. Update views
         """
@@ -301,6 +304,7 @@ class _OpenedFileModel(QAbstractItemModel):
         index = self.documentIndex(document_)
         self.dataChanged.emit(index, index)
 
+    @pyqtSlot(Document)
     def _onDocumentClosed(self, document):
         """Document has been closed. Unhandle it
         """
@@ -374,6 +378,7 @@ class OpenedFileExplorer(DockWidget):
         """
         self.tvFiles.selectionModel().selectionChanged.connect(self._onSelectionModelSelectionChanged)
 
+    @pyqtSlot(Document, Document)
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument):  # pylint: disable=W0613
         """ Current document has been changed on workspace
         """
@@ -386,6 +391,7 @@ class OpenedFileExplorer(DockWidget):
             self.tvFiles.scrollTo(index)
             self.finishModifyModel()
 
+    @pyqtSlot(QItemSelection, QItemSelection)
     def _onSelectionModelSelectionChanged(self, selected, deselected):  # pylint: disable=W0613
         """ Item selected in the list. Switch current document
         """
@@ -404,6 +410,7 @@ class OpenedFileExplorer(DockWidget):
         if focusWidget:
             focusWidget.setFocus()
 
+    @pyqtSlot(QPoint)
     def _onTvFilesCustomContextMenuRequested(self, pos):
         """Connected automatically by uic
         """

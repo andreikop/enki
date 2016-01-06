@@ -9,7 +9,7 @@ import os
 import os.path
 import time
 
-from PyQt5.QtCore import QObject, QThread, pyqtSignal
+from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 
 from enki.core.core import core
 
@@ -181,19 +181,21 @@ class Project(QObject):
     def isScanning(self):
         return self._thread is not None
 
+    @pyqtSlot(str)
     def _onScanStatus(self, text):
         self._scanStatus = text
         self.scanStatusChanged.emit(text)
         if self._backgroundScan:
             self._core.mainWindow().statusBar().showMessage(text,
                                                             STATUS_SHOW_TIMEOUT_MSEC)
-
+    @pyqtSlot(str, list)
     def _onFilesReady(self, path, files):
         self._projectFiles = files
         self._backgroundScan = False
         self._stopScannerThread()
         self.filesReady.emit()
 
+    @pyqtSlot()
     def _onFileFilterChanged(self):
         if self.isScanning():
             self._stopScannerThread()

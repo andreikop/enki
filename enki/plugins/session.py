@@ -53,6 +53,7 @@ class Plugin:
         """
         core.restoreSession.disconnect(self._onRestoreSession)
         core.aboutToTerminate.disconnect(self._saveSession)
+        self._timer.stop()
 
     def _onRestoreSession(self):
         """Enki initialisation finished.

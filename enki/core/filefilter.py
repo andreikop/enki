@@ -12,10 +12,10 @@ Regexp is constructed from patterns, configurable in the settings
 import fnmatch
 import re
 
-from PyQt5.QtCore import pyqtSignal, QObject
+from PyQt5.QtCore import pyqtSignal, QObject, pyqtSlot
 
 from enki.core.core import core
-from enki.core.uisettings import ListOnePerLineOption
+from enki.core.uisettings import ListOnePerLineOption, UISettings
 
 
 class FileFilter(QObject):
@@ -42,12 +42,14 @@ class FileFilter(QObject):
         """
         return self._regExp
 
+    @pyqtSlot(UISettings)
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.
         Add own option
         """
         dialog.appendOption(ListOnePerLineOption(dialog, core.config(), "NegativeFileFilter", dialog.pteFilesToHide))
 
+    @pyqtSlot()
     def _applySettings(self):
         """Settings dialogue has been accepted.
         Recompile the regExPatterns

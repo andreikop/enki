@@ -1,7 +1,7 @@
 """Queued message tool bar. Not a public API, but available via MainWindow.appendMessage()
 """
 
-from PyQt5.QtCore import pyqtSignal, QEvent, Qt, QTimer
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, QEvent, Qt, QTimer
 from PyQt5.QtWidgets import (QAbstractButton, QDialogButtonBox, QHBoxLayout,
                              QLabel, QSizePolicy, QToolBar, QWidget)
 from PyQt5.QtGui import QColor, QBrush, QPainter, QPixmap
@@ -177,6 +177,7 @@ class _QueuedMessageWidget(QWidget):
         painter.setBrush(self.currentMessageBackground())
         painter.drawRect(self.contentsRect())
 
+    @pyqtSlot(QAbstractButton)
     def buttonClicked(self, button):
         msg = self.currentMessage()
         standardButton = self.dbbButtons.standardButton(button)
@@ -226,6 +227,7 @@ class _QueuedMessageWidget(QWidget):
         # signal.emit
         self.shown.emit()
 
+    @pyqtSlot()
     def closeMessage(self):
         # message.emit
         self.closed.emit()
@@ -295,10 +297,12 @@ class QueuedMessageToolBar(QToolBar):
     def removeMessage(self, message):
         self._queuedWidget.remove(message)
 
+    @pyqtSlot()
     def messageShown(self):
         if not self.isVisible():
             self.setVisible(True)
 
+    @pyqtSlot()
     def messageFinished(self):
         if self.isVisible():
             self.setVisible(False)

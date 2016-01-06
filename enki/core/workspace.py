@@ -17,10 +17,10 @@ import os.path
 import stat
 
 from PyQt5.QtWidgets import QAction, QApplication, QDialog, QDialogButtonBox, \
-    QListWidgetItem, QMessageBox, QStackedWidget, QShortcut
+    QListWidgetItem, QMessageBox, QStackedWidget, QShortcut, QAbstractButton
 from PyQt5.QtGui import QKeySequence
 
-from PyQt5.QtCore import pyqtSignal, QEvent, Qt  # pylint: disable=E0611
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, QEvent, Qt  # pylint: disable=E0611
 from PyQt5 import uic
 
 from enki.core.core import core, DATA_FILES_PATH
@@ -88,6 +88,7 @@ class _UISaveFiles(QDialog):
 
         return shortcut
 
+    @pyqtSlot(QAbstractButton)
     def _onButtonClicked(self, button):
         """Button click handler.
         Saves files, if necessary, accepts or rejects dialog
@@ -289,6 +290,7 @@ class Workspace(QStackedWidget):
         """
         return self.parentWidget().parentWidget()
 
+    @pyqtSlot()
     def _updateMainWindowTitle(self):
         """Update window title after current project, document or it's modified state has been changed
         """
@@ -345,6 +347,7 @@ class Workspace(QStackedWidget):
         if event.key() == Qt.Key_Escape:
             self.escPressed.emit()
 
+    @pyqtSlot(int)
     def _onStackedLayoutIndexChanged(self, index):
         """Handler of change of current document in the stacked layout.
         Only emits a signal, if document realy has changed
@@ -362,6 +365,7 @@ class Workspace(QStackedWidget):
         self.currentDocumentChanged.emit(self._oldCurrentDocument, document)
         self._oldCurrentDocument = document
 
+    @pyqtSlot(Document, Document)
     def _onCurrentDocumentChanged(self, old, new):
         """Change current directory, if current file changed
         """
