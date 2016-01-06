@@ -35,14 +35,12 @@ class Test(base.TestCase):
     def _openDialog(self):
         self.keyClicks('L', Qt.ControlModifier)
 
-    @base.inMainLoop
     def test_01(self):
         """Go to line"""
         document = self.createFile('asdf.txt', 'a\n' * 10)
         self._execCommand('l 5')
         self.assertEqual(document.qutepart.cursorPosition[0], 4)
 
-    @base.inMainLoop
     def test_02(self):
         """Open file, type only path"""
         fullPath = os.path.join(self.TEST_FILE_DIR, 'thefile.txt')
@@ -54,7 +52,6 @@ class Test(base.TestCase):
 
         self.assertEqual(core.workspace().currentDocument().filePath(), fullPath)
 
-    @base.inMainLoop
     def test_03(self):
         """Open file, type 'f path' """
         document = core.workspace().createEmptyNotSavedDocument()
@@ -68,7 +65,6 @@ class Test(base.TestCase):
 
         self.assertEqual(core.workspace().currentDocument().filePath(), fullPath)
 
-    @base.inMainLoop
     def test_04(self):
         """Save file, create dirs"""
         document = core.workspace().createEmptyNotSavedDocument()
@@ -83,7 +79,6 @@ class Test(base.TestCase):
 
         self.assertEqual(data, 'filetext\n')
 
-    @base.inMainLoop
     def test_05(self):
         """Save file, relative path"""
         text = 'a\n' * 10
@@ -98,7 +93,6 @@ class Test(base.TestCase):
 
         self.assertEqual(data, text)
 
-    @base.inMainLoop
     def test_06(self):
         """Open file, type 'f path with spaces' """
         document = core.workspace().createEmptyNotSavedDocument()
@@ -112,7 +106,6 @@ class Test(base.TestCase):
 
         self.assertEqual(core.workspace().currentDocument().filePath(), fullPath)
 
-    @base.inMainLoop
     def test_07(self):
         """ Check inline completion for file with spaces"""
         core.workspace().createEmptyNotSavedDocument()
@@ -133,7 +126,6 @@ class Test(base.TestCase):
 
         self.assertEqual(core.workspace().currentDocument().filePath(), fullPath)
 
-    @base.inMainLoop
     def test_08(self):
         """ Open project """
         core.project().open(os.path.dirname(self.TEST_FILE_DIR))
@@ -148,7 +140,6 @@ class Test(base.TestCase):
 
         self.assertEqual(core.project().path(), self.TEST_FILE_DIR)
 
-    @base.inMainLoop
     def test_09(self):
         """ Open .. """
         core.project().open(PROJ_ROOT)
@@ -159,7 +150,6 @@ class Test(base.TestCase):
         self.openDialog(self._openDialog, inDialogFunc)
         self.assertEqual(core.project().path(), os.path.dirname(PROJ_ROOT))
 
-    @base.inMainLoop
     def test_10(self):
         """ Open ./ """
         core.project().open(PROJ_ROOT)

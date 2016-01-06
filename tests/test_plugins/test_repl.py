@@ -28,7 +28,6 @@ class Test(base.TestCase):
             self.fail("Text doesn't contain '{}'".format(text))
 
     @base.requiresCmdlineUtility('scheme')
-    @base.inMainLoop
     def test_1(self):
         """ Scheme """
         return  # TODO
@@ -37,7 +36,6 @@ class Test(base.TestCase):
         self._waitForText('27', 'MIT Scheme')
 
     @base.requiresCmdlineUtility('sml -h')
-    @base.inMainLoop
     def test_2(self):
         """ SML """
         self.createFile('test.sml', '1234 * 567;')
@@ -46,7 +44,6 @@ class Test(base.TestCase):
         self._waitForText('699678', 'Standard ML')
 
     @base.requiresCmdlineUtility('python -h')
-    @base.inMainLoop
     def test_3(self):
         """ Python """
         self.createFile('test.py', 'print(1234 * 567)\n')
@@ -55,7 +52,6 @@ class Test(base.TestCase):
         self._waitForText('699678', 'Python')
 
     @base.requiresCmdlineUtility('python -h')
-    @base.inMainLoop
     def test_4(self):
         """ Python, execute a function """
         self.createFile('test.py', 'def mysum(a, b):\n\n  return a + b\n')
@@ -87,7 +83,6 @@ class Test(base.TestCase):
     # unittest somehow changes the encoding to cp-1252 on Windows. I don't know
     # how to fix this, so this test is skipped.
     @base.requiresCmdlineUtility('python -h')
-    @base.inMainLoop
     def test_5(self):
         """ print unicode """
         self.createFile('test.py', '# -*- coding: utf-8 -*-\nprint("Привет")\n')

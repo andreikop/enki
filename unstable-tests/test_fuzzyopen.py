@@ -62,7 +62,6 @@ class Test(base.TestCase):
         base.TestCase.setUp(self)
         core.project().open(PROJ_ROOT)  # not scanned yet
 
-    @base.inMainLoop
     def test_01(self):
         """ Open core.py (first choice) """
         self.openDialog(self._openDialog, lambda d: self._enter(d, 'cowo'))
@@ -70,7 +69,6 @@ class Test(base.TestCase):
         path = os.path.join(PROJ_ROOT, 'core', 'workspace.py')
         self.assertEqual(core.workspace().currentDocument().filePath(), path)
 
-    @base.inMainLoop
     def test_02(self):
         """ Open mainwindow.py (second choice) """
         core.project().open(PROJ_ROOT)  # not scanned yet
@@ -87,7 +85,6 @@ class Test(base.TestCase):
         path = os.path.join(PROJ_ROOT, 'core', 'mainwindow.py')
         self.assertEqual(core.workspace().currentDocument().filePath(), path)
 
-    @base.inMainLoop
     def test_03(self):
         """ Upper case files are opened """
         core.project().open(PROJ_ROOT)  # not scanned yet
@@ -97,21 +94,18 @@ class Test(base.TestCase):
         path = os.path.join(PROJ_ROOT, 'ui', 'UISettings.ui')
         self.assertEqual(core.workspace().currentDocument().filePath(), path)
 
-    @base.inMainLoop
     def test_04a(self):
         """ Case matters """
         self.openDialog(self._openDialog, lambda d: self._enter(d, 'atu'))
         path = os.path.join(PROJ_ROOT, 'plugins', 'qpartsettings', 'Indentation.ui')
         self.assertEqual(core.workspace().currentDocument().filePath(), path)
 
-    @base.inMainLoop
     def test_04b(self):
         """ Case matters """
         self.openDialog(self._openDialog, lambda d: self._enter(d, 'Atu'))
         path = os.path.join(PROJ_ROOT, 'plugins', 'helpmenu', 'UIAbout.ui')
         self.assertEqual(core.workspace().currentDocument().filePath(), path)
 
-    @base.inMainLoop
     def test_05(self):
         """ scan """
         core.project().open(PROJ_ROOT)  # not scanned yet

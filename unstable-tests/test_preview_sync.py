@@ -59,7 +59,6 @@ class Test(PreviewTestCase):
             200)
 
     @requiresModule('docutils')
-    @base.inMainLoop
     def test_sync1(self):
         self.check_sync1()
 
@@ -99,7 +98,6 @@ class Test(PreviewTestCase):
                          expectedSignalParams=(len(s) + wsLen,))
 
     @requiresModule('docutils')
-    @base.inMainLoop
     def test_sync2a(self):
         """TODO: simulate a click before the first letter. Select T, then move backwards using
         https://developer.mozilla.org/en-US/docs/Web/API/Selection.modify.
@@ -108,13 +106,11 @@ class Test(PreviewTestCase):
         self._testSyncString('T')
 
     @requiresModule('docutils')
-    @base.inMainLoop
     def test_sync2(self):
         """Simulate a click after 'The pre' and check the resulting ``jsClick`` result."""
         self._testSyncString('The pre')
 
     @requiresModule('docutils')
-    @base.inMainLoop
     def test_sync3(self):
         """Same as above, but with the entire string."""
         self._testSyncString(self.testText)
@@ -140,19 +136,16 @@ class Test(PreviewTestCase):
         self.assertEqual(p, index)
 
     @requiresModule('docutils')
-    @base.inMainLoop
     def test_sync4(self):
         """Test a click at the beginning of the string."""
         self._sendJsClick(0)
 
     @requiresModule('docutils')
-    @base.inMainLoop
     def test_sync5(self):
         """Test a click at the middle of the string."""
         self._sendJsClick(8)
 
     @requiresModule('docutils')
-    @base.inMainLoop
     def test_sync6(self):
         """Test a click at the end of the string."""
         self._sendJsClick(len(self.testText))
@@ -160,7 +153,6 @@ class Test(PreviewTestCase):
     # Misc tests
     ##^^^^^^^^^^
     @requiresModule('docutils')
-    @base.inMainLoop
     def test_sync7(self):
         """Test on an empty document."""
         self.testText = ''
@@ -175,7 +167,6 @@ class Test(PreviewTestCase):
     #     javaScriptWindowObjectCleared.connect(self._onJavaScriptCleared)
 
     @requiresModule('docutils')
-    @base.inMainLoop
     def test_sync8(self):
         """Test with javascript disabled."""
         # The ``_dock()`` method only works after the dock exists.
@@ -227,19 +218,16 @@ class Test(PreviewTestCase):
             self.assertTrue(s in self._widget().webView.selectedText())
 
     @requiresModule('docutils')
-    @base.inMainLoop
     def test_sync9(self):
         # Don't use One, which is an index of 0, which causes no
         # cursor movement and therefore no text to web sync.
         self._textToWeb('ne')
 
     @requiresModule('docutils')
-    @base.inMainLoop
     def test_sync10(self):
         self._textToWeb('Two')
 
     @requiresModule('docutils')
-    @base.inMainLoop
     def test_sync11(self):
         self._textToWeb('Three')
 
@@ -247,7 +235,6 @@ class Test(PreviewTestCase):
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     @requiresModule('docutils')
     @unittest.expectedFailure
-    @base.inMainLoop
     def test_sync12(self):
         """Tables with an embedded image cause findText to fail.
         """
@@ -262,7 +249,6 @@ text after img    text after img
 text after table""", False)
 
     @requiresModule('docutils')
-    @base.inMainLoop
     def test_sync14(self):
         """Tables without an embedded image work just fine.
         """
@@ -291,7 +277,6 @@ text after table""", True)
 """
 
     @requiresModule('docutils')
-    @base.inMainLoop
     def test_sync15(self):
         """Text after an image works just fine.
         """
@@ -303,7 +288,6 @@ text after table""", True)
 Here is some text after a table.""", True)
 
     @requiresModule('docutils')
-    @base.inMainLoop
     def test_sync16(self):
         """Tables with column spans produce out-of-order text, so sync in some rows
         containing a column span fails. The ReST below, copied as text after
@@ -323,20 +307,17 @@ Here is some text after a table.""", True)
         self._textToWeb('Banana', self._row_span_rest(), True)
 
     @requiresModule('docutils')
-    @base.inMainLoop
     def test_sync17(self):
         """A failing case of the above test series."""
         self._textToWeb('Bael', self._row_span_rest(), False)
 
     @requiresModule('docutils')
-    @base.inMainLoop
     def test_sync18(self):
         """Verify that sync after the column span works."""
         self._textToWeb('Text', self._row_span_rest(), True)
 
     # Test no sync on hidden preview window
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    @base.inMainLoop
     @requiresModule('docutils')
     def test_sync13(self):
         self._doBasicTest('rst')
@@ -347,7 +328,6 @@ Here is some text after a table.""", True)
         cursor.setPosition(1, QTextCursor.MoveAnchor)
         qp.setTextCursor(cursor)
 
-    @base.inMainLoop
     @requiresModule('docutils')
     def test_sync13a(self):
         """ Make sure sync stops if the Preview dock is hidden. See https://github.com/hlamer/enki/issues/352.
@@ -375,7 +355,6 @@ Here is some text after a table.""", True)
     # window.
     #
     # .. image:: preview_sync_source_above_target.png
-    @base.inMainLoop
     def test_sync19(self):
         self._doBasicTest('rst')
         offset = self._dock().previewSync._alignScrollAmount(
@@ -392,7 +371,6 @@ Here is some text after a table.""", True)
     # window, and the target y is equal to the source y.
     #
     # .. image:: preview_sync_source_aligned_target_equal.png
-    @base.inMainLoop
     def test_sync20a(self):
         self._doBasicTest('rst')
         offset = self._dock().previewSync._alignScrollAmount(
@@ -409,7 +387,6 @@ Here is some text after a table.""", True)
     # window, and the target y is above the source y.
     #
     # .. image:: preview_sync_source_aligned_target_above.png
-    @base.inMainLoop
     def test_sync20b(self):
         self._doBasicTest('rst')
         offset = self._dock().previewSync._alignScrollAmount(
@@ -426,7 +403,6 @@ Here is some text after a table.""", True)
     # window, and the target y is below the source y.
     #
     # .. image:: preview_sync_source_aligned_target_below.png
-    @base.inMainLoop
     def test_sync20c(self):
         self._doBasicTest('rst')
         offset = self._dock().previewSync._alignScrollAmount(
@@ -442,7 +418,6 @@ Here is some text after a table.""", True)
     # When the source y (in global coordinates) is below the target window.
     #
     # .. image:: preview_sync_source_below_target.png
-    @base.inMainLoop
     def test_sync21(self):
         self._doBasicTest('rst')
         offset = self._dock().previewSync._alignScrollAmount(

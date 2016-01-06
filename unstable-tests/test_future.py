@@ -93,7 +93,7 @@ class TestAsyncController(unittest.TestCase):
                 def f():
                     gotHere[0] = True
                 future = ac._wrap(None, f)
-                with WaitForSignal(future._signalInvoker.doneSignal, 1000):
+                with WaitForSignal(self, future._signalInvoker.doneSignal, 1000):
                     ac._start(future)
                 self.assertTrue(gotHere[0])
 
@@ -102,7 +102,7 @@ class TestAsyncController(unittest.TestCase):
         for _ in self.syncPoolAndThread:
             with AsyncController(_) as ac:
                 em = Emitter(2, self.assertEqual)
-                with WaitForSignal(em.bing, 1000):
+                with WaitForSignal(self, em.bing, 1000):
                     ac.start(em.g, lambda: 2)
 
     # Verify that a result from f is passed to g.
@@ -110,7 +110,7 @@ class TestAsyncController(unittest.TestCase):
         for _ in self.syncPoolAndThread:
             with AsyncController(_) as ac:
                 em = Emitter(123, self.assertEqual)
-                with WaitForSignal(em.bing, 1000):
+                with WaitForSignal(self, em.bing, 1000):
                     ac.start(em.g, lambda x: x + 2, 121)
 
     # Verify that correct arguments are passed to f.
@@ -123,7 +123,7 @@ class TestAsyncController(unittest.TestCase):
                     self.assertEqual(c, 4)
                     self.assertEqual(d, 5)
                 em = Emitter()
-                with WaitForSignal(em.bing, 1000):
+                with WaitForSignal(self, em.bing, 1000):
                     ac.start(em.g, f, 2, 3, d=5, c=4)
 
     # Verify that f actually runs in a separate thread.
@@ -133,7 +133,7 @@ class TestAsyncController(unittest.TestCase):
                 def f(currentThread):
                     self.assertNotEqual(currentThread, QThread.currentThread())
                 em = Emitter()
-                with WaitForSignal(em.bing, 1000):
+                with WaitForSignal(self, em.bing, 1000):
                     ac.start(em.g, f, QThread.currentThread())
 
     # Verify that f actually runs in separate pooled threads.
@@ -150,7 +150,7 @@ class TestAsyncController(unittest.TestCase):
             em2 = Emitter()
             ac.start(em1.g, f)
             ac.start(em2.g, f)
-            with WaitForSignal(em1.bing, 1000), WaitForSignal(em2.bing, 1000):
+            with WaitForSignal(self, em1.bing, 1000), WaitForSignal(self, em2.bing, 1000):
                 q.put(None)
                 q.put(None)
             s = set([em1.result, em2.result, QThread.currentThread()])
@@ -166,7 +166,7 @@ class TestAsyncController(unittest.TestCase):
                 ac.start(em1.g, lambda: 15)
                 ac.start(em2.g, lambda: 16)
                 future3 = ac._wrap(em3.g, lambda: 17)
-                with WaitForSignal(em3.bing, 1000):
+                with WaitForSignal(self, em3.bing, 1000):
                     ac._start(future3)
 
     # Verify that the correct functions and callbacks get executed in a pool.
@@ -186,7 +186,7 @@ class TestAsyncController(unittest.TestCase):
                 em1.bing.connect(sc.onBing)
                 em2.bing.connect(sc.onBing)
                 em3.bing.connect(sc.onBing)
-                with WaitForSignal(sc.allEmitted, 1000):
+                with WaitForSignal(self, sc.allEmitted, 1000):
                     q1.put(15)
                     q2.put(16)
                     q3.put(17)
@@ -210,19 +210,19 @@ class TestAsyncController(unittest.TestCase):
                 # **However**, ``WaitForSignal`` doesn't do this in the body of
                 # the ``with`` statement, so 'Sync' raises an exception but this
                 # is discarded. For simplicity, skip this test case for now.
-                with self.assertRaises(TypeError), WaitForSignal(em.bing, 1000,
+                with self.assertRaises(TypeError), WaitForSignal(self, em.bing, 1000,
                                                                  printExcTraceback=False):
                     ac.start(em.g, f)
 
                 # Make sure that the exception is still raised even if g doesn't
                 # check for it.
-                with self.assertRaises(TypeError), WaitForSignal(em.bing, 1000,
+                with self.assertRaises(TypeError), WaitForSignal(self, em.bing, 1000,
                                                                  printExcTraceback=False):
                     ac.start(lambda result: None, f)
 
                 # Make sure that the exception is still raised even there is no
                 # g to check for it.
-                with self.assertRaises(TypeError), WaitForSignal(em.bing, 1000,
+                with self.assertRaises(TypeError), WaitForSignal(self, em.bing, 1000,
                                                                  printExcTraceback=False):
                     ac.start(None, f)
 
@@ -234,7 +234,7 @@ class TestAsyncController(unittest.TestCase):
 
             def f1():
                 ac.start(em1.g, lambda: QThread.currentThread())
-            with WaitForSignal(em1.bing, 1000):
+            with WaitForSignal(self, em1.bing, 1000):
                 ac.start(None, f1)
             self.assertEqual(em1.thread, em1.result)
 
@@ -253,7 +253,7 @@ class TestAsyncController(unittest.TestCase):
                 qe = QEventLoop()
                 future._signalInvoker.doneSignal.connect(qe.exit)
                 qe.exec_()
-            with WaitForSignal(em2.bing, 1000):
+            with WaitForSignal(self, em2.bing, 1000):
                 ac.start(None, f2)
             self.assertEqual(em2.thread, em2.result)
 
@@ -276,7 +276,7 @@ class TestAsyncController(unittest.TestCase):
                 future2 = ac.start(None, lambda: None)
                 QTest.qWait(100)
                 self.assertEqual(future2.state, Future.STATE_WAITING)
-                with WaitForSignal(em1.bing, 1000):
+                with WaitForSignal(self, em1.bing, 1000):
                     future2.cancel()
                     q1a.put(None)
                 self.assertEqual(future1.state, Future.STATE_FINISHED)
@@ -331,12 +331,12 @@ class TestAsyncController(unittest.TestCase):
                     assertEqual(QThread.currentThread().priority(), priority)
                 em = Emitter()
                 ac.defaultPriority = QThread.LowPriority
-                with WaitForSignal(em.bing, 1000):
+                with WaitForSignal(self, em.bing, 1000):
                     ac.start(em.g, f, self.assertEqual, QThread.LowestPriority,
                              _futurePriority=QThread.LowestPriority)
-                with WaitForSignal(em.bing, 1000):
+                with WaitForSignal(self, em.bing, 1000):
                     ac.start(em.g, f, self.assertEqual, QThread.LowPriority)
-                with WaitForSignal(em.bing, 1000):
+                with WaitForSignal(self, em.bing, 1000):
                     ac.start(em.g, f, self.assertEqual, QThread.HighestPriority,
                              _futurePriority=QThread.HighestPriority)
 
@@ -365,7 +365,7 @@ class TestAsyncController(unittest.TestCase):
             em3 = Emitter()
             rl.start(em3.g, lambda: None)
 
-            with WaitForSignal(em3.bing, 1000):
+            with WaitForSignal(self, em3.bing, 1000):
                 q1a.put(None)
 
             rl.terminate()
@@ -391,7 +391,7 @@ class TestAsyncController(unittest.TestCase):
             # Start another job, canceling the previous job while it's running.
             em2 = Emitter()
             rl.start(em2.g, lambda: None)
-            with WaitForSignal(em2.bing, 1000):
+            with WaitForSignal(self, em2.bing, 1000):
                 q1a.put(None)
 
             rl.terminate()

@@ -25,7 +25,6 @@ class Test(base.TestCase):
 
         self.assertEqual(text, actualText)
 
-    @base.inMainLoop
     def test_1(self):
         # Close all, no modified files
         self.createFile('file1.rb', 'asdf\nfdsa')
@@ -35,7 +34,6 @@ class Test(base.TestCase):
 
         self.assertIsNone(core.workspace().currentDocument())
 
-    @base.inMainLoop
     def test_2(self):
         # Close all, do not save
         self.createFile('file1.rb', 'asdf\nfdsa')
@@ -50,7 +48,6 @@ class Test(base.TestCase):
         self.assertIsNone(core.workspace().currentDocument())
         self._verifyText('file2.rb', 'fdsa')
 
-    @base.inMainLoop
     def test_3(self):
         # Close all, cancel close
         self.createFile('file1.rb', 'asdf\nfdsa')
@@ -64,7 +61,6 @@ class Test(base.TestCase):
 
         self.assertIsNotNone(core.workspace().currentDocument())
 
-    @base.inMainLoop
     def test_4(self):
         # Close all, save
         self.createFile('file1.rb', 'asdf\nfdsa')
@@ -80,7 +76,6 @@ class Test(base.TestCase):
 
         self._verifyText('file2.rb', 'new text+fdsa\n')
 
-    @base.inMainLoop
     def test_5(self):
         # Close all, reject save dialog
         self.createFile('file1.rb', 'asdf\nfdsa')
@@ -113,7 +108,6 @@ class Test(base.TestCase):
         finally:
             QFileDialog.getSaveFileName = oldSaveFileName
 
-    @base.inMainLoop
     def test_6(self):
         """Test _firstLetterShortcut."""
         # To access this function, create a dummy document so we can pull

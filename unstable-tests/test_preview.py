@@ -134,7 +134,8 @@ class PreviewTestCase(SimplePreviewTestCase):
         # Expect two calls to loadFinished: one
         # produced by _clear(), then the second when the page is actually ready.
         lf = self._widget().webView.page().mainFrame().loadFinished
-        return WaitForSignal(lf, timeout,
+        return WaitForSignal(self,
+                             lf, timeout,
                              numEmittedExpected=numEmittedExpected)
 
     def _assertHtmlReady(self, start, timeout=8000, numEmittedExpected=2):
@@ -184,25 +185,21 @@ class PreviewTestCase(SimplePreviewTestCase):
 
 class TestPreview(PreviewTestCase):
 
-    @base.inMainLoop
     def test_html(self):
         self._doBasicTest('html')
         self.assertFalse(self._widget().prgStatus.isVisible())
 
     @base.requiresModule('docutils')
-    @base.inMainLoop
     def test_rst(self):
         self._doBasicTest('rst')
         self.assertTrue(self._widget().prgStatus.isVisible())
 
     @base.requiresModule('markdown')
-    @base.inMainLoop
     def test_markdown(self):
         self._doBasicTest('md')
         self.assertFalse(self._widget().prgStatus.isVisible())
 
     @base.requiresModule('markdown')
-    @base.inMainLoop
     def test_markdown_templates(self):
         core.config()['Preview']['Template'] = 'WhiteOnBlack'
         self._dock()._restorePreviousTemplate()
@@ -225,7 +222,6 @@ class TestPreview(PreviewTestCase):
         self.assertTrue('body {color: white; background: black;}' in self._html())
 
     @base.requiresModule('markdown')
-    @base.inMainLoop
     def test_markdown_templates_help(self):
         core.config()['Preview']['Template'] = 'WhiteOnBlack'
         document = self.createFile('test.md', 'foo')
@@ -257,7 +253,6 @@ class TestPreview(PreviewTestCase):
         return us, wc
 
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_settingUiCheck1(self):
         """When Enki runs for the first time, the CodeChat module should be
            disabled by default."""
@@ -276,7 +271,6 @@ class TestPreview(PreviewTestCase):
         us.close()
 
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_settingUiCheck3(self):
         """ The Enable CodeChat checkbox should only be enabled if CodeChat can
             be imported; otherwise, it should be disabled."""
@@ -301,7 +295,6 @@ class TestPreview(PreviewTestCase):
         us.close()
 
     @requiresSphinx()
-    @base.inMainLoop
     def test_settingUiCheck3a(self):
         """test_uiCheck1a has tested the case when Sphinx is disabled. This
         unit test will test the case when Sphinx is mannually enabled.
@@ -345,7 +338,6 @@ class TestPreview(PreviewTestCase):
     # Cases for code preview using Codechat or Sphinx
     # -----------------------------------------------
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_previewCheck1(self):
         """If Enki is opened with CodeChat enabled, the preview dock should be
            found."""
@@ -354,7 +346,6 @@ class TestPreview(PreviewTestCase):
         self.assertTrue(self._widget().prgStatus.isVisible())
 
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_previewCheck1a(self):
         """If a non-supported language with a known extension is provided to
            CodeChat, make sure an appropriate error is generated."""
@@ -365,7 +356,6 @@ class TestPreview(PreviewTestCase):
         self.assertIn('this file is not supported by CodeChat', self._logText())
 
     @requiresSphinx()
-    @base.inMainLoop
     def test_previewCheck2(self):
         """Basic Sphinx test: create a Sphinx project in a temp folder, return
            webView content and log content after Sphinx builds the project."""
@@ -379,7 +369,6 @@ content"""
         self.assertTrue(self._widget().prgStatus.isVisible())
 
     @requiresSphinx()
-    @base.inMainLoop
     def test_previewCheck2a(self):
         """Basic Sphinx test. Output directory is an absolute directory
         """
@@ -393,7 +382,6 @@ content"""
         webViewContent, logContent = self._doBasicSphinxTest('rst')
 
     @requiresSphinx()
-    @base.inMainLoop
     def test_previewCheck2b(self):
         """Check for double builds.
         """
@@ -426,7 +414,6 @@ content"""
 
     @requiresSphinx()
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_previewCheck3a(self):
         """Basic Sphinx with CodeChat test. Output directory is a absolute
         directory.
@@ -445,7 +432,6 @@ content"""
 
     @requiresSphinx()
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_previewCheck3(self):
         """Basic Sphinx with CodeChat test: create a Sphinx project with codechat
         enabled."""
@@ -461,7 +447,6 @@ content"""
         self.assertTrue('<p>content</p>' in webViewContent)
 
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_previewCheck4(self):
         """If Enki is opened without any configuration, the preview dock will
         not appear. This will not affect resT files or html files."""
@@ -471,7 +456,6 @@ content"""
             self._dock()
 
     @requiresSphinx()
-    @base.inMainLoop
     def test_previewCheck5(self):
         """Basic Sphinx test: with Sphinx and codechat disabled, no preview
            window results are generated."""
@@ -486,7 +470,6 @@ content"""
         self.assertNotIn('<h1>head', self._widget().webView.page().mainFrame().toHtml())
 
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_previewCheck6(self):
         """If an empty code file is passed to Enki, the CodeChat preview panel
            should be empty."""
@@ -496,7 +479,6 @@ content"""
         self.assertEqual(self._plainText(), ' \n')
 
     @requiresSphinx()
-    @base.inMainLoop
     def test_previewCheck6a(self):
         """Empty code file produces a Sphinx failure since file in toctree should
            always have a header."""
@@ -506,7 +488,6 @@ content"""
         self.assertTrue("doesn't have a title" in logContent)
 
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_previewCheck7(self):
         """Test that Unicode characters are handled properly.
         """
@@ -518,7 +499,6 @@ content"""
         self.assertEqual(self._plainText(), self.testText + '\n')
 
     @requiresSphinx()
-    @base.inMainLoop
     def test_previewCheck7a(self):
         """Unicode string passed to Sphinx should be handled properly.
         """
@@ -532,7 +512,6 @@ content"""
         self.assertTrue("<h1>Енки" in webViewContent)
 
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_previewCheck8(self):
         """Start with a short code file, make sure the preview window isn't
            opened, then enable the CodeChat module and refresh Enki.
@@ -547,7 +526,6 @@ content"""
         assert 'test' in self._html()
 
     @requiresSphinx()
-    @base.inMainLoop
     def test_previewCheck8a(self):
         """Start with Sphinx disabled, make sure rst file will be rendered by
         docutils.core.publish_string. Then enable Sphinx, force document refresh
@@ -561,7 +539,6 @@ content"""
         self.assertEqual(self._logText(), '')
 
     @base.requiresCmdlineUtility('sphinx-build')
-    @base.inMainLoop
     def test_previewCheck9b(self):
         """Empty code file should be rendered correctly with 'no title' warning.
         """
@@ -571,7 +548,6 @@ content"""
         self.assertTrue("""doesn't have a title""" in logContent)
 
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_previewCheck9(self):
         """Uninterpretable reStructuredText syntax in source code will generate
            errors and be displayed in the output log window."""
@@ -585,7 +561,6 @@ content"""
         self.assertTrue("""Unknown directive type "wrong".""" in self._logText())
 
     @requiresSphinx()
-    @base.inMainLoop
     def test_previewCheck9a(self):
         """Test Sphinx error can be captured correctly"""
         self._doBasicSphinxConfig()
@@ -598,7 +573,6 @@ content"""
         self.assertTrue("Title overline too short" in logContent)
 
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_previewCheck10(self):
         """Empty input should generate an empty log.
         """
@@ -611,7 +585,6 @@ content"""
         self.assertEqual(self._logText(), '')
 
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_previewCheck11(self):
         """Unicode should display correctly in log window too.
         """
@@ -625,7 +598,6 @@ content"""
 
     @unittest.skip("Unicode isn't presented in the log window")
     @requiresSphinx()
-    @base.inMainLoop
     def test_previewCheck12(self):
         """Unicode in log window while in Sphinx mode does not work since Sphinx
            error output is not in unicode.
@@ -641,7 +613,6 @@ head
         self.assertTrue('Енки' in logContent)
 
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_previewCheck13(self):
         """Test progress bar status (100%) when building reST / CodeChat.
         """
@@ -650,7 +621,6 @@ head
         self.assertEqual(self._widget().prgStatus.text(), 'Building...')
 
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_previewCheck14(self):
         """Check different progressbar color given different scenarios.
         """
@@ -661,7 +631,6 @@ head
         self.assertEqual(self._widget().prgStatus.styleSheet(), 'QLabel {}')
 
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_previewCheck15(self):
         core.config()['CodeChat']['Enabled'] = True
         # Next, test a code piece with only warnings.
@@ -670,7 +639,6 @@ head
         self.assertTrue('#FF9955' in self._widget().prgStatus.styleSheet())
 
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_previewCheck16(self):
         core.config()['CodeChat']['Enabled'] = True
         # Next, test a code piece with only errors.
@@ -679,7 +647,6 @@ head
         self.assertTrue('red' in self._widget().prgStatus.styleSheet())
 
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_previewCheck17(self):
         """A complex test case that tests both the log parser regexp and
         the progress bar color when both warnings and errors are present.
@@ -692,7 +659,6 @@ head
         self.assertIn('Error(s): 2, warning(s): 2', ps.text())
 
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_previewCheck18(self):
         """Switching between different files should update the log
         window accordingly.
@@ -724,7 +690,6 @@ head
 
     @requiresSphinx()
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_previewCheck19(self):
         """Check Advanced Mode. In this case Advanced Mode does not have
         space in its path.
@@ -745,7 +710,6 @@ head
 
     @requiresSphinx()
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_previewCheck20(self):
         """Check space in path name. Advanced mode is not enabled.
         """
@@ -769,7 +733,6 @@ head
 
     @requiresSphinx()
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_previewCheck20a(self):
         """Check spaces in path name. Advanced mode is enabled.
         """
@@ -797,7 +760,6 @@ head
 
     @requiresSphinx()
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_previewCheck21(self):
         """When user hit ok button in setting window, the project will get
         rebuild.
@@ -820,7 +782,6 @@ head
         self.assertTrue('Unknown interpreted text role "doc"' in self._logText())
 
     @requiresSphinx()
-    @base.inMainLoop
     def test_previewCheck22(self):
         """ Assume codechat is not installed, render a .rst file using
         restructuredText and then render using sphinx.
@@ -839,7 +800,6 @@ head
             self.assertTrue('#FF9955' in self._widget().prgStatus.styleSheet())
 
     @requiresSphinx()
-    @base.inMainLoop
     def test_previewCheck23(self):
         """If the document is modified externally, then build on save will be
         automatically enabled. Calling scheduledocumentprocessing will not
@@ -871,12 +831,11 @@ head
                          self._dock()._typingTimer.timeout, timeoutMs=1000)
         # The typing timer invokes _scheduleDocumentProcessing. Make sure
         # it completes by waiting until all events are processed.
-        base._processPendingEvents()
+        QApplication.instance().processEvents()
         # Make sure the file wasn't saved.
         self.assertTrue(qp.document().isModified())
 
     @requiresSphinx()
-    @base.inMainLoop
     def test_previewCheck24(self):
         self._doBasicSphinxConfig()
         self.testText = """# ****
@@ -889,7 +848,6 @@ head
 
     @requiresSphinx()
     @base.requiresModule('CodeChat')
-    @base.inMainLoop
     def test_previewCheck20a(self):
         core.config()['CodeChat']['Enabled'] = True
         self._doBasicSphinxConfig()
@@ -903,7 +861,6 @@ head
         self.assertTrue(os.path.isfile(os.path.join(self.TEST_FILE_DIR, 'CodeChat.css')))
 
     @requiresSphinx()
-    @base.inMainLoop
     def test_previewCheck25(self):
         """If the file to be previewed is older than the source, an error
         should appear."""
@@ -928,7 +885,6 @@ head
 
     @patch('os.path.getmtime')
     @requiresSphinx()
-    @base.inMainLoop
     def test_previewCheck25(self, _getmtime):
         """Check exception handling in date comparison code."""
         # Make getmtime fail.
@@ -958,7 +914,6 @@ head
     # #. User hide splitter size. Then switch to another error-free document.
     #    Switch back. Will log window keep hidden?
 
-    @base.inMainLoop
     def test_logWindowSplitter1(self):
         """Feature 1. Created files will have same splitter size.
         """
@@ -977,7 +932,6 @@ head
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
         self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
 
-    @base.inMainLoop
     def test_logWindowSplitter2(self):
         """Feature 2. All build-with-error files' splitter size are connected.
         """
@@ -999,7 +953,6 @@ head
         self.assertNotIn(0, self._widget().splitter.sizes())
         self.assertAlmostEqual(self._widget().splitter.sizes()[0], self._widget().splitter.sizes()[1], delta=10)
 
-    @base.inMainLoop
     def test_logWindowSplitter3(self):
         """Feature 3. Error free document will not affect other documents'
         splitter size.
@@ -1022,7 +975,6 @@ head
         self.assertTrue(self._widget().splitter.sizes()[0])
         self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
 
-    @base.inMainLoop
     def test_logWindowSplitter3a(self):
         """Feature 1,2,3. A combination of the above test cases.
         """
@@ -1051,7 +1003,6 @@ head
         self.assertNotIn(0, self._widget().splitter.sizes())
         self.assertAlmostEqual(self._widget().splitter.sizes()[0], self._widget().splitter.sizes()[1], delta=10)
 
-    @base.inMainLoop
     def test_logWindowSplitter4(self):
         """User actively hide log window, Enki should be able to remember this.
         """
@@ -1076,7 +1027,6 @@ head
         QTest.qWait(100)
         self.assertFalse(self._widget().splitter.sizes()[1])
 
-    @base.inMainLoop
     def test_zoom(self):
         webView = self._widget().webView
         self.assertEqual(webView.zoomFactor(), 1)
@@ -1101,7 +1051,6 @@ head
         self.assertTrue(1.05 < webView.zoomFactor() < 1.15)
 
     @requiresSphinx()
-    @base.inMainLoop
     def test_saveAndBuildWhitespace1(self):
         """See if whitespace is preserved on the current line
            when auto build and save is enabled."""

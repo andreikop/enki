@@ -68,7 +68,7 @@ class TestWaitForSignal(unittest.TestCase):
     # Create a timer to send a timeout signal after the timeout.
     def test_2(self):
         t = QTimer()
-        t.setInterval(100)
+        t.setInterval(1000)
         t.setSingleShot(True)
         self.assertFalse(base.waitForSignal(t.start, t.timeout, 50))
 
@@ -82,7 +82,7 @@ class TestWaitForSignal(unittest.TestCase):
 
     # Test operation from another thread: the other thread emits a signal after the timeout.
     def test_4(self):
-        bt = BackgroundThread(100)
+        bt = BackgroundThread(1000)
         self.assertFalse(base.waitForSignal(bt.start, bt.done, 50))
         # Wait for the background thread to finish before leaving this test.
         bt.wait()
@@ -135,7 +135,6 @@ class TestWaitForSignal(unittest.TestCase):
 class TestInMainLoop(base.TestCase):
     # A helper function to raise an exception in the main loop.
 
-    @base.inMainLoop
     def _failInMainLoop(self):
         self.fail()
 

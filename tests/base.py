@@ -11,6 +11,7 @@ import subprocess
 import codecs
 import imp
 import warnings
+from contextlib import contextmanager
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
@@ -43,82 +44,6 @@ class DummyProfiler:
 
     def printInfo(self):
         pass
-
-
-def _processPendingEvents():
-    """Process pending application events."""
-
-    # Create an event loop to run in. Otherwise, we need to use the
-    # QApplication main loop, which may already be running and therefore
-    # unusable.
-    qe = QEventLoop()
-
-    # Create a single-shot timer. Could use QTimer.singleShot(),
-    # but can't cancel this / disconnect it.
-    timer = QTimer()
-    timer.setSingleShot(True)
-    timer.timeout.connect(qe.quit)
-    timer.start(1)
-
-    # Wait for an emitted signal.
-    qe.exec_()
-
-    # Clean up: don't allow the timer to call qe.quit after this
-    # function exits, which would produce "interesting" behavior.
-    timer.stop()
-    # Stopping the timer may not cancel timeout signals in the
-    # event queue. Disconnect the signal to be sure that loop
-    # will never receive a timeout after the function exits.
-    timer.timeout.disconnect(qe.quit)
-
-
-def inMainLoop(func, *args):
-    """Decorator executes test method in the QApplication main loop.
-    QAction shortcuts doesn't work, if main loop is not running.
-    Do not use for tests, which doesn't use main loop, because it slows down execution.
-    """
-    def wrapper(*args):
-        def execWithArgs():
-            try:
-                core.mainWindow().show()
-                QTest.qWaitForWindowExposed(core.mainWindow())
-                app = QApplication.instance()
-                app.setActiveWindow(core.mainWindow())
-                assert app.focusWidget() is not None
-                func(*args)
-                # When done processing these events, exit the event loop. To do so,
-            finally:
-                try:
-                    app.processEvents()
-                except:
-                    pass
-                app.quit()
-
-        QTimer.singleShot(0, execWithArgs)
-
-        # Catch any exceptions which the EventLoop would otherwise catch
-        # and not re-raise.
-        exceptions = []
-
-        def excepthook(type_, value, tracebackObj):
-            exceptions.append((value, tracebackObj))
-            QApplication.instance().exit()
-        oldExcHook = sys.excepthook
-        sys.excepthook = excepthook
-
-        try:
-            # Run the requested function in the application's main loop.
-            QApplication.instance().exec_()
-            # If an exception occurred in the event loop, re-raise it.
-            if exceptions:
-                value, tracebackObj = exceptions[0]
-                raise value.with_traceback(tracebackObj)
-        finally:
-            # Restore the old exception hook
-            sys.excepthook = oldExcHook
-
-    wrapper.__name__ = func.__name__  # for unittest test runner
-    return wrapper
 
 
 def _cmdlineUtilityExists(cmdlineArgs):
@@ -203,23 +128,16 @@ class TestCase(unittest.TestCase):
 
         core.init(DummyProfiler(), {'session_name': ''})
 
+        core.mainWindow().show()
+        QTest.qWaitForWindowExposed(core.mainWindow())
+        QApplication.instance().setActiveWindow(core.mainWindow())
+
     def tearDown(self):
         self._finished = True
 
-        def blockingFunc():
-            try:
-                core.workspace().forceCloseAllDocuments()
-                core.term()
-            finally:
-                try:
-                    QApplication.instance().processEvents()
-                except:
-                    pass
-                QApplication.instance().quit()
-
-        QTimer.singleShot(0, blockingFunc)
-        QApplication.exec_()
-
+        core.workspace().forceCloseAllDocuments()
+        core.term()
+        QApplication.instance().processEvents()
         self._cleanUpFs()
 
     def keyClick(self, key, modifiers=Qt.NoModifier, widget=None):
@@ -400,42 +318,26 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     This function was inspired by http://stackoverflow.com/questions/2629055/qtestlib-qnetworkrequest-not-executed/2630114#2630114.
 
     """
-    # Create a single-shot timer. Could use QTimer.singleShot(),
-    # but can't cancel this / disconnect it.
-    timer = QTimer()
-    timer.setSingleShot(True)
-
-    # Create an event loop to run in. Otherwise, we need to use the
-    # QApplication main loop, which may already be running and therefore
-    # unusable.
-    qe = QEventLoop()
-
     # Create a slot which receives a senderSignal with any number
     # of arguments. Check the arguments against their expected
     # values, if requested, storing the result in senderSignalArgsWrong[0].
     # (I can't use senderSignalArgsWrong = True/False, since
     # non-local variables cannot be assigned in another scope).
-    senderSignalArgsWrong = []
+    senderSignalArgsWrong = False
+    called = False
 
     def senderSignalSlot(*args):
         # If the senderSignal args should be checked and they
         # don't match, then they're wrong. In all other cases,
         # they're right.
-        senderSignalArgsWrong.append(
-            (expectedSignalParams is not None) and
-            (expectedSignalParams != args))
-        # We received the requested signal, so exit the event loop.
-        qe.exit()
+        nonlocal senderSignalArgsWrong
+        nonlocal called
+        senderSignalArgsWrong = (expectedSignalParams is not None and
+                                 expectedSignalParams != args)
+        called = True
 
     # Connect both signals to a slot which quits the event loop.
     senderSignal.connect(senderSignalSlot)
-    timer.timeout.connect(qe.quit)
-
-    # Start the sender and the timer and at the beginning of the event loop.
-    # Just calling sender() may cause signals emitted in sender
-    # not to reach their connected slots.
-    QTimer.singleShot(0, sender)
-    timer.start(timeoutMs)
 
     # Catch any exceptions which the EventLoop would otherwise catch
     # and not re-raise.
@@ -446,26 +348,25 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     oldExcHook = sys.excepthook
     sys.excepthook = excepthook
 
-    # Wait for an emitted signal.
-    qe.exec_()
+    sender()
+
+    for _ in range(20):
+        if called or exceptions:
+            break
+        QApplication.instance().processEvents()
+        QTest.qWait(timeoutMs / 20)
+
     # If an exception occurred in the event loop, re-raise it.
     if exceptions:
         value, tracebackObj = exceptions[0]
         raise value.with_traceback(tracebackObj)
-    # Clean up: don't allow the timer to call app.quit after this
-    # function exits, which would produce "interesting" behavior.
-    ret = timer.isActive()
-    timer.stop()
-    # Stopping the timer may not cancel timeout signals in the
-    # event queue. Disconnect the signal to be sure that loop
-    # will never receive a timeout after the function exits.
-    # Likewise, disconnect the senderSignal for the same reason.
+
+    # Disconnect the senderSignal for the same reason.
     senderSignal.disconnect(senderSignalSlot)
-    timer.timeout.disconnect(qe.quit)
     # Restore the old exception hook
     sys.excepthook = oldExcHook
 
-    return ret and senderSignalArgsWrong and (not senderSignalArgsWrong[0])
+    return called and not senderSignalArgsWrong
 
 # The function above is rather awkward to use. This provides the same
 # functionality, but as a context manager instead. All statements inside the
@@ -473,115 +374,84 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
 # before the timer expires, the test succeeds.
 
 
-class WaitForSignal(unittest.TestCase):
-
-    def __init__(self,
-                 # The signal to wait for.
-                 signal,
-                 # The maximum time to wait for the signal to be emitted, in ms.
-                 timeoutMs,
-                 # True to self.assertif the signal wasn't emitted.
-                 assertIfNotRaised=True,
-                 # Expected parameters which this signal must supply.
-                 expectedSignalParams=None,
-                 # True to print exceptions raised in the event loop
-                 printExcTraceback=True,
-                 # Number of times this signal must be emitted
-                 numEmittedExpected=1):
-
-        self.signal = signal
-        self.timeoutMs = timeoutMs
-        self.expectedSignalParams = expectedSignalParams
-        self.assertIfNotRaised = assertIfNotRaised
-        self.printExcTraceback = printExcTraceback
-        self.numEmittedExpected = numEmittedExpected
+@contextmanager
+def WaitForSignal(test,
+                  # The signal to wait for.
+                  signal,
+                  # The maximum time to wait for the signal to be emitted, in ms.
+                  timeoutMs,
+                  # True to self.assertif the signal wasn't emitted.
+                  assertIfNotRaised=True,
+                  # Expected parameters which this signal must supply.
+                  expectedSignalParams=None,
+                  # True to print exceptions raised in the event loop
+                  printExcTraceback=True,
+                  # Number of times this signal must be emitted
+                  numEmittedExpected=1):
 
         # Stores the result of comparing self.expectedSignalParams with the
         # actual params.
-        self.areSenderSignalArgsWrong = False
+        areSenderSignalArgsWrong = False
         # The number of times this signal was emitted.
-        self.numEmitted = 0
+        numEmitted = 0
 
-    # Create a slot which receives a senderSignal with any number
-    # of arguments. Check the arguments against their expected
-    # values, if requested, storing the result in senderSignalArgsWrong[0].
-    # (I can't use senderSignalArgsWrong = True/False, since
-    # non-local variables cannot be assigned in another scope).
-    def signalSlot(self, *args):
-        # If the senderSignal args should be checked and they
-        # don't match, then they're wrong. In all other cases,
-        # they're right.
-        if self.expectedSignalParams:
-            self.areSenderSignalArgsWrong = (self.expectedSignalParams != args)
-        self.numEmitted += 1
-        if self._gotSignal():
-            # We received the requested signal, so exit the event loop or never
-            # enter it (exit won't exit an event loop that hasn't been run). When
-            # this is nested inside other WaitForSignal clauses, signals may be
-            # received in another QEventLoop, even before this object's QEventLoop
-            # starts.
-            self.qe.exit()
+        # Create a slot which receives a senderSignal with any number
+        # of arguments. Check the arguments against their expected
+        # values, if requested, storing the result in senderSignalArgsWrong[0].
+        # (I can't use senderSignalArgsWrong = True/False, since
+        # non-local variables cannot be assigned in another scope).
+        def signalSlot(*args):
+            # If the senderSignal args should be checked and they
+            # don't match, then they're wrong. In all other cases,
+            # they're right.
+            if expectedSignalParams:
+                nonlocal areSenderSignalArgsWrong
+                areSenderSignalArgsWrong = (expectedSignalParams != args)
+            nonlocal numEmitted
+            numEmitted += 1
 
-    # True of the signal was emitted the expected number of times.
-    def _gotSignal(self):
-        return self.numEmitted == self.numEmittedExpected
+        # True of the signal was emitted the expected number of times.
+        def _gotSignal():
+            return numEmitted == numEmittedExpected
 
-    def __enter__(self):
-        # Create an event loop to run in. Otherwise, we need to use the papp
-        # (QApplication) main loop, which may already be running and therefore
-        # unusable.
-        self.qe = QEventLoop()
+        signal.connect(signalSlot)
 
-        # Connect both signals to a slot which quits the event loop.
-        self.signal.connect(self.signalSlot)
-
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        # Create a single-shot timer. Could use QTimer.singleShot(),
-        # but can't cancel this / disconnect it.
-        self.timer = QTimer()
-        self.timer.setSingleShot(True)
-        self.timer.timeout.connect(self.qe.quit)
-        self.timer.start(self.timeoutMs)
+        yield
 
         # Catch any exceptions which the EventLoop would otherwise catch
         # and not re-raise.
-        self.exceptions = None
+        exceptions = None
 
         def excepthook(type_, value, tracebackObj):
-            self.exceptions = (value, tracebackObj)
-            if self.printExcTraceback:
+            nonlocal exceptions
+            exceptions = (value, tracebackObj)
+            if printExcTraceback:
                 oldExcHook(type_, value, tracebackObj)
-            self.qe.exit()
         oldExcHook = sys.excepthook
         sys.excepthook = excepthook
 
         # Wait for an emitted signal, unless it already occurred.
-        if not self._gotSignal():
-            self.qe.exec_()
+        for _ in range(20):
+            if _gotSignal() or exceptions is not None:
+                break
+            QApplication.instance().processEvents()
+            QTest.qWait(timeoutMs / 20)
+        else:
+            if assertIfNotRaised:
+                test.fail()
+
         # Restore the old exception hook
         sys.excepthook = oldExcHook
-        # Clean up: don't allow the timer to call qe.quit after this
-        # function exits, which would produce "interesting" behavior.
-        timerIsActive = self.timer.isActive()
-        self.timer.stop()
-        # Stopping the timer may not cancel timeout signals in the
-        # event queue. Disconnect the signal to be sure that loop
-        # will never receive a timeout after the function exits.
-        # Likewise, disconnect the senderSignal for the same reason.
-        self.signal.disconnect(self.signalSlot)
-        self.timer.timeout.disconnect(self.qe.quit)
+
+        # Disconnect the senderSignal for the same reason.
+        signal.disconnect(signalSlot)
 
         # If an exception occurred in the event loop, re-raise it.
-        if self.exceptions:
-            value, tracebackObj = self.exceptions
+        if exceptions:
+            value, tracebackObj = exceptions
             raise value.with_traceback(tracebackObj)
 
-        # Check that the signal occurred.
-        self.sawSignal = timerIsActive and not self.areSenderSignalArgsWrong
-        if self.assertIfNotRaised:
-            self.assertTrue(self.sawSignal)
 
-        # Don't mask exceptions.
-        return False
+def main():
+    QTimer.singleShot(0, unittest.main)
+    return QApplication().instance().exec_()

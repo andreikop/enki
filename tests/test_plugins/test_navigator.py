@@ -71,7 +71,6 @@ class Settings(base.TestCase):
             self.openSettings(continueFunc)
 
     @base.requiresCmdlineUtility('ctags --version')
-    @base.inMainLoop
     def test_3(self):
         # Sort order is configurable
         self.createFile('source.rb', RUBY_SOURCE)
@@ -98,7 +97,6 @@ class Settings(base.TestCase):
 class Gui(base.TestCase):
 
     @base.requiresCmdlineUtility('ctags --version')
-    @base.inMainLoop
     def test_1(self):
         # Tags are parsed and shown
         self.createFile('source.rb', RUBY_SOURCE)
@@ -142,7 +140,6 @@ class Gui(base.TestCase):
         core.workspace().setCurrentDocument(ruby)
         self.assertFalse(dock.isHidden())
 
-    @base.inMainLoop
     def test_4(self):
         # dock remembers its Enabled/Disabled state
         ruby = self.createFile('source.rb', RUBY_SOURCE)
@@ -199,7 +196,6 @@ class Gui(base.TestCase):
         return model.data(curr, Qt.DisplayRole)
 
     @base.requiresCmdlineUtility('ctags --version')
-    @base.inMainLoop
     def test_6(self):
         # Tags are filtered
         document = self.createFile('source.rb', RUBY_SOURCE)
@@ -222,7 +218,6 @@ class Gui(base.TestCase):
         self.assertEqual(model.rowCount(QModelIndex()), 2)
 
     @base.requiresCmdlineUtility('ctags --version')
-    @base.inMainLoop
     def test_7(self):
         # Up, down, backspace on tree
         document = self.createFile('source.rb', RUBY_SOURCE)
@@ -249,7 +244,6 @@ class Gui(base.TestCase):
         self.assertEqual(model.rowCount(QModelIndex()), 2)
 
     @base.requiresCmdlineUtility('ctags --version')
-    @base.inMainLoop
     def test_8(self):
         stdout = "ctags: unrecognized option '--fields=nKs'\n	Try `ctags --help' for a complete list of options."
 

@@ -16,7 +16,6 @@ from enki.widgets.dockwidget import DockWidget
 
 class Test(base.TestCase):
 
-    @base.inMainLoop
     def test_1(self):
 
         docks = core.mainWindow().findChildren(DockWidget)
