@@ -24,11 +24,11 @@ cd enki_all
 #
 # Qutepart
 # ========
-# Fedora: pcre     pcre-devel   python-qt4
-$INSTALL  libpcre3 libpcre3-dev python-qt4
+# Fedora: pcre     pcre-devel   python3-pyqt5
+$INSTALL  libpcre3 libpcre3-dev python3-pyqt5
 git clone https://github.com/hlamer/qutepart.git
 cd qutepart
-sudo python setup.py install
+sudo python setup.py develop
 $PAUSE
 cd ..
 #
@@ -40,6 +40,7 @@ $INSTALL  desktop-file-utils exuberant-ctags
 sudo pip install -U mock markdown sphinx flake8 regex CodeChat
 git clone https://github.com/hlamer/enki.git
 cd enki
+sudo python setup.py develop
 $PAUSE
 cd ..
 
