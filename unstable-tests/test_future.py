@@ -12,6 +12,7 @@ import os.path
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                 ".."))
 from base import WaitForSignal
+import base
 #
 # Library imports
 # ---------------
@@ -397,4 +398,4 @@ class TestAsyncController(unittest.TestCase):
             rl.terminate()
 
 if __name__ == '__main__':
-    unittest.main()
+    base.main()

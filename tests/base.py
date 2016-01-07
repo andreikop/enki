@@ -188,6 +188,15 @@ class TestCase(unittest.TestCase):
 
         return core.workspace().openFile(path)
 
+    def waitDialog(self):
+        for _ in range(40):
+            QApplication.instance().processEvents()
+            if self._findDialog() is not None:
+                QApplication.instance().processEvents()
+                return self._findDialog()
+        else:
+            self.fail()
+
     def _findDialog(self):
         for widget in QApplication.instance().topLevelWidgets():
             if widget.isVisible() and isinstance(widget, QDialog):
@@ -227,7 +236,7 @@ class TestCase(unittest.TestCase):
         QTimer.singleShot(20, lambda: timerCallback(1))
         openDialogFunc()
 
-    def openSettings(self, runInDialogFunc):
+    def openSettings(self):
         """Open Enki settings dialog and run ``runInDialogFunc``.
         Dialog is passed as a parameter to ``runInDialogFunc``
         """
@@ -235,9 +244,7 @@ class TestCase(unittest.TestCase):
         # ``dialog.exec_()``. So, open it:
         core.actionManager().action("mSettings/aSettings").trigger()
         # Then run exec_, with runInDialogFunc executing in exec_'s loop.
-        dialog = self._findDialog()
-        return self.openDialog(dialog.exec_,
-                               runInDialogFunc)
+        return self.waitDialog()
 
     def retryUntilPassed(self, timeoutMs, function):
         """ Try to execute a function until it doesn't generate any exception
@@ -452,6 +459,6 @@ def WaitForSignal(test,
             raise value.with_traceback(tracebackObj)
 
 
-def main():
-    QTimer.singleShot(0, unittest.main)
-    return QApplication().instance().exec_()
+def main(**kwargs):
+    QTimer.singleShot(0, lambda: unittest.main(**kwargs))
+    return QApplication.instance().exec_()

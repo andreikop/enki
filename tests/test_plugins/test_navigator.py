@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import unittest
 import os
 import os.path
 import sys
@@ -41,14 +40,12 @@ class Settings(base.TestCase):
 
     def test_1(self):
         # Ctags path are configurable
-        def continueFunc(dialog):
-            page = dialog._pageForItem["Navigator"]
+        dialog = self.openSettings()
+        page = dialog._pageForItem["Navigator"]
 
-            page.leCtagsPath.setText('new ctags path')
+        page.leCtagsPath.setText('new ctags path')
 
-            QTest.keyClick(dialog, Qt.Key_Enter)
-
-        self.openSettings(continueFunc)
+        QTest.keyClick(dialog, Qt.Key_Enter)
 
         self.assertEqual(core.config()['Navigator']['CtagsPath'], 'new ctags path')
 
@@ -59,16 +56,14 @@ class Settings(base.TestCase):
                   "Copyright (C) 2012 Free Software Foundation, Inc.\n"
                   "This program is distributed under the terms in ETAGS.README")
 
-        def continueFunc(dialog):
+        with patch('enki.lib.get_console_output.get_console_output', return_value=(stdout, None)):
+            dialog = self.openSettings()
             page = dialog._pageForItem["Navigator"]
             self.assertEqual(page.lExecuteError.text(),
                              ('You are trying to use etags from the Emacs package, but it is not supported. '
                               'Use Exuberant Ctags.'))
 
             QTest.keyClick(dialog, Qt.Key_Enter)
-
-        with patch('enki.lib.get_console_output.get_console_output', return_value=(stdout, None)):
-            self.openSettings(continueFunc)
 
     @base.requiresCmdlineUtility('ctags --version')
     def test_3(self):
@@ -80,13 +75,13 @@ class Settings(base.TestCase):
                               lambda: self.assertEqual([tag.name for tag in model._tags[0].children],
                                                        ['initialize', '<=>', 'to_s']))
 
-        def continueFunc(dialog):
-            page = dialog._pageForItem["Navigator"]
 
-            page.cbSortTagsAlphabetically.setChecked(True)
-            QTest.keyClick(dialog, Qt.Key_Enter)
+        dialog = self.openSettings()
+        page = dialog._pageForItem["Navigator"]
 
-        self.openSettings(continueFunc)
+        page.cbSortTagsAlphabetically.setChecked(True)
+        QTest.keyClick(dialog, Qt.Key_Enter)
+
         self.assertEqual(core.config()['Navigator']['SortAlphabetically'], True)
 
         self.retryUntilPassed(200,
@@ -314,4 +309,4 @@ class Parser(base.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    base.main(verbosity=2)

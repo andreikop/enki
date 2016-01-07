@@ -50,21 +50,20 @@ class Test(base.TestCase):
         self.assertEqual(len(version), 3)
 
     def _setSettings(self, enabled=None, path=None, checkedRb=None):
-        def continueFunc(dialog):
-            page = dialog._pageForItem["Lint/Python"]
+        dialog = self.openSettings()
 
-            if enabled is not None:
-                page.gbEnabled.setChecked(enabled)
+        page = dialog._pageForItem["Lint/Python"]
 
-            if checkedRb is not None:
-                getattr(page, checkedRb).setChecked(True)
+        if enabled is not None:
+            page.gbEnabled.setChecked(enabled)
 
-            if path is not None:
-                page.leFlake8Path.setText(path)
+        if checkedRb is not None:
+            getattr(page, checkedRb).setChecked(True)
 
-            QTest.keyClick(dialog, Qt.Key_Enter)
+        if path is not None:
+            page.leFlake8Path.setText(path)
 
-        self.openSettings(continueFunc)
+        QTest.keyClick(dialog, Qt.Key_Enter)
 
     def test_3(self):
         """ Settings widget """
@@ -100,4 +99,4 @@ class Test(base.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    base.main()

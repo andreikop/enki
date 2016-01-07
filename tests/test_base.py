@@ -147,4 +147,4 @@ class TestInMainLoop(base.TestCase):
 # ====
 # Run the unit tests in this file.
 if __name__ == '__main__':
-    unittest.main()
+    base.main()

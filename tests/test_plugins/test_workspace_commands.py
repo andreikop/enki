@@ -25,15 +25,15 @@ PROJ_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 
 class Test(base.TestCase):
 
     def _execCommand(self, text):
-        def inDialogFunc(dialog):
-            self.keyClicks(text)
-            QTest.qWait(150)
-            self.keyClick(Qt.Key_Enter)
+        self._openDialog()
 
-        self.openDialog(self._openDialog, inDialogFunc)
+        self.keyClicks(text)
+        QTest.qWait(150)
+        self.keyClick(Qt.Key_Enter)
 
     def _openDialog(self):
         self.keyClicks('L', Qt.ControlModifier)
+        return self.waitDialog()
 
     def test_01(self):
         """Go to line"""
@@ -115,14 +115,12 @@ class Test(base.TestCase):
         with open(fullPath, 'w') as file_:
             file_.write('thedata')
 
-        def inDialogFunc(dialog):
-            cmdPath = (self.TEST_FILE_DIR + '/the').replace('\\', '\\\\').replace(' ', '\\ ')
-            self.keyClicks('o ' + cmdPath)
-            QTest.qWait(200)
-            self.assertTrue(dialog._edit.text().endswith('file.txt'))
-            self.keyClick(Qt.Key_Enter)
-
-        self.openDialog(self._openDialog, inDialogFunc)
+        dialog = self._openDialog()
+        cmdPath = (self.TEST_FILE_DIR + '/the').replace('\\', '\\\\').replace(' ', '\\ ')
+        self.keyClicks('o ' + cmdPath)
+        QTest.qWait(200)
+        self.assertTrue(dialog._edit.text().endswith('file.txt'))
+        self.keyClick(Qt.Key_Enter)
 
         self.assertEqual(core.workspace().currentDocument().filePath(), fullPath)
 
@@ -132,11 +130,10 @@ class Test(base.TestCase):
 
         self.assertNotEqual(core.project().path(), self.TEST_FILE_DIR)
 
-        def inDialogFunc(dialog):
-            self.keyClicks('p ' + self.TEST_FILE_DIR.replace('\\', '\\\\'))
-            self.keyClick(Qt.Key_Enter)
+        self._openDialog()
 
-        self.openDialog(self._openDialog, inDialogFunc)
+        self.keyClicks('p ' + self.TEST_FILE_DIR.replace('\\', '\\\\'))
+        self.keyClick(Qt.Key_Enter)
 
         self.assertEqual(core.project().path(), self.TEST_FILE_DIR)
 
@@ -144,22 +141,20 @@ class Test(base.TestCase):
         """ Open .. """
         core.project().open(PROJ_ROOT)
 
-        def inDialogFunc(dialog):
-            self.keyClicks('p ..')
-            self.keyClick(Qt.Key_Enter)
-        self.openDialog(self._openDialog, inDialogFunc)
+        self._openDialog()
+        self.keyClicks('p ..')
+        self.keyClick(Qt.Key_Enter)
         self.assertEqual(core.project().path(), os.path.dirname(PROJ_ROOT))
 
     def test_10(self):
         """ Open ./ """
         core.project().open(PROJ_ROOT)
 
-        def inDialogFunc(dialog):
-            self.keyClicks('p ./core')
-            self.keyClick(Qt.Key_Enter)
-        self.openDialog(self._openDialog, inDialogFunc)
+        self._openDialog()
+        self.keyClicks('p ./core')
+        self.keyClick(Qt.Key_Enter)
         self.assertEqual(core.project().path(), os.path.join(PROJ_ROOT, 'core'))
 
 
 if __name__ == '__main__':
-    unittest.main()
+    base.main()

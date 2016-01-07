@@ -119,4 +119,4 @@ class Lang(_BaseTest):
         self.assertEqual(self.term._edit.language(), 'C++')
 
 if __name__ == '__main__':
-    unittest.main()
+    base.main()

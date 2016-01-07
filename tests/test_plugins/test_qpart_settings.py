@@ -28,14 +28,12 @@ class Font(_BaseTestCase):
     def test_1(self):
         font = QFont("Arial", 88)
 
-        def continueFunc(dialog):
-            page = dialog._pageForItem["Editor/Font"]
+        dialog = self.openSettings()
+        page = dialog._pageForItem["Editor/Font"]
 
-            page.lFont.setFont(font)
+        page.lFont.setFont(font)
 
-            QTest.keyClick(dialog, Qt.Key_Enter)
-
-        self.openSettings(continueFunc)
+        QTest.keyClick(dialog, Qt.Key_Enter)
 
         self.assertEqual(core.config()['Qutepart']['Font']['Family'], font.family())
         self.assertEqual(core.config()['Qutepart']['Font']['Size'], font.pointSize())
@@ -47,20 +45,19 @@ class Font(_BaseTestCase):
 class Indent(_BaseTestCase):
 
     def _doTest(self, useTabs, width, autoDetect):
-        def continueFunc(dialog):
-            page = dialog._pageForItem["Editor/Indentation"]
 
-            if useTabs:
-                page.rbIndentationTabs.setChecked(True)
-            else:
-                page.rbIndentationSpaces.setChecked(True)
+        dialog = self.openSettings()
+        page = dialog._pageForItem["Editor/Indentation"]
 
-            page.sIndentationWidth.setValue(width)
-            page.cbAutodetectIndent.setChecked(autoDetect)
+        if useTabs:
+            page.rbIndentationTabs.setChecked(True)
+        else:
+            page.rbIndentationSpaces.setChecked(True)
 
-            QTest.keyClick(dialog, Qt.Key_Enter)
+        page.sIndentationWidth.setValue(width)
+        page.cbAutodetectIndent.setChecked(autoDetect)
 
-        self.openSettings(continueFunc)
+        QTest.keyClick(dialog, Qt.Key_Enter)
 
         self.assertEqual(core.config()['Qutepart']['Indentation']['UseTabs'], useTabs)
         self.assertEqual(core.config()['Qutepart']['Indentation']['Width'], width)
@@ -79,17 +76,16 @@ class Indent(_BaseTestCase):
 class AutoCompletion(_BaseTestCase):
 
     def _doTest(self, enabled, threshold):
-        def continueFunc(dialog):
-            page = dialog._pageForItem["Editor/Autocompletion"]
+        dialog = self.openSettings()
 
-            page.gbAutoCompletion.setChecked(enabled)
-            page.sThreshold.setValue(threshold)
+        page = dialog._pageForItem["Editor/Autocompletion"]
 
-            self.assertTrue(page.lcdNumber.value(), threshold)
+        page.gbAutoCompletion.setChecked(enabled)
+        page.sThreshold.setValue(threshold)
 
-            QTest.keyClick(dialog, Qt.Key_Enter)
+        self.assertTrue(page.lcdNumber.value(), threshold)
 
-        self.openSettings(continueFunc)
+        QTest.keyClick(dialog, Qt.Key_Enter)
 
         self.assertEqual(core.config()['Qutepart']['AutoCompletion']['Enabled'], enabled)
         self.assertEqual(core.config()['Qutepart']['AutoCompletion']['Threshold'], threshold)
@@ -107,16 +103,14 @@ class AutoCompletion(_BaseTestCase):
 class Edge(_BaseTestCase):
 
     def _doTest(self, enabled, width, colorName):
-        def continueFunc(dialog):
-            page = dialog._pageForItem["Editor/Long Lines"]
+        dialog = self.openSettings()
+        page = dialog._pageForItem["Editor/Long Lines"]
 
-            page.gbEdgeEnabled.setChecked(enabled)
-            page.sEdgeColumnNumber.setValue(width)
-            page.tbEdgeColor.setColor(QColor(colorName))
+        page.gbEdgeEnabled.setChecked(enabled)
+        page.sEdgeColumnNumber.setValue(width)
+        page.tbEdgeColor.setColor(QColor(colorName))
 
-            dialog.accept()
-
-        self.openSettings(continueFunc)
+        dialog.accept()
 
         self.assertEqual(core.config()['Qutepart']['Edge']['Enabled'], enabled)
         self.assertEqual(core.config()['Qutepart']['Edge']['Column'], width)
@@ -142,26 +136,24 @@ class Edge(_BaseTestCase):
 class Eol(_BaseTestCase):
 
     def _doTest(self, mode, autoDetect):
-        def continueFunc(dialog):
-            page = dialog._pageForItem["Editor/EOL"]
+        dialog = self.openSettings()
+        page = dialog._pageForItem["Editor/EOL"]
 
-            if mode == r'\n':
-                page.rbEolUnix.setChecked(True)
-            elif mode == r'\r\n':
-                page.rbEolWindows.setChecked(True)
-            elif mode == r'\r':
-                page.rbEolMac.setChecked(True)
-            else:
-                assert 0
+        if mode == r'\n':
+            page.rbEolUnix.setChecked(True)
+        elif mode == r'\r\n':
+            page.rbEolWindows.setChecked(True)
+        elif mode == r'\r':
+            page.rbEolMac.setChecked(True)
+        else:
+            assert 0
 
-            if page.cbAutoDetectEol.isChecked() != autoDetect:
-                QTest.mouseClick(page.cbAutoDetectEol, Qt.LeftButton)
+        if page.cbAutoDetectEol.isChecked() != autoDetect:
+            QTest.mouseClick(page.cbAutoDetectEol, Qt.LeftButton)
 
-            self.assertEqual(not page.lReloadToReapply.isHidden(), autoDetect)
+        self.assertEqual(not page.lReloadToReapply.isHidden(), autoDetect)
 
-            QTest.keyClick(dialog, Qt.Key_Enter)
-
-        self.openSettings(continueFunc)
+        QTest.keyClick(dialog, Qt.Key_Enter)
 
         self.assertEqual(core.config()['Qutepart']['EOL']['Mode'], mode)
         self.assertEqual(core.config()['Qutepart']['EOL']['AutoDetect'], autoDetect)
@@ -189,18 +181,16 @@ class Eol(_BaseTestCase):
 class Wrap(_BaseTestCase):
 
     def _doTest(self, enabled, atWord, lineWrapMode, wordWrapMode, wordWrapText):
-        def continueFunc(dialog):
-            page = dialog._pageForItem["Editor/Long Lines"]
+        dialog = self.openSettings()
+        page = dialog._pageForItem["Editor/Long Lines"]
 
-            page.gbWrapEnabled.setChecked(enabled)
-            if atWord:
-                page.rbWrapAtWord.setChecked(True)
-            else:
-                page.rbWrapAnywhere.setChecked(True)
+        page.gbWrapEnabled.setChecked(enabled)
+        if atWord:
+            page.rbWrapAtWord.setChecked(True)
+        else:
+            page.rbWrapAnywhere.setChecked(True)
 
-            QTest.keyClick(dialog, Qt.Key_Enter)
-
-        self.openSettings(continueFunc)
+        QTest.keyClick(dialog, Qt.Key_Enter)
 
         self.assertEqual(core.config()['Qutepart']['Wrap']['Enabled'], enabled)
         self.assertEqual(core.config()['Qutepart']['Wrap']['Mode'], wordWrapText)
@@ -291,4 +281,4 @@ class WhitespaceStrip(_BaseTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    base.main()

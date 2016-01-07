@@ -43,4 +43,4 @@ def normpathcase(path):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    base.main()

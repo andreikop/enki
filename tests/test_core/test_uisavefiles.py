@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."
 import base
 
 from PyQt5.QtTest import QTest
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QApplication
 from PyQt5.QtGui import QKeySequence
 
 
@@ -42,8 +42,9 @@ class Test(base.TestCase):
         self.keyClick('Ctrl+Enter')
         self.keyClicks('new text')
 
-        self.openDialog(lambda: self.keyClick('Ctrl+Shift+W'),
-                        lambda dialog: self.keyClick('w'))
+        self.keyClick('Ctrl+Shift+W')
+        self.waitDialog()
+        self.keyClick('w')
 
         self.assertIsNone(core.workspace().currentDocument())
         self._verifyText('file2.rb', 'fdsa')
@@ -56,8 +57,9 @@ class Test(base.TestCase):
         self.keyClick('Ctrl+Enter')
         self.keyClicks('new text')
 
-        self.openDialog(lambda: self.keyClick('Ctrl+Shift+W'),
-                        lambda dialog: self.keyClick('c'))
+        self.keyClick('Ctrl+Shift+W')
+        self.waitDialog()
+        self.keyClick('c')
 
         self.assertIsNotNone(core.workspace().currentDocument())
 
@@ -69,8 +71,9 @@ class Test(base.TestCase):
         self.keyClick('Ctrl+Enter')
         self.keyClicks('new text+')
 
-        self.openDialog(lambda: self.keyClick('Ctrl+Shift+W'),
-                        lambda dialog: self.keyClick('s'))
+        self.keyClick('Ctrl+Shift+W')
+        self.waitDialog()
+        self.keyClick('s')
 
         self.assertIsNone(core.workspace().currentDocument())
 
@@ -120,4 +123,4 @@ class Test(base.TestCase):
         self.assertEqual(s.key(), QKeySequence("T"))
 
 if __name__ == '__main__':
-    unittest.main()
+    base.main()

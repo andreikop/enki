@@ -90,4 +90,4 @@ class Test(base.TestCase):
         self._sleepAndCheck(0, False, False, False, False)
 
 if __name__ == '__main__':
-    unittest.main()
+    base.main()

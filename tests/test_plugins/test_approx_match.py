@@ -381,4 +381,4 @@ Text after block 1,2, and 3""")[0]
 # Main
 # ====
 if __name__ == '__main__':
-    unittest.main()
+    base.main()

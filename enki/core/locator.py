@@ -609,7 +609,7 @@ class Locator(QObject):
     def _onAction(self):
         """Locator action triggered. Show themselves and make focused
         """
-        _LocatorDialog(core.mainWindow(), self._availableCommands()).exec_()
+        _LocatorDialog(core.mainWindow(), self._availableCommands()).open()
 
     def addCommandClass(self, commandClass):
         """Add new command to the locator. Shall be called by plugins, which provide locator commands

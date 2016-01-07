@@ -444,4 +444,4 @@ Here is some text after a table.""", True)
 # ====
 # Run the unit tests in this file.
 if __name__ == '__main__':
-    unittest.main()
+    base.main()

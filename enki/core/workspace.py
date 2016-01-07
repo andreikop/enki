@@ -665,10 +665,11 @@ class Workspace(QStackedWidget):
         Ask for confirmation with dialog, if modified.
         """
         if document.qutepart.document().isModified():
-            if _UISaveFiles(self, [document]).exec_() == QDialog.Rejected:
-                return
-
-        self._doCloseDocument(document)
+            dialog = _UISaveFiles(self, [document])
+            dialog.accepted.connect(lambda: self._doCloseDocument(document))
+            dialog.open()
+        else:
+            self._doCloseDocument(document)
 
     def askToCloseAll(self):
         """If have unsaved documents, ask user to save it and close all.
@@ -694,10 +695,13 @@ class Workspace(QStackedWidget):
 
         If hideMainWindow is True, main window will be hidden, if user hadn't pressed "Cancel Close"
         """
-        if not self.askToCloseAll():
-            return
-
-        self.forceCloseAllDocuments()
+        modifiedDocuments = [d for d in self.documents() if d.qutepart.document().isModified()]
+        if modifiedDocuments:
+            dialog = _UISaveFiles(self, modifiedDocuments)
+            dialog.accepted.connect(self.forceCloseAllDocuments)
+            dialog.open()
+        else:
+            self.forceCloseAllDocuments()
 
     def forceCloseAllDocuments(self):
         """Close all documents without asking user to save
