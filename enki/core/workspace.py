@@ -322,7 +322,7 @@ class Workspace(QStackedWidget):
             filePath = None
 
         if projPath is not None and filePath is not None:
-            title = '{} - {}'.format(projPath, filePath)
+            title = u'{} - {}'.format(projPath, filePath)
         elif projPath is not None:
             title = projPath
         elif filePath is not None:
