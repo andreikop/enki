@@ -1,0 +1,6 @@
+Markdown
+docutils
+regex>=2015.11.22
+CodeChat
+sphinx
+flake8

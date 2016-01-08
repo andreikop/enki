@@ -4,6 +4,9 @@
 
 
 ## Installation
+For most Linux and Windows users: use the pre-built binaries from the [official site](http://enki-editor.org/). But if you feel brave..
+
+** <font color="red">master branch can be unstable or even broken. Use releases if you are not going to hack Enki</font> **
 
 ### 1. Install dependencies
 Mandatory:
@@ -19,10 +22,13 @@ Optional:
 * [ctags](http://ctags.sourceforge.net/). For navigation in file
 * [regex](https://pypi.python.org/pypi/regex). For preview synchronization
 * [CodeChat](https://bitbucket.org/bjones/documentation/overview). For source code to HTML translation (literate programming)
+* [Sphinx](http://sphinx-doc.org/). To build Sphinx documentation.
+* [Flake8](https://flake8.readthedocs.org/en/latest/). To lint your Python code.
 
 #### Debian and Debian based
 
    `apt-get install python3 libqt5svg5 python3-pyqt5 python3-markdown python3-docutils ctags`
+   `pip3 install -r requirements.txt`
 
 Install Qutepart from [sources](https://github.com/hlamer/qutepart).
 #### Other Unixes
