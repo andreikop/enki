@@ -27,8 +27,10 @@ Optional:
 
 #### Debian and Debian based
 
-   `apt-get install python3 libqt5svg5 python3-pyqt5 python3-markdown python3-docutils ctags`
-   `pip3 install -r requirements.txt`
+```
+   apt-get install python3 libqt5svg5 python3-pyqt5 python3-markdown python3-docutils ctags
+   pip3 install -r requirements.txt
+```
 
 Install Qutepart from [sources](https://github.com/hlamer/qutepart).
 #### Other Unixes
