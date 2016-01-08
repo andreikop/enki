@@ -4,16 +4,17 @@
 # Enki install script
 # *******************
 # This script installs Enki and its dependencies from source. It is tested on
-# Ubuntu 12.04.
+# Ubuntu 12.04. Some testing is done on Fedora; see comments below.
 #
 # Common commands
 # ===============
 # Echo all commands.
 set -o verbose
-# Set up alias for repeated commands.
+# Set up aliases for repeated commands.
 PAUSE="read -p Press_[Enter]_to_continue... junk"
 INSTALL="sudo apt-get install -y"
-#INSTALL="sudo yum install -y" # Fedora
+# Fedora
+#INSTALL="sudo yum install -y"
 #
 # Source code and installs
 # ========================
@@ -21,43 +22,26 @@ INSTALL="sudo apt-get install -y"
 mkdir enki_all
 cd enki_all
 #
-# CodeChat
-# ========
-$INSTALL mercurial
-hg clone https://bitbucket.org/bjones/documentation CodeChat
-cd CodeChat
-sudo python setup.py develop
-$PAUSE
-cd ..
-#
 # Qutepart
 # ========
-# Fedora: pcre     pcre-devel   python-qt4
-$INSTALL  libpcre3 libpcre3-dev python-qt4
+# Fedora: pcre     pcre-devel   python3-pyqt5
+$INSTALL  libpcre3 libpcre3-dev python3-pyqt5
 git clone https://github.com/hlamer/qutepart.git
 cd qutepart
-sudo python setup.py install
+sudo python setup.py develop
 $PAUSE
 cd ..
 #
 # Enki
 # ====
 # Fedora: desktop-file-utils ctags
-$INSTALL  desktop-file-utils exuberant-ctags # On Fedora, use ctags.
+$INSTALL  desktop-file-utils exuberant-ctags
 # Then install Python packages from pip, since apt-get packages are older.
-sudo pip install -U mock markdown sphinx flake8 regex
+sudo pip install -U mock markdown sphinx flake8 regex CodeChat
 git clone https://github.com/hlamer/enki.git
 cd enki
+sudo python setup.py develop
 $PAUSE
 cd ..
-#
-# Python-markdown-mathjax
-# =======================
-# See https://github.com/mayoff/python-markdown-mathjax.
-wget https://raw.githubusercontent.com/mayoff/python-markdown-mathjax/master/mdx_mathjax.py
-MARKDOWN_PATH=`python -c 'import markdown; print markdown.__path__[0]'`
-# Per the instructions, rename to mathjax.py and install in the markdown
-# extensions folder.
-sudo cp mdx_mathjax.py $MARKDOWN_PATH/extensions/mathjax.py
 
 cd ..
