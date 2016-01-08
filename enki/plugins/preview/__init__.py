@@ -396,6 +396,9 @@ class Plugin(QObject):
         core.actionManager().addAction('mTools/aSetSphinxPath',
                                        self._sphinxAction)
         self._sphinxAction.triggered.connect(self.onSphinxPath)
+        # Only enable this command if the File browser has a valid path.
+        self.onFileBrowserPathChanged()
+        core.project().changed.connect(self.onFileBrowserPathChanged)
 
         # If user's config .json file lacks it, populate CodeChat's default
         # config key and Sphinx's default config key.
@@ -423,6 +426,7 @@ class Plugin(QObject):
         """Uninstall the plugin
         """
         core.actionManager().removeAction('mTools/aSetSphinxPath')
+        core.project().changed.disconnect(self.onFileBrowserPathChanged)
 
         if self._dockInstalled:
             self._removeDock()
@@ -525,8 +529,15 @@ class Plugin(QObject):
     def _setSphinxActionVisibility(self):
         self._sphinxAction.setVisible(core.config()['Sphinx']['Enabled'])
 
+    def onFileBrowserPathChanged(self):
+        """Enable the onSphinxPath command only when there's a valid project
+           path."""
+        self._sphinxAction.setEnabled(bool(core.project().path()))
+
     def onSphinxPath(self):
-        core.config()['Sphinx']['ProjectPath'] = os.getcwd()
+        """Set the Sphinx path to the current project path."""
+        assert core.project().path()
+        core.config()['Sphinx']['ProjectPath'] = core.project().path()
         core.config().flush()
         if core.config()['Preview']['Enabled'] and self._dock is not None:
             self._dock._scheduleDocumentProcessing()
