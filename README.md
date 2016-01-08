@@ -6,7 +6,7 @@
 ## Installation
 For most Linux and Windows users: use the pre-built binaries from the [official site](http://enki-editor.org/). But if you feel brave..
 
-** master branch can be unstable or even broken. Use releases if you are not going to hack Enki **
+**master branch can be unstable or even broken. Use releases if you are not going to hack Enki**
 
 ### 1. Install dependencies
 Mandatory:
