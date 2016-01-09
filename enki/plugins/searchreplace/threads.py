@@ -33,9 +33,6 @@ class StopableThread(QThread):
     def __init__(self):
         QThread.__init__(self)
 
-    def __del__(self):
-        self.stop()
-
     def stop(self):
         """Stop thread synchronously
         """
