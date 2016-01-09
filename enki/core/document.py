@@ -41,8 +41,8 @@ class _FileWatcher(QObject):
         self.setPath(path)
         self.enable()
 
-    def __del__(self):
-        self._stopTimer()
+    def term(self):
+        self.disable()
 
     def enable(self):
         """Enable signals from the watcher
@@ -216,7 +216,7 @@ class Document(QWidget):
     def del_(self):
         """Explicytly called destructor
         """
-        self._fileWatcher.disable()
+        self._fileWatcher.term()
 
         # avoid emitting signals, document shall behave like it is already dead
         self.qutepart.document().modificationChanged.disconnect()
