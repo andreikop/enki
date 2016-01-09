@@ -211,12 +211,6 @@ class AsyncAbstractController(QObject):
     def onParentDestroyed(self):
         self.terminate()
 #
-# Python destructor
-# ^^^^^^^^^^^^^^^^^
-    # In case the above method wasn't called, try to exit gracefully here.
-    def __del__(self):
-        self.terminate()
-#
 # Manual
 # ^^^^^^
     # Without calling this before the program exits, we get nasty crashes since
