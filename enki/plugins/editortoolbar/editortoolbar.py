@@ -260,7 +260,7 @@ class PositionIndicator(QToolButton):
         self._timer.timeout.connect(self._onUpdatePositionTimer)
         self._passedUpdate = False
 
-    def __del__(self):
+    def term(self):
         if self._timer.isActive():
             self._timer.stop()
 

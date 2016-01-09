@@ -38,3 +38,4 @@ class Plugin:
         tb.removeAction(self._indentAct)
         tb.removeAction(self._posAct)
         tb.removeAction(self._vimAct)
+        self._pos.term()
