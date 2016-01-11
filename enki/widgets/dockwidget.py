@@ -24,7 +24,12 @@ class _TitleBar(QToolBar):
         self.setSizePolicy( QSizePolicy( QSizePolicy.Expanding, QSizePolicy.Maximum ) )
         self._dock = parent
 
-        self.aClose = QToolBar.addAction(self, self.style().standardIcon( QStyle.SP_TitleBarCloseButton ), "")
+        closeIcon = self.style().standardIcon( QStyle.SP_DockWidgetCloseButton)
+        if not closeIcon.availableSizes():
+            # SP_DockWidgetCloseButton is missing on Fedora. Why??? Using fallback
+            closeIcon = self.style().standardIcon( QStyle.SP_DialogCloseButton)
+
+        self.aClose = QToolBar.addAction(self, closeIcon, "")
 
         self.setMovable( False )
         self.setFloatable( False )
