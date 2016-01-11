@@ -104,6 +104,9 @@ fi
 
 
 %changelog
+* Mon Jan 11 2016 Andrei Kopats <hlamer@tut.by> 15.11.1-15
+ - GUI fixes for Fedora
+
 * Mon Nov 30 2015 Andrei Kopats <hlamer@tut.by> 15.11.0-14
  - Fuzzy opener
  - Bug fixes and improvements
