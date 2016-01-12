@@ -296,7 +296,8 @@ class Workspace(QStackedWidget):
         """
         projPath = core.project().path()
         if projPath is not None:
-            homePath = os.path.expanduser('~')
+            homePath = os.path.expanduser("~" + os.sep)
+
             if projPath.startswith(homePath):
                 projPath = os.path.relpath(projPath, homePath)
 
@@ -315,7 +316,7 @@ class Workspace(QStackedWidget):
             filePath = None
 
         if projPath is not None and filePath is not None:
-            title = '{} - {}'.format(projPath, filePath)
+            title = u'{} - {}'.format(projPath, filePath)
         elif projPath is not None:
             title = projPath
         elif filePath is not None:

@@ -1,3 +1,9 @@
+enki (15.11.1-1~ubuntuseries1) ubuntuseries; urgency=medium
+
+  * GUI fixes for Fedora and Windows
+
+ -- Andrei Kopats <hlamer@tut.by>  Mon, 11 Jan 2016 22:28:13 +0300
+
 enki (15.11.0-1~ubuntuseries1) ubuntuseries; urgency=medium
 
   * Fuzzy opener

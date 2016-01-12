@@ -29,11 +29,10 @@ class _StatusBar(QStatusBar):
 
     def __init__(self, *args):
         QStatusBar.__init__(self, *args)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Expanding)
         self.setSizeGripEnabled(False)
         self.setStyleSheet("QStatusBar {border: 0} QStatusBar::item {border: 0}")
         self._label = QLabel(self)
-        self._label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self._label.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
         self._label.setStyleSheet("color: red")
         self.addWidget(self._label)
@@ -189,7 +188,7 @@ class MainWindow(QMainWindow):
             QMenuBar::item:!selected {background: transparent;}
             """ % self.palette().color(QPalette.WindowText).name()
             self._menuBar.setStyleSheet(menuBarStyleSheet)
-            self._menuBar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+            self._menuBar.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Minimum)
 
             self._topToolBar.addWidget(self._menuBar)
 
