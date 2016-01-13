@@ -50,7 +50,7 @@ class Plugin(QObject):
         core.actionManager().action("mNavigation/aGoto").triggered.connect(
             lambda: core.workspace().currentDocument().invokeGoTo())
 
-    def del_(self):
+    def terminate(self):
         pass
 
     def _onCurrentDocumentChanged(self, oldDocument, newDocument):

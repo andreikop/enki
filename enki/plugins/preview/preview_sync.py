@@ -80,7 +80,7 @@ class PreviewSync(QObject):
         # Make sure no errors were returned; the result should be empty.
         assert not res
 
-    def del_(self):
+    def terminate(self):
         # Uninstall the text-to-web sync only if it was installed in the first
         # place (it depends on TRE).
         if cProfile:

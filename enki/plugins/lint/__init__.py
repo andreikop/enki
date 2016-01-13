@@ -132,7 +132,7 @@ class Plugin(QObject):
 
         self._applySettings()
 
-    def del_(self):
+    def terminate(self):
         """Uninstall the plugin
         """
         if self._thread is not None:

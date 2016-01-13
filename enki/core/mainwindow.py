@@ -145,7 +145,7 @@ class MainWindow(QMainWindow):
         self._centralLayout.setContentsMargins(0, 0, 0, 0)
         self.setCentralWidget(widget)
 
-    def del_(self):
+    def terminate(self):
         """Explicitly called destructor
         """
         if self._queuedMessageToolBar:

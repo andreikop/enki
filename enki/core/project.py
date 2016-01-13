@@ -94,7 +94,7 @@ class Project(QObject):
         self.open(os.path.abspath('.'))
         core.fileFilter().regExpChanged.connect(self._onFileFilterChanged)
 
-    def del_(self):
+    def terminate(self):
         self._stopScannerThread()
 
     def _startScannerThread(self):

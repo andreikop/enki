@@ -58,7 +58,7 @@ class Plugin:
 
         self._actionManager.actionInserted.connect(self._onActionInserted)
 
-    def del_(self):
+    def terminate(self):
         self._actionManager.removeAction(self._action)
 
     def _applyShortcut(self, action):

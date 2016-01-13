@@ -8,6 +8,6 @@ class Plugin:
         core.locator().addCommandClass(FuzzyOpenCommand)
         core.locator().addCommandClass(ScanCommand)
 
-    def del_(self):
+    def terminate(self):
         core.locator().removeCommandClass(FuzzyOpenCommand)
         core.locator().addCommandClass(ScanCommand)

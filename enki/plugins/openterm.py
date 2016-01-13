@@ -59,7 +59,7 @@ class Plugin:
         self._addAction()
         core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
 
-    def del_(self):
+    def terminate(self):
         core.actionManager().removeAction('mTools/aOpenTerm')
 
     def _onSettingsDialogAboutToExecute(self, dialog):

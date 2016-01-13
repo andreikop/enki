@@ -49,10 +49,10 @@ class Plugin(QObject):
         # add dock to dock toolbar entry
         core.mainWindow().addDockWidget(Qt.LeftDockWidgetArea, self.dock)
 
-    def del_(self):
+    def terminate(self):
         """Uninstall the plugin
         """
-        self.dock.del_()
+        self.dock.terminate()
 
 
 class FileBrowserFilteredModel(QSortFilterProxyModel):
@@ -225,7 +225,7 @@ class SmartHistory(QObject):
         fileBrowser.rootChanged.connect(self._onRootChanged)
         fileBrowser.fileActivated.connect(self._onFileActivated)
 
-    def del_(self):
+    def terminate(self):
         """Explicitly called destructor
         """
         core.actionManager().removeAction("mNavigation/mFileBrowser/aBack")
@@ -519,7 +519,7 @@ class ComboBox(QComboBox):
         # reconnected in self.updateComboItems()
         self.currentIndexChanged[int].connect(self._onItemSelected)
 
-    def del_(self):
+    def terminate(self):
         """Explicitly called destructor
         """
         core.actionManager().removeAction(self._showPopupAction)
@@ -596,13 +596,13 @@ class DockFileBrowser(DockWidget):
 
         self.visibilityChanged.connect(self._onVisibilityChanged)
 
-    def del_(self):
+    def terminate(self):
         """Explicitly called destructor
         """
         if self._smartHistory is not None:
-            self._smartHistory.del_()
+            self._smartHistory.terminate()
         if self._comboBox is not None:
-            self._comboBox.del_()
+            self._comboBox.terminate()
         core.actionManager().removeAction("mView/aFileBrowser")
         if self._tree is not None:
             self._tree.term()

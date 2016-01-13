@@ -19,7 +19,7 @@ class Plugin(QObject):
         core.actionManager().action("mView/aHideAll").triggered.connect(self._onHideAllWindows)
         self._mainWindowState = None
 
-    def del_(self):
+    def terminate(self):
         pass
 
     def _onHideAllWindows(self):

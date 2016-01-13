@@ -19,7 +19,7 @@ class Plugin:
         core.workspace().documentOpened.connect(self._onDocumentOpened)
         core.workspace().languageChanged.connect(self._onLanguageChanged)
 
-    def del_(self):
+    def terminate(self):
         """Explicitly called destructor
         """
         core.workspace().documentOpened.disconnect(self._onDocumentOpened)

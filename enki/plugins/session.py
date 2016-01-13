@@ -48,7 +48,7 @@ class Plugin:
         self._timer.setInterval(_AUTO_SAVE_INTERVAL_MS)
         self._timer.start()
 
-    def del_(self):
+    def terminate(self):
         """Explicitly called destructor
         """
         core.restoreSession.disconnect(self._onRestoreSession)

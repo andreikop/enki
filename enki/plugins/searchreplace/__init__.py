@@ -17,7 +17,7 @@ class Plugin():
         """
         self._controller = controller.Controller()
 
-    def del_(self):
+    def terminate(self):
         """Plugin termination
         """
-        self._controller.del_()
+        self._controller.terminate()

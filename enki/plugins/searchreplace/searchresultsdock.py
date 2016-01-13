@@ -160,7 +160,7 @@ class SearchResultsDock(DockWidget):
         self._expandCollapseAll = ExpandCollapseAllButton(self.titleBarWidget(), self._view, self._model)
         self._checkUncheckAll = None
 
-    def del_(self):
+    def terminate(self):
         core.actionManager().removeAction("mView/aSearchResults")
 
     def _onResultActivated(self, index):

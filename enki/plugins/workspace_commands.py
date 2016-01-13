@@ -305,7 +305,7 @@ class Plugin:
         for cmdClass in _CMD_CLASSES:
             core.locator().addCommandClass(cmdClass)
 
-    def del_(self):
+    def terminate(self):
         """Explicitly called destructor
         """
         for cmdClass in _CMD_CLASSES:

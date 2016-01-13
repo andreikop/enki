@@ -409,14 +409,14 @@ class _CompletableLineEdit(QLineEdit):
         cursorPos = self.cursorPosition()
         slashPos = text.rfind('/', 0, cursorPos - 1)
         self.setSelection(slashPos + 1, cursorPos - slashPos)
-        self.del_()
+        self.terminate()
         self._inlineCompletionIsSet = False
 
     def _clearInlineCompletion(self):
         """Clear inline completion, if exists
         """
         if self._inlineCompletionIsSet:
-            self.del_()
+            self.terminate()
             self._inlineCompletionIsSet = False
 
     def _inlineCompletion(self):
@@ -602,7 +602,7 @@ class Locator(QObject):
         self._action.triggered.connect(self._onAction)
         self._separator = core.actionManager().menu("mNavigation").addSeparator()
 
-    def del_(self):
+    def terminate(self):
         core.actionManager().removeAction(self._action)
         core.actionManager().menu("mNavigation").removeAction(self._separator)
 

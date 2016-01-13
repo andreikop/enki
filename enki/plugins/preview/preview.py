@@ -526,7 +526,7 @@ class PreviewDock(DockWidget):
         else:
             self._widget.splitterErrorStateSize = self._widget.splitter.sizes()
 
-    def del_(self):
+    def terminate(self):
         """Uninstall themselves
         """
         self._typingTimer.stop()
@@ -536,7 +536,7 @@ class PreviewDock(DockWidget):
                 self._restoreScrollPos)
         except TypeError:  # already has been disconnected
             pass
-        self.previewSync.del_()
+        self.previewSync.terminate()
         core.workspace().modificationChanged.disconnect(
             self._onDocumentModificationChanged)
 

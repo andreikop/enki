@@ -14,7 +14,7 @@ class Plugin:
                                                       QIcon(":/enkiicons/vim.png"))
         self._action.triggered.connect(self._onTriggered)
 
-    def del_(self):
+    def terminate(self):
         core.actionManager().removeAction(self._action)
 
     def _onTriggered(self):

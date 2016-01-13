@@ -32,7 +32,7 @@ class Plugin:
         self._pos = editortoolbar.PositionIndicator(tb)
         self._posAct = tb.addWidget(self._pos)
 
-    def del_(self):
+    def terminate(self):
         tb = core.mainWindow().topToolBar()
         tb.removeAction(self._eolAct)
         tb.removeAction(self._indentAct)

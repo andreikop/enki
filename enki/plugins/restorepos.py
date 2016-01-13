@@ -24,7 +24,7 @@ class Plugin:
         self._positions = enki.core.json_wrapper.load(
             _FILE_PATH, 'cursor positions', {})  # { file path: (lasttime, position)}
 
-    def del_(self):
+    def terminate(self):
         """Explicitly called destructor
         """
         self._save(self._positions)

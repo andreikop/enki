@@ -97,7 +97,7 @@ class Plugin:
         enableVimMode.setChecked(self._confVimModeEnabled())
         enableVimMode.setEnabled(True)
 
-    def del_(self):
+    def terminate(self):
         pass
 
     @staticmethod

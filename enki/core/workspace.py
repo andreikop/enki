@@ -279,11 +279,11 @@ class Workspace(QStackedWidget):
         core.project().changed.connect(self._updateMainWindowTitle)
         self.currentDocumentChanged.connect(self._onCurrentDocumentChanged)
 
-    def del_(self):
+    def terminate(self):
         """Terminate workspace. Called by the core to clear actions
         """
         self.forceCloseAllDocuments()
-        self.openedFileExplorer.del_()
+        self.openedFileExplorer.terminate()
 
     def _mainWindow(self):
         """Get mainWindow instance
@@ -658,7 +658,7 @@ class Workspace(QStackedWidget):
         self.documentClosed.emit(document)
         # close document
         self._unhandleDocument(document)
-        document.del_()
+        document.terminate()
 
     def closeDocument(self, document):
         """Close opened file, remove document from workspace and delete the widget.

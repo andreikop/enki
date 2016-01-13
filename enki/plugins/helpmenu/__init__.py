@@ -43,7 +43,7 @@ class Plugin(QObject):
         action.triggered.connect(QApplication.instance().aboutQt)
         self._createdActions.append(action)
 
-    def del_(self):
+    def terminate(self):
         """Terminate the plugin
         """
         for action in self._createdActions:

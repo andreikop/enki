@@ -50,7 +50,7 @@ class Plugin:
         core.uiSettingsManager().dialogAccepted.connect(self._applySettings)
         core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
 
-    def del_(self):
+    def terminate(self):
         """This method is called by core for each plugin during termination
         """
         QMessageBox.information(core.mainWindow(), "Hello, world", "Plugin terminated")

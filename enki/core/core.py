@@ -147,29 +147,29 @@ class Core(QObject):
         """
         while self._loadedPlugins:
             plugin = self._loadedPlugins.pop()
-            plugin.del_()
+            plugin.terminate()
 
         if self._locator is not None:
-            self._locator.del_()
+            self._locator.terminate()
             self._locator = None
         if self._fileFilter is not None:
             self._fileFilter = None
         if self._uiSettingsManager is not None:
-            self._uiSettingsManager.del_()
+            self._uiSettingsManager.terminate()
             self._uiSettingsManager = None
         if self._workspace is not None:
-            self._workspace.del_()
+            self._workspace.terminate()
             self._workspace = None
         if self._project is not None:
-            self._project.del_()
+            self._project.terminate()
             self._project = None
         if self._mainWindow is not None:
-            self._mainWindow.del_()
+            self._mainWindow.terminate()
             self._mainWindow = None
         if self._config is not None:
             self._config = None
         if self._actionManager is not None:
-            self._actionManager.del_()
+            self._actionManager.terminate()
             self._actionManager = None
 
         qCleanupResources()

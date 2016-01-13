@@ -363,7 +363,7 @@ class OpenedFileExplorer(DockWidget):
 
         core.actionManager().addAction("mView/aOpenedFiles", self.showAction())
 
-    def del_(self):
+    def terminate(self):
         """Explicitly called destructor
         """
         core.actionManager().removeAction("mView/aOpenedFiles")

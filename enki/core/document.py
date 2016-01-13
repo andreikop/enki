@@ -213,7 +213,7 @@ class Document(QWidget):
         self.qutepart.detectSyntax(sourceFilePath=self.filePath(),
                                    firstLine=self.qutepart.lines[0])
 
-    def del_(self):
+    def terminate(self):
         """Explicytly called destructor
         """
         self._fileWatcher.term()

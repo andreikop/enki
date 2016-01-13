@@ -23,7 +23,7 @@ class Plugin(QObject):
         core.workspace().currentDocumentChanged.connect(self._updateAction)
         core.workspace().languageChanged.connect(self._updateAction)
 
-    def del_(self):
+    def terminate(self):
         """Uninstall the plugin
         """
         core.workspace().currentDocumentChanged.disconnect(self._updateAction)

@@ -169,7 +169,7 @@ class Plugin(QObject):
 
         self._thread = ProcessorThread()
 
-    def del_(self):
+    def terminate(self):
         """Uninstall the plugin
         """
         if self._dock is not None:

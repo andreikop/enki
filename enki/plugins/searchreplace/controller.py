@@ -56,7 +56,7 @@ class Controller(QObject):
         core.workspace().currentDocumentChanged.connect(self._resetSearchInFileStartPoint)
         QApplication.instance().focusChanged.connect(self._resetSearchInFileStartPoint)
 
-    def del_(self):
+    def terminate(self):
         """Explicitly called destructor
         """
         if self._searchThread is not None:
@@ -69,7 +69,7 @@ class Controller(QObject):
         self._menuSeparator.parent().removeAction(self._menuSeparator)
 
         if self._dock is not None:
-            self._dock.del_()
+            self._dock.terminate()
 
         core.workspace().currentDocumentChanged.disconnect(self._resetSearchInFileStartPoint)
         QApplication.instance().focusChanged.disconnect(self._resetSearchInFileStartPoint)

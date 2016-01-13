@@ -30,7 +30,7 @@ class Plugin(QObject):
         menu = core.actionManager().action("mFile/mUndoClose").menu()
         menu.aboutToShow.connect(self._onMenuAboutToShow)
 
-    def del_(self):
+    def terminate(self):
         """Explicitly called destructor
         """
         self._cleanupActions()

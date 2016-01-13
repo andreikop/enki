@@ -270,7 +270,7 @@ class Plugin:
         self._smlSubPlugin = _SmlReplPlugin()
         self._pythonSubPlugin = _PythonReplPlugin()
 
-    def del_(self):
+    def terminate(self):
         self._schemeSubPlugin.uninstall()
         self._smlSubPlugin.uninstall()
         self._pythonSubPlugin.uninstall()

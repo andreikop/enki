@@ -422,7 +422,7 @@ class Plugin(QObject):
 
         self._setSphinxActionVisibility()
 
-    def del_(self):
+    def terminate(self):
         """Uninstall the plugin
         """
         core.actionManager().removeAction('mTools/aSetSphinxPath')
@@ -432,7 +432,7 @@ class Plugin(QObject):
             self._removeDock()
 
         if self._dock is not None:
-            self._dock.del_()
+            self._dock.terminate()
 
         core.workspace().currentDocumentChanged.disconnect(self._onDocumentChanged)
         core.workspace().languageChanged.disconnect(self._onDocumentChanged)
