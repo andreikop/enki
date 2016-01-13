@@ -284,6 +284,7 @@ class Workspace(QStackedWidget):
         """
         self.forceCloseAllDocuments()
         self.openedFileExplorer.terminate()
+        core.project().changed.disconnect(self._updateMainWindowTitle)
 
     def _mainWindow(self):
         """Get mainWindow instance
