@@ -149,9 +149,6 @@ class Core(QObject):
             plugin = self._loadedPlugins.pop()
             plugin.del_()
 
-        if self._project is not None:
-            self._project.del_()
-            self._project = None
         if self._locator is not None:
             self._locator.del_()
             self._locator = None
@@ -163,6 +160,9 @@ class Core(QObject):
         if self._workspace is not None:
             self._workspace.del_()
             self._workspace = None
+        if self._project is not None:
+            self._project.del_()
+            self._project = None
         if self._mainWindow is not None:
             self._mainWindow.del_()
             self._mainWindow = None
