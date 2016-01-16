@@ -98,7 +98,8 @@ class Plugin:
         enableVimMode.setEnabled(True)
 
     def terminate(self):
-        pass
+        core.workspace().documentOpened.disconnect(self._onDocumentOpened)
+        core.uiSettingsManager().aboutToExecute.disconnect(self._onSettingsDialogAboutToExecute)
 
     @staticmethod
     def _confShowIncorrect():

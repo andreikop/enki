@@ -34,9 +34,10 @@ class Plugin(QObject):
         """Explicitly called destructor
         """
         self._cleanupActions()
-        core.workspace().documentClosed.disconnect(self._onDocumentClosed)
         core.actionManager().removeAction(self._undoClose)
         enki.core.json_wrapper.dump(_FILE_PATH, 'recent file', self._recent)
+
+        core.workspace().documentClosed.disconnect(self._onDocumentClosed)
 
     def _onDocumentClosed(self, document):
         """Document has been closed, remember it

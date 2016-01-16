@@ -28,6 +28,8 @@ class Plugin:
         """Explicitly called destructor
         """
         self._save(self._positions)
+        core.workspace().documentOpened.disconnect(self._onDocumentOpened)
+        core.workspace().documentClosed.disconnect(self._onDocumentClosed)
 
     def _save(self, positions):
         """Saves 1000 or less last positions

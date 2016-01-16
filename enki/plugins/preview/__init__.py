@@ -378,19 +378,17 @@ class Plugin(QObject):
         self._dock = None
         self._saveAction = None
         self._dockInstalled = False
-        core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)  # Disconnected.
-        core.workspace().languageChanged.connect(self._onDocumentChanged)  # Disconnected.
+        core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
+        core.workspace().languageChanged.connect(self._onDocumentChanged)
 
         # Install our CodeChat page into the settings dialog.
-        core.uiSettingsManager().aboutToExecute.connect(
-            self._onSettingsDialogAboutToExecute)  # Disconnected.
+        core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
         # Update preview dock when the settings dialog (which contains the
         # CodeChat enable checkbox) is changed.
-        core.uiSettingsManager().dialogAccepted.connect(self._onDocumentChanged)  # Disconnected.
+        core.uiSettingsManager().dialogAccepted.connect(self._onDocumentChanged)
 
         # Provide a "Set Sphinx Path" menu item.
-        core.uiSettingsManager().dialogAccepted.connect(
-            self._setSphinxActionVisibility)
+        core.uiSettingsManager().dialogAccepted.connect(self._setSphinxActionVisibility)
         self._sphinxAction = QAction('Set Sphinx path', self._dock)
         self._sphinxAction.setShortcut(QKeySequence('Alt+Shift+S'))
         core.actionManager().addAction('mTools/aSetSphinxPath',
@@ -426,7 +424,6 @@ class Plugin(QObject):
         """Uninstall the plugin
         """
         core.actionManager().removeAction('mTools/aSetSphinxPath')
-        core.project().changed.disconnect(self.onFileBrowserPathChanged)
 
         if self._dockInstalled:
             self._removeDock()
@@ -436,10 +433,11 @@ class Plugin(QObject):
 
         core.workspace().currentDocumentChanged.disconnect(self._onDocumentChanged)
         core.workspace().languageChanged.disconnect(self._onDocumentChanged)
-        core.uiSettingsManager().aboutToExecute.disconnect(
-            self._onSettingsDialogAboutToExecute)
-        core.uiSettingsManager().dialogAccepted.disconnect(
-            self._onDocumentChanged)
+        core.uiSettingsManager().aboutToExecute.disconnect(self._onSettingsDialogAboutToExecute)
+        core.uiSettingsManager().dialogAccepted.disconnect(self._onDocumentChanged)
+        core.uiSettingsManager().dialogAccepted.disconnect(self._setSphinxActionVisibility)
+        core.project().changed.disconnect(self.onFileBrowserPathChanged)
+
         if self._dock:
             self._dock.closed.disconnect(self._onDockClosed)
             self._dock.shown.disconnect(self._onDockShown)

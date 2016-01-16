@@ -39,6 +39,14 @@ class _AbstractReplPlugin(QObject):
 
         self._installOrUninstallIfNecessary()
 
+    def terminate(self):
+        core.workspace().currentDocumentChanged.disconnect(self._installOrUninstallIfNecessary)
+        core.workspace().currentDocumentChanged.disconnect(self._updateEvalActionEnabledState)
+        core.workspace().languageChanged.disconnect(self._installOrUninstallIfNecessary)
+        core.workspace().languageChanged.disconnect(self._updateEvalActionEnabledState)
+        core.uiSettingsManager().dialogAccepted.disconnect(self._applySettings)
+        core.uiSettingsManager().aboutToExecute.disconnect(self._onSettingsDialogAboutToExecute)
+
     def _icon(self):
         """Settings widget icon
         """

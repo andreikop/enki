@@ -60,6 +60,7 @@ class Plugin:
 
     def terminate(self):
         self._actionManager.removeAction(self._action)
+        self._actionManager.actionInserted.disconnect(self._onActionInserted)
 
     def _applyShortcut(self, action):
         """Apply for the action its shortcut if defined

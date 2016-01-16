@@ -181,6 +181,11 @@ class Plugin(QObject):
         self._thread.stopAsync()
         self._thread.wait()
 
+        core.workspace().currentDocumentChanged.disconnect(self._onDocumentChanged)
+        core.workspace().textChanged.disconnect(self._onTextChanged)
+        core.uiSettingsManager().aboutToExecute.disconnect(self._onSettingsDialogAboutToExecute)
+        core.uiSettingsManager().dialogAccepted.disconnect(self._scheduleDocumentProcessing)
+
     def _createDock(self):
         self._dock = NavigatorDock()
         self._dock.setVisible(False)

@@ -141,6 +141,9 @@ class Plugin(QObject):
 
         self._uninstall()
 
+        core.uiSettingsManager().aboutToExecute.disconnect(self._onSettingsDialogAboutToExecute)
+        core.uiSettingsManager().dialogAccepted.disconnect(self._applySettings)
+
     def _install(self):
         if self._installed:
             return

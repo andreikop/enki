@@ -61,6 +61,7 @@ class Plugin:
 
     def terminate(self):
         core.actionManager().removeAction('mTools/aOpenTerm')
+        core.uiSettingsManager().aboutToExecute.disconnect(self._onSettingsDialogAboutToExecute)
 
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.

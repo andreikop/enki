@@ -29,6 +29,9 @@ class VimModeIndicator(QLabel):
 
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
 
+    def terminate(self):
+        core.workspace().currentDocumentChanged.disconnect(self._onCurrentDocumentChanged)
+
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument):  # pylint: disable=W0613
         if oldDocument is not None:
             oldDocument.qutepart.vimModeEnabledChanged.disconnect(self._onVimModeEnabled)
@@ -89,16 +92,20 @@ class EolIndicatorAndSwitcher(QToolButton):
         menu.triggered.connect(self._onEolActionTriggered)
 
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
-        core.workspace().eolChanged.connect(lambda document, eol: self._setEolMode(eol))
+        core.workspace().eolChanged.connect(self._setEolMode)
+
+    def terminate(self):
+        core.workspace().currentDocumentChanged.disconnect(self._onCurrentDocumentChanged)
+        core.workspace().eolChanged.disconnect(self._setEolMode)
 
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument):  # pylint: disable=W0613
         """Current document on workspace has been changed
         """
         if currentDocument is not None:
-            self._setEolMode(currentDocument.qutepart.eol)
+            self._setEolMode(None, currentDocument.qutepart.eol)
             self.setEnabled(True)
         else:
-            self._setEolMode(None)
+            self._setEolMode(None, None)
             self.setEnabled(False)
 
     def _onMenuAboutToShow(self):
@@ -136,7 +143,7 @@ class EolIndicatorAndSwitcher(QToolButton):
         document.qutepart.document().setModified(True)
         self._setEolMode(document.qutepart.eol)
 
-    def _setEolMode(self, mode):
+    def _setEolMode(self, document, mode):
         """Change EOL mode on GUI
         """
         if mode is not None:
@@ -197,6 +204,11 @@ class IndentIndicatorAndSwitcher(QToolButton):
         core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
         core.workspace().indentUseTabsChanged.connect(self._onIndentSettingsChanged)
         core.workspace().indentWidthChanged.connect(self._onIndentSettingsChanged)
+
+    def terminate(self):
+        core.workspace().currentDocumentChanged.disconnect(self._onCurrentDocumentChanged)
+        core.workspace().indentUseTabsChanged.disconnect(self._onIndentSettingsChanged)
+        core.workspace().indentWidthChanged.disconnect(self._onIndentSettingsChanged)
 
     def _onCurrentDocumentChanged(self, oldDocument, currentDocument):  # pylint: disable=W0613
         """Current document on workspace has been changed
@@ -260,9 +272,12 @@ class PositionIndicator(QToolButton):
         self._timer.timeout.connect(self._onUpdatePositionTimer)
         self._passedUpdate = False
 
-    def term(self):
+    def terminate(self):
         if self._timer.isActive():
             self._timer.stop()
+
+        core.workspace().currentDocumentChanged.disconnect(self._onCurrentDocumentChanged)
+        core.workspace().cursorPositionChanged.disconnect(self._onCursorPositionChanged)
 
     def _onUpdatePositionTimer(self):
         """Update text on GUI according to current position

@@ -51,7 +51,9 @@ class Plugin(QObject):
             lambda: core.workspace().currentDocument().invokeGoTo())
 
     def terminate(self):
-        pass
+        core.workspace().currentDocumentChanged.disconnect(self._onCurrentDocumentChanged)
+        core.workspace().documentOpened.disconnect(self._onDocumentOpenedOrClosed)
+        core.workspace().documentClosed.disconnect(self._onDocumentOpenedOrClosed)
 
     def _onCurrentDocumentChanged(self, oldDocument, newDocument):
         """Update actions enabled state

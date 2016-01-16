@@ -20,7 +20,7 @@ class Plugin(QObject):
         self._mainWindowState = None
 
     def terminate(self):
-        pass
+        core.actionManager().action("mView/aHideAll").triggered.disconnect(self._onHideAllWindows)
 
     def _onHideAllWindows(self):
         """Close all visible windows for get as much space on the screen, as possible
