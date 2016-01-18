@@ -29,7 +29,7 @@ class _StatusBar(QStatusBar):
 
     def __init__(self, *args):
         QStatusBar.__init__(self, *args)
-        self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Expanding)
         self.setSizeGripEnabled(False)
         self.setStyleSheet("QStatusBar {border: 0} QStatusBar::item {border: 0}")
         self._label = QLabel(self)
