@@ -53,6 +53,7 @@ class Controller(QObject):
 
         self._createActions()
 
+        core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
         core.workspace().currentDocumentChanged.connect(self._resetSearchInFileStartPoint)
         QApplication.instance().focusChanged.connect(self._resetSearchInFileStartPoint)
 
@@ -68,9 +69,16 @@ class Controller(QObject):
             core.actionManager().removeAction(action)
         self._menuSeparator.parent().removeAction(self._menuSeparator)
 
+        if self._widget is not None:
+            core.workspace().currentDocumentChanged.disconnect(self._updateFileActionsState)
+            core.workspace().textChanged.disconnect(self._updateSearchWidgetFoundItemsHighlighting)
+            self._widget = None
+
         if self._dock is not None:
             self._dock.terminate()
+            self._dock = None
 
+        core.workspace().currentDocumentChanged.disconnect(self._onCurrentDocumentChanged)
         core.workspace().currentDocumentChanged.disconnect(self._resetSearchInFileStartPoint)
         QApplication.instance().focusChanged.disconnect(self._resetSearchInFileStartPoint)
 
@@ -147,16 +155,6 @@ class Controller(QObject):
                      "Replace in opened files...",
                      self._onModeSwitchTriggered, MODE_REPLACE_OPENED_FILES)
 
-        am = core.actionManager()
-        core.workspace().currentDocumentChanged.connect(
-            lambda old, new: am.action(menu + "/aSearchFile").setEnabled(new is not None))
-        core.workspace().currentDocumentChanged.connect(
-            lambda old, new: am.action(menu + "/aReplaceFile").setEnabled(new is not None))
-        core.workspace().currentDocumentChanged.connect(
-            lambda old, new: am.action(menu + "/aSearchOpenedFiles").setEnabled(new is not None))
-        core.workspace().currentDocumentChanged.connect(
-            lambda old, new: am.action(menu + "/aReplaceOpenedFiles").setEnabled(new is not None))
-
     def _createSearchWidget(self):
         """ Create search widget. Called only when user requested it first time
         """
@@ -179,7 +177,6 @@ class Controller(QObject):
         self._widget.replaceFileAll.connect(self._onReplaceFileAll)
 
         core.workspace().currentDocumentChanged.connect(self._updateFileActionsState)  # always disabled, if no widget
-        core.workspace().currentDocumentChanged.connect(self._onCurrentDocumentChanged)
         core.workspace().textChanged.connect(self._updateSearchWidgetFoundItemsHighlighting)
 
         core.mainWindow().centralLayout().addWidget(self._widget)
@@ -270,8 +267,15 @@ class Controller(QObject):
     def _onCurrentDocumentChanged(self, old, new):
         """Current document changed. Clear highlighted items
         """
-        if old is not None:
-            old.qutepart.setExtraSelections([])
+        am = core.actionManager()
+        am.action("mNavigation/mSearchReplace/aSearchFile").setEnabled(new is not None)
+        am.action("mNavigation/mSearchReplace/aReplaceFile").setEnabled(new is not None)
+        am.action("mNavigation/mSearchReplace/aSearchOpenedFiles").setEnabled(new is not None)
+        am.action("mNavigation/mSearchReplace/aReplaceOpenedFiles").setEnabled(new is not None)
+
+        if self._widget is not None:
+            if old is not None:
+                old.qutepart.setExtraSelections([])
 
     def _searchInText(self, regExp, text, startPoint, forward):
         """Search in text and return tuple (nearest match, all matches)
