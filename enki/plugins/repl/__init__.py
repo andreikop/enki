@@ -40,6 +40,7 @@ class _AbstractReplPlugin(QObject):
         self._installOrUninstallIfNecessary()
 
     def terminate(self):
+        self.uninstall()
         core.workspace().currentDocumentChanged.disconnect(self._installOrUninstallIfNecessary)
         core.workspace().currentDocumentChanged.disconnect(self._updateEvalActionEnabledState)
         core.workspace().languageChanged.disconnect(self._installOrUninstallIfNecessary)
@@ -279,6 +280,6 @@ class Plugin:
         self._pythonSubPlugin = _PythonReplPlugin()
 
     def terminate(self):
-        self._schemeSubPlugin.uninstall()
-        self._smlSubPlugin.uninstall()
-        self._pythonSubPlugin.uninstall()
+        self._schemeSubPlugin.terminate()
+        self._smlSubPlugin.terminate()
+        self._pythonSubPlugin.terminate()
