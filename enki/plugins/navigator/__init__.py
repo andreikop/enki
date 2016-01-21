@@ -172,11 +172,6 @@ class Plugin(QObject):
     def terminate(self):
         """Uninstall the plugin
         """
-        core.workspace().currentDocumentChanged.disconnect(self._onDocumentChanged)
-        core.workspace().textChanged.disconnect(self._onTextChanged)
-        core.uiSettingsManager().aboutToExecute.disconnect(self._onSettingsDialogAboutToExecute)
-        core.uiSettingsManager().dialogAccepted.disconnect(self._scheduleDocumentProcessing)
-
         if self._dock is not None:
             self._thread.tagsReady.disconnect(self._dock.setTags)
             self._thread.error.disconnect(self._dock.onError)
