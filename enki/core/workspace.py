@@ -705,4 +705,7 @@ class Workspace(QStackedWidget):
         """Close all documents without asking user to save
         """
         for document in self.documents()[::-1]:
-            self._doCloseDocument(document)
+            self.documentClosed.emit(document)
+            # close document
+            self._unhandleDocument(document)
+            document.terminate()
