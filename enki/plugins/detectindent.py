@@ -33,7 +33,7 @@ class Plugin:
     def _onLanguageChanged(self, document, language):
         """Signal handler. Document language had been changed
         """
-        if language == 'Makefile':
+        if language in ('Makefile', 'Go'):
             document.qutepart.indentUseTabs = True
 
     def _detectAndApplyIndentation(self, document):
