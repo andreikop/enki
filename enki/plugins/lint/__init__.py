@@ -276,5 +276,7 @@ class Plugin(QObject):
                 self._onCursorPositionChanged(document)  # show msg on statusbar
             elif errors:
                 core.mainWindow().statusBar().showMessage('Lint: {} error(s) found'.format(errors))
+                self._myMessageIsShown = True
             elif warnings:
                 core.mainWindow().statusBar().showMessage('Lint: {} warning(s) found'.format(warnings))
+                self._myMessageIsShown = True
