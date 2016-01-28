@@ -211,12 +211,14 @@ class MainWindow(QMainWindow):
         """
         # create menubar menus and actions
 
-        def menu(path, name, icon):
+        def menu(path, name, icon, visible=True):
             """Subfunction for create a menu in the main menu"""
             menuObject = core.actionManager().addMenu(path, name)
             if icon:
                 menuObject.setIcon(QIcon(':/enkiicons/' + icon))
             self._createdMenuPathes.append(path)
+            if not visible:
+                menuObject.setVisible(False)
 
         def action(path, name, icon, shortcut, tooltip, enabled, checkable=False):  # pylint: disable=R0913
             """Subfunction for create an action in the main menu"""
@@ -287,7 +289,7 @@ class MainWindow(QMainWindow):
         action("mNavigation/aPrevious",               "&Previous file"        , "previous.png", "Ctrl+PgUp",     "Previous file"          , False)
         separator("mNavigation")
         action("mNavigation/aGoto",                   "Go go line..."         , "goto.png",     "Ctrl+G",       "Go to line..."          , False)
-        menu  ("mNavigation/mFileBrowser",            "File browser"          , ':/enkiicons/open.png')
+        menu  ("mNavigation/mFileBrowser",            "File browser"          , ':/enkiicons/open.png', visible=False)
         menu  ("mNavigation/mScroll",                 "Scroll file"           , '')
 
         menu  ("mSettings",                           "Settings"              , ""           )

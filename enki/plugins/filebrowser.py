@@ -654,6 +654,7 @@ class DockFileBrowser(DockWidget):
         self._smartHistory = SmartHistory(self)
 
         self.setCurrentPath(core.project().path() or _getCurDir())
+        core.actionManager().action('mNavigation/mFileBrowser').setVisible(True)
 
     def _onDirectoryDropt(self, path):
         """Directory drag-n-dropt to main window. Show it
