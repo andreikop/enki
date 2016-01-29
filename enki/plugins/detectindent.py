@@ -45,7 +45,7 @@ class Plugin:
         if not core.config()["Qutepart"]["Indentation"]["AutoDetect"]:
             return
 
-        if document.qutepart.language() == 'Makefile':
+        if document.qutepart.language() in ('Makefile', 'Go'):
             document.qutepart.indentUseTabs = True
             return
 
