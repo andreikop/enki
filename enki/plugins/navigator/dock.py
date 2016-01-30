@@ -32,7 +32,7 @@ class _TagModel(QAbstractItemModel):
         QAbstractItemModel.__init__(self, *args)
         self._tags = []
 
-        self._currentTagIndex = QModelIndex()
+        self.currentTagIndex = QModelIndex()
 
         defBaseColor = QApplication.instance().palette().base().color()
         # yellow or maroon
@@ -64,22 +64,22 @@ class _TagModel(QAbstractItemModel):
         self._updateCurrentTag(True)
 
     def _updateCurrentTag(self, emitChanged):
-        old = self._currentTagIndex
+        old = self.currentTagIndex
 
         # Workspace might be None, if core terminated
         if core.workspace() is not None and \
            core.workspace().currentDocument() is not None:
             lineNumber = core.workspace().currentDocument().qutepart.cursorPosition[0]
-            self._currentTagIndex = self._indexForLineNumber(lineNumber)
+            self.currentTagIndex = self._indexForLineNumber(lineNumber)
         else:
-            self._currentTagIndex = QModelIndex()
+            self.currentTagIndex = QModelIndex()
 
         if emitChanged:
-            if old != self._currentTagIndex and \
+            if old != self.currentTagIndex and \
                old.isValid():
                 self.dataChanged.emit(old, old)
-            if self._currentTagIndex.isValid():
-                self.dataChanged.emit(self._currentTagIndex, self._currentTagIndex)
+            if self.currentTagIndex.isValid():
+                self.dataChanged.emit(self.currentTagIndex, self.currentTagIndex)
 
     def index(self, row, column, parent):
         if row < 0 or column != 0:
@@ -137,7 +137,7 @@ class _TagModel(QAbstractItemModel):
             tag = index.internalPointer()
             return tag.name
         elif role == Qt.BackgroundRole:
-            return self._currentTagBrush if index == self._currentTagIndex else None
+            return self._currentTagBrush if index == self.currentTagIndex else None
         else:
             return None
 
@@ -290,6 +290,9 @@ class NavigatorDock(DockWidget):
         self._tree.clicked.connect(self._tagModel.onActivated)
         self._tagModel.modelAboutToBeReset.connect(self._onModelAboutToBeReset)
         self._tagModel.modelReset.connect(self._onModelReset)
+
+        self._showAction.triggered.connect(self._onShowTriggered)
+
         self._currentTagPath = None
 
         self._errorLabel = None
@@ -425,3 +428,7 @@ class NavigatorDock(DockWidget):
     def _onTreeCtrlBackspace(self):
         self._hideFilter()
         self._applyFilter()
+
+    def _onShowTriggered(self):
+        if self._tagModel.currentTagIndex.isValid():
+            self._tree.setCurrentIndex(self._tagModel.currentTagIndex)
