@@ -486,7 +486,9 @@ class Workspace(QStackedWidget):
 
         self.documentOpened.emit(document)
 
+        fontBackup = document.qutepart.font()
         self.addWidget(document)
+        document.qutepart.setFont(fontBackup)
 
     def _unhandleDocument(self, document):
         """Remove document from the workspace. Disconnect signals
