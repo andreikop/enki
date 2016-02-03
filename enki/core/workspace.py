@@ -338,6 +338,10 @@ class Workspace(QStackedWidget):
                 event.ignore()
                 self.closeDocument(document)
                 return True
+            elif (event.type() == QEvent.Drop and
+                  event.mimeData().hasUrls()):  # file dropt. Open it
+                self._mainWindow().dropEvent(event)
+                return True
 
         return super(Workspace, self).eventFilter(obj, event)
 
@@ -483,6 +487,7 @@ class Workspace(QStackedWidget):
 
         # add to workspace
         document.installEventFilter(self)
+        document.qutepart.viewport().installEventFilter(self)
 
         self.documentOpened.emit(document)
 
@@ -495,6 +500,7 @@ class Workspace(QStackedWidget):
         """
         # remove from workspace
         document.removeEventFilter(self)
+        document.qutepart.viewport().removeEventFilter(self)
         self.removeWidget(document)
 
     @staticmethod
