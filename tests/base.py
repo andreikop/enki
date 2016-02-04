@@ -14,10 +14,6 @@ import warnings
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
-import sip
-sip.setapi('QString', 2)
-sip.setapi('QVariant', 2)
-
 from PyQt5.QtCore import Qt, QTimer, QEventLoop
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.QtGui import QKeySequence
