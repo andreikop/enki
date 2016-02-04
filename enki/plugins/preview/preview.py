@@ -139,7 +139,7 @@ class ConverterThread(QThread):
         if language == 'Markdown':
             return self._convertMarkdown(text), None, QUrl()
         # For ReST, use docutils only if Sphinx isn't available.
-        elif language == 'Restructured Text' and not sphinxEnabledForFile(filePath):
+        elif language == 'reStructuredText' and not sphinxEnabledForFile(filePath):
             htmlUnicode, errString = self._convertReST(text)
             return htmlUnicode, errString, QUrl()
         elif filePath and sphinxEnabledForFile(filePath):  # Use Sphinx to generate the HTML if possible.
@@ -779,7 +779,7 @@ class PreviewDock(DockWidget):
                 # Hide the error log, since we do not HTML checking.
                 self._widget.teLog.setVisible(False)
                 return
-            elif ((language == 'Restructured Text') or sphinxCanProcess or
+            elif ((language == 'reStructuredText') or sphinxCanProcess or
                   canUseCodeChat(document.filePath())):
                 # Show the progress bar and error log for reST, CodeChat, or
                 # Sphinx builds. It will display progress (Sphinx only) and

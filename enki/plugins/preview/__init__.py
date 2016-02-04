@@ -460,7 +460,7 @@ class Plugin(QObject):
         if document is None:
             return False
 
-        if document.qutepart.language() in ('Markdown', 'Restructured Text') or \
+        if document.qutepart.language() in ('Markdown', 'reStructuredText') or \
            isHtmlFile(document):
             return True
 
