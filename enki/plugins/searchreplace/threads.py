@@ -89,6 +89,12 @@ class SearchThread(StopableThread):
             for root, dirs, files in os.walk(absPath, followlinks=True):  # pylint: disable=W0612
                 if root.startswith('.') or (os.path.sep + '.') in root:
                     continue
+
+                # remove not interesting directories
+                for dirname in dirs[:]:
+                    if filterRegExp.match(dirname):
+                        dirs.remove(dirname)
+
                 for fileName in files:
                     if fileName.startswith('.'):
                         continue
