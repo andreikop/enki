@@ -7,6 +7,7 @@ Implements widget, which appears, when you press Ctrl+L and it's functionality
 Contains definition of AbstractCommand and AbstractCompleter interfaces
 """
 
+import os
 
 from PyQt5.QtCore import pyqtSignal, QAbstractItemModel, QEvent, QModelIndex, QObject, Qt, QTimer
 from PyQt5.QtWidgets import QDialog, QLineEdit, QTreeView, QVBoxLayout
@@ -651,7 +652,7 @@ class _LocatorDialog(QDialog):
         self._updateCurrentCommand()
 
     def _createUi(self):
-        self.setWindowTitle(core.project().path() or 'Locator')
+        self.setWindowTitle(core.project().path().replace(os.sep, '/') or 'Locator')
 
         self.setLayout(QVBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
