@@ -49,7 +49,7 @@ class CommandGotoLine(AbstractCommand):
         return StatusCompleter("Go to line {}".format(self._line))
 
 
-def _expandDotDirectories(path):
+def _expandSpecialPathParts(path):
     """Replace ./ and ../ with CURRENT FILE directory
 
     Current Enki directory is a project directory.
@@ -65,6 +65,9 @@ def _expandDotDirectories(path):
                 if fp is not None:
                     dn = os.path.dirname(fp)
                     return os.path.join(dn, path)
+        elif (os.name == 'nt' and path.startswith('/')):
+            drive = os.path.splitdrive(os.getcwd())[0]
+            return os.path.join(drive, path)
 
     return path
 
@@ -81,7 +84,7 @@ class CommandOpen(AbstractCommand):
             raise InvalidCmdArgs()
 
         if args:
-            self._path = _expandDotDirectories(args[0])
+            self._path = _expandSpecialPathParts(args[0])
         else:
             self._path = None
 
@@ -256,7 +259,7 @@ class CommandSaveAs(AbstractCommand):
         if len(args) > 1:
             raise InvalidCmdArgs()
 
-        self._path = _expandDotDirectories(args[0]) if args else ''
+        self._path = _expandSpecialPathParts(args[0]) if args else ''
 
     def completer(self):
         """Command Completer.
