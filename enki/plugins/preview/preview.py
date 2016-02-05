@@ -200,19 +200,11 @@ class ConverterThread(QThread):
           # Don't stop processing, no matter what.
           'halt_level'     : 5,
           # Capture errors to a string and return it.
-          'warning_stream' : errStream }
-        # Frozen-specific settings.
-        if isFrozen:
-            settingsDict['template'] = (
-              # The default docutils stylesheet and template uses a relative path,
-              # which doesn't work when frozen ???. Under Unix when not frozen,
-              # it produces:
-              # ``IOError: [Errno 2] No such file or directory:
-              # '/usr/lib/python2.7/dist-packages/docutils/writers/html4css1/template.txt'``.
-              os.path.join(os.path.dirname(docutils.writers.html4css1.__file__),
-                           docutils.writers.html4css1.Writer.default_template) )
-            settingsDict['stylesheet_dirs'] = ['.',
-                                               os.path.dirname(docutils.writers.html4css1.__file__)]
+          'warning_stream' : errStream,
+          'template': (
+            os.path.join(os.path.abspath(os.path.dirname(docutils.writers.html4css1.__file__)),
+                         docutils.writers.html4css1.Writer.default_template) )
+          }
         htmlString = docutils.core.publish_string(text, writer_name='html',
                                                   settings_overrides=settingsDict)
         errString = errStream.getvalue()
