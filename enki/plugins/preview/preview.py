@@ -211,6 +211,9 @@ class ConverterThread(QThread):
                          docutils.writers.html4css1.Writer.default_template) ),
           'stylesheet_dirs' : (
             docutilsHtmlWriterPath,
+            os.path.join(os.path.abspath(os.path.dirname(
+              os.path.realpath(__file__))), 'rst_templates')),
+          'stylesheet_path' : 'default.css',
           }
         htmlString = docutils.core.publish_string(text, writer_name='html',
           settings_overrides=settingsDict)
