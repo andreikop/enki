@@ -193,6 +193,8 @@ class ConverterThread(QThread):
                    '<a href="http://pypi.python.org/pypi/docutils"/>this page.</a>', None
 
         errStream = io.StringIO()
+        docutilsHtmlWriterPath = os.path.abspath(os.path.dirname(
+          docutils.writers.html4css1.__file__))
         settingsDict = {
           # Make sure to use Unicode everywhere.
           'output_encoding': 'unicode',
@@ -201,12 +203,17 @@ class ConverterThread(QThread):
           'halt_level'     : 5,
           # Capture errors to a string and return it.
           'warning_stream' : errStream,
+          # On some Windows PC, docutils will complain that it can't find its
+          # template or stylesheet. On other Windows PC with the same setup, it
+          # works fine. ??? So, specify a path to both here.
           'template': (
-            os.path.join(os.path.abspath(os.path.dirname(docutils.writers.html4css1.__file__)),
-                         docutils.writers.html4css1.Writer.default_template) )
+            os.path.join(docutilsHtmlWriterPath,
+                         docutils.writers.html4css1.Writer.default_template) ),
+          'stylesheet_dirs' : (
+            docutilsHtmlWriterPath,
           }
         htmlString = docutils.core.publish_string(text, writer_name='html',
-                                                  settings_overrides=settingsDict)
+          settings_overrides=settingsDict)
         errString = errStream.getvalue()
         errStream.close()
         return htmlString, errString
