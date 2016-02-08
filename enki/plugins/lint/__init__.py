@@ -1,6 +1,7 @@
 """Lint plugin shows linter messages for different languages
 """
 
+
 import re
 import os.path
 import collections
@@ -22,20 +23,6 @@ class ProcessorThread(QThread):
     resultsReady = pyqtSignal(tuple)  # Document, dict
 
     _Task = collections.namedtuple("Task", ["document", "language", "filePath"])
-
-    """ Note that most of the PEP8 "errors" listed in
-    http://pep8.readthedocs.org/en/latest/intro.html#error-codes aren't syntax errors.
-    So, mark most of these as warnings instead.
-    Later in the code, E9 errors are actually marked as errors.
-    See https://github.com/hlamer/enki/issues/349.
-    """
-    _MSG_ID_CONVERTOR = {  #
-        'E': Qutepart.LINT_WARNING,
-        'W': Qutepart.LINT_WARNING,
-        'F': Qutepart.LINT_ERROR,
-        'C': Qutepart.LINT_NOTE,
-        'N': Qutepart.LINT_NOTE,
-    }
 
     _PARSER_REG_EXP = re.compile('^(.+):(\d+):(\d+): ([A-Z]\d\d\d .+)$')
 
@@ -74,6 +61,32 @@ class ProcessorThread(QThread):
             if results is not None:
                 self.resultsReady.emit((task.document, results,))
 
+    """ Note that most of the PEP8 "errors" listed in
+    http://pep8.readthedocs.org/en/latest/intro.html#error-codes aren't syntax errors.
+    So, mark most of these as warnings instead.
+    Later in the code, E9 errors are actually marked as errors.
+    See https://github.com/hlamer/enki/issues/349.
+    """
+    _MSG_ID_CONVERTOR = {  #
+        'E': Qutepart.LINT_WARNING,
+        'W': Qutepart.LINT_WARNING,
+        'F': Qutepart.LINT_WARNING,
+        'C': Qutepart.LINT_NOTE,
+        'N': Qutepart.LINT_NOTE,
+    }
+
+    _PEP8_ERRORS = ('E112', 'E113', 'E901', 'E902')
+    _PYFLAKES_ERRORS = ('F821', 'F822', 'F823', 'F831')
+
+    def _msgType(self, msgId):
+        # Per comments on _MSG_ID_CONVERTOR, mark PEP8 E9 errors as errors. All
+        # other PEP8 errors are shown as warnings.
+        if(msgId in self._PEP8_ERRORS or
+           msgId in self._PYFLAKES_ERRORS):
+            return Qutepart.LINT_ERROR
+        else:
+            return self._MSG_ID_CONVERTOR[msgId[0]]
+
     def _processSync(self, language, filePath):
         conf = core.config()['Lint']['Python']
         ignored = ','.join(conf['IgnoredMessages'].split())
@@ -98,12 +111,8 @@ class ProcessorThread(QThread):
                 msgId, msgText = rest.lstrip().split(' ', 1)
 
                 lineIndex = int(lineNumber) - 1
-                # Per comments on _MSG_ID_CONVERTOR, mark PEP8 E9 errors as errors. All
-                # other PEP8 errors are shown as warnings.
-                if msgId.startswith('E9'):
-                    msgType = Qutepart.LINT_ERROR
-                else:
-                    msgType = self._MSG_ID_CONVERTOR[msgId[0]]
+                msgType = self._msgType(msgId)
+
                 if msgType is not None:  # not ignored
                     if lineIndex not in result:
                         result[lineIndex] = (msgType, rest)
