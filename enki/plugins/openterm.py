@@ -25,7 +25,7 @@ def _commandExists(program):
     def _isExe(filePath):
         return os.path.isfile(filePath) and os.access(filePath, os.X_OK)
 
-    for path in os.environ["PATH"].split(os.pathsep):
+    for path in os.environ.get("PATH", '').split(os.pathsep):
         path = path.strip('"')
         exeFile = os.path.join(path, program)
         if _isExe(exeFile):
@@ -74,14 +74,21 @@ class Plugin:
 
     def _chooseDefaultTerminal(self):
         if platform.system() == 'Windows':
-            if _commandExists('powershell.exe'):
-                return 'powershell.exe'
-            else:
-                return 'cmd.exe'
-        elif os.path.isfile('/usr/bin/x-terminal-emulator'):
-            return '/usr/bin/x-terminal-emulator'
+            commands = ['powershell.exe',
+                        'cmd.exe']
         else:
-            return 'xterm'
+            commands = ['x-terminal-emulator',
+                        'mate-terminal',
+                        'gnome-terminal',
+                        'konsole',
+                        'qterminal',
+                        'xterm']
+
+        for cmd in commands:
+            if _commandExists(cmd):
+                return cmd
+        else:
+            return None
 
     def _addAction(self):
         """Add action to main menu
@@ -98,6 +105,9 @@ class Plugin:
         term = core.config()["OpenTerm"]["Term"]
         if not term:
             term = self._chooseDefaultTerminal()
+
+        if not term:
+            return
 
         if term in ['konsole', 'qterminal']:
             term = [term, '--workdir', os.getcwd()]
