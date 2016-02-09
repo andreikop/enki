@@ -249,7 +249,7 @@ class TestAsyncController(unittest.TestCase):
                 ac.start(em1.g, f1)
 
     # Verify that job status and cancelation works: while a job in in progress,
-    # cancel an pending job.
+    # cancel a pending job.
     def test_12(self):
         for _ in self.singleThreadOnly:
             with AsyncController(_) as ac:

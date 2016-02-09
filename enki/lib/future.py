@@ -37,7 +37,7 @@
 # --------
 # The priority of the thread used to execute ``f`` is
 # ``AsyncController.defaultPriority``, unless this value is overriden by
-# supplying the keyword argument ``futurePriority =``
+# supplying the keyword argument ``futurePriority=``\
 # `QThread.Priority <http://qt-project.org/doc/qt-4.8/qthread.html#Priority-enum>`_
 # when invoking ``start``.
 #
@@ -87,13 +87,13 @@ import sip
 class AsyncAbstractController(QObject):
     # Create a worker thread or thread pool.
     def __init__(self,
-      # .. |parent| replace:: The parent of this object, if it exists. Selecting an object as
-      #    a parent guarantees that this class instance will be properly
-      #    finalized when the parent is deleted. If parent is None, then the
-      #    ``terminate()`` method **MUST** be called before the program exits.
-      #    See the cleanup_ section below for more information.
+      # .. _parent:
       #
-      # |parent|
+      # The parent of this object, if it exists. Selecting an object as
+      # a parent guarantees that this class instance will be properly
+      # finalized when the parent is deleted. If parent is None, then the
+      # ``terminate()`` method **MUST** be called before the program exits.
+      # See the cleanup_ section below for more information.
       parent=None):
 
         super().__init__(parent)
@@ -112,43 +112,42 @@ class AsyncAbstractController(QObject):
 
 
     # Run ``future.result = f(*args, **kwargs)`` in a separate thread. When it
-    # completes, invoke ``g(future)``, if ``g`` is provided. Returns a ``Future``
-    # instance, which can be used to interact with ``f``.
-    #
+    # completes, invoke ``g(future)``, if ``g`` is provided. Returns a
+    # ``Future`` instance, which can be used to interact with ``f``.
     def start(self,
-      # .. |g| replace:: A result function which take one parameter, ``future``,
-      #    which will be executed in the thread *t* from which this method was
-      #    called, or None if no function should be invoked after ``f``
-      #    completes. **Important**: ``g`` will **not** be invoked if the thread
-      #    *t* does not provide an event loop -- such as a thread taken from
-      #    the thread pool. See the AsycController constructor's
-      #    ``qThreadOrThreadPool`` parameter for more information.
+      # .. _g:
       #
-      # |g|
+      # A result function which take one parameter, ``future``,
+      # which will be executed in the thread *t* from which this method was
+      # called, or None if no function should be invoked after ``f``
+      # completes. **Important**: ``g`` will **not** be invoked if the thread
+      # *t* does not provide an event loop -- such as a thread taken from
+      # the thread pool. See the AsycController constructor's
+      # ``qThreadOrThreadPool`` parameter for more information.
       g,
 
-      # .. |f| replace:: A function which will be executed in a separate thread.
-      #    Any exceptions raised in ``f`` will be caught, then re-raised in
-      #    ``g(future)`` when accessing ``future.result``.
-      #    **Very important**: The parameters to ``f`` must be immutable, or must
-      #    not change while ``f`` is executing. The same is true of the value
-      #    returned by ``f``.
+      # .. _f:
       #
-      # |f|
+      # A function which will be executed in a separate thread.
+      # Any exceptions raised in ``f`` will be caught, then re-raised in
+      # ``g(future)`` when accessing ``future.result``.
+      # **Very important**: The parameters to ``f`` must be immutable, or must
+      # not change while ``f`` is executing. The same is true of the value
+      # returned by ``f``.
       f,
 
-      # .. |args| replace:: Arguments used to invoke ``f``.
+      # .. _args:
       #
-      # |args|
+      # Arguments used to invoke ``f``.
       *args,
 
-      # .. |kwargs| replace:: A dict of keyword arguments passed to ``f``. If
-      #    the keyword argument ``_futurePriority`` is provided, this will
-      #    determine the priority of the thread used to execute ``f``. If no
-      #    priority is given, AsyncController.defaultPriority is used; set this
-      #    if desired.
+      # .. _kwargs:
       #
-      # |kwargs|
+      # A dict of keyword arguments passed to ``f``. If
+      # the keyword argument ``_futurePriority`` is provided, this will
+      # determine the priority of the thread used to execute ``f``. If no
+      # priority is given, AsyncController.defaultPriority is used; set this
+      # if desired.
       **kwargs):
 
         # Wrap ``f`` and associated data in a Future.
@@ -157,9 +156,9 @@ class AsyncAbstractController(QObject):
         self._start(future)
         return future
 
-    # .. |_start| replace:: Given a Future instance, run it in another thread.
+    # .. _start:
     #
-    # |_start|
+    # Given a Future instance, run it in another thread.
     def _start(self, future):
         raise RuntimeError('Abstact method')
 
@@ -234,9 +233,9 @@ class AsyncAbstractController(QObject):
             QApplication.instance().destroyed.disconnect(self.onParentDestroyed)
             self._terminate()
 
-    # .. |terminate| replace:: Called by ``terminate`` to actually shut down this class.
+    # .. _terminate:
     #
-    # |terminate|
+    # Called by ``terminate`` to actually shut down this class.
     def _terminate(self):
         raise RuntimeError('Abstact method')
 
@@ -251,7 +250,7 @@ class AsyncAbstractController(QObject):
 # Run functions in a QThread, using the ``AsyncAbstractController`` framework.
 class AsyncThreadController(AsyncAbstractController):
     def __init__(self,
-      # |parent|
+      # See parent_.
       parent=None):
 
         super().__init__(parent)
@@ -268,11 +267,11 @@ class AsyncThreadController(AsyncAbstractController):
         # be ready for functions to run.
         self._workerThread.start()
 
-    # |_start|
+    # See start_.
     def _start(self, future):
         self._worker.startSignal.emit(future)
 
-    # |terminate|
+    # See terminate_.
     def _terminate(self):
         # Shut down the thread the Worker runs in.
         self._workerThread.quit()
@@ -294,7 +293,7 @@ class AsyncPoolController(AsyncAbstractController):
       # is used.
       maxThreadCount,
 
-      # |parent|
+      # See parent_.
       parent=None):
 
         super().__init__(parent)
@@ -304,13 +303,13 @@ class AsyncPoolController(AsyncAbstractController):
             self.threadPool = QThreadPool(self)
             self.threadPool.setMaxThreadCount(maxThreadCount)
 
-    # |_start|
+    # See start_.
     def _start(self, future):
         # Asynchronously invoke ``f``.
         apw = _AsyncPoolWorker(future)
         self.threadPool.start(apw)
 
-    # |terminate|
+    # See terminate_.
     def _terminate(self):
         self.threadPool.waitForDone()
         del self.threadPool
@@ -320,11 +319,11 @@ class AsyncPoolController(AsyncAbstractController):
 # For testing purposes, this controller simply runs all jobs given it in the
 # current thread, using the ``AsyncAbstractController`` framework.
 class SyncController(AsyncAbstractController):
-    # |_start|
+    # See start_.
     def _start(self, future):
         future._invoke()
 
-    # |terminate|
+    # See terminate_.
     def _terminate(self):
         pass
 #
@@ -391,19 +390,20 @@ class RunLatest(object):
 # and return its results to ``g``.
 class Future(object):
     # The possible states for an instance of this class.
-    STATE_WAITING, STATE_RUNNING, STATE_FINISHED, STATE_CANCELED = list(range(4))
+    (STATE_WAITING, STATE_RUNNING, STATE_FINISHED,
+     STATE_CANCELED) = list(range(4))
 
     def __init__(self,
-      # |g|
+      # g_
       g,
 
-      # |f|
+      # f_
       f,
 
-      # |args|
+      # args_
       args,
 
-      # |kwargs|
+      # kwargs_
       kwargs,
 
       # The thread priority to use if none is given in ``kwargs`` above.
