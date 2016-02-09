@@ -96,7 +96,7 @@ class AsyncAbstractController(QObject):
       # |parent|
       parent=None):
 
-        super(AsyncAbstractController, self).__init__(parent)
+        super().__init__(parent)
         self.isAlive = True
 
         # I would prefer to use QThread.currentThread().priority(), but this
@@ -254,7 +254,7 @@ class AsyncThreadController(AsyncAbstractController):
       # |parent|
       parent=None):
 
-        super(AsyncThreadController, self).__init__(parent)
+        super().__init__(parent)
         # Create a worker and a thread it runs in. This approach was
         # inspired by  example given in the `QThread docs
         # <http://qt-project.org/doc/qt-4.8/qthread.html>`_.
@@ -297,7 +297,7 @@ class AsyncPoolController(AsyncAbstractController):
       # |parent|
       parent=None):
 
-        super(AsyncPoolController, self).__init__(parent)
+        super().__init__(parent)
         if maxThreadCount < 1:
             self.threadPool = QThreadPool.globalInstance()
         else:
@@ -515,13 +515,19 @@ class _SignalInvoker(QObject):
 
     # A method to invoke ``future.g``.
     def onDoneSignal(self, future):
-        # Invoke ``g`` if it was provided and should be invoked.
-        if future._g and not future._discardResult:
-            future._g(future)
-        # If an exception occurred while executing ``f`` and that exception
-        # wasn't raised, do so now.
-        if future._exc_info and not future._exc_raised:
-            future.result
+        try:
+            # Invoke ``g`` if it was provided and should be invoked.
+            if future._g and not future._discardResult:
+                future._g(future)
+            # If an exception occurred while executing ``f`` and that exception
+            # wasn't raised, do so now.
+            if future._exc_info and not future._exc_raised:
+                future.result
+        finally:
+            # Make sure to manually delete this object, because it has no
+            # parent.
+            pass
+            self.deleteLater()
 #
 # Thread / thread pool worker classes
 # -----------------------------------
@@ -533,7 +539,7 @@ class _AsyncPoolWorker(QRunnable):
       # The Future instance which contains the callable to invoke.
       future):
 
-        super(_AsyncPoolWorker, self).__init__()
+        super().__init__()
         self._future = future
 
     # This is invoked by a thread from the thread pool.
