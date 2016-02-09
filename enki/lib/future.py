@@ -579,6 +579,8 @@ class _AsyncWorker(QObject):
 #
 # Demo code
 # =========
+# TimePrinter
+# -----------
 # Print the time and status of a set of tasks, to see how the threads operate.
 class TimePrinter(object):
     def __init__(self,
@@ -598,7 +600,7 @@ class TimePrinter(object):
         # Create a timer to continually print the time.
         self.qt = QTimer(app)
         self.qt.timeout.connect(self.printTime)
-        self.qt.start(self.interval_sec * 1000)
+        self.qt.start(self.interval_sec*1000)
 
     # Print the time.
     def printTime(self):
@@ -607,9 +609,9 @@ class TimePrinter(object):
             sys.stdout.write('{}'.format(task.state))
         sys.stdout.write('.\n')
         self.time_sec += self.interval_sec
-        self.tasks[3].cancel()
-
-
+#
+# main
+# ----
 def main():
     # Create an application.
     app = QApplication(sys.argv)
@@ -617,7 +619,7 @@ def main():
     # Define a function ``foo`` to run aysnchronously, calling ``foo_done`` when
     # it completes.
     def foo(a, b):
-        print(('Foo ' + str(a) + str(b) + ' in thread ' + str(QThread.currentThread())))
+        print('Foo {} {} in thread {}'.format(a, b, QThread.currentThread()))
         if a == 3:
             # As a test, raise an exception. See if a useful traceback is
             # printed.
@@ -626,22 +628,26 @@ def main():
         return a + 0.1
 
     def foo_done(future):
-        print(('Done ' + str(future.result)))
+        print('Done {}'.format(future.result))
 
-    # Run foo using a single thread ('QThread') or a pool of threads (0). Give
-    # it ``app`` as the parent so that when Qt destroys ``app``, it will also
-    # destroy this class.
+    # Run foo using a single thread (``'QThread'``) or a pool of threads
+    # (``0``). Give it ``app`` as the parent so that when Qt destroys ``app``,
+    # it will also destroy this class.
     ac = AsyncController(0, app)  # ac = AsyncController('QThread', app)
     task1 = ac.start(foo_done, foo, 1, b=' 2')
     task2 = ac.start(foo_done, foo, 3, b=' 4')
     task3 = ac.start(foo_done, foo, 5, b=' 6')
     task4 = ac.start(foo_done, foo, 7, b=' 8')
 
-    # Print the time and thread status.
+    # Print the time and thread status. Note the ``tp =`` is necessary;
+    # otherwise, the TimePrinter_ object will be deleted immediately!
     tp = TimePrinter((task1, task2, task3, task4), app)
 
     # Exit the program shortly after the event loop starts up.
     QTimer.singleShot(800, app.exit)
+
+    # Cancel one of the tasks.
+    QTimer.singleShot(100, task3.cancel)
 
     # Run the main event loop.
     sys.exit(app.exec_())
