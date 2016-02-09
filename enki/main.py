@@ -173,6 +173,9 @@ def _parseCommandLine():
     parser.add_option("-s", "--session", dest="session_name", action="store",
                       help="Session name or file, overrides ENKI_SESSION environment variable")
 
+    parser.add_option("-S", "--auto-session", dest="auto_session", action="store_true",
+                      help="Use current directory name as session name")
+
     parser.add_option("-p", "--profiling", dest="profiling", action="store_true",
                       help="profile initialization and exit. For developers")
 
@@ -180,6 +183,7 @@ def _parseCommandLine():
 
     cmdLine = {"profiling": options.profiling,
                "session_name": options.session_name,
+               "auto-session-name": options.auto_session,
                "no-session": options.no_session}
 
     # Parse +N spec.
