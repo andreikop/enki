@@ -60,7 +60,9 @@ import time
 # Third-party imports
 # -------------------
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import QThread, pyqtSignal, QObject, QTimer, QRunnable, QThreadPool
+from PyQt5.QtCore import (QThread, pyqtSignal, QObject, QTimer, QRunnable,
+                          QThreadPool)
+import sip
 #
 # Local imports
 # -------------
@@ -252,7 +254,7 @@ class AsyncThreadController(AsyncAbstractController):
         # inspired by  example given in the `QThread docs
         # <http://qt-project.org/doc/qt-4.8/qthread.html>`_.
         self._worker = _AsyncWorker()
-        self._workerThread = QThread(parent)
+        self._workerThread = QThread(self)
         # Attach the worker to the thread's event queue.
         self._worker.moveToThread(self._workerThread)
         # Hook up signals.
@@ -270,10 +272,10 @@ class AsyncThreadController(AsyncAbstractController):
         # Shut down the thread the Worker runs in.
         self._workerThread.quit()
         self._workerThread.wait()
-        # Finally, detach (and probably garbage collect) the objects
-        # used by this class.
-        del self._worker
         del self._workerThread
+        # Delete the worker, since it can't have a parent here.
+        sip.delete(self._worker)
+        del self._worker
 #
 # AsyncPoolController
 # -------------------
@@ -294,7 +296,7 @@ class AsyncPoolController(AsyncAbstractController):
         if maxThreadCount < 1:
             self.threadPool = QThreadPool.globalInstance()
         else:
-            self.threadPool = QThreadPool()
+            self.threadPool = QThreadPool(self)
             self.threadPool.setMaxThreadCount(maxThreadCount)
 
     # |_start|
