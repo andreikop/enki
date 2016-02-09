@@ -86,16 +86,9 @@ class TestAsyncController(unittest.TestCase):
     def test_1(self):
         for _ in self.syncPoolAndThread:
             with AsyncController(_) as ac:
-                # gotHere must be a list in order to f to change it in a way
-                # that is visible outside of f.
-                gotHere = [False]
-
-                def f():
-                    gotHere[0] = True
-                future = ac._wrap(None, f)
-                with WaitForSignal(future._signalInvoker.doneSignal, 1000):
-                    ac._start(future)
-                self.assertTrue(gotHere[0])
+                em = Emitter(123, self.assertEqual)
+                with WaitForSignal(em.bing, 1000):
+                    ac.start(em.g, lambda: 123)
 
     # Verify that the result function is run.
     def test_2(self):
@@ -244,19 +237,16 @@ class TestAsyncController(unittest.TestCase):
         # Don't test with one pooled thread -- this test expects at least two
         # threads.
         with AsyncController(2) as ac:
-            em2 = Emitter()
 
-            def f2():
-                future = ac._wrap(em2.g, lambda x: x, QThread.currentThread())
-                # The doneSignal won't be processed without an event loop. A
-                # thread pool doesn't create one, so make our own to run ``g``.
-                qe = QEventLoop()
-                future._signalInvoker.doneSignal.connect(qe.exit)
-                QTimer.singleShot(0, lambda: ac._start(future))
-                qe.exec_()
-            with WaitForSignal(em2.bing, 1000):
-                ac.start(None, f2)
-            self.assertEqual(em2.thread, em2.result)
+            def f1():
+                em2 = Emitter()
+                with WaitForSignal(em2.bing, 1000):
+                    ac.start(em2.g, lambda x: x, QThread.currentThread())
+                self.assertEqual(em2.thread, em2.result)
+
+            em1 = Emitter()
+            with WaitForSignal(em1.bing, 1000):
+                ac.start(em1.g, f1)
 
     # Verify that job status and cancelation works: while a job in in progress,
     # cancel an pending job.
