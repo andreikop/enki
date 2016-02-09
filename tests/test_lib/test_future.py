@@ -247,11 +247,12 @@ class TestAsyncController(unittest.TestCase):
             em2 = Emitter()
 
             def f2():
-                future = ac.start(em2.g, lambda x: x, QThread.currentThread())
+                future = ac._wrap(em2.g, lambda x: x, QThread.currentThread())
                 # The doneSignal won't be processed without an event loop. A
                 # thread pool doesn't create one, so make our own to run ``g``.
                 qe = QEventLoop()
                 future._signalInvoker.doneSignal.connect(qe.exit)
+                QTimer.singleShot(0, lambda: ac._start(future))
                 qe.exec_()
             with WaitForSignal(em2.bing, 1000):
                 ac.start(None, f2)
