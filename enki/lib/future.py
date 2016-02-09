@@ -235,7 +235,13 @@ class AsyncAbstractController(QObject):
             self.isAlive = False
             if self.parent():
                 self.parent().destroyed.disconnect(self.onParentDestroyed)
-            QApplication.instance().destroyed.disconnect(self.onParentDestroyed)
+            # If the QApplication is also the ``self.parent``, it will invoke
+            # ``onParentDestroyed`` first; at this point,
+            # ``QApplication.instance()`` is ``None``. So, don't try to
+            # disconnect from it.
+            i = QApplication.instance()
+            if i:
+                i.destroyed.disconnect(self.onParentDestroyed)
             self._terminate()
 
     # .. _terminate:
