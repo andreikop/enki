@@ -212,6 +212,11 @@ class AsyncAbstractController(QObject):
     # destroyed.
     def onParentDestroyed(self):
         self.terminate()
+
+# Python finalizer
+# ^^^^^^^^^^^^^^^^
+    def __del__(self):
+        self.terminate()
 #
 # Manual
 # ^^^^^^
