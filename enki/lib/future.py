@@ -61,6 +61,7 @@
 import sys
 import time
 import traceback
+import gc
 #
 # Third-party imports
 # -------------------
@@ -623,9 +624,28 @@ class TimePrinter(object):
         sys.stdout.write('.\n')
         self.time_sec += self.interval_sec
 #
+# checkLeaks
+# ----------
+# Look for any Qt objets that aren't destroyed.
+def checkLeaks():
+    gc.collect()
+
+    # Capture sip's ``dump`` output.
+    for o in gc.get_objects():
+        if isinstance(o, QObject) or isinstance(o, QRunnable):
+            sip.dump(o)
+#
 # main
 # ----
 def main():
+    try:
+        demo()
+    finally:
+        checkLeaks()
+#
+# demo
+# ----
+def demo():
     # Create a Qt application.
     app = QApplication(sys.argv)
 
@@ -665,7 +685,7 @@ def main():
         tp = TimePrinter((task1, task2, task3, task4), app)
 
         # Exit the program shortly after the event loop starts up.
-        QTimer.singleShot(800, app.exit)
+        QTimer.singleShot(1800, app.exit)
 
         # Cancel one of the tasks.
         QTimer.singleShot(200, task4.cancel)
@@ -676,6 +696,7 @@ def main():
     finally:
         # Delete the application, which ensures that ``ac`` will be finalized.
         sip.delete(app)
+        del app
 
     sys.exit(ret)
 
