@@ -233,15 +233,21 @@ class AsyncAbstractController(QObject):
         # Only run this once.
         if self.isAlive:
             self.isAlive = False
-            if self.parent():
-                self.parent().destroyed.disconnect(self.onParentDestroyed)
+            # When invoked from ``__del__``, parent may no longer have the
+            # attribute ``destroyed``.
+            try:
+                self.parent.destroyed.disconnect(self.onParentDestroyed)
+            except AttributeError:
+                pass
             # If the QApplication is also the ``self.parent``, it will invoke
             # ``onParentDestroyed`` first; at this point,
-            # ``QApplication.instance()`` is ``None``. So, don't try to
-            # disconnect from it.
-            i = QApplication.instance()
-            if i:
-                i.destroyed.disconnect(self.onParentDestroyed)
+            # ``QApplication.instance()`` is ``None``. Keep going if this
+            # happens.
+            try:
+                QApplication.instance().destroyed.disconnect(
+                  self.onParentDestroyed)
+            except (AttributeError, TypeError):
+                pass
             self._terminate()
 
     # .. _terminate:
