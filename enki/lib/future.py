@@ -60,6 +60,7 @@
 # ---------------
 import sys
 import time
+import traceback
 #
 # Third-party imports
 # -------------------
@@ -608,6 +609,9 @@ class TimePrinter(object):
         self.qt.timeout.connect(self.printTime)
         self.qt.start(self.interval_sec*1000)
 
+        # Print them now, to show the initial state.
+        self.printTime()
+
     # Print the time.
     def printTime(self):
         sys.stdout.write('{} seconds: task states are '.format(self.time_sec))
@@ -619,44 +623,58 @@ class TimePrinter(object):
 # main
 # ----
 def main():
-    # Create an application.
+    # Create a Qt application.
     app = QApplication(sys.argv)
 
-    # Define a function ``foo`` to run aysnchronously, calling ``foo_done`` when
-    # it completes.
-    def foo(a, b):
-        print('Foo {} {} in thread {}'.format(a, b, QThread.currentThread()))
-        if a == 3:
-            # As a test, raise an exception. See if a useful traceback is
-            # printed.
-            asdf
-        time.sleep(0.3)
-        return a + 0.1
+    # Make sure it's properly destroyed.
+    try:
 
-    def foo_done(future):
-        print('Done {}'.format(future.result))
+        # Catch exceptions when the Qt event loop runs, so that the program
+        # won't immediately exit.
+        sys.excepthook = traceback.print_exception
 
-    # Run foo using a single thread (``'QThread'``) or a pool of threads
-    # (``0``). Give it ``app`` as the parent so that when Qt destroys ``app``,
-    # it will also destroy this class.
-    ac = AsyncController(0, app)  # ac = AsyncController('QThread', app)
-    task1 = ac.start(foo_done, foo, 1, b=' 2')
-    task2 = ac.start(foo_done, foo, 3, b=' 4')
-    task3 = ac.start(foo_done, foo, 5, b=' 6')
-    task4 = ac.start(foo_done, foo, 7, b=' 8')
+        # Define a function ``foo`` to run aysnchronously, calling ``foo_done`` when
+        # it completes.
+        def foo(a, b):
+            print('Foo {} {} in thread {}'.format(a, b, QThread.currentThread()))
+            if a == 3:
+                # As a test, raise an exception. See if a useful traceback is
+                # printed.
+                asdf
+            time.sleep(0.3)
+            return a + 0.1
 
-    # Print the time and thread status. Note the ``tp =`` is necessary;
-    # otherwise, the TimePrinter_ object will be deleted immediately!
-    tp = TimePrinter((task1, task2, task3, task4), app)
+        def foo_done(future):
+            print('Done {}'.format(future.result))
 
-    # Exit the program shortly after the event loop starts up.
-    QTimer.singleShot(800, app.exit)
+        # Run ``foo`` using a single thread (``'QThread'``) or a pool of 2 threads
+        # (``2``). Give it ``app`` as the parent so that when Qt destroys ``app``,
+        # it will also destroy this class.
+        ac = AsyncController(2, app)
+        #ac = AsyncController('QThread', app)
+        task1 = ac.start(foo_done, foo, 1, b=' 2')
+        task2 = ac.start(foo_done, foo, 3, b=' 4')
+        task3 = ac.start(foo_done, foo, 5, b=' 6')
+        task4 = ac.start(foo_done, foo, 7, b=' 8')
 
-    # Cancel one of the tasks.
-    QTimer.singleShot(100, task3.cancel)
+        # Print the time and thread status. Note the ``tp =`` is necessary;
+        # otherwise, the TimePrinter_ object will be deleted immediately!
+        tp = TimePrinter((task1, task2, task3, task4), app)
 
-    # Run the main event loop.
-    sys.exit(app.exec_())
+        # Exit the program shortly after the event loop starts up.
+        QTimer.singleShot(800, app.exit)
+
+        # Cancel one of the tasks.
+        QTimer.singleShot(200, task4.cancel)
+
+        # Run the main event loop.
+        ret = app.exec_()
+
+    finally:
+        # Delete the application, which ensures that ``ac`` will be finalized.
+        sip.delete(app)
+
+    sys.exit(ret)
 
 if __name__ == '__main__':
     main()
