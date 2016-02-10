@@ -432,6 +432,7 @@ class Future(object):
         # found.
         self._futurePriority = kwargs.pop('_futurePriority', defaultPriority)
 
+        # State used to invoke ``f`` and ``g``.
         self._g = g
         self._f = f
         self._args = args
@@ -467,9 +468,12 @@ class Future(object):
                 # thread.
                 self._exc_info = sys.exc_info()
 
-            # Report the results.
+
             self._state = self.STATE_FINISHED
-            self._signalInvoker.doneSignal.emit(self)
+
+        # Emit the doneSignal to invoke `g`` optionally and to destroy
+        # ``_signalInvoker``, even in the case of a canceled job.
+        self._signalInvoker.doneSignal.emit(self)
 
     # This method may be called from any thread; it requests that the execution
     # of ``f`` be canceled. If ``f`` is already running, then it will not be
