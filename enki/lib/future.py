@@ -216,7 +216,7 @@ class AsyncAbstractController(QObject):
     # destroyed.
     def onParentDestroyed(self):
         self.terminate()
-
+#
 # Python finalizer
 # ^^^^^^^^^^^^^^^^
     # This might be run by Python. Or it might not. Don't rely on it.
@@ -256,8 +256,7 @@ class AsyncAbstractController(QObject):
     # Called by ``terminate`` to actually shut down this class.
     def _terminate(self):
         raise RuntimeError('Abstact method')
-
-
+#
 # Concrete AsyncAbstractController subclasses
 # ===========================================
 # These two subclasses inherit from AsyncAbstractController_ and prove a thread
@@ -512,7 +511,7 @@ class Future(object):
     @property
     def state(self):
         return self._state
-
+#
 # SignalInvoker
 # -------------
 # A helper class to hold a signal and invoke ``g``. This can't be easily
