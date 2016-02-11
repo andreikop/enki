@@ -264,7 +264,6 @@ class Workspace(QStackedWidget):
         QStackedWidget.__init__(self, mainWindow)
         mainWindow.setFocusProxy(self)
 
-        self.setStyleSheet("QStackedWidget { padding-bottom: 5; }")
         self.sortedDocuments = []  # not protected, because available for OpenedFileModel
         self._oldCurrentDocument = None
 
