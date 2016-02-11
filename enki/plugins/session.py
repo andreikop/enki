@@ -17,6 +17,8 @@ _AUTO_SAVE_INTERVAL_MS = 60 * 1000
 def getSessionFilePath():
     if core.commandLineArgs()['session_name']:
         session_name = core.commandLineArgs()['session_name']
+    elif core.commandLineArgs()['auto-session-name']:
+        session_name = os.getcwd().split(os.path.sep)[-1]
     elif 'ENKI_SESSION' in os.environ:
         session_name = os.environ['ENKI_SESSION']
     else:
