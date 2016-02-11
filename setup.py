@@ -19,7 +19,7 @@ def _checkDependencies():
     try:
         import PyQt5
     except ImportError as ex:
-        print('Failed to import Qt4 python bindings:')
+        print('Failed to import Qt5 python bindings:')
         print('\t' + str(ex))
         ok = False
 

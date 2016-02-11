@@ -112,7 +112,7 @@ def _checkDependencies(profiler):
     try:
         import PyQt5
     except ImportError as ex:
-        plain = 'Failed to import Qt4 python bindings:\n{}\n{}'.format(str(ex), _SEE_SITE_PLAIN)
+        plain = 'Failed to import Qt5 python bindings:\n{}\n{}'.format(str(ex), _SEE_SITE_PLAIN)
 
         _showErrorMessage(False, 'PyQt5 not found', plain, plain)
         raise ex

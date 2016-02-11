@@ -30,11 +30,11 @@ Requires:       libqt5svg
 
 
 %if 0%{?fedora_version}
-BuildRequires:  PyQt4
-Requires:       PyQt4
+BuildRequires:  PyQt5
+Requires:       PyQt5
 %else
-BuildRequires:  python-qt4
-Requires:       python-qt4
+BuildRequires:  python-qt5
+Requires:       python-qt5
 %endif
 
 %description
