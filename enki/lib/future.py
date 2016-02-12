@@ -630,10 +630,17 @@ class TimePrinter(object):
 def checkLeaks():
     gc.collect()
 
-    # Capture sip's ``dump`` output.
+    notDestroyedCount = 0
     for o in gc.get_objects():
-        if isinstance(o, QObject) or isinstance(o, QRunnable):
-            sip.dump(o)
+        try:
+            if not sip.isdeleted(o):
+                sip.dump(o)
+                notDestroyedCount += 1
+        except TypeError:
+            pass
+    if notDestroyedCount:
+        print("\n\n{}\nFound {} objects that weren't deleted.".format('*'*80,
+          notDestroyedCount))
 #
 # main
 # ----
