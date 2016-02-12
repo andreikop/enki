@@ -131,8 +131,6 @@ class SearchResultsDock(DockWidget):
         DockWidget.__init__(self, parent, "&Search Results", QIcon(":/enkiicons/search.png"), "Alt+S")
 
         # actions
-        widget = QWidget(self)
-
         self._model = searchresultsmodel.SearchResultsModel(self)
         self.onResultsHandledByReplaceThread.connect(self._model.onResultsHandledByReplaceThread)
 
@@ -143,12 +141,7 @@ class SearchResultsDock(DockWidget):
         self._delegate = HTMLDelegate()
         self._view.setItemDelegate(self._delegate)
 
-        self._layout = QHBoxLayout(widget)
-        self._layout.setContentsMargins(5, 5, 5, 5)
-        self._layout.setSpacing(5)
-        self._layout.addWidget(self._view)
-
-        self.setWidget(widget)
+        self.setWidget(self._view)
         self.setFocusProxy(self._view)
 
         # connections

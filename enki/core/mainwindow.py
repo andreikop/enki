@@ -144,6 +144,7 @@ class MainWindow(QMainWindow):
         self._centralLayout = QVBoxLayout(widget)
         self._centralLayout.setContentsMargins(0, 0, 0, 0)
         self.setCentralWidget(widget)
+        self.setStyleSheet('QMainWindow::separator{width: 4px}')
 
     def terminate(self):
         """Explicitly called destructor

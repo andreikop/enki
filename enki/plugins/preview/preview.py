@@ -491,6 +491,7 @@ class PreviewDock(DockWidget):
     def _createWidget(self):
         widget = QWidget(self)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Preview.ui'), widget)
+        widget.layout().setContentsMargins(0, 0, 0, 0)
         widget.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
         widget.webView.page().linkClicked.connect(self._onLinkClicked)  # Disconnected.
         # Fix preview palette. See https://github.com/bjones1/enki/issues/34
