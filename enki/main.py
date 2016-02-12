@@ -104,9 +104,9 @@ def _checkDependencies(profiler):
     """Check if 3rdparty software is installed in the system.
     Notify user, how to install it
     """
-    _SEE_SITE_PLAIN = 'See http://enki-editor.org/install-sources.html'
+    _SEE_SITE_PLAIN = 'See https://github.com/hlamer/enki/#installation'
     _SEE_SITE_HTML = \
-        'See <a href="http://enki-editor.org/install-sources.html">' \
+        'See <a href="https://github.com/hlamer/enki/#installation">' \
         'installation instructions</a>'
 
     try:

@@ -31,7 +31,7 @@ def _checkDependencies():
         ok = False
 
     if not ok:
-        print('See http://enki-editor.org/install-sources.html')
+        print('See https://github.com/hlamer/enki/#installation')
 
     return ok
 
