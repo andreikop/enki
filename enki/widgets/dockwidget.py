@@ -41,12 +41,14 @@ class _TitleBar(QToolBar):
         self.aClose.triggered.connect(self._dock.close)
 
         textHeight = QFontMetrics(self.font()).height()
-        self.setIconSize(QSize(textHeight, textHeight))
+        self.setIconSize(QSize(textHeight * 0.8, textHeight * 0.8))
 
         # a fake spacer widget
         self._spacer = QWidget(self)
         self._spacer.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.MinimumExpanding))
         self.addWidget(self._spacer)
+
+        self.setStyleSheet('QToolBar{spacing:0px; margin:0px}')
 
     def paintEvent(self, event):
         """QToolBar.paintEvent reimplementation
