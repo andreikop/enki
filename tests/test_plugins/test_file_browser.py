@@ -24,7 +24,8 @@ class Test(base.TestCase):
         dock.setCurrentPath(path)
 
         core.term()
-        core.init(base.DummyProfiler(), {'session_name': ''})
+        core.init(base.DummyProfiler(), {'session_name': '',
+                                         'auto-session-name': ''})
         dock = self.findDock('&File Browser')
         dock._onVisibilityChanged(True)
 

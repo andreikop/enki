@@ -30,7 +30,7 @@ class RestoreOldConfigs(base.TestCase):
 
         try:
             os.mkdir(enki.core.core._OLD_CONFIG_DIR)
-            core.init(base.DummyProfiler(), {'session_name': ''})
+            core.init(base.DummyProfiler(), {'session_name': '', 'auto-session-name': ''})
             self.assertTrue(os.path.isdir(enki.core.defines.CONFIG_DIR))
             self.assertFalse(os.path.isdir(enki.core.core._OLD_CONFIG_DIR))
         finally:
@@ -51,7 +51,8 @@ class RestoreOldConfigs(base.TestCase):
                 self.assertTrue(dialog.windowTitle().startswith('Failed to move configs'))
                 dialog.accept()
 
-            self.openDialog(lambda: core.init(base.DummyProfiler(), {'session_name': ''}), inDialog)
+            self.openDialog(lambda: core.init(base.DummyProfiler(), {'session_name': '',
+                                                                     'auto-session-name': ''}), inDialog)
         finally:
             enki.core.core._OLD_CONFIG_DIR = oldCfg
             enki.core.defines.CONFIG_DIR = currCfg
