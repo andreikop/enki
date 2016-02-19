@@ -666,6 +666,7 @@ class _LocatorDialog(QDialog):
         self._edit.updateCurrentCommand.connect(self._updateCurrentCommand)
         self._edit.enterPressed.connect(self._onEnterPressed)
         self._edit.installEventFilter(self)  # catch Up, Down
+        self._edit.setFont(biggerFont)
         self.layout().addWidget(self._edit)
         self.setFocusProxy(self._edit)
 
