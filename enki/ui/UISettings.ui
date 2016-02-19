@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>856</width>
-    <height>550</height>
+    <width>805</width>
+    <height>500</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -69,16 +69,16 @@
         <bool>true</bool>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="pIgnoredFiles">
-        <layout class="QVBoxLayout" name="verticalLayout_6">
+        <layout class="QVBoxLayout" name="verticalLayout">
          <item>
           <widget class="QGroupBox" name="gbFilesToHide">
            <property name="title">
             <string>Ignored files</string>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout">
+           <layout class="QVBoxLayout" name="verticalLayout_3">
             <item>
              <widget class="QLabel" name="label_3">
               <property name="text">
@@ -123,19 +123,33 @@
         </layout>
        </widget>
        <widget class="QWidget" name="pEditor">
-        <widget class="QLabel" name="label_7">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>20</y>
-           <width>547</width>
-           <height>17</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Select a page in the tree</string>
-         </property>
-        </widget>
+        <layout class="QVBoxLayout" name="verticalLayout_6">
+         <item>
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>Select a page in the tree</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>403</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+        <zorder>label_7</zorder>
+        <zorder>verticalSpacer_2</zorder>
+        <zorder>dbbButtons</zorder>
+        <zorder>verticalSpacer_2</zorder>
+        <zorder>verticalSpacer_2</zorder>
        </widget>
        <widget class="QWidget" name="pLint">
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -156,8 +170,8 @@
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>20</width>
-             <height>435</height>
+             <width>0</width>
+             <height>352</height>
             </size>
            </property>
           </spacer>
@@ -165,7 +179,7 @@
         </layout>
        </widget>
        <widget class="QWidget" name="pRepl">
-        <layout class="QVBoxLayout" name="verticalLayout_14">
+        <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
           <widget class="QLabel" name="label_6">
            <property name="text">
@@ -206,6 +220,8 @@
     </layout>
    </item>
   </layout>
+  <zorder>twMenu</zorder>
+  <zorder>dbbButtons</zorder>
  </widget>
  <resources>
   <include location="../../icons/enkiicons.qrc"/>
