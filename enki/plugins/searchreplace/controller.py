@@ -71,6 +71,7 @@ class Controller(QObject):
 
         if self._widget is not None:
             core.workspace().currentDocumentChanged.disconnect(self._updateFileActionsState)
+            self._widget.visibilityChanged.disconnect(self._updateSearchWidgetFoundItemsHighlighting)
             core.workspace().textChanged.disconnect(self._updateSearchWidgetFoundItemsHighlighting)
             self._widget = None
 
