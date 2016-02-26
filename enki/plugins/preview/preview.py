@@ -20,7 +20,8 @@ import sys
 import shlex
 import codecs
 
-from PyQt5.QtCore import pyqtSignal, QSize, Qt, QThread, QTimer, QUrl, QEventLoop
+from PyQt5.QtCore import (pyqtSignal, QSize, Qt, QThread, QTimer, QUrl,
+                          QEventLoop, QObject)
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QWidget
 from PyQt5.QtGui import QDesktopServices, QIcon, QPalette, QWheelEvent
 from PyQt5.QtWebKitWidgets import QWebPage
@@ -32,7 +33,7 @@ from enki.plugins.preview import isHtmlFile, canUseCodeChat, \
     sphinxEnabledForFile
 from .preview_sync import PreviewSync
 from enki.lib.get_console_output import open_console_output
-from enki.lib.future import AsyncController
+from enki.lib.future import AsyncController, RunLatest
 
 
 # Likewise, attempt importing CodeChat; failing that, disable the CodeChat feature.
@@ -80,33 +81,18 @@ def _checkModificationTime(sourceFile, outputFile, s):
     # so that larger = newer.
     try:
         if os.path.getmtime(outputFile) > os.path.getmtime(sourceFile):
-            return '', s, QUrl.fromLocalFile(outputFile)
+            return sourceFile, '', s, QUrl.fromLocalFile(outputFile)
         else:
-            return ('The file {} is older than the source file {}.'
+            return (sourceFile, 'The file {} is older than the source file {}.'
                     .format(outputFile, sourceFile), s, QUrl())
     except OSError as e:
-        return ('Error checking modification time: {}'.format(str(e)),
+        return (sourceFile, 'Error checking modification time: {}'.format(str(e)),
                 s, QUrl())
 
 
-class ConverterThread(QThread):
+class ConverterThread(QObject):
     """Thread converts markdown to HTML.
     """
-
-    # This signal is emitted by the converter thread when a file has been
-    # converted to HTML.
-    htmlReady = pyqtSignal(
-      # Path to the file which should be converted to / displayed as HTML.
-      str,
-      # HTML rendering of the file; empty if the HTML is provided in a file
-      # specified by the URL below.
-      str,
-      # Error text resulting from the conversion process.
-      str,
-      # A reference to a file containing HTML rendering. Empty if the second
-      # parameter above contains the HTML instead.
-      QUrl)
-
     # This signal clears the context of the log window.
     logWindowClear = pyqtSignal()
 
@@ -115,39 +101,31 @@ class ConverterThread(QThread):
       # A string to append to the log window.
       str)
 
-    _Task = collections.namedtuple("Task", ["filePath", "language", "text"])
-
-    def __init__(self):
-        QThread.__init__(self)
-        self._queue = queue.Queue()
-        self.start(QThread.LowPriority)
+    def __init__(self, parent):
+        super().__init__(parent)
         self._ac = AsyncController('QThread', self)
         self._ac.defaultPriority = QThread.LowPriority
         self._SphinxInvocationCount = 1
 
-    def process(self, filePath, language, text):
-        """Convert data and emit result.
-        """
-        self._queue.put(self._Task(filePath, language, text))
+    def terminate(self):
+        # Free resources.
+        self._ac.terminate()
 
-    def stop_async(self):
-        self._queue.put(None)
-
-    def _getHtml(self, language, text, filePath):
+    def getHtml(self, language, text, filePath):
         """Get HTML for document
         """
         if language == 'Markdown':
-            return self._convertMarkdown(text), None, QUrl()
+            return filePath, self._convertMarkdown(text), None, QUrl()
         # For ReST, use docutils only if Sphinx isn't available.
         elif language == 'reStructuredText' and not sphinxEnabledForFile(filePath):
             htmlUnicode, errString = self._convertReST(text)
-            return htmlUnicode, errString, QUrl()
+            return filePath, htmlUnicode, errString, QUrl()
         elif filePath and sphinxEnabledForFile(filePath):  # Use Sphinx to generate the HTML if possible.
             return self._convertSphinx(filePath)
         elif filePath and canUseCodeChat(filePath):  # Otherwise, fall back to using CodeChat+docutils.
             return self._convertCodeChat(text, filePath)
         else:
-            return 'No preview for this type of file', None, QUrl()
+            return filePath, 'No preview for this type of file', None, QUrl()
 
     def _convertMarkdown(self, text):
         """Convert Markdown to HTML
@@ -260,7 +238,7 @@ class ConverterThread(QThread):
         elif os.path.exists(htmlFileAlter):
             return _checkModificationTime(filePath, htmlFileAlter, errString)
         else:
-            return ('No preview for this type of file.<br>Expected ' +
+            return (filePath, 'No preview for this type of file.<br>Expected ' +
                     htmlFile + " or " + htmlFileAlter, errString, QUrl())
 
     def _convertCodeChat(self, text, filePath):
@@ -279,7 +257,7 @@ class ConverterThread(QThread):
             htmlString = ''
         errString = errStream.getvalue()
         errStream.close()
-        return htmlString, errString, QUrl()
+        return filePath, htmlString, errString, QUrl()
 
     def _runHtmlBuilder(self):
         # Build the commond line for Sphinx.
@@ -375,34 +353,6 @@ class ConverterThread(QThread):
         self._stderr = stderr.read()
         self._qe.exit()
 
-    def run(self):
-        """Thread function
-        """
-        while True:  # exits with break
-            # wait task
-            task = self._queue.get()
-            # take the last task
-            while self._queue.qsize():
-                task = self._queue.get()
-
-            if task is None:  # None is a quit command
-                self._ac.terminate()
-                break
-
-            # TODO: This is ugly. Should pass this exception back to the main
-            # thread and re-raise it there, or use a QFuture like approach which
-            # does this automaticlaly.
-            try:
-                html, errString, url = self._getHtml(task.language, task.text,
-                                                     task.filePath)
-            except Exception:
-                traceback.print_exc()
-
-            self.htmlReady.emit(task.filePath, html, errString, url)
-
-        # Free resources.
-        self._ac.terminate()
-
 
 class PreviewDock(DockWidget):
     """GUI and implementation
@@ -451,8 +401,8 @@ class PreviewDock(DockWidget):
         # Keep track of which Sphinx template copies we've already asked the user about.
         self._sphinxTemplateCheckIgnoreList = []
 
-        self._thread = ConverterThread()  # stopped
-        self._thread.htmlReady.connect(self._setHtml)  # disconnected
+        self._thread = ConverterThread(self)  # stopped
+        self._runLatest = RunLatest('QThread', parent=self)
 
         self._visiblePath = None
 
@@ -561,9 +511,8 @@ class PreviewDock(DockWidget):
         self._thread.logWindowClear.disconnect(self._clear_log)
         self._thread.logWindowText.disconnect()
 
-        self._thread.htmlReady.disconnect(self._setHtml)
-        self._thread.stop_async()
-        self._thread.wait()
+        self._thread.terminate()
+        self._runLatest.terminate()
 
     def closeEvent(self, event):
         """Widget is closed. Clear it
@@ -776,7 +725,7 @@ class PreviewDock(DockWidget):
                 self._widget.teLog.setVisible(False)
             elif isHtmlFile(document):
                 # No processing needed -- just display it.
-                self._setHtml(document.filePath(), text)
+                self._setHtml(document.filePath(), text, None, QUrl())
                 # Hide the progress bar, since no processing is necessary.
                 self._widget.prgStatus.setVisible(False)
                 # Hide the error log, since we do not HTML checking.
@@ -864,7 +813,8 @@ class PreviewDock(DockWidget):
                     (sphinxCanProcess and not internallyModified) or
                     saveThenBuild):
                 # For reST language is already correct.
-                self._thread.process(document.filePath(), language, text)
+                self._runLatest.start(self._setHtmlFuture, self._thread.getHtml,
+                                language, text, document.filePath())
             # Warn.
             if (sphinxCanProcess and internallyModified and
                     externallyModified and not buildOnSave):
@@ -933,10 +883,16 @@ class PreviewDock(DockWidget):
 
         return errors
 
-    def _setHtml(self, filePath, htmlText, errString=None, baseUrl=QUrl()):
+    def _setHtmlFuture(self, future):
+        """Receives a future and unpacks the result, calling _setHtml."""
+        filePath, htmlText, errString, baseUrl = future.result
+        self._setHtml(filePath, htmlText, errString, baseUrl)
+
+    def _setHtml(self, filePath, htmlText, errString, baseUrl):
         """Set HTML to the view and restore scroll bars position.
         Called by the thread
         """
+
         self._saveScrollPos()
         self._visiblePath = filePath
         self._widget.webView.page().mainFrame().loadFinished.connect(
