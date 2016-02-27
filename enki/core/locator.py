@@ -417,6 +417,7 @@ class _CompletableLineEdit(QLineEdit):
         """Clear inline completion, if exists
         """
         if self._inlineCompletionIsSet:
+            self.del_()
             self.terminate()
             self._inlineCompletionIsSet = False
 
