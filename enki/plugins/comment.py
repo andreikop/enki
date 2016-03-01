@@ -7,24 +7,45 @@ from PyQt5.QtCore import QObject
 from enki.core.core import core
 
 
-class Python:
+class Prefix:
     def isCommented(self, line):
-        return line.lstrip().startswith('#')
+        return line.lstrip().startswith(self.PREFIX)
 
     def comment(self, minIndent, line):
-        return line[:minIndent] + '# ' + line[minIndent:]
+        return '{}{} {}'.format(line[:minIndent], self.PREFIX, line[minIndent:])
 
     def uncomment(self, minIndent, line):
         spaceLen = len(line) - len(line.lstrip())
         space = line[:spaceLen]
         text = line[spaceLen:]
 
-        if text.startswith('# '):
-            text = text[2:]
-        elif text.startswith('#'):
-            text = text[1:]
+        if text.startswith('{} '.format(self.PREFIX)):
+            text = text[len(self.PREFIX) + 1:]
+        elif text.startswith(self.PREFIX):
+            text = text[len(self.PREFIX):]
 
         return space + text
+
+
+class Hash(Prefix):
+    PREFIX = '#'
+
+
+class DoubleSlash(Prefix):
+    PREFIX = '//'
+
+
+# NOTE PHP supports both // and #
+reversedCommentImplementations = {
+    Hash: ("Bash", "Zsh", "Tcsh", "Perl", "Python", "Ruby", "R Script", "Makefile", "CMake"),
+    DoubleSlash: ("ActionScript 2.0", "C", "C#", "C++", "D", "Go", "Java", "JavaScript", "Pascal",
+                  "Objective-C", "Objective-C++", "PHP/PHP", "Rust", "Scala")
+}
+
+commentImplementations = {lang: impl
+                          for impl, langs in reversedCommentImplementations.items()
+                          for lang in langs
+                          }
 
 
 class Plugin(QObject):
@@ -51,7 +72,7 @@ class Plugin(QObject):
         """
         document = core.workspace().currentDocument()
         if(document is not None and
-           document.qutepart.language() in ('Python',)):
+           document.qutepart.language() in commentImplementations):
             if self._action is None:
                 self._action = core.actionManager().addAction("mEdit/aUnComment",
                                                               "(Un)comment selected lines",
@@ -69,7 +90,7 @@ class Plugin(QObject):
         end = max(selLine, curLine)
 
         lines = document.qutepart.lines
-        impl = Python()
+        impl = commentImplementations[document.qutepart.language()]()
 
         if impl.isCommented(lines[start]):
             action = impl.uncomment
