@@ -37,7 +37,7 @@ class DoubleSlash(Prefix):
 
 # NOTE PHP supports both // and #
 reversedCommentImplementations = {
-    Hash: ("Bash", "Zsh", "Tcsh", "Perl", "Python", "Ruby", "R Script", "Makefile", "CMake"),
+    Hash: ("Bash", "Zsh", "Tcsh", "Perl", "Python", "Ruby", "R Script", "Makefile", "CMake", "JSON", "YAML"),
     DoubleSlash: ("ActionScript 2.0", "C", "C#", "C++", "D", "Go", "Java", "JavaScript", "Pascal",
                   "Objective-C", "Objective-C++", "PHP/PHP", "Rust", "Scala")
 }
