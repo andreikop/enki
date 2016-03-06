@@ -15,7 +15,7 @@ def fuzzyMatch(reversed_pattern, text):
     Less peaces -> better mathing
     Peaces close to the end -> better matching
 
-    Reverse mathing is used because symbols at the end of the path are usually more impotant.
+    Reverse matching is used because symbols at the end of the path are usually more impotant.
 
     pattern shall be already reversed for performance reasons
     """
@@ -44,6 +44,9 @@ def fuzzyMatch(reversed_pattern, text):
     return score, indexes
 
 
+_MAX_COUNT = 32
+
+
 class FuzzyOpenCompleter(AbstractCompleter):
 
     mustBeLoaded = True
@@ -58,7 +61,24 @@ class FuzzyOpenCompleter(AbstractCompleter):
         self._files = files
         self._items = []
 
+    def _openFiles(self):
+        files = [d.filePath()
+                 for d in core.workspace().documents()
+                 if d.filePath() is not None]
+        projPath = core.project().path()
+        if projPath:
+            for i, path in enumerate(files):
+                if files[i].startswith(projPath):
+                    files[i] = os.path.relpath(path, projPath)
+
+        return files
+
+
     def load(self, stopEvent):
+        origCaseOpenFiles = self._openFiles()
+
+        origCaseFiles = self._files
+
         caseSensitive = any([c.isupper() for c in self._pattern])
 
         if not caseSensitive:
@@ -67,29 +87,41 @@ class FuzzyOpenCompleter(AbstractCompleter):
         if self._pattern:
             if caseSensitive:
                 pattern = self._pattern
-                files = self._files
+                openFiles = origCaseOpenFiles
+                files = origCaseFiles
             else:
                 pattern = self._pattern.lower()
-                files = [f.lower() for f in self._files]
+                openFiles = [f.lower() for f in origCaseOpenFiles]
+                files = [f.lower() for f in origCaseFiles]
 
             reversed_pattern = pattern[::-1]
 
             matching = []
-            for i, path in enumerate(files):
+
+            for i, path in enumerate(openFiles):
                 score, indexes = fuzzyMatch(reversed_pattern, path)
                 if indexes:
+                    score /= 100  # bonus for opened files
                     # Using original case path here
-                    matching.append((self._files[i], score, indexes))
+                    matching.append((origCaseOpenFiles[i], score, indexes))
 
-                if not (i % 100):
-                    if stopEvent.is_set():
-                        return
+            for i, path in enumerate(files):
+                if path not in openFiles:
+                    score, indexes = fuzzyMatch(reversed_pattern, path)
+                    if indexes:
+                        matching.append((origCaseFiles[i], score, indexes))
+
+                    if not (i % 100):
+                        if stopEvent.is_set():
+                            return
 
             matching.sort(key=lambda item: item[1])  # sort starting from minimal score
+            self._items = matching[:_MAX_COUNT]
         else:
-            matching = [(item, 0, []) for item in self._files]
-
-        self._items = matching[:32]  # show not more than 32 items for better performance
+            allFiles = origCaseOpenFiles + [f
+                                            for f in origCaseFiles
+                                            if f not in origCaseOpenFiles]
+            self._items = [(item, 0, []) for item in allFiles[:_MAX_COUNT]]
 
     def rowCount(self):
         return len(self._items)
