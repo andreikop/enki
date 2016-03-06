@@ -118,7 +118,7 @@ class SmlTermWidget(_AbstractReplTermWidget):
 
 
 class PythonTermWidget(_AbstractReplTermWidget):
-    """Standard ML terminal emulator widget
+    """Python terminal emulator widget
     """
 
     def isCommandComplete(self, text):
@@ -291,14 +291,14 @@ class SmlInterpreter(_AbstractInterpreter):
 
 
 class PythonInterpreter(_AbstractInterpreter):
-    """MIT scheme interpreter
+    """Python interpreter
     """
 
     def _createTermWidget(self):
         return PythonTermWidget(self, self._termWidgetFont())
 
     def loadFile(self, filePath):
-        """Load file using MIT Scheme load function
+        """Load file interactively using `python -i`
         """
         self.stop()
         self._term.clear()
