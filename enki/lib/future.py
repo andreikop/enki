@@ -1,5 +1,3 @@
-# .. -*- coding: utf-8 -*-
-#
 # ****************************
 # future.py - Futures for PyQt
 # ****************************
@@ -11,8 +9,7 @@
 # .. code:: Python
 #    :number-lines:
 #
-#    app = QApplication(sys.argv)
-#    ac = AsyncController('QThread', app)
+#    ac = AsyncController('QThread', parent)
 #    def g(future):
 #      result = future.result
 #      # ...code to process result, the returned tuple resulting from calling
@@ -59,7 +56,7 @@ import gc
 # -------------------
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import (QThread, pyqtSignal, QObject, QTimer, QRunnable,
-                          QThreadPool)
+                          QThreadPool, QEventLoop)
 import sip
 #
 # Local imports
@@ -106,11 +103,10 @@ class _AsyncAbstractController(QObject):
         # calls to ``setPriority`` to fail.
         self.defaultPriority = QThread.NormalPriority
 
-        # Ask the parent_ and `QApplication <http://doc.qt.io/qt-5/qapplication.html>`_
-        # for a signal before they're destroyed, so we can do cleanup.
+        # Ask the parent_ for a signal before it's destroyed, so we can do
+        # cleanup.
         if parent:
             parent.destroyed.connect(self.onParentDestroyed)
-        QApplication.instance().destroyed.connect(self.onParentDestroyed)
 
 
     # The _`start` method runs ``future.result = f(*args, **kwargs)`` in a
@@ -172,7 +168,8 @@ class _AsyncAbstractController(QObject):
 # #. Let Qt invoke cleanup by providing it a parent, thus including it in the
 #    object tree. The sample code at the top of this file takes this approach.
 #    As a backup to this approach, this class will also destroy itself when
-#    the QApplication_ is destroyed.
+#    the `QApplication <http://doc.qt.io/qt-5/qapplication.html>`_ is
+#    destroyed.
 #
 # #. Finalize this instance if the Python finalizer is invoked. Python does
 #    not guarantee that this will **ever** be invoked. Don't rely on it.
@@ -218,6 +215,17 @@ class _AsyncAbstractController(QObject):
         if self._isAlive:
             self._isAlive = False
             self._terminate()
+
+            # Waiting for the thread or thread pool to shut down may have
+            # placed completed jobs in this thread's queue. Process them now to
+            # avoid any surprises (terminated `_AsyncAbstractController`_
+            # instances still invoke callbacks, making it seem that the
+            # terminate didn't fully terminate. It did, but still leaves g_
+            # callbacks to be run in the event queue.)
+            el = QEventLoop(self.parent())
+            QTimer.singleShot(0, el.exit)
+            el.exec_()
+
             # Delete the `QObject <http://doc.qt.io/qt-5/qobject.html>`_
             # underlying this class, which disconnects all signals.
             sip.delete(self)
@@ -226,10 +234,10 @@ class _AsyncAbstractController(QObject):
     def _terminate(self):
         raise RuntimeError('Abstact method')
 #
-# Concrete AsyncAbstractController subclasses
-# ===========================================
-# These two subclasses inherit from `_AsyncAbstractController`_ and prove a thread
-# or thread pool for use by the class.
+# Concrete `_AsyncAbstractController`_ subclasses
+# ===============================================
+# These two subclasses inherit from `_AsyncAbstractController`_ and provide a
+# thread or thread pool for use by the class.
 #
 # AsyncThreadController
 # ---------------------
@@ -275,8 +283,8 @@ class AsyncPoolController(_AsyncAbstractController):
       # A number *n* to create a pool of *n* simple threads, where each thread
       # lacks an event loop, so that it can emit but not receive signals.
       # This means that g_ may **not** be run in a thread of this pool,
-      # without manually adding a event loop. If *n* < 1, the global thread pool
-      # is used.
+      # without manually adding a event loop. If *n* < 1, the global thread
+      # pool is used.
       maxThreadCount,
 
       # See parent_.
@@ -670,7 +678,7 @@ def demo():
         ret = app.exec_()
 
     finally:
-        # Delete the application, which ensures that ``ac`` will be finalized.
+        ac.terminate()
         sip.delete(app)
         del app
 
