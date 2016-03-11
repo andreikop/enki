@@ -5,8 +5,8 @@
 # ****************************
 # The idea: create a simple class that encapsulates a thread or thread pool and
 # uses it to run a function asynchronously. For example, to run a function
-# ``f(a, b)``, then invoke a callback ``g`` on the return value provided by
-# ``f``:
+# ``f(a, b)``, then invoke a callback g_ on the return value provided by
+# f_:
 #
 # .. code:: Python
 #    :number-lines:
@@ -16,7 +16,7 @@
 #    def g(future):
 #      result = future.result
 #      # ...code to process result, the returned tuple resulting from calling
-#      # ``f``...
+#      # f...
 #    ac.start(g, f, a, b)
 #
 # This is *almost* like:
@@ -27,32 +27,24 @@
 #    result = f(a, b)
 #    g(result)
 #
-# except that ``f`` is run in a separate thread and ``g`` isn't invoked until
-# ``f`` completes.
+# except that f_ is run in a separate thread and g_ isn't invoked until
+# f_ completes.
 #
 # .. contents::
 #
 # Implementation
 # ==============
-# The ``AsyncController`` class first wraps a function to be executed along
-# with the neceesary state in a ``Future`` class. Next, it schedules this
-# class to be executed by the ``_AsyncWorker`` in a thread it creates or in the
-# ``_AsyncPoolWorker`` pool it uses, then passes results from that invocation
-# back to the thread in which the ``AsyncController.start()`` method was called.
-#
-# Priority
-# --------
-# The priority of the thread used to execute ``f`` is
-# ``AsyncController.defaultPriority``, unless this value is overriden by
-# supplying the keyword argument ``futurePriority=``\
-# `QThread.Priority <http://qt-project.org/doc/qt-4.8/qthread.html#Priority-enum>`_
-# when invoking ``start``.
+# The AsyncController_ class first wraps a function to be executed along
+# with the neceesary state in a Future_. Next, it schedules this Future_
+# to be executed in another thread, then passes results from that invocation
+# back to the thread in which the start_ method was called.
 #
 # To do
 # =====
 # - Make job cancellation change state after the current job completes,
-#   instead of waiting until the cancelled job would have been run.
-# - Provide a "shut down and discard all" option?
+#   instead of waiting until the cancelled job would have been run. This would
+#   be easy using a custom event in a QThread_. Doing so in a QThreadPool is
+#   probably harder, since we can't guarantee exclusive access to a Future.
 #
 # Imports
 # =======
@@ -74,105 +66,96 @@ import sip
 # -------------
 # None.
 #
-# AsyncAbstractController
-# =======================
+# _AsyncAbstractController
+# ========================
 # This class provides a simpe user interface to start up a thread or thread
 # pool, then submit jobs to it. This class **must** be shut down properly
 # before application exit; see the cleanup_ section for details. It is an
-# abstract class, relying on subclasses to implement the thread or thrad pool.
+# abstract class, relying on subclasses to implement the thread or thread pool.
 #
-# Implementation note: which using Python's `abc module
-# <https://docs.python.org/2/library/abc.html>`_ would be nice, it can't be used
-# here: I get the following error::
+# Implementation note: while using Python's `abc module
+# <https://docs.python.org/3/library/abc.html>`_ would be nice, it can't be
+# used here: I get the following error::
 #
 #    File "C:\Python27\lib\abc.py", line 87, in __new__
 #      cls = super(ABCMeta, mcls).__new__(mcls, name, bases, namespace)
 #  TypeError: Error when calling the metaclass bases
 #      metaclass conflict: the metaclass of a derived class must be a (non-strict) subclass of the meta
 #  classes of all its bases
-class AsyncAbstractController(QObject):
+class _AsyncAbstractController(QObject):
     # Create a worker thread or thread pool.
     def __init__(self,
-      # .. _parent:
-      #
-      # The parent of this object, if it exists. Providing
-      # a parent guarantees that this class instance will be properly
-      # finalized when the parent is deleted. If parent is ``None``, then the
-      # ``terminate()`` method **MUST** be called before the program exits.
-      # See the cleanup_ section below for more information.
+      # The _`parent` of this object, if it exists. Providing a parent guarantees
+      # that this class instance will be properly finalized when the parent is
+      # deleted. If parent is ``None``, then the terminate_ method **MUST** be
+      # called before the program exits. See the cleanup_ section for more
+      # information.
       parent=None):
 
         super().__init__(parent)
-        self.isAlive = True
+        self._isAlive = True
 
-        # .. _defaultPriority:
+        # _`defaultPriority` defines the priority of the thread used to execute
+        # f_, which must be a value taken from `QThread.Priority
+        # <http://qt-project.org/doc/qt-5/qthread.html#Priority-enum>`_.
+        # This default may be overriden in the kwargs_ parameter of start_.
         #
-        # I would prefer to use ``QThread.currentThread().priority()``, but this
-        # returns ``QThread.InheritPriority`` during unit tests, which causes
-        # future calls to setPriority to fail.
+        # Implementation note: I would prefer to use
+        # ``QThread.currentThread().priority()``, but this returns
+        # ``QThread.InheritPriority`` during unit tests, which causes future
+        # calls to ``setPriority`` to fail.
         self.defaultPriority = QThread.NormalPriority
 
-        # Ask the parent and QApplication for a signal before they're
-        # destroyed, so we can do cleanup.
+        # Ask the parent_ and `QApplication <http://doc.qt.io/qt-5/qapplication.html>`_
+        # for a signal before they're destroyed, so we can do cleanup.
         if parent:
             parent.destroyed.connect(self.onParentDestroyed)
         QApplication.instance().destroyed.connect(self.onParentDestroyed)
 
 
-    # Run ``future.result = f(*args, **kwargs)`` in a separate thread. When it
-    # completes, invoke ``g(future)``, if ``g`` is provided. Returns a
-    # Future_ instance, which can be used to interact with ``f``.
+    # The _`start` method runs ``future.result = f(*args, **kwargs)`` in a
+    # separate thread. When it completes, invoke ``g(future)``, if g_ is
+    # provided. It returns a Future_ instance, which can be used to interact
+    # with f_.
     def start(self,
-      # .. _g:
-      #
-      # A result function which take one parameter, ``future``,
+      # The result function _`g` which takes one parameter, ``future``,
       # which will be executed in the thread *t* from which this method was
-      # called, or ``None`` if no function should be invoked after ``f``
-      # completes. **Important**: ``g`` will **not** be invoked if the thread
+      # called, or ``None`` if no function should be invoked after f_
+      # completes. **Important**: g_ will **not** be invoked if the thread
       # *t* does not provide an event loop -- such as a thread taken from
-      # the thread pool. See the AsycController constructor's
-      # ``qThreadOrThreadPool`` parameter for more information.
+      # the thread pool. See qThreadOrThreadPool_ for more information.
       g,
 
-      # .. _f:
-      #
-      # A function which will be executed in a separate thread.
-      # Any exceptions raised in ``f`` will be caught, then re-raised in
-      # ``g(future)`` when accessing ``future.result``.
-      # **Very important**: The parameters to ``f`` must be immutable, or must
-      # not change while ``f`` is executing. The same is true of the value
-      # returned by ``f``.
+      # The function _`f` which will be executed in a separate thread.
+      # Any exceptions raised in f_ will be caught, then re-raised in
+      # ``g(future)`` when accessing ``future.result``. **Very important**: The
+      # parameters to f_ must be immutable, or must not change while f_ is
+      # executing. The same is true of the value returned by f_.
       f,
 
-      # .. _args:
-      #
-      # Arguments used to invoke ``f``.
+      # _`args` defines the arguments used to invoke f_.
       *args,
 
-      # .. _kwargs:
-      #
-      # A dict of keyword arguments passed to ``f``. If
-      # the keyword argument ``_futurePriority`` is provided, this will
-      # determine the priority of the thread used to execute ``f``. If no
-      # priority is given, `AsyncController.defaultPriority <defaultPriority>`_
-      # is used; set this if desired.
+      # _`kwargs` gives a dict of keyword arguments passed to f_. If the
+      # keyword argument  ``_futurePriority`` is provided, this will determine
+      # the priority of the thread used to execute f_. If no priority is
+      # given, defaultPriority_ is used.
       **kwargs):
 
-        # Wrap ``f`` and associated data in a Future_.
+        assert self._isAlive
+        # Wrap f_ and associated data in a Future_.
         future = self._wrap(g, f, *args, **kwargs)
         # Run it in another thread.
         self._start(future)
         return future
 
-    # .. _start:
-    #
-    # Given a Future_ instance, run it in another thread.
+    # _`_start`: Given a Future_ instance, run it in another thread.
     def _start(self, future):
         raise RuntimeError('Abstact method')
 
-    # Wrap ``f`` and ``g`` in a Future_ and return it.
+    # Wrap f_ and g_ in a Future_ and return it.
     def _wrap(self, g, f, *args, **kwargs):
-        # Wrap ``f`` and associated data in a class.
+        # Wrap f_ and associated data in a Future_.
         return Future(g, f, args, kwargs, self.defaultPriority)
 #
 # Cleanup
@@ -183,23 +166,22 @@ class AsyncAbstractController(QObject):
 #
 # #. Use a context manager::
 #
-#      with AsyncController(qThreadOrThreadPool):
+#      with _AsyncController(qThreadOrThreadPool):
 #           ac.start(g, f, ...)
 #
 # #. Let Qt invoke cleanup by providing it a parent, thus including it in the
-#    object tree. The sample code at the top of thie file takes this approach.
+#    object tree. The sample code at the top of this file takes this approach.
 #    As a backup to this approach, this class will also destroy itself when
-#    the QApplication is destroyed.
+#    the QApplication_ is destroyed.
 #
 # #. Finalize this instance if the Python finalizer is invoked. Python does
 #    not guarantee that this will **ever** be invoked. Don't rely on it.
 #
-# #. Manually call ``asyncController.terminate()`` when necessary. This is soooo
-#    easy to forget.
+# #. Manually call terminate_ when necessary. This is soooo easy to forget.
 #
 # Context manager
 # ^^^^^^^^^^^^^^^
-    # Provide a `context manager <https://docs.python.org/2/library/stdtypes.html#typecontextmanager>`_
+    # Provide a `context manager <https://docs.python.org/3/library/stdtypes.html#typecontextmanager>`_
     # for Pythonic construction and cleanup.
 
     def __enter__(self):
@@ -212,9 +194,8 @@ class AsyncAbstractController(QObject):
 #
 # Qt destructor
 # ^^^^^^^^^^^^^
-    # This is run shortly before this class's C++ destructor is invoked. It
-    # emulates a C++ destructor by freeing resources before the C++ class is
-    # destroyed.
+    # This is run when the parent of this object is destroyed. We're next, so
+    # perform our termination actions.
     def onParentDestroyed(self):
         self.terminate()
 #
@@ -226,55 +207,41 @@ class AsyncAbstractController(QObject):
 #
 # Manual
 # ^^^^^^
-    # Without calling this before the program exits, we get nasty crashes since
-    # the Python portion of the class is still alive. At a minimum, we see
-    # "QThread: Destroyed while thread is still running" messages.
+    # Without calling _`terminate` before the program exits, we get nasty
+    # crashes since the Python portion of the class is still alive. At a
+    # minimum, we see "QThread: Destroyed while thread is still running"
+    # messages.
     #
     # This is NOT thread-safe.
     def terminate(self):
         # Only run this once.
-        if self.isAlive:
-            self.isAlive = False
-            # When invoked from ``__del__``, parent may no longer have the
-            # attribute ``destroyed``.
-            try:
-                self.parent.destroyed.disconnect(self.onParentDestroyed)
-            except AttributeError:
-                pass
-            # If the QApplication is also the ``self.parent``, it will invoke
-            # ``onParentDestroyed`` first; at this point,
-            # ``QApplication.instance()`` is ``None``. Keep going if this
-            # happens.
-            try:
-                QApplication.instance().destroyed.disconnect(
-                  self.onParentDestroyed)
-            except (AttributeError, TypeError):
-                pass
+        if self._isAlive:
+            self._isAlive = False
             self._terminate()
+            # Delete the `QObject <http://doc.qt.io/qt-5/qobject.html>`_
+            # underlying this class, which disconnects all signals.
+            sip.delete(self)
 
-    # .. _terminate:
-    #
-    # Called by ``terminate`` to actually shut down this class.
+    # _`_terminate` is called by terminate_ to actually shut down this class.
     def _terminate(self):
         raise RuntimeError('Abstact method')
 #
 # Concrete AsyncAbstractController subclasses
 # ===========================================
-# These two subclasses inherit from AsyncAbstractController_ and prove a thread
+# These two subclasses inherit from `_AsyncAbstractController`_ and prove a thread
 # or thread pool for use by the class.
 #
 # AsyncThreadController
 # ---------------------
-# Run functions in a QThread, using the AsyncAbstractController_ framework.
-class AsyncThreadController(AsyncAbstractController):
+# Run functions in a QThread, using the `_AsyncAbstractController`_ framework.
+class AsyncThreadController(_AsyncAbstractController):
     def __init__(self,
       # See parent_.
       parent=None):
 
         super().__init__(parent)
         # Create a worker and a thread it runs in. This approach was
-        # inspired by  example given in the `QThread docs
-        # <http://qt-project.org/doc/qt-4.8/qthread.html>`_.
+        # inspired by the example given in the QThread_ docs.
         self._worker = _AsyncWorker()
         self._workerThread = QThread(self)
         # Attach the worker to the thread's event queue.
@@ -285,13 +252,13 @@ class AsyncThreadController(AsyncAbstractController):
         # be ready for functions to run.
         self._workerThread.start()
 
-    # See start_.
+    # See `_start`_.
     def _start(self, future):
         self._worker.startSignal.emit(future)
 
-    # See terminate_.
+    # See `_terminate`_.
     def _terminate(self):
-        # Shut down the thread the Worker runs in.
+        # Shut down the thread the worker runs in.
         self._workerThread.quit()
         self._workerThread.wait()
         # Delete the worker, since it doesn't have a parent and therefore
@@ -301,12 +268,13 @@ class AsyncThreadController(AsyncAbstractController):
 #
 # AsyncPoolController
 # -------------------
-# Run functions in a QThread, using the AsyncAbstractController_ framework.
-class AsyncPoolController(AsyncAbstractController):
+# Run functions in a `QThread <http://doc.qt.io/qt-5/qthread.html>`_, using the
+# `_AsyncAbstractController`_ framework.
+class AsyncPoolController(_AsyncAbstractController):
     def __init__(self,
       # A number *n* to create a pool of *n* simple threads, where each thread
       # lacks an event loop, so that it can emit but not receive signals.
-      # This means that ``g`` may **not** be run in a thread of this pool,
+      # This means that g_ may **not** be run in a thread of this pool,
       # without manually adding a event loop. If *n* < 1, the global thread pool
       # is used.
       maxThreadCount,
@@ -321,13 +289,13 @@ class AsyncPoolController(AsyncAbstractController):
             self.threadPool = QThreadPool(self)
             self.threadPool.setMaxThreadCount(maxThreadCount)
 
-    # See start_.
+    # See `_start`_.
     def _start(self, future):
-        # Asynchronously invoke ``f``.
+        # Asynchronously invoke f_.
         apw = _AsyncPoolWorker(future)
         self.threadPool.start(apw)
 
-    # See terminate_.
+    # See `_terminate`_.
     def _terminate(self):
         self.threadPool.waitForDone()
         del self.threadPool
@@ -335,13 +303,13 @@ class AsyncPoolController(AsyncAbstractController):
 # SyncController
 # --------------
 # For testing purposes, this controller simply runs all jobs given it in the
-# current thread, using the AsyncAbstractController_ framework.
-class SyncController(AsyncAbstractController):
-    # See start_.
+# current thread, using the `_AsyncAbstractController`_ framework.
+class SyncController(_AsyncAbstractController):
+    # See `_start`_.
     def _start(self, future):
         future._invoke()
 
-    # See terminate_.
+    # See `_terminate`_.
     def _terminate(self):
         pass
 #
@@ -350,12 +318,14 @@ class SyncController(AsyncAbstractController):
 # This "class" provides a unified interface to both the thread and thread pool
 # implementations.
 def AsyncController(
+  # The _`qThreadOrThreadPool` argument can take on several values:
+  #
   # * 'QThread' to create a single QThread with an event loop, enabling it
-  #   to both emit and receive signals -- meaning that ``g`` may be run
+  #   to both emit and receive signals -- meaning that g_ may be run
   #   in this created thread.
   # * A number *n* to create a pool of *n* simple threads, where each thread
   #   lacks an event loop, so that it can emit but not receive signals.
-  #   This means that ``g`` may **not** be run in a thread, without
+  #   This means that g_ may **not** be run in a thread, without
   #   manually adding a event loop. If *n* < 1, the global thread pool
   #   is used.
   # * 'Sync' to execute tasks in the current thread, rather than a separate
@@ -378,7 +348,7 @@ def AsyncController(
 # that have been submitted but not run.
 class RunLatest(object):
     def __init__(self,
-      # See AsyncController_'s ``qThreadOrThreadPool`` argument.
+      # See qThreadOrThreadPool_.
       qThreadOrThreadPool,
 
       # If ``True``, discard the results of a currently-executing job when a new
@@ -395,7 +365,7 @@ class RunLatest(object):
         self.future = self.ac.start(None, lambda: None)
         self.discardPending = discardPending
 
-    # See start_.
+    # See `_start`_.
     def start(self, *args, **kwargs):
         self.future.cancel(self.discardPending)
         self.future = self.ac.start(*args, **kwargs)
@@ -406,8 +376,8 @@ class RunLatest(object):
 #
 # Future
 # ======
-# The Future class holds all the information necessary to invoke ``f``
-# and return its results to ``g``.
+# The Future class holds all the information necessary to invoke f_
+# and return its results to g_.
 class Future(object):
     # The possible states for an instance of this class.
     (STATE_WAITING, STATE_RUNNING, STATE_FINISHED,
@@ -430,10 +400,10 @@ class Future(object):
       defaultPriority):
 
         # Look for the ``_futurePriority`` keyword argument and remove it if
-        # found.
+        # found. See also defaultPriority_ and kwargs_.
         self._futurePriority = kwargs.pop('_futurePriority', defaultPriority)
 
-        # State used to invoke ``f`` and ``g``.
+        # State used to invoke f_ and g_.
         self._g = g
         self._f = f
         self._args = args
@@ -448,11 +418,11 @@ class Future(object):
         self._exc_raised = False
         self._discardResult = False
 
-        # Set up to invoke ``g`` in the current thread, if ``g`` was
+        # Set up to invoke g_ in the current thread, if g_ was
         # provided.
         self._signalInvoker.doneSignal.connect(self._signalInvoker.onDoneSignal)
 
-    # Invoke ``f`` and emit its returned value.
+    # Invoke f_ and emit its returned value.
     def _invoke(self):
         if self._requestCancel:
             # Skip canceled callables.
@@ -472,42 +442,45 @@ class Future(object):
 
             self._state = self.STATE_FINISHED
 
-        # Emit the doneSignal to invoke `g`` optionally and to destroy
+        # Emit the doneSignal to invoke g_ optionally and to destroy
         # ``_signalInvoker``, even in the case of a canceled job.
         self._signalInvoker.doneSignal.emit(self)
 
-    # This method may be called from any thread; it requests that the execution
-    # of ``f`` be canceled. If ``f`` is already running, then it will not be
-    # interrupted. However, if ``discardResult`` is ``True``, then the results
-    # returned from evaluating ``f`` will be discarded, instead of invoking
-    # ``g`` [#]_. Any exceptions which occurred in ``f`` will still be raised.
-    #
-    # .. [#]  Note that this is only guaranteed to work when ``cancel`` is
-    #         invoked from the thread which started the job.
-    def cancel(self, discardResult=False):
+    # The _`cancel` method may be called from any thread; it requests that the
+    # execution of f_ be canceled. If f_ is already running, then it will not
+    # be interrupted.
+    def cancel(self,
+      # If _`discardResult` is ``True``, then the results returned from
+      # evaluating f_ will be discarded, instead of invoking g_ [#]_. Any
+      # exceptions which occurred in f_ will still be raised.
+      #
+      # .. [#]  Note that this is only guaranteed to work when cancel_ is
+      #         invoked from the thread which started the job.
+      discardResult=False):
+
         self._requestCancel = True
         self._discardResult = discardResult
 
-    # Return the result produced by invoking ``f``, or raise any exception which
-    # occurred in ``f``.
+    # Return the result produced by invoking f_, or raise any exception which
+    # occurred in f_.
     @property
     def result(self):
         if self._exc_info:
             # Note that the exception was raised.
             self._exc_raised = True
-            # Raise an exception which provides a trackback all the way into the
-            # line in ``f`` that caused the exception. Just re-raising the
+
+            # Raise an exception which provides a traceback all the way into
+            # the line in f_ that caused the exception. Just re-raising the
             # exception doesn't preserve the full traceback. Likewise, ``raise
             # self._exc_info`` provides only a limited tracebacak.
             #
-            # The mapping: One form of `raise
-            # <https://docs.python.org/2/reference/simple_stmts.html#raise>`_
-            # expects ``instance, None, traceback``. `sys.exc_info()
-            # <https://docs.python.org/2/library/sys.html#sys.exc_info>`_
-            # produces ``type, value, traceback`` where type is the exception
-            # type of the exception being handled, value is a class instance,
-            # and traceback is the desired trackback to report.
-            raise self._exc_info[1].with_traceback(self._exc_info[2])
+            # Quoting from `sys.exc_info() <https://docs.python.org/3/library/sys.html#sys.exc_info>`_,
+            # "*value* gets the exception instance (an instance of the
+            # exception type)."
+            type_, value, traceback = self._exc_info
+            # Re-`raise <https://docs.python.org/3/reference/simple_stmts.html#raise>`_
+            # the caught exception.
+            raise value.with_traceback(traceback)
         else:
             return self._result
 
@@ -517,35 +490,31 @@ class Future(object):
     def state(self):
         return self._state
 #
-# SignalInvoker
-# -------------
-# A helper class to hold a signal and invoke ``g``. This can't be easily
+# _SignalInvoker
+# --------------
+# A helper class to hold a signal and invoke g_. This can't be easily
 # incorporated into Future_ for several reasons:
 #
 # #. A Future_ needs to remember the thread in which to run the result function
-#    ``g``. If it contains a signal, then ``moveToThread`` should be called to
+#    g_. If it contains a signal, then ``moveToThread`` should be called to
 #    first move it to the worker thread, then back to the thread from which it
-#    was invoked before emitting ``g``. This is awkward and I can't get it to
-#    work. What seems better: use SignalInvoker_ as an anchor, connecting it to
-#    the thread used to invoke ``g``, and leaving it there.
-# #. Any class inheriting from ``QObject``, crossing threads, and without a
-#    parent gets destroyed by Qt. This is exactly the case Future_ needs to use
-#    if it contains a signal. See ``emit_refs.py`` for sample code that
-#    demonstrates this crash and workarounds.
+#    was invoked before emitting g_. This is a bit awkward. What seems
+#    better: use `_SignalInvoker`_ as an anchor, connecting it to the thread
+#    used to invoke g_, and leaving it there.
 # #. If the signal is declared in Future_, then the it must accept an
-#    ``object`` instead of a Future_, sinxe Future_ isn't defined yet.
+#    ``object`` instead of a Future_, since Future_ isn't defined yet.
 #    Awkward, but not a show-stopper.
 class _SignalInvoker(QObject):
-    # Emitted to invoke ``g``.
+    # Emitted to invoke g_.
     doneSignal = pyqtSignal(Future)
 
     # A method to invoke ``future.g``.
     def onDoneSignal(self, future):
         try:
-            # Invoke ``g`` if it was provided and should be invoked.
+            # Invoke g_ if it was provided and should be invoked.
             if future._g and not future._discardResult:
                 future._g(future)
-            # If an exception occurred while executing ``f`` and that exception
+            # If an exception occurred while executing f_ and that exception
             # wasn't raised, do so now.
             if future._exc_info and not future._exc_raised:
                 future.result
@@ -556,7 +525,7 @@ class _SignalInvoker(QObject):
 #
 # Thread / thread pool worker classes
 # ===================================
-# Neither the ``_AsyncWorker`` class nor the ``_AsyncPoolWorker`` class should
+# Neither the `_AsyncWorker`_ class nor the `_AsyncPoolWorker`_ class should
 # be instianted by a user of this module; instead, these are used by
 # ``AsyncXxxController`` to run a function in a separate thread.
 #
@@ -564,7 +533,7 @@ class _SignalInvoker(QObject):
 # ----------------
 class _AsyncPoolWorker(QRunnable):
     def __init__(self,
-      # The Future instance which contains the callable to invoke.
+      # The Future_ instance which contains the callable to invoke.
       future):
 
         super().__init__()
@@ -580,10 +549,10 @@ class _AsyncWorker(QObject):
     # This signal contains the information necessary to run a callable.
     startSignal = pyqtSignal(Future)
 
-    # The start signal is connected to this slot. It runs ``f`` in the worker
+    # The start signal is connected to this slot. It runs f_ in the worker
     # thread.
     def onStart(self,
-      # The Future instance which contains the callable to invoke.
+      # The Future_ instance which contains the callable to invoke.
       future):
 
         future._invoke()
@@ -597,7 +566,7 @@ class TimePrinter(object):
     def __init__(self,
       # A sequence of tasks to monitor.
       tasks,
-      # QApplication instance, used as a parent for a Qtimer
+      # QApplication_ instance, used as a parent for a `QTimer <http://doc.qt.io/qt-5/qtimer.html>`_.
       app):
 
         self.tasks = tasks
