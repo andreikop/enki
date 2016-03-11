@@ -387,5 +387,19 @@ class TestAsyncController(unittest.TestCase):
 
             rl.terminate()
 
+    # Check that the callbacks of canceled jobs are not invoked.
+    def test_17(self):
+        for _ in self.singleThreadOnly:
+            with AsyncController(_) as ac:
+                f = ac._wrap(self.fail, lambda: None)
+                f.cancel()
+                ac._start(f)
+                em = Emitter()
+                # Make sure the canceled job was processed by waiting until the
+                # next job finishes.
+                with WaitForSignal(em.bing, 1000):
+                    ac.start(em.g, lambda: None)
+
+
 if __name__ == '__main__':
     unittest.main()

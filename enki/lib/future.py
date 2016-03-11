@@ -503,12 +503,10 @@ class Future(object):
 # A helper class to hold a signal and invoke g_. This can't be easily
 # incorporated into Future_ for several reasons:
 #
-# #. A Future_ needs to remember the thread in which to run the result function
-#    g_. If it contains a signal, then ``moveToThread`` should be called to
-#    first move it to the worker thread, then back to the thread from which it
-#    was invoked before emitting g_. This is a bit awkward. What seems
-#    better: use `_SignalInvoker`_ as an anchor, connecting it to the thread
-#    used to invoke g_, and leaving it there.
+# #. If Future_ is a subclass of QObject_, then its lifetime must be carefully
+#    managed to insure that it is deleted before the QApplication_. This is
+#    difficult, since every invocation of start_ produces a new object which
+#    must be tracked.
 # #. If the signal is declared in Future_, then the it must accept an
 #    ``object`` instead of a Future_, since Future_ isn't defined yet.
 #    Awkward, but not a show-stopper.
@@ -516,11 +514,12 @@ class _SignalInvoker(QObject):
     # Emitted to invoke g_.
     doneSignal = pyqtSignal(Future)
 
-    # A method to invoke ``future.g``.
+    # A method to invoke g_.
     def onDoneSignal(self, future):
         try:
             # Invoke g_ if it was provided and should be invoked.
-            if future._g and not future._discardResult:
+            if (future._g and not future._discardResult and
+                future.state == future.STATE_FINISHED):
                 future._g(future)
             # If an exception occurred while executing f_ and that exception
             # wasn't raised, do so now.
