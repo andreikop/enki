@@ -20,6 +20,7 @@ import unittest
 #
 # Third-party imports
 # -------------------
+import sip
 from PyQt5.QtCore import pyqtSignal, QObject, QTimer, QEventLoop, QThread
 from PyQt5.QtTest import QTest
 #
@@ -399,6 +400,34 @@ class TestAsyncController(unittest.TestCase):
                 # next job finishes.
                 with WaitForSignal(em.bing, 1000):
                     ac.start(em.g, lambda: None)
+
+    # Check that termination doesn't crash. Also, verify that an assertion is
+    # raised when trying to use a terminated instance.
+    def test_18(self):
+        for _ in self.syncPoolAndThread:
+            # Terminate using a context manager.
+            with AsyncController(_) as ac1:
+                pass
+            with self.assertRaises(AssertionError):
+                ac1.start(None, lambda: None)
+
+            # Termiante by calling terminate.
+            ac2 = AsyncController(_)
+            ac2.terminate()
+            with self.assertRaises(AssertionError):
+                ac2.start(None, lambda: None)
+
+            # Terminate via __del__, I hope.
+            ac3 = AsyncController(_)
+            del ac3
+            # Can't try start, since the object was deleted.
+
+            # Terminate via the QT object tree.
+            o = QObject()
+            ac3 = AsyncController(_, o)
+            sip.delete(o)
+            with self.assertRaises(AssertionError):
+                ac3.start(None, lambda: None)
 
 
 if __name__ == '__main__':
