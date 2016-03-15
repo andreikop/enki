@@ -167,9 +167,6 @@ class _AsyncAbstractController(QObject):
 #
 # #. Let Qt invoke cleanup by providing it a parent, thus including it in the
 #    object tree. The sample code at the top of this file takes this approach.
-#    As a backup to this approach, this class will also destroy itself when
-#    the `QApplication <http://doc.qt.io/qt-5/qapplication.html>`_ is
-#    destroyed.
 #
 # #. Finalize this instance if the Python finalizer is invoked. Python does
 #    not guarantee that this will **ever** be invoked. Don't rely on it.
@@ -241,7 +238,7 @@ class _AsyncAbstractController(QObject):
 #
 # AsyncThreadController
 # ---------------------
-# Run functions in a QThread, using the `_AsyncAbstractController`_ framework.
+# Run functions in a QThread_, using the `_AsyncAbstractController`_ framework.
 class AsyncThreadController(_AsyncAbstractController):
     def __init__(self,
       # See parent_.
@@ -328,7 +325,7 @@ class SyncController(_AsyncAbstractController):
 def AsyncController(
   # The _`qThreadOrThreadPool` argument can take on several values:
   #
-  # * 'QThread' to create a single QThread with an event loop, enabling it
+  # * 'QThread' to create a single QThread_ with an event loop, enabling it
   #   to both emit and receive signals -- meaning that g_ may be run
   #   in this created thread.
   # * A number *n* to create a pool of *n* simple threads, where each thread
@@ -359,8 +356,8 @@ class RunLatest(object):
       # See qThreadOrThreadPool_.
       qThreadOrThreadPool,
 
-      # If ``True``, discard the results of a currently-executing job when a new
-      # job is submitted. If ``False``, report the results of the
+      # If ``True``, discard the results of a currently-executing job when a
+      # new job is submitted. If ``False``, report the results of the
       # currently-executing job when a new job is submitted.
       discardPending=False,
 
@@ -368,12 +365,12 @@ class RunLatest(object):
       parent=None):
 
         self.ac = AsyncController(qThreadOrThreadPool, parent)
-        # Create a valid ``_future`` object, so that the first calls to
-        # ``start`` can still operate on a valid instance of ``_future``.
+        # Create a valid future_ object, so that the first call to
+        # start_ can still operate on a valid instance of future_.
         self.future = self.ac.start(None, lambda: None)
         self.discardPending = discardPending
 
-    # See `_start`_.
+    # See start_.
     def start(self, *args, **kwargs):
         self.future.cancel(self.discardPending)
         self.future = self.ac.start(*args, **kwargs)
@@ -504,9 +501,9 @@ class Future(object):
 # incorporated into Future_ for several reasons:
 #
 # #. If Future_ is a subclass of QObject_, then its lifetime must be carefully
-#    managed to insure that it is deleted before the QApplication_. This is
-#    difficult, since every invocation of start_ produces a new object which
-#    must be tracked.
+#    managed to insure that it is deleted before the `QApplication
+#    <http://doc.qt.io/qt-5/qapplication.html>`_. This is difficult, since
+#    every invocation of start_ produces a new object which must be tracked.
 # #. If the signal is declared in Future_, then the it must accept an
 #    ``object`` instead of a Future_, since Future_ isn't defined yet.
 #    Awkward, but not a show-stopper.
