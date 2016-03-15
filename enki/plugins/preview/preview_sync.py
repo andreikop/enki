@@ -92,10 +92,7 @@ class PreviewSync(QObject):
             core.workspace().currentDocumentChanged.disconnect(
                 self._onDocumentChanged)
             # Shut down the background sync. If a sync was already in progress,
-            # then discard its output, since that output might not come until
-            # after this routine finishes and this class is not usable. Adding
-            # the True guarentees that _movePreviewPaneToIndex will not be
-            # invoked after this line.
+            # then discard its output.
             self._runLatest.future.cancel(True)
             self._runLatest.terminate()
     #
