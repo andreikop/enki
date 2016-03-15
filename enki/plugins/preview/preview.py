@@ -9,10 +9,7 @@
 # Library imports
 # ---------------
 import os.path
-import collections
-import queue
 import io
-import traceback
 import re
 import shutil
 import html
@@ -36,7 +33,8 @@ from enki.lib.get_console_output import open_console_output
 from enki.lib.future import AsyncController, RunLatest
 
 
-# Likewise, attempt importing CodeChat; failing that, disable the CodeChat feature.
+# Likewise, attempt importing CodeChat; failing that, disable the CodeChat
+# feature.
 try:
     # Needed to access CodeChat.__file__; not importing this, but using the
     # other CodeChat.* imports below, doesn't define this.
