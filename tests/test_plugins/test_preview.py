@@ -401,7 +401,7 @@ content"""
         webViewContent, logContent = self._doBasicSphinxTest('rst')
         # After the inital ``_clear`` then a build with text, we expect to
         # see two builds.
-        self.assertEqual(self._dock()._thread._SphinxInvocationCount, 2)
+        self.assertEqual(self._dock()._sphinxConverter._SphinxInvocationCount, 2)
 
         # Inserting a character when auto-save is enabled can cause a double
         # build: the save made in preparation for the first build also invokes
@@ -410,7 +410,7 @@ content"""
         core.config()['Sphinx']['BuildOnSave'] = False
         with self._WaitForHtmlReady(timeout=10000, numEmittedExpected=1):
             qp.lines[0] += ' '
-        self.assertEqual(self._dock()._thread._SphinxInvocationCount, 3)
+        self.assertEqual(self._dock()._sphinxConverter._SphinxInvocationCount, 3)
 
         # Inserting a space at the end of the line can cause a double build,
         # since the StripTrailingWhitespace option deletes the space, then
@@ -422,7 +422,7 @@ content"""
         qp = core.workspace().currentDocument().qutepart
         with self._WaitForHtmlReady(timeout=10000, numEmittedExpected=1):
             qp.appendPlainText('\nTesting...')
-        self.assertEqual(self._dock()._thread._SphinxInvocationCount, 4)
+        self.assertEqual(self._dock()._sphinxConverter._SphinxInvocationCount, 4)
 
     @requiresSphinx()
     @base.requiresModule('CodeChat')

@@ -14,14 +14,18 @@ import html
 import sys
 import shlex
 import codecs
-
+#
+# Third-party imports
+# -------------------
 from PyQt5.QtCore import (pyqtSignal, QSize, Qt, QThread, QTimer, QUrl,
                           QEventLoop, QObject)
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QWidget
 from PyQt5.QtGui import QDesktopServices, QIcon, QPalette, QWheelEvent
 from PyQt5.QtWebKitWidgets import QWebPage
 from PyQt5 import uic
-
+#
+# Local imports
+# -------------
 from enki.core.core import core
 from enki.widgets.dockwidget import DockWidget
 from enki.plugins.preview import isHtmlFile, canUseCodeChat, \
@@ -44,6 +48,8 @@ else:
     import CodeChat.CodeToRest as CodeToRest
 
 
+# Global functions
+# ================
 def copyTemplateFile(errors, source, templateFileName, dest, newName=None):
     """For each sphinx project, two files are needed: ``index.rst`` as master
     document, and ``conf.py`` as sphinx configuration file. Given a file with
@@ -77,8 +83,12 @@ def _checkModificationTime(sourceFile, outputFile, s):
     except OSError as e:
         return (sourceFile, 'Error checking modification time: {}'.format(str(e)),
                 s, QUrl())
-
-
+#
+#
+# Threaded members
+# ----------------
+# These functions and classes convert their input to HTML. They are executed in
+# a separate thread.
 def _convertMarkdown(text):
     """Convert Markdown to HTML
     """
@@ -170,8 +180,9 @@ def _convertCodeChat(text, filePath):
     return filePath, htmlString, errString, QUrl()
 
 
-class ConverterThread(QObject):
-    """Thread converts markdown to HTML.
+class SphinxConverter(QObject):
+    """This class converts Sphinx input to HTML. It is run in a separate
+    thread.
     """
     # This signal clears the context of the log window.
     logWindowClear = pyqtSignal()
@@ -183,6 +194,7 @@ class ConverterThread(QObject):
 
     def __init__(self, parent):
         super().__init__(parent)
+        # Use an additional thread to process Sphinx output.
         self._ac = AsyncController('QThread', self)
         self._ac.defaultPriority = QThread.LowPriority
         self._SphinxInvocationCount = 1
@@ -191,23 +203,7 @@ class ConverterThread(QObject):
         # Free resources.
         self._ac.terminate()
 
-    def getHtml(self, language, text, filePath):
-        """Get HTML for document
-        """
-        if language == 'Markdown':
-            return filePath, _convertMarkdown(text), None, QUrl()
-        # For ReST, use docutils only if Sphinx isn't available.
-        elif language == 'reStructuredText' and not sphinxEnabledForFile(filePath):
-            htmlUnicode, errString = _convertReST(text)
-            return filePath, htmlUnicode, errString, QUrl()
-        elif filePath and sphinxEnabledForFile(filePath):  # Use Sphinx to generate the HTML if possible.
-            return self._convertSphinx(filePath)
-        elif filePath and canUseCodeChat(filePath):  # Otherwise, fall back to using CodeChat+docutils.
-            return _convertCodeChat(text, filePath)
-        else:
-            return filePath, 'No preview for this type of file', None, QUrl()
-
-    def _convertSphinx(self, filePath):
+    def convert(self, filePath):
         # Run the builder.
         errString = self._runHtmlBuilder()
 
@@ -344,6 +340,8 @@ class ConverterThread(QObject):
         self._qe.exit()
 
 
+# Core class
+# ==========
 class PreviewDock(DockWidget):
     """GUI and implementation
     """
@@ -391,7 +389,7 @@ class PreviewDock(DockWidget):
         # Keep track of which Sphinx template copies we've already asked the user about.
         self._sphinxTemplateCheckIgnoreList = []
 
-        self._thread = ConverterThread(self)  # stopped
+        self._sphinxConverter = SphinxConverter(self)  # stopped
         self._runLatest = RunLatest('QThread', parent=self)
 
         self._visiblePath = None
@@ -423,9 +421,9 @@ class PreviewDock(DockWidget):
         # restored correctly on a ``_clear_log``.
         self._defaultLogFont = self._widget.teLog.currentCharFormat()
         # The logWindowClear signal clears the log window.
-        self._thread.logWindowClear.connect(self._clear_log)  # disconnected
+        self._sphinxConverter.logWindowClear.connect(self._clear_log)  # disconnected
         # The logWindowText signal simply appends text to the log window.
-        self._thread.logWindowText.connect(lambda s:
+        self._sphinxConverter.logWindowText.connect(lambda s:
                                            self._widget.teLog.appendPlainText(s))  # disconnected
 
     def _createWidget(self):
@@ -498,10 +496,10 @@ class PreviewDock(DockWidget):
             self._onJavaScriptEnabledCheckbox)
         self._widget.tbSave.clicked.disconnect(self.onPreviewSave)
         self._widget.splitter.splitterMoved.disconnect(self.on_splitterMoved)
-        self._thread.logWindowClear.disconnect(self._clear_log)
-        self._thread.logWindowText.disconnect()
+        self._sphinxConverter.logWindowClear.disconnect(self._clear_log)
+        self._sphinxConverter.logWindowText.disconnect()
 
-        self._thread.terminate()
+        self._sphinxConverter.terminate()
         self._runLatest.terminate()
 
     def closeEvent(self, event):
@@ -723,6 +721,10 @@ class PreviewDock(DockWidget):
             except (OSError, IOError) as ex:
                 QMessageBox.critical(self, "Failed to save HTML", str(ex))
 
+    # HTML generation
+    #----------------
+    # The following methods all support generation of HTML from text in the
+    # Qutepart window in a separate thread.
     def _scheduleDocumentProcessing(self):
         """Start document processing with the thread.
         """
@@ -843,13 +845,29 @@ class PreviewDock(DockWidget):
             if ((not sphinxCanProcess) or
                     (sphinxCanProcess and not internallyModified) or
                     saveThenBuild):
-                # For reST language is already correct.
-                self._runLatest.start(self._setHtmlFuture, self._thread.getHtml,
+                # Build the HTML in a separate thread.
+                self._runLatest.start(self._setHtmlFuture, self.getHtml,
                                 language, text, document.filePath())
             # Warn.
             if (sphinxCanProcess and internallyModified and
                     externallyModified and not buildOnSave):
                 core.mainWindow().appendMessage('Warning: file modified externally. Auto-save disabled.')
+
+    def getHtml(self, language, text, filePath):
+        """Get HTML for document. This is run in a separate thread.
+        """
+        if language == 'Markdown':
+            return filePath, _convertMarkdown(text), None, QUrl()
+        # For ReST, use docutils only if Sphinx isn't available.
+        elif language == 'reStructuredText' and not sphinxEnabledForFile(filePath):
+            htmlUnicode, errString = _convertReST(text)
+            return filePath, htmlUnicode, errString, QUrl()
+        elif filePath and sphinxEnabledForFile(filePath):  # Use Sphinx to generate the HTML if possible.
+            return self._sphinxConverter.convert(filePath)
+        elif filePath and canUseCodeChat(filePath):  # Otherwise, fall back to using CodeChat+docutils.
+            return _convertCodeChat(text, filePath)
+        else:
+            return filePath, 'No preview for this type of file', None, QUrl()
 
     def _copySphinxProjectTemplate(self, documentFilePath):
         """Add conf.py, CodeChat.css and index.rst (if ther're missing)
