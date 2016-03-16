@@ -70,7 +70,8 @@ class HTMLDelegate(QStyledItemDelegate):
 
         # Highlighting text if item is selected
         if option.state & QStyle.State_Selected:
-            ctx.palette.setColor(QPalette.Text, option.palette.color(QPalette.Active, QPalette.HighlightedText))
+            ctx.palette.setColor(QPalette.Text,
+              option.palette.color(QPalette.Active, QPalette.Text))
 
         textRect = style.subElementRect(QStyle.SE_ItemViewItemText, options)
         painter.save()
