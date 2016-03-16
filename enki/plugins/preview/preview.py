@@ -79,6 +79,97 @@ def _checkModificationTime(sourceFile, outputFile, s):
                 s, QUrl())
 
 
+def _convertMarkdown(text):
+    """Convert Markdown to HTML
+    """
+    try:
+        import markdown
+    except ImportError:
+        return 'Markdown preview requires <i>python-markdown</i> package<br/>' \
+               'Install it with your package manager or see ' \
+               '<a href="http://packages.python.org/Markdown/install.html">installation instructions</a>'
+
+    extensions = ['fenced_code', 'nl2br', 'tables', 'enki.plugins.preview.mdx_math']
+
+    # version 2.0 supports only extension names, not instances
+    if markdown.version_info[0] > 2 or \
+       (markdown.version_info[0] == 2 and markdown.version_info[1] > 0):
+
+        class _StrikeThroughExtension(markdown.Extension):
+            """http://achinghead.com/python-markdown-adding-insert-delete.html
+            Class is placed here, because depends on imported markdown, and markdown import is lazy
+            """
+            DEL_RE = r'(~~)(.*?)~~'
+
+            def extendMarkdown(self, md, md_globals):
+                # Create the del pattern
+                delTag = markdown.inlinepatterns.SimpleTagPattern(self.DEL_RE, 'del')
+                # Insert del pattern into markdown parser
+                md.inlinePatterns.add('del', delTag, '>not_strong')
+
+        extensions.append(_StrikeThroughExtension())
+
+    return markdown.markdown(text, extensions)
+
+
+def _convertReST(text):
+    try:
+        import docutils.core
+        import docutils.writers.html4css1
+    except ImportError:
+        return 'Restructured Text preview requires the <i>python-docutils</i> package.<br/>' \
+               'Install it with your package manager or see ' \
+               '<a href="http://pypi.python.org/pypi/docutils"/>this page.</a>', None
+
+    errStream = io.StringIO()
+    docutilsHtmlWriterPath = os.path.abspath(os.path.dirname(
+      docutils.writers.html4css1.__file__))
+    settingsDict = {
+      # Make sure to use Unicode everywhere.
+      'output_encoding': 'unicode',
+      'input_encoding' : 'unicode',
+      # Don't stop processing, no matter what.
+      'halt_level'     : 5,
+      # Capture errors to a string and return it.
+      'warning_stream' : errStream,
+      # On some Windows PC, docutils will complain that it can't find its
+      # template or stylesheet. On other Windows PC with the same setup, it
+      # works fine. ??? So, specify a path to both here.
+      'template': (
+        os.path.join(docutilsHtmlWriterPath,
+                     docutils.writers.html4css1.Writer.default_template) ),
+      'stylesheet_dirs' : (
+        docutilsHtmlWriterPath,
+        os.path.join(os.path.abspath(os.path.dirname(
+          os.path.realpath(__file__))), 'rst_templates')),
+      'stylesheet_path' : 'default.css',
+      }
+    htmlString = docutils.core.publish_string(text, writer_name='html',
+      settings_overrides=settingsDict)
+    errString = errStream.getvalue()
+    errStream.close()
+    return htmlString, errString
+
+
+def _convertCodeChat(text, filePath):
+    # Use StringIO to pass CodeChat compilation information back to
+    # the UI.
+    errStream = io.StringIO()
+    try:
+        htmlString = CodeToRest.code_to_html_string(text, errStream,
+                                                    filename=filePath)
+    except KeyError:
+        # Although the file extension may be in the list of supported
+        # extensions, CodeChat may not support the lexer chosen by Pygments.
+        # For example, a ``.v`` file may be Verilog (supported by CodeChat)
+        # or Coq (not supported). In this case, provide an error messsage
+        errStream.write('Error: this file is not supported by CodeChat.')
+        htmlString = ''
+    errString = errStream.getvalue()
+    errStream.close()
+    return filePath, htmlString, errString, QUrl()
+
+
 class ConverterThread(QObject):
     """Thread converts markdown to HTML.
     """
@@ -104,89 +195,17 @@ class ConverterThread(QObject):
         """Get HTML for document
         """
         if language == 'Markdown':
-            return filePath, self._convertMarkdown(text), None, QUrl()
+            return filePath, _convertMarkdown(text), None, QUrl()
         # For ReST, use docutils only if Sphinx isn't available.
         elif language == 'reStructuredText' and not sphinxEnabledForFile(filePath):
-            htmlUnicode, errString = self._convertReST(text)
+            htmlUnicode, errString = _convertReST(text)
             return filePath, htmlUnicode, errString, QUrl()
         elif filePath and sphinxEnabledForFile(filePath):  # Use Sphinx to generate the HTML if possible.
             return self._convertSphinx(filePath)
         elif filePath and canUseCodeChat(filePath):  # Otherwise, fall back to using CodeChat+docutils.
-            return self._convertCodeChat(text, filePath)
+            return _convertCodeChat(text, filePath)
         else:
             return filePath, 'No preview for this type of file', None, QUrl()
-
-    def _convertMarkdown(self, text):
-        """Convert Markdown to HTML
-        """
-        try:
-            import markdown
-        except ImportError:
-            return 'Markdown preview requires <i>python-markdown</i> package<br/>' \
-                   'Install it with your package manager or see ' \
-                   '<a href="http://packages.python.org/Markdown/install.html">installation instructions</a>'
-
-        extensions = ['fenced_code', 'nl2br', 'tables', 'enki.plugins.preview.mdx_math']
-
-        # version 2.0 supports only extension names, not instances
-        if markdown.version_info[0] > 2 or \
-           (markdown.version_info[0] == 2 and markdown.version_info[1] > 0):
-
-            class _StrikeThroughExtension(markdown.Extension):
-                """http://achinghead.com/python-markdown-adding-insert-delete.html
-                Class is placed here, because depends on imported markdown, and markdown import is lazy
-                """
-                DEL_RE = r'(~~)(.*?)~~'
-
-                def extendMarkdown(self, md, md_globals):
-                    # Create the del pattern
-                    delTag = markdown.inlinepatterns.SimpleTagPattern(self.DEL_RE, 'del')
-                    # Insert del pattern into markdown parser
-                    md.inlinePatterns.add('del', delTag, '>not_strong')
-
-            extensions.append(_StrikeThroughExtension())
-
-        return markdown.markdown(text, extensions)
-
-    def _convertReST(self, text):
-        """Convert ReST
-        """
-        try:
-            import docutils.core
-            import docutils.writers.html4css1
-        except ImportError:
-            return 'Restructured Text preview requires the <i>python-docutils</i> package.<br/>' \
-                   'Install it with your package manager or see ' \
-                   '<a href="http://pypi.python.org/pypi/docutils"/>this page.</a>', None
-
-        errStream = io.StringIO()
-        docutilsHtmlWriterPath = os.path.abspath(os.path.dirname(
-          docutils.writers.html4css1.__file__))
-        settingsDict = {
-          # Make sure to use Unicode everywhere.
-          'output_encoding': 'unicode',
-          'input_encoding' : 'unicode',
-          # Don't stop processing, no matter what.
-          'halt_level'     : 5,
-          # Capture errors to a string and return it.
-          'warning_stream' : errStream,
-          # On some Windows PC, docutils will complain that it can't find its
-          # template or stylesheet. On other Windows PC with the same setup, it
-          # works fine. ??? So, specify a path to both here.
-          'template': (
-            os.path.join(docutilsHtmlWriterPath,
-                         docutils.writers.html4css1.Writer.default_template) ),
-          'stylesheet_dirs' : (
-            docutilsHtmlWriterPath,
-            os.path.join(os.path.abspath(os.path.dirname(
-              os.path.realpath(__file__))), 'rst_templates')),
-          'stylesheet_path' : 'default.css',
-          }
-        htmlString = docutils.core.publish_string(text, writer_name='html',
-          settings_overrides=settingsDict)
-        errString = errStream.getvalue()
-        errStream.close()
-        return htmlString, errString
 
     def _convertSphinx(self, filePath):
         # Run the builder.
@@ -229,24 +248,6 @@ class ConverterThread(QObject):
         else:
             return (filePath, 'No preview for this type of file.<br>Expected ' +
                     htmlFile + " or " + htmlFileAlter, errString, QUrl())
-
-    def _convertCodeChat(self, text, filePath):
-        # Use StringIO to pass CodeChat compilation information back to
-        # the UI.
-        errStream = io.StringIO()
-        try:
-            htmlString = CodeToRest.code_to_html_string(text, errStream,
-                                                        filename=filePath)
-        except KeyError:
-            # Although the file extension may be in the list of supported
-            # extensions, CodeChat may not support the lexer chosen by Pygments.
-            # For example, a ``.v`` file may be Verilog (supported by CodeChat)
-            # or Coq (not supported). In this case, provide an error messsage
-            errStream.write('Error: this file is not supported by CodeChat.')
-            htmlString = ''
-        errString = errStream.getvalue()
-        errStream.close()
-        return filePath, htmlString, errString, QUrl()
 
     def _runHtmlBuilder(self):
         # Build the commond line for Sphinx.
@@ -681,6 +682,47 @@ class PreviewDock(DockWidget):
         DockWidget.show(self)
         self._scheduleDocumentProcessing()
 
+    def _clear(self):
+        """Clear the preview dock contents.
+        Might be necesssary for stop executing JS and loading data.
+        """
+        self._setHtml('', '', None, QUrl())
+
+    def _isJavaScriptEnabled(self):
+        """Check if JS is enabled in the settings.
+        """
+        return core.config()['Preview']['JavaScriptEnabled']
+
+    def _onJavaScriptEnabledCheckbox(self, enabled):
+        """Checkbox clicked, save and apply settings
+        """
+        core.config()['Preview']['JavaScriptEnabled'] = enabled
+        core.config().flush()
+
+        self._applyJavaScriptEnabled(enabled)
+
+    def _applyJavaScriptEnabled(self, enabled):
+        """Update QWebView settings and QCheckBox state
+        """
+        self._widget.cbEnableJavascript.setChecked(enabled)
+
+        settings = self._widget.webView.settings()
+        settings.setAttribute(settings.JavascriptEnabled, enabled)
+
+    def onPreviewSave(self):
+        """Save contents of the preview"""
+        path, _ = QFileDialog.getSaveFileName(self, 'Save Preview as HTML', filter='HTML (*.html)')
+        if path:
+            text = self._widget.webView.page().mainFrame().toHtml()
+            data = text.encode('utf8')
+            try:
+                # Andrei: Shouldn't this be wb, since utf8 can produce binary data
+                # where \n is different than \r\n?
+                with open(path, 'w') as openedFile:
+                    openedFile.write(data)
+            except (OSError, IOError) as ex:
+                QMessageBox.critical(self, "Failed to save HTML", str(ex))
+
     def _scheduleDocumentProcessing(self):
         """Start document processing with the thread.
         """
@@ -1005,43 +1047,3 @@ class PreviewDock(DockWidget):
         self._widget.prgStatus.setStyleSheet(style)
         self._widget.prgStatus.setText(text)
 
-    def _clear(self):
-        """Clear the preview dock contents.
-        Might be necesssary for stop executing JS and loading data.
-        """
-        self._setHtml('', '', None, QUrl())
-
-    def _isJavaScriptEnabled(self):
-        """Check if JS is enabled in the settings.
-        """
-        return core.config()['Preview']['JavaScriptEnabled']
-
-    def _onJavaScriptEnabledCheckbox(self, enabled):
-        """Checkbox clicked, save and apply settings
-        """
-        core.config()['Preview']['JavaScriptEnabled'] = enabled
-        core.config().flush()
-
-        self._applyJavaScriptEnabled(enabled)
-
-    def _applyJavaScriptEnabled(self, enabled):
-        """Update QWebView settings and QCheckBox state
-        """
-        self._widget.cbEnableJavascript.setChecked(enabled)
-
-        settings = self._widget.webView.settings()
-        settings.setAttribute(settings.JavascriptEnabled, enabled)
-
-    def onPreviewSave(self):
-        """Save contents of the preview"""
-        path, _ = QFileDialog.getSaveFileName(self, 'Save Preview as HTML', filter='HTML (*.html)')
-        if path:
-            text = self._widget.webView.page().mainFrame().toHtml()
-            data = text.encode('utf8')
-            try:
-                # Andrei: Shouldn't this be wb, since utf8 can produce binary data
-                # where \n is different than \r\n?
-                with open(path, 'w') as openedFile:
-                    openedFile.write(data)
-            except (OSError, IOError) as ex:
-                QMessageBox.critical(self, "Failed to save HTML", str(ex))
