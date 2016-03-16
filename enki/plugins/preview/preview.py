@@ -1,5 +1,3 @@
-# .. -*- coding: utf-8 -*-
-#
 # ********************************************
 # preview.py - HTML, Markdown and ReST preview
 # ********************************************
@@ -33,7 +31,7 @@ from enki.lib.get_console_output import open_console_output
 from enki.lib.future import AsyncController, RunLatest
 
 
-# Likewise, attempt importing CodeChat; failing that, disable the CodeChat
+# Attempt importing CodeChat; failing that, disable the CodeChat
 # feature.
 try:
     # Needed to access CodeChat.__file__; not importing this, but using the
@@ -46,15 +44,8 @@ else:
     import CodeChat.CodeToRest as CodeToRest
 
 
-# Determine if we're frozen with Pyinstaller or not.
-if getattr(sys, 'frozen', False):
-    isFrozen = True
-else:
-    isFrozen = False
-
-
 def copyTemplateFile(errors, source, templateFileName, dest, newName=None):
-    """For each sphinx project, two files are needed: ``index.rst``as master
+    """For each sphinx project, two files are needed: ``index.rst`` as master
     document, and ``conf.py`` as sphinx configuration file. Given a file with
     ``templateFileName``, it will be copied to destination directory ``dest``.
     If any error occurs during copy operation, error information will
