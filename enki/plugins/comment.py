@@ -97,9 +97,14 @@ class Plugin(QObject):
         else:
             action = impl.comment
 
-        minIndent = min([len(line) - len(line.lstrip())
-                         for line in lines[start:end+1]])
+        try:
+            minIndent = min([len(line) - len(line.lstrip())
+                             for line in lines[start:end+1]
+                             if line.strip()])
+        except ValueError:  # all lines are empty
+            return
 
         with(document.qutepart):
             for index in range(start, end + 1):
-                lines[index] = action(minIndent, lines[index])
+                if lines[index].strip():  # if not empty
+                    lines[index] = action(minIndent, lines[index])
