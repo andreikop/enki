@@ -85,11 +85,17 @@ class Plugin(QObject):
 
     def _onTriggered(self):
         document = core.workspace().currentDocument()
+        lines = document.qutepart.lines
+
         (selLine, selCol), (curLine, curCol) = document.qutepart.selectedPosition
+
+        if curCol == 0:  # no any characters selected in the last line
+            curLine -= 1
+            curCol = len(lines[curLine])
+
         start = min(selLine, curLine)
         end = max(selLine, curLine)
 
-        lines = document.qutepart.lines
         impl = commentImplementations[document.qutepart.language()]()
 
         if impl.isCommented(lines[start]):
@@ -108,3 +114,5 @@ class Plugin(QObject):
             for index in range(start, end + 1):
                 if lines[index].strip():  # if not empty
                     lines[index] = action(minIndent, lines[index])
+
+        document.qutepart.selectedPosition = (selLine, 0), (curLine, len(lines[curLine]))
