@@ -7,10 +7,10 @@ PACKAGE_NAME = "Enki"
 PACKAGE_ORGANISATION = "Andrei Kopats"
 PACKAGE_URL = "https://enki-editor.org"
 PACKAGE_VERSION = "15.11.1"
-PACKAGE_COPYRIGHTS = "(C) 2015 Andrei KOPATS"
+PACKAGE_COPYRIGHTS = "(C) 2016 Andrei KOPATS"
 
-QUTEPART_SUPPORTED_MAJOR = 2
-QUTEPART_SUPPORTED_MINOR = 2
+QUTEPART_SUPPORTED_MAJOR = 3
+QUTEPART_SUPPORTED_MINOR = 0
 
 # Choose base config dir according to http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
 if os.environ.get('XDG_CONFIG_HOME', ''):  # if set and not empty
