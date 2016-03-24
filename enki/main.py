@@ -117,10 +117,6 @@ def _checkDependencies(profiler):
         _showErrorMessage(False, 'PyQt5 not found', plain, plain)
         raise ex
 
-    import sip
-    sip.setapi('QString', 2)
-    sip.setapi('QVariant', 2)
-
     profiler.stepDone('Import PyQt5')
 
     try:
