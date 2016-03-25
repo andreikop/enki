@@ -98,7 +98,9 @@ class Plugin(QObject):
 
         impl = commentImplementations[document.qutepart.language()]()
 
-        if impl.isCommented(lines[start]):
+        if all([impl.isCommented(line)
+                for line in lines[start:end]
+                if line.strip()]):
             action = impl.uncomment
         else:
             action = impl.comment
