@@ -18,13 +18,13 @@ Source0:        https://github.com/hlamer/%{name}/archive/v%{version}.tar.gz#/%{
 BuildArch:      noarch
 
 BuildRequires:  desktop-file-utils
-BuildRequires:  python-setuptools
-BuildRequires:  python-qutepart >= 2.2
-Requires:       python >= 2.7
-Requires:       python-markdown
-Requires:       python-qutepart >= 2.2
-Requires:       python-docutils
-Requires:       python-regex
+BuildRequires:  python3-setuptools
+BuildRequires:  python3-qutepart >= 2.2
+Requires:       python3
+Requires:       python3-markdown
+Requires:       python3-qutepart >= 2.2
+Requires:       python3-docutils
+Requires:       python3-regex
 Requires:       ctags
 Requires:       libqt5svg
 
@@ -33,8 +33,8 @@ Requires:       libqt5svg
 BuildRequires:  PyQt5
 Requires:       PyQt5
 %else
-BuildRequires:  python-qt5
-Requires:       python-qt5
+BuildRequires:  python3-qt5
+Requires:       python3-qt5
 %endif
 
 %description
