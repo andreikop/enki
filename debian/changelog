@@ -1,3 +1,11 @@
+enki (16.04.0-1~ubuntuseries1) ubuntuseries; urgency=medium
+
+  * Migration to Python3 and Qt5
+  * Show and prioritize open files in Locator
+  * (Un)comment lines functionality
+
+ -- Andrei Kopats <hlamer@tut.by>  Fri, 25 Mar 2016 10:00:09 +0300
+
 enki (15.11.1-1~ubuntuseries1) ubuntuseries; urgency=medium
 
   * GUI fixes for Fedora and Windows

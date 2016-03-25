@@ -5,7 +5,7 @@
 %global icon_cache_gtk_update /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 Name:           enki
-Version:        15.11.1
+Version:        16.04.0
 Release:        5%{?dist}
 Summary:        Advanced text editor for programmers
 Group:          Productivity/Text/Editors
@@ -105,6 +105,12 @@ fi
 
 
 %changelog
+
+* Fri Mar 25 2016 Andrei Kopats <hlamer@tut.by> 16.04.0-16
+ - Migration to Python3 and Qt5
+ - Show and prioritize open files in Locator
+ - (Un)comment lines functionality
+
 * Mon Jan 11 2016 Andrei Kopats <hlamer@tut.by> 15.11.1-15
  - GUI fixes for Fedora
 
