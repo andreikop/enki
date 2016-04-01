@@ -89,17 +89,30 @@ class Plugin(QObject):
 
         (selLine, selCol), (curLine, curCol) = document.qutepart.selectedPosition
 
-        if curCol == 0:  # no any characters selected in the last line
-            curLine -= 1
-            curCol = len(lines[curLine])
+        if (selLine, selCol) == (curLine, curCol):  # no any selection, modify current line
+            start = selLine
+            end = selLine
+            singleLine = True
+        else:
+            if (selLine, selCol) > (curLine, curCol):
+                selLine, selCol, curLine, curCol = curLine, curCol, selLine, selCol
+                swapped = True
+            else:
+                swapped = False
 
-        start = min(selLine, curLine)
-        end = max(selLine, curLine)
+            if curCol == 0:  # no any characters selected in the last line
+                curLine -= 1
+                curCol = len(lines[curLine])
+
+            start = min(selLine, curLine)
+            end = max(selLine, curLine)
+
+            singleLine = False
 
         impl = commentImplementations[document.qutepart.language()]()
 
         if all([impl.isCommented(line)
-                for line in lines[start:end]
+                for line in lines[start:end + 1]
                 if line.strip()]):
             action = impl.uncomment
         else:
@@ -117,4 +130,8 @@ class Plugin(QObject):
                 if lines[index].strip():  # if not empty
                     lines[index] = action(minIndent, lines[index])
 
-        document.qutepart.selectedPosition = (selLine, 0), (curLine, len(lines[curLine]))
+        if not singleLine:
+            if swapped:
+                document.qutepart.selectedPosition = (curLine, len(lines[curLine])), (selLine, 0)
+            else:
+                document.qutepart.selectedPosition = (selLine, 0), (curLine, len(lines[curLine]))
