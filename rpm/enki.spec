@@ -19,10 +19,10 @@ BuildArch:      noarch
 
 BuildRequires:  desktop-file-utils
 BuildRequires:  python3-setuptools
-BuildRequires:  python3-qutepart >= 2.2
+BuildRequires:  python3-devel
 Requires:       python3
 Requires:       python3-markdown
-Requires:       python3-qutepart >= 2.2
+Requires:       python3-qutepart >= 3.0
 Requires:       python3-docutils
 Requires:       python3-regex
 Requires:       ctags
@@ -60,11 +60,11 @@ Enki is an advanced text editor for programmers. It is:
 
 
 %build
-%{__python} setup.py build
+python3 setup.py build
 
 
 %install
-%{__python} setup.py install --force --skip-build --prefix=%{_prefix} --root %{buildroot}
+python3 setup.py install --force --skip-build --prefix=%{_prefix} --root %{buildroot}
 
 
 %check
@@ -74,7 +74,7 @@ desktop-file-validate %{buildroot}%{_desktopdir}/%{name}.desktop
 %files
 %defattr(-,root,root)
 %doc LICENSE.GPL2 README.md ChangeLog
-%{python_sitelib}/%{name}*
+%{python3_sitelib}/*
 %{_iconsbasedir}/*/apps/%{name}.*
 %{_datarootdir}/pixmaps/%{name}.png
 %{_desktopdir}/%{name}.desktop

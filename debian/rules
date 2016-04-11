@@ -9,7 +9,7 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-WITH_PYTHON2 = $(shell test -f /usr/bin/dh_python2 && echo "--with python2")
+export DH_VERBOSE=1
 
 %:
-	dh $@ ${WITH_PYTHON2}
+	dh $@ --with python3 --buildsystem=pybuild

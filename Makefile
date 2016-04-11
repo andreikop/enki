@@ -45,10 +45,10 @@ deb-obs: dist/${ARCHIVE}
 	cd ${DEB_BUILD_DIR}/${PACKAGE_NAME}-${VERSION} && $(ENV) debuild -us -uc -S
 
 ${OBS_REPO_DIR}:
-	rm -rf home:hlamer:enki
-	osc co home:hlamer:enki enki
+	rm -rf home:hlamer:enki-rc
+	osc co home:hlamer:enki-rc enki
 	mkdir -p build
-	mv home\:hlamer\:enki ${OBS_REPO_DIR}
+	mv home:hlamer:enki-rc ${OBS_REPO_DIR}
 
 put-obs: ${OBS_REPO_DIR} deb-obs
 	rm -f ${OBS_REPO_DIR}/enki/*

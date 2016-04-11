@@ -109,10 +109,12 @@ for loader, name, ispkg in pkgutil.iter_modules(['enki/plugins']):
 script = 'bin/enki-editor.pyw' if platform.system() == 'Windows' else 'bin/enki'
 
 if __name__ == '__main__':
+    """ Dependency checking is disabled for Debian builds
     if 'install' in sys.argv:
         if '--force' not in sys.argv and '--help' not in sys.argv:
             if not _checkDependencies():
                 sys.exit(-1)
+    """
 
     setup(name=PACKAGE_NAME.lower(),
           version=PACKAGE_VERSION,
