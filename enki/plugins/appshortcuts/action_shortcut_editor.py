@@ -125,9 +125,9 @@ class ActionShortcutEditor(QDialog):
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'ActionShortcutEditor.ui'), self)
         self.leFilter.setPromptText("Text filter...")
         self.tvActions.setModel(self._proxy)
-        self.tvActions.header().setResizeMode(0, QHeaderView.Stretch)
-        self.tvActions.header().setResizeMode(1, QHeaderView.ResizeToContents)
-        self.tvActions.header().setResizeMode(2, QHeaderView.ResizeToContents)
+        self.tvActions.header().setSectionResizeMode(0, QHeaderView.Stretch)
+        self.tvActions.header().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        self.tvActions.header().setSectionResizeMode(2, QHeaderView.ResizeToContents)
         self.tvActions.expandAll()
 
         # connections
