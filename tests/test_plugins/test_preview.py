@@ -38,7 +38,7 @@ from enki.core.uisettings import UISettings
 # ``reload(enki.plugins.preview)``; the last, to instiantate ``SettingsWidget``.
 import enki.plugins.preview
 from enki.plugins.preview import CodeChatSettingsWidget, SphinxSettingsWidget
-from import_fail import ImportFail
+from .import_fail import ImportFail
 from enki.plugins.preview import _getSphinxVersion
 
 
@@ -815,7 +815,7 @@ head
 #
 # :doc:`missing.file`"""
         webViewContent, logContent = self._doBasicSphinxTest('py')
-        self.assertTrue('<span class="pre">missing.file</span>' in webViewContent)
+        self.assertTrue('<span class="xref doc">missing.file</span>' in webViewContent)
         self.assertTrue('unknown document: missing.file' in logContent)
         core.config()['Sphinx']['Enabled'] = False
         core.uiSettingsManager().dialogAccepted.emit()

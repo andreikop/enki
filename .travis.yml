@@ -1,0 +1,65 @@
+# *************************************
+# .travis.yml - Travis CI configuration
+# *************************************
+#
+# Otherwise, we get errors. See https://docs.travis-ci.com/user/ci-environment/#Virtualization-environments.
+sudo: required
+
+# See https://docs.travis-ci.com/user/multi-os/.
+os: linux
+# See https://docs.travis-ci.com/user/languages/python.
+language: python
+# We only support Python 3.
+python:
+  - 3.3
+  - 3.4
+  - 3.5
+
+# See https://docs.travis-ci.com/user/customizing-the-build/#Build-Matrix. This
+# manually includes additional OS X tests to the matrix of Linux tests defined
+# above.
+matrix:
+  include:
+  # Remove other OS X tests until the first one passes.
+  ##- os: osx
+  ##  # Since OS X doesn't natively support Python, use some workarounds (see
+  ##  # ``tests/qutepart_travis.py`` for details).
+  ##  language: generic
+  ##  # See https://docs.travis-ci.com/user/environment-variables/#Defining-Variables-in-.travis.yml.
+  ##  # Note that pyenv requres a full version specifier; selecting only 3.3
+  ##  # produces an error: ``python-build: definition not found: 3.3``.
+  ##  env: PYTHON=3.3.6
+  ## - os: osx
+  ##   language: generic
+  ##   env: PYTHON=3.4.4
+  ## - os: osx
+  ##   language: generic
+  ##   env: PYTHON=3.5.1
+
+  # See https://docs.travis-ci.com/user/customizing-the-build/#Rows-that-are-Allowed-to-Fail
+  allow_failures:
+  - os: osx
+    language: generic
+    env: PYTHON=3.3.6
+
+# Travis complains if tests are run during install, or if installation is done
+# during script (the tests). So, break the script into two pieces.
+install:
+  # OS X setup depends on scripts in qutepart, so clone it first.
+  - git clone https://github.com/hlamer/qutepart.git
+  # Install Python for OS X, since it's not provided by the Travis environment.
+  # It must be ``source``\ ed, so that the following commands run in the Python
+  # virtual environment this creates.
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source qutepart/tests/ci/osx_python_install.sh; fi
+  # Install dependencies needed by the CI script.
+  - python -m pip install -U -r qutepart/tests/ci/requirements.txt
+  # Use a python script to do all the heavy lifting.
+  - python tests/ci.py install
+
+script: python tests/ci.py test
+
+cache:
+  directories:
+    - /downloads
+  apt: true
+
