@@ -26,16 +26,8 @@ Requires:       python3-qutepart >= 3.0
 Requires:       python3-docutils
 Requires:       python3-regex
 Requires:       ctags
-Requires:       libqt5svg
-
-
-%if 0%{?fedora_version}
-BuildRequires:  PyQt5
-Requires:       PyQt5
-%else
-BuildRequires:  python3-qt5
+Requires:       qt5-qtsvg
 Requires:       python3-qt5
-%endif
 
 %description
 Enki is an advanced text editor for programmers. It is:
@@ -60,11 +52,11 @@ Enki is an advanced text editor for programmers. It is:
 
 
 %build
-python3 setup.py build
+/usr/bin/python3 setup.py build
 
 
 %install
-python3 setup.py install --force --skip-build --prefix=%{_prefix} --root %{buildroot}
+/usr/bin/python3 setup.py install --force --skip-build --prefix=%{_prefix} --root %{buildroot}
 
 
 %check
