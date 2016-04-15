@@ -135,15 +135,29 @@ def _convertReST(text):
     docutilsHtmlWriterPath = os.path.abspath(os.path.dirname(
       docutils.writers.html4css1.__file__))
     settingsDict = {
-      # Make sure to use Unicode everywhere.
+      # Make sure to use Unicode everywhere. This name comes from
+      # ``docutils.core.publish_string`` version 0.12, lines 392 and following.
       'output_encoding': 'unicode',
-      'input_encoding' : 'unicode',
+      # While ``unicode`` **should** work for ``input_encoding``, it doesn't if
+      # there's an ``.. include`` directive, since this encoding gets passed to
+      # ``docutils.io.FileInput.__init__``, in which line 236 of version 0.12
+      # tries to pass the ``unicode`` encoding to ``open``, producing:
+      #
+      # .. code:: python3
+      #    :number-lines:
+      #
+      #    File "...\python-3.4.4\lib\site-packages\docutils\io.py", line 236, in __init__
+      #      self.source = open(source_path, mode, **kwargs)
+      #    LookupError: unknown encoding: unicode
+      #
+      # So, use UTF-8 and encode the string first. Ugh.
+      'input_encoding' : 'utf-8',
       # Don't stop processing, no matter what.
       'halt_level'     : 5,
       # Capture errors to a string and return it.
       'warning_stream' : errStream,
       # On some Windows PC, docutils will complain that it can't find its
-      # template or stylesheet. On other Windows PC with the same setup, it
+      # template or stylesheet. On other Windows PCs with the same setup, it
       # works fine. ??? So, specify a path to both here.
       'template': (
         os.path.join(docutilsHtmlWriterPath,
@@ -154,8 +168,8 @@ def _convertReST(text):
           os.path.realpath(__file__))), 'rst_templates')),
       'stylesheet_path' : 'default.css',
       }
-    htmlString = docutils.core.publish_string(text, writer_name='html',
-      settings_overrides=settingsDict)
+    htmlString = docutils.core.publish_string(bytes(text, encoding='utf-8'),
+      writer_name='html', settings_overrides=settingsDict)
     errString = errStream.getvalue()
     errStream.close()
     return htmlString, errString

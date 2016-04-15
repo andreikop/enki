@@ -1139,6 +1139,17 @@ head
         with open(path, 'r', encoding='utf-8') as f:
             self.assertIn(self.testText, f.read())
 
+    @base.requiresModule('docutils')
+    @base.inMainLoop
+    def test_rst_include(self):
+        """Check that the .. include:: directive works."""
+        includeText = 'Unicode test: Енки'
+        self.createFile('inc.rst', includeText)
+        self.testText = '.. include:: inc.rst'
+        self._doBasicTest('rst')
+        with open('inc.rst', 'r', encoding='utf-8') as f:
+            self.assertIn(includeText, f.read())
+
 
 
 #
