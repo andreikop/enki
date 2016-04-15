@@ -1128,6 +1128,18 @@ head
         self.assertEqual(qp.text, "testing\n ")
         self.assertFalse(qp.document().isModified())
 
+    @base.requiresModule('markdown')
+    @base.inMainLoop
+    def test_preview_save(self):
+        """Save the HTML shown in the preview window."""
+        self.testText = 'Testing 1, 2, 3...'
+        self._doBasicTest('md')
+        path = os.path.join(self.TEST_FILE_DIR, 'test.html')
+        self._dock()._previewSave(path)
+        with open(path, 'r', encoding='utf-8') as f:
+            self.assertIn(self.testText, f.read())
+
+
 
 #
 # Main

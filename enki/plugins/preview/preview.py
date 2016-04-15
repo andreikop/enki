@@ -708,18 +708,19 @@ class PreviewDock(DockWidget):
         settings.setAttribute(settings.JavascriptEnabled, enabled)
 
     def onPreviewSave(self):
-        """Save contents of the preview"""
+        """Save contents of the preview pane to a user-specified file."""
         path, _ = QFileDialog.getSaveFileName(self, 'Save Preview as HTML', filter='HTML (*.html)')
         if path:
-            text = self._widget.webView.page().mainFrame().toHtml()
-            data = text.encode('utf8')
-            try:
-                # Andrei: Shouldn't this be wb, since utf8 can produce binary data
-                # where \n is different than \r\n?
-                with open(path, 'w') as openedFile:
-                    openedFile.write(data)
-            except (OSError, IOError) as ex:
-                QMessageBox.critical(self, "Failed to save HTML", str(ex))
+            self._previewSave(path)
+
+    def _previewSave(self, path):
+        """Save contents of the preview pane to the file given by path."""
+        text = self._widget.webView.page().mainFrame().toHtml()
+        try:
+            with open(path, 'w', encoding='utf-8') as openedFile:
+                openedFile.write(text)
+        except (OSError, IOError) as ex:
+            QMessageBox.critical(self, "Failed to save HTML", str(ex))
 
     # HTML generation
     #----------------
