@@ -97,6 +97,7 @@ class Plugin(QObject):
             start = selLine
             end = selLine
             singleLine = True
+            rightIndex = len(lines[selLine]) - selCol  # to restore cursor position
         else:
             if (selLine, selCol) > (curLine, curCol):
                 selLine, selCol, curLine, curCol = curLine, curCol, selLine, selCol
@@ -134,7 +135,9 @@ class Plugin(QObject):
                 if lines[index].strip():  # if not empty
                     lines[index] = action(minIndent, lines[index])
 
-        if not singleLine:
+        if singleLine:
+            document.qutepart.cursorPosition = (start, len(lines[start]) - rightIndex)
+        else:
             if swapped:
                 document.qutepart.selectedPosition = (curLine, len(lines[curLine])), (selLine, 0)
             else:
