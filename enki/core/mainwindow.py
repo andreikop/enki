@@ -154,7 +154,7 @@ class MainWindow(QMainWindow):
             del self._queuedMessageToolBar
 
         for act in self._createdActions:
-            core.actionManager().removeAction(act, False)
+            core.actionManager().removeAction(act)
         for menuPath in self._createdMenuPathes[::-1]:
             core.actionManager().removeMenu(menuPath)
 

@@ -135,10 +135,10 @@ class ActionManager(QObject):
 
         return action
 
-    def removeAction(self, pathOrAction, removeEmptyPath=False):
+    def removeAction(self, pathOrAction):
         """Remove action from the menu
         """
-        return self.removeMenu(pathOrAction, removeEmptyPath)
+        return self.removeMenu(pathOrAction)
 
     def addMenu(self, path, text, icon=QIcon()):
         """Add menu to the main menu or submenu of main menu
@@ -177,7 +177,7 @@ class ActionManager(QObject):
 
         return action
 
-    def removeMenu(self, action, removeEmptyPath=False):
+    def removeMenu(self, action):
         """Remove menu.
         If removeEmptyPath is True - remove also empty parent menus
         """
@@ -186,9 +186,6 @@ class ActionManager(QObject):
         assert action is not None
 
         self._removeAction(action)
-
-        if removeEmptyPath:
-            self._removeCompleteEmptyPathNode(parentAction)
 
         return True
 
