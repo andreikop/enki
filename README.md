@@ -69,4 +69,3 @@ Don't forget to send a bug report if you are having some problems
 [enki-editor@googlegroups.com](mailto:enki-editor@googlegroups.com)
 
 [hlamer@tut.by](mailto:hlamer@tut.by)
-
