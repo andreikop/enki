@@ -11,6 +11,8 @@ from PyQt5.QtCore import pyqtSignal, QObject, pyqtSlot
 from PyQt5.QtWidgets import QMenu, QMenuBar, QAction
 from PyQt5.QtGui import QIcon, QKeySequence
 
+from enki.core.core import core
+
 
 class ActionMenuBar(QMenuBar):
     """Menu bar implementation.
@@ -131,6 +133,11 @@ class ActionManager(QObject):
 
         action.changed.connect(self._onActionChanged)
 
+        """ On Ubuntu 14.04 keyboard shortcuts doesn't work without this line
+        http://stackoverflow.com/questions/23916623/
+            qt5-doesnt-recognised-shortcuts-unless-actions-are-added-to-a-toolbar
+        """
+        core.mainWindow().addAction(action)
         self.actionInserted.emit(action)
 
         return action
@@ -200,6 +207,8 @@ class ActionManager(QObject):
         del self._pathToAction[path]
         action.changed.disconnect(self._onActionChanged)
         action.setParent(None)
+
+        core.mainWindow().removeAction(action)
 
         self.actionRemoved.emit(action)
 

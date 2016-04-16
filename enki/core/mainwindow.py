@@ -132,12 +132,7 @@ class MainWindow(QMainWindow):
 
         # Create menu bar
         self._menuBar = ActionMenuBar(self, core.actionManager())
-
         self._initMenubarAndStatusBarLayout()
-
-        self._createMenuStructure()
-
-        core.actionManager().action('mView/aOpenMainMenu').triggered.connect(self._openMainMenu)
 
         # create central layout
         widget = QWidget(self)
@@ -145,6 +140,12 @@ class MainWindow(QMainWindow):
         self._centralLayout.setContentsMargins(0, 0, 0, 0)
         self.setCentralWidget(widget)
         self.setStyleSheet('QMainWindow::separator{width: 4px}')
+
+    def _initActions(self):
+        """ Public method for actionManager. """
+
+        self._createMenuStructure()
+        core.actionManager().action('mView/aOpenMainMenu').triggered.connect(self._openMainMenu)
 
     def terminate(self):
         """Explicitly called destructor

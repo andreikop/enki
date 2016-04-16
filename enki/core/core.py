@@ -102,6 +102,7 @@ class Core(QObject):
         import enki.core.mainwindow  # pylint: disable=W0621,W0404
         self._mainWindow = enki.core.mainwindow.MainWindow()
         profiler.stepDone('create main window')
+        self._mainWindow._initActions()
 
         self._config = self._createConfig()
         profiler.stepDone('create config')
