@@ -21,13 +21,20 @@ BuildRequires:  desktop-file-utils
 BuildRequires:  python3-setuptools
 BuildRequires:  python3-devel
 Requires:       python3
-Requires:       python3-markdown
 Requires:       python3-qutepart >= 3.0
 Requires:       python3-docutils
-Requires:       python3-regex
-Requires:       ctags
-Requires:       qt5-qtsvg
 Requires:       python3-qt5
+Requires:       ctags
+
+%if 0%{?suse_version}
+Requires:       python3-Markdown
+Requires:       libQt5Svg5
+%else
+Requires:       python3-markdown
+Requires:       python3-regex
+Requires:       qt5-qtsvg
+%endif
+
 
 %description
 Enki is an advanced text editor for programmers. It is:
