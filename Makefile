@@ -9,7 +9,10 @@ ENV=DEBFULLNAME="$(AUTHOR)" DEBEMAIL=$(AUTHOR_EMAIL) EDITOR=enki
 DEBIGAN_ORIG_ARCHIVE=${PACKAGE_NAME}_${VERSION}.orig.tar.gz
 
 DEB_BUILD_DIR=build/deb
+
+OBS_REPO=home:hlamer:enki
 OBS_REPO_DIR=build/obs_home_hlamer_enki
+
 
 
 all install:
@@ -45,10 +48,10 @@ deb-obs: dist/${ARCHIVE}
 	cd ${DEB_BUILD_DIR}/${PACKAGE_NAME}-${VERSION} && $(ENV) debuild -us -uc -S
 
 ${OBS_REPO_DIR}:
-	rm -rf home:hlamer:enki-rc
-	osc co home:hlamer:enki-rc enki
+	rm -rf ${OBS_REPO}
+	osc co ${OBS_REPO} enki
 	mkdir -p build
-	mv home:hlamer:enki-rc ${OBS_REPO_DIR}
+	mv ${OBS_REPO} ${OBS_REPO_DIR}
 
 put-obs: ${OBS_REPO_DIR} deb-obs
 	rm -f ${OBS_REPO_DIR}/enki/*
