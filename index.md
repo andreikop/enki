@@ -42,7 +42,7 @@ baseurl: .
             </a>
 
             <a href="http://software.opensuse.org/download.html?project=home%3Ahlamer%3Aenki&amp;package=enki" class="download-button">
-                <table>
+                <table valign="center">
                     <tr>
                         <td>
                             <img src="../img/debian.png" width="48" height="48"/>
