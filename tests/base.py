@@ -27,10 +27,10 @@ import PyQt5.QtWebEngineWidgets  # noqa: F401
 papp = QApplication(sys.argv)
 
 import qutepart
-from enki.widgets.dockwidget import DockWidget
 import enki.core.defines
 enki.core.defines.CONFIG_DIR = tempfile.gettempdir()
 from enki.core.core import core
+from enki.widgets.dockwidget import DockWidget
 
 logging.basicConfig(level=logging.ERROR)
 logging.getLogger('qutepart').removeHandler(qutepart.consoleHandler)
