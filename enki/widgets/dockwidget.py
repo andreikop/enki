@@ -8,13 +8,14 @@ This class adds next features to QDockWidget:
     * title bar contains QToolBar
 """
 
+import os.path
 from PyQt5.QtCore import pyqtSignal, QSize, Qt
 from PyQt5.QtWidgets import QAction, QDockWidget, \
     QShortcut, QSizePolicy, QStyle, \
-    QStyleOptionButton, QToolBar, QWidget, QToolButton, QPixmap
+    QStyleOptionButton, QToolBar, QWidget, QToolButton
 from PyQt5.QtGui import QFontMetrics, QIcon, \
     QKeySequence, QPainter, \
-    QTransform
+    QTransform, QPixmap
 from enki.core.core import core
 
 
