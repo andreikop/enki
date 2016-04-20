@@ -16,7 +16,14 @@ from PyQt5.QtCore import QAbstractItemModel, \
     QMimeData, \
     QModelIndex, \
     QObject, \
-    Qt, QPoint, QItemSelection, pyqtSlot, QEvent, QObject, QTimer
+    Qt, \
+    QPoint, \
+    QItemSelection, \
+    QItemSelectionModel, \
+    pyqtSlot, \
+    QEvent, \
+    QObject, \
+    QTimer
 from PyQt5.QtWidgets import QAbstractItemView, \
     QMenu, \
     QMessageBox, \
@@ -43,6 +50,7 @@ class _OpenedFileModel(QAbstractItemModel):
         self._workspace.documentOpened.connect(self._onDocumentOpened)
         self._workspace.documentClosed.connect(self._onDocumentClosed)
         self._workspace.modificationChanged.connect(self._onDocumentDataChanged)
+        self._MRU = True
 
     def columnCount(self, parent):  # pylint: disable=W0613
         """See QAbstractItemModel documentation"""
@@ -238,14 +246,33 @@ class _OpenedFileModel(QAbstractItemModel):
 
         return QModelIndex()
 
-    def sortDocuments(self):
+    def sortDocuments(self, openedDocument=None):
         """Sort documents list according to current sort mode"""
+
         sortedDocuments = self._workspace.sortedDocuments
-        if not self._manuallySorted:
+        if self._MRU:
+            # Newly-opened documents aren't yet the currentDocument, so we must
+            # use that if supplied.
+            cd = openedDocument or self._workspace.currentDocument()
+            # When the last document is closed, it's been removed from
+            # sortedDocuments, but self._workspace.currentDocument() hasn't been
+            # updated yet. Avoid this case.
+            if cd in sortedDocuments:
+                # Move this document to the beginning of the list.
+                numericIndex = sortedDocuments.index(cd)
+                sortedDocuments.insert(0, sortedDocuments.pop(numericIndex))
+        elif not self._manuallySorted:
             sortedDocuments = sorted(sortedDocuments,
                                      key=lambda d: d.filePath() or '')
-        self.rebuildMapping(self._workspace.sortedDocuments, sortedDocuments)
-        # scroll the view
+        self.rebuildMapping(sortedDocuments, sortedDocuments)
+
+        # Scroll the view. In MRU mode, correct the selected index, since
+        # rebuildMapping will corrupt it. If a document was just opened, avoid
+        # this since its Qutepart widget hasn't been added to the list of opened
+        # widgets, causing errors such as "QStackedWidget::setCurrentWidget:
+        # widget 0x4b48be8 not contained in stack" if the code below runs.
+        if self._MRU and not openedDocument:
+            QObject.parent(self).tvFiles.setCurrentIndex(self.createIndex(0, 0, cd))
         selected = QObject.parent(self).tvFiles.selectionModel().selectedIndexes()
         if selected:
             QObject.parent(self).tvFiles.scrollTo(selected[0])
@@ -295,7 +322,7 @@ class _OpenedFileModel(QAbstractItemModel):
         self.beginInsertRows(QModelIndex(), index, index)
         self._workspace.sortedDocuments.append(document)
         self.endInsertRows()
-        self.sortDocuments()
+        self.sortDocuments(document)
         document.documentDataChanged.connect(self._onDocumentDataChanged)
 
     @pyqtSlot()
@@ -326,6 +353,7 @@ class _OpenedFileModel(QAbstractItemModel):
         self._workspace.sortedDocuments.remove(document)
         self.endRemoveRows()
         QObject.parent(self).finishModifyModel()
+        self.sortDocuments()
 
 
 class OpenedFileExplorer(DockWidget):
@@ -452,8 +480,11 @@ class OpenedFileExplorer(DockWidget):
         # unlikely to be the menu item.
         if QApplication.instance().keyboardModifiers() & Qt.ControlModifier:
             self._waitForCtrlRelease = True
-            if not self.isPinned():
-                self.show()
+            self.show()
+        else:
+            # If this was a menu selection, then update the MRU list. We can't
+            # do this now, since the current document hasn't been changed yet.
+            QTimer.singleShot(0, self.model.sortDocuments)
 
     def eventFilter(self, obj, event):
         """An event filter that looks for ctrl key releases and focus out
@@ -462,7 +493,12 @@ class OpenedFileExplorer(DockWidget):
         if ( self._waitForCtrlRelease and event.type() == QEvent.KeyRelease and
           event.key() == Qt.Key_Control and
           event.modifiers() == Qt.NoModifier):
+            self.model.sortDocuments()
             self._waitForCtrlRelease = False
             if not self.isPinned():
                 self.hide()
+        # Look for a focus out event sent by the containing widget's focus
+        # proxy.
+        if event.type() == QEvent.FocusOut and obj == self.focusProxy():
+            self.model.sortDocuments()
         return QObject.eventFilter(self, obj, event)
