@@ -452,7 +452,8 @@ class OpenedFileExplorer(DockWidget):
         # unlikely to be the menu item.
         if QApplication.instance().keyboardModifiers() & Qt.ControlModifier:
             self._waitForCtrlRelease = True
-            self.show()
+            if not self.isPinned():
+                self.show()
 
     def eventFilter(self, obj, event):
         """An event filter that looks for ctrl key releases and focus out
