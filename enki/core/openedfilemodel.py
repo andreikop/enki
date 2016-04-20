@@ -464,8 +464,4 @@ class OpenedFileExplorer(DockWidget):
             self._waitForCtrlRelease = False
             if not self.isPinned():
                 self.hide()
-        # Look for a focus out event sent by the containing widget's focus
-        # proxy.
-        if event.type() == QEvent.FocusOut and obj == self.focusProxy():
-            self._moveToTop()
         return QObject.eventFilter(self, obj, event)
