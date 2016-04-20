@@ -907,7 +907,7 @@ class PreviewDock(DockWidget):
 
         # For testing, check for test-provided button presses
         if ((len(self._sphinxTemplateCheckIgnoreList) == 1) and
-                isinstance(self._sphinxTemplateCheckIgnoreList[0], int)):
+                isinstance(self._sphinxTemplateCheckIgnoreList[0], QMessageBox.StandardButton)):
             res = self._sphinxTemplateCheckIgnoreList[0]
         else:
             res = QMessageBox.warning(
