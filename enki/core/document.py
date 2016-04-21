@@ -559,7 +559,10 @@ class Document(QWidget):
         if (event.type() == QEvent.FocusIn and
           (obj == self or obj == self.focusProxy()) ):
             for dock in core.mainWindow().findChildren(DockWidget):
-                if not dock.isPinned():
+                # Close all unpinned docks. The exception: if the Open Files 
+                # dock is waiting for the Ctrl button to be released, keep it 
+                # open; it will be be closed when Ctrl is released.
+                if not dock.isPinned() and (not getattr(dock, '_waitForCtrlRelease', False)):
                     dock._close()
 
         return QWidget.eventFilter(self, obj, event)
