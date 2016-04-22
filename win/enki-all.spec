@@ -28,7 +28,7 @@ enki_a = Analysis(['../bin/enki'],
   pathex=['.'],
   hiddenimports=[],
   hookspath=['win'],
-  runtime_hooks=['win/rthook_pyqt4.py'],
+  runtime_hooks=[],
   excludes=['_tkinter'])
 
 sphinx_a = Analysis(['sphinx-build.py'],
