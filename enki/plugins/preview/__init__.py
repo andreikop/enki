@@ -19,7 +19,7 @@ import fnmatch
 # Third-party imports
 # -------------------
 from PyQt5.QtCore import QObject, Qt
-from PyQt5.QtWidgets import QAction, QWidget, QFileDialog
+from PyQt5.QtWidgets import QAction, QWidget, QFileDialog, QLabel
 from PyQt5.QtGui import QIcon, QKeySequence, QPalette
 from PyQt5 import uic
 #
@@ -28,6 +28,8 @@ from PyQt5 import uic
 from enki.core.core import core
 from enki.core.uisettings import CheckableOption, TextOption, ChoiseOption
 from enki.lib.get_console_output import get_console_output
+from enki.widgets.dockwidget import DockWidget
+
 
 # Import CodeChat if possible; otherwise, indicate it wasn't available.
 try:
@@ -361,6 +363,24 @@ class SphinxSettingsWidget(QWidget):
             self.lbSphinxReference.setVisible(False)
 
 
+class NoWebkitDock(DockWidget):
+    def __init__(self):
+        DockWidget.__init__(self, core.mainWindow(), "Previe&w", QIcon(':/enkiicons/internet.png'), "Alt+W")
+        self._widget = QLabel("Qt5 Webkit not found. Preview is not available.<br/>Install <i>python3-pyqt5.qtwebkit</i> package on Debian based distributions")
+        self.setFocusProxy(self._widget)
+        self.setWidget(self._widget)
+
+    def terminate(self):
+        pass
+
+
+try:
+    import PyQt5.QtWebKitWidgets
+    haveWebkit = True
+except ImportError:
+    haveWebkit = False
+
+
 # Plugin
 # ======
 # This class integrates the preview dock into Enki. Specifically, it:
@@ -441,7 +461,8 @@ class Plugin(QObject):
         if self._dock:
             self._dock.closed.disconnect(self._onDockClosed)
             self._dock.shown.disconnect(self._onDockShown)
-            self._saveAction.triggered.disconnect(self._dock.onPreviewSave)
+            if haveWebkit:
+                self._saveAction.triggered.disconnect(self._dock.onPreviewSave)
 
     def _onDocumentChanged(self):
         """Document or Language changed.
@@ -477,21 +498,25 @@ class Plugin(QObject):
         """
         # create dock
         if self._dock is None:
-            from enki.plugins.preview.preview import PreviewDock
-            self._dock = PreviewDock()
-            self._dock.closed.connect(self._onDockClosed)  # Disconnected.
-            self._dock.shown.connect(self._onDockShown)  # Disconnected.
+            if haveWebkit:
+                from enki.plugins.preview.preview import PreviewDock
+                self._dock = PreviewDock()
 
-            self._saveAction = QAction(QIcon(':enkiicons/save.png'),
-                                       'Save Preview as HTML', self._dock)
-            self._saveAction.setShortcut(QKeySequence("Alt+Shift+P"))
-            self._saveAction.triggered.connect(self._dock.onPreviewSave)  # Disconnected.
+                self._saveAction = QAction(QIcon(':enkiicons/save.png'),
+                                           'Save Preview as HTML', self._dock)
+                self._saveAction.setShortcut(QKeySequence("Alt+Shift+P"))
+                self._saveAction.triggered.connect(self._dock.onPreviewSave)  # Disconnected.
 
+                core.actionManager().addAction("mFile/aSavePreview", self._saveAction)
+            else:
+                self._dock = NoWebkitDock()
+
+        self._dock.closed.connect(self._onDockClosed)  # Disconnected.
+        self._dock.shown.connect(self._onDockShown)  # Disconnected.
         core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
 
         core.actionManager().addAction("mView/aPreview",
                                        self._dock.showAction())
-        core.actionManager().addAction("mFile/aSavePreview", self._saveAction)
         self._dockInstalled = True
         if core.config()['Preview']['Enabled']:
             self._dock.show()
@@ -513,8 +538,10 @@ class Plugin(QObject):
     def _removeDock(self):
         """Remove dock from GUI
         """
+        if haveWebkit:
+            core.actionManager().removeAction("mFile/aSavePreview")
+
         core.actionManager().removeAction("mView/aPreview")
-        core.actionManager().removeAction("mFile/aSavePreview")
         core.mainWindow().removeDockWidget(self._dock)
         self._dockInstalled = False
 
