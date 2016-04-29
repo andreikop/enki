@@ -70,8 +70,10 @@
 		<file>languages/tcl.png</file>
 		<file>languages/tex.png</file>
 		<file>less.png</file>
-		<file>logo/128x128</file>
-		<file>logo/128x128/enki.png</file>
+		<file>logo/16x16</file>
+		<file>logo/16x16/enki.png</file>
+		<file>logo/256x256</file>
+		<file>logo/256x256/enki.png</file>
 		<file>logo/32x32</file>
 		<file>logo/32x32/enki.png</file>
 		<file>logo/48x48</file>
