@@ -366,7 +366,9 @@ class SphinxSettingsWidget(QWidget):
 class NoWebkitDock(DockWidget):
     def __init__(self):
         DockWidget.__init__(self, core.mainWindow(), "Previe&w", QIcon(':/enkiicons/internet.png'), "Alt+W")
-        self._widget = QLabel("Qt5 Webkit not found. Preview is not available.<br/>Install <i>python3-pyqt5.qtwebkit</i> package on Debian based distributions")
+        self._widget = QLabel("Qt5 Webkit not found. Preview is not available.<br/>"
+                              "Install <i>python3-pyqt5.qtwebkit</i> package on Debian based distributions,"
+                              "<i>python3-qt5-webkit</i> on Fedora")
         self.setFocusProxy(self._widget)
         self.setWidget(self._widget)
 
