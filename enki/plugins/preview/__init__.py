@@ -508,10 +508,11 @@ class Plugin(QObject):
                                            'Save Preview as HTML', self._dock)
                 self._saveAction.setShortcut(QKeySequence("Alt+Shift+P"))
                 self._saveAction.triggered.connect(self._dock.onPreviewSave)  # Disconnected.
-
-                core.actionManager().addAction("mFile/aSavePreview", self._saveAction)
             else:
                 self._dock = NoWebkitDock()
+
+        if haveWebkit:
+            core.actionManager().addAction("mFile/aSavePreview", self._saveAction)
 
         self._dock.closed.connect(self._onDockClosed)  # Disconnected.
         self._dock.shown.connect(self._onDockShown)  # Disconnected.
