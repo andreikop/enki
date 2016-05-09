@@ -292,6 +292,7 @@ class _OpenedFileModel(QAbstractItemModel):
         self.sortDocuments()
         document.documentDataChanged.connect(self._onDocumentDataChanged)
 
+    @pyqtSlot()
     @pyqtSlot(Document)
     def _onDocumentDataChanged(self, document=None):
         """Document data has been changed. Update views
