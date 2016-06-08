@@ -8,6 +8,7 @@ About dialogue and *Help* menu items
 import os.path
 
 
+from PyQt5 import Qt
 from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QApplication, QDialog
 from PyQt5.QtGui import QIcon
@@ -63,8 +64,8 @@ class UIAbout(QDialog):
         qpartNumbers = '.'.join([str(item) for item in qutepart.VERSION])
         qpartParser = 'binary' if qutepart.binaryParserAvailable else 'Python'
         qpartVersion = '{} (with {} parser)'.format(qpartNumbers, qpartParser)
-        self.lVersion.setText(self.tr("Version %s\nUses Qutepart %s") %
-                              (PACKAGE_VERSION, qpartVersion))
+        self.lVersion.setText(self.tr("Version %s\n Qutepart %s\n Qt %s") %
+                              (PACKAGE_VERSION, qpartVersion, Qt.QT_VERSION_STR))
 
         tabs = {'about': self.wLogo,
                 'help': self.tbHelp,
