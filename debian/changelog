@@ -1,3 +1,10 @@
+enki (16.04.1-1~ubuntuseries1) ubuntuseries; urgency=medium
+
+  * Show Qt version
+  * Preview fixes
+
+ -- Andrei Kopats <hlamer@tut.by>  Wed, 15 Jun 2016 15:09:23 +0300
+
 enki (16.04.0-1~ubuntuseries1) ubuntuseries; urgency=medium
 
   * Migration to Python3 and Qt5
