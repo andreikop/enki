@@ -10,8 +10,10 @@ import os.path
 import traceback
 import logging
 import logging.handlers
-
 from optparse import OptionParser  # Replace with argparse, when python 2.6 is not supported
+
+# Avoid ``ImportError: QtWebEngineWidgets must be imported before a QCoreApplication instance is created``
+import PyQt5.QtWebEngineWidgets
 
 import enki.core.defines
 

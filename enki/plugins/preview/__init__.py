@@ -15,6 +15,7 @@
 import sys
 import os.path
 import fnmatch
+import types
 #
 # Third-party imports
 # -------------------
@@ -367,8 +368,7 @@ class NoWebkitDock(DockWidget):
     def __init__(self):
         DockWidget.__init__(self, core.mainWindow(), "Previe&w", QIcon(':/enkiicons/internet.png'), "Alt+W")
         self._widget = QLabel("Qt5 Webkit not found. Preview is not available.<br/>"
-                              "Install <i>python3-pyqt5.qtwebkit</i> package on Debian based distributions,"
-                              "<i>python3-qt5-webkit</i> on Fedora")
+                              "Run <tt>pip install PyQt5</tt>.")
         self.setFocusProxy(self._widget)
         self.setWidget(self._widget)
 
@@ -377,10 +377,12 @@ class NoWebkitDock(DockWidget):
 
 
 try:
-    import PyQt5.QtWebKitWidgets
-    haveWebkit = True
-except ImportError:
-    haveWebkit = False
+    # See if this supports the ``scrollPosition`` method introduced in Qt 5.7.
+    from PyQt5.QtWebEngineWidgets import QWebEnginePage
+    assert type(QWebEnginePage.scrollPosition) == types.BuiltinMethodType
+    haveWebEngine = True
+except (ImportError, AssertionError):
+    haveWebEngine = False
 
 
 # Plugin
@@ -463,7 +465,7 @@ class Plugin(QObject):
         if self._dock:
             self._dock.closed.disconnect(self._onDockClosed)
             self._dock.shown.disconnect(self._onDockShown)
-            if haveWebkit:
+            if haveWebEngine:
                 self._saveAction.triggered.disconnect(self._dock.onPreviewSave)
 
     def _onDocumentChanged(self):
@@ -500,7 +502,7 @@ class Plugin(QObject):
         """
         # create dock
         if self._dock is None:
-            if haveWebkit:
+            if haveWebEngine:
                 from enki.plugins.preview.preview import PreviewDock
                 self._dock = PreviewDock()
 
@@ -511,7 +513,7 @@ class Plugin(QObject):
             else:
                 self._dock = NoWebkitDock()
 
-        if haveWebkit:
+        if haveWebEngine:
             core.actionManager().addAction("mFile/aSavePreview", self._saveAction)
 
         self._dock.closed.connect(self._onDockClosed)  # Disconnected.
@@ -541,7 +543,7 @@ class Plugin(QObject):
     def _removeDock(self):
         """Remove dock from GUI
         """
-        if haveWebkit:
+        if haveWebEngine:
             core.actionManager().removeAction("mFile/aSavePreview")
 
         core.actionManager().removeAction("mView/aPreview")

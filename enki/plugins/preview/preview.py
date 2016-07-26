@@ -17,11 +17,11 @@ import codecs
 #
 # Third-party imports
 # -------------------
-from PyQt5.QtCore import (pyqtSignal, QSize, Qt, QThread, QTimer, QUrl,
+from PyQt5.QtCore import (pyqtSignal, Qt, QThread, QTimer, QUrl,
                           QEventLoop, QObject)
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QWidget
 from PyQt5.QtGui import QDesktopServices, QIcon, QPalette, QWheelEvent
-from PyQt5.QtWebKitWidgets import QWebPage
+from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
 from PyQt5 import uic
 #
 # Local imports
@@ -352,8 +352,21 @@ class SphinxConverter(QObject):
     def _stderr_read(self, stderr):
         self._stderr = stderr.read()
         self._qe.exit()
+#
+# QWebEngineView tweak
+# ====================
+# This class opens links in an external browser, instead of in the built-in browser.
+class QWebEnginePageExtLink(QWebEnginePage):
+    def acceptNavigationRequest(self, url, navigationType, isMainFrame):
+        res = QDesktopServices.openUrl(url)
+        if res:
+            core.mainWindow().statusBar().showMessage("{} opened in a browser".format(url.toString()), 2000)
+        else:
+            core.mainWindow().statusBar().showMessage("Failed to open {}".format(url.toString()), 2000)
 
-
+        # Tell the built-in browser not to handle this.
+        return False
+#
 # Core class
 # ==========
 class PreviewDock(DockWidget):
@@ -444,22 +457,28 @@ class PreviewDock(DockWidget):
         widget = QWidget(self)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Preview.ui'), widget)
         widget.layout().setContentsMargins(0, 0, 0, 0)
-        widget.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
-        widget.webView.page().linkClicked.connect(self._onLinkClicked)  # Disconnected.
+        # The Qt Designer doesn't support a QWebEngineView. Also, we need to
+        # add a subclass, which also isn't supported. Add it manually.
+        widget.webEngineView = QWebEngineView(widget)
+        widget.webView.layout().addWidget(widget.webEngineView)
+        # Use our custom subclass for the web page; use the web view as its
+        # parent.
+        webEnginePage = QWebEnginePageExtLink(widget.webEngineView)
+        widget.webEngineView.setPage(webEnginePage)
         # Fix preview palette. See https://github.com/bjones1/enki/issues/34
-        webViewPalette = widget.webView.palette()
-        webViewPalette.setColor(QPalette.Inactive, QPalette.HighlightedText,
-                                webViewPalette.color(QPalette.Text))
-        widget.webView.setPalette(webViewPalette)
+        webEngineViewPalette = widget.webEngineView.palette()
+        webEngineViewPalette.setColor(QPalette.Inactive, QPalette.HighlightedText,
+                                webEngineViewPalette.color(QPalette.Text))
+        widget.webEngineView.setPalette(webEngineViewPalette)
 
-        widget.webView.page().mainFrame().titleChanged.connect(
+        widget.webEngineView.page().titleChanged.connect(
             self._updateTitle)  # Disconnected.
         widget.cbEnableJavascript.clicked.connect(
             self._onJavaScriptEnabledCheckbox)  # Disconnected.
-        widget.webView.installEventFilter(self)
+        widget.webEngineView.installEventFilter(self)
 
         self.setWidget(widget)
-        self.setFocusProxy(widget.webView)
+        self.setFocusProxy(widget.webEngineView)
 
         widget.tbSave.clicked.connect(self.onPreviewSave)  # Disconnected.
         # Add an attribute to ``widget`` denoting the splitter location.
@@ -487,7 +506,7 @@ class PreviewDock(DockWidget):
         self._typingTimer.stop()
         self._typingTimer.timeout.disconnect(self._scheduleDocumentProcessing)
         try:
-            self._widget.webView.page().mainFrame().loadFinished.disconnect(
+            self._widget.webEngineView.page().loadFinished.disconnect(
                 self._restoreScrollPos)
         except TypeError:  # already has been disconnected
             pass
@@ -503,8 +522,7 @@ class PreviewDock(DockWidget):
         core.workspace().textChanged.disconnect(self._onTextChanged)
         core.uiSettingsManager().dialogAccepted.disconnect(
             self._scheduleDocumentProcessing)
-        self._widget.webView.page().linkClicked.disconnect(self._onLinkClicked)
-        self._widget.webView.page().mainFrame().titleChanged.disconnect(
+        self._widget.webEngineView.page().titleChanged.disconnect(
             self._updateTitle)
         self._widget.cbEnableJavascript.clicked.disconnect(
             self._onJavaScriptEnabledCheckbox)
@@ -535,7 +553,7 @@ class PreviewDock(DockWidget):
         if isinstance(ev, QWheelEvent) and \
            ev.modifiers() == Qt.ControlModifier:
             multiplier = 1 + (0.1 * (ev.angleDelta().y() / 120.))
-            view = self._widget.webView
+            view = self._widget.webEngineView
             view.setZoomFactor(view.zoomFactor() * multiplier)
             return True
         else:
@@ -545,13 +563,6 @@ class PreviewDock(DockWidget):
         if not modified:  # probably has been saved just now
             if not self._ignoreDocumentChanged:
                 self._scheduleDocumentProcessing()
-
-    def _onLinkClicked(self, url):
-        res = QDesktopServices.openUrl(url)
-        if res:
-            core.mainWindow().statusBar().showMessage("{} opened in a browser".format(url.toString()), 2000)
-        else:
-            core.mainWindow().statusBar().showMessage("Failed to open {}".format(url.toString()), 2000)
 
     def _updateTitle(self, pageTitle):
         """Web page title changed. Update own title.
@@ -564,20 +575,14 @@ class PreviewDock(DockWidget):
     def _saveScrollPos(self):
         """Save scroll bar position for document
         """
-        frame = self._widget.webView .page().mainFrame()
-        if frame.contentsSize() == QSize(0, 0):
-            return  # no valida data, nothing to save
-
-        pos = frame.scrollPosition()
-        self._scrollPos[self._visiblePath] = pos
-        self._hAtEnd[self._visiblePath] = frame.scrollBarMaximum(Qt.Horizontal) == pos.x()
-        self._vAtEnd[self._visiblePath] = frame.scrollBarMaximum(Qt.Vertical) == pos.y()
+        page = self._widget.webEngineView.page()
+        self._scrollPos[self._visiblePath] = page.scrollPosition()
 
     def _restoreScrollPos(self, ok):
         """Restore scroll bar position for document
         """
         try:
-            self._widget.webView.page().mainFrame().loadFinished.disconnect(self._restoreScrollPos)
+            self._widget.webEngineView.page().loadFinished.disconnect(self._restoreScrollPos)
         except TypeError:  # already has been disconnected
             pass
 
@@ -594,15 +599,18 @@ class PreviewDock(DockWidget):
         if not self.isVisible():
             return
 
-        frame = self._widget.webView.page().mainFrame()
-
-        frame.setScrollPosition(self._scrollPos[self._visiblePath])
-
-        if self._hAtEnd[self._visiblePath]:
-            frame.setScrollBarValue(Qt.Horizontal, frame.scrollBarMaximum(Qt.Horizontal))
-
-        if self._vAtEnd[self._visiblePath]:
-            frame.setScrollBarValue(Qt.Vertical, frame.scrollBarMaximum(Qt.Vertical))
+        page = self._widget.webEngineView.page()
+        pos = self._scrollPos[self._visiblePath]
+        # Odd: this works, too. Evidently, the load finishing doesn't mean the
+        # render is finished. But, the JavaScript below won't be run until the
+        # render finishes. However, since this might lead to a race condition
+        # (what if the render finishes before this code runs), avoid this
+        # shortcut.
+        ##pos = page.scrollPosition()
+        # We can't use view.scroll because it doesn't affect the web view's
+        # scroll bars -- instead, it will move the widget around, which isn't
+        # helpful.
+        page.runJavaScript('window.scrollTo({}, {});'.format(pos.x(), pos.y()))
 
         # Re-sync the re-loaded text.
         self.previewSync.syncTextToPreview()
@@ -621,7 +629,8 @@ class PreviewDock(DockWidget):
 
             self._clear()
 
-            if self.isVisible():
+            # We can't rely on ``self.isVisible()`` here: on startup, it returns False even though the widget is visible, probably because the widget hasn't yet been painted.
+            if core.config()['Preview']['Enabled']:
                 self._scheduleDocumentProcessing()
 
     _CUSTOM_TEMPLATE_PATH = '<custom template>'
@@ -696,7 +705,7 @@ class PreviewDock(DockWidget):
 
     def _clear(self):
         """Clear the preview dock contents.
-        Might be necesssary for stop executing JS and loading data.
+        Might be necesssary to stop executing JS and loading data.
         """
         self._setHtml('', '', None, QUrl())
 
@@ -714,27 +723,25 @@ class PreviewDock(DockWidget):
         self._applyJavaScriptEnabled(enabled)
 
     def _applyJavaScriptEnabled(self, enabled):
-        """Update QWebView settings and QCheckBox state
+        """Update QwebEngineView settings and QCheckBox state
         """
         self._widget.cbEnableJavascript.setChecked(enabled)
 
-        settings = self._widget.webView.settings()
+        settings = self._widget.webEngineView.settings()
         settings.setAttribute(settings.JavascriptEnabled, enabled)
 
     def onPreviewSave(self):
         """Save contents of the preview pane to a user-specified file."""
+        def callback(text):
+            try:
+                with open(path, 'w', encoding='utf-8') as openedFile:
+                    openedFile.write(text)
+            except (OSError, IOError) as ex:
+                QMessageBox.critical(self, "Failed to save HTML", str(ex))
+
         path, _ = QFileDialog.getSaveFileName(self, 'Save Preview as HTML', filter='HTML (*.html)')
         if path:
-            self._previewSave(path)
-
-    def _previewSave(self, path):
-        """Save contents of the preview pane to the file given by path."""
-        text = self._widget.webView.page().mainFrame().toHtml()
-        try:
-            with open(path, 'w', encoding='utf-8') as openedFile:
-                openedFile.write(text)
-        except (OSError, IOError) as ex:
-            QMessageBox.critical(self, "Failed to save HTML", str(ex))
+            self._widget.webEngineView.page().toHtml(callback)
 
     # HTML generation
     #----------------
@@ -954,21 +961,20 @@ class PreviewDock(DockWidget):
 
     def _setHtml(self, filePath, htmlText, errString, baseUrl):
         """Set HTML to the view and restore scroll bars position.
-        Called by the thread
+        Called by the thread.
         """
-
         self._saveScrollPos()
         self._visiblePath = filePath
-        self._widget.webView.page().mainFrame().loadFinished.connect(
+        self._widget.webEngineView.page().loadFinished.connect(
             self._restoreScrollPos)  # disconnected
 
         if baseUrl.isEmpty():
             # Clear the log, then update it with build content.
             self._widget.teLog.clear()
-            self._widget.webView.setHtml(htmlText,
+            self._widget.webEngineView.setHtml(htmlText,
                                          baseUrl=QUrl.fromLocalFile(filePath))
         else:
-            self._widget.webView.setUrl(baseUrl)
+            self._widget.webEngineView.setUrl(baseUrl)
 
         # If there were messages from the conversion process, extract a count of
         # errors and warnings from these messages.
