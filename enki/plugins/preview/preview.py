@@ -627,10 +627,9 @@ class PreviewDock(DockWidget):
                 self._widget.cbTemplate.hide()
                 self._widget.lTemplate.hide()
 
-            self._clear()
-
             # We can't rely on ``self.isVisible()`` here: on startup, it returns False even though the widget is visible, probably because the widget hasn't yet been painted.
             if core.config()['Preview']['Enabled']:
+                self._clear()
                 self._scheduleDocumentProcessing()
 
     _CUSTOM_TEMPLATE_PATH = '<custom template>'
