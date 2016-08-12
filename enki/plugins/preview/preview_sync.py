@@ -225,7 +225,7 @@ class PreviewSync(QObject):
             'clearSelection();'
             # See https://developer.mozilla.org/en-US/docs/Web/API/Window/find.
             ##                       aString, aCaseSensitive, aBackwards, aWrapAround, aWholeWord, aSearchInFrames, aShowDialog)
-            'var found = window.find(txt,     true,           false,     false,        false,      true,            false); '
+            'var found = window.find(txt,     true,           false,     false,        false,      true,            false);'
             # If the text was found, or the search string was empty, highlight a line.
             'if (found || txt === "") {'
                 # Determine the coordiantes of the end of the selection.
@@ -246,7 +246,7 @@ class PreviewSync(QObject):
                     '}'
                     # Position it based on the coordinates.
                     'highlighter.style.height = height;'
-                    'highlighter.style.top = window.scrollY + top; '
+                    'highlighter.style.top = window.scrollY + top;'
                 '}'
                 'return true;'
             '}'
@@ -257,15 +257,15 @@ class PreviewSync(QObject):
     # versa.
     def _scrollSync(self,
       # None to scroll the text view to the y coordinate of the web view's
-      # cursor. True or False to do the opposite:  scroll the web view so that
+      # cursor. True or False to do the opposite: scroll the web view so that
       # its cursor aligns vertically with the y coordinate of the text view. In
       # this case, True will use the tolerance to scroll only if the amount to
       # scroll exceeds that tolerance; False will scroll irregardless of the
       # tolerance.
       alreadyScrolling=None,
-      # Ignored if alreadyScrolling == None. Used a both a padding value and a
+      # Ignored if ``alreadyScrolling == None``. Used as both a padding value and a
       # scroll tolerance, as described in alreadyScrolling.
-      tolerance=0):
+      tolerance=50):
 
         # Per the `window geometry
         # <http://qt-project.org/doc/qt-4.8/application-windows.html#window-geometry>`_,
@@ -296,7 +296,7 @@ class PreviewSync(QObject):
         if hsb.isVisible():
             qpHeight -= qp.horizontalScrollBar().height()
         page = wv.page()
-        wvHeight = wv.geometry().height() - page.scrollPosition().y()
+        wvHeight = wv.geometry().height()
 
         # JavaScript callback to determine the coordinates and height of the
         # anchor of the selection in the web view. It expects a 3-element tuple
@@ -305,7 +305,6 @@ class PreviewSync(QObject):
         # left is the coordinate (in pixels) of the left of the selection, measured from the web page's origin.
         def callback(res):
             # See if a 3-element tuple is returned. Exit if the selection was empty.
-            print(res)
             if not res:
                 return
 
@@ -316,13 +315,12 @@ class PreviewSync(QObject):
                 deltaY = self._alignScrollAmount(qpGlobalTop, qpCursorBottom,
                   wvGlobalTop, wvCursorBottom, wvHeight, wvCursorHeight, tolerance)
                 # Uncomment for helpful debug info.
-                ## print(("qpGlobalTop = %d, qpCursorBottom = %d, qpHeight = %d, deltaY = %d, tol = %d\n" +
-                ##   "  wvGlobalTop = %d, wvCursorBottom = %d, wvHeight = %d, wvCursorHeight = %d") %
-                ##   (qpGlobalTop, qpCursorBottom, qpHeight, deltaY, tolerance,
-                ##   wvGlobalTop, wvCursorBottom, wvHeight, wvCursorHeight))
+                ##print(("qpGlobalTop = %d, qpCursorBottom = %d, qpHeight = %d, deltaY = %d, tol = %d\n" +
+                ##  "  wvGlobalTop = %d, wvCursorBottom = %d, wvHeight = %d, wvCursorHeight = %d") %
+                ##  (qpGlobalTop, qpCursorBottom, qpHeight, deltaY, tolerance,
+                ##  wvGlobalTop, wvCursorBottom, wvHeight, wvCursorHeight))
 
                 # Only scroll if we've outside the tolerance.
-                print(alreadyScrolling, deltaY)
                 if alreadyScrolling or (abs(deltaY) > tolerance):
                     # Scroll based on this info using `setScrollPosition
                     # <http://doc.qt.io/qt-4.8/qwebframe.html#scrollPosition-prop>`_.
@@ -330,7 +328,7 @@ class PreviewSync(QObject):
                     # Note that scroll bars are backwards: to make the text go up, you must
                     # move the bars down (a positive delta) and vice versa. Hence, the
                     # subtration, rather than addition, below.
-                    page.runJavaScript('window.scrollTo(0, {}); clearSelection();'.format(page.scrollPosition().y() - deltaY))
+                    page.runJavaScript('window.scrollTo(0, window.scrollY - {}); clearSelection();'.format(deltaY))
             else:
                 deltaY = self._alignScrollAmount(wvGlobalTop, wvCursorBottom,
                   qpGlobalTop, qpCursorBottom, qpHeight, qpCursorHeight, 0)
@@ -461,7 +459,7 @@ class PreviewSync(QObject):
              # Step 4: the length of the string gives the index of the click
              # into a string containing a text rendering of the webpage.
              # Call Python with the document's text and that index.
-            'window.previewSync._onWebviewClick(document.body.textContent.toString(), rStr.length);'
+            '/*window.previewSync._onWebviewClick(document.body.textContent.toString(), rStr.length);*/'
         '};')
 
     def _initPreviewToTextSync(self):
@@ -498,13 +496,13 @@ class PreviewSync(QObject):
         afterScript.setWorldId(QWebEngineScript.MainWorld)
         afterScript.setInjectionPoint(QWebEngineScript.Deferred)
         afterScript.setRunsOnSubFrames(True)
-        page.scripts().insert(afterScript)
+        #page.scripts().insert(afterScript)
         
         # Bug: Qt 5.7.0 doesn't provide the ``qt`` object to JavaScript when loading https://bugreports.qt.io/browse/QTBUG-53411. This kills the previw sync ability.
 
         # Set up the web channel. See https://riverbankcomputing.com/pipermail/pyqt/2015-August/036346.html
         # and http://stackoverflow.com/questions/28565254/how-to-use-qt-webengine-and-qwebchannel.
-        # For debug, ``set  QTWEBENGINE_REMOTE_DEBUGGING=port`` then browse to
+        # For debug, ``set QTWEBENGINE_REMOTE_DEBUGGING=port`` then browse to
         # http://127.0.0.1:port, where port=60000 works for me. See https://riverbankcomputing.com/pipermail/pyqt/2015-August/036346.html.
         self.channel = QWebChannel(page)
         page.setWebChannel(self.channel)
@@ -665,9 +663,7 @@ class PreviewSync(QObject):
 
         def callback(found):
             if found:
-                # Sync the cursors. If we're already scrolling, take full advantage
-                # of it.
-                print('sync')
+                # Sync the cursors.
                 self._scrollSync(False)
                 self.textToPreviewSynced.emit()
 
