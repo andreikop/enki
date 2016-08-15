@@ -488,18 +488,25 @@ class PreviewSync(QObject):
         # Later, run a script that uses ``qt``, since that variable is (apparrently) not defined until after QWebChannel.js is loaded.
         afterScript = QWebEngineScript()
         afterScript.setSourceCode(
-            'new QWebChannel(qt.webChannelTransport, function(channel) {'
-                'console.log(channel.objects);'
-                'window.previewSync = channel.objects.previewSync;'
-            '});'
-            'window.onclick = window_onclick;')
+            # Since ``qt`` may not be defined (Qt 5.7.0 doesn't provide the
+            # ``qt`` object to JavaScript when loading per https://bugreports.qt.io/browse/QTBUG-53411),
+            # wrap it in a try/except block.
+            'try {'
+                'new QWebChannel(qt.webChannelTransport, function(channel) {'
+                    'window.previewSync = channel.objects.previewSync;'
+                '});'
+                'window.onclick = window_onclick;'
+            '} catch (err) {'
+                # Re-throw unrecognized errors. When ``qt`` isn't defined,
+                # JavaScript reports ``js: Uncaught ReferenceError: qt is not
+                # defined``.
+                'if (!(err instanceof ReferenceError)) throw error;'
+            '}')
         afterScript.setName('new QWebChannel')
         afterScript.setWorldId(QWebEngineScript.MainWorld)
         afterScript.setInjectionPoint(QWebEngineScript.Deferred)
         afterScript.setRunsOnSubFrames(True)
         page.scripts().insert(afterScript)
-
-        # Bug: Qt 5.7.0 doesn't provide the ``qt`` object to JavaScript when loading https://bugreports.qt.io/browse/QTBUG-53411. This kills the previw sync ability.
 
         # Set up the web channel. See https://riverbankcomputing.com/pipermail/pyqt/2015-August/036346.html
         # and http://stackoverflow.com/questions/28565254/how-to-use-qt-webengine-and-qwebchannel.
@@ -656,9 +663,6 @@ class PreviewSync(QObject):
         # relies on the page being editable, which is set below).
         view = self._dock._widget.webEngineView
         page = view.page()
-        # The find operations below change the scroll position. Save, then
-        # restore it to avoid the window jumping around.
-        scrollPos = page.scrollPosition()
         # Find the index with findText_.
         ft = txt[:webIndex]
 
