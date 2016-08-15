@@ -205,7 +205,7 @@ class PreviewSync(QObject):
 
             'return [left, top, height];'
         '}'
-        
+
         # Clear the current selection, if it exists.
         'function clearSelection() {'
             'if (window.getSelection()) {'
@@ -238,15 +238,15 @@ class PreviewSync(QObject):
                     'if (!highlighter) {'
                         'highlighter = document.createElement("div");'
                         'document.body.appendChild(highlighter);'
-                        'highlighter.style.zIndex = -1;'
+                        'highlighter.style.zIndex = 100;'
                         'highlighter.style.width = "100%";'
                         'highlighter.style.position = "absolute";'
-                        'highlighter.style.backgroundColor = "yellow";'
+                        'highlighter.style.backgroundColor = "rgba(255, 255, 0, 0.4)";'
                         'highlighter.id = "highlighter";'
                     '}'
                     # Position it based on the coordinates.
-                    'highlighter.style.height = height;'
-                    'highlighter.style.top = window.scrollY + top;'
+                    'highlighter.style.height = height + "px";'
+                    'highlighter.style.top = (window.scrollY + top) + "px";'
                 '}'
                 'return true;'
             '}'
@@ -408,7 +408,7 @@ class PreviewSync(QObject):
         # is fired for any mouse button pressed", I found experimentally
         # that it on fires on a left-click release; middle and right clicks
         # had no effect.
-        'window.onclick = function () {'
+        'function window_onclick() {'
 
              # This performs step 1 above. In particular:
              #
@@ -459,8 +459,8 @@ class PreviewSync(QObject):
              # Step 4: the length of the string gives the index of the click
              # into a string containing a text rendering of the webpage.
              # Call Python with the document's text and that index.
-            '/*window.previewSync._onWebviewClick(document.body.textContent.toString(), rStr.length);*/'
-        '};')
+            'window.previewSync._onWebviewClick(document.body.textContent.toString(), rStr.length);'
+        '}')
 
     def _initPreviewToTextSync(self):
         """Initialize the system per items 1, 2, and 4 above."""
@@ -479,25 +479,26 @@ class PreviewSync(QObject):
         # Run the script containing QWebChannel.js first.
         beforeScript = QWebEngineScript()
         beforeScript.setSourceCode(qwebchannel_js + self._jsPreviewSync)
-        beforeScript.setName('xxx')
+        beforeScript.setName('qwebchannel.js, previewSync')
         beforeScript.setWorldId(QWebEngineScript.MainWorld)
         beforeScript.setInjectionPoint(QWebEngineScript.DocumentReady)
         beforeScript.setRunsOnSubFrames(True)
         page.scripts().insert(beforeScript)
-        
+
         # Later, run a script that uses ``qt``, since that variable is (apparrently) not defined until after QWebChannel.js is loaded.
         afterScript = QWebEngineScript()
         afterScript.setSourceCode(
             'new QWebChannel(qt.webChannelTransport, function(channel) {'
                 'console.log(channel.objects);'
                 'window.previewSync = channel.objects.previewSync;'
-            '});')
-        afterScript.setName('yyy')
+            '});'
+            'window.onclick = window_onclick;')
+        afterScript.setName('new QWebChannel')
         afterScript.setWorldId(QWebEngineScript.MainWorld)
         afterScript.setInjectionPoint(QWebEngineScript.Deferred)
         afterScript.setRunsOnSubFrames(True)
-        #page.scripts().insert(afterScript)
-        
+        page.scripts().insert(afterScript)
+
         # Bug: Qt 5.7.0 doesn't provide the ``qt`` object to JavaScript when loading https://bugreports.qt.io/browse/QTBUG-53411. This kills the previw sync ability.
 
         # Set up the web channel. See https://riverbankcomputing.com/pipermail/pyqt/2015-August/036346.html
