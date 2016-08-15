@@ -967,6 +967,10 @@ class PreviewDock(DockWidget):
         self._widget.webEngineView.page().loadFinished.connect(
             self._restoreScrollPos)  # disconnected
 
+        # Per http://stackoverflow.com/questions/36609489/how-to-prevent-qwebengineview-to-grab-focus-on-sethtml-and-load-calls,
+        # the QWebEngineView steals the focus on a call to ``setHtml``. Disable
+        # it to prevent this.
+        self._widget.webEngineView.setEnabled(False)
         if baseUrl.isEmpty():
             # Clear the log, then update it with build content.
             self._widget.teLog.clear()
@@ -974,6 +978,8 @@ class PreviewDock(DockWidget):
                                          baseUrl=QUrl.fromLocalFile(filePath))
         else:
             self._widget.webEngineView.setUrl(baseUrl)
+        # Re-enable it after updating the HTML.
+        self._widget.webEngineView.setEnabled(True)
 
         # If there were messages from the conversion process, extract a count of
         # errors and warnings from these messages.
