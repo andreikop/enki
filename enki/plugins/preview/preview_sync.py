@@ -218,38 +218,46 @@ class PreviewSync(QObject):
         'function highlightFind('
           # The text to find, typically consisting of all text in the web page
           # from its beginning to the point to be found.
-          'txt) {'
+          'txt,'
+          # True to skip searching for an highlighting the text; instead, this
+          # clears any existing highlight.
+          'hideHighlight) {'
 
             # Clear the current selection, so that a find will start at the
             # beginning of the page.
             'clearSelection();'
+            # Find or create a ``div`` used as a highlighter.
+            'var highlighter = document.getElementById("highlighter");'
+            'if (!highlighter) {'
+                'highlighter = document.createElement("div");'
+                'document.body.appendChild(highlighter);'
+                'highlighter.style.zIndex = 100;'
+                'highlighter.style.width = "100%";'
+                'highlighter.style.position = "absolute";'
+                'highlighter.style.backgroundColor = "rgba(255, 255, 0, 0.4)";'
+                'highlighter.id = "highlighter";'
+            '}'
             # See https://developer.mozilla.org/en-US/docs/Web/API/Window/find.
             ##                       aString, aCaseSensitive, aBackwards, aWrapAround, aWholeWord, aSearchInFrames, aShowDialog)
             'var found = window.find(txt,     true,           false,     false,        false,      true,            false);'
             # If the text was found, or the search string was empty, highlight a line.
-            'if (found || txt === "") {'
+            'if ( (found || txt === "") && !hideHighlight) {'
                 # Determine the coordiantes of the end of the selection.
                 'var res = selectionAnchorCoords();'
                 'if (res) {'
                     # Unpack the coordinates obtained.
                     'var [left, top, height] = res;'
-                    # Find or create a ``div`` used as a highlighter.
-                    'var highlighter = document.getElementById("highlighter");'
-                    'if (!highlighter) {'
-                        'highlighter = document.createElement("div");'
-                        'document.body.appendChild(highlighter);'
-                        'highlighter.style.zIndex = 100;'
-                        'highlighter.style.width = "100%";'
-                        'highlighter.style.position = "absolute";'
-                        'highlighter.style.backgroundColor = "rgba(255, 255, 0, 0.4)";'
-                        'highlighter.id = "highlighter";'
-                    '}'
                     # Position it based on the coordinates.
                     'highlighter.style.height = height + "px";'
                     'highlighter.style.top = (window.scrollY + top) + "px";'
+                    'highlighter.style.visibility = "visible";'
                 '}'
                 'return true;'
             '}'
+            # Hide the highlight if we can't find the text.
+            'highlighter.style.visibility = "hidden";'
+            # Clear the selection, since we won't use it later.
+            'clearSelection();'
             'return false;'
         '}')
 
@@ -322,13 +330,12 @@ class PreviewSync(QObject):
 
                 # Only scroll if we've outside the tolerance.
                 if alreadyScrolling or (abs(deltaY) > tolerance):
-                    # Scroll based on this info using `setScrollPosition
-                    # <http://doc.qt.io/qt-4.8/qwebframe.html#scrollPosition-prop>`_.
-                    #
                     # Note that scroll bars are backwards: to make the text go up, you must
                     # move the bars down (a positive delta) and vice versa. Hence, the
                     # subtration, rather than addition, below.
-                    page.runJavaScript('window.scrollTo(0, window.scrollY - {}); clearSelection();'.format(deltaY))
+                    page.runJavaScript('window.scrollTo(0, window.scrollY - {});'.format(deltaY))
+                # Clear the selection, whether we scrolled or not.
+                page.runJavaScript('clearSelection();')
             else:
                 deltaY = self._alignScrollAmount(wvGlobalTop, wvCursorBottom,
                   qpGlobalTop, qpCursorBottom, qpHeight, qpCursorHeight, 0)
@@ -650,20 +657,9 @@ class PreviewSync(QObject):
         """
         # Retrieve the return value from findApproxTextInTarget.
         webIndex, txt = future.result
-        # Only move the cursor to webIndex in the preview pane if
-        # corresponding text was found.
-        if webIndex < 0:
-            return
 
-        # Implementation: there's no direct way I know of to move the cursor in
-        # a web page. However, the find operation is fairly common. So, simply
-        # search from the beginning of the page for a substring of the web
-        # page's text rendering from the beginning to webIndex. Then press home
-        # followed by shift+end to select the line the cursor is on. (This
-        # relies on the page being editable, which is set below).
         view = self._dock._widget.webEngineView
         page = view.page()
-        # Find the index with findText_.
         ft = txt[:webIndex]
 
         def callback(found):
@@ -672,4 +668,5 @@ class PreviewSync(QObject):
                 self._scrollSync(False)
                 self.textToPreviewSynced.emit()
 
-        page.runJavaScript('highlightFind({});'.format(repr(ft)), callback)
+        page.runJavaScript('highlightFind({}, {});'.format(repr(ft),
+          str(webIndex < 0).lower()), callback)
