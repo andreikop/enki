@@ -227,7 +227,7 @@ class PreviewSync(QObject):
             # beginning of the page.
             'clearSelection();'
             # Find or create a ``div`` used as a highlighter.
-            'var highlighter = document.getElementById("highlighter");'
+            'var highlighter = getHighlight();'
             'if (!highlighter) {'
                 'highlighter = document.createElement("div");'
                 'document.body.appendChild(highlighter);'
@@ -250,15 +250,27 @@ class PreviewSync(QObject):
                     # Position it based on the coordinates.
                     'highlighter.style.height = height + "px";'
                     'highlighter.style.top = (window.scrollY + top) + "px";'
-                    'highlighter.style.visibility = "visible";'
                 '}'
                 'return true;'
             '}'
-            # Hide the highlight if we can't find the text.
-            'highlighter.style.visibility = "hidden";'
+            # Remove the highlight if we can't find the text.
+            'clearHighlight();'
             # Clear the selection, since we won't use it later.
             'clearSelection();'
             'return false;'
+        '}'
+
+        # Return the ``div`` used to produce a highlight, or None if it doesn't exist.
+        'function getHighlight() {'
+            'return document.getElementById("highlighter");'
+        '}'
+
+        # Delete the element used to produce a highlight.
+        'function clearHighlight() {'
+            'var highlighter = getHighlight();'
+            'if (highlighter) {'
+                'highlighter.remove();'
+            '}'
         '}')
 
     # Scroll the web view to align its cursor with the qutepart cursor or vice
@@ -416,6 +428,10 @@ class PreviewSync(QObject):
         # that it on fires on a left-click release; middle and right clicks
         # had no effect.
         'function window_onclick() {'
+
+            # Clear the current highlight -- it doesn't make sense to have other
+            # text highlighted after a click.
+            'clearHighlight();'
 
              # This performs step 1 above. In particular:
              #
@@ -645,7 +661,8 @@ class PreviewSync(QObject):
         # thread should significantly improve the GUI's responsiveness.
         qp = core.workspace().currentDocument().qutepart
         self._runLatest.start(self._movePreviewPaneToIndex,
-                              lambda a, b, c: (findApproxTextInTarget(a, b, c), c), qp.text, qp.textCursor().position(), txt)
+          lambda a, b, c: (findApproxTextInTarget(a, b, c), c), qp.text,
+          qp.textCursor().position(), txt)
 
     def _movePreviewPaneToIndex(self, future):
         """Highlights webIndex in the preview pane, per item 4 above.
@@ -668,5 +685,10 @@ class PreviewSync(QObject):
                 self._scrollSync(False)
                 self.textToPreviewSynced.emit()
 
-        page.runJavaScript('highlightFind({}, {});'.format(repr(ft),
-          str(webIndex < 0).lower()), callback)
+        if webIndex >= 0:
+            page.runJavaScript('highlightFind({});'.format(repr(ft)), callback)
+        else:
+            self.clearHighlight()
+
+    def clearHighlight(self):
+        self._dock._widget.webEngineView.page().runJavaScript('clearHighlight();')

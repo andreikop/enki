@@ -739,6 +739,9 @@ class PreviewDock(DockWidget):
                 QMessageBox.critical(self, "Failed to save HTML", str(ex))
 
         path, _ = QFileDialog.getSaveFileName(self, 'Save Preview as HTML', filter='HTML (*.html)')
+        # The preview selection is an extra ``div`` inserted by the sync code.
+        # Remove it before saving the file.
+        self.previewSync.clearHighlight()
         if path:
             self._widget.webEngineView.page().toHtml(callback)
 
