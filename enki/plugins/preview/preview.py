@@ -358,6 +358,9 @@ class SphinxConverter(QObject):
 # This class opens links in an external browser, instead of in the built-in browser.
 class QWebEnginePageExtLink(QWebEnginePage):
     def acceptNavigationRequest(self, url, navigationType, isMainFrame):
+        # If the URL was given explicitly, it was from code, not from the user.
+        if navigationType == QWebEnginePage.NavigationTypeTyped:
+            return True
         res = QDesktopServices.openUrl(url)
         if res:
             core.mainWindow().statusBar().showMessage("{} opened in a browser".format(url.toString()), 2000)
