@@ -240,7 +240,18 @@ class FontOption(Option):
         _set(self.config, self.familyOptionName, font.family())
         _set(self.config, self.sizeOptionName, font.pointSize())
 
-    @pyqtSlot()
+    # On Windows, Python 3.5, PyQt 5.7, uncommenting the line below produces::
+    #
+    #   QObject::connect: Cannot connect QPushButton::clicked(bool) to (null)::_onClicked()
+    #   CRITICAL:root:Traceback (most recent call last):
+    #     File "E:\enki_all\enki\bin\..\enki\plugins\qpartsettings\__init__.py", line 163, in _onSettingsDialogAboutToExecute
+    #       fontWidget.lFont, fontWidget.pbFont),
+    #     File "E:\enki_all\enki\bin\..\enki\core\uisettings.py", line 226, in __init__
+    #       self.buttonControl.clicked.connect(self._onClicked)
+    #   TypeError: connect() failed between clicked(bool) and _onClicked()
+    #
+    # This makes no sense to me.
+    #@pyqtSlot()
     def _onClicked(self):
         """Button click handler. Open font dialog
         """
