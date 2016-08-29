@@ -359,7 +359,13 @@ class SphinxConverter(QObject):
 class QWebEnginePageExtLink(QWebEnginePage):
     def acceptNavigationRequest(self, url, navigationType, isMainFrame):
         # If the URL was given explicitly, it was from code, not from the user.
-        if navigationType == QWebEnginePage.NavigationTypeTyped:
+        # Open these with the built-in browser.
+        if (navigationType == QWebEnginePage.NavigationTypeTyped or
+          # The following HTML produces navigationType == 0 (link clicked) and
+          # isMainFrame == False. (This makes no sense to me).
+          ## <a class="reference external image-reference" href="https://pypi.python.org/pypi/PyInstaller"><object data="https://img.shields.io/pypi/v/PyInstaller.svg" type="image/svg+xml">https://img.shields.io/pypi/v/PyInstaller.svg</object></a>
+          # Deal with this case.
+          navigationType == QWebEnginePage.NavigationTypeLinkClicked and not isMainFrame):
             return True
         res = QDesktopServices.openUrl(url)
         if res:
