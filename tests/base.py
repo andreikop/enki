@@ -19,6 +19,11 @@ from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtTest import QTest
 
+# Import to avoid ``ImportError: QtWebEngineWidgets must be imported before a
+# QCoreApplication instance is created``.
+import PyQt5.QtWebEngineWidgets  # noqa: F401
+
+
 papp = QApplication(sys.argv)
 
 import qutepart

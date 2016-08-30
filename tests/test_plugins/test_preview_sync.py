@@ -42,32 +42,16 @@ from .import_fail import ImportFail
 class Test(PreviewTestCase):
     # Web to code sync tests
     ##----------------------
-    # Test that mouse clicks get turned into a ``jsClick`` signal
-    ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    def check_sync1(self):
-        """Test that web-to-text sync occurs on clicks to the web pane.
-        A click at 0, height (top left corner) should produce
-        an index of 0. It doesn't; I'm not sure I understand how
-        the WebView x, y coordinate system works. For now, skip
-        checking the resulting index.
-        """
-        self._doBasicTest('rst')
-        self.assertEmits(
-            lambda: QTest.mouseClick(self._widget().webView,
-                                     Qt.LeftButton, Qt.NoModifier, QPoint(0, self._widget().webView.height())),
-            self._dock().previewSync.jsClick,
-            200)
-
-    @requiresModule('docutils')
-    @base.inMainLoop
-    def test_sync1(self):
-        self.check_sync1()
+    # To do: a test that verifies that mouse clicks produce a web to text sync.
+    # The problem: I can't seem to simulate keyboard presses via either QTest
+    # (for unknown reasons) or JavaScript (for security reasons). I therefore
+     # doubt that I can simulate mouse clicks.
 
     # Test that simulated mouse clicks at beginning/middle/end produce correct ``jsClick`` values
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     def _jsOnClick(self):
         """Simulate a mouse click by calling ``window.onclick()`` in Javascript."""
-        ret = self._widget().webView.page().mainFrame().evaluateJavaScript('window.onclick()')
+        ret = self._widget().webEngineView.page().runJavaScript('window.onclick()')
         assert not ret
 
     def _wsLen(self):
@@ -90,7 +74,7 @@ class Test(PreviewTestCase):
         self._doBasicTest('rst')
         wsLen = self._wsLen()
         # Choose text to find.
-        ret = self._widget().webView.page().findText(s)
+        ret = self._widget().webEngineView.page().findText(s)
         assert ret
         # Now run the Javascript and see if the index with whitespace added matches.
         self.assertEmits(self._jsOnClick,
@@ -171,7 +155,7 @@ class Test(PreviewTestCase):
     # No test is needed: the previous tests already check this,
     # since disabling the following lines causes lots of failures::
     #
-    #   self._widget.webView.page().mainFrame(). \
+    #   self._widget.webEngineView.page(). \
     #     javaScriptWindowObjectCleared.connect(self._onJavaScriptCleared)
 
     @requiresModule('docutils')
@@ -184,7 +168,7 @@ class Test(PreviewTestCase):
         self._dock()._onJavaScriptEnabledCheckbox(False)
         # Click. Nothing will happen, but make sure there's no assertion
         # or internal error.
-        QTest.mouseClick(self._widget().webView, Qt.LeftButton)
+        QTest.mouseClick(self._widget().webEngineView, Qt.LeftButton)
 
     # Code to web sync tests
     ##----------------------
@@ -224,7 +208,7 @@ class Test(PreviewTestCase):
             self._dock().previewSync._moveTextPaneToIndex(index, False)
         # The web view should have the line containing s selected now.
         if checkText:
-            self.assertTrue(s in self._widget().webView.selectedText())
+            self.assertTrue(s in self._widget().webEngineView.selectedText())
 
     @requiresModule('docutils')
     @base.inMainLoop
