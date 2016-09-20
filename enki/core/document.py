@@ -391,7 +391,11 @@ class Document(QWidget):
     def saveFileAs(self):
         """Ask for new file name with dialog. Save file
         """
-        path, _ = QFileDialog.getSaveFileName(self, self.tr('Save file as...'))
+        if self._filePath:
+            default_filename = os.path.basename(self._filePath)
+        else:
+            default_filename = ''
+        path, _ = QFileDialog.getSaveFileName(self, self.tr('Save file as...'), default_filename)
         if not path:
             return
 
