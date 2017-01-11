@@ -529,7 +529,7 @@ class PreviewDock(DockWidget):
         self._widget.teLog.setCurrentCharFormat(self._defaultLogFont)
 
     def eventFilter(self, obj, ev):
-        """ Event filter for the web view
+        """Event filter for the web view
         Zooms the web view
         """
         if isinstance(ev, QWheelEvent) and \

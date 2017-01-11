@@ -209,7 +209,9 @@ class _OpenedFileModel(QAbstractItemModel):
         # if row > fromRow:
         #    row -= 1
 
+        self.beginInsertRows(QModelIndex(), row, row)
         newDocuments.insert(row, item)
+        self.endInsertRows()
 
         self.rebuildMapping(self._workspace.sortedDocuments, newDocuments)
 
@@ -288,7 +290,10 @@ class _OpenedFileModel(QAbstractItemModel):
         """New document opened at workspace. Handle it
         """
         assert(not document in self._workspace.sortedDocuments)
+        index = len(self._workspace.sortedDocuments)
+        self.beginInsertRows(QModelIndex(), index, index)
         self._workspace.sortedDocuments.append(document)
+        self.endInsertRows()
         self.sortDocuments()
         document.documentDataChanged.connect(self._onDocumentDataChanged)
 
