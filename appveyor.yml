@@ -3,26 +3,39 @@
 # ****************************************
 environment:
   matrix:
-    # We only have a pre-compiled PyQt5 for Python 3.4, so only test on that.
-    - PYTHON: "C:\\Python34"
+    # We only have a pre-compiled PyQt5 for Python 3.5+, so only test on that.
+    - PYTHON: "C:\\Python35"
+    - PYTHON: "C:\\Python35-x64"
+    - PYTHON: "C:\\Python36"
+    - PYTHON: "C:\\Python36-x64"
 
 install:
   # Add the correct Python to the path.
   - set PATH=%PYTHON%;%PYTHON%\Script;%PATH%
-  # Install dependencies needed by the CI script and by Enki.
+  # Install dependencies needed by the CI script.
   - git clone https://github.com/hlamer/qutepart.git
   - python -m pip install -U -r qutepart\tests\ci\requirements.txt
   # Use a python script to do all the heavy lifting.
   - python tests\ci.py install
 
-# Use this to prevent Appveyor from running MSBuild. See https://www.appveyor.com/docs/appveyor-yml
-# line 181.
-build_script:
-  - echo "Avoiding the MSBUILD step."
+# Disable automatic builds, per https://www.appveyor.com/docs/appveyor-yml/.
+build: off
 
 # See https://www.appveyor.com/docs/appveyor-yml line 215.
 test_script:
   - python tests\ci.py test
+
+# Inspired by https://packaging.python.org/appveyor/.
+after_test:
+  # See https://pip.pypa.io/en/stable/reference/pip_wheel/#options.
+  #
+  # - ``--no-deps`` prevents pip from building wheels for dependencies.
+  # - ``--wheel-dir`` places the wheel in another directory.
+  - python -m pip wheel -e . --no-deps --wheel-dir=dist
+
+artifacts:
+  # The ``--wheel-dir`` option puts the built wheel in the ``dist`` directory
+  - path: dist\*
 
 # See https://www.appveyor.com/docs/build-cache.
 cache:

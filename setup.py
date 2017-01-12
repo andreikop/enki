@@ -131,4 +131,12 @@ if __name__ == '__main__':
           data_files=data_files,
           classifiers=classifiers,
           license='gpl2',
-          )
+          install_requires=[
+              'qutepart',
+              'Markdown',
+              'regex==2016.10.22',
+              'CodeChat',
+              'Sphinx',
+              'flake8',
+          ],
+    )

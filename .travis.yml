@@ -11,9 +11,8 @@ os: linux
 language: python
 # We only support Python 3.
 python:
-  - 3.3
-  - 3.4
   - 3.5
+  - 3.6
 
 # See https://docs.travis-ci.com/user/customizing-the-build/#Build-Matrix. This
 # manually includes additional OS X tests to the matrix of Linux tests defined

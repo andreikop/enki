@@ -37,18 +37,6 @@ CTAGS_VER = 'ctags58'
 # =============
 # This provides OS-specific installation of needed packages.
 class CI_Dispatcher(OS_Dispatcher):
-# Qutepart installs
-# -----------------
-# The argument of ``False`` omits ``system_identify`` output from qutepart's
-# install; Enki has already printed this.
-    def install_qutepart_Windows(self):
-        qutepart_appveyor.install(False)
-
-    def install_qutepart_Linux(self):
-        qutepart_travis.install(False)
-
-    def install_qutepart_OS_X(self):
-        self.install_qutepart_Linux()
 #
 # Enki installs
 # -------------
@@ -61,30 +49,27 @@ class CI_Dispatcher(OS_Dispatcher):
         unzip(ctags_zip, CTAGS_VER + '/ctags.exe')
 
     def install_Linux(self):
-        xqt('sudo apt-get install -y ctags')
+        # Need to install Qutepart dependencies the wheel can't capture, plus Enki
+        # dependencies.
+        xqt('sudo apt-get install -y ctags libpcre3-dev libegl1-mesa')
 
     def install_OS_X(self):
-        xqt('brew install ctags')
+        xqt('brew install ctags pcre')
 #
 # install
 # =======
 def install():
     system_identify()
 
-    # First, install OS-independent items. Install the development version of
-    # CodeChat, rather than the (older) released version on PyPI that the pip
-    # install would do.
-    xqt('git clone https://github.com/bjones1/CodeChat.git')
-    with pushd('CodeChat'):
-        xqt('python setup.py install')
-    xqt('python -m pip install -U -r requirements.txt')
-
     # Install OS-dependent items.
     cid = CI_Dispatcher()
-    # The qutepart install script assumes the working directory is qutepart.
-    with pushd('qutepart'):
-        cid.install_qutepart()
     cid.install()
+
+    if build_os == 'Linux':
+        set_display()
+        xqt('sh -e /etc/init.d/xvfb start')
+    xqt('python -m pip install -e .')
+
 #
 # test
 # ====
