@@ -22,9 +22,8 @@ import os.path
 # Add the path to the ``ci_utils`` so we can import from it.
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__),
                                 '..', 'qutepart', 'tests', 'ci')))
-from utils import (xqt, pushd, chdir, build_os, system_identify, wget,
+from utils import (xqt, pushd, build_os, system_identify, wget, mkdir,
                    command_line_invoke, OS_Dispatcher, unzip, isfile)
-import qutepart_appveyor
 import qutepart_travis
 from qutepart_appveyor import DOWNLOADS
 #
@@ -42,6 +41,7 @@ class CI_Dispatcher(OS_Dispatcher):
 # -------------
     def install_Windows(self):
         # ctags
+        mkdir(DOWNLOADS)
         ctags_zip = os.path.join(DOWNLOADS, CTAGS_VER + '.zip')
         if not isfile(ctags_zip):
             wget('http://sourceforge.net/projects/ctags/files/ctags/5.8/{}.zip'.
@@ -66,7 +66,7 @@ def install():
     cid.install()
 
     if build_os == 'Linux':
-        set_display()
+        qutepart_travis.set_display()
         xqt('sh -e /etc/init.d/xvfb start')
     xqt('python -m pip install -e .')
 
