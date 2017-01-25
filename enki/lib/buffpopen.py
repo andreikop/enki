@@ -10,6 +10,7 @@ import threading
 import os
 import copy
 import time
+import shlex
 
 from queue import Queue, Empty, Full  # python 3.x
 
@@ -49,7 +50,7 @@ class BufferedPopen:
             si = None
             env = None
 
-        self._popen = subprocess.Popen(self._command.split() + args,
+        self._popen = subprocess.Popen(shlex.split(self._command) + args,
                                        stdin=subprocess.PIPE,
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.STDOUT,
