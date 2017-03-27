@@ -12,7 +12,7 @@ import platform
 
 from PyQt5.QtCore import pyqtSignal, QSize, Qt, QTimer, pyqtSlot
 from PyQt5.QtGui import QIcon, QPalette
-from PyQt5.QtWidgets import QLabel, QMessageBox, QMainWindow, \
+from PyQt5.QtWidgets import QApplication, QLabel, QMessageBox, QMainWindow, \
     QSizePolicy, QStatusBar, QToolBar, QVBoxLayout, QWidget
 
 from enki.widgets.dockwidget import DockWidget
@@ -146,6 +146,7 @@ class MainWindow(QMainWindow):
 
         self._createMenuStructure()
         core.actionManager().action('mView/aOpenMainMenu').triggered.connect(self._openMainMenu)
+        core.actionManager().action('mFile/aQuit').triggered.connect(self.onQuit)
 
     def terminate(self):
         """Explicitly called destructor
@@ -263,6 +264,8 @@ class MainWindow(QMainWindow):
         if platform.system() != 'Windows':
             action("mFile/mFileSystem/aToggleExecutable", "Make executable"   , "",            '',             "Toggle executable mode" , False)
         separator("mFile")
+        action("mFile/aQuit",                         "Quit"                  , "quit.png",     'Ctrl+Q',       "Quit"                  , True)
+        separator("mFile")
 
         menu  ("mView",                               "View"                  , ""           )
         action("mView/aShowIncorrectIndentation",      "Show incorrect indentation", "",       "",              ""                       , False, True)
@@ -368,6 +371,22 @@ class MainWindow(QMainWindow):
         core.workspace().forceCloseAllDocuments()
 
         return QMainWindow.closeEvent(self, event)
+
+    def onQuit(self):
+        # saving geometry BEFORE closing widgets, because state might be changed, when docks are closed
+        self._saveState()
+        self._saveGeometry()
+
+        # request close all documents
+        if not core.workspace().askToCloseAll():
+            return
+
+        core.aboutToTerminate.emit()
+        self.hide()
+
+        core.workspace().forceCloseAllDocuments()
+
+        return QApplication.quit()
 
     def _saveByteArray(self, path, title, data):
         """Load data, show error and return None if failed"""
