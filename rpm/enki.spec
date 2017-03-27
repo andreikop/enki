@@ -5,7 +5,7 @@
 %global icon_cache_gtk_update /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 Name:           enki
-Version:        16.04.1
+Version:        17.03.0
 Release:        5%{?dist}
 Summary:        Advanced text editor for programmers
 Group:          Productivity/Text/Editors
@@ -104,6 +104,9 @@ fi
 
 
 %changelog
+
+* Mon Mar 27 2017 Andrei Kopats <hlamer@tut.by> 17.03.0-18
+ - Quit action
 
 * Wed Jun 15 2016 Andrei Kopats <hlamer@tut.by> 16.04.1-17
  - Show Qt version
