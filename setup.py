@@ -2,7 +2,7 @@
 
 import sys
 import pkgutil
-from distutils.core import setup
+from setuptools import setup
 
 
 from enki.core.defines import PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_URL
