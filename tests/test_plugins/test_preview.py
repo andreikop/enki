@@ -27,7 +27,7 @@ from base import WaitForSignal
 # ---------------------------
 from PyQt5.QtWidgets import QMessageBox, QApplication
 from PyQt5.QtGui import QWheelEvent
-from PyQt5.QtCore import Qt, QPointF, QPoint
+from PyQt5.QtCore import Qt, QPointF, QPoint, pyqtSignal, QObject
 from PyQt5.QtTest import QTest
 
 # Local application imports
@@ -38,7 +38,7 @@ from enki.core.uisettings import UISettings
 # ``reload(enki.plugins.preview)``; the last, to instiantate ``SettingsWidget``.
 import enki.plugins.preview
 from enki.plugins.preview import CodeChatSettingsWidget, SphinxSettingsWidget
-from .import_fail import ImportFail
+from import_fail import ImportFail
 from enki.plugins.preview import _getSphinxVersion
 
 
@@ -64,8 +64,6 @@ def requiresSphinx():
 
 # Preview module tests
 # ====================
-
-
 class SimplePreviewTestCase(base.TestCase):
     """Only for very minimal testing of the Preview dock."""
 
@@ -96,6 +94,17 @@ class TestSimplePreview(SimplePreviewTestCase):
         with self.assertRaisesRegex(AssertionError, 'Dock Previe&w not found'):
             self._dock()
 
+# A class used to emit and save a signal containing a single object.
+class QGetObject(QObject):
+    # A signal that expects a single string.
+    got_object = pyqtSignal(object)
+
+    def __init__(self):
+        super().__init__()
+        self.got_object.connect(self.on_got_object)
+
+    def on_got_object(self, obj):
+        self.obj = obj
 
 class PreviewTestCase(SimplePreviewTestCase):
     """A class of utilities used to aid in testing the preview module."""
@@ -121,10 +130,19 @@ class PreviewTestCase(SimplePreviewTestCase):
         return self._dock().widget()
 
     def _plainText(self):
-        return self._widget().webEngineView.page().mainFrame().toPlainText()
+        go = QGetObject()
+        with WaitForSignal(go.got_object, 5000):
+            # See http://doc.qt.io/qt-5/qwebenginepage.html#runJavaScript.
+            # Run the JavaScript needed to get the page's plain text. The asynchronous result then emits a signal containing the string, which is saved in gs.
+            self._widget().webEngineView.page().runJavaScript('document.body.textContent.toString();', lambda obj: go.got_object.emit(obj))
+
+        return go.obj
 
     def _html(self):
-        return self._widget().webEngineView.page().mainFrame().toHtml()
+        go = QGetObject()
+        with WaitForSignal(go.got_object, 5000):
+            self._widget().webEngineView.page().toHtml(lambda obj: go.got_object.emit(obj))
+        return go.obj
 
     def _logText(self):
         """Return log window text"""
@@ -183,6 +201,11 @@ class PreviewTestCase(SimplePreviewTestCase):
 
 
 class TestPreview(PreviewTestCase):
+
+    @base.inMainLoop
+    def test_getPlainText(self):
+        print(self._plainText())
+        assert False
 
     @base.inMainLoop
     def test_html(self):

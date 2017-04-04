@@ -10,6 +10,7 @@
 # Library imports
 # ---------------
 import unittest
+from unittest.mock import patch, MagicMock
 import os.path
 import sys
 #
@@ -23,18 +24,18 @@ import base
 #
 # Third-party library imports
 # ---------------------------
-from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtCore import Qt, QPoint, pyqtSlot
 from PyQt5.QtTest import QTest
 from PyQt5.QtGui import QTextCursor
 #
 # Local application imports
 # -------------------------
 from enki.core.core import core
-from .test_preview import PreviewTestCase
-from base import requiresModule
+from test_preview import PreviewTestCase, QGetObject
+from base import requiresModule, WaitForSignal
 import enki.plugins.preview
 import enki.plugins.preview.preview_sync
-from .import_fail import ImportFail
+from import_fail import ImportFail
 
 
 @unittest.skipUnless(enki.plugins.preview.preview_sync.findApproxTextInTarget,
@@ -51,8 +52,7 @@ class Test(PreviewTestCase):
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     def _jsOnClick(self):
         """Simulate a mouse click by calling ``window.onclick()`` in Javascript."""
-        ret = self._widget().webEngineView.page().runJavaScript('window.onclick()')
-        assert not ret
+        self._widget().webEngineView.page().runJavaScript('window.onclick();')
 
     def _wsLen(self):
         """The web text for web-to-text sync will have extra
@@ -60,7 +60,7 @@ class Test(PreviewTestCase):
         version of the text. Determine how many whitespace characters
         preceed the text.
         """
-        wtc = self._dock().previewSync._webTextContent()
+        wtc = self._plainText()
         return len(wtc) - len(wtc.lstrip())
 
     def _testSyncString(self, s):
@@ -73,14 +73,16 @@ class Test(PreviewTestCase):
         """
         self._doBasicTest('rst')
         wsLen = self._wsLen()
-        # Choose text to find.
-        ret = self._widget().webEngineView.page().findText(s)
-        assert ret
-        # Now run the Javascript and see if the index with whitespace added matches.
-        self.assertEmits(self._jsOnClick,
-                         self._dock().previewSync.jsClick,
-                         100,
-                         expectedSignalParams=(len(s) + wsLen,))
+        with patch('enki.plugins.preview.preview_sync.PreviewSync._onWebviewClick_') as _onWebviewClick:
+            # Select the text in x, then simulate a mouse click.
+            go = QGetObject()
+            with WaitForSignal(go.got_object, 5000):
+                self._widget().webEngineView.page().runJavaScript('window.find("{}"); window.onclick();'.format(s), lambda obj: go.got_object.emit(obj))
+
+            # See if the index with whitespace added matches.
+            args, kwargs = _onWebviewClick.call_args
+            # args[1] is webIndex, the index of the found item.
+            self.assertEqual(args[1], len(s) + wsLen)
 
     @requiresModule('docutils')
     @base.inMainLoop
@@ -112,13 +114,12 @@ class Test(PreviewTestCase):
         index - The index into 'The preview text' string to send and check.
         """
         self._doBasicTest('rst')
-        wsLen = self._wsLen()
         # Move the code cursor somewhere else, rather than index 0,
         # so working code must change its value.
         self._dock().previewSync._moveTextPaneToIndex(5)
         assert index != 5
-        # Now, emit the signal for a click a given index into 'The preview text'.
-        self._dock().previewSync.jsClick.emit(wsLen + index)
+        # Now, sync for a click at the given index into 'The preview text'.
+        self._dock().previewSync._onWebviewClick(self._plainText(), self._wsLen() + index)
         # Check the new index, which should be 0.
         p = core.workspace().currentDocument().qutepart.textCursor().position()
         self.assertEqual(p, index)
@@ -143,21 +144,6 @@ class Test(PreviewTestCase):
 
     # Misc tests
     ##^^^^^^^^^^
-    @requiresModule('docutils')
-    @base.inMainLoop
-    def test_sync7(self):
-        """Test on an empty document."""
-        self.testText = ''
-        self.check_sync1()
-
-    # Test after the web page was changed and therefore reloaded,
-    # which might remove the JavaScript to respond to clicks.
-    # No test is needed: the previous tests already check this,
-    # since disabling the following lines causes lots of failures::
-    #
-    #   self._widget.webEngineView.page(). \
-    #     javaScriptWindowObjectCleared.connect(self._onJavaScriptCleared)
-
     @requiresModule('docutils')
     @base.inMainLoop
     def test_sync8(self):

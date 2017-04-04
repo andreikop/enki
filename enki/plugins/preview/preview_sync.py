@@ -541,6 +541,7 @@ class PreviewSync(QObject):
 
     @pyqtSlot(str, int)
     def _onWebviewClick(self, tc, webIndex):
+        self._onWebviewClick_(tc, webIndex)
         # Get the qutepart text.
         qp = core.workspace().currentDocument().qutepart
         # Perform an approximate match between the clicked webpage text and the
@@ -550,6 +551,10 @@ class PreviewSync(QObject):
         # was found.
         if textIndex >= 0:
             self._moveTextPaneToIndex(textIndex)
+
+    # Used for testing -- this will be replaced by a mock. Does nothing.
+    def _onWebviewClick_(self, tc, webIndex):
+        pass
 
     def _moveTextPaneToIndex(self, textIndex, noWebSync=True):
         """Given an index into the text pane, move the cursor to that index.
