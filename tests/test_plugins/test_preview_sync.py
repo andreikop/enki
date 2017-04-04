@@ -142,20 +142,6 @@ class Test(PreviewTestCase):
         """Test a click at the end of the string."""
         self._sendJsClick(len(self.testText))
 
-    # Misc tests
-    ##^^^^^^^^^^
-    @requiresModule('docutils')
-    @base.inMainLoop
-    def test_sync8(self):
-        """Test with javascript disabled."""
-        # The ``_dock()`` method only works after the dock exists.
-        # The method below creates it.
-        self._doBasicTest('rst')
-        self._dock()._onJavaScriptEnabledCheckbox(False)
-        # Click. Nothing will happen, but make sure there's no assertion
-        # or internal error.
-        QTest.mouseClick(self._widget().webEngineView, Qt.LeftButton)
-
     # Code to web sync tests
     ##----------------------
     # Basic text to web sync
