@@ -41,6 +41,7 @@ class PreviewSync(QObject):
        them vertically.
     """
     textToPreviewSynced = pyqtSignal()
+
     # Setup / cleanup
     # ===============
     def __init__(self,
@@ -58,6 +59,7 @@ class PreviewSync(QObject):
         self._dock = previewDock
         self._initPreviewToTextSync()
         self._initTextToPreviewSync()
+        self._unitTest = False
 
     def terminate(self):
         # Uninstall the text-to-web sync only if it was installed in the first
@@ -218,10 +220,7 @@ class PreviewSync(QObject):
         'function highlightFind('
           # The text to find, typically consisting of all text in the web page
           # from its beginning to the point to be found.
-          'txt,'
-          # True to skip searching for an highlighting the text; instead, this
-          # clears any existing highlight.
-          'hideHighlight) {'
+          'txt) {'
 
             # Clear the current selection, so that a find will start at the
             # beginning of the page.
@@ -234,6 +233,9 @@ class PreviewSync(QObject):
                 'highlighter.style.zIndex = 100;'
                 'highlighter.style.width = "100%";'
                 'highlighter.style.position = "absolute";'
+                # Pass any click on the highlight on to the webpage underneath.
+                # See https://developer.mozilla.org/en-US/docs/Web/CSS/pointer-events.
+                'highlighter.style.pointerEvents = "none";'
                 'highlighter.style.backgroundColor = "rgba(255, 255, 0, 0.4)";'
                 'highlighter.id = "highlighter";'
             '}'
@@ -241,7 +243,7 @@ class PreviewSync(QObject):
             ##                       aString, aCaseSensitive, aBackwards, aWrapAround, aWholeWord, aSearchInFrames, aShowDialog)
             'var found = window.find(txt,     true,           false,     false,        false,      true,            false);'
             # If the text was found, or the search string was empty, highlight a line.
-            'if ( (found || txt === "") && !hideHighlight) {'
+            'if (found || txt === "") {'
                 # Determine the coordiantes of the end of the selection.
                 'var res = selectionAnchorCoords();'
                 'if (res) {'
@@ -347,7 +349,7 @@ class PreviewSync(QObject):
                     # subtration, rather than addition, below.
                     page.runJavaScript('window.scrollTo(0, window.scrollY - {});'.format(deltaY))
                 # Clear the selection, whether we scrolled or not.
-                page.runJavaScript('clearSelection();')
+                self.clearSelection()
             else:
                 deltaY = self._alignScrollAmount(wvGlobalTop, wvCursorBottom,
                   qpGlobalTop, qpCursorBottom, qpHeight, qpCursorHeight, 0)
@@ -358,6 +360,11 @@ class PreviewSync(QObject):
                 vsb.setValue(vsb.value() - round(deltaY/qpCursorHeight))
 
         page.runJavaScript('selectionAnchorCoords();', callback)
+
+    # Clear the current selection in the web view.
+    def clearSelection(self):
+        if not self._unitTest:
+            self._dock._widget.webEngineView.page().runJavaScript('clearSelection();')
     #
     #
     # Synchronizing between the text pane and the preview pane
@@ -485,6 +492,23 @@ class PreviewSync(QObject):
             'window.previewSync._onWebviewClick(document.body.textContent.toString(), rStr.length);'
         '}')
 
+    _qtJsInit = (
+            # Since ``qt`` may not be defined (Qt 5.7.0 doesn't provide the
+            # ``qt`` object to JavaScript when loading per https://bugreports.qt.io/browse/QTBUG-53411),
+            # wrap it in a try/except block.
+            'try {'
+                'new QWebChannel(qt.webChannelTransport, function(channel) {'
+                    'window.previewSync = channel.objects.previewSync;'
+                '});'
+                'window.onclick = window_onclick;'
+            '} catch (err) {'
+                # Re-throw unrecognized errors. When ``qt`` isn't defined,
+                # JavaScript reports ``js: Uncaught ReferenceError: qt is not
+                # defined``.
+                'if (!(err instanceof ReferenceError)) throw error;'
+            '}'
+    )
+
     def _initPreviewToTextSync(self):
         """Initialize the system per items 1, 2, and 4 above."""
         # When a web page finishes loading, reinsert our JavaScript.
@@ -501,43 +525,20 @@ class PreviewSync(QObject):
         # Set up the QWebChannel. See http://doc.qt.io/qt-5/qtwebchannel-javascript.html.
         # Run the script containing QWebChannel.js first.
         beforeScript = QWebEngineScript()
-        beforeScript.setSourceCode(qwebchannel_js + self._jsPreviewSync)
+        beforeScript.setSourceCode(qwebchannel_js + self._jsPreviewSync + self._qtJsInit)
         beforeScript.setName('qwebchannel.js, previewSync')
         beforeScript.setWorldId(QWebEngineScript.MainWorld)
         beforeScript.setInjectionPoint(QWebEngineScript.DocumentReady)
         beforeScript.setRunsOnSubFrames(True)
         page.scripts().insert(beforeScript)
 
-        # Later, run a script that uses ``qt``, since that variable is (apparrently) not defined until after QWebChannel.js is loaded.
-        afterScript = QWebEngineScript()
-        afterScript.setSourceCode(
-            # Since ``qt`` may not be defined (Qt 5.7.0 doesn't provide the
-            # ``qt`` object to JavaScript when loading per https://bugreports.qt.io/browse/QTBUG-53411),
-            # wrap it in a try/except block.
-            'try {'
-                'new QWebChannel(qt.webChannelTransport, function(channel) {'
-                    'window.previewSync = channel.objects.previewSync;'
-                '});'
-                'window.onclick = window_onclick;'
-            '} catch (err) {'
-                # Re-throw unrecognized errors. When ``qt`` isn't defined,
-                # JavaScript reports ``js: Uncaught ReferenceError: qt is not
-                # defined``.
-                'if (!(err instanceof ReferenceError)) throw error;'
-            '}')
-        afterScript.setName('new QWebChannel')
-        afterScript.setWorldId(QWebEngineScript.MainWorld)
-        afterScript.setInjectionPoint(QWebEngineScript.Deferred)
-        afterScript.setRunsOnSubFrames(True)
-        page.scripts().insert(afterScript)
-
         # Set up the web channel. See https://riverbankcomputing.com/pipermail/pyqt/2015-August/036346.html
         # and http://stackoverflow.com/questions/28565254/how-to-use-qt-webengine-and-qwebchannel.
         # For debug, ``set QTWEBENGINE_REMOTE_DEBUGGING=port`` then browse to
         # http://127.0.0.1:port, where port=60000 works for me. See https://riverbankcomputing.com/pipermail/pyqt/2015-August/036346.html.
         self.channel = QWebChannel(page)
-        page.setWebChannel(self.channel)
         self.channel.registerObject("previewSync", self)
+        page.setWebChannel(self.channel)
 
     @pyqtSlot(str, int)
     def _onWebviewClick(self, tc, webIndex):
@@ -554,6 +555,7 @@ class PreviewSync(QObject):
 
     # Used for testing -- this will be replaced by a mock. Does nothing.
     def _onWebviewClick_(self, tc, webIndex):
+        print('a')
         pass
 
     def _moveTextPaneToIndex(self, textIndex, noWebSync=True):

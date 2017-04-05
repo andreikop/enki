@@ -155,6 +155,9 @@ class Test(PreviewTestCase):
         testText - The ReST string to use.
         checkText - True if the text hilighted in the web dock should be
             compared to the text in s.
+
+        Return:
+        The plain text rendering of the web page text of the line containing s, up to the point in that line where s was matched.
         """
         # Create multi-line text.
         self.testText = testText
@@ -175,12 +178,27 @@ class Test(PreviewTestCase):
         # Move to the location of the string s in the text.
         # The sync won't happen until the timer expires; wait
         # for that.
-        with base.WaitForSignal(self._dock().previewSync.textToPreviewSynced,
-                                3500, True):
-            self._dock().previewSync._moveTextPaneToIndex(index, False)
+        # I can't seem to patch clearSelection to remove it. This doesn't work. ???
+        #with patch('enki.plugins.preview.preview_sync.PreviewSync.clearSelection') as cs:
+        # Instead, use this kludge.
+        try:
+            self._dock().previewSync._unitTest = True
+            with base.WaitForSignal(self._dock().previewSync.textToPreviewSynced,
+                                    3500):
+                self._dock().previewSync._moveTextPaneToIndex(index, False)
+        finally:
+            self._dock().previewSync._unitTest = False
         # The web view should have the line containing s selected now.
+        # Note that webEngineView.selectedText() doesn't track JavaScript selections. So, fetch this from JavaScript.
+        go = QGetObject()
+        with base.WaitForSignal(go.got_object, 3500):
+            self._widget().webEngineView.page().runJavaScript('window.getSelection().toString();', lambda obj: go.got_object.emit(obj))
+
+        webPageText = go.obj.strip().split('\n')[-1]
         if checkText:
-            self.assertTrue(s in self._widget().webEngineView.selectedText())
+            # The selection will contain all text up to the start of s. Compare just the last line (the selected line) of both.
+            self.assertEqual(self.testText[:index].strip().split('\n')[-1], webPageText)
+        return webPageText
 
     @requiresModule('docutils')
     @base.inMainLoop
@@ -202,10 +220,9 @@ class Test(PreviewTestCase):
     # More complex test to web sync
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     @requiresModule('docutils')
-    @unittest.expectedFailure
     @base.inMainLoop
     def test_sync12(self):
-        """Tables with an embedded image cause findText to fail.
+        """Tables with an embedded image.
         """
         self._textToWeb('table', """
 ================  ========================
@@ -276,19 +293,22 @@ Here is some text after a table.""", True)
         before it in the ReST. There's not much the approximate match can do to
         fix this.
         """
-        self._textToWeb('Banana', self._row_span_rest(), True)
+        webPageText = self._textToWeb('Banana', self._row_span_rest(), False)
+        assert 'Apple 1' in webPageText
 
     @requiresModule('docutils')
+    @unittest.expectedFailure
     @base.inMainLoop
     def test_sync17(self):
-        """A failing case of the above test series."""
-        self._textToWeb('Bael', self._row_span_rest(), False)
+        webPageText = self._textToWeb('Bael', self._row_span_rest(), False)
+        assert 'Cherry 3' in webPageText
 
     @requiresModule('docutils')
     @base.inMainLoop
     def test_sync18(self):
         """Verify that sync after the column span works."""
-        self._textToWeb('Text', self._row_span_rest(), True)
+        webPageText = self._textToWeb('and 3', self._row_span_rest(), False)
+        assert 'Text after block' in webPageText
 
     # Test no sync on hidden preview window
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
