@@ -500,6 +500,7 @@ class PreviewSync(QObject):
                 'new QWebChannel(qt.webChannelTransport, function(channel) {'
                     'window.previewSync = channel.objects.previewSync;'
                 '});'
+                # TODO: This is ugly -- I should instead install an event handler, in case the web page being loaded also defines this.
                 'window.onclick = window_onclick;'
             '} catch (err) {'
                 # Re-throw unrecognized errors. When ``qt`` isn't defined,
@@ -527,9 +528,11 @@ class PreviewSync(QObject):
         beforeScript = QWebEngineScript()
         beforeScript.setSourceCode(qwebchannel_js + self._jsPreviewSync + self._qtJsInit)
         beforeScript.setName('qwebchannel.js, previewSync')
+        # Run this JavaScript separated from any JavaScript present in the loaded web page. This provides better security (rogue pages can't access the QWebChannel) and better isolation (handlers, etc. won't conflict, I hope).
         beforeScript.setWorldId(QWebEngineScript.MainWorld)
         beforeScript.setInjectionPoint(QWebEngineScript.DocumentReady)
-        beforeScript.setRunsOnSubFrames(True)
+        # Per `setWebChannel <http://doc.qt.io/qt-5/qwebenginepage.html#setWebChannel>`_, only one channel is allowed per page. So, don't run this on sub-frames, since it will attempt the creation more channels for each subframe.
+        beforeScript.setRunsOnSubFrames(False)
         page.scripts().insert(beforeScript)
 
         # Set up the web channel. See https://riverbankcomputing.com/pipermail/pyqt/2015-August/036346.html
@@ -538,7 +541,8 @@ class PreviewSync(QObject):
         # http://127.0.0.1:port, where port=60000 works for me. See https://riverbankcomputing.com/pipermail/pyqt/2015-August/036346.html.
         self.channel = QWebChannel(page)
         self.channel.registerObject("previewSync", self)
-        page.setWebChannel(self.channel)
+        # Expose the ``qt.webChannelTransport`` object in the world where these scripts live.
+        page.setWebChannel(self.channel, QWebEngineScript.MainWorld)
 
     @pyqtSlot(str, int)
     def _onWebviewClick(self, tc, webIndex):
@@ -693,6 +697,7 @@ class PreviewSync(QObject):
                 self.textToPreviewSynced.emit()
 
         if webIndex >= 0:
+            # TODO: Run all JavaScript with a wrapper that waits for the page to be loaded, then runs the functions, to make sure all the support JavaScript is already loaded. See http://stackoverflow.com/a/7088499.
             page.runJavaScript('highlightFind({});'.format(repr(ft)), callback)
         else:
             self.clearHighlight()
