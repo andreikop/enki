@@ -31,7 +31,7 @@ from PyQt5.QtGui import QTextCursor
 # Local application imports
 # -------------------------
 from enki.core.core import core
-from test_preview import PreviewTestCase, QGetObject
+from test_preview import PreviewTestCase, WaitForCallback
 from base import requiresModule, WaitForSignal
 import enki.plugins.preview
 import enki.plugins.preview.preview_sync
@@ -75,9 +75,8 @@ class Test(PreviewTestCase):
         wsLen = self._wsLen()
         with patch('enki.plugins.preview.preview_sync.PreviewSync._onWebviewClick_') as _onWebviewClick:
             # Select the text in x, then simulate a mouse click.
-            go = QGetObject()
-            with WaitForSignal(go.got_object, 5000):
-                self._widget().webEngineView.page().runJavaScript('window.find("{}"); window.onclick();'.format(s), lambda obj: go.got_object.emit(obj))
+            with WaitForCallback(5000) as wfc:
+                self._widget().webEngineView.page().runJavaScript('window.find("{}"); window.onclick();'.format(s), wfc.callback)
 
             # See if the index with whitespace added matches.
             args, kwargs = _onWebviewClick.call_args
@@ -190,11 +189,10 @@ class Test(PreviewTestCase):
             self._dock().previewSync._unitTest = False
         # The web view should have the line containing s selected now.
         # Note that webEngineView.selectedText() doesn't track JavaScript selections. So, fetch this from JavaScript.
-        go = QGetObject()
-        with base.WaitForSignal(go.got_object, 3500):
-            self._widget().webEngineView.page().runJavaScript('window.getSelection().toString();', lambda obj: go.got_object.emit(obj))
+        with WaitForCallback(3500) as wfc:
+            self._widget().webEngineView.page().runJavaScript('window.getSelection().toString();', wfc.callback)
 
-        webPageText = go.obj.strip().split('\n')[-1]
+        webPageText = wfc.args[0].strip().split('\n')[-1]
         if checkText:
             # The selection will contain all text up to the start of s. Compare just the last line (the selected line) of both.
             self.assertEqual(self.testText[:index].strip().split('\n')[-1], webPageText)

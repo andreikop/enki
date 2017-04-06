@@ -94,17 +94,27 @@ class TestSimplePreview(SimplePreviewTestCase):
         with self.assertRaisesRegex(AssertionError, 'Dock Previe&w not found'):
             self._dock()
 
-# A class used to emit and save a signal containing a single object.
-class QGetObject(QObject):
-    # A signal that expects a single string.
-    got_object = pyqtSignal(object)
+# Provide a convenient way to wait for a callback to complete.
+class WaitForCallback(QObject):
+    # A signal used to wait in the current thread for the callback to be called.
+    got_callback = pyqtSignal(tuple, dict)
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super().__init__()
-        self.got_object.connect(self.on_got_object)
+        self.waitForSignal = WaitForSignal(self.got_callback, *args, **kwargs)
 
-    def on_got_object(self, obj):
-        self.obj = obj
+    def __enter__(self):
+        self.waitForSignal.__enter__()
+        return self
+
+    def callback(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+        self.got_callback.emit(args, kwargs)
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        return self.waitForSignal.__exit__(exc_type, exc_value, traceback)
+
 
 class PreviewTestCase(SimplePreviewTestCase):
     """A class of utilities used to aid in testing the preview module."""
@@ -130,19 +140,17 @@ class PreviewTestCase(SimplePreviewTestCase):
         return self._dock().widget()
 
     def _plainText(self):
-        go = QGetObject()
-        with WaitForSignal(go.got_object, 5000):
+        with WaitForCallback(5000) as wfc:
             # See http://doc.qt.io/qt-5/qwebenginepage.html#runJavaScript.
             # Run the JavaScript needed to get the page's plain text. The asynchronous result then emits a signal containing the string, which is saved in gs.
-            self._widget().webEngineView.page().runJavaScript('document.body.textContent.toString();', lambda obj: go.got_object.emit(obj))
+            self._widget().webEngineView.page().runJavaScript('document.body.textContent.toString();', wfc.callback)
 
-        return go.obj
+        return wfc.args[0]
 
     def _html(self):
-        go = QGetObject()
-        with WaitForSignal(go.got_object, 5000):
-            self._widget().webEngineView.page().toHtml(lambda obj: go.got_object.emit(obj))
-        return go.obj
+        with WaitForCallback(5000) as wfc:
+            self._widget().webEngineView.page().toHtml(wfc.callback)
+        return wfc.args[0]
 
     def _logText(self):
         """Return log window text"""
