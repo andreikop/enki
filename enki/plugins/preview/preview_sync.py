@@ -74,6 +74,8 @@ class PreviewSync(QObject):
             # then discard its output.
             self._runLatest.future.cancel(True)
             self._runLatest.terminate()
+            # De-register the QWebChannel.
+            self.channel.deregisterObject(self)
     #
     # Vertical synchronization
     ##========================
@@ -530,7 +532,7 @@ class PreviewSync(QObject):
         beforeScript.setName('qwebchannel.js, previewSync')
         # Run this JavaScript separated from any JavaScript present in the loaded web page. This provides better security (rogue pages can't access the QWebChannel) and better isolation (handlers, etc. won't conflict, I hope).
         beforeScript.setWorldId(QWebEngineScript.MainWorld)
-        beforeScript.setInjectionPoint(QWebEngineScript.DocumentReady)
+        beforeScript.setInjectionPoint(QWebEngineScript.DocumentCreation)
         # Per `setWebChannel <http://doc.qt.io/qt-5/qwebenginepage.html#setWebChannel>`_, only one channel is allowed per page. So, don't run this on sub-frames, since it will attempt the creation more channels for each subframe.
         beforeScript.setRunsOnSubFrames(False)
         page.scripts().insert(beforeScript)
@@ -559,7 +561,6 @@ class PreviewSync(QObject):
 
     # Used for testing -- this will be replaced by a mock. Does nothing.
     def _onWebviewClick_(self, tc, webIndex):
-        print('a')
         pass
 
     def _moveTextPaneToIndex(self, textIndex, noWebSync=True):
@@ -647,11 +648,15 @@ class PreviewSync(QObject):
             return
         # Stop the timer; the next cursor movement will restart it.
         self._cursorMovementTimer.stop()
-        # Perform an approximate match in a separate thread, then update
-        # the cursor based on the match results.
-        self._dock._widget.webEngineView.page().toPlainText(self._havePlainText)
+        # Get a plain text rendering of the web view. Continue execution in a callback.
+        qp = core.workspace().currentDocument().qutepart
+        qp_text = qp.text
+        qp_position = qp.textCursor().position()
+        self._dock._widget.webEngineView.page().toPlainText(lambda txt: self._havePlainText(txt, qp_text, qp_position))
 
-    def _havePlainText(self, txt):
+    # Perform an approximate match in a separate thread, then update
+    # the cursor based on the match results.
+    def _havePlainText(self, html_text, qp_text, qp_position):
         # Performance notes: findApproxTextInTarget is REALLY slow. Scrolling
         # through preview.py with profiling enabled produced::
         #
@@ -670,10 +675,9 @@ class PreviewSync(QObject):
         #
         # Therefore, finding ways to make this faster or run it in another
         # thread should significantly improve the GUI's responsiveness.
-        qp = core.workspace().currentDocument().qutepart
         self._runLatest.start(self._movePreviewPaneToIndex,
-          lambda a, b, c: (findApproxTextInTarget(a, b, c), c), qp.text,
-          qp.textCursor().position(), txt)
+          lambda a, b, c: (findApproxTextInTarget(a, b, c), c), qp_text,
+          qp_position, html_text)
 
     def _movePreviewPaneToIndex(self, future):
         """Highlights webIndex in the preview pane, per item 4 above.
