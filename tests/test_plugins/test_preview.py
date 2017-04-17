@@ -1006,7 +1006,6 @@ head
         # Switch to other two documents, they should have the same splitter size
         self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
         self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
-        print('1')
 
     @base.inMainLoop
     def test_logWindowSplitter2(self):

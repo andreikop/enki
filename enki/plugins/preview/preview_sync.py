@@ -12,12 +12,12 @@
 # =======
 # Library imports
 # ---------------
-# None.
+from enum import Enum
 #
 # Third-party
 # -----------
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QTimer, QObject, QThread, \
-    QFile, QIODevice
+    QFile, QIODevice, QEventLoop
 from PyQt5 import QtGui
 from PyQt5.QtWebChannel import QWebChannel
 from PyQt5.QtWebEngineWidgets import QWebEngineScript
@@ -33,6 +33,118 @@ try:
     from .approx_match import findApproxTextInTarget
 except ImportError as e:
     findApproxTextInTarget = None
+#
+# CallbackManager
+# ===============
+# Callbacks are a painful additon when porting from QWebKit to QWebEngine. Some operations, just as getting the HTML content of the page, return their value via a callback. Effectively, this is somewhat like a threaded (or, more correctly a multi-process) operation: Qt sends a request to the web engine process, which replies with the requested data. In the meantime, other code runs. When the requested data arrives, Qt invokes the callback. (Why didn't they use signals?) This leads to some challenges:
+#
+# #. The data the callback operates on may no longer be needed or relevant; for example, if a document was closed, a callback expecting to use the HTML text to synchronize with text in the current document will fail.
+# #. When terminating a class, there's no way to know if any callbacks are pending. If they're called after the class terminates, failures will occur. Likewise, there's not way to wait until all callbacks have completed.
+#
+# As a solution, this class provides future-like behavior for callbacks: a CallbackFuture can be skipped (so that the callback it wraps won't be invoked, providing a way to deal with problem 1 above -- don't invoke callbacks that depend on out-of-date state) or waiting for (to avoid termination errors in problem 2 above). The CallbackManager keeps track of all pending callbacks.
+#
+# Example use:
+#
+# .. code-block:: Python
+#   :linenos:
+#
+#   def __init__(self):
+#       self.cm = CallbackManager()
+#
+#   # This demonstrates wrapping a callback in a CallbackFuture.
+#   def getPlainText(self):
+#       # The parameter to ``toPlainText`` is a callback.
+#       self.webEngineView.page().toPlainText(cm.callback(self.havePlainText))
+#
+#   def havePlainText(self, txt):
+#       # Do something with txt.
+#
+#   def setNewHtml(self, html):
+#       # Cancel any pending callbacks -- with new HTML, the plain text isn't correct.
+#       self.cm.skipAllCallbacks()
+#       self.webEngineView.page().setHtml(html)
+#       # Run it again on the new HTML.
+#       self.getPlainText()
+#
+#   def terminate(self):
+#       # Cancel then wait for all callbacks to complete before terminating.
+#       self.cm.skipAllCallbacks()
+#       self.cm.waitAllCallbacks()
+#
+#
+class CallbackFutureState(Enum):
+    READY = 0
+    WAITING = 1
+    COMPLETE = 2
+#
+# CallbackFuture
+# --------------
+# A CallbackFuture keeps track of its state (if it's waiting for a callback; if the callback should be skipped).
+#
+# **Important**: This class is NOT thread-safe. Invoke all of its methods from a single thread.
+class CallbackFuture:
+    def __init__(self,
+      # A CallbackManager instance to register with.
+      callbackManager,
+      # _`callbackToWrap`: The callback function to (optionally) invoke, which this future will wrap.
+      callbackToWrap):
+
+        self.callbackManager = callbackManager
+        self._callbackToWrap = callbackToWrap
+        self._state = CallbackFutureState.READY
+        self._shouldInvokeCallback = True
+        self._qEventLoop = None
+
+    # Return the callback wrapper for this future and mark it as waiting.
+    def callback(self):
+        assert self._state == CallbackFutureState.READY, 'A callback may only be obtained once.'
+        self._state = CallbackFutureState.WAITING
+        self.callbackManager.add(self)
+        return self._callbackWrapper
+
+    # The callback wrapper. Update state, then invoke the wrapped callback.
+    def _callbackWrapper(self, *args, **kwargs):
+        assert self._state == CallbackFutureState.WAITING
+        self._state = CallbackFutureState.COMPLETE
+        self.callbackManager.remove(self)
+        # If waiting for the callback, stop!
+        if self._qEventLoop:
+            self._qEventLoop.quit()
+        if self._shouldInvokeCallback:
+            self._callbackToWrap(*args, **kwargs)
+
+    def skipCallback(self):
+        assert self._state == CallbackFutureState.WAITING, 'Only callbacks being waited for may be skipped.'
+        self._shouldInvokeCallback = False
+
+    # Wait until the wrapped callback is completed (invoked or skipped).
+    def waitForCallback(self):
+        assert self._state == CallbackFutureState.WAITING, 'Only callbacks being waited for may be skipped.'
+        # Run events until the callback is invoked.
+        self._qEventLoop = QEventLoop()
+        self._qEventLoop.exec_()
+        self._qEventLoop = None
+        assert self._state == CallbackFutureState.COMPLETE
+
+class CallbackManager(set):
+    def skipAllCallbacks(self):
+        for item in self:
+            item.skipCallback()
+
+    def waitForAllCallbacks(self):
+        while self:
+            # Note: we can't iterate over items in the set, since removal of an item (such as a completed CallbackFuture) rasies ``RuntimeError: Set changed size during iteration``. Instead, wait one item in the set. (Don't wait on the rest, since they may no longer belong to the set). The following two lines gets one item from the set.
+            for item in self:
+                break
+            # Wait on it.
+            item.waitForCallback()
+
+    # A convenience method: wrap a callback and return the wrapper.
+    def callback(self,
+      # See callbackToWrap_.
+      callbackToInvoke):
+
+        return CallbackFuture(self, callbackToInvoke).callback()
 #
 # PreviewSync
 # ===========
@@ -70,6 +182,8 @@ class PreviewSync(QObject):
                 self._onCursorPositionChanged)
             core.workspace().currentDocumentChanged.disconnect(
                 self._onDocumentChanged)
+            # Kludge. Wait for all in-progress callbacks to complete. How can I otherwise accomplish this?
+            from PyQt5.QtTest import QTest; QTest.qWait(500)
             # Shut down the background sync. If a sync was already in progress,
             # then discard its output.
             self._runLatest.future.cancel(True)

@@ -24,7 +24,7 @@ import base
 #
 # Third-party library imports
 # ---------------------------
-from PyQt5.QtCore import Qt, QPoint, pyqtSlot
+from PyQt5.QtCore import Qt, QPoint, pyqtSlot, QTimer
 from PyQt5.QtTest import QTest
 from PyQt5.QtGui import QTextCursor
 #
@@ -32,11 +32,134 @@ from PyQt5.QtGui import QTextCursor
 # -------------------------
 from enki.core.core import core
 from test_preview import PreviewTestCase, WaitForCallback
-from base import requiresModule, WaitForSignal
+from base import requiresModule, WaitForSignal, TestCase
 import enki.plugins.preview
 import enki.plugins.preview.preview_sync
+from enki.plugins.preview.preview_sync import CallbackManager, CallbackFuture, CallbackFutureState
 from import_fail import ImportFail
 
+class CallbackToWrap:
+    def __init__(self):
+        self.returnedParams = []
+
+    # This callback simply saves the parameters passed to it. It appends a dict of keyword arguments, which helps distinguish a call with no parameters (which would be ``[{}]``) from not being called at all (``[]``).
+    def callbackToWrap(self, *args, **kwargs):
+        self.returnedParams.extend(args)
+        self.returnedParams.append(kwargs)
+
+class CallbackManagerTest(base.TestCase):
+    # Wrap then invoke a callback.
+    def test_1(self):
+        # Before getting a wrapped callback, the future should be in the ready state.
+        cw = CallbackToWrap()
+        cm = CallbackManager()
+        cf = CallbackFuture(cm, cw.callbackToWrap)
+        self.assertEqual(cf._state, CallbackFutureState.READY)
+
+        # After getting a wrapped callback, it should be waiting.
+        wrappedCallback = cf.callback()
+        self.assertEqual(cf._state, CallbackFutureState.WAITING)
+
+        # When the callback is called, it should be complete.
+        invokedParams = [1, 'a', str]
+        wrappedCallback(*invokedParams)
+        self.assertEqual(cf._state, CallbackFutureState.COMPLETE)
+        self.assertEqual(invokedParams + [{}], cw.returnedParams)
+
+    # Wrap, then cancel a callback before invoking it.
+    def test_2(self):
+        # Before getting a wrapped callback, the future should be in the ready state.
+        cw = CallbackToWrap()
+        cm = CallbackManager()
+        cf = CallbackFuture(cm, cw.callbackToWrap)
+        self.assertEqual(cf._state, CallbackFutureState.READY)
+
+        # After getting a wrapped callback, it should be waiting.
+        wrappedCallback = cf.callback()
+        self.assertEqual(cf._state, CallbackFutureState.WAITING)
+        cf.skipCallback()
+
+        # When the callback is called, it should be complete. However, since it was canceled, the wrapped callback should not have been invoked.
+        invokedParams = [1, 'a', str]
+        wrappedCallback(*invokedParams)
+        self.assertEqual(cf._state, CallbackFutureState.COMPLETE)
+        self.assertEqual([], cw.returnedParams)
+
+    # Wait for an in-progress callback.
+    def test_3(self):
+        # Before getting a wrapped callback, the future should be in the ready state.
+        cw = CallbackToWrap()
+        cm = CallbackManager()
+        cf = CallbackFuture(cm, cw.callbackToWrap)
+        self.assertEqual(cf._state, CallbackFutureState.READY)
+
+        # After getting a wrapped callback, it should be waiting.
+        wrappedCallback = cf.callback()
+        self.assertEqual(cf._state, CallbackFutureState.WAITING)
+
+        # Invoke the callback using a timer, then wait for it to be invoked.
+        invokedParams = [1, 'a', str]
+        QTimer.singleShot(0, lambda: wrappedCallback(*invokedParams))
+        cf.waitForCallback()
+
+        # When the callback is called, it should be complete.
+        self.assertEqual(cf._state, CallbackFutureState.COMPLETE)
+        self.assertEqual(invokedParams + [{}], cw.returnedParams)
+
+    # Test the callback manager on waiting for multiple callbacks.
+    def test_4(self):
+        # Before getting a wrapped callback, the future should be in the ready state.
+        cm = CallbackManager()
+
+        # After getting a wrapped callback, it should be waiting.
+        cw1 = CallbackToWrap()
+        cw2 = CallbackToWrap()
+        cw3 = CallbackToWrap()
+        wrappedCallback1 = cm.callback(cw1.callbackToWrap)
+        wrappedCallback2List = []
+        wrappedCallback3 = cm.callback(cw3.callbackToWrap)
+
+        # Have one callback add another in the callback.
+        def callbackToWrap():
+            wrappedCallback2 = cm.callback(cw2.callbackToWrap)
+            wrappedCallback2List.append(wrappedCallback2)
+            QTimer.singleShot(0, lambda: wrappedCallback2(2))
+
+        # Invoke the callbacks using a timer, then wait for them to be invoked.
+        QTimer.singleShot(0, lambda: wrappedCallback1(1))
+        QTimer.singleShot(0, callbackToWrap)
+        QTimer.singleShot(0, lambda: wrappedCallback3(3))
+        cm.waitForAllCallbacks()
+
+        # When the callback is called, it should be complete.
+        self.assertEqual([1, {}], cw1.returnedParams)
+        self.assertEqual([2, {}], cw2.returnedParams)
+        self.assertEqual([3, {}], cw3.returnedParams)
+
+    # Test the callback manager on skipping multiple callbacks.
+    def test_5(self):
+        # Before getting a wrapped callback, the future should be in the ready state.
+        cm = CallbackManager()
+
+        # After getting a wrapped callback, it should be waiting.
+        cw1 = CallbackToWrap()
+        cw2 = CallbackToWrap()
+        cw3 = CallbackToWrap()
+        wrappedCallback1 = cm.callback(cw1.callbackToWrap)
+        wrappedCallback2 = cm.callback(cw2.callbackToWrap)
+        wrappedCallback3 = cm.callback(cw3.callbackToWrap)
+
+        # Invoke the callbacks using a timer, then wait for them to be invoked.
+        QTimer.singleShot(0, lambda: wrappedCallback1(1))
+        QTimer.singleShot(0, lambda: wrappedCallback2(2))
+        QTimer.singleShot(0, lambda: wrappedCallback3(3))
+        cm.skipAllCallbacks()
+        cm.waitForAllCallbacks()
+
+        # When the callback is called, it should be complete.
+        self.assertEqual([], cw1.returnedParams)
+        self.assertEqual([], cw2.returnedParams)
+        self.assertEqual([], cw3.returnedParams)
 
 @unittest.skipUnless(enki.plugins.preview.preview_sync.findApproxTextInTarget,
                      'Requires working TRE')
