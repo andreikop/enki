@@ -716,19 +716,28 @@ class PreviewDock(DockWidget):
 
     def onPreviewSave(self):
         """Save contents of the preview pane to a user-specified file."""
+        path, _ = QFileDialog.getSaveFileName(self, 'Save Preview as HTML', filter='HTML (*.html)')
+
+        if path:
+            self._previewSave(path)
+
+    def _previewSave(self, path):
+        qe = QEventLoop()
+
         def callback(text):
             try:
                 with open(path, 'w', encoding='utf-8') as openedFile:
                     openedFile.write(text)
             except (OSError, IOError) as ex:
                 QMessageBox.critical(self, "Failed to save HTML", str(ex))
+            qe.quit()
 
-        path, _ = QFileDialog.getSaveFileName(self, 'Save Preview as HTML', filter='HTML (*.html)')
         # The preview selection is an extra ``div`` inserted by the sync code.
         # Remove it before saving the file.
         self.previewSync.clearHighlight()
-        if path:
-            self._widget.webEngineView.page().toHtml(callback)
+        self._widget.webEngineView.page().toHtml(callback)
+        # Wait for the callback to complete.
+        qe.exec_()
 
     # HTML generation
     #----------------
@@ -955,8 +964,6 @@ class PreviewDock(DockWidget):
         self._widget.webEngineView.page().loadFinished.connect(
             self._restoreScrollPos)
 
-        self.previewSync._callbackManager.waitForAllCallbacks()
-        #from PyQt5.QtTest import QTest; QTest.qWait(500)
         # Per http://stackoverflow.com/questions/36609489/how-to-prevent-qwebengineview-to-grab-focus-on-sethtml-and-load-calls,
         # the QWebEngineView steals the focus on a call to ``setHtml``. Disable
         # it to prevent this.
