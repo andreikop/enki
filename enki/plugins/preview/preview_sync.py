@@ -169,6 +169,7 @@ class PreviewSync(QObject):
         self._jsPreviewSync = self._jsOnClick + self._jsWebCursorCoords
 
         self._dock = previewDock
+        self._callbackManager = CallbackManager()
         self._initPreviewToTextSync()
         self._initTextToPreviewSync()
         self._unitTest = False
@@ -188,6 +189,9 @@ class PreviewSync(QObject):
             # then discard its output.
             self._runLatest.future.cancel(True)
             self._runLatest.terminate()
+            # End all callbacks.
+            self._callbackManager.skipAllCallbacks()
+            self._callbackManager.waitForAllCallbacks()
             # De-register the QWebChannel.
             self.channel.deregisterObject(self)
     #
@@ -475,7 +479,7 @@ class PreviewSync(QObject):
                 # same.
                 vsb.setValue(vsb.value() - round(deltaY/qpCursorHeight))
 
-        page.runJavaScript('selectionAnchorCoords();', callback)
+        page.runJavaScript('selectionAnchorCoords();', self._callbackManager.callback(callback))
 
     # Clear the current selection in the web view.
     def clearSelection(self):
@@ -647,7 +651,7 @@ class PreviewSync(QObject):
         # Run this JavaScript separated from any JavaScript present in the loaded web page. This provides better security (rogue pages can't access the QWebChannel) and better isolation (handlers, etc. won't conflict, I hope).
         beforeScript.setWorldId(QWebEngineScript.MainWorld)
         beforeScript.setInjectionPoint(QWebEngineScript.DocumentCreation)
-        # Per `setWebChannel <http://doc.qt.io/qt-5/qwebenginepage.html#setWebChannel>`_, only one channel is allowed per page. So, don't run this on sub-frames, since it will attempt the creation more channels for each subframe.
+        # Per `setWebChannel <http://doc.qt.io/qt-5/qwebenginepage.html#setWebChannel>`_, only one channel is allowed per page. So, don't run this on sub-frames, since it will attempt the creation of more channels for each subframe.
         beforeScript.setRunsOnSubFrames(False)
         page.scripts().insert(beforeScript)
 
@@ -737,6 +741,7 @@ class PreviewSync(QObject):
 
     def _onDocumentChanged(self, old, new):
         self._runLatest.future.cancel(True)
+        self._callbackManager.skipAllCallbacks()
         self._cursorMovementTimer.stop()
 
     def _onCursorPositionChanged(self):
@@ -765,12 +770,11 @@ class PreviewSync(QObject):
         # Get a plain text rendering of the web view. Continue execution in a callback.
         qp = core.workspace().currentDocument().qutepart
         qp_text = qp.text
-        qp_position = qp.textCursor().position()
-        self._dock._widget.webEngineView.page().toPlainText(lambda txt: self._havePlainText(txt, qp_text, qp_position))
+        self._dock._widget.webEngineView.page().toPlainText(self._callbackManager.callback(lambda txt: self._havePlainText(txt, qp_text)))
 
     # Perform an approximate match in a separate thread, then update
     # the cursor based on the match results.
-    def _havePlainText(self, html_text, qp_text, qp_position):
+    def _havePlainText(self, html_text, qp_text):
         # Performance notes: findApproxTextInTarget is REALLY slow. Scrolling
         # through preview.py with profiling enabled produced::
         #
@@ -789,9 +793,11 @@ class PreviewSync(QObject):
         #
         # Therefore, finding ways to make this faster or run it in another
         # thread should significantly improve the GUI's responsiveness.
+        qp = core.workspace().currentDocument().qutepart
+        qp_position = qp.textCursor().position()
         self._runLatest.start(self._movePreviewPaneToIndex,
-          lambda a, b, c: (findApproxTextInTarget(a, b, c), c), qp_text,
-          qp_position, html_text)
+            lambda qp_text, qp_position, html_text: (findApproxTextInTarget(qp_text, qp_position, html_text), html_text),
+            qp_text, qp_position, html_text)
 
     def _movePreviewPaneToIndex(self, future):
         """Highlights webIndex in the preview pane, per item 4 above.
@@ -816,7 +822,7 @@ class PreviewSync(QObject):
 
         if webIndex >= 0:
             # TODO: Run all JavaScript with a wrapper that waits for the page to be loaded, then runs the functions, to make sure all the support JavaScript is already loaded. See http://stackoverflow.com/a/7088499.
-            page.runJavaScript('highlightFind({});'.format(repr(ft)), callback)
+            page.runJavaScript('highlightFind({});'.format(repr(ft)), self._callbackManager.callback(callback))
         else:
             self.clearHighlight()
 
