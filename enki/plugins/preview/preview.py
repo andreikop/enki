@@ -23,6 +23,7 @@ from PyQt5.QtWidgets import QFileDialog, QMessageBox, QWidget
 from PyQt5.QtGui import QDesktopServices, QIcon, QPalette, QWheelEvent
 from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
 from PyQt5 import uic
+import sip
 #
 # Local imports
 # -------------
@@ -392,16 +393,16 @@ class PreviewDock(DockWidget):
 
         self._loadTemplates()
         self._widget.cbTemplate.currentIndexChanged.connect(
-            self._onCurrentTemplateChanged)  # Disconnected.
+            self._onCurrentTemplateChanged)
 
         # When quitting this program, don't rebuild when closing all open
         # documents. This can take a long time, particularly if a some of the
         # documents are associated with a Sphinx project.
         self._programRunning = True
-        core.aboutToTerminate.connect(self._quitingApplication)  # Disconnected.
+        core.aboutToTerminate.connect(self._quitingApplication)
 
-        core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)  # Disconnected.
-        core.workspace().textChanged.connect(self._onTextChanged)  # Disconnected.
+        core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
+        core.workspace().textChanged.connect(self._onTextChanged)
 
         # If the user presses the accept button in the setting dialog, Enki
         # will force a rebuild of the whole project.
@@ -413,10 +414,10 @@ class PreviewDock(DockWidget):
         # core.config()['Sphinx'] and core.config()['CodeChat']. After dialogAccepted
         # is detected, compare current settings with the old one. Build if necessary.
         core.uiSettingsManager().dialogAccepted.connect(
-            self._scheduleDocumentProcessing)  # Disconnected.
+            self._scheduleDocumentProcessing)
 
         core.workspace().modificationChanged.connect(
-            self._onDocumentModificationChanged)  # disconnected
+            self._onDocumentModificationChanged)
 
         self._scrollPos = {}
         self._vAtEnd = {}
@@ -435,7 +436,7 @@ class PreviewDock(DockWidget):
         # This timer is used for drawing Preview 800 ms After user has stopped typing text
         self._typingTimer = QTimer()  # stopped.
         self._typingTimer.setInterval(800)
-        self._typingTimer.timeout.connect(self._scheduleDocumentProcessing)  # Disconnected.
+        self._typingTimer.timeout.connect(self._scheduleDocumentProcessing)
 
         self.previewSync = PreviewSync(self)  # del_ called
 
@@ -457,10 +458,10 @@ class PreviewDock(DockWidget):
         # restored correctly on a ``_clear_log``.
         self._defaultLogFont = self._widget.teLog.currentCharFormat()
         # The logWindowClear signal clears the log window.
-        self._sphinxConverter.logWindowClear.connect(self._clear_log)  # disconnected
+        self._sphinxConverter.logWindowClear.connect(self._clear_log)
         # The logWindowText signal simply appends text to the log window.
         self._sphinxConverter.logWindowText.connect(lambda s:
-                                           self._widget.teLog.appendPlainText(s))  # disconnected
+                                           self._widget.teLog.appendPlainText(s))
 
     def _createWidget(self):
         widget = QWidget(self)
@@ -481,22 +482,22 @@ class PreviewDock(DockWidget):
         widget.webEngineView.setPalette(webEngineViewPalette)
 
         widget.webEngineView.page().titleChanged.connect(
-            self._updateTitle)  # Disconnected.
+            self._updateTitle)
         widget.cbEnableJavascript.clicked.connect(
-            self._onJavaScriptEnabledCheckbox)  # Disconnected.
+            self._onJavaScriptEnabledCheckbox)
         widget.webEngineView.installEventFilter(self)
 
         self.setWidget(widget)
         self.setFocusProxy(widget.webEngineView)
 
-        widget.tbSave.clicked.connect(self.onPreviewSave)  # Disconnected.
+        widget.tbSave.clicked.connect(self.onPreviewSave)
         # Add an attribute to ``widget`` denoting the splitter location.
         # This value will be overwritten when the user changes splitter location.
         widget.splitterErrorStateSize = (199, 50)
         widget.splitterNormStateSize = (1, 0)
         widget.splitterNormState = True
         widget.splitter.setSizes(widget.splitterNormStateSize)
-        widget.splitter.splitterMoved.connect(self.on_splitterMoved)  # Disconnected.
+        widget.splitter.splitterMoved.connect(self.on_splitterMoved)
 
         return widget
 
@@ -513,35 +514,10 @@ class PreviewDock(DockWidget):
         """Uninstall themselves
         """
         self._typingTimer.stop()
-        self._typingTimer.timeout.disconnect(self._scheduleDocumentProcessing)
-        try:
-            self._widget.webEngineView.page().loadFinished.disconnect(
-                self._restoreScrollPos)
-        except TypeError:  # already has been disconnected
-            pass
         self.previewSync.terminate()
-        core.workspace().modificationChanged.disconnect(
-            self._onDocumentModificationChanged)
-
-        self._widget.cbTemplate.currentIndexChanged.disconnect(
-            self._onCurrentTemplateChanged)
-        core.aboutToTerminate.disconnect(self._quitingApplication)
-        core.workspace().currentDocumentChanged.disconnect(
-            self._onDocumentChanged)
-        core.workspace().textChanged.disconnect(self._onTextChanged)
-        core.uiSettingsManager().dialogAccepted.disconnect(
-            self._scheduleDocumentProcessing)
-        self._widget.webEngineView.page().titleChanged.disconnect(
-            self._updateTitle)
-        self._widget.cbEnableJavascript.clicked.disconnect(
-            self._onJavaScriptEnabledCheckbox)
-        self._widget.tbSave.clicked.disconnect(self.onPreviewSave)
-        self._widget.splitter.splitterMoved.disconnect(self.on_splitterMoved)
-        self._sphinxConverter.logWindowClear.disconnect(self._clear_log)
-        self._sphinxConverter.logWindowText.disconnect()
-
         self._sphinxConverter.terminate()
         self._runLatest.terminate()
+        sip.delete(self)
 
     def closeEvent(self, event):
         """Widget is closed. Clear it
@@ -977,8 +953,9 @@ class PreviewDock(DockWidget):
         self._saveScrollPos()
         self._visiblePath = filePath
         self._widget.webEngineView.page().loadFinished.connect(
-            self._restoreScrollPos)  # disconnected
+            self._restoreScrollPos)
 
+        #self.previewSync._callbackManager.waitForAllCallbacks()
         # Per http://stackoverflow.com/questions/36609489/how-to-prevent-qwebengineview-to-grab-focus-on-sethtml-and-load-calls,
         # the QWebEngineView steals the focus on a call to ``setHtml``. Disable
         # it to prevent this.
@@ -990,6 +967,7 @@ class PreviewDock(DockWidget):
                                          baseUrl=QUrl.fromLocalFile(filePath))
         else:
             self._widget.webEngineView.setUrl(baseUrl)
+        # Let the sync know that the contents have changed.
         # Re-enable it after updating the HTML.
         self._widget.webEngineView.setEnabled(True)
 

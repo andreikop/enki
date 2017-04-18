@@ -23,6 +23,7 @@ from PyQt5.QtCore import QObject, Qt
 from PyQt5.QtWidgets import QAction, QWidget, QFileDialog, QLabel
 from PyQt5.QtGui import QIcon, QKeySequence, QPalette
 from PyQt5 import uic
+import sip
 #
 # Local imports
 # -------------
@@ -41,8 +42,6 @@ except ImportError:
 
 # Utilities
 # =========
-
-
 def isHtmlFile(document):
     """Return True if document refers to an HTML file; return False otherwise.
     """
@@ -170,8 +169,6 @@ def _getSphinxVersion(path):
 # GUIs
 # ====
 # This class implements the GUI for a combined CodeChat settings page.
-
-
 class CodeChatSettingsWidget(QWidget):
     """Insert the preview plugin as a page of the UISettings dialog.
     """
@@ -202,8 +199,6 @@ class CodeChatSettingsWidget(QWidget):
                                             self.cbCodeChat))
 
 # This class implements the GUI for a combined CodeChat / Sphinx settings page.
-
-
 class SphinxSettingsWidget(QWidget):
     """Insert the preview plugin as a page of the UISettings dialog.
     """
@@ -455,18 +450,8 @@ class Plugin(QObject):
         if self._dock is not None:
             self._dock.terminate()
 
-        core.workspace().currentDocumentChanged.disconnect(self._onDocumentChanged)
-        core.workspace().languageChanged.disconnect(self._onDocumentChanged)
-        core.uiSettingsManager().aboutToExecute.disconnect(self._onSettingsDialogAboutToExecute)
-        core.uiSettingsManager().dialogAccepted.disconnect(self._onDocumentChanged)
-        core.uiSettingsManager().dialogAccepted.disconnect(self._setSphinxActionVisibility)
-        core.project().changed.disconnect(self.onFileBrowserPathChanged)
+        sip.delete(self)
 
-        if self._dock:
-            self._dock.closed.disconnect(self._onDockClosed)
-            self._dock.shown.disconnect(self._onDockShown)
-            if haveWebEngine:
-                self._saveAction.triggered.disconnect(self._dock.onPreviewSave)
 
     def _onDocumentChanged(self):
         """Document or Language changed.
@@ -509,15 +494,15 @@ class Plugin(QObject):
                 self._saveAction = QAction(QIcon(':enkiicons/save.png'),
                                            'Save Preview as HTML', self._dock)
                 self._saveAction.setShortcut(QKeySequence("Alt+Shift+P"))
-                self._saveAction.triggered.connect(self._dock.onPreviewSave)  # Disconnected.
+                self._saveAction.triggered.connect(self._dock.onPreviewSave)
             else:
                 self._dock = NoWebkitDock()
 
         if haveWebEngine:
             core.actionManager().addAction("mFile/aSavePreview", self._saveAction)
 
-        self._dock.closed.connect(self._onDockClosed)  # Disconnected.
-        self._dock.shown.connect(self._onDockShown)  # Disconnected.
+        self._dock.closed.connect(self._onDockClosed)
+        self._dock.shown.connect(self._onDockShown)
         core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
 
         core.actionManager().addAction("mView/aPreview",

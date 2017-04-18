@@ -21,6 +21,7 @@ from PyQt5.QtCore import pyqtSignal, pyqtSlot, QTimer, QObject, QThread, \
 from PyQt5 import QtGui
 from PyQt5.QtWebChannel import QWebChannel
 from PyQt5.QtWebEngineWidgets import QWebEngineScript
+import sip
 #
 # Local
 # -----
@@ -45,8 +46,8 @@ except ImportError as e:
 #
 # Example use:
 #
-# .. code-block:: Python
-#   :linenos:
+# .. code:: Python
+#   :number-lines:
 #
 #   def __init__(self):
 #       self.cm = CallbackManager()
@@ -146,6 +147,46 @@ class CallbackManager(set):
 
         return CallbackFuture(self, callbackToInvoke).callback()
 #
+# AfterLoaded
+# ===========
+# Run functions after the web page is loaded. This avoids the error ``js: Uncaught TypeError: channel.execCallbacks[message.id] is not a function``, which (I think) occurs when QWebChannel sends to client-side code a response to a request originated in a previously-loaded web page.
+class AfterLoaded(QObject):
+    def __init__(self,
+      # The QWebEnginePage to watch for loading/load complete.
+      webEnginePage):
+
+        super().__init__()
+        self._runList = []
+        self._isLoading = False
+        webEnginePage.loadStarted.connect(self.onLoadStarted)
+        webEnginePage.loadFinished.connect(self.onLoadFinished)
+
+    def terminate(self):
+        # Ensure that all signals are disconnected, so that waiting callbacks won't be invoked after this class is terminated.
+        sip.delete(self)
+
+    def onLoadStarted(self):
+        self._isLoading = True
+
+    def onLoadFinished(self, ok):
+        self._isLoading = False
+        self._runAll()
+
+    # Schedule a funtion to be executed after the web page is finished loading. If the web page has already been loaded, it will execute immediately. Use: ``al.afterLoaded(func_name, param1, param2, ..., kwarg1=kwval1, kwarg2=kwval2, ...)`` will invoke ``func_name(param1, param2, ..., kwarg1=kwval1, kwarg2=kwval2, ...)``. Note that the return values of the functions are discarded.
+    def afterLoaded(self, *args, **kwargs):
+        self._runList.append([kwargs, *args])
+        if not self._isLoading:
+            self._runAll()
+
+    def _runAll(self):
+        while self._runList:
+            kwargs, func, *args = self._runList.pop()
+            func(*args, **kwargs)
+
+    # Unschedule all functions scheduled to run, but not yet run.
+    def clearAll(self):
+        self._runList.clear()
+#
 # PreviewSync
 # ===========
 class PreviewSync(QObject):
@@ -170,6 +211,7 @@ class PreviewSync(QObject):
 
         self._dock = previewDock
         self._callbackManager = CallbackManager()
+        self._afterLoaded = AfterLoaded(self._dock._widget.webEngineView.page())
         self._initPreviewToTextSync()
         self._initTextToPreviewSync()
         self._unitTest = False
@@ -179,12 +221,6 @@ class PreviewSync(QObject):
         # place (it depends on TRE).
         if findApproxTextInTarget:
             self._cursorMovementTimer.stop()
-            core.workspace().cursorPositionChanged.disconnect(
-                self._onCursorPositionChanged)
-            core.workspace().currentDocumentChanged.disconnect(
-                self._onDocumentChanged)
-            # Kludge. Wait for all in-progress callbacks to complete. How can I otherwise accomplish this?
-            from PyQt5.QtTest import QTest; QTest.qWait(500)
             # Shut down the background sync. If a sync was already in progress,
             # then discard its output.
             self._runLatest.future.cancel(True)
@@ -192,8 +228,13 @@ class PreviewSync(QObject):
             # End all callbacks.
             self._callbackManager.skipAllCallbacks()
             self._callbackManager.waitForAllCallbacks()
+            # Skip all after loads.
+            self._afterLoaded.clearAll()
+            self._afterLoaded.terminate()
             # De-register the QWebChannel.
             self.channel.deregisterObject(self)
+            # Disconnect all signals.
+            sip.delete(self)
     #
     # Vertical synchronization
     ##========================
@@ -685,9 +726,10 @@ class PreviewSync(QObject):
         """Given an index into the text pane, move the cursor to that index.
 
         Params:
-        textIndex - The index into the text pane at which to place the cursor.
-        noWebSync - True to prevent the web-to-text sync from running as a
-            result of calling this routine.
+
+        - textIndex - The index into the text pane at which to place the cursor.
+        - noWebSync - True to prevent the web-to-text sync from running as a
+          result of calling this routine.
         """
         # Move the cursor to textIndex.
         qp = core.workspace().currentDocument().qutepart
@@ -770,11 +812,12 @@ class PreviewSync(QObject):
         # Get a plain text rendering of the web view. Continue execution in a callback.
         qp = core.workspace().currentDocument().qutepart
         qp_text = qp.text
-        self._dock._widget.webEngineView.page().toPlainText(self._callbackManager.callback(lambda txt: self._havePlainText(txt, qp_text)))
+        self._dock._widget.webEngineView.page().toPlainText(
+            self._callbackManager.callback(self._havePlainText))
 
     # Perform an approximate match in a separate thread, then update
     # the cursor based on the match results.
-    def _havePlainText(self, html_text, qp_text):
+    def _havePlainText(self, html_text):
         # Performance notes: findApproxTextInTarget is REALLY slow. Scrolling
         # through preview.py with profiling enabled produced::
         #
@@ -794,18 +837,20 @@ class PreviewSync(QObject):
         # Therefore, finding ways to make this faster or run it in another
         # thread should significantly improve the GUI's responsiveness.
         qp = core.workspace().currentDocument().qutepart
+        qp_text = qp.text
         qp_position = qp.textCursor().position()
         self._runLatest.start(self._movePreviewPaneToIndex,
-            lambda qp_text, qp_position, html_text: (findApproxTextInTarget(qp_text, qp_position, html_text), html_text),
-            qp_text, qp_position, html_text)
+            # Call findApproxTextInTarget, returning the index and the HTML text searched.
+            lambda: (findApproxTextInTarget(qp_text, qp_position, html_text), html_text))
 
     def _movePreviewPaneToIndex(self, future):
         """Highlights webIndex in the preview pane, per item 4 above.
 
         Params:
-        webIndex - The index to move the cursor / highlight to in the preview
+
+        - webIndex - The index to move the cursor / highlight to in the preview
           pane.
-        txt - The text of the webpage, returned by mainFrame.toPlainText().
+        - txt - The text of the webpage, returned by mainFrame.toPlainText().
         """
         # Retrieve the return value from findApproxTextInTarget.
         webIndex, txt = future.result
