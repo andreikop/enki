@@ -211,7 +211,6 @@ class PreviewSync(QObject):
 
         self._dock = previewDock
         self._callbackManager = CallbackManager()
-        self._afterLoaded = AfterLoaded(self._dock._widget.webEngineView.page())
         self._initPreviewToTextSync()
         self._initTextToPreviewSync()
         self._unitTest = False
@@ -228,9 +227,6 @@ class PreviewSync(QObject):
             # End all callbacks.
             self._callbackManager.skipAllCallbacks()
             self._callbackManager.waitForAllCallbacks()
-            # Skip all after loads.
-            self._afterLoaded.clearAll()
-            self._afterLoaded.terminate()
             # De-register the QWebChannel.
             self.channel.deregisterObject(self)
             # Disconnect all signals.
@@ -520,7 +516,7 @@ class PreviewSync(QObject):
                 # same.
                 vsb.setValue(vsb.value() - round(deltaY/qpCursorHeight))
 
-        self._afterLoaded.afterLoaded(lambda: page.runJavaScript('selectionAnchorCoords();', self._callbackManager.callback(callback)))
+        page.runJavaScript('selectionAnchorCoords();', self._callbackManager.callback(callback))
 
     # Clear the current selection in the web view.
     def clearSelection(self):
@@ -812,7 +808,7 @@ class PreviewSync(QObject):
         # Get a plain text rendering of the web view. Continue execution in a callback.
         qp = core.workspace().currentDocument().qutepart
         qp_text = qp.text
-        self._afterLoaded.afterLoaded(self._dock._widget.webEngineView.page().toPlainText,
+        self._dock._widget.webEngineView.page().toPlainText(
             self._callbackManager.callback(self._havePlainText))
 
     # Perform an approximate match in a separate thread, then update
@@ -867,9 +863,9 @@ class PreviewSync(QObject):
 
         if webIndex >= 0:
             # TODO: Run all JavaScript with a wrapper that waits for the page to be loaded, then runs the functions, to make sure all the support JavaScript is already loaded. See http://stackoverflow.com/a/7088499.
-            self._afterLoaded.afterLoaded(lambda: page.runJavaScript( 'highlightFind({});'.format(repr(ft)), self._callbackManager.callback(callback)))
+            page.runJavaScript('highlightFind({});'.format(repr(ft)), self._callbackManager.callback(callback))
         else:
             self.clearHighlight()
 
     def clearHighlight(self):
-        self._afterLoaded.afterLoaded(self._dock._widget.webEngineView.page().runJavaScript, 'clearHighlight();')
+        self._dock._widget.webEngineView.page().runJavaScript('clearHighlight();')
