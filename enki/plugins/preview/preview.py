@@ -955,7 +955,8 @@ class PreviewDock(DockWidget):
         self._widget.webEngineView.page().loadFinished.connect(
             self._restoreScrollPos)
 
-        #self.previewSync._callbackManager.waitForAllCallbacks()
+        self.previewSync._callbackManager.waitForAllCallbacks()
+        #from PyQt5.QtTest import QTest; QTest.qWait(500)
         # Per http://stackoverflow.com/questions/36609489/how-to-prevent-qwebengineview-to-grab-focus-on-sethtml-and-load-calls,
         # the QWebEngineView steals the focus on a call to ``setHtml``. Disable
         # it to prevent this.

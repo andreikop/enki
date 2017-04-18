@@ -180,7 +180,7 @@ class AfterLoaded(QObject):
 
     def _runAll(self):
         while self._runList:
-            kwargs, func, *args = self._runList.pop()
+            kwargs, func, *args = self._runList.pop(0)
             func(*args, **kwargs)
 
     # Unschedule all functions scheduled to run, but not yet run.
@@ -520,7 +520,7 @@ class PreviewSync(QObject):
                 # same.
                 vsb.setValue(vsb.value() - round(deltaY/qpCursorHeight))
 
-        page.runJavaScript('selectionAnchorCoords();', self._callbackManager.callback(callback))
+        self._afterLoaded.afterLoaded(lambda: page.runJavaScript('selectionAnchorCoords();', self._callbackManager.callback(callback)))
 
     # Clear the current selection in the web view.
     def clearSelection(self):
@@ -812,7 +812,7 @@ class PreviewSync(QObject):
         # Get a plain text rendering of the web view. Continue execution in a callback.
         qp = core.workspace().currentDocument().qutepart
         qp_text = qp.text
-        self._dock._widget.webEngineView.page().toPlainText(
+        self._afterLoaded.afterLoaded(self._dock._widget.webEngineView.page().toPlainText,
             self._callbackManager.callback(self._havePlainText))
 
     # Perform an approximate match in a separate thread, then update
@@ -867,9 +867,9 @@ class PreviewSync(QObject):
 
         if webIndex >= 0:
             # TODO: Run all JavaScript with a wrapper that waits for the page to be loaded, then runs the functions, to make sure all the support JavaScript is already loaded. See http://stackoverflow.com/a/7088499.
-            page.runJavaScript('highlightFind({});'.format(repr(ft)), self._callbackManager.callback(callback))
+            self._afterLoaded.afterLoaded(lambda: page.runJavaScript( 'highlightFind({});'.format(repr(ft)), self._callbackManager.callback(callback)))
         else:
             self.clearHighlight()
 
     def clearHighlight(self):
-        self._dock._widget.webEngineView.page().runJavaScript('clearHighlight();')
+        self._afterLoaded.afterLoaded(self._dock._widget.webEngineView.page().runJavaScript, 'clearHighlight();')
