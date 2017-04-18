@@ -156,14 +156,14 @@ class PreviewTestCase(SimplePreviewTestCase):
         """Return log window text"""
         return self._widget().teLog.toPlainText()
 
-    def _WaitForHtmlReady(self, timeout=8000, numEmittedExpected=2):
+    def _WaitForHtmlReady(self, timeout=8000, numEmittedExpected=3):
         # Expect two calls to loadFinished: one
         # produced by _clear(), then the second when the page is actually ready.
         lf = self._widget().webEngineView.page().loadFinished
         return WaitForSignal(lf, timeout,
                              numEmittedExpected=numEmittedExpected)
 
-    def _assertHtmlReady(self, start, timeout=8000, numEmittedExpected=2):
+    def _assertHtmlReady(self, start, timeout=8000, numEmittedExpected=3):
         """Wait for the PreviewDock to load in updated HTML after the start
         function is called. Assert if the signal isn't emitted within a timeout.
         """
@@ -171,7 +171,7 @@ class PreviewTestCase(SimplePreviewTestCase):
                                     numEmittedExpected=numEmittedExpected):
             start()
 
-    def _doBasicTest(self, extension, name='file', numEmittedExpected=2):
+    def _doBasicTest(self, extension, name='file', numEmittedExpected=3):
         # HTML files don't need processing in the worker thread.
         if extension != 'html':
             self._assertHtmlReady(lambda: self.createFile('.'.join([name, extension]),
@@ -509,7 +509,7 @@ head
 
 content"""
         self._doBasicSphinxTest('rst')
-        self.assertNotIn('<h1>head', self._widget().webEngineView.page().mainFrame().toHtml())
+        self.assertNotIn('<h1>head', self._html())
 
     @base.requiresModule('CodeChat')
     @base.inMainLoop
@@ -519,7 +519,7 @@ content"""
         core.config()['CodeChat']['Enabled'] = True
         self.testText = ''
         self._doBasicTest('py')
-        self.assertEqual(self._plainText(), ' \n')
+        self.assertEqual(self._plainText().strip(), '')
 
     @requiresSphinx()
     @base.inMainLoop
@@ -539,9 +539,7 @@ content"""
         core.config()['CodeChat']['Enabled'] = True
         self.testText = 'Енки'
         self._doBasicTest('py')
-        # Plaintext captured from the preview dock will append a newline if
-        # preview dock is not empty. A '\n' is added accordingly.
-        self.assertEqual(self._plainText(), self.testText + '\n')
+        self.assertEqual(self._plainText().strip(), self.testText)
 
     @requiresSphinx()
     @base.inMainLoop
@@ -583,7 +581,7 @@ content"""
         core.config()['Sphinx']['Enabled'] = False
         self.testText = ''
         self._doBasicSphinxTest('rst')
-        self.assertEqual(self._plainText(), '')
+        self.assertEqual(self._plainText().strip(), '')
         self.assertEqual(self._logText(), '')
 
     @base.requiresCmdlineUtility('sphinx-build')
@@ -607,7 +605,7 @@ content"""
         self.assertTrue("""Unknown directive type "wrong".""" in self._logText())
         # do the same test for restructuredText
         self.testText = '.. wrong::'
-        self._doBasicTest('rst')
+        self._doBasicTest('rst', numEmittedExpected=2)
         self.assertTrue("""Unknown directive type "wrong".""" in self._logText())
 
     @requiresSphinx()
@@ -633,7 +631,7 @@ content"""
         self._doBasicTest('py')
         self.assertEqual(self._logText(), '')
         # do the same test for restructuredText
-        self._doBasicTest('rst')
+        self._doBasicTest('rst', numEmittedExpected=2)
         self.assertEqual(self._logText(), '')
 
     @base.requiresModule('CodeChat')
@@ -646,7 +644,7 @@ content"""
         self._doBasicTest('py')
         self.assertTrue('Енки' in self._logText())
         self.testText = '.. Енки::'
-        self._doBasicTest('rst')
+        self._doBasicTest('rst', numEmittedExpected=2)
         self.assertTrue('Енки' in self._logText())
 
     @unittest.skip("Unicode isn't presented in the log window")
@@ -733,22 +731,22 @@ head
         # the HTML ready generated here.
         with self._WaitForHtmlReady():
             document3 = self.createFile('file3.py', '# <>_')
-        base.waitForSignal(lambda: None, self._widget().webEngineView.page().mainFrame().loadFinished, 200)
+        base.waitForSignal(lambda: None, self._widget().webEngineView.page().loadFinished, 200)
 
         # switch to document 1
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
-        base.waitForSignal(lambda: None, self._widget().webEngineView.page().mainFrame().loadFinished, 200)
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1), numEmittedExpected=2)
+        base.waitForSignal(lambda: None, self._widget().webEngineView.page().loadFinished, 200)
         ps = self._widget().prgStatus
         self.assertIn('#FF9955', ps.styleSheet())
         self.assertIn('Error(s): 0, warning(s): 1', ps.text())
         # switch to document 2
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
-        base.waitForSignal(lambda: None, self._widget().webEngineView.page().mainFrame().loadFinished, 200)
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2), numEmittedExpected=2)
+        base.waitForSignal(lambda: None, self._widget().webEngineView.page().loadFinished, 200)
         self.assertIn('red', ps.styleSheet())
         self.assertIn('Error(s): 1, warning(s): 0', ps.text())
         # switch to document 3
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
-        base.waitForSignal(lambda: None, self._widget().webEngineView.page().mainFrame().loadFinished, 200)
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3), numEmittedExpected=2)
+        base.waitForSignal(lambda: None, self._widget().webEngineView.page().loadFinished, 200)
         self.assertEqual(self._widget().prgStatus.styleSheet(), 'QLabel {}')
         self.assertEqual(self._logText(), '')
 
@@ -1000,11 +998,11 @@ head
         defaultSplitterSize = self._widget().splitter.sizes()
         self.assertTrue(defaultSplitterSize[1])
         # Switch to other two documents, they should have the same splitter size
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2), numEmittedExpected=2)
         self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
         # Check splitter size of document 2.
         # Switch to other two documents, they should have the same splitter size
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1), numEmittedExpected=2)
         self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
 
     @base.inMainLoop
@@ -1025,7 +1023,7 @@ head
         self.assertNotIn(0, self._widget().splitter.sizes())
         self.assertAlmostEqual(self._widget().splitter.sizes()[0], self._widget().splitter.sizes()[1], delta=10)
         # Switch to document 1, make sure its splitter size is changed, too.
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1), numEmittedExpected=2)
         self.assertNotIn(0, self._widget().splitter.sizes())
         self.assertAlmostEqual(self._widget().splitter.sizes()[0], self._widget().splitter.sizes()[1], delta=10)
 
@@ -1045,10 +1043,10 @@ head
         defaultSplitterSize = self._widget().splitter.sizes()
         self.assertTrue(defaultSplitterSize[1])
         # Switch to document 2. Log window is hidden now.
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2), numEmittedExpected=2)
         self.assertFalse(self._widget().splitter.sizes()[1])
         # Switch to document 3. Log window should be restore to original size.
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3), numEmittedExpected=2)
         self.assertTrue(self._widget().splitter.sizes()[0])
         self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
 
@@ -1072,12 +1070,12 @@ head
         self.assertNotIn(0, self._widget().splitter.sizes())
         self.assertAlmostEqual(self._widget().splitter.sizes()[0], self._widget().splitter.sizes()[1], delta=10)
         # Switch to an error-free document, assert log window hidden.
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2), numEmittedExpected=2)
         # Wait for events to process. See qWait comment above.
         QTest.qWait(100)
         self.assertFalse(self._widget().splitter.sizes()[1])
         # Switch to file3 which will cause build error, check splitter size.
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3), numEmittedExpected=2)
         self.assertNotIn(0, self._widget().splitter.sizes())
         self.assertAlmostEqual(self._widget().splitter.sizes()[0], self._widget().splitter.sizes()[1], delta=10)
 
@@ -1096,12 +1094,12 @@ head
         self._widget().splitter.setSizes([1, 0])
         self._widget().splitter.splitterMoved.emit(1, 1)
         # Switch to document 2. Log window is hidden now.
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2), numEmittedExpected=2)
         # Wait for events to process. See qWait comment above.
         QTest.qWait(100)
         self.assertFalse(self._widget().splitter.sizes()[1])
         # Switch to document 3. Log window should keep hidden.
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3), numEmittedExpected=2)
         # Wait for events to process. See qWait comment above.
         QTest.qWait(100)
         self.assertFalse(self._widget().splitter.sizes()[1])
