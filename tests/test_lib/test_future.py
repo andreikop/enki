@@ -417,11 +417,6 @@ class TestAsyncController(unittest.TestCase):
             with self.assertRaises(AssertionError):
                 ac2.start(None, lambda: None)
 
-            # Terminate via __del__, I hope.
-            ac3 = AsyncController(_)
-            del ac3
-            # Can't try start, since the object was deleted.
-
             # Terminate via the QT object tree.
             o = QObject()
             ac3 = AsyncController(_, o)
