@@ -31,7 +31,6 @@ from qutepart_appveyor import DOWNLOADS
 # change the path in the call to ``wget`` as well.
 CTAGS_VER = 'ctags58'
 #
-#
 # CI_Dispatcher
 # =============
 # This provides OS-specific installation of needed packages.
@@ -49,7 +48,7 @@ class CI_Dispatcher(OS_Dispatcher):
         unzip(ctags_zip, CTAGS_VER + '/ctags.exe')
 
     def install_Linux(self):
-        # Installing ``libstdc++6`` fixes ``ImportError: /usr/lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.18' not found (required by /home/travis/virtualenv/python3.5.2/lib/python3.5/site-packages/PyQt5/Qt/lib/libQt5WebEngineCore.so.5)`` on Appveyor.
+        # To do: when Qutepart is updated, invoke this from its CI instead of duplicating it here.
         xqt('sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test',
             'sudo apt-get update',
             # Need to install Qutepart dependencies the wheel can't capture, plus Enki
@@ -68,11 +67,11 @@ def install():
     cid = CI_Dispatcher()
     cid.install()
 
+    # To do: when Qutepart is updated, invoke this from its CI instead of duplicating it here.
     if build_os == 'Linux':
         qutepart_travis.set_display()
         xqt('sh -e /etc/init.d/xvfb start')
     xqt('python -m pip install -e .')
-
 #
 # test
 # ====
