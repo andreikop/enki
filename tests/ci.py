@@ -47,11 +47,12 @@ class CI_Dispatcher(OS_Dispatcher):
             wget('http://sourceforge.net/projects/ctags/files/ctags/5.8/{}.zip'.
                  format(CTAGS_VER), ctags_zip)
         unzip(ctags_zip, CTAGS_VER + '/ctags.exe')
+        xqt('dir')
 
     def install_Linux(self):
         # Need to install Qutepart dependencies the wheel can't capture, plus Enki
-        # dependencies.
-        xqt('sudo apt-get install -y ctags libpcre3-dev libegl1-mesa')
+        # dependencies. Installing ``libstdc++6`` fixes ``ImportError: /usr/lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.18' not found (required by /home/travis/virtualenv/python3.5.2/lib/python3.5/site-packages/PyQt5/Qt/lib/libQt5WebEngineCore.so.5)`` on Appveyor.
+        xqt('sudo apt-get install -y ctags libpcre3-dev libegl1-mesa libstdc++6')
 
     def install_OS_X(self):
         xqt('brew install ctags pcre')
