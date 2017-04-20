@@ -650,21 +650,21 @@ class PreviewSync(QObject):
         '}')
 
     _qtJsInit = (
-            # Since ``qt`` may not be defined (Qt 5.7.0 doesn't provide the
-            # ``qt`` object to JavaScript when loading per https://bugreports.qt.io/browse/QTBUG-53411),
-            # wrap it in a try/except block.
-            'try {'
-                'new QWebChannel(qt.webChannelTransport, function(channel) {'
-                    'window.previewSync = channel.objects.previewSync;'
-                '});'
-                # TODO: This is ugly -- I should instead install an event handler, in case the web page being loaded also defines this.
-                'window.onclick = window_onclick;'
-            '} catch (err) {'
-                # Re-throw unrecognized errors. When ``qt`` isn't defined,
-                # JavaScript reports ``js: Uncaught ReferenceError: qt is not
-                # defined``.
-                'if (!(err instanceof ReferenceError)) throw error;'
-            '}'
+        # Since ``qt`` may not be defined (Qt 5.7.0 doesn't provide the
+        # ``qt`` object to JavaScript when loading per https://bugreports.qt.io/browse/QTBUG-53411),
+        # wrap it in a try/except block.
+        'try {'
+            'new QWebChannel(qt.webChannelTransport, function(channel) {'
+                'window.previewSync = channel.objects.previewSync;'
+            '});'
+            # TODO: This is ugly -- I should instead install an event handler, in case the web page being loaded also defines this.
+            'window.onclick = window_onclick;'
+        '} catch (err) {'
+            # Re-throw unrecognized errors. When ``qt`` isn't defined,
+            # JavaScript reports ``js: Uncaught ReferenceError: qt is not
+            # defined``.
+            'throw err;' #if (!(err instanceof ReferenceError)) throw err;'
+        '}'
     )
 
     def _initPreviewToTextSync(self):
