@@ -516,12 +516,12 @@ class PreviewSync(QObject):
                 # same.
                 vsb.setValue(vsb.value() - round(deltaY/qpCursorHeight))
 
-        page.runJavaScript('selectionAnchorCoords();', self._callbackManager.callback(callback))
+        page.runJavaScript('selectionAnchorCoords();', QWebEngineScript.ApplicationWorld, self._callbackManager.callback(callback))
 
     # Clear the current selection in the web view.
     def clearSelection(self):
         if not self._unitTest:
-            self._dock._widget.webEngineView.page().runJavaScript('clearSelection();')
+            self._dock._widget.webEngineView.page().runJavaScript('clearSelection();', QWebEngineScript.ApplicationWorld)
     #
     #
     # Synchronizing between the text pane and the preview pane
@@ -686,7 +686,7 @@ class PreviewSync(QObject):
         beforeScript.setSourceCode(qwebchannel_js + self._jsPreviewSync + self._qtJsInit)
         beforeScript.setName('qwebchannel.js, previewSync')
         # Run this JavaScript separated from any JavaScript present in the loaded web page. This provides better security (rogue pages can't access the QWebChannel) and better isolation (handlers, etc. won't conflict, I hope).
-        beforeScript.setWorldId(QWebEngineScript.MainWorld)
+        beforeScript.setWorldId(QWebEngineScript.ApplicationWorld)
         beforeScript.setInjectionPoint(QWebEngineScript.DocumentCreation)
         # Per `setWebChannel <http://doc.qt.io/qt-5/qwebenginepage.html#setWebChannel>`_, only one channel is allowed per page. So, don't run this on sub-frames, since it will attempt the creation of more channels for each subframe.
         beforeScript.setRunsOnSubFrames(False)
@@ -699,7 +699,7 @@ class PreviewSync(QObject):
         self.channel = QWebChannel(page)
         self.channel.registerObject("previewSync", self)
         # Expose the ``qt.webChannelTransport`` object in the world where these scripts live.
-        page.setWebChannel(self.channel, QWebEngineScript.MainWorld)
+        page.setWebChannel(self.channel, QWebEngineScript.ApplicationWorld)
 
     @pyqtSlot(str, int)
     def _onWebviewClick(self, tc, webIndex):
@@ -863,9 +863,9 @@ class PreviewSync(QObject):
 
         if webIndex >= 0:
             # TODO: Run all JavaScript with a wrapper that waits for the page to be loaded, then runs the functions, to make sure all the support JavaScript is already loaded. See http://stackoverflow.com/a/7088499.
-            page.runJavaScript('highlightFind({});'.format(repr(ft)), self._callbackManager.callback(callback))
+            page.runJavaScript('highlightFind({});'.format(repr(ft)), QWebEngineScript.ApplicationWorld, self._callbackManager.callback(callback))
         else:
             self.clearHighlight()
 
     def clearHighlight(self):
-        self._dock._widget.webEngineView.page().runJavaScript('clearHighlight();')
+        self._dock._widget.webEngineView.page().runJavaScript('clearHighlight();', QWebEngineScript.ApplicationWorld)
