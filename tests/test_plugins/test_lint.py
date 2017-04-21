@@ -17,6 +17,7 @@ from enki.plugins.lint.settings_widget import _getFlake8Version
 
 class Test(base.TestCase):
 
+    @unittest.skip("It is bad idea to rely on external utility output when running tests")
     @base.requiresCmdlineUtility('flake8 --version')
     def test_1(self):
         """ File is checked after opened """
@@ -42,6 +43,7 @@ class Test(base.TestCase):
                                                             {0: ('e', 'E901 SyntaxError: invalid syntax'),
                                                              1: ('e', 'E113 unexpected indentation')}))
 
+    @unittest.skip("It is bad idea to rely on external utility output when running tests")
     @base.requiresCmdlineUtility('flake8 --version')
     def test_2(self):
         """ _getFlake8Version """
@@ -83,6 +85,7 @@ class Test(base.TestCase):
         self._setSettings(enabled=True)
         self.assertEqual(core.config().get('Lint/Python/Enabled'), True)
 
+    @unittest.skip("It is bad idea to rely on external utility output when running tests")
     @base.requiresCmdlineUtility('flake8 --version')
     def test_4(self):
         """ Settings are applied """
