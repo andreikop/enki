@@ -282,10 +282,11 @@ class Test(PreviewTestCase):
         to the matching location in the web pane.
 
         Params:
-        s -  The string in the text pane to click before.
-        testText - The ReST string to use.
-        checkText - True if the text hilighted in the web dock should be
-            compared to the text in s.
+
+        - s: The string in the text pane to click before.
+        - testText: The ReST string to use.
+        - checkText: True if the text hilighted in the web dock should be
+          compared to the text in s.
 
         Return:
         The plain text rendering of the web page text of the line containing s, up to the point in that line where s was matched.
