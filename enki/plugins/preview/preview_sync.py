@@ -147,46 +147,6 @@ class CallbackManager(set):
 
         return CallbackFuture(self, callbackToInvoke).callback()
 #
-# AfterLoaded
-# ===========
-# Run functions after the web page is loaded. This avoids the error ``js: Uncaught TypeError: channel.execCallbacks[message.id] is not a function``, which (I think) occurs when QWebChannel sends to client-side code a response to a request originated in a previously-loaded web page.
-class AfterLoaded(QObject):
-    def __init__(self,
-      # The QWebEnginePage to watch for loading/load complete.
-      webEnginePage):
-
-        super().__init__()
-        self._runList = []
-        self._isLoading = False
-        webEnginePage.loadStarted.connect(self.onLoadStarted)
-        webEnginePage.loadFinished.connect(self.onLoadFinished)
-
-    def terminate(self):
-        # Ensure that all signals are disconnected, so that waiting callbacks won't be invoked after this class is terminated.
-        sip.delete(self)
-
-    def onLoadStarted(self):
-        self._isLoading = True
-
-    def onLoadFinished(self, ok):
-        self._isLoading = False
-        self._runAll()
-
-    # Schedule a funtion to be executed after the web page is finished loading. If the web page has already been loaded, it will execute immediately. Use: ``al.afterLoaded(func_name, param1, param2, ..., kwarg1=kwval1, kwarg2=kwval2, ...)`` will invoke ``func_name(param1, param2, ..., kwarg1=kwval1, kwarg2=kwval2, ...)``. Note that the return values of the functions are discarded.
-    def afterLoaded(self, *args, **kwargs):
-        self._runList.append([kwargs, *args])
-        if not self._isLoading:
-            self._runAll()
-
-    def _runAll(self):
-        while self._runList:
-            kwargs, func, *args = self._runList.pop(0)
-            func(*args, **kwargs)
-
-    # Unschedule all functions scheduled to run, but not yet run.
-    def clearAll(self):
-        self._runList.clear()
-#
 # PreviewSync
 # ===========
 class PreviewSync(QObject):
