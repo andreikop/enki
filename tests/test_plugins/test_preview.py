@@ -37,9 +37,9 @@ from enki.core.uisettings import UISettings
 # Both of the two following lines are needed: the first, so we can later
 # ``reload(enki.plugins.preview)``; the last, to instiantate ``SettingsWidget``.
 import enki.plugins.preview
-from enki.plugins.preview import CodeChatSettingsWidget, SphinxSettingsWidget
+from enki.plugins.preview import CodeChatSettingsWidget, SphinxSettingsWidget, _getSphinxVersion
 from import_fail import ImportFail
-from enki.plugins.preview import _getSphinxVersion
+from enki.plugins.preview.preview_sync import CallbackManager
 
 
 _SPHINX_VERSION = [1, 3, 0]
@@ -95,25 +95,24 @@ class TestSimplePreview(SimplePreviewTestCase):
             self._dock()
 
 # Provide a convenient way to wait for a callback to complete.
-class WaitForCallback(QObject):
-    # A signal used to wait in the current thread for the callback to be called.
-    got_callback = pyqtSignal(tuple, dict)
-
+class WaitForCallback:
     def __init__(self, *args, **kwargs):
-        super().__init__()
-        self.waitForSignal = WaitForSignal(self.got_callback, *args, **kwargs)
+        self.cm = CallbackManager()
 
-    def __enter__(self):
-        self.waitForSignal.__enter__()
-        return self
+    # Provide a callback which records the arguments with which it was called.
+    def callback(self):
+        return self.cm.callback(self._callbackWrapped)
 
-    def callback(self, *args, **kwargs):
+    # Record the arguments passed.
+    def _callbackWrapped(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
-        self.got_callback.emit(args, kwargs)
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        return self.waitForSignal.__exit__(exc_type, exc_value, traceback)
+    # Wait for the callback, then return the args it received.
+    @property
+    def getCallbackReturn(self):
+        self.cm.waitForAllCallbacks()
+        return self.args
 
 
 class PreviewTestCase(SimplePreviewTestCase):
@@ -140,17 +139,16 @@ class PreviewTestCase(SimplePreviewTestCase):
         return self._dock().widget()
 
     def _plainText(self):
-        with WaitForCallback(5000) as wfc:
-            # See http://doc.qt.io/qt-5/qwebenginepage.html#runJavaScript.
-            # Run the JavaScript needed to get the page's plain text. The asynchronous result then emits a signal containing the string, which is saved in gs.
-            self._widget().webEngineView.page().runJavaScript('document.body.textContent.toString();', wfc.callback)
-
-        return wfc.args[0]
+        wfc = WaitForCallback()
+        # See http://doc.qt.io/qt-5/qwebenginepage.html#runJavaScript.
+        # Run the JavaScript needed to get the page's plain text. The asynchronous result then emits a signal containing the string, which is saved in gs.
+        self._widget().webEngineView.page().runJavaScript('document.body.textContent.toString();', wfc.callback())
+        return wfc.getCallbackReturn[0]
 
     def _html(self):
-        with WaitForCallback(5000) as wfc:
-            self._widget().webEngineView.page().toHtml(wfc.callback)
-        return wfc.args[0]
+        wfc = WaitForCallback()
+        self._widget().webEngineView.page().toHtml(wfc.callback())
+        return wfc.getCallbackReturn[0]
 
     def _logText(self):
         """Return log window text"""

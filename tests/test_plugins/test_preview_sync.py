@@ -201,8 +201,8 @@ class Test(PreviewTestCase):
         #self._dock().previewSync._onWebviewClick_(500, 'testing')
 
         # Select the text in x, then simulate a mouse click.
-        with WaitForCallback(5000) as wfc:
-            self._widget().webEngineView.page().runJavaScript('window.find("{}"); init_qwebchannel();'.format(s), QWebEngineScript.ApplicationWorld, wfc.callback)
+        wfc = WaitForCallback()
+        self._widget().webEngineView.page().runJavaScript('window.find("{}"); init_qwebchannel();'.format(s), QWebEngineScript.ApplicationWorld, wfc.callback())
         # Wait for the webchannel to set up then run the test.
         QTest.qWait(100)
 
@@ -322,10 +322,10 @@ class Test(PreviewTestCase):
             self._dock().previewSync._unitTest = False
         # The web view should have the line containing s selected now.
         # Note that webEngineView.selectedText() doesn't track JavaScript selections. So, fetch this from JavaScript.
-        with WaitForCallback(3500) as wfc:
-            self._widget().webEngineView.page().runJavaScript('window.getSelection().toString();', wfc.callback)
+        wfc = WaitForCallback()
+        self._widget().webEngineView.page().runJavaScript('window.getSelection().toString();', wfc.callback())
 
-        webPageText = wfc.args[0].strip().split('\n')[-1]
+        webPageText = wfc.getCallbackReturn[0].strip().split('\n')[-1]
         if checkText:
             # The selection will contain all text up to the start of s. Compare just the last line (the selected line) of both.
             self.assertEqual(self.testText[:index].strip().split('\n')[-1], webPageText)
