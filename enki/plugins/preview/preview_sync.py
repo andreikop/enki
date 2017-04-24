@@ -229,6 +229,8 @@ class PreviewSync(QObject):
             self._callbackManager.waitForAllCallbacks()
             # Bug: DON'T de-register the QWebChannel. This casues the error message ``onmessage is not a callable property of qt.webChannelTransport. Some things might not work as expected.`` to be displayed. I see this in https://code.woboq.org/qt5/qtwebengine/src/core/renderer/web_channel_ipc_transport.cpp.html#221; I assume it's a result of attempting to send a signal to the web page, where the web page doesn't have qwebchannel.js running.
             #self.channel.deregisterObject(self)
+            # Delete it. Note that the channel is `NOT owned by the page <http://doc.qt.io/qt-5/qwebenginepage.html#setWebChannel>`.
+            sip.delete(self.channel)
             # Disconnect all signals.
             sip.delete(self)
     #
