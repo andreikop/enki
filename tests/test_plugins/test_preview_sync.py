@@ -187,7 +187,7 @@ class Test(PreviewTestCase):
         wtc = self._plainText()
         return len(wtc) - len(wtc.lstrip())
 
-    def _testSyncString(self, s):
+    def _testSyncString(self, s, _onWebviewClick):
         """Given a string ``s``, place the cursor after it and simulate a click
         in the web view. Verify that the index produced by ``jsClick``
         is correct.
@@ -197,44 +197,44 @@ class Test(PreviewTestCase):
         """
         self._doBasicTest('rst')
         wsLen = self._wsLen()
-        with patch('enki.plugins.preview.preview_sync.PreviewSync._onWebviewClick_') as _onWebviewClick:
-            # Debug: if the patch works, this should cause the test to always pass.
-            self._dock()._previewSync._onWebviewClick_(500, 'testing')
+        # Debug: if the patch works, this should cause the test to always pass.
+        #self._dock().previewSync._onWebviewClick_(500, 'testing')
 
-            # Select the text in x, then simulate a mouse click.
-            with WaitForCallback(5000) as wfc:
-                self._widget().webEngineView.page().runJavaScript('window.find("{}"); window.onclick();'.format(s), wfc.callback)
+        # Select the text in x, then simulate a mouse click.
+        with WaitForCallback(5000) as wfc:
+            self._widget().webEngineView.page().runJavaScript('window.find("{}"); init_qwebchannel();'.format(s), QWebEngineScript.ApplicationWorld, wfc.callback)
+        # Wait for the webchannel to set up then run the test.
+        QTest.qWait(100)
 
-            # See if the index with whitespace added matches.
-            args, kwargs = _onWebviewClick.call_args
-            # args[1] is webIndex, the index of the found item.
-            self.assertEqual(args[1], len(s) + wsLen)
+        # See if the index with whitespace added matches.
+        args, kwargs = _onWebviewClick.call_args
+        # args[1] is webIndex, the index of the found item.
+        self.assertEqual(args[1], len(s) + wsLen)
 
+    # TODO: Ugly kludge. Naming these so that they're run later in the test sequence causes them to fail. Some later test probably prevents the patch from being correctly applied.
     @requiresModule('docutils')
-    # Running this by itself works fine. Running with all tests fails, because the patch fails. ???
-    @unittest.expectedFailure
     @base.inMainLoop
-    def test_sync2a(self):
+    @patch('enki.plugins.preview.preview_sync.PreviewSync._onWebviewClick_')
+    def test_click1(self, _onWebviewClick):
         """TODO: simulate a click before the first letter. Select T, then move backwards using
         https://developer.mozilla.org/en-US/docs/Web/API/Selection.modify.
         For now, test after the letter T (the first letter).
         """
-        self._testSyncString('T')
+        self._testSyncString('T', _onWebviewClick)
 
     @requiresModule('docutils')
-    @unittest.expectedFailure
     @base.inMainLoop
-    def test_sync2(self):
+    @patch('enki.plugins.preview.preview_sync.PreviewSync._onWebviewClick_')
+    def test_click2(self, _onWebviewClick):
         """Simulate a click after 'The pre' and check the resulting ``jsClick`` result."""
-        self._testSyncString('The pre')
+        self._testSyncString('The pre', _onWebviewClick)
 
     @requiresModule('docutils')
-    # Running this by itself works fine. Running with all tests fails, because the patch fails. ???
-    @unittest.expectedFailure
     @base.inMainLoop
-    def test_sync3(self):
+    @patch('enki.plugins.preview.preview_sync.PreviewSync._onWebviewClick_')
+    def test_click3(self, _onWebviewClick):
         """Same as above, but with the entire string."""
-        self._testSyncString(self.testText)
+        self._testSyncString(self.testText, _onWebviewClick)
 
     # Test that sending a ``jsClick`` signal at beginning/middle/end moves cursor in code pane correctly
     # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
