@@ -966,7 +966,7 @@ class PreviewDock(DockWidget):
 
         # Per http://stackoverflow.com/questions/36609489/how-to-prevent-qwebengineview-to-grab-focus-on-sethtml-and-load-calls,
         # the QWebEngineView steals the focus on a call to ``setHtml``. Disable
-        # it to prevent this.
+        # it to prevent this. Another approach:  disable `QWebEngineSettings::FocusOnNavigationEnabled <http://doc.qt.io/qt-5/qwebenginesettings.html#WebAttribute-enum>`_, which is enabled by default. However, since this was added in Qt 5.8 (PyQt 5.8 was `released in 15-Feb-2017 <https://www.riverbankcomputing.com/news>`_, it's too early to rely on it. TODO: use this after PyQt 5.9 is released?
         self._widget.webEngineView.setEnabled(False)
         if baseUrl.isEmpty():
             # Clear the log, then update it with build content.
