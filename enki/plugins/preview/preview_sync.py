@@ -643,6 +643,7 @@ class PreviewSync(QObject):
              #   page to the point where the user clicked.
              'var rStr = r.cloneContents().textContent.toString();'
 
+
              # Step 4: the length of the string gives the index of the click
              # into a string containing a text rendering of the webpage.
              # Call Python with the document's text and that index.
@@ -650,21 +651,32 @@ class PreviewSync(QObject):
         '}')
 
     _qtJsInit = (
-        # Since ``qt`` may not be defined (Qt 5.7.0 doesn't provide the
+        # _`Bug 1`: I can't seem to avoid the error message ``js: Uncaught TypeError: channel.execCallbacks[message.id] is not a function``. It seems like this occurs  when a new page is loaded, but the QWebChannel on the Python side sends a message intended for a previously-loaded page. Adding delays / waiting until all JS init finishes / wiating until the event queue is empty helps, but doesn't fix it. Even with these, enough busyness (constant CPU use), this still happends -- perhaps the Python/Qt network backend doesn't send these messages until the CPU is idle? As a workaround, don't define the channel until is needed, making it less likely this will happen.
+        #
+        # _`Bug 2`: Since ``qt`` may not be defined (Qt 5.7.0 doesn't provide the
         # ``qt`` object to JavaScript when loading per https://bugreports.qt.io/browse/QTBUG-53411),
         # wrap it in a try/except block.
-        'try {'
-            'new QWebChannel(qt.webChannelTransport, function(channel) {'
-                'window.previewSync = channel.objects.previewSync;'
-            '});'
-            # TODO: This is ugly -- I should instead install an event handler, in case the web page being loaded also defines this.
-            'window.onclick = window_onclick;'
-        '} catch (err) {'
-            # Re-throw unrecognized errors. When ``qt`` isn't defined,
-            # JavaScript reports ``js: Uncaught ReferenceError: qt is not
-            # defined``.
-            'throw err;' #if (!(err instanceof ReferenceError)) throw err;'
+        'function init_qwebchannel() {'
+            # Switch event listeners, part 1/2 -- now that this init is done, don't call it again.
+            'window.removeEventListener("click", init_qwebchannel);'
+            'try {'
+                'new QWebChannel(qt.webChannelTransport, function(channel) {'
+                    # Save a reference to the previewSync object.
+                    'window.previewSync = channel.objects.previewSync;'
+                    # Switch event listeners, part 2/2 -- Invoke the usual onclick handler. This will only be run if the QWebChannel init succeeds.
+                    'window.addEventListener("click", window_onclick);'
+                    # Now that the QWebChannel is ready, use it to handle the click.
+                    'window_onclick();'
+                '});'
+            '} catch (err) {'
+                # Re-throw unrecognized errors. When ``qt`` isn't defined,
+                # JavaScript reports ``js: Uncaught ReferenceError: qt is not
+                # defined``; this works around `bug 2`_.
+                'throw err;' #if (!(err instanceof ReferenceError)) throw err;'
+            '}'
         '}'
+        # Set up the sync system after a click. This works around `bug 1`_. See https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener.
+        'window.addEventListener("click", init_qwebchannel);'
     )
 
     def _initPreviewToTextSync(self):
