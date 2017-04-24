@@ -296,8 +296,6 @@ class SphinxConverter(QObject):
             self.logWindowText.emit('{} : {}\n\n'.format(cwd,
                                                          htmlBuilderCommandLineStr))
 
-            # Run Sphinx, reading stdout in a separate thread.
-            self._qe = QEventLoop()
             # Sphinx will output just a carriage return (0x0D) to simulate a
             # single line being updated by build status and the build
             # progresses. Without universal newline support here, we'll wait
@@ -307,12 +305,14 @@ class SphinxConverter(QObject):
             # progress.
             popen = open_console_output(htmlBuilderCommandLine, cwd=cwd,
                                         universal_newlines=True)
-            # Perform reads in an event loop. The loop is exit when all reads
-            # have completed. We can't simply start the _stderr_read thread
-            # here, because calls to self._qe_exit() will be ignored until
-            # we're inside the event loop.
-            QTimer.singleShot(0, lambda: self._popen_read(popen))
-            self._qe.exec_()
+            # Read are blocking; we can't read from both stdout and stderr in the
+            # same thread without possible buffer overflows. So, use this thread to
+            # read from and immediately report progress from stdout. In another
+            # thread, read all stderr and report that after the build finishes.
+            self._ac.start(None, self._stderr_read, popen.stderr)
+            self._popen_read(popen.stdout)
+            # Wait until stderr has completed (stdout is already done).
+            popen.wait()
         except OSError as ex:
             return (
                 'Failed to execute HTML builder:\n'
@@ -325,18 +325,12 @@ class SphinxConverter(QObject):
     # Read from stdout (in this thread) and stderr (in another thread),
     # so that the user sees output as the build progresses, rather than only
     # producing output after the build is complete.
-    def _popen_read(self, popen):
-        # Read are blocking; we can't read from both stdout and stderr in the
-        # same thread without possible buffer overflows. So, use this thread to
-        # read from and immediately report progress from stdout. In another
-        # thread, read all stderr and report that after the build finishes.
-        self._ac.start(None, self._stderr_read, popen.stderr)
-
+    def _popen_read(self, stdout):
         # Read a line of stdout then report it to the user immediately.
-        s = popen.stdout.readline()
+        s = stdout.readline()
         while s:
             self.logWindowText.emit(s.rstrip('\n'))
-            s = popen.stdout.readline()
+            s = stdout.readline()
         self._SphinxInvocationCount += 1
         # I would expect the following code to do the same thing. It doesn't:
         # instead, it waits until Sphinx completes before returning anything.
@@ -345,14 +339,13 @@ class SphinxConverter(QObject):
         # .. code-block: python
         #    :linenos:
         #
-        #    for s in popen.stdout:
+        #    for s in stdout:
         #        self.logWindowText.emit(s)
 
     # Runs in a separate thread to read stdout. It then exits the QEventLoop as
     # a way to signal that stderr reads have completed.
     def _stderr_read(self, stderr):
         self._stderr = stderr.read()
-        self._qe.exit()
 #
 # QWebEngineView tweak
 # ====================
