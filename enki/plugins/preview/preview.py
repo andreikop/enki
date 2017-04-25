@@ -14,6 +14,7 @@ import html
 import sys
 import shlex
 import codecs
+from queue import Queue
 #
 # Third-party imports
 # -------------------
@@ -309,10 +310,11 @@ class SphinxConverter(QObject):
             # same thread without possible buffer overflows. So, use this thread to
             # read from and immediately report progress from stdout. In another
             # thread, read all stderr and report that after the build finishes.
-            self._ac.start(None, self._stderr_read, popen.stderr)
+            q = Queue()
+            self._ac.start(None, self._stderr_read, popen.stderr, q)
             self._popen_read(popen.stdout)
             # Wait until stderr has completed (stdout is already done).
-            popen.wait()
+            stderr_out = q.get()
         except OSError as ex:
             return (
                 'Failed to execute HTML builder:\n'
@@ -320,7 +322,7 @@ class SphinxConverter(QObject):
                 'Go to Settings -> Settings -> CodeChat to set HTML'
                 ' builder configurations.')
 
-        return self._stderr
+        return stderr_out
 
     # Read from stdout (in this thread) and stderr (in another thread),
     # so that the user sees output as the build progresses, rather than only
@@ -344,8 +346,8 @@ class SphinxConverter(QObject):
 
     # Runs in a separate thread to read stdout. It then exits the QEventLoop as
     # a way to signal that stderr reads have completed.
-    def _stderr_read(self, stderr):
-        self._stderr = stderr.read()
+    def _stderr_read(self, stderr, q):
+        q.put(stderr.read())
 #
 # QWebEngineView tweak
 # ====================
