@@ -230,7 +230,7 @@ class TestPreview(PreviewTestCase):
     def test_markdown_templates(self):
         core.config()['Preview']['Template'] = 'WhiteOnBlack'
         self._dock()._restorePreviousTemplate()
-        self._assertHtmlReady(lambda: self.createFile('test.md', 'foo'))
+        self._assertHtmlReady(lambda: self.createFile('test.md', 'foo'), numEmittedExpected=2)
         combo = self._widget().cbTemplate
         self.assertEqual(combo.currentText(), 'WhiteOnBlack')
         self.assertNotIn('body {color: white; background: black;}', self._plainText())
