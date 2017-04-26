@@ -4,8 +4,8 @@ pathcompleter --- Path completer for Locator
 """
 
 import sip
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QFileSystemModel, QStyle
+from PyQt5.QtCore import QFileInfo
+from PyQt5.QtWidgets import QApplication, QFileIconProvider, QStyle
 from PyQt5.QtGui import QPalette
 
 import os
@@ -51,13 +51,6 @@ class AbstractPathCompleter(AbstractCompleter):
         When it is private member of instance, it seems it works
         """
         self._model = None  # can't construct in the construtor, must be constructed in GUI thread
-
-    def terminate(self):
-        super().terminate()
-        if self._model:
-            # The QFileSystemModel runs a `separate thread <http://doc.qt.io/qt-5/qfilesystemmodel.html#caching-and-performance>`_  to load its cache. Make sure to delete the class explicitly to terminate that thread.
-            sip.delete(self._model)
-            print('del')
 
     @staticmethod
     def _filterHidden(paths):
@@ -115,15 +108,9 @@ class AbstractPathCompleter(AbstractCompleter):
             return count
 
     def _iconForPath(self, path):
-        """Get icon for file or directory path. Uses QFileSystemModel
+        """Get icon for file or directory path.
         """
-        if self._model is None:
-            print('construct')
-            #self._model = QFileSystemModel()
-
-        #index = self._model.index(path)
-        #return self._model.data(index, Qt.DecorationRole)
-        return None
+        return QFileIconProvider().icon(QFileInfo(path))
 
     def text(self, row, column):
         """Item text in the list of completions
