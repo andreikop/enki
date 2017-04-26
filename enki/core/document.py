@@ -5,6 +5,7 @@ document --- Opened file representation
 
 import os.path
 
+import sip
 from PyQt5.QtCore import pyqtSignal, QFileSystemWatcher, QObject, QTimer, pyqtSlot
 from PyQt5.QtWidgets import QFileDialog, \
     QInputDialog, \
@@ -43,6 +44,7 @@ class _FileWatcher(QObject):
 
     def term(self):
         self.disable()
+        sip.delete(self._watcher)
 
     def enable(self):
         """Enable signals from the watcher
