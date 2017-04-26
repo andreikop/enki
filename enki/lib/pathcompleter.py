@@ -3,6 +3,7 @@ pathcompleter --- Path completer for Locator
 ============================================
 """
 
+import sip
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QFileSystemModel, QStyle
 from PyQt5.QtGui import QPalette
@@ -32,9 +33,6 @@ class AbstractPathCompleter(AbstractCompleter):
 
     mustBeLoaded = True
 
-    # global object. Reused by all completers
-    _fsModel = QFileSystemModel()
-
     _ERROR = 'error'
     _HEADER = 'currentDir'
     _STATUS = 'status'
@@ -53,6 +51,13 @@ class AbstractPathCompleter(AbstractCompleter):
         When it is private member of instance, it seems it works
         """
         self._model = None  # can't construct in the construtor, must be constructed in GUI thread
+
+    def terminate(self):
+        super().terminate()
+        if self._model:
+            # The QFileSystemModel runs a `separate thread <http://doc.qt.io/qt-5/qfilesystemmodel.html#caching-and-performance>`_  to load its cache. Make sure to delete the class explicitly to terminate that thread.
+            sip.delete(self._model)
+            print('del')
 
     @staticmethod
     def _filterHidden(paths):
@@ -113,10 +118,12 @@ class AbstractPathCompleter(AbstractCompleter):
         """Get icon for file or directory path. Uses QFileSystemModel
         """
         if self._model is None:
-            self._model = QFileSystemModel()
+            print('construct')
+            #self._model = QFileSystemModel()
 
-        index = self._model.index(path)
-        return self._model.data(index, Qt.DecorationRole)
+        #index = self._model.index(path)
+        #return self._model.data(index, Qt.DecorationRole)
+        return None
 
     def text(self, row, column):
         """Item text in the list of completions
@@ -176,6 +183,7 @@ class PathCompleter(AbstractPathCompleter):
         AbstractPathCompleter.__init__(self, text)
 
     def load(self, stopEvent):
+        print('path load')
         enterredDir = os.path.dirname(self._originalText)
         enterredFile = os.path.basename(self._originalText)
 
@@ -291,6 +299,7 @@ class GlobCompleter(AbstractPathCompleter):
         AbstractPathCompleter.__init__(self, text)
 
     def load(self, stopEvent):
+        print('glob load')
         variants = glob.iglob(os.path.expanduser(self._originalText) + '*')
         variants = sorted(self._filterHidden(variants))
 

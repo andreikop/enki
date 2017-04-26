@@ -143,6 +143,13 @@ class AbstractCompleter:
     """
     mustBeLoaded = False
 
+    def terminate(self):
+        """Terminate the completer if necessary.
+
+        Default implementation does nothing
+        """
+        pass
+
     def load(self, stopEvent):
         """Load necessary data in a thread.
         This method must often check ``stopEvent`` ``threading.Event``
@@ -260,6 +267,10 @@ class _CompleterModel(QAbstractItemModel):
     def __init__(self):
         QAbstractItemModel.__init__(self)
         self.completer = None
+
+    def terminate(self):
+        if self.completer:
+            self.completer.terminate()
 
     def index(self, row, column, parent):
         """QAbstractItemModel method implementation
@@ -479,6 +490,7 @@ class _CompleterLoaderThread(Thread):
 
         self._stopEvent = Event()
         Thread.start(self)
+        print('start')
 
     def _checkResultQueue(self):
         """Check if thread constructed a completer and put it to the queue
@@ -516,6 +528,7 @@ class _CompleterLoaderThread(Thread):
             self._taskQueue.put(None)
             self._checkResultQueueTimer.stop()
             self.join()
+            print('join')
 
     def _getNextTask(self):
         # discard old commands
@@ -695,6 +708,8 @@ class _LocatorDialog(QDialog):
             self._edit.terminate()
 
             self._completerLoaderThread.terminate()
+            if self._model:
+                self._model.terminate()
             core.workspace().focusCurrentDocument()
             self._terminated = True
 
