@@ -170,7 +170,6 @@ class PathCompleter(AbstractPathCompleter):
         AbstractPathCompleter.__init__(self, text)
 
     def load(self, stopEvent):
-        print('path load')
         enterredDir = os.path.dirname(self._originalText)
         enterredFile = os.path.basename(self._originalText)
 
@@ -286,7 +285,6 @@ class GlobCompleter(AbstractPathCompleter):
         AbstractPathCompleter.__init__(self, text)
 
     def load(self, stopEvent):
-        print('glob load')
         variants = glob.iglob(os.path.expanduser(self._originalText) + '*')
         variants = sorted(self._filterHidden(variants))
 

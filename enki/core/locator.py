@@ -490,7 +490,6 @@ class _CompleterLoaderThread(Thread):
 
         self._stopEvent = Event()
         Thread.start(self)
-        print('start')
 
     def _checkResultQueue(self):
         """Check if thread constructed a completer and put it to the queue
@@ -528,7 +527,6 @@ class _CompleterLoaderThread(Thread):
             self._taskQueue.put(None)
             self._checkResultQueueTimer.stop()
             self.join()
-            print('join')
 
     def _getNextTask(self):
         # discard old commands
