@@ -226,6 +226,7 @@ class Document(QWidget):
         self.qutepart.textChanged.disconnect()
 
         self.qutepart.terminate()  # stop background highlighting, free memory
+        sip.delete(self.qutepart)
 
     @pyqtSlot(bool)
     def _onWatcherFileModified(self, modified):
