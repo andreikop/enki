@@ -32,7 +32,7 @@ class _FileWatcher(QObject):
     def __init__(self, path):
         QObject.__init__(self)
         self._contents = None
-        self._watcher = QFileSystemWatcher()
+        self._watcher = QFileSystemWatcher(self)
         self._timer = None
         self._path = path
 
@@ -44,7 +44,7 @@ class _FileWatcher(QObject):
 
     def term(self):
         self.disable()
-        sip.delete(self._watcher)
+        sip.delete(self)
 
     def enable(self):
         """Enable signals from the watcher
@@ -226,7 +226,7 @@ class Document(QWidget):
         self.qutepart.textChanged.disconnect()
 
         self.qutepart.terminate()  # stop background highlighting, free memory
-        sip.delete(self.qutepart)
+        sip.delete(self)
 
     @pyqtSlot(bool)
     def _onWatcherFileModified(self, modified):
