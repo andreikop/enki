@@ -7,7 +7,7 @@ import os.path
 import collections
 import queue
 
-from PyQt5.QtCore import QObject, QThread, pyqtSignal
+from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QIcon
 
 from enki.core.core import core
@@ -20,7 +20,7 @@ from qutepart import Qutepart
 class ProcessorThread(QThread):
     """Thread processes text with ctags and returns tags
     """
-    resultsReady = pyqtSignal(tuple)  # Document, dict
+    resultsReady = pyqtSignal(object, object)  # Document, results dict
 
     _Task = collections.namedtuple("Task", ["document", "language", "filePath"])
 
@@ -59,7 +59,7 @@ class ProcessorThread(QThread):
             results = self._processSync(task.language, task.filePath)
 
             if results is not None:
-                self.resultsReady.emit((task.document, results,))
+                self.resultsReady.emit(task.document, results)
 
     """ Note that most of the PEP8 "errors" listed in
     http://pep8.readthedocs.org/en/latest/intro.html#error-codes aren't syntax errors.
@@ -76,11 +76,11 @@ class ProcessorThread(QThread):
     }
 
     _PEP8_ERRORS = ('E112', 'E113', 'E901', 'E902')
-    _PYFLAKES_ERRORS = ('F821', 'F822', 'F823', 'F831')
+    _PYFLAKES_ERRORS = ('F821', 'F822', 'F823', 'F831', 'E999')
 
     def _msgType(self, msgId):
-        # Per comments on _MSG_ID_CONVERTOR, mark PEP8 E9 errors as errors. All
-        # other PEP8 errors are shown as warnings.
+        # Per comments on _MSG_ID_CONVERTOR, mark PEP8/pyflake errors as errors. All
+        # other errors are shown as warnings.
         if(msgId in self._PEP8_ERRORS or
            msgId in self._PYFLAKES_ERRORS):
             return Qutepart.LINT_ERROR
@@ -105,7 +105,6 @@ class ProcessorThread(QThread):
             if match:
                 filePath = match.group(1)
                 lineNumber = match.group(2)
-                columnNumber = match.group(3)
                 rest = match.group(4)
 
                 msgId, msgText = rest.lstrip().split(' ', 1)
@@ -262,8 +261,11 @@ class Plugin(QObject):
     def _onStatusBarMessageChanged(self):
         self._myMessageIsShown = False
 
-    def _onResultsReady(self, params):
-        document, results = params
+    @pyqtSlot(object, object)
+    def _onResultsReady(self, document, results):
+        # Check that the document with lint marks is still the current document.
+        if core.workspace().currentDocument() is not document:
+            return
         errors = 0
         warnings = 0
 
@@ -280,12 +282,11 @@ class Plugin(QObject):
                 warnings += 1
 
         document.qutepart.lintMarks = filteredResults
-        if core.workspace().currentDocument() is document:
-            if document.qutepart.cursorPosition[0] in filteredResults:
-                self._onCursorPositionChanged(document)  # show msg on statusbar
-            elif errors:
-                core.mainWindow().statusBar().showMessage('Lint: {} error(s) found'.format(errors))
-                self._myMessageIsShown = True
-            elif warnings:
-                core.mainWindow().statusBar().showMessage('Lint: {} warning(s) found'.format(warnings))
-                self._myMessageIsShown = True
+        if document.qutepart.cursorPosition[0] in filteredResults:
+            self._onCursorPositionChanged(document)  # show msg on statusbar
+        elif errors:
+            core.mainWindow().statusBar().showMessage('Lint: {} error(s) found'.format(errors))
+            self._myMessageIsShown = True
+        elif warnings:
+            core.mainWindow().statusBar().showMessage('Lint: {} warning(s) found'.format(warnings))
+            self._myMessageIsShown = True
