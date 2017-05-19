@@ -13,7 +13,7 @@
 # <https://docs.python.org/2/library/functions.html#__import__>`_ the built-in
 # import statement / __import__ function.
 import builtins
-import imp
+import importlib
 
 # ImportFail class
 # ================
@@ -133,7 +133,7 @@ class ImportFail(object):
     def _reload_modules(self):
         if self.reload_modules:
             for mod in self.reload_modules:
-                imp.reload(mod)
+                importlib.reload(mod)
 
     # Act like ``__import__``, except raise *ImportError* if
     # ``self.fail_names`` is imported.
