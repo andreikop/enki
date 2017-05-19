@@ -372,6 +372,47 @@ class QWebEnginePageExtLink(QWebEnginePage):
         # Tell the built-in browser not to handle this.
         return False
 #
+# AfterLoaded
+# ===========
+# Run functions after the web page is loaded. This avoids errors such as  ``js: Uncaught ReferenceError: clearHighlight is not defined``, which (I think) occurs when JavaScript is run before the PreviewSync window is able to inject its JavaScript.
+class AfterLoaded(QObject):
+    def __init__(self,
+      # The QWebEnginePage to watch for loading/load complete.
+      webEnginePage):
+
+        super().__init__()
+        self._runList = []
+        self._isLoading = False
+        webEnginePage.loadStarted.connect(self.onLoadStarted)
+        webEnginePage.loadFinished.connect(self.onLoadFinished)
+
+    def terminate(self):
+        self.clearAll()
+        # Ensure that all signals are disconnected, so that waiting callbacks won't be invoked after this class is terminated.
+        sip.delete(self)
+
+    def onLoadStarted(self):
+        self._isLoading = True
+
+    def onLoadFinished(self, ok):
+        self._isLoading = False
+        self._runAll()
+
+    # Schedule a funtion to be executed after the web page is finished loading. If the web page has already been loaded, it will execute immediately. Use: ``al.afterLoaded(func_name, param1, param2, ..., kwarg1=kwval1, kwarg2=kwval2, ...)`` will invoke ``func_name(param1, param2, ..., kwarg1=kwval1, kwarg2=kwval2, ...)``. Note that the return values of the functions are discarded.
+    def afterLoaded(self, *args, **kwargs):
+        self._runList.append([kwargs, *args])
+        if not self._isLoading:
+            self._runAll()
+
+    def _runAll(self):
+        while self._runList:
+            kwargs, func, *args = self._runList.pop(0)
+            func(*args, **kwargs)
+
+    # Unschedule all functions scheduled to run, but not yet run.
+    def clearAll(self):
+        self._runList.clear()
+#
 # Core class
 # ==========
 class PreviewDock(DockWidget):
@@ -385,6 +426,8 @@ class PreviewDock(DockWidget):
 
         self._widget = self._createWidget()
         # Don't need to schedule document processing; a call to show() does.
+
+        self._afterLoaded = AfterLoaded(self._widget.webEngineView.page())
 
         self._loadTemplates()
         self._widget.cbTemplate.currentIndexChanged.connect(
@@ -429,11 +472,11 @@ class PreviewDock(DockWidget):
         # If we update Preview on every key press, freezes are noticable (the
         # GUI thread draws the preview too slowly).
         # This timer is used for drawing Preview 800 ms After user has stopped typing text
-        self._typingTimer = QTimer()  # stopped.
+        self._typingTimer = QTimer()
         self._typingTimer.setInterval(800)
         self._typingTimer.timeout.connect(self._scheduleDocumentProcessing)
 
-        self.previewSync = PreviewSync(self)  # del_ called
+        self.previewSync = PreviewSync(self)
 
         self._applyJavaScriptEnabled(self._isJavaScriptEnabled())
 
@@ -512,6 +555,7 @@ class PreviewDock(DockWidget):
         self.previewSync.terminate()
         self._sphinxConverter.terminate()
         self._runLatest.terminate()
+        self._afterLoaded.terminate()
         sip.delete(self)
 
     def closeEvent(self, event):
@@ -730,7 +774,7 @@ class PreviewDock(DockWidget):
         # The preview selection is an extra ``div`` inserted by the sync code.
         # Remove it before saving the file.
         self.previewSync.clearHighlight()
-        self._widget.webEngineView.page().toHtml(callback)
+        self._afterLoaded.afterLoaded(self._widget.webEngineView.page().toHtml, callback)
         # Wait for the callback to complete.
         qe.exec_()
 

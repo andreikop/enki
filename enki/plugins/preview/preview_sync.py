@@ -478,12 +478,12 @@ class PreviewSync(QObject):
                 # same.
                 vsb.setValue(vsb.value() - round(deltaY/qpCursorHeight))
 
-        page.runJavaScript('selectionAnchorCoords();', QWebEngineScript.ApplicationWorld, self._callbackManager.callback(callback))
+        self._dock._afterLoaded.afterLoaded(lambda: page.runJavaScript('selectionAnchorCoords();', QWebEngineScript.ApplicationWorld, self._callbackManager.callback(callback)))
 
     # Clear the current selection in the web view.
     def clearSelection(self):
         if not self._unitTest:
-            self._dock._widget.webEngineView.page().runJavaScript('clearSelection();', QWebEngineScript.ApplicationWorld)
+            self._dock._afterLoaded.afterLoaded(self._dock._widget.webEngineView.page().runJavaScript, 'clearSelection();', QWebEngineScript.ApplicationWorld)
     #
     #
     # Synchronizing between the text pane and the preview pane
@@ -836,10 +836,9 @@ class PreviewSync(QObject):
                 self.textToPreviewSynced.emit()
 
         if webIndex >= 0:
-            # TODO: Run all JavaScript with a wrapper that waits for the page to be loaded, then runs the functions, to make sure all the support JavaScript is already loaded. See http://stackoverflow.com/a/7088499.
-            page.runJavaScript('highlightFind({});'.format(repr(ft)), QWebEngineScript.ApplicationWorld, self._callbackManager.callback(callback))
+            self._dock._afterLoaded.afterLoaded(lambda: page.runJavaScript('highlightFind({});'.format(repr(ft)), QWebEngineScript.ApplicationWorld, self._callbackManager.callback(callback)))
         else:
             self.clearHighlight()
 
     def clearHighlight(self):
-        self._dock._widget.webEngineView.page().runJavaScript('clearHighlight();', QWebEngineScript.ApplicationWorld)
+        self._dock._afterLoaded.afterLoaded(self._dock._widget.webEngineView.page().runJavaScript, 'clearHighlight();', QWebEngineScript.ApplicationWorld)
