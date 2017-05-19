@@ -565,15 +565,14 @@ content"""
             self._dock()
         core.config()['CodeChat']['Enabled'] = True
         core.uiSettingsManager().dialogAccepted.emit()
-        self._doBasicTest('py', numEmittedExpected=1)
+        self._doBasicTest('py')
         assert 'test' in self._html()
 
     @requiresSphinx()
     @base.inMainLoop
     def test_previewCheck8a(self):
         """Start with Sphinx disabled, make sure rst file will be rendered by
-        docutils.core.publish_string. Then enable Sphinx, force document refresh
-        by calling scheduleDucomentProcessing. Make sure now Sphinx kicks in.
+        docutils.core.publish_string.
         """
         self._doBasicSphinxConfig()
         core.config()['Sphinx']['Enabled'] = False
