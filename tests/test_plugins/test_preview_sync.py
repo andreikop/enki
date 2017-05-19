@@ -211,7 +211,6 @@ class Test(PreviewTestCase):
         # args[1] is webIndex, the index of the found item.
         self.assertEqual(args[1], len(s) + wsLen)
 
-    # TODO: Ugly kludge. Naming these so that they're run later in the test sequence causes them to fail. Some later test probably prevents the patch from being correctly applied.
     @requiresModule('docutils')
     @base.inMainLoop
     @patch('enki.plugins.preview.preview_sync.PreviewSync._onWebviewClick_')
@@ -564,8 +563,10 @@ Here is some text after a table.""", True)
 
     # Test that no crashes occur if TRE isn't available or is old
     ##-----------------------------------------------------------
-    def test_sync22(self):
+    def test_xsync22(self):
         """Prevent TRE from being imported. Make sure there are no exceptions.
+
+        Note: Running this before test_click1/2/3 causes test failure -- the patches in those tests doesn't work after ImportFail in this test reloads the preview_sync module. So, name it test_xsync22 so that it will run after these tests.
         """
         with ImportFail(['approx_match'], [enki.plugins.preview.preview_sync]):
             self.assertIsNone(enki.plugins.preview.preview_sync.findApproxTextInTarget)
