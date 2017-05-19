@@ -14,6 +14,7 @@ import warnings
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
+import sip
 from PyQt5.QtCore import Qt, QTimer, QEventLoop
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.QtGui import QKeySequence
@@ -450,10 +451,6 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
 
     # Wait for an emitted signal.
     qe.exec_()
-    # If an exception occurred in the event loop, re-raise it.
-    if exceptions:
-        value, tracebackObj = exceptions[0]
-        raise value.with_traceback(tracebackObj)
     # Clean up: don't allow the timer to call app.quit after this
     # function exits, which would produce "interesting" behavior.
     ret = timer.isActive()
@@ -464,9 +461,15 @@ def waitForSignal(sender, senderSignal, timeoutMs, expectedSignalParams=None):
     # Likewise, disconnect the senderSignal for the same reason.
     senderSignal.disconnect(senderSignalSlot)
     timer.timeout.disconnect(qe.quit)
+    sip.delete(timer)
+    sip.delete(qe)
     # Restore the old exception hook
     sys.excepthook = oldExcHook
 
+    # If an exception occurred in the event loop, re-raise it.
+    if exceptions:
+        value, tracebackObj = exceptions[0]
+        raise value.with_traceback(tracebackObj)
     return ret and senderSignalArgsWrong and (not senderSignalArgsWrong[0])
 
 # The function above is rather awkward to use. This provides the same
