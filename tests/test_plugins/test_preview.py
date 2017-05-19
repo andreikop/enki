@@ -837,7 +837,7 @@ head
 #
 # :doc:`missing.file`"""
         webEngineViewContent, logContent = self._doBasicSphinxTest('py')
-        self.assertTrue('<span class="xref doc">missing.file</span>' in webEngineViewContent)
+        self.assertTrue('<span class="xref std std-doc">missing.file</span>' in webEngineViewContent)
         self.assertTrue('unknown document: missing.file' in logContent)
         core.config()['Sphinx']['Enabled'] = False
         core.uiSettingsManager().dialogAccepted.emit()

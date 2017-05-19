@@ -1042,6 +1042,9 @@ class PreviewDock(DockWidget):
             #
             #  X:\conf.py.rst:: WARNING: document isn't included in any toctree
             #
+            #  In Sphinx 1.6.1:
+            #  X:\file.rst: WARNING: document isn't included in any toctree
+            #
             # Each error/warning occupies one line. The following `regular
             # expression
             # <https://docs.python.org/2/library/re.html#regular-expression-syntax>`_
@@ -1054,11 +1057,11 @@ class PreviewDock(DockWidget):
             # Examining this expression one element at a time::
             #
             #   <string>:1589:        (ERROR/3)Unknown interpreted text role "ref".
-            errPosRe = ':(\d*|None): '
-            # Find the first occurence of a pair of colons.
+            errPosRe = ':(\d*|None|):? '
+            # Find the first occurence of a pair of colons, or just a single colon.
             # Between them there can be numbers or "None" or nothing. For example,
             # this expression matches the string ":1589:" or string ":None:" or
-            # string "::". Next::
+            # string "::" or the string ":". Next::
             #
             #   <string>:1589:        (ERROR/3)Unknown interpreted text role "ref".
             errTypeRe = '\(?(WARNING|ERROR|SEVERE)'
