@@ -225,13 +225,16 @@ class SphinxConverter(QObject):
 
         # Look for the HTML output.
         #
-        # Get an absolute path to the output path, which could be relative.
+        sourcePath = core.config()['Sphinx']['SourcePath']
         outputPath = core.config()['Sphinx']['OutputPath']
         projectPath = core.config()['Sphinx']['ProjectPath']
+        # Get an absolute path to the output path and source path, which could be relative.
+        if not os.path.isabs(sourcePath):
+            sourcePath = os.path.join(projectPath, sourcePath)
         if not os.path.isabs(outputPath):
             outputPath = os.path.join(projectPath, outputPath)
-        # Create an htmlPath as OutputPath + remainder of filePath.
-        htmlPath = os.path.join(outputPath + filePath[len(projectPath):])
+        # Given ``filePath = sourcePath / path to source file``, we want to compute ``htmlPath = outputPath / path to source file``.
+        htmlPath = os.path.join(outputPath, os.path.relpath(filePath, sourcePath))
         html_file_suffix = '.html'
         try:
             with codecs.open(os.path.join(projectPath, 'sphinx-enki-info.txt')) as f:
@@ -278,7 +281,7 @@ class SphinxConverter(QObject):
               '-d', os.path.join('_build', 'doctrees'),
               # Source directory -- the current directory, since we'll chdir to
               # the project directory before executing this.
-              '.',
+              core.config()['Sphinx']['SourcePath'],
               # Build directory
               core.config()['Sphinx']['OutputPath']]
 
@@ -319,7 +322,7 @@ class SphinxConverter(QObject):
             return (
                 'Failed to execute HTML builder:\n'
                 '{}\n'.format(str(ex)) +
-                'Go to Settings -> Settings -> CodeChat to set HTML'
+                'Go to Settings -> Settings -> Sphinx to set HTML'
                 ' builder configurations.')
 
         return stderr_out

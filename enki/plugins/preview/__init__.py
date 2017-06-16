@@ -245,6 +245,9 @@ class SphinxSettingsWidget(QWidget):
                                        "Sphinx/ProjectPath",
                                        self.leSphinxProjectPath))
         dialog.appendOption(TextOption(dialog, core.config(),
+                                       "Sphinx/SourcePath",
+                                       self.leSphinxSourcePath))
+        dialog.appendOption(TextOption(dialog, core.config(),
                                        "Sphinx/OutputPath",
                                        self.leSphinxOutputPath))
         dialog.appendOption(TextOption(dialog, core.config(),
@@ -292,10 +295,17 @@ class SphinxSettingsWidget(QWidget):
                 self.leSphinxOutputPath.setText(os.path.join(path, '_build',
                                                              'html'))
 
-    def on_pbSphinxOutputPath_clicked(self):
-        """Proivde a directory chooser for the user to select an output path.
+    def on_tbSphinxSourcePath_clicked(self):
+        """Provide a directory chooser for the user to select a source path.
         """
-        path = QFileDialog.getExistingDirectory(core.mainWindow(), 'Output path')
+        path = QFileDialog.getExistingDirectory(core.mainWindow(), 'Source path', self.leSphinxSourcePath.getText())
+        if path:
+            self.leSphinxSourcePath.setText(path)
+
+    def on_pbSphinxOutputPath_clicked(self):
+        """Provide a directory chooser for the user to select an output path.
+        """
+        path = QFileDialog.getExistingDirectory(core.mainWindow(), 'Output path', self.leSphinxOutputPath.getText())
         if path:
             self.leSphinxOutputPath.setText(path)
 
@@ -317,7 +327,7 @@ class SphinxSettingsWidget(QWidget):
         self._updateSphinxSettingMode()
 
     # The project path and Sphinx executable directory must be absolute;
-    # the output path may be relative to the project path or absolute.
+    # the source and output paths may be relative to the project path or absolute.
     # Use abspath or normpath as appropriate to guarantee this is true.
     def on_leSphinxProjectPath_editingFinished(self):
         self.leSphinxProjectPath.setText(os.path.abspath(self.leSphinxProjectPath.text()))
@@ -335,9 +345,7 @@ class SphinxSettingsWidget(QWidget):
         if core.config()['Sphinx']['AdvancedMode']:
             # Switch to advanced setting mode:
             # hide all path setting line edit boxes and buttons.
-            for i in range(self.gridLtNotAdvancedSettings.count()):
-                if self.gridLtNotAdvancedSettings.itemAt(i):
-                    self.gridLtNotAdvancedSettings.itemAt(i).widget().setVisible(False)
+            self.gbSphinxExecutable.setVisible(False)
             # Enable advanced setting mode items
             self.lbSphinxEnableAdvMode.setText('<html><head/><body><p>' +
                                                '<span style="text-decoration: underline;">Switch to Normal Mode' +
@@ -347,9 +355,7 @@ class SphinxSettingsWidget(QWidget):
             self.lbSphinxReference.setVisible(True)
         else:
             # Reenable all path setting line edit boxes and buttons
-            for i in range(self.gridLtNotAdvancedSettings.count()):
-                if self.gridLtNotAdvancedSettings.itemAt(i):
-                    self.gridLtNotAdvancedSettings.itemAt(i).widget().setVisible(True)
+            self.gbSphinxExecutable.setVisible(True)
             # Hide all advanced mode entries.
             self.lbSphinxEnableAdvMode.setText('<html><head/><body><p>' +
                                                '<span style="text-decoration: underline;">Switch to Advanced Mode' +
@@ -418,24 +424,23 @@ class Plugin(QObject):
         core.project().changed.connect(self.onFileBrowserPathChanged)
 
         # If user's config .json file lacks it, populate CodeChat's default
-        # config key and Sphinx's default config key.
-        if not 'CodeChat' in core.config():
-            core.config()['CodeChat'] = {}
-            core.config()['CodeChat']['Enabled'] = False
-            core.config().flush()
-        if not 'Sphinx' in core.config():
-            core.config()['Sphinx'] = {}
-            core.config()['Sphinx']['Enabled'] = False
-            core.config()['Sphinx']['Executable'] = 'sphinx-build'
-            core.config()['Sphinx']['ProjectPath'] = ''
-            core.config()['Sphinx']['BuildOnSave'] = False
-            core.config()['Sphinx']['OutputPath'] = os.path.join('_build',
-                                                                 'html')
-            core.config()['Sphinx']['AdvancedMode'] = False
-            core.config()['Sphinx']['Cmdline'] = ('sphinx-build -d ' +
-                                                  os.path.join('_build', 'doctrees') + ' . ' +
-                                                  os.path.join('_build', 'html'))
-            core.config().flush()
+        # config keys and Sphinx's default config keys.
+        c = core.config()
+        c.setdefault('CodeChat', {})
+        c.setdefault('CodeChat/Enabled', False)
+        c.setdefault('Sphinx', {})
+        c.setdefault('Sphinx/Enabled', False)
+        c.setdefault('Sphinx/Executable', 'sphinx-build')
+        c.setdefault('Sphinx/ProjectPath', '')
+        c.setdefault('Sphinx/SourcePath', '.')
+        c.setdefault('Sphinx/BuildOnSave', False)
+        c.setdefault('Sphinx/OutputPath', os.path.join('_build',
+                            'html'))
+        c.setdefault('Sphinx/AdvancedMode', False)
+        c.setdefault('Sphinx/Cmdline', ('sphinx-build -d ' +
+             os.path.join('_build', 'doctrees') + ' . ' +
+             os.path.join('_build', 'html')))
+        core.config().flush()
 
         self._setSphinxActionVisibility()
 

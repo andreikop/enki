@@ -358,8 +358,7 @@ class TestPreview(PreviewTestCase):
         # Assert advanced model toggle label now reads 'Normal Mode'
         self.assertTrue('Normal Mode' in sw.lbSphinxEnableAdvMode.text())
         # Verify that normal mode setting line edits and pushbuttons are all gone
-        for i in range(sw.gridLtNotAdvancedSettings.count()):
-            self.assertFalse(sw.gridLtNotAdvancedSettings.itemAt(i).widget().isVisible())
+        self.assertFalse(sw.gbSphinxExecutable.isVisible())
         # Verify advanced mode setting line edits and labels are visible.
         self.assertTrue(sw.lbSphinxCmdline.isVisible())
         self.assertTrue(sw.leSphinxCmdline.isVisible())
@@ -836,7 +835,7 @@ head
 #
 # :doc:`missing.file`"""
         webEngineViewContent, logContent = self._doBasicSphinxTest('py')
-        self.assertTrue('<span class="xref std std-doc">missing.file</span>' in webEngineViewContent)
+        self.assertTrue('<span class="xref doc">missing.file</span>' in webEngineViewContent)
         self.assertTrue('unknown document: missing.file' in logContent)
         core.config()['Sphinx']['Enabled'] = False
         core.uiSettingsManager().dialogAccepted.emit()
