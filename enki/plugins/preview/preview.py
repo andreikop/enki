@@ -268,7 +268,7 @@ class SphinxConverter(QObject):
         # Build the commond line for Sphinx.
         if core.config()['Sphinx']['AdvancedMode']:
             htmlBuilderCommandLine = core.config()['Sphinx']['Cmdline']
-            if sys.platform.startswith('linux'):
+            if sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
                 # If Linux is used, then subprocess cannot take the whole
                 # commandline as the name of an executable file. Module shlex
                 # has to be used to parse commandline.
