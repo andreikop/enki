@@ -12,6 +12,9 @@ MANIFEST
 .idea
 sphinx-enki-info.txt
 
+# Pip/setuptools-generated files.
+*.egg-info/
+
 # CodeChat-generated files.
 _build
 *.py.rst
