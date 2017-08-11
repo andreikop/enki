@@ -139,5 +139,6 @@ if __name__ == '__main__':
               'CodeChat',
               'Sphinx',
               'flake8',
+              'jupyter',
           ],
     )
