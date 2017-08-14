@@ -8,19 +8,15 @@ File contains plugin functionality implementation
 import os
 import os.path
 
-from PyQt5.QtCore import pyqtSignal, QObject, Qt, QTimer
-from PyQt5.QtWidgets import QFileDialog, QMessageBox, QWidget
-from PyQt5.QtGui import QFont
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QFileDialog, QWidget
 from PyQt5 import uic
 from qtconsole.rich_jupyter_widget import RichJupyterWidget
-from qtconsole.inprocess import QtInProcessKernelManager
+from qtconsole.client import QtKernelClient
+from qtconsole.manager import QtKernelManager
 
 from enki.core.core import core
-
 from enki.widgets.dockwidget import DockWidget
-
-import enki.lib.buffpopen
-import enki.widgets.termwidget
 
 #
 # Integration with the core
@@ -52,12 +48,11 @@ class ReplDock(DockWidget):
 
         self.setAllowedAreas(Qt.BottomDockWidgetArea | Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
 
-        # Copied from https://github.com/jupyter/qtconsole/blob/master/examples/inprocess_qtconsole.py.
-        # Create an in-process kernel
-        kernel_manager = QtInProcessKernelManager()
+        # Copied from https://github.com/jupyter/qtconsole/blob/master/examples/inprocess_qtconsole.py, then modified based on https://github.com/jupyter/qtconsole/blob/master/qtconsole/qtconsoleapp.py -- the QtInProcessKernelManager is blocking, so infinite loops crash Enki!
+        kernel_manager = QtKernelManager()
         kernel_manager.start_kernel()
-        kernel = kernel_manager.kernel
-        kernel.gui = 'qt'
+        kernel_manager.client_factory = QtKernelClient
+        kernel_manager.kernel.gui = 'qt'
 
         kernel_client = kernel_manager.client()
         kernel_client.start_channels()

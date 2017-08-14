@@ -44,6 +44,9 @@ class _AbstractReplPlugin(QObject):
         core.workspace().languageChanged.disconnect(self._installOrUninstallIfNecessary)
         core.workspace().languageChanged.disconnect(self._updateEvalActionEnabledState)
         core.uiSettingsManager().aboutToExecute.disconnect(self._onSettingsDialogAboutToExecute)
+        if self._dock:
+            # See https://jupyter-client.readthedocs.io/en/stable/api/manager.html#jupyter_client.KernelManager.shutdown_kernel.
+            self._dock.ipython_widget.kernel_manager.shutdown_kernel()
 
     def _icon(self):
         """Settings widget icon
@@ -152,7 +155,7 @@ class _AbstractReplPlugin(QObject):
         self._breakAction.setStatusTip("Use it as a restart action.")
         self._breakAction.setShortcut("Pause")
         self._breakAction.triggered.connect(self._onBreakTriggered)
-        self._breakAction.setEnabled(False)
+        #self._breakAction.setEnabled(False)
 
         if self._dock is None:
             from .repl import ReplDock
@@ -168,8 +171,6 @@ class _AbstractReplPlugin(QObject):
         """
         if not self._installed:
             return
-        # See https://jupyter-client.readthedocs.io/en/stable/api/manager.html#jupyter_client.KernelManager.shutdown_kernel.
-        #self._dock.ipython_widget.shutdown_kernel()
         core.actionManager().removeAction(self._evalAction)
         self._evalAction = None
         core.actionManager().removeAction(self._breakAction)
@@ -180,7 +181,6 @@ class _AbstractReplPlugin(QObject):
         core.mainWindow().removeDockWidget(self._dock)
 
         self._installed = False
-
 
 class _SchemeReplPlugin(_AbstractReplPlugin):
     """Scheme REPL plugin
@@ -242,11 +242,11 @@ class Plugin:
     """
 
     def __init__(self):
-        self._schemeSubPlugin = _SchemeReplPlugin()
-        self._smlSubPlugin = _SmlReplPlugin()
+#        self._schemeSubPlugin = _SchemeReplPlugin()
+#        self._smlSubPlugin = _SmlReplPlugin()
         self._pythonSubPlugin = _PythonReplPlugin()
 
     def terminate(self):
-        self._schemeSubPlugin.terminate()
-        self._smlSubPlugin.terminate()
+#        self._schemeSubPlugin.terminate()
+#        self._smlSubPlugin.terminate()
         self._pythonSubPlugin.terminate()
