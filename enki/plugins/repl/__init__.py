@@ -113,7 +113,7 @@ class _AbstractReplPlugin(QObject):
             if document.qutepart.document().isModified():
                 document.saveFile()
             if document.filePath():  # user may cancel saving document
-                self._dock.ipython_widget.execute('run {}'.format(document.filePath()))
+                self._dock.ipython_widget.execute('run "{}"'.format(document.filePath()))
                 self._dock.show()
 
     def _onBreakTriggered(self):
