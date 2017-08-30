@@ -126,7 +126,7 @@ if __name__ == '__main__':
           package_data=package_data,
           entry_points={
             'gui_scripts': [
-                ['enki = enki.main:main'],
+                ['enki = enki.__main__:main'],
             ],
           },
           data_files=data_files,
