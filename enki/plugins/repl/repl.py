@@ -60,6 +60,8 @@ class ReplDock(DockWidget):
         self.ipython_widget = RichJupyterWidget()
         self.ipython_widget.kernel_manager = kernel_manager
         self.ipython_widget.kernel_client = kernel_client
+        # By default, iPython adds a blank line between inputs. Per Monika's request, this eliminates the extra line. See https://qtconsole.readthedocs.io/en/latest/config_options.html#options; this fix was based on info from https://stackoverflow.com/questions/38652671/ipython-5-0-remove-spaces-between-input-lines.
+        self.ipython_widget.input_sep = ''
         self.ipython_widget.show()
 
         self.setWidget(self.ipython_widget)
