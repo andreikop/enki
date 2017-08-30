@@ -1,8 +1,6 @@
+#!/usr/bin/env python3
 """
 Enki editor entry point.
-Do not use this file directly, use
-    bin/enki or
-    bin/enki.py
 """
 
 import sys
@@ -301,3 +299,6 @@ def main():
     profiler.stepDone('Terminate core')
 
     return result
+
+if __name__ == '__main__':
+    sys.exit(main())
