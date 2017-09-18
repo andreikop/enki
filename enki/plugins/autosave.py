@@ -19,7 +19,7 @@ class SettingsPage(QWidget):
         QWidget.__init__(self, parent)
         text = """
             <h2>Autosave</h2>
-            <p> The Autosave plugin saves your files, if Enki looses focus or is closed.</p>
+            <p> The Autosave plugin saves your files, if Enki looses focus.</p>
             <p></p>"""
         self._label = QLabel(text, self)
         self.checkbox = QCheckBox('Enable Autosave')
@@ -39,6 +39,10 @@ class Plugin:
         """Connect to QApplication OnFocusChanged event"""
         self._qapplication = QApplication.instance()
         self._qapplication.focusWindowChanged.connect(self._onFocusChanged)
+
+        self._qmainwindow = core.mainWindow()
+        self._qmainwindow.destroyed.connect(self._onClose)
+
         self._checkSettings()
 
         core.uiSettingsManager().aboutToExecute.connect(self._onSettingsDialogAboutToExecute)
@@ -51,6 +55,10 @@ class Plugin:
         """Tests if no window is focused"""
         if newWindow == None and self._isAutoSaveActive():
             self._saveFiles()
+
+    def _onClose(self, qobject):
+        """Save files on close of main window"""
+        self._saveFiles()
 
     def _saveFiles(self):
         """Saves all open files"""
