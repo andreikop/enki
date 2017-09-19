@@ -2,6 +2,7 @@
 
 import sys
 import pkgutil
+import platform
 from distutils.core import setup
 
 
@@ -105,6 +106,9 @@ for loader, name, ispkg in pkgutil.iter_modules(['enki/plugins']):
         package_data['enki'].append('plugins/%s/templates/*' % name)
         package_data['enki'].append('plugins/%s/sphinx_templates/*' % name)
 
+
+script = 'bin/enki-editor.pyw' if platform.system() == 'Windows' else 'bin/enki'
+
 if __name__ == '__main__':
     """ Dependency checking is disabled for Debian builds
     if 'install' in sys.argv:
@@ -124,6 +128,7 @@ if __name__ == '__main__':
           packages=packages,
           package_dir=package_dir,
           package_data=package_data,
+          scripts=[script],
           entry_points={
             'gui_scripts': [
                 ['enki = enki.main:main'],
