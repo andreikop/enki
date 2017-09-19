@@ -50,7 +50,7 @@ class _OpenedFileModel(QAbstractItemModel):
         self._workspace.documentOpened.connect(self._onDocumentOpened)
         self._workspace.documentClosed.connect(self._onDocumentClosed)
         self._workspace.modificationChanged.connect(self._onDocumentDataChanged)
-        self._MRU = True
+        self._MRU = False
 
     def columnCount(self, parent):  # pylint: disable=W0613
         """See QAbstractItemModel documentation"""
