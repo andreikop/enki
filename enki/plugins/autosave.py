@@ -2,7 +2,7 @@
 autosave --- saves all files if enki loses focus
 =============================================================
 """
-import inspect
+import os
 
 from PyQt5.QtWidgets import QApplication, QWidget, QCheckBox, QVBoxLayout, QSpacerItem, QSizePolicy, QLabel
 
@@ -12,6 +12,8 @@ from enki.core.uisettings import CheckableOption
 # DONE Setting page
 # DONE checkbox if autosave is activated,
 # DONE Cleanup code (Terminate plugin, etc.)
+# DONE Save only if file is changed
+# DONE Save only if file is writable, else warn the user.
 
 class SettingsPage(QWidget):
     """Settings page for Autosave plugi"""
@@ -63,7 +65,11 @@ class Plugin:
     def _saveFiles(self):
         """Saves all open files"""
         for document in core.workspace().documents():
-            document.saveFile()
+            if document.qutepart.document().isModified():
+                if not os.access(document.filePath(), os.W_OK):
+                    core.mainWindow().appendMessage("Can not save file '%s', because it is not writable!" % document.filePath(), 4000)
+                else:
+                    document.saveFile()
 
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.
