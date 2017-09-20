@@ -24,7 +24,10 @@ from enki.core.uisettings import CheckableOption
 # DONE wrap parens around selected text
 # TODO overwrite closing parens
 # TODO delete closing paren if backspace is pressed and opening paren is deleted
-# TODO generalize for all pairing characters
+# DONE generalize for all pairing characters
+
+openers = ("[", "(", "{", '"', "'", "“", "‘", "«", "‹", "`")
+closers = ("]", ")", "}", '"', "'", "”", "’", "»", "›", "`")
 
 class SettingsPage(QWidget):
     """Settings page for Bracket Matcher plugin"""
@@ -73,26 +76,27 @@ class Plugin(QObject):
 
     def eventFilter(self, qutepart, event):
         if event.type() == QEvent.KeyPress and event.modifiers() == Qt.NoModifier:
-            if event.key() in [Qt.Key_ParenLeft]:
-                print("KeyPress (")
+            if event.text() in openers:
+                index = openers.index(event.text())
+                opener = openers[index]
+                closer = closers[index]
                 textCursor = qutepart.textCursor()
                 if textCursor.hasSelection():
-                    selectionStart = min(textCursor.selectionStart(), textCursor.selectionEnd())
-                    selectionEnd = max(textCursor.selectionStart(), textCursor.selectionEnd() + 1)
-                    print(selectionStart)
+                    # it's important to get selectionStart and selectionEnd
+                    # before we change the textCursor, otherwise they will
+                    # change when we do operations like insertText
+                    selectionStart = textCursor.selectionStart()
+                    selectionEnd = textCursor.selectionEnd() + 1
+
                     textCursor.setPosition(selectionStart)
-                    textCursor.insertText("(")
+                    textCursor.insertText(opener)
                     qutepart.setTextCursor(textCursor)
-                    print(selectionEnd)
                     textCursor.setPosition(selectionEnd)
-                    textCursor.insertText(")")
+                    textCursor.insertText(closer)
                     qutepart.setTextCursor(textCursor)
                 else:
-                    print(textCursor.position())
-                    textCursor.insertText("()")
-                    print(textCursor.position())
+                    textCursor.insertText(opener + closer)
                     textCursor.movePosition(QTextCursor.Left)
-                    print(textCursor.position())
                     qutepart.setTextCursor(textCursor)
                 return True
         return False
