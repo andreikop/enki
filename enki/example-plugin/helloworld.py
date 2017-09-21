@@ -1,5 +1,6 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QHBoxLayout, QIcon, QLabel, QLineEdit, QMessageBox, QWidget
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QMessageBox, QWidget
 
 # core is main enki.core singletone. It is usually used for getting pointers to other singletones
 from enki.core.core import core
@@ -53,15 +54,17 @@ class Plugin:
     def terminate(self):
         """This method is called by core for each plugin during termination
         """
+        core.actionManager().removeAction(self._action)
         QMessageBox.information(core.mainWindow(), "Hello, world", "Plugin terminated")
+
 
     def _addAction(self):
         """Add action to main menu
         This action uses embedded icons. You can find list of icons in **icons** directory at project root
         """
-        action = core.actionManager().addAction("mHelp/aSayHello", 'Say Hello...', QIcon(':/enkiicons/logo/32x32/enki.png'))
-        core.actionManager().setDefaultShortcut(action, "Ctrl+Alt+Shift+H")
-        action.triggered.connect(self._sayHello)
+        self._action = core.actionManager().addAction("mHelp/aSayHello", 'Say Hello...', QIcon(':/enkiicons/logo/32x32/enki.png'))
+        core.actionManager().setDefaultShortcut(self._action, "Ctrl+Alt+Shift+H")
+        self._action.triggered.connect(self._sayHello)
 
     def _sayHello(self):
         """Handler for main menu action
