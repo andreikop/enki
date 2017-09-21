@@ -152,7 +152,7 @@ class _TagModel(QAbstractItemModel):
             self._updateCurrentTagAndEmitSignal()
 
             document.qutepart.centerCursor()
-            document.qutepart.setFocus()
+            core.workspace().focusCurrentDocument()
             self.jumpToTagDone.emit()
 
     def tagPathForIndex(self, index):

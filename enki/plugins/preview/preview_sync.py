@@ -12,18 +12,16 @@
 # =======
 # Library imports
 # ---------------
-# Comment out one of the two following lines to enable or disable profiling
-# of text to web sync.
-#from time import time
-#import cProfile
-cProfile = None
+from enum import Enum
 #
 # Third-party
 # -----------
-from PyQt5.QtCore import pyqtSignal, QPoint, Qt, QTimer, QObject, QThread
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, QTimer, QObject, QThread, \
+    QFile, QIODevice, QEventLoop
 from PyQt5 import QtGui
-from PyQt5.QtWebKitWidgets import QWebPage
-from PyQt5.QtTest import QTest
+from PyQt5.QtWebChannel import QWebChannel
+from PyQt5.QtWebEngineWidgets import QWebEngineScript
+import sip
 #
 # Local
 # -----
@@ -37,6 +35,118 @@ try:
 except ImportError as e:
     findApproxTextInTarget = None
 #
+# CallbackManager
+# ===============
+# Callbacks are a painful additon when porting from QWebKit to QWebEngine. Some operations, just as getting the HTML content of the page, return their value via a callback. Effectively, this is somewhat like a threaded (or, more correctly a multi-process) operation: Qt sends a request to the web engine process, which replies with the requested data. In the meantime, other code runs. When the requested data arrives, Qt invokes the callback. (Why didn't they use signals?) This leads to some challenges:
+#
+# #. The data the callback operates on may no longer be needed or relevant; for example, if a document was closed, a callback expecting to use the HTML text to synchronize with text in the current document will fail.
+# #. When terminating a class, there's no way to know if any callbacks are pending. If they're called after the class terminates, failures will occur. Likewise, there's not way to wait until all callbacks have completed.
+#
+# As a solution, this class provides future-like behavior for callbacks: a CallbackFuture can be skipped (so that the callback it wraps won't be invoked, providing a way to deal with problem 1 above -- don't invoke callbacks that depend on out-of-date state) or waiting for (to avoid termination errors in problem 2 above). The CallbackManager keeps track of all pending callbacks.
+#
+# Example use:
+#
+# .. code:: Python
+#   :number-lines:
+#
+#   def __init__(self):
+#       self.cm = CallbackManager()
+#
+#   # This demonstrates wrapping a callback in a CallbackFuture.
+#   def getPlainText(self):
+#       # The parameter to ``toPlainText`` is a callback.
+#       self.webEngineView.page().toPlainText(cm.callback(self.havePlainText))
+#
+#   def havePlainText(self, txt):
+#       # Do something with txt.
+#
+#   def setNewHtml(self, html):
+#       # Cancel any pending callbacks -- with new HTML, the plain text isn't correct.
+#       self.cm.skipAllCallbacks()
+#       self.webEngineView.page().setHtml(html)
+#       # Run it again on the new HTML.
+#       self.getPlainText()
+#
+#   def terminate(self):
+#       # Cancel then wait for all callbacks to complete before terminating.
+#       self.cm.skipAllCallbacks()
+#       self.cm.waitAllCallbacks()
+#
+#
+class CallbackFutureState(Enum):
+    READY = 0
+    WAITING = 1
+    COMPLETE = 2
+#
+# CallbackFuture
+# --------------
+# A CallbackFuture keeps track of its state (if it's waiting for a callback; if the callback should be skipped).
+#
+# **Important**: This class is NOT thread-safe. Invoke all of its methods from a single thread.
+class CallbackFuture:
+    def __init__(self,
+      # A CallbackManager instance to register with.
+      callbackManager,
+      # _`callbackToWrap`: The callback function to (optionally) invoke, which this future will wrap.
+      callbackToWrap):
+
+        self.callbackManager = callbackManager
+        self._callbackToWrap = callbackToWrap
+        self._state = CallbackFutureState.READY
+        self._shouldInvokeCallback = True
+        self._qEventLoop = None
+
+    # Return the callback wrapper for this future and mark it as waiting.
+    def callback(self):
+        assert self._state == CallbackFutureState.READY, 'A callback may only be obtained once.'
+        self._state = CallbackFutureState.WAITING
+        self.callbackManager.add(self)
+        return self._callbackWrapper
+
+    # The callback wrapper. Update state, then invoke the wrapped callback.
+    def _callbackWrapper(self, *args, **kwargs):
+        assert self._state == CallbackFutureState.WAITING
+        self._state = CallbackFutureState.COMPLETE
+        self.callbackManager.remove(self)
+        # If waiting for the callback, stop!
+        if self._qEventLoop:
+            self._qEventLoop.quit()
+        if self._shouldInvokeCallback:
+            self._callbackToWrap(*args, **kwargs)
+
+    def skipCallback(self):
+        assert self._state == CallbackFutureState.WAITING, 'Only callbacks being waited for may be skipped.'
+        self._shouldInvokeCallback = False
+
+    # Wait until the wrapped callback is completed (invoked or skipped).
+    def waitForCallback(self):
+        assert self._state == CallbackFutureState.WAITING, 'Only callbacks being waited for may be skipped.'
+        # Run events until the callback is invoked.
+        self._qEventLoop = QEventLoop()
+        self._qEventLoop.exec_()
+        self._qEventLoop = None
+        assert self._state == CallbackFutureState.COMPLETE
+
+class CallbackManager(set):
+    def skipAllCallbacks(self):
+        for item in self:
+            item.skipCallback()
+
+    def waitForAllCallbacks(self):
+        while self:
+            # Note: we can't iterate over items in the set, since removal of an item (such as a completed CallbackFuture) rasies ``RuntimeError: Set changed size during iteration``. Instead, wait one item in the set. (Don't wait on the rest, since they may no longer belong to the set). The following two lines gets one item from the set.
+            for item in self:
+                break
+            # Wait on it.
+            item.waitForCallback()
+
+    # A convenience method: wrap a callback and return the wrapper.
+    def callback(self,
+      # See callbackToWrap_.
+      callbackToInvoke):
+
+        return CallbackFuture(self, callbackToInvoke).callback()
+#
 # PreviewSync
 # ===========
 class PreviewSync(QObject):
@@ -44,6 +154,7 @@ class PreviewSync(QObject):
        them vertically.
     """
     textToPreviewSynced = pyqtSignal()
+
     # Setup / cleanup
     # ===============
     def __init__(self,
@@ -59,42 +170,29 @@ class PreviewSync(QObject):
         self._jsPreviewSync = self._jsOnClick + self._jsWebCursorCoords
 
         self._dock = previewDock
+        self._callbackManager = CallbackManager()
         self._initPreviewToTextSync()
         self._initTextToPreviewSync()
-        if cProfile:
-            self._pr = cProfile.Profile()
-
-    def _onJavaScriptCleared(self):
-        """This is called before starting a new load of a web page, to inject the
-           JavaScript needed for PreviewSync."""
-        mf = self._dock._widget.webView.page().mainFrame()
-        # Use `addToJavaScriptWindowObject
-        # <http://doc.qt.io/qt-4.8/qwebframe.html#addToJavaScriptWindowObject>`_
-        # to make this PreviewDock object known to JavaScript, so that
-        # JavaScript can emit the ``jsClick`` signal defined by PreviewDock.
-        mf.addToJavaScriptWindowObject("PyPreviewDock", self)
-        # Use `evaluateJavaScript
-        # <http://doc.qt.io/qt-4.8/qwebframe.html#evaluateJavaScript>`_
-        # to insert JavaScript needed by PreviewSync.
-        res = mf.evaluateJavaScript(self._jsPreviewSync)
-        # Make sure no errors were returned; the result should be empty.
-        assert not res
+        self._unitTest = False
 
     def terminate(self):
         # Uninstall the text-to-web sync only if it was installed in the first
         # place (it depends on TRE).
-        if cProfile:
-            self._pr.print_stats('cumtime')
         if findApproxTextInTarget:
             self._cursorMovementTimer.stop()
-            core.workspace().cursorPositionChanged.disconnect(
-                self._onCursorPositionChanged)
-            core.workspace().currentDocumentChanged.disconnect(
-                self._onDocumentChanged)
             # Shut down the background sync. If a sync was already in progress,
             # then discard its output.
             self._runLatest.future.cancel(True)
             self._runLatest.terminate()
+            # End all callbacks.
+            self._callbackManager.skipAllCallbacks()
+            self._callbackManager.waitForAllCallbacks()
+            # Bug: DON'T de-register the QWebChannel. This casues the error message ``onmessage is not a callable property of qt.webChannelTransport. Some things might not work as expected.`` to be displayed. I see this in https://code.woboq.org/qt5/qtwebengine/src/core/renderer/web_channel_ipc_transport.cpp.html#221; I assume it's a result of attempting to send a signal to the web page, where the web page doesn't have qwebchannel.js running.
+            #self.channel.deregisterObject(self)
+            # Delete it. Note that the channel is `NOT owned by the page <http://doc.qt.io/qt-5/qwebenginepage.html#setWebChannel>`.
+            sip.delete(self.channel)
+            # Disconnect all signals.
+            sip.delete(self)
     #
     # Vertical synchronization
     ##========================
@@ -213,7 +311,7 @@ class PreviewSync(QObject):
             # a range pointing to where the mouse is.
             # Ref: `focus <https://developer.mozilla.org/en-US/docs/Web/API/Selection.focusNode>`_ of the selection.
             # `Range <https://developer.mozilla.org/en-US/docs/Web/API/range>`_
-            'rangeAtFocus = document.createRange();'
+            'var rangeAtFocus = document.createRange();'
             'rangeAtFocus.setStart(selection.focusNode, selection.focusOffset);'
 
             # Insert a measurable element (a span) at the selection's
@@ -221,60 +319,104 @@ class PreviewSync(QObject):
             'var span = document.createElement("span");'
             'rangeAtFocus.insertNode(span);'
 
-            # Measure coordinates at this span, then remove it. Note:
-            # span.remove() isn't supported in the PyQt 4 I'm running, hence
-            # the longer syntax below.
-            'ret = findPos(span);'
-            'height = span.offsetHeight;'
-            'span.parentNode.removeChild(span);'
+            # Measure coordinates at this span, then remove it.
+            'var [left, top] = findPos(span);'
+            'var height = span.offsetHeight;'
+            'span.remove();'
 
-            ## Return      top,   left, height.
-            'return    [ret[0], ret[1], height];'
+            'return [left, top, height];'
+        '}'
+
+        # Clear the current selection, if it exists.
+        'function clearSelection() {'
+            'if (window.getSelection()) {'
+                'window.getSelection().empty();'
+            '}'
+        '}'
+
+        # Given text to find, place a highlight on the last line containing the
+        # text.
+        'function highlightFind('
+          # The text to find, typically consisting of all text in the web page
+          # from its beginning to the point to be found.
+          'txt) {'
+
+            # Clear the current selection, so that a find will start at the
+            # beginning of the page.
+            'clearSelection();'
+            # Find or create a ``div`` used as a highlighter.
+            'var highlighter = getHighlight();'
+            'if (!highlighter) {'
+                'highlighter = document.createElement("div");'
+                'document.body.appendChild(highlighter);'
+                'highlighter.style.zIndex = 100;'
+                'highlighter.style.width = "100%";'
+                'highlighter.style.position = "absolute";'
+                # Pass any click on the highlight on to the webpage underneath.
+                # See https://developer.mozilla.org/en-US/docs/Web/CSS/pointer-events.
+                'highlighter.style.pointerEvents = "none";'
+                'highlighter.style.backgroundColor = "rgba(255, 255, 0, 0.4)";'
+                'highlighter.id = "highlighter";'
+            '}'
+            # See https://developer.mozilla.org/en-US/docs/Web/API/Window/find.
+            ##                       aString, aCaseSensitive, aBackwards, aWrapAround, aWholeWord, aSearchInFrames, aShowDialog)
+            'var found = window.find(txt,     true,           false,     false,        false,      true,            false);'
+            # If the text was found, or the search string was empty, highlight a line.
+            'if (found || txt === "") {'
+                # Determine the coordiantes of the end of the selection.
+                'var res = selectionAnchorCoords();'
+                'if (res) {'
+                    # Unpack the coordinates obtained.
+                    'var [left, top, height] = res;'
+                    # Position it based on the coordinates.
+                    'highlighter.style.height = height + "px";'
+                    'highlighter.style.top = (window.scrollY + top) + "px";'
+                '}'
+                'return true;'
+            '}'
+            # Remove the highlight if we can't find the text.
+            'clearHighlight();'
+            # Clear the selection, since we won't use it later.
+            'clearSelection();'
+            'return false;'
+        '}'
+
+        # Return the ``div`` used to produce a highlight, or None if it doesn't exist.
+        'function getHighlight() {'
+            'return document.getElementById("highlighter");'
+        '}'
+
+        # Delete the element used to produce a highlight.
+        'function clearHighlight() {'
+            'var highlighter = getHighlight();'
+            'if (highlighter) {'
+                'highlighter.remove();'
+            '}'
         '}')
-
-    # Run JavaScript to determine the coordinates and height of the
-    # anchor of the selection in the web view.
-    #
-    # Return values:
-    #
-    # None if the selection is empty, or (top, left) where:
-    #
-    #   top - Top of the selection, measured from the web page's origin. In pixels.
-    #
-    #   left - Left of the selection, measured from the web page's origin. In pixels.
-    def _webCursorCoords(self):
-        res = self._dock._widget.webView.page().mainFrame(). \
-            evaluateJavaScript('selectionAnchorCoords();')
-        # See if a 3-element tuple is returned. Null is returned if the
-        # selection is empty.
-        if not res:
-            return None
-        left, top, height = res
-        return top, height
 
     # Scroll the web view to align its cursor with the qutepart cursor or vice
     # versa.
     def _scrollSync(self,
       # None to scroll the text view to the y coordinate of the web view's
-      # cursor. True or False to do the opposite:  scroll the web view so that
+      # cursor. True or False to do the opposite: scroll the web view so that
       # its cursor aligns vertically with the y coordinate of the text view. In
       # this case, True will use the tolerance to scroll only if the amount to
       # scroll exceeds that tolerance; False will scroll irregardless of the
       # tolerance.
       alreadyScrolling=None,
-      # Ignored if alreadyScrolling == None. Used a both a padding value and a
+      # Ignored if ``alreadyScrolling == None``. Used as both a padding value and a
       # scroll tolerance, as described in alreadyScrolling.
-      tolerance=0):
+      tolerance=50):
 
         # Per the `window geometry
         # <http://qt-project.org/doc/qt-4.8/application-windows.html#window-geometry>`_,
         # `geometry() <http://qt-project.org/doc/qt-4.8/qwidget.html#geometry-prop>`_
         # is relative to the parent frame. Then, use `mapToGlobal
         # <http://qt-project.org/doc/qt-4.8/qwidget.html#mapToGlobal>`_ to
-        # put this in global coordinates. This works for `QWebView
-        # <http://doc.qt.io/qt-4.8/qwebview.html>`_, since it
+        # put this in global coordinates. This works for `QWebEngineView
+        # <http://doc.qt.io/qt-5/qwebengineview.html>`_, since it
         # inherits from QWidget.
-        wv = self._dock._widget.webView
+        wv = self._dock._widget.webEngineView
         qp = core.workspace().currentDocument().qutepart
         qpGlobalTop = qp.mapToGlobal(qp.geometry().topLeft()).y()
         wvGlobalTop = wv.mapToGlobal(wv.geometry().topLeft()).y()
@@ -294,48 +436,54 @@ class PreviewSync(QObject):
         # include it in calculations if it's visible.
         if hsb.isVisible():
             qpHeight -= qp.horizontalScrollBar().height()
-        mf = wv.page().mainFrame()
-        # Since `scrollBarGeometry <http://doc.qt.io/qt-4.8/qwebframe.html#scrollBarGeometry>`_
-        # returns an empty rect if the scroll bar doesn't exist, just subtract
-        # its height.
-        wvHeight = wv.geometry().height() - mf.scrollBarGeometry(Qt.Horizontal).height()
+        page = wv.page()
+        wvHeight = wv.geometry().height()
 
-        # Use JavaScript to determine web view cursor height top and height.
-        # There's no nice Qt way that I'm aware of, since Qt doesn't know about
-        # these details inside a web view. If JavaScript can't determine this, then
-        # silently abort the sync.
-        ret = self._webCursorCoords()
-        if not ret:
-            return
-        wvCursorTop, wvCursorHeight = ret
-        wvCursorBottom = wvCursorTop + wvCursorHeight
+        # JavaScript callback to determine the coordinates and height of the
+        # anchor of the selection in the web view. It expects a 3-element tuple
+        # of (left, top, height), or None if there was no selection, where:
+        # top is the coordinate (in pixels) of the top of the selection, measured from the web page's origin;
+        # left is the coordinate (in pixels) of the left of the selection, measured from the web page's origin.
+        def callback(res):
+            # See if a 3-element tuple is returned. Exit if the selection was empty.
+            if not res:
+                return
 
-        if alreadyScrolling is not None:
-            deltaY = self._alignScrollAmount(qpGlobalTop, qpCursorBottom,
-              wvGlobalTop, wvCursorBottom, wvHeight, wvCursorHeight, tolerance)
-            # Uncomment for helpful debug info.
-            ## print(("qpGlobalTop = %d, qpCursorBottom = %d, qpHeight = %d, deltaY = %d, tol = %d\n" +
-            ##   "  wvGlobalTop = %d, wvCursorBottom = %d, wvHeight = %d, wvCursorHeight = %d") %
-            ##   (qpGlobalTop, qpCursorBottom, qpHeight, deltaY, tolerance,
-            ##   wvGlobalTop, wvCursorBottom, wvHeight, wvCursorHeight))
+            _, wvCursorTop, wvCursorHeight = res
+            wvCursorBottom = wvCursorTop + wvCursorHeight
 
-            # Only scroll if we've outside the tolerance.
-            if alreadyScrolling or (abs(deltaY) > tolerance):
-                # Scroll based on this info using `setScrollPosition
-                # <http://doc.qt.io/qt-4.8/qwebframe.html#scrollPosition-prop>`_.
-                #
-                # Note that scroll bars are backwards: to make the text go up, you must
-                # move the bars down (a positive delta) and vice versa. Hence, the
-                # subtration, rather than addition, below.
-                mf.setScrollPosition(mf.scrollPosition() - QPoint(0, deltaY))
-        else:
-            deltaY = self._alignScrollAmount(wvGlobalTop, wvCursorBottom,
-              qpGlobalTop, qpCursorBottom, qpHeight, qpCursorHeight, 0)
-            vsb = qp.verticalScrollBar()
-            # The units for the vertical scroll bar is pixels, not lines. So, do
-            # a kludgy conversion by assuming that all line heights are the
-            # same.
-            vsb.setValue(vsb.value() - round(deltaY/qpCursorHeight))
+            if alreadyScrolling is not None:
+                deltaY = self._alignScrollAmount(qpGlobalTop, qpCursorBottom,
+                  wvGlobalTop, wvCursorBottom, wvHeight, wvCursorHeight, tolerance)
+                # Uncomment for helpful debug info.
+                ##print(("qpGlobalTop = %d, qpCursorBottom = %d, qpHeight = %d, deltaY = %d, tol = %d\n" +
+                ##  "  wvGlobalTop = %d, wvCursorBottom = %d, wvHeight = %d, wvCursorHeight = %d") %
+                ##  (qpGlobalTop, qpCursorBottom, qpHeight, deltaY, tolerance,
+                ##  wvGlobalTop, wvCursorBottom, wvHeight, wvCursorHeight))
+
+                # Only scroll if we've outside the tolerance.
+                if alreadyScrolling or (abs(deltaY) > tolerance):
+                    # Note that scroll bars are backwards: to make the text go up, you must
+                    # move the bars down (a positive delta) and vice versa. Hence, the
+                    # subtration, rather than addition, below.
+                    page.runJavaScript('window.scrollTo(0, window.scrollY - {});'.format(deltaY))
+                # Clear the selection, whether we scrolled or not.
+                self.clearSelection()
+            else:
+                deltaY = self._alignScrollAmount(wvGlobalTop, wvCursorBottom,
+                  qpGlobalTop, qpCursorBottom, qpHeight, qpCursorHeight, 0)
+                vsb = qp.verticalScrollBar()
+                # The units for the vertical scroll bar is pixels, not lines. So, do
+                # a kludgy conversion by assuming that all line heights are the
+                # same.
+                vsb.setValue(vsb.value() - round(deltaY/qpCursorHeight))
+
+        self._dock._afterLoaded.afterLoaded(lambda: page.runJavaScript('selectionAnchorCoords();', QWebEngineScript.ApplicationWorld, self._callbackManager.callback(callback)))
+
+    # Clear the current selection in the web view.
+    def clearSelection(self):
+        if not self._unitTest:
+            self._dock._afterLoaded.afterLoaded(self._dock._widget.webEngineView.page().runJavaScript, 'clearSelection();', QWebEngineScript.ApplicationWorld)
     #
     #
     # Synchronizing between the text pane and the preview pane
@@ -360,7 +508,7 @@ class PreviewSync(QObject):
     #
     # * `The QtWebKit Bridge <http://qt-project.org/doc/qt-4.8/qtwebkit-bridge.html>`_
     #   gives a helpful overview.
-    # * `QWebView`_ is the top-level widget used to embed a Web page in a Qt
+    # * `QWebEngineView`_ is the top-level widget used to embed a Web page in a Qt
     #   application.
     #
     # For this sync, the first step is to find the single click's location in a
@@ -397,6 +545,7 @@ class PreviewSync(QObject):
     # Note: A JavaScript development environment with this code is available
     # at http://jsfiddle.net/hgDwx/110/.
     _jsOnClick = (
+
         # The `window.onclick
         # <https://developer.mozilla.org/en-US/docs/Web/API/Window.onclick>`_
         # event is "called when the user clicks the mouse button while the
@@ -404,7 +553,11 @@ class PreviewSync(QObject):
         # is fired for any mouse button pressed", I found experimentally
         # that it on fires on a left-click release; middle and right clicks
         # had no effect.
-        'window.onclick = function () {'
+        'function window_onclick() {'
+
+            # Clear the current highlight -- it doesn't make sense to have other
+            # text highlighted after a click.
+            'clearHighlight();'
 
              # This performs step 1 above. In particular:
              #
@@ -452,55 +605,80 @@ class PreviewSync(QObject):
              #   page to the point where the user clicked.
              'var rStr = r.cloneContents().textContent.toString();'
 
+
              # Step 4: the length of the string gives the index of the click
              # into a string containing a text rendering of the webpage.
-             # Emit a signal with that information.
-            'PyPreviewDock.jsClick(rStr.length);'
-        '};')
+             # Call Python with the document's text and that index.
+            'window.previewSync._onWebviewClick(document.body.textContent.toString(), rStr.length);'
+        '}')
 
-    # A signal emitted by clicks in the web view, per 1 above.
-    jsClick = pyqtSignal(
-      # The index of the clicked character in a text rendering
-      # of the web page.
-      int)
+    _qtJsInit = (
+        # _`Bug 1`: I can't seem to avoid the error message ``js: Uncaught TypeError: channel.execCallbacks[message.id] is not a function``. It seems like this occurs  when a new page is loaded, but the QWebChannel on the Python side sends a message intended for a previously-loaded page. Adding delays / waiting until all JS init finishes / wiating until the event queue is empty helps, but doesn't fix it. Even with these, enough busyness (constant CPU use), this still happends -- perhaps the Python/Qt network backend doesn't send these messages until the CPU is idle? As a workaround, don't define the channel until is needed, making it less likely this will happen.
+        #
+        # _`Bug 2`: Since ``qt`` may not be defined (Qt 5.7.0 doesn't provide the
+        # ``qt`` object to JavaScript when loading per https://bugreports.qt.io/browse/QTBUG-53411),
+        # wrap it in a try/except block.
+        'function init_qwebchannel() {'
+            # Switch event listeners, part 1/2 -- now that this init is done, don't call it again.
+            'window.removeEventListener("click", init_qwebchannel);'
+            'try {'
+                'new QWebChannel(qt.webChannelTransport, function(channel) {'
+                    # Save a reference to the previewSync object.
+                    'window.previewSync = channel.objects.previewSync;'
+                    # Switch event listeners, part 2/2 -- Invoke the usual onclick handler. This will only be run if the QWebChannel init succeeds.
+                    'window.addEventListener("click", window_onclick);'
+                    # Now that the QWebChannel is ready, use it to handle the click.
+                    'window_onclick();'
+                '});'
+            '} catch (err) {'
+                # Re-throw unrecognized errors. When ``qt`` isn't defined,
+                # JavaScript reports ``js: Uncaught ReferenceError: qt is not
+                # defined``; this works around `bug 2`_.
+                'throw err;' #if (!(err instanceof ReferenceError)) throw err;'
+            '}'
+        '}'
+        # Set up the sync system after a click. This works around `bug 1`_. See https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener.
+        'window.addEventListener("click", init_qwebchannel);'
+    )
 
     def _initPreviewToTextSync(self):
         """Initialize the system per items 1, 2, and 4 above."""
-        # Insert our on-click JavaScript.
-        self._onJavaScriptCleared()
-        # .. _onJavaScriptCleared.connect:
-        #
-        # Connect the signal emitted by the JavaScript onclick handler to
-        # ``onWebviewClick``.
-        self.jsClick.connect(self._onWebviewClick)
-        # Qt emits the `javaScriptWindowObjectCleared
-        # <http://doc.qt.io/qt-4.8/qwebframe.html#javaScriptWindowObjectCleared>`_
-        # signal when a web page is loaded. When this happens, reinsert our
-        # onclick JavaScript.
-        self._dock._widget.webView.page().mainFrame(). \
-            javaScriptWindowObjectCleared.connect(self._onJavaScriptCleared)
+        # When a web page finishes loading, reinsert our JavaScript.
+        page = self._dock._widget.webEngineView.page()
 
-    def _webTextContent(self):
-        """Return the ``textContent`` of the entire web page. This differs from
-        ``mainFrame().toPlainText()``, which uses ``innerText`` and therefore
-        produces a slightly differnt result. Since the JavaScript signal's index
-        is computed based on textContent, that must be used for all web to text
-        sync operations.
-        """
-        return (self._dock._widget.webView.page().mainFrame().
-                evaluateJavaScript('document.body.textContent.toString()'))
+        # Insert our scripts into every loaded page.
+        qwebchannel_js = QFile(':/qtwebchannel/qwebchannel.js')
+        if not qwebchannel_js.open(QIODevice.ReadOnly):
+            raise SystemExit(
+                'Failed to load qwebchannel.js with error: %s' %
+                qwebchannel_js.errorString())
+        qwebchannel_js = bytes(qwebchannel_js.readAll()).decode('utf-8')
 
-    def _onWebviewClick(self, webIndex):
-        """Per item 3 above, this is called when the user clicks in the web view. It
-        finds the matching location in the text pane then moves the text pane
-        cursor.
+        # Set up the QWebChannel. See http://doc.qt.io/qt-5/qtwebchannel-javascript.html.
+        # Run the script containing QWebChannel.js first.
+        beforeScript = QWebEngineScript()
+        beforeScript.setSourceCode(qwebchannel_js + self._jsPreviewSync + self._qtJsInit)
+        beforeScript.setName('qwebchannel.js, previewSync')
+        # Run this JavaScript separated from any JavaScript present in the loaded web page. This provides better security (rogue pages can't access the QWebChannel) and better isolation (handlers, etc. won't conflict, I hope).
+        beforeScript.setWorldId(QWebEngineScript.ApplicationWorld)
+        beforeScript.setInjectionPoint(QWebEngineScript.DocumentCreation)
+        # Per `setWebChannel <http://doc.qt.io/qt-5/qwebenginepage.html#setWebChannel>`_, only one channel is allowed per page. So, don't run this on sub-frames, since it will attempt the creation of more channels for each subframe.
+        beforeScript.setRunsOnSubFrames(False)
+        page.scripts().insert(beforeScript)
 
-        Params:
-        webIndex - The index of the clicked character in a text rendering
-            of the web page.
-        """
-        # Retrieve the web page text and the qutepart text.
-        tc = self._webTextContent()
+        # Set up the web channel. See https://riverbankcomputing.com/pipermail/pyqt/2015-August/036346.html
+        # and http://stackoverflow.com/questions/28565254/how-to-use-qt-webengine-and-qwebchannel.
+        # For debug, ``set QTWEBENGINE_REMOTE_DEBUGGING=port`` then browse to
+        # http://127.0.0.1:port, where port=60000 works for me. See https://riverbankcomputing.com/pipermail/pyqt/2015-August/036346.html.
+        self.channel = QWebChannel(page)
+        self.channel.registerObject("previewSync", self)
+        # Expose the ``qt.webChannelTransport`` object in the world where these scripts live.
+        page.setWebChannel(self.channel, QWebEngineScript.ApplicationWorld)
+
+    @pyqtSlot(str, int)
+    def _onWebviewClick(self, tc, webIndex):
+        self._onWebviewClick_(tc, webIndex)
+        # Get the qutepart text.
         qp = core.workspace().currentDocument().qutepart
         # Perform an approximate match between the clicked webpage text and the
         # qutepart text.
@@ -510,13 +688,18 @@ class PreviewSync(QObject):
         if textIndex >= 0:
             self._moveTextPaneToIndex(textIndex)
 
+    # Used for testing -- this will be replaced by a mock. Does nothing.
+    def _onWebviewClick_(self, tc, webIndex):
+        pass
+
     def _moveTextPaneToIndex(self, textIndex, noWebSync=True):
         """Given an index into the text pane, move the cursor to that index.
 
         Params:
-        textIndex - The index into the text pane at which to place the cursor.
-        noWebSync - True to prevent the web-to-text sync from running as a
-            result of calling this routine.
+
+        - textIndex - The index into the text pane at which to place the cursor.
+        - noWebSync - True to prevent the web-to-text sync from running as a
+          result of calling this routine.
         """
         # Move the cursor to textIndex.
         qp = core.workspace().currentDocument().qutepart
@@ -570,6 +753,7 @@ class PreviewSync(QObject):
 
     def _onDocumentChanged(self, old, new):
         self._runLatest.future.cancel(True)
+        self._callbackManager.skipAllCallbacks()
         self._cursorMovementTimer.stop()
 
     def _onCursorPositionChanged(self):
@@ -590,19 +774,20 @@ class PreviewSync(QObject):
         per item 3 above. It can also be called when a sync is needed (when
         switching windows, for example).
         """
-        if cProfile:
-            self._pr.enable()
-            self._startTime = time()
         # Only run this if we TRE is installed.
         if not findApproxTextInTarget:
             return
         # Stop the timer; the next cursor movement will restart it.
         self._cursorMovementTimer.stop()
-        # Perform an approximate match in a separate thread, then update
-        # the cursor based on the match results.
-        mf = self._dock._widget.webView.page().mainFrame()
+        # Get a plain text rendering of the web view. Continue execution in a callback.
         qp = core.workspace().currentDocument().qutepart
-        txt = mf.toPlainText()
+        qp_text = qp.text
+        self._dock._widget.webEngineView.page().toPlainText(
+            self._callbackManager.callback(self._havePlainText))
+
+    # Perform an approximate match in a separate thread, then update
+    # the cursor based on the match results.
+    def _havePlainText(self, html_text):
         # Performance notes: findApproxTextInTarget is REALLY slow. Scrolling
         # through preview.py with profiling enabled produced::
         #
@@ -621,80 +806,39 @@ class PreviewSync(QObject):
         #
         # Therefore, finding ways to make this faster or run it in another
         # thread should significantly improve the GUI's responsiveness.
+        qp = core.workspace().currentDocument().qutepart
+        qp_text = qp.text
+        qp_position = qp.textCursor().position()
         self._runLatest.start(self._movePreviewPaneToIndex,
-                              findApproxTextInTarget, qp.text, qp.textCursor().position(), txt)
-        if cProfile:
-            print(('Time before: ' + str(time() - self._startTime)))
+            # Call findApproxTextInTarget, returning the index and the HTML text searched.
+            lambda: (findApproxTextInTarget(qp_text, qp_position, html_text), html_text))
 
     def _movePreviewPaneToIndex(self, future):
         """Highlights webIndex in the preview pane, per item 4 above.
 
         Params:
-        webIndex - The index to move the cursor / highlight to in the preview
+
+        - webIndex - The index to move the cursor / highlight to in the preview
           pane.
-        txt - The text of the webpage, returned by mainFrame.toPlainText().
+        - txt - The text of the webpage, returned by mainFrame.toPlainText().
         """
-        if cProfile:
-            print(('Time between: ' + str(time() - self._startTime)))
-            self._startTime = time()
         # Retrieve the return value from findApproxTextInTarget.
-        webIndex = future.result
-        # Only move the cursor to webIndex in the preview pane if
-        # corresponding text was found.
-        if webIndex < 0:
-            return
+        webIndex, txt = future.result
 
-        # Implementation: there's no direct way I know of to move the cursor in
-        # a web page. However, the find operation is fairly common. So, simply
-        # search from the beginning of the page for a substring of the web
-        # page's text rendering from the beginning to webIndex. Then press home
-        # followed by shift+end to select the line the cursor is on. (This
-        # relies on the page being editable, which is set below).
-        pg = self._dock._widget.webView.page()
-        mf = pg.mainFrame()
-        # The find operations below change the scroll position. Save, then
-        # restore it to avoid the window jumping around.
-        scrollPos = mf.scrollPosition()
-        # Start the search location at the beginning of the document by clearing
-        # the previous selection using `findText
-        # <http://qt-project.org/doc/qt-4.8/qwebpage.html#findText>`_ with an
-        # empty search string.
-        pg.findText('')
-        # Find the index with findText_.
-        txt = pg.mainFrame().toPlainText()
+        view = self._dock._widget.webEngineView
+        page = view.page()
         ft = txt[:webIndex]
-        found = pg.findText(ft, QWebPage.FindCaseSensitively)
-        mf.setScrollPosition(scrollPos)
 
-        # Before highlighting a line, make sure the text was found. If the
-        # search string was empty, it still counts (found is false, but
-        # highlighting will still work).
-        if found or (webIndex == 0):
-            # Select the entire line containing the anchor: make the page
-            # temporarily editable, then press home then shift+end using `keyClick
-            # <http://qt-project.org/doc/qt-4.8/qtest.html#keyClick>`_. Other ideas
-            # on how to do this:
-            #
-            # #. The same idea, but done in JavaScript. Playing with this produced
-            #    a set of failures -- in a ``conteneditable`` area, I couldn't
-            #    perform any edits by sending keypresses. The best reference I
-            #    found for injecting keypresses was `this jsbin demo
-            #    <http://stackoverflow.com/questions/10455626/keydown-simulation-in-chrome-fires-normally-but-not-the-correct-key/12522769#12522769>`_.
-            ice = pg.isContentEditable()
-            pg.setContentEditable(True)
-            # If the find text ends with a newline, findText doesn't include
-            # the newline. Manaully move one char forward in this case to get it.
-            # This is tested in test_preview.py:test_sync10, test_sync11.
-            if ft and ft[-1] == '\n':
-                QTest.keyClick(self._dock._widget.webView, Qt.Key_Right, Qt.ShiftModifier)
-            QTest.keyClick(self._dock._widget.webView, Qt.Key_Home)
-            QTest.keyClick(self._dock._widget.webView, Qt.Key_End, Qt.ShiftModifier)
-            pg.setContentEditable(ice)
+        def callback(found):
+            if found:
+                # Sync the cursors.
+                self._scrollSync(False)
+                self.textToPreviewSynced.emit()
 
-            # Sync the cursors. If we're already scrolling, take full advantage
-            # of it.
-            self._scrollSync(mf.scrollPosition().y() != scrollPos.y(), 50)
-            self.textToPreviewSynced.emit()
-            if cProfile:
-                self._pr.disable()
-                print(('Time after: ' + str(time() - self._startTime)))
+        if webIndex >= 0:
+            self._dock._afterLoaded.afterLoaded(lambda: page.runJavaScript('highlightFind({});'.format(repr(ft)), QWebEngineScript.ApplicationWorld, self._callbackManager.callback(callback)))
+        else:
+            self.clearHighlight()
+
+    def clearHighlight(self):
+        self._dock._afterLoaded.afterLoaded(self._dock._widget.webEngineView.page().runJavaScript, 'clearHighlight();', QWebEngineScript.ApplicationWorld)

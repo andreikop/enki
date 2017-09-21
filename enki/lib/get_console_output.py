@@ -25,7 +25,7 @@ def open_console_output(command, cwd=None, **options):
         env = os.environ
     else:
         si = None
-        if isFrozen and sys.platform.startswith('linux'):
+        if isFrozen and (sys.platform.startswith('linux') or sys.platform.startswith('darwin')):
             # Prepend the path to the frozen executable, since several other
             # utilities (Sphinx, ctags, etc.) are there.
             env = {'PATH': os.path.dirname(sys.executable) + ':' + os.environ['PATH']}

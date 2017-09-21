@@ -5,18 +5,21 @@ document --- Opened file representation
 
 import os.path
 
-from PyQt5.QtCore import pyqtSignal, QFileSystemWatcher, QObject, QTimer, pyqtSlot
+import sip
+from PyQt5.QtCore import pyqtSignal, QFileSystemWatcher, QObject, QTimer, pyqtSlot, QEvent
 from PyQt5.QtWidgets import QFileDialog, \
     QInputDialog, \
     QMessageBox, \
     QPlainTextEdit, \
     QWidget, \
-    QVBoxLayout
+    QVBoxLayout, \
+    QApplication
 from PyQt5.QtGui import QColor, QFont, QIcon, QTextOption
 
 from qutepart import Qutepart
 
 from enki.core.core import core
+from enki.widgets.dockwidget import DockWidget
 
 
 class _FileWatcher(QObject):
@@ -31,7 +34,7 @@ class _FileWatcher(QObject):
     def __init__(self, path):
         QObject.__init__(self)
         self._contents = None
-        self._watcher = QFileSystemWatcher()
+        self._watcher = QFileSystemWatcher(self)
         self._timer = None
         self._path = path
 
@@ -43,6 +46,7 @@ class _FileWatcher(QObject):
 
     def term(self):
         self.disable()
+        sip.delete(self)
 
     def enable(self):
         """Enable signals from the watcher
@@ -201,6 +205,8 @@ class Document(QWidget):
 
         self._tryDetectSyntax()
 
+        QApplication.instance().installEventFilter(self)
+
     def _tryDetectSyntax(self):
         if len(self.qutepart.lines) > (100 * 1000) and \
            self.qutepart.language() is None:
@@ -224,6 +230,7 @@ class Document(QWidget):
         self.qutepart.textChanged.disconnect()
 
         self.qutepart.terminate()  # stop background highlighting, free memory
+        sip.delete(self)
 
     @pyqtSlot(bool)
     def _onWatcherFileModified(self, modified):
@@ -541,3 +548,21 @@ class Document(QWidget):
             self.qutepart.eol = self._EOL_CONVERTOR[conf['EOL']['Mode']]
 
         # Whitespace visibility is managed by qpartsettings plugin
+
+    def eventFilter(self, obj, event):
+        """An event filter that looks for focus in events, closing any floating
+           docks when found."""
+
+        # Note: We can't ``def focusInEvent(self, focusEvent)`` since qutepart
+        # is the focus proxy, meaning this won't be called. Hence, the neeed for
+        # an event listener.
+        if (event.type() == QEvent.FocusIn and
+          (obj == self or obj == self.focusProxy()) ):
+            for dock in core.mainWindow().findChildren(DockWidget):
+                # Close all unpinned docks. The exception: if the Open Files 
+                # dock is waiting for the Ctrl button to be released, keep it 
+                # open; it will be be closed when Ctrl is released.
+                if not dock.isPinned() and (not getattr(dock, '_waitForCtrlRelease', False)):
+                    dock._close()
+
+        return QWidget.eventFilter(self, obj, event)

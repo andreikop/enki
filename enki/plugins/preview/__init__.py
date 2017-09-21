@@ -15,6 +15,7 @@
 import sys
 import os.path
 import fnmatch
+import types
 #
 # Third-party imports
 # -------------------
@@ -22,6 +23,7 @@ from PyQt5.QtCore import QObject, Qt
 from PyQt5.QtWidgets import QAction, QWidget, QFileDialog, QLabel
 from PyQt5.QtGui import QIcon, QKeySequence, QPalette
 from PyQt5 import uic
+import sip
 #
 # Local imports
 # -------------
@@ -40,8 +42,6 @@ except ImportError:
 
 # Utilities
 # =========
-
-
 def isHtmlFile(document):
     """Return True if document refers to an HTML file; return False otherwise.
     """
@@ -169,8 +169,6 @@ def _getSphinxVersion(path):
 # GUIs
 # ====
 # This class implements the GUI for a combined CodeChat settings page.
-
-
 class CodeChatSettingsWidget(QWidget):
     """Insert the preview plugin as a page of the UISettings dialog.
     """
@@ -201,8 +199,6 @@ class CodeChatSettingsWidget(QWidget):
                                             self.cbCodeChat))
 
 # This class implements the GUI for a combined CodeChat / Sphinx settings page.
-
-
 class SphinxSettingsWidget(QWidget):
     """Insert the preview plugin as a page of the UISettings dialog.
     """
@@ -248,6 +244,9 @@ class SphinxSettingsWidget(QWidget):
         dialog.appendOption(TextOption(dialog, core.config(),
                                        "Sphinx/ProjectPath",
                                        self.leSphinxProjectPath))
+        dialog.appendOption(TextOption(dialog, core.config(),
+                                       "Sphinx/SourcePath",
+                                       self.leSphinxSourcePath))
         dialog.appendOption(TextOption(dialog, core.config(),
                                        "Sphinx/OutputPath",
                                        self.leSphinxOutputPath))
@@ -296,10 +295,17 @@ class SphinxSettingsWidget(QWidget):
                 self.leSphinxOutputPath.setText(os.path.join(path, '_build',
                                                              'html'))
 
-    def on_pbSphinxOutputPath_clicked(self):
-        """Proivde a directory chooser for the user to select an output path.
+    def on_tbSphinxSourcePath_clicked(self):
+        """Provide a directory chooser for the user to select a source path.
         """
-        path = QFileDialog.getExistingDirectory(core.mainWindow(), 'Output path')
+        path = QFileDialog.getExistingDirectory(core.mainWindow(), 'Source path', self.leSphinxSourcePath.getText())
+        if path:
+            self.leSphinxSourcePath.setText(path)
+
+    def on_pbSphinxOutputPath_clicked(self):
+        """Provide a directory chooser for the user to select an output path.
+        """
+        path = QFileDialog.getExistingDirectory(core.mainWindow(), 'Output path', self.leSphinxOutputPath.getText())
         if path:
             self.leSphinxOutputPath.setText(path)
 
@@ -321,7 +327,7 @@ class SphinxSettingsWidget(QWidget):
         self._updateSphinxSettingMode()
 
     # The project path and Sphinx executable directory must be absolute;
-    # the output path may be relative to the project path or absolute.
+    # the source and output paths may be relative to the project path or absolute.
     # Use abspath or normpath as appropriate to guarantee this is true.
     def on_leSphinxProjectPath_editingFinished(self):
         self.leSphinxProjectPath.setText(os.path.abspath(self.leSphinxProjectPath.text()))
@@ -339,9 +345,7 @@ class SphinxSettingsWidget(QWidget):
         if core.config()['Sphinx']['AdvancedMode']:
             # Switch to advanced setting mode:
             # hide all path setting line edit boxes and buttons.
-            for i in range(self.gridLtNotAdvancedSettings.count()):
-                if self.gridLtNotAdvancedSettings.itemAt(i):
-                    self.gridLtNotAdvancedSettings.itemAt(i).widget().setVisible(False)
+            self.gbSphinxExecutable.setVisible(False)
             # Enable advanced setting mode items
             self.lbSphinxEnableAdvMode.setText('<html><head/><body><p>' +
                                                '<span style="text-decoration: underline;">Switch to Normal Mode' +
@@ -351,9 +355,7 @@ class SphinxSettingsWidget(QWidget):
             self.lbSphinxReference.setVisible(True)
         else:
             # Reenable all path setting line edit boxes and buttons
-            for i in range(self.gridLtNotAdvancedSettings.count()):
-                if self.gridLtNotAdvancedSettings.itemAt(i):
-                    self.gridLtNotAdvancedSettings.itemAt(i).widget().setVisible(True)
+            self.gbSphinxExecutable.setVisible(True)
             # Hide all advanced mode entries.
             self.lbSphinxEnableAdvMode.setText('<html><head/><body><p>' +
                                                '<span style="text-decoration: underline;">Switch to Advanced Mode' +
@@ -366,9 +368,8 @@ class SphinxSettingsWidget(QWidget):
 class NoWebkitDock(DockWidget):
     def __init__(self):
         DockWidget.__init__(self, core.mainWindow(), "Previe&w", QIcon(':/enkiicons/internet.png'), "Alt+W")
-        self._widget = QLabel("Qt5 Webkit not found. Preview is not available.<br/>"
-                              "Install <i>python3-pyqt5.qtwebkit</i> package on Debian based distributions,"
-                              "<i>python3-qt5-webkit</i> on Fedora")
+        self._widget = QLabel("Qt5 WebEngine not found. Preview is not available.<br/>"
+                              "Run <tt>pip install PyQt5</tt>.")
         self.setFocusProxy(self._widget)
         self.setWidget(self._widget)
 
@@ -377,10 +378,12 @@ class NoWebkitDock(DockWidget):
 
 
 try:
-    import PyQt5.QtWebKitWidgets
-    haveWebkit = True
-except ImportError:
-    haveWebkit = False
+    # See if this supports the ``scrollPosition`` method introduced in Qt 5.7.
+    from PyQt5.QtWebEngineWidgets import QWebEnginePage
+    assert type(QWebEnginePage.scrollPosition) == types.BuiltinMethodType
+    haveWebEngine = True
+except (ImportError, AssertionError):
+    haveWebEngine = False
 
 
 # Plugin
@@ -421,24 +424,23 @@ class Plugin(QObject):
         core.project().changed.connect(self.onFileBrowserPathChanged)
 
         # If user's config .json file lacks it, populate CodeChat's default
-        # config key and Sphinx's default config key.
-        if not 'CodeChat' in core.config():
-            core.config()['CodeChat'] = {}
-            core.config()['CodeChat']['Enabled'] = False
-            core.config().flush()
-        if not 'Sphinx' in core.config():
-            core.config()['Sphinx'] = {}
-            core.config()['Sphinx']['Enabled'] = False
-            core.config()['Sphinx']['Executable'] = 'sphinx-build'
-            core.config()['Sphinx']['ProjectPath'] = ''
-            core.config()['Sphinx']['BuildOnSave'] = False
-            core.config()['Sphinx']['OutputPath'] = os.path.join('_build',
-                                                                 'html')
-            core.config()['Sphinx']['AdvancedMode'] = False
-            core.config()['Sphinx']['Cmdline'] = ('sphinx-build -d ' +
-                                                  os.path.join('_build', 'doctrees') + ' . ' +
-                                                  os.path.join('_build', 'html'))
-            core.config().flush()
+        # config keys and Sphinx's default config keys.
+        c = core.config()
+        c.setdefault('CodeChat', {})
+        c.setdefault('CodeChat/Enabled', False)
+        c.setdefault('Sphinx', {})
+        c.setdefault('Sphinx/Enabled', False)
+        c.setdefault('Sphinx/Executable', 'sphinx-build')
+        c.setdefault('Sphinx/ProjectPath', '')
+        c.setdefault('Sphinx/SourcePath', '.')
+        c.setdefault('Sphinx/BuildOnSave', False)
+        c.setdefault('Sphinx/OutputPath', os.path.join('_build',
+                            'html'))
+        c.setdefault('Sphinx/AdvancedMode', False)
+        c.setdefault('Sphinx/Cmdline', ('sphinx-build -d ' +
+             os.path.join('_build', 'doctrees') + ' . ' +
+             os.path.join('_build', 'html')))
+        core.config().flush()
 
         self._setSphinxActionVisibility()
 
@@ -453,18 +455,8 @@ class Plugin(QObject):
         if self._dock is not None:
             self._dock.terminate()
 
-        core.workspace().currentDocumentChanged.disconnect(self._onDocumentChanged)
-        core.workspace().languageChanged.disconnect(self._onDocumentChanged)
-        core.uiSettingsManager().aboutToExecute.disconnect(self._onSettingsDialogAboutToExecute)
-        core.uiSettingsManager().dialogAccepted.disconnect(self._onDocumentChanged)
-        core.uiSettingsManager().dialogAccepted.disconnect(self._setSphinxActionVisibility)
-        core.project().changed.disconnect(self.onFileBrowserPathChanged)
+        sip.delete(self)
 
-        if self._dock:
-            self._dock.closed.disconnect(self._onDockClosed)
-            self._dock.shown.disconnect(self._onDockShown)
-            if haveWebkit:
-                self._saveAction.triggered.disconnect(self._dock.onPreviewSave)
 
     def _onDocumentChanged(self):
         """Document or Language changed.
@@ -500,22 +492,22 @@ class Plugin(QObject):
         """
         # create dock
         if self._dock is None:
-            if haveWebkit:
+            if haveWebEngine:
                 from enki.plugins.preview.preview import PreviewDock
                 self._dock = PreviewDock()
 
                 self._saveAction = QAction(QIcon(':enkiicons/save.png'),
                                            'Save Preview as HTML', self._dock)
                 self._saveAction.setShortcut(QKeySequence("Alt+Shift+P"))
-                self._saveAction.triggered.connect(self._dock.onPreviewSave)  # Disconnected.
+                self._saveAction.triggered.connect(self._dock.onPreviewSave)
             else:
                 self._dock = NoWebkitDock()
 
-        if haveWebkit:
+        if haveWebEngine:
             core.actionManager().addAction("mFile/aSavePreview", self._saveAction)
 
-        self._dock.closed.connect(self._onDockClosed)  # Disconnected.
-        self._dock.shown.connect(self._onDockShown)  # Disconnected.
+        self._dock.closed.connect(self._onDockClosed)
+        self._dock.shown.connect(self._onDockShown)
         core.mainWindow().addDockWidget(Qt.RightDockWidgetArea, self._dock)
 
         core.actionManager().addAction("mView/aPreview",
@@ -541,7 +533,7 @@ class Plugin(QObject):
     def _removeDock(self):
         """Remove dock from GUI
         """
-        if haveWebkit:
+        if haveWebEngine:
             core.actionManager().removeAction("mFile/aSavePreview")
 
         core.actionManager().removeAction("mView/aPreview")

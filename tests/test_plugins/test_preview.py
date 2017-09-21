@@ -27,7 +27,7 @@ from base import WaitForSignal
 # ---------------------------
 from PyQt5.QtWidgets import QMessageBox, QApplication
 from PyQt5.QtGui import QWheelEvent
-from PyQt5.QtCore import Qt, QPointF, QPoint
+from PyQt5.QtCore import Qt, QPointF, QPoint, pyqtSignal, QObject
 from PyQt5.QtTest import QTest
 
 # Local application imports
@@ -37,9 +37,9 @@ from enki.core.uisettings import UISettings
 # Both of the two following lines are needed: the first, so we can later
 # ``reload(enki.plugins.preview)``; the last, to instiantate ``SettingsWidget``.
 import enki.plugins.preview
-from enki.plugins.preview import CodeChatSettingsWidget, SphinxSettingsWidget
-from .import_fail import ImportFail
-from enki.plugins.preview import _getSphinxVersion
+from enki.plugins.preview import CodeChatSettingsWidget, SphinxSettingsWidget, _getSphinxVersion
+from import_fail import ImportFail
+from enki.plugins.preview.preview_sync import CallbackManager
 
 
 _SPHINX_VERSION = [1, 3, 0]
@@ -64,8 +64,6 @@ def requiresSphinx():
 
 # Preview module tests
 # ====================
-
-
 class SimplePreviewTestCase(base.TestCase):
     """Only for very minimal testing of the Preview dock."""
 
@@ -96,6 +94,26 @@ class TestSimplePreview(SimplePreviewTestCase):
         with self.assertRaisesRegex(AssertionError, 'Dock Previe&w not found'):
             self._dock()
 
+# Provide a convenient way to wait for a callback to complete.
+class WaitForCallback:
+    def __init__(self, *args, **kwargs):
+        self.cm = CallbackManager()
+
+    # Provide a callback which records the arguments with which it was called.
+    def callback(self):
+        return self.cm.callback(self._callbackWrapped)
+
+    # Record the arguments passed.
+    def _callbackWrapped(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+
+    # Wait for the callback, then return the args it received.
+    @property
+    def getCallbackReturn(self):
+        self.cm.waitForAllCallbacks()
+        return self.args
+
 
 class PreviewTestCase(SimplePreviewTestCase):
     """A class of utilities used to aid in testing the preview module."""
@@ -121,23 +139,29 @@ class PreviewTestCase(SimplePreviewTestCase):
         return self._dock().widget()
 
     def _plainText(self):
-        return self._widget().webView.page().mainFrame().toPlainText()
+        wfc = WaitForCallback()
+        # See http://doc.qt.io/qt-5/qwebenginepage.html#runJavaScript.
+        # Run the JavaScript needed to get the page's plain text. The asynchronous result then emits a signal containing the string, which is saved in gs.
+        self._widget().webEngineView.page().runJavaScript('document.body.textContent.toString();', wfc.callback())
+        return wfc.getCallbackReturn[0]
 
     def _html(self):
-        return self._widget().webView.page().mainFrame().toHtml()
+        wfc = WaitForCallback()
+        self._widget().webEngineView.page().toHtml(wfc.callback())
+        return wfc.getCallbackReturn[0]
 
     def _logText(self):
         """Return log window text"""
         return self._widget().teLog.toPlainText()
 
-    def _WaitForHtmlReady(self, timeout=8000, numEmittedExpected=2):
+    def _WaitForHtmlReady(self, timeout=8000, numEmittedExpected=3):
         # Expect two calls to loadFinished: one
         # produced by _clear(), then the second when the page is actually ready.
-        lf = self._widget().webView.page().mainFrame().loadFinished
+        lf = self._widget().webEngineView.page().loadFinished
         return WaitForSignal(lf, timeout,
                              numEmittedExpected=numEmittedExpected)
 
-    def _assertHtmlReady(self, start, timeout=8000, numEmittedExpected=2):
+    def _assertHtmlReady(self, start, timeout=8000, numEmittedExpected=3):
         """Wait for the PreviewDock to load in updated HTML after the start
         function is called. Assert if the signal isn't emitted within a timeout.
         """
@@ -145,7 +169,7 @@ class PreviewTestCase(SimplePreviewTestCase):
                                     numEmittedExpected=numEmittedExpected):
             start()
 
-    def _doBasicTest(self, extension, name='file', numEmittedExpected=2):
+    def _doBasicTest(self, extension, name='file', numEmittedExpected=3):
         # HTML files don't need processing in the worker thread.
         if extension != 'html':
             self._assertHtmlReady(lambda: self.createFile('.'.join([name, extension]),
@@ -206,7 +230,7 @@ class TestPreview(PreviewTestCase):
     def test_markdown_templates(self):
         core.config()['Preview']['Template'] = 'WhiteOnBlack'
         self._dock()._restorePreviousTemplate()
-        self._assertHtmlReady(lambda: self.createFile('test.md', 'foo'))
+        self._assertHtmlReady(lambda: self.createFile('test.md', 'foo'), numEmittedExpected=2)
         combo = self._widget().cbTemplate
         self.assertEqual(combo.currentText(), 'WhiteOnBlack')
         self.assertNotIn('body {color: white; background: black;}', self._plainText())
@@ -334,8 +358,7 @@ class TestPreview(PreviewTestCase):
         # Assert advanced model toggle label now reads 'Normal Mode'
         self.assertTrue('Normal Mode' in sw.lbSphinxEnableAdvMode.text())
         # Verify that normal mode setting line edits and pushbuttons are all gone
-        for i in range(sw.gridLtNotAdvancedSettings.count()):
-            self.assertFalse(sw.gridLtNotAdvancedSettings.itemAt(i).widget().isVisible())
+        self.assertFalse(sw.gbSphinxExecutable.isVisible())
         # Verify advanced mode setting line edits and labels are visible.
         self.assertTrue(sw.lbSphinxCmdline.isVisible())
         self.assertTrue(sw.leSphinxCmdline.isVisible())
@@ -368,14 +391,14 @@ class TestPreview(PreviewTestCase):
     @base.inMainLoop
     def test_previewCheck2(self):
         """Basic Sphinx test: create a Sphinx project in a temp folder, return
-           webView content and log content after Sphinx builds the project."""
+           webEngineView content and log content after Sphinx builds the project."""
         self._doBasicSphinxConfig()
         self.testText = """****
 head
 ****
 
 content"""
-        webViewContent, logContent = self._doBasicSphinxTest('rst')
+        webEngineViewContent, logContent = self._doBasicSphinxTest('rst')
         self.assertTrue(self._widget().prgStatus.isVisible())
 
     @requiresSphinx()
@@ -390,7 +413,7 @@ head
 ****
 
 content"""
-        webViewContent, logContent = self._doBasicSphinxTest('rst')
+        webEngineViewContent, logContent = self._doBasicSphinxTest('rst')
 
     @requiresSphinx()
     @base.inMainLoop
@@ -398,7 +421,7 @@ content"""
         """Check for double builds.
         """
         self._doBasicSphinxConfig()
-        webViewContent, logContent = self._doBasicSphinxTest('rst')
+        webEngineViewContent, logContent = self._doBasicSphinxTest('rst')
         # After the inital ``_clear`` then a build with text, we expect to
         # see two builds.
         self.assertEqual(self._dock()._sphinxConverter._SphinxInvocationCount, 2)
@@ -440,8 +463,8 @@ content"""
 # ****
 #
 # content"""
-        webViewContent, logContent = self._doBasicSphinxTest('py')
-        self.assertTrue('<p>content</p>' in webViewContent)
+        webEngineViewContent, logContent = self._doBasicSphinxTest('py')
+        self.assertTrue('<p>content</p>' in webEngineViewContent)
 
     @requiresSphinx()
     @base.requiresModule('CodeChat')
@@ -457,8 +480,8 @@ content"""
 # ****
 #
 # content"""
-        webViewContent, logContent = self._doBasicSphinxTest('py')
-        self.assertTrue('<p>content</p>' in webViewContent)
+        webEngineViewContent, logContent = self._doBasicSphinxTest('py')
+        self.assertTrue('<p>content</p>' in webEngineViewContent)
 
     @base.requiresModule('CodeChat')
     @base.inMainLoop
@@ -483,7 +506,7 @@ head
 
 content"""
         self._doBasicSphinxTest('rst')
-        self.assertNotIn('<h1>head', self._widget().webView.page().mainFrame().toHtml())
+        self.assertNotIn('<h1>head', self._html())
 
     @base.requiresModule('CodeChat')
     @base.inMainLoop
@@ -493,7 +516,7 @@ content"""
         core.config()['CodeChat']['Enabled'] = True
         self.testText = ''
         self._doBasicTest('py')
-        self.assertEqual(self._plainText(), ' \n')
+        self.assertEqual(self._plainText().strip(), '')
 
     @requiresSphinx()
     @base.inMainLoop
@@ -502,7 +525,7 @@ content"""
            always have a header."""
         self._doBasicSphinxConfig()
         self.testText = ''
-        webViewContent, logContent = self._doBasicSphinxTest('rst')
+        webEngineViewContent, logContent = self._doBasicSphinxTest('rst')
         self.assertTrue("doesn't have a title" in logContent)
 
     @base.requiresModule('CodeChat')
@@ -513,9 +536,7 @@ content"""
         core.config()['CodeChat']['Enabled'] = True
         self.testText = 'Енки'
         self._doBasicTest('py')
-        # Plaintext captured from the preview dock will append a newline if
-        # preview dock is not empty. A '\n' is added accordingly.
-        self.assertEqual(self._plainText(), self.testText + '\n')
+        self.assertEqual(self._plainText().strip(), self.testText)
 
     @requiresSphinx()
     @base.inMainLoop
@@ -528,8 +549,8 @@ content"""
 **********
 
 content"""
-        webViewContent, logContent = self._doBasicSphinxTest('rst')
-        self.assertTrue("<h1>Енки" in webViewContent)
+        webEngineViewContent, logContent = self._doBasicSphinxTest('rst')
+        self.assertTrue("<h1>Енки" in webEngineViewContent)
 
     @base.requiresModule('CodeChat')
     @base.inMainLoop
@@ -543,21 +564,20 @@ content"""
             self._dock()
         core.config()['CodeChat']['Enabled'] = True
         core.uiSettingsManager().dialogAccepted.emit()
-        self._doBasicTest('py', numEmittedExpected=1)
+        self._doBasicTest('py')
         assert 'test' in self._html()
 
     @requiresSphinx()
     @base.inMainLoop
     def test_previewCheck8a(self):
         """Start with Sphinx disabled, make sure rst file will be rendered by
-        docutils.core.publish_string. Then enable Sphinx, force document refresh
-        by calling scheduleDucomentProcessing. Make sure now Sphinx kicks in.
+        docutils.core.publish_string.
         """
         self._doBasicSphinxConfig()
         core.config()['Sphinx']['Enabled'] = False
         self.testText = ''
         self._doBasicSphinxTest('rst')
-        self.assertEqual(self._plainText(), '')
+        self.assertEqual(self._plainText().strip(), '')
         self.assertEqual(self._logText(), '')
 
     @base.requiresCmdlineUtility('sphinx-build')
@@ -567,7 +587,7 @@ content"""
         """
         self._doBasicSphinxConfig()
         self.testText = ''
-        webViewContent, logContent = self._doBasicSphinxTest('rst')
+        webEngineViewContent, logContent = self._doBasicSphinxTest('rst')
         self.assertTrue("""doesn't have a title""" in logContent)
 
     @base.requiresModule('CodeChat')
@@ -581,7 +601,7 @@ content"""
         self.assertTrue("""Unknown directive type "wrong".""" in self._logText())
         # do the same test for restructuredText
         self.testText = '.. wrong::'
-        self._doBasicTest('rst')
+        self._doBasicTest('rst', numEmittedExpected=2)
         self.assertTrue("""Unknown directive type "wrong".""" in self._logText())
 
     @requiresSphinx()
@@ -594,7 +614,7 @@ head3
 ****
 
 content"""
-        webViewContent, logContent = self._doBasicSphinxTest('rst')
+        webEngineViewContent, logContent = self._doBasicSphinxTest('rst')
         self.assertTrue("Title overline too short" in logContent)
 
     @base.requiresModule('CodeChat')
@@ -607,7 +627,7 @@ content"""
         self._doBasicTest('py')
         self.assertEqual(self._logText(), '')
         # do the same test for restructuredText
-        self._doBasicTest('rst')
+        self._doBasicTest('rst', numEmittedExpected=2)
         self.assertEqual(self._logText(), '')
 
     @base.requiresModule('CodeChat')
@@ -620,7 +640,7 @@ content"""
         self._doBasicTest('py')
         self.assertTrue('Енки' in self._logText())
         self.testText = '.. Енки::'
-        self._doBasicTest('rst')
+        self._doBasicTest('rst', numEmittedExpected=2)
         self.assertTrue('Енки' in self._logText())
 
     @unittest.skip("Unicode isn't presented in the log window")
@@ -636,7 +656,7 @@ head
 ****
 
 .. Енки::"""
-        webViewContent, logContent = self._doBasicSphinxTest('rst')
+        webEngineViewContent, logContent = self._doBasicSphinxTest('rst')
         # Unicode cannot be found in Sphinx error message output.
         self.assertTrue('Енки' in logContent)
 
@@ -707,22 +727,22 @@ head
         # the HTML ready generated here.
         with self._WaitForHtmlReady():
             document3 = self.createFile('file3.py', '# <>_')
-        base.waitForSignal(lambda: None, self._widget().webView.page().mainFrame().loadFinished, 200)
+        base.waitForSignal(lambda: None, self._widget().webEngineView.page().loadFinished, 200)
 
         # switch to document 1
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
-        base.waitForSignal(lambda: None, self._widget().webView.page().mainFrame().loadFinished, 200)
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1), numEmittedExpected=2)
+        base.waitForSignal(lambda: None, self._widget().webEngineView.page().loadFinished, 200)
         ps = self._widget().prgStatus
         self.assertIn('#FF9955', ps.styleSheet())
         self.assertIn('Error(s): 0, warning(s): 1', ps.text())
         # switch to document 2
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
-        base.waitForSignal(lambda: None, self._widget().webView.page().mainFrame().loadFinished, 200)
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2), numEmittedExpected=2)
+        base.waitForSignal(lambda: None, self._widget().webEngineView.page().loadFinished, 200)
         self.assertIn('red', ps.styleSheet())
         self.assertIn('Error(s): 1, warning(s): 0', ps.text())
         # switch to document 3
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
-        base.waitForSignal(lambda: None, self._widget().webView.page().mainFrame().loadFinished, 200)
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3), numEmittedExpected=2)
+        base.waitForSignal(lambda: None, self._widget().webEngineView.page().loadFinished, 200)
         self.assertEqual(self._widget().prgStatus.styleSheet(), 'QLabel {}')
         self.assertEqual(self._logText(), '')
 
@@ -744,8 +764,8 @@ head
 # ****
 #
 # content"""
-        webViewContent, logContent = self._doBasicSphinxTest('py')
-        self.assertTrue('<p>content</p>' in webViewContent)
+        webEngineViewContent, logContent = self._doBasicSphinxTest('py')
+        self.assertTrue('<p>content</p>' in webEngineViewContent)
 
     @requiresSphinx()
     @base.requiresModule('CodeChat')
@@ -766,10 +786,10 @@ head
 #
 # content"""
         try:
-            webViewContent, logContent = self._doBasicSphinxTest('py')
+            webEngineViewContent, logContent = self._doBasicSphinxTest('py')
         finally:
             self.TEST_FILE_DIR = testFileDir
-        self.assertTrue('<p>content</p>' in webViewContent)
+        self.assertTrue('<p>content</p>' in webEngineViewContent)
 
     @requiresSphinx()
     @base.requiresModule('CodeChat')
@@ -794,10 +814,10 @@ head
 #
 # content"""
         try:
-            webViewContent, logContent = self._doBasicSphinxTest('py')
+            webEngineViewContent, logContent = self._doBasicSphinxTest('py')
         finally:
             self.TEST_FILE_DIR = testFileDir
-        self.assertTrue('<p>content</p>' in webViewContent)
+        self.assertTrue('<p>content</p>' in webEngineViewContent)
 
     @requiresSphinx()
     @base.requiresModule('CodeChat')
@@ -814,8 +834,8 @@ head
 # ****
 #
 # :doc:`missing.file`"""
-        webViewContent, logContent = self._doBasicSphinxTest('py')
-        self.assertTrue('<span class="xref doc">missing.file</span>' in webViewContent)
+        webEngineViewContent, logContent = self._doBasicSphinxTest('py')
+        self.assertTrue('<span class="xref doc">missing.file</span>' in webEngineViewContent)
         self.assertTrue('unknown document: missing.file' in logContent)
         core.config()['Sphinx']['Enabled'] = False
         core.uiSettingsManager().dialogAccepted.emit()
@@ -888,7 +908,7 @@ head
 # ****
 #
 # content"""
-        webViewContent, logContent = self._doBasicSphinxTest('py')
+        webEngineViewContent, logContent = self._doBasicSphinxTest('py')
         self.assertFalse(os.path.isfile(os.path.join(self.TEST_FILE_DIR, 'CodeChat.css')))
 
     @requiresSphinx()
@@ -903,7 +923,7 @@ head
 # ****
 #
 # content"""
-        webViewContent, logContent = self._doBasicSphinxTest('py')
+        webEngineViewContent, logContent = self._doBasicSphinxTest('py')
         self.assertTrue(os.path.isfile(os.path.join(self.TEST_FILE_DIR, 'CodeChat.css')))
 
     @requiresSphinx()
@@ -916,8 +936,8 @@ head
         core.config()['Sphinx']['BuildOnSave'] = False
         core.config().flush()
         self.testText = 'Testing'
-        webViewContent, logContent = self._doBasicSphinxTest('rst')
-        self.assertTrue('Testing' in webViewContent)
+        webEngineViewContent, logContent = self._doBasicSphinxTest('rst')
+        self.assertTrue('Testing' in webEngineViewContent)
 
         # Now, exclude this from the build and re-run.
         conf = os.path.join(self.TEST_FILE_DIR, 'conf.py')
@@ -927,8 +947,8 @@ head
         qp = core.workspace().currentDocument().qutepart
         self._assertHtmlReady(lambda: qp.appendPlainText('xxx'),
                               timeout=10000)
-        webViewContent, logContent = (self._html(), self._logText())
-        self.assertIn('is older than the source file', webViewContent)
+        webEngineViewContent, logContent = (self._html(), self._logText())
+        self.assertIn('is older than the source file', webEngineViewContent)
 
     @patch('os.path.getmtime')
     @requiresSphinx()
@@ -942,8 +962,8 @@ head
         core.config()['Sphinx']['BuildOnSave'] = False
         core.config().flush()
         self.testText = 'Testing'
-        webViewContent, logContent = self._doBasicSphinxTest('rst')
-        self.assertIn('modification', webViewContent)
+        webEngineViewContent, logContent = self._doBasicSphinxTest('rst')
+        self.assertIn('modification', webEngineViewContent)
 
     # Cases testing logwindow splitter
     # --------------------------------
@@ -974,11 +994,11 @@ head
         defaultSplitterSize = self._widget().splitter.sizes()
         self.assertTrue(defaultSplitterSize[1])
         # Switch to other two documents, they should have the same splitter size
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2), numEmittedExpected=2)
         self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
         # Check splitter size of document 2.
         # Switch to other two documents, they should have the same splitter size
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1), numEmittedExpected=2)
         self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
 
     @base.inMainLoop
@@ -999,7 +1019,7 @@ head
         self.assertNotIn(0, self._widget().splitter.sizes())
         self.assertAlmostEqual(self._widget().splitter.sizes()[0], self._widget().splitter.sizes()[1], delta=10)
         # Switch to document 1, make sure its splitter size is changed, too.
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1))
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document1), numEmittedExpected=2)
         self.assertNotIn(0, self._widget().splitter.sizes())
         self.assertAlmostEqual(self._widget().splitter.sizes()[0], self._widget().splitter.sizes()[1], delta=10)
 
@@ -1019,10 +1039,10 @@ head
         defaultSplitterSize = self._widget().splitter.sizes()
         self.assertTrue(defaultSplitterSize[1])
         # Switch to document 2. Log window is hidden now.
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2), numEmittedExpected=2)
         self.assertFalse(self._widget().splitter.sizes()[1])
         # Switch to document 3. Log window should be restore to original size.
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3), numEmittedExpected=2)
         self.assertTrue(self._widget().splitter.sizes()[0])
         self.assertEqual(self._widget().splitter.sizes(), defaultSplitterSize)
 
@@ -1046,12 +1066,12 @@ head
         self.assertNotIn(0, self._widget().splitter.sizes())
         self.assertAlmostEqual(self._widget().splitter.sizes()[0], self._widget().splitter.sizes()[1], delta=10)
         # Switch to an error-free document, assert log window hidden.
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2), numEmittedExpected=2)
         # Wait for events to process. See qWait comment above.
         QTest.qWait(100)
         self.assertFalse(self._widget().splitter.sizes()[1])
         # Switch to file3 which will cause build error, check splitter size.
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3), numEmittedExpected=2)
         self.assertNotIn(0, self._widget().splitter.sizes())
         self.assertAlmostEqual(self._widget().splitter.sizes()[0], self._widget().splitter.sizes()[1], delta=10)
 
@@ -1070,23 +1090,23 @@ head
         self._widget().splitter.setSizes([1, 0])
         self._widget().splitter.splitterMoved.emit(1, 1)
         # Switch to document 2. Log window is hidden now.
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2))
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document2), numEmittedExpected=2)
         # Wait for events to process. See qWait comment above.
         QTest.qWait(100)
         self.assertFalse(self._widget().splitter.sizes()[1])
         # Switch to document 3. Log window should keep hidden.
-        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3))
+        self._assertHtmlReady(lambda: core.workspace().setCurrentDocument(document3), numEmittedExpected=2)
         # Wait for events to process. See qWait comment above.
         QTest.qWait(100)
         self.assertFalse(self._widget().splitter.sizes()[1])
 
     @base.inMainLoop
     def test_zoom(self):
-        webView = self._widget().webView
-        self.assertEqual(webView.zoomFactor(), 1)
+        webEngineView = self._widget().webEngineView
+        self.assertEqual(webEngineView.zoomFactor(), 1)
 
         def makeEv(delta):
-            return QWheelEvent(QPointF(10, 10), QPointF(webView.mapToGlobal(QPoint(10, 10))),
+            return QWheelEvent(QPointF(10, 10), QPointF(webEngineView.mapToGlobal(QPoint(10, 10))),
                                QPoint(0, 0), QPoint(0, delta),
                                delta,
                                Qt.Horizontal,
@@ -1095,14 +1115,14 @@ head
         zoom_out = makeEv(-120)
         zoom_in = makeEv(120)
 
-        QApplication.instance().sendEvent(webView, zoom_out)
-        self.assertTrue(0.85 < webView.zoomFactor() < 0.95)
+        QApplication.instance().sendEvent(webEngineView, zoom_out)
+        self.assertTrue(0.85 < webEngineView.zoomFactor() < 0.95)
 
-        QApplication.instance().sendEvent(webView, zoom_in)
-        self.assertTrue(0.95 < webView.zoomFactor() < 1.05)
+        QApplication.instance().sendEvent(webEngineView, zoom_in)
+        self.assertTrue(0.95 < webEngineView.zoomFactor() < 1.05)
 
-        QApplication.instance().sendEvent(webView, zoom_in)
-        self.assertTrue(1.05 < webView.zoomFactor() < 1.15)
+        QApplication.instance().sendEvent(webEngineView, zoom_in)
+        self.assertTrue(1.05 < webEngineView.zoomFactor() < 1.15)
 
     @requiresSphinx()
     @base.inMainLoop
@@ -1114,7 +1134,7 @@ head
         core.config()['Sphinx']['BuildOnSave'] = False
         core.config()["Qutepart"]["StripTrailingWhitespace"] = True
         self.testText = "testing "
-        webViewContent, logContent = self._doBasicSphinxTest('rst')
+        webEngineViewContent, logContent = self._doBasicSphinxTest('rst')
 
         # Move to the end of the document and add a space on the next line,
         # which should be preserved through the auto-save. The space at the

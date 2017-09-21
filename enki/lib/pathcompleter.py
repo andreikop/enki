@@ -3,8 +3,9 @@ pathcompleter --- Path completer for Locator
 ============================================
 """
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QFileSystemModel, QStyle
+import sip
+from PyQt5.QtCore import QFileInfo
+from PyQt5.QtWidgets import QApplication, QFileIconProvider, QStyle
 from PyQt5.QtGui import QPalette
 
 import os
@@ -31,9 +32,6 @@ class AbstractPathCompleter(AbstractCompleter):
     """
 
     mustBeLoaded = True
-
-    # global object. Reused by all completers
-    _fsModel = QFileSystemModel()
 
     _ERROR = 'error'
     _HEADER = 'currentDir'
@@ -110,13 +108,9 @@ class AbstractPathCompleter(AbstractCompleter):
             return count
 
     def _iconForPath(self, path):
-        """Get icon for file or directory path. Uses QFileSystemModel
+        """Get icon for file or directory path.
         """
-        if self._model is None:
-            self._model = QFileSystemModel()
-
-        index = self._model.index(path)
-        return self._model.data(index, Qt.DecorationRole)
+        return QFileIconProvider().icon(QFileInfo(path))
 
     def text(self, row, column):
         """Item text in the list of completions

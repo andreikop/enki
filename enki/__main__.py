@@ -1,8 +1,6 @@
+#!/usr/bin/env python3
 """
 Enki editor entry point.
-Do not use this file directly, use
-    bin/enki or
-    bin/enki.py
 """
 
 import sys
@@ -10,8 +8,10 @@ import os.path
 import traceback
 import logging
 import logging.handlers
-
 from optparse import OptionParser  # Replace with argparse, when python 2.6 is not supported
+
+# Avoid ``ImportError: QtWebEngineWidgets must be imported before a QCoreApplication instance is created``
+import PyQt5.QtWebEngineWidgets
 
 import enki.core.defines
 
@@ -299,3 +299,6 @@ def main():
     profiler.stepDone('Terminate core')
 
     return result
+
+if __name__ == '__main__':
+    sys.exit(main())

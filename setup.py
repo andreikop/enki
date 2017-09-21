@@ -131,7 +131,7 @@ if __name__ == '__main__':
           scripts=[script],
           entry_points={
             'gui_scripts': [
-                ['enki = enki.main:main'],
+                ['enki = enki.__main__:main'],
             ],
           },
           data_files=data_files,
@@ -144,5 +144,6 @@ if __name__ == '__main__':
               'CodeChat',
               'Sphinx',
               'flake8',
+              'jupyter',
           ],
     )

@@ -56,12 +56,9 @@
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <widget class="QWebView" name="webView">
-      <property name="url">
-       <url>
-        <string>about:blank</string>
-       </url>
-      </property>
+     <widget class="QWidget" name="webView">
+       <layout class="QHBoxLayout" name="webViewHorizontalLayout">
+       </layout>
      </widget>
      <widget class="QPlainTextEdit" name="teLog">
       <property name="minimumSize">

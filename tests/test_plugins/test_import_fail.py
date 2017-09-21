@@ -24,8 +24,6 @@ from import_fail import ImportFail
 #
 # ImportFail tests
 # ================
-
-
 class TestImportFail(unittest.TestCase):
 
     def test_1(self):
@@ -52,21 +50,21 @@ class TestImportFail(unittest.TestCase):
         with ImportFail(['re']):
             import os
 
-    @patch('imp.reload')
+    @patch('importlib.reload')
     def test_4(self, _reload):
         """Check that reload isn't called if no modules are given."""
         with ImportFail(['re']):
             pass
         self.assertFalse(_reload.called)
 
-    @patch('imp.reload')
+    @patch('importlib.reload')
     def test_5(self, _reload):
         """Check that reload is called twice."""
         with ImportFail(['re'], ['one', 'two']):
             pass
         _reload.assert_has_calls([call('one'), call('two'), call('one'), call('two')])
 
-    @patch('imp.reload')
+    @patch('importlib.reload')
     def test_6(self, _reload):
         """Check that reload is called in the correct context."""
         class ImportTester(object):

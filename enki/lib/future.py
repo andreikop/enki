@@ -108,7 +108,6 @@ class _AsyncAbstractController(QObject):
         if parent:
             parent.destroyed.connect(self.onParentDestroyed)
 
-
     # The _`start` method runs ``future.result = f(*args, **kwargs)`` in a
     # separate thread. When it completes, invoke ``g(future)``, if g_ is
     # provided. It returns a Future_ instance, which can be used to interact
@@ -193,12 +192,6 @@ class _AsyncAbstractController(QObject):
     def onParentDestroyed(self):
         self.terminate()
 #
-# Python finalizer
-# ^^^^^^^^^^^^^^^^
-    # This might be run by Python. Or it might not. Don't rely on it.
-    def __del__(self):
-        self.terminate()
-#
 # Manual
 # ^^^^^^
     # Without calling _`terminate` before the program exits, we get nasty
@@ -219,13 +212,9 @@ class _AsyncAbstractController(QObject):
             # instances still invoke callbacks, making it seem that the
             # terminate didn't fully terminate. It did, but still leaves g_
             # callbacks to be run in the event queue.)
-            el = QEventLoop(self.parent())
+            el = QEventLoop()
             QTimer.singleShot(0, el.exit)
             el.exec_()
-
-            # Delete the `QObject <http://doc.qt.io/qt-5/qobject.html>`_
-            # underlying this class, which disconnects all signals.
-            sip.delete(self)
 
     # _`_terminate` is called by terminate_ to actually shut down this class.
     def _terminate(self):
@@ -248,7 +237,7 @@ class AsyncThreadController(_AsyncAbstractController):
         # Create a worker and a thread it runs in. This approach was
         # inspired by the example given in the QThread_ docs.
         self._worker = _AsyncWorker()
-        self._workerThread = QThread(self)
+        self._workerThread = QThread()
         # Attach the worker to the thread's event queue.
         self._worker.moveToThread(self._workerThread)
         # Hook up signals.
@@ -266,10 +255,6 @@ class AsyncThreadController(_AsyncAbstractController):
         # Shut down the thread the worker runs in.
         self._workerThread.quit()
         self._workerThread.wait()
-        # Delete the worker, since it doesn't have a parent and therefore
-        # won't be deleted by the Qt object tree.
-        sip.delete(self._worker)
-        del self._worker
 #
 # AsyncPoolController
 # -------------------
@@ -303,7 +288,6 @@ class AsyncPoolController(_AsyncAbstractController):
     # See `_terminate`_.
     def _terminate(self):
         self.threadPool.waitForDone()
-        del self.threadPool
 #
 # SyncController
 # --------------
@@ -513,19 +497,14 @@ class _SignalInvoker(QObject):
 
     # A method to invoke g_.
     def onDoneSignal(self, future):
-        try:
-            # Invoke g_ if it was provided and should be invoked.
-            if (future._g and not future._discardResult and
-                future.state == future.STATE_FINISHED):
-                future._g(future)
-            # If an exception occurred while executing f_ and that exception
-            # wasn't raised, do so now.
-            if future._exc_info and not future._exc_raised:
-                future.result
-        finally:
-            # Make sure to manually delete this object, because it has no
-            # parent, meaning the Qt object tree won't automaticlly delete it.
-            self.deleteLater()
+        # Invoke g_ if it was provided and should be invoked.
+        if (future._g and not future._discardResult and
+            future.state == future.STATE_FINISHED):
+            future._g(future)
+        # If an exception occurred while executing f_ and that exception
+        # wasn't raised, do so now.
+        if future._exc_info and not future._exc_raised:
+            future.result
 #
 # Thread / thread pool worker classes
 # ===================================
@@ -569,9 +548,7 @@ class _AsyncWorker(QObject):
 class TimePrinter(object):
     def __init__(self,
       # A sequence of tasks to monitor.
-      tasks,
-      # QApplication_ instance, used as a parent for a `QTimer <http://doc.qt.io/qt-5/qtimer.html>`_.
-      app):
+      tasks):
 
         self.tasks = tasks
 
@@ -582,7 +559,7 @@ class TimePrinter(object):
         self.interval_sec = 0.1
 
         # Create a timer to continually print the time.
-        self.qt = QTimer(app)
+        self.qt = QTimer()
         self.qt.timeout.connect(self.printTime)
         self.qt.start(self.interval_sec*1000)
 
@@ -626,57 +603,56 @@ def main():
 # demo
 # ----
 def demo():
+    # Catch exceptions when the Qt event loop runs, so that the program
+    # won't immediately exit.
+    sys.excepthook = traceback.print_exception
+
     # Create a Qt application.
     app = QApplication(sys.argv)
 
-    # Make sure it's properly destroyed.
-    try:
+    for _ in range(5):
+        # Make sure it's properly destroyed.
+        try:
 
-        # Catch exceptions when the Qt event loop runs, so that the program
-        # won't immediately exit.
-        sys.excepthook = traceback.print_exception
+            # Define a function ``foo`` to run aysnchronously, calling ``foo_done`` when
+            # it completes.
+            def foo(a, b):
+                print('Foo {} {} in thread {}'.format(a, b, QThread.currentThread()))
+                if a == 3:
+                    # As a test, raise an exception. See if a useful traceback is
+                    # printed.
+                    asdf
+                time.sleep(0.3)
+                return a + 0.1
 
-        # Define a function ``foo`` to run aysnchronously, calling ``foo_done`` when
-        # it completes.
-        def foo(a, b):
-            print('Foo {} {} in thread {}'.format(a, b, QThread.currentThread()))
-            if a == 3:
-                # As a test, raise an exception. See if a useful traceback is
-                # printed.
-                asdf
-            time.sleep(0.3)
-            return a + 0.1
+            def foo_done(future):
+                print('Done {}'.format(future.result))
 
-        def foo_done(future):
-            print('Done {}'.format(future.result))
+            # Run ``foo`` using a single thread (``'QThread'``) or a pool of 2 threads
+            # (``2``). Give it ``app`` as the parent so that when Qt destroys ``app``,
+            # it will also destroy this class.
+            ac = AsyncController(2)
+            #ac = AsyncController('QThread', app)
+            task1 = ac.start(foo_done, foo, 1, b=' 2')
+            task2 = ac.start(foo_done, foo, 3, b=' 4')
+            task3 = ac.start(foo_done, foo, 5, b=' 6')
+            task4 = ac.start(foo_done, foo, 7, b=' 8')
 
-        # Run ``foo`` using a single thread (``'QThread'``) or a pool of 2 threads
-        # (``2``). Give it ``app`` as the parent so that when Qt destroys ``app``,
-        # it will also destroy this class.
-        ac = AsyncController(2, app)
-        #ac = AsyncController('QThread', app)
-        task1 = ac.start(foo_done, foo, 1, b=' 2')
-        task2 = ac.start(foo_done, foo, 3, b=' 4')
-        task3 = ac.start(foo_done, foo, 5, b=' 6')
-        task4 = ac.start(foo_done, foo, 7, b=' 8')
+            # Print the time and thread status. Note the ``tp =`` is necessary;
+            # otherwise, the TimePrinter_ object will be deleted immediately!
+            tp = TimePrinter((task1, task2, task3, task4))
 
-        # Print the time and thread status. Note the ``tp =`` is necessary;
-        # otherwise, the TimePrinter_ object will be deleted immediately!
-        tp = TimePrinter((task1, task2, task3, task4), app)
+            # Exit the program shortly after the event loop starts up.
+            QTimer.singleShot(1800, app.exit)
 
-        # Exit the program shortly after the event loop starts up.
-        QTimer.singleShot(1800, app.exit)
+            # Cancel one of the tasks.
+            QTimer.singleShot(200, task4.cancel)
 
-        # Cancel one of the tasks.
-        QTimer.singleShot(200, task4.cancel)
+            # Run the main event loop.
+            ret = app.exec_()
 
-        # Run the main event loop.
-        ret = app.exec_()
-
-    finally:
-        ac.terminate()
-        sip.delete(app)
-        del app
+        finally:
+            ac.terminate()
 
     sys.exit(ret)
 

@@ -8,13 +8,15 @@ This class adds next features to QDockWidget:
     * title bar contains QToolBar
 """
 
+import os.path
 from PyQt5.QtCore import pyqtSignal, QSize, Qt
 from PyQt5.QtWidgets import QAction, QDockWidget, \
     QShortcut, QSizePolicy, QStyle, \
-    QStyleOptionButton, QToolBar, QWidget
+    QStyleOptionButton, QToolBar, QWidget, QToolButton
 from PyQt5.QtGui import QFontMetrics, QIcon, \
     QKeySequence, QPainter, \
-    QTransform
+    QTransform, QPixmap
+from enki.core.core import core
 
 
 class _TitleBar(QToolBar):
@@ -49,6 +51,24 @@ class _TitleBar(QToolBar):
         self.addWidget(self._spacer)
 
         self.setStyleSheet('QToolBar{spacing:0px; margin:0px}')
+
+        # The pinned/unpinned control.
+        self.tbUnPinned = QToolButton()
+        icon = QIcon()
+        # To do: Replace with my own image and put in resources.
+        icon.addPixmap(QPixmap(os.path.join(os.path.dirname(__file__), 'unpinned.png')), QIcon.Normal, QIcon.On)
+        icon.addPixmap(QPixmap(os.path.join(os.path.dirname(__file__), 'pinned.png')), QIcon.Normal, QIcon.Off)
+        self.tbUnPinned.setIcon(icon)
+        self.tbUnPinned.setCheckable(True)
+        self._configName = parent.windowTitle() + " pinned"
+        if self._configName in core.config():
+            self.tbUnPinned.setChecked(not core.config()[self._configName])
+        self.tbUnPinned.toggled.connect(self.on_tbUnPinned_toggled)
+        self.addWidget(self.tbUnPinned)
+
+    def on_tbUnPinned_toggled(self, checked):
+        core.config()[self._configName] = not checked
+        core.config().flush()
 
     def paintEvent(self, event):
         """QToolBar.paintEvent reimplementation
@@ -146,8 +166,6 @@ class DockWidget(QDockWidget):
         self.setObjectName(str(self.__class__))
         self.setWindowTitle(windowTitle)
 
-        self.setFeatures(self.features() & (~QDockWidget.DockWidgetFloatable))
-
         if not windowIcon.isNull():
             self.setWindowIcon(windowIcon)
         if shortcut is not None:
@@ -207,14 +225,26 @@ class DockWidget(QDockWidget):
         """Hide and return focus to MainWindow focus proxy
         """
         self.close()
-        if self.parent() is not None and \
-           self.parent().focusProxy() is not None:
+        if ( self.parent() is not None and
+          self.parent().focusProxy() is not None and
+          self.hasFocus() ):
             self.parent().focusProxy().setFocus()
 
     def closeEvent(self, event):
         """Widget was closed"""
         self.closed.emit()
 
+    def show(self):
+        QDockWidget.show(self)
+        # If floating, then active this window so it will receive keyboard
+        # input.
+        if self.isFloating():
+            self.activateWindow()
+
     def showEvent(self, event):
         """Widget was shown"""
         self.shown.emit()
+
+    def isPinned(self):
+        """True if the widget is pinned; false if unpinned (auto-hide mode)."""
+        return not self._titleBar.tbUnPinned.isChecked()

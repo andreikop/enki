@@ -2,12 +2,10 @@
 import unittest
 import sys
 
-
 # Import just to check that dependencies are installed
-import markdown
-import docutils
-import regex
-
+import markdown  # noqa: F401
+import docutils  # noqa: F401
+import regex     # noqa: F401
 
 if __name__ == "__main__":
     # Look for all tests. Using test_* instead of test_*.py finds modules (test_syntax and test_indenter).

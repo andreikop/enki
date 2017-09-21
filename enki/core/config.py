@@ -107,6 +107,16 @@ class Config():
             section = section[sectionName]
         section[path[-1]] = value
 
+    def setdefault(self, key, default=None):
+        """
+        Mimic the behavior of `dict.setdefault <https://docs.python.org/3/library/stdtypes.html#dict.setdefault>`_. It cannot create nested structures, though; that is, ``setdefault('a/b/c', 'd') will raise an exception if the path `'a/b/c'` doesn't exist.
+        """
+        try:
+            return self.get(key)
+        except KeyError:
+            self.set(key, default)
+            return default
+
     def clear(self):
         """Clear the config
         """

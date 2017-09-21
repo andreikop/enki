@@ -10,6 +10,7 @@
 # Library imports
 # ---------------
 import unittest
+from unittest.mock import patch, MagicMock
 import os.path
 import sys
 #
@@ -23,52 +24,159 @@ import base
 #
 # Third-party library imports
 # ---------------------------
-from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtCore import Qt, QPoint, pyqtSlot, QTimer
 from PyQt5.QtTest import QTest
 from PyQt5.QtGui import QTextCursor
+from PyQt5.QtWebEngineWidgets import QWebEngineScript
 #
 # Local application imports
 # -------------------------
 from enki.core.core import core
-from .test_preview import PreviewTestCase
-from base import requiresModule
+from test_preview import PreviewTestCase, WaitForCallback
+from base import requiresModule, WaitForSignal, TestCase
 import enki.plugins.preview
 import enki.plugins.preview.preview_sync
-from .import_fail import ImportFail
+from enki.plugins.preview.preview_sync import CallbackManager, CallbackFuture, CallbackFutureState
+from import_fail import ImportFail
 
+class CallbackToWrap:
+    def __init__(self):
+        self.returnedParams = []
+
+    # This callback simply saves the parameters passed to it. It appends a dict of keyword arguments, which helps distinguish a call with no parameters (which would be ``[{}]``) from not being called at all (``[]``).
+    def callbackToWrap(self, *args, **kwargs):
+        self.returnedParams.extend(args)
+        self.returnedParams.append(kwargs)
+
+class CallbackManagerTest(base.TestCase):
+    # Wrap then invoke a callback.
+    def test_1(self):
+        # Before getting a wrapped callback, the future should be in the ready state.
+        cw = CallbackToWrap()
+        cm = CallbackManager()
+        cf = CallbackFuture(cm, cw.callbackToWrap)
+        self.assertEqual(cf._state, CallbackFutureState.READY)
+
+        # After getting a wrapped callback, it should be waiting.
+        wrappedCallback = cf.callback()
+        self.assertEqual(cf._state, CallbackFutureState.WAITING)
+
+        # When the callback is called, it should be complete.
+        invokedParams = [1, 'a', str]
+        wrappedCallback(*invokedParams)
+        self.assertEqual(cf._state, CallbackFutureState.COMPLETE)
+        self.assertEqual(invokedParams + [{}], cw.returnedParams)
+
+    # Wrap, then cancel a callback before invoking it.
+    def test_2(self):
+        # Before getting a wrapped callback, the future should be in the ready state.
+        cw = CallbackToWrap()
+        cm = CallbackManager()
+        cf = CallbackFuture(cm, cw.callbackToWrap)
+        self.assertEqual(cf._state, CallbackFutureState.READY)
+
+        # After getting a wrapped callback, it should be waiting.
+        wrappedCallback = cf.callback()
+        self.assertEqual(cf._state, CallbackFutureState.WAITING)
+        cf.skipCallback()
+
+        # When the callback is called, it should be complete. However, since it was canceled, the wrapped callback should not have been invoked.
+        invokedParams = [1, 'a', str]
+        wrappedCallback(*invokedParams)
+        self.assertEqual(cf._state, CallbackFutureState.COMPLETE)
+        self.assertEqual([], cw.returnedParams)
+
+    # Wait for an in-progress callback.
+    def test_3(self):
+        # Before getting a wrapped callback, the future should be in the ready state.
+        cw = CallbackToWrap()
+        cm = CallbackManager()
+        cf = CallbackFuture(cm, cw.callbackToWrap)
+        self.assertEqual(cf._state, CallbackFutureState.READY)
+
+        # After getting a wrapped callback, it should be waiting.
+        wrappedCallback = cf.callback()
+        self.assertEqual(cf._state, CallbackFutureState.WAITING)
+
+        # Invoke the callback using a timer, then wait for it to be invoked.
+        invokedParams = [1, 'a', str]
+        QTimer.singleShot(0, lambda: wrappedCallback(*invokedParams))
+        cf.waitForCallback()
+
+        # When the callback is called, it should be complete.
+        self.assertEqual(cf._state, CallbackFutureState.COMPLETE)
+        self.assertEqual(invokedParams + [{}], cw.returnedParams)
+
+    # Test the callback manager on waiting for multiple callbacks.
+    def test_4(self):
+        # Before getting a wrapped callback, the future should be in the ready state.
+        cm = CallbackManager()
+
+        # After getting a wrapped callback, it should be waiting.
+        cw1 = CallbackToWrap()
+        cw2 = CallbackToWrap()
+        cw3 = CallbackToWrap()
+        wrappedCallback1 = cm.callback(cw1.callbackToWrap)
+        wrappedCallback2List = []
+        wrappedCallback3 = cm.callback(cw3.callbackToWrap)
+
+        # Have one callback add another in the callback.
+        def callbackToWrap():
+            wrappedCallback2 = cm.callback(cw2.callbackToWrap)
+            wrappedCallback2List.append(wrappedCallback2)
+            QTimer.singleShot(0, lambda: wrappedCallback2(2))
+
+        # Invoke the callbacks using a timer, then wait for them to be invoked.
+        QTimer.singleShot(0, lambda: wrappedCallback1(1))
+        QTimer.singleShot(0, callbackToWrap)
+        QTimer.singleShot(0, lambda: wrappedCallback3(3))
+        cm.waitForAllCallbacks()
+
+        # When the callback is called, it should be complete.
+        self.assertEqual([1, {}], cw1.returnedParams)
+        self.assertEqual([2, {}], cw2.returnedParams)
+        self.assertEqual([3, {}], cw3.returnedParams)
+
+    # Test the callback manager on skipping multiple callbacks.
+    def test_5(self):
+        # Before getting a wrapped callback, the future should be in the ready state.
+        cm = CallbackManager()
+
+        # After getting a wrapped callback, it should be waiting.
+        cw1 = CallbackToWrap()
+        cw2 = CallbackToWrap()
+        cw3 = CallbackToWrap()
+        wrappedCallback1 = cm.callback(cw1.callbackToWrap)
+        wrappedCallback2 = cm.callback(cw2.callbackToWrap)
+        wrappedCallback3 = cm.callback(cw3.callbackToWrap)
+
+        # Invoke the callbacks using a timer, then wait for them to be invoked.
+        QTimer.singleShot(0, lambda: wrappedCallback1(1))
+        QTimer.singleShot(0, lambda: wrappedCallback2(2))
+        QTimer.singleShot(0, lambda: wrappedCallback3(3))
+        cm.skipAllCallbacks()
+        cm.waitForAllCallbacks()
+
+        # When the callback is called, it should be complete.
+        self.assertEqual([], cw1.returnedParams)
+        self.assertEqual([], cw2.returnedParams)
+        self.assertEqual([], cw3.returnedParams)
 
 @unittest.skipUnless(enki.plugins.preview.preview_sync.findApproxTextInTarget,
                      'Requires working TRE')
 class Test(PreviewTestCase):
     # Web to code sync tests
     ##----------------------
-    # Test that mouse clicks get turned into a ``jsClick`` signal
-    ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    def check_sync1(self):
-        """Test that web-to-text sync occurs on clicks to the web pane.
-        A click at 0, height (top left corner) should produce
-        an index of 0. It doesn't; I'm not sure I understand how
-        the WebView x, y coordinate system works. For now, skip
-        checking the resulting index.
-        """
-        self._doBasicTest('rst')
-        self.assertEmits(
-            lambda: QTest.mouseClick(self._widget().webView,
-                                     Qt.LeftButton, Qt.NoModifier, QPoint(0, self._widget().webView.height())),
-            self._dock().previewSync.jsClick,
-            200)
-
-    @requiresModule('docutils')
-    @base.inMainLoop
-    def test_sync1(self):
-        self.check_sync1()
+    # To do: a test that verifies that mouse clicks produce a web to text sync.
+    # The problem: I can't seem to simulate keyboard presses via either QTest
+    # (for unknown reasons) or JavaScript (for security reasons). I therefore
+     # doubt that I can simulate mouse clicks.
 
     # Test that simulated mouse clicks at beginning/middle/end produce correct ``jsClick`` values
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     def _jsOnClick(self):
         """Simulate a mouse click by calling ``window.onclick()`` in Javascript."""
-        ret = self._widget().webView.page().mainFrame().evaluateJavaScript('window.onclick()')
-        assert not ret
+        self._widget().webEngineView.page().runJavaScript('window.onclick();', QWebEngineScript.ApplicationWorld)
 
     def _wsLen(self):
         """The web text for web-to-text sync will have extra
@@ -76,10 +184,10 @@ class Test(PreviewTestCase):
         version of the text. Determine how many whitespace characters
         preceed the text.
         """
-        wtc = self._dock().previewSync._webTextContent()
+        wtc = self._plainText()
         return len(wtc) - len(wtc.lstrip())
 
-    def _testSyncString(self, s):
+    def _testSyncString(self, s, _onWebviewClick):
         """Given a string ``s``, place the cursor after it and simulate a click
         in the web view. Verify that the index produced by ``jsClick``
         is correct.
@@ -89,35 +197,43 @@ class Test(PreviewTestCase):
         """
         self._doBasicTest('rst')
         wsLen = self._wsLen()
-        # Choose text to find.
-        ret = self._widget().webView.page().findText(s)
-        assert ret
-        # Now run the Javascript and see if the index with whitespace added matches.
-        self.assertEmits(self._jsOnClick,
-                         self._dock().previewSync.jsClick,
-                         100,
-                         expectedSignalParams=(len(s) + wsLen,))
+        # Debug: if the patch works, this should cause the test to always pass.
+        #self._dock().previewSync._onWebviewClick_(500, 'testing')
+
+        # Select the text in x, then simulate a mouse click.
+        wfc = WaitForCallback()
+        self._widget().webEngineView.page().runJavaScript('window.find("{}"); init_qwebchannel();'.format(s), QWebEngineScript.ApplicationWorld, wfc.callback())
+        # Wait for the webchannel to set up then run the test.
+        QTest.qWait(100)
+
+        # See if the index with whitespace added matches.
+        args, kwargs = _onWebviewClick.call_args
+        # args[1] is webIndex, the index of the found item.
+        self.assertEqual(args[1], len(s) + wsLen)
 
     @requiresModule('docutils')
     @base.inMainLoop
-    def test_sync2a(self):
+    @patch('enki.plugins.preview.preview_sync.PreviewSync._onWebviewClick_')
+    def test_click1(self, _onWebviewClick):
         """TODO: simulate a click before the first letter. Select T, then move backwards using
         https://developer.mozilla.org/en-US/docs/Web/API/Selection.modify.
         For now, test after the letter T (the first letter).
         """
-        self._testSyncString('T')
+        self._testSyncString('T', _onWebviewClick)
 
     @requiresModule('docutils')
     @base.inMainLoop
-    def test_sync2(self):
+    @patch('enki.plugins.preview.preview_sync.PreviewSync._onWebviewClick_')
+    def test_click2(self, _onWebviewClick):
         """Simulate a click after 'The pre' and check the resulting ``jsClick`` result."""
-        self._testSyncString('The pre')
+        self._testSyncString('The pre', _onWebviewClick)
 
     @requiresModule('docutils')
     @base.inMainLoop
-    def test_sync3(self):
+    @patch('enki.plugins.preview.preview_sync.PreviewSync._onWebviewClick_')
+    def test_click3(self, _onWebviewClick):
         """Same as above, but with the entire string."""
-        self._testSyncString(self.testText)
+        self._testSyncString(self.testText, _onWebviewClick)
 
     # Test that sending a ``jsClick`` signal at beginning/middle/end moves cursor in code pane correctly
     # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -128,13 +244,12 @@ class Test(PreviewTestCase):
         index - The index into 'The preview text' string to send and check.
         """
         self._doBasicTest('rst')
-        wsLen = self._wsLen()
         # Move the code cursor somewhere else, rather than index 0,
         # so working code must change its value.
         self._dock().previewSync._moveTextPaneToIndex(5)
         assert index != 5
-        # Now, emit the signal for a click a given index into 'The preview text'.
-        self._dock().previewSync.jsClick.emit(wsLen + index)
+        # Now, sync for a click at the given index into 'The preview text'.
+        self._dock().previewSync._onWebviewClick(self._plainText(), self._wsLen() + index)
         # Check the new index, which should be 0.
         p = core.workspace().currentDocument().qutepart.textCursor().position()
         self.assertEqual(p, index)
@@ -157,35 +272,6 @@ class Test(PreviewTestCase):
         """Test a click at the end of the string."""
         self._sendJsClick(len(self.testText))
 
-    # Misc tests
-    ##^^^^^^^^^^
-    @requiresModule('docutils')
-    @base.inMainLoop
-    def test_sync7(self):
-        """Test on an empty document."""
-        self.testText = ''
-        self.check_sync1()
-
-    # Test after the web page was changed and therefore reloaded,
-    # which might remove the JavaScript to respond to clicks.
-    # No test is needed: the previous tests already check this,
-    # since disabling the following lines causes lots of failures::
-    #
-    #   self._widget.webView.page().mainFrame(). \
-    #     javaScriptWindowObjectCleared.connect(self._onJavaScriptCleared)
-
-    @requiresModule('docutils')
-    @base.inMainLoop
-    def test_sync8(self):
-        """Test with javascript disabled."""
-        # The ``_dock()`` method only works after the dock exists.
-        # The method below creates it.
-        self._doBasicTest('rst')
-        self._dock()._onJavaScriptEnabledCheckbox(False)
-        # Click. Nothing will happen, but make sure there's no assertion
-        # or internal error.
-        QTest.mouseClick(self._widget().webView, Qt.LeftButton)
-
     # Code to web sync tests
     ##----------------------
     # Basic text to web sync
@@ -195,10 +281,14 @@ class Test(PreviewTestCase):
         to the matching location in the web pane.
 
         Params:
-        s -  The string in the text pane to click before.
-        testText - The ReST string to use.
-        checkText - True if the text hilighted in the web dock should be
-            compared to the text in s.
+
+        - s: The string in the text pane to click before.
+        - testText: The ReST string to use.
+        - checkText: True if the text hilighted in the web dock should be
+          compared to the text in s.
+
+        Return:
+        The plain text rendering of the web page text of the line containing s, up to the point in that line where s was matched.
         """
         # Create multi-line text.
         self.testText = testText
@@ -219,12 +309,26 @@ class Test(PreviewTestCase):
         # Move to the location of the string s in the text.
         # The sync won't happen until the timer expires; wait
         # for that.
-        with base.WaitForSignal(self._dock().previewSync.textToPreviewSynced,
-                                3500, True):
-            self._dock().previewSync._moveTextPaneToIndex(index, False)
+        # I can't seem to patch clearSelection to remove it. This doesn't work. ???
+        #with patch('enki.plugins.preview.preview_sync.PreviewSync.clearSelection') as cs:
+        # Instead, use this kludge.
+        try:
+            self._dock().previewSync._unitTest = True
+            with base.WaitForSignal(self._dock().previewSync.textToPreviewSynced,
+                                    3500):
+                self._dock().previewSync._moveTextPaneToIndex(index, False)
+        finally:
+            self._dock().previewSync._unitTest = False
         # The web view should have the line containing s selected now.
+        # Note that webEngineView.selectedText() doesn't track JavaScript selections. So, fetch this from JavaScript.
+        wfc = WaitForCallback()
+        self._widget().webEngineView.page().runJavaScript('window.getSelection().toString();', wfc.callback())
+
+        webPageText = wfc.getCallbackReturn[0].strip().split('\n')[-1]
         if checkText:
-            self.assertTrue(s in self._widget().webView.selectedText())
+            # The selection will contain all text up to the start of s. Compare just the last line (the selected line) of both.
+            self.assertEqual(self.testText[:index].strip().split('\n')[-1], webPageText)
+        return webPageText
 
     @requiresModule('docutils')
     @base.inMainLoop
@@ -246,10 +350,9 @@ class Test(PreviewTestCase):
     # More complex test to web sync
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     @requiresModule('docutils')
-    @unittest.expectedFailure
     @base.inMainLoop
     def test_sync12(self):
-        """Tables with an embedded image cause findText to fail.
+        """Tables with an embedded image.
         """
         self._textToWeb('table', """
 ================  ========================
@@ -320,19 +423,22 @@ Here is some text after a table.""", True)
         before it in the ReST. There's not much the approximate match can do to
         fix this.
         """
-        self._textToWeb('Banana', self._row_span_rest(), True)
+        webPageText = self._textToWeb('Banana', self._row_span_rest(), False)
+        assert 'Apple 1' in webPageText
 
     @requiresModule('docutils')
+    @unittest.expectedFailure
     @base.inMainLoop
     def test_sync17(self):
-        """A failing case of the above test series."""
-        self._textToWeb('Bael', self._row_span_rest(), False)
+        webPageText = self._textToWeb('Bael', self._row_span_rest(), False)
+        assert 'Cherry 3' in webPageText
 
     @requiresModule('docutils')
     @base.inMainLoop
     def test_sync18(self):
         """Verify that sync after the column span works."""
-        self._textToWeb('Text', self._row_span_rest(), True)
+        webPageText = self._textToWeb('and 3', self._row_span_rest(), False)
+        assert 'Text after block' in webPageText
 
     # Test no sync on hidden preview window
     ##^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -457,8 +563,10 @@ Here is some text after a table.""", True)
 
     # Test that no crashes occur if TRE isn't available or is old
     ##-----------------------------------------------------------
-    def test_sync22(self):
+    def test_xsync22(self):
         """Prevent TRE from being imported. Make sure there are no exceptions.
+
+        Note: Running this before test_click1/2/3 causes test failure -- the patches in those tests doesn't work after ImportFail in this test reloads the preview_sync module. So, name it test_xsync22 so that it will run after these tests.
         """
         with ImportFail(['approx_match'], [enki.plugins.preview.preview_sync]):
             self.assertIsNone(enki.plugins.preview.preview_sync.findApproxTextInTarget)

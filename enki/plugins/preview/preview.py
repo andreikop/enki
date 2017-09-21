@@ -14,15 +14,17 @@ import html
 import sys
 import shlex
 import codecs
+from queue import Queue
 #
 # Third-party imports
 # -------------------
-from PyQt5.QtCore import (pyqtSignal, QSize, Qt, QThread, QTimer, QUrl,
+from PyQt5.QtCore import (pyqtSignal, Qt, QThread, QTimer, QUrl,
                           QEventLoop, QObject)
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QWidget
 from PyQt5.QtGui import QDesktopServices, QIcon, QPalette, QWheelEvent
-from PyQt5.QtWebKitWidgets import QWebPage
+from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
 from PyQt5 import uic
+import sip
 #
 # Local imports
 # -------------
@@ -223,13 +225,16 @@ class SphinxConverter(QObject):
 
         # Look for the HTML output.
         #
-        # Get an absolute path to the output path, which could be relative.
+        sourcePath = core.config()['Sphinx']['SourcePath']
         outputPath = core.config()['Sphinx']['OutputPath']
         projectPath = core.config()['Sphinx']['ProjectPath']
+        # Get an absolute path to the output path and source path, which could be relative.
+        if not os.path.isabs(sourcePath):
+            sourcePath = os.path.join(projectPath, sourcePath)
         if not os.path.isabs(outputPath):
             outputPath = os.path.join(projectPath, outputPath)
-        # Create an htmlPath as OutputPath + remainder of filePath.
-        htmlPath = os.path.join(outputPath + filePath[len(projectPath):])
+        # Given ``filePath = sourcePath / path to source file``, we want to compute ``htmlPath = outputPath / path to source file``.
+        htmlPath = os.path.join(outputPath, os.path.relpath(filePath, sourcePath))
         html_file_suffix = '.html'
         try:
             with codecs.open(os.path.join(projectPath, 'sphinx-enki-info.txt')) as f:
@@ -263,7 +268,7 @@ class SphinxConverter(QObject):
         # Build the commond line for Sphinx.
         if core.config()['Sphinx']['AdvancedMode']:
             htmlBuilderCommandLine = core.config()['Sphinx']['Cmdline']
-            if sys.platform.startswith('linux'):
+            if sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
                 # If Linux is used, then subprocess cannot take the whole
                 # commandline as the name of an executable file. Module shlex
                 # has to be used to parse commandline.
@@ -276,7 +281,7 @@ class SphinxConverter(QObject):
               '-d', os.path.join('_build', 'doctrees'),
               # Source directory -- the current directory, since we'll chdir to
               # the project directory before executing this.
-              '.',
+              core.config()['Sphinx']['SourcePath'],
               # Build directory
               core.config()['Sphinx']['OutputPath']]
 
@@ -295,8 +300,6 @@ class SphinxConverter(QObject):
             self.logWindowText.emit('{} : {}\n\n'.format(cwd,
                                                          htmlBuilderCommandLineStr))
 
-            # Run Sphinx, reading stdout in a separate thread.
-            self._qe = QEventLoop()
             # Sphinx will output just a carriage return (0x0D) to simulate a
             # single line being updated by build status and the build
             # progresses. Without universal newline support here, we'll wait
@@ -306,36 +309,33 @@ class SphinxConverter(QObject):
             # progress.
             popen = open_console_output(htmlBuilderCommandLine, cwd=cwd,
                                         universal_newlines=True)
-            # Perform reads in an event loop. The loop is exit when all reads
-            # have completed. We can't simply start the _stderr_read thread
-            # here, because calls to self._qe_exit() will be ignored until
-            # we're inside the event loop.
-            QTimer.singleShot(0, lambda: self._popen_read(popen))
-            self._qe.exec_()
+            # Read are blocking; we can't read from both stdout and stderr in the
+            # same thread without possible buffer overflows. So, use this thread to
+            # read from and immediately report progress from stdout. In another
+            # thread, read all stderr and report that after the build finishes.
+            q = Queue()
+            self._ac.start(None, self._stderr_read, popen.stderr, q)
+            self._popen_read(popen.stdout)
+            # Wait until stderr has completed (stdout is already done).
+            stderr_out = q.get()
         except OSError as ex:
             return (
                 'Failed to execute HTML builder:\n'
                 '{}\n'.format(str(ex)) +
-                'Go to Settings -> Settings -> CodeChat to set HTML'
+                'Go to Settings -> Settings -> Sphinx to set HTML'
                 ' builder configurations.')
 
-        return self._stderr
+        return stderr_out
 
     # Read from stdout (in this thread) and stderr (in another thread),
     # so that the user sees output as the build progresses, rather than only
     # producing output after the build is complete.
-    def _popen_read(self, popen):
-        # Read are blocking; we can't read from both stdout and stderr in the
-        # same thread without possible buffer overflows. So, use this thread to
-        # read from and immediately report progress from stdout. In another
-        # thread, read all stderr and report that after the build finishes.
-        self._ac.start(None, self._stderr_read, popen.stderr)
-
+    def _popen_read(self, stdout):
         # Read a line of stdout then report it to the user immediately.
-        s = popen.stdout.readline()
+        s = stdout.readline()
         while s:
             self.logWindowText.emit(s.rstrip('\n'))
-            s = popen.stdout.readline()
+            s = stdout.readline()
         self._SphinxInvocationCount += 1
         # I would expect the following code to do the same thing. It doesn't:
         # instead, it waits until Sphinx completes before returning anything.
@@ -344,16 +344,78 @@ class SphinxConverter(QObject):
         # .. code-block: python
         #    :linenos:
         #
-        #    for s in popen.stdout:
+        #    for s in stdout:
         #        self.logWindowText.emit(s)
 
     # Runs in a separate thread to read stdout. It then exits the QEventLoop as
     # a way to signal that stderr reads have completed.
-    def _stderr_read(self, stderr):
-        self._stderr = stderr.read()
-        self._qe.exit()
+    def _stderr_read(self, stderr, q):
+        q.put(stderr.read())
+#
+# QWebEngineView tweak
+# ====================
+# This class opens links in an external browser, instead of in the built-in browser.
+class QWebEnginePageExtLink(QWebEnginePage):
+    def acceptNavigationRequest(self, url, navigationType, isMainFrame):
+        # Only open a link externally if the user clicked on it.
+        #
+        # The following HTML produces navigationType == 0 (link clicked) and
+        # isMainFrame == False. (This makes no sense to me). So, only open main frame clicks  in an external browser.
+        ## <a class="reference external image-reference" href="https://pypi.python.org/pypi/PyInstaller"><object data="https://img.shields.io/pypi/v/PyInstaller.svg" type="image/svg+xml">https://img.shields.io/pypi/v/PyInstaller.svg</object></a>
+        if (navigationType == QWebEnginePage.NavigationTypeLinkClicked and isMainFrame):
+            res = QDesktopServices.openUrl(url)
+            if res:
+                core.mainWindow().statusBar().showMessage("{} opened in a browser".format(url.toString()), 2000)
+            else:
+                core.mainWindow().statusBar().showMessage("Failed to open {}".format(url.toString()), 2000)
 
+            # Tell the built-in browser not to handle this.
+            return False
+        else:
+            # Handle this in the built-in browser.
+            return True
+#
+# AfterLoaded
+# ===========
+# Run functions after the web page is loaded. This avoids errors such as  ``js: Uncaught ReferenceError: clearHighlight is not defined``, which (I think) occurs when JavaScript is run before the PreviewSync window is able to inject its JavaScript.
+class AfterLoaded(QObject):
+    def __init__(self,
+      # The QWebEnginePage to watch for loading/load complete.
+      webEnginePage):
 
+        super().__init__()
+        self._runList = []
+        self._isLoading = False
+        webEnginePage.loadStarted.connect(self.onLoadStarted)
+        webEnginePage.loadFinished.connect(self.onLoadFinished)
+
+    def terminate(self):
+        self.clearAll()
+        # Ensure that all signals are disconnected, so that waiting callbacks won't be invoked after this class is terminated.
+        sip.delete(self)
+
+    def onLoadStarted(self):
+        self._isLoading = True
+
+    def onLoadFinished(self, ok):
+        self._isLoading = False
+        self._runAll()
+
+    # Schedule a funtion to be executed after the web page is finished loading. If the web page has already been loaded, it will execute immediately. Use: ``al.afterLoaded(func_name, param1, param2, ..., kwarg1=kwval1, kwarg2=kwval2, ...)`` will invoke ``func_name(param1, param2, ..., kwarg1=kwval1, kwarg2=kwval2, ...)``. Note that the return values of the functions are discarded.
+    def afterLoaded(self, *args, **kwargs):
+        self._runList.append([kwargs, *args])
+        if not self._isLoading:
+            self._runAll()
+
+    def _runAll(self):
+        while self._runList:
+            kwargs, func, *args = self._runList.pop(0)
+            func(*args, **kwargs)
+
+    # Unschedule all functions scheduled to run, but not yet run.
+    def clearAll(self):
+        self._runList.clear()
+#
 # Core class
 # ==========
 class PreviewDock(DockWidget):
@@ -368,18 +430,20 @@ class PreviewDock(DockWidget):
         self._widget = self._createWidget()
         # Don't need to schedule document processing; a call to show() does.
 
+        self._afterLoaded = AfterLoaded(self._widget.webEngineView.page())
+
         self._loadTemplates()
         self._widget.cbTemplate.currentIndexChanged.connect(
-            self._onCurrentTemplateChanged)  # Disconnected.
+            self._onCurrentTemplateChanged)
 
         # When quitting this program, don't rebuild when closing all open
         # documents. This can take a long time, particularly if a some of the
         # documents are associated with a Sphinx project.
         self._programRunning = True
-        core.aboutToTerminate.connect(self._quitingApplication)  # Disconnected.
+        core.aboutToTerminate.connect(self._quitingApplication)
 
-        core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)  # Disconnected.
-        core.workspace().textChanged.connect(self._onTextChanged)  # Disconnected.
+        core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
+        core.workspace().textChanged.connect(self._onTextChanged)
 
         # If the user presses the accept button in the setting dialog, Enki
         # will force a rebuild of the whole project.
@@ -391,10 +455,10 @@ class PreviewDock(DockWidget):
         # core.config()['Sphinx'] and core.config()['CodeChat']. After dialogAccepted
         # is detected, compare current settings with the old one. Build if necessary.
         core.uiSettingsManager().dialogAccepted.connect(
-            self._scheduleDocumentProcessing)  # Disconnected.
+            self._scheduleDocumentProcessing)
 
         core.workspace().modificationChanged.connect(
-            self._onDocumentModificationChanged)  # disconnected
+            self._onDocumentModificationChanged)
 
         self._scrollPos = {}
         self._vAtEnd = {}
@@ -411,11 +475,11 @@ class PreviewDock(DockWidget):
         # If we update Preview on every key press, freezes are noticable (the
         # GUI thread draws the preview too slowly).
         # This timer is used for drawing Preview 800 ms After user has stopped typing text
-        self._typingTimer = QTimer()  # stopped.
+        self._typingTimer = QTimer()
         self._typingTimer.setInterval(800)
-        self._typingTimer.timeout.connect(self._scheduleDocumentProcessing)  # Disconnected.
+        self._typingTimer.timeout.connect(self._scheduleDocumentProcessing)
 
-        self.previewSync = PreviewSync(self)  # del_ called
+        self.previewSync = PreviewSync(self)
 
         self._applyJavaScriptEnabled(self._isJavaScriptEnabled())
 
@@ -435,40 +499,46 @@ class PreviewDock(DockWidget):
         # restored correctly on a ``_clear_log``.
         self._defaultLogFont = self._widget.teLog.currentCharFormat()
         # The logWindowClear signal clears the log window.
-        self._sphinxConverter.logWindowClear.connect(self._clear_log)  # disconnected
+        self._sphinxConverter.logWindowClear.connect(self._clear_log)
         # The logWindowText signal simply appends text to the log window.
         self._sphinxConverter.logWindowText.connect(lambda s:
-                                           self._widget.teLog.appendPlainText(s))  # disconnected
+                                           self._widget.teLog.appendPlainText(s))
 
     def _createWidget(self):
         widget = QWidget(self)
         uic.loadUi(os.path.join(os.path.dirname(__file__), 'Preview.ui'), widget)
         widget.layout().setContentsMargins(0, 0, 0, 0)
-        widget.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
-        widget.webView.page().linkClicked.connect(self._onLinkClicked)  # Disconnected.
+        # The Qt Designer doesn't support a QWebEngineView. Also, we need to
+        # add a subclass, which also isn't supported. Add it manually.
+        widget.webEngineView = QWebEngineView(widget)
+        widget.webView.layout().addWidget(widget.webEngineView)
+        # Use our custom subclass for the web page; use the web view as its
+        # parent.
+        webEnginePage = QWebEnginePageExtLink(widget.webEngineView)
+        widget.webEngineView.setPage(webEnginePage)
         # Fix preview palette. See https://github.com/bjones1/enki/issues/34
-        webViewPalette = widget.webView.palette()
-        webViewPalette.setColor(QPalette.Inactive, QPalette.HighlightedText,
-                                webViewPalette.color(QPalette.Text))
-        widget.webView.setPalette(webViewPalette)
+        webEngineViewPalette = widget.webEngineView.palette()
+        webEngineViewPalette.setColor(QPalette.Inactive, QPalette.HighlightedText,
+                                webEngineViewPalette.color(QPalette.Text))
+        widget.webEngineView.setPalette(webEngineViewPalette)
 
-        widget.webView.page().mainFrame().titleChanged.connect(
-            self._updateTitle)  # Disconnected.
+        widget.webEngineView.page().titleChanged.connect(
+            self._updateTitle)
         widget.cbEnableJavascript.clicked.connect(
-            self._onJavaScriptEnabledCheckbox)  # Disconnected.
-        widget.webView.installEventFilter(self)
+            self._onJavaScriptEnabledCheckbox)
+        widget.webEngineView.installEventFilter(self)
 
         self.setWidget(widget)
-        self.setFocusProxy(widget.webView)
+        self.setFocusProxy(widget.webEngineView)
 
-        widget.tbSave.clicked.connect(self.onPreviewSave)  # Disconnected.
+        widget.tbSave.clicked.connect(self.onPreviewSave)
         # Add an attribute to ``widget`` denoting the splitter location.
         # This value will be overwritten when the user changes splitter location.
         widget.splitterErrorStateSize = (199, 50)
         widget.splitterNormStateSize = (1, 0)
         widget.splitterNormState = True
         widget.splitter.setSizes(widget.splitterNormStateSize)
-        widget.splitter.splitterMoved.connect(self.on_splitterMoved)  # Disconnected.
+        widget.splitter.splitterMoved.connect(self.on_splitterMoved)
 
         return widget
 
@@ -485,36 +555,11 @@ class PreviewDock(DockWidget):
         """Uninstall themselves
         """
         self._typingTimer.stop()
-        self._typingTimer.timeout.disconnect(self._scheduleDocumentProcessing)
-        try:
-            self._widget.webView.page().mainFrame().loadFinished.disconnect(
-                self._restoreScrollPos)
-        except TypeError:  # already has been disconnected
-            pass
         self.previewSync.terminate()
-        core.workspace().modificationChanged.disconnect(
-            self._onDocumentModificationChanged)
-
-        self._widget.cbTemplate.currentIndexChanged.disconnect(
-            self._onCurrentTemplateChanged)
-        core.aboutToTerminate.disconnect(self._quitingApplication)
-        core.workspace().currentDocumentChanged.disconnect(
-            self._onDocumentChanged)
-        core.workspace().textChanged.disconnect(self._onTextChanged)
-        core.uiSettingsManager().dialogAccepted.disconnect(
-            self._scheduleDocumentProcessing)
-        self._widget.webView.page().linkClicked.disconnect(self._onLinkClicked)
-        self._widget.webView.page().mainFrame().titleChanged.disconnect(
-            self._updateTitle)
-        self._widget.cbEnableJavascript.clicked.disconnect(
-            self._onJavaScriptEnabledCheckbox)
-        self._widget.tbSave.clicked.disconnect(self.onPreviewSave)
-        self._widget.splitter.splitterMoved.disconnect(self.on_splitterMoved)
-        self._sphinxConverter.logWindowClear.disconnect(self._clear_log)
-        self._sphinxConverter.logWindowText.disconnect()
-
         self._sphinxConverter.terminate()
         self._runLatest.terminate()
+        self._afterLoaded.terminate()
+        sip.delete(self)
 
     def closeEvent(self, event):
         """Widget is closed. Clear it
@@ -535,7 +580,7 @@ class PreviewDock(DockWidget):
         if isinstance(ev, QWheelEvent) and \
            ev.modifiers() == Qt.ControlModifier:
             multiplier = 1 + (0.1 * (ev.angleDelta().y() / 120.))
-            view = self._widget.webView
+            view = self._widget.webEngineView
             view.setZoomFactor(view.zoomFactor() * multiplier)
             return True
         else:
@@ -545,13 +590,6 @@ class PreviewDock(DockWidget):
         if not modified:  # probably has been saved just now
             if not self._ignoreDocumentChanged:
                 self._scheduleDocumentProcessing()
-
-    def _onLinkClicked(self, url):
-        res = QDesktopServices.openUrl(url)
-        if res:
-            core.mainWindow().statusBar().showMessage("{} opened in a browser".format(url.toString()), 2000)
-        else:
-            core.mainWindow().statusBar().showMessage("Failed to open {}".format(url.toString()), 2000)
 
     def _updateTitle(self, pageTitle):
         """Web page title changed. Update own title.
@@ -564,20 +602,14 @@ class PreviewDock(DockWidget):
     def _saveScrollPos(self):
         """Save scroll bar position for document
         """
-        frame = self._widget.webView .page().mainFrame()
-        if frame.contentsSize() == QSize(0, 0):
-            return  # no valida data, nothing to save
-
-        pos = frame.scrollPosition()
-        self._scrollPos[self._visiblePath] = pos
-        self._hAtEnd[self._visiblePath] = frame.scrollBarMaximum(Qt.Horizontal) == pos.x()
-        self._vAtEnd[self._visiblePath] = frame.scrollBarMaximum(Qt.Vertical) == pos.y()
+        page = self._widget.webEngineView.page()
+        self._scrollPos[self._visiblePath] = page.scrollPosition()
 
     def _restoreScrollPos(self, ok):
         """Restore scroll bar position for document
         """
         try:
-            self._widget.webView.page().mainFrame().loadFinished.disconnect(self._restoreScrollPos)
+            self._widget.webEngineView.page().loadFinished.disconnect(self._restoreScrollPos)
         except TypeError:  # already has been disconnected
             pass
 
@@ -594,15 +626,18 @@ class PreviewDock(DockWidget):
         if not self.isVisible():
             return
 
-        frame = self._widget.webView.page().mainFrame()
-
-        frame.setScrollPosition(self._scrollPos[self._visiblePath])
-
-        if self._hAtEnd[self._visiblePath]:
-            frame.setScrollBarValue(Qt.Horizontal, frame.scrollBarMaximum(Qt.Horizontal))
-
-        if self._vAtEnd[self._visiblePath]:
-            frame.setScrollBarValue(Qt.Vertical, frame.scrollBarMaximum(Qt.Vertical))
+        page = self._widget.webEngineView.page()
+        pos = self._scrollPos[self._visiblePath]
+        # Odd: this works, too. Evidently, the load finishing doesn't mean the
+        # render is finished. But, the JavaScript below won't be run until the
+        # render finishes. However, since this might lead to a race condition
+        # (what if the render finishes before this code runs), avoid this
+        # shortcut.
+        ##pos = page.scrollPosition()
+        # We can't use view.scroll because it doesn't affect the web view's
+        # scroll bars -- instead, it will move the widget around, which isn't
+        # helpful.
+        page.runJavaScript('window.scrollTo({}, {});'.format(pos.x(), pos.y()))
 
         # Re-sync the re-loaded text.
         self.previewSync.syncTextToPreview()
@@ -619,9 +654,9 @@ class PreviewDock(DockWidget):
                 self._widget.cbTemplate.hide()
                 self._widget.lTemplate.hide()
 
-            self._clear()
-
-            if self.isVisible():
+            # We can't rely on ``self.isVisible()`` here: on startup, it returns False even though the widget is visible, probably because the widget hasn't yet been painted.
+            if core.config()['Preview']['Enabled']:
+                self._clear()
                 self._scheduleDocumentProcessing()
 
     _CUSTOM_TEMPLATE_PATH = '<custom template>'
@@ -696,7 +731,7 @@ class PreviewDock(DockWidget):
 
     def _clear(self):
         """Clear the preview dock contents.
-        Might be necesssary for stop executing JS and loading data.
+        Might be necesssary to stop executing JS and loading data.
         """
         self._setHtml('', '', None, QUrl())
 
@@ -714,27 +749,37 @@ class PreviewDock(DockWidget):
         self._applyJavaScriptEnabled(enabled)
 
     def _applyJavaScriptEnabled(self, enabled):
-        """Update QWebView settings and QCheckBox state
+        """Update QwebEngineView settings and QCheckBox state
         """
         self._widget.cbEnableJavascript.setChecked(enabled)
 
-        settings = self._widget.webView.settings()
+        settings = self._widget.webEngineView.settings()
         settings.setAttribute(settings.JavascriptEnabled, enabled)
 
     def onPreviewSave(self):
         """Save contents of the preview pane to a user-specified file."""
         path, _ = QFileDialog.getSaveFileName(self, 'Save Preview as HTML', filter='HTML (*.html)')
+
         if path:
             self._previewSave(path)
 
     def _previewSave(self, path):
-        """Save contents of the preview pane to the file given by path."""
-        text = self._widget.webView.page().mainFrame().toHtml()
-        try:
-            with open(path, 'w', encoding='utf-8') as openedFile:
-                openedFile.write(text)
-        except (OSError, IOError) as ex:
-            QMessageBox.critical(self, "Failed to save HTML", str(ex))
+        qe = QEventLoop()
+
+        def callback(text):
+            try:
+                with open(path, 'w', encoding='utf-8') as openedFile:
+                    openedFile.write(text)
+            except (OSError, IOError) as ex:
+                QMessageBox.critical(self, "Failed to save HTML", str(ex))
+            qe.quit()
+
+        # The preview selection is an extra ``div`` inserted by the sync code.
+        # Remove it before saving the file.
+        self.previewSync.clearHighlight()
+        self._afterLoaded.afterLoaded(self._widget.webEngineView.page().toHtml, callback)
+        # Wait for the callback to complete.
+        qe.exec_()
 
     # HTML generation
     #----------------
@@ -909,7 +954,7 @@ class PreviewDock(DockWidget):
 
         # For testing, check for test-provided button presses
         if ((len(self._sphinxTemplateCheckIgnoreList) == 1) and
-                isinstance(self._sphinxTemplateCheckIgnoreList[0], int)):
+                isinstance(self._sphinxTemplateCheckIgnoreList[0], QMessageBox.StandardButton)):
             res = self._sphinxTemplateCheckIgnoreList[0]
         else:
             res = QMessageBox.warning(
@@ -954,21 +999,27 @@ class PreviewDock(DockWidget):
 
     def _setHtml(self, filePath, htmlText, errString, baseUrl):
         """Set HTML to the view and restore scroll bars position.
-        Called by the thread
+        Called by the thread.
         """
-
         self._saveScrollPos()
         self._visiblePath = filePath
-        self._widget.webView.page().mainFrame().loadFinished.connect(
-            self._restoreScrollPos)  # disconnected
+        self._widget.webEngineView.page().loadFinished.connect(
+            self._restoreScrollPos)
 
+        # Per http://stackoverflow.com/questions/36609489/how-to-prevent-qwebengineview-to-grab-focus-on-sethtml-and-load-calls,
+        # the QWebEngineView steals the focus on a call to ``setHtml``. Disable
+        # it to prevent this. Another approach:  disable `QWebEngineSettings::FocusOnNavigationEnabled <http://doc.qt.io/qt-5/qwebenginesettings.html#WebAttribute-enum>`_, which is enabled by default. However, since this was added in Qt 5.8 (PyQt 5.8 was `released in 15-Feb-2017 <https://www.riverbankcomputing.com/news>`_, it's too early to rely on it. TODO: use this after PyQt 5.9 is released?
+        self._widget.webEngineView.setEnabled(False)
         if baseUrl.isEmpty():
             # Clear the log, then update it with build content.
             self._widget.teLog.clear()
-            self._widget.webView.setHtml(htmlText,
+            self._widget.webEngineView.setHtml(htmlText,
                                          baseUrl=QUrl.fromLocalFile(filePath))
         else:
-            self._widget.webView.setUrl(baseUrl)
+            self._widget.webEngineView.setUrl(baseUrl)
+        # Let the sync know that the contents have changed.
+        # Re-enable it after updating the HTML.
+        self._widget.webEngineView.setEnabled(True)
 
         # If there were messages from the conversion process, extract a count of
         # errors and warnings from these messages.
@@ -994,6 +1045,9 @@ class PreviewDock(DockWidget):
             #
             #  X:\conf.py.rst:: WARNING: document isn't included in any toctree
             #
+            #  In Sphinx 1.6.1:
+            #  X:\file.rst: WARNING: document isn't included in any toctree
+            #
             # Each error/warning occupies one line. The following `regular
             # expression
             # <https://docs.python.org/2/library/re.html#regular-expression-syntax>`_
@@ -1006,11 +1060,11 @@ class PreviewDock(DockWidget):
             # Examining this expression one element at a time::
             #
             #   <string>:1589:        (ERROR/3)Unknown interpreted text role "ref".
-            errPosRe = ':(\d*|None): '
-            # Find the first occurence of a pair of colons.
+            errPosRe = ':(\d*|None|):? '
+            # Find the first occurence of a pair of colons, or just a single colon.
             # Between them there can be numbers or "None" or nothing. For example,
             # this expression matches the string ":1589:" or string ":None:" or
-            # string "::". Next::
+            # string "::" or the string ":". Next::
             #
             #   <string>:1589:        (ERROR/3)Unknown interpreted text role "ref".
             errTypeRe = '\(?(WARNING|ERROR|SEVERE)'

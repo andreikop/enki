@@ -68,18 +68,39 @@
        </widget>
       </item>
       <item>
-       <layout class="QGridLayout" name="gridLtNotAdvancedSettings">
-        <item row="0" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <widget class="QLabel" name="lbSphinxSourcePath">
+          <property name="text">
+           <string>Source path</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="leSphinxSourcePath"/>
+        </item>
+        <item>
+         <widget class="QToolButton" name="tbSphinxSourcePath">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
          <widget class="QLabel" name="lbSphinxOutputPath">
           <property name="text">
            <string>Output path</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
+        <item>
          <widget class="QLineEdit" name="leSphinxOutputPath"/>
         </item>
-        <item row="0" column="2">
+        <item>
          <widget class="QToolButton" name="pbSphinxOutputPath">
           <property name="text">
            <string>...</string>
@@ -150,7 +171,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox_2">
+    <widget class="QGroupBox" name="gbSphinxExecutable">
      <property name="title">
       <string>Sphinx executable path</string>
      </property>
