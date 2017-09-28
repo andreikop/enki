@@ -13,7 +13,7 @@ https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 # DONE Populate dialog
 # DONE Change file in dialog
 # DONE change file in enki
-# TODO Change file backward
+# DONE Change file backward
 # DONE change styling
 # TODO Setting page
 # TODO checkbox if autosave is activated,
@@ -43,16 +43,30 @@ class Plugin:
         self._addAction()
 
     def terminate(self):
-        core.actionManager().removeAction(self._action)
+        core.actionManager().removeAction(self._forwardAction)
+        core.actionManager().removeAction(self._backwardAction)
 
     def _addAction(self):
         """Add action to main menu
         """
-        action = core.actionManager().addAction("mNavigation/aFileSwitcher",
-                                                "File Switcher")
-        core.actionManager().setDefaultShortcut(action, "Ctrl+Tab")
-        action.triggered.connect(self._fileswitcher._showFileswitcher)
-        self._action = action
+        forwardAction = core.actionManager().addAction("mNavigation/aForwardSwitch",
+                                                "Switch file forward")
+        core.actionManager().setDefaultShortcut(forwardAction, "Ctrl+Tab")
+        backwardAction = core.actionManager().addAction("mNavigation/aBackwardSwitch",
+                                                "Switch file back")
+        core.actionManager().setDefaultShortcut(backwardAction, "Ctrl+Shift+Tab")
+        forwardAction.triggered.connect(self._onForwardAction)
+        backwardAction.triggered.connect(self._onBackwardAction)
+        self._forwardAction = forwardAction
+        self._backwardAction = backwardAction
+
+    def _onForwardAction(self):
+        self._fileswitcher.showFileswitcher(1)
+
+    def _onBackwardAction(self):
+        self._fileswitcher.showFileswitcher(
+            self._fileswitcher.filestackLength() - 1)
+
 
 class Fileswitcher(QDialog):
     """docstring for Fileswitcher."""
@@ -85,7 +99,10 @@ class Fileswitcher(QDialog):
 
         self._filelist = filelist
 
-    def _showFileswitcher(self):
+    def filestackLength(self):
+        return len(self._filestack)
+
+    def showFileswitcher(self, currentLine = 1):
         self._filelist.clear()
         for document in self._filestack:
             self._filelist.addTopLevelItem(
@@ -96,7 +113,7 @@ class Fileswitcher(QDialog):
             # pprint(dir(document))
 
         self._filelist.resizeColumnToContents(0)
-        self._currentLine = 1
+        self._currentLine = currentLine
         self._filelist.setCurrentItem(
             self._filelist.topLevelItem(self._currentLine))
         self.show()
@@ -118,12 +135,20 @@ class Fileswitcher(QDialog):
             print(e)
 
     def keyPressEvent(self, event):
-        #super(Fileswitcher, self).keyPressEvent(event)
-        if (event.modifiers() & Qt.CTRL and event.key() == Qt.Key_Tab):
+        if event.modifiers() & Qt.CTRL and event.key() == Qt.Key_Tab:
+            print(event.modifiers())
             if self._currentLine < self._filelist.topLevelItemCount() - 1:
                 self._currentLine += 1
             else:
                 self._currentLine = 0
+            self._filelist.setCurrentItem(
+                self._filelist.topLevelItem(self._currentLine))
+
+        elif event.modifiers() & Qt.CTRL and event.key() == Qt.Key_Backtab:
+            if self._currentLine > 0:
+                self._currentLine -= 1
+            else:
+                self._currentLine = self._filelist.topLevelItemCount() - 1
             self._filelist.setCurrentItem(
                 self._filelist.topLevelItem(self._currentLine))
 
