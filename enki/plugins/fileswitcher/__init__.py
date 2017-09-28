@@ -14,17 +14,17 @@ https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 # DONE Change file in dialog
 # DONE change file in enki
 # TODO Change file backward
-# TODO change styling
+# DONE change styling
 # TODO Setting page
 # TODO checkbox if autosave is activated,
 # TODO Cleanup code (Terminate plugin, etc.)
 
-from pprint import pprint
-
+from os.path import expanduser
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QDialog, QTreeWidget, QTreeWidgetItem, QWidget, QCheckBox, QVBoxLayout,
-                             QSpacerItem, QSizePolicy, QLabel)
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import (QDialog, QTreeWidget, QTreeWidgetItem, QWidget,
+                             QCheckBox, QVBoxLayout, QSpacerItem, QSizePolicy,
+                             QLabel)
+from PyQt5.QtGui import QIcon, QFontMetrics
 
 
 from enki.core.core import core
@@ -49,8 +49,7 @@ class Plugin:
         """Add action to main menu
         """
         action = core.actionManager().addAction("mNavigation/aFileSwitcher",
-                                                "File Switcher",
-                                                QIcon(':enkiicons/console.png'))
+                                                "File Switcher")
         core.actionManager().setDefaultShortcut(action, "Ctrl+Tab")
         action.triggered.connect(self._fileswitcher._showFileswitcher)
         self._action = action
@@ -61,16 +60,23 @@ class Fileswitcher(QDialog):
         super(Fileswitcher, self).__init__(parent)
         self._filestack = list()
 
-        self.resize(400, 200)
+        self.resize(600, 300)
         self.setModal(True)
         self.setWindowTitle("File Switcher")
+        biggerFont = self.font()
+        biggerFont.setPointSizeF(biggerFont.pointSizeF() * 1.5)
+        self.setFont(biggerFont)
+        width = QFontMetrics(self.font()).width('x' * 96)  # width of 64 'x' letters
+        self.resize(width, width * 0.62)
+
         vboxLayout = QVBoxLayout(self)
         filelist = QTreeWidget(self)
-        filelist.setColumnCount(3)
-        filelist.setHeaderLabels(["Name", "Type", "Path"])
+        filelist.setColumnCount(2)
+        filelist.setHeaderLabels(["Name", "Path"])
         filelist.setRootIsDecorated(False)
         filelist.setAlternatingRowColors(True)
-
+        filelist.header().setFont(biggerFont)
+        filelist.setFont(biggerFont)
         vboxLayout.addWidget(filelist)
 
         core.workspace().documentOpened.connect(self._onDocumentOpened)
@@ -83,8 +89,13 @@ class Fileswitcher(QDialog):
         self._filelist.clear()
         for document in self._filestack:
             self._filelist.addTopLevelItem(
-            QTreeWidgetItem((document.fileName(), "Type", document.filePath())))
+            QTreeWidgetItem((document.fileName(),
+                             document.filePath().replace(
+                                                         expanduser("~"),
+                                                         "~"))))
             # pprint(dir(document))
+
+        self._filelist.resizeColumnToContents(0)
         self._currentLine = 1
         self._filelist.setCurrentItem(
             self._filelist.topLevelItem(self._currentLine))
