@@ -17,7 +17,7 @@ https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 # DONE change styling
 # DONE Settings page
 # DONE checkbox if file switcher is activated
-# TODO grey out menu items, if no file is opened
+# DONE grey out menu items, if no file is opened
 # TODO Cleanup code (Terminate plugin, etc.)
 
 from os.path import expanduser
@@ -77,10 +77,14 @@ class Plugin:
     def _activate(self):
         self._fileswitcher = Fileswitcher(core.mainWindow())
         self._addActions()
+        core.workspace().documentOpened.connect(self._onDocumentOpenedOrClosed)
+        core.workspace().documentClosed.connect(self._onDocumentOpenedOrClosed)
 
     def _deactivate(self):
         self._fileswitcher = None
         self._removeActions()
+        core.workspace().documentOpened.disconnect(self._onDocumentOpenedOrClosed)
+        core.workspace().documentClosed.disconnect(self._onDocumentOpenedOrClosed)
 
     def _addActions(self):
         """Add action to main menu
@@ -106,6 +110,12 @@ class Plugin:
     def _onBackwardAction(self):
         self._fileswitcher.showFileswitcher(
             self._fileswitcher.filestackLength() - 1)
+
+    def _onDocumentOpenedOrClosed(self):
+        # update view menu
+        moreThanOneDocument = len(core.workspace().documents()) > 0
+        core.actionManager().action("mNavigation/aForwardSwitch").setEnabled(moreThanOneDocument)
+        core.actionManager().action("mNavigation/aBackwardSwitch").setEnabled(moreThanOneDocument)
 
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.
