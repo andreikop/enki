@@ -26,3 +26,4 @@ win/Install_Enki.exe
 
 # Pyinstaller-generated files.
 *.spec
+enki.egg-info/
