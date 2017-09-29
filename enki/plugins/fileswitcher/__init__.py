@@ -18,18 +18,19 @@ https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 # DONE Settings page
 # DONE checkbox if file switcher is activated
 # DONE grey out menu items, if no file is opened
-# TODO Cleanup code (Terminate plugin, etc.)
+# DONE Cleanup code (Terminate plugin, etc.)
 
 from os.path import expanduser
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QDialog, QTreeWidget, QTreeWidgetItem, QWidget,
                              QCheckBox, QVBoxLayout, QSpacerItem, QSizePolicy,
                              QLabel)
-from PyQt5.QtGui import QIcon, QFontMetrics
+from PyQt5.QtGui import QFontMetrics
 
 
 from enki.core.core import core
 from enki.core.uisettings import CheckableOption
+
 
 class SettingsPage(QWidget):
     """Settings page for File Switcher plugin"""
@@ -37,7 +38,12 @@ class SettingsPage(QWidget):
         QWidget.__init__(self, parent)
         text = """
             <h2>File Switcher</h2>
-            <p>The File Switcher plugin let's you switch through your files. In the style of the Opera web browser it stacks the files in the order of last used files.</p>
+            <p>The File Switcher plugin let's you switch through your files.
+            <br />In the style of the Opera web browser it stacks the files in
+            <br />the order of last used files.</p>
+            <p>Cycle through the list with <code>Ctrl+Tab</code> (last viewed
+            file) and<br /><code>Ctrl+Shift+Tab</code> (first viewed file).</p>
+            <p>Note: On macOS, use the Command key instad of the Ctrl key.</p>
             <p></p>"""
         self._label = QLabel(text, self)
         self.checkbox = QCheckBox('Enable File Switcher')
@@ -52,12 +58,11 @@ class SettingsPage(QWidget):
 class Plugin:
     """Plugin interface implementation
 
-    The plugin looks for focusWindowChanged event, get all opened files
-    and saves them.
+    This plugin creates a dialog that let's you switch through the opened
+    files with the last used file first.
     """
-
     def __init__(self):
-        """pass"""
+        """Setup settings and activate plugin, if feasable."""
         self._fileswitcher = None
         self._checkSettings()
         core.uiSettingsManager().aboutToExecute.connect(
@@ -68,39 +73,45 @@ class Plugin:
         if self._isFileswitcherActive():
             self._activate()
 
-
     def terminate(self):
+        """clean up"""
         self._removeActions()
         core.uiSettingsManager().aboutToExecute.disconnect(
             self._onSettingsDialogAboutToExecute)
 
     def _activate(self):
+        """Create the dialog, add actions to the main menu."""
         self._fileswitcher = Fileswitcher(core.mainWindow())
         self._addActions()
         core.workspace().documentOpened.connect(self._onDocumentOpenedOrClosed)
         core.workspace().documentClosed.connect(self._onDocumentOpenedOrClosed)
 
     def _deactivate(self):
+        """Destroy the dialog, remove actions from the main menu."""
         self._fileswitcher = None
         self._removeActions()
-        core.workspace().documentOpened.disconnect(self._onDocumentOpenedOrClosed)
-        core.workspace().documentClosed.disconnect(self._onDocumentOpenedOrClosed)
+        core.workspace().documentOpened.disconnect(
+            self._onDocumentOpenedOrClosed)
+        core.workspace().documentClosed.disconnect(
+            self._onDocumentOpenedOrClosed)
 
     def _addActions(self):
-        """Add action to main menu
-        """
-        forwardAction = core.actionManager().addAction("mNavigation/aForwardSwitch",
-                                                "Switch file forward")
-        core.actionManager().setDefaultShortcut(forwardAction, "Ctrl+Tab")
-        backwardAction = core.actionManager().addAction("mNavigation/aBackwardSwitch",
-                                                "Switch file back")
-        core.actionManager().setDefaultShortcut(backwardAction, "Ctrl+Shift+Tab")
+        """Add actions to main menu"""
+        forwardAction = core.actionManager().addAction(
+            "mNavigation/aForwardSwitch",
+            "Switch file forward",
+            shortcut="Ctrl+Tab")
+        backwardAction = core.actionManager().addAction(
+            "mNavigation/aBackwardSwitch",
+            "Switch file back",
+            shortcut="Ctrl+Shift+Tab")
         forwardAction.triggered.connect(self._onForwardAction)
         backwardAction.triggered.connect(self._onBackwardAction)
         self._forwardAction = forwardAction
         self._backwardAction = backwardAction
 
     def _removeActions(self):
+        """Remove actions from mein menu"""
         core.actionManager().removeAction(self._forwardAction)
         core.actionManager().removeAction(self._backwardAction)
 
@@ -114,8 +125,10 @@ class Plugin:
     def _onDocumentOpenedOrClosed(self):
         # update view menu
         moreThanOneDocument = len(core.workspace().documents()) > 0
-        core.actionManager().action("mNavigation/aForwardSwitch").setEnabled(moreThanOneDocument)
-        core.actionManager().action("mNavigation/aBackwardSwitch").setEnabled(moreThanOneDocument)
+        core.actionManager().action("mNavigation/aForwardSwitch").setEnabled(
+            moreThanOneDocument)
+        core.actionManager().action("mNavigation/aBackwardSwitch").setEnabled(
+            moreThanOneDocument)
 
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.
@@ -131,10 +144,10 @@ class Plugin:
 
     def _onSettingsDialogAccepted(self):
         if self._isFileswitcherActive():
-            if self._fileswitcher == None:
+            if self._fileswitcher is None:
                 self._activate()
         else:
-            if self._fileswitcher != None:
+            if self._fileswitcher is not None:
                 self._deactivate()
 
     def _checkSettings(self):
@@ -152,8 +165,12 @@ class Plugin:
 
 
 class Fileswitcher(QDialog):
-    """docstring for Fileswitcher."""
+    """The Fileswitcher dialog provide a user interface to select the last
+    viewed file.
+    """
     def __init__(self, parent):
+        """Setups the layout of the Fileswitcher dialog and connects
+        the events."""
         super(Fileswitcher, self).__init__(parent)
         self._filestack = list()
         self.populateFilestack()
@@ -164,7 +181,7 @@ class Fileswitcher(QDialog):
         biggerFont = self.font()
         biggerFont.setPointSizeF(biggerFont.pointSizeF() * 1.5)
         self.setFont(biggerFont)
-        width = QFontMetrics(self.font()).width('x' * 96)  # width of 64 'x' letters
+        width = QFontMetrics(self.font()).width('x' * 96)
         self.resize(width, width * 0.62)
 
         vboxLayout = QVBoxLayout(self)
@@ -179,22 +196,25 @@ class Fileswitcher(QDialog):
 
         core.workspace().documentOpened.connect(self._onDocumentOpened)
         core.workspace().documentClosed.connect(self._onDocumentClosed)
-        core.workspace().currentDocumentChanged.connect(self._onDocumentChanged)
+        core.workspace().currentDocumentChanged.connect(
+            self._onDocumentChanged)
 
         self._filelist = filelist
 
     def filestackLength(self):
+        """Returns the number of files in the Fileswitcher."""
         return len(self._filestack)
 
-    def showFileswitcher(self, currentLine = 1):
+    def showFileswitcher(self, currentLine=1):
+        """Displays the dialog"""
         if self.filestackLength() > 0:
             self._filelist.clear()
             for document in self._filestack:
                 self._filelist.addTopLevelItem(
-                QTreeWidgetItem((document.fileName(),
-                                 document.filePath().replace(
-                                                             expanduser("~"),
-                                                             "~"))))
+                    QTreeWidgetItem((
+                        document.fileName(),
+                        document.filePath().replace(expanduser("~"),
+                                                    "~"))))
             self._filelist.resizeColumnToContents(0)
 
             self._currentLine = self.filestackLength() - 1 \
@@ -204,26 +224,38 @@ class Fileswitcher(QDialog):
             self.show()
 
     def populateFilestack(self):
+        """Populates the filestack from the files opened in the
+        current workspace. No special order is preserved. It uses
+        the order given by core.workspace().documents().
+        This method is neccessary, if the File Switcher plugin
+        is activated in the settings page, after files are
+        already opend in Enki."""
         for document in core.workspace().documents():
             self._filestack.insert(0, document)
 
     def _onDocumentOpened(self, document):
+        """Insertes the opened document at the top of the filestack"""
         self._filestack.insert(0, document)
 
     def _onDocumentClosed(self, document):
+        """Remove the closed document from the filestack"""
         idx = self._filestack.index(document)
         self._filestack.pop(idx)
 
     def _onDocumentChanged(self, old, new):
+        """Moves the active document to the front of the filestack"""
         try:
             idx = self._filestack.index(new)
             self._filestack.pop(idx)
             self._filestack.insert(0, new)
         except ValueError as e:
-            print("new document couldn't be found")
+            print("New document couldn't be found")
             print(e)
 
     def keyPressEvent(self, event):
+        """Cycles through the list of files, if Ctrl+Tab or
+        Ctrl+Shift+Tab is pressed.
+        """
         if event.modifiers() & Qt.CTRL and event.key() == Qt.Key_Tab:
             print(event.modifiers())
             if self._currentLine < self._filelist.topLevelItemCount() - 1:
@@ -242,6 +274,7 @@ class Fileswitcher(QDialog):
                 self._filelist.topLevelItem(self._currentLine))
 
     def keyReleaseEvent(self, event):
+        """Hide the dialog if the Ctrl key is released."""
         if event.key() == Qt.Key_Control:
             core.workspace().setCurrentDocument(
                 self._filestack[self._currentLine])
