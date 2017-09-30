@@ -173,6 +173,7 @@ class Fileswitcher(QDialog):
         the events."""
         super(Fileswitcher, self).__init__(parent)
         self._filestack = list()
+        self._currentLine = 0
         self.populateFilestack()
 
         self.resize(600, 300)
@@ -218,7 +219,7 @@ class Fileswitcher(QDialog):
             self._filelist.resizeColumnToContents(0)
 
             self._currentLine = self.filestackLength() - 1 \
-                if self.filestackLength() >= currentLine else currentLine
+                if self.filestackLength() <= currentLine else currentLine
             self._filelist.setCurrentItem(
                 self._filelist.topLevelItem(self._currentLine))
             self.show()
@@ -278,5 +279,5 @@ class Fileswitcher(QDialog):
         if event.key() == Qt.Key_Control:
             core.workspace().setCurrentDocument(
                 self._filestack[self._currentLine])
-            self._currentLine = None
+            self._currentLine = 0
             self.hide()

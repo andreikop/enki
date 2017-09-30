@@ -15,6 +15,7 @@ https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 # TODO Think about features and design ui
 # TODO Settings page
 # TODO Cleanup code (Terminate plugin, etc.)
+# TODO Make it easy to create your own plugin, that I can get start with plugin development fast.
 # MAYBE checkbox if plugin is activated
 
 import os
@@ -36,8 +37,8 @@ from enki.core.uisettings import CheckableOption
 _PLUGIN_DIR_PATH = os.path.join(CONFIG_DIR, 'userplugins')
 
 
-class SettingsPage(QWidget):
-    """Settings page for File Switcher plugin"""
+class Plugins(QWidget):
+    """Settings page for the installed plugins"""
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         text = """
