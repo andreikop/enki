@@ -1,0 +1,11 @@
+- [x] Proof of Concept
+- [ ] Study packagecontrol, atom, kate and vscode
+- [ ] Think about features and design ui
+- [x] Settings page
+- [x] Enable a plugin
+- [x] Disable plugin
+- [x] Delete a plugin
+- [x] Cleanup code (Terminate plugin, etc.)
+- [ ] Create tests
+- [ ] Updaete self._userPlugins when settingspage get opened
+- [ ] Make it easy to create your own plugin, that I can get start with plugin development fast.
