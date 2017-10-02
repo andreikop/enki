@@ -29,7 +29,7 @@ from enki.core.core import core
 from enki.core.defines import CONFIG_DIR
 
 from .constants import PLUGIN_DIR_PATH, ICON_PATH
-from .helper import create_UE, loadPlugin, unloadPlugin, deletePlugin
+from .helper import create_UE, loadPlugin
 from .pluginspage import PluginsPage
 
 
@@ -49,6 +49,12 @@ class Plugin:
         self._checkSettings()
         core.uiSettingsManager().aboutToExecute.connect(
              self._onSettingsDialogAboutToExecute)
+
+    def terminate(self):
+        """clean up"""
+        core.uiSettingsManager().aboutToExecute.disconnect(
+          self._onSettingsDialogAboutToExecute)
+
     def _initPlugins(self):
         """Loads all userplugins and returns them as a ListOfUserpluginEntry"""
         userPlugins = []
@@ -95,11 +101,6 @@ class Plugin:
         if not os.path.exists(initPath):
             open(initPath, 'a').close()
         sys.path.append(CONFIG_DIR)
-
-    def terminate(self):
-        """clean up"""
-        core.uiSettingsManager().aboutToExecute.disconnect(
-             self._onSettingsDialogAboutToExecute)
 
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.

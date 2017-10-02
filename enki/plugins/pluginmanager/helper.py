@@ -50,9 +50,9 @@ def unloadPlugin(pluginEntry):
     """
     if pluginEntry['isLoaded'] is False and \
         pluginEntry['plugin'] is not None:
-        pluginEntry['plugin'].terminate()
         idx = core.loadedPlugins().index(pluginEntry['plugin'])
-        core.loadedPlugins().pop(idx)
+        plugin = core.loadedPlugins().pop(idx)
+        plugin.terminate()
         pluginEntry['plugin'] = None
     return pluginEntry
 

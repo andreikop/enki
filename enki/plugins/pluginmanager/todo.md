@@ -6,6 +6,8 @@
 - [x] Disable plugin
 - [x] Delete a plugin
 - [x] Cleanup code (Terminate plugin, etc.)
+- [x] Move my own plugins to userplugins directory
 - [ ] Create tests
-- [ ] Updaete self._userPlugins when settingspage get opened
+- [ ] look out that label with docstring is not getting wider than window.
+- [ ] Update self._userPlugins when settingspage get opened
 - [ ] Make it easy to create your own plugin, that I can get start with plugin development fast.

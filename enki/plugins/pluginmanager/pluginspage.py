@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import (QDialog, QWidget, QHBoxLayout, QGroupBox, QStyle,
                              QScrollArea, QMessageBox)
 from enki.core.core import core
 from .constants import PLUGIN_DIR_PATH
+from .helper import loadPlugin, unloadPlugin, deletePlugin
 
 class PluginsPage(QWidget):
     """Settings page for the installed plugins"""
@@ -24,9 +25,9 @@ class PluginsPage(QWidget):
 
         vbox = QVBoxLayout()
         vbox.addWidget(QLabel(
-            """<h2>Installed Plugins</h2>
+            """<h2>Installed Plugins <code>%i</code></h2>
             <p>Add plugins by putting them into <code>%s</code></p>
-            <p><\p>""" % PLUGIN_DIR_PATH))
+            <p><\p>""" % (len(userPlugins), PLUGIN_DIR_PATH)))
         for entry in userPlugins:
             vbox.addWidget(PluginTitlecard(entry))
         vbox.addStretch(1)
