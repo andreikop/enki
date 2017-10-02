@@ -13,9 +13,13 @@ https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 # DONE Proof of Concept
 # TODO Study packagecontrol, atom, kate and vscode
 # TODO Think about features and design ui
-# TODO Settings page
+# DONE Settings page
+# TODO Delete a plugin
+# TODO Enable a plugin
+# TODO Disable plugin
 # TODO Cleanup code (Terminate plugin, etc.)
-# TODO Make it easy to create your own plugin, that I can get start with plugin development fast.
+# TODO Make it easy to create your own plugin, 
+#      that I can get start with plugin development fast.
 # MAYBE checkbox if plugin is activated
 
 import os
@@ -23,10 +27,11 @@ import pkgutil
 import sys
 import importlib
 from os.path import expanduser, isdir
+from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QDialog, QTreeWidget, QTreeWidgetItem, QWidget,
-                             QCheckBox, QVBoxLayout, QSpacerItem, QSizePolicy,
-                             QLabel)
+from PyQt5.QtWidgets import (QDialog, QWidget, QHBoxLayout, QGroupBox, QStyle,
+                             QVBoxLayout, QLabel, QDialogButtonBox,
+                             QScrollArea, QMessageBox)
 from PyQt5.QtGui import QFontMetrics
 
 from enki.core.core import core
@@ -35,39 +40,75 @@ from enki.core.uisettings import CheckableOption
 
 # use userplugins to differentiate from plugins namespace that come with enki
 _PLUGIN_DIR_PATH = os.path.join(CONFIG_DIR, 'userplugins')
+_ICON_PATH = os.path.join(os.path.dirname(
+    os.path.abspath(__file__)), 'icon.svg')
+print(_ICON_PATH)
 
+# Data Definitions
+# ==================
+# userpluginEntry consist of
+# {'plugin': Module,
+#  'isloaded': Bool,
+#  'name': String,
+#  'author': String,
+#  'version': String,
+#  'doc': String}
+#
+# ListOfUserpluginEntry is one of:
+# - []
+# - lou.append(userpluginEntry)
 
-class Plugins(QWidget):
-    """Settings page for the installed plugins"""
-    def __init__(self, parent):
-        QWidget.__init__(self, parent)
-        text = """
-            <h2>File Switcher</h2>
-            <p>The File Switcher plugin let's you switch through your files.
-            <br />In the style of the Opera web browser it stacks the files in
-            <br />the order of last used files.</p>
-            <p>Cycle through the list with <code>Ctrl+Tab</code> (last viewed
-            file) and<br /><code>Ctrl+Shift+Tab</code> (first viewed file).</p>
-            <p>Note: On macOS, use the Command key instad of the Ctrl key.</p>
-            <p></p>"""
-        self._label = QLabel(text, self)
-        self.checkbox = QCheckBox('Enable File Switcher')
-        self._layout = QVBoxLayout(self)
-        self._layout.addWidget(self._label)
-        self._layout.addWidget(self.checkbox)
-        self._layout.addSpacerItem(QSpacerItem(0, 0,
-                                               QSizePolicy.MinimumExpanding,
-                                               QSizePolicy.MinimumExpanding))
-
+def create_UE(plugin, isLoaded, name, author, version, doc ):
+    """Create a new userpluginEntry"""
+    return {'plugin': plugin,
+            'isLoaded': isLoaded,
+            'name': name,
+            'author': author,
+            'version': version,
+            'doc': doc}
 
 class Plugin:
     """Plugin interface implementation
 
-    This plugin creates a dialog that let's you switch through the opened
-    files with the last used file first.
+    Activate, Deactivate and Uninstall plugins in your user directory.
     """
     def __init__(self):
         """Setup settings and activate plugin, if feasable."""
+        self._userPlugins = [] # of type ListOfUserpluginEntry
+        self._checkPaths()
+        self._userPlugins = self._loadPlugins()
+
+        self._checkSettings()
+        core.uiSettingsManager().aboutToExecute.connect(
+             self._onSettingsDialogAboutToExecute)
+        # core.uiSettingsManager().dialogAccepted.connect(
+        #     self._onSettingsDialogAccepted)
+
+    def _loadPlugins(self):
+        """Loads all userplugins and returns them as a ListOfUserpluginEntry"""
+        userPlugins = []
+        for loader, name, isPackage in pkgutil.iter_modules([_PLUGIN_DIR_PATH]):
+            userPlugins.append(self._loadPlugin(name))
+        return userPlugins
+
+    def _loadPlugin(self, name):
+        """Load plugin by it's module name
+        """
+        module = importlib.import_module('userplugins.%s' % name)
+        core.loadedPlugins().append(module.Plugin()) # TODO check if plugin is activated by user
+        return create_UE(
+            module,
+            False,
+            module.__pluginname__,
+            module.__author__,
+            module.__version__,
+            module.__doc__
+        )
+
+    def _checkPaths(self):
+        """Checks if all neccessary paths a present and if not
+        creates them
+        """
         initPath = os.path.join(_PLUGIN_DIR_PATH,"__init__.py")
         if not os.path.isdir(_PLUGIN_DIR_PATH):
             os.makedirs(_PLUGIN_DIR_PATH)
@@ -76,36 +117,10 @@ class Plugin:
             open(initPath, 'a').close()
         sys.path.append(CONFIG_DIR)
 
-        for loader, name, isPackage in pkgutil.iter_modules([_PLUGIN_DIR_PATH]):
-            self._loadPlugin(name)
-            # try to profile
-
-    def _loadPlugin(self, name):
-        """Load plugin by it's module name
-        """
-        module = importlib.import_module('userplugins.%s' % name)
-        core.loadedPlugins().append(module.Plugin())
-
-        # core._loadPlugin
-        # core.loadedPlugins
-        #
-
-        # self._fileswitcher = None
-        # self._checkSettings()
-        # core.uiSettingsManager().aboutToExecute.connect(
-        #     self._onSettingsDialogAboutToExecute)
-        # core.uiSettingsManager().dialogAccepted.connect(
-        #     self._onSettingsDialogAccepted)
-        #
-        # if self._isFileswitcherActive():
-        #     self._activate()
-
     def terminate(self):
         """clean up"""
-        pass
-        # self._removeActions()
-        # core.uiSettingsManager().aboutToExecute.disconnect(
-        #     self._onSettingsDialogAboutToExecute)
+        core.uiSettingsManager().aboutToExecute.disconnect(
+             self._onSettingsDialogAboutToExecute)
 
     def _activate(self):
         """Create the dialog, add actions to the main menu."""
@@ -125,186 +140,132 @@ class Plugin:
 
     def _addActions(self):
         """Add actions to main menu"""
-        forwardAction = core.actionManager().addAction(
-            "mNavigation/aForwardSwitch",
-            "Switch file forward",
-            shortcut="Ctrl+Tab")
-        backwardAction = core.actionManager().addAction(
-            "mNavigation/aBackwardSwitch",
-            "Switch file back",
-            shortcut="Ctrl+Shift+Tab")
-        forwardAction.triggered.connect(self._onForwardAction)
-        backwardAction.triggered.connect(self._onBackwardAction)
-        self._forwardAction = forwardAction
-        self._backwardAction = backwardAction
+        pass
 
     def _removeActions(self):
         """Remove actions from mein menu"""
-        core.actionManager().removeAction(self._forwardAction)
-        core.actionManager().removeAction(self._backwardAction)
-
-    def _onForwardAction(self):
-        self._fileswitcher.showFileswitcher(1)
-
-    def _onBackwardAction(self):
-        self._fileswitcher.showFileswitcher(
-            self._fileswitcher.filestackLength() - 1)
-
-    def _onDocumentOpenedOrClosed(self):
-        # update view menu
-        moreThanOneDocument = len(core.workspace().documents()) > 0
-        core.actionManager().action("mNavigation/aForwardSwitch").setEnabled(
-            moreThanOneDocument)
-        core.actionManager().action("mNavigation/aBackwardSwitch").setEnabled(
-            moreThanOneDocument)
+        pass
 
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.
-        Add own options
         """
-        page = SettingsPage(dialog)
-        dialog.appendPage(u"File Switcher", page)
-
-        # Options
-        dialog.appendOption(CheckableOption(dialog, core.config(),
-                                            "Fileswitcher/Active",
-                                            page.checkbox))
+        pluginsPage = PluginsPage(dialog, self._userPlugins)
+        dialog.appendPage(u"Plugins", pluginsPage,
+            QIcon.fromTheme("preferences-plugin", QIcon(_ICON_PATH)))
 
     def _onSettingsDialogAccepted(self):
-        if self._isFileswitcherActive():
-            if self._fileswitcher is None:
-                self._activate()
-        else:
-            if self._fileswitcher is not None:
-                self._deactivate()
+        pass
 
     def _checkSettings(self):
         """Check if settings are present in the core configuration file,
-        else create and return them.
+        else create them.
         """
-        if "Fileswitcher" not in core.config():
-            core.config()["Fileswitcher"] = {}
-            core.config()["Fileswitcher"]["Active"] = False
-        return core.config()["Fileswitcher"]["Active"]
-
-    def _isFileswitcherActive(self):
-        """Return if file switcher is enabled"""
-        return core.config()["Fileswitcher"]["Active"]
+        if "PluginManager" not in core.config():
+            core.config()["PluginManager"] = {}
 
 
-class Fileswitcher(QDialog):
-    """The Fileswitcher dialog provide a user interface to select the last
-    viewed file.
-    """
-    def __init__(self, parent):
-        """Setups the layout of the Fileswitcher dialog and connects
-        the events."""
-        super(Fileswitcher, self).__init__(parent)
-        self._filestack = list()
-        self.populateFilestack()
+class PluginsPage(QWidget):
+    """Settings page for the installed plugins"""
+    def __init__(self, parent, userPlugins):
+        QWidget.__init__(self, parent)
+        self._userPlugins = userPlugins
 
-        self.resize(600, 300)
-        self.setModal(True)
-        self.setWindowTitle("File Switcher")
-        biggerFont = self.font()
-        biggerFont.setPointSizeF(biggerFont.pointSizeF() * 1.5)
-        self.setFont(biggerFont)
-        width = QFontMetrics(self.font()).width('x' * 96)
-        self.resize(width, width * 0.62)
+        # Add a scrollArea that if they are more plugins that fit into the
+        # settings page
+        scrollArea = QScrollArea(self)
+        scrollArea.setWidgetResizable(True)
+        baseLayout = QVBoxLayout()
+        self.setLayout(baseLayout)
+        baseWidget = QWidget()
+        scrollArea.setWidget(baseWidget)
+        baseLayout.addWidget(scrollArea)
 
-        vboxLayout = QVBoxLayout(self)
-        filelist = QTreeWidget(self)
-        filelist.setColumnCount(2)
-        filelist.setHeaderLabels(["Name", "Path"])
-        filelist.setRootIsDecorated(False)
-        filelist.setAlternatingRowColors(True)
-        filelist.header().setFont(biggerFont)
-        filelist.setFont(biggerFont)
-        vboxLayout.addWidget(filelist)
+        vbox = QVBoxLayout()
+        vbox.addWidget(QLabel(
+            """<h2>Installed Plugins</h2>
+            <p>Add plugins by putting them into <code>%s</code></p>
+            <p><\p>""" % _PLUGIN_DIR_PATH))
+        for entry in userPlugins:
+            vbox.addWidget(PluginTitlecard(entry))
+        vbox.addStretch(1)
+        baseWidget.setLayout(vbox)
 
-        core.workspace().documentOpened.connect(self._onDocumentOpened)
-        core.workspace().documentClosed.connect(self._onDocumentClosed)
-        core.workspace().currentDocumentChanged.connect(
-            self._onDocumentChanged)
+class PluginTitlecard(QGroupBox):
+    def __init__(self, pluginEntry):
+        super().__init__()
+        self._pluginEntry = pluginEntry
+        self.setMaximumHeight(150)
 
-        self._filelist = filelist
+        bottom = QWidget()
+        hbox = QHBoxLayout()
+        bottom_label = QLabel(pluginEntry["author"])
+        bottom_label.setMargin(0)
+        bottom_label.setIndent(0)
+        hbox.addWidget(bottom_label)
+        button_box = QDialogButtonBox(self)
 
-    def filestackLength(self):
-        """Returns the number of files in the Fileswitcher."""
-        return len(self._filestack)
+        self.startStopButton = button_box.addButton(
+            'Enable', QDialogButtonBox.DestructiveRole
+        )
+        self.startStopButton.setCheckable(True)
+        self._setStartStopButton()
+        self.startStopButton.clicked.connect(self._onStartStopButtonClicked)
 
-    def showFileswitcher(self, currentLine=1):
-        """Displays the dialog"""
-        if self.filestackLength() > 0:
-            self._filelist.clear()
-            for document in self._filestack:
-                self._filelist.addTopLevelItem(
-                    QTreeWidgetItem((
-                        document.fileName(),
-                        document.filePath().replace(expanduser("~"),
-                                                    "~"))))
-            self._filelist.resizeColumnToContents(0)
+        uninstallButton = button_box.addButton(
+            'Uninstall', QDialogButtonBox.ActionRole
+        )
+        uninstallButton.setIcon(
+            self.style().standardIcon(getattr(QStyle,'SP_TrashIcon'))
+        )
+        uninstallButton.clicked.connect(self._onUninstallButtonClicked)
 
-            self._currentLine = self.filestackLength() - 1 \
-                if self.filestackLength() >= currentLine else currentLine
-            self._filelist.setCurrentItem(
-                self._filelist.topLevelItem(self._currentLine))
-            self.show()
+        hbox.addWidget(button_box)
+        bottom.setLayout(hbox)
+        bottom.setContentsMargins(0,0,0,0)
 
-    def populateFilestack(self):
-        """Populates the filestack from the files opened in the
-        current workspace. No special order is preserved. It uses
-        the order given by core.workspace().documents().
-        This method is neccessary, if the File Switcher plugin
-        is activated in the settings page, after files are
-        already opend in Enki."""
-        for document in core.workspace().documents():
-            self._filestack.insert(0, document)
+        vbox = QVBoxLayout()
+        vbox.addWidget(QLabel("""
+            <h2>%s <small>%s</small></h2>
+            <p>%s</p>
+            <p></p>""" %
+            (pluginEntry["name"], pluginEntry["version"], pluginEntry["doc"])))
+        vbox.addWidget(bottom)
 
-    def _onDocumentOpened(self, document):
-        """Insertes the opened document at the top of the filestack"""
-        self._filestack.insert(0, document)
+        self.setLayout(vbox)
 
-    def _onDocumentClosed(self, document):
-        """Remove the closed document from the filestack"""
-        idx = self._filestack.index(document)
-        self._filestack.pop(idx)
+    def _onUninstallButtonClicked(self):
+        msgBox = QMessageBox(QMessageBox.Warning,
+            "Uninstall erases the %s plugin permanently from your disk." % \
+                self._pluginEntry["name"],
+            """Do you really want to delete the %s plugin from your disk.
+            have to reinstall it, if you want to use it again.""" % \
+                self._pluginEntry["name"]
+        )
+        okButton = msgBox.addButton("Uninstall", QMessageBox.AcceptRole)
+        cancelButton = msgBox.addButton("Cancel", QMessageBox.RejectRole)
+        cancelButton.setIcon(self._standardIconFromStyle('SP_DialogCancelButton'))
+        msgBox.setDefaultButton(cancelButton)
+        if msgBox.exec() == 0:
+            self.setParent(None)
+            # Terminate plugin
+            # delete plugin from disk
 
-    def _onDocumentChanged(self, old, new):
-        """Moves the active document to the front of the filestack"""
-        try:
-            idx = self._filestack.index(new)
-            self._filestack.pop(idx)
-            self._filestack.insert(0, new)
-        except ValueError as e:
-            print("New document couldn't be found")
-            print(e)
+    def _standardIconFromStyle(self, iconName):
+        return self.style().standardIcon(getattr(QStyle, iconName))
 
-    def keyPressEvent(self, event):
-        """Cycles through the list of files, if Ctrl+Tab or
-        Ctrl+Shift+Tab is pressed.
-        """
-        if event.modifiers() & Qt.CTRL and event.key() == Qt.Key_Tab:
-            print(event.modifiers())
-            if self._currentLine < self._filelist.topLevelItemCount() - 1:
-                self._currentLine += 1
-            else:
-                self._currentLine = 0
-            self._filelist.setCurrentItem(
-                self._filelist.topLevelItem(self._currentLine))
+    def _onStartStopButtonClicked(self):
+        self._pluginEntry['isLoaded'] = False \
+            if self._pluginEntry['isLoaded'] is True else True
+        self._setStartStopButton()
 
-        elif event.modifiers() & Qt.CTRL and event.key() == Qt.Key_Backtab:
-            if self._currentLine > 0:
-                self._currentLine -= 1
-            else:
-                self._currentLine = self._filelist.topLevelItemCount() - 1
-            self._filelist.setCurrentItem(
-                self._filelist.topLevelItem(self._currentLine))
-
-    def keyReleaseEvent(self, event):
-        """Hide the dialog if the Ctrl key is released."""
-        if event.key() == Qt.Key_Control:
-            core.workspace().setCurrentDocument(
-                self._filestack[self._currentLine])
-            self._currentLine = None
-            self.hide()
+    def _setStartStopButton(self):
+        if self._pluginEntry['isLoaded'] is True:
+            self.startStopButton.setText("Disable")
+            self.startStopButton.setIcon(self.style().standardIcon(getattr(QStyle,'SP_MediaPause')))
+            self.startStopButton.setDown(True)
+            # Terminate plugin
+        else:
+            self.startStopButton.setText("Enable")
+            self.startStopButton.setIcon(self.style().standardIcon(getattr(QStyle,'SP_MediaPlay')))
+            self.startStopButton.setDown(False)
+            # load plugin
