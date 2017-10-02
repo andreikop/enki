@@ -16,7 +16,7 @@ https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 # DONE Settings page
 # DONE Enable a plugin
 # DONE Disable plugin
-# TODO Delete a plugin
+# DONE Delete a plugin
 # TODO Cleanup code (Terminate plugin, etc.)
 # TODO Create tests
 # TODO Make it easy to create your own plugin,
@@ -44,7 +44,6 @@ from enki.core.uisettings import CheckableOption
 _PLUGIN_DIR_PATH = os.path.join(CONFIG_DIR, 'userplugins')
 _ICON_PATH = os.path.join(os.path.dirname(
     os.path.abspath(__file__)), 'icon.svg')
-print(_ICON_PATH)
 
 # Data Definitions
 # ==================
@@ -86,7 +85,8 @@ def unloadPlugin(pluginEntry):
     """Load the plugin into core._loadedPlugins, based on it's 'isLoaded'
     return pluginEntry
     """
-    if pluginEntry['isLoaded'] == False:
+    if pluginEntry['isLoaded'] is False and \
+        pluginEntry['plugin'] is not None:
         pluginEntry['plugin'].terminate()
         idx = core.loadedPlugins().index(pluginEntry['plugin'])
         core.loadedPlugins().pop(idx)
@@ -95,7 +95,16 @@ def unloadPlugin(pluginEntry):
 
 def deletePlugin(pluginEntry):
     """Delete the plugin directory or file"""
-    pass #shutil.rmtree(os.path.join())
+    unloadPlugin(pluginEntry)
+    dirpath = os.path.join(_PLUGIN_DIR_PATH, pluginEntry["modulename"])
+    filepath = os.path.join(_PLUGIN_DIR_PATH, pluginEntry["modulename"] + '.py')
+    if  isdir(dirpath):
+        shutil.rmtree(dirpath)
+    elif os.path.exists(filepath):
+        os.remove(filepath)
+    else:
+        print("Could not find module %s. Did not delete anything." %
+            pluginEntry["modulename"])
 
 class Plugin:
     """Plugin interface implementation
@@ -137,7 +146,6 @@ class Plugin:
             module.__version__,
             module.__doc__
         )
-        print(module.__file__)
         loadPlugin(pluginEntry)
         return pluginEntry
 
@@ -169,22 +177,6 @@ class Plugin:
         """clean up"""
         core.uiSettingsManager().aboutToExecute.disconnect(
              self._onSettingsDialogAboutToExecute)
-
-    def _activate(self):
-        """Create the dialog, add actions to the main menu."""
-        self._fileswitcher = Fileswitcher(core.mainWindow())
-        self._addActions()
-        core.workspace().documentOpened.connect(self._onDocumentOpenedOrClosed)
-        core.workspace().documentClosed.connect(self._onDocumentOpenedOrClosed)
-
-    def _deactivate(self):
-        """Destroy the dialog, remove actions from the main menu."""
-        self._fileswitcher = None
-        self._removeActions()
-        core.workspace().documentOpened.disconnect(
-            self._onDocumentOpenedOrClosed)
-        core.workspace().documentClosed.disconnect(
-            self._onDocumentOpenedOrClosed)
 
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.
@@ -290,7 +282,9 @@ class PluginTitlecard(QGroupBox):
         msgBox.setDefaultButton(cancelButton)
         if msgBox.exec() == 0:
             self.setParent(None)
-            unloadPlugin(self._pluginEntry)
+            self._pluginEntry['isLoaded'] = False
+            name = self._pluginEntry['modulename']
+            core.config()["PluginManager"][name]["Enabled"] = False
             deletePlugin(self._pluginEntry)
 
     def _standardIconFromStyle(self, iconName):
@@ -307,7 +301,6 @@ class PluginTitlecard(QGroupBox):
             core.config()["PluginManager"][name]["Enabled"] = True
             loadPlugin(self._pluginEntry)
         self._setStartStopButton()
-        print(core.loadedPlugins())
 
     def _setStartStopButton(self):
         if self._pluginEntry['isLoaded'] is True:
