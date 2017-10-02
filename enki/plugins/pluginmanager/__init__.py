@@ -11,14 +11,14 @@ Released under the GPL2 license
 https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 """
 # DONE Proof of Concept
-# TODO Study packagecontrol, atom, kate and vscode
-# TODO Think about features and design ui
+# DOING Study packagecontrol, atom, kate and vscode
+# DOING Think about features and design ui
 # DONE Settings page
+# DONE Enable a plugin
+# DONE Disable plugin
 # TODO Delete a plugin
-# TODO Enable a plugin
-# TODO Disable plugin
 # TODO Cleanup code (Terminate plugin, etc.)
-# TODO Make it easy to create your own plugin, 
+# TODO Make it easy to create your own plugin,
 #      that I can get start with plugin development fast.
 # MAYBE checkbox if plugin is activated
 
@@ -26,6 +26,7 @@ import os
 import pkgutil
 import sys
 import importlib
+import shutil
 from os.path import expanduser, isdir
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
@@ -47,7 +48,8 @@ print(_ICON_PATH)
 # Data Definitions
 # ==================
 # userpluginEntry consist of
-# {'plugin': Module,
+# {'module': Module
+#  'plugin': Plugin or None,
 #  'isloaded': Bool,
 #  'name': String,
 #  'author': String,
@@ -58,14 +60,37 @@ print(_ICON_PATH)
 # - []
 # - lou.append(userpluginEntry)
 
-def create_UE(plugin, isLoaded, name, author, version, doc ):
+def create_UE(module, isLoaded, modulename, pluginname,
+    author, version, doc, plugin=None):
     """Create a new userpluginEntry"""
-    return {'plugin': plugin,
+    return {'module': module,
+            'plugin': plugin,
             'isLoaded': isLoaded,
-            'name': name,
+            'modulename': modulename,
+            'pluginname': pluginname,
             'author': author,
             'version': version,
             'doc': doc}
+
+def loadPlugin(pluginEntry):
+    """Load the plugin into core._loadedPlugins, based on it's 'isLoaded'
+    return pluginEntry
+    """
+    if pluginEntry['isLoaded'] == True:
+        pluginEntry['plugin'] = pluginEntry['module'].Plugin()
+        core.loadedPlugins().append(pluginEntry['plugin'])
+    return pluginEntry
+
+def unloadPlugin(pluginEntry):
+    """Load the plugin into core._loadedPlugins, based on it's 'isLoaded'
+    return pluginEntry
+    """
+    if pluginEntry['isLoaded'] == False:
+        pluginEntry['plugin'].terminate()
+        idx = core.loadedPlugins().index(pluginEntry['plugin'])
+        core.loadedPlugins().pop(idx)
+        pluginEntry['plugin'] = None
+    return pluginEntry
 
 class Plugin:
     """Plugin interface implementation
@@ -76,7 +101,9 @@ class Plugin:
         """Setup settings and activate plugin, if feasable."""
         self._userPlugins = [] # of type ListOfUserpluginEntry
         self._checkPaths()
-        self._userPlugins = self._loadPlugins()
+        self._checkSettings()
+
+        self._userPlugins = self._initPlugins()
 
         self._checkSettings()
         core.uiSettingsManager().aboutToExecute.connect(
@@ -84,26 +111,42 @@ class Plugin:
         # core.uiSettingsManager().dialogAccepted.connect(
         #     self._onSettingsDialogAccepted)
 
-    def _loadPlugins(self):
+    def _initPlugins(self):
         """Loads all userplugins and returns them as a ListOfUserpluginEntry"""
         userPlugins = []
         for loader, name, isPackage in pkgutil.iter_modules([_PLUGIN_DIR_PATH]):
-            userPlugins.append(self._loadPlugin(name))
+            userPlugins.append(self._initPlugin(name))
         return userPlugins
 
-    def _loadPlugin(self, name):
+    def _initPlugin(self, name):
         """Load plugin by it's module name
+        returns userpluginEntry
         """
         module = importlib.import_module('userplugins.%s' % name)
-        core.loadedPlugins().append(module.Plugin()) # TODO check if plugin is activated by user
-        return create_UE(
+        pluginEntry = create_UE(
             module,
-            False,
+            self._shouldPluginLoad(name),
+            name,
             module.__pluginname__,
             module.__author__,
             module.__version__,
             module.__doc__
         )
+        loadPlugin(pluginEntry)
+        print(dir(pluginEntry['plugin']))
+        return pluginEntry
+
+    def _shouldPluginLoad(self, name):
+        """Consumes a name of a plugin and checks in the settings if it should be loaded.
+           If no setting is available for the plugin, it gets created.
+           Returns the setting (Bool)
+        """
+        if name not in core.config()["PluginManager"]:
+            core.config()["PluginManager"][name] = {}
+        if "Enabled" not in core.config()["PluginManager"][name]:
+            core.config()["PluginManager"][name]["Enabled"] = False
+        return core.config()["PluginManager"][name]["Enabled"]
+
 
     def _checkPaths(self):
         """Checks if all neccessary paths a present and if not
@@ -138,14 +181,6 @@ class Plugin:
         core.workspace().documentClosed.disconnect(
             self._onDocumentOpenedOrClosed)
 
-    def _addActions(self):
-        """Add actions to main menu"""
-        pass
-
-    def _removeActions(self):
-        """Remove actions from mein menu"""
-        pass
-
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.
         """
@@ -162,6 +197,8 @@ class Plugin:
         """
         if "PluginManager" not in core.config():
             core.config()["PluginManager"] = {}
+        if "Plugins" not in core.config()["PluginManager"]:
+            core.config()["PluginManager"]["Plugins"] = {}
 
 
 class PluginsPage(QWidget):
@@ -228,7 +265,8 @@ class PluginTitlecard(QGroupBox):
             <h2>%s <small>%s</small></h2>
             <p>%s</p>
             <p></p>""" %
-            (pluginEntry["name"], pluginEntry["version"], pluginEntry["doc"])))
+            (pluginEntry["pluginname"], pluginEntry["version"],
+             pluginEntry["doc"])))
         vbox.addWidget(bottom)
 
         self.setLayout(vbox)
@@ -236,10 +274,10 @@ class PluginTitlecard(QGroupBox):
     def _onUninstallButtonClicked(self):
         msgBox = QMessageBox(QMessageBox.Warning,
             "Uninstall erases the %s plugin permanently from your disk." % \
-                self._pluginEntry["name"],
+                self._pluginEntry["pluginname"],
             """Do you really want to delete the %s plugin from your disk.
             have to reinstall it, if you want to use it again.""" % \
-                self._pluginEntry["name"]
+                self._pluginEntry["pluginname"]
         )
         okButton = msgBox.addButton("Uninstall", QMessageBox.AcceptRole)
         cancelButton = msgBox.addButton("Cancel", QMessageBox.RejectRole)
@@ -254,18 +292,24 @@ class PluginTitlecard(QGroupBox):
         return self.style().standardIcon(getattr(QStyle, iconName))
 
     def _onStartStopButtonClicked(self):
-        self._pluginEntry['isLoaded'] = False \
-            if self._pluginEntry['isLoaded'] is True else True
+        name = self._pluginEntry['modulename']
+        if self._pluginEntry['isLoaded'] is True:
+            self._pluginEntry['isLoaded'] = False
+            core.config()["PluginManager"][name]["Enabled"] = False
+            unloadPlugin(self._pluginEntry)
+        else:
+            self._pluginEntry['isLoaded'] = True
+            core.config()["PluginManager"][name]["Enabled"] = True
+            loadPlugin(self._pluginEntry)
         self._setStartStopButton()
+        print(core.loadedPlugins())
 
     def _setStartStopButton(self):
         if self._pluginEntry['isLoaded'] is True:
             self.startStopButton.setText("Disable")
             self.startStopButton.setIcon(self.style().standardIcon(getattr(QStyle,'SP_MediaPause')))
             self.startStopButton.setDown(True)
-            # Terminate plugin
         else:
             self.startStopButton.setText("Enable")
             self.startStopButton.setIcon(self.style().standardIcon(getattr(QStyle,'SP_MediaPlay')))
             self.startStopButton.setDown(False)
-            # load plugin
