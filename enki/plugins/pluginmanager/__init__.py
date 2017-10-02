@@ -18,6 +18,7 @@ https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 # DONE Disable plugin
 # TODO Delete a plugin
 # TODO Cleanup code (Terminate plugin, etc.)
+# TODO Create tests
 # TODO Make it easy to create your own plugin,
 #      that I can get start with plugin development fast.
 # MAYBE checkbox if plugin is activated
@@ -92,6 +93,10 @@ def unloadPlugin(pluginEntry):
         pluginEntry['plugin'] = None
     return pluginEntry
 
+def deletePlugin(pluginEntry):
+    """Delete the plugin directory or file"""
+    pass #shutil.rmtree(os.path.join())
+
 class Plugin:
     """Plugin interface implementation
 
@@ -132,8 +137,8 @@ class Plugin:
             module.__version__,
             module.__doc__
         )
+        print(module.__file__)
         loadPlugin(pluginEntry)
-        print(dir(pluginEntry['plugin']))
         return pluginEntry
 
     def _shouldPluginLoad(self, name):
@@ -285,8 +290,8 @@ class PluginTitlecard(QGroupBox):
         msgBox.setDefaultButton(cancelButton)
         if msgBox.exec() == 0:
             self.setParent(None)
-            # Terminate plugin
-            # delete plugin from disk
+            unloadPlugin(self._pluginEntry)
+            deletePlugin(self._pluginEntry)
 
     def _standardIconFromStyle(self, iconName):
         return self.style().standardIcon(getattr(QStyle, iconName))
