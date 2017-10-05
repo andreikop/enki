@@ -11,7 +11,8 @@ https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 __author__ = "Marco Laspe"
 __pluginname__ = "Plugin Manager"
 __copyright__ = "Copyright 2017"
-__credits__ = ["Marco Laspe", "Andrei Kopats", "Filipe Azevedo", "Bryan A. Jones"]
+__credits__ = ["Marco Laspe", "Andrei Kopats",
+               "Filipe Azevedo", "Bryan A. Jones"]
 __license__ = "GPL2"
 __version__ = "0.0.1"
 __maintainer__ = "Marco Laspe"
@@ -22,7 +23,6 @@ import os
 import pkgutil
 import sys
 import importlib
-import shutil
 from PyQt5.QtGui import QIcon
 
 from enki.core.core import core
@@ -40,7 +40,7 @@ class Plugin:
     """
     def __init__(self):
         """Setup settings and activate plugin, if feasable."""
-        self._userPlugins = [] # of type ListOfUserpluginEntry
+        self._userPlugins = []  # of type ListOfUserpluginEntry
         self._checkPaths()
         self._checkSettings()
 
@@ -48,12 +48,12 @@ class Plugin:
 
         self._checkSettings()
         core.uiSettingsManager().aboutToExecute.connect(
-             self._onSettingsDialogAboutToExecute)
+            self._onSettingsDialogAboutToExecute)
 
     def terminate(self):
         """clean up"""
         core.uiSettingsManager().aboutToExecute.disconnect(
-          self._onSettingsDialogAboutToExecute)
+            self._onSettingsDialogAboutToExecute)
 
     def _initPlugins(self):
         """Loads all userplugins and returns them as a ListOfUserpluginEntry"""
@@ -74,27 +74,27 @@ class Plugin:
             module.__pluginname__,
             module.__author__,
             module.__version__,
-            module.__doc__
-        )
+            module.__doc__)
         loadPlugin(pluginEntry)
         return pluginEntry
 
     def _shouldPluginLoad(self, name):
-        """Consumes a name of a plugin and checks in the settings if it should be loaded.
-           If no setting is available for the plugin, it gets created.
-           Returns the setting (Bool)
+        """Consumes a name of a plugin and checks in the settings of it should
+        be loaded.
+        If no setting is available for the plugin, it gets created.
+        Returns the setting (Bool)
         """
-        if name not in core.config()["PluginManager"]:
-            core.config()["PluginManager"][name] = {}
-        if "Enabled" not in core.config()["PluginManager"][name]:
-            core.config()["PluginManager"][name]["Enabled"] = False
-        return core.config()["PluginManager"][name]["Enabled"]
+        if name not in core.config()["PluginManager"]["Plugins"]:
+            core.config()["PluginManager"]["Plugins"][name] = {}
+        if "Enabled" not in core.config()["PluginManager"]["Plugins"][name]:
+            core.config()["PluginManager"]["Plugins"][name]["Enabled"] = False
+        return core.config()["PluginManager"]["Plugins"][name]["Enabled"]
 
     def _checkPaths(self):
         """Checks if all neccessary paths a present and if not
         creates them
         """
-        initPath = os.path.join(PLUGIN_DIR_PATH,"__init__.py")
+        initPath = os.path.join(PLUGIN_DIR_PATH, "__init__.py")
         if not os.path.isdir(PLUGIN_DIR_PATH):
             os.makedirs(PLUGIN_DIR_PATH)
             # create __init__.py in userplugins im neccessary

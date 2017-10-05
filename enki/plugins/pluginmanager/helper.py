@@ -3,8 +3,7 @@
 import os
 import shutil
 from enki.core.core import core
-
-from .constants import *
+from .constants import PLUGIN_DIR_PATH
 
 # Data Definitions
 # ==================
@@ -21,8 +20,9 @@ from .constants import *
 # - []
 # - lou.append(userpluginEntry)
 
+
 def create_UE(module, isLoaded, modulename, pluginname,
-    author, version, doc, plugin=None):
+              author, version, doc, plugin=None):
     """Create a new userpluginEntry"""
     return {'module': module,
             'plugin': plugin,
@@ -33,15 +33,17 @@ def create_UE(module, isLoaded, modulename, pluginname,
             'version': version,
             'doc': doc}
 
+
 def loadPlugin(pluginEntry):
     """Consume a pluginEntry and load the plugin into core._loadedPlugins,
     based on it's 'isLoaded' property
     return pluginEntry
     """
-    if pluginEntry['isLoaded'] == True:
+    if pluginEntry['isLoaded'] is True:
         pluginEntry['plugin'] = pluginEntry['module'].Plugin()
         core.loadedPlugins().append(pluginEntry['plugin'])
     return pluginEntry
+
 
 def unloadPlugin(pluginEntry):
     """Consume a pluginEntry and unload the plugin from core._loadedPlugins,
@@ -49,22 +51,23 @@ def unloadPlugin(pluginEntry):
     return pluginEntry
     """
     if pluginEntry['isLoaded'] is False and \
-        pluginEntry['plugin'] is not None:
+       pluginEntry['plugin'] is not None:
         idx = core.loadedPlugins().index(pluginEntry['plugin'])
         plugin = core.loadedPlugins().pop(idx)
         plugin.terminate()
         pluginEntry['plugin'] = None
     return pluginEntry
 
+
 def deletePlugin(pluginEntry):
     """Consume a pluginEntry and delete the plugin directory or file"""
     unloadPlugin(pluginEntry)
-    dirpath = os.path.join(_PLUGIN_DIR_PATH, pluginEntry["modulename"])
-    filepath = os.path.join(_PLUGIN_DIR_PATH, pluginEntry["modulename"] + '.py')
-    if  os.path.isdir(dirpath):
+    dirpath = os.path.join(PLUGIN_DIR_PATH, pluginEntry["modulename"])
+    filepath = os.path.join(PLUGIN_DIR_PATH, pluginEntry["modulename"] + '.py')
+    if os.path.isdir(dirpath):
         shutil.rmtree(dirpath)
     elif os.path.exists(filepath):
         os.remove(filepath)
     else:
         print("Could not find module %s. Did not delete anything." %
-            pluginEntry["modulename"])
+              pluginEntry["modulename"])
