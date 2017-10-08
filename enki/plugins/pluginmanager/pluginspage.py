@@ -95,11 +95,15 @@ class PluginTitlecard(QGroupBox):
             self._standardIconFromStyle('SP_DialogCancelButton'))
         msgBox.setDefaultButton(cancelButton)
         if msgBox.exec() == 0:
-            self.setParent(None)
-            self._pluginEntry['isLoaded'] = False
-            name = self._pluginEntry['modulename']
-            core.config()["PluginManager"]["Plugins"][name]["Enabled"] = False
-            deletePlugin(self._pluginEntry)
+            self._uninstallPlugin()
+
+    def _uninstallPlugin(self):
+        """Uninstall the the plugin connected to the titlecard"""
+        self.setParent(None)
+        self._pluginEntry['isLoaded'] = False
+        name = self._pluginEntry['modulename']
+        core.config()["PluginManager"]["Plugins"][name]["Enabled"] = False
+        deletePlugin(self._pluginEntry)
 
     def _standardIconFromStyle(self, iconName):
         return self.style().standardIcon(getattr(QStyle, iconName))
