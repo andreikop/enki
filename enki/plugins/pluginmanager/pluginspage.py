@@ -3,6 +3,7 @@
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QGroupBox, QStyle,
                              QVBoxLayout, QLabel, QDialogButtonBox,
                              QScrollArea, QMessageBox)
+from PyQt5.QtCore import Qt
 from enki.core.core import core
 from .constants import PLUGIN_DIR_PATH
 from .helper import loadPlugin, unloadPlugin, deletePlugin
@@ -18,6 +19,7 @@ class PluginsPage(QWidget):
         # settings page
         scrollArea = QScrollArea(self)
         scrollArea.setWidgetResizable(True)
+        scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         baseLayout = QVBoxLayout()
         self.setLayout(baseLayout)
         baseWidget = QWidget()
@@ -39,7 +41,8 @@ class PluginTitlecard(QGroupBox):
     def __init__(self, pluginEntry):
         super().__init__()
         self._pluginEntry = pluginEntry
-        self.setMaximumHeight(150)
+        # Should be set to 150, when there a some kind of info link / button.
+        self.setMaximumHeight(300)
 
         bottom = QWidget()
         hbox = QHBoxLayout()
@@ -68,15 +71,17 @@ class PluginTitlecard(QGroupBox):
         bottom.setLayout(hbox)
         bottom.setContentsMargins(0, 0, 0, 0)
 
-        vbox = QVBoxLayout()
-        vbox.addWidget(QLabel(
+        pluginInfoLabel = QLabel(
             """
             <h2>%s <small>%s</small></h2>
             <p>%s</p>
             <p></p>"""
             % (pluginEntry["pluginname"],
                pluginEntry["version"],
-               pluginEntry["doc"])))
+               pluginEntry["doc"]))
+        pluginInfoLabel.setWordWrap(True)
+        vbox = QVBoxLayout()
+        vbox.addWidget(pluginInfoLabel)
         vbox.addWidget(bottom)
 
         self.setLayout(vbox)

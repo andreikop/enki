@@ -5,15 +5,15 @@ plugin manager --- Enki package manager that makes it simple to find,
                    install and keep packages up-to-date.
 =====================================================================
 
-Released under the GPL2 license
-https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
+Released under the GPL3 license
+https://www.gnu.org/licenses/old-licenses/gpl-3.0.en.html
 """
 __author__ = "Marco Laspe"
 __pluginname__ = "Plugin Manager"
 __copyright__ = "Copyright 2017"
 __credits__ = ["Marco Laspe", "Andrei Kopats",
                "Filipe Azevedo", "Bryan A. Jones"]
-__license__ = "GPL2"
+__license__ = "GPL3"
 __version__ = "0.0.1"
 __maintainer__ = "Marco Laspe"
 __email__ = "marco@rockiger.com"
