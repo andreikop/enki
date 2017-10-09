@@ -54,7 +54,7 @@ class Plugin:
         core.uiSettingsManager().aboutToExecute.disconnect(
             self._onSettingsDialogAboutToExecute)
 
-    def _initPlugins(self, userPluginsInit = []):
+    def _initPlugins(self, userPluginsInit=[]):
         """Loads all userplugins and returns them as a ListOfUserpluginEntry"""
         userPlugins = userPluginsInit
         for loader, name, isPackage in pkgutil.iter_modules([PLUGIN_DIR_PATH]):
@@ -107,7 +107,9 @@ class Plugin:
         """
         self._initPlugins(self._userPlugins)
         pluginsPage = PluginsPage(dialog, self._userPlugins)
-        dialog.appendPage(u"Plugins", pluginsPage,
+        dialog.appendPage(
+            u"Plugins",
+            pluginsPage,
             QIcon.fromTheme("preferences-plugin", QIcon(ICON_PATH)))
 
     def _onSettingsDialogAccepted(self):

@@ -72,6 +72,7 @@ def deletePlugin(pluginEntry):
         print("Could not find module %s. Did not delete anything." %
               pluginEntry["modulename"])
 
+
 def inUserPlugins(modulename, lope):
     """String ListOfUserpluginEntry -> Bool
     Consumes a modulename and a list of pluginEntrys
