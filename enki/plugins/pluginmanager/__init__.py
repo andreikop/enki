@@ -29,7 +29,7 @@ from enki.core.core import core
 from enki.core.defines import CONFIG_DIR
 
 from .constants import PLUGIN_DIR_PATH, ICON_PATH
-from .helper import create_UE, loadPlugin
+from .helper import create_UE, loadPlugin, inUserPlugins
 from .pluginspage import PluginsPage
 
 
@@ -46,7 +46,6 @@ class Plugin:
 
         self._userPlugins = self._initPlugins()
 
-        self._checkSettings()
         core.uiSettingsManager().aboutToExecute.connect(
             self._onSettingsDialogAboutToExecute)
 
@@ -55,11 +54,12 @@ class Plugin:
         core.uiSettingsManager().aboutToExecute.disconnect(
             self._onSettingsDialogAboutToExecute)
 
-    def _initPlugins(self):
+    def _initPlugins(self, userPluginsInit = []):
         """Loads all userplugins and returns them as a ListOfUserpluginEntry"""
-        userPlugins = []
+        userPlugins = userPluginsInit
         for loader, name, isPackage in pkgutil.iter_modules([PLUGIN_DIR_PATH]):
-            userPlugins.append(self._initPlugin(name))
+            if not inUserPlugins(name, userPlugins):
+                userPlugins.append(self._initPlugin(name))
         return userPlugins
 
     def _initPlugin(self, name):
@@ -105,6 +105,7 @@ class Plugin:
     def _onSettingsDialogAboutToExecute(self, dialog):
         """UI settings dialogue is about to execute.
         """
+        self._initPlugins(self._userPlugins)
         pluginsPage = PluginsPage(dialog, self._userPlugins)
         dialog.appendPage(u"Plugins", pluginsPage,
             QIcon.fromTheme("preferences-plugin", QIcon(ICON_PATH)))

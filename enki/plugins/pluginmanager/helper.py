@@ -71,3 +71,13 @@ def deletePlugin(pluginEntry):
     else:
         print("Could not find module %s. Did not delete anything." %
               pluginEntry["modulename"])
+
+def inUserPlugins(modulename, lope):
+    """String ListOfUserpluginEntry -> Bool
+    Consumes a modulename and a list of pluginEntrys
+    return True if ListOfUserpluginEntry has PluginEntry with modulename
+    """
+    for pluginEntry in lope:
+        if pluginEntry["modulename"] == modulename:
+            return True
+    return False

@@ -9,7 +9,7 @@
 - [x] Move my own plugins to userplugins directory
 - [x] Create tests
 - [x] look out that label with docstring is not getting wider than window and that it is getting big enough - basically like a web browser would do
-- [ ] Update self._userPlugins when settingspage get opened
+- [x] Update plugin list when settingspage gets opened
 - [ ] think about switching to json for meta information
 - [ ] Make it easy to create your own plugin, that I can get start with plugin development fast.
 - [ ] Download plugins from repo, repo and download page

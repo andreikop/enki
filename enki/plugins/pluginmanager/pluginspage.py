@@ -117,11 +117,11 @@ class PluginTitlecard(QGroupBox):
         name = self._pluginEntry['modulename']
         if self._pluginEntry['isLoaded'] is True:
             self._pluginEntry['isLoaded'] = False
-            core.config()["PluginManager"]["Plugins"][name]["Enabled"] = False
+            self._disablePluginInConfig(name)
             unloadPlugin(self._pluginEntry)
         else:
             self._pluginEntry['isLoaded'] = True
-            core.config()["PluginManager"]["Plugins"][name]["Enabled"] = True
+            self._enablePluginInConfig(name)
             loadPlugin(self._pluginEntry)
         self._setStartStopButton()
 
@@ -136,3 +136,24 @@ class PluginTitlecard(QGroupBox):
             self.startStopButton.setIcon(self.style().standardIcon(
                 getattr(QStyle, 'SP_MediaPlay')))
             self.startStopButton.setDown(False)
+
+    def _enablePluginInConfig(self, name):
+        """String -> Bool
+        Consumes the name of a plugin and enables it in the config"""
+        return self._togglePluginInConfig(name, True)
+
+    def _disablePluginInConfig(self, name):
+        """String -> Bool
+        Consumes the name of a plugin and disables it in the config"""
+        return self._togglePluginInConfig(name, False)
+
+    def _togglePluginInConfig(self, name, state):
+        """String Bool -> Bool
+        Consumes a name of a plugin and a state, sets the setting to state.
+        If no setting is available for the plugin, it gets created.
+        Returns the setting (Bool)
+        """
+        if name not in core.config()["PluginManager"]["Plugins"]:
+            core.config()["PluginManager"]["Plugins"][name] = {}
+        core.config()["PluginManager"]["Plugins"][name]["Enabled"] = state
+        return core.config()["PluginManager"]["Plugins"][name]["Enabled"]

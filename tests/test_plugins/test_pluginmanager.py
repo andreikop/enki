@@ -49,34 +49,12 @@ class OnePluginPluginsPage(_BaseTestCase):
     """Test the PluginsPage if one plugin is in the userplugins directory."""
 
     def setUp(self):
-        self._createPlugin()
+        createPlugin()
         super().setUp()
 
-    def _createPlugin(self, num=0):
-        """Delete the testplugin directory, optional parameter for different naming
-        """
-        dirpath = os.path.join(PLUGIN_DIR_PATH, 'testplugin%i' % num)
-        filepath = os.path.join(dirpath, "__init__.py")
-
-        if not os.path.exists(filepath):
-            os.makedirs(dirpath)
-        with codecs.open(filepath, 'wb', encoding='utf8') as file_:
-            file_.write(_FILETEXT)
-
     def tearDown(self):
-        self._deletePlugin()
-        #super().tearDown()
-
-    def _deletePlugin(self, num=0):
-        """Delete the testplugin directory, optional parameter for different naming
-        """
-        pluginname = 'testplugin%i' % num
-        dirpath = os.path.join(PLUGIN_DIR_PATH, pluginname)
-        if os.path.isdir(dirpath):
-            shutil.rmtree(dirpath)
-        else:
-            print("Could not find module %s. Did not delete anything."
-                  % pluginname)
+        deletePlugin()
+        #super().tearDown() - otherwise we get an ValueError in core.term()
 
     def testOpenPage(self):
         """Test if information on Pluginspage with one plugin is present"""
@@ -164,6 +142,57 @@ class OnePluginPluginsPage(_BaseTestCase):
         self.openSettings(continueFunc)
 
 
+class TwoPluginPluginsPage(_BaseTestCase):
+    """Test the PluginsPage if one plugin is in the userplugins directory."""
+
+    def setUp(self):
+        createPlugin()
+        super().setUp()
+
+    def tearDown(self):
+        deletePlugin()
+        deletePlugin(1)
+        #super().tearDown() - otherwise we get an ValueError in core.term()
+
+    def testOpenPage(self):
+        """Test if plugin get's loaded if it is copied to
+        ~/.config/enki/userplugins after the enki is started and before
+        enki setting are loaded """
+        createPlugin(1)
+        def continueFunc(dialog):
+            page = dialog._pageForItem["Plugins"]
+            userPlugins = page._userPlugins
+            self.assertEqual(len(userPlugins), 2)
+            QTest.keyClick(dialog, Qt.Key_Enter)
+
+        self.openSettings(continueFunc)
+
+
+def createPlugin(num=0):
+    """Delete the testplugin directory, optional parameter for different naming
+    """
+    dirpath = os.path.join(PLUGIN_DIR_PATH, 'testplugin%i' % num)
+    filepath = os.path.join(dirpath, "__init__.py")
+
+    if not os.path.exists(filepath):
+        os.makedirs(dirpath)
+    with codecs.open(filepath, 'wb', encoding='utf8') as file_:
+        file_.write(_FILETEXT)
+
+
+
+def deletePlugin(num=0):
+    """Delete the testplugin directory, optional parameter for different naming
+    """
+    pluginname = 'testplugin%i' % num
+    dirpath = os.path.join(PLUGIN_DIR_PATH, pluginname)
+    if os.path.isdir(dirpath):
+        shutil.rmtree(dirpath)
+    else:
+        print("Could not find module %s. Did not delete anything."
+              % pluginname)
+
+
 _FILETEXT = """
 \"\"\"Docstring of Testplugin\"\"\"
 __author__ = "Test Author"
@@ -182,6 +211,7 @@ class Plugin:
     def terminate(self):
         pass
 """
+
 
 if __name__ == '__main__':
     unittest.main()
